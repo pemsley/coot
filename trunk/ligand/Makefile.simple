@@ -1,0 +1,46 @@
+
+# Cambridge
+# MMDB    = $(HOME)/build
+# CLIPPER = $(HOME)/crystal/clipper
+# MCCP4   = $(HOME)/crystal/clipper/mccp4-0.6.3
+
+# York
+MMDB    = $(HOME)/mapview
+# CLIPPER = $(HOME)/mapview
+CLIPPER = $(HOME)/test/install
+MCCP4   = $(HOME)/mapview
+
+
+CPPFLAGS = -g
+CXXFLAGS = -I. -I$(MMDB)/include -I$(CLIPPER)/include -I$(MCCP4)/include \
+	   -I../coords
+
+LDFLAGS = \
+	-L$(MMDB)/lib -lmmdb \
+	-L$(CLIPPER)/lib -lclipper-mtz -lclipper-contrib -lclipper-core \
+	-L$(CLIPPER)/fftw/lib -lrfftw -lfftw \
+	-L$(MCCP4)/lib -lmccp4 \
+	-L../coords -lcoot-coords \
+	-L../atom-utils -lcoot-atomutils
+
+
+OBJS = ligand.o 
+
+findligand: findligand.o libcoot-ligand.a
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+findligand.o: coot-ligand.hh 
+
+libcoot-ligand.a: $(OBJS)
+	ar r $@ $^
+
+testmol: testmol.cc 
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+
+sbase_test: sbase_test.cc mgtree.cc
+	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(MMDB)/lib -lmmdb -L../coords -lcoot-coords
+
+
+test_queue: test_queue.cc
+	$(CXX) $(CXXFLAGS) -o $@ $^ 

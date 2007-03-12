@@ -1,0 +1,7 @@
+set_rotation_center =  set_rotation_centre
+handle_read_draw_molecule_with_recenter = handle_read_draw_molecule_with_recentre
+set_rotation_center_size = set_rotation_centre_size
+center_atom_label_status = centre_atom_label_status
+set_last_map_color = set_last_map_colour
+rotation_center = rotation_centre
+move_molecule_to_screen_center = move_molecule_to_screen_centre

@@ -1,0 +1,1273 @@
+/* src/c-interface-validate.cc
+ * 
+ * Copyright 2004 by Paul Emsley, The University of York
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
+#if defined _MSC_VER
+#include <windows.h>
+#endif
+
+#include <stdlib.h>
+#include <iostream>
+
+#ifdef USE_GUILE
+#include <guile/gh.h>
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif // USE_PYTHON
+
+
+ 
+#include "globjects.h" //includes gtk/gtk.h
+
+#include "callbacks.h"
+#include "interface.h" // now that we are moving callback
+		       // functionality to the file, we need this
+		       // header since some of the callbacks call
+		       // fuctions built by glade.
+
+#include <vector>
+#include <string>
+
+#include "mmdb_manager.h"
+#include "mmdb-extras.h"
+#include "mmdb.h"
+#include "mmdb-crystal.h"
+
+
+#include "graphics-info.h"
+
+#include "c-interface.h"
+#include "cc-interface.hh"
+#include "ligand.hh"
+
+#include "peak-search.hh"
+
+/*  ----------------------------------------------------------------------- */
+/*                  check waters interface                                  */
+/*  ----------------------------------------------------------------------- */
+
+void set_check_waters_b_factor_limit(float f) {
+   graphics_info_t::check_waters_b_factor_limit = f;
+}
+
+
+void set_check_waters_map_sigma_limit(float f) {
+   graphics_info_t::check_waters_map_sigma_limit = f;
+}
+
+
+void set_check_waters_min_dist_limit(float f) {
+   graphics_info_t::check_waters_min_dist_limit = f;
+} 
+
+
+void set_check_waters_max_dist_limit(float f) {
+   graphics_info_t::check_waters_max_dist_limit = f;
+}
+
+GtkWidget *wrapped_create_check_waters_dialog() { 
+
+   // Need to fill:
+   // 
+   // Molecule number optionmenu (check_waters_molecule_optionmenu)
+   // 
+   // check_waters_b_factor_entry
+   // check_waters_map_sigma_entry
+   // check_waters_min_dist_entry
+   // check_waters_max_dist_entry
+
+   // There is a imol_refinement map check done in the callbacks.c
+   // function that calls this function
+
+
+
+   GtkWidget *dialog = create_check_waters_dialog();
+
+   // Opps - this (logical OR) should be on by default:
+   GtkWidget *check_waters_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_waters_OR_radiobutton), TRUE);
+
+   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(check_waters_molecule_menu_item_activate);
+
+   GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
+
+   // now fill that dialog's optionmenu with coordinate options.
+   for (int imol=0; imol<graphics_n_molecules(); imol++) {
+      if (graphics_info_t::molecules[imol].has_model()) { 
+	 graphics_info_t::check_waters_molecule = imol;
+	 break;
+      }
+   }
+   graphics_info_t g;
+   g.fill_option_menu_with_coordinates_options(optionmenu, callback_func,
+					     graphics_info_t::check_waters_molecule);
+
+   GtkWidget *entry;
+   // char text[100];
+   std::string text_str;
+
+   // b-factor
+   entry = lookup_widget(dialog, "check_waters_b_factor_entry");
+   text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_b_factor_limit);
+   gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
+      
+
+   // map sigma
+   entry = lookup_widget(dialog, "check_waters_map_sigma_entry");
+   text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_map_sigma_limit);
+   gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
+
+   // min_dist
+   entry = lookup_widget(dialog, "check_waters_min_dist_entry");
+   text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_min_dist_limit);
+   gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
+
+   // max_dist
+   entry = lookup_widget(dialog, "check_waters_max_dist_entry");
+   text_str = graphics_info_t::float_to_string(graphics_info_t::check_waters_max_dist_limit);
+   gtk_entry_set_text(GTK_ENTRY(entry), text_str.c_str());
+
+   return dialog;
+
+}
+
+
+// The OK button was pressed on the dialog, so read the dialog and do
+// the check
+// 
+void do_check_waters_by_widget(GtkWidget *dialog) {
+
+   // GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
+   GtkWidget *action_optionmenu = lookup_widget(dialog, "check_waters_action_optionmenu");
+   // GtkWidget *checklogic_AND_radiobutton = lookup_widget(dialog, "check_waters_AND_radiobutton");
+   GtkWidget *checklogic_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
+
+   GtkWidget *entry1, *entry2, *entry3, *entry4;
+   entry1 = lookup_widget(dialog, "check_waters_b_factor_entry");
+   entry2 = lookup_widget(dialog, "check_waters_map_sigma_entry");
+   entry3 = lookup_widget(dialog, "check_waters_min_dist_entry");
+   entry4 = lookup_widget(dialog, "check_waters_max_dist_entry");
+
+   //
+   float b_factor_lim  = get_positive_float_from_entry(GTK_ENTRY(entry1));
+   float map_sigma_lim = get_positive_float_from_entry(GTK_ENTRY(entry2));
+   float min_dist      = get_positive_float_from_entry(GTK_ENTRY(entry3));
+   float max_dist      = get_positive_float_from_entry(GTK_ENTRY(entry4));
+
+   graphics_info_t::check_waters_b_factor_limit = b_factor_lim;
+   graphics_info_t::check_waters_map_sigma_limit = map_sigma_lim;
+   graphics_info_t::check_waters_min_dist_limit = min_dist;
+   graphics_info_t::check_waters_max_dist_limit = max_dist;
+
+   short int use_b_factor_limit_test = 1;
+   short int use_map_sigma_limit_test = 1;
+   short int use_min_dist_test = 1;
+   short int use_max_dist_test = 1;
+
+   GtkWidget *hbox1 = lookup_widget(dialog, "check_waters_b_factor_hbox");
+   GtkWidget *hbox2 = lookup_widget(dialog, "check_waters_sigma_level_hbox");
+   GtkWidget *hbox3 = lookup_widget(dialog, "check_waters_min_dist_hbox");
+   GtkWidget *hbox4 = lookup_widget(dialog, "check_waters_max_dist_hbox");
+
+   GtkToggleButton *checkbutton1 =
+      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_b_factor_entry_active_checkbutton")); 
+   GtkToggleButton *checkbutton2 =
+      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_map_sigma_entry_active_checkbutton"));
+   GtkToggleButton *checkbutton3 =
+      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_min_dist_entry_active_checkbutton"));
+   GtkToggleButton *checkbutton4 =
+      GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_max_dist_entry_active_checkbutton"));
+
+   if (! checkbutton1->active)
+      use_b_factor_limit_test = 0; 
+   if (! checkbutton2->active)
+      use_map_sigma_limit_test = 0; 
+   if (! checkbutton3->active)
+      use_min_dist_test = 0; 
+   if (! checkbutton4->active)
+      use_max_dist_test = 0;
+      
+   GtkWidget *zero_occ_checkbutton = lookup_widget(dialog, "check_waters_zero_occ_checkbutton");
+   GtkWidget *partial_occ_close_contact_checkbutton =
+      lookup_widget(dialog, "check_waters_low_occ_dist_checkbutton");
+
+   short int zero_occ_flag = 0;
+   short int part_occ_dist_flag = 0;
+   if (GTK_TOGGLE_BUTTON(zero_occ_checkbutton)->active)
+      zero_occ_flag = 1;
+   if (GTK_TOGGLE_BUTTON(partial_occ_close_contact_checkbutton)->active)
+      part_occ_dist_flag = 1;
+   
+   //
+   short int logical_operator_and_or_flag = 0; // logical AND
+   if (GTK_TOGGLE_BUTTON(checklogic_OR_radiobutton)->active) {
+      logical_operator_and_or_flag = 1;
+   }
+
+   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(action_optionmenu));
+   GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
+   int active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+
+   // std::cout << "active_item is at: " << active_item << " " << active_index << std::endl;
+
+   if (use_b_factor_limit_test == 0)
+      b_factor_lim = -100.0;
+   if (use_map_sigma_limit_test == 0)
+      map_sigma_lim = -100.0;
+   if (use_min_dist_test == 0)
+      min_dist = -100.0;
+   if (use_max_dist_test == 0)
+      max_dist = -100.0;  // sets a flag in find_water_baddies_OR
+   if (active_index == 0) {
+      GtkWidget *w = wrapped_checked_waters_baddies_dialog(graphics_info_t::check_waters_molecule,
+							   b_factor_lim,
+							   map_sigma_lim,
+							   min_dist,
+							   max_dist,
+							   part_occ_dist_flag,
+							   zero_occ_flag,
+							   logical_operator_and_or_flag);
+      gtk_widget_show(w);
+
+   } else {
+
+      // delete those baddies:
+      delete_checked_waters_baddies(graphics_info_t::check_waters_molecule,
+				    b_factor_lim,
+				    map_sigma_lim,
+				    min_dist,
+				    max_dist,
+				    part_occ_dist_flag,
+				    zero_occ_flag,
+				    logical_operator_and_or_flag); // calls graphics_draw()
+   }
+   
+}
+
+
+void check_waters_molecule_menu_item_activate(GtkWidget *item, 
+					      GtkPositionType pos) {
+
+   graphics_info_t::check_waters_molecule = pos;
+}
+
+
+// On check OK, we fire up this widget which is a vbox of baddy radio buttons.
+// 
+GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag) {
+
+   GtkWidget *w = create_checked_waters_baddies_dialog();
+   graphics_info_t g;
+
+   int imol_for_map = g.Imol_Refinement_Map();
+
+   if (is_valid_model_molecule(imol)) {
+      if (!is_valid_map_molecule(imol_for_map)) {
+	 std::cout << "WARNING:: Not a valid map for density testing " << imol_for_map << std::endl;
+      } else {
+	 std::vector<coot::atom_spec_t> baddies = graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap_list[0], graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
+
+	 std::cout << "DEBUG:: we got " << baddies.size() << " baddies\n";
+
+	 GtkWidget *button;
+	 GtkWidget *vbox = lookup_widget(w, "checked_waters_baddies_vbox");
+	 GSList *gr_group = NULL;
+
+	 if (baddies.size() > 0 ) { 
+	    for (int i=0; i<int(baddies.size()); i++) {
+
+// 	       std::cout << "Suspicious water: "
+// 			 << baddies[i].atom_name
+// 			 << baddies[i].alt_conf << " "
+// 			 << baddies[i].resno << " "
+// 			 << baddies[i].insertion_code << " "
+// 			 << baddies[i].chain << "\n";
+
+	       std::string button_label(" ");
+	       button_label += baddies[i].chain;
+	       button_label += " " ;
+	       button_label += graphics_info_t::int_to_string(baddies[i].resno);
+	       button_label += " " ;
+	       button_label += baddies[i].atom_name;
+	       button_label += " " ;
+	       button_label += baddies[i].alt_conf;
+	       button_label += " " ;
+	       button_label += baddies[i].string_user_data;
+	       button_label += " " ;
+
+	       button = gtk_radio_button_new_with_label(gr_group, button_label.c_str());
+	       gr_group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	       coot::atom_spec_t *atom_spec = new coot::atom_spec_t(baddies[i]);
+	       atom_spec->int_user_data = imol;
+      
+	       gtk_signal_connect(GTK_OBJECT(button), "clicked",
+				  GTK_SIGNAL_FUNC (graphics_info_t::on_generic_atom_spec_button_clicked),
+				  atom_spec);
+
+	       GtkWidget *frame = gtk_frame_new(NULL);
+	       gtk_container_add(GTK_CONTAINER(frame), button);
+
+	       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
+	       gtk_container_set_border_width(GTK_CONTAINER(frame), 2);
+	       gtk_widget_show(button);
+	       gtk_widget_show(frame);
+
+	    }
+	 } else {
+
+	    std::string s = "There were no suspicious waters \nmatching those criteria in\n";
+	    s += " Molecule ";
+	    s += graphics_info_t::molecules[imol].dotted_chopped_name();
+	    w = wrapped_nothing_bad_dialog(s);
+	    
+	 }
+      }
+   }
+
+
+   return w;
+}
+
+
+void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim,
+				   float min_dist,
+				   float max_dist,
+				   short int part_occ_contact_flag,
+				   short int zero_occ_flag,
+				   short int logical_operator_and_or_flag) {
+
+   graphics_info_t g;
+   int imol_for_map = g.Imol_Refinement_Map();
+
+   if (is_valid_model_molecule(imol)) {
+      if (!is_valid_map_molecule(imol_for_map)) {
+	 std::cout << "WARNING:: Not a valid map for density testing " << imol_for_map << std::endl;
+	 show_select_map_dialog();
+      } else {
+	 std::vector<coot::atom_spec_t> baddies =
+	    graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim,
+								graphics_info_t::molecules[imol_for_map].xmap_list[0],
+								graphics_info_t::molecules[imol_for_map].map_sigma(),
+								map_sigma_lim,
+								min_dist,
+								max_dist,
+								part_occ_contact_flag,
+								zero_occ_flag,
+								logical_operator_and_or_flag);
+	 
+	 int ideleted = graphics_info_t::molecules[imol].delete_atoms(baddies);
+	 std::string s = "Deleted ";
+	 s += graphics_info_t::int_to_string(ideleted);
+	 s += " waters";
+	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
+	 gtk_widget_show(w);
+	 graphics_draw();
+      }
+   }
+
+}
+
+
+
+// --------------------------------------------------------------------------
+//                     difference map variance check 
+// --------------------------------------------------------------------------
+// 
+void check_waters_by_difference_map(int imol_waters, int imol_diff_map,
+				    int interactive_flag) {
+
+   graphics_info_t g;
+   g.check_waters_by_difference_map(imol_waters, imol_diff_map, interactive_flag);
+
+}
+
+void deviant_geometry(int imol) {
+
+   if (is_valid_model_molecule(imol)) { 
+      float strictness = 3.0;
+      graphics_info_t::molecules[imol].find_deviant_geometry(strictness);
+   }
+
+}
+
+
+short int is_valid_model_molecule(int imol) { 
+
+   short int v = 0;
+   if (imol >= 0) { 
+      if (imol < graphics_info_t::n_molecules) {
+	 if (graphics_info_t::molecules[imol].has_model()) {
+	    v = 1;
+	 }
+      }
+   }
+   return v;
+} 
+
+
+short int is_valid_map_molecule(int imol) { 
+
+   short int v = 0;
+   if (imol >= 0) { 
+      if (imol < graphics_info_t::n_molecules) {
+	 if (graphics_info_t::molecules[imol].has_map()) {
+	    v = 1;
+	 }
+      }
+   }
+   return v;
+}
+
+#include "geometry-graphs.hh"
+
+// Fee the local_block_info_p s
+// 
+void free_geometry_graph(GtkWidget *dialog) { 
+
+#ifdef HAVE_GSL
+   
+   if (dialog) {
+      GtkWidget *w = lookup_widget(dialog, "geometry_graph_canvas");
+      if (w) { 
+	 GtkObject *obj = GTK_OBJECT(w);
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+	 coot::geometry_graphs *graphs = (coot::geometry_graphs *) gtk_object_get_user_data(obj);
+	 if (!graphs) {
+	    std::cout << "ERROR:: NULL graphs in free_geometry_graph\n";
+	 } else {
+	    graphs->close_yourself();
+	 }
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+      }
+   }
+#endif // HAVE_GSL   
+} 
+
+void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
+						 static to NULL, so
+						 that we on longer try
+						 to update the
+						 widget*/
+#ifdef HAVE_GSL
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
+   graphics_info_t g;
+
+   int imol;
+   if (dialog) {
+      GtkWidget *w = lookup_widget(dialog, "geometry_graph_canvas");
+      if (w) { 
+	 GtkObject *obj = GTK_OBJECT(w);
+	 coot::geometry_graphs *graphs = (coot::geometry_graphs *) gtk_object_get_user_data(obj);
+	 if (!graphs) {
+
+	    std::cout << "ERROR:: NULL graphs in unset_geometry_graph\n";
+
+	 } else { 
+	 
+	    imol = graphs->Imol();
+	 
+	    if (is_valid_model_molecule(imol)) { 
+
+	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_GEOMETRY) {
+		  g.geometry_graph[imol] = NULL;
+	       }
+	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_B_FACTOR) {
+		  g.b_factor_variance_graph[imol] = NULL;
+	       }
+	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION) {
+		  g.omega_distortion_graph[imol] = NULL;
+	       }
+	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_ROTAMER) {
+		  g.rotamer_graph[imol] = NULL;
+	       }
+	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_DENSITY_FIT) {
+		  g.residue_density_fit_graph[imol] = NULL;
+	       }
+	    }
+	 }
+      } else {
+	 std::cout << "Failed to find w in unset_geometry_graph\n";
+      } 
+   }
+   // std::cout << "Done unset_geometry_graph\n";
+#endif 
+#endif // HAVE_GSL   
+}
+
+
+// -----------------------------------------------------
+// The geometry graphs have a home on the range:
+// -----------------------------------------------------
+
+void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
+
+#ifdef HAVE_GSL
+   graphics_info_t g;
+   std::string validation_type(type_in);
+   std::string sub_menu_name;
+   GtkSignalFunc callback; // depends on type
+   short int found_validation_type = 0;
+
+   if (validation_type == "b factor") {
+      callback = GTK_SIGNAL_FUNC(validation_graph_b_factor_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "temp_factor_variance_submenu";
+   }
+   if (validation_type == "geometry") {
+      callback = GTK_SIGNAL_FUNC(validation_graph_geometry_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "geometry_submenu";
+   }
+   if (validation_type == "omega") {
+      callback = GTK_SIGNAL_FUNC(validation_graph_omega_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "omega_submenu";
+   }
+   if (validation_type == "rotamer") {
+      callback = GTK_SIGNAL_FUNC(validation_graph_rotamer_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "rotamer_submenu";
+   }
+   if (validation_type == "density-fit") {
+      callback = GTK_SIGNAL_FUNC(validation_graph_density_fit_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "density_fit_submenu";
+   }
+   if (validation_type == "probe") {
+      callback = GTK_SIGNAL_FUNC(probe_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "probe_submenu";
+   }
+   if (validation_type == "gln_and_asn_b_factor_outliers") {
+      callback = GTK_SIGNAL_FUNC(gln_and_asn_b_factor_outlier_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "gln_and_asn_b_factor_outliers_submenu";
+   }
+
+   GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
+
+   if (sub_menu) { 
+   
+      gtk_container_foreach(GTK_CONTAINER(sub_menu),
+			    my_delete_validaton_graph_mol_option,
+			    (gpointer) sub_menu);
+
+      for(int i=0; i<g.n_molecules; i++) {
+	 if (g.molecules[i].has_model()) {
+	    std::string name;
+	    name = graphics_info_t::molecules[i].dotted_chopped_name();
+	    add_validation_mol_menu_item(i, name, sub_menu, callback);
+	 }
+      }
+   } else {
+      std::cout << "ERROR:: sub menu not found: " << sub_menu_name << std::endl;
+   } 
+#endif // HAVE_GSL
+}
+
+void
+add_validation_mol_menu_item(int imol, const std::string &name, GtkWidget *menu, GtkSignalFunc callback) {
+
+   GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
+   gtk_container_add(GTK_CONTAINER(menu), menu_item);
+   gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
+		      callback, GINT_TO_POINTER(imol));
+   gtk_widget_show(menu_item);
+}
+
+
+void
+my_delete_validaton_graph_mol_option(GtkWidget *widget, void *data) {
+   gtk_container_remove(GTK_CONTAINER(data), widget);
+}
+
+void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
+						      gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+      graphics_info_t g;
+      g.b_factor_graphs(imol);
+#else    
+      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#endif /* HAVE_GTK_CANVAS */
+
+}
+
+void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
+						      gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+      graphics_info_t g;
+      g.geometric_distortion(imol);
+#else    
+      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#endif /* HAVE_GTK_CANVAS */
+
+}
+
+void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
+						   gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+      graphics_info_t g;
+      g.omega_graphs(imol);
+#else    
+      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#endif /* HAVE_GTK_CANVAS */
+
+}
+
+void validation_graph_rotamer_mol_selector_activate (GtkMenuItem     *menuitem,
+						     gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   graphics_info_t g;
+   g.rotamer_graphs(imol);
+#else    
+   printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#endif /* HAVE_GTK_CANVAS */
+
+}
+
+void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuitem,
+							 gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   graphics_info_t g;
+   g.density_fit_graphs(imol);
+#else    
+   printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#endif /* HAVE_GTK_CANVAS */
+}
+
+void probe_mol_selector_activate (GtkMenuItem     *menuitem,
+				  gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+      graphics_info_t g;
+
+      std::vector<std::string> cmd_strings;
+      cmd_strings.push_back("probe");
+      cmd_strings.push_back(coot::util::int_to_string(imol));
+      run_generic_script(cmd_strings);
+#else    
+      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#endif /* HAVE_GTK_CANVAS */
+}
+
+// is the probe executable available?
+// 1 for yes, 0 for no.
+// 
+int probe_available_p() {
+   int r=0;
+
+#ifdef USE_GUILE
+
+   std::string command("(command-in-path? *probe-command*)");
+
+   std::cout << "DEBUG:: here 1 " << std::endl;
+   SCM scm_thunk = safe_scheme_command(command); 
+   std::cout << "DEBUG:: here 2 " << std::endl;
+
+   int was_boolean_flag = gh_scm2bool(scm_boolean_p(scm_thunk));
+
+   if (was_boolean_flag)
+      if (gh_scm2bool(scm_thunk) == 1)
+	 r = 1;
+
+#endif // USE_GUILE   
+   
+   return r;
+} 
+
+void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuitem,
+							 gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+   gln_asn_b_factor_outliers(imol);
+}
+
+
+void
+create_initial_validation_graph_submenu_generic(GtkWidget *widget,
+						const std::string &menu_name,
+						const std::string &sub_menu_name) {
+
+   GtkWidget *b_factor_menu_item = lookup_widget(widget, menu_name.c_str());
+   GtkWidget *b_factor_sub_menu = gtk_menu_new();
+   gtk_widget_ref(b_factor_sub_menu);
+   gtk_object_set_data_full(GTK_OBJECT(widget),
+			    sub_menu_name.c_str(),
+			    b_factor_sub_menu,
+			    (GtkDestroyNotify) gtk_widget_unref);
+
+   gtk_menu_item_set_submenu(GTK_MENU_ITEM(b_factor_menu_item),
+			     b_factor_sub_menu);
+   
+}
+
+// ---------------------------------------------------------------------
+//                difference map
+// ---------------------------------------------------------------------
+//
+// where level is in sigma
+// 
+void
+difference_map_peaks(int imol, int imol_coords,
+		     float n_sigma,
+		     int do_positive_level_flag,
+		     int do_negative_levels_flag) {
+
+   // Notice that we make wrapped_create_check_waters_dialog be part
+   // of graphics_info_t, because it uses clipper data in the
+   // interface - and c-interface.h does not know about clipper.
+
+
+   // I don't think we want ligand/cluster search.  We just want peak
+   // searching.
+   // 
+   if (is_valid_map_molecule(imol)) {
+      if (graphics_info_t::molecules[imol].is_difference_map_p()) {
+
+	 // c.f. trace-high-res.cc
+	 coot::peak_search ps(graphics_info_t::molecules[imol].xmap_list[0]);
+	 std::vector<std::pair<clipper::Coord_orth, float> > centres;
+
+	 if (is_valid_model_molecule(imol_coords)) {
+	    centres =
+	       ps.get_peaks(graphics_info_t::molecules[imol].xmap_list[0],
+			    graphics_info_t::molecules[imol_coords].atom_sel.mol,
+			    n_sigma, do_positive_level_flag, do_negative_levels_flag);
+	 } else { 
+	    centres =
+	       ps.get_peaks(graphics_info_t::molecules[imol].xmap_list[0],
+			    n_sigma, do_positive_level_flag, do_negative_levels_flag);
+	 }
+	 
+	 if (centres.size() == 0) {
+	    std::string info_string("No difference map peaks\nat ");
+	    info_string += graphics_info_t::float_to_string(n_sigma);
+	    info_string += " sigma";
+	    GtkWidget *w = wrapped_nothing_bad_dialog(info_string);
+	    gtk_widget_show(w);
+	 } else {
+	    float map_sigma = graphics_info_t::molecules[imol].map_sigma();
+	    GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(centres, map_sigma);
+	    gtk_widget_show(w);
+
+	    std::cout << "\n   Found these peak positions:\n";
+	    for (unsigned int i=0; i<centres.size(); i++) {
+	       std::cout << "   " << i << " " << centres[i].second << " "
+			 << centres[i].first.format() << std::endl;
+	    }
+	    std::cout << "\n   Found " << centres.size() << " peak positions:\n";
+	 }
+      }
+   } else {
+      std::cout << "Molecule number " << imol
+		<< " is not a valid map molecule" << std::endl;
+   }
+}
+
+void set_difference_map_peaks_widget(GtkWidget *w) {
+   graphics_info_t::difference_map_peaks_dialog = w;
+} 
+
+
+void
+clear_diff_map_peaks() {
+   
+   graphics_info_t g;
+   g.clear_diff_map_peaks();
+}
+
+
+GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
+
+   // c.f. wrapped_create_check_waters_diff_map_dialog()
+
+   GtkWidget *dialog = create_generate_diff_map_peaks_dialog();
+
+   int ifound;
+   short int diff_maps_only_flag = 1;
+
+   ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog, "generate_diff_map_peaks_map", 
+							diff_maps_only_flag);
+   if (ifound == 0) {
+      std::cout << "Error: you must have a difference map to analyse!" << std::endl;
+      GtkWidget *none_frame = lookup_widget(dialog, "no_difference_maps_frame");
+      gtk_widget_show(none_frame);
+   }
+
+   // the name of the vbox which is looked up is "generate_diff_map_peaks_model_vbox".
+   ifound = fill_ligands_dialog_protein_bits_by_dialog_name(dialog, "generate_diff_map_peaks_model");
+   if (ifound == 0) {
+      std::cout << "Difference map checker is better having specified coordinates...\n";
+   }
+
+   // the sigma entry:
+   GtkWidget *entry = lookup_widget(dialog, "generate_diff_map_peaks_sigma_level_entry");
+   gtk_entry_set_text(GTK_ENTRY(entry),
+		      graphics_info_t::float_to_string(graphics_info_t::difference_map_peaks_sigma_level).c_str());
+
+   
+return dialog;
+
+}
+
+void difference_map_peaks_by_widget(GtkWidget *dialog) {
+
+   // c.f. check_waters_by_difference_map_by_widget(GtkWidget *dialog)
+
+   short int found_active_button_for_map = 0;
+   // short int found_active_button_for_coords = 0; // but not terminal
+   int imol_diff_map = -1;
+   int imol_coords = -1;
+
+   // Check the difference map:
+
+   // the strings correspond to the above function with _radiobuton_ tagged on.
+   
+   GtkWidget *map_button;
+   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      if (graphics_info_t::molecules[imol].has_map()) {
+	 if (graphics_info_t::molecules[imol].is_difference_map_p()) {
+	    std::string map_str = "generate_diff_map_peaks_map_radiobutton_";
+	    map_str += graphics_info_t::int_to_string(imol);
+	    map_button = lookup_widget(dialog, map_str.c_str());
+	    if (map_button) {
+	       if (GTK_TOGGLE_BUTTON(map_button)->active) {
+		  imol_diff_map = imol;
+		  found_active_button_for_map = 1;
+	       }
+	    } else {
+	       std::cout << "ooops failed to find button" << map_str << std::endl;
+	    }
+	 }
+      }
+   }
+
+   // Check the coords:
+   
+   GtkWidget *coords_button;
+   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      if (graphics_info_t::molecules[imol].has_model()) {
+	 std::string coords_str = "generate_diff_map_peaks_model_radiobutton_";
+	 coords_str += graphics_info_t::int_to_string(imol);
+	 coords_button = lookup_widget(dialog, coords_str.c_str());
+	 if (coords_button) {
+	    if (GTK_TOGGLE_BUTTON(coords_button)->active) {
+	       imol_coords = imol;
+	       found_active_button_for_map = 1;
+	    }
+	 } else {
+	    std::cout << "ooops failed to find button" << coords_str << std::endl;
+	 }
+      }
+   }
+
+   // Check the level:
+
+   GtkWidget *sigma_entry =
+      lookup_widget(dialog, "generate_diff_map_peaks_sigma_level_entry");
+
+   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(sigma_entry));
+   float v = atof(txt);
+
+   short int good_sigma = 0;
+   if (v > -1000 && v < 1000) {
+      good_sigma = 1;
+   } else {
+      std::cout << "WARNING:: Invalid sigma level: " << v
+		<< " can't do peak search." << std::endl;
+   }
+
+   // Check the negative level checkbutton:
+
+   short int do_negative_level = 0;
+   short int do_positive_level = 0;
+   GtkWidget *checkbutton_negative =
+      lookup_widget(dialog, "generate_diff_map_peaks_negative_level_checkbutton");
+   GtkWidget *checkbutton_positive =
+      lookup_widget(dialog, "generate_diff_map_peaks_positive_level_checkbutton");
+
+   if (GTK_TOGGLE_BUTTON(checkbutton_negative)->active)
+      do_negative_level = 1;
+
+   if (GTK_TOGGLE_BUTTON(checkbutton_positive)->active)
+      do_positive_level = 1;
+
+   if (found_active_button_for_map) {
+      if (good_sigma)
+	 // if imol_coords is -1 it is ignored in difference_map_peaks
+	 difference_map_peaks(imol_diff_map, imol_coords, v,
+			      do_positive_level, do_negative_level);
+   } else {
+      std::cout << "WARNING:: failed to find a difference map "
+		<< "Can't do peak search" << std::endl;
+      GtkWidget *w = wrapped_nothing_bad_dialog("WARNING:: failed to find difference map\nCan't do peak search");
+      gtk_widget_show(w);
+   }
+}
+
+
+// ----------------------------------------------------------------------------------
+//                            ramachandran plot
+// ----------------------------------------------------------------------------------
+
+
+// fill the widget:
+GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
+
+   GtkWidget *w = 0; // Not NULL, compiler (maybe).
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   w = create_ramachandran_plot_differences_dialog();
+
+   // We don't have to worry about chains because they are not active on startup.
+
+   GtkWidget *optionmenu1 = lookup_widget(w, "ramachandran_plot_differences_first_mol_optionmenu");
+   GtkWidget *optionmenu2 = lookup_widget(w, "ramachandran_plot_differences_second_mol_optionmenu");
+
+   GtkSignalFunc signal_func1 =
+      GTK_SIGNAL_FUNC(ramachandran_plot_differences_mol_option_menu_activate_first);
+   GtkSignalFunc signal_func2 =
+      GTK_SIGNAL_FUNC(ramachandran_plot_differences_mol_option_menu_activate_second);
+
+   int imol = -1;
+   for (int i=0; i<graphics_info_t::n_molecules; i++) {
+      if (graphics_info_t::molecules[i].has_model()) {
+	 imol = i;
+	 break;
+      }
+   }
+
+   if (imol >= 0) {
+      graphics_info_t g;
+      g.fill_option_menu_with_coordinates_options(optionmenu1, signal_func1, imol);
+      g.fill_option_menu_with_coordinates_options(optionmenu2, signal_func2, imol);
+      graphics_info_t::ramachandran_plot_differences_imol1 = imol;
+      graphics_info_t::ramachandran_plot_differences_imol2 = imol;
+   }
+
+#endif
+   return w;
+}
+
+
+// the OK button callback.
+// (read the widget)
+int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
+
+   std::string first_chain, second_chain;
+   int istat = 0; // incomprehensible
+
+   int imol1 = graphics_info_t::ramachandran_plot_differences_imol1;
+   int imol2 = graphics_info_t::ramachandran_plot_differences_imol2;
+
+   first_chain  = graphics_info_t::ramachandran_plot_differences_imol1_chain;
+   second_chain = graphics_info_t::ramachandran_plot_differences_imol2_chain;
+
+   GtkWidget *checkbutton1 = lookup_widget(GTK_WIDGET(w),
+					  "ramachandran_plot_differences_first_chain_checkbutton");
+   GtkWidget *checkbutton2 = lookup_widget(GTK_WIDGET(w),
+					  "ramachandran_plot_differences_second_chain_checkbutton");
+
+   if (GTK_TOGGLE_BUTTON(checkbutton1)->active && GTK_TOGGLE_BUTTON(checkbutton2)->active) {
+      istat = 1;
+      ramachandran_plot_differences_by_chain(imol1, imol2, first_chain.c_str(), second_chain.c_str());
+   } else {
+      if (!GTK_TOGGLE_BUTTON(checkbutton1)->active && !GTK_TOGGLE_BUTTON(checkbutton2)->active) {
+	 istat = 1;
+	 ramachandran_plot_differences(imol1, imol2);
+      } else {
+	 std::cout << "INFO:: incomprehensible molecule/chain selection" << std::endl;
+	 std::string s = "Can't make sense of chain selection.  Try again?";
+	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
+	 gtk_widget_show(w);
+      }
+   }
+   return istat;
+
+}
+
+
+// OK, the molecule was changed in the option menu, so if the checkbutton is on,
+// then change the elements of the chain option menu
+// 
+void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos) {
+   graphics_info_t::ramachandran_plot_differences_imol1 = pos;
+   GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
+						"ramachandran_plot_differences_first_chain_optionmenu");
+   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
+					  "ramachandran_plot_differences_first_chain_checkbutton");
+   if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+      fill_ramachandran_plot_differences_option_menu_with_chain_options(chain_optionmenu, 1);
+   }
+}
+
+void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos) {
+   graphics_info_t::ramachandran_plot_differences_imol2 = pos; 
+   GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
+						"ramachandran_plot_differences_second_chain_optionmenu");
+   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
+					  "ramachandran_plot_differences_second_chain_checkbutton");
+   if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+      fill_ramachandran_plot_differences_option_menu_with_chain_options(chain_optionmenu, 0);
+   }
+}
+
+
+void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos){
+
+   char *data = NULL;
+   data = (char *)pos;
+//    std::cout << "INFO:: ramachandran_plot_differences_chain_option_menu_activate_first "
+// 	     << " got data: " << data << std::endl;
+   // this can fail when more than one sequence mutate is used at the same time:
+   if (data) 
+      graphics_info_t::ramachandran_plot_differences_imol1_chain = data;
+}
+
+void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos){
+
+   char *data = NULL;
+   data = (char *)pos;
+//    std::cout << "INFO:: ramachandran_plot_differences_chain_option_menu_activate_second "
+// 	     << " got data: " << data << std::endl;
+   // this can fail when more than one sequence mutate is used at the same time:
+   if (data) 
+      graphics_info_t::ramachandran_plot_differences_imol2_chain = data;
+}
+
+void do_ramachandran_plot(int imol) {
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   coot::rama_plot *rama;
+
+   if (imol >= 0) {
+      if (imol < graphics_info_t::n_molecules) { 
+	 if (graphics_info_t::molecules[imol].has_model()) { 
+	    rama = new coot::rama_plot; 
+	    rama->init(imol);
+	    rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol); 
+	 }
+      }
+   }
+#endif // HAVE_GTK_CANVAS
+}
+
+void
+ramachandran_plot_differences(int imol1, int imol2) { 
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   coot::rama_plot *rama;
+   if (imol1 >= 0) {
+      if (imol1 < graphics_info_t::n_molecules) {  
+	 if (graphics_info_t::molecules[imol1].has_model()) { 
+	    if (imol2 >= 0) {
+	       if (imol2 < graphics_info_t::n_molecules) { 
+		  if (graphics_info_t::molecules[imol2].has_model()) { 
+		     rama = new coot::rama_plot; 
+		     rama->init(imol1);
+		     rama->draw_it(graphics_info_t::molecules[imol1].atom_sel.mol,
+				   graphics_info_t::molecules[imol2].atom_sel.mol);
+		  }
+	       }
+	    }
+	 } 
+      }
+   }
+#endif // HAVE_GTK_CANVAS
+}
+
+void ramachandran_plot_differences_by_chain(int imol1, int imol2, 
+					    const char *a_chain, const char *b_chain) {
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
+   if (is_valid_model_molecule(imol1)) {
+      if (is_valid_model_molecule(imol2)) {
+	 coot::rama_plot *rama = new coot::rama_plot; 
+	 rama->init(imol1);
+	 std::cout << "rama differences on mols: " << imol1 << " " << a_chain
+		   << " to " << imol2 << " " << b_chain << std::endl;
+	 rama->draw_it(imol1, imol2,
+		       graphics_info_t::molecules[imol1].atom_sel.mol,
+		       graphics_info_t::molecules[imol2].atom_sel.mol,
+		       std::string(a_chain), std::string(b_chain));
+      } else {
+	 std::cout << "WARNING no molecule number " << imol2 << " in molecule (or closed)\n";
+      }
+   } else {
+      std::cout << "WARNING no molecule number " << imol1 << " in molecule (or closed)\n";
+   }
+#endif // HAVE_GTK_CANVAS
+}
+
+
+// This is called when the "Use chain" option button is pressed.
+// 
+void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
+								       int is_first_mol_flag) {
+   GtkWidget *mol_optionmenu = NULL;
+
+   if (is_first_mol_flag) {
+      mol_optionmenu =
+	 lookup_widget(chain_optionmenu,
+		       "ramachandran_plot_differences_first_mol_optionmenu");
+   } else {
+      mol_optionmenu =
+	 lookup_widget(chain_optionmenu,
+		       "ramachandran_plot_differences_second_mol_optionmenu");
+   }
+
+   GtkSignalFunc callback_func;
+   int imol;
+
+   if (is_first_mol_flag) { 
+      imol = graphics_info_t::ramachandran_plot_differences_imol1;
+      callback_func =
+	 GTK_SIGNAL_FUNC(ramachandran_plot_differences_chain_option_menu_activate_first);
+   } else {
+      imol = graphics_info_t::ramachandran_plot_differences_imol2;
+      callback_func =
+	 GTK_SIGNAL_FUNC(ramachandran_plot_differences_chain_option_menu_activate_second);
+   }
+
+   if (imol >=0 && imol< graphics_info_t::n_molecules) {
+      std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu, imol, callback_func);
+      if (is_first_mol_flag) {
+	 graphics_info_t::ramachandran_plot_differences_imol1_chain = set_chain;
+      } else {
+	 graphics_info_t::ramachandran_plot_differences_imol2_chain = set_chain;
+      }
+   } else {
+      std::cout << "ERROR:: in imol in fill_rama plot diffs: " << imol << std::endl;
+   } 
+
+}
+
+
+void setup_lsq_deviation(int state) {
+
+   std::cout << "DEBUG:: in_lsq_plane_deviation " << state << std::endl;
+   graphics_info_t::in_lsq_plane_deviation = state;
+} 
+
+void setup_lsq_plane_define(int state) {
+
+   std::cout << "DEBUG:: in_lsq_plane_define " << state << std::endl;
+   graphics_info_t::in_lsq_plane_define = state;
+
+} 
+
+GtkWidget *wrapped_create_lsq_plane_dialog() {
+
+   graphics_info_t g;
+   return g.wrapped_create_lsq_plane_dialog();
+
+}
+
+void unset_lsq_plane_dialog() /* callback from destroy of widget */
+{
+
+   graphics_info_t::lsq_plane_dialog = 0;
+   graphics_info_t::lsq_plane_atom_positions->resize(0);
+} 
+
+void remove_last_lsq_plane_atom() {
+
+   graphics_info_t g;
+   g.remove_last_lsq_plane_atom();
+} 
+
+
+void set_interactive_probe_dots_molprobity_radius(float r) { 
+
+  graphics_info_t::probe_dots_on_chis_molprobity_radius = r;
+
+} 
+
+/*! \brief return the radius over which we can run interactive probe.
+*/
+float interactive_probe_dots_molprobity_radius() { 
+  return graphics_info_t::probe_dots_on_chis_molprobity_radius; 
+} 
+
+
+void gln_asn_b_factor_outliers(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (graphics_info_t::use_graphics_interface_flag) { 
+	 std::vector<std::pair<coot::atom_spec_t, std::string> > v = 
+	    coot::util::gln_asn_b_factor_outliers(graphics_info_t::molecules[imol].atom_sel.mol);
+	 
+	 std::cout << "Found " << v.size() << " GLN/ASN B-factor outliers" << std::endl;
+	 if (v.size() > 0) {
+	    // c-interface-preferences unformatted dots reader had
+	    // intereting code to make an interesting-places gui:
+	    for (int i=0; i<v.size(); i++) {
+	       std::cout << v[i].second << std::endl;
+	    }
+#ifdef USE_GUILE
+	    graphics_info_t g;
+	    std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
+	    for (int i=0; i<v.size(); i++) {
+	       std::string callback_func = "(lambda() (do-180-degree-side-chain-flip ";
+	       callback_func += coot::util::int_to_string(imol);
+	       callback_func += " ";
+	       callback_func += single_quote(v[i].first.chain);
+	       callback_func += " ";
+	       callback_func += coot::util::int_to_string(v[i].first.resno);
+	       callback_func += " ";
+	       callback_func += single_quote(v[i].first.insertion_code);
+	       callback_func += " ";
+	       callback_func += single_quote(v[i].first.alt_conf);
+	       callback_func += "))";
+	       v[i].first.int_user_data = imol; // kludge in the imol, used for callback.
+	       coot::util::atom_spec_and_button_info_t asi(v[i].first, v[i].second, callback_func);
+	       outlier_atoms.push_back(asi);
+	    }
+	    std::string error_type = "Z score: ";
+	    std::vector<std::string> cmd_strings;
+	    cmd_strings.push_back("interesting-things-with-fix-maybe");
+	    cmd_strings.push_back(single_quote("GLN and ASN B-factor Outliers"));
+	    std::string ls = coot::util::interesting_things_list_with_fix(outlier_atoms, error_type);
+	    cmd_strings.push_back(ls);
+	    std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
+	    std::cout << "scheme command: " << s << std::endl;
+	    safe_scheme_command(s);
+#endif
+	 } else {
+	    std::string label = "Coot detected no GLN or ASN B-factor Outliers";
+	    GtkWidget *w = wrapped_nothing_bad_dialog(label);
+	    gtk_widget_show(w);
+	 }
+      }
+   } 
+} 

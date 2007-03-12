@@ -1,0 +1,63 @@
+-*-text-*-
+
+After Release 0.0:
+
+    o Sequence fitting tools 
+       - need to load sequence (3 letter or 1 letter).
+       - need to estimate volume of sidechain 
+
+No longer, I've rethought this.  I'll do a full rotamer search.
+
+    o Add CIS peptide bonds - refinement
+
+    o Non-bonded interactions - refinement
+
+Done.
+
+    o Add "Jiggle Ligand" - increase search space for ligand search with
+      simplex minimization.
+
+Done.
+
+    o negative seqnum indexing in minimol
+
+    o Save the ligand-search protein-masked map
+
+Not worth it.
+
+    o "Fill the screen with density" - no matter what the zoom
+
+One day...
+
+    o Sort out the OCA server for compressed files
+
+Fixed?
+
+    o Stereo
+
+Done.
+
+    o Masking:
+
+        (mask-map-by-molecule map-no mol-no invert?) creates and
+        displays a masked map, cuts down density where the coordinates
+        are not.  If invert? is #t, cut the density down where the
+        atoms are.
+
+        and similarly:
+        (mask-map-by-zone map-no mol-no start-resno end-resno chain-id invert?)
+
+Done.
+
+
+---
+Sun Sep 26 14:16:19 BST 2004
+
+	I want some (thumbnail) icons:  Fancy making some?
+
+	"protein" [a small protein in ribbon representation on a transparent background]
+	"ligand"  [a small (about 15 atoms?) ligand done in ball and stick on a 
+                   transparent background]
+
+
+---	

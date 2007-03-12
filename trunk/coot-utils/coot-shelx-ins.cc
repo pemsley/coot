@@ -1,0 +1,1625 @@
+/* src/main.cc
+ * 
+ * Copyright 2005, 2006 by Paul Emsley, The University of York
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ */
+
+
+#include <string>
+
+#include "mmdb_manager.h"
+#include "clipper/core/spacegroup.h"
+#include "clipper/core/coords.h"
+
+#include "coot-utils.hh"
+#include "coot-coord-utils.hh"
+#include "coot-shelx.hh"
+#include <iostream>
+#include <fstream>
+
+enum { NONE=0, ONE_HALF=6, ONE_THIRD=4, ONE_QUARTER=3, ONE_SIXTH=2, TWO_THIRDS=8,
+       THREE_QUARTERS=9, FIVE_SIXTHS=10, MINUS_ONE_HALF= -6, MINUS_ONE_THIRD = -4,
+       MINUS_ONE_QUARTER = -3, MINUS_ONE_SIXTH = -2, MINUS_TWO_THIRDS = -8,
+       MINUS_THREE_QUARTERS = -9 , MINUS_FIVE_SIXTHS  = -10};
+       
+coot::ShelxIns::ShelxIns(const std::string &filename) {
+
+   init();
+   coot::shelx_read_file_info_t p =
+      read_file(filename); // sets filled_flag and udd_afix_handle
+
+}
+
+
+// Shelx Free Variables
+//
+// Free Variables are specified on the FVAR line.  The FVAR lines come
+// just before the atom lines.
+// 
+// The free variables are used typically for occupancy refinement of
+// disordered side-chains, and can be used in an any order (which is
+// useful).
+//
+// So, if we want to split a side chain of a shelx molecule, how do we
+// do that?
+// 
+// If we decode that occ from 11 (1 + 1) Fixed at 1.
+// 
+// When we split that we need to introduce a new free variable
+// (default 0.5? - or whatever was set in the occ chooser?).  Say that
+// free variable is number 23.
+// 
+// When it comes to writting the PARTs we need to set the occ to 23.0
+// for PART A and -23.0 for PART B.
+//
+// We need to know that that residue has been split 
+
+
+
+// Return a pair: status (0: bad), udd_afix_handle (-1 bad)
+// 
+coot::shelx_read_file_info_t
+coot::ShelxIns::read_file(const std::string &filename) {
+
+   coot::shelx_card_info_t card;
+   int istate = 0;
+   udd_afix_handle = -1;
+   CMMDBManager *mol = NULL;
+   std::ifstream f(filename.c_str());
+   int latt = 0;  // special not-set value
+
+   if (f) {
+
+      istate = 1; // success
+      filled_flag = 1;
+      short int in_residue_flag = 0;
+      std::string current_res_name;
+      int current_res_no = 0; // shelx default 
+      clipper::Spacegroup space_group;
+      InitMatType();
+      mol = new CMMDBManager;
+      CModel *model = new CModel;
+      CChain *chain = new CChain;
+      chain->SetChainID("");
+      model->AddChain(chain);
+      std::vector<CAtom *> atom_vector;
+      std::vector<std::string> symm_vec;
+      std::vector<double> cell_local;
+      std::string altconf;
+      int sfac_index;
+      short int encountered_atoms_flag = 0;
+      short int post_atoms_flag = 0; // we have got past atoms?, old, not useful?
+      short int post_END_flag = 0;   // END marks the end of atoms, I hope.
+      udd_afix_handle = mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
+//       std::cout << "DEBUG:: registered shelx afix and got back handle: "
+// 		<< udd_afix_handle << std::endl;
+      int have_udd_atoms = 0;
+      if (udd_afix_handle>=0)  {
+	 have_udd_atoms = 1;
+      }
+      float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
+      int current_afix = -1; // undefined initially.  AFIX is
+			     // independent of RESI and should not be
+			     // reset for every residue (as had been
+			     // the practice 20060102).
+      int nlines = 0;
+
+
+      // GMS says:
+
+      // FVAR is the last card to come before atom cards.  There can
+      // be any number of FVAR cards and there can be any number of
+      // variables on the FVAR cards.
+
+      // The end of the atoms is marked by END or HKLF cards.  The Q
+      // values might be of interest - e.g. they are peaks that might
+      // be waters.
+	 
+      while (!f.eof()) {
+	 card = read_card(f);
+	 nlines++;
+	 // std::cout << card.card << std::endl;
+	 
+	 if (card.words.size() > 0) {
+	    if (card.words[0] == "RESI") {
+	       encountered_atoms_flag = 1;
+	       if (atom_vector.size() > 0) { 
+		  CResidue *residue =
+		     add_shelx_residue(atom_vector,
+				       current_res_name,
+				       current_res_no);
+		  chain->AddResidue(residue);
+	       }
+	       // now update
+	       if (card.words.size() > 1) 
+		  current_res_no   = atoi(card.words[1].c_str());
+	       if (card.words.size() > 2) 
+		  current_res_name = card.words[2];
+	       else
+		  current_res_name = "";
+	       atom_vector.resize(0);
+	    } else {
+
+	       if (card.words[0] == "AFIX") {
+		  if (card.words.size() > 1) {
+		     current_afix = atoi(card.words[1].c_str());
+		  }
+	       } else {
+		  if (card.words[0] == "PART") {
+		     if (card.words.size() == 2) {
+			if (card.words[1] == "0") {
+			   altconf = "";
+			} else {
+			   if (card.words[1] == "1") {
+			      altconf = "A";
+			   } else {
+			      if (card.words[1] == "2") {
+				 altconf = "B";
+			      } else {
+				 if (card.words[1] == "3") {
+				    altconf = "C";
+				 } else {
+				    // negative PARTS: shelxl
+				    // generation of special position
+				    // constraints suppressed.
+				    if (card.words[1] == "-1") {
+				       altconf = "a";
+				    } else { 
+				       if (card.words[1] == "-2") {
+					  altconf = "b";
+				       } else { 
+					  if (card.words[1] == "-3") {
+					     altconf = "c";
+					  }
+				       }
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+		  } else {
+			
+		     // Not in a residue, e.g. TITL, CELL, SYMM, LATT
+		     // etc.
+		     // Hmmm, but small molecule atoms are not in a
+		     // residue either.
+
+		     // It was a non-atom keyword after atoms?
+
+		     if (encountered_atoms_flag) {
+			if (post_atoms_flag) {
+			   post_atom_lines.push_back(card.card);
+			}
+		     } 
+		     // Push back all pre-atom lines, except FVARs
+		     // which are handled differently.
+		     short int is_fvar_line = 0;
+		     if (card.words.size() > 0)
+			if (card.words[0] == "FVAR")
+			   is_fvar_line = 1; // flag for later
+
+		     if (card.words[0] == "TITL") {
+			title = card.card;
+		     } else {
+			if (card.words[0] == "CELL") {
+			   if (card.words.size() > 7) {
+			      have_cell_flag = 1;
+			      cell_local.resize(6);
+			      cell_local[0] = atof(card.words[2].c_str());
+			      cell_local[1] = atof(card.words[3].c_str());
+			      cell_local[2] = atof(card.words[4].c_str());
+			      cell_local[3] = atof(card.words[5].c_str());
+			      cell_local[4] = atof(card.words[6].c_str());
+			      cell_local[5] = atof(card.words[7].c_str());
+			   }
+			} else { 
+			   if (card.words[0] == "UNIT") {
+			   } else {
+			      if (card.words[0] == "SFAC") {
+				 std::cout << "SFAC LINE: " << card.card << std::endl;
+				 for (unsigned int i=1; i<card.words.size(); i++)
+				    sfac.push_back(card.words[i]); // atoms
+				 // std::cout << "DEBUG:: sfac is now of size " << sfac.size() << std::endl;
+			      } else {
+				 if (card.words[0] == "SYMM") {
+				    symm_cards.push_back(card.card); // save for output
+				    std::string s;
+				    for (unsigned int i=1; i<card.words.size(); i++) { 
+				       s += card.words[i];
+				       s += " ";
+				    }
+				    symm_vec.push_back(s);
+				 } else {
+				    if (card.words[0] == "HKLF") {
+				       post_atoms_flag = 1;
+				       post_atom_lines.push_back(card.card); // special case, first post atom line
+				       CResidue *residue = add_shelx_residue(atom_vector,
+									     current_res_name,
+									     current_res_no);
+				       chain->AddResidue(residue);
+				    } else {
+				       if (card.words[0].substr(0, 4) == "WGHT") {
+					  // handle WGHT
+					  // post_atoms_flag = 1; // Definately not, e.g. T.RES
+				       } else {
+					  if (card.words[0].substr(0, 3) == "END") {
+					     // handle END
+					     post_atoms_flag = 1;
+					     post_END_flag = 1;
+
+					  } else {
+
+					     if (card.words[0].substr(0, 4) == "ZERR") { // zerror 
+					     
+					     } else {
+
+						if (card.words[0].substr(0, 3) == "REM") { // REM
+						   // Special case:
+						   // we have a REM after atoms but before HKL 4 line
+						   // e.g. insulin.res from GMS
+						   if (encountered_atoms_flag)
+						      if (!post_atoms_flag)
+							 post_atom_lines.push_back(card.card);
+						
+						} else {
+						   if (card.words[0].substr(0, 4) == "FVAR") {
+
+						      save_fvars(card); 
+
+						   } else { 
+
+						      if ( (card.words[0].substr(0, 4) == "DEFS") || // DEFS and others
+							   (card.words[0].substr(0, 4) == "CGLS") ||
+							   (card.words[0].substr(0, 4) == "SHEL") ||
+							   (card.words[0].substr(0, 4) == "FMAP") ||
+							   (card.words[0].substr(0, 4) == "SIZE") ||
+							   (card.words[0].substr(0, 4) == "TEMP") ||
+							   (card.words[0].substr(0, 4) == "SADI") ||
+							   (card.words[0].substr(0, 4) == "PLAN") ||
+							   (card.words[0].substr(0, 4) == "LIST") ||
+							   (card.words[0].substr(0, 4) == "FREE") ||
+							   (card.words[0].substr(0, 4) == "HTAB") ||
+							   (card.words[0].substr(0, 4) == "DELU") ||
+							   (card.words[0].substr(0, 4) == "SIMU") ||
+							   (card.words[0].substr(0, 4) == "CONN") ||
+							   (card.words[0].substr(0, 4) == "BUMP") ||
+							   (card.words[0].substr(0, 4) == "MORE") ||
+							   (card.words[0].substr(0, 4) == "ISOR") ||
+							   (card.words[0].substr(0, 4) == "MERG") ||
+							   (card.words[0].substr(0, 4) == "ACTA") ||
+							   (card.words[0].substr(0, 4) == "OMIT") ||
+							   (card.words[0].substr(0, 4) == "SWAT") ||
+							   (card.words[0].substr(0, 4) == "ANIS") ||
+							   (card.words[0].substr(0, 4) == "ACTA") ||
+							   (card.words[0].substr(0, 4) == "SAME") ||
+							   (card.words[0].substr(0, 4) == "L.S.") ||
+							   (card.words[0].substr(0, 4) == "SUMP") ||
+							   (card.words[0].substr(0, 4) == "WPDB")) { 
+						      } else {
+							 if (card.words[0].substr(0, 4) == "LATT") {
+							    std::cout << "LATT LINE: " << card.card << std::endl;
+							    latt = atoi(card.words[1].c_str());  // potential crash here
+							 } else { 
+							    if ( (card.words[0].substr(0, 4) == "DFIX" ) || 
+								 (card.words[0].substr(0, 5) == "DFIX_")) {
+							    } else {
+							       if ((card.words[0].substr(0, 4) == "FLAT") ||
+								   (card.words[0].substr(0, 5) == "SADI_")) {
+							       
+							       } else {
+								  if (card.words[0].substr(0, 5) == "CHIV_") {
+								  } else {
+								     if ( (card.words[0].substr(0, 4) == "DANG" ) ||
+									  (card.words[0].substr(0, 5) == "DANG_") ||
+								       (card.words[0].substr(0, 4) == "RTAB")  ||
+								       (card.words[0].substr(0, 5) == "RTAB_") ) {
+								  } else {
+
+									if (card.words.size() <= 4) {
+									   //
+									   // A dos file has ^Ms for blank lines.  We don't want to
+									   // say that those are bad atoms
+									   short int handled_dos = 0;
+									   if (card.words.size() == 1) {
+									      if (card.words[0].length() == 1) {
+										 handled_dos = 1;
+									      }
+									   }
+									   if (!handled_dos) 
+									      std::cout << "WARNING:: BAD ATOM line " << nlines << " " 
+											<< card.words.size()
+											<< " field(s) :" << card.card << ":"
+											<< std::endl;
+									   
+									} else {
+									   if (! post_END_flag) { 
+									      // it's an atom
+									      CAtom *at = make_atom(card, altconf, udd_afix_handle,
+												    have_udd_atoms, current_afix);
+									      if (at)
+										 atom_vector.push_back(at);
+									      else
+										 std::cout << "WARNING:: BAD ATOM line " << nlines << " " 
+											   << card.words.size()
+											   << " field(s) :" << card.card << ":"
+											   << std::endl;
+									      encountered_atoms_flag = 1; // stop adding to pre_atom lines
+									   }
+									}
+								     }
+								  }
+							       }
+							    }
+							 }
+						      }
+						   }
+						}
+					     }
+					  }
+				       }
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+		     if ((!is_fvar_line) && (!encountered_atoms_flag))
+			pre_atom_lines.push_back(card.card);
+		  }
+	       }
+	    }
+	 } else {
+	    if (encountered_atoms_flag) {
+	       if (post_atoms_flag) {
+		  post_atom_lines.push_back(card.card);
+	       }
+	    } else {
+	       pre_atom_lines.push_back(card.card);
+	    }
+	    in_residue_flag = 0;
+	 }
+      }
+      // we get garbage on the last line from the read for some
+      // reason.  Let's pop it off:
+      if (!post_atom_lines.empty()) 
+	 post_atom_lines.pop_back();
+      
+      if (cell_local.size() == 6) { 
+	 clipper::Cell_descr cell_d(cell_local[0], cell_local[1], cell_local[2], 
+				    clipper::Util::d2rad(cell_local[3]),
+				    clipper::Util::d2rad(cell_local[4]),
+				    clipper::Util::d2rad(cell_local[5]));
+	 cell.init(cell_d);
+	 mol->SetCell(cell_local[0], cell_local[1], cell_local[2],
+		      cell_local[3], cell_local[4], cell_local[5]);
+	 std::cout << "INFO:: CELL set to " << cell_local[0]
+		   << cell_local[1] << " "
+		   << cell_local[2] << " "
+		   << cell_local[3] << " "
+		   << cell_local[4] << " "
+		   << cell_local[5] << "\n";
+	 have_cell_flag = 1;
+      } else {
+	 std::cout << "Cell not set" << std::endl;
+      }
+
+
+      std::string symmetry_ops("");
+
+      // There was no LATT card, so the default is centro-symmetric
+      // 
+      // We need to multiply each of the symm ops with -1
+      // 
+      // What a pain.
+      //
+      // There is something else that is going on here, but I have
+      // forgotten what it was.  GMS does it "in shorthand", but the
+      // symop.lib has expanded form using symops.  Possibly something
+      // to do with the lattice (yes, I think that's it).
+      //
+      // The lattice/cenop/symop expansion is not to be done here.
+      // It should be a coot-utils function.
+      //
+      // If the LATT is negative, that means non-centrosymmetric
+      // If the LATT is positive, that's centrosymmetric.
+      // If there is no LATT given, the default is 1
+
+      if (latt == 0)
+	 latt = 1; // P1 bar
+      std::vector<std::string> cs = clipper_symm_strings(symm_vec, latt);
+
+//       for (unsigned int ics=0; ics<cs.size(); ics++)
+//  	 std::cout << "DEBUG:: clipper cs " << ics << " " << cs[ics] << std::endl;
+
+// there were 2 "X,Y,Z"s and clipper was failing to init the space group
+//       if (symm_vec.size() > 0)
+// 	 symmetry_ops = "X,Y,Z ; ";
+
+      for (unsigned int isym=0; isym<symm_vec.size(); isym++) {
+	 // std::cout << symm_vec[isym] << std::endl;
+	 symm_card_composition_t sc(symm_vec[isym]);
+      }
+
+	 
+      for (unsigned int isym=0; isym<cs.size(); isym++) { 
+ 	 symmetry_ops += cs[isym];
+	 symmetry_ops += " ; ";
+      }
+      if (symmetry_ops != "") {
+// 	 std::cout << "DEBUG:: initing spacegroup with " << symmetry_ops << std::endl;
+ 	 space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
+	 std::cout << "INFO:: set space group to :"
+		   << space_group.descr().symbol_hm()
+		   << ":" << std::endl;
+	 mol->SetSpaceGroup((char *)space_group.descr().symbol_hm().c_str());
+	 char *spg = mol->GetSpaceGroup();
+	 if (spg) { 
+	    std::string sgrp(spg);
+	    std::cout << "READ-INS:: Spacegroup: " << sgrp << "\n";
+	 } else {
+	    std::cout << "READ-INS:: No Spacegroup found in res file\n";
+	 } 
+      }
+
+      std::cout << "INFO:: chain has " << chain->GetNumberOfResidues() << " residues"
+		<< std::endl;
+      mol->AddModel(model);
+      mol->FinishStructEdit();
+      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+
+      if (cell_local.size() != 6) { // found a cell?
+	 std::cout << "WARNING:: no cell found in shelx file\n";
+      } else { 
+	 int n_models = mol->GetNumberOfModels();
+	 for (int imod=1; imod<=n_models; imod++) { 
+      
+	    CModel *model_p = mol->GetModel(imod);
+	    CChain *chain_p;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    if (nchains <= 0) { 
+	       std::cout << "bad nchains in molecule " << nchains
+			 << std::endl;
+	    } else { 
+	       for (int ichain=0; ichain<nchains; ichain++) {
+		  chain_p = model_p->GetChain(ichain);
+		  if (chain_p == NULL) {  
+		     // This should not be necessary. It seem to be a
+		     // result of mmdb corruption elsewhere - possibly
+		     // DeleteChain in update_molecule_to().
+		     std::cout << "NULL chain in ... " << std::endl;
+		  } else { 
+		     int nres = chain_p->GetNumberOfResidues();
+		     PCResidue residue_p;
+		     CAtom *at;
+		     for (int ires=0; ires<nres; ires++) { 
+			residue_p = chain_p->GetResidue(ires);
+			int n_atoms = residue_p->GetNumberOfAtoms();
+
+			for (int iat=0; iat<n_atoms; iat++) {
+			   at = residue_p->GetAtom(iat);
+// 			   std::cout << "Mol Hierarchy atom: " << at->name << " "
+// 				     << at->GetResName() << " " << at->GetSeqNum() << " "
+// 				     << at->x << " " <<  at->y << " " << at->z << std::endl;
+			   clipper::Coord_frac pf(at->x, at->y, at->z);
+			   clipper::Coord_orth po = pf.coord_orth(cell);
+			   at->x = po.x();
+			   at->y = po.y();
+			   at->z = po.z();
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      mol->FinishStructEdit();
+      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      // mol->WritePDBASCII("testing.pdb");
+      // write_ins_file(mol, "new.res");
+   }
+   return coot::shelx_read_file_info_t(istate, udd_afix_handle, mol);
+}
+
+
+CAtom *
+coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
+			  int udd_afix_handle, int have_udd_atoms, int current_afix) const {
+
+   CAtom *at = new CAtom;  // returned
+
+   // local
+   int sfac_index;
+   float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
+   
+   // std::cout << "DEBUG:: new atom for " <<  card.card << std::endl;
+   
+   sfac_index = atoi(card.words[1].c_str());
+   std::string element = make_atom_element(card.words[0].c_str(), sfac_index);
+   if (element == "ERROR-in-SFAC") {
+      std::cout << "WARNING:: problem making element - ignoring atom" << std::endl;
+      delete at;
+      at = 0;
+   } else { 
+   
+      at->SetAtomName(make_atom_name(card.words[0].c_str(), element).c_str());
+      at->x = atof(card.words[2].c_str());
+      at->y = atof(card.words[3].c_str());
+      at->z = atof(card.words[4].c_str());
+      float occupancy = 11.0;
+   
+      if (card.words.size() > 5)
+	 occupancy = atof(card.words[5].c_str()); // 11.0
+      at->SetCoordinates(atof(card.words[2].c_str()),
+			 atof(card.words[3].c_str()),
+			 atof(card.words[4].c_str()),
+			 occupancy, 10.0);
+      at->SetElementName(element.c_str());
+      // char *altloc = new char(2);
+      strncpy(at->altLoc, altconf.c_str(), 2);
+      if (card.words.size() > 6) {
+	 if (card.words.size() < 8) {
+	    // isotropic temperature factor
+	    float b_factor_from_card = atof(card.words[6].c_str());
+	    if (b_factor_from_card > 0.0 ) { 
+	       at->tempFactor = u_to_b*b_factor_from_card;
+	       at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
+	    }
+	    else
+	       at->tempFactor = b_factor_from_card; 
+	 } else {
+	    if (card.words.size() > 11) {
+	       // anisotropic temperature factor
+	       at->u11 = atof(card.words[ 6].c_str());
+	       at->u22 = atof(card.words[ 7].c_str());
+	       at->u33 = atof(card.words[ 8].c_str());
+	       at->u12 = atof(card.words[ 9].c_str());
+	       at->u13 = atof(card.words[10].c_str());
+	       at->u23 = atof(card.words[11].c_str());
+	       at->WhatIsSet += 64; // is anisotropic
+	    }
+	 }
+// 	 std::cout << "on setting WhatIsSet is "
+// 		   << at->WhatIsSet << "\n";
+	 if (have_udd_atoms) { 
+	    at->PutUDData(udd_afix_handle, current_afix);
+	 }
+      
+      } else {
+	 std::cout << "(make_atom) bad atom: " << card.card << std::endl;
+	 delete at;
+	 at = 0;
+      }
+   }
+   return at;
+}
+
+void
+coot::ShelxIns::save_fvars(const shelx_card_info_t &card) {
+
+   for (unsigned int i=1; i<card.words.size(); i++) {
+//       std::cout << "DEBUG:: save_fvars: pushing back fvar " << i << " "
+// 		<< atof(card.words[i].c_str()) << std::endl;
+      fvars.push_back(atof(card.words[i].c_str()));
+   }
+}
+
+
+coot::shelx_card_info_t
+coot::ShelxIns::read_line(std::ifstream &f) {
+
+   coot::shelx_card_info_t shelx_card_info;
+   std::string s;
+   std::vector<std::string> sv;
+
+   char c;
+   std::string running_word;
+   while (!f.eof()) {
+      c = f.get();
+      if (c == '\n') {
+	 if (running_word.length() > 0)
+	    sv.push_back(running_word);
+	 break;
+      } else {
+	 if (c == ' ') {
+	    if (running_word.length() > 0)
+	       sv.push_back(running_word);
+	    running_word = "";
+	 } else {
+	    running_word += c;
+	 }
+	 s += c;
+      }
+   }
+   shelx_card_info.card = s;
+   shelx_card_info.words = sv;
+
+   // was that line starting with one or more spaces?  If so, then we
+   // add info to the card, saying so, because (in the calling
+   // routine) we don't want this line if it was starting with spaces
+   // (unless the previous line was a continuation).
+
+   if (s.length() > 0) {
+      if (s[0] == ' ') {
+	 shelx_card_info.spaced_start = 1;
+      }
+      if (s[0] == '\t') {
+	 shelx_card_info.spaced_start = 1;
+      }
+   }
+   
+
+//    for (int i=0; i<shelx_card_info.words.size(); i++) {
+//       std::cout << ":" << shelx_card_info.words[i] << ": ";
+//    }
+//   std::cout << std::endl;
+   return shelx_card_info; 
+}
+
+CResidue *
+coot::ShelxIns::add_shelx_residue(const std::vector<CAtom *> &atom_vector,
+				  const std::string &current_res_name,
+				  int &current_res_no) const {
+   
+   CResidue *residue = new CResidue;
+   residue->SetResName(current_res_name.c_str());
+   residue->seqNum = current_res_no;
+   for (unsigned int i=0; i<atom_vector.size(); i++)
+      residue->AddAtom(atom_vector[i]);
+   return residue;
+}
+
+
+coot::shelx_card_info_t
+coot::ShelxIns::read_card(std::ifstream &f) {
+
+   // OK, we have to deal with a commented line (using !) (that it
+   // ends with with a "=" doesn't mean that it is continued).
+   //
+   // How shall we do that?  shelx_card_info returns raw strings, so
+   // here we shall carve off the commented lines
+
+   coot::shelx_card_info_t shelx_card_info = read_line(f);
+   shelx_card_info.strip_post_bang();
+   if (shelx_card_info.words.size() > 0) {
+      if (shelx_card_info.spaced_start == 0) {
+	 if (shelx_card_info.words.back() == "=") {
+	    shelx_card_info.add_card(read_card_extended(f));
+	    // std::cout << "DEBUG::" << shelx_card_info.card << "\n";
+	    // for (int i=0; i<shelx_card_info.words.size(); i++)
+	    // std::cout << "DEBUG:: " << i << " :" << shelx_card_info.words[i] << ":\n";
+	 }
+      }
+   }
+
+   // we want to return empty if spaced_start was true, unless the
+   // previous line ended with a "=".
+   if (shelx_card_info.spaced_start) {
+      shelx_card_info.empty_yorself();
+   } 
+   return shelx_card_info;
+}
+
+
+
+// Read a extension card, a card like
+// "    1.1 2.2 3.3"
+// that follows a card ending in a "="
+//
+coot::shelx_card_info_t
+coot::ShelxIns::read_card_extended(std::ifstream &f) {
+
+   coot::shelx_card_info_t shelx_card_info = read_line(f);
+   shelx_card_info.strip_post_bang();
+   if (shelx_card_info.words.size() > 0) {
+      if (shelx_card_info.spaced_start == 0) {
+	 if (shelx_card_info.words.back() == "=") {
+	    shelx_card_info.add_card(read_card_extended(f));
+	    // std::cout << "DEBUG::" << shelx_card_info.card << "\n";
+	    // for (int i=0; i<shelx_card_info.words.size(); i++)
+	    // std::cout << "DEBUG:: " << i << " :" << shelx_card_info.words[i] << ":\n";
+	 }
+      }
+   }
+
+   return shelx_card_info;
+}
+
+// modify yourself so that words after a ! word (and the ! word) are
+// removed.
+void
+coot::shelx_card_info_t::strip_post_bang() {
+
+   if (bang_index() != -1) {
+      std::vector<std::string> new_words;
+      for (int i=0; i<words.size(); i++) { 
+	 if (words[i][0] == '!') {
+	    words = new_words;
+	    break;
+	 } else {
+	    new_words.push_back(words[i]);
+	 }
+      }
+   }
+}
+
+
+// return -1 on no bang, else return the index of the ! (bang).
+int
+coot::shelx_card_info_t::bang_index() const {
+
+   int index = -1; // no bang
+   for (int i=0; i<words.size(); i++) { 
+      if (words[i][0] == '!') {
+	 index = i;
+	 break;
+      }
+   }
+   return index; 
+}
+
+// This is not used, I think.
+std::string
+coot::ShelxIns::make_atom_name(const std::string &atom_name_in,
+			       const int &atomic_weight) const {
+
+   std::string s;
+   int len = atom_name_in.length();
+   if (len == 4)
+      s = atom_name_in;
+   if (len == 3)
+      s = std::string(" ") + atom_name_in;
+   if (len == 2)
+      s = std::string("  ") + atom_name_in;
+   if (len == 1)
+      s = std::string("   ") + atom_name_in;
+
+//    std::cout << "debug:: make_atom_name converts :" << atom_name_in
+// 	     << ": to :" << s << ":\n";
+   return s;
+}
+
+std::string
+coot::ShelxIns::make_atom_name(const std::string &atom_name_in,
+			       const std::string &element) const {
+
+   std::string s = coot::pad_atom_name(atom_name_in, element);
+//    std::cout << "debug:: make_atom_name converts :" << atom_name_in
+//  	     << ": to :" << s << ":\n";
+   return s;
+}
+
+
+
+std::string
+coot::ShelxIns::make_atom_element(const std::string &atom_name_in,
+				  const int &sfac_index) const {
+
+   // sfac_index is fortran indexing
+   std::string s("ERROR-in-SFAC");
+
+   int vind = sfac_index - 1; 
+   if ( vind < int(sfac.size())) {
+      if ( vind >= 0) {
+	 s = sfac[sfac_index-1];
+	 if (s.length() == 1)
+	    s = std::string(" ") + s;
+      } else {
+	 std::cout << "ERROR:: Bad vind! " << vind << " sfac index limit: " << sfac.size() << "\n";
+	 std::cout << "        sfac_index: " << sfac_index << " for atom name :" << atom_name_in
+		   << ":" << std::endl;
+      }
+   } else {
+      std::cout << "ERROR:: Bad vind! over end: " << vind << " sfac index limit: " << sfac.size() << "\n";
+   }
+   return s;
+}
+
+
+
+std::pair<int, std::string>
+coot::ShelxIns::write_ins_file(CMMDBManager *mol,
+			       const std::string &filename) const {
+
+   int istat = 0;
+   std::string message;
+   
+   float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
+
+   if (have_cell_flag) { // Need cell for orth->frac convertion for atoms
+      
+      std::ofstream f(filename.c_str());
+      if (f) {
+
+	 // pre-atom lines
+	 for (unsigned int i=0; i<pre_atom_lines.size(); i++)
+	    f << pre_atom_lines[i] << "\n";
+
+	 // FVAR lines
+	 int fvar_count = 0;
+	 for (unsigned int i=0; i<fvars.size(); i++) {
+	    if (fvar_count == 0)
+	       f << "FVAR ";
+	    f.precision(5); // Notes from Doug Kuntz, need 5 not 8, else
+                   	    // shelxl bombs.
+	    f << "  " << fvars[i];
+	    fvar_count++;
+	    if (fvar_count == 7) { 
+	       f << "\n";
+	       fvar_count = 0;
+	    }
+	 }
+	 f << "\n\n";
+	 
+      
+	 std::string current_altloc = "";
+	 int n_models = mol->GetNumberOfModels();
+	 int current_afix = -1; // AFIX is independent of residue, it
+				// should not be reset for every
+				// residue, put it here (outside the
+				// residue atoms loop).
+	 for (int imod=1; imod<=n_models; imod++) { 
+      
+	    CModel *model_p = mol->GetModel(imod);
+	    CChain *chain_p;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       if (chain_p == NULL) {  
+		  // This should not be necessary. It seem to be a
+		  // result of mmdb corruption elsewhere - possibly
+		  // DeleteChain in update_molecule_to().
+		  std::cout << "NULL chain in ... " << std::endl;
+	       } else { 
+		  int nres = chain_p->GetNumberOfResidues();
+		  PCResidue residue_p;
+		  CAtom *at;
+		  for (int ires=0; ires<nres; ires++) { 
+		     residue_p = chain_p->GetResidue(ires);
+		     
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     if (n_atoms > 0) { 
+			f <<  "RESI ";
+			// format to look like shelx resi:
+			int resno = residue_p->GetSeqNum();
+			if (resno < 1000)
+			   f << " ";
+			if (resno < 100)
+			   f << " ";
+			if (resno < 10)
+			   f << " ";
+			f << resno << "   " << residue_p->GetResName() << "\n";
+		     }
+		     int ic;
+		     
+		     for (int iat=0; iat<n_atoms; iat++) {
+			at = residue_p->GetAtom(iat);
+			float site_occ_factor = 11.000;
+			// site_occ_factor = 10.0 + at->occupancy;
+			site_occ_factor = at->occupancy;
+			clipper::Coord_orth co(at->x, at->y, at->z);
+			clipper::Coord_frac cf = co.coord_frac(cell);
+			int sfac_index = get_sfac_index(at->element);
+
+			// AFIX comes before PART
+			if (at->GetUDData(udd_afix_handle, ic) == UDDATA_Ok) {
+			   if (ic != current_afix) { 
+			      f << "AFIX ";
+			      // a bit of formatting to match SHELX format for AFIX
+			      if (ic < 100)
+				 f << " ";
+			      if (ic < 10)
+				 f << " ";
+			      f << ic << "\n";
+			   }
+			   current_afix = ic;
+			} else {
+			   std::cout << "ERROR:: failed to get AFIX handle for "
+				     << at->GetChainID() << " "
+				     << at->GetSeqNum() << " " << at->GetResName() << " "
+				     << at->GetAtomName() << " ," << at->altLoc <<"\n";
+			}
+			
+			// std::cout << "on writting WhatIsSet is " << at->WhatIsSet
+			// << "\n";
+			
+			std::string this_altloc = at->altLoc;
+			if (this_altloc != current_altloc) {
+			   int ipart = altloc_to_part_no(std::string(at->altLoc));
+			   f << "PART    " << ipart << "\n";
+			}
+			if (at->WhatIsSet & 64) {
+			   // Anisotropic
+			   std::string at_name(at->name);
+			   f.setf(std::ios::fixed);
+			   f.precision(9);
+			   f << coot::util::remove_leading_spaces(at_name)
+			     << "   " << sfac_index << "  ";
+			   f << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
+			     << site_occ_factor << "    =\n     "
+			     << at->u11 << "  " << at->u22 << "  " << at->u33 << "  "
+			     << at->u12 << "  " << at->u13 << "  " << at->u23
+			     << "\n";
+			} else { 
+			   if (at->WhatIsSet & 4) {
+			      // Isotropic B factor
+			      std::string at_name(at->name);
+			      float b_factor = at->tempFactor;
+			      f.setf(std::ios::fixed);
+			      f.precision(9);
+			      if (b_factor > 0.0) // (riding?) hydrogens are not (-1.2)
+				 b_factor /= u_to_b;
+			      f << coot::util::remove_leading_spaces(at_name)
+				<< "   " << sfac_index << "  "
+				<< cf.u() << "  " << cf.v() << "   " << cf.w() << " "
+				<< site_occ_factor << "    "
+				<< b_factor << "\n";
+			   }
+			}
+			current_altloc = this_altloc;
+		     }
+		     f << " \n"; // end of a RESI
+		  }
+	       }
+	    }
+	 }
+	 for (unsigned int i=0; i<post_atom_lines.size(); i++)
+	    f << post_atom_lines[i] << "\n";
+      }
+      f.close();
+      message =  "INFO:: shelxl file ";
+      message += filename;
+      message += " written.";
+      
+   } else {
+      std::cout << "WARNING:: no cell available... failure to write ins file."
+		<< std::endl;
+      message = "WARNING:: no cell available... failure to write ins file.";
+   }
+   return std::pair<int, std::string>(istat, message);
+}
+
+// return -1 on index not found
+int
+coot::ShelxIns::get_sfac_index(const std::string &element) const {
+
+   std::string ele = element;
+   if (ele[0] == ' ') {
+      ele = element.substr(1,1);
+   }
+
+   int indx = -1;
+   for (unsigned int i=0; i<sfac.size(); i++) {
+      // std::cout << "comparing :" << ele << ": :" << sfac[i] << ":\n";
+      if (ele == sfac[i]) {
+	 indx = i+1;
+	 break;
+      }
+   }
+   return indx;
+}
+
+
+int
+coot::ShelxIns::altloc_to_part_no(const std::string &altloc) const {
+
+   int ipart = 0;
+   if (altloc == "")
+      return 0;
+   if (altloc == "A")
+      return 1;
+   if (altloc == "B")
+      return 2;
+   if (altloc == "C")
+      return 3;
+   if (altloc == "D")
+      return 4;
+   if (altloc == "a")
+      return -1;
+   if (altloc == "b")
+      return -2;
+   return ipart;
+
+}
+
+int
+coot::ShelxIns::add_fvar(float f) {
+
+   // FVAR 1 is not written to SHELX file
+   //
+   // 20060315 BUT! the overall scale (FO to FC?) is written in the
+   // .res file as if it was free variable number one.
+
+   // so if shelx ins file seems to have 1
+   // FVAR value, then we've just created shelx FVAR 2.
+
+   fvars.push_back(f);
+   return fvars.size();  // fvars is increased in size now, of course.
+}
+
+void
+coot::ShelxIns::set_fvar(int fvar_no, float f) {
+
+   if (int(fvars.size()) >= (fvar_no-1))
+      if (fvar_no >= 0)
+	 fvars[fvar_no - 1] = f;  // i.e. free varable no 2 is at index 1
+}
+
+
+void
+coot::ShelxIns::debug() const {
+
+   std::cout << "DEBUG ShelxIns title: " << title << std::endl;
+   std::cout << "DEBUG ShelxIns filled_flag: " << filled_flag << std::endl;
+   std::cout << "DEBUG ShelxIns : have_cell_flag: " << have_cell_flag<< std::endl;
+
+   std::cout << "DEBUG ShelxIns : cell " << cell.format() << std::endl;
+   std::cout << "DEBUG ShelxIns : sfac size " << sfac.size() << std::endl;
+   std::cout << "DEBUG ShelxIns : unit size " << unit.size() << std::endl;
+   std::cout << "DEBUG ShelxIns : defs size " <<  defs.size() << std::endl;
+   std::cout << "DEBUG ShelxIns : fvars size " <<  fvars.size() << std::endl;
+   std::cout << "DEBUG ShelxIns : pre_atom_lines.size() " <<  pre_atom_lines.size() << std::endl;
+   std::cout << "DEBUG ShelxIns : post_atom_lines.size() " <<  post_atom_lines.size() << std::endl;
+
+   //    std::cout << "DEBUG ShelxIns : " <<  << std::endl;
+
+   
+}
+
+// Do lattice expansion and possible centro-symmetric expansion
+// and add in X,Y,Z which shelx ins file does not require.
+// 
+std::vector<std::string>
+coot::clipper_symm_strings(const std::vector<std::string> &symm_vec,
+			   int shelx_latt) {
+
+   std::vector<std::string> v;
+   v.push_back("X,Y,Z");
+   std::vector<std::string> r;
+   
+   for (unsigned int i=0; i<symm_vec.size(); i++)
+      v.push_back(symm_vec[i]);
+
+//    for (unsigned int i=0; i<v.size(); i++)
+//       std::cout << "DEBUG:: v in clipper_symm_strings: "
+// 		<< i << " " << v[i] << std::endl;
+
+   for (unsigned int i=0; i<v.size(); i++) { 
+      symm_card_composition_t sc(v[i]);
+      std::vector<std::string> cards = sc.symm_cards_from_lat(shelx_latt);
+//       std::cout << "INFO:: There are " << cards.size()
+// 		<< " elements in cards" << std::endl;
+      for (unsigned int isc=0; isc<cards.size(); isc++) {
+	 r.push_back(cards[isc]);
+      }
+   }
+   return r;
+} 
+
+
+
+// constructor
+// 
+// should be able to cope with 0.25-x, 0.333+y, 0.1667+z
+//
+coot::symm_card_composition_t::symm_card_composition_t(const std::string &symm_card) {
+
+   // So first we split into 3 strings on comma.
+   //
+   // That gives us elements like: "x+2/3" say, or "-x+y" or "x-0.3333"
+   //
+   // Next we need to split the x/y/z component from the numerical
+   // component
+   //
+   // -> [x],2/3   or   [-x,y],0  or  [x],-0.333
+   //
+   // How do we do that? by stripping out
+   // "+x" "-x" then "x" ... "+y" "-y" then "y" ... "+z" "-z" then "z".
+   // If we find those components then flag in the x_element array.
+   // What we have left is the numerical component.
+   //
+   // Then we interpret the numerical component.
+   // Does it contain a slash?  If yes, just leave it.
+   // If no, then turn it into a number and multiply it by 12.
+   // 
+   // Then see if it is 2, 3, 4, 6 or - those numbers,
+   // if it isn't then throw hands up in air and grown loadly.
+
+//    std::cout << "\nconstructing symm_card_composition_t from "
+// 	     << symm_card << std::endl << std::endl;
+
+   for (int i=0; i<3; i++) {
+      x_element[i] = 0;
+      y_element[i] = 0;
+      z_element[i] = 0;
+      frac_trans[i] = 0;
+   }
+
+   // now split on comma
+   std::vector<std::string> ele(3, "");
+
+   // Find the first comma:
+   std::string::size_type icomma_1 = symm_card.find(",");
+   if (icomma_1 != std::string::npos) {
+      std::string a = symm_card.substr(0,icomma_1);
+      std::string b = symm_card.substr(icomma_1+1);
+      std::string::size_type icomma_2 = b.find(",");
+      // Find the second comma
+      if (icomma_2 != std::string::npos) { 
+	 std::string c = b.substr(0, icomma_2);
+	 std::string d = b.substr(icomma_2+1);
+	 ele[0] = a;
+	 ele[1] = c;
+	 ele[2] = d;
+      }
+   }
+
+   // we have split on comma into ele.  now examine the ele for x,y,z
+   // and translational part.
+   // 
+   for (int iele=0; iele<3; iele++) {
+      // these need case insensitivity
+      std::string::size_type ixp = ele[iele].find("+X"); 
+      std::string::size_type ixm = ele[iele].find("-X");
+      std::string::size_type ix  = ele[iele].find( "X");
+      std::string::size_type iyp = ele[iele].find("+Y");
+      std::string::size_type iym = ele[iele].find("-Y");
+      std::string::size_type iy  = ele[iele].find( "Y");
+      std::string::size_type izp = ele[iele].find("+Z");
+      std::string::size_type izm = ele[iele].find("-Z");
+      std::string::size_type iz  = ele[iele].find( "Z");
+
+//       std::cout << "looking in iele=" << iele << " " << ele[iele]
+// 		<< std::endl;
+      
+      std::string substituted = ele[iele];
+      if (ixp != std::string::npos) {
+	 substituted[ixp] = ' ';
+	 substituted[ixp+1] = ' ';
+      }
+      if (ixm != std::string::npos) {
+	 substituted[ixm] = ' ';
+	 substituted[ixm+1] = ' ';
+      }
+      if ((ixp == std::string::npos) &&
+	  (ixm == std::string::npos)) { 
+	 if (ix != std::string::npos) {
+	    substituted[ix] = ' ';
+	 }
+      }
+      if (ixp != std::string::npos)
+	 x_element[iele] = 1;
+      if (ixm != std::string::npos)
+	 x_element[iele] = -1;
+
+      if ((ixp == std::string::npos) &&
+	  (ixm == std::string::npos))
+	 if (ix != std::string::npos) {
+	    x_element[iele] = 1;
+	 }
+      
+      if (iyp != std::string::npos) {
+	 substituted[iyp] = ' ';
+	 substituted[iyp+1] = ' ';
+      }
+      if (iym != std::string::npos) {
+	 substituted[iym] = ' ';
+	 substituted[iym+1] = ' ';
+      }
+      if ((iyp == std::string::npos) &&
+	  (iym == std::string::npos)) { 
+	 if (iy != std::string::npos) {
+	    substituted[iy] = ' ';
+	 }
+      }
+      if (iyp != std::string::npos)
+	 y_element[iele] = 1;
+      if (iym != std::string::npos)
+	 y_element[iele] = -1;
+      if ((iyp == std::string::npos) &&
+	  (iym == std::string::npos))
+	 if (iy != std::string::npos)
+	    y_element[iele] = 1;
+
+      if (izp != std::string::npos) {
+	 substituted[izp] = ' ';
+	 substituted[izp+1] = ' ';
+      }
+      if (izm != std::string::npos) {
+	 substituted[izm] = ' ';
+	 substituted[izm+1] = ' ';
+      }
+      if ((izp == std::string::npos) &&
+	  (izm == std::string::npos)) { 
+	 if (iz != std::string::npos) {
+	    substituted[iz] = ' ';
+	 }
+      }
+      if (izp != std::string::npos)
+	 z_element[iele] = 1;
+      if (izm != std::string::npos)
+	 z_element[iele] = -1;
+      if ((izp == std::string::npos) &&
+	  (izm == std::string::npos))
+	 if (iz != std::string::npos)
+	    z_element[iele] = 1;
+
+   // debugging stuff:
+   if (0) 
+      std::cout << "  after setting: x/y/z eles: (["
+		<< x_element[0] << " "
+		<< x_element[1] << " "
+		<< x_element[2] << "] "
+		<< ")  (["
+		<< y_element[0] << " "
+		<< y_element[1] << " "
+		<< y_element[2] << " ] "
+		<< ")  (["
+		<< z_element[0] << " "
+		<< z_element[1] << " "
+		<< z_element[2] << "] "
+		<< ") " << std::endl;
+
+   
+      // so now substituted should be stripped of all X, Y, Z
+      // commonents and now we need to examine the trans component.
+      // 
+      // set whether substituted is blank 
+      short int substituted_is_blank = 1;
+      for (unsigned int il=0; il<substituted.length(); il++) {
+	 if (substituted[il] != ' ') {
+	    substituted_is_blank = 0;
+	    break;
+	 }
+      }
+
+      if (substituted_is_blank) {
+	 // no trans components.
+	 frac_trans[iele] = 0;
+
+      } else { 
+
+	 std::string::size_type islash = substituted.find("/");
+	 if (islash != std::string::npos) {
+	    std::string::size_type ifind;
+	    ifind = substituted.find("-1/2");
+	    if (ifind != std::string::npos) { 
+	       frac_trans[iele] = MINUS_ONE_HALF;
+	    } else { 
+	       ifind = substituted.find("1/2");
+	       if (ifind != std::string::npos)
+		  frac_trans[iele] = ONE_HALF;
+	    }
+	    ifind = substituted.find("-1/3");
+	    if (ifind != std::string::npos) { 
+	       frac_trans[iele] = MINUS_ONE_THIRD;
+	    } else { 
+	       ifind = substituted.find("1/3");
+	       if (ifind != std::string::npos)
+		  frac_trans[iele] = ONE_THIRD;
+	    }
+	    ifind = substituted.find("-1/4");
+	    if (ifind != std::string::npos) { 
+	       frac_trans[iele] = MINUS_ONE_QUARTER;
+	    } else { 
+	       ifind = substituted.find("1/4");
+	       if (ifind != std::string::npos)
+		  frac_trans[iele] = ONE_QUARTER;
+	    }
+	    ifind = substituted.find("-1/6");
+	    if (ifind != std::string::npos) { 
+	       frac_trans[iele] = MINUS_ONE_SIXTH;
+	    } else { 
+	       ifind = substituted.find("1/6");
+	       if (ifind != std::string::npos)
+		  frac_trans[iele] = ONE_SIXTH;
+	    }
+	    ifind = substituted.find("-2/3");
+	    if (ifind != std::string::npos) { 
+	       frac_trans[iele] = MINUS_TWO_THIRDS;
+	    } else { 
+	       ifind = substituted.find("2/3");
+	       if (ifind != std::string::npos)
+		  frac_trans[iele] = TWO_THIRDS;
+	    }
+	    ifind = substituted.find("-3/4");
+	    if (ifind != std::string::npos) { 
+	       frac_trans[iele] = MINUS_THREE_QUARTERS;
+	    } else { 
+	       ifind = substituted.find("3/4");
+	       if (ifind != std::string::npos)
+		  frac_trans[iele] = THREE_QUARTERS;
+	    }
+	    ifind = substituted.find("-5/6");
+	    if (ifind != std::string::npos) { 
+	       frac_trans[iele] = MINUS_FIVE_SIXTHS;
+	    } else { 
+	       ifind = substituted.find("5/6");
+	       if (ifind != std::string::npos)
+		  frac_trans[iele] = FIVE_SIXTHS;
+	    }
+
+	 } else {
+
+	    // no slash
+	    float f = atof(substituted.c_str());
+
+	    double ff = f*12;
+	    if (ff < 0)
+	       ff -= 0.5;
+	    if (ff > 0)
+	       ff += 0.5;
+	    frac_trans[iele] = int(floor(ff));
+// 	    std::cout << "floating trans: " << f << " " << frac_trans[iele]
+// 		      << std::endl;
+	    
+	 }
+      }
+   }
+
+   // debugging stuff:
+   if (0) 
+      std::cout << "  x/y/z eles: (["
+		<< x_element[0] << " "
+		<< x_element[1] << " "
+		<< x_element[2] << "] "
+		<< frac_trans[0] << ")  (["
+		<< y_element[0] << " "
+		<< y_element[1] << " "
+		<< y_element[2] << " ] "
+		<< frac_trans[1] << ")  (["
+		<< z_element[0] << " "
+		<< z_element[1] << " "
+		<< z_element[2] << "] "
+		<< frac_trans[2] << ") " << std::endl;
+} 
+
+
+// The centring is:
+//  5: A centring additional x, 1/2+y, 1/2+z
+//  6: B centring additional x+1/2, y, 1/2+z
+//  7: C centring additional 1/2+x, 1/2+y, z
+//  4: F centring additional x, 1/2+y, 1/2+z
+//                           x+1/2, y, 1/2+z
+//                           1/2+x, 1/2+y, z
+//
+//  3: H centring additional x+2/3,y+1/3,z+1/3
+//                           x+1/3,y+2/3,z+2/3
+//
+//  2: I centring additional x+1/2,y+1/2,z+1/2
+// 
+std::vector<std::string>
+coot::symm_card_composition_t::symm_cards_from_lat(int latt) {
+
+   std::vector<std::string> r;
+   std::vector<std::vector<int> > latt_additions;
+   
+   int abs_latt = abs(latt);
+
+   std::vector<int> a(3);
+   a[0] = NONE;  a[1] = NONE; a[2] = NONE;
+   latt_additions.push_back(a);
+
+   if (abs_latt == 2) {
+      std::vector<int> a(3);
+      a[0] = ONE_HALF;  a[1] = ONE_HALF; a[2] = ONE_HALF;
+      latt_additions.push_back(a);
+   }
+   if (abs_latt == 3) { 
+      std::vector<int> a(3);
+      a[0] = TWO_THIRDS;  a[1] = ONE_THIRD; a[2] = ONE_THIRD;
+      latt_additions.push_back(a);
+      a[0] = ONE_THIRD;  a[1] = TWO_THIRDS; a[2] = TWO_THIRDS;
+      latt_additions.push_back(a);
+   }
+   if (abs_latt == 4) { 
+      std::vector<int> a(3);
+      a[0] = 0;  a[1] = ONE_HALF; a[2] = ONE_HALF;
+      latt_additions.push_back(a);
+      a[0] = 0;  a[1] = ONE_HALF; a[2] = ONE_HALF;
+      latt_additions.push_back(a);
+      a[0] = ONE_HALF;  a[1] = ONE_HALF; a[2] = NONE;
+      latt_additions.push_back(a);
+   }
+   if (abs_latt == 5) { 
+      std::vector<int> a(3);
+      a[0] = 0;  a[1] = ONE_HALF; a[2] = ONE_HALF;
+      latt_additions.push_back(a);
+   }
+   if (abs_latt == 6) { 
+      std::vector<int> a(3);
+      a[0] = ONE_HALF;  a[1] = NONE; a[2] = ONE_HALF;
+      latt_additions.push_back(a);
+   }
+   if (abs_latt == 7) { 
+      std::vector<int> a(3);
+      a[0] = ONE_HALF;  a[1] = ONE_HALF; a[2] = NONE;
+      latt_additions.push_back(a);
+   }
+
+   for (unsigned int i=0; i<latt_additions.size(); i++) {
+      symm_card_composition_t t = *this;
+      t.add_centering_frac(latt_additions[i][0],
+			   latt_additions[i][1],
+			   latt_additions[i][2]);
+
+//       std::cout << "centring gives card: "
+// 		<< t.symm_card() << std::endl;
+      r.push_back(t.symm_card());
+      if (latt>0) {
+	 symm_card_composition_t it = *this;
+	 it.invert();
+	 r.push_back(it.symm_card());
+      }
+   }
+   return r;
+}
+
+
+void
+coot::symm_card_composition_t::invert() {
+
+   frac_trans[0] = -frac_trans[0];
+   frac_trans[1] = -frac_trans[1];
+   frac_trans[2] = -frac_trans[2];
+
+   for (int i=0; i<3; i++) {
+      x_element[i] = -x_element[i];
+      y_element[i] = -y_element[i];
+      z_element[i] = -z_element[i];
+   }
+}
+
+
+void
+coot::symm_card_composition_t::add_centering_frac(int ix, int iy, int iz) {
+
+   frac_trans[0] += ix;
+   frac_trans[1] += iy;
+   frac_trans[2] += iz;
+
+   for (int i=0; i<3; i++) {
+      if (frac_trans[i] < -12)
+	 frac_trans[i] += 12;
+      if (frac_trans[i] > 12)
+	 frac_trans[i] -= 12;
+   }
+} 
+
+
+std::string
+coot::symm_card_composition_t::symm_card() const {
+
+   std::string r;
+
+   if (x_element[0] == 1)
+      r+= "X";
+   if (x_element[0] == -1)
+      r+= "-X";
+
+   if (y_element[0] == 1)
+      r+= "+Y";
+   if (y_element[0] == -1)
+      r+= "-Y";
+   if (z_element[0] == 1)
+      r+= "+Z";
+   if (z_element[0] == -1)
+      r+= "-Z";
+   if (frac_trans[0]) {
+      r += fract_trans_to_str(frac_trans[0]);
+   }
+   r += ",";
+
+
+   if (x_element[1] == 1)
+      r+= "+X";
+   if (x_element[1] == -1)
+      r+= "-X";
+   if (y_element[1] == 1)
+      r+= "+Y";
+   if (y_element[1] == -1)
+      r+= "-Y";
+   if (z_element[1] == 1)
+      r+= "+Z";
+   if (z_element[1] == -1)
+      r+= "-Z";
+   if (frac_trans[1]) {
+      r += fract_trans_to_str(frac_trans[1]);
+   }
+   r += ",";
+
+
+
+   if (x_element[2] == 1)
+      r+= "+X";
+   if (x_element[2] == -1)
+      r+= "-X";
+   if (y_element[2] == 1)
+      r+= "+Y";
+   if (y_element[2] == -1)
+      r+= "-Y";
+   if (z_element[2] == 1)
+      r+= "+Z";
+   if (z_element[2] == -1)
+      r+= "-Z";
+   if (frac_trans[2]) {
+      r += fract_trans_to_str(frac_trans[2]);
+   }
+   
+   return r;
+}
+
+
+std::string
+coot::symm_card_composition_t::fract_trans_to_str(int itrans_frac) const {
+
+   std::string r;
+   if (itrans_frac == NONE)
+      r = "";
+   if (itrans_frac == ONE_HALF)
+      r = "+1/2";
+   if (itrans_frac == ONE_THIRD)
+      r = "+1/3";
+   if (itrans_frac == ONE_QUARTER)
+      r = "+1/4";
+   if (itrans_frac == ONE_SIXTH)
+      r = "+1/6";
+   if (itrans_frac == TWO_THIRDS)
+      r = "+2/3";
+   if (itrans_frac == THREE_QUARTERS)
+      r = "+3/4";
+   if (itrans_frac == FIVE_SIXTHS)
+      r = "+5/6";
+
+   if (itrans_frac == MINUS_ONE_HALF)
+      r = "-1/2";
+   if (itrans_frac == MINUS_ONE_THIRD)
+      r = "-1/3";
+   if (itrans_frac == MINUS_ONE_QUARTER)
+      r = "-1/4";
+   if (itrans_frac == MINUS_ONE_SIXTH)
+      r = "-1/6";
+   if (itrans_frac == MINUS_TWO_THIRDS)
+      r = "-2/3";
+   if (itrans_frac == MINUS_THREE_QUARTERS)
+      r = "-3/4";
+   if (itrans_frac == MINUS_FIVE_SIXTHS)
+      r = "-5/6";
+   
+
+   return r;
+}
+
+
+
+// Return -1 on a problem
+// 
+// static
+int
+coot::ShelxIns::shelx_occ_to_fvar(float shelx_occ) {
+
+   // e.g. return 18 if shelx_occ 181.00
+
+   int r = -1;
+
+   double aocc = fabs(shelx_occ);
+   if (aocc > 10.0)
+      r = int(aocc/10.0);
+
+   return r;
+}

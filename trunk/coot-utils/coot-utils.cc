@@ -1,0 +1,621 @@
+/* ligand/find-waters.cc
+ * 
+ * Copyright 2004, 2005, 2006 by Paul Emsley, The University of York
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+// Portability (to Windows, particularly) functions go here.
+// 
+
+#if defined _MSC_VER
+#define snprintf _snprintf
+#define PKGDATADIR "C:/coot/share"
+#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
+#define S_IWUSR S_IWRITE
+#define S_IXUSR S_IEXEC
+#define S_IRUSR S_IREAD
+#include <direct.h>
+#endif
+
+// These 2 are for getpwnam
+#include <sys/types.h>
+#include <pwd.h>
+
+#include <ctype.h>  // for toupper
+
+#include <sys/stat.h>   // for mkdir
+#include <sys/types.h>
+
+#include "clipper/core/hkl_compute.h"
+#include "coot-utils.hh"
+
+
+
+std::string
+coot::util::append_dir_dir (const std::string &s1, const std::string &dir) { 
+
+   std::string s;
+   
+   s = s1;
+   s += "/";
+   s += dir;
+
+   return s;
+
+} 
+
+std::string
+coot::util::append_dir_file(const std::string &s1, const std::string &file) {
+
+   std::string s;
+   
+   s = s1;
+   s += "/";
+   s += file;
+
+   return s;
+}
+
+// Return the userid and name (e.g ("paule", "Paul Emsley")) for use
+// as a label in the database.  Not important to get right.
+// 
+std::pair<std::string, std::string> coot::get_userid_name_pair() {
+
+   std::pair<std::string, std::string> p("unknown","unknown");
+   const char *u = getenv("USER");
+   if (u) {
+      struct passwd *pwbits = getpwnam(u);
+      std::string uid;
+      std::string nam;
+      p.first  = pwbits->pw_name;
+      p.second = pwbits->pw_gecos;
+   }
+   return p;
+}
+
+
+// Return like mkdir: mkdir returns zero on success, or -1 if an  error  occurred
+// Return 0 on success
+// something else on failure.
+int
+coot::util::create_directory(const std::string &dir_name) {
+
+   int istat = -1;
+   struct stat s;
+   int fstat = stat(dir_name.c_str(), &s);
+
+   // 20060411 Totally bizarre pathology!  (FC4) If I comment out the
+   // following line, we fail to create the directory, presumably
+   // because the S_ISDIR returns true (so we don't make the
+   // directory).
+   
+   if ( fstat == -1 ) { // file not exist
+      // not exist
+      int mode = S_IRUSR|S_IWUSR|S_IXUSR;
+      std::cout << "INFO:: Creating directory " << dir_name << std::endl;
+
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+      istat = mkdir(dir_name.c_str()); 
+#else
+      istat = mkdir(dir_name.c_str(), mode);
+#endif
+      
+   } else {
+      if ( ! S_ISDIR(s.st_mode) ) {
+	 // exists but is not a directory
+	 istat = -1;
+      } else {
+	 // was a directory already
+	 istat = 0; // return as if we made it
+      }
+   }
+   std::cout << "create_directory returns " << istat << std::endl;
+   return istat; 
+} 
+
+
+
+std::string
+coot::util::intelligent_debackslash(const std::string &s) {
+
+   std::string filename_str = s;
+
+#ifdef WINDOWS_MINGW
+   int slen = s.length();
+   for (int i=0; i<slen; i++) {
+       if (filename_str[i] == '\\') {
+          filename_str.replace (i,1,"/");
+       }
+   }
+#endif
+  return filename_str;
+}
+
+short int
+coot::is_member_p(const std::vector<std::string> &v, const std::string &a) { 
+
+   short int ir = 0;
+   int vsize = v.size();
+
+   for (int i=0; i<vsize; i++) { 
+      if (v[i] == a) { 
+	 ir = 1;
+	 break;
+      } 
+   }
+   return ir;
+}
+
+// Some sort of polymorphism would be appropriate here, perhaps?
+short int
+coot::is_member_p(const std::vector<int> &v, const int &a) { 
+
+   short int ir = 0;
+   int vsize = v.size();
+
+   for (int i=0; i<vsize; i++) { 
+      if (v[i] == a) { 
+	 ir = 1;
+	 break;
+      } 
+   }
+   return ir;
+}
+
+void
+coot::remove_member(std::vector<int> *v_p, const int &a) {
+
+   int vsize = v_p->size();
+
+   for (int i=0; i<vsize; i++) {
+      if ((*v_p)[i] == a) {
+	 // shift down the others and reduct the vector length by one:
+	 for (int j=(i); j<(vsize-1); j++) {
+	    (*v_p)[j] =  (*v_p)[j+1];
+	 }
+	 v_p->resize(vsize-1);
+      }
+   }
+} 
+
+
+std::string
+coot::util::Upper(const std::string &s) {
+
+   std::string r = s;
+   int nchars = s.length();
+   for (int i=0; i<nchars; i++) {
+      r[i] = toupper(s[i]);
+   }
+   return r;
+}
+
+std::string
+coot::util::remove_leading_spaces(const std::string &s) {
+
+   int sl = s.length();
+   int cutpoint = 0;
+   if (sl > 0) { 
+      for (int i=0; i<sl; i++) {
+	 if (!(s[i] == ' ')) {
+	    cutpoint = i;
+	    break;
+	 }
+      }
+   }
+   return s.substr(cutpoint, sl);
+}
+
+// Remove the first bit from long
+// e.g. remove_string("Cottage", "tag") -> "Cote";
+// 
+std::string
+coot::util::remove_string(const std::string &long_string, const std::string &bit) {
+
+   std::string r = long_string;
+
+   std::string::size_type ipos = long_string.find(bit);
+   if (ipos != std::string::npos) {
+      // OK, we found a match
+      if ((ipos + bit.length()) < long_string.length())
+	 r = r.substr(0,ipos) + r.substr((ipos+bit.length()));
+      else
+	 r = r.substr(0,ipos);
+   } 
+   return r;
+
+} 
+
+
+
+ 
+
+std::string
+coot::util::int_to_string(int i) {
+   char s[100];
+   snprintf(s,99,"%d",i);
+   return std::string(s);
+}
+
+std::string
+coot::util::long_int_to_string(long int i) {
+   char s[100];
+   snprintf(s,99,"%ld",i);
+   return std::string(s);
+}
+
+std::string
+coot::util::float_to_string(float f) {
+   char s[100];
+   snprintf(s,99,"%5.2f",f);
+   return std::string(s);
+}
+
+std::string
+coot::util::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
+   char s[100];
+   snprintf(s,99,"%7.4f",f); // haha, FIXME. (use n_dec_pl, not 4)
+   return std::string(s);
+}
+
+
+
+std::string
+coot::util::plain_text_to_sequence(const std::string &s) {
+
+   std::string r;
+
+   for (unsigned int i=0; i<s.length(); i++) {
+      // std::cout << "testing :" << s.substr(i, 1) << ":" << std::endl;
+      if (coot::util::is_fasta_aa(s.substr(i, 1)))
+	 r += s[i];
+   }
+
+   return r;
+}
+
+
+
+short int
+coot::util::is_fasta_aa(const std::string &a) { 
+
+   short int r = 0;
+   
+   if (a == "A" || a == "G" ) { 
+      r = 1;
+   } else { 
+      if (a == "B" 
+	  || a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
+	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q" 
+	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W" 
+	  || a == "Y" || a == "Z" || a == "X" || a == "*" || a == "-") {
+	 r = 1;
+      }
+   }
+   return r;
+}
+
+std::string
+coot::util::single_quote(const std::string &s) {
+
+   std::string r("\"");
+   r += s;
+   r += "\"";
+   return r;
+}
+
+
+coot::sequence::fasta::fasta(const std::string &seq_in) {
+
+   std::string seq;
+
+   int nchars = seq_in.length();
+   short int found_greater = 0;
+   short int found_newline = 0;
+   std::string t;
+
+   for (int i=0; i<nchars; i++) {
+
+      // std::cout << "checking character: " << seq_in[i] << std::endl;
+
+      if (found_newline && found_greater) {
+	 t = toupper(seq_in[i]);
+	 if (is_fasta_aa(t)) {
+	    std::cout << "adding character: " << seq_in[i] << std::endl;
+	    seq += t;
+	 }
+      }
+      if (seq_in[i] == '>') {
+	 std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
+	 found_greater = 1;
+      }
+      if (seq_in[i] == '\n') { 
+	 if (found_greater) {
+	    std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
+	    found_newline = 1;
+	 }
+      }
+   }
+   
+   if (seq.length() > 0) { 
+      std::cout << "storing sequence: " << seq << std::endl;
+   } else { 
+      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+   }
+} 
+
+bool
+coot::sequence::fasta::is_fasta_aa(const std::string &a) const { 
+
+   bool r = 0;
+   
+   if (a == "A" || a == "G" ) { 
+      r = 1;
+   } else { 
+      if (a == "B" 
+	  || a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
+	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q" 
+	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W" 
+	  || a == "Y" || a == "Z" || a == "X" || a == "*" || a == "-") {
+	 r = 1;
+      }
+   }
+   return r;
+}
+
+// This should be a util function return the directory of this
+// filename: /d/a -> /d/ a -> ""
+std::string coot::util::file_name_directory(const std::string &file_name) {
+
+   int end_char = -1;
+   std::string rstring = "";
+   
+   for (int i=file_name.length()-1; i>=0; i--) {
+      // std::cout << file_name.substr(0, i) << std::endl;
+      if (file_name[i] == '/') {
+	 if (i < int(file_name.length())) { 
+	    end_char = i;
+	 } else {
+	    // never get here?
+	    std::cout << "cannont happen. end_char = " << end_char
+		      << " file_name.length(): " << file_name.length() << std::endl;
+	    end_char = i-1;
+	 }
+	 break;
+      }
+   }
+
+   if (end_char != -1) 
+      rstring = file_name.substr(0, end_char+1);
+
+   return rstring; 
+   
+}
+
+// return "" on no extension /usr/blogs/thign/other
+std::string
+coot::util::file_name_extension(const std::string &file_name) {
+
+   int dot_char = -1;
+   std::string rstring = "";
+   
+   for (int i=file_name.length()-1; i>=0; i--) {
+      if (file_name[i] == '.') {
+	 dot_char = i;
+	 break;
+      }
+   }
+
+   if (dot_char != -1) 
+      rstring = file_name.substr(dot_char);
+
+   //    std::cout << "DEBUG:: extension of " << file_name << " is " << rstring << std::endl;
+   return rstring;
+}
+
+
+short int
+coot::util::extension_is_for_shelx_coords(const std::string &ext) {
+
+   short int r = 0;
+   if ((ext == ".INS") ||
+       (ext == ".ins") ||
+       (ext == ".RES") ||
+       (ext == ".res") ||
+       (ext == ".hat") ||
+       (ext == ".HAT"))
+      r = 1;
+
+   return r; 
+}
+
+
+short int
+coot::is_mmcif_filename(const std::string &filename) {
+
+   short int i=0;
+
+   std::string::size_type idot = filename.find_last_of(".");
+   if (idot != std::string::npos) { 
+      std::string t = filename.substr(idot);
+   
+      std::string::size_type icif   = t.rfind(".cif");
+      std::string::size_type immcif = t.rfind(".mmcif");
+      std::string::size_type immCIF = t.rfind(".mmCIF");
+
+      if ( (icif   != std::string::npos) ||
+	   (immcif != std::string::npos) ||
+	   (immCIF != std::string::npos) ) {
+	 i = 1;
+      }
+   }
+   return i;
+} 
+
+
+// The user can set COOT_DATA_DIR (in fact this is the usual case
+// when using binaries) and that should over-ride the built-in
+// PKGDATADIR.
+//
+// Use this to find things in $prefix/share/coot
+std::string
+coot::package_data_dir() {
+
+   std::string pkgdatadir = PKGDATADIR;
+   // For binary installers, they use the environment variable:
+   char *env = getenv("COOT_DATA_DIR");
+   if (env)
+      pkgdatadir = std::string(env);
+   return pkgdatadir;
+} 
+
+
+std::pair<std::string, std::string>
+coot::util::split_string_on_last_slash(const std::string &string_in) {
+
+   std::string::size_type islash = string_in.find_last_of("/");
+   std::string first;
+   std::string second("");
+   
+   if (islash != std::string::npos) { 
+      first  = string_in.substr(0, islash);
+      second = string_in.substr(islash);
+      if (second.length() > 0)
+	 second = second.substr(1);
+   } else {
+      first = string_in;
+   }
+   return std::pair<std::string, std::string> (first, second);
+} 
+
+std::vector<std::string>
+coot::util::split_string(const std::string &string_in,
+			 const std::string &splitter) {
+
+  
+   std::vector<std::string> v;
+   std::string s=string_in;
+
+   while (1) {
+      std::string::size_type isplit=s.find_first_of(splitter);
+      if (isplit != std::string::npos) {
+	 std::string f = s.substr(0, isplit);
+	 v.push_back(f);
+	 if (s.length() >= (isplit+splitter.length())) { 
+	    s = s.substr(isplit+splitter.length());
+	 } else {
+	    break;
+	 }
+      } else {
+	 v.push_back(s);
+	 break;
+      } 
+   }
+   return v;
+}
+
+
+std::string
+coot::util::downcase(const std::string &s) {
+
+   std::string r = s;
+   std::string::iterator it=r.begin();
+
+   while ( (it!=r.end()) ) { 
+      *it = ::tolower(*it);
+      it++;
+   }
+   return r;
+}
+
+std::string
+coot::util::upcase(const std::string &s) {
+
+   std::string r = s;
+   std::string::iterator it=r.begin();
+
+   while (it!=r.end()) { 
+      *it = ::toupper(*it);
+      it++;
+   }
+   return r;
+}
+
+
+long int
+coot::util::random() { 
+
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+          long int r = rand();
+          return r;
+#else
+          long int r = ::random();
+          return r;
+#endif
+}
+
+
+
+// is ALA, GLY, TRP, MET, MSE...?
+short int
+coot::util::is_standard_residue_name(const std::string &residue_name) {
+
+   if (residue_name == "ALA")
+      return 1;
+   if (residue_name == "ARG")
+      return 1;
+   if (residue_name == "ASN")
+      return 1;
+   if (residue_name == "ASP")
+      return 1;
+   if (residue_name == "CYS")
+      return 1;
+   if (residue_name == "GLN")
+      return 1;
+   if (residue_name == "GLU")
+      return 1;
+   if (residue_name == "GLY")
+      return 1;
+   if (residue_name == "HIS")
+      return 1;
+   if (residue_name == "ILE")
+      return 1;
+   if (residue_name == "LEU")
+      return 1;
+   if (residue_name == "LYS")
+      return 1;
+   if (residue_name == "MET")
+      return 1;
+   if (residue_name == "MSE")
+      return 1;
+   if (residue_name == "PHE")
+      return 1;
+   if (residue_name == "PRO")
+      return 1;
+   if (residue_name == "SER")
+      return 1;
+   if (residue_name == "THR")
+      return 1;
+   if (residue_name == "TRP")
+      return 1;
+   if (residue_name == "TYR")
+      return 1;
+   if (residue_name == "VAL")
+      return 1;
+
+   return 0;
+
+} 
