@@ -1,0 +1,916 @@
+// -*-c++-*-
+
+#ifndef HAVE_SIMPLE_RESTRAINT_HH
+#define HAVE_SIMPLE_RESTRAINT_HH
+
+// we don't want to compile anything if we don't have gsl
+#ifdef HAVE_GSL  
+
+#include <vector>
+#include <string>
+#include <map>
+
+#include "gsl/gsl_multimin.h"
+
+// #include "Cartesian.h"
+#include "mmdb_manager.h"
+#include "mmdb-extras.h" // for atom_selection_container_t, this and
+			 // the interface that uses this can be
+			 // deleted, I think, when we move to clipper
+			 // (so that clipper does not get infected
+			 // with
+			 // MyMMDBManager/atom_selection_container_t
+			 // stuff).
+
+// for map stuff
+#include "clipper/core/xmap.h"
+#include "clipper/core/map_interp.h"
+
+#include "coot-utils.hh"
+#include "coot-coord-utils.hh" // for atom_spec_t
+
+// for protein dictionary container:
+#include "protein-geometry.hh"
+
+#ifndef DEGTORAD 
+#define DEGTORAD 0.017453293
+#endif
+#ifndef RADTODEG
+#define RADTODEG 57.29577793
+#endif
+
+namespace coot {
+
+   
+   // restraint types:
+   // 
+   enum {BOND_RESTRAINT, ANGLE_RESTRAINT, TORSION_RESTRAINT, PLANE_RESTRAINT,
+         NON_BONDED_CONTACT_RESTRAINT, CHIRAL_VOLUME_RESTRAINT};
+
+   enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
+				    STRAND_PSEUDO_BONDS};
+
+   
+   // restraints_usage_flag
+   // 
+   // use with restraints_usage_flag & 1 for BONDS or 
+   //          restraints_usage_flag & 2 for ANGLES etc.      
+   //
+   enum restraint_usage_Flags { NO_GEOMETRY_RESTRAINTS = 0,
+				BONDS = 1, BONDS_AND_ANGLES = 3,
+				TORSIONS = 4,
+				BONDS_ANGLES_AND_TORSIONS = 7,
+				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
+				BONDS_AND_PLANES = 9,
+				BONDS_ANGLES_AND_PLANES = 11, // no torsions
+				BONDS_ANGLES_PLANES_AND_NON_BONDED = 27,
+				BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL = 59,
+				BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED = 31,
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRAL = 63,
+				NON_BONDED = 16,
+				CHIRAL_VOLUMES = 32,
+   };
+
+   enum peptide_restraints_usage_Flags { OMEGA_TORSION = 1,
+					 OMEGA_PHI_PSI_TORSION = 3 };
+					 
+   enum { BONDS_MASK = 1,  ANGLES_MASK = 2, TORSIONS_MASK = 4, PLANES_MASK = 8, 
+          NON_BONDED_MASK = 16, CHIRAL_VOLUME_MASK = 32};
+
+   // ---------------------------------------------------------------
+   // helper class for linkage selection
+   // ---------------------------------------------------------------
+
+   class glycosidic_distance {
+   public:
+      double distance;
+      CAtom *at1;
+      CAtom *at2;
+      glycosidic_distance(CAtom *at1_in, CAtom *at2_in, double d) {
+	 at1 = at1_in;
+	 at2 = at2_in;
+	 distance = d;
+      }
+      short int operator<(const glycosidic_distance &d1) const {
+	 if (d1.distance < distance)
+	    return 1;
+	 else
+	    return 0;
+      }
+   };
+
+   // ---------------------------------------------------------------
+   // ---------------------------------------------------------------
+   //     class simple_restraint
+   // ---------------------------------------------------------------
+   // ---------------------------------------------------------------
+   
+   class simple_restraint {
+
+   public: 
+   
+      int atom_index_1, atom_index_2, atom_index_3, atom_index_4;
+      int atom_index_centre;
+      std::vector <int> atom_index; // atom_index can return negative (-1) for planes
+      float target_value; 
+      double sigma; 
+      float observed_value;    
+      short int restraint_type;
+      int periodicity; 
+      int chiral_volume_sign;
+      double target_chiral_volume;
+      std::vector<short int> fixed_atom_flags;
+
+      // allocator for geometry_distortion_info_t
+      simple_restraint() {}
+      
+      // Bond
+      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+		       const std::vector<short int> &fixed_atom_flags_in,
+		       float tar, 
+		       float sig, float obs){
+	 
+	 restraint_type = rest_type; 
+	 atom_index_1 = atom_1; 
+	 atom_index_2 = atom_2;
+	 observed_value = obs; 
+	 sigma = sig; 
+	 target_value = tar; 
+	 fixed_atom_flags = fixed_atom_flags_in;
+	 
+	 if (rest_type != BOND_RESTRAINT) { 
+	    std::cout << "BOND ERROR" << std::endl; 
+	    exit(1); 
+	 }
+      };
+    
+      // Angle
+      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+		       int atom_3, 
+		       const std::vector<short int> &fixed_atom_flags_in,
+		       float tar, 
+		       float sig, float obs){
+	 
+	 restraint_type = rest_type; 
+	 atom_index_1 = atom_1; 
+	 atom_index_2 = atom_2;
+	 atom_index_3 = atom_3;
+	 observed_value = obs; 
+	 sigma = sig; 
+	 target_value = tar; 
+	 fixed_atom_flags = fixed_atom_flags_in;
+	 if (rest_type != ANGLE_RESTRAINT) { 
+	    std::cout << "ANGLE ERROR" << std::endl; 
+	    exit(1); 
+	 }
+      };
+
+      // Torsion
+      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+		       int atom_3, int atom_4, 
+		       const std::vector<short int> &fixed_atom_flags_in,
+		       float tar, 
+		       float sig, float obs, int periodicity_in){
+
+	 restraint_type = rest_type; 
+	 atom_index_1 = atom_1; 
+	 atom_index_2 = atom_2;
+	 atom_index_3 = atom_3;
+	 atom_index_4 = atom_4;
+	 observed_value = obs; 
+	 sigma = sig; 
+	 target_value = tar; 
+	 fixed_atom_flags = fixed_atom_flags_in;
+	 periodicity = periodicity_in; 
+	 if (rest_type != TORSION_RESTRAINT) { 
+	    std::cout << "TORSION ERROR" << std::endl; 
+	    exit(1); 
+	 }
+      }
+
+      // Plane
+      simple_restraint(short int restraint_type_in,
+		       const std::vector<int> &atom_index_in,
+		       const std::vector<short int> &fixed_atom_flags_in,
+		       float sig) {
+	 
+	 restraint_type = restraint_type_in; 
+	 //
+	 // Check restraint_type?
+	 // Currently the only thing with an std::vector <int>
+	 // atom_index_in is a plane restraint.  This could well
+	 // change in the future.
+	 // 
+	 atom_index = atom_index_in;
+	 target_value = 0.0; // not needed for planes
+	 sigma = sig;
+	 fixed_atom_flags = fixed_atom_flags_in;
+      }
+
+      // Non-bonded
+      simple_restraint(short int restraint_type_in, 
+		       int index_1, 
+		       int index_2) { 
+	 
+	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) { 
+	    restraint_type = restraint_type_in;
+	    atom_index_1 = index_1;
+	    atom_index_2 = index_2;
+	    target_value = 2.3;
+	    sigma = 0.02;
+	    fixed_atom_flags.resize(2);
+	    fixed_atom_flags[0] = 0;
+	    fixed_atom_flags[1] = 0;
+	 } else { 
+	    std::cout << "ERROR:: bad simple_restraint constructor usage "
+		      << "- should be non-bonded\n";
+	 } 
+      }
+
+      // Chiral
+      simple_restraint(short int restraint_type_in, 
+		       int atom_centre_idx_in,
+		       int atom_idx_1_in,
+		       int atom_idx_2_in, 
+		       int atom_idx_3_in,
+		       int volume_sign_in,
+		       double target_volume_in,
+		       double target_volume_sigma_in) { 
+	 
+	 if (restraint_type_in == CHIRAL_VOLUME_RESTRAINT) { 
+	    restraint_type = restraint_type_in;
+	    atom_index_1 = atom_idx_1_in;
+	    atom_index_2 = atom_idx_2_in;
+	    atom_index_3 = atom_idx_3_in;
+	    atom_index_centre = atom_centre_idx_in;
+	    chiral_volume_sign = volume_sign_in;
+	    target_chiral_volume = target_volume_in;
+	    sigma = target_volume_sigma_in;
+	 } 
+      }
+   };
+
+   // We need something to quickly convert between atom name,
+   // sequence number, chain id to index into the atom selection
+   // array (get_asc_index)
+   //
+   // Let's use an associative array to do that (map)
+   // 
+      
+
+
+   // so that we can use distortion_score_plane_internal for both the
+   // distortion score and in the generation of the plane gradients:
+   // 
+   class plane_distortion_info_t {
+   public:
+      std::vector<double> abcd;
+      plane_distortion_info_t() {
+	 distortion_score = 0.0;
+      }
+      double distortion_score;
+   };
+
+   class geometry_distortion_info_t {
+   public:
+      geometry_distortion_info_t(double distortion_in,
+				 const simple_restraint &rest_in
+				 ) {
+	 distortion_score = distortion_in;
+	 restraint = rest_in;
+      }
+      double distortion_score;
+      simple_restraint restraint;
+   };
+
+   class geometry_distortion_info_container_t {
+   public:
+      std::string chain_id;
+      std::vector<geometry_distortion_info_t> geometry_distortion;
+      PCAtom *atom;
+      int n_atoms;
+      int min_resno; 
+      int max_resno;
+      geometry_distortion_info_container_t(const std::vector<geometry_distortion_info_t> &geometry_distortion_in, 
+					   PCAtom *atom_in, 
+					   const std::string &chain_id_in) { 
+	 geometry_distortion = geometry_distortion_in;
+	 atom = atom_in;
+	 chain_id = chain_id_in;
+      }
+      geometry_distortion_info_container_t(PCAtom *atom_in, int n_atoms_in, 
+					   const std::string &chain_id_in) { 
+	 atom = atom_in;
+	 n_atoms = n_atoms_in;
+	 chain_id = chain_id_in;
+      }
+      void set_min_max(int min_resno_in, int max_resno_in) { 
+	 min_resno = min_resno_in;
+	 max_resno = max_resno_in;
+      }
+      int size () const { return geometry_distortion.size(); }
+   };
+
+   class omega_distortion_info_t {
+   public:
+      int resno;
+      double distortion;
+      std::string info_string;
+      omega_distortion_info_t(int resno_in, double distortion_in, const std::string &s) {
+	 resno = resno_in;
+	 distortion = distortion_in;
+	 info_string = s;
+      } 
+   };
+   
+   class omega_distortion_info_container_t {
+   public:
+      std::string chain_id;
+      std::vector<omega_distortion_info_t> omega_distortions; // in degrees away from 180
+      int min_resno;
+      int max_resno;
+      omega_distortion_info_container_t(const std::string &chain_id_in, int min_resno_in, int max_resno_in) {
+	 chain_id = chain_id_in;
+	 min_resno = min_resno_in;
+	 max_resno = max_resno_in;
+      }
+   };
+
+   double distortion_score(const gsl_vector *v, void *params); 
+   double distortion_score_bond(const simple_restraint &bond_restraint,
+				    const gsl_vector *v); 
+   double distortion_score_angle(const simple_restraint &angle_restraint,
+				    const gsl_vector *v); 
+   double distortion_score_torsion(const simple_restraint &torsion_restraint,
+				    const gsl_vector *v); 
+   double distortion_score_plane(const simple_restraint &plane_restraint,
+				  const gsl_vector *v); 
+   double distortion_score_chiral_volume(const simple_restraint &chiral_restraint,
+					 const gsl_vector *v); 
+   double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
+					      const gsl_vector *v); 
+   void fix_chiral_atom_maybe (const simple_restraint &chiral_restraint,
+			       gsl_vector *v);
+   void fix_chiral_atom_internal (const simple_restraint &chiral_restraint,
+				  gsl_vector *v);
+   
+   plane_distortion_info_t
+   distortion_score_plane_internal(const simple_restraint &plane_restraint,
+				   const gsl_vector *v); 
+   
+   /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
+   void my_df (const gsl_vector *v, void *params, gsl_vector *df); 
+   // just the bond terms: 
+   void my_df_bonds(const gsl_vector *v, void *params, gsl_vector *df); 
+   // just the angle terms: 
+   void my_df_angles(const gsl_vector *v, void *params, gsl_vector *df); 
+   //  just the torsion terms:
+   void my_df_torsions(const gsl_vector *v, void *params, gsl_vector *df); 
+   //  the deviation from starting point terms:
+   void my_df_planes(const gsl_vector *v, void *params, gsl_vector *df); 
+   //  the non-bonded contacts
+   void my_df_non_bonded(const gsl_vector *v, void *params, gsl_vector *df); 
+   //  the chiral volumes
+   void my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df); 
+   //  the deviation from starting point terms:
+   void my_df_start_pos(const gsl_vector *v, void *params, gsl_vector *df); 
+   // Compute both f and df together.
+   void my_fdf (const gsl_vector *x, void *params, double *f, gsl_vector *df); 
+   
+   // debugging function
+   void 
+   numerical_gradients(gsl_vector *v, void *params, gsl_vector *df);
+   
+   // Getting adventurous:
+   // 
+   double electron_density_score(const gsl_vector *v, void *params);
+   // new style Grad_map/Grad_orth method
+   void my_df_electron_density (gsl_vector *v, void *params, gsl_vector *df);
+   // old style numerical method
+   void my_df_electron_density_old (gsl_vector *v, void *params, gsl_vector *df); 
+
+
+   // non-refinement function: just checking geometry:
+   // 
+   // return a vector because there could be many alt confs to this
+   // residue, only one of which is wrong.  return a pair: the first
+   // part is the good/bad flag the second tells us what the altconf
+   // of the (bad) chiral atom was.
+   // 
+   std::vector<std::pair<short int, coot::atom_spec_t> >
+   is_bad_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint,
+			CResidue *res); 
+
+
+   // -------------------------------------------------------------------------
+   // -------------------------------------------------------------------------
+   //                      restraints_container_t
+   // -------------------------------------------------------------------------
+   // -------------------------------------------------------------------------
+
+   class restraints_container_t {
+
+      std::vector<simple_restraint> restraints_vec; 
+      PPCAtom atom;
+      int SelHnd_atom; // the selection handle for the atom array.
+		       // Note to self: when restraints_container_t
+		       // goes out of scope, we should do a
+		       // mol->DeleteSelection(SelHnd_atom).
+      // atom_selection_container_t asc;
+      double *par; 
+      int n_atoms; 
+      gsl_vector *x; // these are the variables, x_k, y_k, z_k, x_l etc.
+      CMMDBManager *mol;
+      int udd_bond_angle;  // for is a bond, angle or not (0).
+      int udd_atom_index_handle; // for indexing into the atoms array.
+
+      // and the new (7Nov2003) residue selection (used in non-bonded stuff)
+      //
+      PPCResidue SelResidue_active;
+      int nSelResidues_active;
+
+      void filter_non_bonded_by_distance(const std::vector<std::vector<int> > &non_bonded_atom_indices, double dist); 
+      void construct_non_bonded_contact_list(); // fills filtered_non_bonded_atom_indices;
+      std::vector<std::vector<int> > filtered_non_bonded_atom_indices;
+
+      // we are given these at the constructor and they are needed in
+      // make_restraints():
+      int istart_res;
+      int iend_res;  // inclusive.
+      
+      short int istart_minus_flag; // were there flanking residues in the molecule?
+      short int iend_plus_flag;    // (set in init_from_mol);
+      // likewise for the chain too
+      std::string chain_id_save;
+
+      // Here we store the pointers to residues that flank the
+      // moving_atom_selection.  We need them to provide fixed points
+      // from which we generate restraints, not all the atoms of which
+      // are variables.
+      // 
+      PCResidue previous_residue;
+      PCResidue next_residue;
+      std::vector<int> fixed_atom_indices; 
+      
+      short int verbose_geometry_reporting;
+   
+      // we will store in here the initial positions as parameters
+      // 
+      std::vector<double> initial_position_params_vec;
+
+      // print chi_squared values (after refinement)
+      void chi_squareds(std::string title, const gsl_vector *v) const;
+
+      // all the alt confs should either be the same as each other or ""
+      // 
+      short int check_altconfs_for_plane_restraint(const std::vector<std::string> &altconfs) const {
+	 short int stat = 1;
+	 std::string A("");
+
+	 for (unsigned int iat=0; iat<altconfs.size(); iat++) {
+	    if (altconfs[iat] != A) {
+	       A = altconfs[iat];
+	       break;
+	    }
+	 }
+	 if (A == "") // there are no alt confs
+	    return 1;  // OK
+
+	 for (unsigned int iat=0; iat<altconfs.size(); iat++) {
+	    if ((altconfs[iat] != "") && (altconfs[iat] != A)) {
+	       stat = 0;  // mixed altconfs, badness.
+	       break;
+	    }
+	 }
+	 return stat;
+      }
+
+      // because we may want to refine just the bonds at the beginning
+      // and then introduce angles and other stuff after things have
+      // settled down
+      // 
+
+      // needs to be public for gsl_multimin_fdfminimizer_set()
+      // (but we could make that used in a class function...)
+      // 
+      gsl_multimin_function_fdf multimin_func; 
+
+      short int include_map_terms_flag;
+
+      // internal function, most of the job of the constructor:
+      void init_from_mol(int istart_res_in, int iend_res_in,
+			 short int have_flanking_residue_at_start,
+			 short int have_flanking_residue_at_end,
+			 short int have_disulfide_residues,
+			 const std::string &altloc,
+			 const char *chain_id,
+			 CMMDBManager *mol_in, 
+			 const std::vector<CAtom *> &fixed_atoms);
+   
+      // 
+      clipper::Xmap<float> map; 
+      double map_weight; 
+
+      void add(short int rest_type, int atom_1, int atom_2, 
+	       const std::vector<short int> &fixed_atom_flags,
+	       float tar, 
+	       float sig, float obs){
+    
+	 simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, obs);
+	 restraints_vec.push_back(r);
+      }
+
+      void add(short int rest_type, int atom_1, int atom_2, int atom_3, 
+	       const std::vector<short int> &fixed_atom_flags,
+	       float tar, 
+	       float sig, float obs){
+    
+	 restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
+						   atom_3,
+						   fixed_atom_flags,
+						   tar, sig, obs)); 
+      }
+
+      void add(short int rest_type, int atom_1, int atom_2, 
+	       int atom_3, int atom_4,
+	       const std::vector<short int> &fixed_atom_flags,
+	       float tar, 
+	       float sig, float obs, int periodicty){
+    
+	 restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
+						   atom_3, atom_4,
+						   fixed_atom_flags,
+						   tar, sig, obs, periodicty)); 
+      }
+
+      void add_non_bonded(int index1, int index2) { 
+	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, index1, index2));
+      } 
+
+      // construct a restraint and add it to restraints_vec
+      // 
+      void add_plane(const std::vector<int> atom_index_in,
+		     const std::vector<short int> &fixed_atom_flags,
+		     float sigma) {
+	 restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT, 
+						   atom_index_in, 
+						   fixed_atom_flags, 
+						   sigma));
+      }
+
+
+      // atom indexing stuff
+      //
+      void setup_asc_indexing(); 
+      
+      int get_asc_index_old(const std::string &at_name,
+			int resno,
+			const char *chain_id) const; 
+
+      int get_asc_index_new(const std::string &at_name,
+			int resno,
+			const char *chain_id) const; 
+
+      int get_asc_index(const std::string &at_name,
+			int resno,
+			const char *chain_id) const; 
+
+      int add_bonds(int idr, PPCAtom res_selection,
+		    int i_no_res_atoms,
+		    PCResidue SelRes,
+		    const coot::protein_geometry &geom); 
+
+      int add_angles(int idr, PPCAtom res_selection,
+		     int i_no_res_atoms,
+		     PCResidue SelRes,
+		     const coot::protein_geometry &geom); 
+   
+      int add_torsions(int idr, PPCAtom res_selection,
+		       int i_no_res_atoms,
+		       PCResidue SelRes,
+		       const coot::protein_geometry &geom);
+
+      int add_chirals(int idr, PPCAtom res_selection,
+		      int i_no_res_atoms,
+		      PCResidue SelRes,
+		      const coot::protein_geometry &geom);
+
+      int add_planes  (int idr, PPCAtom res_selection,
+		       int i_no_res_atoms,
+		       PCResidue SelRes,
+		       const coot::protein_geometry &geom);
+
+      bool dictionary_name_matches_coords_resname(const std::string &comp_id,
+						  const std::string &resname) const {
+
+	 std::string r = resname;
+	 if (r.length() > 2) 
+	    if (r[2] == ' ')
+	       r = resname.substr(0,2);
+
+	 return (r == comp_id);
+      }
+
+      int make_link_restraints          (const protein_geometry &geom,
+					 short int do_link_torsions);
+      int make_monomer_restraints       (const protein_geometry &geom,
+					 short int do_residue_internal_torsions);
+      int make_flanking_atoms_restraints(const protein_geometry &geom); // no torsions
+
+      std::string find_link_type(CResidue *first, CResidue *second,
+				 const protein_geometry &geom) const;
+
+      void make_helix_pseudo_bond_restraints();
+      void make_strand_pseudo_bond_restraints();
+
+
+      // return " on failure to find link
+      std::string find_glycosidic_linkage_type(CResidue *first, CResidue *second,
+					       const std::string &group1,
+					       const std::string &group2,
+					       const protein_geometry &geom) const;
+   
+      int add_link_bond(std::string link_type,
+			PCResidue first, PCResidue second,
+			short int is_fixed_first_res,
+			short int is_fixed_second_res,
+			const coot::protein_geometry &geom);
+
+      int add_link_angle(std::string link_type,
+			 PCResidue first, PCResidue second,
+			 short int is_fixed_first_res,
+			 short int is_fixed_second_res,
+			 const coot::protein_geometry &geom);
+
+      int add_link_torsion(std::string link_type,
+			   int phi_psi_restraints_type,
+			   PCResidue first, PCResidue second,
+			   short int is_fixed_first_res,
+			   short int is_fixed_second_res,
+			   const coot::protein_geometry &geom);
+
+      int add_link_plane(std::string link_type,
+			 PCResidue first, PCResidue second,
+			 short int is_fixed_first_res,
+			 short int is_fixed_second_res,
+			 const coot::protein_geometry &geom);
+
+      int add_link_plane_tmp(std::string link_type,
+			 PCResidue first, PCResidue second,
+			 short int is_fixed_first_res,
+			 short int is_fixed_second_res,
+			 const coot::protein_geometry &geom);
+
+      int make_non_bonded_contact_restraints();
+      std::vector<std::vector<int> > bonded_atom_indices;
+
+      //! Set a flag that we have an OXT and we need to position it
+      //after the refinement.
+      void mark_OXT();
+      void position_OXT(); // called from update atoms if we have an OXT.
+      short int have_oxt_flag;
+      int oxt_index;
+      // these are in the order N, CA, C, O
+      std::vector<clipper::Coord_orth> oxt_reference_atom_pos;
+      // short int is_nucleotide(CResidue *res_p);
+      short int do_numerical_gradients_flag;
+
+      // validation:
+      coot::geometry_distortion_info_container_t
+      distortion_vector(const gsl_vector *v) const;
+
+      // return in milliseconds
+      //
+      // a coot-util function?
+      // double time_diff(const timeval &current, const timeval &start) const;
+
+   public: 
+
+      enum link_torsion_restraints_type { NO_LINK_TORSION = 0, 
+					  LINK_TORSION_RAMACHANDRAN_GOODNESS = 1,
+					  LINK_TORSION_ALPHA_HELIX = 2,
+					  LINK_TORSION_BETA_STRAND = 3 }; 
+
+
+      // In all of these constructors the PPCAtom that is passed, either
+      // explicitly or as part of an atom_selection_container_t has the
+      // atoms to which is points *changed* by the minimization.
+      // 
+      // So, given that you may well want to keep your initial atom
+      // positions, or reject the results of the idealization, you should
+      // pass a copy of the atoms here, not the atoms themselves.
+      //
+
+      // This interface is withdrawn currently.  This is because
+      // make_link_restraints does some residue selection and thus
+      // needs a MMDBManager rather than a PPCAtom.
+      // 
+//       restraints_container_t(PPCAtom atoms_in, int n_at) {
+// 	 verbose_geometry_reporting = 0;
+// 	 atom = atoms_in; 
+// 	 n_atoms = n_at; 
+// 	 asc.mol = NULL; 
+// 	 include_map_terms_flag = 0;
+// 	 initial_position_params_vec.resize(3*n_at); 
+// 	 for (int i=0; i<n_at; i++) {
+// 	    initial_position_params_vec[3*i  ] = atoms_in[i]->x; 
+// 	    initial_position_params_vec[3*i+1] = atoms_in[i]->y; 
+// 	    initial_position_params_vec[3*i+2] = atoms_in[i]->z; 
+// 	 }
+//       }
+
+      restraints_container_t(atom_selection_container_t asc_in) { 
+	 verbose_geometry_reporting = 0;
+	 n_atoms = asc_in.n_selected_atoms; 
+	 mol = asc_in.mol;
+	 n_atoms = asc_in.n_selected_atoms;
+	 atom = asc_in.atom_selection;
+	 include_map_terms_flag = 0;
+	 have_oxt_flag = 0;
+	 do_numerical_gradients_flag = 0;
+	 std::cout << "asc_in.n_selected_atoms " << asc_in.n_selected_atoms
+		   << std::endl; 
+	 initial_position_params_vec.resize(3*asc_in.n_selected_atoms); 
+
+	 for (int i=0; i<asc_in.n_selected_atoms; i++) {
+	    initial_position_params_vec[3*i  ] = asc_in.atom_selection[i]->x; 
+	    initial_position_params_vec[3*i+1] = asc_in.atom_selection[i]->y; 
+	    initial_position_params_vec[3*i+2] = asc_in.atom_selection[i]->z; 
+	 }
+      }
+
+      // for omega distortion info:
+      restraints_container_t(atom_selection_container_t asc_in,
+			     const std::string &chain_id);
+
+      // iend_res is inclusive, so that 17,17 selects just residue 17.
+      // 
+      // Interface used by Regularize button callback:
+      // 
+      restraints_container_t(int istart_res, int iend_res,
+			     short int have_flanking_residue_at_start,
+			     short int have_flanking_residue_at_end,
+			     short int have_disulfide_residues,
+			     const std::string &altloc,
+			     const char *chain_id,
+			     CMMDBManager *mol, // const in an ideal world
+			     const std::vector<CAtom *> &fixed_atoms);
+
+      // Interface used by Refine button callback:
+      // 
+      restraints_container_t(int istart_res, int iend_res,
+			     short int have_flanking_residue_at_start,
+			     short int have_flanking_residue_at_end,
+			     short int have_disulfide_residues,
+			     const std::string &altloc,
+			     const char *chain_id,
+			     CMMDBManager *mol, // const in an ideal world
+			     const std::vector<CAtom *> &fixed_atoms,
+			     const clipper::Xmap<float> &map_in,
+			     float map_weight);
+
+      // For validation.
+      //
+      // The whole chain is selected (without flanking atoms) and we
+      // use geometry_distortion() function.
+      // 
+      restraints_container_t(PCResidue *SelResidues, int nSelResidues,
+			     const std::string &chain_id,
+			     CMMDBManager *mol);
+      // 
+      // geometric_distortions not const because we set restraints_usage_flag:
+      //
+      // return data useful for making the graphs:
+      coot::geometry_distortion_info_container_t
+      geometric_distortions(coot::restraint_usage_Flags flags);
+
+      coot::omega_distortion_info_container_t
+      omega_trans_distortions(int mark_cis_peptides_as_bad_flag);
+      
+
+      // So, we provide easy(?) access to the atoms of next and
+      // previous residues (to those in the atom selection
+      // moving_residue_atoms).  It is also possible to select "fixed"
+      // atoms in the graphics (so that they don't move).  Let's
+      // provide a vector of indices in the the moving_residue_atoms
+      // array to define those (lovely mixture of styles - heh).
+      // 
+      restraints_container_t(PPCAtom moving_residue_atoms, // e.g. atom of residue 16,17,18
+			     int n_moving_residue_atoms, // e.g. 21
+			     PCResidue previous_residue, // e.g. residue 15
+			     PCResidue next_atom,
+			     const std::vector<int> &fixed_atom_indices);
+
+      restraints_container_t(){};
+
+      void set_verbose_geometry_reporting() { 
+	 verbose_geometry_reporting = 1; 
+      } 
+
+      void assign_fixed_atom_indices();
+
+      double initial_position(int i) {
+	 return initial_position_params_vec[i]; 
+      }
+
+      int init_positions_size() {
+	 return initial_position_params_vec.size(); 
+      } 
+
+      // Using this, we can mask out the restraints we don't want to
+      // use using e.g. BONDS_MASK, BONDS_ANGLES_AND_PLANES etc...
+      // 
+      short int restraints_usage_flag;
+
+      double starting_structure_diff_score(const gsl_vector *v, void *params); 
+
+
+      short int include_map_terms() { 
+	 return include_map_terms_flag; 
+      }
+
+      double Map_weight() const { 
+	 return map_weight; 
+      } 
+
+      void setup_multimin_func() { 
+
+	 multimin_func.f   = &distortion_score; 
+	 multimin_func.df  = &my_df; 
+	 multimin_func.fdf = &my_fdf; 
+	 multimin_func.n = n_variables(); 
+	 multimin_func.params = (double *) this; 
+      } 
+
+      int n_variables() { 
+	 // return 3 * the number of atoms
+	 return 3*n_atoms; 
+      }
+
+      int size() const { return restraints_vec.size(); }
+
+      // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
+      // 
+      int minimize(restraint_usage_Flags);
+      int minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+      void fix_chiral_atoms_maybe(gsl_vector *s);
+
+      simple_restraint& operator[](int i) { 
+	 return restraints_vec[i]; 
+      } 
+
+      // because chi_squareds is const:
+      const simple_restraint& operator[](int i) const { 
+	 return restraints_vec[i]; 
+      } 
+  
+      void setup_gsl_vector_variables();
+
+      double electron_density_score_at_point(const clipper::Coord_orth &ao) const;
+      clipper::Grad_orth<double> electron_density_gradient_at_point(const clipper::Coord_orth &ao) const; 
+      
+      // We need to fill restraints_vec (which is a vector of
+      // simple_restraint) using the coordinates () and the dictionary of
+      // restraints, protein_geometry geom.
+      int make_restraints(const coot::protein_geometry &geom,
+			  coot::restraint_usage_Flags flags,
+			  short int do_residue_internal_torsions,
+			  short int do_link_torsions,
+			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
+
+      // old code:
+      // Read restraints from the refmac .rst file
+      int make_restraints(std::string ciffilename);
+
+      void update_atoms(gsl_vector *s); 
+      void write_new_atoms(std::string pdb_file_name);
+      void info() const;
+
+      // The restraints have flags in them to tell us whether to
+      // include the gradients for this atom, however, those cannot be
+      // used when we are considering the gradients from the map.  So
+      // let's create another array of flags (atom indexed (not
+      // parameter indexed)) that tells us whether these atoms of the
+      // atom selection are OK for atom gradients (i.e. atoms of the
+      // flanking residues will have zeroes here).
+      //
+      std::vector<short int> use_map_gradient_for_atom;
+      std::vector<double> atom_z_weight;  // weight e.d. fit by atomic number
+
+      // Make a MMDBManager from the selection and return this new
+      // PCMMDBManager.  It is the users responsibility to delete it.
+      CMMDBManager *results() const;
+      void adjust_variables(const atom_selection_container_t &asc);
+      
+      // more debugging interface:
+      //
+      void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
+      short int do_numerical_gradients_status() { return do_numerical_gradients_flag; }
+
+   }; 
+
+} // namespace coot
+
+
+#endif // HAVE_GSL
+#endif // HAVE_SIMPLE_RESTRAINT_HH
