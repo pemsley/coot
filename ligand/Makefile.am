@@ -1,0 +1,160 @@
+
+lib_LTLIBRARIES=libcoot-ligand.la
+
+EXTRA_DIST = Makefile.simple read-dunbrack.awk
+
+INCLUDES = \
+	-I$(top_srcdir)/ccp4mg-utils \
+	-I$(top_srcdir)/mini-mol \
+	-I$(top_srcdir)/geometry \
+	-I$(top_srcdir)/ideal \
+	-I$(top_srcdir)/coords \
+	-I$(top_srcdir)/mini-mol \
+	-I$(top_srcdir)/coot-utils \
+	-I$(top_srcdir)/compat \
+	$(COOT_GSL_FLAGS)		\
+	$(GSL_CFLAGS)			\
+	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
+
+include_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \
+	chi-angles.hh dunbrack.hh helix-placement.hh rigid-body.hh ideal-rna.hh
+
+libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
+	wiggly-ligand.cc monomer-utils.cc dunbrack.cc chi-angles-autogen.cc   \
+	chi-angles.cc helix-placement.cc rigid-body.cc ideal-rna.cc
+
+AM_CXXFLAGS = \
+	-DPKGDATADIR='"$(pkgdatadir)"' \
+	$(COOT_WINDOWS_CFLAGS)
+
+bin_PROGRAMS = findligand-real findwaters-real
+
+noinst_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack test-random
+
+findligand_real_SOURCES = find-ligand.cc
+findwaters_real_SOURCES = find-waters.cc
+
+test_helix_placement_SOURCES = test-helix-placement.cc
+
+test_random_SOURCES = test-random.cc
+test_random_LDADD = \
+	./libcoot-ligand.la \
+	$(top_builddir)/ideal/libcoot-ideal.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/coords/libcoot-coords.la           \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
+	$(top_builddir)/coot-utils/libcoot-shelx.la        \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/coot-utils/libcoot-utils.la        \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(top_builddir)/compat/libcoot-compat.la           \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+test_helix_placement_LDADD = \
+	./libcoot-ligand.la \
+	$(top_builddir)/ideal/libcoot-ideal.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/coords/libcoot-coords.la           \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
+	$(top_builddir)/coot-utils/libcoot-shelx.la        \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/coot-utils/libcoot-utils.la        \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(top_builddir)/compat/libcoot-compat.la           \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+test_fffear_in_coot_SOURCES = test-fffear-in-coot.cc
+
+test_fffear_in_coot_LDADD = \
+	./libcoot-ligand.la \
+	$(top_builddir)/ideal/libcoot-ideal.la            \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coords/libcoot-coords.la          \
+	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la   \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/compat/libcoot-compat.la          \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+# testwlig_SOURCES = testwlig.cc
+#	-L$(top_builddir)/high-res     -lcoot-high-res    
+#	-I$(top_srcdir)/high-res
+
+# -L$(top_builddir)/ideal        -lcoot-ideal       
+
+findligand_real_LDADD = \
+	./libcoot-ligand.la                          \
+	$(top_builddir)/ideal/libcoot-ideal.la       \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/coords/libcoot-coords.la     \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+	$(top_builddir)/compat/libcoot-compat.la          \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+findwaters_real_LDADD = \
+	./libcoot-ligand.la                               \
+	$(top_builddir)/ideal/libcoot-ideal.la            \
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/coords/libcoot-coords.la          \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+	$(top_builddir)/compat/libcoot-compat.la          \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+#testwlig_LDADD = -L. -lcoot-ligand \
+#	-L../mini-mol -lcoot-mini-mol \
+#	-L../geometry -lcoot-geometry \
+#	-L../coords -lcoot-coords \
+#	-L../ccp4mg-utils -lccp4mg-utils \
+#	$(CLIPPER_LIBS) $(MMDB_LIBS)
+
+
+#  -L../coords -lcoot-coords -L../atom-utils -lcoot-atomutils
+
+# testori_SOURCES = testori.cc
+
+dist_bin_SCRIPTS = findwaters findligand
+
+testdunbrack_SOURCES = testdunbrack.cc
+
+testdunbrack_LDADD = ./libcoot-ligand.la \
+	$(top_builddir)/ideal/libcoot-ideal.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/coords/libcoot-coords.la           \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/coot-utils/libcoot-utils.la        \
+	$(top_builddir)/coot-utils/libcoot-shelx.la       \
+        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+# lib coot-coords depends on mmdb, even though Cartesian doesn't
+# 
+#testori_LDADD = -L$(top_srcdir)/coords   -lcoot-coords   \
+#		-L$(top_srcdir)/mini-mol -lcoot-mini-mol \
+#	  $(CLIPPER_LIBS) $(MMDB_LIBS) 

@@ -1,0 +1,102 @@
+
+#ifndef COOT_RENDER
+#define COOT_RENDER
+
+#ifndef HAVE_VECTOR
+#define HAVE_VECTOR
+#include <vector>
+#endif // HAVE_VECTOR
+
+#include "Cartesian.h"
+#include "gl-matrix.h"
+
+namespace coot { 
+// info class for raster3d/povray
+
+   class colour_t {
+   public:
+      std::vector<float> col;
+   };
+   //
+   class ray_trace_molecule_info {
+      float bond_thickness; 
+      float density_thickness;
+      float zoom;
+   public:
+      std::vector<std::pair<Cartesian, Cartesian> > density_lines;
+      colour_t density_colour;
+      // bond_lines and bond_colour have the same length
+      std::vector<std::pair<Cartesian, Cartesian> > bond_lines;
+      std::vector<colour_t> bond_colour;
+      std::vector<std::pair<Cartesian, colour_t> > atom;
+      void render_molecule(std::ofstream &render_stream,
+			   float bond_thickness,
+			   float density_thickness);
+      void povray_molecule(std::ofstream &render_stream,
+			   float bond_thickness,
+			   float density_thickness, float zoom,
+			   const Cartesian &view_centre,
+			   const Cartesian &front_clipping_plane_point);
+   };
+
+   class raytrace_info_t {
+      GL_matrix view_matrix;
+      int window_width, window_height;
+      int quality;
+      void render_molecules(std::ofstream &render_stream);
+      void povray_molecules(std::ofstream &render_stream);
+      float bond_thickness; 
+      float density_thickness;
+      float clipping;
+   public:
+      std::vector<ray_trace_molecule_info> rt_mol_info;
+      colour_t background_colour;
+      float zoom;
+      Cartesian view_centre;
+      Cartesian camera_location;
+      // front_clipping_plane_point: point on front clipping plane
+      // that is shortest distance to view_centre
+      Cartesian front_clipping_plane_point;
+      colour_t background;
+      
+      raytrace_info_t(Cartesian centre_view_in, float zoom_in,
+		      const colour_t &background_in,
+		      int window_width_in,
+		      int window_height_in,
+		      float clipping_in,
+		      float bond_thickness_in,
+		      float density_thickness_in) {
+	 view_centre = centre_view_in;
+	 zoom = zoom_in;
+	 background = background_in;
+	 window_width = window_width_in;
+	 window_height = window_height_in;
+	 quality = 8;
+	 bond_thickness = bond_thickness_in;
+	 density_thickness = density_thickness_in;
+	 clipping = clipping_in;
+      }
+      void set_view_matrix(GL_matrix view_matrix_in) {
+	 view_matrix = view_matrix_in;
+      }
+      void set_camera_location(const Cartesian &camera_in) {
+	 camera_location = camera_in;
+      }
+
+      void set_front_clipping_plane_point(const Cartesian &fcpp) {
+	 front_clipping_plane_point = fcpp;
+      }
+      
+      // iq is either 8 (normal) 16 (good) 24 (best)
+      // 
+      void set_quality(int iq) { quality = iq;}
+
+      int povray_ray_trace(std::string filename);
+      int render_ray_trace(std::string filename);
+      
+   };
+}
+
+
+
+#endif // have COOT_RENDER

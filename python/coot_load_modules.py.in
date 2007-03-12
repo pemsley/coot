@@ -1,0 +1,25 @@
+
+# try to translate from scheme files. -- BL
+
+import os
+
+files_list = ["coot-utils.py","hello.py","mutate.py","gap.py","fitting.py","refmac.py","americanisms.py","raster3d.py","povray.py","coot-lsq.py","get-ebi.py","shelx.py"]
+
+coot_python_dir =  os.getenv('COOT_PYTHON_DIR')
+if coot_python_dir:
+    search_load_path = coot_python_dir
+else:
+    search_load_path = "@prefix@/share/coot/python"
+
+
+for i in files_list:
+#          print "i",i
+          f = os.path.join(search_load_path, i)
+#          print "f", f
+          if f and os.path.isfile(f) :
+	     print "Loading:", i
+#             print "f is ", f
+             execfile(f)
+          else : print "Error finding ",i
+
+# now lets define some variables:
