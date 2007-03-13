@@ -1781,9 +1781,16 @@ GtkWidget *wrapped_create_goto_atom_window();
 void post_go_to_atom_window();
 void fill_go_to_atom_window(GtkWidget *widget);
 
-gchar *get_text_for_go_to_atom_chain_entry(); 
-gchar *get_text_for_go_to_atom_residue_entry(); 
-gchar *get_text_for_go_to_atom_atom_name_entry(); 
+/* gchar *get_text_for_go_to_atom_chain_entry();  */
+/* gchar *get_text_for_go_to_atom_residue_entry();  */
+/* gchar *get_text_for_go_to_atom_atom_name_entry();  */
+
+int go_to_atom_molecule_number();
+char *go_to_atom_chain_id();
+char *go_to_atom_atom_name();
+int go_to_atom_residue_number();
+char *go_to_atom_ins_code();
+char *go_to_atom_alt_conf();
 
 
 /*! \brief set the go to atom specification
