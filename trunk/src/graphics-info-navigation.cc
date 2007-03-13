@@ -138,8 +138,17 @@ int graphics_info_t::go_to_atom_molecule() {
 }
 
 const char *graphics_info_t::go_to_atom_atom_name() {
-
    return go_to_atom_atom_name_.c_str(); 
+}
+
+const char *
+graphics_info_t::go_to_atom_ins_code() {
+   return go_to_atom_inscode_.c_str();
+}
+
+const char *
+graphics_info_t::go_to_atom_alt_conf() {
+   return go_to_atom_atom_altLoc_.c_str();
 }
 
 void 

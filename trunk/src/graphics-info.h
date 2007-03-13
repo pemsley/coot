@@ -1034,6 +1034,8 @@ public:
 
    const char *go_to_atom_chain(); 
    const char *go_to_atom_atom_name(); 
+   const char *go_to_atom_ins_code();
+   const char *go_to_atom_alt_conf();
    int go_to_atom_residue(); 
    int go_to_atom_molecule();
    static int go_to_atom_mol_menu_active_position;

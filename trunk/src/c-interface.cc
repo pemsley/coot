@@ -6086,6 +6086,45 @@ gchar *get_text_for_go_to_atom_atom_name_entry() {
 
 }
 
+int go_to_atom_molecule_number() {
+   graphics_info_t g;
+   return g.go_to_atom_molecule();
+}
+
+char *go_to_atom_chain_id() {
+   graphics_info_t g; 
+   gchar *txt = (gchar *)malloc(100);
+   strcpy(txt, g.go_to_atom_chain()); 
+   return txt; 
+}
+
+char *go_to_atom_atom_name() {
+   graphics_info_t g;
+   gchar *txt = (gchar *)malloc(10);
+   snprintf(txt, 9, "%s", g.go_to_atom_atom_name()); 
+   return txt; 
+}
+
+int go_to_atom_residue_number() {
+   graphics_info_t g;
+   return g.go_to_atom_residue();
+}
+
+char *go_to_atom_ins_code() {
+   graphics_info_t g;
+   gchar *txt = (gchar *)malloc(10);
+   snprintf(txt, 9, "%s", g.go_to_atom_ins_code()); 
+   return txt; 
+}
+
+char *go_to_atom_alt_conf() {
+   graphics_info_t g;
+   gchar *txt = (gchar *)malloc(10);
+   snprintf(txt, 9, "%s", g.go_to_atom_alt_conf()); 
+   return txt; 
+}
+
+
 // Note that t3 is an atom name with (possibly) an altLoc tag (after the comma).
 // 
 int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const char *t3) {
@@ -6112,8 +6151,9 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
    }
 
    int success = g.try_centre_from_new_go_to_atom(); 
-   if (success)
-      update_things_on_move_and_redraw(); 
+   if (success) { 
+      update_things_on_move_and_redraw();
+   }
 
    return success; 
 }

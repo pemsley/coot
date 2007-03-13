@@ -174,7 +174,7 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	    short int do_rtops_flag = 0;
 	    // 0.7 is not used (I think) if do_rtops_flag is 0.
 	    // hack to fix Mac bug/strangeness
-	    // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+	    int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
 	    // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 	 }
 	    
