@@ -74,6 +74,7 @@
 			   "raster3d.scm" "povray.scm"
 			   "remote-control.scm"
 			   "generic-objects.scm"
+			   "ncs.scm"
 			   "cns2coot.scm"
 			   "tips.scm"
 			   "americanisms.scm"
