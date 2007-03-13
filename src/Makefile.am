@@ -2,7 +2,9 @@
 if COOT_USE_GUILE
 COOT_WRAP_GUILE_LIBS=libcoot-wrap-guile.la
 WITH_GUILE_CFLAGS="-DUSE_GUILE"
-COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/coot_wrap_guile_pre.cc
+# COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/coot_wrap_guile_pre.cc
+# does this help?
+COOT_WRAP_GUILE_TEMPLATE=coot_wrap_guile_pre.cc
 else
 COOT_WRAP_GUILE_LIBS=
 WITH_GUILE_CFLAGS=
@@ -10,7 +12,9 @@ COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/blank.cc
 endif
 
 if COOT_USE_PYTHON
-COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
+# COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/coot_wrap_python_pre.cc
+# does this help?
+COOT_WRAP_PYTHON_TEMPLATE=coot_wrap_python_pre.cc
 COOT_WRAP_PYTHON_LIBS=libcoot-wrap-python.la
 else
 COOT_WRAP_PYTHON_TEMPLATE=$(srcdir)/blank.cc
@@ -63,11 +67,11 @@ EXTRA_DIST = \
 	coot.py junk.cc coot.defs
 
 
-$(top_srcdir)/src/coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
+coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
 	swig -o $@ -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
-$(top_srcdir)/src/coot_wrap_guile_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
+coot_wrap_guile_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
 	swig -o $@ $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_guile.cc: $(COOT_WRAP_GUILE_TEMPLATE)
