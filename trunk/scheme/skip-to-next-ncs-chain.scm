@@ -28,7 +28,7 @@
 		  local-chain-id-list)
 	  (cond
 	   ((null? local-chain-id-list) (car chain-id-list))
-	   ((string=? this-chain-id)
+	   ((string=? this-chain-id (car local-chain-id-list))
 	    (if (null? (cdr local-chain-id-list))
 		(car chain-id-list)
 		(car (cdr local-chain-id-list))))
@@ -43,29 +43,39 @@
 	 (next-chain (skip-to-chain this-chain-id chains)))
 
     (format #t "next-chain: ~s~%" next-chain)
-	 
-    (if (not next-chain)
-	(add-status-bar-text "No \"NCS Next Chain\" found")
-	(set-go-to-atom-chain-residue-atom-name
-	 next-chain 
-	 (go-to-atom-residue-number)
-	 (go-to-atom-atom-name))
-	;; now, did that set-go-to-atom function work (was there a
-	;; real atom)?  If not, then that could have been the ligand
-	;; chain or the water chain that we tried to go to.  We want
-	;; to try again, and we shbould keep trying again until we get
-	;; back to this-chain-id - in which case we have a "No NCS
-	;; Next Chain atom" status-bar message.
-	)))
-
-
-(define graphics-general-key-press-hook
-  (lambda (key)
-
-    (format #t "key: ~s~%" key)
-    (cond
-     ((= key 107) (skip-to-next-ncs-chain)))))
-
+    
+    (let loop ((try-next-chain next-chain)) 
+      
+      ;; OK, stop trying for next chain if we have looped round
+      ;; (as it were) so that we are back at the starting chain:
+      ;; e.g. consider the case: ["A" is protein, "B" is water,
+      ;; "C" is ligand]
+      ;; 
+      (if (not next-chain)
+	  (add-status-bar-text "No \"NCS Next Chain\" found")
+	  
+	  (if (not (string=? try-next-chain this-chain-id))
+	      
+	      (let ((found-atom-state (set-go-to-atom-chain-residue-atom-name
+				       try-next-chain 
+				       (go-to-atom-residue-number)
+				       (go-to-atom-atom-name))))
+		
+		;; now, did that set-go-to-atom function work (was there a
+		;; real atom)?  If not, then that could have been the ligand
+		;; chain or the water chain that we tried to go to.  We want
+		;; to try again, and we shbould keep trying again until we get
+		;; back to this-chain-id - in which case we have a "No NCS
+		;; Next Chain atom" status-bar message.
+		
+		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
+		(if (= found-atom-state 0)
+		    ;; then we did *not* find the atom, e.g. next-chain was
+		    ;; the water chain
+		    (loop (skip-to-chain try-next-chain chains))
+		    
+		    ;; otherwise all was hunky-dorey
+		    #t)))))))
 
 	 
      
