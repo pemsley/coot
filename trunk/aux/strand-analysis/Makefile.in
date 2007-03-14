@@ -57,7 +57,9 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES =
 am_strand_analysis_OBJECTS = strand-analysis.$(OBJEXT)
 strand_analysis_OBJECTS = $(am_strand_analysis_OBJECTS)
-strand_analysis_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+strand_analysis_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -220,6 +222,14 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 EXTRA_DIST = Makefile.simple 
+INCLUDES = -I$(top_srcdir)/aux/sec-str \
+	$(MMDB_CXXFLAGS) 	       \
+	$(CLIPPER_CXXFLAGS) 		
+
+strand_analysis_LDADD = \
+    $(CLIPPER_LIBS) 	 \
+    $(MMDB_LIBS)
+
 strand_analysis_SOURCES = strand-analysis.cc
 all: all-am
 

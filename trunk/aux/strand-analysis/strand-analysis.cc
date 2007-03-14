@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
       std::string dirname = argv[1];
       read_dir(dirname);
    } else {
-      std::cout << "Usage: " << argv[0] << " <pdb-file-name>"
+      std::cout << "Usage: " << argv[0] << " <reference-structure-dir-name>"
 		<< std::endl;
    } 
    return 0;
@@ -20,11 +20,13 @@ int main(int argc, char **argv) {
 
 void read_dir(const std::string &dir_name) {
 
+   coot::strands_t strands;
+
    std::vector<std::string> v = get_reference_pdb_list(dir_name);
    std::cout << "" << std::endl;
 
    for (int i=0; i<v.size(); i++) {
-      analyse_pdb_file(v[i]);
+      strands.analyse_pdb_file(v[i]);
    }
 }
 
@@ -115,7 +117,8 @@ matches_pdb_name(const std::string &file_str) {
    return match_flag; 
 }
 
-void analyse_pdb_file(const std::string &filename) {
+void
+coot::strands_t::analyse_pdb_file(const std::string &filename) {
 
    CMMDBManager *mol = get_mol(filename);
    if (mol) { 
@@ -180,8 +183,8 @@ distance_checks(CModel *model_p) {
 // mol gives us the handle and access to the Select() function
 // 
 void
-strand_analysis(CModel *model_p, CMMDBManager *mol,
-		const std::string &filename) {
+coot::strands_t::strand_analysis(CModel *model_p, CMMDBManager *mol,
+			       const std::string &filename) {
 
    PCSheets sheets = model_p->GetSheets();
    std::cout << "has " << sheets->nSheets << " sheets" << std::endl;
@@ -210,6 +213,9 @@ strand_analysis(CModel *model_p, CMMDBManager *mol,
 	 std::pair<bool, clipper::RTop_orth> ori = orient_strand_on_z(SelHnd, mol);
 	 if (ori.first)
 	    apply_rtop_to_strand(SelHnd, mol, ori.second);
+
+	 add_strand(filename, mol, SelHnd);
+	 
 	 mol->DeleteSelection(SelHnd);
       }
    }
@@ -224,6 +230,13 @@ strand_analysis(CModel *model_p, CMMDBManager *mol,
 // 	     << filename.find_last_of(".") << std::endl;
    mol->WritePDBASCII((char *)new_pdb_name.c_str());
 }
+
+void
+coot::strands_t::add_strand(const std::string &filename,
+			    CMMDBManager *mol, int SelectionHandle) {
+
+} 
+
 
 // return the bool == 1 on good rtop.
 std::pair<bool, clipper::RTop_orth>
