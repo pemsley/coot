@@ -1,0 +1,18 @@
+
+# CLIPPER_CXXFLAGS = -I/Users/paulemsley/ccp4/ysbl-distro-based/include
+
+
+BASE = /home/paule/autobuild/Linux-kalypso-pre-release
+CLIPPER_CXXFLAGS = -I$(BASE)/include
+MMDB_CXXFLAGS = -I$(BASE)/include/mmdb
+
+CLIPPER_LIBS = -L$(BASE)/lib -lclipper-ccp4 \
+	-lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb \
+	-lclipper-core -lccp4c -L$(BASE)/lib \
+	-L$(BASE) -lmmdb -lm -lrfftw -lfftw -lz -lm
+
+INCLUDES = $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
+LDLIBS = $(CLIPPER_LIBS)
+
+catcheck: catcheck.cc catcheck.hh
+	libtool --mode=link $(CXX) $(INCLUDES) -o $@ $(LDLIBS) $^
