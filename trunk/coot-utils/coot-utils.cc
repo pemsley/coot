@@ -76,6 +76,21 @@ std::pair<std::string, std::string> coot::get_userid_name_pair() {
 
    std::pair<std::string, std::string> p("unknown","unknown");
    const char *u = getenv("USER");
+#ifdef _MSC_VER
+   // Man this is ugly windows code...
+   LPUSER_INFO_10 pBuf = NULL;
+   NET_API_STATUS nStatus;
+
+   // Call the NetUserGetInfo function with level 10
+   nStatus = NetUserGetInfo(NULL, (LPCWSTR), u, 10, (LPBYTE *)&pBuf);
+   if (nStatus == NERR_Success) {
+      if (pBuf) {
+	 p.first  = (char *) pBuf->useri10_name;
+	 p.second = (char *) pBuf->useri10_full_name;
+      }
+   }
+
+#else    
    if (u) {
       struct passwd *pwbits = getpwnam(u);
       std::string uid;
@@ -83,6 +98,7 @@ std::pair<std::string, std::string> coot::get_userid_name_pair() {
       p.first  = pwbits->pw_name;
       p.second = pwbits->pw_gecos;
    }
+#endif
    return p;
 }
 

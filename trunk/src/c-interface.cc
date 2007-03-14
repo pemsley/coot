@@ -7143,7 +7143,8 @@ void python_window_enter_callback( GtkWidget *widget,
   const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
   printf("Entry contents: %s\n", entry_text);
   {
-     char py_text[strlen(entry_text)+1];
+     char *py_text;
+     py_text = new char [strlen(entry_text)+1];
      strncpy(py_text, entry_text, 500); 
      //
      // Py_Initialize();

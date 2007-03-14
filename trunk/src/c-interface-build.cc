@@ -2370,6 +2370,7 @@ int set_show_chi_angle_bond(int imode) {
 
    graphics_info_t::draw_chi_angle_flash_bond_flag = imode;
    graphics_draw();
+   return 0; // should be a void function, I imagine.
 } 
 
 

@@ -911,12 +911,16 @@ coot::minimol::molecule::addatom(const std::string &chain_id_in, int resno,
 int
 coot::minimol::molecule::set_atom_occ(const std::string &atom_name, float occ) {
 
+   int natoms = 0;
    for (unsigned int ifr=0; ifr<fragments.size(); ifr++) {
       for (unsigned int ires=fragments[ifr].min_res_no(); ires<=fragments[ifr].max_residue_number(); ires++)
 	 for (unsigned int iatom=0; iatom<fragments[ifr][ires].atoms.size(); iatom++)
-	    if (fragments[ifr][ires][iatom].name == atom_name)
+	    if (fragments[ifr][ires][iatom].name == atom_name) { 
 	       fragments[ifr][ires][iatom].occupancy = occ;
+	       natoms++;
+	    }
       
    }
+   return natoms;
 }
 	 
