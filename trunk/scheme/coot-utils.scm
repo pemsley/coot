@@ -587,7 +587,8 @@
         ((= i len))
       (let ((char (string-ref pat i)))
         (case char
-          ((#\*) (set! ls (cons "[^.]*" ls)))
+;           ((#\*) (set! ls (cons "[^.]*" ls)))
+          ((#\*) (set! ls (cons ".*" ls)))
           ((#\?) (set! ls (cons "[^.]" ls)))
           ((#\[) (set! ls (cons "[" ls)))
           ((#\]) (set! ls (cons "]" ls)))
