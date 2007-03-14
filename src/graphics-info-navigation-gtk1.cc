@@ -30,6 +30,9 @@
 #include <vector>
 #endif
 
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
 #include <gtk/gtk.h>
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
