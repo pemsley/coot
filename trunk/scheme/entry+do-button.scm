@@ -68,6 +68,6 @@
 
 
 			
-(teb2)
-(gtk-main)
+; (teb2)
+; (gtk-main)
 
