@@ -6153,8 +6153,11 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
    int success = g.try_centre_from_new_go_to_atom(); 
    if (success) { 
       update_things_on_move_and_redraw();
+      CAtom *at = 0; // passed but not used, it seems.
+      GtkWidget *window = graphics_info_t::go_to_atom_window;
+      if (window)
+	 g.update_widget_go_to_atom_values(window, at);
    }
-
    return success; 
 }
 

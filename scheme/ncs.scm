@@ -20,12 +20,12 @@
   ;; chain-ids is less then length 2, return #f.
   ;; 
   (define (skip-to-chain this-chain-id chain-id-list)
-    (format #t "this-chain-id: ~s~%" this-chain-id)
+    ;; (format #t "this-chain-id: ~s~%" this-chain-id)
     (if (< (length chain-id-list) 2)
 	#f 
 	(let loop ((local-chain-id-list chain-id-list))
-	  (format #t "considering local-chain-id-list: ~s~%"
-		  local-chain-id-list)
+;	  (format #t "considering local-chain-id-list: ~s~%"
+;		  local-chain-id-list)
 	  (cond
 	   ((null? local-chain-id-list) (car chain-id-list))
 	   ((string=? this-chain-id (car local-chain-id-list))
@@ -42,7 +42,7 @@
 	 (this-chain-id (go-to-atom-chain-id))
 	 (next-chain (skip-to-chain this-chain-id chains)))
 
-    (format #t "next-chain: ~s~%" next-chain)
+;     (format #t "next-chain: ~s~%" next-chain)
     
     (let loop ((try-next-chain next-chain)) 
       
@@ -68,7 +68,7 @@
 		;; back to this-chain-id - in which case we have a "No NCS
 		;; Next Chain atom" status-bar message.
 		
-		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
+; 		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
 		(if (= found-atom-state 0)
 		    ;; then we did *not* find the atom, e.g. next-chain was
 		    ;; the water chain
