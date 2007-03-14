@@ -22,6 +22,7 @@
 
   (cond
    ((null? ls) '())
-   ((fn (car ls)) (cons (car ls) (filter fn (cdr ls))))
+   ((fn (car ls)) 
+    (cons (car ls) (filter fn (cdr ls))))
    (else 
     (filter fn (cdr ls)))))
