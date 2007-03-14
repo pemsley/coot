@@ -1,3 +1,8 @@
+2007-03-14  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* ncs.scm: (skip-to-next-ncs-chain) Add function to skip to "next"
+	NCS chain.
+
 2007-03-01  Paul Emsley  <paulemsley@ysbl.york.ac.uk>
 
 	* coot-utils.scm ((brighten-map imol)): added function 
