@@ -24787,7 +24787,7 @@ ALL_LINGUAS=""
   # AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
 # fi
 
-                                                                                                                                                                                                                                                                                                  ac_config_files="$ac_config_files Makefile macros/Makefile scheme/Makefile python/Makefile compat/Makefile coot-utils/Makefile ccp4mg-utils/Makefile coords/Makefile db-main/Makefile density-contour/Makefile surface/Makefile coot-surface/Makefile angles/Makefile atom-utils/Makefile mini-mol/Makefile skeleton/Makefile ligand/Makefile geometry/Makefile ideal/Makefile build/Makefile analysis/Makefile sequence-view/Makefile src/Makefile doc/Makefile high-res/Makefile tw/Makefile setup/coot.sh setup/coot.csh python/coot_load_modules.py"
+                                                                                                                                                                                                                                                                                                                                                              ac_config_files="$ac_config_files Makefile macros/Makefile scheme/Makefile python/Makefile compat/Makefile coot-utils/Makefile ccp4mg-utils/Makefile coords/Makefile db-main/Makefile density-contour/Makefile surface/Makefile coot-surface/Makefile angles/Makefile atom-utils/Makefile mini-mol/Makefile skeleton/Makefile ligand/Makefile geometry/Makefile ideal/Makefile build/Makefile analysis/Makefile sequence-view/Makefile src/Makefile doc/Makefile high-res/Makefile tw/Makefile setup/coot.sh setup/coot.csh python/coot_load_modules.py aux/Makefile aux/catcheck/Makefile aux/rama/Makefile aux/sec-str/Makefile aux/strand-analysis/Makefile aux/vectors/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -25434,6 +25434,12 @@ do
   "setup/coot.sh" ) CONFIG_FILES="$CONFIG_FILES setup/coot.sh" ;;
   "setup/coot.csh" ) CONFIG_FILES="$CONFIG_FILES setup/coot.csh" ;;
   "python/coot_load_modules.py" ) CONFIG_FILES="$CONFIG_FILES python/coot_load_modules.py" ;;
+  "aux/Makefile" ) CONFIG_FILES="$CONFIG_FILES aux/Makefile" ;;
+  "aux/catcheck/Makefile" ) CONFIG_FILES="$CONFIG_FILES aux/catcheck/Makefile" ;;
+  "aux/rama/Makefile" ) CONFIG_FILES="$CONFIG_FILES aux/rama/Makefile" ;;
+  "aux/sec-str/Makefile" ) CONFIG_FILES="$CONFIG_FILES aux/sec-str/Makefile" ;;
+  "aux/strand-analysis/Makefile" ) CONFIG_FILES="$CONFIG_FILES aux/strand-analysis/Makefile" ;;
+  "aux/vectors/Makefile" ) CONFIG_FILES="$CONFIG_FILES aux/vectors/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -26106,12 +26112,6 @@ if test "$no_create" != yes; then
 fi
 
 # removed setup/Makefile
-# aux/Makefile
-# aux/catcheck/Makefile
-# aux/rama/Makefile
-# aux/sec-str/Makefile
-# aux/strand-analysis/Makefile
-# aux/vectors/Makefile
 
 # GETTEXT related things: When AM_GNU_GETTEXT get enabled, these get enabled.
 # po/Makefile
