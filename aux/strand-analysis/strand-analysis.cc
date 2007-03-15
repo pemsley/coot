@@ -458,7 +458,7 @@ coot::strands_t::post_read_analysis() const {
       std::cout << "strand_length: " << i << "  " << strand_lengths[i] << std::endl;
    }
 
-   int this_length = 5; 
+   int this_length = 7; 
    int n_strands = strand_lengths[this_length];
    std::cout << "There are " << n_strands << " strands of length " << this_length << std::endl;
    float dist_arr[n_strands][n_strands];
@@ -482,13 +482,47 @@ coot::strands_t::post_read_analysis() const {
    }
 
    // istrand is indexing dist_arr now
-   // 
-   for (int istrand=0; istrand<n_strands; istrand++) {
-      for (int jstrand=0; jstrand<n_strands; jstrand++) {
-	 std::cout << istrand << " " << jstrand << " "
-		   << dist_arr[istrand][jstrand] << std::endl;
+   //
+   if (0) { 
+      for (int istrand=0; istrand<n_strands; istrand++) {
+	 for (int jstrand=0; jstrand<n_strands; jstrand++) {
+	    std::cout << istrand << " " << jstrand << " "
+		      << dist_arr[istrand][jstrand] << std::endl;
+	 }
+      }
+   }
+
+   if (0) {
+      std::cout << " " << n_strands << std::endl;
+      for (int istrand=0; istrand<n_strands; istrand++) {
+	 // the front of the line
+	 std::cout << "strand" << istrand << "    ";
+	 // all the row
+	 std::cout.setf(std::ios::fixed);
+	 std::cout.precision(7);
+	 for (int jstrand=0; jstrand<n_strands; jstrand++) {
+	    std::cout << dist_arr[istrand][jstrand] << " ";
+	 }
+	 std::cout << std::endl;
+      }
+   }
+
+   if (1) {
+      printf("   %d\n", n_strands);
+      for (int istrand=0; istrand<n_strands; istrand++) {
+	 // the front of the line
+	 if (istrand < 10) 
+	    printf("strand%d  ", istrand);
+	 else 
+	    printf("strand%d ", istrand);
+	 // all the row
+	 for (int jstrand=0; jstrand<n_strands; jstrand++) {
+	    printf("%11.5f ", dist_arr[istrand][jstrand]);
+	 }
+	 printf("\n");
       }
    } 
+
 } 
 
 
