@@ -203,7 +203,10 @@ coot::strands_t::strand_analysis(CModel *model_p, CMMDBManager *mol,
 		      << " " << strand->initICode << " to " 
 		      << strand->endChainID << " " << strand->endSeqNum
 		      << " " << strand->endICode << std::endl;
-	    // Now do a residue selection for that strand:
+
+	    // Now do a residue selection for that strand.  Once only
+	    // and pass around the handle, from which we do a
+	    // GetSelIndex().
 	    //
 	    int SelHnd = mol->NewSelection();
 	    mol->Select(SelHnd, STYPE_RESIDUE, 1,
@@ -219,7 +222,7 @@ coot::strands_t::strand_analysis(CModel *model_p, CMMDBManager *mol,
 	    
 	    add_strand(filename, mol, strand, SelHnd);
 	    
-	    mol->DeleteSelection(SelHnd);
+	    // mol->DeleteSelection(SelHnd);
 	 }
       }
    }
@@ -241,22 +244,16 @@ coot::strands_t::add_strand(const std::string &filename,
 			    CStrand *strand_p,
 			    int SelectionHandle) {
 
-   mol->Select(SelectionHandle, STYPE_RESIDUE, 1,
-	       strand_p->initChainID,
-	       strand_p->initSeqNum, strand_p->initICode,
-	       strand_p->endSeqNum,  strand_p->endICode,
-	       "*", "*", 
-	       "*", "*",
-	       SKEY_NEW);
-
    int nSelResidues = 0;
    PPCResidue SelResidues;
    mol->GetSelIndex(SelectionHandle, SelResidues, nSelResidues);
-   std::cout << "      selected " << nSelResidues << " residues "
-	     << std::endl;
 
    coot::strand_info_t s;
    s.length = nSelResidues;
+   s.strand = *strand_p;
+   s.filename = filename;
+   s.mol = mol;
+   s.SelectionHandle = SelectionHandle;
    strand_infos.push_back(s);
    
 } 
@@ -463,17 +460,24 @@ coot::strands_t::post_read_analysis() const {
 
    int this_length = 5; 
    int n_strands = strand_lengths[this_length];
+   std::cout << "There are " << n_strands << " strands of length " << this_length << std::endl;
    float dist_arr[n_strands][n_strands];
+   int iarr_index = 0; 
    for (unsigned int istrand=0; istrand<strand_infos.size(); istrand++) {
       int l1 = strand_infos[istrand].length;
       if (l1 == this_length) {
+	 int jarr_index = 0; 
 	 for (unsigned int jstrand=0; jstrand<strand_infos.size(); jstrand++) {
 	    int l2 = strand_infos[jstrand].length;
 	    if (l2 == this_length) {
-	       dist_arr[istrand][jstrand] =
-		  residual_between_strands(istrand, jstrand, this_length);
+	       float v = residual_between_strands(istrand, jstrand, this_length);
+// 	       std::cout << "setting dist_arr[" << iarr_index << "][" << jarr_index
+// 			 << "]" << std::endl;
+	       dist_arr[iarr_index][jarr_index] = v;
+	       jarr_index++;
 	    }
 	 }
+	 iarr_index++; 
       }
    }
 
@@ -481,7 +485,8 @@ coot::strands_t::post_read_analysis() const {
    // 
    for (int istrand=0; istrand<n_strands; istrand++) {
       for (int jstrand=0; jstrand<n_strands; jstrand++) {
-	 std::cout << istrand << " " << jstrand << " " << dist_arr << std::endl;
+	 std::cout << istrand << " " << jstrand << " "
+		   << dist_arr[istrand][jstrand] << std::endl;
       }
    } 
 } 
@@ -490,9 +495,94 @@ coot::strands_t::post_read_analysis() const {
 float
 coot::strands_t::residual_between_strands(int istrand, int jstrand, int strand_length) const {
 
+   float r = -1; // bad value
+   
    // get first set of atoms
+   int nSelResidues1 = 0;
+   PPCResidue SelResidues1;
+   CMMDBManager *mol1 = strand_infos[istrand].mol;
+   mol1->GetSelIndex(strand_infos[istrand].SelectionHandle, SelResidues1, nSelResidues1);
+   int nSelResidues2 = 0;
+   PPCResidue SelResidues2;
+   CMMDBManager *mol2 = strand_infos[jstrand].mol;
+   mol2->GetSelIndex(strand_infos[jstrand].SelectionHandle, SelResidues2, nSelResidues2);
 
-   return 0;
-   
-   
+   if (nSelResidues1 == nSelResidues2) {
+      // which they should do!
+      float sum_dist_sq = 0;
+      int n_res_with_atoms = 0; 
+      for (int ires=0; ires<nSelResidues1; ires++) {
+
+	 int n_atoms_1;
+	 PPCAtom residue_atoms_1;
+	 int n_atoms_2;
+	 PPCAtom residue_atoms_2;
+	 
+	 SelResidues1[ires]->GetAtomTable(residue_atoms_1, n_atoms_1);
+	 SelResidues2[ires]->GetAtomTable(residue_atoms_2, n_atoms_2);
+	 
+	 std::pair<CAtom *, CAtom *> o(0,0);
+	 std::pair<CAtom *, CAtom *> c(0,0);
+	 std::pair<CAtom *, CAtom *> ca(0,0);
+	 std::pair<CAtom *, CAtom *> n(0,0);
+
+	 for (int iatom1=0; iatom1<n_atoms_1; iatom1++) {
+	    std::string at_name1 = residue_atoms_1[iatom1]->name;
+	    if (at_name1 == " CA ") {
+	       ca.first = residue_atoms_1[iatom1];
+	    }
+	    if (at_name1 == " O  ") {
+	       o.first = residue_atoms_1[iatom1];
+	    }
+	    if (at_name1 == " C  ") {
+	       c.first = residue_atoms_1[iatom1];
+	    }
+	    if (at_name1 == " N  ") {
+	       n.first = residue_atoms_1[iatom1];
+	    }
+	 }
+
+	 for (int iatom2=0; iatom2<n_atoms_2; iatom2++) {
+	    std::string at_name2 = residue_atoms_2[iatom2]->name;
+	    if (at_name2 == " CA ") {
+	       ca.second = residue_atoms_2[iatom2];
+	    }
+	    if (at_name2 == " O  ") {
+	       o.second = residue_atoms_2[iatom2];
+	    }
+	    if (at_name2 == " C  ") {
+	       c.second = residue_atoms_2[iatom2];
+	    }
+	    if (at_name2 == " N  ") {
+	       n.second = residue_atoms_2[iatom2];
+	    }
+	 }
+
+	 // OK are all the atoms filled?
+	 if (ca.first && ca.second) { 
+	    if (c.first && c.second) { 
+	       if (n.first && n.second) { 
+		  if (o.first && o.second) {
+
+		     float x2 = ca.first->x - ca.second->x;
+		     float y2 = ca.first->y - ca.second->y;
+		     float z2 = ca.first->z - ca.second->z;
+		     sum_dist_sq += x2*x2 + y2*y2 + z2*z2;
+		     n_res_with_atoms++; 
+		  }
+	       }
+	    }
+	 }
+      }
+      float var = -1;
+      if (n_res_with_atoms > 0) { 
+	 float var = sum_dist_sq/float(n_res_with_atoms);
+	 r = var;
+      }
+      
+   } else {
+      std::cout << "ERROR:: Something bad in residual_between_strands " << istrand << " "
+		<< jstrand << std::endl;
+   } 
+   return r;
 }
