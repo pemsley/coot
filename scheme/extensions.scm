@@ -213,6 +213,7 @@
 						(begin
 						  (add-status-bar-text 
 						   "Failed to read a number"))))))))
+
       ;; An example with a submenu:
       ;; 
       (let ((submenu (gtk-menu-new))
@@ -239,6 +240,8 @@
 	 (lambda ()
 	   (format #t "Default Speed...~%")
 	   (set-dragged-refinement-steps-per-frame 50))))
+
+
 
       (add-simple-coot-menu-menuitem
        menu "SHELXL Refine..."
