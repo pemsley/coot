@@ -29,7 +29,8 @@ namespace coot {
       std::string filename;
       CStrand strand;
       int length;
-
+      CMMDBManager *mol;
+      int SelectionHandle;
    }; 
 
    class strands_t {
