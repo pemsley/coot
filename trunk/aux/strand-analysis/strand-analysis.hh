@@ -24,14 +24,29 @@ get_reference_pdb_list(const std::string &dir_name);
 
 namespace coot {
 
+   class strand_info_t {
+   public: 
+      std::string filename;
+      CStrand strand;
+      int length;
+
+   }; 
+
    class strands_t {
 
+      std::vector<strand_info_t> strand_infos;
+      float residual_between_strands(int istrand, int jstrand, int this_length) const; 
    public:
       void analyse_pdb_file(const std::string &filename);
       void add_strand(const std::string &filename,
-		      CMMDBManager *mol, int SelectionHandle);
-      void strand_analysis(CModel *model_p, CMMDBManager *mol,
-		     const std::string &filename);
+		      CMMDBManager *mol,
+		      CStrand *strand,
+		      int SelectionHandle);
+      void strand_analysis(CModel *model_p,
+			   CMMDBManager *mol,
+			   const std::string &filename);
+
+      void post_read_analysis() const;
    };
 
 }

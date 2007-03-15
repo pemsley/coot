@@ -28,6 +28,8 @@ void read_dir(const std::string &dir_name) {
    for (int i=0; i<v.size(); i++) {
       strands.analyse_pdb_file(v[i]);
    }
+
+   strands.post_read_analysis();
 }
 
 std::vector<std::string>
@@ -184,7 +186,7 @@ distance_checks(CModel *model_p) {
 // 
 void
 coot::strands_t::strand_analysis(CModel *model_p, CMMDBManager *mol,
-			       const std::string &filename) {
+				 const std::string &filename) {
 
    PCSheets sheets = model_p->GetSheets();
    std::cout << "has " << sheets->nSheets << " sheets" << std::endl;
@@ -195,28 +197,30 @@ coot::strands_t::strand_analysis(CModel *model_p, CMMDBManager *mol,
 		<< " strands " << std::endl;
       for (int istrand=0; istrand<nstrands; istrand++) {
 	 CStrand *strand = sheet->Strand[istrand];
-	 std::cout << "      strand " << strand->strandNo << " from "
-		   << strand->initChainID << " " << strand->initSeqNum
-		   << " " << strand->initICode << " to " 
-		   << strand->endChainID << " " << strand->endSeqNum
-		   << " " << strand->endICode << std::endl;
-	 // Now do a residue selection for that strand:
-	 //
-	 int SelHnd = mol->NewSelection();
-	 mol->Select(SelHnd, STYPE_RESIDUE, 1,
-		     strand->initChainID,
-		     strand->initSeqNum, strand->initICode,
-		     strand->endSeqNum, strand->endICode,
-		     "*", "*", 
-		     "*", "*",
-		     SKEY_NEW);
-	 std::pair<bool, clipper::RTop_orth> ori = orient_strand_on_z(SelHnd, mol);
-	 if (ori.first)
-	    apply_rtop_to_strand(SelHnd, mol, ori.second);
-
-	 add_strand(filename, mol, SelHnd);
-	 
-	 mol->DeleteSelection(SelHnd);
+	 if (strand) { 
+	    std::cout << "      strand " << strand->strandNo << " from "
+		      << strand->initChainID << " " << strand->initSeqNum
+		      << " " << strand->initICode << " to " 
+		      << strand->endChainID << " " << strand->endSeqNum
+		      << " " << strand->endICode << std::endl;
+	    // Now do a residue selection for that strand:
+	    //
+	    int SelHnd = mol->NewSelection();
+	    mol->Select(SelHnd, STYPE_RESIDUE, 1,
+			strand->initChainID,
+			strand->initSeqNum, strand->initICode,
+			strand->endSeqNum, strand->endICode,
+			"*", "*", 
+			"*", "*",
+			SKEY_NEW);
+	    std::pair<bool, clipper::RTop_orth> ori = orient_strand_on_z(SelHnd, mol);
+	    if (ori.first)
+	       apply_rtop_to_strand(SelHnd, mol, ori.second);
+	    
+	    add_strand(filename, mol, strand, SelHnd);
+	    
+	    mol->DeleteSelection(SelHnd);
+	 }
       }
    }
 
@@ -233,8 +237,28 @@ coot::strands_t::strand_analysis(CModel *model_p, CMMDBManager *mol,
 
 void
 coot::strands_t::add_strand(const std::string &filename,
-			    CMMDBManager *mol, int SelectionHandle) {
+			    CMMDBManager *mol,
+			    CStrand *strand_p,
+			    int SelectionHandle) {
 
+   mol->Select(SelectionHandle, STYPE_RESIDUE, 1,
+	       strand_p->initChainID,
+	       strand_p->initSeqNum, strand_p->initICode,
+	       strand_p->endSeqNum,  strand_p->endICode,
+	       "*", "*", 
+	       "*", "*",
+	       SKEY_NEW);
+
+   int nSelResidues = 0;
+   PPCResidue SelResidues;
+   mol->GetSelIndex(SelectionHandle, SelResidues, nSelResidues);
+   std::cout << "      selected " << nSelResidues << " residues "
+	     << std::endl;
+
+   coot::strand_info_t s;
+   s.length = nSelResidues;
+   strand_infos.push_back(s);
+   
 } 
 
 
@@ -247,8 +271,8 @@ orient_strand_on_z(int SelHnd, CMMDBManager *mol) {
    int nSelResidues = 0;
    PPCResidue SelResidues;
    mol->GetSelIndex(SelHnd, SelResidues, nSelResidues);
-   std::cout << "      selected " << nSelResidues << " residues "
-	     << std::endl;
+   //    std::cout << "      selected " << nSelResidues << " residues "
+   // << std::endl;
    std::vector<clipper::Coord_orth> z_points = z_control_points(nSelResidues);
    std::vector<clipper::Coord_orth> atom_vec;
 
@@ -275,8 +299,9 @@ orient_strand_on_z(int SelHnd, CMMDBManager *mol) {
       } 
    }
    if (atom_vec.size() != 3* nSelResidues) {
-      std::cout << "skipping this strange strand " << atom_vec.size() << " "
-		<< nSelResidues << std::endl;
+      std::cout << "skipping this strange strand with " << atom_vec.size()
+		<< " atoms (should be " << 3*nSelResidues << ") and "
+		<< nSelResidues << " residues" << std::endl;
    } else {
       // find the rtop from this clipper method
       rtop = clipper::RTop_orth(atom_vec, z_points);
@@ -416,4 +441,58 @@ float oxygen_check(CResidue *residue_p_1, CResidue *residue_p_2) {
 	 break;
    }
    return d;
+}
+
+void
+coot::strands_t::post_read_analysis() const {
+
+   std::cout << "Captured " << strand_infos.size() << " strands" << std::endl;
+
+   std::vector<int> strand_lengths(20, 0);
+   
+   for (unsigned int i=0; i<strand_infos.size(); i++) {
+      int l = strand_infos[i].length;
+      if (l >= 0)
+	 if (l < 20)
+	    strand_lengths[l]++;
+   }
+
+   for (unsigned int i=0; i<20; i++) {
+      std::cout << "strand_length: " << i << "  " << strand_lengths[i] << std::endl;
+   }
+
+   int this_length = 5; 
+   int n_strands = strand_lengths[this_length];
+   float dist_arr[n_strands][n_strands];
+   for (unsigned int istrand=0; istrand<strand_infos.size(); istrand++) {
+      int l1 = strand_infos[istrand].length;
+      if (l1 == this_length) {
+	 for (unsigned int jstrand=0; jstrand<strand_infos.size(); jstrand++) {
+	    int l2 = strand_infos[jstrand].length;
+	    if (l2 == this_length) {
+	       dist_arr[istrand][jstrand] =
+		  residual_between_strands(istrand, jstrand, this_length);
+	    }
+	 }
+      }
+   }
+
+   // istrand is indexing dist_arr now
+   // 
+   for (int istrand=0; istrand<n_strands; istrand++) {
+      for (int jstrand=0; jstrand<n_strands; jstrand++) {
+	 std::cout << istrand << " " << jstrand << " " << dist_arr << std::endl;
+      }
+   } 
+} 
+
+
+float
+coot::strands_t::residual_between_strands(int istrand, int jstrand, int strand_length) const {
+
+   // get first set of atoms
+
+   return 0;
+   
+   
 }
