@@ -41,6 +41,7 @@
 #include "rigid-body.hh"
 #include "residue_by_phi_psi.hh"
 #include "mini-mol-utils.hh"
+#include "db-strands.hh"
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -268,7 +269,6 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
       // std::cout << "move point round number " << i << std::endl;
       ptc = move_helix_centre_point_guess(ptc);
    }
-   int resultops;
    float min_density_limit = 0.2; // should be related to 0.2
 
    float acell[6];
@@ -295,67 +295,17 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
       // search model params
       double cyl_len = 6.0;  // half length
       double cyl_rad = 2.5;  // half diameter (radius)
-      cyl_len = double(n_residues)/2.0; // PE parameter
+      cyl_len = double(n_residues)/2.0; // PE parameter (for helices)
 
-      // make the search angles
-      std::vector<clipper::RTop_orth> ops;
-      // make a list of rotation ops to try
-      float step  =10.0;
-      float beta1 =90.0;   // beta search half range for mirror sym
-      float alpha1=360.0;  // no gamma search for cyl sym
-      // do a uniformly sampled search of orientation space
-      float anglim = alpha1;
-      for ( float bdeg=step/2; bdeg < beta1; bdeg += step ) {
-	 float beta = clipper::Util::d2rad(bdeg);
-	 float s = anglim/clipper::Util::intf(sin(beta)*anglim/step+1);
-	 for ( float adeg=step/2; adeg < alpha1; adeg += step ) {
-	    float alpha = clipper::Util::d2rad(adeg);
-	    clipper::Euler_ccp4 euler( alpha, beta, 0.0 );
-	    ops.push_back( clipper::RTop_orth(clipper::Rotation(euler).matrix()) );
-	 }
-      }
-      unsigned int ops_size = ops.size();
+      // ------------- elided ----------------
       
-      // make inverse ops
-      std::vector<clipper::RTop_orth> opsi( ops.size() );
-      for (unsigned int j = 0; j < ops.size(); j++ ) opsi[j] = ops[j].inverse();
+      clipper::RTop_orth ops_resultops = find_best_tube_orientation(ptc, cyl_len, cyl_rad);
 
-      typedef clipper::Xmap<float>::Map_reference_coord MRC;
-      MRC i0, iu, iv, iw;
-      std::vector<double> scores( ops.size() );
-      clipper::Cell cell          = xmap.cell();
-      clipper::Grid_sampling grid = xmap.grid_sampling();
-      clipper::Grid_range gr( cell, grid, sqrt(cyl_len*cyl_len+cyl_rad*cyl_rad) );
-      clipper::Coord_grid g, g0, g1;
-      clipper::Coord_orth c0, c1;
-      for (unsigned int j = 0; j < ops.size(); j++ )
-	 scores[j] = 0.0;
-
-      g = ptc.coord_frac(cell).coord_grid(grid);
-      g0 = g + gr.min();
-      g1 = g + gr.max();
-      i0 = MRC( xmap, g0 );
-      for ( iu = i0; iu.coord().u() <= g1.u(); iu.next_u() ) {
-	 for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() )
-	    for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
-	       c0 = iw.coord_orth() - ptc;
-	       for (unsigned int j = 0; j < ops_size; j++ ) {
-		  c1 = opsi[j] * c0;
-		  if ( fabs(c1.z()) < cyl_len &&
-		       c1.x()*c1.x()+c1.y()*c1.y() < cyl_rad*cyl_rad )
-		     scores[j] += xmap[iw];
-	       }
-	    }
-      }
-      int jmax = 0;
-      for (unsigned int j = 0; j < ops.size(); j++ )
-	 if ( scores[j] > scores[jmax] ) jmax = j;
-      resultops = jmax;
 
       // ops[resultops] is the matrix which orients the to the helix
       // axis around the origin.
       std::vector<clipper::RTop_orth> ofm =
-	 optimize_rotation_fit(m.mol[0], ops[resultops], ptc);
+	 optimize_rotation_fit(m.mol[0], ops_resultops, ptc);
 
       // There are 2 orientation in ofm correspoding to the up and
       // down orientations of the initial helix.  We have already hade
@@ -379,13 +329,13 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 	    for(unsigned int ifrag=0; ifrag<mr[iofm].fragments.size(); ifrag++)
 	       mr[iofm][ifrag].transform(ofm[iofm]);
 	    for(unsigned int ifrag=0; ifrag<mr[iofm].fragments.size(); ifrag++)
-	       mr[iofm][ifrag].transform(ops[resultops]);
+	       mr[iofm][ifrag].transform(ops_resultops);
 	    for(unsigned int ifrag=0; ifrag<mr[iofm].fragments.size(); ifrag++)
 	       mr[iofm][ifrag].transform(to_point);
 
 	    clipper::Coord_orth d( 0.0, 0.0, 2.0 );
-	    clipper::Coord_orth pt1(ptc + ops[resultops]*d);
-	    clipper::Coord_orth pt2(ptc - ops[resultops]*d);
+	    clipper::Coord_orth pt1(ptc + ops_resultops*d);
+	    clipper::Coord_orth pt2(ptc - ops_resultops*d);
 
 	    // 	 std::cout << " Helix axis: \n   (set-rotation-centre " << pt1.x() << " "
 	    // 		   << pt1.y() << " "  << pt1.z() << ")\n";
@@ -471,6 +421,71 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
    } 
    return coot::helix_placement_info_t(mr, success, failure_message);
 }
+
+clipper::RTop_orth 
+coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, double cyl_len, double cyl_rad) const {
+   
+   // make the search angles
+   std::vector<clipper::RTop_orth> ops;
+   int resultops;
+
+   // make a list of rotation ops to try
+   float step  =10.0;
+   float beta1 =90.0;   // beta search half range for mirror sym
+   float alpha1=360.0;  // no gamma search for cyl sym
+   // do a uniformly sampled search of orientation space
+   float anglim = alpha1;
+   for ( float bdeg=step/2; bdeg < beta1; bdeg += step ) {
+      float beta = clipper::Util::d2rad(bdeg);
+      float s = anglim/clipper::Util::intf(sin(beta)*anglim/step+1);
+      for ( float adeg=step/2; adeg < alpha1; adeg += step ) {
+	 float alpha = clipper::Util::d2rad(adeg);
+	 clipper::Euler_ccp4 euler( alpha, beta, 0.0 );
+	 ops.push_back( clipper::RTop_orth(clipper::Rotation(euler).matrix()) );
+      }
+   }
+   unsigned int ops_size = ops.size();
+      
+   // make inverse ops
+   std::vector<clipper::RTop_orth> opsi( ops.size() );
+   for (unsigned int j = 0; j < ops.size(); j++ ) opsi[j] = ops[j].inverse();
+
+   typedef clipper::Xmap<float>::Map_reference_coord MRC;
+   MRC i0, iu, iv, iw;
+   std::vector<double> scores( ops.size() );
+   clipper::Cell cell          = xmap.cell();
+   clipper::Grid_sampling grid = xmap.grid_sampling();
+   clipper::Grid_range gr( cell, grid, sqrt(cyl_len*cyl_len+cyl_rad*cyl_rad) );
+   clipper::Coord_grid g, g0, g1;
+   clipper::Coord_orth c0, c1;
+   for (unsigned int j = 0; j < ops.size(); j++ )
+      scores[j] = 0.0;
+
+   g = ptc.coord_frac(cell).coord_grid(grid);
+   g0 = g + gr.min();
+   g1 = g + gr.max();
+   i0 = MRC( xmap, g0 );
+   for ( iu = i0; iu.coord().u() <= g1.u(); iu.next_u() ) {
+      for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() )
+	 for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
+	    c0 = iw.coord_orth() - ptc;
+	    for (unsigned int j = 0; j < ops_size; j++ ) {
+	       c1 = opsi[j] * c0;
+	       if ( fabs(c1.z()) < cyl_len &&
+		    c1.x()*c1.x()+c1.y()*c1.y() < cyl_rad*cyl_rad )
+		  scores[j] += xmap[iw];
+	    }
+	 }
+   }
+   int jmax = 0;
+   for (unsigned int j = 0; j < ops.size(); j++ )
+      if ( scores[j] > scores[jmax] ) jmax = j;
+   resultops = jmax;
+
+   return ops[resultops];
+
+}
+
 
 // Return the orientation for the best fit and the orientation for the
 // best fit with the helix oriented the other way up.  The orientation
@@ -1161,3 +1176,53 @@ coot::helix_placement::trim_and_grow(minimol::molecule *m, float min_density_lim
    }
 }
 
+
+coot::helix_placement_info_t
+coot::helix_placement::place_strand(const clipper::Coord_orth &pt) {
+
+   coot::minimol::molecule rm;
+   coot::helix_placement_info_t r(rm, 0, "Not Done");
+
+   // What is the orientation of the strand?  Let's define a tube and search it
+   //
+   double cyl_len = 10.0;
+   double cyl_rad = 1.0;
+
+   clipper::RTop_orth best_op = find_best_tube_orientation(pt, cyl_len, cyl_rad);
+
+   // Pick a length
+   int strand_length = 5;
+
+   // get some strands of that length
+   //
+   int n_strands = 5;
+   coot::db_strands dbs;
+   std::vector<coot::minimol::molecule> strands = dbs.get_reference_strands(n_strands, strand_length);
+
+   // for each strand fit as rigid body, both directions and return the score.
+   float best_score = -999.0;
+   coot::minimol::molecule best_mol;
+   for (int imol=0; imol<strands.size(); imol++) {
+      coot::scored_helix_info_t info = fit_strand(strands[imol], best_op);
+      if (info.score > best_score) {
+	 best_score = info.score;
+	 best_mol = info.mol;
+      }
+   }
+   if (best_score > 0.0) {
+      r.mol[0] = best_mol;
+      r.success = 1;
+      r.failure_message = "success";
+   }
+   return r;
+}
+
+coot::scored_helix_info_t
+coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
+				  const clipper::RTop_orth &rtop) const {
+
+   coot::scored_helix_info_t scored_strand;
+
+   return scored_strand;
+
+} 

@@ -12,6 +12,7 @@ INCLUDES = \
 	-I$(top_srcdir)/mini-mol \
 	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/compat \
+	-I$(top_srcdir)/db-main \
 	$(COOT_GSL_FLAGS)		\
 	$(GSL_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
@@ -62,6 +63,7 @@ test_helix_placement_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/db-main/libcoot-db-main.la         \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/coot-utils/libcoot-utils.la        \

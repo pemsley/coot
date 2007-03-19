@@ -1,4 +1,6 @@
 
+#include "mini-mol.hh"
+
 namespace coot {
 
    class db_strands {
@@ -6,5 +8,5 @@ namespace coot {
    public:
       db_strands() {}
       std::vector<minimol::molecule> get_reference_strands(int n_strands, int strand_length);
-   } 
+   };
 } 
