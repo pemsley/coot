@@ -3627,16 +3627,29 @@ void ncs_control_display_chain(int imol, int ichain, int state);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                  Helices                                                 */
+/*                  Autobuild helices and strands                           */
 /*  ----------------------------------------------------------------------- */
-/*! \name Helices */
+/*! \name Helices and Strands*/
 /*! \{ */
 /*! \brief add a helix 
 
    Add a helix somewhere close to this point in the map, try to fit
-   the orientation. Add to a molecule called "Helices", create it if needed.
-   Return the index of the new molecule.*/
+   the orientation. Add to a molecule called "Helix", create it if
+   needed.  Create another moecule called "Reverse Helix" if the helix
+   orientation isn't completely unequivocal.
+
+   @return the index of the new molecule.*/
 int place_helix_here();
+
+/*! \brief add a strands
+
+   Add a strand close to this point in the map, try to fit
+   the orientation. Add to a molecule called "Strand", create it if needed.
+   n_residues is the estimated number of residues in the strand.
+
+   @return the index of the new molecule.*/
+int place_strand_here(int n_residues);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

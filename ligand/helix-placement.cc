@@ -902,7 +902,8 @@ coot::helix_placement::score_helix_position(const coot::minimol::molecule &m) co
       for (int ires=m[ifrag].min_res_no(); ires<m[ifrag].max_residue_number();
 	   ires++) {
 	 for (unsigned int iat=0; iat<m[ifrag][ires].atoms.size(); iat++) {
-	    score += coot::util::density_at_point(xmap, m[ifrag][ires][iat].pos);
+	    score += coot::util::density_at_point(xmap, m[ifrag][ires][iat].pos) *
+	       m[ifrag][ires][iat].occupancy;
 	 }
       }
    }
@@ -1178,7 +1179,7 @@ coot::helix_placement::trim_and_grow(minimol::molecule *m, float min_density_lim
 
 
 coot::helix_placement_info_t
-coot::helix_placement::place_strand(const clipper::Coord_orth &pt) {
+coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_length) {
 
    coot::minimol::molecule rm;
    coot::helix_placement_info_t r(rm, 0, "Not Done");
@@ -1190,8 +1191,9 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt) {
 
    clipper::RTop_orth best_op = find_best_tube_orientation(pt, cyl_len, cyl_rad);
 
-   // Pick a length
-   int strand_length = 5;
+   std::cout << "DEBUG:: best_op for strand orientation:\n" << best_op.format() << std::endl;
+   clipper::RTop_orth op_plus_trans(best_op.rot(), pt);
+   std::cout << "DEBUG:: best_op with translation :\n" << op_plus_trans.format() << std::endl;
 
    // get some strands of that length
    //
@@ -1199,12 +1201,14 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt) {
    coot::db_strands dbs;
    std::vector<coot::minimol::molecule> strands = dbs.get_reference_strands(n_strands, strand_length);
 
-   // for each strand fit as rigid body, both directions and return the score.
+   // for each strand, fit as rigid body, both directions and return the score.
    float best_score = -999.0;
    coot::minimol::molecule best_mol;
    for (int imol=0; imol<strands.size(); imol++) {
-      coot::scored_helix_info_t info = fit_strand(strands[imol], best_op);
+      std::cout << "Scoring fragment " << imol << " of " << strands.size() << std::endl;
+      coot::scored_helix_info_t info = fit_strand(strands[imol], op_plus_trans);
       if (info.score > best_score) {
+	 std::cout << "   better score: " << info.score << std::endl;
 	 best_score = info.score;
 	 best_mol = info.mol;
       }
@@ -1213,6 +1217,16 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt) {
       r.mol[0] = best_mol;
       r.success = 1;
       r.failure_message = "success";
+      // copy over the cell and symmetry:
+      float acell[6];
+      acell[0] = xmap.cell().descr().a();
+      acell[1] = xmap.cell().descr().b();
+      acell[2] = xmap.cell().descr().c();
+      acell[3] = clipper::Util::rad2d(xmap.cell().descr().alpha());
+      acell[4] = clipper::Util::rad2d(xmap.cell().descr().beta());
+      acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
+      r.mol[0].set_cell(acell);
+      r.mol[0].set_spacegroup(xmap.spacegroup().symbol_hm());
    }
    return r;
 }
@@ -1221,8 +1235,85 @@ coot::scored_helix_info_t
 coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
 				  const clipper::RTop_orth &rtop) const {
 
+   // OK hold on to your hats here!
+   // 
+   // rtop transform object near the origin (oriented along z) to
+   // match the orientation and position of the place of interest.
+   // That transformation happens last.  We will move things around
+   // the origin first.
+   //
+   // We need to do some searching of the density, so we need
+   //
+   // 1) A forward/backwards transformation (flip)
+   // 2) a rotation search around the strand (z) axis
+   // 3) a translation search along the strand axis
+
+   float z_shift_step_size = 0.35; // the step size along the strand
+				   // axis, to get the zig-zag in the
+				   // right place.
+
+   float best_score = -9999.9; // the score to beat
+   
    coot::scored_helix_info_t scored_strand;
+   coot::minimol::molecule mc = mol;
 
+   // flip up/down (reverse direction search)
+   std::vector<clipper::Mat33<double> > flip_rotated_matrices;
+   flip_rotated_matrices.push_back(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1));
+   flip_rotated_matrices.push_back(clipper::Mat33<double>(-1, 0, 0, 0, 1, 0, 0, 0, -1));
+   for (unsigned int iflip=0; iflip<flip_rotated_matrices.size(); iflip++) {
+      if (iflip == 0) {
+	 std::cout << "   testing forward direction..." << std::endl;
+      } else { 
+	 std::cout << "   testing reverse direction..." << std::endl;
+      }
+      
+      coot::minimol::molecule flip = mc;
+      clipper::RTop_orth flip_rtop(flip_rotated_matrices[iflip],
+				   clipper::Coord_orth(0,0,0));
+      flip.transform(flip_rtop);
+
+      for (float theta=0; theta<2*M_PI; theta += 0.3) {
+	 
+	 double sin_t = sin(theta);
+	 double cos_t = cos(theta);
+	 clipper::Mat33<double> theta_mat(cos_t,-sin_t,0, sin_t,cos_t,0, 0,0,1);
+	 clipper::RTop_orth theta_rtop(theta_mat, clipper::Coord_orth(0,0,0));
+	 coot::minimol::molecule theta_mol = flip;
+	 theta_mol.transform(theta_rtop);
+
+	 for (float z_shift= -2.0; z_shift<2.0; z_shift+=z_shift_step_size) { 
+	    clipper::RTop_orth z_shift_rtop(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1),
+					    clipper::Coord_orth(0, 0, z_shift));
+	    coot::minimol::molecule z_shift_mol = theta_mol;
+	    z_shift_mol.transform(z_shift_rtop);
+
+	    // Now the transformation we first thought of...
+	    z_shift_mol.transform(rtop); 
+	    // coot::rigid_body_fit(&z_shift_mol, xmap);
+	    float score = score_helix_position(z_shift_mol);
+
+	    // debug
+	    if (0) { 
+	       std::string filename = "f-";
+	       filename += "flip:";
+	       filename += coot::util::int_to_string(iflip);
+	       filename += "-theta:";
+	       filename += coot::util::float_to_string(theta);
+	       filename += "-shift:";
+	       filename += coot::util::float_to_string(z_shift);
+	       filename += ".pdb";
+	       z_shift_mol.write_file(filename, 30.0);
+	    }
+
+	    if (score > best_score) {
+	       best_score = score;
+	       // std::cout << "Got a better fit in fit_strand " << score << std::endl;
+	       scored_strand.score = score;
+	       scored_strand.mol = z_shift_mol;
+	    } 
+	 }
+      }
+   }
    return scored_strand;
-
 } 

@@ -683,7 +683,14 @@ coot::minimol::fragment::transform(const clipper::RTop_orth &rtop) {
       for (unsigned int iatom=0; iatom<(*this)[ires].atoms.size(); iatom++)
 	 (*this)[ires][iatom].pos = (*this)[ires][iatom].pos.transform(rtop);
 }
-	 
+
+
+void
+coot::minimol::molecule::transform(const clipper::RTop_orth &rtop) {
+   for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
+      fragments[ifrag].transform(rtop);
+   }
+}
 
 
 std::vector<coot::minimol::atom*>

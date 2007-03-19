@@ -3720,7 +3720,6 @@ void copy_residue_range_from_ncs_master_to_others(int imol,
    the orientation. Add to a molecule called "Helices", create it if needed.*/
 int place_helix_here() {
 
-
    graphics_info_t g;
    clipper::Coord_orth pt(g.RotationCentre_x(),
 			  g.RotationCentre_y(),
@@ -3783,6 +3782,63 @@ int place_helix_here() {
       return -1;
    }
 } 
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  Place a strand                                          */
+/*  ----------------------------------------------------------------------- */
+int place_strand_here(int n_residues) {
+
+   int imol = -1; // failure status 
+   graphics_info_t g;
+   clipper::Coord_orth pt(g.RotationCentre_x(),
+			  g.RotationCentre_y(),
+			  g.RotationCentre_z());
+   int imol_map = g.Imol_Refinement_Map();
+   if (imol_map != -1) {
+
+      coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap_list[0]);
+      coot::helix_placement_info_t si = p.place_strand(pt, n_residues);
+      if (si.success) {
+	 float bf = graphics_info_t::default_new_atoms_b_factor;
+	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager(bf));
+	 g.expand_molecule_space_maybe();
+	 imol = g.n_molecules;
+	 graphics_info_t::molecules[imol].install_model(asc, "Strand", 1);
+	 g.statusbar_text("Strand added");
+	 g.n_molecules++;
+      } else {
+	 std::cout << "Strand addition failure: message: " << si.failure_message << "\n";
+	 g.statusbar_text(si.failure_message);
+      }
+      if (g.go_to_atom_window) {
+	 g.set_go_to_atom_molecule(imol);
+	 g.update_go_to_atom_window_on_new_mol();
+      }
+      
+      std::vector<std::string> command_strings;
+      command_strings.push_back("set-rotation-centre");
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_x()));
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_y()));
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_z()));
+      add_to_history(command_strings);
+      
+      command_strings.resize(0);
+      command_strings.push_back("place-strand-here");
+      command_strings.push_back(coot::util::int_to_string(n_residues));
+      add_to_history(command_strings);
+      graphics_draw();
+      return imol;
+   } else {
+      std::cout << " You need to set the map to fit against\n";
+      g.statusbar_text("You need to set the map to fit against");
+      g.show_select_map_dialog();
+      return -1;
+   }
+   
+
+} 
+
 
 
 /*  ----------------------------------------------------------------------- */

@@ -2,6 +2,7 @@
 #include "rigid-body.hh"
 #include "clipper/core/map_interp.h"
 
+#include "coot-utils.hh"
 #include "coot-map-utils.hh" // score_molecule
 
 
@@ -38,6 +39,20 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	 }
       }
       if (n_atoms > 0) {
+
+	 // assign the atom weights
+	 std::vector<double> atom_z_weights(n_atoms);
+	 std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
+	 std::vector<minimol::atom *> atoms = m->select_atoms_serial();
+	 for (int i=0; i<n_atoms; i++) {
+	    double z = coot::util::atomic_number(atoms[i]->element, atom_list);
+	    if (z < 0.0) {
+	       std::cout << "Unknown element :" << atoms[i]->element << ": " << std::endl;
+	       z = 6.0; // as for carbon
+	    } 
+	    atom_z_weights[i] = z;
+	 }
+	 
 	 double one_over = 1/double(n_atoms);
 	 clipper::Coord_orth mean_pos = one_over * midpoint;
 	 
@@ -45,26 +60,34 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	 clipper::Grad_frac<float> grad_frac;
 	 clipper::Grad_orth<float> grad_orth;
 	 float dv, sum_dx = 0, sum_dy = 0, sum_dz = 0;
-	 std::vector<minimol::atom *> atoms = m->select_atoms_serial();
+	 float sum_occ_fac = 0.0;
 	 std::vector<clipper::Grad_orth<float> > grad_vec(atoms.size());
 	 // only apply shifts for atoms with non-zero occupancy
 	 for (int ii=0; ii<atoms.size(); ii++) {
-	    if (fabs(atoms[ii]->occupancy) > 0.001) { 
+	    if (fabs(atoms[ii]->occupancy) > 0.001) {
+	       float occ_fac = atoms[ii]->occupancy;
+	       if (occ_fac > 10.0)
+		  occ_fac = 1.0;
+	       else 
+		  if (occ_fac < 0.0)
+		  occ_fac = 1.0;
+		     
 	       clipper::Coord_orth atom_pos = atoms[ii]->pos;
 	       clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap.cell());
 	       clipper::Coord_map  atom_pos_map = atom_pos_frc.coord_map(xmap.grid_sampling());
 	       clipper::Interp_cubic::interp_grad(xmap, atom_pos_map, dv, grad);
 	       grad_frac = grad.grad_frac(xmap.grid_sampling());
 	       grad_orth = grad_frac.grad_orth(xmap.cell());
-	       sum_dx += grad_orth.dx();
-	       sum_dy += grad_orth.dy();
-	       sum_dz += grad_orth.dz();
+	       sum_dx += grad_orth.dx() * occ_fac * atom_z_weights[ii];
+	       sum_dy += grad_orth.dy() * occ_fac * atom_z_weights[ii];
+	       sum_dz += grad_orth.dz() * occ_fac * atom_z_weights[ii];
 	       grad_vec[ii] = grad_orth;
+	       sum_occ_fac += occ_fac;
 	    } else {
 	       grad_vec[ii] = clipper::Grad_orth<float>(0,0,0);
 	    }
 	 }
-	 double datfrac = 1.0/double (n_atoms);
+	 double datfrac = 1.0/double (sum_occ_fac);
 	 clipper::Grad_orth<float> av_grad(sum_dx * datfrac,
 					   sum_dy * datfrac,
 					   sum_dz * datfrac);

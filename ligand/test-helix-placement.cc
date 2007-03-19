@@ -38,29 +38,48 @@ int main(int argc, char **argv) {
       std::string         f_col("");
       std::string       phi_col("");
       short int is_diff_map = 0;
+      bool have_x_flag = 0; 
+      bool have_y_flag = 0; 
+      bool have_z_flag = 0;
+      float x = 0.0; 
+      float y = 0.0; 
+      float z = 0.0; 
 
-      char *optstr = "i:h:f:p";
+
+      // There is something broken with passing -x 4 -y 5 -z 6.  Understand why and fix later.
+      // 
+      char *optstr = "i:h:f:p:s:x:y:z";
       struct option long_options[] = {
-	 {"pdbin", 1, 0, 0},
-	 {"hklin", 1, 0, 0},
-	 {"f", 1, 0, 0},
-	 {"phi", 1, 0, 0},
+	 {"pdbin",  1, 0, 0},
+	 {"hklin",  1, 0, 0},
+	 {"f",      1, 0, 0},
+	 {"phi",    1, 0, 0},
+	 {"x",    1, 0, 0},
+	 {"y",    1, 0, 0},
+	 {"z",    1, 0, 0},
+	 {"strand", 0, 0, 0},
 	 {0, 0, 0, 0}
       };
 
       int ch;
       int option_index = 0;
+      bool do_strand = 0;
       while ( -1 != 
 	      (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) { 
 
-	 std::cout << "DEBUG:: " << option_index << " " << optarg << std::endl;
+// 	 if (optarg)
+// 	    std::cout << "DEBUG:: index " << option_index << " " << optarg << std::endl;
+// 	 else 
+// 	    std::cout << "DEBUG:: index " << option_index << " null optarg" << std::endl;
 
 	 switch(ch) { 
-	    
-	 case 0:
-	    if (optarg) { 
-	       std::string arg_str = long_options[option_index].name;
 
+	    // long arguments, no ch
+	 case 0:
+	    // std::cout << "processing... " << long_options[option_index].name << std::endl;
+	    if (optarg) {
+	       
+	       std::string arg_str = long_options[option_index].name;
 	       if (arg_str == "pdbin") { 
 		  pdb_file_name = optarg;
 	       } 
@@ -72,14 +91,30 @@ int main(int argc, char **argv) {
 	       } 
 	       if (arg_str == "phi") {
 		  phi_col = optarg;
-	       } 
+	       }
+	       if (arg_str == "x") {
+		  have_x_flag = 1;
+		  x = atof(optarg);
+	       }
+	       if (arg_str == "y") {
+		  have_y_flag = 1;
+		  y = atof(optarg);
+	       }
+	       if (arg_str == "z") {
+		  have_z_flag = 1;
+		  z = atof(optarg);
+	       }
 	       
 	    } else { 
-	       std::cout << "Malformed option: "
-			 << long_options[option_index].name << std::endl;
+	       // long arg, no optarg
+	       std::string arg_str = long_options[option_index].name;
+	       if (arg_str == "strand") {
+		  do_strand = 1;
+	       }
 	    }
 	    break;
 
+	    // 1-char args:
 	 case 'i':
 	    pdb_file_name = optarg;
 	    break;
@@ -95,6 +130,37 @@ int main(int argc, char **argv) {
 	 case 'p':
 	    phi_col = optarg;
 	    break;
+
+	 case 'x':
+	    if (optarg) { 
+	       //std::cout << "processing... x " << std::endl;
+	       have_x_flag = 1;
+	       x = atof(optarg);
+	       //std::cout << "set value of x " <<  x << std::endl;
+	    } else {
+	       //std::cout << "no optarg for x!" << std::endl;
+	    } 
+	    
+	 case 'y':
+	    if (optarg) { 
+	       //std::cout << "processing... y " << std::endl;
+	       have_y_flag = 1;
+	       y = atof(optarg);
+	       // std::cout << "set value of y " <<  y << std::endl;
+	    } else { 
+	       //std::cout << "no optarg for y!" << std::endl;
+	    } 
+	    
+	 case 'z':
+	    if (optarg) { 
+	       //std::cout << "processing... z " << std::endl;
+	       have_z_flag = 1;
+	       //std::cout << "seting value of z from " <<  optarg << std::endl;
+	       z = atof(optarg);
+	       //std::cout << "set value of z " <<  z << std::endl;
+	    } else {
+	       //std::cout << "no optarg for z!" << std::endl;
+	    } 
 	    
 	 default:
 	    std::cout << "default optarg: " << optarg << std::endl;
@@ -125,7 +191,22 @@ int main(int argc, char **argv) {
 	       // for 1cos-A:
 	       // clipper::Coord_orth pt(8, -11, 14); tricky
 	       clipper::Coord_orth pt(10, -7, 9);
-	       p.place_alpha_helix_near(pt, 20);
+
+	       // did the user specify a position?
+	       if (have_x_flag && have_y_flag && have_z_flag) {
+		  pt = clipper::Coord_orth(x, y, z);
+	       } 
+	       if (do_strand == 0) { 
+		  p.place_alpha_helix_near(pt, 20);
+	       } else { 
+		  coot::helix_placement_info_t si = p.place_strand(pt, 6);
+		  if (si.success) {
+		     si.mol[0].write_file("strand.pdb", 30.0);
+		  } else {
+		     std::cout << "Strand placement failed." << std::endl;
+		  } 
+	       } 
+
 	       // p.discrimination_map();
 	       
 	    } else {

@@ -246,7 +246,7 @@ coot::db_main::get_reference_pdb_list() const {
 	    if (dir_ent != NULL) { 
 
 	       std::string file_str(dir_ent->d_name); 
-	       if (matches_pdb_name(file_str)) {
+	       if (coot::matches_pdb_name(file_str)) {
 
 		  // Construct a file in a unix directory - non-portable?
 		  // 
@@ -266,8 +266,8 @@ coot::db_main::get_reference_pdb_list() const {
    return pdb_list; 
 } 
 
-short int
-coot::db_main::matches_pdb_name(std::string file_str) const { 
+bool
+coot::matches_pdb_name(std::string file_str) { 
 
    short int match_flag = 0; 
 

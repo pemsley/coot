@@ -181,6 +181,8 @@ namespace coot {
 	 std::vector<float> get_cell() const;
 	 std::string get_spacegroup() const;
 
+	 void transform(const clipper::RTop_orth &rtop);
+
 	 void check() const;
 
 	 molecule fragmentize() const;

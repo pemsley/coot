@@ -1,3 +1,8 @@
+2007-03-19  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* src/cc-interface.hh: Add USE_GUILE protection to
+	dictionaries_read().
+
 2007-03-06  Paul Emsley  <paulemsley@ysbl.york.ac.uk>
 
 	* src/c-interface-build.cc: (replace_fragment): function added.
