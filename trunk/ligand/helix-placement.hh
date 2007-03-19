@@ -91,7 +91,14 @@ namespace coot {
       // tinker with m
       void trim_and_grow(minimol::molecule *m, float min_density_limit) const;
 
+      // factoring out for strand tubes
+      clipper::RTop_orth
+      find_best_tube_orientation(clipper::Coord_orth ptc,
+				 double cyl_len, double cyl_rad) const; // uses member data xmap
 
+      scored_helix_info_t fit_strand(const coot::minimol::molecule &mol,
+				     const clipper::RTop_orth &rtop) const;
+      
    public:
       helix_placement(const clipper::Xmap<float> &xmap_in) {
 	 xmap = xmap_in;
@@ -106,6 +113,11 @@ namespace coot {
       // Kevin's engine: do MR-like search on the surface of a
       // cylinder, not just the eigen vectors
       helix_placement_info_t place_alpha_helix_near_kc_version(const clipper::Coord_orth &pt,
-						    int n_helix_residues_start) const;
+							       int n_helix_residues_start) const;
+
+      // and now for strands, we use much of the same code, including
+      // the perhaps mis-leading helper class names
+      helix_placement_info_t place_strand(const clipper::Coord_orth &pt);
+      
    };
 }

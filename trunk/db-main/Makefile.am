@@ -10,9 +10,9 @@ AM_CXXFLAGS = \
 
 INCLUDES = -I$(top_srcdir)/coot-utils -I$(top_srcdir)/mini-mol $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS)
 
-include_HEADERS = db-mains.hh db-strands.hh
+include_HEADERS = db-main.hh db-strands.hh
 
-libcoot_db_main_la_SOURCES  = db-main.cc db-strand.cc
+libcoot_db_main_la_SOURCES  = db-main.cc db-strands.cc
 
 noinst_PROGRAMS = testdbmain
 
