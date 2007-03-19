@@ -107,7 +107,6 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 						 short int reset_rotation_centre, 
 						 short int is_undo_or_redo) {
 
-   std::cout << "DEBUG:: mcit::hrdm from  file " << filename << std::endl;
    //
    graphics_info_t g;
    imol_no = g.n_molecules; // g.n_molecules gets updated outside afterwards

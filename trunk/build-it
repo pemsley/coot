@@ -539,7 +539,7 @@ if [ ! -e $HOSTLOGDIR ] ; then
   if [ $? -ne 0 ] ; then
     #
     echo DISASTER: could not make directory $HOSTLOGDIR
-    echo exitting.
+    echo exiting.
     exit 2
   fi
 fi
@@ -561,7 +561,7 @@ if [ $? -ne 0 ] ; then
    fi
    if [ $nomake -eq 1 ] ; then
       echo Ooops.  Your make '(' `which make` ')' is not GNU make and gmake not found.
-      echo Exitting now.
+      echo Exiting now.
       exit 2
    fi
 fi
@@ -599,7 +599,7 @@ which wget
 wget  "http://www.ysbl.york.ac.uk/~emsley/build-logs/build-notes"
 if [ $? -ne 0 ] ; then
 	echo wget failed for some reason
-	echo exitting now.
+	echo exiting now.
 	exit 1
 else
 	echo Done wget check.
@@ -1418,7 +1418,7 @@ if test -n "$build_clipper" ; then
 
     clipper_build_status=$?
     if [ $clipper_build_status != 0 ] ; then
-	echo clipper build failed, exitting
+	echo clipper build failed, exiting
 	exit 2
     fi
 

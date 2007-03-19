@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*-shell-script-*-
 # coot wrapper script 
-# Copyright 2004, 2005, 2006 Paul Emsley, University of York
+# Copyright 2004, 2005, 2006, 2007 University of York, written by Paul Emsley
 
 #
 current_exe_dir=`dirname $0`
@@ -109,10 +109,9 @@ export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
 $coot_real $*
-# ./coot.2006-09-22T09:17+0100 $* 
 
 if [ $? != 0 ] ; then
     #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
-    ./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
+    $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
 fi 
 

@@ -15,6 +15,8 @@
 
 namespace coot { 
 
+   bool matches_pdb_name(std::string file_str);
+   
    class coord_fragment_wrapper_t {
       
    public:
@@ -136,7 +138,6 @@ namespace coot {
       
       coot::minimol::fragment get_fragment_ca_atoms(int istart, int ilength,
 					   const coot::minimol::molecule &m) const;
-      short int matches_pdb_name(std::string file_str) const;
       clipper::Matrix<float> make_cov_matrix(const std::vector<clipper::Coord_orth> &c) const;
       std::vector<clipper::Coord_orth>
       frag_to_coords(const coot::minimol::fragment &fragment) const;

@@ -117,7 +117,7 @@ namespace coot {
 
       // and now for strands, we use much of the same code, including
       // the perhaps mis-leading helper class names
-      helix_placement_info_t place_strand(const clipper::Coord_orth &pt);
+      helix_placement_info_t place_strand(const clipper::Coord_orth &pt, int n_residues);
       
    };
 }

@@ -581,8 +581,6 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
    } else { 
       // recentre and not a backup-restore
       // -1 is for failure strangely.
-      std::cout << "DEBUG:: About to create imol "<< imol << "from file "
-		<< f << std::endl;
       istat = g.molecules[imol].handle_read_draw_molecule(f, recentre_on_read_pdb_flag, 0);
    }
    if (istat > -1) {

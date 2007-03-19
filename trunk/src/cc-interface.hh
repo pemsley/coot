@@ -194,7 +194,9 @@ int merge_molecules(const std::vector<int> &add_molecules, int imol);
 /*                         Dictionaries                                     */
 /*  ----------------------------------------------------------------------- */
 /*! \brief return a list of all the dictionaries read */
+#ifdef USE_GUILE
 SCM dictionaries_read();
+#endif // USE_GUILE
 
 
 /*  ----------------------------------------------------------------------- */
