@@ -163,7 +163,8 @@
 # 2.05 20070216 Put libtiff after libjpeg and give tiff's configure command
 #               line args to find jpeg.
 # 2.06 20070306 Put in the clipper<->ccp4 new dist patch.
-script_version=2.05
+# 2.07 20070319 Remove == comparisons - Lothar Esser.
+script_version=2.07
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1200,7 +1201,7 @@ mmdb_inc_sub_dir="mmdb"
 #
 if test -e "${install_top_dir}/include/$mmdb_inc_sub_dir/mmdb_file.h" ; then
     grep MMDBF_IgnoreHash ${install_top_dir}/include/$mmdb_inc_sub_dir/mmdb_file.h
-    if [ "$?" == "0" ] ; then
+    if [ "$?" = "0" ] ; then
        echo mmdb should not be built
        build_mmdb=
     else
@@ -2158,10 +2159,10 @@ if [ -n "$ENABLE_PYTHON_COOT" ] ; then
     fi
 else 
    time_date=`date`
-   if [ ${time_date:0:3} == "Sun" ] ; then
+   if [ ${time_date:0:3} = "Sun" ] ; then
       scripting='--with-python'
    fi
-   if [ ${time_date:0:3} == "Sun" ] ; then
+   if [ ${time_date:0:3} = "Sun" ] ; then
       scripting='--with-python'
   fi
 fi
