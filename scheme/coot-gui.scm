@@ -512,6 +512,27 @@
 ;; 
 (define (fill-option-menu-with-coordinates-mol-options menu)
   (fill-option-menu-with-mol-options menu valid-model-molecule?))
+
+;; 
+(define (fill-option-menu-with-number-options 
+	 menu number-list default-option-value)
+
+  (let loop ((number-list number-list)
+	     (count 0))
+    (cond 
+     ((null? number-list) '())
+     (else 
+      (let* ((mlabel-str (number->string (car number-list)))
+	     (menuitem (gtk-menu-item-new-with-label mlabel-str)))
+	(gtk-menu-append menu menuitem)
+	(if (= (car number-list) default-option-value)
+	    (begin
+	      (gtk-menu-set-active menu count)
+	      (format #t "setting menu active ~s ~s~%" 
+		      default-option-value count)))
+	(loop (cdr number-list)
+	      (+ count 1)))))))
+
     
 ;; Helper function for molecule chooser.  Not really for users.
 ;; 
@@ -799,7 +820,62 @@
 						(car (cdr centre-atom)))))
 		      (append (list label imol) (cdr interesting-residue) centre-atom))))
 	      interesting-residues centre-atoms)))))
-  
+
+;;  A gui that makes a generic number chooser
+;; the go functionis a lambda function that takes the value of 
+;; the active menu item - as a number.
+;; 
+(define (generic-number-chooser number-list default-option-value 
+				hint-text go-button-label go-function)
+
+  (let* ((window (gtk-window-new 'toplevel))
+	 (vbox (gtk-vbox-new #f 0))
+	 (hbox1 (gtk-hbox-new #f 0))
+	 (hbox2 (gtk-hbox-new #t 0)) ;; for Go and Cancel
+	 (function-label (gtk-label-new hint-text))
+	 (h-sep (gtk-hseparator-new))
+	 (go-button (gtk-button-new-with-label go-button-label))
+	 (cancel-button (gtk-button-new-with-label "  Cancel  "))
+	 (menu (gtk-menu-new))
+	 (option-menu (gtk-option-menu-new)))
+
+    (fill-option-menu-with-number-options menu number-list default-option-value)
+
+    (gtk-box-pack-start vbox hbox1 #t #f 0)
+    (gtk-box-pack-start vbox function-label #f 0)
+    (gtk-box-pack-start vbox option-menu #t 0)
+    (gtk-box-pack-start vbox h-sep)
+    (gtk-box-pack-start vbox hbox2 #f #f 0)
+    (gtk-box-pack-start hbox2 go-button #f #f 6)
+    (gtk-box-pack-start hbox2 cancel-button #f #f 6)
+    (gtk-container-add window vbox)
+    (gtk-container-border-width vbox 6)
+    (gtk-container-border-width hbox1 6)
+    (gtk-container-border-width hbox2 6)
+    (gtk-signal-connect go-button "clicked" 
+			(lambda () 
+			  (let ((active-number
+				 (get-option-menu-active-molecule 
+				  option-menu number-list)))
+			    (go-function active-number)
+			    (gtk-widget-destroy window))))
+    (gtk-signal-connect cancel-button "clicked" 
+			(lambda()
+			  (gtk-widget-destroy window)))
+
+    (gtk-option-menu-set-menu option-menu menu)
+
+    (gtk-widget-show-all window)))
+
+;; The gui for the strand placement function
+(define place-strand-here-gui
+  (lambda ()
+
+    (generic-number-chooser (number-list 4 12) 7
+			    " Estimated number of residues in strand"
+			    "  Go  "
+			    (lambda (n)
+			      (place-strand-here n)))))
 
 	 
 ;;; Local Variables:
