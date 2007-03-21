@@ -27,6 +27,7 @@ testatomgraph_SOURCES = test-atom-graph.cc
 
 testatomgraph_LDADD =  libcoot-high-res.la                \
 	$(top_builddir)/ligand/libcoot-ligand.la          \
+	$(top_builddir)/db-main/libcoot-db-main.la        \
 	$(top_builddir)/ideal/libcoot-ideal.la            \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/coords/libcoot-coords.la          \
@@ -44,6 +45,7 @@ testatomgraph_LDADD =  libcoot-high-res.la                \
 testseqassignment_SOURCES = testseqassignment.cc
 testseqassignment_LDADD = libcoot-high-res.la             \
 	$(top_builddir)/ligand/libcoot-ligand.la          \
+	$(top_builddir)/db-main/libcoot-db-main.la        \
 	$(top_builddir)/ideal/libcoot-ideal.la            \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/coords/libcoot-coords.la          \
@@ -63,6 +65,7 @@ tracehighres_SOURCES = trace-high-res.cc
 tracehighres_LDADD = libcoot-high-res.la                  \
 	$(top_builddir)/ligand/libcoot-ligand.la          \
 	$(top_builddir)/ideal/libcoot-ideal.la            \
+	$(top_builddir)/db-main/libcoot-db-main.la        \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/coords/libcoot-coords.la          \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
@@ -83,6 +86,7 @@ testseqalign_SOURCES = testseqalign.cc
 testseqalign_LDADD = libcoot-high-res.la                  \
 	$(top_builddir)/ligand/libcoot-ligand.la          \
 	$(top_builddir)/ideal/libcoot-ideal.la            \
+	$(top_builddir)/db-main/libcoot-db-main.la        \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/coords/libcoot-coords.la          \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
@@ -101,6 +105,7 @@ globularize_protein_SOURCES = globularize.cc
 
 globularize_protein_LDADD = libcoot-high-res.la           \
 	$(top_builddir)/ligand/libcoot-ligand.la          \
+	$(top_builddir)/db-main/libcoot-db-main.la        \
 	$(top_builddir)/ideal/libcoot-ideal.la            \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/coords/libcoot-coords.la          \
