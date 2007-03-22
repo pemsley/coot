@@ -1828,7 +1828,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=coot
- VERSION=0.2.1-pre-5
+ VERSION=0.2.1-pre-6
 
 
 cat >>confdefs.h <<_ACEOF

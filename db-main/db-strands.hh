@@ -19,10 +19,15 @@ namespace coot {
       
    public:
       db_strands() {
-	 const char *d = getenv("COOT_REF_STRUCTS");
-	 if (d)
-	    ref_str_dir_str = d;
+	 const char *ds = getenv("COOT_REF_SEC_STRUCTS");
+	 if (!ds) {
+	    const char *d = getenv("COOT_REF_STRUCTS");
+	    if (d)
+	       ref_str_dir_str = d;
 	 // else ref_str_dir_str is blank
+	 } else {
+	    ref_str_dir_str = ds;
+	 } 
       }
       db_strands(const std::string &dir_ref_structs) {
 	 ref_str_dir_str = dir_ref_structs;
