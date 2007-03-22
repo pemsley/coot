@@ -246,8 +246,7 @@
 ;; pass a the hint labels of the entries and a function that gets
 ;; called when user hits "Go" (which takes to string aguments).
 ;; 
-(define (generic-double-entry label-1 label-2 entry-1-default-text entry-2-default-text 
-			      go-button-label handle-go-function)
+(define (generic-double-entry label-1 label-2 entry-1-default-text entry-2-default-text go-button-label handle-go-function)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (vbox (gtk-vbox-new #f 0))
@@ -500,6 +499,7 @@
 	    (loop (cdr mol-no-ls) rlist))))))
     
 (define (fill-option-menu-with-map-mol-options menu)
+
   (fill-option-menu-with-mol-options menu valid-map-molecule?))
 
 ;; Helper function for molecule chooser.  Not really for users.
@@ -514,8 +514,7 @@
   (fill-option-menu-with-mol-options menu valid-model-molecule?))
 
 ;; 
-(define (fill-option-menu-with-number-options 
-	 menu number-list default-option-value)
+(define (fill-option-menu-with-number-options menu number-list default-option-value)
 
   (let loop ((number-list number-list)
 	     (count 0))
@@ -639,8 +638,7 @@
 ;; callback-function is a function that takes a molecule number and a
 ;; text string.
 ;; 
-(define (generic-chooser-and-entry
-	 chooser-label entry-hint-text defaut-entry-text callback-function)
+(define (generic-chooser-and-entry chooser-label entry-hint-text defaut-entry-text callback-function)
   
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
@@ -825,8 +823,7 @@
 ;; the go functionis a lambda function that takes the value of 
 ;; the active menu item - as a number.
 ;; 
-(define (generic-number-chooser number-list default-option-value 
-				hint-text go-button-label go-function)
+(define (generic-number-chooser number-list default-option-value hint-text go-button-label go-function)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (vbox (gtk-vbox-new #f 0))
@@ -868,6 +865,7 @@
     (gtk-widget-show-all window)))
 
 ;; The gui for the strand placement function
+;;
 (define place-strand-here-gui
   (lambda ()
 

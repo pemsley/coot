@@ -21,8 +21,10 @@
 	     (ice-9 string-fun))
 (use-modules (goosh))
 
-;; return a list of molecule numbers (closed and open)
-;; The elements of the returned list need to be tested against is-valid-model-molecule?
+;; Return a list of molecule numbers (closed and open) The elements of
+;; the returned list need to be tested against
+;; is-valid-model-molecule?
+;;
 (define molecule-number-list
   (lambda ()
     (let ((n-molecules (graphics-n-molecules)))
@@ -31,7 +33,7 @@
        (else 
 	(number-list 0 (- n-molecules 1)))))))
 
-;; return a list of molecules that are maps
+;; Return a list of molecules that are maps
 ;; 
 (define (map-molecule-list)
   
@@ -47,7 +49,7 @@
 	    map-list)))))
 
     
-;; return a list of molecules that are maps
+;; Return a list of molecules that are maps
 ;; 
 (define (model-molecule-list)
   
@@ -62,13 +64,12 @@
       (loop (cdr molecule-list)
 	    map-list)))))
 
-;; No! don't define this.  It is misleading.  It can return 0, which
-;; is true!  use instead valid-model-molecule?
-;; 
-;; (define is-valid-model-molecule? is-valid-model-molecule)
-;; 
-    
+;;; No! don't define this.  It is misleading.  It can return 0, which
+;;; is true!  use instead valid-model-molecule?
+;;; 
+;;; define is-valid-model-molecule? is-valid-model-molecule
 
+    
 ;; Set the virtual trackball behaviour.
 ;; 
 ;; trackball @var{type} is a symbol: either 'flat or 'spherical-surface.
@@ -116,8 +117,8 @@
 (define rotation-center rotation-centre) ; maybe there is a better
 					 ; place for US spellings.  (There is now.)
 
-;;;
 ;;; Make list of integers, @var{a} to @var{b}: eg (2 3 4 5)
+;;;
 (define (number-list-non-tail-recursive a b)
 
   (cond
@@ -126,7 +127,6 @@
    (else
     (cons a (number-list-non-tail-recursive (+ a 1) b)))))
 
-;;;
 ;;; Make list of integers, @var{a} to @var{b}: @emph{e.g.} (2 3 4 5)
 ;;;
 ;;; This is not tail-recursive either, of course, but it doesn't
@@ -152,10 +152,10 @@
    (else
     (string-member? atom (cdr ls)))))
 
-;;; 
 ;;; range: works like the eponymous python function
 ;;; e.g. (range 3) -> '(0, 1, 2)
 ;;; e.g. (range 1 3) -> '(1, 2)
+;;;
 (define (range first . second)
 
   (if (and (number? first)
@@ -224,13 +224,13 @@
       #f))
 
       
-; Where cmd is e.g. "refmac" 
-;       args is (list "HKLIN" "thing.mtz")
-;       log-file-name is "refmac.log"      
-;       data-list is (list "HEAD" "END")
-; 
-; Return the exist status e.g. 0 or 1.
-; 
+;; Where cmd is e.g. "refmac" 
+;;       args is (list "HKLIN" "thing.mtz")
+;;       log-file-name is "refmac.log"      
+;;       data-list is (list "HEAD" "END")
+;; 
+;; Return the exist status e.g. 0 or 1.
+;; 
 (define (goosh-command cmd args data-list log-file-name screen-output-also?)
     
   (if (not (command-in-path? cmd))
@@ -271,7 +271,8 @@
 ; example usage:
 ;(goosh-command "mtzdump" (list "HKLIN" "a.mtz") (list "HEAD" "END") "test.log" #t)
 
-
+;; 
+;;
 (define (goosh-command-with-file-input cmd args input-file log-file-name)
 
   ;; we had a problem here (may 2004).  If command was not in path,
@@ -356,6 +357,8 @@
 ;		   (f (cdr ls)))))))))
 
 
+;; Append strings with tag-str between them
+;; 
 (define (string-append-with-string str-ls tag-str)
 
   (let ((r-string ""))
@@ -684,10 +687,7 @@
 ;; 
 ;; Useful for using a view matrix from another program, perhaps.
 ;; 
-(define (set-view-matrix
-	 m00 m10 m20
-	 m01 m11 m21
-	 m02 m12 m22)
+(define (set-view-matrix m00 m10 m20 m01 m11 m21 m02 m12 m22)
 
   (apply set-view-quaternion (matrix->quaternion m00 m10 m20
 						 m01 m11 m21
