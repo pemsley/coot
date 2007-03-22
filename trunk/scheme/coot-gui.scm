@@ -244,7 +244,7 @@
 ;; generic double entry widget
 ;; 
 ;; pass a the hint labels of the entries and a function that gets
-;; called when user hits "Go"
+;; called when user hits "Go" (which takes to string aguments).
 ;; 
 (define (generic-double-entry label-1 label-2 entry-1-default-text entry-2-default-text 
 			      go-button-label handle-go-function)
