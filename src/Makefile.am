@@ -64,7 +64,7 @@ COOT_EXTRA_LIBS = \
 EXTRA_DIST = \
 	coot.i post-glade add-c-extern.sh blank.cc fix-gettext.sh \
 	coot_wrap_python_pre.cc coot_wrap_guile_pre.cc mol-hierachy.cc \
-	coot.py junk.cc coot.defs
+	coot.py junk.cc coot.defs coot-dox.cfg
 
 
 coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
