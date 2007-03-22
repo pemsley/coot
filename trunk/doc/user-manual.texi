@@ -217,6 +217,11 @@ behaviour.
 @cindex reference structures
   reference structures to build backbone atoms from
   C@math{\alpha} positions
+@item @env{COOT_REF_SEC_STRUCTS} 
+  The directory containing a set of high-quality structures to be used
+  as templates for fitting beta strands.  If this is not set, then the
+  directory COOT_REF_SEC_STRUCTS will be used to find the reference pdb
+  files.
 @item @env{COOT_REFMAC_LIB_DIR} 
 @cindex dictionary, cif 
   Refmac's CIF directory containing the monomers and link descriptions.
