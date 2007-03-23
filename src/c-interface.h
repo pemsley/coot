@@ -397,6 +397,8 @@ void toggle_idle_function();
   computer? set this to 0.1  */
 void set_idle_function_rotate_angle(float f);  // degrees
 
+float idle_function_rotate_angle();
+
 /* pass back the newly created molecule number */
 /*! \brief a synonym for read-pdb.  Read the coordinates from
   filename (can be pdb, cif or shelx format)  */
