@@ -2358,6 +2358,14 @@ void set_idle_function_rotate_angle(float f) {
    g.idle_function_rotate_angle = f; 
 }
 
+float idle_function_rotate_angle() {
+
+   std::string cmd = "idle-function-rotate-angle";
+   add_to_history_simple(cmd);
+   return graphics_info_t::idle_function_rotate_angle;
+} 
+
+
 
 void do_tw() {
 

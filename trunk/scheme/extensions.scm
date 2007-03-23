@@ -273,6 +273,15 @@
 					  (shelxl-refine imol)
 					  (shelxl-refine imol text))))))
 
+      (add-simple-coot-menu-menuitem 
+       menu "Set Spin Speed"
+       (lambda ()
+	 (generic-single-entry "Set Spin Speed (smaller is slower)"
+			       (number->string (idle-function-rotate-angle))
+			       "Set it" (lambda (text)
+					  (let ((t (string->number text)))
+					    (if (number? t)
+						(set-idle-function-rotate-angle t)))))))
 
       (add-simple-coot-menu-menuitem
        menu "Brighten Maps"
