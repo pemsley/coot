@@ -4,7 +4,7 @@
 ACLOCAL_AMFLAGS=-I macros
 
 # see configure.in for po intl 
-SUBDIRS = aux scheme python macros compat coot-utils surface coot-surface \
+SUBDIRS = auxil scheme python macros compat coot-utils surface coot-surface \
 	skeleton ccp4mg-utils density-contour coords angles \
 	mini-mol db-main  geometry  \
 	ideal ligand high-res build \
