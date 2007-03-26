@@ -585,7 +585,27 @@ void set_add_alt_conf_new_atoms_occupancy(float f) {  /* default 0.5 */
 
    graphics_info_t g;
    g.add_alt_conf_new_atoms_occupancy = f;
+}
+
+
+int set_atom_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, float val) {
+   int istat = 0;
+   if (is_valid_model_molecule(imol)) {
+      istat = graphics_info_t::molecules[imol].set_atom_attribute(chain_id, resno, ins_code, atom_name, alt_conf, attribute_name, val);
+   }
+   graphics_draw();
+   return istat;
 } 
+
+int set_atom_string_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, const char *attribute_value) {
+   int istat = 0; 
+   if (is_valid_model_molecule(imol)) {
+      istat = graphics_info_t::molecules[imol].set_atom_string_attribute(chain_id, resno, ins_code, atom_name, alt_conf, attribute_name, attribute_value);
+      graphics_draw();
+   }
+   return istat;
+}
+
 
 
 

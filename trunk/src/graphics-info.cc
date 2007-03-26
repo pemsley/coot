@@ -1958,8 +1958,8 @@ graphics_info_t::pepflip() {
 std::string
 graphics_info_t::int_to_string(int i) {
    char s[100];
-   for (int ii=0; ii<99; ii++) s[ii]=0;
-   snprintf(s,99,"%d",i);
+   for (int ii=0; ii<100; ii++) s[ii]=0;
+   snprintf(s, 99, "%d", i);
    return std::string(s);
 }
 
@@ -1967,7 +1967,7 @@ std::string
 graphics_info_t::float_to_string(float f) {
    char s[100];
    // initial s, stop valgrind complaining
-   for (int i=0; i<99; i++) s[i]=0;
+   for (int i=0; i<100; i++) s[i]=0;
    snprintf(s,99,"%5.2f",f);
    return std::string(s);
 }
@@ -1975,7 +1975,7 @@ graphics_info_t::float_to_string(float f) {
 std::string
 graphics_info_t::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
    char s[100];
-   for (int i=0; i<99; i++) s[i]=0;
+   for (int i=0; i<100; i++) s[i]=0;
    snprintf(s,99,"%7.4f",f); // haha, FIXME. (use n_dec_pl, not 4)
    return std::string(s);
 }
@@ -3703,6 +3703,8 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 void 
 graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 
+   printf("start graphics_info_t::destroy_edit_backbone_rama_plot()\n");
+
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    if (edit_phi_psi_plot) { 
       // we need to get to the widget "dynarama_window" and destroy it.
@@ -3711,6 +3713,7 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
       std::cout << "WARNING:: edit_phi_psi_plot is NULL\n";
    } 
 #endif // HAVE_GTK_CANVAS
+   printf("done in graphics_info_t::destroy_edit_backbone_rama_plot()\n");
 }
 
 

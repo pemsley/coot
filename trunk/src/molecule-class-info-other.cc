@@ -205,7 +205,81 @@ molecule_class_info_t::occupancy_representation() {
 } 
 
 
+int
+molecule_class_info_t::set_atom_attribute(std::string chain_id, int resno, std::string ins_code,
+					  std::string atom_name, std::string alt_conf,
+					  std::string attribute_name, float val) {
 
+   int istate = 0;
+   if (atom_sel.n_selected_atoms > 0) {
+      int SelectionHandle = atom_sel.mol->NewSelection(); 
+      atom_sel.mol->SelectAtoms(SelectionHandle, 0,
+				(char *) chain_id.c_str(),
+				resno, (char *) ins_code.c_str(),
+				resno, (char *) ins_code.c_str(),
+				"*",
+				(char *) atom_name.c_str(),
+				(char *) alt_conf.c_str(), "*");
+      int nSelAtoms;
+      PPCAtom SelAtoms;
+      atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+	 CAtom *at = SelAtoms[0];
+	 if (attribute_name == "x")
+	    at->x = val;
+	 if (attribute_name == "y")
+	    at->y = val;
+	 if (attribute_name == "z")
+	    at->z = val;
+	 if (attribute_name == "B")
+	    at->tempFactor = val;
+	 if (attribute_name == "b")
+	    at->tempFactor = val;
+	 if (attribute_name == "occ")
+	    at->occupancy = val;
+      }
+   }
+   have_unsaved_changes_flag = 1;
+   atom_sel.mol->FinishStructEdit();
+   make_bonds_type_checked(); // calls update_ghosts()
+   return istate;
+}
+
+int
+molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno, std::string ins_code,
+						 std::string atom_name, std::string alt_conf,
+						 std::string attribute_name, std::string val_str) { 
+
+   int istate = 0;
+   if (atom_sel.n_selected_atoms > 0) {
+      int SelectionHandle = atom_sel.mol->NewSelection(); 
+      atom_sel.mol->SelectAtoms(SelectionHandle, 0,
+				(char *) chain_id.c_str(),
+				resno, (char *) ins_code.c_str(),
+				resno, (char *) ins_code.c_str(),
+				"*",
+				(char *) atom_name.c_str(),
+				(char *) alt_conf.c_str(), "*");
+      int nSelAtoms;
+      PPCAtom SelAtoms;
+      atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+	 CAtom *at = SelAtoms[0];
+	 if (attribute_name == "atom-name")
+	    at->SetAtomName((char *)val_str.c_str());
+	 if (attribute_name == "alt-conf") {
+	    strncpy(at->altLoc, val_str.c_str(), 2);
+	 }
+	 if (attribute_name == "element") {
+	    at->SetElementName(val_str.c_str());
+	 }
+      }
+      have_unsaved_changes_flag = 1;
+      atom_sel.mol->FinishStructEdit();
+      make_bonds_type_checked(); // calls update_ghosts()
+   }
+   return istate;
+}
 
 // -----------------------------------------------------------------------------
 //                     pepflip
