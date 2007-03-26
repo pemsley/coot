@@ -739,7 +739,7 @@ store_window_position(int window_type, GtkWidget *widget) {
    // because we only have an gtkobject there, and if we cast there:
    // GTK_WIDGET(object) to get the 'widget' of this function, then
    // widget->window is NULL, and gdk_window_get_root_origin fails.
-   
+
    gint upositionx, upositiony;
    gdk_window_get_root_origin (widget->window, &upositionx, &upositiony);
 

@@ -1886,12 +1886,16 @@ on_dynarama_window_destroy             (GtkObject       *object,
   /* Maybe object is window? */
    GtkWidget *window = lookup_widget(GTK_WIDGET(object),
 				     "dynarama_window"); 
+/* we can't use store_window_position here because object->window is
+   null in the store_window_position() function, heyho. */
+/* Hopefully the configure-events for this dialog will save the
+   position. */
+/*    store_window_position(COOT_RAMACHANDRAN_PLOT_WINDOW, GTK_WIDGET(object)); */
    int imol = get_mol_from_dynarama(window); // return -9999 on edit rama window
    if (imol >= 0) {
       set_dynarama_is_displayed(0, imol); // which frees/deletes the
 			      	          // memory of the user data.
    }
-   store_window_position(COOT_RAMACHANDRAN_PLOT_WINDOW, GTK_WIDGET(object));
 }
 
 
@@ -5382,7 +5386,7 @@ on_geometry_graphs_dialog_destroy      (GtkObject       *object,
    if (! w) { 
      printf("ERROR getting dialog in on_geometry_graphs_dialog_destroy\n"); 
    } else {  
-     // printf("DEBUG:: unsetting and freeing graph:\n"); 
+/*      printf("DEBUG:: unsetting and freeing graph:\n");  */
      unset_geometry_graph(w); 
      free_geometry_graph(w); 
    }

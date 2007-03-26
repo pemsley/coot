@@ -1568,6 +1568,10 @@ void set_default_temperature_factor_for_new_atoms(float new_b);
 /*! \brief return the default temperature factor for newly created atoms */
 float default_new_atoms_b_factor();
 
+int set_atom_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, float val);
+
+int set_atom_string_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, const char *attribute_value);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
