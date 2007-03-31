@@ -451,13 +451,15 @@ SCM active_residue() {
    
    for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
 
-      if (is_valid_model_molecule(imol)) { 
-	 coot::at_dist_info_t at_info = graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
-	 if (at_info.atom) {
-	    if (at_info.dist <= dist_best) {
-	       dist_best = at_info.dist;
-	       imol_closest = at_info.imol;
-	       at_close = at_info.atom;
+      if (is_valid_model_molecule(imol)) {
+	 if (graphics_info_t::molecules[imol].is_displayed_p()) { 
+	    coot::at_dist_info_t at_info = graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
+	    if (at_info.atom) {
+	       if (at_info.dist <= dist_best) {
+		  dist_best = at_info.dist;
+		  imol_closest = at_info.imol;
+		  at_close = at_info.atom;
+	       }
 	    }
 	 }
       }
