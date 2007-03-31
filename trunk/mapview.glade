@@ -4933,154 +4933,224 @@ just the cell and symmetry)
 	  </widget>
 
 	  <widget>
-	    <class>GtkHBox</class>
-	    <name>hbox24</name>
+	    <class>GtkTable</class>
+	    <name>table5</name>
 	    <border_width>2</border_width>
+	    <rows>3</rows>
+	    <columns>2</columns>
 	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
+	    <row_spacing>0</row_spacing>
+	    <column_spacing>0</column_spacing>
 	    <child>
 	      <padding>0</padding>
-	      <expand>False</expand>
+	      <expand>True</expand>
 	      <fill>True</fill>
 	    </child>
 
 	    <widget>
-	      <class>GtkEntry</class>
-	      <name>go_to_atom_chain_entry</name>
-	      <width>60</width>
+	      <class>GtkHBox</class>
+	      <name>hbox24</name>
+	      <border_width>2</border_width>
+	      <homogeneous>False</homogeneous>
+	      <spacing>0</spacing>
+	      <child>
+		<left_attach>0</left_attach>
+		<right_attach>1</right_attach>
+		<top_attach>0</top_attach>
+		<bottom_attach>1</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>True</xexpand>
+		<yexpand>True</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>True</yfill>
+	      </child>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>go_to_atom_chain_entry</name>
+		<width>60</width>
+		<can_focus>True</can_focus>
+		<signal>
+		  <name>key_press_event</name>
+		  <handler>on_go_to_atom_chain_entry_key_press_event</handler>
+		  <last_modification_time>Wed, 09 Jul 2003 17:09:17 GMT</last_modification_time>
+		</signal>
+		<editable>True</editable>
+		<text_visible>True</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <padding>0</padding>
+		  <expand>False</expand>
+		  <fill>False</fill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label41</name>
+		<label>Chain</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>5</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <padding>6</padding>
+		  <expand>False</expand>
+		  <fill>False</fill>
+		</child>
+	      </widget>
+	    </widget>
+
+	    <widget>
+	      <class>GtkHBox</class>
+	      <name>hbox25</name>
+	      <border_width>2</border_width>
+	      <homogeneous>False</homogeneous>
+	      <spacing>0</spacing>
+	      <child>
+		<left_attach>0</left_attach>
+		<right_attach>1</right_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>True</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>True</yfill>
+	      </child>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>go_to_atom_residue_entry</name>
+		<width>60</width>
+		<can_focus>True</can_focus>
+		<signal>
+		  <name>key_press_event</name>
+		  <handler>on_go_to_atom_residue_entry_key_press_event</handler>
+		  <last_modification_time>Wed, 09 Jul 2003 17:09:39 GMT</last_modification_time>
+		</signal>
+		<editable>True</editable>
+		<text_visible>True</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <padding>0</padding>
+		  <expand>False</expand>
+		  <fill>True</fill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label42</name>
+		<label>Residue Number</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>6</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <padding>6</padding>
+		  <expand>False</expand>
+		  <fill>False</fill>
+		</child>
+	      </widget>
+	    </widget>
+
+	    <widget>
+	      <class>GtkHBox</class>
+	      <name>hbox26</name>
+	      <border_width>2</border_width>
+	      <homogeneous>False</homogeneous>
+	      <spacing>0</spacing>
+	      <child>
+		<left_attach>0</left_attach>
+		<right_attach>1</right_attach>
+		<top_attach>2</top_attach>
+		<bottom_attach>3</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>True</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>True</yfill>
+	      </child>
+
+	      <widget>
+		<class>GtkEntry</class>
+		<name>go_to_atom_atom_name_entry</name>
+		<width>60</width>
+		<can_focus>True</can_focus>
+		<signal>
+		  <name>key_press_event</name>
+		  <handler>on_go_to_atom_atom_name_entry_key_press_event</handler>
+		  <last_modification_time>Wed, 09 Jul 2003 17:09:49 GMT</last_modification_time>
+		</signal>
+		<editable>True</editable>
+		<text_visible>True</text_visible>
+		<text_max_length>0</text_max_length>
+		<text></text>
+		<child>
+		  <padding>0</padding>
+		  <expand>False</expand>
+		  <fill>True</fill>
+		</child>
+	      </widget>
+
+	      <widget>
+		<class>GtkLabel</class>
+		<name>label43</name>
+		<label>Atom Name</label>
+		<justify>GTK_JUSTIFY_CENTER</justify>
+		<wrap>False</wrap>
+		<xalign>0.5</xalign>
+		<yalign>0.5</yalign>
+		<xpad>6</xpad>
+		<ypad>0</ypad>
+		<child>
+		  <padding>6</padding>
+		  <expand>False</expand>
+		  <fill>False</fill>
+		</child>
+	      </widget>
+	    </widget>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <name>update_go_to_atom_from_current_position_button</name>
 	      <can_focus>True</can_focus>
 	      <signal>
-		<name>key_press_event</name>
-		<handler>on_go_to_atom_chain_entry_key_press_event</handler>
-		<last_modification_time>Wed, 09 Jul 2003 17:09:17 GMT</last_modification_time>
+		<name>clicked</name>
+		<handler>on_update_go_to_atom_from_current_position_button_clicked</handler>
+		<last_modification_time>Wed, 28 Mar 2007 22:43:13 GMT</last_modification_time>
 	      </signal>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text></text>
+	      <label>  Update from Current Postion  </label>
+	      <relief>GTK_RELIEF_NORMAL</relief>
 	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>False</fill>
-	      </child>
-	    </widget>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label41</name>
-	      <label>Chain</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>5</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<padding>6</padding>
-		<expand>False</expand>
-		<fill>False</fill>
-	      </child>
-	    </widget>
-	  </widget>
-
-	  <widget>
-	    <class>GtkHBox</class>
-	    <name>hbox25</name>
-	    <border_width>2</border_width>
-	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>True</fill>
-	    </child>
-
-	    <widget>
-	      <class>GtkEntry</class>
-	      <name>go_to_atom_residue_entry</name>
-	      <width>60</width>
-	      <can_focus>True</can_focus>
-	      <signal>
-		<name>key_press_event</name>
-		<handler>on_go_to_atom_residue_entry_key_press_event</handler>
-		<last_modification_time>Wed, 09 Jul 2003 17:09:39 GMT</last_modification_time>
-	      </signal>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text></text>
-	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>True</fill>
-	      </child>
-	    </widget>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label42</name>
-	      <label>Residue Number</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>6</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<padding>6</padding>
-		<expand>False</expand>
-		<fill>False</fill>
-	      </child>
-	    </widget>
-	  </widget>
-
-	  <widget>
-	    <class>GtkHBox</class>
-	    <name>hbox26</name>
-	    <border_width>2</border_width>
-	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>True</fill>
-	    </child>
-
-	    <widget>
-	      <class>GtkEntry</class>
-	      <name>go_to_atom_atom_name_entry</name>
-	      <width>60</width>
-	      <can_focus>True</can_focus>
-	      <signal>
-		<name>key_press_event</name>
-		<handler>on_go_to_atom_atom_name_entry_key_press_event</handler>
-		<last_modification_time>Wed, 09 Jul 2003 17:09:49 GMT</last_modification_time>
-	      </signal>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text></text>
-	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>True</fill>
-	      </child>
-	    </widget>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label43</name>
-	      <label>Atom Name</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>6</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<padding>6</padding>
-		<expand>False</expand>
-		<fill>False</fill>
+		<left_attach>1</left_attach>
+		<right_attach>2</right_attach>
+		<top_attach>0</top_attach>
+		<bottom_attach>1</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
 	      </child>
 	    </widget>
 	  </widget>

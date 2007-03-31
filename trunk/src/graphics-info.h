@@ -2390,6 +2390,11 @@ public:
    static void move_molecule_here_item_select(GtkWidget *item,
 					      GtkPositionType pos);
 
+   // -- make the key user changable.  A template for other bound
+   // functions:
+   static int ncs_residue_skip_key;
+   static int update_go_to_atom_from_current_residue_key;
+
    // ---- pseudo bond for sec str restraints
    static coot::pseudo_restraint_bond_type pseudo_bonds_type;
 

@@ -2662,7 +2662,7 @@ graphics_info_t::baton_next_directions(int imol_for_skel, const CAtom *latest_at
    // 
    std::string molname("Baton Atom Guide Points");
    if (baton_tmp_atoms_to_new_molecule)
-      create_molecule_and_display(*baton_next_ca_options,molname);
+      create_molecule_and_display(*baton_next_ca_options, molname);
    else 
       update_molecule_to(*baton_next_ca_options, molname);
 
@@ -2836,11 +2836,14 @@ graphics_info_t::baton_tip_by_ca_option(int index) const {
       std::cout << "ERROR: baton_next_ca_options is NULL\n";
    } else { 
       if (uindex >= baton_next_ca_options->size()) {
-	 std::cout << "ERROR: bad baton_next_ca_options index: "
-		   << index << " size " << baton_next_ca_options->size()
-		   << std::endl;
+	 if ((uindex == 0) && (baton_next_ca_options->size() == 0)) {
+	    std::cout << "INFO:: no baton next positions from here\n";
+	 } else { 
+	    std::cout << "ERROR: bad baton_next_ca_options index: "
+		      << index << " size " << baton_next_ca_options->size()
+		      << std::endl;
+	 }
       } else {
-
 	 // now we want a vector baton_length in the direction starting
 	 // at baton_root to baton_next_ca_options[index]
 	 //
@@ -3026,7 +3029,11 @@ graphics_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &pos_po
    int imol = lookup_molecule_name(molname);
 
    if (imol >= 0) {
-      graphics_info_t::molecules[imol].update_molecule_to(pos_position);
+      if (pos_position.size() > 0) 
+	 graphics_info_t::molecules[imol].update_molecule_to(pos_position);
+      else
+	 std::cout << "WARNING:: No atoms guide points in update_molecule_to."
+		   << "  Not updating guide points molecule" << std::endl;
    } else {
       create_molecule_and_display(pos_position, molname);
    } 
@@ -3709,6 +3716,7 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
    if (edit_phi_psi_plot) { 
       // we need to get to the widget "dynarama_window" and destroy it.
       edit_phi_psi_plot->destroy_yourself();
+      edit_phi_psi_plot = 0; // Richard Baxter bug
    } else { 
       std::cout << "WARNING:: edit_phi_psi_plot is NULL\n";
    } 

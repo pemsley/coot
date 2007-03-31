@@ -434,6 +434,64 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 #endif // USE_GUILE
 
 #ifdef USE_GUILE
+//* \brief 
+// Return a list of (list imol chain-id resno ins-code atom-name
+// alt-conf) for atom that is closest to the screen centre.  If there
+// are multiple models with the same coordinates at the screen centre,
+// return the attributes of the atom in the highest number molecule
+// number.
+// 
+SCM active_residue() {
+
+   graphics_info_t g;
+   SCM s = SCM_BOOL(0);
+   float dist_best = 999999999.9;
+   int imol_closest = -1;
+   CAtom *at_close = 0;
+   
+   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+
+      if (is_valid_model_molecule(imol)) { 
+	 coot::at_dist_info_t at_info = graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
+	 if (at_info.atom) {
+	    if (at_info.dist <= dist_best) {
+	       dist_best = at_info.dist;
+	       imol_closest = at_info.imol;
+	       at_close = at_info.atom;
+	    }
+	 }
+      }
+   }
+   if (at_close) {
+      s = SCM_CAR(scm_listofnull);
+      s = scm_cons(scm_makfrom0str(at_close->altLoc) , s);
+      s = scm_cons(scm_makfrom0str(at_close->name) , s);
+      s = scm_cons(scm_makfrom0str(at_close->GetInsCode()) , s);
+      s = scm_cons(scm_int2num(at_close->GetSeqNum()) , s);
+      s = scm_cons(scm_makfrom0str(at_close->GetChainID()) , s);
+      s = scm_cons(scm_int2num(imol_closest) ,s);
+   } 
+   return s;
+}
+
+/*! \brief update the Go To Atom widget entries to atom closest to
+  screen centre. */
+void update_go_to_atom_from_current_position() {
+#ifdef USE_GUILE
+	 std::string scheme_command("(update-go-to-atom-from-current-atom)");
+	 safe_scheme_command(scheme_command);
+#else 	    
+#ifdef USE_PYTHON
+	 std::string python_command("update_go_to_atom_from_current_atom()");
+	 safe_python_command(python_command);   
+#endif // PYTHON
+#endif // USE_GUILE
+}
+
+
+#endif 
+
+#ifdef USE_GUILE
 SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v) {
 
    SCM r = SCM_CAR(scm_listofnull);

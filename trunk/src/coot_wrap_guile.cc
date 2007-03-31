@@ -2523,6 +2523,24 @@ _wrap_set_idle_function_rotate_angle (SCM s_0)
 
 
 static SCM
+_wrap_idle_function_rotate_angle ()
+{
+#define FUNC_NAME "idle-function-rotate-angle"
+  float result;
+  SCM gswig_result;
+  int gswig_list_p = 0;
+  
+  result = (float)idle_function_rotate_angle();
+  {
+    gswig_result = scm_make_real(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_handle_read_draw_molecule (SCM s_0)
 {
 #define FUNC_NAME "handle-read-draw-molecule"
@@ -8527,6 +8545,139 @@ _wrap_default_new_atoms_b_factor ()
 
 
 static SCM
+_wrap_set_atom_attribute (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7)
+{
+#define FUNC_NAME "set-atom-attribute"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
+  char *arg7 = (char *) 0 ;
+  float arg8 ;
+  int result;
+  int must_free2 = 0 ;
+  int must_free4 = 0 ;
+  int must_free5 = 0 ;
+  int must_free6 = 0 ;
+  int must_free7 = 0 ;
+  SCM gswig_result;
+  int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = SWIG_scm2str(s_3);
+    must_free4 = 1;
+  }
+  {
+    arg5 = SWIG_scm2str(s_4);
+    must_free5 = 1;
+  }
+  {
+    arg6 = SWIG_scm2str(s_5);
+    must_free6 = 1;
+  }
+  {
+    arg7 = SWIG_scm2str(s_6);
+    must_free7 = 1;
+  }
+  {
+    arg8 = scm_num2dbl(s_7, FUNC_NAME);
+  }
+  result = (int)set_atom_attribute(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free4 && arg4) SWIG_free(arg4);
+  if (must_free5 && arg5) SWIG_free(arg5);
+  if (must_free6 && arg6) SWIG_free(arg6);
+  if (must_free7 && arg7) SWIG_free(arg7);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_atom_string_attribute (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7)
+{
+#define FUNC_NAME "set-atom-string-attribute"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
+  char *arg7 = (char *) 0 ;
+  char *arg8 = (char *) 0 ;
+  int result;
+  int must_free2 = 0 ;
+  int must_free4 = 0 ;
+  int must_free5 = 0 ;
+  int must_free6 = 0 ;
+  int must_free7 = 0 ;
+  int must_free8 = 0 ;
+  SCM gswig_result;
+  int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = SWIG_scm2str(s_3);
+    must_free4 = 1;
+  }
+  {
+    arg5 = SWIG_scm2str(s_4);
+    must_free5 = 1;
+  }
+  {
+    arg6 = SWIG_scm2str(s_5);
+    must_free6 = 1;
+  }
+  {
+    arg7 = SWIG_scm2str(s_6);
+    must_free7 = 1;
+  }
+  {
+    arg8 = SWIG_scm2str(s_7);
+    must_free8 = 1;
+  }
+  result = (int)set_atom_string_attribute(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,(char const *)arg8);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free4 && arg4) SWIG_free(arg4);
+  if (must_free5 && arg5) SWIG_free(arg5);
+  if (must_free6 && arg6) SWIG_free(arg6);
+  if (must_free7 && arg7) SWIG_free(arg7);
+  if (must_free8 && arg8) SWIG_free(arg8);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_skel_greer_on ()
 {
 #define FUNC_NAME "skel-greer-on"
@@ -9481,16 +9632,16 @@ _wrap_fill_go_to_atom_window (SCM s_0)
 
 
 static SCM
-_wrap_get_text_for_go_to_atom_chain_entry ()
+_wrap_go_to_atom_molecule_number ()
 {
-#define FUNC_NAME "get-text-for-go-to-atom-chain-entry"
-  gchar *result = 0 ;
+#define FUNC_NAME "go-to-atom-molecule-number"
+  int result;
   SCM gswig_result;
   int gswig_list_p = 0;
   
-  result = (gchar *)get_text_for_go_to_atom_chain_entry();
+  result = (int)go_to_atom_molecule_number();
   {
-    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_gchar, 0);
+    gswig_result = scm_long2num(result);
   }
   
   return gswig_result;
@@ -9499,16 +9650,16 @@ _wrap_get_text_for_go_to_atom_chain_entry ()
 
 
 static SCM
-_wrap_get_text_for_go_to_atom_residue_entry ()
+_wrap_go_to_atom_chain_id ()
 {
-#define FUNC_NAME "get-text-for-go-to-atom-residue-entry"
-  gchar *result = 0 ;
+#define FUNC_NAME "go-to-atom-chain-id"
+  char *result = 0 ;
   SCM gswig_result;
   int gswig_list_p = 0;
   
-  result = (gchar *)get_text_for_go_to_atom_residue_entry();
+  result = (char *)go_to_atom_chain_id();
   {
-    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_gchar, 0);
+    gswig_result = scm_makfrom0str(result);
   }
   
   return gswig_result;
@@ -9517,16 +9668,70 @@ _wrap_get_text_for_go_to_atom_residue_entry ()
 
 
 static SCM
-_wrap_get_text_for_go_to_atom_atom_name_entry ()
+_wrap_go_to_atom_atom_name ()
 {
-#define FUNC_NAME "get-text-for-go-to-atom-atom-name-entry"
-  gchar *result = 0 ;
+#define FUNC_NAME "go-to-atom-atom-name"
+  char *result = 0 ;
   SCM gswig_result;
   int gswig_list_p = 0;
   
-  result = (gchar *)get_text_for_go_to_atom_atom_name_entry();
+  result = (char *)go_to_atom_atom_name();
   {
-    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_gchar, 0);
+    gswig_result = scm_makfrom0str(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_go_to_atom_residue_number ()
+{
+#define FUNC_NAME "go-to-atom-residue-number"
+  int result;
+  SCM gswig_result;
+  int gswig_list_p = 0;
+  
+  result = (int)go_to_atom_residue_number();
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_go_to_atom_ins_code ()
+{
+#define FUNC_NAME "go-to-atom-ins-code"
+  char *result = 0 ;
+  SCM gswig_result;
+  int gswig_list_p = 0;
+  
+  result = (char *)go_to_atom_ins_code();
+  {
+    gswig_result = scm_makfrom0str(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_go_to_atom_alt_conf ()
+{
+#define FUNC_NAME "go-to-atom-alt-conf"
+  char *result = 0 ;
+  SCM gswig_result;
+  int gswig_list_p = 0;
+  
+  result = (char *)go_to_atom_alt_conf();
+  {
+    gswig_result = scm_makfrom0str(result);
   }
   
   return gswig_result;
@@ -20765,6 +20970,28 @@ _wrap_place_helix_here ()
 
 
 static SCM
+_wrap_place_strand_here (SCM s_0)
+{
+#define FUNC_NAME "place-strand-here"
+  int arg1 ;
+  int result;
+  SCM gswig_result;
+  int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)place_strand_here(arg1);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_new_molecule_by_residue_type_selection (SCM s_0, SCM s_1)
 {
 #define FUNC_NAME "new-molecule-by-residue-type-selection"
@@ -24168,6 +24395,7 @@ SWIG_init(void)
   scm_c_define_gsubr("next-map-for-molecule", 1, 0, 0, (swig_guile_proc) _wrap_next_map_for_molecule);
   scm_c_define_gsubr("toggle-idle-function", 0, 0, 0, (swig_guile_proc) _wrap_toggle_idle_function);
   scm_c_define_gsubr("set-idle-function-rotate-angle", 1, 0, 0, (swig_guile_proc) _wrap_set_idle_function_rotate_angle);
+  scm_c_define_gsubr("idle-function-rotate-angle", 0, 0, 0, (swig_guile_proc) _wrap_idle_function_rotate_angle);
   scm_c_define_gsubr("handle-read-draw-molecule", 1, 0, 0, (swig_guile_proc) _wrap_handle_read_draw_molecule);
   scm_c_define_gsubr("handle-read-draw-molecule-with-recentre", 2, 0, 0, (swig_guile_proc) _wrap_handle_read_draw_molecule_with_recentre);
   scm_c_define_gsubr("read-pdb", 1, 0, 0, (swig_guile_proc) _wrap_read_pdb);
@@ -24441,6 +24669,8 @@ SWIG_init(void)
   scm_c_define_gsubr("centre-of-mass-string", 1, 0, 0, (swig_guile_proc) _wrap_centre_of_mass_string);
   scm_c_define_gsubr("set-default-temperature-factor-for-new-atoms", 1, 0, 0, (swig_guile_proc) _wrap_set_default_temperature_factor_for_new_atoms);
   scm_c_define_gsubr("default-new-atoms-b-factor", 0, 0, 0, (swig_guile_proc) _wrap_default_new_atoms_b_factor);
+  scm_c_define_gsubr("set-atom-attribute", 8, 0, 0, (swig_guile_proc) _wrap_set_atom_attribute);
+  scm_c_define_gsubr("set-atom-string-attribute", 8, 0, 0, (swig_guile_proc) _wrap_set_atom_string_attribute);
   scm_c_define_gsubr("skel-greer-on", 0, 0, 0, (swig_guile_proc) _wrap_skel_greer_on);
   scm_c_define_gsubr("skel-greer-off", 0, 0, 0, (swig_guile_proc) _wrap_skel_greer_off);
   scm_c_define_gsubr("skel-foadi-on", 0, 0, 0, (swig_guile_proc) _wrap_skel_foadi_on);
@@ -24484,9 +24714,12 @@ SWIG_init(void)
   scm_c_define_gsubr("wrapped-create-goto-atom-window", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_goto_atom_window);
   scm_c_define_gsubr("post-go-to-atom-window", 0, 0, 0, (swig_guile_proc) _wrap_post_go_to_atom_window);
   scm_c_define_gsubr("fill-go-to-atom-window", 1, 0, 0, (swig_guile_proc) _wrap_fill_go_to_atom_window);
-  scm_c_define_gsubr("get-text-for-go-to-atom-chain-entry", 0, 0, 0, (swig_guile_proc) _wrap_get_text_for_go_to_atom_chain_entry);
-  scm_c_define_gsubr("get-text-for-go-to-atom-residue-entry", 0, 0, 0, (swig_guile_proc) _wrap_get_text_for_go_to_atom_residue_entry);
-  scm_c_define_gsubr("get-text-for-go-to-atom-atom-name-entry", 0, 0, 0, (swig_guile_proc) _wrap_get_text_for_go_to_atom_atom_name_entry);
+  scm_c_define_gsubr("go-to-atom-molecule-number", 0, 0, 0, (swig_guile_proc) _wrap_go_to_atom_molecule_number);
+  scm_c_define_gsubr("go-to-atom-chain-id", 0, 0, 0, (swig_guile_proc) _wrap_go_to_atom_chain_id);
+  scm_c_define_gsubr("go-to-atom-atom-name", 0, 0, 0, (swig_guile_proc) _wrap_go_to_atom_atom_name);
+  scm_c_define_gsubr("go-to-atom-residue-number", 0, 0, 0, (swig_guile_proc) _wrap_go_to_atom_residue_number);
+  scm_c_define_gsubr("go-to-atom-ins-code", 0, 0, 0, (swig_guile_proc) _wrap_go_to_atom_ins_code);
+  scm_c_define_gsubr("go-to-atom-alt-conf", 0, 0, 0, (swig_guile_proc) _wrap_go_to_atom_alt_conf);
   scm_c_define_gsubr("set-go-to-atom-chain-residue-atom-name", 3, 0, 0, (swig_guile_proc) _wrap_set_go_to_atom_chain_residue_atom_name);
   scm_c_define_gsubr("set-go-to-atom-chain-residue-atom-name-strings", 3, 0, 0, (swig_guile_proc) _wrap_set_go_to_atom_chain_residue_atom_name_strings);
   scm_c_define_gsubr("goto-prev-atom-maybe", 4, 0, 0, (swig_guile_proc) _wrap_goto_prev_atom_maybe);
@@ -24979,6 +25212,7 @@ SWIG_init(void)
   scm_c_define_gsubr("ncs-control-change-ncs-master-to-chain-update-widget", 3, 0, 0, (swig_guile_proc) _wrap_ncs_control_change_ncs_master_to_chain_update_widget);
   scm_c_define_gsubr("ncs-control-display-chain", 3, 0, 0, (swig_guile_proc) _wrap_ncs_control_display_chain);
   scm_c_define_gsubr("place-helix-here", 0, 0, 0, (swig_guile_proc) _wrap_place_helix_here);
+  scm_c_define_gsubr("place-strand-here", 1, 0, 0, (swig_guile_proc) _wrap_place_strand_here);
   scm_c_define_gsubr("new-molecule-by-residue-type-selection", 2, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_residue_type_selection);
   scm_c_define_gsubr("new-molecule-by-atom-selection", 2, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_atom_selection);
   scm_c_define_gsubr("set-axis-orientation-matrix", 9, 0, 0, (swig_guile_proc) _wrap_set_axis_orientation_matrix);

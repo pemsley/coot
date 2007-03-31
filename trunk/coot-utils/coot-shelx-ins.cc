@@ -462,9 +462,9 @@ coot::ShelxIns::read_file(const std::string &filename) {
       if (symmetry_ops != "") {
 // 	 std::cout << "DEBUG:: initing spacegroup with " << symmetry_ops << std::endl;
  	 space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
-	 std::cout << "INFO:: set space group to :"
-		   << space_group.descr().symbol_hm()
-		   << ":" << std::endl;
+// 	 std::cout << "INFO:: set space group to :"
+// 		   << space_group.descr().symbol_hm()
+// 		   << ":" << std::endl;
 	 mol->SetSpaceGroup((char *)space_group.descr().symbol_hm().c_str());
 	 char *spg = mol->GetSpaceGroup();
 	 if (spg) { 

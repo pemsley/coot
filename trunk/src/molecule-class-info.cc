@@ -1,7 +1,8 @@
 
 /* src/molecule-class-info.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley, The
+ * University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -173,7 +174,8 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	    short int do_rtops_flag = 0;
 	    // 0.7 is not used (I think) if do_rtops_flag is 0.
 	    // hack to fix Mac bug/strangeness
-	    int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+
+	    // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
 	    // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 	 }
 	    
@@ -279,6 +281,31 @@ molecule_class_info_t::show_spacegroup() const {
    return s;
 }
 
+
+coot::at_dist_info_t
+molecule_class_info_t::closest_atom(const coot::Cartesian &pt) const {
+
+   coot::at_dist_info_t at_info(0,0,0);
+   CAtom *at_best = 0;
+   float dist_best = 99999999999.9;
+
+   for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
+      CAtom *at = atom_sel.atom_selection[iat];
+      float d2 = (at->x - pt.x()) * (at->x - pt.x());
+      d2 += (at->y - pt.y()) * (at->y - pt.y());
+      d2 += (at->z - pt.z()) * (at->z - pt.z());
+      if (d2 < dist_best) {
+	 dist_best = d2;
+	 at_best = at;
+      }
+   }
+   if (at_best) { 
+      at_info.dist = sqrt(dist_best);
+      at_info.atom = at_best;
+      at_info.imol = imol_no;
+   }
+   return at_info;
+} 
 
 
 std::string
@@ -7504,7 +7531,7 @@ molecule_class_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &
 	 chain_p = new CChain;
 	 if (chain_p) {
 	    model_p->AddChain(chain_p);
-	    add_multiple_dummies(chain_p,pos_position);
+	    add_multiple_dummies(chain_p, pos_position);
 	 } else { 
 	    std::cout << "ERROR:: creating chain in mol::update_molecule_to" << std::endl;
 	 }
@@ -7559,13 +7586,20 @@ molecule_class_info_t::add_multiple_dummies(CChain *chain_p,
       // std::cout << atom_p << " added to molecule" << std::endl;
    }
 
-   if (pos_position.size() > 0) { 
+   // std::cout << "DEBUG:: add_multiple_dummies finishing.. "
+   // << pos_position.size() << std::endl;
+   // if (pos_position.size() > 0) {
+   
+   // Actually, we want to run this code when there are no new guide
+   // points too.  This sets atom_sel.SelectionHandle properly, which
+   // is needed in close_yourself, where a DeleteSelection() is done
+   // to give back the memory.
       atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1; 
       makebonds(0.0, 0.0);
-   }
+      // }
 } 
 
 void

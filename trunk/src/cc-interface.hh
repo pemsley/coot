@@ -228,6 +228,7 @@ const char *atom_info_string(int imol, const char *chain_id, int resno,
 			     const char *ins_code, const char *atname,
 			     const char *altconf);
 
+//! \brief
 // Return a list of atom info for each atom in the specified residue:
 // 
 // output is like this:
@@ -237,6 +238,18 @@ const char *atom_info_string(int imol, const char *chain_id, int resno,
 //          (list x y z)))
 // 
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
+
+//! \brief 
+// Return a list of (list imol chain-id resno ins-code atom-name
+// alt-conf) for atom that is closest to the screen centre.  If there
+// are multiple models with the same coordinates at the screen centre,
+// return the attributes of the atom in the highest number molecule
+// number.
+//
+// return #f if no active residue
+// 
+SCM active_residue();
+
 #endif	/* USE_GUILE */
 
 

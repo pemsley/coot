@@ -1,3 +1,17 @@
+2007-03-31  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* src/graphics-info.cc: (destroy_edit_backbone_rama_plot): set
+	edit_phi_psi_plot to null so that it is not left dangling when we
+	do edit phi/psi the the N-terminal residue, where there is no
+	Ramachandran plot made.  Fixes Richard Baxter bug.
+
+	(update_molecule_to): don't call molecule_class_info_t's
+	update_molecule_to if there are no atoms in the guide point
+	vector.  This stops the creation of a molecule with no atoms in
+	it, which causes problems because it seems to be closed.  Also
+	this means that the model is not modified without creating a new
+	atom selection.  Fixes Richard Baxter bug.
+
 2007-03-19  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* src/cc-interface.hh: Add USE_GUILE protection to

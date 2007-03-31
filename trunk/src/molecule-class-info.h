@@ -166,6 +166,20 @@ namespace coot {
 	 return r;
       } 
    };
+
+   class at_dist_info_t {
+
+   public:
+      int imol;
+      CAtom *atom;
+      float dist;
+      at_dist_info_t(int imol_in, CAtom *atom_in, float dist_in) {
+	 imol = imol_in;
+	 atom = atom_in;
+	 dist = dist_in;
+      }
+   };
+
 }
 
 // Forward declaration
@@ -1735,6 +1749,7 @@ class molecule_class_info_t {
 				 std::string atom_name, std::string alt_conf,
 				 std::string attribute_name, std::string val_str);
 
+   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt) const;
    
 };
 

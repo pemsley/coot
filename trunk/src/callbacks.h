@@ -2813,3 +2813,8 @@ void
 on_stereo_dialog_side_by_side_stereo_walleyed_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_update_go_to_atom_from_current_position_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

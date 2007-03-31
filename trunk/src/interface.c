@@ -3741,6 +3741,7 @@ create_goto_atom_window (void)
   GtkWidget *go_to_atom_molecule_optionmenu;
   GtkWidget *go_to_atom_molecule_optionmenu_menu;
   GtkWidget *label40;
+  GtkWidget *table5;
   GtkWidget *hbox24;
   GtkWidget *go_to_atom_chain_entry;
   GtkWidget *label41;
@@ -3750,6 +3751,7 @@ create_goto_atom_window (void)
   GtkWidget *hbox26;
   GtkWidget *go_to_atom_atom_name_entry;
   GtkWidget *label43;
+  GtkWidget *update_go_to_atom_from_current_position_button;
   GtkWidget *hseparator1;
   GtkWidget *go_to_atom_next_residue_button;
   GtkWidget *go_to_atom_previous_residue_button;
@@ -3826,12 +3828,22 @@ create_goto_atom_window (void)
   gtk_widget_show (label40);
   gtk_box_pack_start (GTK_BOX (hbox23), label40, FALSE, FALSE, 0);
 
+  table5 = gtk_table_new (3, 2, FALSE);
+  gtk_widget_ref (table5);
+  gtk_object_set_data_full (GTK_OBJECT (goto_atom_window), "table5", table5,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (table5);
+  gtk_box_pack_start (GTK_BOX (vbox35), table5, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (table5), 2);
+
   hbox24 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox24);
   gtk_object_set_data_full (GTK_OBJECT (goto_atom_window), "hbox24", hbox24,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox24);
-  gtk_box_pack_start (GTK_BOX (vbox35), hbox24, FALSE, TRUE, 0);
+  gtk_table_attach (GTK_TABLE (table5), hbox24, 0, 1, 0, 1,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox24), 2);
 
   go_to_atom_chain_entry = gtk_entry_new ();
@@ -3855,7 +3867,9 @@ create_goto_atom_window (void)
   gtk_object_set_data_full (GTK_OBJECT (goto_atom_window), "hbox25", hbox25,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox25);
-  gtk_box_pack_start (GTK_BOX (vbox35), hbox25, FALSE, TRUE, 0);
+  gtk_table_attach (GTK_TABLE (table5), hbox25, 0, 1, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox25), 2);
 
   go_to_atom_residue_entry = gtk_entry_new ();
@@ -3879,7 +3893,9 @@ create_goto_atom_window (void)
   gtk_object_set_data_full (GTK_OBJECT (goto_atom_window), "hbox26", hbox26,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox26);
-  gtk_box_pack_start (GTK_BOX (vbox35), hbox26, FALSE, TRUE, 0);
+  gtk_table_attach (GTK_TABLE (table5), hbox26, 0, 1, 2, 3,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox26), 2);
 
   go_to_atom_atom_name_entry = gtk_entry_new ();
@@ -3897,6 +3913,15 @@ create_goto_atom_window (void)
   gtk_widget_show (label43);
   gtk_box_pack_start (GTK_BOX (hbox26), label43, FALSE, FALSE, 6);
   gtk_misc_set_padding (GTK_MISC (label43), 6, 0);
+
+  update_go_to_atom_from_current_position_button = gtk_button_new_with_label (_("  Update from Current Postion  "));
+  gtk_widget_ref (update_go_to_atom_from_current_position_button);
+  gtk_object_set_data_full (GTK_OBJECT (goto_atom_window), "update_go_to_atom_from_current_position_button", update_go_to_atom_from_current_position_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (update_go_to_atom_from_current_position_button);
+  gtk_table_attach (GTK_TABLE (table5), update_go_to_atom_from_current_position_button, 1, 2, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
 
   hseparator1 = gtk_hseparator_new ();
   gtk_widget_ref (hseparator1);
@@ -3991,6 +4016,9 @@ create_goto_atom_window (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (go_to_atom_atom_name_entry), "key_press_event",
                       GTK_SIGNAL_FUNC (on_go_to_atom_atom_name_entry_key_press_event),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (update_go_to_atom_from_current_position_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_update_go_to_atom_from_current_position_button_clicked),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (go_to_atom_next_residue_button), "clicked",
                       GTK_SIGNAL_FUNC (on_go_to_atom_next_residue_button_clicked),

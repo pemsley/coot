@@ -1,6 +1,7 @@
 /* src/callbacks.c
  * 
- * Copyright 2001, 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley,
+ * The University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 
@@ -7504,5 +7506,14 @@ on_stereo_dialog_side_by_side_stereo_walleyed_radiobutton_toggled
   if (togglebutton->active) {
     side_by_side_stereo_mode(1); /* passed used_wall_eye flag */
   }
+}
+
+
+void
+on_update_go_to_atom_from_current_position_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   update_go_to_atom_from_current_position(); 
 }
 

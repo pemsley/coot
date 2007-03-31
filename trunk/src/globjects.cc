@@ -921,6 +921,9 @@ std::string graphics_info_t::sessionid = "";
 std::pair<std::string, std::string> graphics_info_t::db_userid_username("no-userid","no-user-name");
 #endif // USE_MYSQL_DATABASE
 
+//
+int graphics_info_t::ncs_residue_skip_key = GDK_o;
+int graphics_info_t::update_go_to_atom_from_current_residue_key = GDK_p;
 
 //
 GdkCursorType graphics_info_t::pick_cursor_index = GDK_CROSSHAIR;
@@ -2526,6 +2529,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    gint handled = 0; // initially unhandled
 
+   const int o = graphics_info_t::ncs_residue_skip_key; 
+
    switch (event->keyval) {
    case GDK_Control_L:
    case GDK_Control_R:
@@ -2849,9 +2854,38 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break;
    }
 
-   if (handled == 0) {
-      if (event->keyval != GDK_backslash) {
+   // Now to test event->keyval against dynamic "reprogramable" key
+   // bindings.
 
+   if (handled == 0) { // initial value
+      if (event->keyval == graphics_info_t::ncs_residue_skip_key) {
+#ifdef USE_GUILE
+	 std::string scheme_command("(skip-to-next-ncs-chain)");
+	 safe_scheme_command(scheme_command);
+#else 	    
+#ifdef USE_PYTHON
+	 std::string python_command("skip_to_next_ncs_chain()");
+	 safe_python_command(python_command);   
+#endif // PYTHON
+#endif // USE_GUILE
+	 handled = TRUE;
+      }
+
+      if (event->keyval == graphics_info_t::update_go_to_atom_from_current_residue_key) {
+#ifdef USE_GUILE
+	 std::string scheme_command("(update-go-to-atom-from-current-atom)");
+	 safe_scheme_command(scheme_command);
+#else 	    
+#ifdef USE_PYTHON
+	 std::string python_command("update_go_to_atom_from_current_atom()");
+	 safe_python_command(python_command);   
+#endif // PYTHON
+#endif // USE_GUILE
+	 handled = TRUE;
+      }
+
+      if (event->keyval != GDK_backslash) {
+	 
 	 int ikey = event->keyval;
 	 std::string scheme_command("(graphics-general-key-press-hook ");
 	 // scheme_command += "\"";
@@ -2862,10 +2896,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 safe_scheme_command(scheme_command);
       } else {
 	 std::cout << "Ignoring GDK_backslash key press event" << std::endl;
-      } 
+      }
    } 
-   
-  return TRUE;
+   return TRUE;
 }
 
 // Direction is either +1 or -1 (in or out)

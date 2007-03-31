@@ -1828,6 +1828,9 @@ int goto_near_atom_maybe(const char *t1, int ires, const char *t3,
 int goto_next_atom_maybe_new(GtkWidget *window);
 int goto_previous_atom_maybe_new(GtkWidget *window);
 
+/*! \brief update the Go To Atom widget entries to atom closest to
+  screen centre. */
+void update_go_to_atom_from_current_position(); 
 
 /* used by keypress (return) callbacks */
 
