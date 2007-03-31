@@ -1152,3 +1152,19 @@
 		      (f (cdr atom-ls) (list " CA " alt-conf-str))
 		      (f (cdr atom-ls) centre-atom-name-alt-conf))))))))))
 
+
+(define (update-go-to-atom-from-current-atom)
+
+  (let ((active-atom (active-residue)))
+    (if active-atom
+	(let ((imol      (list-ref active-atom 0))
+	      (chain-id  (list-ref active-atom 1))
+	      (resno     (list-ref active-atom 2))
+	      (ins-code  (list-ref active-atom 3))
+	      (atom-name (list-ref active-atom 4))
+	      (alt-conf  (list-ref active-atom 5)))
+	  (set-go-to-atom-molecule imol)
+	  (set-go-to-atom-chain-residue-atom-name chain-id
+						  resno
+						  atom-name)))))
+

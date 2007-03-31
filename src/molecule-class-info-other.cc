@@ -4290,8 +4290,8 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 
 	 short int do_rtops_flag = 0;
 	 // 0.7 is not used (I think) if do_rtops_flag is 0
- 	 int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
-	 std::cout << "INFO:: found " << nghosts << " ghosts\n";
+ 	 // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+	 // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 
 	 // Generate bonds and save them in the graphical_bonds_container
 	 // which has static data members.

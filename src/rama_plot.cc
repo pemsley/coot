@@ -251,8 +251,8 @@ coot::rama_plot::clear_last_canvas_item() {
    gtk_object_destroy(GTK_OBJECT(item));
    
    canvas_item_vec.resize(n);
+}
 
-} 
 void 
 coot::rama_plot::clear_last_canvas_items(int np) { 
    
@@ -268,10 +268,8 @@ coot::rama_plot::clear_last_canvas_items(int np) {
 	 // std::cout << "clearing canvas item " <<  item << std::endl;
       }
    }
-   
    canvas_item_vec.resize(n);
-
-} 
+}
 
 
 void
