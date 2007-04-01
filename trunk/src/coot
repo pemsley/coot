@@ -112,6 +112,7 @@ $coot_real $*
 
 if [ $? != 0 ] ; then
     #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
-    $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
+    # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
+    $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
 fi 
 

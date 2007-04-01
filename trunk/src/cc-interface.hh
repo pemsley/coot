@@ -53,6 +53,13 @@ std::string probe_dots_short_contact_name_to_expanded_name(const std::string &sh
 
 int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec);
 
+// This is to make porting the active atom more easy for Bernhard.
+// Return a class rather than a list, and rewrite the active-residue
+// function use this atom-spec.  The first value of the pair indicates
+// if an atom spec was found.
+//
+std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
+
 
 /*  ---------------------------------------------------------------------- */
 /*                       symmetry functions:                               */

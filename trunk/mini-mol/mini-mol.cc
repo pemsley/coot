@@ -356,7 +356,19 @@ coot::minimol::residue::residue(const CResidue* residue_p) {
 	      residue_atoms[i]->z,
 	      std::string(residue_atoms[i]->altLoc));
    }
-} 
+}
+
+bool
+coot::minimol::atom::is_hydrogen_p() const {
+
+   if (element == " H" ||
+       element == " D") {
+      return 1;
+   } else {
+      return 0;
+   }
+
+}
 
 const coot::minimol::atom& 
 coot::minimol::residue::operator[](const std::string &atname) const { 

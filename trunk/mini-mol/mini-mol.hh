@@ -24,6 +24,7 @@ namespace coot {
 	 clipper::Coord_orth pos;
 	 std::string name;
 	 std::string element; // " H", " N", " O" etc.
+	 bool is_hydrogen_p() const;
 	 friend std::ostream&  operator<<(std::ostream&, atom);
       };
 

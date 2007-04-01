@@ -433,18 +433,31 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 }
 #endif // USE_GUILE
 
-#ifdef USE_GUILE
-//* \brief 
-// Return a list of (list imol chain-id resno ins-code atom-name
-// alt-conf) for atom that is closest to the screen centre.  If there
-// are multiple models with the same coordinates at the screen centre,
-// return the attributes of the atom in the highest number molecule
-// number.
+// A C++ function interface:
 // 
-SCM active_residue() {
+int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {
 
    graphics_info_t g;
-   SCM s = SCM_BOOL(0);
+
+   g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain.c_str(), 
+					    atom_spec.resno,
+					    atom_spec.insertion_code.c_str(), 
+					    atom_spec.atom_name.c_str(),
+					    atom_spec.alt_conf.c_str());
+
+   int success = g.try_centre_from_new_go_to_atom(); 
+   if (success)
+      update_things_on_move_and_redraw(); 
+
+   return success; 
+}
+
+std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {
+
+   coot::atom_spec_t spec;
+   bool was_found_flag = 0;
+   
+   graphics_info_t g;
    float dist_best = 999999999.9;
    int imol_closest = -1;
    CAtom *at_close = 0;
@@ -453,7 +466,8 @@ SCM active_residue() {
 
       if (is_valid_model_molecule(imol)) {
 	 if (graphics_info_t::molecules[imol].is_displayed_p()) { 
-	    coot::at_dist_info_t at_info = graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
+	    coot::at_dist_info_t at_info =
+	       graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
 	    if (at_info.atom) {
 	       if (at_info.dist <= dist_best) {
 		  dist_best = at_info.dist;
@@ -465,16 +479,40 @@ SCM active_residue() {
       }
    }
    if (at_close) {
+      spec = coot::atom_spec_t(at_close);
+      was_found_flag = 1;
+   }
+
+   std::pair<int, coot::atom_spec_t> p1(imol_closest, spec);
+   return std::pair<bool, std::pair<int, coot::atom_spec_t> > (was_found_flag, p1);
+} 
+
+#ifdef USE_GUILE
+//* \brief 
+// Return a list of (list imol chain-id resno ins-code atom-name
+// alt-conf) for atom that is closest to the screen centre.  If there
+// are multiple models with the same coordinates at the screen centre,
+// return the attributes of the atom in the highest number molecule
+// number.
+// 
+SCM active_residue() {
+
+   SCM s = SCM_BOOL(0);
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+
+   if (pp.first) {
       s = SCM_CAR(scm_listofnull);
-      s = scm_cons(scm_makfrom0str(at_close->altLoc) , s);
-      s = scm_cons(scm_makfrom0str(at_close->name) , s);
-      s = scm_cons(scm_makfrom0str(at_close->GetInsCode()) , s);
-      s = scm_cons(scm_int2num(at_close->GetSeqNum()) , s);
-      s = scm_cons(scm_makfrom0str(at_close->GetChainID()) , s);
-      s = scm_cons(scm_int2num(imol_closest) ,s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.insertion_code.c_str()) , s);
+      s = scm_cons(scm_int2num(pp.second.second.resno) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.chain.c_str()) , s);
+      s = scm_cons(scm_int2num(pp.second.first) ,s);
    } 
    return s;
 }
+
+
 
 /*! \brief update the Go To Atom widget entries to atom closest to
   screen centre. */
