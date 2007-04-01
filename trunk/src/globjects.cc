@@ -1,6 +1,6 @@
 /* src/globjects.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley, The
  * University of York
  * Copyright 2006 by Bernhard Lohkamp
  * 
@@ -1013,7 +1013,13 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
   for (int i_gl_contexts=0; i_gl_contexts < n_gl_contexts; i_gl_contexts++) { 
      /* create new OpenGL widget. */
-     GtkWidget *glarea_a = gtk_gl_area_new(attrlist);
+     GtkWidget *glarea_a = 0;
+
+     if (i_gl_contexts == 0)
+	glarea_a = gtk_gl_area_new(attrlist);
+     if (i_gl_contexts == 1)
+	glarea_a = gtk_gl_area_share_new(attrlist, GTK_GL_AREA(glarea));
+     
 
      // This is kludgey.
      if (i_gl_contexts == 0)
