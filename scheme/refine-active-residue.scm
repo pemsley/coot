@@ -1,5 +1,12 @@
 
-(define (refine-active-residue)
+;; This totally ignores insertion codes.  A clever algorithm would
+;; need a re-write, I think.  Well, we'd have at this end a function
+;; that took a chain-id res-no-1 ins-code-1 res-no-2 ins-code-2 
+;; 
+;; And refine-zone would need to be re-written too, of course.  So
+;; let's save that for a rainy day (days... (weeks)).
+;; 
+(define (refine-active-residue-generic side-residue-offset)
 
   (let ((active-atom (active-residue)))
     
@@ -18,21 +25,29 @@
 		(replacement-state (refinement-immediate-replacement-state)))
 	    
 	    (if (= imol-map -1)
-		(add-status-bar-text "Oops.  Must set a map to fit")
+		(info-dialog "Oops.  Must Select Map to fit to!")
 		
 		(begin
 		  (turn-off-backup imol)
 		  (set-refinement-immediate-replacement 1)
-		  (refine-zone imol chain-id res-no res-no alt-conf)
+		  (refine-zone imol chain-id 
+			       (- res-no side-residue-offset)
+			       (+ res-no side-residue-offset)
+			       alt-conf)
 		  (accept-regularizement)))
 		  
 	    (if (= replacement-state 0)
 		(set-refinement-immediate-replacement 0))
 	    (if (= backup-mode 1)
 		(turn-on-backup imol)))))))
-
-
 		  
+
+(define (refine-active-residue)
+  (refine-active-residue-generic 0))
+
+(define (refine-active-residue-triple)
+  (refine-active-residue-generic 1))
+
 
 (define (auto-fit-rotamer-active-residue)
 
@@ -51,7 +66,7 @@
 		(imol-map (imol-refinement-map)))
 	    
 	    (if (= imol-map -1)
-		(add-status-bar-text "Oops.  Must set a map to fit")
+		(info-dialog "Oops.  Must Select Map to fit to!")
 		
 		(begin
 		  (turn-off-backup imol)
