@@ -1,6 +1,27 @@
 
 
-Release 0.2.1 "Arashiyama Park (bug fix version)"
+
+Release 0.3 "Basil Grande"
+
+  o Fixed crash on closing Baton Guide Points molecule [Richard
+    Baxter]
+
+  o Fixed crash on manipulating N-terminal backbone angles [Richard
+    Baxter].
+
+  o Concept of "Active Residue" added [Frank von Delft].
+
+  o Use "Active Residue" concept to Navigate and update "Go To Atom"
+    parameters.
+
+  o Skip to next NCS Chain function added [Robert Xu]
+
+  o Rationalized Hydrogen usage in ligand fitting
+
+  o Fixed problem of display lists and second GL context
+    (i.e. side-by-side stereo with density problems).
+
+  o Add a function to return all the dictionaries read.
 
   o Added function to find and produce an "interesting things GUI" for
     residues with alternate conformations.  This is an instance of a
@@ -24,7 +45,8 @@ Release 0.2.1 "Arashiyama Park (bug fix version)"
 
   o shelx log file reader accounts for alternative conformations
 
-  o findligand ligand fitting gives more useful output.
+  o findligand ligand fitting gives more useful output [Ingo
+    Korndoerfer]
 
   o Clear up left-over scraps in mainchain building, freeing memory
     [Joel Bard].
@@ -32,11 +54,12 @@ Release 0.2.1 "Arashiyama Park (bug fix version)"
   o Fixed problem of occupancy changes being ignored [Iain Kerr].
 
   o An unphased mtz file should run REFMAC for 0 cycles to produce
-    phases.
+    phases [Tadeusz Skarzynski]
 
-  o Fixed crash on scripting ligand fitting.
+  o Fixed crash on scripting ligand fitting [Ingo Korndoerfer].
 
-  o Added a scripting function to exit coot (coot-real-exit).
+  o Added a scripting function to exit coot (coot-real-exit) [Joel
+    Bard].
 
   o get-symmetry function added to return a list of symops.
 
@@ -47,6 +70,8 @@ Release 0.2.1 "Arashiyama Park (bug fix version)"
 
   o "Same Chain?" test applied to Rotate/Translate and Rigid Body
     Refine Zone atom picks [Bob Nolte].
+
+
 
     -------------------------------------------------------
     -------------------- Old Releases ---------------------

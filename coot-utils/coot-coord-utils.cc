@@ -101,6 +101,19 @@ coot::is_main_chain_or_cb_p(CAtom *at) {
    } 
 }
 
+// return 0 or 1
+bool coot::is_hydrogen_p(CAtom *at) {
+
+   std::string mol_atom_ele(at->element);
+   if (mol_atom_ele == " H" ||
+       mol_atom_ele == " D") {
+      return 1;
+   } else {
+      return 0;
+   }
+}
+
+
 
 std::vector<std::string>
 coot::util::residue_types_in_chain(CChain *chain_p) {

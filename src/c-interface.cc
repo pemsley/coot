@@ -6167,24 +6167,7 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
    return success; 
 }
 
-// A C++ function interface:
-// 
-int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {
 
-   graphics_info_t g;
-
-   g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain.c_str(), 
-					    atom_spec.resno,
-					    atom_spec.insertion_code.c_str(), 
-					    atom_spec.atom_name.c_str(),
-					    atom_spec.alt_conf.c_str());
-
-   int success = g.try_centre_from_new_go_to_atom(); 
-   if (success)
-      update_things_on_move_and_redraw(); 
-
-   return success; 
-}
 
 
 int set_go_to_atom_chain_residue_atom_name_strings(const char *t1, const char *t2, const char *t3)

@@ -435,6 +435,8 @@ class molecule_class_info_t {
    coot::Cartesian  centre_of_molecule() const;
 
    std::vector<coot::dots_representation_info_t> dots;
+   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
+				     bool ca_check_flag) const;
    
 
    // ------------------------------------------------------------------

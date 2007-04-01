@@ -285,18 +285,32 @@ molecule_class_info_t::show_spacegroup() const {
 coot::at_dist_info_t
 molecule_class_info_t::closest_atom(const coot::Cartesian &pt) const {
 
+   coot::at_dist_info_t at_info = closest_atom(pt, 1);
+   if (at_info.atom)
+      return at_info;
+   else
+      return closest_atom(pt, 0);
+
+}
+
+coot::at_dist_info_t
+molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_flag) const {
+
    coot::at_dist_info_t at_info(0,0,0);
    CAtom *at_best = 0;
    float dist_best = 99999999999.9;
 
    for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
       CAtom *at = atom_sel.atom_selection[iat];
-      float d2 = (at->x - pt.x()) * (at->x - pt.x());
-      d2 += (at->y - pt.y()) * (at->y - pt.y());
-      d2 += (at->z - pt.z()) * (at->z - pt.z());
-      if (d2 < dist_best) {
-	 dist_best = d2;
-	 at_best = at;
+      if ((ca_check_flag == 0) || !strncmp(at->name, " CA ", 4)) {
+
+	 float d2 = (at->x - pt.x()) * (at->x - pt.x());
+	 d2 += (at->y - pt.y()) * (at->y - pt.y());
+	 d2 += (at->z - pt.z()) * (at->z - pt.z());
+	 if (d2 < dist_best) {
+	    dist_best = d2;
+	    at_best = at;
+	 }
       }
    }
    if (at_best) { 
@@ -305,7 +319,9 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt) const {
       at_info.imol = imol_no;
    }
    return at_info;
-} 
+}
+
+
 
 
 std::string

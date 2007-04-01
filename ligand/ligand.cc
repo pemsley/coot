@@ -58,6 +58,8 @@
 #include "mmdb-extras.h"   // 220403
 #include "mmdb.h"
 
+#include "coot-coord-utils.hh"
+
 
 coot::ligand::ligand() {
 
@@ -2331,28 +2333,39 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
       
    float dv; 
 
+   int n_non_hydrogens = 0;
+   
    for (unsigned int ii=0; ii<atoms.size(); ii++) {
       clipper::Coord_orth atom_pos(atoms[ii]->pos.x(),
 				   atoms[ii]->pos.y(),
 				   atoms[ii]->pos.z());
       clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_pristine.cell());
-      dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
-      //       std::cout << dv << " "; // debugging
-      score_card.score += dv;
-      if (dv > 0)
-	 n_positive_atoms++; 
+      if (!atoms[ii]->is_hydrogen_p()) {
+	 dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
+	 score_card.score += dv;
+	 n_non_hydrogens++; 
+	 if (dv > 0)
+	    n_positive_atoms++; 
+      }
    }
 
    if (atoms.size() > 0) { 
       // fit_fraction is initially 0.75, but can be changed by an public member 
       // function.
-      if ( float(n_positive_atoms)/float(atoms.size()) >= fit_fraction ) { // arbitary
-	 score_card.many_atoms_fit = 1; // consider using a member function
-	 score_card.score_per_atom = score_card.score/float(atoms.size());
-      } else {
+      if (n_non_hydrogens > 0) { 
+	 if ( float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
+	    score_card.many_atoms_fit = 1; // consider using a member function
+	    score_card.score_per_atom = score_card.score/float(n_non_hydrogens);
+	 } else {
 	 // std::cout << "badly fitting atoms: " << std::endl;
-      }
-
+	 }
+      } else {
+	 // Pathalogical case.  No non-hydrogens in ligand.  This code
+	 // should never realistically be run...
+	 score_card.many_atoms_fit = 0;
+	 score_card.score_per_atom = -1.0;
+      } 
+      
 //       std::cout << "for score card score: "  << score_card.score << std::endl;
 //       for (int i=0; i< atoms.size(); i++) {
 	 
@@ -2364,10 +2377,9 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 	 
 // 	 std::cout << i << " " << " " << atom_pos.format() << " " << dv << std::endl;
 //       }
-   } 
-
+   }
    return score_card;
-} 
+}
 
 
 short int
