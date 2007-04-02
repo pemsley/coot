@@ -2792,6 +2792,15 @@ void fill_ligands_sigma_level_entry(GtkWidget *dialog);
 void fill_ligands_expert_options(GtkWidget *find_ligand_dialog);
 void set_ligand_expert_options_from_widget(GtkWidget *button);
 
+/*! \brief "Template"-based matching.  Overlap the first residue in
+  imol_ligand onto the residue specified by the reference parameters.
+  Use graph matching, not atom names.  
+
+@return success status, 0 = failed to fine residue in either
+imol_ligand or imo_ref */
+int 
+overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
+
 void execute_get_mols_ligand_search(GtkWidget *button); 
 /*  info is stored in graphics_info_t beforehand */
 

@@ -3,6 +3,7 @@
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "mmdb_tables.h"  // for Get1LetterCode()
+#include "mmdb_graph.h" // for graph matching
 
 std::vector<std::string>
 coot::util::residue_types_in_molecule(CMMDBManager *mol) { 
@@ -479,7 +480,94 @@ coot::util::single_letter_to_3_letter_code(char code) {
    if (code == 'R') return std::string("ARG");
 
    return std::string("");
-} 
+}
+
+
+// Match on graph
+// 
+// Return the orientation matrix moving res_moving to res_reference
+// and a flag letting us know that the match worked OK.
+// 
+std::pair<bool, clipper::RTop_orth>
+coot::graph_match(CResidue *res_moving,
+		  CResidue *res_reference) {
+
+   clipper::RTop_orth rtop;
+   bool success = 0;
+
+   CGraph graph1;
+   CGraph graph2;
+
+   graph1.MakeGraph(res_moving);
+   graph2.MakeGraph(res_reference);
+
+   int build_status1 = graph1.Build(1);
+   int build_status2 = graph2.Build(1);
+
+   if (build_status1 != 0) {
+      std::cout << "ERROR:: build_status1: " << build_status1 << std::endl;
+   } else { 
+      if (build_status2 != 0) {
+	 std::cout << "ERROR:: build_status2: " << build_status2 << std::endl;
+      } else { 
+	 CGraphMatch match;
+
+	 match.MatchGraphs(&graph1, &graph2, 4, 0);
+	 int n_match = match.GetNofMatches();
+	 match.PrintMatches();
+
+	 double best_match_sum = 1e20;
+	 int best_match = -1;
+	 clipper::RTop_orth best_rtop;
+	 for (int imatch=0; imatch<n_match; imatch++) {
+	    int n;
+	    realtype p1, p2;
+	    ivector FV1, FV2;
+	    match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
+// 	    For understanding only.  
+// 	    std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
+// 		      << p2*100 << "% "<< std::endl;
+	    std::vector<clipper::Coord_orth> coords_1_local;
+	    std::vector<clipper::Coord_orth> coords_2_local;
+	    for (int ipair=1; ipair<=n; ipair++) {
+	       PCVertex V1 = graph1.GetVertex ( FV1[ipair] );
+	       PCVertex V2 = graph2.GetVertex ( FV2[ipair] );
+	       if ((!V1) || (!V2))  {
+		  std::cout << "Can't get vertices for match "
+			    << ipair << std::endl;
+	       } else  {
+// 		  printf(" %4i.  [%4s] <-> [%4s]\n",
+// 			 ipair, V1->GetName(), V2->GetName());
+		  CAtom *at1 = res_moving->atom[V1->GetUserID()];
+		  CAtom *at2 = res_reference->atom[V2->GetUserID()];
+		  coords_1_local.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+		  coords_2_local.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+	       }
+	    }
+	    clipper::RTop_orth rtop_local(coords_1_local, coords_2_local);
+	    
+	    double dist_sum = 0.0;
+	    for (unsigned int i=0; i<coords_1_local.size(); i++) {
+	       dist_sum += clipper::Coord_orth::length(coords_2_local[i],
+						       coords_1_local[i].transform(rtop_local));
+	    }
+	    if (dist_sum < best_match_sum) {
+	       // Debugging
+	       // std::cout << "better dist_sum: " << dist_sum << std::endl;
+	       best_rtop = rtop_local;
+	       best_match_sum = dist_sum;
+	       best_match = imatch;
+	    }
+	 } // imatch loop
+
+	 if (best_match != -1) {
+	    rtop = best_rtop;
+	    success = 1;
+	 }
+      }
+   }
+   return std::pair<bool, clipper::RTop_orth> (success, rtop);
+}
 
 
 float

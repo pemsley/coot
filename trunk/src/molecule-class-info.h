@@ -1483,6 +1483,7 @@ class molecule_class_info_t {
    void translate_by(float x, float y, float z);
    void transform_by(mat44 mat); // can't make this const: mmdb probs.
    void transform_by(const clipper::RTop_orth &rtop);
+   void transform_by(const clipper::RTop_orth &rtop, CResidue *res);
 
    //
    std::string name_for_display_manager() const; // stripped of path maybe

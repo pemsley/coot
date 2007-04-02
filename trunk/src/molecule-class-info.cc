@@ -7964,6 +7964,36 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
    }
 }
 
+void
+molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop, CResidue *residue_moving) {
+
+   make_backup();
+   std::cout << "INFO:: coordinates transformed_by: \n"
+	     << rtop.format() << std::endl;
+   clipper::Coord_orth co;
+   clipper::Coord_orth trans_pos; 
+   if (has_model()) {
+
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      residue_moving->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iatom=0; iatom<n_residue_atoms; iatom++) { 
+	 clipper::Coord_orth p(residue_atoms[iatom]->x,
+			       residue_atoms[iatom]->y,
+			       residue_atoms[iatom]->z);
+	 clipper::Coord_orth p2 = p.transform(rtop);
+	 residue_atoms[iatom]->x = p2.x();
+	 residue_atoms[iatom]->y = p2.y();
+	 residue_atoms[iatom]->z = p2.z();
+      }
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
+   }
+}
+
+
 
 
 void

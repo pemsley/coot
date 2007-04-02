@@ -44,6 +44,95 @@
 #include "wligand.hh"
 
 
+/*  ----------------------------------------------------------------------- */
+/*                  ligand overlay                                          */
+/*  ----------------------------------------------------------------------- */
+/*! \brief "Template"-based matching.  Overlap the first residue in
+  imol_ligand onto the residue specified by the reference parameters.
+  Use graph matching, not atom names.  */
+int 
+overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
+		int resno_ref) {
+
+   int istat = 0;
+
+   CResidue *residue_moving = 0;
+   CResidue *residue_reference = 0;
+
+   if (! is_valid_model_molecule(imol_ligand))
+      return istat;
+
+   if (! is_valid_model_molecule(imol_ref))
+      return istat;
+
+   CMMDBManager *mol_moving = graphics_info_t::molecules[imol_ligand].atom_sel.mol;
+   CMMDBManager *mol_ref    = graphics_info_t::molecules[imol_ref].atom_sel.mol;
+   
+   int imod = 1;
+   CModel *model_p = mol_moving->GetModel(imod);
+   CChain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 if (residue_p) { 
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    if (n_atoms > 0) {
+	       residue_moving = residue_p;
+	       break;
+	    }
+	 }
+      }
+      if (residue_moving)
+	 break;
+   }
+
+   if (! residue_moving) {
+      std::cout << "Oops.  Failed to find moving residue" << std::endl;
+   } else { 
+      int imodel_ref = 1;
+      CModel *model_ref_p = mol_ref->GetModel(imodel_ref);
+      CChain *chain_p;
+      int nchains = model_ref_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_ref_p->GetChain(ichain);
+	 if (std::string(chain_p->GetChainID()) == std::string(chain_id_ref)) { 
+	    int nres = chain_p->GetNumberOfResidues();
+	    PCResidue residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  int seqnum = residue_p->GetSeqNum();
+		  if (seqnum == resno_ref) {
+		     residue_reference = residue_p;
+		     break;
+		  }
+	       }
+	    }
+	    if (residue_reference)
+	       break;
+	 }
+      }
+
+      if (!residue_reference) {
+	 std::cout << "Oops.  Failed to find reference residue" << std::endl;
+      } else { 
+	 std::pair<bool, clipper::RTop_orth> rtop_info =
+	    coot::graph_match(residue_moving, residue_reference);
+	 if (rtop_info.first) {
+	    graphics_info_t::molecules[imol_ligand].transform_by(rtop_info.second, residue_moving);
+	    graphics_draw();
+	 } else {
+	    std::cout << "Oops.  Match failed somehow" << std::endl;
+	 } 
+      } 
+   }
+   return istat;
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  ligand fitting stuff                                    */
