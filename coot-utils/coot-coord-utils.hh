@@ -163,6 +163,13 @@ namespace coot {
    // return 0 or 1
    short int is_main_chain_or_cb_p(CAtom *at);
 
+   // Match on graph
+   // 
+   // Return the orientation matrix moving res_moving to res_reference
+   // and a flag letting us know that the match worked OK.
+   std::pair<bool, clipper::RTop_orth> graph_match(CResidue *res_moving,
+						   CResidue *res_reference);
+
    namespace util {
 
       class peptide_torsion_angles_info_t {

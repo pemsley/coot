@@ -18,6 +18,8 @@ Release 0.3 "Basil Grande"
 
   o Rationalized Hydrogen usage in ligand fitting
 
+  o Added template/graph residue matching function
+
   o Fixed problem of display lists and second GL context
     (i.e. side-by-side stereo with density problems).
 
