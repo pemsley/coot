@@ -4338,19 +4338,26 @@ int  refinement_refine_per_frame_state() {
 
 void set_secondary_structure_restraints_type(int itype) {
 
+#ifdef HAVE_GSL   
+
    if (itype == 0)
       graphics_info_t::pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
    if (itype == 1)
       graphics_info_t::pseudo_bonds_type = coot::HELIX_PSEUDO_BONDS;
    if (itype == 2)
       graphics_info_t::pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
+#endif // HAVE_GSL   
 } 
 
 /*! \brief return the secondary structure restraints type */
 int secondary_structure_restraints_type() {
 
    // cast a pseudo_restraint_bond_type to an int
+#ifdef HAVE_GSL   
    return graphics_info_t::pseudo_bonds_type;
+#else
+   return 0;
+#endif // HAVE_GSL   
 } 
 
 
