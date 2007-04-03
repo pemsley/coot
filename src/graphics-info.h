@@ -1067,6 +1067,7 @@ public:
 
    void update_go_to_atom_window_on_changed_mol(int imol); 
    void update_go_to_atom_window_on_new_mol(); 
+   void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);
    static void clear_atom_list(GtkWidget *atom_gtklist); 
    static void fill_go_to_atom_residue_list(GtkWidget *gtklist);
@@ -1082,6 +1083,13 @@ public:
    void fill_option_menu_with_coordinates_options_internal(GtkWidget *option_menu,
 							   GtkSignalFunc callback_func,
 							   short int set_last_active_flag);
+   void fill_option_menu_with_coordinates_options_internal_2(GtkWidget *option_menu,
+							     GtkSignalFunc callback_func, 
+							     short int set_last_active_flag,
+							     int imol_active);
+   void fill_option_menu_with_coordinates_options_internal_with_active_mol(GtkWidget *option_menu,
+									   GtkSignalFunc callback_func, 
+									   int imol_active);
    static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); 
    static void on_go_to_atom_residue_list_selection_changed (GtkList *gtklist,
 							     gpointer user_data);

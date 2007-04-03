@@ -1,6 +1,7 @@
 /* src/graphics-info.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley, The
+ * University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -971,8 +972,9 @@ graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
 	 ss += molecules[i].name_;
 	 menuitem = gtk_menu_item_new_with_label(ss.c_str());
 
-	 // we do a menu_get_active in
-	 // save_go_to_atom_mol_menu_active_position
+	 // We do a menu_get_active in
+	 // save_go_to_atom_mol_menu_active_position.  Hmmm... Does
+	 // that function exist?  I don't see it!
 	 // 
 	 // we set user data on the menu item, so that when this goto
 	 // Atom widget is cancelled, we can whatever was the molecule
@@ -3265,8 +3267,21 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 void
 graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *option_menu,
 								    GtkSignalFunc callback_func, 
-								    short int set_last_active_flag) { 
+								    short int set_last_active_flag) {
 
+   int imol_active = -1; // To allow the function to work as it used to.
+   fill_option_menu_with_coordinates_options_internal_2(option_menu, callback_func, set_last_active_flag, imol_active);
+
+}
+
+void
+graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget *option_menu,
+								      GtkSignalFunc callback_func, 
+								      short int set_last_active_flag,
+								      int imol_active) { 
+
+   std::cout << "------------ graphics-info: fill_option_menu_with_coordinates_options_internal_2() "
+	     << " -----------" << " active mol: " << imol_active << std::endl;
 
    // like the column labels from an mtz file, similarly fill this
    // option_menu with items that correspond to molecules that have
@@ -3279,28 +3294,29 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
    //
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
 
-   // for the strangeness of destroying and re adding the menu to the
+   // for the strangeness of destroying and re-adding the menu to the
    // option menu, set the comments in the
    // fill_close_option_menu_with_all_molecule_options function
 
    gtk_widget_destroy(menu);
-   menu = gtk_menu_new();
 
-   /* create a menu for the optionmenu button.  The various molecule
+   /* Create a menu for the optionmenu button.  The various molecule
     numbers will be added to this menu as menuitems*/
+   menu = gtk_menu_new();
 
    // GtkWidget *optionmenu_menu = gtk_menu_new();
    GtkWidget *menuitem;
    // int last_imol = 0;
    int last_menu_item_index = 0;
 
+   int menu_index = 0; // for setting of imol_active as active mol in go to atom
    for (int imol=0; imol<n_molecules; imol++) {
 
 //       std::cout << "in fill_option_menu_with_coordinates_options, "
 // 		<< "g.molecules[" << imol << "].atom_sel.n_selected_atoms is "
 // 		<< g.molecules[imol].atom_sel.n_selected_atoms << std::endl;
       
-      if (molecules[imol].atom_sel.n_selected_atoms > 0) { 
+      if (molecules[imol].has_model()) { 
 
 	 std::string ss = int_to_string(imol);
 	 ss += " " ;
@@ -3335,16 +3351,17 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 	 // Should be freed in on_go_to_atom_cancel_button_clicked
 	 // (callbacks.c)
 	 // 
-	 int *n = (int *) g_malloc(sizeof(int));
-	 *n = imol;
 	  
-	 gtk_object_set_user_data(GTK_OBJECT(menuitem), (char *) n);
+	 gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(imol));
+	 gtk_menu_append(GTK_MENU(menu), menuitem); 
+
+	 if (imol == imol_active)
+	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 
 	 // we do need this bit of course:
-	 gtk_menu_append(GTK_MENU(menu), menuitem); 
 	 gtk_widget_show(menuitem); 
-	 // last_imol = imol;
 	 last_menu_item_index++;
+	 menu_index++; 
       }
    }
    
@@ -3354,11 +3371,14 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
       // explanation of -1 offset: when there are 2 menu items,
       // last_menu_item_index is 2, but the item index of the last
       // item is 2 - 1.
-      // 
+      //
       gtk_menu_set_active(GTK_MENU(menu), (last_menu_item_index-1)); 
-   } else { 
-      if (go_to_atom_mol_menu_active_position >= 0) {
-	 gtk_menu_set_active(GTK_MENU(menu), go_to_atom_mol_menu_active_position); 
+   } else {
+      // the old way (ie. not ..._with_active_mol() mechanism)
+      if (imol_active == -1) { 
+	 if (go_to_atom_mol_menu_active_position >= 0) {
+	    gtk_menu_set_active(GTK_MENU(menu), go_to_atom_mol_menu_active_position); 
+	 }
       }
    }
 
@@ -3367,6 +3387,16 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 			    menu);
 }
 
+
+void
+graphics_info_t::fill_option_menu_with_coordinates_options_internal_with_active_mol(GtkWidget *option_menu,
+										    GtkSignalFunc callback_func, 
+										    int imol_active) {
+
+   short int set_last_active_flag = 0;
+   fill_option_menu_with_coordinates_options_internal_2(option_menu, callback_func,
+							set_last_active_flag, imol_active);
+} 
 
 
 // Return -2 on ambiguity, -1 on unset and a molecule number >=0 for
