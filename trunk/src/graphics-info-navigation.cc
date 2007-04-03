@@ -853,9 +853,6 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
 void
 graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
 
-   std::cout << "------------ graphics-info update_go_to_atom_window_on_other_molecule_chosen() "
-	     << "-----------" << " active mol: " << imol << std::endl;
-   
    if (go_to_atom_window) {
       GtkWidget *option_menu =
 	 lookup_widget(GTK_WIDGET(go_to_atom_window), 
