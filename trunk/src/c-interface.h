@@ -1850,9 +1850,11 @@ int full_atom_spec_to_atom_index(int imol, const char *chain, int resno,
 /*! \brief update the Go To Atom window */
 void update_go_to_atom_window_on_changed_mol(int imol);
 
-/*! \brief update the Go To Atom window */
+/*! \brief update the Go To Atom window.  This updates the option menu
+  for the molecules. */
 void update_go_to_atom_window_on_new_mol();
 
+void update_go_to_atom_window_on_other_molecule_chosen(int imol);
 
 /*! \brief set the molecule for the Go To Atom
 

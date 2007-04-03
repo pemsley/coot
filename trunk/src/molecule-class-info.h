@@ -1753,7 +1753,7 @@ class molecule_class_info_t {
 				 std::string attribute_name, std::string val_str);
 
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt) const;
-   
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

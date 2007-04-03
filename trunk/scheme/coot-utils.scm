@@ -1162,8 +1162,11 @@
 	      (resno     (list-ref active-atom 2))
 	      (ins-code  (list-ref active-atom 3))
 	      (atom-name (list-ref active-atom 4))
-	      (alt-conf  (list-ref active-atom 5)))
+	      (alt-conf  (list-ref active-atom 5))
+	      (go-to-atom-imol-current (go-to-atom-molecule-number)))
 	  (set-go-to-atom-molecule imol)
+	  ; (if (not (= imol go-to-atom-imol-current))
+	  (update-go-to-atom-window-on-other-molecule-chosen imol)
 	  (set-go-to-atom-chain-residue-atom-name chain-id
 						  resno
 						  atom-name)))))

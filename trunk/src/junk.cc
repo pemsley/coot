@@ -1127,3 +1127,16 @@ coot::get_f_phi_columns(const std::string &filename) {
 	 }
       }
    }
+
+      if (imol_active != -1) {
+	 for (int imol=0; imol<n_molecules; imol++) {
+	    if (imol==imol_active) {
+	       gtk_menu_set_active(GTK_MENU(menu), go_to_atom_mol_menu_active_position); 
+	    }
+	 }
+      } else {
+	 // the old (pre-April 2007) way
+	 if (go_to_atom_mol_menu_active_position >= 0) {
+	    gtk_menu_set_active(GTK_MENU(menu), go_to_atom_mol_menu_active_position); 
+	 }
+      }

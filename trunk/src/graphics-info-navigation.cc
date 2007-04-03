@@ -833,19 +833,44 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
 
       // If there was no molecule already, we need to update the atom
       // lists too.
-      int nmol = 0;
+
+      // Update the residue and atom list to the last displayed
+      // molecule.
       int mol_no= -1;
       for (int imol=0; imol<n_molecules; imol++) {
 	 if (molecules[imol].has_model()) {
-	    nmol++;
 	    mol_no = imol;
 	 }
       }
-      // if (nmol == 1)
-      // if (nmol)
-      update_go_to_atom_window_on_changed_mol(mol_no);
+      if (mol_no != -1)
+	 update_go_to_atom_window_on_changed_mol(mol_no);
    }
 }
+
+
+// Like the above, but don't work out which molecule to update to,
+// because we are passed it.
+void
+graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
+
+   std::cout << "------------ graphics-info update_go_to_atom_window_on_other_molecule_chosen() "
+	     << "-----------" << " active mol: " << imol << std::endl;
+   
+   if (go_to_atom_window) {
+      GtkWidget *option_menu =
+	 lookup_widget(GTK_WIDGET(go_to_atom_window), 
+		       "go_to_atom_molecule_optionmenu");
+      
+      GtkSignalFunc callback_func = 
+	 GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
+      fill_option_menu_with_coordinates_options_internal_with_active_mol(option_menu,
+									callback_func, imol);
+
+      update_go_to_atom_window_on_changed_mol(imol);
+   }
+} 
+
+
 
 // return -1 on error
 //

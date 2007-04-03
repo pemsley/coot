@@ -614,6 +614,10 @@ int set_atom_string_attribute(int imol, const char *chain_id, int resno, const c
 // 
 void update_go_to_atom_window_on_changed_mol(int imol) {
 
+
+   std::cout << "------------ c-interface: update_go_to_atom_window_on_changed_mol() -----------"
+	     << std::endl;
+
    // now if the go to atom widget was being displayed, we need to
    // redraw the residue list and atom list (if the molecule of the
    // residue and atom list is the molecule that has just been
@@ -632,6 +636,14 @@ void update_go_to_atom_window_on_new_mol() {
    g.update_go_to_atom_window_on_new_mol();
    add_to_history_simple("update_go_to_atom_window_on_new_mol");
 }
+
+
+void update_go_to_atom_window_on_other_molecule_chosen(int imol) {
+   graphics_info_t g;
+   g.update_go_to_atom_window_on_other_molecule_chosen(imol);
+   add_to_history_simple("update_go_to_atom_window_on_other_molecule_chosen");
+
+} 
 
 void delete_atom(int imol, const char *chain_id, int resno, const char *at_name, 
 		 const char *altLoc) {
