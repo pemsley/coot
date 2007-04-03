@@ -517,15 +517,15 @@ SCM active_residue() {
 /*! \brief update the Go To Atom widget entries to atom closest to
   screen centre. */
 void update_go_to_atom_from_current_position() {
-#ifdef USE_GUILE
-	 std::string scheme_command("(update-go-to-atom-from-current-atom)");
-	 safe_scheme_command(scheme_command);
-#else 	    
-#ifdef USE_PYTHON
-	 std::string python_command("update_go_to_atom_from_current_atom()");
-	 safe_python_command(python_command);   
-#endif // PYTHON
-#endif // USE_GUILE
+   
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      set_go_to_atom_molecule(pp.second.first);
+      set_go_to_atom_chain_residue_atom_name(pp.second.second.chain.c_str(),
+					     pp.second.second.resno,
+					     pp.second.second.atom_name.c_str());
+      update_go_to_atom_window_on_other_molecule_chosen(pp.second.first);
+   }
 }
 
 

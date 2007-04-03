@@ -3280,9 +3280,6 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget 
 								      short int set_last_active_flag,
 								      int imol_active) { 
 
-   std::cout << "------------ graphics-info: fill_option_menu_with_coordinates_options_internal_2() "
-	     << " -----------" << " active mol: " << imol_active << std::endl;
-
    // like the column labels from an mtz file, similarly fill this
    // option_menu with items that correspond to molecules that have
    // coordinates.
