@@ -7413,12 +7413,14 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
    GtkWidget *sec_str_rest_strand_rest_radiobutton = 
       lookup_widget(button, "sec_str_rest_strand_rest_radiobutton");
 
+#ifdef HAVE_GSL   
    if (graphics_info_t::pseudo_bonds_type == coot::NO_PSEUDO_BONDS)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_no_rest_radiobutton), TRUE);
    if (graphics_info_t::pseudo_bonds_type == coot::HELIX_PSEUDO_BONDS)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_helix_rest_radiobutton), TRUE);
    if (graphics_info_t::pseudo_bonds_type == coot::STRAND_PSEUDO_BONDS)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_strand_rest_radiobutton), TRUE);
+#endif // HAVE_GSL   
 
 } 
 

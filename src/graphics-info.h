@@ -2403,8 +2403,10 @@ public:
    static int ncs_residue_skip_key;
    static int update_go_to_atom_from_current_residue_key;
 
+#ifdef HAVE_GSL
    // ---- pseudo bond for sec str restraints
    static coot::pseudo_restraint_bond_type pseudo_bonds_type;
+#endif // HAVE_GSL
 
    // ---- default new atoms b factor
    static float default_new_atoms_b_factor; 

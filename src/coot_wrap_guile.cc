@@ -10111,6 +10111,25 @@ _wrap_update_go_to_atom_window_on_new_mol ()
 
 
 static SCM
+_wrap_update_go_to_atom_window_on_other_molecule_chosen (SCM s_0)
+{
+#define FUNC_NAME "update-go-to-atom-window-on-other-molecule-chosen"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  update_go_to_atom_window_on_other_molecule_chosen(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_set_go_to_atom_molecule (SCM s_0)
 {
 #define FUNC_NAME "set-go-to-atom-molecule"
@@ -15694,6 +15713,43 @@ _wrap_set_ligand_expert_options_from_widget (SCM s_0)
   set_ligand_expert_options_from_widget(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_overlap_ligands (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
+{
+#define FUNC_NAME "overlap-ligands"
+  int arg1 ;
+  int arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  int result;
+  int must_free3 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  {
+    arg4 = scm_num2int(s_3, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)overlap_ligands(arg1,arg2,(char const *)arg3,arg4);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free3 && arg3) SWIG_free(arg3);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -24811,6 +24867,7 @@ SWIG_init(void)
   scm_c_define_gsubr("full-atom-spec-to-atom-index", 6, 0, 0, (swig_guile_proc) _wrap_full_atom_spec_to_atom_index);
   scm_c_define_gsubr("update-go-to-atom-window-on-changed-mol", 1, 0, 0, (swig_guile_proc) _wrap_update_go_to_atom_window_on_changed_mol);
   scm_c_define_gsubr("update-go-to-atom-window-on-new-mol", 0, 0, 0, (swig_guile_proc) _wrap_update_go_to_atom_window_on_new_mol);
+  scm_c_define_gsubr("update-go-to-atom-window-on-other-molecule-chosen", 1, 0, 0, (swig_guile_proc) _wrap_update_go_to_atom_window_on_other_molecule_chosen);
   scm_c_define_gsubr("set-go-to-atom-molecule", 1, 0, 0, (swig_guile_proc) _wrap_set_go_to_atom_molecule);
   scm_c_define_gsubr("go-to-atom-molecule-optionmenu-active-molecule", 1, 0, 0, (swig_guile_proc) _wrap_go_to_atom_molecule_optionmenu_active_molecule);
   scm_c_define_gsubr("save-go-to-atom-widget", 1, 0, 0, (swig_guile_proc) _wrap_save_go_to_atom_widget);
@@ -25065,6 +25122,7 @@ SWIG_init(void)
   scm_c_define_gsubr("fill-ligands-sigma-level-entry", 1, 0, 0, (swig_guile_proc) _wrap_fill_ligands_sigma_level_entry);
   scm_c_define_gsubr("fill-ligands-expert-options", 1, 0, 0, (swig_guile_proc) _wrap_fill_ligands_expert_options);
   scm_c_define_gsubr("set-ligand-expert-options-from-widget", 1, 0, 0, (swig_guile_proc) _wrap_set_ligand_expert_options_from_widget);
+  scm_c_define_gsubr("overlap-ligands", 4, 0, 0, (swig_guile_proc) _wrap_overlap_ligands);
   scm_c_define_gsubr("execute-get-mols-ligand-search", 1, 0, 0, (swig_guile_proc) _wrap_execute_get_mols_ligand_search);
   scm_c_define_gsubr("free-blob-dialog-memory", 1, 0, 0, (swig_guile_proc) _wrap_free_blob_dialog_memory);
   scm_c_define_gsubr("renumber-waters", 1, 0, 0, (swig_guile_proc) _wrap_renumber_waters);

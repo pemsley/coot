@@ -100,19 +100,23 @@ AM_CFLAGS = \
 	$(WITH_GUILE_CFLAGS)	\
 	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
-	$(PYTHON_CFLAGS)	
+	$(PYTHON_CFLAGS)
+
+# must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 
+# does not happen because LTCXXCOMPILE has AM_CXXFLAGS after INCLUDES.
+# But DEFAULT_INCLUDES is *before* INCLUDES
+# DEFAULT_INCLUDES = ... snip.  Rethink...
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
 	-DDATADIR='"$(datadir)"'    \
-	$(COOT_WINDOWS_CFLAGS) 	\
-	$(COOT_GSL_FLAGS) 	\
 	$(WITH_GUILE_CFLAGS)	\
 	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
-	$(PYTHON_CFLAGS)	
-
+	$(PYTHON_CFLAGS)	\
+	$(COOT_WINDOWS_CFLAGS) 	\
+	$(COOT_GSL_FLAGS)
 
 INCLUDES = \
 	-I$(top_srcdir)/compat 		\
@@ -135,10 +139,12 @@ INCLUDES = \
 	-I$(top_srcdir)/build		\
 	-I$(top_srcdir)/high-res	\
 	-I$(top_srcdir)/analysis	\
-	@GTK_CFLAGS@ 			\
+	$(WITH_GUILE_CFLAGS)		\
+	$(USE_GUILE_GTK) 		\
+	$(GUILE_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
 	$(GTKGL_CONTEXT_CFLAGS)		\
-	$(GUILE_GTK_CFLAGS)		\
+	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
 	$(MMDBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\

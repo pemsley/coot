@@ -909,8 +909,10 @@ float graphics_info_t::fffear_angular_resolution = 15.0; // degrees
 // move molecule here
 int graphics_info_t::move_molecule_here_molecule_number = -1;
 
+#ifdef HAVE_GSL
 // pseudo bond for sec str restraints
 coot::pseudo_restraint_bond_type graphics_info_t::pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
+#endif // HAVE_GSL
 
 
 // MYSQL database
