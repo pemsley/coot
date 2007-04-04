@@ -241,6 +241,23 @@
 	   (format #t "Default Speed...~%")
 	   (set-dragged-refinement-steps-per-frame 50))))
 
+      ;; 
+      (let ((submenu (gtk-menu-new))
+	    (menuitem2 (gtk-menu-item-new-with-label "Rotate Translate Zone Mode...")))
+	
+	(gtk-menu-item-set-submenu menuitem2 submenu) 
+	(gtk-menu-append menu menuitem2)
+	(gtk-widget-show menuitem2)
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Rotate About Fragment Centre"
+	 (lambda ()
+	   (set-rotate-translate-zone-rotates-about-zone-centre 1)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Rotate About Second Clicked Atom"
+	 (lambda ()
+	   (set-rotate-translate-zone-rotates-about-zone-centre 0))))
 
 
       (add-simple-coot-menu-menuitem

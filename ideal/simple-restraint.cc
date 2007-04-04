@@ -527,11 +527,11 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
       min_resno = minr.second;
       max_resno = maxr.second;
    }
-   double scale = 2.2; // how much to scale the omega difference by so that
+   double scale = 1.2; // how much to scale the omega difference by so that
 		       // it looks good on the graph.
 
    if (!mark_cis_peptides_as_bad_flag)
-      scale = 4.0;
+      scale = 2.5;
 
    coot::omega_distortion_info_container_t dc(chain_id, min_resno, max_resno);
 

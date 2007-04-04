@@ -493,6 +493,7 @@ int graphics_info_t::residue_selection_flash_frames_number = 3;
 short int graphics_info_t::in_save_symmetry_define = 0; 
 
 short int graphics_info_t::in_rot_trans_object_define = 0;
+short int graphics_info_t::rot_trans_zone_rotates_about_zone_centre = 0;
 int graphics_info_t::rot_trans_atom_index_1 = -1;
 int graphics_info_t::rot_trans_atom_index_2 = -1;
 int graphics_info_t::imol_rot_trans_object = -1; 
@@ -566,8 +567,6 @@ short int graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag = 0;
 short int graphics_info_t::do_probe_dots_post_refine_flag = 0;
 coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Cartesian(0.0, 0.0, 0.0);
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
-
-
 
 float* graphics_info_t::background_colour = new float[4];
 
@@ -2880,15 +2879,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
 
       if (event->keyval == graphics_info_t::update_go_to_atom_from_current_residue_key) {
-#ifdef USE_GUILE
-	 std::string scheme_command("(update-go-to-atom-from-current-atom)");
-	 safe_scheme_command(scheme_command);
-#else 	    
-#ifdef USE_PYTHON
-	 std::string python_command("update_go_to_atom_from_current_atom()");
-	 safe_python_command(python_command);   
-#endif // PYTHON
-#endif // USE_GUILE
+	 update_go_to_atom_from_current_position();
 	 handled = TRUE;
       }
 

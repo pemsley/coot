@@ -4,26 +4,29 @@
 Release 0.3 "Basil Grande"
 
   o Fixed crash on closing Baton Guide Points molecule [Richard
-    Baxter]
+    Baxter].
 
   o Fixed crash on manipulating N-terminal backbone angles [Richard
     Baxter].
 
-  o Concept of "Active Residue" added [Frank von Delft].
+  o Concept of "Active Residue" added [Frank von Delft].  Added
+    trivial functions, (refine-active-residue),
+    (refine-active-residue-triple) and (autofit-rotamer-active-residue),
+    so that users can bind them to their own key choices.
 
-  o Use "Active Residue" concept to Navigate and update "Go To Atom"
-    parameters.
+  o Use "Active Residue" concept to navigate and update "Go To Atom"
+    parameters [Bob Nolte].
 
-  o Skip to next NCS Chain function added [Robert Xu]
+  o Skip to next NCS Chain function added [Robert Xu].
 
-  o Rationalized Hydrogen usage in ligand fitting
+  o Rationalized hydrogen usage in ligand fitting [Bob Nolte].
 
-  o Added template/graph residue matching function
+  o Added template/graph residue matching function.
 
   o Fixed problem of display lists and second GL context
     (i.e. side-by-side stereo with density problems).
 
-  o Add a function to return all the dictionaries read.
+  o Add a function to return all the dictionaries read [JED].
 
   o Added function to find and produce an "interesting things GUI" for
     residues with alternate conformations.  This is an instance of a
@@ -34,6 +37,9 @@ Release 0.3 "Basil Grande"
     conformations [it doesn't rotamer-search the alternate
     conformations].
 
+  o set-rotate-translate-zone-rotates-about-zone-centre function added
+    [Martyn Symmons]. Added and Extensions GUI for this too.
+
   o New atoms have a default B factor that can be set by the user
     (using set-default-temperature-factor-for-new-atoms).
 
@@ -42,13 +48,13 @@ Release 0.3 "Basil Grande"
   o Secondary Structure Restraints buttons are properly set on
     generating the dialog.
 
-  o Don't try to read various SHELX keywords as atoms when trying to
-    read a SHELXL .res file. 
+  o No longer try to read various SHELX keywords as atoms when trying
+    to read a SHELXL .res file. 
 
-  o shelx log file reader accounts for alternative conformations
+  o shelx log file reader accounts for alternative conformations.
 
   o findligand ligand fitting gives more useful output [Ingo
-    Korndoerfer]
+    Korndoerfer].
 
   o Clear up left-over scraps in mainchain building, freeing memory
     [Joel Bard].
@@ -56,7 +62,7 @@ Release 0.3 "Basil Grande"
   o Fixed problem of occupancy changes being ignored [Iain Kerr].
 
   o An unphased mtz file should run REFMAC for 0 cycles to produce
-    phases [Tadeusz Skarzynski]
+    phases [Tadeusz Skarzynski].
 
   o Fixed crash on scripting ligand fitting [Ingo Korndoerfer].
 

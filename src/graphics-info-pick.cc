@@ -655,6 +655,26 @@ graphics_info_t::statusbar_ctrl_key_info() { // Ctrl to rotate or pick?
    }
 }
 
+clipper::Coord_orth
+graphics_info_t::moving_atoms_centre() const {
+
+   clipper::Coord_orth moving_middle(0,0,0);
+
+   // Let's find the middle of the moving atoms and set
+   // rotation_centre to that:
+   int n = moving_atoms_asc->n_selected_atoms;
+   if (n > 0) {
+      float sum_x = 0.0; float sum_y = 0.0; float sum_z = 0.0;
+      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+	 sum_x += moving_atoms_asc->atom_selection[i]->x;
+	 sum_y += moving_atoms_asc->atom_selection[i]->y;
+	 sum_z += moving_atoms_asc->atom_selection[i]->z;
+      }
+      moving_middle = clipper::Coord_orth(sum_x/float(n), sum_y/float(n), sum_z/float(n));
+   }
+   return moving_middle;
+} 
+
 								       
 // Presumes that rotation centre can be got from CAtom *rot_trans_rotation_origin_atom;
 // 
@@ -675,6 +695,12 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 	    clipper::Coord_orth rotation_centre(rot_centre->x, 
 						rot_centre->y, 
 						rot_centre->z);
+	    // But! maybe we have a different rotation centre
+	    if (rot_trans_zone_rotates_about_zone_centre) {
+	       if (moving_atoms_asc->n_selected_atoms  > 0) {
+		  rotation_centre = moving_atoms_centre();
+	       }
+	    }
 	 
 	    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 	       clipper::Coord_orth co(moving_atoms_asc->atom_selection[i]->x,
@@ -730,6 +756,11 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 						rot_centre->y, 
 						rot_centre->z);
 	 
+	    // But! maybe we have a different rotation centre
+	    if (rot_trans_zone_rotates_about_zone_centre)
+	       if (moving_atoms_asc->n_selected_atoms  > 0)
+		  rotation_centre = moving_atoms_centre();
+	    
 	    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 	       clipper::Coord_orth co(moving_atoms_asc->atom_selection[i]->x,
 				      moving_atoms_asc->atom_selection[i]->y,

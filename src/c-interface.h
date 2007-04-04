@@ -3096,6 +3096,7 @@ void set_keep_delete_item_active_state(int istate);
 void do_rot_trans_setup(short int state); 
 void do_rot_trans_adjustments(GtkWidget *dialog);
 void rot_trans_reset_previous();
+void set_rotate_translate_zone_rotates_about_zone_centre(int istate);
 
 /*  ----------------------------------------------------------------------- */
 /*                  cis <-> trans conversion                                */

@@ -1975,6 +1975,11 @@ than the whole fragment.  If you click Control Left-mouse whilst @emph{not}
 over an atom then you can rotate the fragment using mouse drag. 
 Click ``OK'' (or press Return) when the transformation is complete.
 
+To change the rotation point to the centre of the intermediate atoms
+(rather than the second clicked atom), use the setting:
+
+@code{(set-rotate-translate-zone-rotates-about-zone-centre 1)}
+
 @node Rigid Body Refinement  
 @section Rigid Body Refinement
 @cindex refinement, rigid body

@@ -275,12 +275,6 @@ class molecule_class_info_t {
 
    // generic
 
-   // Return a copy of the pointer (only).  Return NULL on residue not
-   // found.
-   // 
-   CResidue *get_residue(int reso, const std::string &insertion_code,
-			 const std::string &chain_id) const;
-
    // change asc.
    atom_selection_container_t filter_atom_selection_container_CA_sidechain_only(atom_selection_container_t asc) const;
    
@@ -722,6 +716,12 @@ class molecule_class_info_t {
       for (unsigned int i=0; i<strict_ncs_bonds_box.size(); i++)
 	 strict_ncs_bonds_box[i].first.clear_up();
    }
+
+   // Return a copy of the pointer (only).  Return NULL on residue not
+   // found.
+   // 
+   CResidue *get_residue(int reso, const std::string &insertion_code,
+			 const std::string &chain_id) const;
 
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 

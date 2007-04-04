@@ -284,8 +284,6 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
       } else {
 	 std::vector<coot::atom_spec_t> baddies = graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap_list[0], graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
 
-	 std::cout << "DEBUG:: we got " << baddies.size() << " baddies\n";
-
 	 GtkWidget *button;
 	 GtkWidget *vbox = lookup_widget(w, "checked_waters_baddies_vbox");
 	 GSList *gr_group = NULL;
@@ -689,9 +687,7 @@ int probe_available_p() {
 
    std::string command("(command-in-path? *probe-command*)");
 
-   std::cout << "DEBUG:: here 1 " << std::endl;
    SCM scm_thunk = safe_scheme_command(command); 
-   std::cout << "DEBUG:: here 2 " << std::endl;
 
    int was_boolean_flag = gh_scm2bool(scm_boolean_p(scm_thunk));
 
@@ -1175,7 +1171,6 @@ void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget
 
 void setup_lsq_deviation(int state) {
 
-   std::cout << "DEBUG:: in_lsq_plane_deviation " << state << std::endl;
    graphics_info_t::in_lsq_plane_deviation = state;
 } 
 
