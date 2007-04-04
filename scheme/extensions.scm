@@ -185,7 +185,7 @@
        (lambda ()
 	 (generic-single-entry "set matrix: (smaller means better geometry)" 
 			       (number->string (matrix-state))
-			       "Set it" (lambda (text) 
+			       "  Set it  " (lambda (text) 
 					  (let ((t (string->number text)))
 					    (if (number? t)
 						(begin
