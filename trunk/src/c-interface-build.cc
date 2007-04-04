@@ -440,7 +440,12 @@ void rot_trans_reset_previous() {
    // rot_trans adjustments:
    for (int i=0; i<6; i++) 
       g.previous_rot_trans_adjustment[i] = -10000;
+}
+
+void set_rotate_translate_zone_rotates_about_zone_centre(int istate) {
+   graphics_info_t::rot_trans_zone_rotates_about_zone_centre = istate;
 } 
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -614,10 +619,6 @@ int set_atom_string_attribute(int imol, const char *chain_id, int resno, const c
 // 
 void update_go_to_atom_window_on_changed_mol(int imol) {
 
-
-   std::cout << "------------ c-interface: update_go_to_atom_window_on_changed_mol() -----------"
-	     << std::endl;
-
    // now if the go to atom widget was being displayed, we need to
    // redraw the residue list and atom list (if the molecule of the
    // residue and atom list is the molecule that has just been
@@ -634,14 +635,14 @@ void update_go_to_atom_window_on_new_mol() {
 
    graphics_info_t g;
    g.update_go_to_atom_window_on_new_mol();
-   add_to_history_simple("update_go_to_atom_window_on_new_mol");
+   add_to_history_simple("update-go-to-atom-window-on-new-mol");
 }
 
 
 void update_go_to_atom_window_on_other_molecule_chosen(int imol) {
    graphics_info_t g;
    g.update_go_to_atom_window_on_other_molecule_chosen(imol);
-   add_to_history_simple("update_go_to_atom_window_on_other_molecule_chosen");
+   add_to_history_simple("update-go-to-atom-window-on-other-molecule-chosen");
 
 } 
 
@@ -1102,6 +1103,15 @@ auto_fit_best_rotamer(int resno,
 										 chain, imol_map,
 										 clash_flag,
 										 lowest_probability);
+
+	       // get the residue so that it can update the geometry graph
+	       CResidue *residue_p =
+		  graphics_info_t::molecules[imol_coords].get_residue(resno, ins, chain);
+	       if (residue_p) {
+		  graphics_info_t g;
+		  g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map);
+	       }
+	       std::cout << "Fitting score for best rotamer: " << f << std::endl;
 	    }
 	 }
 	 graphics_draw();

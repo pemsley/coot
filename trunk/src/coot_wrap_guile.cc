@@ -17689,6 +17689,25 @@ _wrap_rot_trans_reset_previous ()
 
 
 static SCM
+_wrap_set_rotate_translate_zone_rotates_about_zone_centre (SCM s_0)
+{
+#define FUNC_NAME "set-rotate-translate-zone-rotates-about-zone-centre"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_rotate_translate_zone_rotates_about_zone_centre(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_do_cis_trans_conversion_setup (SCM s_0)
 {
 #define FUNC_NAME "do-cis-trans-conversion-setup"
@@ -25212,6 +25231,7 @@ SWIG_init(void)
   scm_c_define_gsubr("do-rot-trans-setup", 1, 0, 0, (swig_guile_proc) _wrap_do_rot_trans_setup);
   scm_c_define_gsubr("do-rot-trans-adjustments", 1, 0, 0, (swig_guile_proc) _wrap_do_rot_trans_adjustments);
   scm_c_define_gsubr("rot-trans-reset-previous", 0, 0, 0, (swig_guile_proc) _wrap_rot_trans_reset_previous);
+  scm_c_define_gsubr("set-rotate-translate-zone-rotates-about-zone-centre", 1, 0, 0, (swig_guile_proc) _wrap_set_rotate_translate_zone_rotates_about_zone_centre);
   scm_c_define_gsubr("do-cis-trans-conversion-setup", 1, 0, 0, (swig_guile_proc) _wrap_do_cis_trans_conversion_setup);
   scm_c_define_gsubr("do-db-main", 1, 0, 0, (swig_guile_proc) _wrap_do_db_main);
   scm_c_define_gsubr("db-mainchain", 5, 0, 0, (swig_guile_proc) _wrap_db_mainchain);

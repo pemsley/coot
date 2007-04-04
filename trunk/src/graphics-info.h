@@ -418,6 +418,8 @@ class graphics_info_t {
    static int backbone_torsion_carbonyl_button_start_pos_x;
    static int backbone_torsion_carbonyl_button_start_pos_y;
 
+   clipper::Coord_orth moving_atoms_centre() const;
+
    void set_edit_backbone_adjustments(GtkWidget *widget); 
    static void edit_backbone_peptide_changed_func (GtkAdjustment *adj, GtkWidget *window); // callback
    static void edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidget *window); // callback
@@ -444,7 +446,6 @@ class graphics_info_t {
    geometric_distortions_from_mol(const atom_selection_container_t &asc);
 #endif // HAVE_GSL
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-   void update_geometry_graphs(PCResidue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
 
    int  check_if_in_regularize_define(GdkEventButton *event);
    int  check_if_in_refine_define(GdkEventButton *event);
@@ -1212,6 +1213,7 @@ public:
    static int rot_trans_atom_index_1;
    static int rot_trans_atom_index_2;
    static int imol_rot_trans_object;
+   static short int rot_trans_zone_rotates_about_zone_centre;
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.
    static CAtom *rot_trans_rotation_origin_atom; // "Eugene's way"
 
@@ -1221,6 +1223,8 @@ public:
    // Where should we open up the save coords fileselection?
    static int save_coordinates_in_original_dir_flag;
 
+   // Was private, but need to be used by auto_fit_best_rotamer() scripting function.
+   void update_geometry_graphs(PCResidue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
 
    void execute_rotate_translate_ready(); // manual movement
    void setup_rotate_translate_buttons(GtkWidget *window);
