@@ -79,7 +79,8 @@
     (gtk-signal-connect text "key-press-event"
 			(lambda args
 			  ; (format #t "text key press ~s~%" args)))
-			  (format #t "Don't type here.  Type in the white entry bar.~%")))
+			  (format #t "Don't type here.  Type in the white entry bar.~%")
+			  #f))
 
     (gtk-signal-connect close-button "clicked" 
 			(lambda args 
@@ -193,7 +194,8 @@
 			  (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
 			      (begin
 				(handle-smiles-go tlc-entry smiles-entry)
-				(gtk-widget-destroy window)))))
+				(gtk-widget-destroy window)))
+			  #f))
 			  
 
     (gtk-widget-show-all window)))
@@ -245,7 +247,8 @@
 			  (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
 			      (begin
 				(handle-go-function (gtk-entry-get-text smiles-entry))
-				(gtk-widget-destroy window)))))
+				(gtk-widget-destroy window)))
+			  #f))
 
     (gtk-widget-show-all window))))
 
@@ -294,7 +297,8 @@
 			      (begin
 				(handle-go-function (gtk-entry-get-text tlc-entry)
 						    (gtk-entry-get-text smiles-entry))
-				(gtk-widget-destroy window)))))
+				(gtk-widget-destroy window)))
+			  #f))
 
     (gtk-widget-show-all window)))
 
