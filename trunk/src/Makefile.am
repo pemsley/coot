@@ -272,12 +272,12 @@ fix_nomenclature_errors_LDADD = \
 coot_real_LDFLAGS =
 
 coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
+		$(GUILE_GTK_LIBS)       \
+		$(GUILE_LDFLAGS)	\
 		$(CLIPPER_LIBS) 	\
 		$(MMDBSSM_LIBS)		\
 		$(MMDB_LIBS)		\
 		$(PYTHON_LIBS)		\
-		$(GUILE_GTK_LIBS)       \
-		$(GUILE_LDFLAGS)	\
 		$(GTKGL_CONTEXT_LIBS) 	\
 		$(GLUT_LIBS)		\
 		$(CANVAS_LIBS) 		\
