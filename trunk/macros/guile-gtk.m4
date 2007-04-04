@@ -42,17 +42,18 @@ saved_LIBS="$LIBS"
 saved_CFLAGS="$CFLAGS"
 
 if test x$guile_gtk_prefix != x; then
-        # the prefix was specified....
-# now, were were GTK2 or GTK1? 
-# we have the variable coot_gtk2 in configure.in, which is either TRUE or FALSE
-# Let's use that here.  Perhaps there is a better (set by gtk macro?) variable?
-if test $coot_gtk2 = TRUE ; then
+   # the prefix was specified....
+   # now, were were GTK2 or GTK1? 
+   # we have the variable coot_gtk2 in configure.in, which is either TRUE or FALSE
+   # Let's use that here.  Perhaps there is a better (set by gtk macro?) variable?
+   if test $coot_gtk2 = TRUE ; then
 	GUILE_GTK_LIBS=$guile_gtk_prefix/lib/libguilegtk-2.0.la
-else 
+   else 
 	GUILE_GTK_LIBS=$guile_gtk_prefix/lib/libguilegtk-1.2.la
-fi
-	# do we need to set this in fact?
-        GUILE_GTK_CFLAGS="-I$guile_gtk_prefix/include"
+   fi
+   # do we need to set this in fact?
+   GUILE_GTK_CFLAGS="-I$guile_gtk_prefix/include"
+
 else 
 	if test -n "$USE_GUILE_GTK" ; then 
            # not sure if this code gets executed (much).
