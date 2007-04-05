@@ -138,7 +138,7 @@ coot::util::create_directory(const std::string &dir_name) {
 	 istat = 0; // return as if we made it
       }
    }
-   std::cout << "create_directory returns " << istat << std::endl;
+   std::cout << "INFO:: create_directory returns status " << istat << std::endl;
    return istat; 
 } 
 
@@ -296,8 +296,8 @@ coot::util::plain_text_to_sequence(const std::string &s) {
 
    for (unsigned int i=0; i<s.length(); i++) {
       // std::cout << "testing :" << s.substr(i, 1) << ":" << std::endl;
-      if (coot::util::is_fasta_aa(s.substr(i, 1)))
-	 r += s[i];
+      if (coot::util::is_fasta_aa((s.substr(i, 1))))
+	 r += toupper(s[i]);
    }
 
    return r;
@@ -306,9 +306,11 @@ coot::util::plain_text_to_sequence(const std::string &s) {
 
 
 short int
-coot::util::is_fasta_aa(const std::string &a) { 
+coot::util::is_fasta_aa(const std::string &a_in) {
 
    short int r = 0;
+
+   std::string a(upcase(a_in));
    
    if (a == "A" || a == "G" ) { 
       r = 1;

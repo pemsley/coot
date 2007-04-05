@@ -3064,8 +3064,8 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 #else    
    short int state_lang = 0;
 #endif
-#endif   
-   
+#endif
+
    // decode the dialog here
 
    GtkWidget *entry1 = lookup_widget(dialog, "mutate_molecule_resno_1_entry");
@@ -3120,7 +3120,8 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	    std::string sequence(txt);
 	    sequence = coot::util::plain_text_to_sequence(sequence);
 	    int text_widget_sequence_length = sequence.length();
-	    std::cout << "we got the sequence: " << sequence << std::endl;
+	    std::cout << "INFO:: mutating to the sequence :" << sequence
+		      << ":" << std::endl;
 
 	    if (int(sequence.length()) == (res2 - res1 + 1)) {
 	    } else {

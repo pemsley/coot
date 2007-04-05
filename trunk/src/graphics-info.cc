@@ -3854,6 +3854,7 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
       }
    } else {
       std::cout << "This residue does not have chi angles." << std::endl;
+      std::cout << "Missing dictionary, perhaps? " << std::endl;
    }
 }
 

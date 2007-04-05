@@ -355,15 +355,13 @@
 	      (alt-conf  (list-ref active-atom 5)))
 
 	  (format #t "active-atom: ~s~%" active-atom)
-	  (let ((backup-mode (backup-state imol))
-		(imol-map (imol-refinement-map))
+	  (let ((imol-map (imol-refinement-map))
 		(replacement-state (refinement-immediate-replacement-state)))
 	    
 	    (if (= imol-map -1)
 		(info-dialog "Oops.  Must Select Map to fit to!")
 		
 		(begin
-		  (turn-off-backup imol)
 		  (set-refinement-immediate-replacement 1)
 		  (refine-zone imol chain-id 
 			       (- res-no side-residue-offset)
@@ -372,9 +370,7 @@
 		  (accept-regularizement)))
 		  
 	    (if (= replacement-state 0)
-		(set-refinement-immediate-replacement 0))
-	    (if (= backup-mode 1)
-		(turn-on-backup imol)))))))
+		(set-refinement-immediate-replacement 0)))))))
 		  
 
 (define (refine-active-residue)
@@ -398,15 +394,10 @@
 	      (alt-conf  (list-ref active-atom 5)))
 
 	  (format #t "active-atom: ~s~%" active-atom)
-	  (let ((backup-mode (backup-state imol))
-		(imol-map (imol-refinement-map)))
+	  (let ((imol-map (imol-refinement-map)))
 	    
 	    (if (= imol-map -1)
 		(info-dialog "Oops.  Must Select Map to fit to!")
 		
-		(begin
-		  (turn-off-backup imol)
-		  (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)))
+		(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1))))))))
 		  
-	    (if (= backup-mode 1)
-		(turn-on-backup imol)))))))
