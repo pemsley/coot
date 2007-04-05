@@ -353,7 +353,19 @@
        (molecule-number-list))
 
     (gtk-widget-show-all window)))
-	
+
+
+;; old coot test
+(define (old-coot?)
+
+  (let* ((new-release-time 1200000000)
+	 (time-diff (- (current-time) new-release-time)))
+    (if (> time-diff 0)
+	(info-dialog "This is an Old Coot!\n\nIt's time to upgrade."))))
+
+;; run it then.  Maybe better run somewhere else... Heyho.
+;;
+(old-coot?)
 
 ;; We can either go to a place (in which case the element is a list of
 ;; button label (string) and 3 numbers that represent the x y z
