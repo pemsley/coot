@@ -68,11 +68,11 @@ EXTRA_DIST = \
 
 
 coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
+	swig -o $@ $(SWIG_FLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 coot_wrap_guile_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
+	swig -o $@  $(SWIG_FLAGS) $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_guile.cc: $(COOT_WRAP_GUILE_TEMPLATE)
 	cp $(COOT_WRAP_GUILE_TEMPLATE) $@
@@ -118,6 +118,11 @@ AM_CXXFLAGS = \
 	$(COOT_WINDOWS_CFLAGS) 	\
 	$(COOT_GSL_FLAGS)
 
+
+# SWIG_FLAGS is something of a misnomer.  It actually defines
+# COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
+# correct callbacks in both GTK1 and GTK2 regimes.
+#
 INCLUDES = \
 	-I$(top_srcdir)/compat 		\
 	-I$(top_srcdir)/coords 		\
@@ -143,6 +148,7 @@ INCLUDES = \
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
+	$(SWIG_FLAGS)			\
 	$(GTKGL_CONTEXT_CFLAGS)		\
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
@@ -191,6 +197,7 @@ coot_real_SOURCES = \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
 	c-interface.cc		 \
+	c-interface-gtk2.cc	 \
 	c-interface-ncs.cc	 \
 	c-interface-info.cc	 \
 	c-interface-build.cc	 \

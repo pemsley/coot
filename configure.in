@@ -107,6 +107,16 @@ AM_WITH_PYTHON
 AM_WITH_GUILE_GTK
 AM_PATH_GUILE_GTK
 
+# #defines for SWIG:
+if test $coot_gtk2 = TRUE ; then
+  SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
+else 
+  SWIG_FLAGS=""
+fi
+dnl echo ....... SWIG_FLAGS=$SWIG_FLAGS
+AC_SUBST(SWIG_FLAGS)
+
+
 dnl check for guile modules www and gtk here.
 
 dnl check for GSL
