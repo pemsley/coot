@@ -1472,7 +1472,11 @@ void push_the_buttons_on_fileselection(GtkWidget *filter_button,
   if (graphics_info_t::sticky_sort_by_date) {
      GtkWidget *file_list = GTK_FILE_SELECTION(fileselection)->file_list;
      std::cout << "INFO:: Sorting files by date\n";
-     fileselection_sort_button_clicked(sort_button, (GtkCList *) file_list);
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+     fileselection_sort_button_clicked_gtk1(sort_button, (GtkCList *) file_list);
+#else     
+     fileselection_sort_button_clicked(sort_button, file_list);
+#endif     
   }
 }
 
@@ -2674,9 +2678,16 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
 
    gtk_object_set_user_data(GTK_OBJECT(button), (char *) history_pulldown); 
 
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   gtk_signal_connect (GTK_OBJECT(button), "clicked",
+		       (GtkSignalFunc) fileselection_sort_button_clicked_gtk1,
+		       file_list);
+#else
    gtk_signal_connect (GTK_OBJECT(button), "clicked",
 		       (GtkSignalFunc) fileselection_sort_button_clicked,
 		       file_list);
+#endif
 
    gtk_container_add(GTK_CONTAINER(aa),frame);
    gtk_container_add(GTK_CONTAINER(frame), button);
@@ -2818,10 +2829,11 @@ GtkWidget *lookup_file_selection_widgets(GtkWidget *item) {
 }
 
 
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
 
-void fileselection_sort_button_clicked( GtkWidget *sort_button,
-					GtkCList  *file_list) {
+void fileselection_sort_button_clicked_gtk1( GtkWidget *sort_button,
+					     GtkCList  *file_list) {
 
    std::vector<str_mtime> v;
    char *text;
@@ -2884,6 +2896,8 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
       gtk_clist_append(file_list, &text);
    }
 }
+
+#endif // GTK_1 etc
 
 void quanta_buttons() {
    graphics_info_t g;

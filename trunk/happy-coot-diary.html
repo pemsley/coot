@@ -8,15 +8,70 @@
 
   <body>
     <h1>The Happy Coot Developer Diary</h1>
-   
+
+<hr>
+    <p>
+Thu Apr  5 13:01:03 BST 2007
+
+    <p>So, I've been trying to find a solution to the ridiculously
+    sensitive touchpad issue, and <a
+    href="http://ubuntuforums.org/showthread.php?p=975421">here</a> I
+    found the following:
+
+<p>
+   <cite>I must say that i was bedazzled at how easily it was to set
+   up a wireless internet connection in Ubuntu, but I
+   seriously/literally cannot work with ubuntu if every slightest
+   touch i do on my touchpad causes me to select what is underneath
+   (with annoying and unpredictable consequences). I am seriously
+   going to have to find another distro, JUST BECAUSE OF THIS! 
+   Unbelievable. Why can't anybody just fix the stupid thing instead
+   of making people wait for a new version of Ubuntu which from what i
+   see still isn't fixed? Who has a solution?!
+   </cite>
+
+   <p> and that well expresses how I feel.  
+   <p> The message was sent over a year ago.  Baah.
+
+    <p>It seems to me that the Synaptic configuration tools won't work
+    because the X server unloads the module:
+
+<pre>
+(II) Synaptics touchpad driver version 0.14.6 (1406)
+Synaptics Touchpad no synaptics event device found (checked 19 nodes)
+(**) Option "Device" "/dev/psaux"
+(**) Option "SHMConfig" "true"
+(**) Option "HorizScrollDelta" "0"
+Query no Synaptics: 6003C8
+(EE) Synaptics Touchpad no synaptics touchpad detected and no repeater device
+(EE) Synaptics Touchpad Unable to query/initialize Synaptics hardware.
+(EE) PreInit failed for input device "Synaptics Touchpad"
+(II) UnloadModule: "synaptics"
+</pre>
+
+<p>Go away hateful hateful touchpad!  I feel at a dead-end with this.
+
+<p>Hmmm... maybe I should try trashing the Edgy partition and install FC6.
+
+<hr>
+    <p>Thu Apr  5 15:42:35 BST 2007</p>
+
+    <p>Fiddling with GTk2 stuff today.  The whole residue tree stuff
+    needs to be rewritten, as do the handlers for "Sort" button and
+    "Filter" button on the file selection dialogs.</p>
+
+    <p> Keeping both code paths is quite a challenge.  </p>
+
     <hr>  
    <p>Tue Apr  3 16:30:29 BST 2007</p>
-   <p>Another intense day.  Great stuff.  Ramping up for 0.3 release.  Final testing (well, 
-hopefully final) this evening.</p>
 
-   <p>After disussions on the guile-gtk mailing list, guile-gui is working.  Woop.  Thanks 
-      to Neil Jerram.  Now all I need to do is sort out the guile-gtk entries and then I think
-      we can move over to GTK2.  For 0.4 perhaps?</p>
+   <p>Another intense day.  Great stuff.  Ramping up for 0.3 release.
+   Final testing (well, hopefully final) this evening.</p>
+
+   <p>After disussions on the guile-gtk mailing list, guile-gui is
+   working.  Woop.  Thanks to Neil Jerram.  Now all I need to do is
+   sort out the guile-gtk entries and then I think we can move over to
+   GTK2.  For 0.4 perhaps?</p>
       
     <hr>
     <p>Mon Apr  2 18:14:12 BST 2007</p>
@@ -30,16 +85,18 @@ hopefully final) this evening.</p>
 <hr>
 <p>   Sun Apr  1  BST 2007</p>
  
- <p>Feisty Beta not bad actually.  I have to turn of DRI to stop it crashing 
- when using Coot and of course Beryl won't work without DRI.  But! The wireless 
- works and the disk-access timeout has gone so that's a win.</p>
+ <p>Feisty Beta not bad actually.  I have to turn of DRI to stop it
+ crashing when using Coot and of course Beryl won't work without DRI.
+ But! The wireless works and the disk-access timeout has gone so
+ that's a win.</p>
     
-   <p>Have been CCP4 dev meeting this week, talking about Coot and HAPPy. Actually, the
-   main developments of Coot this year were not on the agenda and not discussed.</p> 
+   <p>Have been CCP4 dev meeting this week, talking about Coot and
+   HAPPy. Actually, the main developments of Coot this year were not
+   on the agenda and not discussed.</p>
     
-   <p>After meeting in York, it's a quick jaunt up to Newcastle.  After an evening 
-    drinking cocktails with Martyn and Amy, it was a fairly relaxed CCP4 Roadshow the
-    next day.</p>
+   <p>After meeting in York, it's a quick jaunt up to Newcastle.
+   After an evening drinking cocktails with Martyn and Amy, it was a
+   fairly relaxed CCP4 Roadshow the next day.</p>
     
     
 <hr>
@@ -2137,7 +2194,7 @@ Uson</a>.</p>
     <address><a href="mailto:emsley at ysbl york ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Mon Apr  2 16:53:07 BST 2007
+Last modified: Thu Apr  5 15:47:57 BST 2007
 <!-- hhmts end -->
   </body>
 </html>
