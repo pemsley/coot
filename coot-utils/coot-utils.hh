@@ -51,6 +51,7 @@ namespace coot {
       int create_directory(const std::string &dir_name);
       std::string file_name_directory(const std::string &file_name);
       std::string file_name_extension(const std::string &file_name);
+      std::string file_name_non_directory(const std::string &file_name);
       short int extension_is_for_shelx_coords(const std::string &ext);
       // void template<T> swap(*T v1, *T v2);
 
