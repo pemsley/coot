@@ -138,7 +138,6 @@ coot::util::create_directory(const std::string &dir_name) {
 	 istat = 0; // return as if we made it
       }
    }
-   std::cout << "INFO:: create_directory returns status " << istat << std::endl;
    return istat; 
 } 
 
@@ -395,7 +394,7 @@ coot::sequence::fasta::is_fasta_aa(const std::string &a) const {
 }
 
 // This should be a util function return the directory of this
-// filename: /d/a -> /d/ a -> ""
+// filename: /d/a -> /d/      "a" -> ""
 std::string coot::util::file_name_directory(const std::string &file_name) {
 
    int end_char = -1;
@@ -415,12 +414,30 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
 	 break;
       }
    }
-
    if (end_char != -1) 
       rstring = file_name.substr(0, end_char+1);
 
    return rstring; 
+}
+
+std::string
+coot::util::file_name_non_directory(const std::string &file_name) {
+
+   int slash_char = -1;
+   std::string rstring = "";
    
+   for (int i=file_name.length()-1; i>=0; i--) {
+      if (file_name[i] == '/') {
+	 slash_char = i;
+	 break;
+      }
+   }
+
+   if (slash_char != -1) 
+      rstring = file_name.substr(slash_char+1);
+
+   std::cout << "DEBUG:: non-directory of " << file_name << " is " << rstring << std::endl;
+   return rstring;
 }
 
 // return "" on no extension /usr/blogs/thign/other

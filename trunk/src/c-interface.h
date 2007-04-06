@@ -164,11 +164,14 @@ void set_file_selection_dialog_size(GtkWidget *w);
 /*! \brief, return the state of the above variable */
 int filter_fileselection_filenames_state();
 
+#ifdef COOT_USE_GTK2_INTERFACE
 void on_filename_filter_toggle_button_toggled (GtkButton       *button,
 					      gpointer         user_data);
-
+#else
+void on_filename_filter_toggle_button_toggled_gtk1 (GtkButton       *button,
+						    gpointer         user_data);
+#endif 
 void add_filename_filter(GtkWidget *fileselection);
-
 
 // where data type:
 // 0 coords

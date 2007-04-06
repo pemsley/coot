@@ -22,9 +22,21 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "coot-utils.hh"
 
+#include "support.h"  // for lookup_widget
 #include "c-interface.h"
 #include "cc-interface.hh" // for str_mtime
+
+gboolean filename_passed_filter(const std::string &file_name, int filter_type) {
+
+   if (file_name.substr(0,1) == "c") {
+      return 1;
+   } else {
+      return 0;
+   }
+}
+
 
 gboolean
 fileselection_sort_button_foreach_func
@@ -52,33 +64,53 @@ fileselection_sort_button_foreach_func
    return FALSE;
 }
 
+gboolean
+fileselection_filter_button_foreach_func
+ (GtkTreeModel *model,
+  GtkTreePath  *path,
+  GtkTreeIter  *iter,
+  gpointer      user_data)
+{
+   gchar *file_name, *tree_path_str;
+   gtk_tree_model_get (model, iter,
+		       0, &file_name,
+		       -1);
+   int file_selection_filter_type = GPOINTER_TO_INT(user_data);
+
+   if (!filename_passed_filter(file_name, file_selection_filter_type)) {
+      std::cout << file_name << " to be deleted" << std::endl;
+      // delete it
+      if (gtk_tree_model_get_iter(model, iter, path)) {
+	 // continue, normal case
+	 std::cout << file_name << " deleted" << std::endl;
+	 gtk_list_store_remove(GTK_LIST_STORE(model), iter);
+      }
+   } else {
+      std::cout << "    " << file_name << " keep it" << std::endl;
+   }
+   return FALSE; 
+}
+
+
 void fileselection_sort_button_clicked( GtkWidget *sort_button,
 					GtkWidget  *file_list) {
 
 
-   // Play code.  GtkTreeView is complex.
-   
-   std::cout << "---- sort button pressed!" << std::endl;
-
    GtkTreeView *tv = GTK_TREE_VIEW(file_list);
-   std::cout << "tree model: " << gtk_tree_view_get_model(tv)
-	     << std::endl;
-   
    GList *collist = gtk_tree_view_get_columns(tv);
    for (GList *node = collist; node != NULL; node = g_list_next(node)) {
-      std::cout << "a column" << std::endl;
       GtkTreeViewColumn *col = GTK_TREE_VIEW_COLUMN(node->data);
       GtkWidget *label = gtk_tree_view_column_get_widget(col);
       std::string lab = gtk_label_get_text(GTK_LABEL(label));
-      std::cout << "label: " << lab << std::endl;
       if (lab == "Files") {
 	 GtkTreeModel *model = gtk_tree_view_get_model(tv);
 	 GtkTreeIter iter;
-	 GtkListStore *liststore; // model and liststore are the same thing here?
+	 GtkListStore *liststore; // model and liststore are the same thing?
 	 std::vector<str_mtime> file_attr_vec;
 
 	 gtk_tree_model_foreach(GTK_TREE_MODEL(model),
-				fileselection_sort_button_foreach_func, &file_attr_vec);
+				fileselection_sort_button_foreach_func,
+				&file_attr_vec);
 
 	 // sort the files by date
 	 std::sort(file_attr_vec.begin(), file_attr_vec.end(), compare_mtimes);
@@ -97,4 +129,66 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
    g_list_free(collist);
    
 }
+
+
+void
+on_filename_filter_toggle_button_toggled(GtkButton       *button,
+					 gpointer         user_data)
+{
+
+   // user_data is used to set the glob filter 
+   int data_type = GPOINTER_TO_INT(user_data);
+
+   // We need to add text to the string of the dictectory we are in
+   // (pre_directory), so first we need to find pre_directory (as per
+   // fileselection_sort_button_clicked()
+   // 
+   GtkWidget *sort_button = lookup_widget(GTK_WIDGET(button),
+					  "fileselection_sort_button");
+   if (sort_button) { 
+      // std::cout << "Hooray! we found the sort button!\n";
+      // usually, we do.
+   } else { 
+      std::cout << "Boo we failed to find the sort button!\n";
+   } 
+   std::string pre_directory = pre_directory_file_selection(sort_button);
+   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button);
+   
+   std::vector<std::string> v;
+   
+   if (fileselection) { 
+      if (GTK_TOGGLE_BUTTON(button)->active) { 
+	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Unfilter");
+	 
+	 // so now we have pre_directory
+	 // 
+	 std::vector<std::string> v = filtered_by_glob(pre_directory, data_type);
+
+	 GtkWidget *fl = GTK_FILE_SELECTION(fileselection)->file_list;
+	 GtkTreeView *tv = GTK_TREE_VIEW(fl);
+
+	 GtkTreeModel *model = gtk_tree_view_get_model(tv);
+	 GtkTreeIter iter;
+
+	 // OK, one more go.  Delete everything and add the files that pass:
+	 
+	 gtk_list_store_clear(GTK_LIST_STORE(model));
+	 std::vector<std::string> file_vec = filtered_by_glob(pre_directory, data_type);
+	 for (int i=0; i<file_vec.size(); i++) {
+	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	    gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+			       0, coot::util::file_name_non_directory(file_vec[i]).c_str(),
+			       -1);
+	 }
+	 
+      } else { 
+	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Filter");
+	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
+					 (pre_directory + "/").c_str());
+      }
+   } else {
+      std::cout << "no fileselection found from sort button\n";
+   }
+}
+
 #endif // GTK2

@@ -1115,9 +1115,15 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
    gtk_widget_show(button);
    gtk_container_add(GTK_CONTAINER(aa),frame);
    gtk_container_add(GTK_CONTAINER(frame), button);
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   gtk_signal_connect (GTK_OBJECT (button), "toggled",
+		       GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
+		       GINT_TO_POINTER(d));
+#else   
    gtk_signal_connect (GTK_OBJECT (button), "toggled",
 		       GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
 		       GINT_TO_POINTER(d));
+#endif   
    gtk_widget_show(frame);
    return button;
 }
@@ -1211,8 +1217,8 @@ on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
 }
 
 void
-on_filename_filter_toggle_button_toggled (GtkButton       *button,
-					  gpointer         user_data)
+on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
+					     gpointer         user_data)
 {
    
    int data_type = GPOINTER_TO_INT(user_data);
@@ -1231,8 +1237,6 @@ on_filename_filter_toggle_button_toggled (GtkButton       *button,
    } 
    std::string pre_directory = pre_directory_file_selection(sort_button);
    GtkWidget *fileselection = lookup_file_selection_widgets(sort_button);
-   
-   std::vector<std::string> v;
    
    if (fileselection) { 
       if (GTK_TOGGLE_BUTTON(button)->active) { 
