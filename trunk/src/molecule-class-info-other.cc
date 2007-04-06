@@ -679,10 +679,10 @@ molecule_class_info_t::delete_residue_hydrogens(const std::string &chain_id, int
 		     std::cout << "WARNING:: No atoms in residue (strange!)\n";
 		  } else {
 		     for (int i=0; i<nResidueAtoms; i++) {
-			if (std::string(residue_atoms[i]->element) == " H" ||
-			    std::string(residue_atoms[i]->element) == " D") {
+			std::string element(residue_atoms[i]->element);
+			if (element == " H" || element == " D") {
 			   res->DeleteAtom(i);
-			   // was_deleted = 1;
+			   // was_deleted = 1; // done upstairs
 			}
 		     }
 		     if (was_deleted)
