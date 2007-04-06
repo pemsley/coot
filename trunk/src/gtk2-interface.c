@@ -166,7 +166,7 @@ create_window1 (void)
   tooltips = gtk_tooltips_new ();
 
   window1 = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (window1), _("Coot"));
+  gtk_window_set_title (GTK_WINDOW (window1), "Coot");
 
   main_window_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (main_window_hbox);
@@ -180,487 +180,487 @@ create_window1 (void)
   gtk_widget_show (menubar1);
   gtk_box_pack_start (GTK_BOX (vbox1), menubar1, FALSE, FALSE, 0);
 
-  file1 = gtk_menu_item_new_with_mnemonic (_("_File"));
+  file1 = gtk_menu_item_new_with_mnemonic ("_File");
   gtk_widget_show (file1);
   gtk_container_add (GTK_CONTAINER (menubar1), file1);
 
   file1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (file1), file1_menu);
 
-  open_coordinates1 = gtk_menu_item_new_with_mnemonic (_("Open Coordinates..."));
+  open_coordinates1 = gtk_menu_item_new_with_mnemonic ("Open Coordinates...");
   gtk_widget_show (open_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_coordinates1);
-  gtk_tooltips_set_tip (tooltips, open_coordinates1, _("pdb, cif or shelx res format"), NULL);
+  gtk_tooltips_set_tip (tooltips, open_coordinates1, "pdb, cif or shelx res format", NULL);
 
-  auto_open_mtz = gtk_menu_item_new_with_mnemonic (_("Auto Open MTZ..."));
+  auto_open_mtz = gtk_menu_item_new_with_mnemonic ("Auto Open MTZ...");
   gtk_widget_show (auto_open_mtz);
   gtk_container_add (GTK_CONTAINER (file1_menu), auto_open_mtz);
 
-  open_dataset1 = gtk_menu_item_new_with_mnemonic (_("Open MTZ, mmCIF, fcf or phs..."));
+  open_dataset1 = gtk_menu_item_new_with_mnemonic ("Open MTZ, mmCIF, fcf or phs...");
   gtk_widget_show (open_dataset1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_dataset1);
-  gtk_tooltips_set_tip (tooltips, open_dataset1, _("Create a map \"on the fly\" from mtz, phs or mmCIF data"), NULL);
+  gtk_tooltips_set_tip (tooltips, open_dataset1, "Create a map \"on the fly\" from mtz, phs or mmCIF data", NULL);
 
-  open_map1 = gtk_menu_item_new_with_mnemonic (_("Open Map..."));
+  open_map1 = gtk_menu_item_new_with_mnemonic ("Open Map...");
   gtk_widget_show (open_map1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_map1);
-  gtk_tooltips_set_tip (tooltips, open_map1, _("Open a pre-calculated CCP4 map"), NULL);
+  gtk_tooltips_set_tip (tooltips, open_map1, "Open a pre-calculated CCP4 map", NULL);
 
-  close_molecule1 = gtk_menu_item_new_with_mnemonic (_("Close molecule/map..."));
+  close_molecule1 = gtk_menu_item_new_with_mnemonic ("Close molecule/map...");
   gtk_widget_show (close_molecule1);
   gtk_container_add (GTK_CONTAINER (file1_menu), close_molecule1);
 
-  import_cif_dictionary1 = gtk_menu_item_new_with_mnemonic (_("Import CIF dictionary..."));
+  import_cif_dictionary1 = gtk_menu_item_new_with_mnemonic ("Import CIF dictionary...");
   gtk_widget_show (import_cif_dictionary1);
   gtk_container_add (GTK_CONTAINER (file1_menu), import_cif_dictionary1);
 
-  get_monomer1 = gtk_menu_item_new_with_mnemonic (_("Get Monomer..."));
+  get_monomer1 = gtk_menu_item_new_with_mnemonic ("Get Monomer...");
   gtk_widget_show (get_monomer1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_monomer1);
-  gtk_tooltips_set_tip (tooltips, get_monomer1, _("Give a 3-letter code and use libcheck to generate coordinates from REFMAC monomer library"), NULL);
+  gtk_tooltips_set_tip (tooltips, get_monomer1, "Give a 3-letter code and use libcheck to generate coordinates from REFMAC monomer library", NULL);
 
-  search_monomer_library1 = gtk_menu_item_new_with_mnemonic (_("Search Monomer Library..."));
+  search_monomer_library1 = gtk_menu_item_new_with_mnemonic ("Search Monomer Library...");
   gtk_widget_show (search_monomer_library1);
   gtk_container_add (GTK_CONTAINER (file1_menu), search_monomer_library1);
-  gtk_tooltips_set_tip (tooltips, search_monomer_library1, _("Search monomer names to find 3-letter code"), NULL);
+  gtk_tooltips_set_tip (tooltips, search_monomer_library1, "Search monomer names to find 3-letter code", NULL);
 
-  smiles1 = gtk_menu_item_new_with_mnemonic (_("SMILES..."));
+  smiles1 = gtk_menu_item_new_with_mnemonic ("SMILES...");
   gtk_widget_show (smiles1);
   gtk_container_add (GTK_CONTAINER (file1_menu), smiles1);
 
-  get_pdb_using_code1 = gtk_menu_item_new_with_mnemonic (_("Get PDB using Accession Code..."));
+  get_pdb_using_code1 = gtk_menu_item_new_with_mnemonic ("Get PDB using Accession Code...");
   gtk_widget_show (get_pdb_using_code1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_using_code1);
-  gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, _("Get PDB Coordinates file from server using accession code"), NULL);
+  gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, "Get PDB Coordinates file from server using accession code", NULL);
 
-  get_pdb_and_map_using_eds1 = gtk_menu_item_new_with_mnemonic (_("Get PDB & Map using EDS..."));
+  get_pdb_and_map_using_eds1 = gtk_menu_item_new_with_mnemonic ("Get PDB & Map using EDS...");
   gtk_widget_show (get_pdb_and_map_using_eds1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_and_map_using_eds1);
-  gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, _("Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)"), NULL);
+  gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, "Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)", NULL);
 
-  save_coordinates1 = gtk_menu_item_new_with_mnemonic (_("Save Coordinates..."));
+  save_coordinates1 = gtk_menu_item_new_with_mnemonic ("Save Coordinates...");
   gtk_widget_show (save_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_coordinates1);
 
-  save_symmetry_coordinates1 = gtk_menu_item_new_with_mnemonic (_("Save Symmetry Coordinates..."));
+  save_symmetry_coordinates1 = gtk_menu_item_new_with_mnemonic ("Save Symmetry Coordinates...");
   gtk_widget_show (save_symmetry_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_symmetry_coordinates1);
 
-  save_state1 = gtk_menu_item_new_with_mnemonic (_("Save State..."));
+  save_state1 = gtk_menu_item_new_with_mnemonic ("Save State...");
   gtk_widget_show (save_state1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_state1);
 
-  recover_session1 = gtk_menu_item_new_with_mnemonic (_("Recover Session..."));
+  recover_session1 = gtk_menu_item_new_with_mnemonic ("Recover Session...");
   gtk_widget_show (recover_session1);
   gtk_container_add (GTK_CONTAINER (file1_menu), recover_session1);
 
-  exit1 = gtk_menu_item_new_with_mnemonic (_("Exit"));
+  exit1 = gtk_menu_item_new_with_mnemonic ("Exit");
   gtk_widget_show (exit1);
   gtk_container_add (GTK_CONTAINER (file1_menu), exit1);
-  gtk_tooltips_set_tip (tooltips, exit1, _("bye"), NULL);
+  gtk_tooltips_set_tip (tooltips, exit1, "bye", NULL);
 
-  edit1 = gtk_menu_item_new_with_mnemonic (_("_Edit"));
+  edit1 = gtk_menu_item_new_with_mnemonic ("_Edit");
   gtk_widget_show (edit1);
   gtk_container_add (GTK_CONTAINER (menubar1), edit1);
 
   edit1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (edit1), edit1_menu);
 
-  map_colour1 = gtk_menu_item_new_with_mnemonic (_("Map Colour..."));
+  map_colour1 = gtk_menu_item_new_with_mnemonic ("Map Colour...");
   gtk_widget_show (map_colour1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), map_colour1);
 
-  density_size1 = gtk_menu_item_new_with_mnemonic (_("Map Parameters..."));
+  density_size1 = gtk_menu_item_new_with_mnemonic ("Map Parameters...");
   gtk_widget_show (density_size1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), density_size1);
 
-  bond_colours1 = gtk_menu_item_new_with_mnemonic (_("Bond Colours..."));
+  bond_colours1 = gtk_menu_item_new_with_mnemonic ("Bond Colours...");
   gtk_widget_show (bond_colours1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), bond_colours1);
 
-  bond_parameters1 = gtk_menu_item_new_with_mnemonic (_("Bond Parameters..."));
+  bond_parameters1 = gtk_menu_item_new_with_mnemonic ("Bond Parameters...");
   gtk_widget_show (bond_parameters1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), bond_parameters1);
 
-  skeleton_parameters1 = gtk_menu_item_new_with_mnemonic (_("Skeleton Parameters"));
+  skeleton_parameters1 = gtk_menu_item_new_with_mnemonic ("Skeleton Parameters");
   gtk_widget_show (skeleton_parameters1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), skeleton_parameters1);
 
   skeleton_parameters1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (skeleton_parameters1), skeleton_parameters1_menu);
 
-  skeleton_colour1 = gtk_menu_item_new_with_mnemonic (_("Skeleton Colour..."));
+  skeleton_colour1 = gtk_menu_item_new_with_mnemonic ("Skeleton Colour...");
   gtk_widget_show (skeleton_colour1);
   gtk_container_add (GTK_CONTAINER (skeleton_parameters1_menu), skeleton_colour1);
 
-  skeleton_box_radius1 = gtk_menu_item_new_with_mnemonic (_("Skeleton Box Radius..."));
+  skeleton_box_radius1 = gtk_menu_item_new_with_mnemonic ("Skeleton Box Radius...");
   gtk_widget_show (skeleton_box_radius1);
   gtk_container_add (GTK_CONTAINER (skeleton_parameters1_menu), skeleton_box_radius1);
 
-  skeletonization_level1 = gtk_menu_item_new_with_mnemonic (_("Skeletonization Level..."));
+  skeletonization_level1 = gtk_menu_item_new_with_mnemonic ("Skeletonization Level...");
   gtk_widget_show (skeletonization_level1);
   gtk_container_add (GTK_CONTAINER (skeleton_parameters1_menu), skeletonization_level1);
 
-  residue_info2 = gtk_menu_item_new_with_mnemonic (_("Residue Info..."));
+  residue_info2 = gtk_menu_item_new_with_mnemonic ("Residue Info...");
   gtk_widget_show (residue_info2);
   gtk_container_add (GTK_CONTAINER (edit1_menu), residue_info2);
 
-  font_size1 = gtk_menu_item_new_with_mnemonic (_("Font Size..."));
+  font_size1 = gtk_menu_item_new_with_mnemonic ("Font Size...");
   gtk_widget_show (font_size1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), font_size1);
 
-  pink_pointer_size1 = gtk_menu_item_new_with_mnemonic (_("Pink Pointer Size..."));
+  pink_pointer_size1 = gtk_menu_item_new_with_mnemonic ("Pink Pointer Size...");
   gtk_widget_show (pink_pointer_size1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), pink_pointer_size1);
 
-  background_colour1 = gtk_menu_item_new_with_mnemonic (_("Background Colour..."));
+  background_colour1 = gtk_menu_item_new_with_mnemonic ("Background Colour...");
   gtk_widget_show (background_colour1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), background_colour1);
 
   background_colour1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (background_colour1), background_colour1_menu);
 
-  background_black1 = gtk_radio_menu_item_new_with_mnemonic (background_black1_group, _("Black"));
+  background_black1 = gtk_radio_menu_item_new_with_mnemonic (background_black1_group, "Black");
   background_black1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (background_black1));
   gtk_widget_show (background_black1);
   gtk_container_add (GTK_CONTAINER (background_colour1_menu), background_black1);
 
-  background_white1 = gtk_radio_menu_item_new_with_mnemonic (background_black1_group, _("White"));
+  background_white1 = gtk_radio_menu_item_new_with_mnemonic (background_black1_group, "White");
   background_black1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (background_white1));
   gtk_widget_show (background_white1);
   gtk_container_add (GTK_CONTAINER (background_colour1_menu), background_white1);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (background_white1), TRUE);
 
-  calculate1 = gtk_menu_item_new_with_mnemonic (_("_Calculate"));
+  calculate1 = gtk_menu_item_new_with_mnemonic ("_Calculate");
   gtk_widget_show (calculate1);
   gtk_container_add (GTK_CONTAINER (menubar1), calculate1);
 
   calculate1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (calculate1), calculate1_menu);
 
-  regularize1 = gtk_menu_item_new_with_mnemonic (_("Model/Fit/Refine..."));
+  regularize1 = gtk_menu_item_new_with_mnemonic ("Model/Fit/Refine...");
   gtk_widget_show (regularize1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), regularize1);
 
-  other_modelling_tools1 = gtk_menu_item_new_with_mnemonic (_("Other Modelling Tools..."));
+  other_modelling_tools1 = gtk_menu_item_new_with_mnemonic ("Other Modelling Tools...");
   gtk_widget_show (other_modelling_tools1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), other_modelling_tools1);
 
-  ssm_superposition1 = gtk_menu_item_new_with_mnemonic (_("SSM Superpose..."));
+  ssm_superposition1 = gtk_menu_item_new_with_mnemonic ("SSM Superpose...");
   gtk_widget_show (ssm_superposition1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ssm_superposition1);
 
-  lsq_superpose1 = gtk_menu_item_new_with_mnemonic (_("LSQ Superpose..."));
+  lsq_superpose1 = gtk_menu_item_new_with_mnemonic ("LSQ Superpose...");
   gtk_widget_show (lsq_superpose1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), lsq_superpose1);
-  gtk_tooltips_set_tip (tooltips, lsq_superpose1, _("Least squares fit structures using residue range"), NULL);
+  gtk_tooltips_set_tip (tooltips, lsq_superpose1, "Least squares fit structures using residue range", NULL);
 
-  merge_molecules1 = gtk_menu_item_new_with_mnemonic (_("Merge Molecules..."));
+  merge_molecules1 = gtk_menu_item_new_with_mnemonic ("Merge Molecules...");
   gtk_widget_show (merge_molecules1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), merge_molecules1);
 
-  mutate_molecule1 = gtk_menu_item_new_with_mnemonic (_("Mutate Residue Range..."));
+  mutate_molecule1 = gtk_menu_item_new_with_mnemonic ("Mutate Residue Range...");
   gtk_widget_show (mutate_molecule1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), mutate_molecule1);
 
-  align___mutate1 = gtk_menu_item_new_with_mnemonic (_("Align & Mutate..."));
+  align___mutate1 = gtk_menu_item_new_with_mnemonic ("Align & Mutate...");
   gtk_widget_show (align___mutate1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), align___mutate1);
 
-  renumber_residues1 = gtk_menu_item_new_with_mnemonic (_("Renumber Residues..."));
+  renumber_residues1 = gtk_menu_item_new_with_mnemonic ("Renumber Residues...");
   gtk_widget_show (renumber_residues1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), renumber_residues1);
 
-  change_chain_ids2 = gtk_menu_item_new_with_mnemonic (_("Change Chain IDs..."));
+  change_chain_ids2 = gtk_menu_item_new_with_mnemonic ("Change Chain IDs...");
   gtk_widget_show (change_chain_ids2);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), change_chain_ids2);
 
-  move_molecule_here1 = gtk_menu_item_new_with_mnemonic (_("Move Molecule Here..."));
+  move_molecule_here1 = gtk_menu_item_new_with_mnemonic ("Move Molecule Here...");
   gtk_widget_show (move_molecule_here1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), move_molecule_here1);
 
-  fit_loop1 = gtk_menu_item_new_with_mnemonic (_("Fit Loop..."));
+  fit_loop1 = gtk_menu_item_new_with_mnemonic ("Fit Loop...");
   gtk_widget_show (fit_loop1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), fit_loop1);
 
-  cowtan_foadi_skeleton1 = gtk_menu_item_new_with_mnemonic (_("Map Skeleton..."));
+  cowtan_foadi_skeleton1 = gtk_menu_item_new_with_mnemonic ("Map Skeleton...");
   gtk_widget_show (cowtan_foadi_skeleton1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), cowtan_foadi_skeleton1);
 
-  ncs_maps1 = gtk_menu_item_new_with_mnemonic (_("NCS Maps..."));
+  ncs_maps1 = gtk_menu_item_new_with_mnemonic ("NCS Maps...");
   gtk_widget_show (ncs_maps1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ncs_maps1);
 
-  frames_sec1 = gtk_menu_item_new_with_mnemonic (_("Frames/Sec..."));
+  frames_sec1 = gtk_menu_item_new_with_mnemonic ("Frames/Sec...");
   gtk_widget_show (frames_sec1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), frames_sec1);
 
-  scripting_testing1 = gtk_menu_item_new_with_mnemonic (_("Scripting..."));
+  scripting_testing1 = gtk_menu_item_new_with_mnemonic ("Scripting...");
   gtk_widget_show (scripting_testing1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), scripting_testing1);
 
-  run_script1 = gtk_menu_item_new_with_mnemonic (_("Run Script..."));
+  run_script1 = gtk_menu_item_new_with_mnemonic ("Run Script...");
   gtk_widget_show (run_script1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), run_script1);
 
-  draw1 = gtk_menu_item_new_with_mnemonic (_("_Draw"));
+  draw1 = gtk_menu_item_new_with_mnemonic ("_Draw");
   gtk_widget_show (draw1);
   gtk_container_add (GTK_CONTAINER (menubar1), draw1);
 
   draw1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (draw1), draw1_menu);
 
-  go_to_atom1 = gtk_menu_item_new_with_mnemonic (_("Go To Atom..."));
+  go_to_atom1 = gtk_menu_item_new_with_mnemonic ("Go To Atom...");
   gtk_widget_show (go_to_atom1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), go_to_atom1);
 
-  undo_last_navigation1 = gtk_menu_item_new_with_mnemonic (_("Undo Last Navigation"));
+  undo_last_navigation1 = gtk_menu_item_new_with_mnemonic ("Undo Last Navigation");
   gtk_widget_show (undo_last_navigation1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), undo_last_navigation1);
 
-  centre_atom_label1 = gtk_menu_item_new_with_mnemonic (_("Centre Atom Label..."));
+  centre_atom_label1 = gtk_menu_item_new_with_mnemonic ("Centre Atom Label...");
   gtk_widget_show (centre_atom_label1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), centre_atom_label1);
 
-  sequence_view1 = gtk_menu_item_new_with_mnemonic (_("Sequence View"));
+  sequence_view1 = gtk_menu_item_new_with_mnemonic ("Sequence View");
   gtk_widget_show (sequence_view1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), sequence_view1);
 
-  anisotropic_atoms1 = gtk_menu_item_new_with_mnemonic (_("Anisotropic Atoms..."));
+  anisotropic_atoms1 = gtk_menu_item_new_with_mnemonic ("Anisotropic Atoms...");
   gtk_widget_show (anisotropic_atoms1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), anisotropic_atoms1);
 
-  show_symmetry1 = gtk_menu_item_new_with_mnemonic (_("Cell & Symmetry..."));
+  show_symmetry1 = gtk_menu_item_new_with_mnemonic ("Cell & Symmetry...");
   gtk_widget_show (show_symmetry1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), show_symmetry1);
 
-  ncs_ghost_control1 = gtk_menu_item_new_with_mnemonic (_("NCS Ghost Control..."));
+  ncs_ghost_control1 = gtk_menu_item_new_with_mnemonic ("NCS Ghost Control...");
   gtk_widget_show (ncs_ghost_control1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), ncs_ghost_control1);
-  gtk_tooltips_set_tip (tooltips, ncs_ghost_control1, _("Non-crystallographic Ghost Controller"), NULL);
+  gtk_tooltips_set_tip (tooltips, ncs_ghost_control1, "Non-crystallographic Ghost Controller", NULL);
 
-  spin_view_on_off1 = gtk_menu_item_new_with_mnemonic (_("Spin View On/Off"));
+  spin_view_on_off1 = gtk_menu_item_new_with_mnemonic ("Spin View On/Off");
   gtk_widget_show (spin_view_on_off1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), spin_view_on_off1);
 
-  screenshot1 = gtk_menu_item_new_with_mnemonic (_("Screenshot"));
+  screenshot1 = gtk_menu_item_new_with_mnemonic ("Screenshot");
   gtk_widget_show (screenshot1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), screenshot1);
 
   screenshot1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (screenshot1), screenshot1_menu);
 
-  simple1 = gtk_menu_item_new_with_mnemonic (_("Simple..."));
+  simple1 = gtk_menu_item_new_with_mnemonic ("Simple...");
   gtk_widget_show (simple1);
   gtk_container_add (GTK_CONTAINER (screenshot1_menu), simple1);
 
-  povray1 = gtk_menu_item_new_with_mnemonic (_("Povray..."));
+  povray1 = gtk_menu_item_new_with_mnemonic ("Povray...");
   gtk_widget_show (povray1);
   gtk_container_add (GTK_CONTAINER (screenshot1_menu), povray1);
 
-  raster3d1 = gtk_menu_item_new_with_mnemonic (_("Raster3D..."));
+  raster3d1 = gtk_menu_item_new_with_mnemonic ("Raster3D...");
   gtk_widget_show (raster3d1);
   gtk_container_add (GTK_CONTAINER (screenshot1_menu), raster3d1);
 
-  generic_display_objects1 = gtk_menu_item_new_with_mnemonic (_("Generic Display Objects..."));
+  generic_display_objects1 = gtk_menu_item_new_with_mnemonic ("Generic Display Objects...");
   gtk_widget_show (generic_display_objects1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), generic_display_objects1);
 
-  antialiasing1 = gtk_menu_item_new_with_mnemonic (_("Antialiasing..."));
+  antialiasing1 = gtk_menu_item_new_with_mnemonic ("Antialiasing...");
   gtk_widget_show (antialiasing1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), antialiasing1);
 
-  stereo1 = gtk_menu_item_new_with_mnemonic (_("Stereo..."));
+  stereo1 = gtk_menu_item_new_with_mnemonic ("Stereo...");
   gtk_widget_show (stereo1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), stereo1);
 
-  clipping1 = gtk_menu_item_new_with_mnemonic (_("Clipping..."));
+  clipping1 = gtk_menu_item_new_with_mnemonic ("Clipping...");
   gtk_widget_show (clipping1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), clipping1);
 
-  crosshairs1 = gtk_menu_item_new_with_mnemonic (_("Crosshairs..."));
+  crosshairs1 = gtk_menu_item_new_with_mnemonic ("Crosshairs...");
   gtk_widget_show (crosshairs1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), crosshairs1);
 
-  zoom1 = gtk_menu_item_new_with_mnemonic (_("Zoom..."));
+  zoom1 = gtk_menu_item_new_with_mnemonic ("Zoom...");
   gtk_widget_show (zoom1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), zoom1);
 
-  dragged_map1 = gtk_menu_item_new_with_mnemonic (_("Dragged Map..."));
+  dragged_map1 = gtk_menu_item_new_with_mnemonic ("Dragged Map...");
   gtk_widget_show (dragged_map1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), dragged_map1);
 
-  recentring1 = gtk_menu_item_new_with_mnemonic (_("Smooth Recentring..."));
+  recentring1 = gtk_menu_item_new_with_mnemonic ("Smooth Recentring...");
   gtk_widget_show (recentring1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), recentring1);
 
-  coordinates_recentring1 = gtk_menu_item_new_with_mnemonic (_("Coordinates Recentring..."));
+  coordinates_recentring1 = gtk_menu_item_new_with_mnemonic ("Coordinates Recentring...");
   gtk_widget_show (coordinates_recentring1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), coordinates_recentring1);
 
-  map_and_mol_control1 = gtk_menu_item_new_with_mnemonic (_("D_isplay Manager"));
+  map_and_mol_control1 = gtk_menu_item_new_with_mnemonic ("D_isplay Manager");
   gtk_widget_show (map_and_mol_control1);
   gtk_container_add (GTK_CONTAINER (menubar1), map_and_mol_control1);
-  gtk_tooltips_set_tip (tooltips, map_and_mol_control1, _("Control display and activity of maps and molecules"), NULL);
+  gtk_tooltips_set_tip (tooltips, map_and_mol_control1, "Control display and activity of maps and molecules", NULL);
 
-  main_menu_info = gtk_menu_item_new_with_mnemonic (_("_Measures"));
+  main_menu_info = gtk_menu_item_new_with_mnemonic ("_Measures");
   gtk_widget_show (main_menu_info);
   gtk_container_add (GTK_CONTAINER (menubar1), main_menu_info);
 
   main_menu_info_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (main_menu_info), main_menu_info_menu);
 
-  residue_info1 = gtk_menu_item_new_with_mnemonic (_("Residue Info..."));
+  residue_info1 = gtk_menu_item_new_with_mnemonic ("Residue Info...");
   gtk_widget_show (residue_info1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), residue_info1);
-  gtk_tooltips_set_tip (tooltips, residue_info1, _("Display atom names, temperature factors and occupances of all atoms in the residue"), NULL);
+  gtk_tooltips_set_tip (tooltips, residue_info1, "Display atom names, temperature factors and occupances of all atoms in the residue", NULL);
 
-  distances___angles1 = gtk_menu_item_new_with_mnemonic (_("Distances & Angles..."));
+  distances___angles1 = gtk_menu_item_new_with_mnemonic ("Distances & Angles...");
   gtk_widget_show (distances___angles1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), distances___angles1);
 
-  environment_distances1 = gtk_menu_item_new_with_mnemonic (_("Environment Distances..."));
+  environment_distances1 = gtk_menu_item_new_with_mnemonic ("Environment Distances...");
   gtk_widget_show (environment_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), environment_distances1);
 
-  plane_distances1 = gtk_menu_item_new_with_mnemonic (_("Plane Distances..."));
+  plane_distances1 = gtk_menu_item_new_with_mnemonic ("Plane Distances...");
   gtk_widget_show (plane_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), plane_distances1);
 
-  pointer_distances1 = gtk_menu_item_new_with_mnemonic (_("Pointer Distances..."));
+  pointer_distances1 = gtk_menu_item_new_with_mnemonic ("Pointer Distances...");
   gtk_widget_show (pointer_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), pointer_distances1);
 
-  clear_atom_labels1 = gtk_menu_item_new_with_mnemonic (_("Clear Atom Labels"));
+  clear_atom_labels1 = gtk_menu_item_new_with_mnemonic ("Clear Atom Labels");
   gtk_widget_show (clear_atom_labels1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), clear_atom_labels1);
 
-  validate1 = gtk_menu_item_new_with_mnemonic (_("_Validate"));
+  validate1 = gtk_menu_item_new_with_mnemonic ("_Validate");
   gtk_widget_show (validate1);
   gtk_container_add (GTK_CONTAINER (menubar1), validate1);
 
   validate1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (validate1), validate1_menu);
 
-  ramachandran_plot1 = gtk_menu_item_new_with_mnemonic (_("Ramachandran Plot"));
+  ramachandran_plot1 = gtk_menu_item_new_with_mnemonic ("Ramachandran Plot");
   gtk_widget_show (ramachandran_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_plot1);
 
-  ramachandran_differences_plot1 = gtk_menu_item_new_with_mnemonic (_("Kleywegt Plot..."));
+  ramachandran_differences_plot1 = gtk_menu_item_new_with_mnemonic ("Kleywegt Plot...");
   gtk_widget_show (ramachandran_differences_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_differences_plot1);
-  gtk_tooltips_set_tip (tooltips, ramachandran_differences_plot1, _("Ramachandran Difference Plot"), NULL);
+  gtk_tooltips_set_tip (tooltips, ramachandran_differences_plot1, "Ramachandran Difference Plot", NULL);
 
-  incorrect_chiral_volumes1 = gtk_menu_item_new_with_mnemonic (_("Incorrect Chiral Volumes..."));
+  incorrect_chiral_volumes1 = gtk_menu_item_new_with_mnemonic ("Incorrect Chiral Volumes...");
   gtk_widget_show (incorrect_chiral_volumes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), incorrect_chiral_volumes1);
 
-  unmodelled_blobs1 = gtk_menu_item_new_with_mnemonic (_("Unmodelled blobs..."));
+  unmodelled_blobs1 = gtk_menu_item_new_with_mnemonic ("Unmodelled blobs...");
   gtk_widget_show (unmodelled_blobs1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), unmodelled_blobs1);
 
-  difference_map_peaks1 = gtk_menu_item_new_with_mnemonic (_("Difference Map Peaks..."));
+  difference_map_peaks1 = gtk_menu_item_new_with_mnemonic ("Difference Map Peaks...");
   gtk_widget_show (difference_map_peaks1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), difference_map_peaks1);
 
-  check_waters1 = gtk_menu_item_new_with_mnemonic (_("Check/Delete Waters..."));
+  check_waters1 = gtk_menu_item_new_with_mnemonic ("Check/Delete Waters...");
   gtk_widget_show (check_waters1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters1);
 
-  check_waters_by_difference_map_variance1 = gtk_menu_item_new_with_mnemonic (_("Check waters by Difference Map Variance..."));
+  check_waters_by_difference_map_variance1 = gtk_menu_item_new_with_mnemonic ("Check waters by Difference Map Variance...");
   gtk_widget_show (check_waters_by_difference_map_variance1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters_by_difference_map_variance1);
 
-  geometry_analysis1 = gtk_menu_item_new_with_mnemonic (_("Geometry analysis"));
+  geometry_analysis1 = gtk_menu_item_new_with_mnemonic ("Geometry analysis");
   gtk_widget_show (geometry_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), geometry_analysis1);
-  gtk_tooltips_set_tip (tooltips, geometry_analysis1, _("Flags distortions in Bond, Angles and Planes"), NULL);
+  gtk_tooltips_set_tip (tooltips, geometry_analysis1, "Flags distortions in Bond, Angles and Planes", NULL);
 
-  peptide_omega_analysis1 = gtk_menu_item_new_with_mnemonic (_("Peptide omega analysis"));
+  peptide_omega_analysis1 = gtk_menu_item_new_with_mnemonic ("Peptide omega analysis");
   gtk_widget_show (peptide_omega_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), peptide_omega_analysis1);
-  gtk_tooltips_set_tip (tooltips, peptide_omega_analysis1, _("Flags deviations from Trans Peptide"), NULL);
+  gtk_tooltips_set_tip (tooltips, peptide_omega_analysis1, "Flags deviations from Trans Peptide", NULL);
 
-  temp_fact_variance_analysis1 = gtk_menu_item_new_with_mnemonic (_("Temp. fact. variance analysis"));
+  temp_fact_variance_analysis1 = gtk_menu_item_new_with_mnemonic ("Temp. fact. variance analysis");
   gtk_widget_show (temp_fact_variance_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_variance_analysis1);
-  gtk_tooltips_set_tip (tooltips, temp_fact_variance_analysis1, _("Flags Residues with Large Variance in Atom B factors"), NULL);
+  gtk_tooltips_set_tip (tooltips, temp_fact_variance_analysis1, "Flags Residues with Large Variance in Atom B factors", NULL);
 
-  gln_and_asn_b_factor_outliers1 = gtk_menu_item_new_with_mnemonic (_("GLN and ASN B-factor Outliers"));
+  gln_and_asn_b_factor_outliers1 = gtk_menu_item_new_with_mnemonic ("GLN and ASN B-factor Outliers");
   gtk_widget_show (gln_and_asn_b_factor_outliers1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), gln_and_asn_b_factor_outliers1);
-  gtk_tooltips_set_tip (tooltips, gln_and_asn_b_factor_outliers1, _("Nakagawa's Bees (probable flips):  identify OE1 and NE2 B-factor outliers in GLNs (similarly ASNs are analysed)"), NULL);
+  gtk_tooltips_set_tip (tooltips, gln_and_asn_b_factor_outliers1, "Nakagawa's Bees (probable flips):  identify OE1 and NE2 B-factor outliers in GLNs (similarly ASNs are analysed)", NULL);
 
-  rotamer_analysis1 = gtk_menu_item_new_with_mnemonic (_("Rotamer analysis"));
+  rotamer_analysis1 = gtk_menu_item_new_with_mnemonic ("Rotamer analysis");
   gtk_widget_show (rotamer_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), rotamer_analysis1);
-  gtk_tooltips_set_tip (tooltips, rotamer_analysis1, _("Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors"), NULL);
+  gtk_tooltips_set_tip (tooltips, rotamer_analysis1, "Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors", NULL);
 
-  density_fit_analysis1 = gtk_menu_item_new_with_mnemonic (_("Density fit analysis"));
+  density_fit_analysis1 = gtk_menu_item_new_with_mnemonic ("Density fit analysis");
   gtk_widget_show (density_fit_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), density_fit_analysis1);
 
-  probe_clashes1 = gtk_menu_item_new_with_mnemonic (_("Probe clashes"));
+  probe_clashes1 = gtk_menu_item_new_with_mnemonic ("Probe clashes");
   gtk_widget_show (probe_clashes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), probe_clashes1);
 
-  hid1 = gtk_menu_item_new_with_mnemonic (_("HID"));
+  hid1 = gtk_menu_item_new_with_mnemonic ("HID");
   gtk_widget_show (hid1);
   gtk_container_add (GTK_CONTAINER (menubar1), hid1);
 
   hid1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (hid1), hid1_menu);
 
-  scrollwheel1 = gtk_menu_item_new_with_mnemonic (_("ScrollWheel"));
+  scrollwheel1 = gtk_menu_item_new_with_mnemonic ("ScrollWheel");
   gtk_widget_show (scrollwheel1);
   gtk_container_add (GTK_CONTAINER (hid1_menu), scrollwheel1);
 
   scrollwheel1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (scrollwheel1), scrollwheel1_menu);
 
-  attach_scroll_wheel_to_which_map_1 = gtk_menu_item_new_with_mnemonic (_("Attach scroll wheel to which map?"));
+  attach_scroll_wheel_to_which_map_1 = gtk_menu_item_new_with_mnemonic ("Attach scroll wheel to which map?");
   gtk_widget_show (attach_scroll_wheel_to_which_map_1);
   gtk_container_add (GTK_CONTAINER (scrollwheel1_menu), attach_scroll_wheel_to_which_map_1);
 
-  virtual_trackball1 = gtk_menu_item_new_with_mnemonic (_("Virtual Trackball"));
+  virtual_trackball1 = gtk_menu_item_new_with_mnemonic ("Virtual Trackball");
   gtk_widget_show (virtual_trackball1);
   gtk_container_add (GTK_CONTAINER (hid1_menu), virtual_trackball1);
 
   virtual_trackball1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (virtual_trackball1), virtual_trackball1_menu);
 
-  flat1 = gtk_radio_menu_item_new_with_mnemonic (flat1_group, _("Flat"));
+  flat1 = gtk_radio_menu_item_new_with_mnemonic (flat1_group, "Flat");
   flat1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (flat1));
   gtk_widget_show (flat1);
   gtk_container_add (GTK_CONTAINER (virtual_trackball1_menu), flat1);
 
-  spherical_surface1 = gtk_radio_menu_item_new_with_mnemonic (flat1_group, _("Spherical Surface"));
+  spherical_surface1 = gtk_radio_menu_item_new_with_mnemonic (flat1_group, "Spherical Surface");
   flat1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (spherical_surface1));
   gtk_widget_show (spherical_surface1);
   gtk_container_add (GTK_CONTAINER (virtual_trackball1_menu), spherical_surface1);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (spherical_surface1), TRUE);
 
-  reset_view1 = gtk_menu_item_new_with_mnemonic (_("_Reset View"));
+  reset_view1 = gtk_menu_item_new_with_mnemonic ("_Reset View");
   gtk_widget_show (reset_view1);
   gtk_container_add (GTK_CONTAINER (menubar1), reset_view1);
-  gtk_tooltips_set_tip (tooltips, reset_view1, _("Recentre of the last read molecule that is displayed"), NULL);
+  gtk_tooltips_set_tip (tooltips, reset_view1, "Recentre of the last read molecule that is displayed", NULL);
 
-  help1 = gtk_menu_item_new_with_mnemonic (_("About"));
+  help1 = gtk_menu_item_new_with_mnemonic ("About");
   gtk_widget_show (help1);
   gtk_container_add (GTK_CONTAINER (menubar1), help1);
 
   help1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (help1), help1_menu);
 
-  on_line_docs_url1 = gtk_menu_item_new_with_mnemonic (_("On Line Docs URL..."));
+  on_line_docs_url1 = gtk_menu_item_new_with_mnemonic ("On Line Docs URL...");
   gtk_widget_show (on_line_docs_url1);
   gtk_container_add (GTK_CONTAINER (help1_menu), on_line_docs_url1);
 
-  about1 = gtk_menu_item_new_with_mnemonic (_("About..."));
+  about1 = gtk_menu_item_new_with_mnemonic ("About...");
   gtk_widget_show (about1);
   gtk_container_add (GTK_CONTAINER (help1_menu), about1);
 
-  hints1 = gtk_menu_item_new_with_mnemonic (_("Hints..."));
+  hints1 = gtk_menu_item_new_with_mnemonic ("Hints...");
   gtk_widget_show (hints1);
   gtk_container_add (GTK_CONTAINER (help1_menu), hints1);
 
@@ -1121,7 +1121,7 @@ create_coords_fileselection1 (void)
   GtkWidget *ok_button_coordinates;
   GtkWidget *cancel_coords_button1;
 
-  coords_fileselection1 = gtk_file_selection_new (_("Select Coordinates File"));
+  coords_fileselection1 = gtk_file_selection_new ("Select Coordinates File");
   gtk_container_set_border_width (GTK_CONTAINER (coords_fileselection1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (coords_fileselection1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -1158,7 +1158,7 @@ create_dataset_fileselection1 (void)
   GtkWidget *ok_button_dataset;
   GtkWidget *cancel_dataset_button1;
 
-  dataset_fileselection1 = gtk_file_selection_new (_("Select Dataset File"));
+  dataset_fileselection1 = gtk_file_selection_new ("Select Dataset File");
   gtk_container_set_border_width (GTK_CONTAINER (dataset_fileselection1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (dataset_fileselection1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -1255,7 +1255,7 @@ create_column_label_window (void)
   tooltips = gtk_tooltips_new ();
 
   column_label_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (column_label_window), _("Column Label Assignment"));
+  gtk_window_set_title (GTK_WINDOW (column_label_window), "Column Label Assignment");
 
   vbox2 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox2);
@@ -1266,17 +1266,17 @@ create_column_label_window (void)
   gtk_widget_show (hbox88);
   gtk_box_pack_start (GTK_BOX (vbox2), hbox88, TRUE, TRUE, 0);
 
-  label177 = gtk_label_new (_("                                        "));
+  label177 = gtk_label_new ("                                        ");
   gtk_widget_show (label177);
   gtk_box_pack_start (GTK_BOX (hbox88), label177, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label177), GTK_JUSTIFY_CENTER);
 
-  column_label_expert_mode_button = gtk_button_new_with_mnemonic (_("Expert Mode?"));
+  column_label_expert_mode_button = gtk_button_new_with_mnemonic ("Expert Mode?");
   gtk_widget_show (column_label_expert_mode_button);
   gtk_box_pack_start (GTK_BOX (hbox88), column_label_expert_mode_button, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, column_label_expert_mode_button, _("When clicked, add anomalous and resolution limit options (generally not needed)"), NULL);
+  gtk_tooltips_set_tip (tooltips, column_label_expert_mode_button, "When clicked, add anomalous and resolution limit options (generally not needed)", NULL);
 
-  label1 = gtk_label_new (_("Column Labels for Map Synthesis:"));
+  label1 = gtk_label_new ("Column Labels for Map Synthesis:");
   gtk_widget_show (label1);
   gtk_box_pack_start (GTK_BOX (vbox2), label1, FALSE, FALSE, 7);
   gtk_label_set_justify (GTK_LABEL (label1), GTK_JUSTIFY_CENTER);
@@ -1294,7 +1294,7 @@ create_column_label_window (void)
   gtk_container_add (GTK_CONTAINER (frame1), hbox1);
   gtk_container_set_border_width (GTK_CONTAINER (hbox1), 5);
 
-  label2 = gtk_label_new (_("Amplitudes"));
+  label2 = gtk_label_new ("Amplitudes");
   gtk_widget_show (label2);
   gtk_box_pack_start (GTK_BOX (hbox1), label2, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label2), GTK_JUSTIFY_CENTER);
@@ -1305,7 +1305,7 @@ create_column_label_window (void)
 
   convertwidget1 = gtk_menu_new ();
 
-  convertwidget2 = gtk_menu_item_new_with_mnemonic (_("-"));
+  convertwidget2 = gtk_menu_item_new_with_mnemonic ("-");
   gtk_widget_show (convertwidget2);
   gtk_container_add (GTK_CONTAINER (convertwidget1), convertwidget2);
 
@@ -1320,7 +1320,7 @@ create_column_label_window (void)
   gtk_container_add (GTK_CONTAINER (frame2), hbox4);
   gtk_container_set_border_width (GTK_CONTAINER (hbox4), 5);
 
-  label3 = gtk_label_new (_("Phases"));
+  label3 = gtk_label_new ("Phases");
   gtk_widget_show (label3);
   gtk_box_pack_start (GTK_BOX (hbox4), label3, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label3), GTK_JUSTIFY_CENTER);
@@ -1331,7 +1331,7 @@ create_column_label_window (void)
 
   convertwidget3 = gtk_menu_new ();
 
-  convertwidget4 = gtk_menu_item_new_with_mnemonic (_("-"));
+  convertwidget4 = gtk_menu_item_new_with_mnemonic ("-");
   gtk_widget_show (convertwidget4);
   gtk_container_add (GTK_CONTAINER (convertwidget3), convertwidget4);
 
@@ -1349,16 +1349,16 @@ create_column_label_window (void)
   gtk_widget_show (hbox15);
   gtk_box_pack_start (GTK_BOX (vbox28), hbox15, TRUE, TRUE, 0);
 
-  label30 = gtk_label_new (_("   "));
+  label30 = gtk_label_new ("   ");
   gtk_widget_show (label30);
   gtk_box_pack_start (GTK_BOX (hbox15), label30, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label30), GTK_JUSTIFY_CENTER);
 
-  use_weights_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Weights?"));
+  use_weights_checkbutton = gtk_check_button_new_with_mnemonic ("Use Weights?");
   gtk_widget_show (use_weights_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox15), use_weights_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (use_weights_checkbutton), 4);
-  gtk_tooltips_set_tip (tooltips, use_weights_checkbutton, _("Weights are usually used for experimental phasing.  When making a map from REFMAC output one (almost) never needs Weights."), NULL);
+  gtk_tooltips_set_tip (tooltips, use_weights_checkbutton, "Weights are usually used for experimental phasing.  When making a map from REFMAC output one (almost) never needs Weights.", NULL);
 
   column_label_window_weights_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (column_label_window_weights_hbox);
@@ -1366,7 +1366,7 @@ create_column_label_window (void)
   gtk_container_set_border_width (GTK_CONTAINER (column_label_window_weights_hbox), 6);
   gtk_widget_set_sensitive (column_label_window_weights_hbox, FALSE);
 
-  label31 = gtk_label_new (_("Weights"));
+  label31 = gtk_label_new ("Weights");
   gtk_widget_show (label31);
   gtk_box_pack_start (GTK_BOX (column_label_window_weights_hbox), label31, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label31), GTK_JUSTIFY_CENTER);
@@ -1374,7 +1374,7 @@ create_column_label_window (void)
   optionmenu3 = gtk_option_menu_new ();
   gtk_widget_show (optionmenu3);
   gtk_box_pack_start (GTK_BOX (column_label_window_weights_hbox), optionmenu3, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, optionmenu3, _("Usually not needed for map from refmac..."), NULL);
+  gtk_tooltips_set_tip (tooltips, optionmenu3, "Usually not needed for map from refmac...", NULL);
 
   convertwidget5 = gtk_menu_new ();
 
@@ -1389,7 +1389,7 @@ create_column_label_window (void)
   gtk_container_add (GTK_CONTAINER (column_labels_resolution_limit_frame), vbox113);
   gtk_container_set_border_width (GTK_CONTAINER (vbox113), 10);
 
-  column_labels_use_resolution_limits_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Resolution Limits"));
+  column_labels_use_resolution_limits_checkbutton = gtk_check_button_new_with_mnemonic ("Use Resolution Limits");
   gtk_widget_show (column_labels_use_resolution_limits_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox113), column_labels_use_resolution_limits_checkbutton, FALSE, FALSE, 0);
 
@@ -1398,7 +1398,7 @@ create_column_label_window (void)
   gtk_box_pack_start (GTK_BOX (vbox113), resolution_limits_hbox, TRUE, TRUE, 0);
   gtk_widget_set_sensitive (resolution_limits_hbox, FALSE);
 
-  label175 = gtk_label_new (_("Low:"));
+  label175 = gtk_label_new ("Low:");
   gtk_widget_show (label175);
   gtk_box_pack_start (GTK_BOX (resolution_limits_hbox), label175, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label175), GTK_JUSTIFY_CENTER);
@@ -1406,13 +1406,14 @@ create_column_label_window (void)
   column_labels_reso_low_entry = gtk_entry_new ();
   gtk_widget_show (column_labels_reso_low_entry);
   gtk_box_pack_start (GTK_BOX (resolution_limits_hbox), column_labels_reso_low_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (column_labels_reso_low_entry), 9679);
 
-  label174 = gtk_label_new (_("   "));
+  label174 = gtk_label_new ("   ");
   gtk_widget_show (label174);
   gtk_box_pack_start (GTK_BOX (resolution_limits_hbox), label174, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label174), GTK_JUSTIFY_CENTER);
 
-  label176 = gtk_label_new (_("High:"));
+  label176 = gtk_label_new ("High:");
   gtk_widget_show (label176);
   gtk_box_pack_start (GTK_BOX (resolution_limits_hbox), label176, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label176), GTK_JUSTIFY_CENTER);
@@ -1420,24 +1421,25 @@ create_column_label_window (void)
   column_labels_reso_high_entry = gtk_entry_new ();
   gtk_widget_show (column_labels_reso_high_entry);
   gtk_box_pack_start (GTK_BOX (resolution_limits_hbox), column_labels_reso_high_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (column_labels_reso_high_entry), 9679);
 
-  label178 = gtk_label_new (_("Resolution limits"));
+  label178 = gtk_label_new ("Resolution limits");
   gtk_widget_show (label178);
   gtk_frame_set_label_widget (GTK_FRAME (column_labels_resolution_limit_frame), label178);
 
-  difference_map_checkbutton = gtk_check_button_new_with_mnemonic (_("Is a Difference Map"));
+  difference_map_checkbutton = gtk_check_button_new_with_mnemonic ("Is a Difference Map");
   gtk_widget_show (difference_map_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox3), difference_map_checkbutton, FALSE, FALSE, 7);
-  gtk_tooltips_set_tip (tooltips, difference_map_checkbutton, _("See Section 6.5 of the User Manual for default Diference Map colouring."), NULL);
+  gtk_tooltips_set_tip (tooltips, difference_map_checkbutton, "See Section 6.5 of the User Manual for default Diference Map colouring.", NULL);
 
   hseparator9 = gtk_hseparator_new ();
   gtk_widget_show (hseparator9);
   gtk_box_pack_start (GTK_BOX (vbox3), hseparator9, TRUE, TRUE, 10);
 
-  refmac_column_labels_checkbutton = gtk_check_button_new_with_mnemonic (_("Assign Labels for Refmac?"));
+  refmac_column_labels_checkbutton = gtk_check_button_new_with_mnemonic ("Assign Labels for Refmac?");
   gtk_widget_show (refmac_column_labels_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox3), refmac_column_labels_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refmac_column_labels_checkbutton, _("If you want to use these data to run refmac, you will need to assign the columns for the observations, the sigmas thereof and the R free..."), NULL);
+  gtk_tooltips_set_tip (tooltips, refmac_column_labels_checkbutton, "If you want to use these data to run refmac, you will need to assign the columns for the observations, the sigmas thereof and the R free...", NULL);
 
   column_label_refmac_frame = gtk_frame_new (NULL);
   gtk_widget_show (column_label_refmac_frame);
@@ -1452,7 +1454,7 @@ create_column_label_window (void)
   gtk_widget_show (hbox53);
   gtk_box_pack_start (GTK_BOX (vbox79), hbox53, TRUE, TRUE, 2);
 
-  label105 = gtk_label_new (_("Fobs"));
+  label105 = gtk_label_new ("Fobs");
   gtk_widget_show (label105);
   gtk_box_pack_start (GTK_BOX (hbox53), label105, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label105), GTK_JUSTIFY_CENTER);
@@ -1470,7 +1472,7 @@ create_column_label_window (void)
   gtk_widget_show (hbox54);
   gtk_box_pack_start (GTK_BOX (vbox79), hbox54, TRUE, TRUE, 2);
 
-  label106 = gtk_label_new (_("Sig Fobs"));
+  label106 = gtk_label_new ("Sig Fobs");
   gtk_widget_show (label106);
   gtk_box_pack_start (GTK_BOX (hbox54), label106, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label106), GTK_JUSTIFY_CENTER);
@@ -1488,7 +1490,7 @@ create_column_label_window (void)
   gtk_widget_show (hbox55);
   gtk_box_pack_start (GTK_BOX (vbox79), hbox55, TRUE, TRUE, 2);
 
-  label107 = gtk_label_new (_("R free"));
+  label107 = gtk_label_new ("R free");
   gtk_widget_show (label107);
   gtk_box_pack_start (GTK_BOX (hbox55), label107, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label107), GTK_JUSTIFY_CENTER);
@@ -1507,17 +1509,17 @@ create_column_label_window (void)
   gtk_box_pack_start (GTK_BOX (vbox2), hbox3, TRUE, TRUE, 11);
   gtk_container_set_border_width (GTK_CONTAINER (hbox3), 2);
 
-  column_label_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  column_label_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (column_label_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox3), column_label_ok_button, TRUE, TRUE, 6);
   GTK_WIDGET_SET_FLAGS (column_label_ok_button, GTK_CAN_DEFAULT);
 
-  column_label_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  column_label_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (column_label_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox3), column_label_cancel_button, TRUE, TRUE, 6);
   GTK_WIDGET_SET_FLAGS (column_label_cancel_button, GTK_CAN_DEFAULT);
 
-  label8 = gtk_label_new (_("(Thinking, not crashing)"));
+  label8 = gtk_label_new ("(Thinking, not crashing)");
   gtk_widget_show (label8);
   gtk_box_pack_start (GTK_BOX (vbox2), label8, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label8), GTK_JUSTIFY_CENTER);
@@ -1618,13 +1620,13 @@ create_clipping_window (void)
   GtkWidget *clipping_button;
 
   clipping_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (clipping_window), _("Clipping Window"));
+  gtk_window_set_title (GTK_WINDOW (clipping_window), "Clipping Window");
 
   vbox4 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox4);
   gtk_container_add (GTK_CONTAINER (clipping_window), vbox4);
 
-  label4 = gtk_label_new (_("Clipping Adjustment"));
+  label4 = gtk_label_new ("Clipping Adjustment");
   gtk_widget_show (label4);
   gtk_box_pack_start (GTK_BOX (vbox4), label4, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label4), GTK_JUSTIFY_CENTER);
@@ -1640,7 +1642,7 @@ create_clipping_window (void)
   gtk_widget_show (hscale1);
   gtk_container_add (GTK_CONTAINER (frame3), hscale1);
 
-  clipping_button = gtk_button_new_with_mnemonic (_("OK"));
+  clipping_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (clipping_button);
   gtk_box_pack_start (GTK_BOX (vbox4), clipping_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (clipping_button), 6);
@@ -1702,13 +1704,13 @@ create_global_map_properties_window (void)
   tooltips = gtk_tooltips_new ();
 
   global_map_properties_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (global_map_properties_window), _("Global map properties window"));
+  gtk_window_set_title (GTK_WINDOW (global_map_properties_window), "Global map properties window");
 
   map_properties_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (map_properties_vbox);
   gtk_container_add (GTK_CONTAINER (global_map_properties_window), map_properties_vbox);
 
-  label5 = gtk_label_new (_("Density Settings"));
+  label5 = gtk_label_new ("Density Settings");
   gtk_widget_show (label5);
   gtk_box_pack_start (GTK_BOX (map_properties_vbox), label5, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label5), GTK_JUSTIFY_CENTER);
@@ -1722,7 +1724,7 @@ create_global_map_properties_window (void)
   gtk_widget_show (hbox5);
   gtk_container_add (GTK_CONTAINER (frame4), hbox5);
 
-  label6 = gtk_label_new (_("Map Radius: "));
+  label6 = gtk_label_new ("Map Radius: ");
   gtk_widget_show (label6);
   gtk_box_pack_start (GTK_BOX (hbox5), label6, FALSE, FALSE, 7);
   gtk_label_set_justify (GTK_LABEL (label6), GTK_JUSTIFY_CENTER);
@@ -1730,17 +1732,18 @@ create_global_map_properties_window (void)
   entry1 = gtk_entry_new ();
   gtk_widget_show (entry1);
   gtk_box_pack_start (GTK_BOX (hbox5), entry1, FALSE, TRUE, 11);
+  gtk_entry_set_invisible_char (GTK_ENTRY (entry1), 9679);
 
-  label7 = gtk_label_new (_("Angstroems"));
+  label7 = gtk_label_new ("Angstroems");
   gtk_widget_show (label7);
   gtk_box_pack_start (GTK_BOX (hbox5), label7, FALSE, FALSE, 18);
   gtk_label_set_justify (GTK_LABEL (label7), GTK_JUSTIFY_CENTER);
 
-  map_radius_apply_button = gtk_button_new_with_mnemonic (_("  Apply  "));
+  map_radius_apply_button = gtk_button_new_with_mnemonic ("  Apply  ");
   gtk_widget_show (map_radius_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox5), map_radius_apply_button, FALSE, FALSE, 0);
 
-  label275 = gtk_label_new (_("  "));
+  label275 = gtk_label_new ("  ");
   gtk_widget_show (label275);
   gtk_box_pack_start (GTK_BOX (hbox5), label275, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label275), GTK_JUSTIFY_CENTER);
@@ -1753,7 +1756,7 @@ create_global_map_properties_window (void)
   gtk_widget_show (hbox17);
   gtk_container_add (GTK_CONTAINER (frame24), hbox17);
 
-  label32 = gtk_label_new (_("Increment Size"));
+  label32 = gtk_label_new ("Increment Size");
   gtk_widget_show (label32);
   gtk_box_pack_start (GTK_BOX (hbox17), label32, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label32), GTK_JUSTIFY_CENTER);
@@ -1761,8 +1764,9 @@ create_global_map_properties_window (void)
   iso_level_increment_entry = gtk_entry_new ();
   gtk_widget_show (iso_level_increment_entry);
   gtk_box_pack_start (GTK_BOX (hbox17), iso_level_increment_entry, FALSE, TRUE, 6);
+  gtk_entry_set_invisible_char (GTK_ENTRY (iso_level_increment_entry), 9679);
 
-  label33 = gtk_label_new (_("e/A^3"));
+  label33 = gtk_label_new ("e/A^3");
   gtk_widget_show (label33);
   gtk_box_pack_start (GTK_BOX (hbox17), label33, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label33), GTK_JUSTIFY_CENTER);
@@ -1775,7 +1779,7 @@ create_global_map_properties_window (void)
   gtk_widget_show (hbox18);
   gtk_container_add (GTK_CONTAINER (frame25), hbox18);
 
-  label34 = gtk_label_new (_("Diff Map Increment"));
+  label34 = gtk_label_new ("Diff Map Increment");
   gtk_widget_show (label34);
   gtk_box_pack_start (GTK_BOX (hbox18), label34, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label34), GTK_JUSTIFY_CENTER);
@@ -1783,8 +1787,9 @@ create_global_map_properties_window (void)
   diff_map_iso_level_increment_entry = gtk_entry_new ();
   gtk_widget_show (diff_map_iso_level_increment_entry);
   gtk_box_pack_start (GTK_BOX (hbox18), diff_map_iso_level_increment_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (diff_map_iso_level_increment_entry), 9679);
 
-  label35 = gtk_label_new (_("e/A^3"));
+  label35 = gtk_label_new ("e/A^3");
   gtk_widget_show (label35);
   gtk_box_pack_start (GTK_BOX (hbox18), label35, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label35), GTK_JUSTIFY_CENTER);
@@ -1798,7 +1803,7 @@ create_global_map_properties_window (void)
   gtk_widget_show (hbox42);
   gtk_container_add (GTK_CONTAINER (frame43), hbox42);
 
-  label84 = gtk_label_new (_("Sampling Rate: "));
+  label84 = gtk_label_new ("Sampling Rate: ");
   gtk_widget_show (label84);
   gtk_box_pack_start (GTK_BOX (hbox42), label84, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label84), GTK_JUSTIFY_CENTER);
@@ -1806,7 +1811,8 @@ create_global_map_properties_window (void)
   map_sampling_rate_entry = gtk_entry_new ();
   gtk_widget_show (map_sampling_rate_entry);
   gtk_box_pack_start (GTK_BOX (hbox42), map_sampling_rate_entry, FALSE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, map_sampling_rate_entry, _("Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps"), NULL);
+  gtk_tooltips_set_tip (tooltips, map_sampling_rate_entry, "Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps", NULL);
+  gtk_entry_set_invisible_char (GTK_ENTRY (map_sampling_rate_entry), 9679);
 
   frame49 = gtk_frame_new (NULL);
   gtk_widget_show (frame49);
@@ -1817,12 +1823,12 @@ create_global_map_properties_window (void)
   gtk_widget_show (vbox61);
   gtk_container_add (GTK_CONTAINER (frame49), vbox61);
 
-  map_dynamic_map_sampling_checkbutton = gtk_check_button_new_with_mnemonic (_("Dynamic Map Sampling"));
+  map_dynamic_map_sampling_checkbutton = gtk_check_button_new_with_mnemonic ("Dynamic Map Sampling");
   gtk_widget_show (map_dynamic_map_sampling_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox61), map_dynamic_map_sampling_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (map_dynamic_map_sampling_checkbutton), 1);
 
-  map_dynamic_map_size_display_checkbutton = gtk_check_button_new_with_mnemonic (_("Dynamic Map Display Size"));
+  map_dynamic_map_size_display_checkbutton = gtk_check_button_new_with_mnemonic ("Dynamic Map Display Size");
   gtk_widget_show (map_dynamic_map_size_display_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox61), map_dynamic_map_size_display_checkbutton, FALSE, FALSE, 0);
 
@@ -1835,12 +1841,12 @@ create_global_map_properties_window (void)
   gtk_box_pack_start (GTK_BOX (map_properties_vbox), hbox6, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox6), 10);
 
-  density_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  density_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (density_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox6), density_ok_button, TRUE, TRUE, 10);
   GTK_WIDGET_SET_FLAGS (density_ok_button, GTK_CAN_DEFAULT);
 
-  density_cancel = gtk_button_new_with_mnemonic (_("Cancel"));
+  density_cancel = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (density_cancel);
   gtk_box_pack_start (GTK_BOX (hbox6), density_cancel, TRUE, TRUE, 10);
   GTK_WIDGET_SET_FLAGS (density_cancel, GTK_CAN_DEFAULT);
@@ -1918,13 +1924,13 @@ create_fps_window (void)
   GtkWidget *fps_window_ok_button;
 
   fps_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (fps_window), _("fps_window"));
+  gtk_window_set_title (GTK_WINDOW (fps_window), "fps_window");
 
   vbox6 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox6);
   gtk_container_add (GTK_CONTAINER (fps_window), vbox6);
 
-  label9 = gtk_label_new (_("Show Frames Per Second?"));
+  label9 = gtk_label_new ("Show Frames Per Second?");
   gtk_widget_show (label9);
   gtk_box_pack_start (GTK_BOX (vbox6), label9, FALSE, FALSE, 4);
   gtk_label_set_justify (GTK_LABEL (label9), GTK_JUSTIFY_CENTER);
@@ -1939,20 +1945,20 @@ create_fps_window (void)
   gtk_widget_show (vbox7);
   gtk_container_add (GTK_CONTAINER (frame5), vbox7);
 
-  radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (radiobutton1);
   gtk_box_pack_start (GTK_BOX (vbox7), radiobutton1, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton1), radiobutton1_group);
   radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton1));
 
-  radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (radiobutton2);
   gtk_box_pack_start (GTK_BOX (vbox7), radiobutton2, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton2), radiobutton1_group);
   radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton2));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radiobutton2), TRUE);
 
-  fps_window_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  fps_window_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (fps_window_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox6), fps_window_ok_button, FALSE, FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (fps_window_ok_button), 8);
@@ -1991,13 +1997,13 @@ create_active_map_window (void)
   GtkWidget *active_map_ok_button;
 
   active_map_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (active_map_window), _("Active Map on Dragging?"));
+  gtk_window_set_title (GTK_WINDOW (active_map_window), "Active Map on Dragging?");
 
   vbox8 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox8);
   gtk_container_add (GTK_CONTAINER (active_map_window), vbox8);
 
-  label10 = gtk_label_new (_("Active Map on Dragging?"));
+  label10 = gtk_label_new ("Active Map on Dragging?");
   gtk_widget_show (label10);
   gtk_box_pack_start (GTK_BOX (vbox8), label10, FALSE, FALSE, 9);
   gtk_label_set_justify (GTK_LABEL (label10), GTK_JUSTIFY_CENTER);
@@ -2012,19 +2018,19 @@ create_active_map_window (void)
   gtk_widget_show (vbox9);
   gtk_container_add (GTK_CONTAINER (frame6), vbox9);
 
-  active_map_radiobutton_yes = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  active_map_radiobutton_yes = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (active_map_radiobutton_yes);
   gtk_box_pack_start (GTK_BOX (vbox9), active_map_radiobutton_yes, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (active_map_radiobutton_yes), active_map_radiobutton_yes_group);
   active_map_radiobutton_yes_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (active_map_radiobutton_yes));
 
-  active_map_radiobutton_no = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  active_map_radiobutton_no = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (active_map_radiobutton_no);
   gtk_box_pack_start (GTK_BOX (vbox9), active_map_radiobutton_no, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (active_map_radiobutton_no), active_map_radiobutton_yes_group);
   active_map_radiobutton_yes_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (active_map_radiobutton_no));
 
-  active_map_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  active_map_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (active_map_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox8), active_map_ok_button, FALSE, FALSE, 9);
   gtk_container_set_border_width (GTK_CONTAINER (active_map_ok_button), 10);
@@ -2096,13 +2102,13 @@ create_show_symmetry_window (void)
   GtkWidget *show_symmetry_ok_button;
 
   show_symmetry_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (show_symmetry_window), _("Show Symmetry?"));
+  gtk_window_set_title (GTK_WINDOW (show_symmetry_window), "Show Symmetry?");
 
   vbox10 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox10);
   gtk_container_add (GTK_CONTAINER (show_symmetry_window), vbox10);
 
-  label11 = gtk_label_new (_("Symmetry & Unit Cell"));
+  label11 = gtk_label_new ("Symmetry & Unit Cell");
   gtk_widget_show (label11);
   gtk_box_pack_start (GTK_BOX (vbox10), label11, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label11), GTK_JUSTIFY_CENTER);
@@ -2126,24 +2132,24 @@ create_show_symmetry_window (void)
   gtk_widget_show (vbox11);
   gtk_container_add (GTK_CONTAINER (frame7), vbox11);
 
-  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (show_symmetry_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton), show_symmetry_yes_radiobutton_group);
   show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton));
 
-  show_symmetry_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  show_symmetry_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (show_symmetry_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton), show_symmetry_yes_radiobutton_group);
   show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_symmetry_no_radiobutton), TRUE);
 
-  label277 = gtk_label_new (_("Master Switch: Show Symmetry Atoms?"));
+  label277 = gtk_label_new ("Master Switch: Show Symmetry Atoms?");
   gtk_widget_show (label277);
   gtk_frame_set_label_widget (GTK_FRAME (frame7), label277);
 
-  show_symmetry_molecule_control_button = gtk_button_new_with_mnemonic (_("Symmetry by Molecule..."));
+  show_symmetry_molecule_control_button = gtk_button_new_with_mnemonic ("Symmetry by Molecule...");
   gtk_widget_show (show_symmetry_molecule_control_button);
   gtk_box_pack_start (GTK_BOX (vbox169), show_symmetry_molecule_control_button, FALSE, FALSE, 4);
   gtk_container_set_border_width (GTK_CONTAINER (show_symmetry_molecule_control_button), 4);
@@ -2157,7 +2163,7 @@ create_show_symmetry_window (void)
   gtk_widget_show (vbox12);
   gtk_container_add (GTK_CONTAINER (frame8), vbox12);
 
-  label12 = gtk_label_new (_("Symmetry Atom Display Radius:"));
+  label12 = gtk_label_new ("Symmetry Atom Display Radius:");
   gtk_widget_show (label12);
   gtk_box_pack_start (GTK_BOX (vbox12), label12, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label12), GTK_JUSTIFY_CENTER);
@@ -2167,7 +2173,7 @@ create_show_symmetry_window (void)
   gtk_widget_show (hbox7);
   gtk_box_pack_start (GTK_BOX (vbox12), hbox7, TRUE, TRUE, 0);
 
-  label13 = gtk_label_new (_("Radius:"));
+  label13 = gtk_label_new ("Radius:");
   gtk_widget_show (label13);
   gtk_box_pack_start (GTK_BOX (hbox7), label13, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label13), GTK_JUSTIFY_CENTER);
@@ -2175,8 +2181,9 @@ create_show_symmetry_window (void)
   symmetry_radius_entry = gtk_entry_new ();
   gtk_widget_show (symmetry_radius_entry);
   gtk_box_pack_start (GTK_BOX (hbox7), symmetry_radius_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (symmetry_radius_entry), 9679);
 
-  label14 = gtk_label_new (_("A"));
+  label14 = gtk_label_new ("A");
   gtk_widget_show (label14);
   gtk_box_pack_start (GTK_BOX (hbox7), label14, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label14), GTK_JUSTIFY_CENTER);
@@ -2195,7 +2202,7 @@ create_show_symmetry_window (void)
   gtk_widget_show (hbox8);
   gtk_box_pack_start (GTK_BOX (vbox13), hbox8, TRUE, TRUE, 6);
 
-  label15 = gtk_label_new (_("Symmetry Colour"));
+  label15 = gtk_label_new ("Symmetry Colour");
   gtk_widget_show (label15);
   gtk_box_pack_start (GTK_BOX (hbox8), label15, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label15), GTK_JUSTIFY_CENTER);
@@ -2213,7 +2220,7 @@ create_show_symmetry_window (void)
   gtk_widget_show (frame33);
   gtk_box_pack_start (GTK_BOX (hbox33), frame33, TRUE, TRUE, 0);
 
-  label68 = gtk_label_new (_("Sym Colour"));
+  label68 = gtk_label_new ("Sym Colour");
   gtk_widget_show (label68);
   gtk_box_pack_start (GTK_BOX (hbox33), label68, FALSE, FALSE, 2);
   gtk_label_set_justify (GTK_LABEL (label68), GTK_JUSTIFY_CENTER);
@@ -2232,7 +2239,7 @@ create_show_symmetry_window (void)
   gtk_container_add (GTK_CONTAINER (frame10), hbox10);
   gtk_container_set_border_width (GTK_CONTAINER (hbox10), 4);
 
-  label16 = gtk_label_new (_("Colour Merge:"));
+  label16 = gtk_label_new ("Colour Merge:");
   gtk_widget_show (label16);
   gtk_box_pack_start (GTK_BOX (hbox10), label16, FALSE, FALSE, 4);
   gtk_label_set_justify (GTK_LABEL (label16), GTK_JUSTIFY_CENTER);
@@ -2241,11 +2248,11 @@ create_show_symmetry_window (void)
   gtk_widget_show (hscale_symmetry_colour);
   gtk_box_pack_start (GTK_BOX (hbox10), hscale_symmetry_colour, TRUE, TRUE, 0);
 
-  show_symmetry_expanded_labels_checkbutton = gtk_check_button_new_with_mnemonic (_("Expanded Symmetry Atom Labels?"));
+  show_symmetry_expanded_labels_checkbutton = gtk_check_button_new_with_mnemonic ("Expanded Symmetry Atom Labels?");
   gtk_widget_show (show_symmetry_expanded_labels_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox169), show_symmetry_expanded_labels_checkbutton, FALSE, FALSE, 0);
 
-  label276 = gtk_label_new (_("Symmetry"));
+  label276 = gtk_label_new ("Symmetry");
   gtk_widget_show (label276);
   gtk_frame_set_label_widget (GTK_FRAME (frame163), label276);
 
@@ -2257,20 +2264,20 @@ create_show_symmetry_window (void)
   gtk_widget_show (vbox15);
   gtk_container_add (GTK_CONTAINER (frame11), vbox15);
 
-  unit_cell_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  unit_cell_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (unit_cell_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox15), unit_cell_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (unit_cell_yes_radiobutton), unit_cell_yes_radiobutton_group);
   unit_cell_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (unit_cell_yes_radiobutton));
 
-  unit_cell_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  unit_cell_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (unit_cell_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox15), unit_cell_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (unit_cell_no_radiobutton), unit_cell_yes_radiobutton_group);
   unit_cell_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (unit_cell_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (unit_cell_no_radiobutton), TRUE);
 
-  label278 = gtk_label_new (_("Show Unit Cells?"));
+  label278 = gtk_label_new ("Show Unit Cells?");
   gtk_widget_show (label278);
   gtk_frame_set_label_widget (GTK_FRAME (frame11), label278);
 
@@ -2278,12 +2285,12 @@ create_show_symmetry_window (void)
   gtk_widget_show (hbox133);
   gtk_box_pack_start (GTK_BOX (vbox10), hbox133, FALSE, FALSE, 9);
 
-  show_symmetry_apply_button = gtk_button_new_with_mnemonic (_("  Apply  "));
+  show_symmetry_apply_button = gtk_button_new_with_mnemonic ("  Apply  ");
   gtk_widget_show (show_symmetry_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox133), show_symmetry_apply_button, TRUE, TRUE, 4);
   GTK_WIDGET_SET_FLAGS (show_symmetry_apply_button, GTK_CAN_DEFAULT);
 
-  show_symmetry_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  show_symmetry_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (show_symmetry_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox133), show_symmetry_ok_button, TRUE, TRUE, 4);
   GTK_WIDGET_SET_FLAGS (show_symmetry_ok_button, GTK_CAN_DEFAULT);
@@ -2367,7 +2374,7 @@ create_about_window (void)
   GtkWidget *about_other_button;
 
   about_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (about_window), _("About..."));
+  gtk_window_set_title (GTK_WINDOW (about_window), "About...");
 
   vbox14 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox14);
@@ -2390,13 +2397,13 @@ create_about_window (void)
   gtk_widget_show (hbox123);
   gtk_box_pack_start (GTK_BOX (vbox14), hbox123, FALSE, FALSE, 0);
 
-  about_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  about_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (about_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox123), about_ok_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (about_ok_button), 8);
   GTK_WIDGET_SET_FLAGS (about_ok_button, GTK_CAN_DEFAULT);
 
-  about_other_button = gtk_button_new_with_mnemonic (_("  Other...   "));
+  about_other_button = gtk_button_new_with_mnemonic ("  Other...   ");
   gtk_box_pack_start (GTK_BOX (hbox123), about_other_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (about_other_button), 8);
   GTK_WIDGET_SET_FLAGS (about_other_button, GTK_CAN_DEFAULT);
@@ -2458,7 +2465,7 @@ create_aniso_window (void)
   GtkWidget *show_aniso_ok_button;
 
   aniso_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (aniso_window), _("Anisotripic Atoms"));
+  gtk_window_set_title (GTK_WINDOW (aniso_window), "Anisotripic Atoms");
 
   vbox16 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox16);
@@ -2482,18 +2489,18 @@ create_aniso_window (void)
   gtk_widget_show (vbox18);
   gtk_container_add (GTK_CONTAINER (frame13), vbox18);
 
-  label19 = gtk_label_new (_("Show Anisotropic Atoms?"));
+  label19 = gtk_label_new ("Show Anisotropic Atoms?");
   gtk_widget_show (label19);
   gtk_box_pack_start (GTK_BOX (vbox18), label19, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label19), GTK_JUSTIFY_CENTER);
 
-  show_aniso_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  show_aniso_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (show_aniso_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox18), show_aniso_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_aniso_yes_radiobutton), show_aniso_yes_radiobutton_group);
   show_aniso_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_aniso_yes_radiobutton));
 
-  show_aniso_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  show_aniso_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (show_aniso_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox18), show_aniso_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_aniso_no_radiobutton), show_aniso_yes_radiobutton_group);
@@ -2508,7 +2515,7 @@ create_aniso_window (void)
   gtk_widget_show (vbox19);
   gtk_container_add (GTK_CONTAINER (frame14), vbox19);
 
-  label20 = gtk_label_new (_("Limit Display Radius of Anisotropic Atoms?"));
+  label20 = gtk_label_new ("Limit Display Radius of Anisotropic Atoms?");
   gtk_widget_show (label20);
   gtk_box_pack_start (GTK_BOX (vbox19), label20, FALSE, FALSE, 2);
   gtk_label_set_justify (GTK_LABEL (label20), GTK_JUSTIFY_CENTER);
@@ -2523,13 +2530,13 @@ create_aniso_window (void)
   gtk_widget_show (vbox20);
   gtk_container_add (GTK_CONTAINER (frame15), vbox20);
 
-  limit_display_radius_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  limit_display_radius_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (limit_display_radius_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox20), limit_display_radius_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (limit_display_radius_yes_radiobutton), limit_display_radius_yes_radiobutton_group);
   limit_display_radius_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (limit_display_radius_yes_radiobutton));
 
-  limit_display_radius_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  limit_display_radius_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (limit_display_radius_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox20), limit_display_radius_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (limit_display_radius_no_radiobutton), limit_display_radius_yes_radiobutton_group);
@@ -2544,7 +2551,7 @@ create_aniso_window (void)
   gtk_widget_show (vbox21);
   gtk_container_add (GTK_CONTAINER (frame16), vbox21);
 
-  label21 = gtk_label_new (_("Display Limit Radius"));
+  label21 = gtk_label_new ("Display Limit Radius");
   gtk_widget_show (label21);
   gtk_box_pack_start (GTK_BOX (vbox21), label21, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label21), GTK_JUSTIFY_CENTER);
@@ -2557,8 +2564,9 @@ create_aniso_window (void)
   limit_display_radius_entry = gtk_entry_new ();
   gtk_widget_show (limit_display_radius_entry);
   gtk_box_pack_start (GTK_BOX (hbox11), limit_display_radius_entry, TRUE, TRUE, 3);
+  gtk_entry_set_invisible_char (GTK_ENTRY (limit_display_radius_entry), 9679);
 
-  label22 = gtk_label_new (_("A"));
+  label22 = gtk_label_new ("A");
   gtk_widget_show (label22);
   gtk_box_pack_start (GTK_BOX (hbox11), label22, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label22), GTK_JUSTIFY_CENTER);
@@ -2572,7 +2580,7 @@ create_aniso_window (void)
   gtk_widget_show (vbox22);
   gtk_container_add (GTK_CONTAINER (frame17), vbox22);
 
-  label23 = gtk_label_new (_("Probability "));
+  label23 = gtk_label_new ("Probability ");
   gtk_widget_show (label23);
   gtk_box_pack_start (GTK_BOX (vbox22), label23, FALSE, FALSE, 2);
   gtk_label_set_justify (GTK_LABEL (label23), GTK_JUSTIFY_CENTER);
@@ -2585,12 +2593,12 @@ create_aniso_window (void)
   gtk_widget_show (aniso_probability_hscale);
   gtk_box_pack_start (GTK_BOX (hbox12), aniso_probability_hscale, TRUE, TRUE, 6);
 
-  label24 = gtk_label_new (_("%"));
+  label24 = gtk_label_new ("%");
   gtk_widget_show (label24);
   gtk_box_pack_start (GTK_BOX (hbox12), label24, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label24), GTK_JUSTIFY_CENTER);
 
-  show_aniso_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  show_aniso_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (show_aniso_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox16), show_aniso_ok_button, FALSE, FALSE, 1);
   gtk_container_set_border_width (GTK_CONTAINER (show_aniso_ok_button), 8);
@@ -2660,13 +2668,13 @@ create_smooth_scroll_window (void)
   GtkWidget *smooth_scrolling_window_ok_button;
 
   smooth_scroll_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (smooth_scroll_window), _("window2"));
+  gtk_window_set_title (GTK_WINDOW (smooth_scroll_window), "window2");
 
   vbox23 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox23);
   gtk_container_add (GTK_CONTAINER (smooth_scroll_window), vbox23);
 
-  label25 = gtk_label_new (_("Recentring Smooth Scrolling"));
+  label25 = gtk_label_new ("Recentring Smooth Scrolling");
   gtk_widget_show (label25);
   gtk_box_pack_start (GTK_BOX (vbox23), label25, FALSE, FALSE, 5);
   gtk_label_set_justify (GTK_LABEL (label25), GTK_JUSTIFY_CENTER);
@@ -2684,13 +2692,13 @@ create_smooth_scroll_window (void)
   gtk_widget_show (vbox25);
   gtk_container_add (GTK_CONTAINER (frame18), vbox25);
 
-  smooth_scroll_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  smooth_scroll_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (smooth_scroll_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox25), smooth_scroll_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (smooth_scroll_yes_radiobutton), smooth_scroll_yes_radiobutton_group);
   smooth_scroll_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (smooth_scroll_yes_radiobutton));
 
-  smooth_scroll_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  smooth_scroll_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (smooth_scroll_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox25), smooth_scroll_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (smooth_scroll_no_radiobutton), smooth_scroll_yes_radiobutton_group);
@@ -2705,7 +2713,7 @@ create_smooth_scroll_window (void)
   gtk_widget_show (hbox13);
   gtk_container_add (GTK_CONTAINER (frame19), hbox13);
 
-  label26 = gtk_label_new (_("Number of Steps:"));
+  label26 = gtk_label_new ("Number of Steps:");
   gtk_widget_show (label26);
   gtk_box_pack_start (GTK_BOX (hbox13), label26, FALSE, FALSE, 5);
   gtk_label_set_justify (GTK_LABEL (label26), GTK_JUSTIFY_CENTER);
@@ -2714,6 +2722,7 @@ create_smooth_scroll_window (void)
   smooth_scroll_steps_entry = gtk_entry_new ();
   gtk_widget_show (smooth_scroll_steps_entry);
   gtk_box_pack_start (GTK_BOX (hbox13), smooth_scroll_steps_entry, TRUE, TRUE, 10);
+  gtk_entry_set_invisible_char (GTK_ENTRY (smooth_scroll_steps_entry), 9679);
 
   frame20 = gtk_frame_new (NULL);
   gtk_widget_show (frame20);
@@ -2724,7 +2733,7 @@ create_smooth_scroll_window (void)
   gtk_widget_show (hbox14);
   gtk_container_add (GTK_CONTAINER (frame20), hbox14);
 
-  label27 = gtk_label_new (_("Do Not Scroll for \ndistances more than:"));
+  label27 = gtk_label_new ("Do Not Scroll for \ndistances more than:");
   gtk_widget_show (label27);
   gtk_box_pack_start (GTK_BOX (hbox14), label27, FALSE, FALSE, 5);
   gtk_label_set_justify (GTK_LABEL (label27), GTK_JUSTIFY_CENTER);
@@ -2733,13 +2742,14 @@ create_smooth_scroll_window (void)
   smooth_scroll_limit_entry = gtk_entry_new ();
   gtk_widget_show (smooth_scroll_limit_entry);
   gtk_box_pack_start (GTK_BOX (hbox14), smooth_scroll_limit_entry, TRUE, TRUE, 7);
+  gtk_entry_set_invisible_char (GTK_ENTRY (smooth_scroll_limit_entry), 9679);
 
-  label28 = gtk_label_new (_("A"));
+  label28 = gtk_label_new ("A");
   gtk_widget_show (label28);
   gtk_box_pack_start (GTK_BOX (hbox14), label28, FALSE, FALSE, 5);
   gtk_label_set_justify (GTK_LABEL (label28), GTK_JUSTIFY_CENTER);
 
-  smooth_scrolling_window_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  smooth_scrolling_window_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (smooth_scrolling_window_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox23), smooth_scrolling_window_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (smooth_scrolling_window_ok_button), 5);
@@ -2790,13 +2800,13 @@ create_font_size_window (void)
   GtkWidget *font_size_ok_button;
 
   font_size_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (font_size_window), _("window2"));
+  gtk_window_set_title (GTK_WINDOW (font_size_window), "window2");
 
   vbox26 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox26);
   gtk_container_add (GTK_CONTAINER (font_size_window), vbox26);
 
-  label29 = gtk_label_new (_("Atom Label Font Size"));
+  label29 = gtk_label_new ("Atom Label Font Size");
   gtk_widget_show (label29);
   gtk_box_pack_start (GTK_BOX (vbox26), label29, FALSE, FALSE, 5);
   gtk_label_set_justify (GTK_LABEL (label29), GTK_JUSTIFY_CENTER);
@@ -2811,19 +2821,19 @@ create_font_size_window (void)
   gtk_widget_show (vbox27);
   gtk_container_add (GTK_CONTAINER (frame22), vbox27);
 
-  font_size_small_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Small"));
+  font_size_small_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Small");
   gtk_widget_show (font_size_small_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox27), font_size_small_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (font_size_small_radiobutton), font_size_small_radiobutton_group);
   font_size_small_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (font_size_small_radiobutton));
 
-  font_size_medium_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Medium"));
+  font_size_medium_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Medium");
   gtk_widget_show (font_size_medium_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox27), font_size_medium_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (font_size_medium_radiobutton), font_size_small_radiobutton_group);
   font_size_small_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (font_size_medium_radiobutton));
 
-  font_size_large_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Large"));
+  font_size_large_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Large");
   gtk_widget_show (font_size_large_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox27), font_size_large_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (font_size_large_radiobutton), font_size_small_radiobutton_group);
@@ -2834,7 +2844,7 @@ create_font_size_window (void)
   gtk_box_pack_start (GTK_BOX (vbox26), frame21, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame21), 5);
 
-  font_size_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  font_size_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (font_size_ok_button);
   gtk_container_add (GTK_CONTAINER (frame21), font_size_ok_button);
   GTK_WIDGET_SET_FLAGS (font_size_ok_button, GTK_CAN_DEFAULT);
@@ -2867,7 +2877,7 @@ create_map_name_fileselection1 (void)
   GtkWidget *ok_button_map_name;
   GtkWidget *cancel_button_map_name;
 
-  map_name_fileselection1 = gtk_file_selection_new (_("Select CCP4 Map"));
+  map_name_fileselection1 = gtk_file_selection_new ("Select CCP4 Map");
   gtk_container_set_border_width (GTK_CONTAINER (map_name_fileselection1), 10);
   gtk_window_set_type_hint (GTK_WINDOW (map_name_fileselection1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -2910,7 +2920,7 @@ create_phs_info_box (void)
   GtkWidget *phs_info_cancel_button;
 
   phs_info_box = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (phs_info_box), _(".phs Info"));
+  gtk_window_set_title (GTK_WINDOW (phs_info_box), ".phs Info");
 
   vbox29 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox29);
@@ -2921,7 +2931,7 @@ create_phs_info_box (void)
   gtk_box_pack_start (GTK_BOX (vbox29), frame26, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (frame26), 5);
 
-  label36 = gtk_label_new (_(".phs files additionally need cell and symmetry. \n We need a pdb file to assign them.\n\n(Note that this will not read coordinates - \njust the cell and symmetry)\n"));
+  label36 = gtk_label_new (".phs files additionally need cell and symmetry. \n We need a pdb file to assign them.\n\n(Note that this will not read coordinates - \njust the cell and symmetry)\n");
   gtk_widget_show (label36);
   gtk_container_add (GTK_CONTAINER (frame26), label36);
   gtk_label_set_justify (GTK_LABEL (label36), GTK_JUSTIFY_CENTER);
@@ -2935,13 +2945,13 @@ create_phs_info_box (void)
   gtk_widget_show (hbox19);
   gtk_container_add (GTK_CONTAINER (frame27), hbox19);
 
-  phs_info_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  phs_info_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (phs_info_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox19), phs_info_ok_button, TRUE, TRUE, 5);
   gtk_container_set_border_width (GTK_CONTAINER (phs_info_ok_button), 6);
   GTK_WIDGET_SET_FLAGS (phs_info_ok_button, GTK_CAN_DEFAULT);
 
-  phs_info_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
+  phs_info_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (phs_info_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox19), phs_info_cancel_button, TRUE, TRUE, 5);
   gtk_container_set_border_width (GTK_CONTAINER (phs_info_cancel_button), 6);
@@ -2975,7 +2985,7 @@ create_phs_coordinates_fileselection (void)
   GtkWidget *ok_phs_coord_button;
   GtkWidget *cancel_phs_coord_button;
 
-  phs_coordinates_fileselection = gtk_file_selection_new (_("Select Coordinates File for .phs symm/cell"));
+  phs_coordinates_fileselection = gtk_file_selection_new ("Select Coordinates File for .phs symm/cell");
   gtk_container_set_border_width (GTK_CONTAINER (phs_coordinates_fileselection), 10);
   gtk_window_set_type_hint (GTK_WINDOW (phs_coordinates_fileselection), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -3025,7 +3035,7 @@ create_display_control_window_glade (void)
   GtkWidget *display_control_ok_button;
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (display_control_window_glade), _("Display Control"));
+  gtk_window_set_title (GTK_WINDOW (display_control_window_glade), "Display Control");
 
   vbox30 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox30);
@@ -3041,7 +3051,7 @@ create_display_control_window_glade (void)
   gtk_widget_show (paned_maps_vbox);
   gtk_paned_pack1 (GTK_PANED (display_control_vpaned), paned_maps_vbox, TRUE, TRUE);
 
-  label257 = gtk_label_new (_("Maps"));
+  label257 = gtk_label_new ("Maps");
   gtk_widget_show (label257);
   gtk_box_pack_start (GTK_BOX (paned_maps_vbox), label257, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label257), GTK_JUSTIFY_CENTER);
@@ -3063,7 +3073,7 @@ create_display_control_window_glade (void)
   gtk_widget_show (paned_molecules_vbox);
   gtk_paned_pack2 (GTK_PANED (display_control_vpaned), paned_molecules_vbox, TRUE, TRUE);
 
-  label258 = gtk_label_new (_("Molecules"));
+  label258 = gtk_label_new ("Molecules");
   gtk_widget_show (label258);
   gtk_box_pack_start (GTK_BOX (paned_molecules_vbox), label258, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label258), GTK_JUSTIFY_CENTER);
@@ -3088,7 +3098,7 @@ create_display_control_window_glade (void)
   GTK_WIDGET_SET_FLAGS (frame32, GTK_CAN_FOCUS);
   GTK_WIDGET_SET_FLAGS (frame32, GTK_CAN_DEFAULT);
 
-  display_control_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  display_control_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (display_control_ok_button);
   gtk_container_add (GTK_CONTAINER (frame32), display_control_ok_button);
 
@@ -3137,6 +3147,7 @@ create_goto_atom_window (void)
   GtkWidget *go_to_atom_molecule_optionmenu;
   GtkWidget *convertwidget15;
   GtkWidget *label40;
+  GtkWidget *table5;
   GtkWidget *hbox24;
   GtkWidget *go_to_atom_chain_entry;
   GtkWidget *label41;
@@ -3146,6 +3157,7 @@ create_goto_atom_window (void)
   GtkWidget *hbox26;
   GtkWidget *go_to_atom_atom_name_entry;
   GtkWidget *label43;
+  GtkWidget *update_go_to_atom_from_current_position_button;
   GtkWidget *hseparator1;
   GtkWidget *go_to_atom_next_residue_button;
   GtkWidget *go_to_atom_previous_residue_button;
@@ -3158,7 +3170,7 @@ create_goto_atom_window (void)
   GtkWidget *go_to_atom_cancel_button;
 
   goto_atom_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (goto_atom_window), _("Go To Atom..."));
+  gtk_window_set_title (GTK_WINDOW (goto_atom_window), "Go To Atom...");
 
   vbox33 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox33);
@@ -3172,7 +3184,7 @@ create_goto_atom_window (void)
   gtk_widget_show (vbox34);
   gtk_container_add (GTK_CONTAINER (frame30), vbox34);
 
-  label39 = gtk_label_new (_("Define an Atom for Centering:"));
+  label39 = gtk_label_new ("Define an Atom for Centering:");
   gtk_widget_show (label39);
   gtk_box_pack_start (GTK_BOX (vbox34), label39, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label39), GTK_JUSTIFY_CENTER);
@@ -3196,21 +3208,29 @@ create_goto_atom_window (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (go_to_atom_molecule_optionmenu), convertwidget15);
 
-  label40 = gtk_label_new (_("  Molecule"));
+  label40 = gtk_label_new ("  Molecule");
   gtk_widget_show (label40);
   gtk_box_pack_start (GTK_BOX (hbox23), label40, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label40), GTK_JUSTIFY_CENTER);
 
+  table5 = gtk_table_new (3, 2, FALSE);
+  gtk_widget_show (table5);
+  gtk_box_pack_start (GTK_BOX (vbox35), table5, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (table5), 2);
+
   hbox24 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox24);
-  gtk_box_pack_start (GTK_BOX (vbox35), hbox24, FALSE, TRUE, 0);
+  gtk_table_attach (GTK_TABLE (table5), hbox24, 0, 1, 0, 1,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox24), 2);
 
   go_to_atom_chain_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_chain_entry);
   gtk_box_pack_start (GTK_BOX (hbox24), go_to_atom_chain_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_chain_entry), 9679);
 
-  label41 = gtk_label_new (_("Chain"));
+  label41 = gtk_label_new ("Chain");
   gtk_widget_show (label41);
   gtk_box_pack_start (GTK_BOX (hbox24), label41, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label41), GTK_JUSTIFY_CENTER);
@@ -3218,14 +3238,17 @@ create_goto_atom_window (void)
 
   hbox25 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox25);
-  gtk_box_pack_start (GTK_BOX (vbox35), hbox25, FALSE, TRUE, 0);
+  gtk_table_attach (GTK_TABLE (table5), hbox25, 0, 1, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox25), 2);
 
   go_to_atom_residue_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_residue_entry);
   gtk_box_pack_start (GTK_BOX (hbox25), go_to_atom_residue_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_residue_entry), 9679);
 
-  label42 = gtk_label_new (_("Residue Number"));
+  label42 = gtk_label_new ("Residue Number");
   gtk_widget_show (label42);
   gtk_box_pack_start (GTK_BOX (hbox25), label42, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label42), GTK_JUSTIFY_CENTER);
@@ -3233,29 +3256,38 @@ create_goto_atom_window (void)
 
   hbox26 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox26);
-  gtk_box_pack_start (GTK_BOX (vbox35), hbox26, FALSE, TRUE, 0);
+  gtk_table_attach (GTK_TABLE (table5), hbox26, 0, 1, 2, 3,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox26), 2);
 
   go_to_atom_atom_name_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_atom_name_entry);
   gtk_box_pack_start (GTK_BOX (hbox26), go_to_atom_atom_name_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_atom_name_entry), 9679);
 
-  label43 = gtk_label_new (_("Atom Name"));
+  label43 = gtk_label_new ("Atom Name");
   gtk_widget_show (label43);
   gtk_box_pack_start (GTK_BOX (hbox26), label43, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label43), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label43), 6, 0);
 
+  update_go_to_atom_from_current_position_button = gtk_button_new_with_mnemonic ("  Update from Current Postion  ");
+  gtk_widget_show (update_go_to_atom_from_current_position_button);
+  gtk_table_attach (GTK_TABLE (table5), update_go_to_atom_from_current_position_button, 1, 2, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+
   hseparator1 = gtk_hseparator_new ();
   gtk_widget_show (hseparator1);
   gtk_box_pack_start (GTK_BOX (vbox33), hseparator1, FALSE, TRUE, 0);
 
-  go_to_atom_next_residue_button = gtk_button_new_with_mnemonic (_("Next Residue"));
+  go_to_atom_next_residue_button = gtk_button_new_with_mnemonic ("Next Residue");
   gtk_widget_show (go_to_atom_next_residue_button);
   gtk_box_pack_start (GTK_BOX (vbox33), go_to_atom_next_residue_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_next_residue_button), 8);
 
-  go_to_atom_previous_residue_button = gtk_button_new_with_mnemonic (_("Previous Residue"));
+  go_to_atom_previous_residue_button = gtk_button_new_with_mnemonic ("Previous Residue");
   gtk_widget_show (go_to_atom_previous_residue_button);
   gtk_box_pack_start (GTK_BOX (vbox33), go_to_atom_previous_residue_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_previous_residue_button), 8);
@@ -3283,13 +3315,13 @@ create_goto_atom_window (void)
   gtk_widget_show (hbox22);
   gtk_box_pack_start (GTK_BOX (vbox33), hbox22, FALSE, TRUE, 0);
 
-  go_to_atom_apply_button = gtk_button_new_with_mnemonic (_("  Apply  "));
+  go_to_atom_apply_button = gtk_button_new_with_mnemonic ("  Apply  ");
   gtk_widget_show (go_to_atom_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox22), go_to_atom_apply_button, TRUE, TRUE, 5);
   gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_apply_button), 3);
   GTK_WIDGET_SET_FLAGS (go_to_atom_apply_button, GTK_CAN_DEFAULT);
 
-  go_to_atom_cancel_button = gtk_button_new_with_mnemonic (_("  Close  "));
+  go_to_atom_cancel_button = gtk_button_new_with_mnemonic ("  Close  ");
   gtk_widget_show (go_to_atom_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox22), go_to_atom_cancel_button, TRUE, TRUE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_cancel_button), 3);
@@ -3309,6 +3341,9 @@ create_goto_atom_window (void)
                     NULL);
   g_signal_connect ((gpointer) go_to_atom_atom_name_entry, "key_press_event",
                     G_CALLBACK (on_go_to_atom_atom_name_entry_key_press_event),
+                    NULL);
+  g_signal_connect ((gpointer) update_go_to_atom_from_current_position_button, "clicked",
+                    G_CALLBACK (on_update_go_to_atom_from_current_position_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) go_to_atom_next_residue_button, "clicked",
                     G_CALLBACK (on_go_to_atom_next_residue_button_clicked),
@@ -3334,6 +3369,7 @@ create_goto_atom_window (void)
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_molecule_optionmenu, "go_to_atom_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (goto_atom_window, convertwidget15, "convertwidget15");
   GLADE_HOOKUP_OBJECT (goto_atom_window, label40, "label40");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, table5, "table5");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox24, "hbox24");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_chain_entry, "go_to_atom_chain_entry");
   GLADE_HOOKUP_OBJECT (goto_atom_window, label41, "label41");
@@ -3343,6 +3379,7 @@ create_goto_atom_window (void)
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox26, "hbox26");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_atom_name_entry, "go_to_atom_atom_name_entry");
   GLADE_HOOKUP_OBJECT (goto_atom_window, label43, "label43");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, update_go_to_atom_from_current_position_button, "update_go_to_atom_from_current_position_button");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hseparator1, "hseparator1");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_next_residue_button, "go_to_atom_next_residue_button");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_previous_residue_button, "go_to_atom_previous_residue_button");
@@ -3374,13 +3411,13 @@ create_skeletonization_box_radius_window (void)
   GtkWidget *skel_box_radius_cancel_button;
 
   skeletonization_box_radius_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (skeletonization_box_radius_window), _("Skeleton Box Size"));
+  gtk_window_set_title (GTK_WINDOW (skeletonization_box_radius_window), "Skeleton Box Size");
 
   vbox36 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox36);
   gtk_container_add (GTK_CONTAINER (skeletonization_box_radius_window), vbox36);
 
-  label46 = gtk_label_new (_("Skeleton Box Size"));
+  label46 = gtk_label_new ("Skeleton Box Size");
   gtk_widget_show (label46);
   gtk_box_pack_start (GTK_BOX (vbox36), label46, FALSE, FALSE, 8);
   gtk_label_set_justify (GTK_LABEL (label46), GTK_JUSTIFY_CENTER);
@@ -3389,7 +3426,7 @@ create_skeletonization_box_radius_window (void)
   gtk_widget_show (hbox28);
   gtk_box_pack_start (GTK_BOX (vbox36), hbox28, TRUE, TRUE, 6);
 
-  label44 = gtk_label_new (_("Size"));
+  label44 = gtk_label_new ("Size");
   gtk_widget_show (label44);
   gtk_box_pack_start (GTK_BOX (hbox28), label44, FALSE, FALSE, 4);
   gtk_label_set_justify (GTK_LABEL (label44), GTK_JUSTIFY_CENTER);
@@ -3397,8 +3434,9 @@ create_skeletonization_box_radius_window (void)
   skeleton_box_size_entry = gtk_entry_new ();
   gtk_widget_show (skeleton_box_size_entry);
   gtk_box_pack_start (GTK_BOX (hbox28), skeleton_box_size_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (skeleton_box_size_entry), 9679);
 
-  label45 = gtk_label_new (_("Angstoms"));
+  label45 = gtk_label_new ("Angstoms");
   gtk_widget_show (label45);
   gtk_box_pack_start (GTK_BOX (hbox28), label45, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label45), GTK_JUSTIFY_CENTER);
@@ -3412,13 +3450,13 @@ create_skeletonization_box_radius_window (void)
   gtk_widget_show (hbox27);
   gtk_container_add (GTK_CONTAINER (frame31), hbox27);
 
-  skel_box_radius_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  skel_box_radius_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (skel_box_radius_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox27), skel_box_radius_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skel_box_radius_ok_button), 4);
   GTK_WIDGET_SET_FLAGS (skel_box_radius_ok_button, GTK_CAN_DEFAULT);
 
-  skel_box_radius_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
+  skel_box_radius_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (skel_box_radius_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox27), skel_box_radius_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skel_box_radius_cancel_button), 4);
@@ -3464,13 +3502,13 @@ create_skeletonization_level_window (void)
   GtkWidget *skeletonization_level_cancel_button;
 
   skeletonization_level_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (skeletonization_level_window), _("Skeletonization Level"));
+  gtk_window_set_title (GTK_WINDOW (skeletonization_level_window), "Skeletonization Level");
 
   vbox37 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox37);
   gtk_container_add (GTK_CONTAINER (skeletonization_level_window), vbox37);
 
-  label47 = gtk_label_new (_("Skeletonization Level"));
+  label47 = gtk_label_new ("Skeletonization Level");
   gtk_widget_show (label47);
   gtk_box_pack_start (GTK_BOX (vbox37), label47, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label47), GTK_JUSTIFY_CENTER);
@@ -3479,7 +3517,7 @@ create_skeletonization_level_window (void)
   gtk_widget_show (hbox29);
   gtk_box_pack_start (GTK_BOX (vbox37), hbox29, TRUE, TRUE, 0);
 
-  label48 = gtk_label_new (_("Level"));
+  label48 = gtk_label_new ("Level");
   gtk_widget_show (label48);
   gtk_box_pack_start (GTK_BOX (hbox29), label48, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label48), GTK_JUSTIFY_CENTER);
@@ -3487,8 +3525,9 @@ create_skeletonization_level_window (void)
   skeleton_level_entry = gtk_entry_new ();
   gtk_widget_show (skeleton_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox29), skeleton_level_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (skeleton_level_entry), 9679);
 
-  label49 = gtk_label_new (_("  electrons/A^3  "));
+  label49 = gtk_label_new ("  electrons/A^3  ");
   gtk_widget_show (label49);
   gtk_box_pack_start (GTK_BOX (hbox29), label49, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label49), GTK_JUSTIFY_CENTER);
@@ -3498,17 +3537,17 @@ create_skeletonization_level_window (void)
   gtk_box_pack_start (GTK_BOX (vbox37), hbox30, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox30), 6);
 
-  skeletonization_level_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  skeletonization_level_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (skeletonization_level_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox30), skeletonization_level_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (skeletonization_level_ok_button, GTK_CAN_DEFAULT);
 
-  skeletonization_level_apply_button = gtk_button_new_with_mnemonic (_("Apply"));
+  skeletonization_level_apply_button = gtk_button_new_with_mnemonic ("Apply");
   gtk_widget_show (skeletonization_level_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox30), skeletonization_level_apply_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (skeletonization_level_apply_button, GTK_CAN_DEFAULT);
 
-  skeletonization_level_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
+  skeletonization_level_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (skeletonization_level_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox30), skeletonization_level_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (skeletonization_level_cancel_button, GTK_CAN_DEFAULT);
@@ -3553,13 +3592,13 @@ create_rotation_centre_cube_size_window (void)
   GtkWidget *rotation_centre_size_ok_button;
 
   rotation_centre_cube_size_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (rotation_centre_cube_size_window), _("window2"));
+  gtk_window_set_title (GTK_WINDOW (rotation_centre_cube_size_window), "window2");
 
   vbox38 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox38);
   gtk_container_add (GTK_CONTAINER (rotation_centre_cube_size_window), vbox38);
 
-  label50 = gtk_label_new (_("Rotation Centre Cube Size"));
+  label50 = gtk_label_new ("Rotation Centre Cube Size");
   gtk_widget_show (label50);
   gtk_box_pack_start (GTK_BOX (vbox38), label50, FALSE, FALSE, 5);
   gtk_label_set_justify (GTK_LABEL (label50), GTK_JUSTIFY_CENTER);
@@ -3568,7 +3607,7 @@ create_rotation_centre_cube_size_window (void)
   gtk_widget_show (hbox31);
   gtk_box_pack_start (GTK_BOX (vbox38), hbox31, TRUE, TRUE, 2);
 
-  label51 = gtk_label_new (_("Size:"));
+  label51 = gtk_label_new ("Size:");
   gtk_widget_show (label51);
   gtk_box_pack_start (GTK_BOX (hbox31), label51, FALSE, FALSE, 7);
   gtk_label_set_justify (GTK_LABEL (label51), GTK_JUSTIFY_CENTER);
@@ -3576,13 +3615,14 @@ create_rotation_centre_cube_size_window (void)
   rotation_centre_cube_size_entry = gtk_entry_new ();
   gtk_widget_show (rotation_centre_cube_size_entry);
   gtk_box_pack_start (GTK_BOX (hbox31), rotation_centre_cube_size_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (rotation_centre_cube_size_entry), 9679);
 
-  label52 = gtk_label_new (_("Angstroems"));
+  label52 = gtk_label_new ("Angstroems");
   gtk_widget_show (label52);
   gtk_box_pack_start (GTK_BOX (hbox31), label52, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label52), GTK_JUSTIFY_CENTER);
 
-  rotation_centre_size_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  rotation_centre_size_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (rotation_centre_size_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox38), rotation_centre_size_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (rotation_centre_size_ok_button), 6);
@@ -3619,13 +3659,13 @@ create_phs_cell_choice_window (void)
   GtkWidget *phs_cell_choice_cancel_button;
 
   phs_cell_choice_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (phs_cell_choice_window), _("Choose Cell for PHS file:"));
+  gtk_window_set_title (GTK_WINDOW (phs_cell_choice_window), "Choose Cell for PHS file:");
 
   vbox39 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox39);
   gtk_container_add (GTK_CONTAINER (phs_cell_choice_window), vbox39);
 
-  label67 = gtk_label_new (_("Choose a Symmetry and Cell for the Phases file"));
+  label67 = gtk_label_new ("Choose a Symmetry and Cell for the Phases file");
   gtk_widget_show (label67);
   gtk_box_pack_start (GTK_BOX (vbox39), label67, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label67), GTK_JUSTIFY_CENTER);
@@ -3639,12 +3679,12 @@ create_phs_cell_choice_window (void)
   gtk_box_pack_start (GTK_BOX (vbox39), hbox32, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox32), 6);
 
-  phs_cell_choice_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  phs_cell_choice_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (phs_cell_choice_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox32), phs_cell_choice_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (phs_cell_choice_ok_button, GTK_CAN_DEFAULT);
 
-  phs_cell_choice_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
+  phs_cell_choice_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (phs_cell_choice_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox32), phs_cell_choice_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (phs_cell_choice_cancel_button, GTK_CAN_DEFAULT);
@@ -3679,7 +3719,7 @@ create_accession_code_window (void)
   GtkWidget *accession_code_entry;
 
   accession_code_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (accession_code_window), _("PDB Accession Code "));
+  gtk_window_set_title (GTK_WINDOW (accession_code_window), "PDB Accession Code ");
 
   frame34 = gtk_frame_new (NULL);
   gtk_widget_show (frame34);
@@ -3690,7 +3730,7 @@ create_accession_code_window (void)
   gtk_widget_show (vbox40);
   gtk_container_add (GTK_CONTAINER (frame34), vbox40);
 
-  label69 = gtk_label_new (_("PDB Accession Code:"));
+  label69 = gtk_label_new ("PDB Accession Code:");
   gtk_widget_show (label69);
   gtk_box_pack_start (GTK_BOX (vbox40), label69, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label69), GTK_JUSTIFY_CENTER);
@@ -3698,6 +3738,7 @@ create_accession_code_window (void)
   accession_code_entry = gtk_entry_new ();
   gtk_widget_show (accession_code_entry);
   gtk_box_pack_start (GTK_BOX (vbox40), accession_code_entry, FALSE, FALSE, 2);
+  gtk_entry_set_invisible_char (GTK_ENTRY (accession_code_entry), 9679);
 
   g_signal_connect ((gpointer) accession_code_entry, "key_press_event",
                     G_CALLBACK (on_accession_code_entry_key_press_event),
@@ -3726,7 +3767,7 @@ create_dynarama_window (void)
 
   dynarama_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_container_set_border_width (GTK_CONTAINER (dynarama_window), 2);
-  gtk_window_set_title (GTK_WINDOW (dynarama_window), _("Dynarama"));
+  gtk_window_set_title (GTK_WINDOW (dynarama_window), "Dynarama");
 
   dynarama_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (dynarama_vbox);
@@ -3745,13 +3786,13 @@ create_dynarama_window (void)
   gtk_widget_show (hbox65);
   gtk_box_pack_start (GTK_BOX (dynarama_vbox), hbox65, FALSE, FALSE, 0);
 
-  dynarama_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  dynarama_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (dynarama_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox65), dynarama_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (dynarama_ok_button), 6);
   GTK_WIDGET_SET_FLAGS (dynarama_ok_button, GTK_CAN_DEFAULT);
 
-  dynarama_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  dynarama_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (dynarama_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox65), dynarama_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (dynarama_cancel_button), 6);
@@ -3798,7 +3839,7 @@ create_dynarama_properties_window (void)
   GtkWidget *dynarama_properties_ok_button;
 
   dynarama_properties_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (dynarama_properties_window), _("Properies"));
+  gtk_window_set_title (GTK_WINDOW (dynarama_properties_window), "Properies");
 
   vbox2 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox2);
@@ -3812,17 +3853,17 @@ create_dynarama_properties_window (void)
   gtk_widget_show (vbox3);
   gtk_container_add (GTK_CONTAINER (notebook2), vbox3);
 
-  checkbutton1 = gtk_check_button_new_with_mnemonic (_("Labels"));
+  checkbutton1 = gtk_check_button_new_with_mnemonic ("Labels");
   gtk_widget_show (checkbutton1);
   gtk_box_pack_start (GTK_BOX (vbox3), checkbutton1, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton1), TRUE);
 
-  checkbutton2 = gtk_check_button_new_with_mnemonic (_("Sticky Labels"));
+  checkbutton2 = gtk_check_button_new_with_mnemonic ("Sticky Labels");
   gtk_widget_show (checkbutton2);
   gtk_box_pack_start (GTK_BOX (vbox3), checkbutton2, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton2), TRUE);
 
-  label4 = gtk_label_new (_("Labels"));
+  label4 = gtk_label_new ("Labels");
   gtk_widget_show (label4);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook2), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook2), 0), label4);
   gtk_label_set_justify (GTK_LABEL (label4), GTK_JUSTIFY_CENTER);
@@ -3831,7 +3872,7 @@ create_dynarama_properties_window (void)
   gtk_widget_show (hseparator1);
   gtk_box_pack_start (GTK_BOX (vbox2), hseparator1, TRUE, TRUE, 0);
 
-  dynarama_properties_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  dynarama_properties_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (dynarama_properties_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox2), dynarama_properties_ok_button, FALSE, FALSE, 0);
   GTK_WIDGET_SET_FLAGS (dynarama_properties_ok_button, GTK_CAN_DEFAULT);
@@ -3862,7 +3903,7 @@ create_python_window (void)
 
   python_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_container_set_border_width (GTK_CONTAINER (python_window), 10);
-  gtk_window_set_title (GTK_WINDOW (python_window), _("window2"));
+  gtk_window_set_title (GTK_WINDOW (python_window), "window2");
 
   vbox41 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox41);
@@ -3883,6 +3924,7 @@ create_python_window (void)
   python_window_entry = gtk_entry_new ();
   gtk_widget_show (python_window_entry);
   gtk_box_pack_start (GTK_BOX (vbox41), python_window_entry, FALSE, FALSE, 5);
+  gtk_entry_set_invisible_char (GTK_ENTRY (python_window_entry), 9679);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (python_window, python_window, "python_window");
@@ -3946,7 +3988,7 @@ create_find_ligand_dialog (void)
 
   find_ligand_dialog = gtk_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (find_ligand_dialog), 2);
-  gtk_window_set_title (GTK_WINDOW (find_ligand_dialog), _("Find Ligands"));
+  gtk_window_set_title (GTK_WINDOW (find_ligand_dialog), "Find Ligands");
   gtk_window_set_type_hint (GTK_WINDOW (find_ligand_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox2 = GTK_DIALOG (find_ligand_dialog)->vbox;
@@ -3961,7 +4003,7 @@ create_find_ligand_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox44), vbox45, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox45), 5);
 
-  label73 = gtk_label_new (_("Select Map:"));
+  label73 = gtk_label_new ("Select Map:");
   gtk_widget_show (label73);
   gtk_box_pack_start (GTK_BOX (vbox45), label73, FALSE, FALSE, 0);
   gtk_misc_set_padding (GTK_MISC (label73), 5, 0);
@@ -3988,7 +4030,7 @@ create_find_ligand_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox44), vbox46, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox46), 5);
 
-  label74 = gtk_label_new (_("Select Protein (Masks Map):"));
+  label74 = gtk_label_new ("Select Protein (Masks Map):");
   gtk_widget_show (label74);
   gtk_box_pack_start (GTK_BOX (vbox46), label74, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label74), GTK_JUSTIFY_CENTER);
@@ -4020,19 +4062,19 @@ create_find_ligand_dialog (void)
   gtk_widget_show (vbox112);
   gtk_container_add (GTK_CONTAINER (frame108), vbox112);
 
-  find_ligand_mask_waters_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Treat waters like protein (mask) atoms"));
+  find_ligand_mask_waters_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Treat waters like protein (mask) atoms");
   gtk_widget_show (find_ligand_mask_waters_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox112), find_ligand_mask_waters_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (find_ligand_mask_waters_yes_radiobutton), find_ligand_mask_waters_yes_radiobutton_group);
   find_ligand_mask_waters_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (find_ligand_mask_waters_yes_radiobutton));
 
-  find_ligand_mask_waters_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Ignore waters for mask"));
+  find_ligand_mask_waters_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Ignore waters for mask");
   gtk_widget_show (find_ligand_mask_waters_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox112), find_ligand_mask_waters_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (find_ligand_mask_waters_no_radiobutton), find_ligand_mask_waters_yes_radiobutton_group);
   find_ligand_mask_waters_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (find_ligand_mask_waters_no_radiobutton));
 
-  label279 = gtk_label_new (_("Mask Waters?"));
+  label279 = gtk_label_new ("Mask Waters?");
   gtk_widget_show (label279);
   gtk_frame_set_label_widget (GTK_FRAME (frame108), label279);
 
@@ -4041,7 +4083,7 @@ create_find_ligand_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox44), vbox47, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox47), 5);
 
-  label75 = gtk_label_new (_("Select Ligands to Search for:"));
+  label75 = gtk_label_new ("Select Ligands to Search for:");
   gtk_widget_show (label75);
   gtk_box_pack_start (GTK_BOX (vbox47), label75, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label75), GTK_JUSTIFY_CENTER);
@@ -4076,13 +4118,14 @@ create_find_ligand_dialog (void)
   find_ligand_sigma_level_entry = gtk_entry_new ();
   gtk_widget_show (find_ligand_sigma_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox79), find_ligand_sigma_level_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (find_ligand_sigma_level_entry), 9679);
 
-  label145 = gtk_label_new (_("  sigma  "));
+  label145 = gtk_label_new ("  sigma  ");
   gtk_widget_show (label145);
   gtk_box_pack_start (GTK_BOX (hbox79), label145, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label145), GTK_JUSTIFY_CENTER);
 
-  label280 = gtk_label_new (_("Sigma Level"));
+  label280 = gtk_label_new ("Sigma Level");
   gtk_widget_show (label280);
   gtk_frame_set_label_widget (GTK_FRAME (frame85), label280);
 
@@ -4098,7 +4141,7 @@ create_find_ligand_dialog (void)
   gtk_widget_show (hbox131);
   gtk_box_pack_start (GTK_BOX (vbox166), hbox131, TRUE, TRUE, 0);
 
-  label261 = gtk_label_new (_("  Number of Conformers to Search:  "));
+  label261 = gtk_label_new ("  Number of Conformers to Search:  ");
   gtk_widget_show (label261);
   gtk_box_pack_start (GTK_BOX (hbox131), label261, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label261), GTK_JUSTIFY_CENTER);
@@ -4106,12 +4149,13 @@ create_find_ligand_dialog (void)
   ligand_n_samples_entry = gtk_entry_new ();
   gtk_widget_show (ligand_n_samples_entry);
   gtk_box_pack_start (GTK_BOX (hbox131), ligand_n_samples_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (ligand_n_samples_entry), 9679);
 
   hbox132 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox132);
   gtk_box_pack_start (GTK_BOX (vbox166), hbox132, TRUE, TRUE, 0);
 
-  label262 = gtk_label_new (_("  Search Number of Top Sites:        "));
+  label262 = gtk_label_new ("  Search Number of Top Sites:        ");
   gtk_widget_show (label262);
   gtk_box_pack_start (GTK_BOX (hbox132), label262, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label262), GTK_JUSTIFY_CENTER);
@@ -4119,8 +4163,9 @@ create_find_ligand_dialog (void)
   ligand_n_top_ligands_entry = gtk_entry_new ();
   gtk_widget_show (ligand_n_top_ligands_entry);
   gtk_box_pack_start (GTK_BOX (hbox132), ligand_n_top_ligands_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (ligand_n_top_ligands_entry), 9679);
 
-  label281 = gtk_label_new (_("Expert Options"));
+  label281 = gtk_label_new ("Expert Options");
   gtk_widget_show (label281);
   gtk_frame_set_label_widget (GTK_FRAME (ligand_expert_frame), label281);
 
@@ -4136,12 +4181,12 @@ create_find_ligand_dialog (void)
   gtk_widget_show (hbox36);
   gtk_box_pack_start (GTK_BOX (hbox35), hbox36, TRUE, TRUE, 0);
 
-  find_ligand_ok_button = gtk_button_new_with_mnemonic (_("Find 'em!"));
+  find_ligand_ok_button = gtk_button_new_with_mnemonic ("Find 'em!");
   gtk_widget_show (find_ligand_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox36), find_ligand_ok_button, TRUE, TRUE, 2);
   GTK_WIDGET_SET_FLAGS (find_ligand_ok_button, GTK_CAN_DEFAULT);
 
-  button4 = gtk_button_new_with_mnemonic (_("Cancel"));
+  button4 = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (button4);
   gtk_box_pack_start (GTK_BOX (hbox36), button4, TRUE, TRUE, 2);
   GTK_WIDGET_SET_FLAGS (button4, GTK_CAN_DEFAULT);
@@ -4218,7 +4263,7 @@ create_find_ligand_many_atoms_dialog (void)
   GtkWidget *find_ligand_many_atoms_cancel_button;
 
   find_ligand_many_atoms_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (find_ligand_many_atoms_dialog), _("May Atoms in Ligand Check"));
+  gtk_window_set_title (GTK_WINDOW (find_ligand_many_atoms_dialog), "May Atoms in Ligand Check");
   gtk_window_set_type_hint (GTK_WINDOW (find_ligand_many_atoms_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox3 = GTK_DIALOG (find_ligand_many_atoms_dialog)->vbox;
@@ -4229,7 +4274,7 @@ create_find_ligand_many_atoms_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox3), frame38, FALSE, FALSE, 5);
   gtk_container_set_border_width (GTK_CONTAINER (frame38), 6);
 
-  label76 = gtk_label_new (_("\nOne or more of the selected ligands has \nunexpectedly many atoms.\n\nThis is an opportunity for you to reflect on that...\n\nDo you want to continue?\n"));
+  label76 = gtk_label_new ("\nOne or more of the selected ligands has \nunexpectedly many atoms.\n\nThis is an opportunity for you to reflect on that...\n\nDo you want to continue?\n");
   gtk_widget_show (label76);
   gtk_container_add (GTK_CONTAINER (frame38), label76);
   gtk_label_set_justify (GTK_LABEL (label76), GTK_JUSTIFY_CENTER);
@@ -4242,12 +4287,12 @@ create_find_ligand_many_atoms_dialog (void)
   gtk_widget_show (hbox37);
   gtk_container_add (GTK_CONTAINER (dialog_action_area3), hbox37);
 
-  find_ligand_many_atoms_continue_button = gtk_button_new_with_mnemonic (_("Continue"));
+  find_ligand_many_atoms_continue_button = gtk_button_new_with_mnemonic ("Continue");
   gtk_widget_show (find_ligand_many_atoms_continue_button);
   gtk_box_pack_start (GTK_BOX (hbox37), find_ligand_many_atoms_continue_button, TRUE, TRUE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (find_ligand_many_atoms_continue_button), 2);
 
-  find_ligand_many_atoms_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
+  find_ligand_many_atoms_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (find_ligand_many_atoms_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox37), find_ligand_many_atoms_cancel_button, TRUE, TRUE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (find_ligand_many_atoms_cancel_button), 2);
@@ -4314,7 +4359,7 @@ create_model_refine_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   model_refine_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (model_refine_dialog), _("Model/Fit/Refine"));
+  gtk_window_set_title (GTK_WINDOW (model_refine_dialog), "Model/Fit/Refine");
   gtk_window_set_type_hint (GTK_WINDOW (model_refine_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   model_fit_refine_dialog_vbox = GTK_DIALOG (model_refine_dialog)->vbox;
@@ -4329,147 +4374,147 @@ create_model_refine_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame39), model_fit_refine_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (model_fit_refine_vbox), 6);
 
-  model_refine_dialog_refine_params_button = gtk_button_new_with_mnemonic (_("  Refine/Regularize Control...  "));
+  model_refine_dialog_refine_params_button = gtk_button_new_with_mnemonic ("  Refine/Regularize Control...  ");
   gtk_widget_show (model_refine_dialog_refine_params_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_refine_params_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_refine_params_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_params_button, _("Set Parameters for fitting, refinement, regularization, etc."), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_params_button, "Set Parameters for fitting, refinement, regularization, etc.", NULL);
 
-  model_refine_dialog_map_select_button = gtk_button_new_with_mnemonic (_(" Select Map..."));
+  model_refine_dialog_map_select_button = gtk_button_new_with_mnemonic (" Select Map...");
   gtk_widget_show (model_refine_dialog_map_select_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_map_select_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_map_select_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_map_select_button, _("Select the map that will be used for refinement, rigid body refinement, terminal residue fit and autofitting"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_map_select_button, "Select the map that will be used for refinement, rigid body refinement, terminal residue fit and autofitting", NULL);
 
   hseparator5 = gtk_hseparator_new ();
   gtk_widget_show (hseparator5);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hseparator5, FALSE, FALSE, 3);
 
-  model_refine_dialog_refine_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Real Space Refine Zone"));
+  model_refine_dialog_refine_togglebutton = gtk_toggle_button_new_with_mnemonic ("Real Space Refine Zone");
   gtk_widget_show (model_refine_dialog_refine_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_refine_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_togglebutton, _("Real Space Refinement: Improve geometry and fit to map"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_togglebutton, "Real Space Refinement: Improve geometry and fit to map", NULL);
 
-  model_refine_dialog_regularize_zone_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Regularize Zone"));
+  model_refine_dialog_regularize_zone_togglebutton = gtk_toggle_button_new_with_mnemonic ("Regularize Zone");
   gtk_widget_show (model_refine_dialog_regularize_zone_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_regularize_zone_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_regularize_zone_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_regularize_zone_togglebutton, _("Idealize model geometry"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_regularize_zone_togglebutton, "Idealize model geometry", NULL);
 
-  model_refine_dialog_rigid_body_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Rigid Body Fit Zone"));
+  model_refine_dialog_rigid_body_togglebutton = gtk_toggle_button_new_with_mnemonic ("Rigid Body Fit Zone");
   gtk_widget_show (model_refine_dialog_rigid_body_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_rigid_body_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rigid_body_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rigid_body_togglebutton, _("Rearrange to find the name of a popular health club"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rigid_body_togglebutton, "Rearrange to find the name of a popular health club", NULL);
 
-  model_refine_dialog_rot_trans_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Rotate/Translate Zone"));
+  model_refine_dialog_rot_trans_togglebutton = gtk_toggle_button_new_with_mnemonic ("Rotate/Translate Zone");
   gtk_widget_show (model_refine_dialog_rot_trans_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_rot_trans_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton, _("Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton, "Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]", NULL);
 
-  model_refine_dialog_auto_fit_rotamer_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Auto Fit Rotamer"));
+  model_refine_dialog_auto_fit_rotamer_togglebutton = gtk_toggle_button_new_with_mnemonic ("Auto Fit Rotamer");
   gtk_widget_show (model_refine_dialog_auto_fit_rotamer_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_auto_fit_rotamer_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_auto_fit_rotamer_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_auto_fit_rotamer_togglebutton, _("Click on an atom in a residue to find the best fit rotamer"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_auto_fit_rotamer_togglebutton, "Click on an atom in a residue to find the best fit rotamer", NULL);
 
-  model_refine_dialog_rotamer_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Rotamers..."));
+  model_refine_dialog_rotamer_togglebutton = gtk_toggle_button_new_with_mnemonic ("Rotamers...");
   gtk_widget_show (model_refine_dialog_rotamer_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_rotamer_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rotamer_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rotamer_togglebutton, _("Select Different Conformations for a Residue Sidechan"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rotamer_togglebutton, "Select Different Conformations for a Residue Sidechan", NULL);
 
-  model_refine_dialog_edit_chi_angles_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Edit Chi Angles"));
+  model_refine_dialog_edit_chi_angles_togglebutton = gtk_toggle_button_new_with_mnemonic ("Edit Chi Angles");
   gtk_widget_show (model_refine_dialog_edit_chi_angles_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_edit_chi_angles_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_edit_chi_angles_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_chi_angles_togglebutton, _("Edit the Chi angles (torsions) of an amino acid residue \"by hand\"  (by mouse, that is)"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_chi_angles_togglebutton, "Edit the Chi angles (torsions) of an amino acid residue \"by hand\"  (by mouse, that is)", NULL);
 
-  model_refine_dialog_pepflip_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Flip Peptide "));
+  model_refine_dialog_pepflip_togglebutton = gtk_toggle_button_new_with_mnemonic ("Flip Peptide ");
   gtk_widget_show (model_refine_dialog_pepflip_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_pepflip_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_pepflip_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_pepflip_togglebutton, _("Peptide flip"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_pepflip_togglebutton, "Peptide flip", NULL);
 
-  model_refine_dialog_do_180_degree_sidechain_flip_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Sidechain180 Degree Flip"));
+  model_refine_dialog_do_180_degree_sidechain_flip_togglebutton = gtk_toggle_button_new_with_mnemonic ("Sidechain180 Degree Flip");
   gtk_widget_show (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_do_180_degree_sidechain_flip_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_do_180_degree_sidechain_flip_togglebutton, _("Flip the last chi angle of the sidechain by 180 degrees"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_do_180_degree_sidechain_flip_togglebutton, "Flip the last chi angle of the sidechain by 180 degrees", NULL);
 
-  model_refine_dialog_edit_phi_psi_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Edit Phi/Psi..."));
+  model_refine_dialog_edit_phi_psi_togglebutton = gtk_toggle_button_new_with_mnemonic ("Edit Phi/Psi...");
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_edit_phi_psi_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_edit_phi_psi_togglebutton), 1);
 
-  model_refine_dialog_edit_backbone_torsions_togglebutton = gtk_toggle_button_new_with_mnemonic (_(" Edit Backbone Torsions"));
+  model_refine_dialog_edit_backbone_torsions_togglebutton = gtk_toggle_button_new_with_mnemonic (" Edit Backbone Torsions");
   gtk_widget_show (model_refine_dialog_edit_backbone_torsions_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_edit_backbone_torsions_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_edit_backbone_torsions_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_backbone_torsions_togglebutton, _("Change Residue's Phi and Psi"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_backbone_torsions_togglebutton, "Change Residue's Phi and Psi", NULL);
 
   hseparator6 = gtk_hseparator_new ();
   gtk_widget_show (hseparator6);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hseparator6, FALSE, FALSE, 3);
 
-  model_refine_dialog_mutate_auto_fit_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Mutate & Auto Fit..."));
+  model_refine_dialog_mutate_auto_fit_togglebutton = gtk_toggle_button_new_with_mnemonic ("Mutate & Auto Fit...");
   gtk_widget_show (model_refine_dialog_mutate_auto_fit_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_mutate_auto_fit_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_mutate_auto_fit_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_mutate_auto_fit_togglebutton, _("Where \"Fit\" means fit to the Selected Map"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_mutate_auto_fit_togglebutton, "Where \"Fit\" means fit to the Selected Map", NULL);
 
-  model_refine_dialog_mutate_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Simple Mutate..."));
+  model_refine_dialog_mutate_togglebutton = gtk_toggle_button_new_with_mnemonic ("Simple Mutate...");
   gtk_widget_show (model_refine_dialog_mutate_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_mutate_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_mutate_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_mutate_togglebutton, _("Mutate amino acid residues or nucleotides [no crystallographic map fitting is happens]"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_mutate_togglebutton, "Mutate amino acid residues or nucleotides [no crystallographic map fitting is happens]", NULL);
 
-  model_refine_dialog_find_waters_button = gtk_button_new_with_mnemonic (_("Find Waters..."));
+  model_refine_dialog_find_waters_button = gtk_button_new_with_mnemonic ("Find Waters...");
   gtk_widget_show (model_refine_dialog_find_waters_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_find_waters_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_find_waters_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_find_waters_button, _("Solvate..."), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_find_waters_button, "Solvate...", NULL);
 
-  model_refine_dialog_fit_terminal_residue_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Add Terminal Residue..."));
+  model_refine_dialog_fit_terminal_residue_togglebutton = gtk_toggle_button_new_with_mnemonic ("Add Terminal Residue...");
   gtk_widget_show (model_refine_dialog_fit_terminal_residue_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_fit_terminal_residue_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_fit_terminal_residue_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_fit_terminal_residue_togglebutton, _("[You need a map to do this] Create a new residue at the C or N terminus. The angles are selected at random sample from the phi/psi probability distribution (then fitted to the map), so if at first you don't succeed, give it another bash..."), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_fit_terminal_residue_togglebutton, "[You need a map to do this] Create a new residue at the C or N terminus. The angles are selected at random sample from the phi/psi probability distribution (then fitted to the map), so if at first you don't succeed, give it another bash...", NULL);
 
-  model_refine_dialog_add_alt_conf_button = gtk_button_new_with_mnemonic (_("Add Alt Conf..."));
+  model_refine_dialog_add_alt_conf_button = gtk_button_new_with_mnemonic ("Add Alt Conf...");
   gtk_widget_show (model_refine_dialog_add_alt_conf_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_add_alt_conf_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_add_alt_conf_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_add_alt_conf_button, _("Add Alternate (Alternative) Conformation to a Residue"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_add_alt_conf_button, "Add Alternate (Alternative) Conformation to a Residue", NULL);
 
-  model_refine_dialog_pointer_atom_button = gtk_button_new_with_mnemonic (_("Place Atom At Pointer"));
+  model_refine_dialog_pointer_atom_button = gtk_button_new_with_mnemonic ("Place Atom At Pointer");
   gtk_widget_show (model_refine_dialog_pointer_atom_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_pointer_atom_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_pointer_atom_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_pointer_atom_button, _("Put an atom at current pink pointer position"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_pointer_atom_button, "Put an atom at current pink pointer position", NULL);
 
   hseparator8 = gtk_hseparator_new ();
   gtk_widget_show (hseparator8);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hseparator8, TRUE, TRUE, 3);
 
-  model_refine_dialog_clear_pending_button = gtk_button_new_with_mnemonic (_("Clear Pending Picks"));
+  model_refine_dialog_clear_pending_button = gtk_button_new_with_mnemonic ("Clear Pending Picks");
   gtk_widget_show (model_refine_dialog_clear_pending_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_clear_pending_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_clear_pending_button), 1);
 
-  model_refine_dialog_delete_button = gtk_button_new_with_mnemonic (_("Delete..."));
+  model_refine_dialog_delete_button = gtk_button_new_with_mnemonic ("Delete...");
   gtk_widget_show (model_refine_dialog_delete_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_delete_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_delete_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_delete_button, _("Delete Residue or Atom"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_delete_button, "Delete Residue or Atom", NULL);
 
-  model_refine_dialog_undo_button = gtk_button_new_with_mnemonic (_("  Undo  "));
+  model_refine_dialog_undo_button = gtk_button_new_with_mnemonic ("  Undo  ");
   gtk_widget_show (model_refine_dialog_undo_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_undo_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_undo_button), 1);
 
-  model_refine_dialog_redo_button = gtk_button_new_with_mnemonic (_("  Redo  "));
+  model_refine_dialog_redo_button = gtk_button_new_with_mnemonic ("  Redo  ");
   gtk_widget_show (model_refine_dialog_redo_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_redo_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_redo_button), 1);
@@ -4479,7 +4524,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hseparator7);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hseparator7, FALSE, FALSE, 3);
 
-  model_refine_dialog_refmac_button = gtk_button_new_with_mnemonic (_("Run Refmac..."));
+  model_refine_dialog_refmac_button = gtk_button_new_with_mnemonic ("Run Refmac...");
   gtk_widget_show (model_refine_dialog_refmac_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_refmac_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_refmac_button), 1);
@@ -4488,7 +4533,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (dialog_action_area4);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area4), GTK_BUTTONBOX_END);
 
-  model_refine_dialog_dismiss_button = gtk_button_new_with_mnemonic (_("   Close   "));
+  model_refine_dialog_dismiss_button = gtk_button_new_with_mnemonic ("   Close   ");
   gtk_widget_show (model_refine_dialog_dismiss_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (model_refine_dialog), model_refine_dialog_dismiss_button, 0);
   GTK_WIDGET_SET_FLAGS (model_refine_dialog_dismiss_button, GTK_CAN_DEFAULT);
@@ -4651,7 +4696,7 @@ create_rotate_translate_obj_dialog (void)
   GtkWidget *rotate_translate_obj_cancel_button;
 
   rotate_translate_obj_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (rotate_translate_obj_dialog), _("Rotation & Translation"));
+  gtk_window_set_title (GTK_WINDOW (rotate_translate_obj_dialog), "Rotation & Translation");
   gtk_window_set_type_hint (GTK_WINDOW (rotate_translate_obj_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox6 = GTK_DIALOG (rotate_translate_obj_dialog)->vbox;
@@ -4675,7 +4720,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (rotate_translate_obj_xtrans_hscale);
   gtk_container_add (GTK_CONTAINER (frame90), rotate_translate_obj_xtrans_hscale);
 
-  label282 = gtk_label_new (_("X translation"));
+  label282 = gtk_label_new ("X translation");
   gtk_widget_show (label282);
   gtk_frame_set_label_widget (GTK_FRAME (frame90), label282);
 
@@ -4688,7 +4733,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (rotate_translate_obj_ytrans_hscale);
   gtk_container_add (GTK_CONTAINER (frame91), rotate_translate_obj_ytrans_hscale);
 
-  label283 = gtk_label_new (_("Y translation"));
+  label283 = gtk_label_new ("Y translation");
   gtk_widget_show (label283);
   gtk_frame_set_label_widget (GTK_FRAME (frame91), label283);
 
@@ -4701,7 +4746,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (rotate_translate_obj_ztrans_hscale);
   gtk_container_add (GTK_CONTAINER (frame92), rotate_translate_obj_ztrans_hscale);
 
-  label284 = gtk_label_new (_("Z translation"));
+  label284 = gtk_label_new ("Z translation");
   gtk_widget_show (label284);
   gtk_frame_set_label_widget (GTK_FRAME (frame92), label284);
 
@@ -4714,7 +4759,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (rotate_translate_obj_xrot_hscale);
   gtk_container_add (GTK_CONTAINER (frame93), rotate_translate_obj_xrot_hscale);
 
-  label285 = gtk_label_new (_("X rotate"));
+  label285 = gtk_label_new ("X rotate");
   gtk_widget_show (label285);
   gtk_frame_set_label_widget (GTK_FRAME (frame93), label285);
 
@@ -4727,7 +4772,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (rotate_translate_obj_yrot_hscale);
   gtk_container_add (GTK_CONTAINER (frame94), rotate_translate_obj_yrot_hscale);
 
-  label286 = gtk_label_new (_("Y rotate"));
+  label286 = gtk_label_new ("Y rotate");
   gtk_widget_show (label286);
   gtk_frame_set_label_widget (GTK_FRAME (frame94), label286);
 
@@ -4740,7 +4785,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (rotate_translate_obj_zrot_hscale);
   gtk_container_add (GTK_CONTAINER (frame95), rotate_translate_obj_zrot_hscale);
 
-  label287 = gtk_label_new (_("Z rotate"));
+  label287 = gtk_label_new ("Z rotate");
   gtk_widget_show (label287);
   gtk_frame_set_label_widget (GTK_FRAME (frame95), label287);
 
@@ -4752,13 +4797,13 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (hbox40);
   gtk_container_add (GTK_CONTAINER (dialog_action_area6), hbox40);
 
-  rotate_translate_obj_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  rotate_translate_obj_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (rotate_translate_obj_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox40), rotate_translate_obj_ok_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (rotate_translate_obj_ok_button), 2);
   GTK_WIDGET_SET_FLAGS (rotate_translate_obj_ok_button, GTK_CAN_DEFAULT);
 
-  rotate_translate_obj_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel "));
+  rotate_translate_obj_cancel_button = gtk_button_new_with_mnemonic ("  Cancel ");
   gtk_widget_show (rotate_translate_obj_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox40), rotate_translate_obj_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (rotate_translate_obj_cancel_button, GTK_CAN_DEFAULT);
@@ -4823,7 +4868,7 @@ create_save_coords_dialog (void)
   GtkWidget *save_coords_dialog_save_button;
 
   save_coords_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (save_coords_dialog), _("Save Coordinates Molecule Selector"));
+  gtk_window_set_title (GTK_WINDOW (save_coords_dialog), "Save Coordinates Molecule Selector");
   gtk_window_set_type_hint (GTK_WINDOW (save_coords_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox7 = GTK_DIALOG (save_coords_dialog)->vbox;
@@ -4838,7 +4883,7 @@ create_save_coords_dialog (void)
   gtk_widget_show (vbox50);
   gtk_container_add (GTK_CONTAINER (frame41), vbox50);
 
-  label78 = gtk_label_new (_("Select Molecule Number to Save:"));
+  label78 = gtk_label_new ("Select Molecule Number to Save:");
   gtk_widget_show (label78);
   gtk_box_pack_start (GTK_BOX (vbox50), label78, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label78), GTK_JUSTIFY_CENTER);
@@ -4857,7 +4902,7 @@ create_save_coords_dialog (void)
   gtk_widget_show (dialog_action_area7);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area7), GTK_BUTTONBOX_END);
 
-  save_coords_dialog_save_button = gtk_button_new_with_mnemonic (_("  Select Filename...  "));
+  save_coords_dialog_save_button = gtk_button_new_with_mnemonic ("  Select Filename...  ");
   gtk_widget_show (save_coords_dialog_save_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_coords_dialog), save_coords_dialog_save_button, 0);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_dialog_save_button), 6);
@@ -4892,9 +4937,9 @@ create_save_coords_fileselection1 (void)
 
   tooltips = gtk_tooltips_new ();
 
-  save_coords_fileselection1 = gtk_file_selection_new (_("Select Filename for Saved Coordinates "));
+  save_coords_fileselection1 = gtk_file_selection_new ("Select Filename for Saved Coordinates ");
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_fileselection1), 10);
-  gtk_tooltips_set_tip (tooltips, save_coords_fileselection1, _("Saved File type: By extension"), NULL);
+  gtk_tooltips_set_tip (tooltips, save_coords_fileselection1, "Saved File type: By extension", NULL);
   gtk_window_set_type_hint (GTK_WINDOW (save_coords_fileselection1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   save_coord_ok_button = GTK_FILE_SELECTION (save_coords_fileselection1)->ok_button;
@@ -4968,7 +5013,7 @@ create_refine_params_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   refine_params_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (refine_params_dialog), _("Refinement and Regularization Parameters"));
+  gtk_window_set_title (GTK_WINDOW (refine_params_dialog), "Refinement and Regularization Parameters");
   gtk_window_set_type_hint (GTK_WINDOW (refine_params_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox8 = GTK_DIALOG (refine_params_dialog)->vbox;
@@ -4988,11 +5033,11 @@ create_refine_params_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox51), vbox52, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox52), 5);
 
-  label281 = gtk_label_new (_("\n  LINK TORSION RESTRAINTS \n  CURRENTLY DON'T WORK!   \n"));
+  label281 = gtk_label_new ("\n  LINK TORSION RESTRAINTS \n  CURRENTLY DON'T WORK!   \n");
   gtk_box_pack_start (GTK_BOX (vbox52), label281, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label281), GTK_JUSTIFY_CENTER);
 
-  label79 = gtk_label_new (_("For Regularization and Refinement:"));
+  label79 = gtk_label_new ("For Regularization and Refinement:");
   gtk_widget_show (label79);
   gtk_box_pack_start (GTK_BOX (vbox52), label79, FALSE, FALSE, 4);
   gtk_misc_set_alignment (GTK_MISC (label79), 0, 0.5);
@@ -5001,10 +5046,10 @@ create_refine_params_dialog (void)
   gtk_widget_show (vbox60);
   gtk_box_pack_start (GTK_BOX (vbox52), vbox60, FALSE, FALSE, 0);
 
-  refine_params_use_torsions_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Torsion Restraints"));
+  refine_params_use_torsions_checkbutton = gtk_check_button_new_with_mnemonic ("Use Torsion Restraints");
   gtk_widget_show (refine_params_use_torsions_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_torsions_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_torsions_checkbutton, _("Optimize torsion angles too"), NULL);
+  gtk_tooltips_set_tip (tooltips, refine_params_use_torsions_checkbutton, "Optimize torsion angles too", NULL);
 
   phi_psi_restraints_vbox = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox60), phi_psi_restraints_vbox, TRUE, TRUE, 0);
@@ -5013,12 +5058,12 @@ create_refine_params_dialog (void)
   gtk_widget_show (hbox140);
   gtk_box_pack_start (GTK_BOX (phi_psi_restraints_vbox), hbox140, TRUE, TRUE, 0);
 
-  label279 = gtk_label_new (_("    "));
+  label279 = gtk_label_new ("    ");
   gtk_widget_show (label279);
   gtk_box_pack_start (GTK_BOX (hbox140), label279, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label279), GTK_JUSTIFY_CENTER);
 
-  refine_params_use_peptide_torsions_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Phi/Psi Restraints"));
+  refine_params_use_peptide_torsions_checkbutton = gtk_check_button_new_with_mnemonic ("Use Phi/Psi Restraints");
   gtk_widget_show (refine_params_use_peptide_torsions_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox140), refine_params_use_peptide_torsions_checkbutton, FALSE, FALSE, 0);
 
@@ -5031,12 +5076,12 @@ create_refine_params_dialog (void)
   gtk_widget_show (hbox137);
   gtk_box_pack_start (GTK_BOX (peptide_torsions_restraints_vbox), hbox137, TRUE, TRUE, 0);
 
-  label276 = gtk_label_new (_("         "));
+  label276 = gtk_label_new ("         ");
   gtk_widget_show (label276);
   gtk_box_pack_start (GTK_BOX (hbox137), label276, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label276), GTK_JUSTIFY_CENTER);
 
-  refine_params_use_helix_peptide_torsions_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Use Alpha Helix Restraints"));
+  refine_params_use_helix_peptide_torsions_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Use Alpha Helix Restraints");
   gtk_widget_show (refine_params_use_helix_peptide_torsions_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox137), refine_params_use_helix_peptide_torsions_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (refine_params_use_helix_peptide_torsions_radiobutton), refine_params_use_helix_peptide_torsions_radiobutton_group);
@@ -5046,12 +5091,12 @@ create_refine_params_dialog (void)
   gtk_widget_show (hbox138);
   gtk_box_pack_start (GTK_BOX (peptide_torsions_restraints_vbox), hbox138, TRUE, TRUE, 0);
 
-  label277 = gtk_label_new (_("         "));
+  label277 = gtk_label_new ("         ");
   gtk_widget_show (label277);
   gtk_box_pack_start (GTK_BOX (hbox138), label277, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label277), GTK_JUSTIFY_CENTER);
 
-  refine_params_use_beta_strand_peptide_torsions_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Use Beta Strand Restraints"));
+  refine_params_use_beta_strand_peptide_torsions_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Use Beta Strand Restraints");
   gtk_widget_show (refine_params_use_beta_strand_peptide_torsions_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox138), refine_params_use_beta_strand_peptide_torsions_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (refine_params_use_beta_strand_peptide_torsions_radiobutton), refine_params_use_helix_peptide_torsions_radiobutton_group);
@@ -5061,12 +5106,12 @@ create_refine_params_dialog (void)
   gtk_widget_show (hbox139);
   gtk_box_pack_start (GTK_BOX (peptide_torsions_restraints_vbox), hbox139, TRUE, TRUE, 0);
 
-  label278 = gtk_label_new (_("         "));
+  label278 = gtk_label_new ("         ");
   gtk_widget_show (label278);
   gtk_box_pack_start (GTK_BOX (hbox139), label278, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label278), GTK_JUSTIFY_CENTER);
 
-  refine_params_use_ramachandran_goodness_torsions_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Restrain to Ramachandran Goodness"));
+  refine_params_use_ramachandran_goodness_torsions_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Restrain to Ramachandran Goodness");
   gtk_widget_show (refine_params_use_ramachandran_goodness_torsions_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox139), refine_params_use_ramachandran_goodness_torsions_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (refine_params_use_ramachandran_goodness_torsions_radiobutton), refine_params_use_helix_peptide_torsions_radiobutton_group);
@@ -5075,21 +5120,21 @@ create_refine_params_dialog (void)
   hbox141 = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox60), hbox141, FALSE, FALSE, 0);
 
-  label280 = gtk_label_new (_("    "));
+  label280 = gtk_label_new ("    ");
   gtk_widget_show (label280);
   gtk_box_pack_start (GTK_BOX (hbox141), label280, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label280), GTK_JUSTIFY_CENTER);
 
-  refine_params_use_peptide_omegas_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Omega Restraints"));
+  refine_params_use_peptide_omegas_checkbutton = gtk_check_button_new_with_mnemonic ("Use Omega Restraints");
   gtk_widget_show (refine_params_use_peptide_omegas_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox141), refine_params_use_peptide_omegas_checkbutton, FALSE, FALSE, 0);
   gtk_widget_set_sensitive (refine_params_use_peptide_omegas_checkbutton, FALSE);
 
-  refine_params_use_initial_pos_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Initial Position Restraints"));
+  refine_params_use_initial_pos_checkbutton = gtk_check_button_new_with_mnemonic ("Use Initial Position Restraints");
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_initial_pos_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (refine_params_use_initial_pos_checkbutton), 2);
   gtk_widget_set_sensitive (refine_params_use_initial_pos_checkbutton, FALSE);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_initial_pos_checkbutton, _("Stops regularization wandering off [non-active]"), NULL);
+  gtk_tooltips_set_tip (tooltips, refine_params_use_initial_pos_checkbutton, "Stops regularization wandering off [non-active]", NULL);
 
   frame174 = gtk_frame_new (NULL);
   gtk_widget_show (frame174);
@@ -5099,19 +5144,19 @@ create_refine_params_dialog (void)
   gtk_widget_show (sec_struct_restraints_vbox);
   gtk_container_add (GTK_CONTAINER (frame174), sec_struct_restraints_vbox);
 
-  sec_str_rest_no_rest_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No Secondary Structure Restraints"));
+  sec_str_rest_no_rest_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No Secondary Structure Restraints");
   gtk_widget_show (sec_str_rest_no_rest_radiobutton);
   gtk_box_pack_start (GTK_BOX (sec_struct_restraints_vbox), sec_str_rest_no_rest_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (sec_str_rest_no_rest_radiobutton), sec_str_rest_no_rest_radiobutton_group);
   sec_str_rest_no_rest_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (sec_str_rest_no_rest_radiobutton));
 
-  sec_str_rest_helix_rest_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Alpha Helix Restraints"));
+  sec_str_rest_helix_rest_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Alpha Helix Restraints");
   gtk_widget_show (sec_str_rest_helix_rest_radiobutton);
   gtk_box_pack_start (GTK_BOX (sec_struct_restraints_vbox), sec_str_rest_helix_rest_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (sec_str_rest_helix_rest_radiobutton), sec_str_rest_no_rest_radiobutton_group);
   sec_str_rest_no_rest_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (sec_str_rest_helix_rest_radiobutton));
 
-  sec_str_rest_strand_rest_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Beta Strand Restraints"));
+  sec_str_rest_strand_rest_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Beta Strand Restraints");
   gtk_widget_show (sec_str_rest_strand_rest_radiobutton);
   gtk_box_pack_start (GTK_BOX (sec_struct_restraints_vbox), sec_str_rest_strand_rest_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (sec_str_rest_strand_rest_radiobutton), sec_str_rest_no_rest_radiobutton_group);
@@ -5121,11 +5166,14 @@ create_refine_params_dialog (void)
   gtk_widget_show (dialog_action_area8);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area8), GTK_BUTTONBOX_END);
 
-  refine_params_dialog_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  refine_params_dialog_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (refine_params_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (refine_params_dialog), refine_params_dialog_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (refine_params_dialog_ok_button, GTK_CAN_DEFAULT);
 
+  g_signal_connect ((gpointer) refine_params_dialog, "destroy",
+                    G_CALLBACK (on_refine_params_dialog_destroy),
+                    NULL);
   g_signal_connect ((gpointer) refine_params_use_torsions_checkbutton, "toggled",
                     G_CALLBACK (on_refine_params_use_torsions_checkbutton_toggled),
                     NULL);
@@ -5215,7 +5263,7 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *accept_reject_refinement_reject_button;
 
   accept_reject_refinement_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (accept_reject_refinement_dialog), _("Accept Refinement?"));
+  gtk_window_set_title (GTK_WINDOW (accept_reject_refinement_dialog), "Accept Refinement?");
   gtk_window_set_type_hint (GTK_WINDOW (accept_reject_refinement_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox9 = GTK_DIALOG (accept_reject_refinement_dialog)->vbox;
@@ -5226,7 +5274,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox9), frame129, FALSE, FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (frame129), 6);
 
-  accept_dialog_accept_label_string = gtk_label_new (_("Accept Refinement?"));
+  accept_dialog_accept_label_string = gtk_label_new ("Accept Refinement?");
   gtk_widget_show (accept_dialog_accept_label_string);
   gtk_container_add (GTK_CONTAINER (frame129), accept_dialog_accept_label_string);
   gtk_label_set_justify (GTK_LABEL (accept_dialog_accept_label_string), GTK_JUSTIFY_CENTER);
@@ -5240,12 +5288,12 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (hbox41);
   gtk_container_add (GTK_CONTAINER (dialog_action_area9), hbox41);
 
-  accept_reject_refinement_accept_button = gtk_button_new_with_mnemonic (_("Accept"));
+  accept_reject_refinement_accept_button = gtk_button_new_with_mnemonic ("Accept");
   gtk_widget_show (accept_reject_refinement_accept_button);
   gtk_box_pack_start (GTK_BOX (hbox41), accept_reject_refinement_accept_button, TRUE, TRUE, 6);
   GTK_WIDGET_SET_FLAGS (accept_reject_refinement_accept_button, GTK_CAN_DEFAULT);
 
-  accept_reject_refinement_reject_button = gtk_button_new_with_mnemonic (_("Reject"));
+  accept_reject_refinement_reject_button = gtk_button_new_with_mnemonic ("Reject");
   gtk_widget_show (accept_reject_refinement_reject_button);
   gtk_box_pack_start (GTK_BOX (hbox41), accept_reject_refinement_reject_button, TRUE, TRUE, 6);
   GTK_WIDGET_SET_FLAGS (accept_reject_refinement_reject_button, GTK_CAN_DEFAULT);
@@ -5310,7 +5358,7 @@ create_find_waters_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   find_waters_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (find_waters_dialog), _("find waters dialog"));
+  gtk_window_set_title (GTK_WINDOW (find_waters_dialog), "find waters dialog");
   gtk_window_set_type_hint (GTK_WINDOW (find_waters_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox10 = GTK_DIALOG (find_waters_dialog)->vbox;
@@ -5330,7 +5378,7 @@ create_find_waters_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame44), find_waters_map_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (find_waters_map_vbox), 3);
 
-  label85 = gtk_label_new (_("Select Map:"));
+  label85 = gtk_label_new ("Select Map:");
   gtk_widget_show (label85);
   gtk_box_pack_start (GTK_BOX (find_waters_map_vbox), label85, FALSE, FALSE, 0);
 
@@ -5344,7 +5392,7 @@ create_find_waters_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame45), find_waters_protein_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (find_waters_protein_vbox), 3);
 
-  label86 = gtk_label_new (_("Select Protein (which Masks Map):"));
+  label86 = gtk_label_new ("Select Protein (which Masks Map):");
   gtk_widget_show (label86);
   gtk_box_pack_start (GTK_BOX (find_waters_protein_vbox), label86, FALSE, FALSE, 0);
 
@@ -5358,7 +5406,7 @@ create_find_waters_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame46), vbox57);
   gtk_container_set_border_width (GTK_CONTAINER (vbox57), 3);
 
-  label87 = gtk_label_new (_("Find Peaks above:"));
+  label87 = gtk_label_new ("Find Peaks above:");
   gtk_widget_show (label87);
   gtk_box_pack_start (GTK_BOX (vbox57), label87, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label87), GTK_JUSTIFY_CENTER);
@@ -5370,9 +5418,10 @@ create_find_waters_dialog (void)
   find_waters_peak_level_entry = gtk_entry_new ();
   gtk_widget_show (find_waters_peak_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox44), find_waters_peak_level_entry, FALSE, TRUE, 6);
-  gtk_tooltips_set_tip (tooltips, find_waters_peak_level_entry, _("Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map."), NULL);
+  gtk_tooltips_set_tip (tooltips, find_waters_peak_level_entry, "Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map.", NULL);
+  gtk_entry_set_invisible_char (GTK_ENTRY (find_waters_peak_level_entry), 9679);
 
-  label88 = gtk_label_new (_(" sigma "));
+  label88 = gtk_label_new (" sigma ");
   gtk_widget_show (label88);
   gtk_box_pack_start (GTK_BOX (hbox44), label88, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label88), GTK_JUSTIFY_CENTER);
@@ -5386,21 +5435,21 @@ create_find_waters_dialog (void)
   gtk_widget_show (vbox80);
   gtk_container_add (GTK_CONTAINER (frame63), vbox80);
 
-  label108 = gtk_label_new (_("Waters should be:"));
+  label108 = gtk_label_new ("Waters should be:");
   gtk_widget_show (label108);
   gtk_box_pack_start (GTK_BOX (vbox80), label108, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label108), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label108), 0.03, 0.5);
   gtk_misc_set_padding (GTK_MISC (label108), 0, 2);
 
-  water_mol_protein_mask_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Added to Molecule that masks the map"));
+  water_mol_protein_mask_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Added to Molecule that masks the map");
   gtk_widget_show (water_mol_protein_mask_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox80), water_mol_protein_mask_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (water_mol_protein_mask_radiobutton), water_mol_protein_mask_radiobutton_group);
   water_mol_protein_mask_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (water_mol_protein_mask_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (water_mol_protein_mask_radiobutton), TRUE);
 
-  water_mol_new_mol_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("A new \"Waters\" molecule"));
+  water_mol_new_mol_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "A new \"Waters\" molecule");
   gtk_widget_show (water_mol_new_mol_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox80), water_mol_new_mol_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (water_mol_new_mol_radiobutton), water_mol_protein_mask_radiobutton_group);
@@ -5414,12 +5463,12 @@ create_find_waters_dialog (void)
   gtk_widget_show (hbox43);
   gtk_container_add (GTK_CONTAINER (dialog_action_area10), hbox43);
 
-  find_waters_ok_button = gtk_button_new_with_mnemonic (_("  Find Waters  "));
+  find_waters_ok_button = gtk_button_new_with_mnemonic ("  Find Waters  ");
   gtk_widget_show (find_waters_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox43), find_waters_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (find_waters_ok_button, GTK_CAN_DEFAULT);
 
-  find_waters_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  find_waters_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (find_waters_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox43), find_waters_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (find_waters_cancel_button, GTK_CAN_DEFAULT);
@@ -5488,7 +5537,7 @@ create_environment_distance_dialog (void)
 
   environment_distance_dialog = gtk_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (environment_distance_dialog), 6);
-  gtk_window_set_title (GTK_WINDOW (environment_distance_dialog), _("Environment Distances"));
+  gtk_window_set_title (GTK_WINDOW (environment_distance_dialog), "Environment Distances");
   gtk_window_set_type_hint (GTK_WINDOW (environment_distance_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox11 = GTK_DIALOG (environment_distance_dialog)->vbox;
@@ -5503,7 +5552,7 @@ create_environment_distance_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox58), frame48, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame48), 6);
 
-  environment_distance_checkbutton = gtk_check_button_new_with_mnemonic (_("Show Residue Environment?"));
+  environment_distance_checkbutton = gtk_check_button_new_with_mnemonic ("Show Residue Environment?");
   gtk_widget_show (environment_distance_checkbutton);
   gtk_container_add (GTK_CONTAINER (frame48), environment_distance_checkbutton);
 
@@ -5526,7 +5575,7 @@ create_environment_distance_dialog (void)
   gtk_widget_show (hbox46);
   gtk_box_pack_start (GTK_BOX (vbox59), hbox46, TRUE, TRUE, 0);
 
-  label90 = gtk_label_new (_("  Min Distance  "));
+  label90 = gtk_label_new ("  Min Distance  ");
   gtk_widget_show (label90);
   gtk_box_pack_start (GTK_BOX (hbox46), label90, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label90), GTK_JUSTIFY_CENTER);
@@ -5534,8 +5583,9 @@ create_environment_distance_dialog (void)
   environment_distance_min_entry = gtk_entry_new ();
   gtk_widget_show (environment_distance_min_entry);
   gtk_box_pack_start (GTK_BOX (hbox46), environment_distance_min_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (environment_distance_min_entry), 9679);
 
-  label92 = gtk_label_new (_("  Angstroms  "));
+  label92 = gtk_label_new ("  Angstroms  ");
   gtk_widget_show (label92);
   gtk_box_pack_start (GTK_BOX (hbox46), label92, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label92), GTK_JUSTIFY_CENTER);
@@ -5544,7 +5594,7 @@ create_environment_distance_dialog (void)
   gtk_widget_show (hbox45);
   gtk_box_pack_start (GTK_BOX (vbox59), hbox45, TRUE, TRUE, 0);
 
-  label91 = gtk_label_new (_("  Max Distance  "));
+  label91 = gtk_label_new ("  Max Distance  ");
   gtk_widget_show (label91);
   gtk_box_pack_start (GTK_BOX (hbox45), label91, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label91), GTK_JUSTIFY_CENTER);
@@ -5552,13 +5602,14 @@ create_environment_distance_dialog (void)
   environment_distance_max_entry = gtk_entry_new ();
   gtk_widget_show (environment_distance_max_entry);
   gtk_box_pack_start (GTK_BOX (hbox45), environment_distance_max_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (environment_distance_max_entry), 9679);
 
-  label93 = gtk_label_new (_("  Angstroms  "));
+  label93 = gtk_label_new ("  Angstroms  ");
   gtk_widget_show (label93);
   gtk_box_pack_start (GTK_BOX (hbox45), label93, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label93), GTK_JUSTIFY_CENTER);
 
-  environment_distance_label_atom_checkbutton = gtk_check_button_new_with_mnemonic (_("Label Atom?"));
+  environment_distance_label_atom_checkbutton = gtk_check_button_new_with_mnemonic ("Label Atom?");
   gtk_widget_show (environment_distance_label_atom_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox58), environment_distance_label_atom_checkbutton, FALSE, FALSE, 0);
   gtk_widget_set_sensitive (environment_distance_label_atom_checkbutton, FALSE);
@@ -5567,7 +5618,7 @@ create_environment_distance_dialog (void)
   gtk_widget_show (dialog_action_area11);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area11), GTK_BUTTONBOX_END);
 
-  environment_distance_dialog_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  environment_distance_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (environment_distance_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (environment_distance_dialog), environment_distance_dialog_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (environment_distance_dialog_ok_button, GTK_CAN_DEFAULT);
@@ -5615,7 +5666,7 @@ create_cif_dictionary_fileselection (void)
   GtkWidget *cif_dictionary_fileselection_ok_button;
   GtkWidget *cif_dictionary_fileselection_cancel_button;
 
-  cif_dictionary_fileselection = gtk_file_selection_new (_("Select File"));
+  cif_dictionary_fileselection = gtk_file_selection_new ("Select File");
   gtk_container_set_border_width (GTK_CONTAINER (cif_dictionary_fileselection), 10);
   gtk_window_set_type_hint (GTK_WINDOW (cif_dictionary_fileselection), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -5675,7 +5726,7 @@ create_residue_type_chooser_window (void)
   tooltips = gtk_tooltips_new ();
 
   residue_type_chooser_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (residue_type_chooser_window), _("Residu Type"));
+  gtk_window_set_title (GTK_WINDOW (residue_type_chooser_window), "Residu Type");
 
   frame50 = gtk_frame_new (NULL);
   gtk_widget_show (frame50);
@@ -5687,93 +5738,93 @@ create_residue_type_chooser_window (void)
   gtk_container_add (GTK_CONTAINER (frame50), vbox62);
   gtk_container_set_border_width (GTK_CONTAINER (vbox62), 5);
 
-  residue_type_chooser_stub_checkbutton = gtk_check_button_new_with_mnemonic (_("Stub"));
+  residue_type_chooser_stub_checkbutton = gtk_check_button_new_with_mnemonic ("Stub");
   gtk_widget_show (residue_type_chooser_stub_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_stub_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, residue_type_chooser_stub_checkbutton, _("Change the residue type, but only put in the main-chain atoms and the CB"), NULL);
+  gtk_tooltips_set_tip (tooltips, residue_type_chooser_stub_checkbutton, "Change the residue type, but only put in the main-chain atoms and the CB", NULL);
 
-  residue_type_chooser_ALA = gtk_button_new_with_mnemonic (_("  ALA (A)  "));
+  residue_type_chooser_ALA = gtk_button_new_with_mnemonic ("  ALA (A)  ");
   gtk_widget_show (residue_type_chooser_ALA);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_ALA, FALSE, FALSE, 2);
 
-  residue_type_chooser_ARG = gtk_button_new_with_mnemonic (_("  ARG (R)  "));
+  residue_type_chooser_ARG = gtk_button_new_with_mnemonic ("  ARG (R)  ");
   gtk_widget_show (residue_type_chooser_ARG);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_ARG, FALSE, FALSE, 2);
 
-  residue_type_chooser_ASN = gtk_button_new_with_mnemonic (_("  ASN (N)  "));
+  residue_type_chooser_ASN = gtk_button_new_with_mnemonic ("  ASN (N)  ");
   gtk_widget_show (residue_type_chooser_ASN);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_ASN, FALSE, FALSE, 2);
 
-  residue_type_chooser_ASP = gtk_button_new_with_mnemonic (_("  ASP (D)  "));
+  residue_type_chooser_ASP = gtk_button_new_with_mnemonic ("  ASP (D)  ");
   gtk_widget_show (residue_type_chooser_ASP);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_ASP, FALSE, FALSE, 2);
 
-  residue_type_chooser_CYS = gtk_button_new_with_mnemonic (_("  CYS (C)  "));
+  residue_type_chooser_CYS = gtk_button_new_with_mnemonic ("  CYS (C)  ");
   gtk_widget_show (residue_type_chooser_CYS);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_CYS, FALSE, FALSE, 2);
 
-  residue_type_chooser_GLN = gtk_button_new_with_mnemonic (_("  GLN (Q)  "));
+  residue_type_chooser_GLN = gtk_button_new_with_mnemonic ("  GLN (Q)  ");
   gtk_widget_show (residue_type_chooser_GLN);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_GLN, FALSE, FALSE, 2);
 
-  residue_type_chooser_GLU = gtk_button_new_with_mnemonic (_("  GLU (E)  "));
+  residue_type_chooser_GLU = gtk_button_new_with_mnemonic ("  GLU (E)  ");
   gtk_widget_show (residue_type_chooser_GLU);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_GLU, FALSE, FALSE, 2);
 
-  residue_type_chooser_GLY = gtk_button_new_with_mnemonic (_("  GLY (G)  "));
+  residue_type_chooser_GLY = gtk_button_new_with_mnemonic ("  GLY (G)  ");
   gtk_widget_show (residue_type_chooser_GLY);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_GLY, FALSE, FALSE, 2);
 
-  residue_type_chooser_HIS = gtk_button_new_with_mnemonic (_("  HIS (H)"));
+  residue_type_chooser_HIS = gtk_button_new_with_mnemonic ("  HIS (H)");
   gtk_widget_show (residue_type_chooser_HIS);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_HIS, FALSE, FALSE, 2);
 
-  residue_type_chooser_ILE = gtk_button_new_with_mnemonic (_("  ILE (I)"));
+  residue_type_chooser_ILE = gtk_button_new_with_mnemonic ("  ILE (I)");
   gtk_widget_show (residue_type_chooser_ILE);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_ILE, FALSE, FALSE, 2);
-  gtk_tooltips_set_tip (tooltips, residue_type_chooser_ILE, _("Selino-MET"), NULL);
+  gtk_tooltips_set_tip (tooltips, residue_type_chooser_ILE, "Selino-MET", NULL);
 
-  residue_type_chooser_LEU = gtk_button_new_with_mnemonic (_("  LEU (L)  "));
+  residue_type_chooser_LEU = gtk_button_new_with_mnemonic ("  LEU (L)  ");
   gtk_widget_show (residue_type_chooser_LEU);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_LEU, FALSE, FALSE, 2);
 
-  residue_type_chooser_LYS = gtk_button_new_with_mnemonic (_("  LYS (K)  "));
+  residue_type_chooser_LYS = gtk_button_new_with_mnemonic ("  LYS (K)  ");
   gtk_widget_show (residue_type_chooser_LYS);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_LYS, FALSE, FALSE, 2);
 
-  residue_type_chooser_MET = gtk_button_new_with_mnemonic (_("  MET (M)  "));
+  residue_type_chooser_MET = gtk_button_new_with_mnemonic ("  MET (M)  ");
   gtk_widget_show (residue_type_chooser_MET);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_MET, FALSE, FALSE, 2);
 
-  residue_type_chooser_MSE = gtk_button_new_with_mnemonic (_("  MSE  "));
+  residue_type_chooser_MSE = gtk_button_new_with_mnemonic ("  MSE  ");
   gtk_widget_show (residue_type_chooser_MSE);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_MSE, FALSE, FALSE, 2);
 
-  residue_type_chooser_PHE = gtk_button_new_with_mnemonic (_("  PHE (F)  "));
+  residue_type_chooser_PHE = gtk_button_new_with_mnemonic ("  PHE (F)  ");
   gtk_widget_show (residue_type_chooser_PHE);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_PHE, FALSE, FALSE, 2);
 
-  residue_type_chooser_PRO = gtk_button_new_with_mnemonic (_("  PRO (P)  "));
+  residue_type_chooser_PRO = gtk_button_new_with_mnemonic ("  PRO (P)  ");
   gtk_widget_show (residue_type_chooser_PRO);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_PRO, FALSE, FALSE, 2);
 
-  residue_type_chooser_SER = gtk_button_new_with_mnemonic (_("  SER (S)  "));
+  residue_type_chooser_SER = gtk_button_new_with_mnemonic ("  SER (S)  ");
   gtk_widget_show (residue_type_chooser_SER);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_SER, FALSE, FALSE, 2);
 
-  residue_type_chooser_THR = gtk_button_new_with_mnemonic (_("  THR (T)  "));
+  residue_type_chooser_THR = gtk_button_new_with_mnemonic ("  THR (T)  ");
   gtk_widget_show (residue_type_chooser_THR);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_THR, FALSE, FALSE, 2);
 
-  residue_type_chooser_TRP = gtk_button_new_with_mnemonic (_("  TRP (W)  "));
+  residue_type_chooser_TRP = gtk_button_new_with_mnemonic ("  TRP (W)  ");
   gtk_widget_show (residue_type_chooser_TRP);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_TRP, FALSE, FALSE, 2);
 
-  residue_type_chooser_TYR = gtk_button_new_with_mnemonic (_("  TYR (Y)  "));
+  residue_type_chooser_TYR = gtk_button_new_with_mnemonic ("  TYR (Y)  ");
   gtk_widget_show (residue_type_chooser_TYR);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_TYR, FALSE, FALSE, 2);
 
-  residue_type_chooser_VAL = gtk_button_new_with_mnemonic (_("  VAL (V)  "));
+  residue_type_chooser_VAL = gtk_button_new_with_mnemonic ("  VAL (V)  ");
   gtk_widget_show (residue_type_chooser_VAL);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_VAL, FALSE, FALSE, 2);
 
@@ -5882,7 +5933,7 @@ create_run_script_fileselection (void)
   GtkWidget *run_script_fileselection_ok_button;
   GtkWidget *run_script_fileselection_cancel_button;
 
-  run_script_fileselection = gtk_file_selection_new (_("Select File"));
+  run_script_fileselection = gtk_file_selection_new ("Select File");
   gtk_container_set_border_width (GTK_CONTAINER (run_script_fileselection), 10);
   gtk_window_set_type_hint (GTK_WINDOW (run_script_fileselection), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -5933,7 +5984,7 @@ create_delete_item_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   delete_item_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (delete_item_dialog), _("Delete item"));
+  gtk_window_set_title (GTK_WINDOW (delete_item_dialog), "Delete item");
   gtk_window_set_type_hint (GTK_WINDOW (delete_item_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox12 = GTK_DIALOG (delete_item_dialog)->vbox;
@@ -5948,13 +5999,13 @@ create_delete_item_dialog (void)
   gtk_widget_show (vbox63);
   gtk_container_add (GTK_CONTAINER (frame51), vbox63);
 
-  label95 = gtk_label_new (_("Delete What Item Type?"));
+  label95 = gtk_label_new ("Delete What Item Type?");
   gtk_widget_show (label95);
   gtk_box_pack_start (GTK_BOX (vbox63), label95, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label95), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label95), 0, 6);
 
-  delete_item_residue_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Residue/Monomer"));
+  delete_item_residue_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Residue/Monomer");
   gtk_widget_show (delete_item_residue_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox63), delete_item_residue_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_residue_radiobutton), 3);
@@ -5962,48 +6013,48 @@ create_delete_item_dialog (void)
   delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_residue_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (delete_item_residue_radiobutton), TRUE);
 
-  delete_item_water_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Water"));
+  delete_item_water_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Water");
   gtk_widget_show (delete_item_water_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox63), delete_item_water_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_water_radiobutton), 3);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_water_radiobutton), delete_item_residue_radiobutton_group);
   delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_water_radiobutton));
 
-  delete_item_atom_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Atom"));
+  delete_item_atom_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Atom");
   gtk_widget_show (delete_item_atom_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox63), delete_item_atom_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_atom_radiobutton), 3);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_atom_radiobutton), delete_item_residue_radiobutton_group);
   delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_atom_radiobutton));
 
-  delete_item_sidechain_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Sidechain"));
+  delete_item_sidechain_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Sidechain");
   gtk_widget_show (delete_item_sidechain_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox63), delete_item_sidechain_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_sidechain_radiobutton), 3);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_sidechain_radiobutton), delete_item_residue_radiobutton_group);
   delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_sidechain_radiobutton));
 
-  delete_item_residue_hydrogens_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Hydrogens in Residue"));
+  delete_item_residue_hydrogens_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Hydrogens in Residue");
   gtk_widget_show (delete_item_residue_hydrogens_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox63), delete_item_residue_hydrogens_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_residue_hydrogens_radiobutton), 3);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_residue_hydrogens_radiobutton), delete_item_residue_radiobutton_group);
   delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_residue_hydrogens_radiobutton));
 
-  delete_item_residue_range_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Delete Zone"));
+  delete_item_residue_range_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Delete Zone");
   gtk_widget_show (delete_item_residue_range_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox63), delete_item_residue_range_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_residue_range_radiobutton), 3);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_residue_range_radiobutton), delete_item_residue_radiobutton_group);
   delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_residue_range_radiobutton));
 
-  delete_item_keep_active_checkbutton = gtk_check_button_new_with_mnemonic (_("Keep Delete Active"));
+  delete_item_keep_active_checkbutton = gtk_check_button_new_with_mnemonic ("Keep Delete Active");
   gtk_widget_show (delete_item_keep_active_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox63), delete_item_keep_active_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_keep_active_checkbutton), 8);
-  gtk_tooltips_set_tip (tooltips, delete_item_keep_active_checkbutton, _("For use with Multiple Deletes. When activated, deleting an item does not dismiss this dialog.  (Has the same action as using Ctrl-Left Click)"), NULL);
+  gtk_tooltips_set_tip (tooltips, delete_item_keep_active_checkbutton, "For use with Multiple Deletes. When activated, deleting an item does not dismiss this dialog.  (Has the same action as using Ctrl-Left Click)", NULL);
 
-  label126 = gtk_label_new (_("\n Now click on an atom (of the residue) \nthat you wish to delete.               "));
+  label126 = gtk_label_new ("\n Now click on an atom (of the residue) \nthat you wish to delete.               ");
   gtk_widget_show (label126);
   gtk_box_pack_start (GTK_BOX (vbox63), label126, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label126), GTK_JUSTIFY_CENTER);
@@ -6013,7 +6064,7 @@ create_delete_item_dialog (void)
   gtk_widget_show (dialog_action_area12);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area12), GTK_BUTTONBOX_END);
 
-  delete_item_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  delete_item_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (delete_item_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (delete_item_dialog), delete_item_cancel_button, 0);
 
@@ -6085,7 +6136,7 @@ create_close_molecule_dialog (void)
   GtkWidget *close_molecule_cancel_button;
 
   close_molecule_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (close_molecule_dialog), _("Choose Molecule to Close:"));
+  gtk_window_set_title (GTK_WINDOW (close_molecule_dialog), "Choose Molecule to Close:");
   gtk_window_set_type_hint (GTK_WINDOW (close_molecule_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox13 = GTK_DIALOG (close_molecule_dialog)->vbox;
@@ -6095,7 +6146,7 @@ create_close_molecule_dialog (void)
   gtk_widget_show (vbox64);
   gtk_box_pack_start (GTK_BOX (dialog_vbox13), vbox64, TRUE, TRUE, 0);
 
-  label96 = gtk_label_new (_("Choose Molecule/Map to Close:"));
+  label96 = gtk_label_new ("Choose Molecule/Map to Close:");
   gtk_widget_show (label96);
   gtk_box_pack_start (GTK_BOX (vbox64), label96, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label96), GTK_JUSTIFY_CENTER);
@@ -6122,12 +6173,12 @@ create_close_molecule_dialog (void)
   gtk_widget_show (hbox48);
   gtk_container_add (GTK_CONTAINER (dialog_action_area13), hbox48);
 
-  close_molecule_close_button = gtk_button_new_with_mnemonic (_("  Close Molecule   "));
+  close_molecule_close_button = gtk_button_new_with_mnemonic ("  Close Molecule   ");
   gtk_widget_show (close_molecule_close_button);
   gtk_box_pack_start (GTK_BOX (hbox48), close_molecule_close_button, TRUE, TRUE, 2);
   GTK_WIDGET_SET_FLAGS (close_molecule_close_button, GTK_CAN_DEFAULT);
 
-  close_molecule_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  close_molecule_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (close_molecule_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox48), close_molecule_cancel_button, TRUE, TRUE, 2);
   GTK_WIDGET_SET_FLAGS (close_molecule_cancel_button, GTK_CAN_DEFAULT);
@@ -6187,7 +6238,7 @@ create_residue_info_dialog (void)
   GtkWidget *residue_info_cancel_button;
 
   residue_info_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (residue_info_dialog), _("Residue Info"));
+  gtk_window_set_title (GTK_WINDOW (residue_info_dialog), "Residue Info");
   gtk_window_set_type_hint (GTK_WINDOW (residue_info_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox14 = GTK_DIALOG (residue_info_dialog)->vbox;
@@ -6197,13 +6248,13 @@ create_residue_info_dialog (void)
   gtk_widget_show (vbox65);
   gtk_box_pack_start (GTK_BOX (dialog_vbox14), vbox65, TRUE, TRUE, 0);
 
-  residue_info_residue_label = gtk_label_new (_("Residue: "));
+  residue_info_residue_label = gtk_label_new ("Residue: ");
   gtk_widget_show (residue_info_residue_label);
   gtk_box_pack_start (GTK_BOX (vbox65), residue_info_residue_label, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (residue_info_residue_label), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (residue_info_residue_label), 2, 6);
 
-  label97 = gtk_label_new (_("   Atom Info:                       Occupancy                  Temperature Factor"));
+  label97 = gtk_label_new ("   Atom Info:                       Occupancy                  Temperature Factor");
   gtk_widget_show (label97);
   gtk_box_pack_start (GTK_BOX (vbox65), label97, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label97), GTK_JUSTIFY_CENTER);
@@ -6222,7 +6273,7 @@ create_residue_info_dialog (void)
   gtk_widget_show (hbox130);
   gtk_box_pack_start (GTK_BOX (vbox164), hbox130, TRUE, TRUE, 0);
 
-  label260 = gtk_label_new (_("                                      "));
+  label260 = gtk_label_new ("                                      ");
   gtk_widget_show (label260);
   gtk_box_pack_start (GTK_BOX (hbox130), label260, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label260), GTK_JUSTIFY_CENTER);
@@ -6231,22 +6282,24 @@ create_residue_info_dialog (void)
   gtk_widget_show (residue_info_master_atom_occ_entry);
   gtk_box_pack_start (GTK_BOX (hbox130), residue_info_master_atom_occ_entry, TRUE, TRUE, 3);
   gtk_widget_set_sensitive (residue_info_master_atom_occ_entry, FALSE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (residue_info_master_atom_occ_entry), 9679);
 
   residue_info_master_atom_b_factor_entry = gtk_entry_new ();
   gtk_widget_show (residue_info_master_atom_b_factor_entry);
   gtk_box_pack_start (GTK_BOX (hbox130), residue_info_master_atom_b_factor_entry, TRUE, TRUE, 3);
   gtk_widget_set_sensitive (residue_info_master_atom_b_factor_entry, FALSE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (residue_info_master_atom_b_factor_entry), 9679);
 
-  residue_info_occ_apply_all_checkbutton = gtk_check_button_new_with_mnemonic (_("Apply Occupancy to all atoms in residue?"));
+  residue_info_occ_apply_all_checkbutton = gtk_check_button_new_with_mnemonic ("Apply Occupancy to all atoms in residue?");
   gtk_widget_show (residue_info_occ_apply_all_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox164), residue_info_occ_apply_all_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (residue_info_occ_apply_all_checkbutton), 4);
 
-  residue_info_b_factor_apply_all_checkbutton = gtk_check_button_new_with_mnemonic (_("Apply Temperature Factor to all atoms in residue?"));
+  residue_info_b_factor_apply_all_checkbutton = gtk_check_button_new_with_mnemonic ("Apply Temperature Factor to all atoms in residue?");
   gtk_widget_show (residue_info_b_factor_apply_all_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox164), residue_info_b_factor_apply_all_checkbutton, FALSE, FALSE, 0);
 
-  label288 = gtk_label_new (_("Master Atom"));
+  label288 = gtk_label_new ("Master Atom");
   gtk_widget_show (label288);
   gtk_frame_set_label_widget (GTK_FRAME (frame159), label288);
 
@@ -6291,12 +6344,12 @@ create_residue_info_dialog (void)
   gtk_widget_show (hbox49);
   gtk_container_add (GTK_CONTAINER (dialog_action_area14), hbox49);
 
-  residue_info_ok_button = gtk_button_new_with_mnemonic (_("  Apply  "));
+  residue_info_ok_button = gtk_button_new_with_mnemonic ("  Apply  ");
   gtk_widget_show (residue_info_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox49), residue_info_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (residue_info_ok_button, GTK_CAN_DEFAULT);
 
-  residue_info_cancel_button = gtk_button_new_with_mnemonic (_("  Close  "));
+  residue_info_cancel_button = gtk_button_new_with_mnemonic ("  Close  ");
   gtk_widget_show (residue_info_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox49), residue_info_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (residue_info_cancel_button, GTK_CAN_DEFAULT);
@@ -6359,7 +6412,7 @@ create_hints_dialog (void)
   GtkWidget *hints_dialog_ok_button;
 
   hints_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (hints_dialog), _("Hints"));
+  gtk_window_set_title (GTK_WINDOW (hints_dialog), "Hints");
   gtk_window_set_type_hint (GTK_WINDOW (hints_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox15 = GTK_DIALOG (hints_dialog)->vbox;
@@ -6378,13 +6431,13 @@ create_hints_dialog (void)
   gtk_container_add (GTK_CONTAINER (scrolledwindow5), hints_text);
   gtk_text_view_set_editable (GTK_TEXT_VIEW (hints_text), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (hints_text), GTK_WRAP_WORD);
-  gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (hints_text)), _("\nLeft-Mouse: Rotate View\nCtrl Left-Mouse Drag:  Moves around view\nShift Left-Mouse:  Label Atom\nRight-Mouse Drag: Zoom in and out\nMiddle-mouse: Centre on Atom\n\nKeyboard +/- changes contour level\n\nCtrl Left-mouse drag is how you \"Move the Pointer\" in Coot.\n\nNote that left-mouse does atom picking and rotating view, so try\nnot to click over an atom when trying to rotate the view when in\natom selection mode.\n\nIf you get stuck in \"translate\" mode, simply press and release\nthe Ctrl key to return to \"rotate\" mode.\n\nTo change the map to which the scrollwheel is attached, use\nHID->Scrollwhell->Attach Scrollwheel to which map?\n\nTo Use the \"Rotation/Translation\" column of buttons, simply \nclick on the button and drag (with the button still \"down\").\n\nUse the function \"(quanta-buttons)\" (or \"quanta_buttons()\") to \nmake the mouse functions more like other molecular graphics\nprograms to which you may be more accustomed.\n"), -1);
+  gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (hints_text)), "\nLeft-Mouse: Rotate View\nCtrl Left-Mouse Drag:  Moves around view\nShift Left-Mouse:  Label Atom\nRight-Mouse Drag: Zoom in and out\nMiddle-mouse: Centre on Atom\n\nKeyboard +/- changes contour level\n\nCtrl Left-mouse drag is how you \"Move the Pointer\" in Coot.\n\nNote that left-mouse does atom picking and rotating view, so try\nnot to click over an atom when trying to rotate the view when in\natom selection mode.\n\nIf you get stuck in \"translate\" mode, simply press and release\nthe Ctrl key to return to \"rotate\" mode.\n\nTo change the map to which the scrollwheel is attached, use\nHID->Scrollwhell->Attach Scrollwheel to which map?\n\nTo Use the \"Rotation/Translation\" column of buttons, simply \nclick on the button and drag (with the button still \"down\").\n\nUse the function \"(quanta-buttons)\" (or \"quanta_buttons()\") to \nmake the mouse functions more like other molecular graphics\nprograms to which you may be more accustomed.\n", -1);
 
   dialog_action_area15 = GTK_DIALOG (hints_dialog)->action_area;
   gtk_widget_show (dialog_action_area15);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area15), GTK_BUTTONBOX_END);
 
-  hints_dialog_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  hints_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (hints_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (hints_dialog), hints_dialog_ok_button, 0);
 
@@ -6421,7 +6474,7 @@ create_rotamer_selection_dialog (void)
   GtkWidget *rotamer_selection_cancel_button;
 
   rotamer_selection_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (rotamer_selection_dialog), _("Select Rotamer"));
+  gtk_window_set_title (GTK_WINDOW (rotamer_selection_dialog), "Select Rotamer");
   gtk_window_set_type_hint (GTK_WINDOW (rotamer_selection_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox16 = GTK_DIALOG (rotamer_selection_dialog)->vbox;
@@ -6454,7 +6507,7 @@ create_rotamer_selection_dialog (void)
   gtk_widget_show (new_alt_conf_occ_hscale);
   gtk_container_add (GTK_CONTAINER (new_alt_conf_occ_frame), new_alt_conf_occ_hscale);
 
-  label289 = gtk_label_new (_("New Alt Conf Occupancy"));
+  label289 = gtk_label_new ("New Alt Conf Occupancy");
   gtk_widget_show (label289);
   gtk_frame_set_label_widget (GTK_FRAME (new_alt_conf_occ_frame), label289);
 
@@ -6466,12 +6519,12 @@ create_rotamer_selection_dialog (void)
   gtk_widget_show (hbox50);
   gtk_container_add (GTK_CONTAINER (dialog_action_area16), hbox50);
 
-  rotamer_selection_ok_button = gtk_button_new_with_mnemonic (_("  Accept  "));
+  rotamer_selection_ok_button = gtk_button_new_with_mnemonic ("  Accept  ");
   gtk_widget_show (rotamer_selection_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox50), rotamer_selection_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (rotamer_selection_ok_button, GTK_CAN_DEFAULT);
 
-  rotamer_selection_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  rotamer_selection_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (rotamer_selection_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox50), rotamer_selection_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (rotamer_selection_cancel_button, GTK_CAN_DEFAULT);
@@ -6522,7 +6575,7 @@ create_unsaved_changes_dialog (void)
   GtkWidget *unsaved_changes_cancel_button;
 
   unsaved_changes_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (unsaved_changes_dialog), _("dialog1"));
+  gtk_window_set_title (GTK_WINDOW (unsaved_changes_dialog), "dialog1");
   gtk_window_set_type_hint (GTK_WINDOW (unsaved_changes_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox17 = GTK_DIALOG (unsaved_changes_dialog)->vbox;
@@ -6537,7 +6590,7 @@ create_unsaved_changes_dialog (void)
   gtk_widget_show (vbox66);
   gtk_container_add (GTK_CONTAINER (frame54), vbox66);
 
-  label98 = gtk_label_new (_("The following molecule(s) have unsaved changes:"));
+  label98 = gtk_label_new ("The following molecule(s) have unsaved changes:");
   gtk_widget_show (label98);
   gtk_box_pack_start (GTK_BOX (vbox66), label98, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label98), GTK_JUSTIFY_CENTER);
@@ -6548,7 +6601,7 @@ create_unsaved_changes_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox66), unsaved_changes_molecule_vbox, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (unsaved_changes_molecule_vbox), 6);
 
-  label99 = gtk_label_new (_("Do you wish to Continue to Exit?"));
+  label99 = gtk_label_new ("Do you wish to Continue to Exit?");
   gtk_widget_show (label99);
   gtk_box_pack_start (GTK_BOX (vbox66), label99, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label99), GTK_JUSTIFY_CENTER);
@@ -6562,12 +6615,12 @@ create_unsaved_changes_dialog (void)
   gtk_widget_show (hbox51);
   gtk_container_add (GTK_CONTAINER (dialog_action_area17), hbox51);
 
-  unsaved_changes_continue_button = gtk_button_new_with_mnemonic (_("Continue Exit"));
+  unsaved_changes_continue_button = gtk_button_new_with_mnemonic ("Continue Exit");
   gtk_widget_show (unsaved_changes_continue_button);
   gtk_box_pack_start (GTK_BOX (hbox51), unsaved_changes_continue_button, TRUE, TRUE, 2);
   GTK_WIDGET_SET_FLAGS (unsaved_changes_continue_button, GTK_CAN_DEFAULT);
 
-  unsaved_changes_cancel_button = gtk_button_new_with_mnemonic (_("Cancel"));
+  unsaved_changes_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (unsaved_changes_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox51), unsaved_changes_cancel_button, TRUE, TRUE, 2);
   GTK_WIDGET_SET_FLAGS (unsaved_changes_cancel_button, GTK_CAN_DEFAULT);
@@ -6625,7 +6678,7 @@ create_baton_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   baton_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (baton_dialog), _("Baton"));
+  gtk_window_set_title (GTK_WINDOW (baton_dialog), "Baton");
   gtk_window_set_type_hint (GTK_WINDOW (baton_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox18 = GTK_DIALOG (baton_dialog)->vbox;
@@ -6645,7 +6698,7 @@ create_baton_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame55), vbox70);
   gtk_container_set_border_width (GTK_CONTAINER (vbox70), 2);
 
-  label101 = gtk_label_new (_("  Baton Position"));
+  label101 = gtk_label_new ("  Baton Position");
   gtk_widget_show (label101);
   gtk_box_pack_start (GTK_BOX (vbox70), label101, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label101), GTK_JUSTIFY_CENTER);
@@ -6659,19 +6712,19 @@ create_baton_dialog (void)
   gtk_widget_show (vbox72);
   gtk_container_add (GTK_CONTAINER (frame57), vbox72);
 
-  baton_accept_button = gtk_button_new_with_mnemonic (_("Accept"));
+  baton_accept_button = gtk_button_new_with_mnemonic ("Accept");
   gtk_widget_show (baton_accept_button);
   gtk_box_pack_start (GTK_BOX (vbox72), baton_accept_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_accept_button), 4);
-  gtk_tooltips_set_tip (tooltips, baton_accept_button, _("Accept this baton tip position, place atom and try new one..."), NULL);
+  gtk_tooltips_set_tip (tooltips, baton_accept_button, "Accept this baton tip position, place atom and try new one...", NULL);
 
-  baton_try_again_button = gtk_button_new_with_mnemonic (_("Try Another"));
+  baton_try_again_button = gtk_button_new_with_mnemonic ("Try Another");
   gtk_widget_show (baton_try_again_button);
   gtk_box_pack_start (GTK_BOX (vbox72), baton_try_again_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_try_again_button), 4);
-  gtk_tooltips_set_tip (tooltips, baton_try_again_button, _("Try Another Autoplacement Baton Position.  Cycles back to beginning"), NULL);
+  gtk_tooltips_set_tip (tooltips, baton_try_again_button, "Try Another Autoplacement Baton Position.  Cycles back to beginning", NULL);
 
-  baton_undo_button = gtk_button_new_with_mnemonic (_("Undo"));
+  baton_undo_button = gtk_button_new_with_mnemonic ("Undo");
   gtk_widget_show (baton_undo_button);
   gtk_box_pack_start (GTK_BOX (vbox72), baton_undo_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_undo_button), 4);
@@ -6684,7 +6737,7 @@ create_baton_dialog (void)
   gtk_widget_show (vbox71);
   gtk_container_add (GTK_CONTAINER (frame56), vbox71);
 
-  label102 = gtk_label_new (_("  Baton Length"));
+  label102 = gtk_label_new ("  Baton Length");
   gtk_widget_show (label102);
   gtk_box_pack_start (GTK_BOX (vbox71), label102, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label102), GTK_JUSTIFY_CENTER);
@@ -6698,12 +6751,12 @@ create_baton_dialog (void)
   gtk_widget_show (vbox73);
   gtk_container_add (GTK_CONTAINER (frame58), vbox73);
 
-  baton_lengthen_button = gtk_button_new_with_mnemonic (_("  Lengthen  "));
+  baton_lengthen_button = gtk_button_new_with_mnemonic ("  Lengthen  ");
   gtk_widget_show (baton_lengthen_button);
   gtk_box_pack_start (GTK_BOX (vbox73), baton_lengthen_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_lengthen_button), 4);
 
-  baton_shorten_button = gtk_button_new_with_mnemonic (_("Shorten"));
+  baton_shorten_button = gtk_button_new_with_mnemonic ("Shorten");
   gtk_widget_show (baton_shorten_button);
   gtk_box_pack_start (GTK_BOX (vbox73), baton_shorten_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_shorten_button), 5);
@@ -6712,10 +6765,10 @@ create_baton_dialog (void)
   gtk_widget_show (dialog_action_area18);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area18), GTK_BUTTONBOX_END);
 
-  baton_dialog_ok_button = gtk_button_new_with_mnemonic (_("  Dismiss  "));
+  baton_dialog_ok_button = gtk_button_new_with_mnemonic ("  Dismiss  ");
   gtk_widget_show (baton_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (baton_dialog), baton_dialog_ok_button, 0);
-  gtk_tooltips_set_tip (tooltips, baton_dialog_ok_button, _("Exits Baton Mode"), NULL);
+  gtk_tooltips_set_tip (tooltips, baton_dialog_ok_button, "Exits Baton Mode", NULL);
 
   g_signal_connect ((gpointer) baton_accept_button, "clicked",
                     G_CALLBACK (on_baton_accept_button_clicked),
@@ -6778,7 +6831,7 @@ create_read_pdb_recentre_dialog (void)
   GtkWidget *read_pdb_recentre_dialog_ok_button;
 
   read_pdb_recentre_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (read_pdb_recentre_dialog), _("Recentre Dialog"));
+  gtk_window_set_title (GTK_WINDOW (read_pdb_recentre_dialog), "Recentre Dialog");
   gtk_window_set_type_hint (GTK_WINDOW (read_pdb_recentre_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox20 = GTK_DIALOG (read_pdb_recentre_dialog)->vbox;
@@ -6788,7 +6841,7 @@ create_read_pdb_recentre_dialog (void)
   gtk_widget_show (vbox75);
   gtk_box_pack_start (GTK_BOX (dialog_vbox20), vbox75, TRUE, TRUE, 0);
 
-  label103 = gtk_label_new (_("Recentre on read new PDB?"));
+  label103 = gtk_label_new ("Recentre on read new PDB?");
   gtk_widget_show (label103);
   gtk_box_pack_start (GTK_BOX (vbox75), label103, FALSE, FALSE, 5);
   gtk_label_set_justify (GTK_LABEL (label103), GTK_JUSTIFY_CENTER);
@@ -6803,13 +6856,13 @@ create_read_pdb_recentre_dialog (void)
   gtk_widget_show (vbox76);
   gtk_container_add (GTK_CONTAINER (frame60), vbox76);
 
-  read_pdb_recentre_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("  Yes  "));
+  read_pdb_recentre_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "  Yes  ");
   gtk_widget_show (read_pdb_recentre_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox76), read_pdb_recentre_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (read_pdb_recentre_yes_radiobutton), read_pdb_recentre_yes_radiobutton_group);
   read_pdb_recentre_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (read_pdb_recentre_yes_radiobutton));
 
-  read_pdb_recentre_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("  No  "));
+  read_pdb_recentre_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "  No  ");
   gtk_widget_show (read_pdb_recentre_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox76), read_pdb_recentre_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (read_pdb_recentre_no_radiobutton), read_pdb_recentre_yes_radiobutton_group);
@@ -6819,7 +6872,7 @@ create_read_pdb_recentre_dialog (void)
   gtk_widget_show (dialog_action_area20);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area20), GTK_BUTTONBOX_END);
 
-  read_pdb_recentre_dialog_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  read_pdb_recentre_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (read_pdb_recentre_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (read_pdb_recentre_dialog), read_pdb_recentre_dialog_ok_button, 0);
 
@@ -6880,7 +6933,7 @@ create_pointer_atom_type_dialog (void)
   GtkWidget *pointer_atom_type_cancel_button;
 
   pointer_atom_type_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (pointer_atom_type_dialog), _("Pointer atom type"));
+  gtk_window_set_title (GTK_WINDOW (pointer_atom_type_dialog), "Pointer atom type");
   gtk_window_set_type_hint (GTK_WINDOW (pointer_atom_type_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox21 = GTK_DIALOG (pointer_atom_type_dialog)->vbox;
@@ -6890,7 +6943,7 @@ create_pointer_atom_type_dialog (void)
   gtk_widget_show (vbox77);
   gtk_box_pack_start (GTK_BOX (dialog_vbox21), vbox77, TRUE, TRUE, 0);
 
-  label104 = gtk_label_new (_("Pointer Atom Type:"));
+  label104 = gtk_label_new ("Pointer Atom Type:");
   gtk_widget_show (label104);
   gtk_box_pack_start (GTK_BOX (vbox77), label104, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label104), GTK_JUSTIFY_CENTER);
@@ -6905,50 +6958,50 @@ create_pointer_atom_type_dialog (void)
   gtk_widget_show (vbox78);
   gtk_container_add (GTK_CONTAINER (frame61), vbox78);
 
-  pointer_atom_type_radiobutton_water = gtk_radio_button_new_with_mnemonic (NULL, _("Water"));
+  pointer_atom_type_radiobutton_water = gtk_radio_button_new_with_mnemonic (NULL, "Water");
   gtk_widget_show (pointer_atom_type_radiobutton_water);
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_water, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_water), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_water));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pointer_atom_type_radiobutton_water), TRUE);
 
-  pointer_atom_type_radiobutton_ca = gtk_radio_button_new_with_mnemonic (NULL, _("Ca (calcium)"));
+  pointer_atom_type_radiobutton_ca = gtk_radio_button_new_with_mnemonic (NULL, "Ca (calcium)");
   gtk_widget_show (pointer_atom_type_radiobutton_ca);
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_ca, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_ca), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_ca));
 
-  pointer_atom_type_radiobutton_mg = gtk_radio_button_new_with_mnemonic (NULL, _("Mg"));
+  pointer_atom_type_radiobutton_mg = gtk_radio_button_new_with_mnemonic (NULL, "Mg");
   gtk_widget_show (pointer_atom_type_radiobutton_mg);
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_mg, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_mg), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_mg));
 
-  pointer_atom_type_radiobutton_na = gtk_radio_button_new_with_mnemonic (NULL, _("Na"));
+  pointer_atom_type_radiobutton_na = gtk_radio_button_new_with_mnemonic (NULL, "Na");
   gtk_widget_show (pointer_atom_type_radiobutton_na);
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_na, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_na), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_na));
 
-  pointer_atom_type_radiobutton_cl = gtk_radio_button_new_with_mnemonic (NULL, _("Cl"));
+  pointer_atom_type_radiobutton_cl = gtk_radio_button_new_with_mnemonic (NULL, "Cl");
   gtk_widget_show (pointer_atom_type_radiobutton_cl);
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_cl, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_cl), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_cl));
 
-  pointer_atom_type_radiobutton_br = gtk_radio_button_new_with_mnemonic (NULL, _("Br"));
+  pointer_atom_type_radiobutton_br = gtk_radio_button_new_with_mnemonic (NULL, "Br");
   gtk_widget_show (pointer_atom_type_radiobutton_br);
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_br, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_br), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_br));
 
-  pointer_atom_type_radiobutton_so4 = gtk_radio_button_new_with_mnemonic (NULL, _("SO4"));
+  pointer_atom_type_radiobutton_so4 = gtk_radio_button_new_with_mnemonic (NULL, "SO4");
   gtk_widget_show (pointer_atom_type_radiobutton_so4);
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_so4, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_so4), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_so4));
 
-  pointer_atom_type_radiobutton_po4 = gtk_radio_button_new_with_mnemonic (NULL, _("PO4"));
+  pointer_atom_type_radiobutton_po4 = gtk_radio_button_new_with_mnemonic (NULL, "PO4");
   gtk_widget_show (pointer_atom_type_radiobutton_po4);
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_po4, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_po4), pointer_atom_type_radiobutton_water_group);
@@ -6962,7 +7015,7 @@ create_pointer_atom_type_dialog (void)
   gtk_widget_show (hbox70);
   gtk_container_add (GTK_CONTAINER (frame81), hbox70);
 
-  pointer_atom_type_other_button = gtk_button_new_with_mnemonic (_("Other..."));
+  pointer_atom_type_other_button = gtk_button_new_with_mnemonic ("Other...");
   gtk_widget_show (pointer_atom_type_other_button);
   gtk_box_pack_start (GTK_BOX (hbox70), pointer_atom_type_other_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (pointer_atom_type_other_button), 2);
@@ -6971,6 +7024,7 @@ create_pointer_atom_type_dialog (void)
   gtk_widget_show (pointer_atom_type_other_entry);
   gtk_box_pack_start (GTK_BOX (hbox70), pointer_atom_type_other_entry, FALSE, TRUE, 0);
   gtk_widget_set_sensitive (pointer_atom_type_other_entry, FALSE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (pointer_atom_type_other_entry), 9679);
 
   frame80 = gtk_frame_new (NULL);
   gtk_widget_show (frame80);
@@ -6985,7 +7039,7 @@ create_pointer_atom_type_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (pointer_atom_molecule_optionmenu), convertwidget38);
 
-  label290 = gtk_label_new (_("Pointer Atom Added to Molecule:"));
+  label290 = gtk_label_new ("Pointer Atom Added to Molecule:");
   gtk_widget_show (label290);
   gtk_frame_set_label_widget (GTK_FRAME (frame80), label290);
 
@@ -6997,11 +7051,11 @@ create_pointer_atom_type_dialog (void)
   gtk_widget_show (hbox52);
   gtk_container_add (GTK_CONTAINER (dialog_action_area21), hbox52);
 
-  pointer_atom_type_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  pointer_atom_type_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (pointer_atom_type_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox52), pointer_atom_type_ok_button, TRUE, TRUE, 2);
 
-  pointer_atom_type_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  pointer_atom_type_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (pointer_atom_type_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox52), pointer_atom_type_cancel_button, TRUE, TRUE, 2);
 
@@ -7081,7 +7135,7 @@ create_run_refmac_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   run_refmac_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (run_refmac_dialog), _("Run Refmac"));
+  gtk_window_set_title (GTK_WINDOW (run_refmac_dialog), "Run Refmac");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox22 = GTK_DIALOG (run_refmac_dialog)->vbox;
@@ -7091,7 +7145,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (vbox81);
   gtk_box_pack_start (GTK_BOX (dialog_vbox22), vbox81, TRUE, TRUE, 0);
 
-  label109 = gtk_label_new (_("Choose Coordinates Molecule on which to run refmac:"));
+  label109 = gtk_label_new ("Choose Coordinates Molecule on which to run refmac:");
   gtk_widget_show (label109);
   gtk_box_pack_start (GTK_BOX (vbox81), label109, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label109), GTK_JUSTIFY_CENTER);
@@ -7114,7 +7168,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (hseparator4);
   gtk_box_pack_start (GTK_BOX (vbox81), hseparator4, TRUE, TRUE, 0);
 
-  label110 = gtk_label_new (_("Choose Map Molecule that has mtz column labels for refmac:"));
+  label110 = gtk_label_new ("Choose Map Molecule that has mtz column labels for refmac:");
   gtk_widget_show (label110);
   gtk_box_pack_start (GTK_BOX (vbox81), label110, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label110), GTK_JUSTIFY_CENTER);
@@ -7137,12 +7191,12 @@ create_run_refmac_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (run_refmac_map_optionmenu), convertwidget40);
 
-  label130 = gtk_label_new (_("    "));
+  label130 = gtk_label_new ("    ");
   gtk_widget_show (label130);
   gtk_box_pack_start (GTK_BOX (hbox69), label130, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label130), GTK_JUSTIFY_CENTER);
 
-  run_refmac_help_button = gtk_button_new_with_mnemonic (_("  Help  "));
+  run_refmac_help_button = gtk_button_new_with_mnemonic ("  Help  ");
   gtk_widget_show (run_refmac_help_button);
   gtk_box_pack_start (GTK_BOX (hbox69), run_refmac_help_button, FALSE, FALSE, 2);
 
@@ -7151,7 +7205,7 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox81), frame68, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame68), 2);
 
-  run_refmac_diff_map_checkbutton = gtk_check_button_new_with_mnemonic (_("Display the resulting difference map also"));
+  run_refmac_diff_map_checkbutton = gtk_check_button_new_with_mnemonic ("Display the resulting difference map also");
   gtk_widget_show (run_refmac_diff_map_checkbutton);
   gtk_container_add (GTK_CONTAINER (frame68), run_refmac_diff_map_checkbutton);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_diff_map_checkbutton), 3);
@@ -7161,11 +7215,11 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox81), frame69, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame69), 2);
 
-  run_refmac_phase_combine_checkbutton = gtk_check_button_new_with_mnemonic (_("Refmac Phase Combine with Phases used for Map"));
+  run_refmac_phase_combine_checkbutton = gtk_check_button_new_with_mnemonic ("Refmac Phase Combine with Phases used for Map");
   gtk_widget_show (run_refmac_phase_combine_checkbutton);
   gtk_container_add (GTK_CONTAINER (frame69), run_refmac_phase_combine_checkbutton);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_phase_combine_checkbutton), 3);
-  gtk_tooltips_set_tip (tooltips, run_refmac_phase_combine_checkbutton, _("When using MAD/MIR etc phasing, you can combine the experimental phases (i.e. the \"Phases used for Map\") and the phases derived from the model, thereby (hopefully) improving the map..."), NULL);
+  gtk_tooltips_set_tip (tooltips, run_refmac_phase_combine_checkbutton, "When using MAD/MIR etc phasing, you can combine the experimental phases (i.e. the \"Phases used for Map\") and the phases derived from the model, thereby (hopefully) improving the map...", NULL);
 
   frame87 = gtk_frame_new (NULL);
   gtk_widget_show (frame87);
@@ -7180,7 +7234,7 @@ create_run_refmac_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (run_refmac_ccp4i_optionmenu), convertwidget41);
 
-  label291 = gtk_label_new (_("CCP4i Project"));
+  label291 = gtk_label_new ("CCP4i Project");
   gtk_widget_show (label291);
   gtk_frame_set_label_widget (GTK_FRAME (frame87), label291);
 
@@ -7192,12 +7246,12 @@ create_run_refmac_dialog (void)
   gtk_widget_show (hbox56);
   gtk_container_add (GTK_CONTAINER (dialog_action_area22), hbox56);
 
-  run_refmac_run_button = gtk_button_new_with_mnemonic (_("  Run Refmac  "));
+  run_refmac_run_button = gtk_button_new_with_mnemonic ("  Run Refmac  ");
   gtk_widget_show (run_refmac_run_button);
   gtk_box_pack_start (GTK_BOX (hbox56), run_refmac_run_button, TRUE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, run_refmac_run_button, _("Please be patient (sit back and wait...)"), NULL);
+  gtk_tooltips_set_tip (tooltips, run_refmac_run_button, "Please be patient (sit back and wait...)", NULL);
 
-  run_refmac_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  run_refmac_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (run_refmac_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox56), run_refmac_cancel_button, TRUE, FALSE, 0);
 
@@ -7291,7 +7345,7 @@ create_single_map_properties_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   single_map_properties_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (single_map_properties_dialog), _("Individual Map Properties"));
+  gtk_window_set_title (GTK_WINDOW (single_map_properties_dialog), "Individual Map Properties");
   gtk_window_set_type_hint (GTK_WINDOW (single_map_properties_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox23 = GTK_DIALOG (single_map_properties_dialog)->vbox;
@@ -7302,7 +7356,7 @@ create_single_map_properties_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox23), vbox82, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox82), 2);
 
-  label115 = gtk_label_new (_("Map Settings"));
+  label115 = gtk_label_new ("Map Settings");
   gtk_widget_show (label115);
   gtk_box_pack_start (GTK_BOX (vbox82), label115, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label115), GTK_JUSTIFY_CENTER);
@@ -7317,33 +7371,33 @@ create_single_map_properties_dialog (void)
   gtk_widget_show (vbox110);
   gtk_container_add (GTK_CONTAINER (frame102), vbox110);
 
-  label163 = gtk_label_new (_("Cell:"));
+  label163 = gtk_label_new ("Cell:");
   gtk_widget_show (label163);
   gtk_box_pack_start (GTK_BOX (vbox110), label163, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label163), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label163), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label163), 0, 2);
 
-  single_map_properties_cell_text = gtk_label_new (_("[map]"));
+  single_map_properties_cell_text = gtk_label_new ("[map]");
   gtk_widget_show (single_map_properties_cell_text);
   gtk_box_pack_start (GTK_BOX (vbox110), single_map_properties_cell_text, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (single_map_properties_cell_text), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (single_map_properties_cell_text), 0, 0.5);
 
-  label165 = gtk_label_new (_("Spacegroup:"));
+  label165 = gtk_label_new ("Spacegroup:");
   gtk_widget_show (label165);
   gtk_box_pack_start (GTK_BOX (vbox110), label165, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label165), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label165), 7.45058e-09, 0.5);
   gtk_misc_set_padding (GTK_MISC (label165), 0, 2);
 
-  single_map_properties_sg_text = gtk_label_new (_("[spacegroup]"));
+  single_map_properties_sg_text = gtk_label_new ("[spacegroup]");
   gtk_widget_show (single_map_properties_sg_text);
   gtk_box_pack_start (GTK_BOX (vbox110), single_map_properties_sg_text, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (single_map_properties_sg_text), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (single_map_properties_sg_text), 7.45058e-09, 0.5);
 
-  label292 = gtk_label_new (_("Cell and Symmetry:"));
+  label292 = gtk_label_new ("Cell and Symmetry:");
   gtk_widget_show (label292);
   gtk_frame_set_label_widget (GTK_FRAME (frame102), label292);
 
@@ -7365,7 +7419,7 @@ create_single_map_properties_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label167), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label167), 0, 0.5);
 
-  label168 = gtk_label_new (_("  Sigma Step  "));
+  label168 = gtk_label_new ("  Sigma Step  ");
   gtk_widget_show (label168);
   gtk_table_attach (GTK_TABLE (table1), label168, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
@@ -7373,20 +7427,21 @@ create_single_map_properties_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label168), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label168), 0, 0.5);
 
-  single_map_sigma_checkbutton = gtk_check_button_new_with_mnemonic (_("Change by sigma? "));
+  single_map_sigma_checkbutton = gtk_check_button_new_with_mnemonic ("Change by sigma? ");
   gtk_widget_show (single_map_sigma_checkbutton);
   gtk_table_attach (GTK_TABLE (table1), single_map_sigma_checkbutton, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, single_map_sigma_checkbutton, _("By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using sigma step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale."), NULL);
+  gtk_tooltips_set_tip (tooltips, single_map_sigma_checkbutton, "By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using sigma step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale.", NULL);
 
   single_map_sigma_step_entry = gtk_entry_new ();
   gtk_widget_show (single_map_sigma_step_entry);
   gtk_table_attach (GTK_TABLE (table1), single_map_sigma_step_entry, 1, 2, 1, 2,
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (single_map_sigma_step_entry), 9679);
 
-  label293 = gtk_label_new (_("Contouring:"));
+  label293 = gtk_label_new ("Contouring:");
   gtk_widget_show (label293);
   gtk_frame_set_label_widget (GTK_FRAME (frame103), label293);
 
@@ -7400,7 +7455,7 @@ create_single_map_properties_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame104), hbox84);
   gtk_container_set_border_width (GTK_CONTAINER (hbox84), 6);
 
-  label169 = gtk_label_new (_("Map Colour "));
+  label169 = gtk_label_new ("Map Colour ");
   gtk_widget_show (label169);
   gtk_box_pack_start (GTK_BOX (hbox84), label169, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label169), GTK_JUSTIFY_CENTER);
@@ -7409,13 +7464,13 @@ create_single_map_properties_dialog (void)
   single_map_properties_colour_button = gtk_button_new ();
   gtk_widget_show (single_map_properties_colour_button);
   gtk_box_pack_start (GTK_BOX (hbox84), single_map_properties_colour_button, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, single_map_properties_colour_button, _("See Section 6.5 of the User Manual for default Difference Map colouring."), NULL);
+  gtk_tooltips_set_tip (tooltips, single_map_properties_colour_button, "See Section 6.5 of the User Manual for default Difference Map colouring.", NULL);
 
   single_map_colour_button_frame = gtk_frame_new (NULL);
   gtk_widget_show (single_map_colour_button_frame);
   gtk_container_add (GTK_CONTAINER (single_map_properties_colour_button), single_map_colour_button_frame);
 
-  label114 = gtk_label_new (_("  Colour  "));
+  label114 = gtk_label_new ("  Colour  ");
   gtk_widget_show (label114);
   gtk_container_add (GTK_CONTAINER (single_map_colour_button_frame), label114);
   gtk_label_set_justify (GTK_LABEL (label114), GTK_JUSTIFY_CENTER);
@@ -7429,21 +7484,21 @@ create_single_map_properties_dialog (void)
   gtk_widget_show (vbox86);
   gtk_container_add (GTK_CONTAINER (single_map_skeleton_frame), vbox86);
 
-  single_map_skeleton_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("On"));
+  single_map_skeleton_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "On");
   gtk_widget_show (single_map_skeleton_on_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox86), single_map_skeleton_on_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (single_map_skeleton_on_radiobutton), 4);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (single_map_skeleton_on_radiobutton), single_map_skeleton_on_radiobutton_group);
   single_map_skeleton_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (single_map_skeleton_on_radiobutton));
 
-  single_map_skeleton_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Off"));
+  single_map_skeleton_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Off");
   gtk_widget_show (single_map_skeleton_off_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox86), single_map_skeleton_off_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (single_map_skeleton_off_radiobutton), 4);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (single_map_skeleton_off_radiobutton), single_map_skeleton_on_radiobutton_group);
   single_map_skeleton_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (single_map_skeleton_off_radiobutton));
 
-  label294 = gtk_label_new (_("Skeleton:"));
+  label294 = gtk_label_new ("Skeleton:");
   gtk_widget_show (label294);
   gtk_frame_set_label_widget (GTK_FRAME (single_map_skeleton_frame), label294);
 
@@ -7455,7 +7510,7 @@ create_single_map_properties_dialog (void)
   gtk_widget_show (hbox58);
   gtk_container_add (GTK_CONTAINER (dialog_action_area23), hbox58);
 
-  single_map_properties_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  single_map_properties_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (single_map_properties_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox58), single_map_properties_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (single_map_properties_ok_button), 6);
@@ -7528,7 +7583,7 @@ create_undo_molecule_chooser_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   undo_molecule_chooser_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (undo_molecule_chooser_dialog), _("Choose molecule to Undo:"));
+  gtk_window_set_title (GTK_WINDOW (undo_molecule_chooser_dialog), "Choose molecule to Undo:");
   gtk_window_set_type_hint (GTK_WINDOW (undo_molecule_chooser_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox24 = GTK_DIALOG (undo_molecule_chooser_dialog)->vbox;
@@ -7538,7 +7593,7 @@ create_undo_molecule_chooser_dialog (void)
   gtk_widget_show (vbox83);
   gtk_box_pack_start (GTK_BOX (dialog_vbox24), vbox83, TRUE, TRUE, 0);
 
-  label116 = gtk_label_new (_("Choose Molecule to Undo:"));
+  label116 = gtk_label_new ("Choose Molecule to Undo:");
   gtk_widget_show (label116);
   gtk_box_pack_start (GTK_BOX (vbox83), label116, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label116), GTK_JUSTIFY_CENTER);
@@ -7552,7 +7607,7 @@ create_undo_molecule_chooser_dialog (void)
   undo_molecule_chooser_option_menu = gtk_option_menu_new ();
   gtk_widget_show (undo_molecule_chooser_option_menu);
   gtk_container_add (GTK_CONTAINER (frame70), undo_molecule_chooser_option_menu);
-  gtk_tooltips_set_tip (tooltips, undo_molecule_chooser_option_menu, _("You want to undo a modification.  There are 2 or more molecules that have been modified.  To which molecule should the undo apply?"), NULL);
+  gtk_tooltips_set_tip (tooltips, undo_molecule_chooser_option_menu, "You want to undo a modification.  There are 2 or more molecules that have been modified.  To which molecule should the undo apply?", NULL);
 
   convertwidget42 = gtk_menu_new ();
 
@@ -7562,7 +7617,7 @@ create_undo_molecule_chooser_dialog (void)
   gtk_widget_show (dialog_action_area24);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area24), GTK_BUTTONBOX_END);
 
-  undo_molecule_chooser_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  undo_molecule_chooser_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (undo_molecule_chooser_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (undo_molecule_chooser_dialog), undo_molecule_chooser_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (undo_molecule_chooser_ok_button, GTK_CAN_DEFAULT);
@@ -7612,7 +7667,7 @@ create_skeleton_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   skeleton_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (skeleton_dialog), _("Skeleton Dialog"));
+  gtk_window_set_title (GTK_WINDOW (skeleton_dialog), "Skeleton Dialog");
   gtk_window_set_type_hint (GTK_WINDOW (skeleton_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox25 = GTK_DIALOG (skeleton_dialog)->vbox;
@@ -7622,7 +7677,7 @@ create_skeleton_dialog (void)
   gtk_widget_show (vbox84);
   gtk_box_pack_start (GTK_BOX (dialog_vbox25), vbox84, TRUE, TRUE, 0);
 
-  label117 = gtk_label_new (_("Skeletonize Map:"));
+  label117 = gtk_label_new ("Skeletonize Map:");
   gtk_widget_show (label117);
   gtk_box_pack_start (GTK_BOX (vbox84), label117, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label117), GTK_JUSTIFY_CENTER);
@@ -7650,14 +7705,14 @@ create_skeleton_dialog (void)
   gtk_widget_show (vbox85);
   gtk_container_add (GTK_CONTAINER (skeleton_dialog_on_off_frame), vbox85);
 
-  skeleton_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("On"));
+  skeleton_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "On");
   gtk_widget_show (skeleton_on_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox85), skeleton_on_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skeleton_on_radiobutton), 4);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (skeleton_on_radiobutton), skeleton_on_radiobutton_group);
   skeleton_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (skeleton_on_radiobutton));
 
-  skeleton_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Off"));
+  skeleton_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Off");
   gtk_widget_show (skeleton_off_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox85), skeleton_off_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skeleton_off_radiobutton), 4);
@@ -7665,11 +7720,11 @@ create_skeleton_dialog (void)
   skeleton_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (skeleton_off_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (skeleton_off_radiobutton), TRUE);
 
-  skeleton_prune_and_colour_checkbutton = gtk_check_button_new_with_mnemonic (_("Prune & Colour"));
+  skeleton_prune_and_colour_checkbutton = gtk_check_button_new_with_mnemonic ("Prune & Colour");
   gtk_widget_show (skeleton_prune_and_colour_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox84), skeleton_prune_and_colour_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skeleton_prune_and_colour_checkbutton), 4);
-  gtk_tooltips_set_tip (tooltips, skeleton_prune_and_colour_checkbutton, _("Remove sidechains from the skeleton and colour by domain"), NULL);
+  gtk_tooltips_set_tip (tooltips, skeleton_prune_and_colour_checkbutton, "Remove sidechains from the skeleton and colour by domain", NULL);
 
   dialog_action_area25 = GTK_DIALOG (skeleton_dialog)->action_area;
   gtk_widget_show (dialog_action_area25);
@@ -7679,11 +7734,11 @@ create_skeleton_dialog (void)
   gtk_widget_show (hbox59);
   gtk_container_add (GTK_CONTAINER (dialog_action_area25), hbox59);
 
-  skeleton_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  skeleton_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (skeleton_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox59), skeleton_ok_button, TRUE, TRUE, 3);
 
-  skeleton_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  skeleton_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (skeleton_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox59), skeleton_cancel_button, TRUE, TRUE, 3);
 
@@ -7723,10 +7778,12 @@ create_splash_screen_window (void)
   GtkWidget *pixmap1;
 
   splash_screen_window = gtk_window_new (GTK_WINDOW_POPUP);
-  gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
+  gtk_window_set_title (GTK_WINDOW (splash_screen_window), "Coot");
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
+  gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+  gtk_window_set_gravity (GTK_WINDOW (splash_screen_window), GDK_GRAVITY_CENTER);
 
-  pixmap1 = create_pixmap (splash_screen_window, "coot-0.2.xpm");
+  pixmap1 = create_pixmap (splash_screen_window, "coot-0.3.xpm");
   gtk_widget_show (pixmap1);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), pixmap1);
 
@@ -7753,7 +7810,7 @@ create_crosshairs_dialog (void)
   GtkWidget *display_crosshairs_ok_button;
 
   crosshairs_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (crosshairs_dialog), _("Crosshairs"));
+  gtk_window_set_title (GTK_WINDOW (crosshairs_dialog), "Crosshairs");
   gtk_window_set_type_hint (GTK_WINDOW (crosshairs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox26 = GTK_DIALOG (crosshairs_dialog)->vbox;
@@ -7763,7 +7820,7 @@ create_crosshairs_dialog (void)
   gtk_widget_show (vbox87);
   gtk_box_pack_start (GTK_BOX (dialog_vbox26), vbox87, TRUE, TRUE, 0);
 
-  label119 = gtk_label_new (_("Display Crosshairs"));
+  label119 = gtk_label_new ("Display Crosshairs");
   gtk_widget_show (label119);
   gtk_box_pack_start (GTK_BOX (vbox87), label119, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label119), GTK_JUSTIFY_CENTER);
@@ -7777,14 +7834,14 @@ create_crosshairs_dialog (void)
   gtk_widget_show (vbox88);
   gtk_container_add (GTK_CONTAINER (frame72), vbox88);
 
-  crosshairs_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("On"));
+  crosshairs_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "On");
   gtk_widget_show (crosshairs_on_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox88), crosshairs_on_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (crosshairs_on_radiobutton), 6);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (crosshairs_on_radiobutton), crosshairs_on_radiobutton_group);
   crosshairs_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (crosshairs_on_radiobutton));
 
-  crosshairs_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Off"));
+  crosshairs_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Off");
   gtk_widget_show (crosshairs_off_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox88), crosshairs_off_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (crosshairs_off_radiobutton), 6);
@@ -7796,7 +7853,7 @@ create_crosshairs_dialog (void)
   gtk_widget_show (dialog_action_area26);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area26), GTK_BUTTONBOX_END);
 
-  display_crosshairs_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  display_crosshairs_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (display_crosshairs_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (crosshairs_dialog), display_crosshairs_ok_button, 0);
 
@@ -7843,7 +7900,7 @@ create_add_alt_conf_dialog (void)
   GtkWidget *add_alt_conf_cancel_button;
 
   add_alt_conf_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (add_alt_conf_dialog), _("Add Alternate Conformation"));
+  gtk_window_set_title (GTK_WINDOW (add_alt_conf_dialog), "Add Alternate Conformation");
   gtk_window_set_type_hint (GTK_WINDOW (add_alt_conf_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox27 = GTK_DIALOG (add_alt_conf_dialog)->vbox;
@@ -7853,7 +7910,7 @@ create_add_alt_conf_dialog (void)
   gtk_widget_show (vbox89);
   gtk_box_pack_start (GTK_BOX (dialog_vbox27), vbox89, TRUE, TRUE, 0);
 
-  label120 = gtk_label_new (_("Add Alternate Conformation"));
+  label120 = gtk_label_new ("Add Alternate Conformation");
   gtk_widget_show (label120);
   gtk_box_pack_start (GTK_BOX (vbox89), label120, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label120), GTK_JUSTIFY_CENTER);
@@ -7868,7 +7925,7 @@ create_add_alt_conf_dialog (void)
   gtk_widget_show (vbox90);
   gtk_container_add (GTK_CONTAINER (frame73), vbox90);
 
-  add_alt_conf_ca_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Split Single Residue at C-alpha"));
+  add_alt_conf_ca_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Split Single Residue at C-alpha");
   gtk_widget_show (add_alt_conf_ca_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox90), add_alt_conf_ca_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (add_alt_conf_ca_radiobutton), 4);
@@ -7876,14 +7933,14 @@ create_add_alt_conf_dialog (void)
   add_alt_conf_ca_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (add_alt_conf_ca_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (add_alt_conf_ca_radiobutton), TRUE);
 
-  add_alt_conf_whole_single_residue_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Split All of a Single Residue"));
+  add_alt_conf_whole_single_residue_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Split All of a Single Residue");
   gtk_widget_show (add_alt_conf_whole_single_residue_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox90), add_alt_conf_whole_single_residue_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (add_alt_conf_whole_single_residue_radiobutton), 4);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (add_alt_conf_whole_single_residue_radiobutton), add_alt_conf_ca_radiobutton_group);
   add_alt_conf_ca_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (add_alt_conf_whole_single_residue_radiobutton));
 
-  add_alt_conf_residue_range_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Split a Residue Range"));
+  add_alt_conf_residue_range_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Split a Residue Range");
   gtk_box_pack_start (GTK_BOX (vbox90), add_alt_conf_residue_range_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (add_alt_conf_residue_range_radiobutton), 4);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (add_alt_conf_residue_range_radiobutton), add_alt_conf_ca_radiobutton_group);
@@ -7897,7 +7954,7 @@ create_add_alt_conf_dialog (void)
   gtk_widget_show (hbox60);
   gtk_container_add (GTK_CONTAINER (dialog_action_area27), hbox60);
 
-  add_alt_conf_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  add_alt_conf_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (add_alt_conf_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox60), add_alt_conf_cancel_button, TRUE, TRUE, 2);
 
@@ -7959,7 +8016,7 @@ create_validation_dialog (void)
   GtkWidget *validation_dialog_cancel_button;
 
   validation_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (validation_dialog), _("validation dialog"));
+  gtk_window_set_title (GTK_WINDOW (validation_dialog), "validation dialog");
   gtk_window_set_type_hint (GTK_WINDOW (validation_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox28 = GTK_DIALOG (validation_dialog)->vbox;
@@ -7974,7 +8031,7 @@ create_validation_dialog (void)
   gtk_widget_show (vbox91);
   gtk_container_add (GTK_CONTAINER (frame74), vbox91);
 
-  label121 = gtk_label_new (_("Description"));
+  label121 = gtk_label_new ("Description");
   gtk_widget_show (label121);
   gtk_box_pack_start (GTK_BOX (vbox91), label121, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label121), GTK_JUSTIFY_CENTER);
@@ -7998,7 +8055,7 @@ create_validation_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox91), hbox63, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox63), 4);
 
-  validation_dialog_residue_or_atom_label = gtk_label_new (_("  Residue:  "));
+  validation_dialog_residue_or_atom_label = gtk_label_new ("  Residue:  ");
   gtk_widget_show (validation_dialog_residue_or_atom_label);
   gtk_box_pack_start (GTK_BOX (hbox63), validation_dialog_residue_or_atom_label, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (validation_dialog_residue_or_atom_label), GTK_JUSTIFY_CENTER);
@@ -8007,8 +8064,9 @@ create_validation_dialog (void)
   gtk_widget_show (validation_dialog_residue_entry);
   gtk_box_pack_start (GTK_BOX (hbox63), validation_dialog_residue_entry, FALSE, TRUE, 0);
   gtk_editable_set_editable (GTK_EDITABLE (validation_dialog_residue_entry), FALSE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (validation_dialog_residue_entry), 9679);
 
-  label123 = gtk_label_new (_("  "));
+  label123 = gtk_label_new ("  ");
   gtk_widget_show (label123);
   gtk_box_pack_start (GTK_BOX (hbox63), label123, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label123), GTK_JUSTIFY_CENTER);
@@ -8018,7 +8076,7 @@ create_validation_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox91), hbox64, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox64), 4);
 
-  label124 = gtk_label_new (_(" Number "));
+  label124 = gtk_label_new (" Number ");
   gtk_widget_show (label124);
   gtk_box_pack_start (GTK_BOX (hbox64), label124, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label124), GTK_JUSTIFY_CENTER);
@@ -8027,8 +8085,9 @@ create_validation_dialog (void)
   gtk_widget_show (validation_dialog_baddie_number_entry);
   gtk_box_pack_start (GTK_BOX (hbox64), validation_dialog_baddie_number_entry, FALSE, TRUE, 0);
   gtk_editable_set_editable (GTK_EDITABLE (validation_dialog_baddie_number_entry), FALSE);
+  gtk_entry_set_invisible_char (GTK_ENTRY (validation_dialog_baddie_number_entry), 9679);
 
-  label125 = gtk_label_new (_("  of 104  "));
+  label125 = gtk_label_new ("  of 104  ");
   gtk_widget_show (label125);
   gtk_box_pack_start (GTK_BOX (hbox64), label125, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label125), GTK_JUSTIFY_CENTER);
@@ -8041,17 +8100,17 @@ create_validation_dialog (void)
   gtk_widget_show (hbox61);
   gtk_container_add (GTK_CONTAINER (dialog_action_area28), hbox61);
 
-  validation_dialog_next_button = gtk_button_new_with_mnemonic (_("  Next  "));
+  validation_dialog_next_button = gtk_button_new_with_mnemonic ("  Next  ");
   gtk_widget_show (validation_dialog_next_button);
   gtk_box_pack_start (GTK_BOX (hbox61), validation_dialog_next_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (validation_dialog_next_button), 2);
 
-  validation_dialog_prev_button = gtk_button_new_with_mnemonic (_("  Previous  "));
+  validation_dialog_prev_button = gtk_button_new_with_mnemonic ("  Previous  ");
   gtk_widget_show (validation_dialog_prev_button);
   gtk_box_pack_start (GTK_BOX (hbox61), validation_dialog_prev_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (validation_dialog_prev_button), 2);
 
-  validation_dialog_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  validation_dialog_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (validation_dialog_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox61), validation_dialog_cancel_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (validation_dialog_cancel_button), 2);
@@ -8106,7 +8165,7 @@ create_run_state_file_dialog (void)
   GtkWidget *run_state_file_cancel_button;
 
   run_state_file_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (run_state_file_dialog), _("saved state dialog"));
+  gtk_window_set_title (GTK_WINDOW (run_state_file_dialog), "saved state dialog");
   gtk_window_set_type_hint (GTK_WINDOW (run_state_file_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox29 = GTK_DIALOG (run_state_file_dialog)->vbox;
@@ -8116,7 +8175,7 @@ create_run_state_file_dialog (void)
   gtk_widget_show (vbox191);
   gtk_box_pack_start (GTK_BOX (dialog_vbox29), vbox191, FALSE, FALSE, 0);
 
-  label127 = gtk_label_new (_("There is a coot auto-save state file here. "));
+  label127 = gtk_label_new ("There is a coot auto-save state file here. ");
   gtk_widget_show (label127);
   gtk_box_pack_start (GTK_BOX (vbox191), label127, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label127), GTK_JUSTIFY_CENTER);
@@ -8126,7 +8185,7 @@ create_run_state_file_dialog (void)
   gtk_widget_show (mols_vbox);
   gtk_box_pack_start (GTK_BOX (vbox191), mols_vbox, TRUE, TRUE, 0);
 
-  label300 = gtk_label_new (_("Do you want to run it?"));
+  label300 = gtk_label_new ("Do you want to run it?");
   gtk_widget_show (label300);
   gtk_box_pack_start (GTK_BOX (vbox191), label300, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label300), GTK_JUSTIFY_CENTER);
@@ -8140,12 +8199,12 @@ create_run_state_file_dialog (void)
   gtk_widget_show (hbox66);
   gtk_container_add (GTK_CONTAINER (dialog_action_area29), hbox66);
 
-  run_state_file_ok_button = gtk_button_new_with_mnemonic (_("  Yes  "));
+  run_state_file_ok_button = gtk_button_new_with_mnemonic ("  Yes  ");
   gtk_widget_show (run_state_file_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox66), run_state_file_ok_button, TRUE, TRUE, 2);
   GTK_WIDGET_SET_FLAGS (run_state_file_ok_button, GTK_CAN_DEFAULT);
 
-  run_state_file_cancel_button = gtk_button_new_with_mnemonic (_("  No  "));
+  run_state_file_cancel_button = gtk_button_new_with_mnemonic ("  No  ");
   gtk_widget_show (run_state_file_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox66), run_state_file_cancel_button, TRUE, TRUE, 2);
   GTK_WIDGET_SET_FLAGS (run_state_file_cancel_button, GTK_CAN_DEFAULT);
@@ -8193,7 +8252,7 @@ create_edit_backbone_torsions_dialog (void)
   GtkWidget *edit_backbone_torsion_cancel_button;
 
   edit_backbone_torsions_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (edit_backbone_torsions_dialog), _("Edit Backbone Torsions"));
+  gtk_window_set_title (GTK_WINDOW (edit_backbone_torsions_dialog), "Edit Backbone Torsions");
   gtk_window_set_type_hint (GTK_WINDOW (edit_backbone_torsions_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox30 = GTK_DIALOG (edit_backbone_torsions_dialog)->vbox;
@@ -8217,7 +8276,7 @@ create_edit_backbone_torsions_dialog (void)
   gtk_widget_show (edit_backbone_torsions_rotate_peptide_hscale);
   gtk_container_add (GTK_CONTAINER (frame82), edit_backbone_torsions_rotate_peptide_hscale);
 
-  label301 = gtk_label_new (_("Rotate Peptide"));
+  label301 = gtk_label_new ("Rotate Peptide");
   gtk_widget_show (label301);
   gtk_frame_set_label_widget (GTK_FRAME (frame82), label301);
 
@@ -8230,7 +8289,7 @@ create_edit_backbone_torsions_dialog (void)
   gtk_widget_show (edit_backbone_torsions_rotate_carbonyl_hscale);
   gtk_container_add (GTK_CONTAINER (frame83), edit_backbone_torsions_rotate_carbonyl_hscale);
 
-  label302 = gtk_label_new (_("Rotate Carbonyl"));
+  label302 = gtk_label_new ("Rotate Carbonyl");
   gtk_widget_show (label302);
   gtk_frame_set_label_widget (GTK_FRAME (frame83), label302);
 
@@ -8242,12 +8301,12 @@ create_edit_backbone_torsions_dialog (void)
   gtk_widget_show (hbox67);
   gtk_container_add (GTK_CONTAINER (dialog_action_area30), hbox67);
 
-  edit_backbone_torsion_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  edit_backbone_torsion_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (edit_backbone_torsion_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox67), edit_backbone_torsion_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (edit_backbone_torsion_ok_button, GTK_CAN_DEFAULT);
 
-  edit_backbone_torsion_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  edit_backbone_torsion_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (edit_backbone_torsion_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox67), edit_backbone_torsion_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (edit_backbone_torsion_cancel_button, GTK_CAN_DEFAULT);
@@ -8305,7 +8364,7 @@ create_start_workflow_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   start_workflow_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (start_workflow_dialog), _("What do you want to do?"));
+  gtk_window_set_title (GTK_WINDOW (start_workflow_dialog), "What do you want to do?");
   gtk_window_set_type_hint (GTK_WINDOW (start_workflow_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox31 = GTK_DIALOG (start_workflow_dialog)->vbox;
@@ -8320,38 +8379,38 @@ create_start_workflow_dialog (void)
   gtk_widget_show (vbox94);
   gtk_container_add (GTK_CONTAINER (frame76), vbox94);
 
-  workflow_radiobutton_coords_only = gtk_radio_button_new_with_mnemonic (NULL, _(" Display just Coordinates"));
+  workflow_radiobutton_coords_only = gtk_radio_button_new_with_mnemonic (NULL, " Display just Coordinates");
   gtk_widget_show (workflow_radiobutton_coords_only);
   gtk_box_pack_start (GTK_BOX (vbox94), workflow_radiobutton_coords_only, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_only, _("Only Coordinates - no map"), NULL);
+  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_only, "Only Coordinates - no map", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_only), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_only));
 
-  workflow_radiobutton_coords_and_dataset = gtk_radio_button_new_with_mnemonic (NULL, _(" Display Coordinates and calculate a Map from a Dataset"));
+  workflow_radiobutton_coords_and_dataset = gtk_radio_button_new_with_mnemonic (NULL, " Display Coordinates and calculate a Map from a Dataset");
   gtk_widget_show (workflow_radiobutton_coords_and_dataset);
   gtk_box_pack_start (GTK_BOX (vbox94), workflow_radiobutton_coords_and_dataset, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_and_dataset, _("Here, \"Dataset\" means an mtz, phs or mmcif file"), NULL);
+  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_and_dataset, "Here, \"Dataset\" means an mtz, phs or mmcif file", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_and_dataset), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_and_dataset));
 
-  workflow_radiobutton_coords_and_map = gtk_radio_button_new_with_mnemonic (NULL, _(" Display Coordinates and a pre-calculated CCP4 Map"));
+  workflow_radiobutton_coords_and_map = gtk_radio_button_new_with_mnemonic (NULL, " Display Coordinates and a pre-calculated CCP4 Map");
   gtk_widget_show (workflow_radiobutton_coords_and_map);
   gtk_box_pack_start (GTK_BOX (vbox94), workflow_radiobutton_coords_and_map, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_and_map, _("Coordinates and a CCP4 Map"), NULL);
+  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_and_map, "Coordinates and a CCP4 Map", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_and_map), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_and_map));
 
-  workflow_radiobutton_map_from_dataset = gtk_radio_button_new_with_mnemonic (NULL, _(" Calculate a Map from a Dataset"));
+  workflow_radiobutton_map_from_dataset = gtk_radio_button_new_with_mnemonic (NULL, " Calculate a Map from a Dataset");
   gtk_widget_show (workflow_radiobutton_map_from_dataset);
   gtk_box_pack_start (GTK_BOX (vbox94), workflow_radiobutton_map_from_dataset, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_map_from_dataset, _("Here, \"Dataset\" means an mtz, phs or mmcif file"), NULL);
+  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_map_from_dataset, "Here, \"Dataset\" means an mtz, phs or mmcif file", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workflow_radiobutton_map_from_dataset), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workflow_radiobutton_map_from_dataset));
 
-  workstate_radiobutton_clean_slate = gtk_radio_button_new_with_mnemonic (NULL, _(" Start from a \"Clean Slate\""));
+  workstate_radiobutton_clean_slate = gtk_radio_button_new_with_mnemonic (NULL, " Start from a \"Clean Slate\"");
   gtk_widget_show (workstate_radiobutton_clean_slate);
   gtk_box_pack_start (GTK_BOX (vbox94), workstate_radiobutton_clean_slate, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workstate_radiobutton_clean_slate, _("Nothing special"), NULL);
+  gtk_tooltips_set_tip (tooltips, workstate_radiobutton_clean_slate, "Nothing special", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workstate_radiobutton_clean_slate), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workstate_radiobutton_clean_slate));
 
@@ -8363,12 +8422,12 @@ create_start_workflow_dialog (void)
   gtk_widget_show (hbox68);
   gtk_container_add (GTK_CONTAINER (dialog_action_area31), hbox68);
 
-  workflow_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  workflow_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (workflow_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox68), workflow_ok_button, TRUE, TRUE, 4);
   GTK_WIDGET_SET_FLAGS (workflow_ok_button, GTK_CAN_DEFAULT);
 
-  workflow_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  workflow_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (workflow_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox68), workflow_cancel_button, TRUE, TRUE, 4);
   GTK_WIDGET_SET_FLAGS (workflow_cancel_button, GTK_CAN_DEFAULT);
@@ -8430,7 +8489,7 @@ create_select_fitting_map_dialog (void)
   GtkWidget *select_map_for_fitting_button;
 
   select_fitting_map_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (select_fitting_map_dialog), _("Select Map for Fitting"));
+  gtk_window_set_title (GTK_WINDOW (select_fitting_map_dialog), "Select Map for Fitting");
   gtk_window_set_type_hint (GTK_WINDOW (select_fitting_map_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox32 = GTK_DIALOG (select_fitting_map_dialog)->vbox;
@@ -8445,7 +8504,7 @@ create_select_fitting_map_dialog (void)
   gtk_widget_show (vbox95);
   gtk_container_add (GTK_CONTAINER (frame77), vbox95);
 
-  label128 = gtk_label_new (_("Choose a Map:"));
+  label128 = gtk_label_new ("Choose a Map:");
   gtk_widget_show (label128);
   gtk_box_pack_start (GTK_BOX (vbox95), label128, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label128), GTK_JUSTIFY_CENTER);
@@ -8462,7 +8521,7 @@ create_select_fitting_map_dialog (void)
   gtk_widget_show (dialog_action_area32);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area32), GTK_BUTTONBOX_END);
 
-  select_map_for_fitting_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  select_map_for_fitting_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (select_map_for_fitting_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (select_fitting_map_dialog), select_map_for_fitting_button, 0);
   GTK_WIDGET_SET_FLAGS (select_map_for_fitting_button, GTK_CAN_DEFAULT);
@@ -8497,13 +8556,13 @@ create_run_refmac_help_dialog (void)
   GtkWidget *run_refmac_help_dialog_ok_button;
 
   run_refmac_help_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (run_refmac_help_dialog), _("Help on Running Refmac:"));
+  gtk_window_set_title (GTK_WINDOW (run_refmac_help_dialog), "Help on Running Refmac:");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_help_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox33 = GTK_DIALOG (run_refmac_help_dialog)->vbox;
   gtk_widget_show (dialog_vbox33);
 
-  label129 = gtk_label_new (_("\n\nWhen you read in an MTZ file, you can assign the column labels \nneeded to run Refmac. \n\nIf this option menu is empty it means that you  have not assigned \nRefmac labels from any MTZ file.  To fix, Cancel the \"Run Refmac\" \ndialog, Use File -> Open MTZ and assign Refmac column labels. \nThen use \"Run Refmac...\" from the \"Model/Fit/Refine\" dialog.\n"));
+  label129 = gtk_label_new ("\n\nWhen you read in an MTZ file, you can assign the column labels \nneeded to run Refmac. \n\nIf this option menu is empty it means that you  have not assigned \nRefmac labels from any MTZ file.  To fix, Cancel the \"Run Refmac\" \ndialog, Use File -> Open MTZ and assign Refmac column labels. \nThen use \"Run Refmac...\" from the \"Model/Fit/Refine\" dialog.\n");
   gtk_widget_show (label129);
   gtk_box_pack_start (GTK_BOX (dialog_vbox33), label129, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label129), GTK_JUSTIFY_CENTER);
@@ -8514,7 +8573,7 @@ create_run_refmac_help_dialog (void)
   gtk_widget_show (dialog_action_area33);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area33), GTK_BUTTONBOX_END);
 
-  run_refmac_help_dialog_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  run_refmac_help_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (run_refmac_help_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (run_refmac_help_dialog), run_refmac_help_dialog_ok_button, 0);
 
@@ -8543,7 +8602,7 @@ create_no_restraints_info_dialog (void)
   GtkWidget *no_restraints_info_dialog_button;
 
   no_restraints_info_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (no_restraints_info_dialog), _("No Restraints!"));
+  gtk_window_set_title (GTK_WINDOW (no_restraints_info_dialog), "No Restraints!");
   gtk_window_set_type_hint (GTK_WINDOW (no_restraints_info_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox34 = GTK_DIALOG (no_restraints_info_dialog)->vbox;
@@ -8554,7 +8613,7 @@ create_no_restraints_info_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox34), frame78, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame78), 6);
 
-  label131 = gtk_label_new (_("\nNo Restraints Found!\n\nNon-existent or minimal description of restrainted residues.\n\nAre you sure you read a non-minimal mmCIF dictionary for \nthis monomer? Are you sure the PDB residue name\nmatches the dictionary residue name?\n\nIf not, try File -> Import CIF Dictionary\n\nAlternatively, did you check that the atom names of the \nPDB file match those of the restraints?\n"));
+  label131 = gtk_label_new ("\nNo Restraints Found!\n\nNon-existent or minimal description of restrained residues.\n\nAre you sure that you read a non-minimal mmCIF dictionary\nfor this monomer? Are you sure the PDB residue name\nmatches the dictionary residue name?\n\nIf not, try File -> Import CIF Dictionary\n\nAlternatively, did you check that the atom names of the \nPDB file match those of the restraints?\n");
   gtk_widget_show (label131);
   gtk_container_add (GTK_CONTAINER (frame78), label131);
   gtk_label_set_justify (GTK_LABEL (label131), GTK_JUSTIFY_CENTER);
@@ -8565,7 +8624,7 @@ create_no_restraints_info_dialog (void)
   gtk_widget_show (dialog_action_area34);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area34), GTK_BUTTONBOX_END);
 
-  no_restraints_info_dialog_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  no_restraints_info_dialog_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (no_restraints_info_dialog_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (no_restraints_info_dialog), no_restraints_info_dialog_button, 0);
 
@@ -8595,7 +8654,7 @@ create_no_cif_dictionary_bonds_dialog (void)
   GtkWidget *no_cif_dictionary_bonds_ok_button;
 
   no_cif_dictionary_bonds_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (no_cif_dictionary_bonds_dialog), _("No Restraints in Dictionary!"));
+  gtk_window_set_title (GTK_WINDOW (no_cif_dictionary_bonds_dialog), "No Restraints in Dictionary!");
   gtk_window_set_type_hint (GTK_WINDOW (no_cif_dictionary_bonds_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox35 = GTK_DIALOG (no_cif_dictionary_bonds_dialog)->vbox;
@@ -8606,7 +8665,7 @@ create_no_cif_dictionary_bonds_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox35), frame79, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame79), 6);
 
-  label132 = gtk_label_new (_("Ooops! CIF Dictionary contains no restraints!"));
+  label132 = gtk_label_new ("Ooops! CIF Dictionary contains no restraints!");
   gtk_widget_show (label132);
   gtk_container_add (GTK_CONTAINER (frame79), label132);
   gtk_label_set_justify (GTK_LABEL (label132), GTK_JUSTIFY_CENTER);
@@ -8616,7 +8675,7 @@ create_no_cif_dictionary_bonds_dialog (void)
   gtk_widget_show (dialog_action_area35);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area35), GTK_BUTTONBOX_END);
 
-  no_cif_dictionary_bonds_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  no_cif_dictionary_bonds_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (no_cif_dictionary_bonds_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (no_cif_dictionary_bonds_dialog), no_cif_dictionary_bonds_ok_button, 0);
 
@@ -8649,7 +8708,7 @@ create_ligand_big_blob_dialog (void)
   GtkWidget *ligand_big_blob_dismiss_button;
 
   ligand_big_blob_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ligand_big_blob_dialog), _("Unexplained blobs of density:"));
+  gtk_window_set_title (GTK_WINDOW (ligand_big_blob_dialog), "Unexplained blobs of density:");
   gtk_window_set_type_hint (GTK_WINDOW (ligand_big_blob_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox36 = GTK_DIALOG (ligand_big_blob_dialog)->vbox;
@@ -8659,7 +8718,7 @@ create_ligand_big_blob_dialog (void)
   gtk_widget_show (vbox97);
   gtk_box_pack_start (GTK_BOX (dialog_vbox36), vbox97, TRUE, TRUE, 0);
 
-  label133 = gtk_label_new (_("\nThere are unexplained blobs of \ndensity (too big to be waters):\n"));
+  label133 = gtk_label_new ("\nThere are unexplained blobs of \ndensity (too big to be waters):\n");
   gtk_widget_show (label133);
   gtk_box_pack_start (GTK_BOX (vbox97), label133, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label133), GTK_JUSTIFY_CENTER);
@@ -8682,7 +8741,7 @@ create_ligand_big_blob_dialog (void)
   gtk_widget_show (dialog_action_area36);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area36), GTK_BUTTONBOX_END);
 
-  ligand_big_blob_dismiss_button = gtk_button_new_with_mnemonic (_("  Dismiss  "));
+  ligand_big_blob_dismiss_button = gtk_button_new_with_mnemonic ("  Dismiss  ");
   gtk_widget_show (ligand_big_blob_dismiss_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (ligand_big_blob_dialog), ligand_big_blob_dismiss_button, 0);
 
@@ -8725,7 +8784,7 @@ create_edit_chi_angles_dialog (void)
   GtkWidget *edit_chi_angles_cancel_button;
 
   edit_chi_angles_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (edit_chi_angles_dialog), _("Edit Chi Angles"));
+  gtk_window_set_title (GTK_WINDOW (edit_chi_angles_dialog), "Edit Chi Angles");
   gtk_window_set_type_hint (GTK_WINDOW (edit_chi_angles_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox37 = GTK_DIALOG (edit_chi_angles_dialog)->vbox;
@@ -8735,7 +8794,7 @@ create_edit_chi_angles_dialog (void)
   gtk_widget_show (vbox98);
   gtk_box_pack_start (GTK_BOX (dialog_vbox37), vbox98, TRUE, TRUE, 0);
 
-  label134 = gtk_label_new (_("Chi Angles Rotation Mode:"));
+  label134 = gtk_label_new ("Chi Angles Rotation Mode:");
   gtk_widget_show (label134);
   gtk_box_pack_start (GTK_BOX (vbox98), label134, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label134), GTK_JUSTIFY_CENTER);
@@ -8754,12 +8813,12 @@ create_edit_chi_angles_dialog (void)
   gtk_widget_show (edit_chi_angles_vbox);
   gtk_container_add (GTK_CONTAINER (viewport5), edit_chi_angles_vbox);
 
-  edit_chi_angles_normal_rotation_button = gtk_button_new_with_mnemonic (_(" View Rotation Mode "));
+  edit_chi_angles_normal_rotation_button = gtk_button_new_with_mnemonic (" View Rotation Mode ");
   gtk_widget_show (edit_chi_angles_normal_rotation_button);
   gtk_box_pack_start (GTK_BOX (vbox98), edit_chi_angles_normal_rotation_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (edit_chi_angles_normal_rotation_button), 6);
 
-  edit_chi_angles_help_button = gtk_button_new_with_mnemonic (_("Help me out here..."));
+  edit_chi_angles_help_button = gtk_button_new_with_mnemonic ("Help me out here...");
   gtk_widget_show (edit_chi_angles_help_button);
   gtk_box_pack_start (GTK_BOX (vbox98), edit_chi_angles_help_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (edit_chi_angles_help_button), 6);
@@ -8772,12 +8831,12 @@ create_edit_chi_angles_dialog (void)
   gtk_widget_show (hbox71);
   gtk_container_add (GTK_CONTAINER (dialog_action_area37), hbox71);
 
-  edit_chi_angles_dialog_ok_button = gtk_button_new_with_mnemonic (_("  Accept  "));
+  edit_chi_angles_dialog_ok_button = gtk_button_new_with_mnemonic ("  Accept  ");
   gtk_widget_show (edit_chi_angles_dialog_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox71), edit_chi_angles_dialog_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (edit_chi_angles_dialog_ok_button, GTK_CAN_DEFAULT);
 
-  edit_chi_angles_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  edit_chi_angles_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (edit_chi_angles_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox71), edit_chi_angles_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (edit_chi_angles_cancel_button, GTK_CAN_DEFAULT);
@@ -8877,7 +8936,7 @@ create_check_waters_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   check_waters_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (check_waters_dialog), _("Checking Waters:"));
+  gtk_window_set_title (GTK_WINDOW (check_waters_dialog), "Checking Waters:");
   gtk_window_set_type_hint (GTK_WINDOW (check_waters_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox38 = GTK_DIALOG (check_waters_dialog)->vbox;
@@ -8892,7 +8951,7 @@ create_check_waters_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox100), hbox73, TRUE, TRUE, 5);
   gtk_container_set_border_width (GTK_CONTAINER (hbox73), 6);
 
-  label136 = gtk_label_new (_("  Molecule Number:  "));
+  label136 = gtk_label_new ("  Molecule Number:  ");
   gtk_widget_show (label136);
   gtk_box_pack_start (GTK_BOX (hbox73), label136, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label136), GTK_JUSTIFY_CENTER);
@@ -8910,7 +8969,7 @@ create_check_waters_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox100), hbox72, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox72), 6);
 
-  label135 = gtk_label_new (_("  Action:  "));
+  label135 = gtk_label_new ("  Action:  ");
   gtk_widget_show (label135);
   gtk_box_pack_start (GTK_BOX (hbox72), label135, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label135), GTK_JUSTIFY_CENTER);
@@ -8921,11 +8980,11 @@ create_check_waters_dialog (void)
 
   convertwidget52 = gtk_menu_new ();
 
-  convertwidget53 = gtk_menu_item_new_with_mnemonic (_("Generate a List"));
+  convertwidget53 = gtk_menu_item_new_with_mnemonic ("Generate a List");
   gtk_widget_show (convertwidget53);
   gtk_container_add (GTK_CONTAINER (convertwidget52), convertwidget53);
 
-  convertwidget54 = gtk_menu_item_new_with_mnemonic (_("Delete Waters"));
+  convertwidget54 = gtk_menu_item_new_with_mnemonic ("Delete Waters");
   gtk_widget_show (convertwidget54);
   gtk_container_add (GTK_CONTAINER (convertwidget52), convertwidget54);
 
@@ -8949,7 +9008,7 @@ create_check_waters_dialog (void)
   gtk_widget_show (check_waters_b_factor_hbox);
   gtk_box_pack_start (GTK_BOX (hbox74), check_waters_b_factor_hbox, TRUE, TRUE, 0);
 
-  label259 = gtk_label_new (_("  with B factor greater than:  "));
+  label259 = gtk_label_new ("  with B factor greater than:  ");
   gtk_widget_show (label259);
   gtk_box_pack_start (GTK_BOX (check_waters_b_factor_hbox), label259, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label259), GTK_JUSTIFY_CENTER);
@@ -8957,13 +9016,14 @@ create_check_waters_dialog (void)
   check_waters_b_factor_entry = gtk_entry_new ();
   gtk_widget_show (check_waters_b_factor_entry);
   gtk_box_pack_start (GTK_BOX (check_waters_b_factor_hbox), check_waters_b_factor_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (check_waters_b_factor_entry), 9679);
 
-  label141 = gtk_label_new (_(" A^2                     "));
+  label141 = gtk_label_new (" A^2                     ");
   gtk_widget_show (label141);
   gtk_box_pack_start (GTK_BOX (check_waters_b_factor_hbox), label141, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label141), GTK_JUSTIFY_CENTER);
 
-  check_waters_b_factor_entry_active_checkbutton = gtk_check_button_new_with_mnemonic (_("Active"));
+  check_waters_b_factor_entry_active_checkbutton = gtk_check_button_new_with_mnemonic ("Active");
   gtk_widget_show (check_waters_b_factor_entry_active_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox74), check_waters_b_factor_entry_active_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_waters_b_factor_entry_active_checkbutton), TRUE);
@@ -8977,7 +9037,7 @@ create_check_waters_dialog (void)
   gtk_widget_show (check_waters_sigma_level_hbox);
   gtk_box_pack_start (GTK_BOX (hbox75), check_waters_sigma_level_hbox, TRUE, TRUE, 0);
 
-  label138 = gtk_label_new (_("  with map sigma level less than:  "));
+  label138 = gtk_label_new ("  with map sigma level less than:  ");
   gtk_widget_show (label138);
   gtk_box_pack_start (GTK_BOX (check_waters_sigma_level_hbox), label138, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label138), GTK_JUSTIFY_CENTER);
@@ -8985,13 +9045,14 @@ create_check_waters_dialog (void)
   check_waters_map_sigma_entry = gtk_entry_new ();
   gtk_widget_show (check_waters_map_sigma_entry);
   gtk_box_pack_start (GTK_BOX (check_waters_sigma_level_hbox), check_waters_map_sigma_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (check_waters_map_sigma_entry), 9679);
 
-  label142 = gtk_label_new (_(" electrons/A3 "));
+  label142 = gtk_label_new (" electrons/A3 ");
   gtk_widget_show (label142);
   gtk_box_pack_start (GTK_BOX (check_waters_sigma_level_hbox), label142, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label142), GTK_JUSTIFY_CENTER);
 
-  check_waters_map_sigma_entry_active_checkbutton = gtk_check_button_new_with_mnemonic (_("Active"));
+  check_waters_map_sigma_entry_active_checkbutton = gtk_check_button_new_with_mnemonic ("Active");
   gtk_widget_show (check_waters_map_sigma_entry_active_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox75), check_waters_map_sigma_entry_active_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_waters_map_sigma_entry_active_checkbutton), TRUE);
@@ -9005,7 +9066,7 @@ create_check_waters_dialog (void)
   gtk_widget_show (check_waters_min_dist_hbox);
   gtk_box_pack_start (GTK_BOX (hbox76), check_waters_min_dist_hbox, TRUE, TRUE, 0);
 
-  label139 = gtk_label_new (_("  with closest contact less than:  "));
+  label139 = gtk_label_new ("  with closest contact less than:  ");
   gtk_widget_show (label139);
   gtk_box_pack_start (GTK_BOX (check_waters_min_dist_hbox), label139, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label139), GTK_JUSTIFY_CENTER);
@@ -9013,13 +9074,14 @@ create_check_waters_dialog (void)
   check_waters_min_dist_entry = gtk_entry_new ();
   gtk_widget_show (check_waters_min_dist_entry);
   gtk_box_pack_start (GTK_BOX (check_waters_min_dist_hbox), check_waters_min_dist_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (check_waters_min_dist_entry), 9679);
 
-  label143 = gtk_label_new (_(" A                 "));
+  label143 = gtk_label_new (" A                 ");
   gtk_widget_show (label143);
   gtk_box_pack_start (GTK_BOX (check_waters_min_dist_hbox), label143, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label143), GTK_JUSTIFY_CENTER);
 
-  check_waters_min_dist_entry_active_checkbutton = gtk_check_button_new_with_mnemonic (_("Active"));
+  check_waters_min_dist_entry_active_checkbutton = gtk_check_button_new_with_mnemonic ("Active");
   gtk_widget_show (check_waters_min_dist_entry_active_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox76), check_waters_min_dist_entry_active_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_waters_min_dist_entry_active_checkbutton), TRUE);
@@ -9033,7 +9095,7 @@ create_check_waters_dialog (void)
   gtk_widget_show (check_waters_max_dist_hbox);
   gtk_box_pack_start (GTK_BOX (hbox77), check_waters_max_dist_hbox, TRUE, TRUE, 0);
 
-  label140 = gtk_label_new (_("  with closest contact more than:  "));
+  label140 = gtk_label_new ("  with closest contact more than:  ");
   gtk_widget_show (label140);
   gtk_box_pack_start (GTK_BOX (check_waters_max_dist_hbox), label140, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label140), GTK_JUSTIFY_CENTER);
@@ -9041,22 +9103,23 @@ create_check_waters_dialog (void)
   check_waters_max_dist_entry = gtk_entry_new ();
   gtk_widget_show (check_waters_max_dist_entry);
   gtk_box_pack_start (GTK_BOX (check_waters_max_dist_hbox), check_waters_max_dist_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (check_waters_max_dist_entry), 9679);
 
-  label144 = gtk_label_new (_(" A                "));
+  label144 = gtk_label_new (" A                ");
   gtk_widget_show (label144);
   gtk_box_pack_start (GTK_BOX (check_waters_max_dist_hbox), label144, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label144), GTK_JUSTIFY_CENTER);
 
-  check_waters_max_dist_entry_active_checkbutton = gtk_check_button_new_with_mnemonic (_("Active"));
+  check_waters_max_dist_entry_active_checkbutton = gtk_check_button_new_with_mnemonic ("Active");
   gtk_widget_show (check_waters_max_dist_entry_active_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox77), check_waters_max_dist_entry_active_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_waters_max_dist_entry_active_checkbutton), TRUE);
 
-  check_waters_low_occ_dist_checkbutton = gtk_check_button_new_with_mnemonic (_(" Ignore Partial Occupancy close contacts"));
+  check_waters_low_occ_dist_checkbutton = gtk_check_button_new_with_mnemonic (" Ignore Partial Occupancy close contacts");
   gtk_widget_show (check_waters_low_occ_dist_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox101), check_waters_low_occ_dist_checkbutton, FALSE, FALSE, 0);
 
-  check_waters_zero_occ_checkbutton = gtk_check_button_new_with_mnemonic (_(" Ignore Waters with Zero Occupancy"));
+  check_waters_zero_occ_checkbutton = gtk_check_button_new_with_mnemonic (" Ignore Waters with Zero Occupancy");
   gtk_widget_show (check_waters_zero_occ_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox101), check_waters_zero_occ_checkbutton, FALSE, FALSE, 0);
 
@@ -9069,13 +9132,13 @@ create_check_waters_dialog (void)
   gtk_widget_show (vbox157);
   gtk_container_add (GTK_CONTAINER (frame154), vbox157);
 
-  label244 = gtk_label_new (_("For Waters that match:"));
+  label244 = gtk_label_new ("For Waters that match:");
   gtk_widget_show (label244);
   gtk_box_pack_start (GTK_BOX (vbox157), label244, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label244), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label244), 0, 0.5);
 
-  check_waters_OR_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Any Criterion"));
+  check_waters_OR_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Any Criterion");
   gtk_widget_show (check_waters_OR_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox157), check_waters_OR_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_OR_radiobutton), 3);
@@ -9083,11 +9146,11 @@ create_check_waters_dialog (void)
   check_waters_OR_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (check_waters_OR_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_waters_OR_radiobutton), TRUE);
 
-  check_waters_AND_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("All Criteria"));
+  check_waters_AND_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "All Criteria");
   gtk_widget_show (check_waters_AND_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox157), check_waters_AND_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_AND_radiobutton), 3);
-  gtk_tooltips_set_tip (tooltips, check_waters_AND_radiobutton, _("All criteria except the distance criteria (can be either)"), NULL);
+  gtk_tooltips_set_tip (tooltips, check_waters_AND_radiobutton, "All criteria except the distance criteria (can be either)", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (check_waters_AND_radiobutton), check_waters_OR_radiobutton_group);
   check_waters_OR_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (check_waters_AND_radiobutton));
 
@@ -9099,11 +9162,11 @@ create_check_waters_dialog (void)
   gtk_widget_show (hbox78);
   gtk_container_add (GTK_CONTAINER (dialog_action_area38), hbox78);
 
-  check_waters_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  check_waters_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (check_waters_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox78), check_waters_ok_button, TRUE, TRUE, 2);
 
-  check_waters_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  check_waters_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (check_waters_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox78), check_waters_cancel_button, TRUE, TRUE, 2);
 
@@ -9206,7 +9269,7 @@ create_geometry_dialog (void)
 
   geometry_dialog = gtk_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (geometry_dialog), 6);
-  gtk_window_set_title (GTK_WINDOW (geometry_dialog), _("Geometry"));
+  gtk_window_set_title (GTK_WINDOW (geometry_dialog), "Geometry");
   gtk_window_set_type_hint (GTK_WINDOW (geometry_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox39 = GTK_DIALOG (geometry_dialog)->vbox;
@@ -9216,17 +9279,17 @@ create_geometry_dialog (void)
   gtk_widget_show (vbox102);
   gtk_box_pack_start (GTK_BOX (dialog_vbox39), vbox102, TRUE, TRUE, 0);
 
-  geometry_distance_togglebutton = gtk_toggle_button_new_with_mnemonic (_("  Distance  "));
+  geometry_distance_togglebutton = gtk_toggle_button_new_with_mnemonic ("  Distance  ");
   gtk_widget_show (geometry_distance_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_distance_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_distance_togglebutton), 2);
 
-  geometry_angle_togglebutton = gtk_toggle_button_new_with_mnemonic (_("  Angle  "));
+  geometry_angle_togglebutton = gtk_toggle_button_new_with_mnemonic ("  Angle  ");
   gtk_widget_show (geometry_angle_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_angle_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_angle_togglebutton), 2);
 
-  geometry_torsion_togglebutton = gtk_toggle_button_new_with_mnemonic (_("  Torsion  "));
+  geometry_torsion_togglebutton = gtk_toggle_button_new_with_mnemonic ("  Torsion  ");
   gtk_widget_show (geometry_torsion_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_torsion_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_torsion_togglebutton), 2);
@@ -9235,17 +9298,17 @@ create_geometry_dialog (void)
   gtk_widget_show (hseparator10);
   gtk_box_pack_start (GTK_BOX (vbox102), hseparator10, TRUE, TRUE, 0);
 
-  geometry_clear_last_distance_button = gtk_button_new_with_mnemonic (_("  Clear Last Distance  "));
+  geometry_clear_last_distance_button = gtk_button_new_with_mnemonic ("  Clear Last Distance  ");
   gtk_widget_show (geometry_clear_last_distance_button);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_clear_last_distance_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_clear_last_distance_button), 2);
 
-  geometry_clear_all_distances_button = gtk_button_new_with_mnemonic (_("  Clear All Distances  "));
+  geometry_clear_all_distances_button = gtk_button_new_with_mnemonic ("  Clear All Distances  ");
   gtk_widget_show (geometry_clear_all_distances_button);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_clear_all_distances_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_clear_all_distances_button), 2);
 
-  geometry_clear_atom_labels_button = gtk_button_new_with_mnemonic (_("  Clear All Atom Labels  "));
+  geometry_clear_atom_labels_button = gtk_button_new_with_mnemonic ("  Clear All Atom Labels  ");
   gtk_widget_show (geometry_clear_atom_labels_button);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_clear_atom_labels_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_clear_atom_labels_button), 2);
@@ -9254,7 +9317,7 @@ create_geometry_dialog (void)
   gtk_widget_show (dialog_action_area39);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area39), GTK_BUTTONBOX_END);
 
-  geometry_dialog_close_button = gtk_button_new_with_mnemonic (_("  Close  "));
+  geometry_dialog_close_button = gtk_button_new_with_mnemonic ("  Close  ");
   gtk_widget_show (geometry_dialog_close_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (geometry_dialog), geometry_dialog_close_button, 0);
 
@@ -9312,7 +9375,7 @@ create_new_ligands_info_dialog (void)
   GtkWidget *new_ligands_info_dialog_ok_button;
 
   new_ligands_info_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (new_ligands_info_dialog), _("New Ligands"));
+  gtk_window_set_title (GTK_WINDOW (new_ligands_info_dialog), "New Ligands");
   gtk_window_set_type_hint (GTK_WINDOW (new_ligands_info_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox40 = GTK_DIALOG (new_ligands_info_dialog)->vbox;
@@ -9322,13 +9385,13 @@ create_new_ligands_info_dialog (void)
   gtk_widget_show (vbox103);
   gtk_box_pack_start (GTK_BOX (dialog_vbox40), vbox103, FALSE, FALSE, 0);
 
-  new_ligands_info_dialog_label = gtk_label_new (_("Found 4 acceptable ligands"));
+  new_ligands_info_dialog_label = gtk_label_new ("Found 4 acceptable ligands");
   gtk_widget_show (new_ligands_info_dialog_label);
   gtk_box_pack_start (GTK_BOX (vbox103), new_ligands_info_dialog_label, FALSE, FALSE, 4);
   gtk_label_set_justify (GTK_LABEL (new_ligands_info_dialog_label), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (new_ligands_info_dialog_label), 3, 15);
 
-  label148 = gtk_label_new (_("Use Display Manager and Goto Atom \nMolecule optionmenu to navigate these \nnew molecules"));
+  label148 = gtk_label_new ("Use Display Manager and Goto Atom \nMolecule optionmenu to navigate these \nnew molecules");
   gtk_box_pack_start (GTK_BOX (vbox103), label148, FALSE, FALSE, 7);
   gtk_label_set_justify (GTK_LABEL (label148), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label148), 7, 0);
@@ -9337,7 +9400,7 @@ create_new_ligands_info_dialog (void)
   gtk_widget_show (dialog_action_area40);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area40), GTK_BUTTONBOX_END);
 
-  new_ligands_info_dialog_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  new_ligands_info_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (new_ligands_info_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (new_ligands_info_dialog), new_ligands_info_dialog_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (new_ligands_info_dialog_ok_button, GTK_CAN_DEFAULT);
@@ -9369,13 +9432,13 @@ create_no_new_ligands_info_dialog (void)
   GtkWidget *no_new_ligands_info_dialog_ok_button;
 
   no_new_ligands_info_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (no_new_ligands_info_dialog), _("No New Ligands"));
+  gtk_window_set_title (GTK_WINDOW (no_new_ligands_info_dialog), "No New Ligands");
   gtk_window_set_type_hint (GTK_WINDOW (no_new_ligands_info_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox41 = GTK_DIALOG (no_new_ligands_info_dialog)->vbox;
   gtk_widget_show (dialog_vbox41);
 
-  label149 = gtk_label_new (_("Sadly no ligands were found.\n\nPerhaps there were no ligands to be found?\n\nAlternatively you could try to reduce the search \nsigma level or the acceptable fit fraction."));
+  label149 = gtk_label_new ("Sadly no ligands were found.\n\nPerhaps there were no ligands to be found?\n\nAlternatively you could try to reduce the search \nsigma level or the acceptable fit fraction.");
   gtk_widget_show (label149);
   gtk_box_pack_start (GTK_BOX (dialog_vbox41), label149, FALSE, FALSE, 10);
   gtk_label_set_justify (GTK_LABEL (label149), GTK_JUSTIFY_CENTER);
@@ -9385,7 +9448,7 @@ create_no_new_ligands_info_dialog (void)
   gtk_widget_show (dialog_action_area41);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area41), GTK_BUTTONBOX_END);
 
-  no_new_ligands_info_dialog_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  no_new_ligands_info_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (no_new_ligands_info_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (no_new_ligands_info_dialog), no_new_ligands_info_dialog_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (no_new_ligands_info_dialog_ok_button, GTK_CAN_DEFAULT);
@@ -9419,7 +9482,7 @@ create_zoom_dialog (void)
   GtkWidget *zoom_dialog_ok_button;
 
   zoom_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (zoom_dialog), _("Zoom Control"));
+  gtk_window_set_title (GTK_WINDOW (zoom_dialog), "Zoom Control");
   gtk_window_set_type_hint (GTK_WINDOW (zoom_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox42 = GTK_DIALOG (zoom_dialog)->vbox;
@@ -9443,7 +9506,7 @@ create_zoom_dialog (void)
   gtk_widget_show (zoom_hscale);
   gtk_container_add (GTK_CONTAINER (frame86), zoom_hscale);
 
-  label303 = gtk_label_new (_("Zoom Control"));
+  label303 = gtk_label_new ("Zoom Control");
   gtk_widget_show (label303);
   gtk_frame_set_label_widget (GTK_FRAME (frame86), label303);
 
@@ -9451,7 +9514,7 @@ create_zoom_dialog (void)
   gtk_widget_show (dialog_action_area42);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area42), GTK_BUTTONBOX_END);
 
-  zoom_dialog_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  zoom_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (zoom_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (zoom_dialog), zoom_dialog_ok_button, 0);
 
@@ -9489,7 +9552,7 @@ create_libcheck_monomer_dialog (void)
   GtkWidget *libcheck_monomer_cancel_button;
 
   libcheck_monomer_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (libcheck_monomer_dialog), _("Get monomer molecule from libcheck"));
+  gtk_window_set_title (GTK_WINDOW (libcheck_monomer_dialog), "Get monomer molecule from libcheck");
   gtk_window_set_type_hint (GTK_WINDOW (libcheck_monomer_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox43 = GTK_DIALOG (libcheck_monomer_dialog)->vbox;
@@ -9505,7 +9568,7 @@ create_libcheck_monomer_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox105), hbox80, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox80), 17);
 
-  label151 = gtk_label_new (_("  3 Letter Code: "));
+  label151 = gtk_label_new ("  3 Letter Code: ");
   gtk_widget_show (label151);
   gtk_box_pack_start (GTK_BOX (hbox80), label151, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label151), GTK_JUSTIFY_CENTER);
@@ -9513,8 +9576,9 @@ create_libcheck_monomer_dialog (void)
   libcheck_monomer_entry = gtk_entry_new ();
   gtk_widget_show (libcheck_monomer_entry);
   gtk_box_pack_start (GTK_BOX (hbox80), libcheck_monomer_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (libcheck_monomer_entry), 9679);
 
-  label152 = gtk_label_new (_("  Note: Code is Case Sensitive  "));
+  label152 = gtk_label_new ("  Note: Code is Case Sensitive  ");
   gtk_widget_show (label152);
   gtk_box_pack_start (GTK_BOX (vbox105), label152, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label152), GTK_JUSTIFY_CENTER);
@@ -9528,12 +9592,12 @@ create_libcheck_monomer_dialog (void)
   gtk_widget_show (hbox81);
   gtk_container_add (GTK_CONTAINER (dialog_action_area43), hbox81);
 
-  libcheck_monomer_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  libcheck_monomer_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (libcheck_monomer_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox81), libcheck_monomer_ok_button, TRUE, TRUE, 4);
   GTK_WIDGET_SET_FLAGS (libcheck_monomer_ok_button, GTK_CAN_DEFAULT);
 
-  libcheck_monomer_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  libcheck_monomer_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (libcheck_monomer_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox81), libcheck_monomer_cancel_button, TRUE, TRUE, 4);
   GTK_WIDGET_SET_FLAGS (libcheck_monomer_cancel_button, GTK_CAN_DEFAULT);
@@ -9583,7 +9647,7 @@ create_recover_coordinates_dialog (void)
   GtkWidget *recover_coordinates_cancel_button;
 
   recover_coordinates_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (recover_coordinates_dialog), _("Recover Coordinates"));
+  gtk_window_set_title (GTK_WINDOW (recover_coordinates_dialog), "Recover Coordinates");
   gtk_window_set_type_hint (GTK_WINDOW (recover_coordinates_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox44 = GTK_DIALOG (recover_coordinates_dialog)->vbox;
@@ -9598,28 +9662,28 @@ create_recover_coordinates_dialog (void)
   gtk_widget_show (vbox107);
   gtk_container_add (GTK_CONTAINER (frame88), vbox107);
 
-  label153 = gtk_label_new (_("Read Coordinates:"));
+  label153 = gtk_label_new ("Read Coordinates:");
   gtk_widget_show (label153);
   gtk_box_pack_start (GTK_BOX (vbox107), label153, FALSE, FALSE, 4);
   gtk_label_set_justify (GTK_LABEL (label153), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label153), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label153), 0, 6);
 
-  recover_coordinates_read_coords_label = gtk_label_new (_("molecule name"));
+  recover_coordinates_read_coords_label = gtk_label_new ("molecule name");
   gtk_widget_show (recover_coordinates_read_coords_label);
   gtk_box_pack_start (GTK_BOX (vbox107), recover_coordinates_read_coords_label, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (recover_coordinates_read_coords_label), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (recover_coordinates_read_coords_label), 7.45058e-09, 0.5);
   gtk_misc_set_padding (GTK_MISC (recover_coordinates_read_coords_label), 0, 4);
 
-  label154 = gtk_label_new (_("Backup Coordinates:"));
+  label154 = gtk_label_new ("Backup Coordinates:");
   gtk_widget_show (label154);
   gtk_box_pack_start (GTK_BOX (vbox107), label154, FALSE, FALSE, 4);
   gtk_label_set_justify (GTK_LABEL (label154), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label154), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label154), 0, 6);
 
-  recover_coordinates_backup_coordinates_label = gtk_label_new (_("filename"));
+  recover_coordinates_backup_coordinates_label = gtk_label_new ("filename");
   gtk_widget_show (recover_coordinates_backup_coordinates_label);
   gtk_box_pack_start (GTK_BOX (vbox107), recover_coordinates_backup_coordinates_label, FALSE, FALSE, 2);
   gtk_label_set_justify (GTK_LABEL (recover_coordinates_backup_coordinates_label), GTK_JUSTIFY_CENTER);
@@ -9634,12 +9698,12 @@ create_recover_coordinates_dialog (void)
   gtk_widget_show (hbox82);
   gtk_container_add (GTK_CONTAINER (dialog_action_area44), hbox82);
 
-  recover_coordinates_ok_button = gtk_button_new_with_mnemonic (_("  Recover  "));
+  recover_coordinates_ok_button = gtk_button_new_with_mnemonic ("  Recover  ");
   gtk_widget_show (recover_coordinates_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox82), recover_coordinates_ok_button, TRUE, FALSE, 4);
   GTK_WIDGET_SET_FLAGS (recover_coordinates_ok_button, GTK_CAN_DEFAULT);
 
-  recover_coordinates_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  recover_coordinates_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (recover_coordinates_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox82), recover_coordinates_cancel_button, TRUE, FALSE, 4);
   GTK_WIDGET_SET_FLAGS (recover_coordinates_cancel_button, GTK_CAN_DEFAULT);
@@ -9685,7 +9749,7 @@ create_centre_atom_label_dialog (void)
   GtkWidget *centre_atom_label_ok_button;
 
   centre_atom_label_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (centre_atom_label_dialog), _("Centre Atom Label"));
+  gtk_window_set_title (GTK_WINDOW (centre_atom_label_dialog), "Centre Atom Label");
   gtk_window_set_type_hint (GTK_WINDOW (centre_atom_label_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox45 = GTK_DIALOG (centre_atom_label_dialog)->vbox;
@@ -9700,25 +9764,25 @@ create_centre_atom_label_dialog (void)
   gtk_widget_show (vbox108);
   gtk_container_add (GTK_CONTAINER (frame89), vbox108);
 
-  label155 = gtk_label_new (_("Label Centre Atom on Recentre?"));
+  label155 = gtk_label_new ("Label Centre Atom on Recentre?");
   gtk_widget_show (label155);
   gtk_box_pack_start (GTK_BOX (vbox108), label155, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label155), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label155), 26, 18);
 
-  centre_atom_label_radiobutton_on = gtk_radio_button_new_with_mnemonic (NULL, _("On"));
+  centre_atom_label_radiobutton_on = gtk_radio_button_new_with_mnemonic (NULL, "On");
   gtk_widget_show (centre_atom_label_radiobutton_on);
   gtk_box_pack_start (GTK_BOX (vbox108), centre_atom_label_radiobutton_on, FALSE, FALSE, 4);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (centre_atom_label_radiobutton_on), centre_atom_label_radiobutton_on_group);
   centre_atom_label_radiobutton_on_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (centre_atom_label_radiobutton_on));
 
-  centre_atom_label_radiobutton_off = gtk_radio_button_new_with_mnemonic (NULL, _("Off"));
+  centre_atom_label_radiobutton_off = gtk_radio_button_new_with_mnemonic (NULL, "Off");
   gtk_widget_show (centre_atom_label_radiobutton_off);
   gtk_box_pack_start (GTK_BOX (vbox108), centre_atom_label_radiobutton_off, FALSE, FALSE, 4);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (centre_atom_label_radiobutton_off), centre_atom_label_radiobutton_on_group);
   centre_atom_label_radiobutton_on_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (centre_atom_label_radiobutton_off));
 
-  label166 = gtk_label_new (_("[   Note: this setting is trumped by   ]\n[ Evironment Disance Label Atom? ]"));
+  label166 = gtk_label_new ("[   Note: this setting is trumped by   ]\n[ Evironment Disance Label Atom? ]");
   gtk_widget_show (label166);
   gtk_box_pack_start (GTK_BOX (dialog_vbox45), label166, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label166), GTK_JUSTIFY_CENTER);
@@ -9728,7 +9792,7 @@ create_centre_atom_label_dialog (void)
   gtk_widget_show (dialog_action_area45);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area45), GTK_BUTTONBOX_END);
 
-  centre_atom_label_ok_button = gtk_button_new_with_mnemonic (_("  Dismiss  "));
+  centre_atom_label_ok_button = gtk_button_new_with_mnemonic ("  Dismiss  ");
   gtk_widget_show (centre_atom_label_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (centre_atom_label_dialog), centre_atom_label_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (centre_atom_label_ok_button, GTK_CAN_DEFAULT);
@@ -9765,7 +9829,7 @@ create_chi_angle_help_dialog (void)
   GtkWidget *help_chi_angles_dismiss_button;
 
   chi_angle_help_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (chi_angle_help_dialog), _("Chi Angle Help"));
+  gtk_window_set_title (GTK_WINDOW (chi_angle_help_dialog), "Chi Angle Help");
   gtk_window_set_type_hint (GTK_WINDOW (chi_angle_help_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox46 = GTK_DIALOG (chi_angle_help_dialog)->vbox;
@@ -9776,7 +9840,7 @@ create_chi_angle_help_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox46), frame96, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (frame96), 4);
 
-  label156 = gtk_label_new (_("  Select the chi angle (rotatable bond) by clicking \non the button in the list.\n\nIn the graphics window, click and drag as you\nwould if you wanted to change the view - this \ncauses the atoms to move.\n\nThere are keyboard equivalents to the butons, \"1\" \n  will rotate chi__1, \"2\" will rotate chi__2 etc...\n\nTo make the view move (rather than the intermediate \natoms), click the \"View Rotation Mode\" button or use \nthe Ctrl key when moving the mouse."));
+  label156 = gtk_label_new ("  Select the chi angle (rotatable bond) by clicking \non the button in the list.\n\nIn the graphics window, click and drag as you\nwould if you wanted to change the view - this \ncauses the atoms to move.\n\nThere are keyboard equivalents to the butons, \"1\" \n  will rotate chi__1, \"2\" will rotate chi__2 etc...\n\nTo make the view move (rather than the intermediate \natoms), click the \"View Rotation Mode\" button or use \nthe Ctrl key when moving the mouse.");
   gtk_widget_show (label156);
   gtk_container_add (GTK_CONTAINER (frame96), label156);
   gtk_label_set_justify (GTK_LABEL (label156), GTK_JUSTIFY_CENTER);
@@ -9787,7 +9851,7 @@ create_chi_angle_help_dialog (void)
   gtk_widget_show (dialog_action_area46);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area46), GTK_BUTTONBOX_END);
 
-  help_chi_angles_dismiss_button = gtk_button_new_with_mnemonic (_("  Dismiss  "));
+  help_chi_angles_dismiss_button = gtk_button_new_with_mnemonic ("  Dismiss  ");
   gtk_widget_show (help_chi_angles_dismiss_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (chi_angle_help_dialog), help_chi_angles_dismiss_button, 0);
 
@@ -9816,13 +9880,13 @@ create_no_symmetry_warning_dialog (void)
   GtkWidget *no_symmetry_warning_ok_button;
 
   no_symmetry_warning_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (no_symmetry_warning_dialog), _("No Symmetry!"));
+  gtk_window_set_title (GTK_WINDOW (no_symmetry_warning_dialog), "No Symmetry!");
   gtk_window_set_type_hint (GTK_WINDOW (no_symmetry_warning_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox47 = GTK_DIALOG (no_symmetry_warning_dialog)->vbox;
   gtk_widget_show (dialog_vbox47);
 
-  label157 = gtk_label_new (_("\n\nWARNING!\n\nSymmetry Library not found\n\nIf you need symmetry, setup ccp4 before starting coot\n\n\n"));
+  label157 = gtk_label_new ("\n\nWARNING!\n\nSymmetry Library not found\n\nIf you need symmetry, setup ccp4 before starting coot\n\n\n");
   gtk_widget_show (label157);
   gtk_box_pack_start (GTK_BOX (dialog_vbox47), label157, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label157), GTK_JUSTIFY_CENTER);
@@ -9832,7 +9896,7 @@ create_no_symmetry_warning_dialog (void)
   gtk_widget_show (dialog_action_area47);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area47), GTK_BUTTONBOX_END);
 
-  no_symmetry_warning_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  no_symmetry_warning_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (no_symmetry_warning_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (no_symmetry_warning_dialog), no_symmetry_warning_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (no_symmetry_warning_ok_button, GTK_CAN_DEFAULT);
@@ -9864,7 +9928,7 @@ create_nothing_to_recover_dialog (void)
   GtkWidget *nothing_to_recover_ok_button;
 
   nothing_to_recover_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (nothing_to_recover_dialog), _("Nothing to Recover"));
+  gtk_window_set_title (GTK_WINDOW (nothing_to_recover_dialog), "Nothing to Recover");
   gtk_window_set_type_hint (GTK_WINDOW (nothing_to_recover_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox48 = GTK_DIALOG (nothing_to_recover_dialog)->vbox;
@@ -9875,7 +9939,7 @@ create_nothing_to_recover_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox48), frame97, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame97), 6);
 
-  label158 = gtk_label_new (_("Nothing to recover"));
+  label158 = gtk_label_new ("Nothing to recover");
   gtk_widget_show (label158);
   gtk_container_add (GTK_CONTAINER (frame97), label158);
   gtk_label_set_justify (GTK_LABEL (label158), GTK_JUSTIFY_CENTER);
@@ -9885,7 +9949,7 @@ create_nothing_to_recover_dialog (void)
   gtk_widget_show (dialog_action_area48);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area48), GTK_BUTTONBOX_END);
 
-  nothing_to_recover_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  nothing_to_recover_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (nothing_to_recover_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (nothing_to_recover_dialog), nothing_to_recover_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (nothing_to_recover_ok_button, GTK_CAN_DEFAULT);
@@ -9942,7 +10006,7 @@ create_superpose_dialog (void)
   GtkWidget *superpose_dialog_cancel_button;
 
   superpose_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (superpose_dialog), _("SSM Superpose"));
+  gtk_window_set_title (GTK_WINDOW (superpose_dialog), "SSM Superpose");
   gtk_window_set_type_hint (GTK_WINDOW (superpose_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox49 = GTK_DIALOG (superpose_dialog)->vbox;
@@ -9952,7 +10016,7 @@ create_superpose_dialog (void)
   gtk_widget_show (vbox109);
   gtk_box_pack_start (GTK_BOX (dialog_vbox49), vbox109, TRUE, TRUE, 0);
 
-  label159 = gtk_label_new (_("Superpose Molecules"));
+  label159 = gtk_label_new ("Superpose Molecules");
   gtk_widget_show (label159);
   gtk_box_pack_start (GTK_BOX (vbox109), label159, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label159), GTK_JUSTIFY_CENTER);
@@ -9983,7 +10047,7 @@ create_superpose_dialog (void)
   gtk_widget_show (vbox144);
   gtk_container_add (GTK_CONTAINER (superpose_reference_structure_frame), vbox144);
 
-  superpose_reference_chain_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Specific Chain"));
+  superpose_reference_chain_checkbutton = gtk_check_button_new_with_mnemonic ("Use Specific Chain");
   gtk_widget_show (superpose_reference_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox144), superpose_reference_chain_checkbutton, FALSE, FALSE, 0);
 
@@ -9995,7 +10059,7 @@ create_superpose_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (superpose_reference_chain_optionmenu), convertwidget56);
 
-  label304 = gtk_label_new (_("Reference Structure"));
+  label304 = gtk_label_new ("Reference Structure");
   gtk_widget_show (label304);
   gtk_frame_set_label_widget (GTK_FRAME (frame98), label304);
 
@@ -10029,7 +10093,7 @@ create_superpose_dialog (void)
   gtk_widget_show (vbox145);
   gtk_container_add (GTK_CONTAINER (superpose_moving_structure_frame), vbox145);
 
-  superpose_moving_chain_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Specific Chain"));
+  superpose_moving_chain_checkbutton = gtk_check_button_new_with_mnemonic ("Use Specific Chain");
   gtk_widget_show (superpose_moving_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox145), superpose_moving_chain_checkbutton, FALSE, FALSE, 0);
 
@@ -10041,11 +10105,11 @@ create_superpose_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (superpose_moving_chain_optionmenu), convertwidget58);
 
-  label305 = gtk_label_new (_("Moving Structure"));
+  label305 = gtk_label_new ("Moving Structure");
   gtk_widget_show (label305);
   gtk_frame_set_label_widget (GTK_FRAME (frame99), label305);
 
-  superpose_dialog_move_copy_checkbutton = gtk_check_button_new_with_mnemonic (_("Move copy of Moving Structure"));
+  superpose_dialog_move_copy_checkbutton = gtk_check_button_new_with_mnemonic ("Move copy of Moving Structure");
   gtk_widget_show (superpose_dialog_move_copy_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox109), superpose_dialog_move_copy_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (superpose_dialog_move_copy_checkbutton), 4);
@@ -10058,13 +10122,13 @@ create_superpose_dialog (void)
   gtk_widget_show (hbox83);
   gtk_container_add (GTK_CONTAINER (dialog_action_area49), hbox83);
 
-  superpose_dialog_superpose_button = gtk_button_new_with_mnemonic (_("  Superpose  "));
+  superpose_dialog_superpose_button = gtk_button_new_with_mnemonic ("  Superpose  ");
   gtk_widget_show (superpose_dialog_superpose_button);
   gtk_box_pack_start (GTK_BOX (hbox83), superpose_dialog_superpose_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (superpose_dialog_superpose_button), 2);
   GTK_WIDGET_SET_FLAGS (superpose_dialog_superpose_button, GTK_CAN_DEFAULT);
 
-  superpose_dialog_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  superpose_dialog_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (superpose_dialog_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox83), superpose_dialog_cancel_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (superpose_dialog_cancel_button), 2);
@@ -10133,7 +10197,7 @@ create_superpose_nonsense_dialog (void)
   GtkWidget *superpose_nonsense_cancel_button;
 
   superpose_nonsense_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (superpose_nonsense_dialog), _("Nonsense!"));
+  gtk_window_set_title (GTK_WINDOW (superpose_nonsense_dialog), "Nonsense!");
   gtk_window_set_type_hint (GTK_WINDOW (superpose_nonsense_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox50 = GTK_DIALOG (superpose_nonsense_dialog)->vbox;
@@ -10144,7 +10208,7 @@ create_superpose_nonsense_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox50), frame100, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame100), 6);
 
-  label161 = gtk_label_new (_("Can't superpose a molecule onto itself.\n\nMove a copy?"));
+  label161 = gtk_label_new ("Can't superpose a molecule onto itself.\n\nMove a copy?");
   gtk_widget_show (label161);
   gtk_container_add (GTK_CONTAINER (frame100), label161);
   gtk_misc_set_padding (GTK_MISC (label161), 10, 20);
@@ -10157,12 +10221,12 @@ create_superpose_nonsense_dialog (void)
   gtk_widget_show (hbox149);
   gtk_container_add (GTK_CONTAINER (dialog_action_area50), hbox149);
 
-  superpose_nonsense_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  superpose_nonsense_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (superpose_nonsense_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox149), superpose_nonsense_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (superpose_nonsense_ok_button, GTK_CAN_DEFAULT);
 
-  superpose_nonsense_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  superpose_nonsense_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (superpose_nonsense_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox149), superpose_nonsense_cancel_button, TRUE, TRUE, 0);
 
@@ -10199,7 +10263,7 @@ create_add_terminal_residue_finds_none_dialog (void)
   GtkWidget *add_terminal_residue_finds_none_ok_button;
 
   add_terminal_residue_finds_none_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (add_terminal_residue_finds_none_dialog), _("No Acceptable Terminal Residue "));
+  gtk_window_set_title (GTK_WINDOW (add_terminal_residue_finds_none_dialog), "No Acceptable Terminal Residue ");
   gtk_window_set_type_hint (GTK_WINDOW (add_terminal_residue_finds_none_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox51 = GTK_DIALOG (add_terminal_residue_finds_none_dialog)->vbox;
@@ -10210,7 +10274,7 @@ create_add_terminal_residue_finds_none_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox51), frame101, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame101), 6);
 
-  label162 = gtk_label_new (_("  Add Terminal Residue failed to find \nany acceptable configuration here."));
+  label162 = gtk_label_new ("  Add Terminal Residue failed to find \nany acceptable configuration here.");
   gtk_widget_show (label162);
   gtk_container_add (GTK_CONTAINER (frame101), label162);
   gtk_label_set_justify (GTK_LABEL (label162), GTK_JUSTIFY_CENTER);
@@ -10220,7 +10284,7 @@ create_add_terminal_residue_finds_none_dialog (void)
   gtk_widget_show (dialog_action_area51);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area51), GTK_BUTTONBOX_END);
 
-  add_terminal_residue_finds_none_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  add_terminal_residue_finds_none_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (add_terminal_residue_finds_none_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (add_terminal_residue_finds_none_dialog), add_terminal_residue_finds_none_ok_button, 0);
 
@@ -10251,7 +10315,7 @@ create_no_bad_chiral_volumes_dialog (void)
 
   no_bad_chiral_volumes_dialog = gtk_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (no_bad_chiral_volumes_dialog), 2);
-  gtk_window_set_title (GTK_WINDOW (no_bad_chiral_volumes_dialog), _("Clean!"));
+  gtk_window_set_title (GTK_WINDOW (no_bad_chiral_volumes_dialog), "Clean!");
   gtk_window_set_type_hint (GTK_WINDOW (no_bad_chiral_volumes_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox52 = GTK_DIALOG (no_bad_chiral_volumes_dialog)->vbox;
@@ -10262,7 +10326,7 @@ create_no_bad_chiral_volumes_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox52), frame105, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame105), 4);
 
-  label170 = gtk_label_new (_("Coot detected no bad chiral volumes\nin this molecule."));
+  label170 = gtk_label_new ("Coot detected no bad chiral volumes\nin this molecule.");
   gtk_widget_show (label170);
   gtk_container_add (GTK_CONTAINER (frame105), label170);
   gtk_label_set_justify (GTK_LABEL (label170), GTK_JUSTIFY_CENTER);
@@ -10272,7 +10336,7 @@ create_no_bad_chiral_volumes_dialog (void)
   gtk_widget_show (dialog_action_area52);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area52), GTK_BUTTONBOX_END);
 
-  no_bad_chiral_volumes_dialog_ok_button = gtk_button_new_with_mnemonic (_("   Good   "));
+  no_bad_chiral_volumes_dialog_ok_button = gtk_button_new_with_mnemonic ("   Good   ");
   gtk_widget_show (no_bad_chiral_volumes_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (no_bad_chiral_volumes_dialog), no_bad_chiral_volumes_dialog_ok_button, 0);
 
@@ -10307,7 +10371,7 @@ create_check_chiral_volumes_dialog (void)
   GtkWidget *check_chiral_volumes_cancel_button;
 
   check_chiral_volumes_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (check_chiral_volumes_dialog), _("Check Chiral Volumes molecule chooser:"));
+  gtk_window_set_title (GTK_WINDOW (check_chiral_volumes_dialog), "Check Chiral Volumes molecule chooser:");
   gtk_window_set_type_hint (GTK_WINDOW (check_chiral_volumes_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox53 = GTK_DIALOG (check_chiral_volumes_dialog)->vbox;
@@ -10322,7 +10386,7 @@ create_check_chiral_volumes_dialog (void)
   gtk_widget_show (vbox111);
   gtk_container_add (GTK_CONTAINER (frame106), vbox111);
 
-  label171 = gtk_label_new (_("Check Chiral Volumes on molecule:"));
+  label171 = gtk_label_new ("Check Chiral Volumes on molecule:");
   gtk_widget_show (label171);
   gtk_box_pack_start (GTK_BOX (vbox111), label171, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label171), GTK_JUSTIFY_CENTER);
@@ -10344,13 +10408,13 @@ create_check_chiral_volumes_dialog (void)
   gtk_widget_show (hbox85);
   gtk_container_add (GTK_CONTAINER (dialog_action_area53), hbox85);
 
-  check_chiral_volumes_ok_button = gtk_button_new_with_mnemonic (_("   Check Volumes   "));
+  check_chiral_volumes_ok_button = gtk_button_new_with_mnemonic ("   Check Volumes   ");
   gtk_widget_show (check_chiral_volumes_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox85), check_chiral_volumes_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_chiral_volumes_ok_button), 4);
   GTK_WIDGET_SET_FLAGS (check_chiral_volumes_ok_button, GTK_CAN_DEFAULT);
 
-  check_chiral_volumes_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  check_chiral_volumes_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (check_chiral_volumes_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox85), check_chiral_volumes_cancel_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_chiral_volumes_cancel_button), 4);
@@ -10393,7 +10457,7 @@ create_bad_chiral_volumes_dialog (void)
   GtkWidget *chiral_volume_baddies_dialog_cancel_button;
 
   bad_chiral_volumes_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (bad_chiral_volumes_dialog), _("Chiral Volume Baddies:"));
+  gtk_window_set_title (GTK_WINDOW (bad_chiral_volumes_dialog), "Chiral Volume Baddies:");
   gtk_window_set_type_hint (GTK_WINDOW (bad_chiral_volumes_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox54 = GTK_DIALOG (bad_chiral_volumes_dialog)->vbox;
@@ -10416,7 +10480,7 @@ create_bad_chiral_volumes_dialog (void)
   gtk_widget_show (dialog_action_area54);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area54), GTK_BUTTONBOX_END);
 
-  chiral_volume_baddies_dialog_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  chiral_volume_baddies_dialog_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (chiral_volume_baddies_dialog_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (bad_chiral_volumes_dialog), chiral_volume_baddies_dialog_cancel_button, 0);
   GTK_WIDGET_SET_FLAGS (chiral_volume_baddies_dialog_cancel_button, GTK_CAN_DEFAULT);
@@ -10451,7 +10515,7 @@ create_rigid_body_refinement_failed_dialog (void)
 
   rigid_body_refinement_failed_dialog = gtk_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (rigid_body_refinement_failed_dialog), 4);
-  gtk_window_set_title (GTK_WINDOW (rigid_body_refinement_failed_dialog), _("Rigid Body Refine Failed!"));
+  gtk_window_set_title (GTK_WINDOW (rigid_body_refinement_failed_dialog), "Rigid Body Refine Failed!");
   gtk_window_set_type_hint (GTK_WINDOW (rigid_body_refinement_failed_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox55 = GTK_DIALOG (rigid_body_refinement_failed_dialog)->vbox;
@@ -10461,7 +10525,7 @@ create_rigid_body_refinement_failed_dialog (void)
   gtk_widget_show (frame107);
   gtk_box_pack_start (GTK_BOX (dialog_vbox55), frame107, TRUE, TRUE, 0);
 
-  label172 = gtk_label_new (_("\nRigid Body Refinement failed.\nNo sensible place to put the atoms.\n\nSorry.\n"));
+  label172 = gtk_label_new ("\nRigid Body Refinement failed.\nNo sensible place to put the atoms.\n\nSorry.\n");
   gtk_widget_show (label172);
   gtk_container_add (GTK_CONTAINER (frame107), label172);
   gtk_label_set_justify (GTK_LABEL (label172), GTK_JUSTIFY_CENTER);
@@ -10471,7 +10535,7 @@ create_rigid_body_refinement_failed_dialog (void)
   gtk_widget_show (dialog_action_area55);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area55), GTK_BUTTONBOX_END);
 
-  rigid_body_refinement_failed_dialog_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  rigid_body_refinement_failed_dialog_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (rigid_body_refinement_failed_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (rigid_body_refinement_failed_dialog), rigid_body_refinement_failed_dialog_ok_button, 0);
 
@@ -10502,13 +10566,13 @@ create_baton_mode_make_skeleton_dialog (void)
   GtkWidget *baton_mode_calculate_skeleton_cancel_button;
 
   baton_mode_make_skeleton_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (baton_mode_make_skeleton_dialog), _("Make Skeleton?"));
+  gtk_window_set_title (GTK_WINDOW (baton_mode_make_skeleton_dialog), "Make Skeleton?");
   gtk_window_set_type_hint (GTK_WINDOW (baton_mode_make_skeleton_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox56 = GTK_DIALOG (baton_mode_make_skeleton_dialog)->vbox;
   gtk_widget_show (dialog_vbox56);
 
-  label173 = gtk_label_new (_("\n\nThere is no skeleton for this map.\n\nCalculate a skeleton now?\n\n"));
+  label173 = gtk_label_new ("\n\nThere is no skeleton for this map.\n\nCalculate a skeleton now?\n\n");
   gtk_widget_show (label173);
   gtk_box_pack_start (GTK_BOX (dialog_vbox56), label173, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label173), GTK_JUSTIFY_CENTER);
@@ -10522,13 +10586,13 @@ create_baton_mode_make_skeleton_dialog (void)
   gtk_widget_show (hbox86);
   gtk_container_add (GTK_CONTAINER (dialog_action_area56), hbox86);
 
-  baton_mode_calculate_skeleton_ok_button = gtk_button_new_with_mnemonic (_("   Calculate   "));
+  baton_mode_calculate_skeleton_ok_button = gtk_button_new_with_mnemonic ("   Calculate   ");
   gtk_widget_show (baton_mode_calculate_skeleton_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox86), baton_mode_calculate_skeleton_ok_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_mode_calculate_skeleton_ok_button), 2);
   GTK_WIDGET_SET_FLAGS (baton_mode_calculate_skeleton_ok_button, GTK_CAN_DEFAULT);
 
-  baton_mode_calculate_skeleton_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  baton_mode_calculate_skeleton_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (baton_mode_calculate_skeleton_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox86), baton_mode_calculate_skeleton_cancel_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_mode_calculate_skeleton_cancel_button), 2);
@@ -10576,7 +10640,7 @@ create_merge_molecules_dialog (void)
   GtkWidget *merge_molecules_cancel_button;
 
   merge_molecules_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (merge_molecules_dialog), _("Merge Molecules"));
+  gtk_window_set_title (GTK_WINDOW (merge_molecules_dialog), "Merge Molecules");
   gtk_window_set_type_hint (GTK_WINDOW (merge_molecules_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox57 = GTK_DIALOG (merge_molecules_dialog)->vbox;
@@ -10591,7 +10655,7 @@ create_merge_molecules_dialog (void)
   gtk_widget_show (vbox114);
   gtk_container_add (GTK_CONTAINER (frame109), vbox114);
 
-  label178 = gtk_label_new (_("\nAppend/Insert Molecule(s):\n"));
+  label178 = gtk_label_new ("\nAppend/Insert Molecule(s):\n");
   gtk_widget_show (label178);
   gtk_box_pack_start (GTK_BOX (vbox114), label178, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label178), GTK_JUSTIFY_CENTER);
@@ -10609,7 +10673,7 @@ create_merge_molecules_dialog (void)
   gtk_widget_show (merge_molecules_vbox);
   gtk_container_add (GTK_CONTAINER (viewport7), merge_molecules_vbox);
 
-  label179 = gtk_label_new (_("\ninto Molecule:\n"));
+  label179 = gtk_label_new ("\ninto Molecule:\n");
   gtk_widget_show (label179);
   gtk_box_pack_start (GTK_BOX (vbox114), label179, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label179), GTK_JUSTIFY_CENTER);
@@ -10622,7 +10686,7 @@ create_merge_molecules_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (merge_molecules_optionmenu), convertwidget64);
 
-  label180 = gtk_label_new (_(" "));
+  label180 = gtk_label_new (" ");
   gtk_widget_show (label180);
   gtk_box_pack_start (GTK_BOX (vbox114), label180, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label180), GTK_JUSTIFY_CENTER);
@@ -10635,11 +10699,11 @@ create_merge_molecules_dialog (void)
   gtk_widget_show (hbox89);
   gtk_container_add (GTK_CONTAINER (dialog_action_area57), hbox89);
 
-  merge_molecules_ok_button = gtk_button_new_with_mnemonic (_("   Merge   "));
+  merge_molecules_ok_button = gtk_button_new_with_mnemonic ("   Merge   ");
   gtk_widget_show (merge_molecules_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox89), merge_molecules_ok_button, TRUE, FALSE, 0);
 
-  merge_molecules_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  merge_molecules_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (merge_molecules_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox89), merge_molecules_cancel_button, TRUE, FALSE, 0);
 
@@ -10707,7 +10771,7 @@ create_mutate_sequence_dialog (void)
   GtkWidget *mutate_sequence_cancel_button;
 
   mutate_sequence_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (mutate_sequence_dialog), _("Mutate sequence"));
+  gtk_window_set_title (GTK_WINDOW (mutate_sequence_dialog), "Mutate sequence");
   gtk_window_set_type_hint (GTK_WINDOW (mutate_sequence_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox58 = GTK_DIALOG (mutate_sequence_dialog)->vbox;
@@ -10722,7 +10786,7 @@ create_mutate_sequence_dialog (void)
   gtk_widget_show (vbox116);
   gtk_container_add (GTK_CONTAINER (frame110), vbox116);
 
-  function_for_molecule_label = gtk_label_new (_("\n   Mutate Molecule:\n"));
+  function_for_molecule_label = gtk_label_new ("\n   Mutate Molecule:\n");
   gtk_widget_show (function_for_molecule_label);
   gtk_box_pack_start (GTK_BOX (vbox116), function_for_molecule_label, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (function_for_molecule_label), GTK_JUSTIFY_CENTER);
@@ -10742,7 +10806,7 @@ create_mutate_sequence_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox116), hbox90, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox90), 2);
 
-  label182 = gtk_label_new (_("  Chain ID: "));
+  label182 = gtk_label_new ("  Chain ID: ");
   gtk_widget_show (label182);
   gtk_box_pack_start (GTK_BOX (hbox90), label182, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label182), GTK_JUSTIFY_CENTER);
@@ -10760,7 +10824,7 @@ create_mutate_sequence_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox116), hbox91, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox91), 2);
 
-  label183 = gtk_label_new (_("  Residue numbers "));
+  label183 = gtk_label_new ("  Residue numbers ");
   gtk_widget_show (label183);
   gtk_box_pack_start (GTK_BOX (hbox91), label183, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label183), GTK_JUSTIFY_CENTER);
@@ -10768,8 +10832,9 @@ create_mutate_sequence_dialog (void)
   mutate_molecule_resno_1_entry = gtk_entry_new ();
   gtk_widget_show (mutate_molecule_resno_1_entry);
   gtk_box_pack_start (GTK_BOX (hbox91), mutate_molecule_resno_1_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (mutate_molecule_resno_1_entry), 9679);
 
-  label184 = gtk_label_new (_("   to   "));
+  label184 = gtk_label_new ("   to   ");
   gtk_widget_show (label184);
   gtk_box_pack_start (GTK_BOX (hbox91), label184, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label184), GTK_JUSTIFY_CENTER);
@@ -10777,8 +10842,9 @@ create_mutate_sequence_dialog (void)
   mutate_molecule_resno_2_entry = gtk_entry_new ();
   gtk_widget_show (mutate_molecule_resno_2_entry);
   gtk_box_pack_start (GTK_BOX (hbox91), mutate_molecule_resno_2_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (mutate_molecule_resno_2_entry), 9679);
 
-  label185 = gtk_label_new (_("  (inclusive)   "));
+  label185 = gtk_label_new ("  (inclusive)   ");
   gtk_widget_show (label185);
   gtk_box_pack_start (GTK_BOX (hbox91), label185, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label185), GTK_JUSTIFY_CENTER);
@@ -10791,16 +10857,16 @@ create_mutate_sequence_dialog (void)
   gtk_widget_show (vbox159);
   gtk_container_add (GTK_CONTAINER (loop_fit_method_frame), vbox159);
 
-  label245 = gtk_label_new (_("Successive Peptides by Ramachandran \nsearch (this may not work well)"));
+  label245 = gtk_label_new ("Successive Peptides by Ramachandran \nsearch (this may not work well)");
   gtk_widget_show (label245);
   gtk_box_pack_start (GTK_BOX (vbox159), label245, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label245), GTK_JUSTIFY_CENTER);
 
-  label306 = gtk_label_new (_("Using Method:"));
+  label306 = gtk_label_new ("Using Method:");
   gtk_widget_show (label306);
   gtk_frame_set_label_widget (GTK_FRAME (loop_fit_method_frame), label306);
 
-  label186 = gtk_label_new (_("\n   to (single letter) sequence:\n"));
+  label186 = gtk_label_new ("\n   to (single letter) sequence:\n");
   gtk_widget_show (label186);
   gtk_box_pack_start (GTK_BOX (vbox116), label186, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label186), GTK_JUSTIFY_CENTER);
@@ -10824,7 +10890,7 @@ create_mutate_sequence_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox116), label187, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label187), GTK_JUSTIFY_CENTER);
 
-  mutate_sequence_do_autofit_checkbutton = gtk_check_button_new_with_mnemonic (_(" Autofit the mutated residues?"));
+  mutate_sequence_do_autofit_checkbutton = gtk_check_button_new_with_mnemonic (" Autofit the mutated residues?");
   gtk_widget_show (mutate_sequence_do_autofit_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox116), mutate_sequence_do_autofit_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (mutate_sequence_do_autofit_checkbutton), 4);
@@ -10837,14 +10903,14 @@ create_mutate_sequence_dialog (void)
   gtk_widget_show (hbox92);
   gtk_container_add (GTK_CONTAINER (dialog_action_area58), hbox92);
 
-  mutate_sequence_ok_button = gtk_button_new_with_mnemonic (_("   Mutate   "));
+  mutate_sequence_ok_button = gtk_button_new_with_mnemonic ("   Mutate   ");
   gtk_widget_show (mutate_sequence_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox92), mutate_sequence_ok_button, TRUE, FALSE, 0);
 
-  fit_loop_ok_button = gtk_button_new_with_mnemonic (_("  Fit Loop  "));
+  fit_loop_ok_button = gtk_button_new_with_mnemonic ("  Fit Loop  ");
   gtk_box_pack_start (GTK_BOX (hbox92), fit_loop_ok_button, TRUE, FALSE, 0);
 
-  mutate_sequence_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  mutate_sequence_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (mutate_sequence_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox92), mutate_sequence_cancel_button, TRUE, FALSE, 0);
 
@@ -10937,7 +11003,7 @@ create_bond_parameters_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   bond_parameters_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (bond_parameters_dialog), _("Bond Parameters"));
+  gtk_window_set_title (GTK_WINDOW (bond_parameters_dialog), "Bond Parameters");
   gtk_window_set_type_hint (GTK_WINDOW (bond_parameters_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox59 = GTK_DIALOG (bond_parameters_dialog)->vbox;
@@ -10952,7 +11018,7 @@ create_bond_parameters_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox117), hbox93, TRUE, TRUE, 5);
   gtk_container_set_border_width (GTK_CONTAINER (hbox93), 6);
 
-  label189 = gtk_label_new (_("  Molecule:  "));
+  label189 = gtk_label_new ("  Molecule:  ");
   gtk_widget_show (label189);
   gtk_box_pack_start (GTK_BOX (hbox93), label189, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label189), GTK_JUSTIFY_CENTER);
@@ -10965,7 +11031,7 @@ create_bond_parameters_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (bond_parameters_molecule_optionmenu), convertwidget69);
 
-  label190 = gtk_label_new (_("   "));
+  label190 = gtk_label_new ("   ");
   gtk_widget_show (label190);
   gtk_box_pack_start (GTK_BOX (hbox93), label190, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label190), GTK_JUSTIFY_CENTER);
@@ -10991,12 +11057,12 @@ create_bond_parameters_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (bond_parameters_bond_width_optionmenu), convertwidget70);
 
-  label191 = gtk_label_new (_("  pixels  "));
+  label191 = gtk_label_new ("  pixels  ");
   gtk_widget_show (label191);
   gtk_box_pack_start (GTK_BOX (hbox94), label191, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label191), GTK_JUSTIFY_CENTER);
 
-  label307 = gtk_label_new (_("Molecule Bond Width:"));
+  label307 = gtk_label_new ("Molecule Bond Width:");
   gtk_widget_show (label307);
   gtk_frame_set_label_widget (GTK_FRAME (frame111), label307);
 
@@ -11009,19 +11075,19 @@ create_bond_parameters_dialog (void)
   gtk_widget_show (vbox119);
   gtk_container_add (GTK_CONTAINER (frame112), vbox119);
 
-  draw_hydrogens_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  draw_hydrogens_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (draw_hydrogens_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox119), draw_hydrogens_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (draw_hydrogens_yes_radiobutton), draw_hydrogens_yes_radiobutton_group);
   draw_hydrogens_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (draw_hydrogens_yes_radiobutton));
 
-  draw_hydrogens_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  draw_hydrogens_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (draw_hydrogens_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox119), draw_hydrogens_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (draw_hydrogens_no_radiobutton), draw_hydrogens_yes_radiobutton_group);
   draw_hydrogens_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (draw_hydrogens_no_radiobutton));
 
-  label308 = gtk_label_new (_("Draw Hydrogens?"));
+  label308 = gtk_label_new ("Draw Hydrogens?");
   gtk_widget_show (label308);
   gtk_frame_set_label_widget (GTK_FRAME (frame112), label308);
 
@@ -11034,21 +11100,21 @@ create_bond_parameters_dialog (void)
   gtk_widget_show (vbox146);
   gtk_container_add (GTK_CONTAINER (ncs_frame), vbox146);
 
-  draw_ncs_ghosts_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  draw_ncs_ghosts_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (draw_ncs_ghosts_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox146), draw_ncs_ghosts_yes_radiobutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, draw_ncs_ghosts_yes_radiobutton, _("Note that the sequences must match exactly for NCS ghosts to be generated"), NULL);
+  gtk_tooltips_set_tip (tooltips, draw_ncs_ghosts_yes_radiobutton, "Note that the sequences must match exactly for NCS ghosts to be generated", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (draw_ncs_ghosts_yes_radiobutton), draw_ncs_ghosts_yes_radiobutton_group);
   draw_ncs_ghosts_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (draw_ncs_ghosts_yes_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (draw_ncs_ghosts_yes_radiobutton), TRUE);
 
-  draw_ncs_ghosts_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  draw_ncs_ghosts_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (draw_ncs_ghosts_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox146), draw_ncs_ghosts_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (draw_ncs_ghosts_no_radiobutton), draw_ncs_ghosts_yes_radiobutton_group);
   draw_ncs_ghosts_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (draw_ncs_ghosts_no_radiobutton));
 
-  label309 = gtk_label_new (_("Draw Non-Crystallographic Ghosts?"));
+  label309 = gtk_label_new ("Draw Non-Crystallographic Ghosts?");
   gtk_widget_show (label309);
   gtk_frame_set_label_widget (GTK_FRAME (ncs_frame), label309);
 
@@ -11060,17 +11126,17 @@ create_bond_parameters_dialog (void)
   gtk_widget_show (hbox105);
   gtk_container_add (GTK_CONTAINER (dialog_action_area59), hbox105);
 
-  bond_parameters_apply_button = gtk_button_new_with_mnemonic (_("  Apply  "));
+  bond_parameters_apply_button = gtk_button_new_with_mnemonic ("  Apply  ");
   gtk_widget_show (bond_parameters_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox105), bond_parameters_apply_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (bond_parameters_apply_button), 4);
 
-  bond_parameters_ok_button = gtk_button_new_with_mnemonic (_("       OK       "));
+  bond_parameters_ok_button = gtk_button_new_with_mnemonic ("       OK       ");
   gtk_widget_show (bond_parameters_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox105), bond_parameters_ok_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (bond_parameters_ok_button), 4);
 
-  bond_parameters_cancel_button = gtk_button_new_with_mnemonic (_("  Close  "));
+  bond_parameters_cancel_button = gtk_button_new_with_mnemonic ("  Close  ");
   gtk_widget_show (bond_parameters_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox105), bond_parameters_cancel_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (bond_parameters_cancel_button), 4);
@@ -11165,7 +11231,7 @@ create_renumber_residue_range_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   renumber_residue_range_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (renumber_residue_range_dialog), _("Renumber Residue Range"));
+  gtk_window_set_title (GTK_WINDOW (renumber_residue_range_dialog), "Renumber Residue Range");
   gtk_window_set_type_hint (GTK_WINDOW (renumber_residue_range_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox60 = GTK_DIALOG (renumber_residue_range_dialog)->vbox;
@@ -11180,7 +11246,7 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (vbox120);
   gtk_container_add (GTK_CONTAINER (frame113), vbox120);
 
-  label192 = gtk_label_new (_("Renumber Residue Range of Molecule:"));
+  label192 = gtk_label_new ("Renumber Residue Range of Molecule:");
   gtk_widget_show (label192);
   gtk_box_pack_start (GTK_BOX (vbox120), label192, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label192), GTK_JUSTIFY_CENTER);
@@ -11200,7 +11266,7 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (hbox95);
   gtk_box_pack_start (GTK_BOX (vbox120), hbox95, TRUE, TRUE, 0);
 
-  label193 = gtk_label_new (_("  Chain ID:  "));
+  label193 = gtk_label_new ("  Chain ID:  ");
   gtk_widget_show (label193);
   gtk_box_pack_start (GTK_BOX (hbox95), label193, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label193), GTK_JUSTIFY_CENTER);
@@ -11217,7 +11283,7 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (hbox96);
   gtk_box_pack_start (GTK_BOX (vbox120), hbox96, TRUE, TRUE, 0);
 
-  label194 = gtk_label_new (_("  Residue numbers:  "));
+  label194 = gtk_label_new ("  Residue numbers:  ");
   gtk_widget_show (label194);
   gtk_box_pack_start (GTK_BOX (hbox96), label194, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label194), GTK_JUSTIFY_CENTER);
@@ -11225,8 +11291,9 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_resno_1_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_resno_1_entry);
   gtk_box_pack_start (GTK_BOX (hbox96), renumber_residue_range_resno_1_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (renumber_residue_range_resno_1_entry), 9679);
 
-  label195 = gtk_label_new (_("  to  "));
+  label195 = gtk_label_new ("  to  ");
   gtk_widget_show (label195);
   gtk_box_pack_start (GTK_BOX (hbox96), label195, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label195), GTK_JUSTIFY_CENTER);
@@ -11234,8 +11301,9 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_resno_2_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_resno_2_entry);
   gtk_box_pack_start (GTK_BOX (hbox96), renumber_residue_range_resno_2_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (renumber_residue_range_resno_2_entry), 9679);
 
-  label196 = gtk_label_new (_("  (inclusive)  "));
+  label196 = gtk_label_new ("  (inclusive)  ");
   gtk_widget_show (label196);
   gtk_box_pack_start (GTK_BOX (hbox96), label196, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label196), GTK_JUSTIFY_CENTER);
@@ -11244,7 +11312,7 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (hbox97);
   gtk_box_pack_start (GTK_BOX (vbox120), hbox97, TRUE, TRUE, 0);
 
-  label197 = gtk_label_new (_("  Offset:  "));
+  label197 = gtk_label_new ("  Offset:  ");
   gtk_widget_show (label197);
   gtk_box_pack_start (GTK_BOX (hbox97), label197, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label197), GTK_JUSTIFY_CENTER);
@@ -11252,7 +11320,8 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_offset_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_offset_entry);
   gtk_box_pack_start (GTK_BOX (hbox97), renumber_residue_range_offset_entry, FALSE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, renumber_residue_range_offset_entry, _("e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36"), NULL);
+  gtk_tooltips_set_tip (tooltips, renumber_residue_range_offset_entry, "e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36", NULL);
+  gtk_entry_set_invisible_char (GTK_ENTRY (renumber_residue_range_offset_entry), 9679);
 
   dialog_action_area60 = GTK_DIALOG (renumber_residue_range_dialog)->action_area;
   gtk_widget_show (dialog_action_area60);
@@ -11262,11 +11331,11 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (hbox98);
   gtk_container_add (GTK_CONTAINER (dialog_action_area60), hbox98);
 
-  renumber_residue_range_ok_button = gtk_button_new_with_mnemonic (_("  Renumber  "));
+  renumber_residue_range_ok_button = gtk_button_new_with_mnemonic ("  Renumber  ");
   gtk_widget_show (renumber_residue_range_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox98), renumber_residue_range_ok_button, FALSE, TRUE, 20);
 
-  renumber_residue_range_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  renumber_residue_range_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (renumber_residue_range_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox98), renumber_residue_range_cancel_button, FALSE, TRUE, 20);
 
@@ -11337,7 +11406,7 @@ create_add_OXT_dialog (void)
   GtkWidget *add_OXT_cancel_button;
 
   add_OXT_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (add_OXT_dialog), _("add OXT to chain"));
+  gtk_window_set_title (GTK_WINDOW (add_OXT_dialog), "add OXT to chain");
   gtk_window_set_type_hint (GTK_WINDOW (add_OXT_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox61 = GTK_DIALOG (add_OXT_dialog)->vbox;
@@ -11352,7 +11421,7 @@ create_add_OXT_dialog (void)
   gtk_widget_show (vbox121);
   gtk_container_add (GTK_CONTAINER (frame114), vbox121);
 
-  label198 = gtk_label_new (_("Add OXT to Chain:"));
+  label198 = gtk_label_new ("Add OXT to Chain:");
   gtk_widget_show (label198);
   gtk_box_pack_start (GTK_BOX (vbox121), label198, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label198), GTK_JUSTIFY_CENTER);
@@ -11362,7 +11431,7 @@ create_add_OXT_dialog (void)
   gtk_widget_show (hbox101);
   gtk_box_pack_start (GTK_BOX (vbox121), hbox101, TRUE, TRUE, 0);
 
-  label199 = gtk_label_new (_("  Molecule:  "));
+  label199 = gtk_label_new ("  Molecule:  ");
   gtk_widget_show (label199);
   gtk_box_pack_start (GTK_BOX (hbox101), label199, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label199), GTK_JUSTIFY_CENTER);
@@ -11379,7 +11448,7 @@ create_add_OXT_dialog (void)
   gtk_widget_show (hbox102);
   gtk_box_pack_start (GTK_BOX (vbox121), hbox102, TRUE, TRUE, 0);
 
-  label200 = gtk_label_new (_("  Chain:  "));
+  label200 = gtk_label_new ("  Chain:  ");
   gtk_widget_show (label200);
   gtk_box_pack_start (GTK_BOX (hbox102), label200, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label200), GTK_JUSTIFY_CENTER);
@@ -11405,7 +11474,7 @@ create_add_OXT_dialog (void)
   gtk_widget_show (hbox103);
   gtk_box_pack_start (GTK_BOX (vbox122), hbox103, TRUE, TRUE, 0);
 
-  add_OXT_c_terminus_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("  At C terminus"));
+  add_OXT_c_terminus_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "  At C terminus");
   gtk_widget_show (add_OXT_c_terminus_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox103), add_OXT_c_terminus_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (add_OXT_c_terminus_radiobutton), add_OXT_c_terminus_radiobutton_group);
@@ -11415,7 +11484,7 @@ create_add_OXT_dialog (void)
   gtk_widget_show (add_OXT_residue_hbox);
   gtk_box_pack_start (GTK_BOX (vbox122), add_OXT_residue_hbox, TRUE, TRUE, 0);
 
-  add_OXT_residue_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("At Residue: "));
+  add_OXT_residue_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "At Residue: ");
   gtk_widget_show (add_OXT_residue_radiobutton);
   gtk_box_pack_start (GTK_BOX (add_OXT_residue_hbox), add_OXT_residue_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (add_OXT_residue_radiobutton), add_OXT_c_terminus_radiobutton_group);
@@ -11424,6 +11493,7 @@ create_add_OXT_dialog (void)
   add_OXT_residue_entry = gtk_entry_new ();
   gtk_widget_show (add_OXT_residue_entry);
   gtk_box_pack_start (GTK_BOX (add_OXT_residue_hbox), add_OXT_residue_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (add_OXT_residue_entry), 9679);
 
   dialog_action_area61 = GTK_DIALOG (add_OXT_dialog)->action_area;
   gtk_widget_show (dialog_action_area61);
@@ -11433,11 +11503,11 @@ create_add_OXT_dialog (void)
   gtk_widget_show (hbox99);
   gtk_container_add (GTK_CONTAINER (dialog_action_area61), hbox99);
 
-  add_OXT_ok_button = gtk_button_new_with_mnemonic (_("  Add it  "));
+  add_OXT_ok_button = gtk_button_new_with_mnemonic ("  Add it  ");
   gtk_widget_show (add_OXT_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox99), add_OXT_ok_button, FALSE, TRUE, 8);
 
-  add_OXT_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  add_OXT_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (add_OXT_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox99), add_OXT_cancel_button, FALSE, TRUE, 8);
 
@@ -11495,7 +11565,7 @@ create_ligand_no_blobs_dialog (void)
   GtkWidget *ligand_no_blobs_OK_button;
 
   ligand_no_blobs_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ligand_no_blobs_dialog), _("dialog1"));
+  gtk_window_set_title (GTK_WINDOW (ligand_no_blobs_dialog), "dialog1");
   gtk_window_set_type_hint (GTK_WINDOW (ligand_no_blobs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox62 = GTK_DIALOG (ligand_no_blobs_dialog)->vbox;
@@ -11505,7 +11575,7 @@ create_ligand_no_blobs_dialog (void)
   gtk_widget_show (frame117);
   gtk_box_pack_start (GTK_BOX (dialog_vbox62), frame117, TRUE, TRUE, 0);
 
-  label203 = gtk_label_new (_("\n\n\n     Coot found no unexplained blobs      \n\n\n"));
+  label203 = gtk_label_new ("\n\n\n     Coot found no unexplained blobs      \n\n\n");
   gtk_widget_show (label203);
   gtk_container_add (GTK_CONTAINER (frame117), label203);
   gtk_label_set_justify (GTK_LABEL (label203), GTK_JUSTIFY_CENTER);
@@ -11518,7 +11588,7 @@ create_ligand_no_blobs_dialog (void)
   gtk_widget_show (hbox106);
   gtk_container_add (GTK_CONTAINER (dialog_action_area62), hbox106);
 
-  ligand_no_blobs_OK_button = gtk_button_new_with_mnemonic (_("   OK!   "));
+  ligand_no_blobs_OK_button = gtk_button_new_with_mnemonic ("   OK!   ");
   gtk_widget_show (ligand_no_blobs_OK_button);
   gtk_box_pack_start (GTK_BOX (hbox106), ligand_no_blobs_OK_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (ligand_no_blobs_OK_button, GTK_CAN_DEFAULT);
@@ -11561,7 +11631,7 @@ create_new_close_molecules_dialog (void)
 
   new_close_molecules_dialog = gtk_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (new_close_molecules_dialog), 2);
-  gtk_window_set_title (GTK_WINDOW (new_close_molecules_dialog), _("Delete Molecules:"));
+  gtk_window_set_title (GTK_WINDOW (new_close_molecules_dialog), "Delete Molecules:");
   gtk_window_set_type_hint (GTK_WINDOW (new_close_molecules_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox67 = GTK_DIALOG (new_close_molecules_dialog)->vbox;
@@ -11580,12 +11650,12 @@ create_new_close_molecules_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox126), hbox107, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox107), 3);
 
-  label209 = gtk_label_new (_("      Delete?    "));
+  label209 = gtk_label_new ("      Delete?    ");
   gtk_widget_show (label209);
   gtk_box_pack_start (GTK_BOX (hbox107), label209, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label209), GTK_JUSTIFY_CENTER);
 
-  label210 = gtk_label_new (_("     Name"));
+  label210 = gtk_label_new ("     Name");
   gtk_widget_show (label210);
   gtk_box_pack_start (GTK_BOX (hbox107), label210, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label210), GTK_JUSTIFY_CENTER);
@@ -11611,12 +11681,12 @@ create_new_close_molecules_dialog (void)
   gtk_widget_show (hbox108);
   gtk_container_add (GTK_CONTAINER (dialog_action_area67), hbox108);
 
-  new_delete_molecules_ok_button = gtk_button_new_with_mnemonic (_("  Delete Marked Molecules & Maps  "));
+  new_delete_molecules_ok_button = gtk_button_new_with_mnemonic ("  Delete Marked Molecules & Maps  ");
   gtk_widget_show (new_delete_molecules_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox108), new_delete_molecules_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (new_delete_molecules_ok_button), 4);
 
-  new_delete_molecules_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  new_delete_molecules_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (new_delete_molecules_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox108), new_delete_molecules_cancel_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (new_delete_molecules_cancel_button), 4);
@@ -11675,7 +11745,7 @@ create_unmodelled_blobs_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   unmodelled_blobs_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (unmodelled_blobs_dialog), _("Find Unmodelled Blobs of density"));
+  gtk_window_set_title (GTK_WINDOW (unmodelled_blobs_dialog), "Find Unmodelled Blobs of density");
   gtk_window_set_type_hint (GTK_WINDOW (unmodelled_blobs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox68 = GTK_DIALOG (unmodelled_blobs_dialog)->vbox;
@@ -11699,7 +11769,7 @@ create_unmodelled_blobs_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame122), find_blobs_map_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (find_blobs_map_vbox), 3);
 
-  label211 = gtk_label_new (_("Select Map:"));
+  label211 = gtk_label_new ("Select Map:");
   gtk_widget_show (label211);
   gtk_box_pack_start (GTK_BOX (find_blobs_map_vbox), label211, FALSE, FALSE, 0);
 
@@ -11713,7 +11783,7 @@ create_unmodelled_blobs_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame123), find_blobs_protein_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (find_blobs_protein_vbox), 3);
 
-  label212 = gtk_label_new (_("Select Protein Model:"));
+  label212 = gtk_label_new ("Select Protein Model:");
   gtk_widget_show (label212);
   gtk_box_pack_start (GTK_BOX (find_blobs_protein_vbox), label212, FALSE, FALSE, 0);
 
@@ -11727,7 +11797,7 @@ create_unmodelled_blobs_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame124), vbox131);
   gtk_container_set_border_width (GTK_CONTAINER (vbox131), 3);
 
-  label213 = gtk_label_new (_("Find Blobs above:"));
+  label213 = gtk_label_new ("Find Blobs above:");
   gtk_widget_show (label213);
   gtk_box_pack_start (GTK_BOX (vbox131), label213, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label213), GTK_JUSTIFY_CENTER);
@@ -11739,9 +11809,10 @@ create_unmodelled_blobs_dialog (void)
   find_blobs_peak_level_entry = gtk_entry_new ();
   gtk_widget_show (find_blobs_peak_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox111), find_blobs_peak_level_entry, FALSE, TRUE, 6);
-  gtk_tooltips_set_tip (tooltips, find_blobs_peak_level_entry, _("Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map."), NULL);
+  gtk_tooltips_set_tip (tooltips, find_blobs_peak_level_entry, "Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map.", NULL);
+  gtk_entry_set_invisible_char (GTK_ENTRY (find_blobs_peak_level_entry), 9679);
 
-  label214 = gtk_label_new (_(" sigma "));
+  label214 = gtk_label_new (" sigma ");
   gtk_widget_show (label214);
   gtk_box_pack_start (GTK_BOX (hbox111), label214, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label214), GTK_JUSTIFY_CENTER);
@@ -11754,12 +11825,12 @@ create_unmodelled_blobs_dialog (void)
   gtk_widget_show (hbox110);
   gtk_container_add (GTK_CONTAINER (hbox109), hbox110);
 
-  find_blobs_ok_button = gtk_button_new_with_mnemonic (_("  Find Blobs  "));
+  find_blobs_ok_button = gtk_button_new_with_mnemonic ("  Find Blobs  ");
   gtk_widget_show (find_blobs_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox110), find_blobs_ok_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (find_blobs_ok_button, GTK_CAN_DEFAULT);
 
-  find_blobs_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  find_blobs_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (find_blobs_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox110), find_blobs_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_SET_FLAGS (find_blobs_cancel_button, GTK_CAN_DEFAULT);
@@ -11810,7 +11881,7 @@ create_chiral_restraints_problem_dialog (void)
   GtkWidget *chiral_restraints_problem_ok_button;
 
   chiral_restraints_problem_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (chiral_restraints_problem_dialog), _("Problem with restraints..."));
+  gtk_window_set_title (GTK_WINDOW (chiral_restraints_problem_dialog), "Problem with restraints...");
   gtk_window_set_type_hint (GTK_WINDOW (chiral_restraints_problem_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox69 = GTK_DIALOG (chiral_restraints_problem_dialog)->vbox;
@@ -11820,7 +11891,7 @@ create_chiral_restraints_problem_dialog (void)
   gtk_widget_show (frame125);
   gtk_box_pack_start (GTK_BOX (dialog_vbox69), frame125, TRUE, TRUE, 0);
 
-  chiral_volume_restraints_problem_label = gtk_label_new (_("\n\n         Problem finding restraints!          \n(see console)\n\n"));
+  chiral_volume_restraints_problem_label = gtk_label_new ("\n\n         Problem finding restraints!          \n(see console)\n\n");
   gtk_widget_show (chiral_volume_restraints_problem_label);
   gtk_container_add (GTK_CONTAINER (frame125), chiral_volume_restraints_problem_label);
   gtk_label_set_justify (GTK_LABEL (chiral_volume_restraints_problem_label), GTK_JUSTIFY_CENTER);
@@ -11829,7 +11900,7 @@ create_chiral_restraints_problem_dialog (void)
   gtk_widget_show (dialog_action_area68);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area68), GTK_BUTTONBOX_END);
 
-  chiral_restraints_problem_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  chiral_restraints_problem_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (chiral_restraints_problem_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (chiral_restraints_problem_dialog), chiral_restraints_problem_ok_button, 0);
 
@@ -11871,7 +11942,7 @@ create_check_waters_diff_map_dialog (void)
   GtkWidget *check_waters_diff_map_cancel_button;
 
   check_waters_diff_map_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (check_waters_diff_map_dialog), _("Check waters by difference map"));
+  gtk_window_set_title (GTK_WINDOW (check_waters_diff_map_dialog), "Check waters by difference map");
   gtk_window_set_type_hint (GTK_WINDOW (check_waters_diff_map_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox70 = GTK_DIALOG (check_waters_diff_map_dialog)->vbox;
@@ -11895,14 +11966,14 @@ create_check_waters_diff_map_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame126), check_waters_diff_map_map_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_diff_map_map_vbox), 3);
 
-  label216 = gtk_label_new (_("Select Difference Map:"));
+  label216 = gtk_label_new ("Select Difference Map:");
   gtk_widget_show (label216);
   gtk_box_pack_start (GTK_BOX (check_waters_diff_map_map_vbox), label216, FALSE, FALSE, 0);
 
   no_difference_maps_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (check_waters_diff_map_map_vbox), no_difference_maps_frame, TRUE, TRUE, 0);
 
-  label220 = gtk_label_new (_("\nWARNING:: No Difference Maps Available!\n"));
+  label220 = gtk_label_new ("\nWARNING:: No Difference Maps Available!\n");
   gtk_widget_show (label220);
   gtk_container_add (GTK_CONTAINER (no_difference_maps_frame), label220);
   gtk_label_set_justify (GTK_LABEL (label220), GTK_JUSTIFY_CENTER);
@@ -11918,14 +11989,14 @@ create_check_waters_diff_map_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame127), check_waters_diff_map_model_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_diff_map_model_vbox), 3);
 
-  label217 = gtk_label_new (_("Select Model with Waters:"));
+  label217 = gtk_label_new ("Select Model with Waters:");
   gtk_widget_show (label217);
   gtk_box_pack_start (GTK_BOX (check_waters_diff_map_model_vbox), label217, FALSE, FALSE, 0);
 
   no_models_with_waters_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (check_waters_diff_map_model_vbox), no_models_with_waters_frame, TRUE, TRUE, 0);
 
-  label221 = gtk_label_new (_("\nWARNING:: No Models with Waters Available!\n"));
+  label221 = gtk_label_new ("\nWARNING:: No Models with Waters Available!\n");
   gtk_widget_show (label221);
   gtk_container_add (GTK_CONTAINER (no_models_with_waters_frame), label221);
   gtk_label_set_justify (GTK_LABEL (label221), GTK_JUSTIFY_CENTER);
@@ -11939,13 +12010,13 @@ create_check_waters_diff_map_dialog (void)
   gtk_widget_show (hbox112);
   gtk_container_add (GTK_CONTAINER (dialog_action_area69), hbox112);
 
-  check_waters_diff_map_ok_button = gtk_button_new_with_mnemonic (_("   Check Waters   "));
+  check_waters_diff_map_ok_button = gtk_button_new_with_mnemonic ("   Check Waters   ");
   gtk_widget_show (check_waters_diff_map_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox112), check_waters_diff_map_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_diff_map_ok_button), 4);
   GTK_WIDGET_SET_FLAGS (check_waters_diff_map_ok_button, GTK_CAN_DEFAULT);
 
-  check_waters_diff_map_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  check_waters_diff_map_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (check_waters_diff_map_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox112), check_waters_diff_map_cancel_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_diff_map_cancel_button), 4);
@@ -11995,7 +12066,7 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   GtkWidget *interesting_waters_by_difference_map_check_ok_button;
 
   interesting_waters_by_difference_map_check_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), _("Interesting/Strange Waters:"));
+  gtk_window_set_title (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), "Interesting/Strange Waters:");
   gtk_window_set_type_hint (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox71 = GTK_DIALOG (interesting_waters_by_difference_map_check_dialog)->vbox;
@@ -12018,7 +12089,7 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   gtk_widget_show (dialog_action_area70);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area70), GTK_BUTTONBOX_END);
 
-  interesting_waters_by_difference_map_check_ok_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  interesting_waters_by_difference_map_check_ok_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (interesting_waters_by_difference_map_check_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (interesting_waters_by_difference_map_check_dialog), interesting_waters_by_difference_map_check_ok_button, 0);
 
@@ -12049,7 +12120,7 @@ create_nothing_bad_dialog (void)
   GtkWidget *nothing_bad_ok_button;
 
   nothing_bad_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (nothing_bad_dialog), _("Info:"));
+  gtk_window_set_title (GTK_WINDOW (nothing_bad_dialog), "Info:");
   gtk_window_set_type_hint (GTK_WINDOW (nothing_bad_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox72 = GTK_DIALOG (nothing_bad_dialog)->vbox;
@@ -12060,7 +12131,7 @@ create_nothing_bad_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox72), frame128, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame128), 6);
 
-  nothing_bad_label = gtk_label_new (_("Nothing Bad"));
+  nothing_bad_label = gtk_label_new ("Nothing Bad");
   gtk_widget_show (nothing_bad_label);
   gtk_container_add (GTK_CONTAINER (frame128), nothing_bad_label);
   gtk_label_set_justify (GTK_LABEL (nothing_bad_label), GTK_JUSTIFY_CENTER);
@@ -12070,7 +12141,7 @@ create_nothing_bad_dialog (void)
   gtk_widget_show (dialog_action_area71);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area71), GTK_BUTTONBOX_END);
 
-  nothing_bad_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  nothing_bad_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (nothing_bad_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (nothing_bad_dialog), nothing_bad_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (nothing_bad_ok_button, GTK_CAN_DEFAULT);
@@ -12108,7 +12179,7 @@ create_skeletonize_map_dialog (void)
   GtkWidget *skeletonize_map_dialog_cancel_button;
 
   skeletonize_map_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (skeletonize_map_dialog), _("Skeletonize Map"));
+  gtk_window_set_title (GTK_WINDOW (skeletonize_map_dialog), "Skeletonize Map");
   gtk_window_set_type_hint (GTK_WINDOW (skeletonize_map_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox73 = GTK_DIALOG (skeletonize_map_dialog)->vbox;
@@ -12123,7 +12194,7 @@ create_skeletonize_map_dialog (void)
   gtk_widget_show (vbox134);
   gtk_container_add (GTK_CONTAINER (frame130), vbox134);
 
-  label218 = gtk_label_new (_("\nYou need a skeleton to use baton building.  \n\nWhich map do you want to skeletonize?\n"));
+  label218 = gtk_label_new ("\nYou need a skeleton to use baton building.  \n\nWhich map do you want to skeletonize?\n");
   gtk_widget_show (label218);
   gtk_box_pack_start (GTK_BOX (vbox134), label218, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label218), GTK_JUSTIFY_CENTER);
@@ -12145,11 +12216,11 @@ create_skeletonize_map_dialog (void)
   gtk_widget_show (hbox113);
   gtk_container_add (GTK_CONTAINER (dialog_action_area72), hbox113);
 
-  skeletonize_map_dialog_ok_button = gtk_button_new_with_mnemonic (_("   Skeletonize   "));
+  skeletonize_map_dialog_ok_button = gtk_button_new_with_mnemonic ("   Skeletonize   ");
   gtk_widget_show (skeletonize_map_dialog_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox113), skeletonize_map_dialog_ok_button, FALSE, FALSE, 10);
 
-  skeletonize_map_dialog_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  skeletonize_map_dialog_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (skeletonize_map_dialog_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox113), skeletonize_map_dialog_cancel_button, FALSE, FALSE, 10);
 
@@ -12193,7 +12264,7 @@ create_antialiasing_dialog (void)
   GtkWidget *antialiasing_dialog_ok_button;
 
   antialiasing_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (antialiasing_dialog), _("Antialiasing"));
+  gtk_window_set_title (GTK_WINDOW (antialiasing_dialog), "Antialiasing");
   gtk_window_set_type_hint (GTK_WINDOW (antialiasing_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox74 = GTK_DIALOG (antialiasing_dialog)->vbox;
@@ -12208,7 +12279,7 @@ create_antialiasing_dialog (void)
   gtk_widget_show (vbox135);
   gtk_container_add (GTK_CONTAINER (frame131), vbox135);
 
-  label219 = gtk_label_new (_("Antialias Lines?"));
+  label219 = gtk_label_new ("Antialias Lines?");
   gtk_widget_show (label219);
   gtk_box_pack_start (GTK_BOX (vbox135), label219, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label219), GTK_JUSTIFY_CENTER);
@@ -12223,13 +12294,13 @@ create_antialiasing_dialog (void)
   gtk_widget_show (vbox136);
   gtk_container_add (GTK_CONTAINER (frame132), vbox136);
 
-  antialias_dialog_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  antialias_dialog_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (antialias_dialog_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox136), antialias_dialog_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (antialias_dialog_yes_radiobutton), antialias_dialog_yes_radiobutton_group);
   antialias_dialog_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (antialias_dialog_yes_radiobutton));
 
-  antialias_dialog_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  antialias_dialog_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
   gtk_widget_show (antialias_dialog_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox136), antialias_dialog_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (antialias_dialog_no_radiobutton), antialias_dialog_yes_radiobutton_group);
@@ -12240,7 +12311,7 @@ create_antialiasing_dialog (void)
   gtk_widget_show (dialog_action_area73);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area73), GTK_BUTTONBOX_END);
 
-  antialiasing_dialog_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  antialiasing_dialog_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (antialiasing_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (antialiasing_dialog), antialiasing_dialog_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (antialiasing_dialog_ok_button, GTK_CAN_DEFAULT);
@@ -12284,7 +12355,7 @@ create_geometry_graphs_dialog (void)
   GtkWidget *geometry_graphs_ok_button;
 
   geometry_graphs_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (geometry_graphs_dialog), _("Geometry Graphs"));
+  gtk_window_set_title (GTK_WINDOW (geometry_graphs_dialog), "Geometry Graphs");
   gtk_window_set_type_hint (GTK_WINDOW (geometry_graphs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox75 = GTK_DIALOG (geometry_graphs_dialog)->vbox;
@@ -12303,7 +12374,7 @@ create_geometry_graphs_dialog (void)
   gtk_widget_show (dialog_action_area74);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area74), GTK_BUTTONBOX_END);
 
-  geometry_graphs_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  geometry_graphs_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (geometry_graphs_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (geometry_graphs_dialog), geometry_graphs_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (geometry_graphs_ok_button, GTK_CAN_DEFAULT);
@@ -12335,7 +12406,7 @@ create_save_symmetry_coords_fileselection (void)
   GtkWidget *save_symmetry_coords_fileselection_ok_button;
   GtkWidget *save_symmetry_coords_fileselection_cancel_button;
 
-  save_symmetry_coords_fileselection = gtk_file_selection_new (_("Select File"));
+  save_symmetry_coords_fileselection = gtk_file_selection_new ("Select File");
   gtk_container_set_border_width (GTK_CONTAINER (save_symmetry_coords_fileselection), 10);
   gtk_window_set_type_hint (GTK_WINDOW (save_symmetry_coords_fileselection), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -12378,12 +12449,13 @@ create_stereo_dialog (void)
   GtkWidget *stereo_dialog_mono_radiobutton;
   GSList *stereo_dialog_mono_radiobutton_group = NULL;
   GtkWidget *stereo_dialog_hardware_stereo_radiobutton;
-  GtkWidget *stereo_dialog_side_by_side_stereo_radiobutton;
+  GtkWidget *stereo_dialog_side_by_side_stereo_crosseyed_radiobutton;
+  GtkWidget *stereo_dialog_side_by_side_stereo_walleyed_radiobutton;
   GtkWidget *dialog_action_area75;
   GtkWidget *stereo_dialog_ok_button;
 
   stereo_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (stereo_dialog), _("Stereo/Mono"));
+  gtk_window_set_title (GTK_WINDOW (stereo_dialog), "Stereo/Mono");
   gtk_window_set_type_hint (GTK_WINDOW (stereo_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox76 = GTK_DIALOG (stereo_dialog)->vbox;
@@ -12398,7 +12470,7 @@ create_stereo_dialog (void)
   gtk_widget_show (vbox137);
   gtk_container_add (GTK_CONTAINER (frame133), vbox137);
 
-  label222 = gtk_label_new (_("\nView Mode"));
+  label222 = gtk_label_new ("\nView Mode");
   gtk_widget_show (label222);
   gtk_box_pack_start (GTK_BOX (vbox137), label222, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label222), GTK_JUSTIFY_CENTER);
@@ -12413,29 +12485,35 @@ create_stereo_dialog (void)
   gtk_widget_show (vbox138);
   gtk_container_add (GTK_CONTAINER (frame134), vbox138);
 
-  stereo_dialog_mono_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Mono"));
+  stereo_dialog_mono_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Mono");
   gtk_widget_show (stereo_dialog_mono_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox138), stereo_dialog_mono_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (stereo_dialog_mono_radiobutton), stereo_dialog_mono_radiobutton_group);
   stereo_dialog_mono_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (stereo_dialog_mono_radiobutton));
 
-  stereo_dialog_hardware_stereo_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Hardware Stereo"));
+  stereo_dialog_hardware_stereo_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Hardware Stereo");
   gtk_widget_show (stereo_dialog_hardware_stereo_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox138), stereo_dialog_hardware_stereo_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (stereo_dialog_hardware_stereo_radiobutton), stereo_dialog_mono_radiobutton_group);
   stereo_dialog_mono_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (stereo_dialog_hardware_stereo_radiobutton));
 
-  stereo_dialog_side_by_side_stereo_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Side by Side Stereo"));
-  gtk_widget_show (stereo_dialog_side_by_side_stereo_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox138), stereo_dialog_side_by_side_stereo_radiobutton, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (stereo_dialog_side_by_side_stereo_radiobutton), stereo_dialog_mono_radiobutton_group);
-  stereo_dialog_mono_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (stereo_dialog_side_by_side_stereo_radiobutton));
+  stereo_dialog_side_by_side_stereo_crosseyed_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Side by Side Stereo");
+  gtk_widget_show (stereo_dialog_side_by_side_stereo_crosseyed_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox138), stereo_dialog_side_by_side_stereo_crosseyed_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (stereo_dialog_side_by_side_stereo_crosseyed_radiobutton), stereo_dialog_mono_radiobutton_group);
+  stereo_dialog_mono_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (stereo_dialog_side_by_side_stereo_crosseyed_radiobutton));
+
+  stereo_dialog_side_by_side_stereo_walleyed_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Side by Side (Wall Eyed)");
+  gtk_widget_show (stereo_dialog_side_by_side_stereo_walleyed_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox138), stereo_dialog_side_by_side_stereo_walleyed_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (stereo_dialog_side_by_side_stereo_walleyed_radiobutton), stereo_dialog_mono_radiobutton_group);
+  stereo_dialog_mono_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (stereo_dialog_side_by_side_stereo_walleyed_radiobutton));
 
   dialog_action_area75 = GTK_DIALOG (stereo_dialog)->action_area;
   gtk_widget_show (dialog_action_area75);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area75), GTK_BUTTONBOX_END);
 
-  stereo_dialog_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  stereo_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (stereo_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (stereo_dialog), stereo_dialog_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (stereo_dialog_ok_button, GTK_CAN_DEFAULT);
@@ -12445,6 +12523,12 @@ create_stereo_dialog (void)
                     NULL);
   g_signal_connect ((gpointer) stereo_dialog_hardware_stereo_radiobutton, "toggled",
                     G_CALLBACK (on_stereo_dialog_hardware_stereo_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) stereo_dialog_side_by_side_stereo_crosseyed_radiobutton, "toggled",
+                    G_CALLBACK (on_stereo_dialog_side_by_side_stereo_crosseyed_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) stereo_dialog_side_by_side_stereo_walleyed_radiobutton, "toggled",
+                    G_CALLBACK (on_stereo_dialog_side_by_side_stereo_walleyed_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) stereo_dialog_ok_button, "clicked",
                     G_CALLBACK (on_stereo_dialog_ok_button_clicked),
@@ -12460,7 +12544,8 @@ create_stereo_dialog (void)
   GLADE_HOOKUP_OBJECT (stereo_dialog, vbox138, "vbox138");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_mono_radiobutton, "stereo_dialog_mono_radiobutton");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_hardware_stereo_radiobutton, "stereo_dialog_hardware_stereo_radiobutton");
-  GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_radiobutton, "stereo_dialog_side_by_side_stereo_radiobutton");
+  GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_crosseyed_radiobutton, "stereo_dialog_side_by_side_stereo_crosseyed_radiobutton");
+  GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_walleyed_radiobutton, "stereo_dialog_side_by_side_stereo_walleyed_radiobutton");
   GLADE_HOOKUP_OBJECT_NO_REF (stereo_dialog, dialog_action_area75, "dialog_action_area75");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_ok_button, "stereo_dialog_ok_button");
 
@@ -12494,7 +12579,7 @@ create_preferences (void)
   GtkWidget *preferences_ok_button;
 
   preferences = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (preferences), _("Preferences"));
+  gtk_window_set_title (GTK_WINDOW (preferences), "Preferences");
   gtk_window_set_type_hint (GTK_WINDOW (preferences), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox77 = GTK_DIALOG (preferences)->vbox;
@@ -12517,7 +12602,7 @@ create_preferences (void)
   gtk_widget_show (empty_notebook_page);
   gtk_container_add (GTK_CONTAINER (notebook3), empty_notebook_page);
 
-  label223 = gtk_label_new (_("Bond Parameters"));
+  label223 = gtk_label_new ("Bond Parameters");
   gtk_widget_show (label223);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 0), label223);
   gtk_label_set_justify (GTK_LABEL (label223), GTK_JUSTIFY_CENTER);
@@ -12530,7 +12615,7 @@ create_preferences (void)
   gtk_widget_show (vbox139);
   gtk_container_add (GTK_CONTAINER (frame135), vbox139);
 
-  label226 = gtk_label_new (_("Mark Cis-Peptides as Bad in Geometry Graph?"));
+  label226 = gtk_label_new ("Mark Cis-Peptides as Bad in Geometry Graph?");
   gtk_widget_show (label226);
   gtk_box_pack_start (GTK_BOX (vbox139), label226, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label226), GTK_JUSTIFY_CENTER);
@@ -12545,19 +12630,19 @@ create_preferences (void)
   gtk_widget_show (vbox140);
   gtk_container_add (GTK_CONTAINER (frame136), vbox140);
 
-  preferences_geometry_cis_peptide_bad_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _(" Yes"));
+  preferences_geometry_cis_peptide_bad_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, " Yes");
   gtk_widget_show (preferences_geometry_cis_peptide_bad_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox140), preferences_geometry_cis_peptide_bad_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_yes_radiobutton), preferences_geometry_cis_peptide_bad_yes_radiobutton_group);
   preferences_geometry_cis_peptide_bad_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_yes_radiobutton));
 
-  preferences_geometry_cis_peptide_bad_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _(" No"));
+  preferences_geometry_cis_peptide_bad_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, " No");
   gtk_widget_show (preferences_geometry_cis_peptide_bad_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox140), preferences_geometry_cis_peptide_bad_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_no_radiobutton), preferences_geometry_cis_peptide_bad_yes_radiobutton_group);
   preferences_geometry_cis_peptide_bad_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_no_radiobutton));
 
-  label224 = gtk_label_new (_("Geometry"));
+  label224 = gtk_label_new ("Geometry");
   gtk_widget_show (label224);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 1), label224);
   gtk_label_set_justify (GTK_LABEL (label224), GTK_JUSTIFY_CENTER);
@@ -12566,7 +12651,7 @@ create_preferences (void)
   gtk_widget_show (empty_notebook_page);
   gtk_container_add (GTK_CONTAINER (notebook3), empty_notebook_page);
 
-  label225 = gtk_label_new (_("Other"));
+  label225 = gtk_label_new ("Other");
   gtk_widget_show (label225);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 2), label225);
   gtk_label_set_justify (GTK_LABEL (label225), GTK_JUSTIFY_CENTER);
@@ -12579,7 +12664,7 @@ create_preferences (void)
   gtk_widget_show (hbox115);
   gtk_container_add (GTK_CONTAINER (dialog_action_area76), hbox115);
 
-  preferences_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  preferences_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (preferences_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox115), preferences_ok_button, TRUE, TRUE, 0);
 
@@ -12631,7 +12716,7 @@ create_diff_map_peaks_dialog (void)
   GtkWidget *diff_map_peaks_dialog_ok_button;
 
   diff_map_peaks_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (diff_map_peaks_dialog), _("Difference Map Peaks"));
+  gtk_window_set_title (GTK_WINDOW (diff_map_peaks_dialog), "Difference Map Peaks");
   gtk_window_set_type_hint (GTK_WINDOW (diff_map_peaks_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox78 = GTK_DIALOG (diff_map_peaks_dialog)->vbox;
@@ -12655,7 +12740,7 @@ create_diff_map_peaks_dialog (void)
   gtk_widget_show (dialog_action_area77);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area77), GTK_BUTTONBOX_END);
 
-  diff_map_peaks_dialog_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  diff_map_peaks_dialog_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (diff_map_peaks_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (diff_map_peaks_dialog), diff_map_peaks_dialog_ok_button, 0);
 
@@ -12712,7 +12797,7 @@ create_generate_diff_map_peaks_dialog (void)
   GtkWidget *generate_diff_map_peaks_cancel_button;
 
   generate_diff_map_peaks_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (generate_diff_map_peaks_dialog), _("Difference Map Peak Analysis"));
+  gtk_window_set_title (GTK_WINDOW (generate_diff_map_peaks_dialog), "Difference Map Peak Analysis");
   gtk_window_set_type_hint (GTK_WINDOW (generate_diff_map_peaks_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox79 = GTK_DIALOG (generate_diff_map_peaks_dialog)->vbox;
@@ -12739,13 +12824,13 @@ create_generate_diff_map_peaks_dialog (void)
   no_difference_maps_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (generate_diff_map_peaks_map_vbox), no_difference_maps_frame, TRUE, TRUE, 0);
 
-  label227 = gtk_label_new (_("WARNING:: No Difference Maps Available!"));
+  label227 = gtk_label_new ("WARNING:: No Difference Maps Available!");
   gtk_widget_show (label227);
   gtk_container_add (GTK_CONTAINER (no_difference_maps_frame), label227);
   gtk_label_set_justify (GTK_LABEL (label227), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label227), 10, 0);
 
-  label310 = gtk_label_new (_("Select Difference Map"));
+  label310 = gtk_label_new ("Select Difference Map");
   gtk_widget_show (label310);
   gtk_frame_set_label_widget (GTK_FRAME (frame139), label310);
 
@@ -12761,13 +12846,13 @@ create_generate_diff_map_peaks_dialog (void)
   no_models_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (generate_diff_map_peaks_model_vbox), no_models_frame, TRUE, TRUE, 0);
 
-  label228 = gtk_label_new (_("WARNING:: No Models Available"));
+  label228 = gtk_label_new ("WARNING:: No Models Available");
   gtk_widget_show (label228);
   gtk_container_add (GTK_CONTAINER (no_models_frame), label228);
   gtk_label_set_justify (GTK_LABEL (label228), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label228), 10, 0);
 
-  label311 = gtk_label_new (_("Select Model"));
+  label311 = gtk_label_new ("Select Model");
   gtk_widget_show (label311);
   gtk_frame_set_label_widget (GTK_FRAME (frame140), label311);
 
@@ -12780,7 +12865,7 @@ create_generate_diff_map_peaks_dialog (void)
   gtk_widget_show (hbox117);
   gtk_container_add (GTK_CONTAINER (frame141), hbox117);
 
-  label229 = gtk_label_new (_("  Find Peaks above "));
+  label229 = gtk_label_new ("  Find Peaks above ");
   gtk_widget_show (label229);
   gtk_box_pack_start (GTK_BOX (hbox117), label229, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label229), GTK_JUSTIFY_CENTER);
@@ -12788,13 +12873,14 @@ create_generate_diff_map_peaks_dialog (void)
   generate_diff_map_peaks_sigma_level_entry = gtk_entry_new ();
   gtk_widget_show (generate_diff_map_peaks_sigma_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox117), generate_diff_map_peaks_sigma_level_entry, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (generate_diff_map_peaks_sigma_level_entry), 9679);
 
-  label230 = gtk_label_new (_("  sigma  "));
+  label230 = gtk_label_new ("  sigma  ");
   gtk_widget_show (label230);
   gtk_box_pack_start (GTK_BOX (hbox117), label230, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label230), GTK_JUSTIFY_CENTER);
 
-  label312 = gtk_label_new (_("Sigma Level"));
+  label312 = gtk_label_new ("Sigma Level");
   gtk_widget_show (label312);
   gtk_frame_set_label_widget (GTK_FRAME (frame141), label312);
 
@@ -12807,17 +12893,17 @@ create_generate_diff_map_peaks_dialog (void)
   gtk_widget_show (vbox165);
   gtk_container_add (GTK_CONTAINER (negative_level_frame), vbox165);
 
-  generate_diff_map_peaks_positive_level_checkbutton = gtk_check_button_new_with_mnemonic (_("Find Positive Peaks?"));
+  generate_diff_map_peaks_positive_level_checkbutton = gtk_check_button_new_with_mnemonic ("Find Positive Peaks?");
   gtk_widget_show (generate_diff_map_peaks_positive_level_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox165), generate_diff_map_peaks_positive_level_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (generate_diff_map_peaks_positive_level_checkbutton), TRUE);
 
-  generate_diff_map_peaks_negative_level_checkbutton = gtk_check_button_new_with_mnemonic (_("Find Negative Peaks Also?"));
+  generate_diff_map_peaks_negative_level_checkbutton = gtk_check_button_new_with_mnemonic ("Find Negative Peaks Also?");
   gtk_widget_show (generate_diff_map_peaks_negative_level_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox165), generate_diff_map_peaks_negative_level_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (generate_diff_map_peaks_negative_level_checkbutton), TRUE);
 
-  label313 = gtk_label_new (_("Which Peaks?"));
+  label313 = gtk_label_new ("Which Peaks?");
   gtk_widget_show (label313);
   gtk_frame_set_label_widget (GTK_FRAME (negative_level_frame), label313);
 
@@ -12829,12 +12915,12 @@ create_generate_diff_map_peaks_dialog (void)
   gtk_widget_show (hbox116);
   gtk_container_add (GTK_CONTAINER (dialog_action_area78), hbox116);
 
-  generate_diff_map_peaks_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  generate_diff_map_peaks_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (generate_diff_map_peaks_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox116), generate_diff_map_peaks_ok_button, TRUE, TRUE, 6);
   GTK_WIDGET_SET_FLAGS (generate_diff_map_peaks_ok_button, GTK_CAN_DEFAULT);
 
-  generate_diff_map_peaks_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  generate_diff_map_peaks_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (generate_diff_map_peaks_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox116), generate_diff_map_peaks_cancel_button, TRUE, TRUE, 6);
   GTK_WIDGET_SET_FLAGS (generate_diff_map_peaks_cancel_button, GTK_CAN_DEFAULT);
@@ -12907,7 +12993,7 @@ create_ncs_maps_dialog (void)
   GtkWidget *ncs_maps_cancel_button;
 
   ncs_maps_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ncs_maps_dialog), _("dialog1"));
+  gtk_window_set_title (GTK_WINDOW (ncs_maps_dialog), "dialog1");
   gtk_window_set_type_hint (GTK_WINDOW (ncs_maps_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox80 = GTK_DIALOG (ncs_maps_dialog)->vbox;
@@ -12934,7 +13020,7 @@ create_ncs_maps_dialog (void)
   no_models_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox149), no_models_frame, TRUE, TRUE, 0);
 
-  label232 = gtk_label_new (_("WARNING:: No Models with NCS Available"));
+  label232 = gtk_label_new ("WARNING:: No Models with NCS Available");
   gtk_widget_show (label232);
   gtk_container_add (GTK_CONTAINER (no_models_frame), label232);
   gtk_label_set_justify (GTK_LABEL (label232), GTK_JUSTIFY_CENTER);
@@ -12944,7 +13030,7 @@ create_ncs_maps_dialog (void)
   gtk_widget_show (ncs_maps_models_vbox);
   gtk_box_pack_start (GTK_BOX (vbox149), ncs_maps_models_vbox, TRUE, TRUE, 0);
 
-  label314 = gtk_label_new (_("Select Model"));
+  label314 = gtk_label_new ("Select Model");
   gtk_widget_show (label314);
   gtk_frame_set_label_widget (GTK_FRAME (frame146), label314);
 
@@ -12960,7 +13046,7 @@ create_ncs_maps_dialog (void)
   no_maps_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox148), no_maps_frame, TRUE, TRUE, 0);
 
-  label231 = gtk_label_new (_("WARNING:: No Maps Available!"));
+  label231 = gtk_label_new ("WARNING:: No Maps Available!");
   gtk_widget_show (label231);
   gtk_container_add (GTK_CONTAINER (no_maps_frame), label231);
   gtk_label_set_justify (GTK_LABEL (label231), GTK_JUSTIFY_CENTER);
@@ -12970,7 +13056,7 @@ create_ncs_maps_dialog (void)
   gtk_widget_show (ncs_maps_maps_vbox);
   gtk_box_pack_start (GTK_BOX (vbox148), ncs_maps_maps_vbox, TRUE, TRUE, 0);
 
-  label315 = gtk_label_new (_("Select Map"));
+  label315 = gtk_label_new ("Select Map");
   gtk_widget_show (label315);
   gtk_frame_set_label_widget (GTK_FRAME (frame144), label315);
 
@@ -12982,11 +13068,11 @@ create_ncs_maps_dialog (void)
   gtk_widget_show (hbox118);
   gtk_container_add (GTK_CONTAINER (dialog_action_area79), hbox118);
 
-  ncs_maps_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  ncs_maps_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (ncs_maps_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox118), ncs_maps_ok_button, TRUE, TRUE, 6);
 
-  ncs_maps_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  ncs_maps_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (ncs_maps_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox118), ncs_maps_cancel_button, TRUE, TRUE, 6);
 
@@ -13030,14 +13116,14 @@ create_popup_info_window (void)
   GtkWidget *info_label;
 
   popup_info_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (popup_info_window), _("window2"));
+  gtk_window_set_title (GTK_WINDOW (popup_info_window), "window2");
 
   frame147 = gtk_frame_new (NULL);
   gtk_widget_show (frame147);
   gtk_container_add (GTK_CONTAINER (popup_info_window), frame147);
   gtk_container_set_border_width (GTK_CONTAINER (frame147), 10);
 
-  info_label = gtk_label_new (_("Sample text."));
+  info_label = gtk_label_new ("Sample text.");
   gtk_widget_show (info_label);
   gtk_container_add (GTK_CONTAINER (frame147), info_label);
   gtk_label_set_justify (GTK_LABEL (info_label), GTK_JUSTIFY_CENTER);
@@ -13071,7 +13157,7 @@ create_pointer_distances_dialog (void)
   GtkWidget *pointer_distances_ok_button;
 
   pointer_distances_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (pointer_distances_dialog), _("Pointer Distances"));
+  gtk_window_set_title (GTK_WINDOW (pointer_distances_dialog), "Pointer Distances");
   gtk_window_set_type_hint (GTK_WINDOW (pointer_distances_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox81 = GTK_DIALOG (pointer_distances_dialog)->vbox;
@@ -13086,7 +13172,7 @@ create_pointer_distances_dialog (void)
   gtk_widget_show (vbox150);
   gtk_container_add (GTK_CONTAINER (frame148), vbox150);
 
-  pointer_distances_checkbutton = gtk_check_button_new_with_mnemonic (_(" Show Pointer Distances"));
+  pointer_distances_checkbutton = gtk_check_button_new_with_mnemonic (" Show Pointer Distances");
   gtk_widget_show (pointer_distances_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox150), pointer_distances_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (pointer_distances_checkbutton), 6);
@@ -13100,7 +13186,7 @@ create_pointer_distances_dialog (void)
   gtk_widget_show (table2);
   gtk_container_add (GTK_CONTAINER (pointer_distances_frame), table2);
 
-  label233 = gtk_label_new (_("  Min Distance  "));
+  label233 = gtk_label_new ("  Min Distance  ");
   gtk_widget_show (label233);
   gtk_table_attach (GTK_TABLE (table2), label233, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
@@ -13108,7 +13194,7 @@ create_pointer_distances_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label233), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label233), 0, 0.5);
 
-  label234 = gtk_label_new (_("  Max Distance"));
+  label234 = gtk_label_new ("  Max Distance");
   gtk_widget_show (label234);
   gtk_table_attach (GTK_TABLE (table2), label234, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
@@ -13116,7 +13202,7 @@ create_pointer_distances_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label234), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label234), 0, 0.5);
 
-  label235 = gtk_label_new (_(" Angstroms "));
+  label235 = gtk_label_new (" Angstroms ");
   gtk_widget_show (label235);
   gtk_table_attach (GTK_TABLE (table2), label235, 2, 3, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
@@ -13124,7 +13210,7 @@ create_pointer_distances_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label235), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label235), 0, 0.5);
 
-  label236 = gtk_label_new (_(" Angstroms "));
+  label236 = gtk_label_new (" Angstroms ");
   gtk_widget_show (label236);
   gtk_table_attach (GTK_TABLE (table2), label236, 2, 3, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
@@ -13137,18 +13223,20 @@ create_pointer_distances_dialog (void)
   gtk_table_attach (GTK_TABLE (table2), pointer_distances_min_dist_entry, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (pointer_distances_min_dist_entry), 9679);
 
   pointer_distances_max_dist_entry = gtk_entry_new ();
   gtk_widget_show (pointer_distances_max_dist_entry);
   gtk_table_attach (GTK_TABLE (table2), pointer_distances_max_dist_entry, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (pointer_distances_max_dist_entry), 9679);
 
   dialog_action_area80 = GTK_DIALOG (pointer_distances_dialog)->action_area;
   gtk_widget_show (dialog_action_area80);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area80), GTK_BUTTONBOX_END);
 
-  pointer_distances_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  pointer_distances_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (pointer_distances_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (pointer_distances_dialog), pointer_distances_ok_button, 0);
 
@@ -13203,7 +13291,7 @@ create_align_and_mutate_dialog (void)
   GtkWidget *align_and_mutate_cancel_button;
 
   align_and_mutate_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (align_and_mutate_dialog), _("Align and Mutate"));
+  gtk_window_set_title (GTK_WINDOW (align_and_mutate_dialog), "Align and Mutate");
   gtk_window_set_type_hint (GTK_WINDOW (align_and_mutate_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox82 = GTK_DIALOG (align_and_mutate_dialog)->vbox;
@@ -13218,7 +13306,7 @@ create_align_and_mutate_dialog (void)
   gtk_widget_show (vbox151);
   gtk_container_add (GTK_CONTAINER (frame149), vbox151);
 
-  label239 = gtk_label_new (_("\n   Align and Mutate Molecule:\n"));
+  label239 = gtk_label_new ("\n   Align and Mutate Molecule:\n");
   gtk_widget_show (label239);
   gtk_box_pack_start (GTK_BOX (vbox151), label239, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label239), GTK_JUSTIFY_CENTER);
@@ -13237,7 +13325,7 @@ create_align_and_mutate_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox151), hbox121, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox121), 2);
 
-  label240 = gtk_label_new (_("   Chain ID: "));
+  label240 = gtk_label_new ("   Chain ID: ");
   gtk_widget_show (label240);
   gtk_box_pack_start (GTK_BOX (hbox121), label240, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label240), GTK_JUSTIFY_CENTER);
@@ -13250,7 +13338,7 @@ create_align_and_mutate_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (align_and_mutate_chain_optionmenu), convertwidget85);
 
-  label241 = gtk_label_new (_("\n     to (single letter) sequence:\n"));
+  label241 = gtk_label_new ("\n     to (single letter) sequence:\n");
   gtk_widget_show (label241);
   gtk_box_pack_start (GTK_BOX (vbox151), label241, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label241), GTK_JUSTIFY_CENTER);
@@ -13267,7 +13355,7 @@ create_align_and_mutate_dialog (void)
   gtk_container_add (GTK_CONTAINER (scrolledwindow19), align_and_mutate_sequence_text);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (align_and_mutate_sequence_text), GTK_WRAP_WORD);
 
-  align_and_mutate_autofit_checkbutton = gtk_check_button_new_with_mnemonic (_(" Autofit the mutated residues?"));
+  align_and_mutate_autofit_checkbutton = gtk_check_button_new_with_mnemonic (" Autofit the mutated residues?");
   gtk_widget_show (align_and_mutate_autofit_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_autofit_checkbutton, FALSE, FALSE, 0);
 
@@ -13279,11 +13367,11 @@ create_align_and_mutate_dialog (void)
   gtk_widget_show (hbox120);
   gtk_container_add (GTK_CONTAINER (dialog_action_area81), hbox120);
 
-  align_and_mutate_ok_button = gtk_button_new_with_mnemonic (_("  Apply Sequence to Model  "));
+  align_and_mutate_ok_button = gtk_button_new_with_mnemonic ("  Apply Sequence to Model  ");
   gtk_widget_show (align_and_mutate_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox120), align_and_mutate_ok_button, FALSE, FALSE, 6);
 
-  align_and_mutate_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  align_and_mutate_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (align_and_mutate_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox120), align_and_mutate_cancel_button, FALSE, FALSE, 10);
 
@@ -13352,7 +13440,7 @@ create_ramachandran_plot_differences_dialog (void)
   GtkWidget *ramachandran_plot_differences_cancel_button;
 
   ramachandran_plot_differences_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ramachandran_plot_differences_dialog), _("Ramachandran Plot Differences"));
+  gtk_window_set_title (GTK_WINDOW (ramachandran_plot_differences_dialog), "Ramachandran Plot Differences");
   gtk_window_set_type_hint (GTK_WINDOW (ramachandran_plot_differences_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox83 = GTK_DIALOG (ramachandran_plot_differences_dialog)->vbox;
@@ -13362,7 +13450,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (vbox152);
   gtk_box_pack_start (GTK_BOX (dialog_vbox83), vbox152, TRUE, TRUE, 0);
 
-  label242 = gtk_label_new (_("Ramachandran Plot Differences"));
+  label242 = gtk_label_new ("Ramachandran Plot Differences");
   gtk_widget_show (label242);
   gtk_box_pack_start (GTK_BOX (vbox152), label242, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label242), GTK_JUSTIFY_CENTER);
@@ -13393,7 +13481,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (vbox154);
   gtk_container_add (GTK_CONTAINER (frame151), vbox154);
 
-  ramachandran_plot_differences_first_chain_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Specific Chain"));
+  ramachandran_plot_differences_first_chain_checkbutton = gtk_check_button_new_with_mnemonic ("Use Specific Chain");
   gtk_widget_show (ramachandran_plot_differences_first_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox154), ramachandran_plot_differences_first_chain_checkbutton, FALSE, FALSE, 0);
 
@@ -13405,7 +13493,7 @@ create_ramachandran_plot_differences_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (ramachandran_plot_differences_first_chain_optionmenu), convertwidget89);
 
-  label316 = gtk_label_new (_("First Structure"));
+  label316 = gtk_label_new ("First Structure");
   gtk_widget_show (label316);
   gtk_frame_set_label_widget (GTK_FRAME (frame150), label316);
 
@@ -13439,7 +13527,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (vbox156);
   gtk_container_add (GTK_CONTAINER (frame153), vbox156);
 
-  ramachandran_plot_differences_second_chain_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Specific Chain"));
+  ramachandran_plot_differences_second_chain_checkbutton = gtk_check_button_new_with_mnemonic ("Use Specific Chain");
   gtk_widget_show (ramachandran_plot_differences_second_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox156), ramachandran_plot_differences_second_chain_checkbutton, FALSE, FALSE, 0);
 
@@ -13451,7 +13539,7 @@ create_ramachandran_plot_differences_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (ramachandran_plot_differences_second_chain_optionmenu), convertwidget91);
 
-  label317 = gtk_label_new (_("Second Structure"));
+  label317 = gtk_label_new ("Second Structure");
   gtk_widget_show (label317);
   gtk_frame_set_label_widget (GTK_FRAME (frame152), label317);
 
@@ -13463,13 +13551,13 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (hbox122);
   gtk_container_add (GTK_CONTAINER (dialog_action_area82), hbox122);
 
-  ramachandran_plot_differences_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  ramachandran_plot_differences_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (ramachandran_plot_differences_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox122), ramachandran_plot_differences_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (ramachandran_plot_differences_ok_button), 6);
   GTK_WIDGET_SET_FLAGS (ramachandran_plot_differences_ok_button, GTK_CAN_DEFAULT);
 
-  ramachandran_plot_differences_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  ramachandran_plot_differences_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (ramachandran_plot_differences_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox122), ramachandran_plot_differences_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (ramachandran_plot_differences_cancel_button), 6);
@@ -13535,7 +13623,7 @@ create_checked_waters_baddies_dialog (void)
   GtkWidget *checked_waters_baddies_cancel_button;
 
   checked_waters_baddies_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (checked_waters_baddies_dialog), _("Questionable Waters"));
+  gtk_window_set_title (GTK_WINDOW (checked_waters_baddies_dialog), "Questionable Waters");
   gtk_window_set_type_hint (GTK_WINDOW (checked_waters_baddies_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox84 = GTK_DIALOG (checked_waters_baddies_dialog)->vbox;
@@ -13558,7 +13646,7 @@ create_checked_waters_baddies_dialog (void)
   gtk_widget_show (dialog_action_area83);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area83), GTK_BUTTONBOX_END);
 
-  checked_waters_baddies_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  checked_waters_baddies_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (checked_waters_baddies_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (checked_waters_baddies_dialog), checked_waters_baddies_cancel_button, 0);
   GTK_WIDGET_SET_FLAGS (checked_waters_baddies_cancel_button, GTK_CAN_DEFAULT);
@@ -13596,7 +13684,7 @@ create_nucleic_acid_base_chooser_dialog (void)
   GtkWidget *base_chooser_cancel_button;
 
   nucleic_acid_base_chooser_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (nucleic_acid_base_chooser_dialog), _("Base"));
+  gtk_window_set_title (GTK_WINDOW (nucleic_acid_base_chooser_dialog), "Base");
   gtk_window_set_type_hint (GTK_WINDOW (nucleic_acid_base_chooser_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox85 = GTK_DIALOG (nucleic_acid_base_chooser_dialog)->vbox;
@@ -13611,27 +13699,27 @@ create_nucleic_acid_base_chooser_dialog (void)
   gtk_widget_show (vbox160);
   gtk_container_add (GTK_CONTAINER (frame155), vbox160);
 
-  base_chooser_A_button = gtk_button_new_with_mnemonic (_("  Adenine (A)  "));
+  base_chooser_A_button = gtk_button_new_with_mnemonic ("  Adenine (A)  ");
   gtk_widget_show (base_chooser_A_button);
   gtk_box_pack_start (GTK_BOX (vbox160), base_chooser_A_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (base_chooser_A_button), 2);
 
-  base_chooser_C_button = gtk_button_new_with_mnemonic (_("  Cytosine (C)  "));
+  base_chooser_C_button = gtk_button_new_with_mnemonic ("  Cytosine (C)  ");
   gtk_widget_show (base_chooser_C_button);
   gtk_box_pack_start (GTK_BOX (vbox160), base_chooser_C_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (base_chooser_C_button), 2);
 
-  base_chooser_G_button = gtk_button_new_with_mnemonic (_("  Guanine (G)  "));
+  base_chooser_G_button = gtk_button_new_with_mnemonic ("  Guanine (G)  ");
   gtk_widget_show (base_chooser_G_button);
   gtk_box_pack_start (GTK_BOX (vbox160), base_chooser_G_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (base_chooser_G_button), 2);
 
-  base_chooser_T_button = gtk_button_new_with_mnemonic (_("  Thymine (T)  "));
+  base_chooser_T_button = gtk_button_new_with_mnemonic ("  Thymine (T)  ");
   gtk_widget_show (base_chooser_T_button);
   gtk_box_pack_start (GTK_BOX (vbox160), base_chooser_T_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (base_chooser_T_button), 2);
 
-  base_chooser_U_button = gtk_button_new_with_mnemonic (_("  Uracil (U)  "));
+  base_chooser_U_button = gtk_button_new_with_mnemonic ("  Uracil (U)  ");
   gtk_widget_show (base_chooser_U_button);
   gtk_box_pack_start (GTK_BOX (vbox160), base_chooser_U_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (base_chooser_U_button), 2);
@@ -13640,7 +13728,7 @@ create_nucleic_acid_base_chooser_dialog (void)
   gtk_widget_show (dialog_action_area84);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area84), GTK_BUTTONBOX_END);
 
-  base_chooser_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  base_chooser_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (base_chooser_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (nucleic_acid_base_chooser_dialog), base_chooser_cancel_button, 0);
 
@@ -13721,7 +13809,7 @@ create_change_chain_id_dialog (void)
   GtkWidget *change_chain_cancel_button;
 
   change_chain_id_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (change_chain_id_dialog), _("Change Chain ID"));
+  gtk_window_set_title (GTK_WINDOW (change_chain_id_dialog), "Change Chain ID");
   gtk_window_set_type_hint (GTK_WINDOW (change_chain_id_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox86 = GTK_DIALOG (change_chain_id_dialog)->vbox;
@@ -13736,7 +13824,7 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (vbox161);
   gtk_container_add (GTK_CONTAINER (frame156), vbox161);
 
-  label246 = gtk_label_new (_("Change Chain ID in Molecule:"));
+  label246 = gtk_label_new ("Change Chain ID in Molecule:");
   gtk_widget_show (label246);
   gtk_box_pack_start (GTK_BOX (vbox161), label246, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label246), GTK_JUSTIFY_CENTER);
@@ -13751,7 +13839,7 @@ create_change_chain_id_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (change_chain_id_molecule_optionmenu), convertwidget94);
 
-  label248 = gtk_label_new (_("From:"));
+  label248 = gtk_label_new ("From:");
   gtk_widget_show (label248);
   gtk_box_pack_start (GTK_BOX (vbox161), label248, FALSE, FALSE, 2);
   gtk_label_set_justify (GTK_LABEL (label248), GTK_JUSTIFY_CENTER);
@@ -13761,7 +13849,7 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (hbox125);
   gtk_box_pack_start (GTK_BOX (vbox161), hbox125, TRUE, TRUE, 0);
 
-  label247 = gtk_label_new (_("  Chain ID:   "));
+  label247 = gtk_label_new ("  Chain ID:   ");
   gtk_widget_show (label247);
   gtk_box_pack_start (GTK_BOX (hbox125), label247, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label247), GTK_JUSTIFY_CENTER);
@@ -13786,7 +13874,7 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (hbox126);
   gtk_box_pack_start (GTK_BOX (vbox162), hbox126, TRUE, TRUE, 0);
 
-  change_chain_residue_range_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Whole Chain"));
+  change_chain_residue_range_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Whole Chain");
   gtk_widget_show (change_chain_residue_range_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox126), change_chain_residue_range_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (change_chain_residue_range_no_radiobutton), change_chain_residue_range_no_radiobutton_group);
@@ -13796,7 +13884,7 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (hbox127);
   gtk_box_pack_start (GTK_BOX (vbox162), hbox127, TRUE, TRUE, 0);
 
-  change_chain_residue_range_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Use Residue Range"));
+  change_chain_residue_range_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Use Residue Range");
   gtk_widget_show (change_chain_residue_range_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox127), change_chain_residue_range_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (change_chain_residue_range_yes_radiobutton), change_chain_residue_range_no_radiobutton_group);
@@ -13807,7 +13895,7 @@ create_change_chain_id_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox127), change_chain_id_residue_range_hbox, TRUE, TRUE, 0);
   gtk_widget_set_sensitive (change_chain_id_residue_range_hbox, FALSE);
 
-  label249 = gtk_label_new (_("from  "));
+  label249 = gtk_label_new ("from  ");
   gtk_widget_show (label249);
   gtk_box_pack_start (GTK_BOX (change_chain_id_residue_range_hbox), label249, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label249), GTK_JUSTIFY_CENTER);
@@ -13815,8 +13903,9 @@ create_change_chain_id_dialog (void)
   change_chain_residues_from_entry = gtk_entry_new ();
   gtk_widget_show (change_chain_residues_from_entry);
   gtk_box_pack_start (GTK_BOX (change_chain_id_residue_range_hbox), change_chain_residues_from_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (change_chain_residues_from_entry), 9679);
 
-  label250 = gtk_label_new (_("   to   "));
+  label250 = gtk_label_new ("   to   ");
   gtk_widget_show (label250);
   gtk_box_pack_start (GTK_BOX (change_chain_id_residue_range_hbox), label250, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label250), GTK_JUSTIFY_CENTER);
@@ -13824,17 +13913,18 @@ create_change_chain_id_dialog (void)
   change_chains_residues_to_entry = gtk_entry_new ();
   gtk_widget_show (change_chains_residues_to_entry);
   gtk_box_pack_start (GTK_BOX (change_chain_id_residue_range_hbox), change_chains_residues_to_entry, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (change_chains_residues_to_entry), 9679);
 
-  label256 = gtk_label_new (_("   "));
+  label256 = gtk_label_new ("   ");
   gtk_widget_show (label256);
   gtk_box_pack_start (GTK_BOX (change_chain_id_residue_range_hbox), label256, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label256), GTK_JUSTIFY_CENTER);
 
-  label318 = gtk_label_new (_("Using Residue Selection:"));
+  label318 = gtk_label_new ("Using Residue Selection:");
   gtk_widget_show (label318);
   gtk_frame_set_label_widget (GTK_FRAME (frame157), label318);
 
-  label251 = gtk_label_new (_("To:"));
+  label251 = gtk_label_new ("To:");
   gtk_widget_show (label251);
   gtk_box_pack_start (GTK_BOX (vbox161), label251, FALSE, FALSE, 4);
   gtk_label_set_justify (GTK_LABEL (label251), GTK_JUSTIFY_CENTER);
@@ -13844,7 +13934,7 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (hbox129);
   gtk_box_pack_start (GTK_BOX (vbox161), hbox129, TRUE, TRUE, 2);
 
-  label252 = gtk_label_new (_("Chain ID: "));
+  label252 = gtk_label_new ("Chain ID: ");
   gtk_widget_show (label252);
   gtk_box_pack_start (GTK_BOX (hbox129), label252, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label252), GTK_JUSTIFY_CENTER);
@@ -13852,6 +13942,7 @@ create_change_chain_id_dialog (void)
   change_chains_new_chain_id = gtk_entry_new ();
   gtk_widget_show (change_chains_new_chain_id);
   gtk_box_pack_start (GTK_BOX (hbox129), change_chains_new_chain_id, FALSE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (change_chains_new_chain_id), 9679);
 
   dialog_action_area85 = GTK_DIALOG (change_chain_id_dialog)->action_area;
   gtk_widget_show (dialog_action_area85);
@@ -13861,11 +13952,11 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (hbox124);
   gtk_container_add (GTK_CONTAINER (dialog_action_area85), hbox124);
 
-  change_chains_rechain_button = gtk_button_new_with_mnemonic (_("  Apply New Chain ID  "));
+  change_chains_rechain_button = gtk_button_new_with_mnemonic ("  Apply New Chain ID  ");
   gtk_widget_show (change_chains_rechain_button);
   gtk_box_pack_start (GTK_BOX (hbox124), change_chains_rechain_button, TRUE, TRUE, 20);
 
-  change_chain_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  change_chain_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (change_chain_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox124), change_chain_cancel_button, TRUE, TRUE, 20);
 
@@ -13946,7 +14037,7 @@ create_doc_urls_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   doc_urls_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (doc_urls_dialog), _("On Line Documentation"));
+  gtk_window_set_title (GTK_WINDOW (doc_urls_dialog), "On Line Documentation");
   gtk_window_set_type_hint (GTK_WINDOW (doc_urls_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox87 = GTK_DIALOG (doc_urls_dialog)->vbox;
@@ -13961,7 +14052,7 @@ create_doc_urls_dialog (void)
   gtk_widget_show (table3);
   gtk_container_add (GTK_CONTAINER (frame158), table3);
 
-  label254 = gtk_label_new (_("   All in one page   "));
+  label254 = gtk_label_new ("   All in one page   ");
   gtk_widget_show (label254);
   gtk_table_attach (GTK_TABLE (table3), label254, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
@@ -13969,7 +14060,7 @@ create_doc_urls_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label254), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label254), 0, 0.5);
 
-  label255 = gtk_label_new (_("   Sectioned   "));
+  label255 = gtk_label_new ("   Sectioned   ");
   gtk_widget_show (label255);
   gtk_table_attach (GTK_TABLE (table3), label255, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
@@ -13983,7 +14074,8 @@ create_doc_urls_dialog (void)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
   gtk_editable_set_editable (GTK_EDITABLE (doc_1_entry), FALSE);
-  gtk_entry_set_text (GTK_ENTRY (doc_1_entry), _("http://www.ysbl.york.ac.uk/~emsley/coot/doc/user-manual.html"));
+  gtk_entry_set_text (GTK_ENTRY (doc_1_entry), "http://www.ysbl.york.ac.uk/~emsley/coot/doc/user-manual.html");
+  gtk_entry_set_invisible_char (GTK_ENTRY (doc_1_entry), 9679);
 
   doc_2_entry = gtk_entry_new ();
   gtk_widget_show (doc_2_entry);
@@ -13991,21 +14083,22 @@ create_doc_urls_dialog (void)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
   gtk_editable_set_editable (GTK_EDITABLE (doc_2_entry), FALSE);
-  gtk_entry_set_text (GTK_ENTRY (doc_2_entry), _("http://www.ysbl.york.ac.uk/~emsley/coot/doc/chapters/user-manual_toc.html"));
+  gtk_entry_set_text (GTK_ENTRY (doc_2_entry), "http://www.ysbl.york.ac.uk/~emsley/coot/doc/chapters/user-manual_toc.html");
+  gtk_entry_set_invisible_char (GTK_ENTRY (doc_2_entry), 9679);
 
-  coot_doc_url_monolithic_button = gtk_button_new_with_mnemonic (_("  Open  "));
+  coot_doc_url_monolithic_button = gtk_button_new_with_mnemonic ("  Open  ");
   gtk_widget_show (coot_doc_url_monolithic_button);
   gtk_table_attach (GTK_TABLE (table3), coot_doc_url_monolithic_button, 2, 3, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, coot_doc_url_monolithic_button, _("Open URL in web browser"), NULL);
+  gtk_tooltips_set_tip (tooltips, coot_doc_url_monolithic_button, "Open URL in web browser", NULL);
 
-  coot_doc_url_sectioned_button = gtk_button_new_with_mnemonic (_("  Open  "));
+  coot_doc_url_sectioned_button = gtk_button_new_with_mnemonic ("  Open  ");
   gtk_widget_show (coot_doc_url_sectioned_button);
   gtk_table_attach (GTK_TABLE (table3), coot_doc_url_sectioned_button, 2, 3, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, coot_doc_url_sectioned_button, _("Open URL in Web Browser"), NULL);
+  gtk_tooltips_set_tip (tooltips, coot_doc_url_sectioned_button, "Open URL in Web Browser", NULL);
 
   label272 = gtk_label_new ("");
   gtk_widget_show (label272);
@@ -14026,6 +14119,7 @@ create_doc_urls_dialog (void)
   gtk_table_attach (GTK_TABLE (table3), coot_online_doc_search_entry, 1, 2, 3, 4,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (coot_online_doc_search_entry), 9679);
 
   label273 = gtk_label_new ("");
   gtk_widget_show (label273);
@@ -14035,12 +14129,12 @@ create_doc_urls_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label273), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label273), 0, 0.5);
 
-  coot_online_doc_search_button = gtk_button_new_with_mnemonic (_("  Search  "));
+  coot_online_doc_search_button = gtk_button_new_with_mnemonic ("  Search  ");
   gtk_widget_show (coot_online_doc_search_button);
   gtk_table_attach (GTK_TABLE (table3), coot_online_doc_search_button, 2, 3, 3, 4,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, coot_online_doc_search_button, _("Do a Google search"), NULL);
+  gtk_tooltips_set_tip (tooltips, coot_online_doc_search_button, "Do a Google search", NULL);
 
   label274 = gtk_label_new ("");
   gtk_widget_show (label274);
@@ -14054,7 +14148,7 @@ create_doc_urls_dialog (void)
   gtk_widget_show (dialog_action_area86);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area86), GTK_BUTTONBOX_END);
 
-  on_line_documentation_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  on_line_documentation_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (on_line_documentation_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (doc_urls_dialog), on_line_documentation_ok_button, 0);
 
@@ -14105,7 +14199,7 @@ create_save_state_fileselection (void)
   GtkWidget *save_state_ok_button1;
   GtkWidget *save_state_cancel_button1;
 
-  save_state_fileselection = gtk_file_selection_new (_("Select File-name for State File"));
+  save_state_fileselection = gtk_file_selection_new ("Select File-name for State File");
   gtk_container_set_border_width (GTK_CONTAINER (save_state_fileselection), 10);
   gtk_window_set_type_hint (GTK_WINDOW (save_state_fileselection), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -14158,7 +14252,7 @@ create_other_model_tools_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   other_model_tools_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (other_model_tools_dialog), _("Other Modelling Tools"));
+  gtk_window_set_title (GTK_WINDOW (other_model_tools_dialog), "Other Modelling Tools");
   gtk_window_set_type_hint (GTK_WINDOW (other_model_tools_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox89 = GTK_DIALOG (other_model_tools_dialog)->vbox;
@@ -14173,61 +14267,61 @@ create_other_model_tools_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame160), vbox163);
   gtk_container_set_border_width (GTK_CONTAINER (vbox163), 6);
 
-  model_refine_dialog_find_ligands_button = gtk_button_new_with_mnemonic (_("Find Ligands..."));
+  model_refine_dialog_find_ligands_button = gtk_button_new_with_mnemonic ("Find Ligands...");
   gtk_widget_show (model_refine_dialog_find_ligands_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_find_ligands_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_find_ligands_button), 1);
 
-  cis_trans_conversion_toggle_button = gtk_toggle_button_new_with_mnemonic (_("   Cis <-> Trans   "));
+  cis_trans_conversion_toggle_button = gtk_toggle_button_new_with_mnemonic ("   Cis <-> Trans   ");
   gtk_widget_show (cis_trans_conversion_toggle_button);
   gtk_box_pack_start (GTK_BOX (vbox163), cis_trans_conversion_toggle_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (cis_trans_conversion_toggle_button), 1);
-  gtk_tooltips_set_tip (tooltips, cis_trans_conversion_toggle_button, _("Convert peptide: CIS -> TRANS or TRANS -> CIS... It depends on what you have currently"), NULL);
+  gtk_tooltips_set_tip (tooltips, cis_trans_conversion_toggle_button, "Convert peptide: CIS -> TRANS or TRANS -> CIS... It depends on what you have currently", NULL);
 
-  model_refine_dialog_baton_button = gtk_button_new_with_mnemonic (_("Ca Baton Mode..."));
+  model_refine_dialog_baton_button = gtk_button_new_with_mnemonic ("Ca Baton Mode...");
   gtk_widget_show (model_refine_dialog_baton_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_baton_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_baton_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_baton_button, _("Make sure that you are about 3.8A away from where you wish to put your first atom before you start Baton Mode."), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_baton_button, "Make sure that you are about 3.8A away from where you wish to put your first atom before you start Baton Mode.", NULL);
 
-  model_refine_dialog_db_main_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Ca Zone -> Mainchain"));
+  model_refine_dialog_db_main_togglebutton = gtk_toggle_button_new_with_mnemonic ("Ca Zone -> Mainchain");
   gtk_widget_show (model_refine_dialog_db_main_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_db_main_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_db_main_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_db_main_togglebutton, _("Use database of fragments to convert a set of C-alphas to mainchain atoms"), NULL);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_db_main_togglebutton, "Use database of fragments to convert a set of C-alphas to mainchain atoms", NULL);
 
-  model_refine_dialog_add_OXT_button = gtk_button_new_with_mnemonic (_("Add OXT to Residue..."));
+  model_refine_dialog_add_OXT_button = gtk_button_new_with_mnemonic ("Add OXT to Residue...");
   gtk_widget_show (model_refine_dialog_add_OXT_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_add_OXT_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_add_OXT_button), 1);
 
-  reverse_fragment_direction_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Reverse Direction"));
+  reverse_fragment_direction_togglebutton = gtk_toggle_button_new_with_mnemonic ("Reverse Direction");
   gtk_widget_show (reverse_fragment_direction_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox163), reverse_fragment_direction_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (reverse_fragment_direction_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, reverse_fragment_direction_togglebutton, _("Reverse direction of fragment, leaving only CAs"), NULL);
+  gtk_tooltips_set_tip (tooltips, reverse_fragment_direction_togglebutton, "Reverse direction of fragment, leaving only CAs", NULL);
 
-  place_helix_here_button = gtk_button_new_with_mnemonic (_("Place Helix Here"));
+  place_helix_here_button = gtk_button_new_with_mnemonic ("Place Helix Here");
   gtk_widget_show (place_helix_here_button);
   gtk_box_pack_start (GTK_BOX (vbox163), place_helix_here_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (place_helix_here_button), 1);
-  gtk_tooltips_set_tip (tooltips, place_helix_here_button, _("Place an ideal alpha helix about here and try to optimize position and orientation.  Must have a map set for fitting."), NULL);
+  gtk_tooltips_set_tip (tooltips, place_helix_here_button, "Place an ideal alpha helix about here and try to optimize position and orientation.  Must have a map set for fitting.", NULL);
 
-  other_tools_RNA_button = gtk_button_new_with_mnemonic (_("Ideal DNA/RNA..."));
+  other_tools_RNA_button = gtk_button_new_with_mnemonic ("Ideal DNA/RNA...");
   gtk_widget_show (other_tools_RNA_button);
   gtk_box_pack_start (GTK_BOX (vbox163), other_tools_RNA_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (other_tools_RNA_button), 1);
 
-  set_undo_molecule_button = gtk_button_new_with_mnemonic (_(" Choose \"Undo\" Molecule... "));
+  set_undo_molecule_button = gtk_button_new_with_mnemonic (" Choose \"Undo\" Molecule... ");
   gtk_widget_show (set_undo_molecule_button);
   gtk_box_pack_start (GTK_BOX (vbox163), set_undo_molecule_button, FALSE, FALSE, 1);
-  gtk_tooltips_set_tip (tooltips, set_undo_molecule_button, _("Choose the molecule number to which \"Undo\" actions occur."), NULL);
+  gtk_tooltips_set_tip (tooltips, set_undo_molecule_button, "Choose the molecule number to which \"Undo\" actions occur.", NULL);
 
   dialog_action_area88 = GTK_DIALOG (other_model_tools_dialog)->action_area;
   gtk_widget_show (dialog_action_area88);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area88), GTK_BUTTONBOX_END);
 
-  other_modelling_tools_close_button = gtk_button_new_with_mnemonic (_("   Close   "));
+  other_modelling_tools_close_button = gtk_button_new_with_mnemonic ("   Close   ");
   gtk_widget_show (other_modelling_tools_close_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (other_model_tools_dialog), other_modelling_tools_close_button, 0);
 
@@ -14293,7 +14387,7 @@ create_screendump_fileselection (void)
   GtkWidget *screendump_image_ok_button;
   GtkWidget *screendump_image_cancel_button;
 
-  screendump_fileselection = gtk_file_selection_new (_("Select File"));
+  screendump_fileselection = gtk_file_selection_new ("Select File");
   gtk_container_set_border_width (GTK_CONTAINER (screendump_fileselection), 10);
   gtk_window_set_type_hint (GTK_WINDOW (screendump_fileselection), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -14351,7 +14445,7 @@ create_symmetry_controller_dialog (void)
   GtkWidget *symmetry_controller_ok_button;
 
   symmetry_controller_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (symmetry_controller_dialog), _("Symmetry Controller"));
+  gtk_window_set_title (GTK_WINDOW (symmetry_controller_dialog), "Symmetry Controller");
   gtk_window_set_type_hint (GTK_WINDOW (symmetry_controller_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox90 = GTK_DIALOG (symmetry_controller_dialog)->vbox;
@@ -14382,7 +14476,7 @@ create_symmetry_controller_dialog (void)
   gtk_widget_show (vbox168);
   gtk_container_add (GTK_CONTAINER (molecule_0_frame), vbox168);
 
-  molecule_0_checkbutton = gtk_check_button_new_with_mnemonic (_(" Show Symmetry?"));
+  molecule_0_checkbutton = gtk_check_button_new_with_mnemonic (" Show Symmetry?");
   gtk_widget_show (molecule_0_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox168), molecule_0_checkbutton, FALSE, FALSE, 0);
 
@@ -14395,7 +14489,7 @@ create_symmetry_controller_dialog (void)
   gtk_widget_show (table4);
   gtk_container_add (GTK_CONTAINER (frame162), table4);
 
-  display_sphere_radiobutton_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, _("Display Sphere"));
+  display_sphere_radiobutton_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, "Display Sphere");
   gtk_widget_show (display_sphere_radiobutton_molecule_0);
   gtk_table_attach (GTK_TABLE (table4), display_sphere_radiobutton_molecule_0, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
@@ -14403,7 +14497,7 @@ create_symmetry_controller_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (display_sphere_radiobutton_molecule_0), display_sphere_radiobutton_molecule_0_group);
   display_sphere_radiobutton_molecule_0_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (display_sphere_radiobutton_molecule_0));
 
-  display_all_radiobutton_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, _("Display All Molecule"));
+  display_all_radiobutton_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, "Display All Molecule");
   gtk_widget_show (display_all_radiobutton_molecule_0);
   gtk_table_attach (GTK_TABLE (table4), display_all_radiobutton_molecule_0, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
@@ -14411,7 +14505,7 @@ create_symmetry_controller_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (display_all_radiobutton_molecule_0), display_sphere_radiobutton_molecule_0_group);
   display_sphere_radiobutton_molecule_0_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (display_all_radiobutton_molecule_0));
 
-  display_CA_radiobutton_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, _("Display as CAs"));
+  display_CA_radiobutton_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, "Display as CAs");
   gtk_widget_show (display_CA_radiobutton_molecule_0);
   gtk_table_attach (GTK_TABLE (table4), display_CA_radiobutton_molecule_0, 0, 1, 2, 3,
                     (GtkAttachOptions) (GTK_FILL),
@@ -14419,7 +14513,7 @@ create_symmetry_controller_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (display_CA_radiobutton_molecule_0), display_sphere_radiobutton_molecule_0_group);
   display_sphere_radiobutton_molecule_0_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (display_CA_radiobutton_molecule_0));
 
-  colour_symm_std_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, _("Standard Colouring"));
+  colour_symm_std_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, "Standard Colouring");
   gtk_widget_show (colour_symm_std_molecule_0);
   gtk_table_attach (GTK_TABLE (table4), colour_symm_std_molecule_0, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
@@ -14427,7 +14521,7 @@ create_symmetry_controller_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (colour_symm_std_molecule_0), colour_symm_std_molecule_0_group);
   colour_symm_std_molecule_0_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (colour_symm_std_molecule_0));
 
-  colour_symm_by_symop_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, _("Colour by Symop"));
+  colour_symm_by_symop_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, "Colour by Symop");
   gtk_widget_show (colour_symm_by_symop_molecule_0);
   gtk_table_attach (GTK_TABLE (table4), colour_symm_by_symop_molecule_0, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
@@ -14435,7 +14529,7 @@ create_symmetry_controller_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (colour_symm_by_symop_molecule_0), colour_symm_std_molecule_0_group);
   colour_symm_std_molecule_0_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (colour_symm_by_symop_molecule_0));
 
-  colour_symm_by_molecule_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, _("Colour by Molecule"));
+  colour_symm_by_molecule_molecule_0 = gtk_radio_button_new_with_mnemonic (NULL, "Colour by Molecule");
   gtk_widget_show (colour_symm_by_molecule_molecule_0);
   gtk_table_attach (GTK_TABLE (table4), colour_symm_by_molecule_molecule_0, 1, 2, 2, 3,
                     (GtkAttachOptions) (GTK_FILL),
@@ -14443,11 +14537,11 @@ create_symmetry_controller_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (colour_symm_by_molecule_molecule_0), colour_symm_std_molecule_0_group);
   colour_symm_std_molecule_0_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (colour_symm_by_molecule_molecule_0));
 
-  label320 = gtk_label_new (_("Display Options"));
+  label320 = gtk_label_new ("Display Options");
   gtk_widget_show (label320);
   gtk_frame_set_label_widget (GTK_FRAME (frame162), label320);
 
-  label319 = gtk_label_new (_("Molecule 0 (this frame not visible)"));
+  label319 = gtk_label_new ("Molecule 0 (this frame not visible)");
   gtk_widget_show (label319);
   gtk_frame_set_label_widget (GTK_FRAME (molecule_0_frame), label319);
 
@@ -14455,7 +14549,7 @@ create_symmetry_controller_dialog (void)
   gtk_widget_show (dialog_action_area89);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area89), GTK_BUTTONBOX_END);
 
-  symmetry_controller_ok_button = gtk_button_new_with_mnemonic (_("      OK      "));
+  symmetry_controller_ok_button = gtk_button_new_with_mnemonic ("      OK      ");
   gtk_widget_show (symmetry_controller_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (symmetry_controller_dialog), symmetry_controller_ok_button, 0);
 
@@ -14546,7 +14640,7 @@ create_ncs_control_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   ncs_control_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ncs_control_dialog), _("NCS Control"));
+  gtk_window_set_title (GTK_WINDOW (ncs_control_dialog), "NCS Control");
   gtk_window_set_type_hint (GTK_WINDOW (ncs_control_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox91 = GTK_DIALOG (ncs_control_dialog)->vbox;
@@ -14556,7 +14650,7 @@ create_ncs_control_dialog (void)
   gtk_widget_show (vbox170);
   gtk_box_pack_start (GTK_BOX (dialog_vbox91), vbox170, TRUE, TRUE, 0);
 
-  label263 = gtk_label_new (_("NCS Controller"));
+  label263 = gtk_label_new ("NCS Controller");
   gtk_widget_show (label263);
   gtk_box_pack_start (GTK_BOX (vbox170), label263, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label263), GTK_JUSTIFY_CENTER);
@@ -14583,7 +14677,7 @@ create_ncs_control_dialog (void)
   gtk_widget_show (vbox176);
   gtk_container_add (GTK_CONTAINER (frame_molecule_N), vbox176);
 
-  ncs_controller_molecule_n_display_ncs_checkbutton = gtk_check_button_new_with_mnemonic (_("Display Non-cystallographic Ghosts"));
+  ncs_controller_molecule_n_display_ncs_checkbutton = gtk_check_button_new_with_mnemonic ("Display Non-cystallographic Ghosts");
   gtk_widget_show (ncs_controller_molecule_n_display_ncs_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox176), ncs_controller_molecule_n_display_ncs_checkbutton, FALSE, FALSE, 0);
 
@@ -14599,7 +14693,7 @@ create_ncs_control_dialog (void)
   gtk_widget_show (vbox172);
   gtk_box_pack_start (GTK_BOX (hbox134), vbox172, TRUE, TRUE, 0);
 
-  label264 = gtk_label_new (_("Displayed Chains"));
+  label264 = gtk_label_new ("Displayed Chains");
   gtk_widget_show (label264);
   gtk_box_pack_start (GTK_BOX (vbox172), label264, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label264), GTK_JUSTIFY_CENTER);
@@ -14609,16 +14703,16 @@ create_ncs_control_dialog (void)
   gtk_widget_show (ncs_controller_molecule_n_display_chain_vbox);
   gtk_box_pack_start (GTK_BOX (vbox172), ncs_controller_molecule_n_display_chain_vbox, TRUE, TRUE, 0);
 
-  ncs_controller_molecule_n_display_chain_ich_checkbutton = gtk_check_button_new_with_mnemonic (_("Chain A"));
+  ncs_controller_molecule_n_display_chain_ich_checkbutton = gtk_check_button_new_with_mnemonic ("Chain A");
   gtk_widget_show (ncs_controller_molecule_n_display_chain_ich_checkbutton);
   gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_display_chain_vbox), ncs_controller_molecule_n_display_chain_ich_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, ncs_controller_molecule_n_display_chain_ich_checkbutton, _("Show this chain as a ghost chain?"), NULL);
+  gtk_tooltips_set_tip (tooltips, ncs_controller_molecule_n_display_chain_ich_checkbutton, "Show this chain as a ghost chain?", NULL);
 
-  checkbutton4 = gtk_check_button_new_with_mnemonic (_("checkbutton4"));
+  checkbutton4 = gtk_check_button_new_with_mnemonic ("checkbutton4");
   gtk_widget_show (checkbutton4);
   gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_display_chain_vbox), checkbutton4, FALSE, FALSE, 0);
 
-  checkbutton5 = gtk_check_button_new_with_mnemonic (_("checkbutton5"));
+  checkbutton5 = gtk_check_button_new_with_mnemonic ("checkbutton5");
   gtk_widget_show (checkbutton5);
   gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_display_chain_vbox), checkbutton5, FALSE, FALSE, 0);
 
@@ -14626,7 +14720,7 @@ create_ncs_control_dialog (void)
   gtk_widget_show (vbox174);
   gtk_box_pack_start (GTK_BOX (hbox134), vbox174, TRUE, TRUE, 0);
 
-  label265 = gtk_label_new (_("NCS Master Chain"));
+  label265 = gtk_label_new ("NCS Master Chain");
   gtk_widget_show (label265);
   gtk_box_pack_start (GTK_BOX (vbox174), label265, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label265), GTK_JUSTIFY_CENTER);
@@ -14636,26 +14730,26 @@ create_ncs_control_dialog (void)
   gtk_widget_show (ncs_controller_molecule_n_vbox);
   gtk_box_pack_start (GTK_BOX (vbox174), ncs_controller_molecule_n_vbox, TRUE, TRUE, 0);
 
-  ncs_controller_ncs_master_chain_ich_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Chain A"));
+  ncs_controller_ncs_master_chain_ich_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Chain A");
   gtk_widget_show (ncs_controller_ncs_master_chain_ich_radiobutton);
   gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_vbox), ncs_controller_ncs_master_chain_ich_radiobutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, ncs_controller_ncs_master_chain_ich_radiobutton, _("The chain to which operators and ghosts are generated from other chains"), NULL);
+  gtk_tooltips_set_tip (tooltips, ncs_controller_ncs_master_chain_ich_radiobutton, "The chain to which operators and ghosts are generated from other chains", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (ncs_controller_ncs_master_chain_ich_radiobutton), ncs_controller_ncs_master_chain_ich_radiobutton_group);
   ncs_controller_ncs_master_chain_ich_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (ncs_controller_ncs_master_chain_ich_radiobutton));
 
-  radiobutton4 = gtk_radio_button_new_with_mnemonic (NULL, _("radiobutton4"));
+  radiobutton4 = gtk_radio_button_new_with_mnemonic (NULL, "radiobutton4");
   gtk_widget_show (radiobutton4);
   gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_vbox), radiobutton4, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton4), ncs_controller_ncs_master_chain_ich_radiobutton_group);
   ncs_controller_ncs_master_chain_ich_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton4));
 
-  radiobutton5 = gtk_radio_button_new_with_mnemonic (NULL, _("radiobutton5"));
+  radiobutton5 = gtk_radio_button_new_with_mnemonic (NULL, "radiobutton5");
   gtk_widget_show (radiobutton5);
   gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_vbox), radiobutton5, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton5), ncs_controller_ncs_master_chain_ich_radiobutton_group);
   ncs_controller_ncs_master_chain_ich_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton5));
 
-  label321 = gtk_label_new (_("molecule N"));
+  label321 = gtk_label_new ("molecule N");
   gtk_widget_show (label321);
   gtk_frame_set_label_widget (GTK_FRAME (frame_molecule_N), label321);
 
@@ -14663,7 +14757,7 @@ create_ncs_control_dialog (void)
   gtk_widget_show (dialog_action_area90);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area90), GTK_BUTTONBOX_END);
 
-  ncs_control_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  ncs_control_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (ncs_control_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (ncs_control_dialog), ncs_control_ok_button, 0);
 
@@ -14732,7 +14826,7 @@ create_lsq_plane_dialog (void)
   GtkWidget *lsq_plane_ok_button;
 
   lsq_plane_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (lsq_plane_dialog), _("LSQ Plane "));
+  gtk_window_set_title (GTK_WINDOW (lsq_plane_dialog), "LSQ Plane ");
   gtk_window_set_type_hint (GTK_WINDOW (lsq_plane_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox92 = GTK_DIALOG (lsq_plane_dialog)->vbox;
@@ -14747,7 +14841,7 @@ create_lsq_plane_dialog (void)
   gtk_widget_show (vbox177);
   gtk_container_add (GTK_CONTAINER (lsq_plane_frame), vbox177);
 
-  lsq_plane_add_atom_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Add Atom to Plane"));
+  lsq_plane_add_atom_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Add Atom to Plane");
   gtk_widget_show (lsq_plane_add_atom_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox177), lsq_plane_add_atom_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (lsq_plane_add_atom_radiobutton), 6);
@@ -14758,28 +14852,28 @@ create_lsq_plane_dialog (void)
   gtk_widget_show (hbox135);
   gtk_box_pack_start (GTK_BOX (vbox177), hbox135, FALSE, FALSE, 0);
 
-  label266 = gtk_label_new (_("            "));
+  label266 = gtk_label_new ("            ");
   gtk_widget_show (label266);
   gtk_box_pack_start (GTK_BOX (hbox135), label266, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label266), GTK_JUSTIFY_CENTER);
 
-  lsq_plane_delete_last_atom_button = gtk_button_new_with_mnemonic (_("  Delete Last Plane Atom  "));
+  lsq_plane_delete_last_atom_button = gtk_button_new_with_mnemonic ("  Delete Last Plane Atom  ");
   gtk_widget_show (lsq_plane_delete_last_atom_button);
   gtk_box_pack_start (GTK_BOX (hbox135), lsq_plane_delete_last_atom_button, FALSE, FALSE, 0);
 
-  label267 = gtk_label_new (_("                "));
+  label267 = gtk_label_new ("                ");
   gtk_widget_show (label267);
   gtk_box_pack_start (GTK_BOX (hbox135), label267, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label267), GTK_JUSTIFY_CENTER);
 
-  lsq_plane_deviant_atom_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Deviation of Atom"));
+  lsq_plane_deviant_atom_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Deviation of Atom");
   gtk_widget_show (lsq_plane_deviant_atom_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox177), lsq_plane_deviant_atom_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (lsq_plane_deviant_atom_radiobutton), 6);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (lsq_plane_deviant_atom_radiobutton), lsq_plane_add_atom_radiobutton_group);
   lsq_plane_add_atom_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (lsq_plane_deviant_atom_radiobutton));
 
-  label322 = gtk_label_new (_("Lsq Plane"));
+  label322 = gtk_label_new ("Lsq Plane");
   gtk_widget_show (label322);
   gtk_frame_set_label_widget (GTK_FRAME (lsq_plane_frame), label322);
 
@@ -14787,7 +14881,7 @@ create_lsq_plane_dialog (void)
   gtk_widget_show (dialog_action_area91);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area91), GTK_BUTTONBOX_END);
 
-  lsq_plane_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  lsq_plane_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (lsq_plane_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (lsq_plane_dialog), lsq_plane_ok_button, 0);
 
@@ -14858,7 +14952,7 @@ create_coords_colour_control_dialog (void)
   GtkWidget *coord_colour_control_ok_button;
 
   coords_colour_control_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (coords_colour_control_dialog), _("Molecule Colours"));
+  gtk_window_set_title (GTK_WINDOW (coords_colour_control_dialog), "Molecule Colours");
   gtk_window_set_type_hint (GTK_WINDOW (coords_colour_control_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox93 = GTK_DIALOG (coords_colour_control_dialog)->vbox;
@@ -14868,7 +14962,7 @@ create_coords_colour_control_dialog (void)
   gtk_widget_show (vbox178);
   gtk_box_pack_start (GTK_BOX (dialog_vbox93), vbox178, TRUE, TRUE, 0);
 
-  label268 = gtk_label_new (_("Molecule Colours"));
+  label268 = gtk_label_new ("Molecule Colours");
   gtk_widget_show (label268);
   gtk_box_pack_start (GTK_BOX (vbox178), label268, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label268), GTK_JUSTIFY_CENTER);
@@ -14895,7 +14989,7 @@ create_coords_colour_control_dialog (void)
   gtk_widget_show (hbox136);
   gtk_container_add (GTK_CONTAINER (frame_molecule_N), hbox136);
 
-  label269 = gtk_label_new (_("    "));
+  label269 = gtk_label_new ("    ");
   gtk_widget_show (label269);
   gtk_box_pack_start (GTK_BOX (hbox136), label269, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label269), GTK_JUSTIFY_CENTER);
@@ -14904,13 +14998,13 @@ create_coords_colour_control_dialog (void)
   gtk_widget_show (coords_colour_hscale_mol_N);
   gtk_box_pack_start (GTK_BOX (hbox136), coords_colour_hscale_mol_N, TRUE, TRUE, 0);
 
-  label270 = gtk_label_new (_("  degrees  "));
+  label270 = gtk_label_new ("  degrees  ");
   gtk_widget_show (label270);
   gtk_box_pack_start (GTK_BOX (hbox136), label270, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label270), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label270), 0.5, 0.56);
 
-  label323 = gtk_label_new (_("Molecule N"));
+  label323 = gtk_label_new ("Molecule N");
   gtk_widget_show (label323);
   gtk_frame_set_label_widget (GTK_FRAME (frame_molecule_N), label323);
 
@@ -14937,7 +15031,7 @@ create_coords_colour_control_dialog (void)
   gtk_widget_show (vbox192);
   gtk_container_add (GTK_CONTAINER (frame173), vbox192);
 
-  label201 = gtk_label_new (_("  New molecule rotates colour map"));
+  label201 = gtk_label_new ("  New molecule rotates colour map");
   gtk_widget_show (label201);
   gtk_box_pack_start (GTK_BOX (vbox192), label201, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label201), GTK_JUSTIFY_CENTER);
@@ -14946,7 +15040,7 @@ create_coords_colour_control_dialog (void)
   gtk_widget_show (hbox119);
   gtk_box_pack_start (GTK_BOX (vbox192), hbox119, TRUE, TRUE, 0);
 
-  label237 = gtk_label_new (_("   by  "));
+  label237 = gtk_label_new ("   by  ");
   gtk_widget_show (label237);
   gtk_box_pack_start (GTK_BOX (hbox119), label237, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label237), GTK_JUSTIFY_CENTER);
@@ -14956,7 +15050,7 @@ create_coords_colour_control_dialog (void)
   gtk_widget_show (bond_parameters_colour_rotation_hscale);
   gtk_box_pack_start (GTK_BOX (hbox119), bond_parameters_colour_rotation_hscale, TRUE, TRUE, 0);
 
-  label238 = gtk_label_new (_("  degrees   "));
+  label238 = gtk_label_new ("  degrees   ");
   gtk_widget_show (label238);
   gtk_box_pack_start (GTK_BOX (hbox119), label238, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label238), GTK_JUSTIFY_CENTER);
@@ -14967,12 +15061,12 @@ create_coords_colour_control_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox123), frame172, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame172), 2);
 
-  bond_parameters_rotate_colour_map_c_only_checkbutton = gtk_check_button_new_with_mnemonic (_(" Change colour for Carbons only"));
+  bond_parameters_rotate_colour_map_c_only_checkbutton = gtk_check_button_new_with_mnemonic (" Change colour for Carbons only");
   gtk_widget_show (bond_parameters_rotate_colour_map_c_only_checkbutton);
   gtk_container_add (GTK_CONTAINER (frame172), bond_parameters_rotate_colour_map_c_only_checkbutton);
   gtk_container_set_border_width (GTK_CONTAINER (bond_parameters_rotate_colour_map_c_only_checkbutton), 5);
 
-  label324 = gtk_label_new (_("Colour Map Rotation [Molecule Independent] "));
+  label324 = gtk_label_new ("Colour Map Rotation [Molecule Independent] ");
   gtk_widget_show (label324);
   gtk_frame_set_label_widget (GTK_FRAME (frame116), label324);
 
@@ -14980,7 +15074,7 @@ create_coords_colour_control_dialog (void)
   gtk_widget_show (dialog_action_area92);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area92), GTK_BUTTONBOX_END);
 
-  coord_colour_control_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  coord_colour_control_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (coord_colour_control_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (coords_colour_control_dialog), coord_colour_control_ok_button, 0);
   GTK_WIDGET_SET_FLAGS (coord_colour_control_ok_button, GTK_CAN_DEFAULT);
@@ -15067,7 +15161,7 @@ create_nucleotide_builder_dialog (void)
   GtkWidget *ideal_rna_cancel_button;
 
   nucleotide_builder_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (nucleotide_builder_dialog), _("Nucleotide Builder"));
+  gtk_window_set_title (GTK_WINDOW (nucleotide_builder_dialog), "Nucleotide Builder");
   gtk_window_set_type_hint (GTK_WINDOW (nucleotide_builder_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox94 = GTK_DIALOG (nucleotide_builder_dialog)->vbox;
@@ -15077,7 +15171,7 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (vbox179);
   gtk_box_pack_start (GTK_BOX (dialog_vbox94), vbox179, TRUE, TRUE, 0);
 
-  label282 = gtk_label_new (_("\nNucleotide Builder \n"));
+  label282 = gtk_label_new ("\nNucleotide Builder \n");
   gtk_widget_show (label282);
   gtk_box_pack_start (GTK_BOX (vbox179), label282, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label282), GTK_JUSTIFY_CENTER);
@@ -15090,7 +15184,7 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (vbox180);
   gtk_container_add (GTK_CONTAINER (frame164), vbox180);
 
-  label283 = gtk_label_new (_("  Nucleotide Type:"));
+  label283 = gtk_label_new ("  Nucleotide Type:");
   gtk_widget_show (label283);
   gtk_box_pack_start (GTK_BOX (vbox180), label283, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label283), GTK_JUSTIFY_CENTER);
@@ -15102,11 +15196,11 @@ create_nucleotide_builder_dialog (void)
 
   convertwidget102 = gtk_menu_new ();
 
-  convertwidget103 = gtk_menu_item_new_with_mnemonic (_("RNA"));
+  convertwidget103 = gtk_menu_item_new_with_mnemonic ("RNA");
   gtk_widget_show (convertwidget103);
   gtk_container_add (GTK_CONTAINER (convertwidget102), convertwidget103);
 
-  convertwidget104 = gtk_menu_item_new_with_mnemonic (_("DNA"));
+  convertwidget104 = gtk_menu_item_new_with_mnemonic ("DNA");
   gtk_widget_show (convertwidget104);
   gtk_container_add (GTK_CONTAINER (convertwidget102), convertwidget104);
 
@@ -15120,7 +15214,7 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (vbox181);
   gtk_container_add (GTK_CONTAINER (frame165), vbox181);
 
-  label284 = gtk_label_new (_("  Form:"));
+  label284 = gtk_label_new ("  Form:");
   gtk_widget_show (label284);
   gtk_box_pack_start (GTK_BOX (vbox181), label284, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label284), GTK_JUSTIFY_CENTER);
@@ -15132,11 +15226,11 @@ create_nucleotide_builder_dialog (void)
 
   convertwidget105 = gtk_menu_new ();
 
-  convertwidget106 = gtk_menu_item_new_with_mnemonic (_("A"));
+  convertwidget106 = gtk_menu_item_new_with_mnemonic ("A");
   gtk_widget_show (convertwidget106);
   gtk_container_add (GTK_CONTAINER (convertwidget105), convertwidget106);
 
-  convertwidget107 = gtk_menu_item_new_with_mnemonic (_("B"));
+  convertwidget107 = gtk_menu_item_new_with_mnemonic ("B");
   gtk_widget_show (convertwidget107);
   gtk_container_add (GTK_CONTAINER (convertwidget105), convertwidget107);
 
@@ -15150,7 +15244,7 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (vbox182);
   gtk_container_add (GTK_CONTAINER (frame166), vbox182);
 
-  label285 = gtk_label_new (_("  Strandedness:"));
+  label285 = gtk_label_new ("  Strandedness:");
   gtk_widget_show (label285);
   gtk_box_pack_start (GTK_BOX (vbox182), label285, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label285), GTK_JUSTIFY_CENTER);
@@ -15162,11 +15256,11 @@ create_nucleotide_builder_dialog (void)
 
   convertwidget108 = gtk_menu_new ();
 
-  convertwidget109 = gtk_menu_item_new_with_mnemonic (_("Double Stranded"));
+  convertwidget109 = gtk_menu_item_new_with_mnemonic ("Double Stranded");
   gtk_widget_show (convertwidget109);
   gtk_container_add (GTK_CONTAINER (convertwidget108), convertwidget109);
 
-  convertwidget110 = gtk_menu_item_new_with_mnemonic (_("Single Stranded"));
+  convertwidget110 = gtk_menu_item_new_with_mnemonic ("Single Stranded");
   gtk_widget_show (convertwidget110);
   gtk_container_add (GTK_CONTAINER (convertwidget108), convertwidget110);
 
@@ -15180,7 +15274,7 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (vbox183);
   gtk_container_add (GTK_CONTAINER (frame167), vbox183);
 
-  label286 = gtk_label_new (_("  Sequence:"));
+  label286 = gtk_label_new ("  Sequence:");
   gtk_widget_show (label286);
   gtk_box_pack_start (GTK_BOX (vbox183), label286, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label286), GTK_JUSTIFY_CENTER);
@@ -15189,6 +15283,7 @@ create_nucleotide_builder_dialog (void)
   nucleotide_sequence = gtk_entry_new ();
   gtk_widget_show (nucleotide_sequence);
   gtk_box_pack_start (GTK_BOX (vbox183), nucleotide_sequence, FALSE, FALSE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (nucleotide_sequence), 9679);
 
   dialog_action_area93 = GTK_DIALOG (nucleotide_builder_dialog)->action_area;
   gtk_widget_show (dialog_action_area93);
@@ -15198,11 +15293,11 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (hbox142);
   gtk_container_add (GTK_CONTAINER (dialog_action_area93), hbox142);
 
-  ideal_rna_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  ideal_rna_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (ideal_rna_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox142), ideal_rna_ok_button, FALSE, FALSE, 0);
 
-  ideal_rna_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  ideal_rna_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (ideal_rna_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox142), ideal_rna_cancel_button, FALSE, FALSE, 0);
 
@@ -15266,7 +15361,7 @@ create_move_molecule_here_dialog (void)
   GtkWidget *move_molecule_here_cancel_button;
 
   move_molecule_here_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (move_molecule_here_dialog), _("Move Molecule Here"));
+  gtk_window_set_title (GTK_WINDOW (move_molecule_here_dialog), "Move Molecule Here");
   gtk_window_set_type_hint (GTK_WINDOW (move_molecule_here_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox95 = GTK_DIALOG (move_molecule_here_dialog)->vbox;
@@ -15276,7 +15371,7 @@ create_move_molecule_here_dialog (void)
   gtk_widget_show (vbox184);
   gtk_box_pack_start (GTK_BOX (dialog_vbox95), vbox184, TRUE, TRUE, 0);
 
-  label287 = gtk_label_new (_("\nMove Molecule Here:"));
+  label287 = gtk_label_new ("\nMove Molecule Here:");
   gtk_widget_show (label287);
   gtk_box_pack_start (GTK_BOX (vbox184), label287, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label287), GTK_JUSTIFY_CENTER);
@@ -15297,11 +15392,11 @@ create_move_molecule_here_dialog (void)
   gtk_widget_show (hbox143);
   gtk_container_add (GTK_CONTAINER (dialog_action_area94), hbox143);
 
-  move_molecule_here_ok_button = gtk_button_new_with_mnemonic (_("   Move It   "));
+  move_molecule_here_ok_button = gtk_button_new_with_mnemonic ("   Move It   ");
   gtk_widget_show (move_molecule_here_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox143), move_molecule_here_ok_button, FALSE, FALSE, 6);
 
-  move_molecule_here_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel  "));
+  move_molecule_here_cancel_button = gtk_button_new_with_mnemonic ("   Cancel  ");
   gtk_widget_show (move_molecule_here_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox143), move_molecule_here_cancel_button, FALSE, FALSE, 6);
 
@@ -15351,7 +15446,7 @@ create_monomer_search_dialog (void)
   GtkWidget *monomer_library_search_dialog_cancel_button;
 
   monomer_search_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (monomer_search_dialog), _("Search Monomer Library"));
+  gtk_window_set_title (GTK_WINDOW (monomer_search_dialog), "Search Monomer Library");
   gtk_window_set_type_hint (GTK_WINDOW (monomer_search_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox96 = GTK_DIALOG (monomer_search_dialog)->vbox;
@@ -15369,7 +15464,7 @@ create_monomer_search_dialog (void)
   gtk_widget_show (vbox186);
   gtk_container_add (GTK_CONTAINER (frame168), vbox186);
 
-  label288 = gtk_label_new (_("Search the Monomer Library"));
+  label288 = gtk_label_new ("Search the Monomer Library");
   gtk_widget_show (label288);
   gtk_box_pack_start (GTK_BOX (vbox186), label288, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label288), GTK_JUSTIFY_CENTER);
@@ -15379,12 +15474,12 @@ create_monomer_search_dialog (void)
   gtk_widget_show (hbox145);
   gtk_box_pack_start (GTK_BOX (vbox186), hbox145, TRUE, TRUE, 0);
 
-  label291 = gtk_label_new (_("  "));
+  label291 = gtk_label_new ("  ");
   gtk_widget_show (label291);
   gtk_box_pack_start (GTK_BOX (hbox145), label291, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label291), GTK_JUSTIFY_CENTER);
 
-  label289 = gtk_label_new (_("Text: "));
+  label289 = gtk_label_new ("Text: ");
   gtk_widget_show (label289);
   gtk_box_pack_start (GTK_BOX (hbox145), label289, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label289), GTK_JUSTIFY_CENTER);
@@ -15392,17 +15487,18 @@ create_monomer_search_dialog (void)
   monomer_search_entry = gtk_entry_new ();
   gtk_widget_show (monomer_search_entry);
   gtk_box_pack_start (GTK_BOX (hbox145), monomer_search_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (monomer_search_entry), 9679);
 
-  monomer_library_search_button = gtk_button_new_with_mnemonic (_("  Search  "));
+  monomer_library_search_button = gtk_button_new_with_mnemonic ("  Search  ");
   gtk_widget_show (monomer_library_search_button);
   gtk_box_pack_start (GTK_BOX (hbox145), monomer_library_search_button, FALSE, FALSE, 0);
 
-  label290 = gtk_label_new (_("  "));
+  label290 = gtk_label_new ("  ");
   gtk_widget_show (label290);
   gtk_box_pack_start (GTK_BOX (hbox145), label290, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label290), GTK_JUSTIFY_CENTER);
 
-  monomer_search_minimal_descriptions_checkbutton = gtk_check_button_new_with_mnemonic (_("Include Monomers with Minimal Descriptions"));
+  monomer_search_minimal_descriptions_checkbutton = gtk_check_button_new_with_mnemonic ("Include Monomers with Minimal Descriptions");
   gtk_widget_show (monomer_search_minimal_descriptions_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox186), monomer_search_minimal_descriptions_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (monomer_search_minimal_descriptions_checkbutton), 3);
@@ -15428,7 +15524,7 @@ create_monomer_search_dialog (void)
   gtk_widget_show (hbox144);
   gtk_container_add (GTK_CONTAINER (dialog_action_area95), hbox144);
 
-  monomer_library_search_dialog_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  monomer_library_search_dialog_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (monomer_library_search_dialog_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox144), monomer_library_search_dialog_cancel_button, FALSE, FALSE, 0);
 
@@ -15511,7 +15607,7 @@ create_least_squares_dialog (void)
   GtkWidget *least_squares_cancel_button;
 
   least_squares_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (least_squares_dialog), _("Least Squares Fit"));
+  gtk_window_set_title (GTK_WINDOW (least_squares_dialog), "Least Squares Fit");
   gtk_window_set_type_hint (GTK_WINDOW (least_squares_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox97 = GTK_DIALOG (least_squares_dialog)->vbox;
@@ -15530,7 +15626,7 @@ create_least_squares_dialog (void)
   gtk_widget_show (vbox189);
   gtk_container_add (GTK_CONTAINER (frame170), vbox189);
 
-  label292 = gtk_label_new (_("Reference Molecule:"));
+  label292 = gtk_label_new ("Reference Molecule:");
   gtk_widget_show (label292);
   gtk_box_pack_start (GTK_BOX (vbox189), label292, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label292), GTK_JUSTIFY_CENTER);
@@ -15544,7 +15640,7 @@ create_least_squares_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (least_squares_reference_molecule_optionmenu), convertwidget114);
 
-  label293 = gtk_label_new (_("Moving Molecule:"));
+  label293 = gtk_label_new ("Moving Molecule:");
   gtk_widget_show (label293);
   gtk_box_pack_start (GTK_BOX (vbox189), label293, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label293), GTK_JUSTIFY_CENTER);
@@ -15571,7 +15667,7 @@ create_least_squares_dialog (void)
   gtk_widget_show (hbox147);
   gtk_box_pack_start (GTK_BOX (vbox190), hbox147, TRUE, TRUE, 0);
 
-  label294 = gtk_label_new (_("Reference Residue Range "));
+  label294 = gtk_label_new ("Reference Residue Range ");
   gtk_widget_show (label294);
   gtk_box_pack_start (GTK_BOX (hbox147), label294, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label294), GTK_JUSTIFY_CENTER);
@@ -15579,8 +15675,9 @@ create_least_squares_dialog (void)
   least_squares_reference_range_1_entry = gtk_entry_new ();
   gtk_widget_show (least_squares_reference_range_1_entry);
   gtk_box_pack_start (GTK_BOX (hbox147), least_squares_reference_range_1_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (least_squares_reference_range_1_entry), 9679);
 
-  label295 = gtk_label_new (_(" to "));
+  label295 = gtk_label_new (" to ");
   gtk_widget_show (label295);
   gtk_box_pack_start (GTK_BOX (hbox147), label295, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label295), GTK_JUSTIFY_CENTER);
@@ -15588,8 +15685,9 @@ create_least_squares_dialog (void)
   least_squares_reference_range_2_entry = gtk_entry_new ();
   gtk_widget_show (least_squares_reference_range_2_entry);
   gtk_box_pack_start (GTK_BOX (hbox147), least_squares_reference_range_2_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (least_squares_reference_range_2_entry), 9679);
 
-  label296 = gtk_label_new (_("  Chain "));
+  label296 = gtk_label_new ("  Chain ");
   gtk_widget_show (label296);
   gtk_box_pack_start (GTK_BOX (hbox147), label296, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label296), GTK_JUSTIFY_CENTER);
@@ -15606,7 +15704,7 @@ create_least_squares_dialog (void)
   gtk_widget_show (hbox148);
   gtk_box_pack_start (GTK_BOX (vbox190), hbox148, TRUE, TRUE, 0);
 
-  label297 = gtk_label_new (_("   Moving Residue Range  "));
+  label297 = gtk_label_new ("   Moving Residue Range  ");
   gtk_widget_show (label297);
   gtk_box_pack_start (GTK_BOX (hbox148), label297, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label297), GTK_JUSTIFY_CENTER);
@@ -15614,8 +15712,9 @@ create_least_squares_dialog (void)
   least_squares_moving_range_1_entry = gtk_entry_new ();
   gtk_widget_show (least_squares_moving_range_1_entry);
   gtk_box_pack_start (GTK_BOX (hbox148), least_squares_moving_range_1_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (least_squares_moving_range_1_entry), 9679);
 
-  label298 = gtk_label_new (_(" to "));
+  label298 = gtk_label_new (" to ");
   gtk_widget_show (label298);
   gtk_box_pack_start (GTK_BOX (hbox148), label298, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label298), GTK_JUSTIFY_CENTER);
@@ -15623,8 +15722,9 @@ create_least_squares_dialog (void)
   least_squares_moving_range_2_entry = gtk_entry_new ();
   gtk_widget_show (least_squares_moving_range_2_entry);
   gtk_box_pack_start (GTK_BOX (hbox148), least_squares_moving_range_2_entry, TRUE, TRUE, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (least_squares_moving_range_2_entry), 9679);
 
-  label299 = gtk_label_new (_("  Chain "));
+  label299 = gtk_label_new ("  Chain ");
   gtk_widget_show (label299);
   gtk_box_pack_start (GTK_BOX (hbox148), label299, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label299), GTK_JUSTIFY_CENTER);
@@ -15646,26 +15746,26 @@ create_least_squares_dialog (void)
   gtk_widget_show (vbox188);
   gtk_container_add (GTK_CONTAINER (frame169), vbox188);
 
-  least_squares_match_type_all_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("All Atoms"));
+  least_squares_match_type_all_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "All Atoms");
   gtk_widget_show (least_squares_match_type_all_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox188), least_squares_match_type_all_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (least_squares_match_type_all_radiobutton), least_squares_match_type_all_radiobutton_group);
   least_squares_match_type_all_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (least_squares_match_type_all_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (least_squares_match_type_all_radiobutton), TRUE);
 
-  least_squares_match_type_main_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Mainchain"));
+  least_squares_match_type_main_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Mainchain");
   gtk_widget_show (least_squares_match_type_main_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox188), least_squares_match_type_main_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (least_squares_match_type_main_radiobutton), least_squares_match_type_all_radiobutton_group);
   least_squares_match_type_all_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (least_squares_match_type_main_radiobutton));
 
-  least_squares_match_type_calpha_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("C-alphas"));
+  least_squares_match_type_calpha_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "C-alphas");
   gtk_widget_show (least_squares_match_type_calpha_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox188), least_squares_match_type_calpha_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (least_squares_match_type_calpha_radiobutton), least_squares_match_type_all_radiobutton_group);
   least_squares_match_type_all_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (least_squares_match_type_calpha_radiobutton));
 
-  label325 = gtk_label_new (_("Match Atoms"));
+  label325 = gtk_label_new ("Match Atoms");
   gtk_widget_show (label325);
   gtk_frame_set_label_widget (GTK_FRAME (frame169), label325);
 
@@ -15677,12 +15777,12 @@ create_least_squares_dialog (void)
   gtk_widget_show (hbox146);
   gtk_container_add (GTK_CONTAINER (dialog_action_area96), hbox146);
 
-  least_squares_ok_button = gtk_button_new_with_mnemonic (_("   Fit   "));
+  least_squares_ok_button = gtk_button_new_with_mnemonic ("   Fit   ");
   gtk_widget_show (least_squares_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox146), least_squares_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (least_squares_ok_button), 2);
 
-  least_squares_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  least_squares_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (least_squares_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox146), least_squares_cancel_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (least_squares_cancel_button), 2);
@@ -15748,4 +15848,3 @@ create_least_squares_dialog (void)
 }
 
 #endif
-

@@ -12828,7 +12828,7 @@ programs to which you may be more accustomed.
   <widget>
     <class>GtkPixmap</class>
     <name>pixmap1</name>
-    <filename>coot-0.2.xpm</filename>
+    <filename>coot-0.3.xpm</filename>
     <xalign>0.5</xalign>
     <yalign>0.5</yalign>
     <xpad>0</xpad>
