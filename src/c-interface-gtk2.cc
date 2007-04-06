@@ -1,5 +1,19 @@
 
 
+#include <sys/types.h> // for stating
+#include <sys/stat.h>
+#if !defined _MSC_VER
+#include <unistd.h>
+#else
+#define S_IRUSR S_IREAD
+#define S_IWUSR S_IWRITE
+#define S_IXUSR S_IEXEC
+#define sleep Sleep
+#include <windows.h>
+#include <direct.h>
+#endif // _MSC_VER
+
+
 #include <gtk/gtk.h>
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
@@ -7,8 +21,36 @@
 # else 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "c-interface.h"
+#include "cc-interface.hh" // for str_mtime
+
+gboolean
+fileselection_sort_button_foreach_func
+ (GtkTreeModel *model,
+  GtkTreePath  *path,
+  GtkTreeIter  *iter,
+  gpointer      user_data)
+{
+   gchar *file_name, *tree_path_str;
+   gtk_tree_model_get (model, iter,
+		       0, &file_name,
+		       -1);
+   tree_path_str = gtk_tree_path_to_string(path);
+   std::vector<str_mtime> *file_vec_p = (std::vector<str_mtime> *)(user_data);
+   struct stat buf;
+   int status = stat(file_name, &buf);
+   if (status == 0) { 
+      time_t mtime = buf.st_mtime;
+      file_vec_p->push_back(str_mtime(file_name, mtime));
+   }
+   //    g_print ("Row %s: %s\n", tree_path_str, file_name);
+      
+   g_free(tree_path_str);
+   g_free(file_name); /* gtk_tree_model_get made copies of       */
+   return FALSE;
+}
 
 void fileselection_sort_button_clicked( GtkWidget *sort_button,
 					GtkWidget  *file_list) {
@@ -32,20 +74,19 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
       if (lab == "Files") {
 	 GtkTreeModel *model = gtk_tree_view_get_model(tv);
 	 GtkTreeIter iter;
-	 gboolean istat = gtk_tree_model_get_iter_first(model, &iter); // inits iter
-	 gint ich = gtk_tree_model_iter_n_children(model, &iter);
-	 std::cout << "n children: " << ich << std::endl;
-	 while (istat) {
+	 GtkListStore *liststore;
+	 std::vector<str_mtime> file_attr_vec;
 
-	    gchar *name;
-	    gchar *COL_NAME = "Files";
-	    std::cout << "next..!" ;
-	    // will crash...	    
-// 	    gtk_tree_model_get(model, &iter, COL_NAME, &name, -1);
-// 	    g_free(name);
-	    istat = gtk_tree_model_iter_next(model, &iter);
+	 gtk_tree_model_foreach(GTK_TREE_MODEL(model),
+				fileselection_sort_button_foreach_func, &file_attr_vec);
+
+	 // sort the files by date
+	 std::sort(file_attr_vec.begin(), file_attr_vec.end(), compare_mtimes);
+	 for (int i=0; i<file_attr_vec.size(); i++) {
+	    std::cout << file_attr_vec[i].file << std::endl;
 	 }
       }
+	 
    }
    g_list_free(collist);
    

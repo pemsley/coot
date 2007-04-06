@@ -2880,7 +2880,7 @@ void fileselection_sort_button_clicked_gtk1( GtkWidget *sort_button,
       status = stat(file_name.c_str(),&buf);
       if (status == 0) { 
 	 mtime = buf.st_mtime;
-	 v.push_back(str_mtime(text,mtime));
+	 v.push_back(str_mtime(text, mtime));
       } else {
 	 std::cout << "error stating " << file_name << std::endl;
       }
