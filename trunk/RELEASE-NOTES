@@ -49,7 +49,7 @@ Release 0.3 "Basil Grande"
     generating the dialog.
 
   o No longer try to read various SHELX keywords as atoms when trying
-    to read a SHELXL .res file. 
+    to read a SHELXL .res file [George Sheldrick].
 
   o shelx log file reader accounts for alternative conformations.
 

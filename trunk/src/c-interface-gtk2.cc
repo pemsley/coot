@@ -74,7 +74,7 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
       if (lab == "Files") {
 	 GtkTreeModel *model = gtk_tree_view_get_model(tv);
 	 GtkTreeIter iter;
-	 GtkListStore *liststore;
+	 GtkListStore *liststore; // model and liststore are the same thing here?
 	 std::vector<str_mtime> file_attr_vec;
 
 	 gtk_tree_model_foreach(GTK_TREE_MODEL(model),
@@ -82,8 +82,14 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
 
 	 // sort the files by date
 	 std::sort(file_attr_vec.begin(), file_attr_vec.end(), compare_mtimes);
+// 	 for (int i=0; i<file_attr_vec.size(); i++)
+// 	    std::cout << file_attr_vec[i].file << std::endl;
+	 gtk_list_store_clear(GTK_LIST_STORE(model));
+
 	 for (int i=0; i<file_attr_vec.size(); i++) {
-	    std::cout << file_attr_vec[i].file << std::endl;
+	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	    gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+			       0, file_attr_vec[i].file.c_str(), -1);
 	 }
       }
 	 
