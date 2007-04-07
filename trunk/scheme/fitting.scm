@@ -399,5 +399,6 @@
 	    (if (= imol-map -1)
 		(info-dialog "Oops.  Must Select Map to fit to!")
 		
-		(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1))))))))
+		(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)))))))
+
 		  
