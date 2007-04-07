@@ -379,13 +379,15 @@ molecule_class_info_t::install_model(atom_selection_container_t asc,
 void
 molecule_class_info_t::update_map() {
 
-   graphics_info_t info;
-
-   if (xmap_is_filled[0])
-      update_map_triangles(info.box_radius, info.RotationCentre()); 
-
-   if (info.display_lists_for_maps_flag) {
-      compile_density_map_display_list();
+   if (xmap_is_filled[0]) {
+      coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
+			 graphics_info_t::RotationCentre_y(),
+			 graphics_info_t::RotationCentre_z());
+      
+      update_map_triangles(graphics_info_t::box_radius, rc); 
+      if (graphics_info_t::display_lists_for_maps_flag) {
+	 compile_density_map_display_list();
+      }
    }
 }
 
@@ -1528,7 +1530,8 @@ int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *a
 
 void
 molecule_class_info_t::compile_density_map_display_list() {
-   
+
+   std::cout << "Deleting theMapContours " << theMapContours << std::endl;
    glDeleteLists(theMapContours, 1);
    theMapContours = glGenLists(1);
    glNewList(theMapContours, GL_COMPILE);
