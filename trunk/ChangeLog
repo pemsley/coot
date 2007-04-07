@@ -1,3 +1,7 @@
+2007-04-07  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* Release 0.3
+
 2007-03-31  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* src/graphics-info.cc: (destroy_edit_backbone_rama_plot): set
