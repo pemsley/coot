@@ -1,4 +1,10 @@
 
+Release 0.3.1 "Another Basil Grande?"
+
+  o Enable NCS ghosts
+  
+  o Add output of fractional matrix when doing coordinates
+    superposition [George Sheldrick]
 
 
 Release 0.3 "Basil Grande"
