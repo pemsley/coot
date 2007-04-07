@@ -70,21 +70,21 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
 					   float max_dist) {
 
-   construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
+   construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
 }
 
 Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
 					   float min_dist, float max_dist) {
 
-   construct_from_asc(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
+   construct_from_asc(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
 }
 
 void
@@ -281,6 +281,9 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
                                // 
                                // OK, I just checked. Valgrind no
                                // longer complains if I comment this line.
+   // 20070407 Back here again! Valgrind *does* complain about
+   // uninitialized do_bonds_to_hydrogens when I enable NCS ghosts.
+   
    
    // and disulfides bond flag:
    do_disulfide_bonds_flag = 1;

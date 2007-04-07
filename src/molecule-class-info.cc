@@ -175,7 +175,7 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	    // 0.7 is not used (I think) if do_rtops_flag is 0.
 	    // hack to fix Mac bug/strangeness
 
-	    // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+	    int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
 	    // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 	 }
 	    
@@ -7918,7 +7918,7 @@ molecule_class_info_t::transform_by(mat44 mat) {
 					 mat[2][0], mat[2][1], mat[2][2]);
       clipper::Coord_orth cco(mat[0][3], mat[1][3], mat[2][3]);
       clipper::RTop_orth rtop(clipper_mat, cco);
-      std::cout << "INFO:: coordinates transformed_by: \n"
+      std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
 		<< rtop.format() << std::endl;
       for (int i=0; i<atom_sel.n_selected_atoms; i++) { 
 	 // atom_sel.atom_selection[i]->Transform(mat); // doesn't compile!
@@ -7943,8 +7943,20 @@ void
 molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
 
    make_backup();
-   std::cout << "INFO:: coordinates transformed_by: \n"
+   std::cout << "INFO:: coordinates transformed by orthonal maxix: \n"
 	     << rtop.format() << std::endl;
+   if (have_unit_cell) {
+      clipper::Cell cell(clipper::Cell_descr(atom_sel.mol->get_cell().a,
+					     atom_sel.mol->get_cell().b,
+					     atom_sel.mol->get_cell().c,
+					     clipper::Util::d2rad(atom_sel.mol->get_cell().alpha),
+					     clipper::Util::d2rad(atom_sel.mol->get_cell().beta),
+					     clipper::Util::d2rad(atom_sel.mol->get_cell().gamma))); 
+      std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
+      std::cout << rtop.rtop_frac(cell).format() << std::endl;
+   } else {
+      std::cout << "No unit cell for this molecule, hence no fractional matrix." << std::endl;
+   }
    clipper::Coord_orth co;
    clipper::Coord_orth trans_pos; 
    if (has_model()) { 
