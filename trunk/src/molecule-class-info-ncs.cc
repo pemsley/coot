@@ -138,7 +138,7 @@ coot::ghost_molecule_display_t::update_bonds(CMMDBManager *mol) {
 
 //    std::cout << "ghost molecule bonds molecule has " << asc.n_selected_atoms
 // 	     << " selected atoms" << std::endl;
-      
+
    Bond_lines_container bonds(asc, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds();
 
