@@ -11,7 +11,22 @@
 
 namespace coot {
 
-   namespace minimol { 
+   namespace minimol {
+
+      class zone_info_t {
+      public:
+	 bool is_simple_zone;
+	 std::string chain_id;
+	 int resno_1;
+	 int resno_2;
+	 zone_info_t() { is_simple_zone = 0; }
+	 zone_info_t(const std::string &chain_id_in, int r1, int r2) {
+	    is_simple_zone = 1;
+	    chain_id = chain_id_in;
+	    resno_1 = r1;
+	    resno_2 = r2;
+	 }
+      };
 
       class atom { 
       public:
@@ -187,6 +202,10 @@ namespace coot {
 	 void check() const;
 
 	 molecule fragmentize() const;
+
+	 // Can this molecule be described as a simple zone?  If so,
+	 // return the parameters.
+	 zone_info_t zone_info() const;
 
       };
    }

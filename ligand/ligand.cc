@@ -1135,11 +1135,11 @@ coot::ligand::calculate_cluster_centres_and_eigens() {
 
 }
 
-short int
+bool
 coot::compare_clusters(const map_point_cluster &a,
 		       const map_point_cluster &b) {
 
-   return a.score > b.score; 
+   return (a.score > b.score); 
 }
 
 void

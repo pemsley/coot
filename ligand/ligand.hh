@@ -79,8 +79,8 @@ namespace coot {
       }
    }; 
 
-   short int compare_clusters(const map_point_cluster &a,
-			      const map_point_cluster &b);
+   bool compare_clusters(const map_point_cluster &a,
+			 const map_point_cluster &b);
 
    class ligand {
 
