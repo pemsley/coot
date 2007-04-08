@@ -1531,27 +1531,13 @@ int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *a
 void
 molecule_class_info_t::compile_density_map_display_list() {
 
-   std::cout << "Deleting theMapContours " << theMapContours << std::endl;
+   // std::cout << "Deleting theMapContours " << theMapContours << std::endl;
    glDeleteLists(theMapContours, 1);
    theMapContours = glGenLists(1);
    glNewList(theMapContours, GL_COMPILE);
 
-   // Trial code
-   // if we are in stereo mode, we need to update the map contour
-   // vectors of the other glcontext too.
-//    if (graphics_info_t::glarea_2 &&
-//        (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO ||
-// 	graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
-//       if (make_current_gl_context(graphics_info_t::glarea_2)) {
-// 	 glDeleteLists(theMapContours, 1);
-// 	 theMapContours = glGenLists(1);
-// 	 glNewList(theMapContours, GL_COMPILE);
-// 	 make_current_gl_context(graphics_info_t::glarea); // put it back
-//       }
-//    } 
    draw_density_map(0); // don't use theMapContours (make them!)
    glEndList();
-
 }
 
 
