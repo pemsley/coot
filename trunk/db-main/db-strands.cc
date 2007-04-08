@@ -6,6 +6,27 @@
 #include "db-main.hh" // for matches_pdb_name
 #include "db-strands.hh"
 #include "coot-coord-utils.hh"
+#include "coot-utils.hh"
+
+coot::db_strands::db_strands() {
+   
+   const char *ds = getenv("COOT_REF_SEC_STRUCTS");
+   if (!ds) {
+      const char *d = getenv("COOT_REF_STRUCTS");
+      if (d)
+	 ref_str_dir_str = d;
+      else {
+	 // fall back to the db-main reference structures
+	 std::string d1(DATADIR); // prefix/share
+	 std::string d2 = coot::util::append_dir_dir(d1, "coot");
+	 std::string d3 = coot::util::append_dir_dir(d2, "reference-structures");
+	 ref_str_dir_str = d3;
+      }
+   } else {
+      ref_str_dir_str = ds;
+   } 
+}
+
 
 std::vector<coot::minimol::molecule>
 coot::db_strands::get_reference_strands(int n_strands, int strand_length) {

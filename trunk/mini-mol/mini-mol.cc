@@ -538,7 +538,22 @@ coot::minimol::molecule::delete_molecule() {
 
    fragments.resize(0); 
 
-} 
+}
+
+
+coot::minimol::zone_info_t
+coot::minimol::molecule::zone_info() const {
+
+   coot::minimol::zone_info_t zi;
+   if (fragments.size() == 1) {
+      int r1 = fragments[0].min_res_no();
+      int r2 = fragments[0].max_residue_number();
+      if (r1 < r2) 
+	 zi = coot::minimol::zone_info_t(fragments[0].fragment_id, r1, r2);
+   }
+   return zi;
+}
+
 
 // We create (with new) a full mmdb CMMDBManager and pass back the
 // pointer to it.  You are responsible for deleting it.

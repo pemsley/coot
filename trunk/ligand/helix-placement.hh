@@ -16,6 +16,7 @@ namespace coot {
       }
       scored_helix_info_t() { score = -9999999.9;}
    };
+   bool compare_scored_strands(const scored_helix_info_t &a, const scored_helix_info_t &b);
 
    class eigen_info_t {
    public:
@@ -97,7 +98,13 @@ namespace coot {
 				 double cyl_len, double cyl_rad) const; // uses member data xmap
 
       scored_helix_info_t fit_strand(const coot::minimol::molecule &mol,
-				     const clipper::RTop_orth &rtop) const;
+				     const clipper::RTop_orth &rtop,
+				     int imol) const;
+      
+      std::vector<coot::scored_helix_info_t>
+      find_strand_candidates_by_shift_sampling(const coot::minimol::molecule &mol,
+					       const clipper::RTop_orth &rtop) const;
+
       
    public:
       helix_placement(const clipper::Xmap<float> &xmap_in) {
@@ -117,7 +124,11 @@ namespace coot {
 
       // and now for strands, we use much of the same code, including
       // the perhaps mis-leading helper class names
-      helix_placement_info_t place_strand(const clipper::Coord_orth &pt, int n_residues);
+      //
+      // n_sample_strands is the number of sample strands that we should get from the database
+      // 
+      helix_placement_info_t place_strand(const clipper::Coord_orth &pt, int n_residues,
+					  int n_sample_strands);
       
    };
 }

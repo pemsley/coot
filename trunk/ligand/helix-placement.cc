@@ -1179,7 +1179,8 @@ coot::helix_placement::trim_and_grow(minimol::molecule *m, float min_density_lim
 
 
 coot::helix_placement_info_t
-coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_length) {
+coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_length,
+				    int n_strand_samples) {
 
    coot::minimol::molecule rm;
    coot::helix_placement_info_t r(rm, 0, "Not Done");
@@ -1197,16 +1198,16 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
 
    // get some strands of that length
    //
-   int n_strands = 5;
    coot::db_strands dbs;
-   std::vector<coot::minimol::molecule> strands = dbs.get_reference_strands(n_strands, strand_length);
+   std::vector<coot::minimol::molecule> strands =
+      dbs.get_reference_strands(n_strand_samples, strand_length);
 
    // for each strand, fit as rigid body, both directions and return the score.
    float best_score = -999.0;
    coot::minimol::molecule best_mol;
    for (int imol=0; imol<strands.size(); imol++) {
-      std::cout << "Scoring fragment " << imol << " of " << strands.size() << std::endl;
-      coot::scored_helix_info_t info = fit_strand(strands[imol], op_plus_trans);
+      std::cout << "Scoring fragment " << imol+1 << " of " << strands.size() << std::endl;
+      coot::scored_helix_info_t info = fit_strand(strands[imol], op_plus_trans, imol);
       if (info.score > best_score) {
 	 std::cout << "   better score: " << info.score << std::endl;
 	 best_score = info.score;
@@ -1231,12 +1232,58 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
    return r;
 }
 
+// imol is passed just for writting out score info.
+// 
 coot::scored_helix_info_t
 coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
-				  const clipper::RTop_orth &rtop) const {
+				  const clipper::RTop_orth &rtop,
+				  int imol) const {
 
+   coot::scored_helix_info_t sir;
+   float best_score = -9999.9;
+
+   std::vector<coot::scored_helix_info_t> v =
+      find_strand_candidates_by_shift_sampling(mol, rtop);
+   std::cout << "Fitting " << v.size() << " shifted frag candidates from "
+	     << " candidate fragment number " << imol+1 << std::endl;
+
+   for (unsigned int iv=0; iv<v.size(); iv++) {
+      if (v[iv].score < best_score*0.6) {
+// 	 std::cout << "Reject - too far " << v[iv].score << " but refined to "
+// 		   << score << std::endl;
+      } else { 
+	 coot::rigid_body_fit(&v[iv].mol, xmap);
+	 float score = score_helix_position(v[iv].mol);
+	 if (score > best_score) {
+	    best_score = score;
+	    std::cout << "Got a better fit in fragment number " << imol+1
+		      << " from " << v[iv].score
+		      << " to " << score << std::endl;
+	    sir = v[iv];
+	    sir.score = score;
+	 }
+      }
+   }
+   return sir;
+}
+
+std::vector<coot::scored_helix_info_t>
+coot::helix_placement::find_strand_candidates_by_shift_sampling(const coot::minimol::molecule &mol,
+								const clipper::RTop_orth &rtop) const {
+   
    // OK hold on to your hats here!
-   // 
+
+   // Return a vector of the "best-fitting" strands before we do rigid
+   // body refinement.  i.e. there's no need to do rigid body
+   // refinement on all strands, just the best-fitting ones.  So here
+   // we return the best-fitting ones. And in the calling function of
+   // this routine, we do the rigid-body fitting of each strand and
+   // return the best one.  Return all strands that have a score of
+   // more than half the top score.
+
+   float top_cut = 0.5; // above this gets through
+   top_cut = 0.8; 
+
    // rtop transform object near the origin (oriented along z) to
    // match the orientation and position of the place of interest.
    // That transformation happens last.  We will move things around
@@ -1253,6 +1300,9 @@ coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
 				   // right place.
 
    float best_score = -9999.9; // the score to beat
+
+   std::vector<coot::scored_helix_info_t> scored_strand_vector_working;
+   std::vector<coot::scored_helix_info_t> scored_strand_vector_returned;
    
    coot::scored_helix_info_t scored_strand;
    coot::minimol::molecule mc = mol;
@@ -1262,11 +1312,11 @@ coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
    flip_rotated_matrices.push_back(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1));
    flip_rotated_matrices.push_back(clipper::Mat33<double>(-1, 0, 0, 0, 1, 0, 0, 0, -1));
    for (unsigned int iflip=0; iflip<flip_rotated_matrices.size(); iflip++) {
-      if (iflip == 0) {
-	 std::cout << "   testing forward direction..." << std::endl;
-      } else { 
-	 std::cout << "   testing reverse direction..." << std::endl;
-      }
+//       if (iflip == 0) {
+// 	 std::cout << "   testing forward direction..." << std::endl;
+//       } else { 
+// 	 std::cout << "   testing reverse direction..." << std::endl;
+//       }
       
       coot::minimol::molecule flip = mc;
       clipper::RTop_orth flip_rtop(flip_rotated_matrices[iflip],
@@ -1290,7 +1340,6 @@ coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
 
 	    // Now the transformation we first thought of...
 	    z_shift_mol.transform(rtop); 
-	    // coot::rigid_body_fit(&z_shift_mol, xmap);
 	    float score = score_helix_position(z_shift_mol);
 
 	    // debug
@@ -1306,14 +1355,41 @@ coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
 	       z_shift_mol.write_file(filename, 30.0);
 	    }
 
-	    if (score > best_score) {
-	       best_score = score;
-	       // std::cout << "Got a better fit in fit_strand " << score << std::endl;
-	       scored_strand.score = score;
-	       scored_strand.mol = z_shift_mol;
-	    } 
+	    scored_strand.score = score;
+	    scored_strand.mol = z_shift_mol;
+	    scored_strand_vector_working.push_back(scored_strand);
+
 	 }
       }
    }
-   return scored_strand;
+
+   // now we have lots of vectors in scored_strand_vector_working. Sort them.
+   std::sort(scored_strand_vector_working.begin(),
+ 	     scored_strand_vector_working.end(),
+ 	     compare_scored_strands);
+
+   float top_score = 0.0;
+   for (unsigned int i=0; i<scored_strand_vector_working.size(); i++) {
+      // std::cout << "    " << i << " " << scored_strand_vector_working[i].score << std::endl;
+      if (scored_strand_vector_working[i].score > top_score) {
+	 top_score = scored_strand_vector_working[i].score;
+      }
+   }
+
+   if (top_score > 0.0) { 
+      for (unsigned int i=0; i<scored_strand_vector_working.size(); i++) {
+	 if (scored_strand_vector_working[i].score > top_score*top_cut) {
+	    scored_strand_vector_returned.push_back(scored_strand_vector_working[i]);
+	 }
+      }
+   }
+   
+   return scored_strand_vector_returned;
+} 
+
+
+bool
+coot::compare_scored_strands(const scored_helix_info_t &a,
+			     const scored_helix_info_t &b) {
+   return (a.score > b.score); 
 } 

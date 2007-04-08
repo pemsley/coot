@@ -21,7 +21,7 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	       xmap.cell().c()/xmap.grid_sampling().nv() +
 	       xmap.cell().b()/xmap.grid_sampling().nw())/3.0;
 
-   double gradient_scale = 0.3*t*t;  // somewhat arbitary.
+   double gradient_scale = 0.3*t*t;  // somewhat arbitrary.
 
    while ( (iround < round_max) && (move_by_length > 0.0002) ) {
       clipper::Coord_orth midpoint(0,0,0);
@@ -41,10 +41,10 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
       if (n_atoms > 0) {
 
 	 // assign the atom weights
-	 std::vector<double> atom_z_weights(n_atoms);
-	 std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
 	 std::vector<minimol::atom *> atoms = m->select_atoms_serial();
-	 for (int i=0; i<n_atoms; i++) {
+	 std::vector<double> atom_z_weights(atoms.size());
+	 std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
+	 for (int i=0; i<atoms.size(); i++) {
 	    double z = coot::util::atomic_number(atoms[i]->element, atom_list);
 	    if (z < 0.0) {
 	       std::cout << "Unknown element :" << atoms[i]->element << ": " << std::endl;
@@ -55,7 +55,7 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	 
 	 double one_over = 1/double(n_atoms);
 	 clipper::Coord_orth mean_pos = one_over * midpoint;
-	 
+
 	 clipper::Grad_map<float> grad;
 	 clipper::Grad_frac<float> grad_frac;
 	 clipper::Grad_orth<float> grad_orth;

@@ -587,6 +587,33 @@
 	      (format #t "Failed children length test : ~s ~s~%" children model-mol-list)
 	      #f))))
 
+;; Here we return the active item in an option menu of generic items
+;; 
+(define (get-option-menu-active-item option-menu item-list)
+
+      (let* ((menu (gtk-option-menu-get-menu option-menu))
+	     (active-item (gtk-menu-get-active menu))
+	     (children (gtk-container-children menu)))
+	
+	(if (= (length children) (length item-list))
+	    (begin 
+	      (let loop ((children children)
+			 (item-list item-list))
+		
+		(cond
+		 ((null? children) #f)
+		 ((eqv? active-item (car children))
+		  (car item-list))
+		 (else
+		  (loop (cdr children) (cdr item-list))))))
+	    
+	    (begin
+	      (format #t "Failed children length test : ~s ~s~%" 
+		      children item-list)
+	      #f))))
+
+
+
 
 (define molecule-chooser-gui-generic
   (lambda (chooser-label callback-function option-menu-fill-function)
@@ -876,7 +903,7 @@
     (gtk-signal-connect go-button "clicked" 
 			(lambda () 
 			  (let ((active-number
-				 (get-option-menu-active-molecule 
+				 (get-option-menu-active-item
 				  option-menu number-list)))
 			    (go-function active-number)
 			    (gtk-widget-destroy window))))
@@ -894,9 +921,10 @@
   (lambda ()
 
     (generic-number-chooser (number-list 4 12) 7
-			    " Estimated number of residues in strand"
+			    " Estimated number of residues in strand "
 			    "  Go  "
 			    (lambda (n)
+			      (format #t "DEBUG:: n: ~s~%" n)
 			      (place-strand-here n)))))
 
 	 

@@ -3830,7 +3830,7 @@ int place_helix_here() {
 /*  ----------------------------------------------------------------------- */
 /*                  Place a strand                                          */
 /*  ----------------------------------------------------------------------- */
-int place_strand_here(int n_residues) {
+int place_strand_here(int n_residues, int n_sample_strands) {
 
    int imol = -1; // failure status 
    graphics_info_t g;
@@ -3841,8 +3841,11 @@ int place_strand_here(int n_residues) {
    if (imol_map != -1) {
 
       coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap_list[0]);
-      coot::helix_placement_info_t si = p.place_strand(pt, n_residues);
+      coot::helix_placement_info_t si = p.place_strand(pt, n_residues, n_sample_strands);
       if (si.success) {
+	 // nice to refine the fragment here, but the interface
+	 // doesn't work that way, so put the refinement after the
+	 // molecule has been accepted.
 	 float bf = graphics_info_t::default_new_atoms_b_factor;
 	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager(bf));
 	 g.expand_molecule_space_maybe();
@@ -3850,6 +3853,21 @@ int place_strand_here(int n_residues) {
 	 graphics_info_t::molecules[imol].install_model(asc, "Strand", 1);
 	 g.statusbar_text("Strand added");
 	 g.n_molecules++;
+
+	 // Now refine.
+	 coot::minimol::zone_info_t zi = si.mol[0].zone_info();
+	 if (zi.is_simple_zone) {
+	    graphics_info_t g;
+	    int save_rirf = g.refinement_immediate_replacement_flag;
+	    coot::pseudo_restraint_bond_type save_pseudos = g.pseudo_bonds_type;
+	    g.pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
+	    g.refinement_immediate_replacement_flag = 1;
+	    g.refine_residue_range(imol, zi.chain_id, zi.chain_id, zi.resno_1, zi.resno_2,
+				   "", 0);
+	    g.refinement_immediate_replacement_flag = save_rirf;
+	    accept_regularizement();
+	    g.pseudo_bonds_type = save_pseudos;
+	 } 
       } else {
 	 std::cout << "Strand addition failure: message: " << si.failure_message << "\n";
 	 g.statusbar_text(si.failure_message);
@@ -3869,6 +3887,7 @@ int place_strand_here(int n_residues) {
       command_strings.resize(0);
       command_strings.push_back("place-strand-here");
       command_strings.push_back(coot::util::int_to_string(n_residues));
+      command_strings.push_back(coot::util::int_to_string(n_sample_strands));
       add_to_history(command_strings);
       graphics_draw();
       return imol;

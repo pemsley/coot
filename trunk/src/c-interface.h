@@ -3677,8 +3677,12 @@ int place_helix_here();
    the orientation. Add to a molecule called "Strand", create it if needed.
    n_residues is the estimated number of residues in the strand.
 
+   n_sample_strands is the number of strands from the database tested
+   to fit into this strand density.  8 is a suggested number.  20 for
+   a more rigourous search, but it will be slower.
+
    @return the index of the new molecule.*/
-int place_strand_here(int n_residues);
+int place_strand_here(int n_residues, int n_sample_strands);
 
 /* \} */
 
