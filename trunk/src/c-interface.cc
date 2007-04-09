@@ -6055,14 +6055,17 @@ void unset_go_to_atom_widget() {
    graphics_info_t::go_to_atom_window = NULL;
 } 
 
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 // // A misnamed function.  The atom list is not filled, it is cleared.
 // // 
-void fill_go_to_atom_residue_and_atom_lists(GtkWidget *residue_gtklist,
- 					    GtkWidget *atom_gtklist) {
+void fill_go_to_atom_residue_and_atom_lists_gtk1(GtkWidget *residue_gtklist,
+						 GtkWidget *atom_gtklist) {
 
     graphics_info_t g;
-    g.fill_go_to_atom_residue_list(residue_gtklist);
+    g.fill_go_to_atom_residue_list_gtk1(residue_gtklist);
 }
+#endif
 
 
 // not really a button select, its a menu item select
@@ -6401,30 +6404,24 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 
       gtk_signal_connect(GTK_OBJECT(atom_gtklist),
  			"selection_changed",
- 			GTK_SIGNAL_FUNC(on_go_to_atom_atom_list_selection_changed),
+ 			GTK_SIGNAL_FUNC(on_go_to_atom_atom_list_selection_changed_gtk1),
  			NULL);
 
 
      /* fill those atom and residue lists (which uses
 	graphics_info_t::go_to_atom_residue()) */
-     fill_go_to_atom_residue_and_atom_lists(residue_tree,
-					    atom_gtklist);
+     fill_go_to_atom_residue_and_atom_lists_gtk1(residue_tree,
+						 atom_gtklist);
 
 #else
      // -----------------------------------------------------------------
      //                GTK2 path
      // -----------------------------------------------------------------
-     residue_tree = gtk_tree_view_new(); 
-
-     gtk_widget_ref(residue_tree);
-     gtk_object_set_data_full(GTK_OBJECT(widget), "go_to_atom_residue_tree",
-			      residue_tree, 
-			      (GtkDestroyNotify) gtk_widget_unref);
-
-     gtk_signal_connect(GTK_OBJECT(residue_tree),
-  			"selection_changed",
-  			GTK_SIGNAL_FUNC(on_go_to_atom_residue_tree_selection_changed),
-  			NULL);
+     GtkWidget *atom_list_scrolled_window =
+	lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_scrolledwindow");
+     g.fill_go_to_atom_window_gtk2(widget, // the go to atom window
+				   scrolled_window,
+				   atom_list_scrolled_window);
 
 #endif      
 
@@ -6540,8 +6537,9 @@ void on_go_to_atom_residue_list_unselect_child (GtkList         *list,
 }
 
 
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
-void on_go_to_atom_atom_list_selection_changed(GtkList         *atom_gtklist,
+void on_go_to_atom_atom_list_selection_changed_gtk1(GtkList         *atom_gtklist,
 					       gpointer         user_data) {
 
    graphics_info_t g;
@@ -6607,17 +6605,8 @@ void on_go_to_atom_atom_list_selection_changed(GtkList         *atom_gtklist,
 
 }
 
-void on_go_to_atom_atom_list_select_child (GtkList         *list,
-					   GtkWidget       *widget,
-					   gpointer         user_data) {
-   std::cout << "child selected.\n";
-}
+#endif // GTK version
 
-void on_go_to_atom_atom_list_unselect_child (GtkList         *list,
-					     GtkWidget       *widget,
-					     gpointer         user_data) {
-   std::cout << "child unselected.\n"; 
-}
 
 
 /*  ----------------------------------------------------------------------- */

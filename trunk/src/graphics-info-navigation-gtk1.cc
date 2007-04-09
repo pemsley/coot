@@ -246,7 +246,7 @@ graphics_info_t::fill_go_to_atom_residue_list_gtk1(GtkWidget *gtktree) {
 	    // For double clicks:  
  	    gtk_signal_connect(GTK_OBJECT(subitem),
  			       "button_press_event",
- 			       GTK_SIGNAL_FUNC(go_to_atom_residue_tree_signal_handler_event),
+ 			       GTK_SIGNAL_FUNC(go_to_atom_residue_tree_signal_handler_event_gtk1),
  			       NULL);
 
 	    // do we get deselected items?
@@ -262,9 +262,9 @@ graphics_info_t::fill_go_to_atom_residue_list_gtk1(GtkWidget *gtktree) {
 
 // static
 gint
-graphics_info_t::go_to_atom_residue_tree_signal_handler_event(GtkWidget *widget, 
-							      GdkEventButton *event, 
-							      gpointer func_data) {
+graphics_info_t::go_to_atom_residue_tree_signal_handler_event_gtk1(GtkWidget *widget, 
+								   GdkEventButton *event, 
+								   gpointer func_data) {
   if (GTK_IS_TREE_ITEM(widget) &&
        (event->type==GDK_2BUTTON_PRESS ||
         event->type==GDK_3BUTTON_PRESS) ) {

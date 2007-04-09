@@ -667,7 +667,11 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *at_name,
 	    // need to regenerate the residue and atom lists.
 	    GtkWidget *gtktree = lookup_widget(g.go_to_atom_window,
 					       "go_to_atom_residue_tree");
-	    g.fill_go_to_atom_residue_list(gtktree);
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+	    g.fill_go_to_atom_residue_list_gtk1(gtktree);
+#else 	    
+	    g.fill_go_to_atom_residue_tree_gtk2(gtktree);
+#endif	    
 	 } else { 
 	    std::cout << "DEBUG:: no molecule number match\n";
 	 } 

@@ -1885,13 +1885,7 @@ int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);
 void save_go_to_atom_widget(GtkWidget *widget); /* store in a static */
 void unset_go_to_atom_widget(); /* unstore the static go_to_atom_window */
 
-void fill_go_to_atom_residue_and_atom_lists(GtkWidget *residue_gtklist,
- 					    GtkWidget *atom_gtklist); 
 
-/* void fill_go_to_atom_residue_list(GtkWidget *list); */
-
-/* recall that we don't pass mmdb classes in c-interface */
-/* void fill_go_to_atom_atom_list(GtkWidget *list, int imol, char *chain_id, int seqno); */
 void clear_atom_list(GtkWidget *atom_gtklist);
 
 void apply_go_to_atom_from_widget(GtkWidget *widget);
@@ -1902,8 +1896,7 @@ on_go_to_atom_residue_list_select_child (GtkList         *list,
 					 gpointer         user_data);
 
 #ifdef COOT_USE_GTK2_INTERFACE
-void on_go_to_atom_residue_tree_selection_changed (GtkTreeView         *gtktree,
-						   gpointer         user_data);
+/* stuff moved into graphics_info_t */
 #else
 void on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList         *gtktree,
 							gpointer         user_data);
@@ -1914,25 +1907,17 @@ void on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList         *gtktree
 /* on_go_to_atom_residue_list_selection_changed (GtkList         *list, */
 /* 						   gpointer         user_data); */
 
+
+#ifdef COOT_USE_GTK2_INTERFACE
+
+#else
+void on_go_to_atom_atom_list_selection_changed_gtk1 (GtkList         *list,
+						gpointer         user_data);
 void
 on_go_to_atom_residue_list_unselect_child (GtkList         *list,
 					   GtkWidget       *widget,
 					   gpointer         user_data);
-
-void
-on_go_to_atom_atom_list_select_child (GtkList         *list,
-				      GtkWidget       *widget,
-				      gpointer         user_data);
-
-void
-on_go_to_atom_atom_list_selection_changed (GtkList         *list,
-					   gpointer         user_data);
-
-void
-on_go_to_atom_atom_list_unselect_child (GtkList         *list,
-                                        GtkWidget       *widget,
-                                        gpointer         user_data);
-
+#endif
 /* \} */
 
 

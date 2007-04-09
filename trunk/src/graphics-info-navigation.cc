@@ -629,28 +629,13 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
       if (gtktree == NULL) {
 	 std::cout << "ERROR:: gtktree (go_to_atom_residue_tree) is null!\n"; 
       } else {
-	 graphics_info_t::fill_go_to_atom_residue_list(gtktree);
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+	 graphics_info_t::fill_go_to_atom_residue_list_gtk1(gtktree);
+#else 	 
+	 graphics_info_t::fill_go_to_atom_residue_tree_gtk2(gtktree);
+#endif	 
       }
    } 
-}
-
-
-// a static
-//
-// Recall that the tree is created in c-interface.cc's fill_go_to_atom_window().
-void
-graphics_info_t::fill_go_to_atom_residue_list(GtkWidget *gtktree) {
-
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-   graphics_info_t::fill_go_to_atom_residue_list_gtk1(gtktree);
-
-#else
-
-   graphics_info_t::fill_go_to_atom_residue_tree_gtk2(gtktree);
-
-#endif   
-
 }
 
 
@@ -676,23 +661,6 @@ void graphics_info_t::residue_tree_view_itemsignal( GtkWidget *item,
 
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
-
-// static
-gint
-graphics_info_t::go_to_atom_residue_list_signal_handler_event(GtkWidget *widget, 
-							      GdkEventButton *event, 
-							      gpointer func_data) {
-  if (GTK_IS_LIST_ITEM(widget) &&
-       (event->type==GDK_2BUTTON_PRESS ||
-        event->type==GDK_3BUTTON_PRESS) ) {
-//      printf("I feel %s clicked on button %d\n",
-// 	    event->type==GDK_2BUTTON_PRESS ? "double" : "triple", 
-// 	    event->button); 
-     graphics_info_t g;
-     g.apply_go_to_atom_from_widget(go_to_atom_window);
-  } 
-  return FALSE;
-} 
 
 
 
@@ -915,7 +883,11 @@ graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionTyp
 // 						 "go_to_atom_residue_list");
       GtkWidget *residue_gtktree = lookup_widget(GTK_WIDGET(item),
 						 "go_to_atom_residue_tree");
-      fill_go_to_atom_residue_list(residue_gtktree);
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+      fill_go_to_atom_residue_list_gtk1(residue_gtktree);
+#else      
+      fill_go_to_atom_residue_tree_gtk2(residue_gtktree);
+#endif      
    }
 }
 

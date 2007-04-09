@@ -1,9 +1,25 @@
-
+/* src/c-interface.cc
+ * 
+ * Copyright 2007 The University of York, written by Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ */
 
 
 #include <gtk/gtk.h>
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
 
 # else 
 
@@ -21,6 +37,30 @@
 #endif // _MSC_VER
 
 #include "graphics-info.h"
+
+enum {
+   CHAIN_COL,
+   RESIDUE_COL
+};
+
+// static
+void
+graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
+					     GtkWidget *residue_tree_scrolled_window,
+					     GtkWidget *atom_list_scrolled_window) {
+     
+   GtkWidget *residue_tree = gtk_tree_view_new(); 
+   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(residue_tree_scrolled_window),
+					 residue_tree);
+   gtk_widget_ref(residue_tree);
+   gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window),
+			    "go_to_atom_residue_tree",
+			    residue_tree, 
+			    (GtkDestroyNotify) gtk_widget_unref);
+   graphics_info_t::fill_go_to_atom_residue_tree_gtk2(residue_tree);
+   gtk_widget_show(residue_tree);
+}
+
 
 // a static
 //
@@ -40,15 +80,87 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
       molecules[g.go_to_atom_molecule()].model_view_residue_tree_labels();
 
    // so, clear the current tree:
-   GtkTreeView *tv = GTK_TREE_VIEW(gtktree);
-   GtkTreeModel *model = gtk_tree_view_get_model(tv);
-   gtk_tree_store_clear(GTK_TREE_STORE(model));
+   GtkTreeView *tv = NULL;
+   if (gtktree) 
+      tv = GTK_TREE_VIEW(gtktree);
+   if (! tv)
+      tv = GTK_TREE_VIEW(gtk_tree_view_new());
+   gtk_tree_view_set_rules_hint (tv, TRUE);
 
+   GtkTreeModel *model = gtk_tree_view_get_model(tv);
+   std::cout << "model: " << model << std::endl;
+   // potentially a bug here if an old model is left lying about in
+   // the tree store?  That shouldn't happen though.., should it?
+   if (model) { 
+      gtk_tree_store_clear(GTK_TREE_STORE(model));
+   }
+
+   // Here is the plan:
+   //
+   // outer loop:
+
+   GtkTreeStore *tree_store = gtk_tree_store_new (1, G_TYPE_STRING);
+   GtkTreeIter   toplevel, child;
+
+   // what is the connection between tree_store and model?
+   gtk_tree_view_set_model(GTK_TREE_VIEW(gtktree), GTK_TREE_MODEL(tree_store));
+    
+   for (unsigned int ichain=0; ichain<residue_chains.size(); ichain++) {
+      // the chain label item e.g. "A"
+      gtk_tree_store_append(GTK_TREE_STORE(tree_store), &toplevel, NULL);
+
+      std::cout << "Adding tree item " << residue_chains[ichain].chain_id
+		<< std::endl;
+      gtk_tree_store_set (tree_store, &toplevel,
+			  CHAIN_COL, residue_chains[ichain].chain_id.c_str(),
+			  -1);
+      for (unsigned int ires=0; ires<residue_chains[ichain].tree_residue.size();
+	   ires++) {
+	 gtk_tree_store_append(GTK_TREE_STORE(tree_store),
+			       &child, &toplevel);
+	 gtk_tree_store_set(tree_store, &child,
+			    CHAIN_COL,  residue_chains[ichain].tree_residue[ires].button_label.c_str(),
+			    -1);
+      }
+   }
+
+   GtkCellRenderer *cell = gtk_cell_renderer_text_new();
+   GtkTreeViewColumn *column =
+      gtk_tree_view_column_new_with_attributes ("Chains", cell, "text", 0, NULL);
+   gtk_tree_view_append_column (GTK_TREE_VIEW (tv),
+				GTK_TREE_VIEW_COLUMN (column));
+
+   GtkTreeSelection*   tree_sel = gtk_tree_view_get_selection (tv);
+   gtk_tree_selection_set_mode(tree_sel, GTK_SELECTION_SINGLE);
+   g_signal_connect(tv, "row-activated", (GCallback) residue_tree_residue_row_activated, NULL);
 }
 
 // static
 void
-graphics_info_t::on_go_to_atom_residue_tree_selection_changed (GtkTreeView *gtklist,
+graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview,
+						    GtkTreePath        *path,
+						    GtkTreeViewColumn  *col,
+						    gpointer            userdata) {
+
+   // This gets called on double-clicking, and not on single clicking
+   
+   std::cout << "something was activated!" << std::endl;
+   GtkTreeModel *model = gtk_tree_view_get_model(treeview);
+   GtkTreeIter   iter;
+   
+    if (gtk_tree_model_get_iter(model, &iter, path))
+       {
+       gchar *name;
+       gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
+       g_print ("Double-clicked row contains name %s\n", name);
+       g_free(name);
+    }
+   
+}
+
+// static
+void
+graphics_info_t::on_go_to_atom_residue_tree_selection_changed (GtkTreeView *gtktree,
 							       gpointer user_data) {
 
    std::cout << "tree selection changed - fill me!" << std::endl;
