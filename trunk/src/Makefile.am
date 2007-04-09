@@ -193,6 +193,7 @@ coot_real_SOURCES = \
 	graphics-info-superpose.cc	\
 	graphics-info-navigation.cc	\
 	graphics-info-navigation-gtk1.cc\
+	graphics-info-navigation-gtk2.cc\
 	pick.cc			 \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \

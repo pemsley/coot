@@ -259,6 +259,7 @@ graphics_info_t::fill_go_to_atom_residue_list_gtk1(GtkWidget *gtktree) {
 }
 
 
+
 // static
 gint
 graphics_info_t::go_to_atom_residue_tree_signal_handler_event(GtkWidget *widget, 

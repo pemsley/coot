@@ -105,7 +105,7 @@ const char *graphics_info_t::go_to_atom_chain() {
 }
 
 // Return the current go_to_atom residue number, if special case
-// (-9999) (not set) the set other values too.
+// (-9999) (not set) then set other go to atom values too.
 //
 int graphics_info_t::go_to_atom_residue() {
 
@@ -647,6 +647,8 @@ graphics_info_t::fill_go_to_atom_residue_list(GtkWidget *gtktree) {
 
 #else
 
+   graphics_info_t::fill_go_to_atom_residue_tree_gtk2(gtktree);
+
 #endif   
 
 }
@@ -917,17 +919,6 @@ graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionTyp
    }
 }
 
-void
-graphics_info_t::on_go_to_atom_residue_tree_selection_changed(GtkList *gtktree,
-							      gpointer user_data) {
-
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-   graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1(gtktree, user_data);
-
-#endif    
-
-}
 
 void
 graphics_info_t::undo_last_move() {  // suggested by Frank von Delft

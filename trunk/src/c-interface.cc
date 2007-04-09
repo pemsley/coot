@@ -6361,13 +6361,6 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 				  GTK_SELECTION_SINGLE);
      gtk_widget_show(residue_tree);
 
-#else
-
-     residue_tree = 0; // FIXME residue_tree = gtk_tree_view_new(); perhaps
-
-#endif      
-
-
      // now set the adjustment of the viewport/scrolledwindow to the
      // gtklist for residue
      // 
@@ -6385,10 +6378,10 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 			      residue_tree, 
 			      (GtkDestroyNotify) gtk_widget_unref);
 
-      gtk_signal_connect(GTK_OBJECT(residue_tree),
- 			"selection_changed",
- 			GTK_SIGNAL_FUNC(on_go_to_atom_residue_tree_selection_changed),
- 			NULL);
+       gtk_signal_connect(GTK_OBJECT(residue_tree),
+  			"selection_changed",
+  			GTK_SIGNAL_FUNC(on_go_to_atom_residue_tree_selection_changed_gtk1),
+  			NULL);
 
      /* The atom list */
      scrolled_window = lookup_widget(GTK_WIDGET(widget),
@@ -6411,10 +6404,29 @@ void fill_go_to_atom_window(GtkWidget *widget) {
  			GTK_SIGNAL_FUNC(on_go_to_atom_atom_list_selection_changed),
  			NULL);
 
+
      /* fill those atom and residue lists (which uses
 	graphics_info_t::go_to_atom_residue()) */
      fill_go_to_atom_residue_and_atom_lists(residue_tree,
 					    atom_gtklist);
+
+#else
+     // -----------------------------------------------------------------
+     //                GTK2 path
+     // -----------------------------------------------------------------
+     residue_tree = gtk_tree_view_new(); 
+
+     gtk_widget_ref(residue_tree);
+     gtk_object_set_data_full(GTK_OBJECT(widget), "go_to_atom_residue_tree",
+			      residue_tree, 
+			      (GtkDestroyNotify) gtk_widget_unref);
+
+     gtk_signal_connect(GTK_OBJECT(residue_tree),
+  			"selection_changed",
+  			GTK_SIGNAL_FUNC(on_go_to_atom_residue_tree_selection_changed),
+  			NULL);
+
+#endif      
 
      /* store the widget */
      save_go_to_atom_widget(widget);
@@ -6477,33 +6489,43 @@ int apply_go_to_atom_values(GtkWidget * window) {
 }
 
 
+// Delete me if compiling with GTK1 works.  It seems that nothing
+// calls this function.
+// 
+// // called by a function in callback.c
+// //
+// // void on_go_to_atom_residue_list_selection_changed (GtkList         *gtklist,
+// // 						   gpointer         user_data) {
 
-// called by a function in callback.c
-//
 // void on_go_to_atom_residue_list_selection_changed (GtkList         *gtklist,
 // 						   gpointer         user_data) {
-
-void on_go_to_atom_residue_list_selection_changed (GtkList         *gtklist,
-						   gpointer         user_data) {
    
-//    graphics_info_t g;
-//    g.on_go_to_atom_residue_list_selection_changed(gtklist, user_data);
+// //    graphics_info_t g;
+// //    g.on_go_to_atom_residue_list_selection_changed(gtklist, user_data);
 
-   // old residue list function stub.
-}
+//    // old residue list function stub.
+// }
 
-void on_go_to_atom_residue_tree_selection_changed (GtkList         *gtktree,
-						   gpointer         user_data) {
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+
+void on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList         *gtktree,
+							gpointer         user_data) {
    
    graphics_info_t g;
-   g.on_go_to_atom_residue_tree_selection_changed(gtktree, user_data);
+   g.on_go_to_atom_residue_tree_selection_changed_gtk1(gtktree, user_data);
 }
+#endif
+
 
 void clear_atom_list(GtkWidget *atom_gtklist) {
 
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
    gtk_list_clear_items(GTK_LIST(atom_gtklist), 0, -1);
-
-} 
+#else
+   // FILL ME
+#endif 
+}
 
 void on_go_to_atom_residue_list_select_child (GtkList         *list,
 					      GtkWidget       *widget,

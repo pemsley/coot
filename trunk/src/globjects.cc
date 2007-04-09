@@ -1284,7 +1284,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 		  << std::endl;
      }
   } // end while
-  std::cout << "gl_extras returns " << drawing_area << std::endl;
+  //   std::cout << "DEBUG:: gl_extras returns " << drawing_area << std::endl;
   return drawing_area;
    
 }
