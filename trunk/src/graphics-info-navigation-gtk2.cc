@@ -132,8 +132,43 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
 
    GtkTreeSelection*   tree_sel = gtk_tree_view_get_selection (tv);
    gtk_tree_selection_set_mode(tree_sel, GTK_SELECTION_SINGLE);
+   // double clicks
    g_signal_connect(tv, "row-activated", (GCallback) residue_tree_residue_row_activated, NULL);
+
+   gtk_tree_selection_set_select_function (tree_sel,
+					   graphics_info_t::residue_tree_selection_func,
+					   NULL, NULL);
+   
 }
+
+// static
+gboolean
+graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
+					     GtkTreeModel *model,
+					     GtkTreePath *path,
+					     gboolean path_currently_selected,
+					     gpointer data) {
+
+   GtkTreeIter   iter;
+   gboolean can_change_selected_status_flag = TRUE;
+   
+    if (gtk_tree_model_get_iter(model, &iter, path)) {
+       gchar *name;
+       gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
+       if (!path_currently_selected) {
+	  if (1) {  // if this was a residue, not a chain click
+	     // update the go to atom residues from the
+	     // characteristics of this row... bleurgh.. how do I do
+	     // that!?
+	  }
+       }
+       g_free(name);
+       graphics_info_t g;
+       g.apply_go_to_atom_from_widget(go_to_atom_window);
+    }
+    return can_change_selected_status_flag;
+}
+
 
 // static
 void
@@ -144,16 +179,16 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 
    // This gets called on double-clicking, and not on single clicking
    
-   std::cout << "something was activated!" << std::endl;
    GtkTreeModel *model = gtk_tree_view_get_model(treeview);
    GtkTreeIter   iter;
    
-    if (gtk_tree_model_get_iter(model, &iter, path))
-       {
+    if (gtk_tree_model_get_iter(model, &iter, path)) {
        gchar *name;
        gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
        g_print ("Double-clicked row contains name %s\n", name);
        g_free(name);
+       graphics_info_t g;
+       g.apply_go_to_atom_from_widget(go_to_atom_window);
     }
    
 }
