@@ -184,15 +184,17 @@
 
     (let ((core (core-file)))
       (format #t "core: ~s~%" core)
-      (let ((gdb-script (make-gdb-script)))
-	(if (string? gdb-script)
-	    (begin
-	      (let ((string-list (run-gdb coot-exe core gdb-script))
-		    (delete-file gdb-script))
-		(reverse string-list)))
-	    (begin
-	      (format #t "can't write gdb script~%")
-	      #f))))))
+      (if (eq? core #f)
+	  (format #t "No core file found.  No debugging~%")
+	  (let ((gdb-script (make-gdb-script)))
+	    (if (string? gdb-script)
+		(begin
+		  (let ((string-list (run-gdb coot-exe core gdb-script))
+			(delete-file gdb-script))
+		    (reverse string-list)))
+		(begin
+		  (format #t "can't write gdb script~%")
+		  #f)))))))
 
 (define (send-emsley-text gdb-string)
   

@@ -1121,6 +1121,12 @@ public:
 					GtkTreePath        *path,
 					GtkTreeViewColumn  *col,
 					gpointer            userdata);
+   static gboolean
+     residue_tree_selection_func(GtkTreeSelection *selection,
+				 GtkTreeModel *model,
+				 GtkTreePath *path,
+				 gboolean path_currently_selected,
+				 gpointer data);
 
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
