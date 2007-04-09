@@ -27,6 +27,7 @@
 #include "support.h"  // for lookup_widget
 #include "c-interface.h"
 #include "cc-interface.hh" // for str_mtime
+#include "graphics-info.h"  // for go to atom callabacks
 
 gboolean filename_passed_filter(const std::string &file_name, int filter_type) {
 
@@ -191,4 +192,13 @@ on_filename_filter_toggle_button_toggled(GtkButton       *button,
    }
 }
 
+void on_go_to_atom_residue_tree_selection_changed (GtkTreeView *gtktree,
+						   gpointer user_data) {
+   
+   graphics_info_t g;
+   g.on_go_to_atom_residue_tree_selection_changed(gtktree, user_data);
+}
+
+
 #endif // GTK2
+

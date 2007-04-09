@@ -1901,9 +1901,18 @@ on_go_to_atom_residue_list_select_child (GtkList         *list,
 					 GtkWidget       *widget,
 					 gpointer         user_data);
 
-void
-on_go_to_atom_residue_list_selection_changed (GtkList         *list,
-					      gpointer         user_data);
+#ifdef COOT_USE_GTK2_INTERFACE
+void on_go_to_atom_residue_tree_selection_changed (GtkTreeView         *gtktree,
+						   gpointer         user_data);
+#else
+void on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList         *gtktree,
+							gpointer         user_data);
+#endif
+
+/* Nothing calls this? */
+/* void */
+/* on_go_to_atom_residue_list_selection_changed (GtkList         *list, */
+/* 						   gpointer         user_data); */
 
 void
 on_go_to_atom_residue_list_unselect_child (GtkList         *list,
@@ -1923,10 +1932,7 @@ void
 on_go_to_atom_atom_list_unselect_child (GtkList         *list,
                                         GtkWidget       *widget,
                                         gpointer         user_data);
-/* and the tree version of these things: */
-void
-on_go_to_atom_residue_tree_selection_changed (GtkList         *list,
-					      gpointer         user_data); 
+
 /* \} */
 
 

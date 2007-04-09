@@ -1073,6 +1073,7 @@ public:
    static void clear_atom_list(GtkWidget *atom_gtklist); 
    static void fill_go_to_atom_residue_list(GtkWidget *gtklist);
    static void fill_go_to_atom_residue_list_gtk1(GtkWidget *gtklist);
+   static void fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree);
    static void fill_go_to_atom_atom_list(GtkWidget *atom_gtklist, int imol,
 				  char *chain_id, int seqno);
    void fill_go_to_atom_option_menu(GtkWidget *option_menu);
@@ -1097,8 +1098,7 @@ public:
    static int go_to_atom_residue_list_signal_handler_event(GtkWidget *widget, 
 							   GdkEventButton *event, 
 							   gpointer func_data);
-   static void on_go_to_atom_residue_tree_selection_changed (GtkList *gtklist,
-							     gpointer user_data);
+
    static void on_go_to_atom_residue_tree_selection_changed_gtk1(GtkList *gtklist,
 								 gpointer user_data);
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
@@ -1109,6 +1109,12 @@ public:
    static int cb_chain_tree_itemsignal( GtkWidget *item,
 					GdkEventButton *event, 
 					gpointer func_data);
+
+#else 
+   // -------------------- Gtk2 code -----------------------------
+   static void on_go_to_atom_residue_tree_selection_changed (GtkTreeView *gtklist,
+							     gpointer user_data);
+
 
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
