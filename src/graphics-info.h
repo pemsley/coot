@@ -1070,8 +1070,13 @@ public:
    void update_go_to_atom_window_on_new_mol(); 
    void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#else
+   static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
+					   GtkWidget *residue_tree_scrolled_window,
+					   GtkWidget *atom_list_scrolled_window);
+#endif
    static void clear_atom_list(GtkWidget *atom_gtklist); 
-   static void fill_go_to_atom_residue_list(GtkWidget *gtklist);
    static void fill_go_to_atom_residue_list_gtk1(GtkWidget *gtklist);
    static void fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree);
    static void fill_go_to_atom_atom_list(GtkWidget *atom_gtklist, int imol,
@@ -1095,17 +1100,14 @@ public:
    static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); 
    static void on_go_to_atom_residue_list_selection_changed (GtkList *gtklist,
 							     gpointer user_data);
-   static int go_to_atom_residue_list_signal_handler_event(GtkWidget *widget, 
-							   GdkEventButton *event, 
-							   gpointer func_data);
 
    static void on_go_to_atom_residue_tree_selection_changed_gtk1(GtkList *gtklist,
 								 gpointer user_data);
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
-   static int go_to_atom_residue_tree_signal_handler_event(GtkWidget *widget, 
-							   GdkEventButton *event, 
-							   gpointer func_data);
+   static int go_to_atom_residue_tree_signal_handler_event_gtk1(GtkWidget *widget, 
+								GdkEventButton *event, 
+								gpointer func_data);
    static int cb_chain_tree_itemsignal( GtkWidget *item,
 					GdkEventButton *event, 
 					gpointer func_data);
@@ -1114,7 +1116,11 @@ public:
    // -------------------- Gtk2 code -----------------------------
    static void on_go_to_atom_residue_tree_selection_changed (GtkTreeView *gtklist,
 							     gpointer user_data);
-
+   static void
+     residue_tree_residue_row_activated(GtkTreeView        *treeview,
+					GtkTreePath        *path,
+					GtkTreeViewColumn  *col,
+					gpointer            userdata);
 
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 

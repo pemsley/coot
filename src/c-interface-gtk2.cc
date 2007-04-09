@@ -192,12 +192,6 @@ on_filename_filter_toggle_button_toggled(GtkButton       *button,
    }
 }
 
-void on_go_to_atom_residue_tree_selection_changed (GtkTreeView *gtktree,
-						   gpointer user_data) {
-   
-   graphics_info_t g;
-   g.on_go_to_atom_residue_tree_selection_changed(gtktree, user_data);
-}
 
 
 #endif // GTK2
