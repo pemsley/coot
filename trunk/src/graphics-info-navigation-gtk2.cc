@@ -99,7 +99,7 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
    //
    // outer loop:
 
-   GtkTreeStore *tree_store = gtk_tree_store_new (1, G_TYPE_STRING);
+   GtkTreeStore *tree_store = gtk_tree_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
    GtkTreeIter   toplevel, child;
 
    // what is the connection between tree_store and model?
@@ -113,6 +113,7 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
 		<< std::endl;
       gtk_tree_store_set (tree_store, &toplevel,
 			  CHAIN_COL, residue_chains[ichain].chain_id.c_str(),
+			  RESIDUE_COL, NULL,
 			  -1);
       for (unsigned int ires=0; ires<residue_chains[ichain].tree_residue.size();
 	   ires++) {
@@ -120,6 +121,7 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
 			       &child, &toplevel);
 	 gtk_tree_store_set(tree_store, &child,
 			    CHAIN_COL,  residue_chains[ichain].tree_residue[ires].button_label.c_str(),
+			    RESIDUE_COL, (gpointer)(residue_chains[ichain].tree_residue[ires].residue),
 			    -1);
       }
    }
@@ -159,12 +161,37 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 	  if (1) {  // if this was a residue, not a chain click
 	     // update the go to atom residues from the
 	     // characteristics of this row... bleurgh.. how do I do
-	     // that!?
+	     // that!?  Check the level, is how I did it in gtk1...
+	     graphics_info_t g;
+	     int go_to_imol = g.go_to_atom_molecule();
+	     if (go_to_imol<n_molecules) {
+		gpointer residue_data;
+		gtk_tree_model_get(model, &iter, RESIDUE_COL, &residue_data, -1);
+		if (!residue_data) {
+		   // This was a "Outer" chain row click (there was no residue)
+		   // std::cout << "Null residue " << residue_data << std::endl;
+		   std::cout << "should expand here, perhaps?" << std::endl;
+		} else {
+		   CResidue *res = (CResidue *) residue_data;
+		   CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
+		   // this does simple setting, nothing else
+		   g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
+							    at->GetSeqNum(),
+							    at->GetInsCode(),
+							    at->name,
+							    at->altLoc);
+		   
+		   g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
+		   
+		   // now we want the atom list to contain the atoms of the
+		   // newly selected residue:
+		   
+		   // Fill me...
+		}
+	     }
 	  }
        }
        g_free(name);
-       graphics_info_t g;
-       g.apply_go_to_atom_from_widget(go_to_atom_window);
     }
     return can_change_selected_status_flag;
 }
@@ -186,9 +213,38 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
        gchar *name;
        gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
        g_print ("Double-clicked row contains name %s\n", name);
+       if (1) {
+	  graphics_info_t g;
+	  int go_to_imol = g.go_to_atom_molecule();
+	  if (go_to_imol<n_molecules) {
+	     gpointer residue_data;
+	     gtk_tree_model_get(model, &iter, RESIDUE_COL, &residue_data, -1);
+	     if (!residue_data) {
+		// This was a "Outer" chain row click (there was no residue)
+		// std::cout << "Null residue " << residue_data << std::endl;
+		std::cout << "should expand here, perhaps?" << std::endl;
+	     } else {
+		CResidue *res = (CResidue *) residue_data;
+		CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
+		// this does simple setting, nothing else
+		g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
+							 at->GetSeqNum(),
+							 at->GetInsCode(),
+							 at->name,
+							 at->altLoc);
+		
+		g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
+		g.apply_go_to_atom_from_widget(go_to_atom_window);
+		
+		// now we want the atom list to contain the atoms of the
+		// newly selected residue:
+		
+		// Fill me...
+	     }
+	  }
+       }
        g_free(name);
        graphics_info_t g;
-       g.apply_go_to_atom_from_widget(go_to_atom_window);
     }
    
 }

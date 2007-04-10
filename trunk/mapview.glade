@@ -4997,7 +4997,7 @@ just the cell and symmetry)
 		<wrap>False</wrap>
 		<xalign>0.5</xalign>
 		<yalign>0.5</yalign>
-		<xpad>5</xpad>
+		<xpad>0</xpad>
 		<ypad>0</ypad>
 		<child>
 		  <padding>6</padding>
@@ -5057,7 +5057,7 @@ just the cell and symmetry)
 		<wrap>False</wrap>
 		<xalign>0.5</xalign>
 		<yalign>0.5</yalign>
-		<xpad>6</xpad>
+		<xpad>0</xpad>
 		<ypad>0</ypad>
 		<child>
 		  <padding>6</padding>
@@ -5117,7 +5117,7 @@ just the cell and symmetry)
 		<wrap>False</wrap>
 		<xalign>0.5</xalign>
 		<yalign>0.5</yalign>
-		<xpad>6</xpad>
+		<xpad>0</xpad>
 		<ypad>0</ypad>
 		<child>
 		  <padding>6</padding>
@@ -5136,7 +5136,7 @@ just the cell and symmetry)
 		<handler>on_update_go_to_atom_from_current_position_button_clicked</handler>
 		<last_modification_time>Wed, 28 Mar 2007 22:43:13 GMT</last_modification_time>
 	      </signal>
-	      <label>  Update from Current Postion  </label>
+	      <label> Update from Current Postion </label>
 	      <relief>GTK_RELIEF_NORMAL</relief>
 	      <child>
 		<left_attach>1</left_attach>

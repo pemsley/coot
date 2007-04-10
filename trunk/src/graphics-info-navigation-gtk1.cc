@@ -314,6 +314,7 @@ void
 graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList *gtktree,
 								    gpointer user_data) {
 
+   std::cout << "selection changed" << std::endl;
    GList *dlist = GTK_TREE(gtktree)->selection;
 
    if (!dlist) {
@@ -341,6 +342,7 @@ graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList *gtk
 	    // this function... endless loop.
 	    // 
 
+	    std::cout << "doing g.set_go_to_atom_chain_residue_atom_name" << std::endl;
 	    // this does simple setting, nothing else
 	    g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
 						     at->GetSeqNum(),
@@ -348,11 +350,13 @@ graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList *gtk
 						     at->name,
 						     at->altLoc);
 	 
+	    std::cout << "doing g.update_widget_go_to_atom_values" << std::endl;
 	    g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
 	 
 	    // now we want the atom list to contain the atoms of the
 	    // newly selected residue:
 	 
+	    std::cout << "doing atom window" << std::endl;
 	    GtkWidget *window = lookup_widget(GTK_WIDGET(gtktree),"goto_atom_window");
 	    GtkWidget *atom_gtklist = lookup_widget(window, "go_to_atom_atom_list");
 	    fill_go_to_atom_atom_list(atom_gtklist,

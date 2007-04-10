@@ -16,14 +16,16 @@ sed -e s'/#include .support.h./#include "support.h"\
 \
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)\n#else/' gtk2-interface.c > tmp-interface.c
 
+# on reflection, try not to mess with gtk2-interface.c
+#
 # only add an endif if there wasn't one there already:
 # If it is not there grep give status code 1.
-grep endif gtk2-interface.c > /dev/null
-grepstatus=$?
-if [ $grepstatus = 1 ] ; then
-   echo "#endif" >>  tmp-interface.c
-fi
-mv tmp-interface.c gtk2-interface.c
+# grep endif gtk2-interface.c > /dev/null
+# grepstatus=$?
+# if [ $grepstatus = 1 ] ; then
+#    echo "#endif" >>  tmp-interface.c
+# fi
+# mv tmp-interface.c gtk2-interface.c
 
 
 sh fix-gettext.sh support.h

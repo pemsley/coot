@@ -379,9 +379,9 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, CAtom *atom)
 
    GtkEntry *entry;
 
-   if (window) { 
-      entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_chain_entry"));
-      gtk_entry_set_text(entry, go_to_atom_chain_.c_str());
+   if (window) {
+       entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_chain_entry"));
+       gtk_entry_set_text(entry, go_to_atom_chain_.c_str());
 
       entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_residue_entry"));
       gtk_entry_set_text(entry,res_str.c_str());
