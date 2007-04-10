@@ -3860,7 +3860,6 @@ create_goto_atom_window (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label41);
   gtk_box_pack_start (GTK_BOX (hbox24), label41, FALSE, FALSE, 6);
-  gtk_misc_set_padding (GTK_MISC (label41), 5, 0);
 
   hbox25 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox25);
@@ -3886,7 +3885,6 @@ create_goto_atom_window (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label42);
   gtk_box_pack_start (GTK_BOX (hbox25), label42, FALSE, FALSE, 6);
-  gtk_misc_set_padding (GTK_MISC (label42), 6, 0);
 
   hbox26 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox26);
@@ -3912,9 +3910,8 @@ create_goto_atom_window (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label43);
   gtk_box_pack_start (GTK_BOX (hbox26), label43, FALSE, FALSE, 6);
-  gtk_misc_set_padding (GTK_MISC (label43), 6, 0);
 
-  update_go_to_atom_from_current_position_button = gtk_button_new_with_label (_("  Update from Current Postion  "));
+  update_go_to_atom_from_current_position_button = gtk_button_new_with_label (_(" Update from Current Postion "));
   gtk_widget_ref (update_go_to_atom_from_current_position_button);
   gtk_object_set_data_full (GTK_OBJECT (goto_atom_window), "update_go_to_atom_from_current_position_button", update_go_to_atom_from_current_position_button,
                             (GtkDestroyNotify) gtk_widget_unref);
