@@ -18,7 +18,8 @@
 ;;;; Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 (use-modules (ice-9 popen)
-	     (ice-9 string-fun))
+	     (ice-9 string-fun)
+	     (ice-9 rdelim))
 (use-modules (goosh))
 
 ;; Return a list of molecule numbers (closed and open) The elements of
