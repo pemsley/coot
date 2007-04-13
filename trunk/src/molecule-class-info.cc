@@ -2093,7 +2093,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 } 
    
    
-	 cout << "finding ASU unique map points..." << endl;
+	 cout << "finding ASU unique map points with sampling rate "
+   	      << graphics_info_t::map_sampling_rate	<< endl;
          clipper::Grid_sampling gs(myhkl.spacegroup(),
 				    myhkl.cell(),
 				    fft_reso,
