@@ -1,7 +1,7 @@
 /* src/c-interface.h
  * 
- * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley,
- * The University of York
+ * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 /* svn $Id: c-interface.h 1458 2007-01-26 20:20:18Z emsley $ */
