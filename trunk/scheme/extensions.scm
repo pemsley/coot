@@ -259,18 +259,6 @@
 	 (lambda ()
 	   (set-rotate-translate-zone-rotates-about-zone-centre 0))))
 
-
-      (add-simple-coot-menu-menuitem
-       menu "SHELXL Refine..."
-       (lambda () 
-	 (generic-chooser-and-entry "Molecule for refinement:"
-				    "HKL data filename (leave blank for default)"
-				    "" 
-				    (lambda (imol text)
-				      (if (= (string-length text) 0)
-					  (shelxl-refine imol)
-					  (shelxl-refine imol text))))))
-      
       (add-simple-coot-menu-menuitem
        menu "All Molecules use \"Near Chains\" Symmetry"
        (lambda ()
