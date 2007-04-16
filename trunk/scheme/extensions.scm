@@ -279,7 +279,7 @@
 					  (shelxl-refine imol text))))))
 
       (add-simple-coot-menu-menuitem 
-       menu "Set Spin Speed"
+       menu "Set Spin Speed..."
        (lambda ()
 	 (generic-single-entry "Set Spin Speed (smaller is slower)"
 			       (number->string (idle-function-rotate-angle))
@@ -292,5 +292,10 @@
        menu "Brighten Maps"
        (lambda ()
 	 (brighten-maps)))
+
+      (add-simple-coot-menu-menuitem
+       menu "Add Strand Here..."
+       (lambda ()
+	 (place-strand-here-gui)))
 
       )); finish let and if

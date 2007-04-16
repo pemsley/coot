@@ -924,8 +924,7 @@
 			    " Estimated number of residues in strand "
 			    "  Go  "
 			    (lambda (n)
-			      (format #t "DEBUG:: n: ~s~%" n)
-			      (place-strand-here n)))))
+			      (place-strand-here n 8)))))
 
 	 
 ;;; Local Variables:

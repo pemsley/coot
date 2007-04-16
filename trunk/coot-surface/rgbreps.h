@@ -1,6 +1,7 @@
 //   CCP4 Molecular Graphics Program
 //
-//   Copyright (C) Stuart McNicholas and Liz Potterton 2004.
+//   Copyright 2004 The University of York
+//   Author: Stuart McNicholas and Liz Potterton
 //
 //   This program is free software and is distributed under the terms
 //   and conditions of the CCP4 licence agreement as `Part 0' (Annex 2)
