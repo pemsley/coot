@@ -207,7 +207,7 @@ class Bond_lines {
 
  public:
    Bond_lines(coot::CartesianPair pts);
-   Bond_lines(void); 
+   Bond_lines(); 
    Bond_lines(int col);
 
    void add_bond(coot::CartesianPair);
@@ -286,6 +286,7 @@ class Bond_lines_container {
 					     int draw_hydrogens_flag);
 
 public:
+   enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR}; 
 
    // getting caught out with Bond_lines_container dependencies?
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>
@@ -319,6 +320,11 @@ public:
 			float min_dist,
 			float max_dist, 
 			short int do_symmetry);
+
+   // This is the one for occupancy and B-factor representation
+   // 
+   Bond_lines_container (const atom_selection_container_t &SelAtom,
+			 bond_representation_type by_occ);
 
    // arguments as above.
    // 
@@ -394,7 +400,7 @@ public:
 				   float symm_distance,
 				   const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat);
 
-   graphical_bonds_container make_graphical_bonds(void) const;
+   graphical_bonds_container make_graphical_bonds() const;
 
    Bond_lines_container(int col);
    Bond_lines_container(symm_keys key);
@@ -414,11 +420,11 @@ public:
    void no_symmetry_bonds();
 
 
-   // void make_graphical_symmetry_bonds(void) const;
-   graphical_bonds_container make_graphical_symmetry_bonds(void) const; 
+   // void make_graphical_symmetry_bonds() const;
+   graphical_bonds_container make_graphical_symmetry_bonds() const; 
 
-   void check_graphical_bonds(void) const; 
-   void check_static(void) const; 
+   void check_graphical_bonds() const; 
+   void check_static() const; 
    void do_disulphide_bonds(atom_selection_container_t); 
    void do_Ca_bonds(atom_selection_container_t SelAtom, 
 		    float min_dist, float max_dist); 
