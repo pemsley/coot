@@ -733,7 +733,7 @@ molecule_class_info_t::update_symmetry() {
 
 //
 void
-molecule_class_info_t::draw_coord_unit_cell() {
+molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colour) {
 
    // Don't display if we have closed this molecule
    // (perhaps use (atom_sel.mol==NULL) instead?) (no).
@@ -748,7 +748,7 @@ molecule_class_info_t::draw_coord_unit_cell() {
 	    if (have_unit_cell == 1) {
 
 	       glLineWidth(2.0);
-	       glColor3f(0.8, 0.8, 0.2);
+	       glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
 	 
 	       float corners[8][3] = {
 		  {0,0,0}, //0 
@@ -783,7 +783,7 @@ molecule_class_info_t::draw_coord_unit_cell() {
 
 //
 void
-molecule_class_info_t::draw_map_unit_cell() {
+molecule_class_info_t::draw_map_unit_cell(const coot::colour_holder &cell_colour) {
 
    if (has_map()) { 
       if (show_unit_cell_flag == 1) {
@@ -797,7 +797,7 @@ molecule_class_info_t::draw_map_unit_cell() {
 		  float rsc[8][3];
 	    
 		  glLineWidth(2.0);
-		  glColor3f(1.0, 1.0, 0.0);
+		  glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
 	    
 		  float corners[8][3] = {
 		     {0,0,0}, //0 

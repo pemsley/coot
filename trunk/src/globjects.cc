@@ -629,6 +629,11 @@ short int graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag = 0; // all
 float     graphics_info_t::rotate_colour_map_on_read_pdb = 21.0;  // degrees
 float     graphics_info_t::rotate_colour_map_for_map = 31.0;  // degrees
 
+// cell colour
+coot::colour_holder graphics_info_t::cell_colour =
+   coot::colour_holder(0.8, 0.8, 0.2);
+
+
 // regulariziation
 //
 coot::protein_geometry *graphics_info_t::geom_p = NULL;
@@ -1712,10 +1717,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t::molecules[ii].draw_dots();
 
 	 // Draw Unit cell maybe.
-	 graphics_info_t::molecules[ii].draw_coord_unit_cell();
+	 graphics_info_t::molecules[ii].draw_coord_unit_cell(graphics_info_t::cell_colour);
 
 	 // Draw Map unit cell maybe;
-	 graphics_info_t::molecules[ii].draw_map_unit_cell();
+	 graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
 
 	 //
 	 graphics_info_t::molecules[ii].draw_skeleton();

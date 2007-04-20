@@ -792,6 +792,9 @@ public:
 					              // unset_p() when used.
    static int current_residue_imol;
 
+   // 
+   static coot::colour_holder cell_colour;
+
    //
    // Frames per seconds control
    // (all we need to do is get and set). 

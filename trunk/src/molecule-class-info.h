@@ -29,6 +29,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coot-align.hh"
 #include "coot-fasta.hh"
 #include "coot-shelx.hh"
+#include "coot-utils.hh"
 
 using namespace std; // Hmmm.. I don't approve, FIXME
 
@@ -758,8 +759,8 @@ class molecule_class_info_t {
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
    void anisotropic_atoms(); 
-   void draw_coord_unit_cell();
-   void draw_map_unit_cell();
+   void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
+   void draw_map_unit_cell(const coot::colour_holder &cell_colour);
    void draw_unit_cell_internal(float rsc[8][3]);
    void draw_dots();
    void clear_dots(int dots_handle);
