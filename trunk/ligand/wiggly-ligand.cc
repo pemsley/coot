@@ -1,4 +1,4 @@
-/* ligand/ligand.cc 
+/* ligand/wiggly-ligand.cc 
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
  * 
