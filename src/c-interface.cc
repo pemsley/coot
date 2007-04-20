@@ -5462,7 +5462,8 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
       std::string str(filename); 
       graphics_info_t g;
 
-      int istate = g.molecules[g.n_molecules].read_ccp4_map(str, is_diff_map_flag); 
+      int istate = g.molecules[g.n_molecules].read_ccp4_map(str, is_diff_map_flag,
+							    *graphics_info_t::map_glob_extensions);
 
       if (istate > -1) { // not a failure
 	 // std::cout << "successfully read map into molecule " << g.n_molecules << std::endl;

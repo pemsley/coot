@@ -2830,7 +2830,8 @@ molecule_class_info_t::unskeletonize_map() {
 
 // Return -1 on error
 int
-molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag) {
+molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
+				     const std::vector<std::string> &acceptable_extensions) {
 
    // For now, where we try to read in a map and we crash in importing
    // a file that is not a ccp4 map, lets do some checking: first that
@@ -2859,35 +2860,22 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag)
       } else { 
 	 tstring = filename.substr(islash + 1);
       }
-      
-      std::string::size_type imap = tstring.rfind(".map");
-      std::string::size_type iext = tstring.rfind(".ext");
-      std::string::size_type imsk = tstring.rfind(".msk");
 
-      if (imap == std::string::npos) 
-	 std::cout << ".map not found in filename" << std::endl;
-      else 
-	 std::cout << ".map was found in filename " << imap << std::endl;
-
-      if (iext == std::string::npos) 
-	 std::cout << ".ext not found in filename" << std::endl;
-      else 
-	 std::cout << ".ext was found in filename " << iext << std::endl;
-      
-      if (iext == std::string::npos) 
-	 std::cout << ".msk not found in filename" << std::endl;
-      else 
-	 std::cout << ".msk was found in filename " << imsk << std::endl;
-      
+      bool good_extension_flag = 0;
+      for (unsigned int iextension=0; iextension<acceptable_extensions.size(); iextension++) {
+	 std::string::size_type imap = tstring.rfind(acceptable_extensions[iextension]);
+	 if (imap != std::string::npos) {
+	    good_extension_flag = 1;
+	    break;
+	 }
+      }
       
       // not really extension checking, just that it has it in the
       // filename:
-      if ( (imap == std::string::npos) &&
-	   (iext == std::string::npos) &&
-	   (imsk == std::string::npos) ) { 
+      if (good_extension_flag == 0) { 
 	 
 	 std::cout << "Filename for a CCP4 map must end in .map or .ext "
-		   << "- sorry\n";
+		   << "or some other approved extension - sorry\n";
 	 return -1;
 	 std::string ws = "The filename for a CCP4 map must\n";
 	 ws += "currently end in .map or .ext - sorry.\n\n";
