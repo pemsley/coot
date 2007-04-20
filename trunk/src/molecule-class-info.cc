@@ -583,6 +583,12 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i) {
       case magenta:
 	 rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
 	 break;
+      case orange:
+	 rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
+	 break;
+      case cyan:
+	 rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+	 break;
       
       default:
 	 rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;

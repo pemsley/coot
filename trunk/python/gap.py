@@ -1,4 +1,3 @@
-# translated by BL
 
 # Copyright 2004, 2005 by The University of York
 # Copyright 2005 by Bernhard Lohkamp
@@ -25,6 +24,7 @@
 #;; (fit-gap 0 "A"  23 26)   ; we'll build forwards
 #;; (fit-gap 0 "A"  26 23)   ; we'll build backwards
 #;;
+
 def fit_gap(imol, chain_id, start_resno, stop_resno, sequence):
 
  if (valid_model_molecule(imol) == 0):

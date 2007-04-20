@@ -198,7 +198,7 @@ molecule_class_info_t::occupancy_representation() {
 
    // float casting to disambiguate function call
    Bond_lines_container bonds(atom_sel, float(0.01), float(1.9));
-   // need a function (or extra arg to constructo?) to set
+   // need a function (or extra arg to constructor?) to set
    // coot::COLOUR_BY_OCCUPANCY);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_OCCUPANCY_BONDS;
