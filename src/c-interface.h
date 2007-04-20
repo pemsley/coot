@@ -1331,6 +1331,8 @@ void set_show_unit_cells_all(short int istate);
 1 for displayed   
 0 for undisplayed */
 void set_show_unit_cell(int imol, short int istate);
+
+void set_unit_cell_colour(float red, float green, float blue);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

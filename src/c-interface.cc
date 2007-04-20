@@ -1166,6 +1166,13 @@ int filter_fileselection_filenames_state() {
    return graphics_info_t::filter_fileselection_filenames_flag;
 }
 
+void set_unit_cell_colour(float red, float green, float blue) {
+
+   coot::colour_holder ch(red, green, blue);
+   graphics_info_t::cell_colour = ch;
+   graphics_draw();
+} 
+
 
 void swap_map_colours(int imol1, int imol2) {
 
