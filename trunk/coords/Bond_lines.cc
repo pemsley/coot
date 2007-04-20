@@ -89,6 +89,18 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    construct_from_asc(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
 }
 
+// This is the one for occupancy and B-factor representation
+// 
+Bond_lines_container::Bond_lines_container (const atom_selection_container_t &SelAtom,
+					    Bond_lines_container::bond_representation_type by_occ) {
+
+   if (by_occ == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
+
+   } 
+
+} 
+
+
 void
 Bond_lines_container::construct_from_atom_selection(const atom_selection_container_t &asc,
 						    const PPCAtom atom_selection_1,
@@ -1499,7 +1511,7 @@ Bond_lines_container::Bond_lines_container(symm_keys key) {
       
    
 
-void Bond_lines_container::check_static(void) const {
+void Bond_lines_container::check_static() const {
 
 	graphical_bonds_container pot; 
 	
@@ -1510,7 +1522,7 @@ void Bond_lines_container::check_static(void) const {
 }
 
 graphical_bonds_container 
-Bond_lines_container::make_graphical_bonds(void) const {
+Bond_lines_container::make_graphical_bonds() const {
 
    graphical_bonds_container box;
 
@@ -1532,7 +1544,7 @@ Bond_lines_container::make_graphical_bonds(void) const {
 }
 
 graphical_bonds_container
-Bond_lines_container::make_graphical_symmetry_bonds(void) const {
+Bond_lines_container::make_graphical_symmetry_bonds() const {
  
    graphical_bonds_container box;
    box.num_colours = bonds.size();
@@ -1673,7 +1685,7 @@ Bond_lines::add_bond(coot::CartesianPair pair) {
 } 
 
 //
-Bond_lines::Bond_lines(void) {
+Bond_lines::Bond_lines() {
 
    // This gets called when we resize a Bond_lines_container's bonds array.
    // 
@@ -1914,7 +1926,7 @@ Bond_lines_container::set_rainbow_colours(int selHnd_ca, CMMDBManager *mol) {
 
 
 int
-Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) { 
+Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
 
    int col = 0;
    coot::my_atom_colour_map_t atom_colour_map;
@@ -1974,8 +1986,37 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
 	    }
 	    return 5;
 	 } else { 
-	    if (bond_colour_type == coot::DISULFIDE_COLOUR) 
+	    if (bond_colour_type == coot::DISULFIDE_COLOUR) {
 	       return green;
+	    } else {
+	       if (bond_colour_type == coot::COLOUR_BY_OCCUPANCY) {
+		  if (at->occupancy > 0.95) {
+		     return blue;
+		  } else {
+		     if (at->occupancy < 0.05) {
+			return red;
+		     } else {
+			if (at->occupancy > 0.7) {
+			   return cyan;
+			} else {
+			   if (at->occupancy > 0.45) {
+			      return green;
+			   } else { 
+			      if (at->occupancy > 0.25) {
+				 return yellow;
+			      } else {
+				 return orange;
+			      }
+			   }
+			}
+		     }
+		  }
+	       } else {
+		  if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
+		     return green;
+		  }
+	       }
+	    }
 	 }
       }
    }

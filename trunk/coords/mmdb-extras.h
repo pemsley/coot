@@ -69,7 +69,7 @@ atom_selection_container_t make_asc(CMMDBManager *mol);
 // Bond things
 //
 // enum bond_colours { green, red, blue, yellow, white, grey }; 
-enum bond_colours { yellow, red, blue, green, magenta, grey }; 
+enum bond_colours { yellow, red, blue, green, magenta, grey, orange, cyan }; 
 
 float max_bond_length(const std::string &element);
 
