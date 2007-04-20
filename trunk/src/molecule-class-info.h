@@ -937,7 +937,8 @@ class molecule_class_info_t {
    void check_static_vecs_extents(); 
 
    //
-   int read_ccp4_map(std::string f, int is_diff_map_flag); // return -1 on error
+   int read_ccp4_map(std::string f, int is_diff_map_flag,
+		     const std::vector<std::string> &map_glob_extensions); // return -1 on error
 
    // 
    int make_map_from_phs(std::string pdb_filename,
