@@ -1,7 +1,7 @@
 /* ligand/helix-placement.cc
  * 
- * Copyright 2005 by Paul Emsley, The University of York
- * Copyright 2005 by Kevin Cowtan, The University of York
+ * Copyright 2005 The University of York
+ * Author: Paul Emsley, Kevin Cowtan
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
