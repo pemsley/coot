@@ -129,6 +129,8 @@ namespace coot {
 					 const clipper::Coord_orth &about_pt,
 					 float box_size);
 
+      clipper::Xmap<float> lapacian_transform(const clipper::Xmap<float> &xmap_in);
+
    }
 }
 
