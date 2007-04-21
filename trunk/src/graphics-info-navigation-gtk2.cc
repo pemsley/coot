@@ -84,8 +84,6 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 void
 graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
 
-   std::cout << "filling residue tree!" << std::endl;
-   
    std::string button_string;
    graphics_info_t g;
 
@@ -104,12 +102,12 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
    gtk_tree_view_set_rules_hint (tv, TRUE);
 
    GtkTreeModel *model = gtk_tree_view_get_model(tv);
-   std::cout << "model: " << model << std::endl;
+   // std::cout << "model: " << model << std::endl;
    // potentially a bug here if an old model is left lying about in
    // the tree store?  That shouldn't happen though.., should it?
    bool need_renderer = 1;
    if (model) {
-      std::cout << "clearing old tree store" << std::endl;
+      // std::cout << "clearing old tree store" << std::endl;
       gtk_tree_store_clear(GTK_TREE_STORE(model));
       need_renderer = 0;
    }
@@ -128,8 +126,8 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
       // the chain label item e.g. "A"
       gtk_tree_store_append(GTK_TREE_STORE(tree_store), &toplevel, NULL);
 
-      std::cout << "Adding tree item " << residue_chains[ichain].chain_id
-		<< std::endl;
+//       std::cout << "Adding tree item " << residue_chains[ichain].chain_id
+// 		<< std::endl;
       gtk_tree_store_set (tree_store, &toplevel,
 			  CHAIN_COL, residue_chains[ichain].chain_id.c_str(),
 			  RESIDUE_COL, NULL,
@@ -192,7 +190,7 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 		if (!residue_data) {
 		   // This was a "Outer" chain row click (there was no residue)
 		   // std::cout << "Null residue " << residue_data << std::endl;
-		   std::cout << "should expand here, perhaps?" << std::endl;
+		   // std::cout << "should expand here, perhaps?" << std::endl;
 		} else {
 		   CResidue *res = (CResidue *) residue_data;
 		   CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
@@ -249,7 +247,7 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 	     if (!residue_data) {
 		// This was a "Outer" chain row click (there was no residue)
 		// std::cout << "Null residue " << residue_data << std::endl;
-		std::cout << "should expand here, perhaps?" << std::endl;
+		// std::cout << "should expand here, perhaps?" << std::endl;
 	     } else {
 		CResidue *res = (CResidue *) residue_data;
 		CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
@@ -262,7 +260,6 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 		
 		g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
 		g.apply_go_to_atom_from_widget(go_to_atom_window);
-		
 	     }
 	  }
        }
@@ -277,10 +274,10 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
 						char *chain_id, int resno, char *ins_code) {
    
    GtkTreeView *atom_tree = GTK_TREE_VIEW(lookup_widget(go_to_atom_window, "go_to_atom_atom_list"));
-   std::cout << "atom_tree:" << atom_tree << std::endl;
+   // std::cout << "atom_tree:" << atom_tree << std::endl;
    bool need_renderer = 1; 
    if (!atom_tree) {
-      std::cout << "making new atom_tree..." << std::endl;
+      // std::cout << "making new atom_tree..." << std::endl;
       // add a new one
       atom_tree = GTK_TREE_VIEW(gtk_tree_view_new());
       GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(go_to_atom_window),
@@ -288,7 +285,7 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
       gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					    GTK_WIDGET(atom_tree));
    } else {
-      std::cout << "using a pre-existing atom tree...\n";
+      // std::cout << "using a pre-existing atom tree...\n";
    }
 
    std::vector<coot::model_view_atom_button_info_t> atoms =
@@ -297,7 +294,7 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
    GtkListStore *list_store = 0;
    GtkTreeModel *model = gtk_tree_view_get_model(atom_tree);
    if (!model) { 
-      list_store = gtk_list_store_new (1, G_TYPE_STRING);
+      list_store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
    } else {
       // clear (any) old atom tree/list
       list_store = GTK_LIST_STORE(model);
@@ -309,6 +306,7 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
    gtk_tree_view_set_model(GTK_TREE_VIEW(atom_tree), GTK_TREE_MODEL(list_store));
 
    for(unsigned int iatom=0; iatom<atoms.size(); iatom++) {
+      // std::cout << " storing atom at: " << atoms[iatom].atom << std::endl;
       gtk_list_store_append(GTK_LIST_STORE(list_store), &toplevel);
       gtk_list_store_set(GTK_LIST_STORE(list_store), &toplevel,
 			 CHAIN_COL, atoms[iatom].button_label.c_str(),
@@ -343,28 +341,35 @@ graphics_info_t::atom_tree_atom_row_activated(GtkTreeView        *treeview,
 					      gpointer            userdata) {
 
    // This gets called on double-clicking, and not on single clicking
+   
    GtkTreeModel *model = gtk_tree_view_get_model(treeview);
    GtkTreeIter   iter;
    graphics_info_t g;
    
    if (gtk_tree_model_get_iter(model, &iter, path)) {
       gchar *name;
-      gpointer residue_data;
-      gtk_tree_model_get(model, &iter, CHAIN_COL, &residue_data, -1);
-      int go_to_imol = g.go_to_atom_molecule();
-      if (go_to_imol<n_molecules) {
-	 CResidue *res = (CResidue *) residue_data;
-	 CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
-	 // this does simple setting, nothing else
-	 g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
-						  at->GetSeqNum(),
-						  at->GetInsCode(),
-						  at->name,
-						  at->altLoc);
-	 
-	 g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
-	 g.apply_go_to_atom_from_widget(go_to_atom_window);
-	 
+      gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
+      // g_print("Double clicked row contains name: %s\n", name);
+      if (1) {
+	 graphics_info_t g;
+	 int go_to_imol = g.go_to_atom_molecule();
+	 if (go_to_imol<n_molecules) {
+	    gpointer atom_data;
+	    gtk_tree_model_get(model, &iter, RESIDUE_COL, &atom_data, -1);
+	    if (! atom_data) {
+	       std::cout << "ERROR:: no atom data!" << std::endl;
+	    } else {
+	       CAtom *at = (CAtom *) atom_data;
+	       // std::cout << " reading from atom at: " << at << std::endl;
+	       g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
+							at->GetSeqNum(),
+							at->GetInsCode(),
+							at->name,
+							at->altLoc);
+	       g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
+	       g.apply_go_to_atom_from_widget(go_to_atom_window);
+	    }
+	 }
       }
       g_free(name);
    }
@@ -378,6 +383,41 @@ graphics_info_t::atom_tree_selection_func(GtkTreeSelection *selection,
 					  GtkTreePath *path,
 					  gboolean path_currently_selected,
 					  gpointer data) {
+
+   // This gets called on single-clicking
+
+   gboolean can_change_selected_status_flag = TRUE;
+   GtkTreeIter   iter;
+   graphics_info_t g;
+   
+   if (gtk_tree_model_get_iter(model, &iter, path)) {
+      gchar *name;
+      gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
+      // g_print("Double clicked row contains name: %s\n", name);
+      if (!path_currently_selected) {
+	 graphics_info_t g;
+	 int go_to_imol = g.go_to_atom_molecule();
+	 if (go_to_imol<n_molecules) {
+	    gpointer atom_data;
+	    gtk_tree_model_get(model, &iter, RESIDUE_COL, &atom_data, -1);
+	    if (! atom_data) {
+	       std::cout << "ERROR:: no atom data!" << std::endl;
+	    } else {
+	       CAtom *at = (CAtom *) atom_data;
+	       // std::cout << " reading from atom at: " << at << std::endl;
+	       g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
+							at->GetSeqNum(),
+							at->GetInsCode(),
+							at->name,
+							at->altLoc);
+
+	       g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
+	    }
+	 }
+      }
+      g_free(name);
+   }
+   return can_change_selected_status_flag;
 }
 
    

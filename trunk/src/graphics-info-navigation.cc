@@ -378,7 +378,7 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, CAtom *atom)
    res_str += go_to_atom_inscode_; 
 
    GtkEntry *entry;
-
+   
    if (window) {
        entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_chain_entry"));
        gtk_entry_set_text(entry, go_to_atom_chain_.c_str());

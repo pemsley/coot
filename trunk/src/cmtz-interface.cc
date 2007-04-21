@@ -437,8 +437,10 @@ coot::column_selector_using_cmtz(const std::string &filename) {
       if (is_phs == 0) { 
 	 is_cif = try_read_cif_file(filename.c_str()); 
 
-	 if (is_cif == 0) 
-	    is_cns_data = try_read_cns_data_file(filename.c_str());
+	 // This no longer makes sense given that
+	 // try_read_cns_data_file takes an imol argument also now.
+// 	 if (is_cif == 0) 
+// 	    is_cns_data = try_read_cns_data_file(filename.c_str());
       }
 
       return 0;
