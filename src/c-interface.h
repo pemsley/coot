@@ -542,6 +542,17 @@ void set_control_key_for_rotate(int state);
 /*! \brief return the control key rotate state */
 int control_key_for_rotate_state();
 
+/* Put the blob under the cursor to the screen centre.  Check only
+positive blobs.  Useful function if bound to a key.
+
+The refinement map must be set.  (We can't check all maps because they
+are not (or may not be) on the same scale).
+
+   return 1 if successfully found a blob and moved there.
+   return 0 if no move.
+*/
+int blob_under_pointer_to_screen_centre();
+
 /* \} */
 
 /*  --------------------------------------------------------------------- */
@@ -2462,7 +2473,14 @@ void set_zoom_adjustment(GtkWidget *w);
 /*! \name CNS Data Functions */
 /* \{ */
 /*! \brief read CNS data (currently only a placeholder)  */
-int handle_cns_data_file(const char *filename);
+int handle_cns_data_file(const char *filename, int imol);
+
+/*! \brief read CNS data (currently only a placeholder)
+
+a, b,c are in Angstroems.  alpha, beta, gamma are in degrees.  spg is
+the space group info, either ;-delimited symmetry operators or the
+space group name*/
+int handle_cns_data_file_with_cell(const char *filename, int imol, float a, float b, float c, float alpha, float beta, float gamma, const char *spg_info);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -2692,6 +2710,17 @@ void spin_zoom_trans(int axis, int nstep, float stepsize, float zoom_by,
 		     float x_rel, float y_rel, float z_rel);
 
 /* \} */
+
+/*  ----------------------------------------------------------------------- */
+/*                  Views                                                   */
+/*  ----------------------------------------------------------------------- */
+void add_view(const char *view_name); 
+void play_views();
+void remove_this_view();
+int remove_named_view(const char *view_name);
+/* go to the first view.  if snap_to_view_flag, go directly, else
+   smooth twisty path.*/
+int go_to_first_view(int snap_to_view_flag);
 
 /*  ----------------------------------------------------------------------- */
 /*                  graphics background colour                              */

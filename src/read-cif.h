@@ -20,7 +20,7 @@ int try_read_cif_file(const char *filename);
 
 int try_read_cif_file_and_calc_sfs(const char *filename, int imol);
 
-int try_read_cns_data_file(const char *filename);
+int try_read_cns_data_file(const char *filename, int imol);
 
 
 END_C_DECLS

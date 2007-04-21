@@ -213,9 +213,11 @@ namespace coot {
 	 for (int i=0; i<4; i++) 
 	    quat[i] = quat_in[i];
       }
+      view_info_t() {}
       static view_info_t interpolate(const view_info_t &view1,
 				     const view_info_t &view2,
 				     int step, int n_steps);
+      bool matches_view (const coot::view_info_t &view) const;
    };
 
 } 
@@ -615,6 +617,9 @@ public:
 
       // generic text:
       generic_texts_p = new std::vector<coot::generic_text_object_t>;
+
+      // views
+      views = new std::vector<coot::view_info_t>;
 
       // glob extensions:
       coordinates_glob_extensions = new std::vector<std::string>;
@@ -1074,16 +1079,18 @@ public:
    void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   static void fill_go_to_atom_atom_list_gtk1(GtkWidget *atom_gtklist, int imol,
+					      char *chain_id, int seqno);
 #else
    static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					   GtkWidget *residue_tree_scrolled_window,
 					   GtkWidget *atom_list_scrolled_window);
+   static void fill_go_to_atom_atom_list_gtk2(GtkWidget *atom_tree, int imol,
+					      char *chain_id, int seqno, char *ins_code);
 #endif
    static void clear_atom_list(GtkWidget *atom_gtklist); 
    static void fill_go_to_atom_residue_list_gtk1(GtkWidget *gtklist);
    static void fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree);
-   static void fill_go_to_atom_atom_list(GtkWidget *atom_gtklist, int imol,
-				  char *chain_id, int seqno);
    void fill_go_to_atom_option_menu(GtkWidget *option_menu);
    void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 						  GtkSignalFunc callback_func);
@@ -1114,6 +1121,9 @@ public:
    static int cb_chain_tree_itemsignal( GtkWidget *item,
 					GdkEventButton *event, 
 					gpointer func_data);
+   static int go_to_atom_atom_list_signal_handler_event_gtk1(GtkWidget *widget, 
+							     GdkEventButton *event, 
+							     gpointer func_data);
 
 #else 
    // -------------------- Gtk2 code -----------------------------
@@ -1124,6 +1134,11 @@ public:
 					GtkTreePath        *path,
 					GtkTreeViewColumn  *col,
 					gpointer            userdata);
+   static void
+     atom_tree_atom_row_activated(GtkTreeView        *treeview,
+				  GtkTreePath        *path,
+				  GtkTreeViewColumn  *col,
+				  gpointer            userdata);
    static gboolean
      residue_tree_selection_func(GtkTreeSelection *selection,
 				 GtkTreeModel *model,
@@ -1131,11 +1146,15 @@ public:
 				 gboolean path_currently_selected,
 				 gpointer data);
 
+   static gboolean
+     atom_tree_selection_func(GtkTreeSelection *selection,
+			      GtkTreeModel *model,
+			      GtkTreePath *path,
+			      gboolean path_currently_selected,
+			      gpointer data);
+
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
-   static int go_to_atom_atom_list_signal_handler_event(GtkWidget *widget, 
-							GdkEventButton *event, 
-							gpointer func_data);
    void apply_go_to_atom_from_widget(GtkWidget *widget); 
    static void pointer_atom_molecule_menu_item_activate(GtkWidget *item, 
 							GtkPositionType pos);
@@ -2452,6 +2471,8 @@ public:
    static std::string sessionid; 
    static std::pair<std::string, std::string> db_userid_username;
 #endif
+
+   static std::vector<coot::view_info_t> *views;
 
 };
 

@@ -1,3 +1,8 @@
+2007-04-13  Paul Emsley  <emsley@localhost>
+
+	* src/pick.cc: Added Segid info to picked atom output info
+	[Christie Durnham]
+
 2007-04-07  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* Release 0.3.1 

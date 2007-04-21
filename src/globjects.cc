@@ -87,6 +87,7 @@ int graphics_info_t::show_paths_in_display_manager_flag = 0;
 std::vector<std::string> *graphics_info_t::command_line_scripts;
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
 std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
+std::vector<coot::view_info_t> *graphics_info_t::views = 0;
 
 // LSQ
 short int graphics_info_t::in_lsq_plane_deviation = 0;
@@ -2888,18 +2889,20 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 handled = TRUE;
       }
 
-      if (event->keyval != GDK_backslash) {
+      if (handled == 0) { 
+	 if (event->keyval != GDK_backslash) {
 	 
-	 int ikey = event->keyval;
-	 std::string scheme_command("(graphics-general-key-press-hook ");
-	 // scheme_command += "\"";
-	 scheme_command += graphics_info_t::int_to_string(ikey);
-	 // scheme_command += "\"";
-	 scheme_command += ")";
-	 std::cout << "running scheme command: " << scheme_command << std::endl;
-	 safe_scheme_command(scheme_command);
-      } else {
-	 std::cout << "Ignoring GDK_backslash key press event" << std::endl;
+	    int ikey = event->keyval;
+	    std::string scheme_command("(graphics-general-key-press-hook ");
+	    // scheme_command += "\"";
+	    scheme_command += graphics_info_t::int_to_string(ikey);
+	    // scheme_command += "\"";
+	    scheme_command += ")";
+	    std::cout << "running scheme command: " << scheme_command << std::endl;
+	    safe_scheme_command(scheme_command);
+	 } else {
+	    std::cout << "Ignoring GDK_backslash key press event" << std::endl;
+	 }
       }
    } 
    return TRUE;
@@ -3481,7 +3484,6 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 #if (GTK_MAJOR_VERSION > 1)
 gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 
-   std::cout << " handle gtk scroll event here" << std::endl;
    if (event->direction == GDK_SCROLL_UP)
       handle_scroll_event(1);
    if (event->direction == GDK_SCROLL_DOWN)

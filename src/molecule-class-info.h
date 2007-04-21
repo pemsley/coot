@@ -952,7 +952,11 @@ class molecule_class_info_t {
 
    int make_map_from_phs(const clipper::Spacegroup &sg,
 			 const clipper::Cell &cell,
-			 std::string phs_filename); 
+			 std::string phs_filename);
+
+   int make_map_from_cns_data(const clipper::Spacegroup &sg,
+			      const clipper::Cell &cell,
+			      std::string cns_data_filename);
 
    int make_map_from_cif_sigmaa(std::string cif_filename, int sigma_map_type); // has phases
    int make_map_from_cif(std::string cif_file_name); // uses above with type SIGMAA
@@ -1755,6 +1759,16 @@ class molecule_class_info_t {
 				 std::string attribute_name, std::string val_str);
 
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt) const;
+
+
+   // cleaner interface to molecule's attributes:
+   std::pair<bool, clipper::Spacegroup> space_group() const;
+   std::pair<bool, clipper::Cell> cell() const;
+
+
+   // 
+   clipper::Coord_orth find_peak_along_line(const clipper::Coord_orth &p1,
+					    const clipper::Coord_orth &p2) const;
 
 };
 

@@ -124,7 +124,9 @@ atom_pick(GdkEventButton *event) {
 			     << (SelAtom.atom_selection)[nearest_atom_index]->GetInsCode()
 			     << "/"
 			     << (SelAtom.atom_selection)[nearest_atom_index]->GetResName()
-			     << ", occ: " 
+			     << ", "
+			     << (SelAtom.atom_selection)[nearest_atom_index]->segID
+			     << " occ: " 
 			     << (SelAtom.atom_selection)[nearest_atom_index]->occupancy 
 			     << " with B-factor: "
 			     << (SelAtom.atom_selection)[nearest_atom_index]->tempFactor
@@ -171,6 +173,7 @@ atom_pick(GdkEventButton *event) {
 	 CAtom *at =
 	    graphics_info_t::molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
 	 std::string alt_conf_bit("");
+	 std::string segid = at->segID;
 	 if (strncmp(at->altLoc, "", 1))
 	    alt_conf_bit=std::string(",") + std::string(at->altLoc);
 	 ai += "(mol. no: ";
@@ -187,6 +190,8 @@ atom_pick(GdkEventButton *event) {
 	 ai += at->GetInsCode();
 	 ai += " ";
 	 ai += at->GetResName();
+	 if (segid != "")
+	    ai += segid;
 	 ai += " occ: ";
 	 ai += graphics_info_t::float_to_string(at->occupancy);
 	 ai += " bf: ";

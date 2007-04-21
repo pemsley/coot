@@ -4554,3 +4554,296 @@ void set_default_temperature_factor_for_new_atoms(float new_b) {
 float default_new_atoms_b_factor() {
    return graphics_info_t::default_new_atoms_b_factor;
 } 
+
+/*  ----------------------------------------------------------------------- */
+/*                  SHELX stuff                                             */
+/*  ----------------------------------------------------------------------- */
+
+/* section SHELXL Functions */
+// return 
+int read_shelx_ins_file(const char *filename) {
+
+   int istat = -1;
+   graphics_info_t g;
+   if (filename) { 
+      int imol = graphics_info_t::n_molecules;
+      g.expand_molecule_space_maybe();
+
+      istat = g.molecules[imol].read_shelx_ins_file(std::string(filename));
+      if (istat != 1) {
+	 std::cout << "ERROR:: " << istat << " on read_shelx_ins_file "
+		   << filename << std::endl;
+      } else {
+	 std::cout << "Molecule " << g.n_molecules << " read successfully\n";
+	 istat = g.n_molecules; // for return status 
+	 g.n_molecules++;
+	 if (g.go_to_atom_window) {
+	    g.set_go_to_atom_molecule(imol);
+	    g.update_go_to_atom_window_on_new_mol();
+	 }
+	 graphics_draw();
+	 std::vector<std::string> command_strings;
+	 command_strings.push_back("read-shelx-ins-file");
+	 command_strings.push_back(single_quote(filename));
+	 add_to_history(command_strings);
+      }
+   } else {
+      std::cout << "ERROR:: null filename in read_shelx_ins_file" << std::endl;
+   }
+   return istat;
+   
+}
+
+int write_shelx_ins_file(int imol, const char *filename) {
+
+   int istat = 0;
+   if (filename) { 
+      if (is_valid_model_molecule(imol)) {
+	 std::pair<int, std::string> stat = graphics_info_t::molecules[imol].write_shelx_ins_file(std::string(filename));
+	 istat = stat.first;
+	 graphics_info_t g;
+	 g.statusbar_text(stat.second);
+      } else {
+	 std::cout << "WARNING:: invalid molecule (" << imol
+		   << ") for write_shelx_ins_file" << std::endl;
+      }
+   }
+   return istat;
+}
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  SMILES                                                  */
+/*  ----------------------------------------------------------------------- */
+void do_smiles_gui() {
+
+#ifdef USE_GUILE
+
+   safe_scheme_command("(smiles-gui)");
+
+
+#endif // USE_GUILE
+
+} 
+
+/*  ----------------------------------------------------------------------- */
+/*                  pepflip                                                 */
+/*  ----------------------------------------------------------------------- */
+// use the values that are in graphics_info
+void do_pepflip(short int state) {
+
+   graphics_info_t g;
+
+   g.set_in_pepflip_define(state);
+   if (state) { 
+      g.pick_cursor_maybe();
+      g.pick_pending_flag = 1;
+      std::cout << "click on a atom in the peptide you wish to flip: "
+		<< std::endl;
+   } else {
+      g.normal_cursor();
+   } 
+      
+} 
+
+void pepflip(int ires, const char *chain_id, int imol) { /* the residue with CO,
+							   for scripting interface. */
+
+   if (imol < graphics_n_molecules()) { 
+      graphics_info_t g;
+      g.molecules[imol].pepflip_residue(ires, std::string(""), std::string(chain_id));
+      graphics_draw();
+   } 
+} 
+
+void set_residue_density_fit_scale_factor(float f) {
+
+   graphics_info_t::residue_density_fit_scale_factor = f;
+}
+
+float residue_density_fit_scale_factor() {
+   return graphics_info_t::residue_density_fit_scale_factor; 
+}
+
+
+// dictionary
+void handle_cif_dictionary(const char *filename) {
+
+   graphics_info_t g;
+   g.add_cif_dictionary(filename, 1); // show dialog if no bonds
+
+}
+
+void read_cif_dictionary(const char *filename) { 
+   
+   handle_cif_dictionary(filename);
+
+} 
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  CNS data stuff                                          */
+/*  ----------------------------------------------------------------------- */
+int handle_cns_data_file_with_cell(const char *filename, int imol, float a, float b, float c, float alpha, float beta, float gamma, const char *spg_info) {
+
+   clipper::Spacegroup sg;
+   clipper::Cell cell;
+   clipper::Cell_descr cell_d(a, b, c, 
+			      clipper::Util::d2rad(alpha),
+			      clipper::Util::d2rad(beta),
+			      clipper::Util::d2rad(alpha));
+   clipper::Spgr_descr sg_d(spg_info);
+   cell.init(cell_d);
+   sg.init(sg_d);
+   int istat = graphics_info_t::molecules[imol].make_map_from_cns_data(sg, cell, filename);
+   if (istat != -1) { 
+      graphics_info_t::n_molecules++;
+      graphics_draw();
+   }
+   return istat;
+}
+
+
+int handle_cns_data_file(const char *filename, int imol_coords) {
+
+   int istat = -1; // returned int
+   // first, does the file exist?
+   struct stat s; 
+   int status = stat(filename, &s);
+   // stat check the link targets not the link itself, lstat stats the
+   // link itself.
+   // 
+   if (status != 0 || !S_ISREG (s.st_mode)) {
+      std::cout << "Error reading " << filename << std::endl;
+      return -1; // which is status in an error
+   } else {
+      if (S_ISDIR(s.st_mode)) {
+	 std::cout << filename << " is a directory." << std::endl;
+      } else {
+	 if (is_valid_model_molecule(imol_coords)) { 
+	    int imol = graphics_info_t::n_molecules;
+	    std::pair<bool, clipper::Spacegroup> sg =
+	       graphics_info_t::molecules[imol_coords].space_group();
+	    std::pair<bool,clipper::Cell> cell =  graphics_info_t::molecules[imol_coords].cell();
+	    if (sg.first && cell.first) { 
+	       istat = graphics_info_t::molecules[imol].make_map_from_cns_data(sg.second,
+									       cell.second,
+									       filename);
+	       if (istat != -1) { 
+		  graphics_info_t::n_molecules++;
+		  graphics_draw();
+	       }
+	    }
+	 } 
+      }
+   }
+   return istat;
+}
+
+
+void
+my_delete_ramachandran_mol_option(GtkWidget *widget, void *data) {
+   gtk_container_remove(GTK_CONTAINER(data), widget);
+}
+
+
+
+void
+set_moving_atoms(double phi, double psi) { 
+
+   graphics_info_t g;
+   g.set_edit_phi_psi_to(phi, psi);
+}
+
+void
+accept_phi_psi_moving_atoms() { 
+
+   graphics_info_t g;
+   g.accept_moving_atoms();
+   clear_moving_atoms_object();
+
+}
+
+void
+setup_edit_phi_psi(short int state) {
+
+   graphics_info_t g;
+   g.in_edit_phi_psi_define = state;
+   if (state) { 
+      g.pick_cursor_maybe();
+      g.pick_pending_flag = 1;
+
+      std::cout << "click on an atom in the residue for phi/psi editting"
+		<< std::endl;
+   } else {
+      g.normal_cursor();
+   } 
+}
+
+/*  ----------------------------------------------------------------------- */
+/*                  get molecule by libcheck/refmac code                    */
+/*  ----------------------------------------------------------------------- */
+
+/* Libcheck monomer code */
+void 
+handle_get_libcheck_monomer_code(GtkWidget *widget) { 
+
+   const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
+   std::cout << "Refmac monomer Code: " << text << std::endl;
+   int imol = get_monomer(text);
+
+   // and kill the libcheck code window
+   GtkWidget *window = lookup_widget(GTK_WIDGET(widget), "libcheck_monomer_dialog");
+   if (window)
+      gtk_widget_destroy(window);
+   else 
+      std::cout << "failed to lookup window in handle_get_libcheck_monomer_code" 
+		<< std::endl;
+}
+
+// Return the new molecule number, or else a negitive error code.
+// 
+int get_monomer(const char *three_letter_code) {
+
+   int imol = -1;
+
+#ifdef USE_GUILE
+   string scheme_command;
+
+   scheme_command = "(monomer-molecule-from-3-let-code \"";
+
+   scheme_command += three_letter_code;
+   scheme_command += "\"";
+
+   // now add in the bespoke cif library if it was given
+   std::string cif_lib_filename = "";
+   if (graphics_info_t::cif_dictionary_filename_vec->size() > 0)
+      cif_lib_filename = (*graphics_info_t::cif_dictionary_filename_vec)[0];
+
+   scheme_command += " ";
+   std::string quoted_cif_lib_filename = single_quote(cif_lib_filename);
+   scheme_command += quoted_cif_lib_filename;
+
+   if (graphics_info_t::libcheck_ccp4i_project_dir != "") { 
+      scheme_command += " ";
+      scheme_command += single_quote(graphics_info_t::libcheck_ccp4i_project_dir);
+   }
+
+   scheme_command += ")";
+
+   SCM v = safe_scheme_command(scheme_command);
+
+   int was_int_flag = gh_scm2bool(scm_integer_p(v));
+
+   if (was_int_flag)
+      imol = gh_scm2int(v);
+
+#else 
+   
+   std::cout << "not compiled with guile.  This won't work \n"
+	     << "Need function to be coded in python..." << std::endl; 
+
+#endif // USE_GUILE
+
+   return imol;
+} 
