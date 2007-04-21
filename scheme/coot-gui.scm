@@ -838,6 +838,54 @@
 		       (append (list label imol) alt-conf-residue centre-atom)))
 	      alt-conf-residues centre-atoms)))))
 
+
+
+;; button-list is a list of pairs (improper list) the first item of
+;; which is the button label text the second item is a lambda
+;; function, what to do when the button is pressed.
+;; 
+(define (generic-buttons-dialog dialog-name 
+				button-list)
+
+  ;; main body	
+  (let* ((window (gtk-window-new 'toplevel))
+	 (scrolled-win (gtk-scrolled-window-new))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-vbox (gtk-vbox-new #f 0)))
+  
+    (gtk-window-set-default-size window 250 250)
+    (gtk-window-set-title window dialog-name)
+    (gtk-container-border-width inside-vbox 4)
+    
+    (gtk-container-add window outside-vbox)
+    (gtk-container-add outside-vbox scrolled-win)
+    (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
+    (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+    
+    (let loop ((button-items button-list))
+      (cond 
+       ((null? button-items) 'done)
+       (else 
+	(if (pair? (car button-items))
+	    (let ((button-label (car (car button-items)))
+		  (action (cdr (car button-items))))
+	      
+	      (let ((button (gtk-button-new-with-label button-label)))
+		(gtk-box-pack-start inside-vbox button #f #f 2)
+		(gtk-signal-connect button "clicked" action)
+		(gtk-widget-show button))))
+	(loop (cdr button-items)))))
+
+    (gtk-container-border-width outside-vbox 4)
+    (let ((ok-button (gtk-button-new-with-label "  OK  ")))
+      (gtk-box-pack-start outside-vbox ok-button #f #f 6)
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window))))
+
+    (gtk-widget-show-all window)))
+ 
+
 ;; Generic interesting things gui: user passes a function that takes 4
 ;; args: the chain-id, resno, inscode and residue-serial-number
 ;; (should it be needed) and returns either #f or something

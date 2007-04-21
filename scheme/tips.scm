@@ -6,8 +6,8 @@
  "+ and - on the keyboard change the contour level"
  "To move just one atom (in Regularize, RS Refine, or Rotate/Translate 
   mode) use Ctrl Left-mouse to pick an atom (you have to be accurate)."
- "There is a mailing list for Coot development and discussion.
-  Mail Tim Kirk (kirk@ysbl.york.ac.uk) if you want to be subscribed."
+ "There is a mailing list for Coot development and discussion at
+  http://www.jiscmail.ac.uk/lists/coot.html"
  "Use Ctrl Left-mouse to drag (for example) a blob of density to the
   the pointer"
  "Want distance of the atoms to the pointer?  
@@ -46,7 +46,7 @@
  "The 'D' and 'F' keys change the clipping/slabbing."
  "\"(view-matrix)\" prints the current view matrix, useful for 
   molscript, perhaps."
- "Baton-building low resolution maps is better down with maps that 
+ "Baton-building low resolution maps is better done with maps that 
   have increased sampling rate (2.0 or 2.5)."
  "Coot can read SHELXL .res files. (It can write them too.)"
  "\"Clear All Atom Labels\" can be found under Measures -> 
