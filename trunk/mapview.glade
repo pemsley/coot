@@ -1435,7 +1435,6 @@
     <widget>
       <class>GtkFrame</class>
       <name>main_window_model_fit_dialog_frame</name>
-      <width>182</width>
       <visible>False</visible>
       <label_xalign>0</label_xalign>
       <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -1443,7 +1442,22 @@
 	<padding>0</padding>
 	<expand>False</expand>
 	<fill>False</fill>
-	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>Placeholder</class>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkFrame</class>
+      <name>gtkhtml_frame</name>
+      <label_xalign>0</label_xalign>
+      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
       </child>
 
       <widget>
