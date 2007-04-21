@@ -34,6 +34,29 @@ void split_test(const std::string &r) {
 int main(int argv, char **argc) {
 
 
+   /*
+   std::string s;
+   s = "AVasdfasdfC";
+   std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
+	     << std::endl;
+   s = "   AVC";
+   std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
+	     << std::endl;
+   s = " AVC ";
+   std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
+	     << std::endl;
+   s = "C";
+   std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
+	     << std::endl;
+   s = "";
+   std::cout << s << " cuts to :" << coot::util::remove_leading_spaces(s) << ":"
+	     << std::endl;
+   */
+
+   std::string a("ABCDefgh");
+   std::cout << a << " downcased: " << coot::util::downcase(a) << std::endl;
+   std::cout << a << "   upcased: " << coot::util::upcase(a) << std::endl;
+
    std::string s("Cottage");
    std::string r("tag"); 
    std::cout  << "removing :" << r << ": from :" << s << ": gives :"

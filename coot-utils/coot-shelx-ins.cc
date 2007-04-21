@@ -309,6 +309,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card.words[0].substr(0, 4) == "SAME") ||
 							   (card.words[0].substr(0, 4) == "L.S.") ||
 							   (card.words[0].substr(0, 4) == "SUMP") ||
+							   (card.words[0].substr(0, 4) == "BOND") ||
+							   (card.words[0].substr(0, 4) == "EXTI") ||
 							   (card.words[0].substr(0, 4) == "WPDB")) { 
 						      } else {
 							 if (card.words[0].substr(0, 4) == "LATT") {
@@ -461,11 +463,11 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 symmetry_ops += " ; ";
       }
       if (symmetry_ops != "") {
-// 	 std::cout << "DEBUG:: initing spacegroup with " << symmetry_ops << std::endl;
+ 	 // std::cout << "DEBUG:: initing spacegroup with " << symmetry_ops << std::endl;
  	 space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
-// 	 std::cout << "INFO:: set space group to :"
-// 		   << space_group.descr().symbol_hm()
-// 		   << ":" << std::endl;
+//  	 std::cout << "INFO:: set space group to :"
+//  		   << space_group.descr().symbol_hm()
+//  		   << ":" << std::endl;
 	 mol->SetSpaceGroup((char *)space_group.descr().symbol_hm().c_str());
 	 char *spg = mol->GetSpaceGroup();
 	 if (spg) { 
@@ -473,6 +475,11 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	    std::cout << "READ-INS:: Spacegroup: " << sgrp << "\n";
 	 } else {
 	    std::cout << "READ-INS:: No Spacegroup found in res file\n";
+	    // Is that because mmdb doesn't know about SYMINFO?
+	    char *si = getenv("SYMINFO");
+	    if (! si) {
+	       std::cout << "   possible cause: SYMINFO not set.\n";
+	    }
 	 } 
       }
 
@@ -573,6 +580,9 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
       // char *altloc = new char(2);
       strncpy(at->altLoc, altconf.c_str(), 2);
       if (card.words.size() > 6) {
+// 	 for (unsigned int iword=0; iword<card.words.size(); iword++) {
+// 	    std::cout << "    " << iword << " " << card.words[iword] << std::endl;
+// 	 }
 	 if (card.words.size() < 8) {
 	    // isotropic temperature factor
 	    float b_factor_from_card = atof(card.words[6].c_str());
@@ -592,6 +602,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 	       at->u13 = atof(card.words[10].c_str());
 	       at->u23 = atof(card.words[11].c_str());
 	       at->WhatIsSet += 64; // is anisotropic
+	       std::cout << "DEBUG:: Found Anisotropic " << at->name << std::endl;
 	    }
 	 }
 // 	 std::cout << "on setting WhatIsSet is "
@@ -631,21 +642,25 @@ coot::ShelxIns::read_line(std::ifstream &f) {
    std::string running_word;
    while (!f.eof()) {
       c = f.get();
-      if (c == '\n') {
-	 if (running_word.length() > 0)
-	    sv.push_back(running_word);
-	 break;
-      } else {
-	 if (c == ' ') {
+      int c_as_int = c;
+      if ((c_as_int >= 32) || (c_as_int == 10)) { // George Sheldrick suggestion 20070415
+	 if (c == '\n') {
 	    if (running_word.length() > 0)
 	       sv.push_back(running_word);
-	    running_word = "";
+	    break;
 	 } else {
-	    running_word += c;
+	    if (c == ' ') {
+	       if (running_word.length() > 0)
+		  sv.push_back(running_word);
+	       running_word = "";
+	    } else {
+	       running_word += c;
+	    }
+	    s += c;
 	 }
-	 s += c;
       }
    }
+//    std::cout << "---- FOUND " << sv.size() << " words in " << s << std::endl;
    shelx_card_info.card = s;
    shelx_card_info.words = sv;
 
@@ -698,11 +713,12 @@ coot::ShelxIns::read_card(std::ifstream &f) {
    shelx_card_info.strip_post_bang();
    if (shelx_card_info.words.size() > 0) {
       if (shelx_card_info.spaced_start == 0) {
-	 if (shelx_card_info.words.back() == "=") {
+	 if (shelx_card_info.last_word_is_equal_symbol()) {
 	    shelx_card_info.add_card(read_card_extended(f));
-	    // std::cout << "DEBUG::" << shelx_card_info.card << "\n";
-	    // for (int i=0; i<shelx_card_info.words.size(); i++)
-	    // std::cout << "DEBUG:: " << i << " :" << shelx_card_info.words[i] << ":\n";
+// 	    std::cout << "DEBUG:: extending" << shelx_card_info.card << "\n";
+// 	    for (int i=0; i<shelx_card_info.words.size(); i++)
+// 	       std::cout << "DEBUG:: extending... " << i << " :" << shelx_card_info.words[i]
+// 			 << ":\n";
 	 }
       }
    }
@@ -728,7 +744,8 @@ coot::ShelxIns::read_card_extended(std::ifstream &f) {
    shelx_card_info.strip_post_bang();
    if (shelx_card_info.words.size() > 0) {
       if (shelx_card_info.spaced_start == 0) {
-	 if (shelx_card_info.words.back() == "=") {
+	 // 	 if (shelx_card_info.words.back() == "=") {
+	 if (shelx_card_info.last_word_is_equal_symbol()) {
 	    shelx_card_info.add_card(read_card_extended(f));
 	    // std::cout << "DEBUG::" << shelx_card_info.card << "\n";
 	    // for (int i=0; i<shelx_card_info.words.size(); i++)
@@ -739,6 +756,35 @@ coot::ShelxIns::read_card_extended(std::ifstream &f) {
 
    return shelx_card_info;
 }
+
+
+bool
+coot::shelx_card_info_t::last_word_is_equal_symbol() const {
+
+   bool r = 0;
+   if (words.size() > 0) { 
+      std::string s = words.back();
+      if (s == "=") {
+	 r = 1;
+      } else {
+	 if (s.length() == 2) {
+	    int i1 = s[0];
+	    int i2 = s[1];
+// 	    std::cout << "2 chars: " << i1 << " " << i2 << " in :" << s
+// 		      << ":" << std::endl;
+	    if (s[0] == 61) { // = symbol
+	       if (s[1] == 13) {
+		  std::cout << "windows =" << std::endl;
+		  r = 1;
+	       }
+	    }
+	 }
+      }
+   }
+   return r;
+
+}
+
 
 // modify yourself so that words after a ! word (and the ! word) are
 // removed.
@@ -1096,9 +1142,9 @@ coot::clipper_symm_strings(const std::vector<std::string> &symm_vec,
    for (unsigned int i=0; i<symm_vec.size(); i++)
       v.push_back(symm_vec[i]);
 
-//    for (unsigned int i=0; i<v.size(); i++)
-//       std::cout << "DEBUG:: v in clipper_symm_strings: "
-// 		<< i << " " << v[i] << std::endl;
+//     for (unsigned int i=0; i<v.size(); i++)
+//        std::cout << "DEBUG:: v in clipper_symm_strings: "
+//  		<< i << " " << v[i] << std::endl;
 
    for (unsigned int i=0; i<v.size(); i++) { 
       symm_card_composition_t sc(v[i]);

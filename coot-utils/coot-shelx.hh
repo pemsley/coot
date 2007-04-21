@@ -41,6 +41,7 @@ namespace coot {
       std::string card;
       std::vector<std::string> words;
       short int spaced_start; 
+      bool last_word_is_equal_symbol() const;
       void add_card(const shelx_card_info_t &other) {
 
 	 // only add_card if the first 4 characters of the line are not spaces
@@ -198,6 +199,7 @@ namespace coot {
       void save_fvars(const shelx_card_info_t &card);
       CAtom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
 		       int udd_afix_handle, int have_udd_atoms, int current_afix) const;
+
    public:
       ShelxIns() {init(); }
       // pair: status (0: bad), udd_afix_handle (-1 bad)

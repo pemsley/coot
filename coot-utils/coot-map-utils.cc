@@ -312,3 +312,12 @@ coot::util::mean_and_variance(const clipper::Xmap<float> &xmap) {
 
    return std::pair<float, float> (mean, var);
 }
+
+
+clipper::Xmap<float>
+coot::util::lapacian_transform(const clipper::Xmap<float> &xmap_in) {
+
+   return xmap_in;
+
+   
+}
