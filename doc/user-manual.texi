@@ -3111,7 +3111,6 @@ If you don't want a difference map, you can use the function:
 
 @code{(set-auto-read-do-difference-map-too 0)}
 
-
 @subsection Reading CIF data
 There are several maps that can be generated from CIF files that
 contain observed Fs, calculated Fs and calculated phases:
@@ -3127,6 +3126,21 @@ contain observed Fs, calculated Fs and calculated phases:
  Calculate an difference map using @math{F_{obs}}, @math{F_{calc}} and
   @math{\alpha_{calc}}.
 @end itemize
+
+@subsection Reading PHS data
+@cindex PHS data
+
+There are 2 ways to read data by scripting:
+
+@code{(read-phs-and-make-map-using-cell-symm @emph{phs-file-name space-group-name a b c alpha beta gamma})}
+
+@code{(read-pdb-and-make-map-with-reso-limits @emph{imol-previous phs-file-name reso-limit-low reso-limit-high})}
+
+The first specifies the cell explicitly, and @code{@emph{alpha, beta}}
+and @code{@emph{gamma}} are specified in degrees. 
+
+The second form allows the specification of resolution limits and takes
+the cell and symmetry from a previous molecule (typically a pdb file).
 
 @node    Map Contouring
 @section Map Contouring
