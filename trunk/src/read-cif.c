@@ -53,10 +53,11 @@ try_read_cif_file_and_calc_sfs(const char *filename, int imol) {
 }
 
 
+
 int 
-try_read_cns_data_file(const char *filename) { 
+try_read_cns_data_file(const char *filename, int imol) { 
 
    printf ("INFO trying to read %s as a CNS/X-PLOR data file\n", filename);
-   return handle_cns_data_file(filename);
+   return handle_cns_data_file(filename, imol);
   
 }

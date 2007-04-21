@@ -7592,73 +7592,6 @@ void handle_get_accession_code(GtkWidget *widget) {
 
 
 
-/*  ----------------------------------------------------------------------- */
-/*                  get molecule by libcheck/refmac code                    */
-/*  ----------------------------------------------------------------------- */
-
-/* Libcheck monomer code */
-void 
-handle_get_libcheck_monomer_code(GtkWidget *widget) { 
-
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
-   std::cout << "Refmac monomer Code: " << text << std::endl;
-   int imol = get_monomer(text);
-
-   // and kill the libcheck code window
-   GtkWidget *window = lookup_widget(GTK_WIDGET(widget), "libcheck_monomer_dialog");
-   if (window)
-      gtk_widget_destroy(window);
-   else 
-      std::cout << "failed to lookup window in handle_get_libcheck_monomer_code" 
-		<< std::endl;
-}
-
-// Return the new molecule number, or else a negitive error code.
-// 
-int get_monomer(const char *three_letter_code) {
-
-   int imol = -1;
-
-#ifdef USE_GUILE
-   string scheme_command;
-
-   scheme_command = "(monomer-molecule-from-3-let-code \"";
-
-   scheme_command += three_letter_code;
-   scheme_command += "\"";
-
-   // now add in the bespoke cif library if it was given
-   std::string cif_lib_filename = "";
-   if (graphics_info_t::cif_dictionary_filename_vec->size() > 0)
-      cif_lib_filename = (*graphics_info_t::cif_dictionary_filename_vec)[0];
-
-   scheme_command += " ";
-   std::string quoted_cif_lib_filename = single_quote(cif_lib_filename);
-   scheme_command += quoted_cif_lib_filename;
-
-   if (graphics_info_t::libcheck_ccp4i_project_dir != "") { 
-      scheme_command += " ";
-      scheme_command += single_quote(graphics_info_t::libcheck_ccp4i_project_dir);
-   }
-
-   scheme_command += ")";
-
-   SCM v = safe_scheme_command(scheme_command);
-
-   int was_int_flag = gh_scm2bool(scm_integer_p(v));
-
-   if (was_int_flag)
-      imol = gh_scm2int(v);
-
-#else 
-   
-   std::cout << "not compiled with guile.  This won't work \n"
-	     << "Need function to be coded in python..." << std::endl; 
-
-#endif // USE_GUILE
-
-   return imol;
-} 
 
 
 #ifdef USE_GUILE
@@ -8036,44 +7969,6 @@ void add_on_rama_choices(){  // the the menu
    }
 }
 
-void
-my_delete_ramachandran_mol_option(GtkWidget *widget, void *data) {
-   gtk_container_remove(GTK_CONTAINER(data), widget);
-}
-
-
-
-void
-set_moving_atoms(double phi, double psi) { 
-
-   graphics_info_t g;
-   g.set_edit_phi_psi_to(phi, psi);
-}
-
-void
-accept_phi_psi_moving_atoms() { 
-
-   graphics_info_t g;
-   g.accept_moving_atoms();
-   clear_moving_atoms_object();
-
-}
-
-void
-setup_edit_phi_psi(short int state) {
-
-   graphics_info_t g;
-   g.in_edit_phi_psi_define = state;
-   if (state) { 
-      g.pick_cursor_maybe();
-      g.pick_pending_flag = 1;
-
-      std::cout << "click on an atom in the residue for phi/psi editting"
-		<< std::endl;
-   } else {
-      g.normal_cursor();
-   } 
-}
 
 void destroy_edit_backbone_rama_plot() { 
 
@@ -8580,54 +8475,6 @@ int handle_shelx_fcf_file_internal(const char *filename) {
 	     // don't try to read this file as CNS data.
 }
 
-/*  ----------------------------------------------------------------------- */
-/*                  CNS data stuff                                          */
-/*  ----------------------------------------------------------------------- */
-int handle_cns_data_file(const char *filename) {
-
-   // first, does the file exist?
-   struct stat s; 
-   int status = stat(filename, &s);
-   // stat check the link targets not the link itself, lstat stats the
-   // link itself.
-   // 
-   if (status != 0 || !S_ISREG (s.st_mode)) {
-      std::cout << "Error reading " << filename << std::endl;
-      return -1; // which is status in an error
-   } else {
-      if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << std::endl;
-      } else {
-	 std::cout << "FIXME:: Fill this CNS data stub." << std::endl;
-      } 
-   }
-   return 0;
-}
-
-
-void set_residue_density_fit_scale_factor(float f) {
-
-   graphics_info_t::residue_density_fit_scale_factor = f;
-}
-
-float residue_density_fit_scale_factor() {
-   return graphics_info_t::residue_density_fit_scale_factor; 
-}
-
-
-// dictionary
-void handle_cif_dictionary(const char *filename) {
-
-   graphics_info_t g;
-   g.add_cif_dictionary(filename, 1); // show dialog if no bonds
-
-}
-
-void read_cif_dictionary(const char *filename) { 
-   
-   handle_cif_dictionary(filename);
-
-} 
 
 /* Use the environment variable COOT_REFMAC_LIB_DIR to find cif files
    in subdirectories and import them all. */
@@ -8688,7 +8535,7 @@ int brief_atom_labels_state() {
 /* stepsize in degrees */
 void rotate_y_scene(int nsteps, float stepsize) { 
 
-  float spin_quat[4];
+   float spin_quat[4];
    graphics_info_t g;
 
    // spin it 1 degree
@@ -8761,8 +8608,13 @@ void spin_zoom_trans(int axis, int nsteps, float stepsize, float zoom_by,
    if (nsteps !=0) {
       zoom_frag = (zoom_final - zoom_init)/float(nsteps);
    }
+   int sss = graphics_info_t::smooth_scroll;
+
+   // setRotationCentre looks at this and does a smooth scroll if its
+   // on.
+   graphics_info_t::smooth_scroll = 0;
    
-   std::cout << "zoom_frag is " << zoom_frag << std::endl;
+   // std::cout << "zoom_frag is " << zoom_frag << std::endl;
    for(int i=0; i<nsteps; i++) {
       if (axis == 1) { 
 	 trackball(spin_quat, 0, 0, 0.0, 0.0174*stepsize, tbs);
@@ -8773,10 +8625,7 @@ void spin_zoom_trans(int axis, int nsteps, float stepsize, float zoom_by,
 	 add_quats(spin_quat, g.quat, g.quat);
       }
       if (axis == 3) { 
-	 trackball(spin_quat, 
-		   1.0, 1.0,
-		   1.0, 1.0 + 0.0174*stepsize,
-		   0.4);
+	 trackball(spin_quat, 1.0, 1.0, 1.0, 1.0 + 0.0174*stepsize, 0.4);
 	 add_quats(spin_quat, g.quat, g.quat);
       }
       g.zoom = zoom_init + float(i+1)*zoom_frag;
@@ -8784,6 +8633,7 @@ void spin_zoom_trans(int axis, int nsteps, float stepsize, float zoom_by,
       g.setRotationCentre(c);
       graphics_draw();
    }
+   graphics_info_t::smooth_scroll = sss;
 } 
 
 
@@ -8818,36 +8668,6 @@ int  background_is_black_p() {
    return v;
 }
 
-
-/*  ----------------------------------------------------------------------- */
-/*                  pepflip                                                 */
-/*  ----------------------------------------------------------------------- */
-// use the values that are in graphics_info
-void do_pepflip(short int state) {
-
-   graphics_info_t g;
-
-   g.set_in_pepflip_define(state);
-   if (state) { 
-      g.pick_cursor_maybe();
-      g.pick_pending_flag = 1;
-      std::cout << "click on a atom in the peptide you wish to flip: "
-		<< std::endl;
-   } else {
-      g.normal_cursor();
-   } 
-      
-} 
-
-void pepflip(int ires, const char *chain_id, int imol) { /* the residue with CO,
-							   for scripting interface. */
-
-   if (imol < graphics_n_molecules()) { 
-      graphics_info_t g;
-      g.molecules[imol].pepflip_residue(ires, std::string(""), std::string(chain_id));
-      graphics_draw();
-   } 
-} 
 
 
 // ------------------------------------------------------------------
@@ -9144,74 +8964,109 @@ void do_surface(int imol, int state) {
 }
 
 
-/*  ----------------------------------------------------------------------- */
-/*                  SHELX stuff                                             */
-/*  ----------------------------------------------------------------------- */
 
-/* section SHELXL Functions */
-// return 
-int read_shelx_ins_file(const char *filename) {
+/*  ----------------------------------------------------------------------- */
+/*                  Views                                                   */
+/*  ----------------------------------------------------------------------- */
+void add_view(const char *view_name) {
 
-   int istat = -1;
+   std::string name(view_name);
+   float quat[4];
+   for (int i=0; i<4; i++)
+      quat[i] = graphics_info_t::quat[i];
    graphics_info_t g;
-   if (filename) { 
-      int imol = graphics_info_t::n_molecules;
-      g.expand_molecule_space_maybe();
+   coot::Cartesian rc = g.RotationCentre();
+   float zoom = graphics_info_t::zoom;
+   coot::view_info_t view(quat, rc, zoom, name);
+   graphics_info_t::views->push_back(view);
 
-      istat = g.molecules[imol].read_shelx_ins_file(std::string(filename));
-      if (istat != 1) {
-	 std::cout << "ERROR:: " << istat << " on read_shelx_ins_file "
-		   << filename << std::endl;
-      } else {
-	 std::cout << "Molecule " << g.n_molecules << " read successfully\n";
-	 istat = g.n_molecules; // for return status 
-	 g.n_molecules++;
-	 if (g.go_to_atom_window) {
-	    g.set_go_to_atom_molecule(imol);
-	    g.update_go_to_atom_window_on_new_mol();
+}
+
+int remove_named_view(const char *view_name) {
+
+   int r=0;
+   bool found = 0;
+   std::string vn(view_name);
+   std::vector<coot::view_info_t> new_views;
+
+   // don't push back the view if it has the same name and if we
+   // haven't found a view with that name before.
+   for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
+      if ((*graphics_info_t::views)[iv].view_name == vn) {
+	 if (found == 1) {
+	    new_views.push_back((*graphics_info_t::views)[iv]);
 	 }
-	 graphics_draw();
-	 std::vector<std::string> command_strings;
-	 command_strings.push_back("read-shelx-ins-file");
-	 command_strings.push_back(single_quote(filename));
-	 add_to_history(command_strings);
-      }
-   } else {
-      std::cout << "ERROR:: null filename in read_shelx_ins_file" << std::endl;
-   }
-   return istat;
-   
-}
-
-int write_shelx_ins_file(int imol, const char *filename) {
-
-   int istat = 0;
-   if (filename) { 
-      if (is_valid_model_molecule(imol)) {
-	 std::pair<int, std::string> stat = graphics_info_t::molecules[imol].write_shelx_ins_file(std::string(filename));
-	 istat = stat.first;
-	 graphics_info_t g;
-	 g.statusbar_text(stat.second);
       } else {
-	 std::cout << "WARNING:: invalid molecule (" << imol
-		   << ") for write_shelx_ins_file" << std::endl;
+	 new_views.push_back((*graphics_info_t::views)[iv]);
       }
    }
-   return istat;
-}
-
-
-/*  ----------------------------------------------------------------------- */
-/*                  SMILES                                                  */
-/*  ----------------------------------------------------------------------- */
-void do_smiles_gui() {
-
-#ifdef USE_GUILE
-
-   safe_scheme_command("(smiles-gui)");
-
-
-#endif // USE_GUILE
-
+   if (found) {
+      r = 1;
+      *graphics_info_t::views = new_views;
+   }
+   return r;
 } 
 
+
+
+void play_views() {
+
+   for (int iv=0; iv<graphics_info_t::views->size()-1; iv++) {
+      coot::view_info_t view1 = (*graphics_info_t::views)[iv];
+      coot::view_info_t view2 = (*graphics_info_t::views)[iv+1];
+      coot::view_info_t::interpolate(view1, view2, 1, 400);
+      update_things_on_move_and_redraw();
+   }
+}
+
+void remove_this_view() {
+
+   graphics_info_t g;
+   coot::Cartesian rc = g.RotationCentre();
+   float quat[4];
+   for (int i=0; i<4; i++)
+      quat[i] = graphics_info_t::quat[i];
+   float zoom =  g.zoom;
+
+   int r=0;
+   bool found = 0;
+   coot::view_info_t v(quat, rc, zoom, "");
+
+   // don't push back the view if it has the same name and if we
+   // haven't found a view with that name before.
+   std::vector<coot::view_info_t> new_views;
+   for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
+      if ((*graphics_info_t::views)[iv].matches_view(v)) {
+	 if (found == 1) {
+	    new_views.push_back((*graphics_info_t::views)[iv]);
+	 }
+      } else {
+	 new_views.push_back((*graphics_info_t::views)[iv]);
+      }
+   }
+   if (found) {
+      r = 1;
+      *graphics_info_t::views = new_views;
+   }
+}
+
+
+int go_to_first_view(int snap_to_view_flag) {
+
+   int r = 0;
+   graphics_info_t g;
+   if (graphics_info_t::views->size() > 0) { 
+      if (snap_to_view_flag) {
+	 coot::view_info_t view = (*graphics_info_t::views)[0];
+	 g.setRotationCentre(view.rotation_centre);
+	 g.zoom = view.zoom;
+	 for (int iq=0; iq<4; iq++)
+	    g.quat[iq] = view.quat[iq];
+      } else {
+	 coot::view_info_t this_view(g.quat, g.RotationCentre(), g.zoom, "");
+	 coot::view_info_t::interpolate(this_view, (*graphics_info_t::views)[0], 1, 100);
+      }
+      update_things_on_move_and_redraw();
+   }
+   return r;
+}

@@ -342,7 +342,6 @@ graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList *gtk
 	    // this function... endless loop.
 	    // 
 
-	    std::cout << "doing g.set_go_to_atom_chain_residue_atom_name" << std::endl;
 	    // this does simple setting, nothing else
 	    g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
 						     at->GetSeqNum(),
@@ -350,24 +349,85 @@ graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList *gtk
 						     at->name,
 						     at->altLoc);
 	 
-	    std::cout << "doing g.update_widget_go_to_atom_values" << std::endl;
 	    g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
 	 
 	    // now we want the atom list to contain the atoms of the
 	    // newly selected residue:
 	 
-	    std::cout << "doing atom window" << std::endl;
 	    GtkWidget *window = lookup_widget(GTK_WIDGET(gtktree),"goto_atom_window");
 	    GtkWidget *atom_gtklist = lookup_widget(window, "go_to_atom_atom_list");
-	    fill_go_to_atom_atom_list(atom_gtklist,
-				      g.go_to_atom_molecule(),
-				      at->GetChainID(),
-				      at->GetSeqNum());
+	    fill_go_to_atom_atom_list_gtk1(atom_gtklist,
+					   g.go_to_atom_molecule(),
+					   at->GetChainID(),
+					   at->GetSeqNum());
 	 }
       } 
       dlist = dlist->next;
    }
 }
 
+// The question we have to ask is: is everything that happens here OK
+// when called as a result of a synthetic residue select?
+// 
+void
+graphics_info_t::fill_go_to_atom_atom_list_gtk1(GtkWidget *atom_gtklist, int imol, char *chain_id, int seqno) {
+
+   GtkWidget       *label;
+   gchar           *string;
+   GtkWidget *list_item;
+   std::string button_string;
+   graphics_info_t g;
+
+   std::vector<coot::model_view_atom_button_info_t> atoms =
+      g.molecules[imol].model_view_atom_button_labels(chain_id, seqno);
+   coot::model_view_atom_button_info_t *buttons_copy =
+      new coot::model_view_atom_button_info_t[atoms.size()];
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      buttons_copy[i] = atoms[i];
+   }
+
+   // first clear out the atoms already there:
+   g.clear_atom_list(atom_gtklist);
+
+   
+   for(unsigned int iatom=0; iatom<atoms.size(); iatom++) { 
+        
+      label=gtk_label_new(buttons_copy[iatom].button_label.c_str());
+      list_item=gtk_list_item_new();
+      gtk_container_add(GTK_CONTAINER(list_item), label);
+      gtk_widget_show(label);
+      gtk_container_add(GTK_CONTAINER(atom_gtklist), list_item);
+      gtk_widget_show(list_item);
+      //       gtk_label_get(GTK_LABEL(label), &string); we don't use string.
+//       gtk_object_set_data(GTK_OBJECT(list_item),
+//                        list_item_data_key,
+//                        string);
+      gtk_object_set_user_data(GTK_OBJECT(list_item), &buttons_copy[iatom]);
+
+      // For double clicks:
+      gtk_signal_connect(GTK_OBJECT(list_item),
+			 "button_press_event",
+			 GTK_SIGNAL_FUNC(go_to_atom_atom_list_signal_handler_event_gtk1),
+			 NULL);
+   }
+}
+
+
+// static
+gint
+graphics_info_t::go_to_atom_atom_list_signal_handler_event_gtk1(GtkWidget *widget, 
+							   GdkEventButton *event, 
+							   gpointer func_data) {
+  if (GTK_IS_LIST_ITEM(widget) &&
+       (event->type==GDK_2BUTTON_PRESS ||
+        event->type==GDK_3BUTTON_PRESS) ) {
+//      printf("I feel %s clicked on button %d\n",
+// 	    event->type==GDK_2BUTTON_PRESS ? "double" : "triple", 
+// 	    event->button); 
+     graphics_info_t g;
+     g.apply_go_to_atom_from_widget(go_to_atom_window);
+  } 
+  return FALSE;
+} 
 
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)

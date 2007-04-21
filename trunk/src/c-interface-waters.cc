@@ -655,3 +655,33 @@ void renumber_waters(int imol) {
       }
    }
 } 
+
+/* Put the blob under the cursor to the screen centre.  Check only
+   positive blobs.  Useful function if bound to a key. */
+int blob_under_pointer_to_screen_centre() {
+
+   int r = 0;
+   int imol_map = imol_refinement_map();
+   if (imol_map != -1) {
+      // OK we have a map to search.
+      coot::Cartesian front = unproject(0.0);
+      coot::Cartesian back  = unproject(1.0);
+      clipper::Coord_orth p1(front.x(), front.y(), front.z());
+      clipper::Coord_orth p2( back.x(),  back.y(),  back.z()); 
+      clipper::Coord_orth blob =
+	 graphics_info_t::molecules[imol_map].find_peak_along_line(p1, p2);
+      coot::Cartesian cc(blob.x(), blob.y(), blob.z());
+      graphics_info_t g;
+      g.setRotationCentre(cc);
+      for(int ii=0; ii<graphics_info_t::n_molecules; ii++) {
+	 graphics_info_t::molecules[ii].update_map();
+	 graphics_info_t::molecules[ii].update_symmetry();
+      }
+      graphics_draw();
+   } else {
+      std::string s = "Refinement map not selected - no action";
+      std::cout << s << std::endl;
+      add_status_bar_text(s.c_str());
+   }
+   return r;
+}

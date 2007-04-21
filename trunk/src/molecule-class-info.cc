@@ -246,6 +246,24 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
    }
 }
 
+// cleaner interface to molecule's attributes:
+std::pair<bool, clipper::Spacegroup>
+molecule_class_info_t::space_group() const {
+
+   clipper::Spacegroup sg;
+   std::pair<bool, clipper::Spacegroup> p(0, sg);
+   return p;
+}
+
+std::pair<bool, clipper::Cell>
+molecule_class_info_t::cell() const {
+
+   clipper::Cell cell;
+   std::pair<bool, clipper::Cell> p(0, cell);
+   return p;
+}
+
+
 coot::Cartesian
 molecule_class_info_t::centre_of_molecule() const {
 
@@ -3051,9 +3069,8 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
 
    phs.open_read(phs_filename);
 
-   std::cout << "creating resolution" << std::endl;
+   // std::cout << "creating resolution" << std::endl;
    clipper::Resolution resolution(reso_limit_high);
-      // = phs.resolution(cell);
 
    clipper::HKL_info mydata(sg, cell, resolution);
    clipper::HKL_data<clipper::datatypes::F_sigF<float>  >  myfsig(mydata);

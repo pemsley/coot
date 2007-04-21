@@ -165,6 +165,7 @@ create_window1 (void)
   GtkWidget *main_window_graphics_hbox;
   GtkWidget *main_window_statusbar;
   GtkWidget *main_window_model_fit_dialog_frame;
+  GtkWidget *gtkhtml_frame;
   GtkAccelGroup *accel_group;
   GtkTooltips *tooltips;
 
@@ -1108,8 +1109,14 @@ create_window1 (void)
   gtk_widget_ref (main_window_model_fit_dialog_frame);
   gtk_object_set_data_full (GTK_OBJECT (window1), "main_window_model_fit_dialog_frame", main_window_model_fit_dialog_frame,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_box_pack_end (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
-  gtk_widget_set_usize (main_window_model_fit_dialog_frame, 182, -2);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
+
+  gtkhtml_frame = gtk_frame_new (NULL);
+  gtk_widget_ref (gtkhtml_frame);
+  gtk_object_set_data_full (GTK_OBJECT (window1), "gtkhtml_frame", gtkhtml_frame,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (gtkhtml_frame);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
 
   gtk_signal_connect (GTK_OBJECT (window1), "destroy",
                       GTK_SIGNAL_FUNC (on_window1_destroy),

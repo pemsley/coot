@@ -43,6 +43,7 @@
 #include <queue>
 
 #include "clipper/core/xmap.h"
+#include "clipper/cns/cns_hkl_io.h"
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
@@ -5921,3 +5922,90 @@ molecule_class_info_t::get_symop_strings() const {
    } 
    return r;
 } 
+
+
+int
+molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
+					      const clipper::Cell &cell,
+					      std::string cns_data_filename) {
+
+   
+   clipper::CNS_HKLfile cns;
+   cns.open_read(cns_data_filename);
+
+   clipper::Resolution resolution(cns.resolution(cell));
+   
+   clipper::HKL_info mydata(sg, cell, resolution);
+   clipper::HKL_data<clipper::datatypes::F_phi<float>   >  fphidata(mydata); 
+
+   std::cout << "importing info" << std::endl;
+   cns.import_hkl_info(mydata);
+   std::cout << "importing data" << std::endl;
+   cns.import_hkl_data(fphidata); 
+   cns.close_read(); 
+
+   if (max_xmaps == 0) {
+      xmap_list = new clipper::Xmap<float>[10];
+      xmap_is_filled   = new int[10];
+      xmap_is_diff_map = new int[10];
+      contour_level    = new float[10];
+   }
+
+   max_xmaps++; 
+
+   std::string mol_name = cns_data_filename;
+
+   initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+
+   cout << "initializing map..."; 
+   xmap_list[0].init(mydata.spacegroup(), 
+		     mydata.cell(), 
+		     clipper::Grid_sampling(mydata.spacegroup(),
+					    mydata.cell(), 
+					    mydata.resolution()));
+   cout << "done."<< endl; 
+   cout << "doing fft..." ; 
+   xmap_list[0].fft_from( fphidata );                  // generate map
+   cout << "done." << endl;
+
+   mean_and_variance<float> mv = map_density_distribution(xmap_list[0],0);
+
+   cout << "Mean and sigma of map from CNS file: " << mv.mean 
+	<< " and " << sqrt(mv.variance) << endl;
+
+   // fill class variables
+   map_mean_ = mv.mean;
+   map_sigma_ = sqrt(mv.variance);
+
+   xmap_is_diff_map[0] = 0; 
+   xmap_is_filled[0] = 1; 
+   contour_level[0] = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
+
+   graphics_info_t g; 
+   g.scroll_wheel_map = g.n_molecules; // change the current scrollable map.
+   update_map();
+   return g.n_molecules;
+}
+
+// This seems to pick the front edge of the blob of density.  Why is
+// that?
+// 
+clipper::Coord_orth
+molecule_class_info_t::find_peak_along_line(const clipper::Coord_orth &p1,
+					    const clipper::Coord_orth &p2) const {
+
+   float high_point_1 = -9999999.9;
+   float high_point_2 = -9999999.9;
+   clipper::Coord_orth pbest;
+   int istep_max = 300;
+
+   for (unsigned int istep=0; istep<=istep_max; istep++) {
+      clipper::Coord_orth pc = p1 + (float(istep)/float(istep_max))*(p2-p1);
+      float d = density_at_point(pc);
+      if (d > high_point_1) {
+	 high_point_1 = d;
+	 pbest = pc;
+      }
+   }
+   return pbest;
+}

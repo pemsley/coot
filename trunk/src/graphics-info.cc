@@ -6484,3 +6484,74 @@ graphics_info_t::remove_last_lsq_plane_atom() {
    }
    return 0;
 }
+
+coot::view_info_t
+coot::view_info_t::interpolate(const coot::view_info_t &view1,
+			       const coot::view_info_t &view2,
+			       int step, int n_steps) {
+   coot::view_info_t view;
+   graphics_info_t g;
+
+   float total_zoom_by = view2.zoom/view1.zoom;
+   float frac_zoom_by =  1;
+   int smooth_scroll_state = graphics_info_t::smooth_scroll;
+   graphics_info_t::smooth_scroll = 0;
+   if (n_steps > 0)
+      frac_zoom_by = total_zoom_by/float(n_steps); 
+
+   // non-slerping
+   for (int i=0; i<=n_steps; i++) {
+      float frac = float(i)/float(n_steps);
+      coot::Cartesian rct =
+	 view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
+      float qt[4];
+      for (int iq=0; iq<4; iq++)
+	 g.quat[iq] = view1.quat[iq] + frac*(view2.quat[iq]-view1.quat[iq]);
+      g.zoom = view1.zoom + frac*(view2.zoom-view1.zoom);
+      g.setRotationCentre(rct);
+      graphics_info_t::graphics_draw();
+   }
+
+   graphics_info_t::smooth_scroll = smooth_scroll_state;
+   return view;
+}
+
+bool
+coot::view_info_t::matches_view (const coot::view_info_t &view) const { 
+   float frac = 0.01;
+   bool matches = 0;
+   if (zoom < view.zoom*(1+frac)) { 
+      if (zoom > view.zoom*(1-frac)) { 
+	 if (rotation_centre.x() < view.rotation_centre.x()*(1+frac)) { 
+	    if (rotation_centre.x() > view.rotation_centre.x()*(1-frac)) { 
+	       if (rotation_centre.y() < view.rotation_centre.y()*(1+frac)) { 
+		  if (rotation_centre.y() > view.rotation_centre.y()*(1-frac)) { 
+		     if (rotation_centre.z() < view.rotation_centre.z()*(1+frac)) { 
+			if (rotation_centre.z() > view.rotation_centre.z()*(1-frac)) { 
+			   if (quat[0] < view.quat[0]*(1+frac)) { 
+			      if (quat[0] > view.quat[0]*(1-frac) ){ 
+				 if (quat[1] < view.quat[1]*(1+frac)) { 
+				    if (quat[1] > view.quat[1]*(1-frac) ){ 
+				       if (quat[2] < view.quat[2]*(1+frac)) { 
+					  if (quat[2] > view.quat[2]*(1-frac) ){ 
+					     if (quat[3] < view.quat[3]*(1+frac)) { 
+						if (quat[3] > view.quat[3]*(1-frac) ){
+						   matches = 1;
+						}
+					     }
+					  }
+				       }
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return matches;
+}
