@@ -215,6 +215,7 @@ namespace coot {
       void debug() const;
       static int shelx_occ_to_fvar(float shelx_occ); // e.g. return 18 if shelx_occ 181.00,
                                                      // return -1 on a problem.
+      int new_chain_offset;
    };
 
    // Do lattice expansion and possible centro-symmetric expansion
@@ -222,5 +223,10 @@ namespace coot {
    // 
    std::vector<std::string> clipper_symm_strings(const std::vector<std::string> &symm_vec,
 						 int shelx_latt);
+
+// return null on no conversion.
+   CMMDBManager *unshelx(CMMDBManager *mol);
+// return null on no conversion.
+   CMMDBManager *reshelx(CMMDBManager *mol);
 
 }

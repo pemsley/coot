@@ -356,8 +356,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 									      if (at)
 										 atom_vector.push_back(at);
 									      else
-										 std::cout << "WARNING:: BAD ATOM line " << nlines << " " 
-											   << card.words.size()
+										 std::cout << "WARNING:: BAD ATOM on line #" << nlines << " " 
+											   << " #fields: " << card.words.size()
 											   << " field(s) :" << card.card << ":"
 											   << std::endl;
 									      encountered_atoms_flag = 1; // stop adding to pre_atom lines
@@ -540,7 +540,12 @@ coot::ShelxIns::read_file(const std::string &filename) {
       // mol->WritePDBASCII("testing.pdb");
       // write_ins_file(mol, "new.res");
    }
-   return coot::shelx_read_file_info_t(istate, udd_afix_handle, mol);
+   CMMDBManager *shelx_mol = unshelx(mol);
+   // std::cout << "DEBUG:: shelx_mol: " << shelx_mol << std::endl;
+   if (shelx_mol)
+      return coot::shelx_read_file_info_t(istate, udd_afix_handle, shelx_mol);
+   else 
+      return coot::shelx_read_file_info_t(istate, udd_afix_handle, mol);
 }
 
 
@@ -579,32 +584,39 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
       at->SetElementName(element.c_str());
       // char *altloc = new char(2);
       strncpy(at->altLoc, altconf.c_str(), 2);
-      if (card.words.size() > 6) {
+      if (card.words.size() >= 5) {
 // 	 for (unsigned int iword=0; iword<card.words.size(); iword++) {
 // 	    std::cout << "    " << iword << " " << card.words[iword] << std::endl;
 // 	 }
-	 if (card.words.size() < 8) {
-	    // isotropic temperature factor
-	    float b_factor_from_card = atof(card.words[6].c_str());
-	    if (b_factor_from_card > 0.0 ) { 
-	       at->tempFactor = u_to_b*b_factor_from_card;
-	       at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
+	 if (card.words.size() > 6) {
+	    if (card.words.size() < 8) {
+	       // isotropic temperature factor
+	       float b_factor_from_card = atof(card.words[6].c_str());
+	       if (b_factor_from_card > 0.0 ) { 
+		  at->tempFactor = u_to_b*b_factor_from_card;
+		  at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
+	       }
+	       else
+		  at->tempFactor = b_factor_from_card; 
+	    } else {
+	       if (card.words.size() > 11) {
+		  // anisotropic temperature factor
+		  at->u11 = atof(card.words[ 6].c_str());
+		  at->u22 = atof(card.words[ 7].c_str());
+		  at->u33 = atof(card.words[ 8].c_str());
+		  at->u12 = atof(card.words[ 9].c_str());
+		  at->u13 = atof(card.words[10].c_str());
+		  at->u23 = atof(card.words[11].c_str());
+		  at->WhatIsSet += 64; // is anisotropic
+		  // std::cout << "DEBUG:: Found Anisotropic " << at->name << std::endl;
+	       }
 	    }
-	    else
-	       at->tempFactor = b_factor_from_card; 
 	 } else {
-	    if (card.words.size() > 11) {
-	       // anisotropic temperature factor
-	       at->u11 = atof(card.words[ 6].c_str());
-	       at->u22 = atof(card.words[ 7].c_str());
-	       at->u33 = atof(card.words[ 8].c_str());
-	       at->u12 = atof(card.words[ 9].c_str());
-	       at->u13 = atof(card.words[10].c_str());
-	       at->u23 = atof(card.words[11].c_str());
-	       at->WhatIsSet += 64; // is anisotropic
-	       std::cout << "DEBUG:: Found Anisotropic " << at->name << std::endl;
-	    }
-	 }
+	    // An atom with minimal description. Let's make up a
+	    // temperature factor:
+	    at->tempFactor = 1.0;
+	    at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
+	 } 
 // 	 std::cout << "on setting WhatIsSet is "
 // 		   << at->WhatIsSet << "\n";
 	 if (have_udd_atoms) { 
@@ -879,11 +891,12 @@ coot::ShelxIns::make_atom_element(const std::string &atom_name_in,
 
 
 std::pair<int, std::string>
-coot::ShelxIns::write_ins_file(CMMDBManager *mol,
+coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
 			       const std::string &filename) const {
 
    int istat = 0;
    std::string message;
+   CMMDBManager *mol = reshelx(mol_in);
    
    float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
 
@@ -1038,6 +1051,7 @@ coot::ShelxIns::write_ins_file(CMMDBManager *mol,
 		<< std::endl;
       message = "WARNING:: no cell available... failure to write ins file.";
    }
+   delete mol;
    return std::pair<int, std::string>(istat, message);
 }
 
@@ -1669,4 +1683,179 @@ coot::ShelxIns::shelx_occ_to_fvar(float shelx_occ) {
       r = int(aocc/10.0);
 
    return r;
+}
+
+
+// Convert the single chained mol into a mol with multiple chains.
+// 
+// return null on no conversion.
+CMMDBManager *
+coot::unshelx(CMMDBManager *shelx_mol) {
+
+   int skip_chain_step = 21;
+   CMMDBManager *mol = 0;
+   
+   int imod = 1;
+   CModel *shelx_model_p = shelx_mol->GetModel(imod);
+   CChain *chain_p = NULL;
+   std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+   int r_index = 0;
+   // run over chains of the existing mol
+   int nchains = shelx_model_p->GetNumberOfChains();
+   if (nchains != 1) {
+      std::cout << "Opps.  Don't know what to do. There are "
+		<< nchains << " chains and there should be just 1 "
+		<< std::endl;
+   } else {
+      mol = new CMMDBManager;
+      int udd_afix_handle_shelx = shelx_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+      int udd_afix_handle = mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
+      CModel *model_p = new CModel;
+      mol->AddModel(model_p);
+      CChain *shelx_chain_p = shelx_model_p->GetChain(0);
+      int nres = shelx_chain_p->GetNumberOfResidues();
+      bool need_new_chain = 1;
+      int ires_prev = -1000;
+      for (int ires=0; ires<nres; ires++) {
+
+	 CResidue *shelx_residue_p = shelx_chain_p->GetResidue(ires);
+	 int resno = shelx_residue_p->GetSeqNum();
+	 if (resno > (ires_prev + skip_chain_step))
+	    // this is a new chain
+	    need_new_chain = 1;
+	 
+	 if (need_new_chain) {
+	    chain_p = new CChain;
+	    std::string new_chain_id = r.substr(r_index, 1);
+	    r_index++;
+	    chain_p->SetChainID(new_chain_id.c_str());
+	    model_p->AddChain(chain_p);
+	    need_new_chain = 0;
+	 }
+	 
+	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(shelx_residue_p, "", 1);
+	 chain_p->AddResidue(copy_residue_p);
+
+	 // apply the shelx afix numbers:
+	 int shelx_natoms;
+	 PCAtom *shelx_residue_atoms = NULL;
+	 shelx_residue_p->GetAtomTable(shelx_residue_atoms, shelx_natoms);
+
+	 int copy_natoms;
+	 PCAtom *copy_residue_atoms = NULL;
+	 copy_residue_p->GetAtomTable(copy_residue_atoms, copy_natoms);
+
+	 if (shelx_natoms == copy_natoms) { 
+	    for (int iat=0; iat<copy_natoms; iat++) {
+	       int afix;
+	       int istatus = shelx_residue_atoms[iat]->GetUDData(udd_afix_handle_shelx, afix);
+	       if (istatus == UDDATA_Ok) { 
+		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle, afix);
+	       } else {
+		  std::cout << "ERROR transfering afix" << std::endl;
+	       } 
+	    }
+	 } else {
+	    std::cout << "ERROR transfering afix: bad copy number of atoms "
+		      << shelx_natoms << " " << copy_natoms << std::endl;
+	 } 
+
+	 ires_prev = shelx_residue_p->GetSeqNum(); // set up for next round
+      }
+      mol->FinishStructEdit();
+      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+
+      // need to copy over cell and symmetry info:
+      realtype a[6];
+      realtype vol;
+      int orthcode;
+      shelx_mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+      mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
+      char *sg = shelx_mol->GetSpaceGroup();
+      size_t l = strlen(sg+1);
+      char *sgc = new char[l];
+      strcpy(sgc, sg);
+      mol->SetSpaceGroup(sgc);
+
+   }
+   return mol;
+}
+
+// If the residues are simply put in a different chain when they are
+// imported (i.e. there is no renumbering of the residues) then we
+// don't need to change the residue numbers back when re-export to
+// shelx format.  Which means that the ShelxIns ins_info is not used.
+// Hmmm... does that work OK?
+CMMDBManager *
+coot::reshelx(CMMDBManager *mol) {
+
+   CMMDBManager *shelx_mol = new CMMDBManager;
+
+   int imod = 1;
+   CModel *shelx_model_p = new CModel;
+   shelx_mol->AddModel(shelx_model_p);
+   CChain *shelx_chain_p = new CChain;
+   shelx_model_p->AddChain(shelx_chain_p);
+   
+   int udd_afix_handle = mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+   int udd_afix_handle_shelx = shelx_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
+   
+   // run over chains of the existing mol
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      // int residue_offset = ichain*ins_info.new_chain_offset;
+      int residue_offset = 0; // no need to mess with the residue numbers, I think.
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p;
+      CAtom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(residue_p, "", 1);
+	 copy_residue_p->seqNum = residue_p->GetSeqNum() + residue_offset;
+	 shelx_chain_p->AddResidue(copy_residue_p);
+
+	 // apply the shelx afix numbers:
+	 int unshelxed_natoms;
+	 PCAtom *unshelxed_residue_atoms = NULL;
+	 residue_p->GetAtomTable(unshelxed_residue_atoms, unshelxed_natoms);
+
+	 int copy_natoms;
+	 PCAtom *copy_residue_atoms = NULL;
+	 copy_residue_p->GetAtomTable(copy_residue_atoms, copy_natoms);
+
+	 if (unshelxed_natoms == copy_natoms) { 
+	    for (int iat=0; iat<copy_natoms; iat++) {
+	       int afix;
+	       int istatus = unshelxed_residue_atoms[iat]->GetUDData(udd_afix_handle, afix);
+	       if (istatus == UDDATA_Ok) { 
+		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle, afix);
+	       } else {
+		  std::cout << "ERROR transfering afix back" << std::endl;
+	       } 
+	    }
+	 } else {
+	    std::cout << "ERROR transfering afix back: bad copy number of atoms "
+		      << unshelxed_natoms << " " << copy_natoms << std::endl;
+	 } 
+      }
+   }
+
+   // need to copy over cell and symmetry info:
+   realtype a[6];
+   realtype vol;
+   int orthcode;
+   mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+   shelx_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
+   char *sg = mol->GetSpaceGroup();
+   size_t l = strlen(sg+1);
+   char *sgc = new char[l];
+   strcpy(sgc, sg);
+   shelx_mol->SetSpaceGroup(sgc);
+   
+   shelx_mol->FinishStructEdit();
+   shelx_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   return shelx_mol;
 }
