@@ -164,7 +164,8 @@
 #               line args to find jpeg.
 # 2.06 20070306 Put in the clipper<->ccp4 new dist patch.
 # 2.07 20070319 Remove == comparisons - Lothar Esser.
-script_version=2.07
+# 2.08 20070424 --with-jpeg-lib-dir should be a lib dir!
+script_version=2.08
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1769,7 +1770,7 @@ if test -n "$build_libtiff" ; then
     # ./configure $generic_prefix
     #  Lynn Ten Eyck says that libtiff will find jpeg libs # if it can find them.  
     # So let's give it them.
-    ./configure $generic_prefix --with-jpeg-include-dir=$install_top_dir/lib --with-jpeg-lib-dir=$install_top_dir/include
+    ./configure $generic_prefix --with-jpeg-include-dir=$install_top_dir/include --with-jpeg-lib-dir=$install_top_dir/lib
     $MAKE
     $MAKE install
     ) > $HOSTLOGDIR/08-libtif.txt
