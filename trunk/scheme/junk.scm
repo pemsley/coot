@@ -28,3 +28,32 @@
   (lambda (m00 m01 m02
 	   m10 m11 m12
 	   m20 m21 m22)
+
+
+  (if (not (char-ready? soc))
+      (begin
+;   	(format #t "nothing on the line...~%")
+	(usleep 10000)
+	#t)
+      (let f ((c (read-char soc))
+	      (read-bits '()))
+	(cond
+	 ((eof-object? c) (format #t "server gone\n"))
+	 (else 
+	  (let ((ready-char-flag (char-ready? soc)))
+	   ; (format #t "DEBUG: ready-char-flag: ~s~%" ready-char-flag)
+	    (if ready-char-flag
+		(begin
+		  (f (read-char soc) (cons c read-bits)))
+		(begin
+		  ;; was the end? Let's wait a bit to see if the
+		  ;; buffer gets refilled - and if it still is not
+		  ;; ready, then let's evaluate what we have...
+		  (usleep 500000)
+		  (format #t "waiting for new char...\n")
+		  (let ((ready-char-2-flag (char-ready? soc)))
+		    (if ready-char-2-flag 
+			(begin
+			  (f (read-char soc) (cons c read-bits)))
+			(begin (evaluate-char-list read-bits))))))))))))
+			  

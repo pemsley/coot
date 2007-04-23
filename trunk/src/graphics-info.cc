@@ -6336,6 +6336,60 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
 }
 
 
+#ifdef USE_GUILE
+// static
+SCM
+graphics_info_t::safe_scheme_command(const std::string &scheme_command) { 
+
+   // FIXME!
+   SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))"); 
+
+   // I am undecided if I want this or not:
+   std::cout << "safe running: " << scheme_command << std::endl; 
+   std::string thunk("(lambda() "); 
+   thunk += scheme_command; 
+   thunk += " )";
+
+   SCM scm_thunk = scm_c_eval_string(thunk.c_str()); 
+   SCM v = scm_catch(SCM_BOOL_T, scm_thunk, handler);
+
+//   int is_int_p = scm_integer_p(v);
+//   if (is_int_p) { 
+//      std::cout << "returned value was int: " <<  std::endl;
+//   } 
+
+  // std::cout << "INFO:: finished scheme command " << std::endl;
+   return v;
+}
+#endif // USE_GUILE
+
+#ifdef USE_GUILE
+// static
+SCM
+graphics_info_t::process_socket_string_waiting() {
+
+   SCM r;
+   if (graphics_info_t::have_socket_string_waiting_flag) {
+
+      std::string ss = graphics_info_t::socket_string_waiting;
+
+      // really the right way?  Perhaps we should just stick to scheme
+      // internals?
+      std::vector<std::string> v;
+      v.push_back("eval-socket-string");
+      v.push_back(coot::util::single_quote(ss));
+
+      graphics_info_t g;
+      std::string s = g.state_command(v, coot::STATE_SCM);
+      r = safe_scheme_command(s);
+      
+      graphics_info_t::have_socket_string_waiting_flag = 0;
+   }
+   return r;
+} 
+#endif
+
+
 
 // static 
 std::pair<short int, float>

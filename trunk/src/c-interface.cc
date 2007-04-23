@@ -7596,27 +7596,8 @@ void handle_get_accession_code(GtkWidget *widget) {
 
 #ifdef USE_GUILE
 SCM safe_scheme_command(const std::string &scheme_command) { 
-
-   // FIXME!
-   SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))"); 
-
-   // I am undecided if I want this or not:
-   std::cout << "safe running: " << scheme_command << std::endl; 
-   std::string thunk("(lambda() "); 
-   thunk += scheme_command; 
-   thunk += " )";
-
-   SCM scm_thunk = scm_c_eval_string(thunk.c_str()); 
-   SCM v = scm_catch(SCM_BOOL_T, scm_thunk, handler);
-
-//   int is_int_p = scm_integer_p(v);
-//   if (is_int_p) { 
-//      std::cout << "returned value was int: " <<  std::endl;
-//   } 
-
-   add_to_history_simple(thunk);
-  // std::cout << "INFO:: finished scheme command " << std::endl;
-   return v;
+   add_to_history_simple(scheme_command);
+   return graphics_info_t::safe_scheme_command(scheme_command);
 }
 #else  // not guile
 // dummy function
@@ -9017,6 +8998,7 @@ void play_views() {
       coot::view_info_t::interpolate(view1, view2, 1, 400);
       update_things_on_move_and_redraw();
    }
+   add_to_history_simple("play-views");
 }
 
 void remove_this_view() {
@@ -9069,4 +9051,14 @@ int go_to_first_view(int snap_to_view_flag) {
       update_things_on_move_and_redraw();
    }
    return r;
+}
+
+/*  ----------------------------------------------------------------------- */
+/*                  remote control                                          */
+/*  ----------------------------------------------------------------------- */
+
+void set_socket_string_waiting(const char *s) {
+   graphics_info_t::socket_string_waiting = s;
+   graphics_info_t::have_socket_string_waiting_flag = 1;
+   gtk_signal_emit_by_name(GTK_OBJECT(graphics_info_t::glarea), "configure_event");
 }

@@ -29,11 +29,19 @@
       (set! %coot-listener-socket soc)
 ;        (if soc 
 ; 	   (set-coot-listener-socket-state-internal 1))))
-      ))
-
-;      (call-with-new-thread coot-listener-idle-function-proc
-;			    coot-listener-error-handler)
       
+
+      (call-with-new-thread coot-listener-idle-function-proc
+			    coot-listener-error-handler)))
+      
+
+;; Handle error on coot listener socket
+;;
+(define (coot-listener-error-handler key . args)
+
+    (format #t "coot-listener-error-handler handling error in ~s with args ~s~%"
+            key args))
+
 
 
 ;; Do this thing when idle
@@ -51,8 +59,24 @@
 	  (format #t "coot-listener-idle-function-proc bad sock: ~s~%" 
 		  %coot-listener-socket)))))
 
+;; the function to run from the main thread to evaluate a string:
+(define (eval-socket-string s)
+
+  (with-input-from-string s
+    (lambda () 
+      
+      (let loop ((thing (read)))
+	(if (not (eof-object? thing))
+	    (begin 
+	      (format #t "this code be evaluated: ~s~%" thing)
+	      (eval thing (interaction-environment))
+	      (loop (read))))))))
+
+
 ;; must return 
 (define (listen-coot-listener-socket-v2 soc)
+
+  (define end-transmition-string "; end transmition")
 
   (define evaluate-char-list
     (lambda (read-bits)
@@ -68,20 +92,21 @@
 	    ;; not python
 	    (begin 
 	      (format #t "this string will be evaluated: ~s~%" s)
-	      (with-input-from-string s
-		(lambda () 
-		  
-		  (let loop ((thing (read)))
-		    (if (not (eof-object? thing))
-			(begin 
-			  (format #t "this code be evaluated: ~s~%" thing)
-			  (eval thing (interaction-environment))
-			  (loop (read))))))))))))
+	      (set-have-pending-string-waiting 1)
+	      (set-socket-string-waiting s))))))
 
+  ;; remove end-transmition-string from read-bits
+  ;; 
+  (define strip-tail 
+    (lambda (read-bits)
+      (let ((s (list->string (reverse read-bits))))
+	s)))
 
+  ;; main body:
+  ;; 
   (if (not (char-ready? soc))
       (begin
-;   	(format #t "nothing on the line...~%")
+	;; (format #t "nothing on the line...~%")
 	(usleep 10000)
 	#t)
       (let f ((c (read-char soc))
@@ -90,19 +115,12 @@
 	 ((eof-object? c) (format #t "server gone\n"))
 	 (else 
 	  (let ((ready-char-flag (char-ready? soc)))
-	   ; (format #t "DEBUG: ready-char-flag: ~s~%" ready-char-flag)
 	    (if ready-char-flag
 		(begin
 		  (f (read-char soc) (cons c read-bits)))
 		(begin
-		  ;; was the end? Let's wait a bit to see if the
-		  ;; buffer gets refilled - and if it still is not
-		  ;; ready, then let's evaluate what we have...
-		  (usleep 500000)
-		  (format #t "waiting for new char...\n")
-		  (let ((ready-char-2-flag (char-ready? soc)))
-		    (if ready-char-2-flag 
-			(begin
-			  (f (read-char soc) (cons c read-bits)))
-			(begin (evaluate-char-list read-bits))))))))))))
-			  
+		  (if (hit-end-transmit? read-bits 
+					 end-transmition-string)
+		      (evaluate-char-list (strip-tail read-bits))
+		      (f (read-char soc) read-bits))))))))))
+			 

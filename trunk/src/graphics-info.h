@@ -54,6 +54,10 @@
 
 #include "coot-database.hh"
 
+#ifdef USE_GUILE
+#include <libguile.h>
+#endif 
+
 namespace coot { 
    enum {MAX_LABELLED_ATOMS = 200};
    enum {NEW_COORDS_ADD = 1, NEW_COORDS_REPLACE = 2, NEW_COORDS_INSERT = 3,
@@ -2355,6 +2359,12 @@ public:
    static int remote_control_port_number;
    static std::string remote_control_hostname;
    static int coot_socket_listener_idle_function_token; // -1 default (off)
+   static std::string socket_string_waiting;
+   static bool have_socket_string_waiting_flag;
+#ifdef USE_GUILE
+   static SCM safe_scheme_command(const std::string &scheme_command);
+   static SCM process_socket_string_waiting();
+#endif
 
    // --------- Tip of the Day ---------------
    static short int do_tip_of_the_day_flag; 
