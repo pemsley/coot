@@ -3818,6 +3818,9 @@ float fffear_angular_resolution();
 void make_socket_listener_maybe(); 
 int coot_socket_listener_idle_func(GtkWidget *w);
 void set_coot_listener_socket_state_internal(int sock_state);
+
+void set_socket_string_waiting(const char *s);
+
 /* \} */
 /*  ----------------------------------------------------------------------- */
 /*                  Display lists                                           */

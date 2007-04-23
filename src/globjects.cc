@@ -887,6 +887,8 @@ int graphics_info_t::coot_socket_listener_idle_function_token = -1; //  default 
 // Did we get a good socket when we tried to open it?  If so, set
 // something non-zero here (which is done as a scheme command).
 int graphics_info_t::listener_socket_have_good_socket_state = 0;
+std::string graphics_info_t::socket_string_waiting = "";
+bool graphics_info_t::have_socket_string_waiting_flag = 0;
 
 
 // validation
@@ -1449,6 +1451,10 @@ setup_lighting(short int do_lighting_flag) {
 
 gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
+   if (graphics_info_t::have_socket_string_waiting_flag) {
+      graphics_info_t::process_socket_string_waiting();
+   } 
+
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
    
    /* OpenGL functions can be called only if make_current returns true */
@@ -1590,11 +1596,13 @@ void gdkglext_finish_frame(GtkWidget *widget) {
 gint
 draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
-   /* Draw only last expose. */
-   if (event->count > 0) {
-//       cout << "event->count is " << event->count << endl;
-//       cout << "chucking an event" << endl;
-      return TRUE;
+   if ((event-1) != 0) { 
+      /* Draw only last expose. */
+      if (event->count > 0) {
+	 //       cout << "event->count is " << event->count << endl;
+	 //       cout << "chucking an event" << endl;
+	 return TRUE;
+      }
    }
 
    // graphics_info_t info;          // static members
