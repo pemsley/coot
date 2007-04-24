@@ -1451,6 +1451,8 @@ setup_lighting(short int do_lighting_flag) {
 
 gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
+   std::cout << " got a configure event (reshape)" << std::endl;
+
    if (graphics_info_t::have_socket_string_waiting_flag) {
       graphics_info_t::process_socket_string_waiting();
    } 
