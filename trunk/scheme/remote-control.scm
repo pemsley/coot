@@ -53,8 +53,10 @@
     
     (if %coot-listener-socket
 	(begin
-	  (listen-coot-listener-socket-v2 %coot-listener-socket)
-	  (usleep 2000))
+	  (let loop ()
+	    (listen-coot-listener-socket-v3 %coot-listener-socket)
+	    (usleep 1000000)
+	    (loop)))
 	(begin
 	  (format #t "coot-listener-idle-function-proc bad sock: ~s~%" 
 		  %coot-listener-socket)))))
@@ -73,17 +75,16 @@
 	      (loop (read))))))))
 
 
-;; must return 
-(define (listen-coot-listener-socket-v2 soc)
+;; Must continue to go round this loop until end-communication string
+;; is found...
+;;
+(define (listen-coot-listener-socket-v3 soc)
 
   (define end-transmition-string "; end transmition")
 
   (define evaluate-char-list
     (lambda (read-bits)
       
-      ;; 
-      ; (format #t "so far we have: ~s~%" (reverse read-bits))
-
       (let ((s (list->string (reverse read-bits))))
 	;; is it python?
 	(if (and (> (string-length s) 8) ; (checked in order)
@@ -92,35 +93,62 @@
 	    ;; not python
 	    (begin 
 	      (format #t "this string will be evaluated: ~s~%" s)
-	      (set-have-pending-string-waiting 1)
-	      (set-socket-string-waiting s))))))
+	      (format #t "setting socket string waiting...~%")
+	      (set-socket-string-waiting s)
+	      (format #t "done setting socket string waiting...~%"))))))
+	      
 
   ;; remove end-transmition-string from read-bits
   ;; 
   (define strip-tail 
     (lambda (read-bits)
-      (let ((s (list->string (reverse read-bits))))
-	s)))
 
+      (if (> (length read-bits) (string-length end-transmition-string))
+	  (let loop ((read-bits read-bits)
+		     (match-bits (string->list end-transmition-string)))
+	    (cond 
+	     ((null? match-bits) read-bits)
+	     (else 
+	      (loop (cdr read-bits) (cdr match-bits)))))
+	  '())))
+
+  ;; return #t or #f
+  (define (hit-end-transmit? read-bits end-transmition-string)
+    (if (< (length read-bits)
+	   (string-length end-transmition-string))
+	#f
+	(let loop ((read-chars read-bits)
+		   (match-chars (reverse (string->list end-transmition-string))))
+	  (cond 
+	   ((null? match-chars) #t)
+	   ((not (eq? (car match-chars)
+		      (car read-chars))) #f)
+	   (else
+	    (loop (cdr read-chars) (cdr match-chars)))))))
+	
   ;; main body:
   ;; 
+
   (if (not (char-ready? soc))
       (begin
-	;; (format #t "nothing on the line...~%")
-	(usleep 10000)
+	(format #t "nothing on the line...~%")
 	#t)
-      (let f ((c (read-char soc))
-	      (read-bits '()))
-	(cond
-	 ((eof-object? c) (format #t "server gone\n"))
-	 (else 
-	  (let ((ready-char-flag (char-ready? soc)))
-	    (if ready-char-flag
-		(begin
-		  (f (read-char soc) (cons c read-bits)))
-		(begin
-		  (if (hit-end-transmit? read-bits 
-					 end-transmition-string)
-		      (evaluate-char-list (strip-tail read-bits))
-		      (f (read-char soc) read-bits))))))))))
-			 
+      (begin
+	(format #t "there *is* a ready-char!~%" soc)
+	(format #t "about to read from socket soc: ~s~%" soc)
+	(let f ((c (read-char soc))
+		(read-bits '()))
+	  ;; (format #t "socket read char ~s~%" c)
+	  (cond
+	   ((eof-object? c) (format #t "server gone\n"))
+	   ((hit-end-transmit? (cons c read-bits)
+			       end-transmition-string)
+	    (format #t "  ~s found in ~s~%" 
+		    end-transmition-string
+		    (list->string (reverse (cons c read-bits))))
+	    (evaluate-char-list (strip-tail (cons c read-bits))))
+
+	   (else 
+	    (f (read-char soc) (cons c read-bits))))))))
+
+
