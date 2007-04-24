@@ -30,11 +30,18 @@
 	  (newline port)
 	  (newline)
 	  (loop (cdr ls))))))))
-    
+
 
 (define connection-proc
   (lambda (socket socket-address)
 
+    (define end-transmition-string "; end transmition")    
+
+    (define end-transmition
+      (lambda ()
+	(format (socket:outport socket) "~a" end-transmition-string)))
+
+    ;; main body
     (format #t "################ Got a connection!~%")
 
 ;     (format #t "socket details: family ~s inport ~s outport ~s~%"
@@ -42,31 +49,31 @@
 ; 	    (socket:inport socket)
 ; 	    (socket:outport socket))
 
-
     (let loop ((count 0))
       (let ((line (read-line (socket:inport socket))))
-	(format #t "############ ~s connection-proc got: ~s~%" count line)
-	(process-sleep 6)
- 	(format (socket:outport socket)
-		"(display (localtime (current-time)))")
+
+ 	(format (socket:outport socket) "(newline)")
+	(end-transmition)
+
+ 	(format (socket:outport socket) "(read-pdb \\\"monomer-ACT.pdb\\\")")
+	(end-transmition)
+
+	;; more
   	(format (socket:outport socket)
-  	        "(newline)")
- 	(format (socket:outport socket)
- 		"(read-pdb \"monomer-ACT.pdb\")")
-	(newline (socket:outport socket))
-  	(format (socket:outport socket)
-  		"(let ((imol (read-pdb \"monomer-PIN.pdb\")))
+  		"(let ((imol (read-pdb \\\"monomer-PIN.pdb\\\")))
                       (set-rotation-centre 5 5 5)
                       (move-molecule-to-screen-centre imol)
                      '())")
 	(newline (socket:outport socket))
+	(end-transmition)
+
         (format #t "########### sending a display time\n")
 	(format (socket:outport socket)
 		"(display (localtime (current-time)))")
-	(format (socket:outport socket)
-		"(newline)")
+	(format (socket:outport socket) "(newline)")
 	(newline (socket:outport socket))
         (format #t "########### done sent a display time\n")
+	(end-transmition)
 	
 	;; wait for char happens...
         (format #t "########### sending numbers\n")
@@ -74,17 +81,20 @@
  		";; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16")
 	(newline (socket:outport socket))
         (format #t "########### done sent numbers\n")
+	(end-transmition)
 	
         (format #t "########### sending spin\n")
  	(format (socket:outport socket)
  		"(spin-zoom-trans 2 400 0.4 0.4 0 0 0)")
 	(newline (socket:outport socket))
         (format #t "########### done sent spin\n")
+	(end-transmition)
+
  	(format (socket:outport socket)
  		"(rotate-y-scene 3000 0.05)")
 	(newline (socket:outport socket))
- 	(format #t "########### all read-pdb stuff was send down the socket...\n")
-	
+	(end-transmition)
+
 		  
 	(loop (+ count 1))))))
 
