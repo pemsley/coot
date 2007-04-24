@@ -438,7 +438,7 @@ coot::util::file_name_non_directory(const std::string &file_name) {
    if (slash_char != -1) 
       rstring = file_name.substr(slash_char+1);
 
-   std::cout << "DEBUG:: non-directory of " << file_name << " is " << rstring << std::endl;
+   // std::cout << "DEBUG:: non-directory of " << file_name << " is " << rstring << std::endl;
    return rstring;
 }
 

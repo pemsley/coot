@@ -48,16 +48,35 @@
 #include "cc-interface.hh" // for str_mtime
 #include "graphics-info.h"  // for go to atom callabacks
 
+// Function currently not used
+// 
 gboolean filename_passed_filter(const std::string &file_name, int filter_type) {
 
-   if (file_name.substr(0,1) == "c") {
-      return 1;
-   } else {
-      return 0;
+   gboolean r = 0;
+
+   std::vector<std::string> globs;
+   if (filter_type == 0) 
+      globs = *graphics_info_t::coordinates_glob_extensions;
+   if (filter_type == 1) 
+      globs = *graphics_info_t::data_glob_extensions;
+   if (filter_type == 2) 
+      globs = *graphics_info_t::map_glob_extensions;
+   if (filter_type == 3) 
+      globs = *graphics_info_t::dictionary_glob_extensions;
+
+   std::string extension = coot::util::file_name_extension(file_name);
+   for (unsigned int i=0; i<globs.size(); i++) {
+      std::cout << "comparing " << extension << " with " << globs[i] << std::endl;
+      if (extension == globs[i]) {
+	 r = 1;
+	 break;
+      }
    }
+   return r;
 }
 
 
+// push back mtimes on to the vector of str_mtimes passed as user data.
 gboolean
 fileselection_sort_button_foreach_func
  (GtkTreeModel *model,
@@ -72,11 +91,14 @@ fileselection_sort_button_foreach_func
    tree_path_str = gtk_tree_path_to_string(path);
    std::vector<str_mtime> *file_vec_p = (std::vector<str_mtime> *)(user_data);
    struct stat buf;
+   std::cout << "DEBUG:: stating: " << file_name << std::endl;
    int status = stat(file_name, &buf);
    if (status == 0) { 
       time_t mtime = buf.st_mtime;
       file_vec_p->push_back(str_mtime(file_name, mtime));
-   }
+   } else {
+      std::cout << " stat returns " << status << std::endl;
+   } 
    //    g_print ("Row %s: %s\n", tree_path_str, file_name);
       
    g_free(tree_path_str);
@@ -84,6 +106,8 @@ fileselection_sort_button_foreach_func
    return FALSE;
 }
 
+
+// Function currently not used
 gboolean
 fileselection_filter_button_foreach_func
  (GtkTreeModel *model,
@@ -128,14 +152,20 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
 	 GtkListStore *liststore; // model and liststore are the same thing?
 	 std::vector<str_mtime> file_attr_vec;
 
+	 // fill file_attr_vec:
 	 gtk_tree_model_foreach(GTK_TREE_MODEL(model),
 				fileselection_sort_button_foreach_func,
 				&file_attr_vec);
 
 	 // sort the files by date
 	 std::sort(file_attr_vec.begin(), file_attr_vec.end(), compare_mtimes);
-// 	 for (int i=0; i<file_attr_vec.size(); i++)
-// 	    std::cout << file_attr_vec[i].file << std::endl;
+
+	 // debug
+	 std::cout << "There are " << file_attr_vec.size() << " file attributes"
+		   << std::endl;
+	 for (int i=0; i<file_attr_vec.size(); i++)
+	    std::cout << file_attr_vec[i].file << std::endl;
+
 	 gtk_list_store_clear(GTK_LIST_STORE(model));
 
 	 for (int i=0; i<file_attr_vec.size(); i++) {
