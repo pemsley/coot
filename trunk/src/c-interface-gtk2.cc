@@ -48,6 +48,8 @@
 #include "cc-interface.hh" // for str_mtime
 #include "graphics-info.h"  // for go to atom callabacks
 
+
+
 // Function currently not used
 // 
 gboolean filename_passed_filter(const std::string &file_name, int filter_type) {
@@ -89,13 +91,15 @@ fileselection_sort_button_foreach_func
 		       0, &file_name,
 		       -1);
    tree_path_str = gtk_tree_path_to_string(path);
-   std::vector<str_mtime> *file_vec_p = (std::vector<str_mtime> *)(user_data);
+   coot::file_attribs_info_t *file_attribs = (coot::file_attribs_info_t *) (user_data);
    struct stat buf;
-   std::cout << "DEBUG:: stating: " << file_name << std::endl;
-   int status = stat(file_name, &buf);
+   std::string directory_prefix = file_attribs->directory_prefix;
+   std::string full_file_path =
+      coot::util::append_dir_file(directory_prefix, file_name);
+   int status = stat(full_file_path.c_str(), &buf);
    if (status == 0) { 
       time_t mtime = buf.st_mtime;
-      file_vec_p->push_back(str_mtime(file_name, mtime));
+      file_attribs->file_mtimes.push_back(coot::str_mtime(file_name, mtime));
    } else {
       std::cout << " stat returns " << status << std::endl;
    } 
@@ -139,6 +143,26 @@ fileselection_filter_button_foreach_func
 void fileselection_sort_button_clicked( GtkWidget *sort_button,
 					GtkWidget  *file_list) {
 
+   GtkOptionMenu *history_pulldown =
+      GTK_OPTION_MENU(gtk_object_get_user_data(GTK_OBJECT(sort_button)));
+
+   GList *dlist = gtk_container_children(GTK_CONTAINER(history_pulldown));
+   GList *free_list = dlist;
+   std::string pre_directory("");
+   
+   while (dlist) {
+      // GtkWidget *list_item;
+      // list_item = (GtkWidget *) (dlist->data);
+      gchar *t = GTK_LABEL(dlist->data)->label;
+      if (t != NULL) {
+	 pre_directory = t; 
+      } else {
+	 std::cout << "null label t " << std::endl;
+      } 
+      dlist = dlist->next;
+   }
+   g_list_free(free_list);
+   // now pre_directory is set...
 
    GtkTreeView *tv = GTK_TREE_VIEW(file_list);
    GList *collist = gtk_tree_view_get_columns(tv);
@@ -150,28 +174,30 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
 	 GtkTreeModel *model = gtk_tree_view_get_model(tv);
 	 GtkTreeIter iter;
 	 GtkListStore *liststore; // model and liststore are the same thing?
-	 std::vector<str_mtime> file_attr_vec;
+	 coot::file_attribs_info_t file_infos;
+	 file_infos.directory_prefix = pre_directory;
 
-	 // fill file_attr_vec:
+	 // fill file_mtimes of the file_infos:
 	 gtk_tree_model_foreach(GTK_TREE_MODEL(model),
 				fileselection_sort_button_foreach_func,
-				&file_attr_vec);
+				&file_infos);
 
 	 // sort the files by date
-	 std::sort(file_attr_vec.begin(), file_attr_vec.end(), compare_mtimes);
+	 std::sort(file_infos.file_mtimes.begin(), file_infos.file_mtimes.end(),
+		   compare_mtimes);
 
 	 // debug
-	 std::cout << "There are " << file_attr_vec.size() << " file attributes"
-		   << std::endl;
-	 for (int i=0; i<file_attr_vec.size(); i++)
-	    std::cout << file_attr_vec[i].file << std::endl;
+// 	 std::cout << "There are " << file_infos.file_mtimes.size()
+// 		   << " file attributes" << std::endl;
+// 	 for (int i=0; i<file_infos.file_mtimes.size(); i++)
+// 	    std::cout << file_infos.file_mtimes[i].file << std::endl;
 
 	 gtk_list_store_clear(GTK_LIST_STORE(model));
 
-	 for (int i=0; i<file_attr_vec.size(); i++) {
+	 for (int i=0; i<file_infos.file_mtimes.size(); i++) {
 	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	    gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			       0, file_attr_vec[i].file.c_str(), -1);
+			       0, file_infos.file_mtimes[i].file.c_str(), -1);
 	 }
       }
 	 

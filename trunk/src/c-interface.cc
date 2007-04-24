@@ -2708,7 +2708,7 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
    return button;
 }
 
-short int compare_mtimes(str_mtime a, str_mtime b) {
+bool compare_mtimes(coot::str_mtime a, coot::str_mtime b) {
    return a.mtime > b.mtime;
 }
 
