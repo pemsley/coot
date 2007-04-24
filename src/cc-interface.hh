@@ -124,18 +124,29 @@ execute_refmac_real(std::string pdb_in_filename,
 /*  ------------------------------------------------------------------- */
 /*                    file selection                                    */
 /*  ------------------------------------------------------------------- */
-class str_mtime {
-public:
-   str_mtime(std::string file_in, time_t mtime_in) {
-      mtime = mtime_in;
-      file = file_in;
-   }
-   str_mtime() {}
-   time_t mtime;
-   std::string file;
-};
 
-short int compare_mtimes(str_mtime a, str_mtime b); 
+namespace coot {
+   class str_mtime {
+   public:
+      str_mtime(std::string file_in, time_t mtime_in) {
+	 mtime = mtime_in;
+	 file = file_in;
+      }
+      str_mtime() {}
+      time_t mtime;
+      std::string file;
+   };
+   
+   // trivial helper function
+   class file_attribs_info_t {
+   public:
+      std::string directory_prefix;
+      std::vector<str_mtime> file_mtimes;
+   };
+}
+
+
+bool compare_mtimes(coot::str_mtime a, coot::str_mtime b); 
 
 std::vector<std::pair<std::string, std::string> > parse_ccp4i_defs(const std::string &filename);
 
