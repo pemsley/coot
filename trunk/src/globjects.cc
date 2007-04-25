@@ -888,7 +888,8 @@ int graphics_info_t::coot_socket_listener_idle_function_token = -1; //  default 
 // something non-zero here (which is done as a scheme command).
 int graphics_info_t::listener_socket_have_good_socket_state = 0;
 std::string graphics_info_t::socket_string_waiting = "";
-bool graphics_info_t::have_socket_string_waiting_flag = 0;
+volatile bool graphics_info_t::have_socket_string_waiting_flag = 0;
+volatile bool graphics_info_t::socket_string_waiting_mutex_lock = 0;
 
 
 // validation
@@ -1451,12 +1452,6 @@ setup_lighting(short int do_lighting_flag) {
 
 gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
-   std::cout << " got a configure event (reshape)" << std::endl;
-
-   if (graphics_info_t::have_socket_string_waiting_flag) {
-      graphics_info_t::process_socket_string_waiting();
-   } 
-
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
    
    /* OpenGL functions can be called only if make_current returns true */
@@ -1493,6 +1488,14 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 // 	     << i << std::endl;
 //    if (i == 0)
 //       return TRUE;
+
+   if (graphics_info_t::have_socket_string_waiting_flag) {
+      // std::cout << " =============== setting mutex lock =========" << std::endl;
+      graphics_info_t::socket_string_waiting_mutex_lock = 1;
+      graphics_info_t::process_socket_string_waiting();
+      // std::cout << " =============== unsetting mutex lock =========" << std::endl;
+      graphics_info_t::socket_string_waiting_mutex_lock = 0;
+   } 
 
    if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
       draw_hardware_stereo(widget, event);

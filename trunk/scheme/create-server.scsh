@@ -85,13 +85,13 @@
 	
         (format #t "########### sending spin\n")
  	(format (socket:outport socket)
- 		"(spin-zoom-trans 2 400 0.4 0.4 0 0 0)")
+ 		"(spin-zoom-trans 2 400 0.2 0.4 0 0 0)")
 	(newline (socket:outport socket))
         (format #t "########### done sent spin\n")
 	(end-transmition)
 
  	(format (socket:outport socket)
- 		"(rotate-y-scene 3000 0.05)")
+ 		"(rotate-y-scene 700 0.15)")
 	(newline (socket:outport socket))
 	(end-transmition)
 

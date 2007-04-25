@@ -9058,12 +9058,27 @@ int go_to_first_view(int snap_to_view_flag) {
 /*  ----------------------------------------------------------------------- */
 
 void set_socket_string_waiting(const char *s) {
+
+   // wait for lock:
+   while (graphics_info_t::socket_string_waiting_mutex_lock != 0) {
+      std::cout << "Waiting for lock! "
+		<< graphics_info_t::socket_string_waiting_mutex_lock << std::endl;
+      usleep(1000000);
+   }
+   
    graphics_info_t::socket_string_waiting = s;
    graphics_info_t::have_socket_string_waiting_flag = 1;
-
-   gtk_signal_emit_by_name(GTK_OBJECT(graphics_info_t::glarea), "configure_event");
-
-   std::cout << "INFO:: set_socket_string_waiting set to :"
-	     << graphics_info_t::socket_string_waiting
-	     << std::endl;
+   
+   gtk_widget_queue_draw_area(graphics_info_t::glarea, 0, 0,
+ 			      graphics_info_t::glarea->allocation.width,
+ 			      graphics_info_t::glarea->allocation.height);
+   
+   //   gint return_val;
+   //   GdkEventExpose event;
+   //    gtk_signal_emit_by_name(GTK_OBJECT(graphics_info_t::glarea), "configure_event",
+   // 			   &event, &return_val);
+   
+//    std::cout << "INFO:: ---- set_socket_string_waiting set to :"
+// 	     << graphics_info_t::socket_string_waiting
+// 	     << ":" << std::endl;
 }
