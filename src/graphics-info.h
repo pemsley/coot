@@ -2360,7 +2360,8 @@ public:
    static std::string remote_control_hostname;
    static int coot_socket_listener_idle_function_token; // -1 default (off)
    static std::string socket_string_waiting;
-   static bool have_socket_string_waiting_flag;
+   static volatile bool have_socket_string_waiting_flag;
+   static volatile bool socket_string_waiting_mutex_lock; 
 #ifdef USE_GUILE
    static SCM safe_scheme_command(const std::string &scheme_command);
    static SCM process_socket_string_waiting();

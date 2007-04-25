@@ -54,9 +54,12 @@
     (if %coot-listener-socket
 	(begin
 	  (let loop ()
-	    (listen-coot-listener-socket-v3 %coot-listener-socket)
-	    (usleep 1000000)
-	    (loop)))
+	    (let ((continue? (listen-coot-listener-socket-v3 %coot-listener-socket)))
+	      (if (not continue?)
+		  (format #t "server gone - listener thread ends~%")
+		  (begin
+		    (usleep 100000)
+		    (loop))))))
 	(begin
 	  (format #t "coot-listener-idle-function-proc bad sock: ~s~%" 
 		  %coot-listener-socket)))))
@@ -70,7 +73,7 @@
       (let loop ((thing (read)))
 	(if (not (eof-object? thing))
 	    (begin 
-	      (format #t "this code be evaluated: ~s~%" thing)
+	      ;; (format #t "this code be evaluated: ~s~%" thing)
 	      (eval thing (interaction-environment))
 	      (loop (read))))))))
 
@@ -92,10 +95,11 @@
 	    (safe-python-command s)
 	    ;; not python
 	    (begin 
-	      (format #t "this string will be evaluated: ~s~%" s)
-	      (format #t "setting socket string waiting...~%")
+;	      (format #t "this string will be evaluated: ~s~%" s)
+;	      (format #t "======== setting socket string waiting...~%")
 	      (set-socket-string-waiting s)
-	      (format #t "done setting socket string waiting...~%"))))))
+;	      (format #t "======== done setting socket string waiting...~%")
+	      )))))
 	      
 
   ;; remove end-transmition-string from read-bits
@@ -131,22 +135,23 @@
 
   (if (not (char-ready? soc))
       (begin
-	(format #t "nothing on the line...~%")
+;	(format #t "nothing on the line...~%")
 	#t)
       (begin
-	(format #t "there *is* a ready-char!~%" soc)
-	(format #t "about to read from socket soc: ~s~%" soc)
+;	(format #t "there *is* a ready-char!~%" soc)
+;	(format #t "about to read from socket soc: ~s~%" soc)
 	(let f ((c (read-char soc))
 		(read-bits '()))
 	  ;; (format #t "socket read char ~s~%" c)
 	  (cond
-	   ((eof-object? c) (format #t "server gone\n"))
+	   ((eof-object? c) (format #t "server gone\n") #f)
 	   ((hit-end-transmit? (cons c read-bits)
 			       end-transmition-string)
-	    (format #t "  ~s found in ~s~%" 
-		    end-transmition-string
-		    (list->string (reverse (cons c read-bits))))
-	    (evaluate-char-list (strip-tail (cons c read-bits))))
+;	    (format #t "  ~s found in ~s~%" 
+;		    end-transmition-string
+;		    (list->string (reverse (cons c read-bits))))
+	    (evaluate-char-list (strip-tail (cons c read-bits)))
+	    #t)
 
 	   (else 
 	    (f (read-char soc) (cons c read-bits))))))))

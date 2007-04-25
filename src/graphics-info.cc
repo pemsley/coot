@@ -6371,6 +6371,7 @@ graphics_info_t::process_socket_string_waiting() {
    SCM r;
    if (graphics_info_t::have_socket_string_waiting_flag) {
 
+      graphics_info_t::have_socket_string_waiting_flag = 0; // draw() looks here
       std::string ss = graphics_info_t::socket_string_waiting;
 
       // really the right way?  Perhaps we should just stick to scheme
@@ -6383,7 +6384,6 @@ graphics_info_t::process_socket_string_waiting() {
       std::string s = g.state_command(v, coot::STATE_SCM);
       r = safe_scheme_command(s);
       
-      graphics_info_t::have_socket_string_waiting_flag = 0;
    }
    return r;
 } 
