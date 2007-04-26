@@ -298,4 +298,24 @@
        (lambda ()
 	 (place-strand-here-gui)))
 
+
+      (let ((submenu (gtk-menu-new))
+            (menuitem2 (gtk-menu-item-new-with-label "Views")))
+        
+        (gtk-menu-item-set-submenu menuitem2 submenu) 
+        (gtk-menu-append menu menuitem2)
+        (gtk-widget-show menuitem2)
+        
+        (add-simple-coot-menu-menuitem
+         submenu "Save View..."
+         (lambda ()
+           (view-saver-gui)))
+        
+        (add-simple-coot-menu-menuitem
+         submenu "Play Views"
+         (lambda () 
+           (go-to-first-view 1)
+           (sleep 1)
+           (play-views))))
+
       )); finish let and if

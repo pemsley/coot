@@ -6546,6 +6546,10 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
    coot::view_info_t view;
    graphics_info_t g;
 
+//    std::cout << "start quat interpolation: zooms: " << view1.zoom << " " << view2.zoom
+// 	     << " and centres: "
+// 	     << view1.rotation_centre << " to " << view2.rotation_centre << std::endl;
+
    float total_zoom_by = view2.zoom/view1.zoom;
    float frac_zoom_by =  1;
    int smooth_scroll_state = graphics_info_t::smooth_scroll;
@@ -6554,20 +6558,80 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
       frac_zoom_by = total_zoom_by/float(n_steps); 
 
    // non-slerping
-   for (int i=0; i<=n_steps; i++) {
-      float frac = float(i)/float(n_steps);
-      coot::Cartesian rct =
-	 view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
-      float qt[4];
-      for (int iq=0; iq<4; iq++)
-	 g.quat[iq] = view1.quat[iq] + frac*(view2.quat[iq]-view1.quat[iq]);
-      g.zoom = view1.zoom + frac*(view2.zoom-view1.zoom);
-      g.setRotationCentre(rct);
-      graphics_info_t::graphics_draw();
+   // 
+   if (0) { 
+      for (int i=0; i<=n_steps; i++) {
+	 float frac = float(i)/float(n_steps);
+	 coot::Cartesian rct =
+	    view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
+	 for (int iq=0; iq<4; iq++)
+	    g.quat[iq] = view1.quat[iq] + frac*(view2.quat[iq]-view1.quat[iq]);
+	 g.zoom = view1.zoom + frac*(view2.zoom-view1.zoom);
+	 g.setRotationCentre(rct);
+	 graphics_info_t::graphics_draw();
+      }
+   }
+
+   if (1) {
+      float omega = acos(coot::view_info_t::dot_product(view1, view2)/(view1.quat_length()*view2.quat_length()));
+      if (omega != 0.0) { 
+	 // slerping
+	 //
+	 if (n_steps < 1)
+	    n_steps = 1;
+	 float t_step = float(1.0)/float(n_steps);
+	 for (float t=0; t<=1; t+=t_step) {
+	    float one_over_sin_omega = 1/sin(omega);
+	    float frac1 = sin((1-t)*omega) * one_over_sin_omega;
+	    float frac2 = sin(t*omega) * one_over_sin_omega;
+	    for (int iq=0; iq<4; iq++)
+	       g.quat[iq] = frac1*view1.quat[iq] + frac2*view2.quat[iq];
+	    coot::Cartesian rct =
+	       view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(t);
+	    g.setRotationCentre(rct);
+	    g.zoom = view1.zoom + t*(view2.zoom-view1.zoom);
+	    graphics_info_t::graphics_draw();
+	 }
+      } else {
+	 // non slerping
+	 for (int i=0; i<=n_steps; i++) {
+	    float frac = float(i)/float(n_steps);
+	    coot::Cartesian rct =
+	       view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
+	    for (int iq=0; iq<4; iq++)
+	       g.quat[iq] = view1.quat[iq] + frac*(view2.quat[iq]-view1.quat[iq]);
+	    g.setRotationCentre(rct);
+	    g.zoom = view1.zoom + frac*(view2.zoom-view1.zoom);
+	    graphics_info_t::graphics_draw();
+	 }
+      }
    }
 
    graphics_info_t::smooth_scroll = smooth_scroll_state;
    return view;
+}
+
+float
+coot::view_info_t::quat_length() const {
+
+   float d = 0.0;
+   for (int i=0; i<4; i++) {
+      d += quat[i]*quat[i];
+   }
+   return sqrt(d);
+}
+
+
+// static
+float 
+coot::view_info_t::dot_product(const coot::view_info_t &view1,
+			       const coot::view_info_t &view2) {
+
+   float d = 0.0;
+   for (int i=0; i<4; i++) {
+      d += view1.quat[i]*view2.quat[i];
+   }
+   return d;
 }
 
 bool
