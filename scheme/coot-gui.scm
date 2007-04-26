@@ -974,6 +974,14 @@
 			    (lambda (n)
 			      (place-strand-here n 8)))))
 
+;; The gui for saving views
+(define view-saver-gui
+  (lambda ()
+
+    (generic-single-entry "View Name: " "View" " Save View " 
+                          (lambda (text) 
+                            (add-view text)))))
+
 	 
 ;;; Local Variables:
 ;;; mode: scheme
