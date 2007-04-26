@@ -1096,7 +1096,7 @@ molecule_class_info_t::copy_chain(const std::string &from_chain_str,
 
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty()) 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0)
 	    fill_ghost_info(1, 0.7); // 0.7?
 	 short int done_copy_flag = 0;
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
@@ -1145,7 +1145,7 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_other_using_ghost(s
    int done_copy_flag = 0;
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty()) 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) 
 	    fill_ghost_info(1, 0.7); // 0.7?
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    if  (ncs_ghosts[ighost].chain_id == to_chain_id) {
@@ -1202,7 +1202,7 @@ molecule_class_info_t::copy_from_ncs_master_to_others(const std::string &master_
    int ncopied = 0;
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty()) 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) 
 	    fill_ghost_info(1, 0.7); // 0.7?
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    std::string master = ncs_ghosts[ighost].target_chain_id;
@@ -1226,7 +1226,7 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_others(const std::s
    int ncopied = 0;
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty()) 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) 
 	    fill_ghost_info(1, 0.7); // 0.7?
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    std::string master = ncs_ghosts[ighost].target_chain_id;
@@ -1333,7 +1333,7 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
    int ghost_index = -1;
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty()) 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0)
 	    fill_ghost_info(1, ncs_ghost_similarity_score); // 0.7?
       }
 
