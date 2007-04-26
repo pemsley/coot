@@ -2847,7 +2847,7 @@ GtkWidget *lookup_file_selection_widgets(GtkWidget *item) {
 void fileselection_sort_button_clicked_gtk1( GtkWidget *sort_button,
 					     GtkCList  *file_list) {
 
-   std::vector<str_mtime> v;
+   std::vector<coot::str_mtime> v;
    char *text;
    struct stat buf;
    time_t mtime;
@@ -2892,13 +2892,13 @@ void fileselection_sort_button_clicked_gtk1( GtkWidget *sort_button,
       status = stat(file_name.c_str(),&buf);
       if (status == 0) { 
 	 mtime = buf.st_mtime;
-	 v.push_back(str_mtime(text, mtime));
+	 v.push_back(coot::str_mtime(text, mtime));
       } else {
 	 std::cout << "error stating " << file_name << std::endl;
       }
    }
-//    v.push_back(str_mtime("Cabbage",324232));
-//    v.push_back(str_mtime("zipped",345234523452));
+//    v.push_back(coot::str_mtime("Cabbage",324232));
+//    v.push_back(coot::str_mtime("zipped",345234523452));
    std::sort(v.begin(), v.end(), compare_mtimes);
 
    gtk_clist_clear(file_list);
