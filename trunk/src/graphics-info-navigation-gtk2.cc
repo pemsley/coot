@@ -99,7 +99,9 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
       tv = GTK_TREE_VIEW(gtktree);
    if (! tv)
       tv = GTK_TREE_VIEW(gtk_tree_view_new());
-   gtk_tree_view_set_rules_hint (tv, TRUE);
+
+   // For stripey pajama view:
+   // gtk_tree_view_set_rules_hint (tv, TRUE);
 
    GtkTreeModel *model = gtk_tree_view_get_model(tv);
    // std::cout << "model: " << model << std::endl;
@@ -237,7 +239,7 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
     if (gtk_tree_model_get_iter(model, &iter, path)) {
        gchar *name;
        gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
-       g_print ("Double-clicked row contains name %s\n", name);
+       // g_print ("Double-clicked row contains name %s\n", name);
        if (1) {
 	  graphics_info_t g;
 	  int go_to_imol = g.go_to_atom_molecule();
