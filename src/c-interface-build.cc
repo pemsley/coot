@@ -3925,14 +3925,16 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 if (zi.is_simple_zone) {
 	    graphics_info_t g;
 	    int save_rirf = g.refinement_immediate_replacement_flag;
+#ifdef HAVE_GSL	    
 	    coot::pseudo_restraint_bond_type save_pseudos = g.pseudo_bonds_type;
 	    g.pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
 	    g.refinement_immediate_replacement_flag = 1;
 	    g.refine_residue_range(imol, zi.chain_id, zi.chain_id, zi.resno_1, zi.resno_2,
 				   "", 0);
-	    g.refinement_immediate_replacement_flag = save_rirf;
 	    accept_regularizement();
 	    g.pseudo_bonds_type = save_pseudos;
+#endif // HAVE_GSL	    
+	    g.refinement_immediate_replacement_flag = save_rirf;
 	 } 
       } else {
 	 std::cout << "Strand addition failure: message: " << si.failure_message << "\n";
