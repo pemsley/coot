@@ -2729,6 +2729,7 @@ int remove_named_view(const char *view_name);
 /* go to the first view.  if snap_to_view_flag, go directly, else
    smooth twisty path.*/
 int go_to_first_view(int snap_to_view_flag);
+void add_spin_view(int n_steps, float degrees_total);
 
 /*  ----------------------------------------------------------------------- */
 /*                  graphics background colour                              */
