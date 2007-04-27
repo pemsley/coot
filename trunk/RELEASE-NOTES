@@ -1,4 +1,40 @@
 
+Release 0.3.2 ""
+
+  o GTk2 interface now usable
+
+  o Fix crash due to rigid body refinement of atoms with zero
+    occupancy
+
+  o Add further SHELX support: .res files are split and unsplit on
+    reading/writing.  Solve the ^M problem like SHELX does. SHELXL
+    refinement interface improved [GMS]
+
+  o Added Views system
+
+  o Fix crash of applying NCS edits [Michael Url]
+
+  o Added SEGID info to clicked atom [Christine Durnham]
+
+  o Added function fill-partial-residue
+
+  o Added function transform-molecule-by
+
+  o Added function to change the colour of the unit cell
+
+  o Added multi-threaded support socket reading for Phenix collaboration
+
+  o Added function "blob under cursor -> screen centre"
+
+  o Fix map reading so that it accepts user-approved extensions
+    [Peter Meyer]
+
+
+    -------------------------------------------------------
+    -------------------- Old Releases ---------------------
+    -------------------------------------------------------
+
+
 Release 0.3.1 "Another Basil Grande?"
 
   o Enable NCS ghosts
@@ -86,11 +122,6 @@ Release 0.3 "Basil Grande"
   o "Same Chain?" test applied to Rotate/Translate and Rigid Body
     Refine Zone atom picks [Bob Nolte].
 
-
-
-    -------------------------------------------------------
-    -------------------- Old Releases ---------------------
-    -------------------------------------------------------
 
 
 Release 0.2 "Arashiyama Park"
