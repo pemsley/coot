@@ -1115,7 +1115,6 @@ create_window1 (void)
   gtk_widget_ref (gtkhtml_frame);
   gtk_object_set_data_full (GTK_OBJECT (window1), "gtkhtml_frame", gtkhtml_frame,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (gtkhtml_frame);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
 
   gtk_signal_connect (GTK_OBJECT (window1), "destroy",
