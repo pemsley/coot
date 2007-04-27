@@ -1445,8 +1445,12 @@ void remove_text(int text_handle) {
 /*                         Dictionaries                                     */
 /*  ----------------------------------------------------------------------- */
 /*! \brief return a list of all the dictionaries read */
+
+#ifdef USE_GUILE
 SCM dictionaries_read() {
 
    return generic_string_vector_to_list_internal(*graphics_info_t::cif_dictionary_filename_vec);
 }
+#endif
+
 
