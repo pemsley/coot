@@ -4253,80 +4253,81 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
    int istat = 1;
    coot::shelx_read_file_info_t p = shelxins.read_file(filename);
    if (p.status == 0) { 
-      std::cout << "ERROR:: bad status in read_shelx_ins_file" << std::endl;
+      std::cout << "WARNING:: bad status in read_shelx_ins_file" << std::endl;
       istat = -1;
-   }
+   } else { 
 
-   int udd_afix_handle = p.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
-//    std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is " << udd_afix_handle
-// 	     << " and srf.udd_afix_handle was " << udd_afix_handle << std::endl;
+      int udd_afix_handle = p.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+      // std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is "
+      // << udd_afix_handle << " and srf.udd_afix_handle was "
+      // << udd_afix_handle << std::endl;
 
+      if (p.udd_afix_handle == -1) {
+	 std::cout << "ERROR:: bad udd_afix_handle in read_shelx_ins_file"
+		   << std::endl;
+	 istat = -1;
+      } 
 
-   if (p.udd_afix_handle == -1) {
-      std::cout << "ERROR:: bad udd_afix_handle in read_shelx_ins_file" << std::endl;
-      istat = -1;
-   }
-
-   if (istat == 1) { 
-      // initialize some things.
-      //
-      atom_sel = make_asc(p.mol);
-      short int is_undo_or_redo = 0;
-      graphics_info_t g;
-
-      mat44 my_matt;
-      int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-      if (err != SYMOP_Ok) {
-	 cout << "!! Warning:: No symmetry available for this molecule"
-	      << endl;
-      } else { 
-	 cout << "Symmetry available for this molecule" << endl;
-      }
-      
-      set_have_unit_cell_flag_maybe();
-
-      if (molecule_is_all_c_alphas()) {
-	 ca_representation();
-      } else {
-
-	 short int do_rtops_flag = 0;
-	 // 0.7 is not used (I think) if do_rtops_flag is 0
- 	 // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
-	 // std::cout << "INFO:: found " << nghosts << " ghosts\n";
-
-	 // Generate bonds and save them in the graphical_bonds_container
-	 // which has static data members.
+      if (istat == 1) { 
+	 // initialize some things.
 	 //
-	 if (bonds_box_type == coot::UNSET_TYPE)
-	    bonds_box_type = coot::NORMAL_BONDS;
-	 make_bonds_type_checked();
+	 atom_sel = make_asc(p.mol);
+	 short int is_undo_or_redo = 0;
+	 graphics_info_t g;
+
+	 mat44 my_matt;
+	 int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
+	 if (err != SYMOP_Ok) {
+	    cout << "!! Warning:: No symmetry available for this molecule"
+		 << endl;
+	 } else { 
+	    cout << "Symmetry available for this molecule" << endl;
+	 }
+      
+	 set_have_unit_cell_flag_maybe();
+
+	 if (molecule_is_all_c_alphas()) {
+	    ca_representation();
+	 } else {
+
+	    short int do_rtops_flag = 0;
+	    // 0.7 is not used (I think) if do_rtops_flag is 0
+	    // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+	    // std::cout << "INFO:: found " << nghosts << " ghosts\n";
+
+	    // Generate bonds and save them in the graphical_bonds_container
+	    // which has static data members.
+	    //
+	    if (bonds_box_type == coot::UNSET_TYPE)
+	       bonds_box_type = coot::NORMAL_BONDS;
+	    make_bonds_type_checked();
+	 }
+
+	 short int reset_rotation_centre = 1;
+	 //
+	 if (g.recentre_on_read_pdb || g.n_molecules == 0)  // n_molecules
+	    // is updated
+	    // in
+	    // c-interface.cc
+	    if (reset_rotation_centre) 
+	       g.setRotationCentre(::centre_of_molecule(atom_sel)); 
+
+	 drawit = 1;
+	 if (graphics_info_t::show_symmetry == 1) {
+	    update_symmetry();
+	 }
+	 initialize_coordinate_things_on_read_molecule_internal(filename,
+								is_undo_or_redo);
+	 is_from_shelx_ins_flag = 1;
       }
 
-      short int reset_rotation_centre = 1;
-      //
-      if (g.recentre_on_read_pdb || g.n_molecules == 0)  // n_molecules
-							 // is updated
-							 // in
-							 // c-interface.cc
-	 if (reset_rotation_centre) 
-	    g.setRotationCentre(::centre_of_molecule(atom_sel)); 
-
-      drawit = 1;
-      if (graphics_info_t::show_symmetry == 1) {
-      	 update_symmetry();
-      }
-      initialize_coordinate_things_on_read_molecule_internal(filename,
-							     is_undo_or_redo);
-      is_from_shelx_ins_flag = 1;
+      //    std::cout << "DEBUG:: Post read shelx: "<< std::endl;
+      //    shelxins.debug();
+      
+      // save state strings
+      save_state_command_strings_.push_back("read-shelx-ins-file");
+      save_state_command_strings_.push_back(single_quote(filename));
    }
-
-//    std::cout << "DEBUG:: Post read shelx: "<< std::endl;
-//    shelxins.debug();
-
-   // save state strings
-   save_state_command_strings_.push_back("read-shelx-ins-file");
-   save_state_command_strings_.push_back(single_quote(filename));
-
    return istat;
 }
 

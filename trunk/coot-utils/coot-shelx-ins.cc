@@ -540,8 +540,12 @@ coot::ShelxIns::read_file(const std::string &filename) {
       // mol->WritePDBASCII("testing.pdb");
       // write_ins_file(mol, "new.res");
    }
-   CMMDBManager *shelx_mol = unshelx(mol);
-   // std::cout << "DEBUG:: shelx_mol: " << shelx_mol << std::endl;
+
+   CMMDBManager *shelx_mol = 0;
+   if (mol) // maybe file not found?
+      shelx_mol = unshelx(mol);
+
+   // same thing?
    if (shelx_mol)
       return coot::shelx_read_file_info_t(istate, udd_afix_handle, shelx_mol);
    else 
@@ -1694,6 +1698,11 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 
    int skip_chain_step = 21;
    CMMDBManager *mol = 0;
+
+   if (!shelx_mol) {
+      std::cout << "ERROR:: Null shelx_mol" << std::endl;
+      return mol;
+   }
    
    int imod = 1;
    CModel *shelx_model_p = shelx_mol->GetModel(imod);

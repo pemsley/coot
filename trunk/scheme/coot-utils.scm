@@ -434,7 +434,6 @@
 	  (string=? (substring s 0 1) "/")
 	  #f)
       #f))
-		
 
 ;; simple scheme functions to concat the strings in ls (ls must contain
 ;; only strings)

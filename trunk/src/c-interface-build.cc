@@ -2555,6 +2555,26 @@ void translate_molecule_by(int imol, float x, float y, float z) {
    graphics_draw();
 } 
 
+/*! \brief transform molecule number imol by the given rotation
+  matrix, then translate by (x,y,z) in Angstroms  */
+void transform_molecule_by(int imol, 
+			   float m11, float m12, float m13,
+			   float m21, float m22, float m23,
+			   float m31, float m32, float m33,
+			   float x, float y, float z) {
+
+   if (is_valid_model_molecule(imol)) {
+      clipper::Mat33<double> clipper_mat(m11, m12, m13,
+					 m21, m22, m23,
+					 m31, m32, m33);
+      clipper::Coord_orth cco(x,y,z);
+      clipper::RTop_orth rtop(clipper_mat, cco);
+      graphics_info_t::molecules[imol].transform_by(rtop);
+   }
+   graphics_draw();
+
+}
+
 
 
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq) { 
@@ -4571,7 +4591,7 @@ int read_shelx_ins_file(const char *filename) {
 
       istat = g.molecules[imol].read_shelx_ins_file(std::string(filename));
       if (istat != 1) {
-	 std::cout << "ERROR:: " << istat << " on read_shelx_ins_file "
+	 std::cout << "WARNING:: " << istat << " on read_shelx_ins_file "
 		   << filename << std::endl;
       } else {
 	 std::cout << "Molecule " << g.n_molecules << " read successfully\n";
