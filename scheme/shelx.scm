@@ -122,6 +122,18 @@
 
 (define *coot-shelxl-dir* "coot-shelxl")
 
+(define remove-time-extension
+  (lambda (str)
+    
+    ;; e.g. remove -2007-04-27_1326.24 from 03srv164-2007-04-27_1326.24
+
+    ;; shelx and coot will retire before the 22nd century, won't they?
+    (let ((pattern "-20[0-9][0-9]-[01][0-9]-[0-2][0-9]_[0-2][0-9][0-5][-0-9].[0-5][-0-9]"))
+      (let ((result (string-match pattern str)))
+	(if result
+	    (substring str 0 (car (vector-ref result 1)))
+	    str)))))
+
 
 (define shelxl-refine 
   (lambda (imol . hkl-file-in)
@@ -154,7 +166,7 @@
 
 	      (let* ((stub (string-append 
 			    *coot-shelxl-dir* "/"
-			    (strip-path (strip-extension (molecule-name imol)))
+			    (strip-path (remove-time-extension (strip-extension (molecule-name imol))))
 			    "-"
 			    (unique-date/time-str)))
 		     (ins-filename (string-append stub ".ins"))
@@ -168,6 +180,8 @@
 		; already. (Let's check that, and stop early if it doesn't
 		; exist)
 
+		;; This is a bit of mind-mangling code.
+
 		(if orig-hkl-file
 		    (let ((symlink-target
 			   (cond
@@ -177,9 +191,51 @@
 			     (if (slash-start? orig-hkl-file)
 				 orig-hkl-file
 				 (string-append "../" orig-hkl-file))))))
-		      (format #t "symlink ~s ~s~%" orig-hkl-file symlink-target)
+		      (format #t "make symlink ~s ~s~%" orig-hkl-file symlink-target)
 		      (if symlink-target
-			  (symlink symlink-target hkl-filename))))
+			  (symlink symlink-target hkl-filename)))
+		    
+		    ;; hklin was not given, let's generate a filename
+		    ;; from the filename of the coordinates molecule
+		    ;; imol, trial names are derived from the name of
+		    ;; the coordinates molecule
+		    (let* ((trial-file-stub (strip-extension (molecule-name imol)))
+			   (trial-hkl-file-name (string-append
+						 trial-file-stub ".hkl")))
+		      (format #t "debug:: looking for ~s~%" trial-hkl-file-name)
+		      (if (file-exists? trial-hkl-file-name)
+			  (begin 
+			    (format #t "INFO:: hkl file ~s found~%" 
+				    trial-hkl-file-name)
+			    (format #t "need a link: ~s ~s~%" trial-hkl-file-name hkl-filename)
+			    ;; if trial-hkl-file-name and hkl-filename
+			    ;; are in the same directory (e.g
+			    ;; shelx-coot), then (strange as it may
+			    ;; seem) we *don't* put the directory name
+			    ;; in the "file that exists" (the first
+			    ;; argument - ie. the target).  Bizarre but true.
+			    ;; (symlink target link)
+			    (let ((hkl-filename-dir (dirname hkl-filename))
+				  (trial-hkl-file-name-dir (dirname trial-hkl-file-name)))
+			      (format #t "debug: comparing paths ~s ~s~%"
+				      hkl-filename-dir
+				      trial-hkl-file-name-dir)
+				   
+			      (if (string=? hkl-filename-dir
+					    trial-hkl-file-name-dir)
+				  ;; so lets strip off the dir of the target:
+				  (let ((new-target (strip-path trial-hkl-file-name)))
+				    (format #t "symlink: ~s ~s~%" new-target hkl-filename)
+				    (symlink new-target hkl-filename))
+				  ;; different dirs, keep the dirs:
+				  (begin
+				    (format #t "symlink2: ~s ~s~%" trial-hkl-file-name 
+					    hkl-filename)
+				    (symlink trial-hkl-file-name hkl-filename)))))
+			  (begin 
+			    (format #t "INFO:: hkl file ~s does not exist!~%" 
+				    trial-hkl-file-name)))))
+		
 
 		(if (not (file-exists? hkl-filename))
 		    (begin

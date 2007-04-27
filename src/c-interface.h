@@ -1381,7 +1381,7 @@ void set_colour_by_molecule(int imol);
 /* \{ */
 /*! \brief set the colour map rotation (hue change) for maps
 
-   default: for maps is 31 degrees. */
+   default: for maps is 14 degrees. */
 void set_colour_map_rotation_for_map(float f); /* "global"/default */
 
 /* widget work */
@@ -1796,6 +1796,14 @@ void undo_last_move(); // suggested by Frank von Delft
 
 /*! \brief translate molecule number imol by (x,y,z) in Angstroms  */
 void translate_molecule_by(int imol, float x, float y, float z);
+
+/*! \brief transform molecule number imol by the given rotation
+  matrix, then translate by (x,y,z) in Angstroms  */
+void transform_molecule_by(int imol, 
+			   float m11, float m12, float m13,
+			   float m21, float m22, float m23,
+			   float m31, float m32, float m33,
+			   float x, float y, float z);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

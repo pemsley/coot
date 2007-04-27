@@ -3003,7 +3003,7 @@ will tell you the molecule centre
  of the
 @code{@emph{imol}}th molecule.
 
-@code{(translate-by @code{imol x-shift y-shift z-shift})}
+@code{(translate-molecule-by @code{imol x-shift y-shift z-shift})}
 
 will translate all the atoms in molecule @code{@emph{imol}} by the
 given amount (in @AA{}ngstr@"{o}ms).

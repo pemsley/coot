@@ -628,7 +628,7 @@ float graphics_info_t::map_radius_slider_max = 50.0;
 short int graphics_info_t::rotate_colour_map_on_read_pdb_flag = 1; // do it.
 short int graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag = 0; // all atoms
 float     graphics_info_t::rotate_colour_map_on_read_pdb = 21.0;  // degrees
-float     graphics_info_t::rotate_colour_map_for_map = 31.0;  // degrees
+float     graphics_info_t::rotate_colour_map_for_map = 14.0;  // degrees
 
 // cell colour
 coot::colour_holder graphics_info_t::cell_colour =
