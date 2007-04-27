@@ -22,7 +22,7 @@ Release 0.3.2 ""
 
   o Added function to change the colour of the unit cell
 
-  o Added multi-threaded support socket reading for Phenix collaboration
+  o Added multi-threaded socket reading for Phenix interface
 
   o Added function "blob under cursor -> screen centre"
 
