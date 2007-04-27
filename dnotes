@@ -1,0 +1,20 @@
+
+To compile guile etc for gtk2:
+
+
+prfx=$HOME/guile-1.8.1
+wget libtool-1.5.22
+cd libtoo-1.5.22
+./configure --prefix=$prfx
+make 
+make install
+
+wget guile-1.8.1.tar.gz
+cd guile-1.8.1
+./configure --prefix=$prfx CFLAGS=-I$prfx/include LDFLAGS=-L$prfx/lib
+# on cycle at least, we need to stop the optimization:
+./configure --prefix=$prfx "CFLAGS=-I$prfx/include -g" LDFLAGS=-L$prfx/lib
+make 
+make install
+
+
