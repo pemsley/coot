@@ -310,6 +310,21 @@
          submenu "Save View..."
          (lambda ()
            (view-saver-gui)))
+
+	
+        (add-simple-coot-menu-menuitem
+         submenu "Add a Spin..."
+         (lambda ()
+           (generic-doule-entry "Number of Step" "Number of Degrees (total)"
+				"720" "360" "  Add Spin  " 
+				(lambda (text1 text2)
+				  (let ((n1 (string->number text1))
+					(n2 (string->number text2)))
+				    
+				    (if (and (number? n1)
+					     (number? n2))
+					(add-view-spin n1 n2)))))))
+
         
         (add-simple-coot-menu-menuitem
          submenu "Play Views"
