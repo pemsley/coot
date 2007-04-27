@@ -3734,10 +3734,8 @@ void fill_partial_residues(int imol) {
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
-      std::cout << "DEBUG:: calling mci fill_partial_residues " << std::endl;
       coot::util::missing_atom_info m_i_info =
 	 g.molecules[imol].fill_partial_residues(g.Geom_p(), imol_map);
-      std::cout << "DEBUG:: done    mci fill_partial_residues " << std::endl;
       graphics_draw();
 
       if (imol_map > -1) { 
@@ -3758,6 +3756,30 @@ void fill_partial_residues(int imol) {
       } else {
 	 g.show_select_map_dialog();
       } 
+   }
+}
+
+void fill_partial_residue(int imol, const char *chain_id, int resno, const char* inscode) {
+
+   if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      if (imol_map > -1) { 
+	 coot::residue_spec_t rs(chain_id, resno, inscode);
+	 g.molecules[imol].fill_partial_residue(rs, g.Geom_p(), imol_map);
+	 // post process...
+	 int refinement_replacement_state = refinement_immediate_replacement_state();
+	 set_refinement_immediate_replacement(1);
+	 std::string altconf("");
+	 short int is_water = 0;
+	 // hmmm backups are being done....
+	 g.refine_residue_range(imol, chain_id, chain_id, resno, resno, altconf, is_water);
+	 accept_regularizement();
+	 set_refinement_immediate_replacement(refinement_replacement_state);
+
+      } else {
+	 g.show_select_map_dialog();
+      }
    }
 }
 

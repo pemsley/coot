@@ -1701,6 +1701,9 @@ class molecule_class_info_t {
    // The function that uses missing atom info:
    coot::util::missing_atom_info
    fill_partial_residues(coot::protein_geometry *geom_p, int imol_refinement_map);
+   // return 1 if the residue was filled, 0 if the residue was not found
+   int fill_partial_residue(coot::residue_spec_t &residue_spec,
+			     coot::protein_geometry *geom_p, int imol_refinement_map);
 
    // Ribosome People:
    int exchange_chain_ids_for_seg_ids(); 

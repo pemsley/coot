@@ -3232,6 +3232,8 @@ void setup_auto_fit_rotamer(short int state);	/* called by the Auto Fit button c
 To be used to remove the effects of chainsaw.  */
 void fill_partial_residues(int imol);
 
+void fill_partial_residue(int imol, const char *chain_id, int resno, const char* inscode);
+
 /* Used for unsetting the rotamer dialog when it gets destroyed. */
 void
 set_graphics_rotamer_dialog(GtkWidget *w);

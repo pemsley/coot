@@ -5731,6 +5731,31 @@ molecule_class_info_t::fill_partial_residues(coot::protein_geometry *geom_p,
    return info;
 }
 
+
+int 
+molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
+					    coot::protein_geometry *geom_p,
+					    int refinement_map_number) {
+
+   int resno = residue_spec.resno;
+   std::string chain_id = residue_spec.chain;
+   std::string inscode = residue_spec.insertion_code;
+   std::string altloc = "";
+   float lowest_probability = 0.8;
+   int clash_flag = 1;
+      
+   CResidue *residue_p = get_residue(resno, inscode, chain_id);
+   if (residue_p) { 
+      std::string residue_type = residue_p->GetResName();
+      mutate(resno, inscode, chain_id, residue_type); // fill missing atoms
+      if (refinement_map_number >= 0)
+	 auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
+			       refinement_map_number, clash_flag,
+			       lowest_probability);
+   }
+}
+
+
 // ------------------------------------------------------------------------
 //                       dots
 // ------------------------------------------------------------------------
