@@ -948,7 +948,7 @@ Hopefully the following will make things clearer:
      ;; bind the K key
      ((= key 107) (skip-to-next-ncs-chain))
      (else 
-        (format #t "No binding for key ~s~%" key)))))}
+        (format #t "No binding for key ~s~%" key)))))
 @end example
 
 It is not clear to me what the relationship between the key number and
@@ -3419,8 +3419,8 @@ where:
 
 This applies the rotation @code{@emph{rotation-matrix}} and a
 translation @code{@emph{trans}} to the map about the position
-@code{@emph{point}}.  The resulting map is built in a 20A grid around
-@code{@emph{point}}.
+@code{@emph{point}}.  The resulting map is built in a
+@code{@emp{radius}}@AA{} grid around @code{@emph{point}}.
 
 Typical usage:
 
