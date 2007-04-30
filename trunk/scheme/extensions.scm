@@ -313,9 +313,9 @@
 
 	
         (add-simple-coot-menu-menuitem
-         submenu "Add a Spin..."
+         submenu "Add a Spin View"
          (lambda ()
-           (generic-doule-entry "Number of Step" "Number of Degrees (total)"
+           (generic-double-entry "Number of Step" "Number of Degrees (total)"
 				"720" "360" "  Add Spin  " 
 				(lambda (text1 text2)
 				  (let ((n1 (string->number text1))
@@ -323,7 +323,7 @@
 				    
 				    (if (and (number? n1)
 					     (number? n2))
-					(add-view-spin n1 n2)))))))
+					(add-spin-view "Spin" n1 n2)))))))
 
         
         (add-simple-coot-menu-menuitem

@@ -3,7 +3,7 @@ To compile guile etc for gtk2:
 
 
 prfx=$HOME/guile-1.8.1
-wget libtool-1.5.22
+wget libtool-1.5.22.tar.gz
 cd libtoo-1.5.22
 ./configure --prefix=$prfx
 make 
@@ -16,5 +16,25 @@ cd guile-1.8.1
 ./configure --prefix=$prfx "CFLAGS=-I$prfx/include -g" LDFLAGS=-L$prfx/lib
 make 
 make install
+
+wget guile-gtk-2.0.tar.gz
+cd guile-gtk-2.0
+./configure --prefix=$prfx --without-gtkgl
+
+# gtkglext:
+wget "http://downloads.sourceforge.net/gtkglext/gtkglext-1.2.0.tar.gz?modtime=1139081517 & big_mirror=1"
+
+
+# make sure when you compile guile-gtk-2.0, you pick up the right
+# guile in your path (i.e. 1.8.x) otherwise libguile will be stuck in
+# the guilegtk.la file and it wil cause a mess.
+
+
+ ----- Sat Apr 28 16:21:54 BST 2007
+
+   Those who compile with gtk2 need to regenerate the interface files
+   coot_wrap_guile.cc and coot_wrap_guile_pre.cc by runing swig
+   (delete them and make)
+
 
 
