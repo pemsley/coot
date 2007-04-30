@@ -21,6 +21,22 @@ wget guile-gtk-2.0.tar.gz
 cd guile-gtk-2.0
 ./configure --prefix=$prfx --without-gtkgl
 
+ --------
+  
+   Things to fix before 0.3.2
+
+   o colour by b-factor
+
+   o colour by occupancy
+
+   o CNS map reading?
+
+   o CNS data reading
+
+   o Spin View 
+
+-------
+
 # gtkglext:
 wget "http://downloads.sourceforge.net/gtkglext/gtkglext-1.2.0.tar.gz?modtime=1139081517 & big_mirror=1"
 
@@ -35,6 +51,5 @@ wget "http://downloads.sourceforge.net/gtkglext/gtkglext-1.2.0.tar.gz?modtime=11
    Those who compile with gtk2 need to regenerate the interface files
    coot_wrap_guile.cc and coot_wrap_guile_pre.cc by runing swig
    (delete them and make)
-
 
 
