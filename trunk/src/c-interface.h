@@ -3515,8 +3515,13 @@ void add_lsq_match(int reference_resno_start,
 				       2: all 
 				     */
 
-/* Return 1 on good match */
+/* Return an rtop pair (proper list) on good match, else #f */
+#ifdef USE_GUILE
+SCM apply_lsq_matches(int imol_reference, int imol_moving);
+#else
+/* poor old python programmers... */
 int apply_lsq_matches(int imol_reference, int imol_moving);
+#endif
 		    
 /* section Least-Squares plane interface */
 void setup_lsq_deviation(int state);

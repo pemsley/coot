@@ -9117,13 +9117,17 @@ void set_socket_string_waiting(const char *s) {
       gtk_widget_queue_draw_area(graphics_info_t::glarea, 0, 0,
 				 graphics_info_t::glarea->allocation.width,
 				 graphics_info_t::glarea->allocation.height);
-   }
-   //   gint return_val;
-   //   GdkEventExpose event;
-   //    gtk_signal_emit_by_name(GTK_OBJECT(graphics_info_t::glarea), "configure_event",
-   // 			   &event, &return_val);
-   
 //    std::cout << "INFO:: ---- set_socket_string_waiting set to :"
 // 	     << graphics_info_t::socket_string_waiting
 // 	     << ":" << std::endl;
+   } else {
+      std::cout << "No graphics. No means to send the signal..." << std::endl;
+   }
+
+   //   gint return_val;
+   //   GdkEventExpose event;
+   //    gtk_signal_emit_by_name(GTK_OBJECT(graphics_info_t::glarea),
+   //                           "configure_event",
+   // 			   &event, &return_val);
+   
 }
