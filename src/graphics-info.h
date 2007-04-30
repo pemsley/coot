@@ -208,16 +208,32 @@ namespace coot {
       float zoom;
       coot::Cartesian rotation_centre;
       std::string view_name;
+      bool is_simple_spin_view_flag;
+      int n_spin_steps;
+      float degrees_per_step;
       float quat[4];
       view_info_t(float *quat_in, const coot::Cartesian &rot_centre_in,
 		  float zoom_in, const std::string &view_name_in) {
+       	 is_simple_spin_view_flag = 0;
 	 zoom = zoom_in;
 	 rotation_centre = rot_centre_in;
 	 view_name = view_name_in;
 	 for (int i=0; i<4; i++) 
 	    quat[i] = quat_in[i];
       }
-      view_info_t() {}
+      view_info_t() {
+      	is_simple_spin_view_flag = 0;
+      }
+      // a spin view 
+      view_info_t(const std::string &view_name_in, int nsteps, float degrees_total) {
+	is_simple_spin_view_flag = 1;
+	view_name = view_name_in;
+	n_spin_steps = nsteps;
+	if (n_spin_steps > 0) 
+	  degrees_per_step = degrees_total/n_spin_steps;
+	else 
+	  degrees_per_step = 0.5;
+      }
       static view_info_t interpolate(const view_info_t &view1,
 				     const view_info_t &view2,
 				     int step, int n_steps);

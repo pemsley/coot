@@ -8519,6 +8519,9 @@ void rotate_y_scene(int nsteps, float stepsize) {
    float spin_quat[4];
    graphics_info_t g;
 
+//    std::cout << "debug in rotate_y_scene: " << nsteps << " of size " << stepsize
+// 	     << std::endl;
+
    // spin it 1 degree
    float tbs =  g.get_trackball_size(); 
    for(int i=0; i<nsteps; i++) { 
@@ -8992,11 +8995,43 @@ int remove_named_view(const char *view_name) {
 
 void play_views() {
 
-   for (int iv=0; iv<graphics_info_t::views->size()-1; iv++) {
+//    std::cout << "DEBUG:: # Views "<< graphics_info_t::views->size() << std::endl;
+   for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
       coot::view_info_t view1 = (*graphics_info_t::views)[iv];
-      coot::view_info_t view2 = (*graphics_info_t::views)[iv+1];
-      coot::view_info_t::interpolate(view1, view2, 1, 400);
-      update_things_on_move_and_redraw();
+      //       std::cout << "DEBUG:: View "<< iv << " " << view1.view_name << std::endl;
+      if (!view1.is_simple_spin_view_flag) {
+	 if ((iv+1) < graphics_info_t::views->size()) { 
+// 	    std::cout << "DEBUG:: interpolating to  "<< iv+1 << " "
+// 		      << view1.view_name << std::endl;
+	    coot::view_info_t view2 = (*graphics_info_t::views)[iv+1];
+	    if (!view2.is_simple_spin_view_flag) { 
+	       coot::view_info_t::interpolate(view1, view2, 1, 200);
+	       update_things_on_move_and_redraw();
+	    }
+	 }
+      } else {
+	 // a simple spin here:
+// 	    std::cout << "DEBUG:: simple spin "
+// 		      << view1.view_name << std::endl;
+	 rotate_y_scene(view1.n_spin_steps, view1.degrees_per_step*0.62);
+	 if ((iv+1) < graphics_info_t::views->size()) { 
+// 	    std::cout << "DEBUG:: interpolating to  "<< iv+1 << " "
+// 		      << view1.view_name << std::endl;
+	    coot::view_info_t view2 = (*graphics_info_t::views)[iv+1];
+	    if (!view2.is_simple_spin_view_flag) {
+	       // the quat was not set because this is a simple
+	       // rotate, so we must generate it from the current
+	       // position
+	       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
+				  graphics_info_t::RotationCentre_y(),
+				  graphics_info_t::RotationCentre_z());
+	       coot::view_info_t current_view(graphics_info_t::quat,
+					      rc, graphics_info_t::zoom, "dummy");
+	       coot::view_info_t::interpolate(current_view, view2, 1, 200);
+	       update_things_on_move_and_redraw();
+	    }
+	 }
+      }
    }
    add_to_history_simple("play-views");
 }
@@ -9053,6 +9088,14 @@ int go_to_first_view(int snap_to_view_flag) {
    return r;
 }
 
+void add_spin_view(const char *view_name, int n_steps, float degrees_total) {
+
+   graphics_info_t g;
+   coot::view_info_t v(view_name, n_steps, degrees_total);
+   graphics_info_t::views->push_back(v);
+}
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  remote control                                          */
 /*  ----------------------------------------------------------------------- */
@@ -9062,17 +9105,19 @@ void set_socket_string_waiting(const char *s) {
    // wait for lock:
    while (graphics_info_t::socket_string_waiting_mutex_lock != 0) {
       std::cout << "Waiting for lock! "
-		<< graphics_info_t::socket_string_waiting_mutex_lock << std::endl;
+		<< graphics_info_t::socket_string_waiting_mutex_lock
+		<< std::endl;
       usleep(1000000);
    }
    
    graphics_info_t::socket_string_waiting = s;
    graphics_info_t::have_socket_string_waiting_flag = 1;
-   
-   gtk_widget_queue_draw_area(graphics_info_t::glarea, 0, 0,
- 			      graphics_info_t::glarea->allocation.width,
- 			      graphics_info_t::glarea->allocation.height);
-   
+
+   if (graphics_info_t::glarea) { 
+      gtk_widget_queue_draw_area(graphics_info_t::glarea, 0, 0,
+				 graphics_info_t::glarea->allocation.width,
+				 graphics_info_t::glarea->allocation.height);
+   }
    //   gint return_val;
    //   GdkEventExpose event;
    //    gtk_signal_emit_by_name(GTK_OBJECT(graphics_info_t::glarea), "configure_event",
