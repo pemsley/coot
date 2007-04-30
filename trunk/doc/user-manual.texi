@@ -3404,7 +3404,7 @@ item.
 
 If you want to transform a map, you can do it thusly:
 
-@code{(transform-map @emph{imol} @emph{rotation-matrix} @emph{trans} @emph{point})}
+@code{(transform-map @emph{imol} @emph{rotation-matrix} @emph{trans} @emph{point radius})}
 
 where:
 
@@ -3414,6 +3414,8 @@ where:
 
  @code{@emph{point}} is a 3-membered list of numbers
 
+ @code{@emph{radius}} is a single number
+
 
 This applies the rotation @code{@emph{rotation-matrix}} and a
 translation @code{@emph{trans}} to the map about the position
@@ -3422,10 +3424,10 @@ translation @code{@emph{trans}} to the map about the position
 
 Typical usage:
 
-@code{(transform-map 2 '(1 0 0 0 1 0 0 0 1) '(0 0 1) (rotation-centre))}
+@code{(transform-map 2 '(1 0 0 0 1 0 0 0 1) '(0 0 1) (rotation-centre) 15)}
 
-which transforms map number 2 by a translation of 1A along the Z axis,
-centred at the screen centre.
+which transforms map number 2 by a translation of 1@AA{} along the Z
+axis, centred at the screen centre for 15@AA{} around that centre.
 
 @node Export Map
 @section Export Map
