@@ -165,7 +165,8 @@
 # 2.06 20070306 Put in the clipper<->ccp4 new dist patch.
 # 2.07 20070319 Remove == comparisons - Lothar Esser.
 # 2.08 20070424 --with-jpeg-lib-dir should be a lib dir!
-script_version=2.08
+# 2.09 20070501 Fix the setting of coot_version when no pre-release set.
+script_version=2.09
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -612,7 +613,14 @@ coot_version=$fallback_coot_version
 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log http://www.ysbl.york.ac.uk/~emsley/software/
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
-coot_version_tmp=`egrep href ${AUTOBUILD_SOURCES}/index.html ${AUTOBUILD_SOURCES}/index-pre-release.html | sed -e 's/.*">//' -e 's/<.*//' | awk '
+pre_release_files_html=""
+if [ $build_coot_prerelease = 1 ]  ; then 
+   pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
+fi
+if [ $build_coot_prerelease = yes ]  ; then 
+   pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
+fi
+coot_version_tmp=`egrep href ${AUTOBUILD_SOURCES}/index.html $pre_release_files_html  | sed -e 's/.*">//' -e 's/<.*//' | awk '
 BEGIN {bmajor = -1; bminor = -1; bmicro = -1; }
 # /^coot-[0-9]\.[0-9]+\.[0-9]+.*\.tar\.gz/ { 
 /^coot-[0-9]\.[0-9]+.*\.tar\.gz$/ { 
@@ -649,7 +657,6 @@ BEGIN {bmajor = -1; bminor = -1; bmicro = -1; }
        }
     }
 }
-
 
 END {
     gsub(".tar.gz.*", "", file);
