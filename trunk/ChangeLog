@@ -1,3 +1,8 @@
+2007-05-01  Paul Emsley  <emsley@localhost>
+
+	* src/molecule-class-info.cc: Kevin Cowtan provided a patch for
+	CNS map reading.
+
 2007-04-13  Paul Emsley  <emsley@localhost>
 
 	* src/pick.cc: Added Segid info to picked atom output info

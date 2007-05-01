@@ -230,6 +230,7 @@ class Bond_lines_container {
    short int do_disulfide_bonds_flag;
    short int do_bonds_to_hydrogens;
    int udd_has_ca_handle;
+   float b_factor_scale; 
 
    // we rely on SelAtom.atom_selection being properly constucted to
    // contain all atoms
@@ -406,6 +407,7 @@ public:
    Bond_lines_container(symm_keys key);
 
    Bond_lines_container() {
+      b_factor_scale = 1.0;
       if (bonds.size() == 0) { 
 	 for (int i=0; i<10; i++) { 
 	    Bond_lines a(i);

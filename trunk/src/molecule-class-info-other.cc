@@ -6035,3 +6035,22 @@ molecule_class_info_t::find_peak_along_line(const clipper::Coord_orth &p1,
    }
    return pbest;
 }
+
+
+// replace molecule
+int
+molecule_class_info_t::replace_molecule(CMMDBManager *mol) {
+
+   int was_changed = 0;
+   if (mol) {
+      atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+      delete [] atom_sel.mol;
+      atom_sel = make_asc(mol);
+      have_unsaved_changes_flag = 1; 
+      make_bonds_type_checked(); // calls update_ghosts()
+      trim_atom_label_table();
+      update_symmetry();
+      was_changed = 1;
+   }
+   return was_changed;
+}

@@ -41,6 +41,7 @@
 #include "clipper/core/xmap.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/ccp4/ccp4_map_io.h"
+#include "clipper/cns/cns_map_io.h"
 #include "CIsoSurface.h"
 
 #include "clipper/core/hkl_compute.h"
@@ -2909,8 +2910,22 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       }
    }
 
-   //
-   clipper::CCP4MAPfile file;
+   // KDC: check map type
+   enum MAP_FILE_TYPE { CCP4, CNS };
+   MAP_FILE_TYPE map_file_type;
+   {
+     FILE* file = fopen( filename.c_str(), "r" );
+     int c1, c2;
+     c1 = c2 = 0;
+     for ( int i = 0; i < 16; i++ ) {
+       int c = getc(file);
+       if ( c == EOF ) break;
+       if ( c == 0 )                                 c1++;
+       if ( isalpha(c) || isdigit(c) || isspace(c) ) c2++;
+     }
+     if ( c1 > c2 ) map_file_type = CCP4;
+     else           map_file_type = CNS;
+   }
 
    if (max_xmaps == 0) {
       std::cout << "allocating space in read_ccp4_map" << std::endl;
@@ -2922,16 +2937,33 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    short int bad_read = 0;
    max_xmaps++; 
-   file.open_read(filename);
-   try {
-      file.import_xmap( xmap_list[0] );
+
+   if ( map_file_type == CCP4 ) {
+     std::cout << "attempting to read CCP4 map: " << filename << std::endl;
+     clipper::CCP4MAPfile file;
+     file.open_read(filename);
+     try {
+       file.import_xmap( xmap_list[0] );
+     }
+     catch (clipper::Message_base exc) {
+       std::cout << "WARNING:: failed to read " << filename
+		 << " Bad ASU (inconsistant gridding?)." << std::endl;
+       bad_read = 1;
+     }
+     file.close_read();
+   } else {
+     std::cout << "attempting to read CNS map: " << filename << std::endl;
+     clipper::CNSMAPfile file;
+     file.open_read(filename);
+     try {
+       file.import_xmap( xmap_list[0] );
+     }
+     catch (clipper::Message_base exc) {
+       std::cout << "WARNING:: failed to read " << filename << std::endl;
+       bad_read = 1;
+     }
+     file.close_read();
    }
-   catch (clipper::Message_base exc) {
-      std::cout << "WARNING:: failed to read " << filename
-		<< " Bad ASU (inconsistant gridding?)." << std::endl;
-      bad_read = 1;
-   }
-   file.close_read();
 
    if (bad_read == 0) { 
       initialize_map_things_on_read_molecule(filename, is_diff_map_flag, 

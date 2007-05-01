@@ -33,7 +33,7 @@
       (add-simple-coot-menu-menuitem menu "Residue Type Selection..."
 				     (lambda ()
 				       (generic-chooser-and-entry 
-					"Choose a molecule to select residues from"
+					"Choose a molecule from which to select residues:"
 					"Residue Type:" ""
 					(lambda (imol text)
 					  (new-molecule-by-residue-type-selection imol text)
@@ -269,14 +269,40 @@
       
       (add-simple-coot-menu-menuitem
        menu "SHELXL Refine..."
-       (lambda () 
-	 (generic-chooser-and-entry "Molecule for refinement:"
-				    "HKL data filename (leave blank for default)"
-				    "" 
-				    (lambda (imol text)
-				      (if (= (string-length text) 0)
-					  (shelxl-refine imol)
-					  (shelxl-refine imol text))))))
+       (lambda ()
+
+	 (let ((window (gtk-window-new 'toplevel))
+	       (hbox (gtk-vbox-new #f 0))
+	       (vbox (gtk-hbox-new #f 0))
+	       (go-button (gtk-button-new-with-label "  Refine  "))
+	       (cancel-button (gtk-button-new-with-label "  Cancel  "))
+	       (entry-hint-text "HKL data filename \n(leave blank for default)")
+	       (chooser-hint-text " Choose molecule for SHELX refinement  ")
+	       (h-sep (gtk-hseparator-new)))
+
+	   (gtk-container-add window hbox)
+	   (let ((option-menu-mol-list-pair (generic-molecule-chooser 
+					     hbox chooser-hint-text))
+		 (entry (file-selector-entry hbox entry-hint-text)))
+	     (gtk-signal-connect go-button "clicked"
+				 (lambda () 
+				   (let ((txt (gtk-entry-get-text entry))
+					 (imol (apply get-option-menu-active-molecule 
+						      option-menu-mol-list-pair)))
+				     (if (number? imol)
+					 (if (= (string-length text) 0)
+					     (shelxl-refine imol)
+					     (shelxl-refine imol text)))
+				     (gtk-widget-destroy window))))
+	     (gtk-signal-connect cancel-button "clicked"
+				 (lambda ()
+				   (gtk-widget-destroy window)))
+
+	     (gtk-box-pack-start hbox h-sep #f #f 2)
+	     (gtk-box-pack-start hbox vbox #f #f 2)
+	     (gtk-box-pack-start vbox go-button #t #f 0)
+	     (gtk-box-pack-start vbox cancel-button #t #f 0)
+	     (gtk-widget-show-all window)))))
 
       (add-simple-coot-menu-menuitem 
        menu "Set Spin Speed..."

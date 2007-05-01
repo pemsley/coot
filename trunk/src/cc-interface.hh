@@ -257,6 +257,14 @@ const char *atom_info_string(int imol, const char *chain_id, int resno,
 // 
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
 
+// And going the other way, given an s-expression, update
+// molecule_number by the given molecule.  Clear what's currently
+// there first though.
+//
+// A stub function currently.
+// 
+int clear_and_update_molecule(int molecule_number, SCM molecule_expression);
+
 //! \brief 
 // Return a list of (list imol chain-id resno ins-code atom-name
 // alt-conf) for atom that is closest to the screen centre.  If there

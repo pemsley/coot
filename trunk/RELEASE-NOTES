@@ -1,8 +1,6 @@
 
 Release 0.3.2 ""
 
-  o GTk2 interface now usable
-
   o Fix crash due to rigid body refinement of atoms with zero
     occupancy
 
@@ -10,24 +8,29 @@ Release 0.3.2 ""
     reading/writing.  Solve the ^M problem like SHELX does. SHELXL
     refinement interface improved [GMS]
 
-  o Added Views system
+  o Fix crash when applying NCS edits [Michael Url]
 
-  o Fix crash of applying NCS edits [Michael Url]
+  o Added CNS map-reading [provided by Kevin Cowtan].  .cns is now 
+    an acceptable map extension.
+
+  o GTk2 interface now usable
 
   o Added SEGID info to clicked atom [Christine Durnham]
 
-  o Added function fill-partial-residue
+  o Added function fill-partial-residue [Bob Nolte]
 
-  o Added function transform-molecule-by
+  o Added function transform-molecule-by [Alastair Fyfe]
 
-  o Added function to change the colour of the unit cell
+  o Added function to change the colour of the unit cell [Dirk Kostrewa]
 
   o Added multi-threaded socket reading for Phenix interface
 
-  o Added function "blob under cursor -> screen centre"
+  o Added function "blob under cursor -> screen centre" [FvD]
 
   o Fix map reading so that it accepts user-approved extensions
     [Peter Meyer]
+
+  o Added Views system [inspired by PyMol, I admit]
 
 
     -------------------------------------------------------
