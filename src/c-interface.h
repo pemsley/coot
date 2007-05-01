@@ -3516,12 +3516,14 @@ void add_lsq_match(int reference_resno_start,
 				     */
 
 /* Return an rtop pair (proper list) on good match, else #f */
+#ifdef __cplusplus	/* need this wrapper, else gmp.h problems in callback.c */
 #ifdef USE_GUILE
 SCM apply_lsq_matches(int imol_reference, int imol_moving);
-#else
-/* poor old python programmers... */
-int apply_lsq_matches(int imol_reference, int imol_moving);
 #endif
+#endif
+
+/* poor old python programmers... */
+int apply_lsq_matches_simple(int imol_reference, int imol_moving);
 		    
 /* section Least-Squares plane interface */
 void setup_lsq_deviation(int state);

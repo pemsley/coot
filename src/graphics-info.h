@@ -680,6 +680,7 @@ public:
       map_glob_extensions->push_back(".ext");
       map_glob_extensions->push_back(".msk");
       map_glob_extensions->push_back(".ccp4");
+      map_glob_extensions->push_back(".cns");
 
       dictionary_glob_extensions->push_back(".cif");
       dictionary_glob_extensions->push_back(".mmcif");

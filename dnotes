@@ -29,11 +29,25 @@ cd guile-gtk-2.0
 
    o colour by occupancy
 
-   o CNS map reading?
+   o CNS map reading
+
+* Done.
 
    o CNS data reading
 
+* Kevin says leave it.  Fine.
+
+   o Juergen's bad map
+
+* Hand off to Kevin, bad map.
+
+   o transform-map
+
+   o Put a file selector on the shelxl refine interface.
+
    o Spin View 
+
+* Done.
 
 -------
 
@@ -46,10 +60,12 @@ wget "http://downloads.sourceforge.net/gtkglext/gtkglext-1.2.0.tar.gz?modtime=11
 # the guilegtk.la file and it wil cause a mess.
 
 
- ----- Sat Apr 28 16:21:54 BST 2007
+ ----- 
+Sat Apr 28 16:21:54 BST 2007
 
    Those who compile with gtk2 need to regenerate the interface files
    coot_wrap_guile.cc and coot_wrap_guile_pre.cc by runing swig
    (delete them and make)
 
 
+----

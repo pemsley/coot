@@ -60,6 +60,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    //
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
+   b_factor_scale = 1.0;
    // 1.7 will not catch MET bonds (1.791 and 1.803) nor MSE bonds (1.95)
    // but SO4 bonds (1.46 are fine).
    // They should have special case, handle_MET_or_MSE_case
@@ -76,6 +77,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
+   b_factor_scale = 1.0;
    construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
 }
 
@@ -86,6 +88,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
+   b_factor_scale = 1.0;
    construct_from_asc(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0); 
 }
 
@@ -94,9 +97,19 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
 Bond_lines_container::Bond_lines_container (const atom_selection_container_t &SelAtom,
 					    Bond_lines_container::bond_representation_type by_occ) {
 
+   verbose_reporting = 0;
+   do_disulfide_bonds_flag = 1;
+   udd_has_ca_handle = -1;
+   do_bonds_to_hydrogens = 1;
+   b_factor_scale = 1.0;
+   float max_dist = 1.64;
    if (by_occ == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
-
-   } 
+      construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0); 
+   } else {
+      if (by_occ == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+	 construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0); 
+      }
+   }
 
 } 
 
@@ -614,6 +627,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   float min_dist,
 					   float max_dist) {
 
+   b_factor_scale = 1.0;
    int ncontacts;
    PSContact contact = NULL;
    // initialize each colour in the Bond_lines_container
@@ -672,6 +686,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   float min_dist,
 					   float max_dist,
 					   short int do_symm) {
+   b_factor_scale = 1.0;
    if (bonds.size() == 0) { 
       for (int i=0; i<10; i++) { 
 	 Bond_lines a(i);
@@ -1499,6 +1514,7 @@ void Bond_lines_container::no_symmetry_bonds() {
 
 Bond_lines_container::Bond_lines_container(symm_keys key) {
 
+   b_factor_scale = 1.0;
    if (key == NO_SYMMETRY_BONDS) {
 
       no_symmetry_bonds();
@@ -1663,6 +1679,7 @@ Bond_lines::GetFinish(int i) const {
 
 Bond_lines_container::Bond_lines_container(int col) {
 
+   b_factor_scale = 1.0;
    cout << "Strange Bond_lines_container(int col)" << endl;
    Bond_lines a;
    bonds.push_back(a);
@@ -1931,7 +1948,7 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
    int col = 0;
    coot::my_atom_colour_map_t atom_colour_map;
 
-   if (bond_colour_type == coot::COLOUR_BY_CHAIN) { 
+   if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
       col = atom_colour_map.index_for_chain(std::string(at->GetChainID())); 
    } else { 
       if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
@@ -2013,7 +2030,29 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
 		  }
 	       } else {
 		  if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
-		     return green;
+		     if (at->tempFactor < 10.0*b_factor_scale) {
+			return blue;
+		     } else {
+			if (at->tempFactor > 10.0*b_factor_scale) {
+			   return red;
+			} else {
+			   if (at->tempFactor < 22.0*b_factor_scale) {
+			      return cyan;
+			   } else {
+			      if (at->tempFactor < 36.0*b_factor_scale) {
+				 return green;
+			      } else {
+				 if (at->tempFactor < 48.0*b_factor_scale) {
+				    return yellow;
+				 } else {
+				    if (at->tempFactor < 62.0*b_factor_scale) {
+				       return orange;
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
 		  }
 	       }
 	    }

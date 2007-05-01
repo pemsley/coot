@@ -397,19 +397,19 @@ void add_lsq_match(int reference_resno_start,
 
 }
 
-// return 1 on good match 
+// return the rtop on a good match 
 #ifdef USE_GUILE
 SCM
 apply_lsq_matches(int imol_reference, int imol_moving) {
 
-   int status = 0;
+   SCM scm_status;
    if (is_valid_model_molecule(imol_reference)) {
       if (is_valid_model_molecule(imol_moving)) {
 	 graphics_info_t g;
 	 std::cout << "INFO:: Matching/moving molecule number " << imol_moving << " to "
 		   << imol_reference << std::endl;
-	 status = g.apply_lsq(imol_reference, imol_moving,
-			      *graphics_info_t::lsq_matchers);
+	 int status = g.apply_lsq(imol_reference, imol_moving,
+				  *graphics_info_t::lsq_matchers);
       } else {
 	 std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
       } 
@@ -417,30 +417,30 @@ apply_lsq_matches(int imol_reference, int imol_moving) {
       std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
    }
 
-   return status;
-}
-#else
-int
-apply_lsq_matches(int imol_reference, int imol_moving) {
-
-   int status = 0;
-   if (is_valid_model_molecule(imol_reference)) {
-      if (is_valid_model_molecule(imol_moving)) {
-	 graphics_info_t g;
-	 std::cout << "INFO:: Matching/moving molecule number " << imol_moving << " to "
-		   << imol_reference << std::endl;
-	 status = g.apply_lsq(imol_reference, imol_moving,
-			      *graphics_info_t::lsq_matchers);
-      } else {
-	 std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
-      } 
-   } else {
-      std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
-   }
-
-   return status;
+   return scm_status;
 }
 #endif // USE_GUILE
+
+int
+apply_lsq_matches_simple(int imol_reference, int imol_moving) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol_reference)) {
+      if (is_valid_model_molecule(imol_moving)) {
+	 graphics_info_t g;
+	 std::cout << "INFO:: Matching/moving molecule number " << imol_moving << " to "
+		   << imol_reference << std::endl;
+	 status = g.apply_lsq(imol_reference, imol_moving,
+			      *graphics_info_t::lsq_matchers);
+      } else {
+	 std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+      } 
+   } else {
+      std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+   }
+
+   return status;
+}
 
 
 
@@ -579,8 +579,7 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    add_lsq_match(ref_start_resno, ref_end_resno, ref_chain_id_str.c_str(),
 		 mov_start_resno, mov_end_resno, mov_chain_id_str.c_str(),
 		 match_type);
-   return apply_lsq_matches(imol_reference, imol_moving);
-   
+   return apply_lsq_matches_simple(imol_reference, imol_moving);
 } 
 
 

@@ -1773,6 +1773,10 @@ class molecule_class_info_t {
    clipper::Coord_orth find_peak_along_line(const clipper::Coord_orth &p1,
 					    const clipper::Coord_orth &p2) const;
 
+
+   // replace molecule
+   int replace_molecule(CMMDBManager *mol);
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

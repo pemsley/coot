@@ -774,7 +774,7 @@ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
   if (!ret) return NULL;
 
-  memcpy(ret, SCM_STRING_CHARS(str), l);
+  memcpy(ret, scm_to_locale_string(str), l);
   ret[l] = '\0';
   if (len) *len = l;
   return ret;

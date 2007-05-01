@@ -57,3 +57,12 @@
 			  (f (read-char soc) (cons c read-bits)))
 			(begin (evaluate-char-list read-bits))))))))))))
 			  
+
+
+	 (generic-chooser-and-entry "Molecule for refinement:"
+				    "HKL data filename (leave blank for default)"
+				    "" 
+				    (lambda (imol text)
+				      (if (= (string-length text) 0)
+					  (shelxl-refine imol)
+					  (shelxl-refine imol text))))))
