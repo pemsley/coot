@@ -95,7 +95,7 @@ coot_wrap_guile_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-int
 	swig -o $@  $(SWIG_FLAGS) $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_guile.cc: $(COOT_WRAP_GUILE_TEMPLATE)
-	sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh $(COOT_WRAP_GUILE_TEMPLATE) $@
+	sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'` $(COOT_WRAP_GUILE_TEMPLATE) $@
 
 coot_wrap_python.cc: $(COOT_WRAP_PYTHON_TEMPLATE)
 	cp $(COOT_WRAP_PYTHON_TEMPLATE) $@
