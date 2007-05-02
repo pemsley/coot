@@ -290,9 +290,9 @@
 					 (imol (apply get-option-menu-active-molecule 
 						      option-menu-mol-list-pair)))
 				     (if (number? imol)
-					 (if (= (string-length text) 0)
+					 (if (= (string-length txt) 0)
 					     (shelxl-refine imol)
-					     (shelxl-refine imol text)))
+					     (shelxl-refine imol txt)))
 				     (gtk-widget-destroy window))))
 	     (gtk-signal-connect cancel-button "clicked"
 				 (lambda ()

@@ -2,14 +2,13 @@
 !#
 
 ;;;; Copyright 2001 Neil Jerram
-;;;; Copyright 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley, 
-;;;;   The University of York
- 
+;;;; Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
 ;;;; the Free Software Foundation; either version 2 of the License, or (at
 ;;;; your option) any later version.
- 
+;;;; 
 ;;;; This program is distributed in the hope that it will be useful, but
 ;;;; WITHOUT ANY WARRANTY; without even the implied warranty of
 ;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -17,7 +16,8 @@
  
 ;;;; You should have received a copy of the GNU General Public License
 ;;;; along with this program; if not, write to the Free Software
-;;;; Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+;;;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+;;;; 02110-1301, USA
 
 ;;;; coot-gui is based on Neil Jerram's guile-gui, I modified the
 ;;;; widget somewhat to make it more pretty.
@@ -101,8 +101,6 @@
     (set-current-error-port oport)
     (top-repl)))
 
-; let the c++ part of mapview know that this file was loaded:
-(set-found-coot-gui)
 
 (set-repl-prompt! "coot> ")
 
@@ -963,6 +961,82 @@
 
     (gtk-widget-show-all window)))
 
+;; vbox is the vbox to which this compound widget should be added.
+;; button-press-func is the lambda function called on pressing return
+;; or the button, which takes one argument, the entry.
+;;
+;; Add this widget to the vbox here.
+;;
+(define entry+do-button
+  (lambda (vbox hint-text button-label button-press-func)
+
+    (let ((hbox (gtk-hbox-new #f 0))
+	  (entry (gtk-entry-new))
+	  (button (gtk-button-new-with-label button-label))
+	  (label (gtk-label-new hint-text)))
+      
+      (gtk-box-pack-start hbox label #f #f 2)
+      (gtk-box-pack-start hbox entry #t #t 2)
+      (gtk-box-pack-start hbox button #f #f 2)
+      (gtk-signal-connect button "clicked" 
+			  (lambda ()
+			    (button-press-func entry)))
+
+      (gtk-widget-show label)
+      (gtk-widget-show button)
+      (gtk-widget-show entry)
+      (gtk-widget-show hbox)
+      (gtk-box-pack-start vbox hbox #t #f)
+      entry))) ; return the entry so that we can ask what it says elsewhere
+
+;; pack a hint text and a molecule chooser option menu into the given vbox.
+;; 
+;; return the option-menu and model molecule list:
+(define generic-molecule-chooser
+  (lambda (hbox hint-text)
+
+    (let* ((menu (gtk-menu-new))
+	   (option-menu (gtk-option-menu-new))
+	   (label (gtk-label-new hint-text))
+	   (model-mol-list (fill-option-menu-with-coordinates-mol-options menu)))
+      
+      (gtk-box-pack-start hbox label #f #f 2)
+      (gtk-box-pack-start hbox option-menu #t #t 2)
+      
+      (gtk-option-menu-set-menu option-menu menu)
+      (list option-menu model-mol-list))))
+    
+
+;; Return an entry, insert the widget into the hbox in this function
+;; 
+(define file-selector-entry
+  (lambda (hbox hint-text)
+
+    (let* ((vbox (gtk-vbox-new #f 0))
+	   (entry 
+	    (entry+do-button vbox hint-text "  File...  "
+			     (lambda (entry)
+			       (let* ((fs-window (gtk-file-selection-new "file selection")))
+				 (gtk-signal-connect 
+				  (gtk-file-selection-ok-button fs-window)
+				  "clicked" 
+				  (lambda ()
+				    (let ((t (gtk-file-selection-get-filename fs-window)))
+				      (format #t "~s~%" t)
+				      (gtk-entry-set-text entry t)
+				      (gtk-widget-destroy fs-window))))
+				 (gtk-signal-connect 
+				  (gtk-file-selection-cancel-button fs-window)
+				  "clicked" 
+				  (lambda ()
+				    (gtk-widget-destroy fs-window)))
+				 (gtk-widget-show fs-window))))))
+
+      (gtk-box-pack-start hbox vbox #f #f 2)
+      (gtk-widget-show vbox)
+      entry)))
+
+
 ;; The gui for the strand placement function
 ;;
 (define place-strand-here-gui
@@ -982,6 +1056,9 @@
                           (lambda (text) 
                             (add-view text)))))
 
+
+; let the c++ part of mapview know that this file was loaded:
+(set-found-coot-gui)
 	 
 ;;; Local Variables:
 ;;; mode: scheme
