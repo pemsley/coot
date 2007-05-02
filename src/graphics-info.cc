@@ -2135,12 +2135,9 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol, PP
 
    gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
    
-
    residue_info_n_atoms = n_atoms; 
    for (int i=0; i<n_atoms; i++)
       graphics_info_t::fill_output_residue_info_widget_atom(widget, imol, atoms[i], i);
-   
-   
 }
 
 void
