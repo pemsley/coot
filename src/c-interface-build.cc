@@ -3286,6 +3286,11 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
 			      if (len_atom_expr != 3) {
 				 std::cout << "bad atom expression, length "
 					   << len_residue_expr << std::endl;
+				 SCM dest = SCM_BOOL_F;
+				 SCM mess = scm_makfrom0str("object: ~S\n");
+				 SCM bad_scm = scm_simple_format(dest, mess, scm_list_1(atom_expression));
+				 std::string bad_str = scm_to_locale_string(bad_scm);
+				 std::cout << bad_str << std::endl;
 			      } else {
 				 // normal case
 				 // std::cout << "good atom expression " << std::endl;
@@ -3312,26 +3317,35 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
 					  float occ = scm_to_double(occ_scm);
 					  std::string ele = scm_to_locale_string(ele_scm);
 					  float x = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(0)));
-					  float y = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(0)));
-					  float z = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(0)));
+					  float y = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(1)));
+					  float z = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(2)));
 					  CAtom *atom = new CAtom;
 					  atom->SetCoordinates(x, y, z, occ, b);
 					  atom->SetAtomName(atom_name.c_str());
 					  atom->SetElementName(ele.c_str());
 					  strncpy(atom->altLoc, alt_conf.c_str(), 2);
 					  residue_p->AddAtom(atom);
-					  // std::cout << "DEBUG:: adding atom " << atom << std::endl;
+					  std::cout << "DEBUG:: adding atom " << atom << std::endl;
 				       } else {
 					  std::cout << "bad atom (position expression) "
 						    << std::endl;
+					  SCM bad_scm = display_scm(pos_expr);
+					  std::string bad_str = scm_to_locale_string(bad_scm);
+					  std::cout << bad_str << std::endl;
 				       }
 				    } else {
 				       std::cout << "bad atom (occ b element expression) "
 						 << std::endl;
+				       SCM bad_scm = display_scm(occ_b_ele);
+				       std::string bad_str = scm_to_locale_string(bad_scm);
+				       std::cout << bad_str << std::endl;
 				    }
 				 } else {
 				    std::cout << "bad atom (name alt-conf expression) "
 					      << std::endl;
+				    SCM bad_scm = display_scm(name_alt_conf_pair);
+				    std::string bad_str = scm_to_locale_string(bad_scm);
+				    std::cout << bad_str << std::endl;
 				 }
 			      }
 			   }
@@ -3351,11 +3365,12 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    }
 }
 
+// return a scm string, decode to c++ using scm_to_locale_string();
 SCM display_scm(SCM o) {
 
-   SCM dest = SCM_BOOL_T;
+   SCM dest = SCM_BOOL_F;
    SCM mess = scm_makfrom0str("object: ~s\n");
-   return scm_simple_format(dest, mess, o);
+   return scm_simple_format(dest, mess, scm_list_1(o));
 }
 
 
