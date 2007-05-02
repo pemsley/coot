@@ -265,6 +265,8 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 // 
 int clear_and_update_molecule(int molecule_number, SCM molecule_expression);
 
+SCM display_scm(SCM o);
+
 //! \brief 
 // Return a list of (list imol chain-id resno ins-code atom-name
 // alt-conf) for atom that is closest to the screen centre.  If there
