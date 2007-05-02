@@ -3325,7 +3325,7 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
 					  atom->SetElementName(ele.c_str());
 					  strncpy(atom->altLoc, alt_conf.c_str(), 2);
 					  residue_p->AddAtom(atom);
-					  std::cout << "DEBUG:: adding atom " << atom << std::endl;
+					  // std::cout << "DEBUG:: adding atom " << atom << std::endl;
 				       } else {
 					  std::cout << "bad atom (position expression) "
 						    << std::endl;
