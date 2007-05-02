@@ -3321,8 +3321,17 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
 					  strncpy(atom->altLoc, alt_conf.c_str(), 2);
 					  residue_p->AddAtom(atom);
 					  // std::cout << "DEBUG:: adding atom " << atom << std::endl;
+				       } else {
+					  std::cout << "bad atom (position expression) "
+						    << std::endl;
 				       }
+				    } else {
+				       std::cout << "bad atom (occ b element expression) "
+						 << std::endl;
 				    }
+				 } else {
+				    std::cout << "bad atom (name alt-conf expression) "
+					      << std::endl;
 				 }
 			      }
 			   }
