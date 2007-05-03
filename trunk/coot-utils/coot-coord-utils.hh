@@ -221,6 +221,8 @@ namespace coot {
       short int is_nucleotide(CResidue *r); // by refmac restraint naming
                                             // e.g. Td Ur Gr Ad etc.
 
+      bool nucleotide_is_DNA(CResidue *r);  // test for presence of O2'
+
       bool residue_has_hydrogens_p(CResidue *res);
 
       std::vector<std::string> residue_types_in_molecule(CMMDBManager *mol);
@@ -286,6 +288,9 @@ namespace coot {
 					    short int residue_from_alt_conf_split_flag);
 
       // ignore atom index transfer, return NULL on error.
+      CMMDBManager *create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
+						    CResidue *res);
+
       CMMDBManager *create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 							   int SelectionHandle);
       
@@ -293,6 +298,7 @@ namespace coot {
       CResidue* deep_copy_this_residue(const CResidue *residue,
 				       const std::string &altconf,
 				       short int whole_residue_flag);
+      
       // utility function for above:
       CResidue* deep_copy_this_residue_with_atom_index_and_afix_transfer(CMMDBManager *std_mol, 
 									 const CResidue *residue,
@@ -310,6 +316,10 @@ namespace coot {
 
       // transform atoms in residue
       void transform_atoms(CResidue *res, const clipper::RTop_orth &rtop);
+
+      // transform all the atom in mol
+      void transform_mol(CMMDBManager *mol, const clipper::RTop_orth &rtop);
+      
 
       // A useful function that was (is) in molecule_class_info_t
       //
@@ -369,6 +379,11 @@ namespace coot {
       // Return the angles in radians.
       peptide_torsion_angles_info_t peptide_torsions(CResidue *C_residue, CResidue *N_residue,
 						     const std::string &altconf);
+
+      // Return the RTop that matches moving to reference.  Don't move
+      // moving though.
+      std::pair<bool,clipper::RTop_orth> base_to_base(CResidue *reference,
+						      CResidue *moving);
 
       void mutate_base(CResidue *residue, CResidue *std_base);
       

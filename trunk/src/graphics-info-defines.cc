@@ -885,13 +885,19 @@ graphics_info_t::check_if_in_terminal_residue_define(GdkEventButton *event) {
 	 short int add_it_now_flag = g.add_terminal_residue_immediate_addition_flag;
 	 if (add_terminal_residue_do_post_refine) {
 	    add_it_now_flag = 1;
-	 } 
-	 g.execute_add_terminal_residue(naii.imol,
-					term_type,
-					res_p,
-					chain_id,
-					g.add_terminal_residue_type,
-					add_it_now_flag);
+	 }
+	 CResidue *r = (CResidue *) res_p;
+	 if (!coot::util::is_nucleotide(r)) {
+	    // const CResidue * is pain:
+	    g.execute_add_terminal_residue(naii.imol,
+					   term_type,
+					   res_p,
+					   chain_id,
+					   g.add_terminal_residue_type,  // eg. "ALA" or "UNK"
+					   add_it_now_flag);
+	 } else {
+	    g.execute_simple_nucleotide_addition(naii.imol, term_type, r, chain_id);
+	 }
 	 g.in_terminal_residue_define = 0;
 	 pick_pending_flag = 0;
 	 

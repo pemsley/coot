@@ -1,3 +1,8 @@
+2007-05-03  Paul Emsley  <emsley@localhost>
+
+	* src/graphics-info-modelling.cc: Added
+	execute_simple_nucleotide_addition() function.
+
 2007-05-01  Paul Emsley  <emsley@localhost>
 
 	* src/molecule-class-info.cc: Kevin Cowtan provided a patch for

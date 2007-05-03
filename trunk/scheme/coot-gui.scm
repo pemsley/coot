@@ -1056,6 +1056,66 @@
                           (lambda (text) 
                             (add-view text)))))
 
+;; geometry is an improper list of ints
+;; 
+(define (dialog-box-of-buttons window-name geometry buttons close-button-label)
+
+  (let* ((window (gtk-window-new 'toplevel))
+	 (scrolled-win (gtk-scrolled-window-new))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-vbox (gtk-vbox-new #f 0)))
+    
+    (gtk-window-set-default-size window (car geometry) (cdr geometry))
+    (gtk-window-set-title window window-name)
+    (gtk-container-border-width inside-vbox 2)
+    (gtk-container-add window outside-vbox)
+    (gtk-box-pack-start outside-vbox scrolled-win #t #t 0) ; expand fill padding
+    (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
+    (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+
+    (map (lambda (button-info)
+	   (let* ((buton-label (car button-info))
+		  (callback (car (cdr button-info)))
+		  (button (gtk-button-new-with-label buton-label)))
+	     (gtk-signal-connect button "clicked" callback)
+	     (gtk-box-pack-start inside-vbox button #f #f 2)))
+	 buttons)
+
+    (gtk-container-border-width outside-vbox 2)
+    (let ((ok-button (gtk-button-new-with-label close-button-label)))
+      (gtk-box-pack-end outside-vbox ok-button #f #f 0)
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window))))
+    (gtk-widget-show-all window)))
+
+;; A gui showing views:
+(define views-panel-gui
+  (lambda ()
+
+    (let* ((number-of-views (n-views))
+	   (buttons 
+
+	    (let loop ((button-number 0)
+		       (ls '()))
+
+	      (cond 
+	       ((= number-of-views button-number) (reverse ls))
+	       (else 
+		(let ((button-label (view-name button-number)))
+		  (if button-label
+		      (loop (+ button-number 1) 
+			    (cons 
+			     (list button-label
+				   (lambda ()
+				     (go-to-view-number button-number 0)))
+			     ls))
+		      (loop (+ button-number 1) ls))))))))
+	   
+      (dialog-box-of-buttons "Views" (cons 200 140) buttons "  Close  "))))
+
+    
+
 
 ; let the c++ part of mapview know that this file was loaded:
 (set-found-coot-gui)

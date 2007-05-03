@@ -153,8 +153,8 @@ AM_WITH_MYSQL_DATABASE
 
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS=""
-# AM_GNU_GETTEXT -- fixme later
+ALL_LINGUAS="es"
+# AM_GNU_GETTEXT
 dnl For now: just include the declarations for config.h.in
 AH_TEMPLATE([ENABLE_NLS], [Define if NLS support is used])
 AH_TEMPLATE([PACKAGE_LOCALE_DIR], [Directory of locales])

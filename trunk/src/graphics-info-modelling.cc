@@ -72,6 +72,7 @@
 
 #include "globjects.h"
 #include "ligand.hh"
+#include "ideal-rna.hh"
 #include "graphics-info.h"
 
 
@@ -1494,6 +1495,119 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 }
 
 
+void
+graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
+						    CResidue *res_p, const std::string &chain_id) {
+
+   std::cout << "Adding a nucleotide, this is a term_type: " << term_type << std::endl;
+
+   // If it's RNA beam it in in ideal A form,
+   // If it's DNA beam it in in ideal B form
+
+   // What's the plan?
+   //
+   // OK the plan is to generate a 2 residue molecule of
+   // single-stranded RNA (or DNA).
+   //
+   // Depending on if this is N or C terminal type, we define the
+   // sequence, adding a "base" residue (that we'll use to match to
+   // res_p);
+
+   std::string seq = "aa";
+   std::string RNA_or_DNA_str = "RNA";
+   std::string form_str = "A";
+   short int single_stranded_flag = 1;
+   
+   coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
+		      seq, graphics_info_t::standard_residues_asc.mol);
+   CMMDBManager *mol = ir.make_molecule();
+
+   if (coot::util::nucleotide_is_DNA(res_p)) { 
+      RNA_or_DNA_str = "DNA";
+      form_str = "B";
+   }
+
+   int match_resno;
+   int interesting_resno;
+   if (term_type == "C") {
+      match_resno = 1;
+      interesting_resno = 2;
+   } else {
+      interesting_resno = 1;
+      match_resno = 2;
+   }
+
+   CResidue *moving_residue_p = NULL;
+   CResidue *interesting_residue_p = NULL;
+   int imod = 1;
+   // now set moving_residue_p and interesting_residue_p:
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p;
+      CAtom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 std::cout << "testing vs resno " << residue_p->GetSeqNum()
+		   << std::endl;
+	 if (residue_p->GetSeqNum() == match_resno) {
+	    moving_residue_p = residue_p;
+	 }
+	 if (residue_p->GetSeqNum() == interesting_resno) {
+	    interesting_residue_p = residue_p;
+	 }
+	 if (moving_residue_p && interesting_residue_p)
+	    break;
+      }
+      if (moving_residue_p && interesting_residue_p)
+	 break;
+   }
+
+   if (interesting_residue_p) { 
+      if (moving_residue_p) {
+	 std::pair<bool, clipper::RTop_orth> rtop_pair =
+	    coot::util::base_to_base(res_p, moving_residue_p);
+	 // now apply rtop to mol:
+	 if (rtop_pair.first) {
+	    // fix up the residue number and chain id to match the clicked atom
+	    int new_resno = res_p->GetSeqNum() + interesting_resno - match_resno;
+	    interesting_residue_p->seqNum = new_resno;
+	    coot::util::transform_mol(mol, rtop_pair.second);
+	    byte gz = GZM_NONE;
+	    mol->WritePDBASCII("overlapped.pdb", gz);
+	    CMMDBManager *residue_mol =
+	       coot::util::create_mmdbmanager_from_residue(mol, interesting_residue_p);
+
+	    atom_selection_container_t asc = make_asc(residue_mol);
+	    // set the chain id of the chain that contains interesting_residue_p:
+	    CModel *model_p = residue_mol->GetModel(imod);
+	    CChain *chain_p;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       int nres = chain_p->GetNumberOfResidues();
+	       PCResidue residue_p;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  if (residue_p->GetSeqNum() == interesting_residue_p->GetSeqNum()) {
+		     chain_p->SetChainID(chain_id.c_str());
+		  }
+	       }
+	    }
+	    graphics_info_t::molecules[imol].insert_coords(asc);
+	 }
+      }
+   } else {
+      std::cout << "Failed to find interesting residue (with resno " << interesting_resno
+		<< ")" << std::endl;
+   }
+   delete mol;
+   graphics_draw();
+}
 
 
 void

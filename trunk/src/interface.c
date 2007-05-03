@@ -7257,9 +7257,7 @@ create_residue_info_dialog (void)
   GtkWidget *viewport18;
   GtkWidget *frame53;
   GtkWidget *residue_info_hbox;
-  GtkWidget *residue_info_atom_info_vbox;
-  GtkWidget *residue_info_occ_vbox;
-  GtkWidget *residue_info_tempfactor_vbox;
+  GtkWidget *residue_info_atom_table;
   GtkWidget *dialog_action_area14;
   GtkWidget *hbox49;
   GtkWidget *residue_info_ok_button;
@@ -7387,29 +7385,12 @@ create_residue_info_dialog (void)
   gtk_widget_show (residue_info_hbox);
   gtk_container_add (GTK_CONTAINER (frame53), residue_info_hbox);
 
-  residue_info_atom_info_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_widget_ref (residue_info_atom_info_vbox);
-  gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog), "residue_info_atom_info_vbox", residue_info_atom_info_vbox,
+  residue_info_atom_table = gtk_table_new (3, 3, FALSE);
+  gtk_widget_ref (residue_info_atom_table);
+  gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog), "residue_info_atom_table", residue_info_atom_table,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (residue_info_atom_info_vbox);
-  gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_atom_info_vbox, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (residue_info_atom_info_vbox), 2);
-
-  residue_info_occ_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_widget_ref (residue_info_occ_vbox);
-  gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog), "residue_info_occ_vbox", residue_info_occ_vbox,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (residue_info_occ_vbox);
-  gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_occ_vbox, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (residue_info_occ_vbox), 2);
-
-  residue_info_tempfactor_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_widget_ref (residue_info_tempfactor_vbox);
-  gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog), "residue_info_tempfactor_vbox", residue_info_tempfactor_vbox,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (residue_info_tempfactor_vbox);
-  gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_tempfactor_vbox, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (residue_info_tempfactor_vbox), 2);
+  gtk_widget_show (residue_info_atom_table);
+  gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_atom_table, TRUE, TRUE, 0);
 
   dialog_action_area14 = GTK_DIALOG (residue_info_dialog)->action_area;
   gtk_object_set_data (GTK_OBJECT (residue_info_dialog), "dialog_action_area14", dialog_action_area14);
@@ -10003,7 +9984,7 @@ create_ligand_big_blob_dialog (void)
 
   ligand_big_blob_dialog = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (ligand_big_blob_dialog), "ligand_big_blob_dialog", ligand_big_blob_dialog);
-  gtk_window_set_title (GTK_WINDOW (ligand_big_blob_dialog), _("Unexplained blobs of density:"));
+  gtk_window_set_title (GTK_WINDOW (ligand_big_blob_dialog), _("Unmodelled blobs of density:"));
   gtk_window_set_policy (GTK_WINDOW (ligand_big_blob_dialog), TRUE, TRUE, FALSE);
 
   dialog_vbox36 = GTK_DIALOG (ligand_big_blob_dialog)->vbox;

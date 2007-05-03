@@ -351,7 +351,11 @@
 					     (number? n2))
 					(add-spin-view "Spin" n1 n2)))))))
 
-        
+	(add-simple-coot-menu-menuitem 
+	 submenu "Views Panel"
+	 (lambda ()
+	   (views-panel-gui)))
+
         (add-simple-coot-menu-menuitem
          submenu "Play Views"
          (lambda () 

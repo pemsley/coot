@@ -19,10 +19,6 @@
 #include "interface.h"
 #include "support.h"
 
-
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-#else
-
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
     gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
@@ -161,6 +157,7 @@ create_window1 (void)
   GtkWidget *main_window_graphics_hbox;
   GtkWidget *main_window_statusbar;
   GtkWidget *main_window_model_fit_dialog_frame;
+  GtkWidget *gtkhtml_frame;
   GtkTooltips *tooltips;
 
   tooltips = gtk_tooltips_new ();
@@ -676,7 +673,10 @@ create_window1 (void)
   gtk_box_pack_start (GTK_BOX (vbox1), main_window_statusbar, FALSE, FALSE, 0);
 
   main_window_model_fit_dialog_frame = gtk_frame_new (NULL);
-  gtk_box_pack_end (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
+
+  gtkhtml_frame = gtk_frame_new (NULL);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
 
   g_signal_connect ((gpointer) window1, "destroy",
                     G_CALLBACK (on_window1_destroy),
@@ -1109,6 +1109,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_statusbar, "main_window_statusbar");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame, "main_window_model_fit_dialog_frame");
+  GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
   GLADE_HOOKUP_OBJECT_NO_REF (window1, tooltips, "tooltips");
 
   return window1;
@@ -3234,7 +3235,6 @@ create_goto_atom_window (void)
   gtk_widget_show (label41);
   gtk_box_pack_start (GTK_BOX (hbox24), label41, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label41), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label41), 5, 0);
 
   hbox25 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox25);
@@ -3252,7 +3252,6 @@ create_goto_atom_window (void)
   gtk_widget_show (label42);
   gtk_box_pack_start (GTK_BOX (hbox25), label42, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label42), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label42), 6, 0);
 
   hbox26 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox26);
@@ -3270,9 +3269,8 @@ create_goto_atom_window (void)
   gtk_widget_show (label43);
   gtk_box_pack_start (GTK_BOX (hbox26), label43, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label43), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label43), 6, 0);
 
-  update_go_to_atom_from_current_position_button = gtk_button_new_with_mnemonic ("  Update from Current Postion  ");
+  update_go_to_atom_from_current_position_button = gtk_button_new_with_mnemonic (" Update from Current Postion ");
   gtk_widget_show (update_go_to_atom_from_current_position_button);
   gtk_table_attach (GTK_TABLE (table5), update_go_to_atom_from_current_position_button, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
@@ -6229,9 +6227,7 @@ create_residue_info_dialog (void)
   GtkWidget *viewport18;
   GtkWidget *frame53;
   GtkWidget *residue_info_hbox;
-  GtkWidget *residue_info_atom_info_vbox;
-  GtkWidget *residue_info_occ_vbox;
-  GtkWidget *residue_info_tempfactor_vbox;
+  GtkWidget *residue_info_atom_table;
   GtkWidget *dialog_action_area14;
   GtkWidget *hbox49;
   GtkWidget *residue_info_ok_button;
@@ -6321,20 +6317,9 @@ create_residue_info_dialog (void)
   gtk_widget_show (residue_info_hbox);
   gtk_container_add (GTK_CONTAINER (frame53), residue_info_hbox);
 
-  residue_info_atom_info_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (residue_info_atom_info_vbox);
-  gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_atom_info_vbox, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (residue_info_atom_info_vbox), 2);
-
-  residue_info_occ_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (residue_info_occ_vbox);
-  gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_occ_vbox, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (residue_info_occ_vbox), 2);
-
-  residue_info_tempfactor_vbox = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (residue_info_tempfactor_vbox);
-  gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_tempfactor_vbox, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (residue_info_tempfactor_vbox), 2);
+  residue_info_atom_table = gtk_table_new (1, 1, FALSE);
+  gtk_widget_show (residue_info_atom_table);
+  gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_atom_table, TRUE, TRUE, 0);
 
   dialog_action_area14 = GTK_DIALOG (residue_info_dialog)->action_area;
   gtk_widget_show (dialog_action_area14);
@@ -6389,9 +6374,7 @@ create_residue_info_dialog (void)
   GLADE_HOOKUP_OBJECT (residue_info_dialog, viewport18, "viewport18");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, frame53, "frame53");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_hbox, "residue_info_hbox");
-  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_atom_info_vbox, "residue_info_atom_info_vbox");
-  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_occ_vbox, "residue_info_occ_vbox");
-  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_tempfactor_vbox, "residue_info_tempfactor_vbox");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_atom_table, "residue_info_atom_table");
   GLADE_HOOKUP_OBJECT_NO_REF (residue_info_dialog, dialog_action_area14, "dialog_action_area14");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, hbox49, "hbox49");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_ok_button, "residue_info_ok_button");
@@ -7781,7 +7764,6 @@ create_splash_screen_window (void)
   gtk_window_set_title (GTK_WINDOW (splash_screen_window), "Coot");
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
-  gtk_window_set_gravity (GTK_WINDOW (splash_screen_window), GDK_GRAVITY_CENTER);
 
   pixmap1 = create_pixmap (splash_screen_window, "coot-0.3.xpm");
   gtk_widget_show (pixmap1);
@@ -8708,7 +8690,7 @@ create_ligand_big_blob_dialog (void)
   GtkWidget *ligand_big_blob_dismiss_button;
 
   ligand_big_blob_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ligand_big_blob_dialog), "Unexplained blobs of density:");
+  gtk_window_set_title (GTK_WINDOW (ligand_big_blob_dialog), "Unmodelled blobs of density:");
   gtk_window_set_type_hint (GTK_WINDOW (ligand_big_blob_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox36 = GTK_DIALOG (ligand_big_blob_dialog)->vbox;
@@ -15847,4 +15829,3 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
-#endif

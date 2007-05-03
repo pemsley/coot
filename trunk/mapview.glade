@@ -10491,78 +10491,18 @@ that you wish to delete.               </label>
 	      <spacing>0</spacing>
 
 	      <widget>
-		<class>GtkVBox</class>
-		<name>residue_info_atom_info_vbox</name>
-		<border_width>2</border_width>
+		<class>GtkTable</class>
+		<name>residue_info_atom_table</name>
+		<rows>3</rows>
+		<columns>3</columns>
 		<homogeneous>False</homogeneous>
-		<spacing>0</spacing>
+		<row_spacing>0</row_spacing>
+		<column_spacing>0</column_spacing>
 		<child>
 		  <padding>0</padding>
 		  <expand>True</expand>
 		  <fill>True</fill>
 		</child>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
-	      </widget>
-
-	      <widget>
-		<class>GtkVBox</class>
-		<name>residue_info_occ_vbox</name>
-		<border_width>2</border_width>
-		<homogeneous>False</homogeneous>
-		<spacing>0</spacing>
-		<child>
-		  <padding>0</padding>
-		  <expand>True</expand>
-		  <fill>True</fill>
-		</child>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
-	      </widget>
-
-	      <widget>
-		<class>GtkVBox</class>
-		<name>residue_info_tempfactor_vbox</name>
-		<border_width>2</border_width>
-		<homogeneous>False</homogeneous>
-		<spacing>0</spacing>
-		<child>
-		  <padding>0</padding>
-		  <expand>True</expand>
-		  <fill>True</fill>
-		</child>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
-
-		<widget>
-		  <class>Placeholder</class>
-		</widget>
 	      </widget>
 	    </widget>
 	  </widget>
@@ -14381,7 +14321,7 @@ PDB file match those of the restraints?
     <handler>on_ligand_big_blob_dialog_destroy</handler>
     <last_modification_time>Tue, 02 Aug 2005 23:52:53 GMT</last_modification_time>
   </signal>
-  <title>Unexplained blobs of density:</title>
+  <title>Unmodelled blobs of density:</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
   <modal>False</modal>

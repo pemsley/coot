@@ -1615,7 +1615,7 @@ on_autobuild_ca_on_activate            (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-  autobuild_ca_on(); 
+/*   autobuild_ca_on();  - removed to junk now */
 
 }
 

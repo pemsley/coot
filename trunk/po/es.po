@@ -1,0 +1,2934 @@
+# Spanish translations for coot package.
+# Copyright 2005 The University of York
+# This file is distributed under the same license as Coot.
+# Miguel Ortiz Lombardia <mol1@york.ac.uk>, 2005.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Coot 0.0\n"
+"POT-Creation-Date: 2005-03-01 19:42+0000\n"
+"PO-Revision-Date: 2005-03-25 15:11-0000\n"
+"Last-Translator: Miguel Ortiz Lombardía <mol1@york.ac.uk>\n"
+"Language-Team: Spanish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Spanish\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../src/interface.c:157
+#: ../src/interface.c:8289
+msgid "Coot"
+msgstr "Focha"
+
+#: ../src/interface.c:182
+msgid "_File"
+msgstr "_Archivo"
+
+#: ../src/interface.c:198
+msgid "Open Coordinates..."
+msgstr "Abrir Coordenadas..."
+
+#: ../src/interface.c:204
+msgid "pdb or cif format"
+msgstr "Formato PDB o CIF"
+
+#: ../src/interface.c:206
+msgid "Auto Open MTZ..."
+msgstr "Auto apertura MTZ..."
+
+#: ../src/interface.c:213
+msgid "Open MTZ, CIF or phs..."
+msgstr "Abrir MTZ, CIF o PHS..."
+
+#: ../src/interface.c:219
+msgid "Create a map \"on the fly\" from mtz, phs or cif data"
+msgstr "Crear un mapa \"al vuelo\" desde MTZ, PHS o CIF"
+
+#: ../src/interface.c:221
+msgid "Open Map..."
+msgstr "Abrir mapa..."
+
+#: ../src/interface.c:227
+msgid "Open a pre-calculated CCP4 map"
+msgstr "Abrir mapa CCP4 precalculado"
+
+#: ../src/interface.c:229
+msgid "Close molecule/map..."
+msgstr "Cerrar molécula/mapa..."
+
+#: ../src/interface.c:236
+msgid "Import CIF dictionary..."
+msgstr "Importar diccionario CIF..."
+
+#: ../src/interface.c:243
+msgid "Import all Dictionary CIFs"
+msgstr "Importar todos los diccionarios CIF"
+
+#: ../src/interface.c:250
+msgid "Get Monomer..."
+msgstr "Traer Monómero..."
+
+#: ../src/interface.c:256
+msgid "Use libcheck to generate coordinates from REFMAC monomer library"
+msgstr "Usar libcheck para crear coordenadas desde la librería de monómeros de REFMAC"
+
+#: ../src/interface.c:258
+msgid "Get PDB using Accession Code..."
+msgstr "Traer PDB mediante su código de acceso..."
+
+#: ../src/interface.c:264
+msgid "Get PDB Coordinates file from server using accession code"
+msgstr "Traer PDB mediante su código desde un servidor"
+
+#: ../src/interface.c:266
+msgid "Get PDB & SF using Accession Code.."
+msgstr "Traer PDB y factores de estructura mediante su código de acceso..."
+
+#: ../src/interface.c:272
+msgid "Get PDB coordinates and Structure Factors from server using accession code"
+msgstr "Traer PDB y factores de estructura mediante su código de acceso desde un servidor"
+
+#: ../src/interface.c:274
+msgid "Save Coordinates..."
+msgstr "Guardar coordenadas..."
+
+#: ../src/interface.c:281
+msgid "Save Symmetry Coordinates..."
+msgstr "Guardar coordenadas de simétrica"
+
+#: ../src/interface.c:288
+msgid "Save State"
+msgstr "Guardar status"
+
+#: ../src/interface.c:295
+msgid "Recover Session..."
+msgstr "Recuperar sesión..."
+
+#: ../src/interface.c:302
+msgid "Exit"
+msgstr "Salir"
+
+#: ../src/interface.c:308
+msgid "bye"
+msgstr "Adiós"
+
+#: ../src/interface.c:312
+msgid "_Edit"
+msgstr "_Editar"
+
+#: ../src/interface.c:328
+msgid "Map Colour..."
+msgstr "Mapa - Color..."
+
+#: ../src/interface.c:335
+msgid "Map Parameters..."
+msgstr "Mapa - Parámetros..."
+
+#: ../src/interface.c:342
+msgid "Bond Parameters..."
+msgstr "Enlaces - Parámetros"
+
+#: ../src/interface.c:349
+msgid "Skeleton Parameters"
+msgstr "Esqueleto - Parámetros"
+
+#: ../src/interface.c:363
+msgid "Skeleton Colour..."
+msgstr "Esqueleto - Color..."
+
+#: ../src/interface.c:370
+msgid "Skeleton Box Radius..."
+msgstr "Esqueleto - Radio de la caja..."
+
+#: ../src/interface.c:377
+msgid "Skeletonization Level..."
+msgstr "Nivel de esqueletonización..."
+
+#: ../src/interface.c:384
+#: ../src/interface.c:672
+msgid "Residue Info..."
+msgstr "Información del Residuo..."
+
+#: ../src/interface.c:391
+msgid "Font Size..."
+msgstr "Tamaño de fuente..."
+
+#: ../src/interface.c:398
+msgid "Pink Pointer Size..."
+msgstr "Tamaño del puntero rosa..."
+
+#: ../src/interface.c:405
+msgid "Background Colour..."
+msgstr "Color de fondo..."
+
+#: ../src/interface.c:419
+msgid "Black"
+msgstr "Negro"
+
+#: ../src/interface.c:428
+msgid "White"
+msgstr "Blanco"
+
+#: ../src/interface.c:440
+msgid "_Calculate"
+msgstr "_Calcular"
+
+#: ../src/interface.c:456
+msgid "Model/Fit/Refine..."
+msgstr "Modelar/Ajustar/Refinar..."
+
+#: ../src/interface.c:463
+msgid "SSM Superpose..."
+msgstr "Superponer SSM"
+
+#: ../src/interface.c:470
+msgid "Merge Molecules..."
+msgstr "Unir moléculas..."
+
+#: ../src/interface.c:477
+msgid "Mutate Residue Range..."
+msgstr "Mutar un Rango de Residuos..."
+
+#: ../src/interface.c:484
+msgid "Align & Mutate..."
+msgstr "Alinear y Mutar..."
+
+#: ../src/interface.c:491
+msgid "Renumber Residues..."
+msgstr "Renumerar Residuos..."
+
+#: ../src/interface.c:498
+msgid "Map Skeleton..."
+msgstr "Esqueleto del mapa..."
+
+#: ../src/interface.c:505
+msgid "NCS Maps..."
+msgstr "Mapas SNC..."
+
+#: ../src/interface.c:512
+msgid "Frames/Sec..."
+msgstr "Marcos/seg..."
+
+#: ../src/interface.c:519
+msgid "Scripting..."
+msgstr "Macros..."
+
+#: ../src/interface.c:526
+msgid "Run Script..."
+msgstr "Ejecutar Macro..."
+
+#: ../src/interface.c:535
+msgid "_Draw"
+msgstr "_Dibujar"
+
+#: ../src/interface.c:551
+#: ../src/interface.c:3526
+msgid "Go To Atom..."
+msgstr "Ir al átomo..."
+
+#: ../src/interface.c:558
+msgid "Centre Atom Label..."
+msgstr "Etiqueta del átomo central..."
+
+#: ../src/interface.c:565
+msgid "Sequence View"
+msgstr "Ver secuencia"
+
+#: ../src/interface.c:572
+msgid "Anisotropic Atoms..."
+msgstr "Átomos anisotrópicos"
+
+#: ../src/interface.c:579
+msgid "Cell & Symmetry..."
+msgstr "Celda y Simetría..."
+
+#: ../src/interface.c:586
+msgid "Antialiasing..."
+msgstr "Antialiasing..."
+
+#: ../src/interface.c:593
+msgid "Stereo..."
+msgstr "Estéreo..."
+
+#: ../src/interface.c:600
+msgid "Clipping..."
+msgstr "Campo..."
+
+#: ../src/interface.c:607
+#, fuzzy
+msgid "Crosshairs..."
+msgstr "Cruz..."
+
+#: ../src/interface.c:614
+msgid "Zoom..."
+msgstr "Aumento..."
+
+#: ../src/interface.c:621
+msgid "Dragged Map..."
+msgstr "Mapa arrastrado..."
+
+#: ../src/interface.c:628
+msgid "Smooth Recentring..."
+msgstr "Recentrado suave..."
+
+#: ../src/interface.c:635
+msgid "Coordinates Recentring..."
+msgstr "Recentrar coordenadas..."
+
+#: ../src/interface.c:644
+msgid "D_isplay Manager"
+msgstr "_Gestor de visualización"
+
+#: ../src/interface.c:652
+msgid "Control display and activity of maps and molecules"
+msgstr "Controla la visualización y actividad de mapas y moléculas"
+
+#: ../src/interface.c:656
+msgid "_Measures"
+msgstr "_Medidas"
+
+#: ../src/interface.c:678
+msgid "Display atom names, temperature factors and occupances of all atoms in the residue"
+msgstr "Muestra nombres de átomos, factores de temperatura y ocupación de todos los átomos del residuo"
+
+#: ../src/interface.c:680
+msgid "Distances & Angles..."
+msgstr "Distancias y ángulos..."
+
+#: ../src/interface.c:687
+msgid "Environment Distances..."
+msgstr "Distancias entorno..."
+
+#: ../src/interface.c:694
+msgid "Pointer Distances..."
+msgstr "Distancias al puntero..."
+
+#: ../src/interface.c:703
+msgid "_Validate"
+msgstr "_Validar"
+
+#: ../src/interface.c:719
+msgid "Ramachandran Plot"
+msgstr "Diagrama de Ramachandran"
+
+#: ../src/interface.c:726
+msgid "Ramachandran Differences Plot..."
+msgstr "Diagrama diferencial de Ramachandran..."
+
+#: ../src/interface.c:733
+msgid "Incorrect Chiral Volumes..."
+msgstr "Volúmenes quirales incorrectos..."
+
+#: ../src/interface.c:740
+msgid "Unmodelled blobs..."
+msgstr "Densidad sin modelar..."
+
+#: ../src/interface.c:747
+msgid "Difference Map Peaks..."
+msgstr "Picos del mapa de diferencia..."
+
+#: ../src/interface.c:754
+msgid "Check/Delete Waters..."
+msgstr "Comprobar/Eliminar aguas..."
+
+#: ../src/interface.c:761
+msgid "Check waters by Difference Map Variance..."
+msgstr "Comprobar aguas mediante varianza del mapa de diferencia..."
+
+#: ../src/interface.c:784
+msgid "[Experimental]"
+msgstr "[Experimental]"
+
+#: ../src/interface.c:798
+msgid "Geometry analysis"
+msgstr "Análisis geométrico"
+
+#: ../src/interface.c:804
+msgid "Flags distortions in Bond, Angles and Planes"
+msgstr "Marca distorsiones en enlaces, ángulos y planos"
+
+#: ../src/interface.c:806
+msgid "Peptide omega analysis"
+msgstr "Análisis de los ángulos omega"
+
+#: ../src/interface.c:812
+msgid "Flags deviations from Trans Peptide"
+msgstr "Marca péptidos desviados de la conformación trans"
+
+#: ../src/interface.c:814
+msgid "Temp. fact. variance analysis"
+msgstr "Análisis de la varianza de los factores de temperatura"
+
+#: ../src/interface.c:820
+msgid "Flags Residues with Large Variance in Atom B factors"
+msgstr "Marca residuos con gran varianza en sus factores B atómicos"
+
+#: ../src/interface.c:822
+msgid "Rotamer analysis"
+msgstr "Análisis de los rotámeros"
+
+#: ../src/interface.c:828
+msgid "Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors"
+msgstr "Marca rotómeros inusuales, atómos perdidos y errores de nomenclatura"
+
+#: ../src/interface.c:830
+msgid "Density fit analysis"
+msgstr "Análisis del ajuste a la densidad"
+
+#: ../src/interface.c:837
+msgid "HID"
+msgstr "AIH"
+
+#: ../src/interface.c:851
+msgid "ScrollWheel"
+msgstr "Rueda ratón"
+
+#: ../src/interface.c:865
+msgid "Attach scroll wheel to which map?"
+msgstr "¿A qué mapa ligar la rueda del ratón?"
+
+#: ../src/interface.c:872
+msgid "Virtual Trackball"
+msgstr "Volante virtual"
+
+#: ../src/interface.c:886
+msgid "Flat"
+msgstr "Plano"
+
+#: ../src/interface.c:895
+msgid "Spherical Surface"
+msgstr "Superfície esférica"
+
+#: ../src/interface.c:907
+msgid "_Help"
+msgstr "Ay_uda"
+
+#: ../src/interface.c:923
+#: ../src/interface.c:2633
+msgid "About..."
+msgstr "Acerca de..."
+
+#: ../src/interface.c:930
+msgid "Hints..."
+msgstr "Pistas..."
+
+#: ../src/interface.c:1220
+msgid "Select Coordinates File"
+msgstr "Seleccionar fichero de coordenadas"
+
+#: ../src/interface.c:1254
+msgid "Select Dataset File"
+msgstr "Seleccionar un fichero de datos"
+
+#: ../src/interface.c:1347
+msgid "Column Label Assignment"
+msgstr "Asignación de las etiquetas de las columnas"
+
+#: ../src/interface.c:1364
+msgid "                                        "
+msgstr "                                        "
+
+#: ../src/interface.c:1371
+msgid "Expert Mode?"
+msgstr "¿Modo experto?"
+
+#: ../src/interface.c:1377
+msgid "When clicked, add anomalous and resolution limit options (generally not needed)"
+msgstr "Si seleccionado, añadir opciones para anómalo y límites de resolución (no necesario en general)"
+
+#: ../src/interface.c:1379
+msgid "Column Labels for Map Synthesis:"
+msgstr "Etiquetas de columna para el cálculo del mapa:"
+
+#: ../src/interface.c:1408
+msgid "Amplitudes"
+msgstr "Amplitudes"
+
+#: ../src/interface.c:1422
+#: ../src/interface.c:1456
+msgid "-"
+msgstr "-"
+
+#: ../src/interface.c:1442
+msgid "Phases"
+msgstr "Fases"
+
+#: ../src/interface.c:1482
+#: ../src/interface.c:1568
+#: ../src/interface.c:5531
+#: ../src/interface.c:11790
+msgid "   "
+msgstr "   "
+
+#: ../src/interface.c:1489
+msgid "Use Weights?"
+msgstr "¿Ponderar?"
+
+#: ../src/interface.c:1496
+msgid "Weights are usually used for experimental phasing.  When making a map from REFMAC output one (almost) never needs Weights."
+msgstr "Con fases experimentales, normalmente se utilizan pesos (FOM). Al hacer un mapa tras REFMAC (casi) nunca se necesita ponderar el mapa."
+
+#: ../src/interface.c:1507
+msgid "Weights"
+msgstr "Pesos"
+
+#: ../src/interface.c:1520
+msgid "Usually not needed for map from refmac..."
+msgstr "Normalmente, no necesario para un mapa de REFMAC..."
+
+#: ../src/interface.c:1524
+msgid "Resolution limits"
+msgstr "Límites de resolución"
+
+#: ../src/interface.c:1539
+msgid "Use Resolution Limits"
+msgstr "Usar límites de resolución"
+
+#: ../src/interface.c:1553
+msgid "Low:"
+msgstr "Baja:"
+
+#: ../src/interface.c:1575
+msgid "High:"
+msgstr "Alta:"
+
+#: ../src/interface.c:1590
+msgid "Is a Difference Map"
+msgstr "Es un mapa de diferencia"
+
+#: ../src/interface.c:1596
+msgid "See Section 6.5 of the User Manual for default Diference Map colouring."
+msgstr "Ver la sección 6.5 del Manual del Usuario sobre el coloreado de los mapas de diferencia"
+
+#: ../src/interface.c:1605
+msgid "Assign Labels for Refmac?"
+msgstr "¿Asignar etiquetas para Refmac?"
+
+#: ../src/interface.c:1611
+msgid "If you want to use these data to run refmac, you will need to assign the columns for the observations, the sigmas thereof and the R free..."
+msgstr "Si quieres usar estos datos para ejecutar refmac, tienes que asignar las columnas para las observaciones, las sigmas correspondientes y la R free..."
+
+#: ../src/interface.c:1635
+msgid "Fobs"
+msgstr "Fobs"
+
+#: ../src/interface.c:1659
+msgid "Sig Fobs"
+msgstr "Sig Fobs"
+
+#: ../src/interface.c:1683
+msgid "R free"
+msgstr "R Free"
+
+#: ../src/interface.c:1708
+#: ../src/interface.c:4224
+#: ../src/interface.c:5300
+#: ../src/interface.c:6034
+#: ../src/interface.c:6802
+#: ../src/interface.c:7304
+#: ../src/interface.c:7518
+#: ../src/interface.c:8028
+#: ../src/interface.c:8117
+#: ../src/interface.c:8255
+#: ../src/interface.c:8379
+#: ../src/interface.c:8855
+#: ../src/interface.c:8988
+#: ../src/interface.c:9091
+#: ../src/interface.c:9140
+#: ../src/interface.c:9195
+#: ../src/interface.c:9249
+#: ../src/interface.c:9792
+#: ../src/interface.c:10001
+#: ../src/interface.c:10048
+#: ../src/interface.c:10120
+#: ../src/interface.c:10209
+#: ../src/interface.c:10536
+#: ../src/interface.c:10593
+#: ../src/interface.c:10934
+#: ../src/interface.c:11919
+#: ../src/interface.c:12777
+#: ../src/interface.c:13055
+#: ../src/interface.c:13446
+#: ../src/interface.c:13618
+#: ../src/interface.c:13875
+#: ../src/interface.c:14575
+msgid "  OK  "
+msgstr "Vale"
+
+#: ../src/interface.c:1716
+#: ../src/interface.c:4233
+#: ../src/interface.c:5863
+#: ../src/interface.c:6489
+#: ../src/interface.c:6596
+#: ../src/interface.c:6906
+#: ../src/interface.c:7525
+#: ../src/interface.c:7742
+#: ../src/interface.c:8262
+#: ../src/interface.c:8494
+#: ../src/interface.c:8682
+#: ../src/interface.c:8863
+#: ../src/interface.c:8996
+#: ../src/interface.c:9440
+#: ../src/interface.c:9799
+#: ../src/interface.c:10217
+#: ../src/interface.c:10336
+#: ../src/interface.c:10810
+#: ../src/interface.c:12145
+#: ../src/interface.c:12343
+#: ../src/interface.c:12535
+#: ../src/interface.c:12717
+#: ../src/interface.c:13883
+#: ../src/interface.c:14376
+#: ../src/interface.c:14584
+msgid "  Cancel  "
+msgstr "Cancelar"
+
+#: ../src/interface.c:1724
+msgid "(Thinking, not crashing)"
+msgstr "(Pensando, no petando)"
+
+#: ../src/interface.c:1768
+msgid "Clipping Window"
+msgstr "Ventana de campo"
+
+#: ../src/interface.c:1777
+msgid "Clipping Adjustment"
+msgstr "Ajuste del campo"
+
+#: ../src/interface.c:1802
+#: ../src/interface.c:2068
+#: ../src/interface.c:2168
+#: ../src/interface.c:2249
+#: ../src/interface.c:2595
+#: ../src/interface.c:2935
+#: ../src/interface.c:3100
+#: ../src/interface.c:3199
+#: ../src/interface.c:3300
+#: ../src/interface.c:3472
+#: ../src/interface.c:3846
+#: ../src/interface.c:3945
+#: ../src/interface.c:4042
+#: ../src/interface.c:4104
+#: ../src/interface.c:4325
+#: ../src/interface.c:5559
+msgid "OK"
+msgstr "Vale"
+
+#: ../src/interface.c:1859
+msgid "Global map properties window"
+msgstr "Ventana de propiedades globales del mapa"
+
+#: ../src/interface.c:1868
+msgid "Density Settings"
+msgstr "Configuración del mapa de densidad"
+
+#: ../src/interface.c:1897
+msgid "Map Radius: "
+msgstr "Radio del mapa:"
+
+#: ../src/interface.c:1912
+#: ../src/interface.c:4035
+msgid "Angstroems"
+msgstr "Angstroems"
+
+#: ../src/interface.c:1934
+msgid "Increment Size"
+msgstr "Tamaño del incremento"
+
+#: ../src/interface.c:1949
+#: ../src/interface.c:1985
+msgid "e/A^3"
+msgstr "e/A^3"
+
+#: ../src/interface.c:1970
+msgid "Diff Map Increment"
+msgstr "Incremento mapa de diferencia"
+
+#: ../src/interface.c:2007
+msgid "Sampling Rate: "
+msgstr "Razón de muestreo:"
+
+#: ../src/interface.c:2021
+msgid "Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps"
+msgstr "Multiplicador de Shannon para el muestreo. El valor usual es 1.5. Use números mayores para obtener mapas más suaves"
+
+#: ../src/interface.c:2038
+msgid "Dynamic Map Sampling"
+msgstr "Muestreo dinámico del mapa"
+
+#: ../src/interface.c:2046
+msgid "Dynamic Map Display Size"
+msgstr "Tamaño del muestreo dinámico del mapa"
+
+#: ../src/interface.c:2076
+#: ../src/interface.c:3309
+#: ../src/interface.c:3855
+#: ../src/interface.c:3961
+#: ../src/interface.c:4112
+#: ../src/interface.c:4613
+#: ../src/interface.c:4689
+#: ../src/interface.c:7012
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: ../src/interface.c:2119
+msgid "fps_window"
+msgstr "ventana_mps"
+
+#: ../src/interface.c:2128
+msgid "Show Frames Per Second?"
+msgstr "¿Mostrar Marcos Por Segundo?"
+
+#: ../src/interface.c:2151
+#: ../src/interface.c:2233
+#: ../src/interface.c:2355
+#: ../src/interface.c:2578
+#: ../src/interface.c:2778
+#: ../src/interface.c:2832
+#: ../src/interface.c:3016
+#: ../src/interface.c:11850
+#: ../src/interface.c:11881
+#: ../src/interface.c:13228
+msgid "Yes"
+msgstr "Sí"
+
+#: ../src/interface.c:2159
+#: ../src/interface.c:2241
+#: ../src/interface.c:2363
+#: ../src/interface.c:2586
+#: ../src/interface.c:2786
+#: ../src/interface.c:2840
+#: ../src/interface.c:3024
+#: ../src/interface.c:11858
+#: ../src/interface.c:11891
+#: ../src/interface.c:13236
+msgid "No"
+msgstr "No"
+
+#: ../src/interface.c:2201
+#: ../src/interface.c:2210
+msgid "Active Map on Dragging?"
+msgstr "¿Mapa activo mientras se arrastra?"
+
+#: ../src/interface.c:2316
+msgid "Show Symmetry?"
+msgstr "¿Mostrar simetría?"
+
+#: ../src/interface.c:2325
+msgid "Symmetry & Unit Cell"
+msgstr "Simetría y Celda Unidad"
+
+#: ../src/interface.c:2348
+msgid "Show Symmetry Atoms?"
+msgstr "¿Mostrar átomos simétricos?"
+
+#: ../src/interface.c:2372
+msgid "Expanded Symmetry Atom Labels?"
+msgstr "¿Etiquetas expandidas para los átomos simétricos?"
+
+#: ../src/interface.c:2379
+msgid "Symmetry as Calphas?"
+msgstr "¿Simétricas como CAs?"
+
+#: ../src/interface.c:2386
+msgid "Colour symmetry by molecule"
+msgstr "Colorear simétricas por moléculas"
+
+#: ../src/interface.c:2392
+msgid "Symmetry related atoms of different molecules are coloured differently?"
+msgstr "¿Colorear distinto los átomos simétricos de diferentes moléculas?"
+
+#: ../src/interface.c:2394
+msgid "Colour symmetry by symop"
+msgstr "Colorear simétricas por operación de simetría"
+
+#: ../src/interface.c:2400
+msgid "Symmetry related atoms of different symops are coloured differently?"
+msgstr "¿Colorear distinto los átomos simétricos de diferentes operaciones de simetría?"
+
+#: ../src/interface.c:2402
+msgid "Show whole molecule"
+msgstr "Mostrar toda la molécula"
+
+#: ../src/interface.c:2408
+msgid "If an atom of a symmetry related molecule is close, show the whole molecule of that atom, not just a sphere of atoms [warning: slow!]"
+msgstr "Si un átomo de una simétrica está cerca, mostrar la molécula de ese átomo, no sólo una esfera de átomos [atención: ¡lento!]"
+
+#: ../src/interface.c:2424
+msgid "Symmetry Atom Display Radius:"
+msgstr "Radio de muestra de átomos simétricos"
+
+#: ../src/interface.c:2439
+msgid "Radius:"
+msgstr "Radio:"
+
+#: ../src/interface.c:2454
+#: ../src/interface.c:2885
+#: ../src/interface.c:3093
+msgid "A"
+msgstr "A"
+
+#: ../src/interface.c:2484
+msgid "Symmetry Colour"
+msgstr "Color simétricas"
+
+#: ../src/interface.c:2513
+msgid "Sym Colour"
+msgstr "Color Sim"
+
+#: ../src/interface.c:2542
+msgid "Colour Merge:"
+msgstr "Mezcla de colores:"
+
+#: ../src/interface.c:2571
+msgid "Show Unit Cell?"
+msgstr "¿Mostrar Celda Unidad?"
+
+#: ../src/interface.c:2665
+#: ../src/interface.c:11205
+#: ../src/interface.c:13250
+#: ../src/interface.c:13311
+#: ../src/interface.c:13689
+#: ../src/interface.c:14033
+#: ../src/interface.c:14220
+msgid "   OK   "
+msgstr "   Vale  "
+
+#: ../src/interface.c:2674
+msgid "  Other...   "
+msgstr "  Otros..."
+
+#: ../src/interface.c:2732
+msgid "Anisotripic Atoms"
+msgstr "Átomos anisotrópicos"
+
+#: ../src/interface.c:2771
+msgid "Show Anisotropic Atoms?"
+msgstr "¿Mostrar átomos anisotrópicos?"
+
+#: ../src/interface.c:2809
+msgid "Limit Display Radius of Anisotropic Atoms?"
+msgstr "¿Límite del radio de muestra de los átomos anisotrópicos?"
+
+#: ../src/interface.c:2863
+msgid "Display Limit Radius"
+msgstr "Límite del radio de muestra"
+
+#: ../src/interface.c:2907
+msgid "Probability "
+msgstr "Probabilidad"
+
+#: ../src/interface.c:2928
+msgid "%"
+msgstr "%"
+
+#: ../src/interface.c:2978
+#: ../src/interface.c:3135
+#: ../src/interface.c:3997
+#: ../src/interface.c:4349
+#: ../src/interface.c:14066
+msgid "window2"
+msgstr "ventana2"
+
+#: ../src/interface.c:2987
+msgid "Recentring Smooth Scrolling"
+msgstr ""
+
+#: ../src/interface.c:3047
+msgid "Number of Steps:"
+msgstr ""
+
+#: ../src/interface.c:3078
+msgid ""
+"Do Not Scroll for \n"
+"distances more than:"
+msgstr ""
+
+#: ../src/interface.c:3144
+msgid "Atom Label Font Size"
+msgstr ""
+
+#: ../src/interface.c:3167
+msgid "Small"
+msgstr ""
+
+#: ../src/interface.c:3175
+msgid "Medium"
+msgstr ""
+
+#: ../src/interface.c:3183
+msgid "Large"
+msgstr ""
+
+#: ../src/interface.c:3223
+msgid "Select CCP4 Map"
+msgstr ""
+
+#: ../src/interface.c:3261
+msgid ".phs Info"
+msgstr ""
+
+#: ../src/interface.c:3278
+msgid ""
+".phs files additionally need cell and symmetry. \n"
+" We need a pdb file to assign them.\n"
+"\n"
+"(Note that this will not read coordinates - \n"
+"just the cell and symmetry)\n"
+msgstr ""
+
+#: ../src/interface.c:3336
+msgid "Select Coordinates File for .phs symm/cell"
+msgstr ""
+
+#: ../src/interface.c:3381
+msgid "Display Control"
+msgstr ""
+
+#: ../src/interface.c:3398
+msgid "Maps"
+msgstr ""
+
+#: ../src/interface.c:3433
+msgid "Molecules"
+msgstr ""
+
+#: ../src/interface.c:3549
+msgid "Define an Atom for Centering:"
+msgstr ""
+
+#: ../src/interface.c:3582
+msgid "  Molecule"
+msgstr ""
+
+#: ../src/interface.c:3605
+msgid "Chain"
+msgstr ""
+
+#: ../src/interface.c:3629
+msgid "Residue Number"
+msgstr ""
+
+#: ../src/interface.c:3653
+msgid "Atom Name"
+msgstr ""
+
+#: ../src/interface.c:3668
+msgid "Next Residue"
+msgstr ""
+
+#: ../src/interface.c:3676
+msgid "Previous Residue"
+msgstr ""
+
+#: ../src/interface.c:3722
+#: ../src/interface.c:6726
+#: ../src/interface.c:11911
+msgid "  Apply  "
+msgstr ""
+
+#: ../src/interface.c:3731
+#: ../src/interface.c:6734
+#: ../src/interface.c:9918
+#: ../src/interface.c:11927
+msgid "  Close  "
+msgstr ""
+
+#: ../src/interface.c:3786
+#: ../src/interface.c:3795
+msgid "Skeleton Box Size"
+msgstr ""
+
+#: ../src/interface.c:3809
+msgid "Size"
+msgstr ""
+
+#: ../src/interface.c:3824
+msgid "Angstoms"
+msgstr ""
+
+#: ../src/interface.c:3892
+#: ../src/interface.c:3901
+msgid "Skeletonization Level"
+msgstr ""
+
+#: ../src/interface.c:3915
+msgid "Level"
+msgstr ""
+
+#: ../src/interface.c:3930
+msgid "  electrons/A^3  "
+msgstr ""
+
+#: ../src/interface.c:3953
+msgid "Apply"
+msgstr ""
+
+#: ../src/interface.c:4006
+msgid "Rotation Centre Cube Size"
+msgstr ""
+
+#: ../src/interface.c:4020
+msgid "Size:"
+msgstr ""
+
+#: ../src/interface.c:4073
+msgid "Choose Cell for PHS file:"
+msgstr ""
+
+#: ../src/interface.c:4082
+msgid "Choose a Symmetry and Cell for the Phases file"
+msgstr ""
+
+#: ../src/interface.c:4142
+msgid "PDB Accession Code "
+msgstr ""
+
+#: ../src/interface.c:4159
+msgid "PDB Accession Code:"
+msgstr ""
+
+#: ../src/interface.c:4194
+msgid "Dynarama"
+msgstr ""
+
+#: ../src/interface.c:4272
+msgid "Properies"
+msgstr ""
+
+#: ../src/interface.c:4295
+#: ../src/interface.c:4311
+msgid "Labels"
+msgstr ""
+
+#: ../src/interface.c:4303
+msgid "Sticky Labels"
+msgstr ""
+
+#: ../src/interface.c:4419
+msgid "Find Ligands"
+msgstr ""
+
+#: ../src/interface.c:4441
+#: ../src/interface.c:5724
+#: ../src/interface.c:12619
+msgid "Select Map:"
+msgstr ""
+
+#: ../src/interface.c:4472
+msgid "Select Protein (Masks Map):"
+msgstr ""
+
+#: ../src/interface.c:4494
+msgid "Mask Waters?"
+msgstr ""
+
+#: ../src/interface.c:4509
+msgid "Treat waters like protein (mask) atoms"
+msgstr ""
+
+#: ../src/interface.c:4517
+msgid "Ignore waters for mask"
+msgstr ""
+
+#: ../src/interface.c:4533
+msgid "Select Ligands to Search for:"
+msgstr ""
+
+#: ../src/interface.c:4555
+#: ../src/interface.c:13812
+msgid "Sigma Level"
+msgstr ""
+
+#: ../src/interface.c:4578
+#: ../src/interface.c:13842
+msgid "  sigma  "
+msgstr ""
+
+#: ../src/interface.c:4605
+msgid "Find 'em!"
+msgstr "¡Encuéntralos!"
+
+#: ../src/interface.c:4647
+msgid "May Atoms in Ligand Check"
+msgstr ""
+
+#: ../src/interface.c:4662
+msgid ""
+"\n"
+"One or more of the selected ligands has \n"
+"unexpectedly many atoms.\n"
+"\n"
+"This is an opportunity for you to reflect on that...\n"
+"\n"
+"Do you want to continue?\n"
+msgstr ""
+
+#: ../src/interface.c:4681
+msgid "Continue"
+msgstr ""
+
+#: ../src/interface.c:4753
+msgid "Model/Fit/Refine"
+msgstr ""
+
+#: ../src/interface.c:4777
+msgid "  Refine/Regularize Control...  "
+msgstr ""
+
+#: ../src/interface.c:4784
+msgid "Set Parameters for fitting, refinement, regularization, etc."
+msgstr ""
+
+#: ../src/interface.c:4786
+msgid " Select Map..."
+msgstr ""
+
+#: ../src/interface.c:4793
+msgid "Select the map that will be used for refinement, rigid body refinement, terminal residue fit and autofitting"
+msgstr ""
+
+#: ../src/interface.c:4802
+msgid "Real Space Refine Zone"
+msgstr ""
+
+#: ../src/interface.c:4809
+msgid "Real Space Refinement: Improve geometry and fit to map"
+msgstr ""
+
+#: ../src/interface.c:4811
+msgid "Regularize Zone"
+msgstr ""
+
+#: ../src/interface.c:4818
+msgid "Idealize model geometry"
+msgstr ""
+
+#: ../src/interface.c:4820
+msgid "Rigid Body Fit Zone"
+msgstr ""
+
+#: ../src/interface.c:4827
+msgid "Rearrange to find the name of a popular health club"
+msgstr ""
+
+#: ../src/interface.c:4829
+msgid "Rotate/Translate Zone"
+msgstr ""
+
+#: ../src/interface.c:4836
+msgid "Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]"
+msgstr ""
+
+#: ../src/interface.c:4838
+msgid "Auto Fit Rotamer"
+msgstr ""
+
+#: ../src/interface.c:4845
+msgid "Click on an atom in a residue to find the best fit rotamer"
+msgstr ""
+
+#: ../src/interface.c:4847
+msgid "Rotamers..."
+msgstr ""
+
+#: ../src/interface.c:4854
+msgid "Select Different Conformations for a Residue Sidechan"
+msgstr ""
+
+#: ../src/interface.c:4856
+#: ../src/interface.c:9360
+msgid "Edit Chi Angles"
+msgstr ""
+
+#: ../src/interface.c:4863
+msgid "Edit the Chi angles (torsions) of an amino acid residue \"by hand\"  (by mouse, that is)"
+msgstr ""
+
+#: ../src/interface.c:4865
+msgid "Flip Peptide "
+msgstr ""
+
+#: ../src/interface.c:4872
+msgid "Peptide flip"
+msgstr ""
+
+#: ../src/interface.c:4874
+msgid "Edit Phi/Psi..."
+msgstr ""
+
+#: ../src/interface.c:4881
+msgid " Edit Backbone Torsions"
+msgstr ""
+
+#: ../src/interface.c:4888
+msgid "Change Residue's Phi and Psi"
+msgstr ""
+
+#: ../src/interface.c:4897
+msgid "Mutate & Auto Fit..."
+msgstr ""
+
+#: ../src/interface.c:4904
+msgid "Where \"Fit\" means fit to the Selected Map"
+msgstr ""
+
+#: ../src/interface.c:4906
+msgid "Simple Mutate..."
+msgstr ""
+
+#: ../src/interface.c:4913
+msgid "No crystallographic map fitting is happening here"
+msgstr ""
+
+#: ../src/interface.c:4915
+msgid "Find Ligands..."
+msgstr ""
+
+#: ../src/interface.c:4923
+msgid "Find Waters..."
+msgstr ""
+
+#: ../src/interface.c:4930
+msgid "Solvate..."
+msgstr ""
+
+#: ../src/interface.c:4932
+msgid "Add Terminal Residue..."
+msgstr ""
+
+#: ../src/interface.c:4939
+msgid "[You need a map to do this] Create a new residue at the C or N terminus. The angles are selected at random sample from the phi/psi probability distribution (then fitted to the map), so if at first you don't succeed, give it another bash..."
+msgstr ""
+
+#: ../src/interface.c:4941
+msgid "Add Alt Conf..."
+msgstr ""
+
+#: ../src/interface.c:4948
+msgid "Add Alternate (Alternative) Conformation to a Residue"
+msgstr ""
+
+#: ../src/interface.c:4950
+msgid "Ca Baton Mode..."
+msgstr ""
+
+#: ../src/interface.c:4957
+msgid "Make sure that you are about 3.8A away from where you wish to put your first atom before you start Baton Mode."
+msgstr ""
+
+#: ../src/interface.c:4959
+msgid "Ca Zone -> Mainchain"
+msgstr ""
+
+#: ../src/interface.c:4966
+msgid "Use database of fragments to convert a set of C-alphas to mainchain atoms"
+msgstr ""
+
+#: ../src/interface.c:4968
+msgid "Place Atom At Pointer"
+msgstr ""
+
+#: ../src/interface.c:4975
+msgid "Put an atom at current pink pointer position"
+msgstr ""
+
+#: ../src/interface.c:4977
+msgid "Add OXT to Residue..."
+msgstr ""
+
+#: ../src/interface.c:4992
+msgid "Clear Pending Picks"
+msgstr ""
+
+#: ../src/interface.c:5000
+msgid "Delete..."
+msgstr ""
+
+#: ../src/interface.c:5007
+msgid "Delete Residue or Atom"
+msgstr ""
+
+#: ../src/interface.c:5009
+msgid "  Undo  "
+msgstr ""
+
+#: ../src/interface.c:5017
+msgid "  Redo  "
+msgstr ""
+
+#: ../src/interface.c:5033
+msgid "Run Refmac..."
+msgstr ""
+
+#: ../src/interface.c:5046
+msgid "   Close   "
+msgstr ""
+
+#: ../src/interface.c:5175
+msgid "Rotation & Translation"
+msgstr ""
+
+#: ../src/interface.c:5198
+msgid "X translation"
+msgstr ""
+
+#: ../src/interface.c:5213
+msgid "Y translation"
+msgstr ""
+
+#: ../src/interface.c:5228
+msgid "Z translation"
+msgstr ""
+
+#: ../src/interface.c:5243
+msgid "X rotate"
+msgstr ""
+
+#: ../src/interface.c:5258
+msgid "Y rotate"
+msgstr ""
+
+#: ../src/interface.c:5273
+msgid "Z rotate"
+msgstr ""
+
+#: ../src/interface.c:5309
+msgid "  Cancel "
+msgstr ""
+
+#: ../src/interface.c:5347
+msgid "Save Coordinates Molecule Selector"
+msgstr ""
+
+#: ../src/interface.c:5369
+msgid "Select Molecule Number to Save:"
+msgstr ""
+
+#: ../src/interface.c:5392
+msgid "  Select Filename...  "
+msgstr ""
+
+#: ../src/interface.c:5419
+msgid "Select Filename for Saved Coordinates "
+msgstr ""
+
+#: ../src/interface.c:5422
+msgid "Saved File type: By extension"
+msgstr ""
+
+#: ../src/interface.c:5469
+msgid "Refinement and Regularization Parameters"
+msgstr ""
+
+#: ../src/interface.c:5500
+msgid "For Regularization and Refinement:"
+msgstr ""
+
+#: ../src/interface.c:5516
+msgid "Use Torsion Restraints"
+msgstr ""
+
+#: ../src/interface.c:5522
+msgid "Idealize Torsion angles too [non-active]"
+msgstr ""
+
+#: ../src/interface.c:5538
+msgid "Use Peptide Torsion Restraints"
+msgstr ""
+
+#: ../src/interface.c:5545
+msgid "Use Initial Position Restraints"
+msgstr ""
+
+#: ../src/interface.c:5552
+msgid "Stops regularization wandering off [non-active]"
+msgstr ""
+
+#: ../src/interface.c:5601
+#: ../src/interface.c:5616
+msgid "Accept Refinement?"
+msgstr ""
+
+#: ../src/interface.c:5636
+#: ../src/interface.c:7114
+msgid "Accept"
+msgstr ""
+
+#: ../src/interface.c:5643
+msgid "Reject"
+msgstr ""
+
+#: ../src/interface.c:5694
+msgid "find waters dialog"
+msgstr ""
+
+#: ../src/interface.c:5748
+msgid "Select Protein (which Masks Map):"
+msgstr ""
+
+#: ../src/interface.c:5772
+msgid "Find Peaks above:"
+msgstr ""
+
+#: ../src/interface.c:5793
+#: ../src/interface.c:12688
+msgid "Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map."
+msgstr ""
+
+#: ../src/interface.c:5795
+#: ../src/interface.c:12690
+msgid " sigma "
+msgstr ""
+
+#: ../src/interface.c:5817
+msgid "Waters should be:"
+msgstr ""
+
+#: ../src/interface.c:5826
+msgid "Added to Molecule that masks the map"
+msgstr ""
+
+#: ../src/interface.c:5835
+msgid "A new \"Waters\" molecule"
+msgstr ""
+
+#: ../src/interface.c:5855
+msgid "  Find Waters  "
+msgstr ""
+
+#: ../src/interface.c:5911
+msgid "Environment Distances"
+msgstr ""
+
+#: ../src/interface.c:5933
+msgid "Show Residue Environment?"
+msgstr ""
+
+#: ../src/interface.c:5970
+#: ../src/interface.c:14155
+msgid "  Min Distance  "
+msgstr ""
+
+#: ../src/interface.c:5985
+#: ../src/interface.c:6014
+msgid "  Angstroms  "
+msgstr ""
+
+#: ../src/interface.c:5999
+msgid "  Max Distance  "
+msgstr ""
+
+#: ../src/interface.c:6021
+msgid "Label Atom?"
+msgstr ""
+
+#: ../src/interface.c:6064
+#: ../src/interface.c:6363
+#: ../src/interface.c:13338
+msgid "Select File"
+msgstr ""
+
+#: ../src/interface.c:6121
+msgid "Residu Type"
+msgstr ""
+
+#: ../src/interface.c:6139
+msgid "  ALA (A)  "
+msgstr ""
+
+#: ../src/interface.c:6146
+msgid "  ARG (R)  "
+msgstr ""
+
+#: ../src/interface.c:6153
+msgid "  ASN (N)  "
+msgstr ""
+
+#: ../src/interface.c:6160
+msgid "  ASP (D)  "
+msgstr ""
+
+#: ../src/interface.c:6167
+msgid "  CYS (C)  "
+msgstr ""
+
+#: ../src/interface.c:6174
+msgid "  GLN (Q)  "
+msgstr ""
+
+#: ../src/interface.c:6181
+msgid "  GLU (E)  "
+msgstr ""
+
+#: ../src/interface.c:6188
+msgid "  GLY (G)  "
+msgstr ""
+
+#: ../src/interface.c:6195
+msgid "  HIS (H)"
+msgstr ""
+
+#: ../src/interface.c:6202
+msgid "  ILE (I)"
+msgstr ""
+
+#: ../src/interface.c:6208
+msgid "Selino-MET"
+msgstr ""
+
+#: ../src/interface.c:6210
+msgid "  LEU (L)  "
+msgstr ""
+
+#: ../src/interface.c:6217
+msgid "  LYS (K)  "
+msgstr ""
+
+#: ../src/interface.c:6224
+msgid "  MET (M)  "
+msgstr ""
+
+#: ../src/interface.c:6231
+msgid "  MSE  "
+msgstr ""
+
+#: ../src/interface.c:6238
+msgid "  PHE (F)  "
+msgstr ""
+
+#: ../src/interface.c:6245
+msgid "  PRO (P)  "
+msgstr ""
+
+#: ../src/interface.c:6252
+msgid "  SER (S)  "
+msgstr ""
+
+#: ../src/interface.c:6259
+msgid "  THR (T)  "
+msgstr ""
+
+#: ../src/interface.c:6266
+msgid "  TRP (W)  "
+msgstr ""
+
+#: ../src/interface.c:6273
+msgid "  TYR (Y)  "
+msgstr ""
+
+#: ../src/interface.c:6280
+msgid "  VAL (V)  "
+msgstr ""
+
+#: ../src/interface.c:6409
+msgid "Delete item"
+msgstr ""
+
+#: ../src/interface.c:6431
+msgid "Delete What Item Type?"
+msgstr ""
+
+#: ../src/interface.c:6439
+msgid "Residue"
+msgstr ""
+
+#: ../src/interface.c:6449
+msgid "Atom"
+msgstr ""
+
+#: ../src/interface.c:6458
+msgid "Hydrogens in Residue"
+msgstr ""
+
+#: ../src/interface.c:6467
+msgid "Keep Delete Active"
+msgstr ""
+
+#: ../src/interface.c:6474
+msgid "For use with Multiple Deletes. When activated, deleting an item does not dismiss this dialog.  (Has the same action as using Ctrl-Left Click)"
+msgstr ""
+
+#: ../src/interface.c:6476
+msgid ""
+"\n"
+"[Multiple Deletes: Use Ctrl Left-Mouse]\n"
+"\n"
+"When you are happy that you have the\n"
+"correct item type for deletion, click in the \n"
+"graphics window on an atom (of the residue) \n"
+"that you want to delete"
+msgstr ""
+
+#: ../src/interface.c:6537
+msgid "Choose Molecule to Close:"
+msgstr ""
+
+#: ../src/interface.c:6551
+msgid "Choose Molecule/Map to Close:"
+msgstr ""
+
+#: ../src/interface.c:6588
+msgid "  Close Molecule   "
+msgstr ""
+
+#: ../src/interface.c:6637
+msgid "Residue Info"
+msgstr ""
+
+#: ../src/interface.c:6651
+msgid "Residue: "
+msgstr ""
+
+#: ../src/interface.c:6659
+msgid "   Atom Info:                       Occupancy                  Temperature Factor"
+msgstr ""
+
+#: ../src/interface.c:6706
+msgid "Apply edit to all atoms in residue?"
+msgstr ""
+
+#: ../src/interface.c:6771
+msgid "Hints"
+msgstr ""
+
+#: ../src/interface.c:6795
+msgid ""
+"\n"
+"Left-Mouse: Rotate View\n"
+"Cntl Left-Mouse Drag:  Moves around view\n"
+"Shift Left-Mouse:  Label Atom\n"
+"Right-Mouse Drag: Zoom in and out\n"
+"Middle-mouse: Centre on Atom\n"
+"\n"
+"Keyboard +/- changes contour level\n"
+"\n"
+"Note that left-mouse does atom picking and rotating view, so try\n"
+"not to click over an atom when trying to rotate the view when in\n"
+"atom selection mode.\n"
+"\n"
+"If you get stuck in \"translate\" mode, simply press and release\n"
+"the Ctrl key to return to \"rotate\" mode.\n"
+"\n"
+"To change the map to which the scrollwheel is attached, use\n"
+"HID->Scrollwhell->Attach Scrollwheel to which map?\n"
+"\n"
+"To Use the \"Rotation/Translation\" column of buttons, simply \n"
+"click on the button and drag (with the button still \"down\").\n"
+"\n"
+"Use the function \"(quanta-buttons)\" (or \"quanta_buttons()\") to \n"
+"make the mouse functions more like other molecular graphics\n"
+"programs to which you may be more accustomed.\n"
+msgstr ""
+
+#: ../src/interface.c:6834
+msgid "Select Rotamer"
+msgstr ""
+
+#: ../src/interface.c:6871
+msgid "New Alt Conf Occupancy"
+msgstr ""
+
+#: ../src/interface.c:6898
+#: ../src/interface.c:9432
+msgid "  Accept  "
+msgstr ""
+
+#: ../src/interface.c:6946
+#: ../src/interface.c:12379
+#: ../src/interface.c:13927
+msgid "dialog1"
+msgstr ""
+
+#: ../src/interface.c:6968
+msgid "The following molecule(s) have unsaved changes:"
+msgstr ""
+
+#: ../src/interface.c:6984
+msgid "Do you wish to Continue to Exit?"
+msgstr ""
+
+#: ../src/interface.c:7004
+msgid "Continue Exit"
+msgstr ""
+
+#: ../src/interface.c:7061
+msgid "Baton"
+msgstr ""
+
+#: ../src/interface.c:7092
+msgid "  Baton Position"
+msgstr ""
+
+#: ../src/interface.c:7121
+msgid "Accept this baton tip position, place atom and try new one..."
+msgstr ""
+
+#: ../src/interface.c:7123
+msgid "Try Another"
+msgstr ""
+
+#: ../src/interface.c:7130
+msgid "Try Another Autoplacement Baton Position.  Cycles back to beginning"
+msgstr ""
+
+#: ../src/interface.c:7132
+msgid "Undo"
+msgstr ""
+
+#: ../src/interface.c:7154
+msgid "  Baton Length"
+msgstr ""
+
+#: ../src/interface.c:7176
+msgid "  Lengthen  "
+msgstr ""
+
+#: ../src/interface.c:7184
+msgid "Shorten"
+msgstr ""
+
+#: ../src/interface.c:7197
+#: ../src/interface.c:9327
+#: ../src/interface.c:10431
+#: ../src/interface.c:10491
+msgid "  Dismiss  "
+msgstr ""
+
+#: ../src/interface.c:7203
+msgid "Exits Baton Mode"
+msgstr ""
+
+#: ../src/interface.c:7246
+msgid "Recentre Dialog"
+msgstr ""
+
+#: ../src/interface.c:7260
+msgid "Recentre on read new PDB?"
+msgstr ""
+
+#: ../src/interface.c:7283
+#: ../src/interface.c:8743
+msgid "  Yes  "
+msgstr ""
+
+#: ../src/interface.c:7291
+#: ../src/interface.c:8751
+msgid "  No  "
+msgstr ""
+
+#: ../src/interface.c:7356
+msgid "Pointer atom type"
+msgstr ""
+
+#: ../src/interface.c:7370
+msgid "Pointer Atom Type:"
+msgstr ""
+
+#: ../src/interface.c:7393
+msgid "Water"
+msgstr ""
+
+#: ../src/interface.c:7402
+msgid "Ca (calcium)"
+msgstr ""
+
+#: ../src/interface.c:7410
+msgid "Mg"
+msgstr ""
+
+#: ../src/interface.c:7418
+msgid "Na"
+msgstr ""
+
+#: ../src/interface.c:7426
+msgid "Cl"
+msgstr ""
+
+#: ../src/interface.c:7434
+msgid "Br"
+msgstr ""
+
+#: ../src/interface.c:7442
+msgid "SO4"
+msgstr ""
+
+#: ../src/interface.c:7450
+msgid "PO4"
+msgstr ""
+
+#: ../src/interface.c:7472
+msgid "Other..."
+msgstr ""
+
+#: ../src/interface.c:7489
+msgid "Pointer Atom Added to Molecule:"
+msgstr ""
+
+#: ../src/interface.c:7580
+msgid "Run Refmac"
+msgstr ""
+
+#: ../src/interface.c:7594
+msgid "Choose Coordinates Molecule on which to run refmac:"
+msgstr ""
+
+#: ../src/interface.c:7626
+msgid "Choose Map Molecule that has mtz column labels for refmac:"
+msgstr ""
+
+#: ../src/interface.c:7658
+msgid "    "
+msgstr ""
+
+#: ../src/interface.c:7665
+msgid "  Help  "
+msgstr ""
+
+#: ../src/interface.c:7680
+msgid "Display the resulting difference map also"
+msgstr ""
+
+#: ../src/interface.c:7696
+msgid "Refmac Phase Combine with Phases used for Map"
+msgstr ""
+
+#: ../src/interface.c:7703
+msgid "When using MAD/MIR etc phasing, you can combine the experimental phases (i.e. the \"Phases used for Map\") and the phases derived from the model, thereby (hopefully) improving the map..."
+msgstr ""
+
+#: ../src/interface.c:7705
+msgid "CCP4i Project"
+msgstr ""
+
+#: ../src/interface.c:7734
+msgid "  Run Refmac  "
+msgstr ""
+
+#: ../src/interface.c:7740
+msgid "Please be patient (sit back and wait...)"
+msgstr ""
+
+#: ../src/interface.c:7809
+msgid "Individual Map Properties"
+msgstr ""
+
+#: ../src/interface.c:7824
+msgid "Map Settings"
+msgstr ""
+
+#: ../src/interface.c:7832
+msgid "Cell and Symmetry:"
+msgstr ""
+
+#: ../src/interface.c:7847
+msgid "Cell:"
+msgstr ""
+
+#: ../src/interface.c:7856
+msgid "[map]"
+msgstr ""
+
+#: ../src/interface.c:7864
+msgid "Spacegroup:"
+msgstr ""
+
+#: ../src/interface.c:7873
+msgid "[spacegroup]"
+msgstr ""
+
+#: ../src/interface.c:7881
+msgid "Contouring:"
+msgstr ""
+
+#: ../src/interface.c:7907
+msgid "  Sigma Step  "
+msgstr ""
+
+#: ../src/interface.c:7917
+msgid "Change by sigma? "
+msgstr ""
+
+#: ../src/interface.c:7925
+msgid "By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using sigma step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale."
+msgstr ""
+
+#: ../src/interface.c:7953
+msgid "Map Colour "
+msgstr ""
+
+#: ../src/interface.c:7967
+msgid "See Section 6.5 of the User Manual for default Difference Map colouring."
+msgstr ""
+
+#: ../src/interface.c:7976
+msgid "  Colour  "
+msgstr ""
+
+#: ../src/interface.c:7983
+msgid "Skeleton:"
+msgstr ""
+
+#: ../src/interface.c:7998
+#: ../src/interface.c:8215
+#: ../src/interface.c:8355
+#: ../src/interface.c:10402
+msgid "On"
+msgstr ""
+
+#: ../src/interface.c:8007
+#: ../src/interface.c:8224
+#: ../src/interface.c:8364
+#: ../src/interface.c:10410
+msgid "Off"
+msgstr ""
+
+#: ../src/interface.c:8072
+msgid "Choose molecule to Undo:"
+msgstr ""
+
+#: ../src/interface.c:8086
+msgid "Choose Molecule to Undo:"
+msgstr ""
+
+#: ../src/interface.c:8108
+msgid "You want to undo a modification.  There are 2 or more molecules that have been modified.  To which molecule should the undo apply?"
+msgstr ""
+
+#: ../src/interface.c:8161
+msgid "Skeleton Dialog"
+msgstr ""
+
+#: ../src/interface.c:8175
+msgid "Skeletonize Map:"
+msgstr ""
+
+#: ../src/interface.c:8234
+msgid "Prune & Colour"
+msgstr ""
+
+#: ../src/interface.c:8241
+msgid "Remove sidechains from the skeleton and colour by domain"
+msgstr ""
+
+#: ../src/interface.c:8319
+msgid "Crosshairs"
+msgstr ""
+
+#: ../src/interface.c:8333
+msgid "Display Crosshairs"
+msgstr ""
+
+#: ../src/interface.c:8418
+#: ../src/interface.c:8432
+msgid "Add Alternate Conformation"
+msgstr ""
+
+#: ../src/interface.c:8455
+msgid "Split Single Residue at C-alpha"
+msgstr ""
+
+#: ../src/interface.c:8465
+msgid "Split All of a Single Residue"
+msgstr ""
+
+#: ../src/interface.c:8474
+msgid "Split a Residue Range"
+msgstr ""
+
+#: ../src/interface.c:8546
+msgid "validation dialog"
+msgstr ""
+
+#: ../src/interface.c:8568
+msgid "Description"
+msgstr ""
+
+#: ../src/interface.c:8600
+msgid "  Residue:  "
+msgstr ""
+
+#: ../src/interface.c:8616
+msgid "  "
+msgstr ""
+
+#: ../src/interface.c:8631
+msgid " Number "
+msgstr ""
+
+#: ../src/interface.c:8647
+msgid "  of 104  "
+msgstr ""
+
+#: ../src/interface.c:8666
+msgid "  Next  "
+msgstr ""
+
+#: ../src/interface.c:8674
+msgid "  Previous  "
+msgstr ""
+
+#: ../src/interface.c:8716
+msgid "saved state dialog"
+msgstr ""
+
+#: ../src/interface.c:8723
+msgid ""
+"\n"
+"There is a coot auto-save state file here. \n"
+"\n"
+"Do you want to run it?"
+msgstr ""
+
+#: ../src/interface.c:8789
+msgid "Edit Backbone Torsions"
+msgstr ""
+
+#: ../src/interface.c:8813
+msgid "Rotate Peptide"
+msgstr ""
+
+#: ../src/interface.c:8828
+msgid "Rotate Carbonyl"
+msgstr ""
+
+#: ../src/interface.c:8909
+msgid "What do you want to do?"
+msgstr ""
+
+#: ../src/interface.c:8931
+msgid " Display just Coordinates"
+msgstr ""
+
+#: ../src/interface.c:8938
+msgid "Only Coordinates - no map"
+msgstr ""
+
+#: ../src/interface.c:8940
+msgid " Display Coordinates and calculate a Map from a Dataset"
+msgstr ""
+
+#: ../src/interface.c:8947
+#: ../src/interface.c:8965
+msgid "Here, \"Dataset\" means an mtz, phs or mmcif file"
+msgstr ""
+
+#: ../src/interface.c:8949
+msgid " Display Coordinates and a pre-calculated CCP4 Map"
+msgstr ""
+
+#: ../src/interface.c:8956
+msgid "Coordinates and a CCP4 Map"
+msgstr ""
+
+#: ../src/interface.c:8958
+msgid " Calculate a Map from a Dataset"
+msgstr ""
+
+#: ../src/interface.c:8967
+msgid " Start from a \"Clean Slate\""
+msgstr ""
+
+#: ../src/interface.c:8974
+msgid "Nothing special"
+msgstr "Nada especial"
+
+#: ../src/interface.c:9048
+msgid "Select Map for Fitting"
+msgstr ""
+
+#: ../src/interface.c:9070
+msgid "Choose a Map:"
+msgstr ""
+
+#: ../src/interface.c:9119
+msgid "Help on Running Refmac:"
+msgstr ""
+
+#: ../src/interface.c:9126
+msgid ""
+"\n"
+"\n"
+"When you read in an MTZ file, you can assign the column labels \n"
+"needed to run Refmac. \n"
+"\n"
+"If this option menu is empty it means that you  have not assigned \n"
+"Refmac labels from any MTZ file.  To fix, Cancel the \"Run Refmac\" \n"
+"dialog, Use File -> Open MTZ and assign Refmac column labels. \n"
+"Then use \"Run Refmac...\" from the \"Model/Fit/Refine\" dialog.\n"
+msgstr ""
+
+#: ../src/interface.c:9166
+msgid "No Restraints!"
+msgstr ""
+
+#: ../src/interface.c:9181
+msgid ""
+"\n"
+"No Restraints Found!\n"
+"\n"
+"Non-existent or minimal description of restrainted residues.\n"
+"\n"
+"Are you sure you read a non-minimal mmCIF dictionary for \n"
+"this monomer? Are you sure the PDB residue name\n"
+"matches the dictionary residue name?\n"
+"\n"
+"If not, try File -> Import CIF Dictionary\n"
+"\n"
+"Alternatively, did you check that the atom names of the \n"
+"PDB file match those of the restraints?\n"
+msgstr ""
+
+#: ../src/interface.c:9221
+msgid "No Restraints in Dictionary!"
+msgstr ""
+
+#: ../src/interface.c:9236
+msgid "Ooops! CIF Dictionary contains no restraints!"
+msgstr ""
+
+#: ../src/interface.c:9278
+msgid "Unexplained blobs of density:"
+msgstr "Pedazos de densidad inexplicados:"
+
+#: ../src/interface.c:9292
+msgid ""
+"\n"
+"There are unexplained blobs of \n"
+"density (too big to be waters):\n"
+msgstr ""
+
+#: ../src/interface.c:9374
+msgid "Chi Angles Rotation Mode:"
+msgstr ""
+
+#: ../src/interface.c:9404
+msgid " View Rotation Mode "
+msgstr ""
+
+#: ../src/interface.c:9412
+msgid "Help me out here..."
+msgstr ""
+
+#: ../src/interface.c:9520
+msgid "Checking Waters:"
+msgstr ""
+
+#: ../src/interface.c:9542
+msgid "  Molecule Number:  "
+msgstr ""
+
+#: ../src/interface.c:9566
+msgid "  Action:  "
+msgstr ""
+
+#: ../src/interface.c:9580
+msgid "Generate a List"
+msgstr ""
+
+#: ../src/interface.c:9583
+msgid "Delete Waters"
+msgstr ""
+
+#: ../src/interface.c:9611
+msgid "  with B factor greater than:  "
+msgstr ""
+
+#: ../src/interface.c:9626
+msgid " A^2 "
+msgstr ""
+
+#: ../src/interface.c:9641
+msgid "  with map sigma level less than:  "
+msgstr ""
+
+#: ../src/interface.c:9656
+msgid " electrons/A3 "
+msgstr ""
+
+#: ../src/interface.c:9671
+msgid "  with closest contact less than:  "
+msgstr ""
+
+#: ../src/interface.c:9686
+#: ../src/interface.c:9716
+msgid " A "
+msgstr ""
+
+#: ../src/interface.c:9701
+msgid "  with closest contact more than:  "
+msgstr ""
+
+#: ../src/interface.c:9723
+msgid " Ignore Partial Occupancy close contacts"
+msgstr ""
+
+#: ../src/interface.c:9730
+msgid " Ignore Waters with Zero Occupancy"
+msgstr ""
+
+#: ../src/interface.c:9752
+msgid "For Waters that match:"
+msgstr ""
+
+#: ../src/interface.c:9760
+msgid "Any Criterion"
+msgstr ""
+
+#: ../src/interface.c:9770
+msgid "All Criteria"
+msgstr ""
+
+#: ../src/interface.c:9778
+msgid "All criteria except the distance criteria (can be either)"
+msgstr ""
+
+#: ../src/interface.c:9843
+#: ../src/interface.c:13588
+msgid "Geometry"
+msgstr ""
+
+#: ../src/interface.c:9857
+msgid "  Distance  "
+msgstr ""
+
+#: ../src/interface.c:9865
+msgid "  Angle  "
+msgstr ""
+
+#: ../src/interface.c:9873
+msgid "  Torsion  "
+msgstr ""
+
+#: ../src/interface.c:9889
+msgid "  Clear Last Distance  "
+msgstr ""
+
+#: ../src/interface.c:9897
+msgid "  Clear All Distances  "
+msgstr ""
+
+#: ../src/interface.c:9905
+msgid "  Clear All Atom Labels  "
+msgstr ""
+
+#: ../src/interface.c:9966
+msgid "New Ligands"
+msgstr ""
+
+#: ../src/interface.c:9980
+msgid "Found 4 acceptable ligands"
+msgstr ""
+
+#: ../src/interface.c:9988
+msgid ""
+"Use Display Manager and Goto Atom \n"
+"Molecule optionmenu to navigate these \n"
+"new molecules"
+msgstr ""
+
+#: ../src/interface.c:10028
+msgid "No New Ligands"
+msgstr ""
+
+#: ../src/interface.c:10035
+msgid ""
+"Sadly no ligands were found.\n"
+"\n"
+"Perhaps there were no ligands to be found?\n"
+"\n"
+"Alternatively you could try to reduce the search \n"
+"sigma level or the acceptable fit fraction."
+msgstr ""
+
+#: ../src/interface.c:10078
+#: ../src/interface.c:10099
+msgid "Zoom Control"
+msgstr ""
+
+#: ../src/interface.c:10151
+msgid "Get monomer molecule from libcheck"
+msgstr ""
+
+#: ../src/interface.c:10174
+msgid "  3 Letter Code: "
+msgstr ""
+
+#: ../src/interface.c:10189
+msgid "  Note: Code is Case Sensitive  "
+msgstr ""
+
+#: ../src/interface.c:10258
+msgid "Recover Coordinates"
+msgstr ""
+
+#: ../src/interface.c:10280
+msgid "Read Coordinates:"
+msgstr ""
+
+#: ../src/interface.c:10289
+msgid "molecule name"
+msgstr ""
+
+#: ../src/interface.c:10298
+msgid "Backup Coordinates:"
+msgstr ""
+
+#: ../src/interface.c:10307
+msgid "filename"
+msgstr ""
+
+#: ../src/interface.c:10328
+msgid "  Recover  "
+msgstr ""
+
+#: ../src/interface.c:10372
+msgid "Centre Atom Label"
+msgstr ""
+
+#: ../src/interface.c:10394
+msgid "Label Centre Atom on Recentre?"
+msgstr ""
+
+#: ../src/interface.c:10418
+msgid ""
+"[   Note: this setting is trumped by   ]\n"
+"[ Evironment Disance Label Atom? ]"
+msgstr ""
+
+#: ../src/interface.c:10460
+msgid "Chi Angle Help"
+msgstr ""
+
+#: ../src/interface.c:10477
+msgid ""
+"  Select the chi angle (rotatable bond) by clicking \n"
+"on the button in the list.\n"
+"\n"
+"In the graphics window, click and drag as you\n"
+"would if you wanted to change the view - this \n"
+"causes the atoms to move.\n"
+"\n"
+"There are keyboard equivalents to the butons, \"1\" \n"
+"  will rotate chi__1, \"2\" will rotate chi__2 etc...\n"
+"\n"
+"To make the view move (rather than the intermediate \n"
+"atoms), click the \"View Rotation Mode\" button or use \n"
+"the Ctrl key when moving the mouse."
+msgstr ""
+
+#: ../src/interface.c:10516
+msgid "No Symmetry!"
+msgstr ""
+
+#: ../src/interface.c:10523
+msgid ""
+"\n"
+"\n"
+"WARNING!\n"
+"\n"
+"Symmetry Library not found\n"
+"\n"
+"If you need symmetry, setup ccp4 before starting coot\n"
+"\n"
+"\n"
+msgstr ""
+
+#: ../src/interface.c:10565
+msgid "Nothing to Recover"
+msgstr ""
+
+#: ../src/interface.c:10580
+msgid "Nothing to recover"
+msgstr ""
+
+#: ../src/interface.c:10644
+msgid "SSM Superpose"
+msgstr ""
+
+#: ../src/interface.c:10658
+msgid "Superpose Molecules"
+msgstr ""
+
+#: ../src/interface.c:10666
+msgid "Reference Structure"
+msgstr ""
+
+#: ../src/interface.c:10704
+#: ../src/interface.c:10765
+#: ../src/interface.c:14486
+#: ../src/interface.c:14547
+msgid "Use Specific Chain"
+msgstr ""
+
+#: ../src/interface.c:10727
+msgid "Moving Structure"
+msgstr ""
+
+#: ../src/interface.c:10781
+msgid "Move copy of Moving Structure"
+msgstr ""
+
+#: ../src/interface.c:10801
+msgid "  Superpose  "
+msgstr ""
+
+#: ../src/interface.c:10849
+msgid "Nonsense!"
+msgstr ""
+
+#: ../src/interface.c:10864
+msgid "Superposing a molecule onto itself is nonsense."
+msgstr ""
+
+#: ../src/interface.c:10877
+msgid "Silly Billy"
+msgstr "Tontolaba!"
+
+#: ../src/interface.c:10906
+msgid "No Acceptable Terminal Residue "
+msgstr ""
+
+#: ../src/interface.c:10921
+msgid ""
+"  Add Terminal Residue failed to find \n"
+"any acceptable configuration here."
+msgstr ""
+
+#: ../src/interface.c:10961
+msgid "Clean!"
+msgstr ""
+
+#: ../src/interface.c:10976
+msgid ""
+"Coot detected no bad chiral volumes\n"
+"in this molecule."
+msgstr ""
+
+#: ../src/interface.c:10989
+msgid "   Good   "
+msgstr ""
+
+#: ../src/interface.c:11020
+msgid "Check Chiral Volumes molecule chooser:"
+msgstr ""
+
+#: ../src/interface.c:11042
+msgid "Check Chiral Volumes on molecule:"
+msgstr ""
+
+#: ../src/interface.c:11071
+msgid "   Check Volumes   "
+msgstr ""
+
+#: ../src/interface.c:11080
+#: ../src/interface.c:11148
+#: ../src/interface.c:11268
+#: ../src/interface.c:11404
+#: ../src/interface.c:11621
+#: ../src/interface.c:12933
+#: ../src/interface.c:13001
+#: ../src/interface.c:13147
+#: ../src/interface.c:14040
+#: ../src/interface.c:14658
+msgid "   Cancel   "
+msgstr ""
+
+#: ../src/interface.c:11114
+msgid "Chiral Volume Baddies:"
+msgstr ""
+
+#: ../src/interface.c:11178
+msgid "Rigid Body Refine Failed!"
+msgstr ""
+
+#: ../src/interface.c:11192
+msgid ""
+"\n"
+"Rigid Body Refinement failed.\n"
+"No sensible place to put the atoms.\n"
+"\n"
+"Sorry.\n"
+msgstr ""
+
+#: ../src/interface.c:11232
+msgid "Make Skeleton?"
+msgstr ""
+
+#: ../src/interface.c:11239
+msgid ""
+"\n"
+"\n"
+"There is no skeleton for this map.\n"
+"\n"
+"Calculate a skeleton now?\n"
+"\n"
+msgstr ""
+
+#: ../src/interface.c:11259
+msgid "   Calculate   "
+msgstr ""
+
+#: ../src/interface.c:11311
+msgid "Merge Molecules"
+msgstr ""
+
+#: ../src/interface.c:11333
+msgid ""
+"\n"
+"Append/Insert Molecule(s):\n"
+msgstr ""
+
+#: ../src/interface.c:11362
+msgid ""
+"\n"
+"into Molecule:\n"
+msgstr ""
+
+#: ../src/interface.c:11378
+msgid " "
+msgstr ""
+
+#: ../src/interface.c:11397
+msgid "   Merge   "
+msgstr ""
+
+#: ../src/interface.c:11453
+msgid "Mutate sequence"
+msgstr ""
+
+#: ../src/interface.c:11475
+msgid ""
+"\n"
+"   Mutate Molecule:\n"
+msgstr ""
+
+#: ../src/interface.c:11501
+msgid "  Chain ID: "
+msgstr ""
+
+#: ../src/interface.c:11525
+msgid "  Residue numbers "
+msgstr ""
+
+#: ../src/interface.c:11540
+msgid "   to   "
+msgstr ""
+
+#: ../src/interface.c:11555
+msgid "  (inclusive)   "
+msgstr ""
+
+#: ../src/interface.c:11562
+msgid ""
+"\n"
+"   to (single letter) sequence:\n"
+msgstr ""
+
+#: ../src/interface.c:11594
+#: ../src/interface.c:14350
+msgid " Autofit the mutated residues?"
+msgstr ""
+
+#: ../src/interface.c:11614
+msgid "   Mutate   "
+msgstr ""
+
+#: ../src/interface.c:11685
+#: ../src/interface.c:13528
+msgid "Bond Parameters"
+msgstr ""
+
+#: ../src/interface.c:11699
+msgid "Colour Map Rotation [Molecule Independent]"
+msgstr ""
+
+#: ../src/interface.c:11722
+msgid "  New molecule rotates colour map"
+msgstr ""
+
+#: ../src/interface.c:11736
+msgid "   by  "
+msgstr ""
+
+#: ../src/interface.c:11751
+msgid "  degrees   "
+msgstr ""
+
+#: ../src/interface.c:11758
+msgid " Change colour for Carbons only"
+msgstr ""
+
+#: ../src/interface.c:11774
+#: ../src/interface.c:12232
+msgid "  Molecule:  "
+msgstr ""
+
+#: ../src/interface.c:11797
+msgid "Molecule Bond Width:"
+msgstr ""
+
+#: ../src/interface.c:11828
+msgid "  pixels  "
+msgstr ""
+
+#: ../src/interface.c:11835
+msgid "Draw Hydrogens?"
+msgstr ""
+
+#: ../src/interface.c:11866
+msgid "Draw Non-Crystallographic Ghosts?"
+msgstr ""
+
+#: ../src/interface.c:11888
+msgid "Note that the sequences must match exactly for NCS ghosts to be generated"
+msgstr ""
+
+#: ../src/interface.c:11995
+msgid "Renumber Residue Range"
+msgstr ""
+
+#: ../src/interface.c:12017
+msgid "Renumber Residue Range of Molecule:"
+msgstr ""
+
+#: ../src/interface.c:12043
+msgid "  Chain ID:  "
+msgstr ""
+
+#: ../src/interface.c:12066
+msgid "  Residue numbers:  "
+msgstr ""
+
+#: ../src/interface.c:12081
+msgid "  to  "
+msgstr ""
+
+#: ../src/interface.c:12096
+msgid "  (inclusive)  "
+msgstr ""
+
+#: ../src/interface.c:12110
+msgid "  Offset:  "
+msgstr ""
+
+#: ../src/interface.c:12124
+msgid "e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36"
+msgstr ""
+
+#: ../src/interface.c:12138
+msgid "  Renumber  "
+msgstr ""
+
+#: ../src/interface.c:12195
+msgid "add OXT to chain"
+msgstr ""
+
+#: ../src/interface.c:12217
+msgid "Add OXT to Chain:"
+msgstr ""
+
+#: ../src/interface.c:12255
+msgid "  Chain:  "
+msgstr ""
+
+#: ../src/interface.c:12293
+msgid "  At C terminus"
+msgstr ""
+
+#: ../src/interface.c:12308
+msgid "At Residue: "
+msgstr ""
+
+#: ../src/interface.c:12336
+msgid "  Add it  "
+msgstr ""
+
+#: ../src/interface.c:12393
+msgid ""
+"\n"
+"\n"
+"\n"
+"     Coot found no unexplained blobs      \n"
+"\n"
+"\n"
+msgstr ""
+
+#: ../src/interface.c:12412
+msgid "   OK!   "
+msgstr ""
+
+#: ../src/interface.c:12450
+msgid "Delete Molecules:"
+msgstr ""
+
+#: ../src/interface.c:12479
+msgid "      Delete?    "
+msgstr ""
+
+#: ../src/interface.c:12486
+msgid "     Name"
+msgstr ""
+
+#: ../src/interface.c:12527
+msgid "  Delete Marked Molecules & Maps  "
+msgstr ""
+
+#: ../src/interface.c:12582
+msgid "Find Unmodelled Blobs of density"
+msgstr ""
+
+#: ../src/interface.c:12643
+msgid "Select Protein Model:"
+msgstr ""
+
+#: ../src/interface.c:12667
+msgid "Find Blobs above:"
+msgstr ""
+
+#: ../src/interface.c:12709
+msgid "  Find Blobs  "
+msgstr ""
+
+#: ../src/interface.c:12751
+msgid "Problem with restraints..."
+msgstr ""
+
+#: ../src/interface.c:12765
+msgid ""
+"\n"
+"\n"
+"         Problem finding restraints!          \n"
+"(see console)\n"
+"\n"
+msgstr ""
+
+#: ../src/interface.c:12815
+msgid "Check waters by difference map"
+msgstr ""
+
+#: ../src/interface.c:12852
+msgid "Select Difference Map:"
+msgstr ""
+
+#: ../src/interface.c:12866
+msgid ""
+"\n"
+"WARNING:: No Difference Maps Available!\n"
+msgstr ""
+
+#: ../src/interface.c:12890
+msgid "Select Model with Waters:"
+msgstr ""
+
+#: ../src/interface.c:12904
+msgid ""
+"\n"
+"WARNING:: No Models with Waters Available!\n"
+msgstr ""
+
+#: ../src/interface.c:12924
+msgid "   Check Waters   "
+msgstr ""
+
+#: ../src/interface.c:12967
+msgid "Interesting/Strange Waters:"
+msgstr ""
+
+#: ../src/interface.c:13027
+msgid "Info:"
+msgstr ""
+
+#: ../src/interface.c:13042
+msgid "Nothing Bad"
+msgstr ""
+
+#: ../src/interface.c:13089
+msgid "Skeletonize Map"
+msgstr ""
+
+#: ../src/interface.c:13111
+msgid ""
+"\n"
+"You need a skeleton to use baton building.  \n"
+"\n"
+"Which map do you want to skeletonize?\n"
+msgstr ""
+
+#: ../src/interface.c:13140
+msgid "   Skeletonize   "
+msgstr ""
+
+#: ../src/interface.c:13182
+msgid "Antialiasing"
+msgstr ""
+
+#: ../src/interface.c:13205
+msgid "Antialias Lines?"
+msgstr ""
+
+#: ../src/interface.c:13285
+msgid "Geometry Graphs"
+msgstr ""
+
+#: ../src/interface.c:13380
+msgid "Stereo/Mono"
+msgstr ""
+
+#: ../src/interface.c:13402
+msgid ""
+"\n"
+"View Mode"
+msgstr ""
+
+#: ../src/interface.c:13425
+msgid "Mono"
+msgstr ""
+
+#: ../src/interface.c:13433
+msgid "Hardware Stereo"
+msgstr ""
+
+#: ../src/interface.c:13495
+msgid "Preferences"
+msgstr ""
+
+#: ../src/interface.c:13549
+msgid "Mark Cis-Peptides as Bad in Geometry Graph?"
+msgstr ""
+
+#: ../src/interface.c:13572
+msgid " Yes"
+msgstr ""
+
+#: ../src/interface.c:13580
+msgid " No"
+msgstr ""
+
+#: ../src/interface.c:13599
+msgid "Other"
+msgstr ""
+
+#: ../src/interface.c:13654
+msgid "Difference Map Peaks"
+msgstr ""
+
+#: ../src/interface.c:13732
+msgid "Difference Map Peak Analysis"
+msgstr ""
+
+#: ../src/interface.c:13754
+msgid "Select Difference Map"
+msgstr ""
+
+#: ../src/interface.c:13775
+msgid "WARNING:: No Difference Maps Available!"
+msgstr ""
+
+#: ../src/interface.c:13783
+#: ../src/interface.c:13949
+msgid "Select Model"
+msgstr ""
+
+#: ../src/interface.c:13804
+msgid "WARNING:: No Models Available"
+msgstr ""
+
+#: ../src/interface.c:13827
+msgid "  Find Peaks above "
+msgstr ""
+
+#: ../src/interface.c:13849
+msgid "Negative Level?"
+msgstr ""
+
+#: ../src/interface.c:13856
+msgid "Find Negative Peaks Also?"
+msgstr ""
+
+#: ../src/interface.c:13970
+msgid "WARNING:: No Models with NCS Available"
+msgstr ""
+
+#: ../src/interface.c:13985
+msgid "Select Map"
+msgstr ""
+
+#: ../src/interface.c:14006
+msgid "WARNING:: No Maps Available!"
+msgstr ""
+
+#: ../src/interface.c:14076
+msgid "Sample text."
+msgstr ""
+
+#: ../src/interface.c:14108
+msgid "Pointer Distances"
+msgstr ""
+
+#: ../src/interface.c:14131
+msgid " Show Pointer Distances"
+msgstr ""
+
+#: ../src/interface.c:14165
+msgid "  Max Distance"
+msgstr ""
+
+#: ../src/interface.c:14175
+#: ../src/interface.c:14185
+msgid " Angstroms "
+msgstr ""
+
+#: ../src/interface.c:14262
+msgid "Align and Mutate"
+msgstr ""
+
+#: ../src/interface.c:14285
+msgid ""
+"\n"
+"   Align and Mutate Molecule:\n"
+msgstr ""
+
+#: ../src/interface.c:14310
+msgid "   Chain ID: "
+msgstr ""
+
+#: ../src/interface.c:14326
+msgid ""
+"\n"
+"     to (single letter) sequence:\n"
+msgstr ""
+
+#: ../src/interface.c:14369
+msgid "  Apply Sequence to Model  "
+msgstr ""
+
+#: ../src/interface.c:14426
+#: ../src/interface.c:14440
+msgid "Ramachandran Plot Differences"
+msgstr ""
+
+#: ../src/interface.c:14448
+msgid "First Structure"
+msgstr ""
+
+#: ../src/interface.c:14509
+msgid "Second Structure"
+msgstr ""
+
+#: ../src/interface.c:14623
+msgid "Questionable Waters"
+msgstr ""
+
+#: ../src/support.c:121
+#, c-format
+msgid "Couldn't find pixmap file: %s"
+msgstr "No encuentro el fichero pixmap: %s"
+
+#: ../src/support.c:130
+#, c-format
+msgid "Error loading pixmap file: %s"
+msgstr "Error cargando el fichero pixmap: %s"
+

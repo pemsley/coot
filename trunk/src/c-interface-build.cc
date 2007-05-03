@@ -3203,6 +3203,8 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 /*  ----------------------------------------------------------------------- */
 int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
 
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+   
    if (is_valid_model_molecule(molecule_number)) {
 
       CMMDBManager *mol = 0;
@@ -3363,6 +3365,10 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
       graphics_info_t::molecules[molecule_number].replace_molecule(mol);
       graphics_draw();
    }
+   return 1;
+#else
+   return 0;
+#endif // SCM version
 }
 
 // return a scm string, decode to c++ using scm_to_locale_string();
@@ -5054,8 +5060,14 @@ int get_monomer(const char *three_letter_code) {
 
    int was_int_flag = gh_scm2bool(scm_integer_p(v));
 
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)      
    if (was_int_flag)
       imol = scm_to_int(v);
+#else    
+   if (was_int_flag)
+      imol = gh_scm2int(v);
+#endif // SCM version   
+   
 
 #else 
    

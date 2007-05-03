@@ -218,6 +218,7 @@ coot_real_SOURCES = \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
 	c-interface.cc		 \
+	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
 	c-interface-ncs.cc	 \
 	c-interface-info.cc	 \

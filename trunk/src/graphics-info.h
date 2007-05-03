@@ -1702,6 +1702,9 @@ public:
 				     const std::string &chain_id, 
 				     const std::string &res_type,
 				     short int immediate_addition_flag);
+   void execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
+					   CResidue *res_p, const std::string &chain_id);
+
    static short int add_terminal_residue_immediate_addition_flag;
    static short int refinement_immediate_replacement_flag;  // don't dialog me please
    // called by above (private)
