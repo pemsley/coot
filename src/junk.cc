@@ -132,6 +132,163 @@ graphics_info_t::rot_trans_obj(int x_diff, const std::string &button_label) {
    regularize_object_bonds_box = bonds.make_graphical_bonds();
    gtk_widget_draw(glarea, NULL);
 }
+// Old unused code
+// 
+void 
+autobuild_ca_on() { 
+
+   graphics_info_t g; 
+
+   g.autobuild_flag = 1;
+
+   // we use break so that we get only one skeleton. 
+   
+   for (int imol=0; imol<g.n_molecules; imol++) {
+      for (int imap=0; imap<g.molecules[imol].max_xmaps; imap++) {
+
+	 if (g.molecules[imol].xmap_is_filled[imap] &&
+	     g.molecules[imol].xmap_is_diff_map[imap] != 1) {
+
+	    if (g.molecules[imol].xskel_is_filled == 0) { 
+	       
+	       cout << "----------------------------------------" << endl; 
+	       cout << "must Calculate the Map Skeleton first..." << endl; 
+	       cout << "----------------------------------------" << endl; 
+	       
+	    } else {
+
+	       float map_cutoff  = g.skeleton_level;
+	       //
+	       // save a pointer to this map btw.
+	       // 
+	       BuildCas bc(g.molecules[imol].xmap_list[imap], map_cutoff); 
+
+
+	       // mark segments by connectivity
+	       // 
+	       int nsegments = bc.count_and_mark_segments(g.molecules[imol].xskel_cowtan, 
+							  g.molecules[imol].xmap_list[imap],
+							  map_cutoff); 
+
+	       cout << "INFO:: There were " << nsegments << " different segments" << endl; 
+	       
+	       // --------------------------------------------------------------
+	       // --------------------------------------------------------------
+	       cout << "cuckoo code:" << endl; 
+
+	       bc.transfer_segment_map(&g.molecules[imol].xskel_cowtan);
+	       g.molecules[imol].update_clipper_skeleton();
+
+	       // --------------------------------------------------------------
+	       // --------------------------------------------------------------
+
+
+	       // bc.depth_search_skeleton_testing_2(); 
+
+	       // add branch points
+	       //
+	       cout << "INFO:: finding branch points..." << endl; 
+	       //
+	       vector<coot::Cartesian> branch_pts =
+		  bc.find_branch_points(g.molecules[imol].xmap_list[imap],
+					g.molecules[imol].xskel_cowtan,
+					map_cutoff);
+	       // 
+	       cout << "INFO:: converting branch points to asc..." << endl; 
+	       // 
+	       atom_selection_container_t branch_pts_as_asc =
+		  bc.convert_to_atoms(g.molecules[imol].xmap_list[imap],
+				      branch_pts, "branch points");
+ 
+	       // slight tangle here (internally to BuildCas,
+	       // branch_points_symm_expanded is a vector<coot::Cartesian>, but
+	       // we want an asc, so need to convert, so we need cell and
+	       // symm (so we pass a const reference to the map). 
+	       // 
+	       atom_selection_container_t s_e_branch_pts_as_asc = 
+		  bc.symmetry_expanded_branch_points(g.molecules[imol].xmap_list[imap]); 
+
+	       cout << "INFO:: c-interface branch points conversion to atoms done!" << endl; 
+
+	       cout << "INFO:: c-interface converting skeleton points to atoms..." << endl; 
+
+// 	       asc_and_grids all_skels_pts_in_asu =
+// 		  bc.all_skel_pts_in_asu(g.molecules[imol].xmap_list[imap],
+// 					 g.molecules[imol].xskel_cowtan,
+// 					 map_cutoff); // was 0.2
+
+	       asc_and_grids all_skels_pts_in_asu =
+		  bc.toplevel_skel_pts_in_asu(); // use internal segment_map
+
+	       cout << "INFO:: c-interface expanding skeleton points by symmetry..." << endl; 
+
+	       atom_selection_container_t big_ball =
+		  bc.build_big_ball(g.molecules[imol].xmap_list[imap],
+				    all_skels_pts_in_asu.asc, 
+				    all_skels_pts_in_asu.grid_points); 
+
+	       GraphicalSkel cowtan; 
+
+	       int n_tips = cowtan.N_tips(g.molecules[imol].xmap_list[imap],
+					  g.molecules[imol].xskel_cowtan,
+					  map_cutoff);
+
+ 	       bc.interconnectedness(n_tips);
+
+	       // now make that atom_selection_container for branch points:
+	       // 
+
+	       // Turn this back on when we have filled in molecule and map control.
+	       // As it stood this code makes the molecule "active" (i.e. clickable)
+	       // but the atoms were not displayed. 
+	       // 
+//  	       g.molecules[imol_new].initialize_coordinate_things_on_read_molecule(label);
+//  	       g.molecules[imol_new].atom_sel = s_e_branch_pts_as_asc; 
+//  	       g.molecules[imol_new].makebonds(0.1); // we don't want to join branch points
+// 	       g.n_molecules++;
+
+ 	       std::string label = "branch points (symm expanded)";
+	       asc_to_graphics(s_e_branch_pts_as_asc, label, ATOM_BONDS, 0.1); 
+
+	       // debug_atom_selection_container(g.molecules[imol].atom_sel); 
+
+
+
+	       // now make the atom_selection_container for the big ball
+	       // viewable:
+	       // 
+
+// 	       g.molecules[imol_new+1].initialize_coordinate_things_on_read_molecule("big ball");
+// 	       g.molecules[imol_new+1].atom_sel = big_ball; 
+// 	       g.molecules[imol_new+1].make_ca_bonds(3.72, 3.85); //uses atom_sel
+// 	       g.n_molecules++;
+	       
+	       // CA_BONDS !?
+	       // 
+	       asc_to_graphics(big_ball, "big ball", CA_BONDS, 3.72, 3.85); 
+
+
+	       
+	       // bc.ca_grow(g.molecules[imol].xmap_list[imap]); 
+	       bc.ca_grow_recursive(); 
+
+	       // show the cas
+// 	       g.molecules[imol_new+2].initialize_coordinate_things_on_read_molecule("Auto-built C-alphas"); 
+// 	       g.molecules[imol_new+2].atom_sel = bc.grown_Cas(); 
+// 	       g.molecules[imol_new+2].make_ca_bonds(2.6, 4.3);  // Yikes! :-)
+// 	       g.n_molecules++;
+
+	       //
+	       asc_to_graphics(bc.grown_Cas(), "Auto-built C-alphas", CA_BONDS, 2.6,4.3); 
+
+	       bc.grown_Cas().mol->WritePDBASCII("autobuilt.pdb"); 
+
+	    }
+	 }
+      }
+   }
+   graphics_draw();
+}
 
 
 // return -1 on failure

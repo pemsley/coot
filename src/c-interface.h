@@ -1818,9 +1818,9 @@ GtkWidget *wrapped_create_goto_atom_window();
 void post_go_to_atom_window();
 void fill_go_to_atom_window(GtkWidget *widget);
 
-/* gchar *get_text_for_go_to_atom_chain_entry();  */
-/* gchar *get_text_for_go_to_atom_residue_entry();  */
-/* gchar *get_text_for_go_to_atom_atom_name_entry();  */
+gchar *get_text_for_go_to_atom_chain_entry(); 
+gchar *get_text_for_go_to_atom_residue_entry();
+gchar *get_text_for_go_to_atom_atom_name_entry();
 
 int go_to_atom_molecule_number();
 char *go_to_atom_chain_id();
@@ -1947,7 +1947,7 @@ on_go_to_atom_residue_list_unselect_child (GtkList         *list,
 /*                  autobuilding control                                    */
 /*  ----------------------------------------------------------------------- */
 /* section AutoBuilding functions (Defunct) */
-void autobuild_ca_on(); 
+/* void autobuild_ca_on();  - moved to junk */
 
 void autobuild_ca_off(); 
 
@@ -2729,7 +2729,18 @@ int remove_named_view(const char *view_name);
 /* go to the first view.  if snap_to_view_flag, go directly, else
    smooth twisty path.*/
 int go_to_first_view(int snap_to_view_flag);
+int go_to_view_number(int view_number, int snap_to_view_flag);
 void add_spin_view(const char *view_name, int n_steps, float degrees_total);
+/*! \brief return the number of views */
+int n_views(); 
+/*! \brief return the name of the given view, if view_number does not
+  specify a view return #f */
+
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM view_name(int view_number);
+#endif	/* USE_GUILE */
+#endif	/* __cplusplus */
 
 /*  ----------------------------------------------------------------------- */
 /*                  graphics background colour                              */

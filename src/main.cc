@@ -1,6 +1,6 @@
 /* src/main.cc
  * 
- * Copyright 2001, 2002, 2003, 2004, 2005, 2006 The University of York
+ * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -130,7 +130,9 @@ void check_reference_structures_dir();
 int setup_database();
 #endif
 
-// #define ENABLE_NLS
+#if (GTK_MAJOR_VERSION > 1) 
+#define ENABLE_NLS
+#endif
 
 // This main is used for both python/guile useage and unscripted. 
 int
@@ -141,7 +143,7 @@ main (int argc, char *argv[]) {
 
   graphics_info_t graphics_info;
   
-#ifdef ENABLE_NLS // not used currently?
+#ifdef ENABLE_NLS // not used currently in Gtk1. Gkt2, yes.
   // 
   bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
   textdomain (PACKAGE);

@@ -13,7 +13,9 @@ Release 0.3.2 ""
   o Added CNS map-reading [provided by Kevin Cowtan].  .cns is now 
     an acceptable map extension.
 
-  o GTk2 interface now usable
+  o Add Terminal Residue for nucleotide polymers (to some extent)
+
+  o GTk+-2 interface now usable
 
   o Added SEGID info to clicked atom [Christine Durnham]
 
@@ -30,7 +32,7 @@ Release 0.3.2 ""
   o Fix map reading so that it accepts user-approved extensions
     [Peter Meyer]
 
-  o Added Views system [inspired by PyMol, I admit]
+  o Added Views system [inspired by PyMol]
 
 
     -------------------------------------------------------

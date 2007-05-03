@@ -2134,123 +2134,117 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol, PP
    label += molecules[imol].name_;
 
    gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
+   GtkWidget *table = lookup_widget(widget, "residue_info_atom_table");
    
    residue_info_n_atoms = n_atoms; 
    for (int i=0; i<n_atoms; i++)
-      graphics_info_t::fill_output_residue_info_widget_atom(widget, imol, atoms[i], i);
+      graphics_info_t::fill_output_residue_info_widget_atom(table, imol, atoms[i], i);
 }
 
 void
-graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *widget, int imol, PCAtom atom,
-						      int i) {
+graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol, PCAtom atom,
+						      int iatom) {
 
-   // now (23 oct 2003) we will use i, the atom index in the residue
-   // atom table to name the widgets (the entry widgets).  Also, we
-   // will attach an event callback on each entry to register that
-   // this entry has been changed.
-   // 
-   graphics_info_t g;
-   GtkWidget *residue_info_atom_info_label;
-   GtkWidget *residue_info_atom_info_vbox = lookup_widget(widget,"residue_info_atom_info_vbox");
-   GtkWidget *residue_info_occ_vbox = lookup_widget(widget,"residue_info_occ_vbox");
-   GtkWidget *residue_info_tempfactor_vbox = lookup_widget(widget,"residue_info_tempfactor_vbox");
-   GtkWidget *residue_info_dialog = lookup_widget(widget, "residue_info_dialog");
-   GtkWidget *residue_info_occ_entry; 
-   GtkWidget *residue_info_tempfactor_entry;
+   GtkWidget *residue_info_dialog = lookup_widget(table, "residue_info_dialog");
+   gint left_attach = 0;
+   gint right_attach = 1;
+   gint top_attach = iatom;
+   gint bottom_attach = top_attach + 1;
+   GtkAttachOptions xopt = GTK_FILL, yopt=GTK_FILL;
+   guint xpad=0, ypad=0;
 
-   // label98 = gtk_label_new (_("  Atom Name/Res/Pos Here  "));
-   std::string label_str;
-   label_str += atom->name;
-   if (std::string(atom->altLoc) != std::string("")) { 
-      label_str += ",";
-      label_str += atom->altLoc;
-   }
+   // The text label of the atom name:
+   left_attach = 0;
+   right_attach = left_attach + 1;
+   std::string label_str = "  ";
+   label_str += atom->GetChainID();
    label_str += "/";
    label_str += graphics_info_t::int_to_string(atom->GetSeqNum());
+   if (std::string(atom->GetInsCode()) != "") {
+      label_str += atom->GetInsCode();
+   }
    label_str += " ";
    label_str += atom->GetResName();
    label_str += "/";
-   label_str += atom->GetChainID();
-   
+   label_str += atom->name;
+   if (std::string(atom->altLoc) != std::string("")) {
+      label_str += ",";
+      label_str += atom->altLoc;
+   }
+   if (std::string(atom->segID) != std::string("")) {
+      label_str += " ";
+      label_str += atom->segID;
+   }
+   label_str += "  ";
 
-   residue_info_atom_info_label = gtk_label_new (label_str.c_str());
+   GtkWidget *residue_info_atom_info_label = gtk_label_new (label_str.c_str());
+   gtk_table_attach(GTK_TABLE(table), residue_info_atom_info_label,
+		    left_attach, right_attach, top_attach, bottom_attach,
+		    xopt, yopt, xpad, ypad);
    gtk_widget_ref (residue_info_atom_info_label);
    gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
 			     "residue_info_atom_info_label", residue_info_atom_info_label,
 			     (GtkDestroyNotify) gtk_widget_unref);
    gtk_widget_show (residue_info_atom_info_label);
-   gtk_box_pack_start (GTK_BOX (residue_info_atom_info_vbox), residue_info_atom_info_label, FALSE, FALSE, 3);
 
+
+   // The Occupancy entry:
+   left_attach = 1;
+   right_attach = left_attach + 1;
    coot::select_atom_info *ai = new coot::select_atom_info;
-
-//    std::cout << "debug i: " << i << std::endl;
-//    std::cout << "debug imol: " << imol << std::endl;
-//    std::cout << "debug atom->GetChainID(): " << std::string(atom->GetChainID()) << std::endl;
-//    std::cout << "debug atom->GetSeqNum(): " << atom->GetSeqNum() << std::endl;
-//    std::cout << "debug atom->GetInsCode(): " << std::string(atom->GetInsCode()) << std::endl;
-//    std::cout << "debug atom->name: " << std::string(atom->name) << std::endl;
-//    std::cout << "debug :atom->altLoc " << std::string(atom->altLoc) << std::endl;
-
-   *ai = coot::select_atom_info(i, imol, 
+   *ai = coot::select_atom_info(iatom, imol, 
 				std::string(atom->GetChainID()), 
 				atom->GetSeqNum(),
 				std::string(atom->GetInsCode()),
 				std::string(atom->name),
 				std::string(atom->altLoc));
 
-   // Occupancy entry:
-   // 
    std::string widget_name = "residue_info_occ_entry_";
-   widget_name += int_to_string(i);
+   widget_name += int_to_string(iatom);
    // 
-   residue_info_occ_entry = gtk_entry_new ();
+   GtkWidget *residue_info_occ_entry = gtk_entry_new ();
    gtk_widget_ref (residue_info_occ_entry);
    gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
 			     widget_name.c_str(), residue_info_occ_entry,
 			     (GtkDestroyNotify) gtk_widget_unref);
    gtk_widget_show (residue_info_occ_entry);
-   gtk_entry_set_text(GTK_ENTRY(residue_info_occ_entry), g.float_to_string(atom->occupancy).c_str());
-   gtk_widget_set_usize(residue_info_occ_entry, 40, -2);
-   gtk_box_pack_start (GTK_BOX (residue_info_occ_vbox), residue_info_occ_entry, FALSE, FALSE, 0);
-   // don't need to do this, use the master atom now.
-//    gtk_signal_connect (GTK_OBJECT (residue_info_occ_entry), "key_release_event",
-// 		       GTK_SIGNAL_FUNC (graphics_info_t::on_residue_info_occ_entry_key_release_event),
-// 		       ai);
-   // Err... madness ensues with this...
-//    gtk_signal_connect (GTK_OBJECT (residue_info_occ_entry), "changed",
-// 		       GTK_SIGNAL_FUNC (graphics_info_t::on_residue_info_occ_entry_changed),
-// 		       ai);
    gtk_object_set_user_data(GTK_OBJECT(residue_info_occ_entry), ai);
-   gtk_widget_set_events(residue_info_occ_entry, 
-			 GDK_KEY_PRESS_MASK     |
-			 GDK_KEY_RELEASE_MASK);
+   gtk_entry_set_text(GTK_ENTRY(residue_info_occ_entry),
+		      graphics_info_t::float_to_string(atom->occupancy).c_str());
+   gtk_table_attach(GTK_TABLE(table), residue_info_occ_entry,
+		    left_attach, right_attach, top_attach, bottom_attach,
+		    xopt, yopt, xpad, ypad);
 
 
-   // Note that we have to use key_release_event because if we use
+      // Note that we have to use key_release_event because if we use
    // key_press_event, when we try to get the value from the widget
    // (gtk_entry_get_text) then that does not see the key/number that
    // was just pressed.
 
    // B-factor entry:
-   widget_name = "residue_info_b_factor_entry_";
-   widget_name += int_to_string(i);
+   left_attach = 2;
+   right_attach = left_attach + 1;
 
-   residue_info_tempfactor_entry = gtk_entry_new ();
-   gtk_widget_ref (residue_info_tempfactor_entry);
+   widget_name = "residue_info_b_factor_entry_";
+   widget_name += int_to_string(iatom);
+
+   GtkWidget *residue_info_b_factor_entry = gtk_entry_new ();
+   gtk_widget_ref (residue_info_b_factor_entry);
    gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
-			     widget_name.c_str(), residue_info_tempfactor_entry,
+			     widget_name.c_str(), residue_info_b_factor_entry,
 			     (GtkDestroyNotify) gtk_widget_unref);
-   gtk_widget_show (residue_info_tempfactor_entry);
-   gtk_entry_set_text(GTK_ENTRY(residue_info_tempfactor_entry), g.float_to_string(atom->tempFactor).c_str());
-   gtk_widget_set_usize(residue_info_tempfactor_entry, 40, -2);
-   gtk_box_pack_start (GTK_BOX (residue_info_tempfactor_vbox), residue_info_tempfactor_entry, FALSE, FALSE, 0);
-//    gtk_signal_connect (GTK_OBJECT (residue_info_tempfactor_entry), "key_release_event",
-// 		       GTK_SIGNAL_FUNC (graphics_info_t::on_residue_info_b_factor_entry_key_release_event),
-// 		       ai);
-   gtk_object_set_user_data(GTK_OBJECT(residue_info_tempfactor_entry), ai);
-   gtk_widget_set_events(residue_info_tempfactor_entry, 
+   gtk_widget_show (residue_info_b_factor_entry);
+   gtk_entry_set_text(GTK_ENTRY(residue_info_b_factor_entry),
+		      graphics_info_t::float_to_string(atom->tempFactor).c_str());
+   // gtk_widget_set_usize(residue_info_b_factor_entry, 40, -2);
+   gtk_object_set_user_data(GTK_OBJECT(residue_info_b_factor_entry), ai);
+   gtk_widget_set_events(residue_info_b_factor_entry, 
 			 GDK_KEY_PRESS_MASK     |
 			 GDK_KEY_RELEASE_MASK);
+   gtk_table_attach(GTK_TABLE(table), residue_info_b_factor_entry,
+		    left_attach, right_attach, top_attach, bottom_attach,
+		    xopt, yopt, xpad, ypad);
+
 }
 
 // static 
