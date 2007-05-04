@@ -662,6 +662,8 @@ on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
 }
 
 #if (GTK_MAJOR_VERSION > 1) || defined (GTK_ENABLE_BROKEN)
+#else
+// gtk1 stuff...
 void
 on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
 					     gpointer         user_data)
@@ -4008,18 +4010,6 @@ void unset_go_to_atom_widget() {
 } 
 
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-// // A misnamed function.  The atom list is not filled, it is cleared.
-// // 
-void fill_go_to_atom_residue_and_atom_lists_gtk1(GtkWidget *residue_gtklist,
-						 GtkWidget *atom_gtklist) {
-
-    graphics_info_t g;
-    g.fill_go_to_atom_residue_list_gtk1(residue_gtklist);
-}
-#endif
-
-
 // not really a button select, its a menu item select
 void
 save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos) { 
@@ -6642,7 +6632,7 @@ void do_surface(int imol, int state) {
 /*  ----------------------------------------------------------------------- */
 /*                  Views                                                   */
 /*  ----------------------------------------------------------------------- */
-void add_view(const char *view_name) {
+void add_view_here(const char *view_name) {
 
    std::string name(view_name);
    float quat[4];
@@ -6655,6 +6645,13 @@ void add_view(const char *view_name) {
    graphics_info_t::views->push_back(view);
 
 }
+
+void add_view_raw(float rcx, float rcy, float rcz, float quat1, float quat2, 
+		  float quat3, float quat4, float zoom, const char *view_name, 
+		  const char *description) {
+
+}
+
 
 int remove_named_view(const char *view_name) {
 

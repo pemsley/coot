@@ -208,6 +208,7 @@ namespace coot {
       float zoom;
       coot::Cartesian rotation_centre;
       std::string view_name;
+      std::string description;
       bool is_simple_spin_view_flag;
       int n_spin_steps;
       float degrees_per_step;

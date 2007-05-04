@@ -3367,6 +3367,8 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    }
    return 1;
 #else
+   std::cout << "Must compile with guile 1.8 or better to use this function"
+	     << std::endl;
    return 0;
 #endif // SCM version
 }

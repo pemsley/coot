@@ -1052,9 +1052,27 @@
 (define view-saver-gui
   (lambda ()
 
-    (generic-single-entry "View Name: " "View" " Save View " 
+    (define (local-view-name)
+      (let loop ((view-count 0))
+	(let ((str (string-append "View"
+				  (if (> view-count 0)
+				      (string-append "-"
+						     (number->string view-count))
+				      ""))))
+	  ;; now is a view already called str?
+	  (let iloop ((jview 0))
+	    (let ((jview-name (view-name jview)))
+
+	      (cond 
+	       ((>= jview (n-views)) str)
+	       ((eq? #f jview-name) str)
+	       ((string=? str jview-name) (loop (+ view-count 1)))
+	       (else
+		(iloop (+ jview 1)))))))))
+
+    (generic-single-entry "View Name: " (local-view-name) " Add View " 
                           (lambda (text) 
-                            (add-view text)))))
+                            (add-view-here text)))))
 
 ;; geometry is an improper list of ints
 ;; 
