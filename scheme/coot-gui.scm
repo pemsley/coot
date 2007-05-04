@@ -1139,9 +1139,14 @@
 		      (hbox (gtk-hbox-new #f 2)))
 
 		 (gtk-signal-connect button-1 "clicked" callback)
-		 (gtk-signal-connect button-2 "clicked" callback)
 		 (gtk-box-pack-start h-box button-1 #f #f 2)
-		 (gtk-box-pack-start h-box button-2 #f #f 2)
+
+		 (if callback-2 
+		     (let ((button-2 (gtk-button-new-with-label buton-2-label)))
+		       (gtk-button-new-with-label buton-2-label)
+		       (gtk-signal-connect button-2 "clicked" callback-2)
+		       (gtk-box-pack-start h-box button-2 #f #f 2)))
+
 		 (gtk-box-pack-start inside-vbox h-box #f #f 2))))
 	 buttons)
 

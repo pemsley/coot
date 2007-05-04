@@ -54,10 +54,33 @@
 ;; 
 (define (refmac-problems-gui imol problem-list)
 
-  (let ((buton-ls 
+  (define go-to-position-function
+    (lambda (position-description)
+
+      (if (list? position-description)
+	  (let ((description-type (car position-description)))
+	    
+	    (cond
+	     (eq? description-type 'atom-pair) fixme)))))
+
+
+  (let ((button-ls 
 	 (map (lambda (problem)
-		
-		problem))))
+		(if (not (list length))
+		    #f
+		    (if (not (= (length problem) 4))
+			#f
+			(let ((button-label1 (list-ref problem 0))
+			      (button-label2 (list-ref problem 2))
+			      (action-button-2 (list-ref problem 3))
+			      (action-button-1 (go-to-position-function
+						(list-ref problem 1))))
+
+			  (list button-label1
+				action-button-1
+				button-label2
+				action-button-2)))))
+	      problem-list)))
 		
     (dialog-box-of-pairs-of-buttons "Refmac Noted Problems"
 				    (cons 300 200)
