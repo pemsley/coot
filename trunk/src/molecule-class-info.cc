@@ -541,7 +541,8 @@ molecule_class_info_t::anisotropic_atoms() {
 				   atom_sel.atom_selection[i]->u33);
 
 		     glTranslatef(x1, y1, z1);
-		     glMultMatrixf(mat.get());
+		     // glMultMatrixf(mat.get());
+		     glMultMatrixf(mat.cholesky().get());
 		     rad_50 = r_50(atom_sel.atom_selection[i]->element);
 		     r = rad_50_and_prob_to_radius(rad_50,
 						   g.show_aniso_atoms_probability);
