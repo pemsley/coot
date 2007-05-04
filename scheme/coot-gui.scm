@@ -1107,6 +1107,52 @@
 			    (gtk-widget-destroy window))))
     (gtk-widget-show-all window)))
 
+;; geometry is an improper list of ints
+;; buttons is a list of: (list (list "button-1-label button-1-action)
+;;                             (list "button-2-label button-2-action))
+;; 
+(define (dialog-box-of-pairs-of-buttons 
+	 window-name geometry buttons close-button-label)
+
+  (let* ((window (gtk-window-new 'toplevel))
+	 (scrolled-win (gtk-scrolled-window-new))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-vbox (gtk-vbox-new #f 0)))
+    
+    (gtk-window-set-default-size window (car geometry) (cdr geometry))
+    (gtk-window-set-title window window-name)
+    (gtk-container-border-width inside-vbox 2)
+    (gtk-container-add window outside-vbox)
+    (gtk-box-pack-start outside-vbox scrolled-win #t #t 0) ; expand fill padding
+    (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
+    (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+
+    (map (lambda (buttons-info)
+	   (if (list? buttons-info)
+	       (let* ((buton-label-1 (car (car buttons-info)))
+		      (callback-1  (car (cdr (car buttons-info))))
+
+		      (buton-label-2 (car (car (cdr buttons-info))))
+		      (callback-2  (car (cdr (car (cdr buttons-info)))))
+
+		      (button-1 (gtk-button-new-with-label buton-1-label))
+		      (hbox (gtk-hbox-new #f 2)))
+
+		 (gtk-signal-connect button-1 "clicked" callback)
+		 (gtk-signal-connect button-2 "clicked" callback)
+		 (gtk-box-pack-start h-box button-1 #f #f 2)
+		 (gtk-box-pack-start h-box button-2 #f #f 2)
+		 (gtk-box-pack-start inside-vbox h-box #f #f 2))))
+	 buttons)
+
+    (gtk-container-border-width outside-vbox 2)
+    (let ((ok-button (gtk-button-new-with-label close-button-label)))
+      (gtk-box-pack-end outside-vbox ok-button #f #f 0)
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window))))
+    (gtk-widget-show-all window)))
+
 ;; A gui showing views:
 (define views-panel-gui
   (lambda ()
