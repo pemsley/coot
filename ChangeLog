@@ -1,3 +1,8 @@
+2007-05-04  Paul Emsley  <emsley@localhost>
+
+	* src/molecule-class-info.cc: (anisotropic_atoms): Add in cholesky
+	decomposition to the matrix.
+
 2007-05-03  Paul Emsley  <emsley@localhost>
 
 	* src/graphics-info-modelling.cc: Added
