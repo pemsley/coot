@@ -2722,7 +2722,10 @@ void spin_zoom_trans(int axis, int nstep, float stepsize, float zoom_by,
 /*  ----------------------------------------------------------------------- */
 /*                  Views                                                   */
 /*  ----------------------------------------------------------------------- */
-void add_view(const char *view_name); 
+void add_view_here(const char *view_name); 
+void add_view_raw(float rcx, float rcy, float rcz, float quat1, float quat2, 
+		  float quat3, float quat4, float zoom, const char *view_name, 
+		  const char *description);
 void play_views();
 void remove_this_view();
 int remove_named_view(const char *view_name);

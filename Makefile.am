@@ -28,7 +28,7 @@ SUBDIRS = auxil scheme python macros compat coot-utils surface coot-surface \
 	skeleton ccp4mg-utils density-contour coords angles \
 	mini-mol db-main  geometry  \
 	ideal ligand high-res build \
-	analysis sequence-view tw atom-utils src doc
+	analysis sequence-view tw atom-utils src doc po
 
 EXTRA_DIST = 		\
 	autogen.sh 	\

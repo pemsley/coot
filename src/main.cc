@@ -146,6 +146,7 @@ main (int argc, char *argv[]) {
 #ifdef ENABLE_NLS // not used currently in Gtk1. Gkt2, yes.
   // 
   bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+  bind_textdomain_codeset (PACKAGE, "UTF-8");
   textdomain (PACKAGE);
 #endif
 

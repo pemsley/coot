@@ -41,6 +41,7 @@ AC_HEADER_STDC
 AC_PROG_CXX
 AM_PROG_LIBTOOL
 AC_PROG_RANLIB
+AC_PROG_INTLTOOL
 
 dnl test for WINDOWS_MINGW
 AM_MINGW_WINDOWS
@@ -153,8 +154,12 @@ AM_WITH_MYSQL_DATABASE
 
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS="es"
+ALL_LINGUAS="es es_ES"
 # AM_GNU_GETTEXT
+GETTEXT_PACKAGE=coot
+AC_SUBST(GETTEXT_PACKAGE)
+AM_GLIB_GNU_GETTEXT
+
 dnl For now: just include the declarations for config.h.in
 AH_TEMPLATE([ENABLE_NLS], [Define if NLS support is used])
 AH_TEMPLATE([PACKAGE_LOCALE_DIR], [Directory of locales])
@@ -196,6 +201,7 @@ high-res/Makefile
 tw/Makefile
 setup/coot.sh	
 setup/coot.csh
+po/Makefile.in
 python/coot_load_modules.py
 auxil/Makefile
 auxil/catcheck/Makefile	

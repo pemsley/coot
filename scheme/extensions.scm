@@ -333,7 +333,7 @@
         (gtk-widget-show menuitem2)
         
         (add-simple-coot-menu-menuitem
-         submenu "Save View..."
+         submenu "Add View..."
          (lambda ()
            (view-saver-gui)))
 

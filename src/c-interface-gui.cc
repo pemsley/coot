@@ -1,4 +1,4 @@
-/* src/main.cc
+/* src/c-interface-gui.cc
  * 
  * Copyright 2007 The University of York
  * Author: Paul Emsley
@@ -2143,8 +2143,7 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 
      /* fill those atom and residue lists (which uses
 	graphics_info_t::go_to_atom_residue()) */
-     fill_go_to_atom_residue_and_atom_lists_gtk1(residue_tree,
-						 atom_gtklist);
+      g.fill_go_to_atom_residue_list_gtk1(residue_gtklist);
 
 #else
      // -----------------------------------------------------------------
