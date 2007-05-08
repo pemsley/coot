@@ -32,21 +32,21 @@
   (list 
    (list "Clash: A 45 CG2 -> B 54 CA" 
 	 (list 'atom-pair 
-	       (list "A" 45 "" " CG2" "")	       
-	       (list "A" 45 "" " CG2" ""))
-	 "Correct Rotamer A 45?"
-	 (lambda ()
-	   (auto-fit-rotamer-by-atom-spec 45 "" "" "A" imol 1 0.1)))
-   (list "Extra Density near C 21 OG"
+	       (list "A" 45 "" " CG " "")	       
+	       (list "A" 45 "" " CG " ""))
+	 "Re-fit Rotamer A 45"
+	 (lambda (imol)
+	   (autofit-best-rotamer 45 "" "" "A" imol 1 0.1)))
+   (list "Extra Density near A 21 OG"
 	 (list 'atom
 	       (list "C" 21 "" " OG " ""))
-	 "Add Alt Conf"
+	 "Add Alt Conf for A 21"
 	 (lambda () 
-	   (add-alt-conf imol "C" 21 "")))
+	   (add-alt-conf imol "A" 21 "")))
    (list "High Anisotropy D 43"
 	 (list 'atom
 	       (list "D" 43 "" " CA " ""))
-	 "Add Alt Conf" 
+	 "Add Alt Conf for D 43" 
 	 (lambda () 
 	   (add-alt-conf imol "D" 43 "")))))
 
@@ -61,12 +61,34 @@
 	  (let ((description-type (car position-description)))
 	    
 	    (cond
-	     (eq? description-type 'atom-pair) fixme)))))
+	     ((eq? description-type 'atom-pair) 
+	      (lambda (imol)
+		(set-go-to-atom-molecule imol)
+		(format #t "  chain: ~s~%" (list-ref (car (cdr position-description)) 0))
+		(format #t "  resno: ~s~%" (list-ref (car (cdr position-description)) 1))
+		(format #t "atomname: ~s~%" (list-ref (car (cdr position-description)) 3))
+		(set-go-to-atom-chain-residue-atom-name
+		 (list-ref (car (cdr position-description)) 0)
+		 (list-ref (car (cdr position-description)) 1)
+		 (list-ref (car (cdr position-description)) 3))))
+	     ((eq? description-type 'atom) 
+	      (lambda (imol)
+		(set-go-to-atom-molecule imol)
+		(set-go-to-atom-chain-residue-atom-name 
+		 (list-ref (car (cdr position-description)) 0)
+		 (list-ref (car (cdr position-description)) 1)
+		 (list-ref (car (cdr position-description)) 3))))
+	     ((eq? description-type '3d-coords)
+	      (lambda (imol)
+		(apply set-rotation-centre (car (cdr problem-description)))))
+	     (else 
+	      #f))))))
+		       
 
 
   (let ((button-ls 
 	 (map (lambda (problem)
-		(if (not (list length))
+		(if (not (list? problem))
 		    #f
 		    (if (not (= (length problem) 4))
 			#f
@@ -81,10 +103,13 @@
 				button-label2
 				action-button-2)))))
 	      problem-list)))
-		
-    (dialog-box-of-pairs-of-buttons "Refmac Noted Problems"
+
+    (format #t "button list: ~s~%" button-ls)
+    (dialog-box-of-pairs-of-buttons imol 
+				    "Refmac Noted Problems"
 				    (cons 300 200)
 				    button-ls "  Close  ")))
 
+(refmac-problems-gui 0 problem-list)
 
 

@@ -1110,9 +1110,11 @@
 ;; geometry is an improper list of ints
 ;; buttons is a list of: (list (list "button-1-label button-1-action)
 ;;                             (list "button-2-label button-2-action))
+;; The button-1-action function takes no arguments.
+;; The button-2-action function takes as an argument the imol
 ;; 
 (define (dialog-box-of-pairs-of-buttons 
-	 window-name geometry buttons close-button-label)
+	 imol window-name geometry buttons close-button-label)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (scrolled-win (gtk-scrolled-window-new))
@@ -1128,23 +1130,32 @@
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
 
     (map (lambda (buttons-info)
+	   (format #t "buttons-info ~s~%" buttons-info) 
 	   (if (list? buttons-info)
-	       (let* ((buton-label-1 (car (car buttons-info)))
-		      (callback-1  (car (cdr (car buttons-info))))
+	       (let* ((button-label-1 (car buttons-info))
+		      (callback-1  (car (cdr buttons-info)))
 
-		      (buton-label-2 (car (car (cdr buttons-info))))
-		      (callback-2  (car (cdr (car (cdr buttons-info)))))
+		      (button-label-2 (car (cdr (cdr buttons-info))))
+		      (callback-2  (car (cdr (cdr (cdr buttons-info)))))
 
-		      (button-1 (gtk-button-new-with-label buton-1-label))
-		      (hbox (gtk-hbox-new #f 2)))
+		      (button-1 (gtk-button-new-with-label button-label-1))
+		      (h-box (gtk-hbox-new #f 2)))
 
-		 (gtk-signal-connect button-1 "clicked" callback)
+		 (format #t "button-label-1 ~s~%" button-label-1) 
+		 (format #t "callback-1 ~s~%" callback-1) 
+		 (format #t "buton-label-2 ~s~%" button-label-2) 
+		 (format #t "callback-2 ~s~%" callback-2) 
+
+		 (gtk-signal-connect button-1 "clicked" 
+				     (lambda ()
+				       (callback-1 imol)))
 		 (gtk-box-pack-start h-box button-1 #f #f 2)
 
 		 (if callback-2 
-		     (let ((button-2 (gtk-button-new-with-label buton-2-label)))
-		       (gtk-button-new-with-label buton-2-label)
-		       (gtk-signal-connect button-2 "clicked" callback-2)
+		     (let ((button-2 (gtk-button-new-with-label button-label-2)))
+		       (gtk-signal-connect button-2 "clicked" 
+					   (lambda ()
+					     (callback-2 imol)))
 		       (gtk-box-pack-start h-box button-2 #f #f 2)))
 
 		 (gtk-box-pack-start inside-vbox h-box #f #f 2))))
