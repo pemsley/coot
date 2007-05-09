@@ -222,6 +222,7 @@ SCM dictionaries_read();
 /*  ----------------------------------------------------------------------- */
 
 #ifdef USE_GUILE
+SCM safe_scheme_command_test(const char *cmd);
 SCM safe_scheme_command(const std::string &scheme_command);
 #else 
 void safe_scheme_command(const std::string &scheme_command); /* do nothing */
