@@ -211,8 +211,8 @@ sgtk_main_statusbar ()
 {
   GtkWidget* cr_ret;
   cr_ret = main_statusbar ();
-
-  return sgtk_wrap_gtkobj ((GObject*)cr_ret);
+  GObject *obj = (GObject*)cr_ret;
+  return sgtk_wrap_gtkobj (obj);
 }
 
 static char s_main_menubar[] = "coot-main-menubar";
