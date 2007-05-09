@@ -104,6 +104,16 @@
 				action-button-2)))))
 	      problem-list)))
 
+    ;; check that the refinement map has been set, if not, give us a
+    ;; message and a chooser (if that's possible)
+    (let ((imol-map (imol-refinement-map)))
+      (if (= imol-map -1)
+	  ;; need to set it then
+	  (let ((s "It's a good idea to set the map for refinement now,\n"
+		   "since the \"Fix\" actions will use it"))
+	    (info-dialog s)
+
+
     (format #t "button list: ~s~%" button-ls)
     (dialog-box-of-pairs-of-buttons imol 
 				    "Refmac Noted Problems"
