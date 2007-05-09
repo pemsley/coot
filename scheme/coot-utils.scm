@@ -627,6 +627,16 @@
 	   (get-view-quaternion-internal ele))
 	 (list 0 1 2 3))))
 
+;; Return the view number 
+;; 
+(define (add-view position quaternion zoom view-name)
+
+  (apply add-view-raw 
+	 (append position
+		 quaternion
+		 (list zoom view-name))))
+	 
+
 ;; Convert a view matrix to a view quaternion to set Coot view internals.
 ;; 
 (define matrix->quaternion

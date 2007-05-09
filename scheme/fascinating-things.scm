@@ -56,7 +56,7 @@
       ;; add buttons to vbox for each feature
       ;; 
       (map (lambda (feature)
-	     (format #t "feature: ~s~%" feature)
+	    ; (format #t "feature: ~s~%" feature)
 	     (let ((button (gtk-button-new-with-label (car feature))))
 	       (gtk-signal-connect button "clicked"
 				   (lambda ()
