@@ -6352,7 +6352,11 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    SCM dest = SCM_BOOL_F;
    SCM mess = scm_makfrom0str("scm_catch returns: ~s\n");
    SCM sf = scm_simple_format(dest, mess, scm_list_1(v));
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
    std::string bad_str = scm_to_locale_string(sf);
+#else   
+   std::string bad_str = SCM_STRING_CHARS(sf);
+#endif    
    std::cout << bad_str << std::endl;
 
 
