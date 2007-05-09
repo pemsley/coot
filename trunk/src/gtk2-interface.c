@@ -15,6 +15,10 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+
+#else 
+
 #include "callbacks.h.gtk2"
 #include "interface.h"
 #include "support.h"
@@ -15888,3 +15892,4 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
+#endif 
