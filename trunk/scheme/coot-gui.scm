@@ -63,7 +63,6 @@
     (gtk-box-pack-end vbox close-button #f #f 5)
 
     (gtk-entry-set-text entry "(inactive)")
-    ;(gtk-widget-set-sensitive entry #f)  ; testing 
 
     (add-hook! (entry-read-complete-hook entry)
                (lambda (str)
@@ -71,10 +70,6 @@
                                (text-output-colour icolour))
                               (display str))
                  (newline)))
-
-;    (gtk-signal-connect entry "key-press-event"
-;			(lambda args
-;			  (format #t "key press ~s~%" args)))
 
     (gtk-signal-connect text "key-press-event"
 			(lambda args
@@ -86,16 +81,7 @@
 			(lambda args 
 			  (gtk-widget-destroy window)))
 
-;    (gtk-signal-connect window "delete-event"
-;			(lambda args
-;			  (if (gtk-standalone?) ; it is
-;			      (format #t "is standalone~%")  
-;			      (format #t "is not standalone~%"))
-;			  (gtk-widget-destroy window)))
-			  ; (gtk-exit))) // kill the program
-
     (gtk-widget-show-all window)
-
     (set-current-input-port port)
     (set-current-output-port oport)
     (set-current-error-port oport)

@@ -6336,13 +6336,26 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))"); 
 
    // I am undecided if I want this or not:
-   std::cout << "safe running: " << scheme_command << std::endl; 
+   std::cout << "safe running :" << scheme_command << ":" << std::endl; 
    std::string thunk("(lambda() "); 
    thunk += scheme_command; 
    thunk += " )";
 
-   SCM scm_thunk = scm_c_eval_string(thunk.c_str()); 
+   std::cout << "..... making thunk... " << std::endl;
+   SCM scm_thunk = scm_c_eval_string(thunk.c_str());
+   std::cout << "..... making thunk done. " << std::endl;
+
+   std::cout << "..... scm_catch... " << std::endl;
    SCM v = scm_catch(SCM_BOOL_T, scm_thunk, handler);
+   std::cout << "..... scm_catch done " << std::endl;
+
+   SCM dest = SCM_BOOL_F;
+   SCM mess = scm_makfrom0str("scm_catch returns: ~s\n");
+   SCM sf = scm_simple_format(dest, mess, scm_list_1(v));
+   std::string bad_str = scm_to_locale_string(sf);
+   std::cout << bad_str << std::endl;
+
+
 
 //   int is_int_p = scm_integer_p(v);
 //   if (is_int_p) { 
@@ -6390,17 +6403,30 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
       graphics_info_t::have_socket_string_waiting_flag = 0; // draw() looks here
       std::string ss = graphics_info_t::socket_string_waiting;
 
+      // try internal evaluation:
+      if (1) {
+	 SCM ss_scm = scm_makfrom0str(ss.c_str());
+	 SCM ie_scm = scm_interaction_environment();
+	 std::cout << "DEBUG: evaluting :" << ss << ":" << std::endl;
+	 // SCM r = safe_scheme_command(ss);
+	 SCM r = scm_eval_string(ss_scm);
+	 // should store r.
+	 std::cout << "DEBUG: done evaluating" << std::endl;
+      }
+
       // really the right way?  Perhaps we should just stick to scheme
       // internals?
-      std::vector<std::string> v;
-      v.push_back("eval-socket-string");
-      v.push_back(coot::util::single_quote(ss));
+      if (0) { 
+	 std::vector<std::string> v;
+	 v.push_back("eval-socket-string");
+	 v.push_back(coot::util::single_quote(ss));
 
-      graphics_info_t g;
-      std::string s = g.state_command(v, coot::STATE_SCM);
-      SCM r = safe_scheme_command(s);
+	 graphics_info_t g;
+	 std::string s = g.state_command(v, coot::STATE_SCM);
+	 SCM r = safe_scheme_command(s);
+      }
    }
-   // std::cout << " =============== unsetting mutex lock =========" << std::endl;
+   std::cout << " =============== unsetting mutex lock =========" << std::endl;
    graphics_info_t::socket_string_waiting_mutex_lock = 0; // we're done.  release lock.
    return FALSE; // don't call this function again, idly.
 }

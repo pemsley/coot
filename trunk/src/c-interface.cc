@@ -5279,6 +5279,11 @@ SCM safe_scheme_command(const std::string &scheme_command) {
    add_to_history_simple(scheme_command);
    return graphics_info_t::safe_scheme_command(scheme_command);
 }
+SCM safe_scheme_command_test(const char *cmd) {
+
+   std::string s = cmd;
+   return safe_scheme_command(s);
+}
 #else  // not guile
 // dummy function
 void safe_scheme_command(const std::string &scheme_command) { /* do nothing */
@@ -5291,7 +5296,9 @@ void safe_python_command(const std::string &python_cmd) {
 #ifdef USE_PYTHON
    PyRun_SimpleString((char *)python_cmd.c_str());
 #endif   
-} 
+}
+
+
 
 
 void post_scripting_window() {
@@ -6847,7 +6854,7 @@ void set_socket_string_waiting(const char *s) {
       usleep(1000000);
    }
    
-   // std::cout << " =============== setting mutex lock =========" << std::endl;
+   std::cout << " =============== setting mutex lock =========" << std::endl;
    // 
    // (This mutex lock *and* waiting flag may be overly complex now
    // that we simply use g_idle_add())

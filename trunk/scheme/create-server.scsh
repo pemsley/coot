@@ -55,12 +55,12 @@
  	(format (socket:outport socket) "(newline)")
 	(end-transmition)
 
- 	(format (socket:outport socket) "(read-pdb \\\"monomer-ACT.pdb\\\")")
+ 	(format (socket:outport socket) "(read-pdb \"monomer-ACT.pdb\")")
 	(end-transmition)
 
 	;; more
   	(format (socket:outport socket)
-  		"(let ((imol (read-pdb \\\"monomer-PIN.pdb\\\")))
+  		"(let ((imol (read-pdb \"monomer-PIN.pdb\")))
                       (set-rotation-centre 5 5 5)
                       (move-molecule-to-screen-centre imol)
                      '())")
@@ -75,13 +75,13 @@
         (format #t "########### done sent a display time\n")
 	(end-transmition)
 	
-	;; wait for char happens...
-        (format #t "########### sending numbers\n")
-	(format (socket:outport socket)
- 		";; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16")
-	(newline (socket:outport socket))
-        (format #t "########### done sent numbers\n")
-	(end-transmition)
+;	;; wait for char happens...
+;        (format #t "########### sending numbers\n")
+;	(format (socket:outport socket)
+; 		";; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16")
+;	(newline (socket:outport socket))
+;        (format #t "########### done sent numbers\n")
+;	(end-transmition)
 	
         (format #t "########### sending spin\n")
  	(format (socket:outport socket)
