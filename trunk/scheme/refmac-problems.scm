@@ -111,7 +111,7 @@
 	  ;; need to set it then
 	  (let ((s "It's a good idea to set the map for refinement now,\n"
 		   "since the \"Fix\" actions will use it"))
-	    (info-dialog s)
+	    (info-dialog s))))
 
 
     (format #t "button list: ~s~%" button-ls)
