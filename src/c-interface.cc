@@ -6632,7 +6632,7 @@ void do_surface(int imol, int state) {
 /*  ----------------------------------------------------------------------- */
 /*                  Views                                                   */
 /*  ----------------------------------------------------------------------- */
-void add_view_here(const char *view_name) {
+int add_view_here(const char *view_name) {
 
    std::string name(view_name);
    float quat[4];
@@ -6643,13 +6643,21 @@ void add_view_here(const char *view_name) {
    float zoom = graphics_info_t::zoom;
    coot::view_info_t view(quat, rc, zoom, name);
    graphics_info_t::views->push_back(view);
-
+   return (graphics_info_t::views->size() -1);
 }
 
-void add_view_raw(float rcx, float rcy, float rcz, float quat1, float quat2, 
-		  float quat3, float quat4, float zoom, const char *view_name, 
-		  const char *description) {
+int add_view_raw(float rcx, float rcy, float rcz, float quat0, float quat1, 
+		  float quat2, float quat3, float zoom, const char *view_name) {
 
+   float quat[4];
+   quat[0] = quat0;
+   quat[1] = quat1;
+   quat[2] = quat2;
+   quat[3] = quat3;
+   coot::Cartesian rc(rcx, rcy, rcz);
+   coot::view_info_t v(quat, rc, zoom, view_name);
+   graphics_info_t::views->push_back(v);
+   return (graphics_info_t::views->size() -1);
 }
 
 
@@ -6807,13 +6815,21 @@ SCM view_name(int view_number) {
 }
 #endif	/* USE_GUILE */
 
+void add_view_description(int view_number, const char *descr) {
+
+   if (view_number <= graphics_info_t::views->size())
+      if (view_number >= 0)
+	 (*graphics_info_t::views)[view_number].add_description(descr);
+
+}
 
 
-void add_spin_view(const char *view_name, int n_steps, float degrees_total) {
+int add_spin_view(const char *view_name, int n_steps, float degrees_total) {
 
    graphics_info_t g;
    coot::view_info_t v(view_name, n_steps, degrees_total);
    graphics_info_t::views->push_back(v);
+   return (graphics_info_t::views->size() -1);
 }
 
 
@@ -6831,21 +6847,28 @@ void set_socket_string_waiting(const char *s) {
       usleep(1000000);
    }
    
+   // std::cout << " =============== setting mutex lock =========" << std::endl;
+   // 
+   // (This mutex lock *and* waiting flag may be overly complex now
+   // that we simply use g_idle_add())
+   graphics_info_t::socket_string_waiting_mutex_lock = 1;
    graphics_info_t::socket_string_waiting = s;
    graphics_info_t::have_socket_string_waiting_flag = 1;
 
-   if (graphics_info_t::glarea) { 
-      gtk_widget_queue_draw_area(graphics_info_t::glarea, 0, 0,
-				 graphics_info_t::glarea->allocation.width,
-				 graphics_info_t::glarea->allocation.height);
+   GSourceFunc f = graphics_info_t::process_socket_string_waiting_bool;
+   g_idle_add(f, NULL); // if f returns FALSE then f is not called again.
+
+   // old way, generates a Xlib async error sometimes?   
+//       gtk_widget_queue_draw_area(graphics_info_t::glarea, 0, 0,
+// 				 graphics_info_t::glarea->allocation.width,
+// 				 graphics_info_t::glarea->allocation.height);
+      
 //    std::cout << "INFO:: ---- set_socket_string_waiting set to :"
 // 	     << graphics_info_t::socket_string_waiting
 // 	     << ":" << std::endl;
-   } else {
-      std::cout << "No graphics. No means to send the signal..." << std::endl;
-   }
 
-   //   gint return_val;
+// another old way:
+    //   gint return_val;
    //   GdkEventExpose event;
    //    gtk_signal_emit_by_name(GTK_OBJECT(graphics_info_t::glarea),
    //                           "configure_event",

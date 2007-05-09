@@ -2722,10 +2722,11 @@ void spin_zoom_trans(int axis, int nstep, float stepsize, float zoom_by,
 /*  ----------------------------------------------------------------------- */
 /*                  Views                                                   */
 /*  ----------------------------------------------------------------------- */
-void add_view_here(const char *view_name); 
-void add_view_raw(float rcx, float rcy, float rcz, float quat1, float quat2, 
-		  float quat3, float quat4, float zoom, const char *view_name, 
-		  const char *description);
+/*! \brief return the view number */
+int add_view_here(const char *view_name); 
+/*! \brief return the view number */
+int add_view_raw(float rcx, float rcy, float rcz, float quat1, float quat2, 
+		 float quat3, float quat4, float zoom, const char *view_name);
 void play_views();
 void remove_this_view();
 int remove_named_view(const char *view_name);
@@ -2733,8 +2734,9 @@ int remove_named_view(const char *view_name);
    smooth twisty path.*/
 int go_to_first_view(int snap_to_view_flag);
 int go_to_view_number(int view_number, int snap_to_view_flag);
-void add_spin_view(const char *view_name, int n_steps, float degrees_total);
+int add_spin_view(const char *view_name, int n_steps, float degrees_total);
 /*! \brief return the number of views */
+void add_view_description(int view_number, const char *description);
 int n_views(); 
 /*! \brief return the name of the given view, if view_number does not
   specify a view return #f */

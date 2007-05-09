@@ -20,6 +20,8 @@
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+
 GtkWidget*
 create_window1 (void)
 {
@@ -17901,4 +17903,5 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
+#endif
 #endif

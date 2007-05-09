@@ -7529,3 +7529,20 @@ on_update_go_to_atom_from_current_position_button_clicked
    update_go_to_atom_from_current_position(); 
 }
 
+
+/* gtk2 extras */
+void
+on_rz_simple_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) { 
+}
+
+void
+on_rz_start_multizone1_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) {
+}
+
+void
+on_rz_end_multizone_activate           (GtkMenuItem     *menuitem,
+                                        gpointer         user_data){
+
+}
