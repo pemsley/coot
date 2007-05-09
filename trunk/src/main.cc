@@ -130,9 +130,10 @@ void check_reference_structures_dir();
 int setup_database();
 #endif
 
-#if (GTK_MAJOR_VERSION > 1) 
-#define ENABLE_NLS
-#endif
+// This happens on the command line now (20070504) -DENABLE_NLS=1
+// #if (GTK_MAJOR_VERSION > 1) 
+// #define ENABLE_NLS
+// #endif
 
 // This main is used for both python/guile useage and unscripted. 
 int

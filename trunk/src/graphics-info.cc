@@ -6380,6 +6380,32 @@ graphics_info_t::process_socket_string_waiting() {
 } 
 #endif
 
+// static 
+#ifdef USE_GUILE
+gboolean
+graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
+ 
+
+   if (graphics_info_t::have_socket_string_waiting_flag) {
+      graphics_info_t::have_socket_string_waiting_flag = 0; // draw() looks here
+      std::string ss = graphics_info_t::socket_string_waiting;
+
+      // really the right way?  Perhaps we should just stick to scheme
+      // internals?
+      std::vector<std::string> v;
+      v.push_back("eval-socket-string");
+      v.push_back(coot::util::single_quote(ss));
+
+      graphics_info_t g;
+      std::string s = g.state_command(v, coot::STATE_SCM);
+      SCM r = safe_scheme_command(s);
+   }
+   // std::cout << " =============== unsetting mutex lock =========" << std::endl;
+   graphics_info_t::socket_string_waiting_mutex_lock = 0; // we're done.  release lock.
+   return FALSE; // don't call this function again, idly.
+}
+#endif // USE_GUILE
+
 
 
 // static 

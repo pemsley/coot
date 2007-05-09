@@ -222,12 +222,14 @@ coot_real_SOURCES = \
 	c-interface-gtk2.cc	 \
 	c-interface-ncs.cc	 \
 	c-interface-info.cc	 \
+	c-interface-mmdb.cc	 \
 	c-interface-build.cc	 \
 	c-interface-waters.cc	 \
 	c-interface-ligands.cc   \
 	c-interface-validate.cc	 \
 	c-interface-superpose.cc \
 	c-interface-preferences.cc \
+	c-interface-mmdb.hh      \
 	cc-interface.hh		 \
 	coot-database.hh	 \
 	globjects.cc 		 \

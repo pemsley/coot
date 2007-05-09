@@ -261,11 +261,9 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 // molecule_number by the given molecule.  Clear what's currently
 // there first though.
 //
-// A stub function currently.
-// 
 int clear_and_update_molecule(int molecule_number, SCM molecule_expression);
-
-SCM display_scm(SCM o);
+// return a molecule number, -1 on error
+int add_molecule(SCM molecule_expression, const char *name);
 
 //! \brief 
 // Return a list of (list imol chain-id resno ins-code atom-name

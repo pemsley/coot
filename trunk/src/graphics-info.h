@@ -1,6 +1,7 @@
 /* src/graphics-info.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -235,13 +236,16 @@ namespace coot {
 	else 
 	  degrees_per_step = 0.5;
       }
+      bool matches_view (const coot::view_info_t &view) const;
+      float quat_length() const;
+      void add_description(const std::string &descr) { 
+	description = descr;
+      }
       static view_info_t interpolate(const view_info_t &view1,
 				     const view_info_t &view2,
 				     int step, int n_steps);
       static float dot_product(const view_info_t &view1,
 			       const view_info_t &view2);
-      bool matches_view (const coot::view_info_t &view) const;
-      float quat_length() const;
    };
 
 } 
@@ -2389,6 +2393,7 @@ public:
 #ifdef USE_GUILE
    static SCM safe_scheme_command(const std::string &scheme_command);
    static SCM process_socket_string_waiting();
+   static gboolean process_socket_string_waiting_bool(gpointer user_data);
 #endif
 
    // --------- Tip of the Day ---------------

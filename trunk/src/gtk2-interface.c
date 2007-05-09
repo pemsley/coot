@@ -15,11 +15,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-#else 
-
-#include "callbacks.h"
+#include "callbacks.h.gtk2"
 #include "interface.h"
 #include "support.h"
 
@@ -4338,7 +4334,14 @@ create_model_refine_dialog (void)
   GtkWidget *model_refine_dialog_refine_params_button;
   GtkWidget *model_refine_dialog_map_select_button;
   GtkWidget *hseparator5;
+  GtkWidget *hbox150;
   GtkWidget *model_refine_dialog_refine_togglebutton;
+  GtkWidget *menubar2;
+  GtkWidget *menuitem1;
+  GtkWidget *menuitem1_menu;
+  GtkWidget *rz_simple;
+  GtkWidget *rz_start_multizone1;
+  GtkWidget *rz_end_multizone;
   GtkWidget *model_refine_dialog_regularize_zone_togglebutton;
   GtkWidget *model_refine_dialog_rigid_body_togglebutton;
   GtkWidget *model_refine_dialog_rot_trans_togglebutton;
@@ -4401,11 +4404,38 @@ create_model_refine_dialog (void)
   gtk_widget_show (hseparator5);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hseparator5, FALSE, FALSE, 3);
 
+  hbox150 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox150);
+  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hbox150, FALSE, FALSE, 0);
+
   model_refine_dialog_refine_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Real Space Refine Zone"));
   gtk_widget_show (model_refine_dialog_refine_togglebutton);
-  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_refine_togglebutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox150), model_refine_dialog_refine_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_togglebutton, _("Real Space Refinement: Improve geometry and fit to map"), NULL);
+
+  menubar2 = gtk_menu_bar_new ();
+  gtk_widget_show (menubar2);
+  gtk_box_pack_start (GTK_BOX (hbox150), menubar2, FALSE, FALSE, 0);
+
+  menuitem1 = gtk_menu_item_new_with_mnemonic (_("Mode"));
+  gtk_widget_show (menuitem1);
+  gtk_container_add (GTK_CONTAINER (menubar2), menuitem1);
+
+  menuitem1_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem1), menuitem1_menu);
+
+  rz_simple = gtk_menu_item_new_with_mnemonic (_("Simple"));
+  gtk_widget_show (rz_simple);
+  gtk_container_add (GTK_CONTAINER (menuitem1_menu), rz_simple);
+
+  rz_start_multizone1 = gtk_menu_item_new_with_mnemonic (_("Start Multizone"));
+  gtk_widget_show (rz_start_multizone1);
+  gtk_container_add (GTK_CONTAINER (menuitem1_menu), rz_start_multizone1);
+
+  rz_end_multizone = gtk_menu_item_new_with_mnemonic (_("End Multizone"));
+  gtk_widget_show (rz_end_multizone);
+  gtk_container_add (GTK_CONTAINER (menuitem1_menu), rz_end_multizone);
 
   model_refine_dialog_regularize_zone_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Regularize Zone"));
   gtk_widget_show (model_refine_dialog_regularize_zone_togglebutton);
@@ -4564,6 +4594,15 @@ create_model_refine_dialog (void)
   g_signal_connect ((gpointer) model_refine_dialog_refine_togglebutton, "toggled",
                     G_CALLBACK (on_model_refine_dialog_refine_togglebutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) rz_simple, "activate",
+                    G_CALLBACK (on_rz_simple_activate),
+                    NULL);
+  g_signal_connect ((gpointer) rz_start_multizone1, "activate",
+                    G_CALLBACK (on_rz_start_multizone1_activate),
+                    NULL);
+  g_signal_connect ((gpointer) rz_end_multizone, "activate",
+                    G_CALLBACK (on_rz_end_multizone_activate),
+                    NULL);
   g_signal_connect ((gpointer) model_refine_dialog_regularize_zone_togglebutton, "toggled",
                     G_CALLBACK (on_model_refine_dialog_regularize_togglebutton_toggled),
                     NULL);
@@ -4642,7 +4681,14 @@ create_model_refine_dialog (void)
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_refine_params_button, "model_refine_dialog_refine_params_button");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_map_select_button, "model_refine_dialog_map_select_button");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hseparator5, "hseparator5");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox150, "hbox150");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_refine_togglebutton, "model_refine_dialog_refine_togglebutton");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, menubar2, "menubar2");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, menuitem1, "menuitem1");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, menuitem1_menu, "menuitem1_menu");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, rz_simple, "rz_simple");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, rz_start_multizone1, "rz_start_multizone1");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, rz_end_multizone, "rz_end_multizone");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_regularize_zone_togglebutton, "model_refine_dialog_regularize_zone_togglebutton");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rigid_body_togglebutton, "model_refine_dialog_rigid_body_togglebutton");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_togglebutton, "model_refine_dialog_rot_trans_togglebutton");
@@ -15842,4 +15888,3 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
-# endif 

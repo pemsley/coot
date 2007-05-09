@@ -1489,13 +1489,6 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 //    if (i == 0)
 //       return TRUE;
 
-   if (graphics_info_t::have_socket_string_waiting_flag) {
-      // std::cout << " =============== setting mutex lock =========" << std::endl;
-      graphics_info_t::socket_string_waiting_mutex_lock = 1;
-      graphics_info_t::process_socket_string_waiting();
-      // std::cout << " =============== unsetting mutex lock =========" << std::endl;
-      graphics_info_t::socket_string_waiting_mutex_lock = 0;
-   } 
 
    if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
       draw_hardware_stereo(widget, event);
@@ -3245,7 +3238,7 @@ float r_50(std::string ele) {
 
 float rad_50_and_prob_to_radius(float rad_50, float prob) {
 
-   // Not the prob*(prob-100.0) part is scaled up by a factor of
+   // Note the prob*(prob-100.0) part is scaled up by a factor of
    // 100*100... and the (50-prob) is scaled by a factor of 100, so
    // multiply the top by 100.0 to compensate.
    //
