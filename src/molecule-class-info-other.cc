@@ -6046,8 +6046,6 @@ molecule_class_info_t::replace_molecule(CMMDBManager *mol) {
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       delete atom_sel.mol;
       atom_sel = make_asc(mol);
-      std::cout << "DEBUG:: atom_sel has " << atom_sel.n_selected_atoms << " atom"
-		<< std::endl;
       have_unsaved_changes_flag = 1; 
       make_bonds_type_checked(); // calls update_ghosts()
       trim_atom_label_table();
