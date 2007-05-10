@@ -3207,10 +3207,10 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    int state = 0; 
    if (is_valid_model_molecule(molecule_number)) {
 
-      CMMDBManager *mol = mmdb_manager_from_scheme_expression(molecule_expression);
+      CMMDBManager *mol =
+	 mmdb_manager_from_scheme_expression(molecule_expression);
 
       if (mol) { 
-
 	 state = 1;
 	 graphics_info_t::molecules[molecule_number].replace_molecule(mol);
 	 graphics_draw();
@@ -3219,18 +3219,22 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    return state;
 }
 
-// return a molecule number, -1 on error
+// Return a molecule number, -1 on error.
 int add_molecule(SCM molecule_expression, const char *name) {
 
    int imol = -1; 
-   CMMDBManager *mol = mmdb_manager_from_scheme_expression(molecule_expression);
+   CMMDBManager *mol =
+      mmdb_manager_from_scheme_expression(molecule_expression);
    if (mol) {
-      int imol = graphics_info_t::n_molecules;
+      imol = graphics_info_t::n_molecules;
       atom_selection_container_t asc = make_asc(mol);
       graphics_info_t::molecules[imol].install_model(asc, name, 1);
       graphics_info_t::n_molecules++;
       graphics_draw();
-   }
+   } else {
+      std::cout << "WARNING:: bad format, no molecule created"
+		<< std::endl;
+   } 
    return imol;
 }
 
