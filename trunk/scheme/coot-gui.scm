@@ -1064,6 +1064,10 @@
 ;; 
 (define (dialog-box-of-buttons window-name geometry buttons close-button-label)
 
+  (define (add-text-to-text-widget text-box description)
+    #f)
+
+  ;; main line
   (let* ((window (gtk-window-new 'toplevel))
 	 (scrolled-win (gtk-scrolled-window-new))
 	 (outside-vbox (gtk-vbox-new #f 2))
@@ -1080,8 +1084,22 @@
     (map (lambda (button-info)
 	   (let* ((buton-label (car button-info))
 		  (callback (car (cdr button-info)))
+		  (description (if (= (length button-info) 2)
+				   #f ; it doesn't have one
+				   (list-ref button-info 2)))
 		  (button (gtk-button-new-with-label buton-label)))
 	     (gtk-signal-connect button "clicked" callback)
+
+	     (if (string? description)
+		 (let ((text-box (gtk-text-new #f #f)))
+		   (format #t "DEBUG::description: ~s~%" description)
+		   (add-text-to-text-widget text-box description)
+		   (gtk-box-pack-start inside-vbox text-box #f #f 2)
+
+		   (gtk-widget-realize text-box)
+		   (gtk-text-insert text-box #f "black" "chartreuse" description -1)
+		   (gtk-text-thaw text-box)))
+
 	     (gtk-box-pack-start inside-vbox button #f #f 2)))
 	 buttons)
 
@@ -1170,12 +1188,22 @@
 	       (else 
 		(let ((button-label (view-name button-number)))
 		  (if button-label
-		      (loop (+ button-number 1) 
-			    (cons 
-			     (list button-label
-				   (lambda ()
-				     (go-to-view-number button-number 0)))
-			     ls))
+		      (let ((desciption (view-description button-number)))
+			(if (eq? #f desciption)
+			    (loop (+ button-number 1) 
+				  (cons 
+				   (list button-label
+					 (lambda ()
+					   (go-to-view-number button-number 0)))
+				   ls))
+			    (loop (+ button-number 1)
+				  (cons 
+				   (list button-label
+					 (lambda ()
+					   (go-to-view-number button-number 0))
+					 desciption)
+					ls))))
+
 		      (loop (+ button-number 1) ls))))))))
 	   
       (dialog-box-of-buttons "Views" (cons 200 140) buttons "  Close  "))))
