@@ -2741,9 +2741,13 @@ int n_views();
 /*! \brief return the name of the given view, if view_number does not
   specify a view return #f */
 
+/*! \brief save views to view_file_name */
+void save_views(const char *view_file_name);
+
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM view_name(int view_number);
+SCM view_description(int view_number);
 #endif	/* USE_GUILE */
 #endif	/* __cplusplus */
 

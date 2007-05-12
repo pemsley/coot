@@ -108,7 +108,14 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
       } else {
 	 ir = -1; // error
       }
-   } 
+   }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("map-from-mtz-by-calc-phases");
+   command_strings.push_back(mtz_file_name);
+   command_strings.push_back(f_col);
+   command_strings.push_back(sigf_col);
+   command_strings.push_back(graphics_info_t::int_to_string(imol_coords));
+   add_to_history(command_strings);
    return ir;
 } 
 
@@ -151,6 +158,10 @@ void calc_phases_generic(const char *mtz_file_name) {
 #endif
       }
    }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("calc-phases-generic");
+   command_strings.push_back(mtz_file_name);
+   add_to_history(command_strings);
 }
 
 /*! \brief Calculate SFs (using refmac optionally) from an MTZ file
@@ -164,8 +175,13 @@ int map_from_mtz_by_refmac_calc_phases(const char *mtz_file_name,
 				       int imol_coords) {
 
    int istat = -1;
-
-
+   std::vector<std::string> command_strings;
+   command_strings.push_back("map-from-mtz-by-refmac-calc-phases");
+   command_strings.push_back(mtz_file_name);
+   command_strings.push_back(f_col);
+   command_strings.push_back(sigf_col);
+   command_strings.push_back(graphics_info_t::int_to_string(imol_coords));
+   add_to_history(command_strings);
    return istat;
 } 
 
@@ -175,10 +191,18 @@ int map_from_mtz_by_refmac_calc_phases(const char *mtz_file_name,
 /*  ------------------------------------------------------------------------ */
 void set_model_fit_refine_rotate_translate_zone_label(const char *txt) {
    graphics_info_t::model_fit_refine_rotate_translate_zone_string = txt;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-model-fit-refine-rotate-translate-zone-label");
+   command_strings.push_back(txt);
+   add_to_history(command_strings);
 }
 
 void set_model_fit_refine_place_atom_at_pointer_label(const char *txt) {
    graphics_info_t::model_fit_refine_place_atom_at_pointer_string = txt;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-model-fit-refine-atom-at-pointer-label");
+   command_strings.push_back(txt);
+   add_to_history(command_strings);
 }
 
 int copy_molecule(int imol) {
@@ -212,6 +236,10 @@ int copy_molecule(int imol) {
    }
    if (iret != -1) 
       graphics_draw();
+   std::vector<std::string> command_strings;
+   command_strings.push_back("copy-molecule");
+   command_strings.push_back(graphics_info_t::int_to_string(imol));
+   add_to_history(command_strings);
    return iret;
 }
 
@@ -236,6 +264,11 @@ int replace_fragment(int imol_target, int imol_fragment,
 	 graphics_draw();
       }
    }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("replace-fragement");
+   command_strings.push_back(graphics_info_t::int_to_string(imol_target));
+   command_strings.push_back(mmdb_atom_selection_str);
+   add_to_history(command_strings);
    return istate;
 } 
 
@@ -246,21 +279,31 @@ int replace_fragment(int imol_target, int imol_fragment,
 void turn_off_backup(int imol) {
    if (imol < graphics_n_molecules())
       graphics_info_t::molecules[imol].turn_off_backup();
+   std::vector<std::string> command_strings;
+   command_strings.push_back("turn-off-backup");
+   command_strings.push_back(graphics_info_t::int_to_string(imol));
+   add_to_history(command_strings);
 } 
 
 void turn_on_backup(int imol) {
    if (imol < graphics_n_molecules())
       graphics_info_t::molecules[imol].turn_on_backup();
+   std::vector<std::string> command_strings;
+   command_strings.push_back("turn-on-backup");
+   command_strings.push_back(graphics_info_t::int_to_string(imol));
+   add_to_history(command_strings);
 } 
 
 void apply_undo() {		/* "Undo" button callback */
    graphics_info_t g;
    g.apply_undo();
+   add_to_history_simple("apply-undo");
 }
 
 void apply_redo() { 
    graphics_info_t g;
    g.apply_redo();
+   add_to_history_simple("apply-redo");
 }
 
 void set_undo_molecule(int imol) {
@@ -287,6 +330,10 @@ void set_undo_molecule(int imol) {
 	 g.set_undo_molecule_number(imol);
       }
    }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-undo-molecule");
+   command_strings.push_back(graphics_info_t::int_to_string(imol));
+   add_to_history(command_strings);
 }
 
 /*! \brief show the Undo Molecule chooser - i.e. choose the molecule
@@ -304,15 +351,21 @@ void show_set_undo_molecule_chooser() {
 
 #endif // USE_GUILE   
 
+   add_to_history_simple("show-set-undo-molecule-chooser");
 } 
 
 
 
 void set_unpathed_backup_file_names(int state) {
    graphics_info_t::unpathed_backup_file_names_flag = state;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-unpathed-backup-file-names");
+   command_strings.push_back(graphics_info_t::int_to_string(state));
+   add_to_history(command_strings);
 }
 
 int  unpathed_backup_file_names_state() {
+   add_to_history_simple("unpathed-backup-file-names-state");
    return graphics_info_t::unpathed_backup_file_names_flag;
 }
 
@@ -340,29 +393,49 @@ void do_add_terminal_residue(short int state) {
       }
    } else {
       g.normal_cursor();
-   } 
+   }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("do-add-terminal-residue");
+   command_strings.push_back(graphics_info_t::int_to_string(state));
+   add_to_history(command_strings);
 }
 
 void 
 set_add_terminal_residue_n_phi_psi_trials(int n) { 
    graphics_info_t g;
    g.add_terminal_residue_n_phi_psi_trials = n;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-add-terminal-residue-n-phi-psi-trials");
+   command_strings.push_back(graphics_info_t::int_to_string(n));
+   add_to_history(command_strings);
 }
 
 void
 set_add_terminal_residue_add_other_residue_flag(int i) {
    graphics_info_t::add_terminal_residue_add_other_residue_flag = i;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-add-terminal-residue-add-other-residue-flag");
+   command_strings.push_back(graphics_info_t::int_to_string(i));
+   add_to_history(command_strings);
 }
 
 void set_terminal_residue_do_rigid_body_refine(short int v) { 
 
    graphics_info_t g;
    g.terminal_residue_do_rigid_body_refine = v;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-terminal-residue-do-rigid-body-refine");
+   command_strings.push_back(graphics_info_t::int_to_string(v));
+   add_to_history(command_strings);
 
 }
 
 void set_add_terminal_residue_do_post_refine(short int istat) {
    graphics_info_t::add_terminal_residue_do_post_refine = istat;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-add-terminal-residue-do-post-refine");
+   command_strings.push_back(graphics_info_t::int_to_string(istat));
+   add_to_history(command_strings);
 }
 
 
@@ -4898,10 +4971,18 @@ int get_monomer(const char *three_letter_code) {
    scheme_command += three_letter_code;
    scheme_command += "\"";
 
-   // now add in the bespoke cif library if it was given
+   // now add in the bespoke cif library if it was given.  It is
+   // ignored in the libcheck script if cif_lib_filename is "".
+   //
+   // However, we only want to pass the bespoke cif library if the
+   // monomer to be generated is in the cif file.
    std::string cif_lib_filename = "";
-   if (graphics_info_t::cif_dictionary_filename_vec->size() > 0)
-      cif_lib_filename = (*graphics_info_t::cif_dictionary_filename_vec)[0];
+   if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
+      std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
+      coot::simple_cif_reader r(dict_name);
+      if (r.has_restraints_for(three_letter_code))
+	 cif_lib_filename = dict_name;
+   }
 
    scheme_command += " ";
    std::string quoted_cif_lib_filename = single_quote(cif_lib_filename);
@@ -4933,6 +5014,11 @@ int get_monomer(const char *three_letter_code) {
 	     << "Need function to be coded in python..." << std::endl; 
 
 #endif // USE_GUILE
+
+   std::vector<std::string> command_strings;
+   command_strings.push_back("get-monomer");
+   command_strings.push_back(coot::util::single_quote(three_letter_code));
+   add_to_history(command_strings);
 
    return imol;
 } 

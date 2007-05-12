@@ -6822,6 +6822,28 @@ SCM view_name(int view_number) {
 }
 #endif	/* USE_GUILE */
 
+SCM view_description(int view_number) { 
+
+   SCM r = SCM_BOOL_F;
+   if (view_number >= 0)
+      if (view_number < graphics_info_t::views->size()) {
+	 std::string d = (*graphics_info_t::views)[view_number].description;
+	 if (d != "") {
+	    r = scm_makfrom0str(d.c_str());
+	 }
+      }
+   return r;
+}
+
+
+/*! \brief save views to view_file_name */
+void save_views(const char *view_file_name) {
+
+   
+
+}
+
+
 void add_view_description(int view_number, const char *descr) {
 
    if (view_number <= graphics_info_t::views->size())
