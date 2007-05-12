@@ -477,6 +477,13 @@ namespace coot {
       std::vector <dict_link_plane_restraint_t>   link_plane_restraint;
    };
 
+   class simple_cif_reader {
+      std::vector<std::string> names;
+      std::vector<std::string> three_letter_codes;
+   public:
+      simple_cif_reader(const std::string &cif_dictionary_file_name);
+      bool has_restraints_for(const std::string &res_type);
+   };
 
    // ------------------------------------------------------------------------
    // ------------------------------------------------------------------------

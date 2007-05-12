@@ -185,7 +185,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	    //if (std::string(data->GetDataName()).compare(0,5,"link_") == 0 ) {
 	    // 	 if (std::string(data->GetDataName()).compare("link_",0,4) > 1 ) {
 	    if (std::string(data->GetDataName()).substr(0,5) == "link_") {
-	       // std::cout  << "matches link: " << std::string(data->GetDataName()) << std::endl;
+	       // std::cout  << "matches link: " <<
+	       // std::string(data->GetDataName()) << std::endl;
 	       init_links(data);
 	    }
          
@@ -2632,3 +2633,59 @@ coot::protein_geometry::hydrogens_connect_file(const std::string &resname,
    return r;
 } 
       
+
+coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_file_name) {
+   
+   CMMCIFFile ciffile;
+   struct stat buf;
+   int istat = stat(cif_dictionary_file_name.c_str(), &buf);
+   if (istat != 0) {
+      std::cout << "WARNIG:: cif dictionary " << cif_dictionary_file_name
+		<< " not found" << std::endl;
+   } else {
+      int ierr = ciffile.ReadMMCIFFile((char *)cif_dictionary_file_name.c_str());
+      if (ierr != CIFRC_Ok) {
+	 std::cout << "Dirty mmCIF file? " << cif_dictionary_file_name
+		   << std::endl;
+      } else {
+	 for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
+         
+	    PCMMCIFData data = ciffile.GetCIFData(idata);
+	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
+	       PCMMCIFCategory cat = data->GetCategory(icat);
+	       std::string cat_name(cat->GetCategoryName());
+	       PCMMCIFLoop mmCIFLoop =
+		  data->GetLoop( (char *) cat_name.c_str() );
+	       if (mmCIFLoop == NULL) { 
+		  std::cout << "null loop" << std::endl; 
+	       } else {
+		  if (cat_name == "_chem_comp") {
+		     int ierr = 0;
+		     for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+			char *n = mmCIFLoop->GetString("name", j, ierr);
+			char *t = mmCIFLoop->GetString("name", j, ierr);
+			if (n && t) {
+			   names.push_back(n);
+			   three_letter_codes.push_back(t);
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+bool
+coot::simple_cif_reader::has_restraints_for(const std::string &res_type) {
+
+   bool r = 0;
+   for (unsigned int i=0; i<three_letter_codes.size(); i++) {
+      if (three_letter_codes[i] == res_type) {
+	 r = 1;
+	 break;
+      }
+   }
+   return r;
+}

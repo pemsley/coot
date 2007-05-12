@@ -95,3 +95,67 @@ Wed May  9 13:54:04 BST 2007
    overblend for electron density?
 
 
+-----
+Thu May 10 16:03:56 BST 2007
+
+   How should "Check for updates" work.
+
+   In scheme, of course
+
+   It should know the current coot-version
+
+   It needs to get the latest stable relesed version and 
+   the release notes for that.
+
+   So the release notes should be on the web site.  I think that they
+   are...
+
+   So it needs to get the current stable release version (a string)
+   from the web site.  How shall that be done?
+
+      get the stable release binary list web page.  Search as we do
+      for the latest coot version as we do in the build-it file (that
+      involves awk).
+
+   Then, if there is a new release, get the release notes file and put
+   the contents into a scrolled text window.
+
+-----
+
+trying to run render without render in path:
+
+
+rendering ray trace number: 0
+rendering ray trace number: 1
+rendering ray trace number: 2
+rendering ray trace number: 3
+done raytrace.
+calling render...
+calling display...
+((safe_scheme_command) Error in proc: key:  system-error  args:  (execlp ~A (No such file or directory) (..... scm_catch done 
+scm_catch returns: 20152
+
+2)))
+..... scm_catch done 
+scm_catch returns: #<unspecified>
+
+Xlib: unexpected async reply (sequence 0xb9f30)!
+Xlib: unexpected async reply (sequence 0xb9f4a)!
+Xlib: unexpected async reply (sequence 0xb9f4b)!
+Xlib: unexpected async reply (sequence 0xba0b6)!
+Xlib: unexpected async reply (sequence 0xba0f1)!
+Xlib: unexpected async reply (sequence 0xba0f3)!
+lt-coot-real: Fatal IO error 14 (Bad address) on X server :0.0.
+
+Some deprecated features have been used.  Set the environment
+variable GUILE_WARN_DEPRECATED to "detailed" and rerun the
+program to get more information.  Set it to "no" to suppress
+this message.
+ObjectCache: Leaked 0002 refs to <P 31 2" Nuvw = ( 240, 240, 132)>
+ObjectCache: Leaked 0002 refs to <P 31 2">
+47.510u 14.504s 12:56.93 7.9%   0+0k 0+0io 160pf+0w
+
+
+interesting!
+
+
