@@ -207,11 +207,17 @@
     (if (= imol-map -1)
 	(add-status-bar-text "Oops.  Must set a map to fit")
 
-	(begin
+	;; we jump through this hoop with range-step because
+	;; (inexact->exact (/ 1 2) now returns 1/2.  In guile 1.6.x it
+	;; returned 1
+	(let* ((step-inter (inexact->exact (/ (- res-step 1) 2)))
+	       (range-step (if (integer? step-inter) 
+			       step-inter
+			       (+ step-inter (/ 1 2)))))
 	  (turn-off-backup imol)
 	  (set-refinement-immediate-replacement 1)
-	  (set-refine-auto-range-step (inexact->exact (/ (- res-step 1) 2)))
-
+	  (set-refine-auto-range-step range-step)
+	  
 	  (map (lambda (chain-id)
 		 (let ((n-residues (chain-n-residues chain-id imol)))
 		   (format #t "There are ~s residues in chain ~s~%" n-residues chain-id)
