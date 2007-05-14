@@ -847,6 +847,13 @@ namespace coot {
 	 return 3*n_atoms; 
       }
 
+      // no longer done in the constructor:
+      void add_map(const clipper::Xmap<float> &map_in, float map_weight_in) {
+	 map = map_in;
+	 map_weight = map_weight_in;
+	 include_map_terms_flag = 1;
+      }
+
       int size() const { return restraints_vec.size(); }
 
       // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
