@@ -6753,7 +6753,7 @@ void play_views() {
 	       coot::view_info_t current_view(graphics_info_t::quat,
 					      rc, graphics_info_t::zoom, "dummy");
 	       coot::view_info_t::interpolate(current_view, view2, 1,
-					      200*graphics_info_t::views_play_speed);
+					      int(200*graphics_info_t::views_play_speed));
 	       update_things_on_move_and_redraw();
 	    }
 	 }
