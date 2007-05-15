@@ -100,8 +100,12 @@
 	     "HKLIN"  mtz-in-filename
 	     "HKLOUT" mtz-out-filename)
 	    (if (string=? extra-cif-lib-filename "")
-		(list) ; nothing
-		(list "LIBIN" extra-cif-lib-filename))))
+		(begin
+		  (format #t "Not Passing LIBIN to refmac LIBIN~%")
+		  (list)) ; nothing
+		(begin
+		  (format #t "Passing to refmac LIBIN ~s~%" extra-cif-lib-filename)
+		  (list "LIBIN" extra-cif-lib-filename)))))
       
 	  (data-lines (let* ((std-lines
 			      (list 
