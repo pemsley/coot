@@ -2394,94 +2394,89 @@ graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai,
 }
 
 // This is the callback when the OK button of the residue info was pressed.
-// 
+//
+// The new way with a table:
 void
 graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 
+   int atom_count = 0;
+   int imol = -1;
    // This is where we accumulate the residue edits:
    std::vector<coot::select_atom_info> local_atom_edits;
 
-   GtkWidget *residue_info_occ_vbox =
-      lookup_widget(dialog, "residue_info_occ_vbox");
-   GtkWidget *residue_info_tempfactor_vbox =
-      lookup_widget(dialog, "residue_info_tempfactor_vbox");
+   GtkWidget *table = lookup_widget(dialog, "residue_info_atom_table");
 
-   // ---------------------------------------------------------
-   // OK, let's do it another way, not using residue_info_edits
-   // ---------------------------------------------------------
+   GList *container_list = gtk_container_get_children(GTK_CONTAINER(table));
 
-//    coot::residue_spec_t *res_spec =
-//       (coot::residue_spec_t *) gtk_object_get_user_data(GTK_OBJECT(dialog));
-
-   GList *ls;
-
-   ls = gtk_container_children(GTK_CONTAINER(residue_info_occ_vbox));
-
-   int atom_count = 0;
-   int imol = -1; 
-   while (ls) {
-      coot::select_atom_info *ai =
-	 (coot::select_atom_info *) gtk_object_get_user_data(GTK_OBJECT(ls->data));
-//       std::cout << "    " << atom_count << " " << ai->chain_id << " "
-// 		<< ai->residue_number << " " << ai->atom_name << " "
-// 		<< ai->altconf << std::endl;
-
-      imol = ai->molecule_number;  // hehe
-      CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
-      std::pair<short int, float>  occ_entry = graphics_info_t::float_from_entry(GTK_WIDGET(ls->data));
-      if (occ_entry.first) {
-	 if (at) { 
-	    // std::cout << "    occ comparison " << occ_entry.second << " "
-	    // << at->occupancy << std::endl;
-	    if (abs(occ_entry.second - at->occupancy) > 0.009) {
-	       coot::select_atom_info local_at = *ai;
-	       local_at.add_occ_edit(occ_entry.second);
-	       local_atom_edits.push_back(local_at);
-	    }
-	 }
-      }
-      
-      // next atom
-      ls = ls->next;
-      atom_count++;
-   }
-
-   // do that block again for b factor:
+   // The children are a list, gone in "backward", just like we'd been
+   // consing onto a list as we added widgets to the table.
    // 
-   ls = gtk_container_children(GTK_CONTAINER(residue_info_tempfactor_vbox));
+   int len = g_list_length(container_list);
+   for(int i=0; i < len; i+=3) {
+      if (i+1<len) { 
+	 GtkWidget *widget_b = (GtkWidget*) g_list_nth_data(container_list, i);
+	 GtkWidget *widget_o = (GtkWidget*) g_list_nth_data(container_list, i+1);
+	 std::string b_text = gtk_entry_get_text(GTK_ENTRY(widget_b));
+	 std::string o_text = gtk_entry_get_text(GTK_ENTRY(widget_o));
+// 	 std::cout << "b_text :" <<b_text << std::endl;
+// 	 std::cout << "o_text :" <<o_text << std::endl;
 
-   atom_count = 0;
-   while (ls) {
-      coot::select_atom_info *ai =
-	 (coot::select_atom_info *) gtk_object_get_user_data(GTK_OBJECT(ls->data));
-//       std::cout << "    " << atom_count << " " << ai->chain_id << " "
-// 		<< ai->residue_number << " " << ai->atom_name << " "
-// 		<< ai->altconf << std::endl;
-      imol = ai->molecule_number;  // hehe
-      CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
-      std::pair<short int, float>  temp_entry = graphics_info_t::float_from_entry(GTK_WIDGET(ls->data));
-      if (temp_entry.first) {
-	 if (at) { 
-	    // std::cout << "    temp comparison " << temp_entry.second
-	    // << " " << at->tempFactor << std::endl;
-	    if (abs(temp_entry.second - at->tempFactor) > 0.009) {
-	       coot::select_atom_info local_at = *ai;
-	       local_at.add_b_factor_edit(temp_entry.second);
-	       local_atom_edits.push_back(local_at);
+	 // Handle OCCUPANCY edits
+	 // 
+	 coot::select_atom_info *ai =
+	    (coot::select_atom_info *) gtk_object_get_user_data(GTK_OBJECT(widget_o));
+	 if (ai) {
+	    imol = ai->molecule_number;  // hehe
+	    CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
+	    // std::cout << "got atom at " << at << std::endl;
+	    std::pair<short int, float>  occ_entry =
+	       graphics_info_t::float_from_entry(GTK_WIDGET(widget_o));
+	    if (occ_entry.first) {
+	       if (at) { 
+// 		  std::cout << "    occ comparison " << occ_entry.second << " "
+// 		  << at->occupancy << std::endl;
+		  if (abs(occ_entry.second - at->occupancy) > 0.009) {
+		     coot::select_atom_info local_at = *ai;
+		     local_at.add_occ_edit(occ_entry.second);
+		     local_atom_edits.push_back(local_at);
+		  } 
+	       }
+	    }
+	 } else {
+	    std::cout << "no user data found for widget_o" << std::endl;
+	 }
+
+	 // HANDLE B-FACTOR edits
+	 ai = (coot::select_atom_info *) gtk_object_get_user_data(GTK_OBJECT(widget_b));
+	 if (ai) {
+	    imol = ai->molecule_number;  // hehe
+	    CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
+	    std::pair<short int, float>  temp_entry =
+	       graphics_info_t::float_from_entry(GTK_WIDGET(widget_b));
+	    if (temp_entry.first) {
+	       if (at) { 
+		  // std::cout << "    temp comparison " << temp_entry.second
+		  // << " " << at->tempFactor << std::endl;
+		  if (abs(temp_entry.second - at->tempFactor) > 0.009) {
+		     coot::select_atom_info local_at = *ai;
+		     local_at.add_b_factor_edit(temp_entry.second);
+		     local_atom_edits.push_back(local_at);
+		  }
+	       }
 	    }
 	 }
+	 
+      } else {
+	 std::cout << "Programmer error in decoding table." << std::endl;
+	 std::cout << "  Residue Edits not applied!" << std::endl;
       }
-      
-      // next atom
-      ls = ls->next;
-      atom_count++;
    }
 
    if (local_atom_edits.size() >0)
       if (imol >= 0)
 	 graphics_info_t::molecules[imol].apply_atom_edits(local_atom_edits);
 
-   residue_info_edits->resize(0);
+   residue_info_edits->clear();
    // delete res_spec; // can't do this: the user may press the button twice
 }
 
