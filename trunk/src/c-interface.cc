@@ -4503,6 +4503,18 @@ graphics_molecule_bond_type(int imol) {
    return -1;
 }
 
+int
+set_b_factor_bonds_scale_factor(int imol, float f) {
+
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_b_factor_bonds_scale_factor(f);
+      r = 1;
+   }
+   graphics_draw();
+   return r;
+}
+
 
 
 // -------------------------------------------------------------------------
@@ -6822,6 +6834,7 @@ SCM view_name(int view_number) {
 }
 #endif	/* USE_GUILE */
 
+#ifdef USE_GUILE
 SCM view_description(int view_number) { 
 
    SCM r = SCM_BOOL_F;
@@ -6834,6 +6847,7 @@ SCM view_description(int view_number) {
       }
    return r;
 }
+#endif	/* USE_GUILE */
 
 
 /*! \brief save views to view_file_name */

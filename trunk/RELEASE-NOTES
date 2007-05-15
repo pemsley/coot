@@ -1,5 +1,6 @@
 
-Release 0.3.2 ""
+
+Release 0.3.2 "Don't Bet on the River"
 
   o Fix crash due to rigid body refinement of atoms with zero
     occupancy
@@ -10,7 +11,7 @@ Release 0.3.2 ""
 
   o Fix crash when applying NCS edits [Michael Url]
 
-  o Added CNS map-reading [provided by Kevin Cowtan].  .cns is now 
+  o Added CNS map-reading [provided by Kevin Cowtan]. ".cns" is now 
     an acceptable map extension.
 
   o Add Terminal Residue for nucleotide polymers (to some extent)
@@ -25,12 +26,16 @@ Release 0.3.2 ""
 
   o Added function to change the colour of the unit cell [Dirk Kostrewa]
 
-  o Added multi-threaded socket reading for Phenix interface
+  o Added multi-threaded socket reading for Phenix and other
+    interfaces
 
   o Added function "blob under cursor -> screen centre" [FvD]
 
   o Fix map reading so that it accepts user-approved extensions
     [Peter Meyer]
+
+  o Reading a bespoke cif dictonary no longer cripples "Get Monomer"
+    for conventional residues [Judit Debreczeni]
 
   o Added Views system [inspired by PyMol]
 

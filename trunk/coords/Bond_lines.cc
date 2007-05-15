@@ -40,6 +40,8 @@
 //Lines_list *graphical_bonds_container::symmetry_bonds_ = NULL; 
 //int         graphical_bonds_container::symmetry_has_been_created = 0;
 
+static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
+
 Bond_lines::Bond_lines(coot::CartesianPair pair) {
 
    points.push_back(pair);
@@ -107,12 +109,25 @@ Bond_lines_container::Bond_lines_container (const atom_selection_container_t &Se
       construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0); 
    } else {
       if (by_occ == Bond_lines_container::COLOUR_BY_B_FACTOR) {
-	 construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0); 
+	 try_set_b_factor_scale(SelAtom.mol);
+	 construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0);
       }
    }
+}
 
-} 
+void
+Bond_lines_container::try_set_b_factor_scale(CMMDBManager *mol) {
 
+   int udd_b_factor_handle =  mol->GetUDDHandle(UDR_HIERARCHY,
+						(char *) coot::b_factor_bonds_scale_handle_name.c_str());
+   // std::cout << "debug:: Got b factor udd handle: " << udd_b_factor_handle << std::endl;
+   if (udd_b_factor_handle > 0) {
+      realtype scale;
+      if (mol->GetUDData(udd_b_factor_handle, scale) == UDDATA_Ok) {
+	 b_factor_scale = scale;
+      }
+   }
+}
 
 void
 Bond_lines_container::construct_from_atom_selection(const atom_selection_container_t &asc,
@@ -1947,6 +1962,7 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
 
    int col = 0;
    coot::my_atom_colour_map_t atom_colour_map;
+   // std::cout << "In atom-colour with b_factor_scale: " << b_factor_scale << std::endl;
 
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
       col = atom_colour_map.index_for_chain(std::string(at->GetChainID())); 
@@ -2030,22 +2046,23 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type) {
 		  }
 	       } else {
 		  if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
-		     if (at->tempFactor < 10.0*b_factor_scale) {
+		     float scaled_b = at->tempFactor*b_factor_scale;
+		     if (scaled_b < 10.0) {
 			return blue;
 		     } else {
-			if (at->tempFactor > 10.0*b_factor_scale) {
+			if (scaled_b > 80.0) {
 			   return red;
 			} else {
-			   if (at->tempFactor < 22.0*b_factor_scale) {
+			   if (scaled_b < 22.0) {
 			      return cyan;
 			   } else {
-			      if (at->tempFactor < 36.0*b_factor_scale) {
+			      if (scaled_b < 36.0) {
 				 return green;
 			      } else {
-				 if (at->tempFactor < 48.0*b_factor_scale) {
+				 if (scaled_b < 48.0) {
 				    return yellow;
 				 } else {
-				    if (at->tempFactor < 62.0*b_factor_scale) {
+				    if (scaled_b < 62.0) {
 				       return orange;
 				    }
 				 }
@@ -2434,7 +2451,7 @@ void
 Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
 							   int draw_hydrogens_flag) {
 
-   std::cout << "debug:: colour by chain, carbons only" << std::endl;
+   // std::cout << "debug:: colour by chain, carbons only" << std::endl;
    float max_dist = 1.9;
    float min_dist = 0.01; // As in the constructor
 			  // Bond_lines_container::Bond_lines_container(const

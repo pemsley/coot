@@ -187,20 +187,21 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation() {
 void
 molecule_class_info_t::b_factor_representation() { 
 
-   // float casting to disambiguate function call
-   Bond_lines_container bonds(atom_sel, float(0.01), float(1.9));
+   Bond_lines_container::bond_representation_type bond_type =
+      Bond_lines_container::COLOUR_BY_B_FACTOR;
+
+   Bond_lines_container bonds(atom_sel, bond_type);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
-
 } 
 
 void
 molecule_class_info_t::occupancy_representation() { 
 
-   // float casting to disambiguate function call
-   Bond_lines_container bonds(atom_sel, float(0.01), float(1.9));
-   // need a function (or extra arg to constructor?) to set
-   // coot::COLOUR_BY_OCCUPANCY);
+   Bond_lines_container::bond_representation_type bond_type =
+      Bond_lines_container::COLOUR_BY_OCCUPANCY;
+
+   Bond_lines_container bonds(atom_sel, bond_type);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_OCCUPANCY_BONDS;
 } 
