@@ -1389,7 +1389,9 @@ on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
   optionmenu = lookup_widget(GTK_WIDGET(button), "go_to_atom_molecule_optionmenu");
 /*   save_go_to_atom_mol_menu_ative_position(optionmenu);  no longer 20050526 */
 
+  printf("go to atom_window: %ld\n", widget );
   gtk_widget_destroy(widget); 
+  printf("done destroy go to atom window\n");
   unset_go_to_atom_widget();
 
 }

@@ -3272,9 +3272,13 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 }
 
 
+
+
 /*  ----------------------------------------------------------------------- */
 /*                         construct a molecule and update                  */
 /*  ----------------------------------------------------------------------- */
+
+#ifdef USE_GUILE
 int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
 
    int state = 0; 
@@ -3291,7 +3295,9 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    }
    return state;
 }
+#endif // USE_GUILE
 
+#ifdef USE_GUILE
 // Return a molecule number, -1 on error.
 int add_molecule(SCM molecule_expression, const char *name) {
 
@@ -3310,6 +3316,7 @@ int add_molecule(SCM molecule_expression, const char *name) {
    } 
    return imol;
 }
+#endif // USE_GUILE
 
 /*  ----------------------------------------------------------------------- */
 /*                         Align and Mutate GUI                             */

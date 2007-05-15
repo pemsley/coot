@@ -1,7 +1,7 @@
 // -*-c++-*-
 /* coords/Bond_lines.h
  * 
- * Copyright 2002, 2003, 2004, 2005 by The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,9 @@
 
 namespace coot { 
 
-  enum bond_colour_t { COLOUR_BY_CHAIN=0, COLOUR_BY_ATOM_TYPE=1, 
+   static std::string b_factor_bonds_scale_handle_name;
+   
+   enum bond_colour_t { COLOUR_BY_CHAIN=0, COLOUR_BY_ATOM_TYPE=1, 
 		       COLOUR_BY_SEC_STRUCT=2, DISULFIDE_COLOUR=3,
                        COLOUR_BY_MOLECULE=4, COLOUR_BY_RAINBOW=5, 
 		       COLOUR_BY_OCCUPANCY=6, COLOUR_BY_B_FACTOR=7};
@@ -285,6 +287,8 @@ class Bond_lines_container {
    int set_rainbow_colours(int selHnd_ca, CMMDBManager *mol);
    void do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
 					     int draw_hydrogens_flag);
+
+   void try_set_b_factor_scale(CMMDBManager *mol);
 
 public:
    enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR}; 

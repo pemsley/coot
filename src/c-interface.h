@@ -2967,6 +2967,9 @@ void graphics_to_b_factor_representation(int imol);
 void graphics_to_occupancy_represenation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
 int graphics_molecule_bond_type(int imol); 
+/*! \brief scale the colours for colour by b factor representation */
+int set_b_factor_bonds_scale_factor(int imol, float f);
+
 
 GtkWidget *wrapped_create_bond_parameters_dialog();
 void apply_bond_parameters(GtkWidget *w);

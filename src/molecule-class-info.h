@@ -1777,6 +1777,11 @@ class molecule_class_info_t {
    // replace molecule
    int replace_molecule(CMMDBManager *mol);
 
+
+   // add a factor to scale the colours in b factor representation:.
+   // It goes into the atom_sel.mol
+   void set_b_factor_bonds_scale_factor(float f);
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

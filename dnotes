@@ -25,9 +25,32 @@ cd guile-gtk-2.0
   
    Things to fix before 0.3.2
 
-   o colour by b-factor
+   o Fix text widget in Sequence reading code (e.g. Fit Loop)
 
-   o colour by occupancy
+   o Disappearing NCS ghosts on changing NCS master 
+
+   o Residue Info edits not being applied
+
+   o Stereo buttons need to be fixed
+
+   o transform-map
+
+
+   o Colour by B-factor
+
+* Done
+
+   o Colour by occupancy
+
+* Done
+
+   o Fix text widget in About 
+
+* Done.
+
+   o Alt confs fly apart in regularization of ligands.
+
+* Done.
 
    o CNS map reading
 
@@ -40,8 +63,6 @@ cd guile-gtk-2.0
    o Juergen's bad map
 
 * Hand off to Kevin, bad map.
-
-   o transform-map
 
    o Put a file selector on the shelxl refine interface.
 
@@ -159,3 +180,115 @@ ObjectCache: Leaked 0002 refs to <P 31 2">
 interesting!
 
 
+------
+
+
+  how about a "density at point" function exported to the scripting
+  layer.  Then the "delete atoms below a certain level" can be done in
+  scheme.
+
+
+-----
+Sun May 13 13:33:46 BST 2007
+
+
+
+INFO:: There were 2 maps contributing to the average
+INFO:: rescaling by 0.5
+==4884== 
+==4884== Invalid read of size 2
+==4884==    at 0x824D42B: molecule_class_info_t::ncs_averaged_maps(clipper::Xmap<float> const&, float) (molecule-class-info-ncs.cc:672)
+==4884==    by 0x824D8ED: molecule_class_info_t::make_dynamically_transformed_maps(int, short, float) (molecule-class-info-ncs.cc:472)
+==4884==    by 0x813EB8B: make_dynamically_transformed_ncs_maps (c-interface-ncs.cc:299)
+==4884==    by 0x813F5A1: make_dynamically_transformed_ncs_maps_by_widget (c-interface-ncs.cc:374)
+==4884==    by 0x81E5C04: on_ncs_maps_ok_button_clicked (callbacks.c:5746)
+==4884==    by 0x509D9D8: g_cclosure_marshal_VOID__VOID (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x509062A: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A1102: (within /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A2626: g_signal_emit_valist (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A27E8: g_signal_emit (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x4C32162: gtk_button_clicked (in /usr/lib/libgtk-x11-2.0.so.0.1000.11)
+==4884==    by 0x4C33DAD: (within /usr/lib/libgtk-x11-2.0.so.0.1000.11)
+==4884==  Address 0x777C2E8 is 0 bytes after a block of size 522,720 alloc'd
+==4884==    at 0x4022DC5: operator new(unsigned) (vg_replace_malloc.c:163)
+==4884==    by 0x824EBB3: std::vector<short, std::allocator<short> >::_M_fill_insert(__gnu_cxx::__normal_iterator<short*, std::vector<short, std::allocator<short> > >, unsigned, short const&) (new_allocator.h:88)
+==4884==    by 0x824CE08: molecule_class_info_t::ncs_averaged_maps(clipper::Xmap<float> const&, float) (stl_vector.h:658)
+==4884==    by 0x824D8ED: molecule_class_info_t::make_dynamically_transformed_maps(int, short, float) (molecule-class-info-ncs.cc:472)
+==4884==    by 0x813EB8B: make_dynamically_transformed_ncs_maps (c-interface-ncs.cc:299)
+==4884==    by 0x813F5A1: make_dynamically_transformed_ncs_maps_by_widget (c-interface-ncs.cc:374)
+==4884==    by 0x81E5C04: on_ncs_maps_ok_button_clicked (callbacks.c:5746)
+==4884==    by 0x509D9D8: g_cclosure_marshal_VOID__VOID (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x509062A: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A1102: (within /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A2626: g_signal_emit_valist (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A27E8: g_signal_emit (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884== 
+==4884== Invalid write of size 4
+==4884==    at 0x824D440: molecule_class_info_t::ncs_averaged_maps(clipper::Xmap<float> const&, float) (molecule-class-info-ncs.cc:676)
+==4884==    by 0x824D8ED: molecule_class_info_t::make_dynamically_transformed_maps(int, short, float) (molecule-class-info-ncs.cc:472)
+==4884==    by 0x813EB8B: make_dynamically_transformed_ncs_maps (c-interface-ncs.cc:299)
+==4884==    by 0x813F5A1: make_dynamically_transformed_ncs_maps_by_widget (c-interface-ncs.cc:374)
+==4884==    by 0x81E5C04: on_ncs_maps_ok_button_clicked (callbacks.c:5746)
+==4884==    by 0x509D9D8: g_cclosure_marshal_VOID__VOID (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x509062A: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A1102: (within /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A2626: g_signal_emit_valist (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A27E8: g_signal_emit (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x4C32162: gtk_button_clicked (in /usr/lib/libgtk-x11-2.0.so.0.1000.11)
+==4884==    by 0x4C33DAD: (within /usr/lib/libgtk-x11-2.0.so.0.1000.11)
+==4884==  Address 0x79DE3E8 is 0 bytes after a block of size 1,045,440 alloc'd
+==4884==    at 0x4022DC5: operator new(unsigned) (vg_replace_malloc.c:163)
+==4884==    by 0x824F144: clipper::Xmap<float>::Xmap(clipper::Xmap<float> const&) (new_allocator.h:88)
+==4884==    by 0x824C089: molecule_class_info_t::ncs_averaged_maps(clipper::Xmap<float> const&, float) (molecule-class-info-ncs.cc:587)
+==4884==    by 0x824D8ED: molecule_class_info_t::make_dynamically_transformed_maps(int, short, float) (molecule-class-info-ncs.cc:472)
+==4884==    by 0x813EB8B: make_dynamically_transformed_ncs_maps (c-interface-ncs.cc:299)
+==4884==    by 0x813F5A1: make_dynamically_transformed_ncs_maps_by_widget (c-interface-ncs.cc:374)
+==4884==    by 0x81E5C04: on_ncs_maps_ok_button_clicked (callbacks.c:5746)
+==4884==    by 0x509D9D8: g_cclosure_marshal_VOID__VOID (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x509062A: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A1102: (within /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A2626: g_signal_emit_valist (in /usr/lib/libgobject-2.0.so.0.1200.11)
+==4884==    by 0x50A27E8: g_signal_emit (in /usr/lib/libgobject-2.0.so.0.1200.11)n
+INFO:: 0 out of 228096 (0%) map points  were masked out of NCS average target volume,  chain A
+INFO:: made 1 averaged map(s)
+Map statistics: mean: -0.000679089 st.d: 0.480031
+Map statistics: min: -1.48057, max: 4.66996
+
+
+----
+Sun May 13 16:23:53 BST 2007
+
+
+what should active residue do when it is looking at (centred on) a water?
+
+
+-----
+Mon May 14 08:24:42 BST 2007
+
+
+ add library file in "Do you want to run auto-save state file?" window
+
+
+-----
+Mon May 14 08:50:14 BST 2007
+
+	Go To Atom fails in Gtk1 now.
+	
+Gtk-WARNING **: invalid cast from `GtkList' to `GtkTree'
+
+Gtk-CRITICAL **: file gtktree.c: line 379 (gtk_tree_clear_items): assertion `GTK_IS_TREE (tree)' failed.
+
+** WARNING **: Widget not found: go_to_atom_atom_list
+
+Gtk-WARNING **: invalid cast from (NULL) pointer to `GtkList'
+
+Gtk-CRITICAL **: file gtklist.c: line 1258 (gtk_list_clear_items): assertion `list != NULL' failed.
+
+Gtk-WARNING **: invalid cast from `GtkList' to `GtkTree'
+
+Gtk-CRITICAL **: file gtktree.c: line 200 (gtk_tree_append): assertion `GTK_IS_TREE (tree)' failed.
+
+Gtk-CRITICAL **: file gtkwidget.c: line 3359 (gtk_widget_set_parent): assertion `parent != NULL' failed.
+
+Gtk-WARNING **: invalid cast from (NULL) pointer to `GtkObject'
+Segmentation fault (core dumped)

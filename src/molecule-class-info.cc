@@ -8269,3 +8269,37 @@ molecule_class_info_t::set_contour_by_sigma_step(float v, short int state) {
 
 
 
+
+// add a factor to scale the colours in b factor representation:.
+// It goes into the atom_sel.mol
+void
+molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
+
+   std::cout << "Here Adding b-factor scale " << f << std::endl;
+   if (atom_sel.mol) {
+      // bleugh, casting.
+      int udd_handle =
+	 atom_sel.mol->RegisterUDReal(UDR_HIERARCHY,
+				      (char *) coot::b_factor_bonds_scale_handle_name.c_str());
+      if (udd_handle > 0) {
+// 	 std::cout << "Adding b-factor scale " << f << " with handle "
+// 		   << udd_handle << std::endl;
+	 atom_sel.mol->PutUDData(udd_handle, f);
+
+	 // test getting the uddata:
+	 int udd_b_factor_handle =
+	    atom_sel.mol->GetUDDHandle(UDR_HIERARCHY, (char *) coot::b_factor_bonds_scale_handle_name.c_str());
+// 	 std::cout << "debug:: test Got b factor udd handle: "
+// 		   << udd_b_factor_handle << std::endl;
+	 if (udd_b_factor_handle > 0) {
+	    realtype scale;
+	    if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == UDDATA_Ok) {
+// 	       std::cout << " test got b factor scale: " << scale << std::endl;
+	    } else {
+ 	       std::cout << "ERROR:: bad get b factor scale " << std::endl;
+	    }
+	 }
+      }
+   }
+   make_bonds_type_checked();
+}

@@ -45,6 +45,7 @@ style "button" = "default"
 #  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
 #  bg[PRELIGHT] = { 0, 0, 0.75 }
    bg[PRELIGHT] = { 0.93, 0.93, 0.96 }
+   fg[PRELIGHT] = { 0.0, 0.0, 0.0 }
 }
 
 style "entry" = "default"

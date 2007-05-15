@@ -6398,11 +6398,10 @@ graphics_info_t::process_socket_string_waiting() {
 #endif
 
 // static 
-#ifdef USE_GUILE
 gboolean
 graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
  
-
+#ifdef USE_GUILE
    if (graphics_info_t::have_socket_string_waiting_flag) {
       graphics_info_t::have_socket_string_waiting_flag = 0; // draw() looks here
       std::string ss = graphics_info_t::socket_string_waiting;
@@ -6433,8 +6432,18 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
    std::cout << " =============== unsetting mutex lock =========" << std::endl;
    graphics_info_t::socket_string_waiting_mutex_lock = 0; // we're done.  release lock.
    return FALSE; // don't call this function again, idly.
+
+#else // USE_GUILE
+
+#ifdef USE_PYTHON
+
+   // Bernhard to fill this part.
+
+#endif // USE_PYTHON   
+   
+   return FALSE; 
+#endif
 }
-#endif // USE_GUILE
 
 
 

@@ -2393,8 +2393,8 @@ public:
 #ifdef USE_GUILE
    static SCM safe_scheme_command(const std::string &scheme_command);
    static SCM process_socket_string_waiting();
-   static gboolean process_socket_string_waiting_bool(gpointer user_data);
 #endif
+   static gboolean process_socket_string_waiting_bool(gpointer user_data);
 
    // --------- Tip of the Day ---------------
    static short int do_tip_of_the_day_flag; 

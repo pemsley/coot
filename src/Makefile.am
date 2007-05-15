@@ -25,10 +25,12 @@ WITH_GUILE_CFLAGS="-DUSE_GUILE"
 # COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/coot_wrap_guile_pre.cc
 # does this help?
 COOT_WRAP_GUILE_TEMPLATE=coot_wrap_guile_pre.cc
+MAKE_COOT_WRAP_GUILE=sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'`
 else
 COOT_WRAP_GUILE_LIBS=
 WITH_GUILE_CFLAGS=
 COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/blank.cc
+MAKE_COOT_WRAP_GUILE=cp
 endif
 
 if COOT_USE_PYTHON
@@ -95,7 +97,7 @@ coot_wrap_guile_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-int
 	swig -o $@  $(SWIG_FLAGS) $(WITH_GUILE_CFLAGS) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_guile.cc: $(COOT_WRAP_GUILE_TEMPLATE)
-	sh $(top_srcdir)/src/post-process-coot-wrap-guile.sh `$(GUILE_CONFIG) --version 2>&1 | awk '{print $$NF}'` $(COOT_WRAP_GUILE_TEMPLATE) $@
+	$(MAKE_COOT_WRAP_GUILE) $(COOT_WRAP_GUILE_TEMPLATE) $@
 
 coot_wrap_python.cc: $(COOT_WRAP_PYTHON_TEMPLATE)
 	cp $(COOT_WRAP_PYTHON_TEMPLATE) $@

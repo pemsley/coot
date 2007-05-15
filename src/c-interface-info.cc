@@ -530,6 +530,7 @@ SCM active_residue() {
    } 
    return s;
 }
+#endif // USE_GUILE
 
 
 
@@ -547,8 +548,6 @@ void update_go_to_atom_from_current_position() {
    }
 }
 
-
-#endif 
 
 #ifdef USE_GUILE
 SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v) {

@@ -818,6 +818,27 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 		     GINT_TO_POINTER(*n));
 
 
+ /* Now a button for B-factor colours: */
+
+  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by B-factors"));
+  gtk_widget_show (glade_menuitem);
+  gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
+/* Notice how this time we attach a pointer to the molecule number -
+   more usually, we attach a pointer tto the menu item position number */
+  gtk_signal_connect(GTK_OBJECT(glade_menuitem), "activate",
+		     GTK_SIGNAL_FUNC(render_as_b_factor_representation_button_select),
+		     GINT_TO_POINTER(*n));
+
+  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by Occupancy"));
+  gtk_widget_show (glade_menuitem);
+  gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
+/* Notice how this time we attach a pointer to the molecule number -
+   more usually, we attach a pointer tto the menu item position number */
+  gtk_signal_connect(GTK_OBJECT(glade_menuitem), "activate",
+		     GTK_SIGNAL_FUNC(render_as_occupancy_representation_button_select),
+		     GINT_TO_POINTER(*n));
+
+
 /* Set User Data, the molecule which this button(s) is attached to 
    (casting (int *) to (char *)).
 */
@@ -877,6 +898,12 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
      }
      if (bond_type == 7) { /* CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR */
        gtk_menu_set_active(GTK_MENU(menu), 5); 
+     }
+     if (bond_type == 10) { /* COLOUR_BY_B_FACTOR_BONDS */
+       gtk_menu_set_active(GTK_MENU(menu), 7); 
+     }
+     if (bond_type == 11) { /* COLOUR_BY_OCCUPANCY_BONDS */
+       gtk_menu_set_active(GTK_MENU(menu), 8); 
      }
      /* c.f molecule-class-info.h:30 enum */
   }
