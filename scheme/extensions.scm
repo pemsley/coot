@@ -127,6 +127,11 @@
 				 (set-undo-molecule imol)))))
 
       (add-simple-coot-menu-menuitem
+       menu "Question Accept Refinement"
+       (lambda ()
+	 (set-refinement-immediate-replacement 0)))
+
+      (add-simple-coot-menu-menuitem
        menu "Set map is a difference map..."
        (lambda ()
 	 (map-molecule-chooser-gui "Which map should be considered a difference map?"
@@ -164,6 +169,16 @@
 					(if (number? n)
 					    (clear-dots imol n)))))))
       
+      (add-simple-coot-menu-menuitem menu "B factor bonds scale factor..."
+				     (lambda ()
+				       (generic-chooser-and-entry 
+					"Choose a molecule to which the b-factor colour scale is applied:"
+					"B factor scale:" "1.0"
+					(lambda (imol text)
+					  (let ((n (string->number text)))
+					    (if (number? n)
+						(set-b-factor-bonds-scale-factor imol n)))))))
+
       (add-simple-coot-menu-menuitem
        menu "Renumber Waters..."
        (lambda () 
