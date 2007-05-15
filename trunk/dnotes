@@ -35,6 +35,11 @@ cd guile-gtk-2.0
 
    o transform-map
 
+   o Delete a View number
+
+* Done.
+
+   o Save views to view file.
 
    o Colour by B-factor
 

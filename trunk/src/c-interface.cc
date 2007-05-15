@@ -25,6 +25,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <fstream>
 
 #if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
 #include <glob.h> // for globbing.
@@ -6705,6 +6706,16 @@ int remove_named_view(const char *view_name) {
    return r;
 } 
 
+/*! \brief the given view number */
+void remove_view(int view_number) {
+
+   std::vector<coot::view_info_t> new_views;
+   for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
+      if (iv != view_number)
+	 new_views.push_back((*graphics_info_t::views)[iv]);
+   }
+   *graphics_info_t::views = new_views;
+}
 
 
 void play_views() {
@@ -6741,7 +6752,8 @@ void play_views() {
 				  graphics_info_t::RotationCentre_z());
 	       coot::view_info_t current_view(graphics_info_t::quat,
 					      rc, graphics_info_t::zoom, "dummy");
-	       coot::view_info_t::interpolate(current_view, view2, 1, 200);
+	       coot::view_info_t::interpolate(current_view, view2, 1,
+					      200*graphics_info_t::views_play_speed);
 	       update_things_on_move_and_redraw();
 	    }
 	 }
@@ -6853,8 +6865,25 @@ SCM view_description(int view_number) {
 /*! \brief save views to view_file_name */
 void save_views(const char *view_file_name) {
 
-   
-
+   unsigned int n_views = graphics_info_t::views->size();
+   if (n_views > 0) {
+      std::ofstream f(view_file_name);
+      if (! f) {
+	 std::cout << "Cannot open view output file"
+		   << view_file_name << std::endl;
+      } else {
+	 f << "; Views\n";
+	 for (unsigned int i=0; i<n_views; i++) {
+	    f << (*graphics_info_t::views)[i];
+	 }
+	 std::string s = "Views written to file ";
+	 s += view_file_name;
+	 add_status_bar_text(s.c_str());
+	 // "ching!" sound here.
+      }
+   } else {					
+      std::cout << "no views to save" << std::endl;
+   }
 }
 
 
@@ -6873,6 +6902,14 @@ int add_spin_view(const char *view_name, int n_steps, float degrees_total) {
    coot::view_info_t v(view_name, n_steps, degrees_total);
    graphics_info_t::views->push_back(v);
    return (graphics_info_t::views->size() -1);
+}
+
+void set_views_play_speed(float f) {
+   graphics_info_t::views_play_speed = f;
+} 
+
+float views_play_speed() {
+   return graphics_info_t::views_play_speed;
 }
 
 

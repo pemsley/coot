@@ -376,6 +376,26 @@
          (lambda () 
            (go-to-first-view 1)
            (sleep 1)
-           (play-views))))
+           (play-views)))
 
+	(add-simple-coot-menu-menuitem
+	 submenu "Set Views Play Speed..."
+	 (lambda ()
+	   (generic-single-entry "Set Views Play Speed" 
+				 (number->string (views-play-speed))
+				 "  Set it " 
+				 (lambda (text)
+				   (let ((n (string->number text)))
+				     (if (number? n)
+					 (set-views-play-speed n)))))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Save Views..."
+	 (lambda ()
+	   (generic-single-entry "Save Views" "coot-views.scm" " Save "
+				 (lambda (txt)
+				   (save-views txt))))))
+
+
+      
       )); finish let and if
