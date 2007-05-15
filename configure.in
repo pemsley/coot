@@ -157,6 +157,10 @@ dnl Add the languages which your application supports here.
 ALL_LINGUAS="es es_ES"
 # AM_GNU_GETTEXT
 GETTEXT_PACKAGE=coot
+dnl we need to export ALL_LINGUAS here otherwise it is not expanded
+dnl for GTk1 on cycle at least, so that we would get:
+dnl No rule to make target `@ALL_LINGUAS@.po', needed by `@ALL_LINGUAS@ .gmo'.
+AC_SUBST(ALL_LINGUAS)
 AC_SUBST(GETTEXT_PACKAGE)
 AM_GLIB_GNU_GETTEXT
 
