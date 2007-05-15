@@ -2729,7 +2729,10 @@ int add_view_raw(float rcx, float rcy, float rcz, float quat1, float quat2,
 		 float quat3, float quat4, float zoom, const char *view_name);
 void play_views();
 void remove_this_view();
+/*! \brief the view with the given name */
 int remove_named_view(const char *view_name);
+/*! \brief the given view number */
+void remove_view(int view_number);
 /* go to the first view.  if snap_to_view_flag, go directly, else
    smooth twisty path.*/
 int go_to_first_view(int snap_to_view_flag);

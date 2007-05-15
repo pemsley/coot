@@ -6690,6 +6690,68 @@ coot::view_info_t::dot_product(const coot::view_info_t &view1,
    return d;
 }
 
+std::ofstream&
+coot::operator<<(std::ofstream &f, coot::view_info_t &view) {
+
+#ifndef USE_GUILE   
+#ifdef USE_PYTHON
+
+   // You want a pythonized view, presumably.  Bernhard to fill this
+   // section.
+#endif // USE_PYTHON
+
+#else // USE_GUILE   
+
+   // position quaternion zoom view-name
+   //
+
+   if (! view.is_simple_spin_view_flag) { 
+      f << "(add-view ";
+      f << "(list ";
+      f << "   ";
+      f << view.rotation_centre.x();
+      f << " ";
+      f << view.rotation_centre.y();
+      f << " ";
+      f << view.rotation_centre.z();
+      f << ")\n";
+
+      f << "   (list ";
+      f << view.quat[0]; 
+      f << " ";
+      f << view.quat[1]; 
+      f << " ";
+      f << view.quat[2]; 
+      f << " ";
+      f << view.quat[3];
+      f << ")\n";
+      
+      f << "   ";
+      f << view.zoom; 
+      f << "\n";
+
+      f << "   ";
+      f << coot::util::single_quote(view.view_name);
+   
+      f << ")\n";
+   } else {
+      f << "(add-spin-view ";
+      f << coot::util::single_quote(view.view_name);
+      f << " ";
+      f << view.n_spin_steps;
+      f << " ";
+      f << view.degrees_per_step * view.n_spin_steps;
+      f << ")\n";
+   }
+
+#endif // USE_GUILE
+
+   return f;
+
+}
+   
+
+
 bool
 coot::view_info_t::matches_view (const coot::view_info_t &view) const { 
    float frac = 0.01;

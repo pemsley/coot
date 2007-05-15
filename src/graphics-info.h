@@ -246,6 +246,9 @@ namespace coot {
 				     int step, int n_steps);
       static float dot_product(const view_info_t &view1,
 			       const view_info_t &view2);
+
+      friend std::ofstream& operator<<(std::ofstream &stream, 
+				       view_info_t &view);
    };
 
 } 
@@ -2513,6 +2516,7 @@ public:
 #endif
 
    static std::vector<coot::view_info_t> *views;
+   static float views_play_speed;
 
 };
 

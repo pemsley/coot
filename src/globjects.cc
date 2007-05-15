@@ -88,6 +88,7 @@ std::vector<std::string> *graphics_info_t::command_line_scripts;
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
 std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> *graphics_info_t::views = 0;
+float graphics_info_t::views_play_speed = 1.0;
 
 // LSQ
 short int graphics_info_t::in_lsq_plane_deviation = 0;
