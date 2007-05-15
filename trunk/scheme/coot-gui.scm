@@ -1065,7 +1065,7 @@
 (define (dialog-box-of-buttons window-name geometry buttons close-button-label)
 
   (define (add-text-to-text-widget text-box description)
-    #f)
+    (gtk-text-insert text-box #f "black" "#c0e6c0" description -1))
 
   ;; main line
   (let* ((window (gtk-window-new 'toplevel))
@@ -1097,7 +1097,6 @@
 		   (gtk-box-pack-start inside-vbox text-box #f #f 2)
 
 		   (gtk-widget-realize text-box)
-		   (gtk-text-insert text-box #f "black" "chartreuse" description -1)
 		   (gtk-text-thaw text-box)))
 
 	     (gtk-box-pack-start inside-vbox button #f #f 2)))

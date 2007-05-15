@@ -43,7 +43,7 @@
 ;;         (list specific-button-label-string button-red button-green button-blue
 ;;               specific-x specific-y specific-z)))))
 ;; 
-(define (molprobity-fascinating-clusters-things-gui 
+(define (fascinating-clusters-gui 
 	 window-name sorting-options cluster-list)
 
   ;; utility function
@@ -99,7 +99,9 @@
 	       (gtk-box-pack-start vbox go-to-cluster-button #f #f 2)
 	       
 	       ;; now we have a list of individual features:
-	       (add-feature-buttons (list-ref cluster-info 4) vbox))))
+	       (let ((features (list-ref cluster-info 4)))
+		 (if (> (length features) 0)
+		     (add-feature-buttons features vbox)))))
 		   
 	 cluster-list)
 
