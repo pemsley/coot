@@ -5595,6 +5595,25 @@ on_stereo_dialog_hardware_stereo_radiobutton_toggled
   }
 }
 
+void
+on_stereo_dialog_side_by_side_stereo_crosseyed_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active)
+    side_by_side_stereo_mode(0); /* passed used_wall_eye flag */
+}
+
+
+void
+on_stereo_dialog_side_by_side_stereo_walleyed_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    side_by_side_stereo_mode(1); /* passed used_wall_eye flag */
+  }
+}
 
 
 void
@@ -7499,27 +7518,6 @@ on_refine_params_dialog_destroy        (GtkObject       *object,
 
   unset_refine_params_dialog();
 
-}
-
-
-void
-on_stereo_dialog_side_by_side_stereo_crosseyed_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (togglebutton->active)
-    side_by_side_stereo_mode(0); /* passed used_wall_eye flag */
-}
-
-
-void
-on_stereo_dialog_side_by_side_stereo_walleyed_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (togglebutton->active) {
-    side_by_side_stereo_mode(1); /* passed used_wall_eye flag */
-  }
 }
 
 
