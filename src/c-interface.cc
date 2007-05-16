@@ -377,7 +377,8 @@ void hardware_stereo_mode() {
 
 void mono_mode() {
 
-   if (graphics_info_t::use_graphics_interface_flag) { 
+   if (graphics_info_t::use_graphics_interface_flag) {
+      
       if (graphics_info_t::display_mode != coot::MONO_MODE) { 
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::MONO_MODE;
@@ -416,9 +417,18 @@ void mono_mode() {
 void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      if (graphics_info_t::display_mode != coot::SIDE_BY_SIDE_STEREO) {
+
+      // If it wasn't in side by side stereo mode, then we need to
+      // generated 2 new glares by calling gl_extras().
+      // 
+      if (graphics_info_t::display_mode != coot::SIDE_BY_SIDE_STEREO) && 
+	 (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO) {
+	 
 	 if (use_wall_eye_flag == 1)
 	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
+	 else 
+	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
+	 
 	 int previous_mode = graphics_info_t::display_mode;
 	 short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
 	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
@@ -437,8 +447,10 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	 } 
       }
    }
-   // add_to_history_simple("side-by-side-stereo-mode");
-} 
+   std::vector<coot::command_arg_t> args;
+   args.push_back(use_wall_eye_flag);
+   add_to_history_typed("side-by-side-stereo-mode", args);
+}
 
 /* DTI stereo mode - undocumented, secret interface for testing, currently */
 // when it works, call it dti_side_by_side_stereo_mode()
