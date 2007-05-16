@@ -3102,10 +3102,22 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	 GtkWidget *text = lookup_widget(dialog, "mutate_molecule_sequence_text");
 	 char *txt = NULL;
 
+
+#if (GTK_MAJOR_VERSION == 1) 
 	 gint start_pos = 0;
 	 gint end_pos = -1;
-
 	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
+#else
+	 std::cout << "Gtk2 text view code... " << std::endl;
+	 // text is a GtkTextView in GTK2
+	 GtkTextView *tv = GTK_TEXT_VIEW(text);
+	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
+	 GtkTextIter startiter;
+	 GtkTextIter enditer;
+	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
+	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
+	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
+#endif 	 
 
 	 if (txt) {
 	    std::string sequence(txt);
@@ -3229,11 +3241,23 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	 GtkWidget *text = lookup_widget(dialog, "mutate_molecule_sequence_text");
 	 char *txt = NULL;
 
+
+#if (GTK_MAJOR_VERSION == 1) 
 	 gint start_pos = 0;
 	 gint end_pos = -1;
-
 	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
-
+#else
+	 std::cout << "Gtk2 text view code... " << std::endl;
+	 // text is a GtkTextView in GTK2
+	 GtkTextView *tv = GTK_TEXT_VIEW(text);
+	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
+	 GtkTextIter startiter;
+	 GtkTextIter enditer;
+	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
+	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
+	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
+#endif
+	 
 	 if (txt) {
 	    std::string sequence(txt);
 	    sequence = coot::util::plain_text_to_sequence(sequence);
@@ -3381,12 +3405,24 @@ int do_align_mutate_sequence(GtkWidget *w) {
 
       handled_state = 1;
       if (imol >= 0) {
-	 GtkWidget *text_w = lookup_widget(w, "align_and_mutate_sequence_text");
+	 GtkWidget *text = lookup_widget(w, "align_and_mutate_sequence_text");
 	 char *txt = NULL;
+      
+#if (GTK_MAJOR_VERSION == 1) 
 	 gint start_pos = 0;
 	 gint end_pos = -1;
-      
-	 txt = gtk_editable_get_chars(GTK_EDITABLE(text_w), start_pos, end_pos);
+	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
+#else
+	 std::cout << "Gtk2 text view code... " << std::endl;
+	 // text is a GtkTextView in GTK2
+	 GtkTextView *tv = GTK_TEXT_VIEW(text);
+	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
+	 GtkTextIter startiter;
+	 GtkTextIter enditer;
+	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
+	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
+	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
+#endif 	 
       
 	 if (txt) {
 	    std::string sequence(txt);
