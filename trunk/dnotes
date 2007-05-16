@@ -29,12 +29,14 @@ cd guile-gtk-2.0
 
    o Disappearing NCS ghosts on changing NCS master 
 
-   o Residue Info edits not being applied
-
    o Stereo buttons need to be fixed
 
    o transform-map
 
+
+   o Residue Info edits not being applied
+
+* Done.
 
    o Delete a View number
 

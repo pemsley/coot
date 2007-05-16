@@ -2406,8 +2406,12 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 
    GtkWidget *table = lookup_widget(dialog, "residue_info_atom_table");
 
+#if (GTK_MAJOR_VERSION == 2)
    GList *container_list = gtk_container_get_children(GTK_CONTAINER(table));
-
+#else    
+   GList *container_list = gtk_container_children(GTK_CONTAINER(table));
+#endif
+   
    // The children are a list, gone in "backward", just like we'd been
    // consing onto a list as we added widgets to the table.
    // 
