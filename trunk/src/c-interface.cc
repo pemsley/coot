@@ -421,8 +421,8 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
       // If it wasn't in side by side stereo mode, then we need to
       // generated 2 new glares by calling gl_extras().
       // 
-      if (graphics_info_t::display_mode != coot::SIDE_BY_SIDE_STEREO) && 
-	 (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO) {
+      if ((graphics_info_t::display_mode != coot::SIDE_BY_SIDE_STEREO) && 
+	  (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO)) {
 	 
 	 if (use_wall_eye_flag == 1)
 	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
