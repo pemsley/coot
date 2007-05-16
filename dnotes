@@ -25,14 +25,16 @@ cd guile-gtk-2.0
   
    Things to fix before 0.3.2
 
-   o Fix text widget in Sequence reading code (e.g. Fit Loop)
-
    o Disappearing NCS ghosts on changing NCS master 
 
    o Stereo buttons need to be fixed
 
    o transform-map
 
+
+   o Fix text widget in Sequence reading code (e.g. Fit Loop)
+
+* Done.
 
    o Residue Info edits not being applied
 
