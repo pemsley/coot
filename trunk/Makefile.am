@@ -51,10 +51,13 @@ EXTRA_DIST = 		\
 	my.supp		\
 	guile.supp	\
 	make-patches	\
-	mtrix-to-ncs-matrix.awk \
-	theor-helix-70.pdb \
-	RELEASE-NOTES	\
-	copyright-disclaimer.txt
+	mtrix-to-ncs-matrix.awk  \
+	theor-helix-70.pdb       \
+	RELEASE-NOTES	         \
+	copyright-disclaimer.txt \
+	intltool-extract.in      \
+	intltool-merge.in        \
+	intltool-update.in 
 
 install-data-local:
 	@$(NORMAL_INSTALL)

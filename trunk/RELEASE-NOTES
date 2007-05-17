@@ -16,6 +16,8 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Add Terminal Residue for nucleotide polymers (to some extent)
 
+  o Alt confs of ligands no longer fly appart on regularization
+
   o GTk+-2 interface now usable
 
   o Added SEGID info to clicked atom [Christine Durnham]
@@ -38,6 +40,8 @@ Release 0.3.2 "Don't Bet on the River"
     for conventional residues [Judit Debreczeni]
 
   o Added Views system [inspired by PyMol]
+
+  o Colour by B-factor and Occupancy
 
 
     -------------------------------------------------------

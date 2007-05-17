@@ -1,14 +1,3 @@
-#ifndef BEGIN_C_DECLS
-#ifdef __cplusplus
-#define BEGIN_C_DECLS extern "C" {
-#define END_C_DECLS }
-#else
-#define BEGIN_C_DECLS
-#define END_C_DECLS
-#endif
-#endif
-
-BEGIN_C_DECLS
 
 #ifndef BEGIN_C_DECLS
 #ifdef __cplusplus
@@ -46,8 +35,8 @@ BEGIN_C_DECLS
 #  endif
 #else
 #  define textdomain(String) (String)
-/*/*#  define gettext(String) (String) */ */
-/* /* #  define dgettext(Domain,Message) (Message) */ */
+/* #  define gettext(String) (String) */
+/* #  define dgettext(Domain,Message) (Message) */
 #  define dcgettext(Domain,Message,Type) (Message)
 #  define bindtextdomain(Domain,Directory) (Domain)
 #  define _(String) (String)
@@ -86,6 +75,4 @@ GtkWidget*  create_pixmap              (GtkWidget       *widget,
 
 END_C_DECLS
 
-
-END_C_DECLS
 
