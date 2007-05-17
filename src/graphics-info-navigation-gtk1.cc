@@ -165,6 +165,7 @@ graphics_info_t::fill_go_to_atom_residue_list_gtk1(GtkWidget *gtktree) {
    }
    // std::cout << "DEBUG:: tree view has " << nres << " residues" << std::endl;
 
+   // std::cout << "DEBUG:: gtktree has name " << gtk_widget_get_name(gtktree) << std::endl;
 
    // clear the current residue tree
    //
@@ -314,7 +315,7 @@ void
 graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList *gtktree,
 								    gpointer user_data) {
 
-   std::cout << "selection changed" << std::endl;
+   // std::cout << "selection changed" << std::endl;
    GList *dlist = GTK_TREE(gtktree)->selection;
 
    if (!dlist) {
