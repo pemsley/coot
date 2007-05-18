@@ -82,13 +82,19 @@ fi
 if test x$gtkgl_prefix != x; then
  GTKGL_CFLAGS="-I$gtkgl_prefix/include"
  GTKGL_LDOPTS="-L$gtkgl_prefix/lib"
+ # if this is 64 bit, try to load from lib64 libs instead of $prefix/lib
+ if test "$host_cpu" = x86_64 ; then 
+    if test -d $gtkgl_prefix/lib64 ; then
+       GTKGL_LDOPTS="-L$gtkgl_prefix/lib64 -L$gtkgl_prefix/lib"
+    fi
+ fi
 else
  GTKGL_CFLAGS=""
  GTKGL_LDOPTS=""
 fi
 
 AC_MSG_CHECKING([for GtkGLArea])
-LIBS="$save_LIBS  -lgtkgl $GTK_LIBS $GL_LDOPTS $GL_LIBS $GTKGL_LDOPTS"
+LIBS="$saved_LIBS  -lgtkgl $GTK_LIBS $GL_LDOPTS $GL_LIBS $GTKGL_LDOPTS"
 AC_TRY_LINK( ,[ char gtk_gl_area_new(); gtk_gl_area_new(); ], have_gtkgl=yes, have_gtkgl=no)
 AC_MSG_RESULT($have_gtkgl)
 
