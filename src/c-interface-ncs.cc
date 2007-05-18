@@ -230,6 +230,8 @@ GtkWidget *wrapped_create_ncs_control_dialog() {
 
 void ncs_control_change_ncs_master_to_chain(int imol, int ichain) {
 
+   std::cout << "DEBUG ncs_control_change_ncs_master_to_chain imol: " << imol
+	     << " and ichain: " << ichain << std::endl;
    if (is_valid_model_molecule(imol)) {
       std::vector<std::string> chain_ids =
 	 coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
@@ -241,6 +243,8 @@ void ncs_control_change_ncs_master_to_chain(int imol, int ichain) {
 
 void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol, int ichain) {
 
+   std::cout << "DEBUG ncs_control_change_ncs_master_to_chain_update_widget imol: " << imol
+	     << " and ichain: " << ichain << std::endl;
    if (is_valid_model_molecule(imol)) {
       ncs_control_change_ncs_master_to_chain(imol, ichain); 
 
@@ -279,8 +283,8 @@ make_ncs_ghosts_maybe(int imol) {
    if (is_valid_model_molecule(imol)) {  // it should be!
       if (graphics_info_t::molecules[imol].has_ncs_p()) {
 	 if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p() == 0) {
-	    // This popup causes a crash on mac...
-	    // GtkWidget *w = popup_window("Calculating NCS pair transformations...");
+	    std::cout << "%%%%%%%%% calling fill_ghost_info from c-interfac.cc make_ncs_ghosts_maybe"
+		      << std::endl;
 	    graphics_info_t::molecules[imol].fill_ghost_info(1, graphics_info_t::ncs_homology_level);
 	    // gtk_widget_destroy(w);
 	 }

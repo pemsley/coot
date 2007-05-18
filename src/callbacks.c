@@ -6745,6 +6745,8 @@ on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled
    int imol_chain = GPOINTER_TO_INT(user_data);
    int imol = imol_chain/1000;
    int ich = imol_chain - imol*1000;
+   printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n", imol, 
+	  ich, togglebutton->active);
    if (togglebutton->active) { 
 /*      printf("NCS_controller_ncs_master_chain_ich_radiobutton_toggled on for imol %d %d %d\n",  */
 /* 	    imol_chain, imol, ich); */

@@ -27,9 +27,20 @@ cd guile-gtk-2.0
 
    o Disappearing NCS ghosts on changing NCS master 
 
-   o Stereo buttons need to be fixed
+     Also:
+
+	Coot behaves differently depending on which chain I've chosen
+	as the "master". When A is master, I can click the display box
+	on/off and it simply displays (or hides) the ghost chains with
+	no fuss. However, if I chosen a different chain as master,
+	then each time I turn the ghosts on it recalculates the entire
+	alignment.
 
    o transform-map
+
+   o Stereo buttons need to be fixed
+
+       Need to check that wall and cross eyes work
 
 
    o Fix text widget in Sequence reading code (e.g. Fit Loop)

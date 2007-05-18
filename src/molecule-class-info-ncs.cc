@@ -190,6 +190,8 @@ int
 molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 				       float homology_lev) {
 
+   std::cout << "   --------------- in fill_ghost_info -------" << std::endl;
+
    // float homology_lev = 0.9; // perhaps this should be a
                                 // user-setable parameter.  Yes it should
 
@@ -339,6 +341,7 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 						       const std::vector<std::vector<std::pair<std::string, int> > > &residue_types,
 						       const std::vector<int> &chain_atom_selection_handles) {
 
+   std::cout << "   %%%%%% add_ncs_ghosts_using_ncs_master " << std::endl;
    float homology_level = 0.7;
    // First find imaster
    int imaster = -1; 
@@ -446,6 +449,8 @@ molecule_class_info_t::make_dynamically_transformed_maps(int imol_map,
    for(unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 
       if (ncs_ghosts_have_rtops_flag == 0) {
+	 std::cout << "   %%%%%%%%% calling fill_ghost_info from make_dynamically_transformed_maps "
+		   << std::endl;
 	 fill_ghost_info(1, homology_lev); // fill the rtops and set the flag
       }
       imol = graphics_info_t::n_molecules;
@@ -499,6 +504,8 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
    // First, let's make the ncs operators if they need to be made:
    if (ncs_ghosts.size() > 0) { 
       if (ncs_ghosts_have_rtops_flag == 0) {
+	 std::cout << "   %%%%%%%%% calling fill_ghost_info from ncs_averaged_maps "
+		   << std::endl;
 	 fill_ghost_info(1, homology_lev); // fill the rtops and set the flag
       }
 
@@ -1096,8 +1103,11 @@ molecule_class_info_t::copy_chain(const std::string &from_chain_str,
 
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0)
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) { 
+	    std::cout << "   %%%%%%%%% calling fill_ghost_info from copy_chain "
+		      << std::endl;
 	    fill_ghost_info(1, 0.7); // 0.7?
+	 }
 	 short int done_copy_flag = 0;
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    if  (ncs_ghosts[ighost].chain_id == to_chain_str) {
@@ -1145,8 +1155,11 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_other_using_ghost(s
    int done_copy_flag = 0;
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) {
+	    std::cout << "   %%%%%%%%% calling fill_ghost_info from copy_residue_range_from_ncs_master_to_other_using_ghost "
+		      << std::endl;
 	    fill_ghost_info(1, 0.7); // 0.7?
+	 }
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    if  (ncs_ghosts[ighost].chain_id == to_chain_id) {
 	       if (ncs_ghosts[ighost].target_chain_id == from_chain_id) {
@@ -1202,8 +1215,11 @@ molecule_class_info_t::copy_from_ncs_master_to_others(const std::string &master_
    int ncopied = 0;
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) {
+	    std::cout << "   %%%%%%%%% calling fill_ghost_info from copy_from_ncs_master_to_others "
+		      << std::endl;
 	    fill_ghost_info(1, 0.7); // 0.7?
+	 }
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    std::string master = ncs_ghosts[ighost].target_chain_id;
 	    if (master == master_chain_id) {
@@ -1226,8 +1242,11 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_others(const std::s
    int ncopied = 0;
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) {
+	    std::cout << "   %%%%%%%%% calling copy_residue_range_from_ncs_master_to_others "
+		      << std::endl;
 	    fill_ghost_info(1, 0.7); // 0.7?
+	 }
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    std::string master = ncs_ghosts[ighost].target_chain_id;
 	    if (master == master_chain_id) {
@@ -1332,9 +1351,16 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 
    int ghost_index = -1;
    if (atom_sel.n_selected_atoms > 0) {
-      if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0)
-	    fill_ghost_info(1, ncs_ghost_similarity_score); // 0.7?
+      if (show_ghosts_flag) { 
+	 if (ncs_ghosts.size() > 0) {
+	    if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) {
+	       std::cout << "   %%%%%%%%% calling from set_display_ncs_ghost_chain "
+			 << std::endl
+			 << "   %%%%%%%%% and here/now show_ghosts_flag is "
+			 << show_ghosts_flag << std::endl;
+	       fill_ghost_info(1, ncs_ghost_similarity_score); // 0.7?
+	    }
+	 }
       }
 
       std::vector<std::string> chain_ids = coot::util::chains_in_molecule(atom_sel.mol);
@@ -1353,7 +1379,7 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
       } else {
 	 // should never happen (except for user scripting)
 	 std::cout << "ERROR:: out of range ichain " << ichain << std::endl;
-      } 
+      }
    }
 }
 
