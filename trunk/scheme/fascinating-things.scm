@@ -101,7 +101,7 @@
 	       ;; now we have a list of individual features:
 	       (let ((features (list-ref cluster-info 4)))
 		 (if (> (length features) 0)
-		     (add-feature-buttons features vbox)))))
+		     (add-feature-buttons features vbox))))))
 		   
 	 cluster-list)
 
