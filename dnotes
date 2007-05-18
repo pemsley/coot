@@ -331,6 +331,18 @@ Wed May 16 09:27:21 BST 2007
 	deletion part).
 
 
+------
+Thu May 17 18:20:51 BST 2007
+
+Christopher Rife:
+
+I've noticed that when using "NCS Control" in Coot, it behaves differently
+depending on which chain I've chosen as the "master". When A is master, I can
+click the display box on/off and it simply displays (or hides) the ghost chains
+with no fuss. However, if I chosen a different chain as master, then each time
+I turn the ghosts on it recalculates the entire alignment. This is rather
+cumbersome with large structures...
+
 
 -----
 Wed May 16 20:30:02 BST 2007
@@ -338,3 +350,4 @@ Wed May 16 20:30:02 BST 2007
 	CA representation by default:
 
        Swanand	sg363@mole.bio.cam.ac.uk
+
