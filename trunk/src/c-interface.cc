@@ -350,7 +350,18 @@ void hardware_stereo_mode() {
 	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in hardware_stereo_mode!\n";
-	 } else { 
+	 } else {
+
+	    if ( (previous_mode == coot::SIDE_BY_SIDE_STEREO) ||
+		 (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)  || 
+		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
+
+	       if (graphics_info_t::glarea_2) {
+		  gtk_widget_destroy(graphics_info_t::glarea_2);
+		  graphics_info_t::glarea_2 = NULL;
+	       }
+	    }
+	    
 	    short int try_hardware_stereo_flag = 1;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) { 
