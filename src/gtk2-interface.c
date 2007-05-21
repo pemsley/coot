@@ -15,12 +15,10 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-#else 
+#if (GTK_MAJOR_VERSION > 1) 
 
 #include "callbacks.h.gtk2"
-#include "interface.h"
+#include "interface.h.gtk2"
 #include "support.h"
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
@@ -3049,6 +3047,7 @@ create_display_control_window_glade (void)
   GtkWidget *display_control_ok_button;
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_widget_set_size_request (display_control_window_glade, 380, -1);
   gtk_window_set_title (GTK_WINDOW (display_control_window_glade), _("Display Control"));
 
   vbox30 = gtk_vbox_new (FALSE, 0);
@@ -3059,7 +3058,6 @@ create_display_control_window_glade (void)
   display_control_vpaned = gtk_vpaned_new ();
   gtk_widget_show (display_control_vpaned);
   gtk_box_pack_start (GTK_BOX (vbox30), display_control_vpaned, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (display_control_vpaned, GTK_CAN_FOCUS);
 
   paned_maps_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (paned_maps_vbox);
@@ -3242,6 +3240,7 @@ create_goto_atom_window (void)
   go_to_atom_chain_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_chain_entry);
   gtk_box_pack_start (GTK_BOX (hbox24), go_to_atom_chain_entry, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (go_to_atom_chain_entry, 60, -1);
   gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_chain_entry), 9679);
 
   label41 = gtk_label_new (_("Chain"));
@@ -3259,6 +3258,7 @@ create_goto_atom_window (void)
   go_to_atom_residue_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_residue_entry);
   gtk_box_pack_start (GTK_BOX (hbox25), go_to_atom_residue_entry, FALSE, TRUE, 0);
+  gtk_widget_set_size_request (go_to_atom_residue_entry, 60, -1);
   gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_residue_entry), 9679);
 
   label42 = gtk_label_new (_("Residue Number"));
@@ -3276,6 +3276,7 @@ create_goto_atom_window (void)
   go_to_atom_atom_name_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_atom_name_entry);
   gtk_box_pack_start (GTK_BOX (hbox26), go_to_atom_atom_name_entry, FALSE, TRUE, 0);
+  gtk_widget_set_size_request (go_to_atom_atom_name_entry, 60, -1);
   gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_atom_name_entry), 9679);
 
   label43 = gtk_label_new (_("Atom Name"));
@@ -3311,6 +3312,7 @@ create_goto_atom_window (void)
   go_to_atom_model_view_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (go_to_atom_model_view_hbox);
   gtk_container_add (GTK_CONTAINER (frame59), go_to_atom_model_view_hbox);
+  gtk_widget_set_size_request (go_to_atom_model_view_hbox, -1, 170);
 
   go_to_atom_residue_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (go_to_atom_residue_scrolledwindow);
@@ -15892,4 +15894,4 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
-#endif 
+#endif //  (GTK_MAJOR_VERSION > 1) 

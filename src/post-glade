@@ -33,3 +33,7 @@ if test -e main.c ; then
 	rm main.c
 fi
 
+
+# for gtk2 post glading, there is a lot less rebuilding.  We only
+# need to edit gtk2-interface.c, adding a #if VERSION adn endif
+# and also change support.h.gtk2 to support.h

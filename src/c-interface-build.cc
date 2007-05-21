@@ -2077,10 +2077,12 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			phib_string = g.molecules[imol_map_refmac].Fourier_phi_label();
 			fom_string  = g.molecules[imol_map_refmac].Fourier_weight_label();
 		     } else {
-			std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
-			std::cout << "to make the map" << std::endl;
-			std::cout << "WARNING:: Turning off phase combination." << std::endl;
-			phase_combine_flag = 0; 
+			if (phase_combine_flag == 1) { 
+			   std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
+			   std::cout << "to make the map" << std::endl;
+			   std::cout << "WARNING:: Turning off phase combination." << std::endl;
+			   phase_combine_flag = 0;
+			}
 		     }
 		     // 	    std::cout << "DEBUG:: fom_string " << fom_string << " "
 		     // 		      << g.molecules[imol_map_refmac].Fourier_weight_label()
@@ -2160,8 +2162,6 @@ execute_refmac_real(std::string pdb_in_filename,
 		    std::string fom_string, 
 		    std::string ccp4i_project_dir) {
 
-
-   std::cout << "DEUBG here 2 in execute_refmac_real " << std::endl;
 
    std::vector<std::string> cmds;
 

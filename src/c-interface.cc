@@ -416,7 +416,7 @@ void mono_mode() {
 	       graphics_info_t::display_mode = previous_mode;
 	       std::cout << "WARNING:: switch to mono mode failed\n";
 	    }
-	 } 
+	 }
       } else {
 	 // std::cout << "Already in mono mode" << std::endl; // we know.
       }
@@ -429,19 +429,25 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
+      
       // If it wasn't in side by side stereo mode, then we need to
       // generated 2 new glares by calling gl_extras().
       // 
-      if ((graphics_info_t::display_mode != coot::SIDE_BY_SIDE_STEREO) && 
-	  (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO)) {
+      if (!((graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) ||
+	    (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
+	    (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO))) {
 	 
-	 if (use_wall_eye_flag == 1)
+	 if (use_wall_eye_flag == 1) {
 	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
-	 else 
+	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
+	 } else {
 	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
-	 
+	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
+	 }
 	 int previous_mode = graphics_info_t::display_mode;
 	 short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
+	 if (use_wall_eye_flag)
+	    stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
 	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
 	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
 	 if (glarea) {
@@ -456,6 +462,17 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	 } else {
 	    std::cout << "WARNING:: switch to side by side mode failed!\n";
 	 } 
+      } else {
+
+	 if (use_wall_eye_flag == 1) {
+	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
+	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
+	 } else {
+	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
+	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
+	 }
+	 // were were already in some sort of side by side stereo mode:
+	 graphics_draw();
       }
    }
    std::vector<coot::command_arg_t> args;
