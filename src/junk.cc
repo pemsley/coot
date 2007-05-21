@@ -1,4 +1,89 @@
-	 if (mutate_auto_fit_do_post_refine_flag) {
+
+
+/*! \brief toggle the display of map in molecule number imol
+
+  @param imol is the molecule number
+  @param imap is ignored */
+int toggle_display_map(int imol, int imap); 
+
+/*! \brief toggle the display of coordinates molecule number imol */
+int toggle_display_mol(int imol); 
+
+/*! \brief toggle the active state (clickable) of coordinates molecule
+  number imol */
+int toggle_active_mol (int imol); 
+
+// widget (toggle button) call-backs
+// 
+int toggle_display_map(int imol, int imap) { 
+   
+   graphics_info_t g;
+   int i = g.molecules[imol].toggle_display_map(imap); 
+   graphics_draw();
+   std::vector<std::string> command_strings;
+   command_strings.push_back("toggle-display-map");
+   command_strings.push_back(graphics_info_t::int_to_string(imol));
+   command_strings.push_back(graphics_info_t::int_to_string(imap));
+   add_to_history(command_strings);
+   return i;
+} 
+
+
+int toggle_display_mol(int imol) { 
+
+   graphics_info_t g; 
+   
+   int i = g.molecules[imol].toggle_display_mol();
+   graphics_draw();
+   std::vector<std::string> command_strings;
+   command_strings.push_back("toggle-display-mol");
+   command_strings.push_back(graphics_info_t::int_to_string(imol));
+   add_to_history(command_strings);
+   return i; 
+}
+
+// Return the new pickable? state.
+// 
+int toggle_active_mol(int imol) { 
+
+   graphics_info_t g; 
+
+   int i = g.molecules[imol].toggle_active_mol(); 
+
+   return i; 
+
+} 
+
+
+// molecule class functions:
+   int toggle_display_map(int i_map) { 
+      
+      // int i_map corresponds to the multi dimensionality of drawit_for_map
+      
+      drawit_for_map = 1 - drawit_for_map; 
+      
+      return drawit_for_map; 
+
+   }
+
+   int toggle_display_mol() { 
+//       std::cout << "changing display status from " << drawit
+// 		<< " to "<< 1 - drawit << std::endl;
+      drawit = 1 - drawit; 
+      return drawit; 
+   }
+
+   int toggle_active_mol() { 
+//       std::cout << "changing pickable_atom_selection status from " 
+// 		<< pickable_atom_selection
+// 		<< " to "<< 1 - pickable_atom_selection << std::endl;
+      pickable_atom_selection = 1 - pickable_atom_selection; 
+      return pickable_atom_selection; 
+   } 
+
+
+
+         if (mutate_auto_fit_do_post_refine_flag) {
 	    // Run refine zone with autoaccept, autorange on
 	    // the "clicked" atom:
 	    CAtom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];

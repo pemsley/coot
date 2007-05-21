@@ -43,12 +43,7 @@ cd guile-gtk-2.0
         If I turn on the display manager in my .coot file, and then
         load a coot state file which toggles off some of the loaded
         structures, the display manager gets confused and shows the
-        wrong state.  I am currently loading 8 structures and 6 maps
-        automatically, and the state for about half of the objects is
-        wrong.  If I toggle them, the button toggles the state, and
-        the state of the button changes, but it remains wrong.  If I
-        close the display manager and reopen it, then everything is
-        correct.
+        wrong state.
 
    o Do residue refinement after nucleotide add terminal residue (or
      can it be done trivially using the same mechanism as

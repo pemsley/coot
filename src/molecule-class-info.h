@@ -651,37 +651,26 @@ class molecule_class_info_t {
    
    std::string show_spacegroup() const;
 
-
-   int toggle_display_map(int i_map) { 
-      
-      // int i_map corresponds to the multi dimensionality of drawit_for_map
-      
-      drawit_for_map = 1 - drawit_for_map; 
-      
-      return drawit_for_map; 
-
+   void set_mol_is_displayed(int state) {
+      if (atom_sel.n_selected_atoms > 0) {
+	 drawit = state;
+      }
    }
 
-   int toggle_display_mol() { 
-//       std::cout << "changing display status from " << drawit
-// 		<< " to "<< 1 - drawit << std::endl;
-      drawit = 1 - drawit; 
-      return drawit; 
+   void set_mol_is_active(int state) {
+      if (atom_sel.n_selected_atoms > 0)
+	 pickable_atom_selection = state;
+      else 
+	 pickable_atom_selection = 0;
    }
 
-   int toggle_active_mol() { 
-//       std::cout << "changing pickable_atom_selection status from " 
-// 		<< pickable_atom_selection
-// 		<< " to "<< 1 - pickable_atom_selection << std::endl;
-      pickable_atom_selection = 1 - pickable_atom_selection; 
-      return pickable_atom_selection; 
-   } 
+   void set_map_is_displayed(int state) {
+      drawit_for_map = state;
+   }
 
    int atom_selection_is_pickable() const { 
       return pickable_atom_selection && (atom_sel.n_selected_atoms > 0);
    } 
-
-   
 
    short int show_symmetry; // now we have individual control of the
 			    // symmetry display (as well as a master

@@ -1976,18 +1976,13 @@ void add_map_and_mol_display_control_widgets();
 
 void reset_graphics_display_control_window(); 
 
-/*! \brief toggle the display of map in molecule number imol
-
-  @param imol is the molecule number
-  @param imap is ignored */
-int toggle_display_map(int imol, int imap); 
-
-/*! \brief toggle the display of coordinates molecule number imol */
-int toggle_display_mol(int imol); 
-
-/*! \brief toggle the active state (clickable) of coordinates molecule
-  number imol */
-int toggle_active_mol (int imol); 
+/*! \brief make the map displayed/undisplayed, 0 for off, 1 for on */
+void set_map_displayed(int imol, int state);
+/*! \brief make the coordinates molecule displayed/undisplayed, 0 for off, 1 for on */
+void set_mol_displayed(int imol, int state);
+/*! \brief make the coordinates molecule active/inactve (clickable), 0
+  for off, 1 for on */
+void set_mol_active(int imol, int state);
 
 
 /*! \brief return the display state of molecule number imol 
