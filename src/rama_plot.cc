@@ -156,7 +156,11 @@ coot::rama_plot::init_internal(short int hide_buttons) {
 			 GDK_KEY_RELEASE_MASK   |
 			 GDK_POINTER_MOTION_HINT_MASK);
 
-   gtk_widget_show (GTK_WIDGET(canvas)); 
+   if (dialog_position_x > -1)
+      gtk_widget_set_uposition(app1, dialog_position_x, dialog_position_y);
+
+   gtk_widget_show (GTK_WIDGET(canvas));
+   
    gtk_widget_show (app1);
 
    // Normally we have a plot from a molecule (and we communicate back

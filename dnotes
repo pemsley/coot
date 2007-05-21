@@ -50,7 +50,6 @@ cd guile-gtk-2.0
         close the display manager and reopen it, then everything is
         correct.
 
-
    o Do residue refinement after nucleotide add terminal residue (or
      can it be done trivially using the same mechanism as
      add-terminal-resdue-do-post-refine?
@@ -60,7 +59,6 @@ cd guile-gtk-2.0
      configure.in (obviously)
      old coot timer
 
-   o Ramachandran plot window should remember where it was put
 
 
    o Stereo buttons need to be fixed
@@ -82,6 +80,10 @@ cd guile-gtk-2.0
 * Done.
 
    o Save views to view file.
+
+* Done.
+
+   o Ramachandran plot window should remember where it was put
 
 * Done.
 

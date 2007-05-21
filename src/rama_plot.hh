@@ -250,10 +250,14 @@ class rama_plot {
    void clear_last_canvas_items(int n);
    std::pair<int, int> molecule_numbers_; // needed for undating kleywegt plots
    std::pair<std::string, std::string> chain_ids_; // ditto.
+   int dialog_position_x; 
+   int dialog_position_y;
    
 public:
 
-   rama_plot() { big_box_item = 0; dialog = 0;};
+   rama_plot() {
+      big_box_item = 0; dialog = 0;
+      dialog_position_x = -100; dialog_position_y = -100; };
 
    // consider destructor where we should
    // gtk_object_destroy(big_box_item) if it is non-zero.
@@ -363,7 +367,14 @@ public:
    // ramachandran difference plot
    short int is_kleywegt_plot() const {
       return drawing_differences;
-   } 
+   }
+
+   // where we also say where to put the ramachandran dialog:
+   // Call this function before init() :-)
+   void set_position(int x_position, int y_position) {
+      dialog_position_x = x_position;
+      dialog_position_y = y_position;
+   }
 
    std::pair<int, int> molecule_numbers() const { // needed for undating kleywegt plots
       return molecule_numbers_;
