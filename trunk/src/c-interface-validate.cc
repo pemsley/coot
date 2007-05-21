@@ -1069,7 +1069,10 @@ void do_ramachandran_plot(int imol) {
    if (imol >= 0) {
       if (imol < graphics_info_t::n_molecules) { 
 	 if (graphics_info_t::molecules[imol].has_model()) { 
-	    rama = new coot::rama_plot; 
+	    rama = new coot::rama_plot;
+	    if (graphics_info_t::ramachandran_plot_x_position > 0)
+	       rama->set_position(graphics_info_t::ramachandran_plot_x_position,
+				  graphics_info_t::ramachandran_plot_y_position);
 	    rama->init(imol);
 	    rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol); 
 	 }
