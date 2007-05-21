@@ -38,10 +38,36 @@ cd guile-gtk-2.0
 
    o transform-map
 
+   o Bad logic in setting display/active for molecules (Bob Nolte bug)
+
+        If I turn on the display manager in my .coot file, and then
+        load a coot state file which toggles off some of the loaded
+        structures, the display manager gets confused and shows the
+        wrong state.  I am currently loading 8 structures and 6 maps
+        automatically, and the state for about half of the objects is
+        wrong.  If I toggle them, the button toggles the state, and
+        the state of the button changes, but it remains wrong.  If I
+        close the display manager and reopen it, then everything is
+        correct.
+
+
+   o Do residue refinement after nucleotide add terminal residue (or
+     can it be done trivially using the same mechanism as
+     add-terminal-resdue-do-post-refine?
+
+   o Change the Release notes, 
+     the ChangeLog, 
+     configure.in (obviously)
+     old coot timer
+
+   o Ramachandran plot window should remember where it was put
+
+
    o Stereo buttons need to be fixed
 
        Need to check that wall and cross eyes work
 
+* Done.
 
    o Fix text widget in Sequence reading code (e.g. Fit Loop)
 
@@ -341,7 +367,6 @@ Wed May 16 09:27:21 BST 2007
 	error in the scm function we don't jump away from the function
 	deletion part).
 
-
 ------
 Thu May 17 18:20:51 BST 2007
 
@@ -361,4 +386,57 @@ Wed May 16 20:30:02 BST 2007
 	CA representation by default:
 
        Swanand	sg363@mole.bio.cam.ac.uk
+
+----
+Thu May 17 12:44:56 BST 2007
+
+	use gtk_widget_get_name(widget) to find out about what type a widget is
+
+------
+
+    Things for 0.4
+
+   o Cootaneer
+
+   o Richardson rotamers
+
+   o Problem shelx .ins file, enable bonds to symmetry atoms?
+
+   o Hydrogens from a SHELXL molecule
+
+   o check for updates?
+
+   o Gtk Timeout for reading socket strings
+
+   o insertion codes for intelligent next atom
+
+   o Multiple model ligand overlaying
+
+   o helix fitting overshoots
+
+   o Add some shelx reading to the test suite.
+
+   o fix this crash:
+
+	Kevin was doing some building and Coot lost the spacegroup.
+	Adding UNK terminal residues
+	Reversing the chain direction (probably this one?)
+	db-main for new mainchain
+
+   o fix db-main so that it doesn't spew error messages
+
+   o Change the Release notes, 
+     the ChangeLog, 
+     configure.in (obviously)
+     old coot timer
+
+   o Kevin's Ramachandran Refinement target
+
+
+------
+    
+    Things for 0.5 
+
+   o User pickable atoms
+
 

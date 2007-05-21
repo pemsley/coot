@@ -1495,15 +1495,18 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
       draw_hardware_stereo(widget, event);
    } else {
       if ((graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) ||
+	  (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
 	  (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
 	 if (widget == graphics_info_t::glarea_2) {
-	    // std::cout << "draw other window" << std::endl;
+	    // std::cout << "DEBUG:: draw other window" << std::endl;
 	    graphics_info_t g; // is this a slow thing?
 	    float tbs =  g.get_trackball_size(); 
 	    float spin_quat[4];
 	    // 0.0174 = 1/(2*pi)
 	    float eye_fac = 1.0;
-	    if (graphics_info_t::in_wall_eyed_side_by_side_stereo_mode)
+// 	    if (graphics_info_t::in_wall_eyed_side_by_side_stereo_mode)
+// 	       eye_fac = -1.0;
+	    if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE)
 	       eye_fac = -1.0;
 	    trackball(spin_quat, 0, 0, eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
 	    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);

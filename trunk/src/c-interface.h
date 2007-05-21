@@ -393,8 +393,7 @@ int graphics_n_molecules();
 
 int next_map_for_molecule(int imol); /* return a map number */
 
-/*
-! \brief Spin spin spin (or not) */
+/*! \brief Spin spin spin (or not) */
 void toggle_idle_function(); 
 
 /*! \brief how far should we rotate when (auto) spinning? Fast
