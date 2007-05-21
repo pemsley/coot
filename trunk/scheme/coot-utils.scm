@@ -1,7 +1,6 @@
+
 ;;;; Copyright 2000 by Paul Emsley
-;;;; Copyright 2004 by Paul Emsley, The University of York
-;;;; Copyright 2005 by Paul Emsley, The University of York
-;;;; Copyright 2006 by Paul Emsley, The University of York
+;;;; Copyright 2004, 2005, 2006, 2007 by The University of York
 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -810,6 +809,30 @@
    (else
     (format #t "symbol axis: ~s incomprehensible~%")
     #f)))
+
+;; support for old toggle functions.  (now the raw functions use the
+;; direct set_displayed functions).
+;; 
+;; Probably not a good idea to use these functions. 
+;; 
+(define (toggle-display-map imol idummy)
+  (if (= (map-is-displayed imol) 0)
+      (set-map-displayed imol 1)
+      (set-map-displayed imol 0) ))
+
+;; deprecated
+(define (toggle-display-mol imol)
+  (if (= (mol-is-displayed imol) 0)
+      (set-mol-displayed 1)
+      (set-mol-displayed 0)))
+
+;; deprecated
+(define (toggle-active-mol imol)
+  (if (= (mol-is-active imol) 0)
+      (set-mol-active 1)
+      (set-mol-active 0)))
+
+
 
 
 ;; @code{(transform-map imol mat trans about-pt radius)}

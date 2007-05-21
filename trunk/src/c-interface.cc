@@ -4564,51 +4564,39 @@ void add_map_and_mol_display_control_widgets() {
 void reset_graphics_display_control_window() { 
 
    graphics_info_t g; 
-
    g.save_display_control_widget_in_graphics(NULL); 
 
 } 
 
-// widget (toggle button) call-backs
-// 
-int toggle_display_map(int imol, int imap) { 
+/*! \brief make the map displayed/undisplayed, 0 for off, 1 for on */
+void set_map_displayed(int imol, int state) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_map_is_displayed(state);
+      graphics_draw();
+   }
+} 
+/*! \brief make the coordinates molecule displayed/undisplayed, 0 for off, 1 for on */
+void set_mol_displayed(int imol, int state) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_mol_is_displayed(state);
+      graphics_draw();
+   } else {
+      std::cout << "not valid molecule" << std::endl;
+   } 
+} 
+/*! \brief make the coordinates molecule active/inactve (clickable), 0
+  for off, 1 for on */
+void set_mol_active(int imol, int state) {
    
-   graphics_info_t g;
-   int i = g.molecules[imol].toggle_display_map(imap); 
-   graphics_draw();
-   std::vector<std::string> command_strings;
-   command_strings.push_back("toggle-display-map");
-   command_strings.push_back(graphics_info_t::int_to_string(imol));
-   command_strings.push_back(graphics_info_t::int_to_string(imap));
-   add_to_history(command_strings);
-   return i;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_mol_is_active(state);
+      graphics_draw();
+   } else {
+      std::cout << "not valid molecule" << std::endl;
+   } 
 } 
 
-
-int toggle_display_mol(int imol) { 
-
-   graphics_info_t g; 
-   
-   int i = g.molecules[imol].toggle_display_mol();
-   graphics_draw();
-   std::vector<std::string> command_strings;
-   command_strings.push_back("toggle-display-mol");
-   command_strings.push_back(graphics_info_t::int_to_string(imol));
-   add_to_history(command_strings);
-   return i; 
-}
-
-// Return the new pickable? state.
-// 
-int toggle_active_mol(int imol) { 
-
-   graphics_info_t g; 
-
-   int i = g.molecules[imol].toggle_active_mol(); 
-
-   return i; 
-
-} 
 
 
 int mol_is_displayed(int imol) { 

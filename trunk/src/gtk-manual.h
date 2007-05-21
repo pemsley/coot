@@ -154,17 +154,17 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
 /* map */
 void
-on_display_control_map_displayed_button_toggled   (GtkButton       *button,
+on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button,
 						   gpointer         user_data); 
 void
 on_display_control_map_properties_button_clicked   (GtkButton       *button,
 						   gpointer         user_data); 
 /* molecule */
 void
-on_display_control_mol_displayed_button_toggled   (GtkButton       *button,
+on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button,
 						   gpointer         user_data);
 void
-on_display_control_mol_active_button_toggled   (GtkButton       *button,
+on_display_control_mol_active_button_toggled   (GtkToggleButton       *button,
 						gpointer         user_data); 
 void
 on_display_control_mol_properties_button_toggled   (GtkButton       *button,

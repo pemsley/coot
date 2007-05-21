@@ -1214,7 +1214,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
 
 void
-on_display_control_map_displayed_button_toggled   (GtkButton       *button,
+on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button,
 						   gpointer         user_data)
 {
 
@@ -1222,9 +1222,12 @@ on_display_control_map_displayed_button_toggled   (GtkButton       *button,
 
   int *imol = (int *) gtk_object_get_user_data(GTK_OBJECT(button)); 
 
-  /* printf("map display button clicked %d \n", *imol);  */
+/*   toggle_display_map(*imol, 0); /* force a redraw */
 
-  toggle_display_map(*imol, 0); /* force a redraw */
+  if (button->active)
+    set_map_displayed(*imol, 1);
+  else 
+    set_map_displayed(*imol, 0);
 }
 
 /* Added 20050316 (Bangalore) */
@@ -1364,7 +1367,7 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
 
 
 void
-on_display_control_mol_displayed_button_toggled   (GtkButton       *button,
+on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button,
 						   gpointer         user_data)
 {
   int *imol = (int *) gtk_object_get_user_data(GTK_OBJECT(button)); 
@@ -1377,12 +1380,19 @@ on_display_control_mol_displayed_button_toggled   (GtkButton       *button,
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 3, "%-d", *imol);
 
+/*   printf("mol display button clicked %d, active: %d\n", *imol, button->active); */
+
   if (*imol >= 0 && *imol < graphics_n_molecules()) {
-    toggle_display_mol(*imol);
+    if (button->active)
+      set_mol_displayed(*imol, 1);
+    else 
+      set_mol_displayed(*imol, 0);
+      
 /*     printf("looking up widget name %s\n", widget_name); */
     active_toggle_button = lookup_widget(GTK_WIDGET(button), widget_name);
     if (active_toggle_button) { 
       /*  printf("INFO:: Got active_toggle_button from name: %s\n", widget_name); */
+
       if (mol_is_displayed(*imol)) {
 	// activate the button
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_toggle_button), TRUE);
@@ -1390,6 +1400,9 @@ on_display_control_mol_displayed_button_toggled   (GtkButton       *button,
 	/* deactivate the button */
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_toggle_button), FALSE);
       }
+
+
+
     } else {
       printf("ERROR:: Failed to find active_toggle_button from name: %s\n", widget_name);
     }
@@ -1401,12 +1414,17 @@ on_display_control_mol_displayed_button_toggled   (GtkButton       *button,
 
 
 void
-on_display_control_mol_active_button_toggled   (GtkButton       *button,
+on_display_control_mol_active_button_toggled   (GtkToggleButton  *toggle_button,
 						gpointer         user_data)
 {
-  int *imol = (int *) gtk_object_get_user_data(GTK_OBJECT(button)); 
+  int *imol = (int *) gtk_object_get_user_data(GTK_OBJECT(toggle_button)); 
   int iactive; 
-  iactive = toggle_active_mol(*imol); 
+  if (toggle_button->active) { 
+    set_mol_active(*imol, 1);
+/*     iactive = toggle_active_mol(*imol);  */
+  } else {
+    set_mol_active(*imol, 0);
+  }
 }
 
 
