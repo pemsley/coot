@@ -14,7 +14,7 @@ Release 0.3.2 "Don't Bet on the River"
   o Added CNS map-reading [provided by Kevin Cowtan]. ".cns" is now 
     an acceptable map extension.
 
-  o Add Terminal Residue for nucleotide polymers (to some extent)
+  o Add Terminal Residue for nucleotide polymers
 
   o Alt confs of ligands no longer fly appart on regularization
 
@@ -45,6 +45,8 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Ramachandran plot dialog remembers where it was put last time
 
+  o Display Control confusion about Display/Active state of molecules
+    untangled
 
     -------------------------------------------------------
     -------------------- Old Releases ---------------------

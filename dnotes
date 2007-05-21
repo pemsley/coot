@@ -38,16 +38,9 @@ cd guile-gtk-2.0
 
    o transform-map
 
-   o Bad logic in setting display/active for molecules (Bob Nolte bug)
-
-        If I turn on the display manager in my .coot file, and then
-        load a coot state file which toggles off some of the loaded
-        structures, the display manager gets confused and shows the
-        wrong state.
-
-   o Do residue refinement after nucleotide add terminal residue (or
-     can it be done trivially using the same mechanism as
-     add-terminal-resdue-do-post-refine?
+   o Multiple coordinate molecules, inconsistent when starting up go
+     to atom window.  Residue tree not same molecule as molecule
+     chooser.  It only fails on startup.
 
    o Change the Release notes, 
      the ChangeLog, 
@@ -55,6 +48,21 @@ cd guile-gtk-2.0
      old coot timer
 
 
+
+   o Do residue refinement after nucleotide add terminal residue (or
+     can it be done trivially using the same mechanism as
+     add-terminal-resdue-do-post-refine?
+
+* Man, that was hard work.  Needed nucleotide to nucleotide function
+
+   o Bad logic in setting display/active for molecules (Bob Nolte bug)
+
+        If I turn on the display manager in my .coot file, and then
+        load a coot state file which toggles off some of the loaded
+        structures, the display manager gets confused and shows the
+        wrong state.
+
+* Fixed.
 
    o Stereo buttons need to be fixed
 

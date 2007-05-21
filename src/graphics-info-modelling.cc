@@ -1313,14 +1313,14 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
    std::string form_str = "A";
    short int single_stranded_flag = 1;
    
-   coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
-		      seq, graphics_info_t::standard_residues_asc.mol);
-   CMMDBManager *mol = ir.make_molecule();
-
    if (coot::util::nucleotide_is_DNA(res_p)) { 
       RNA_or_DNA_str = "DNA";
       form_str = "B";
    }
+
+   coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
+		      seq, graphics_info_t::standard_residues_asc.mol);
+   CMMDBManager *mol = ir.make_molecule();
 
    int match_resno;
    int interesting_resno;
@@ -1346,8 +1346,8 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
       CAtom *at;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
-	 std::cout << "testing vs resno " << residue_p->GetSeqNum()
-		   << std::endl;
+// 	 std::cout << "testing vs resno " << residue_p->GetSeqNum()
+// 		   << std::endl;
 	 if (residue_p->GetSeqNum() == match_resno) {
 	    moving_residue_p = residue_p;
 	 }
@@ -1364,7 +1364,9 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
    if (interesting_residue_p) { 
       if (moving_residue_p) {
 	 std::pair<bool, clipper::RTop_orth> rtop_pair =
-	    coot::util::base_to_base(res_p, moving_residue_p);
+	    // coot::util::base_to_base(res_p, moving_residue_p);
+	    coot::util::nucleotide_to_nucleotide(res_p, moving_residue_p);
+	    
 	 // now apply rtop to mol:
 	 if (rtop_pair.first) {
 	    // fix up the residue number and chain id to match the clicked atom
@@ -1372,7 +1374,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	    interesting_residue_p->seqNum = new_resno;
 	    coot::util::transform_mol(mol, rtop_pair.second);
 	    byte gz = GZM_NONE;
-	    mol->WritePDBASCII("overlapped.pdb", gz);
+	    // mol->WritePDBASCII("overlapped.pdb", gz);
 	    CMMDBManager *residue_mol =
 	       coot::util::create_mmdbmanager_from_residue(mol, interesting_residue_p);
 
@@ -1394,6 +1396,14 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       }
 	    }
 	    graphics_info_t::molecules[imol].insert_coords(asc);
+
+	    if (add_terminal_residue_do_post_refine) { 
+	       // shall we refine it?  If there is a map, yes.
+	       int imol_map = Imol_Refinement_Map();
+	       if (imol_map >= 0) {
+		  refine_residue_range(imol, chain_id, chain_id, new_resno, new_resno, "", 0);
+	       }
+	    }
 	 }
       }
    } else {

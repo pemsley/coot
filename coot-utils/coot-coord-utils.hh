@@ -385,6 +385,11 @@ namespace coot {
       std::pair<bool,clipper::RTop_orth> base_to_base(CResidue *reference,
 						      CResidue *moving);
 
+      // Return the RTop that matches moving to reference.  Don't move
+      // moving.  Lite above, but add phosphate and furanose atoms.
+      std::pair<bool,clipper::RTop_orth> nucleotide_to_nucleotide(CResidue *reference,
+								  CResidue *moving);
+
       void mutate_base(CResidue *residue, CResidue *std_base);
       
       // For use with interesting-things-gui, make the list argument
