@@ -4056,7 +4056,7 @@ void
 save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos) { 
 
    // graphics_info_t g;
-   std::cout << "INFO:: Save coords molecule now: " << pos << std::endl;
+   // std::cout << "INFO:: Save coords molecule now: " << pos << std::endl;
    graphics_info_t::save_imol = pos;
 }
 

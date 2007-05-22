@@ -363,7 +363,7 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
    // add the cif dictionaries:
    if (cif_dictionary_filename_vec->size() > 0) { 
       for (unsigned int i=0; i<cif_dictionary_filename_vec->size(); i++) {
-	 std::string s = ";; molecule-info: Dictionary: ";
+	 std::string s = ";;molecule-info: Dictionary: ";
 	 s += (*cif_dictionary_filename_vec)[i];
 	 v.push_back(s);
       }
