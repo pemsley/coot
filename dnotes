@@ -38,10 +38,6 @@ cd guile-gtk-2.0
 
    o transform-map
 
-   o Multiple coordinate molecules, inconsistent when starting up go
-     to atom window.  Residue tree not same molecule as molecule
-     chooser.  It only fails on startup.
-
    o fix this crash:
 
 	Kevin was doing some building and Coot lost the spacegroup.
@@ -55,6 +51,12 @@ cd guile-gtk-2.0
      old coot timer
 
 
+
+   o Multiple coordinate molecules, inconsistent when starting up go
+     to atom window.  Residue tree not same molecule as molecule
+     chooser.  It only fails on startup.
+
+* Fixed.
 
    o Do residue refinement after nucleotide add terminal residue (or
      can it be done trivially using the same mechanism as
