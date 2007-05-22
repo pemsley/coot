@@ -1038,11 +1038,11 @@ using:
 
 So the usage of these functions would be something like:
 
-@verb{
+@verbatim
 (let ((v (view-quaternion)))
    ;; manipulate v here, maybe
    (apply set-view-quaternion v))
-}
+@end verbatim
 
 @section Space Group and Symmetry 
 Occasionally you may want to know the space group of a particular
@@ -2603,11 +2603,11 @@ waters is written out in CCP4 format as @code{"masked-for-waters.map"}.
 
 Sometimes as a result of water fitting, you may see something like:
 
-@verb{
+@verbatim
  WARNING:: refinement failure
            start pos: xyz = (      17.1,     34.76,     60.42)
            final pos: xyz = (     17.19,     34.61,     60.59)
-}
+@end verbatim
  
 When Coot finds a blob, it does a crude positioning of an atom at the
 centre of the grid points.  It then proceeds to move to the peak of the
@@ -3420,14 +3420,45 @@ where:
 This applies the rotation @code{@emph{rotation-matrix}} and a
 translation @code{@emph{trans}} to the map about the position
 @code{@emph{point}}.  The resulting map is built in a
-@code{@emp{radius}}@AA{} grid around @code{@emph{point}}.
+@code{@emph{radius}}@AA{} grid around a position which is
+@code{@emph{point}} tranformed by @code{@emph{rotation-matrix}} and
+@code{@emph{trans}}, @emph{i.e.} @code{@emph{point}} is where the map was before it
+was transformed.
 
-Typical usage:
+Example usage:
 
-@code{(transform-map 2 '(1 0 0 0 1 0 0 0 1) '(0 0 1) (rotation-centre) 15)}
+@code{(transform-map 2 '(1 0 0 0 1 0 0 0 1) '(0 0 1) (rotation-centre) 10)}
 
 which transforms map number 2 by a translation of 1@AA{} along the Z
-axis, centred at the screen centre for 15@AA{} around that centre.
+axis, centred at the screen centre for 10@AA{} around that centre.
+
+Here's a more real-world example:
+
+Let's say we want to tranform the density over the ``B'' molecule to a
+position over the ``A'' molecule: So first we do a LSQ transformation to
+get the rotation and translation that moves the ``B'' coordinates over
+the ``A'' coordinates:
+
+In the terminal output we get:
+
+@verbatim
+|    0.9707,    0.2351,   0.05033|
+|  -0.04676,      0.39,   -0.9196|
+|   -0.2358,    0.8903,    0.3896|
+(    -33.34,     21.14,     18.82)
+@end verbatim
+
+The centre of the ``B'' molecule is at  (58.456 5.65 11.108).  So we do:
+
+@code{(transform-map 3 (list 0.9707 0.2351 0.05033  -0.04676 0.39 -0.9196 -0.2358 0.8903 0.3896) (list  -33.34 21.14 18.82) (list 58.456 5.65 11.108) 8)}
+
+Which creates a map over the middle of the ``A'' molecule.  Note that
+using a too high @code{@emph{radius} can cause overlap problems, so try
+with a small @code{@emph{radius} (@emph{e.g.} 5.0) if the resulting map
+looks problematic.
+
+We can now export that map, if we want.
+
 
 @node Export Map
 @section Export Map
@@ -3872,7 +3903,6 @@ One uses @code{findligand} like this:
 
  @emph{i.e.} the example ligand pdb files that you wish to search for
 are given at the end of the command line.
-@end itemize
 
 
 @node Index

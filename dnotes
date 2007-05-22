@@ -42,6 +42,13 @@ cd guile-gtk-2.0
      to atom window.  Residue tree not same molecule as molecule
      chooser.  It only fails on startup.
 
+   o fix this crash:
+
+	Kevin was doing some building and Coot lost the spacegroup.
+	Adding UNK terminal residues
+	Reversing the chain direction (probably this one?)
+	db-main for new mainchain
+
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
@@ -397,52 +404,4 @@ Thu May 17 12:44:56 BST 2007
 
 	use gtk_widget_get_name(widget) to find out about what type a
 	widget is
-
-------
-
-    Things for 0.4
-
-   o Cootaneer
-
-   o Richardson rotamers
-
-   o Problem shelx .ins file, enable bonds to symmetry atoms?
-
-   o Hydrogens from a SHELXL molecule
-
-   o check for updates?
-
-   o Gtk Timeout for reading socket strings
-
-   o insertion codes for intelligent next atom
-
-   o Multiple model ligand overlaying
-
-   o helix fitting overshoots
-
-   o Add some shelx reading to the test suite.
-
-   o fix this crash:
-
-	Kevin was doing some building and Coot lost the spacegroup.
-	Adding UNK terminal residues
-	Reversing the chain direction (probably this one?)
-	db-main for new mainchain
-
-   o fix db-main so that it doesn't spew error messages
-
-   o Change the Release notes, 
-     the ChangeLog, 
-     configure.in (obviously)
-     old coot timer
-
-   o Kevin's Ramachandran Refinement target
-
-
-------
-    
-    Things for 0.5 
-
-   o User pickable atoms
-
 

@@ -1,63 +1,60 @@
 -*-text-*-
 
-After Release 0.0:
+------
 
-    o Sequence fitting tools 
-       - need to load sequence (3 letter or 1 letter).
-       - need to estimate volume of sidechain 
+    Release 0.4
 
-No longer, I've rethought this.  I'll do a full rotamer search.
+   o Cootaneer
 
-    o Add CIS peptide bonds - refinement
+   o Richardson rotamers
 
-    o Non-bonded interactions - refinement
+   o insertion codes for intelligent next atom
 
-Done.
+   o Torsion General
 
-    o Add "Jiggle Ligand" - increase search space for ligand search with
-      simplex minimization.
+   o Gtk Timeout for reading socket strings
 
-Done.
+   o Multiple model ligand overlaying
 
-    o negative seqnum indexing in minimol
+   o Add some SHELX reading to the test suite.
 
-    o Save the ligand-search protein-masked map
+   o fix db-main so that it doesn't spew error messages
 
-Not worth it.
+   o CCP4mg button
 
-    o "Fill the screen with density" - no matter what the zoom
+   o Threaded listener
 
-One day...
+   o Redo sequence view 
 
-    o Sort out the OCA server for compressed files
+   o NCS differences graph (use master chain)
 
-Fixed?
+   o Kevin's Ramachandran Refinement target
 
-    o Stereo
+   o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
-Done.
+   o Hydrogens from a SHELXL molecule
 
-    o Masking:
+   o Mouse bindings, consistency with MG
 
-        (mask-map-by-molecule map-no mol-no invert?) creates and
-        displays a masked map, cuts down density where the coordinates
-        are not.  If invert? is #t, cut the density down where the
-        atoms are.
+   o helix fitting overshoots
 
-        and similarly:
-        (mask-map-by-zone map-no mol-no start-resno end-resno chain-id invert?)
+   o check for updates?
 
-Done.
+   o Change the Release notes, 
+     the ChangeLog, 
+     configure.in (obviously)
+     old coot timer
 
 
----
-Sun Sep 26 14:16:19 BST 2004
+------
+    
+    Release 0.5 
 
-	I want some (thumbnail) icons:  Fancy making some?
+   o User pickable atoms
 
-	"protein" [a small protein in ribbon representation on a transparent background]
-	"ligand"  [a small (about 15 atoms?) ligand done in ball and stick on a 
-                   transparent background]
+   o Other Button: tw & penny
 
+------
 
----	
+   ... to far in the future...
+

@@ -271,16 +271,18 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
    clipper::Grid_sampling grid = xmap.grid_sampling();
    clipper::Grid_range gr(xmap_in.cell(), xmap_in.grid_sampling(), 2*box_size);
    clipper::Coord_grid g, g0, g1;
+   clipper::RTop_orth rtop_inv = rtop.inverse();
    typedef clipper::Xmap<float>::Map_reference_coord MRC;
    MRC i0, iu, iv, iw;
    g = pt_new_centre.coord_frac(xmap_in.cell()).coord_grid(xmap_in.grid_sampling());
+   std::cout << "DEBUG:: creating map about point: " << pt_new_centre.format() << std::endl;
    g0 = g + gr.min();
    g1 = g + gr.max();
    i0 = MRC( xmap, g0 );
    for ( iu = i0; iu.coord().u() <= g1.u(); iu.next_u() )
       for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() )
 	 for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
-	    clipper::Coord_orth dpt = iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap_in.cell()).transform(rtop);
+	    clipper::Coord_orth dpt = iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap_in.cell()).transform(rtop_inv);
 	    xmap[iw] = coot::util::density_at_point(xmap_in, dpt);
 	 }
    

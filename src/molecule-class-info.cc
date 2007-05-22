@@ -1220,9 +1220,9 @@ molecule_class_info_t::update_mol_in_display_control_widget() const {
    // we don't want to add a display control hbox if we are simply
    // doing an undo: This is now deal with by the calling function.
    // 
-   std::cout << "update_mol_in_display_control_widget() now" << std::endl;
-   std::cout << "update_mol_in_display_control_widget() passed derefrerence imol_no_ptr: "
-	     << *imol_no_ptr << std::endl;
+//    std::cout << "update_mol_in_display_control_widget() now" << std::endl;
+//    std::cout << "update_mol_in_display_control_widget() passed derefrerence imol_no_ptr: "
+// 	     << *imol_no_ptr << std::endl;
    std::string dmn = name_for_display_manager();
    if (g.display_control_window()) 
       update_name_in_display_control_molecule_combo_box(g.display_control_window(), 
