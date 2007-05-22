@@ -1,6 +1,7 @@
 /* src/molecule-class-info-other.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 #include <stdlib.h>
@@ -5404,16 +5406,11 @@ molecule_class_info_t::reverse_direction_of_fragment(const std::string &chain_id
 	 realtype vol;
 	 int orthcode;
 	 atom_sel.mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
-	 char *sg = mol->GetSpaceGroup();
+	 char *sg = atom_sel.mol->GetSpaceGroup();
 	 mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-	 // I am not sure that the following few lines to copy the
-	 // spacegroup string is needed, in fact.
-	 if (sg) { 
-	    size_t l = strlen(sg+1);
-	    char *sgc = new char[l];
-	    strcpy(sgc, sg);
-	    mol->SetSpaceGroup(sgc);
-	 }
+
+	 if (sg)
+	    mol->SetSpaceGroup(sg);
 
 	 // Now, we can convert that minimol back to a CMMDBManager
 	 delete atom_sel.mol;
