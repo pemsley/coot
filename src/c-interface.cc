@@ -4629,19 +4629,22 @@ char *show_spacegroup(int imol) {
 	  graphics_info_t::molecules[imol].has_model()) { 
 	 std::string spg =  graphics_info_t::molecules[imol].show_spacegroup();
 	 std::cout << "INFO:: spacegroup: " << spg << std::endl;
-	 char *s = new char(spg.length()+1);
-	 strncpy(s, spg.c_str(), spg.length()+1);
+	 unsigned int l = spg.length();
+	 char *s = new char[l+1];
+	 strncpy(s, spg.c_str(), l+1);
 	 return s;
       } else { 
 	 std::string spg("No spacegroup for this molecule");
 	 std::cout << "INFO:: spacegroup: " << spg << std::endl;
-	 char *s = new char(spg.length()+1);
-	 strncpy(s, spg.c_str(), spg.length()+1);
+	 unsigned int l = spg.length();
+	 char *s = new char[spg.length()+1];
+	 strncpy(s, spg.c_str(), l+1);
 	 return s;
       }
    }
 
    // If it was a bad molecule, return pointer to null.
+   std::cout << "Unknown molecule " << imol << std::endl;
    char *s = new char[1];
    s[0] = 0;
    return s;
