@@ -150,7 +150,6 @@ graphics_info_t::make_synthetic_select_on_residue_tree_gtk1(GtkWidget *residue_t
 void
 graphics_info_t::fill_go_to_atom_residue_list_gtk1(GtkWidget *gtktree) {
 
-   std::string button_string;
    graphics_info_t g;
 
    g.go_to_atom_residue(); // sets values of unset (magic -1) go to
@@ -376,7 +375,6 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk1(GtkWidget *atom_gtklist, int imo
    GtkWidget       *label;
    gchar           *string;
    GtkWidget *list_item;
-   std::string button_string;
    graphics_info_t g;
 
    std::vector<coot::model_view_atom_button_info_t> atoms =

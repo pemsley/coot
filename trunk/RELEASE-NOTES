@@ -48,6 +48,9 @@ Release 0.3.2 "Don't Bet on the River"
   o Display Control confusion about Display/Active state of molecules
     untangled
 
+  o On startup, the Go To Atom dialog no longer is inconsistent
+    between the chain chain and molecule chooser [GMS]
+
     -------------------------------------------------------
     -------------------- Old Releases ---------------------
     -------------------------------------------------------

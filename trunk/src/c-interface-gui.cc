@@ -2047,12 +2047,7 @@ void fill_go_to_atom_window(GtkWidget *widget) {
       GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
      option_menu = lookup_widget(GTK_WIDGET(widget), 
 				 "go_to_atom_molecule_optionmenu");
-     int gimol = g.go_to_atom_molecule();
-
-     g.fill_option_menu_with_coordinates_options(option_menu,
-						 callback_func,
-						 gimol);
-
+     
      /* These are in a special order: The residue is done first
 	because it is set to a magic number (-9999 (or so)) initially.
 	In that case, we do magic in
@@ -2064,8 +2059,20 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 
      residue_entry = lookup_widget(GTK_WIDGET(widget),
 				   "go_to_atom_residue_entry"); 
-     text = get_text_for_go_to_atom_residue_entry(); 
+
+
+     text = get_text_for_go_to_atom_residue_entry(); // on startup, tinkers with
+                                                     // go to atom params, yuck,
+                                                     // I think.
+
      gtk_entry_set_text(GTK_ENTRY(residue_entry), text); 
+
+     /* Now that the go to atom molecule has been set, we can use it
+	to fill the molecule option menu */
+     int gimol = g.go_to_atom_molecule();
+     g.fill_option_menu_with_coordinates_options(option_menu,
+						 callback_func,
+						 gimol);
 
      /* The chain entry */
 
@@ -2075,6 +2082,7 @@ void fill_go_to_atom_window(GtkWidget *widget) {
      text = get_text_for_go_to_atom_chain_entry(); 
      gtk_entry_set_text(GTK_ENTRY(chain_entry), text); 
 
+     
      /* The Atom Name entry */
 
      atom_name_entry = lookup_widget(GTK_WIDGET(widget),
@@ -2119,11 +2127,11 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 			      residue_tree, 
 			      (GtkDestroyNotify) gtk_widget_unref);
 
-       gtk_signal_connect(GTK_OBJECT(residue_tree),
+     gtk_signal_connect(GTK_OBJECT(residue_tree),
   			"selection_changed",
   			GTK_SIGNAL_FUNC(on_go_to_atom_residue_tree_selection_changed_gtk1),
   			NULL);
-
+     
      /* The atom list */
      scrolled_window = lookup_widget(GTK_WIDGET(widget),
 				     "go_to_atom_atom_scrolledwindow");
@@ -2144,7 +2152,6 @@ void fill_go_to_atom_window(GtkWidget *widget) {
  			"selection_changed",
  			GTK_SIGNAL_FUNC(on_go_to_atom_atom_list_selection_changed_gtk1),
  			NULL);
-
 
      /* fill those atom and residue lists (which uses
 	graphics_info_t::go_to_atom_residue()) */
