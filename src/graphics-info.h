@@ -243,7 +243,7 @@ namespace coot {
       }
       static view_info_t interpolate(const view_info_t &view1,
 				     const view_info_t &view2,
-				     int step, int n_steps);
+				     int n_steps);
       static float dot_product(const view_info_t &view1,
 			       const view_info_t &view2);
 
