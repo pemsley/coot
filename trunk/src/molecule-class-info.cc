@@ -179,7 +179,7 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	    // It only makes sense to to NCS chain searching on
 	    // crystallographic models.  Which generally only have one
 	    // model per manager.  This may change in future...
-	    int nmodels = atom_sel.mol_>GetNumberOfModels();
+	    int nmodels = atom_sel.mol->GetNumberOfModels();
 	    if (nmodels == 1) { 
 	       std::cout << "%%%%%%%%% calling fill_ghost_info from handle_read_draw_molecule "
 			 << std::endl;
