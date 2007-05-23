@@ -6597,13 +6597,16 @@ graphics_info_t::remove_last_lsq_plane_atom() {
 coot::view_info_t
 coot::view_info_t::interpolate(const coot::view_info_t &view1,
 			       const coot::view_info_t &view2,
-			       int step, int n_steps) {
+			       int n_steps) {
    coot::view_info_t view;
    graphics_info_t g;
 
 //    std::cout << "start quat interpolation: zooms: " << view1.zoom << " " << view2.zoom
 // 	     << " and centres: "
 // 	     << view1.rotation_centre << " to " << view2.rotation_centre << std::endl;
+
+//    std::cout << "quaternion interpolation using " << n_steps << " steps"
+// 	     << std::endl;
 
    float total_zoom_by = view2.zoom/view1.zoom;
    float frac_zoom_by =  1;
