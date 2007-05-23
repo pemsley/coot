@@ -6096,8 +6096,8 @@ void rotate_y_scene(int nsteps, float stepsize) {
    float spin_quat[4];
    graphics_info_t g;
 
-//    std::cout << "debug in rotate_y_scene: " << nsteps << " of size " << stepsize
-// 	     << std::endl;
+   std::cout << "debug in rotate_y_scene: " << nsteps << " of size " << stepsize
+	     << std::endl;
 
    // spin it 1 degree
    float tbs =  g.get_trackball_size(); 
@@ -6597,14 +6597,12 @@ void remove_view(int view_number) {
 
 void play_views() {
 
-   int nsteps = 200;
+   int nsteps = 2000;
    if (graphics_info_t::views_play_speed > 0.000000001)
-      nsteps = int(200.0/graphics_info_t::views_play_speed);
+      nsteps = int(2000.0/graphics_info_t::views_play_speed);
    float play_speed = 1.0; 
    if (graphics_info_t::views_play_speed > 0.0)
       play_speed = graphics_info_t::views_play_speed;
-   int n_spin_steps = int (float (view1.n_spin_steps) / play_speed);
-   float dps = view1.degrees_per_step*0.5 * play_speed;
    
 //    std::cout << "DEBUG:: # Views "<< graphics_info_t::views->size() << std::endl;
    for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
@@ -6624,6 +6622,8 @@ void play_views() {
 	 // a simple spin here:
 // 	    std::cout << "DEBUG:: simple spin "
 // 		      << view1.view_name << std::endl;
+	 int n_spin_steps = int (float (view1.n_spin_steps) / play_speed);
+	 float dps = view1.degrees_per_step*0.5 * play_speed;
 	 rotate_y_scene(n_spin_steps, dps);
 	 if ((iv+1) < graphics_info_t::views->size()) { 
 // 	    std::cout << "DEBUG:: interpolating to  "<< iv+1 << " "
@@ -6691,7 +6691,15 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
    if ((graphics_info_t::views->size() > view_number) && (view_number >= 0)) {
       coot::view_info_t view = (*graphics_info_t::views)[view_number];
       if (view.is_simple_spin_view_flag) {
-	 rotate_y_scene(view.n_spin_steps, view.degrees_per_step*0.5);
+	 int nsteps = 2000;
+	 if (graphics_info_t::views_play_speed > 0.000000001)
+	    nsteps = int(2000.0/graphics_info_t::views_play_speed);
+	 float play_speed = 1.0; 
+	 if (graphics_info_t::views_play_speed > 0.0)
+	    play_speed = graphics_info_t::views_play_speed;
+	 int n_spin_steps = int (float (view.n_spin_steps) / play_speed);
+	 float dps = view.degrees_per_step*0.5 * play_speed;
+	 rotate_y_scene(n_spin_steps, dps);
       } else {
 	 if (snap_to_view_flag) {
 	    g.setRotationCentre(view.rotation_centre);
@@ -6700,9 +6708,9 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 	       g.quat[iq] = view.quat[iq];
 	 } else {
 	    coot::view_info_t this_view(g.quat, g.RotationCentre(), g.zoom, "");
-	    int nsteps = 200;
+	    int nsteps = 2000;
 	    if (graphics_info_t::views_play_speed > 0.000000001)
-	       nsteps = int(200.0/graphics_info_t::views_play_speed);
+	       nsteps = int(2000.0/graphics_info_t::views_play_speed);
 	    coot::view_info_t::interpolate(this_view,
 					   (*graphics_info_t::views)[view_number], nsteps);
 	 }

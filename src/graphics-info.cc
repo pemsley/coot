@@ -6605,8 +6605,8 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 // 	     << " and centres: "
 // 	     << view1.rotation_centre << " to " << view2.rotation_centre << std::endl;
 
-//    std::cout << "quaternion interpolation using " << n_steps << " steps"
-// 	     << std::endl;
+    std::cout << "quaternion interpolation using " << n_steps << " steps"
+	      << std::endl;
 
    float total_zoom_by = view2.zoom/view1.zoom;
    float frac_zoom_by =  1;

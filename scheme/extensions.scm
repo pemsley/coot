@@ -357,7 +357,7 @@
          submenu "Add a Spin View"
          (lambda ()
            (generic-double-entry "Number of Step" "Number of Degrees (total)"
-				"720" "360" "  Add Spin  " 
+				"3600" "360" "  Add Spin  " 
 				(lambda (text1 text2)
 				  (let ((n1 (string->number text1))
 					(n2 (string->number text2)))
