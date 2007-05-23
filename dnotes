@@ -36,21 +36,16 @@ cd guile-gtk-2.0
 	then each time I turn the ghosts on it recalculates the entire
 	alignment.
 
-   o transform-map
-
-   o fix this crash:
-
-	Kevin was doing some building and Coot lost the spacegroup.
-	Adding UNK terminal residues
-	Reversing the chain direction (probably this one?)
-	db-main for new mainchain
-
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
      old coot timer
 
 
+
+   o transform-map
+
+* Done.
 
    o Multiple coordinate molecules, inconsistent when starting up go
      to atom window.  Residue tree not same molecule as molecule
@@ -72,6 +67,17 @@ cd guile-gtk-2.0
         wrong state.
 
 * Fixed.
+
+   o fix this:
+
+	Kevin was doing some building and Coot lost the spacegroup.
+	Adding UNK terminal residues
+	Reversing the chain direction (probably this one?)
+	db-main for new mainchain
+
+* Done. Trival error in transfering spacegroup string.  Fixed malloc
+  error in show-spacegroup while debugging this, which was much more
+  important.
 
    o Stereo buttons need to be fixed
 

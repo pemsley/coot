@@ -176,10 +176,16 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	    // 0.7 is not used (I think) if do_rtops_flag is 0.
 	    // hack to fix Mac bug/strangeness
 
-	    std::cout << "%%%%%%%%% calling fill_ghost_info from handle_read_draw_molecule "
-		      << std::endl;
-	    int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
-	    // std::cout << "INFO:: found " << nghosts << " ghosts\n";
+	    // It only makes sense to to NCS chain searching on
+	    // crystallographic models.  Which generally only have one
+	    // model per manager.  This may change in future...
+	    int nmodels = atom_sel.mol_>GetNumberOfModels();
+	    if (nmodels == 1) { 
+	       std::cout << "%%%%%%%%% calling fill_ghost_info from handle_read_draw_molecule "
+			 << std::endl;
+	       int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+	       // std::cout << "INFO:: found " << nghosts << " ghosts\n";
+	    }
 	 }
 	    
 	 // Generate bonds and save them in the graphical_bonds_container

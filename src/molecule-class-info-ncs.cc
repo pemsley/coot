@@ -1,6 +1,7 @@
 /* src/molecule-class-info.cc
  * 
- * Copyright 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2004, 2005, 2006, 2007 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -265,9 +266,10 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 
       if (ncs_ghosts.size() > 0) { 
 	 update_ghosts();
-	 std::cout << "INFO:: Constructed " << ncs_ghosts.size() << " ghosts\n";
+	 std::cout << "  INFO:: fill_ghost_info Constructed " << ncs_ghosts.size() << " ghosts\n";
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-	    std::cout << "Ghost name: " << ncs_ghosts[ighost].name << std::endl;
+	    std::cout << "      Ghost " << ighost << " name: \"" << ncs_ghosts[ighost].name << "\""
+		      << std::endl;
 	 }
       }
    }
@@ -372,6 +374,7 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 	       ghost.display_it_flag = 1;
 	       std::cout << "Adding ghost with name: " << ghost.name << std::endl;
 	       ncs_ghosts.push_back(ghost);
+	       ncs_ghosts_have_rtops_flag = 1;
 	    }
 	 }
       }
@@ -403,7 +406,7 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 
    rtop = coot::util::make_rtop_orth_from(SSMAlign->TMatrix);
 
-   std::cout << "find_ncs_matrix returns \n" << rtop.format() << std::endl;
+   std::cout << "   find_ncs_matrix returns \n" << rtop.format() << std::endl;
 
 
 #endif // HAVE_SSMLIB
@@ -1329,7 +1332,7 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 
       if (ncs_ghosts.size() > 0) { 
 	 update_ghosts();
-	 std::cout << "INFO:: Constructed " << ncs_ghosts.size() << " ghosts\n";
+	 std::cout << "INFO:: set_ncs_master_chain Constructed " << ncs_ghosts.size() << " ghosts\n";
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    std::cout << "   Ghost info:: " << ncs_ghosts[ighost].name << std::endl;
 	 }
@@ -1349,15 +1352,29 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
    // So we need to convert that to the index of ncs_ghosts which has
    // the same chain_id
 
+   std::cout << "%%%% starting set_display_ncs_ghost_chain" << std::endl;
+   std::cout << " %%%%%%%%% and here/now show_ghosts_flag is "
+	     << show_ghosts_flag << " ichain: " << ichain
+	     << " state: " << state << std::endl;
+
+   std::cout << "   DEBUG:: start of set_display_ncs_ghost_chain: " << std::endl;
+   std::cout << "        There are " << ncs_ghosts.size() << " ghosts" << std::endl;
+   for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+      std::cout << "         ighost: " << ighost<< "\n"
+		<< "         name: \""           << ncs_ghosts[ighost].name << "\"" << "\n"
+		<< "         chainid: "         << ncs_ghosts[ighost].chain_id << "\n"
+		<< "         target chain id: " << ncs_ghosts[ighost].target_chain_id<< "\n"
+		<< "         display_it_flag "  << ncs_ghosts[ighost].display_it_flag << std::endl;
+   }
+   
    int ghost_index = -1;
    if (atom_sel.n_selected_atoms > 0) {
       if (show_ghosts_flag) { 
 	 if (ncs_ghosts.size() > 0) {
 	    if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) {
-	       std::cout << "   %%%%%%%%% calling from set_display_ncs_ghost_chain "
-			 << std::endl
-			 << "   %%%%%%%%% and here/now show_ghosts_flag is "
-			 << show_ghosts_flag << std::endl;
+	       std::cout << "        --  set_display_ncs_ghost_chain calls fill ghost info, 1"
+			 << " with ncs_ghosts_have_rtops_flag " << ncs_ghosts_have_rtops_flag 
+			 << std::endl;
 	       fill_ghost_info(1, ncs_ghost_similarity_score); // 0.7?
 	    }
 	 }
@@ -1367,10 +1384,13 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
       if (ichain < chain_ids.size()) { 
 	 for (unsigned int ich=0; ich<ncs_ghosts.size(); ich++) { 
 	    if (chain_ids[ichain] == ncs_ghosts[ich].chain_id) {
+	       std::cout << "    DEBUG chain id comparison :" << chain_ids[ichain]
+			 << ": vs :" <<  ncs_ghosts[ich].chain_id << ":" << std::endl;
 	       ghost_index = ich;
 	       break;
 	    }
 	 }
+	 std::cout << "     Here ghost_index is " << ghost_index << std::endl;
 	 if (ghost_index > -1 ) { 
 	    if (ncs_ghosts.size() > ghost_index) {
 	       ncs_ghosts[ghost_index].display_it_flag = state;
@@ -1380,6 +1400,16 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 	 // should never happen (except for user scripting)
 	 std::cout << "ERROR:: out of range ichain " << ichain << std::endl;
       }
+   }
+
+   std::cout << "   DEBUG:: end of set_display_ncs_ghost_chain: " << std::endl;
+   std::cout << "        There are " << ncs_ghosts.size() << " ghosts" << std::endl;
+   for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+      std::cout << "         ighost: " << ighost<< "\n"
+		<<  "        name: \""           << ncs_ghosts[ighost].name << "\"" << "\n"
+		<< "         chainid: "         << ncs_ghosts[ighost].chain_id << "\n"
+		<< "         target chain id: " << ncs_ghosts[ighost].target_chain_id<< "\n"
+		<< "         display_it_flag "  << ncs_ghosts[ighost].display_it_flag << std::endl;
    }
 }
 
