@@ -6730,8 +6730,8 @@ on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled
    if (togglebutton->active) { 
      state = 1;
    }
-/*    printf("NCS_controller display chain toggled for imol %d chain %d state %d\n",   */
-/* 	  imol, ich, state); */
+   printf("\nNCS_controller display chain toggled for imol %d chain %d state %d\n",  
+	  imol, ich, state);
    ncs_control_display_chain(imol, ich, state);
 }
 
@@ -6745,12 +6745,14 @@ on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled
    int imol_chain = GPOINTER_TO_INT(user_data);
    int imol = imol_chain/1000;
    int ich = imol_chain - imol*1000;
-   printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n", imol, 
-	  ich, togglebutton->active);
+   printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n", 
+	  imol, ich, togglebutton->active);
    if (togglebutton->active) { 
 /*      printf("NCS_controller_ncs_master_chain_ich_radiobutton_toggled on for imol %d %d %d\n",  */
 /* 	    imol_chain, imol, ich); */
-     ncs_control_change_ncs_master_to_chain(imol, ich);
+
+/*      ncs_control_change_ncs_master_to_chain(imol, ich); (done in the following function) */
+
      ncs_control_change_ncs_master_to_chain_update_widget(w, imol, ich);
    } 
 }

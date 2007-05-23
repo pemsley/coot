@@ -261,6 +261,7 @@ void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol
 
 void ncs_control_display_chain(int imol, int ichain, int state) {
 
+   std::cout << "%%%% ncs_control_display_chain " << std::endl;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_display_ncs_ghost_chain(ichain, state);
       graphics_draw();
