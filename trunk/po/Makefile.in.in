@@ -202,7 +202,12 @@ update-po: Makefile
 	  fi; \
 	done
 
-Makefile POTFILES: stamp-it
+# PE edit 20070524 depending on stamp-it makes things go into an
+# endless loop, e.g. Lother Esser and on bragg3.  Stop Makefile
+# depending on stamp-it.
+
+# Makefile POTFILES: stamp-it
+Makefile POTFILES:
 	@if test ! -f $@; then \
 	  rm -f stamp-it; \
 	  $(MAKE) stamp-it; \
