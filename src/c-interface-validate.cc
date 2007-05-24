@@ -1012,6 +1012,20 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
 
 }
 
+/*! \brief set the contour levels for theremachandran plot, default
+  values are 0.02 (prefered) 0.002 (allowed) */
+void set_ramachandran_plot_contour_levels(float level_prefered, float level_allowed) {
+
+   graphics_info_t::rama_level_prefered = level_prefered;
+   graphics_info_t::rama_level_allowed  = level_allowed;
+} 
+
+void set_ramachandran_plot_background_block_size(float blocksize) {
+   graphics_info_t::rama_plot_background_block_size = blocksize;
+}
+
+
+
 
 // OK, the molecule was changed in the option menu, so if the checkbutton is on,
 // then change the elements of the chain option menu
@@ -1073,7 +1087,10 @@ void do_ramachandran_plot(int imol) {
 	    if (graphics_info_t::ramachandran_plot_x_position > 0)
 	       rama->set_position(graphics_info_t::ramachandran_plot_x_position,
 				  graphics_info_t::ramachandran_plot_y_position);
-	    rama->init(imol);
+	    rama->init(imol,
+		       graphics_info_t::rama_level_prefered,
+		       graphics_info_t::rama_level_allowed,
+		       graphics_info_t::rama_plot_background_block_size);
 	    rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol); 
 	 }
       }
@@ -1093,7 +1110,10 @@ ramachandran_plot_differences(int imol1, int imol2) {
 	       if (imol2 < graphics_info_t::n_molecules) { 
 		  if (graphics_info_t::molecules[imol2].has_model()) { 
 		     rama = new coot::rama_plot; 
-		     rama->init(imol1);
+		     rama->init(imol1,
+				graphics_info_t::rama_level_prefered,
+				graphics_info_t::rama_level_allowed,
+				graphics_info_t::rama_plot_background_block_size);
 		     rama->draw_it(graphics_info_t::molecules[imol1].atom_sel.mol,
 				   graphics_info_t::molecules[imol2].atom_sel.mol);
 		  }
@@ -1113,7 +1133,10 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
    if (is_valid_model_molecule(imol1)) {
       if (is_valid_model_molecule(imol2)) {
 	 coot::rama_plot *rama = new coot::rama_plot; 
-	 rama->init(imol1);
+	 rama->init(imol1,
+		    graphics_info_t::rama_level_prefered,
+		    graphics_info_t::rama_level_allowed,
+		    graphics_info_t::rama_plot_background_block_size);
 	 std::cout << "rama differences on mols: " << imol1 << " " << a_chain
 		   << " to " << imol2 << " " << b_chain << std::endl;
 	 rama->draw_it(imol1, imol2,
@@ -1172,6 +1195,84 @@ void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget
 
 }
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  ramachandran plot                                       */
+/*  ----------------------------------------------------------------------- */
+
+
+
+#include "rama_plot.hh"
+// More dynarama stuff:
+// call with value non-zero for on, 0 for off/not.
+//
+// This should not be used for scripting.
+// 
+void set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
+
+   graphics_info_t g;
+   g.set_dynarama_is_displayed(dyna_toplev, imol);
+}
+
+GtkWidget *dynarama_is_displayed_state(int imol) {
+
+   GtkWidget *w = NULL;
+   if (is_valid_model_molecule(imol)) {
+      w = graphics_info_t::dynarama_is_displayed[imol];
+   }
+   return w;
+}
+
+
+// window is the dynarama window.
+// 
+// Return -1 on error, return -9999 with a phi/psi edit window.
+// 
+int get_mol_from_dynarama(GtkWidget *window) {
+
+   int imol = -1;
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS) 
+   // graphics_info_t g; 
+   if (window) {
+
+      GtkWidget *canvas = lookup_widget(GTK_WIDGET(window), "canvas");
+
+      if (canvas) { 
+	 coot::rama_plot * plot =
+	    (coot::rama_plot *)
+	    gtk_object_get_user_data(GTK_OBJECT(canvas));
+	 if (plot) 
+	    imol = plot->molecule_number();
+
+	 // This is no longer an error now that I have also added the
+	 // destroy_window callback (which also does a
+	 // set_dynarama_is_displayed)
+	 // So just return -1 if the plot has already been deleted.
+//c  	 else
+//c  	    std::cout << "ERROR could not get user data from Ramachandran window" 
+//c  		      << std::endl;
+      } else {
+	 std::cout << "ERROR:: failed to find canvas in window" << std::endl;
+      } 
+   }
+#endif // HAVE_GTK_CANVAS   
+   return imol; 
+}
+   
+
+
+GtkWidget *dynarama_widget(int imol) {
+
+   GtkWidget *w = NULL;
+   if (imol < graphics_info_t::n_molecules) {
+      w = graphics_info_t::dynarama_is_displayed[imol];
+   }
+   return w;
+}
+
+// ----------------------------------------------------------------------------------
+//                            LSQ
+// ----------------------------------------------------------------------------------
 
 void setup_lsq_deviation(int state) {
 

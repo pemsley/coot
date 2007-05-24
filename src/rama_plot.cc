@@ -81,13 +81,16 @@ using namespace std;
 
 
 void
-coot::rama_plot::init(int imol_in) {
+coot::rama_plot::init(int imol_in, float level_prefered, float level_allowed, float block_size) {
    imol = imol_in; 
    phipsi_edit_flag = 0;
    backbone_edit_flag = 0;
-   init_internal(); 
+   init_internal(level_prefered, level_allowed, block_size);
 }
 
+// We could pass to this init the level_prefered and level_allowed
+// here, if we wanted the phi/psi edit and backbone edit to have
+// "non-standard" contour levels.
 void
 coot::rama_plot::init(const std::string &type) { 
  
@@ -95,24 +98,26 @@ coot::rama_plot::init(const std::string &type) {
       phipsi_edit_flag = 1;
       backbone_edit_flag = 0;
       imol = -9999; // magic number used in OK button callback.
-      init_internal(); 
+      init_internal(0.02, 0.002, 10);
    }
    if (type == "backbone-edit") { 
       phipsi_edit_flag = 0;
       backbone_edit_flag = 1;
       imol = -9999; // magic number used in OK button callback.
       short int hide_buttons = 1;
-      init_internal(hide_buttons); 
+      init_internal(0.02, 0.002, 10, hide_buttons); 
    }
    big_box_item = 0;
-} 
+}
 
 
 //  The mapview entry point
 //
 // hide_buttons is optional arg
 void
-coot::rama_plot::init_internal(short int hide_buttons) {
+coot::rama_plot::init_internal(float level_prefered, float level_allowed,
+			       float step_in, 
+			       short int hide_buttons) {
 
    fixed_font_str = "fixed";
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
@@ -171,8 +176,8 @@ coot::rama_plot::init_internal(short int hide_buttons) {
       // a c-interface function
       set_dynarama_is_displayed(GTK_WIDGET(canvas), imol); 
 
-   setup_internal(); 
-   step = 10;
+   setup_internal(level_prefered, level_allowed); 
+   step = step_in;
 
    setup_canvas(); 
 }
@@ -277,7 +282,7 @@ coot::rama_plot::clear_last_canvas_items(int np) {
 
 
 void
-coot::rama_plot::setup_internal() {
+coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
 
    zoom = 0.8;
    have_sticky_labels = 0; 
@@ -311,18 +316,25 @@ coot::rama_plot::setup_internal() {
    rama_threshold_preferred = 0.02; 
    rama_threshold_allowed = 0.0012;
    
+   // Lovell et al. 2003, 50, 437 Protein Structure, Function and Genetics values:
+   rama_threshold_preferred = 0.02; 
+   rama_threshold_allowed = 0.002;
+   
    //clipper defaults: 0.01 0.0005
-   rama.set_thresholds(rama_threshold_preferred,rama_threshold_allowed);
 
+
+   std::cout << "Debug:: initing rama with levels " << level_prefered << " " << level_allowed
+	     << std::endl;
+   rama.set_thresholds(level_prefered, level_allowed);
    //
    r_gly.init(clipper::Ramachandran::Gly);
-   r_gly.set_thresholds(rama_threshold_preferred,rama_threshold_allowed);
+   r_gly.set_thresholds(level_prefered, level_allowed);
    //
    r_pro.init(clipper::Ramachandran::Pro);
-   r_pro.set_thresholds(rama_threshold_preferred,rama_threshold_allowed);
+   r_pro.set_thresholds(level_prefered, level_allowed);
    // 
    r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro);
-   r_non_gly_pro.set_thresholds(rama_threshold_preferred,rama_threshold_allowed);
+   r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
 }
 
 void 

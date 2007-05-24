@@ -3497,13 +3497,14 @@ interface to other programs @footnote{the Richardsons' reduce
 @node    Ramachandran Plots
 @section Ramachandran Plots
 @cindex Ramachandran plot
-Ramachandran plots are ``dynamic''.  When
-you edit the molecule (@emph{i.e.} move the coordinates of some of
-atoms) the Ramachandran plot gets updated to reflect those changes.
-Also the underlying @math{\phi/\psi} probability density changes according
-to the selected residue type (@emph{i.e.} the residue under the mouse
-in the plot).  There are 3 different residue types: GLY, PRO, and
-not-GLY-or-PRO @footnote{the not-GLY-or-PRO is the most familiar
+
+Ramachandran plots are ``dynamic''.  When you edit the molecule
+(@emph{i.e.} move the coordinates of some of atoms) the Ramachandran
+plot gets updated to reflect those changes.  Also the underlying
+@math{\phi/\psi} probability density changes according to the selected
+residue type (@emph{i.e.} the residue under the mouse in the plot).
+There are 3 different residue types: GLY, PRO, and not-GLY-or-PRO
+@footnote{the not-GLY-or-PRO is the most familiar
   Ramachandran plot.}.
 
 When you mouse over a representation of a residue (a little square or
@@ -3518,7 +3519,19 @@ The underlying distributions are taken from the Richardson's Top500
 structures @url{http://kinemage.biochem.duke.edu/databases/top500.php}.
 
 The probability levels for acceptable (yellow) and preferred (red) are
-0.12% and 2% respectively.
+0.2% and 2% respectively.
+
+You can change the contour levels:
+
+@code{(set-ramachandran-plot-contour-levels 0.025 0.003)}
+
+You can change the ``blocksize'' (the default is 10 degrees) of the
+contours using
+
+@code{(set-ramachandran-plot-background-block-size 5)}
+
+These comes into effect when a new plot is created (it doesn't change
+plots currently displayed).
 
 
 @node Chiral Volumes

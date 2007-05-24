@@ -210,7 +210,7 @@ class rama_plot {
    std::vector<GtkCanvasItem *> canvas_item_vec; // we save them so that
 					         // we can destroy them.
    GtkCanvasItem *big_box_item; 
-   int step;
+   float step; // the "angular" size of the background blocks
    std::vector<int> ifirst_res; // offset between actual residue number and
 		                // position in the phi_psi vector
 
@@ -223,7 +223,7 @@ class rama_plot {
    GtkTooltips *tooltips;
    std::string fixed_font_str;
 
-   void setup_internal();
+   void setup_internal(float level_prefered, float level_allowed);
    // gint rama_button_press(GtkWidget *widget, GdkEventButton *event);
    
    GtkCanvasItem *tooltip_item;
@@ -241,7 +241,8 @@ class rama_plot {
 
    double rama_threshold_allowed;  // 0.05 
    double rama_threshold_preferred; // 0.002
-   void init_internal(short int hide_butttons = 0); // called by init(int imol)
+   void init_internal(float level_prefered, float level_allowed,
+		      float block_size, short int hide_butttons = 0); // called by init(int imol)
    void draw_green_box(double phi, double psi);
    short int phipsi_edit_flag;   // for active canvas (can move phi/psi point)
    short int backbone_edit_flag; // for passive canvas
@@ -262,7 +263,8 @@ public:
    // consider destructor where we should
    // gtk_object_destroy(big_box_item) if it is non-zero.
    void init(const std::string &type);
-   void init(int imol_);  // initializer to be used by mapview
+   // typically level_prefered = 0.02, level_allowed is 0.002, block_size is 10.0;
+   void init(int imol_no, float level_prefered, float level_allowed, float block_size_for_background);
 
    // The graphics interface, given that you have a CMMDBManager. 
    // 
