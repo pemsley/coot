@@ -3453,8 +3453,8 @@ The centre of the ``B'' molecule is at  (58.456 5.65 11.108).  So we do:
 @code{(transform-map 3 (list 0.9707 0.2351 0.05033  -0.04676 0.39 -0.9196 -0.2358 0.8903 0.3896) (list  -33.34 21.14 18.82) (list 58.456 5.65 11.108) 8)}
 
 Which creates a map over the middle of the ``A'' molecule.  Note that
-using a too high @code{@emph{radius} can cause overlap problems, so try
-with a small @code{@emph{radius} (@emph{e.g.} 5.0) if the resulting map
+using a too high @code{@emph{radius}} can cause overlap problems, so try
+with a small @code{@emph{radius}} (@emph{e.g.} 5.0) if the resulting map
 looks problematic.
 
 We can now export that map, if we want.

@@ -8,13 +8,19 @@
 
    o Richardson rotamers
 
-   o insertion codes for intelligent next atom
-
    o Torsion General
 
    o Gtk Timeout for reading socket strings
 
    o Multiple model ligand overlaying
+
+   o Kevin's Ramachandran Refinement target
+
+-----
+
+   Release 0.5
+
+   o insertion codes for intelligent next atom
 
    o Add some SHELX reading to the test suite.
 
@@ -22,13 +28,9 @@
 
    o CCP4mg button
 
-   o Threaded listener
-
    o Redo sequence view 
 
    o NCS differences graph (use master chain)
-
-   o Kevin's Ramachandran Refinement target
 
    o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
@@ -40,21 +42,22 @@
 
    o check for updates?
 
-   o Change the Release notes, 
-     the ChangeLog, 
-     configure.in (obviously)
-     old coot timer
-
 
 ------
     
-    Release 0.5 
+    Release 0.6 
 
    o User pickable atoms
 
    o Other Button: tw & penny
 
+   o multiple residue ranges.
+
 ------
 
-   ... to far in the future...
+   Release 0.7
+
+   o Switch to GTk2, guile1.8
+
+   
 
