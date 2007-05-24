@@ -367,7 +367,7 @@
 					(add-spin-view "Spin" n1 n2)))))))
 
 	(add-simple-coot-menu-menuitem 
-	 submenu "Views Panel"
+	 submenu "Views Panel..."
 	 (lambda ()
 	   (views-panel-gui)))
 

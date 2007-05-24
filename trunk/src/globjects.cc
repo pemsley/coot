@@ -618,6 +618,7 @@ GtkWidget **graphics_info_t::omega_distortion_graph     = NULL;
 GtkWidget **graphics_info_t::rotamer_graph              = NULL;
 float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
 
+
 // cif dictionary
 std::vector<std::string> *graphics_info_t::cif_dictionary_filename_vec = NULL;
 int graphics_info_t::cif_dictionary_read_number = 1; 
@@ -747,6 +748,9 @@ short int graphics_info_t::in_backbone_torsion_define = 0;
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
 #endif // HAVE_GTK_CANVAS
+float graphics_info_t::rama_level_prefered = 0.02;
+float graphics_info_t::rama_level_allowed = 0.002;
+float graphics_info_t::rama_plot_background_block_size = 10; // divisible into 360 preferably.
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 // edit chi
 short int graphics_info_t::in_edit_chi_angles_define = 0;

@@ -2598,6 +2598,14 @@ void gln_asn_b_factor_outliers(int imol);
 void do_ramachandran_plot(int imol);
 /*  the the menu */
 void add_on_rama_choices();
+
+/*! \brief set the contour levels for theremachandran plot, default
+  values are 0.02 (prefered) 0.002 (allowed) */
+void set_ramachandran_plot_contour_levels(float level_prefered, float level_allowed);
+/*! \brief set the ramachandran plot background block size. Smaller is
+  smoother but slower.  Should be divisible exactly into 360.  Default value is 10. */
+void set_ramachandran_plot_background_block_size(float blocksize) ;
+
 void my_delete_ramachandran_mol_option(GtkWidget *widget, void *);
 
 /* call with value non-zero for on, 0 for off/not. */

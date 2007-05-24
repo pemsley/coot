@@ -2232,6 +2232,9 @@ public:
    static int         ramachandran_plot_differences_imol2;
    static std::string ramachandran_plot_differences_imol1_chain;
    static std::string ramachandran_plot_differences_imol2_chain;
+   static float rama_level_prefered;
+   static float rama_level_allowed;
+   static float rama_plot_background_block_size; // divisible into 360 preferably.
 
    void superpose_with_atom_selection(atom_selection_container_t asc_ref,
 				      atom_selection_container_t asc_mov,
