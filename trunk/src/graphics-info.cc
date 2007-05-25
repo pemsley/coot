@@ -1374,10 +1374,14 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 	    std::pair<std::string, std::string> chain_ids = plot->chain_ids();
 	    std::cout << "updating kleywegt plot with chain ids :" << chain_ids.first
 		      << ": :" << chain_ids.second << ":" << std::endl;
-	    plot->draw_it(p.first, p.second,
-			  graphics_info_t::molecules[p.first].atom_sel.mol,
-			  graphics_info_t::molecules[p.second].atom_sel.mol,
-			  chain_ids.first, chain_ids.second);
+	    if (plot->kleywegt_plot_uses_chain_ids_p())
+	       plot->draw_it(p.first, p.second,
+			     graphics_info_t::molecules[p.first].atom_sel.mol,
+			     graphics_info_t::molecules[p.second].atom_sel.mol,
+			     chain_ids.first, chain_ids.second);
+	    else 
+	       plot->draw_it(graphics_info_t::molecules[p.first].atom_sel.mol,
+			     graphics_info_t::molecules[p.second].atom_sel.mol);
 	 } else {
 	    // close down the plot
 	    plot->destroy_yourself();
