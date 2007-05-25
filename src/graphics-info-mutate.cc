@@ -1,6 +1,7 @@
 /* src/graphics-info-mutate.cc
  * 
- * Copyright 2004, 2005 by Paul Emsley, The University of York
+ * Copyright 2004, 2005 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -184,7 +185,8 @@ graphics_info_t::add_cb_to_terminal_res(atom_selection_container_t asc) {
 void
 graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_flag) {
 
-   if (residue_type_chooser_auto_fit_flag) { 
+   if (residue_type_chooser_auto_fit_flag) {
+      std::cout << "DEBUG:: stub path" << std::endl;
       molecules[mutate_auto_fit_residue_imol].mutate(mutate_auto_fit_residue_atom_index, 
 						     residue_type, do_stub_flag);
 

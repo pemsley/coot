@@ -1339,6 +1339,7 @@ graphics_info_t::accept_moving_atoms() {
    if (dynarama_is_displayed[imol_moving_atoms]) {
       coot::rama_plot *plot = (coot::rama_plot *)
 	 gtk_object_get_user_data(GTK_OBJECT(dynarama_is_displayed[imol_moving_atoms]));
+      // std::cout << "updating rama plot for " << imol_moving_atoms << std::endl;
       handle_rama_plot_update(plot);
    }
 #endif // HAVE_GTK_CANVAS || HAVE_GNOME_CANVAS
@@ -1371,6 +1372,8 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 	 if (graphics_info_t::molecules[p.first].has_model() && 
 	     graphics_info_t::molecules[p.second].has_model()) { 
 	    std::pair<std::string, std::string> chain_ids = plot->chain_ids();
+	    std::cout << "updating kleywegt plot with chain ids :" << chain_ids.first
+		      << ": :" << chain_ids.second << ":" << std::endl;
 	    plot->draw_it(p.first, p.second,
 			  graphics_info_t::molecules[p.first].atom_sel.mol,
 			  graphics_info_t::molecules[p.second].atom_sel.mol,
@@ -1378,7 +1381,7 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 	 } else {
 	    // close down the plot
 	    plot->destroy_yourself();
-	 } 
+	 }
       } else {
 	 plot->draw_it(molecules[imol_moving_atoms].atom_sel.mol);
       } 
