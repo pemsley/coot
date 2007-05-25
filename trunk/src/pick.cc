@@ -106,12 +106,8 @@ atom_pick(GdkEventButton *event) {
 
 	       atom_selection_container_t SelAtom = graphics_info_t::molecules[ii].atom_sel; 
 
-	       std::cout << "debug:: there are " << SelAtom.n_selected_atoms
-			 << " selected atoms in atom_sel" << std::endl;
 	       for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 
-		  std::cout << "debug:: pick atom " <<  i << " "
-			    << SelAtom.atom_selection[i] << std::endl;
 		  coot::Cartesian atom(SelAtom.atom_selection[i]->x,
 				       SelAtom.atom_selection[i]->y,
 				       SelAtom.atom_selection[i]->z);
