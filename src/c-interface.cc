@@ -238,6 +238,7 @@ int handle_read_draw_molecule(const char *filename) {
 int handle_read_draw_molecule_with_recentre(const char *filename,
 					   int recentre_on_read_pdb_flag) {
 
+   int r = -1;
    //
    // cout << "handle_read_draw_molecule: handling " << filename << endl;
    
@@ -255,50 +256,51 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
    int  istat = -1;
    std::string extention = coot::util::file_name_extension(filename);
    if (coot::util::extension_is_for_shelx_coords(extention)) {
-      return read_shelx_ins_file(filename);
+      r = read_shelx_ins_file(filename);
 
    } else { 
       // recentre and not a backup-restore
       // -1 is for failure strangely.
       istat = g.molecules[imol].handle_read_draw_molecule(f, recentre_on_read_pdb_flag, 0);
-   }
-   if (istat > -1) {
-      std::cout << "Molecule " << g.n_molecules << " read successfully\n";
-      g.n_molecules++;
 
-      // if the go to atom widget exists, update its optionmenu to
-      // reflect the existance of this new molecule.
+      if (istat > -1) {
+	 std::cout << "Molecule " << g.n_molecules << " read successfully\n";
+	 g.n_molecules++;
 
-      if (g.go_to_atom_window) {
-	 g.set_go_to_atom_molecule(imol);
-	 g.update_go_to_atom_window_on_new_mol();
-	 // g.update_go_to_atom_window_on_changed_mol(imol);
-      } else {
-	 // The Go To Atom window is not displayed.
-	 g.set_go_to_atom_molecule(imol);
-      }
+	 // if the go to atom widget exists, update its optionmenu to
+	 // reflect the existance of this new molecule.
+
+	 if (g.go_to_atom_window) {
+	    g.set_go_to_atom_molecule(imol);
+	    g.update_go_to_atom_window_on_new_mol();
+	    // g.update_go_to_atom_window_on_changed_mol(imol);
+	 } else {
+	    // The Go To Atom window is not displayed.
+	    g.set_go_to_atom_molecule(imol);
+	 }
       
-      // now force a draw of the molecule
-      //
-      graphics_draw();
+	 // now force a draw of the molecule
+	 //
+	 graphics_draw();
 
-      std::vector<std::string> command_strings;
-      command_strings.push_back("handle-read-draw-molecule-with-recentre");
-      command_strings.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
-      command_strings.push_back(graphics_info_t::int_to_string(recentre_on_read_pdb_flag));
-      add_to_history(command_strings);
-      std::string s("Successfully read coordinates file ");
-      s += filename;
-      s += ".  Molecule number ";
-      s += coot::util::int_to_string(imol);
-      s += " created.";
-      g.statusbar_text(s);
-      return imol;
-   } else {
-      std::string s("Failed to read coordinates file ");
-      s += filename;
-      g.statusbar_text(s);
-      return -1;
+	 std::vector<std::string> command_strings;
+	 command_strings.push_back("handle-read-draw-molecule-with-recentre");
+	 command_strings.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
+	 command_strings.push_back(graphics_info_t::int_to_string(recentre_on_read_pdb_flag));
+	 add_to_history(command_strings);
+	 std::string s("Successfully read coordinates file ");
+	 s += filename;
+	 s += ".  Molecule number ";
+	 s += coot::util::int_to_string(imol);
+	 s += " created.";
+	 g.statusbar_text(s);
+	 r =  imol;
+      } else {
+	 std::string s("Failed to read coordinates file ");
+	 s += filename;
+	 g.statusbar_text(s);
+	 r =  -1;
+      }
    }
 
    std::string cmd = "handle-read-draw-molecule-with-recentre";
@@ -306,10 +308,12 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
    args.push_back(filename);
    args.push_back(recentre_on_read_pdb_flag);
    add_to_history_typed(cmd, args);
+   return r; 
 }
 
 
 int read_pdb(const char *filename) {
+   // history is done in the handle function
    return handle_read_draw_molecule(filename); 
 } 
 
@@ -6601,11 +6605,16 @@ void remove_this_view() {
       r = 1;
       *graphics_info_t::views = new_views;
    }
+   add_to_history_simple("remove-this-view");
 }
 
 
 int go_to_first_view(int snap_to_view_flag) {
 
+   std::string cmd = "go-to-first-view";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(snap_to_view_flag);
+   add_to_history_typed(cmd, args);
    return go_to_view_number(0, snap_to_view_flag);
 }
 
@@ -6642,6 +6651,11 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 	 update_things_on_move_and_redraw();
       }
    }
+   std::string cmd = "go_to_view_number";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(view_number);
+   args.push_back(snap_to_view_flag);
+   add_to_history_typed(cmd, args);
    return r;
 }
 

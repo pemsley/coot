@@ -880,6 +880,9 @@ molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,
 		     make_backup();
 		     atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
 		     delete_ghost_selections();
+		     was_deleted = 1; // need to set this here because
+				      // we need to regenerate the
+				      // atom selection.
 		     // delete the specific atoms of the residue:
 		     PPCAtom atoms;
 		     int n_atoms;
@@ -887,7 +890,6 @@ molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,
 		     for (int i=0; i<n_atoms; i++) {
 			if (! (coot::is_main_chain_or_cb_p(atoms[i]))) {
 			   res->DeleteAtom(i);
-			   was_deleted = 1;
 			}
 		     }
 		     if (was_deleted)
