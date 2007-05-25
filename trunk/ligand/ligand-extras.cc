@@ -386,8 +386,9 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 // 	 mapfilename += ".map";
 // 	 output_map(xmap_cluster, mapfilename);
 	 
-	 std::list<coot::map_point_cluster>::const_iterator it;
-	 std::vector<std::list<coot::map_point_cluster>::const_iterator> iterator_remove_list;
+	 std::list<coot::map_point_cluster>::iterator it;
+// 	 std::vector<std::list<coot::map_point_cluster>::const_iterator> iterator_remove_list;
+	 std::vector<std::list<coot::map_point_cluster>::iterator> iterator_remove_list;
 	 //	 std::cout << "DEBUG:: round " << iround << " cluster list size: "
 	 // << cluster_list.size() << "\n";
 	 for(it=cluster_list.begin(); it!=cluster_list.end(); it++) {
@@ -418,7 +419,8 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 	    }
 	 }
 	 for (int irl=0; irl<iterator_remove_list.size(); irl++)
-	    cluster_list.remove(*(iterator_remove_list[irl]));
+	    // cluster_list.remove(*(iterator_remove_list[irl]));
+	    cluster_list.erase(iterator_remove_list[irl]);
       }
    }
    if (write_raw_waters)

@@ -1,3 +1,23 @@
+/* src/pick.cc
+ * 
+ * Copyright 2002, 2003, 2004 by The University of York
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
  
 #include <string>
 #include <vector> // for mmdb-crystal
@@ -85,12 +105,16 @@ atom_pick(GdkEventButton *event) {
 	       n_pickable++;
 
 	       atom_selection_container_t SelAtom = graphics_info_t::molecules[ii].atom_sel; 
-	 
+
+	       std::cout << "debug:: there are " << SelAtom.n_selected_atoms
+			 << " selected atoms in atom_sel" << std::endl;
 	       for (int i=0; i< SelAtom.n_selected_atoms; i++) {
-	 
-		  coot::Cartesian atom( (SelAtom.atom_selection)[i]->x,
-					(SelAtom.atom_selection)[i]->y,
-					(SelAtom.atom_selection)[i]->z);
+
+		  std::cout << "debug:: pick atom " <<  i << " "
+			    << SelAtom.atom_selection[i] << std::endl;
+		  coot::Cartesian atom(SelAtom.atom_selection[i]->x,
+				       SelAtom.atom_selection[i]->y,
+				       SelAtom.atom_selection[i]->z);
 		  //
 		  if (atom.within_box(front,back)) { 
 		     dist = atom.distance_to_line(front, back);

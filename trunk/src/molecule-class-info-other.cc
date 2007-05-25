@@ -902,6 +902,7 @@ molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,
    if (was_deleted) {
       atom_sel.atom_selection = NULL;
       atom_sel.mol->FinishStructEdit();
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel = make_asc(atom_sel.mol);
       trim_atom_label_table();
       unalt_conf_residue_atoms(residue_for_deletion);
