@@ -178,6 +178,7 @@ coot::rama_plot::init_internal(float level_prefered, float level_allowed,
 
    setup_internal(level_prefered, level_allowed); 
    step = step_in;
+   kleywegt_plot_uses_chain_ids = 0;
 
    setup_canvas(); 
 }

@@ -253,6 +253,7 @@ class rama_plot {
    std::pair<std::string, std::string> chain_ids_; // ditto.
    int dialog_position_x; 
    int dialog_position_y;
+   bool kleywegt_plot_uses_chain_ids;
    
 public:
 
@@ -386,7 +387,10 @@ public:
    }
 
    void zoom_in(); 
-   void zoom_out(); 
+   void zoom_out();
+
+   void set_kleywegt_plot_uses_chain_ids() { kleywegt_plot_uses_chain_ids = 1; }
+   bool kleywegt_plot_uses_chain_ids_p() { return kleywegt_plot_uses_chain_ids; }
 
    void debug() const; 
 

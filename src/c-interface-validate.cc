@@ -996,7 +996,9 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
 
    if (GTK_TOGGLE_BUTTON(checkbutton1)->active && GTK_TOGGLE_BUTTON(checkbutton2)->active) {
       istat = 1;
-      ramachandran_plot_differences_by_chain(imol1, imol2, first_chain.c_str(), second_chain.c_str());
+      ramachandran_plot_differences_by_chain(imol1, imol2,
+					     first_chain.c_str(),
+					     second_chain.c_str());
    } else {
       if (!GTK_TOGGLE_BUTTON(checkbutton1)->active && !GTK_TOGGLE_BUTTON(checkbutton2)->active) {
 	 istat = 1;
@@ -1009,7 +1011,6 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
       }
    }
    return istat;
-
 }
 
 /*! \brief set the contour levels for theremachandran plot, default
@@ -1143,6 +1144,7 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 		       graphics_info_t::molecules[imol1].atom_sel.mol,
 		       graphics_info_t::molecules[imol2].atom_sel.mol,
 		       std::string(a_chain), std::string(b_chain));
+	 rama->set_kleywegt_plot_uses_chain_ids();
       } else {
 	 std::cout << "WARNING no molecule number " << imol2 << " in molecule (or closed)\n";
       }
