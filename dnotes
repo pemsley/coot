@@ -27,6 +27,8 @@ cd guile-gtk-2.0
 
    o Kleywegt plots don't update properly when not specifying chains.
 
+   o copy fragment, residue range miss - feedback required.
+
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
@@ -431,5 +433,18 @@ Thu May 24 10:59:16 BST 2007
 	But only one is loaded.  
 
 	Is that right?
+
+
+------
+Sun May 27 19:21:11 BST 2007
+
+   o Merge a fragment, change chain ids by residue range (40-50)
+
+   o The GoTo Atom residue tree looks messed up (nothing beyond 50)
+
+   on writing out the PBD file, residue 50 is in the right place, but
+   40-49 have been writen to the end of the chain.  Which causes the
+   problem in the Go To Atom window.
+
 
 

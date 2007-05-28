@@ -746,9 +746,26 @@ void execute_environment_settings(GtkWidget *widget) {
    if (r.first >= 0) { 
       g.update_environment_distances_maybe(r.first, r.second);
    }
-   
    graphics_draw();
 }
+
+void set_show_environment_distances(int state) {
+
+   graphics_info_t g;
+   g.environment_show_distances = state;
+   if (state) {
+      std::pair<int, int> r =  g.get_closest_atom();
+      if (r.first >= 0) { 
+	 g.update_environment_distances_maybe(r.first, r.second);
+      }
+   }
+   graphics_draw();
+}
+
+int show_environment_distances_state() {
+   return graphics_info_t::environment_show_distances;
+} 
+
 
 void toggle_environment_show_distances(GtkToggleButton *button) {
 
