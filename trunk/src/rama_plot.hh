@@ -200,8 +200,26 @@ namespace coot {
       }
    };
 
+   class rama_stats_container_t {
+   public:
+      int n_ramas;
+      int n_preferred;
+      int n_allowed;
+      rama_stats_container_t() {
+	 n_ramas = 0;
+	 n_preferred = 0;
+	 n_allowed = 0;
+      }
+      void operator+=(const rama_stats_container_t &sc) {
+	 n_ramas += sc.n_ramas;
+	 n_preferred += sc.n_preferred;
+	 n_allowed += sc.n_allowed;
+      } 
+   };
+
 class rama_plot {
 
+   enum {RAMA_OUTLIER, RAMA_ALLOWED, RAMA_PREFERRED, RAMA_UNKNOWN};
    int imol;  // which molecule in mapview did this come from?
    clipper::Ramachandran rama;
    clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
@@ -254,6 +272,8 @@ class rama_plot {
    int dialog_position_x; 
    int dialog_position_y;
    bool kleywegt_plot_uses_chain_ids;
+   void hide_stats_frame();
+   void counts_to_stats_frame(const rama_stats_container_t &sc);
    
 public:
 
@@ -295,7 +315,7 @@ public:
    void draw_zero_lines();
 
    // void draw_phi_psi_point(double phi, double psi);
-   void draw_phi_psi_point(int i,
+   int draw_phi_psi_point(int i,
 			   const std::vector<phi_psi_t> *phi_psi_vec,
 			   short int as_white_flag);
    void draw_kleywegt_arrow(const phi_psi_t &phi_psi_primary,
@@ -305,10 +325,10 @@ public:
 					      const phi_psi_t &phi_psi_secondary)
       const;
 						    
-   void draw_phi_psi_point_internal(int i,
+   int draw_phi_psi_point_internal(int i,
 			   const std::vector<phi_psi_t> *phi_psi_vec,
 			   short int as_white_flag, int box_size);
-   void draw_phi_psi_points(int ich); // updates canvas_phi_psi_points_vec
+   rama_stats_container_t draw_phi_psi_points(int ich); // updates canvas_phi_psi_points_vec
    void big_square(int ires,
 		   const std::string &ins_code,
 		   const std::string &chainid);
@@ -351,7 +371,7 @@ public:
    CMMDBManager *rama_get_mmdb_manager(std::string pdb_name);
    // void tooltip_like_box(int i, short int is_seconary);
    void tooltip_like_box(const mouse_util_t &t); 
-   void draw_phi_psi_as_gly(int i, const std::vector<phi_psi_t> *phi_psi_vec); 
+   int draw_phi_psi_as_gly(int i, const std::vector<phi_psi_t> *phi_psi_vec); 
    void residue_type_background_as(std::string res);
    void all_plot(clipper::Ramachandran::TYPE type);
 

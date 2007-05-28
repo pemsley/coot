@@ -2427,6 +2427,11 @@ void store_geometry_dialog(GtkWidget *w);
 void fill_environment_widget(GtkWidget *widget);
 void execute_environment_settings(GtkWidget *widget);
 void toggle_environment_show_distances(GtkToggleButton *button); 
+/*! \brief show environment distances.  If state is 0, distances are
+  turned off, otherwise distances are turned on. */
+void set_show_environment_distances(int state);
+int show_environment_distances_state();
+
 
 
 /*  ----------------------------------------------------------------------- */

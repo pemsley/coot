@@ -20,8 +20,6 @@
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
 GtkWidget*
 create_window1 (void)
 {
@@ -4460,6 +4458,11 @@ create_dynarama_window (void)
   GtkWidget *dynarama_vbox;
   GtkWidget *dynarama_scrolledwindow;
   GtkWidget *dynarama_viewport;
+  GtkWidget *rama_stats_frame;
+  GtkWidget *rama_stats_vbox;
+  GtkWidget *rama_stats_label_1;
+  GtkWidget *rama_stats_label_2;
+  GtkWidget *rama_stats_label_3;
   GtkWidget *hbox65;
   GtkWidget *dynarama_ok_button;
   GtkWidget *dynarama_cancel_button;
@@ -4489,6 +4492,49 @@ create_dynarama_window (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (dynarama_viewport);
   gtk_container_add (GTK_CONTAINER (dynarama_scrolledwindow), dynarama_viewport);
+
+  rama_stats_frame = gtk_frame_new (NULL);
+  gtk_widget_ref (rama_stats_frame);
+  gtk_object_set_data_full (GTK_OBJECT (dynarama_window), "rama_stats_frame", rama_stats_frame,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (rama_stats_frame);
+  gtk_box_pack_start (GTK_BOX (dynarama_vbox), rama_stats_frame, FALSE, FALSE, 2);
+  gtk_container_set_border_width (GTK_CONTAINER (rama_stats_frame), 6);
+
+  rama_stats_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (rama_stats_vbox);
+  gtk_object_set_data_full (GTK_OBJECT (dynarama_window), "rama_stats_vbox", rama_stats_vbox,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (rama_stats_vbox);
+  gtk_container_add (GTK_CONTAINER (rama_stats_frame), rama_stats_vbox);
+  gtk_container_set_border_width (GTK_CONTAINER (rama_stats_vbox), 4);
+
+  rama_stats_label_1 = gtk_label_new (_("In Prefered Regions:  239  (85.02%)"));
+  gtk_widget_ref (rama_stats_label_1);
+  gtk_object_set_data_full (GTK_OBJECT (dynarama_window), "rama_stats_label_1", rama_stats_label_1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (rama_stats_label_1);
+  gtk_box_pack_start (GTK_BOX (rama_stats_vbox), rama_stats_label_1, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (rama_stats_label_1), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (rama_stats_label_1), 6, 0);
+
+  rama_stats_label_2 = gtk_label_new (_("In Allowed Regions:  365  (23.45%)"));
+  gtk_widget_ref (rama_stats_label_2);
+  gtk_object_set_data_full (GTK_OBJECT (dynarama_window), "rama_stats_label_2", rama_stats_label_2,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (rama_stats_label_2);
+  gtk_box_pack_start (GTK_BOX (rama_stats_vbox), rama_stats_label_2, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (rama_stats_label_2), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (rama_stats_label_2), 6, 0);
+
+  rama_stats_label_3 = gtk_label_new (_("Outliers:  34 (0.23%) "));
+  gtk_widget_ref (rama_stats_label_3);
+  gtk_object_set_data_full (GTK_OBJECT (dynarama_window), "rama_stats_label_3", rama_stats_label_3,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (rama_stats_label_3);
+  gtk_box_pack_start (GTK_BOX (rama_stats_vbox), rama_stats_label_3, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (rama_stats_label_3), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (rama_stats_label_3), 6, 0);
 
   hbox65 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox65);
@@ -17903,5 +17949,4 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
-#endif
 #endif
