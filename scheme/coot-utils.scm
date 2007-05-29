@@ -890,6 +890,20 @@
        #f))))
 	 
      
+;; Define a map transformation function that obeys Lapthorns Law of
+;; NCS Handling Programs
+;; 
+;; typical usage: (transform-map-using-lsq-matrix 1 "A" 10 30 0 "A" 10 30 2 (rotation-centre) 6)
+;; 
+(define (transform-map-using-lsq-matrix imol-ref ref-chain ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start mov-resno-end imol-map about-pt radius)
+
+  (clear-lsq-matches)
+  (add-lsq-match ref-resno-start ref-resno-end ref-chain 
+		 mov-resno-start mov-resno-end mov-chain)
+  (let ((rtop (apply-lsq-matches imol-ref imol-mov)))
+    (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius)))
+
+
 ;; Make the imol-th map brighter.
 ;; 
 (define (brighten-map imol)

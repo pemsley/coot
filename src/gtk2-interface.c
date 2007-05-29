@@ -15,12 +15,9 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1) 
-
-#include "callbacks.h.gtk2"
-#include "interface.h.gtk2"
+#include "callbacks.h"
+#include "interface.h"
 #include "support.h"
-
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
@@ -156,8 +153,6 @@ create_window1 (void)
   GtkWidget *on_line_docs_url1;
   GtkWidget *about1;
   GtkWidget *hints1;
-  GtkWidget *main_toolbar;
-  GtkIconSize tmp_toolbar_icon_size;
   GtkWidget *accept_reject_dialog_frame;
   GtkWidget *main_window_graphics_hbox;
   GtkWidget *main_window_statusbar;
@@ -666,12 +661,6 @@ create_window1 (void)
   gtk_widget_show (hints1);
   gtk_container_add (GTK_CONTAINER (help1_menu), hints1);
 
-  main_toolbar = gtk_toolbar_new ();
-  gtk_widget_show (main_toolbar);
-  gtk_box_pack_start (GTK_BOX (vbox1), main_toolbar, FALSE, FALSE, 0);
-  gtk_toolbar_set_style (GTK_TOOLBAR (main_toolbar), GTK_TOOLBAR_BOTH);
-  tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (main_toolbar));
-
   accept_reject_dialog_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox1), accept_reject_dialog_frame, TRUE, TRUE, 0);
 
@@ -1116,7 +1105,6 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, on_line_docs_url1, "on_line_docs_url1");
   GLADE_HOOKUP_OBJECT (window1, about1, "about1");
   GLADE_HOOKUP_OBJECT (window1, hints1, "hints1");
-  GLADE_HOOKUP_OBJECT (window1, main_toolbar, "main_toolbar");
   GLADE_HOOKUP_OBJECT (window1, accept_reject_dialog_frame, "accept_reject_dialog_frame");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_statusbar, "main_window_statusbar");
@@ -3048,7 +3036,7 @@ create_display_control_window_glade (void)
   GtkWidget *display_control_ok_button;
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_size_request (display_control_window_glade, 380, -1);
+  gtk_widget_set_size_request (display_control_window_glade, 400, 200);
   gtk_window_set_title (GTK_WINDOW (display_control_window_glade), _("Display Control"));
 
   vbox30 = gtk_vbox_new (FALSE, 0);
@@ -3236,12 +3224,13 @@ create_goto_atom_window (void)
   gtk_table_attach (GTK_TABLE (table5), hbox24, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
+  gtk_widget_set_size_request (hbox24, 140, -1);
   gtk_container_set_border_width (GTK_CONTAINER (hbox24), 2);
 
   go_to_atom_chain_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_chain_entry);
   gtk_box_pack_start (GTK_BOX (hbox24), go_to_atom_chain_entry, FALSE, FALSE, 0);
-  gtk_widget_set_size_request (go_to_atom_chain_entry, 60, -1);
+  gtk_widget_set_size_request (go_to_atom_chain_entry, 50, -1);
   gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_chain_entry), 9679);
 
   label41 = gtk_label_new (_("Chain"));
@@ -3254,12 +3243,13 @@ create_goto_atom_window (void)
   gtk_table_attach (GTK_TABLE (table5), hbox25, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
+  gtk_widget_set_size_request (hbox25, 160, -1);
   gtk_container_set_border_width (GTK_CONTAINER (hbox25), 2);
 
   go_to_atom_residue_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_residue_entry);
   gtk_box_pack_start (GTK_BOX (hbox25), go_to_atom_residue_entry, FALSE, TRUE, 0);
-  gtk_widget_set_size_request (go_to_atom_residue_entry, 60, -1);
+  gtk_widget_set_size_request (go_to_atom_residue_entry, 50, -1);
   gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_residue_entry), 9679);
 
   label42 = gtk_label_new (_("Residue Number"));
@@ -3272,12 +3262,13 @@ create_goto_atom_window (void)
   gtk_table_attach (GTK_TABLE (table5), hbox26, 0, 1, 2, 3,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
+  gtk_widget_set_size_request (hbox26, 160, -1);
   gtk_container_set_border_width (GTK_CONTAINER (hbox26), 2);
 
   go_to_atom_atom_name_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_atom_name_entry);
   gtk_box_pack_start (GTK_BOX (hbox26), go_to_atom_atom_name_entry, FALSE, TRUE, 0);
-  gtk_widget_set_size_request (go_to_atom_atom_name_entry, 60, -1);
+  gtk_widget_set_size_request (go_to_atom_atom_name_entry, 50, -1);
   gtk_entry_set_invisible_char (GTK_ENTRY (go_to_atom_atom_name_entry), 9679);
 
   label43 = gtk_label_new (_("Atom Name"));
@@ -3308,12 +3299,12 @@ create_goto_atom_window (void)
   frame59 = gtk_frame_new (NULL);
   gtk_widget_show (frame59);
   gtk_box_pack_start (GTK_BOX (vbox33), frame59, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (frame59, -1, 179);
   gtk_container_set_border_width (GTK_CONTAINER (frame59), 6);
 
   go_to_atom_model_view_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (go_to_atom_model_view_hbox);
   gtk_container_add (GTK_CONTAINER (frame59), go_to_atom_model_view_hbox);
-  gtk_widget_set_size_request (go_to_atom_model_view_hbox, -1, 170);
 
   go_to_atom_residue_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (go_to_atom_residue_scrolledwindow);
@@ -3775,6 +3766,11 @@ create_dynarama_window (void)
   GtkWidget *dynarama_vbox;
   GtkWidget *dynarama_scrolledwindow;
   GtkWidget *dynarama_viewport;
+  GtkWidget *rama_stats_frame;
+  GtkWidget *rama_stats_vbox;
+  GtkWidget *rama_stats_label_1;
+  GtkWidget *rama_stats_label_2;
+  GtkWidget *rama_stats_label_3;
   GtkWidget *hbox65;
   GtkWidget *dynarama_ok_button;
   GtkWidget *dynarama_cancel_button;
@@ -3795,6 +3791,37 @@ create_dynarama_window (void)
   dynarama_viewport = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (dynarama_viewport);
   gtk_container_add (GTK_CONTAINER (dynarama_scrolledwindow), dynarama_viewport);
+
+  rama_stats_frame = gtk_frame_new (NULL);
+  gtk_widget_show (rama_stats_frame);
+  gtk_box_pack_start (GTK_BOX (dynarama_vbox), rama_stats_frame, FALSE, FALSE, 2);
+  gtk_container_set_border_width (GTK_CONTAINER (rama_stats_frame), 6);
+
+  rama_stats_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (rama_stats_vbox);
+  gtk_container_add (GTK_CONTAINER (rama_stats_frame), rama_stats_vbox);
+  gtk_container_set_border_width (GTK_CONTAINER (rama_stats_vbox), 4);
+
+  rama_stats_label_1 = gtk_label_new (_("In Prefered Regions:  239  (85.02%)"));
+  gtk_widget_show (rama_stats_label_1);
+  gtk_box_pack_start (GTK_BOX (rama_stats_vbox), rama_stats_label_1, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (rama_stats_label_1), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (rama_stats_label_1), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (rama_stats_label_1), 6, 0);
+
+  rama_stats_label_2 = gtk_label_new (_("In Allowed Regions:  365  (23.45%)"));
+  gtk_widget_show (rama_stats_label_2);
+  gtk_box_pack_start (GTK_BOX (rama_stats_vbox), rama_stats_label_2, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (rama_stats_label_2), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (rama_stats_label_2), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (rama_stats_label_2), 6, 0);
+
+  rama_stats_label_3 = gtk_label_new (_("Outliers:  34 (0.23%) "));
+  gtk_widget_show (rama_stats_label_3);
+  gtk_box_pack_start (GTK_BOX (rama_stats_vbox), rama_stats_label_3, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (rama_stats_label_3), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (rama_stats_label_3), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (rama_stats_label_3), 6, 0);
 
   hbox65 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox65);
@@ -3830,6 +3857,11 @@ create_dynarama_window (void)
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_vbox, "dynarama_vbox");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_scrolledwindow, "dynarama_scrolledwindow");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_viewport, "dynarama_viewport");
+  GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_frame, "rama_stats_frame");
+  GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_vbox, "rama_stats_vbox");
+  GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_label_1, "rama_stats_label_1");
+  GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_label_2, "rama_stats_label_2");
+  GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_label_3, "rama_stats_label_3");
   GLADE_HOOKUP_OBJECT (dynarama_window, hbox65, "hbox65");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_ok_button, "dynarama_ok_button");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_cancel_button, "dynarama_cancel_button");
@@ -4341,14 +4373,7 @@ create_model_refine_dialog (void)
   GtkWidget *model_refine_dialog_refine_params_button;
   GtkWidget *model_refine_dialog_map_select_button;
   GtkWidget *hseparator5;
-  GtkWidget *hbox150;
   GtkWidget *model_refine_dialog_refine_togglebutton;
-  GtkWidget *menubar2;
-  GtkWidget *menuitem1;
-  GtkWidget *menuitem1_menu;
-  GtkWidget *rz_simple;
-  GtkWidget *rz_start_multizone1;
-  GtkWidget *rz_end_multizone;
   GtkWidget *model_refine_dialog_regularize_zone_togglebutton;
   GtkWidget *model_refine_dialog_rigid_body_togglebutton;
   GtkWidget *model_refine_dialog_rot_trans_togglebutton;
@@ -4411,38 +4436,11 @@ create_model_refine_dialog (void)
   gtk_widget_show (hseparator5);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hseparator5, FALSE, FALSE, 3);
 
-  hbox150 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox150);
-  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), hbox150, FALSE, FALSE, 0);
-
   model_refine_dialog_refine_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Real Space Refine Zone"));
   gtk_widget_show (model_refine_dialog_refine_togglebutton);
-  gtk_box_pack_start (GTK_BOX (hbox150), model_refine_dialog_refine_togglebutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_refine_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_togglebutton, _("Real Space Refinement: Improve geometry and fit to map"), NULL);
-
-  menubar2 = gtk_menu_bar_new ();
-  gtk_widget_show (menubar2);
-  gtk_box_pack_start (GTK_BOX (hbox150), menubar2, FALSE, FALSE, 0);
-
-  menuitem1 = gtk_menu_item_new_with_mnemonic (_("Mode"));
-  gtk_widget_show (menuitem1);
-  gtk_container_add (GTK_CONTAINER (menubar2), menuitem1);
-
-  menuitem1_menu = gtk_menu_new ();
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem1), menuitem1_menu);
-
-  rz_simple = gtk_menu_item_new_with_mnemonic (_("Simple"));
-  gtk_widget_show (rz_simple);
-  gtk_container_add (GTK_CONTAINER (menuitem1_menu), rz_simple);
-
-  rz_start_multizone1 = gtk_menu_item_new_with_mnemonic (_("Start Multizone"));
-  gtk_widget_show (rz_start_multizone1);
-  gtk_container_add (GTK_CONTAINER (menuitem1_menu), rz_start_multizone1);
-
-  rz_end_multizone = gtk_menu_item_new_with_mnemonic (_("End Multizone"));
-  gtk_widget_show (rz_end_multizone);
-  gtk_container_add (GTK_CONTAINER (menuitem1_menu), rz_end_multizone);
 
   model_refine_dialog_regularize_zone_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Regularize Zone"));
   gtk_widget_show (model_refine_dialog_regularize_zone_togglebutton);
@@ -4601,15 +4599,6 @@ create_model_refine_dialog (void)
   g_signal_connect ((gpointer) model_refine_dialog_refine_togglebutton, "toggled",
                     G_CALLBACK (on_model_refine_dialog_refine_togglebutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) rz_simple, "activate",
-                    G_CALLBACK (on_rz_simple_activate),
-                    NULL);
-  g_signal_connect ((gpointer) rz_start_multizone1, "activate",
-                    G_CALLBACK (on_rz_start_multizone1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) rz_end_multizone, "activate",
-                    G_CALLBACK (on_rz_end_multizone_activate),
-                    NULL);
   g_signal_connect ((gpointer) model_refine_dialog_regularize_zone_togglebutton, "toggled",
                     G_CALLBACK (on_model_refine_dialog_regularize_togglebutton_toggled),
                     NULL);
@@ -4688,14 +4677,7 @@ create_model_refine_dialog (void)
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_refine_params_button, "model_refine_dialog_refine_params_button");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_map_select_button, "model_refine_dialog_map_select_button");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hseparator5, "hseparator5");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox150, "hbox150");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_refine_togglebutton, "model_refine_dialog_refine_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, menubar2, "menubar2");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, menuitem1, "menuitem1");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, menuitem1_menu, "menuitem1_menu");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, rz_simple, "rz_simple");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, rz_start_multizone1, "rz_start_multizone1");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, rz_end_multizone, "rz_end_multizone");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_regularize_zone_togglebutton, "model_refine_dialog_regularize_zone_togglebutton");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rigid_body_togglebutton, "model_refine_dialog_rigid_body_togglebutton");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_togglebutton, "model_refine_dialog_rot_trans_togglebutton");
@@ -15895,4 +15877,3 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
-#endif //  (GTK_MAJOR_VERSION > 1) 

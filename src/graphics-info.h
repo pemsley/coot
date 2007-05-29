@@ -2406,7 +2406,7 @@ public:
    static short int do_tip_of_the_day_flag; 
    
    // --------- LSQing ---------------
-   int apply_lsq(int imol_ref, int imol_moving,
+   std::pair<int, clipper::RTop_orth> apply_lsq(int imol_ref, int imol_moving,
 		 const std::vector<coot::lsq_range_match_info_t> &matches);
    static std::vector<coot::lsq_range_match_info_t> *lsq_matchers;
    // the simple widget for LSQing: (perhaps these should be vectors of strings 

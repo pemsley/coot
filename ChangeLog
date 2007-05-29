@@ -1,3 +1,10 @@
+2007-05-29  Paul Emsley  <emsley@localhost>
+
+	* src/molecule-class-info-other.cc:
+	change_chain_id_with_residue_range_helper_insert_or_add() the
+	target_residue should simply be a residue that will appear in the
+	pdb file before the inserted residue.
+ 
 2007-05-18  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* src/c-interface.cc: (hardware_stereo_mode): kill off the

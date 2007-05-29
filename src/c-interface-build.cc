@@ -4704,7 +4704,8 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 		                                    // be const pstr CID.  Hmmm...
 		       SKEY_OR);
       CMMDBManager *mol =
-	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig, SelectionHandle);
+	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
+							    SelectionHandle);
 
       { // debug code 
 	 int imod = 1;
@@ -4729,6 +4730,12 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
       } else {
 	 std::cout << "in new_molecule_by_atom_selection "
 		   << "Something bad happened - null molecule" << std::endl;
+	 std::string s = "Oops, failed to create fragment.  ";
+	 s += "Incorrect atom specifier?\n";
+	 s += "\"";
+	 s += atom_selection_str;
+	 s += "\"";
+	 info_dialog(s.c_str());
       } 
       mol_orig->DeleteSelection(SelectionHandle);
       graphics_draw();

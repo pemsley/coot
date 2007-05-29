@@ -1087,33 +1087,6 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkToolbar" id="main_toolbar">
-	      <property name="visible">True</property>
-	      <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
-	      <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>
-	      <property name="tooltips">True</property>
-	      <property name="show_arrow">True</property>
-
-	      <child>
-		<placeholder/>
-	      </child>
-
-	      <child>
-		<placeholder/>
-	      </child>
-
-	      <child>
-		<placeholder/>
-	      </child>
-	    </widget>
-	    <packing>
-	      <property name="padding">0</property>
-	      <property name="expand">False</property>
-	      <property name="fill">False</property>
-	    </packing>
-	  </child>
-
-	  <child>
 	    <widget class="GtkFrame" id="accept_reject_dialog_frame">
 	      <property name="label_xalign">0</property>
 	      <property name="label_yalign">0.5</property>
@@ -5119,7 +5092,8 @@ just the cell and symmetry)
 </widget>
 
 <widget class="GtkWindow" id="display_control_window_glade">
-  <property name="width_request">380</property>
+  <property name="width_request">400</property>
+  <property name="height_request">200</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">Display Control</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
@@ -5464,13 +5438,14 @@ just the cell and symmetry)
 		      <child>
 			<widget class="GtkHBox" id="hbox24">
 			  <property name="border_width">2</property>
+			  <property name="width_request">140</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">0</property>
 
 			  <child>
 			    <widget class="GtkEntry" id="go_to_atom_chain_entry">
-			      <property name="width_request">60</property>
+			      <property name="width_request">50</property>
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -5525,13 +5500,14 @@ just the cell and symmetry)
 		      <child>
 			<widget class="GtkHBox" id="hbox25">
 			  <property name="border_width">2</property>
+			  <property name="width_request">160</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">0</property>
 
 			  <child>
 			    <widget class="GtkEntry" id="go_to_atom_residue_entry">
-			      <property name="width_request">60</property>
+			      <property name="width_request">50</property>
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -5587,13 +5563,14 @@ just the cell and symmetry)
 		      <child>
 			<widget class="GtkHBox" id="hbox26">
 			  <property name="border_width">2</property>
+			  <property name="width_request">160</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">0</property>
 
 			  <child>
 			    <widget class="GtkEntry" id="go_to_atom_atom_name_entry">
-			      <property name="width_request">60</property>
+			      <property name="width_request">50</property>
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -5739,6 +5716,7 @@ just the cell and symmetry)
       <child>
 	<widget class="GtkFrame" id="frame59">
 	  <property name="border_width">6</property>
+	  <property name="height_request">179</property>
 	  <property name="visible">True</property>
 	  <property name="label_xalign">0</property>
 	  <property name="label_yalign">0.5</property>
@@ -5746,7 +5724,6 @@ just the cell and symmetry)
 
 	  <child>
 	    <widget class="GtkHBox" id="go_to_atom_model_view_hbox">
-	      <property name="height_request">170</property>
 	      <property name="visible">True</property>
 	      <property name="homogeneous">False</property>
 	      <property name="spacing">0</property>
@@ -6655,6 +6632,105 @@ just the cell and symmetry)
 	  <property name="padding">0</property>
 	  <property name="expand">True</property>
 	  <property name="fill">True</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkFrame" id="rama_stats_frame">
+	  <property name="border_width">6</property>
+	  <property name="visible">True</property>
+	  <property name="label_xalign">0</property>
+	  <property name="label_yalign">0.5</property>
+	  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+	  <child>
+	    <widget class="GtkVBox" id="rama_stats_vbox">
+	      <property name="border_width">4</property>
+	      <property name="visible">True</property>
+	      <property name="homogeneous">False</property>
+	      <property name="spacing">0</property>
+
+	      <child>
+		<widget class="GtkLabel" id="rama_stats_label_1">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">In Prefered Regions:  239  (85.02%)</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_CENTER</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">6</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="rama_stats_label_2">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">In Allowed Regions:  365  (23.45%)</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_CENTER</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">6</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="rama_stats_label_3">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Outliers:  34 (0.23%) </property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_CENTER</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">6</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+	    </widget>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">2</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
 	</packing>
       </child>
 
@@ -7889,84 +7965,18 @@ Do you want to continue?
 	      </child>
 
 	      <child>
-		<widget class="GtkHBox" id="hbox150">
+		<widget class="GtkToggleButton" id="model_refine_dialog_refine_togglebutton">
+		  <property name="border_width">1</property>
 		  <property name="visible">True</property>
-		  <property name="homogeneous">False</property>
-		  <property name="spacing">0</property>
-
-		  <child>
-		    <widget class="GtkToggleButton" id="model_refine_dialog_refine_togglebutton">
-		      <property name="border_width">1</property>
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Real Space Refinement: Improve geometry and fit to map</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Real Space Refine Zone</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_refine_dialog_refine_togglebutton_toggled"/>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkMenuBar" id="menubar2">
-		      <property name="visible">True</property>
-		      <property name="pack_direction">GTK_PACK_DIRECTION_LTR</property>
-		      <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
-
-		      <child>
-			<widget class="GtkMenuItem" id="menuitem1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Mode</property>
-			  <property name="use_underline">True</property>
-
-			  <child>
-			    <widget class="GtkMenu" id="menuitem1_menu">
-
-			      <child>
-				<widget class="GtkMenuItem" id="rz_simple">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Simple</property>
-				  <property name="use_underline">True</property>
-				  <signal name="activate" handler="on_rz_simple_activate" last_modification_time="Tue, 08 May 2007 14:19:11 GMT"/>
-				</widget>
-			      </child>
-
-			      <child>
-				<widget class="GtkMenuItem" id="rz_start_multizone1">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Start Multizone</property>
-				  <property name="use_underline">True</property>
-				  <signal name="activate" handler="on_rz_start_multizone1_activate" last_modification_time="Tue, 08 May 2007 14:20:06 GMT"/>
-				</widget>
-			      </child>
-
-			      <child>
-				<widget class="GtkMenuItem" id="rz_end_multizone">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">End Multizone</property>
-				  <property name="use_underline">True</property>
-				  <signal name="activate" handler="on_rz_end_multizone_activate" last_modification_time="Tue, 08 May 2007 14:20:06 GMT"/>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
-		  </child>
+		  <property name="tooltip" translatable="yes">Real Space Refinement: Improve geometry and fit to map</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Real Space Refine Zone</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <signal name="toggled" handler="on_model_refine_dialog_refine_togglebutton_toggled"/>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>

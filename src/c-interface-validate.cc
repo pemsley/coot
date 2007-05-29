@@ -1088,10 +1088,12 @@ void do_ramachandran_plot(int imol) {
 	    if (graphics_info_t::ramachandran_plot_x_position > 0)
 	       rama->set_position(graphics_info_t::ramachandran_plot_x_position,
 				  graphics_info_t::ramachandran_plot_y_position);
+	    short int is_kleywegt_plot_flag = 0;
 	    rama->init(imol,
 		       graphics_info_t::rama_level_prefered,
 		       graphics_info_t::rama_level_allowed,
-		       graphics_info_t::rama_plot_background_block_size);
+		       graphics_info_t::rama_plot_background_block_size,
+		       is_kleywegt_plot_flag);
 	    rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol); 
 	 }
       }
@@ -1110,11 +1112,13 @@ ramachandran_plot_differences(int imol1, int imol2) {
 	    if (imol2 >= 0) {
 	       if (imol2 < graphics_info_t::n_molecules) { 
 		  if (graphics_info_t::molecules[imol2].has_model()) { 
-		     rama = new coot::rama_plot; 
+		     rama = new coot::rama_plot;
+		     short int is_kleywegt_plot_flag = 1;
 		     rama->init(imol1,
 				graphics_info_t::rama_level_prefered,
 				graphics_info_t::rama_level_allowed,
-				graphics_info_t::rama_plot_background_block_size);
+				graphics_info_t::rama_plot_background_block_size,
+				is_kleywegt_plot_flag);
 		     rama->draw_it(graphics_info_t::molecules[imol1].atom_sel.mol,
 				   graphics_info_t::molecules[imol2].atom_sel.mol);
 		  }
@@ -1133,11 +1137,13 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 
    if (is_valid_model_molecule(imol1)) {
       if (is_valid_model_molecule(imol2)) {
+	 short int is_kleywegt_plot_flag = 0;
 	 coot::rama_plot *rama = new coot::rama_plot; 
 	 rama->init(imol1,
 		    graphics_info_t::rama_level_prefered,
 		    graphics_info_t::rama_level_allowed,
-		    graphics_info_t::rama_plot_background_block_size);
+		    graphics_info_t::rama_plot_background_block_size,
+		    is_kleywegt_plot_flag);
 	 std::cout << "rama differences on mols: " << imol1 << " " << a_chain
 		   << " to " << imol2 << " " << b_chain << std::endl;
 	 rama->draw_it(imol1, imol2,

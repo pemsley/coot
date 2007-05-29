@@ -1,6 +1,6 @@
 /* src/main.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2005 by Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 
@@ -81,11 +82,14 @@ using namespace std;
 
 
 void
-coot::rama_plot::init(int imol_in, float level_prefered, float level_allowed, float block_size) {
+coot::rama_plot::init(int imol_in, float level_prefered, float level_allowed, float block_size, short int is_kleywegt_plot_flag_in) {
+
    imol = imol_in; 
    phipsi_edit_flag = 0;
    backbone_edit_flag = 0;
-   init_internal(level_prefered, level_allowed, block_size);
+   init_internal(level_prefered, level_allowed, block_size, 0,
+		 is_kleywegt_plot_flag_in);
+   // is_kleywegt_plot_flag = is_kleywegt_plot_flag_in;
 }
 
 // We could pass to this init the level_prefered and level_allowed
@@ -99,6 +103,7 @@ coot::rama_plot::init(const std::string &type) {
       backbone_edit_flag = 0;
       imol = -9999; // magic number used in OK button callback.
       init_internal(0.02, 0.002, 10);
+      hide_stats_frame();
    }
    if (type == "backbone-edit") { 
       phipsi_edit_flag = 0;
@@ -106,6 +111,7 @@ coot::rama_plot::init(const std::string &type) {
       imol = -9999; // magic number used in OK button callback.
       short int hide_buttons = 1;
       init_internal(0.02, 0.002, 10, hide_buttons); 
+      hide_stats_frame();
    }
    big_box_item = 0;
 }
@@ -117,7 +123,8 @@ coot::rama_plot::init(const std::string &type) {
 void
 coot::rama_plot::init_internal(float level_prefered, float level_allowed,
 			       float step_in, 
-			       short int hide_buttons) {
+			       short int hide_buttons,
+			       short int is_kleywegt_plot_flag_local) {
 
    fixed_font_str = "fixed";
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
@@ -140,7 +147,11 @@ coot::rama_plot::init_internal(float level_prefered, float level_allowed,
    canvas = GTK_CANVAS(gtk_canvas_new());
    gtk_widget_set_usize(GTK_WIDGET(canvas), 400, 400);
 
-   gtk_widget_set_usize(app1, 400, 500);
+   int ysize = 500;
+   if (! is_kleywegt_plot_flag_local) // extra space needed
+      ysize = 535;
+
+   gtk_widget_set_usize(app1, 400, ysize);
 
    gtk_widget_ref(GTK_WIDGET(canvas));
    gtk_object_set_data_full(GTK_OBJECT(app1), "canvas", canvas,
