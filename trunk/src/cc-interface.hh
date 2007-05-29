@@ -311,6 +311,7 @@ std::pair<short int, std::string> is_interesting_dots_object_next_p(const std::v
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_GUILE
 SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v);
+SCM rtop_to_scm(const clipper::RTop_orth &rtop);
 #endif	/* USE_GUILE */
 
 

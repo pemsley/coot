@@ -4903,10 +4903,9 @@ molecule_class_info_t::change_chain_id_with_residue_range_helper_insert_or_add(C
    to_chain_p->GetResidueTable(chain_residues, n_chain_residues);
    for (int iserial=0; iserial<n_chain_residues; iserial++) {
       int chain_residue_seq_num = chain_residues[iserial]->GetSeqNum();
-      if (chain_residue_seq_num == target_res_seq_num) {
+      if (chain_residue_seq_num <= target_res_seq_num) {
 	 // got a hit
 	 target_res_serial_number = iserial;
-	 break;
       }
    }
 

@@ -53,11 +53,12 @@
 
 
 // --------- LSQing ---------------
-int
+std::pair<int, clipper::RTop_orth>
 graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 			   const std::vector<coot::lsq_range_match_info_t> &matches) {
 
    int status = 0;
+   clipper::RTop_orth rtop_r;
    if (imol_ref < n_molecules) {
       if (molecules[imol_ref].has_model()) {
 	 if (imol_moving < n_molecules) {
@@ -86,6 +87,7 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 		  std::cout << "INFO:: Axis orientation: " << v0.format() << std::endl;
 
 		  molecules[imol_moving].transform_by(rtop_info.second);
+		  rtop_r = rtop_info.second;
 		  graphics_draw();
 		  status = 1; // done good (used to dismiss/destroy the widget)
 	       }
@@ -94,5 +96,5 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
       }
    }
 
-   return status;
+   return std::pair<int, clipper::RTop_orth> (status, rtop_r);
 }

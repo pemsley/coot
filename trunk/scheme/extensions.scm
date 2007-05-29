@@ -46,8 +46,8 @@
 	 (molecule-chooser-gui "Define the molecule that has atoms to mask the map"
 			       (lambda (imol)
 				 (generic-double-entry 
-				  "Map molecule number: "
-				  "Atom selection: " 
+				  " Map molecule number: "
+				  " Atom selection: " 
 				  (let f ((molecule-list (molecule-number-list)))
 				    (cond 
 				     ((null? molecule-list) "")
@@ -57,7 +57,7 @@
 				     (else 
 				      (f (cdr molecule-list)))))
 				  "//A/1"
-				  "Mask Map" 
+				  "  Mask Map  "
 				  (lambda (text-1 text-2)
 				    (let ((n (string->number text-1)))
 				      (if (number? n)

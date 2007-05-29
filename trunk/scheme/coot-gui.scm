@@ -247,15 +247,21 @@
 	 (vbox (gtk-vbox-new #f 0))
 	 (hbox1 (gtk-hbox-new #f 0))
 	 (hbox2 (gtk-hbox-new #f 0))
+	 (hbox3 (gtk-hbox-new #f 0))
 	 (tlc-label (gtk-label-new label-1))
 	 (tlc-entry (gtk-entry-new))
 	 (smiles-label (gtk-label-new label-2))
 	 (smiles-entry (gtk-entry-new))
+	 (h-sep (gtk-hseparator-new))
+	 (cancel-button (gtk-button-new-with-label "  Cancel  "))
 	 (go-button (gtk-button-new-with-label go-button-label)))
     
     (gtk-box-pack-start vbox hbox1 #f #f 0)
     (gtk-box-pack-start vbox hbox2 #f #f 0)
-    (gtk-box-pack-start vbox go-button #f #f 6)
+    (gtk-box-pack-start vbox h-sep #t #f 2)
+    (gtk-box-pack-start vbox hbox3 #f #f 0)
+    (gtk-box-pack-start hbox3 go-button #t #f 6)
+    (gtk-box-pack-start hbox3 cancel-button #t #f 6)
     (gtk-box-pack-start hbox1 tlc-label #f 0)
     (gtk-box-pack-start hbox1 tlc-entry #f 0)
     (gtk-box-pack-start hbox2 smiles-label #f 0)
@@ -269,6 +275,10 @@
     (if (string? entry-2-default-text )
 	(gtk-entry-set-text smiles-entry entry-2-default-text))
 
+    (gtk-signal-connect cancel-button "clicked"
+			(lambda args
+			  (gtk-widget-destroy window)))
+    
     (gtk-signal-connect go-button "clicked"
 			(lambda args
 			  (handle-go-function (gtk-entry-get-text tlc-entry)

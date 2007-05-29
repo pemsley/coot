@@ -181,8 +181,6 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	    // model per manager.  This may change in future...
 	    int nmodels = atom_sel.mol->GetNumberOfModels();
 	    if (nmodels == 1) { 
-	       std::cout << "%%%%%%%%% calling fill_ghost_info from handle_read_draw_molecule "
-			 << std::endl;
 	       int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
 	       // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 	    }

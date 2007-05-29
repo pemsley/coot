@@ -1,3 +1,8 @@
+2007-05-29  Paul Emsley  <emsley@localhost>
+
+	* coot-gui.scm (molecule-chooser-gui-generic): Add a cancel button
+	to the generic-double-entry
+
 2007-03-14  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* ncs.scm: (skip-to-next-ncs-chain) Add function to skip to "next"

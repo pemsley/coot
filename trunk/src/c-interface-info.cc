@@ -561,6 +561,40 @@ SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v) {
 #endif // USE_GUILE
 
 #ifdef USE_GUILE
+SCM rtop_to_scm(const clipper::RTop_orth &rtop) {
+
+   SCM r = SCM_EOL;
+
+   SCM tr_list = SCM_EOL;
+   SCM rot_list = SCM_EOL;
+
+   clipper::Mat33<double>  mat = rtop.rot();
+   clipper::Vec3<double> trans = rtop.trn();
+
+   double x;
+   tr_list = scm_cons(scm_double2num(trans[2]), tr_list);
+   tr_list = scm_cons(scm_double2num(trans[1]), tr_list);
+   tr_list = scm_cons(scm_double2num(trans[0]), tr_list);
+
+   rot_list = scm_cons(scm_double2num(mat(2,2)), rot_list);
+   rot_list = scm_cons(scm_double2num(mat(2,1)), rot_list);
+   rot_list = scm_cons(scm_double2num(mat(2,0)), rot_list);
+   rot_list = scm_cons(scm_double2num(mat(1,2)), rot_list);
+   rot_list = scm_cons(scm_double2num(mat(1,1)), rot_list);
+   rot_list = scm_cons(scm_double2num(mat(1,0)), rot_list);
+   rot_list = scm_cons(scm_double2num(mat(0,2)), rot_list);
+   rot_list = scm_cons(scm_double2num(mat(0,1)), rot_list);
+   rot_list = scm_cons(scm_double2num(mat(0,0)), rot_list);
+
+   r = scm_cons(tr_list, r);
+   r = scm_cons(rot_list, r);
+   return r;
+
+}
+#endif // USE_GUILE
+
+
+#ifdef USE_GUILE
 // get the symmetry operators strings for the given molecule
 //
 /*! \brief Return as a list of strings the symmetry operators of the
