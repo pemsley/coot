@@ -2293,6 +2293,7 @@ public:
    short int raster3d(std::string filename);
    short int povray(std::string filename);
    static float raster3d_bond_thickness; 
+   static float raster3d_atom_radius; 
    static float raster3d_density_thickness;
    static int renderer_show_atoms_flag;
 

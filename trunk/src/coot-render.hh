@@ -48,6 +48,7 @@ namespace coot {
       float bond_thickness; 
       float density_thickness;
       float clipping;
+      float atom_radius;
    public:
       std::vector<ray_trace_molecule_info> rt_mol_info;
       colour_t background_colour;
@@ -65,6 +66,7 @@ namespace coot {
 		      int window_height_in,
 		      float clipping_in,
 		      float bond_thickness_in,
+		      float atom_radius_in,
 		      float density_thickness_in) {
 	 view_centre = centre_view_in;
 	 zoom = zoom_in;
@@ -75,6 +77,7 @@ namespace coot {
 	 bond_thickness = bond_thickness_in;
 	 density_thickness = density_thickness_in;
 	 clipping = clipping_in;
+	 atom_radius = atom_radius_in;
       }
       void set_view_matrix(GL_matrix view_matrix_in) {
 	 view_matrix = view_matrix_in;
