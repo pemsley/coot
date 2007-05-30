@@ -325,11 +325,14 @@ graphics_info_t::save_state_file(const std::string &filename) {
 
    // stereo mode
    // 
-   if (in_side_by_side_stereo_mode) {
-      int mode = 0;
-      if (in_wall_eyed_side_by_side_stereo_mode)
-	 mode = 1;
-      commands.push_back(state_command("side-by-side-stereo-mode", mode, il));
+   // in_side_by_side_stereo_mode is not used, Baah.
+   if (display_mode == coot::SIDE_BY_SIDE_STEREO) {
+      int stereo_display_mode = 0;
+      commands.push_back(state_command("side-by-side-stereo-mode", stereo_display_mode, il));
+   }
+   if (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) {
+      int stereo_display_mode = 1;
+      commands.push_back(state_command("side-by-side-stereo-mode", stereo_display_mode, il));
    }
    // 
    if (stereo_mode_state() == 1)
