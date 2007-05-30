@@ -6025,9 +6025,6 @@ void rotate_y_scene(int nsteps, float stepsize) {
    float spin_quat[4];
    graphics_info_t g;
 
-   std::cout << "debug in rotate_y_scene: " << nsteps << " of size " << stepsize
-	     << std::endl;
-
    // spin it 1 degree
    float tbs =  g.get_trackball_size(); 
    for(int i=0; i<nsteps; i++) { 
@@ -6740,7 +6737,11 @@ void add_view_description(int view_number, const char *descr) {
 void go_to_view(SCM view) {
    
    SCM len_view_scm = scm_length(view);
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)      
    int len_view = scm_to_int(len_view_scm);
+#else    
+   int len_view = gh_scm2int(len_view_scm);
+#endif
    
    if (len_view == 4) { 
 
@@ -6764,34 +6765,58 @@ void go_to_view(SCM view) {
       float quat_target[4];
       SCM quat_scm = scm_list_ref(view, SCM_MAKINUM(0));
       SCM len_quat_scm = scm_length(quat_scm);
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
       int len_quat = scm_to_int(len_quat_scm);
+#else
+      int len_quat = gh_scm2int(len_quat_scm);
+#endif       
       if (len_quat == 4) { 
 	 SCM q0_scm = scm_list_ref(quat_scm, SCM_MAKINUM(0));
 	 SCM q1_scm = scm_list_ref(quat_scm, SCM_MAKINUM(1));
 	 SCM q2_scm = scm_list_ref(quat_scm, SCM_MAKINUM(2));
 	 SCM q3_scm = scm_list_ref(quat_scm, SCM_MAKINUM(3));
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 	 quat_target[0] = scm_to_double(q0_scm);
 	 quat_target[1] = scm_to_double(q1_scm);
 	 quat_target[2] = scm_to_double(q2_scm);
 	 quat_target[3] = scm_to_double(q3_scm);
-      
+#else
+	 quat_target[0] = gh_scm2double(q0_scm);
+	 quat_target[1] = gh_scm2double(q1_scm);
+	 quat_target[2] = gh_scm2double(q2_scm);
+	 quat_target[3] = gh_scm2double(q3_scm);
+#endif 	 
 
 	 SCM rc_target_scm = scm_list_ref(view, SCM_MAKINUM(1));
 	 SCM len_rc_target_scm = scm_length(rc_target_scm);
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 	 int len_rc_target = scm_to_int(len_rc_target_scm);
+#else	 
+	 int len_rc_target = gh_scm2int(len_rc_target_scm);
+#endif 	 
 	 if (len_rc_target == 3) {
 
 	    SCM centre_x = scm_list_ref(rc_target_scm, SCM_MAKINUM(0));
 	    SCM centre_y = scm_list_ref(rc_target_scm, SCM_MAKINUM(1));
 	    SCM centre_z = scm_list_ref(rc_target_scm, SCM_MAKINUM(2));
 
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 	    double x = scm_to_double(centre_x);
 	    double y = scm_to_double(centre_y);
 	    double z = scm_to_double(centre_z);
+#else
+	    double x = gh_scm2double(centre_x);
+	    double y = gh_scm2double(centre_y);
+	    double z = gh_scm2double(centre_z);
+#endif 	    
 	    coot::Cartesian rc_target(x,y,z);
 
 	    SCM target_zoom_scm = scm_list_ref(view, SCM_MAKINUM(2));
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 	    double zoom_target = scm_to_double(target_zoom_scm);
+#else 	    
+	    double zoom_target = gh_scm2double(target_zoom_scm);
+#endif 	    
 
 	    SCM name_target_scm = scm_list_ref(view, SCM_MAKINUM(3));
 #if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
