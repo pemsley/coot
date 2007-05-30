@@ -6304,6 +6304,12 @@ void set_raster3d_bond_thickness(float f) {
 
 } 
 
+void set_raster3d_atom_radius(float f) { 
+
+   graphics_info_t::raster3d_atom_radius = f;
+
+} 
+
 void set_raster3d_density_thickness(float f) {
 
    graphics_info_t::raster3d_density_thickness = f;

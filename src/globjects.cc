@@ -850,7 +850,8 @@ std::string graphics_info_t::superpose_imol2_chain = "";
 float graphics_info_t::unbonded_atom_star_size = 0.5;
 
 // Raster3D
-float graphics_info_t::raster3d_bond_thickness    = 0.15;
+float graphics_info_t::raster3d_bond_thickness    = 0.18;
+float graphics_info_t::raster3d_atom_radius    = 0.25;
 float graphics_info_t::raster3d_density_thickness = 0.015;
 int   graphics_info_t::renderer_show_atoms_flag = 1;
 

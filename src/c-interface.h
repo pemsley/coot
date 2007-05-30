@@ -3612,6 +3612,8 @@ void make_image_povray(const char *filename);
 
 /* set the bond thickness for the Raster3D representation  */
 void set_raster3d_bond_thickness(float f);
+/* set the atom radius for the Raster3D representation  */
+void set_raster3d_atom_radius(float f);
 /* set the density line thickness for the Raster3D representation  */
 void set_raster3d_density_thickness(float f);
 /* set the flag to show atoms for the Raster3D representation  */

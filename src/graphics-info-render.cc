@@ -51,7 +51,8 @@ graphics_info_t::raster3d(std::string filename) {
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
 			    width, height,
 			    clipping_front,
-			    raster3d_bond_thickness, 
+			    raster3d_bond_thickness,
+			    raster3d_atom_radius,
 			    raster3d_density_thickness);
    GL_matrix m;
    m.from_quaternion(quat);
@@ -95,7 +96,8 @@ graphics_info_t::povray(std::string filename) {
 			    glarea->allocation.width,
 			    glarea->allocation.height, 
 			    clipping_front,
-			    raster3d_bond_thickness, 
+			    raster3d_bond_thickness,
+			    raster3d_atom_radius,
 			    raster3d_density_thickness);
    GL_matrix m;
    m.from_quaternion(quat);
