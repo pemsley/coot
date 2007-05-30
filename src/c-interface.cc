@@ -6736,6 +6736,84 @@ void add_view_description(int view_number, const char *descr) {
 
 }
 
+#ifdef USE_GUILE
+void go_to_view(SCM view) {
+   
+   SCM len_view_scm = scm_length(view);
+   int len_view = scm_to_int(len_view_scm);
+   
+   if (len_view == 4) { 
+
+      graphics_info_t g;
+      int nsteps = 2000;
+      if (graphics_info_t::views_play_speed > 0.000000001)
+	 nsteps = int(2000.0/graphics_info_t::views_play_speed);
+   
+      // What is the current view:
+      // 
+      std::string name("Current Position");
+      float quat[4];
+      for (int i=0; i<4; i++)
+	 quat[i] = graphics_info_t::quat[i];
+      coot::Cartesian rc = g.RotationCentre();
+      float zoom = graphics_info_t::zoom;
+      coot::view_info_t view_c(quat, rc, zoom, name);
+
+
+      // view_target is where we want to go
+      float quat_target[4];
+      SCM quat_scm = scm_list_ref(view, SCM_MAKINUM(0));
+      SCM len_quat_scm = scm_length(quat_scm);
+      int len_quat = scm_to_int(len_quat_scm);
+      if (len_quat == 4) { 
+	 SCM q0_scm = scm_list_ref(quat_scm, SCM_MAKINUM(0));
+	 SCM q1_scm = scm_list_ref(quat_scm, SCM_MAKINUM(1));
+	 SCM q2_scm = scm_list_ref(quat_scm, SCM_MAKINUM(2));
+	 SCM q3_scm = scm_list_ref(quat_scm, SCM_MAKINUM(3));
+	 quat_target[0] = scm_to_double(q0_scm);
+	 quat_target[1] = scm_to_double(q1_scm);
+	 quat_target[2] = scm_to_double(q2_scm);
+	 quat_target[3] = scm_to_double(q3_scm);
+      
+
+	 SCM rc_target_scm = scm_list_ref(view, SCM_MAKINUM(1));
+	 SCM len_rc_target_scm = scm_length(rc_target_scm);
+	 int len_rc_target = scm_to_int(len_rc_target_scm);
+	 if (len_rc_target == 3) {
+
+	    SCM centre_x = scm_list_ref(rc_target_scm, SCM_MAKINUM(0));
+	    SCM centre_y = scm_list_ref(rc_target_scm, SCM_MAKINUM(1));
+	    SCM centre_z = scm_list_ref(rc_target_scm, SCM_MAKINUM(2));
+
+	    double x = scm_to_double(centre_x);
+	    double y = scm_to_double(centre_y);
+	    double z = scm_to_double(centre_z);
+	    coot::Cartesian rc_target(x,y,z);
+
+	    SCM target_zoom_scm = scm_list_ref(view, SCM_MAKINUM(2));
+	    double zoom_target = scm_to_double(target_zoom_scm);
+
+	    SCM name_target_scm = scm_list_ref(view, SCM_MAKINUM(3));
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+	    std::string name_target = scm_to_locale_string(name_target_scm);
+#else
+	    std::string name_target = SCM_STRING_CHARS(name_target_scm);
+#endif
+	       
+	    coot::view_info_t view_target(quat_target, rc_target, zoom_target, name_target);
+	    
+	    // do the animation
+	    coot::view_info_t::interpolate(view_c, view_target, nsteps);
+	 } else {
+	    std::cout << "WARNING:: bad centre in view" << std::endl;
+	 }
+      } else {
+	 std::cout << "WARNING:: bad quat in view" << std::endl;
+      } 
+   }
+} 
+#endif // USE_GUILE
+
 
 int add_spin_view(const char *view_name, int n_steps, float degrees_total) {
 

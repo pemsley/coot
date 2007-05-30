@@ -2754,12 +2754,14 @@ int n_views();
 /*! \brief save views to view_file_name */
 void save_views(const char *view_file_name);
 
+float views_play_speed(); 
+void set_views_play_speed(float f);
+
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM view_name(int view_number);
 SCM view_description(int view_number);
-float views_play_speed(); 
-void set_views_play_speed(float f);
+void go_to_view(SCM view);
 #endif	/* USE_GUILE */
 #endif	/* __cplusplus */
 
