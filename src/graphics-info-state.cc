@@ -314,6 +314,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
    commands.push_back(state_command("set-rotation-centre", X(), Y(), Z(), il));
 
    // the orientation
+   // 
    command_strings.clear();
    command_strings.push_back("set-view-quaternion");
    command_strings.push_back(float_to_string_using_dec_pl(quat[0], 5));
@@ -322,7 +323,20 @@ graphics_info_t::save_state_file(const std::string &filename) {
    command_strings.push_back(float_to_string_using_dec_pl(quat[3], 5));
    commands.push_back(state_command(command_strings, il));
 
+   // stereo mode
+   // 
+   if (in_side_by_side_stereo_mode) {
+      int mode = 0;
+      if (in_wall_eyed_side_by_side_stereo_mode)
+	 mode = 1;
+      commands.push_back(state_command("side-by-side-stereo-mode", mode, il));
+   }
+   // 
+   if (stereo_mode_state() == 1)
+      commands.push_back(state_command("hardware-stereo-mode", il));
 
+
+   // dialogs
    if (model_fit_refine_dialog)
       commands.push_back(state_command("post-model-fit-refine-dialog", il));
    if (go_to_atom_window)
