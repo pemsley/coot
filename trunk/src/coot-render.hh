@@ -31,10 +31,13 @@ namespace coot {
       std::vector<std::pair<Cartesian, colour_t> > atom;
       void render_molecule(std::ofstream &render_stream,
 			   float bond_thickness,
+			   float atom_radius,
 			   float density_thickness);
       void povray_molecule(std::ofstream &render_stream,
 			   float bond_thickness,
-			   float density_thickness, float zoom,
+			   float density_thickness,
+			   float atom_radius,
+			   float zoom,
 			   const Cartesian &view_centre,
 			   const Cartesian &front_clipping_plane_point);
    };
