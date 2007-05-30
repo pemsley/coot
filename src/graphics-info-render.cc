@@ -252,13 +252,15 @@ coot::raytrace_info_t::render_molecules(std::ofstream &render_stream) {
 
    for (unsigned int i=0; i<rt_mol_info.size(); i++) {
       std::cout << "rendering ray trace number: " << i << std::endl;
-      rt_mol_info[i].render_molecule(render_stream, bond_thickness, density_thickness);
+      rt_mol_info[i].render_molecule(render_stream, bond_thickness,
+				     atom_radius, density_thickness);
    }
 }
 
 void
 coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
 					       float bond_thickness,
+					       float atom_radius,
 					       float density_thickness) {
 
    for(unsigned int id=0; id<density_lines.size(); id++) {
@@ -301,7 +303,7 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
 	 render_stream << atom[iat].first.x() << " "
 		       << atom[iat].first.y() << " "
 		       << atom[iat].first.z() << " "
-		       << 0.3 
+		       << atom_radius
 		       << " " << atom[iat].second.col[0]
 		       << " " << atom[iat].second.col[1]
 		       << " " << atom[iat].second.col[2]
@@ -375,8 +377,9 @@ coot::raytrace_info_t::povray_molecules(std::ofstream &render_stream) {
       std::cout << "rendering povray ray trace number: " << i << std::endl;
       rt_mol_info[i].povray_molecule(render_stream,
 				     bond_thickness,
-				     density_thickness, zoom,
-				     view_centre, front_clipping_plane_point);
+				     density_thickness,
+				     atom_radius,
+				     zoom, view_centre, front_clipping_plane_point);
    }
 }
 
@@ -384,6 +387,7 @@ void
 coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
 					       float bond_thickness,
 					       float density_thickness,
+					       float atom_radius,
 					       float zoom,
 					       const coot::Cartesian &view_centre,
 					       const coot::Cartesian &front_clipping_plane_point) {
