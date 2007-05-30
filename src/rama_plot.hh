@@ -298,7 +298,7 @@ public:
 		const std::string &chain_id_1, const std::string &chain_id_2);
    
    void draw_it(const coot::phi_psi_t &phipsi);
-   void draw_it(const std::vector<coot::phi_psi_t> phipsi);
+   void draw_it(const std::vector<coot::phi_psi_t> &phipsi);
 
    int molecule_number() { return imol; } // mapview interface
 

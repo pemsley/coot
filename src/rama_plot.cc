@@ -1740,7 +1740,7 @@ coot::rama_plot::draw_it(const coot::phi_psi_t &phipsi) {
 }
 
 void
-coot::rama_plot::draw_it(const std::vector<coot::phi_psi_t> phipsi) {
+coot::rama_plot::draw_it(const std::vector<coot::phi_psi_t> &phipsi) {
 
 //   display_background();
 //   draw_axes();
