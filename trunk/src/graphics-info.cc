@@ -6346,9 +6346,11 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    std::string thunk("(lambda() "); 
    thunk += scheme_command; 
    thunk += " )";
+   SCM scm_thunk = SCM_BOOL_F;
 
+   // try/catch does not make flow control come back here when bad thunk.
    std::cout << "..... making thunk... " << std::endl;
-   SCM scm_thunk = scm_c_eval_string(thunk.c_str());
+   scm_thunk = scm_c_eval_string(thunk.c_str());
    std::cout << "..... making thunk done. " << std::endl;
 
    std::cout << "..... scm_catch... " << std::endl;

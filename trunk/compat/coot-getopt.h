@@ -15,7 +15,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA  */
 
 #ifndef _GETOPT_H
 
@@ -26,7 +26,7 @@
 /* This is just a guess/test.  FR needs something like this to compile
    on MS Visual Studio */
 #ifdef _MSC_VER
-   #define __STDC__
+   #define __STDC__ 1
 #endif
 
 #ifdef	__cplusplus

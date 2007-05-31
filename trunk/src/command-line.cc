@@ -20,7 +20,6 @@
 
 #ifdef _MSC_VER
 #include <windows.h>
-#include "w32mvs.c"
 #else
 #include <unistd.h> // for getopt(3)
 #endif
@@ -29,13 +28,6 @@
 #define _GNU_SOURCE
 #endif
 
-#ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
-#else
-#define __GNU_LIBRARY__
-#include "coot-getopt.h"
-#undef __GNU_LIBRARY__
-#endif
 
 #include <iostream>
 #include <string>
@@ -51,6 +43,13 @@
 #include "graphics-info.h"
 
 
+#ifdef __GNU_LIBRARY__
+#include "coot-getopt.h"
+#else
+#define __GNU_LIBRARY__
+#include "coot-getopt.h"
+#undef __GNU_LIBRARY__
+#endif
 
 command_line_data
 parse_command_line(int argc, char ** argv ) { 

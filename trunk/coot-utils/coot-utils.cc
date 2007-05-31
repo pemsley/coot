@@ -30,6 +30,10 @@
 #define S_IXUSR S_IEXEC
 #define S_IRUSR S_IREAD
 #include <direct.h>
+#include <windows.h>
+#include <lm.h>
+#else
+#include <pwd.h>
 #endif
 
 // These 2 are for getpwnam
@@ -84,11 +88,11 @@ std::pair<std::string, std::string> coot::get_userid_name_pair() {
    NET_API_STATUS nStatus;
 
    // Call the NetUserGetInfo function with level 10
-   nStatus = NetUserGetInfo(NULL, (LPCWSTR), u, 10, (LPBYTE *)&pBuf);
+   nStatus = NetUserGetInfo(NULL, (LPCWSTR) u, 10, (LPBYTE *)&pBuf);
    if (nStatus == NERR_Success) {
       if (pBuf) {
-	 p.first  = (char *) pBuf->useri10_name;
-	 p.second = (char *) pBuf->useri10_full_name;
+	 p.first  = (char *) pBuf->usri10_name;
+	 p.second = (char *) pBuf->usri10_full_name;
       }
    }
 

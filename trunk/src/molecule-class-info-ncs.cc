@@ -20,6 +20,7 @@
 
 #ifdef _MSC_VER
 #include <windows.h>
+#define AddAtomA AddAtom
 #endif
 
 #include "Cartesian.h"

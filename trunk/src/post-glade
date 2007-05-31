@@ -6,15 +6,26 @@
 # Don't put the test too early (before gtk.h is loaded):
 # need to put the test after support.h
 
-sed -e s'/#include .support.h./#include "support.h"\
-\
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)/' interface.c > tmp-interface.c
+# Francois says that in support.h, interface.c  we need to replace:
+#
+# #include <unistd.h>
+#
+# with
+#
+# #ifndef _MSC_VER
+# #include <unistd.h>
+# #endif
+
+sed -e 's/#include .support.h./#include "support.h"\n\n#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)/' \
+    -e 's/#include .unistd.h./#ifndef _MSC_VER\n#include <unistd.h>\n#endif/' \
+    interface.c > tmp-interface.c
 echo "#endif" >>  tmp-interface.c
 mv tmp-interface.c interface.c
 
-sed -e s'/#include .support.h./#include "support.h"\
-\
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)\n#else/' gtk2-interface.c > tmp-interface.c
+# Hmmm... there is no unistd.h in support.h
+sed -e 's/#include <unistd.h>/#ifndef _MSC_VER\n#include <unistd.h>\n#endif/' \
+    support.h > support-tmp.h
+mv support-tmp.h support.h
 
 # on reflection, try not to mess with gtk2-interface.c
 #

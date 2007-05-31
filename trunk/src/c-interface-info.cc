@@ -39,6 +39,7 @@
 #include <unistd.h>
 #else
 #include <windows.h>
+#define snprintf _snprintf
 #endif
  
 #include "globjects.h" //includes gtk/gtk.h
