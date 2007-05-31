@@ -18,7 +18,9 @@
  */
 
 // Portability (getopt) gubbins
+#ifndef _MSC_VER
 #include <unistd.h> // for getopt(3)
+#endif
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE

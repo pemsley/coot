@@ -3483,18 +3483,20 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
    return TRUE;
 }
 
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER) 
+// Francois says to remove this:
+// 
+// #if defined(WINDOWS_MINGW) || defined(_MSC_VER) 
 
-gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
+// gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 
-   if (event->direction == SCROLL_UP)
-      handle_scroll_event(1);
-   if (event->direction == SCROLL_DOWN)
-      handle_scroll_event(0);
-   return TRUE;
-} 
+//    if (event->direction == SCROLL_UP)
+//       handle_scroll_event(1);
+//    if (event->direction == SCROLL_DOWN)
+//       handle_scroll_event(0);
+//    return TRUE;
+// } 
+// #endif
 
-#endif
 
 #if (GTK_MAJOR_VERSION > 1)
 gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {

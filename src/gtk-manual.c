@@ -942,11 +942,12 @@ update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_win
 						  const int *n) { 
   int i;
   char entry_name[1024];
-  for (i=0; i<1024; i++)
-    entry_name[i]= 0;
   GtkWidget *entry;
   gchar *tmp_name; 
   int imol = *n; 
+
+  for (i=0; i<1024; i++)
+    entry_name[i]= 0;
   memcpy(entry_name, "display_mol_entry_", 18);
   tmp_name = entry_name + strlen(entry_name); 
   snprintf(tmp_name, 3, "%-d", imol); 

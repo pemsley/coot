@@ -432,9 +432,11 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       for (int i=0; i<n_non_H; i++) {
       
 	 if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
-	    if ((ic == 0) || (!strcmp(non_Hydrogen_atoms[i]->element, " S"))) {
+	    if ((ic == 0) ||
+		(!strcmp(non_Hydrogen_atoms[i]->element, " S")) ||
+		(!strcmp(non_Hydrogen_atoms[i]->element, " P"))) {
 	       
-	       // no contact found or was Sulphur
+	       // no contact found or was Sulphur, or Phosphor
 
 	       // So, was this a seleno-methione?
 	       //

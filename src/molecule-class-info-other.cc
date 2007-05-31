@@ -2470,7 +2470,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 	       std::vector<PCResidue> frag_residues =
 		  coot::util::get_residues_in_fragment(clicked_residue_chain_p, clicked_residue);
 	       // copy from vector to array
-	       PCResidue SelResidues[frag_residues.size()];
+	       PCResidue *SelResidues = new PCResidue[frag_residues.size()];
 	       for (unsigned int ires=0; ires<frag_residues.size(); ires++)
 		  SelResidues[ires] = frag_residues[ires];
 	       coot::chain_mutation_info_container_t a = 
@@ -2501,9 +2501,9 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 			   // found clicked_residue
 			   found = 1;
 			   frag_seqnum = ires;
-			   std::cout << "DEBUG:: found frag_seqnum: " << frag_seqnum
-				     << " " << SelResidues[ires]->GetSeqNum() << " "
-				     << std::endl;
+// 			   std::cout << "DEBUG:: found frag_seqnum: " << frag_seqnum
+// 				     << " " << SelResidues[ires]->GetSeqNum() << " "
+// 				     << std::endl;
 			   break;
 			}
 		     }
@@ -2532,6 +2532,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 		     }
 		  }
 	       }
+	       delete [] SelResidues;
 	    }
 	    break;
 	 } 

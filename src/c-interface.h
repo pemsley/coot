@@ -57,6 +57,14 @@
  
 */
 
+/* Francois says move this up here so that things don't get wrapped
+   twice in C-declarations inside gmp library. Hmm! */
+#ifdef __cplusplus
+#ifdef USE_GUILE
+#include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
+#endif // USE_GUILE
+#endif 
+
 #ifndef BEGIN_C_DECLS
 
 #ifdef __cplusplus
@@ -82,12 +90,6 @@ BEGIN_C_DECLS
 /* #endif */
 
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
-
-#ifdef __cplusplus
-#ifdef USE_GUILE
-#include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
-#endif // USE_GUILE
-#endif 
 
 /*  ------------------------------------------------------------------------ */
 /*                         File system Functions:                            */
