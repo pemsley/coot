@@ -170,6 +170,10 @@ namespace coot {
 	 s = sin;
 	 type = STRING;
       }
+      command_arg_t(const std::string &sin) {
+	 s = sin;
+	 type = STRING;
+      }
       command_arg_t(const char *sin) {
 	 s = sin;
 	 type = STRING;

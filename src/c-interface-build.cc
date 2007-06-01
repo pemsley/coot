@@ -502,6 +502,10 @@ void set_add_terminal_residue_default_residue_type(const char *type) {
 
    if (type) 
       graphics_info_t::add_terminal_residue_type = type;
+   std::string cmd = "set-add-terminal-residue-default-residue-type";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(type));
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -521,6 +525,10 @@ void do_rot_trans_setup(short int state) {
       g.pick_pending_flag = 0;
       g.normal_cursor();
    }
+   std::string cmd = "do-rot-trans-setup";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 void do_rot_trans_adjustments(GtkWidget *dialog) { 
@@ -534,10 +542,15 @@ void rot_trans_reset_previous() {
    // rot_trans adjustments:
    for (int i=0; i<6; i++) 
       g.previous_rot_trans_adjustment[i] = -10000;
+   add_to_history_simple("rot-trans-reset-previous");
 }
 
 void set_rotate_translate_zone_rotates_about_zone_centre(int istate) {
    graphics_info_t::rot_trans_zone_rotates_about_zone_centre = istate;
+   std::string cmd = "set-rotate-translate-zone-rotates-about-zone-centre";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(istate);
+   add_to_history_typed(cmd, args);
 } 
 
 
@@ -673,7 +686,7 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
    std::string cmd = "delete-residue-sidechain";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
-   args.push_back(chain_id);
+   args.push_back(coot::util::single_quote(chain_id));
    args.push_back(resno);
    args.push_back(ins_code);
    add_to_history_typed(cmd, args);
@@ -684,6 +697,10 @@ void set_add_alt_conf_new_atoms_occupancy(float f) {  /* default 0.5 */
 
    graphics_info_t g;
    g.add_alt_conf_new_atoms_occupancy = f;
+   std::string cmd = "set-add-alt-conf-new-atoms-occupancy";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -693,6 +710,17 @@ int set_atom_attribute(int imol, const char *chain_id, int resno, const char *in
       istat = graphics_info_t::molecules[imol].set_atom_attribute(chain_id, resno, ins_code, atom_name, alt_conf, attribute_name, val);
    }
    graphics_draw();
+   std::string cmd = "set-atom-attribute";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(resno);
+   args.push_back(coot::util::single_quote(ins_code));
+   args.push_back(coot::util::single_quote(atom_name));
+   args.push_back(coot::util::single_quote(alt_conf));
+   args.push_back(coot::util::single_quote(attribute_name));
+   args.push_back(val);
+   add_to_history_typed(cmd, args);
    return istat;
 } 
 
@@ -702,6 +730,17 @@ int set_atom_string_attribute(int imol, const char *chain_id, int resno, const c
       istat = graphics_info_t::molecules[imol].set_atom_string_attribute(chain_id, resno, ins_code, atom_name, alt_conf, attribute_name, attribute_value);
       graphics_draw();
    }
+   std::string cmd = "set-atom-string-attribute";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(resno);
+   args.push_back(coot::util::single_quote(ins_code));
+   args.push_back(coot::util::single_quote(atom_name));
+   args.push_back(coot::util::single_quote(alt_conf));
+   args.push_back(coot::util::single_quote(attribute_name));
+   args.push_back(coot::util::single_quote(attribute_value));
+   add_to_history_typed(cmd, args);
    return istat;
 }
 
@@ -719,6 +758,10 @@ void update_go_to_atom_window_on_changed_mol(int imol) {
    // deleted)
    graphics_info_t g;
    g.update_go_to_atom_window_on_changed_mol(imol);
+   std::string cmd = "update-go-to-atom-window-on-changed-mol";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
 }
 
 // a new molecule has has been read in.
@@ -793,7 +836,8 @@ void set_delete_atom_mode() {
    g.delete_item_residue_zone = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_residue = 0;
-   g.delete_item_sidechain = 0; 
+   g.delete_item_sidechain = 0;
+   add_to_history_simple("set-delete-atom-mode");
 }
 
 void set_delete_residue_mode() {
@@ -804,6 +848,7 @@ void set_delete_residue_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue = 1;
    g.delete_item_sidechain = 0; 
+   add_to_history_simple("set-delete-residue-mode");
 }
 
 void set_delete_residue_hydrogens_mode() {
@@ -815,6 +860,7 @@ void set_delete_residue_hydrogens_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue_hydrogens = 1;
    g.delete_item_sidechain = 0; 
+   add_to_history_simple("set-delete-residue-hydrogens-mode");
 
 }
 
@@ -827,7 +873,7 @@ void set_delete_residue_zone_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0; 
-
+   add_to_history_simple("set-delete-residue-zone-mode");
 } 
 
 void set_delete_water_mode() {
@@ -839,6 +885,7 @@ void set_delete_water_mode() {
    g.delete_item_atom = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0; 
+   add_to_history_simple("set-delete-residue-water-mode");
 
 } 
 
@@ -851,6 +898,7 @@ void set_delete_sidechain_mode() {
    g.delete_item_atom = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 1; 
+   add_to_history_simple("set-delete-sidechain-mode");
 
 }
 
@@ -970,6 +1018,12 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
       }
    }
    graphics_draw();
+   std::string cmd = "delete-residue-by-atom-index";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(index);
+   args.push_back(do_delete_dialog_by_ctrl);
+   add_to_history_typed(cmd, args);
 }
 
 void delete_residue_hydrogens_by_atom_index(int imol, int index, short int do_delete_dialog) {
@@ -1002,6 +1056,12 @@ void delete_residue_hydrogens_by_atom_index(int imol, int index, short int do_de
       }
    }
    graphics_draw();
+   std::string cmd = "delete-residue-hydrogens-by-atom-index";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(index);
+   args.push_back(do_delete_dialog);
+   add_to_history_typed(cmd, args);
 }
 
 // Deletes all altconfs, the whole residue goes.
@@ -1021,6 +1081,13 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
       }
    }
    graphics_draw();
+   std::string cmd = "delete-residue-range";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(resno_start);
+   args.push_back(resno_end);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -1036,15 +1103,8 @@ void clear_pending_delete_item() {
    g.delete_item_residue = 0;
    g.delete_item_residue_zone = 0;
    g.delete_item_residue_hydrogens = 0;
-
+   add_to_history_simple("clear-pending-delete-item");
 }
-
-// Do we want this function really.  Consider binning it.
-//
-void set_keep_delete_item_active_state(int istate) {
-
-   // graphics_info_t g;
-} 
 
 
 /* We need to set the pending delete flag and that can't be done in
@@ -1129,6 +1189,7 @@ void move_molecule_here_by_widget(GtkWidget *w) {
 void set_write_peaksearched_waters() {
    graphics_info_t g;
    g.ligand_water_write_peaksearched_atoms = 1;
+   add_to_history_simple("set-write-peaksearched-waters");
 } 
 
 
@@ -1144,6 +1205,10 @@ void setup_rotamers(short int state) {
    } else {
       g.normal_cursor();
    }
+   std::string cmd = "setup-rotamers";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 } 
 
 
@@ -1158,18 +1223,30 @@ void do_rotamers(int atom_index, int imol) {
 
    graphics_info_t g;
    g.do_rotamers(atom_index, imol); 
-
+   std::string cmd = "do-rotamers";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(atom_index);
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
 }
 
 void
 set_rotamer_lowest_probability(float f) {
    graphics_info_t g;
    g.rotamer_lowest_probability = f;
+   std::string cmd = "set-rotamer-lowest-probability";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
 }
 
 void
 set_rotamer_check_clashes(int i) {
    graphics_info_t::rotamer_fit_clash_flag = i;
+   std::string cmd = "set-rotamer-check-clashes";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 }
 
 // Return -999 on imol indexing error
@@ -1215,6 +1292,17 @@ auto_fit_best_rotamer(int resno,
 	 graphics_draw();
       }
    }
+   std::string cmd = "auto-fit-best-rotamer";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(resno);
+   args.push_back(coot::util::single_quote(altloc));
+   args.push_back(coot::util::single_quote(insertion_code));
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(imol_coords);
+   args.push_back(imol_map);
+   args.push_back(clash_flag);
+   args.push_back(lowest_probability);
+   add_to_history_typed(cmd, args);
    return f;
 }
 
@@ -1222,6 +1310,10 @@ auto_fit_best_rotamer(int resno,
 void
 set_auto_fit_best_rotamer_clash_flag(int i) { /* 0 off, 1 on */
    graphics_info_t::rotamer_fit_clash_flag = i;
+   std::string cmd = "set-auto-fit-best-rotamer-clash-flag";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 } 
 
 void
@@ -1234,6 +1326,10 @@ setup_auto_fit_rotamer(short int state) {
    } else {
       graphics_info_t::normal_cursor();
    }
+   std::string cmd = "setup-aut-fit-rotamer";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -1243,6 +1339,15 @@ rotamer_score(int resno, const char *insertion_code,
 	      const char *chain_id, int imol_coords, int imol_map,
 	      int rotamer_number) {
    float f = 0;
+   std::string cmd = "rotamer-score";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(resno);
+   args.push_back(coot::util::single_quote(insertion_code));
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(imol_coords);
+   args.push_back(imol_map);
+   args.push_back(rotamer_number);
+   add_to_history_typed(cmd, args);
    return f;
 }
 
@@ -1271,7 +1376,11 @@ setup_mutate(short int state) {
 		<< std::endl;
    } else {
       g.normal_cursor();
-   } 
+   }
+   std::string cmd = "setup-mutate";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 void
@@ -1298,6 +1407,10 @@ setup_mutate_auto_fit(short int state) {
       g.in_mutate_auto_fit_define = state;
       g.normal_cursor();
    }
+   std::string cmd = "setup-mutate-auto-fit";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -1305,10 +1418,15 @@ setup_mutate_auto_fit(short int state) {
 void set_mutate_auto_fit_do_post_refine(short int istate) {
 
    graphics_info_t::mutate_auto_fit_do_post_refine_flag = istate;
+   std::string cmd = "set-mutate-auto-fit-do-post-refine";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(istate);
+   add_to_history_typed(cmd, args);
 } 
 
 /*! \brief what is the value of the previous flag? */
 int mutate_auto_fit_do_post_refine_state() {
+   add_to_history_simple("mutate-auto-fit-do-post-refine-state");
    return graphics_info_t::mutate_auto_fit_do_post_refine_flag;
 } 
 
@@ -1317,8 +1435,11 @@ int mutate_auto_fit_do_post_refine_state() {
 /*! \brief set a flag saying that the chosen residue should only be
   added as a stub (mainchain + CB) */
 void set_residue_type_chooser_stub_state(short int istat) {
-
    graphics_info_t::residue_type_chooser_stub_flag = istat;
+   std::string cmd = "set-residue-type-chooser-stub-state";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(istat);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -1327,7 +1448,11 @@ do_mutation(const char *type, short int stub_flag) {
    graphics_info_t g;
    // use g.mutate_residue_atom_index and g.mutate_residue_imol
    g.do_mutation(type, stub_flag);
-
+   std::string cmd = "do-mutatation";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(coot::util::single_quote(type));
+   args.push_back(stub_flag);
+   add_to_history_typed(cmd, args);
 }
 
 void
@@ -1348,6 +1473,7 @@ place_atom_at_pointer() {
 
       gtk_widget_show(window);
    }
+   add_to_history_simple("place-atom-at-pointer");
 }
 
 // This is a copy - more or less - of
@@ -1440,6 +1566,10 @@ place_typed_atom_at_pointer(const char *type) {
 
 void set_pointer_atom_is_dummy(int i) { 
    graphics_info_t::pointer_atom_is_dummy = i;
+   std::string cmd = "set-pointer-atom-is-dummy";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 } 
 
       
@@ -1447,6 +1577,7 @@ void set_pointer_atom_is_dummy(int i) {
 void display_where_is_pointer() {
    graphics_info_t g;
    g.display_where_is_pointer();
+   add_to_history_simple("display-where-is-pointer");
 }
 
 // draw the baton?
@@ -1456,40 +1587,51 @@ void set_draw_baton(short int i) {
    if (i == 1)
       g.start_baton_here();
    graphics_draw();
+   std::string cmd = "set-draw-baton";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 }
 
 // Mouse movement moves the baton not the view?
 void set_baton_mode(short int i) {
    graphics_info_t::baton_mode = i;
+   std::string cmd = "set-baton-mode";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 }
 
 void accept_baton_position() { 	/* put an atom at the tip and move baton */
 
    graphics_info_t g;
    g.accept_baton_position();
-
+   add_to_history_simple("accept-baton-position");
 }
 
 void baton_try_another() {
    graphics_info_t g;
    g.baton_try_another();
+   add_to_history_simple("baton-try-another");
 }
 
 void shorten_baton() {
    graphics_info_t g;
    g.shorten_baton();
+   add_to_history_simple("shorten-baton");
 }
 
 void lengthen_baton() {
    graphics_info_t g;
    g.lengthen_baton();
+   add_to_history_simple("lengthen-baton");
 }
 
 void baton_build_delete_last_residue() {
 
    graphics_info_t g;
    g.baton_build_delete_last_residue();
-
+   add_to_history_simple("baton-build-delete-last-residue");
 } 
 
 void set_baton_build_params(int istart_resno, 
@@ -1498,6 +1640,12 @@ void set_baton_build_params(int istart_resno,
 
    graphics_info_t g;
    g.set_baton_build_params(istart_resno, chain_id, backwards); 
+   std::string cmd = "set-baton-build-params";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(istart_resno);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(coot::util::single_quote(backwards));
+   add_to_history_typed(cmd, args);
 }
 
 // User data has been placed in the window - we use it to get the
@@ -1529,7 +1677,7 @@ void baton_mode_calculate_skeleton(GtkWidget *window) {
    where there is a gap in the numbering, that marks breaks between
    fragments in a chain.  There also needs to be a distance break - if
    the CA of the next/previous residue is more than 5A away, that also
-   marks a break. Thow away all atoms in fragment other than CAs*/
+   marks a break. Thow away all atoms in fragment other than CAs */
 void reverse_direction_of_fragment(int imol, const char *chain_id, int resno) {
 
    if (is_valid_model_molecule(imol)) {
@@ -1538,9 +1686,13 @@ void reverse_direction_of_fragment(int imol, const char *chain_id, int resno) {
       if (istatus)
 	 graphics_draw();
    }
+   std::string cmd = "reverse-direction-of-fragment";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(resno);
+   add_to_history_typed(cmd, args);
 }
-
-
 
 
 
@@ -1549,6 +1701,12 @@ void reverse_direction_of_fragment(int imol, const char *chain_id, int resno) {
 // -----------------------------------------------------------------------------
 // 
 short int progressive_residues_in_chain_check(const char *chain_id, int imol) {
+   
+   std::string cmd = "progressive-residues-in-chain-check";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    
    graphics_info_t g;
    if (imol < graphics_n_molecules()) {
@@ -1587,6 +1745,14 @@ mutate(int ires, const char *chain_id, int imol, const char *target_res_type) {
       graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_draw();
    }
+   std::string cmd = "mutate";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(ires);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(target_res_type));
+   add_to_history_typed(cmd, args);
+   
    return 0;
 } 
 
