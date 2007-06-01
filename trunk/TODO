@@ -20,6 +20,10 @@
 
    o Make the Omega Angle Plot update properly
 
+   o rotamer-score function needs to be filled
+
+   o Update python files
+
 -----
 
    Release 0.5
@@ -48,6 +52,7 @@
 
    o Dynamic distances on moving atom/fragments
 
+   o Try again to add chiral volumes to the geometry target function
 
 ------
     
@@ -59,11 +64,16 @@
 
    o multiple residue ranges.
 
+   o multiple representations?
+
 ------
 
    Release 0.7
 
-   o Switch to GTk2, guile1.8
+   o Switch to GTk2, guile1.8.  Dump Gtk1 interface, re-write build-it 
+     script
+
+
 
    
 
