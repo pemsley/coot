@@ -4,6 +4,7 @@
    std::string cmd = "";
    std::vector<coot::command_arg_t> args;
    args.push_back();
+   args.push_back(coot::util::single_quote());
    add_to_history_typed(cmd, args);
 
    std::vector<std::string> command_strings;

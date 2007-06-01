@@ -1592,8 +1592,14 @@ void set_default_temperature_factor_for_new_atoms(float new_b);
 /*! \brief return the default temperature factor for newly created atoms */
 float default_new_atoms_b_factor();
 
+/*! \brief set a numberical attibute to the atom with the given specifier.
+
+Attributes can be "x", "y","z", "B", "occ" and the attribute val is a floating point number*/
 int set_atom_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, float val);
 
+/*! \brief set a string attibute to the atom with the given specifier.
+
+Attributes can be "atom-name", "alt-conf" or "element". */
 int set_atom_string_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, const char *attribute_value);
 
 /* \} */
@@ -3162,9 +3168,6 @@ void clear_pending_delete_item(); /* for when we cancel with picking an atom */
 /* We need to set the pending delete flag and that can't be done in
    callback, so this wrapper does it */
 GtkWidget *wrapped_create_delete_item_dialog();
-
-/* The callback of the delete item active? checkbutton */
-void set_keep_delete_item_active_state(int istate);
 
 /* \} */
 

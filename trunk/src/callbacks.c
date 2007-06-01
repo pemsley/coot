@@ -5978,11 +5978,6 @@ on_delete_item_keep_active_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-   if (togglebutton->active) { 
-      set_keep_delete_item_active_state(1);
-   } else {
-      set_keep_delete_item_active_state(0);
-   }
 }
 
 
@@ -5995,7 +5990,6 @@ on_delete_item_dialog_destroy          (GtkObject       *object,
 /*    printf("delete item destroy object: %ld w: %ld\n", object, w); */
 /*    store_window_position(COOT_DELETE_WINDOW, w); - not here, w does
                                                     not have a ->window */
-   set_keep_delete_item_active_state(0);
    clear_pending_delete_item();
    clear_pending_picks(); 
    normal_cursor();
