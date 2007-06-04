@@ -1158,7 +1158,8 @@ class molecule_class_info_t {
 				      int resno,
 				      const std::string &inscode);
    short int delete_atom(const std::string &chain_id, 
-			 int resno, 
+			 int resno,
+			 const std::string &ins_code,
 			 const std::string &atname,
 			 const std::string &altconf);
 

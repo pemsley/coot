@@ -995,6 +995,7 @@ molecule_class_info_t::unalt_conf_residue_atoms(CResidue *residue_p) {
 short int
 molecule_class_info_t::delete_atom(const std::string &chain_id,
 				   int resno,
+				   const std::string &ins_code,
 				   const std::string &atname,
 				   const std::string &altconf) {
 
@@ -1016,27 +1017,30 @@ molecule_class_info_t::delete_atom(const std::string &chain_id,
 	    PCResidue res = chain->GetResidue(ires);
 	    if (res) { 
 	       if (res->GetSeqNum() == resno) {
+
+		  if (res->GetInsCode() == ins_code) { 
 		  
-		  // so we have a matching residue:
+		     // so we have a matching residue:
 
-		  PPCAtom residue_atoms;
-		  int nResidueAtoms;
-		  std::string mol_atom_name;
-		  res->GetAtomTable(residue_atoms, nResidueAtoms);
-		  for (int iat=0; iat<nResidueAtoms; iat++) {
+		     PPCAtom residue_atoms;
+		     int nResidueAtoms;
+		     std::string mol_atom_name;
+		     res->GetAtomTable(residue_atoms, nResidueAtoms);
+		     for (int iat=0; iat<nResidueAtoms; iat++) {
 			
-		     mol_atom_name = residue_atoms[iat]->name;
-		     if (atname == mol_atom_name) { 
+			mol_atom_name = residue_atoms[iat]->name;
+			if (atname == mol_atom_name) { 
 			
-			if (std::string(residue_atoms[iat]->altLoc) == altconf) {
+			   if (std::string(residue_atoms[iat]->altLoc) == altconf) {
 
-			   make_backup();
-			   atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
-			   delete_ghost_selections();
-			   res->DeleteAtom(iat);
-			   was_deleted = 1;
-			   residue_of_deleted_atom = res;
-			   break;
+			      make_backup();
+			      atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+			      delete_ghost_selections();
+			      res->DeleteAtom(iat);
+			      was_deleted = 1;
+			      residue_of_deleted_atom = res;
+			      break;
+			   }
 			}
 		     }
 		  }

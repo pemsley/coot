@@ -1218,3 +1218,13 @@
 						  resno
 						  atom-name)))))
 
+;; Typically one might want to use this on a water, but it deletes the
+;; nearest CA currently...  Needs a re-think.  Should active-atom just
+;; return the nearest atom and not be clever about returning a CA.
+;; 
+(define (delete-atom-by-active-residue)
+
+  (let ((active-atom (active-residue)))
+    (if active-atom
+	(apply delete-atom active-atom))))
+

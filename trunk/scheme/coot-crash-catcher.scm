@@ -200,7 +200,7 @@
 (define (send-emsley-text gdb-string)
   
   (run-command/strings "mail"
-		       (list "-s" "Coot Crashed" "emsley@ysbl.york.ac.uk")
+		       (list "-s" "Coot Crashed" (string-append "emsley" "@" "ysbl.york.ac.uk"))
 		       (list gdb-string)))
 
 
@@ -216,7 +216,9 @@
 	   (hbox-buttons (gtk-hbox-new #f 5))
 ;	   (send-button (gtk-button-new-with-label " Send to Paul Emsley "))
 	   (send-label (gtk-label-new 
-			"Please send to Paul Emsley (using cut 'n paste)"))
+			(string-append "Please send to Paul Emsley (using cut 'n paste)\n"
+				       "(a few words to describe what you were \n"
+				       "doing might be helpful too)")))
 	   (cancel-button (gtk-button-new-with-label " Cancel "))
 	   (text-string  gdb-strings))
 

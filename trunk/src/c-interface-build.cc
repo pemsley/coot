@@ -783,11 +783,11 @@ void update_go_to_atom_window_on_other_molecule_chosen(int imol) {
 
 } 
 
-void delete_atom(int imol, const char *chain_id, int resno, const char *at_name, 
-		 const char *altLoc) {
+void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code,
+		 const char *at_name, const char *altLoc) {
 
    graphics_info_t g;
-   short int istat = g.molecules[imol].delete_atom(chain_id, resno, at_name, altLoc);
+   short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
    if (istat) { 
       // now if the go to atom widget was being displayed, we need to
       // redraw the residue list and atom list (if the molecule of the
@@ -947,9 +947,10 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
    std::string chain_id  = g.molecules[imol].atom_sel.atom_selection[index]->GetChainID();
    int resno             = g.molecules[imol].atom_sel.atom_selection[index]->GetSeqNum();
    std::string altconf   = g.molecules[imol].atom_sel.atom_selection[index]->altLoc;
+   char *ins_code        = g.molecules[imol].atom_sel.atom_selection[index]->GetInsCode();
 
    // g.molecules[imol].delete_atom(chain_id, resno, atom_name);
-   delete_atom(imol, chain_id.c_str(), resno, atom_name.c_str(), altconf.c_str());
+   delete_atom(imol, chain_id.c_str(), resno, ins_code, atom_name.c_str(), altconf.c_str());
    if (graphics_info_t::delete_item_widget != NULL) {
       if (do_delete_dialog) { // via ctrl
 
@@ -1562,6 +1563,10 @@ void
 place_typed_atom_at_pointer(const char *type) {
    graphics_info_t g;
    g.place_typed_atom_at_pointer(std::string(type));
+   std::string cmd = "place-typed-atom-at-pointer";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(type));
+   add_to_history_typed(cmd, args);
 }
 
 void set_pointer_atom_is_dummy(int i) { 
@@ -1810,6 +1815,12 @@ int chain_n_residues(const char *chain_id, int imol) {
    } else { 
       return -1;
    }
+   std::string cmd = "chain-n-residues";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
+   
 }
 
 // Return NULL (#f) on failure.
@@ -1835,8 +1846,13 @@ char *resname_from_serial_number(int imol, const char *chain_id, int serial_num)
 	 }
       }
    }
+   std::string cmd = "resname-from-serial-number";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(serial_num);
+   add_to_history_typed(cmd, args);
    return r;
-
 }
 
 // Return < -9999 on failure
@@ -1861,6 +1877,12 @@ int  seqnum_from_serial_number(int imol, const char *chain_id, int serial_num) {
 	 }
       }
    }
+   std::string cmd = "setnum-from-serial-number";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(serial_num);
+   add_to_history_typed(cmd, args);
    return iseqnum;
 }
 
@@ -1885,6 +1907,12 @@ char *insertion_code_from_serial_number(int imol, const char *chain_id, int seri
 	 }
       }
    }
+   std::string cmd = "insertion-code-from-serial-number";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(serial_num);
+   add_to_history_typed(cmd, args);
    return r;
 }
 
@@ -1897,6 +1925,11 @@ char *chain_id(int imol, int ichain) {
       CChain *chain_p = mol->GetChain(1,ichain);
       r = chain_p->GetChainID();
    }
+   std::string cmd = "chain_id";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(ichain);
+   add_to_history_typed(cmd, args);
    return r;
 }
 
@@ -1908,6 +1941,10 @@ int n_chains(int imol) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       nchains = mol->GetNumberOfChains(1);
    }
+   std::string cmd = "n-chains";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return nchains;
 }
 
@@ -1927,6 +1964,11 @@ int is_solvent_chain_p(int imol, const char *chain_id) {
 	 }
       }
    }
+   std::string cmd = "is-solvent-chain-p";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   add_to_history_typed(cmd, args);
    return r;
 }
 
@@ -1954,6 +1996,14 @@ int renumber_residue_range(int imol, const char *chain_id,
 	 }
       }
    }
+   std::string cmd = "renumber-residue-range";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(start_res);
+   args.push_back(last_res);
+   args.push_back(offset);
+   add_to_history_typed(cmd, args);
    return i;
 }
 
@@ -2017,8 +2067,16 @@ int change_residue_number(int imol, const char *chain_id, int current_resno, con
       graphics_draw();
       idone = 1;
    } 
+   std::string cmd = "change-residue-number";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(current_resno);
+   args.push_back(coot::util::single_quote(current_inscode));
+   args.push_back(new_resno);
+   args.push_back(coot::util::single_quote(new_inscode));
+   add_to_history_typed(cmd, args);
    return idone;
-
 } 
 
 
@@ -2041,6 +2099,10 @@ void make_backup(int imol) {
    } else {
       std::cout << "No model :" << imol << std::endl;
    }
+   std::string cmd = "make-backup";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
 }
 
 int backup_state(int imol) {
@@ -2060,6 +2122,10 @@ int backup_state(int imol) {
    } else {
       std::cout << "No model :" << imol << std::endl;
    }
+   std::string cmd = "backup-state";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return istate;
 } 
 
@@ -2072,6 +2138,10 @@ void set_have_unsaved_changes(int imol) {
 	 }
       }
    }
+   std::string cmd = "set-have-unsaved-changes";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2088,6 +2158,11 @@ write_pdb_file(int imol, const char *file_name) {
    if (is_valid_model_molecule(imol)) {
       istat = g.molecules[imol].write_pdb_file(std::string(file_name));
    }
+   std::string cmd = "write-pdb-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(file_name));
+   add_to_history_typed(cmd, args);
    return istat;
 }
 
@@ -2095,13 +2170,13 @@ write_pdb_file(int imol, const char *file_name) {
   file_name */
 /*  return 0 on success, 1 on error. */
 int
-write_residue_range_to_pdb_file(int imol, const char *chainid, 
+write_residue_range_to_pdb_file(int imol, const char *chain_id, 
 				int resno_start, int resno_end,
 				const char *filename) {
 
    int istat = 0;
    if (is_valid_model_molecule(imol)) {
-      std::string chain(chainid);
+      std::string chain(chain_id);
       if (resno_end < resno_start) {
 	 int tmp = resno_end;
 	 resno_end = resno_start;
@@ -2114,6 +2189,13 @@ write_residue_range_to_pdb_file(int imol, const char *chainid,
 	 delete mol; // give back the memory.
       }
    }
+   std::string cmd = "write-residue-range-to-pdb-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(resno_start);
+   args.push_back(resno_end);
+   add_to_history_typed(cmd, args);
    return istat;
 } 
 
@@ -2403,6 +2485,10 @@ refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos) {
 }
 
 int set_refmac_molecule(int imol) {
+   std::string cmd = "set-refmac-molecule";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    graphics_info_t::refmac_molecule = imol;
    return imol;
 }
@@ -2426,28 +2512,42 @@ void set_refmac_counter(int imol, int refmac_count) {
       std::cout << "WARNING:: refmac counter of molecule number " << imol
 		<< " not incremented to " << refmac_count << std::endl;
    } 
-
+   std::string cmd = "set-refmac-counter";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(refmac_count);
+   add_to_history_typed(cmd, args);
 } 
 
 
 const char *refmac_name(int imol) {
 
+   std::string cmd = "refmac-name";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    graphics_info_t g;
    return g.molecules[imol].Refmac_in_name().c_str();
-
 } 
 
 
 short int 
-add_OXT_to_residue(int imol, int reso, const char *insertion_code, const char *chain_id) {
+add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *chain_id) {
 
    short int istat = -1; 
    if (imol < graphics_n_molecules()) { 
-      istat = graphics_info_t::molecules[imol].add_OXT_to_residue(reso, std::string(insertion_code),
+      istat = graphics_info_t::molecules[imol].add_OXT_to_residue(resno, std::string(insertion_code),
 								  std::string(chain_id));
       graphics_info_t::molecules[imol].update_symmetry();
       graphics_draw();
    }
+   std::string cmd = "add-OXT-to-residue";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(resno);
+   args.push_back(coot::util::single_quote(insertion_code));
+   args.push_back(coot::util::single_quote(chain_id));
+   add_to_history_typed(cmd, args);
    return istat;
 }
 
@@ -2537,6 +2637,10 @@ do_db_main(short int state) {
       g.pick_pending_flag = 0;
       g.normal_cursor();
    }
+   std::string cmd = "do-db-main";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2554,6 +2658,14 @@ db_mainchain(int imol,
    } else {
       std::cout << "WARNING molecule index error" << std::endl;
    } 
+   std::string cmd = "db-mainchain";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(iresno_start);
+   args.push_back(iresno_end);
+   args.push_back(coot::util::single_quote(direction_string));
+   add_to_history_typed(cmd, args);
 }
 
 /*  ----------------------------------------------------------------------- */
@@ -2566,7 +2678,8 @@ db_mainchain(int imol,
 // 2: split residue range
 
 /* c-interface-build function */
-short int alt_conf_split_type_number() { 
+short int alt_conf_split_type_number() {
+   add_to_history_simple("alt-conf-split-type-number");
    return graphics_info_t::alt_conf_split_type_number();
 }
 
@@ -2601,6 +2714,11 @@ void setup_alt_conf_with_dialog(GtkWidget *dialog) {
 
 void set_add_alt_conf_split_type_number(short int i) { 
    graphics_info_t::alt_conf_split_type = i;
+   std::string cmd = "set-add-alt-conf-split-type-number";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
+   
 } 
 
 void unset_add_alt_conf_dialog()  { /* set the static dialog holder in
@@ -2625,9 +2743,14 @@ void altconf() {
 
 void set_show_alt_conf_intermediate_atoms(int i) {
    graphics_info_t::show_alt_conf_intermediate_atoms_flag = i;
+   std::string cmd = "set-show-alt-conf-intermediate-atoms";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 }
 
 int show_alt_conf_intermediate_atoms_state() {
+   add_to_history_simple("show-alt-conf-intermediate-atoms-state");
    return graphics_info_t::show_alt_conf_intermediate_atoms_flag;
 }
 
@@ -2639,6 +2762,13 @@ void zero_occupancy_residue_range(int imol, const char *chain_id, int ires1, int
       std::cout << "WARNING:: invalid model molecule number in zero_occupancy_residue_range "
 		<< imol << std::endl;
    }
+   std::string cmd = "zero-occupancy-residue-range";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(ires1);
+   args.push_back(ires2);
+   add_to_history_typed(cmd, args);
    graphics_draw();
 }
 
@@ -2651,6 +2781,13 @@ void fill_occupancy_residue_range(int imol, const char *chain_id, int ires1, int
 		<< imol << std::endl;
    }
    graphics_draw();
+   std::string cmd = "fill-occupancy-residue-range";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(ires1);
+   args.push_back(ires2);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2670,12 +2807,20 @@ void setup_edit_chi_angles(short int state) {
    } else {
       g.in_edit_chi_angles_define = 0;
    }
+   std::string cmd = "setup-edit-chi-angles";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 int set_show_chi_angle_bond(int imode) {
 
    graphics_info_t::draw_chi_angle_flash_bond_flag = imode;
    graphics_draw();
+   std::string cmd = "set-show-chi-angle-bond";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imode);
+   add_to_history_typed(cmd, args);
    return 0; // should be a void function, I imagine.
 } 
 
@@ -2687,6 +2832,10 @@ int set_show_chi_angle_bond(int imode) {
 void set_find_hydrogen_torsion(short int state) {
    graphics_info_t g;
    g.find_hydrogen_torsions = state;
+   std::string cmd = "set-find-hydrogen-torsion";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 void set_graphics_edit_current_chi(int ichi) { /* button callback */

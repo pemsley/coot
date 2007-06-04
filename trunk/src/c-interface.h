@@ -3148,7 +3148,7 @@ void delete_residue_with_altconf(int imol, const char *chain_id, int resno, cons
 /*! \brief delete hydrogen atoms in residue  */
 void delete_residue_hydrogens(int imol, const char *chain_id, int resno, const char *inscode, const char *altloc); 
 /*! \brief delete atom in residue */
-void delete_atom(int imol, const char *chain_id, int resno, const char *at_name, const char *altloc);
+void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code, const char *at_name, const char *altloc);
 /*! \brief delete all atoms in residue that are not main chain or CB */
 void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char*ins_code);
 /* toggle callbacks */
