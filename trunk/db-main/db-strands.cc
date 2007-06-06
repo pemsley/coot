@@ -38,7 +38,7 @@ coot::db_strands::db_strands() {
 	 ref_str_dir_str = d;
       else {
 	 // fall back to the db-main reference structures
-	 std::string d1(DATADIR); // prefix/share
+	 std::string d1(PKGDATADIR); // prefix/share
 	 std::string d2 = coot::util::append_dir_dir(d1, "coot");
 	 std::string d3 = coot::util::append_dir_dir(d2, "reference-structures");
 	 ref_str_dir_str = d3;

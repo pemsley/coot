@@ -25,6 +25,9 @@
 #include <string>
 
 #ifdef USE_GUILE
+#ifdef _MSC_VER
+#defein AddAtomA AddAtom
+#endif
 
 #include "c-interface-mmdb.hh"
 

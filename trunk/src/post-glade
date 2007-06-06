@@ -22,10 +22,11 @@ sed -e 's/#include .support.h./#include "support.h"\n\n#if (GTK_MAJOR_VERSION ==
 echo "#endif" >>  tmp-interface.c
 mv tmp-interface.c interface.c
 
-# Hmmm... there is no unistd.h in support.h
-sed -e 's/#include <unistd.h>/#ifndef _MSC_VER\n#include <unistd.h>\n#endif/' \
-    support.h > support-tmp.h
-mv support-tmp.h support.h
+sed -e 's/#include <unistd.h>/#ifndef _MSC_VER\n#include <unistd.h>\n#else\nS_ISREG(m) (((m) & S_IFMT) == S_IFREG)\n#endif/' \
+    support.c > support-tmp.c
+mv support-tmp.c support.c
+
+
 
 # on reflection, try not to mess with gtk2-interface.c
 #
