@@ -40,12 +40,13 @@
 #endif // USE_PYTHON
 
 
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-#define GTK_ENABLE_BROKEN
-#if defined _MSC_VER
+#if defined(_MSC_VER)
+#define usleep(x) Sleep(x/1000)
 #include <windows.h>
 #endif
-#endif
+
+// Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
+// Now we don't want to enable broken stuff.  That is not the way.
 
 #define HAVE_CIF  // will become unnessary at some stage.
 
@@ -109,9 +110,31 @@
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
 
-char *coot_version() { 
-   char *r = new char[40];
-   strncpy(r, VERSION, 38);
+char *coot_version() {
+
+   std::string version_string = VERSION;
+#ifdef USE_GUILE
+   version_string += " [with guile ";
+   version_string += coot::util::int_to_string(SCM_MAJOR_VERSION);
+   version_string += ".";
+   version_string += coot::util::int_to_string(SCM_MINOR_VERSION);
+   version_string += ".";
+   version_string += coot::util::int_to_string(SCM_MICRO_VERSION);
+   version_string += " embedded]";
+#endif    
+#ifdef USE_PYTHON
+   version_string += " [with python ";
+   version_string += coot::util::int_to_string(PY_MAJOR_VERSION);
+   version_string += ".";
+   version_string += coot::util::int_to_string(PY_MINOR_VERSION);
+   version_string += ".";
+   version_string += coot::util::int_to_string(PY_MICRO_VERSION);
+   version_string += " embedded]";
+#endif    
+   int len = version_string.length();
+   
+   char *r = new char[len+1];
+   strncpy(r, version_string.c_str(), len+1);
    return r;
 }
 

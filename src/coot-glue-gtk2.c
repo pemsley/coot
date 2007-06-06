@@ -208,12 +208,15 @@ static GtkTypeInfo *type_infos_gtk[] = {
 
 static char s_main_statusbar[] = "coot-main-statusbar";
 
+// Fix from Francois.  My reproduce when this file gets overwritten:
+// 
 SCM
 sgtk_main_statusbar ()
 {
   GtkWidget* cr_ret;
+  GObject *obj;
   cr_ret = main_statusbar ();
-  GObject *obj = (GObject*)cr_ret;
+  obj = (GObject*)cr_ret;
   return sgtk_wrap_gtkobj (obj);
 }
 

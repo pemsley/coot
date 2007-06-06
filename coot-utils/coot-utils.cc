@@ -38,7 +38,6 @@
 
 // These 2 are for getpwnam
 #include <sys/types.h>
-#include <pwd.h>
 
 #include <ctype.h>  // for toupper
 
