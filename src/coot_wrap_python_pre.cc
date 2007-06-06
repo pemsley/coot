@@ -2476,29 +2476,31 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 #define SWIGTYPE_p_GtkSignalFunc swig_types[8]
 #define SWIGTYPE_p_GtkToggleButton swig_types[9]
 #define SWIGTYPE_p_GtkWidget swig_types[10]
-#define SWIGTYPE_p_SCM swig_types[11]
-#define SWIGTYPE_p_char swig_types[12]
-#define SWIGTYPE_p_clipper__String swig_types[13]
-#define SWIGTYPE_p_coot__atom_spec_t swig_types[14]
-#define SWIGTYPE_p_coot__command_arg_t swig_types[15]
-#define SWIGTYPE_p_double swig_types[16]
-#define SWIGTYPE_p_gboolean swig_types[17]
-#define SWIGTYPE_p_gchar swig_types[18]
-#define SWIGTYPE_p_gdouble swig_types[19]
-#define SWIGTYPE_p_gpointer swig_types[20]
-#define SWIGTYPE_p_p_GSList swig_types[21]
-#define SWIGTYPE_p_std__pairTshort_float_t swig_types[22]
-#define SWIGTYPE_p_std__pairTshort_int_t swig_types[23]
-#define SWIGTYPE_p_std__pairTshort_std__string_t swig_types[24]
-#define SWIGTYPE_p_std__string swig_types[25]
-#define SWIGTYPE_p_std__vectorTcoot__command_arg_t_t swig_types[26]
-#define SWIGTYPE_p_std__vectorTint_t swig_types[27]
-#define SWIGTYPE_p_std__vectorTstd__pairTstd__string_std__string_t_t swig_types[28]
-#define SWIGTYPE_p_std__vectorTstd__string_t swig_types[29]
-#define SWIGTYPE_p_str_mtime swig_types[30]
-#define SWIGTYPE_p_time_t swig_types[31]
-static swig_type_info *swig_types[33];
-static swig_module_info swig_module = {swig_types, 32, 0, 0, 0, 0};
+#define SWIGTYPE_p_char swig_types[11]
+#define SWIGTYPE_p_clipper__String swig_types[12]
+#define SWIGTYPE_p_coot__atom_spec_t swig_types[13]
+#define SWIGTYPE_p_coot__command_arg_t swig_types[14]
+#define SWIGTYPE_p_coot__file_attribs_info_t swig_types[15]
+#define SWIGTYPE_p_coot__str_mtime swig_types[16]
+#define SWIGTYPE_p_double swig_types[17]
+#define SWIGTYPE_p_gboolean swig_types[18]
+#define SWIGTYPE_p_gchar swig_types[19]
+#define SWIGTYPE_p_gdouble swig_types[20]
+#define SWIGTYPE_p_gpointer swig_types[21]
+#define SWIGTYPE_p_p_GSList swig_types[22]
+#define SWIGTYPE_p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t swig_types[23]
+#define SWIGTYPE_p_std__pairTshort_float_t swig_types[24]
+#define SWIGTYPE_p_std__pairTshort_int_t swig_types[25]
+#define SWIGTYPE_p_std__pairTshort_std__string_t swig_types[26]
+#define SWIGTYPE_p_std__string swig_types[27]
+#define SWIGTYPE_p_std__vectorTcoot__command_arg_t_t swig_types[28]
+#define SWIGTYPE_p_std__vectorTcoot__str_mtime_t swig_types[29]
+#define SWIGTYPE_p_std__vectorTint_t swig_types[30]
+#define SWIGTYPE_p_std__vectorTstd__pairTstd__string_std__string_t_t swig_types[31]
+#define SWIGTYPE_p_std__vectorTstd__string_t swig_types[32]
+#define SWIGTYPE_p_time_t swig_types[33]
+static swig_type_info *swig_types[35];
+static swig_module_info swig_module = {swig_types, 34, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3188,7 +3190,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_on_filename_filter_toggle_button_toggled(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_on_filename_filter_toggle_button_toggled_gtk1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkButton *arg1 = (GtkButton *) 0 ;
   gpointer arg2 ;
@@ -3199,26 +3201,26 @@ SWIGINTERN PyObject *_wrap_on_filename_filter_toggle_button_toggled(PyObject *SW
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:on_filename_filter_toggle_button_toggled",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:on_filename_filter_toggle_button_toggled_gtk1",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkButton, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_filename_filter_toggle_button_toggled" "', argument " "1"" of type '" "GtkButton *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_filename_filter_toggle_button_toggled_gtk1" "', argument " "1"" of type '" "GtkButton *""'"); 
   }
   arg1 = reinterpret_cast< GtkButton * >(argp1);
   {
     res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_gpointer,  0  | 0);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_filename_filter_toggle_button_toggled" "', argument " "2"" of type '" "gpointer""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_filename_filter_toggle_button_toggled_gtk1" "', argument " "2"" of type '" "gpointer""'"); 
     }  
     if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_filename_filter_toggle_button_toggled" "', argument " "2"" of type '" "gpointer""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_filename_filter_toggle_button_toggled_gtk1" "', argument " "2"" of type '" "gpointer""'");
     } else {
       gpointer * temp = reinterpret_cast< gpointer * >(argp2);
       arg2 = *temp;
       if (SWIG_IsNewObj(res2)) delete temp;
     }
   }
-  on_filename_filter_toggle_button_toggled(arg1,arg2);
+  on_filename_filter_toggle_button_toggled_gtk1(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -4242,6 +4244,19 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_idle_function_rotate_angle(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":idle_function_rotate_angle")) SWIG_fail;
+  result = (float)idle_function_rotate_angle();
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_handle_read_draw_molecule(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -4979,6 +4994,19 @@ SWIGINTERN PyObject *_wrap_control_key_for_rotate_state(PyObject *SWIGUNUSEDPARM
   
   if (!PyArg_ParseTuple(args,(char *)":control_key_for_rotate_state")) SWIG_fail;
   result = (int)control_key_for_rotate_state();
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blob_under_pointer_to_screen_centre(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":blob_under_pointer_to_screen_centre")) SWIG_fail;
+  result = (int)blob_under_pointer_to_screen_centre();
   resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
@@ -9003,7 +9031,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_fileselection_sort_button_clicked(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_fileselection_sort_button_clicked_gtk1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkWidget *arg1 = (GtkWidget *) 0 ;
   GtkCList *arg2 = (GtkCList *) 0 ;
@@ -9014,18 +9042,18 @@ SWIGINTERN PyObject *_wrap_fileselection_sort_button_clicked(PyObject *SWIGUNUSE
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:fileselection_sort_button_clicked",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:fileselection_sort_button_clicked_gtk1",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkWidget, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "fileselection_sort_button_clicked" "', argument " "1"" of type '" "GtkWidget *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "fileselection_sort_button_clicked_gtk1" "', argument " "1"" of type '" "GtkWidget *""'"); 
   }
   arg1 = reinterpret_cast< GtkWidget * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_GtkCList, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "fileselection_sort_button_clicked" "', argument " "2"" of type '" "GtkCList *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "fileselection_sort_button_clicked_gtk1" "', argument " "2"" of type '" "GtkCList *""'"); 
   }
   arg2 = reinterpret_cast< GtkCList * >(argp2);
-  fileselection_sort_button_clicked(arg1,arg2);
+  fileselection_sort_button_clicked_gtk1(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -9432,6 +9460,45 @@ SWIGINTERN PyObject *_wrap_set_show_unit_cell(PyObject *SWIGUNUSEDPARM(self), Py
   } 
   arg2 = static_cast< short >(val2);
   set_show_unit_cell(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_unit_cell_colour(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float arg1 ;
+  float arg2 ;
+  float arg3 ;
+  float val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:set_unit_cell_colour",&obj0,&obj1,&obj2)) SWIG_fail;
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_unit_cell_colour" "', argument " "1"" of type '" "float""'");
+  } 
+  arg1 = static_cast< float >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_unit_cell_colour" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "set_unit_cell_colour" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  set_unit_cell_colour(arg1,arg2,arg3);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -10892,6 +10959,209 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_set_atom_attribute(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
+  char *arg7 = (char *) 0 ;
+  float arg8 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int res5 ;
+  char *buf5 = 0 ;
+  int alloc5 = 0 ;
+  int res6 ;
+  char *buf6 = 0 ;
+  int alloc6 = 0 ;
+  int res7 ;
+  char *buf7 = 0 ;
+  int alloc7 = 0 ;
+  float val8 ;
+  int ecode8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:set_atom_attribute",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_atom_attribute" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "set_atom_attribute" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "set_atom_attribute" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "set_atom_attribute" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "set_atom_attribute" "', argument " "5"" of type '" "char const *""'");
+  }
+  arg5 = reinterpret_cast< char * >(buf5);
+  res6 = SWIG_AsCharPtrAndSize(obj5, &buf6, NULL, &alloc6);
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "set_atom_attribute" "', argument " "6"" of type '" "char const *""'");
+  }
+  arg6 = reinterpret_cast< char * >(buf6);
+  res7 = SWIG_AsCharPtrAndSize(obj6, &buf7, NULL, &alloc7);
+  if (!SWIG_IsOK(res7)) {
+    SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "set_atom_attribute" "', argument " "7"" of type '" "char const *""'");
+  }
+  arg7 = reinterpret_cast< char * >(buf7);
+  ecode8 = SWIG_AsVal_float(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "set_atom_attribute" "', argument " "8"" of type '" "float""'");
+  } 
+  arg8 = static_cast< float >(val8);
+  result = (int)set_atom_attribute(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+  if (alloc7 == SWIG_NEWOBJ) delete[] buf7;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+  if (alloc7 == SWIG_NEWOBJ) delete[] buf7;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_atom_string_attribute(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
+  char *arg7 = (char *) 0 ;
+  char *arg8 = (char *) 0 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int res5 ;
+  char *buf5 = 0 ;
+  int alloc5 = 0 ;
+  int res6 ;
+  char *buf6 = 0 ;
+  int alloc6 = 0 ;
+  int res7 ;
+  char *buf7 = 0 ;
+  int alloc7 = 0 ;
+  int res8 ;
+  char *buf8 = 0 ;
+  int alloc8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:set_atom_string_attribute",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_atom_string_attribute" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "set_atom_string_attribute" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "set_atom_string_attribute" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "set_atom_string_attribute" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "set_atom_string_attribute" "', argument " "5"" of type '" "char const *""'");
+  }
+  arg5 = reinterpret_cast< char * >(buf5);
+  res6 = SWIG_AsCharPtrAndSize(obj5, &buf6, NULL, &alloc6);
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "set_atom_string_attribute" "', argument " "6"" of type '" "char const *""'");
+  }
+  arg6 = reinterpret_cast< char * >(buf6);
+  res7 = SWIG_AsCharPtrAndSize(obj6, &buf7, NULL, &alloc7);
+  if (!SWIG_IsOK(res7)) {
+    SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "set_atom_string_attribute" "', argument " "7"" of type '" "char const *""'");
+  }
+  arg7 = reinterpret_cast< char * >(buf7);
+  res8 = SWIG_AsCharPtrAndSize(obj7, &buf8, NULL, &alloc8);
+  if (!SWIG_IsOK(res8)) {
+    SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "set_atom_string_attribute" "', argument " "8"" of type '" "char const *""'");
+  }
+  arg8 = reinterpret_cast< char * >(buf8);
+  result = (int)set_atom_string_attribute(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,(char const *)arg8);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+  if (alloc7 == SWIG_NEWOBJ) delete[] buf7;
+  if (alloc8 == SWIG_NEWOBJ) delete[] buf8;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+  if (alloc7 == SWIG_NEWOBJ) delete[] buf7;
+  if (alloc8 == SWIG_NEWOBJ) delete[] buf8;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_skel_greer_on(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   
@@ -11905,6 +12175,135 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_transform_molecule_by(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  float arg2 ;
+  float arg3 ;
+  float arg4 ;
+  float arg5 ;
+  float arg6 ;
+  float arg7 ;
+  float arg8 ;
+  float arg9 ;
+  float arg10 ;
+  float arg11 ;
+  float arg12 ;
+  float arg13 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  float val4 ;
+  int ecode4 = 0 ;
+  float val5 ;
+  int ecode5 = 0 ;
+  float val6 ;
+  int ecode6 = 0 ;
+  float val7 ;
+  int ecode7 = 0 ;
+  float val8 ;
+  int ecode8 = 0 ;
+  float val9 ;
+  int ecode9 = 0 ;
+  float val10 ;
+  int ecode10 = 0 ;
+  float val11 ;
+  int ecode11 = 0 ;
+  float val12 ;
+  int ecode12 = 0 ;
+  float val13 ;
+  int ecode13 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  PyObject * obj8 = 0 ;
+  PyObject * obj9 = 0 ;
+  PyObject * obj10 = 0 ;
+  PyObject * obj11 = 0 ;
+  PyObject * obj12 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOO:transform_molecule_by",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "transform_molecule_by" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "transform_molecule_by" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "transform_molecule_by" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  ecode4 = SWIG_AsVal_float(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "transform_molecule_by" "', argument " "4"" of type '" "float""'");
+  } 
+  arg4 = static_cast< float >(val4);
+  ecode5 = SWIG_AsVal_float(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "transform_molecule_by" "', argument " "5"" of type '" "float""'");
+  } 
+  arg5 = static_cast< float >(val5);
+  ecode6 = SWIG_AsVal_float(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "transform_molecule_by" "', argument " "6"" of type '" "float""'");
+  } 
+  arg6 = static_cast< float >(val6);
+  ecode7 = SWIG_AsVal_float(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "transform_molecule_by" "', argument " "7"" of type '" "float""'");
+  } 
+  arg7 = static_cast< float >(val7);
+  ecode8 = SWIG_AsVal_float(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "transform_molecule_by" "', argument " "8"" of type '" "float""'");
+  } 
+  arg8 = static_cast< float >(val8);
+  ecode9 = SWIG_AsVal_float(obj8, &val9);
+  if (!SWIG_IsOK(ecode9)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "transform_molecule_by" "', argument " "9"" of type '" "float""'");
+  } 
+  arg9 = static_cast< float >(val9);
+  ecode10 = SWIG_AsVal_float(obj9, &val10);
+  if (!SWIG_IsOK(ecode10)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "transform_molecule_by" "', argument " "10"" of type '" "float""'");
+  } 
+  arg10 = static_cast< float >(val10);
+  ecode11 = SWIG_AsVal_float(obj10, &val11);
+  if (!SWIG_IsOK(ecode11)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "transform_molecule_by" "', argument " "11"" of type '" "float""'");
+  } 
+  arg11 = static_cast< float >(val11);
+  ecode12 = SWIG_AsVal_float(obj11, &val12);
+  if (!SWIG_IsOK(ecode12)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode12), "in method '" "transform_molecule_by" "', argument " "12"" of type '" "float""'");
+  } 
+  arg12 = static_cast< float >(val12);
+  ecode13 = SWIG_AsVal_float(obj12, &val13);
+  if (!SWIG_IsOK(ecode13)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode13), "in method '" "transform_molecule_by" "', argument " "13"" of type '" "float""'");
+  } 
+  arg13 = static_cast< float >(val13);
+  transform_molecule_by(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_wrapped_create_goto_atom_window(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkWidget *result = 0 ;
@@ -11945,6 +12344,45 @@ SWIGINTERN PyObject *_wrap_fill_go_to_atom_window(PyObject *SWIGUNUSEDPARM(self)
   arg1 = reinterpret_cast< GtkWidget * >(argp1);
   fill_go_to_atom_window(arg1);
   resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_get_text_for_go_to_atom_chain_entry(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  gchar *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":get_text_for_go_to_atom_chain_entry")) SWIG_fail;
+  result = (gchar *)get_text_for_go_to_atom_chain_entry();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_gchar, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_get_text_for_go_to_atom_residue_entry(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  gchar *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":get_text_for_go_to_atom_residue_entry")) SWIG_fail;
+  result = (gchar *)get_text_for_go_to_atom_residue_entry();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_gchar, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_get_text_for_go_to_atom_atom_name_entry(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  gchar *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":get_text_for_go_to_atom_atom_name_entry")) SWIG_fail;
+  result = (gchar *)get_text_for_go_to_atom_atom_name_entry();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_gchar, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -12272,6 +12710,18 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_update_go_to_atom_from_current_position(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":update_go_to_atom_from_current_position")) SWIG_fail;
+  update_go_to_atom_from_current_position();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_apply_go_to_atom_values(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkWidget *arg1 = (GtkWidget *) 0 ;
@@ -12461,6 +12911,27 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_update_go_to_atom_window_on_other_molecule_chosen(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:update_go_to_atom_window_on_other_molecule_chosen",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "update_go_to_atom_window_on_other_molecule_chosen" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  update_go_to_atom_window_on_other_molecule_chosen(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_set_go_to_atom_molecule(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -12530,36 +13001,6 @@ SWIGINTERN PyObject *_wrap_unset_go_to_atom_widget(PyObject *SWIGUNUSEDPARM(self
   
   if (!PyArg_ParseTuple(args,(char *)":unset_go_to_atom_widget")) SWIG_fail;
   unset_go_to_atom_widget();
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_fill_go_to_atom_residue_and_atom_lists(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  GtkWidget *arg1 = (GtkWidget *) 0 ;
-  GtkWidget *arg2 = (GtkWidget *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:fill_go_to_atom_residue_and_atom_lists",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkWidget, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "fill_go_to_atom_residue_and_atom_lists" "', argument " "1"" of type '" "GtkWidget *""'"); 
-  }
-  arg1 = reinterpret_cast< GtkWidget * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_GtkWidget, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "fill_go_to_atom_residue_and_atom_lists" "', argument " "2"" of type '" "GtkWidget *""'"); 
-  }
-  arg2 = reinterpret_cast< GtkWidget * >(argp2);
-  fill_go_to_atom_residue_and_atom_lists(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -12656,7 +13097,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_on_go_to_atom_residue_list_selection_changed(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_on_go_to_atom_residue_tree_selection_changed_gtk1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkList *arg1 = (GtkList *) 0 ;
   gpointer arg2 ;
@@ -12667,26 +13108,64 @@ SWIGINTERN PyObject *_wrap_on_go_to_atom_residue_list_selection_changed(PyObject
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:on_go_to_atom_residue_list_selection_changed",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:on_go_to_atom_residue_tree_selection_changed_gtk1",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkList, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_go_to_atom_residue_list_selection_changed" "', argument " "1"" of type '" "GtkList *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_go_to_atom_residue_tree_selection_changed_gtk1" "', argument " "1"" of type '" "GtkList *""'"); 
   }
   arg1 = reinterpret_cast< GtkList * >(argp1);
   {
     res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_gpointer,  0  | 0);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_go_to_atom_residue_list_selection_changed" "', argument " "2"" of type '" "gpointer""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_go_to_atom_residue_tree_selection_changed_gtk1" "', argument " "2"" of type '" "gpointer""'"); 
     }  
     if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_go_to_atom_residue_list_selection_changed" "', argument " "2"" of type '" "gpointer""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_go_to_atom_residue_tree_selection_changed_gtk1" "', argument " "2"" of type '" "gpointer""'");
     } else {
       gpointer * temp = reinterpret_cast< gpointer * >(argp2);
       arg2 = *temp;
       if (SWIG_IsNewObj(res2)) delete temp;
     }
   }
-  on_go_to_atom_residue_list_selection_changed(arg1,arg2);
+  on_go_to_atom_residue_tree_selection_changed_gtk1(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_on_go_to_atom_atom_list_selection_changed_gtk1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  GtkList *arg1 = (GtkList *) 0 ;
+  gpointer arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:on_go_to_atom_atom_list_selection_changed_gtk1",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkList, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_go_to_atom_atom_list_selection_changed_gtk1" "', argument " "1"" of type '" "GtkList *""'"); 
+  }
+  arg1 = reinterpret_cast< GtkList * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_gpointer,  0  | 0);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_go_to_atom_atom_list_selection_changed_gtk1" "', argument " "2"" of type '" "gpointer""'"); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_go_to_atom_atom_list_selection_changed_gtk1" "', argument " "2"" of type '" "gpointer""'");
+    } else {
+      gpointer * temp = reinterpret_cast< gpointer * >(argp2);
+      arg2 = *temp;
+      if (SWIG_IsNewObj(res2)) delete temp;
+    }
+  }
+  on_go_to_atom_atom_list_selection_changed_gtk1(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -12734,188 +13213,6 @@ SWIGINTERN PyObject *_wrap_on_go_to_atom_residue_list_unselect_child(PyObject *S
     }
   }
   on_go_to_atom_residue_list_unselect_child(arg1,arg2,arg3);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_on_go_to_atom_atom_list_select_child(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  GtkList *arg1 = (GtkList *) 0 ;
-  GtkWidget *arg2 = (GtkWidget *) 0 ;
-  gpointer arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:on_go_to_atom_atom_list_select_child",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkList, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_go_to_atom_atom_list_select_child" "', argument " "1"" of type '" "GtkList *""'"); 
-  }
-  arg1 = reinterpret_cast< GtkList * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_GtkWidget, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_go_to_atom_atom_list_select_child" "', argument " "2"" of type '" "GtkWidget *""'"); 
-  }
-  arg2 = reinterpret_cast< GtkWidget * >(argp2);
-  {
-    res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_gpointer,  0  | 0);
-    if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "on_go_to_atom_atom_list_select_child" "', argument " "3"" of type '" "gpointer""'"); 
-    }  
-    if (!argp3) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_go_to_atom_atom_list_select_child" "', argument " "3"" of type '" "gpointer""'");
-    } else {
-      gpointer * temp = reinterpret_cast< gpointer * >(argp3);
-      arg3 = *temp;
-      if (SWIG_IsNewObj(res3)) delete temp;
-    }
-  }
-  on_go_to_atom_atom_list_select_child(arg1,arg2,arg3);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_on_go_to_atom_atom_list_selection_changed(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  GtkList *arg1 = (GtkList *) 0 ;
-  gpointer arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:on_go_to_atom_atom_list_selection_changed",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkList, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_go_to_atom_atom_list_selection_changed" "', argument " "1"" of type '" "GtkList *""'"); 
-  }
-  arg1 = reinterpret_cast< GtkList * >(argp1);
-  {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_gpointer,  0  | 0);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_go_to_atom_atom_list_selection_changed" "', argument " "2"" of type '" "gpointer""'"); 
-    }  
-    if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_go_to_atom_atom_list_selection_changed" "', argument " "2"" of type '" "gpointer""'");
-    } else {
-      gpointer * temp = reinterpret_cast< gpointer * >(argp2);
-      arg2 = *temp;
-      if (SWIG_IsNewObj(res2)) delete temp;
-    }
-  }
-  on_go_to_atom_atom_list_selection_changed(arg1,arg2);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_on_go_to_atom_atom_list_unselect_child(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  GtkList *arg1 = (GtkList *) 0 ;
-  GtkWidget *arg2 = (GtkWidget *) 0 ;
-  gpointer arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:on_go_to_atom_atom_list_unselect_child",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkList, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_go_to_atom_atom_list_unselect_child" "', argument " "1"" of type '" "GtkList *""'"); 
-  }
-  arg1 = reinterpret_cast< GtkList * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_GtkWidget, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_go_to_atom_atom_list_unselect_child" "', argument " "2"" of type '" "GtkWidget *""'"); 
-  }
-  arg2 = reinterpret_cast< GtkWidget * >(argp2);
-  {
-    res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_gpointer,  0  | 0);
-    if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "on_go_to_atom_atom_list_unselect_child" "', argument " "3"" of type '" "gpointer""'"); 
-    }  
-    if (!argp3) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_go_to_atom_atom_list_unselect_child" "', argument " "3"" of type '" "gpointer""'");
-    } else {
-      gpointer * temp = reinterpret_cast< gpointer * >(argp3);
-      arg3 = *temp;
-      if (SWIG_IsNewObj(res3)) delete temp;
-    }
-  }
-  on_go_to_atom_atom_list_unselect_child(arg1,arg2,arg3);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_on_go_to_atom_residue_tree_selection_changed(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  GtkList *arg1 = (GtkList *) 0 ;
-  gpointer arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:on_go_to_atom_residue_tree_selection_changed",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkList, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "on_go_to_atom_residue_tree_selection_changed" "', argument " "1"" of type '" "GtkList *""'"); 
-  }
-  arg1 = reinterpret_cast< GtkList * >(argp1);
-  {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_gpointer,  0  | 0);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "on_go_to_atom_residue_tree_selection_changed" "', argument " "2"" of type '" "gpointer""'"); 
-    }  
-    if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "on_go_to_atom_residue_tree_selection_changed" "', argument " "2"" of type '" "gpointer""'");
-    } else {
-      gpointer * temp = reinterpret_cast< gpointer * >(argp2);
-      arg2 = *temp;
-      if (SWIG_IsNewObj(res2)) delete temp;
-    }
-  }
-  on_go_to_atom_residue_tree_selection_changed(arg1,arg2);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_autobuild_ca_on(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  
-  if (!PyArg_ParseTuple(args,(char *)":autobuild_ca_on")) SWIG_fail;
-  autobuild_ca_on();
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -13084,11 +13381,10 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_toggle_display_map(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_set_map_displayed(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
   int arg2 ;
-  int result;
   int val1 ;
   int ecode1 = 0 ;
   int val2 ;
@@ -13096,63 +13392,79 @@ SWIGINTERN PyObject *_wrap_toggle_display_map(PyObject *SWIGUNUSEDPARM(self), Py
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:toggle_display_map",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_map_displayed",&obj0,&obj1)) SWIG_fail;
   ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "toggle_display_map" "', argument " "1"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_map_displayed" "', argument " "1"" of type '" "int""'");
   } 
   arg1 = static_cast< int >(val1);
   ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "toggle_display_map" "', argument " "2"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_map_displayed" "', argument " "2"" of type '" "int""'");
   } 
   arg2 = static_cast< int >(val2);
-  result = (int)toggle_display_map(arg1,arg2);
-  resultobj = SWIG_From_int(static_cast< int >(result));
+  set_map_displayed(arg1,arg2);
+  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_toggle_display_mol(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_set_mol_displayed(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
-  int result;
+  int arg2 ;
   int val1 ;
   int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:toggle_display_mol",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_mol_displayed",&obj0,&obj1)) SWIG_fail;
   ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "toggle_display_mol" "', argument " "1"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_mol_displayed" "', argument " "1"" of type '" "int""'");
   } 
   arg1 = static_cast< int >(val1);
-  result = (int)toggle_display_mol(arg1);
-  resultobj = SWIG_From_int(static_cast< int >(result));
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_mol_displayed" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  set_mol_displayed(arg1,arg2);
+  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_toggle_active_mol(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_set_mol_active(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
-  int result;
+  int arg2 ;
   int val1 ;
   int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:toggle_active_mol",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_mol_active",&obj0,&obj1)) SWIG_fail;
   ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "toggle_active_mol" "', argument " "1"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_mol_active" "', argument " "1"" of type '" "int""'");
   } 
   arg1 = static_cast< int >(val1);
-  result = (int)toggle_active_mol(arg1);
-  resultobj = SWIG_From_int(static_cast< int >(result));
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_mol_active" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  set_mol_active(arg1,arg2);
+  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
@@ -15681,6 +15993,40 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_set_show_environment_distances(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:set_show_environment_distances",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_show_environment_distances" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  set_show_environment_distances(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_show_environment_distances_state(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":show_environment_distances_state")) SWIG_fail;
+  result = (int)show_environment_distances_state();
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_fill_pointer_distances_widget(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkWidget *arg1 = (GtkWidget *) 0 ;
@@ -15912,24 +16258,133 @@ fail:
 SWIGINTERN PyObject *_wrap_handle_cns_data_file(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
+  int arg2 ;
   int result;
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:handle_cns_data_file",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:handle_cns_data_file",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "handle_cns_data_file" "', argument " "1"" of type '" "char const *""'");
   }
   arg1 = reinterpret_cast< char * >(buf1);
-  result = (int)handle_cns_data_file((char const *)arg1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "handle_cns_data_file" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)handle_cns_data_file((char const *)arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return resultobj;
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_handle_cns_data_file_with_cell(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  float arg3 ;
+  float arg4 ;
+  float arg5 ;
+  float arg6 ;
+  float arg7 ;
+  float arg8 ;
+  char *arg9 = (char *) 0 ;
+  int result;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  float val4 ;
+  int ecode4 = 0 ;
+  float val5 ;
+  int ecode5 = 0 ;
+  float val6 ;
+  int ecode6 = 0 ;
+  float val7 ;
+  int ecode7 = 0 ;
+  float val8 ;
+  int ecode8 = 0 ;
+  int res9 ;
+  char *buf9 = 0 ;
+  int alloc9 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  PyObject * obj8 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:handle_cns_data_file_with_cell",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "handle_cns_data_file_with_cell" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "handle_cns_data_file_with_cell" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "handle_cns_data_file_with_cell" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  ecode4 = SWIG_AsVal_float(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "handle_cns_data_file_with_cell" "', argument " "4"" of type '" "float""'");
+  } 
+  arg4 = static_cast< float >(val4);
+  ecode5 = SWIG_AsVal_float(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "handle_cns_data_file_with_cell" "', argument " "5"" of type '" "float""'");
+  } 
+  arg5 = static_cast< float >(val5);
+  ecode6 = SWIG_AsVal_float(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "handle_cns_data_file_with_cell" "', argument " "6"" of type '" "float""'");
+  } 
+  arg6 = static_cast< float >(val6);
+  ecode7 = SWIG_AsVal_float(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "handle_cns_data_file_with_cell" "', argument " "7"" of type '" "float""'");
+  } 
+  arg7 = static_cast< float >(val7);
+  ecode8 = SWIG_AsVal_float(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "handle_cns_data_file_with_cell" "', argument " "8"" of type '" "float""'");
+  } 
+  arg8 = static_cast< float >(val8);
+  res9 = SWIG_AsCharPtrAndSize(obj8, &buf9, NULL, &alloc9);
+  if (!SWIG_IsOK(res9)) {
+    SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "handle_cns_data_file_with_cell" "', argument " "9"" of type '" "char const *""'");
+  }
+  arg9 = reinterpret_cast< char * >(buf9);
+  result = (int)handle_cns_data_file_with_cell((char const *)arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,(char const *)arg9);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc9 == SWIG_NEWOBJ) delete[] buf9;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc9 == SWIG_NEWOBJ) delete[] buf9;
   return NULL;
 }
 
@@ -17006,6 +17461,57 @@ SWIGINTERN PyObject *_wrap_add_on_rama_choices(PyObject *SWIGUNUSEDPARM(self), P
   
   if (!PyArg_ParseTuple(args,(char *)":add_on_rama_choices")) SWIG_fail;
   add_on_rama_choices();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_ramachandran_plot_contour_levels(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float arg1 ;
+  float arg2 ;
+  float val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_ramachandran_plot_contour_levels",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_ramachandran_plot_contour_levels" "', argument " "1"" of type '" "float""'");
+  } 
+  arg1 = static_cast< float >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_ramachandran_plot_contour_levels" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  set_ramachandran_plot_contour_levels(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_ramachandran_plot_background_block_size(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float arg1 ;
+  float val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:set_ramachandran_plot_background_block_size",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_ramachandran_plot_background_block_size" "', argument " "1"" of type '" "float""'");
+  } 
+  arg1 = static_cast< float >(val1);
+  set_ramachandran_plot_background_block_size(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -18122,6 +18628,398 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_add_view_here(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int result;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:add_view_here",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "add_view_here" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (int)add_view_here((char const *)arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_add_view_raw(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float arg1 ;
+  float arg2 ;
+  float arg3 ;
+  float arg4 ;
+  float arg5 ;
+  float arg6 ;
+  float arg7 ;
+  float arg8 ;
+  char *arg9 = (char *) 0 ;
+  int result;
+  float val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  float val4 ;
+  int ecode4 = 0 ;
+  float val5 ;
+  int ecode5 = 0 ;
+  float val6 ;
+  int ecode6 = 0 ;
+  float val7 ;
+  int ecode7 = 0 ;
+  float val8 ;
+  int ecode8 = 0 ;
+  int res9 ;
+  char *buf9 = 0 ;
+  int alloc9 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  PyObject * obj8 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:add_view_raw",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "add_view_raw" "', argument " "1"" of type '" "float""'");
+  } 
+  arg1 = static_cast< float >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "add_view_raw" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "add_view_raw" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  ecode4 = SWIG_AsVal_float(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "add_view_raw" "', argument " "4"" of type '" "float""'");
+  } 
+  arg4 = static_cast< float >(val4);
+  ecode5 = SWIG_AsVal_float(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "add_view_raw" "', argument " "5"" of type '" "float""'");
+  } 
+  arg5 = static_cast< float >(val5);
+  ecode6 = SWIG_AsVal_float(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "add_view_raw" "', argument " "6"" of type '" "float""'");
+  } 
+  arg6 = static_cast< float >(val6);
+  ecode7 = SWIG_AsVal_float(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "add_view_raw" "', argument " "7"" of type '" "float""'");
+  } 
+  arg7 = static_cast< float >(val7);
+  ecode8 = SWIG_AsVal_float(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "add_view_raw" "', argument " "8"" of type '" "float""'");
+  } 
+  arg8 = static_cast< float >(val8);
+  res9 = SWIG_AsCharPtrAndSize(obj8, &buf9, NULL, &alloc9);
+  if (!SWIG_IsOK(res9)) {
+    SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "add_view_raw" "', argument " "9"" of type '" "char const *""'");
+  }
+  arg9 = reinterpret_cast< char * >(buf9);
+  result = (int)add_view_raw(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,(char const *)arg9);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc9 == SWIG_NEWOBJ) delete[] buf9;
+  return resultobj;
+fail:
+  if (alloc9 == SWIG_NEWOBJ) delete[] buf9;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_play_views(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":play_views")) SWIG_fail;
+  play_views();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_remove_this_view(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":remove_this_view")) SWIG_fail;
+  remove_this_view();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_remove_named_view(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int result;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:remove_named_view",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "remove_named_view" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (int)remove_named_view((char const *)arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_remove_view(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:remove_view",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "remove_view" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  remove_view(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_go_to_first_view(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:go_to_first_view",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "go_to_first_view" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (int)go_to_first_view(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_go_to_view_number(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int arg2 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:go_to_view_number",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "go_to_view_number" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "go_to_view_number" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)go_to_view_number(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_add_spin_view(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  float arg3 ;
+  int result;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:add_spin_view",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "add_spin_view" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "add_spin_view" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "add_spin_view" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  result = (int)add_spin_view((char const *)arg1,arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_add_view_description(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:add_view_description",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "add_view_description" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "add_view_description" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  add_view_description(arg1,(char const *)arg2);
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_n_views(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":n_views")) SWIG_fail;
+  result = (int)n_views();
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_save_views(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:save_views",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "save_views" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  save_views((char const *)arg1);
+  resultobj = SWIG_Py_Void();
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_views_play_speed(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":views_play_speed")) SWIG_fail;
+  result = (float)views_play_speed();
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_views_play_speed(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float arg1 ;
+  float val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:set_views_play_speed",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_views_play_speed" "', argument " "1"" of type '" "float""'");
+  } 
+  arg1 = static_cast< float >(val1);
+  set_views_play_speed(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_set_background_colour(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   double arg1 ;
@@ -18759,6 +19657,58 @@ SWIGINTERN PyObject *_wrap_set_ligand_expert_options_from_widget(PyObject *SWIGU
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_overlap_ligands(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:overlap_ligands",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "overlap_ligands" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "overlap_ligands" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "overlap_ligands" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "overlap_ligands" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  result = (int)overlap_ligands(arg1,arg2,(char const *)arg3,arg4);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return resultobj;
+fail:
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   return NULL;
 }
 
@@ -19502,6 +20452,37 @@ SWIGINTERN PyObject *_wrap_graphics_molecule_bond_type(PyObject *SWIGUNUSEDPARM(
   } 
   arg1 = static_cast< int >(val1);
   result = (int)graphics_molecule_bond_type(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_b_factor_bonds_scale_factor(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  float arg2 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_b_factor_bonds_scale_factor",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_b_factor_bonds_scale_factor" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_b_factor_bonds_scale_factor" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  result = (int)set_b_factor_bonds_scale_factor(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
@@ -20630,6 +21611,7 @@ SWIGINTERN PyObject *_wrap_delete_atom(PyObject *SWIGUNUSEDPARM(self), PyObject 
   int arg3 ;
   char *arg4 = (char *) 0 ;
   char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
   int val1 ;
   int ecode1 = 0 ;
   int res2 ;
@@ -20643,13 +21625,17 @@ SWIGINTERN PyObject *_wrap_delete_atom(PyObject *SWIGUNUSEDPARM(self), PyObject 
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
+  int res6 ;
+  char *buf6 = 0 ;
+  int alloc6 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:delete_atom",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:delete_atom",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
   ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
     SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "delete_atom" "', argument " "1"" of type '" "int""'");
@@ -20675,16 +21661,23 @@ SWIGINTERN PyObject *_wrap_delete_atom(PyObject *SWIGUNUSEDPARM(self), PyObject 
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "delete_atom" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = reinterpret_cast< char * >(buf5);
-  delete_atom(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5);
+  res6 = SWIG_AsCharPtrAndSize(obj5, &buf6, NULL, &alloc6);
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "delete_atom" "', argument " "6"" of type '" "char const *""'");
+  }
+  arg6 = reinterpret_cast< char * >(buf6);
+  delete_atom(arg1,(char const *)arg2,arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
   resultobj = SWIG_Py_Void();
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
   return resultobj;
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
   return NULL;
 }
 
@@ -20913,27 +21906,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_set_keep_delete_item_active_state(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  int arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:set_keep_delete_item_active_state",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_keep_delete_item_active_state" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = static_cast< int >(val1);
-  set_keep_delete_item_active_state(arg1);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_do_rot_trans_setup(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   short arg1 ;
@@ -20981,6 +21953,27 @@ SWIGINTERN PyObject *_wrap_rot_trans_reset_previous(PyObject *SWIGUNUSEDPARM(sel
   
   if (!PyArg_ParseTuple(args,(char *)":rot_trans_reset_previous")) SWIG_fail;
   rot_trans_reset_previous();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_rotate_translate_zone_rotates_about_zone_centre(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:set_rotate_translate_zone_rotates_about_zone_centre",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_rotate_translate_zone_rotates_about_zone_centre" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  set_rotate_translate_zone_rotates_about_zone_centre(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -21547,6 +22540,60 @@ SWIGINTERN PyObject *_wrap_fill_partial_residues(PyObject *SWIGUNUSEDPARM(self),
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_fill_partial_residue(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:fill_partial_residue",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "fill_partial_residue" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "fill_partial_residue" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "fill_partial_residue" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "fill_partial_residue" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  fill_partial_residue(arg1,(char const *)arg2,arg3,(char const *)arg4);
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return NULL;
 }
 
@@ -23510,7 +24557,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_apply_lsq_matches(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_apply_lsq_matches_simple(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
   int arg2 ;
@@ -23522,18 +24569,18 @@ SWIGINTERN PyObject *_wrap_apply_lsq_matches(PyObject *SWIGUNUSEDPARM(self), PyO
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:apply_lsq_matches",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:apply_lsq_matches_simple",&obj0,&obj1)) SWIG_fail;
   ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "apply_lsq_matches" "', argument " "1"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "apply_lsq_matches_simple" "', argument " "1"" of type '" "int""'");
   } 
   arg1 = static_cast< int >(val1);
   ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "apply_lsq_matches" "', argument " "2"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "apply_lsq_matches_simple" "', argument " "2"" of type '" "int""'");
   } 
   arg2 = static_cast< int >(val2);
-  result = (int)apply_lsq_matches(arg1,arg2);
+  result = (int)apply_lsq_matches_simple(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
@@ -23995,6 +25042,27 @@ SWIGINTERN PyObject *_wrap_set_raster3d_bond_thickness(PyObject *SWIGUNUSEDPARM(
   } 
   arg1 = static_cast< float >(val1);
   set_raster3d_bond_thickness(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_raster3d_atom_radius(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float arg1 ;
+  float val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:set_raster3d_atom_radius",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_raster3d_atom_radius" "', argument " "1"" of type '" "float""'");
+  } 
+  arg1 = static_cast< float >(val1);
+  set_raster3d_atom_radius(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -25126,6 +26194,37 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_place_strand_here(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int arg2 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:place_strand_here",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "place_strand_here" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "place_strand_here" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)place_strand_here(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_new_molecule_by_residue_type_selection(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -25666,6 +26765,30 @@ SWIGINTERN PyObject *_wrap_set_coot_listener_socket_state_internal(PyObject *SWI
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_socket_string_waiting(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:set_socket_string_waiting",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "set_socket_string_waiting" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  set_socket_string_waiting((char const *)arg1);
+  resultobj = SWIG_Py_Void();
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return NULL;
 }
 
@@ -26928,6 +28051,19 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_active_atom_spec(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::pair<bool,std::pair<int,coot::atom_spec_t > > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":active_atom_spec")) SWIG_fail;
+  result = active_atom_spec();
+  resultobj = SWIG_NewPointerObj((new std::pair<bool,std::pair<int,coot::atom_spec_t > >(static_cast< const std::pair<bool,std::pair<int,coot::atom_spec_t > >& >(result))), SWIGTYPE_p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_add_map_colour_mol_menu_item(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -27311,7 +28447,7 @@ SWIGINTERN PyObject *_wrap_new_str_mtime__SWIG_0(PyObject *SWIGUNUSEDPARM(self),
   PyObject *resultobj = 0;
   std::string arg1 ;
   time_t arg2 ;
-  str_mtime *result = 0 ;
+  coot::str_mtime *result = 0 ;
   void *argp1 ;
   int res1 = 0 ;
   void *argp2 ;
@@ -27346,8 +28482,8 @@ SWIGINTERN PyObject *_wrap_new_str_mtime__SWIG_0(PyObject *SWIGUNUSEDPARM(self),
       if (SWIG_IsNewObj(res2)) delete temp;
     }
   }
-  result = (str_mtime *)new str_mtime(arg1,arg2);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_str_mtime, SWIG_POINTER_NEW |  0 );
+  result = (coot::str_mtime *)new coot::str_mtime(arg1,arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_coot__str_mtime, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -27356,11 +28492,11 @@ fail:
 
 SWIGINTERN PyObject *_wrap_new_str_mtime__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  str_mtime *result = 0 ;
+  coot::str_mtime *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)":new_str_mtime")) SWIG_fail;
-  result = (str_mtime *)new str_mtime();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_str_mtime, SWIG_POINTER_NEW |  0 );
+  result = (coot::str_mtime *)new coot::str_mtime();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_coot__str_mtime, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -27394,14 +28530,14 @@ SWIGINTERN PyObject *_wrap_new_str_mtime(PyObject *self, PyObject *args) {
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_str_mtime'.\n  Possible C/C++ prototypes are:\n    str_mtime(std::string,time_t)\n    str_mtime()\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_str_mtime'.\n  Possible C/C++ prototypes are:\n    coot::str_mtime(std::string,time_t)\n    coot::str_mtime()\n");
   return NULL;
 }
 
 
 SWIGINTERN PyObject *_wrap_str_mtime_mtime_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  str_mtime *arg1 = (str_mtime *) 0 ;
+  coot::str_mtime *arg1 = (coot::str_mtime *) 0 ;
   time_t arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -27411,11 +28547,11 @@ SWIGINTERN PyObject *_wrap_str_mtime_mtime_set(PyObject *SWIGUNUSEDPARM(self), P
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:str_mtime_mtime_set",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_str_mtime, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__str_mtime, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "str_mtime_mtime_set" "', argument " "1"" of type '" "str_mtime *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "str_mtime_mtime_set" "', argument " "1"" of type '" "coot::str_mtime *""'"); 
   }
-  arg1 = reinterpret_cast< str_mtime * >(argp1);
+  arg1 = reinterpret_cast< coot::str_mtime * >(argp1);
   {
     res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_time_t,  0  | 0);
     if (!SWIG_IsOK(res2)) {
@@ -27440,18 +28576,18 @@ fail:
 
 SWIGINTERN PyObject *_wrap_str_mtime_mtime_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  str_mtime *arg1 = (str_mtime *) 0 ;
+  coot::str_mtime *arg1 = (coot::str_mtime *) 0 ;
   time_t result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:str_mtime_mtime_get",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_str_mtime, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__str_mtime, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "str_mtime_mtime_get" "', argument " "1"" of type '" "str_mtime *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "str_mtime_mtime_get" "', argument " "1"" of type '" "coot::str_mtime *""'"); 
   }
-  arg1 = reinterpret_cast< str_mtime * >(argp1);
+  arg1 = reinterpret_cast< coot::str_mtime * >(argp1);
   result =  ((arg1)->mtime);
   resultobj = SWIG_NewPointerObj((new time_t(static_cast< const time_t& >(result))), SWIGTYPE_p_time_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
@@ -27462,7 +28598,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_str_mtime_file_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  str_mtime *arg1 = (str_mtime *) 0 ;
+  coot::str_mtime *arg1 = (coot::str_mtime *) 0 ;
   std::string arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -27472,11 +28608,11 @@ SWIGINTERN PyObject *_wrap_str_mtime_file_set(PyObject *SWIGUNUSEDPARM(self), Py
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:str_mtime_file_set",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_str_mtime, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__str_mtime, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "str_mtime_file_set" "', argument " "1"" of type '" "str_mtime *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "str_mtime_file_set" "', argument " "1"" of type '" "coot::str_mtime *""'"); 
   }
-  arg1 = reinterpret_cast< str_mtime * >(argp1);
+  arg1 = reinterpret_cast< coot::str_mtime * >(argp1);
   {
     res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__string,  0  | 0);
     if (!SWIG_IsOK(res2)) {
@@ -27501,18 +28637,18 @@ fail:
 
 SWIGINTERN PyObject *_wrap_str_mtime_file_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  str_mtime *arg1 = (str_mtime *) 0 ;
+  coot::str_mtime *arg1 = (coot::str_mtime *) 0 ;
   std::string result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:str_mtime_file_get",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_str_mtime, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__str_mtime, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "str_mtime_file_get" "', argument " "1"" of type '" "str_mtime *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "str_mtime_file_get" "', argument " "1"" of type '" "coot::str_mtime *""'"); 
   }
-  arg1 = reinterpret_cast< str_mtime * >(argp1);
+  arg1 = reinterpret_cast< coot::str_mtime * >(argp1);
   result =  ((arg1)->file);
   resultobj = SWIG_NewPointerObj((new std::string(static_cast< const std::string& >(result))), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
   return resultobj;
@@ -27523,17 +28659,17 @@ fail:
 
 SWIGINTERN PyObject *_wrap_delete_str_mtime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  str_mtime *arg1 = (str_mtime *) 0 ;
+  coot::str_mtime *arg1 = (coot::str_mtime *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:delete_str_mtime",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_str_mtime, SWIG_POINTER_DISOWN |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__str_mtime, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_str_mtime" "', argument " "1"" of type '" "str_mtime *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_str_mtime" "', argument " "1"" of type '" "coot::str_mtime *""'"); 
   }
-  arg1 = reinterpret_cast< str_mtime * >(argp1);
+  arg1 = reinterpret_cast< coot::str_mtime * >(argp1);
   delete arg1;
   
   resultobj = SWIG_Py_Void();
@@ -27546,15 +28682,171 @@ fail:
 SWIGINTERN PyObject *str_mtime_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_str_mtime, SWIG_NewClientData(obj));
+  SWIG_TypeNewClientData(SWIGTYPE_p_coot__str_mtime, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_file_attribs_info_t_directory_prefix_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  coot::file_attribs_info_t *arg1 = (coot::file_attribs_info_t *) 0 ;
+  std::string arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:file_attribs_info_t_directory_prefix_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__file_attribs_info_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "file_attribs_info_t_directory_prefix_set" "', argument " "1"" of type '" "coot::file_attribs_info_t *""'"); 
+  }
+  arg1 = reinterpret_cast< coot::file_attribs_info_t * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__string,  0  | 0);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "file_attribs_info_t_directory_prefix_set" "', argument " "2"" of type '" "std::string""'"); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "file_attribs_info_t_directory_prefix_set" "', argument " "2"" of type '" "std::string""'");
+    } else {
+      std::string * temp = reinterpret_cast< std::string * >(argp2);
+      arg2 = *temp;
+      if (SWIG_IsNewObj(res2)) delete temp;
+    }
+  }
+  if (arg1) (arg1)->directory_prefix = arg2;
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_file_attribs_info_t_directory_prefix_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  coot::file_attribs_info_t *arg1 = (coot::file_attribs_info_t *) 0 ;
+  std::string result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:file_attribs_info_t_directory_prefix_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__file_attribs_info_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "file_attribs_info_t_directory_prefix_get" "', argument " "1"" of type '" "coot::file_attribs_info_t *""'"); 
+  }
+  arg1 = reinterpret_cast< coot::file_attribs_info_t * >(argp1);
+  result =  ((arg1)->directory_prefix);
+  resultobj = SWIG_NewPointerObj((new std::string(static_cast< const std::string& >(result))), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_file_attribs_info_t_file_mtimes_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  coot::file_attribs_info_t *arg1 = (coot::file_attribs_info_t *) 0 ;
+  std::vector<coot::str_mtime > *arg2 = (std::vector<coot::str_mtime > *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:file_attribs_info_t_file_mtimes_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__file_attribs_info_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "file_attribs_info_t_file_mtimes_set" "', argument " "1"" of type '" "coot::file_attribs_info_t *""'"); 
+  }
+  arg1 = reinterpret_cast< coot::file_attribs_info_t * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_std__vectorTcoot__str_mtime_t, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "file_attribs_info_t_file_mtimes_set" "', argument " "2"" of type '" "std::vector<coot::str_mtime > *""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector<coot::str_mtime > * >(argp2);
+  if (arg1) (arg1)->file_mtimes = *arg2;
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_file_attribs_info_t_file_mtimes_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  coot::file_attribs_info_t *arg1 = (coot::file_attribs_info_t *) 0 ;
+  std::vector<coot::str_mtime > *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:file_attribs_info_t_file_mtimes_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__file_attribs_info_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "file_attribs_info_t_file_mtimes_get" "', argument " "1"" of type '" "coot::file_attribs_info_t *""'"); 
+  }
+  arg1 = reinterpret_cast< coot::file_attribs_info_t * >(argp1);
+  result = (std::vector<coot::str_mtime > *)& ((arg1)->file_mtimes);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_std__vectorTcoot__str_mtime_t, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_file_attribs_info_t(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  coot::file_attribs_info_t *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_file_attribs_info_t")) SWIG_fail;
+  result = (coot::file_attribs_info_t *)new coot::file_attribs_info_t();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_coot__file_attribs_info_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_file_attribs_info_t(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  coot::file_attribs_info_t *arg1 = (coot::file_attribs_info_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_file_attribs_info_t",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_coot__file_attribs_info_t, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_file_attribs_info_t" "', argument " "1"" of type '" "coot::file_attribs_info_t *""'"); 
+  }
+  arg1 = reinterpret_cast< coot::file_attribs_info_t * >(argp1);
+  delete arg1;
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *file_attribs_info_t_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_coot__file_attribs_info_t, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
 
 SWIGINTERN PyObject *_wrap_compare_mtimes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  str_mtime arg1 ;
-  str_mtime arg2 ;
-  short result;
+  coot::str_mtime arg1 ;
+  coot::str_mtime arg2 ;
+  bool result;
   void *argp1 ;
   int res1 = 0 ;
   void *argp2 ;
@@ -27564,33 +28856,33 @@ SWIGINTERN PyObject *_wrap_compare_mtimes(PyObject *SWIGUNUSEDPARM(self), PyObje
   
   if (!PyArg_ParseTuple(args,(char *)"OO:compare_mtimes",&obj0,&obj1)) SWIG_fail;
   {
-    res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_str_mtime,  0  | 0);
+    res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_coot__str_mtime,  0  | 0);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "compare_mtimes" "', argument " "1"" of type '" "str_mtime""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "compare_mtimes" "', argument " "1"" of type '" "coot::str_mtime""'"); 
     }  
     if (!argp1) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "compare_mtimes" "', argument " "1"" of type '" "str_mtime""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "compare_mtimes" "', argument " "1"" of type '" "coot::str_mtime""'");
     } else {
-      str_mtime * temp = reinterpret_cast< str_mtime * >(argp1);
+      coot::str_mtime * temp = reinterpret_cast< coot::str_mtime * >(argp1);
       arg1 = *temp;
       if (SWIG_IsNewObj(res1)) delete temp;
     }
   }
   {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_str_mtime,  0  | 0);
+    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_coot__str_mtime,  0  | 0);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "compare_mtimes" "', argument " "2"" of type '" "str_mtime""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "compare_mtimes" "', argument " "2"" of type '" "coot::str_mtime""'"); 
     }  
     if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "compare_mtimes" "', argument " "2"" of type '" "str_mtime""'");
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "compare_mtimes" "', argument " "2"" of type '" "coot::str_mtime""'");
     } else {
-      str_mtime * temp = reinterpret_cast< str_mtime * >(argp2);
+      coot::str_mtime * temp = reinterpret_cast< coot::str_mtime * >(argp2);
       arg2 = *temp;
       if (SWIG_IsNewObj(res2)) delete temp;
     }
   }
-  result = (short)compare_mtimes(arg1,arg2);
-  resultobj = SWIG_From_short(static_cast< short >(result));
+  result = (bool)compare_mtimes(arg1,arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
   return NULL;
@@ -27693,6 +28985,31 @@ fail:
 
 SWIGINTERN PyObject *_wrap_new_command_arg_t__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  coot::command_arg_t *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_command_arg_t",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_std__string,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_command_arg_t" "', argument " "1"" of type '" "std::string const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_command_arg_t" "', argument " "1"" of type '" "std::string const &""'"); 
+  }
+  arg1 = reinterpret_cast< std::string * >(argp1);
+  result = (coot::command_arg_t *)new coot::command_arg_t((std::string const &)*arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_coot__command_arg_t, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_command_arg_t__SWIG_4(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
   coot::command_arg_t *result = 0 ;
   int res1 ;
@@ -27736,6 +29053,14 @@ SWIGINTERN PyObject *_wrap_new_command_arg_t(PyObject *self, PyObject *args) {
   }
   if (argc == 1) {
     int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_std__string, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_command_arg_t__SWIG_3(self, args);
+    }
+  }
+  if (argc == 1) {
+    int _v;
     {
       int res = SWIG_AsVal_int(argv[0], NULL);
       _v = SWIG_CheckState(res);
@@ -27759,12 +29084,12 @@ SWIGINTERN PyObject *_wrap_new_command_arg_t(PyObject *self, PyObject *args) {
     int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      return _wrap_new_command_arg_t__SWIG_3(self, args);
+      return _wrap_new_command_arg_t__SWIG_4(self, args);
     }
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_command_arg_t'.\n  Possible C/C++ prototypes are:\n    coot::command_arg_t(int)\n    coot::command_arg_t(float)\n    coot::command_arg_t(clipper::String const &)\n    coot::command_arg_t(char const *)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_command_arg_t'.\n  Possible C/C++ prototypes are:\n    coot::command_arg_t(int)\n    coot::command_arg_t(float)\n    coot::command_arg_t(clipper::String const &)\n    coot::command_arg_t(std::string const &)\n    coot::command_arg_t(char const *)\n");
   return NULL;
 }
 
@@ -28282,19 +29607,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_dictionaries_read(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  SCM result;
-  
-  if (!PyArg_ParseTuple(args,(char *)":dictionaries_read")) SWIG_fail;
-  result = dictionaries_read();
-  resultobj = SWIG_NewPointerObj((new SCM(static_cast< const SCM& >(result))), SWIGTYPE_p_SCM, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_safe_scheme_command(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
@@ -28532,7 +29844,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_filter_fileselection_filenames", _wrap_set_filter_fileselection_filenames, METH_VARARGS, NULL},
 	 { (char *)"set_file_selection_dialog_size", _wrap_set_file_selection_dialog_size, METH_VARARGS, NULL},
 	 { (char *)"filter_fileselection_filenames_state", _wrap_filter_fileselection_filenames_state, METH_VARARGS, NULL},
-	 { (char *)"on_filename_filter_toggle_button_toggled", _wrap_on_filename_filter_toggle_button_toggled, METH_VARARGS, NULL},
+	 { (char *)"on_filename_filter_toggle_button_toggled_gtk1", _wrap_on_filename_filter_toggle_button_toggled_gtk1, METH_VARARGS, NULL},
 	 { (char *)"add_filename_filter", _wrap_add_filename_filter, METH_VARARGS, NULL},
 	 { (char *)"add_filename_filter_button", _wrap_add_filename_filter_button, METH_VARARGS, NULL},
 	 { (char *)"on_filename_filter_key_press_event", _wrap_on_filename_filter_key_press_event, METH_VARARGS, NULL},
@@ -28577,6 +29889,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"next_map_for_molecule", _wrap_next_map_for_molecule, METH_VARARGS, NULL},
 	 { (char *)"toggle_idle_function", _wrap_toggle_idle_function, METH_VARARGS, NULL},
 	 { (char *)"set_idle_function_rotate_angle", _wrap_set_idle_function_rotate_angle, METH_VARARGS, NULL},
+	 { (char *)"idle_function_rotate_angle", _wrap_idle_function_rotate_angle, METH_VARARGS, NULL},
 	 { (char *)"handle_read_draw_molecule", _wrap_handle_read_draw_molecule, METH_VARARGS, NULL},
 	 { (char *)"handle_read_draw_molecule_with_recentre", _wrap_handle_read_draw_molecule_with_recentre, METH_VARARGS, NULL},
 	 { (char *)"read_pdb", _wrap_read_pdb, METH_VARARGS, NULL},
@@ -28610,6 +29923,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"quanta_like_zoom", _wrap_quanta_like_zoom, METH_VARARGS, NULL},
 	 { (char *)"set_control_key_for_rotate", _wrap_set_control_key_for_rotate, METH_VARARGS, NULL},
 	 { (char *)"control_key_for_rotate_state", _wrap_control_key_for_rotate_state, METH_VARARGS, NULL},
+	 { (char *)"blob_under_pointer_to_screen_centre", _wrap_blob_under_pointer_to_screen_centre, METH_VARARGS, NULL},
 	 { (char *)"normal_cursor", _wrap_normal_cursor, METH_VARARGS, NULL},
 	 { (char *)"fleur_cursor", _wrap_fleur_cursor, METH_VARARGS, NULL},
 	 { (char *)"pick_cursor_maybe", _wrap_pick_cursor_maybe, METH_VARARGS, NULL},
@@ -28761,7 +30075,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"run_refmac_ccp4i_option_menu_signal_func", _wrap_run_refmac_ccp4i_option_menu_signal_func, METH_VARARGS, NULL},
 	 { (char *)"clear_refmac_ccp4i_project", _wrap_clear_refmac_ccp4i_project, METH_VARARGS, NULL},
 	 { (char *)"lookup_file_selection_widgets", _wrap_lookup_file_selection_widgets, METH_VARARGS, NULL},
-	 { (char *)"fileselection_sort_button_clicked", _wrap_fileselection_sort_button_clicked, METH_VARARGS, NULL},
+	 { (char *)"fileselection_sort_button_clicked_gtk1", _wrap_fileselection_sort_button_clicked_gtk1, METH_VARARGS, NULL},
 	 { (char *)"push_the_buttons_on_fileselection", _wrap_push_the_buttons_on_fileselection, METH_VARARGS, NULL},
 	 { (char *)"print_all_history_in_scheme", _wrap_print_all_history_in_scheme, METH_VARARGS, NULL},
 	 { (char *)"print_all_history_in_python", _wrap_print_all_history_in_python, METH_VARARGS, NULL},
@@ -28783,6 +30097,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"get_show_unit_cell", _wrap_get_show_unit_cell, METH_VARARGS, NULL},
 	 { (char *)"set_show_unit_cells_all", _wrap_set_show_unit_cells_all, METH_VARARGS, NULL},
 	 { (char *)"set_show_unit_cell", _wrap_set_show_unit_cell, METH_VARARGS, NULL},
+	 { (char *)"set_unit_cell_colour", _wrap_set_unit_cell_colour, METH_VARARGS, NULL},
 	 { (char *)"set_symmetry_colour_merge", _wrap_set_symmetry_colour_merge, METH_VARARGS, NULL},
 	 { (char *)"set_colour_map_rotation_on_read_pdb", _wrap_set_colour_map_rotation_on_read_pdb, METH_VARARGS, NULL},
 	 { (char *)"set_colour_map_rotation_on_read_pdb_flag", _wrap_set_colour_map_rotation_on_read_pdb_flag, METH_VARARGS, NULL},
@@ -28848,6 +30163,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"centre_of_mass_string", _wrap_centre_of_mass_string, METH_VARARGS, NULL},
 	 { (char *)"set_default_temperature_factor_for_new_atoms", _wrap_set_default_temperature_factor_for_new_atoms, METH_VARARGS, NULL},
 	 { (char *)"default_new_atoms_b_factor", _wrap_default_new_atoms_b_factor, METH_VARARGS, NULL},
+	 { (char *)"set_atom_attribute", _wrap_set_atom_attribute, METH_VARARGS, NULL},
+	 { (char *)"set_atom_string_attribute", _wrap_set_atom_string_attribute, METH_VARARGS, NULL},
 	 { (char *)"skel_greer_on", _wrap_skel_greer_on, METH_VARARGS, NULL},
 	 { (char *)"skel_greer_off", _wrap_skel_greer_off, METH_VARARGS, NULL},
 	 { (char *)"skel_foadi_on", _wrap_skel_foadi_on, METH_VARARGS, NULL},
@@ -28888,9 +30205,13 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"get_text_for_phs_cell_chooser", _wrap_get_text_for_phs_cell_chooser, METH_VARARGS, NULL},
 	 { (char *)"undo_last_move", _wrap_undo_last_move, METH_VARARGS, NULL},
 	 { (char *)"translate_molecule_by", _wrap_translate_molecule_by, METH_VARARGS, NULL},
+	 { (char *)"transform_molecule_by", _wrap_transform_molecule_by, METH_VARARGS, NULL},
 	 { (char *)"wrapped_create_goto_atom_window", _wrap_wrapped_create_goto_atom_window, METH_VARARGS, NULL},
 	 { (char *)"post_go_to_atom_window", _wrap_post_go_to_atom_window, METH_VARARGS, NULL},
 	 { (char *)"fill_go_to_atom_window", _wrap_fill_go_to_atom_window, METH_VARARGS, NULL},
+	 { (char *)"get_text_for_go_to_atom_chain_entry", _wrap_get_text_for_go_to_atom_chain_entry, METH_VARARGS, NULL},
+	 { (char *)"get_text_for_go_to_atom_residue_entry", _wrap_get_text_for_go_to_atom_residue_entry, METH_VARARGS, NULL},
+	 { (char *)"get_text_for_go_to_atom_atom_name_entry", _wrap_get_text_for_go_to_atom_atom_name_entry, METH_VARARGS, NULL},
 	 { (char *)"go_to_atom_molecule_number", _wrap_go_to_atom_molecule_number, METH_VARARGS, NULL},
 	 { (char *)"go_to_atom_chain_id", _wrap_go_to_atom_chain_id, METH_VARARGS, NULL},
 	 { (char *)"go_to_atom_atom_name", _wrap_go_to_atom_atom_name, METH_VARARGS, NULL},
@@ -28903,26 +30224,23 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"goto_near_atom_maybe", _wrap_goto_near_atom_maybe, METH_VARARGS, NULL},
 	 { (char *)"goto_next_atom_maybe_new", _wrap_goto_next_atom_maybe_new, METH_VARARGS, NULL},
 	 { (char *)"goto_previous_atom_maybe_new", _wrap_goto_previous_atom_maybe_new, METH_VARARGS, NULL},
+	 { (char *)"update_go_to_atom_from_current_position", _wrap_update_go_to_atom_from_current_position, METH_VARARGS, NULL},
 	 { (char *)"apply_go_to_atom_values", _wrap_apply_go_to_atom_values, METH_VARARGS, NULL},
 	 { (char *)"atom_spec_to_atom_index", _wrap_atom_spec_to_atom_index, METH_VARARGS, NULL},
 	 { (char *)"full_atom_spec_to_atom_index", _wrap_full_atom_spec_to_atom_index, METH_VARARGS, NULL},
 	 { (char *)"update_go_to_atom_window_on_changed_mol", _wrap_update_go_to_atom_window_on_changed_mol, METH_VARARGS, NULL},
 	 { (char *)"update_go_to_atom_window_on_new_mol", _wrap_update_go_to_atom_window_on_new_mol, METH_VARARGS, NULL},
+	 { (char *)"update_go_to_atom_window_on_other_molecule_chosen", _wrap_update_go_to_atom_window_on_other_molecule_chosen, METH_VARARGS, NULL},
 	 { (char *)"set_go_to_atom_molecule", _wrap_set_go_to_atom_molecule, METH_VARARGS, NULL},
 	 { (char *)"go_to_atom_molecule_optionmenu_active_molecule", _wrap_go_to_atom_molecule_optionmenu_active_molecule, METH_VARARGS, NULL},
 	 { (char *)"save_go_to_atom_widget", _wrap_save_go_to_atom_widget, METH_VARARGS, NULL},
 	 { (char *)"unset_go_to_atom_widget", _wrap_unset_go_to_atom_widget, METH_VARARGS, NULL},
-	 { (char *)"fill_go_to_atom_residue_and_atom_lists", _wrap_fill_go_to_atom_residue_and_atom_lists, METH_VARARGS, NULL},
 	 { (char *)"clear_atom_list", _wrap_clear_atom_list, METH_VARARGS, NULL},
 	 { (char *)"apply_go_to_atom_from_widget", _wrap_apply_go_to_atom_from_widget, METH_VARARGS, NULL},
 	 { (char *)"on_go_to_atom_residue_list_select_child", _wrap_on_go_to_atom_residue_list_select_child, METH_VARARGS, NULL},
-	 { (char *)"on_go_to_atom_residue_list_selection_changed", _wrap_on_go_to_atom_residue_list_selection_changed, METH_VARARGS, NULL},
+	 { (char *)"on_go_to_atom_residue_tree_selection_changed_gtk1", _wrap_on_go_to_atom_residue_tree_selection_changed_gtk1, METH_VARARGS, NULL},
+	 { (char *)"on_go_to_atom_atom_list_selection_changed_gtk1", _wrap_on_go_to_atom_atom_list_selection_changed_gtk1, METH_VARARGS, NULL},
 	 { (char *)"on_go_to_atom_residue_list_unselect_child", _wrap_on_go_to_atom_residue_list_unselect_child, METH_VARARGS, NULL},
-	 { (char *)"on_go_to_atom_atom_list_select_child", _wrap_on_go_to_atom_atom_list_select_child, METH_VARARGS, NULL},
-	 { (char *)"on_go_to_atom_atom_list_selection_changed", _wrap_on_go_to_atom_atom_list_selection_changed, METH_VARARGS, NULL},
-	 { (char *)"on_go_to_atom_atom_list_unselect_child", _wrap_on_go_to_atom_atom_list_unselect_child, METH_VARARGS, NULL},
-	 { (char *)"on_go_to_atom_residue_tree_selection_changed", _wrap_on_go_to_atom_residue_tree_selection_changed, METH_VARARGS, NULL},
-	 { (char *)"autobuild_ca_on", _wrap_autobuild_ca_on, METH_VARARGS, NULL},
 	 { (char *)"autobuild_ca_off", _wrap_autobuild_ca_off, METH_VARARGS, NULL},
 	 { (char *)"test_fragment", _wrap_test_fragment, METH_VARARGS, NULL},
 	 { (char *)"do_skeleton_prune", _wrap_do_skeleton_prune, METH_VARARGS, NULL},
@@ -28934,9 +30252,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"add_mol_display_control_widgets", _wrap_add_mol_display_control_widgets, METH_VARARGS, NULL},
 	 { (char *)"add_map_and_mol_display_control_widgets", _wrap_add_map_and_mol_display_control_widgets, METH_VARARGS, NULL},
 	 { (char *)"reset_graphics_display_control_window", _wrap_reset_graphics_display_control_window, METH_VARARGS, NULL},
-	 { (char *)"toggle_display_map", _wrap_toggle_display_map, METH_VARARGS, NULL},
-	 { (char *)"toggle_display_mol", _wrap_toggle_display_mol, METH_VARARGS, NULL},
-	 { (char *)"toggle_active_mol", _wrap_toggle_active_mol, METH_VARARGS, NULL},
+	 { (char *)"set_map_displayed", _wrap_set_map_displayed, METH_VARARGS, NULL},
+	 { (char *)"set_mol_displayed", _wrap_set_mol_displayed, METH_VARARGS, NULL},
+	 { (char *)"set_mol_active", _wrap_set_mol_active, METH_VARARGS, NULL},
 	 { (char *)"mol_is_displayed", _wrap_mol_is_displayed, METH_VARARGS, NULL},
 	 { (char *)"mol_is_active", _wrap_mol_is_active, METH_VARARGS, NULL},
 	 { (char *)"map_is_displayed", _wrap_map_is_displayed, METH_VARARGS, NULL},
@@ -29042,6 +30360,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"fill_environment_widget", _wrap_fill_environment_widget, METH_VARARGS, NULL},
 	 { (char *)"execute_environment_settings", _wrap_execute_environment_settings, METH_VARARGS, NULL},
 	 { (char *)"toggle_environment_show_distances", _wrap_toggle_environment_show_distances, METH_VARARGS, NULL},
+	 { (char *)"set_show_environment_distances", _wrap_set_show_environment_distances, METH_VARARGS, NULL},
+	 { (char *)"show_environment_distances_state", _wrap_show_environment_distances_state, METH_VARARGS, NULL},
 	 { (char *)"fill_pointer_distances_widget", _wrap_fill_pointer_distances_widget, METH_VARARGS, NULL},
 	 { (char *)"execute_pointer_distances_settings", _wrap_execute_pointer_distances_settings, METH_VARARGS, NULL},
 	 { (char *)"toggle_pointer_distances_show_distances", _wrap_toggle_pointer_distances_show_distances, METH_VARARGS, NULL},
@@ -29055,6 +30375,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_smooth_scroll_zoom_limit", _wrap_set_smooth_scroll_zoom_limit, METH_VARARGS, NULL},
 	 { (char *)"set_zoom_adjustment", _wrap_set_zoom_adjustment, METH_VARARGS, NULL},
 	 { (char *)"handle_cns_data_file", _wrap_handle_cns_data_file, METH_VARARGS, NULL},
+	 { (char *)"handle_cns_data_file_with_cell", _wrap_handle_cns_data_file_with_cell, METH_VARARGS, NULL},
 	 { (char *)"auto_read_cif_data_with_phases", _wrap_auto_read_cif_data_with_phases, METH_VARARGS, NULL},
 	 { (char *)"read_cif_data_with_phases_sigmaa", _wrap_read_cif_data_with_phases_sigmaa, METH_VARARGS, NULL},
 	 { (char *)"read_cif_data_with_phases_diff_sigmaa", _wrap_read_cif_data_with_phases_diff_sigmaa, METH_VARARGS, NULL},
@@ -29094,6 +30415,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"gln_asn_b_factor_outliers", _wrap_gln_asn_b_factor_outliers, METH_VARARGS, NULL},
 	 { (char *)"do_ramachandran_plot", _wrap_do_ramachandran_plot, METH_VARARGS, NULL},
 	 { (char *)"add_on_rama_choices", _wrap_add_on_rama_choices, METH_VARARGS, NULL},
+	 { (char *)"set_ramachandran_plot_contour_levels", _wrap_set_ramachandran_plot_contour_levels, METH_VARARGS, NULL},
+	 { (char *)"set_ramachandran_plot_background_block_size", _wrap_set_ramachandran_plot_background_block_size, METH_VARARGS, NULL},
 	 { (char *)"my_delete_ramachandran_mol_option", _wrap_my_delete_ramachandran_mol_option, METH_VARARGS, NULL},
 	 { (char *)"set_dynarama_is_displayed", _wrap_set_dynarama_is_displayed, METH_VARARGS, NULL},
 	 { (char *)"dynarama_is_displayed_state", _wrap_dynarama_is_displayed_state, METH_VARARGS, NULL},
@@ -29133,6 +30456,20 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"rotate_x_scene", _wrap_rotate_x_scene, METH_VARARGS, NULL},
 	 { (char *)"rotate_z_scene", _wrap_rotate_z_scene, METH_VARARGS, NULL},
 	 { (char *)"spin_zoom_trans", _wrap_spin_zoom_trans, METH_VARARGS, NULL},
+	 { (char *)"add_view_here", _wrap_add_view_here, METH_VARARGS, NULL},
+	 { (char *)"add_view_raw", _wrap_add_view_raw, METH_VARARGS, NULL},
+	 { (char *)"play_views", _wrap_play_views, METH_VARARGS, NULL},
+	 { (char *)"remove_this_view", _wrap_remove_this_view, METH_VARARGS, NULL},
+	 { (char *)"remove_named_view", _wrap_remove_named_view, METH_VARARGS, NULL},
+	 { (char *)"remove_view", _wrap_remove_view, METH_VARARGS, NULL},
+	 { (char *)"go_to_first_view", _wrap_go_to_first_view, METH_VARARGS, NULL},
+	 { (char *)"go_to_view_number", _wrap_go_to_view_number, METH_VARARGS, NULL},
+	 { (char *)"add_spin_view", _wrap_add_spin_view, METH_VARARGS, NULL},
+	 { (char *)"add_view_description", _wrap_add_view_description, METH_VARARGS, NULL},
+	 { (char *)"n_views", _wrap_n_views, METH_VARARGS, NULL},
+	 { (char *)"save_views", _wrap_save_views, METH_VARARGS, NULL},
+	 { (char *)"views_play_speed", _wrap_views_play_speed, METH_VARARGS, NULL},
+	 { (char *)"set_views_play_speed", _wrap_set_views_play_speed, METH_VARARGS, NULL},
 	 { (char *)"set_background_colour", _wrap_set_background_colour, METH_VARARGS, NULL},
 	 { (char *)"background_is_black_p", _wrap_background_is_black_p, METH_VARARGS, NULL},
 	 { (char *)"set_ligand_acceptable_fit_fraction", _wrap_set_ligand_acceptable_fit_fraction, METH_VARARGS, NULL},
@@ -29161,6 +30498,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"fill_ligands_sigma_level_entry", _wrap_fill_ligands_sigma_level_entry, METH_VARARGS, NULL},
 	 { (char *)"fill_ligands_expert_options", _wrap_fill_ligands_expert_options, METH_VARARGS, NULL},
 	 { (char *)"set_ligand_expert_options_from_widget", _wrap_set_ligand_expert_options_from_widget, METH_VARARGS, NULL},
+	 { (char *)"overlap_ligands", _wrap_overlap_ligands, METH_VARARGS, NULL},
 	 { (char *)"execute_get_mols_ligand_search", _wrap_execute_get_mols_ligand_search, METH_VARARGS, NULL},
 	 { (char *)"free_blob_dialog_memory", _wrap_free_blob_dialog_memory, METH_VARARGS, NULL},
 	 { (char *)"renumber_waters", _wrap_renumber_waters, METH_VARARGS, NULL},
@@ -29193,6 +30531,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"graphics_to_b_factor_representation", _wrap_graphics_to_b_factor_representation, METH_VARARGS, NULL},
 	 { (char *)"graphics_to_occupancy_represenation", _wrap_graphics_to_occupancy_represenation, METH_VARARGS, NULL},
 	 { (char *)"graphics_molecule_bond_type", _wrap_graphics_molecule_bond_type, METH_VARARGS, NULL},
+	 { (char *)"set_b_factor_bonds_scale_factor", _wrap_set_b_factor_bonds_scale_factor, METH_VARARGS, NULL},
 	 { (char *)"wrapped_create_bond_parameters_dialog", _wrap_wrapped_create_bond_parameters_dialog, METH_VARARGS, NULL},
 	 { (char *)"apply_bond_parameters", _wrap_apply_bond_parameters, METH_VARARGS, NULL},
 	 { (char *)"make_ball_and_stick", _wrap_make_ball_and_stick, METH_VARARGS, NULL},
@@ -29246,10 +30585,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"store_delete_item_widget", _wrap_store_delete_item_widget, METH_VARARGS, NULL},
 	 { (char *)"clear_pending_delete_item", _wrap_clear_pending_delete_item, METH_VARARGS, NULL},
 	 { (char *)"wrapped_create_delete_item_dialog", _wrap_wrapped_create_delete_item_dialog, METH_VARARGS, NULL},
-	 { (char *)"set_keep_delete_item_active_state", _wrap_set_keep_delete_item_active_state, METH_VARARGS, NULL},
 	 { (char *)"do_rot_trans_setup", _wrap_do_rot_trans_setup, METH_VARARGS, NULL},
 	 { (char *)"do_rot_trans_adjustments", _wrap_do_rot_trans_adjustments, METH_VARARGS, NULL},
 	 { (char *)"rot_trans_reset_previous", _wrap_rot_trans_reset_previous, METH_VARARGS, NULL},
+	 { (char *)"set_rotate_translate_zone_rotates_about_zone_centre", _wrap_set_rotate_translate_zone_rotates_about_zone_centre, METH_VARARGS, NULL},
 	 { (char *)"do_cis_trans_conversion_setup", _wrap_do_cis_trans_conversion_setup, METH_VARARGS, NULL},
 	 { (char *)"do_db_main", _wrap_do_db_main, METH_VARARGS, NULL},
 	 { (char *)"db_mainchain", _wrap_db_mainchain, METH_VARARGS, NULL},
@@ -29268,6 +30607,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"rotamer_score", _wrap_rotamer_score, METH_VARARGS, NULL},
 	 { (char *)"setup_auto_fit_rotamer", _wrap_setup_auto_fit_rotamer, METH_VARARGS, NULL},
 	 { (char *)"fill_partial_residues", _wrap_fill_partial_residues, METH_VARARGS, NULL},
+	 { (char *)"fill_partial_residue", _wrap_fill_partial_residue, METH_VARARGS, NULL},
 	 { (char *)"set_graphics_rotamer_dialog", _wrap_set_graphics_rotamer_dialog, METH_VARARGS, NULL},
 	 { (char *)"do_180_degree_side_chain_flip", _wrap_do_180_degree_side_chain_flip, METH_VARARGS, NULL},
 	 { (char *)"setup_180_degree_flip", _wrap_setup_180_degree_flip, METH_VARARGS, NULL},
@@ -29339,7 +30679,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_check_waters_by_difference_map_sigma_level", _wrap_set_check_waters_by_difference_map_sigma_level, METH_VARARGS, NULL},
 	 { (char *)"clear_lsq_matches", _wrap_clear_lsq_matches, METH_VARARGS, NULL},
 	 { (char *)"add_lsq_match", _wrap_add_lsq_match, METH_VARARGS, NULL},
-	 { (char *)"apply_lsq_matches", _wrap_apply_lsq_matches, METH_VARARGS, NULL},
+	 { (char *)"apply_lsq_matches_simple", _wrap_apply_lsq_matches_simple, METH_VARARGS, NULL},
 	 { (char *)"setup_lsq_deviation", _wrap_setup_lsq_deviation, METH_VARARGS, NULL},
 	 { (char *)"setup_lsq_plane_define", _wrap_setup_lsq_plane_define, METH_VARARGS, NULL},
 	 { (char *)"wrapped_create_lsq_plane_dialog", _wrap_wrapped_create_lsq_plane_dialog, METH_VARARGS, NULL},
@@ -29358,6 +30698,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"make_image_raster3d", _wrap_make_image_raster3d, METH_VARARGS, NULL},
 	 { (char *)"make_image_povray", _wrap_make_image_povray, METH_VARARGS, NULL},
 	 { (char *)"set_raster3d_bond_thickness", _wrap_set_raster3d_bond_thickness, METH_VARARGS, NULL},
+	 { (char *)"set_raster3d_atom_radius", _wrap_set_raster3d_atom_radius, METH_VARARGS, NULL},
 	 { (char *)"set_raster3d_density_thickness", _wrap_set_raster3d_density_thickness, METH_VARARGS, NULL},
 	 { (char *)"set_renderer_show_atoms", _wrap_set_renderer_show_atoms, METH_VARARGS, NULL},
 	 { (char *)"raster_screen_shot", _wrap_raster_screen_shot, METH_VARARGS, NULL},
@@ -29388,6 +30729,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ncs_control_change_ncs_master_to_chain_update_widget", _wrap_ncs_control_change_ncs_master_to_chain_update_widget, METH_VARARGS, NULL},
 	 { (char *)"ncs_control_display_chain", _wrap_ncs_control_display_chain, METH_VARARGS, NULL},
 	 { (char *)"place_helix_here", _wrap_place_helix_here, METH_VARARGS, NULL},
+	 { (char *)"place_strand_here", _wrap_place_strand_here, METH_VARARGS, NULL},
 	 { (char *)"new_molecule_by_residue_type_selection", _wrap_new_molecule_by_residue_type_selection, METH_VARARGS, NULL},
 	 { (char *)"new_molecule_by_atom_selection", _wrap_new_molecule_by_atom_selection, METH_VARARGS, NULL},
 	 { (char *)"set_axis_orientation_matrix", _wrap_set_axis_orientation_matrix, METH_VARARGS, NULL},
@@ -29405,6 +30747,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"make_socket_listener_maybe", _wrap_make_socket_listener_maybe, METH_VARARGS, NULL},
 	 { (char *)"coot_socket_listener_idle_func", _wrap_coot_socket_listener_idle_func, METH_VARARGS, NULL},
 	 { (char *)"set_coot_listener_socket_state_internal", _wrap_set_coot_listener_socket_state_internal, METH_VARARGS, NULL},
+	 { (char *)"set_socket_string_waiting", _wrap_set_socket_string_waiting, METH_VARARGS, NULL},
 	 { (char *)"set_display_lists_for_maps", _wrap_set_display_lists_for_maps, METH_VARARGS, NULL},
 	 { (char *)"preferences", _wrap_preferences, METH_VARARGS, NULL},
 	 { (char *)"clear_preferences", _wrap_clear_preferences, METH_VARARGS, NULL},
@@ -29453,6 +30796,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"create_initial_validation_graph_submenu_generic", _wrap_create_initial_validation_graph_submenu_generic, METH_VARARGS, NULL},
 	 { (char *)"probe_dots_short_contact_name_to_expanded_name", _wrap_probe_dots_short_contact_name_to_expanded_name, METH_VARARGS, NULL},
 	 { (char *)"set_go_to_atom_from_spec", _wrap_set_go_to_atom_from_spec, METH_VARARGS, NULL},
+	 { (char *)"active_atom_spec", _wrap_active_atom_spec, METH_VARARGS, NULL},
 	 { (char *)"add_map_colour_mol_menu_item", _wrap_add_map_colour_mol_menu_item, METH_VARARGS, NULL},
 	 { (char *)"add_map_scroll_wheel_mol_menu_item", _wrap_add_map_scroll_wheel_mol_menu_item, METH_VARARGS, NULL},
 	 { (char *)"execute_refmac_real", _wrap_execute_refmac_real, METH_VARARGS, NULL},
@@ -29463,6 +30807,13 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"str_mtime_file_get", _wrap_str_mtime_file_get, METH_VARARGS, NULL},
 	 { (char *)"delete_str_mtime", _wrap_delete_str_mtime, METH_VARARGS, NULL},
 	 { (char *)"str_mtime_swigregister", str_mtime_swigregister, METH_VARARGS, NULL},
+	 { (char *)"file_attribs_info_t_directory_prefix_set", _wrap_file_attribs_info_t_directory_prefix_set, METH_VARARGS, NULL},
+	 { (char *)"file_attribs_info_t_directory_prefix_get", _wrap_file_attribs_info_t_directory_prefix_get, METH_VARARGS, NULL},
+	 { (char *)"file_attribs_info_t_file_mtimes_set", _wrap_file_attribs_info_t_file_mtimes_set, METH_VARARGS, NULL},
+	 { (char *)"file_attribs_info_t_file_mtimes_get", _wrap_file_attribs_info_t_file_mtimes_get, METH_VARARGS, NULL},
+	 { (char *)"new_file_attribs_info_t", _wrap_new_file_attribs_info_t, METH_VARARGS, NULL},
+	 { (char *)"delete_file_attribs_info_t", _wrap_delete_file_attribs_info_t, METH_VARARGS, NULL},
+	 { (char *)"file_attribs_info_t_swigregister", file_attribs_info_t_swigregister, METH_VARARGS, NULL},
 	 { (char *)"compare_mtimes", _wrap_compare_mtimes, METH_VARARGS, NULL},
 	 { (char *)"parse_ccp4i_defs", _wrap_parse_ccp4i_defs, METH_VARARGS, NULL},
 	 { (char *)"new_command_arg_t", _wrap_new_command_arg_t, METH_VARARGS, NULL},
@@ -29486,7 +30837,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"languagize_command", _wrap_languagize_command, METH_VARARGS, NULL},
 	 { (char *)"add_to_database", _wrap_add_to_database, METH_VARARGS, NULL},
 	 { (char *)"merge_molecules", _wrap_merge_molecules, METH_VARARGS, NULL},
-	 { (char *)"dictionaries_read", _wrap_dictionaries_read, METH_VARARGS, NULL},
 	 { (char *)"safe_scheme_command", _wrap_safe_scheme_command, METH_VARARGS, NULL},
 	 { (char *)"safe_python_command", _wrap_safe_python_command, METH_VARARGS, NULL},
 	 { (char *)"run_generic_script", _wrap_run_generic_script, METH_VARARGS, NULL},
@@ -29511,26 +30861,28 @@ static swig_type_info _swigt__p_GtkPositionType = {"_p_GtkPositionType", "GtkPos
 static swig_type_info _swigt__p_GtkSignalFunc = {"_p_GtkSignalFunc", "GtkSignalFunc *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkToggleButton = {"_p_GtkToggleButton", "GtkToggleButton *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkWidget = {"_p_GtkWidget", "GtkWidget *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_SCM = {"_p_SCM", "SCM *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_clipper__String = {"_p_clipper__String", "clipper::String *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_coot__atom_spec_t = {"_p_coot__atom_spec_t", "coot::atom_spec_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_coot__command_arg_t = {"_p_coot__command_arg_t", "coot::command_arg_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_coot__file_attribs_info_t = {"_p_coot__file_attribs_info_t", "coot::file_attribs_info_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_coot__str_mtime = {"_p_coot__str_mtime", "coot::str_mtime *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_double = {"_p_double", "double *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_gboolean = {"_p_gboolean", "gboolean *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_gchar = {"_p_gchar", "gchar *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_gdouble = {"_p_gdouble", "gdouble *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_gpointer = {"_p_gpointer", "gpointer *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_GSList = {"_p_p_GSList", "GSList **", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t = {"_p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t", "std::pair<bool,std::pair<int,coot::atom_spec_t > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairTshort_float_t = {"_p_std__pairTshort_float_t", "std::pair<short,float > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairTshort_int_t = {"_p_std__pairTshort_int_t", "std::pair<short,int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairTshort_std__string_t = {"_p_std__pairTshort_std__string_t", "std::pair<short,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorTcoot__command_arg_t_t = {"_p_std__vectorTcoot__command_arg_t_t", "std::vector<coot::command_arg_t > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__vectorTcoot__str_mtime_t = {"_p_std__vectorTcoot__str_mtime_t", "std::vector<coot::str_mtime > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorTint_t = {"_p_std__vectorTint_t", "std::vector<int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorTstd__pairTstd__string_std__string_t_t = {"_p_std__vectorTstd__pairTstd__string_std__string_t_t", "std::vector<std::pair<std::string,std::string > > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorTstd__string_t = {"_p_std__vectorTstd__string_t", "std::vector<std::string > *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_str_mtime = {"_p_str_mtime", "str_mtime *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_time_t = {"_p_time_t", "time_t *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
@@ -29545,26 +30897,28 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_GtkSignalFunc,
   &_swigt__p_GtkToggleButton,
   &_swigt__p_GtkWidget,
-  &_swigt__p_SCM,
   &_swigt__p_char,
   &_swigt__p_clipper__String,
   &_swigt__p_coot__atom_spec_t,
   &_swigt__p_coot__command_arg_t,
+  &_swigt__p_coot__file_attribs_info_t,
+  &_swigt__p_coot__str_mtime,
   &_swigt__p_double,
   &_swigt__p_gboolean,
   &_swigt__p_gchar,
   &_swigt__p_gdouble,
   &_swigt__p_gpointer,
   &_swigt__p_p_GSList,
+  &_swigt__p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t,
   &_swigt__p_std__pairTshort_float_t,
   &_swigt__p_std__pairTshort_int_t,
   &_swigt__p_std__pairTshort_std__string_t,
   &_swigt__p_std__string,
   &_swigt__p_std__vectorTcoot__command_arg_t_t,
+  &_swigt__p_std__vectorTcoot__str_mtime_t,
   &_swigt__p_std__vectorTint_t,
   &_swigt__p_std__vectorTstd__pairTstd__string_std__string_t_t,
   &_swigt__p_std__vectorTstd__string_t,
-  &_swigt__p_str_mtime,
   &_swigt__p_time_t,
 };
 
@@ -29579,26 +30933,28 @@ static swig_cast_info _swigc__p_GtkPositionType[] = {  {&_swigt__p_GtkPositionTy
 static swig_cast_info _swigc__p_GtkSignalFunc[] = {  {&_swigt__p_GtkSignalFunc, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkToggleButton[] = {  {&_swigt__p_GtkToggleButton, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkWidget[] = {  {&_swigt__p_GtkWidget, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_SCM[] = {  {&_swigt__p_SCM, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_clipper__String[] = {  {&_swigt__p_clipper__String, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_coot__atom_spec_t[] = {  {&_swigt__p_coot__atom_spec_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_coot__command_arg_t[] = {  {&_swigt__p_coot__command_arg_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_coot__file_attribs_info_t[] = {  {&_swigt__p_coot__file_attribs_info_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_coot__str_mtime[] = {  {&_swigt__p_coot__str_mtime, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_double[] = {  {&_swigt__p_double, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_gboolean[] = {  {&_swigt__p_gboolean, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_gchar[] = {  {&_swigt__p_gchar, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_gdouble[] = {  {&_swigt__p_gdouble, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_gpointer[] = {  {&_swigt__p_gpointer, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_GSList[] = {  {&_swigt__p_p_GSList, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t[] = {  {&_swigt__p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairTshort_float_t[] = {  {&_swigt__p_std__pairTshort_float_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairTshort_int_t[] = {  {&_swigt__p_std__pairTshort_int_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairTshort_std__string_t[] = {  {&_swigt__p_std__pairTshort_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorTcoot__command_arg_t_t[] = {  {&_swigt__p_std__vectorTcoot__command_arg_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__vectorTcoot__str_mtime_t[] = {  {&_swigt__p_std__vectorTcoot__str_mtime_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorTint_t[] = {  {&_swigt__p_std__vectorTint_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorTstd__pairTstd__string_std__string_t_t[] = {  {&_swigt__p_std__vectorTstd__pairTstd__string_std__string_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorTstd__string_t[] = {  {&_swigt__p_std__vectorTstd__string_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_str_mtime[] = {  {&_swigt__p_str_mtime, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_time_t[] = {  {&_swigt__p_time_t, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
@@ -29613,26 +30969,28 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_GtkSignalFunc,
   _swigc__p_GtkToggleButton,
   _swigc__p_GtkWidget,
-  _swigc__p_SCM,
   _swigc__p_char,
   _swigc__p_clipper__String,
   _swigc__p_coot__atom_spec_t,
   _swigc__p_coot__command_arg_t,
+  _swigc__p_coot__file_attribs_info_t,
+  _swigc__p_coot__str_mtime,
   _swigc__p_double,
   _swigc__p_gboolean,
   _swigc__p_gchar,
   _swigc__p_gdouble,
   _swigc__p_gpointer,
   _swigc__p_p_GSList,
+  _swigc__p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t,
   _swigc__p_std__pairTshort_float_t,
   _swigc__p_std__pairTshort_int_t,
   _swigc__p_std__pairTshort_std__string_t,
   _swigc__p_std__string,
   _swigc__p_std__vectorTcoot__command_arg_t_t,
+  _swigc__p_std__vectorTcoot__str_mtime_t,
   _swigc__p_std__vectorTint_t,
   _swigc__p_std__vectorTstd__pairTstd__string_std__string_t_t,
   _swigc__p_std__vectorTstd__string_t,
-  _swigc__p_str_mtime,
   _swigc__p_time_t,
 };
 
