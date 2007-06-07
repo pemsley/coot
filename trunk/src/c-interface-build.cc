@@ -3220,17 +3220,60 @@ void do_merge_molecules(GtkWidget *dialog) {
 
    std::vector<int> add_molecules = *graphics_info_t::merge_molecules_merging_molecules;
    if (add_molecules.size() > 0) { 
-      int istat = merge_molecules(add_molecules, graphics_info_t::merge_molecules_master_molecule);
-      if (istat)
+      std::pair<int, std::vector<std::string> > stat =
+	 merge_molecules_by_vector(add_molecules, graphics_info_t::merge_molecules_master_molecule);
+      if (stat.first)
 	 graphics_draw();
    }
 }
 
+#ifdef USE_GUILE
+// return e.g (list 1 "C" "D")
+// 
+SCM merge_molecules(SCM add_molecules, int imol) {
+   SCM r = SCM_BOOL_F;
 
-int
-merge_molecules(const std::vector<int> &add_molecules, int imol) {
+   std::vector<int> vam;
 
-   int imerged = 0;
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+
+   int l_length = scm_to_int(add_molecules);
+   for (int i=0; i<l_length; i++) {
+      SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
+      int ii = scm_to_int(le);
+      vam.push_back(ii);
+   } 
+   
+#else
+   
+   int l_length = gh_scm2int(add_molecules);
+   for (int i=0; i<l_length; i++) {
+      SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
+      int ii =  gh_scm2int(le);
+      vam.push_back(ii);
+   }
+#endif // SCM_VERSION   
+   
+   std::pair<int, std::vector<std::string> > v = merge_molecules_by_vector(vam, imol);
+
+   SCM vos = generic_string_vector_to_list_internal(v.second);
+   r = SCM_EOL;
+   r = scm_cons(vos, r);
+   r = scm_cons(SCM_MAKINUM(v.first), r);
+   
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+// some python version of the merge_molecules()
+#endif
+
+std::pair<int, std::vector<std::string> > 
+merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol) {
+
+   std::pair<int, std::vector<std::string> >  merged_info;
+   
    std::vector<atom_selection_container_t> add_molecules_at_sels;
    if (imol < graphics_info_t::n_molecules) {
       if (imol >= 0) {
@@ -3248,12 +3291,12 @@ merge_molecules(const std::vector<int> &add_molecules, int imol) {
 	       }
 	    }
 	    if (add_molecules_at_sels.size() > 0) { 
-	       imerged = graphics_info_t::molecules[imol].merge_molecules(add_molecules_at_sels);
+	       merged_info = graphics_info_t::molecules[imol].merge_molecules(add_molecules_at_sels);
 	    }
 	 }
       }
    }
-   return imerged;
+   return merged_info;
 }
 
 
@@ -5042,9 +5085,24 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 std::string name = "atom selection from ";
 	 name += graphics_info_t::molecules[imol_orig].name_for_display_manager();
 	 atom_selection_container_t asc = make_asc(mol);
-	 graphics_info_t::molecules[imol].install_model(asc, name, 1);
-	 graphics_info_t::n_molecules++;
+	 if (asc.n_selected_atoms > 0){ 
+	    graphics_info_t::molecules[imol].install_model(asc, name, 1);
+	    graphics_info_t::n_molecules++;
+	 } else {
+	    std::cout << "in new_molecule_by_atom_selection "
+		      << "Something bad happened - No atoms selected" << std::endl;
+	    std::string s = "Oops, failed to create fragment.  ";
+	    s += "No atoms selected\n";
+	    s += "Incorrect atom specifier? ";
+	    s += "\"";
+	    s += atom_selection_str;
+	    s += "\"";
+	    info_dialog(s.c_str());
+	 }
       } else {
+	 // mol will (currently) never be null,
+	 // create_mmdbmanager_from_atom_selection() always returns a
+	 // good CMMDBManager pointer.
 	 std::cout << "in new_molecule_by_atom_selection "
 		   << "Something bad happened - null molecule" << std::endl;
 	 std::string s = "Oops, failed to create fragment.  ";

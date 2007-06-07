@@ -30,7 +30,7 @@ Therefore, if you are able (and indeed encouraged, if you find it
 useful) to use and redistribute this software with *your* software
 (provided you also distribute this source code).
 
-You may find coot distributed with CCP4 Software.  Be aware that it
+You may find coot distributed with CCP4 Software.  Be aware that coot
 is not covered under the CCP4 Software Licence, either part (i) or
 part (ii).
 
@@ -443,16 +443,17 @@ compiler.
 Idea Thanks
 -----------
 
-   Particularly outstanding in my memory was a conversation with Mike
-   Hartshorn - which planted the seed of the idea of writing a free
-   model-building program in about 1991.  It took many years for this
-   idea to bear fruit however.
+   I have a memory of a conversation with Mike Hartshorn - which
+   planted the seed of the idea of writing a free model-building
+   program in about 1991.  It took many years for this idea to bear
+   fruit however. [Mike went on to write AstexView more rapidly].
 
-   Many of the ideas in Coot are of course profoundly influenced by
-   Alwyn Jones' O (and to a lesser extent Frodo).  I am grateful to
-   him also because it was sitting at a PS300 running Frodo in York
-   that I though "wow, this is what I want to do", without him and
-   Frodo, I wouldn't be a crystallographer. Thanks Alwyn.
+   Many of the ideas in Coot are of course influenced by Alwyn Jones'
+   O (and to a lesser extent Frodo).  I am grateful to him also
+   because it in the late 80s that was sitting in front of a PS300
+   running Frodo in York that I though "wow, this is what I want to
+   do", without him and Frodo, I wouldn't be a crystallographer. 
+   Thanks Alwyn.
 
    Many evening sessions with Adrian Lapthorn undoubtedly put some
    flesh on the bones of the ideas - certainly in those days we formed
@@ -467,6 +468,9 @@ Idea Thanks
    anyway).  But then I saw Warren's demo and I thought, "we've go to
    have that something like that too!"  It then took me a couple of
    days to bolt it into the existing real space refinement code.
+
+   A little while ago now, I was demonstrated and impressed by PyMol's
+   "view"s.  18 months later I added a view system to Coot.
 
 
 Code Thanks...

@@ -2075,7 +2075,6 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
   dialog = lookup_widget(GTK_WIDGET(button),
 			 "save_coords_dialog");
 
-
   option_menu = lookup_widget(GTK_WIDGET(button),
 			      "save_coords_optionmenu");
 
@@ -2120,8 +2119,10 @@ on_save_coord_ok_button_clicked        (GtkButton       *button,
 {
   GtkWidget *widget;
   char *stuff;
+  GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
 
   widget = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
+  save_directory_for_saving_from_fileselection(fileselection);
   stuff = gtk_object_get_user_data(GTK_OBJECT(widget));
   save_coordinates_using_widget(widget);
   free(stuff);

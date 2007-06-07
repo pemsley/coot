@@ -25,16 +25,33 @@ cd guile-gtk-2.0
   
    Things to fix before 0.3.2
 
-   o Kleywegt plots don't update properly when not specifying chains.
-
-   o copy fragment, residue range miss - feedback required.
-
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
      old coot timer
 
 
+
+   o optionally animate fit-waters
+
+* Done.
+
+   o Mask map should have an inversion check button.
+
+* Done.
+
+   o Kleywegt plots don't update properly when not specifying chains.
+
+* Done.
+
+   o Saving in another directory - remember the save dir for next
+     molecule to be saved.
+
+* Done.
+
+   o copy fragment, residue range miss - feedback required.
+
+* Done.     
 
    o Disappearing NCS ghosts on changing NCS master 
 
@@ -49,6 +66,9 @@ cd guile-gtk-2.0
 
 * Done.
 
+   o Thick bonds do not get set/groked in state file - they should be.
+
+* Done.
 
    o transform-map
 

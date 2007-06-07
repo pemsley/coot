@@ -1233,8 +1233,17 @@
 					ls))))
 
 		      (loop (+ button-number 1) ls))))))))
-	   
-      (dialog-box-of-buttons "Views" (cons 200 140) buttons "  Close  "))))
+      (let ((all-buttons
+	     (if (> (length buttons) 1)
+		 (let ((view-button (list "  Play Views " 
+					  (lambda ()
+					    (go-to-first-view 1)
+					    (usleep 100000)
+					    (play-views)))))
+		   (reverse (cons view-button (reverse buttons))))
+		 buttons)))
+      
+	(dialog-box-of-buttons " Views " (cons 200 140) all-buttons "  Close  ")))))
 
     
 

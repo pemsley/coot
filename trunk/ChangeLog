@@ -1,3 +1,8 @@
+2007-06-07  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* coords/Bond_lines.cc: (construct_from_atom_selection): Don't
+	mark S, SE, CL, BR, or P as bonded.
+
 2007-05-29  Paul Emsley  <emsley@localhost>
 
 	* src/molecule-class-info-other.cc:

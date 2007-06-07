@@ -24,6 +24,12 @@
 
    o Update python files
 
+   o Use Eugene's new link-reading code
+
+   o Select residues (for new molecule) by sphere
+
+   o Problem SHELX .ins file, enable bonds to symmetry atoms?
+
 -----
 
    Release 0.5
@@ -40,8 +46,6 @@
 
    o NCS differences graph (use master chain)
 
-   o Problem SHELX .ins file, enable bonds to symmetry atoms?
-
    o Hydrogens from a SHELXL molecule
 
    o Mouse bindings, consistency with MG
@@ -54,6 +58,14 @@
 
    o Try again to add chiral volumes to the geometry target function
 
+   o (un)Label atoms in given atom selection
+
+   o More work on ligand bonding
+       Things with Cl etc
+
+   o Lasso (perhaps) active atoms to select atoms for R/Ting?  
+     So that fragments of monomers can be moved independently
+
 ------
     
     Release 0.6 
@@ -62,9 +74,13 @@
 
    o Other Button: tw & penny
 
-   o multiple residue ranges.
+   o multiple residue ranges, glycosylation, covalent bond entities
+  
+   o handle links properly (as above).
 
    o multiple representations?
+
+   o "Thick bonds" for ligands etc
 
 ------
 

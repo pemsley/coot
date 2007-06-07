@@ -3488,7 +3488,7 @@ molecule_class_info_t::create_mmdbmanager_from_res_selection(PCResidue *SelResid
 
 
 // merge molecules
-// Return +1 if we did indeed do a merge
+// Return +1 as status of pair if we did indeed do a merge
 //
 // Note, very often add_molecules will only be of size 1.
 //
@@ -3504,10 +3504,12 @@ molecule_class_info_t::create_mmdbmanager_from_res_selection(PCResidue *SelResid
 //
 // Question to self: how do I deal with different models?
 //
-int
+
+std::pair<int, std::vector<std::string> > 
 molecule_class_info_t::merge_molecules(const std::vector<atom_selection_container_t> &add_molecules) {
 
    int istat = 0;
+   std::vector<std::string> resulting_chain_ids;
 
    std::vector<std::string> this_model_chains = coot::util::chains_in_molecule(atom_sel.mol);
 
@@ -3610,6 +3612,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 		  copy_chain_p->SetChainID(mapped_chains[iaddchain].c_str());
 		  this_model_p->AddChain(copy_chain_p);
 		  this_model_chains.push_back(mapped_chains[iaddchain].c_str());
+		  resulting_chain_ids.push_back(mapped_chains[iaddchain]);
 	       }
 
 	       if (n_add_chains > 0) {
@@ -3621,7 +3624,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	 }
       } 
    }
-   return istat;
+   return std::pair<int, std::vector<std::string> > (istat, resulting_chain_ids);
 } 
 
 

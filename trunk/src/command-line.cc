@@ -181,7 +181,7 @@ parse_command_line(int argc, char ** argv ) {
 	       } else {
 
 		  if (arg_str == "version") {
-		     std::cout << VERSION << std::endl;
+		     std::cout << coot_version() << std::endl;
 		     exit(0);
 		  } else {
 

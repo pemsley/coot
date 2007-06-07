@@ -405,6 +405,14 @@ graphics_info_t::save_directory_from_fileselection(const GtkWidget *fileselectio
    // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
 }
 
+void
+graphics_info_t::save_directory_for_saving_from_fileselection(const GtkWidget *fileselection) {
+
+   const gchar *filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
+   directory_for_saving_for_fileselection = coot::util::file_name_directory(filename);
+   // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
+}
+
 
 void
 graphics_info_t::set_directory_for_fileselection_string(std::string filename) {
@@ -437,9 +445,9 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
       std::string stripped_name = 
 	 graphics_info_t::molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
-      if (graphics_info_t::save_coordinates_in_original_dir_flag != 0) 
-	 if (graphics_info_t::directory_for_fileselection != "")
-	    full_name = directory_for_fileselection + stripped_name;
+      //       if (graphics_info_t::save_coordinates_in_original_dir_flag != 0) 
+      if (graphics_info_t::directory_for_saving_for_fileselection != "")
+	 full_name = directory_for_saving_for_fileselection + stripped_name;
 
       std::cout << "INFO:: Setting fileselection with file: " << full_name
 		<< std::endl;

@@ -26,6 +26,8 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Added function transform-molecule-by [Alastair Fyfe]
 
+  o map transformation function fixed
+
   o Added function to change the colour of the unit cell [Dirk Kostrewa]
 
   o Added multi-threaded socket reading for Phenix and other
@@ -41,15 +43,22 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Added Views system [inspired by PyMol]
 
-  o Colour by B-factor and Occupancy
+  o Colour by B-factor and Occupancy [Jean Whittingham]
 
   o Ramachandran plot dialog remembers where it was put last time
+    [Shawn Williams] 
 
   o Display Control confusion about Display/Active state of molecules
     untangled
 
   o On startup, the Go To Atom dialog no longer is inconsistent
     between the chain chain and molecule chooser [GMS]
+
+  o Further tinkering with the bonding algorithm
+
+  o generic-double-entry interface changed, breaking
+    backwards-compatibility.  It now takes arguments for a check
+    button.
 
     -------------------------------------------------------
     -------------------- Old Releases ---------------------

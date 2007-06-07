@@ -1164,6 +1164,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   scroll_radio_button_1 = gtk_radio_button_new_with_label(scroll_group, _("Scroll"));
   scroll_group = gtk_radio_button_group (GTK_RADIO_BUTTON(scroll_radio_button_1));
   *gslist_for_scroll_in_display_manager_p() = scroll_group;
+
   gtk_widget_ref(scroll_radio_button_1);
   gtk_object_set_data_full(GTK_OBJECT(display_control_window_glade), widget_name,
 			   scroll_radio_button_1, 
@@ -1171,7 +1172,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), FALSE);
 
   gtk_widget_show(scroll_radio_button_1);
-  gtk_box_pack_start(GTK_BOX(hbox32), scroll_radio_button_1, FALSE, FALSE, 2);
+  gtk_box_pack_start(GTK_BOX(hbox32), scroll_radio_button_1, FALSE,FALSE, 2);
   gtk_signal_connect(GTK_OBJECT(scroll_radio_button_1), "toggled",
 		     GTK_SIGNAL_FUNC (on_display_control_map_scroll_radio_button_toggled),
 		     GINT_TO_POINTER(*n));
@@ -1238,12 +1239,12 @@ on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
    int i = (int) user_data;
 
    char *state = "inactive";
-/*    printf("got to on_display_control_map_scroll_radio_button_toggled\n"); */
+   printf("got to on_display_control_map_scroll_radio_button_toggled\n");
    if (GTK_TOGGLE_BUTTON(button)->active) {
       state = "active";
       set_scrollable_map(i);
    }
-/*    printf("INFO:: scroll toggled for map %d %s\n", i, state); */
+   printf("INFO:: scroll toggled for map %d %s\n", i, state);
 }
 
 

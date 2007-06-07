@@ -209,8 +209,16 @@ void add_to_database(const std::vector<std::string> &command_strings);
 /*  ----------------------------------------------------------------------- */
 /*                         Merge Molecules                                  */
 /*  ----------------------------------------------------------------------- */
-int merge_molecules(const std::vector<int> &add_molecules, int imol);
+// return the status and vector of chain-ids of the new chain ids.
+// 
+std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
+#ifdef USE_GUILE
+SCM merge_molecules(SCM add_molecules, int imol);
+#endif
 
+#ifdef USE_PYTHON
+// Bernhard, fill me in...
+#endif 
 
 /*  ----------------------------------------------------------------------- */
 /*                         Dictionaries                                     */
@@ -315,6 +323,7 @@ std::pair<short int, std::string> is_interesting_dots_object_next_p(const std::v
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_GUILE
 SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v);
+std::vector<std::string> generic_list_to_string_vector_internal(SCM l);
 SCM rtop_to_scm(const clipper::RTop_orth &rtop);
 #endif	/* USE_GUILE */
 

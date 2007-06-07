@@ -346,6 +346,7 @@ int       graphics_info_t::atom_label_font_size = 2; // medium
 void     *graphics_info_t::atom_label_font = GLUT_BITMAP_HELVETICA_12;
 int       graphics_info_t::label_atom_on_recentre_flag = 1;
 int       graphics_info_t::symmetry_atom_labels_expanded_flag = 0;
+coot::colour_holder graphics_info_t::font_colour = coot::colour_holder(1.0, 0.8, 0.8);
 
 short int graphics_info_t::brief_atom_labels_flag = 0;
 
@@ -774,6 +775,7 @@ short int graphics_info_t::state_language = 1; // scheme
 
 // directory saving:
 std::string graphics_info_t::directory_for_fileselection = ""; 
+std::string graphics_info_t::directory_for_saving_for_fileselection = ""; 
 
 
 // Residue info

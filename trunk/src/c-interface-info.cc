@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <fstream>
 
 #ifdef USE_GUILE
 #include <guile/gh.h>
@@ -555,11 +556,43 @@ SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v) {
 
    SCM r = SCM_CAR(scm_listofnull);
    for (int i=v.size()-1; i>=0; i--) {
-      r = scm_cons(scm_makfrom0str(v[i].c_str()),r);
+      r = scm_cons(scm_makfrom0str(v[i].c_str()), r);
    }
    return r; 
 }
 #endif // USE_GUILE
+
+// and the reverse function:
+#ifdef USE_GUILE
+std::vector<std::string>
+generic_list_to_string_vector_internal(SCM l) {
+   std::vector<std::string> r;
+   SCM l_length_scm = scm_length(l);
+
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+
+   int l_length = scm_to_int(l_length_scm);
+   for (int i=0; i<l_length; i++) {
+      SCM le = scm_list_ref(l, SCM_MAKINUM(i));
+      std::string s = scm_to_locale_string(le);
+      r.push_back(s);
+   } 
+   
+#else
+   
+   int l_length = gh_scm2int(l_length_scm);
+   for (int i=0; i<l_length; i++) {
+      SCM le = scm_list_ref(l, SCM_MAKINUM(i));
+      std::string s =  SCM_STRING_CHARS(le);
+      r.push_back(s);
+   }
+
+#endif
+
+   return r;
+}
+#endif 
+
 
 #ifdef USE_GUILE
 SCM rtop_to_scm(const clipper::RTop_orth &rtop) {
@@ -1505,3 +1538,79 @@ SCM dictionaries_read() {
 #endif
 
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  CCP4MG Interface                                        */
+/*  ----------------------------------------------------------------------- */
+void write_ccp4mg_picture_description(const char *filename) {
+
+   std::ofstream mg_stream(filename);
+
+   if (!mg_stream) {
+      std::cout << "WARNING:: can't open file " << filename << std::endl;
+   } else {
+      mg_stream << "# CCP4mg picture definition file\n";
+      mg_stream << "# See http://www.ysbl.york.ac.uk/~ccp4mg/ccp4mg_help/picture_definition.html\n";
+      mg_stream << "# or your local copy of CCP4mg documentation.\n";
+      mg_stream << "# created by Coot " << coot_version() << "\n";
+
+      // View:
+      graphics_info_t g;
+      coot::Cartesian rc = g.RotationCentre();
+      mg_stream << "view = View (\n";
+      mg_stream << "    centre_xyz = [";
+      mg_stream << -rc.x() << ", " << -rc.y() << ", " << -rc.z() << "],\n";
+      mg_stream << "    radius = " << graphics_info_t::zoom << ",\n";
+      mg_stream << "    orientation = [ " << g.quat[0] << ", "
+		<< g.quat[1] << ", " << g.quat[2] << ", " << g.quat[3] << "]\n";
+      mg_stream << ")\n";
+
+      // Molecules:
+      for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+	 if (is_valid_model_molecule(imol)) {
+	    mg_stream << "MolData (\n";
+	    mg_stream << "   filename = [\n";
+	    mg_stream << "   'FULLPATH',\n";
+	    mg_stream << "   " << single_quote(graphics_info_t::molecules[imol].name_) << ",\n";
+	    mg_stream << "   " << single_quote(graphics_info_t::molecules[imol].name_) << "])\n";
+	    mg_stream << "\n";
+	    mg_stream << "MolDisp (\n";
+	    mg_stream << "    selection = 'all',\n";
+	    mg_stream << "    colour    = 'atomtype',\n"; 
+	    mg_stream << "    style     = 'bonds',\n";
+	    mg_stream << "    selection_parameters = {\n";
+	    mg_stream << "                'neighb_rad' : '5.0',\n";
+	    mg_stream << "                'select' : 'all',\n";
+	    mg_stream << "                'neighb_excl' : 0  },\n";
+	    mg_stream << "    colour_parameters =  {\n";
+	    mg_stream << "                'colour_mode' : 'atomtype',\n";
+	    mg_stream << "                'user_scheme' : [ ]  })\n";
+	    mg_stream << "\n";
+	 }
+	 if (is_valid_map_molecule(imol)) {
+	    std::string phi = g.molecules[imol].save_phi_col;
+	    std::string f   = g.molecules[imol].save_f_col;
+	    std::string w   = g.molecules[imol].save_weight_col;
+	    float lev       = g.molecules[imol].contour_level[0];
+	    float r         = g.box_radius;
+	    int use_weights_flag = g.molecules[imol].save_use_weights;
+	    std::string name = single_quote(graphics_info_t::molecules[imol].save_mtz_file_name);
+	    mg_stream << "MapData (\n";
+	    mg_stream << "   filename = [\n";
+	    mg_stream << "   'FULLPATH',\n";
+	    mg_stream << "   " << name << ",\n";
+	    mg_stream << "   " << name << "],\n";
+	    mg_stream << "   phi = " << single_quote(phi) << ",\n";
+	    mg_stream << "   f   = " << single_quote(f) << ",\n";
+	    mg_stream << "   rate = 0.75\n";
+	    mg_stream << ")\n";
+	    mg_stream << "MapDisp (\n";
+	    mg_stream << "    contour_level = " << lev << ",\n";
+	    mg_stream << "    surface_style = 'chickenwire',\n";
+	    mg_stream << "    radius = " << r << ",\n";
+	    mg_stream << "    clip_mode = 'OFF')\n";
+	    mg_stream << "\n";
+	 }
+      }
+   }
+} 

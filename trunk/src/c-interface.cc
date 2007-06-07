@@ -1484,6 +1484,11 @@ save_directory_from_fileselection(const GtkWidget *fileselection) {
    g.save_directory_from_fileselection(fileselection);
 }
 
+void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection) {
+   graphics_info_t g;
+   g.save_directory_for_saving_from_fileselection(fileselection);
+} 
+
 
 /*  Eleanor likes to sort her files by date when selecting a file
 */
@@ -2671,9 +2676,14 @@ void set_font_size(int i) {
 }
 
 int get_font_size() {
-
    return graphics_info_t::atom_label_font_size;
+}
 
+/*! \brief set the colour of the atom label font - the arguments are
+  in the range 0->1 */
+void set_font_colour(float red, float green, float blue) {
+   graphics_info_t::font_colour = coot::colour_holder(red, green, blue);
+   graphics_draw();
 }
 
 
@@ -3625,6 +3635,7 @@ int save_coordinates(int imol, const char *filename) {
 
 void set_save_coordinates_in_original_directory(int i) {
 
+   // not used now, I think.
    graphics_info_t::save_coordinates_in_original_dir_flag = i;
 
 }

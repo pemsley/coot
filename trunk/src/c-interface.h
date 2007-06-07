@@ -1198,6 +1198,7 @@ void set_symmetry_shift_search_size(int shift);
    last one ended in) */
 void set_directory_for_fileselection(GtkWidget *coords_fileselection1); 
 void save_directory_from_fileselection(const GtkWidget *fileselection);
+void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection);
 void set_file_for_save_fileselection(GtkWidget *fileselection);
 
 /* Eleanor likes to sort her files by date when selecting a file */
@@ -1535,6 +1536,10 @@ void set_font_size(int i);
 
   @return 1 (small) 2 (medium, default) 3 (large) */
 int get_font_size();
+
+/*! \brief set the colour of the atom label font - the arguments are
+  in the range 0->1 */
+void set_font_colour(float red, float green, float blue);
 /* \} */
 
 /*  ---------------------------------------------------------------------- */
@@ -4052,6 +4057,16 @@ int probe_available_p();
 state should be 0 or 1. */
 /* when it works, call it dti_side_by_side_stereo_mode() */
 void set_dti_stereo_mode(short int state);
+
+/*  ----------------------------------------------------------------------- */
+/*                  CCP4MG Interface                                        */
+/*  ----------------------------------------------------------------------- */
+/*! \name CCP4mg Interface */
+/* \{ */
+void write_ccp4mg_picture_description(const char *filename);
+/* \} */
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Tips                                                    */
