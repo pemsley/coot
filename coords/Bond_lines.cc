@@ -247,9 +247,19 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		     if (atom_selection_1[ contact[i].id1 ]->GetModel() ==
 			 atom_selection_2[ contact[i].id2 ]->GetModel()) {
 
-			if (have_udd_atoms) { 
-			   atom_selection_1[ contact[i].id1 ]->PutUDData(udd_handle,1);
-			   atom_selection_2[ contact[i].id2 ]->PutUDData(udd_handle,1);
+			if (have_udd_atoms) {
+ 			   if (! ((!strcmp(atom_selection_1[ contact[i].id1 ]->element, " S")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "SE")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, " P"))))
+			      atom_selection_1[ contact[i].id1 ]->PutUDData(udd_handle, 1);
+ 			   if (! ((!strcmp(atom_selection_2[ contact[i].id2 ]->element, " S")) ||
+				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, "SE")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
+				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, " P"))))
+			      atom_selection_2[ contact[i].id2 ]->PutUDData(udd_handle, 1);
 			}
 
 			if (element_1 != element_2) {
@@ -434,6 +444,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	 if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
 	    if ((ic == 0) ||
 		(!strcmp(non_Hydrogen_atoms[i]->element, " S")) ||
+		(!strcmp(non_Hydrogen_atoms[i]->element, "SE")) ||
 		(!strcmp(non_Hydrogen_atoms[i]->element, " P"))) {
 	       
 	       // no contact found or was Sulphur, or Phosphor
@@ -444,7 +455,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	       if (atom_residue_p) {
 		  std::string resname = non_Hydrogen_atoms[i]->GetResName();
 		  if ((is_from_symmetry_flag == 0) &&
-		      (resname == "MSE" || resname == "MET" || resname == "CYS")) {
+		      (resname == "MSE" || resname == "MET" || resname == "MSO"
+		       || resname == "CYS" )) {
 		     handle_MET_or_MSE_case(non_Hydrogen_atoms[i],
 					    atom_colour_type);
 		  } else {
@@ -509,7 +521,7 @@ Bond_lines_container::handle_MET_or_MSE_case(PCAtom mse_atom,
    
    std::string atom_name(mse_atom->name);
    std::string residue_name(mse_atom->GetResName());
-   if (residue_name == "MET" || residue_name == "MSE") { 
+   if (residue_name == "MET" || residue_name == "MSE" || residue_name == "MSO") { 
       if (atom_name == "SE  " || atom_name == " SD ") {
 	 int col = atom_colour(mse_atom, atom_colour_type);
 
