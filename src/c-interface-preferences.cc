@@ -960,7 +960,7 @@ parse_ccp4i_defs(const std::string &filename) {
 	 ipath  = ss.find("PROJECT_PATH,");
 	 ialias = ss.find("PROJECT_ALIAS,");
 	 if (ipath != std::string::npos) {
-	    // std::cout << "  found a project path..." << std::endl;
+	    // std::cout << "DEBUG::  found a project path..." << std::endl;
 	    path_coming = 1;
 	    icomma = ss.find_last_of(",");
 	    // std::cout << icomma << " " << ss.length() << std::endl;
@@ -977,14 +977,14 @@ parse_ccp4i_defs(const std::string &filename) {
 	    }
 	 }
       }
-//       std::cout << "----------- path pairs: ------------" << std::endl;
-//       for (int i=0; i<path.size(); i++) {
-// 	 std::cout << path[i].first << "  " << path[i].second << std::endl;
-//       }
-//       std::cout << "----------- alias pairs: ------------" << std::endl;
-//       for (int i=0; i<alias.size(); i++)
-// 	 std::cout << alias[i].first << "  " << alias[i].second << std::endl;
-//       std::cout << "-------------------------------------" << std::endl;
+//        std::cout << "----------- path pairs: ------------" << std::endl;
+//        for (int i=0; i<path.size(); i++) {
+//  	 std::cout << path[i].first << "  " << path[i].second << std::endl;
+//        }
+//        std::cout << "----------- alias pairs: ------------" << std::endl;
+//        for (int i=0; i<alias.size(); i++)
+//  	 std::cout << alias[i].first << "  " << alias[i].second << std::endl;
+//        std::cout << "-------------------------------------" << std::endl;
 
       std::string alias_str;
       std::string path_str;
@@ -1008,27 +1008,26 @@ parse_ccp4i_defs(const std::string &filename) {
 	       // that didn't exist.  Now we skip if the file does not
 	       // exist or is not a directory.
 
+	       // std::cout << "stating "<< path_str << std::endl;
+
 	       if (status == 0) { 
 		  if (S_ISDIR(buf.st_mode)) {
 		     path_str += "/";
 
-// 	       } else { 
-//                This is too boring to see every time we open a file selection
-// 		  std::cout << "INFO:: directory for a CCP4i project: " 
-// 			    << path_str << " was not found\n";
-// 	       } 
-	       
 		     if (alias_str == "\"\"") {
 			alias_str = "";
 			path_str  = "";
 		     }
 		     v.push_back(std::pair<std::string, std::string> (alias_str, path_str));
 		  }
+// 	       } else { 
+// 		  // This is too boring to see every time we open a file selection
+// 		  std::cout << "INFO:: directory for a CCP4i project: " 
+// 			    << path_str << " was not found\n";
 	       }
 	    }
 	 }
       }
-
    }
    return v;
 }

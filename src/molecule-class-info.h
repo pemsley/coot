@@ -1587,7 +1587,7 @@ class molecule_class_info_t {
 
    // merge molecules
    
-   int merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
+   std::pair<int, std::vector<std::string> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
 

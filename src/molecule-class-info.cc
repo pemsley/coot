@@ -2443,7 +2443,9 @@ molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag) {
 	    std::string label = make_atom_label_string(atom, brief_atom_labels_flag);
       
 	    // GLfloat white[3] = { 1.0, 1.0, 1.0 };
-	    GLfloat pink[3] =  { 1.0, 0.8, 0.8 };
+	    GLfloat pink[3] =  { graphics_info_t::font_colour.red,
+				 graphics_info_t::font_colour.green,
+				 graphics_info_t::font_colour.blue };
       
 	    // glClear(GL_COLOR_BUFFER_BIT);
 	    glColor3fv(pink);

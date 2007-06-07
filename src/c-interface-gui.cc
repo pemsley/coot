@@ -1135,11 +1135,28 @@ new_close_molecules(GtkWidget *window) {
 #endif
 	       graphics_info_t::molecules[imol].close_yourself();
 	       closed_something_flag = 1;
-
 	    }
 	 }
       }
    }
+
+   // Check here if there are any maps left open.  If there are none,
+   // then set the gslist_for_scroll to NULL.  This will prevent
+   // "Gtk-CRITICAL **: file gtkradiobutton.c: line 167
+   // (gtk_radio_button_set_group): assertion `!g_slist_find (group,
+   // radio_button)' failed." when we try to add a map to an old open
+   // but emptied Display Control
+   //
+   int n_maps_left = 0;
+   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      if (is_valid_map_molecule(imol)) {
+	 n_maps_left++;
+	 break;
+      }
+   }
+   if (n_maps_left == 0)
+      graphics_info_t::gslist_for_scroll_in_display_manager = NULL;
+   
 
    // update go to atom molecule now that we may have deleted the
    // currently set one.
@@ -1843,10 +1860,10 @@ void apply_bond_parameters(GtkWidget *w) {
 	    GtkWidget *ncs_toggle_button =
 	       lookup_widget(w, "draw_ncs_ghosts_yes_radiobutton");
 	    if (GTK_TOGGLE_BUTTON(ncs_toggle_button)->active) {
-	       std::cout << "set_draw_ncs_ghosts " << imol << " " << "1" << std::endl;
+	       // std::cout << "set_draw_ncs_ghosts " << imol << " " << "1" << std::endl;
 	       set_draw_ncs_ghosts(imol, 1);
 	    } else {
-	       std::cout << "set_draw_ncs_ghosts " << imol << " " << "0" << std::endl;
+	       // std::cout << "set_draw_ncs_ghosts " << imol << " " << "0" << std::endl;
 	       set_draw_ncs_ghosts(imol, 0);
 	    }
 	    

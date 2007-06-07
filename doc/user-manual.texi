@@ -1332,6 +1332,11 @@ are shorter, without the slashes and residue name:
 
 @code{(set-brief-atom-labels 1)}
 
+To change the atom label colour, use:
+
+@code{(set-font-colour 0.9 0.9 0.9)}
+
+
 @node Atom Colouring
 @section Atom Colouring
 The atom colouring 

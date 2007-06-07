@@ -427,6 +427,7 @@ class graphics_info_t {
    // directory saving for fileselection
    //
    static std::string directory_for_fileselection;
+   static std::string directory_for_saving_for_fileselection;
 
    // distance object vector, and angle
    static std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *distance_object_vec;
@@ -888,6 +889,7 @@ public:
    static int atom_label_font_size; // range of 1->3. small, medium, large.
    static void *atom_label_font; 
    static int label_atom_on_recentre_flag; 
+   static coot::colour_holder font_colour;
    void remove_all_atom_labels();
 
    // Conversion variables for Stuart:
@@ -1899,6 +1901,7 @@ public:
    // 
    void set_directory_for_fileselection(GtkWidget *fileselection) const;
    void save_directory_from_fileselection(const GtkWidget *fileselection);
+   void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection);
    void set_file_for_save_fileselection(GtkWidget *fileselection) const;
 
    // saving temporary files (undo)
@@ -2171,6 +2174,7 @@ public:
    static std::string ccp4_defs_file_name();
    static int ccp4_projects_index_last;
    void set_directory_for_fileselection_string(std::string filename);
+   void set_directory_for_saving_for_fileselection_string(std::string filename);
    static int file_selection_dialog_x_size;
    static int file_selection_dialog_y_size; 
 

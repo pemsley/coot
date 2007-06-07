@@ -220,6 +220,15 @@ graphics_info_t::save_state_file(const std::string &filename) {
 		  active_strings.push_back(int_to_string(0));
 		  commands.push_back(state_command(active_strings, il));
 	       }
+
+	       if (molecules[i].bond_thickness() != default_bond_width) {
+		  display_strings.clear();
+		  display_strings.push_back("set-bond-thickness");
+		  display_strings.push_back(int_to_string(molecule_count));
+		  display_strings.push_back(int_to_string(molecules[i].bond_thickness()));
+		  commands.push_back(state_command(display_strings, il));
+	       }
+	       
 	       // symmetry issues:
 	       if (molecules[i].symmetry_as_calphas) {
 		  // default would be not CAlphas

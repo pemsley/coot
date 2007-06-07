@@ -835,6 +835,16 @@
 
 
 
+;; transform a coordinates molecule by a coot-rtop (which is a SCM
+;; expression of a clipper::RTop)
+;; 
+(define (transform-coord-molecule imol rtop)
+  
+  (apply transform-molecule-by 
+	 (cons imol (apply append rtop))))
+
+
+
 ;; @code{(transform-map imol mat trans about-pt radius)}
 ;; 
 ;; or @code{(transform-map imol trans about-pt radius)} for a simple translation
