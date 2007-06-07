@@ -52,16 +52,19 @@
 				    (cond 
 				     ((null? molecule-list) "")
 				     ((= 1 (is-valid-map-molecule (car molecule-list)))
-				      (format #t "~s is a valid map molecule" (car molecule-list))
 				      (number->string (car molecule-list)))
 				     (else 
 				      (f (cdr molecule-list)))))
 				  "//A/1"
+				  " Invert Masking? "
+				  (lambda (active-state) 
+				    (format #t "changed active state to ~s~%" active-state))
 				  "  Mask Map  "
-				  (lambda (text-1 text-2)
-				    (let ((n (string->number text-1)))
+				  (lambda (text-1 text-2 invert-mask?)
+				    (let ((n (string->number text-1))
+					  (invert (if invert-mask? 1 0)))
 				      (if (number? n)
-					  (mask-map-by-atom-selection n imol text-2 0)))))))))
+					  (mask-map-by-atom-selection n imol text-2 invert)))))))))
 
       (add-simple-coot-menu-menuitem
        menu "Copy Coordinates Molecule...."
@@ -125,11 +128,6 @@
 	 (molecule-chooser-gui "Set the Molecule for \"Undo\" Operations"
 			       (lambda (imol)
 				 (set-undo-molecule imol)))))
-
-      (add-simple-coot-menu-menuitem
-       menu "Question Accept Refinement"
-       (lambda ()
-	 (set-refinement-immediate-replacement 0)))
 
       (add-simple-coot-menu-menuitem
        menu "Set map is a difference map..."
@@ -283,6 +281,11 @@
 		   (molecule-number-list))))
       
       (add-simple-coot-menu-menuitem
+       menu "Question Accept Refinement"
+       (lambda ()
+	 (set-refinement-immediate-replacement 0)))
+
+      (add-simple-coot-menu-menuitem
        menu "SHELXL Refine..."
        (lambda ()
 
@@ -357,8 +360,10 @@
          submenu "Add a Spin View"
          (lambda ()
            (generic-double-entry "Number of Step" "Number of Degrees (total)"
-				"3600" "360" "  Add Spin  " 
-				(lambda (text1 text2)
+				"3600" "360" 
+				#f #f ; check button text and callback 
+				"  Add Spin  " 
+				(lambda (text1 text2 dummy)
 				  (let ((n1 (string->number text1))
 					(n2 (string->number text2)))
 				    

@@ -37,7 +37,7 @@
 	(replacement-state (refinement-immediate-replacement-state)))
 
     (if (= imol-map -1)
-	(add-status-bar-text "Oops.  Must set a map to fit")
+	(info-dialog "Oops.  Must set a map to fit")
 
 	(begin
 	  (turn-off-backup imol)

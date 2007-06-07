@@ -236,12 +236,19 @@
 
     (gtk-widget-show-all window))))
 
-;; generic double entry widget
+;; generic double entry widget, now with a check button
 ;; 
-;; pass a the hint labels of the entries and a function that gets
-;; called when user hits "Go" (which takes to string aguments).
+;; pass a the hint labels of the entries and a function
+;; (handle-go-function) that gets called when user hits "Go" (which
+;; takes two string aguments and the active-state of the check button
+;; (either #t of #f).
 ;; 
-(define (generic-double-entry label-1 label-2 entry-1-default-text entry-2-default-text go-button-label handle-go-function)
+;; if check-button-label not a string, then we don't display (or
+;; create, even) the check-button.  If it *is* a string, create a
+;; check button and add the callback handle-check-button-function
+;; which takes as an argument the active-state of the the checkbutton.
+;; 
+(define (generic-double-entry label-1 label-2 entry-1-default-text entry-2-default-text check-button-label handle-check-button-function go-button-label handle-go-function)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (vbox (gtk-vbox-new #f 0))
@@ -258,43 +265,59 @@
     
     (gtk-box-pack-start vbox hbox1 #f #f 0)
     (gtk-box-pack-start vbox hbox2 #f #f 0)
-    (gtk-box-pack-start vbox h-sep #t #f 2)
-    (gtk-box-pack-start vbox hbox3 #f #f 0)
     (gtk-box-pack-start hbox3 go-button #t #f 6)
     (gtk-box-pack-start hbox3 cancel-button #t #f 6)
     (gtk-box-pack-start hbox1 tlc-label #f 0)
     (gtk-box-pack-start hbox1 tlc-entry #f 0)
     (gtk-box-pack-start hbox2 smiles-label #f 0)
     (gtk-box-pack-start hbox2 smiles-entry #f 0)
-    (gtk-container-add window vbox)
-    (gtk-container-border-width vbox 6)
-    
-    (if (string? entry-1-default-text) 
-	(gtk-entry-set-text tlc-entry entry-1-default-text))
-    
-    (if (string? entry-2-default-text )
-	(gtk-entry-set-text smiles-entry entry-2-default-text))
 
-    (gtk-signal-connect cancel-button "clicked"
-			(lambda args
-			  (gtk-widget-destroy window)))
-    
-    (gtk-signal-connect go-button "clicked"
-			(lambda args
-			  (handle-go-function (gtk-entry-get-text tlc-entry)
-					      (gtk-entry-get-text smiles-entry))
-			  (gtk-widget-destroy window)))
-    
-    (gtk-signal-connect smiles-entry "key-press-event"
-			(lambda (event)
-			  (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
-			      (begin
-				(handle-go-function (gtk-entry-get-text tlc-entry)
-						    (gtk-entry-get-text smiles-entry))
-				(gtk-widget-destroy window)))
-			  #f))
+    (let ((check-button 
+	   (if (string? check-button-label)
+	       (let ((c-button (gtk-check-button-new-with-label check-button-label)))
+		 (gtk-box-pack-start vbox c-button #f #f 2)
+		 (gtk-signal-connect c-button "toggled"
+				     (lambda ()
+				       (let ((active-state (gtk-toggle-button-get-active 
+							    c-button)))
+					 (handle-check-button-function active-state))))
+		 c-button)
+	       #f))) ; the check-button when we don't want to see it
+      
+      (gtk-box-pack-start vbox h-sep #t #f 3)
+      (gtk-box-pack-start vbox hbox3 #f #f 0)
+      (gtk-container-add window vbox)
+      (gtk-container-border-width vbox 6)
+      
+      (if (string? entry-1-default-text) 
+	  (gtk-entry-set-text tlc-entry entry-1-default-text))
+      
+      (if (string? entry-2-default-text )
+	  (gtk-entry-set-text smiles-entry entry-2-default-text))
 
-    (gtk-widget-show-all window)))
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window)))
+      
+      (gtk-signal-connect go-button "clicked"
+			  (lambda args
+			    (handle-go-function (gtk-entry-get-text tlc-entry)
+						(gtk-entry-get-text smiles-entry)
+						(if check-button
+						    (gtk-toggle-button-get-active check-button)
+						    'no-check-button))
+			    (gtk-widget-destroy window)))
+      
+      (gtk-signal-connect smiles-entry "key-press-event"
+			  (lambda (event)
+			    (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
+				(begin
+				  (handle-go-function (gtk-entry-get-text tlc-entry)
+						      (gtk-entry-get-text smiles-entry))
+				  (gtk-widget-destroy window)))
+			    #f))
+
+      (gtk-widget-show-all window))))
 
 ;; A demo gui to move about to molecules.
 ;; 
@@ -648,8 +671,6 @@
 				    (format #t "Failed to get a (molecule) number~%"))
 
 				  (begin ;; good...
-				    (format #t "INFO: operating on molecule number ~s~%" 
-					    active-mol-no)
 				    (callback-function active-mol-no))))
 			      
 			    (gtk-widget-destroy window)))
@@ -724,8 +745,6 @@
 			    
 			    (if (number? active-mol-no)
 				(begin
-				  (format #t "INFO: operating on molecule number ~s~%" 
-					  active-mol-no)
 				  (let ((text (gtk-entry-get-text entry)))
 				    (callback-function active-mol-no text)))))
 			  
