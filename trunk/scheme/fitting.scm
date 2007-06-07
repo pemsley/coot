@@ -150,9 +150,13 @@
 ;; For each residue in the solvent chains of molecule number
 ;; @var{imol}, do a rigid body fit of the water to the density.
 ;; 
-(define (fit-waters imol)
+(define (fit-waters imol . animate?)
 
-  (let ((imol-map (imol-refinement-map)))
+  (format #t "animate?: ~s~%" animate?)
+  (let ((imol-map (imol-refinement-map))
+	(do-animate? (if (null? animate?) #f #t)))
+
+    (format #t "do-animate?: ~s~%" do-animate?)
     (if (= imol-map -1)
 	(add-status-bar-text "You need to define a map to fit the waters")
 	(let ((replacement-state (refinement-immediate-replacement-state))
@@ -161,6 +165,7 @@
 
 	  (turn-off-backup imol)
 	  (set-refinement-immediate-replacement 1)
+	  (set-go-to-atom-molecule imol)
 	  
 	  ;; refine waters
 	  (let ((chain-identifiers (chain-ids imol)))
@@ -177,7 +182,19 @@
 			
 			(let ((res-no (seqnum-from-serial-number imol chain-id serial-number)))
 			  
-			  (refine-zone imol chain-id res-no res-no alt-conf)
+			  (if do-animate?
+			      (let ((res-info (residue-info imol chain-id res-no "")))
+				(if (not (null? res-info))
+				    (let ((atom (car res-info)))
+				      (let ((atom-name (car (car atom))))
+					
+					(set-go-to-atom-chain-residue-atom-name chain-id res-no atom-name)
+					(refine-zone imol chain-id res-no res-no alt-conf)
+					(rotate-y-scene 30 0.6))) ; n-frames frame-interval(degrees)
+				    (refine-zone imol chain-id res-no res-no alt-conf)))
+			      (begin
+				(refine-zone imol chain-id res-no res-no alt-conf)))
+
 			  (accept-regularizement)))
 		      (number-list 0 (- n-residues 1))))))
 	     chain-identifiers))
