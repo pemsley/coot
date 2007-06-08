@@ -2098,6 +2098,9 @@ void change_chain_ids_mol_option_menu_item_activate(GtkWidget *item,
 void change_chain_ids_chain_menu_item_activate(GtkWidget *item,
 					       GtkPositionType pos);
 
+void  change_chain_id(int imol, const char *from_chain_id, const char *to_chain_id, 
+		      short int use_res_range_flag, int from_resno, int to_resno);
+
 /*  ----------------------------------------------------------------------- */
 /*                  scripting                                               */
 /*  ----------------------------------------------------------------------- */
