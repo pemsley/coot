@@ -4133,6 +4133,18 @@ change_chain_id_by_widget(GtkWidget *w) {
    }
 }
 
+void change_chain_id(int imol, const char *from_chain_id, const char *to_chain_id, 
+		     short int use_res_range_flag, int from_resno, int to_resno) {
+
+   std::pair<int, std::string> r = 
+      graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
+						       to_chain_id,
+						       use_res_range_flag,
+						       from_resno,
+						       to_resno);
+} 
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*               Nomenclature Errors                                        */
