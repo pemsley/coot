@@ -6350,20 +6350,20 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))"); 
 
    // I am undecided if I want this or not:
-   std::cout << "safe running :" << scheme_command << ":" << std::endl; 
+   // std::cout << "safe running :" << scheme_command << ":" << std::endl; 
    std::string thunk("(lambda() "); 
    thunk += scheme_command; 
    thunk += " )";
    SCM scm_thunk = SCM_BOOL_F;
 
    // try/catch does not make flow control come back here when bad thunk.
-   std::cout << "..... making thunk... " << std::endl;
+   //    std::cout << "..... making thunk... " << std::endl;
    scm_thunk = scm_c_eval_string(thunk.c_str());
-   std::cout << "..... making thunk done. " << std::endl;
+   //    std::cout << "..... making thunk done. " << std::endl;
 
-   std::cout << "..... scm_catch... " << std::endl;
+   //    std::cout << "..... scm_catch... " << std::endl;
    SCM v = scm_catch(SCM_BOOL_T, scm_thunk, handler);
-   std::cout << "..... scm_catch done " << std::endl;
+   //    std::cout << "..... scm_catch done " << std::endl;
 
    SCM dest = SCM_BOOL_F;
    SCM mess = scm_makfrom0str("scm_catch returns: ~s\n");
@@ -6373,9 +6373,7 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 #else   
    std::string bad_str = SCM_STRING_CHARS(sf);
 #endif    
-   std::cout << bad_str << std::endl;
-
-
+   // std::cout << bad_str << std::endl;
 
 //   int is_int_p = scm_integer_p(v);
 //   if (is_int_p) { 
@@ -6622,8 +6620,8 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 // 	     << " and centres: "
 // 	     << view1.rotation_centre << " to " << view2.rotation_centre << std::endl;
 
-    std::cout << "quaternion interpolation using " << n_steps << " steps"
-	      << std::endl;
+//     std::cout << "quaternion interpolation using " << n_steps << " steps"
+// 	      << std::endl;
 
    float total_zoom_by = view2.zoom/view1.zoom;
    float frac_zoom_by =  1;

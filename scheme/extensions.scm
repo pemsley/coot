@@ -286,6 +286,20 @@
 	 (set-refinement-immediate-replacement 0)))
 
       (add-simple-coot-menu-menuitem
+       menu "Another level..."
+       (lambda ()
+	 (another-level)))
+
+      (add-simple-coot-menu-menuitem
+       menu "CCP4MG..."
+       (lambda ()
+	 (let ((pd-file-name "1.mgpic.py"))
+	   (write-ccp4mg-picture-description pd-file-name)
+	   (if (command-in-path? "ccp4mg")
+	       (run-concurrently "ccp4mg" "-pict" pd-file-name)))))
+
+
+      (add-simple-coot-menu-menuitem
        menu "SHELXL Refine..."
        (lambda ()
 

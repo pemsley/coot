@@ -8,17 +8,13 @@
 
    o Richardson rotamers
 
-   o Torsion General
-
    o Gtk Timeout for reading socket strings
+
+   o Torsion General
 
    o Multiple model ligand overlaying
 
    o Kevin's Ramachandran Refinement target
-
-   o Add Chiral Volume Outliers to Omega Angle Plot
-
-   o Make the Omega Angle Plot update properly
 
    o rotamer-score function needs to be filled
 
@@ -39,6 +35,10 @@
    o Add some SHELX reading to the test suite.
 
    o fix db-main so that it doesn't spew error messages
+
+   o Add Chiral Volume Outliers to Omega Angle Plot
+
+   o Make the Omega Angle Plot update properly
 
    o CCP4mg button
 
@@ -84,7 +84,9 @@
 
 ------
 
-   Release 0.7
+   Release 0.7, Facelift-release
+
+   o Clean up menu items, use Preferences.
 
    o Switch to GTk2, guile1.8.  Dump Gtk1 interface, re-write build-it 
      script

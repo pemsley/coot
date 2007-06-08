@@ -2515,7 +2515,7 @@ Coot, you will get the message:
 
 New ligands are placed where the
 map density is and protein (mask) atoms are @emph{not}).  The masked
-map is searched for clusters using a default cut-off of 1.0$@math{\sigma}.
+map is searched for clusters using a default cut-off of 1.0@math{\sigma}.
 In weak density this cut-off may be too high and in such a case the
 cut-off value can be changed using something such as:
 
@@ -3367,7 +3367,7 @@ change this using:
 
 @code{(set-map-mask-atom-radius @emph{radius})}
 
-There is no GUI interface for masking at the moment.
+There is a GUI interface to Map Masking under the Extensions menu. 
 
 @subsection Example 
 If one wanted to show just the density around a ligand:
@@ -3461,6 +3461,19 @@ Which creates a map over the middle of the ``A'' molecule.  Note that
 using a too high @code{@emph{radius}} can cause overlap problems, so try
 with a small @code{@emph{radius}} (@emph{e.g.} 5.0) if the resulting map
 looks problematic.
+
+Alternatively, instead of typing the whole matrix, you can use a
+coordinates least-squares fit to generate the matrix for you.
+@code{(transform-map-using-lsq-matrix)} does just that.
+
+Heres how to use it:
+
+@code{(transform-map-using-lsq-matrix \emph{imol-ref ref-chain ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start mov-resno-end imol-map about-pt radius})}
+ 
+Hopefully the arguments are self explanatory (@code{@emph{ref}} refers
+to the reference molecule, of course and @code{@emph{about-pt}} is a
+3-number list such as is returned by @code{(rotation-centre)}).
+
 
 We can now export that map, if we want.
 

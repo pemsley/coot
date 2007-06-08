@@ -1601,7 +1601,7 @@ void write_ccp4mg_picture_description(const char *filename) {
       mg_stream << "view = View (\n";
       mg_stream << "    centre_xyz = [";
       mg_stream << -rc.x() << ", " << -rc.y() << ", " << -rc.z() << "],\n";
-      mg_stream << "    radius = " << graphics_info_t::zoom << ",\n";
+      mg_stream << "    radius = " << 0.75*graphics_info_t::zoom << ",\n";
       mg_stream << "    orientation = [ " << g.quat[0] << ", "
 		<< g.quat[1] << ", " << g.quat[2] << ", " << g.quat[3] << "]\n";
       mg_stream << ")\n";
@@ -1618,7 +1618,7 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    mg_stream << "MolDisp (\n";
 	    mg_stream << "    selection = 'all',\n";
 	    mg_stream << "    colour    = 'atomtype',\n"; 
-	    mg_stream << "    style     = 'bonds',\n";
+	    mg_stream << "    style     = 'BONDS',\n";
 	    mg_stream << "    selection_parameters = {\n";
 	    mg_stream << "                'neighb_rad' : '5.0',\n";
 	    mg_stream << "                'select' : 'all',\n";
