@@ -51,6 +51,8 @@ namespace coot {
 	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11};
 
+   enum { RESIDUE_NUMBER_UNSET = -1111}; 
+
    class model_view_residue_button_info_t {
    public:
       model_view_residue_button_info_t(){} // for new allocator

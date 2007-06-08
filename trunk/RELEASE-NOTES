@@ -11,12 +11,15 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Fix crash when applying NCS edits [Michael Url]
 
+  o Fix crash apparent after deleting all maps then reading a new one 
+    while the Display Control window was open
+
   o Added CNS map-reading [provided by Kevin Cowtan]. ".cns" is now 
     an acceptable map extension.
 
   o Add Terminal Residue for nucleotide polymers
 
-  o Alt confs of ligands no longer fly appart on regularization
+  o Alt confs of ligands no longer fly apart on regularization
 
   o GTk+-2 interface now usable
 
@@ -34,6 +37,9 @@ Release 0.3.2 "Don't Bet on the River"
     interfaces
 
   o Added function "blob under cursor -> screen centre" [FvD]
+
+  o Fix problem of Change Chain ID Residue Range inserting into the wrong 
+    place
 
   o Fix map reading so that it accepts user-approved extensions
     [Peter Meyer]
@@ -54,11 +60,15 @@ Release 0.3.2 "Don't Bet on the River"
   o On startup, the Go To Atom dialog no longer is inconsistent
     between the chain chain and molecule chooser [GMS]
 
+  o phosphylate-active-residue function added, with GUI menu item
+
   o Further tinkering with the bonding algorithm
 
   o generic-double-entry interface changed, breaking
     backwards-compatibility.  It now takes arguments for a check
     button.
+
+
 
     -------------------------------------------------------
     -------------------- Old Releases ---------------------

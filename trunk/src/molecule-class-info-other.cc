@@ -4902,22 +4902,26 @@ molecule_class_info_t::change_chain_id_with_residue_range_helper_insert_or_add(C
 
    int resno_new_residue = new_residue->GetSeqNum();
    std::string ins_code = new_residue->GetInsCode();
-   int target_res_serial_number = -1; // unset
-   int target_res_seq_num = resno_new_residue + 1; // simply ignore ins codes :)
+   int target_res_serial_number = coot::RESIDUE_NUMBER_UNSET;
+   int target_res_seq_num = resno_new_residue; // simply ignore ins codes :)
    std::string target_res_ins_code = ""; // ignore this.  Fix later.
+   int best_seq_num_diff = 99999999;
 
    int n_chain_residues;
    PCResidue *chain_residues;
    to_chain_p->GetResidueTable(chain_residues, n_chain_residues);
    for (int iserial=0; iserial<n_chain_residues; iserial++) {
       int chain_residue_seq_num = chain_residues[iserial]->GetSeqNum();
-      if (chain_residue_seq_num <= target_res_seq_num) {
-	 // got a hit
-	 target_res_serial_number = iserial;
+      int this_seq_num_diff = chain_residue_seq_num - resno_new_residue;
+      if (this_seq_num_diff > 0) {
+	 if (this_seq_num_diff < best_seq_num_diff) {
+	    best_seq_num_diff = this_seq_num_diff;
+	    target_res_serial_number = iserial;
+	 }
       }
    }
-
-   if (target_res_serial_number != -1) {
+      
+   if (target_res_serial_number != coot::RESIDUE_NUMBER_UNSET) {
       // Good stuff
       std::cout << "Debugging, inserting residue here...." << std::endl;
       to_chain_p->InsResidue(new_residue, target_res_serial_number);

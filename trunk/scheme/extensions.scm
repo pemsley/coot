@@ -323,6 +323,11 @@
 	     (gtk-widget-show-all window)))))
 
       (add-simple-coot-menu-menuitem 
+       menu "Phosphorylate this residue"
+       (lambda ()
+	 (phosphorylate-active-residue)))
+
+      (add-simple-coot-menu-menuitem 
        menu "Set Spin Speed..."
        (lambda ()
 	 (generic-single-entry "Set Spin Speed (smaller is slower)"

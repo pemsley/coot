@@ -518,6 +518,10 @@ coot::graph_match(CResidue *res_moving,
    CGraph graph1;
    CGraph graph2;
 
+   // These are deleted at the end
+   CResidue *cleaned_res_moving    = coot::util::copy_and_delete_hydrogens(res_moving);
+   CResidue *cleaned_res_reference = coot::util::copy_and_delete_hydrogens(res_reference);
+
    graph1.MakeGraph(res_moving);
    graph2.MakeGraph(res_reference);
 
@@ -529,11 +533,27 @@ coot::graph_match(CResidue *res_moving,
    } else { 
       if (build_status2 != 0) {
 	 std::cout << "ERROR:: build_status2: " << build_status2 << std::endl;
-      } else { 
+      } else {
+
+	 int n_atoms_ref = cleaned_res_reference->GetNumberOfAtoms();
+	 int n_atoms_mov = cleaned_res_moving->GetNumberOfAtoms();
+
+	 int minMatch = 4;
+	 int n_ref_frac = int(0.75*float(n_atoms_ref));
+	 int n_mov_frac = int(0.75*float(n_atoms_mov));
+
+	 int min_n = (n_ref_frac < n_mov_frac) ? n_ref_frac : n_mov_frac;
+	 if (min_n > minMatch)
+	    minMatch = min_n;
+	 
 	 CGraphMatch match;
 
-	 match.MatchGraphs(&graph1, &graph2, 4, 0);
+	 std::cout << "match.MatchGraphs matching " << minMatch << " atoms"
+		   << std::endl;
+	 match.MatchGraphs(&graph1, &graph2, minMatch, 0);
+	 std::cout << "match.GetNoMatches" << std::endl;
 	 int n_match = match.GetNofMatches();
+	 std::cout << "match NumberofMatches " << n_match << std::endl;
 	 match.PrintMatches();
 
 	 double best_match_sum = 1e20;
@@ -558,8 +578,8 @@ coot::graph_match(CResidue *res_moving,
 	       } else  {
 // 		  printf(" %4i.  [%4s] <-> [%4s]\n",
 // 			 ipair, V1->GetName(), V2->GetName());
-		  CAtom *at1 = res_moving->atom[V1->GetUserID()];
-		  CAtom *at2 = res_reference->atom[V2->GetUserID()];
+		  CAtom *at1 = cleaned_res_moving->atom[V1->GetUserID()];
+		  CAtom *at2 = cleaned_res_reference->atom[V2->GetUserID()];
 		  coords_1_local.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
 		  coords_2_local.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
 	       }
@@ -586,6 +606,8 @@ coot::graph_match(CResidue *res_moving,
 	 }
       }
    }
+   delete cleaned_res_reference;
+   delete cleaned_res_moving;
    return std::pair<bool, clipper::RTop_orth> (success, rtop);
 }
 
@@ -1024,6 +1046,24 @@ coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(CMMDBManage
    chain_p->AddResidue(rres);
    return rres;
 }
+
+CResidue *coot::util::copy_and_delete_hydrogens(CResidue *residue_in) {
+
+   CResidue *copy = coot::util::deep_copy_this_residue(residue_in, "", 1);
+   PPCAtom residue_atoms;
+   int nResidueAtoms;
+   copy->GetAtomTable(residue_atoms, nResidueAtoms);
+
+   for(int i=0; i<nResidueAtoms; i++) {
+      std::string element(residue_atoms[i]->element);
+      if (element == " H" || element == " D") {
+	 copy->DeleteAtom(i);
+      }
+   }
+   copy->TrimAtomTable();
+   return copy;
+} 
+
 
 
 // transform atoms in residue

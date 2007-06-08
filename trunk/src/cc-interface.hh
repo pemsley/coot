@@ -212,13 +212,6 @@ void add_to_database(const std::vector<std::string> &command_strings);
 // return the status and vector of chain-ids of the new chain ids.
 // 
 std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
-#ifdef USE_GUILE
-SCM merge_molecules(SCM add_molecules, int imol);
-#endif
-
-#ifdef USE_PYTHON
-// Bernhard, fill me in...
-#endif 
 
 /*  ----------------------------------------------------------------------- */
 /*                         Dictionaries                                     */
@@ -269,6 +262,7 @@ const char *atom_info_string(int imol, const char *chain_id, int resno,
 //          (list x y z)))
 // 
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
+SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code);
 
 // And going the other way, given an s-expression, update
 // molecule_number by the given molecule.  Clear what's currently
