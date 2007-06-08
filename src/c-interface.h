@@ -2032,6 +2032,17 @@ void merge_molecules_menu_item_activate(GtkWidget *item,
 void on_merge_molecules_check_button_toggled (GtkToggleButton *togglebutton,
 					      gpointer         user_data);
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM merge_molecules(SCM add_molecules, int imol);
+#endif
+
+#ifdef USE_PYTHON
+// Bernhard, fill me in...
+#endif 
+#endif	/* c++ */
+
+
 /*  ----------------------------------------------------------------------- */
 /*                         Mutate Sequence and Loops GUI                    */
 /*  ----------------------------------------------------------------------- */
@@ -2083,7 +2094,7 @@ int renumber_residue_range(int imol, const char *chain_id,
 GtkWidget *wrapped_create_renumber_residue_range_dialog();
 void renumber_residues_from_widget(GtkWidget *window);
 
-/*! \brief change chain id for givenresidue number range  */
+/*! \brief change chain id for given residue number range  */
 int change_residue_number(int imol, const char *chain_id, int current_resno, const char *current_inscode, int new_resno, const char *new_inscode);
 /* \} */
 
@@ -2281,6 +2292,10 @@ void refine_zone(int imol, const char *chain_id, int resno1, int resno2, const c
 
  presumes that imol_Refinement_Map has been set */
 void refine_auto_range(int imol, const char *chain_id, int resno1, const char *altconf);
+
+/*! \brief regularize a zone
+  */
+void regularize_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
 
 /*! \brief set the number of refinement steps applied to the
   intermediate atoms each frame of graphics.

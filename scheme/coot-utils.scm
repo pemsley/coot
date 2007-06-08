@@ -823,14 +823,14 @@
 ;; deprecated
 (define (toggle-display-mol imol)
   (if (= (mol-is-displayed imol) 0)
-      (set-mol-displayed 1)
-      (set-mol-displayed 0)))
+      (set-mol-displayed imol 1)
+      (set-mol-displayed imol 0)))
 
 ;; deprecated
 (define (toggle-active-mol imol)
   (if (= (mol-is-active imol) 0)
-      (set-mol-active 1)
-      (set-mol-active 0)))
+      (set-mol-active imol 1)
+      (set-mol-active imol 0)))
 
 
 
@@ -1237,4 +1237,72 @@
   (let ((active-atom (active-residue)))
     (if active-atom
 	(apply delete-atom active-atom))))
+
+
+
+;; general mutate
+;; 
+;; typically:
+;; 
+;; overlay PTY onto given TYR
+;
+;; delete speced TYR
+;; 
+;; merge molecules PTY molecule int molecule number imol
+;; 
+;; change resno of PTY to that of the speced TYR
+;; 
+;; change chain id of PTY to that of speced TYR
+;;
+;; change chain ids with residue range for the PTY
+;; 
+(define (mutate-by-overlap imol chain-id resno tlc)
+
+  (let ((imol-ligand (get-monomer tlc)))
+    (if (not (valid-model-molecule? imol-ligand))
+	(let ((s (string-append " Oops.  Failed to get monomer " tlc)))
+	  (add-status-bar-text s))
+	(begin
+	  (delete-residue-hydrogens imol-ligand "A" 1 "" "")
+	  (delete-atom imol-ligand "A" 1 "" " OXT" "")
+	  (overlap-ligands imol-ligand imol chain-id resno)
+	  (delete-residue imol chain-id resno "")
+	  (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
+		 (nov (format #t "new-chain-id-info: ~s~%" new-chain-id-info)))
+	    (let ((merge-status (car new-chain-id-info)))
+	      (if (= merge-status 1)
+		  (let ((new-chain-id (car (car (cdr new-chain-id-info)))))
+		    (change-residue-number imol new-chain-id 1 "" resno "")
+		    (change-chain-id imol new-chain-id chain-id 1 resno resno)
+
+		    (let ((replacement-state (refinement-immediate-replacement-state)))
+		      (set-refinement-immediate-replacement 1)
+		      (regularize-zone imol chain-id resno resno "")
+		      (accept-regularizement)
+		      (set-refinement-immediate-replacement replacement-state))
+		    
+		    (set-mol-displayed imol-ligand 0)
+		    (set-mol-active imol-ligand 0)))))))))
+
+
+
+  
+;; A bit of fun 
+;; 
+(define (phosphorylate-active-residue)
+
+  (let* ((active-atom (active-residue))
+	 (imol     (list-ref active-atom 0))
+	 (chain-id (list-ref active-atom 1))
+	 (resno    (list-ref active-atom 2))
+	 (inscode  (list-ref active-atom 3))
+	 (res-name (residue-name imol chain-id resno inscode)))
+
+    (cond
+     ((string=? res-name "TYR") (mutate-by-overlap imol chain-id resno "PTR"))
+     ((string=? res-name "SER") (mutate-by-overlap imol chain-id resno "SEP"))
+     ((string=? res-name "THR") (mutate-by-overlap imol chain-id resno "TPO"))
+     (else 
+      (let ((s (string-append "Can't Phosphorylate residue of type" res-name)))
+	(info-dialog s))))))
 

@@ -3234,10 +3234,11 @@ SCM merge_molecules(SCM add_molecules, int imol) {
    SCM r = SCM_BOOL_F;
 
    std::vector<int> vam;
+   SCM l_length_scm = scm_length(add_molecules);
 
 #if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 
-   int l_length = scm_to_int(add_molecules);
+   int l_length = scm_to_int(l_length_scm);
    for (int i=0; i<l_length; i++) {
       SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
       int ii = scm_to_int(le);
@@ -3246,7 +3247,7 @@ SCM merge_molecules(SCM add_molecules, int imol) {
    
 #else
    
-   int l_length = gh_scm2int(add_molecules);
+   int l_length = gh_scm2int(l_length_scm);
    for (int i=0; i<l_length; i++) {
       SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
       int ii =  gh_scm2int(le);
@@ -4838,6 +4839,32 @@ void refine_auto_range(int imol, const char *chain_id, int resno1, const char *a
       }
    }
 }
+
+/*! \brief regularize a zone
+  */
+void regularize_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      // the "" is the insertion code (not passed to this function (yet)
+      int index1 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno1, ""); 
+      int index2 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno2, "");
+      short int auto_range = 0;
+      if (index1 >= 0) {
+	 if (index2 >= 0) { 
+	    g.regularize(imol, auto_range, index1, index2);
+	 } else {
+	    std::cout << "WARNING:: regularize_zone: Can't get index for resno2: "
+		      << resno2 << std::endl;
+	 } 
+      } else {
+	 std::cout << "WARNING:: regularize_zone: Can't get index for resno1: "
+		   << resno1 << std::endl;
+      }
+   } else {
+      std::cout << "Not a valid model molecule" << std::endl;
+   }
+} 
+
 
 // This does not control if the atoms are accepted immediately, just
 // whether the Accept Refinemnt gui is shown.

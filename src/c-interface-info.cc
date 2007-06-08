@@ -454,6 +454,47 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 }
 #endif // USE_GUILE
 
+
+#ifdef USE_GUILE
+SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code) {
+
+   SCM r = SCM_BOOL(0);
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int imod = 1;
+      bool have_resname_flag = 0;
+      
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 std::string chain_id_mol(chain_p->GetChainID());
+	 if (chain_id_mol == std::string(chain_id)) { 
+	    int nres = chain_p->GetNumberOfResidues();
+	    PCResidue residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p->GetSeqNum() == resno) { 
+		  std::string ins = residue_p->GetInsCode();
+		  if (ins == ins_code) {
+		     r = scm_makfrom0str(residue_p->GetResName());
+		     have_resname_flag = 1;
+		     break;
+		  }
+	       }
+	    }
+	 }
+	 if (have_resname_flag)
+	    break;
+      }
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+
 // A C++ function interface:
 // 
 int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {

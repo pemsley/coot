@@ -298,6 +298,8 @@ namespace coot {
       CResidue* deep_copy_this_residue(const CResidue *residue,
 				       const std::string &altconf,
 				       short int whole_residue_flag);
+
+      CResidue *copy_and_delete_hydrogens(CResidue *residue_in);
       
       // utility function for above:
       CResidue* deep_copy_this_residue_with_atom_index_and_afix_transfer(CMMDBManager *std_mol, 
