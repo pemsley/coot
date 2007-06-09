@@ -1275,9 +1275,22 @@
 		    (change-residue-number imol new-chain-id 1 "" resno "")
 		    (change-chain-id imol new-chain-id chain-id 1 resno resno)
 
-		    (let ((replacement-state (refinement-immediate-replacement-state)))
+		    (let ((replacement-state (refinement-immediate-replacement-state))
+			  (imol-map (imol-refinement-map)))
 		      (set-refinement-immediate-replacement 1)
-		      (regularize-zone imol chain-id resno resno "")
+		      (if (= imol-map -1)
+			  (regularize-zone imol chain-id resno resno "")
+			  (let ((spin-atoms (list " P  " " O1P" " O2P" " O3P"))
+				(dir-atoms (cond 
+					    ((string=? tlc "PTR") (list " CZ " " OH "))
+					    ((string=? tlc "SER") (list " CB " " OG "))
+					    ((string=? tlc "TPO") (list " CB " " OG1"))
+					    (else 
+					     #f))))
+			    (if dir-atoms
+				(spin-search imol-map imol chain-id resno "" 
+					     dir-atoms spin-atoms))
+			    (refine-zone imol chain-id resno resno "")))
 		      (accept-regularizement)
 		      (set-refinement-immediate-replacement replacement-state))
 		    

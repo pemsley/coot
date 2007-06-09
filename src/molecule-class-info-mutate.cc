@@ -44,7 +44,8 @@
 
 // #include "xmap-utils.h"
 // #include "coot-coord-utils.hh"
-// #include "coot-utils.hh"
+
+#include "coot-map-utils.hh"
 
 #include "molecule-class-info.h"
 #include "mmdb_align.h"
@@ -804,4 +805,87 @@ molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
    atom_sel = make_asc(atom_sel.mol);
    make_bonds_type_checked();
    return changed_flag;
+}
+
+// 
+void
+molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
+				   const std::string &chain_id,
+				   int resno,
+				   const std::string &ins_code,
+				   const std::pair<std::string, std::string> &direction_atoms,
+				   const std::vector<std::string> &moving_atoms_list) {
+
+   CResidue *res = get_residue(resno, ins_code, chain_id);
+	 
+   if (res) {
+      // the first atom spec is not used in spin_search, so just bodge one in.
+      coot::atom_spec_t atom_spec_tor_1(chain_id, resno, ins_code, direction_atoms.first, "");
+      coot::atom_spec_t atom_spec_tor_2(chain_id, resno, ins_code, direction_atoms.first, "");
+      coot::atom_spec_t atom_spec_tor_3(chain_id, resno, ins_code, direction_atoms.second, "");
+      coot::atom_spec_t atom_spec_tor_4(chain_id, resno, ins_code, moving_atoms_list[0], "");
+	    
+      coot::torsion tors(0, // not used
+			 atom_spec_tor_1, atom_spec_tor_2,
+			 atom_spec_tor_3, atom_spec_tor_4);
+
+      // What is dir?
+      CAtom *dir_atom_1 = 0;
+      CAtom *dir_atom_2 = 0;
+      PPCAtom residue_atoms;
+      int nResidueAtoms;
+      res->GetAtomTable(residue_atoms, nResidueAtoms);
+      for (int iat=0; iat<nResidueAtoms; iat++) {
+	 if (direction_atoms.first == residue_atoms[iat]->name)
+	    dir_atom_1 = residue_atoms[iat];
+	 if (direction_atoms.second == residue_atoms[iat]->name)
+	    dir_atom_2 = residue_atoms[iat];
+      }
+
+      if (dir_atom_1 && dir_atom_2) { 
+
+	 float angle = coot::util::spin_search(xmap, res, tors);
+
+	 if (angle < -1000) { // an error occured
+	    std::cout << "ERROR:: something bad in spin_search" << std::endl;
+	 } else {
+	    // Now rotate the atoms in moving_atoms_list about dir;
+	    // 
+	    clipper::Coord_orth orig(dir_atom_2->x, dir_atom_2->y, dir_atom_2->z);
+	    clipper::Coord_orth  dir(dir_atom_2->x - dir_atom_1->x,
+				     dir_atom_2->y - dir_atom_1->y,
+				     dir_atom_2->z - dir_atom_1->z);
+
+	    for (unsigned int i_mov_atom = 0; i_mov_atom<moving_atoms_list.size(); i_mov_atom++) {
+		  
+
+	       PPCAtom residue_atoms;
+	       int nResidueAtoms;
+	       res->GetAtomTable(residue_atoms, nResidueAtoms);
+	       for (int iat=0; iat<nResidueAtoms; iat++) {
+		  if (moving_atoms_list[i_mov_atom] == residue_atoms[iat]->name) {
+
+		     clipper::Coord_orth pt(residue_atoms[iat]->x,
+					    residue_atoms[iat]->y,
+					    residue_atoms[iat]->z);
+			
+		     clipper::Coord_orth co = coot::util::rotate_round_vector(dir, pt, orig, angle);
+		     residue_atoms[iat]->x = co.x();
+		     residue_atoms[iat]->y = co.y();
+		     residue_atoms[iat]->z = co.z();
+		  }
+	       }
+	    }
+	 } 
+	 //
+	 have_unsaved_changes_flag = 1;
+	 make_bonds_type_checked(); // calls update_ghosts();
+	 
+      } else {
+	 std::cout << "direction atoms not found" << std::endl;
+      }
+
+   } else {
+      std::cout << "residue not found in coordinates molecule" << std::endl;
+   }
 }

@@ -90,6 +90,10 @@ namespace coot {
 			  "*",
 			  (char *) alt_conf.c_str());
       }
+
+      // Presumes that atom can get to SeqNum() and InsCode()? Need
+      // tested against a residue not in a hierarchy.
+      bool matches_spec(CAtom *atom) const;
    };
    
    bool compare_atom_specs_user_float(const coot::atom_spec_t &a1,
@@ -137,6 +141,39 @@ namespace coot {
 	    u = 0;
 	 return u;
       }
+   };
+
+   class torsion {
+   public:
+      // imol torsion pairs
+      std::pair<int, atom_spec_t> atom_1;
+      std::pair<int, atom_spec_t> atom_2;
+      std::pair<int, atom_spec_t> atom_3;
+      std::pair<int, atom_spec_t> atom_4;
+      torsion(const std::pair<int, atom_spec_t> &atom_1_in,
+	      const std::pair<int, atom_spec_t> &atom_2_in,
+	      const std::pair<int, atom_spec_t> &atom_3_in,
+	      const std::pair<int, atom_spec_t> &atom_4_in) {
+	 atom_1 = atom_1_in;
+	 atom_2 = atom_2_in;
+	 atom_3 = atom_3_in;
+	 atom_4 = atom_4_in;
+      }
+      torsion(int imol,
+	      const atom_spec_t &atom_1_in,
+	      const atom_spec_t &atom_2_in,
+	      const atom_spec_t &atom_3_in,
+	      const atom_spec_t &atom_4_in) {
+	 atom_1 = std::pair<int, atom_spec_t> (imol, atom_1_in);
+	 atom_2 = std::pair<int, atom_spec_t> (imol, atom_2_in);
+	 atom_3 = std::pair<int, atom_spec_t> (imol, atom_3_in);
+	 atom_4 = std::pair<int, atom_spec_t> (imol, atom_4_in);
+      }
+      
+      // Find 4 atoms in residue that match the torsion spec.  If the
+      // returning vector is not of size 4, then this function has
+      // failed.
+      std::vector<CAtom *> matching_atoms(CResidue *residue);
    };
 
    class lsq_range_match_info_t {
@@ -321,6 +358,14 @@ namespace coot {
 
       // transform all the atom in mol
       void transform_mol(CMMDBManager *mol, const clipper::RTop_orth &rtop);
+
+
+      // Rotate position round vector, return a position.
+      // 
+      clipper::Coord_orth rotate_round_vector(const clipper::Coord_orth &direction,
+					      const clipper::Coord_orth &position,
+					      const clipper::Coord_orth &origin_shift,
+					      double angle);
       
 
       // A useful function that was (is) in molecule_class_info_t

@@ -318,6 +318,103 @@ coot::get_selection_handle(CMMDBManager *mol, const atom_spec_t &at) {
    return SelHnd;
 }
 
+bool
+coot::atom_spec_t::matches_spec(CAtom *atom) const {
+
+   if (atom_name == std::string(atom->name)) {
+
+      if (alt_conf == std::string(atom->altLoc)) {
+
+	 CResidue *residue_p = atom->residue;
+	 
+	 if (residue_p) { 
+	    
+	    if (resno == atom->GetSeqNum()) {
+	       
+	       if (insertion_code == std::string(atom->GetInsCode())) { 
+		  
+		  CChain *chain_p= atom->GetChain();
+		  if (chain_p) {
+		     if (chain == chain_p->GetChainID()) {
+			// std::cout << atom_name << "a complete match " << std::endl;
+			return 1;
+		     } else {
+			// std::cout << atom_name << "a chain mismatch " << std::endl;
+			return 0;
+		     }
+		  } else {
+		     // std::cout << atom_name << "a no chain match " << std::endl;
+		     // no chain
+		     return 1;
+		  }
+	       } else {
+		  // std::cout << atom_name << "an inscode mismatch " << std::endl;
+		  return 0;
+	       }
+	    } else {
+	       // std::cout << atom_name << "a resno mismatch " << std::endl;
+	       return 0;
+	    }
+	    
+	 } else {
+	    // no residue
+	    // std::cout << atom_name << "a no chain match " << std::endl;
+	    return 1;
+	 }
+      } else {
+	 // std::cout << atom_name << "an altloc mismatch " << std::endl;
+	 return 0;
+      } 
+   } else {
+      // std::cout << atom_name << "an atom name mismatch :" << atom->name << ":" << std::endl;
+      return 0;
+   }
+   std::cout << atom_name << " should not happen (matches_spec()) " << atom->name << ":" << std::endl;
+   return 0;
+}
+
+std::vector<CAtom * >
+coot::torsion::matching_atoms(CResidue *residue) {
+
+   std::vector<CAtom *> v;
+   
+   CAtom *catom_1 = 0;  
+   CAtom *catom_2 = 0; 
+   CAtom *catom_3 = 0; 
+   CAtom *catom_4 = 0;
+
+   PPCAtom residue_atoms;
+   int nResidueAtoms;
+   residue->GetAtomTable(residue_atoms, nResidueAtoms);
+   for (int iat=0; iat<nResidueAtoms; iat++) {
+      if (atom_1.second.matches_spec(residue_atoms[iat]))
+	 catom_1 = residue_atoms[iat];
+      if (atom_2.second.matches_spec(residue_atoms[iat]))
+	 catom_2 = residue_atoms[iat];
+      if (atom_3.second.matches_spec(residue_atoms[iat]))
+	 catom_3 = residue_atoms[iat];
+      if (atom_4.second.matches_spec(residue_atoms[iat]))
+	 catom_4 = residue_atoms[iat];
+   }
+
+   if (! (catom_1 && catom_2 && catom_3 && catom_4)) {
+      if (!catom_1)
+	 std::cout << " atom_1 is null for " << atom_1.second.atom_name << std::endl;
+      if (!catom_2)
+	 std::cout << " atom_2 is null for " << atom_2.second.atom_name << std::endl;
+      if (!catom_3)
+	 std::cout << " atom_3 is null for " << atom_3.second.atom_name << std::endl;
+      if (!catom_4)
+	 std::cout << " atom_4 is null for " << atom_4.second.atom_name << std::endl;
+   } else { 
+      v.push_back(catom_1);
+      v.push_back(catom_2);
+      v.push_back(catom_3);
+      v.push_back(catom_4);
+   }
+
+   return v;
+}
 
 
 std::vector<std::string>
@@ -2988,3 +3085,40 @@ coot::util::residue_has_hydrogens_p(CResidue *res) {
    }
    return result;
 }
+
+
+clipper::Coord_orth
+coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
+				const clipper::Coord_orth &position,
+				const clipper::Coord_orth &origin_shift,
+				double angle) {
+   
+   clipper::Coord_orth unit_vec = clipper::Coord_orth(direction.unit());
+   
+   double l = unit_vec[0];
+   double m = unit_vec[1];
+   double n = unit_vec[2];
+
+   double ll = l*l;
+   double mm = m*m;
+   double nn = n*n;
+   double cosk = cos(angle);
+   double sink = sin(angle);
+   double I_cosk = 1 - cosk;
+   
+   // The Rotation matrix angle w about vector with direction cosines l,m,n.
+   // 
+   // ( l**2+(m**2+n**2)cos k     lm(1-cos k)-nsin k        nl(1-cos k)+msin k   )
+   // ( lm(1-cos k)+nsin k        m**2+(l**2+n**2)cos k     mn(1-cos k)-lsin k   )
+   // ( nl(1-cos k)-msin k        mn(1-cos k)+lsin k        n*2+(l**2+m**2)cos k )
+   //
+   // (Amore documentation) Thanks for that pointer EJD :).
+   
+   clipper::Mat33<double> r( ll+(mm+nn)*cosk,    l*m*I_cosk-n*sink,  n*l*I_cosk+m*sink,
+			     l*m*I_cosk+n*sink,  mm+(ll+nn)*cosk,    m*n*I_cosk-l*sink,
+			     n*l*I_cosk-m*sink,  m*n*I_cosk+l*sink,  nn+(ll+mm)*cosk );
+   
+   clipper::RTop_orth rtop(r, clipper::Coord_orth(0,0,0));
+   return origin_shift + (position-origin_shift).transform(rtop);
+}
+

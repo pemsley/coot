@@ -1660,6 +1660,15 @@ class molecule_class_info_t {
    // return 1 on successful deletion, 0 on fail
    int delete_zone(const coot::residue_spec_t &res1, const coot::residue_spec_t &res2);
 
+   // 
+   void spin_search(clipper::Xmap<float> &xmap,
+		    const std::string &chain_id,
+		    int resno,
+		    const std::string &ins_code,
+		    const std::pair<std::string, std::string> &direction_atoms,
+		    const std::vector<std::string> &moving_atoms_list); 
+
+
    // nomenclature errors
    // return a vector of the changed residues (used for updating the rotamer graph)
    std::vector<CResidue *> fix_nomenclature_errors(); // by looking for bad rotamers in
