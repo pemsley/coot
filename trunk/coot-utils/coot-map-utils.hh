@@ -24,6 +24,7 @@
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
 #include "clipper/core/hkl_data.h"
+#include "coot-coord-utils.hh"
 #include "mmdb_manager.h"
 
 namespace coot {
@@ -130,6 +131,12 @@ namespace coot {
 					 float box_size);
 
       clipper::Xmap<float> lapacian_transform(const clipper::Xmap<float> &xmap_in);
+
+      // Spin the torsioned atom round the rotatable bond and find the
+      // orientation (in degrees) that is in the highest density.
+      // 
+      // return a torsion
+      float spin_search(const clipper::Xmap<float> &xmap, CResidue *res, coot::torsion tors);
 
    }
 }

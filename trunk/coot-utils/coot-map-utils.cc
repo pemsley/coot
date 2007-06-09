@@ -320,6 +320,53 @@ clipper::Xmap<float>
 coot::util::lapacian_transform(const clipper::Xmap<float> &xmap_in) {
 
    return xmap_in;
+}
 
+// Spin the torsioned atom round the rotatable bond and find the
+// orientation (in degrees) that is in the highest density.
+// 
+// return a torsion.  Return -1111 (less than -1000) on failure
+float
+coot::util::spin_search(const clipper::Xmap<float> &xmap, CResidue *res, coot::torsion tors) {
+
+   // The plan:
+   //
+   // 1) find 4 atoms in residue that correspond to the torsion
+   //
+   // 2) Use rotate point about vector to generate new points
+   //
+   //      Test density at new points
+
+   float best_ori = -1111.1; //returned thing
    
+   std::vector<CAtom * > match_atoms = tors.matching_atoms(res);
+
+   if (match_atoms.size() != 4) { 
+      std::cout << "ERROR:: not all atoms for torsion found in residue!" << std::endl;
+      std::cout << "        (found " << match_atoms.size() << " atoms.)" << std::endl;
+   } else {
+
+      clipper::Coord_orth pa1(match_atoms[0]->x, match_atoms[0]->y, match_atoms[0]->z);
+      clipper::Coord_orth pa2(match_atoms[1]->x, match_atoms[1]->y, match_atoms[1]->z); 
+      clipper::Coord_orth pa3(match_atoms[2]->x, match_atoms[2]->y, match_atoms[2]->z);
+      clipper::Coord_orth pa4(match_atoms[3]->x, match_atoms[3]->y, match_atoms[3]->z);
+
+      float best_d = -99999999.9;
+      for (double theta=0; theta <=360; theta+=3.0) {
+
+	 clipper::Coord_orth dir   = pa3 - pa2;
+	 clipper::Coord_orth pos   = pa4;
+	 clipper::Coord_orth shift = pa3;
+	 clipper::Coord_orth co = coot::util::rotate_round_vector(dir, pos, shift, theta);
+	 float this_d = coot::util::density_at_point(xmap, co);
+	 if (this_d > best_d) {
+	    best_d = this_d;
+	    best_ori = theta;
+// 	    std::cout << "better density " <<  best_d << " at " << co.format() << " " << best_ori
+// 		      << std::endl;
+	 }
+      }
+   }
+   // std::cout << "returning " << best_ori << std::endl;
+   return best_ori;
 }

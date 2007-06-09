@@ -287,6 +287,22 @@ SCM active_residue();
 
 
 /*  ----------------------------------------------------------------------- */
+/*                  spin search                                             */
+/*  ----------------------------------------------------------------------- */
+void spin_search_by_atom_vectors(int imol_map, int imol, const std::string &chain_id, int resno, const std::string &ins_code, const std::pair<std::string, std::string> &direction_atoms_list, const std::vector<std::string> &moving_atoms_list);
+#ifdef USE_GUILE
+/*! \brief for the given residue, spin the atoms in moving_atom_list
+  around the bond defined by direction_atoms_list looking for the best
+  fit to density of imom_map map of the first atom in
+  moving_atom_list.  Works (only) with atoms in altconf "" */
+void spin_search(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, SCM direction_atoms_list, SCM moving_atoms_list);
+#endif
+
+#ifdef USE_PYTHON
+// Bernhard, fill me (spin_search() from python) in...
+#endif 
+
+/*  ----------------------------------------------------------------------- */
 /*                  monomer lib                                             */
 /*  ----------------------------------------------------------------------- */
 std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_matching(const std::string &search_string, short int allow_minimal_descriptions_flag);

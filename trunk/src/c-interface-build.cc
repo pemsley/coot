@@ -1,6 +1,6 @@
 /* src/c-interface.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -555,6 +555,53 @@ void set_rotate_translate_zone_rotates_about_zone_centre(int istate) {
    add_to_history_typed(cmd, args);
 } 
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  spin search                                             */
+/*  ----------------------------------------------------------------------- */
+void spin_search_by_atom_vectors(int imol_map, int imol, const std::string &chain_id,
+				 int resno, const std::string &ins_code,
+				 const std::pair<std::string, std::string> &direction_atoms,
+				 const std::vector<std::string> &moving_atoms_list) {
+
+
+   if (is_valid_map_molecule(imol_map)) {
+
+      if (is_valid_model_molecule(imol)) {
+
+	 graphics_info_t::molecules[imol].spin_search(graphics_info_t::molecules[imol_map].xmap_list[0],
+						      chain_id, resno, ins_code,
+						      direction_atoms, moving_atoms_list);
+	 graphics_draw();
+	 
+      } else {
+	 std::cout << "Molecule number " << imol << " is not a valid model" << std::endl;
+      }
+   } else {
+      std::cout << "Molecule number " << imol_map << " is not a valid map" << std::endl;
+   }
+} 
+
+#ifdef USE_GUILE
+/*! \brief for the given residue, spin the atoms in moving_atom_list
+  around the bond defined by direction_atoms_list looking for the best
+  fit to density of imom_map map of the first atom in
+  moving_atom_list.  Works (only) with atoms in altconf "" */
+void spin_search(int imol_map, int imol, const char *chain_id, int resno,
+		 const char *ins_code, SCM direction_atoms_list, SCM moving_atoms_list) {
+
+   std::vector<std::string> s = generic_list_to_string_vector_internal(direction_atoms_list);
+
+   if (s.size() == 2) { 
+      std::pair<std::string, std::string> p(s[0], s[1]);
+      
+      spin_search_by_atom_vectors(imol_map, imol, chain_id, resno, ins_code, p,
+				  generic_list_to_string_vector_internal(moving_atoms_list));
+   } else {
+      std::cout << "bad direction atom pair" << std::endl;
+   } 
+} 
+#endif
 
 
 /*  ----------------------------------------------------------------------- */
