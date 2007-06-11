@@ -51,20 +51,23 @@
 /*! \brief "Template"-based matching.  Overlap the first residue in
   imol_ligand onto the residue specified by the reference parameters.
   Use graph matching, not atom names.  */
-int 
+
+#ifdef USE_GUILE
+SCM
 overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 		int resno_ref) {
 
+   SCM scm_status = SCM_BOOL_F;
    int istat = 0;
 
    CResidue *residue_moving = 0;
    CResidue *residue_reference = 0;
 
    if (! is_valid_model_molecule(imol_ligand))
-      return istat;
+      return scm_status;
 
    if (! is_valid_model_molecule(imol_ref))
-      return istat;
+      return scm_status;
 
    CMMDBManager *mol_moving = graphics_info_t::molecules[imol_ligand].atom_sel.mol;
    CMMDBManager *mol_ref    = graphics_info_t::molecules[imol_ref].atom_sel.mol;
@@ -125,14 +128,16 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 	    coot::graph_match(residue_moving, residue_reference);
 	 if (rtop_info.first) {
 	    graphics_info_t::molecules[imol_ligand].transform_by(rtop_info.second, residue_moving);
+	    scm_status = rtop_to_scm(rtop_info.second);
 	    graphics_draw();
 	 } else {
 	    std::cout << "Oops.  Match failed somehow" << std::endl;
 	 } 
       } 
    }
-   return istat;
+   return scm_status;
 }
+#endif // USE_GUILE
 
 
 /*  ----------------------------------------------------------------------- */
