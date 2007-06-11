@@ -201,20 +201,23 @@ graphics_info_t::save_state_file(const std::string &filename) {
 	    std::vector <std::string> display_strings;
 	    std::vector <std::string>  active_strings;
 	    // colour
-	    display_strings.resize(0);
-	    display_strings.push_back("set-molecule-bonds-colour-map-rotation");
-	    display_strings.push_back(int_to_string(molecule_count));
-	    display_strings.push_back(float_to_string(molecules[i].bonds_colour_map_rotation));
-	    commands.push_back(state_command(display_strings, il));
+	    if (molecules[i].has_model()) { 
+	       display_strings.clear();
+	       display_strings.push_back("set-molecule-bonds-colour-map-rotation");
+	       display_strings.push_back(int_to_string(molecule_count));
+	       display_strings.push_back(float_to_string(molecules[i].bonds_colour_map_rotation));
+	       commands.push_back(state_command(display_strings, il));
+	    }
 	    if (molecules[i].has_model()) {
 	       if (! molecules[i].drawit) {
-		  display_strings.resize(0);
+		  display_strings.clear();
 		  display_strings.push_back("set-mol-displayed");
 		  display_strings.push_back(int_to_string(molecule_count));
 		  display_strings.push_back(int_to_string(0));
 		  commands.push_back(state_command(display_strings, il));
 	       }
 	       if (! molecules[i].atom_selection_is_pickable()) {
+		  active_strings.clear();
 		  active_strings.push_back("set-mol-active");
 		  active_strings.push_back(int_to_string(molecule_count));
 		  active_strings.push_back(int_to_string(0));

@@ -129,7 +129,8 @@
 
     (if (= imol-map -1)
 	(format #t "WARNING:: fit-chain undefined imol-map. Skipping~%")
-	(let ((n-residues (chain-n-residues chain-id imol)))
+	(let ((n-residues (chain-n-residues chain-id imol))
+	      (ins-code ""))
 	  (for-each 
 	   (lambda (res-no)
 	     (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
@@ -139,7 +140,7 @@
 		 (begin
 		   (refine-zone imol chain-id res-no res-no alt-conf)
 		   (accept-regularizement))))
-	   (number-list r1 r2))))
+	   (number-list resno-start resno-end))))
 	     
     (if (= replacement-state 0)
 	(set-refinement-immediate-replacement 0))

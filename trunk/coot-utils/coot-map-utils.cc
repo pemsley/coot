@@ -1,6 +1,6 @@
 /* ligand/find-waters.cc
  * 
- * Copyright 2004, 2005, 2006 The University of York
+ * Copyright 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

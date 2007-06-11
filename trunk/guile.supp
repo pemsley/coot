@@ -423,150 +423,6 @@
 }
 {
    <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_gc_mark_dependencies
-   fun:scm_gc_mark
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-}
-{
-   <insert a suppression name here>
    Memcheck:Value4
    fun:scm_gc_mark_dependencies
    fun:scm_gc_mark
@@ -596,38 +452,6 @@
    fun:scm_i_c_mem2symbol
    fun:scm_init_opts
    fun:scm_init_print
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:make_stringbuf
-   fun:scm_i_c_make_symbol
-   fun:scm_i_c_mem2symbol
-   fun:scm_init_opts
-   fun:scm_init_print
-   fun:scm_i_init_guile
 }
 {
    <insert a suppression name here>
@@ -775,22 +599,6 @@
 }
 {
    <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:increase_mtrigger
-   fun:scm_gc_malloc
-   fun:make_stringbuf
-   fun:scm_i_string_writable_chars
-   fun:scm_c_string_set_x
-   fun:scm_read_token
-   fun:scm_lreadr
-}
-{
-   <insert a suppression name here>
    Memcheck:Value4
    fun:scm_i_symbol_mark
    fun:scm_gc_mark_dependencies
@@ -820,22 +628,6 @@
    fun:scm_gc_malloc
    fun:make_stringbuf
    fun:scm_i_string_writable_chars
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_i_symbol_mark
-   fun:scm_gc_mark_dependencies
-   fun:scm_gc_mark
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:increase_mtrigger
-   fun:scm_gc_malloc
-   fun:make_stringbuf
-   fun:scm_i_string_writable_chars
-   fun:scm_c_string_set_x
 }
 {
    <insert a suppression name here>
@@ -904,22 +696,6 @@
 {
    <insert a suppression name here>
    Memcheck:Cond
-   fun:scm_i_mark_weak_vectors_non_weaks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:increase_mtrigger
-   fun:scm_gc_malloc
-   fun:make_stringbuf
-   fun:scm_i_string_writable_chars
-   fun:scm_c_string_set_x
-   fun:scm_read_token
-   fun:scm_lreadr
-   fun:scm_i_lreadparen
-   fun:scm_i_lreadparen
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
    fun:scm_gc_mark_dependencies
    fun:scm_gc_mark
    fun:scm_i_mark_weak_vectors_non_weaks
@@ -968,38 +744,6 @@
 {
    <insert a suppression name here>
    Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:increase_mtrigger
-   fun:scm_gc_malloc
-   fun:make_stringbuf
-   fun:scm_i_string_writable_chars
-   fun:scm_c_string_set_x
-   fun:scm_read_token
-   fun:scm_lreadr
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:scm_i_find_heap_segment_containing_object
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:increase_mtrigger
-   fun:scm_gc_malloc
-   fun:make_stringbuf
-   fun:scm_i_string_writable_chars
-   fun:scm_c_string_set_x
-   fun:scm_read_token
-   fun:scm_lreadr
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
    fun:scm_gc_mark
    fun:scm_gc_mark_dependencies
    fun:scm_gc_mark
@@ -1012,54 +756,6 @@
    fun:increase_mtrigger
    fun:scm_gc_malloc
    fun:make_stringbuf
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_gc_mark_dependencies
-   fun:scm_gc_mark
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_cons
-   fun:iqq
-   fun:iqq
-   fun:iqq
-   fun:scm_apply
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_gc_mark_dependencies
-   fun:scm_gc_mark
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_cons
-   fun:iqq
-   fun:iqq
-   fun:iqq
-   fun:scm_apply
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:winder_mark
-   fun:scm_gc_mark_dependencies
-   fun:scm_gc_mark
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_cons
-   fun:iqq
-   fun:iqq
-   fun:iqq
 }
 {
    <insert a suppression name here>
@@ -1255,55 +951,7 @@
 }
 {
    <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_i_mark_weak_vectors_non_weaks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:increase_mtrigger
-   fun:scm_gc_malloc
-   fun:scm_i_allocate_weak_vector
-   fun:scm_i_rehash
-   fun:scm_i_c_mem2symbol
-   fun:scm_c_make_subr
-   fun:create_gsubr
-   fun:SWIG_init
-   fun:c_inner_main
-}
-{
-   <insert a suppression name here>
    Memcheck:Cond
-   fun:scm_i_remove_weaks_from_weak_vectors
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:increase_mtrigger
-   fun:scm_gc_malloc
-   fun:scm_i_allocate_weak_vector
-   fun:scm_i_rehash
-   fun:scm_i_c_mem2symbol
-   fun:scm_c_make_subr
-   fun:create_gsubr
-   fun:SWIG_init
-   fun:c_inner_main
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_i_remove_weaks_from_weak_vectors
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:increase_mtrigger
-   fun:scm_gc_malloc
-   fun:scm_i_allocate_weak_vector
-   fun:scm_i_rehash
-   fun:scm_i_c_mem2symbol
-   fun:scm_c_make_subr
-   fun:create_gsubr
-   fun:SWIG_init
-   fun:c_inner_main
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
    fun:scm_i_remove_weaks_from_weak_vectors
    fun:scm_mark_all
    fun:scm_i_gc
@@ -1511,22 +1159,6 @@
 }
 {
    <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_gc_mark_dependencies
-   fun:scm_gc_mark
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_cons
-   fun:iqq
-   fun:iqq
-   fun:iqq
-   fun:iqq
-}
-{
-   <insert a suppression name here>
    Memcheck:Cond
    fun:scm_gc_mark
    fun:scm_mark_all
@@ -1604,22 +1236,6 @@
    fun:iqq
    fun:iqq
    fun:scm_apply
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_markstream
-   fun:scm_gc_mark_dependencies
-   fun:scm_gc_mark
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_list_1
-   fun:deval
-   fun:deval
-   fun:scm_dapply
 }
 {
    <insert a suppression name here>
@@ -1751,22 +1367,6 @@
 }
 {
    <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_markstream
-   fun:scm_gc_mark_dependencies
-   fun:scm_gc_mark
-   fun:scm_mark_locations
-   fun:scm_threads_mark_stacks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_list_1
-   fun:deval
-   fun:deval
-   fun:deval
-}
-{
-   <insert a suppression name here>
    Memcheck:Cond
    fun:scm_i_mark_weak_vectors_non_weaks
    fun:scm_mark_all
@@ -1784,38 +1384,6 @@
 {
    <insert a suppression name here>
    Memcheck:Value4
-   fun:scm_i_mark_weak_vectors_non_weaks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_list_1
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_i_mark_weak_vectors_non_weaks
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_list_1
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
    fun:scm_i_mark_weak_vectors_non_weaks
    fun:scm_mark_all
    fun:scm_i_gc
@@ -1848,54 +1416,6 @@
 {
    <insert a suppression name here>
    Memcheck:Cond
-   fun:scm_i_remove_weaks_from_weak_vectors
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_list_1
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_i_remove_weaks_from_weak_vectors
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_list_1
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
-   fun:scm_i_remove_weaks_from_weak_vectors
-   fun:scm_mark_all
-   fun:scm_i_gc
-   fun:scm_gc_for_newcell
-   fun:scm_list_1
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-   fun:deval
-}
-{
-   <insert a suppression name here>
-   Memcheck:Value4
    fun:scm_i_remove_weaks_from_weak_vectors
    fun:scm_mark_all
    fun:scm_i_gc
@@ -2020,4 +1540,577 @@
    fun:ceval
    fun:ceval
    fun:scm_primitive_eval_x
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:leaf_environment_mark
+   fun:environment_mark
+   fun:scm_gc_mark
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons
+   fun:scm_ceval
+   fun:scm_eval_car
+   fun:scm_m_define
+   fun:scm_apply
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons_source
+   fun:scm_copy_tree
+   fun:scm_copy_tree
+   fun:scm_copy_tree
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_ceval
+   fun:scm_i_eval_x
+   fun:scm_primitive_eval_x
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_sweep
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons_source
+   fun:scm_copy_tree
+   fun:scm_copy_tree
+   fun:scm_copy_tree
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_ceval
+   fun:scm_i_eval_x
+   fun:scm_primitive_eval_x
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_for_each
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_mark_weak_vector_spines
+   fun:scm_c_hook_run
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_for_each
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:scm_mark_weak_vector_spines
+   fun:scm_c_hook_run
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_for_each
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_sweep
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_for_each
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_scan_weak_vectors
+   fun:scm_c_hook_run
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_for_each
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:scm_scan_weak_vectors
+   fun:scm_c_hook_run
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_for_each
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:scm_scan_weak_vectors
+   fun:scm_c_hook_run
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons_source
+   fun:scm_copy_tree
+   fun:scm_copy_tree
+   fun:scm_copy_tree
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_ceval
+   fun:scm_i_eval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons2
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_call_2
+   fun:scm_eval_closure_lookup
+   fun:scm_sym2var
+   fun:scm_define
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_sweep
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons2
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_ceval
+   fun:scm_apply
+   fun:scm_call_2
+   fun:scm_eval_closure_lookup
+   fun:scm_sym2var
+   fun:scm_define
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:heap_segment
+   fun:scm_mark_locations
+   fun:scm_igc
+   fun:check_mtrigger
+   fun:scm_must_realloc
+   fun:scm_c_make_subr
+   fun:create_gsubr
+   fun:scm_c_define_gsubr
+   fun:SWIG_init
+   fun:c_inner_main
+   fun:invoke_main_func
+   fun:scm_boot_guile_1
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:check_mtrigger
+   fun:scm_must_realloc
+   fun:scm_c_make_subr
+   fun:create_gsubr
+   fun:scm_c_define_gsubr
+   fun:SWIG_init
+   fun:c_inner_main
+   fun:invoke_main_func
+   fun:scm_boot_guile_1
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:check_mtrigger
+   fun:scm_must_realloc
+   fun:scm_c_make_subr
+   fun:create_gsubr
+   fun:scm_c_define_gsubr
+   fun:SWIG_init
+   fun:c_inner_main
+   fun:invoke_main_func
+   fun:scm_boot_guile_1
+   fun:scm_boot_guile
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_mark_weak_vector_spines
+   fun:scm_c_hook_run
+   fun:scm_igc
+   fun:check_mtrigger
+   fun:scm_must_realloc
+   fun:scm_c_make_subr
+   fun:create_gsubr
+   fun:scm_c_define_gsubr
+   fun:SWIG_init
+   fun:c_inner_main
+   fun:invoke_main_func
+   fun:scm_boot_guile_1
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_sweep
+   fun:scm_igc
+   fun:check_mtrigger
+   fun:scm_must_realloc
+   fun:scm_c_make_subr
+   fun:create_gsubr
+   fun:scm_c_define_gsubr
+   fun:SWIG_init
+   fun:c_inner_main
+   fun:invoke_main_func
+   fun:scm_boot_guile_1
+   fun:scm_boot_guile
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:c_inner_main
+   fun:invoke_main_func
+   fun:scm_boot_guile_1
+   fun:scm_boot_guile
+   fun:c_wrapper_scm_boot_guile
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:scm_markstream
+   fun:scm_gc_mark
+   fun:scm_mark_locations
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons2
+   fun:scm_deval
+   fun:scm_i_eval_x
+   fun:scm_primitive_eval_x
+   fun:load
+   fun:scm_internal_dynamic_wind
+   fun:scm_primitive_load
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:dynl_obj_mark
+   fun:scm_mark_locations
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons2
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_dapply
+   fun:scm_apply
+   fun:scm_call_2
+   fun:scm_eval_closure_lookup
+   fun:scm_sym2var
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:guardian_zombify
+   fun:scm_c_hook_run
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons2
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_dapply
+   fun:scm_apply
+   fun:scm_call_2
+   fun:scm_eval_closure_lookup
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:environment_mark
+   fun:scm_gc_mark
+   fun:scm_mark_locations
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_dapply
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:leaf_environment_mark
+   fun:environment_mark
+   fun:scm_gc_mark
+   fun:scm_mark_locations
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:async_mark
+   fun:scm_mark_locations
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_dapply
+   fun:scm_apply
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_mark_subr_table
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_sweep
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons2
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_dapply
+   fun:scm_apply
+   fun:scm_call_2
+   fun:scm_eval_closure_lookup
+   fun:scm_sym2var
+   fun:scm_define
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:check_mtrigger
+   fun:scm_must_malloc
+   fun:scm_fport_buffer_add
+   fun:scm_fdes_to_port
+   fun:scm_open_file
+   fun:scm_primitive_load
+   fun:scm_deval
+   fun:scm_i_eval
+   fun:scm_start_stack
+   fun:scm_m_start_stack
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_cons2
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_dapply
+   fun:scm_apply
+   fun:scm_call_2
+   fun:scm_eval_closure_lookup
+   fun:scm_sym2var
+   fun:scm_define
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:core_environments_mark
+   fun:leaf_environment_mark
+   fun:environment_mark
+   fun:scm_gc_mark
+   fun:scm_mark_locations
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:scm_acons
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:check_mtrigger
+   fun:scm_must_malloc
+   fun:scm_fport_buffer_add
+   fun:scm_fdes_to_port
+   fun:scm_open_file
+   fun:scm_primitive_load
+   fun:scm_deval
+   fun:scm_i_eval
+   fun:scm_start_stack
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_sweep
+   fun:scm_igc
+   fun:check_mtrigger
+   fun:scm_must_malloc
+   fun:scm_fport_buffer_add
+   fun:scm_fdes_to_port
+   fun:scm_open_file
+   fun:scm_primitive_load
+   fun:scm_deval
+   fun:scm_i_eval
+   fun:scm_start_stack
+   fun:scm_m_start_stack
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:scm_makfrom0str
+   fun:sgtk_arg2scm
+   fun:inner_callback_marshal
+   fun:scm_internal_catch
+   fun:scm_internal_cwdr
+   fun:sgtk_callback_marshal
+   fun:gtk_handlers_run
+   fun:gtk_signal_real_emit
+   fun:gtk_signal_emit
+   fun:gtk_editable_insert_text
+   fun:gtk_entry_set_text
+   fun:sgtk_gtk_entry_set_text
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_makfrom0str
+   fun:sgtk_arg2scm
+   fun:inner_callback_marshal
+   fun:scm_internal_catch
+   fun:scm_internal_cwdr
+   fun:sgtk_callback_marshal
+   fun:gtk_handlers_run
+   fun:gtk_signal_real_emit
+   fun:gtk_signal_emit
+   fun:gtk_editable_insert_text
+   fun:gtk_entry_set_text
+   fun:sgtk_gtk_entry_set_text
+}
+{
+   <insert a suppression name here>
+   Memcheck:Addr1
+   fun:scm_make_continuation
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_deval
+   fun:scm_dapply
+   fun:scm_apply
+   fun:scm_call_0
+   fun:sf_fill_input
+   fun:scm_fill_input
+   fun:scm_getc
+   fun:scm_flush_ws
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:scm_gc_mark
+   fun:scm_igc
+   fun:scm_gc_for_newcell
+   fun:make_jmpbuf
+   fun:scm_internal_catch
+   fun:scm_internal_cwdr
+   fun:sgtk_callback_marshal
+   fun:gtk_handlers_run
+   fun:gtk_signal_real_emit
+   fun:gtk_signal_emit
+   fun:gtk_widget_event
+   fun:gtk_window_key_press_event
+}
+{
+   <insert a suppression name here>
+   Memcheck:Value4
+   fun:scm_markstream
+   fun:scm_gc_mark
+   fun:scm_mark_locations
+   fun:continuation_mark
+   fun:scm_gc_mark
+   fun:scm_gc_mark
+   fun:scm_gc_mark
+   fun:scm_gc_mark
+   fun:sgtk_mark_protects
+   fun:gtkobj_mark
+   fun:scm_gc_mark
+   fun:scm_gc_mark
 }
