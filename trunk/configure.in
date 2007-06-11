@@ -41,7 +41,7 @@ AC_HEADER_STDC
 AC_PROG_CXX
 AM_PROG_LIBTOOL
 AC_PROG_RANLIB
-AC_PROG_INTLTOOL
+# AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
 
 dnl test for WINDOWS_MINGW
 AM_MINGW_WINDOWS
@@ -205,7 +205,6 @@ high-res/Makefile
 tw/Makefile
 setup/coot.sh	
 setup/coot.csh
-po/Makefile.in
 python/coot_load_modules.py
 auxil/Makefile
 auxil/catcheck/Makefile	
@@ -215,6 +214,7 @@ auxil/strand-analysis/Makefile
 auxil/vectors/Makefile	
 ])
 # removed setup/Makefile
+#         po/Makefile.in
 
 # GETTEXT related things: When AM_GNU_GETTEXT get enabled, these get enabled.
 # po/Makefile
