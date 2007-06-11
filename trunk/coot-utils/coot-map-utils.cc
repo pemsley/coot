@@ -362,8 +362,8 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, CResidue *res, coot::t
 	 if (this_d > best_d) {
 	    best_d = this_d;
 	    best_ori = theta;
-// 	    std::cout << "better density " <<  best_d << " at " << co.format() << " " << best_ori
-// 		      << std::endl;
+// 	    std::cout << "better density " <<  best_d << " at "
+// 		      << co.format() << " " << best_ori << std::endl;
 	 }
       }
    }

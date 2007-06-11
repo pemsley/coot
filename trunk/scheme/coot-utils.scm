@@ -1258,46 +1258,56 @@
 ;; 
 (define (mutate-by-overlap imol chain-id resno tlc)
 
-  (let ((imol-ligand (get-monomer tlc)))
-    (if (not (valid-model-molecule? imol-ligand))
-	(let ((s (string-append " Oops.  Failed to get monomer " tlc)))
-	  (add-status-bar-text s))
-	(begin
-	  (delete-residue-hydrogens imol-ligand "A" 1 "" "")
-	  (delete-atom imol-ligand "A" 1 "" " OXT" "")
-	  (overlap-ligands imol-ligand imol chain-id resno)
-	  (delete-residue imol chain-id resno "")
-	  (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
-		 (nov (format #t "new-chain-id-info: ~s~%" new-chain-id-info)))
-	    (let ((merge-status (car new-chain-id-info)))
-	      (if (= merge-status 1)
-		  (let ((new-chain-id (car (car (cdr new-chain-id-info)))))
-		    (change-residue-number imol new-chain-id 1 "" resno "")
-		    (change-chain-id imol new-chain-id chain-id 1 resno resno)
+  (define (mutate-it)
+    (let ((imol-ligand (get-monomer tlc)))
+      (if (not (valid-model-molecule? imol-ligand))
+	  (let ((s (string-append " Oops.  Failed to get monomer " tlc)))
+	    (add-status-bar-text s))
+	  (begin
+	    (delete-residue-hydrogens imol-ligand "A" 1 "" "")
+	    (delete-atom imol-ligand "A" 1 "" " OXT" "")
+	    (overlap-ligands imol-ligand imol chain-id resno)
+	    (delete-residue imol chain-id resno "")
+	    (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
+		   (nov (format #t "new-chain-id-info: ~s~%" new-chain-id-info)))
+	      (let ((merge-status (car new-chain-id-info)))
+		(if (= merge-status 1)
+		    (let ((new-chain-id (car (car (cdr new-chain-id-info)))))
+		      (change-residue-number imol new-chain-id 1 "" resno "")
+		      (change-chain-id imol new-chain-id chain-id 1 resno resno)
 
-		    (let ((replacement-state (refinement-immediate-replacement-state))
-			  (imol-map (imol-refinement-map)))
-		      (set-refinement-immediate-replacement 1)
-		      (if (= imol-map -1)
-			  (regularize-zone imol chain-id resno resno "")
-			  (let ((spin-atoms (list " P  " " O1P" " O2P" " O3P"))
-				(dir-atoms (cond 
-					    ((string=? tlc "PTR") (list " CZ " " OH "))
-					    ((string=? tlc "SER") (list " CB " " OG "))
-					    ((string=? tlc "TPO") (list " CB " " OG1"))
-					    (else 
-					     #f))))
-			    (if dir-atoms
-				(spin-search imol-map imol chain-id resno "" 
-					     dir-atoms spin-atoms))
-			    (refine-zone imol chain-id resno resno "")))
-		      (accept-regularizement)
-		      (set-refinement-immediate-replacement replacement-state))
-		    
-		    (set-mol-displayed imol-ligand 0)
-		    (set-mol-active imol-ligand 0)))))))))
+		      (let ((replacement-state (refinement-immediate-replacement-state))
+			    (imol-map (imol-refinement-map)))
+			(set-refinement-immediate-replacement 1)
+			(if (= imol-map -1)
+			    (regularize-zone imol chain-id resno resno "")
+			    (let ((spin-atoms (list " P  " " O1P" " O2P" " O3P"))
+				  (dir-atoms (cond 
+					      ((string=? tlc "PTR") (list " CZ " " OH "))
+					      ((string=? tlc "SER") (list " CB " " OG "))
+					      ((string=? tlc "TPO") (list " CB " " OG1"))
+					      (else 
+					       #f))))
+			      (format #t ".... spining atoms ~s~%" spin-atoms)
+			      (if dir-atoms
+				  (spin-search imol-map imol chain-id resno "" 
+					       dir-atoms spin-atoms))
+			      (refine-zone imol chain-id resno resno "")))
+			(accept-regularizement)
+			(set-refinement-immediate-replacement replacement-state))
+		      
+		      (set-mol-displayed imol-ligand 0)
+		      (set-mol-active imol-ligand 0)))))))))
 
-
+  ;; First, if there are multiple maps, force the user to choose one,
+  ;; rather than continuing.
+  (let ((imol-map (imol-refinement-map)))
+    (if (= imol-map -1)
+	(let ((map-mols (map-molecule-list)))
+	  (if (> (length map-mols) 1)
+	      (show-select-map-dialog)
+	      (mutate-it)))
+	(mutate-it))))
 
   
 ;; A bit of fun 
