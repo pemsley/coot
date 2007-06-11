@@ -1243,16 +1243,17 @@ static swig_guile_clientdata _swig_guile_clientdatacommand_arg_t = { NULL, SCM_E
 #define SWIGTYPE_p_std__pairTshort_float_t swig_types[25]
 #define SWIGTYPE_p_std__pairTshort_int_t swig_types[26]
 #define SWIGTYPE_p_std__pairTshort_std__string_t swig_types[27]
-#define SWIGTYPE_p_std__string swig_types[28]
-#define SWIGTYPE_p_std__vectorTcoot__command_arg_t_t swig_types[29]
-#define SWIGTYPE_p_std__vectorTcoot__str_mtime_t swig_types[30]
-#define SWIGTYPE_p_std__vectorTint_t swig_types[31]
-#define SWIGTYPE_p_std__vectorTstd__pairTstd__string_std__string_t_t swig_types[32]
-#define SWIGTYPE_p_std__vectorTstd__string_t swig_types[33]
-#define SWIGTYPE_p_time_t swig_types[34]
-#define SWIGTYPE_p_unsigned_long swig_types[35]
-static swig_type_info *swig_types[37];
-static swig_module_info swig_module = {swig_types, 36, 0, 0, 0, 0};
+#define SWIGTYPE_p_std__pairTstd__string_std__string_t swig_types[28]
+#define SWIGTYPE_p_std__string swig_types[29]
+#define SWIGTYPE_p_std__vectorTcoot__command_arg_t_t swig_types[30]
+#define SWIGTYPE_p_std__vectorTcoot__str_mtime_t swig_types[31]
+#define SWIGTYPE_p_std__vectorTint_t swig_types[32]
+#define SWIGTYPE_p_std__vectorTstd__pairTstd__string_std__string_t_t swig_types[33]
+#define SWIGTYPE_p_std__vectorTstd__string_t swig_types[34]
+#define SWIGTYPE_p_time_t swig_types[35]
+#define SWIGTYPE_p_unsigned_long swig_types[36]
+static swig_type_info *swig_types[38];
+static swig_module_info swig_module = {swig_types, 37, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -16471,7 +16472,7 @@ _wrap_overlap_ligands (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
   int arg2 ;
   char *arg3 = (char *) 0 ;
   int arg4 ;
-  int result;
+  SCM result;
   int must_free3 = 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
@@ -16489,10 +16490,8 @@ _wrap_overlap_ligands (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
   {
     arg4 = scm_num2int(s_3, SCM_ARG1, FUNC_NAME);
   }
-  result = (int)overlap_ligands(arg1,arg2,(char const *)arg3,arg4);
-  {
-    gswig_result = scm_long2num(result);
-  }
+  result = (SCM)overlap_ligands(arg1,arg2,(char const *)arg3,arg4);
+  gswig_result=result;
   if (must_free3 && arg3) SWIG_free(arg3);
   
   return gswig_result;
@@ -25148,6 +25147,98 @@ _wrap_active_residue ()
 
 
 static SCM
+_wrap_spin_search_by_atom_vectors (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6)
+{
+#define FUNC_NAME "spin-search-by-atom-vectors"
+  int arg1 ;
+  int arg2 ;
+  std::string *arg3 = 0 ;
+  int arg4 ;
+  std::string *arg5 = 0 ;
+  std::pair<std::string,std::string > *arg6 = 0 ;
+  std::vector<std::string > *arg7 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (std::string *)SWIG_MustGetPtr(s_2, SWIGTYPE_p_std__string, 3, 0);
+  }
+  {
+    arg4 = scm_num2int(s_3, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg5 = (std::string *)SWIG_MustGetPtr(s_4, SWIGTYPE_p_std__string, 5, 0);
+  }
+  {
+    arg6 = (std::pair<std::string,std::string > *)SWIG_MustGetPtr(s_5, SWIGTYPE_p_std__pairTstd__string_std__string_t, 6, 0);
+  }
+  {
+    arg7 = (std::vector<std::string > *)SWIG_MustGetPtr(s_6, SWIGTYPE_p_std__vectorTstd__string_t, 7, 0);
+  }
+  spin_search_by_atom_vectors(arg1,arg2,(std::string const &)*arg3,arg4,(std::string const &)*arg5,(std::pair<std::string,std::string > const &)*arg6,(std::vector<std::string > const &)*arg7);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_spin_search (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6)
+{
+#define FUNC_NAME "spin-search"
+  int arg1 ;
+  int arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char *arg5 = (char *) 0 ;
+  SCM arg6 ;
+  SCM arg7 ;
+  int must_free3 = 0 ;
+  int must_free5 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  {
+    arg4 = scm_num2int(s_3, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg5 = (char *)SWIG_scm2str(s_4);
+    must_free5 = 1;
+  }
+  arg6=s_5;
+  arg7=s_6;
+  spin_search(arg1,arg2,(char const *)arg3,arg4,(char const *)arg5,arg6,arg7);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free3 && arg3) SWIG_free(arg3);
+  if (must_free5 && arg5) SWIG_free(arg5);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_monomer_lib_3_letter_codes_matching (SCM s_0, SCM s_1)
 {
 #define FUNC_NAME "monomer-lib-3-letter-codes-matching"
@@ -25363,6 +25454,7 @@ static swig_type_info _swigt__p_std__pairTint_std__vectorTstd__string_t_t = {"_p
 static swig_type_info _swigt__p_std__pairTshort_float_t = {"_p_std__pairTshort_float_t", "std::pair<short,float > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairTshort_int_t = {"_p_std__pairTshort_int_t", "std::pair<short,int > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__pairTshort_std__string_t = {"_p_std__pairTshort_std__string_t", "std::pair<short,std::string > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__pairTstd__string_std__string_t = {"_p_std__pairTstd__string_std__string_t", "std::pair<std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorTcoot__command_arg_t_t = {"_p_std__vectorTcoot__command_arg_t_t", "std::vector<coot::command_arg_t > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorTcoot__str_mtime_t = {"_p_std__vectorTcoot__str_mtime_t", "std::vector<coot::str_mtime > *", 0, 0, (void*)0, 0};
@@ -25401,6 +25493,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_std__pairTshort_float_t,
   &_swigt__p_std__pairTshort_int_t,
   &_swigt__p_std__pairTshort_std__string_t,
+  &_swigt__p_std__pairTstd__string_std__string_t,
   &_swigt__p_std__string,
   &_swigt__p_std__vectorTcoot__command_arg_t_t,
   &_swigt__p_std__vectorTcoot__str_mtime_t,
@@ -25439,6 +25532,7 @@ static swig_cast_info _swigc__p_std__pairTint_std__vectorTstd__string_t_t[] = { 
 static swig_cast_info _swigc__p_std__pairTshort_float_t[] = {  {&_swigt__p_std__pairTshort_float_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairTshort_int_t[] = {  {&_swigt__p_std__pairTshort_int_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__pairTshort_std__string_t[] = {  {&_swigt__p_std__pairTshort_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__pairTstd__string_std__string_t[] = {  {&_swigt__p_std__pairTstd__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorTcoot__command_arg_t_t[] = {  {&_swigt__p_std__vectorTcoot__command_arg_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorTcoot__str_mtime_t[] = {  {&_swigt__p_std__vectorTcoot__str_mtime_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -25477,6 +25571,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_std__pairTshort_float_t,
   _swigc__p_std__pairTshort_int_t,
   _swigc__p_std__pairTshort_std__string_t,
+  _swigc__p_std__pairTstd__string_std__string_t,
   _swigc__p_std__string,
   _swigc__p_std__vectorTcoot__command_arg_t_t,
   _swigc__p_std__vectorTcoot__str_mtime_t,
@@ -26763,6 +26858,8 @@ SWIG_init(void)
   scm_c_define_gsubr("clear-and-update-molecule", 2, 0, 0, (swig_guile_proc) _wrap_clear_and_update_molecule);
   scm_c_define_gsubr("add-molecule", 2, 0, 0, (swig_guile_proc) _wrap_add_molecule);
   scm_c_define_gsubr("active-residue", 0, 0, 0, (swig_guile_proc) _wrap_active_residue);
+  scm_c_define_gsubr("spin-search-by-atom-vectors", 7, 0, 0, (swig_guile_proc) _wrap_spin_search_by_atom_vectors);
+  scm_c_define_gsubr("spin-search", 7, 0, 0, (swig_guile_proc) _wrap_spin_search);
   scm_c_define_gsubr("monomer-lib-3-letter-codes-matching", 2, 0, 0, (swig_guile_proc) _wrap_monomer_lib_3_letter_codes_matching);
   scm_c_define_gsubr("on-monomer-lib-search-results-button-press", 2, 0, 0, (swig_guile_proc) _wrap_on_monomer_lib_search_results_button_press);
   scm_c_define_gsubr("mutate-internal", 4, 0, 0, (swig_guile_proc) _wrap_mutate_internal);
