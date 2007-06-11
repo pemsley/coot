@@ -654,7 +654,7 @@ coot::graph_match(CResidue *res_moving,
 	 std::cout << "match.GetNoMatches" << std::endl;
 	 int n_match = match.GetNofMatches();
 	 std::cout << "match NumberofMatches " << n_match << std::endl;
-	 match.PrintMatches();
+	 // match.PrintMatches();
 
 	 double best_match_sum = 1e20;
 	 int best_match = -1;

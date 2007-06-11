@@ -2904,10 +2904,16 @@ void set_ligand_expert_options_from_widget(GtkWidget *button);
   imol_ligand onto the residue specified by the reference parameters.
   Use graph matching, not atom names.  
 
-@return success status, 0 = failed to fine residue in either
-imol_ligand or imo_ref */
-int 
+@return success status, #f = failed to find residue in either
+imol_ligand or imo_ref, 
+
+otherwise return the RT operator */
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM
 overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
+#endif 
+#endif	/* __cplusplus */
 
 void execute_get_mols_ligand_search(GtkWidget *button); 
 /*  info is stored in graphics_info_t beforehand */
