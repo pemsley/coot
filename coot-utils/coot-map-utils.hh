@@ -1,6 +1,6 @@
 /* coot-utils/coot-map-utils.hh
  * 
- * Copyright 2004, 2005, 2006 The University of York
+ * Copyright 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -133,7 +133,8 @@ namespace coot {
       clipper::Xmap<float> lapacian_transform(const clipper::Xmap<float> &xmap_in);
 
       // Spin the torsioned atom round the rotatable bond and find the
-      // orientation (in degrees) that is in the highest density.
+      // orientation (in degrees) from the current position that is in
+      // the highest density.
       // 
       // return a torsion
       float spin_search(const clipper::Xmap<float> &xmap, CResidue *res, coot::torsion tors);

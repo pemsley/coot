@@ -25,14 +25,17 @@ cd guile-gtk-2.0
   
    Things to fix before 0.3.2
 
-   o residue range was inserted into the wrong place in the pdb file
-     (old version?)
+   o Valgrind long/multiple fit-proteins
 
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
      old coot timer
 
+
+   o residue range was inserted into the wrong place in the pdb file
+
+* Fixed.
 
    o optionally animate fit-waters
 

@@ -619,8 +619,11 @@ coot::graph_match(CResidue *res_moving,
    CResidue *cleaned_res_moving    = coot::util::copy_and_delete_hydrogens(res_moving);
    CResidue *cleaned_res_reference = coot::util::copy_and_delete_hydrogens(res_reference);
 
-   graph1.MakeGraph(res_moving);
-   graph2.MakeGraph(res_reference);
+   graph1.MakeGraph(cleaned_res_moving);
+   graph2.MakeGraph(cleaned_res_reference);
+
+   // graph1.MakeSymmetryRelief ( False );
+   // graph2.MakeSymmetryRelief ( False );
 
    int build_status1 = graph1.Build(1);
    int build_status2 = graph2.Build(1);
@@ -647,7 +650,7 @@ coot::graph_match(CResidue *res_moving,
 
 	 std::cout << "match.MatchGraphs matching " << minMatch << " atoms"
 		   << std::endl;
-	 match.MatchGraphs(&graph1, &graph2, minMatch, 0);
+	 match.MatchGraphs(&graph1, &graph2, minMatch, 1);
 	 std::cout << "match.GetNoMatches" << std::endl;
 	 int n_match = match.GetNofMatches();
 	 std::cout << "match NumberofMatches " << n_match << std::endl;

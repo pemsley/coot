@@ -849,6 +849,9 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
 	 if (angle < -1000) { // an error occured
 	    std::cout << "ERROR:: something bad in spin_search" << std::endl;
 	 } else {
+
+	    make_backup();
+
 	    // Now rotate the atoms in moving_atoms_list about dir;
 	    // 
 	    clipper::Coord_orth orig(dir_atom_2->x, dir_atom_2->y, dir_atom_2->z);
@@ -876,10 +879,10 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
 		  }
 	       }
 	    }
-	 } 
-	 //
-	 have_unsaved_changes_flag = 1;
-	 make_bonds_type_checked(); // calls update_ghosts();
+	    //
+	    have_unsaved_changes_flag = 1;
+	    make_bonds_type_checked(); // calls update_ghosts();
+	 }
 	 
       } else {
 	 std::cout << "direction atoms not found" << std::endl;
