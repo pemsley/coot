@@ -45,6 +45,7 @@ INCLUDES = \
 	-I $(top_srcdir)/surface	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
+	$(GLUT_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
 	@GTK_CFLAGS@ 
 
