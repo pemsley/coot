@@ -21,6 +21,7 @@ INCLUDES =  \
 	$(GTKCANVAS_CFLAGS) 		\
 	$(COOT_GSL_FLAGS) 		\
 	$(GSL_CFLAGS) 		 	\
+	$(GLUT_CFLAGS)			\
 	@GTK_CFLAGS@ 
 
 # we need GTK_CFLAGS because we include graphics_info.h which includes
