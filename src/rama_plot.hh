@@ -292,7 +292,7 @@ public:
    // The graphics interface, given that you have a CMMDBManager. 
    // 
    void draw_it(CMMDBManager *mol);
-   void draw_it(CMMDBManager *mol1, CMMDBManager *mol2);
+   void draw_it(int imol1, int imol2, CMMDBManager *mol1, CMMDBManager *mol2); // no chain ids.
    void draw_it(int imol1, int imol2,
 		CMMDBManager *mol1, CMMDBManager *mol2,
 		const std::string &chain_id_1, const std::string &chain_id_2);

@@ -11,15 +11,23 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Fix crash when applying NCS edits [Michael Url]
 
+  o Fix problems of incorrect actions on pressing NCS buttons
+
+  o Fix potential crash on finding blobs and waters [Kevin Cowtan]
+
   o Fix crash apparent after deleting all maps then reading a new one 
     while the Display Control window was open
 
   o Added CNS map-reading [provided by Kevin Cowtan]. ".cns" is now 
-    an acceptable map extension.
+    an acceptable map extension
 
   o Add Terminal Residue for nucleotide polymers
 
   o Alt confs of ligands no longer fly apart on regularization
+
+  o Ramachandran plots now tell us the Preferred/Allowed/Outlier stats
+
+  o Add user-settable contour levels and block size for Ramachandran plots
 
   o GTk+-2 interface now usable
 
@@ -56,6 +64,10 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Display Control confusion about Display/Active state of molecules
     untangled
+
+  o state file saves stereo mode.
+
+  o Add ability to set the atom radius for Raster3D output
 
   o On startup, the Go To Atom dialog no longer is inconsistent
     between the chain chain and molecule chooser [GMS]

@@ -1119,7 +1119,8 @@ ramachandran_plot_differences(int imol1, int imol2) {
 				graphics_info_t::rama_level_allowed,
 				graphics_info_t::rama_plot_background_block_size,
 				is_kleywegt_plot_flag);
-		     rama->draw_it(graphics_info_t::molecules[imol1].atom_sel.mol,
+		     rama->draw_it(imol1, imol2,
+				   graphics_info_t::molecules[imol1].atom_sel.mol,
 				   graphics_info_t::molecules[imol2].atom_sel.mol);
 		  }
 	       }

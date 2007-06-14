@@ -1645,8 +1645,10 @@ coot::rama_plot::draw_it(CMMDBManager *mol) {
 }
 
 void
-coot::rama_plot::draw_it(CMMDBManager *mol1, CMMDBManager *mol2) {
+coot::rama_plot::draw_it(int imol1, int imol2,
+			 CMMDBManager *mol1, CMMDBManager *mol2) {
 
+   molecule_numbers_ = std::pair<int, int> (imol1, imol2); // save for later
    display_background();
    draw_axes();
    draw_zero_lines(); 
