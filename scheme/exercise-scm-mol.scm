@@ -65,18 +65,22 @@
 ;;
 ;; 
 ;; 
-(define (jiggled-mol reference-mol current-mol)
+(define (jiggled-mol reference-mol current-mol traj-frac)
 
   (define (jiggle-random)
     (- (/ (random 10000) 10000) 0.5))
 
   (define (jiggled-pos ref-pos current-pos)
-    (map (lambda (x x-ref)
-	   (let ((candiate-pos (+ x (* 0.1 (jiggle-random)))))
-	     (if (> (abs (- candiate-pos x-ref)) 0.3)
-		 x
-		 candiate-pos)))
-	 current-pos ref-pos))
+    (if (< traj-frac 0) ;; magic value
+	;; make a starting set of coords
+	(map (lambda (x1)
+	       (+ x1 (* 1.0 (jiggle-random))))
+	     ref-pos)
+	(map (lambda (x x-ref)
+	       (let ((q (- 1 traj-frac)))
+		 (+ (* traj-frac x-ref) (* q x)
+		    (* 0.4 q (jiggle-random)))))
+	     current-pos ref-pos)))
 
   (define (jiggled-atom ref-atom current-atom)
     (let ((ref-pos (car (cdr (cdr ref-atom))))
@@ -103,22 +107,28 @@
     (map jiggled-chain ref-model cur-model))
 
   (map jiggled-model reference-mol current-mol))
-  
+
+
+;;   
+(define (disrupt reference-mol biggness)
+
+  (jiggled-mol reference-mol reference-mol -1))
+
+;;
+(define max-count 2000)
 
 (let ((mol-no (add-molecule a-molecule "test molecule")))
-  ; (format #t "got molecule number ~s~%" mol-no)
   (if (not (= mol-no -1))
       (begin
 	(apply set-rotation-centre (centre-of-mass mol-no))
 	(let loop ((count 0)
-		   (current-mol a-molecule))
+		   (current-mol (disrupt a-molecule 0.8)))
 	  (cond 
-	   ((= count 4000) 'done)
+	   ((= count max-count) 'done)
 	   (else
-	    (let ((new-mol (jiggled-mol a-molecule current-mol)))
+	    (let ((new-mol (jiggled-mol a-molecule current-mol
+					(/ count max-count))))
+	      (format #t "cycle ~s ~s~%" count (/ count max-count))
 	      (clear-and-update-molecule mol-no new-mol)
 	      (loop (+ count 1) new-mol))))))))
-
-
-
 

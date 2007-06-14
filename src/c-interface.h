@@ -331,12 +331,14 @@ char *coot_version();
 const char *molecule_name(int imol);
 GtkWidget *main_window(); 
 gboolean coot_checked_exit(int retval); 
+/*! \brief exit from coot, give return value retval back to invoking
+  process. */
 void coot_real_exit(int retval); 
 void fill_about_window(GtkWidget *widget);
  
 /*! \brief What is the molecule number of first coordinates molecule?
 
-   return -1 on none */
+   return -1 when there is none. */
 int first_coords_imol(); 	
 
 /* \} */

@@ -22,7 +22,6 @@
 @c A real manual includes more text here, according to the license under
 @c which it is distributed. See GNU Sample Texts.
 
-
 @c @copying is not understood by tex2dvi on bubbles - Grrr! FIXME
 @c @copying
 @c @end copying
@@ -3455,7 +3454,9 @@ In the terminal output we get:
 
 The centre of the ``B'' molecule is at  (58.456 5.65 11.108).  So we do:
 
-@code{(transform-map 3 (list 0.9707 0.2351 0.05033  -0.04676 0.39 -0.9196 -0.2358 0.8903 0.3896) (list  -33.34 21.14 18.82) (list 58.456 5.65 11.108) 8)}
+@code{(transform-map 3 (list 0.9707 0.2351 0.05033 -0.04676 0.39 -0.9196
+-0.2358 0.8903 0.3896) (list -33.34 21.14 18.82) (list 58.456 5.65
+11.108) 8)}
 
 Which creates a map over the middle of the ``A'' molecule.  Note that
 using a too high @code{@emph{radius}} can cause overlap problems, so try
@@ -3468,7 +3469,9 @@ coordinates least-squares fit to generate the matrix for you.
 
 Heres how to use it:
 
-@code{(transform-map-using-lsq-matrix \emph{imol-ref ref-chain ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start mov-resno-end imol-map about-pt radius})}
+@code{(transform-map-using-lsq-matrix @emph{imol-ref ref-chain
+ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start
+mov-resno-end imol-map about-pt radius})}
  
 Hopefully the arguments are self explanatory (@code{@emph{ref}} refers
 to the reference molecule, of course and @code{@emph{about-pt}} is a
@@ -3615,8 +3618,6 @@ deleted entirely.  Coot doesn't decide what should be done about these
 atoms @footnote{as yet}, it merely brings them to your attention.  It
 may be interesting to use an anomalous map to do this analysis.
 
-
-
 @node    Molprobity Tools Interface
 @section Molprobity Tools Interface
 @cindex  Molprobity Tools
@@ -3675,7 +3676,6 @@ This analysis was added after discussions with Atsushi Nakagawa and so
 is called ``Nakagawa's Bees''.
 
 The analysis does not check residues with multiple conformations.
-
 
 @node Validation Graphs
 @section Validation Graphs 

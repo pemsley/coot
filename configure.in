@@ -214,7 +214,7 @@ auxil/strand-analysis/Makefile
 auxil/vectors/Makefile	
 ])
 # removed setup/Makefile
-#         po/Makefile.in
+# po/Makefile.in
 
 # GETTEXT related things: When AM_GNU_GETTEXT get enabled, these get enabled.
 # po/Makefile
