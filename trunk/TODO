@@ -63,6 +63,8 @@
    o More work on ligand bonding
        Things with Cl etc
 
+   o Kleywegt plot should not draw ("wrapped") long arrows
+
    o Lasso (perhaps) active atoms to select atoms for R/Ting?  
      So that fragments of monomers can be moved independently
 
@@ -90,8 +92,4 @@
 
    o Switch to GTk2, guile1.8.  Dump Gtk1 interface, re-write build-it 
      script
-
-
-
-   
 
