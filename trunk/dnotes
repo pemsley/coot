@@ -27,15 +27,25 @@ cd guile-gtk-2.0
 
    o Valgrind long/multiple fit-proteins
 
+
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
      old coot timer
 
 
+
+   o Kleywegt plots don't update properly when not specifying chains.
+
+* Done
+
    o residue range was inserted into the wrong place in the pdb file
 
-* Fixed.
+* Done.
+
+   o copy fragment, residue range miss - feedback required.
+
+* Done.
 
    o optionally animate fit-waters
 

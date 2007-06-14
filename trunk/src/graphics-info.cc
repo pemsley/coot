@@ -1388,7 +1388,8 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 			     graphics_info_t::molecules[p.second].atom_sel.mol,
 			     chain_ids.first, chain_ids.second);
 	    else 
-	       plot->draw_it(graphics_info_t::molecules[p.first].atom_sel.mol,
+	       plot->draw_it(p.first, p.second,
+			     graphics_info_t::molecules[p.first].atom_sel.mol,
 			     graphics_info_t::molecules[p.second].atom_sel.mol);
 	 } else {
 	    // close down the plot

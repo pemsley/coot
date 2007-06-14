@@ -679,6 +679,13 @@ void set_unit_cell_colour(float red, float green, float blue) {
    coot::colour_holder ch(red, green, blue);
    graphics_info_t::cell_colour = ch;
    graphics_draw();
+
+   std::string cmd = "set-unit-cell-colour";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(red);
+   args.push_back(green);
+   args.push_back(blue);
+   add_to_history_typed(cmd, args);
 } 
 
 
@@ -1055,6 +1062,7 @@ void post_other_modelling_tools_dialog() {
 void show_select_map_dialog() {
    graphics_info_t g;
    g.show_select_map_dialog();
+   add_to_history_simple("show-select-map-dialog");
 } 
 
 // 
@@ -1376,14 +1384,18 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
 
 int auto_read_do_difference_map_too_state() {
 
+   add_to_history_simple("auto-read-do-difference-map-too-state");
    int i = graphics_info_t::auto_read_do_difference_map_too_flag; 
-
    return i;
 
 } 
 void set_auto_read_do_difference_map_too(int i) {
 
    graphics_info_t::auto_read_do_difference_map_too_flag = i;
+   std::string cmd = "set-auto-read-do-dfference-map-too";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 } 
 
 
@@ -1397,6 +1409,13 @@ void set_auto_read_column_labels(const char *fwt, const char *phwt,
       graphics_info_t::auto_read_MTZ_FWT_col = fwt;
       graphics_info_t::auto_read_MTZ_PHWT_col = phwt;
    }
+   std::string cmd = "set-auto-read-column-labels";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(fwt);
+   args.push_back(phwt);
+   args.push_back(is_for_diff_map_flag);
+   add_to_history_typed(cmd, args);
+
 }
 
 
@@ -1604,17 +1623,24 @@ void fileselection_sort_button_clicked_gtk1( GtkWidget *sort_button,
 void quanta_buttons() {
    graphics_info_t g;
    g.quanta_buttons();
+   add_to_history_simple("quanta-buttons");
 }
 
 void quanta_like_zoom() { 
    graphics_info_t::quanta_like_zoom_flag = 1;
+   add_to_history_simple("quanta-like-zoom");
 } 
 
 void set_scroll_by_wheel_mouse(int istate) {
    graphics_info_t::do_scroll_by_wheel_mouse_flag = istate;
+   std::string cmd = "set-scroll-by-mouse-wheel";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(istate);
+   add_to_history_typed(cmd, args);
 }
 
 int scroll_by_wheel_mouse_state() {
+   add_to_history_simple("scroll-by-wheel-mouse-state");
    return graphics_info_t::do_scroll_by_wheel_mouse_flag;
 }
 
@@ -1624,7 +1650,10 @@ in sigma */
 void set_default_initial_contour_level_for_map(float n_sigma) {
 
    graphics_info_t::default_sigma_level_for_map = n_sigma;
-
+   std::string cmd = "set-default-initial-contour-level-for-map";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(n_sigma);
+   add_to_history_typed(cmd, args);
 } 
 
 /*! \brief set the default inital contour for FoFc-style map
@@ -1633,7 +1662,10 @@ in sigma */
 void set_default_initial_contour_level_for_difference_map(float n_sigma) {
 
    graphics_info_t::default_sigma_level_for_fofc_map = n_sigma;
-
+   std::string cmd = "set-default-initial-contour-level-for-difference-map";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(n_sigma);
+   add_to_history_typed(cmd, args);
 } 
 
 
@@ -1646,9 +1678,15 @@ void set_map_line_width(int w) {
    for (int imol=0; imol<graphics_info_t::n_molecules; imol++)
       graphics_info_t::molecules[imol].update_map();
    graphics_draw();
+   std::string cmd = "set-map-line-width";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(w);
+   add_to_history_typed(cmd, args);
+   
 }
 
 int map_line_width_state() {
+   add_to_history_simple("map-line-width-state");
    return graphics_info_t::map_line_width;
 } 
 
@@ -1704,31 +1742,44 @@ void set_density_size(float f) {
       g.molecules[ii].update_map();
    }
    graphics_draw();
+   std::string cmd = "set-density-size";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
+   
 }
 
 /*! \brief set the extent of the box/radius of electron density contours */
 void set_map_radius(float f) {
-
    set_density_size(f);
-
 } 
 
 
 
 void set_display_intro_string(const char *str) {
 
-   if (graphics_info_t::use_graphics_interface_flag) { 
-      if (str) { 
+   if (str) { 
+      if (graphics_info_t::use_graphics_interface_flag) { 
 	 std::string s(str);
 	 graphics_info_t g;
 	 g.display_density_level_screen_string = s;
 	 g.statusbar_text(s);
       }
+
+      std::string cmd = "set-display-intro-string";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(str);
+      add_to_history_typed(cmd, args);
    }
 } 
 
 void set_swap_difference_map_colours(int i) { 
    graphics_info_t::swap_difference_map_colours = i;
+   std::string cmd = "set-swap-difference-map-colours";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
+   
 }
 
 /* return success status 0 = failure (imol does not have a map) */
@@ -1746,9 +1797,13 @@ int set_map_is_difference_map(int imol) {
 
    } else { 
       std::cout << "WARNING:: No such molecule as " << imol << std::endl;
-   } 
+   }
+   std::string cmd = "set-map-is-difference-map";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
+   
    return istatus;
-
 } 
 
 /* return the index of the new molecule or -1 on failure */
@@ -1766,7 +1821,7 @@ int another_level() {
    if (imap > -1) {
       istat = another_level_from_map_molecule_number(imap);
    }
-
+   // history elsewhere
    return istat;
 }
 
@@ -1800,6 +1855,10 @@ int another_level_from_map_molecule_number(int imap) {
 	 graphics_draw();
       }
    }
+   std::string cmd = "another-level-from-map-molecule-number";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imap);
+   add_to_history_typed(cmd, args);
    return istat;
 }
 
@@ -1807,6 +1866,10 @@ int another_level_from_map_molecule_number(int imap) {
 
 void set_map_radius_slider_max(float f) {
    graphics_info_t::map_radius_slider_max = f;
+   std::string cmd = "set-map-radius-slider-max";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
 } 
 
 
@@ -1823,6 +1886,10 @@ int has_unit_cell_state(int imol) {
 	 }
       }
    }
+   std::string cmd = "has-unit-cell-state";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return istate;
 }
  
@@ -1855,6 +1922,10 @@ void set_symmetry_size(float f) {
       g.molecules[ii].update_symmetry();
    }
    graphics_draw();
+   std::string cmd = "set-symmetry-size";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
 }
 
 /* When the coordinates for one (or some) symmetry operator are missing
@@ -1864,6 +1935,10 @@ void set_symmetry_size(float f) {
 void set_symmetry_shift_search_size(int shift) {
    
    graphics_info_t::symmetry_shift_search_size = shift;
+   std::string cmd = "set-symmetry-shift-search-size";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(shift);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -1872,6 +1947,11 @@ void set_symmetry_molecule_rotate_colour_map(int imol, int state) {
    if (is_valid_model_molecule(imol)) {
       g.molecules[imol].symmetry_rotate_colour_map_flag = state;
    }
+   std::string cmd = "set-symmetry-molecule-rotate-colour-map";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
    graphics_draw();
 } 
 
@@ -1881,6 +1961,10 @@ int symmetry_molecule_rotate_colour_map_state(int imol) {
    if (is_valid_model_molecule(imol)) {
       r = graphics_info_t::molecules[imol].symmetry_rotate_colour_map_flag;
    }
+   std::string cmd = "symmetry-molecule-rotate-colour-map-state";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return r;
 } 
 
@@ -1893,6 +1977,11 @@ void set_symmetry_colour_by_symop(int imol, int state) {
 	 graphics_draw();
       }
    }
+   std::string cmd = "set-symmetry-colour-by-symop";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 void set_symmetry_whole_chain(int imol, int state) {
@@ -1905,6 +1994,11 @@ void set_symmetry_whole_chain(int imol, int state) {
 	    g.update_things_on_move_and_redraw();
       }
    }
+   std::string cmd = "set-symmetry-whole-chain";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -1913,23 +2007,29 @@ void set_symmetry_whole_chain(int imol, int state) {
 void set_fps_flag(int thing) {
 
    graphics_info_t g;
-   g.SetShowFPS(thing); 
-
+   g.SetShowFPS(thing);
+   std::string cmd = "set-fps-flag";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(thing);
+   add_to_history_typed(cmd, args);
 } 
 
-// For people without PCs with fast graphics cards :)
+// For people without PCs with fast graphics cards :)  [like me]
 // 
 void set_active_map_drag_flag(int t) {
 
    graphics_info_t g;
-
    g.SetActiveMapDrag(t);
+   std::string cmd = "set-active-map-drag-flag";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(t);
+   add_to_history_typed(cmd, args);
 }
 
 int get_fps_flag() {
 
    graphics_info_t g;
-
+   add_to_history_simple("get-fps-flag");
    return g.GetFPSFlag();
 } 
 
@@ -1938,7 +2038,7 @@ int get_fps_flag() {
 short int get_active_map_drag_flag() {
 
    graphics_info_t g;
-
+   add_to_history_simple("get-active-map-drag-flag");
    return g.GetActiveMapDrag();
 }
 
@@ -1951,15 +2051,25 @@ void set_draw_hydrogens(int imol, int istate) {
       graphics_draw();
    } else { 
       std::cout << "WARNING:: No such molecule number " << imol << "\n";
-   } 
+   }
+   std::string cmd = "set-draw-hydrogens";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(istate);
+   add_to_history_typed(cmd, args);
 } 
 
 void set_show_origin_marker(int istate) {
    graphics_info_t::show_origin_marker_flag = istate;
    graphics_draw();
+   std::string cmd = "set-show-origin-marker";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(istate);
+   add_to_history_typed(cmd, args);
 } 
 
 int  show_origin_marker_state() {
+   add_to_history_simple("show-origin-marker-state");
    return graphics_info_t::show_origin_marker_flag;
 } 
 
@@ -1971,19 +2081,30 @@ void set_last_map_contour_level(float level) {
 
    graphics_info_t g;
    g.set_last_map_contour_level(level);
-
+   std::string cmd = "set-last-map-contour-level";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(level);
+   add_to_history_typed(cmd, args);
 }
 
 void set_last_map_contour_level_by_sigma(float level) {
 
    graphics_info_t g;
    g.set_last_map_contour_level_by_sigma(level);
+   std::string cmd = "set-last-map-contour-level-by-sigma";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(level);
+   add_to_history_typed(cmd, args);
 }
 
 void set_last_map_sigma_step(float f) { 
 
    graphics_info_t g;
    g.set_last_map_sigma_step(f);
+   std::string cmd = "set-last-map-sigma-step";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
 
 } 
 
@@ -2016,9 +2137,11 @@ get_map_colour(int imol) {
 	 colour[2] = graphics_info_t::molecules[imol].map_colour[0][2];
       }
    }
-
+   std::string cmd = "get-map-colour";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return colour;
-
 }
 
 //! \brief return the colour of the imolth map (e.g.: (list 0.4 0.6
@@ -2038,6 +2161,10 @@ SCM map_colour_components(int imol) {
       r = scm_cons(scm_double2num(gc), r);
       r = scm_cons(scm_double2num(rc), r);
    }
+   std::string cmd = "map-colour-components";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return r; 
 }
 #endif
@@ -2049,6 +2176,10 @@ void save_previous_map_colour(int imol) {
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::molecules[imol].save_previous_map_colour();
    } 
+   std::string cmd = "save-previous-map-colour";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
 
 } 
 
@@ -2058,6 +2189,10 @@ void restore_previous_map_colour(int imol) {
       graphics_info_t::molecules[imol].restore_previous_map_colour();
    }
    graphics_draw();
+   std::string cmd = "restore-previous-map-colour";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2129,7 +2264,10 @@ void set_show_symmetry_master(short int state) {
 	 }
       }
    }
-
+   std::string cmd = "set-show-symmetry-master";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 void set_show_symmetry_molecule(int imol, short int state) {
@@ -2140,7 +2278,11 @@ void set_show_symmetry_molecule(int imol, short int state) {
 	 graphics_info_t::molecules[imol].update_symmetry();
       graphics_draw();
    }
-
+   std::string cmd = "set-show-symmetry-molecule";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2152,6 +2294,11 @@ void symmetry_as_calphas(int mol_no, short int state) {
       g.molecules[mol_no].update_symmetry();
    }
    graphics_draw();
+   std::string cmd = "symmetry-as-calphas";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(mol_no);
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 
 }
 
@@ -2162,6 +2309,10 @@ short int get_symmetry_as_calphas_state(int imol) {
    if (is_valid_model_molecule(imol))
       r = g.molecules[imol].symmetry_as_calphas;
        
+   std::string cmd = "get-symmety-as-calphas-state";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return r;
 } 
 
@@ -2172,8 +2323,8 @@ short int get_symmetry_as_calphas_state(int imol) {
 // 
 short int get_show_symmetry() {
 
+   add_to_history_simple("get-show-symmetry");
    return graphics_info_t::show_symmetry; // master
-
 }
 
 GtkWidget *symmetry_molecule_controller_dialog() {
@@ -2187,9 +2338,12 @@ void
 set_clipping_front(float v) {
 
    graphics_info_t::clipping_front = v;
-
    graphics_draw();
-
+   std::string cmd = "set-clipping-front";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(v);
+   add_to_history_typed(cmd, args);
+   
 }
 
 
@@ -2197,8 +2351,11 @@ void
 set_clipping_back(float v) {
 
    graphics_info_t::clipping_back = v;
-
    graphics_draw();
+   std::string cmd = "set-clipping-back";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(v);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2211,14 +2368,27 @@ set_symmetry_colour_merge(int mol_no, float v) {
 
    graphics_info_t::symm_colour_merge_weight[mol_no] = v;
    graphics_draw();
+   std::string cmd = "";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(mol_no);
+   args.push_back(v);
+   add_to_history_typed(cmd, args);
 }
 
 void set_colour_map_rotation_on_read_pdb(float f) {
    graphics_info_t::rotate_colour_map_on_read_pdb = f; 
+   std::string cmd = "set-colour-map-rotation-on-read-pdb";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
 }
 
 void set_colour_map_rotation_on_read_pdb_flag(short int i) {
    graphics_info_t::rotate_colour_map_on_read_pdb_flag = i; 
+   std::string cmd = "set-colour-map-rotation-on-read-pdb-flag";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 }
 
 void set_colour_map_rotation_on_read_pdb_c_only_flag(short int i) {
@@ -2232,11 +2402,19 @@ void set_colour_map_rotation_on_read_pdb_c_only_flag(short int i) {
       }
    }
    graphics_draw();
+   std::string cmd = "set-colour-map-rotation-on-read-pdb-c-only-flag";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(i);
+   add_to_history_typed(cmd, args);
 }
 
 void set_symmetry_atom_labels_expanded(int state) {
    graphics_info_t::symmetry_atom_labels_expanded_flag = state;
    graphics_draw();
+   std::string cmd = "set-symmetry-atom-labels-expanded";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2256,6 +2434,10 @@ float get_molecule_bonds_colour_map_rotation(int imol) {
    float r = -1.0;
    if (is_valid_model_molecule(imol))
       r = graphics_info_t::molecules[imol].bonds_colour_map_rotation;
+   std::string cmd = "get-molecule-bonds-colour-map-rotation";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return r;
 }
 
@@ -2263,7 +2445,11 @@ void  set_molecule_bonds_colour_map_rotation(int imol, float f) {
 
    if (is_valid_model_molecule(imol))
       graphics_info_t::molecules[imol].bonds_colour_map_rotation = f;
-
+   std::string cmd = "set-molecule-bonds-colour-map-rotation";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2275,6 +2461,12 @@ void set_rotation_centre(float x, float y, float z) {
    g.setRotationCentre(coot::Cartesian(x,y,z));
    if (g.glarea)
       g.update_things_on_move_and_redraw();
+   std::string cmd = "set-rotation-centre";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(x);
+   args.push_back(y);
+   args.push_back(z);
+   add_to_history_typed(cmd, args);
 }
 
 // The redraw happens somewhere else...
@@ -2294,6 +2486,10 @@ float rotation_centre_position(int axis) {  /* only return one value: x=0, y=1, 
       r = p.y();
    if (axis == 2)
       r = p.z();
+   std::string cmd = "rotation-centre-position";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(axis);
+   add_to_history_typed(cmd, args);
    return r;
 }
 
@@ -2304,13 +2500,22 @@ void set_colour_by_chain(int imol) {
       graphics_info_t::molecules[imol].make_colour_by_chain_bonds(f);
       graphics_draw();
    }
+   std::string cmd = "set-colour-by-chain";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
 }
+
 void set_colour_by_molecule(int imol) { 
 
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t::molecules[imol].make_colour_by_molecule_bonds();
       graphics_draw();
    }
+   std::string cmd = "set-colour-by-molecule";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2319,6 +2524,10 @@ void set_colour_by_molecule(int imol) {
 void set_colour_map_rotation_for_map(float f) {
 
    graphics_info_t::rotate_colour_map_for_map = f;
+   std::string cmd = "set-colour-map-rotation-for-maps";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -2329,8 +2538,11 @@ void set_colour_map_rotation_for_map(float f) {
 short int
 get_show_unit_cell(int imol) {
 
+   std::string cmd = "get-show-unit-cell";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
    return graphics_info_t::molecules[imol].show_unit_cell_flag;
-
 }
 
 void
@@ -2343,6 +2555,11 @@ set_show_unit_cell(int imol, short int state) {
    }
    //    }
    graphics_draw();
+   std::string cmd = "set-show-unit-cell";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 }
 
 void set_show_unit_cells_all(short int istate) {
@@ -2356,7 +2573,10 @@ void set_show_unit_cells_all(short int istate) {
       }
    }
    graphics_draw();
-
+   std::string cmd = "set-show-unit-cells-all";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(istate);
+   add_to_history_typed(cmd, args);
 } 
 
 
@@ -2369,8 +2589,11 @@ void
 set_limit_aniso(short int state) {
    //
    graphics_info_t g; 
-   
    g.show_aniso_atoms_radius_flag = state;
+   std::string cmd = "set-limit-aniso";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
 } 
 
 void
@@ -2394,7 +2617,7 @@ float
 get_limit_aniso() {
 
    graphics_info_t g;
-   
+   add_to_history_simple("get-limit-aniso");
    return g.show_aniso_atoms_radius;
 
 }
@@ -6882,15 +7105,27 @@ int add_spin_view(const char *view_name, int n_steps, float degrees_total) {
    graphics_info_t g;
    coot::view_info_t v(view_name, n_steps, degrees_total);
    graphics_info_t::views->push_back(v);
+   std::string cmd = "add-spin-view";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(view_name);
+   args.push_back(n_steps);
+   args.push_back(degrees_total);
+   add_to_history_typed(cmd, args);
    return (graphics_info_t::views->size() -1);
 }
 
 void set_views_play_speed(float f) {
    graphics_info_t::views_play_speed = f;
+   std::string cmd = "set-views-play-speed";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
+
 } 
 
 float views_play_speed() {
    return graphics_info_t::views_play_speed;
+   add_to_history_simple("views-play-speed");
 }
 
 
