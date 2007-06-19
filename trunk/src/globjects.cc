@@ -90,6 +90,12 @@ std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> *graphics_info_t::views = 0;
 float graphics_info_t::views_play_speed = 1.0;
 
+// movies
+std::string graphics_info_t::movie_file_prefix = "movie_";
+int graphics_info_t::movie_frame_number = 0;
+int graphics_info_t::make_movie_flag = 0;
+
+
 // LSQ
 short int graphics_info_t::in_lsq_plane_deviation = 0;
 short int graphics_info_t::in_lsq_plane_define    = 0;

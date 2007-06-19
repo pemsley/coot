@@ -6743,8 +6743,6 @@ coot::operator<<(std::ofstream &f, coot::view_info_t &view) {
 
 }
    
-
-
 bool
 coot::view_info_t::matches_view (const coot::view_info_t &view) const { 
    float frac = 0.01;

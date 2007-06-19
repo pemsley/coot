@@ -155,7 +155,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       }
 
 
-      if (1) {  // debugging wiggly ligands
+      if (0) {  // debugging wiggly ligands
 	 std::string filename = "wligand-";
 	 filename += int_to_string(isample);
 	 filename += ".pdb";

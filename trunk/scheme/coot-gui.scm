@@ -1140,8 +1140,8 @@
     (gtk-widget-show-all window)))
 
 ;; geometry is an improper list of ints
-;; buttons is a list of: (list (list "button-1-label button-1-action)
-;;                             (list "button-2-label button-2-action))
+;; buttons is a list of: (list (list button-1-label button-1-action)
+;;                             (list button-2-label button-2-action))
 ;; The button-1-action function takes no arguments.
 ;; The button-2-action function takes as an argument the imol
 ;; 
@@ -1246,6 +1246,49 @@
 	(dialog-box-of-buttons " Views " (cons 200 140) all-buttons "  Close  ")))))
 
     
+;; nudge screen centre box.  Useful when Ctrl left-mouse has been
+;; taken over by another function.
+;; 
+(define (nudge-screen-centre-gui)
+  
+  (let* ((zsc 0.02)
+	 (buttons 
+	  (list 
+	   (list "Nudge +X" (lambda () 
+			      (let ((nudge (* (zoom-factor) zsc))
+				    (rc (rotation-centre)))
+				(apply set-rotation-centre (cons (+ nudge (car rc)) (cdr rc))))))
+	   (list "Nudge -X" (lambda () 
+			      (let ((nudge (* (zoom-factor) zsc))
+				    (rc (rotation-centre)))
+				(apply set-rotation-centre (cons (- (car rc) nudge) (cdr rc))))))
+	   (list "Nudge +Y" (lambda ()  
+			      (let ((nudge (* (zoom-factor) zsc))
+				    (rc (rotation-centre)))
+				(set-rotation-centre (list-ref rc 0)
+						     (+ nudge (list-ref rc 1))
+						     (list-ref rc 2)))))
+	   (list "Nudge -Y" (lambda ()  
+			      (let ((nudge (* (zoom-factor) zsc))
+				    (rc (rotation-centre)))
+				(set-rotation-centre (list-ref rc 0)
+						     (- (list-ref rc 1) nudge)
+						     (list-ref rc 2)))))
+	   (list "Nudge +Z" (lambda ()  
+			      (let ((nudge (* (zoom-factor) zsc))
+				    (rc (rotation-centre)))
+				(set-rotation-centre (list-ref rc 0)
+						     (list-ref rc 1)
+						     (+ nudge (list-ref rc 2))))))
+	   (list "Nudge -Z" (lambda ()  
+			      (let ((nudge (* (zoom-factor) zsc))
+				    (rc (rotation-centre)))
+				(set-rotation-centre (list-ref rc 0)
+						     (list-ref rc 1)
+						     (- (list-ref rc 2) nudge))))))))
+
+    (dialog-box-of-buttons "Nudge Screen Centre" 
+			   (cons 200 190) buttons "  Close ")))
 
 
 ; let the c++ part of mapview know that this file was loaded:

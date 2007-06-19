@@ -1,6 +1,7 @@
 /* src/graphics-info-render.cc
  * 
- * Copyright 2004, 2006 by Paul Emsley, The University of York.
+ * Copyright 2004, 2006, 2007 by The University of York.
+ * Author Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +31,8 @@
 #include "gl-matrix.h"
 #include "graphics-info.h"
 #include "coot-render.hh"
+
+#include "ppmutil.h"
 
 
 // raster3d
@@ -501,4 +504,59 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
       }
    }
 
+}
+
+
+// ---------------------------------------------------------------------
+//                                 movies
+// ---------------------------------------------------------------------
+// static
+void
+graphics_info_t::dump_a_movie_image() {
+
+   std::string number_str =
+      coot::util::int_to_string(graphics_info_t::movie_frame_number);
+
+   if (graphics_info_t::movie_frame_number < 1000)
+      number_str = "0" + number_str;
+   if (graphics_info_t::movie_frame_number < 100)
+      number_str = "0" + number_str;
+   if (graphics_info_t::movie_frame_number < 10)
+      number_str = "0" + number_str;
+
+   std::string file_name = graphics_info_t::movie_file_prefix;
+   file_name += file_name + number_str;
+   file_name += ".ppm";
+   graphics_info_t::screendump_image(file_name);
+
+}
+
+
+// static
+int
+graphics_info_t::screendump_image(const std::string &file_name) {
+
+   GLint viewport[4];
+   glGetIntegerv(GL_VIEWPORT, viewport);
+   glPixelTransferi(GL_MAP_COLOR, GL_FALSE);
+   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+   glPixelStorei(GL_PACK_ALIGNMENT, 1);
+   
+   unsigned char* pixels = new unsigned char[viewport[2]*viewport[3]*IMAGEINFO_RGBA_SIZE];
+   glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+   image_info iinfo(viewport[2], viewport[3], pixels, IMAGEINFO_RGBA);
+
+   // file should be a ppm file for now, png when we add it to configure
+   iinfo.invert();
+   int istatus = 0;
+   try { 
+      istatus = iinfo.write(file_name.c_str());
+   }
+   catch (...) {
+      std::string s("Can't write that image format at the moment.\n");
+      s += "ppm is suggested instead.";
+      wrapped_nothing_bad_dialog(s);
+   }
+   delete [] pixels; // does iinfo copy the data or the pointer? possible crash.
+   return istatus;
 }

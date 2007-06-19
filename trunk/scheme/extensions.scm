@@ -357,6 +357,11 @@
 	 (brighten-maps)))
 
       (add-simple-coot-menu-menuitem
+       menu "Nudge Centre..."
+       (lambda ()
+	 (nudge-screen-centre-gui)))
+
+      (add-simple-coot-menu-menuitem
        menu "Add Strand Here..."
        (lambda ()
 	 (place-strand-here-gui)))

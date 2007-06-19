@@ -2780,6 +2780,18 @@ int go_to_view_number(int view_number, int snap_to_view_flag);
 int add_spin_view(const char *view_name, int n_steps, float degrees_total);
 /*! \brief return the number of views */
 void add_view_description(int view_number, const char *description);
+/*! \brief add a view (not add to an existing view) that *does*
+  something (e.g. displays or undisplays a molecule) rather than move
+  the graphics.
+
+  @return the view number for this (new) view.
+ */
+int add_action_view(const char *view_name, const char *action_function);
+/*! \brief add an action view after the view of the given view number
+
+  @return the view number for this (new) view.
+ */
+int insert_action_view_after_view(int view_number, const char *view_name, const char *action_function);
 int n_views(); 
 /*! \brief return the name of the given view, if view_number does not
   specify a view return #f */
@@ -2797,6 +2809,17 @@ SCM view_description(int view_number);
 void go_to_view(SCM view);
 #endif	/* USE_GUILE */
 #endif	/* __cplusplus */
+
+/* movies */
+void set_movie_file_name_prefix(const char *file_name);
+void set_movie_frame_number(int frame_number);
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM movie_file_name_prefix();
+#endif
+#endif
+int movie_frame_number();
+void set_make_movie_mode(int make_movies_flag);
 
 /*  ----------------------------------------------------------------------- */
 /*                  graphics background colour                              */

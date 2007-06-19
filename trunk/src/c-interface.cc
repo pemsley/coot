@@ -1,6 +1,6 @@
 /* src/c-interface.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -102,7 +102,6 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
-#include "ppmutil.h"
 
 #include "positioned-widgets.h"
 
@@ -3662,28 +3661,7 @@ int write_connectivity(const char *monomer_name, const char *filename) {
 
 void screendump_image(const char *filename) {
 
-   GLint viewport[4];
-   glGetIntegerv(GL_VIEWPORT, viewport);
-   glPixelTransferi(GL_MAP_COLOR, GL_FALSE);
-   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-   glPixelStorei(GL_PACK_ALIGNMENT, 1);
-   
-   unsigned char* pixels = new unsigned char[viewport[2]*viewport[3]*IMAGEINFO_RGBA_SIZE];
-   glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-   image_info iinfo(viewport[2], viewport[3], pixels, IMAGEINFO_RGBA);
-
-   // file should be a ppm file for now, png when we add it to configure
-   iinfo.invert();
-   int istatus = 0;
-   try { 
-      istatus = iinfo.write(filename);
-   }
-   catch (...) {
-      std::string s("Can't write that image format at the moment.\n");
-      s += "ppm is suggested instead.";
-      wrapped_nothing_bad_dialog(s);
-   }
-   delete [] pixels; // does iinfo copy the data or the pointer? possible crash.
+   int istatus = graphics_info_t::screendump_image(filename);
    std::cout << "screendump_image status " << istatus << std::endl;
    if (istatus) {
       std::string s = "Screendump image ";
@@ -5452,6 +5430,16 @@ void safe_python_command(const std::string &python_cmd) {
 #endif   
 }
 
+void safe_python_command_by_char_star(const char *python_cmd) {
+
+   std::cout <<  "DEBUG in safe_python_command_by_char_star: running: "
+	     << python_cmd << std::endl;
+   
+#ifdef USE_PYTHON
+   PyRun_SimpleString((char *)python_cmd);
+#endif   
+}
+
 
 
 
@@ -6764,6 +6752,7 @@ int remove_named_view(const char *view_name) {
 	 if (found == 1) {
 	    new_views.push_back((*graphics_info_t::views)[iv]);
 	 }
+	 found = 1;
       } else {
 	 new_views.push_back((*graphics_info_t::views)[iv]);
       }
@@ -6772,6 +6761,10 @@ int remove_named_view(const char *view_name) {
       r = 1;
       *graphics_info_t::views = new_views;
    }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("remove_named_view");
+   command_strings.push_back(single_quote(coot::util::intelligent_debackslash(view_name)));
+   add_to_history(command_strings);
    return r;
 } 
 
@@ -6784,6 +6777,11 @@ void remove_view(int view_number) {
 	 new_views.push_back((*graphics_info_t::views)[iv]);
    }
    *graphics_info_t::views = new_views;
+
+   std::string cmd = "remove-view";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(view_number);
+   add_to_history_typed(cmd, args);
 }
 
 
@@ -6799,29 +6797,31 @@ void play_views() {
 //    std::cout << "DEBUG:: # Views "<< graphics_info_t::views->size() << std::endl;
    for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
       coot::view_info_t view1 = (*graphics_info_t::views)[iv];
-      //       std::cout << "DEBUG:: View "<< iv << " " << view1.view_name << std::endl;
-      if (!view1.is_simple_spin_view_flag) {
+      std::cout << "DEBUG:: View "<< iv << " " << view1.view_name << std::endl;
+      if (! (view1.is_simple_spin_view_flag ||
+	     view1.is_action_view_flag)) {
 	 if ((iv+1) < graphics_info_t::views->size()) { 
 // 	    std::cout << "DEBUG:: interpolating to  "<< iv+1 << " "
 // 		      << view1.view_name << std::endl;
 	    coot::view_info_t view2 = (*graphics_info_t::views)[iv+1];
-	    if (!view2.is_simple_spin_view_flag) { 
+	    if (! (view2.is_simple_spin_view_flag ||
+		   view2.is_action_view_flag)) { 
 	       coot::view_info_t::interpolate(view1, view2, nsteps);
 	       update_things_on_move_and_redraw();
 	    }
 	 }
       } else {
-	 // a simple spin here:
+	 // a simple spin  or an action view here:
 // 	    std::cout << "DEBUG:: simple spin "
 // 		      << view1.view_name << std::endl;
 	 int n_spin_steps = int (float (view1.n_spin_steps) / play_speed);
 	 float dps = view1.degrees_per_step*0.5 * play_speed;
 	 rotate_y_scene(n_spin_steps, dps);
 	 if ((iv+1) < graphics_info_t::views->size()) { 
-// 	    std::cout << "DEBUG:: interpolating to  "<< iv+1 << " "
-// 		      << view1.view_name << std::endl;
+ 	    std::cout << "DEBUG:: interpolating to  "<< iv+1 << " "
+ 		      << view1.view_name << std::endl;
 	    coot::view_info_t view2 = (*graphics_info_t::views)[iv+1];
-	    if (!view2.is_simple_spin_view_flag) {
+	    if (!view2.is_simple_spin_view_flag && !view2.is_action_view_flag) {
 	       // the quat was not set because this is a simple
 	       // rotate, so we must generate it from the current
 	       // position
@@ -6898,23 +6898,27 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 	 float dps = view.degrees_per_step*0.5 * play_speed;
 	 rotate_y_scene(n_spin_steps, dps);
       } else {
-	 if (snap_to_view_flag) {
-	    g.setRotationCentre(view.rotation_centre);
-	    g.zoom = view.zoom;
-	    for (int iq=0; iq<4; iq++)
-	       g.quat[iq] = view.quat[iq];
+	 if (view.is_action_view_flag) {
+	    // do nothing
 	 } else {
-	    coot::view_info_t this_view(g.quat, g.RotationCentre(), g.zoom, "");
-	    int nsteps = 2000;
-	    if (graphics_info_t::views_play_speed > 0.000000001)
-	       nsteps = int(2000.0/graphics_info_t::views_play_speed);
-	    coot::view_info_t::interpolate(this_view,
-					   (*graphics_info_t::views)[view_number], nsteps);
+	    if (snap_to_view_flag) {
+	       g.setRotationCentre(view.rotation_centre);
+	       g.zoom = view.zoom;
+	       for (int iq=0; iq<4; iq++)
+		  g.quat[iq] = view.quat[iq];
+	    } else {
+	       coot::view_info_t this_view(g.quat, g.RotationCentre(), g.zoom, "");
+	       int nsteps = 2000;
+	       if (graphics_info_t::views_play_speed > 0.000000001)
+		  nsteps = int(2000.0/graphics_info_t::views_play_speed);
+	       coot::view_info_t::interpolate(this_view,
+					      (*graphics_info_t::views)[view_number], nsteps);
+	    }
 	 }
 	 update_things_on_move_and_redraw();
       }
    }
-   std::string cmd = "go_to_view_number";
+   std::string cmd = "go-to-view-number";
    std::vector<coot::command_arg_t> args;
    args.push_back(view_number);
    args.push_back(snap_to_view_flag);
@@ -6925,6 +6929,7 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 
 /*! \brief return the number of views */
 int n_views() {
+   add_to_history_simple("n-views");
    return graphics_info_t::views->size();
 }
 
@@ -6984,6 +6989,38 @@ void save_views(const char *view_file_name) {
    }
 }
 
+// return the view number
+int add_action_view(const char *view_name, const char *action_function) {
+   std::string name(view_name);
+   std::string func(action_function);
+   coot::view_info_t::view_info_t view(name, func);  // an action view
+   graphics_info_t::views->push_back(view);
+   return (graphics_info_t::views->size() -1);
+}
+
+// return the view number of the new view
+int insert_action_view_after_view(int view_number, const char *view_name, const char *action_function) {
+   int r = -1; 
+   std::string name(view_name);
+   std::string func(action_function);
+   coot::view_info_t::view_info_t view(name, func);  // an action view
+   int n_views = graphics_info_t::views->size(); 
+   if (view_number >= n_views) {
+      graphics_info_t::views->push_back(view);
+      r = (graphics_info_t::views->size() -1);
+   } else {
+      // insert a view
+      std::vector <coot::view_info_t> new_views;
+      for (unsigned int iview=0; iview<n_views; iview++) {
+	 new_views.push_back((*graphics_info_t::views)[iview]);
+	 if (iview == view_number)
+	    new_views.push_back(view);
+      }
+      *graphics_info_t::views = new_views; // bleuch.
+      r = view_number + 1;
+   }
+   return r;
+}
 
 void add_view_description(int view_number, const char *descr) {
 
