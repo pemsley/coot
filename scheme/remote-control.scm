@@ -33,7 +33,48 @@
 
       (call-with-new-thread coot-listener-idle-function-proc
 			    coot-listener-error-handler)))
+
+
+;; yet another go to make a coot port reader work.  This time, we use
+;; a gtk-timer to read stuff from the socket.  
+;; 
+;; The gtk-timer function must return 1 to be called again.  When we
+;; want to close the socket reader, simply make the function return 0.
+;; 
+(define (open-coot-listener-socket-with-timeout port-number host-name)
+
+    (format #t "in open-coot-listener-socket port: ~s host: ~s~%"
+	     port-number host-name)
+
+    (let ((soc (socket AF_INET SOCK_STREAM 0))
+	  (host-address "127.0.0.1"))
       
+      (connect soc AF_INET (inet-aton host-address) port-number)
+      
+      (display "Coot listener socket ready!\n" soc)
+      (set! %coot-listener-socket soc)
+
+      (gtk-timeout-add 500 coot-socket-timeout-func)))
+
+;; based on coot-listener-idle-function-proc
+;; 
+(define (coot-socket-timeout-func)
+
+    (if %coot-listener-socket
+	(begin
+	  (let loop ()
+	    (let ((continue? (listen-coot-listener-socket-v3 %coot-listener-socket)))
+	      (if (not continue?)
+		  (begin
+		    (format #t "server gone - listener thread ends~%")
+		    #f)
+		  (begin
+		    (format #t "keep listening...~%")
+		    #t)))))
+	(begin
+	  (format #t "coot-listener-idle-function-proc bad sock: ~s~%" 
+		  %coot-listener-socket))))
+
 
 ;; Handle error on coot listener socket
 ;;
@@ -90,15 +131,18 @@
       
       (let ((s (list->string (reverse read-bits))))
 	;; is it python?
-	(if (and (> (string-length s) 8) ; (checked in order)
+	(if (and (>= (string-length s) 8) ; (checked in order)
 		 (string-match "# PYTHON" (substring s 0 8)))
-	    (safe-python-command s)
+	    ;; this is a silly "testing" name
+	    (begin
+	      (format #t "this python string will be evaluated: ~s~%" s)
+	      (safe-python-command-by-char-star s))
 	    ;; not python
 	    (begin 
-;	      (format #t "this string will be evaluated: ~s~%" s)
-;	      (format #t "======== setting socket string waiting...~%")
+	      (format #t "this scheme string will be evaluated: ~s~%" s)
+	      (format #t "======== setting socket string waiting...~%")
 	      (set-socket-string-waiting s)
-;	      (format #t "======== done setting socket string waiting...~%")
+	      (format #t "======== done setting socket string waiting...~%")
 	      )))))
 	      
 

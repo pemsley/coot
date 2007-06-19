@@ -27,6 +27,7 @@ cd guile-gtk-2.0
 
    o Valgrind long/multiple fit-proteins
 
+   o mainchain zone, reverse dir, mainchain zone, screwed mainchain
 
    o Change the Release notes, 
      the ChangeLog, 
@@ -443,6 +444,8 @@ with no fuss. However, if I chosen a different chain as master, then each time
 I turn the ghosts on it recalculates the entire alignment. This is rather
 cumbersome with large structures...
 
+* Fixed.
+
 
 -----
 Wed May 16 20:30:02 BST 2007
@@ -483,4 +486,15 @@ Sun May 27 19:21:11 BST 2007
    problem in the Go To Atom window.
 
 
+* Fixed.
+
+------
+
+old guile convert to string:
+ std::string name_target = SCM_STRING_CHARS(name_target_scm);
+new guile convert to string:
+ std::string name_target = scm_to_locale_string(name_target_scm);
+
+all guile convert from string:
+   SCM mess = scm_makfrom0str(a_string.c_str());
 

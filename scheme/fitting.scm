@@ -212,11 +212,15 @@
 ;; 
 ;; The step is set internally to 2.
 ;; 
-(define (stepped-refine-protein imol)
+(define (stepped-refine-protein imol . res-step)
 
   (set-go-to-atom-molecule imol)
   (make-backup imol)
-  (let ((res-step 2)  ; alter to your tastes, 3, 5, etc.
+  (let ((res-step (if (and (list res-step)
+			   (not (null? res-step))
+			   (number? (car res-step)))
+		      (car res-step)
+		      2))
 	(backup-mode (backup-state imol))
 	(imol-map (imol-refinement-map))
 	(alt-conf "")

@@ -211,12 +211,15 @@ namespace coot {
       std::string view_name;
       std::string description;
       bool is_simple_spin_view_flag;
+      bool is_action_view_flag;
       int n_spin_steps;
       float degrees_per_step;
       float quat[4];
+      std::string action;
       view_info_t(float *quat_in, const coot::Cartesian &rot_centre_in,
 		  float zoom_in, const std::string &view_name_in) {
-       	 is_simple_spin_view_flag = 0;
+	is_simple_spin_view_flag = 0;
+	is_action_view_flag = 0;
 	 zoom = zoom_in;
 	 rotation_centre = rot_centre_in;
 	 view_name = view_name_in;
@@ -225,16 +228,24 @@ namespace coot {
       }
       view_info_t() {
       	is_simple_spin_view_flag = 0;
+	is_action_view_flag = 0;
       }
       // a spin view 
       view_info_t(const std::string &view_name_in, int nsteps, float degrees_total) {
 	is_simple_spin_view_flag = 1;
+	is_action_view_flag = 0;
 	view_name = view_name_in;
 	n_spin_steps = nsteps;
 	if (n_spin_steps > 0) 
 	  degrees_per_step = degrees_total/n_spin_steps;
 	else 
 	  degrees_per_step = 0.5;
+      }
+      // an action view
+      view_info_t(const std::string &view_name_in, const std::string &funct) {
+	is_action_view_flag = 1;
+	view_name = view_name_in;
+	action = funct;
       }
       bool matches_view (const coot::view_info_t &view) const;
       float quat_length() const;
@@ -703,6 +714,8 @@ public:
    static void graphics_draw() {
      if (glarea) { 
        gtk_widget_draw(glarea, NULL);
+       if (make_movie_flag)
+	 dump_a_movie_image();
      }
      if (glarea_2)
        gtk_widget_draw(glarea_2, NULL);
@@ -2519,12 +2532,18 @@ public:
    // MYSQL database
    static MYSQL *mysql;
    static int query_number;
-   static std::string sessionid; 
+string   static std::string sessionid; 
    static std::pair<std::string, std::string> db_userid_username;
 #endif
 
    static std::vector<coot::view_info_t> *views;
    static float views_play_speed;
+
+   static std::string movie_file_prefix;
+   static int movie_frame_number;
+   static int make_movie_flag;
+   static void dump_a_movie_image(); // should be private
+   static int screendump_image(const std::string &file_name); 
 
 };
 

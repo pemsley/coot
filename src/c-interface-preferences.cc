@@ -1031,3 +1031,29 @@ parse_ccp4i_defs(const std::string &filename) {
    }
    return v;
 }
+
+
+/* movies */
+void set_movie_file_name_prefix(const char *file_name) {
+   graphics_info_t::movie_file_prefix = file_name;
+}
+
+void set_movie_frame_number(int frame_number) {
+   graphics_info_t::movie_frame_number = frame_number;
+}
+
+#ifdef USE_GUILE
+SCM movie_file_name_prefix() {
+   SCM r = scm_makfrom0str(graphics_info_t::movie_file_prefix.c_str());
+   return r;
+}
+#endif
+
+int movie_frame_number() {
+   return graphics_info_t::movie_frame_number;
+}
+
+void set_make_movie_mode(int make_movie_flag) {
+   graphics_info_t::make_movie_flag = make_movie_flag;
+}
+

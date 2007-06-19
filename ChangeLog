@@ -1,3 +1,13 @@
+2007-06-18  Paul Emsley  <emsley@localhost>
+
+	* src/c-interface.cc: Add action view - as a direct view.  But,
+	don't we really instead want to insert such a thing into a set of
+	views that we already have?
+
+2007-06-17  Paul Emsley  <emsley@localhost>
+
+	* ligand/wiggly-ligand.cc: turn off debugging for wiggly ligands.
+
 2007-06-07  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* coords/Bond_lines.cc: (construct_from_atom_selection): Don't

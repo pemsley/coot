@@ -61,7 +61,9 @@
    o (un)Label atoms in given atom selection
 
    o More work on ligand bonding
-       Things with Cl etc
+       Things with Cl etc, 
+       O->P bonds
+       faster bonding with many molecules
 
    o Kleywegt plot should not draw ("wrapped") long arrows
 

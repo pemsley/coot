@@ -234,7 +234,7 @@ void safe_scheme_command(const std::string &scheme_command); /* do nothing */
 #endif // USE_GUILE
 
 void safe_python_command(const std::string &python_command); 
-
+void safe_python_command_by_char_star(const char *python_command);
 /*  Is this a repeat of something?  I don't know. */
 void run_generic_script(const std::vector<std::string> &cmd_strings);
 
