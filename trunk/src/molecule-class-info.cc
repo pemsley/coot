@@ -38,18 +38,18 @@
 #include <string>
 #include <vector>
 
-#include "clipper/core/xmap.h"
-#include "clipper/ccp4/ccp4_mtz_io.h"
-#include "clipper/ccp4/ccp4_map_io.h"
-#include "clipper/cns/cns_map_io.h"
 #include "CIsoSurface.h"
 
+#include "clipper/ccp4/ccp4_mtz_io.h"
+#include "clipper/ccp4/ccp4_map_io.h"
+#include "clipper/core/xmap.h"
+#include "clipper/cns/cns_map_io.h"
 #include "clipper/core/hkl_compute.h"
-#include "clipper/clipper-phs.h"
 #include "clipper/core/map_utils.h" // Map_stats
-#include "clipper/mmdb/clipper_mmdb.h"
 #include "clipper/core/resol_basisfn.h"
 #include "clipper/core/resol_targetfn.h"
+#include "clipper/mmdb/clipper_mmdb.h"
+#include "clipper/clipper-phs.h"
 #include "clipper/contrib/sfcalc_obs.h"
 #include "clipper/contrib/sfscale.h"
 #include "clipper/contrib/sfweight.h"

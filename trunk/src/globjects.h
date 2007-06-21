@@ -33,9 +33,9 @@ void draw_triangles();
 void init_molecule();
 
 gint draw(GtkWidget *widget, GdkEventExpose *event);
+gint expose(GtkWidget *widget, GdkEventExpose *event);
 gint draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag);
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event);
-
 
 void do_button_zoom(gdouble x, gdouble y);
 void do_screen_z_rotate(gdouble x, gdouble y);

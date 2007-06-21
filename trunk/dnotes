@@ -27,7 +27,9 @@ cd guile-gtk-2.0
 
    o Valgrind long/multiple fit-proteins
 
-   o mainchain zone, reverse dir, mainchain zone, screwed mainchain
+  
+   o Fix the File-name filter: in script file reading
+
 
    o Change the Release notes, 
      the ChangeLog, 
@@ -35,6 +37,10 @@ cd guile-gtk-2.0
      old coot timer
 
 
+
+   o mainchain zone, reverse dir, mainchain zone, screwed mainchain
+
+* Done.
 
    o Kleywegt plots don't update properly when not specifying chains.
 
@@ -497,4 +503,60 @@ new guile convert to string:
 
 all guile convert from string:
    SCM mess = scm_makfrom0str(a_string.c_str());
+
+
+-----
+Thu Jun 21 11:57:16 CEST 2007
+
+    
+   Fitting a helix in a low resolution and low level (0.02 e) map.  
+
+   Density looked reasonable for a helix, but was rejected on CB
+   density.
+
+   Should the be less strict for CB density at lower resolutions? 
+   What is the cut-off criteria for CB density?
+
+* There was a hard-wired cut off 0.2 in the helix fitting.  Make
+  variable and moved upstairs to the invoking function.
+
+----
+Thu Jun 21 13:35:07 CEST 2007
+
+  Randy Read:
+
+  It's currently tedious to make a native patterson.  So add an option
+  to do it for me.  You'll have to change the space group to have the
+  symmetry of the Patterson and make up a column of zeros for the phase.
+
+  (patterson mtz-filename f-col origin-remove-flag) returns an int
+
+
+----
+Thu Jun 21 14:35:28 CEST 2007
+
+
+   Problem with doing Randy's sidebyside screen update:
+
+   to solve his problem we want to 
+	draw(glarea1)
+	draw(glarea2)
+	swap_buffers(glarea1)
+	swap_buffers(glarea2)
+
+   so we have to move swap_buffers *out* of the draw() function. 
+
+   OK, I did that.
+
+   The problem now is with the expose_event callback.
+
+   the expose event callback is what is used by draw()
+
+   urgh.
+
+* Anyway, fixed now.
+
+---
+
+
 

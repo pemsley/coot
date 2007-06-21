@@ -16,19 +16,15 @@
 
    o Kevin's Ramachandran Refinement target
 
-   o rotamer-score function needs to be filled
-
-   o Update python files
-
-   o Use Eugene's new link-reading code
-
-   o Select residues (for new molecule) by sphere
-
    o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
 -----
 
    Release 0.5
+
+   o Use Eugene's new link-reading code
+
+   o Select residues (for new molecule) by sphere
 
    o insertion codes for intelligent next atom
 
@@ -67,8 +63,14 @@
 
    o Kleywegt plot should not draw ("wrapped") long arrows
 
+   o colour by B-factor CA mode
+
    o Lasso (perhaps) active atoms to select atoms for R/Ting?  
      So that fragments of monomers can be moved independently
+
+   o Update python files
+
+   o rotamer-score function needs to be filled
 
 ------
     

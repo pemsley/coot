@@ -882,14 +882,26 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
    //    return.
    if (event->keyval == GDK_Return) { 
       // std::cout << "Return pressed!\n";
-      handle_filename_filter(widget);
+#ifdef COOT_USE_GTK2_INTERFACE
+      handle_filename_filter_gtk2(widget);
+#else       
+      handle_filename_filter_gtk1(widget);
+#endif       
    } 
    return FALSE;
 }
 
 void
-handle_filename_filter(GtkWidget *entry_widget) { 
+handle_filename_filter_gtk2(GtkWidget *entry_widget) {
 
+   std::cout  << "Handle file name filtering here\n";
+
+}
+
+
+void
+handle_filename_filter_gtk1(GtkWidget *entry_widget) {
+   
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
    // nothing
 #else 
@@ -6879,6 +6891,10 @@ int go_to_first_view(int snap_to_view_flag) {
    args.push_back(snap_to_view_flag);
    add_to_history_typed(cmd, args);
    return go_to_view_number(0, snap_to_view_flag);
+}
+
+void clear_all_views() {
+   graphics_info_t::views->clear();
 }
 
 int go_to_view_number(int view_number, int snap_to_view_flag) {

@@ -50,7 +50,8 @@
 
 coot::helix_placement_info_t
 coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
-					      int n_residues) const {
+					      int n_residues,
+					      float density_level_for_trim) const {
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) { 
@@ -245,7 +246,7 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 	 mr.set_cell(acell);
 	 mr.set_spacegroup(spacegroup_str_hm);
 	 success = 1;
-	 trim_and_grow(&mr, 0.2); // modify mr
+	 trim_and_grow(&mr, density_level_for_trim); // modify mr
 	 float final_score = score_helix_position(mr);
 	 if (final_score < 0) {
 	    success = 0;
@@ -264,14 +265,14 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 // 
 coot::helix_placement_info_t
 coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_orth &pt,
-							 int n_residues) const {
+							 int n_residues,
+							 float min_density_limit) const {
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) {
       // std::cout << "move point round number " << i << std::endl;
       ptc = move_helix_centre_point_guess(ptc);
    }
-   float min_density_limit = 0.2; // should be related to 0.2
 
    float acell[6];
    acell[0] = xmap.cell().descr().a();
@@ -339,15 +340,18 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 	    clipper::Coord_orth pt1(ptc + ops_resultops*d);
 	    clipper::Coord_orth pt2(ptc - ops_resultops*d);
 
-	    // 	 std::cout << " Helix axis: \n   (set-rotation-centre " << pt1.x() << " "
-	    // 		   << pt1.y() << " "  << pt1.z() << ")\n";
-	    // 	 std::cout << "     (place-atom-at-pointer)\n";
-	    // 	 std::cout << " Helix axis: \n   (set-rotation-centre " << ptc.x() << " "
-	    // 		   << ptc.y() << " "  << ptc.z() << ")\n";
-	    // 	 std::cout << "     (place-atom-at-pointer)\n";
-	    // 	 std::cout << " Helix axis: \n   (set-rotation-centre " << pt2.x() << " "
-	    // 		   << pt2.y() << " "  << pt2.z() << ")\n";
-	    // 	 std::cout << "     (place-atom-at-pointer)\n";
+	    // debugging orientation:
+	    if (0) { 
+	     	 std::cout << " Helix axis: \n   (set-rotation-centre " << pt1.x() << " "
+	     		   << pt1.y() << " "  << pt1.z() << ")\n";
+	     	 std::cout << "     (place-atom-at-pointer)\n";
+	     	 std::cout << " Helix axis: \n   (set-rotation-centre " << ptc.x() << " "
+	     		   << ptc.y() << " "  << ptc.z() << ")\n";
+	     	 std::cout << "     (place-atom-at-pointer)\n";
+	     	 std::cout << " Helix axis: \n   (set-rotation-centre " << pt2.x() << " "
+	     		   << pt2.y() << " "  << pt2.z() << ")\n";
+	     	 std::cout << "     (place-atom-at-pointer)\n";
+	    }
 
 	    mr[iofm].set_cell(acell);
 	    mr[iofm].set_spacegroup(spacegroup_str_hm);

@@ -88,6 +88,9 @@ std::vector<std::string> *graphics_info_t::command_line_scripts;
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
 std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> *graphics_info_t::views = 0;
+bool graphics_info_t::do_expose_swap_buffers_flag = 1;
+
+// Views 
 float graphics_info_t::views_play_speed = 1.0;
 
 // movies
@@ -1087,7 +1090,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	/* Connect signal handlers */
 	/* Redraw image when exposed. */
 	gtk_signal_connect(GTK_OBJECT(glarea_a), "expose_event",
-			   GTK_SIGNAL_FUNC(draw), NULL);
+			   GTK_SIGNAL_FUNC(expose), NULL);
 	/* When window is resized viewport needs to be resized also. */
 	gtk_signal_connect(GTK_OBJECT(glarea_a), "configure_event",
 			   GTK_SIGNAL_FUNC(reshape), NULL);
@@ -1266,7 +1269,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	/* Connect signal handlers */
 	/* Redraw image when exposed. */
 	gtk_signal_connect(GTK_OBJECT(drawing_area_tmp), "expose_event",
-			   GTK_SIGNAL_FUNC(draw), NULL);
+			   GTK_SIGNAL_FUNC(expose), NULL);
 	/* When window is resized viewport needs to be resized also. */
 	gtk_signal_connect(GTK_OBJECT(drawing_area_tmp), "configure_event",
 			   GTK_SIGNAL_FUNC(reshape), NULL);
@@ -1492,6 +1495,17 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
 /* When widget is exposed it's contents are redrawn. */
 #define DEG_TO_RAD .01745327
+gint expose(GtkWidget *widget, GdkEventExpose *event) {
+
+   // std::cout << "expose "  << widget << std::endl;
+   draw(widget, event);
+   if (graphics_info_t::do_expose_swap_buffers_flag) 
+      graphics_info_t::coot_swap_buffers(widget, 0);
+}
+
+   
+/* When widget is exposed it's contents are redrawn. */
+#define DEG_TO_RAD .01745327
 gint draw(GtkWidget *widget, GdkEventExpose *event) {
 
 //    GtkWidget *w = graphics_info_t::glarea;
@@ -1537,6 +1551,7 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
    }
    return TRUE;
 }
+
 
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
@@ -1832,21 +1847,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       graphics_info_t::draw_generic_objects();
       graphics_info_t::draw_generic_text();
 
-      if (! in_stereo_flag) { 
-	 /* Swap backbuffer to front */
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-	 gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
-#else
-	 GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-	 if (gdk_gl_drawable_is_double_buffered (gldrawable)) { 
-	    gdk_gl_drawable_swap_buffers (gldrawable);
-	 } else { 
-	    glFlush ();
-	 }
-	 
-#endif	 
-	 graphics_info_t::Increment_Frames();
-      }
+      
    } // gtkgl make area current test
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)

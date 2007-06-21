@@ -1722,7 +1722,7 @@ graphics_info_t::execute_db_main(int imol,
 				 int iresno_start,
 				 int iresno_end,
 				 std::string direction_string) { 
-   
+
    int ilength = 6;
    int idbfrags = 0;
    
@@ -1754,7 +1754,7 @@ graphics_info_t::execute_db_main(int imol,
 	    if (mt.fragments[i].fragment_id == chain_id)
 	       target_ca_coords.fragments.push_back(mt.fragments[i]);
       } else { // backwards code.
-	 for (unsigned int i=0; i<mt.fragments.size(); i++)
+	 for (unsigned int i=0; i<mt.fragments.size(); i++) {
 	    if (mt[i].fragment_id == chain_id) {
 	       // put in the residues of mt.fragments[i] backwards:
 	       
@@ -1769,11 +1769,16 @@ graphics_info_t::execute_db_main(int imol,
 		  break;
 	       }
 	    }
+	 }
       }
 
       // now target_ca_coords has only one chain, the chain of the zone.
-      // Not that match_target_fragment selects CAs from target_ca_coords
-      // so we don't need to filter them out here. 
+      // Note that match_target_fragment selects CAs from target_ca_coords
+      // so we don't need to filter them out here.
+
+
+      // write out target_ca_coords:
+      // target_ca_coords.write_file("target_ca_coords.pdb", 20);
 
       main_chain.match_target_fragment(target_ca_coords,
 				       iresno_start,

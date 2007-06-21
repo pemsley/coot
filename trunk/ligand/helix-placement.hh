@@ -134,12 +134,14 @@ namespace coot {
       // Pass the initial testing helix length.  Typically start with
       // 20, try 12 if that fails.
       helix_placement_info_t place_alpha_helix_near(const clipper::Coord_orth &pt,
-						    int n_helix_residues_start) const;
+						    int n_helix_residues_start,
+						    float density_level_for_trim) const;
       
       // Kevin's engine: do MR-like search on the surface of a
       // cylinder, not just the eigen vectors
       helix_placement_info_t place_alpha_helix_near_kc_version(const clipper::Coord_orth &pt,
-							       int n_helix_residues_start) const;
+							       int n_helix_residues_start,
+							       float density_level_for_trim) const;
 
       // and now for strands, we use much of the same code, including
       // the perhaps mis-leading helper class names

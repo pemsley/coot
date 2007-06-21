@@ -217,7 +217,7 @@ int main(int argc, char **argv) {
 		  pt = clipper::Coord_orth(x, y, z);
 	       } 
 	       if (do_strand == 0) { 
-		  p.place_alpha_helix_near(pt, 20);
+		  p.place_alpha_helix_near(pt, 20, 0.2);
 	       } else { 
 		  coot::helix_placement_info_t si = p.place_strand(pt, 6, 5);
 		  if (si.success) {
