@@ -208,7 +208,12 @@ const char *coot_file_chooser_file_name(GtkWidget *widget);
 /* \{ */
 /* return negative if fail */
 float get_positive_float_from_entry(GtkEntry *w); 
-void handle_filename_filter(GtkWidget *widget);
+
+#ifdef COOT_USE_GTK2_INTERFACE
+void handle_filename_filter_gtk2(GtkWidget *widget);
+#else 
+void handle_filename_filter_gtk1(GtkWidget *widget);
+#endif 
 
 void set_transient_and_position(int window_type, GtkWidget *window);
 
@@ -2809,6 +2814,8 @@ SCM view_description(int view_number);
 void go_to_view(SCM view);
 #endif	/* USE_GUILE */
 #endif	/* __cplusplus */
+/*! \brief Clear the view list */
+void clear_all_views();
 
 /* movies */
 void set_movie_file_name_prefix(const char *file_name);

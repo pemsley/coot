@@ -4415,9 +4415,12 @@ int place_helix_here() {
       // defaults to 1.0.
       int imol = -1;
       coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap_list[0]);
-      coot::helix_placement_info_t n = p.place_alpha_helix_near_kc_version(pt, 20);
+      float min_density_limit = 1.0 * graphics_info_t::molecules[imol_map].map_sigma();
+      std::cout << "DEBUG:: choosing map_density limit: " << min_density_limit << std::endl;
+      coot::helix_placement_info_t n =
+	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit);
        if (! n.success) {
- 	 n = p.place_alpha_helix_near_kc_version(pt, 9);
+	  n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit);
        }
 
        if (n.success) {

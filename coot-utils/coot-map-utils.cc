@@ -258,6 +258,27 @@ coot::util::make_rtop_orth_from(mat44 mat) {
    return rtop;
 }
 
+clipper::Xmap<float>
+coot::util::sharpen_map(const clipper::Xmap<float> &xmap_in, float sharpen_factor) {
+
+   clipper::HKL_info myhkl; 
+   clipper::HKL_data< clipper::datatypes::F_phi<float> >       fphidata(myhkl); 
+
+   xmap_in.fft_to(fphidata);
+
+//    for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
+//       float reso = hri.invresolsq();
+//       std::cout << hri.format() << " has reso " << reso << std::endl;
+//       float fac = 1.0;
+      
+//       (*fphidata)[hri].f() = fac;
+//    }
+
+   clipper::Xmap<float> r;
+   r.fft_from(fphidata);
+   return r;
+}
+
 
 clipper::Xmap<float>
 coot::util::transform_map(const clipper::Xmap<float> &xmap_in,

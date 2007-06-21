@@ -76,6 +76,9 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Further tinkering with the bonding algorithm
 
+  o Using side-by-side stereo with slow graphics is no longer
+    nauseating [Randy Read]
+
   o generic-double-entry interface changed, breaking
     backwards-compatibility.  It now takes arguments for a check
     button.
@@ -169,7 +172,8 @@ Release 0.3 "Basil Grande"
   o Add Terminal Residue works for just one residue.
 
   o Rigid Body Refinement of a fragment containing residues with
-    occupancy zero improved, hence "Place Helix Here" may be improved.
+    occupancy zero improved.  Also less strict about low density (low
+    resolution) maps. Hence "Place Helix Here" may be improved.
 
   o "Same Chain?" test applied to Rotate/Translate and Rigid Body
     Refine Zone atom picks [Bob Nolte].

@@ -430,7 +430,6 @@ coot::db_main::match_target_fragment(const coot::minimol::molecule &target,
       std::cout << "There were no fragments in the target molecule"
 		<< std::endl;
    }
-
 }
 
 std::vector<coot::db_fitting_result>
@@ -815,4 +814,5 @@ coot::db_main::is_empty() const {
 void
 coot::db_main::clear_results() {
    big_results.clear();
+   output_fragment.clear();
 }

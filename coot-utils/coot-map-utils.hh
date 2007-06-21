@@ -124,6 +124,9 @@ namespace coot {
 
       float map_score_atom(CAtom *atom,
 			   const clipper::Xmap<float> &xmap);
+
+      clipper::Xmap<float> sharpen_map(const clipper::Xmap<float> &xmap_in,
+				       float sharpen_factor);
       
       clipper::Xmap<float> transform_map(const clipper::Xmap<float> &xmap_in,
 					 const clipper::RTop_orth &rtop,
