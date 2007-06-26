@@ -1,0 +1,3 @@
+
+setenv GUILE_LOAD_PATH /sw/share/guile/1.6.4
+setenv DYLD_LIBRARY_PATH /usr/local/lib:/Users/paulemsley/autobuild/Darwin-Paris.local-pre-release/lib
