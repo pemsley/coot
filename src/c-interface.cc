@@ -308,11 +308,6 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 //
 	 graphics_draw();
 
-	 std::vector<std::string> command_strings;
-	 command_strings.push_back("handle-read-draw-molecule-with-recentre");
-	 command_strings.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
-	 command_strings.push_back(graphics_info_t::int_to_string(recentre_on_read_pdb_flag));
-	 add_to_history(command_strings);
 	 std::string s("Successfully read coordinates file ");
 	 s += filename;
 	 s += ".  Molecule number ";
@@ -4823,15 +4818,50 @@ void reset_graphics_display_control_window() {
 /*! \brief make the map displayed/undisplayed, 0 for off, 1 for on */
 void set_map_displayed(int imol, int state) {
 
+   graphics_info_t g;
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::molecules[imol].set_map_is_displayed(state);
+      if (g.display_control_window())
+	 set_display_control_button_state(imol, "Displayed", state);
       graphics_draw();
    }
-} 
+}
+
+// button_type is "Displayed" or "Active"
+void
+set_display_control_button_state(int imol, const std::string &button_type, int state) {
+
+   graphics_info_t g;
+   if (g.display_control_window()) {
+      
+      std::string button_name = "";
+      
+      if (button_type == "Displayed") {
+	 button_name = "displayed_button_";
+	 button_name += coot::util::int_to_string(imol);
+      }
+      
+      if (button_type == "Active") {
+	 button_name = "active_button_";
+	 button_name += coot::util::int_to_string(imol);
+      }
+      GtkWidget *button = lookup_widget(g.display_control_window(), button_name.c_str());
+      if (button) {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), state);
+      } else {
+	 std::cout << "Opps failed to find " << button_type << " button for mol "
+		   << imol << std::endl;
+      }
+   }
+}
+
 /*! \brief make the coordinates molecule displayed/undisplayed, 0 for off, 1 for on */
 void set_mol_displayed(int imol, int state) {
+   graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_mol_is_displayed(state);
+      if (g.display_control_window())
+	 set_display_control_button_state(imol, "Displayed", state);
       graphics_draw();
    } else {
       std::cout << "not valid molecule" << std::endl;
@@ -4841,8 +4871,11 @@ void set_mol_displayed(int imol, int state) {
   for off, 1 for on */
 void set_mol_active(int imol, int state) {
    
+   graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_mol_is_active(state);
+      if (g.display_control_window())
+	 set_display_control_button_state(imol, "Active", state);
       graphics_draw();
    } else {
       std::cout << "not valid molecule" << std::endl;

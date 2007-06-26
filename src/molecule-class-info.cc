@@ -140,7 +140,7 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
    //
    atom_sel = get_atom_selection(filename);
    
-   if ( atom_sel.read_success == 1 ) {
+   if (atom_sel.read_success == 1) {
 
       //
       // and move mol_class_info to indexed molecule[n_molecules];
@@ -571,7 +571,7 @@ molecule_class_info_t::anisotropic_atoms() {
 						      g.show_aniso_atoms_probability);
 			// note: g.show_aniso_atoms_probability is in the range
 			// 0.0 -> 100.0
-			glutWireSphere(r,10,10);
+			glutWireSphere(r, 10, 10);
 		     } else {
 			std::cout << "Bad Anistropic Us for " << atom_sel.atom_selection[i]
 				  << std::endl;
@@ -1260,7 +1260,7 @@ molecule_class_info_t::new_mol_in_display_control_widget() const {
    graphics_info_t g;
 
    // we don't want to add a display control hbox if we are simply
-   // doing an undo: This is now deal with by the calling function.
+   // doing an undo: This is now handled by the calling function.
    // 
    std::string dmn = name_for_display_manager();
    if (g.display_control_window()) 
