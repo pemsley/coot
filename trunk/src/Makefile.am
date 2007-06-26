@@ -325,7 +325,11 @@ coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
 test_chol_SOURCES = test-chol.cc gl-matrix.cc
 test_chol_LDADD =	\
 	$(top_builddir)/coords/libcoot-coords.la \
-	$(GSL_LIBS)
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-shelx.la \
+	$(top_builddir)/coot-utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # testmap_SOURCES = testmap.cc xmap-interface.cc
 # testmap_LDADD = $(COOT_EXTRA_LIBS) $(SURFACE_LIB) $(CLIPPER_LIBS) 
