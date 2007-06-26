@@ -1,3 +1,9 @@
+2007-06-25  Paul Emsley  <emsley@localhost>
+
+	* coot-gui.scm (generic-double-entry): Add the check-button state
+	to the arguments of the function called by the key press event of
+	the smiles-entry.
+
 2007-05-29  Paul Emsley  <emsley@localhost>
 
 	* coot-gui.scm (molecule-chooser-gui-generic): Add a cancel button

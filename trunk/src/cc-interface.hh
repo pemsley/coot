@@ -33,6 +33,8 @@ bool compare_strings(const std::string &a, const std::string &b);
 
 
 std::string pre_directory_file_selection(GtkWidget *sort_button);
+void filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v);
+
 GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
 
 std::pair<short int, float> float_from_entry(GtkWidget *entry);

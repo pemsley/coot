@@ -739,8 +739,7 @@ on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
 }
 
 #if (GTK_MAJOR_VERSION > 1) || defined (GTK_ENABLE_BROKEN)
-#else
-// gtk1 stuff...
+#else 
 void
 on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
 					     gpointer         user_data)
@@ -773,22 +772,6 @@ on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
 	 std::vector<std::string> v = filtered_by_glob(pre_directory, data_type);
 	 // we want to stat the directory and add all the files in it:
 
-	 GtkCList  *file_list = GTK_CLIST(GTK_FILE_SELECTION(fileselection)->file_list);
-	 gtk_clist_clear(file_list);
-	 std::string::size_type islash;
-	 std::string t;
-	 for (unsigned int i=0; i<v.size(); i++) {
-	    islash = v[i].find_last_of("/");
-	    if (islash == string::npos) { 
-	       // no slash found:
-	       t = v[i];
-	    } else {
-	       t = v[i].substr(islash + 1);
-	    }
-	    char *text = new char[t.length()+1];
-	    strncpy(text, t.c_str(), t.length()+1);
-	    gtk_clist_append(file_list, &text);
-	 }
       } else { 
 	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Filter");
 	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
@@ -799,6 +782,27 @@ on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
    }
 }
 #endif // GTK_MAJOR_VERSION > 1 or BROKEN
+
+void 
+filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v) {
+
+   GtkCList  *file_list = GTK_CLIST(GTK_FILE_SELECTION(fileselection)->file_list);
+   gtk_clist_clear(file_list);
+   std::string::size_type islash;
+   std::string t;
+   for (unsigned int i=0; i<v.size(); i++) {
+      islash = v[i].find_last_of("/");
+      if (islash == string::npos) { 
+	 // no slash found:
+	 t = v[i];
+      } else {
+	 t = v[i].substr(islash + 1);
+      }
+      char *text = new char[t.length()+1];
+      strncpy(text, t.c_str(), t.length()+1);
+      gtk_clist_append(file_list, &text);
+   }
+}
 
 std::vector<std::string> filtered_by_glob(const std::string &pre_directory, 
 					  int data_type) { 
@@ -885,17 +889,11 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
 #ifdef COOT_USE_GTK2_INTERFACE
       handle_filename_filter_gtk2(widget);
 #else       
+
       handle_filename_filter_gtk1(widget);
 #endif       
    } 
    return FALSE;
-}
-
-void
-handle_filename_filter_gtk2(GtkWidget *entry_widget) {
-
-   std::cout  << "Handle file name filtering here\n";
-
 }
 
 

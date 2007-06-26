@@ -3,6 +3,8 @@ lib_LTLIBRARIES=libcoot-atomutils.la
 
 include_HEADERS = atom-utils.h
 
+GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
+
 INCLUDES =  \
 	-I$(top_srcdir)/coords 		\
 	-I$(top_srcdir)/geometry 	\
@@ -22,6 +24,7 @@ INCLUDES =  \
 	$(COOT_GSL_FLAGS) 		\
 	$(GSL_CFLAGS) 		 	\
 	$(GLUT_CFLAGS)			\
+	$(GTKGL_CONTEXT_CFLAGS)		\
 	@GTK_CFLAGS@ 
 
 # we need GTK_CFLAGS because we include graphics_info.h which includes

@@ -30,14 +30,17 @@ cd guile-gtk-2.0
    o set-map-display, set-mol-displayed, set-mol-active.  Do they
      properly toggle the buttons in the Display Manager?  They should.
   
-   o Fix the File-name filter: in script file reading
-
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
      old coot timer
 
 
+
+
+   o Fix the File-name filter: in script file reading
+
+* Done.
 
    o Sort out the Cholesky decomposition.  Question to self: what are
      the matrices that are being decomposed, exactly?
@@ -574,5 +577,13 @@ Thu Jun 21 14:35:28 CEST 2007
 * Anyway, fixed now.
 
 ---
+Mon Jun 25 08:20:12 BST 2007
+
+   Do this at some stage (but not before 0.3.2)
+
+<<<<<<< .mine
+   o Valgrind long/multiple fit-proteins
 
 
+=======
+>>>>>>> .r245

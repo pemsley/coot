@@ -1,6 +1,6 @@
 /* src/c-interface.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,10 @@
 #ifdef USE_GUILE
 #include <guile/gh.h>
 #endif 
+
+#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
+#include <glob.h> // for globbing.
+#endif
 
 
 #include <gtk/gtk.h>
@@ -112,6 +116,69 @@ fileselection_sort_button_foreach_func
    g_free(tree_path_str);
    g_free(file_name); /* gtk_tree_model_get made copies of       */
    return FALSE;
+}
+
+// There was a CR in the file name selection entry in the Run Script
+// file selection.
+// 
+void
+handle_filename_filter_gtk2(GtkWidget *entry_widget) {
+
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+   // nothing
+#else 
+
+   std::vector<std::string> v;
+   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry_widget));
+   GtkWidget *sort_button = lookup_widget(entry_widget, "fileselection_sort_button");
+   if (sort_button) { 
+      // std::cout << "Hooray! we found the sort button!\n";
+      // usually, we do.
+   } else { 
+      std::cout << "Boo we failed to find the sort button!\n";
+   } 
+   std::string pre_directory = pre_directory_file_selection(sort_button);
+
+   // so now we have pre_directory
+   // 
+   // std::cout << "DEBUG:: pre_directory: " << pre_directory << std::endl;
+   GtkWidget *fileselection = lookup_widget(entry_widget, "run_script_fileselection");
+   if (fileselection) {
+
+      std::string file_name_glob = pre_directory;
+      file_name_glob += "/";
+
+      file_name_glob += text;
+      glob_t myglob;
+      int flags = 0;
+      glob(file_name_glob.c_str(), flags, 0, &myglob);
+      size_t count;
+
+      char **p;
+      for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
+	 std::string f(*p);
+	 // std::cout << "glob testing " << f << std::endl;
+	 v.push_back(f);
+      }
+      globfree(&myglob);
+
+      GtkWidget *fl = GTK_FILE_SELECTION(fileselection)->file_list;
+      GtkTreeView *tv = GTK_TREE_VIEW(fl);
+      GtkTreeModel *model = gtk_tree_view_get_model(tv);
+      GtkTreeIter iter;
+      gtk_list_store_clear(GTK_LIST_STORE(model));
+      for (int i=0; i<v.size(); i++) {
+	 gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	 gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+			    0, coot::util::file_name_non_directory(v[i]).c_str(),
+			    -1);
+      }
+
+
+   } else { 
+      std::cout << "ERROR:: couldn't find fileselection\n";
+   } 
+#endif // WINDOWS_MINGW
 }
 
 
