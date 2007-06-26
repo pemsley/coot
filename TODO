@@ -8,8 +8,6 @@
 
    o Richardson rotamers
 
-   o Gtk Timeout for reading socket strings
-
    o Torsion General
 
    o Multiple model ligand overlaying
@@ -17,6 +15,10 @@
    o Kevin's Ramachandran Refinement target
 
    o Problem SHELX .ins file, enable bonds to symmetry atoms?
+
+   o Gtk Timeout for reading socket strings
+
+* Done in 0.3.2 in fact.
 
 -----
 
@@ -32,6 +34,8 @@
 
    o Add some SHELX reading to the test suite.
 
+   o Dynamic distances on moving atom/fragments
+
    o fix db-main so that it doesn't spew error messages
 
    o Select residues (for new molecule) by sphere
@@ -41,6 +45,11 @@
    o Make the Omega Angle Plot update properly
 
    o Revisit CCP4mg button
+
+
+-----
+
+    Release 0.7 
 
    o Redo sequence view 
 
@@ -53,8 +62,6 @@
    o helix fitting overshoots
 
    o check for updates?
-
-   o Dynamic distances on moving atom/fragments
 
    o Try again to add chiral volumes to the geometry target function
 
@@ -79,9 +86,13 @@
 
    o rotamer-score function needs to be filled
 
+   o "Find Waters" sometimes does not to put waters in what seems sensible
+     places - why is that?
+
+
 ------
     
-    Release 0.6 
+    Release 0.8 
 
    o User pickable atoms
 
@@ -95,12 +106,20 @@
 
    o "Thick bonds" for ligands etc
 
+   o mutate residue range for bases
+
 ------
 
-   Release 0.7, Facelift-release
+   Release 0.9, Facelift-release
 
    o Clean up menu items, use Preferences.
 
    o Switch to GTk2, guile1.8.  Dump Gtk1 interface, re-write build-it 
      script
 
+
+-----
+ 
+   Release 1.0 
+
+   o Loops from fragment library?
