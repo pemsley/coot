@@ -337,6 +337,7 @@ std::pair<short int, std::string> is_interesting_dots_object_next_p(const std::v
 SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v);
 std::vector<std::string> generic_list_to_string_vector_internal(SCM l);
 SCM rtop_to_scm(const clipper::RTop_orth &rtop);
+void set_display_control_button_state(int imol, const std::string &button_type, int state);
 #endif	/* USE_GUILE */
 
 

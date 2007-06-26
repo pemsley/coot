@@ -29,6 +29,9 @@ cd guile-gtk-2.0
 
    o set-map-display, set-mol-displayed, set-mol-active.  Do they
      properly toggle the buttons in the Display Manager?  They should.
+
+   o Fix the carriage return on Check Delete waters result.  It should
+     do a next button, not a click on the OK button.
   
    o Change the Release notes, 
      the ChangeLog, 
@@ -581,9 +584,5 @@ Mon Jun 25 08:20:12 BST 2007
 
    Do this at some stage (but not before 0.3.2)
 
-<<<<<<< .mine
    o Valgrind long/multiple fit-proteins
 
-
-=======
->>>>>>> .r245
