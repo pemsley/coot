@@ -1104,28 +1104,38 @@ void do_ramachandran_plot(int imol) {
 void
 ramachandran_plot_differences(int imol1, int imol2) { 
 
+   
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-   coot::rama_plot *rama;
-   if (imol1 >= 0) {
-      if (imol1 < graphics_info_t::n_molecules) {  
-	 if (graphics_info_t::molecules[imol1].has_model()) { 
-	    if (imol2 >= 0) {
-	       if (imol2 < graphics_info_t::n_molecules) { 
-		  if (graphics_info_t::molecules[imol2].has_model()) { 
-		     rama = new coot::rama_plot;
-		     short int is_kleywegt_plot_flag = 1;
-		     rama->init(imol1,
-				graphics_info_t::rama_level_prefered,
-				graphics_info_t::rama_level_allowed,
-				graphics_info_t::rama_plot_background_block_size,
-				is_kleywegt_plot_flag);
-		     rama->draw_it(imol1, imol2,
-				   graphics_info_t::molecules[imol1].atom_sel.mol,
-				   graphics_info_t::molecules[imol2].atom_sel.mol);
+   GtkWidget *rama_widget = dynarama_is_displayed_state(imol1); // the underlying variable is
+                                                                // set by the init_internal() function
+                                                                // of rama_plot.
+   if (rama_widget) {
+      std::string s = "Sorry. Can't have Kleywegt Plot reference molecule the same\n";
+      s += "an existing displayed Ramachandran Plot";
+      info_dialog(s.c_str());
+   } else { 
+      coot::rama_plot *rama = 0;
+      if (imol1 >= 0) {
+	 if (imol1 < graphics_info_t::n_molecules) {  
+	    if (graphics_info_t::molecules[imol1].has_model()) { 
+	       if (imol2 >= 0) {
+		  if (imol2 < graphics_info_t::n_molecules) { 
+		     if (graphics_info_t::molecules[imol2].has_model()) { 
+			rama = new coot::rama_plot;
+			short int is_kleywegt_plot_flag = 1;
+			rama->init(imol1,
+				   graphics_info_t::rama_level_prefered,
+				   graphics_info_t::rama_level_allowed,
+				   graphics_info_t::rama_plot_background_block_size,
+				   is_kleywegt_plot_flag);
+			rama->draw_it(imol1, imol2,
+				      graphics_info_t::molecules[imol1].atom_sel.mol,
+				      graphics_info_t::molecules[imol2].atom_sel.mol);
+		     }
 		  }
 	       }
-	    }
-	 } 
+	    } 
+	 }
       }
    }
 #endif // HAVE_GTK_CANVAS
@@ -1136,27 +1146,36 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
-   if (is_valid_model_molecule(imol1)) {
-      if (is_valid_model_molecule(imol2)) {
-	 short int is_kleywegt_plot_flag = 0;
-	 coot::rama_plot *rama = new coot::rama_plot; 
-	 rama->init(imol1,
-		    graphics_info_t::rama_level_prefered,
-		    graphics_info_t::rama_level_allowed,
-		    graphics_info_t::rama_plot_background_block_size,
-		    is_kleywegt_plot_flag);
-	 std::cout << "rama differences on mols: " << imol1 << " " << a_chain
-		   << " to " << imol2 << " " << b_chain << std::endl;
-	 rama->draw_it(imol1, imol2,
-		       graphics_info_t::molecules[imol1].atom_sel.mol,
-		       graphics_info_t::molecules[imol2].atom_sel.mol,
-		       std::string(a_chain), std::string(b_chain));
-	 rama->set_kleywegt_plot_uses_chain_ids();
+   GtkWidget *rama_widget = dynarama_is_displayed_state(imol1); // the underlying variable is
+                                                                // set by the init_internal() function
+                                                                // of rama_plot.
+   if (rama_widget) {
+      std::string s = "Sorry. Can't have Kleywegt Plot reference molecule the same\n";
+      s += "an existing displayed Ramachandran Plot";
+      info_dialog(s.c_str());
+   } else { 
+      if (is_valid_model_molecule(imol1)) {
+	 if (is_valid_model_molecule(imol2)) {
+	    short int is_kleywegt_plot_flag = 0;
+	    coot::rama_plot *rama = new coot::rama_plot; 
+	    rama->init(imol1,
+		       graphics_info_t::rama_level_prefered,
+		       graphics_info_t::rama_level_allowed,
+		       graphics_info_t::rama_plot_background_block_size,
+		       is_kleywegt_plot_flag);
+	    std::cout << "rama differences on mols: " << imol1 << " " << a_chain
+		      << " to " << imol2 << " " << b_chain << std::endl;
+	    rama->draw_it(imol1, imol2,
+			  graphics_info_t::molecules[imol1].atom_sel.mol,
+			  graphics_info_t::molecules[imol2].atom_sel.mol,
+			  std::string(a_chain), std::string(b_chain));
+	    rama->set_kleywegt_plot_uses_chain_ids();
+	 } else {
+	    std::cout << "WARNING no molecule number " << imol2 << " in molecule (or closed)\n";
+	 }
       } else {
-	 std::cout << "WARNING no molecule number " << imol2 << " in molecule (or closed)\n";
+	 std::cout << "WARNING no molecule number " << imol1 << " in molecule (or closed)\n";
       }
-   } else {
-      std::cout << "WARNING no molecule number " << imol1 << " in molecule (or closed)\n";
    }
 #endif // HAVE_GTK_CANVAS
 }

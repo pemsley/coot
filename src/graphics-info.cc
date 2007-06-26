@@ -5529,9 +5529,9 @@ graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
 
       graphics_info_t g;
       coot::atom_spec_t *atom_spec = (coot::atom_spec_t *) user_data;
-      std::cout << "atom_spec: " 
-		<< atom_spec->chain << " " << atom_spec->resno << " " << atom_spec->atom_name
-		<< std::endl;
+//       std::cout << "atom_spec: " 
+// 		<< atom_spec->chain << " " << atom_spec->resno << " " << atom_spec->atom_name
+// 		<< std::endl;
    
       g.set_go_to_atom_molecule(atom_spec->int_user_data);
       g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain.c_str(),
@@ -5649,12 +5649,12 @@ graphics_info_t::on_bad_chiral_volume_button_clicked (GtkButton       *button,
    
    graphics_info_t g;
    coot::atom_spec_t *atom_spec = (coot::atom_spec_t *) user_data;
-   std::cout << "atom_spec: " 
-	     << atom_spec->chain << " "
-	     << atom_spec->resno << " "
-	     << atom_spec->atom_name << " "
-	     << atom_spec->alt_conf << " "
-	     << std::endl;
+//    std::cout << "atom_spec: " 
+// 	     << atom_spec->chain << " "
+// 	     << atom_spec->resno << " "
+// 	     << atom_spec->atom_name << " "
+// 	     << atom_spec->alt_conf << " "
+// 	     << std::endl;
    
    g.set_go_to_atom_molecule(atom_spec->int_user_data);
    g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain.c_str(),

@@ -1195,8 +1195,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 							  atom_sel.UDDAtomIndexHandle);
       coot::dunbrack d(copied_res, atom_sel.mol, lowest_prob, 0);
       std::vector<float> probabilities = d.probabilities();
-      std::cout << "debug afbr probabilities.size() " << probabilities.size()
-		<< " " << have_map_flag << std::endl;
+//       std::cout << "debug afbr probabilities.size() " << probabilities.size()
+// 		<< " " << have_map_flag << std::endl;
       if (probabilities.size() == 0) {
 	 std::cout << "WARNING:: no rotamers probabilityes for residue type "
 		   << res_type << std::endl;
