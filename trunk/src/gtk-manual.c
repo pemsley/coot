@@ -363,15 +363,11 @@ update_ramachandran_plot_menu_manual(int imol, const char *name) {
    GtkWidget *window1; 
    GtkWidget *rama_plot_menu; 
    char *text; 
-   int *imol_data;
 
    // text = (char *) malloc(200); 
    // strncpy(text, name, 199);
    // text = name;
 
-   imol_data = (int *) malloc(sizeof(int));
-   *imol_data = imol;
-      
    window1 = GTK_WIDGET(lookup_widget(main_window(), "window1")); 
 
    menu_item = gtk_menu_item_new_with_label (name);
@@ -388,7 +384,7 @@ update_ramachandran_plot_menu_manual(int imol, const char *name) {
 
   gtk_signal_connect (GTK_OBJECT (menu_item), "activate",  
 		      GTK_SIGNAL_FUNC (rama_plot_mol_selector_activate),  
-		      (gpointer) imol_data);
+		      GINT_TO_POINTER(imol));
 }
 
 
@@ -396,8 +392,8 @@ void
 rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 				 gpointer         user_data)
 {
-  int *imol = (int *) user_data;
-  GtkWidget *rama_widget;
+  int imol = GPOINTER_TO_INT(user_data);
+  GtkWidget *rama_widget = 0; 
 /*   printf("selector activate: do rama plot for molecule: %d\n", *imol); */
 
 /* We should come here and be given imol.  New molecules should insert
@@ -405,9 +401,9 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 
 #if defined(HAVE_GTK_CANVAS) || defined (HAVE_GNOME_CANVAS)
 
-  rama_widget = dynarama_is_displayed_state(*imol);
+  rama_widget = dynarama_is_displayed_state(imol);
   if (rama_widget == NULL) { 
-    do_ramachandran_plot(*imol); 
+    do_ramachandran_plot(imol); 
   } else { 
     if (!GTK_WIDGET_MAPPED(rama_widget))
       gtk_widget_show(rama_widget);

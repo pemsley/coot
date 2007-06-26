@@ -15552,13 +15552,12 @@ create_checked_waters_baddies_dialog (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (checked_waters_baddies_cancel_button);
   gtk_box_pack_start (GTK_BOX (dialog_action_area83), checked_waters_baddies_cancel_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (checked_waters_baddies_cancel_button, GTK_CAN_DEFAULT);
+  GTK_WIDGET_UNSET_FLAGS (checked_waters_baddies_cancel_button, GTK_CAN_FOCUS);
 
   gtk_signal_connect (GTK_OBJECT (checked_waters_baddies_cancel_button), "clicked",
                       GTK_SIGNAL_FUNC (on_checked_waters_baddies_cancel_button_clicked),
                       NULL);
 
-  gtk_widget_grab_default (checked_waters_baddies_cancel_button);
   return checked_waters_baddies_dialog;
 }
 
