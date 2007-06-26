@@ -145,6 +145,7 @@ std::ostream& operator<<(std::ostream&s, GL_matrix m) {
    return s;
 }
 
+#ifndef HAVE_GSL
 // Given a symmetric positive definate matrix,
 // return the lower triangular matrix by LU decomposition.
 //
@@ -163,13 +164,13 @@ GL_matrix::cholesky() const {
    //
 
    l.mat[0] = cholesky_diag    (l, 1);
-   l.mat[4] = cholesky_non_diag(l, 2,1);
-   l.mat[8] = cholesky_non_diag(l, 3,1);
+   l.mat[4] = cholesky_non_diag(l, 2, 1);
+   l.mat[8] = cholesky_non_diag(l, 3, 1);
    l.mat[1] = 0; // cholesky_non_diag(l, 1,2);
    l.mat[5] = cholesky_diag(l, 2);
-   l.mat[9] = cholesky_non_diag(l, 3,2);
-   l.mat[2] = 0; // cholesky_non_diag(l, 1,3);
-   l.mat[6] = 0; // cholesky_non_diag(l, 2,3);
+   l.mat[9] = cholesky_non_diag(l, 3, 2);
+   l.mat[2] = 0; // cholesky_non_diag(l, 1, 3);
+   l.mat[6] = 0; // cholesky_non_diag(l, 2, 3);
    l.mat[10]= cholesky_diag(l, 3);
 
 //    l.mat[0] = cholesky_diag    (l, 1);
@@ -194,7 +195,58 @@ GL_matrix::cholesky() const {
    l.mat[15] = 1; 
 
    return l; 
+}
+
+// Use the GSL for cholesky then:
+#else 
+std::pair<bool,GL_matrix>
+GL_matrix::cholesky() const {
+
+   double a_data[] = { mat[0], mat[1], mat[ 2],
+		       mat[4], mat[5], mat[ 6], 
+		       mat[8], mat[9], mat[10] }; 
+
+   gsl_matrix_view m = gsl_matrix_view_array (a_data, 3, 3);
+
+   // test the princal minors for being positive (required for
+   // m.matrix being positive definite (which in turn is required
+   // for m.matrix not to colapse gsl_linalg_cholesky_decomp in a
+   // big heap)).
+
+   float pm1 = (mat[5] * mat[10]) - (mat[6] * mat[ 9]);
+   float pm2 = (mat[0] * mat[ 5]) - (mat[1] * mat[ 4]);
+   float pm3 = (mat[0] * mat[10]) - (mat[2] * mat[ 8]);
+
+   // std::cout << "PM: " << pm1 << " " << pm2 << " " << pm3 << std::endl;
+   if ((pm1<0.0) || (pm2<0.0) || (pm3<0.0)) {
+      // std::cout << "Ooops - negative principal minors!" << std::endl;
+
+      return std::pair<bool, GL_matrix> (0, GL_matrix(gsl_matrix_get(&m.matrix, 0, 0),
+						      gsl_matrix_get(&m.matrix, 0, 1),
+						      gsl_matrix_get(&m.matrix, 0, 2),
+						      gsl_matrix_get(&m.matrix, 1, 0),
+						      gsl_matrix_get(&m.matrix, 1, 1),
+						      gsl_matrix_get(&m.matrix, 1, 2),
+						      gsl_matrix_get(&m.matrix, 2, 0),
+						      gsl_matrix_get(&m.matrix, 2, 1),
+						      gsl_matrix_get(&m.matrix, 2, 2)));
+
+   } else {
+      // can't catch this (of course)
+      int ic = gsl_linalg_cholesky_decomp (&m.matrix);
+      
+      return std::pair<bool, GL_matrix> (1, GL_matrix(gsl_matrix_get(&m.matrix, 0, 0),
+						      gsl_matrix_get(&m.matrix, 0, 1),
+						      gsl_matrix_get(&m.matrix, 0, 2),
+						      gsl_matrix_get(&m.matrix, 1, 0),
+						      gsl_matrix_get(&m.matrix, 1, 1),
+						      gsl_matrix_get(&m.matrix, 1, 2),
+						      gsl_matrix_get(&m.matrix, 2, 0),
+						      gsl_matrix_get(&m.matrix, 2, 1),
+						      gsl_matrix_get(&m.matrix, 2, 2)));
+   }
 } 
+#endif // GSL for Cholesky
 
 
 // move these functions into the header file so that they
@@ -211,8 +263,8 @@ GL_matrix::cholesky_diag(const GL_matrix &l, int i) const {
 
    float sum = 0.0;
 
-   for(int k=1; k<=i-1; k++) {
-      sum += squared(l.mat[(i-1)*4+k-1]); // fix the indexing?
+   for(int k=1; k<=(i-1); k++) {
+      sum += squared(l.mat[(i-1)*4 + k - 1]); // fix the indexing?
       // sum += squared(l.mat[(k-1)*4+i-1]); // fix the indexing?
    }
 
@@ -306,7 +358,7 @@ GL_matrix::mat_mult(GL_matrix in) const {
   res.mat[ 9] = in.mat[8]*mat[1] + in.mat[9]*mat[5] + in.mat[10]*mat[ 9];
   res.mat[10] = in.mat[8]*mat[2] + in.mat[9]*mat[6] + in.mat[10]*mat[10];
 
-  std::cout << "check: "
+  std::cout << "   check: "
        << in.mat[0] << "*" << mat[0] << " + "
        << in.mat[1] << "*" << mat[4] << " + "
        << in.mat[2] << "*" << mat[8] << " = " << res.mat[0] << std::endl;
@@ -319,11 +371,10 @@ GL_matrix::mat_mult(GL_matrix in) const {
 coot::Cartesian
 GL_matrix::mult(const coot::Cartesian &in) const {
 
-   return coot::Cartesian(mat[0]*in.x() + mat[1]*in.y() + mat[2]*in.z(),
-		    mat[4]*in.x() + mat[5]*in.y() + mat[6]*in.z(),
-		    mat[8]*in.x() + mat[9]*in.y() + mat[10]*in.z());
-
-} 
+   return coot::Cartesian(mat[0]*in.x() + mat[1]*in.y() + mat[ 2]*in.z(),
+			  mat[4]*in.x() + mat[5]*in.y() + mat[ 6]*in.z(),
+			  mat[8]*in.x() + mat[9]*in.y() + mat[10]*in.z());
+}
 
 
 void 

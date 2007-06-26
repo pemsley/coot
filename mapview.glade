@@ -4043,25 +4043,56 @@
     </widget>
 
     <widget>
-      <class>GtkButton</class>
-      <name>show_aniso_ok_button</name>
-      <border_width>8</border_width>
-      <can_default>True</can_default>
-      <has_default>True</has_default>
-      <can_focus>True</can_focus>
-      <has_focus>True</has_focus>
-      <signal>
-	<name>clicked</name>
-	<handler>on_show_aniso_ok_button_clicked</handler>
-	<last_modification_time>Sun, 24 Feb 2002 23:53:43 GMT</last_modification_time>
-      </signal>
-      <label>OK</label>
-      <relief>GTK_RELIEF_NORMAL</relief>
+      <class>GtkHBox</class>
+      <name>hbox150</name>
+      <border_width>2</border_width>
+      <homogeneous>True</homogeneous>
+      <spacing>0</spacing>
       <child>
 	<padding>1</padding>
 	<expand>False</expand>
 	<fill>False</fill>
       </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>show_aniso_ok_button</name>
+	<can_default>True</can_default>
+	<has_default>True</has_default>
+	<can_focus>True</can_focus>
+	<has_focus>True</has_focus>
+	<signal>
+	  <name>clicked</name>
+	  <handler>on_show_aniso_ok_button_clicked</handler>
+	  <last_modification_time>Sun, 24 Feb 2002 23:53:43 GMT</last_modification_time>
+	</signal>
+	<label>  Apply  </label>
+	<relief>GTK_RELIEF_NORMAL</relief>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>show_aniso_close_button</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<signal>
+	  <name>clicked</name>
+	  <handler>on_show_aniso_close_button_clicked</handler>
+	  <last_modification_time>Sun, 24 Jun 2007 13:51:47 GMT</last_modification_time>
+	</signal>
+	<label>  Close  </label>
+	<relief>GTK_RELIEF_NORMAL</relief>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
     </widget>
   </widget>
 </widget>

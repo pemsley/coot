@@ -25,11 +25,12 @@ cd guile-gtk-2.0
   
    Things to fix before 0.3.2
 
-   o Valgrind long/multiple fit-proteins
+   o Ramachandran Plot and Kleywegt Plot interact badly causing crash.
 
+   o set-map-display, set-mol-displayed, set-mol-active.  Do they
+     properly toggle the buttons in the Display Manager?  They should.
   
    o Fix the File-name filter: in script file reading
-
 
    o Change the Release notes, 
      the ChangeLog, 
@@ -37,6 +38,16 @@ cd guile-gtk-2.0
      old coot timer
 
 
+
+   o Sort out the Cholesky decomposition.  Question to self: what are
+     the matrices that are being decomposed, exactly?
+     
+     Good question.  That broke the back of the problem actually.  I
+     compared thox.pdb Us with thos.res Us and found they were
+     different (a transposition).  Now U matrix principal minors are
+     checked before cholesky decomposition is performed.
+
+ * Done!
 
    o mainchain zone, reverse dir, mainchain zone, screwed mainchain
 
@@ -464,8 +475,7 @@ Wed May 16 20:30:02 BST 2007
 Thu May 17 12:44:56 BST 2007
 
 	use gtk_widget_get_name(widget) to find out about what type a
-	widget is
-
+	widget is.
 
 ------
 Thu May 24 10:59:16 BST 2007
@@ -491,8 +501,15 @@ Sun May 27 19:21:11 BST 2007
    40-49 have been writen to the end of the chain.  Which causes the
    problem in the Go To Atom window.
 
-
 * Fixed.
+
+
+-----
+Fri Jun 15 13:09:53 BST 2007
+
+   rajiv.chopra@novartis.com:
+
+   In real space refinement, don't move the atoms with zero occ.
 
 ------
 
@@ -557,6 +574,5 @@ Thu Jun 21 14:35:28 CEST 2007
 * Anyway, fixed now.
 
 ---
-
 
 

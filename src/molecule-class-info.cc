@@ -559,14 +559,23 @@ molecule_class_info_t::anisotropic_atoms() {
 
 		     glTranslatef(x1, y1, z1);
 		     // glMultMatrixf(mat.get());
-		     glMultMatrixf(mat.cholesky().get());
-		     rad_50 = r_50(atom_sel.atom_selection[i]->element);
-		     r = rad_50_and_prob_to_radius(rad_50,
-						   g.show_aniso_atoms_probability);
-		     // note: g.show_aniso_atoms_probability is in the range
-		     // 0.0 -> 100.0
-		     glutWireSphere(r,10,10);
-
+		     // std::cout << "Atom Us " << std::endl;
+		     // mat.print_matrix();
+		     // std::cout << "Choleskied: " << std::endl;
+		     // mat.cholesky().print_matrix();
+		     std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
+		     if (chol_pair.first) { 
+			glMultMatrixf(chol_pair.second.get());
+			rad_50 = r_50(atom_sel.atom_selection[i]->element);
+			r = rad_50_and_prob_to_radius(rad_50,
+						      g.show_aniso_atoms_probability);
+			// note: g.show_aniso_atoms_probability is in the range
+			// 0.0 -> 100.0
+			glutWireSphere(r,10,10);
+		     } else {
+			std::cout << "Bad Anistropic Us for " << atom_sel.atom_selection[i]
+				  << std::endl;
+		     }
 		  } 
 		  glPopMatrix();
 	       }
@@ -2961,15 +2970,21 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    if ( map_file_type == CCP4 ) {
      std::cout << "attempting to read CCP4 map: " << filename << std::endl;
      clipper::CCP4MAPfile file;
-     file.open_read(filename);
-     try {
-       file.import_xmap( xmap_list[0] );
+     try { 
+	file.open_read(filename);
+	try {
+	   file.import_xmap( xmap_list[0] );
+	}
+	catch (clipper::Message_base exc) {
+	   std::cout << "WARNING:: failed to read " << filename
+		     << " Bad ASU (inconsistant gridding?)." << std::endl;
+	   bad_read = 1;
+	}
+     } catch (clipper::Message_base exc) {
+	std::cout << "WARNING:: failed to open " << filename << std::endl;
+	bad_read = 1;
      }
-     catch (clipper::Message_base exc) {
-       std::cout << "WARNING:: failed to read " << filename
-		 << " Bad ASU (inconsistant gridding?)." << std::endl;
-       bad_read = 1;
-     }
+     std::cout << "closing CCP4 map: " << filename << std::endl;
      file.close_read();
    } else {
      std::cout << "attempting to read CNS map: " << filename << std::endl;

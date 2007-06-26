@@ -375,7 +375,8 @@
 ;; old coot test
 (define (old-coot?)
 
-  (let* ((new-release-time 1200000000)
+  (let* ( ; (new-release-time 1200000000) ; 10 Jan 2008
+	 (new-release-time 1205678900)    ; 16 Mar 2008
 	 (time-diff (- (current-time) new-release-time)))
     (if (> time-diff 0)
 	(info-dialog "This is an Old Coot!\n\nIt's time to upgrade."))))

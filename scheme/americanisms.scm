@@ -22,6 +22,7 @@
 (define set-swap-difference-map-colors set-swap-difference-map-colours)
 
 ;; an americanism
-(define set-font-colour set-font-colour)
+(define set-font-color set-font-colour)
+
 
 

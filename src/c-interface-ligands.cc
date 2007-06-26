@@ -1049,6 +1049,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    int stat = 0;
    std::string t(text);
 
+   // std::cout << "DEBUG:: handle_make_monomer_search " << text << std::endl;
+
    GtkWidget *vbox_current = lookup_widget(viewport, "monomer_search_results_vbox");
    GtkWidget *checkbutton =
       lookup_widget(viewport, "monomer_search_minimal_descriptions_checkbutton");
@@ -1073,13 +1075,9 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
        
     }
 
-   //    GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
    GtkWidget *vbox = vbox_current;
 
-   //    std::cout << "debug:: viewport: " << viewport << std::endl;
-   // std::cout << "debug::   dialog: " << dialog << std::endl;
-   // std::cout << "debug::     vbox: " << vbox << std::endl;
-
+   // std::cout << "DEBUG:: monomers v.size() " << v.size() << std::endl;
    // add new buttons
    for (unsigned int i=0; i<v.size(); i++) {
       // std::cout << i << " " << v[i].first << std::endl;

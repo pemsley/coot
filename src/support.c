@@ -11,7 +11,7 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #else
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#define S_ISREG(m) (((m) S_IFMT) == S_IFREG)
 #endif
 #include <string.h>
 

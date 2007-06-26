@@ -886,16 +886,6 @@ on_show_aniso_ok_button_clicked        (GtkButton       *button,
    const char *text;
    int imol = 0; /* FIXME */
 
- /* Show Aniso Radiobuttons */
-   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-				       "show_aniso_yes_radiobutton"))->active)
-
-      set_show_aniso(1);	/* model, state */
-
-   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-				       "show_aniso_no_radiobutton"))->active)
-      set_show_aniso(0); 
-
 /* Limit Display Atoms? */
 
    if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
@@ -918,12 +908,27 @@ on_show_aniso_ok_button_clicked        (GtkButton       *button,
 
    set_aniso_limit_size_from_widget(text);
 
-/* Goodbye Widget */
+ /* Show Aniso Radiobuttons */
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "show_aniso_yes_radiobutton"))->active)
 
-   gtk_widget_destroy(lookup_widget(GTK_WIDGET(button),"aniso_window"));
+      set_show_aniso(1);	/* model, state */
+
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "show_aniso_no_radiobutton"))->active)
+      set_show_aniso(0); 
 
 }
 
+
+void
+on_show_aniso_close_button_clicked     (GtkButton       *button,
+                                        gpointer         user_data)
+{
+/* Goodbye Widget */
+
+   gtk_widget_destroy(lookup_widget(GTK_WIDGET(button),"aniso_window"));
+}
 
 void aniso_probability_adjustment_changed(GtkAdjustment *adj, GtkWidget *window) { 
 

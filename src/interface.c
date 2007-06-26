@@ -2956,7 +2956,9 @@ create_aniso_window (void)
   GtkWidget *hbox12;
   GtkWidget *aniso_probability_hscale;
   GtkWidget *label24;
+  GtkWidget *hbox150;
   GtkWidget *show_aniso_ok_button;
+  GtkWidget *show_aniso_close_button;
 
   aniso_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_object_set_data (GTK_OBJECT (aniso_window), "aniso_window", aniso_window);
@@ -3163,17 +3165,35 @@ create_aniso_window (void)
   gtk_widget_show (label24);
   gtk_box_pack_start (GTK_BOX (hbox12), label24, FALSE, FALSE, 3);
 
-  show_aniso_ok_button = gtk_button_new_with_label (_("OK"));
+  hbox150 = gtk_hbox_new (TRUE, 0);
+  gtk_widget_ref (hbox150);
+  gtk_object_set_data_full (GTK_OBJECT (aniso_window), "hbox150", hbox150,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox150);
+  gtk_box_pack_start (GTK_BOX (vbox16), hbox150, FALSE, FALSE, 1);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox150), 2);
+
+  show_aniso_ok_button = gtk_button_new_with_label (_("  Apply  "));
   gtk_widget_ref (show_aniso_ok_button);
   gtk_object_set_data_full (GTK_OBJECT (aniso_window), "show_aniso_ok_button", show_aniso_ok_button,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (show_aniso_ok_button);
-  gtk_box_pack_start (GTK_BOX (vbox16), show_aniso_ok_button, FALSE, FALSE, 1);
-  gtk_container_set_border_width (GTK_CONTAINER (show_aniso_ok_button), 8);
+  gtk_box_pack_start (GTK_BOX (hbox150), show_aniso_ok_button, FALSE, FALSE, 0);
   GTK_WIDGET_SET_FLAGS (show_aniso_ok_button, GTK_CAN_DEFAULT);
+
+  show_aniso_close_button = gtk_button_new_with_label (_("  Close  "));
+  gtk_widget_ref (show_aniso_close_button);
+  gtk_object_set_data_full (GTK_OBJECT (aniso_window), "show_aniso_close_button", show_aniso_close_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (show_aniso_close_button);
+  gtk_box_pack_start (GTK_BOX (hbox150), show_aniso_close_button, FALSE, FALSE, 0);
+  GTK_WIDGET_SET_FLAGS (show_aniso_close_button, GTK_CAN_DEFAULT);
 
   gtk_signal_connect (GTK_OBJECT (show_aniso_ok_button), "clicked",
                       GTK_SIGNAL_FUNC (on_show_aniso_ok_button_clicked),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (show_aniso_close_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_show_aniso_close_button_clicked),
                       NULL);
 
   gtk_widget_grab_focus (show_aniso_ok_button);

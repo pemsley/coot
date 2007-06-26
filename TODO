@@ -24,7 +24,9 @@
 
    o Use Eugene's new link-reading code
 
-   o Select residues (for new molecule) by sphere
+   o Problem SHELX .ins file, enable bonds to symmetry atoms?
+
+   o Valgrind long/multiple fit-proteins
 
    o insertion codes for intelligent next atom
 
@@ -32,11 +34,13 @@
 
    o fix db-main so that it doesn't spew error messages
 
+   o Select residues (for new molecule) by sphere
+
    o Add Chiral Volume Outliers to Omega Angle Plot
 
    o Make the Omega Angle Plot update properly
 
-   o CCP4mg button
+   o Revisit CCP4mg button
 
    o Redo sequence view 
 
@@ -62,6 +66,9 @@
        faster bonding with many molecules
 
    o Kleywegt plot should not draw ("wrapped") long arrows
+
+   o Pre-and post check of chiral volume and cis peptide bonds when
+     using refine zone
 
    o colour by B-factor CA mode
 
