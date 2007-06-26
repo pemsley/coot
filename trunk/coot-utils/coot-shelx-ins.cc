@@ -173,17 +173,25 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				 if (card.words[1] == "3") {
 				    altconf = "C";
 				 } else {
-				    // negative PARTS: shelxl
-				    // generation of special position
-				    // constraints suppressed.
-				    if (card.words[1] == "-1") {
-				       altconf = "a";
+				    if (card.words[1] == "4") {
+				       altconf = "D";
 				    } else { 
-				       if (card.words[1] == "-2") {
-					  altconf = "b";
+				       // negative PARTS: shelxl
+				       // generation of special position
+				       // constraints suppressed.
+				       if (card.words[1] == "-1") {
+					  altconf = "a";
 				       } else { 
-					  if (card.words[1] == "-3") {
-					     altconf = "c";
+					  if (card.words[1] == "-2") {
+					     altconf = "b";
+					  } else { 
+					     if (card.words[1] == "-3") {
+						altconf = "c";
+					     } else {
+						if (card.words[1] == "-4") {
+						   altconf = "d";
+						}
+					     }
 					  }
 				       }
 				    }
@@ -608,9 +616,9 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  at->u11 = atof(card.words[ 6].c_str());
 		  at->u22 = atof(card.words[ 7].c_str());
 		  at->u33 = atof(card.words[ 8].c_str());
-		  at->u12 = atof(card.words[ 9].c_str());
+		  at->u23 = atof(card.words[ 9].c_str());
 		  at->u13 = atof(card.words[10].c_str());
-		  at->u23 = atof(card.words[11].c_str());
+		  at->u12 = atof(card.words[11].c_str());
 		  at->WhatIsSet += 64; // is anisotropic
 		  // std::cout << "DEBUG:: Found Anisotropic " << at->name << std::endl;
 	       }

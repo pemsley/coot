@@ -2524,8 +2524,8 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 				       short int allow_minimal_descriptions) const {
 
    std::vector<std::pair<std::string, std::string> > v;
-//    std::cout << "DEBUG:: Checking " << simple_monomer_descriptions.size()
-// 	     << " simple monomers..." << std::endl;
+//     std::cout << "DEBUG:: Checking " << simple_monomer_descriptions.size()
+// 	      << " simple monomers..." << std::endl;
 
    std::string test_string_dc = coot::util::downcase(test_string);
 
@@ -2533,7 +2533,9 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 
       std::string res_code = coot::util::downcase(simple_monomer_descriptions[i].residue_info.name);
       std::string::size_type ifound = res_code.find(test_string_dc);
-      //std::cout << "comparing :" << res_code << ": vs :" << test_string_dc << ":" << std::endl;
+
+      // std::cout << "comparing :" << res_code << ": vs :" << test_string_dc << ":" << std::endl;
+
       if (ifound != std::string::npos) {
 // 	 std::cout << "debug:: found name " <<
 // 	    simple_monomer_descriptions[i].residue_info.three_letter_code << std::endl;

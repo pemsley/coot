@@ -1284,11 +1284,10 @@
 			    (let ((spin-atoms (list " P  " " O1P" " O2P" " O3P"))
 				  (dir-atoms (cond 
 					      ((string=? tlc "PTR") (list " CZ " " OH "))
-					      ((string=? tlc "SER") (list " CB " " OG "))
+					      ((string=? tlc "SEP") (list " CB " " OG "))
 					      ((string=? tlc "TPO") (list " CB " " OG1"))
 					      (else 
 					       #f))))
-			      (format #t ".... spining atoms ~s~%" spin-atoms)
 			      (if dir-atoms
 				  (spin-search imol-map imol chain-id resno "" 
 					       dir-atoms spin-atoms))

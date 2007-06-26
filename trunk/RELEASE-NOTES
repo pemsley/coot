@@ -11,7 +11,8 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Fix crash when applying NCS edits [Michael Url]
 
-  o Fix problems of incorrect actions on pressing NCS buttons
+  o Fix problems of incorrect actions on pressing NCS buttons 
+    [Christopher Rife]
 
   o Fix potential crash on finding blobs and waters [Kevin Cowtan]
 
@@ -61,6 +62,8 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Ramachandran plot dialog remembers where it was put last time
     [Shawn Williams] 
+
+  o U matrix now correctly read for SHELXL .res files [Dale Tronrud]
 
   o Display Control confusion about Display/Active state of molecules
     untangled

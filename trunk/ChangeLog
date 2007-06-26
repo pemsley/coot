@@ -1,3 +1,15 @@
+
+2007-06-26  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* coot-utils/coot-shelx-ins.cc: (make_atom): set the U matrix
+	correctly. There was a transposition of u12 and u23. Ouch.
+
+2007-06-16  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* src/molecule-class-info.cc: (add try/catch mechanism round
+	file.open_read() in read_ccp4_map()).  Fixes a crash on reading a
+	non-CCP4 map.
+
 2007-06-21  Paul Emsley  <emsley@localhost>
 
 	* db-main/db-main.cc (clear_results): clear the output fragment
