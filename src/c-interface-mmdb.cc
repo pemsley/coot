@@ -25,19 +25,29 @@
 #include <string>
 
 #ifdef USE_GUILE
+
 #ifdef _MSC_VER
 #define AddAtomA AddAtom
 #endif
 
 #include "c-interface-mmdb.hh"
 
+   // Instead of cut and pasting here, perhaps I should have done a typedef?
+   
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+// no fix up needed 
+#else    
+#define scm_to_int gh_scm2int
+#define scm_to_locale_string SCM_STRING_CHARS
+#define scm_to_double  gh_scm2double
+#define  scm_is_true gh_scm2bool
+#endif // SCM version
+
 CMMDBManager *
 mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 
    CMMDBManager *mol = 0;
 
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-   
    SCM nmodel = scm_length(molecule_expression);
    int inmodel = scm_to_int(nmodel);
 
@@ -113,8 +123,8 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 			      CResidue *residue_p = new CResidue;
 			      std::string resname = scm_to_locale_string(scm_residue_name);
 			      int resno = scm_to_int(scm_residue_number);
-			      // 			   std::cout << "DEBUG:: Found resno:   " << resno << std::endl;
-			      // 			   std::cout << "DEBUG:: Found resname: " << resname << std::endl;
+			      // std::cout << "DEBUG:: Found resno:   " << resno << std::endl;
+			      // std::cout << "DEBUG:: Found resname: " << resname << std::endl;
 			      std::string inscode = scm_to_locale_string(scm_residue_inscode);
 			      residue_p->SetResName(resname.c_str());
 			      residue_p->seqNum = resno;
@@ -203,13 +213,6 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
       }
    }
    return mol;
-
-#else
-   std::cout << "Must compile with guile 1.8 or better to use this function"
-	     << std::endl;
-   return 0;
-#endif // SCM version
-
 } 
 
 // This is a common denominator really.  It does not depend on mmdb,
