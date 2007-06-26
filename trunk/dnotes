@@ -25,14 +25,11 @@ cd guile-gtk-2.0
   
    Things to fix before 0.3.2
 
-   o Ramachandran Plot and Kleywegt Plot interact badly causing crash.
-
-   o set-map-display, set-mol-displayed, set-mol-active.  Do they
-     properly toggle the buttons in the Display Manager?  They should.
-
    o Fix the carriage return on Check Delete waters result.  It should
      do a next button, not a click on the OK button.
   
+   o Ramachandran Plot and Kleywegt Plot interact badly causing crash.
+
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
@@ -40,6 +37,11 @@ cd guile-gtk-2.0
 
 
 
+
+   o set-map-display, set-mol-displayed, set-mol-active.  Do they
+     properly toggle the buttons in the Display Manager?  They should.
+
+* They didn't.  They do now.  It worked first time :)
 
    o Fix the File-name filter: in script file reading
 
