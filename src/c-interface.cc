@@ -1733,7 +1733,7 @@ void set_density_size_from_widget(const char *text) {
    }
    //
    for (int ii=0; ii<g.n_molecules; ii++) {
-      if (is_valid_map_molecule(ii)
+      if (is_valid_map_molecule(ii))
 	  g.molecules[ii].update_map();
    }
    graphics_draw();
