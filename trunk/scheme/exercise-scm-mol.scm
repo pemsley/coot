@@ -128,7 +128,7 @@
 	   (else
 	    (let ((new-mol (jiggled-mol a-molecule current-mol
 					(/ count max-count))))
-	      (format #t "cycle ~s ~s~%" count (/ count max-count))
+	      ;; (format #t "cycle ~s ~s~%" count (/ count max-count))
 	      (clear-and-update-molecule mol-no new-mol)
 	      (loop (+ count 1) new-mol))))))))
 
