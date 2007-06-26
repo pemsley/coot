@@ -25,18 +25,20 @@ cd guile-gtk-2.0
   
    Things to fix before 0.3.2
 
-   o Fix the carriage return on Check Delete waters result.  It should
-     do a next button, not a click on the OK button.
-  
-   o Ramachandran Plot and Kleywegt Plot interact badly causing crash.
-
    o Change the Release notes, 
      the ChangeLog, 
      configure.in (obviously)
      old coot timer
 
 
+   o Ramachandran Plot and Kleywegt Plot interact badly causing crash.
 
+* Fixed.  Simply we can't have both.
+
+   o Fix the carriage return on Check Delete waters result.  It should
+     do a next button, not a click on the OK button.
+
+* Easy fix - done in glade.
 
    o set-map-display, set-mol-displayed, set-mol-active.  Do they
      properly toggle the buttons in the Display Manager?  They should.
@@ -60,10 +62,6 @@ cd guile-gtk-2.0
    o mainchain zone, reverse dir, mainchain zone, screwed mainchain
 
 * Done.
-
-   o Kleywegt plots don't update properly when not specifying chains.
-
-* Done
 
    o residue range was inserted into the wrong place in the pdb file
 
