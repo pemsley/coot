@@ -313,7 +313,10 @@
 			    (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
 				(begin
 				  (handle-go-function (gtk-entry-get-text tlc-entry)
-						      (gtk-entry-get-text smiles-entry))
+						      (gtk-entry-get-text smiles-entry)
+						      (if check-button
+							  (gtk-toggle-button-get-active check-button)
+							  'no-check-button))
 				  (gtk-widget-destroy window)))
 			    #f))
 

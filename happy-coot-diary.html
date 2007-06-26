@@ -10,6 +10,63 @@
     <h1>The Happy Coot Developer Diary</h1>
 
 <hr>
+    <p>Thu Jun 21 23:09:47 CEST 2007 </p>
+
+<p>Oh dear, I missed the projected 1 June release date. </p>
+
+<p>I and students and other guinea pigs have been beating on 0.3.2-pre
+for the last couple of weeks.  This involved visits to LMB Cambridge,
+Biochemistry Cambridge, 2 Pharmas and teaching/demo-ing for a course in
+Grenoble.  Several issues arose.
+
+
+    <ul>
+      <li> Overlaying ligands used to get stuck sometimes. Now it
+      works better.  </li>
+
+      <li> Cute new function "phosphylate residue" has to be
+      added. It works, but can be speeded up considerably. </li>
+
+      <li> Reading in xprep maps caused a crash.  That has gone now, I hope.  </li>
+
+    <li> An inserted residue range now gets inserted in the correct order. </li> 
+
+    <li> When saving to a different directory, the save directory was
+    not remembered.  It is now. </li>
+
+    <li> The bond thickness is now remembered in the state file.</li>
+
+    <li> Helix fitting improved.</li>
+
+    <li> A "CCP4mg" button has been added - it doesn't work because
+    CCP4mg doesn't (yet) do what it's supposed to do when it receives the
+    input that it gets.</li>
+
+    <li> Using CA Zone -> Mainchain more than once in a session now works.</li>
+
+    <li> Remote control via a GTK timeout seems to work (at long last).</li>
+
+    <li> Added a "nudge screen centre" GUI - for those odd occassions
+    when you need to move around but Ctrl-Left-mouse drag has been
+    aquired by another function (like Rotate/Translate Zone).</li>
+
+    <li> Added in some code to do movies.  To make the movies better,
+    the camera should spline along the control points instead of the
+    spherical linear interpolation between them that it currently
+    does.</li>
+
+    <li> Fixed long-standing bug (it's existed since practically the
+    beginning) when deleting all maps and then reading in a new one
+    (or via MTZ).</li>
+
+<!--     <li> A.</li> -->
+
+</ul>
+
+<p>Let's estimate the new release date as the 28th June. </p>
+
+
+<hr>
     <p>Fri May 25 14:45:52 BST 2007 </p>
 
     <P> A few issues have come up in pre-release testing (the Kleywegt
@@ -2397,7 +2454,7 @@ Uson</a>.</p>
     <address><a href="mailto:emsley at ysbl york ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Mon Jun  4 16:52:07 BST 2007
+Last modified: Fri Jun 22 00:14:50 CEST 2007
 <!-- hhmts end -->
   </body>
 </html>

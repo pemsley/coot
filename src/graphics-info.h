@@ -15,7 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 // -*-c++-*-
@@ -33,8 +34,9 @@
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 #include <gtkgl/gtkglarea.h>
-#else
+#else  // GTK2 build then:
 #include <gdk/gdkglconfig.h>
+#include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
 #endif // (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 

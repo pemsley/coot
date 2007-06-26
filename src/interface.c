@@ -247,7 +247,7 @@ create_window1 (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (open_map1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_map1);
-  gtk_tooltips_set_tip (tooltips, open_map1, _("Open a pre-calculated CCP4 map"), NULL);
+  gtk_tooltips_set_tip (tooltips, open_map1, _("Open a pre-calculated CCP4 map or CNS (\".cns\") map"), NULL);
 
   close_molecule1 = gtk_menu_item_new_with_label (_("Close molecule/map..."));
   gtk_widget_ref (close_molecule1);

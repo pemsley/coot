@@ -41,7 +41,7 @@
 	     (map-list '()))
     (cond
      ((null? molecule-list) map-list)
-     ((is-valid-map-molecule (car molecule-list))
+     ((valid-map-molecule? (car molecule-list))
       (loop (cdr molecule-list)
 	    (cons (car molecule-list) map-list)))
      (else 
@@ -1327,4 +1327,23 @@
      (else 
       (let ((s (string-append "Can't Phosphorylate residue of type" res-name)))
 	(info-dialog s))))))
+
+;; 
+(define (label-all-active-residue-atoms)
+
+  (let* ((active-atom (active-residue)))
+    (if (list? active-atom)
+	(let ((imol     (list-ref active-atom 0))
+	      (chain-id (list-ref active-atom 1))
+	      (resno    (list-ref active-atom 2))
+	      (inscode  (list-ref active-atom 3)))
+	  
+	  (let ((atom-list (residue-info imol chain-id resno inscode)))
+	    (if (list? atom-list)
+		(begin
+		  (for-each (lambda (atom-info)
+			      (add-atom-label imol chain-id resno (car (car atom-info))))
+			    atom-list)
+		  (graphics-draw))))))))
+
 

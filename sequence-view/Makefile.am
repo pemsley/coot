@@ -26,6 +26,7 @@ include_HEADERS = sequence-view.hh seq-view-interface.h
 
 CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
 CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
+GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 
 # we need these include because we use graphics-info for the
 # recentering callback - we don't use c-interface because we dont 
@@ -47,6 +48,7 @@ INCLUDES = \
 	$(MMDB_CXXFLAGS) 		\
 	$(GLUT_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
+	$(GTKGL_CONTEXT_CFLAGS)		\
 	@GTK_CFLAGS@ 
 
 # CPPFLAGS = -DSEQ_VIEW_STANDALONE
