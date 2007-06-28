@@ -14,7 +14,7 @@ Release 0.3.2 "Don't Bet on the River"
   o Fix problems of incorrect actions on pressing NCS buttons 
     [Christopher Rife]
 
-  o Fix potential crash on finding blobs and waters [Kevin Cowtan]
+  o Fix (potential?) crash on finding blobs and waters [Kevin Cowtan]
 
   o Fix crash apparent after deleting all maps then reading a new one 
     while the Display Control window was open
@@ -38,17 +38,16 @@ Release 0.3.2 "Don't Bet on the River"
 
   o Added function transform-molecule-by [Alastair Fyfe]
 
-  o map transformation function fixed
+  o map transformation function fixed [Chris Meier]
 
   o Added function to change the colour of the unit cell [Dirk Kostrewa]
 
-  o Added multi-threaded socket reading for Phenix and other
-    interfaces
+  o Added timer-based socket reading for Phenix and other interfaces
 
   o Added function "blob under cursor -> screen centre" [FvD]
 
   o Fix problem of Change Chain ID Residue Range inserting into the wrong 
-    place
+    place [Judit Debreczeni]
 
   o Fix map reading so that it accepts user-approved extensions
     [Peter Meyer]
@@ -66,9 +65,9 @@ Release 0.3.2 "Don't Bet on the River"
   o U matrix now correctly read for SHELXL .res files [Dale Tronrud]
 
   o Display Control confusion about Display/Active state of molecules
-    untangled
+    untangled [Bob Nolte]
 
-  o state file saves stereo mode.
+  o state file saves stereo mode [Bob Nolte].
 
   o Add ability to set the atom radius for Raster3D output
 

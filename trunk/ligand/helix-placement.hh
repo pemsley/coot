@@ -114,7 +114,8 @@ namespace coot {
       // factoring out for strand tubes
       clipper::RTop_orth
       find_best_tube_orientation(clipper::Coord_orth ptc,
-				 double cyl_len, double cyl_rad) const; // uses member data xmap
+				 double cyl_len, double cyl_rad,
+				 float density_level) const; // uses member data xmap
 
       scored_helix_info_t fit_strand(const coot::minimol::molecule &mol,
 				     const clipper::RTop_orth &rtop,
@@ -149,7 +150,7 @@ namespace coot {
       // n_sample_strands is the number of sample strands that we should get from the database
       // 
       helix_placement_info_t place_strand(const clipper::Coord_orth &pt, int n_residues,
-					  int n_sample_strands);
+					  int n_sample_strands, float sigma_level);
       
    };
 }

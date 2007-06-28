@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
 	       if (do_strand == 0) { 
 		  p.place_alpha_helix_near(pt, 20, 0.2);
 	       } else { 
-		  coot::helix_placement_info_t si = p.place_strand(pt, 6, 5);
+		  coot::helix_placement_info_t si = p.place_strand(pt, 6, 5, 0.2);
 		  if (si.success) {
 		     si.mol[0].write_file("strand.pdb", 30.0);
 		  } else {

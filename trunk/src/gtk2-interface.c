@@ -13683,7 +13683,7 @@ create_checked_waters_baddies_dialog (void)
   checked_waters_baddies_cancel_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
   gtk_widget_show (checked_waters_baddies_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (checked_waters_baddies_dialog), checked_waters_baddies_cancel_button, 0);
-  GTK_WIDGET_SET_FLAGS (checked_waters_baddies_cancel_button, GTK_CAN_DEFAULT);
+  GTK_WIDGET_UNSET_FLAGS (checked_waters_baddies_cancel_button, GTK_CAN_FOCUS);
 
   g_signal_connect ((gpointer) checked_waters_baddies_cancel_button, "clicked",
                     G_CALLBACK (on_checked_waters_baddies_cancel_button_clicked),
@@ -13698,7 +13698,7 @@ create_checked_waters_baddies_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (checked_waters_baddies_dialog, dialog_action_area83, "dialog_action_area83");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, checked_waters_baddies_cancel_button, "checked_waters_baddies_cancel_button");
 
-  gtk_widget_grab_default (checked_waters_baddies_cancel_button);
+  gtk_widget_grab_focus (checked_waters_baddies_cancel_button);
   return checked_waters_baddies_dialog;
 }
 
