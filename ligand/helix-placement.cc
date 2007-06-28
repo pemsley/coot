@@ -301,9 +301,10 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
       cyl_len = double(n_residues)/2.0; // PE parameter (for helices)
 
       // ------------- elided ----------------
-      
-      clipper::RTop_orth ops_resultops = find_best_tube_orientation(ptc, cyl_len, cyl_rad);
 
+      float max_density_limit = min_density_limit * 2.0;
+      clipper::RTop_orth ops_resultops =
+	 find_best_tube_orientation(ptc, cyl_len, cyl_rad, max_density_limit);
 
       // ops[resultops] is the matrix which orients the to the helix
       // axis around the origin.
@@ -429,8 +430,8 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 }
 
 clipper::RTop_orth 
-coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, double cyl_len, double cyl_rad) const {
-   
+coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, double cyl_len, double cyl_rad, float max_density_limit) const {
+
    // make the search angles
    std::vector<clipper::RTop_orth> ops;
    int resultops;
@@ -464,6 +465,7 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
    clipper::Grid_range gr( cell, grid, sqrt(cyl_len*cyl_len+cyl_rad*cyl_rad) );
    clipper::Coord_grid g, g0, g1;
    clipper::Coord_orth c0, c1;
+   float d; 
    for (unsigned int j = 0; j < ops.size(); j++ )
       scores[j] = 0.0;
 
@@ -478,8 +480,10 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
 	    for (unsigned int j = 0; j < ops_size; j++ ) {
 	       c1 = opsi[j] * c0;
 	       if ( fabs(c1.z()) < cyl_len &&
-		    c1.x()*c1.x()+c1.y()*c1.y() < cyl_rad*cyl_rad )
-		  scores[j] += xmap[iw];
+		    c1.x()*c1.x()+c1.y()*c1.y() < cyl_rad*cyl_rad ) {
+		  d = xmap[iw];
+		  scores[j] += (d > max_density_limit ? max_density_limit : d);
+	       }
 	    }
 	 }
    }
@@ -1186,7 +1190,7 @@ coot::helix_placement::trim_and_grow(minimol::molecule *m, float min_density_lim
 
 coot::helix_placement_info_t
 coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_length,
-				    int n_strand_samples) {
+				    int n_strand_samples, float sigma_level) {
 
    coot::minimol::molecule rm;
    coot::helix_placement_info_t r(rm, 0, "Not Done");
@@ -1196,7 +1200,8 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
    double cyl_len = 10.0;
    double cyl_rad = 1.0;
 
-   clipper::RTop_orth best_op = find_best_tube_orientation(pt, cyl_len, cyl_rad);
+   float dd = 2.0 * sigma_level;
+   clipper::RTop_orth best_op = find_best_tube_orientation(pt, cyl_len, cyl_rad, dd);
 
    std::cout << "DEBUG:: best_op for strand orientation:\n" << best_op.format() << std::endl;
    clipper::RTop_orth op_plus_trans(best_op.rot(), pt);

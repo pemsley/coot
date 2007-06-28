@@ -1065,7 +1065,7 @@
 			    " Estimated number of residues in strand "
 			    "  Go  "
 			    (lambda (n)
-			      (place-strand-here n 8)))))
+			      (place-strand-here n 15)))))
 
 ;; The gui for saving views
 (define view-saver-gui
