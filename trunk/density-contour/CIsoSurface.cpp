@@ -85,7 +85,8 @@ template <class T> const unsigned int CIsoSurface<T>::m_edgeTable[256] = {
 	0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0
 };
 
-template <class T> const unsigned int CIsoSurface<T>::m_triTable[256][16] = {
+// template <class T> const unsigned int CIsoSurface<T>::m_triTable[256][16] = {
+template <class T> const int CIsoSurface<T>::m_triTable[256][16] = {
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 	{0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 	{0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},

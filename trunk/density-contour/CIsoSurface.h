@@ -183,7 +183,8 @@ protected:
 
 	// Lookup tables used in the construction of the isosurface.
 	static const unsigned int m_edgeTable[256];
-	static const unsigned int m_triTable[256][16];
+	// PE changes to int (some values are negative)
+	static const int m_triTable[256][16];
 
 	// PE adds
 	bool isSmallTriangle(unsigned int i);
