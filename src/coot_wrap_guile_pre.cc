@@ -1759,9 +1759,9 @@ _wrap_get_positive_float_from_entry (SCM s_0)
 
 
 static SCM
-_wrap_handle_filename_filter (SCM s_0)
+_wrap_handle_filename_filter_gtk1 (SCM s_0)
 {
-#define FUNC_NAME "handle-filename-filter"
+#define FUNC_NAME "handle-filename-filter-gtk1"
   GtkWidget *arg1 = (GtkWidget *) 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
@@ -1769,7 +1769,7 @@ _wrap_handle_filename_filter (SCM s_0)
   {
     arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
   }
-  handle_filename_filter(arg1);
+  handle_filename_filter_gtk1(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -15737,6 +15737,74 @@ _wrap_add_view_description (SCM s_0, SCM s_1)
 
 
 static SCM
+_wrap_add_action_view (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "add-action-view"
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  int must_free1 = 0 ;
+  int must_free2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  result = (int)add_action_view((char const *)arg1,(char const *)arg2);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free1 && arg1) SWIG_free(arg1);
+  if (must_free2 && arg2) SWIG_free(arg2);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_insert_action_view_after_view (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "insert-action-view-after-view"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int result;
+  int must_free2 = 0 ;
+  int must_free3 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  result = (int)insert_action_view_after_view(arg1,(char const *)arg2,(char const *)arg3);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free3 && arg3) SWIG_free(arg3);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_n_views ()
 {
 #define FUNC_NAME "n-views"
@@ -15863,6 +15931,115 @@ _wrap_go_to_view (SCM s_0)
   
   arg1=s_0;
   go_to_view(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_clear_all_views ()
+{
+#define FUNC_NAME "clear-all-views"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  clear_all_views();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_movie_file_name_prefix (SCM s_0)
+{
+#define FUNC_NAME "set-movie-file-name-prefix"
+  char *arg1 = (char *) 0 ;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  set_movie_file_name_prefix((char const *)arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_movie_frame_number (SCM s_0)
+{
+#define FUNC_NAME "set-movie-frame-number"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_movie_frame_number(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_movie_file_name_prefix ()
+{
+#define FUNC_NAME "movie-file-name-prefix"
+  SCM result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  result = (SCM)movie_file_name_prefix();
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_movie_frame_number ()
+{
+#define FUNC_NAME "movie-frame-number"
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  result = (int)movie_frame_number();
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_make_movie_mode (SCM s_0)
+{
+#define FUNC_NAME "set-make-movie-mode"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_make_movie_mode(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -23339,6 +23516,31 @@ _wrap_pre_directory_file_selection (SCM s_0)
 
 
 static SCM
+_wrap_filelist_into_fileselection_clist (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "filelist-into-fileselection-clist"
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  std::vector<std::string > *arg2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
+  }
+  {
+    arg2 = (std::vector<std::string > *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_std__vectorTstd__string_t, 2, 0);
+  }
+  filelist_into_fileselection_clist(arg1,(std::vector<std::string > const &)*arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_wrapped_nothing_bad_dialog (SCM s_0)
 {
 #define FUNC_NAME "wrapped-nothing-bad-dialog"
@@ -24930,6 +25132,28 @@ _wrap_safe_python_command (SCM s_0)
 
 
 static SCM
+_wrap_safe_python_command_by_char_star (SCM s_0)
+{
+#define FUNC_NAME "safe-python-command-by-char-star"
+  char *arg1 = (char *) 0 ;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  safe_python_command_by_char_star((char const *)arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_run_generic_script (SCM s_0)
 {
 #define FUNC_NAME "run-generic-script"
@@ -25420,6 +25644,34 @@ _wrap_rtop_to_scm (SCM s_0)
 }
 
 
+static SCM
+_wrap_set_display_control_button_state (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "set-display-control-button-state"
+  int arg1 ;
+  std::string *arg2 = 0 ;
+  int arg3 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (std::string *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_std__string, 2, 0);
+  }
+  {
+    arg3 = scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  set_display_control_button_state(arg1,(std::string const &)*arg2,arg3);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25842,7 +26094,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-directory-for-coot-file-chooser", 1, 0, 0, (swig_guile_proc) _wrap_set_directory_for_coot_file_chooser);
   scm_c_define_gsubr("coot-file-chooser-file-name", 1, 0, 0, (swig_guile_proc) _wrap_coot_file_chooser_file_name);
   scm_c_define_gsubr("get-positive-float-from-entry", 1, 0, 0, (swig_guile_proc) _wrap_get_positive_float_from_entry);
-  scm_c_define_gsubr("handle-filename-filter", 1, 0, 0, (swig_guile_proc) _wrap_handle_filename_filter);
+  scm_c_define_gsubr("handle-filename-filter-gtk1", 1, 0, 0, (swig_guile_proc) _wrap_handle_filename_filter_gtk1);
   scm_c_define_gsubr("set-transient-and-position", 2, 0, 0, (swig_guile_proc) _wrap_set_transient_and_position);
   scm_c_define_gsubr("info-dialog", 1, 0, 0, (swig_guile_proc) _wrap_info_dialog);
   scm_c_define_gsubr("main-menubar", 0, 0, 0, (swig_guile_proc) _wrap_main_menubar);
@@ -26463,6 +26715,8 @@ SWIG_init(void)
   scm_c_define_gsubr("go-to-view-number", 2, 0, 0, (swig_guile_proc) _wrap_go_to_view_number);
   scm_c_define_gsubr("add-spin-view", 3, 0, 0, (swig_guile_proc) _wrap_add_spin_view);
   scm_c_define_gsubr("add-view-description", 2, 0, 0, (swig_guile_proc) _wrap_add_view_description);
+  scm_c_define_gsubr("add-action-view", 2, 0, 0, (swig_guile_proc) _wrap_add_action_view);
+  scm_c_define_gsubr("insert-action-view-after-view", 3, 0, 0, (swig_guile_proc) _wrap_insert_action_view_after_view);
   scm_c_define_gsubr("n-views", 0, 0, 0, (swig_guile_proc) _wrap_n_views);
   scm_c_define_gsubr("save-views", 1, 0, 0, (swig_guile_proc) _wrap_save_views);
   scm_c_define_gsubr("views-play-speed", 0, 0, 0, (swig_guile_proc) _wrap_views_play_speed);
@@ -26470,6 +26724,12 @@ SWIG_init(void)
   scm_c_define_gsubr("view-name", 1, 0, 0, (swig_guile_proc) _wrap_view_name);
   scm_c_define_gsubr("view-description", 1, 0, 0, (swig_guile_proc) _wrap_view_description);
   scm_c_define_gsubr("go-to-view", 1, 0, 0, (swig_guile_proc) _wrap_go_to_view);
+  scm_c_define_gsubr("clear-all-views", 0, 0, 0, (swig_guile_proc) _wrap_clear_all_views);
+  scm_c_define_gsubr("set-movie-file-name-prefix", 1, 0, 0, (swig_guile_proc) _wrap_set_movie_file_name_prefix);
+  scm_c_define_gsubr("set-movie-frame-number", 1, 0, 0, (swig_guile_proc) _wrap_set_movie_frame_number);
+  scm_c_define_gsubr("movie-file-name-prefix", 0, 0, 0, (swig_guile_proc) _wrap_movie_file_name_prefix);
+  scm_c_define_gsubr("movie-frame-number", 0, 0, 0, (swig_guile_proc) _wrap_movie_frame_number);
+  scm_c_define_gsubr("set-make-movie-mode", 1, 0, 0, (swig_guile_proc) _wrap_set_make_movie_mode);
   scm_c_define_gsubr("set-background-colour", 3, 0, 0, (swig_guile_proc) _wrap_set_background_colour);
   scm_c_define_gsubr("background-is-black-p", 0, 0, 0, (swig_guile_proc) _wrap_background_is_black_p);
   scm_c_define_gsubr("set-ligand-acceptable-fit-fraction", 1, 0, 0, (swig_guile_proc) _wrap_set_ligand_acceptable_fit_fraction);
@@ -26791,6 +27051,7 @@ SWIG_init(void)
   scm_c_define_gsubr("string-member", 2, 0, 0, (swig_guile_proc) _wrap_string_member);
   scm_c_define_gsubr("compare-strings", 2, 0, 0, (swig_guile_proc) _wrap_compare_strings);
   scm_c_define_gsubr("pre-directory-file-selection", 1, 0, 0, (swig_guile_proc) _wrap_pre_directory_file_selection);
+  scm_c_define_gsubr("filelist-into-fileselection-clist", 2, 0, 0, (swig_guile_proc) _wrap_filelist_into_fileselection_clist);
   scm_c_define_gsubr("wrapped-nothing-bad-dialog", 1, 0, 0, (swig_guile_proc) _wrap_wrapped_nothing_bad_dialog);
   scm_c_define_gsubr("float-from-entry", 1, 0, 0, (swig_guile_proc) _wrap_float_from_entry);
   scm_c_define_gsubr("int-from-entry", 1, 0, 0, (swig_guile_proc) _wrap_int_from_entry);
@@ -26851,6 +27112,7 @@ SWIG_init(void)
   scm_c_define_gsubr("safe-scheme-command-test", 1, 0, 0, (swig_guile_proc) _wrap_safe_scheme_command_test);
   scm_c_define_gsubr("safe-scheme-command", 1, 0, 0, (swig_guile_proc) _wrap_safe_scheme_command);
   scm_c_define_gsubr("safe-python-command", 1, 0, 0, (swig_guile_proc) _wrap_safe_python_command);
+  scm_c_define_gsubr("safe-python-command-by-char-star", 1, 0, 0, (swig_guile_proc) _wrap_safe_python_command_by_char_star);
   scm_c_define_gsubr("run-generic-script", 1, 0, 0, (swig_guile_proc) _wrap_run_generic_script);
   scm_c_define_gsubr("atom-info-string", 6, 0, 0, (swig_guile_proc) _wrap_atom_info_string);
   scm_c_define_gsubr("residue-info", 4, 0, 0, (swig_guile_proc) _wrap_residue_info);
@@ -26867,6 +27129,7 @@ SWIG_init(void)
   scm_c_define_gsubr("generic-string-vector-to-list-internal", 1, 0, 0, (swig_guile_proc) _wrap_generic_string_vector_to_list_internal);
   scm_c_define_gsubr("generic-list-to-string-vector-internal", 1, 0, 0, (swig_guile_proc) _wrap_generic_list_to_string_vector_internal);
   scm_c_define_gsubr("rtop-to-scm", 1, 0, 0, (swig_guile_proc) _wrap_rtop_to_scm);
+  scm_c_define_gsubr("set-display-control-button-state", 3, 0, 0, (swig_guile_proc) _wrap_set_display_control_button_state);
 }
 
 #ifdef __cplusplus
