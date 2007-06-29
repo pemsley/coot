@@ -482,15 +482,33 @@ class molecule_class_info_t {
 
    ~molecule_class_info_t() {
 
+      // using this destructor causes a redraw, it seems.
+      //
+      // Note that the constructor used in expand_molecule_space()
+      // new_molecules[i] = molecules[i];
+      // does a shallow copy of the pointers.  So we can't delete them here.
+      // 
+
       // give back the memory from the map, so that we don't get
       // clipper leak message?
-      if (has_map()) {
-	 clipper::Xmap<float> x;
-	 xmap_list[0] = x;
+      drawit = 0;
+      drawit_for_map = 0;  // don't display this thing on a redraw!
+
+      // don't do these things when we have a shallow copy constructor.
+      if (0) { 
+	 if (has_map()) {
+	    clipper::Xmap<float> x;
+	    xmap_list[0] = x;
+	    delete [] xmap_list;
+	    xmap_list = 0;
+	 }
+	 delete [] labelled_atom_index_list;
+	 delete [] labelled_symm_atom_index_list;
+	 delete [] labelled_symm_atom_symm_trans_;
+	 labelled_atom_index_list = NULL;
+	 labelled_symm_atom_index_list = NULL;
+	 labelled_symm_atom_symm_trans_= NULL;
       }
-      delete [] labelled_atom_index_list;
-      delete [] labelled_symm_atom_index_list;
-      delete [] labelled_symm_atom_symm_trans_;
    }
 
    void setup_internal() { 

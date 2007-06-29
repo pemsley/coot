@@ -656,6 +656,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   float min_dist,
 					   float max_dist) {
 
+   do_bonds_to_hydrogens = 1;  // added 20070629
+   
    b_factor_scale = 1.0;
    int ncontacts;
    PSContact contact = NULL;
@@ -715,6 +717,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   float min_dist,
 					   float max_dist,
 					   short int do_symm) {
+
+   do_bonds_to_hydrogens = 1;  // added 20070629
+
    b_factor_scale = 1.0;
    if (bonds.size() == 0) { 
       for (int i=0; i<10; i++) { 
@@ -1543,14 +1548,15 @@ void Bond_lines_container::no_symmetry_bonds() {
 
 Bond_lines_container::Bond_lines_container(symm_keys key) {
 
+   do_bonds_to_hydrogens = 1;  // added 20070629
    b_factor_scale = 1.0;
    if (key == NO_SYMMETRY_BONDS) {
 
       no_symmetry_bonds();
       
    } else { 
-      cout << "Bond_lines_container::Bond_lines_container(symm_keys key)"
-	   << " no such key as " << key << endl;
+      std::cout << "Bond_lines_container::Bond_lines_container(symm_keys key)"
+		<< " no such key as " << key << std::endl;
    }
 }
       
@@ -1708,8 +1714,9 @@ Bond_lines::GetFinish(int i) const {
 
 Bond_lines_container::Bond_lines_container(int col) {
 
+   do_bonds_to_hydrogens = 1;  // added 20070629
    b_factor_scale = 1.0;
-   cout << "Strange Bond_lines_container(int col)" << endl;
+   std::cout << "Strange Bond_lines_container(int col)" << std::endl;
    Bond_lines a;
    bonds.push_back(a);
 }

@@ -2467,7 +2467,9 @@ create_aniso_window (void)
   GtkWidget *hbox12;
   GtkWidget *aniso_probability_hscale;
   GtkWidget *label24;
+  GtkWidget *hbox151;
   GtkWidget *show_aniso_ok_button;
+  GtkWidget *show_aniso_close_button;
 
   aniso_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (aniso_window), _("Anisotripic Atoms"));
@@ -2603,14 +2605,28 @@ create_aniso_window (void)
   gtk_box_pack_start (GTK_BOX (hbox12), label24, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label24), GTK_JUSTIFY_CENTER);
 
-  show_aniso_ok_button = gtk_button_new_with_mnemonic (_("OK"));
+  hbox151 = gtk_hbox_new (TRUE, 0);
+  gtk_widget_show (hbox151);
+  gtk_box_pack_start (GTK_BOX (vbox16), hbox151, FALSE, FALSE, 1);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox151), 2);
+
+  show_aniso_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
   gtk_widget_show (show_aniso_ok_button);
-  gtk_box_pack_start (GTK_BOX (vbox16), show_aniso_ok_button, FALSE, FALSE, 1);
-  gtk_container_set_border_width (GTK_CONTAINER (show_aniso_ok_button), 8);
+  gtk_box_pack_start (GTK_BOX (hbox151), show_aniso_ok_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (show_aniso_ok_button), 4);
   GTK_WIDGET_SET_FLAGS (show_aniso_ok_button, GTK_CAN_DEFAULT);
+
+  show_aniso_close_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  gtk_widget_show (show_aniso_close_button);
+  gtk_box_pack_start (GTK_BOX (hbox151), show_aniso_close_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (show_aniso_close_button), 4);
+  GTK_WIDGET_SET_FLAGS (show_aniso_close_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) show_aniso_ok_button, "clicked",
                     G_CALLBACK (on_show_aniso_ok_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) show_aniso_close_button, "clicked",
+                    G_CALLBACK (on_show_aniso_close_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
@@ -2642,7 +2658,9 @@ create_aniso_window (void)
   GLADE_HOOKUP_OBJECT (aniso_window, hbox12, "hbox12");
   GLADE_HOOKUP_OBJECT (aniso_window, aniso_probability_hscale, "aniso_probability_hscale");
   GLADE_HOOKUP_OBJECT (aniso_window, label24, "label24");
+  GLADE_HOOKUP_OBJECT (aniso_window, hbox151, "hbox151");
   GLADE_HOOKUP_OBJECT (aniso_window, show_aniso_ok_button, "show_aniso_ok_button");
+  GLADE_HOOKUP_OBJECT (aniso_window, show_aniso_close_button, "show_aniso_close_button");
 
   gtk_widget_grab_focus (show_aniso_ok_button);
   gtk_widget_grab_default (show_aniso_ok_button);

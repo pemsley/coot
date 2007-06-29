@@ -19,6 +19,9 @@ Release 0.3.2 "Don't Bet on the River"
   o Fix crash apparent after deleting all maps then reading a new one 
     while the Display Control window was open
 
+  o Instabity problems due to 60+ molecules addressed [but difficult
+    to test thoroughly]
+
   o Added CNS map-reading [provided by Kevin Cowtan]. ".cns" is now 
     an acceptable map extension
 

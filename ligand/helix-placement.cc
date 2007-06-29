@@ -1203,9 +1203,10 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
    float dd = 2.0 * sigma_level;
    clipper::RTop_orth best_op = find_best_tube_orientation(pt, cyl_len, cyl_rad, dd);
 
-   std::cout << "DEBUG:: best_op for strand orientation:\n" << best_op.format() << std::endl;
    clipper::RTop_orth op_plus_trans(best_op.rot(), pt);
-   std::cout << "DEBUG:: best_op with translation :\n" << op_plus_trans.format() << std::endl;
+   
+//    std::cout << "DEBUG:: best_op for strand orientation:\n" << best_op.format() << std::endl;
+//    std::cout << "DEBUG:: best_op with translation :\n" << op_plus_trans.format() << std::endl;
 
    // get some strands of that length
    //

@@ -331,6 +331,21 @@ public:
    Bond_lines_container (const atom_selection_container_t &SelAtom,
 			 bond_representation_type by_occ);
 
+   Bond_lines_container(int col);
+   Bond_lines_container(symm_keys key);
+
+   // initial constructor, added to by  addSymmetry_vector_symms from update_symmetry()
+   Bond_lines_container() {
+      do_bonds_to_hydrogens = 1;  // added 20070629
+      b_factor_scale = 1.0;
+      if (bonds.size() == 0) { 
+	 for (int i=0; i<10; i++) { 
+	    Bond_lines a(i);
+	    bonds.push_back(a);
+	 }
+      }
+   }
+
    // arguments as above.
    // 
    // FYI: there is only one element to symm_trans, the is called from
@@ -407,18 +422,6 @@ public:
 
    graphical_bonds_container make_graphical_bonds() const;
 
-   Bond_lines_container(int col);
-   Bond_lines_container(symm_keys key);
-
-   Bond_lines_container() {
-      b_factor_scale = 1.0;
-      if (bonds.size() == 0) { 
-	 for (int i=0; i<10; i++) { 
-	    Bond_lines a(i);
-	    bonds.push_back(a);
-	 }
-      }
-   }
      
    // debugging function
    void check() const; 
