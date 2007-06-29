@@ -501,8 +501,8 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    rotation_centre_y = y; 
    rotation_centre_z = z;
 
-   std::cout << "DEBUG:: dynarama_is_displayed[" << imol << "] is "
-	     << dynarama_is_displayed[imol] << std::endl;
+//    std::cout << "DEBUG:: dynarama_is_displayed[" << imol << "] is "
+// 	     << dynarama_is_displayed[imol] << std::endl;
 
    if (dynarama_is_displayed[imol]) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
