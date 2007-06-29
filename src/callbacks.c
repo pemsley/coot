@@ -2236,7 +2236,7 @@ void
 on_goto_atom_window_destroy            (GtkObject       *object,
                                         gpointer         user_data)
 {
-  printf("on_goto_atom_window_destroy is executed. unsetting the static in graphics_info\n");
+/*   printf("on_goto_atom_window_destroy is executed. unsetting the static in graphics_info\n"); */
 /*   unset_go_to_atom_widget(); */
 }
 
