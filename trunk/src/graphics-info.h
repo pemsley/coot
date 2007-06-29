@@ -645,6 +645,9 @@ public:
       for (int i=0; i<n_molecules_max; i++)
 	 omega_distortion_graph[i] = NULL;
 
+      // ---- Adding something here? Like another graph?  don't forget
+      // to update expand_molecule_space()
+
       // residue edits
       residue_info_edits = new std::vector<coot::select_atom_info>;
 

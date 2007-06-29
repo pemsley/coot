@@ -2993,7 +2993,7 @@ molecule_class_info_t::split_residue(int atom_index) {
 	 // just go ahead and stuff in the atoms to the
 	 // molecule, no user intervention required.
 	 // 
-	 std::cout << "Calling  -------------- split_residue_then_rotamer path ----------------\n";
+	 // std::cout << "Calling  -------------- split_residue_then_rotamer path ----------------\n";
 	 short int use_residue_mol_flag = 0;
 	 if (is_from_shelx_ins_flag)
 	    use_residue_mol_flag = 1;
@@ -3267,11 +3267,11 @@ molecule_class_info_t::split_residue_then_rotamer(CResidue *residue, const std::
    // Move the atoms of residue a bit here?
    atom_selection_container_t mov_mol_asc;
 
-   std::cout << "DEBUG:: in split_residue_then_rotamer use_residue_mol_flag: " << use_residue_mol_flag
-	     << std::endl;
+//    std::cout << "DEBUG:: in split_residue_then_rotamer use_residue_mol_flag: " << use_residue_mol_flag
+// 	     << std::endl;
    
    if (use_residue_mol_flag) {
-      std::cout << "DEBUG:: in split_residue_then_rotamer shelxl path " << std::endl;
+      //       std::cout << "DEBUG:: in split_residue_then_rotamer shelxl path " << std::endl;
       mov_mol_asc = residue_mol_asc;
       int udd_afix_handle = residue_mol_asc.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
       for (int i=0; i<residue_mol_asc.n_selected_atoms; i++) {
@@ -3286,7 +3286,7 @@ molecule_class_info_t::split_residue_then_rotamer(CResidue *residue, const std::
       }
       
    } else { 
-      std::cout << "DEBUG:: in split_residue_then_rotamer normal path " << std::endl;
+      // std::cout << "DEBUG:: in split_residue_then_rotamer normal path " << std::endl;
       SelResidues = &residue; // just one
       CMMDBManager *mov_mol = create_mmdbmanager_from_res_selection(SelResidues,
 								    1, 0, 0, altconf, 

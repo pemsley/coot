@@ -2843,3 +2843,7 @@ on_update_go_to_atom_from_current_position_button_clicked
 void
 on_show_aniso_close_button_clicked     (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_show_aniso_close_button_clicked     (GtkButton       *button,
+                                        gpointer         user_data);

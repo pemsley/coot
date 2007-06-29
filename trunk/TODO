@@ -8,8 +8,6 @@
 
    o Richardson rotamers
 
-   o Torsion General
-
    o Multiple model ligand overlaying
 
    o Kevin's Ramachandran Refinement target
@@ -23,6 +21,8 @@
 -----
 
    Release 0.5
+
+   o Torsion General
 
    o Use Eugene's new link-reading code
 
@@ -49,7 +49,7 @@
 
 -----
 
-    Release 0.7 
+    Release 0.6
 
    o Redo sequence view 
 
@@ -122,4 +122,3 @@
  
    Release 1.0 
 
-   o Loops from fragment library?

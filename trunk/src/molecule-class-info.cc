@@ -224,9 +224,10 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
       
       // update the maps so that they appear around the new centre. 
       // 
-      for (int ii=0; ii<g.n_molecules; ii++) { 
-	 g.molecules[ii].update_map(); 
-      }
+      if (reset_rotation_centre) 
+	 for (int ii=0; ii<g.n_molecules; ii++) {
+	    g.molecules[ii].update_map(); 
+	 }
 
       // save state strings
       save_state_command_strings_.push_back("handle-read-draw-molecule");
@@ -4726,8 +4727,8 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
    // 1 atom:  new_occ_existing_atom = 1 - occ_new_atom;
    // general: new_occ_existing_atom = current_occ_existing_atom - occ_new_atom/n_similar_atoms
    // where n_similar_atoms is the number of alt confs we have for that atom.
-   std::cout << "DEBUG:: ----------------- in insert_coords_change_altconf ------ " << std::endl;
-   std::cout << "DEBUG:: IN insert_coords_change_altconf" << std::endl;
+//    std::cout << "DEBUG:: ----------------- in insert_coords_change_altconf ------ " << std::endl;
+//    std::cout << "DEBUG:: IN insert_coords_change_altconf" << std::endl;
    make_backup();
    
    // OK if we were from a shelx ins file, then we have to create a

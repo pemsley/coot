@@ -501,6 +501,9 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    rotation_centre_y = y; 
    rotation_centre_z = z;
 
+   std::cout << "DEBUG:: dynarama_is_displayed[" << imol << "] is "
+	     << dynarama_is_displayed[imol] << std::endl;
+
    if (dynarama_is_displayed[imol]) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
       coot::rama_plot *plot = (coot::rama_plot *)
@@ -3076,13 +3079,55 @@ graphics_info_t::expand_molecule_space_maybe() {
 short int
 graphics_info_t::expand_molecule_space() {
 
-   std::cout << "expanding molecules space..." << std::endl;
+   std::cout << "...... expanding molecules space..." << std::endl;
    int new_size = int(1.8 * n_molecules_max);
    molecule_class_info_t *new_molecules = new molecule_class_info_t[new_size];
 
+   GtkWidget **new_dynaramas = new GtkWidget * [new_size];
+   GtkWidget **new_sequences = new GtkWidget * [new_size];
+   GtkWidget **new_geometrys = new GtkWidget * [new_size];
+   GtkWidget **new_b_factors = new GtkWidget * [new_size];
+   GtkWidget **new_residuesd = new GtkWidget * [new_size];
+   GtkWidget **new_omegas    = new GtkWidget * [new_size];
+   GtkWidget **new_rotamers  = new GtkWidget * [new_size];
+   
    for (int i=0;  i<n_molecules; i++) {
-      new_molecules[i] = molecules[i];
+      new_molecules[i] = molecules                 [i];
+      new_dynaramas[i] = dynarama_is_displayed     [i];
+      new_sequences[i] = sequence_view_is_displayed[i];
+      new_geometrys[i] = geometry_graph            [i];
+      new_b_factors[i] = b_factor_variance_graph   [i];
+      new_residuesd[i] = residue_density_fit_graph [i];
+      new_omegas   [i] = omega_distortion_graph    [i];
+      new_rotamers [i] = rotamer_graph             [i];
    }
+
+   for (int i=n_molecules;  i<new_size; i++) {
+      new_molecules[i].set_mol_number(i);
+      new_dynaramas[i] = 0;
+      new_sequences[i] = 0;
+      new_geometrys[i] = 0;
+      new_b_factors[i] = 0;
+      new_residuesd[i] = 0;
+      new_omegas   [i] = 0;
+      new_rotamers [i] = 0;
+   }
+
+   delete [] dynarama_is_displayed;
+   delete [] sequence_view_is_displayed;
+   delete [] geometry_graph;
+   delete [] b_factor_variance_graph;
+   delete [] residue_density_fit_graph;
+   delete [] omega_distortion_graph;
+   delete [] rotamer_graph;
+
+   dynarama_is_displayed      = new_dynaramas;
+   sequence_view_is_displayed = new_sequences;
+   geometry_graph             = new_geometrys;
+   b_factor_variance_graph    = new_b_factors;
+   residue_density_fit_graph  = new_residuesd;
+   omega_distortion_graph     = new_omegas;
+   rotamer_graph              = new_rotamers;
 
    delete [] molecules;
    molecules = new_molecules;
