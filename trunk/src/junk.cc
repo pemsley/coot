@@ -1475,3 +1475,51 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
    residue_info_edits->resize(0);
    // delete res_spec; // can't do this: the user may press the button twice
 }
+
+// ------------------------------------
+   static void graphics_draw() {
+     if (glarea_2) { 
+       do_expose_swap_buffers_flag = 0;
+       if (glarea) { 
+	 gtk_widget_draw(glarea, NULL);
+	 if (make_movie_flag)
+	   dump_a_movie_image();
+       }
+       gtk_widget_draw(glarea_2, NULL);
+
+       // now swap the buffers then:
+       if (display_mode == coot::HARDWARE_STEREO_MODE) {
+	 graphics_info_t::coot_swap_buffers(glarea, 1); // flag for hardware stereo
+       } else {
+	 graphics_info_t::coot_swap_buffers(glarea, 0);
+       }
+       if (glarea_2)
+	 graphics_info_t::coot_swap_buffers(glarea_2, 0); 
+
+       do_expose_swap_buffers_flag = 1;
+     } else { 
+       // there was only one gl context, so normal thing
+       do_expose_swap_buffers_flag = 1;
+       gtk_widget_draw(glarea, NULL);
+       graphics_info_t::coot_swap_buffers(glarea, 0);
+     }
+   }
+
+   static void coot_swap_buffers(GtkWidget *widget, short int in_stereo_flag) { 
+     if (! in_stereo_flag) { 
+       /* Swap backbuffer to front */
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+       gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
+#else
+       GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
+       if (gdk_gl_drawable_is_double_buffered (gldrawable)) { 
+	 gdk_gl_drawable_swap_buffers (gldrawable);
+       } else { 
+	 glFlush ();
+       }
+#endif
+       graphics_info_t::Increment_Frames();
+     }
+   }
+
+// ------------------------------------------

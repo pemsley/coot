@@ -1,8 +1,8 @@
 /* src/globjects.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley, The
- * University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2006 by Bernhard Lohkamp
+ * Copyright 2007 by Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1499,8 +1499,11 @@ gint expose(GtkWidget *widget, GdkEventExpose *event) {
 
    // std::cout << "expose "  << widget << std::endl;
    draw(widget, event);
-   if (graphics_info_t::do_expose_swap_buffers_flag) 
-      graphics_info_t::coot_swap_buffers(widget, 0);
+
+   // RR Broke   
+   // if (graphics_info_t::do_expose_swap_buffers_flag) 
+   // graphics_info_t::coot_swap_buffers(widget, 0);
+   
 }
 
    
@@ -1847,6 +1850,21 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       graphics_info_t::draw_generic_objects();
       graphics_info_t::draw_generic_text();
 
+      if (! in_stereo_flag) {
+         /* Swap backbuffer to front */
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+         gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
+#else
+         GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
+         if (gdk_gl_drawable_is_double_buffered (gldrawable)) {
+            gdk_gl_drawable_swap_buffers (gldrawable);
+         } else {
+            glFlush ();
+         }
+
+#endif
+         graphics_info_t::Increment_Frames();
+      }
       
    } // gtkgl make area current test
 
