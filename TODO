@@ -17,8 +17,6 @@
 
    o Kevin's Ramachandran Refinement target
 
-   o Problem SHELX .ins file, enable bonds to symmetry atoms?
-
 
 -----
 
@@ -37,6 +35,8 @@
    o Add some SHELX reading to the test suite.
 
    o Dynamic distances on moving atom/fragments
+
+   o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
    o fix db-main so that it doesn't spew error messages
 
@@ -95,8 +95,10 @@
    o "Find Waters" sometimes does not to put waters in what seems sensible
      places - why is that?
 
+   o Calculate NCS matrices from molecules created by
+     new_molecule_by_atom_selection()
 
-------
+ ------
     
     Release 0.8 
 

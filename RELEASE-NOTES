@@ -1,5 +1,18 @@
 
 
+Release 0.3.3 "The Early Bird Catches the Bugs"
+
+  o Tortuous and seemingly broken "Display Frame" code reverted [RR
+    will be back to being nausiated]
+
+  o Filter button fixed for file selections
+
+
+    -------------------------------------------------------
+    -------------------- Old Releases ---------------------
+    -------------------------------------------------------
+
+
 Release 0.3.2 "Don't Bet on the River"
 
   o Fix crash due to rigid body refinement of atoms with zero
@@ -89,10 +102,6 @@ Release 0.3.2 "Don't Bet on the River"
     button.
 
 
-
-    -------------------------------------------------------
-    -------------------- Old Releases ---------------------
-    -------------------------------------------------------
 
 
 Release 0.3.1 "Another Basil Grande?"
