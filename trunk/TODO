@@ -4,6 +4,11 @@
 
     Release 0.4
 
+   o Gtk Timeout for reading socket strings
+
+* Done in 0.3.2 in fact.
+
+
    o Cootaneer
 
    o Richardson rotamers
@@ -14,9 +19,6 @@
 
    o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
-   o Gtk Timeout for reading socket strings
-
-* Done in 0.3.2 in fact.
 
 -----
 
@@ -46,6 +48,10 @@
 
    o Revisit CCP4mg button
 
+   o on_filename_filter_toggle_button_toggled() looks up the
+     fileselection by going through all names of file selections. This
+     is ugly (gives terminal warnings).  Make the user data also encode 
+     information about which fileslection this is (in 1000s, say).
 
 -----
 
