@@ -62,23 +62,27 @@ template<class T> class Score_list {
   directly. */
 class LLK_map_target {
  public:
+  enum TYPE { NORMAL, CORREL };
   //! null constructor
   LLK_map_target() {}
   //! constructor: provide radius and sampling in A for LLK target
-  LLK_map_target( const clipper::ftype& rad, const clipper::ftype& sampling )
-    { init( rad, sampling ); }
+  LLK_map_target( const clipper::ftype& rad, const clipper::ftype& sampling, TYPE type = NORMAL ) { init( rad, sampling, type ); }
   //! initialiser: provide radius and sampling in A for LLK target
-  void init( const clipper::ftype& rad, const clipper::ftype& sampling );
+  void init( const clipper::ftype& rad, const clipper::ftype& sampling, TYPE type = NORMAL );
   //! prepare LLK target after accumulating density or loading map
   void prep_llk();
   //! accumulate density statistics from a sample orientation in a sample map
   void accumulate( const clipper::Xmap<float>& xmap, const clipper::RTop_orth rtop );
-  //! perform 6-d (RT) search for LLK target in given map
-  Score_list<clipper::RTop_orth> search( const clipper::Xmap<float>& xmap, const clipper::ftype& step, const int& nres, const clipper::ftype& dres ) const;
+
+  //! return a list of RTops
+  std::vector<clipper::RTop_orth> rtop_list( const clipper::Spacegroup& spgr, const clipper::ftype& step ) const;
+  //! perform 6-d (RT) search for LLK target in given map with prior
+  void search( clipper::Xmap<float>& resultscr, clipper::Xmap<int>& resultrot, clipper::Xmap<int>& resulttrn, const clipper::Xmap<float>& xmap, const std::vector<clipper::RTop_orth>& rtops ) const;
+
   //! calculate fast approx to LLK for given orientation
-  clipper::ftype llk_approx( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const { return fasttgt.llk( xmap, rtop ); }
+  clipper::ftype llk_approx( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const { return fasttgt.target( xmap, rtop ); }
   //! calculate full LLK for given orientation
-  clipper::ftype llk       ( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const { return slowtgt.llk( xmap, rtop ); }
+  clipper::ftype llk       ( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const { return slowtgt.target( xmap, rtop ); }
   //! output formatted representation
   clipper::String format() const;
 
@@ -86,7 +90,7 @@ class LLK_map_target {
   class Sampled {
   public:
     //! null constructor
-    Sampled() {}
+    Sampled() { type_ = LLK_map_target::NORMAL; }
     //! insert values
     void insert( clipper::Coord_orth coord,
 		 clipper::ftype tgt, clipper::ftype wgt );
@@ -94,7 +98,13 @@ class LLK_map_target {
     clipper::ftype llk( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const;
     //! evaluate correlation
     clipper::ftype correl( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const;
+    //! evaluate target function
+    clipper::ftype target( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const {
+      if ( type_ == LLK_map_target::NORMAL ) return llk(xmap,rtop);
+      else                                   return correl(xmap,rtop);
+    }
     int size() const { return repxyz.size(); }  //!< get number of samples
+    void set_type( LLK_map_target::TYPE t ) { type_ = t; }
     clipper::Coord_orth coord_orth( int i ) const { return repxyz[i]; }
     clipper::ftype      target( int i )     const { return reptgt[i]; }
     clipper::ftype      weight( int i )     const { return repwgt[i]; }
@@ -102,6 +112,7 @@ class LLK_map_target {
     std::vector<clipper::Coord_orth> repxyz;  //!< fast target lists
     std::vector<clipper::ftype>      reptgt;
     std::vector<clipper::ftype>      repwgt;
+    LLK_map_target::TYPE type_;
   };
 
   //! access to fine sampled target function
@@ -116,6 +127,7 @@ class LLK_map_target {
   clipper::NXmap<float> target;  //!< target map
   clipper::NXmap<float> weight;  //!< weight map
   Sampled slowtgt, fasttgt;
+  LLK_map_target::TYPE type_;
 };
 
 

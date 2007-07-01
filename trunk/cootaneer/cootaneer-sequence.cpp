@@ -13,7 +13,7 @@ Coot_sequence::Coot_sequence( std::string filename )
 }
 
 
-std::pair<std::string,double> Coot_sequence::sequence_chain( const clipper::Xmap<float>& xmap, const std::vector<std::pair<std::string,std::string> >& sequence, CMMDBManager& mmdb, std::string chain_id ) const
+std::pair<std::string,double> Coot_sequence::sequence_chain( const clipper::Xmap<float>& xmap, const std::vector<std::pair<std::string,std::string> >& sequence, CMMDBManager& mmdb, std::string chain_id )
 {
   // convert the sequence to minimol form
   clipper::MMoleculeSequence seq;
@@ -30,20 +30,27 @@ std::pair<std::string,double> Coot_sequence::sequence_chain( const clipper::Xmap
   clipper::MPolymer mchn = mmol.find( chain_id );
   // sequence it
   Score_list<clipper::String> scores = 
-    Ca_sequence::sequence_chain( mchn, xmap, llksmp, seq,
-				 Ca_sequence::CORREL );
-  // calculate pseudo-probability
-  double d = scores.score(1) - scores.score(0);
-  double p0, p1;
-  p0 = p1 = 0.0;
-  for ( double x = 0.0; x < 5.0; x+= 0.1 ) {
-    p0 += exp( -0.5*pow( x+d, 2.0 ) );
-    p1 += exp( -0.5*pow( x  , 2.0 ) );
+    Ca_sequence::sequence_chain( mchn, xmap, llksmp, seq );
+
+  // store resutls
+  bestseq = scores[0];
+  prob = Ca_sequence::phi_approx(scores.score(1) - scores.score(0));
+
+  // get renumbering and chain info
+  fullseq = "";
+  std::pair<int,int> info = ProteinTools::chain_sequence_match( bestseq, seq );
+  bestchn = info.first;
+  bestoff = info.second;
+  if ( bestchn >= 0 ) {
+    std::string nullseq( mchn.size(), '?' );
+    fullseq = nullseq + seq[bestchn].sequence() + nullseq;
+    fullseq = fullseq.substr( mchn.size() + bestoff, mchn.size() );
   }
+
   // assemble result
   std::pair<std::string,double> result;
-  result.first = scores[0];
-  result.second = 1.0 - p0 / p1;
+  result.first = bestseq;
+  result.second = prob;
   return result;
 }
 
@@ -148,13 +155,15 @@ std::vector<LLK_map_target::Sampled> Coot_sequence::read_targets( std::string na
     int ls = 2*(3+2*nt);
     int ns = int(size)/ls;
     result.resize( nt );
+    for ( int t = 0; t < nt; t++ )
+      result[t].set_type( LLK_map_target::CORREL );
     for ( int s = 0; s < ns; s++ ) {
       double x, y, z, tgt, wgt;
       x = unpack( PC( memblock[ls*s+0], memblock[ls*s+1] ) );
       y = unpack( PC( memblock[ls*s+2], memblock[ls*s+3] ) );
       z = unpack( PC( memblock[ls*s+4], memblock[ls*s+5] ) );
       clipper::Coord_orth co( x, y, z );
-      for ( int t = 0; t < 20; t++ ) {
+      for ( int t = 0; t < nt; t++ ) {
 	tgt = unpack( PC( memblock[ls*s+6+4*t+0], memblock[ls*s+6+4*t+1] ) );
 	wgt = unpack( PC( memblock[ls*s+6+4*t+2], memblock[ls*s+6+4*t+3] ) );
 	result[t].insert( co, tgt, wgt );

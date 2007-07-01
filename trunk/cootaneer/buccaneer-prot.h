@@ -101,6 +101,37 @@ class Pr_group {
 };
 
 
+//! Protein loop builder class
+/*! Contains methods for rebuilding loops of various lengths, and
+  for rebuilding a whole protein. */
+class ProteinLoop {
+ public:
+  template<int N> class CoordList {
+  public:
+    CoordList() {}
+    clipper::Coord_orth& operator[] ( const int& n ) { return atoms[n]; }
+  private:
+    clipper::Coord_orth atoms[N];
+  };
+
+  //! constructor
+  ProteinLoop( int torsion_sampling = 24 );
+  //! return O from Ca, C, N
+  clipper::Coord_orth Coord_O( const clipper::Coord_orth ca0, const clipper::Coord_orth c0, const clipper::Coord_orth n1 ) const;
+  //! return Cb from N, Ca, C,
+  clipper::Coord_orth Coord_Cb( const clipper::Coord_orth n0, const clipper::Coord_orth ca0, const clipper::Coord_orth c0 ) const;
+  //! re-build 6 torsions worth of atoms
+  std::vector<CoordList<5> > rebuild5atoms( const clipper::Coord_orth c0, const clipper::Coord_orth n1, const clipper::Coord_orth ca1, const clipper::Coord_orth ca3, const clipper::Coord_orth c3, const clipper::Coord_orth n4 ) const;
+  //! re-build 8 torsions worth of atoms
+  std::vector<CoordList<8> > rebuild8atoms( const clipper::Coord_orth c0, const clipper::Coord_orth n1, const clipper::Coord_orth ca1, const clipper::Coord_orth ca4, const clipper::Coord_orth c4, const clipper::Coord_orth n5 ) const;
+ private:
+  //! Constrained building function
+  std::vector<clipper::Coord_orth> constrained_coords( const clipper::Coord_orth& srcpos, const clipper::Coord_orth& rtnvec, const double& length, const double& angle, const clipper::Coord_orth& tgtpos, const double& tgtdst ) const;
+  clipper::Ramachandran rama;
+  int ntor;
+};
+
+
 //! Usefull tools for manipulating proteins
 class ProteinTools {
  public:
@@ -108,6 +139,10 @@ class ProteinTools {
   static clipper::String residue_code_1( int index );
   static clipper::String residue_code_3( int index );
   static clipper::String residue_code( clipper::String code, bool translate=true );
+  static clipper::String residue_codes() { return clipper::String( "ARNDCQEGHILKMFPSTWYV" ); }
+  static clipper::String chain_sequence( const clipper::MPolymer& mp );
+  static std::pair<int,int> chain_sequence_match( const clipper::String& chnseq, const clipper::MMoleculeSequence& seq );
+  static bool chain_renumber( clipper::MPolymer& pol, const clipper::MMoleculeSequence& seq );
   static bool chain_tidy( clipper::MiniMol& target, const clipper::MiniMol& source );
   static bool copy_residue_types( clipper::MiniMol& target, const clipper::MiniMol& source );
   static bool globularise( clipper::MiniMol& mol, const clipper::Coord_frac cent );
