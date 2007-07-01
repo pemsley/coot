@@ -3,10 +3,10 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
- * your option) any later version.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 // $Id: c-interface.cc 1458 2007-01-26 20:20:18Z emsley $
@@ -255,8 +256,8 @@ void set_display_lists_for_maps(int istat) {
 // 
 int handle_read_draw_molecule(const char *filename) {
 
-   return handle_read_draw_molecule_with_recentre(filename,
-						  graphics_info_t::recentre_on_read_pdb);
+   int r = graphics_info_t::recentre_on_read_pdb;
+   return handle_read_draw_molecule_with_recentre(filename, r);
 }
 
 
@@ -739,7 +740,6 @@ void
 on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
 					     gpointer         user_data)
 {
-   
    int data_type = GPOINTER_TO_INT(user_data);
 
    // We need to add text to the string of the dictectory we are in
@@ -765,7 +765,12 @@ on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
 	 // 
 	 // std::cout << "DEBUG:: pre_directory: " << pre_directory << std::endl;
 	 std::vector<std::string> v = filtered_by_glob(pre_directory, data_type);
-	 // we want to stat the directory and add all the files in it:
+	 // std::cout << "DEBUG:: filtering by glob using data type: " << data_type
+	 // << " returns" << std::endl;
+	 // for (unsigned int iv=0; iv< v.size(); iv++)
+	 // std::cout << iv << " " << v[iv] << std::endl;
+
+	 filelist_into_fileselection_clist(fileselection, v);
 
       } else { 
 	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Filter");
