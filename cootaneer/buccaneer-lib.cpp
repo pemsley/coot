@@ -10,7 +10,7 @@
   filled by accumulation or by loading the target and weight.
   \param rad Radius in which LLK function will be used, in Angstroms.
   \param sampling Sampling spacing for the LLK function, in Angstroms. */
-void LLK_map_target::init( const clipper::ftype& rad, const clipper::ftype& sampling )
+void LLK_map_target::init( const clipper::ftype& rad, const clipper::ftype& sampling, TYPE type )
 {
   radius = rad;
 
@@ -25,6 +25,10 @@ void LLK_map_target::init( const clipper::ftype& rad, const clipper::ftype& samp
 
   target.init( grid, rtop );
   weight.init( grid, rtop );
+
+  type_ = type;
+  fasttgt.set_type( type );
+  slowtgt.set_type( type );
 
   naccum = 0;  // number of samples
 }
@@ -144,17 +148,13 @@ void LLK_map_target::accumulate( const clipper::Xmap<float>& xmap, const clipper
     }
 }
 
-/*! A log-likelihood FFFear search is performed for the target in the given map.
-  \param xmap The map to search.
-  \param step The search step in degrees.
-  \param nres The number of results to return.
-  \return A list of the best orientations and their scores. */
-Score_list<clipper::RTop_orth> LLK_map_target::search( const clipper::Xmap<float>& xmap, const clipper::ftype& step, const int& nres, const clipper::ftype& dres ) const
+
+/*! Construct a list of rotations for a given spacegroup and sampling.
+  \param spgr The spacegroup.
+  \param step The search andle step (in degrees, NOT radians). */
+std::vector<clipper::RTop_orth> LLK_map_target::rtop_list( const clipper::Spacegroup& spgr, const clipper::ftype& step ) const
 {
   std::vector<clipper::RTop_orth>  ops;
-  const clipper::Spacegroup&    spgr = xmap.spacegroup();
-  const clipper::Cell&          cell = xmap.cell();
-  const clipper::Grid_sampling& grid = xmap.grid_sampling();
   // make a list of rotation ops to try
   float glim = 360.0;  // gamma
   float blim = 180.0;  // beta
@@ -182,30 +182,49 @@ Score_list<clipper::RTop_orth> LLK_map_target::search( const clipper::Xmap<float
 	}
       }
   }
+  // return the rotations
+  return ops;
+}
 
-  // now search for ML target in each orientation in turn
-  clipper::Grid_map tg( cell, grid, radius );
-  clipper::NXmap<float> target_rot( cell, grid, tg );
-  clipper::NXmap<float> weight_rot( cell, grid, tg );
-  clipper::Xmap<float> resultscr( spgr, cell, grid );
-  clipper::Xmap<int>   resultrot( spgr, cell, grid );
-  clipper::Xmap<int>   resulttrn( spgr, cell, grid );
-  clipper::Xmap<float> resultp1 ( clipper::Spacegroup::p1(), cell, grid );
-  clipper::Xmap<float>::Map_reference_index i1(resultp1);
-  clipper::Xmap<float>::Map_reference_coord ix(resultscr);
+
+/*! A log-likelihood FFFear search is performed for the target in the given map.
+  \param resultscr The best scores.
+  \param resultrot The best rotations.
+  \param resulttrn The best translations.
+  \param xmap The map to search.
+  \param rtops The oprientations to search. */
+void LLK_map_target::search( clipper::Xmap<float>& resultscr, clipper::Xmap<int>& resultrot, clipper::Xmap<int>& resulttrn, const clipper::Xmap<float>& xmap, const std::vector<clipper::RTop_orth>& rtops ) const
+{
+  // set up results
+  const clipper::Spacegroup&    spgr = xmap.spacegroup();
+  const clipper::Cell&          cell = xmap.cell();
+  const clipper::Grid_sampling& grid = xmap.grid_sampling();
+  resultscr.init( spgr, cell, grid );
+  resultrot.init( spgr, cell, grid );
+  resulttrn.init( spgr, cell, grid );
   resultscr = 1.0e20;
 
-  // loop over orienatations
+  // now search for ML target in each orientation in turn
+  clipper::Xmap<float> resultp1( clipper::Spacegroup::p1(), cell, grid );
+  clipper::Xmap<float>::Map_reference_index i1(resultp1);
+  clipper::Xmap<float>::Map_reference_coord ix(resultscr);
+
+  // set up z scoring
   clipper::FFFear_fft<float> srch( xmap );
-  for ( int op = 0; op < ops.size(); op++ ) {
+  clipper::NX_operator nxop( xmap, target, rtops[0] );
+  srch( resultp1, target, weight, nxop );
+  clipper::Map_stats zstats( resultp1 );
+
+  // loop over orientations
+  for ( int op = 0; op < rtops.size(); op++ ) {
     // do the fffear search
-    clipper::NX_operator nxop( xmap, target, ops[op].inverse() );
+    clipper::NX_operator nxop( xmap, target, rtops[op].inverse() );
     srch( resultp1, target, weight, nxop );
 
     // store best scores
     for ( i1 = resultp1.first(); !i1.last(); i1.next() ) {
       ix.set_coord( i1.coord() );
-      float score = resultp1[i1];
+      float score = ( resultp1[i1] - zstats.mean() ) / zstats.std_dev();
       if ( score < resultscr[ix] ) {
 	resultscr[ix] = score;
 	resultrot[ix] = op;
@@ -213,28 +232,8 @@ Score_list<clipper::RTop_orth> LLK_map_target::search( const clipper::Xmap<float
       }
     }
   }
-
-  // now create a long scores list from the maps of results
-  Score_list<clipper::RTop_orth> score_list( 5*nres );
-  for ( i1 = resultscr.first(); !i1.last(); i1.next() ) {
-    float score = resultscr[i1];
-    clipper::RTop_orth  rtop = ops[ resultrot[i1] ].inverse();
-    clipper::Coord_grid cg = grid.deindex( resulttrn[i1] );
-    rtop.trn() = xmap.coord_orth( cg.coord_map() );
-    score_list.add( score, rtop );
-  }
-
-  // create a pruned scores list omitting near-clashes
-  Score_list<clipper::RTop_orth> score_trim( nres );
-  for ( int i = 0; i < score_list.size(); i++ ) {
-    bool clash = false;
-    for ( int j = 0; j < score_trim.size(); j++ )
-      if ( clipper::Coord_orth( (score_trim[j].trn()-score_list[i].trn()) ).lengthsq() < dres*dres ) clash = true;
-    if ( !clash ) score_trim.add( score_list.score(i), score_list[i] );
-  }
-
-  return score_trim;
 }
+
 
 clipper::String LLK_map_target::format() const
 {

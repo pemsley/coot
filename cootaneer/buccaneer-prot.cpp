@@ -126,6 +126,205 @@ Pr_group Pr_group::prev_pr_group( const clipper::ftype& psi, const clipper::ftyp
 }
 
 
+// Protein loops
+
+ProteinLoop::ProteinLoop( int torsion_sampling )
+{
+  rama = clipper::Ramachandran( clipper::Ramachandran::All );
+  ntor = torsion_sampling;
+}
+
+
+clipper::Coord_orth ProteinLoop::Coord_O( const clipper::Coord_orth ca0, const clipper::Coord_orth c0, const clipper::Coord_orth n1 ) const
+{
+  clipper::Vec3<> v = ( (c0-n1).unit() + (c0-ca0).unit() ).unit();
+  return clipper::Coord_orth( c0 + 1.23*v );
+}
+
+
+clipper::Coord_orth ProteinLoop::Coord_Cb( const clipper::Coord_orth n0, const clipper::Coord_orth ca0, const clipper::Coord_orth c0 ) const
+{
+  clipper::Vec3<> v1 = ( (ca0-n0).unit() + (ca0-c0).unit() ).unit();
+  clipper::Vec3<> v2 = clipper::Coord_orth::cross( (ca0-n0), (ca0-c0) );
+  return clipper::Coord_orth( ca0 + 1.04*v1 + 0.53*v2 );
+}
+
+
+/* torsion-rebuild 5 atoms */
+std::vector<ProteinLoop::CoordList<5> > ProteinLoop::rebuild5atoms( const clipper::Coord_orth c0, const clipper::Coord_orth n1, const clipper::Coord_orth ca1, const clipper::Coord_orth ca3, const clipper::Coord_orth c3, const clipper::Coord_orth n4 ) const
+{
+  using clipper::Coord_orth;
+  const double dtor = clipper::Util::twopi() / double( ntor );
+  std::vector<CoordList<5> > result;
+  CoordList<5> r;
+  for ( int iphi1 = 0; iphi1 < ntor; iphi1++ ) {
+    // build c1
+    double phi1 = dtor * double( iphi1 );
+    r[0] = Coord_orth( c0, n1, ca1, 1.53, 1.92, phi1 );
+    // find 2 possible positions for ca2
+    std::vector<Coord_orth> ca2s = constrained_coords( ca1, r[0]-ca1, 3.8, 0.360, ca3, 3.8 );
+    for ( int ipsi1 = 0; ipsi1 < ca2s.size(); ipsi1++ ) {
+      r[2] = ca2s[ipsi1];
+      double psi1 = Coord_orth::torsion( n1, ca1, r[0], r[2] );
+      if ( rama.allowed( phi1, psi1 ) ) {
+	// build n2
+	r[1] = Coord_orth( n1, ca1, r[0], 1.33, 1.99, psi1 );
+	// find 2 possible positions for c2
+	std::vector<Coord_orth> cc2s = constrained_coords( r[2], r[2]-r[1], 1.53, 1.22, ca3, 2.43 );
+	for ( int iphi2 = 0; iphi2 < cc2s.size(); iphi2++ ) {
+	  // build c2, n3
+	  r[3] = cc2s[iphi2];
+	  double phi2 = Coord_orth::torsion( r[0], r[1], r[2], r[3] );
+	  double psi2 = Coord_orth::torsion( r[1], r[2], r[3], ca3 );
+	  if ( rama.allowed( phi2, psi2 ) ) {
+	    r[4] = Coord_orth( r[1], r[2], r[3], 1.33, 1.99, psi2 );
+	    double ang = Coord_orth::angle( r[4], ca3, c3 );
+	    if ( ang > 1.75 && ang < 2.10 ) result.push_back( r );
+	  }
+	}
+      }
+    }
+  }
+  return result;
+}
+
+
+/* torsion-rebuild 8 atoms */
+std::vector<ProteinLoop::CoordList<8> > ProteinLoop::rebuild8atoms( const clipper::Coord_orth c0, const clipper::Coord_orth n1, const clipper::Coord_orth ca1, const clipper::Coord_orth ca4, const clipper::Coord_orth c4, const clipper::Coord_orth n5 ) const
+{
+  using clipper::Coord_orth;
+  const double dtor = clipper::Util::twopi() / double( ntor );
+  const double pi = clipper::Util::pi();
+  std::vector<CoordList<8> > result;
+  CoordList<8> r;
+  std::vector<CoordList<5> > r5;
+  for ( int iphi1 = 0; iphi1 < ntor; iphi1++ ) {
+    // build c1
+    double phi1 = dtor * double( iphi1 );
+    for ( int ipsi1 = 0; ipsi1 < ntor; ipsi1++ ) {
+      double psi1 = dtor * double( ipsi1 );
+      if ( rama.allowed( phi1, psi1 ) ) {
+	r[0] = Coord_orth(  c0,   n1,  ca1, 1.53, 1.92, phi1 );
+	r[1] = Coord_orth(  n1,  ca1, r[0], 1.33, 1.99, psi1 );
+	r[2] = Coord_orth( ca1, r[0], r[1], 1.47, 2.15, pi   );
+	r5 = rebuild5atoms( r[0], r[1], r[2], ca4, c4, n5 );
+	for ( int i = 0; i < r5.size(); i++ ) {
+	  for ( int j = 0; j < 5; j++ ) r[j+3] = r5[i][j];
+	  result.push_back(r);
+	}
+      }
+    }
+  }
+  return result;
+}
+
+
+/* find up to 2 possible positions obtained by rotating an arm of
+   given base, length and angle to the axis about a rotation axis, to
+   give a point a given distance from a target point */
+std::vector<clipper::Coord_orth> ProteinLoop::constrained_coords( const clipper::Coord_orth& srcpos, const clipper::Coord_orth& rtnvec, const double& length, const double& angle, const clipper::Coord_orth& tgtpos, const double& tgtdst ) const
+{
+  using clipper::Coord_orth;
+  std::vector<Coord_orth> result;
+  Coord_orth v0( rtnvec.unit() );
+  Coord_orth v1( Coord_orth::cross( v0, tgtpos-srcpos ).unit() );
+  Coord_orth v2( Coord_orth::cross( v1, v0 ).unit() );
+  double lcos = length * cos(angle);
+  double lsin = length * sin(angle);
+  Coord_orth p0 = lcos*v0 + srcpos;
+  double z = fabs( (tgtpos-p0) * v0 );
+  double x = fabs( (tgtpos-p0) * v2 );
+  if ( tgtdst <= z ) return result;
+  double d2 = tgtdst*tgtdst - z*z;
+  double cost = (lsin*lsin + x*x - d2)/(2.0*lsin*x);
+  if ( cost*cost <= 0.995 ) {
+    double sint = sqrt(1.0-cost*cost);
+    result.push_back( p0 + (lsin*cost)*v2 - (lsin*sint)*v1 );
+    result.push_back( p0 + (lsin*cost)*v2 + (lsin*sint)*v1 );
+  } else if ( cost*cost <= 1.1 ) {
+    result.push_back( p0 + (lsin*cost)*v2 );
+  }
+  return result;
+}
+
+
+// Protein tools
+
+clipper::String ProteinTools::chain_sequence( const clipper::MPolymer& mp )
+{
+  clipper::String seq = "";
+  for ( int res = 0; res < mp.size(); res++ ) {
+    if        ( mp[res].type() == "+++" ) {
+      seq += "+";
+    } else if ( mp[res].type() == "---" ) {
+      seq += "-";
+    } else {
+      int t = ProteinTools::residue_index( mp[res].type() );
+      if ( t >= 0 ) seq += ProteinTools::residue_code_1( t );
+      else          seq += "?";
+    }
+  }
+  return seq;
+}
+
+
+std::pair<int,int> ProteinTools::chain_sequence_match( const clipper::String& chnseq, const clipper::MMoleculeSequence& seq )
+{
+  // convert sequences to unique strings
+  std::vector<clipper::String> seqs( seq.size() );
+  for ( int chn = 0; chn < seq.size(); chn++ ) {
+    clipper::String s = "";
+    for ( int res = 0; res < seq[chn].sequence().length(); res++ )
+      s += residue_code_1( residue_index( seq[chn].sequence().substr(res,1) ) );
+    seqs[chn] = s;
+  }
+  // set minimum match threshold
+  int minscr = 0;
+  for ( int i = 0; i < chnseq.size(); i++ )
+    if ( isupper(chnseq[i]) ) minscr++;
+  minscr = minscr/3+4;
+  // now find best match
+  int bestchn = -1;
+  int bestoff = -1;
+  int bestscr = minscr;
+  int lenc = chnseq.length();
+  for ( int chn = 0; chn < seqs.size(); chn++ ) {
+    int lens = seqs[chn].length();
+    for ( int off = -lenc+bestscr; off < lens-bestscr; off++ ) {
+      int scr = 0;
+      for ( int i = 0; i < seqs[chn].length(); i++ )
+	if ( i-off >= 0 && i-off < chnseq.length() )
+	  if ( seqs[chn][i] == chnseq[i-off] )
+	    if ( isupper(chnseq[i-off]) )
+	      scr++;
+      if ( scr > bestscr ) {
+	bestchn = chn;
+	bestoff = off;
+	bestscr = scr;
+      }
+    }
+  }
+  // if ( bestchn >= 0 ) { clipper::String tmp = "???????????????????????????????????????????????????????????????????????????????????????????????????"+seqs[bestchn]+"???????????????????????????????????????????????????????????????????????????????????????????????????"; std::cout << tmp.substr( bestoff+99, chnseq.length() ) << "\n"; }
+  // return best match
+  return std::pair<int,int>( bestchn, bestoff );
+}
+
+
+bool ProteinTools::chain_renumber( clipper::MPolymer& pol, const clipper::MMoleculeSequence& seq )
+{
+  std::pair<int,int> match = chain_sequence_match( chain_sequence(pol), seq );
+  int chn = match.first;
+  int off = match.second;
+  if ( chn >= 0 ) {
+    for ( int res = 0; res < pol.size(); res++ )
+      pol[res].set_seqnum( res + off + 1 );
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
 bool ProteinTools::chain_tidy( clipper::MiniMol& target, const clipper::MiniMol& source )
 {
   typedef clipper::MMonomer Mm;
@@ -143,20 +342,38 @@ bool ProteinTools::chain_tidy( clipper::MiniMol& target, const clipper::MiniMol&
 	  mp = mpnull;
 	}
     }
-    target.insert( mp );
+    if ( mp.size() > 0 ) target.insert( mp );
   }
+
+  // sort the chains by size
+  std::vector<std::pair<int,int> > chnsiz( target.size() ); 
+  for ( int chn = 0; chn < target.size(); chn++ )
+    chnsiz[chn] = std::pair<int,int>( -target[chn].size(), chn );
+  std::sort( chnsiz.begin(), chnsiz.end() );
+  clipper::MiniMol temp = target;
+  for ( int chn = 0; chn < target.size(); chn++ )
+    target[chn] = temp[chnsiz[chn].second];
+
   // now relabel the chains and residues
-  clipper::String labels =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  clipper::String labels1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  clipper::String labels2 = "abcdefghijklmnopqrstuvwxyz";
   for ( int chn = 0; chn < target.size(); chn++ ) {
-    int c1 = chn % labels.length();
-    int c2 = chn / labels.length();
-    target[chn].set_id( labels.substr( c1, 1 ) );
-    for ( int res = 0; res < target[chn].size(); res++ )
-      target[chn][res].set_seqnum( 1000*c2 + res + 1 );
+    if ( chn < labels1.length() ) {
+      target[chn].set_id( labels1.substr( chn, 1 ) );
+      for ( int res = 0; res < target[chn].size(); res++ )
+	target[chn][res].set_seqnum( res + 1 );
+    } else {
+      int c = chn - labels1.length();
+      int c1 = c % labels2.length();
+      int c2 = c / labels2.length();
+      target[chn].set_id( labels2.substr( c1, 1 ) );
+      for ( int res = 0; res < target[chn].size(); res++ )
+	target[chn][res].set_seqnum( res + 1 + 1000*c2 );
+    }
   }
   return true;
 }
+
 
 bool ProteinTools::copy_residue_types( clipper::MiniMol& target, const clipper::MiniMol& source )
 {
@@ -285,14 +502,16 @@ int ProteinTools::residue_index( clipper::String code, bool translate )
 
 clipper::String ProteinTools::residue_code_1( int index )
 {
-  if ( index < 0 ) return "";
-  return clipper::String( rtype1[index] );
+  clipper::String result;
+  if ( index >= 0 && index < ntype ) result += rtype1[index];
+  return result;
 }
 
 clipper::String ProteinTools::residue_code_3( int index )
 {
-  if ( index < 0 ) return "";
-  return clipper::String( rtype3[index] );
+  clipper::String result;
+  if ( index >= 0 && index < ntype ) result = rtype3[index];
+  return result;
 }
 
 clipper::String ProteinTools::residue_code( clipper::String code, bool translate )

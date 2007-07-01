@@ -36,9 +36,14 @@ int main( int argc, char** argv )
   Coot_sequence sequencer( llkdfile );
 
   // and apply
-  std::pair<std::string,double> result =
-    sequencer.sequence_chain( xmap, seq, mmdb, chain_id );
+  sequencer.sequence_chain( xmap, seq, mmdb, chain_id );
+  std::string bestseq = sequencer.best_sequence();
+  std::string fullseq = sequencer.full_sequence();
+  double conf = sequencer.confidence();
+  int chnnum = sequencer.chain_number();
+  int chnoff = sequencer.chain_offset();
 
   // write results
-  std::cout << "\nSequence: " << result.first << "\nCondidence: " << result.second << "\n";
+  std::cout << "\nSequence: " << bestseq << "\nCondidence: " << conf << "\n";
+  if ( chnnum >= 0 ) std::cout << "\nFrom    : " << fullseq << "\nChain id: " << chnnum << "\tOffset: " << chnoff+1 << "\n";
 }
