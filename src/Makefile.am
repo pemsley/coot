@@ -77,6 +77,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
 	$(top_builddir)/coot-utils/libcoot-utils.la  		\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
+	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
 	$(COOT_WRAP_GUILE_LIBS)  $(COOT_WRAP_PYTHON_LIBS)
 
@@ -167,6 +168,7 @@ INCLUDES = \
 	-I$(top_srcdir)/build		\
 	-I$(top_srcdir)/high-res	\
 	-I$(top_srcdir)/analysis	\
+	-I$(top_srcdir)/cootaneer	\
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_CFLAGS)			\
@@ -228,6 +230,7 @@ coot_real_SOURCES = \
 	c-interface-mmdb.cc	 \
 	c-interface-build.cc	 \
 	c-interface-waters.cc	 \
+	c-interface-mutate.cc    \
 	c-interface-ligands.cc   \
 	c-interface-validate.cc	 \
 	c-interface-superpose.cc \

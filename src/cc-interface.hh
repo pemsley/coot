@@ -1,7 +1,8 @@
 /* src/c-interface.h
  * 
- * Copyright 2001, 2002, 2003, 2004, 2005, 2006 The University of York
+ * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 by Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -319,6 +320,19 @@ int mutate_internal(int ires, const char *chain_id,
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
+/*  ----------------------------------------------------------------------- */
+/*                  Cootaneer                                               */
+/*  ----------------------------------------------------------------------- */
+int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spec);
+
+#ifdef USE_GUILE
+int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec);
+#endif 
+
+#ifdef USE_PYTHON
+// Bernhard, fix/fill me in.
+int cootaneer(int imol_map, int imol_model, const char *something);
+#endif
 
 
 /*  ----------------------------------------------------------------------- */
@@ -337,8 +351,10 @@ std::pair<short int, std::string> is_interesting_dots_object_next_p(const std::v
 SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v);
 std::vector<std::string> generic_list_to_string_vector_internal(SCM l);
 SCM rtop_to_scm(const clipper::RTop_orth &rtop);
-void set_display_control_button_state(int imol, const std::string &button_type, int state);
+coot::atom_spec_t atom_spec_from_scm_expression(SCM expr);
 #endif	/* USE_GUILE */
+
+void set_display_control_button_state(int imol, const std::string &button_type, int state);
 
 
 #endif // CC_INTERFACE_HH

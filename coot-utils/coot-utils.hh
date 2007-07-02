@@ -103,6 +103,8 @@ namespace coot {
    short int
    is_mmcif_filename(const std::string &filename);
 
+   bool file_exists(const std::string &filename);
+
    class colour_holder {
    public:
       // values between 0 and 1.0

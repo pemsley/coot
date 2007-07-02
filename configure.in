@@ -26,7 +26,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 # AC_INIT package-name version-number
 AC_INIT(configure.in)
-AM_INIT_AUTOMAKE(coot, 0.3.3)
+AM_INIT_AUTOMAKE(coot, 0.4-pre-1)
 # for old versions of automake
 # AM_CONFIG_HEADER(config.h)
 
@@ -122,7 +122,7 @@ AM_WITH_MMDBSSM
 
 dnl Check for Clipper.  we exit if clipper is not found.
 #
-AM_PATH_CLIPPER(, [echo Error locating Clipper; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
+AM_PATH_CLIPPER(, [echo Error locating Clipper - a shiny new version of Clipper is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
 
 AM_WITH_GUILE(, [echo optional guile\?],,)
 GUILE_FLAGS
@@ -203,6 +203,7 @@ src/Makefile
 doc/Makefile
 high-res/Makefile
 tw/Makefile
+cootaneer/Makefile
 setup/coot.sh	
 setup/coot.csh
 python/coot_load_modules.py

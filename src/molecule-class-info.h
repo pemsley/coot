@@ -1230,7 +1230,7 @@ class molecule_class_info_t {
    int backups_state() const { return backup_this_molecule; }
    void set_have_unsaved_changes_from_outside();
 
-   void mutate_internal(CResidue *residue, const CResidue *std_residue);
+   void mutate_internal(CResidue *residue, CResidue *std_residue);
    short int progressive_residues_in_chain_check_by_chain(const char *chain_id) const;
    void mutate_base_internal(CResidue *residue, CResidue *std_base);
 
@@ -1559,6 +1559,7 @@ class molecule_class_info_t {
    // sequence [a -other function]
    void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
+   std::vector<std::pair<std::string, std::string> > sequence_info() { return input_sequence; };
 
 
    // render option (other functions)
@@ -1800,6 +1801,13 @@ class molecule_class_info_t {
    // add a factor to scale the colours in b factor representation:.
    // It goes into the atom_sel.mol
    void set_b_factor_bonds_scale_factor(float f);
+
+   int
+   apply_sequence(int imol_map, CMMDBManager *mol,
+		  std::vector<coot::residue_spec_t> mmdb_residues,
+		  std::string best_seq, std::string chain_id,
+		  int resno_offset);
+
 
 };
 

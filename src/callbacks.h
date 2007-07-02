@@ -2844,6 +2844,3 @@ void
 on_show_aniso_close_button_clicked     (GtkButton       *button,
                                         gpointer         user_data);
 
-void
-on_show_aniso_close_button_clicked     (GtkButton       *button,
-                                        gpointer         user_data);

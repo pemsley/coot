@@ -917,7 +917,6 @@ on_show_aniso_ok_button_clicked        (GtkButton       *button,
    if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
 				       "show_aniso_no_radiobutton"))->active)
       set_show_aniso(0); 
-
 }
 
 
@@ -926,7 +925,6 @@ on_show_aniso_close_button_clicked     (GtkButton       *button,
                                         gpointer         user_data)
 {
 /* Goodbye Widget */
-
    gtk_widget_destroy(lookup_widget(GTK_WIDGET(button),"aniso_window"));
 }
 

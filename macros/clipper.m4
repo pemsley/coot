@@ -65,14 +65,14 @@ if test x$clipper_prefix != x; then
  # added lz, we should have proper autoconf check for this.
  #
  CLIPPER_LDOPTS="-L$clipper_prefix/lib -lclipper-mtz -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-mmdbold -lclipper-core -lmccp4 $MMDB_LIBS -lrfftw -lfftw -lz -lm"
- CLIPPER_LDOPTS="-L$clipper_prefix/lib -lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-cns -lclipper-core -lccp4c $MMDB_LIBS -lrfftw -lfftw -lz -lm"
+ CLIPPER_LDOPTS="-L$clipper_prefix/lib -lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-minimol -lclipper-cns -lclipper-core -lccp4c $MMDB_LIBS -lrfftw -lfftw -lz -lm"
 # -L$clipper_prefix/boost/lib -lclipper-cctbx -L$clipper_prefix/cctbx/lib -lsgtbx -luctbx 
 else
  # the compiler looks in the "standard" places for clipper.  In real life,
  # it would be quite unlikely that clipper would be installed in /usr/include, 
  # /usr/lib etc. so this code will not usually find the right dependencies.
  CLIPPER_CXXFLAGS=""
- CLIPPER_LDOPTS="-lclipper-mtz -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-mmdbold -lclipper-core -lmccp4 $MMDB_LIBS -lrfftw -lfftw -lz -lm"
+ CLIPPER_LDOPTS="-lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-minimol -lclipper-cns -lclipper-core -lccp4c $MMDB_LIBS -lrfftw -lfftw -lz -lm"
 fi
 
 AC_MSG_CHECKING([for Clipper])
@@ -84,7 +84,8 @@ AC_MSG_CHECKING([for Clipper])
  	#
 	CC_save="$CC"
 	CC="$CXX $CXXFLAGS"
-	AC_TRY_LINK([#include "clipper/core/xmap.h"] ,[ clipper::Xmap<float> a; ], have_clipper=yes, have_clipper=no)
+	AC_TRY_LINK([#include "clipper/core/xmap.h"
+#include "clipper/minimol/minimol.h"] ,[ clipper::Xmap<float> a; clipper::MMonomer m1, m2; clipper::MMonomer::protein_peptide_bond(m1,m2,1.6);], have_clipper=yes, have_clipper=no)
 	CC="$CC_save"
 	AC_MSG_RESULT($have_clipper)
 
