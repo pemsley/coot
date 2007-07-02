@@ -1,4 +1,4 @@
-/* src/c-interface.cc
+/* src/c-interface-build.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley

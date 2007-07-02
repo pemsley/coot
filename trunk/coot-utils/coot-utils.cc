@@ -2,6 +2,7 @@
  * 
  * Copyright 2004, 2005, 2006 by The University of York
  * Author: Paul Emsley
+ * Copyright 2007 by Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -605,6 +606,18 @@ coot::util::random() {
           long int r = ::random();
           return r;
 #endif
+}
+
+bool
+coot::file_exists(const std::string &filename) {
+
+   struct stat s;
+   int fstat = stat(filename.c_str(), &s);
+   if ( fstat == -1 ) { // file not exist
+      return 0;
+   } else {
+      return 1;
+   }
 }
 
 

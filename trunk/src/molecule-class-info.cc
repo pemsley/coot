@@ -1,8 +1,8 @@
 
 /* src/molecule-class-info.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley, The
- * University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+ * Copyright 2007 by Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -4647,7 +4647,9 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 
    short int inserted = 0; // not inserted yet
    CChain *asc_chain;
-   int asc_n_chains = asc.mol->GetNumberOfChains(1);
+   int imod = 1; 
+   CModel *asc_model_p = asc.mol->GetModel(imod);
+   int asc_n_chains = asc_model_p->GetNumberOfChains();
    for (int i_asc_chain=0; i_asc_chain<asc_n_chains; i_asc_chain++) {
       asc_chain = asc.mol->GetChain(1,i_asc_chain);
       int nres_asc = asc_chain->GetNumberOfResidues();
@@ -4663,7 +4665,8 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 	 // Now find the corresponding chain in our atom_sel.mol:
 
 	 CChain *chain;
-	 int n_chains = atom_sel.mol->GetNumberOfChains(1);
+	 int imodel = 1;
+	 int n_chains = atom_sel.mol->GetNumberOfChains(imodel);
 	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
 
 	    chain = atom_sel.mol->GetChain(1,i_chain);
@@ -4671,6 +4674,8 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 	    // test chains
 	    std::string asc_chain_str(asc_chain->GetChainID());
 	    std::string mol_chain_str(    chain->GetChainID());
+// 	    std::cout << "comparig chain ids :" << asc_chain_str << ": :"
+// 		      << mol_chain_str << ":" << std::endl;
 	    if (asc_chain_str == mol_chain_str) {
 
 	       // insert that residue!
@@ -4694,12 +4699,35 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 		  chain->InsResidue(res, serial_number);
 		  inserted = 1;
 	       } else { 
-		  std::cout << "insert coord add residue\n";
+		  // std::cout << "insert coord add residue\n";
 		  chain->AddResidue(res);
+		  inserted = 1;
 	       }
 	    }
 	    //if (inserted) break;
 	 }
+      
+
+	 if (! inserted) {
+	    // OK, there was no chain in the current mol that matches
+	    // the chain of the asc.
+	    // Let's copy the asc chain and add it to atom_sel.mol
+	    CChain *new_chain = new CChain;
+	    int imodel = 1;
+	    CModel *this_model = atom_sel.mol->GetModel(imodel);
+	    this_model->AddChain(new_chain);
+	    new_chain->SetChainID(asc_chain->GetChainID());
+
+	    std::cout << "DEBUG:: Creating a new chain " << asc_chain->GetChainID()
+		      << std::endl;
+
+	    CResidue *res = 
+	       coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
+	    new_chain->AddResidue(res);
+	    atom_sel.mol->FinishStructEdit(); // so that we don't keep adding a
+                                  	      // new Chain to atom_sel.mol
+
+	 } 
 	 //if (inserted) break;
       }
       //if (inserted) break;
@@ -6765,63 +6793,6 @@ molecule_class_info_t::model_view_residue_tree_labels() const {
 
 
 
-// return success on residue type match
-// success: 1, failure: 0.
-int 
-molecule_class_info_t::mutate_single_multipart(int ires_serial, const char *chain_id, const std::string &target_res_type) {
-
-   int istat = 0;
-   if (atom_sel.n_selected_atoms > 0) {
-      CChain *chain_p;
-      int nres;
-      int nchains = atom_sel.mol->GetNumberOfChains(1) ;
-      for (int ichain =0; ichain<nchains; ichain++) {
-	 chain_p = atom_sel.mol->GetChain(1,ichain);
-	 if (std::string(chain_id) == std::string(chain_p->GetChainID())) { 
-	    nres = chain_p->GetNumberOfResidues();
-	    if (ires_serial < nres) {
-	       CResidue *res_p = chain_p->GetResidue(ires_serial);
-	       if (res_p) {
-
-		  if (std::string(res_p->name) == target_res_type) {
-
-		     std::cout << "residue type match for ires = " << ires_serial << std::endl;
-		     istat = 1; // success
-		  
-		  } else {
-		  
-		     // OK, do the mutation:
-	       
-		     // get an instance of a standard residue of type target_res_type
-		     CResidue *std_res = get_standard_residue_instance(target_res_type); // a deep copy
-		     // move the standard res to position of res_p
-		     // move_std_residue(moving_residue, (const) reference_residue);
-		     if (std_res) { 
-			istat = move_std_residue(std_res, (const CResidue *)res_p);
-			
-			if (istat) { 
-			   mutate_internal(res_p, (const CResidue *)std_res);
-			} else { 
-			   std::cout << "WARNING:  Not mutating residue due to missing atoms!\n";
-			} 
-			// atom_selection and bonds regenerated in mutate_internal
-		     } else {
-			std::cout << "ERROR failed to get residue of type :" << target_res_type
-				  << ":" << std::endl;
-		     }
-		  }
-	       } else {
-		  std::cout << "ERROR:: in mutate_single_multipart oops - can't get residue"
-			    << " with ires_serial: " << ires_serial << std::endl;
-	       } 
-	    } else {
-	       std::cout << "PROGRAMMER ERROR: out of range residue indexing" << std::endl;
-	    } 
-	 }
-      }
-   }
-   return 0 + istat;
-} 
 
 // Return 0 on failure.
 short int 

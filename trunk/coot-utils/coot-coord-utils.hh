@@ -94,6 +94,8 @@ namespace coot {
       // Presumes that atom can get to SeqNum() and InsCode()? Need
       // tested against a residue not in a hierarchy.
       bool matches_spec(CAtom *atom) const;
+
+      friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
    };
    
    bool compare_atom_specs_user_float(const coot::atom_spec_t &a1,
@@ -351,7 +353,13 @@ namespace coot {
       // gap in the sequence numbers marks the end/beginning of a
       // fragment.
       std::vector<PCResidue> get_residues_in_fragment(CChain *clicked_residue_chain_p,
-						     residue_spec_t clicked_residue);
+						      residue_spec_t clicked_residue);
+
+      // deleted by calling process
+      std::pair<CMMDBManager *, std::vector<coot::residue_spec_t> > 
+      get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
+						CMMDBManager *mol);
+
 
       // transform atoms in residue
       void transform_atoms(CResidue *res, const clipper::RTop_orth &rtop);
@@ -437,6 +445,13 @@ namespace coot {
       std::pair<bool,clipper::RTop_orth> nucleotide_to_nucleotide(CResidue *reference,
 								  CResidue *moving);
 
+      int mutate(CResidue *res, CResidue *std_res_unoriented, short int shelx_flag);
+
+      // given a std residue oriented over residue, make the mutation
+      // to std_residue
+      void mutate_internal(CResidue *residue, CResidue *std_residue_oriented,
+			   short int is_from_shelx_ins_flag);
+      
       void mutate_base(CResidue *residue, CResidue *std_base);
       
       // For use with interesting-things-gui, make the list argument

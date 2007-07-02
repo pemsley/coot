@@ -1,12 +1,12 @@
-
 /* src/molecule-class-info.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
  * Author: Paul Emsley
+ * Copyright 2007 by Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -16,7 +16,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 #ifdef _MSC_VER
@@ -206,62 +207,14 @@ molecule_class_info_t::mutate(CResidue *res, const std::string &residue_type) {
 // coordinates and likely to be wrong in the standard residue.
 // 
 void
-molecule_class_info_t::mutate_internal(CResidue *residue, const CResidue *std_residue) {
+molecule_class_info_t::mutate_internal(CResidue *residue, CResidue *std_residue) {
 
-   PPCAtom residue_atoms;
-   int nResidueAtoms;
-   residue->GetAtomTable(residue_atoms, nResidueAtoms);
-   std::string res_name(residue->GetResName());
 
-   PPCAtom std_residue_atoms;
-   int n_std_ResidueAtoms;
-   ((CResidue *)std_residue)->GetAtomTable(std_residue_atoms, n_std_ResidueAtoms);
-
-   //
    atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
    delete_ghost_selections();
 
-   short int verb = 0;
-   if (verb) { 
-      // std::cout << "Mutate Atom Tables" << std::endl;
-      // std::cout << "Before" << std::endl;
-      for(int i=0; i<nResidueAtoms; i++)
-	 std::cout << residue_atoms[i] << std::endl;
-      // std::cout << "To be replaced by:" << std::endl;
-//       for(int i=0; i<n_std_ResidueAtoms; i++)
-// 	 std::cout << std_residue_atoms[i] << std::endl;
-   }
+   coot::util::mutate_internal(residue, std_residue, is_from_shelx_ins_flag);
 
-   std::vector<CAtom *> keep_atoms;
-   // if (coot::util::is_standard_residue_name()
-   for(int i=0; i<nResidueAtoms; i++) {
-      std::string residue_this_atom (residue_atoms[i]->name);
-      if (residue_this_atom == " O  ") {
-	 // copy the atom, and add the copied atom to the keep_atoms
-	 // vector
-	 CAtom *c_copy = new CAtom;
-	 c_copy->Copy(residue_atoms[i]);
-	 keep_atoms.push_back(c_copy);
-      }
-      residue->DeleteAtom(i);
-   };
-
-   // add all atoms of std residue to 
-   for(int i=0; i<n_std_ResidueAtoms; i++) {
-      std::string std_residue_this_atom (std_residue_atoms[i]->name);
-      if (std_residue_this_atom != " O  ") {
-	 if (is_from_shelx_ins_flag)
-	    std_residue_atoms[i]->occupancy = 11.0;
-	 residue->AddAtom(std_residue_atoms[i]);
-      }
-   };
-   // now add the Oxygen atoms (most often, only 1 of course).
-   for (unsigned int i=0; i<keep_atoms.size(); i++)
-      residue->AddAtom(keep_atoms[i]);
-
-   if (std::string(residue->name).length() <= std::string(std_residue->name).length()) 
-      strcpy(residue->name, std_residue->name);
-   residue->TrimAtomTable();
    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
 
@@ -269,6 +222,7 @@ molecule_class_info_t::mutate_internal(CResidue *residue, const CResidue *std_re
    atom_sel = make_asc(atom_sel.mol);
    have_unsaved_changes_flag = 1; 
    make_bonds_type_checked(); // calls update_ghosts();
+   
 }
 
 void
@@ -698,11 +652,11 @@ void
 molecule_class_info_t::mutate_base_internal(CResidue *residue, CResidue *std_base) {
 
    make_backup();
-   std::cout << "mutate_base_internal: pre:  "
-	     << residue->GetNumberOfAtoms() << std::endl;
+//    std::cout << "mutate_base_internal: pre:  "
+// 	     << residue->GetNumberOfAtoms() << std::endl;
    coot::util::mutate_base(residue, std_base);
-   std::cout << "mutate_base_internal: post: "
-	     << residue->GetNumberOfAtoms() << std::endl;
+//    std::cout << "mutate_base_internal: post: "
+// 	     << residue->GetNumberOfAtoms() << std::endl;
    have_unsaved_changes_flag = 1;
 }
 
@@ -892,3 +846,206 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
       std::cout << "residue not found in coordinates molecule" << std::endl;
    }
 }
+
+
+
+// maybe this can go down to coot coord utils?  Needs mutatation stuff though.
+//
+// Maybe this should be part of the the imol_coords molecule_class_info_t?
+// so we can do mutations?
+// 
+// Return a list residues that should be deleted from the original molecule.
+// 
+// Manipulate mol (adding atoms).
+//
+// OK, poly_ala_mol is a fragment of structure that looks like a part
+// of this mol (atom_sel.mol).  The residues of poly_ala_mol that
+// overlaps atom_sel.mol have atoms specs in mmdb_residues - so that
+// we can delete them afterwards (that is, if the can be mutated
+// (i.e. they have a sensible letter (not ?))) in the best_seq.
+//
+// I need to fiddle with poly_ala_mol then merge it into atom_sel.mol
+// and delete the residues *from atom_sel.mol* that got mutated in
+// poly_ala_mol.
+//
+// We pass imol_map because we use auto_fit_best_rotamer which uses
+// imol_map (eeugk!)
+// 
+int 
+molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
+				      std::vector<coot::residue_spec_t> mmdb_residues,
+				      std::string best_seq, std::string chain_id,
+				      int resno_offset) {
+
+   int istat = 0;
+   short int have_changes = 0;
+   std::vector<coot::residue_spec_t> r_del;
+
+   std::cout << "DEBUG:: residue vector len " <<  mmdb_residues.size() << std::endl;
+   std::cout << "DEBUG:: best sequence  len " <<  best_seq.length() << std::endl;
+   make_backup();
+
+   int selHnd = poly_ala_mol->NewSelection();
+   poly_ala_mol->Select(selHnd, STYPE_RESIDUE, 1,
+			"*",
+			ANY_RES, "*",
+			ANY_RES, "*",
+			"*",  // residue name
+			"*",  // Residue must contain this atom name?
+			"*",  // Residue must contain this Element?
+			"*",  // altLocs
+			SKEY_NEW // selection key
+			);
+   PCResidue *SelResidues = 0; 
+   int nSelResidues;
+   poly_ala_mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+   if (nSelResidues != best_seq.length()) {
+      std::cout << "oops residue mismatch " << best_seq.length() << " " << nSelResidues
+		<< std::endl;
+   } else { 
+
+      for (unsigned int ichar=0; ichar<best_seq.length(); ichar++) {
+	 
+	 char seq_char = best_seq[ichar];
+	 if (seq_char == '?') {
+	    std::cout << "bypassing ? at " << ichar << std::endl;
+	 } else { 
+	    std::string res_type = coot::util:: single_letter_to_3_letter_code(best_seq[ichar]);
+	    if (res_type != "") {
+	       have_changes = 1;
+	       std::cout << "Mutating to " << res_type << " at " << ichar << std::endl;
+	       CResidue *std_res = get_standard_residue_instance(res_type);
+	       if (std_res) {
+		  // Get res in poly_ala_mol
+
+		  CResidue *poly_ala_res = SelResidues[ichar];
+
+		  std::cout << "Mutating poly_ala residue number " << poly_ala_res->GetSeqNum()
+			    << std::endl;
+	       
+		  coot::util::mutate(poly_ala_res, std_res, 0); // not shelx
+		  poly_ala_res->GetChain()->SetChainID(chain_id.c_str());
+		  poly_ala_res->seqNum = resno_offset + ichar;
+		  if (ichar < mmdb_residues.size())
+		     r_del.push_back(mmdb_residues[ichar]);
+	       }
+	    }
+	 }
+      }
+   }
+   poly_ala_mol->DeleteSelection(selHnd);
+
+   if (have_changes) {
+      poly_ala_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      poly_ala_mol->FinishStructEdit();
+
+      // now fiddle with atom_sel.mol, deleting r_del residues and
+      // adding poly_ala_mol.
+
+      // don't backup each residue deletion:
+      int bs = backups_state();
+      turn_off_backup();
+      for (unsigned int ird=0; ird<r_del.size(); ird++) {
+// 	 std::cout << "deleting :" << r_del[ird].chain << ": " << r_del[ird].resno
+// 		   << std::endl;
+
+	 delete_residue(r_del[ird].chain,
+			r_del[ird].resno,
+			r_del[ird].insertion_code);
+      }
+
+      insert_coords_internal(make_asc(poly_ala_mol));
+
+      // Now auto fit.  Get the residue list from poly_ala_mol, but
+      // apply auto fits to atom_sel.mol:
+      int imod = 1;
+      CModel *poly_ala_model_p = poly_ala_mol->GetModel(imod);
+      CChain *poly_ala_chain_p;
+      int nchains = poly_ala_model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 poly_ala_chain_p = poly_ala_model_p->GetChain(ichain);
+	 int nres = poly_ala_chain_p->GetNumberOfResidues();
+	 PCResidue poly_ala_residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    poly_ala_residue_p = poly_ala_chain_p->GetResidue(ires);
+ 	    auto_fit_best_rotamer(poly_ala_residue_p->GetSeqNum(), "",
+ 				  poly_ala_residue_p->GetInsCode(),
+ 				  poly_ala_residue_p->GetChainID(),
+ 				  imol_map,
+ 				  graphics_info_t::rotamer_fit_clash_flag,
+ 				  graphics_info_t::rotamer_lowest_probability);
+	 }
+      }
+      if (bs)
+	 turn_on_backup();
+   }
+   
+      
+   if (have_changes) {
+      atom_sel = make_asc(atom_sel.mol);
+      make_bonds_type_checked();
+   }
+
+   have_unsaved_changes_flag = 1;
+
+   return istat;
+}
+
+
+// return success on residue type match
+// success: 1, failure: 0.
+int 
+molecule_class_info_t::mutate_single_multipart(int ires_serial, const char *chain_id, const std::string &target_res_type) {
+
+   int istat = 0;
+   if (atom_sel.n_selected_atoms > 0) {
+      CChain *chain_p;
+      int nres;
+      int nchains = atom_sel.mol->GetNumberOfChains(1) ;
+      for (int ichain =0; ichain<nchains; ichain++) {
+	 chain_p = atom_sel.mol->GetChain(1,ichain);
+	 if (std::string(chain_id) == std::string(chain_p->GetChainID())) { 
+	    nres = chain_p->GetNumberOfResidues();
+	    if (ires_serial < nres) {
+	       CResidue *res_p = chain_p->GetResidue(ires_serial);
+	       if (res_p) {
+
+		  if (std::string(res_p->name) == target_res_type) {
+
+		     std::cout << "residue type match for ires = " << ires_serial << std::endl;
+		     istat = 1; // success
+		  
+		  } else {
+		  
+		     // OK, do the mutation:
+	       
+		     // get an instance of a standard residue of type target_res_type
+		     CResidue *std_res = get_standard_residue_instance(target_res_type); // a deep copy
+		     // move the standard res to position of res_p
+		     // move_std_residue(moving_residue, (const) reference_residue);
+		     if (std_res) { 
+			istat = move_std_residue(std_res, (const CResidue *)res_p);
+			
+			if (istat) { 
+			   mutate_internal(res_p, std_res);
+			} else { 
+			   std::cout << "WARNING:  Not mutating residue due to missing atoms!\n";
+			} 
+			// atom_selection and bonds regenerated in mutate_internal
+		     } else {
+			std::cout << "ERROR failed to get residue of type :" << target_res_type
+				  << ":" << std::endl;
+		     }
+		  }
+	       } else {
+		  std::cout << "ERROR:: in mutate_single_multipart oops - can't get residue"
+			    << " with ires_serial: " << ires_serial << std::endl;
+	       } 
+	    } else {
+	       std::cout << "PROGRAMMER ERROR: out of range residue indexing" << std::endl;
+	    } 
+	 }
+      }
+   }
+   return 0 + istat;
+} 

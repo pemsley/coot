@@ -2,10 +2,11 @@
  * 
  * Copyright 2006, by The University of York
  * Author: Paul Emsley
+ * Copyright 2007 by Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -299,7 +300,7 @@ coot::util::number_of_chains(CMMDBManager *mol) {
 
 // Return -1 on badness:
 int
-coot::get_selection_handle(CMMDBManager *mol, const atom_spec_t &at) {
+coot::get_selection_handle(CMMDBManager *mol, const coot::atom_spec_t &at) {
 
    int SelHnd = -1;
    if (mol) { 
@@ -317,6 +318,193 @@ coot::get_selection_handle(CMMDBManager *mol, const atom_spec_t &at) {
    }
    return SelHnd;
 }
+
+std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) {
+
+   s << "[spec: ";
+   s << "\"";
+   s << spec.chain;
+   s << "\" ";
+   s << spec.resno;
+   s << " ";
+   s << "\"";
+   s << spec.insertion_code;
+   s << "\"";
+   s << " ";
+   s << "\"";
+   s  << spec.atom_name;
+   s << "\"";
+   s << " ";
+   s << "\"";
+   s << spec.alt_conf;
+   s << "\"]";
+
+   return s;
+
+}
+
+
+// deleted by calling process
+std::pair<CMMDBManager *, std::vector<coot::residue_spec_t> >
+coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
+					CMMDBManager *mol_in) {
+
+   CMMDBManager *mol = 0;
+   std::vector<coot::residue_spec_t> v;
+   
+   // Plan:
+   //
+   // We only want one model, so take the first.
+   // 
+   // First we find the residue in mol_in.
+   //
+   // Then find the top residue that is attached by direct attachment
+   // (continuously increasing residue number).
+   //
+   // Then find the bottom residue that is attached by direct attachment
+   // (continuously decreasing residue number).
+   //
+   // Then use and return create_mmdbmanager_from_res_selection()
+
+
+   CResidue *residue_bot = 0;
+   CResidue *residue_top = 0;
+   CAtom *search_atom = 0;
+
+   int resno_top = -999;
+   int resno_bot = -999;
+
+   int imod = 1;
+
+   CModel *model_p = mol_in->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      std::string mol_chain_id = chain_p->GetChainID();
+      if (mol_chain_id == atom_spec.chain) {
+	 int nres = chain_p->GetNumberOfResidues();
+	 PCResidue residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    if (residue_p->GetSeqNum() == atom_spec.resno) {
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	    
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
+		  std::string mol_atom_name = at->name;
+		  if (mol_atom_name == atom_spec.atom_name) {
+		     std::string alt_conf = at->altLoc;
+		     if (alt_conf == atom_spec.alt_conf) {
+			search_atom = at;
+		     }
+		  }
+		  if (search_atom)
+		     break;
+	       }
+	    }
+	    if (search_atom)
+	       break;
+	 }
+      }
+      if (search_atom)
+	 break;
+   }
+
+   bool found_search = 0;
+   if (search_atom) {
+      // now try to set res_bot and res_top and their resnos.
+      CChain *chain_p = search_atom->GetChain();
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p;
+      CAtom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 if (residue_p == search_atom->GetResidue()) {
+
+	    residue_top = residue_p;
+	    residue_bot = residue_p;
+	    int resno_this = residue_p->GetSeqNum();
+	    resno_bot = resno_this;
+	    resno_top = resno_this;
+
+	    // search forwards on this chain
+	    for (int ires_search=ires+1; ires_search<nres; ires_search++) {
+	       int ioff = ires_search - ires; 
+	       CResidue *residue_search_p = chain_p->GetResidue(ires_search);
+	       if (residue_search_p->GetSeqNum() == resno_this + ioff) {
+		  residue_top = residue_search_p;
+		  resno_top = residue_search_p->GetSeqNum();
+	       } else {
+		  break;
+	       }
+	    }
+
+	    // search backwards on this chain
+	    for (int ires_search=ires-1; ires_search>=0; ires_search--) {
+	       int ioff = ires_search - ires; 
+	       CResidue *residue_search_p = chain_p->GetResidue(ires_search);
+	       if (residue_search_p->GetSeqNum() == (resno_this + ioff)) {
+		  residue_bot = residue_search_p;
+		  resno_bot = residue_search_p->GetSeqNum();
+	       } else {
+		  break;
+	       }
+	       
+	    }
+	    
+	    found_search = 1;
+	 }
+	 
+	 if (found_search)
+	    break;
+      }
+   }
+
+   if (residue_bot && residue_top) {
+
+      PCResidue *SelResidues = 0; 
+      int nSelResidues;
+      int selHnd = mol_in->NewSelection();
+
+      mol_in->Select(selHnd, STYPE_RESIDUE, 1,
+		     (char *) atom_spec.chain.c_str(),
+		     resno_bot, "",
+		     resno_top, "",
+		     "*",  // residue name
+		     "*",  // Residue must contain this atom name?
+		     "*",  // Residue must contain this Element?
+		     "*",  // altLocs
+		     SKEY_NEW // selection key
+		     );
+      mol_in->GetSelIndex(selHnd, SelResidues, nSelResidues);
+
+      std::pair<CMMDBManager *, int> mol_info = 
+	 create_mmdbmanager_from_res_selection(mol_in, 
+					       SelResidues, 
+					       nSelResidues, 0, 0, "", atom_spec.chain, 0);
+      if (mol_info.second) { 
+	 mol = mol_info.first;
+	 for (int ires=0; ires<nSelResidues; ires++) {
+	    v.push_back(coot::residue_spec_t(SelResidues[ires]->GetChainID(),
+					     SelResidues[ires]->GetSeqNum(),
+					     SelResidues[ires]->GetInsCode()));
+	 }
+      }
+
+      mol_in->DeleteSelection(selHnd);		     
+
+   } else {
+      if (! residue_top) 
+	 std::cout << "ERROR:: missing top residue in fragment" << std::endl;
+      if (! residue_bot) 
+	 std::cout << "ERROR:: missing bot residue in fragment" << std::endl;
+   }
+
+   return std::pair<CMMDBManager *, std::vector<coot::residue_spec_t> > (mol, v);
+} 
 
 bool
 coot::atom_spec_t::matches_spec(CAtom *atom) const {
@@ -2552,8 +2740,94 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
    return std::pair<bool, clipper::RTop_orth> (good_rtop_flag, rtop);
 }
 
+void
+coot::util::mutate_internal(CResidue *residue, CResidue *std_residue, short int is_from_shelx_ins_flag) {
 
- 
+   PPCAtom residue_atoms;
+   int nResidueAtoms;
+   residue->GetAtomTable(residue_atoms, nResidueAtoms);
+   std::string res_name(residue->GetResName());
+
+   PPCAtom std_residue_atoms;
+   int n_std_ResidueAtoms;
+   std_residue->GetAtomTable(std_residue_atoms, n_std_ResidueAtoms);
+
+   //
+
+   short int verb = 0;
+   if (verb) { 
+      // std::cout << "Mutate Atom Tables" << std::endl;
+      // std::cout << "Before" << std::endl;
+      for(int i=0; i<nResidueAtoms; i++)
+	 std::cout << residue_atoms[i] << std::endl;
+      // std::cout << "To be replaced by:" << std::endl;
+//       for(int i=0; i<n_std_ResidueAtoms; i++)
+// 	 std::cout << std_residue_atoms[i] << std::endl;
+   }
+
+   std::vector<CAtom *> keep_atoms;
+   // if (coot::util::is_standard_residue_name()
+   for(int i=0; i<nResidueAtoms; i++) {
+      std::string residue_this_atom (residue_atoms[i]->name);
+      if (residue_this_atom == " O  ") {
+	 // copy the atom, and add the copied atom to the keep_atoms
+	 // vector
+	 CAtom *c_copy = new CAtom;
+	 c_copy->Copy(residue_atoms[i]);
+	 keep_atoms.push_back(c_copy);
+      }
+      residue->DeleteAtom(i);
+   };
+
+   // add all atoms of std residue to 
+   for(int i=0; i<n_std_ResidueAtoms; i++) {
+      std::string std_residue_this_atom (std_residue_atoms[i]->name);
+      if (std_residue_this_atom != " O  ") {
+	 if (is_from_shelx_ins_flag)
+	    std_residue_atoms[i]->occupancy = 11.0;
+	 residue->AddAtom(std_residue_atoms[i]);
+      }
+   };
+   // now add the Oxygen atoms (most often, only 1 of course).
+   for (unsigned int i=0; i<keep_atoms.size(); i++)
+      residue->AddAtom(keep_atoms[i]);
+
+   if (std::string(residue->name).length() <= std::string(std_residue->name).length()) 
+      strcpy(residue->name, std_residue->name);
+   residue->TrimAtomTable();
+}
+
+// return state, 0 bad, 1 good
+// 
+int
+coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, short int shelx_flag) {
+
+   int istate = 0; 
+   std::pair<clipper::RTop_orth, short int> rtop_pair =
+      coot::util::get_ori_to_this_res(res);
+
+   PPCAtom residue_atoms;
+   int nResidueAtoms;
+   std_res_unoriented->GetAtomTable(residue_atoms, nResidueAtoms);
+   if (nResidueAtoms == 0) {
+      std::cout << " something broken in atom residue selection in ";
+      std::cout << "mutate, got 0 atoms" << std::endl;
+   } else {
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+	 clipper::Coord_orth co(residue_atoms[iat]->x,
+				residue_atoms[iat]->y,
+				residue_atoms[iat]->z);
+	 clipper::Coord_orth rotted = co.transform(rtop_pair.first);
+	 residue_atoms[iat]->x = rotted.x();
+	 residue_atoms[iat]->y = rotted.y();
+	 residue_atoms[iat]->z = rotted.z();
+      }
+      coot::util::mutate_internal(res, std_res_unoriented, shelx_flag); // it's oriented now.
+      istate = 1;
+   }
+   return istate;
+}
+
 
 
 // Here std_base is at some arbitary position when passed.

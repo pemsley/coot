@@ -8,7 +8,11 @@
 
 int main( int argc, char** argv )
 {
-  if ( argc < 5 ) { std::cout << "cootaneer-demo <llk_data_file> <xmap_file> <mmdb_file> <chain_id> <sequence>"; exit(1); }
+   if ( argc < 5 ) {
+      std::cout << "cootaneer-demo <llk_data_file> <xmap_file> <mmdb_file> <chain_id> "
+		<<  "<sequence>" << std::endl;
+      exit(1);
+   }
 
   std::string llkdfile( argv[1] );
   std::string xmapfile( argv[2] );
