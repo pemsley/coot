@@ -3902,6 +3902,18 @@ void print_sequence_chain(int imol, const char *chain_id);
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq);
 /* I don't know what this does. */
 void assign_sequence(int imol_model, int imol_map, const char *chain_id);
+
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+/*! \brief return the sequence info that has been assigned to molecule
+  number imol. return as a list of dotted pairs (list (cons chain-id
+  seq)).  To be used in constructing the cootaneer gui. */
+SCM sequence_info(int imol);
+#endif 
+#ifdef USE_PYTHON
+/* fill me in, Bernhard. */
+#endif 
+#endif /* C++ */
 /* \} */
  
 /*  ----------------------------------------------------------------------- */

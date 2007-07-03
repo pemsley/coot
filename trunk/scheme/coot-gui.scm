@@ -1,12 +1,13 @@
 #!/home/paule/build/bin/guile -s
 !#
 
-;;;; Copyright 2001 Neil Jerram
+;;;; Copyright 2001 by Neil Jerram
 ;;;; Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+;;;; Copyright 2007 by Paul Emsley
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
-;;;; the Free Software Foundation; either version 2 of the License, or (at
+;;;; the Free Software Foundation; either version 3 of the License, or (at
 ;;;; your option) any later version.
 ;;;; 
 ;;;; This program is distributed in the hope that it will be useful, but
@@ -1066,6 +1067,83 @@
 			    "  Go  "
 			    (lambda (n)
 			      (place-strand-here n 15)))))
+
+;; Cootaneer gui
+(define (cootaneer-gui imol)
+
+  (define (add-text-to-text-box text-box description)
+    (gtk-text-insert text-box #f "black" "#c0e6c0" description -1))
+
+  ;; return the (entry . text-box)
+  ;; 
+  (define (entry-text-pair-frame seq-info)
+
+    (let ((frame (gtk-frame-new ""))
+	  (vbox (gtk-vbox-new #f 3))
+	  (entry (gtk-entry-new))
+	  (text-box (gtk-text-new #f #f))
+	  (chain-id-label (gtk-label-new "Chain ID"))
+	  (sequence-label (gtk-label-new "Sequence")))
+
+      (gtk-container-add frame vbox)
+      (gtk-box-pack-start vbox chain-id-label #f #f 2)
+      (gtk-box-pack-start vbox entry #f #f 2)
+      (gtk-box-pack-start vbox sequence-label #f #f 2)
+      (gtk-box-pack-start vbox text-box #f #f 2)
+      (add-text-to-text-box text-box (cdr seq-info))
+      (gtk-entry-set-text entry (car seq-info))
+      (list frame entry text-box)))
+      
+		 
+  ;; main body
+  (let ((imol-map (imol-refinement-map)))
+    (if (= imol-map -1)
+	(show-select-map-dialog)
+    
+	(let* ((window (gtk-window-new 'toplevel))
+	       (outside-vbox (gtk-vbox-new #f 2))
+	       (inside-vbox (gtk-vbox-new #f 2))
+	       (h-sep (gtk-hseparator-new))
+	       (buttons-hbox (gtk-hbox-new #t 2))
+	       (go-button (gtk-button-new-with-label "  Cootaneer!  "))
+	       (cancel-button (gtk-button-new-with-label "  Cancel  ")))
+
+	  (let ((seq-info-ls (sequence-info imol)))
+	    
+	    (map (lambda (seq-info)
+		   (let ((seq-widgets (entry-text-pair-frame seq-info)))
+		     (gtk-box-pack-start inside-vbox (car seq-widgets) #f #f 2)))
+		 seq-info-ls)
+
+	    (gtk-box-pack-start outside-vbox inside-vbox #f #f 2)
+	    (gtk-box-pack-start outside-vbox h-sep #f #f 2)
+	    (gtk-box-pack-start outside-vbox buttons-hbox #t #f 2)
+	    (gtk-box-pack-start buttons-hbox go-button #t #f 6)
+	    (gtk-box-pack-start buttons-hbox cancel-button #t #f 6)
+
+	    (gtk-signal-connect cancel-button "clicked"
+				(lambda ()
+				  (gtk-widget-destroy window)))
+	    
+	    (gtk-signal-connect go-button "clicked"
+				(lambda ()
+				  (format #t "apply the sequence info here\n")
+				  (format #t "then cootaneer\n")
+
+				  (let ((active-atom (active-residue)))
+				    (if (list? active-atom)
+					(let ((imol     (list-ref active-atom 0))
+					      (chain-id (list-ref active-atom 1))
+					      (resno    (list-ref active-atom 2))
+					      (inscode  (list-ref active-atom 3))
+					      (at-name  (list-ref active-atom 4))
+					      (alt-conf (list-ref active-atom 5)))
+					  (cootaneer imol-map imol (list chain-id resno inscode 
+									 at-name alt-conf)))))))
+				   
+	    (gtk-container-add window outside-vbox)
+	    (gtk-widget-show-all window))))))
+    
 
 ;; The gui for saving views
 (define view-saver-gui
