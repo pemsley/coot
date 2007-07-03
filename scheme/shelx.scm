@@ -266,15 +266,16 @@
     (define gui-interesting-list 
       (lambda (interesting-list)
 	
-	(format #t "debug: interesting-list: ~s~%" interesting-list)
-	(if (not (null? interesting-list))
+	; (format #t "debug: interesting-list: ~s~%" interesting-list)
+	(if (null? interesting-list)
+	    (format #t "INFO:: noting interesting~%")
 	    (interesting-things-gui "Interesting Things from SHELX"
 				    interesting-list))))
 
     ;; chop off last char of string
     (define (chop-end s)
       (let ((l (string-length s)))
-	(if (= s 0)
+	(if (= l 0)
 	    ""
 	    (substring s 0 (- l 1)))))
 
@@ -302,7 +303,8 @@
 	      (if (number? (string->number (car (cdr ls))))
 		  (list "" (string->number (car (cdr ls))) "" (car ls) "")
 		  ;; handle the alt conf
-		  (let* ((p (chop-end s))
+		  (let* ((s (car (cdr ls)))
+			 (p (chop-end s))
 			 (alt-conf (last-char s))
 			 (n (string->number p)))
 
