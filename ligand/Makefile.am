@@ -41,7 +41,7 @@ include_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \
 
 libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	wiggly-ligand.cc monomer-utils.cc dunbrack.cc chi-angles-autogen.cc   \
-	chi-angles.cc helix-placement.cc rigid-body.cc ideal-rna.cc
+	chi-angles.cc helix-placement.cc rigid-body.cc ideal-rna.cc richardson-rotamers.cc
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
