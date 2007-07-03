@@ -1,3 +1,20 @@
+;;;; Copyright 2007 by The University of York
+;;;; Copyright 2007 by Paul Emsley
+;;;; 
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 3 of the License, or (at
+;;;; your option) any later version.
+;;;; 
+;;;; This program is distributed in the hope that it will be useful, but
+;;;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;;;; General Public License for more details.
+ 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this program; if not, write to the Free Software
+;;;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+;;;; 02110-1301, USA
 
 (if (defined? 'coot-main-menubar)
 
@@ -386,6 +403,29 @@
 ;		       (cootaneer imol-map imol (list chain-id resno inscode 
 ;						      at-name alt-conf)))))))))
       
+      (add-simple-coot-menu-menuitem
+       menu "Associate Sequence...."
+       (lambda ()
+	 (generic-chooser-entry-and-file-selector 
+	  "Associate Sequence to Model: "
+	  "Chain ID"
+	  ""
+	  (lambda (imol chain-id fasta-file-name)
+	    (format #t "assoc seq: ~s ~s ~s~%" imol chain-id fasta-file-name)
+	    (if (file-exists? fasta-file-name)
+		(let ((seq-text 
+		       (call-with-input-file fasta-file-name
+			 (lambda (port)
+			   (let loop  ((lines '())
+				       (line (read-line port)))
+			     (cond
+			      ((eof-object? line) 
+			       (string-append-with-string (reverse lines) "\n"))
+			      (else
+			       (loop (cons line lines) (read-line port)))))))))
+		  
+		  (assign-fasta-sequence imol chain-id seq-text)))))))
+						  
 
       (add-simple-coot-menu-menuitem
        menu "Cootaneer this fragment..."
