@@ -122,6 +122,13 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 	 std::string llkdfile = PKGDATADIR;
 	 llkdfile += "/cootaneer-llk-2.40.dat";
 
+	 // was that over-ridden?
+	 const char *cp = getenv("COOT_PREFIX");
+	 if (cp) {
+	    llkdfile = cp;
+	    llkdfile += "/share/coot/cootaneer-llk-2.40.dat";
+	 }
+
 	 if (!coot::file_exists(llkdfile)) {
 
 	    std::cout << "Ooops! Can't find cootaneer likelihood data! - failure"

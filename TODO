@@ -8,10 +8,13 @@
 
 * Done in 0.3.2 in fact.
 
-
    o Multiple model ligand overlaying
 
+* Done.
+
    o Cootaneer
+
+* Done.
 
    o Richardson rotamers
 
@@ -19,6 +22,11 @@
 
    o Post-install slim the binaries
 
+   o Select residues (for new molecule) by sphere
+
+   o Make the Omega Angle Plot update properly
+
+   o fix db-main so that it doesn't spew error messages
 
 -----
 
@@ -32,21 +40,15 @@
 
    o Valgrind long/multiple fit-proteins
 
+   o "Thick bonds" for ligands etc
+
    o insertion codes for intelligent next atom
 
    o Add some SHELX reading to the test suite.
 
    o Dynamic distances on moving atom/fragments
 
-   o Problem SHELX .ins file, enable bonds to symmetry atoms?
-
-   o fix db-main so that it doesn't spew error messages
-
-   o Select residues (for new molecule) by sphere
-
    o Add Chiral Volume Outliers to Omega Angle Plot
-
-   o Make the Omega Angle Plot update properly
 
    o Revisit CCP4mg button
 
@@ -120,8 +122,6 @@
 
    o multiple representations?
 
-   o "Thick bonds" for ligands etc
-
    o mutate residue range for bases
 
 ------
@@ -130,8 +130,9 @@
 
    o Clean up menu items, use Preferences.
 
-   o Switch to GTk2, guile1.8.  Dump Gtk1 interface, re-write build-it 
-     script
+   o Switch to GTk2, guile1.8.  Dump Gtk1 interface, 
+
+   o re-write build-it script
 
 
 -----
