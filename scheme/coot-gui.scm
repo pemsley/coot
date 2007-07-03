@@ -1130,14 +1130,20 @@
 				  (format #t "apply the sequence info here\n")
 				  (format #t "then cootaneer\n")
 
-				  (let ((active-atom (active-residue)))
-				    (if (list? active-atom)
-					(let ((imol     (list-ref active-atom 0))
-					      (chain-id (list-ref active-atom 1))
-					      (resno    (list-ref active-atom 2))
-					      (inscode  (list-ref active-atom 3))
-					      (at-name  (list-ref active-atom 4))
-					      (alt-conf (list-ref active-atom 5)))
+				  ;; no active atom won't do.  We need
+				  ;; to find the nearest atom in imol to (rotation-centre).
+				  ;;
+				  ;; if it is too far away, give a
+				  ;; warning and do't do anything.
+
+				  (let ((n-atom (closest-atom imol)))
+				    (if n-atom
+					(let ((imol     (list-ref n-atom 0))
+					      (chain-id (list-ref n-atom 1))
+					      (resno    (list-ref n-atom 2))
+					      (inscode  (list-ref n-atom 3))
+					      (at-name  (list-ref n-atom 4))
+					      (alt-conf (list-ref n-atom 5)))
 					  (cootaneer imol-map imol (list chain-id resno inscode 
 									 at-name alt-conf)))))))
 				   

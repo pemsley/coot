@@ -594,7 +594,7 @@ SCM active_residue() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
 
    if (pp.first) {
-      s = SCM_CAR(scm_listofnull);
+      s = SCM_EOL;
       s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()) , s);
       s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()) , s);
       s = scm_cons(scm_makfrom0str(pp.second.second.insertion_code.c_str()) , s);
@@ -606,6 +606,30 @@ SCM active_residue() {
 }
 #endif // USE_GUILE
 
+#ifdef USE_GUILE
+SCM closest_atom(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      coot::at_dist_info_t at_info =
+	 graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
+      if (at_info.atom) {
+	 r = SCM_EOL;
+	 r = scm_cons(scm_double2num(at_info.atom->z), r);
+	 r = scm_cons(scm_double2num(at_info.atom->y), r);
+	 r = scm_cons(scm_double2num(at_info.atom->x), r);
+	 r = scm_cons(scm_makfrom0str(at_info.atom->altLoc), r);
+	 r = scm_cons(scm_makfrom0str(at_info.atom->name), r);
+	 r = scm_cons(scm_makfrom0str(at_info.atom->GetInsCode()), r);
+	 r = scm_cons(scm_int2num(at_info.atom->GetSeqNum()), r);
+	 r = scm_cons(scm_makfrom0str(at_info.atom->GetChainID()), r);
+	 r = scm_cons(scm_int2num(imol), r);
+      }
+   }
+   return r;
+} 
+#endif 
 
 
 /*! \brief update the Go To Atom widget entries to atom closest to
