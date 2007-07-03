@@ -3,10 +3,14 @@ Release 0.4
 
    o Cootaneer [slim-line Buccaneer in Coot]
 
+   o Fix Shelx lst file reader when handling atoms with Alt Confs
+     [Christian Stegmann]
+
+
+
     -------------------------------------------------------
     -------------------- Old Releases ---------------------
     -------------------------------------------------------
-
 
 
 Release 0.3.3 "The Early Bird Catches the Bugs"
@@ -16,6 +20,7 @@ Release 0.3.3 "The Early Bird Catches the Bugs"
 
   o Filter button fixed for file selections
 
+---
 
 Release 0.3.2 "Don't Bet on the River"
 

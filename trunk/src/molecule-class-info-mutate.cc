@@ -1049,3 +1049,40 @@ molecule_class_info_t::mutate_single_multipart(int ires_serial, const char *chai
    }
    return 0 + istat;
 } 
+
+// trash all other residues in imol_ligand:
+int
+molecule_class_info_t::delete_all_except_res(CResidue *res) {
+   
+   int state = 0;
+   make_backup();
+
+   if (atom_sel.n_selected_atoms > 0) {
+      for (int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) { 
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 CChain *chain_p;
+	 // run over chains of the existing mol
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    PCResidue residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p != res) {
+		  // std::cout << "Deleting residue " << residue_p << std::endl;
+		  chain_p->DeleteResidue(ires);
+		  residue_p = NULL;
+		  state = 1;
+	       }
+	    }
+	 }
+      }
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      have_unsaved_changes_flag = 1;
+      atom_sel = make_asc(atom_sel.mol);
+      make_bonds_type_checked();
+   }
+   return state;
+}

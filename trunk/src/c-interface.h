@@ -2569,6 +2569,18 @@ int read_shelx_ins_file(const char *filename);
 int write_shelx_ins_file(int imol, const char *filename);
 /* for shelx fcf file that needs to be filtered: */
 int handle_shelx_fcf_file_internal(const char *filename);
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+/*! \brief @return the chain id for the given residue.  Return #f if
+  can't do it/fail. */
+SCM chain_id_for_shelxl_residue_number(int imol, int resno);
+#endif 
+
+#ifdef USE_PYTHON
+/* Fill me in Bernhard */
+#endif 
+#endif 
+
 /* \} */
 /*  ------------------------------------------------------------------------ */
 /*                         Validation:                                       */
@@ -3896,7 +3908,7 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog);
 /*! \name Sequence (Assignment) */
 /* \{ */
 
-/*! \brief Print the sequcence to the console of the given molecule */
+/*! \brief Print the sequence to the console of the given molecule */
 void print_sequence_chain(int imol, const char *chain_id);
 /*! \brief Assign the sequence to a given molecule (not currently used) */
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq);
