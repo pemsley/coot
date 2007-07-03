@@ -55,6 +55,12 @@
      is ugly (gives terminal warnings).  Make the user data also encode 
      information about which fileslection this is (in 1000s, say).
 
+   o Faster bonding of multiple models e.g. 1O5P.pdb.  It should take
+     1 or 2 seconds.
+
+   o Copy fragment (new-molecule-by-atom-selection) does not
+     recalculate the NCS.  It should.
+
 -----
 
     Release 0.6

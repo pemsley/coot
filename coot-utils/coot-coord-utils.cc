@@ -793,7 +793,7 @@ coot::util::single_letter_to_3_letter_code(char code) {
 // Return the orientation matrix moving res_moving to res_reference
 // and a flag letting us know that the match worked OK.
 // 
-std::pair<bool, clipper::RTop_orth>
+coot::graph_match_info_t
 coot::graph_match(CResidue *res_moving,
 		  CResidue *res_reference) {
 
@@ -815,6 +815,7 @@ coot::graph_match(CResidue *res_moving,
 
    int build_status1 = graph1.Build(1);
    int build_status2 = graph2.Build(1);
+   double best_match_sum = 1e20;
 
    if (build_status1 != 0) {
       std::cout << "ERROR:: build_status1: " << build_status1 << std::endl;
@@ -844,7 +845,6 @@ coot::graph_match(CResidue *res_moving,
 	 std::cout << "match NumberofMatches " << n_match << std::endl;
 	 // match.PrintMatches();
 
-	 double best_match_sum = 1e20;
 	 int best_match = -1;
 	 clipper::RTop_orth best_rtop;
 	 for (int imatch=0; imatch<n_match; imatch++) {
@@ -896,7 +896,11 @@ coot::graph_match(CResidue *res_moving,
    }
    delete cleaned_res_reference;
    delete cleaned_res_moving;
-   return std::pair<bool, clipper::RTop_orth> (success, rtop);
+   coot::graph_match_info_t gmi;
+   gmi.success = success;
+   gmi.rtop = rtop;
+   gmi.dist_score = best_match_sum;
+   return gmi;
 }
 
 

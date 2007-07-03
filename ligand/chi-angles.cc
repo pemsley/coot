@@ -295,6 +295,25 @@ coot::chi_angles::add_rotamer(std::string restype,
    }
 }
 
+void
+coot::chi_angles::add_richardson_rotamer(std::string restype,
+					 std::string rotamer_name,
+					 float anumber,
+					 float percent_overall,
+					 float percent_alpha,
+					 float percent_beta,
+					 float percent_other,
+					 float chi_1_mode,
+					 float chi_1_com, 
+					 float chi_2_mode,
+					 float chi_2_com, 
+					 float chi_3_mode,
+					 float chi_3_com, 
+					 float chi_4_mode,
+					 float chi_4_com) {
+} 
+
+
 
 // Return success status, 
 // 0 means success

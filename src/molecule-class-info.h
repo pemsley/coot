@@ -1,4 +1,26 @@
- // -*-c++-*- ; emacs directive
+/* src/molecule-class-info.h
+ * 
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
+ * Author: Paul Emsley
+ * Copyright 2007 by Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
+
+// -*-c++-*- ; emacs directive
 
 #ifndef MOLECULE_CLASS_INFO_T
 #define MOLECULE_CLASS_INFO_T
@@ -1459,6 +1481,8 @@ class molecule_class_info_t {
 
    CChain *water_chain_from_shelx_ins() const; // the single chain
 
+   std::pair<bool, std::string> chain_id_for_shelxl_residue_number(int resno) const;
+
    // return state, max_resno + 1, or 0, 1 of no residues in chain.
    // 
    std::pair<short int, int> next_residue_in_chain(CChain *w) const;
@@ -1808,6 +1832,7 @@ class molecule_class_info_t {
 		  std::string best_seq, std::string chain_id,
 		  int resno_offset);
 
+   int delete_all_except_res(CResidue *res);
 
 };
 

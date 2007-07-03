@@ -171,6 +171,26 @@ namespace coot {
 		       float chi4,
 		       float sig_chi4);
 
+      // And the Richarson Rotamers:
+      void add_richardson_rotamers();
+      // add_richardson_rotamer("ARG", "mmm-85", 22, 2, 2, 3, 3, -62, -62, 0, 0, 0, 0, 0, 0);
+      void add_richardson_rotamer(std::string restype,
+				  std::string rotamer_name,
+				  float anumber,
+				  float percent_overall,
+				  float percent_alpha,
+				  float percent_beta,
+				  float percent_other,
+				  float chi_1_mode,
+				  float chi_1_com, 
+				  float chi_2_mode,
+				  float chi_2_com, 
+				  float chi_3_mode,
+				  float chi_3_com, 
+				  float chi_4_mode,
+				  float chi_4_com);
+	 
+
       // called by the change_bys, obviously.
       // return status and the new angle.
       std::pair<short int, float> change_by_internal(int ichi,

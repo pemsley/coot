@@ -1,9 +1,10 @@
 
-;;;; Copyright 2004, 2005, 2006 by Paul Emsley, The University of York
+;;;; Copyright 2004, 2005, 2006 The University of York
+;;;; Copyright 2007 by Paul Emsley
  
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
-;;;; the Free Software Foundation; either version 2 of the License, or (at
+;;;; the Free Software Foundation; either version 3 of the License, or (at
 ;;;; your option) any later version.
  
 ;;;; This program is distributed in the hope that it will be useful, but
@@ -266,7 +267,8 @@
     (define gui-interesting-list 
       (lambda (interesting-list)
 	
-	; (format #t "debug: interesting-list: ~s~%" interesting-list)
+	(format #t "debug: interesting-list: ~s~%" interesting-list)
+
 	(if (null? interesting-list)
 	    (format #t "INFO:: noting interesting~%")
 	    (interesting-things-gui "Interesting Things from SHELX"
@@ -300,19 +302,31 @@
 	      ;; and try again.  If *that* is successful, return the
 	      ;; resno and the last char is the altconf specifier.
 	      ;; 
-	      (if (number? (string->number (car (cdr ls))))
-		  (list "" (string->number (car (cdr ls))) "" (car ls) "")
-		  ;; handle the alt conf
-		  (let* ((s (car (cdr ls)))
-			 (p (chop-end s))
-			 (alt-conf (last-char s))
-			 (n (string->number p)))
+	      (let ((resno (string->number (car (cdr ls)))))
+		(if (number? resno)
+		    (let ((chain-id (chain-id-for-shelxl-residue-number imol resno)))
+		      (if (eq? chain-id #f) 
+			  (begin
+			    (format #t "couldn't find chain id for resno ~s~%" resno)
+			    (list "" resno  "" (car ls) ""))
+			  (list chain-id resno "" (car ls) "")))
 
-		    (if (number? n)
-			(list "" n "" (car ls) alt-conf)
-			(list "" 1 "" "blank" "")))) ; failure
+		    ;; handle the alt conf
+		    (let* ((s (car (cdr ls)))
+			   (p (chop-end s))
+			   (alt-conf (last-char s))
+			   (n (string->number p)))
+		      
+		      (if (number? n)
+			  (let ((chain-id (chain-id-for-shelxl-residue-number imol n)))
+			    (if (eq? #f chain-id) 
+				(begin
+				  (format #t "couldn't find chain id for resno ~s~%" resno)
+				  (list "" n "" (car ls) alt-conf))
+				(list chain-id n "" (car ls) alt-conf)))
+			  (list "" 1 "" "blank" ""))))) ; failure
 		    
-	      (list "" 1 "" "blank" ""))))) ; failure
+		(list "" 1 "" "blank" ""))))) ; failure
 	  
 
     ;; main body

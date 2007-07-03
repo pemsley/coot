@@ -8090,3 +8090,37 @@ molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
    }
    make_bonds_type_checked();
 }
+
+std::pair<bool, std::string>
+molecule_class_info_t::chain_id_for_shelxl_residue_number(int shelxl_resno) const {
+
+   int imod = 1;
+   bool found_it = 0;
+   std::string chain_id_unshelxed = "not-found";
+      
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p;
+      CAtom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 int resno = residue_p->GetSeqNum();
+	 if (resno == shelxl_resno) {
+	    chain_id_unshelxed = chain_p->GetChainID();
+	    found_it = 1;
+	 }
+
+	 if (found_it)
+	    break;
+      }
+      if (found_it)
+	 break;
+   }
+
+   return std::pair<bool, std::string> (found_it, chain_id_unshelxed);
+} 
