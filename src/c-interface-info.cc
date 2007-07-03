@@ -2,10 +2,11 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 by Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -15,7 +16,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 #include <stdlib.h>
@@ -124,6 +126,35 @@ void do_residue_info() {
       graphics_info_t::pick_pending_flag = 1;
    }
 } 
+
+#ifdef USE_GUILE
+SCM sequence_info(int imol) {
+
+   SCM r = SCM_EOL;
+
+   if (is_valid_model_molecule(imol)) { 
+      std::vector<std::pair<std::string, std::string> > seq =
+	 graphics_info_t::molecules[imol].sequence_info();
+      
+      if (seq.size() > 0) {
+	 // unsigned int does't work here because then the termination
+	 // condition never fails.
+	 for (int iv=int(seq.size()-1); iv>=0; iv--) {
+	    std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
+	    std::cout << "debug scming" << seq[iv].first.c_str()
+		      << " and " << seq[iv].second.c_str() << std::endl;
+	    SCM a = scm_makfrom0str(seq[iv].first.c_str());
+	    SCM b = scm_makfrom0str(seq[iv].second.c_str());
+	    SCM ls = scm_cons(a, b);
+	    r = scm_cons(ls, r);
+	 }
+      }
+   }
+   return r;
+} 
+#endif // USE_GUILE
+
+
 
 // Called from a graphics-info-defines routine, would you believe? :)
 //

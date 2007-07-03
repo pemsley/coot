@@ -361,6 +361,40 @@
        (lambda ()
 	 (nudge-screen-centre-gui)))
 
+;; Not this.  Instead fire up a new top level, where we have a molecule chooser, 
+;; an entry for the chain spec and a text window where can paste in a sequence.
+;; 
+;; No, that doesn't work either.  We need a set of pairs of entries
+;; and text boxes.
+;; 
+;; Hmm..
+
+;      (add-simple-coot-menu-menuitem
+;       menu "Cootaneer this fragment [try sequence assignment]"
+;       (lambda ()
+;	 (let ((imol-map (imol-refinement-map)))
+;	   (if (= imol-map -1)
+;	       (info-dialog "Need to assign a map to fit against")
+;	       (let ((active-atom (active-residue)))
+;		 (if (list? active-atom)
+;		     (let ((imol     (list-ref active-atom 0))
+;			   (chain-id (list-ref active-atom 1))
+;			   (resno    (list-ref active-atom 2))
+;			   (inscode  (list-ref active-atom 3))
+;			   (at-name  (list-ref active-atom 4))
+;			   (alt-conf (list-ref active-atom 5)))
+;		       (cootaneer imol-map imol (list chain-id resno inscode 
+;						      at-name alt-conf)))))))))
+      
+
+      (add-simple-coot-menu-menuitem
+       menu "Cootaneer this fragment..."
+       (lambda ()
+	 (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
+			       (lambda (imol)
+				 (cootaneer-gui imol)))))
+	   
+
       (add-simple-coot-menu-menuitem
        menu "Add Strand Here..."
        (lambda ()

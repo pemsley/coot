@@ -1313,20 +1313,21 @@
 ;; 
 (define (phosphorylate-active-residue)
 
-  (let* ((active-atom (active-residue))
-	 (imol     (list-ref active-atom 0))
-	 (chain-id (list-ref active-atom 1))
-	 (resno    (list-ref active-atom 2))
-	 (inscode  (list-ref active-atom 3))
-	 (res-name (residue-name imol chain-id resno inscode)))
-
-    (cond
-     ((string=? res-name "TYR") (mutate-by-overlap imol chain-id resno "PTR"))
-     ((string=? res-name "SER") (mutate-by-overlap imol chain-id resno "SEP"))
-     ((string=? res-name "THR") (mutate-by-overlap imol chain-id resno "TPO"))
-     (else 
-      (let ((s (string-append "Can't Phosphorylate residue of type" res-name)))
-	(info-dialog s))))))
+  (let ((active-atom (active-residue)))
+	
+    (if (list? active-atom)
+	(let* ((imol     (list-ref active-atom 0))
+	       (chain-id (list-ref active-atom 1))
+	       (resno    (list-ref active-atom 2))
+	       (inscode  (list-ref active-atom 3))
+	       (res-name (residue-name imol chain-id resno inscode)))
+	  (cond
+	   ((string=? res-name "TYR") (mutate-by-overlap imol chain-id resno "PTR"))
+	   ((string=? res-name "SER") (mutate-by-overlap imol chain-id resno "SEP"))
+	   ((string=? res-name "THR") (mutate-by-overlap imol chain-id resno "TPO"))
+	   (else 
+	    (let ((s (string-append "Can't Phosphorylate residue of type" res-name)))
+	      (info-dialog s))))))))
 
 ;; 
 (define (label-all-active-residue-atoms)
