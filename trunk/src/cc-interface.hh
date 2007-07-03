@@ -277,16 +277,31 @@ int add_molecule(SCM molecule_expression, const char *name);
 
 //! \brief 
 // Return a list of (list imol chain-id resno ins-code atom-name
-// alt-conf) for atom that is closest to the screen centre.  If there
-// are multiple models with the same coordinates at the screen centre,
-// return the attributes of the atom in the highest number molecule
-// number.
+// alt-conf) for atom that is closest to the screen centre in any
+// displayed molecule.  If there are multiple models with the same
+// coordinates at the screen centre, return the attributes of the atom
+// in the highest number molecule number.
 //
 // return #f if no active residue
 // 
 SCM active_residue();
 
+//! \brief
+// 
+// Return a list of (list imol chain-id resno ins-code atom-name
+// alt-conf (list x y z)) for atom that is closest to the screen
+// centre in the given molecule (unlike active-residue, no account is
+// taken of the displayed state of the molecule).  If there is no
+// atom, or if imol is not a valid model molecule, return #f.
+// 
+SCM closest_atom(int imol);
+
 #endif	/* USE_GUILE */
+
+#ifdef USE_PYTHON
+// nearest_atom()
+// Fill me in Bernhard
+#endif 
 
 
 /*  ----------------------------------------------------------------------- */
