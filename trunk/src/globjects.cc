@@ -665,6 +665,8 @@ int       graphics_info_t::imol_rigid_body_refine = 0;
 short int graphics_info_t::in_terminal_residue_define = 0;
 short int graphics_info_t::add_terminal_residue_immediate_addition_flag = 0;
 short int graphics_info_t::add_terminal_residue_do_post_refine = 0;
+float graphics_info_t::terminal_residue_addition_direct_phi = -135.0;
+float graphics_info_t::terminal_residue_addition_direct_psi =  135.0;
 
 
 // CIS <-> TRANS conversion 
@@ -1504,6 +1506,7 @@ gint expose(GtkWidget *widget, GdkEventExpose *event) {
    // if (graphics_info_t::do_expose_swap_buffers_flag) 
    // graphics_info_t::coot_swap_buffers(widget, 0);
    
+   graphics_info_t::do_expose_swap_buffers_flag = 1;
 }
 
    
