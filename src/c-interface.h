@@ -3860,6 +3860,12 @@ int new_molecule_by_residue_type_selection(int imol, const char *residue_type);
 @return the new molecule number, -1 means an error. */
 int new_molecule_by_atom_selection(int imol, const char* atom_selection);
 
+/*! \brief create a new molecule that consists of only the atoms 
+  within the given radius (r) of the given position.
+
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_sphere_selection(int imol, float x, float y, float z, float r);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Miguel's orientation axes matrix                         */

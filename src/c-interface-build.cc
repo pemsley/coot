@@ -5152,9 +5152,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
       CMMDBManager *mol_orig = graphics_info_t::molecules[imol_orig].atom_sel.mol;
       int SelectionHandle = mol_orig->NewSelection();
       mol_orig->Select(SelectionHandle, STYPE_ATOM,
-		       (char *) atom_selection_str, // sigh... Why do I have to do this?
-		                                    // mmdb_selmngr.h says this arg should
-		                                    // be const pstr CID.  Hmmm...
+		       (char *) atom_selection_str, 
 		       SKEY_OR);
       CMMDBManager *mol =
 	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
@@ -5183,7 +5181,8 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	    graphics_info_t::n_molecules++;
 	 } else {
 	    std::cout << "in new_molecule_by_atom_selection "
-		      << "Something bad happened - No atoms selected" << std::endl;
+		      << "Something bad happened - No atoms selected"
+		      << std::endl;
 	    std::string s = "Oops, failed to create fragment.  ";
 	    s += "No atoms selected\n";
 	    s += "Incorrect atom specifier? ";
@@ -5191,6 +5190,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	    s += atom_selection_str;
 	    s += "\"";
 	    info_dialog(s.c_str());
+	    imol = -1;
 	 }
       } else {
 	 // mol will (currently) never be null,
@@ -5204,6 +5204,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 s += atom_selection_str;
 	 s += "\"";
 	 info_dialog(s.c_str());
+	 imol = -1;
       } 
       mol_orig->DeleteSelection(SelectionHandle);
       graphics_draw();
@@ -5214,6 +5215,75 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
    return imol;
 } 
 
+int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, float r) {
+
+   int imol = -1;
+   if (is_valid_model_molecule(imol_orig)) {
+      PCAtom *atom_selection = 0;
+      int nSelAtoms = 0;
+      imol = graphics_info_t::n_molecules;
+      CMMDBManager *mol_orig = graphics_info_t::molecules[imol_orig].atom_sel.mol;
+      int SelectionHandle = mol_orig->NewSelection();
+      mol_orig->SelectSphere(SelectionHandle, STYPE_ATOM,
+			     x, y, z, r, SKEY_OR);
+      CMMDBManager *mol =
+	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
+							    SelectionHandle);
+      if (mol) {
+	 std::string name = "sphere selection from ";
+	 name += graphics_info_t::molecules[imol_orig].name_for_display_manager();
+	 atom_selection_container_t asc = make_asc(mol);
+	 if (asc.n_selected_atoms > 0){ 
+	    graphics_info_t::molecules[imol].install_model(asc, name, 1);
+	    graphics_info_t::n_molecules++;
+	 } else {
+	    std::cout << "in new_molecule_by_atom_selection "
+		      << "Something bad happened - No atoms selected"
+		      << std::endl;
+	    std::string s = "Oops, failed to create fragment.  ";
+	    s += "No atoms selected\n";
+	    s += "Incorrect position or radius? ";
+	    s += "Radius ";
+	    s += coot::util::float_to_string(r);
+	    s += " at (";
+	    s += coot::util::float_to_string(x);
+	    s += ", ";
+	    s += coot::util::float_to_string(y);
+	    s += ", ";
+	    s += coot::util::float_to_string(z);
+	    s += ")";
+	    info_dialog(s.c_str());
+	    imol = -1;
+	 }
+      } else {
+	 // mol will (currently) never be null,
+	 // create_mmdbmanager_from_atom_selection() always returns a
+	 // good CMMDBManager pointer.
+	 std::cout << "in new_molecule_by_atom_selection "
+		   << "Something bad happened - null molecule" << std::endl;
+	 std::string s = "Oops, failed to create fragment.  ";
+	 s += "No atoms selected\n";
+	 s += "Incorrect position or radius? ";
+	 s += "Radius ";
+	 s += coot::util::float_to_string(r);
+	 s += " at (";
+	 s += coot::util::float_to_string(x);
+	 s += ", ";
+	 s += coot::util::float_to_string(y);
+	 s += ", ";
+	 s += coot::util::float_to_string(z);
+	 s += ")";
+	 info_dialog(s.c_str());
+	 imol = -1;
+      }
+      mol_orig->DeleteSelection(SelectionHandle);
+      graphics_draw();
+   } else {
+      std::cout << "Molecule number " << imol_orig << " is not a valid "
+		<< "model molecule" << std::endl;
+   }
+   return imol;
+}
 
 // ---------------------------------------------------------------------
 // b-factor
