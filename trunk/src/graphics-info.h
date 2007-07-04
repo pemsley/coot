@@ -731,6 +731,8 @@ public:
   static void graphics_draw() {
      if (glarea) { 
        gtk_widget_draw(glarea, NULL);
+       if (make_movie_flag)
+	 dump_a_movie_image();
      }
      if (glarea_2)
        gtk_widget_draw(glarea_2, NULL);
