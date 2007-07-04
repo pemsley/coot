@@ -451,7 +451,7 @@ coot::db_main::fit_reference_structures(float max_devi,
       if (similar_eigens(0.4, target_eigens,
 			 mainchain_frag_db[i].sqrt_eigen_values)) {
 	 std::vector<clipper::Coord_orth> mcfca =
-	    mainchain_ca_coords_of_db_frag(i,ilength);
+	    mainchain_ca_coords_of_db_frag(i, ilength);
 	    
 	 // and get devi
 	 if (int(mcfca.size()) == ilength ) {
@@ -466,8 +466,10 @@ coot::db_main::fit_reference_structures(float max_devi,
 	       std::cout << "wrong target ca size" << std::endl;
 	    }
 	 } else {
-	    std::cout << "wrong mcfca size: mcfca: " << mcfca.size()
-		      << " ilength: " << ilength << std::endl;
+	    // too many residues were included, due to ins codes, I guess.
+// 	    std::cout << "wrong mcfca size: mcfca: " << mcfca.size()
+// 	             << " ilength: " << ilength << " for fragment number "
+// 		      << i << " of " << mainchain_frag_db.size() << std::endl;
 	 }
       }
    }
