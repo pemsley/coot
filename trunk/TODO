@@ -8,6 +8,10 @@
 
 * Done in 0.3.2 in fact.
 
+   o Select residues (for new molecule) by sphere
+
+* Done
+
    o Multiple model ligand overlaying
 
 * Done.
@@ -15,6 +19,10 @@
    o Cootaneer
 
 * Done.
+
+   o fix db-main so that it doesn't spew error messages
+
+* Done.  Trivial
 
    o Richardson rotamers
 
@@ -31,15 +39,15 @@
 
    o Post-install slim the binaries
 
-   o Select residues (for new molecule) by sphere
-
-   o fix db-main so that it doesn't spew error messages
-
    o Do the strand restraints work well under refinement?
+
+   o Add select by sphere to test suite
+
+   o Activate test suite
 
 -----
 
-   Release 0.5
+   Release 0.5 October 2007
 
    o Torsion General
 
@@ -72,7 +80,7 @@
 
 -----
 
-    Release 0.6
+    Release 0.6 [Dec 2007]
 
    o Redo sequence view 
 
@@ -145,5 +153,5 @@
 
 -----
  
-   Release 1.0 
+   Release 1.0 [Sept 2008]
 

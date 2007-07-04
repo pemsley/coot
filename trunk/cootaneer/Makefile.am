@@ -31,7 +31,7 @@ bin_PROGRAMS = cootaneer-demo
 lib_LTLIBRARIES=libcootaneer.la
 
 libcootaneer_la_SOURCES =  buccaneer-lib.cpp buccaneer-prot.cpp \
-	buccaneer-sequence.cpp cootaneer-sequence.cpp cootaneer-demo.h \
+	buccaneer-sequence.cpp cootaneer-sequence.cpp \
 	buccaneer-lib.h buccaneer-prot.h \
 	buccaneer-sequence.h cootaneer-sequence.h
 
