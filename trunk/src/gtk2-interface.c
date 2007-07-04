@@ -2388,6 +2388,7 @@ create_about_window (void)
   scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow1);
   gtk_box_pack_start (GTK_BOX (vbox14), scrolledwindow1, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow1, 220, 174);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow1, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1), GTK_SHADOW_IN);
@@ -2616,7 +2617,7 @@ create_aniso_window (void)
   gtk_container_set_border_width (GTK_CONTAINER (show_aniso_ok_button), 4);
   GTK_WIDGET_SET_FLAGS (show_aniso_ok_button, GTK_CAN_DEFAULT);
 
-  show_aniso_close_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  show_aniso_close_button = gtk_button_new_with_mnemonic (_("  Close  "));
   gtk_widget_show (show_aniso_close_button);
   gtk_box_pack_start (GTK_BOX (hbox151), show_aniso_close_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (show_aniso_close_button), 4);
@@ -3058,7 +3059,7 @@ create_display_control_window_glade (void)
   GtkWidget *display_control_ok_button;
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_size_request (display_control_window_glade, 400, 200);
+  gtk_widget_set_size_request (display_control_window_glade, 400, 240);
   gtk_window_set_title (GTK_WINDOW (display_control_window_glade), _("Display Control"));
 
   vbox30 = gtk_vbox_new (FALSE, 0);
@@ -3691,6 +3692,7 @@ create_phs_cell_choice_window (void)
   vbox39 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox39);
   gtk_container_add (GTK_CONTAINER (phs_cell_choice_window), vbox39);
+  gtk_widget_set_size_request (vbox39, 290, 126);
 
   label67 = gtk_label_new (_("Choose a Symmetry and Cell for the Phases file"));
   gtk_widget_show (label67);
@@ -6313,6 +6315,7 @@ create_residue_info_dialog (void)
   vbox65 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox65);
   gtk_box_pack_start (GTK_BOX (dialog_vbox14), vbox65, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (vbox65, -1, 380);
 
   residue_info_residue_label = gtk_label_new (_("Residue: "));
   gtk_widget_show (residue_info_residue_label);
@@ -12118,6 +12121,7 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   GtkWidget *interesting_waters_by_difference_map_check_ok_button;
 
   interesting_waters_by_difference_map_check_dialog = gtk_dialog_new ();
+  gtk_widget_set_size_request (interesting_waters_by_difference_map_check_dialog, -1, 200);
   gtk_window_set_title (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), _("Interesting/Strange Waters:"));
   gtk_window_set_type_hint (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -13684,6 +13688,7 @@ create_checked_waters_baddies_dialog (void)
   scrolledwindow20 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow20);
   gtk_box_pack_start (GTK_BOX (dialog_vbox84), scrolledwindow20, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow20, 190, 180);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow20, GTK_CAN_FOCUS);
 
   viewport12 = gtk_viewport_new (NULL, NULL);
@@ -15558,6 +15563,7 @@ create_monomer_search_dialog (void)
   scrolledwindow27 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow27);
   gtk_box_pack_start (GTK_BOX (vbox185), scrolledwindow27, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow27, -1, 120);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow27, GTK_CAN_FOCUS);
 
   monomer_search_results_viewport = gtk_viewport_new (NULL, NULL);

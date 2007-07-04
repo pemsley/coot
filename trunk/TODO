@@ -2,7 +2,7 @@
 
 ------
 
-    Release 0.4
+    Release 0.4, Sept 2007
 
    o Gtk Timeout for reading socket strings
 
@@ -20,13 +20,22 @@
 
    o Kevin's Ramachandran Refinement target
 
+   o Try again to add chiral volumes to the geometry target function
+
+   o Add Chiral centre inversion and cis peptide generation check 
+     after refinement or regularization.
+
+   o Make the Omega Angle Plot update properly
+
+   o Add Chiral Volume Outliers to Omega Angle Plot
+
    o Post-install slim the binaries
 
    o Select residues (for new molecule) by sphere
 
-   o Make the Omega Angle Plot update properly
-
    o fix db-main so that it doesn't spew error messages
+
+   o Do the strand restraints work well under refinement?
 
 -----
 
@@ -47,8 +56,6 @@
    o Add some SHELX reading to the test suite.
 
    o Dynamic distances on moving atom/fragments
-
-   o Add Chiral Volume Outliers to Omega Angle Plot
 
    o Revisit CCP4mg button
 
@@ -78,8 +85,6 @@
    o helix fitting overshoots
 
    o check for updates?
-
-   o Try again to add chiral volumes to the geometry target function
 
    o (un)Label atoms in given atom selection
 
@@ -121,6 +126,9 @@
    o handle links properly (as above).
 
    o multiple representations?
+  
+   o Add Terminal Residue should pick up from the assigned sequence.
+     Should work for bases too.
 
    o mutate residue range for bases
 
