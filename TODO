@@ -1,28 +1,11 @@
 -*-text-*-
 
+   What is there left to do for the release?
+
 ------
 
     Release 0.4, Sept 2007
 
-   o Gtk Timeout for reading socket strings
-
-* Done in 0.3.2 in fact.
-
-   o Select residues (for new molecule) by sphere
-
-* Done
-
-   o Multiple model ligand overlaying
-
-* Done.
-
-   o Cootaneer
-
-* Done.
-
-   o fix db-main so that it doesn't spew error messages
-
-* Done.  Trivial
 
    o Richardson rotamers
 

@@ -593,22 +593,17 @@ Tue Jul  3 21:45:19 BST 2007
    o better documentation for skip-to-next-ncs-chain
 
 
+---- 
+Wed Jul  4 12:58:51 BST 2007
+
+   o copy over sgi coot 0.3.3
+
+
 -------------------
 Tue Jul  3 14:27:37 BST 2007
 
    For Release 0.4
 
-   o Gtk Timeout for reading socket strings
-
-* Done in 0.3.2 in fact.
-
-   o Multiple model ligand overlaying
-
-* Done. GUI needed?
-
-   o Cootaneer
-
-* Done.
 
    o Richardson rotamers
 
@@ -617,6 +612,48 @@ Tue Jul  3 14:27:37 BST 2007
    o Post-install slim the binaries
 
    o Is there a memory problem in unshelx?
+
+   o Kevin's Ramachandran Refinement target
+
+   o Try again to add chiral volumes to the geometry target function
+
+   o Add Chiral centre inversion and cis peptide generation check 
+     after refinement or regularization.
+
+   o Make the Omega Angle Plot update properly
+
+   o Add Chiral Volume Outliers to Omega Angle Plot
+
+   o Post-install slim the binaries
+
+   o Do the strand restraints work well under refinement?
+
+   o Add select by sphere to test suite
+
+   o Activate test suite
+
+
+
+
+   o Gtk Timeout for reading socket strings
+
+* Done in 0.3.2 in fact.
+
+   o Select residues (for new molecule) by sphere
+
+* Done
+
+   o Multiple model ligand overlaying
+
+* Done.
+
+   o Cootaneer
+
+* Done.
+
+   o fix db-main so that it doesn't spew error messages
+
+* Done.  Trivial
 
    o unshelxing is interfering with go to atom from lst file reader.
      How about this cunning plan:  
@@ -633,5 +670,6 @@ Tue Jul  3 14:27:37 BST 2007
     run over all sets of [input_threash -> (chain-id resno-offset)] to get the 
     correct offset
 
+* Done.
 
 -----

@@ -6,6 +6,14 @@ Release 0.4
    o Fix Shelx lst file reader when handling atoms with Alt Confs
      [Christian Stegmann]
 
+   o Select residues (for new molecule) by sphere
+
+   o Multiple model ligand overlaying
+
+   o Ca Zone-> Mainchain no longer spews warnings
+
+
+
 
 
     -------------------------------------------------------
