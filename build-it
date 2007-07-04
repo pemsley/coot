@@ -2184,6 +2184,7 @@ if [ "$scripting" = "--with-python" ] ; then
     echo WARNING:: this is a python day
     cp src/blank.cc src/coot_wrap_guile.cc
 fi
+echo building in: $PWD
 echo ./configure $coot_prefix \
    --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
