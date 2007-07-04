@@ -953,6 +953,10 @@ on_delete_item_cancel_button_clicked   (GtkButton       *button,
                                         gpointer         user_data);
 
 void
+on_reset_view_button_clicked           (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_hints1_activate                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
@@ -2844,3 +2848,6 @@ void
 on_show_aniso_close_button_clicked     (GtkButton       *button,
                                         gpointer         user_data);
 
+void
+on_display_manager_button_clicked      (GtkButton       *button,
+                                        gpointer         user_data);
