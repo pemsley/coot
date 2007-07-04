@@ -1733,6 +1733,8 @@ public:
    static int add_terminal_residue_n_phi_psi_trials;
    static int add_terminal_residue_add_other_residue_flag; 
    static short int add_terminal_residue_do_post_refine; 
+   static float terminal_residue_addition_direct_phi; 
+   static float terminal_residue_addition_direct_psi; 
 
    void execute_add_terminal_residue(int imol, 
 				     const std::string &terminus,
