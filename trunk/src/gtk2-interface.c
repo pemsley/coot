@@ -95,6 +95,7 @@ create_window1 (void)
   GtkWidget *draw1;
   GtkWidget *draw1_menu;
   GtkWidget *go_to_atom1;
+  GtkWidget *map_and_mol_control1;
   GtkWidget *undo_last_navigation1;
   GtkWidget *centre_atom_label1;
   GtkWidget *sequence_view1;
@@ -116,7 +117,6 @@ create_window1 (void)
   GtkWidget *dragged_map1;
   GtkWidget *recentring1;
   GtkWidget *coordinates_recentring1;
-  GtkWidget *map_and_mol_control1;
   GtkWidget *main_menu_info;
   GtkWidget *main_menu_info_menu;
   GtkWidget *residue_info1;
@@ -143,6 +143,7 @@ create_window1 (void)
   GtkWidget *probe_clashes1;
   GtkWidget *hid1;
   GtkWidget *hid1_menu;
+  GtkWidget *reset_view1;
   GtkWidget *scrollwheel1;
   GtkWidget *scrollwheel1_menu;
   GtkWidget *attach_scroll_wheel_to_which_map_1;
@@ -151,12 +152,17 @@ create_window1 (void)
   GSList *flat1_group = NULL;
   GtkWidget *flat1;
   GtkWidget *spherical_surface1;
-  GtkWidget *reset_view1;
   GtkWidget *help1;
   GtkWidget *help1_menu;
   GtkWidget *on_line_docs_url1;
   GtkWidget *about1;
   GtkWidget *hints1;
+  GtkWidget *toolbar1;
+  GtkIconSize tmp_toolbar_icon_size;
+  GtkWidget *toolitem1;
+  GtkWidget *reset_view_button;
+  GtkWidget *toolitem2;
+  GtkWidget *display_manager_button;
   GtkWidget *accept_reject_dialog_frame;
   GtkWidget *main_window_graphics_hbox;
   GtkWidget *main_window_statusbar;
@@ -325,6 +331,7 @@ create_window1 (void)
   background_black1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (background_black1));
   gtk_widget_show (background_black1);
   gtk_container_add (GTK_CONTAINER (background_colour1_menu), background_black1);
+  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (background_black1), TRUE);
 
   background_white1 = gtk_radio_menu_item_new_with_mnemonic (background_black1_group, _("White"));
   background_black1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (background_white1));
@@ -415,6 +422,11 @@ create_window1 (void)
   gtk_widget_show (go_to_atom1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), go_to_atom1);
 
+  map_and_mol_control1 = gtk_menu_item_new_with_mnemonic (_("Display Manager..."));
+  gtk_widget_show (map_and_mol_control1);
+  gtk_container_add (GTK_CONTAINER (draw1_menu), map_and_mol_control1);
+  gtk_tooltips_set_tip (tooltips, map_and_mol_control1, _("Control display and activity of maps and molecules"), NULL);
+
   undo_last_navigation1 = gtk_menu_item_new_with_mnemonic (_("Undo Last Navigation"));
   gtk_widget_show (undo_last_navigation1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), undo_last_navigation1);
@@ -498,11 +510,6 @@ create_window1 (void)
   coordinates_recentring1 = gtk_menu_item_new_with_mnemonic (_("Coordinates Recentring..."));
   gtk_widget_show (coordinates_recentring1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), coordinates_recentring1);
-
-  map_and_mol_control1 = gtk_menu_item_new_with_mnemonic (_("D_isplay Manager"));
-  gtk_widget_show (map_and_mol_control1);
-  gtk_container_add (GTK_CONTAINER (menubar1), map_and_mol_control1);
-  gtk_tooltips_set_tip (tooltips, map_and_mol_control1, _("Control display and activity of maps and molecules"), NULL);
 
   main_menu_info = gtk_menu_item_new_with_mnemonic (_("_Measures"));
   gtk_widget_show (main_menu_info);
@@ -612,6 +619,11 @@ create_window1 (void)
   hid1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (hid1), hid1_menu);
 
+  reset_view1 = gtk_menu_item_new_with_mnemonic (_("_Reset View"));
+  gtk_widget_show (reset_view1);
+  gtk_container_add (GTK_CONTAINER (hid1_menu), reset_view1);
+  gtk_tooltips_set_tip (tooltips, reset_view1, _("Recentre of the last read molecule that is displayed"), NULL);
+
   scrollwheel1 = gtk_menu_item_new_with_mnemonic (_("ScrollWheel"));
   gtk_widget_show (scrollwheel1);
   gtk_container_add (GTK_CONTAINER (hid1_menu), scrollwheel1);
@@ -634,17 +646,13 @@ create_window1 (void)
   flat1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (flat1));
   gtk_widget_show (flat1);
   gtk_container_add (GTK_CONTAINER (virtual_trackball1_menu), flat1);
+  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (flat1), TRUE);
 
   spherical_surface1 = gtk_radio_menu_item_new_with_mnemonic (flat1_group, _("Spherical Surface"));
   flat1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (spherical_surface1));
   gtk_widget_show (spherical_surface1);
   gtk_container_add (GTK_CONTAINER (virtual_trackball1_menu), spherical_surface1);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (spherical_surface1), TRUE);
-
-  reset_view1 = gtk_menu_item_new_with_mnemonic (_("_Reset View"));
-  gtk_widget_show (reset_view1);
-  gtk_container_add (GTK_CONTAINER (menubar1), reset_view1);
-  gtk_tooltips_set_tip (tooltips, reset_view1, _("Recentre of the last read molecule that is displayed"), NULL);
 
   help1 = gtk_menu_item_new_with_mnemonic (_("About"));
   gtk_widget_show (help1);
@@ -664,6 +672,28 @@ create_window1 (void)
   hints1 = gtk_menu_item_new_with_mnemonic (_("Hints..."));
   gtk_widget_show (hints1);
   gtk_container_add (GTK_CONTAINER (help1_menu), hints1);
+
+  toolbar1 = gtk_toolbar_new ();
+  gtk_widget_show (toolbar1);
+  gtk_box_pack_start (GTK_BOX (vbox1), toolbar1, FALSE, FALSE, 0);
+  gtk_toolbar_set_style (GTK_TOOLBAR (toolbar1), GTK_TOOLBAR_BOTH);
+  tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (toolbar1));
+
+  toolitem1 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem1);
+  gtk_container_add (GTK_CONTAINER (toolbar1), toolitem1);
+
+  reset_view_button = gtk_button_new_with_mnemonic (_("Reset View"));
+  gtk_widget_show (reset_view_button);
+  gtk_container_add (GTK_CONTAINER (toolitem1), reset_view_button);
+
+  toolitem2 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem2);
+  gtk_container_add (GTK_CONTAINER (toolbar1), toolitem2);
+
+  display_manager_button = gtk_button_new_with_mnemonic (_("Display Manager"));
+  gtk_widget_show (display_manager_button);
+  gtk_container_add (GTK_CONTAINER (toolitem2), display_manager_button);
 
   accept_reject_dialog_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox1), accept_reject_dialog_frame, TRUE, TRUE, 0);
@@ -832,6 +862,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) go_to_atom1, "activate",
                     G_CALLBACK (on_go_to_atom1_activate),
                     NULL);
+  g_signal_connect ((gpointer) map_and_mol_control1, "activate",
+                    G_CALLBACK (on_map_and_mol_control1_activate),
+                    NULL);
   g_signal_connect ((gpointer) undo_last_navigation1, "activate",
                     G_CALLBACK (on_undo_last_navigation1_activate),
                     NULL);
@@ -888,9 +921,6 @@ create_window1 (void)
                     NULL);
   g_signal_connect ((gpointer) coordinates_recentring1, "activate",
                     G_CALLBACK (on_coordinates_recentring1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) map_and_mol_control1, "activate",
-                    G_CALLBACK (on_map_and_mol_control1_activate),
                     NULL);
   g_signal_connect ((gpointer) residue_info1, "activate",
                     G_CALLBACK (on_residue_info1_activate),
@@ -955,6 +985,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) probe_clashes1, "activate",
                     G_CALLBACK (on_probe_clashes1_activate),
                     NULL);
+  g_signal_connect ((gpointer) reset_view1, "activate",
+                    G_CALLBACK (on_reset_view1_activate),
+                    NULL);
   g_signal_connect ((gpointer) attach_scroll_wheel_to_which_map_1, "activate",
                     G_CALLBACK (on_attach_scroll_wheel_to_which_map_1_activate),
                     NULL);
@@ -967,9 +1000,6 @@ create_window1 (void)
   g_signal_connect ((gpointer) spherical_surface1, "activate",
                     G_CALLBACK (on_vt_spherical_surface1_activate),
                     NULL);
-  g_signal_connect ((gpointer) reset_view1, "activate",
-                    G_CALLBACK (on_reset_view1_activate),
-                    NULL);
   g_signal_connect ((gpointer) on_line_docs_url1, "activate",
                     G_CALLBACK (on_on_line_docs_url1_activate),
                     NULL);
@@ -978,6 +1008,12 @@ create_window1 (void)
                     NULL);
   g_signal_connect ((gpointer) hints1, "activate",
                     G_CALLBACK (on_hints1_activate),
+                    NULL);
+  g_signal_connect ((gpointer) reset_view_button, "clicked",
+                    G_CALLBACK (on_reset_view_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) display_manager_button, "clicked",
+                    G_CALLBACK (on_display_manager_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) main_window_statusbar, "text_popped",
                     G_CALLBACK (on_main_window_statusbar_text_popped),
@@ -1048,6 +1084,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, draw1, "draw1");
   GLADE_HOOKUP_OBJECT (window1, draw1_menu, "draw1_menu");
   GLADE_HOOKUP_OBJECT (window1, go_to_atom1, "go_to_atom1");
+  GLADE_HOOKUP_OBJECT (window1, map_and_mol_control1, "map_and_mol_control1");
   GLADE_HOOKUP_OBJECT (window1, undo_last_navigation1, "undo_last_navigation1");
   GLADE_HOOKUP_OBJECT (window1, centre_atom_label1, "centre_atom_label1");
   GLADE_HOOKUP_OBJECT (window1, sequence_view1, "sequence_view1");
@@ -1069,7 +1106,6 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, dragged_map1, "dragged_map1");
   GLADE_HOOKUP_OBJECT (window1, recentring1, "recentring1");
   GLADE_HOOKUP_OBJECT (window1, coordinates_recentring1, "coordinates_recentring1");
-  GLADE_HOOKUP_OBJECT (window1, map_and_mol_control1, "map_and_mol_control1");
   GLADE_HOOKUP_OBJECT (window1, main_menu_info, "main_menu_info");
   GLADE_HOOKUP_OBJECT (window1, main_menu_info_menu, "main_menu_info_menu");
   GLADE_HOOKUP_OBJECT (window1, residue_info1, "residue_info1");
@@ -1096,6 +1132,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, probe_clashes1, "probe_clashes1");
   GLADE_HOOKUP_OBJECT (window1, hid1, "hid1");
   GLADE_HOOKUP_OBJECT (window1, hid1_menu, "hid1_menu");
+  GLADE_HOOKUP_OBJECT (window1, reset_view1, "reset_view1");
   GLADE_HOOKUP_OBJECT (window1, scrollwheel1, "scrollwheel1");
   GLADE_HOOKUP_OBJECT (window1, scrollwheel1_menu, "scrollwheel1_menu");
   GLADE_HOOKUP_OBJECT (window1, attach_scroll_wheel_to_which_map_1, "attach_scroll_wheel_to_which_map_1");
@@ -1103,12 +1140,16 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, virtual_trackball1_menu, "virtual_trackball1_menu");
   GLADE_HOOKUP_OBJECT (window1, flat1, "flat1");
   GLADE_HOOKUP_OBJECT (window1, spherical_surface1, "spherical_surface1");
-  GLADE_HOOKUP_OBJECT (window1, reset_view1, "reset_view1");
   GLADE_HOOKUP_OBJECT (window1, help1, "help1");
   GLADE_HOOKUP_OBJECT (window1, help1_menu, "help1_menu");
   GLADE_HOOKUP_OBJECT (window1, on_line_docs_url1, "on_line_docs_url1");
   GLADE_HOOKUP_OBJECT (window1, about1, "about1");
   GLADE_HOOKUP_OBJECT (window1, hints1, "hints1");
+  GLADE_HOOKUP_OBJECT (window1, toolbar1, "toolbar1");
+  GLADE_HOOKUP_OBJECT (window1, toolitem1, "toolitem1");
+  GLADE_HOOKUP_OBJECT (window1, reset_view_button, "reset_view_button");
+  GLADE_HOOKUP_OBJECT (window1, toolitem2, "toolitem2");
+  GLADE_HOOKUP_OBJECT (window1, display_manager_button, "display_manager_button");
   GLADE_HOOKUP_OBJECT (window1, accept_reject_dialog_frame, "accept_reject_dialog_frame");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_statusbar, "main_window_statusbar");

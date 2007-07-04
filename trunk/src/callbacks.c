@@ -7554,3 +7554,16 @@ on_rz_end_multizone_activate           (GtkMenuItem     *menuitem,
 
 }
 
+void
+on_display_manager_button_clicked      (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *widget = wrapped_create_display_control_window();
+   gtk_widget_show(widget);
+}
+
+void
+on_reset_view_button_clicked           (GtkButton       *button,
+                                        gpointer         user_data) { 
+   reset_view();
+} 
