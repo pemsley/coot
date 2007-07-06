@@ -13,6 +13,9 @@
    id="svg3803"
    sodipodi:version="0.32"
    inkscape:version="0.45"
+   sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
+   sodipodi:docname="side-chain-180.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
    sodipodi:modified="true">
   <defs
      id="defs3805" />
@@ -25,7 +28,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="22.197802"
      inkscape:cx="8"
-     inkscape:cy="8"
+     inkscape:cy="7.9159306"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
@@ -61,6 +64,17 @@
        sodipodi:start="0"
        sodipodi:end="3.1551388"
        sodipodi:open="true"
-       transform="translate(-0.5230197,-2.792327)" />
+       transform="translate(-0.9111386,0.207673)" />
+    <text
+       xml:space="preserve"
+       style="font-size:6px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="3.8038809"
+       y="7.453125"
+       id="text3813"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3815"
+         x="3.8038809"
+         y="7.453125">SC</tspan></text>
   </g>
 </svg>
