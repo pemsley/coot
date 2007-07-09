@@ -1,3 +1,9 @@
 
 setenv GUILE_LOAD_PATH /sw/share/guile/1.6.4
 setenv DYLD_LIBRARY_PATH /usr/local/lib:/Users/paulemsley/autobuild/Darwin-Paris.local-pre-release/lib
+
+# Question: does the directory greg-tests exist in the directory you started coot? 
+# It should contain the test scripts.  A link to a greg-tests directory will do.
+
+
+

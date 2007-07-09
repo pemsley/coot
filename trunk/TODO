@@ -23,6 +23,8 @@
    o Post-install slim the binaries
 
    o Do the strand restraints work well under refinement?
+  
+   o Add planar peptide restraints as default
 
    o Add select by sphere to test suite
 

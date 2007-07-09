@@ -909,7 +909,7 @@
 
   (clear-lsq-matches)
   (add-lsq-match ref-resno-start ref-resno-end ref-chain 
-		 mov-resno-start mov-resno-end mov-chain)
+		 mov-resno-start mov-resno-end mov-chain 1)
   (let ((rtop (apply-lsq-matches imol-ref imol-mov)))
     (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius)))
 

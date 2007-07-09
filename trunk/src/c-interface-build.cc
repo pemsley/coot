@@ -1000,7 +1000,6 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
    std::string altconf   = g.molecules[imol].atom_sel.atom_selection[index]->altLoc;
    char *ins_code        = g.molecules[imol].atom_sel.atom_selection[index]->GetInsCode();
 
-   // g.molecules[imol].delete_atom(chain_id, resno, atom_name);
    delete_atom(imol, chain_id.c_str(), resno, ins_code, atom_name.c_str(), altconf.c_str());
    if (graphics_info_t::delete_item_widget != NULL) {
       if (do_delete_dialog) { // via ctrl
@@ -1028,12 +1027,14 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
 	 }
       }
    }
-   std::string cmd = "delete-atom-by-atom-index";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(imol);
-   args.push_back(index);
-   args.push_back(do_delete_dialog);
-   add_to_history_typed(cmd, args);
+
+   // no need for this, the called delete_atom() does it.
+//    std::string cmd = "delete-atom-by-atom-index";
+//    std::vector<coot::command_arg_t> args;
+//    args.push_back(imol);
+//    args.push_back(index);
+//    args.push_back(do_delete_dialog);
+//    add_to_history_typed(cmd, args);
 
 }
 
