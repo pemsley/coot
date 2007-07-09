@@ -442,19 +442,15 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag) {
 	 //
 	 //
 	 //
-	 int max = max_labelled_atom();
+	 int n_atoms_to_label = labelled_atom_index_list.size();
 
-	 if (max > 0) { 
-	    // also remove labels from atom indexes list of over the end.
-	    for (int ii=0; ii< max ; ii++)
-	       label_atom(labelled_atom(ii), brief_atom_labels_flag);
-	 }
-
-	 max = max_labelled_symm_atom();
-
-	 if (max > 0) { 
+	 // also remove labels from atom indexes list of over the end.
+	 for (int ii=0; ii<n_atoms_to_label ; ii++)
+	    label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag);
       
-	    for (int ii=0; ii< max ; ii++) {
+	 n_atoms_to_label = labelled_symm_atom_index_list.size();
+
+	 for (int ii=0; ii<n_atoms_to_label ; ii++) {
 
 	       // symm_trans_t st = g.labelled_symm_atom_symm_trans(ii);
 
@@ -463,7 +459,6 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag) {
 
 	       //label_symm_atom(g.labelled_symm_atom(ii), st);
 	       test_label_symm_atom(ii);
-	    }
 	 }
       }
    }
@@ -472,32 +467,21 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag) {
 void
 molecule_class_info_t::trim_atom_label_table() {
 
-   int new_max = atom_sel.n_selected_atoms;
-   int current_max = max_labelled_atom();
-   std::vector<int> running_tab;
-   std::vector<int> running_symm_tab;
-   
-   for (int i=0; i<current_max; i++) {
-      if (i < new_max) { 
-	 running_tab.push_back(labelled_atom_index_list[i]);
-      }
-   }
-   n_labelled_atoms = running_tab.size();
-   for (int i=0; i<n_labelled_atoms; i++) {
-      labelled_atom_index_list[i] = running_tab[i];
+   int new_max_atom_index = atom_sel.n_selected_atoms;
+
+   std::vector<int>::iterator it;
+   for (it = labelled_atom_index_list.begin(); it != labelled_atom_index_list.end(); it++) {
+      if ( *it > new_max_atom_index)
+	 labelled_atom_index_list.erase(it);
    }
 
    // and now for symmetry index
    //
-   current_max = max_labelled_symm_atom();
-   for (int i=0; i<current_max; i++) {
-      if (i < new_max) {
-	 running_symm_tab.push_back(labelled_symm_atom_index_list[i]);
-      }
-   }
-   n_labelled_symm_atoms = running_symm_tab.size();
-   for (int i=0; i<n_labelled_symm_atoms; i++) {
-      labelled_symm_atom_index_list[i] = running_symm_tab[i];
+   for (it = labelled_symm_atom_index_list.begin();
+	it != labelled_symm_atom_index_list.end();
+	it++) {
+      if ( *it > new_max_atom_index)
+	 labelled_symm_atom_index_list.erase(it);
    }
 }
 
@@ -983,17 +967,6 @@ void
 molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(std::string molecule_name,
 									      short int is_undo_or_redo) {
 
-   // Atom lable initialization:
-
-   labelled_atom_index_list = new int[coot::MAX_LABELLED_ATOMS];
-   n_labelled_atoms = 0;
-
-   labelled_symm_atom_index_list = new int[coot::MAX_LABELLED_ATOMS]; 
-   n_labelled_symm_atoms = 0;
-
-   // Dear oh dear, how anachronistic...
-   labelled_symm_atom_symm_trans_ = new std::pair<symm_trans_t, Cell_Translation>[coot::MAX_LABELLED_ATOMS];
-
    // we use xmap_is_filled[0] to see if this molecule is a map
    //
    // FIXME.  Delete these lines, max_xmaps should be used instead.
@@ -1332,63 +1305,45 @@ molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
 
    // note initialization n_labelled_atoms is 0;
    // 
-   if (n_labelled_atoms < coot::MAX_LABELLED_ATOMS) {
-      if ( is_in_labelled_list(atom_index) == 1 ) {
-	 unlabel_atom(atom_index);
-      } else { 
-	 if (! is_in_labelled_list(atom_index)) {
-	    // cout << "adding atom index " << atom_index << " to  "
-	    // << labelled_atom_index_list << endl;
-	    
-	    labelled_atom_index_list[n_labelled_atoms] = atom_index;
-	    n_labelled_atoms++;
-	 }
-      }
-   } else {
-      cout << "Too many labelled atoms" << endl;
-   } 
+   if (is_in_labelled_list(atom_index) == 1) {
+      unlabel_atom(atom_index);
+   } else { 
+      labelled_atom_index_list.push_back(atom_index);
+   }
 }
 
-int
-molecule_class_info_t::labelled_atom(int i) {
+// int
+// molecule_class_info_t::labelled_atom(int i) {
 
-   return labelled_atom_index_list[i];
+//    return labelled_atom_index_list[i];
 
-} 
+// } 
 
 
-int
-molecule_class_info_t::max_labelled_atom() {
+// Olde Pointere Stuff.  Delete when you feel it should go.
+// int
+// molecule_class_info_t::max_labelled_atom() {
 
-   return n_labelled_atoms;
-} 
+//    return n_labelled_atoms;
+// }
+
 
 // or as we would say in lisp: rember
 void
-molecule_class_info_t::unlabel_atom(int i) {
+molecule_class_info_t::unlabel_atom(int atom_index) {
 
-   // This is a classic recursive function.  I really should learn how
-   // to do recussion in c++, because currently this is terrible and
-   // ugly and makes my fingers itch to type it.
    // 
-   // Remove i from the list of atoms to be labelled.
+   // Remove atom_index from the list of atoms to be labelled.
    //
    int offset = 0;
-   //   cout << "trying to unlabel atom " << i << endl; 
-   
-   for (int ii=0; ii<n_labelled_atoms; ii++) {
-      if (labelled_atom_index_list[ii] == i) {
-	 // cout << "found " << i << " at label_atom index " << ii << endl; 
-	 offset++; 
-      }
-      if (offset > 0) {
-	 labelled_atom_index_list[ii] =
-	    labelled_atom_index_list[ii+offset];
+
+   std::vector<int>::iterator it;
+   for (it = labelled_atom_index_list.begin(); it != labelled_atom_index_list.end(); it++) {
+      if ( *it == atom_index) {
+	 labelled_atom_index_list.erase(it);
+	 break;
       }
    }
-   if (offset > 0)
-      n_labelled_atoms--;
-
 }
 
 void
@@ -1396,8 +1351,11 @@ molecule_class_info_t::unlabel_last_atom() {
    // remove the last atom from the list (if
    // there *are* atoms in the list, else do
    // nothing).
-   if (n_labelled_atoms > 0) {
-      unlabel_atom(labelled_atom_index_list[n_labelled_atoms-1]);
+   unsigned int las = labelled_atom_index_list.size();
+   if (las > 0) {
+      int atom_index = labelled_atom_index_list[las-1];
+      std::cout << "unlabelling atom index" << atom_index << std::endl;
+      unlabel_atom(atom_index);
    }
 }
 
@@ -1407,13 +1365,11 @@ molecule_class_info_t::is_in_labelled_list(int i) {
 
    // is the i'th atom in the list of atoms to be labelled?
 
-   for (int ii=0; ii<n_labelled_atoms; ii++) {
-
+   for (int ii=0; ii<labelled_atom_index_list.size(); ii++) {
       if (labelled_atom_index_list[ii] == i) {
 	 return 1;
       }
    }
-
    return 0;
 }
 
@@ -1476,35 +1432,22 @@ molecule_class_info_t::add_atom_to_labelled_symm_atom_list(int atom_index,
 							   const symm_trans_t &symm_trans,
 							   const Cell_Translation &pre_shift_cell_trans) {
 
-   // note initialization n_labelled_atoms is 0;
-   // 
-   if (n_labelled_symm_atoms < coot::MAX_LABELLED_ATOMS) {
-      if ( is_in_labelled_symm_list(atom_index) == 1 ) {
-	 unlabel_symm_atom(atom_index);
-      } else { 
-	 labelled_symm_atom_index_list[n_labelled_symm_atoms] = atom_index;
-
-// 	 cout << "add_atom_to_labelled_symm_atom_list(..) adding "
-// 	      << symm_trans << " at position " << n_labelled_symm_atoms
-// 	      << endl;
-	    
-	 labelled_symm_atom_symm_trans_[n_labelled_symm_atoms] =
-	    std::pair<symm_trans_t, Cell_Translation> (symm_trans, pre_shift_cell_trans);
-	 n_labelled_symm_atoms++;
-
-      }
-   } else {
-      cout << "Too many symmetry labelled atoms" << endl;
-   } 
+   if ( is_in_labelled_symm_list(atom_index) == 1 ) {
+      unlabel_symm_atom(atom_index);
+   } else { 
+      labelled_symm_atom_index_list.push_back(atom_index);
+      std::pair<symm_trans_t, Cell_Translation> p(symm_trans, pre_shift_cell_trans);
+      labelled_symm_atom_symm_trans_.push_back(p);
+   }
 }
 
+// no need for this now we are using vectors.
+// int
+// molecule_class_info_t::labelled_symm_atom(int i) {
+//    return labelled_symm_atom_index_list[i];
+// }
 
-int
-molecule_class_info_t::labelled_symm_atom(int i) {
 
-   return labelled_symm_atom_index_list[i];
-
-}
 
 std::pair<symm_trans_t, Cell_Translation> 
 molecule_class_info_t::labelled_symm_atom_symm_trans(int i) {
@@ -1513,29 +1456,25 @@ molecule_class_info_t::labelled_symm_atom_symm_trans(int i) {
 }
 
 
+// old syle pointer using function
+// int
+// molecule_class_info_t::max_labelled_symm_atom() {
 
-int
-molecule_class_info_t::max_labelled_symm_atom() {
-
-   return n_labelled_symm_atoms;
-}
+//    return n_labelled_symm_atoms;
+// }
 
 void
-molecule_class_info_t::unlabel_symm_atom(int i) {
+molecule_class_info_t::unlabel_symm_atom(int atom_index) {
    
-   int offset = 0;   
-   
-   for (int ii=0; ii<n_labelled_symm_atoms - 1; ii++) {
-      if (labelled_symm_atom_index_list[ii] == i) {
-	 offset++; 
-      }
-      if (offset > 0) {
-	 labelled_symm_atom_index_list[ii] =
-	    labelled_symm_atom_index_list[ii+offset];
-      }
+   std::vector<int>::iterator it;
+   for (it = labelled_symm_atom_index_list.begin();
+	it != labelled_symm_atom_index_list.end();
+	it++) {
+      if ( *it == atom_index) { 
+	 labelled_symm_atom_index_list.erase(it);
+	 break;
+      } 
    }
-   n_labelled_symm_atoms--;
-
 }
 
 // shall we pass the symm_trans too?  Ideally we should, I think.
@@ -1545,13 +1484,11 @@ molecule_class_info_t::is_in_labelled_symm_list(int i) {
 
    // is the i'th atom in the list of atoms to be labelled?
 
-   for (int ii=0; ii<n_labelled_symm_atoms; ii++) {
-
+   for (int ii=0; ii<labelled_symm_atom_index_list.size(); ii++) {
       if (labelled_symm_atom_index_list[ii] == i) {
 	 return 1;
       }
    }
-
    return 0;
 }
 
@@ -2387,14 +2324,12 @@ molecule_class_info_t::test_label_symm_atom(int i) {
    // same test as has_model():
    if (has_model()) {
       
-      int max = max_labelled_symm_atom();
-   
-      if (max > 0) {       
+      if (i < labelled_symm_atom_index_list.size()) { 
 
-	 if (i < atom_sel.n_selected_atoms) { 
+	 int iatom_index = labelled_symm_atom_index_list[i];
 
-	    int iatom_index = labelled_symm_atom(i);
-	    std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans(i);
+	 if (iatom_index < atom_sel.n_selected_atoms) { 
+	    std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
 	 
 	    std::string label =
 	       make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st.first);
@@ -2452,8 +2387,7 @@ molecule_class_info_t::label_symm_atom(int i, symm_trans_t symm_trans) {
 void
 molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag) {
 
-   // same test as has_model():
-   if (atom_sel.n_selected_atoms > 0 ) { 
+   if (has_model()) { 
 
       if (i < atom_sel.n_selected_atoms) { 
 
@@ -5202,16 +5136,6 @@ molecule_class_info_t::close_yourself() {
    atom_sel.atom_selection = NULL;
    atom_sel.mol = NULL;
 
-   // set the number of labels to 0.
-   n_labelled_symm_atoms = 0;
-   n_labelled_atoms = 0;
-   // 20060104
-   delete [] labelled_symm_atom_symm_trans_;
-   delete [] labelled_symm_atom_index_list;   
-   delete [] labelled_atom_index_list;
-   labelled_symm_atom_symm_trans_ = 0;
-   labelled_symm_atom_index_list = 0;
-   labelled_atom_index_list = 0;
    //
    // gl widget redraw is done in close_molecule
 }
@@ -7598,18 +7522,9 @@ molecule_class_info_t::set_map_colour_strings() const {
 void
 molecule_class_info_t::remove_atom_labels() { 
 
-//    std::cout << "DEBUG:: n_labelled_atoms " << n_labelled_atoms 
-// 	    << " " << n_labelled_symm_atoms << std::endl;
+   labelled_atom_index_list.clear();
+   labelled_symm_atom_index_list.clear();
 
-   int init_count = n_labelled_atoms;
-   for (int i=0; i<init_count; i++) { 
-      unlabel_atom(labelled_atom_index_list[0]);
-   }
-
-   init_count = n_labelled_symm_atoms;
-   for (int i=0; i<init_count; i++) {
-      unlabel_symm_atom(labelled_symm_atom_index_list[0]);
-   }
 } 
 
 
