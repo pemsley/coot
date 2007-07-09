@@ -20,7 +20,7 @@
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/display-manager.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
-   sodipodi:modified="TRUE">
+   sodipodi:modified="true">
   <defs
      id="defs2179">
     <linearGradient
@@ -28,16 +28,16 @@
       <stop
          id="stop3188"
          offset="0"
-         style="stop-color:#6c6c6c;stop-opacity:1;" />
+         style="stop-color:#e8e8e8;stop-opacity:1;" />
       <stop
          id="stop3190"
          offset="1"
-         style="stop-color:#dbdbdb;stop-opacity:1;" />
+         style="stop-color:#d5d5d5;stop-opacity:1;" />
     </linearGradient>
     <linearGradient
        id="linearGradient3170">
       <stop
-         style="stop-color:#6f6f6f;stop-opacity:1;"
+         style="stop-color:#dddddd;stop-opacity:1;"
          offset="0"
          id="stop3172" />
       <stop
@@ -89,8 +89,8 @@
      inkscape:document-units="px"
      inkscape:window-width="838"
      inkscape:window-height="584"
-     inkscape:window-x="407"
-     inkscape:window-y="62" />
+     inkscape:window-x="272"
+     inkscape:window-y="47" />
   <metadata
      id="metadata2182">
     <rdf:RDF>

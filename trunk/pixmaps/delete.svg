@@ -14,9 +14,9 @@
    sodipodi:version="0.32"
    inkscape:version="0.45"
    sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
-   sodipodi:docname="add-alt-conf.svg"
+   sodipodi:docname="delete.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/add-alt-conf.png"
+   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/delete.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
    sodipodi:modified="TRUE">
@@ -83,36 +83,12 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#12125a;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 2.5,13.920965 L 6.7521776,10.92789 L 9.7183637,13.623595 L 13.442291,10.79028"
-       id="path2168"
-       sodipodi:nodetypes="cccc" />
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#981b1b;stroke-width:1.69465852px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 4.8473293,5.1812255 L 10.876338,11.152671 L 10.876338,11.152671"
+       id="path2292" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 6.8102395,7.0814806 L 6.7852377,10.847645"
-       id="path3383"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1.00755441px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 2.7392617,2.477156 L 7.0328088,7.4962228"
-       id="path3819"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#8080ff;stroke-width:1.00755441px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.797324,2.477156 L 6.5037772,7.4962228"
-       id="path3821"
-       sodipodi:nodetypes="cc" />
-    <g
-       transform="translate(9.073911,-1.3233146)"
-       id="g2366">
-      <path
-         id="path2292"
-         d="M 1.0361386,7.4722772 L 6.0450495,7.5 L 6.0450495,7.5"
-         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <path
-         id="path2296"
-         d="M 3.5277229,5.071287 L 3.5,10.080198 L 3.5,10.080198"
-         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-    </g>
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#981b1b;stroke-width:1.69465852px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 4.8473293,11.152671 L 10.876338,5.181226 L 10.876338,5.181226"
+       id="path3918" />
   </g>
 </svg>
