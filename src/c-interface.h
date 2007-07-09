@@ -3980,6 +3980,9 @@ void set_socket_string_waiting(const char *s);
 /*                  Display lists                                           */
 /*  ----------------------------------------------------------------------- */
 /* section Display Lists for Maps */
+/*! \brief Should display lists be used for maps? It may speed things
+  up if these are turned on (or off) - depends on graphics card and
+  drivers.  Pass 1 for on, 0 for off. */
 void set_display_lists_for_maps(int i);
 
 /*  ----------------------------------------------------------------------- */
