@@ -524,12 +524,14 @@ class molecule_class_info_t {
 	    delete [] xmap_list;
 	    xmap_list = 0;
 	 }
-	 delete [] labelled_atom_index_list;
-	 delete [] labelled_symm_atom_index_list;
-	 delete [] labelled_symm_atom_symm_trans_;
-	 labelled_atom_index_list = NULL;
-	 labelled_symm_atom_index_list = NULL;
-	 labelled_symm_atom_symm_trans_= NULL;
+
+/* No need to do this now that labelled_atom_index_list is a vector */
+/* 	 labelled_atom_index_list; */
+/* 	 labelled_symm_atom_index_list; */
+/* 	 labelled_symm_atom_symm_trans_; */
+/* 	 labelled_atom_index_list = NULL; */
+/* 	 labelled_symm_atom_index_list = NULL; */
+/* 	 labelled_symm_atom_symm_trans_= NULL; */
       }
    }
 
@@ -539,12 +541,13 @@ class molecule_class_info_t {
       atom_sel.mol = NULL;
 
       // 
-      n_labelled_atoms = 0;
-      n_labelled_symm_atoms = 0;
+/*       n_labelled_atoms = 0; */
+/*       n_labelled_symm_atoms = 0; */
       // We delete these pointers on close_yourself()
-      labelled_symm_atom_symm_trans_ = NULL;  
-      labelled_symm_atom_index_list = NULL;
-      labelled_atom_index_list = NULL;
+
+      //       labelled_symm_atom_symm_trans_ = NULL;  
+      // labelled_symm_atom_index_list = NULL;
+      // labelled_atom_index_list = NULL;
 
       // initial bonds type (checked and reset in handle_read_draw_molecule)
       bonds_box_type = coot::UNSET_TYPE;
@@ -825,14 +828,18 @@ class molecule_class_info_t {
    void display_ghost_bonds(int ighost);
 
 
-   int* labelled_atom_index_list;
-   int  n_labelled_atoms; 
+   // old style
+   // int* labelled_atom_index_list;
+   // int  n_labelled_atoms; 
+   // new style
+   std::vector<int> labelled_atom_index_list;
    //
    // Symmetery atom labels.
    //
-   int* labelled_symm_atom_index_list;
-   int  n_labelled_symm_atoms;
-   std::pair<symm_trans_t, Cell_Translation> *labelled_symm_atom_symm_trans_;
+   //    int* labelled_symm_atom_index_list;
+   std::vector<int> labelled_symm_atom_index_list; 
+   //    int  n_labelled_symm_atoms;
+   std::vector<std::pair<symm_trans_t, Cell_Translation> > labelled_symm_atom_symm_trans_;
 
    // Atom Labelling Interface Functions
    // 
@@ -844,7 +851,7 @@ class molecule_class_info_t {
    int labelled_atom(int i);
    // 
    // how many atoms do we want to index?
-   int max_labelled_atom(); 
+   // int max_labelled_atom();  // old pointer stuff
    // 
    void unlabel_atom(int i); 
    // is the i'th atom in the list of atoms to be labelled?
@@ -874,7 +881,7 @@ class molecule_class_info_t {
    //
    void unlabel_symm_atom(int i);
    // 
-   int max_labelled_symm_atom();
+   // int max_labelled_symm_atom(); // old pointer stuff 
    bool is_in_labelled_symm_list(int i);
    std::pair<symm_trans_t, Cell_Translation> labelled_symm_atom_symm_trans(int i);
    //
