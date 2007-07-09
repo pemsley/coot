@@ -6,20 +6,18 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="16px"
    height="16px"
    id="svg2160"
    sodipodi:version="0.32"
-   inkscape:version="0.45"
-   sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
+   inkscape:version="0.43"
+   sodipodi:docbase="/lmb/wear/emsley/Projects/coot/pixmaps"
    sodipodi:docname="add-alt-conf.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/add-alt-conf.png"
+   inkscape:export-filename="/lmb/wear/emsley/Projects/coot/pixmaps/add-alt-conf.png"
    inkscape:export-xdpi="100"
-   inkscape:export-ydpi="100"
-   sodipodi:modified="TRUE">
+   inkscape:export-ydpi="100">
   <defs
      id="defs2162">
     <marker
@@ -65,8 +63,8 @@
      inkscape:document-units="px"
      inkscape:window-width="822"
      inkscape:window-height="584"
-     inkscape:window-x="410"
-     inkscape:window-y="71" />
+     inkscape:window-x="23"
+     inkscape:window-y="286" />
   <metadata
      id="metadata2165">
     <rdf:RDF>
@@ -83,27 +81,27 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#12125a;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 2.5,13.920965 L 6.7521776,10.92789 L 9.7183637,13.623595 L 13.442291,10.79028"
+       style="fill:none;fill-rule:evenodd;stroke:#12125a;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 14.993961,15.375 L 10.741783,12.381925 L 7.7755968,15.07763 L 4.0516695,12.244315"
        id="path2168"
        sodipodi:nodetypes="cccc" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 6.8102395,7.0814806 L 6.7852377,10.847645"
+       style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 10.683721,8.5355156 L 10.708723,12.30168"
        id="path3383"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1.00755441px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 2.7392617,2.477156 L 7.0328088,7.4962228"
+       style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 6.625,4.3559332 L 10.918547,9.375"
        id="path3819"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#8080ff;stroke-width:1.00755441px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.797324,2.477156 L 6.5037772,7.4962228"
+       style="fill:none;fill-rule:evenodd;stroke:#8080ff;stroke-width:1.92686427;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 15.107315,3.0397858 L 10.632723,8.4892119"
        id="path3821"
        sodipodi:nodetypes="cc" />
     <g
-       transform="translate(9.073911,-1.3233146)"
+       transform="matrix(-1,0,0,1.020651,6.090172,-5.221923)"
        id="g2366">
       <path
          id="path2292"
