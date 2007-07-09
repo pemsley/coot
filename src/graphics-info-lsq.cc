@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #include <GL/glut.h>  // for some reason...  // Eh?
 
+#include "clipper/core/rotation.h"
 
 #include <iostream>
 #include <dirent.h>   // for refmac dictionary files
@@ -85,6 +86,10 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 		     v0 = v5.unit();
 
 		  std::cout << "INFO:: Axis orientation: " << v0.format() << std::endl;
+		  std::cout << "INFO:: Rotation in CCP4 Polar Angles: "
+			    << clipper::Rotation(rtop_info.second.rot()).polar_ccp4().format()
+			    << std::endl;
+		  
 
 		  molecules[imol_moving].transform_by(rtop_info.second);
 		  rtop_r = rtop_info.second;

@@ -7764,7 +7764,7 @@ void
 molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
 
    make_backup();
-   std::cout << "INFO:: coordinates transformed by orthonal maxix: \n"
+   std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
 	     << rtop.format() << std::endl;
    if (have_unit_cell) {
       clipper::Cell cell(clipper::Cell_descr(atom_sel.mol->get_cell().a,
