@@ -6,20 +6,18 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="16px"
    height="16px"
    id="svg3803"
    sodipodi:version="0.32"
-   inkscape:version="0.45"
-   sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
+   inkscape:version="0.43"
+   sodipodi:docbase="/lmb/wear/emsley/Projects/coot/pixmaps"
    sodipodi:docname="side-chain-180.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/side-chain-180.png"
+   inkscape:export-filename="/lmb/wear/emsley/Projects/coot/pixmaps/side-chain-180.png"
    inkscape:export-xdpi="100"
-   inkscape:export-ydpi="100"
-   sodipodi:modified="TRUE">
+   inkscape:export-ydpi="100">
   <defs
      id="defs3805" />
   <sodipodi:namedview
@@ -29,17 +27,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.197802"
+     inkscape:zoom="15.696216"
      inkscape:cx="8"
-     inkscape:cy="7.9159306"
+     inkscape:cy="7.6288015"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
      inkscape:window-width="822"
      inkscape:window-height="584"
-     inkscape:window-x="310"
-     inkscape:window-y="114" />
+     inkscape:window-x="64"
+     inkscape:window-y="208" />
   <metadata
      id="metadata3808">
     <rdf:RDF>
@@ -57,7 +55,7 @@
      inkscape:groupmode="layer">
     <path
        sodipodi:type="arc"
-       style="opacity:1;fill:#27c42b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.44999999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:#27c42b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path3811"
        sodipodi:cx="8.7170792"
        sodipodi:cy="8.093812"
@@ -67,17 +65,17 @@
        sodipodi:start="0"
        sodipodi:end="3.1551388"
        sodipodi:open="true"
-       transform="translate(-0.9111386,0.207673)" />
+       transform="matrix(1.242168,0,0,1.448377,-2.738616,-4.325491)" />
     <text
        xml:space="preserve"
-       style="font-size:6px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="3.8038809"
-       y="7.453125"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="1.3540039"
+       y="6.6796875"
        id="text3813"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
          id="tspan3815"
-         x="3.8038809"
-         y="7.453125">SC</tspan></text>
+         x="1.3540039"
+         y="6.6796875">SC</tspan></text>
   </g>
 </svg>
