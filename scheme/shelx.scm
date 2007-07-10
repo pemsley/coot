@@ -1,6 +1,7 @@
 
-;;;; Copyright 2004, 2005, 2006 The University of York
+;;;; Copyright 2004, 2005, 2006 by The University of York
 ;;;; Copyright 2007 by Paul Emsley
+;;;; Copyright 2007 by The University of Oxford
  
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -327,7 +328,98 @@
 			  (list "" 1 "" "blank" ""))))) ; failure
 		    
 		(list "" 1 "" "blank" ""))))) ; failure
-	  
+
+    ;; So we have a line in a table something like these:
+    ;; 
+    ;; "    2.7499    2.5580    0.1919    0.0400    DANG CN_2011 C_2011"
+    ;; "                        1.5156    0.5000    FLAT O_1012 CA_1012 N_1013 CA_1013"
+    ;; 
+    ;; It seems that there are either 4 leading numbers or 2 leading
+    ;; numbers.  Let's parse up the line here and return (list
+    ;; observed target error sigma restraint) where observed and
+    ;; target are #f if there number is missing (e.g. a "FLAT"
+    ;; restraint).
+    ;; 
+    ;; There are 2 regimes we understand, either 
+    ;; number number number number restraint-descr atom-1-desc atom-2-desc 
+    ;; or 
+    ;; number number restraint-descr atom-stuff [.. atom-stuff]
+    ;; 
+    ;; Actually here we will just make a string list of the
+    ;; atom-stuffs (after the restraint-descr) and parse that
+    ;; elsewhere (in do-gui) to find the atoms.  The actual
+    ;; meaning of the atom-stuffs depends on the restraint-descr.
+    ;; 
+    ;; return #f on something we don't understand 
+    ;; 
+    (define (parse-dr-line line)
+      
+      (let ((bits (string->list-of-strings line)))
+
+	(if (<= (length bits) 3)
+	    #f ; failed to understand
+	    ;; 
+	    (let ((n0 (string->number (list-ref bits 0)))
+		  (n1 (string->number (list-ref bits 1)))
+		  (n2 (string->number (list-ref bits 2)))
+		  (n3 (string->number (list-ref bits 3))))
+
+	      (if (not (and (number? n0)
+			    (number? n1)))
+
+		  #f ; failed to understand
+
+		  (if (and (number? n2)
+			   (number? n3))
+		      ; a 4 number line
+		      (if (<= (length bits) 6)
+			  #f ; failed to understand
+			  (list n0 n1 n2 n3 (list-ref bits 4)
+				(cdr (cdr (cdr (cdr (cdr bits)))))))
+
+		      ; a 2 number line
+		      (if (<= (length bits) 3)
+			  #f ; failed to understand
+			  (list #f #f n0 n1 (list-ref bits 2)
+				(cdr (cdr (cdr bits)))))))))))
+				
+
+    ;; 
+    (define (do-gui disagreeable-restraints-list interesting-list)
+      (format #t "DR: ~s~%" disagreeable-restraints-list)
+
+      (let loop ((dr-list disagreeable-restraints-list)
+		 (dis-res-button-list '()))
+	
+	(cond 
+	 ((null? dr-list) 
+	  (gui-interesting-list (append interesting-list dis-res-button-list)))
+	 (else 
+	  (let* ((restraint-type (list-ref (car dr-list) 4))
+		 (drl-index
+		  (cond
+		   ((string=? restraint-type "BUMP") 0)
+		   ((string=? restraint-type "DANG") 0)
+		   ((string=? restraint-type "FLAT") 0)
+		   ((string=? restraint-type "SIMU") 1)
+		   ((string=? restraint-type "ISOR") 1)
+		   (else 
+		    0)))
+		 (atom-parts (make-atom-parts 
+			      (list-ref (list-ref (car dr-list) 5) drl-index)))
+		 (button-label (string-append "Disagreeable Restraint " 
+					      restraint-type
+					      "  "
+					      (list-ref atom-parts 0)
+					      "  "
+					      (number->string (list-ref atom-parts 1))
+					      "  "
+					      (list-ref atom-parts 3)))
+		 (interesting-thing (cons button-label (cons imol atom-parts))))
+
+	    (loop (cdr dr-list)
+		  (cons interesting-thing dis-res-button-list)))))))
+	    
 
     ;; main body
     (if (not (valid-model-molecule? imol))
@@ -339,10 +431,13 @@
 	      (lambda (port)
 		
 		(let loop ((line (read-line port))
-			   (interesting-list '()))
+			   (interesting-list '())
+			   (disagreeable-restraints-list '())
+			   (dr-count 0))
 		  
 		  (cond 
-		   ((eof-object? line) (gui-interesting-list interesting-list))
+		   ((eof-object? line) (do-gui (reverse disagreeable-restraints-list)
+					       interesting-list))
 		   ((string-match "may be split into" line)
 		    (let ((parts (string->list-of-strings line)))
 		      (if (> (length parts) 6)
@@ -359,10 +454,38 @@
 				      (cons 
 				       (append
 					(list buton-label imol) atom-parts)
-				       interesting-list))))))))
+				       interesting-list)
+				      disagreeable-restraints-list
+				      0)))))))
+
+		   ((string-match 
+		     "   Observed   Target    Error     Sigma     Restraint" line)
+		    (loop (read-line port)
+			  interesting-list
+			  '()
+			  1))
+
+		   ((= dr-count 1)
+		    (loop (read-line port)
+			  interesting-list
+			  '() ; reset the disagreeable-restraints-list
+			  2))
+
+		   ((= dr-count 2) ; OK, in the disagreeable table
+		    ;; (format #t "DR: ~s~%" line)
+		    (let ((dr-bits (parse-dr-line line)))
+		      ;; (format #t "dr-bits: ~s~%" dr-bits)
+		      (loop (read-line port)
+			    interesting-list
+			    (if (list? dr-bits)
+				(cons dr-bits disagreeable-restraints-list)
+				disagreeable-restraints-list)
+			    (if (> (string-length line) 0) 2 0))))
+
 		   (else 
 		    (loop (read-line port)
-			  interesting-list))))))))))
+			  interesting-list
+			  disagreeable-restraints-list dr-count))))))))))
 
 
 				    
