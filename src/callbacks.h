@@ -2853,7 +2853,11 @@ on_display_manager_button_clicked      (GtkButton       *button,
                                         gpointer         user_data);
 
 
+#if (GTK_MAJOR_VERSION == 2)
+
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
                                         gpointer         user_data);
+
+#endif 
 

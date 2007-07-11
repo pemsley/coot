@@ -429,35 +429,18 @@ void deviant_geometry(int imol) {
       float strictness = 3.0;
       graphics_info_t::molecules[imol].find_deviant_geometry(strictness);
    }
-
 }
 
 
 short int is_valid_model_molecule(int imol) { 
 
-   short int v = 0;
-   if (imol >= 0) { 
-      if (imol < graphics_info_t::n_molecules) {
-	 if (graphics_info_t::molecules[imol].has_model()) {
-	    v = 1;
-	 }
-      }
-   }
-   return v;
+   return graphics_info_t::is_valid_model_molecule(imol);
 } 
 
 
 short int is_valid_map_molecule(int imol) { 
 
-   short int v = 0;
-   if (imol >= 0) { 
-      if (imol < graphics_info_t::n_molecules) {
-	 if (graphics_info_t::molecules[imol].has_map()) {
-	    v = 1;
-	 }
-      }
-   }
-   return v;
+   return graphics_info_t::is_valid_map_molecule(imol);
 }
 
 #include "geometry-graphs.hh"

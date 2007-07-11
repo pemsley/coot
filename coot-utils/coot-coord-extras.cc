@@ -244,3 +244,4 @@ coot::util::is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geome
 
    return is_nuc;
 }
+

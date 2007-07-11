@@ -739,6 +739,32 @@ public:
    }
 
 
+  static bool is_valid_model_molecule(int imol) {
+
+    bool v = 0;
+    if (imol >= 0) {
+      if (imol < n_molecules) {
+	if (molecules[imol].has_model()) {
+	  v = 1;
+	}
+      }
+    }
+    return v;
+  }
+
+  static bool is_valid_map_molecule(int imol) {
+
+    bool v = 0;
+    if (imol >= 0) {
+      if (imol < n_molecules) {
+	if (molecules[imol].has_map()) {
+	  v = 1;
+	}
+      }
+    }
+    return v;
+  }
+
    // ------------- main window -----------------------
    static GtkWidget *glarea; // so that the molecule redraw function
                              // in c-interface.cc can find which window to redraw.

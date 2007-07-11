@@ -1197,6 +1197,106 @@ coot::is_bad_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint
    // return std::pair<short int, coot::atom_spec_t> (ibad, chiral_atom);
    return v;
 }
+
+
+// Return a list of bad chiral volumes for this molecule:
+// 
+// Return also a flag for the status of this test, were there any
+// residues for we we didn't find restraints?  The flag is the number
+// of residue names in first part of the returned pair.
+// 
+// 
+std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
+coot::bad_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
+			 int cif_dictionary_read_number) {
+
+   std::vector <coot::atom_spec_t> v;
+   int restraints_status = 1;
+   std::vector<std::string> unknown_types_vec; 
+
+#ifdef HAVE_GSL
+   
+   int n_models = mol->GetNumberOfModels();
+   for (int imod=1; imod<=n_models; imod++) { 
+      
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      if (nchains <= 0) { 
+	 std::cout << "bad nchains in molecule " << nchains
+		   << std::endl;
+      } else { 
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (chain_p == NULL) {  
+	       // This should not be necessary. It seem to be a
+	       // result of mmdb corruption elsewhere - possibly
+	       // DeleteChain in update_molecule_to().
+	       std::cout << "NULL chain in ... " << std::endl;
+	    } else { 
+	       int nres = chain_p->GetNumberOfResidues();
+	       PCResidue residue_p;
+	       // CAtom *at;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  if (n_atoms > 3) {
+		     std::string residue_type(residue_p->name);
+		     if (residue_type == "UNK")
+			residue_type = "ALA";
+		     if (! geom_p->have_dictionary_for_residue_type(residue_type,
+								  cif_dictionary_read_number)) {
+			std::cout << "WARNING::! Failed to find restraint for residue type "
+				  << residue_type << std::endl;
+			restraints_status = 0;
+			// only add the residue_type if it is not already in the vector
+			short int irfound = 0;
+			for (unsigned int ir=0; ir<unknown_types_vec.size(); ir++)
+			   if (unknown_types_vec[ir] == residue_type) {
+			      irfound = 1;
+			      break;
+			   }
+			if (irfound == 0) 
+			   unknown_types_vec.push_back(residue_type);
+		     } else { 
+			std::vector<coot::dict_chiral_restraint_t> chiral_restraints = 
+			   geom_p->get_monomer_chiral_volumes(std::string(residue_p->name));
+			coot::dict_chiral_restraint_t chiral_restraint;
+			for (unsigned int irestr=0; irestr<chiral_restraints.size(); irestr++) { 
+			   chiral_restraint = chiral_restraints[irestr];
+			   std::vector<std::pair<short int, coot::atom_spec_t> > c = 
+			      coot::is_bad_chiral_atom_p(chiral_restraint, residue_p);
+			   for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
+			      if (c[ibad].first) {
+				 std::cout << "INFO:: found bad chiral atom: " 
+					   << chain_p->GetChainID() << " " 
+					   << residue_p->GetSeqNum() << " "
+					   << residue_p->GetInsCode() << " "
+					   << chiral_restraint.atom_id_c_4c() << " "
+					   << c[ibad].second.alt_conf << std::endl;
+				    
+				 v.push_back(coot::atom_spec_t(chain_p->GetChainID(),
+							       residue_p->GetSeqNum(),
+							       residue_p->GetInsCode(),
+							       chiral_restraint.atom_id_c_4c(),
+							       c[ibad].second.alt_conf));
+			      }
+			   }
+			}
+		     }   
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+#endif //  HAVE_GSL
+   std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > pair(unknown_types_vec, v);
+   return pair;
+}
+
+
 			     
 void
 coot::fix_chiral_atom_maybe (const simple_restraint &chiral_restraint,
