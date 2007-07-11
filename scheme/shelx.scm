@@ -173,6 +173,7 @@
 			    (unique-date/time-str)))
 		     (ins-filename (string-append stub ".ins"))
 		     (res-filename (string-append stub ".res"))
+		     (lst-filename (string-append stub ".lst"))
 		     (fcf-filename (string-append stub ".fcf"))
 		     (log-filename (string-append stub ".log"))
 		     (hkl-filename (string-append stub ".hkl")))
@@ -249,8 +250,9 @@
 		      ; running shelxl creates stub.res
 		      (goosh-command "shelxl" (list stub) '() log-filename #t)
 		      ; it isn't a pdb file, but coot knows what to do.
-		      (read-pdb res-filename)
-		      (handle-shelx-fcf-file fcf-filename)))))))))
+		      (let ((imol-res (read-pdb res-filename)))
+			(handle-shelx-fcf-file fcf-filename)
+			(read-shelx-lst-file lst-filename imol-res))))))))))
 
     
 ; (shelxl-refine 0 "data/shelx/problems/insulin.hkl")
@@ -388,7 +390,7 @@
     (define (do-gui disagreeable-restraints-list interesting-list)
       (format #t "DR: ~s~%" disagreeable-restraints-list)
 
-      (let loop ((dr-list disagreeable-restraints-list)
+      (let loop ((dr-list (reverse disagreeable-restraints-list))
 		 (dis-res-button-list '()))
 	
 	(cond 
@@ -407,14 +409,34 @@
 		    0)))
 		 (atom-parts (make-atom-parts 
 			      (list-ref (list-ref (car dr-list) 5) drl-index)))
+		 (stats-string
+		  (let ((n2 (list-ref (car dr-list) 2))
+			(n3 (list-ref (car dr-list) 3)))
+		    (if (not (and (number? n2)
+				  (number? n3)))
+			""
+			(let ((z (/ (abs n2) n3)))
+			  (if (not (number? z))
+			      ""
+			      (string-append 
+			       " "
+			       (number->string n2)
+			       " [Z="
+			       (number->string z)
+			       "]"))))))
 		 (button-label (string-append "Disagreeable Restraint " 
-					      restraint-type
+					      (if (= drl-index 0) 
+						  restraint-type
+						  (string-append
+						   restraint-type " "
+						   (car (list-ref (car dr-list) 5))))
 					      "  "
 					      (list-ref atom-parts 0)
 					      "  "
 					      (number->string (list-ref atom-parts 1))
 					      "  "
-					      (list-ref atom-parts 3)))
+					      (list-ref atom-parts 3)
+					      stats-string))
 		 (interesting-thing (cons button-label (cons imol atom-parts))))
 
 	    (loop (cdr dr-list)
@@ -488,8 +510,3 @@
 			  disagreeable-restraints-list dr-count))))))))))
 
 
-				    
-
-
-
-	

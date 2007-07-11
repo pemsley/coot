@@ -410,6 +410,7 @@
 	  "Associate Sequence to Model: "
 	  "Chain ID"
 	  ""
+	  "Select FASTA file"
 	  (lambda (imol chain-id fasta-file-name)
 	    (format #t "assoc seq: ~s ~s ~s~%" imol chain-id fasta-file-name)
 	    (if (file-exists? fasta-file-name)
