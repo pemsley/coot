@@ -765,7 +765,7 @@
 ;; callback-function is a function that takes a molecule number and 2
 ;; text strings (e.g chain-id and file-name)
 ;; 
-(define (generic-chooser-entry-and-file-selector chooser-label entry-hint-text defaut-entry-text callback-function)
+(define (generic-chooser-entry-and-file-selector chooser-label entry-hint-text default-entry-text file-selector-hint callback-function)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
@@ -790,9 +790,9 @@
     (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
     (gtk-box-pack-start hbox-for-entry entry-label #t #f 5)
     (gtk-box-pack-start hbox-for-entry entry #t #t 4)
-    (gtk-entry-set-text entry defaut-entry-text)
+    (gtk-entry-set-text entry default-entry-text)
 
-    (let ((file-sel-entry (file-selector-entry vbox " Select FASTA file: ")))
+    (let ((file-sel-entry (file-selector-entry vbox file-selector-hint)))
       (gtk-box-pack-start vbox h-sep #t #f 2)
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
     
@@ -811,6 +811,58 @@
 				    (let ((text (gtk-entry-get-text entry))
 					  (file-sel-text (gtk-entry-get-text file-sel-entry)))
 				      (callback-function active-mol-no text file-sel-text)))))
+			    
+			    (gtk-widget-destroy window)))
+      
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window)))
+      
+      (gtk-widget-show-all window))))
+
+;; A pair of widgets, a molecule chooser and an entry.  
+;; callback-function is a function that takes a molecule number and a 
+;; file-name
+;; 
+(define (generic-chooser-and-file-selector chooser-label file-selector-hint default-file-name callback-function)
+
+  (let* ((window (gtk-window-new 'toplevel))
+	 (label (gtk-label-new chooser-label))
+	 (vbox (gtk-vbox-new #f 2))
+	 (hbox-for-entry (gtk-hbox-new #f 0))
+	 (hbox-buttons (gtk-hbox-new #t 2))
+	 (menu (gtk-menu-new))
+	 (option-menu (gtk-option-menu-new))
+	 (ok-button (gtk-button-new-with-label "  OK  "))
+	 (cancel-button (gtk-button-new-with-label " Cancel "))
+	 (h-sep (gtk-hseparator-new))
+	 (model-mol-list (fill-option-menu-with-coordinates-mol-options menu)))
+    
+    (gtk-window-set-default-size window 400 100)
+    (gtk-container-add window vbox)
+    (gtk-box-pack-start vbox label #f #f 5)
+    (gtk-box-pack-start vbox option-menu #t #t 2)
+    (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
+    (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
+
+    (let ((file-sel-entry (file-selector-entry vbox file-selector-hint)))
+      (gtk-box-pack-start vbox h-sep #t #f 2)
+      (gtk-box-pack-start vbox hbox-buttons #f #f 5)
+    
+      (gtk-option-menu-set-menu option-menu menu)
+      
+      ;; button callbacks:
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda args
+			    ;; what is the molecule number of the option menu?
+			    (let ((active-mol-no (get-option-menu-active-molecule 
+						  option-menu
+						  model-mol-list)))
+			      
+			      (if (number? active-mol-no)
+				  (begin
+				    (let ((file-sel-text (gtk-entry-get-text file-sel-entry)))
+				      (callback-function active-mol-no file-sel-text)))))
 			    
 			    (gtk-widget-destroy window)))
       
