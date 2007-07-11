@@ -168,7 +168,8 @@
 
 	      (let* ((stub (string-append 
 			    *coot-shelxl-dir* "/"
-			    (strip-path (remove-time-extension (strip-extension (molecule-name imol))))
+			    (strip-path (remove-time-extension 
+					 (strip-extension (molecule-name imol))))
 			    "-"
 			    (unique-date/time-str)))
 		     (ins-filename (string-append stub ".ins"))
@@ -508,5 +509,3 @@
 		    (loop (read-line port)
 			  interesting-list
 			  disagreeable-restraints-list dr-count))))))))))
-
-
