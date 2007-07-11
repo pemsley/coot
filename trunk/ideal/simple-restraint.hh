@@ -399,7 +399,13 @@ namespace coot {
    // 
    std::vector<std::pair<short int, coot::atom_spec_t> >
    is_bad_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint,
-			CResidue *res); 
+			CResidue *res);
+
+   std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
+   bad_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
+		      int cif_dictionary_read_number);
+      
+   
 
 
    // -------------------------------------------------------------------------

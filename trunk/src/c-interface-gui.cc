@@ -407,8 +407,6 @@ void set_graphics_window_size(int x_size, int y_size) {
 	 GtkWindow *window = GTK_WINDOW(lookup_widget(g.glarea, "window1"));
 	 if (window) {
 	    gtk_widget_set_usize (GTK_WIDGET(window), x_size, y_size);
-	    std::cout << "!!!!!!!!!!!!!!!! done grpahics size to " << x_size << " "
-		      << y_size << std::endl;
 	    while (gtk_events_pending())
 	       gtk_main_iteration();
 	 }

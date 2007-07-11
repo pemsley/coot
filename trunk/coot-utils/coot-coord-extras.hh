@@ -50,6 +50,7 @@ namespace coot {
       get_contact_indices_for_PRO_residue(PPCAtom residue_atom,
 					  int nResidueAtoms, 
 					  coot::protein_geometry *geom_p);
+
       class missing_atom_info {
       public:
 	 std::vector<std::string> residues_with_no_dictionary;

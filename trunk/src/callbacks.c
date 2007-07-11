@@ -7568,9 +7568,11 @@ on_reset_view_button_clicked           (GtkButton       *button,
    reset_view();
 } 
 
+#if (GTK_MAJOR_VERSION > 1)
 
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
                                         gpointer         user_data) {
 }
 
+#endif 

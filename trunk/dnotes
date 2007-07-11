@@ -45,6 +45,9 @@ Tue Jul  3 14:27:37 BST 2007
      warning info_dialog on top of (displayed after) the Accept/Reject
      dialog. 
 
+* Actually, simple-restraint.cc was the right place because coot-utils
+  are low level and don't use simple-restraint.hh
+
      Also test a mmdb for a cis peptide.  Add that function to
      coot-coord-utils.hh 
 	
