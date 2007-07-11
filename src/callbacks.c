@@ -7567,3 +7567,10 @@ on_reset_view_button_clicked           (GtkButton       *button,
                                         gpointer         user_data) { 
    reset_view();
 } 
+
+
+void
+on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
+                                        gpointer         user_data) {
+}
+

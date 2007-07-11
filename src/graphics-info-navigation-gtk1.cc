@@ -155,6 +155,22 @@ graphics_info_t::fill_go_to_atom_residue_list_gtk1(GtkWidget *gtktree) {
    g.go_to_atom_residue(); // sets values of unset (magic -1) go to
 			   // atom residue number.
 
+   // Claus Flensburg reports a crash around here, when reading in a
+   // (dodgy?) pdb file at start up on the command line.
+
+   // So let's test that g.go_to_atom_molecule() is sensible before
+   // proceeding: Slightly inelegant logic, so that we can make a
+   // small patch instead of a big one.
+   bool stop_now = 1;
+   if (g.go_to_atom_molecule() < n_molecules)
+      if (is_valid_model_molecule(g.go_to_atom_molecule()))
+	 stop_now = 0;
+
+   if (stop_now) {
+      std::cout << "ERROR:: trapped bad go to atom molecule" << std::endl;
+      return;
+   }
+      
    std::vector<coot::model_view_atom_tree_chain_t> residue_chains = 
       molecules[g.go_to_atom_molecule()].model_view_residue_tree_labels();
 

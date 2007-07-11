@@ -678,6 +678,19 @@ Tue Jul  3 14:27:37 BST 2007
    o are the findwaters and findligands being installed correctly
      (with wrappers?).
 
+   o move bad_chiral_volumes() to coot-coord-extras and use it to
+     check chiral volumes after refinement (i.e. we should get a
+     warning info_dialog on top of (displayed after) the Accept/Reject
+     dialog. 
+
+     Also test a mmdb for a cis peptide.  Add that function to
+     coot-coord-utils.hh 
+	
+     std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > 
+	test_for_cis_peptides(CMMDBManager *fragment_mol);
+
+   o Add a PIR sequence reader for cootaneering
+
 
 
 
@@ -791,6 +804,9 @@ Program terminated with signal 11, Segmentation fault.
 #40 0x080e34b5 in main (argc=1, argv=0xbfffd264) at main.cc:408
 
 
+* Possibly fixed - reworked labelling code not to use poiners now.
+
+
 ------
 Mon Jul  9 18:29:22 BST 2007
 
@@ -805,3 +821,4 @@ Mon Jul  9 18:29:22 BST 2007
 	delete atom
 
 	delete atom
+

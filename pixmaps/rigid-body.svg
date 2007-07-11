@@ -16,7 +16,10 @@
    sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
    sodipodi:docname="rigid-body.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   sodipodi:modified="true">
+   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/rigid-body.png"
+   inkscape:export-xdpi="100"
+   inkscape:export-ydpi="100"
+   sodipodi:modified="TRUE">
   <defs
      id="defs2162">
     <filter
@@ -35,9 +38,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.197802"
+     inkscape:zoom="15.696216"
      inkscape:cx="8"
-     inkscape:cy="8"
+     inkscape:cy="7.9648528"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
@@ -62,17 +65,18 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#122f5d;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 8.5488241,13.5 L 5.6655237,11.335149 L 7.676065,6.3857008 L 3.5,3.6160946"
+       style="fill:none;fill-rule:evenodd;stroke:#122f5d;stroke-width:1.27055871px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 6.9452279,14.95977 L 3.3417201,12.163482 L 5.854466,5.7703945 L 0.63527936,2.1929581"
        id="path2168" />
     <path
        style="fill:#23cb59;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter3379)"
        d="M 11.415594,1.2406559 C 10.242296,0.39325495 9.4213645,1.4623608 9.4630569,2.6903465 C 9.5047494,3.9183323 11.211819,4.4102104 11.176918,6.0625 C 11.142017,7.7147896 10.404641,8.3084158 10.404641,8.3084158 C 10.404641,8.3084158 8.8638304,8.4784653 8.8482054,10.03125 C 8.8325804,11.538985 9.4862005,11.861634 9.4862005,11.861634 C 9.4862005,11.861634 10.200882,13.68914 11.080755,13.915594 C 11.960628,14.142048 12.812098,13.726361 13.005693,12.76745 C 13.199288,11.80854 11.671597,11.445003 11.855136,10.07995 C 12.038676,8.7148979 13.289356,8.2532797 13.289356,8.2532797 C 13.289356,8.2532797 14.478868,7.6245354 14.291399,5.8997525 C 14.104517,4.1803837 12.588892,2.0880569 11.415594,1.2406559 z "
        id="path3143"
-       sodipodi:nodetypes="czzczczzzczz" />
+       sodipodi:nodetypes="czzczczzzczz"
+       transform="matrix(1.2812277,0,0,1.1692934,-2.3362127,-0.7957219)" />
     <g
        id="g3282"
-       transform="translate(-1.008911,-1)">
+       transform="matrix(0.8727697,0,0,0.8030568,-1.3816394,-1.4807893)">
       <path
          id="path2292"
          d="M 5.5,3.8920792 L 10.508911,3.919802 L 10.508911,3.919802"

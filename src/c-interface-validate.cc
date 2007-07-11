@@ -383,6 +383,32 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma
 
 }
 
+void check_chiral_volumes(int imol) { 
+   graphics_info_t g;
+   if (imol < graphics_info_t::n_molecules) { 
+      if (graphics_info_t::molecules[imol].has_model()) { 
+	 g.check_chiral_volumes(imol);
+      } else {
+	 std::cout << "WARNING:: molecule " << imol 
+		   <<  " does not have coordinates\n";
+      }
+   } else {
+      std::cout << "WARNING:: no such molecule " << imol << std::endl;
+   } 
+}
+
+
+
+void set_fix_chiral_volumes_before_refinement(int istate) {
+   graphics_info_t::fix_chiral_volume_before_refinement_flag = istate;
+} 
+
+
+void check_chiral_volumes_from_widget(GtkWidget *window) { 
+   
+   check_chiral_volumes(graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule);
+}
+
 
 
 // --------------------------------------------------------------------------
