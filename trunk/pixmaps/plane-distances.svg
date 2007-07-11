@@ -19,7 +19,7 @@
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/plane-distances.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
-   sodipodi:modified="TRUE">
+   sodipodi:modified="true">
   <defs
      id="defs3461" />
   <sodipodi:namedview
@@ -31,15 +31,15 @@
      inkscape:pageshadow="2"
      inkscape:zoom="22.197802"
      inkscape:cx="8"
-     inkscape:cy="8"
+     inkscape:cy="7.8074247"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
      inkscape:window-width="822"
      inkscape:window-height="584"
-     inkscape:window-x="357"
-     inkscape:window-y="153" />
+     inkscape:window-x="342"
+     inkscape:window-y="53" />
   <metadata
      id="metadata3464">
     <rdf:RDF>
@@ -56,12 +56,12 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <path
-       style="fill:#000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.735;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:0.43902439;stroke-miterlimit:4;stroke-dasharray:none"
-       d="M 15.132734,14.132734 L 0.86726584,14.132734 L 3.9241519,9.3672658 L 12.075848,9.3672658 L 15.132734,14.132734 z "
+       style="fill:#8587a7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.73500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 15.087685,14.6325 L 0.82221634,14.6325 L 3.8791024,9.867032 L 12.030799,9.867032 L 15.087685,14.6325 z "
        id="path3467" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#bf4a4a;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0;stroke-opacity:1"
-       d="M 8.0237625,2.9856434 L 8.1940596,11.715346"
+       style="fill:none;fill-rule:evenodd;stroke:#bf4a4a;stroke-width:1.05402839;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.0540284, 1.0540284;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 8.3828868,1.0676083 L 8.3716117,11.96853"
        id="path3457"
        sodipodi:nodetypes="cc" />
   </g>

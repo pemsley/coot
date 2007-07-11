@@ -1354,7 +1354,7 @@ molecule_class_info_t::unlabel_last_atom() {
    unsigned int las = labelled_atom_index_list.size();
    if (las > 0) {
       int atom_index = labelled_atom_index_list[las-1];
-      std::cout << "unlabelling atom index" << atom_index << std::endl;
+      // std::cout << "unlabelling atom index" << atom_index << std::endl;
       unlabel_atom(atom_index);
    }
 }
