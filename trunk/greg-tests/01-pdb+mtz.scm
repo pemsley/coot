@@ -139,7 +139,7 @@
 			 24.6114959716797 24.8355808258057 7.43978214263916
 			 3.6)))
 
-       (if (not (is-valid-model-molecule? imol-sphere))
+       (if (not ((valid-model-molecule? imol-sphere))
 	   (begin
 	     (format #t "Bad sphere molecule~%")
 	     #f)
