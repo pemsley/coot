@@ -130,7 +130,45 @@
 				     #f)
 				   #t)))))))))))))
 
-				      
-				      
+
+(greg-testcase "Select by Sphere" #t
+   (lambda ()
+
+     (let ((imol-sphere (new-molecule-by-sphere-selection 
+			 imol-rnase 
+			 24.6114959716797 24.8355808258057 7.43978214263916
+			 3.6)))
+
+       (if (not (is-valid-model-molecule? imol-sphere))
+	   (begin
+	     (format #t "Bad sphere molecule~%")
+	     #f)
+		
+	   (let ((n-atoms 
+		  (map + (map (lambda (chain-id)
+				;; return the number of atoms in this chain
+				(let ((n-residues (chain-n-residues chain-id imol-sphere)))
+				  (format #t "Sphere mol: there are ~s residues in chain ~s~%" 
+					  n-residues chain-id)
+
+				  (let ((loop (residue-list (number-list 0 (- n-residues 1))))
+					(chain-n-atoms 0))
+
+				    (cond 
+				     ((null? residue-list) chain-n-atoms)
+				     (else 
+				      (let ((serial-number (car residue-list)))
+					(let ((res-name (resname-from-serial-number imol-sphere chain-id serial-number))
+					      (res-no   (seqnum-from-serial-number  imol-sphere chain-id serial-number))
+					      (ins-code (insertion-code-from-serial-number imol-sphere chain-id serial-number)))
+					  (let ((residue-atoms-info (residue-info imol-sphere chain-id resno-no ins-code)))
+					    (loop (cdr residue-list) (+ (length residue-atoms-info))))))))))))
+		       (chain-ids imol-sphere))))
+		 
+	     (format #t "Found ~s sphere atoms ~%" n-atoms)
+
+	     (= n-atoms 19))))))
+
+	       
 
 	       
