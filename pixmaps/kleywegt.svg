@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg5361"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   sodipodi:docbase="/lmb/wear/emsley/Projects/coot/pixmaps"
+   sodipodi:docname="kleywegt.svg">
+  <defs
+     id="defs5363">
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Send"
+       style="overflow:visible;">
+      <path
+         id="path5537"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.2) rotate(180)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path5549"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="22.197802"
+     inkscape:cx="8"
+     inkscape:cy="8"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="913"
+     inkscape:window-height="755"
+     inkscape:window-x="260"
+     inkscape:window-y="158" />
+  <metadata
+     id="metadata5366">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:0.75;fill:#fbc306;fill-opacity:1;stroke:none;stroke-width:1.25;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5371"
+       width="15"
+       height="14.542079"
+       x="0.49554455"
+       y="0.45792064"
+       rx="0" />
+    <path
+       style="fill:#fb8a06;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 15.45198,0.54801966 L 15.45198,15 L 7,15 C 7,15 11,9 9,7 C 7,5 6.4420793,0.45792065 6.4420793,0.45792065 L 15.45198,0.54801966 z "
+       id="path5373" />
+    <rect
+       style="opacity:1;fill:#4f52ff;fill-opacity:1;stroke:none;stroke-width:1.25;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5563"
+       width="3.5584159"
+       height="3.4673266"
+       x="11.441584"
+       y="11"
+       rx="0" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-mid:none;marker-end:url(#Arrow1Send)"
+       d="M 3,2.4400989 L 10.603465,10.243069"
+       id="path5377"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="opacity:1;fill:#fbffff;fill-opacity:1;stroke:none;stroke-width:1.25;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5561"
+       width="3.5584159"
+       height="3.4673266"
+       x="1.4415842"
+       y="1"
+       rx="0" />
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#393c3e;stroke-width:1.25;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.90476194"
+       id="rect5369"
+       width="14.963861"
+       height="14.918812"
+       x="0.41113853"
+       y="0.625"
+       rx="1"
+       ry="0" />
+  </g>
+</svg>

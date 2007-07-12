@@ -14,7 +14,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.43"
    sodipodi:docbase="/lmb/wear/emsley/Projects/coot/pixmaps"
-   sodipodi:docname="auto-fit-rotamer.svg"
+   sodipodi:docname="density-fit.svg"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/auto-fit-rotamer.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100">
@@ -55,7 +55,7 @@
      inkscape:groupmode="layer">
     <g
        id="g3579"
-       transform="matrix(1.222222,0,0,1.151128,-12.15285,-0.790414)">
+       transform="matrix(-1.222222,0,0,1.151128,24.92009,-0.478389)">
       <path
          style="fill:#27c42b;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="M 13.186592,1.2872962 C 13.186592,1.2872962 13.501862,2.7661174 14.322174,3.6176799 C 15.142487,4.4692424 14.804368,4.7142764 15.296555,6.4955264 C 15.788743,8.2767764 16.790924,9.5161174 16.290924,10.74268 C 15.790924,11.969242 16.095612,10.937992 16.134674,11.08643 C 16.173737,11.234867 15.650299,10.734867 16.447174,11.33643 C 17.244049,11.937992 17.996679,14.147831 18.871679,14.483769 C 19.746679,14.819706 20.746896,12.594025 20.262521,11.914338 C 19.778146,11.23465 19.455988,11.600706 19.186655,10.278385 C 18.918971,8.9641624 19.08882,9.0657616 19.58882,7.8157616 C 20.08882,6.5657616 19.431549,5.9223674 19.384674,5.7739299 C 19.337799,5.6254924 20.083638,2.7012195 18.950825,1.9512195 C 17.818013,1.2012195 13.186592,1.2872962 13.186592,1.2872962 z "
@@ -69,7 +69,7 @@
     </g>
     <g
        id="g3387"
-       transform="matrix(1.222222,0,0,1.151128,0.759738,-0.982171)">
+       transform="matrix(-1.222222,0,0,1.151128,12.0075,-0.670146)">
       <path
          id="path2168"
          d="M 8.9993192,12.5 L 6.1160188,10.335149 L 8.1265601,5.3857008 L 3.9504951,2.6160946"
@@ -79,5 +79,16 @@
          d="M 6.5,9.5 L 3.5,12.5 L 1.5,9.958911"
          style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="9.8183594"
+       y="9.90625"
+       id="text5305"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5307"
+         x="9.8183594"
+         y="9.90625">?</tspan></text>
   </g>
 </svg>
