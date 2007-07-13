@@ -23,7 +23,7 @@
 #include <vector> // for mmdb-crystal
 
 #include <math.h>
-#include <gtkgl/gtkglarea.h>
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 

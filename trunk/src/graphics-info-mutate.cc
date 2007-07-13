@@ -53,8 +53,6 @@
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #include <GL/glut.h>  // for some reason...  // Eh?
 
-// We don't need this, do we?
-// #include <gtkgl/gtkglarea.h>
 #include "interface.h"
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
 // window magic jiggery pokery.
