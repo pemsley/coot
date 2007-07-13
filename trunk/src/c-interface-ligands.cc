@@ -935,7 +935,9 @@ void set_find_ligand_n_top_ligands(int n) { /* fit the top n ligands,
         displays a masked map, cuts down density where the coordinates
         are not.  If invert? is #t, cut the density down where the
         atoms are.  */
-void mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag) {
+int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag) {
+
+   int imol_new_map = -1;
 
    // create a new map
    //
@@ -985,17 +987,20 @@ void mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_fla
 	       std::cout << "INFO:: Creating masked  map in molecule number "
 			 << g.n_molecules << std::endl;
 	       g.molecules[g.n_molecules].new_map(lig.masked_map(), "Generic Masked Map");
+	       imol_new_map = g.n_molecules; 
 	       g.n_molecules++;
 	       graphics_draw();
 	    }
 	 }
       }
    }
+   return imol_new_map; 
 }
 
-void 
+int
 mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_atom_selection, short int invert_flag) {
 
+   int imol_new_map = -1;
    graphics_info_t g;
    if (is_valid_map_molecule(map_mol_no)) {
       if (is_valid_model_molecule(coords_mol_no)) {
@@ -1013,6 +1018,7 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 							 SKEY_NEW);
 	 lig.mask_map(g.molecules[coords_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	 g.molecules[g.n_molecules].new_map(lig.masked_map(), "Generic Masked Map");
+	 imol_new_map = g.n_molecules; 
 	 g.n_molecules++;
 	 graphics_draw();
       } else {
@@ -1021,6 +1027,7 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
    } else {
       std::cout << "No map molecule in " << map_mol_no << std::endl;
    } 
+   return imol_new_map; 
 }
 
 
