@@ -12,7 +12,8 @@ Release 0.4
 
    o Ca Zone-> Mainchain no longer spews warnings
 
-
+   o CCP4i aliases are also added to the Project Dir options in the
+     file selector
 
 
 

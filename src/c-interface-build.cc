@@ -281,7 +281,8 @@ int replace_fragment(int imol_target, int imol_fragment,
 /*  ------------------------------------------------------------------------ */
 
 void turn_off_backup(int imol) {
-   if (imol < graphics_n_molecules())
+   
+   if (is_valid_model_molecule(imol)) 
       graphics_info_t::molecules[imol].turn_off_backup();
    std::vector<std::string> command_strings;
    command_strings.push_back("turn-off-backup");
@@ -290,7 +291,7 @@ void turn_off_backup(int imol) {
 } 
 
 void turn_on_backup(int imol) {
-   if (imol < graphics_n_molecules())
+   if (is_valid_model_molecule(imol))
       graphics_info_t::molecules[imol].turn_on_backup();
    std::vector<std::string> command_strings;
    command_strings.push_back("turn-on-backup");

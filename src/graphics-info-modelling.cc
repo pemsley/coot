@@ -30,7 +30,7 @@
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #include <GL/glut.h>  // for some reason...  // Eh?
-#include <gtkgl/gtkglarea.h>
+
 
 #include <iostream>
 #include <dirent.h>   // for refmac dictionary files

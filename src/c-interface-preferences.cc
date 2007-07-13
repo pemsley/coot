@@ -935,24 +935,25 @@ parse_ccp4i_defs(const std::string &filename) {
    } else {
       // std::string s;
       char s[1000];
-      std::vector <std::pair<int, std::string> > alias;
-      std::vector <std::pair<int, std::string> > path;
+      std::vector <coot::alias_path_t> alias;
+      std::vector <coot::alias_path_t> path;
       std::string::size_type ipath;
       std::string::size_type ialias;
       int index;
       int icomma;
       short int path_coming = 0;
       short int alias_coming = 0;
+      bool alias_flag = 0;
       while (! cin.eof()) {
 	 cin >> s;
 	 std::string ss(s);
 	 // std::cout << "parsing:" << ss << std::endl;
 	 if (path_coming == 2) {
-	    path.push_back(std::pair<int, std::string>(index, ss));
+	    path.push_back(coot::alias_path_t(index, ss, alias_flag));
 	    path_coming = 0;
 	 }
 	 if (alias_coming == 2) {
-	    alias.push_back(std::pair<int, std::string>(index, ss));
+	    alias.push_back(coot::alias_path_t(index, ss, alias_flag));
 	    alias_coming = 0;
 	 }
 	 if ( path_coming == 1)  path_coming++;
@@ -962,6 +963,7 @@ parse_ccp4i_defs(const std::string &filename) {
 	 if (ipath != std::string::npos) {
 	    // std::cout << "DEBUG::  found a project path..." << std::endl;
 	    path_coming = 1;
+	    alias_flag = 0;
 	    icomma = ss.find_last_of(",");
 	    // std::cout << icomma << " " << ss.length() << std::endl;
 	    if ( (icomma+1) < int(ss.length())) {
@@ -976,54 +978,86 @@ parse_ccp4i_defs(const std::string &filename) {
 	       index = atoi(ss.substr(icomma+1, ss.length()).c_str());
 	    }
 	 }
+
+	 // Things called ALIASES at at the CCP4 top level are
+	 // actually speciified by DEF_DIR_PATH and DEF_DIR_ALIAS 
+	 // in the same way that PROJECT_ALIAS and PROJECT_PATH work.
+	 //
+
+	 ipath  = ss.find("DEF_DIR_PATH,");
+	 ialias = ss.find("DEF_DIR_ALIAS,");
+	 if (ipath != std::string::npos) {
+	    std::cout << "DEBUG::  found an ALIAS path..." << ss << std::endl;
+	    path_coming = 1;
+	    alias_flag = 1;
+	    icomma = ss.find_last_of(",");
+	    // std::cout << icomma << " " << ss.length() << std::endl;
+	    if ( (icomma+1) < int(ss.length())) {
+	       index = atoi(ss.substr(icomma+1, ss.length()).c_str());
+	       // std::cout << "index: " << index << std::endl;
+	    }
+	 }
+	 if (ialias != std::string::npos) {
+	    alias_coming = 1;
+	    std::cout << "DEBUG::  found an ALIAS name..." << ss << std::endl;
+	    icomma = ss.find_last_of(",");
+	    if ( (icomma+1) < int(ss.length())) {
+	       index = atoi(ss.substr(icomma+1, ss.length()).c_str());
+	    }
+	 }
+	 
       }
-//        std::cout << "----------- path pairs: ------------" << std::endl;
-//        for (int i=0; i<path.size(); i++) {
-//  	 std::cout << path[i].first << "  " << path[i].second << std::endl;
-//        }
-//        std::cout << "----------- alias pairs: ------------" << std::endl;
-//        for (int i=0; i<alias.size(); i++)
-//  	 std::cout << alias[i].first << "  " << alias[i].second << std::endl;
-//        std::cout << "-------------------------------------" << std::endl;
+
+//       std::cout << "----------- path pairs: ------------" << std::endl;
+//       for (int i=0; i<path.size(); i++) {
+//   	 std::cout << path[i].index << "  " << path[i].s << " " << path[i].flag << std::endl;
+//       }
+//       std::cout << "----------- alias pairs: ------------" << std::endl;
+//       for (int i=0; i<alias.size(); i++)
+//   	 std::cout << alias[i].index << "  " << alias[i].s << " " << alias[i].flag << std::endl;
+//       std::cout << "-------------------------------------" << std::endl;
+      
 
       std::string alias_str;
       std::string path_str;
       for (unsigned int j=0; j<alias.size(); j++) {
 	 for (unsigned int i=0; i<path.size(); i++) {
-	    if (path[i].first == alias[j].first) {
-	       // check for "" "" pair here.
-	       alias_str = alias[j].second;
-	       path_str  = path[i].second;
-	       // if the file is a directory, we need to put a "/" at the
-	       // end so that went we set that filename in the fileselection
-	       // widget, we go into the directory, rather than being in the
-	       // directory above with the tail as the selected file.
-	       //
-	       struct stat buf;
-	       int status = stat(path_str.c_str(), &buf);
+	    if (path[i].index == alias[j].index) {
+	       if (path[i].flag == alias[j].flag) {
+		  // check for "" "" pair here.
+		  alias_str = alias[j].s;
+		  path_str  = path[i].s;
+		  // if the file is a directory, we need to put a "/" at the
+		  // end so that went we set that filename in the fileselection
+		  // widget, we go into the directory, rather than being in the
+		  // directory above with the tail as the selected file.
+		  //
+		  struct stat buf;
+		  int status = stat(path_str.c_str(), &buf);
 	       
-	       // valgrind says that buf.st_mode is uninitialised here
-	       // strangely.  Perhaps we should first test for status?
-	       // Yes - that was it.  I was using S_ISDIR() on a file
-	       // that didn't exist.  Now we skip if the file does not
-	       // exist or is not a directory.
+		  // valgrind says that buf.st_mode is uninitialised here
+		  // strangely.  Perhaps we should first test for status?
+		  // Yes - that was it.  I was using S_ISDIR() on a file
+		  // that didn't exist.  Now we skip if the file does not
+		  // exist or is not a directory.
 
-	       // std::cout << "stating "<< path_str << std::endl;
+		  // std::cout << "stating "<< path_str << std::endl;
 
-	       if (status == 0) { 
-		  if (S_ISDIR(buf.st_mode)) {
-		     path_str += "/";
+		  if (status == 0) { 
+		     if (S_ISDIR(buf.st_mode)) {
+			path_str += "/";
 
-		     if (alias_str == "\"\"") {
-			alias_str = "";
-			path_str  = "";
+			if (alias_str == "\"\"") {
+			   alias_str = "";
+			   path_str  = "";
+			}
+			v.push_back(std::pair<std::string, std::string> (alias_str, path_str));
 		     }
-		     v.push_back(std::pair<std::string, std::string> (alias_str, path_str));
+		     // } else { 
+		     // // This is too boring to see every time we open a file selection
+		     // std::cout << "INFO:: directory for a CCP4i project: " 
+		     // << path_str << " was not found\n";
 		  }
-// 	       } else { 
-// 		  // This is too boring to see every time we open a file selection
-// 		  std::cout << "INFO:: directory for a CCP4i project: " 
-// 			    << path_str << " was not found\n";
 	       }
 	    }
 	 }

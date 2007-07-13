@@ -24,6 +24,21 @@
 
 #include "coot-coord-utils.hh"
 
+namespace coot {
+
+   class alias_path_t {
+   public:
+      int index;
+      std::string s;
+      bool flag;
+      alias_path_t(int index_in, const std::string &s_in, bool flag_in) {
+	 index = index_in;
+	 s = s_in;
+	 flag = flag_in;
+      }
+   };
+}
+
 
 std::vector<std::string> filtered_by_glob(const std::string &pre_directory, 
 					  int data_type);
