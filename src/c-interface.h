@@ -2988,6 +2988,12 @@ void execute_find_waters_real(int imol_for_map,
 			      short int new_waters_mol_flag, 
 			      float sigma_cut_off);
 
+void find_waters(int imol_for_map,
+		 int imol_for_protein,
+		 short int new_waters_mol_flag, 
+		 float sigma_cut_off,
+		 short int show_blobs_dialog);
+
 char *get_text_for_find_waters_sigma_cut_off();
 void set_value_for_find_waters_sigma_cut_off(float f); 
 /* #ifdef __cplusplus */
@@ -3567,9 +3573,9 @@ int set_show_chi_angle_bond(int imode);
         displays a masked map, cuts down density where the coordinates
         are (invert is 0).  If invert? is 1, cut the density down
         where there are no atoms atoms.  */
-void mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag);
+int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag);
 
-void mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_atom_selection, short int invert_flag); 
+int mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_atom_selection, short int invert_flag); 
 
 /*! \brief set the atom radius for map masking */
 void set_map_mask_atom_radius(float rad);

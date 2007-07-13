@@ -403,6 +403,14 @@ execute_find_waters_real(int imol_for_map,
 			 short int new_waters_mol_flag, 
 			 float sigma_cut_off) {
 
+   find_waters(imol_for_map, imol_for_protein, new_waters_mol_flag, sigma_cut_off, 1);
+}
+
+void find_waters(int imol_for_map,
+		 int imol_for_protein,
+		 short int new_waters_mol_flag, 
+		 float sigma_cut_off,
+		 short int show_blobs_dialog) {
 
    coot::ligand lig;
    graphics_info_t g;
@@ -441,30 +449,33 @@ execute_find_waters_real(int imol_for_map,
    // *(g.ligand_big_blobs) = lig.big_blobs(); old style
 
    // It's just too painful to make this a c-interface.h function:
-   if (lig.big_blobs().size() > 0) {
 
-      GtkWidget *dialog = create_ligand_big_blob_dialog();
-      GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
-      gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-      GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
-      if (vbox) { 
-	 std::string label;
-	 for(unsigned int i=0; i< lig.big_blobs().size(); i++) { 
-	    label = "Blob ";
-	    label += graphics_info_t::int_to_string(i + 1);
-	    GtkWidget *button = gtk_button_new_with_label(label.c_str());
-	    //	 gtk_widget_ref(button);
-	    clipper::Coord_orth *c = new clipper::Coord_orth;
-	    *c = lig.big_blobs()[i];
-	    gtk_signal_connect (GTK_OBJECT(button), "clicked", 
-				GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
-				c);
-	    gtk_widget_show(button);
-	    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-	    gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+   if (show_blobs_dialog) { 
+      if (lig.big_blobs().size() > 0) {
+
+	 GtkWidget *dialog = create_ligand_big_blob_dialog();
+	 GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
+	 gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
+	 GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+	 if (vbox) { 
+	    std::string label;
+	    for(unsigned int i=0; i< lig.big_blobs().size(); i++) { 
+	       label = "Blob ";
+	       label += graphics_info_t::int_to_string(i + 1);
+	       GtkWidget *button = gtk_button_new_with_label(label.c_str());
+	       //	 gtk_widget_ref(button);
+	       clipper::Coord_orth *c = new clipper::Coord_orth;
+	       *c = lig.big_blobs()[i];
+	       gtk_signal_connect (GTK_OBJECT(button), "clicked", 
+				   GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
+				   c);
+	       gtk_widget_show(button);
+	       gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+	       gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+	    }
 	 }
+	 gtk_widget_show(dialog);
       }
-      gtk_widget_show(dialog);
    }
 
    coot::minimol::molecule water_mol = lig.water_mol();
@@ -486,7 +497,8 @@ execute_find_waters_real(int imol_for_map,
       g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol);
       g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
    }
-}
+} 
+
 
 
 void  free_blob_dialog_memory(GtkWidget *w) {

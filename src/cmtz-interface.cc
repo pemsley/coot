@@ -51,7 +51,7 @@
 coot::mtz_column_types_info_t
 coot::get_f_phi_columns(const std::string &filename) {
 
-   std::cout << "DEBUG:: getting f_phi_columns..." << std::endl;
+   // std::cout << "DEBUG:: getting f_phi_columns..." << std::endl;
 
    coot::mtz_column_types_info_t a;
    a.read_success = 0;
