@@ -59,7 +59,11 @@
      (if (valid-model-molecule? imol-ligand)
 	 (begin
 	   (set-bond-thickness imol-ligand 5)
-	   #t))))
+	   #t)
+	 (begin
+	   (format #t "No ligand molecule - Skipping bond thickness test~%")
+	   (throw 'unstested)))))
+	 
 
 (greg-testcase "Move and Refine Ligand test" #t 
    (lambda ()
@@ -98,7 +102,13 @@
 		   terminal-residue-test-pdb)
 	   (throw 'untested))
 	 (begin
-	   (if (file-exists? terminal-residue-test-pdb)
+	   (if (not (file-exists? terminal-residue-test-pdb))
+	       (begin 
+		 (format #t "~s does not exist - skipping test~%" 
+			 terminal-residue-test-pdb)
+		 (throw 'untested))
+	       
+	       ;; OK, file exists
 	       (let ((imol (read-pdb terminal-residue-test-pdb)))
 		 (if (not (valid-model-molecule? imol))
 		     (begin
