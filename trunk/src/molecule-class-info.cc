@@ -6202,9 +6202,16 @@ molecule_class_info_t::density_at_point(const clipper::Coord_orth &co) const {
       std::cout << " returning bogus value from density_at_point: " << std::endl;
       return -1000.0;
    } else {
-      clipper::Coord_frac cf = co.coord_frac(xmap_list[0].cell());
-      clipper::Coord_grid cg = cf.coord_grid(xmap_list[0].grid_sampling());
-      return xmap_list[0].get_data(cg);
+      // OLD grid point (quantized) method
+//       clipper::Coord_frac cf = co.coord_frac(xmap_list[0].cell());
+//       clipper::Coord_grid cg = cf.coord_grid(xmap_list[0].grid_sampling());
+//       return xmap_list[0].get_data(cg);
+
+      float dv;
+      clipper::Coord_frac af = co.coord_frac(xmap_list[0].cell()); 
+      clipper::Coord_map  am = af.coord_map(xmap_list[0].grid_sampling()); 
+      clipper::Interp_linear::interp(xmap_list[0], am, dv); 
+      return dv;
    }
 }
 

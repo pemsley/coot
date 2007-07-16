@@ -168,7 +168,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       if (ierr!=CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl; 
       } else { 
-	 std::cout << "there are " << ciffile.GetNofData() << " data in "
+	 std::cout << "There are " << ciffile.GetNofData() << " data in "
 		   << ciffilename << std::endl; 
       
 	 for(int idata=0; idata<ciffile.GetNofData(); idata++) { 

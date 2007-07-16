@@ -9,26 +9,16 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Kevin's Ramachandran Refinement target
 
-   o Post-install slim the binaries
-
    o Is there a memory problem in unshelx?
-
-   o Kevin's Ramachandran Refinement target
 
    o Try again to add chiral volumes to the geometry target function
 
-   o Add Chiral centre inversion and cis peptide generation check 
-     after refinement or regularization.
-
-   o Make the Omega Angle Plot update properly
+   o Make the Omega Angle Plot update properly in
+     update_geometry_graphs()
 
    o Add Chiral Volume Outliers to Omega Angle Plot
 
-   o Post-install slim the binaries
-
    o Do the strand restraints work well under refinement?
-
-   o Add planar peptide restraints as default
 
    o Add select by sphere to test suite
 
@@ -40,7 +30,23 @@ Tue Jul  3 14:27:37 BST 2007
    o are the findwaters and findligands being installed correctly
      (with wrappers?).
 
-   o move bad_chiral_volumes() to coot-coord-extras and use it to
+   o Add a PIR sequence reader for cootaneering
+
+   o Test cootaneer by building from just a map.
+
+   o Post-install slim the binaries
+
+
+
+
+   o Add planar peptide restraints as default
+
+* Done.
+
+   o Add Chiral centre inversion and cis peptide generation check 
+     after refinement or regularization.
+
+     - move bad_chiral_volumes() to coot-coord-extras and use it to
      check chiral volumes after refinement (i.e. we should get a
      warning info_dialog on top of (displayed after) the Accept/Reject
      dialog. 
@@ -54,10 +60,8 @@ Tue Jul  3 14:27:37 BST 2007
      std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > 
 	test_for_cis_peptides(CMMDBManager *fragment_mol);
 
-   o Add a PIR sequence reader for cootaneering
-
-
-
+* Done - I'm not sure I like the way the dialogs work... but perhaps
+  too much warning is better than not enough?
 
    o Gtk Timeout for reading socket strings
 
@@ -844,6 +848,209 @@ Mon Jul  9 18:29:22 BST 2007
 
 	delete atom
 
+<<<<<<< .mine
+
+-----
+Thu Jul 12 13:13:43 BST 2007
+
+	I was testing sphere atoms.  I had pointer distances up.  I
+	going to delete atoms to count them.  Mabye I labelled lots of
+	atoms.  I guess I had a go to atom up (maybe not).
+
+	I fired up Delete, changed to delete water, keep active.
+
+	I clicked on an atom
+
+	Boom, crash.
+
+OK, here's how to reproduce:
+
+	start from 0crash.scm
+        add pointer distances
+	Fire up Go to atom
+	Close with top right wm button
+	Delete, Delete Atom, Active
+	Click an atom
+	Crash.
+
+
+It said this in the console:
+
+INFO:: backup file coot-backup/_home_paule_Projects_build-coot_src_data_rnase_tutorial-modern.pdb_Thu_Jul_12_13:09:49_2007_modification_0.pdb.gz
+
+** WARNING **: Widget not found: go_to_atom_residue_tree
+ERROR:: gtktree (go_to_atom_residue_tree) is null!
+
+** WARNING **: Widget not found: go_to_atom_residue_tree
+
+Gtk-WARNING **: invalid cast from (NULL) pointer to `GtkTree'
+
+Gtk-CRITICAL **: file gtktree.c: line 378 (gtk_tree_clear_items): assertion `tree != NULL' failed.
+
+Gtk-WARNING **: invalid cast from (NULL) pointer to `GtkWidget'
+Segmentation fault (core dumped)
+6.587u 0.512s 18:22.29 0.6%     0+0k 0+0io 226pf+0w
+
+
+(gdb) where
+#0  lookup_widget (widget=0x0, widget_name=0x85d2742 "go_to_atom_atom_list") at ../../coot/src/support.c:40
+#1  0x081a9664 in graphics_info_t::fill_go_to_atom_residue_list_gtk1 (gtktree=0x0)
+    at ../../coot/src/graphics-info-navigation-gtk1.cc:204
+#2  0x081f1cf5 in delete_atom (imol=1, chain_id=0x8a399fc "B", resno=96, ins_code=0x90bcdf0 "",
+    at_name=0x91e417c " CB ", altLoc=0x86afce4 "") at ../../coot/src/c-interface-build.cc:859
+#3  0x081f2126 in delete_atom_by_atom_index (imol=1, index=0, do_delete_dialog=1)
+    at ../../coot/src/c-interface-build.cc:1003
+#4  0x0818849b in graphics_info_t::check_if_in_delete_item_define (this=0xbfcb62fb, event=0x8b16008,
+    state=@0x0) at ../../coot/src/graphics-info-defines.cc:604
+#5  0x08189cc8 in graphics_info_t::check_if_in_range_defines (this=0xbfcb62fb, event=0x8b16008,
+    state=@0xbfcb62ec) at ../../coot/src/graphics-info-defines.cc:204
+#6  0x08246247 in glarea_button_press (widget=0x8bd9ac0, event=0x8b16008)
+    at ../../coot/src/globjects.cc:3400
+#7  0x0104e0f9 in gtk_marshal_BOOL__POINTER (object=0x8bd9ac0,
+    func=0x8246194 <glarea_button_press(_GtkWidget*, _GdkEventButton*)>, func_data=0x0, args=0x0)
+    at gtkmarshal.c:28
+#8  0x0107d5c4 in gtk_handlers_run (handlers=0x8b8c840, signal=0xbfcb63a8, object=0x8bd9ac0,
+    params=0xbfcb6408, after=0) at gtksignal.c:1917
+#9  0x0107e5c1 in gtk_signal_real_emit (object=Variable "object" is not available.
+) at gtksignal.c:1477
+#10 0x0107eb80 in gtk_signal_emit (object=Variable "object" is not available.
+) at gtksignal.c:552
+#11 0x010b65a3 in gtk_widget_event (widget=0x8bd9ac0, event=0x8b16008) at gtkwidget.c:2864
+#12 0x0104daec in gtk_propagate_event (widget=0x8bd9ac0, event=0x8b16008) at gtkmain.c:1378
+#13 0x0104de1e in gtk_main_do_event (event=0x8b16008) at gtkmain.c:818
+#14 0x006f9ed3 in gdk_event_dispatch (source_data=0x0, current_time=0xbfcb6800, user_data=0x0)
+    at gdkevents.c:2139
+#15 0x0072e5ba in g_main_dispatch (dispatch_time=0xbfcb6800) at gmain.c:656
+#16 0x0072f0f2 in g_main_iterate (block=Variable "block" is not available.
+) at gmain.c:877
+#17 0x0104cb93 in gtk_main_iteration () at gtkmain.c:603
+#18 0x00f6ad7a in sgtk_gtk_main_iteration () at gtk-glue.c:1617
+#19 0x002c0110 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#20 0x002bbfb3 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#21 0x002bd494 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#22 0x002bd867 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#23 0x002bbfb3 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#24 0x002c24dd in scm_dapply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#25 0x002b9ade in scm_apply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#26 0x002b97fc in scm_call_0 () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#27 0x0030a98e in sf_fill_input () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+---Type <return> to continue, or q <return> to quit---
+#28 0x002eeae5 in scm_fill_input () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#29 0x002eeb7f in scm_getc () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#30 0x002f689c in scm_flush_ws () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#31 0x002f66e4 in scm_read () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#32 0x002c0763 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#33 0x002bd494 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#34 0x002c0503 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#35 0x002c24dd in scm_dapply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#36 0x002bfa20 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#37 0x002c0503 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#38 0x002c23e2 in scm_dapply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#39 0x002b9ade in scm_apply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#40 0x002b97fc in scm_call_0 () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#41 0x002a9f60 in with_traps_inner ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#42 0x002abcd6 in scm_internal_dynamic_wind ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#43 0x002a9fcb in scm_with_traps () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#44 0x002c0763 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#45 0x002c24dd in scm_dapply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#46 0x002b9ade in scm_apply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#47 0x002b97fc in scm_call_0 () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#48 0x002abb64 in scm_dynamic_wind ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#49 0x002c1594 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#50 0x002c24dd in scm_dapply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#51 0x002b9ade in scm_apply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#52 0x002b97fc in scm_call_0 () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#53 0x0030874e in scm_body_thunk () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#54 0x003085de in scm_internal_lazy_catch ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#55 0x00308bc3 in scm_lazy_catch () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#56 0x002c1594 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#57 0x002c24dd in scm_dapply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#58 0x002b9ade in scm_apply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#59 0x002b97fc in scm_call_0 () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#60 0x0030874e in scm_body_thunk () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#61 0x00308402 in scm_internal_catch ()
+---Type <return> to continue, or q <return> to quit---w
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#62 0x00308b47 in scm_catch () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#63 0x002c1594 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#64 0x002bd494 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#65 0x002bd494 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#66 0x002bd494 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#67 0x002c24dd in scm_dapply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#68 0x002b9ade in scm_apply () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#69 0x002b97fc in scm_call_0 () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#70 0x002abb64 in scm_dynamic_wind ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#71 0x002c1594 in scm_deval () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#72 0x002bb039 in scm_i_eval_x () from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#73 0x002bb118 in scm_primitive_eval_x ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#74 0x0030619e in inner_eval_string ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#75 0x002c4461 in scm_c_with_fluids ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#76 0x002c44df in scm_c_with_fluid ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#77 0x002dc454 in scm_c_call_with_current_module ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#78 0x0030620f in scm_eval_string ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#79 0x003060f9 in scm_c_eval_string ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#80 0x081b3c29 in post_scripting_window () at ../../coot/src/c-interface.cc:5473
+#81 0x0104e357 in gtk_marshal_NONE__NONE (object=0x8b81ebc, func=0x8296cf8 <on_scripting_window_activate>,
+    func_data=0x0, args=0xbfcbb538) at gtkmarshal.c:312
+#82 0x0107d5c4 in gtk_handlers_run (handlers=0x8b852b0, signal=0xbfcbb4d8, object=0x8b81ebc,
+    params=0xbfcbb538, after=0) at gtksignal.c:1917
+#83 0x0107e5c1 in gtk_signal_real_emit (object=Variable "object" is not available.
+) at gtksignal.c:1477
+#84 0x0107eb80 in gtk_signal_emit (object=Variable "object" is not available.
+) at gtksignal.c:552
+#85 0x010b29c7 in gtk_widget_activate (widget=0x8b81ebc) at gtkwidget.c:2890
+#86 0x010567ff in gtk_menu_shell_activate_item (menu_shell=0x8b80398, menu_item=0x8b81ebc,
+    force_deactivate=1) at gtkmenushell.c:859
+#87 0x01056b5d in gtk_menu_shell_button_release (widget=0x8b80398, event=0x8b15e98) at gtkmenushell.c:486
+---Type <return> to continue, or q <return> to quit---w
+#88 0x0104e0f9 in gtk_marshal_BOOL__POINTER (object=0x8b80398,
+    func=0x1056914 <gtk_menu_shell_button_release>, func_data=0x0, args=0x0) at gtkmarshal.c:28
+#89 0x0107e4a1 in gtk_signal_real_emit (object=Variable "object" is not available.
+) at gtksignal.c:1492
+#90 0x0107eb80 in gtk_signal_emit (object=Variable "object" is not available.
+) at gtksignal.c:552
+#91 0x010b65a3 in gtk_widget_event (widget=0x8b80398, event=0x8b15e98) at gtkwidget.c:2864
+#92 0x0104daec in gtk_propagate_event (widget=0x8b80398, event=0x8b15e98) at gtkmain.c:1378
+#93 0x0104de1e in gtk_main_do_event (event=0x8b15e98) at gtkmain.c:818
+#94 0x006f9ed3 in gdk_event_dispatch (source_data=0x0, current_time=0xbfcbbd10, user_data=0x0)
+    at gdkevents.c:2139
+#95 0x0072e5ba in g_main_dispatch (dispatch_time=0xbfcbbd10) at gmain.c:656
+#96 0x0072f0f2 in g_main_iterate (block=Variable "block" is not available.
+) at gmain.c:877
+#97 0x0072f367 in g_main_run (loop=0x8e76900) at gmain.c:935
+#98 0x0104d1ef in gtk_main () at gtkmain.c:524
+#99 0x081099e3 in c_inner_main (closure=0x0, argc=1, argv=0xbfcbc094) at ../../coot/src/c-inner-main.c:242
+#100 0x002d800c in invoke_main_func ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#101 0x002d7fbd in scm_boot_guile_1 ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#102 0x002d7cc1 in scm_boot_guile ()
+   from /home/paule/autobuild/Linux-kalypso-pre-release/lib/libguile.so.12
+#103 0x081096b4 in c_wrapper_scm_boot_guile (argc=1, argv=0xbfcbc094) at ../../coot/src/c-inner-main.c:262
+#104 0x080f785b in main (argc=1, argv=0xbfcbc094) at ../../coot/src/main.cc:408
+Current language:  auto; currently c
+(gdb)
+
+----
+Thu Jul 12 13:18:27 BST 2007
+
+	get rid of this:
+
+DEBUG:: no molecule number match
+
+
 -----
 Fri Jul 13 11:48:08 BST 2007
 
@@ -863,4 +1070,6 @@ Fri Jul 13 11:48:08 BST 2007
   ehem ... another idea ... would anybody else be interested in having
   a button to undisplay ALL maps at once in the display menu pop-up
   ???
+
+* Can be done in scripting
 

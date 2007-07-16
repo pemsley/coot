@@ -5963,11 +5963,13 @@ molecule_class_info_t::find_peak_along_line(const clipper::Coord_orth &p1,
    float high_point_1 = -9999999.9;
    float high_point_2 = -9999999.9;
    clipper::Coord_orth pbest;
-   int istep_max = 300;
+   int istep_max = 500;
 
    for (unsigned int istep=0; istep<=istep_max; istep++) {
-      clipper::Coord_orth pc = p1 + (float(istep)/float(istep_max))*(p2-p1);
+      float fr = float(istep)/float(istep_max);
+      clipper::Coord_orth pc = p1 + fr*(p2-p1);
       float d = density_at_point(pc);
+      // std::cout << ": " << istep << " " << fr << " " << d  << std::endl;
       if (d > high_point_1) {
 	 high_point_1 = d;
 	 pbest = pc;

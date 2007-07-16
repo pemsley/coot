@@ -1202,9 +1202,9 @@ coot::is_bad_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint
 // Return a list of bad chiral volumes for this molecule:
 // 
 // Return also a flag for the status of this test, were there any
-// residues for we we didn't find restraints?  The flag is the number
-// of residue names in first part of the returned pair.
-// 
+// residues for which we didn't find restraints?  The flag is the
+// number of residue names in first part of the returned pair.
+// 0 is good.
 // 
 std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
 coot::bad_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,

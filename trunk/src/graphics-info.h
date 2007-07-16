@@ -347,6 +347,7 @@ class graphics_info_t {
    static atom_selection_container_t *moving_atoms_asc;
    static int imol_moving_atoms;
    static int imol_refinement_map;
+   static int moving_atoms_n_cis_peptides; 
 
    //
    static int undo_molecule; // -1 initially
@@ -480,6 +481,8 @@ class graphics_info_t {
    static void edit_backbone_peptide_changed_func (GtkAdjustment *adj, GtkWidget *window); // callback
    static void edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidget *window); // callback
 
+   void check_and_warn_bad_chirals_and_cis_peptides() const;
+
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    void handle_rama_plot_update(coot::rama_plot *plot);
 #endif
@@ -578,6 +581,7 @@ public:
       find_ligand_wiggly_ligands_ = new std::vector<short int>;
       geom_p = new coot::protein_geometry;
       cif_dictionary_read_number = geom_p->init_standard();
+      geom_p->add_planar_peptide_restraint();
       moving_atoms_asc = new atom_selection_container_t;
       moving_atoms_asc->mol = NULL;
       moving_atoms_asc->atom_selection = NULL;
@@ -1944,6 +1948,8 @@ public:
 
    // show citation?
    static short int show_citation_notice; 
+
+   static void info_dialog(const std::string &s);
    
    // Return success status.
    // 

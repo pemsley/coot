@@ -6,15 +6,18 @@ Release 0.4
    o Fix Shelx lst file reader when handling atoms with Alt Confs
      [Christian Stegmann]
 
-   o Select residues (for new molecule) by sphere
+   o Select residues (for new molecule) by sphere [Joel Bard]
 
-   o Multiple model ligand overlaying
+   o Multiple model ligand overlaying [Bob Nolte]
 
-   o Ca Zone-> Mainchain no longer spews warnings
+   o Ca Zone->Mainchain no longer spews warnings
+
+   o Planar peptide restraints are ON by default now
 
    o CCP4i aliases are also added to the Project Dir options in the
      file selector
 
+   o Fix typo in transform-map-using-lsq-matrix [Nick Furnham]
 
 
     -------------------------------------------------------

@@ -149,7 +149,7 @@ float  graphics_info_t::old_rotation_centre_y = 0.0;
 float  graphics_info_t::old_rotation_centre_z = 0.0;
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
-int    graphics_info_t::smooth_scroll_steps =  8;
+int    graphics_info_t::smooth_scroll_steps =  80;
 float  graphics_info_t::smooth_scroll_limit =  10.0; // A
 float  graphics_info_t::smooth_scroll_zoom_limit = 30.0; // A
 int    graphics_info_t::smooth_scroll_do_zoom = 0;  // initially no, too ugly ATM.
@@ -292,6 +292,9 @@ float    graphics_info_t::box_radius = 10;
 // dragged moving atom:
 int       graphics_info_t::moving_atoms_dragged_atom_index = -1;
 short int graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
+
+// validate moving atoms
+int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
 
 
 std::string graphics_info_t::model_fit_refine_place_atom_at_pointer_string = "";
