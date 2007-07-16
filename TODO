@@ -63,6 +63,8 @@
    o Copy fragment (new-molecule-by-atom-selection) does not
      recalculate the NCS.  It should.
 
+   o test/fix hardware stereo in Gtk2 mode.
+
 -----
 
     Release 0.6 [Dec 2007]

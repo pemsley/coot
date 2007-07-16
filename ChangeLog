@@ -1,3 +1,12 @@
+2007-07-12  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* src/graphics-info.h: add geom_p->add_planar_peptide_restraint()
+	to graphics_info_t::init().
+
+2007-07-11  Paul Emsley  <emsley@ysbl.york.ac.uk>
+
+	* src/globjects.cc: changed smooth_scroll_step to 80 from 8.
+
 2007-06-29  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* Release 0.3.2

@@ -1467,15 +1467,10 @@ void do_tw() {
 
 // Another name for wrapped_nothing_bad_dialog, but this function also
 // displays the widget so nothing is returned.
+// 
 void info_dialog(const char *txt) {
 
-   if (graphics_info_t::use_graphics_interface_flag) { 
-      if (txt) {
-	 std::string s(txt);
-	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
-	 gtk_widget_show(w);
-      }
-   }
+   graphics_info_t::info_dialog(txt);
    std::string cmd = "info-dialog";
    std::vector<coot::command_arg_t> args;
    args.push_back(txt);

@@ -1,6 +1,6 @@
 /* src/graphics-info.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 
@@ -80,9 +81,6 @@
 
 
 // Idealize the geometry without considering the map.
-//
-// If you change things in here - also consider changing
-// copy_mol_and_refine.
 //
 short int
 graphics_info_t::copy_mol_and_regularize(int imol,
@@ -370,10 +368,14 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	    } else {
 	       regularize_object_bonds_box.clear_up();
 	       make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
+	       int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+	       graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
+	       // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
+	       // << std::endl;
 	       short int continue_flag = 1;
 	       int step_count = 0; 
 	       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-	       while (step_count < 10000 && continue_flag) { 
+	       while ((step_count < 10000) && continue_flag) {
 		  int retval = drag_refine_idle_function(NULL);
 		  step_count += dragged_refinement_steps_per_frame;
 		  if (retval == GSL_SUCCESS)
@@ -617,10 +619,11 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       short int istat = copy_mol_and_regularize(imol, resno_1, resno_2, altconf, chain_id_1);
       if (istat) { 
 	 graphics_draw();
-	 if (! refinement_immediate_replacement_flag)
+	 if (! refinement_immediate_replacement_flag) { 
 	    do_accept_reject_dialog("Regularization");
+	    check_and_warn_bad_chirals_and_cis_peptides();
+	 }
       }
-      
    } // same chains test
 }
 
@@ -842,8 +845,10 @@ graphics_info_t::refine_residue_range(int imol,
 	       std::cout << "Refinement elapsed time: " << float(t1-t0)/1000.0 << std::endl;
 	       if (istat) { 
 		  graphics_draw();
-		  if (! refinement_immediate_replacement_flag)
+		  if (! refinement_immediate_replacement_flag) { 
 		     do_accept_reject_dialog("Refinement");
+		     check_and_warn_bad_chirals_and_cis_peptides();
+		  }
 	       }
 	    }
 	 } else {
@@ -2414,3 +2419,78 @@ graphics_info_t::do_interactive_probe() const {
 
    
 }
+
+void
+graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
+
+   if (moving_atoms_asc) { 
+      if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
+	 if (moving_atoms_asc->mol) {
+
+	    std::string s = "Unset";
+
+	    // Chirals:
+	    std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
+	       bv = coot::bad_chiral_volumes(moving_atoms_asc->mol,
+					     geom_p,
+					     cif_dictionary_read_number);
+	    if (bv.second.size() > 0) {
+	       if (bv.second.size() == 1) {
+		  int i = 0;
+		  s = "There is one residue with an\n";
+		  s += "incorrect chiral volume\n";
+		  s += bv.second[i].chain;
+		  s += " ";
+		  s += coot::util::int_to_string(bv.second[i].resno);
+		  s += bv.second[i].insertion_code;
+		  s += " ";
+		  s += bv.second[i].atom_name;
+		  s += " ";
+		  s += bv.second[i].alt_conf;
+		  s += "\n";
+	       } else {
+		  int i = 0;
+		  s = "There are ";
+		  s += coot::util::int_to_string(bv.second.size());
+		  s += " residues with \n";
+		  s += "incorrect chiral volumes\n";
+		  for (unsigned int i=0; i<bv.second.size(); i++) { 
+		     s += bv.second[i].chain;
+		     s += " ";
+		     s += coot::util::int_to_string(bv.second[i].resno);
+		     s += bv.second[i].insertion_code;
+		     s += " ";
+		     s += bv.second[i].atom_name;
+		     s += " ";
+		     s += bv.second[i].alt_conf;
+		     s += "\n";
+		  }
+	       }
+	    }
+
+	    // Cis peptides:
+
+	    int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+	    // std::cout << "DEBUG:: End ref: have " << n_cis << " CIS peptides " << std::endl;
+
+	    if (n_cis > graphics_info_t::moving_atoms_n_cis_peptides) {
+	       if (n_cis == 1) {
+		  s += "\nWARNING: A CIS peptide has been introduced\n";
+	       } else {
+		  if ((n_cis - graphics_info_t::moving_atoms_n_cis_peptides) > 1) {
+		     s += "\nWARNING: An extra CIS peptide has been introduced\n";
+		  } else { 
+		     s += "\nWARNING: Extra CIS peptides have been introduced\n";
+		  }
+	       }
+	    }
+	    
+	    if (s != "Unset") {
+	       info_dialog(s);
+	    } 
+	 }
+      }
+   }
+}
+
+

@@ -1,7 +1,6 @@
 /* src/graphics-info.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by Paul Emsley, The
- * University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +14,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 
@@ -125,6 +125,17 @@ wrapped_create_accept_reject_refinement_dialog() {
    graphics_info_t::accept_reject_dialog = w;
    return w;
 }
+
+// static
+void
+graphics_info_t::info_dialog(const std::string &s) {
+   
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *w = wrapped_nothing_bad_dialog(s);
+      gtk_widget_show(w);
+   }
+}
+
 
 // static 
 void
@@ -642,7 +653,7 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
       zoom_out = 1;
 
    // This bit of code doesn't get executed (practically ever).
-   if (smooth_scroll_do_zoom && pre_zoom < 70.0) { 
+   if (smooth_scroll_do_zoom && (pre_zoom < 70.0)) { 
       if ( (xd*xd + yd*yd + zd*zd) > smooth_scroll_limit*smooth_scroll_limit ) {
 	 for (int ii=0; ii<n_extra_steps+smooth_scroll_steps; ii++) {
 	    graphics_info_t::zoom *= zoom_in; // typically 1.1
@@ -652,16 +663,42 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
    }
 
    if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
-      for (int ii=0; ii<smooth_scroll_steps; ii++) {
-	 
-	 smooth_scroll_on = 1; // flag to stop wirecube being drawn.
-	 rotation_centre_x += stepping_x;
-	 rotation_centre_y += stepping_y;
-	 rotation_centre_z += stepping_z;
-	 if (do_zoom_and_move_flag)
-	    graphics_info_t::zoom = pre_zoom +
-	       float(ii+1)*frac*(target_zoom - pre_zoom);
-	 graphics_draw();
+      smooth_scroll_on = 1; // flag to stop wirecube being drawn.
+
+      if (0) { 
+
+	 for (int ii=0; ii<smooth_scroll_steps; ii++) {
+	    rotation_centre_x += stepping_x;
+	    rotation_centre_y += stepping_y;
+	    rotation_centre_z += stepping_z;
+	    if (do_zoom_and_move_flag)
+	       graphics_info_t::zoom = pre_zoom +
+		  float(ii+1)*frac*(target_zoom - pre_zoom);
+	    graphics_draw();
+	 }
+
+      } else {
+
+	 // -6x^2 +6x parametric function
+	 if (smooth_scroll_steps > 0) { 
+	    float rotation_centre_x_start = rotation_centre_x;
+	    float rotation_centre_y_start = rotation_centre_y;
+	    float rotation_centre_z_start = rotation_centre_z;
+	    for (int ii=0; ii<smooth_scroll_steps; ii++) {
+	       float range_frac = float(ii)/float(smooth_scroll_steps);
+	       float f_x = (-2*range_frac*range_frac*range_frac + 3*range_frac*range_frac);
+	       
+	       rotation_centre_x = rotation_centre_x_start + f_x*xd;
+	       rotation_centre_y = rotation_centre_y_start + f_x*yd;
+	       rotation_centre_z = rotation_centre_z_start + f_x*zd;
+
+	       if (do_zoom_and_move_flag)
+		  graphics_info_t::zoom = pre_zoom +
+		     float(ii+1)*frac*(target_zoom - pre_zoom);
+	       graphics_draw();
+
+	    }
+	 }
       }
    }
 
@@ -1463,7 +1500,6 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 
 #ifdef HAVE_GSL
 
-   // graphics_info_t g; // not needed?
    int retval = graphics_info_t::drag_refine_refine_intermediate_atoms();
 
    if (retval != GSL_CONTINUE) {
@@ -1473,6 +1509,9 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 	 std::cout << " SUCCESS" << std::endl;
       long t1 = glutGet(GLUT_ELAPSED_TIME);
       std::cout << " TIME:: (dragged refinement): " << float(t1-T0)/1000.0 << std::endl;
+
+      graphics_info_t g;
+      g.check_and_warn_bad_chirals_and_cis_peptides();
 
       gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
       graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
