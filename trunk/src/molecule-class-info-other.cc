@@ -2454,6 +2454,61 @@ molecule_class_info_t::assign_fasta_sequence(const std::string &chain_id, const 
    }
 }
 
+void
+molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const std::string &seq_in) {
+
+   // format "> ID;database-id\ntext-descr\n <sequence>", we ignore everything that is not a
+   // letter after the newline.
+
+   // sequence is member data.  Let's fill it.
+   std::cout << "in assign_fasta_sequence\n";
+
+   std::string seq;
+
+   int nchars = seq_in.length();
+   short int found_greater = 0;
+   short int found_newline = 0;
+   short int found_textdescr = 0;
+   std::string t;
+
+   for (int i=0; i<nchars; i++) {
+
+      // std::cout << "checking character: " << seq_in[i] << std::endl;
+
+      if (found_newline && found_greater && found_textdescr) {
+	 t = toupper(seq_in[i]);
+	 if (is_pir_aa(t)) {
+	    // 	    std::cout << "adding character: " << seq_in[i] << std::endl;
+	    seq += t;
+	 }
+      }
+      if (seq_in[i] == '>') {
+	 // 	 std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
+	 found_greater = 1;
+      }
+      if (seq_in[i] == '\n') { 
+	 if (found_newline) {
+	    // 	    std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
+	    found_textdescr = 1;
+	 }
+	 if (found_greater) {
+	    // 	    std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
+	    found_newline = 1;
+	 }
+      }
+   }
+   
+   if (seq.length() > 0) { 
+      std::cout << "storing sequence: " << seq << " for chain id: " << chain_id
+		<< std::endl;
+      input_sequence.push_back(std::pair<std::string, std::string> (chain_id,seq));
+   } else { 
+      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+   }
+   
+}
+
+
 // Return a flag that tells us if we did indeed find a proper next
 // residue.  Return the 3-letter-code in second.
 // 
@@ -2546,7 +2601,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 }
 
 
-short int
+bool
 molecule_class_info_t::is_fasta_aa(const std::string &a) const { 
 
    short int r = 0;
@@ -2565,6 +2620,23 @@ molecule_class_info_t::is_fasta_aa(const std::string &a) const {
    return r;
 }
 
+bool
+molecule_class_info_t::is_pir_aa(const std::string &a) const { 
+
+   short int r = 0;
+   
+   if (a == "A" || a == "G" ) { 
+      r = 1;
+   } else { 
+      if (   a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
+	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q" 
+	  || a == "R" || a == "S" || a == "T" ||             a == "V" || a == "W" 
+	  || a == "Y" || a == "Z" || a == "X" ) {
+	 r = 1;
+      }
+   }
+   return r;
+}
 
 // render option (other functions)
 coot::ray_trace_molecule_info

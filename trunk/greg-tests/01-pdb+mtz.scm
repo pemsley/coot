@@ -11,6 +11,17 @@
 
 ;; CCP4 is set up? If so, set have-ccp4? #t
 
+
+(greg-gui 'register "Close bad molecule")
+(greg-gui 'register "Read coordinates test")
+(greg-gui 'register "Read MTZ test")
+(greg-gui 'register "Another Level test")
+(greg-gui 'register "Add Terminal Residue Test")
+(greg-gui 'register "Select by Sphere")
+
+(greg-gui 'make-gui)
+
+
 (let ((ccp4-master (getenv "CCP4_MASTER")))
   (if (string? ccp4-master)
       (set! have-ccp4? #t)))
@@ -41,57 +52,6 @@
      (let ((imol-map-2 (another-level)))
        (valid-map-molecule? imol-map-2))))
 
-(greg-testcase "Get monomer test" #t 
-   (lambda ()
-     (if have-ccp4?
-	 (let ((imol (monomer-molecule-from-3-let-code "3GP" "")))
-	   (if (valid-model-molecule? imol)
-	       (begin
-		 (set! imol-ligand imol) ; for use in next test
-		 (delete-residue-hydrogens imol "A" 1 "" "")
-		 #t)))
-	 (begin
-	   (format #t "CCP4 not set up - skipping 3GP test~%")
-	   (throw 'untested)))))
-
-(greg-testcase "Set Bond thickness" #t 
-   (lambda ()	       
-     (if (valid-model-molecule? imol-ligand)
-	 (begin
-	   (set-bond-thickness imol-ligand 5)
-	   #t)
-	 (begin
-	   (format #t "No ligand molecule - Skipping bond thickness test~%")
-	   (throw 'unstested)))))
-	 
-
-(greg-testcase "Move and Refine Ligand test" #t 
-   (lambda ()
-     (let ((new-rc (list 55.3 9.1 20.6)))
-       (if (not (valid-model-molecule? imol-ligand))
-	   (throw 'untested)
-	   (begin
-	     (apply spin-zoom-trans (append (list 2 200 0.2 0.2)
-					    (map (lambda (rc nc) (- nc rc))
-						 (rotation-centre) new-rc)))
-	     ;; updates the map:
-	     (apply set-rotation-centre new-rc)
-	     (move-molecule-here imol-ligand)
-	     (let ((backup-mode (backup-state imol-ligand))
-		   (alt-conf "")
-		   (replacement-state (refinement-immediate-replacement-state)))
-	       
-	       (turn-off-backup imol-ligand)
-	       (set-refinement-immediate-replacement 1)
-	       (refine-zone imol-ligand "A" 1 1 alt-conf)
-	       (accept-regularizement)
-	       (rotate-y-scene 1000 0.1)
-	       (if (= replacement-state 0)
-		   (set-refinement-immediate-replacement 0))
-	       (if (= backup-mode 1)
-		   (turn-on-backup imol-ligand))
-	       #t ; pah
-	       ))))))
 
 (greg-testcase "Add Terminal Residue Test" #t 
    (lambda ()
@@ -149,36 +109,35 @@
 			 24.6114959716797 24.8355808258057 7.43978214263916
 			 3.6)))
 
-       (if (not ((valid-model-molecule? imol-sphere))
+       (if (not (valid-model-molecule? imol-sphere))
 	   (begin
 	     (format #t "Bad sphere molecule~%")
 	     #f)
-		
+	   
 	   (let ((n-atoms 
-		  (map + (map (lambda (chain-id)
-				;; return the number of atoms in this chain
-				(let ((n-residues (chain-n-residues chain-id imol-sphere)))
-				  (format #t "Sphere mol: there are ~s residues in chain ~s~%" 
-					  n-residues chain-id)
+		  (apply + (map (lambda (chain-id)
+				  ;; return the number of atoms in this chain
+				  (let ((n-residues (chain-n-residues chain-id imol-sphere)))
+				    (format #t "Sphere mol: there are ~s residues in chain ~s~%" 
+					    n-residues chain-id)
 
-				  (let ((loop (residue-list (number-list 0 (- n-residues 1))))
-					(chain-n-atoms 0))
+				    (let loop ((residue-list (number-list 0 (- n-residues 1)))
+					       (chain-n-atoms 0))
 
-				    (cond 
-				     ((null? residue-list) chain-n-atoms)
-				     (else 
-				      (let ((serial-number (car residue-list)))
-					(let ((res-name (resname-from-serial-number imol-sphere chain-id serial-number))
-					      (res-no   (seqnum-from-serial-number  imol-sphere chain-id serial-number))
-					      (ins-code (insertion-code-from-serial-number imol-sphere chain-id serial-number)))
-					  (let ((residue-atoms-info (residue-info imol-sphere chain-id resno-no ins-code)))
-					    (loop (cdr residue-list) (+ (length residue-atoms-info))))))))))))
-		       (chain-ids imol-sphere))))
-		 
+				      (cond 
+				       ((null? residue-list) 
+					(format #t "chain-n-atoms for chain ~s is ~s~%" chain-id chain-n-atoms)
+					chain-n-atoms)
+				       (else 
+					(let ((serial-number (car residue-list)))
+					  (let ((res-name (resname-from-serial-number imol-sphere chain-id serial-number))
+						(res-no   (seqnum-from-serial-number  imol-sphere chain-id serial-number))
+						(ins-code (insertion-code-from-serial-number imol-sphere chain-id serial-number)))
+					    (let ((residue-atoms-info (residue-info imol-sphere chain-id res-no ins-code)))
+					      (loop (cdr residue-list) (+ (length residue-atoms-info) chain-n-atoms))))))))))
+				(chain-ids imol-sphere)))))
+	     
 	     (format #t "Found ~s sphere atoms ~%" n-atoms)
 
-	     (= n-atoms 19))))))
+	     (= n-atoms 20))))))
 
-	       
-
-	       

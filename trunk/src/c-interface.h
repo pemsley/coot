@@ -3922,8 +3922,10 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog);
 
 /*! \brief Print the sequence to the console of the given molecule */
 void print_sequence_chain(int imol, const char *chain_id);
-/*! \brief Assign the sequence to a given molecule (not currently used) */
+/*! \brief Assign a FASTA sequence to a given chain in the  molecule */
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq);
+/*! \brief Assign a PIR sequence to a given chain in the molecule */
+void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq);
 /* I don't know what this does. */
 void assign_sequence(int imol_model, int imol_map, const char *chain_id);
 
