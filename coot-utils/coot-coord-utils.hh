@@ -485,6 +485,9 @@ namespace coot {
       std::vector<std::pair<coot::atom_spec_t, std::string> >
       gln_asn_b_factor_outliers(CMMDBManager *mol);
 
+      // return the number of cis peptides in mol:
+      int count_cis_peptides(CMMDBManager *mol);
+
    }
    
 }

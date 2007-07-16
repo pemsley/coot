@@ -3403,3 +3403,66 @@ coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
    return origin_shift + (position-origin_shift).transform(rtop);
 }
 
+// We ignore the issue of alt confs because from refinement/reg we
+// will be only looking at a single stretch of amino acids, of a given
+// alt conf (or blank).
+// 
+int
+coot::util::count_cis_peptides(CMMDBManager *mol) {
+
+   int cis_count = 0;
+
+   int imod = 1;      
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p_1;
+      PCResidue residue_p_2;
+      CAtom *at_1;
+      CAtom *at_2;
+      CAtom *ca_first = NULL, *c_first = NULL, *n_next = NULL, *ca_next = NULL;
+      for (int ires=0; ires<(nres-1); ires++) { 
+   
+	 residue_p_1 = chain_p->GetResidue(ires);
+	 int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
+	 residue_p_2 = chain_p->GetResidue(ires+1);
+	 int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
+
+	 if (residue_p_2->GetSeqNum() == (residue_p_1->GetSeqNum() + 1)) { 
+	 
+	    for (int iat=0; iat<n_atoms_1; iat++) {
+	       at_1 = residue_p_1->GetAtom(iat);
+	       if (std::string(at_1->GetAtomName()) == " CA ")
+		  ca_first = at_1;
+	       if (std::string(at_1->GetAtomName()) == " C  ")
+		  c_first = at_1;
+	    }
+
+	    for (int iat=0; iat<n_atoms_2; iat++) {
+	       at_2 = residue_p_2->GetAtom(iat);
+	       if (std::string(at_2->GetAtomName()) == " CA ")
+		  ca_next = at_2;
+	       if (std::string(at_2->GetAtomName()) == " N  ")
+		  n_next = at_2;
+	    }
+	 }
+      }
+      if (ca_first && c_first && n_next && ca_next) {
+	 clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
+	 clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
+	 clipper::Coord_orth can(ca_next->x, ca_next->y, ca_next->z);
+	 clipper::Coord_orth  nn( n_next->x,  n_next->y,  n_next->z);
+	 double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
+	 double torsion = clipper::Util::rad2d(tors);
+	 torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
+	 double distortion = fabs(180.0 - torsion);
+	 if (distortion > 90.0) {
+	    cis_count++;
+	 } 
+      } 
+   }
+   return cis_count;
+} 
