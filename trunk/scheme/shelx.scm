@@ -454,13 +454,13 @@
 	      (lambda (port)
 		
 		(let loop ((line (read-line port))
-			   (interesting-list '())
+			   (split-list '())
 			   (disagreeable-restraints-list '())
 			   (dr-count 0))
 		  
 		  (cond 
 		   ((eof-object? line) (do-gui (reverse disagreeable-restraints-list)
-					       interesting-list))
+					       (reverse split-list)))
 		   ((string-match "may be split into" line)
 		    (let ((parts (string->list-of-strings line)))
 		      (if (> (length parts) 6)
@@ -477,20 +477,20 @@
 				      (cons 
 				       (append
 					(list buton-label imol) atom-parts)
-				       interesting-list)
+				       split-list)
 				      disagreeable-restraints-list
 				      0)))))))
 
 		   ((string-match 
 		     "   Observed   Target    Error     Sigma     Restraint" line)
 		    (loop (read-line port)
-			  interesting-list
+			  split-list
 			  '()
 			  1))
 
 		   ((= dr-count 1)
 		    (loop (read-line port)
-			  interesting-list
+			  split-list
 			  '() ; reset the disagreeable-restraints-list
 			  2))
 
@@ -499,7 +499,7 @@
 		    (let ((dr-bits (parse-dr-line line)))
 		      ;; (format #t "dr-bits: ~s~%" dr-bits)
 		      (loop (read-line port)
-			    interesting-list
+			    split-list
 			    (if (list? dr-bits)
 				(cons dr-bits disagreeable-restraints-list)
 				disagreeable-restraints-list)
@@ -507,5 +507,5 @@
 
 		   (else 
 		    (loop (read-line port)
-			  interesting-list
+			  split-list
 			  disagreeable-restraints-list dr-count))))))))))
