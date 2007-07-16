@@ -2235,7 +2235,10 @@ on_goto_atom_window_destroy            (GtkObject       *object,
                                         gpointer         user_data)
 {
 /*   printf("on_goto_atom_window_destroy is executed. unsetting the static in graphics_info\n"); */
-/*   unset_go_to_atom_widget(); */
+
+/* we can get here from a WM dialog kill (as well as the conventional
+   "Cancel" button callback. Fixes July 12 bug? */
+  unset_go_to_atom_widget(); 
 }
 
 

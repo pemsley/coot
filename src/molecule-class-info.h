@@ -355,7 +355,8 @@ class molecule_class_info_t {
    // 
    // pair: chain_id sequence
    std::vector<std::pair<std::string, std::string> > input_sequence;
-   short int is_fasta_aa(const std::string &a) const;
+   bool is_fasta_aa(const std::string &a) const;
+   bool is_pir_aa  (const std::string &a) const;
 
    // make fphidata lie within the resolution limits of reso.  Do we
    // need a cell to do this?
@@ -1591,6 +1592,8 @@ class molecule_class_info_t {
    void assign_fasta_sequence(const std::string &chain_id, const std::string &seq);
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
    std::vector<std::pair<std::string, std::string> > sequence_info() { return input_sequence; };
+
+   void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 
 
    // render option (other functions)

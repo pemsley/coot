@@ -3026,7 +3026,17 @@ void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq) {
       const std::string chain_id = chain_id_in;
       graphics_info_t::molecules[imol].assign_fasta_sequence(chain_id, std::string(seq));
    }
-} 
+}
+
+void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq) { 
+
+   if (imol < graphics_info_t::n_molecules && imol >= 0) {
+      const std::string chain_id = chain_id_in;
+      graphics_info_t::molecules[imol].assign_pir_sequence(chain_id, std::string(seq));
+   }
+}
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  trim                                                    */

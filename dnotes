@@ -868,7 +868,7 @@ OK, here's how to reproduce:
 	start from 0crash.scm
         add pointer distances
 	Fire up Go to atom
-	Close with top right wm button
+	Close with top right WM button
 	Delete, Delete Atom, Active
 	Click an atom
 	Crash.
@@ -1071,5 +1071,23 @@ Fri Jul 13 11:48:08 BST 2007
   a button to undisplay ALL maps at once in the display menu pop-up
   ???
 
-* Can be done in scripting
+* A bit of scripting can do this (done).
+
+
+----
+Mon Jul 16 13:09:11 BST 2007
+
+  if the first and last non-blank characters read from the scripting
+  window are not ( and ) then add them. So
+
+  read-pdb "test.pdb"
+
+  will "work".
+
+
+-----
+
+Here's a description of the PIR format:
+
+http://www.cmbi.kun.nl/bioinf/tools/crab_pir.html
 

@@ -410,12 +410,12 @@
 	  "Associate Sequence to Model: "
 	  "Chain ID"
 	  ""
-	  "Select FASTA file"
-	  (lambda (imol chain-id fasta-file-name)
-	    (format #t "assoc seq: ~s ~s ~s~%" imol chain-id fasta-file-name)
-	    (if (file-exists? fasta-file-name)
+	  "Select PIR file"
+	  (lambda (imol chain-id pir-file-name)
+	    (format #t "assoc seq: ~s ~s ~s~%" imol chain-id pir-file-name)
+	    (if (file-exists? pir-file-name)
 		(let ((seq-text 
-		       (call-with-input-file fasta-file-name
+		       (call-with-input-file pir-file-name
 			 (lambda (port)
 			   (let loop  ((lines '())
 				       (line (read-line port)))
@@ -425,7 +425,7 @@
 			      (else
 			       (loop (cons line lines) (read-line port)))))))))
 		  
-		  (assign-fasta-sequence imol chain-id seq-text)))))))
+		  (assign-pir-sequence imol chain-id seq-text)))))))
 						  
 
       (add-simple-coot-menu-menuitem
