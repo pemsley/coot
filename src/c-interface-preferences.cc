@@ -987,7 +987,7 @@ parse_ccp4i_defs(const std::string &filename) {
 	 ipath  = ss.find("DEF_DIR_PATH,");
 	 ialias = ss.find("DEF_DIR_ALIAS,");
 	 if (ipath != std::string::npos) {
-	    std::cout << "DEBUG::  found an ALIAS path..." << ss << std::endl;
+	    // std::cout << "DEBUG::  found an ALIAS path..." << ss << std::endl;
 	    path_coming = 1;
 	    alias_flag = 1;
 	    icomma = ss.find_last_of(",");
@@ -999,7 +999,7 @@ parse_ccp4i_defs(const std::string &filename) {
 	 }
 	 if (ialias != std::string::npos) {
 	    alias_coming = 1;
-	    std::cout << "DEBUG::  found an ALIAS name..." << ss << std::endl;
+	    // std::cout << "DEBUG::  found an ALIAS name..." << ss << std::endl;
 	    icomma = ss.find_last_of(",");
 	    if ( (icomma+1) < int(ss.length())) {
 	       index = atoi(ss.substr(icomma+1, ss.length()).c_str());

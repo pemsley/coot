@@ -109,6 +109,8 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 						 short int reset_rotation_centre, 
 						 short int is_undo_or_redo) {
 
+   std::cout << " 1 ===================================================="
+	     << "handle_read_draw_molecule" << std::endl;
    //
    graphics_info_t g;
    imol_no = g.n_molecules; // g.n_molecules gets updated outside afterwards
@@ -138,6 +140,7 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 				    
    // Read in pdb, [shelx files use the read_shelx_ins_file method]
    //
+
    atom_sel = get_atom_selection(filename);
    
    if (atom_sel.read_success == 1) {

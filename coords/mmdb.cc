@@ -60,9 +60,10 @@ get_atom_selection(std::string pdb_name) {
     std::string extention = coot::util::file_name_extension(pdb_name);
 
     // returns e.g. ".ins"
-    // std::cout << "DEBUG:: extention is " << extention << std::endl;
-    
+
+
     if (coot::util::extension_is_for_shelx_coords(extention)) {
+
 
        coot::ShelxIns s;
        coot::shelx_read_file_info_t srf = s.read_file(pdb_name);
@@ -293,6 +294,7 @@ fix_away_atoms(atom_selection_container_t asc) {
 int 
 fix_hydrogen_names(atom_selection_container_t asc) {
 
+   std::cout << "....... starting fix_hydrogen_names" << std::endl;
    int n_changed = 0;
    int uddHnd_old =
       asc.mol->RegisterUDString(UDR_ATOM , "initial hydrogen name");
@@ -338,8 +340,19 @@ fix_hydrogen_names(atom_selection_container_t asc) {
 						(char *) new_atom_name.c_str());
 	    asc.atom_selection[i]->SetAtomName(new_atom_name.c_str());
 	    n_changed++;;
-// 	 } else {
-//  	    std::cout << "DEBUG::        no switch :" <<  atom_name << ":\n";
+ 	 } else {
+	    // refmac calls it " H "
+	    if (atom_name == " H0 ") {
+	       std::string new_atom_name = " H  ";
+	       if (uddHnd_old >= 0)
+		  asc.atom_selection[i]->PutUDData(uddHnd_old,
+						   asc.atom_selection[i]->name);
+	       if (uddHnd_new >= 0)
+		  asc.atom_selection[i]->PutUDData(uddHnd_new,
+						   (char *) new_atom_name.c_str());
+	       asc.atom_selection[i]->SetAtomName(new_atom_name.c_str());
+	       n_changed++;
+	    }
 	 } 
       }
    }

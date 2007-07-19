@@ -2471,7 +2471,8 @@ graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 	    // Cis peptides:
 
 	    int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
-	    // std::cout << "DEBUG:: End ref: have " << n_cis << " CIS peptides " << std::endl;
+	    // std::cout << "DEBUG:: End ref: have " << n_cis << " CIS peptides "
+	    // << std::endl;
 
 	    if (n_cis > graphics_info_t::moving_atoms_n_cis_peptides) {
 	       if (n_cis == 1) {
@@ -2486,7 +2487,10 @@ graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 	    }
 	    
 	    if (s != "Unset") {
-	       info_dialog(s);
+	       if (show_chiral_volume_errors_dialog_flag) {
+		  info_dialog(s);
+	       }
+	       std::cout << s << std::endl;
 	    } 
 	 }
       }

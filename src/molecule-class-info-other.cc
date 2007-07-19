@@ -2480,6 +2480,8 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
 	 if (is_pir_aa(t)) {
 	    // 	    std::cout << "adding character: " << seq_in[i] << std::endl;
 	    seq += t;
+	    if (t == "*") // end of sequence
+	       break; // the for loop
 	 }
       }
       if (seq_in[i] == '>') {
@@ -4269,7 +4271,8 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
    if (p.status == 0) { 
       std::cout << "WARNING:: bad status in read_shelx_ins_file" << std::endl;
       istat = -1;
-   } else { 
+   } else {
+
 
       int udd_afix_handle = p.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
       // std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is "
@@ -4286,6 +4289,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	 // initialize some things.
 	 //
 	 atom_sel = make_asc(p.mol);
+	 fix_hydrogen_names(atom_sel); // including change " H0 " to " H  "
 	 short int is_undo_or_redo = 0;
 	 graphics_info_t g;
 
@@ -4337,7 +4341,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 
       //    std::cout << "DEBUG:: Post read shelx: "<< std::endl;
       //    shelxins.debug();
-      
+
       // save state strings
       save_state_command_strings_.push_back("read-shelx-ins-file");
       save_state_command_strings_.push_back(single_quote(filename));
