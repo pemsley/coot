@@ -282,6 +282,18 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
    int  istat = -1;
    std::string extention = coot::util::file_name_extension(filename);
    if (coot::util::extension_is_for_shelx_coords(extention)) {
+
+      //       if (0) { // Don't do this path.  handle_read_draw_molecule() call
+	    // get_atom_selection() which does this check and goes
+	    // down the shelx path already.
+      // But!  That's not the whole story read_shelx_ins_file calls
+      // the read_shelx_ins_file() method of molecule_class_info_t,
+      // which does different things to handle_read_draw_molecule,
+      // specifically, it doesn't call get_atom_selection() and so the
+      // Hydrogen names are not fixed.  Currently that is the case.
+      // We'd like the fixing of hydrogen names in this
+      // read_shelx_ins_file path too.
+      
       r = read_shelx_ins_file(filename);
 
    } else { 

@@ -1327,6 +1327,8 @@ public:
    static int geometry_atom_index_3_mol_no;
    static int geometry_atom_index_4_mol_no;
    static short int fix_chiral_volume_before_refinement_flag;
+   static short int show_chiral_volume_errors_dialog_flag;
+
    // 
    static int imol_pepflip;
    static int iresno_pepflip;

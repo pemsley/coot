@@ -1408,3 +1408,12 @@ void gln_asn_b_factor_outliers(int imol) {
       }
    } 
 } 
+
+/*! \brief For experienced Cooters who don't like Coot nannying about
+  chiral volumes during refinement. */
+void set_show_chiral_volume_errors_dialog(short int istate) {
+
+   graphics_info_t::show_chiral_volume_errors_dialog_flag = istate;
+
+}
+

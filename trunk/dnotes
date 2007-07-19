@@ -1091,3 +1091,18 @@ Here's a description of the PIR format:
 
 http://www.cmbi.kun.nl/bioinf/tools/crab_pir.html
 
+-----
+Wed Jul 18 09:09:16 BST 2007
+
+	Hydrogens naming problem with shelx.
+
+	Shelx calls hydrogens attached to ILE CG2 HG2A HG2B HG2C,
+	whereas refmac names are HG21 HG22 HG33.
+
+	There are lots of other problems like this.
+
+
+-----
+
+	gtk2 rotamers box needs to be made not small.
+

@@ -2343,6 +2343,10 @@ void check_chiral_volumes_from_widget(GtkWidget *window);
 void fill_chiral_volume_molecule_option_menu(GtkWidget *w);
 void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
 
+/*! \brief For experienced Cooters who don't like Coot nannying about
+  chiral volumes during refinement. */
+void set_show_chiral_volume_errors_dialog(short int istate);
+
 /*! \brief set the type of secondary structure restraints
 
 0 no sec str restraints
