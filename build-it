@@ -420,7 +420,13 @@ if test $OS = Linux ; then
       systype=${architecture}-${dist_name}-${dist_ver}
     ;;
     * )
-      systype=${architecture}-unknown-Linux
+      if test -r /etc/issue; then
+        dist-name=`awk "{print $1}" /etc/issue`
+        dist-ver=`awk "{print $2}" /etc/issue`
+        systype=${architecture}-${dist_name}-${dist_ver}
+      else
+        systype=${architecture}-unknown-Linux
+      fi
     ;;
   esac
 fi
