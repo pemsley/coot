@@ -421,8 +421,8 @@ if test $OS = Linux ; then
     ;;
     * )
       if test -r /etc/issue; then
-        dist_name=`awk "{print $1}" /etc/issue`
-        dist_ver=`awk "{print $2}" /etc/issue`
+        dist_name=`awk 'NR==1{print tolower($1)}' /etc/issue`
+        dist_ver=`awk 'NR==1{print tolower($2)}' /etc/issue`
         systype=${architecture}-${dist_name}-${dist_ver}
       else
         systype=${architecture}-unknown-Linux
