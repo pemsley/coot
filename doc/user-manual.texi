@@ -1235,8 +1235,13 @@ molecule is displayed.  The recentring of the view after the coordinates
 have been read can be turned off by unclicking the "Recentre?" 
 radio-button.
 
-To disable the recentring of the view on reading a
-coordinates file via scripting, use: @code{(recentre-on-read-pdb 0)}.
+To disable the recentring of the view on reading a coordinates file via
+scripting, use: @code{(set-recentre-on-read-pdb 0)}.  However, when
+reading a coordinates file from a script it is just as good (if not
+better) to use @code{(handle-read-draw-molecule-with-recentre
+@emph{filename} 0)} - the additional @code{0} means ``don't recentre''.
+And that affects just the reading of @code{@emph{filename}} and not
+subsequent files.
 
 @subsection A Note on Space Groups Names
 @cindex space group names
