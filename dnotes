@@ -4,40 +4,72 @@ Tue Jul  3 14:27:37 BST 2007
 
    Things to add or fix before 0.4
 
+   o try read phs, read a pdb to get cell, pdb file does not have cell
+     -> crash.
+
+   o Fix Cootaneer crash
+
+   o Test cootaneer by building from just a map.
+
+   o Is there a memory problem in unshelx?  Valgrind it, I suppose.
+
+   o Make the Omega Angle Plot update properly in
+     update_geometry_graphs()
+
+   o Try again to add chiral volumes to the geometry target function
 
    o Richardson rotamers
 
    o Kevin's Ramachandran Refinement target
 
-   o Is there a memory problem in unshelx?
-
-   o Try again to add chiral volumes to the geometry target function
-
-   o Make the Omega Angle Plot update properly in
-     update_geometry_graphs()
-
    o Add Chiral Volume Outliers to Omega Angle Plot
 
    o Do the strand restraints work well under refinement?
-
-   o Add select by sphere to test suite
-
-   o Activate test suite
 
    o When refining, add a status bar message that describes the Ctrl
      button usage.
  
    o are the findwaters and findligands being installed correctly
-     (with wrappers?).
-
-   o Add a PIR sequence reader for cootaneering
-
-   o Test cootaneer by building from just a map.
+     (with wrappers?).  Get a pre-release tar ball and look at that.
 
    o Post-install slim the binaries
 
+   o Alice Dawson SSM Problem, 1pyd.  Message sent to Eugene -
+     awaiting reply.
+
+   o Activate test suite
+
+   o specify default working molecule for water addition (esp. for
+     key-bound water addition) [JED]
+
+   o Get B factors from shelx Us (for B factor variance plot)
+
+   o C key press in the graphics runs the graphics-general-key-press-hook.  
+     It should not.
 
 
+
+
+   o re-work the cootaneering gui, use a sub-menu.
+
+* Done.
+
+   o Ignore hydrogens in b-factor variance plot
+
+* Done     
+
+   o auto-read-shelx-project: check if fcf is more recent than fcf.cif
+     before auto-loading fcf.cif
+
+* Done.
+
+   o Add a PIR sequence reader for cootaneering
+
+* Done.
+
+   o Add select by sphere to test suite
+
+* Done.
 
    o Add planar peptide restraints as default
 

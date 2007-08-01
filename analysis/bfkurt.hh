@@ -46,9 +46,10 @@ namespace coot_extras {
       std::vector<std::pair<std::string, std::vector<my_stats_t> > > kurtoses;
       my_stats_t stats(CResidue *residue_p) const;
       void set_questionable_flags(float z);
+      bool is_mol_from_shelx_flag;
 
    public:
-      b_factor_analysis(const CMMDBManager *mol);
+      b_factor_analysis(const CMMDBManager *mol, bool is_from_shelx_ins_flag_in);
       short int write_table(const std::string &filename,
 			    const std::string &pdb_filename,
 			    short int write_only_questionables_flag) const;

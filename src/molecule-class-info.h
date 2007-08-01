@@ -1699,6 +1699,7 @@ class molecule_class_info_t {
    int read_shelx_ins_file(const std::string &filename);
    // return the success status, 0 for fail, 1 for good.
    int add_shelx_string_to_molecule(const std::string &str);
+   bool is_from_shelx_ins() const { return is_from_shelx_ins_flag; }
 
    // data resolution, in A (or a negative number on error)
    float data_resolution() const { return data_resolution_; }

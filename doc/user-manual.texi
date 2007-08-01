@@ -2596,7 +2596,7 @@ contains the water peaks (from the clusters) without any filtering and
 have been either added to the molecule or from which a new molecule
 has been created.
 
-@code{(set-ligand-water-spherical-variance-limit @emph{min-d max-d})} sets
+@code{(set-ligand-water-to-protein-distance-limits @emph{min-d max-d})} sets
 the minimum and maximum allowable distances between new waters and the
 masking molecule (usually the protein).
 
@@ -3720,6 +3720,8 @@ problems use
 This idea is from Eleanor Dodson, who liked to use the standard
 deviation of a residue's temperature factors to highlight regions of
 questionable structure.
+
+Note that Hydrogens are ignored in this analysis.
 
 @subsection Peptide @math{\omega} Distortion 
 

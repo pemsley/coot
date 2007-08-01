@@ -7,12 +7,13 @@
 #include "bfkurt.hh"
 
 
-coot_extras::b_factor_analysis::b_factor_analysis(const CMMDBManager *mol_in) { 
+coot_extras::b_factor_analysis::b_factor_analysis(const CMMDBManager *mol_in, bool is_mol_from_shelx_flag_in) { 
 
    // for each chain, we want a vector of residues, which contain the kertosis
    // 
    CMMDBManager *mol = (CMMDBManager *) mol_in; // ghastly.
-
+   is_mol_from_shelx_flag = is_mol_from_shelx_flag_in;
+   
    // recall kurtosis, $k$ of $N$ observations:
    // k = \frac{\Sigma(x_i - \mu)^4} {N \sigma^4} - 3    
    // (x_i - \mu)^4 = x_i^4 + 4x_i^3\mu + 6x_i^2\mu^2 + 4x_i\mu^3 + \mu^4
@@ -127,30 +128,45 @@ coot_extras::b_factor_analysis::stats(CResidue *residue_p) const {
    double bf;
    double occ;
    double bfo;
+   double occ_sum = 0.0;
    
    running_sum   = 0.0;
    running_sum_2 = 0.0;
    running_sum_3 = 0.0;
    running_sum_4 = 0.0;
+   
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    if (nResidueAtoms > 0) { 
       for (int i=0; i<nResidueAtoms; i++) {
-	 bf = residue_atoms[i]->tempFactor;
-	 occ = residue_atoms[i]->occupancy;
-	 bfo = bf * occ;
-	 running_sum   += bfo;
-	 running_sum_2 += bfo*bfo;
-	 running_sum_3 += bfo*bfo*bfo;
-	 running_sum_4 += bfo*bfo*bfo*bfo;
+	 std::string ele = residue_atoms[i]->element;
+	 if ((ele != " H") && (ele != " D")) {
+	    bf = residue_atoms[i]->tempFactor;
+	    occ = residue_atoms[i]->occupancy;
+	    // ignore atoms with silly (or shelx?) B factors and occs
+	    if (((bf > 0.0) && (occ >= 0.0) && (occ <= 1.0)) ||
+		(is_mol_from_shelx_flag && (occ < 11.001) && (occ>10.999))) {
+
+	       if (is_mol_from_shelx_flag)
+		  occ = 1.0; // only accepted atoms with occ 11.0
+	       
+	       occ_sum += occ;
+	       bfo = bf * occ;
+	       running_sum   += bfo;
+	       running_sum_2 += bfo*bfo;
+	       running_sum_3 += bfo*bfo*bfo;
+	       running_sum_4 += bfo*bfo*bfo*bfo;
+	    }
+	 }
       }
       CAtom *intel_at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
       my_stats.atom_name = intel_at->name;
-      double div = coot::util::occupancy_sum(residue_atoms, nResidueAtoms);
+      double div = occ_sum;
       if (div > 0) { 
 	 mean = running_sum / div;
 	 variance = running_sum_2/div - mean*mean;
-// 	 std::cout << "Variance: " << residue_p->GetSeqNum() << " "
-// 		   << residue_p->GetChainID() << " " << variance << std::endl;
+//  	 std::cout << "Variance: " << residue_p->GetSeqNum() << " "
+//  		   << residue_p->GetChainID() << " " << variance
+// 		   << " natoms: " << div << std::endl;
 	 if (variance < 0)
 	    variance = 0; // fixes numerical instability.
 	 std_dev = sqrt(variance);
@@ -172,7 +188,10 @@ coot_extras::b_factor_analysis::stats(CResidue *residue_p) const {
 	    // some useless number
 	    kurtosis = -999.9;
 	 }
-      }
+//       } else {
+// 	 std::cout << "DEBUG:: ignoring this residue with no no-zero occ atoms"
+// 		   << std::endl;
+      } 
       my_stats.resname = residue_p->GetResName();
       my_stats.mean = mean;
       my_stats.std_dev = std_dev;

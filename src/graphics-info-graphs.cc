@@ -367,11 +367,12 @@ graphics_info_t::b_factor_graphs(int imol) {
       if (imol >= 0)
 	 if (molecules[imol].has_model()) {
 	    CMMDBManager *mol = molecules[imol].atom_sel.mol;
+	    bool is_shelx_mol = molecules[imol].is_from_shelx_ins();
 
-	    coot_extras::b_factor_analysis bfa(mol);
+	    coot_extras::b_factor_analysis bfa(mol, is_shelx_mol);
 	    std::vector<coot_extras::my_chain_of_stats_t> bfa_chain_info =
 	       bfa.chain_details();
-	    
+
 	    int n_models = mol->GetNumberOfModels();
 	    int max_chain_length = coot::util::max_min_max_residue_range(mol);
 	    if (max_chain_length <= 0) {
