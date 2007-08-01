@@ -20,6 +20,8 @@ Release 0.4
 
    o Planar peptide restraints are ON by default now [Phil Evans]
 
+   o Omega Distortion graph now updates on Accept Refine Zone
+
    o CCP4i aliases are also added to the Project Dir options in the
      file selector
 

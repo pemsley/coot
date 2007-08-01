@@ -1802,11 +1802,10 @@ coot::unshelx(CMMDBManager *shelx_mol) {
       shelx_mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
       mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
       char *sg = shelx_mol->GetSpaceGroup();
-      size_t l = strlen(sg+1);
-      char *sgc = new char[l];
-      strcpy(sgc, sg);
-      mol->SetSpaceGroup(sgc);
-
+      // Don't mess around with copying the string here!
+      // SetSpaceGroup() copies the string.
+      if (sg)
+	 mol->SetSpaceGroup(sg);
    }
    return mol;
 }

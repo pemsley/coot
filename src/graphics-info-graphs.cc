@@ -146,6 +146,46 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 	 gr->update_residue_blocks(dv);
       }
    }
+
+   if (omega_distortion_graph[imol_moving_atoms]) {
+      coot::geometry_graphs *gr =
+	 geometry_graph_dialog_to_object(omega_distortion_graph[imol_moving_atoms]);
+      if (!gr) {
+	 std::cout << "ERROR:: failed to get omega_graph from dialog\n";
+      } else {
+
+	 // We do this long handedly (c.f. above) because here we use
+	 // render_omega_blocks() which needs the offset (which is a
+	 // per-chain variable:
+	 //
+	 int n_models = moving_atoms_asc_local.mol->GetNumberOfModels();
+	 for (int imodel = 1; imodel <= n_models; imodel++) { 
+	    CModel *model_p = moving_atoms_asc_local.mol->GetModel(imodel);
+	    CChain *chain_p;
+	    char *chain_id;
+	    int n_chains = model_p->GetNumberOfChains();
+
+	    for (int ich=0; ich<n_chains; ich++) {
+	       chain_p = model_p->GetChain(ich);
+	       chain_id = chain_p->GetChainID();
+	       std::pair<short int, int> m = coot::util::min_resno_in_chain(chain_p);
+	       if (m.first) {
+		  int offset = m.second - 1; // min resno = 1 -> offset = 0
+
+		  coot::omega_distortion_info_container_t om_dist = 
+		     omega_distortions_from_mol(moving_atoms_asc_local, chain_id);	
+
+		  std::cout << "DEBUG:: update omega dist graph chain "
+			    << om_dist.chain_id << " " << om_dist.omega_distortions.size()
+			    << " blocks" << std::endl;
+
+		  // Need to delete geometry blocks, somehow. Here, perhaps.
+		  gr->update_omega_blocks(om_dist, ich, std::string(chain_id));
+	       }
+	    }
+	 }
+      }
+   } 
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
 
@@ -499,6 +539,19 @@ graphics_info_t::omega_graphs(int imol) {
 #endif // HAVE_GSL   
 }
 
+#ifdef HAVE_GSL
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+coot::omega_distortion_info_container_t 
+graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &asc,
+					    const std::string &chain_id) {
+
+   coot::restraints_container_t restraints(asc, chain_id);
+   coot::omega_distortion_info_container_t om_dist =
+      restraints.omega_trans_distortions(mark_cis_peptides_as_bad_flag);
+   return om_dist;
+}
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+#endif // HAVE_GSL   
 
 void
 graphics_info_t::rotamer_graphs(int imol) {

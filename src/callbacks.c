@@ -2293,9 +2293,25 @@ on_accept_reject_refinement_reject_button_clicked (GtkButton       *button,
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "accept_reject_refinement_dialog");
   save_accept_reject_dialog_window_position(window);
-  clear_up_moving_atoms();
+/*   clear_up_moving_atoms(); done in destroy of the window */
   gtk_widget_destroy(window);
 }
+
+void
+on_accept_reject_refinement_dialog_destroy
+                                        (GtkObject       *object,
+                                        gpointer         user_data)
+{
+
+  /* 20070801 To Fix a crash reported by "Gajiwala, Ketan", we need to
+     reset the value for graphics_info_t::accept_reject_dialog (it's
+     gone now).  And I suppose that we should clean up (and undisplay)
+     the intermediate atoms too.
+ */
+  set_accept_reject_dialog(0);
+  clear_up_moving_atoms();
+}
+
 
 
 void
@@ -6882,21 +6898,6 @@ on_bond_colours1_activate              (GtkMenuItem     *menuitem,
 
 }
 
-
-void
-on_accept_reject_refinement_dialog_destroy
-                                        (GtkObject       *object,
-                                        gpointer         user_data)
-{
-
-  /* 20070801 To Fix a crash reported by "Gajiwala, Ketan", we need to
-     reset the value for graphics_info_t::accept_reject_dialog (it's
-     gone now).  And I suppose that we should clean up (and undisplay)
-     the intermediate atoms too.
- */
-  set_accept_reject_dialog(0);
-  clear_up_moving_atoms();
-}
 
 
 void

@@ -1528,10 +1528,14 @@ public:
    density_fit_from_residues(PCResidue *SelResidues, int nSelResidues,
 			     int imol_moving_atoms,
 			     int imol_for_map) const;
+
+   coot::omega_distortion_info_container_t 
+     omega_distortions_from_mol(const atom_selection_container_t &asc, const std::string &chain_id);
+
    std::vector<coot::geometry_graph_block_info_generic>
-   rotamers_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms);
+     rotamers_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms);
    std::vector<coot::geometry_graph_block_info_generic>
-   rotamers_from_residue_selection(PCResidue *SelResidues,
+     rotamers_from_residue_selection(PCResidue *SelResidues,
 				   int nSelResidues, int imol); 
 #endif   
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
