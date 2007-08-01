@@ -2579,6 +2579,7 @@ int handle_shelx_fcf_file_internal(const char *filename);
   can't do it/fail. */
 SCM chain_id_for_shelxl_residue_number(int imol, int resno);
 #endif 
+void add_shelx_string_to_molecule(int imol, const char *string);
 
 #ifdef USE_PYTHON
 /* Fill me in Bernhard */

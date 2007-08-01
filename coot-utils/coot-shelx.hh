@@ -148,11 +148,13 @@ namespace coot {
    public:
       int udd_afix_handle;
       int status;
+      bool is_protein_flag;
       CMMDBManager *mol;
       shelx_read_file_info_t(int a, int b, CMMDBManager *mol_in) {
 	 status = a;
 	 udd_afix_handle = b;
 	 mol = mol_in;
+	 is_protein_flag = 0;
       }
    };
 
@@ -215,6 +217,9 @@ namespace coot {
       void debug() const;
       static int shelx_occ_to_fvar(float shelx_occ); // e.g. return 18 if shelx_occ 181.00,
                                                      // return -1 on a problem.
+      void add_pre_atoms_line(const std::string &line) {
+	 pre_atom_lines.push_back(line);
+      }
       int new_chain_offset;
    };
 

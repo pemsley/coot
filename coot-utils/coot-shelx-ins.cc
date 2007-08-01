@@ -81,6 +81,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
    CMMDBManager *mol = NULL;
    std::ifstream f(filename.c_str());
    int latt = 0;  // special not-set value
+   int resi_count = 0; // use to determine if this is a protein
 
    if (f) {
 
@@ -137,6 +138,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 if (card.words.size() > 0) {
 	    if (card.words[0] == "RESI") {
 	       encountered_atoms_flag = 1;
+	       resi_count++;
 	       if (atom_vector.size() > 0) { 
 		  CResidue *residue =
 		     add_shelx_residue(atom_vector,
@@ -556,8 +558,12 @@ coot::ShelxIns::read_file(const std::string &filename) {
       shelx_mol = unshelx(mol);
 
    // same thing?
-   if (shelx_mol)
-      return coot::shelx_read_file_info_t(istate, udd_afix_handle, shelx_mol);
+   if (shelx_mol) {
+      coot::shelx_read_file_info_t ri(istate, udd_afix_handle, shelx_mol);
+      if (resi_count > 10)
+	 ri.is_protein_flag = 1;
+      return ri;
+   }
    else 
       return coot::shelx_read_file_info_t(istate, udd_afix_handle, mol);
 }

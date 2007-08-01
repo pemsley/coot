@@ -1106,3 +1106,11 @@ Wed Jul 18 09:09:16 BST 2007
 
 	gtk2 rotamers box needs to be made not small.
 
+
+----
+Sat Jul 21 10:25:29 MDT 2007
+
+	problem with libcootaneer lib dependency when building in gtk1
+	version.
+
+	

@@ -5325,6 +5325,8 @@ int read_shelx_ins_file(const char *filename) {
       int imol = graphics_info_t::n_molecules;
       g.expand_molecule_space_maybe();
 
+      short int reset_centre_flag = g.recentre_on_read_pdb;
+      g.recentre_on_read_pdb = 0;
       istat = g.molecules[imol].read_shelx_ins_file(std::string(filename));
       if (istat != 1) {
 	 std::cout << "WARNING:: " << istat << " on read_shelx_ins_file "
@@ -5343,11 +5345,11 @@ int read_shelx_ins_file(const char *filename) {
 	 command_strings.push_back(single_quote(filename));
 	 add_to_history(command_strings);
       }
+      g.recentre_on_read_pdb = reset_centre_flag;
    } else {
       std::cout << "ERROR:: null filename in read_shelx_ins_file" << std::endl;
    }
    return istat;
-   
 }
 
 int write_shelx_ins_file(int imol, const char *filename) {
@@ -5366,6 +5368,13 @@ int write_shelx_ins_file(int imol, const char *filename) {
    }
    return istat;
 }
+
+void add_shelx_string_to_molecule(int imol, const char *str) {
+
+   if (is_valid_model_molecule(imol))
+      graphics_info_t::molecules[imol].add_shelx_string_to_molecule(str);
+}
+
 
 
 #ifdef USE_GUILE
