@@ -1,6 +1,9 @@
 
 Release 0.4
 
+   o Fix crash reported by Ketan Gajiwala on pressing CR in the
+     graphics window after a refiement.
+
    o Cootaneer [slim-line Buccaneer in Coot]
 
    o Fix Shelx lst file reader when handling atoms with Alt Confs
@@ -10,9 +13,12 @@ Release 0.4
 
    o Multiple model ligand overlaying [Bob Nolte]
 
+   o Temperature factor variance validation now works for SHELXL
+     molecules [GMS, JED]
+
    o Ca Zone->Mainchain no longer spews warnings
 
-   o Planar peptide restraints are ON by default now
+   o Planar peptide restraints are ON by default now [Phil Evans]
 
    o CCP4i aliases are also added to the Project Dir options in the
      file selector
