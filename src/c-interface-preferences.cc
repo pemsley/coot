@@ -107,6 +107,16 @@ int model_fit_refine_dialog_stays_on_top_state() {
 
 void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog) {
 
+   // 20070801 crash reported by "Gajiwala, Ketan"
+
+   // OK, we can reproduce a problem
+   // Refine something
+   // Close the window using WM delete window
+   // Press return in Graphics window (globjects:key_press_event() GDK_Return case)
+   // 
+   // So, we need to set graphics_info_t::accept_reject_dialog to NULL
+   // when we get a WM delete event on the Accept/Reject box
+   
    if (acc_rej_dialog) { 
       gint upositionx, upositiony;
       if (acc_rej_dialog->window) {
@@ -121,7 +131,9 @@ void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog) {
    }
 }
 
-void set_accept_reject_dialog(GtkWidget *w) { /* used by callbacks to unset the widget */
+void set_accept_reject_dialog(GtkWidget *w) { /* used by callbacks to unset the widget.
+						 (errr... it wasn't but it is now (as it
+						 should be)). */
 
    graphics_info_t::accept_reject_dialog = w;
 }

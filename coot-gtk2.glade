@@ -13463,7 +13463,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkLabel" id="label370">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Accept</property>
+			      <property name="label" translatable="yes">  Accept  </property>
 			      <property name="use_underline">True</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -13543,7 +13543,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkLabel" id="label371">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Reject</property>
+			      <property name="label" translatable="yes">  Reject  </property>
 			      <property name="use_underline">True</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -13605,8 +13605,8 @@ Do you want to continue?
 	      <property name="selectable">False</property>
 	      <property name="xalign">0.5</property>
 	      <property name="yalign">0.5</property>
-	      <property name="xpad">80</property>
-	      <property name="ypad">50</property>
+	      <property name="xpad">60</property>
+	      <property name="ypad">33</property>
 	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 	      <property name="width_chars">-1</property>
 	      <property name="single_line_mode">False</property>
