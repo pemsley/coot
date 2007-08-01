@@ -4259,7 +4259,7 @@ molecule_class_info_t::write_shelx_ins_file(const std::string &filename) {
 
 // Return a variable like reading a pdb file (1 on success, -1 on failure)
 // 
-// This function doesn get called by the normal handle_read_draw_molecule()
+// This function doesn't get called by the normal handle_read_draw_molecule()
 //
 int
 molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
@@ -4289,7 +4289,8 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	 // initialize some things.
 	 //
 	 atom_sel = make_asc(p.mol);
-	 fix_hydrogen_names(atom_sel); // including change " H0 " to " H  "
+	 // FIXME? 20070721, shelx presentation day
+	 // 	 fix_hydrogen_names(atom_sel); // including change " H0 " to " H  "
 	 short int is_undo_or_redo = 0;
 	 graphics_info_t g;
 
@@ -4309,9 +4310,27 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	 } else {
 
 	    short int do_rtops_flag = 0;
+
+	    // Hmmm... why is this commented?  Possibly from ncs ghost
+	    // toubles from many months ago?
+	    
 	    // 0.7 is not used (I think) if do_rtops_flag is 0
 	    // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
 	    // std::cout << "INFO:: found " << nghosts << " ghosts\n";
+
+	    // I'll reinstate it.
+	    int nmodels = atom_sel.mol->GetNumberOfModels();
+	    if (nmodels == 1) { 
+	       int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+	    }
+
+	    // Turn off hydrogen display if this is a protein
+	    // (currently the hydrogen names are different from a
+	    // shelx molecule, leading to a mess when refining.  So
+	    // let's just undisplay those hydrogens :) 20070721
+	    
+	    if (p.is_protein_flag)
+	       set_draw_hydrogens_state(0);
 
 	    // Generate bonds and save them in the graphical_bonds_container
 	    // which has static data members.
@@ -4345,6 +4364,17 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
       // save state strings
       save_state_command_strings_.push_back("read-shelx-ins-file");
       save_state_command_strings_.push_back(single_quote(filename));
+   }
+   return istat;
+}
+
+int
+molecule_class_info_t::add_shelx_string_to_molecule(const std::string &str) {
+
+   int istat = 0;
+   if (is_from_shelx_ins_flag) {
+      shelxins.add_pre_atoms_line(str);
+      istat = 1;
    }
    return istat;
 }
