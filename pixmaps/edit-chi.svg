@@ -20,7 +20,7 @@
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/edit-chi.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
-   sodipodi:modified="TRUE">
+   sodipodi:modified="true">
   <defs
      id="defs2162">
     <linearGradient
@@ -190,7 +190,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="15.696216"
-     inkscape:cx="8"
+     inkscape:cx="3.8774023"
      inkscape:cy="8.4865631"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -217,7 +217,12 @@
      inkscape:groupmode="layer">
     <path
        style="fill:none;fill-rule:evenodd;stroke:#12cc5a;stroke-width:1.06857634px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 9.6441672,13.958684 L 6.5542629,11.652021 L 8.7088703,6.3783544 L 14.338232,8.8579612"
+       d="M -2.3758078,12.465712 L -5.4657118,10.159049 L -3.3111038,4.885382"
+       id="path2330"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#12cc5a;stroke-width:1.06857634px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.6241922,14.000391 L 6.5342882,11.693728 L 8.6888962,6.4200609 L 14.318257,8.8996677"
        id="path2168"
        sodipodi:nodetypes="cccc" />
     <path
@@ -289,5 +294,16 @@
        id="path5353"
        style="fill:url(#radialGradient5355);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2.5999999;stroke-dashoffset:0;stroke-opacity:1"
        sodipodi:type="arc" />
+    <text
+       xml:space="preserve"
+       style="font-size:6px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;line-height:125%"
+       x="-12.423376"
+       y="18.548386"
+       id="text2332"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2334"
+         x="-12.423376"
+         y="18.548386">Make it glow</tspan></text>
   </g>
 </svg>
