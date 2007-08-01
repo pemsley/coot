@@ -5,52 +5,70 @@ Tue Jul  3 14:27:37 BST 2007
       Things to add or fix before 0.4
 
 
-   o try read phs, read a pdb to get cell, pdb file does not have cell
-     -> crash.
-
    o Fix Cootaneer crash
 
    o Test cootaneer by building from just a map.
 
-   o Is there a memory problem in unshelx?  Valgrind it, I suppose.
-
-   o Make the Omega Angle Plot update properly in
-     update_geometry_graphs()
-
-   o Try again to add chiral volumes to the geometry target function
-
    o Richardson rotamers
 
-   o Kevin's Ramachandran Refinement target
-
-   o Add Chiral Volume Outliers to Omega Angle Plot
+   o Multiple models overlapping does not delete the non-best fitting
+     models. It should.
 
    o Do the strand restraints work well under refinement?
 
-   o When refining, add a status bar message that describes the Ctrl
-     button usage.
- 
+   o Try again to add chiral volumes to the geometry target function
+
+   o Kevin's Ramachandran Refinement target
+
    o are the findwaters and findligands being installed correctly
      (with wrappers?).  Get a pre-release tar ball and look at that.
-
-   o Post-install slim the binaries
 
    o Alice Dawson SSM Problem, 1pyd.  Message sent to Eugene -
      awaiting reply.
 
    o Activate test suite
 
+   o Post-install slim the binaries
+
    o specify default working molecule for water addition (esp. for
      key-bound water addition) [JED]
+
+
+
+
+
+
+   o Make the Omega Angle Plot update properly in
+     update_geometry_graphs()
+
+* Done.
 
    o C key press in the graphics runs the graphics-general-key-press-hook.  
      It should not.
 
-   o Multiple models overlapping does not delete the non-best fitting
-     models. It should.
+* Fixed.
 
+   o When refining, add a status bar message that describes the Ctrl
+     button usage.
 
+* Done. 
 
+   o Is there a memory problem in unshelx?  Valgrind it, I suppose.
+
+* Yes, there was.  Messing with copying the Space group name.  No need
+  SetSpaceGroup() does a string copy.
+
+   o try read phs, read a pdb to get cell, pdb file does not have cell
+     -> crash. 	deliang chen <deliangc@uci.edu>
+       Subject: 	Re: [ccp4bb] Wincoot 0.3.3(Zeta) crash help
+       Date: 	Fri, 27 Jul 2007 00:26:26 +0200  (Thu, 23:26 BST)
+
+* Seems OK under valgrind - a WinCoot bug?
+
+   o Crash report by "Gajiwala, Ketan": CR in graphics after Acc/Rej
+     was deleted.
+
+* Fixed.
 
    o Get B factors from shelx Us (for B factor variance plot)
 
@@ -1134,6 +1152,136 @@ Here's a description of the PIR format:
 
 http://www.cmbi.kun.nl/bioinf/tools/crab_pir.html
 
+
+----
+Mon Jul 16 23:18:03 BST 2007
+
+	in creating a GTK2 gl context:
+
+
+> WARNING:: Can't enable stereo visual - falling back 
+> INFO:: Hardware stereo widget opened successfully
+> INFO:: switch to hardware_stereo_mode succeeded
+
+So in gl_extras():
+
+We need a "stereo_successful" flag set before we get to saying 
+"Hardware stereo widget opened successfully"
+
+----
+Tue Jul 31 21:32:53 BST 2007
+
+	crash report on SSMing from Alice Dawson:
+
+using 1pyd.pdb from the EBI:
+
+(mail sent to Eugene)
+
+
+==18731==
+==18731== Mismatched free() / delete / delete []
+==18731==    at 0x1B9098CF: operator delete(void*) (vg_replace_malloc.c:155)
+==18731==    by 0x1BDCBA3C: CSuperpose::_superpose(CSSGraph*, CSSGraph*, int&) (ssm_superpose.cpp:2683)
+==18731==    by 0x1BDCC194: CSuperpose::SuperposeCalphas(CSSGraph*, CSSGraph*, int*, int*, int, CMMDBManager *, CMMDBManager*, int, int) (ssm_superpose.cpp:2424)
+==18731==    by 0x1BDBA7C8: CSSMAlign::Align(CMMDBManager*, CMMDBManager*, int, int, int, int) (ssm_align.cp p:200)
+==18731==    by 0x81A0394: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_s election_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:209)
+==18731==    by 0x822FF88: superpose_with_chain_selection (c-interface-superpose.cc:136)
+==18731==    by 0x8232162: execute_superpose (c-interface-superpose.cc:306)
+==18731==    by 0x829B13D: on_superpose_dialog_superpose_button_clicked (callbacks.c:4748)
+==18731==    by 0x1C243356: gtk_marshal_NONE__NONE (gtkmarshal.c:312)
+==18731==    by 0x1C2725C3: gtk_handlers_run (gtksignal.c:1917)
+==18731==    by 0x1C2735C0: gtk_signal_real_emit (gtksignal.c:1477)
+==18731==    by 0x1C273B7F: gtk_signal_emit (gtksignal.c:552)
+==18731==  Address 0x1E6E5588 is 0 bytes inside a block of size 136 alloc'd
+==18731==    at 0x1B9095DA: operator new[](unsigned) (vg_replace_malloc.c:138)
+==18731==    by 0x1BDCBBF2: CSuperpose::_superpose(CSSGraph*, CSSGraph*, int&) (ssm_superpose.cpp:2617)
+==18731==    by 0x1BDCC194: CSuperpose::SuperposeCalphas(CSSGraph*, CSSGraph*, int*, int*, int, CMMDBManager *, CMMDBManager*, int, int) (ssm_superpose.cpp:2424)
+==18731==    by 0x1BDBA7C8: CSSMAlign::Align(CMMDBManager*, CMMDBManager*, int, int, int, int) (ssm_align.cp p:200)
+==18731==    by 0x81A0394: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_s election_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:209)
+==18731==    by 0x822FF88: superpose_with_chain_selection (c-interface-superpose.cc:136)
+==18731==    by 0x8232162: execute_superpose (c-interface-superpose.cc:306)
+==18731==    by 0x829B13D: on_superpose_dialog_superpose_button_clicked (callbacks.c:4748)
+==18731==    by 0x1C243356: gtk_marshal_NONE__NONE (gtkmarshal.c:312)
+==18731==    by 0x1C2725C3: gtk_handlers_run (gtksignal.c:1917)
+==18731==    by 0x1C2735C0: gtk_signal_real_emit (gtksignal.c:1477)
+==18731==    by 0x1C273B7F: gtk_signal_emit (gtksignal.c:552)
+!! Warning:: No symmetry available for this molecule
+No Symmetry for this model
+INFO:: backup file coot-backup/Copy_of_1pyd.pdb_Chain_A_Tue_Jul_31_21:30:08_2007_modification_0.pdb.gz
+INFO:: coordinates transformed by orthonal matrix:
+|   -0.9211,  -0.05199,   -0.3858|
+|  -0.02574,   -0.9807,    0.1936|
+|   -0.3884,    0.1883,     0.902|
+(     1.148,    -1.095,   -0.1226)
+INFO: core rmsd achieved: 1.04335 Angstroems
+      number of residues in reference structure: 537
+      number of residues in moving structure:    537
+      number of residues in aligned sections (reference):  537
+      number of residues in aligned sections (moving):     537
+      number of aligned residues:  528
+      number of gaps:              4
+      number of misdirections:     0
+      number of SSE combinations:  4
+      sequence identity:           99.4318%
+number of Ca atoms in selections: 537 (moving) and 537 (reference)
+Another Go...
+
+==18731==
+==18731== Invalid read of size 4
+==18731==    at 0x81A1987: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_s election_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:402)
+==18731==    by 0x822FF88: superpose_with_chain_selection (c-interface-superpose.cc:136)
+==18731==    by 0x8232162: execute_superpose (c-interface-superpose.cc:306)
+==18731==    by 0x829B13D: on_superpose_dialog_superpose_button_clicked (callbacks.c:4748)
+==18731==    by 0x1C243356: gtk_marshal_NONE__NONE (gtkmarshal.c:312)
+==18731==    by 0x1C2725C3: gtk_handlers_run (gtksignal.c:1917)
+==18731==    by 0x1C2735C0: gtk_signal_real_emit (gtksignal.c:1477)
+==18731==    by 0x1C273B7F: gtk_signal_emit (gtksignal.c:552)
+==18731==    by 0x1C1E06FD: gtk_button_clicked (gtkbutton.c:336)
+==18731==    by 0x1C1E1D2D: gtk_real_button_released (gtkbutton.c:861)
+==18731==    by 0x1C243356: gtk_marshal_NONE__NONE (gtkmarshal.c:312)
+==18731==    by 0x1C273312: gtk_signal_real_emit (gtksignal.c:1440)
+
+==18731==  Address 0x1C684A94 is 4 bytes before a block of size 2148 alloc'd
+==18731==    at 0x1B9095DA: operator new[](unsigned) (vg_replace_malloc.c:138)
+==18731==    by 0x1BE5316A: GetVectorMemory(int*&, unsigned, unsigned) (mattype_.cpp:182)
+==18731==    by 0x1BDC4A11: CSuperpose::GetSuperposition(int*&, double*&, int&, int*&, int&, double[4] (&) [ 4], double&, int&, int&, double&, int&, double&) (ssm_superpose.cpp:395)
+==18731==    by 0x1BDBA89D: CSSMAlign::Align(CMMDBManager*, CMMDBManager*, int, int, int, int) (ssm_align.cp p:206)
+==18731==    by 0x81A0394: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_s election_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:209)
+==18731==    by 0x822FF88: superpose_with_chain_selection (c-interface-superpose.cc:136)
+==18731==    by 0x8232162: execute_superpose (c-interface-superpose.cc:306)
+==18731==    by 0x829B13D: on_superpose_dialog_superpose_button_clicked (callbacks.c:4748)
+==18731==    by 0x1C243356: gtk_marshal_NONE__NONE (gtkmarshal.c:312)
+==18731==    by 0x1C2725C3: gtk_handlers_run (gtksignal.c:1917)
+==18731==    by 0x1C2735C0: gtk_signal_real_emit (gtksignal.c:1477)
+==18731==    by 0x1C273B7F: gtk_signal_emit (gtksignal.c:552)
+==18731==
+==18731== Invalid read of size 4
+==18731==    at 0x81A1A69: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_s election_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:427)
+==18731==    by 0x822FF88: superpose_with_chain_selection (c-interface-superpose.cc:136)
+==18731==    by 0x8232162: execute_superpose (c-interface-superpose.cc:306)
+==18731==    by 0x829B13D: on_superpose_dialog_superpose_button_clicked (callbacks.c:4748)
+==18731==    by 0x1C243356: gtk_marshal_NONE__NONE (gtkmarshal.c:312)
+==18731==    by 0x1C2725C3: gtk_handlers_run (gtksignal.c:1917)
+==18731==    by 0x1C2735C0: gtk_signal_real_emit (gtksignal.c:1477)
+==18731==    by 0x1C273B7F: gtk_signal_emit (gtksignal.c:552)
+==18731==    by 0x1C1E06FD: gtk_button_clicked (gtkbutton.c:336)
+==18731==    by 0x1C1E1D2D: gtk_real_button_released (gtkbutton.c:861)
+==18731==    by 0x1C243356: gtk_marshal_NONE__NONE (gtkmarshal.c:312)
+==18731==    by 0x1C273312: gtk_signal_real_emit (gtksignal.c:1440)
+==18731==  Address 0x1CC2CDC4 is 4 bytes before a block of size 2148 alloc'd
+==18731==    at 0x1B9095DA: operator new[](unsigned) (vg_replace_malloc.c:138)
+==18731==    by 0x1BE5316A: GetVectorMemory(int*&, unsigned, unsigned) (mattype_.cpp:182)
+==18731==    by 0x1BDC4A3D: CSuperpose::GetSuperposition(int*&, double*&, int&, int*&, int&, double[4] (&) [ 4], double&, int&, int&, double&, int&, double&) (ssm_superpose.cpp:397)
+==18731==    by 0x1BDBA89D: CSSMAlign::Align(CMMDBManager*, CMMDBManager*, int, int, int, int) (ssm_align.cp p:206)
+==18731==    by 0x81A0394: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_s election_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:209)
+==18731==    by 0x822FF88: superpose_with_chain_selection (c-interface-superpose.cc:136)
+==18731==    by 0x8232162: execute_superpose (c-interface-superpose.cc:306)
+==18731==    by 0x829B13D: on_superpose_dialog_superpose_button_clicked (callbacks.c:4748)
+==18731==    by 0x1C243356: gtk_marshal_NONE__NONE (gtkmarshal.c:312)
+==18731==    by 0x1C2725C3: gtk_handlers_run (gtksignal.c:1917)
+==18731==    by 0x1C2735C0: gtk_signal_real_emit (gtksignal.c:1477)
+==18731==    by 0x1C273B7F: gtk_signal_emit (gtksignal.c:552)
+
 -----
 Wed Jul 18 09:09:16 BST 2007
 
@@ -1157,3 +1305,20 @@ Sat Jul 21 10:25:29 MDT 2007
 	version.
 
 	
+-----
+Wed Aug  1 19:48:19 BST 2007
+
+	How about an Env Var to specify where to read and write
+	startup files (state, history etc) so that you can run coot
+	cleanly from the Desktop.
+
+
+-----
+Wed Aug  1 22:55:35 BST 2007
+
+     Add Chiral Volume Outliers to  some validation graph.  Geometry?
+
+     ie. make the blocks big and blue (c.f. missing atoms)
+
+
+

@@ -224,7 +224,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 					       NO_DISTORTION_IN_THIS_RESIDUE); // unassigned.
    std::vector<std::string> distortion_string(distortion_sum.size());
 
-   // std::cout << "DEBUG:: dc has size " << dc.size() << " in render_blocks_internal\n";
+   std::cout << "DEBUG:: dc has size " << dc.size() << " in render_blocks_internal\n";
    
    for (unsigned int i=0; i<dc.geometry_distortion.size(); i++) {
       std::string info_stub;
@@ -469,6 +469,31 @@ coot::geometry_graphs::update_residue_blocks(const std::vector<coot::geometry_gr
    }
 }
 
+void
+coot::geometry_graphs::update_omega_blocks(const coot::omega_distortion_info_container_t &om_dist,
+					   int chain_number,
+					   const std::string &chain_id) {
+
+   int chain_index = chain_id_to_chain_index(chain_id);
+   if (chain_index != -1) {
+      
+      // delete the omega blocks in om_dist
+      for (int iblock=0; iblock<om_dist.omega_distortions.size(); iblock++) {
+	 int raw_resno = om_dist.omega_distortions[iblock].resno;
+	 int offsetted_residue_number = raw_resno - offsets[chain_number];
+	 if (offsetted_residue_number < int(blocks[chain_number].size())) { 
+	    if (blocks[chain_index][offsetted_residue_number]) { 
+	       gtk_object_destroy(GTK_OBJECT(blocks[chain_index][offsetted_residue_number])); 
+	       blocks[chain_index][offsetted_residue_number] = NULL;
+	    }
+	 }
+      }
+
+      // a new one
+      render_omega_blocks(om_dist, chain_index, chain_id, offsets[chain_index]);
+   }
+
+}
 
 
 void
@@ -507,8 +532,9 @@ coot::geometry_graphs::render_omega_blocks(const coot::omega_distortion_info_con
 					      om_dist.omega_distortions[i].distortion,
 					      om_dist.omega_distortions[i].info_string,
 					      canvas);
-// 	 std::cout << "DEBUG:: plot_block (omega) " << block_info.resno
-// 		   << " " << min_resno <<  " " << offset_in << " " << chain_number << std::endl;
+//  	 std::cout << "DEBUG:: plot_block (omega) resno " << block_info.resno
+//  		   << " min_resno: " << min_resno <<  " offset " << offset_in
+// 		   << " chain_number: " << chain_number << std::endl;
 	 plot_block(block_info, offset_in, chain_number);
       }
       label_chain(chain_id, chain_number);

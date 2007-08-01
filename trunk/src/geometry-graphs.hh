@@ -175,6 +175,9 @@ namespace coot {
 			       int chain_number,
 			       const std::string &chain_id,
 			       int offset_in);
+      void update_omega_blocks(const coot::omega_distortion_info_container_t &om_dist,
+			       int chain_number,
+			       const std::string &chain_id);
       
       void update_residue_blocks(const coot::geometry_distortion_info_container_t &dv);
       void update_residue_blocks(const std::vector<coot::geometry_graph_block_info_generic> &dv);

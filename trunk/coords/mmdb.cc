@@ -294,7 +294,6 @@ fix_away_atoms(atom_selection_container_t asc) {
 int 
 fix_hydrogen_names(atom_selection_container_t asc) {
 
-   std::cout << "....... starting fix_hydrogen_names" << std::endl;
    int n_changed = 0;
    int uddHnd_old =
       asc.mol->RegisterUDString(UDR_ATOM , "initial hydrogen name");

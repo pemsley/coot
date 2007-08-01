@@ -97,8 +97,8 @@ void superpose_with_chain_selection(int imol1, int imol2,
    if (is_valid_model_molecule(imol1)) {
       if (is_valid_model_molecule(imol2)) { 
 
-// 	 std::cout << "DEBUG:: superposing molecule " << imol1 << " chain: " << chain_imol1
-// 		   << " molecule " << imol2 << " chain: " << chain_imol2 << std::endl;
+ 	 std::cout << "-------------- DEBUG:: superposing molecule " << imol1 << " chain: " << chain_imol1
+ 		   << " molecule " << imol2 << " chain: " << chain_imol2 << std::endl;
 
 	 atom_selection_container_t asc_ref = graphics_info_t::molecules[imol1].atom_sel;
 	 atom_selection_container_t asc_mov = graphics_info_t::molecules[imol2].atom_sel;
