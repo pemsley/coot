@@ -402,39 +402,46 @@
 ;			   (alt-conf (list-ref active-atom 5)))
 ;		       (cootaneer imol-map imol (list chain-id resno inscode 
 ;						      at-name alt-conf)))))))))
-      
-      (add-simple-coot-menu-menuitem
-       menu "Associate Sequence...."
-       (lambda ()
-	 (generic-chooser-entry-and-file-selector 
-	  "Associate Sequence to Model: "
-	  "Chain ID"
-	  ""
-	  "Select PIR file"
-	  (lambda (imol chain-id pir-file-name)
-	    (format #t "assoc seq: ~s ~s ~s~%" imol chain-id pir-file-name)
-	    (if (file-exists? pir-file-name)
-		(let ((seq-text 
-		       (call-with-input-file pir-file-name
-			 (lambda (port)
-			   (let loop  ((lines '())
-				       (line (read-line port)))
-			     (cond
-			      ((eof-object? line) 
-			       (string-append-with-string (reverse lines) "\n"))
-			      (else
-			       (loop (cons line lines) (read-line port)))))))))
-		  
-		  (assign-pir-sequence imol chain-id seq-text)))))))
-						  
 
-      (add-simple-coot-menu-menuitem
-       menu "Cootaneer this fragment..."
-       (lambda ()
-	 (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
-			       (lambda (imol)
-				 (cootaneer-gui imol)))))
-	   
+      (let ((submenu (gtk-menu-new))
+            (menuitem2 (gtk-menu-item-new-with-label "Cootaneering")))
+        
+        (gtk-menu-item-set-submenu menuitem2 submenu) 
+        (gtk-menu-append menu menuitem2)
+        (gtk-widget-show menuitem2)
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Associate Sequence...."
+	 (lambda ()
+	   (generic-chooser-entry-and-file-selector 
+	    "Associate Sequence to Model: "
+	    "Chain ID"
+	    ""
+	    "Select PIR file"
+	    (lambda (imol chain-id pir-file-name)
+	      (format #t "assoc seq: ~s ~s ~s~%" imol chain-id pir-file-name)
+	      (if (file-exists? pir-file-name)
+		  (let ((seq-text 
+			 (call-with-input-file pir-file-name
+			   (lambda (port)
+			     (let loop  ((lines '())
+					 (line (read-line port)))
+			       (cond
+				((eof-object? line) 
+				 (string-append-with-string (reverse lines) "\n"))
+				(else
+				 (loop (cons line lines) (read-line port)))))))))
+		    
+		    (assign-pir-sequence imol chain-id seq-text)))))))
+	
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Cootaneer this fragment..."
+	 (lambda ()
+	   (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
+				 (lambda (imol)
+				   (cootaneer-gui imol))))))
+	
 
       (add-simple-coot-menu-menuitem
        menu "Add Strand Here..."
