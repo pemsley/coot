@@ -1523,3 +1523,10 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
    }
 
 // ------------------------------------------
+
+	    std::cout << "DEBUG::::::::::::::::::" << std::endl;
+	    for (int idebug=0; idebug<bfa_chain_info.size(); idebug++)
+	       std::cout << "DEBUG::::: " << idebug << " "
+			 << bfa_chain_info[idebug].residue_properties.size()
+			 << std::endl;
+	    

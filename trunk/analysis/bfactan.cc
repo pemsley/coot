@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
       if (! mol) { 
 	 std::cout << "Failed to read pdb file\n";
       } else {
-	 coot_extras::b_factor_analysis bfa(mol);
+	 coot_extras::b_factor_analysis bfa(mol, 0);
 	 short int only_questionables = 1;
 	 bfa.write_table("bfactan.xml", pdb_file_name, only_questionables);
       }

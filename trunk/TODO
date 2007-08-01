@@ -5,7 +5,7 @@
 
 ------
 
-    Release 0.4, Sept 2007
+    Release 0.4, Sept/Oct 2007
 
 
    o Richardson rotamers
@@ -33,7 +33,7 @@
 
 -----
 
-   Release 0.5 October 2007
+   Release 0.5 Nov/Dec 2007
 
    o Torsion General
 
@@ -66,9 +66,15 @@
 
    o test/fix hardware stereo in Gtk2 mode.
 
+   o Kleywegt plot should not draw ("wrapped") long arrows
+
+   o NCS Ligands: if we find a ligand C in molecule A, we should look
+     for a similar blob near molecule B and try to fit the same kind of
+     ligand there as well [JED]
+
 -----
 
-    Release 0.6 [Dec 2007]
+    Release 0.6 and 0.7 [Feb->Apr 2008]
 
    o Redo sequence view 
 
@@ -88,8 +94,6 @@
        Things with Cl etc, 
        O->P bonds
        faster bonding with many molecules
-
-   o Kleywegt plot should not draw ("wrapped") long arrows
 
    o Pre-and post check of chiral volume and cis peptide bonds when
      using refine zone
@@ -111,7 +115,7 @@
 
  ------
     
-    Release 0.8 
+    Release 0.8
 
    o User pickable atoms
 

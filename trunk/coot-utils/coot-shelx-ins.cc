@@ -594,13 +594,14 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
       at->y = atof(card.words[3].c_str());
       at->z = atof(card.words[4].c_str());
       float occupancy = 11.0;
+      float b_synth= 10.0;
    
       if (card.words.size() > 5)
 	 occupancy = atof(card.words[5].c_str()); // 11.0
       at->SetCoordinates(atof(card.words[2].c_str()),
 			 atof(card.words[3].c_str()),
 			 atof(card.words[4].c_str()),
-			 occupancy, 10.0);
+			 occupancy, b_synth);
       at->SetElementName(element.c_str());
       // char *altloc = new char(2);
       strncpy(at->altLoc, altconf.c_str(), 2);
@@ -628,7 +629,11 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  at->u13 = atof(card.words[10].c_str());
 		  at->u12 = atof(card.words[11].c_str());
 		  at->WhatIsSet += 64; // is anisotropic
-		  // std::cout << "DEBUG:: Found Anisotropic " << at->name << std::endl;
+		  // std::cout << "DEBUG:: Found Anisotropic "
+		  //           << at->name << std::endl;
+		  float u_synth = (at->u11 + at->u22 + at->u33)/3.0;
+		  at->WhatIsSet += 4; // has synthetic B factor
+		  at->tempFactor = 8.0 * M_PI * M_PI * u_synth;
 	       }
 	    }
 	 } else {
