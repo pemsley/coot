@@ -553,11 +553,9 @@
 	(let ((imol-res
 	       (if (file-exists? res-file-name)
 		   (begin
-		     (format #t "   ======================================= ~%")
 		     (format #t "Read res file ~s~%" res-file-name)
 ;		     (read-shelx-ins-file res-file-name))
-		     (handle-read-draw-molecule-with-recentre 
-		      res-file-name 0))
+		     (handle-read-draw-molecule-with-recentre res-file-name 0))
 		   (begin
 		     (format #t "   No res file ~s~%" res-file-name)
 		     -1))))
@@ -566,9 +564,24 @@
 	      (format #t "WARNING:: Bad molecule from res file read.~%")
 	      (begin
 		(if (file-exists? fcf-cif-file-name)
-		    (begin
-		      (format #t "   Read fcf-cif file ~s~%" fcf-cif-file-name)
-		      (auto-read-cif-data-with-phases fcf-cif-file-name))
+		    (if (not (file-exists? fcf-file-name))
+			(begin
+			  (format #t "   Read fcf-cif file ~s~%" fcf-cif-file-name)
+			  (auto-read-cif-data-with-phases fcf-cif-file-name))
+
+			; OK both xxx.fcf and xxx.fcf.cif exist, we
+			; only want to read the xxx.fcf.cif if it is
+			; more recent than xxx.fcf (if it is not, we
+			; want to handle-shelx-fcf-file.
+			(let ((    fcf-date (stat:mtime (stat     fcf-file-name)))
+			      (fcf-cif-date (stat:mtime (stat fcf-cif-file-name))))
+;			  (format #t "    fcf-date ~s~%fcf-cif-data ~s~%" 
+;				  fcf-date fcf-cif-date)
+			  (if (< fcf-date fcf-cif-date)
+			      (auto-read-cif-data-with-phases fcf-cif-file-name)
+			      (handle-shelx-fcf-file fcf-file-name))))
+			  
+		    ;; xxx.fcf.cif did not exist:
 		    (if (file-exists? fcf-file-name)
 			(begin
 			  (format #t "   Read fcf file ~s~%" fcf-file-name)
