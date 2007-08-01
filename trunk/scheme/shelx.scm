@@ -271,10 +271,12 @@
     (define gui-interesting-list 
       (lambda (interesting-list)
 	
-	(format #t "debug: interesting-list: ~s~%" interesting-list)
+	; (format #t "debug: interesting-list: ~s~%" interesting-list)
 
 	(if (null? interesting-list)
-	    (format #t "INFO:: noting interesting~%")
+	    (begin
+	      (format #t "INFO:: Nothing Interesting from LST file~%")
+	      (add-status-bar-text "Nothing Interesting from LST file"))
 	    (interesting-things-gui "Interesting Things from SHELX"
 				    interesting-list))))
 
@@ -389,7 +391,7 @@
 
     ;; 
     (define (do-gui disagreeable-restraints-list interesting-list)
-      (format #t "DR: ~s~%" disagreeable-restraints-list)
+      ; (format #t "DR: ~s~%" disagreeable-restraints-list)
 
       (let loop ((dr-list (reverse disagreeable-restraints-list))
 		 (dis-res-button-list '()))
@@ -509,3 +511,72 @@
 		    (loop (read-line port)
 			  split-list
 			  disagreeable-restraints-list dr-count))))))))))
+
+;;; Read a shelx project (i.e. the .res file, the .lst file and the
+;;; .fcf.cif file (if it exists (else read the .fcf file (if it
+;;; exists)))
+;;;
+;;; If the file-name has an extension of .lst .res .ins .fcf .log .hkl
+;;; then strip that off before adding new extensions.
+;;;
+(define (read-shelx-project file-name)
+
+  (let ((extension (file-name-extension file-name)))
+    (let ((file-stub 
+	   (cond
+	    ((string=? extension "lst")
+	     (file-name-sans-extension file-name))
+	    ((string=? extension "ins")
+	     (file-name-sans-extension file-name))
+	    ((string=? extension "insh")
+	     (file-name-sans-extension file-name))
+	    ((string=? extension "log")
+	     (file-name-sans-extension file-name))
+	    ((string=? extension "hkl")
+	     (file-name-sans-extension file-name))
+	    ((string=? extension "res")
+	     (file-name-sans-extension file-name))
+	    ((string=? extension "fcf")
+	     (file-name-sans-extension file-name))
+	    (else
+	     file-name))))
+
+      (let ((res-file-name (string-append file-stub ".res"))
+	    (lst-file-name (string-append file-stub ".lst"))
+	    (fcf-file-name (string-append file-stub ".fcf"))		       
+	    (fcf-cif-file-name (string-append file-stub ".fcf.cif")))
+
+	(format #t "  file-name: ~s~%" file-name)
+	(format #t "  file-stub: ~s~%" file-stub)
+	(format #t "  extension: ~s~%" extension)
+
+	(let ((imol-res
+	       (if (file-exists? res-file-name)
+		   (begin
+		     (format #t "   ======================================= ~%")
+		     (format #t "Read res file ~s~%" res-file-name)
+;		     (read-shelx-ins-file res-file-name))
+		     (handle-read-draw-molecule-with-recentre 
+		      res-file-name 0))
+		   (begin
+		     (format #t "   No res file ~s~%" res-file-name)
+		     -1))))
+
+	  (if (not (valid-model-molecule? imol-res))
+	      (format #t "WARNING:: Bad molecule from res file read.~%")
+	      (begin
+		(if (file-exists? fcf-cif-file-name)
+		    (begin
+		      (format #t "   Read fcf-cif file ~s~%" fcf-cif-file-name)
+		      (auto-read-cif-data-with-phases fcf-cif-file-name))
+		    (if (file-exists? fcf-file-name)
+			(begin
+			  (format #t "   Read fcf file ~s~%" fcf-file-name)
+			  (handle-shelx-fcf-file fcf-file-name))))
+		
+		(if (file-exists? lst-file-name)
+		    (begin 
+		      (format #t "   ::Read lst file ~s~%" lst-file-name)
+		      (read-shelx-lst-file lst-file-name imol-res))
+		    (format #t "   ::No lst file ~s~%" lst-file-name)))))))))
+
