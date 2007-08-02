@@ -7,15 +7,20 @@
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="add-peptide-1.svg"
    sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
-   inkscape:version="0.41"
+   inkscape:version="0.45"
    sodipodi:version="0.32"
    id="svg2280"
    height="16px"
-   width="16px">
+   width="16px"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/add-peptide-1.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
+   sodipodi:modified="TRUE">
   <defs
      id="defs3">
     <linearGradient
@@ -119,15 +124,15 @@
        inkscape:collect="always" />
   </defs>
   <sodipodi:namedview
-     inkscape:window-y="194"
-     inkscape:window-x="271"
+     inkscape:window-y="60"
+     inkscape:window-x="362"
      inkscape:window-height="633"
-     inkscape:window-width="660"
+     inkscape:window-width="822"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
      inkscape:current-layer="layer1"
-     inkscape:cy="7.9999840"
+     inkscape:cy="7.999984"
      inkscape:cx="8.0001061"
      inkscape:zoom="22.197802"
      inkscape:pageshadow="2"
@@ -138,16 +143,12 @@
      id="base" />
   <metadata
      id="metadata4">
-    <rdf:RDF
-       id="RDF5">
+    <rdf:RDF>
       <cc:Work
-         id="Work6"
          rdf:about="">
-        <dc:format
-           id="format7">image/svg+xml</dc:format>
+        <dc:format>image/svg+xml</dc:format>
         <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage"
-           id="type9" />
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -173,12 +174,14 @@
        style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#008a00;stroke-width:0.91305470px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000" />
     <path
        id="path2300"
-       d="M 10.456527,7.7334022 L 6.3694960,9.8358512 L 6.3694960,9.8358512"
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#008a00;stroke-width:0.91305470px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000" />
+       d="M 10.456527,7.7334022 L 6.7749415,9.3853561 L 7.0001891,9.6106037"
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#008a00;stroke-width:0.91305470px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       sodipodi:nodetypes="ccc" />
     <path
        id="path2302"
-       d="M 11.377439,3.6719063 L 10.087004,8.0253212 L 10.087004,8.0253212"
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#008a00;stroke-width:0.91305470px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000" />
+       d="M 11.467538,3.4016093 L 10.49245,7.9802717 L 10.672648,8.2505687"
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#008a00;stroke-width:0.91305470px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       sodipodi:nodetypes="ccc" />
     <path
        id="path2304"
        d="M 10.456527,8.0015833 L 14.132329,10.741116 L 14.132329,10.741116"

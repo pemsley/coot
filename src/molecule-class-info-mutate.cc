@@ -1055,9 +1055,11 @@ int
 molecule_class_info_t::delete_all_except_res(CResidue *res) {
    
    int state = 0;
-   make_backup();
-
    if (atom_sel.n_selected_atoms > 0) {
+      make_backup();
+//       std::cout << "DEBUG:: molecule number " << imol_no << " contains "
+// 		<< atom_sel.mol->GetNumberOfModels() << " models"
+// 		<< std::endl;
       for (int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) { 
 	 CModel *model_p = atom_sel.mol->GetModel(imod);
 	 CChain *chain_p;
