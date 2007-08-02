@@ -2635,7 +2635,7 @@ coot::protein_geometry::hydrogens_connect_file(const std::string &resname,
    return r;
 } 
       
-
+// constructor
 coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_file_name) {
    
    CMMCIFFile ciffile;

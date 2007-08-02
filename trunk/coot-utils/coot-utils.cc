@@ -109,9 +109,9 @@ std::pair<std::string, std::string> coot::get_userid_name_pair() {
 }
 
 
-// Return like mkdir: mkdir returns zero on success, or -1 if an  error  occurred
-// Return 0 on success
-// something else on failure.
+// Return like mkdir: mkdir returns zero on success, or -1 if an error
+// occurred.
+// 
 int
 coot::util::create_directory(const std::string &dir_name) {
 

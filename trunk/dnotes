@@ -7,12 +7,9 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Fix Cootaneer crash
 
-   o Test cootaneer by building from just a map.
+   o Test Cootaneer by building from just a map.
 
    o Richardson rotamers
-
-   o Multiple models overlapping does not delete the non-best fitting
-     models. It should.
 
    o Do the strand restraints work well under refinement?
 
@@ -20,23 +17,34 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Kevin's Ramachandran Refinement target
 
-   o are the findwaters and findligands being installed correctly
-     (with wrappers?).  Get a pre-release tar ball and look at that.
-
    o Alice Dawson SSM Problem, 1pyd.  Message sent to Eugene -
      awaiting reply.
+
+   o Don't display symmetry with hydrogens if the main molecule
+     doesn't have them [Steven Graham]
 
    o Activate test suite
 
    o Post-install slim the binaries
 
+
+
+
+   o Multiple models overlapping does not delete the non-best fitting
+     models. It should.
+
+* It does - I don't know why I thought that it didn't.  Hmm...
+
    o specify default working molecule for water addition (esp. for
      key-bound water addition) [JED]
 
+* Done.  You need to set it using "Place Atom at Pointer" molecule
+  chooser (then Cancel that dialog).
 
+   o are the findwaters and findligands being installed correctly
+     (with wrappers?).  Get a pre-release tar ball and look at that.
 
-
-
+* Seems fine.  Ask eleanor to run it on the command line
 
    o Make the Omega Angle Plot update properly in
      update_geometry_graphs()
@@ -909,7 +917,6 @@ Mon Jul  9 18:29:22 BST 2007
 
 	delete atom
 
-<<<<<<< .mine
 
 -----
 Thu Jul 12 13:13:43 BST 2007
@@ -1321,4 +1328,8 @@ Wed Aug  1 22:55:35 BST 2007
      ie. make the blocks big and blue (c.f. missing atoms)
 
 
+-----
+Thu Aug  2 03:20:36 BST 2007
+
+   add a test for overlap-ligands - quite tricky.
 

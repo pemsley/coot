@@ -5515,41 +5515,45 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 void
 molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 
-   int nchains = atom_sel.mol->GetNumberOfChains(1);
 
-   if (nchains != 1) {
-      std::cout << "failed to add (untyped) pointer atom to molecule " 
-		<< name_ << std::endl;
-      return;
-   }
-
-   make_backup();
+   if (atom_sel.mol) { 
+      CChain *chain_p = water_chain();
       
-   CChain *chain_p = atom_sel.mol->GetChain(1,0);
+      if (! chain_p) {
+	 // we have to make one then
+	 chain_p = new CChain;
+	 std::pair<short int, std::string> p = unused_chain_id();
+	 if (p.first)
+	    chain_p->SetChainID(p.second.c_str());
+	 CModel *model_p = atom_sel.mol->GetModel(1);
+	 model_p->AddChain(chain_p);
+      }
    
-   std::string mol_chain_id(chain_p->GetChainID());
-   // int ires_prev = chain_p->GetNumberOfResidues();
-   int ires_prev = coot::util::max_resno_in_chain(chain_p).second;
+      make_backup();
+      std::string mol_chain_id(chain_p->GetChainID());
+      // int ires_prev = chain_p->GetNumberOfResidues();
+      int ires_prev = coot::util::max_resno_in_chain(chain_p).second;
 
-   CResidue *res_p = new CResidue;
-   CAtom *atom_p = new CAtom;
-   chain_p->AddResidue(res_p);
-   atom_p->SetAtomName(" O  ");
-   atom_p->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, graphics_info_t::default_new_atoms_b_factor);
+      CResidue *res_p = new CResidue;
+      CAtom *atom_p = new CAtom;
+      chain_p->AddResidue(res_p);
+      atom_p->SetAtomName(" O  ");
+      float bf = graphics_info_t::default_new_atoms_b_factor;
+      atom_p->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
 
-   atom_p->SetElementName(" O");
-   res_p->AddAtom(atom_p);
-   res_p->seqNum = ires_prev + 1;
-   res_p->SetResName("HOH");
+      atom_p->SetElementName(" O");
+      res_p->AddAtom(atom_p);
+      res_p->seqNum = ires_prev + 1;
+      res_p->SetResName("HOH");
 
-   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
-   atom_sel.mol->FinishStructEdit();
-   atom_sel = make_asc(atom_sel.mol);
-   std::cout << atom_p << " added to molecule" << std::endl;
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      std::cout << atom_p << " added to molecule" << std::endl;
 
-   have_unsaved_changes_flag = 1; 
-   make_bonds_type_checked();
-
+      have_unsaved_changes_flag = 1; 
+      make_bonds_type_checked();
+   }
 }
 
 // This is a bit messy, I'm afraid - we test single atom twice. If you use this for 
