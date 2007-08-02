@@ -1,7 +1,7 @@
 
-(define rnase-pdb "data/rnase/tutorial-modern.pdb")
-(define rnase-mtz "data/rnase/rnasa-1.8-all_refmac1.mtz")
-(define terminal-residue-test-pdb "data/tutorial-add-terminal-0-test.pdb")
+(define rnase-pdb "greg-data/tutorial-modern.pdb")
+(define rnase-mtz "greg-data/rnasa-1.8-all_refmac1.mtz")
+(define terminal-residue-test-pdb "greg-data/tutorial-add-terminal-0-test.pdb")
 (define base-imol (graphics-n-molecules))
 
 (define have-ccp4? #f)
