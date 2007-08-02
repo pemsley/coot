@@ -25,6 +25,10 @@ Release 0.4
    o CCP4i aliases are also added to the Project Dir options in the
      file selector
 
+   o Moving the Rotate-Translate Y slider in the positve direction
+     moves the fragment in the +Y direction on the screen (instead of 
+     downwards) [Steven Sheriff]
+
    o Fix typo in transform-map-using-lsq-matrix [Nick Furnham]
 
 
