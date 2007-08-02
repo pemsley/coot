@@ -470,19 +470,49 @@ molecule_class_info_t::trim_atom_label_table() {
 
    int new_max_atom_index = atom_sel.n_selected_atoms;
 
-   std::vector<int>::iterator it;
-   for (it = labelled_atom_index_list.begin(); it != labelled_atom_index_list.end(); it++) {
-      if ( *it > new_max_atom_index)
-	 labelled_atom_index_list.erase(it);
+   // Man, this is a clumsy way of removing specific ints from a vector<int>.
+   // It's needed because as we do an erase, the labelled_atom_index_list changes
+   // so that we were double erasing an element:
+   // erasing *it: 141 limit: 135
+   // erasing *it: 141 limit: 135
+   //    -> crash.
+   // So do one at a time.
+   //
+   // Perhaps it would be better to use a queue or construct a new
+   // vector<int> and reassign labelled_atom_index_list at the end.
+   //
+   // Anyway, this seems to work as it is, so I'll leave it for now.
+   // 
+   bool have_over_end_labels = 1;
+   while (have_over_end_labels) {
+      std::vector<int>::iterator it;
+      have_over_end_labels = 0;
+      for (it = labelled_atom_index_list.begin();
+	   it != labelled_atom_index_list.end();
+	   it++) {
+	 if (*it >= new_max_atom_index) {
+	    labelled_atom_index_list.erase(it);
+	    have_over_end_labels = 1;
+	    break;
+	 }
+      }
    }
 
    // and now for symmetry index
    //
-   for (it = labelled_symm_atom_index_list.begin();
-	it != labelled_symm_atom_index_list.end();
-	it++) {
-      if ( *it > new_max_atom_index)
-	 labelled_symm_atom_index_list.erase(it);
+   have_over_end_labels = 1;
+   while (have_over_end_labels) {
+      std::vector<int>::iterator it;
+      have_over_end_labels = 0;
+      for (it = labelled_symm_atom_index_list.begin();
+	   it != labelled_symm_atom_index_list.end();
+	   it++) {
+	 if (*it >= new_max_atom_index) {
+	    labelled_symm_atom_index_list.erase(it);
+	    have_over_end_labels = 1;
+	    break;
+	 }
+      }
    }
 }
 
