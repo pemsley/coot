@@ -1626,9 +1626,9 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       z_add = screen_x.z() * x_diff * 0.002 * zoom;
    }
    if (i_hscale == 1) { 
-      x_add = screen_y.x() * x_diff * 0.002 * zoom;
-      y_add = screen_y.y() * x_diff * 0.002 * zoom;
-      z_add = screen_y.z() * x_diff * 0.002 * zoom;
+      x_add = screen_y.x() * x_diff * -0.002 * zoom;
+      y_add = screen_y.y() * x_diff * -0.002 * zoom;
+      z_add = screen_y.z() * x_diff * -0.002 * zoom;
    }
    if (i_hscale == 2) { 
       x_add = screen_z.x() * x_diff * 0.002 * zoom;
