@@ -89,16 +89,18 @@
 				       imol "//A/0")))
 			 (if (not (valid-model-molecule? new-mol))
 			     (throw 'fail)
-			     (move-molecule-here new-mol)
-			     (let ((rc (rotation-centre)))
-			       (let ((r (apply + (map (lambda (rc1 x1)
-							(- rc1 x1))
-						      rc (list 45.6 15.8 11.8)))))
-			       (if (> r 0.66)
-				   (begin 
-				     (format #t "Bad placement of terminal residue~%")
-				     #f)
-				   #t)))))))))))))
+			     (begin
+			       (move-molecule-here new-mol)
+			       (let ((rc (rotation-centre)))
+				 (let ((r (apply + (map (lambda (rc1 x1)
+							  (- rc1 x1))
+							rc (list 45.6 15.8 11.8)))))
+				   (if (> r 0.66)
+				       (begin 
+					 (format #t "Bad placement of terminal residue~%")
+					 #f)
+				       #t))))))))))))))
+
 
 
 (greg-testcase "Select by Sphere" #t

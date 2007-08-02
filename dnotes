@@ -1333,3 +1333,31 @@ Thu Aug  2 03:20:36 BST 2007
 
    add a test for overlap-ligands - quite tricky.
 
+
+----
+Thu Aug  2 14:43:06 BST 2007
+
+	unexpanded symmetry labels have 0-indexed symm labels.  It
+	should be 1-indexed - Steven Sheriff
+
+
+-----
+Thu Aug  2 14:47:07 BST 2007
+
+   How about some flexibility in file name output?
+
+
+     How difficult is it to create (or, maybe, How would one go about
+     creating a) naming system for output PDB files that is consonant
+     with my usage?  Currently COOT gives a default of
+     input_file_name-coot-0.pdb.  I typically name my files
+     model_0i.pdb for the file out of refinement (before ligand, hence
+     the zero -- yes I do it too ;-) ) and my first output file as
+     model_0o1.pdb.  If I do some "editing" outside of COOT, I might
+     then create model_0i2.pdb and if I make some changes inside COOT,
+     the output file would be model_0o2.pdb, etc.  After the next
+     cycle of refinement, I would come in with model_1i.pdb, etc.
+
+	-- Steven Sheriff
+
+
