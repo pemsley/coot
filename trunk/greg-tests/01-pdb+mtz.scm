@@ -12,14 +12,14 @@
 ;; CCP4 is set up? If so, set have-ccp4? #t
 
 
-(greg-gui 'register "Close bad molecule")
-(greg-gui 'register "Read coordinates test")
-(greg-gui 'register "Read MTZ test")
-(greg-gui 'register "Another Level test")
-(greg-gui 'register "Add Terminal Residue Test")
-(greg-gui 'register "Select by Sphere")
+;(greg-gui 'register "Close bad molecule")
+;(greg-gui 'register "Read coordinates test")
+;(greg-gui 'register "Read MTZ test")
+;(greg-gui 'register "Another Level test")
+;(greg-gui 'register "Add Terminal Residue Test")
+;(greg-gui 'register "Select by Sphere")
 
-(greg-gui 'make-gui)
+;(greg-gui 'make-gui)
 
 
 (let ((ccp4-master (getenv "CCP4_MASTER")))
