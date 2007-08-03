@@ -30,9 +30,14 @@
        (if (not (valid-model-molecule? imol-ligand))
 	   (throw 'untested)
 	   (begin
-	     (apply spin-zoom-trans (append (list 2 200 0.2 0.2)
-					    (map (lambda (rc nc) (- nc rc))
-						 (rotation-centre) new-rc)))
+
+	     ;; set the view
+	     (let ((view-number (add-view (list    54.5698 8.7148 20.5308)
+					  (list 0.046229 -0.157139 -0.805581 0.569395)
+					  19.8858
+					  "ligand-view")))
+	       (go-to-view-number view-number 1))
+				
 	     ;; updates the map:
 	     (apply set-rotation-centre new-rc)
 	     (move-molecule-here imol-ligand)
