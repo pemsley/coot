@@ -90,14 +90,11 @@
     (clear-lsq-matches)
     (add-lsq-match resno-start resno-end ref-chain resno-start resno-end peer-chain 0) ; ref mov - all atoms
     (let ((rtop (apply-lsq-matches imol-copy imol-copy)))
-      (close-molecule imol-copy)
+;       (close-molecule imol-copy)
       (if (not rtop)
-	  (begin 
-	    (format #t "Failed to get matching matrix~%")
-	    #f)
+	  (format #t "Failed to get matching matrix~%")
 	  (begin
+	    (clear-ncs-ghost-matrices rna-mol)
 	    (set-draw-ncs-ghosts rna-mol 1)
-	    (apply add-ncs-matrix rna-mol "C" "A" (apply append rtop)))))))
-
-
+	    (apply add-ncs-matrix rna-mol peer-chain ref-chain (apply append rtop)))))))
 
