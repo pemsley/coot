@@ -3637,9 +3637,9 @@ void add_lsq_match(int reference_resno_start,
 		   int moving_resno_start, 
 		   int moving_resno_end,
 		   const char *chain_id_moving,
-		   int match_type); /* 0: CA
+		   int match_type); /* 0: all
 				       1: main
-				       2: all 
+				       2: CA 
 				     */
 
 /* Return an rtop pair (proper list) on good match, else #f */

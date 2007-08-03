@@ -216,16 +216,18 @@ molecule_class_info_t::set_atom_attribute(std::string chain_id, int resno, std::
 
    int istate = 0;
    if (atom_sel.n_selected_atoms > 0) {
+      
       int SelectionHandle = atom_sel.mol->NewSelection(); 
       atom_sel.mol->SelectAtoms(SelectionHandle, 0,
 				(char *) chain_id.c_str(),
 				resno, (char *) ins_code.c_str(),
 				resno, (char *) ins_code.c_str(),
-				"*",
+				"*",  // res type
 				(char *) atom_name.c_str(),
-				(char *) alt_conf.c_str(), "*");
+				"*",  // andy element
+				(char *) alt_conf.c_str(), SKEY_NEW);
       int nSelAtoms;
-      PPCAtom SelAtoms;
+      PPCAtom SelAtoms = NULL;
       atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
       if (nSelAtoms > 0) {
 	 CAtom *at = SelAtoms[0];
@@ -242,6 +244,7 @@ molecule_class_info_t::set_atom_attribute(std::string chain_id, int resno, std::
 	 if (attribute_name == "occ")
 	    at->occupancy = val;
       }
+      atom_sel.mol->DeleteSelection(SelectionHandle);
    }
    have_unsaved_changes_flag = 1;
    atom_sel.mol->FinishStructEdit();

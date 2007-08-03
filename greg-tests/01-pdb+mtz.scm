@@ -47,10 +47,27 @@
        (set-imol-refinement-map imol-map)
        (valid-map-molecule? imol-map))))
 
-(greg-testcase "Another Level test" #t 
+(greg-testcase "Another Level Test" #t 
    (lambda ()
      (let ((imol-map-2 (another-level)))
        (valid-map-molecule? imol-map-2))))
+
+(greg-testcase "Set Atom Atribute Test" #t
+	       (lambda ()
+		 (set-atom-attribute imol-rnase "A" 11 "" " CA " "" "x" 64.5) ; an Angstrom or so
+		 (let ((atom-ls (residue-info imol-rnase "A" 11 "")))
+		   (let f ((atom-ls atom-ls))
+		     (cond
+		      ((null? atom-ls) (throw 'fail))
+		      (else 
+		       (let ((atom (car atom-ls))
+			     (compound-name (car atom))
+			     (atom-name (car compound-name)))
+			 (if (string=? atom-name " CA ")
+			     (let* ((xyz (car (cdr (cdr atom))))
+				    (x (car xyz)))
+			       (close-float? x 64.5))
+			     (f (cdr atom-ls))))))))))
 
 
 (greg-testcase "Add Terminal Residue Test" #t 

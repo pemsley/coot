@@ -295,6 +295,14 @@ coot::chi_angles::add_rotamer(std::string restype,
    }
 }
 
+// uses above function and wipes out Dunbrack rotamers
+// 
+void coot::chi_angles::use_richardson_rotamers() {
+
+   typed_rotamers.clear();
+   add_richardson_rotamers();
+}
+
 void
 coot::chi_angles::add_richardson_rotamer(std::string restype,
 					 std::string rotamer_name,
@@ -311,6 +319,8 @@ coot::chi_angles::add_richardson_rotamer(std::string restype,
 					 float chi_3_com, 
 					 float chi_4_mode,
 					 float chi_4_com) {
+
+   
 } 
 
 

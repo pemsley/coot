@@ -9,9 +9,9 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Richardson rotamers
 
-   o Do the strand restraints work well under refinement?
-
    o Try again to add chiral volumes to the geometry target function
+
+   o Do the strand restraints work well under refinement?
 
    o Kevin's Ramachandran Refinement target
 
@@ -1367,5 +1367,23 @@ Thu Aug  2 15:40:32 BST 2007
 
    Add a test that adds lots of labels and deletes residues so that
    there are more atom labels than atoms left
+
+	Use the label-all-atoms-in-residue function
+
+-----
+Thu Aug  2 23:47:38 BST 2007
+
+    Add a test, generating a ideal RNA, make a copy. Jiggle the atoms
+    of the copy a bit.  
+
+    Merge those molecules.
+
+    Make a copy:
+    Do a lsq of C in the copy to A in the copy. capture the matrix.
+    (apply add-ncs-matrix rna-mol "C" "A" matrix)
+
+    Show NCS ghosts - are they there?
+
+
 
 

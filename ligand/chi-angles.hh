@@ -189,6 +189,8 @@ namespace coot {
 				  float chi_3_com, 
 				  float chi_4_mode,
 				  float chi_4_com);
+      void use_richardson_rotamers(); // uses above function and wipes
+				      // out Dunbrack rotamers
 	 
 
       // called by the change_bys, obviously.
