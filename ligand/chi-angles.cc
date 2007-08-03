@@ -65,6 +65,18 @@ coot::simple_rotamer::simple_rotamer(int rot1_in,
 
 }
 
+// Constructor for richardson rotamer
+coot::simple_rotamer::simple_rotamer(std::string rotamer_name,  
+				     float percent_beta,
+				     float percent_other,
+				     float chi_1_mode,
+				     float chi_2_mode,
+				     float chi_3_mode,
+				     float chi_4_mode) {
+   
+
+}
+
 coot::simple_rotamer
 coot::simple_rotamer::rotate_chi2_180() const {
 
