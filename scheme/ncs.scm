@@ -78,5 +78,26 @@
 		    #t)))))))
 
 	 
-     
+   
+;; A function inspired by a question from Bill Scott.  He wanted to
+;; RNA ghosts.  Because RNA does not work with SSM, we need to define
+;; the matrix manually.  Let's make a copy of given rna-mol and get
+;; the rtop from that.  Typical usage (manual-ncs-ghosts 0 1 10 "A" "C")
+;; 
+(define (manual-ncs-ghosts rna-mol resno-start resno-end ref-chain peer-chain)
+
+  (let ((imol-copy (copy-molecule rna-mol)))
+    (clear-lsq-matches)
+    (add-lsq-match resno-start resno-end ref-chain resno-start resno-end peer-chain 0) ; ref mov - all atoms
+    (let ((rtop (apply-lsq-matches imol-copy imol-copy)))
+      (close-molecule imol-copy)
+      (if (not rtop)
+	  (begin 
+	    (format #t "Failed to get matching matrix~%")
+	    #f)
+	  (begin
+	    (set-draw-ncs-ghosts rna-mol 1)
+	    (apply add-ncs-matrix rna-mol "C" "A" (apply append rtop)))))))
+
+
 
