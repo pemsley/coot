@@ -747,11 +747,13 @@ molecule_class_info_t::add_ncs_ghost(const std::string &chain_id,
 
    coot::ghost_molecule_display_t ghost(rtop, selHnd, name);
    ghost.target_chain_id = target_chain_id;
+   ghost.chain_id = chain_id;
    int imod = 1;
    atom_sel.mol->SelectAtoms(selHnd, imod,
 			     (char *) chain_id.c_str(),
 			     ANY_RES, "*",
 			     ANY_RES, "*", "*", "*", "*", "*");
+   ncs_ghosts_have_rtops_flag = 1;
 
    ghost.update_bonds(atom_sel.mol);
    ncs_ghosts.push_back(ghost);
@@ -1357,10 +1359,10 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
    // So we need to convert that to the index of ncs_ghosts which has
    // the same chain_id
 
-   //    std::cout << "%%%% starting set_display_ncs_ghost_chain" << std::endl;
-   // std::cout << " %%%%%%%%% and here/now show_ghosts_flag is "
-   // << show_ghosts_flag << " ichain: " << ichain
-   // << " state: " << state << std::endl;
+//     std::cout << "%%%% starting set_display_ncs_ghost_chain" << std::endl;
+//     std::cout << " %%%%%%%%% and here/now show_ghosts_flag is "
+// 	      << show_ghosts_flag << " ichain: " << ichain
+// 	      << " state: " << state << std::endl;
 
    //    std::cout << "   DEBUG:: start of set_display_ncs_ghost_chain: " << std::endl;
    //    std::cout << "        There are " << ncs_ghosts.size() << " ghosts" << std::endl;
@@ -1387,16 +1389,20 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
       }
 
       std::vector<std::string> chain_ids = coot::util::chains_in_molecule(atom_sel.mol);
-      if (ichain < chain_ids.size()) { 
-	 for (unsigned int ich=0; ich<ncs_ghosts.size(); ich++) { 
+      if (ichain < chain_ids.size()) {
+	 for (unsigned int ich=0; ich<ncs_ghosts.size(); ich++) {
+// 	    std::cout << "getting ghost_index: chain_ids[" << ichain << "] is "
+// 		      << chain_ids[ichain] << " and ncs_ghosts[" << ich
+// 		      << "].chain_id is " << ncs_ghosts[ich].chain_id <<  std::endl;
 	    if (chain_ids[ichain] == ncs_ghosts[ich].chain_id) {
-	       std::cout << "    DEBUG chain id comparison :" << chain_ids[ichain]
-			 << ": vs :" <<  ncs_ghosts[ich].chain_id << ":" << std::endl;
+// 	       std::cout << "    DEBUG chain id comparison :" << chain_ids[ichain]
+// 			 << ": vs :" <<  ncs_ghosts[ich].chain_id << ":" << std::endl;
 	       ghost_index = ich;
 	       break;
 	    }
 	 }
-	 std::cout << "     Here ghost_index is " << ghost_index << std::endl;
+	 
+	 std::cout << "   Here ghost_index is " << ghost_index << std::endl;
 	 if (ghost_index > -1 ) { 
 	    if (ncs_ghosts.size() > ghost_index) {
 	       ncs_ghosts[ghost_index].display_it_flag = state;

@@ -356,6 +356,12 @@
 ;	     (cons tag-str
 ;		   (f (cdr ls)))))))))
 
+;; Crude test to see of 2 floats are the same (more or less).
+;; Used in a greg test after setting the atom position.
+;; 
+(define (close-float? x1 x2)
+  
+  (< (abs (- x1 x2)) 0.001))
 
 ;; Append strings with tag-str between them
 ;; 
@@ -1329,6 +1335,19 @@
 	    (let ((s (string-append "Can't Phosphorylate residue of type" res-name)))
 	      (info-dialog s))))))))
 
+
+;;
+(define (label-all-atoms-in-residue imol chain-id resno inscode)
+
+  (let ((atom-list (residue-info imol chain-id resno inscode)))
+    (if (list? atom-list)
+	(begin
+	  (for-each (lambda (atom-info)
+		      (add-atom-label imol chain-id resno (car (car atom-info))))
+		    atom-list)
+	  (graphics-draw)))))
+  
+
 ;; 
 (define (label-all-active-residue-atoms)
 
@@ -1338,13 +1357,8 @@
 	      (chain-id (list-ref active-atom 1))
 	      (resno    (list-ref active-atom 2))
 	      (inscode  (list-ref active-atom 3)))
-	  
-	  (let ((atom-list (residue-info imol chain-id resno inscode)))
-	    (if (list? atom-list)
-		(begin
-		  (for-each (lambda (atom-info)
-			      (add-atom-label imol chain-id resno (car (car atom-info))))
-			    atom-list)
-		  (graphics-draw))))))))
+
+	  (label-all-atoms-in-residue imol chain-id resno inscode))))
+  (graphics-draw))
 
 

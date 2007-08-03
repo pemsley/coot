@@ -3161,6 +3161,9 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 			   at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, 20.0);
 			   at->SetAtomName(std_base_atoms[i]->name);
 			   at->SetElementName(ele.c_str());
+			   std::string new_alt_conf("");
+			   // force it down the atom's throat :) [is there a better way?]
+			   strncpy(at->altLoc, new_alt_conf.c_str(), 1);
 			   residue->AddAtom(at);
 			}
 		     }
