@@ -50,6 +50,12 @@
 	 (set-rotation-centre (+ 12 (car rc))
 			      (+ 3 (car (cdr rc)))
 			      (car (cdr (cdr rc)))))
+       (let ((view-number (add-view (list    74.7079 10.6267 24.3308)
+				    (list -0.713385 -0.0433099 -0.105865 -0.691373)
+				    70.3919
+				    "RNA-builder-view")))
+	 (go-to-view-number view-number 1))
+
        ;; now jiggle the atoms of copy-rna-mol
        (jiggle-atoms-of-mol copy-rna-mol)
        (merge-molecules (list copy-rna-mol) rna-mol)
@@ -67,6 +73,14 @@
 		 #f)
 	       (begin
 		 (set-draw-ncs-ghosts rna-mol 1)
-		 (apply add-ncs-matrix rna-mol "C" "A" (apply append rtop)))))))))
+		 (apply add-ncs-matrix rna-mol "C" "A" (apply append rtop))
+		 (let ((view-number (add-view (list    72.3306 10.6899 24.073)
+					      (list -0.240736 -0.674651 -0.690658 -0.0994136)
+					      14.9021
+					      "RNA-ghots-view")))
+		   (go-to-view-number view-number 1)
+		   (rotate-y-scene 200 1)
+		   #t))))))))
+
        
 

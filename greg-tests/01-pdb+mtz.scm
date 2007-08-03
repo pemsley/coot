@@ -60,9 +60,9 @@
 		     (cond
 		      ((null? atom-ls) (throw 'fail))
 		      (else 
-		       (let ((atom (car atom-ls))
-			     (compound-name (car atom))
-			     (atom-name (car compound-name)))
+		       (let* ((atom (car atom-ls))
+			      (compound-name (car atom))
+			      (atom-name (car compound-name)))
 			 (if (string=? atom-name " CA ")
 			     (let* ((xyz (car (cdr (cdr atom))))
 				    (x (car xyz)))
@@ -159,4 +159,30 @@
 	     (format #t "Found ~s sphere atoms ~%" n-atoms)
 
 	     (= n-atoms 20))))))
+
+(greg-testcase "Test Views" #t 
+	       (lambda ()
+		 (let ((view-number 
+			(add-view (list    32.0488 21.6531 13.7343)
+				  (list -0.12784 -0.491866 -0.702983 -0.497535)
+				  20.3661
+				  "B11 View")))
+		   (go-to-view-number view-number 1)
+		   #t)))
+
+
+(greg-testcase "Label Atoms and Delete" #t 
+   (lambda ()
+
+     (let ((imol-frag (new-molecule-by-atom-selection imol-rnase "//B/10-12")))
+       (set-rotation-centre 31.464  21.413  14.824)
+       (map (lambda (n)
+	      (label-all-atoms-in-residue imol-frag "B" n ""))
+	    '(10 11 12))
+       (rotate-y-scene 100 0.1)
+       (delete-residue imol-frag "B" 10 "")
+       (delete-residue imol-frag "B" 11 "")
+       (delete-residue imol-frag "B" 12 "")
+       (rotate-y-scene 100 0.1)
+       #t))) ; it didn't crash - good :)
 
