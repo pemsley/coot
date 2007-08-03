@@ -1832,6 +1832,12 @@ molecules and can be found under @command{Calculate ->
 @node    Regularization and Real Space Refinement 
 @section Regularization and Real Space Refinement 
 
+@menu
+* Dictionary::
+* Planar Peptide Restraints::
+* The @t{UNK} residue type::
+@end menu
+
 Coot will read the geometry restraints for
 refmac and use them in fragment (zone) idealization - this is called
 ``Regularization''.
@@ -1952,6 +1958,16 @@ The old way used to be to edit the Refmac
 @file{monomers/list/mon_lib_list.cif} by hand.
 
 
+@subsection The @t{UNK} residue type
+@cindex  @t{UNK} residue 
+
+The @t{UNK} residue type is a special residue type to Coot.  It has
+been added for use with Buccaneer. Don't give you ligand (or anything
+else) the 3-letter-code @t{UNK} or confusion will result
+@footnote{unless you are using Buccaneer, of course}.
+
+
+@c --------------------------------------------------
 @node    Changing the Map for Building/Refinement
 @section Changing the Map for Building/Refinement
 @cindex  changing the Refinement Map
