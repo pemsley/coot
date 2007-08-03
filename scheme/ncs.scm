@@ -90,7 +90,7 @@
     (clear-lsq-matches)
     (add-lsq-match resno-start resno-end ref-chain resno-start resno-end peer-chain 0) ; ref mov - all atoms
     (let ((rtop (apply-lsq-matches imol-copy imol-copy)))
-;       (close-molecule imol-copy)
+      (close-molecule imol-copy)
       (if (not rtop)
 	  (format #t "Failed to get matching matrix~%")
 	  (begin
