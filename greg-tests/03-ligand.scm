@@ -30,7 +30,6 @@
        (if (not (valid-model-molecule? imol-ligand))
 	   (throw 'untested)
 	   (begin
-
 	     ;; set the view
 	     (let ((view-number (add-view (list    54.5698 8.7148 20.5308)
 					  (list 0.046229 -0.157139 -0.805581 0.569395)
