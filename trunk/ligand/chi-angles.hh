@@ -74,6 +74,13 @@ namespace coot {
 		     float sig_chi3,
 		     float chi4,
 		     float sig_chi4);
+      simple_rotamer(std::string rotamer_name,  // constructor for richardson rotamer
+		     float percent_beta,
+		     float percent_other,
+		     float chi_1_mode,
+		     float chi_2_mode,
+		     float chi_3_mode,
+		     float chi_4_mode);
       float P_r1234() const { return p_r1234; }
       const float & operator[](int i) const;
       float Chi1() const { return chi1; } 
