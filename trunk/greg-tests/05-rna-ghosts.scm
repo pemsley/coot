@@ -1,7 +1,7 @@
 
 
-;(greg-testcase "RNA Ghosts" #t 
-;   (lambda ()
+(greg-testcase "RNA NCS Ghosts" #t 
+    (lambda ()
 
      (define (jiggle-random)
         (- (/ (random 10000) 10000) 0.25)) ; between -0.5 to 0.5
@@ -67,6 +67,6 @@
 		 #f)
 	       (begin
 		 (set-draw-ncs-ghosts rna-mol 1)
-		 (apply add-ncs-matrix rna-mol "C" "A" (apply append rtop)))))))
+		 (apply add-ncs-matrix rna-mol "C" "A" (apply append rtop)))))))))
        
 
