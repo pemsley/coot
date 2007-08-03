@@ -3790,6 +3790,8 @@ void add_ncs_matrix(int imol, const char *this_chain_id, const char *target_chai
 		    float m31, float m32, float m33, 
 		    float t1,  float t2,  float t3);
 
+void clear_ncs_ghost_matrices(int imol);
+
 /*! \brief add an NCS matrix for strict NCS molecule representation
 
 for CNS strict NCS usage: expand like normal symmetry does  */

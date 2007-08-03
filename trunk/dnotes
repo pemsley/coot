@@ -1398,3 +1398,16 @@ on cycle:
 ** (coot-real:2464): WARNING **: Couldn't find pixmap file: reside-info.svg
 
 ** (coot-real:2464): WARNING **: Couldn't find pixmap file: env-distances.png
+
+
+----
+Fri Aug  3 21:21:47 BST 2007
+
+   after lsqing a copy and saving state
+
+   on reading the state filel at startup, it says there are 2 pdbs in
+   the state file, but only one gets loaded.
+
+   Priority Low, Easy.
+
+

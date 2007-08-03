@@ -1687,6 +1687,8 @@ class molecule_class_info_t {
 		      const std::string &target_chain_id,
 		      const clipper::RTop_orth &rtop);
 
+   void clear_ncs_ghost_matrices();
+
    // and the other way for CNS NCS users
    void add_strict_ncs_matrix(const std::string &chain_id,
 			      const std::string &target_chain_id,

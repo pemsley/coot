@@ -155,10 +155,21 @@ void add_ncs_matrix(int imol,
       clipper::Coord_orth c(t1, t2, t3);
       clipper::RTop_orth rtop(m, c);
 
+//       std::cout  << "DEBUG:: add_ncs_matrix for imol " << imol << " chain_id " << chain_id
+// 		 << " target_chain_id " << target_chain_id << std::endl;
+
       graphics_info_t::molecules[imol].add_ncs_ghost(chain_id, target_chain_id, rtop);
       graphics_draw();
    }
 }
+
+void clear_ncs_ghost_matrices(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].clear_ncs_ghost_matrices();
+   }
+} 
+
 
 int show_strict_ncs_state(int imol) {
 
