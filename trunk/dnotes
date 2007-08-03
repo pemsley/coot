@@ -1160,6 +1160,11 @@ Here's a description of the PIR format:
 
 http://www.cmbi.kun.nl/bioinf/tools/crab_pir.html
 
+----
+Tue Jul 17 13:11:20 BST 2007
+
+	Files that end in .fcf or .cif should not *first* be read as
+	MTZ files.  Do the sensible thing first.
 
 ----
 Mon Jul 16 23:18:03 BST 2007
@@ -1385,5 +1390,11 @@ Thu Aug  2 23:47:38 BST 2007
     Show NCS ghosts - are they there?
 
 
+-----
+Fri Aug  3 15:32:18 BST 2007
 
+on cycle:
 
+** (coot-real:2464): WARNING **: Couldn't find pixmap file: reside-info.svg
+
+** (coot-real:2464): WARNING **: Couldn't find pixmap file: env-distances.png
