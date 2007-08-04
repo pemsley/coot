@@ -126,13 +126,17 @@ coot::util::create_directory(const std::string &dir_name) {
    
    if ( fstat == -1 ) { // file not exist
       // not exist
-      int mode = S_IRUSR|S_IWUSR|S_IXUSR;
       std::cout << "INFO:: Creating directory " << dir_name << std::endl;
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
       istat = mkdir(dir_name.c_str()); 
 #else
-      istat = mkdir(dir_name.c_str(), mode);
+      mode_t mode = S_IRUSR|S_IWUSR|S_IXUSR; // over-ridden
+      mode = 511; // octal 777
+      mode_t mode_o = umask(0);
+      mode_t mkdir_mode = mode - mode_o;
+      istat = mkdir(dir_name.c_str(), mkdir_mode);
+      umask(mode_o); // oh yes we do, crazy.
 #endif
       
    } else {
@@ -145,7 +149,7 @@ coot::util::create_directory(const std::string &dir_name) {
       }
    }
    return istat; 
-} 
+}
 
 
 
