@@ -3034,6 +3034,11 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq) {
       const std::string chain_id = chain_id_in;
       graphics_info_t::molecules[imol].assign_pir_sequence(chain_id, std::string(seq));
    }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("assign-pir-sequence");
+   command_strings.push_back(single_quote(chain_id_in));
+   command_strings.push_back(single_quote(seq));
+   add_to_history(command_strings);
 }
 
 

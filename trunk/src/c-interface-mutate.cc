@@ -178,26 +178,26 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 		  int chnoff = sequencer.chain_offset();
    
 		  // write results
-		  std::cout << "\nSequence: " << bestseq << "\nCondidence: " << conf << "\n";
-		  if ( chnnum >= 0 )
+		  std::cout << "\nSequence: " << bestseq << "\nConfidence: " << conf << "\n";
+		  if ( chnnum >= 0 ) { 
 		     std::cout << "\nFrom    : " << fullseq << "\nChain id: "
 			       << chnnum << "\tOffset: " << chnoff+1 << "\n";
 
-		  if (conf > 0.9) {
-		     std::string chain_id = seq[chnnum].first;
-		     std::vector<coot::residue_spec_t> mmdb_residues = mmdb_info.second;
-		     int istat = 
-			graphics_info_t::molecules[imol_model].apply_sequence(imol_map,
-									      mmdb_info.first, mmdb_residues, bestseq,
-									      chain_id, chnoff+1);
-		  } 
+		     if (conf > 0.9) {
+			std::string chain_id = seq[chnnum].first;
+			std::vector<coot::residue_spec_t> mmdb_residues = mmdb_info.second;
+			int istat = 
+			   graphics_info_t::molecules[imol_model].apply_sequence(imol_map,
+										 mmdb_info.first, mmdb_residues, bestseq,
+										 chain_id, chnoff+1);
+		     }
+		  }
 	       } else {
 		  std::string s = "Oops - no sequence information has been given to molecule\n";
 		  s += "number ";
 		  s += coot::util::int_to_string(imol_model);
 		  info_dialog(s.c_str());
 	       }
-
 	       delete mmdb_info.first;
 	    }
 	 }
