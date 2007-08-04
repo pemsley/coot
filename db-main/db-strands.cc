@@ -117,7 +117,7 @@ coot::db_strands::get_reference_pdb_list() const {
       // 
       struct dirent *dir_ent; 
       
-      while(1) { 
+      while(1) {
 	 dir_ent = readdir(ref_struct_dir); 
 	 
 	 if (dir_ent != NULL) { 
@@ -132,13 +132,19 @@ coot::db_strands::get_reference_pdb_list() const {
 	       s += file_str; 
 	       
 	       pdb_list.push_back(s); 
-	    }
+	    } else {
+	       std::cout << "DEBUG:: " << file_str << " fails pdb extension test"
+			 << std::endl;
+	    } 
 	 } else { 
 	    break;
 	 }
       }
       closedir(ref_struct_dir); 
-   } 
+   }
+
+   std::cout << "INFO:: found " << pdb_list.size() << " PDB files in reference"
+	     << " structure direcotry" << std::endl;
    return pdb_list; 
 } 
 
