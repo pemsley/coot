@@ -2,7 +2,14 @@
 #include <iostream>
 #include "coot-nomenclature.hh"
 #include "simple-restraint.hh"
+
+#ifdef USE_DUNBRACK_ROTAMERS
 #include "dunbrack.hh"
+#else
+#include "richardson-rotamer.hh"
+#endif
+
+
 
 // Here we rename atoms to fix nomeclature errors. Note ILEs are not fixed
 // by renaming atoms.
@@ -55,7 +62,11 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 			// in residue_p if needed.  We want to know if
 			// this has happened.
 
+#ifdef USE_DUNBRACK_ROTAMERS			
 			coot::dunbrack d(residue_p);
+#else			
+			coot::richardson_rotamer d(residue_p);
+#endif // USE_DUNBRACK_ROTAMERS			
 
 			int swapped = d.optimize_rotamer_by_atom_names();
 			if (swapped) {
