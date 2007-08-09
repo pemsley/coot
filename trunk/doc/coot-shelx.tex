@@ -1,0 +1,106 @@
+
+\documentclass{article}
+
+\usepackage{epsf}
+\usepackage{a4}
+\usepackage{palatino}
+\usepackage{euler}
+\newcommand {\atilde} {$_{\char '176}$} % tilde(~) character
+
+\title{Coot for SHELX Tutorial}
+
+\author{Paul Emsley \& Judit Debreczeni}
+
+\begin{document}
+\maketitle
+\tableofcontents
+%\listoffigures
+
+
+\section{Introduction}
+
+This is a description of the presentation of Coot at the ACA meeting
+in Salt Lake City, 2007.
+
+It should also serve as a tutorial for Coot specific for use with
+SHELXL.
+
+Get the latest version.
+
+\section{A SHELX Project}
+
+A SHELX Project consists of these things...
+
+.ins and .res as valid coordinate inputs
+
+\subsection{Reading .lst}
+
+needs chain unsplitting
+
+atom split, disagreeable restraints.
+
+\subsection{Reading .res}
+
+reads atoms, fvars, does not interpret most other things.
+
+\subsubsection{chain splitting}
+
+on residue number gap.
+
+\subsection{Reading .fcf}
+
+converts to .fcf.cif
+
+
+
+%% Now let's get on and do stuff.  Some test data
+
+%% Read in sample 03srv164.res
+\section{03srv164}
+
+OK, elecron density.
+
+Too much, cut down.
+
+\subsection{hydrogens}
+Navigate to difference map peak.  Yuck! Hydrogens in wrong place.
+
+Delete them.
+
+Add in HFIX command add it to the .res file.
+
+Turn off difference map.
+
+Rerun SHELXL - and bing! new structure has hydrogens in the right
+place and new map has no diff peaks.
+
+Good.
+
+We could play similar games with other hydrogens, but we won't.
+
+\subsection{symmetry}
+
+Let's show symmetry.
+
+Turn off density.
+
+% OK we are done with 03srv164.
+
+close.
+
+% Bstern:
+
+\section{Bstern}
+
+\subsection{Adding Atoms}
+
+
+\subsection{B-factor variance}
+
+include a picture here.
+
+
+
+
+
+\end{document}
