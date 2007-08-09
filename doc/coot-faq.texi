@@ -1,0 +1,407 @@
+
+\input texinfo   @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename coot-faq.info
+@settitle The Coot FAQ
+@c %**end of header
+
+@dircategory The FAQ for Coot
+@direntry
+* Coot: (coot).  The Coot FAQ
+@end direntry
+
+@titlepage
+@title The Coot FAQ
+@end titlepage
+
+@c Output the table of contents at the beginning.
+@contents
+
+@menu 
+* Citing::
+* Building and Installing::
+* Configuration Problems::
+* Using Coot::
+* Other Documentation::
+* Index::   Complete index.
+@end menu
+     
+
+@c --------------------------------------------
+@node Citing
+@chapter Citing Coot
+@comment  node-name,  next,  previous,  up
+@c --------------------------------------------
+
+
+@menu 
+* Citing Coot::
+@end menu
+
+ The reference for Coot has been published:
+ You can use this BibTeX database entry (which can be imported 
+ into EndNote)... format as you please:
+
+@cindex citation
+@verbatim
+@Article{emsley04:coot,
+  author =    {Paul Emsley and Kevin Cowtan},
+  title =     {Coot: Model-Building Tools for Molecular Graphics},
+  journal =   {Acta Crystallographica Section D - Biological Crystallography},
+  year =      2004,
+  volume =    60,
+  pages  =    2126-2132
+}
+@end verbatim
+
+Coot was published in the proceedings of the 2003 CCP4 Study Weekend
+
+@itemize
+@item @url{http://journals.iucr.org/d/issues/2004/12/01/isscontsbdy.html}
+@end itemize
+
+you can download the paper from there - it's Open Access.
+
+@c --------------------------------------------
+@comment  node-name,  next,  previous,  up
+@node Building and Installing
+@chapter Building and Installing
+@c --------------------------------------------
+
+@menu
+* I have Mac OS X. How do I get coot?::
+* How do I make the binary release work?::
+* What are the md5sums?::
+* I get a libpt error when I try to start coot on Fedora Core 2::
+* I get a tiff error when I try to start coot on Mac OS X::
+* I get a jpeg error when I try to start coot 0.1.2 on my Intel Mac::
+* I get a glut error when I try to start coot on Fedora Core 3::
+* When I start Coot it crashes after @t{load "hello.scm"}::
+* How do I compile coot and its dependencies?::
+@end menu
+
+@node I have Mac OS X. How do I get coot?
+@section I have Mac OS X. How do I get coot?
+
+See Bill Scott's Coot Page
+
+@itemize
+@item @url{http://xanana.ucsc.edu/xtal/coot}
+@end itemize
+
+
+@node How do I make the binary release work?
+@section How do I make the binary release work?
+
+ Download the appropriate tar file for you system. Untar
+    it. Add the bin directory (the one that contains coot and coot-real)
+    to your path and you are ready to go...  You should not need 
+    to edit or use the setup/coot* files.
+
+
+@node Which binary tar file shall I use?
+@section Which binary tar file shall I use?
+@comment  node-name,  next,  previous,  up
+
+@menu
+* Additional Note for Slackware Users::
+* Additional Note for Mandrake users::
+* Additional Note for Mandrake users::
+* Additional Note for Fedora Core 4 users::
+* Additional Note for RedHat Enterprise 3 Users::
+* Additional Note for SuSE 9.1::
+* Additional Note for SuSE 9.3::
+* Additional Note for SuSE 10.1::
+* Additional Note for Debian Users::
+* Additional Note for sgi IRIX64 Users::
+@end menu
+
+Download the appropriate tar file for you system. Untar it. Add the bin
+directory (the one that contains coot and coot-real) to your path and
+you are ready to go...  You should not need to edit or use the
+setup/coot* files
+
+@node Additional Note for Slackware Users
+@subsection Additional Note for Slackware Users 
+
+Nancy Vogelaar used the RedHat 8 binary distribution and needed to do
+some extra fiddling - documented here:
+
+@itemize
+@item @url{nancy-slackware.txt}
+@end itemize
+
+
+@node Additional Note for Mandrake users
+@subsection Additional Note for Mandrake users
+
+Raji Edayathumangalam used the RedHat 7.2 binary distribution on
+Mandrake Linux 8.2 and needed to do some extra fiddling, documented
+here:
+
+@url{raji-mandrake.txt}
+
+@node Additional Note for Fedora Core 4 users
+@subsection Additional Note for Fedora Core 4 users
+
+Coot runs on Fedora Core 4, using the Fedora Core 3 binaries after making the following link:
+
+@cartouche
+  $ ln -s /usr/lib/libpt_linux_x86_r.so.1.8.4 $COOT_PREFIX/lib/libpt.so.1.6.5
+@end cartouche
+
+@node Additional Note for RedHat Enterprise 3 Users
+@subsection Additional Note for RedHat Enterprise 3 Users
+
+   Kay Diederichs reports that
+   coot-0.0.18-binary-Linux-Fedora-Core-1.tar.gz works with RedHat
+   Enterprise 3 if
+   one makes the following link first:
+
+@cartouche
+  $ ln -s /usr/lib/libpt.so.1.4.7 $COOT_PREFIX/lib/libpt.so.1.5.0
+@end cartouche
+
+  Dirk Kostrewa thought that it was not necessary to make this link
+  using the current Red Hat 8 binary tar.
+
+
+@node Additional Note for SuSE 9.1
+@subsection Additional Note for SuSE 9.1
+
+   Michael Latchem reports that coot-0.0.20-binary-Linux-Fedora-Core-1.tar.gz works with 
+   SuSE 9.1 if one makes the following link first:
+
+@cartouche
+  $ ln -s /usr/lib/libpt_linux_x86_r.so.1.6.5 $COOT_PREFIX/lib/libpt.so.1.5.0
+@end cartouche
+
+@node Additional Note for SuSE 9.3
+@subsection Additional Note for SuSE 9.3
+
+Christophe Briand reports that Coot version 0.1 runs on Suse 9.3, using
+the Redhat 8 binary after making the following link
+
+@cartouche 
+$ ln -s /usr/lib/libImlib2.so.1.1.1 /usr/lib/libImlib.so.11
+@end cartouche
+
+I presume that this would also work:
+
+@cartouche
+$ ln -s /usr/lib/libImlib2.so.1.1.1 $COOT_PREFIX/lib/libImlib.so.11
+@end cartouche
+
+
+@node Additional Note for SuSE 10.1
+@subsection Additional Note for SuSE 10.1
+
+
+        You need to install the imlib-1.9.14-215 rpm
+
+@cartouche
+   ln -s /opt/gnome/lib64/libImlib.so.1.9.14 $COOT_PREFIX/lib/libImlib.so.11
+@end cartouche
+
+    or (depending on your architecture):
+
+@cartouche
+ln -s /opt/gnome/lib/libImlib.so.1.9.14 $COOT_PREFIX/lib/libImlib.so.11
+@end cartouche
+
+
+@node Additional Note for Debian Users
+@subsection Additional Note for Debian Users
+
+Dirk Kostrewa has got coot working on his Debian system.
+Here are his notes:
+
+@url{dirk-notes.txt}
+
+@node Additional Note for sgi IRIX64 Users
+@subsection Additional Note for sgi IRIX64 Users 
+
+
+You will need (if you don't alread have them)
+            fw_gcc fw_urt fw_libungif (i.e. libungif) and imlib from 
+
+@url{http://freeware.sgi.com/fw-6.2/index-by-alpha.html}
+
+
+@node What are the md5sums?
+@section What are the md5sums?
+
+The md5sum is a means to determine if the file was corrupted during
+transfer.  Run md5sum on the downloaded tar file and compare the result
+to the md5sum file on the server.  If the results are the same, then the
+tar file is uncorrupted (or more strictly speaking: is corrupted in the
+same way as the file on the server).
+
+@node I get a libpt error when I try to start coot on Fedora Core 2
+@section I get a libpt error when I try to start coot on Fedora Core 2
+
+@verbatim
+$ coot
+coot: error while loading shared libraries: libpt.so.1.6.5: cannot
+open shared object file: No such file or directory
+@end verbatim
+
+You need to install pwlib:
+
+pwlib-1.6.5-1
+
+@node I get a tiff error when I try to start coot on Mac OS X
+@section I get a tiff error when I try to start coot on Mac OS X
+
+
+@verbatim
+$ coot
+dyld: coot version mismatch for library: /sw/lib/libtiff.3.dylib (compatibility 
+version of user: 3.6.0 greater than library's version: 3.5.0)
+@end verbatim
+
+This is because you have the default fink (stable).  Coot is part of
+unstable fink so you need to enable the unstable branch (see Bill
+Scott's page (above)).
+
+@node I get a jpeg error when I try to start coot 0.1.2 on my Intel Mac
+@section I get a jpeg error when I try to start coot 0.1.2 on my Intel Mac
+
+@verbatim
+dyld: Symbol not found: __cg_jpeg_resync_to_restart
+Referenced from: /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/ImageIO
+  Expected in: /Users/xxx/coot-0.1.2_bin/lib/libjpeg.62.dylib
+@end verbatim
+
+Atsushi Nakagawa says that this can be fixed by
+replacing @t{xxx/Darwin-chihiro.chem.york.ac.uk-pre-release/lib/libjpeg.dylib} with 
+@t{/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib}
+
+Or read the advice in $COOT_PREFIX/bin/coot about Intel Mac usage. 
+
+@node I get a glut error when I try to start coot on Fedora Core 3
+@section I get a glut error when I try to start coot on Fedora Core 3
+
+@verbatim
+./coot: error while loading shared libraries: libglut.so.3: cannot open shared
+object file: No such file or directory
+@end verbatim
+
+You need to install these rpms:
+
+@verbatim
+freeglut-2.2.0-14
+freeglut-devel-2.2.0-14
+@end verbatim
+
+@node When I start Coot it crashes after @t{load "hello.scm"}
+@section When I start Coot it crashes after @t{load "hello.scm"}
+
+I don't know why it crashes.  To work around, comment out (with a semicolon)
+"hello.scm" in the @t{$COOT_PREFIX/share/coot/scheme/coot.scm} file.
+
+
+@node How do I compile coot and its dependencies?
+@section How do I compile coot and its dependencies?
+
+It's somewhat involved, but hopefully straightforward if you
+follow the autobuilder:
+
+@url{http://www.ysbl.york.ac.uk/~emsley/build-logs/build-it} 
+
+Coot
+requires mmdb, clipper, glut, gtk, gtkglarea.  gtkglarea requires gtk
+and OpenGL.  gtk requires glib. clipper requires fftw, mccp4 and
+mmdb. Optionally you can enhance coot using gtk-canvas, libSSM,
+guile/guile-gtk/guile-gui/guile-www or python (the support for python
+is not so advanced).
+
+These issues are sorted out in the autobuilder.  Just download it,
+change a few parameters to fit your personal system at the top and
+execute it.
+
+@c -----------------------------------------------------------------
+@node    Configuration Problems
+@chapter Configuration Problems
+@c -----------------------------------------------------------------
+
+
+@menu
+* I get an ice-9 error when I try to start coot on Fedora Core 2::
+* I get a strange message when I use coot-scheme files::
+* I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?::
+* I get bizarre connectivity and other weirdness on reading files::
+@end menu
+
+
+@node    I get an ice-9 error when I try to start coot on Fedora Core 2
+@section I get an ice-9 error when I try to start coot on Fedora Core 2
+
+@verbatim
+$ coot
+Acquiring application resources from /usr/programs/COOT/Linux-utonium.chem.york.ac.uk/share/coot/cootrc
+INFO:: splash_screen_pixmap_dir /usr/programs/COOT/Linux-utonium.chem.york.ac.uk/share/coot/pixmaps
+[snip]
+initializing molecules...done
+ERROR: In procedure primitive-load-path:
+ERROR: Unable to find file "ice-9/boot-9.scm" in load path
+@end verbatim
+
+
+You need to install guile.  We have the following guile packages:
+
+@verbatim
+umb-scheme-3.2-32
+guile-devel-1.6.4-11
+guile-1.6.4-11
+@end verbatim
+
+
+@node I get a strange message when I use coot-scheme files
+@section I get a strange message when I use coot-scheme files
+
+You mean this one?
+
+@verbatim
+load "coot-gui.scm"
+(Error in proc: misc-error  args:  (#f ~A ~S (no code for module (gtk gdk)) #f))
+@end verbatim
+
+You need to install guile-gtk.  Here is the source, but your
+distribution may have rpms or debs.
+
+@url{http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-0.41.tar.gz}
+
+@node I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?
+@section I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?
+
+Martin Moncrieffe found a way:
+
+@url{martin-moncrieffe.txt}
+
+@node I get bizarre connectivity and other weirdness on reading files
+@section I get bizarre connectivity and other weirdness on reading files
+
+You mean something like this:
+
+@url{ugly.png}
+
+  You have a non-default language. @t{setenv LANG C} (or @t{LANG=C} if you
+  prefer) before starting coot.  This has recently been added to the
+  setup files in the source code (it is not in version 0.0).
+
+
+  The problem may also be due to @t{LC_ALL}.  So, if the above doesn't
+  work try also: 
+
+  @t{$ setenv LC_ALL C}
+
+
+
+@node Index
+@unnumbered Index
+     
+@printindex cp
+ 
+@bye
