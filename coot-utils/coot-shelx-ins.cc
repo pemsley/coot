@@ -1038,7 +1038,7 @@ coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
 			   f << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
 			     << site_occ_factor << "    =\n     "
 			     << at->u11 << "  " << at->u22 << "  " << at->u33 << "  "
-			     << at->u12 << "  " << at->u13 << "  " << at->u23
+			     << at->u23 << "  " << at->u13 << "  " << at->u12
 			     << "\n";
 			} else { 
 			   if (at->WhatIsSet & 4) {
