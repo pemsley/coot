@@ -1042,16 +1042,16 @@ coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restra
 
    idx = 3*(chiral_restraint.atom_index_1);
    clipper::Coord_orth a1(gsl_vector_get(v, idx),
-			      gsl_vector_get(v, idx+1),
-			      gsl_vector_get(v, idx+2));
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
    idx = 3*(chiral_restraint.atom_index_2);
    clipper::Coord_orth a2(gsl_vector_get(v, idx),
-			      gsl_vector_get(v, idx+1),
-			      gsl_vector_get(v, idx+2));
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
    idx = 3*(chiral_restraint.atom_index_3);
    clipper::Coord_orth a3(gsl_vector_get(v, idx),
-			      gsl_vector_get(v, idx+1),
-			      gsl_vector_get(v, idx+2));
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
 
    clipper::Coord_orth a = a1 - centre;
    clipper::Coord_orth b = a2 - centre;
