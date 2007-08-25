@@ -799,6 +799,7 @@ coot::graph_match(CResidue *res_moving,
 
    clipper::RTop_orth rtop;
    bool success = 0;
+   std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > best_matching_atoms;
 
    CGraph graph1;
    CGraph graph2;
@@ -851,6 +852,7 @@ coot::graph_match(CResidue *res_moving,
 	    int n;
 	    realtype p1, p2;
 	    ivector FV1, FV2;
+	    std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atoms;
 	    match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
 // 	    For understanding only.  
 // 	    std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
@@ -870,6 +872,10 @@ coot::graph_match(CResidue *res_moving,
 		  CAtom *at2 = cleaned_res_reference->atom[V2->GetUserID()];
 		  coords_1_local.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
 		  coords_2_local.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+		  std::pair<std::string, std::string> atom_info_1(at1->name, at1->altLoc);
+		  std::pair<std::string, std::string> atom_info_2(at2->name, at2->altLoc);
+		  std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > atom_pair(atom_info_1, atom_info_2);
+		  matching_atoms.push_back(atom_pair);
 	       }
 	    }
 	    clipper::RTop_orth rtop_local(coords_1_local, coords_2_local);
@@ -885,6 +891,7 @@ coot::graph_match(CResidue *res_moving,
 	       best_rtop = rtop_local;
 	       best_match_sum = dist_sum;
 	       best_match = imatch;
+	       best_matching_atoms = matching_atoms;
 	    }
 	 } // imatch loop
 
@@ -900,6 +907,7 @@ coot::graph_match(CResidue *res_moving,
    gmi.success = success;
    gmi.rtop = rtop;
    gmi.dist_score = best_match_sum;
+   gmi.atom_match_names = best_matching_atoms;
    return gmi;
 }
 

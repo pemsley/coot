@@ -1,8 +1,8 @@
 
 Release 0.4
 
-   o Fix crash reported by Ketan Gajiwala on pressing CR in the
-     graphics window after a refiement.
+   o Fix occasional crash reported by Ketan Gajiwala on pressing CR in
+     the graphics window after a refiement.
 
    o Cootaneer [slim-line Buccaneer in Coot]
 
@@ -23,13 +23,15 @@ Release 0.4
    o Omega Distortion graph now updates on Accept Refine Zone
 
    o CCP4i aliases are also added to the Project Dir options in the
-     file selector
+     file selector [Ingo Korndoerfer]
 
    o Moving the Rotate-Translate Y slider in the positve direction
      moves the fragment in the +Y direction on the screen (instead of 
      downwards) [Steven Sheriff]
 
    o Fix typo in transform-map-using-lsq-matrix [Nick Furnham]
+
+   o U-matrix correctly output to shelx .res file [Annette Langkilde]
 
 
     -------------------------------------------------------

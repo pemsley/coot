@@ -29,7 +29,18 @@ namespace coot {
    class richardson_rotamer : public rotamer {
    public:
       richardson_rotamer(CResidue *res) : 
-	 rotamer(residue, 0) {}
+	 rotamer(res, 0) {};
+      
+      richardson_rotamer(CResidue *res,
+			 CMMDBManager *mol,
+			 float lowest_probability,
+			 short int add_extra_PHE_and_TYR_rotamers_flag) :
+	 rotamer(res, add_extra_PHE_and_TYR_rotamers_flag) {
+	 set_probability_limit(lowest_probability);
+	 stored_mol = mol;
+      }
+	 
+      std::vector<float> probabilities() const;
    };
 
 }

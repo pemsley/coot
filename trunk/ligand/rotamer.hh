@@ -2,6 +2,8 @@
  * 
  * Copyright 2001, 2002, 2003, 2004, 2006 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 The University of Oxford
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +31,7 @@ namespace coot {
 
    class rotamer : public chi_angles {
 
+      float probability_limit;
       std::pair<short int, double> probability_of_this_rotamer(const std::vector<double> &chi_angles,
 							       const std::vector<coot::simple_rotamer> &rots) const;
       std::vector<std::vector<std::string> >
@@ -38,6 +41,7 @@ namespace coot {
 			 PCAtom *residue_atoms);
       std::vector<coot::simple_rotamer>
       get_all_rotamers(const std::string &res_type) const;
+      std::vector<CAtom *> ordered_residue_atoms(CResidue *residue_p) const;
 
       short int similar_rotamer_chi(double target, double model) const {
 	 short int is = 0;
@@ -52,6 +56,11 @@ namespace coot {
 
 	 return is;
       }
+
+   protected:
+      CMMDBManager *stored_mol;
+      float Probability_limit() const { return probability_limit; }
+      void set_probability_limit(float lim) { probability_limit = lim;}
       
    public:
 
@@ -74,8 +83,12 @@ namespace coot {
       std::pair<short int, double> probability_of_this_rotamer(); // can't const - mmdb
                                                                   // CResidue issues...
 
+      CResidue *GetResidue(int i_rot) const; // rotamer/button number
+      std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 
+      float Chi1(int i) const; // chi1 for the ith rotamer
 
    };
 }
 
 #endif // ROTAMER_HH
+

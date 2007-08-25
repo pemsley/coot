@@ -82,6 +82,7 @@ namespace coot {
 		     float chi_3_mode,
 		     float chi_4_mode);
       float P_r1234() const { return p_r1234; }
+      float Probability_rich() const { return p_r1234; }
       const float & operator[](int i) const;
       float Chi1() const { return chi1; } 
       float Chi2() const { return chi2; } 

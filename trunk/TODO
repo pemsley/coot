@@ -5,7 +5,7 @@
 
 ------
 
-    Release 0.4, Sept/Oct 2007
+    Release 0.4, Oct/Nov 2007
 
 
    o Richardson rotamers
@@ -35,7 +35,7 @@
 
 -----
 
-   Release 0.5 Nov/Dec 2007
+   Release 0.5 Dec 2007
 
    o Torsion General
 
@@ -76,7 +76,7 @@
 
 -----
 
-    Release 0.6 and 0.7 [Feb->Apr 2008]
+    Release 0.6 and 0.7 [Mar/Apr 2008]
 
    o Redo sequence view 
 
@@ -96,9 +96,6 @@
        Things with Cl etc, 
        O->P bonds
        faster bonding with many molecules
-
-   o Pre-and post check of chiral volume and cis peptide bonds when
-     using refine zone
 
    o colour by B-factor CA mode
 
@@ -147,5 +144,5 @@
 
 -----
  
-   Release 1.0 [Sept 2008]
+   Release 1.0 [~Sept 2008]
 

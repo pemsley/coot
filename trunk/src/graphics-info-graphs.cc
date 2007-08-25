@@ -61,7 +61,11 @@
 #include "bfkurt.hh"
 
 #include "globjects.h"
+#ifdef USE_DUNBRACK_ROTAMERS
 #include "dunbrack.hh"
+#else 
+#include "richardson-rotamer.hh"
+#endif 
 #include "ligand.hh"
 #include "graphics-info.h"
 
@@ -609,13 +613,21 @@ graphics_info_t::rotamer_graphs(int imol) {
 				 int this_resno = SelResidues[ir]->GetSeqNum();
 				 if (this_resno > max_resno)
 				    max_resno = this_resno;
-				 coot::dunbrack dnbrk(SelResidues[ir], mol,
+#ifdef USE_DUNBRACK_ROTAMERS			
+				 coot::dunbrack d(SelResidues[ir], mol,
 						      rotamer_lowest_probability, 1);
+#else
+				 std::cout << "\nDEBUG::  rotamer_graphs on residue: "
+					   << SelResidues[ir] << std::endl;
+				 
+				 coot::richardson_rotamer d(SelResidues[ir], mol,
+						      rotamer_lowest_probability, 1);
+#endif // USE_DUNBRACK_ROTAMERS
 				 // flag for assigned,                    1 
 				 // unassigned due to missing atoms,      0 
 				 // unassigned due to rotamer not found. -1
 				 // unassigned due to GLY/ALA            -2
-				 std::pair<short int,double> d_score = dnbrk.probability_of_this_rotamer();
+				 std::pair<short int,double> d_score = d.probability_of_this_rotamer();
 				 double distortion = 0.0;
 				 std::string str = int_to_string(this_resno);
 				 str += chain_id;
@@ -725,12 +737,18 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 		  int this_resno = SelResidues[ir]->GetSeqNum();
 		  if (this_resno > max_resno)
 		     max_resno = this_resno;
-		  coot::dunbrack dnbrk(SelResidues[ir], mol, rotamer_lowest_probability, 1);
+#ifdef USE_DUNBRACK_ROTAMERS
+		  coot::dunbrack d(SelResidues[ir], mol, rotamer_lowest_probability, 1);
+#else
+// 		  std::cout << "DEBUG:: rotamers_from_mol on residue: "
+// 			    << SelResidues[ir] << std::endl;
+		  coot::richardson_rotamer d(SelResidues[ir], mol, rotamer_lowest_probability, 1);
+#endif // USE_DUNBRACK_ROTAMERS
 		  // flag for assigned,                    1 
 		  // unassigned due to missing atoms,      0 
 		  // unassigned due to rotamer not found. -1
 		  // unassigned due to GLY/ALA            -2
-		  std::pair<short int,double> d_score = dnbrk.probability_of_this_rotamer();
+		  std::pair<short int,double> d_score = d.probability_of_this_rotamer();
 		  double distortion = 0.0;
 		  std::string str = int_to_string(this_resno);
 		  str += chain_id;
@@ -788,17 +806,22 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::rotamers_from_residue_selection(PCResidue *SelResidues,
 						 int nSelResidues, int imol) {
-
+   
    std::vector<coot::geometry_graph_block_info_generic> v;
    for (int ires=0; ires<nSelResidues; ires++) {
       int this_resno = SelResidues[ires]->GetSeqNum();
       std::string chain_id = SelResidues[ires]->GetChainID();
-      coot::dunbrack dnbrk(SelResidues[ires], 0, rotamer_lowest_probability, 1);
+#ifdef USE_DUNBRACK_ROTAMERS			
+      coot::dunbrack d(SelResidues[ires], 0, rotamer_lowest_probability, 1);
+#else			
+      coot::richardson_rotamer d(SelResidues[ires], 0, rotamer_lowest_probability, 1);
+#endif // USE_DUNBRACK_ROTAMERS
+      
       // flag for assigned,                    1 
       // unassigned due to missing atoms,      0 
       // unassigned due to rotamer not found. -1
       // unassigned due to GLY/ALA            -2
-      std::pair<short int,double> d_score = dnbrk.probability_of_this_rotamer();
+      std::pair<short int,double> d_score = d.probability_of_this_rotamer();
       double distortion = 0.0;
       std::string str = int_to_string(this_resno);
       str += chain_id;

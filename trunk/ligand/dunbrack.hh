@@ -29,14 +29,10 @@ namespace coot {
 
    class dunbrack : public rotamer {
 
-      float probability_limit; 
-      const CMMDBManager *stored_mol;
-
       // void add_all_rotamers();  // an autogen function
 
       contact_info getcontacts(const atom_selection_container_t &asc) const;
 
-      std::vector<CAtom *> ordered_residue_atoms(CResidue *residue_p) const;
       float d2rad(float degrees) const;
       std::vector<std::vector<std::string> >
       rotamer_atoms(const std::string &residue_name) const; 
@@ -65,7 +61,7 @@ namespace coot {
 	       CMMDBManager *mol,
 	       float lowest_probability) :
 	 rotamer(residue, 0) {
-	 probability_limit = lowest_probability;
+	 set_probability_limit(lowest_probability);
 	 stored_mol = mol;
       	 // add_all_rotamers();
 	 // setup_chi_atom_pairs(); // in dunbrack at least,
@@ -78,7 +74,7 @@ namespace coot {
 	       float lowest_probability,
 	       short int add_extra_PHE_and_TYR_rotamers_flag) :
 	 rotamer(residue, add_extra_PHE_and_TYR_rotamers_flag) {
-	 probability_limit = lowest_probability;
+	 set_probability_limit(lowest_probability);
 	 stored_mol = mol;
       	 // add_all_rotamers();
 	 // setup_chi_atom_pairs(); // in dunbrack at least,
@@ -94,12 +90,9 @@ namespace coot {
       
       // Return NULL if no residues available for this residue type
       // 
-      CResidue *GetResidue(int i_rot) const; // rotamer/button number
       std::vector<float> probabilities() const;
-      std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 
 
       void info() const;
-      float Chi1(int i) const; // chi1 for the ith rotamer
 
 
       // maybe this will need to be a static, or a constructor that
