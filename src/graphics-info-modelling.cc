@@ -61,7 +61,11 @@
 
 #include "Cartesian.h"
 #include "Bond_lines.h"
+#ifdef USE_DUNBRACK_ROTAMERS
 #include "dunbrack.hh"
+#else 
+#include "richardson-rotamer.hh"
+#endif 
 
 #include "clipper/core/map_utils.h" // Map_stats
 #include "graphical_skel.h"
@@ -1928,7 +1932,11 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    CResidue *residue = g.molecules[imol].atom_sel.atom_selection[atom_index]->residue;
    
       
-   coot::dunbrack d(residue, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
+#ifdef USE_DUNBRACK_ROTAMERS			
+      coot::dunbrack d(residue, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
+#else			
+      coot::richardson_rotamer d(residue, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
+#endif // USE_DUNBRACK_ROTAMERS
 
    std::vector<float> probabilities = d.probabilities();
    // std::cout << "There are " << probabilities.size() << " probabilities"
@@ -2025,8 +2033,13 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
    }
    tres->TrimAtomTable();
 
+#ifdef USE_DUNBRACK_ROTAMERS			
    coot::dunbrack d(tres, molecules[imol].atom_sel.mol,
 		    rotamer_lowest_probability, 0);
+#else			
+   coot::richardson_rotamer d(tres, molecules[imol].atom_sel.mol,
+			      rotamer_lowest_probability, 0);
+#endif // USE_DUNBRACK_ROTAMERS
 
    // std::cout << "generate_moving_atoms_from_rotamer " << irot << std::endl;
 

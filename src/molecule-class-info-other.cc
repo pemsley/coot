@@ -57,7 +57,12 @@
 
 #include "molecule-class-info.h"
 
+#ifdef USE_DUNBRACK_ROTAMERS
 #include "dunbrack.hh"
+#else 
+#include "richardson-rotamer.hh"
+#endif 
+
 #include "ligand.hh"
 #include "coot-utils.hh"
 #include "coot-trim.hh"
@@ -1196,7 +1201,12 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
       std::string res_type(res->name);
       CResidue *copied_res = coot::deep_copy_this_residue(res, altloc, 0,
 							  atom_sel.UDDAtomIndexHandle);
+#ifdef USE_DUNBRACK_ROTAMERS			
       coot::dunbrack d(copied_res, atom_sel.mol, lowest_prob, 0);
+#else			
+      coot::richardson_rotamer d(copied_res, atom_sel.mol, lowest_prob, 0);
+#endif // USE_DUNBRACK_ROTAMERS
+      
       std::vector<float> probabilities = d.probabilities();
 //       std::cout << "debug afbr probabilities.size() " << probabilities.size()
 // 		<< " " << have_map_flag << std::endl;

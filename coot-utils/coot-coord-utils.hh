@@ -225,6 +225,8 @@ namespace coot {
    class graph_match_info_t {
    public:
       bool success;
+      // atom_match_names: ((atom_name_ref alt_conf_ref) (atom_name_wrk alt_conf_work))
+      std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > atom_match_names; 
       clipper::RTop_orth rtop;
       int n_match;
       double dist_score;
