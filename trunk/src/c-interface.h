@@ -638,6 +638,11 @@ void apply_redo();
 /*! \brief set the molecule number imol to be marked as having unsaved changes */
 void set_have_unsaved_changes(int imol);
 
+/* \brief does molecule number imol have unsaved changes?
+
+return -1 on bad imol, 0 on no unsaved changes, 1 on has unsaved changes */
+int have_unsaved_changes_p(int imol);
+
 
 /*! \brief set the molecule to which undo operations are done to
   molecule number imol */
@@ -4168,9 +4173,18 @@ void set_dti_stereo_mode(short int state);
 /*  ----------------------------------------------------------------------- */
 /*! \name CCP4mg Interface */
 /* \{ */
+/* \breif write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
 /* \} */
 
+/*  ----------------------------------------------------------------------- */
+/*                  CCP4MG Interface                                        */
+/*  ----------------------------------------------------------------------- */
+/*! \name Aux functions */
+/* \{ */
+/* \brief Create the "Laplacian" (-ve second derivative) of the given map. */
+int laplacian (int imol);
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Tips                                                    */
