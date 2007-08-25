@@ -338,9 +338,25 @@ coot::util::mean_and_variance(const clipper::Xmap<float> &xmap) {
 
 
 clipper::Xmap<float>
-coot::util::lapacian_transform(const clipper::Xmap<float> &xmap_in) {
+coot::util::laplacian_transform(const clipper::Xmap<float> &xmap_in) {
 
-   return xmap_in;
+   clipper::Xmap<float> laplacian = xmap_in;
+
+   
+   clipper::Coord_map pos;
+   float val;
+   clipper::Grad_map<float> grad;
+   clipper::Curv_map<float> curv;
+   
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap_in.first(); !ix.last(); ix.next())  {
+      // xmap_in.interp_curv(pos, val, grad, curv);
+      clipper::Interp_cubic::interp_curv(xmap_in, ix.coord().coord_map(), val, grad, curv);
+      val = curv.det();
+      laplacian[ix] = -val;
+   }
+   
+   return laplacian;
 }
 
 // Spin the torsioned atom round the rotatable bond and find the
