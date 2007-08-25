@@ -133,7 +133,7 @@ namespace coot {
 					 const clipper::Coord_orth &about_pt,
 					 float box_size);
 
-      clipper::Xmap<float> lapacian_transform(const clipper::Xmap<float> &xmap_in);
+      clipper::Xmap<float> laplacian_transform(const clipper::Xmap<float> &xmap_in);
 
       // Spin the torsioned atom round the rotatable bond and find the
       // orientation (in degrees) from the current position that is in
