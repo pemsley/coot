@@ -2197,6 +2197,19 @@ void set_have_unsaved_changes(int imol) {
    add_to_history_typed(cmd, args);
 }
 
+int have_unsaved_changes_p(int imol) {
+
+   int r = -1; 
+   if (imol<graphics_info_t::n_molecules) {
+      if (imol >= 0) {
+	 if (graphics_info_t::molecules[imol].has_model()) {
+	    r = graphics_info_t::molecules[imol].Have_unsaved_changes_p();
+	 }
+      }
+   }
+   return r; 
+
+} 
 
 /*  ------------------------------------------------------------------------ */
 /*                         Write PDB file:                                   */
@@ -5659,3 +5672,21 @@ int get_monomer(const char *three_letter_code) {
 
    return imol;
 } 
+
+// not the write place for this function.  c-interface-map.cc would be better.
+int laplacian (int imol) {
+
+   int iret = -1;
+   if (is_valid_map_molecule(imol)) {
+      clipper::Xmap<float> xmap = coot::util::laplacian_transform(graphics_info_t::molecules[imol].xmap_list[0]);
+      int new_molecule_number = graphics_info_t::n_molecules;
+      std::string label = "Laplacian of ";
+      label += graphics_info_t::molecules[imol].name_;
+      graphics_info_t g;
+      g.expand_molecule_space_maybe();
+      graphics_info_t::molecules[new_molecule_number].new_map(xmap, label);
+      iret = new_molecule_number;
+      graphics_info_t::n_molecules++;
+   }
+   return iret;
+}
