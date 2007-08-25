@@ -21,6 +21,39 @@
 	     (ice-9 rdelim))
 (use-modules (goosh))
 
+;; Macro to tidy up a a setup of functions to be run with no backup
+;; for a particular molecule.
+;;
+;; func is a thunk.
+;;  
+(defmacro with-no-backups (imol func)
+  
+  `(begin
+     (let ((b-state (backup-state ,imol)))
+       (turn-off-backup ,imol)
+       (,func)
+       (if (= 1 b-state)
+	   (turn-on-backup ,imol)))))
+
+;; Macro to tidy up a set of functions to be run with automatic
+;; accepting of the refinement
+;; 
+;; funcs is a normal set of functions (not a thunk)
+;; 
+(defmacro with-auto-accept funcs
+
+  `(begin
+     (let ((replace-state (refinement-immediate-replacement-state)))
+       (set-refinement-immediate-replacement 0)
+       ,@funcs
+       (if (= replace-state 1)
+	   (set-refinement-immediate-replacement 1)))))
+; e.g.:
+; (with-auto-accept 
+;   (format #t "tum tee tumm...~%")
+;   (format #t "tra la la...~%"))
+
+
 ;; Return a list of molecule numbers (closed and open) The elements of
 ;; the returned list need to be tested against
 ;; is-valid-model-molecule?
@@ -117,28 +150,21 @@
 (define rotation-center rotation-centre) ; maybe there is a better
 					 ; place for US spellings.  (There is now.)
 
-;;; Make list of integers, @var{a} to @var{b}: eg (2 3 4 5)
-;;;
-(define (number-list-non-tail-recursive a b)
 
-  (cond
-   ((= a b) (list a))
-   ((> a b) '())
-   (else
-    (cons a (number-list-non-tail-recursive (+ a 1) b)))))
 
-;;; Make list of integers, @var{a} to @var{b}: @emph{e.g.} (2 3 4 5)
-;;;
-;;; This is not tail-recursive either, of course, but it doesn't
-;;; overflow the stack for number-lists > 250.
-;;;
+;;; Make list of integers, @var{a} to @var{b}: eg (number-list 2 5) ->
+;;; (2 3 4 5)
+;; 
 (define (number-list a b)
 
-  (let ((ls '()))
-    (while (<= a b)
-	   (set! ls (cons a ls))
-	   (set! a (+ a 1)))
-    (reverse ls)))
+  (let loop ((count a)
+	     (acc '()))
+    (cond
+     ((> count b) (reverse acc))
+     (else
+      (loop (+ count 1) (cons count acc))))))
+
+
 
 ;;; ls must be a list of strings, atom must be a string.
 ;;; 
