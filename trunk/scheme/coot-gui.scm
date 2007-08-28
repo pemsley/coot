@@ -192,8 +192,7 @@
 ;; when user hits "Go".  The handle-go-function accepts one argument
 ;; that is the entry text when the go button is pressed.
 ;; 
-(define generic-single-entry
-  (lambda (function-label entry-1-default-text go-button-label handle-go-function)
+(define (generic-single-entry function-label entry-1-default-text go-button-label handle-go-function)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (vbox (gtk-vbox-new #f 0))
@@ -235,7 +234,7 @@
 				(gtk-widget-destroy window)))
 			  #f))
 
-    (gtk-widget-show-all window))))
+    (gtk-widget-show-all window)))
 
 ;; generic double entry widget, now with a check button
 ;; 
@@ -408,111 +407,110 @@
 ;; In this case, each baddie can have a function at the end which is
 ;; called when the fix button is clicked.
 ;; 
-(define interesting-things-with-fix-maybe
-  (lambda (title baddie-list)
+(define (interesting-things-with-fix-maybe title baddie-list)
 
-    ;; does this baddie have a fix at the end?.  If yes, return the
-    ;; func, if not, return #f.
-    (define baddie-had-fix?
-      (lambda (baddie)
+  ;; does this baddie have a fix at the end?.  If yes, return the
+  ;; func, if not, return #f.
+  (define baddie-had-fix?
+    (lambda (baddie)
 
-	(let ((l (length baddie)))
-	  (if (< l 5)
-	      #f
-	      (let ((func-maybe (list-ref baddie (- l 1))))
-	         (if (procedure? func-maybe)
-		     func-maybe
-		     #f))))))
+      (let ((l (length baddie)))
+	(if (< l 5)
+	    #f
+	    (let ((func-maybe (list-ref baddie (- l 1))))
+	      (if (procedure? func-maybe)
+		  func-maybe
+		  #f))))))
 
-    ;; main body	
-    (let* ((window (gtk-window-new 'toplevel))
-	   (scrolled-win (gtk-scrolled-window-new))
-	   (outside-vbox (gtk-vbox-new #f 2))
-	   (inside-vbox (gtk-vbox-new #f 0)))
-      
-      (gtk-window-set-default-size window 250 250)
-      (gtk-window-set-title window title)
-      (gtk-container-border-width inside-vbox 4)
-      
-      (gtk-container-add window outside-vbox)
-      (gtk-container-add outside-vbox scrolled-win)
-      (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
-      (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
-      
-      (let loop ((baddie-items baddie-list))
+  ;; main body	
+  (let* ((window (gtk-window-new 'toplevel))
+	 (scrolled-win (gtk-scrolled-window-new))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-vbox (gtk-vbox-new #f 0)))
+    
+    (gtk-window-set-default-size window 250 250)
+    (gtk-window-set-title window title)
+    (gtk-container-border-width inside-vbox 4)
+    
+    (gtk-container-add window outside-vbox)
+    (gtk-container-add outside-vbox scrolled-win)
+    (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
+    (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+    
+    (let loop ((baddie-items baddie-list))
 
-	(cond 
-	 ((null? baddie-items) 'done)
-	 ((not (list? (car baddie-items))) ; skip this badly formatted baddie
-	  (loop (cdr baddie-items)))
-	 (else
-	  (let* ((hbox (gtk-hbox-new #f 0)) ; hbox to contain Baddie button and 
+      (cond 
+       ((null? baddie-items) 'done)
+       ((not (list? (car baddie-items))) ; skip this badly formatted baddie
+	(loop (cdr baddie-items)))
+       (else
+	(let* ((hbox (gtk-hbox-new #f 0)) ; hbox to contain Baddie button and 
 					; Fix it button
-		 (label (car (car baddie-items)))
-		 (button (gtk-button-new-with-label label)))
+	       (label (car (car baddie-items)))
+	       (button (gtk-button-new-with-label label)))
 
-	    ; (gtk-box-pack-start inside-vbox button #f #f 2) no buttons hbox
-	    (gtk-box-pack-start inside-vbox hbox #f #f 2)
-	    (gtk-box-pack-start hbox button #f #f 2)
-	    
-	    ;; add the a button for the fix func if it exists.  Add
-	    ;; the callback.
-	    (let ((fix-func (baddie-had-fix? (car baddie-items))))
-	      (if (procedure? fix-func)
-		  (let ((fix-button (gtk-button-new-with-label "  Fix  ")))
-		    (gtk-box-pack-start hbox fix-button #f #f 2)
-		    (gtk-widget-show fix-button)
-		    (gtk-signal-connect fix-button "clicked" (lambda () 
-							       (fix-func))))))
-					
-	    (if (= (length (car baddie-items)) 4) ; "e.g ("blob" 1 2 3)
+					; (gtk-box-pack-start inside-vbox button #f #f 2) no buttons hbox
+	  (gtk-box-pack-start inside-vbox hbox #f #f 2)
+	  (gtk-box-pack-start hbox button #f #f 2)
+	  
+	  ;; add the a button for the fix func if it exists.  Add
+	  ;; the callback.
+	  (let ((fix-func (baddie-had-fix? (car baddie-items))))
+	    (if (procedure? fix-func)
+		(let ((fix-button (gtk-button-new-with-label "  Fix  ")))
+		  (gtk-box-pack-start hbox fix-button #f #f 2)
+		  (gtk-widget-show fix-button)
+		  (gtk-signal-connect fix-button "clicked" (lambda () 
+							     (fix-func))))))
+	  
+	  (if (= (length (car baddie-items)) 4) ; "e.g ("blob" 1 2 3)
 
-		; we go to a place
-		(gtk-signal-connect button "clicked" 
+					; we go to a place
+	      (gtk-signal-connect button "clicked" 
+				  (lambda args 
+				    (apply set-rotation-centre
+					   (cdr (car baddie-items)))))
+
+					; else we go to an atom 
+	      (let ((mol-no (car (cdr (car baddie-items))))
+					; current practice, 
+					; (atom-info (cdr (cdr (car baddie-items)))))
+					; but we need to kludge out just the chain-id resno 
+					; and atom name, because we use 
+					; set-go-to-atom-chain-residue-atom-name and it doesn't 
+					; take args for altconf and ins-code
+		    (atom-info (list (list-ref (car baddie-items) 2)
+				     (list-ref (car baddie-items) 3)
+				     (list-ref (car baddie-items) 5))))
+
+		(gtk-signal-connect button "clicked"
 				    (lambda args 
-				      (apply set-rotation-centre
-					     (cdr (car baddie-items)))))
+				      (format #t "Attempt to go to chain: ~s resno: ~s atom-name: ~s~%" 
+					      (car atom-info) (cadr atom-info) (caddr atom-info))
+				      (set-go-to-atom-molecule mol-no)
+				      (let ((success (apply set-go-to-atom-chain-residue-atom-name
+							    atom-info)))
+					(if (= 0 success) ; failed
+					    (let* ((new-name (unmangle-hydrogen-name (caddr atom-info)))
+						   (success2 (set-go-to-atom-chain-residue-atom-name
+							      (car atom-info) (cadr atom-info) new-name)))
+					      (if (= 0 success2) 
+						  (begin 
+						    (format #t "Failed to centre on demangled name: ~s~%"
+							    new-name)
+						    (set-go-to-atom-chain-residue-atom-name
+						     (car atom-info) (cadr atom-info) " CA "))))))))))
 
-		; else we go to an atom 
-		(let ((mol-no (car (cdr (car baddie-items))))
-		      ; current practice, 
-		      ; (atom-info (cdr (cdr (car baddie-items)))))
-		      ; but we need to kludge out just the chain-id resno 
-		      ; and atom name, because we use 
-		      ; set-go-to-atom-chain-residue-atom-name and it doesn't 
-		      ; take args for altconf and ins-code
-		      (atom-info (list (list-ref (car baddie-items) 2)
-				       (list-ref (car baddie-items) 3)
-				       (list-ref (car baddie-items) 5))))
+	  (loop (cdr baddie-items))))))
 
-		  (gtk-signal-connect button "clicked"
-				      (lambda args 
-					(format #t "Attempt to go to chain: ~s resno: ~s atom-name: ~s~%" 
-						(car atom-info) (cadr atom-info) (caddr atom-info))
-					(set-go-to-atom-molecule mol-no)
-					(let ((success (apply set-go-to-atom-chain-residue-atom-name
-							       atom-info)))
-					  (if (= 0 success) ; failed
-					      (let* ((new-name (unmangle-hydrogen-name (caddr atom-info)))
-						     (success2 (set-go-to-atom-chain-residue-atom-name
-								(car atom-info) (cadr atom-info) new-name)))
-						(if (= 0 success2) 
-						    (begin 
-						      (format #t "Failed to centre on demangled name: ~s~%"
-							      new-name)
-						      (set-go-to-atom-chain-residue-atom-name
-						       (car atom-info) (cadr atom-info) " CA "))))))))))
+    (gtk-container-border-width outside-vbox 4)
+    (let ((ok-button (gtk-button-new-with-label "  OK  ")))
+      (gtk-box-pack-start outside-vbox ok-button #f #f 6)
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window))))
 
-	    (loop (cdr baddie-items))))))
-
-      (gtk-container-border-width outside-vbox 4)
-      (let ((ok-button (gtk-button-new-with-label "  OK  ")))
-	(gtk-box-pack-start outside-vbox ok-button #f #f 6)
-	(gtk-signal-connect ok-button "clicked"
-			    (lambda args
-			      (gtk-widget-destroy window))))
-
-      (gtk-widget-show-all window))))
+    (gtk-widget-show-all window)))
 
 ;; Fill an option menu with the "right type" of molecules.  If
 ;; filter-function returns #t then add it.  Typical value of
@@ -557,6 +555,7 @@
 ;; molecules.
 ;; 
 (define (fill-option-menu-with-coordinates-mol-options menu)
+
   (fill-option-menu-with-mol-options menu valid-model-molecule?))
 
 ;; 
@@ -637,54 +636,53 @@
 
 
 
-(define molecule-chooser-gui-generic
-  (lambda (chooser-label callback-function option-menu-fill-function)
+(define (molecule-chooser-gui-generic chooser-label callback-function option-menu-fill-function)
 
-    (let* ((window (gtk-window-new 'toplevel))
-	   (label (gtk-label-new chooser-label))
-	   (vbox (gtk-vbox-new #f 6))
-	   (hbox-buttons (gtk-hbox-new #f 5))
-	   (menu (gtk-menu-new))
-	   (option-menu (gtk-option-menu-new))
-	   (ok-button (gtk-button-new-with-label "  OK  "))
-	   (cancel-button (gtk-button-new-with-label " Cancel "))
-	   (h-sep (gtk-hseparator-new))
-	   (model-mol-list (option-menu-fill-function menu)))
+  (let* ((window (gtk-window-new 'toplevel))
+	 (label (gtk-label-new chooser-label))
+	 (vbox (gtk-vbox-new #f 6))
+	 (hbox-buttons (gtk-hbox-new #f 5))
+	 (menu (gtk-menu-new))
+	 (option-menu (gtk-option-menu-new))
+	 (ok-button (gtk-button-new-with-label "  OK  "))
+	 (cancel-button (gtk-button-new-with-label " Cancel "))
+	 (h-sep (gtk-hseparator-new))
+	 (model-mol-list (option-menu-fill-function menu)))
 
-      (gtk-window-set-default-size window 370 100)
-      (gtk-container-add window vbox)
-      (gtk-box-pack-start vbox label #f #f 5)
-      (gtk-box-pack-start vbox option-menu #t #t 0)
-      (gtk-box-pack-start vbox h-sep #t #f 2)
-      (gtk-box-pack-start vbox hbox-buttons #f #f 5)
-      (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
-      (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
-      
-      (gtk-option-menu-set-menu option-menu menu)
-      
-      ;; button callbacks:
-      ;;
-      (gtk-signal-connect ok-button "clicked"
-			  (lambda args
-			    ;; what is the molecule number of the option menu?
-			    (let ((active-mol-no (get-option-menu-active-molecule 
-						  option-menu
-						  model-mol-list)))
+    (gtk-window-set-default-size window 370 100)
+    (gtk-container-add window vbox)
+    (gtk-box-pack-start vbox label #f #f 5)
+    (gtk-box-pack-start vbox option-menu #t #t 0)
+    (gtk-box-pack-start vbox h-sep #t #f 2)
+    (gtk-box-pack-start vbox hbox-buttons #f #f 5)
+    (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
+    (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
+    
+    (gtk-option-menu-set-menu option-menu menu)
+    
+    ;; button callbacks:
+    ;;
+    (gtk-signal-connect ok-button "clicked"
+			(lambda args
+			  ;; what is the molecule number of the option menu?
+			  (let ((active-mol-no (get-option-menu-active-molecule 
+						option-menu
+						model-mol-list)))
 
-			      (if (not (number? active-mol-no))
-				  (begin ;; something bad happend
-				    (format #t "Failed to get a (molecule) number~%"))
+			    (if (not (number? active-mol-no))
+				(begin ;; something bad happend
+				  (format #t "Failed to get a (molecule) number~%"))
 
-				  (begin ;; good...
-				    (callback-function active-mol-no))))
-			      
-			    (gtk-widget-destroy window)))
+				(begin ;; good...
+				  (callback-function active-mol-no))))
+			  
+			  (gtk-widget-destroy window)))
 
-      (gtk-signal-connect cancel-button "clicked"
-			  (lambda args
-			    (gtk-widget-destroy window)))
-      
-      (gtk-widget-show-all window))))
+    (gtk-signal-connect cancel-button "clicked"
+			(lambda args
+			  (gtk-widget-destroy window)))
+    
+    (gtk-widget-show-all window)))
 
 ;; Fire up a molecule chooser dialog, with a given label and on OK we
 ;; call the call-back-fuction with an argument of the chosen molecule
@@ -877,39 +875,38 @@
 ;; menubar, then create it and return it. 
 ;; If it does exist, simply return it.
 ;;  
-(define coot-menubar-menu
-  (lambda (menu-label)
-    
-    (define menu-bar-label-list
-      (lambda () 
-	(map 
-	 (lambda (menu-child)
-	   (let* ((ac-lab-ls (gtk-container-children menu-child))
-		  ;; ac-lab-ls is a GtkAccelLabel in a list
-		  (ac-lab (car ac-lab-ls))
-		  ;; ac-lab-ls is a simple GtkAccelLabel
-		  (lab (gtk-label-get ac-lab)))
-	     (cons lab (gtk-menu-item-submenu menu-child)))) ; improper list
-	 (gtk-container-children (coot-main-menubar)))))
+(define (coot-menubar-menu menu-label)
+  
+  (define menu-bar-label-list
+    (lambda () 
+      (map 
+       (lambda (menu-child)
+	 (let* ((ac-lab-ls (gtk-container-children menu-child))
+		;; ac-lab-ls is a GtkAccelLabel in a list
+		(ac-lab (car ac-lab-ls))
+		;; ac-lab-ls is a simple GtkAccelLabel
+		(lab (gtk-label-get ac-lab)))
+	   (cons lab (gtk-menu-item-submenu menu-child)))) ; improper list
+       (gtk-container-children (coot-main-menubar)))))
 
-    ;; main body
-    ;; 
-    (let ((found-menu
-	   (let f ((ls (menu-bar-label-list)))
-	     (cond 
-	      ((null? ls) #f)
-	      ((string=? menu-label (car (car ls)))
-	       (cdr (car ls)))
-	      (else 
-	       (f (cdr ls)))))))
-      (if found-menu
-	  found-menu
-	  (let ((menu (gtk-menu-new))
-		(menuitem (gtk-menu-item-new-with-label menu-label)))
-	    (gtk-menu-item-set-submenu menuitem menu)
-	    (gtk-menu-bar-append (coot-main-menubar) menuitem)
-	    (gtk-widget-show menuitem)
-	    menu)))))
+  ;; main body
+  ;; 
+  (let ((found-menu
+	 (let f ((ls (menu-bar-label-list)))
+	   (cond 
+	    ((null? ls) #f)
+	    ((string=? menu-label (car (car ls)))
+	     (cdr (car ls)))
+	    (else 
+	     (f (cdr ls)))))))
+    (if found-menu
+	found-menu
+	(let ((menu (gtk-menu-new))
+	      (menuitem (gtk-menu-item-new-with-label menu-label)))
+	  (gtk-menu-item-set-submenu menuitem menu)
+	  (gtk-menu-bar-append (coot-main-menubar) menuitem)
+	  (gtk-widget-show menuitem)
+	  menu))))
 
 ;; test script
 ;(let ((menu (coot-menubar-menu "File")))
@@ -926,18 +923,16 @@
 ;; 
 ;; activate-function is a thunk.
 ;; 
-(define add-simple-coot-menu-menuitem
-  (lambda (menu menu-item-label activate-function)
+(define (add-simple-coot-menu-menuitem menu menu-item-label activate-function)
 
-    (let ((submenu (gtk-menu-new))
-	  (sub-menuitem (gtk-menu-item-new-with-label menu-item-label)))
-      
-      (gtk-menu-append menu sub-menuitem)
-      (gtk-widget-show sub-menuitem)
-      
-      (gtk-signal-connect sub-menuitem "activate"
-			  activate-function))))
-
+  (let ((submenu (gtk-menu-new))
+	(sub-menuitem (gtk-menu-item-new-with-label menu-item-label)))
+    
+    (gtk-menu-append menu sub-menuitem)
+    (gtk-widget-show sub-menuitem)
+    
+    (gtk-signal-connect sub-menuitem "activate"
+			activate-function)))
 
 
 
@@ -973,8 +968,7 @@
 ;; which is the button label text the second item is a lambda
 ;; function, what to do when the button is pressed.
 ;; 
-(define (generic-buttons-dialog dialog-name 
-				button-list)
+(define (generic-buttons-dialog dialog-name button-list)
 
   ;; main body	
   (let* ((window (gtk-window-new 'toplevel))
@@ -1098,74 +1092,71 @@
 ;;
 ;; Add this widget to the vbox here.
 ;;
-(define entry+do-button
-  (lambda (vbox hint-text button-label button-press-func)
+(define (entry+do-button vbox hint-text button-label button-press-func)
 
-    (let ((hbox (gtk-hbox-new #f 0))
-	  (entry (gtk-entry-new))
-	  (button (gtk-button-new-with-label button-label))
-	  (label (gtk-label-new hint-text)))
-      
-      (gtk-box-pack-start hbox label #f #f 2)
-      (gtk-box-pack-start hbox entry #t #t 2)
-      (gtk-box-pack-start hbox button #f #f 2)
-      (gtk-signal-connect button "clicked" 
-			  (lambda ()
-			    (button-press-func entry)))
+  (let ((hbox (gtk-hbox-new #f 0))
+	(entry (gtk-entry-new))
+	(button (gtk-button-new-with-label button-label))
+	(label (gtk-label-new hint-text)))
+    
+    (gtk-box-pack-start hbox label #f #f 2)
+    (gtk-box-pack-start hbox entry #t #t 2)
+    (gtk-box-pack-start hbox button #f #f 2)
+    (gtk-signal-connect button "clicked" 
+			(lambda ()
+			  (button-press-func entry)))
 
-      (gtk-widget-show label)
-      (gtk-widget-show button)
-      (gtk-widget-show entry)
-      (gtk-widget-show hbox)
-      (gtk-box-pack-start vbox hbox #t #f)
-      entry))) ; return the entry so that we can ask what it says elsewhere
+    (gtk-widget-show label)
+    (gtk-widget-show button)
+    (gtk-widget-show entry)
+    (gtk-widget-show hbox)
+    (gtk-box-pack-start vbox hbox #t #f)
+    entry))) ; return the entry so that we can ask what it says elsewhere
 
 ;; pack a hint text and a molecule chooser option menu into the given vbox.
 ;; 
 ;; return the option-menu and model molecule list:
-(define generic-molecule-chooser
-  (lambda (hbox hint-text)
+(define (generic-molecule-chooser hbox hint-text)
 
-    (let* ((menu (gtk-menu-new))
-	   (option-menu (gtk-option-menu-new))
-	   (label (gtk-label-new hint-text))
-	   (model-mol-list (fill-option-menu-with-coordinates-mol-options menu)))
-      
-      (gtk-box-pack-start hbox label #f #f 2)
-      (gtk-box-pack-start hbox option-menu #t #t 2)
-      
-      (gtk-option-menu-set-menu option-menu menu)
-      (list option-menu model-mol-list))))
+  (let* ((menu (gtk-menu-new))
+	 (option-menu (gtk-option-menu-new))
+	 (label (gtk-label-new hint-text))
+	 (model-mol-list (fill-option-menu-with-coordinates-mol-options menu)))
+    
+    (gtk-box-pack-start hbox label #f #f 2)
+    (gtk-box-pack-start hbox option-menu #t #t 2)
+    
+    (gtk-option-menu-set-menu option-menu menu)
+    (list option-menu model-mol-list))))
     
 
 ;; Return an entry, insert the widget into the hbox in this function
 ;; 
-(define file-selector-entry
-  (lambda (hbox hint-text)
+(define (file-selector-entry hbox hint-text)
 
-    (let* ((vbox (gtk-vbox-new #f 0))
-	   (entry 
-	    (entry+do-button vbox hint-text "  File...  "
-			     (lambda (entry)
-			       (let* ((fs-window (gtk-file-selection-new "file selection")))
-				 (gtk-signal-connect 
-				  (gtk-file-selection-ok-button fs-window)
-				  "clicked" 
-				  (lambda ()
-				    (let ((t (gtk-file-selection-get-filename fs-window)))
-				      (format #t "~s~%" t)
-				      (gtk-entry-set-text entry t)
-				      (gtk-widget-destroy fs-window))))
-				 (gtk-signal-connect 
-				  (gtk-file-selection-cancel-button fs-window)
-				  "clicked" 
-				  (lambda ()
-				    (gtk-widget-destroy fs-window)))
-				 (gtk-widget-show fs-window))))))
+  (let* ((vbox (gtk-vbox-new #f 0))
+	 (entry 
+	  (entry+do-button vbox hint-text "  File...  "
+			   (lambda (entry)
+			     (let* ((fs-window (gtk-file-selection-new "file selection")))
+			       (gtk-signal-connect 
+				(gtk-file-selection-ok-button fs-window)
+				"clicked" 
+				(lambda ()
+				  (let ((t (gtk-file-selection-get-filename fs-window)))
+				    (format #t "~s~%" t)
+				    (gtk-entry-set-text entry t)
+				    (gtk-widget-destroy fs-window))))
+			       (gtk-signal-connect 
+				(gtk-file-selection-cancel-button fs-window)
+				"clicked" 
+				(lambda ()
+				  (gtk-widget-destroy fs-window)))
+			       (gtk-widget-show fs-window))))))
 
-      (gtk-box-pack-start hbox vbox #f #f 2)
-      (gtk-widget-show vbox)
-      entry)))
+    (gtk-box-pack-start hbox vbox #f #f 2)
+    (gtk-widget-show vbox)
+    entry))
 
 
 ;; The gui for the strand placement function
@@ -1344,8 +1335,7 @@
 ;; The button-1-action function takes no arguments.
 ;; The button-2-action function takes as an argument the imol
 ;; 
-(define (dialog-box-of-pairs-of-buttons 
-	 imol window-name geometry buttons close-button-label)
+(define (dialog-box-of-pairs-of-buttons imol window-name geometry buttons close-button-label)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (scrolled-win (gtk-scrolled-window-new))

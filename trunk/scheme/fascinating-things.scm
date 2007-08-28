@@ -43,8 +43,7 @@
 ;;         (list specific-button-label-string button-red button-green button-blue
 ;;               specific-x specific-y specific-z)))))
 ;; 
-(define (fascinating-clusters-gui 
-	 window-name sorting-options cluster-list)
+(define (fascinating-clusters-gui window-name sorting-options cluster-list)
 
   ;; utility function
   (define (add-feature-buttons feature-list cluster-vbox)
