@@ -2023,6 +2023,14 @@ int mol_is_active(int imol);
  @return 1 for on, 0 for off */
 int map_is_displayed(int imol); 
 
+/*! \brief if on_or_off is 0 turn off all maps displayed, for other
+  values of on_or_off turn on all maps */
+void set_all_maps_displayed(int on_or_off);
+
+/*! \brief if on_or_off is 0 turn off all models displayed and active,
+  for other values of on_or_off turn on all models. */
+void set_all_models_displayed_and_active(int on_or_off);
+
 /*! \brief return the spacegroup of molecule number imol 
 
 @return "No Spacegroup" when the spacegroup of a molecule has not been

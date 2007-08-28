@@ -27,6 +27,13 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Fix Steven Graham's symmetry hydrogens bug.
 
+   o Fix Frank's SSM bug.
+
+   o Where else do I mess with the space group like I did at the end of 
+     unshelxing?  Fix that too.
+
+   o Fix non-orthorhombic aniso Us.
+
 
 
    o Activate test suite

@@ -3931,12 +3931,16 @@ create_display_control_window_glade (void)
   GtkWidget *vbox30;
   GtkWidget *display_control_vpaned;
   GtkWidget *paned_maps_vbox;
+  GtkWidget *hbox235;
   GtkWidget *label257;
+  GtkWidget *display_control_all_maps_togglebutton;
   GtkWidget *scrolledwindow21;
   GtkWidget *viewport13;
   GtkWidget *display_map_vbox;
   GtkWidget *paned_molecules_vbox;
+  GtkWidget *hbox236;
   GtkWidget *label258;
+  GtkWidget *display_control_all_models_togglebutton;
   GtkWidget *scrolledwindow22;
   GtkWidget *viewport14;
   GtkWidget *display_molecule_vbox;
@@ -3945,7 +3949,7 @@ create_display_control_window_glade (void)
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_size_request (display_control_window_glade, 400, 240);
-  gtk_window_set_title (GTK_WINDOW (display_control_window_glade), _("Display Control"));
+  gtk_window_set_title (GTK_WINDOW (display_control_window_glade), _("Display Manager"));
 
   vbox30 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox30);
@@ -3960,10 +3964,20 @@ create_display_control_window_glade (void)
   gtk_widget_show (paned_maps_vbox);
   gtk_paned_pack1 (GTK_PANED (display_control_vpaned), paned_maps_vbox, TRUE, TRUE);
 
-  label257 = gtk_label_new (_("Maps"));
+  hbox235 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox235);
+  gtk_box_pack_start (GTK_BOX (paned_maps_vbox), hbox235, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox235), 2);
+
+  label257 = gtk_label_new (_("   Maps              "));
   gtk_widget_show (label257);
-  gtk_box_pack_start (GTK_BOX (paned_maps_vbox), label257, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox235), label257, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label257), GTK_JUSTIFY_CENTER);
+
+  display_control_all_maps_togglebutton = gtk_toggle_button_new_with_mnemonic (_("   All   "));
+  gtk_widget_show (display_control_all_maps_togglebutton);
+  gtk_box_pack_start (GTK_BOX (hbox235), display_control_all_maps_togglebutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (display_control_all_maps_togglebutton), TRUE);
 
   scrolledwindow21 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow21);
@@ -3982,10 +3996,20 @@ create_display_control_window_glade (void)
   gtk_widget_show (paned_molecules_vbox);
   gtk_paned_pack2 (GTK_PANED (display_control_vpaned), paned_molecules_vbox, TRUE, TRUE);
 
-  label258 = gtk_label_new (_("Molecules"));
+  hbox236 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox236);
+  gtk_box_pack_start (GTK_BOX (paned_molecules_vbox), hbox236, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox236), 2);
+
+  label258 = gtk_label_new (_("   Molecules     "));
   gtk_widget_show (label258);
-  gtk_box_pack_start (GTK_BOX (paned_molecules_vbox), label258, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox236), label258, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label258), GTK_JUSTIFY_CENTER);
+
+  display_control_all_models_togglebutton = gtk_toggle_button_new_with_mnemonic (_("   All   "));
+  gtk_widget_show (display_control_all_models_togglebutton);
+  gtk_box_pack_start (GTK_BOX (hbox236), display_control_all_models_togglebutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (display_control_all_models_togglebutton), TRUE);
 
   scrolledwindow22 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow22);
@@ -4017,6 +4041,12 @@ create_display_control_window_glade (void)
   g_signal_connect ((gpointer) display_control_window_glade, "configure_event",
                     G_CALLBACK (on_display_control_window_glade_configure_event),
                     NULL);
+  g_signal_connect ((gpointer) display_control_all_maps_togglebutton, "toggled",
+                    G_CALLBACK (on_display_control_all_maps_togglebutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) display_control_all_models_togglebutton, "toggled",
+                    G_CALLBACK (on_display_control_all_models_togglebutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) display_control_ok_button, "clicked",
                     G_CALLBACK (on_display_control_ok_button_clicked),
                     NULL);
@@ -4026,12 +4056,16 @@ create_display_control_window_glade (void)
   GLADE_HOOKUP_OBJECT (display_control_window_glade, vbox30, "vbox30");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_vpaned, "display_control_vpaned");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, paned_maps_vbox, "paned_maps_vbox");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, hbox235, "hbox235");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, label257, "label257");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_all_maps_togglebutton, "display_control_all_maps_togglebutton");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, scrolledwindow21, "scrolledwindow21");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, viewport13, "viewport13");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_map_vbox, "display_map_vbox");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, paned_molecules_vbox, "paned_molecules_vbox");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, hbox236, "hbox236");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, label258, "label258");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_all_models_togglebutton, "display_control_all_models_togglebutton");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, scrolledwindow22, "scrolledwindow22");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, viewport14, "viewport14");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_molecule_vbox, "display_molecule_vbox");

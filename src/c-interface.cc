@@ -4918,7 +4918,42 @@ int map_is_displayed(int imol) {
    graphics_info_t g;
    return g.molecules[imol].drawit_for_map; 
 
+}
+
+/*! \brief if on_or_off is 0 turn off all maps displayed, for other
+  values of on_or_off turn on all maps */
+void set_all_maps_displayed(int on_or_off) {
+
+   graphics_info_t g;
+   int nm = graphics_info_t::n_molecules;
+   for (int imol=0; imol<nm; imol++) {
+      if (is_valid_map_molecule(imol)) {
+	 graphics_info_t::molecules[imol].set_mol_is_active(on_or_off);
+	 if (g.display_control_window())
+	    set_display_control_button_state(imol, "Displayed", on_or_off);
+      }
+   }
+   graphics_draw();
 } 
+
+/*! \brief if on_or_off is 0 turn off all models displayed and active,
+  for other values of on_or_off turn on all models. */
+void set_all_models_displayed_and_active(int on_or_off) {
+
+   graphics_info_t g;
+   int nm = graphics_info_t::n_molecules;
+   for (int imol=0; imol<nm; imol++) {
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t::molecules[imol].set_mol_is_active(on_or_off);
+	 if (g.display_control_window())
+	    set_display_control_button_state(imol, "Active", on_or_off);
+	 if (g.display_control_window())
+	    set_display_control_button_state(imol, "Displayed", on_or_off);
+      }
+   }
+   graphics_draw();
+}
+
 
 char *show_spacegroup(int imol) { 
 
