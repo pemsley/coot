@@ -19,6 +19,8 @@ Tue Jul  3 14:27:37 BST 2007
    o Don't display symmetry with hydrogens if the main molecule
      doesn't have them [Steven Graham]
 
+   o Frank's SSM crash.
+
    o Post-install slim the binaries
 
    o Test Cootaneer by building from just a map.
@@ -1439,9 +1441,74 @@ Sat Aug  4 14:36:06 BST 2007
 	something should be std::pair<std::string, std::string (orig, seq)
 	not just std::string
 
+        Hmm... perhaps a simple class then, because we need a flag to
+        say that this molecule has a sequence assigned to it.
+
+------
+Sat Aug  4 15:22:06 BST 2007
+
+   Something is going wrong on bubbles with the texi files.
+
+snafing coot docs...
+ERROR: In procedure list:
+ERROR: end of file
+grep: coot-gui.texi.tmp: No such file or directory
+
+* Fixed.
+
+----
+Sun Aug  5 00:29:27 BST 2007
+
+   Revisit the --as-needed patch from Donnie Berkholz
+
+   Try to apply (bits of) it and see what happens - problems on
+   feisty, I guess
+
+---
+Sun Aug  5 00:30:26 BST 2007
+
+   The X11 libs dependencies need to be revisited - I had to install
+   some stuff to compile - they should be tested for in configure.
+
+   Try with a gutsy pre-release?
+
+----
+Sun Aug  5 00:32:03 BST 2007
+
+   The Coot FAQ should be written as a texi (article?) document, so
+   that it has an index and toc.
+
+----
+Sat Aug 11 13:15:35 BST 2007
+
+   Icons
+   http://jimmac.musichall.cz/icons.php
+
+   Think about icons for info dialog and the like.
+
+
+----
+Sat Aug 11 15:51:42 BST 2007
+
+	world in connect-to-world is "cartoon globe" by lunanaut
+	Open Clip Art
+
+
+    crispy computer mouse for scroll wheel.
+
 
 -----
-Fri Aug 10 10:33:57 BST 2007
+
+http://www.itbusiness.ca/it/client/en/home/News.asp?id=44529&cid=11
+	
+The Novell SUSE Linux subscription model is considerably less painful,
+Chevalier argues, because it doesn't hit the capital expense budget
+and it can often be considered an operational expense, which is better
+from a tax perspective.
+
+
+--------
+
 
 	Schedule some time to do the CISPEP cards vs refmac.
 
@@ -1543,6 +1610,5 @@ template type double.  Would things be faster with a float?
 
 clipper::Grad_orth<double>
 coot::restraints_container_t::electron_density_gradient_at_point(const clipper::Coord_orth &ao);
-
 
 
