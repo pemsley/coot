@@ -7585,3 +7585,30 @@ on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
 }
 
 #endif 
+
+void
+on_display_control_all_maps_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (togglebutton->active)
+    set_all_maps_displayed(1);
+  else 
+    set_all_maps_displayed(0);
+
+}
+
+
+void
+on_display_control_all_models_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active)
+    set_all_models_displayed_and_active(1);
+  else 
+    set_all_models_displayed_and_active(0);
+
+}
+

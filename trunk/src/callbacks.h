@@ -2861,3 +2861,13 @@ on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
 
 #endif 
 
+
+void
+on_display_control_all_maps_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_display_control_all_models_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

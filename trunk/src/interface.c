@@ -3621,12 +3621,16 @@ create_display_control_window_glade (void)
   GtkWidget *vbox30;
   GtkWidget *display_control_vpaned;
   GtkWidget *paned_maps_vbox;
+  GtkWidget *hbox151;
   GtkWidget *label257;
+  GtkWidget *display_control_all_maps_togglebutton;
   GtkWidget *scrolledwindow21;
   GtkWidget *viewport13;
   GtkWidget *display_map_vbox;
   GtkWidget *paned_molecules_vbox;
+  GtkWidget *hbox152;
   GtkWidget *label258;
+  GtkWidget *display_control_all_models_togglebutton;
   GtkWidget *scrolledwindow22;
   GtkWidget *viewport14;
   GtkWidget *display_molecule_vbox;
@@ -3660,12 +3664,28 @@ create_display_control_window_glade (void)
   gtk_widget_show (paned_maps_vbox);
   gtk_paned_pack1 (GTK_PANED (display_control_vpaned), paned_maps_vbox, TRUE, TRUE);
 
-  label257 = gtk_label_new (_("Maps"));
+  hbox151 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox151);
+  gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "hbox151", hbox151,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox151);
+  gtk_box_pack_start (GTK_BOX (paned_maps_vbox), hbox151, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox151), 2);
+
+  label257 = gtk_label_new (_("   Maps          "));
   gtk_widget_ref (label257);
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "label257", label257,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label257);
-  gtk_box_pack_start (GTK_BOX (paned_maps_vbox), label257, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox151), label257, FALSE, FALSE, 0);
+
+  display_control_all_maps_togglebutton = gtk_toggle_button_new_with_label (_("   All   "));
+  gtk_widget_ref (display_control_all_maps_togglebutton);
+  gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "display_control_all_maps_togglebutton", display_control_all_maps_togglebutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (display_control_all_maps_togglebutton);
+  gtk_box_pack_start (GTK_BOX (hbox151), display_control_all_maps_togglebutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (display_control_all_maps_togglebutton), TRUE);
 
   scrolledwindow21 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_ref (scrolledwindow21);
@@ -3695,12 +3715,28 @@ create_display_control_window_glade (void)
   gtk_widget_show (paned_molecules_vbox);
   gtk_paned_pack2 (GTK_PANED (display_control_vpaned), paned_molecules_vbox, TRUE, TRUE);
 
-  label258 = gtk_label_new (_("Molecules"));
+  hbox152 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox152);
+  gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "hbox152", hbox152,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox152);
+  gtk_box_pack_start (GTK_BOX (paned_molecules_vbox), hbox152, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox152), 2);
+
+  label258 = gtk_label_new (_("   Molecules   "));
   gtk_widget_ref (label258);
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "label258", label258,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label258);
-  gtk_box_pack_start (GTK_BOX (paned_molecules_vbox), label258, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox152), label258, FALSE, FALSE, 0);
+
+  display_control_all_models_togglebutton = gtk_toggle_button_new_with_label (_("   All   "));
+  gtk_widget_ref (display_control_all_models_togglebutton);
+  gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "display_control_all_models_togglebutton", display_control_all_models_togglebutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (display_control_all_models_togglebutton);
+  gtk_box_pack_start (GTK_BOX (hbox152), display_control_all_models_togglebutton, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (display_control_all_models_togglebutton), TRUE);
 
   scrolledwindow22 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_ref (scrolledwindow22);
@@ -3746,6 +3782,12 @@ create_display_control_window_glade (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (display_control_window_glade), "configure_event",
                       GTK_SIGNAL_FUNC (on_display_control_window_glade_configure_event),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (display_control_all_maps_togglebutton), "toggled",
+                      GTK_SIGNAL_FUNC (on_display_control_all_maps_togglebutton_toggled),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (display_control_all_models_togglebutton), "toggled",
+                      GTK_SIGNAL_FUNC (on_display_control_all_models_togglebutton_toggled),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (display_control_ok_button), "clicked",
                       GTK_SIGNAL_FUNC (on_display_control_ok_button_clicked),
