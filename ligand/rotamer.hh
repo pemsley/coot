@@ -35,7 +35,7 @@ namespace coot {
       std::pair<short int, double> probability_of_this_rotamer(const std::vector<double> &chi_angles,
 							       const std::vector<coot::simple_rotamer> &rots) const;
       std::vector<std::vector<std::string> >
-      coot::rotamer::rotamer_atoms(const std::string &residue_name) const;
+      rotamer_atoms(const std::string &residue_name) const;
       std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms, PCAtom *residue_atoms, int n_residue_atoms) const;
       double chi_torsion(const std::vector<int> &chi_angle_atom_indices,
 			 PCAtom *residue_atoms);
