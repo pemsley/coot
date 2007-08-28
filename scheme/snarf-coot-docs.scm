@@ -33,6 +33,10 @@
 	      (strip-extension source-file) ".texi"))
 	    (tmp-file (string-append doc-file ".tmp")))
        
+       ;; problems snarfing coot docs?  check that the function-name
+       ;; and args are define all on one line.
+       (format #t "running goosh-command guile-tools tmp-file: ~s source-file ~s ~%" 
+	       tmp-file source-file)
        (goosh-command "guile-tools" 
 		      (list "doc-snarf"
 			    "--texinfo"
@@ -40,10 +44,13 @@
 			    tmp-file
 			    source-file)
 		      '() "snarf-log" #t)
+       (format #t "   done goosh-command guile-tools~%")
        (goosh-command "grep" (list "-v" "^" tmp-file) '() doc-file #f)
        (if (file-exists? tmp-file)
 	   (delete-file tmp-file)
-	   (format #t "oops: ~s does not exist - not deleting~%" tmp-file))))
+	   (begin
+	     (format #t "OOPS: Problem snarfing ~s~%" source-file)
+	     (format #t "OOPS: ~s does not exist - not deleting~%" tmp-file)))))
    source-files))
   
 (define add-to-list-section-texis
@@ -96,6 +103,7 @@
       (lambda (menu-port)
 	(format menu-port "@menu~%")
 	(for-each (lambda (file)
+		    (format #t "processing ~s~%" file)
 		    (let* ((stub (strip-extension file))
 			   (section-name (string-append stub "-section.texi")))
 

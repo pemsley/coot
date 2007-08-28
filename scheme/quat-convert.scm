@@ -1,10 +1,7 @@
 
 ;; convert a view matrix to a view quaternion to set Coot view internals.
 ;; 
-(define matrix->quaternion
-  (lambda (m00 m10 m20
-	   m01 m11 m21
-	   m02 m12 m22)
+(define matrix->quaternion (lambda (m00 m10 m20 m01 m11 m21 m02 m12 m22)
 
     ;; From an idea by "Christian" at euclidianspace.com.  The
     ;; rotation matrix is special orthogonal, so (1 + trace) > 0. So
@@ -57,10 +54,7 @@
 
 ;; Set the view matrix
 ;; 
-(define (set-view-matrix
-	 m00 m10 m20
-	 m01 m11 m21
-	 m02 m12 m22)
+(define (set-view-matrix m00 m10 m20 m01 m11 m21 m02 m12 m22)
 
   (apply set-view-quaternion (matrix->quaternion m00 m10 m20
 						 m01 m11 m21
