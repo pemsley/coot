@@ -433,8 +433,10 @@ void deviant_geometry(int imol) {
 
 
 short int is_valid_model_molecule(int imol) { 
-
-   return graphics_info_t::is_valid_model_molecule(imol);
+   short int v = graphics_info_t::is_valid_model_molecule(imol);
+   //   std::cout << "DEBUG:: in is_valid_model_molecule for " << imol << " returning "
+   // << v << std::endl;
+   return v;
 } 
 
 

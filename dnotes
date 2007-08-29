@@ -11,10 +11,8 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Try again to add chiral volumes to the geometry target function
 
-   o Kevin's Ramachandran Refinement target
-
    o Alice Dawson SSM Problem, 1pyd.  Message sent to Eugene -
-     awaiting reply.
+     he says no bug.  Hmmm...
 
    o Don't display symmetry with hydrogens if the main molecule
      doesn't have them [Steven Graham]
@@ -27,6 +25,8 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Build against new clipper (delete clipper from all autobuild trees).
 
+   o Check where else we do a SetSpaceGroup().  Bug there too?
+
    o Fix Steven Graham's symmetry hydrogens bug.
 
    o Fix Frank's SSM bug.
@@ -35,6 +35,7 @@ Tue Jul  3 14:27:37 BST 2007
      unshelxing?  Fix that too.
 
    o Fix non-orthorhombic aniso Us.
+
 
 
 
@@ -1444,8 +1445,90 @@ Sat Aug  4 14:36:06 BST 2007
         Hmm... perhaps a simple class then, because we need a flag to
         say that this molecule has a sequence assigned to it.
 
+
+--------
+Wed Aug  8 12:21:09 BST 2007
+
+	set-atom-attribute for multiple atoms.
+	
+	currently we do an atom selection and a rebonding (and redraw)
+	for each atom attribute.
+
 ------
 Sat Aug  4 15:22:06 BST 2007
+
+        using multiple-set-atom-attribute will get rid of the
+        intermediate rebonding and drawing.  How much will that speed
+        things up (we still are doing the individual atom selections).
+
+-----
+Wed Aug  8 16:47:01 BST 2007
+
+	Make the crash catcher add the coot version, platform etc.
+
+------
+Fri Aug 10 12:56:36 BST 2007
+
+   add a side chain flip test.
+
+   check that the OE1 was where the OE2 was
+   and vica versa.
+
+   also test torsions from running correct-nomenclature 
+
+   
+-------
+Fri Aug 10 15:37:54 BST 2007
+
+	Frank's SSM bug.
+
+	Priority: Critical
+
+
+        Also mail Kendall W. Nettles
+
+
+-----
+Fri Aug 10 16:43:38 BST 2007
+
+	1a4x water at 416X - can't pick close-by symmetry water
+
+
+-----
+Mon Aug 13 15:43:54 BST 2007
+
+	Add a test
+
+	Use multiple wiggle ligands. Delete stuff and do it again.
+
+
+-----
+Mon Aug 13 16:52:03 BST 2007
+
+	fit SAH into 2an3.
+
+	It's really slow to converge.  Why?
+
+
+-----
+Fri Aug 17 14:18:40 BST 2007
+	
+	To analyse the 60 molecules crash:
+
+	Make a test: 
+	Run 6 times the ligand fitting of NPO to 43ca
+
+
+-------
+Mon Aug 20 18:08:16 BST 2007
+
+	Add lots of tests for the space groups of shelx .res files
+	using show-spacegroup
+
+
+
+
+------
 
    Something is going wrong on bubbles with the texi files.
 
@@ -1610,5 +1693,4 @@ template type double.  Would things be faster with a float?
 
 clipper::Grad_orth<double>
 coot::restraints_container_t::electron_density_gradient_at_point(const clipper::Coord_orth &ao);
-
 

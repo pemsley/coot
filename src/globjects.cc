@@ -310,7 +310,7 @@ std::string graphics_info_t::model_fit_refine_rotate_translate_zone_string = "";
 //
 // We need to store how many molecules we have and where to find them.
 
-int graphics_info_t::n_molecules_max = 60; 
+int graphics_info_t::n_molecules_max = 200; 
 int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
 
 // generic display objects, gets set in init.
@@ -561,14 +561,14 @@ int graphics_info_t::find_ligand_protein_mol_ = -1;
 int graphics_info_t::find_ligand_n_top_ligands = 10;
 short int graphics_info_t::find_ligand_mask_waters_flag = 0;
 float graphics_info_t::map_mask_atom_radius = -99; // unset
-std::vector<int> *mol_tmp;
-std::vector<int> *graphics_info_t::find_ligand_ligand_mols_ = mol_tmp;
+// std::vector<int> *mol_tmp;
+std::vector<std::pair<int, bool> > *graphics_info_t::find_ligand_ligand_mols_;
 float graphics_info_t::find_waters_sigma_cut_off = 1.0;
 float graphics_info_t::ligand_acceptable_fit_fraction = 0.75;
 float graphics_info_t::ligand_cluster_sigma_level = 1.0; // sigma
 int   graphics_info_t::ligand_wiggly_ligand_n_samples = 50;
 int   graphics_info_t::ligand_verbose_reporting_flag = 0; 
-std::vector<short int> *graphics_info_t::find_ligand_wiggly_ligands_;
+// std::vector<short int> *graphics_info_t::find_ligand_wiggly_ligands_; bye!
 short int graphics_info_t::ligand_expert_flag = 0;
 
 float graphics_info_t::ligand_water_to_protein_distance_lim_max = 3.4;
