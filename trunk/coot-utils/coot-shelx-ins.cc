@@ -301,6 +301,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card.words[0].substr(0, 4) == "STIR") ||
 							   (card.words[0].substr(0, 4) == "TEMP") ||
 							   (card.words[0].substr(0, 4) == "SADI") ||
+							   (card.words[0].substr(0, 4) == "SPEC") ||
 							   (card.words[0].substr(0, 4) == "PLAN") ||
 							   (card.words[0].substr(0, 4) == "LIST") ||
 							   (card.words[0].substr(0, 4) == "FREE") ||
@@ -1187,6 +1188,7 @@ coot::clipper_symm_strings(const std::vector<std::string> &symm_vec,
 
    for (unsigned int i=0; i<v.size(); i++) { 
       symm_card_composition_t sc(v[i]);
+      // std::cout << "symm_card on :" << v[i] << ": gives " << sc.symm_card() << std::endl;
       std::vector<std::string> cards = sc.symm_cards_from_lat(shelx_latt);
 //       std::cout << "INFO:: There are " << cards.size()
 // 		<< " elements in cards" << std::endl;
@@ -1269,6 +1271,21 @@ coot::symm_card_composition_t::symm_card_composition_t(const std::string &symm_c
       std::string::size_type izp = ele[iele].find("+Z");
       std::string::size_type izm = ele[iele].find("-Z");
       std::string::size_type iz  = ele[iele].find( "Z");
+
+      if (ixp == std::string::npos)
+	 ixp = ele[iele].find("+ X"); 
+      if (ixm == std::string::npos)
+	 ixm = ele[iele].find("- X"); 
+
+      if (iyp == std::string::npos)
+	 iyp = ele[iele].find("+ Y"); 
+      if (iym == std::string::npos)
+	 iym = ele[iele].find("- Y"); 
+
+      if (izp == std::string::npos)
+	 izp = ele[iele].find("+ Z"); 
+      if (izm == std::string::npos)
+	 izm = ele[iele].find("- Z"); 
 
 //       std::cout << "looking in iele=" << iele << " " << ele[iele]
 // 		<< std::endl;

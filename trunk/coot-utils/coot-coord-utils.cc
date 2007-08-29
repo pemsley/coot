@@ -795,7 +795,8 @@ coot::util::single_letter_to_3_letter_code(char code) {
 // 
 coot::graph_match_info_t
 coot::graph_match(CResidue *res_moving,
-		  CResidue *res_reference) {
+		  CResidue *res_reference,
+		  bool apply_rtop_flag) {
 
    clipper::RTop_orth rtop;
    bool success = 0;
@@ -817,6 +818,7 @@ coot::graph_match(CResidue *res_moving,
    int build_status1 = graph1.Build(1);
    int build_status2 = graph2.Build(1);
    double best_match_sum = 1e20;
+   int best_n_match = -99;
 
    if (build_status1 != 0) {
       std::cout << "ERROR:: build_status1: " << build_status1 << std::endl;
@@ -843,12 +845,13 @@ coot::graph_match(CResidue *res_moving,
 	 match.MatchGraphs(&graph1, &graph2, minMatch, 1);
 	 std::cout << "match.GetNoMatches" << std::endl;
 	 int n_match = match.GetNofMatches();
-	 std::cout << "match NumberofMatches " << n_match << std::endl;
+	 std::cout << "INFO:: match NumberofMatches (potentially similar graphs) " << n_match << std::endl;
 	 // match.PrintMatches();
 
 	 int best_match = -1;
 	 clipper::RTop_orth best_rtop;
 	 for (int imatch=0; imatch<n_match; imatch++) {
+	    std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atoms; 
 	    int n;
 	    realtype p1, p2;
 	    ivector FV1, FV2;
@@ -878,20 +881,28 @@ coot::graph_match(CResidue *res_moving,
 		  matching_atoms.push_back(atom_pair);
 	       }
 	    }
-	    clipper::RTop_orth rtop_local(coords_1_local, coords_2_local);
 	    
 	    double dist_sum = 0.0;
-	    for (unsigned int i=0; i<coords_1_local.size(); i++) {
-	       dist_sum += clipper::Coord_orth::length(coords_2_local[i],
-						       coords_1_local[i].transform(rtop_local));
-	    }
+	    clipper::RTop_orth rtop_local; // unset
+	    if (apply_rtop_flag) { 
+	       rtop_local = clipper::RTop_orth(coords_1_local, coords_2_local);
+	       for (unsigned int i=0; i<coords_1_local.size(); i++) {
+		  dist_sum += clipper::Coord_orth::length(coords_2_local[i],
+							  coords_1_local[i].transform(rtop_local));
+	       }
+	    } else {
+	       for (unsigned int i=0; i<coords_1_local.size(); i++) {
+		  dist_sum += clipper::Coord_orth::length(coords_2_local[i], coords_1_local[i]);
+	       }
+	    } 
 	    if (dist_sum < best_match_sum) {
 	       // Debugging
-	       // std::cout << "better dist_sum: " << dist_sum << std::endl;
+	       std::cout << "DEBUG:: better dist_sum: " << dist_sum << std::endl;
 	       best_rtop = rtop_local;
 	       best_match_sum = dist_sum;
 	       best_match = imatch;
 	       best_matching_atoms = matching_atoms;
+	       best_n_match = coords_1_local.size();
 	    }
 	 } // imatch loop
 
@@ -907,7 +918,8 @@ coot::graph_match(CResidue *res_moving,
    gmi.success = success;
    gmi.rtop = rtop;
    gmi.dist_score = best_match_sum;
-   gmi.atom_match_names = best_matching_atoms;
+   gmi.matching_atom_names = best_matching_atoms;
+   gmi.n_match = best_n_match;
    return gmi;
 }
 

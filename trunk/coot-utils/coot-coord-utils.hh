@@ -224,20 +224,35 @@ namespace coot {
 
    class graph_match_info_t {
    public:
+      std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atom_names;
       bool success;
       // atom_match_names: ((atom_name_ref alt_conf_ref) (atom_name_wrk alt_conf_work))
       std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > atom_match_names; 
       clipper::RTop_orth rtop;
       int n_match;
       double dist_score;
+      graph_match_info_t() {
+	 n_match = 0;
+	 success = 0;
+	 dist_score = 0;
+      }
    };
+   
    // Match on graph
    // 
    // Return the orientation matrix moving res_moving to res_reference
-   // and a flag letting us know that the match worked OK.
-   coot::graph_match_info_t
-   graph_match(CResidue *res_moving,
-						   CResidue *res_reference);
+   // and a flag letting us know that the match worked OK.  Also
+   // return the vector of matching atom names, which will be used in
+   // the ligand analysis (where the rtop is not applied)
+   //
+   // Sometimes, we don't want to do an automatic rotation/translation
+   // of a test ligand onto the reference structure, we want to
+   // measure the distances from exactly where they are (e.g. in
+   // testing ligand placement).
+   //
+   // Usually though apply_rtop_flag will be 1.
+   // 
+   coot::graph_match_info_t graph_match(CResidue *res_moving, CResidue *res_reference, bool apply_rtop_flag);
 
    namespace util {
 
