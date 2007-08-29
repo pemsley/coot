@@ -1330,8 +1330,8 @@
     (gtk-widget-show-all window)))
 
 ;; geometry is an improper list of ints
-;; buttons is a list of: (list (list button-1-label button-1-action)
-;;                             (list button-2-label button-2-action))
+;; buttons is a list of: (list (list button-1-label button-1-action
+;;                                   button-2-label button-2-action))
 ;; The button-1-action function takes no arguments.
 ;; The button-2-action function takes as an argument the imol
 ;; 
@@ -1351,7 +1351,7 @@
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
 
     (map (lambda (buttons-info)
-	   (format #t "buttons-info ~s~%" buttons-info) 
+;	   (format #t "buttons-info ~s~%" buttons-info) 
 	   (if (list? buttons-info)
 	       (let* ((button-label-1 (car buttons-info))
 		      (callback-1  (car (cdr buttons-info)))
@@ -1362,10 +1362,10 @@
 		      (button-1 (gtk-button-new-with-label button-label-1))
 		      (h-box (gtk-hbox-new #f 2)))
 
-		 (format #t "button-label-1 ~s~%" button-label-1) 
-		 (format #t "callback-1 ~s~%" callback-1) 
-		 (format #t "buton-label-2 ~s~%" button-label-2) 
-		 (format #t "callback-2 ~s~%" callback-2) 
+;		 (format #t "button-label-1 ~s~%" button-label-1) 
+;		 (format #t "callback-1 ~s~%" callback-1) 
+;		 (format #t "buton-label-2 ~s~%" button-label-2) 
+;		 (format #t "callback-2 ~s~%" callback-2) 
 
 		 (gtk-signal-connect button-1 "clicked" 
 				     (lambda ()

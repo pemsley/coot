@@ -69,7 +69,7 @@
 		    (format #t "server gone - listener thread ends~%")
 		    #f)
 		  (begin
-		    (format #t "keep listening...~%")
+		    ; (format #t "keep listening...~%")
 		    #t)))))
 	(begin
 	  (format #t "coot-listener-idle-function-proc bad sock: ~s~%" 
@@ -175,8 +175,7 @@
 	    (loop (cdr read-chars) (cdr match-chars)))))))
 	
   ;; main body:
-  ;; 
-
+  ;;
   (if (not (char-ready? soc))
       (begin
 ;	(format #t "nothing on the line...~%")
@@ -186,7 +185,7 @@
 ;	(format #t "about to read from socket soc: ~s~%" soc)
 	(let f ((c (read-char soc))
 		(read-bits '()))
-	  ;; (format #t "socket read char ~s~%" c)
+; 	  (format #t "socket read char ~s~%" c)
 	  (cond
 	   ((eof-object? c) (format #t "server gone\n") #f)
 	   ((hit-end-transmit? (cons c read-bits)

@@ -73,8 +73,9 @@
   (let loop ((molecule-list (number-list 0 (- (graphics-n-molecules) 1)))
 	     (map-list '()))
     (cond
-     ((null? molecule-list) map-list)
+     ((null? molecule-list) (reverse map-list))
      ((valid-map-molecule? (car molecule-list))
+      (format #t "debug:: ~s is a valid map~%" (car molecule-list))
       (loop (cdr molecule-list)
 	    (cons (car molecule-list) map-list)))
      (else 
@@ -87,15 +88,15 @@
 (define (model-molecule-list)
   
   (let loop ((molecule-list (number-list 0 (- (graphics-n-molecules) 1)))
-	     (map-list '()))
+	     (model-list '()))
     (cond
-     ((null? molecule-list) map-list)
-     ((is-valid-model-molecule (car molecule-list))
+     ((null? molecule-list) (reverse model-list))
+     ((valid-model-molecule? (car molecule-list))
       (loop (cdr molecule-list)
-	    (cons (car molecule-list) map-list)))
+	    (cons (car molecule-list) model-list)))
      (else 
       (loop (cdr molecule-list)
-	    map-list)))))
+	    model-list)))))
 
 ;;; No! don't define this.  It is misleading.  It can return 0, which
 ;;; is true!  use instead valid-model-molecule?
@@ -993,7 +994,9 @@
 ;; schemey interface to eponymous scripting interface function.
 (define (valid-model-molecule? imol)
 
-  (= (is-valid-model-molecule imol) 1))
+  (if (not (number? imol))
+      #f
+      (= (is-valid-model-molecule imol) 1)))
 
 ;; schemey interface to eponymous scripting interface function.
 (define (valid-map-molecule? imol)

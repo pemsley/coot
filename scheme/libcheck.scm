@@ -156,6 +156,13 @@
 				      
 				      (set-recentre-on-read-pdb recentre-status)
 				      (if libcheck-minimal-desc-status
-					  (read-cif-dictionary "libcheck.lib"))
+					    (let ((libcheck-lib "libcheck.lib")
+						  (coot-lib-name (string-append 
+								  "coot-libcheck-"
+								  code-str ".cif")))
+					      (if (file-exists? libcheck-lib)
+						  (begin
+						    (read-cif-dictionary libcheck-lib)
+						    (copy-file libcheck-lib coot-lib-name)))))
 				      pdb-status))))))))))))
 
