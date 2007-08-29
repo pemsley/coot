@@ -1111,7 +1111,7 @@
     (gtk-widget-show entry)
     (gtk-widget-show hbox)
     (gtk-box-pack-start vbox hbox #t #f)
-    entry))) ; return the entry so that we can ask what it says elsewhere
+    entry)) ; return the entry so that we can ask what it says elsewhere
 
 ;; pack a hint text and a molecule chooser option menu into the given vbox.
 ;; 
@@ -1127,7 +1127,7 @@
     (gtk-box-pack-start hbox option-menu #t #t 2)
     
     (gtk-option-menu-set-menu option-menu menu)
-    (list option-menu model-mol-list))))
+    (list option-menu model-mol-list)))
     
 
 ;; Return an entry, insert the widget into the hbox in this function
