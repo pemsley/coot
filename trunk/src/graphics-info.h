@@ -339,8 +339,9 @@ class graphics_info_t {
 
    static int find_ligand_protein_mol_;
    static int find_ligand_map_mol_;
-   static std::vector<int> *find_ligand_ligand_mols_;
-   static std::vector<short int> *find_ligand_wiggly_ligands_;
+   static std::vector<std::pair<int, bool> > *find_ligand_ligand_mols_; // contain a molecule number 
+                                                                        // and flag for is_wiggly?
+   // static std::vector<short int> *find_ligand_wiggly_ligands_; // incorporporated above.
 
    static coot::protein_geometry* geom_p;
 
@@ -577,8 +578,8 @@ public:
      for (int i=0; i<4; i++) 
        background_colour[i] = 0.0;
 
-      find_ligand_ligand_mols_ = new std::vector<int>;
-      find_ligand_wiggly_ligands_ = new std::vector<short int>;
+     find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
+     // find_ligand_wiggly_ligands_ = new std::vector<short int>; // now incorporated above
       geom_p = new coot::protein_geometry;
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
@@ -1582,8 +1583,14 @@ public:
 			      const std::vector<short int> &wiggly_ligands) {
       find_ligand_map_mol_ = map;
       find_ligand_protein_mol_ = protein; 
-      (*find_ligand_ligand_mols_) = ligands;
-      (*find_ligand_wiggly_ligands_) = wiggly_ligands;
+      if (ligands.size() != wiggly_ligands.size()) { 
+	std::cout << "ERROR size mismatch ligands and wiggly_ligands flags\n";
+      } else { 
+	find_ligand_ligand_mols_->resize(ligands.size());
+	for (unsigned int il=0; il<ligands.size(); il++) {
+	  (*find_ligand_ligand_mols_)[il] = std::pair<int, bool>(ligands[il], wiggly_ligands[il]);
+	}
+      }
    }
    int find_ligand_map_mol() const { 
       return find_ligand_map_mol_;
@@ -1602,42 +1609,28 @@ public:
        find_ligand_map_mol_ = imol;
    }
    static void find_ligand_add_rigid_ligand(int imol) { 
-     if (imol >=0) 
+     if (imol >=0) {
        if (imol < n_molecules) { 
-	 find_ligand_ligand_mols_->push_back(imol);
-	 if (find_ligand_wiggly_ligands_->size() < n_molecules) { 
-	   std::vector<short int> t(find_ligand_wiggly_ligands_->size());
-	   for (int i=0; i<find_ligand_wiggly_ligands_->size(); i++) 
-	     t[i] = (*find_ligand_wiggly_ligands_)[i];
-	   t[imol] = 0;
-	   *find_ligand_wiggly_ligands_ = t;
-	 } else { 
-	   (*find_ligand_wiggly_ligands_)[imol] = 0;
-	 } 
+	 if (molecules[imol].has_model()) { 
+	   find_ligand_ligand_mols_->push_back(std::pair<int, bool>(imol, 0));
+	 }
        }
+     }
    }
    static void find_ligand_add_flexible_ligand(int imol) { 
-     if (imol >=0) 
+     if (imol >=0) {
        if (imol < n_molecules) { 
-	 find_ligand_ligand_mols_->push_back(imol);
-	 if (find_ligand_wiggly_ligands_->size() < n_molecules) { 
-	   std::vector<short int> t(find_ligand_wiggly_ligands_->size());
-	   for (int i=0; i<find_ligand_wiggly_ligands_->size(); i++) 
-	     t[i] = (*find_ligand_wiggly_ligands_)[i];
-	   t[imol] = 1;
-	   *find_ligand_wiggly_ligands_ = t;
-	 } else { 
-	   (*find_ligand_wiggly_ligands_)[imol] = 1;
-	 } 
+	 if (molecules[imol].has_model()) { 
+	   find_ligand_ligand_mols_->push_back(std::pair<int, bool>(imol, 1));
+	 }
        }
+     }
    }
-   std::vector<int> find_ligand_ligand_mols() const { 
-      std::vector<int> a = *find_ligand_ligand_mols_;
-      return a; 
+   std::vector<std::pair<int, bool> > find_ligand_ligand_mols() const { 
+     return *find_ligand_ligand_mols_;
    }
-   std::vector<short int> find_ligand_wiggly_ligands() const {
-      std::vector<short int> a = *find_ligand_wiggly_ligands_;
-      return a;
+   void find_ligand_clear_ligand_mols() {
+     find_ligand_ligand_mols_->clear();
    }
    static std::vector<clipper::Coord_orth> *ligand_big_blobs;
    static int find_ligand_n_top_ligands;

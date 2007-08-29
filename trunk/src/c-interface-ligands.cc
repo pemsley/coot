@@ -58,6 +58,52 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 		int resno_ref) {
 
    SCM scm_status = SCM_BOOL_F;
+   coot::graph_match_info_t rtop_info =
+      overlap_ligands_internal(imol_ligand, imol_ref, chain_id_ref, resno_ref, 1);
+
+   if (rtop_info.success) { 
+      SCM match_info = scm_cons(scm_int2num(rtop_info.n_match), SCM_EOL);
+      match_info = scm_cons(scm_double2num(rtop_info.dist_score), match_info);
+      SCM s = scm_cons(match_info, SCM_EOL);
+      scm_status = scm_cons(rtop_to_scm(rtop_info.rtop), s);
+   }
+   return scm_status;
+}
+#endif
+
+
+#ifdef USE_GUILE
+SCM
+analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_ref,
+			   int resno_ref) {
+
+   SCM scm_status = SCM_BOOL_F;
+   coot::graph_match_info_t rtop_info =
+      overlap_ligands_internal(imol_ligand, imol_ref, chain_id_ref, resno_ref, 0);
+
+   std::cout << "analyse_ligand_differences: success       " << rtop_info.success << std::endl;
+   std::cout << "analyse_ligand_differences: n_match       " << rtop_info.n_match << std::endl;
+   std::cout << "analyse_ligand_differences: dist_score    " << rtop_info.dist_score << std::endl;
+   std::cout << "analyse_ligand_differences: atoms matched " << rtop_info.matching_atom_names.size() << std::endl;
+   std::cout << "analyse_ligand_differences: rtop: \n" << rtop_info.rtop.format() << std::endl;
+   
+   if (rtop_info.success) {
+      SCM match_info = scm_cons(scm_int2num(rtop_info.n_match), SCM_EOL);
+      match_info = scm_cons(scm_double2num(rtop_info.dist_score), match_info);
+      SCM s = scm_cons(match_info, SCM_EOL);
+      scm_status = scm_cons(rtop_to_scm(rtop_info.rtop), s);
+   }
+   return scm_status;
+}
+#endif   
+
+
+coot::graph_match_info_t
+overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
+			 int resno_ref, bool apply_rtop_flag) {
+
+   coot::graph_match_info_t graph_info;
+   
    int istat = 0;
 
    CResidue *residue_moving = 0;
@@ -70,10 +116,10 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
    
 
    if (! is_valid_model_molecule(imol_ligand))
-      return scm_status;
+      return graph_info;
 
    if (! is_valid_model_molecule(imol_ref))
-      return scm_status;
+      return graph_info;
 
    CMMDBManager *mol_moving = graphics_info_t::molecules[imol_ligand].atom_sel.mol;
    CMMDBManager *mol_ref    = graphics_info_t::molecules[imol_ref].atom_sel.mol;
@@ -131,13 +177,13 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 	    std::cout << "Oops.  Failed to find reference residue" << std::endl;
 	 } else { 
 	    coot::graph_match_info_t rtop_info =
-	       coot::graph_match(residue_moving, residue_reference);
+	       coot::graph_match(residue_moving, residue_reference, apply_rtop_flag);
 	    if (rtop_info.success) {
 	       if (rtop_info.dist_score < best_score) { // low score good.
 		  best_score = rtop_info.dist_score;
 		  best_residue_moving = residue_moving;
-		  scm_status = rtop_to_scm(rtop_info.rtop);
 		  best_rtop = rtop_info.rtop;
+		  graph_info = rtop_info;
 	       }
 	    } else {
 	       // std::cout << "Oops.  Match failed somehow" << std::endl;
@@ -145,16 +191,18 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 	 }
       }
    }
-   if (best_residue_moving) {
-      // move just the best ligand:
-      graphics_info_t::molecules[imol_ligand].transform_by(best_rtop, best_residue_moving);
-      // delete everything except the best ligand:
-      graphics_info_t::molecules[imol_ligand].delete_all_except_res(best_residue_moving);
-      graphics_draw();
+   if (apply_rtop_flag) { 
+      if (best_residue_moving) {
+	 // move just the best ligand:
+	 graphics_info_t::molecules[imol_ligand].transform_by(best_rtop, best_residue_moving);
+	 // delete everything except the best ligand:
+	 graphics_info_t::molecules[imol_ligand].delete_all_except_res(best_residue_moving);
+	 graphics_draw();
+      }
    }
-   return scm_status;
+   return graph_info;
 }
-#endif // USE_GUILE
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -741,33 +789,63 @@ void add_ligand_search_wiggly_ligand_molecule(int imol_ligand) {
   in ligand searching */
 void add_ligand_search_ligand_molecule(int imol_ligand) {
    if (is_valid_model_molecule(imol_ligand))
-       graphics_info_t::find_ligand_add_rigid_ligand(imol_ligand);
+      graphics_info_t::find_ligand_add_rigid_ligand(imol_ligand);
+
+   graphics_info_t g;
+   std::cout << "DEBUG:: graphics_info_t::find_ligand_wiggly_ligands()["
+	     << imol_ligand << "] is ("
+	     << g.find_ligand_ligand_mols()[imol_ligand].first  << ", " 
+	     << g.find_ligand_ligand_mols()[imol_ligand].second << ")" << std::endl;
+
 }
+
+void add_ligand_clear_ligands() {
+
+   graphics_info_t g;
+   g.find_ligand_clear_ligand_mols();
+} 
+
 
 
 
 // execute_find_ligands_real, you might say
 // 
+#ifdef USE_GUILE
+SCM execute_ligand_search() {
+
+   std::vector<int> solutions = execute_ligand_search_internal();
+   return generic_int_vector_to_list_internal(solutions);
+}
+#else
+// Fixme Bernhard
 void execute_ligand_search() {
 
+   std::vector<int> solutions = execute_ligand_search_internal();
+}
+#endif 
+
+std::vector<int>
+execute_ligand_search_internal() {
+   
    std::cout << "Executing ligand search..." << std::endl;
+   std::vector<int> solutions;
 
    graphics_info_t g;
 
    if (! is_valid_model_molecule(g.find_ligand_protein_mol())) {
       std::cout << "Protein molecule for ligand search not set" << std::endl;
       std::cout << "Aborting ligand search" << std::endl;
-      return; 
+      return solutions; 
    }
    if (! is_valid_map_molecule(g.find_ligand_map_mol())) {
       std::cout << "Map molecule for ligand search not set" << std::endl;
       std::cout << "Aborting ligand search" << std::endl;
-      return; 
+      return solutions; 
    }
    if (g.find_ligand_ligand_mols().size() == 0) {
       std::cout << "No defined ligand molecules" << std::endl;
       std::cout << "Aborting ligand search" << std::endl;
-      return; 
+      return solutions; 
    } 
    
    CMMDBManager *protein_mol = 
@@ -777,15 +855,17 @@ void execute_ligand_search() {
    if (g.ligand_verbose_reporting_flag)
       wlig.set_verbose_reporting();
    wlig.import_map_from(g.molecules[g.find_ligand_map_mol()].xmap_list[0]);
-   std::vector<int> ligands = g.find_ligand_ligand_mols();
-   for(unsigned int i=0; i<g.find_ligand_ligand_mols().size(); i++) {
+   std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
+   for(unsigned int i=0; i<ligands.size(); i++) {
 
-      std::cout << "ligand number " << i << " wiggly flag: " << 
-	 g.find_ligand_wiggly_ligands()[ligands[i]] << std::endl;
+      std::cout << "ligand number " << i << " is molecule number "
+		<< g.find_ligand_ligand_mols()[i].first << "  " 
+		<< " with wiggly flag: "
+		<< g.find_ligand_ligand_mols()[i].second << std::endl;
 
-      if (g.find_ligand_wiggly_ligands()[ligands[i]]) {
+      if (ligands[i].second) {
 	 // argh (i).
-	 coot::minimol::molecule mmol(g.molecules[ligands[i]].atom_sel.mol);
+	 coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
 
 	 for(unsigned int ifrag=0; ifrag<mmol.fragments.size(); ifrag++) {
 	    for (int ires=mmol[ifrag].min_res_no(); ires<=mmol[ifrag].max_residue_number(); ires++) {
@@ -805,11 +885,11 @@ void execute_ligand_search() {
 	    std::cout << "Error in flexible ligand definition.\n";
 	    GtkWidget *w = wrapped_nothing_bad_dialog(istat_pair.second);
 	    gtk_widget_show(w);
-	    return;
+	    return solutions;
 	 }
       } else { 
 	 // argh (ii).
-	 wlig.install_ligand(g.molecules[ligands[i]].atom_sel.mol);
+	 wlig.install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
       }
    }
 
@@ -852,6 +932,7 @@ void execute_ligand_search() {
 	 std::string label = "Fitted ligand #";
 	 label += g.int_to_string(ilig);
 	 g.molecules[g_mol].install_model(asc, label, 1);
+	 solutions.push_back(g_mol);
 	 g.n_molecules++;
 	 n_new_ligand++;
 	 if (g.go_to_atom_window){
@@ -883,6 +964,7 @@ void execute_ligand_search() {
    }
 
    graphics_draw();
+   return solutions;
 }
 
 void set_ligand_cluster_sigma_level(float f) { /* default 2.2 */

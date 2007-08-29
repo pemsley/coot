@@ -1821,7 +1821,17 @@ int set_map_is_difference_map(int imol) {
    add_to_history_typed(cmd, args);
    
    return istatus;
+}
+
+int map_is_difference_map(int imol) {
+
+   int istat = 0;
+   if (is_valid_map_molecule(imol)) {
+      istat = graphics_info_t::molecules[imol].is_difference_map_p();
+   }
+   return istat;
 } 
+
 
 /* return the index of the new molecule or -1 on failure */
 int another_level() {

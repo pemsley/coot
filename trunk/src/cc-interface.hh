@@ -351,6 +351,15 @@ int mutate_internal(int ires, const char *chain_id,
    have_unsaved_changes_flag themselves */
 
 /*  ----------------------------------------------------------------------- */
+/*                  ligands                                                 */
+/*  ----------------------------------------------------------------------- */
+std::vector<int> execute_ligand_search_internal();
+coot::graph_match_info_t
+overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
+			 int resno_ref, bool apply_rtop_flag);
+
+
+/*  ----------------------------------------------------------------------- */
 /*                  Cootaneer                                               */
 /*  ----------------------------------------------------------------------- */
 int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spec);
@@ -379,10 +388,15 @@ std::pair<short int, std::string> is_interesting_dots_object_next_p(const std::v
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_GUILE
 SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v);
+SCM generic_int_vector_to_list_internal(const std::vector<int> &v);
 std::vector<std::string> generic_list_to_string_vector_internal(SCM l);
 SCM rtop_to_scm(const clipper::RTop_orth &rtop);
 coot::atom_spec_t atom_spec_from_scm_expression(SCM expr);
 #endif	/* USE_GUILE */
+
+#ifdef USE_PYTHON
+// Bernhard, I suppose that there should be python equivalents of the above.
+#endif
 
 void set_display_control_button_state(int imol, const std::string &button_type, int state);
 

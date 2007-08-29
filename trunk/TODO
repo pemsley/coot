@@ -10,8 +10,6 @@
 
    o Richardson rotamers
 
-   o Kevin's Ramachandran Refinement target
-
    o Try again to add chiral volumes to the geometry target function
 
    o Add Chiral centre inversion and cis peptide generation check 
@@ -36,6 +34,8 @@
 -----
 
    Release 0.5 Dec 2007
+
+   o Kevin's Ramachandran Refinement target
 
    o Torsion General
 

@@ -985,6 +985,8 @@ void set_swap_difference_map_colours(int i);
   @return success status, 0 -> failure (imol does not have a map) */
 int set_map_is_difference_map(int imol);
 
+int map_is_difference_map(int imol);
+
 /*! \brief Add another contour level for the last added map.  
 
   Currently, the map must have been generated from an MTZ file.
@@ -2930,8 +2932,16 @@ void add_ligand_search_ligand_molecule(int imol_ligand);
   in ligand searching */
 void add_ligand_search_wiggly_ligand_molecule(int imol_ligand);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM execute_ligand_search();  
+#else 
+// Fixme Bernhard
 void execute_ligand_search();  
+#endif 
+#endif // __cplusplus
 void free_ligand_search_user_data(GtkWidget *button); 
+void add_ligand_clear_ligands(); 
 
 /*! \brief this sets the flag to have expert option ligand entries in
   the Ligand Searching dialog */
@@ -2973,8 +2983,9 @@ imol_ligand or imo_ref,
 otherwise return the RT operator */
 #ifdef __cplusplus
 #ifdef USE_GUILE
-SCM
-overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
+SCM overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
+SCM analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_ref,
+			       int resno_ref);
 #endif 
 #endif	/* __cplusplus */
 

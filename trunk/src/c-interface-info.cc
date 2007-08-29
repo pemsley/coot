@@ -687,7 +687,20 @@ generic_list_to_string_vector_internal(SCM l) {
 
    return r;
 }
-#endif 
+#endif
+
+#ifdef USE_GUILE
+SCM generic_int_vector_to_list_internal(const std::vector<int> &v) {
+
+   SCM r = SCM_EOL;
+   for (int i=v.size()-1; i>=0; i--) {
+      r = scm_cons(scm_int2num(v[i]), r);
+   }
+   return r; 
+}
+#endif // USE_GUILE
+
+
 
 
 #ifdef USE_GUILE
@@ -1657,8 +1670,11 @@ void write_ccp4mg_picture_description(const char *filename) {
       mg_stream << "    centre_xyz = [";
       mg_stream << -rc.x() << ", " << -rc.y() << ", " << -rc.z() << "],\n";
       mg_stream << "    radius = " << 0.75*graphics_info_t::zoom << ",\n";
-      mg_stream << "    orientation = [ " << g.quat[0] << ", "
-		<< g.quat[1] << ", " << g.quat[2] << ", " << g.quat[3] << "]\n";
+      //       mg_stream << "    orientation = [ " << g.quat[0] << ", "
+      // 		<< g.quat[1] << ", " << g.quat[2] << ", " << g.quat[3] << "]\n";
+      // Stuart corrects the orientation specification:
+      mg_stream << "    orientation = [ " << -g.quat[3] << ", "
+		<< g.quat[0] << ", " << g.quat[1] << ", " << g.quat[2] << "]\n";
       mg_stream << ")\n";
 
       // Molecules:
