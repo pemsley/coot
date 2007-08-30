@@ -855,7 +855,6 @@ coot::graph_match(CResidue *res_moving,
 	    int n;
 	    realtype p1, p2;
 	    ivector FV1, FV2;
-	    std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atoms;
 	    match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
 // 	    For understanding only.  
 // 	    std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
