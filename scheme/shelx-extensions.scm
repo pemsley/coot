@@ -98,22 +98,35 @@
 	  (lambda (imol lst-file-name)
 	    (read-shelx-lst-file lst-file-name imol)))))
 
+
+     (add-simple-coot-menu-menuitem
+      menu "Add SHELXL instruction..."
+      (lambda ()
+        (generic-chooser-and-entry
+                     "Add new SHELXL command to model:"
+                     "SHELX instruction:"
+                     ""
+             (lambda (imol text)
+                        (add-shelx-string-to-molecule imol text)))))
+
+
+
 ))
       
 
 ;; This is a top-level dialog that add an HFIX instruction to a given .res 
 ;; molecule.  It is a specific, not generally very useful, as it stands.
 ;;
-(let ((buttons 
-       (list 
-	(list
-	 "Rebuild Hydrogens: HFIX 137 C2BA "
-	 (lambda ()
-	   (molecule-chooser-gui "Add rebuild hydrogens instructions"
-				 (lambda (imol)
-				   (let ((s "HFIX 137 C2BA"))
-				     (add-shelx-string-to-molecule imol s)))))))))
-  (dialog-box-of-buttons "SHELX Demo" (cons 200 50) buttons "  Close  "))
+;;(let ((buttons 
+;;        (list 
+;;	(list
+;; 	 "Rebuild Hydrogens: HFIX 137 C2BA "
+;; 	 (lambda ()
+;;	   (molecule-chooser-gui "Add rebuild hydrogens instructions"
+;;				 (lambda (imol)
+;;				   (let ((s "HFIX 137 C2BA"))
+;;				     (add-shelx-string-to-molecule imol s)))))))))
+;;  (dialog-box-of-buttons "SHELX Demo" (cons 200 50) buttons "  Close  "))
 
 
 
