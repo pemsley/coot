@@ -528,7 +528,7 @@
 	     (file-name-sans-extension file-name))
 	    ((string=? extension "ins")
 	     (file-name-sans-extension file-name))
-	    ((string=? extension "insh")
+	    ((string=? extension "pdb")
 	     (file-name-sans-extension file-name))
 	    ((string=? extension "log")
 	     (file-name-sans-extension file-name))
