@@ -85,6 +85,15 @@ coot::chi_angles::add_richardson_rotamers() {
        add_richardson_rotamer("GLU", "mp0", 88, 6, 0, 2, 10, -65, -65, 0, 0, 0, 0, 0, 0);
        add_richardson_rotamer("GLU", "mt-10 ", 484, 33, 36, 29, 32, -67, -67, 0, 0, 0, 0, 0, 0);
        add_richardson_rotamer("GLU", "mm-40", 197, 13, 19, 7, 12, -65, -65, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "pt 20 ", 37, 4, 1, 5, 6, 64, 62, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "pm0", 15, 2, 0, 1, 3, -5555, 70, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "tp-100", 14, 2, 4, 2, 0, -5555, -177, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "tp60", 78, 9, 13, 9, 7, -175, -177, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "tt 0 ", 140, 16, 16, 29, 12, -174, -177, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "mp0", 24, 3, 0, 1, 5, -5555, -65, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "mt -30 ", 304, 35, 40, 26, 36, -67, -67, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "mm-40", 127, 15, 12, 13, 17, -66, -65, 0, 0, 0, 0, 0, 0);
+       add_richardson_rotamer("GLN", "mm100", 22, 3, 4, 1, 2, -5555, -65, 0, 0, 0, 0, 0, 0);
        add_richardson_rotamer("ASP", "p-10", 203, 10, 1, 2, 13, 61, 62, 0, 0, 0, 0, 0, 0);
        add_richardson_rotamer("ASP", "p30", 194, 9, 1, 5, 12, 65, 62, 0, 0, 0, 0, 0, 0);
        add_richardson_rotamer("ASP", "t 0 ", 438, 21, 8, 44, 20, -176, -177, 0, 0, 0, 0, 0, 0);
