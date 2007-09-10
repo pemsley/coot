@@ -101,6 +101,8 @@ in_residue_table_flag == 1 {
 
    if (length(name) >0) { 
      printf("       add_richardson_rotamer(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);\n", this_residue, name, number, percent, alpha, beta, other, chi_1_mode, chi_1_com, chi_2_mode, chi_2_com, chi_3_mode, chi_3_com, chi_4_mode, chi_4_com);
+     if (this_residue == "MET")
+       printf("       add_richardson_rotamer(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);\n", "MSE", name, number, percent, alpha, beta, other, chi_1_mode, chi_1_com, chi_2_mode, chi_2_com, chi_3_mode, chi_3_com, chi_4_mode, chi_4_com);
    }
 }
 
@@ -162,7 +164,7 @@ function three_letter_code(res_str) {
   if (res_str == "arginine") return "ARG"; 
   if (res_str == "lysine")   return "LYS";
   if (res_str == "methionine") return "MET";
-  if (res_str == "methionine") return "MSE";
+  if (res_str == "s-methionine") return "MSE";
   if (res_str == "glutamate") return "GLU"; 
   if (res_str == "glutamine") return "GLN"; 
   if (res_str == "aspartate") return "ASP"; 
