@@ -333,6 +333,8 @@ coot::chi_angles::add_richardson_rotamer(std::string restype,
 					 float chi_4_com) {
 
    
+
+   
 } 
 
 
@@ -855,3 +857,4 @@ coot::chi_angles::atom_names_of_bond(int i) const {
    }
    return std::pair<std::string, std::string>(a1, a2);
 }
+

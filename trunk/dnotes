@@ -1674,7 +1674,11 @@ Tue Aug 21 16:50:52 BST 2007
 Tue Aug 21 18:15:47 BST 2007
 
 	blender's iksolver for inverse kinemetic (loop fitting).
+	Source code not obviously in 2.44.
 
+        But see this
+   http://www.koders.com/cpp/fid45A6AC666E04B001C8A397CC9CEA3A46D801EB30.aspx?s=cdef%3aparser
+        Hmm.
 
 -----
 Wed Aug 22 10:43:56 BST 2007
@@ -1682,8 +1686,6 @@ Wed Aug 22 10:43:56 BST 2007
 	Coot's configure should test for net-http and goosh.
 
 	Or fail gracefully when they are not there.
-
-
 
 ------
 Fri Aug 24 15:40:17 BST 2007
@@ -1693,4 +1695,15 @@ template type double.  Would things be faster with a float?
 
 clipper::Grad_orth<double>
 coot::restraints_container_t::electron_density_gradient_at_point(const clipper::Coord_orth &ao);
+
+
+----
+Fri Sep  7 17:09:18 BST 2007
+
+   Venki Ramakrishnan:
+
+	"CA mode" for nucleic acids should draw a P and C1' trace.
+
+
+-----
 

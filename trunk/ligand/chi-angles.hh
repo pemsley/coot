@@ -143,6 +143,8 @@ namespace coot {
       std::vector<simple_rotamer> simple_rotamers() const { return rotamers; }
       std::vector<simple_rotamer> get_sorted_rotamers(float prob_cut) const;
    };
+
+
    
    class chi_angles {
 
@@ -159,6 +161,7 @@ namespace coot {
       std::vector<coot::atom_index_pair> get_atom_index_pairs(const std::vector<coot::atom_name_pair> &atom_name_pairs,
 							      const PPCAtom atoms, int nresatoms) const;
       void add_all_rotamers();  // an autogen function
+      void add_richardson_rotamers(); 
       void add_rotamer(std::string restype,
 		       int rot1,  
 		       int rot2,  
@@ -179,8 +182,6 @@ namespace coot {
 		       float chi4,
 		       float sig_chi4);
 
-      // And the Richarson Rotamers:
-      void add_richardson_rotamers();
       // add_richardson_rotamer("ARG", "mmm-85", 22, 2, 2, 3, 3, -62, -62, 0, 0, 0, 0, 0, 0);
       void add_richardson_rotamer(std::string restype,
 				  std::string rotamer_name,
@@ -224,7 +225,11 @@ namespace coot {
 	 residue = residue_in;
 	 if (residue)
 	    residue_type = residue->GetResName();
+#ifdef USE_DUNBRACK_ROTAMERS			
 	 add_all_rotamers();
+#else
+	 add_richardson_rotamers();
+#endif // USE_DUNBRACK_ROTAMERS			
 	 // debugging
 // 	 if (add_extra_PHE_and_TYR_rotamers_flag)
 // 	    std::cout << "+++ Adding in extra PHE/TYR\n";
@@ -245,7 +250,13 @@ namespace coot {
       std::vector<simple_rotamer> rotamers(const std::string &res_type,
 					   float prob_cut) const;
 
+#ifdef USE_DUNBRACK_ROTAMERS			
       std::vector<dunbrack_rotamer> typed_rotamers;
+#else
+      std::vector<dunbrack_rotamer> typed_rotamers; // may change in future?
+#endif // USE_DUNBRACK_ROTAMERS			
+
+
       // Return success status, 
       // 0 means success
       // 
