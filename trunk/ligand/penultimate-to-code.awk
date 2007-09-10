@@ -68,9 +68,12 @@ in_residue_table_flag == 1 {
    chi_4_mode = $19;
    chi_4_com  = $20;
 
+   # print "chi_2_mode :" chi_2_mode ": chi_2_com :" chi_2_com ":"
+
 #   printf("name: %s number: %s, percent: %s, alpha %s, beta: %s, other: %s, chi_1_mode: %s , chi_1_com: %s, chi_2_mode: %s, chi_2_com: %s\n", name, number, percent, alpha, beta, other, chi_1_mode, chi_1_com, chi_2_mode, chi_2_com);
    
    n_chis = get_n_chis(this_residue);
+   # print "n_chis: ", n_chis 
    if (n_chis < 4) { 
      chi_4_mode = 0; 
      chi_4_com = 0;
@@ -136,24 +139,26 @@ function is_a_residue(res_str) {
 
 function get_n_chis(res_str) { 
 
-  if (res_str == "arginine") return 4; 
-  if (res_str == "lysine")   return 4;
-  if (res_str == "methionine") return 3;
-  if (res_str == "glutamate") return 3; 
-  if (res_str == "glutamine") return 3; 
-  if (res_str == "aspartate") return 2; 
-  if (res_str == "asparagine") return 2; 
-  if (res_str == "isoleucine") return 1; 
-  if (res_str == "leucine") return 2; 
-  if (res_str == "histidine") return 2; 
-  if (res_str == "tryptophan") return 2; 
-  if (res_str == "tyrosine") return 2; 
-  if (res_str == "phenylalanine") return 2; 
-  if (res_str == "proline") return 1;
-  if (res_str == "threonine") return 1; 
-  if (res_str == "valine") return 1; 
-  if (res_str == "serine") return 1; 
-  if (res_str == "cysteine") 
+  # print "get_n_chis for :" res_str ":"
+
+  if (res_str == "ARG") return 4; 
+  if (res_str == "LYS")   return 4;
+  if (res_str == "MET") return 3;
+  if (res_str == "GLU") return 3; 
+  if (res_str == "GLN") return 3; 
+  if (res_str == "ASP") return 2; 
+  if (res_str == "ASN") return 2; 
+  if (res_str == "ILE") return 2; 
+  if (res_str == "LEU") return 2; 
+  if (res_str == "HIS") return 2; 
+  if (res_str == "TRP") return 2; 
+  if (res_str == "TYR") return 2; 
+  if (res_str == "PHE") return 2; 
+  if (res_str == "PRO") return 1;
+  if (res_str == "THR") return 1; 
+  if (res_str == "VAL") return 1; 
+  if (res_str == "SER") return 1; 
+  if (res_str == "CYS") 
     return 1; 
   else 
    return 0;
