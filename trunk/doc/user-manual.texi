@@ -3582,6 +3582,22 @@ The dictionary is used to identify the chiral atoms of each of the
 model's residues.  A clickable list is created of atoms whose chiral
 volume in the model is of a different sign to that in the dictionary.
 
+@subsection Fixing Chiral Volume Errors
+
+There are two obvious ways:
+
+1) mutate and auto-fit rotamer (mutate it to the residue type that it is)
+
+2) RS Refine the residue and invert the chiral centre by pulling an
+atom. Usually you can pull the CA to the other side of the plane made
+by the chiral neighbouring atoms (using ctrl left-click).  Sometimes
+giving the CB a good old tweak is the easiesr way.
+
+Inverting the CB of THR is easier, just move the OG so that the plane
+of the neighbours is on the other side of the CB (again with ctrl
+left-click).
+
+
 @node sec_blobs
 @section Blobs: a.k.a. Unmodelled density
 This is an interface to the Blobs
