@@ -2,10 +2,11 @@
  * 
  * Copyright 2002, 2003 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -38,9 +39,13 @@
 #include <math.h>
 
 #include "clipper/core/xmap.h"
+#include "clipper/core/map_utils.h"
+#include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/core/hkl_compute.h"
 #include "clipper/core/map_utils.h" // Map_stats
+
+#define UNSET -9999
 
 #ifndef  __MMDB_MMCIF__
 #include "mmdb_mmcif.h"
@@ -54,6 +59,18 @@
 #include "mmdb-extras.h"
 #include "mmdb.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#ifdef __GNU_LIBRARY__
+#include "coot-getopt.h"
+#else
+#define __GNU_LIBRARY__
+#include "coot-getopt.h"
+#undef __GNU_LIBRARY__
+#endif
+
 #include "simple-restraint.hh"
 
 clipper::Xmap<float>
@@ -64,13 +81,32 @@ map_from_mtz(std::string mtz_file_name,
 	     int use_weights,
 	     int is_diff_map);
 
+class input_data_t {
+public:
+   bool is_good;
+   bool given_map_flag;
+   int resno_start;
+   int resno_end;
+   std::string chain_id;
+   std::string mtz_file_name;
+   std::string f_col;
+   std::string phi_col;
+   std::string map_file_name;
+   std::string  input_pdb_file_name;
+   std::string output_pdb_file_name;
+
+};
+
+input_data_t get_input_details(int argc, char **argv);
+
 
 int
 main(int argc, char **argv) {
 
 #ifndef HAVE_GSL
    std::cout << "We don't have GSL, this program does nothing" << std::endl;
-#else 
+#else
+   
    std::string dict_filename;
    coot::protein_geometry geom;
 
@@ -79,16 +115,24 @@ main(int argc, char **argv) {
    std::string phi_col("PHWT");
 
    if (argc < 2) {
-      std::cout << "usage: " << argv[0] << " pdb_filename " << std::endl;
+      std::cout << "Usage: " << argv[0]
+		<< " --pdbin pdb-in-filename\n"
+		<< "       --hklin mtz-filename\n"
+		<< "       --f f_col_label\n"
+		<< "       --phi phi_col_label\n"
+		<< "       --pdbout output-filename\n"
+		<< "       --resno-start resno_low\n"
+		<< "       --resno-end resno_high\n"
+		<< "       --chain-id chain-id\n"
+		<< "\n"
+		<< "     --mapin ccp4-map-name can be used\n"
+		<< "       instead of --hklin --f --phi\n"
+		<< std::endl;
 
    } else {
 
       geom.init_standard();
 
-      string pdb_file_name(argv[1]);
-
-      // if pdb_file_name does not exist -> crash?
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name); 
       //coot::restraints_container_t restraints(asc);
 
       // So, we provide easy(?) access to the atoms of next and
@@ -110,42 +154,55 @@ main(int argc, char **argv) {
 // 					      fixed_atoms);
       
       // int istart_res = 72;
-      // int iend_res   = 72;  // ropey.pdb 
+      // int iend_res   = 72;  // ropey.pdb
 
-      int istart_res = 89;
-      int iend_res   = 89;  // ropey.pdb
-      char *chain_id   = asc.atom_selection[0]->residue->GetChainID();
+      input_data_t inputs = get_input_details(argc, argv);
 
-      clipper::Xmap<float> xmap = map_from_mtz(mtz_filename,
-					       f_col,
-					       phi_col,
-					       "", 0, 0);
-					       
-      std::string altloc("");
+      if (inputs.is_good) { 
 
-      coot::restraints_container_t restraints(istart_res,
-					      iend_res,
-					      1, 1, 0,
-					      altloc,
-					      chain_id,
-					      asc.mol,
-					      fixed_atoms,
-					      xmap, 1000.0);
+	 string pdb_file_name(inputs.input_pdb_file_name);
+
+	 // if pdb_file_name does not exist -> crash?
+	 atom_selection_container_t asc = get_atom_selection(pdb_file_name);
       
-      // coot::restraint_usage_Flags flags = coot::NO_GEOMETRY_RESTRAINTS;
-      //coot::restraint_usage_Flags flags = coot::BONDS;
-      // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
-      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
-      // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
-      // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-      flags = coot::NON_BONDED;
+	 const char *chain_id = inputs.chain_id.c_str();
+	 clipper::Xmap<float> xmap;
+
+	 if (! inputs.given_map_flag) {
+	    xmap = map_from_mtz(inputs.mtz_file_name,
+				inputs.f_col, inputs.phi_col,
+				"", 0, 0);
+	 } else { 
+	    clipper::CCP4MAPfile file;
+	    file.open_read(inputs.map_file_name);
+	    file.import_xmap(xmap);
+	    file.close_read();
+	 }
+	       
+	 std::string altloc("");
+	 coot::restraints_container_t restraints(inputs.resno_start,
+						 inputs.resno_end,
+						 1, 1, 0,
+						 altloc,
+						 chain_id,
+						 asc.mol,
+						 fixed_atoms,
+						 xmap, 1000.0);
       
-      coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-      restraints.make_restraints(geom, flags, 1, 0, pseudos);
+	 // coot::restraint_usage_Flags flags = coot::NO_GEOMETRY_RESTRAINTS;
+	 // coot::restraint_usage_Flags flags = coot::BONDS;
+	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
+	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
+	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
+	 // flags = coot::NON_BONDED;
+	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+      
+	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+	 restraints.make_restraints(geom, flags, 1, 0, pseudos);
 
-
-      restraints.minimize(flags);
-      restraints.write_new_atoms("new.pdb");
+	 restraints.minimize(flags);
+	 restraints.write_new_atoms(inputs.output_pdb_file_name);
+      }
    }
 
 #endif // HAVE_GSL
@@ -206,23 +263,139 @@ map_from_mtz(std::string mtz_file_name,
      mtzin.close_read(); 
   }
   std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n"; 
-
-  cout << "finding ASU unique map points..." << endl;
   xmap.init( myhkl.spacegroup(), myhkl.cell(),
 	     clipper::Grid_sampling( myhkl.spacegroup(),
 				     myhkl.cell(),
 				     myhkl.resolution()) );
   cout << "Grid..." << xmap.grid_sampling().format() << "\n";
-
-
   cout << "doing fft..." << endl;
   xmap.fft_from( fphidata );                  // generate map
   cout << "done fft..." << endl;
 
-  clipper::Map_stats stats(xmap);
-
-  std::cout << "map mean " << stats.mean() << ", std dev: " << stats.std_dev() << std::endl;
-
+  // Serge and Tassos don't care about this: let's save a few milliseconds:
+  // clipper::Map_stats stats(xmap);
+  // std::cout << "map mean " << stats.mean() << ", std dev: " << stats.std_dev() << std::endl;
   return xmap;
-    
 }
+
+
+input_data_t get_input_details(int argc, char **argv) {
+
+   input_data_t d;
+   d.is_good = 0;
+   d.given_map_flag = 0;
+   d.resno_start = UNSET;
+   d.resno_end = UNSET;
+   int ch;
+   int option_index = 0;
+
+   char *optstr = "i:h:f:p:o:m:1:2:c";
+
+   struct option long_options[] = {
+      {"pdbin",  1, 0, 0}, 
+      {"hklin",  1, 0, 0}, 
+      {"f",      1, 0, 0}, 
+      {"phi",    1, 0, 0}, 
+      {"pdbout", 1, 0, 0}, 
+      {"mapin",  1, 0, 0}, 
+      {"resno-start", 1, 0, 0}, 
+      {"resno-end",   1, 0, 0}, 
+      {"chain-id",    1, 0, 0},
+      {0, 0, 0, 0}
+   };
+
+   while (-1 !=
+	  (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) {
+
+      switch (ch) { 
+      case 0:
+	 if (optarg) {
+	    std::string arg_str = long_options[option_index].name;
+
+	    if (arg_str == "pdbin") { 
+	       d.input_pdb_file_name = optarg;
+	    } 
+	    if (arg_str == "pdbout") { 
+	       d.output_pdb_file_name = optarg;
+	    } 
+	    if (arg_str == "hklin") { 
+	       d.mtz_file_name = optarg;
+	    } 
+	    if (arg_str == "f") { 
+	       d.f_col = optarg;
+	    } 
+	    if (arg_str == "phi") { 
+	       d.phi_col = optarg;
+	    } 
+	    if (arg_str == "mapin") { 
+	       d.map_file_name = optarg;
+	    }
+	    if (arg_str == "resno-start") { 
+	       d.resno_start = atoi(optarg);
+	    }
+	    if (arg_str == "resno-end") { 
+	       d.resno_end = atoi(optarg);
+	    }
+	 }
+	 break;
+
+      case 'i':
+	 d.input_pdb_file_name = optarg;
+	 break;
+
+      case 'o':
+	 d.output_pdb_file_name = optarg;
+	 break;
+
+      case 'h':
+	 d.mtz_file_name = optarg;
+	 break;
+
+      case 'f':
+	 d.f_col = optarg;
+	 break;
+
+      case 'p':
+	 d.phi_col = optarg;
+	 break;
+
+      case 'm':
+	 d.map_file_name = optarg;
+	 d.given_map_flag = 1;
+	 break;
+
+      case '1':
+	 d.resno_start = atoi(optarg);
+	 break;
+
+      case '2':
+	 d.resno_end = atoi(optarg);
+	 break;
+
+      case 'c':
+	 d.chain_id = optarg;
+	 break;
+      }
+   }
+
+   if (d.input_pdb_file_name != "" && d.output_pdb_file_name != "") { 
+      if (d.resno_start != UNSET && d.resno_end != UNSET) { 
+	 if (d.chain_id != "") { 
+	    if ( (d.map_file_name != "") || (d.mtz_file_name != "" && d.f_col != "" && d.phi_col != "") ) { 
+	       d.is_good = 1;
+	    } else {
+	       std::cout << "error in input map or HKLIN f phi" << std::endl;
+	    }
+	 } else {
+	    std::cout << "error in input chain-id" << std::endl;
+	 }
+      } else {
+	 std::cout << "error in input resno start and end" << std::endl;
+      }
+   } else {
+      std::cout << "error in input pdb or out put pdb file names" << std::endl;
+   } 
+	    
+   return d;
+} 
+
