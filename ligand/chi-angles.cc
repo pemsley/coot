@@ -42,7 +42,9 @@ coot::simple_rotamer::simple_rotamer(int rot1_in,
 				     float sig_chi3_in,
 				     float chi4_in,
 				     float sig_chi4_in) {
-
+   
+   rotamer_type = coot::simple_rotamer::DUNBRACK_ROTAMER;
+   name = ""; // no names for dunbrack rotamers
    rot1 =       	          rot1_in;  		      
    rot2 =       	          rot2_in;  		      
    rot3 =       	          rot3_in;  		      
@@ -67,14 +69,31 @@ coot::simple_rotamer::simple_rotamer(int rot1_in,
 
 // Constructor for richardson rotamer
 coot::simple_rotamer::simple_rotamer(std::string rotamer_name,  
+				     float percent_overall,
+				     float percent_alpha,
 				     float percent_beta,
 				     float percent_other,
 				     float chi_1_mode,
 				     float chi_2_mode,
 				     float chi_3_mode,
 				     float chi_4_mode) {
-   
 
+   rotamer_type = coot::simple_rotamer::RICHARDSON_ROTAMER;
+   name = rotamer_name;
+   rot1 = 0;
+   rot2 = 0; 
+   rot3 = 0;
+   rot4 = 0;
+   p_r1234 = percent_overall;
+   sig_p_r1234 = 0.0;
+   chi1 = chi_1_mode;
+   chi2 = chi_2_mode;
+   chi3 = chi_3_mode;
+   chi4 = chi_4_mode;
+   sig_chi1 = 40.0;
+   sig_chi2 = 40.0;
+   sig_chi3 = 40.0;
+   sig_chi4 = 40.0;
 }
 
 coot::simple_rotamer
@@ -332,9 +351,27 @@ coot::chi_angles::add_richardson_rotamer(std::string restype,
 					 float chi_4_mode,
 					 float chi_4_com) {
 
-   
+   coot::simple_rotamer rot(rotamer_name,
+			    percent_overall,
+			    percent_alpha,
+			    percent_beta,
+			    percent_other,
+			    chi_1_mode,
+			    chi_2_mode,
+			    chi_3_mode,
+			    chi_4_mode);
 
-   
+   bool added = 0;
+   for (unsigned int i=0; i<typed_rotamers.size(); i++) {
+      if (typed_rotamers[i].Type() == restype) {
+	 typed_rotamers[i].add_simple_rotamer(rot);
+	 added = 1;
+	 break;
+      }
+   }
+   if (! added) {
+      typed_rotamers.push_back(dunbrack_rotamer(restype, rot));
+   }
 } 
 
 

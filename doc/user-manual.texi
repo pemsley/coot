@@ -1427,6 +1427,7 @@ Coot can use the relative transformations of the NCS-related molecules
 in a coordinates molecule to transform maps. Use @command{Calculate}
 -> @command{NCS Maps@dots{}} to do this (note the NCS maps
 only make sense in the region of the reference chain (see above).
+
 @cindex NCS averaging
 This will also create an NCS averaged
 map @footnote{that also only makes sense in the region of the reference
@@ -3521,10 +3522,9 @@ masking or general transformation) using the export map function:
 @chapter Validation 
 @c % -----------------------------------------------------------
 
-The validation functions are in the process of being written.  In
+The validation functions are still being added to from time to time.  In
 future there will be more functions, particularly those that will
-interface to other programs @footnote{the Richardsons' reduce
-  and probe are being interfaced}.
+interface to other programs.
 
 @menu
 * Ramachandran Plots::
@@ -3800,7 +3800,7 @@ Example usage can be found in @file{xxx/share/coot/scheme/group-settings.scm}
 @node    Low Resolution
 @section Low Resolution
 
-Building structures using low resolution in data is a pain.  We hope to
+Building structures using low resolution data is a pain.  We hope to
 make it less of a pain in future, but there are some things that you can
 do now.
 

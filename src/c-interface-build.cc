@@ -536,11 +536,6 @@ void do_rot_trans_setup(short int state) {
    add_to_history_typed(cmd, args);
 }
 
-void do_rot_trans_adjustments(GtkWidget *dialog) { 
-   graphics_info_t g;
-   g.do_rot_trans_adjustments(dialog);
-}
-
 
 void rot_trans_reset_previous() { 
    graphics_info_t g;
@@ -718,19 +713,11 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
       graphics_draw();
       }
       
-      if (graphics_info_t::delete_item_widget != NULL) {
-	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
-						"delete_item_keep_active_checkbutton");
-	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+      if (delete_item_widget_is_being_shown()) {
+	 if (delete_item_widget_keep_active_on()) { 
 	    // dont destroy it
 	 } else {
-	    gint upositionx, upositiony;
-	    gdk_window_get_root_origin (graphics_info_t::delete_item_widget->window,
-					&upositionx, &upositiony);
-	    graphics_info_t::delete_item_widget_x_position = upositionx;
-	    graphics_info_t::delete_item_widget_y_position = upositiony;
-	    gtk_widget_destroy(graphics_info_t::delete_item_widget);
-	    graphics_info_t::delete_item_widget = NULL;
+	    store_delete_item_widget_position();
 	 }
       }
    }
@@ -1146,9 +1133,6 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
 
 
 
-void store_delete_item_widget(GtkWidget *widget) {
-   graphics_info_t::delete_item_widget = widget;
-}
 
 void clear_pending_delete_item() { 
 

@@ -142,7 +142,7 @@ function get_n_chis(res_str) {
   # print "get_n_chis for :" res_str ":"
 
   if (res_str == "ARG") return 4; 
-  if (res_str == "LYS")   return 4;
+  if (res_str == "LYS") return 4;
   if (res_str == "MET") return 3;
   if (res_str == "GLU") return 3; 
   if (res_str == "GLN") return 3; 

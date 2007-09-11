@@ -1951,6 +1951,8 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    for (unsigned int i=0; i<probabilities.size(); i++) {
       std::string button_label = int_to_string(i+1);
       button_label += ":  ";
+      button_label += d.rotamer_name(i);
+      button_label += "  ";
       button_label += float_to_string(probabilities[i]);
       button_label += "% Chi_1 = ";
       button_label += float_to_string(d.Chi1(i));

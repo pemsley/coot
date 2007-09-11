@@ -338,7 +338,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 
    std::string cmd = "handle-read-draw-molecule-with-recentre";
    std::vector<coot::command_arg_t> args;
-   args.push_back(filename);
+   args.push_back(single_quote(filename));
    args.push_back(recentre_on_read_pdb_flag);
    add_to_history_typed(cmd, args);
    return r; 
@@ -1785,7 +1785,7 @@ void set_display_intro_string(const char *str) {
 
       std::string cmd = "set-display-intro-string";
       std::vector<coot::command_arg_t> args;
-      args.push_back(str);
+      args.push_back(single_quote(str));
       add_to_history_typed(cmd, args);
    }
 } 

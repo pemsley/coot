@@ -232,6 +232,7 @@ coot_real_SOURCES = \
 	c-interface-waters.cc	 \
 	c-interface-mutate.cc    \
 	c-interface-ligands.cc   \
+	c-interface-widgets.cc   \
 	c-interface-validate.cc	 \
 	c-interface-superpose.cc \
 	c-interface-preferences.cc \

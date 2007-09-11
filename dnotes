@@ -12,12 +12,13 @@ Tue Jul  3 14:27:37 BST 2007
    o Try again to add chiral volumes to the geometry target function
 
    o Alice Dawson SSM Problem, 1pyd.  Message sent to Eugene -
-     he says no bug.  Hmmm...
+     He says no problem.  Therefore small example program is required
+     to find the problem in SSM (or elsewhere of course).
+
+   o Frank's SSM crash.
 
    o Don't display symmetry with hydrogens if the main molecule
      doesn't have them [Steven Graham]
-
-   o Frank's SSM crash.
 
    o Post-install slim the binaries
 
@@ -27,17 +28,24 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Check where else we do a SetSpaceGroup().  Bug there too?
 
-   o Fix Steven Graham's symmetry hydrogens bug.
-
-   o Fix Frank's SSM bug.
-
    o Where else do I mess with the space group like I did at the end of 
      unshelxing?  Fix that too.
 
    o Fix non-orthorhombic aniso Us.
 
+   o Correct CISPEP if needed cards on writing pdb.
+     Hand off to Eugene for now.
+
+   o res098 from Lionel Colliandre - alt conf occ resetting problem on
+     regularize. 
 
 
+
+
+   o history doesn't quote set-display-intro-string and
+     handle-read-draw-molecule-with-recentre - it should.
+
+* Done.
 
    o Activate test suite
 
@@ -108,7 +116,7 @@ Tue Jul  3 14:27:37 BST 2007
 
 * Done.
 
-   o Ignore hydrogens in b-factor variance plot
+   o Ignore hydrogens in B-factor variance plot
 
 * Done     
 
@@ -1697,13 +1705,61 @@ clipper::Grad_orth<double>
 coot::restraints_container_t::electron_density_gradient_at_point(const clipper::Coord_orth &ao);
 
 
-----
-Fri Sep  7 17:09:18 BST 2007
+------
+Tue Aug 28 14:31:25 BST 2007
+
+   And if the display manager would automatically resize itself when
+   more objects are loaded, would be great.
+ 
+  Marko Hyvönen
+  Department of Biochemistry    
+  University of Cambridge        
+
+   Priority: Low, Difficulty: Medium.
+   A thing for GSoC.
+
+
+-----
+Tue Aug 28 14:48:50 BST 2007
+
+      http://blog.mithis.net/
+      lython and SchemePy 
+
+------
+From: 	Matthew Wilce <matthew.wilce@med.monash.edu.au>
+To: 	emsley@ysbl.york.ac.uk
+Subject: 	Coot and polynucleotide
+Date: 	Tue, 17 May 2005 10:39:44 +1000  (01:39 BST)
+
+    functionality for both RNA and DNA
+
+    the ability to change RNA into DNA and visa versa
+
+    mutation of bases
+
+    rotamer flipping (manual and automated)
+
+    fragment library for each nucleotide
+
+    a version of baton would be useful - either base to base and/or  
+    phosphate to phosphate
+
+      o is that still needed?
+
+    insertion of nucleotides
+
+    addition of a nucleotide at 3' or 5' end of polynucleotide
+
+      o Done?
+
+
+-----
 
    Venki Ramakrishnan:
 
 	"CA mode" for nucleic acids should draw a P and C1' trace.
 
-
 -----
+
+   Write a FAQ for sucking of metal ligands into metal density.
 
