@@ -125,6 +125,7 @@ main(int argc, char **argv) {
 		<< "       --resno-start resno_low\n"
 		<< "       --resno-end resno_high\n"
 		<< "       --chain-id chain-id\n"
+		<< "       --weight w (weight of map gradients, default 60)\n"
 		<< "\n"
 		<< "     --mapin ccp4-map-name can be used\n"
 		<< "       instead of --hklin --f --phi\n"
