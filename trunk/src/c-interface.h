@@ -3273,6 +3273,10 @@ short int delete_item_mode_is_water_p();
 short int delete_item_mode_is_sidechain_p();
 void store_delete_item_widget(GtkWidget *widget);
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
+void clear_delete_item_widget();
+void store_delete_item_widget_position();
+short int delete_item_widget_is_being_shown();
+short int delete_item_widget_keep_active_on();
 
 /* We need to set the pending delete flag and that can't be done in
    callback, so this wrapper does it */

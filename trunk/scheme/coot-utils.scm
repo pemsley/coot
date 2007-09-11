@@ -973,7 +973,7 @@
 
     
 
-;; return a list of chain ids for given molecule number @var{imol}.
+;; Return a list of chain ids for given molecule number @var{imol}.
 ;; return empty list on error
 ;; 
 (define (chain-ids imol)

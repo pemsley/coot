@@ -963,13 +963,35 @@ coot::rotamer::Chi1(int irot) const {
 	    v = rotamers(rt, Probability_limit())[irot].Chi1();
 	    return v;
 	 } else {
-	    std::cout << "bug: asked for index " << irot << " but max rotamers was "
+	    std::cout << "ERROR: asked for index " << irot << " but max rotamers was "
 		      << rotamers(rt, Probability_limit()).size() << std::endl;
 	 }
       }
    }
-
    return v;
+}
+
+
+std::string
+coot::rotamer::rotamer_name(int irot) {
+
+   std::string n = "";
+
+   for (unsigned int i=0; i<typed_rotamers.size(); i++) {
+      std::string rt = Residue_Type();
+      if (rt == "MSE")
+	 rt = "MET";
+      if (typed_rotamers[i].Type() == rt) {
+	 if (irot<int(rotamers(rt, Probability_limit()).size())) { 
+	    n = rotamers(rt, Probability_limit())[irot].rotamer_name();
+	    break;
+	 } else {
+	    std::cout << "ERROR: asked for index " << irot << " but max rotamers was "
+		      << rotamers(rt, Probability_limit()).size() << std::endl;
+	 }
+      }
+   }
+   return n;
 } 
 
 

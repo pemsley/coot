@@ -31,6 +31,7 @@ namespace coot {
    // Probabilities in percentages
    // 
    class simple_rotamer {
+      short int rotamer_type; 
       std::string name;
       int rot1;  // rotamer indices
       int rot2;  // 
@@ -74,13 +75,19 @@ namespace coot {
 		     float sig_chi3,
 		     float chi4,
 		     float sig_chi4);
-      simple_rotamer(std::string rotamer_name,  // constructor for richardson rotamer
+      // constructor for richardson rotamer
+      simple_rotamer(std::string rotamer_name,  
+		     float percent_overall,
+		     float percent_alpha,
 		     float percent_beta,
 		     float percent_other,
 		     float chi_1_mode,
 		     float chi_2_mode,
 		     float chi_3_mode,
 		     float chi_4_mode);
+
+      enum rotamer_t { RICHARDSON_ROTAMER, DUNBRACK_ROTAMER};
+      
       float P_r1234() const { return p_r1234; }
       float Probability_rich() const { return p_r1234; }
       const float & operator[](int i) const;
@@ -101,6 +108,7 @@ namespace coot {
 	 
 
       int N_chi() const { return chi_vec.size(); }
+      std::string rotamer_name() const {return name;} // richardson rotamer name (m, tt, p-90)
       
       short int has_chi2_p() const { return sig_chi2 > 0.0; };
       short int has_chi3_p() const { return sig_chi3 > 0.0; };

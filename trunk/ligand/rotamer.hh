@@ -86,6 +86,7 @@ namespace coot {
       CResidue *GetResidue(int i_rot) const; // rotamer/button number
       std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 
       float Chi1(int i) const; // chi1 for the ith rotamer
+      std::string rotamer_name(int irot);
 
    };
 }
