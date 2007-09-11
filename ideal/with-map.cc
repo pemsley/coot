@@ -87,6 +87,7 @@ public:
    bool given_map_flag;
    int resno_start;
    int resno_end;
+   float map_weight; 
    std::string chain_id;
    std::string mtz_file_name;
    std::string f_col;
@@ -178,7 +179,11 @@ main(int argc, char **argv) {
 	    file.import_xmap(xmap);
 	    file.close_read();
 	 }
-	       
+
+	 float map_weight = 60.0;
+	 if (inputs.map_weight > 0)
+	    map_weight = inputs.map_weight;
+	 
 	 std::string altloc("");
 	 coot::restraints_container_t restraints(inputs.resno_start,
 						 inputs.resno_end,
@@ -187,7 +192,7 @@ main(int argc, char **argv) {
 						 chain_id,
 						 asc.mol,
 						 fixed_atoms,
-						 xmap, 1000.0);
+						 xmap, map_weight);
       
 	 // coot::restraint_usage_Flags flags = coot::NO_GEOMETRY_RESTRAINTS;
 	 // coot::restraint_usage_Flags flags = coot::BONDS;
@@ -286,10 +291,11 @@ input_data_t get_input_details(int argc, char **argv) {
    d.given_map_flag = 0;
    d.resno_start = UNSET;
    d.resno_end = UNSET;
+   d.map_weight = UNSET;
    int ch;
    int option_index = 0;
 
-   char *optstr = "i:h:f:p:o:m:1:2:c";
+   char *optstr = "i:h:f:p:o:m:1:2:c:w";
 
    struct option long_options[] = {
       {"pdbin",  1, 0, 0}, 
@@ -301,6 +307,7 @@ input_data_t get_input_details(int argc, char **argv) {
       {"resno-start", 1, 0, 0}, 
       {"resno-end",   1, 0, 0}, 
       {"chain-id",    1, 0, 0},
+      {"weight",    1, 0, 0},
       {0, 0, 0, 0}
    };
 
@@ -330,11 +337,20 @@ input_data_t get_input_details(int argc, char **argv) {
 	    if (arg_str == "mapin") { 
 	       d.map_file_name = optarg;
 	    }
+	    if (arg_str == "chain-id") { 
+	       d.chain_id = optarg;
+	    }
+	    if (arg_str == "chain") { 
+	       d.chain_id = optarg;
+	    }
 	    if (arg_str == "resno-start") { 
 	       d.resno_start = atoi(optarg);
 	    }
 	    if (arg_str == "resno-end") { 
 	       d.resno_end = atoi(optarg);
+	    }
+	    if (arg_str == "weight") { 
+	       d.map_weight = atof(optarg);
 	    }
 	 }
 	 break;
@@ -374,6 +390,10 @@ input_data_t get_input_details(int argc, char **argv) {
 
       case 'c':
 	 d.chain_id = optarg;
+	 break;
+
+      case 'w':
+	 d.map_weight = atof(optarg);
 	 break;
       }
    }
