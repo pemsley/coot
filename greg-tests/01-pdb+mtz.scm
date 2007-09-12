@@ -52,7 +52,7 @@
      (let ((imol-map-2 (another-level)))
        (valid-map-molecule? imol-map-2))))
 
-(greg-testcase "Set Atom Atribute Test" #t
+(greg-testcase "Set Atom Attribute Test" #t
 	       (lambda ()
 		 (set-atom-attribute imol-rnase "A" 11 "" " CA " "" "x" 64.5) ; an Angstrom or so
 		 (let ((atom-ls (residue-info imol-rnase "A" 11 "")))
@@ -187,36 +187,34 @@
        #t))) ; it didn't crash - good :)
 
 
-(greg-testcase "Many Molecules - Ligand Fitting" #t 
+(greg-testcase "Rotamer outliers" #t
+
    (lambda ()
 
-     (let ((npo-pdb  (append-dir-file greg-data "monomer-NPO.pdb"))
-	   (43ca-pdb (append-dir-file greg-data "pdb43ca-sans-NPO-refmaced.pdb"))
-	   (43ca-mtz (append-dir-file greg-data "pdb43ca-sans-NPO-refmaced.mtz"))
-	   (imol-npo (handle-read-draw-molecule-with-recentre npo-pdb 0)))
+     ;; pre-setup so that residues 1 and 2 are not rotamers "t" but 3
+     ;; to 8 are (1 and 2 are more than 40 degrees away). 9-16 are
+     ;; other residues and rotamers.
+     (let ((imol-rotamers (read-pdb (append-dir-file greg-data-dir 
+						     "rotamer-test-fragment.pdb"))))
 
-       (if (not (valid-model-molecule? imol-npo))
-	   #f
-	   (begin 
-	     (let loop ((count 0))
-	       (cond
-		((= count 50) 'done)
-		(else 
-		 (copy-molecule imol-npo)
-		 (loop (+ count 1)))))
+       (let ((rotamer-anal (rotamer-graphs imol-rotamers)))
+	 (if (not (= (length rotamer-anal) 14))
+	     (throw 'fail)
+	     (let ((a-1 (list-ref rotamer-anal 0))
+		   (a-2 (list-ref rotamer-anal 1))
+		   (a-last (car (reverse rotamer-anal))))
 
-	     (let* ((imol-protein (read-pdb 43ca-pdb))
-		    (imol-map-2 (auto-read-mtz-make-and-draw-maps 43ca-mtz))
-		    (imol-map-1 (- imol-map-2 1)))
-	     
-	       (add-ligand-clear-ligands)
-	       (set-ligand-search-protein-molecule imol-protein
-	       (set-ligand-search-map-molecule imol-map-1)
-	       (add-ligand-search-ligand-molecule imol-npo)
+	       (let ((anal-str-a1 (car (reverse a-1)))
+		     (anal-str-a2 (car (reverse a-2)))
+		     (anal-str-a3 (car (reverse a-last))))
 
-	       (let ((solutions (execute-ligand-search))) ; crash
-		 (format #t "Fitting NPO gave these results: ~s~%" solutions)
-		 #t))))))))
+		 (if (and (string=? anal-str-a1 "Rotamer not recognised")
+			  (string=? anal-str-a2 "Rotamer not recognised")
+			  (string=? anal-str-a3 "Missing Atoms"))
+		     #t 
+		     (begin 
+		       (format #t "  failure rotamer test: ~s ~s ~s~%"
+			       a-1 a-2 a-last)
+		       (throw 'fail))))))))))
 
-
-
+		     

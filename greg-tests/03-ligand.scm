@@ -55,3 +55,36 @@
 		   (turn-on-backup imol-ligand))
 	       #t ; pah
 	       ))))))
+
+(greg-testcase "Many Molecules - Ligand Fitting" #t 
+   (lambda ()
+
+     (let* ((npo-pdb  (append-dir-file greg-data-dir "monomer-NPO.pdb"))
+	    (43ca-pdb (append-dir-file greg-data-dir "pdb43ca-sans-NPO-refmaced.pdb"))
+	    (43ca-mtz (append-dir-file greg-data-dir "pdb43ca-sans-NPO-refmaced.mtz"))
+	    (imol-npo (handle-read-draw-molecule-with-recentre npo-pdb 0)))
+       
+       (if (not (valid-model-molecule? imol-npo))
+	   #f
+	   (begin 
+	     (let loop ((count 0))
+	       (cond
+		((= count 50) 'done)
+		(else 
+		 (copy-molecule imol-npo)
+		 (loop (+ count 1)))))
+
+	     (let* ((imol-protein (read-pdb 43ca-pdb))
+		    (imol-map-2 (auto-read-make-and-draw-maps 43ca-mtz))
+		    (imol-map-1 (- imol-map-2 1)))
+	     
+	       (add-ligand-clear-ligands)
+	       (set-ligand-search-protein-molecule imol-protein)
+	       (set-ligand-search-map-molecule imol-map-1)
+	       (add-ligand-search-ligand-molecule imol-npo)
+
+	       (let ((solutions (execute-ligand-search))) ; crash
+		 (format #t "Fitting NPO gave these results: ~s~%" solutions)
+		 #t)))))))
+
+

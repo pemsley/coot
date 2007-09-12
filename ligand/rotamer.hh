@@ -28,12 +28,26 @@
 
 namespace coot {
 
+   class rotamer_probability_info_t {
+   public:
+      short int state;
+      float probability;
+      std::string rotamer_name;
+      rotamer_probability_info_t(short int state_in, float prob_in, const std::string &name) {
+	 state = state_in;
+	 probability = prob_in;
+	 rotamer_name = name;
+      }
+   }; 
+
 
    class rotamer : public chi_angles {
 
       float probability_limit;
-      std::pair<short int, double> probability_of_this_rotamer(const std::vector<double> &chi_angles,
-							       const std::vector<coot::simple_rotamer> &rots) const;
+      rotamer_probability_info_t
+      probability_of_this_rotamer(const std::vector<double> &chi_angles,
+				  const std::vector<coot::simple_rotamer> &rots) const;
+      
       std::vector<std::vector<std::string> >
       rotamer_atoms(const std::string &residue_name) const;
       std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms, PCAtom *residue_atoms, int n_residue_atoms) const;
@@ -43,7 +57,7 @@ namespace coot {
       get_all_rotamers(const std::string &res_type) const;
       std::vector<CAtom *> ordered_residue_atoms(CResidue *residue_p) const;
 
-      short int similar_rotamer_chi(double target, double model) const {
+      short int similar_rotamer_chi(const double &target, const double &model) const {
 	 short int is = 0;
 	 double diff = target - model;
 	 while (diff > 180.0)
@@ -80,8 +94,8 @@ namespace coot {
       // 
       int optimize_rotamer_by_atom_names();
 
-      std::pair<short int, double> probability_of_this_rotamer(); // can't const - mmdb
-                                                                  // CResidue issues...
+      rotamer_probability_info_t probability_of_this_rotamer(); // can't const - mmdb
+                                                               // CResidue issues...
 
       CResidue *GetResidue(int i_rot) const; // rotamer/button number
       std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 

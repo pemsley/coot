@@ -207,6 +207,30 @@ namespace coot {
 
    };
 
+   class graph_rotamer_info_t {
+   public:
+     std::string chain_id;
+     int resno;
+     std::string inscode;
+     float probability;
+     std::string rotamer_name;
+     graph_rotamer_info_t(const std::string &chain_id_in, int resno_in, const std::string &inscode_in, float prob_in, const std::string &rotamer_name_in) { 
+       chain_id = chain_id_in;
+       resno = resno_in;
+       inscode = inscode_in;
+       probability = prob_in;
+       rotamer_name = rotamer_name_in;
+     } 
+   };
+
+   // To pass rotamer info back to scripting layer, for testing. 
+   // Hmmmm.. confusing names, perhaps.
+   // 
+   class rotamer_graphs_info_t { 
+   public:
+     std::vector<graph_rotamer_info_t> info;
+   }; 
+
    class diff_map_peak_helper_data {
    public:
       int ipeak;
@@ -2434,7 +2458,7 @@ public:
    void geometric_distortion(int imol);
    void b_factor_graphs(int imol);
    void omega_graphs(int imol);
-   void rotamer_graphs(int imol);
+   coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);
    static GtkWidget *wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma);
    // the buttons callback for above:

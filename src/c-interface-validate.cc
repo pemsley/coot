@@ -33,7 +33,11 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+// no fix up needed 
+#else    
 
+#endif // SCM version
  
 #include "globjects.h" //includes gtk/gtk.h
 
@@ -521,6 +525,40 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
 #endif 
 #endif // HAVE_GSL   
 }
+
+
+#ifdef USE_GUILE 
+/*! \brief Activate rotamer graph analysis for molecule number imol.  
+
+Return rotamer info - function used in testing.  */
+SCM rotamer_graphs(int imol) {
+
+   SCM r = SCM_BOOL_F;
+
+   graphics_info_t g;
+   coot::rotamer_graphs_info_t results = g.rotamer_graphs(imol);
+   if (results.info.size() > 0) {
+      r = SCM_EOL;
+      for (int ir=int(results.info.size()-1); ir>=0; ir--) {
+	 SCM ele = SCM_EOL;
+	 SCM name = scm_makfrom0str(results.info[ir].rotamer_name.c_str());
+	 ele = scm_cons(name, ele);
+	 SCM pr = scm_double2num(results.info[ir].probability);
+	 ele = scm_cons(pr, ele);
+	 SCM inscode = scm_makfrom0str(results.info[ir].inscode.c_str());
+	 ele = scm_cons(inscode, ele);
+	 SCM resno = scm_int2num(results.info[ir].resno);
+	 ele = scm_cons(resno, ele);
+	 SCM chainid = scm_makfrom0str(results.info[ir].chain_id.c_str());
+	 ele = scm_cons(chainid, ele);
+
+	 r = scm_cons(ele, r);
+      }
+   } 
+
+   return r;
+} 
+#endif
 
 
 // -----------------------------------------------------
