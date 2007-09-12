@@ -868,7 +868,8 @@ execute_ligand_search_internal() {
 	 coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
 
 	 for(unsigned int ifrag=0; ifrag<mmol.fragments.size(); ifrag++) {
-	    for (int ires=mmol[ifrag].min_res_no(); ires<=mmol[ifrag].max_residue_number(); ires++) {
+	    for (int ires=mmol[ifrag].min_res_no(); ires<=mmol[ifrag].max_residue_number();
+		 ires++) {
 	       if (mmol[ifrag][ires].n_atoms() > 0) {
 		  std::cout << "DEBUG:: in execute_ligand_search:  mmol["
 			    << ifrag << "][" << ires << "].name :"
@@ -908,6 +909,7 @@ execute_ligand_search_internal() {
    std::cout << "DEBUG:: calling mask_map\n";
    wlig.mask_map(protein_mol, mask_waters_flag); // mask by protein
    std::cout << "DEBUG:: done mask_map\n";
+   g.expand_molecule_space_maybe(); 
    g.molecules[imol].new_map(wlig.masked_map(), wlig.masked_map_name());
    wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
    wlig.find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
@@ -931,6 +933,7 @@ execute_ligand_search_internal() {
 	 int g_mol = g.n_molecules;
 	 std::string label = "Fitted ligand #";
 	 label += g.int_to_string(ilig);
+	 g.expand_molecule_space_maybe(); 
 	 g.molecules[g_mol].install_model(asc, label, 1);
 	 solutions.push_back(g_mol);
 	 g.n_molecules++;

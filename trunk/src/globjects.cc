@@ -310,7 +310,7 @@ std::string graphics_info_t::model_fit_refine_rotate_translate_zone_string = "";
 //
 // We need to store how many molecules we have and where to find them.
 
-int graphics_info_t::n_molecules_max = 200; 
+int graphics_info_t::n_molecules_max = 60; 
 int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
 
 // generic display objects, gets set in init.

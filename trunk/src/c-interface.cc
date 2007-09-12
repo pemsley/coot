@@ -1196,7 +1196,8 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
    // this is order dependent.  the restore-state comand that is
    // constructed in make_and_draw_map checks to see if we
    // have_refmac_params, so we need to set them before making the map.
-   // 
+   //
+   g.expand_molecule_space_maybe();
    if (have_refmac_params)
       g.molecules[g.n_molecules].store_refmac_params(std::string(mtz_file_name),
 					    std::string(fobs_col), 

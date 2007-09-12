@@ -557,15 +557,16 @@ graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &as
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL   
 
-void
+coot::rotamer_graphs_info_t 
 graphics_info_t::rotamer_graphs(int imol) {
 
+   coot::rotamer_graphs_info_t info;
+      
 #ifdef HAVE_GSL    
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    if (imol >= 0) {
       if (imol < n_molecules) {
 	 if (molecules[imol].has_model()) {
-	    std::cout << "starting" << std::endl;
 	    CMMDBManager *mol = molecules[imol].atom_sel.mol;
 	    int n_models = mol->GetNumberOfModels();
 	    int max_chain_length = coot::util::max_min_max_residue_range(mol);
@@ -611,15 +612,13 @@ graphics_info_t::rotamer_graphs(int imol) {
 			      std::vector<coot::geometry_graph_block_info_generic> v;
 			      for (int ir=0; ir<nSelResidues; ir++) {
 				 int this_resno = SelResidues[ir]->GetSeqNum();
+				 std::string this_inscode = SelResidues[ir]->GetInsCode();
 				 if (this_resno > max_resno)
 				    max_resno = this_resno;
 #ifdef USE_DUNBRACK_ROTAMERS			
 				 coot::dunbrack d(SelResidues[ir], mol,
 						      rotamer_lowest_probability, 1);
 #else
-				 std::cout << "\nDEBUG::  rotamer_graphs on residue: "
-					   << SelResidues[ir] << std::endl;
-				 
 				 coot::richardson_rotamer d(SelResidues[ir], mol,
 						      rotamer_lowest_probability, 1);
 #endif // USE_DUNBRACK_ROTAMERS
@@ -627,7 +626,8 @@ graphics_info_t::rotamer_graphs(int imol) {
 				 // unassigned due to missing atoms,      0 
 				 // unassigned due to rotamer not found. -1
 				 // unassigned due to GLY/ALA            -2
-				 std::pair<short int,double> d_score = d.probability_of_this_rotamer();
+				 coot::rotamer_probability_info_t d_score =
+				    d.probability_of_this_rotamer();
 				 double distortion = 0.0;
 				 std::string str = int_to_string(this_resno);
 				 str += chain_id;
@@ -636,28 +636,45 @@ graphics_info_t::rotamer_graphs(int imol) {
 				 str += " ";
 				 coot::atom_spec_t atom_spec(chain_id, this_resno,
 							     "", " CA ", "");
-				 switch (d_score.first) {
+				 coot::graph_rotamer_info_t ri("", -9999, "", -99.9, "unset");
+				 switch (d_score.state) {
 
 				 case 1:
 				    // On reflection we don't want found
 				    // rotamers with low probabilities to be
 				    // marked (nearly as or more) bad than not
 				    // found rotamers:
-				    distortion = 100.0 * 0.2/d_score.second;
+				    distortion = 100.0 * 0.4/d_score.probability;
 				    distortion = distortion > 100.0 ? 100.0 : distortion;
+				    str += " ";
+				    str += d_score.rotamer_name;
+				    str += " ";
 				    str += "Probability: ";
-				    str += float_to_string(d_score.second);
+				    str += float_to_string(d_score.probability);
 				    str += "%";
+				    ri = coot::graph_rotamer_info_t (chain_id, this_resno,
+								     this_inscode,
+								     d_score.probability,
+								     d_score.rotamer_name);
+				    info.info.push_back(ri);
 				    break;
 				 
 				 case 0:
 				    distortion = 100.0;
 				    str += "Missing Atoms";
 				    atom_spec.string_user_data = "Missing Atoms";
+				    ri = coot::graph_rotamer_info_t (chain_id, this_resno,
+								     this_inscode,
+								     0.0, "Missing Atoms");
+				    info.info.push_back(ri);
 				    break;
 				 
 				 case -1:
 				    distortion = 100.0;
+				    ri = coot::graph_rotamer_info_t (chain_id, this_resno,
+								     this_inscode,
+								     0.0, "Rotamer not recognised");
+				    info.info.push_back(ri);
 				    str += "Rotamer not recognised";
 				    break;
 
@@ -665,7 +682,7 @@ graphics_info_t::rotamer_graphs(int imol) {
 				    distortion = 0.0;
 				    break;
 				 }
-				 if (d_score.first != -2) {
+				 if (d_score.state != -2) {
 				    v.push_back(coot::geometry_graph_block_info_generic(imol, this_resno, atom_spec, distortion, str));
 				 }
 			      }
@@ -686,6 +703,7 @@ graphics_info_t::rotamer_graphs(int imol) {
 	 }
       }
    }
+   return info;
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
 }
@@ -748,7 +766,7 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 		  // unassigned due to missing atoms,      0 
 		  // unassigned due to rotamer not found. -1
 		  // unassigned due to GLY/ALA            -2
-		  std::pair<short int,double> d_score = d.probability_of_this_rotamer();
+		  coot::rotamer_probability_info_t d_score = d.probability_of_this_rotamer();
 		  double distortion = 0.0;
 		  std::string str = int_to_string(this_resno);
 		  str += chain_id;
@@ -757,17 +775,20 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 		  str += " ";
 		  coot::atom_spec_t atom_spec(chain_id, this_resno,
 					      "", " CA ", "");
-		  switch (d_score.first) {
+		  switch (d_score.state) {
 
 		  case 1:
 		     // On reflection we don't want found
 		     // rotamers with low probabilities to be
 		     // marked (nearly as or more) bad than not
 		     // found rotamers:
-		     distortion = 100.0 * 0.2/d_score.second;
+		     distortion = 100.0 * 0.2/d_score.probability;
 		     distortion = distortion > 100.0 ? 100.0 : distortion;
+		     str += " ";
+		     str += d_score.rotamer_name;
+		     str += " ";
 		     str += "Probability: ";
-		     str += float_to_string(d_score.second);
+		     str += float_to_string(d_score.probability);
 		     str += "%";
 		     break;
 				 
@@ -786,7 +807,7 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 		     distortion = 0.0;
 		     break;
 		  }
-		  if (d_score.first != -2) {
+		  if (d_score.state != -2) {
 		     dv.push_back(coot::geometry_graph_block_info_generic(imol_moving_atoms, this_resno, atom_spec, distortion, str));
 		  }
 	       }
@@ -821,24 +842,27 @@ graphics_info_t::rotamers_from_residue_selection(PCResidue *SelResidues,
       // unassigned due to missing atoms,      0 
       // unassigned due to rotamer not found. -1
       // unassigned due to GLY/ALA            -2
-      std::pair<short int,double> d_score = d.probability_of_this_rotamer();
+      coot::rotamer_probability_info_t d_score = d.probability_of_this_rotamer();
       double distortion = 0.0;
       std::string str = int_to_string(this_resno);
       str += chain_id;
       str += " ";
       str += SelResidues[ires]->name;
       str += " ";
-      switch (d_score.first) {
+      switch (d_score.state) {
 
       case 1:
 	 // On reflection we don't want found
 	 // rotamers with low probabilities to be
 	 // marked (nearly as or more) bad than not
 	 // found rotamers:
-	 distortion = 100.0 * 0.2/d_score.second;
+	 distortion = 100.0 * 0.2/d_score.probability;
 	 distortion = distortion > 100.0 ? 100.0 : distortion;
+	 str += " ";
+	 str += d_score.rotamer_name;
+	 str += " ";
 	 str += "Probability: ";
-	 str += float_to_string(d_score.second);
+	 str += float_to_string(d_score.probability);
 	 str += "%";
 	 break;
 				 
@@ -856,7 +880,7 @@ graphics_info_t::rotamers_from_residue_selection(PCResidue *SelResidues,
 	 distortion = 0.0;
 	 break;
       }
-      if (d_score.first != -2) {
+      if (d_score.state != -2) {
 	 coot::atom_spec_t atom_spec(chain_id, this_resno,
 				     "", " CA ", "");
 	 v.push_back(coot::geometry_graph_block_info_generic(imol_moving_atoms,

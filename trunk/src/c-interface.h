@@ -3394,6 +3394,18 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
 void
 set_graphics_rotamer_dialog(GtkWidget *w);
 
+
+#ifdef __cplusplus	/* need this wrapper, else gmp.h problems in callback.c */
+#ifdef USE_GUILE 
+/*! \brief Activate rotamer graph analysis for molecule number imol.  
+
+Return rotamer info - function used in testing.  */
+SCM rotamer_graphs(int imol);
+#else
+/* FIXME Bernhard */
+#endif 
+#endif 
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
