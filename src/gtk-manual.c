@@ -1235,12 +1235,12 @@ on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
    int i = (int) user_data;
 
    char *state = "inactive";
-   printf("got to on_display_control_map_scroll_radio_button_toggled\n");
+/*    printf("got to on_display_control_map_scroll_radio_button_toggled\n"); */
    if (GTK_TOGGLE_BUTTON(button)->active) {
       state = "active";
       set_scrollable_map(i);
    }
-   printf("INFO:: scroll toggled for map %d %s\n", i, state);
+/*    printf("INFO:: scroll toggled for map %d %s\n", i, state); */
 }
 
 
