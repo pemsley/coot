@@ -356,7 +356,7 @@ public:
 		  float symm_distance,
 		  const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
 		  short int symmetry_as_ca_flag,
-		  short int symmetry_whole_chain_flag); 
+		  short int symmetry_whole_chain_flag);
    graphical_bonds_container
       addSymmetry_with_mmdb(const atom_selection_container_t &SelAtom,
 			    coot::Cartesian point,
@@ -390,7 +390,8 @@ public:
 			       float symm_distance,
 			       const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
 			       short int symmetry_as_ca_flag,
-			       short int symmetry_whole_chain_flag); 
+			       short int symmetry_whole_chain_flag,
+			       short int draw_hydrogens_flag);
 
    std::vector<std::pair<graphical_bonds_container, symm_trans_t> >
       add_NCS(const atom_selection_container_t &SelAtom,

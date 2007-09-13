@@ -763,6 +763,7 @@ class molecule_class_info_t {
       if (draw_hydrogens_flag != i) { 
 	 draw_hydrogens_flag = i;
 	 make_bonds_type_checked();
+	 update_symmetry();
       }
    }
 

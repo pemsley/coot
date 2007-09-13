@@ -776,7 +776,8 @@ molecule_class_info_t::update_symmetry() {
 					      graphics_info_t::symmetry_search_radius,
 					      symm_trans_boxes,
 					      symmetry_as_calphas,
-					      symmetry_whole_chain_flag);
+					      symmetry_whole_chain_flag,
+					      draw_hydrogens_flag);
 	    
 	    //Bond_lines_container bonds(atom_sel,
 	    //			       point,
