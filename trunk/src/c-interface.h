@@ -2003,6 +2003,7 @@ void add_mol_display_control_widgets();
 void add_map_and_mol_display_control_widgets(); 
 
 void reset_graphics_display_control_window(); 
+void close_graphics_display_control_window(); /* destroy widget */
 
 /*! \brief make the map displayed/undisplayed, 0 for off, 1 for on */
 void set_map_displayed(int imol, int state);

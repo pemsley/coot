@@ -697,9 +697,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	    std::string ele2 = SelAtom.atom_selection[ contact[i].id2 ]->element;
 
 	    if (ele1 == " C" || ele2 == " C")
-	       addBond(1, atom_1, atom_2);
-	    else 
 	       addBond(0, atom_1, atom_2);
+	    else 
+	       addBond(1, atom_1, atom_2);
 
 	 }
       }

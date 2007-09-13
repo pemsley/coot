@@ -16,7 +16,7 @@ Tue Jul  3 14:27:37 BST 2007
    o Frank's SSM crash.
 
    o Don't display symmetry with hydrogens if the main molecule
-     doesn't have them [Steven Graham]
+     doesn't have them [Stephen Graham]
 
 * Done.       
 
@@ -27,8 +27,7 @@ Tue Jul  3 14:27:37 BST 2007
    o Build against new clipper (delete clipper from all autobuild trees).
 
    o Check where else we do a SetSpaceGroup().  Bug there too?
-
-   o Where else do I mess with the space group like I did at the end of 
+     Where else do I mess with the space group like I did at the end of 
      unshelxing?  Fix that too.
 
    o Fix non-orthorhombic aniso Us.
@@ -42,6 +41,28 @@ Tue Jul  3 14:27:37 BST 2007
    o "Environment distances that label everything" - David Briggs
 
    o Carsten's Map Masking crash
+
+     is passing a out of date group?   No, looks to be handled correctly.
+
+ #3  0x08295a48 in display_control_map_combo_box (
+    display_control_window_glade=0x8cf4d60,
+    name=0x86c1154 "Generic Masked Map", n=0x8767580) at gtk-manual.c:1160
+
+   o Steven Muchmore crash on mutating a residue
+
+#0  0x081d1a88 in lookup_widget (widget=0x41, 
+    widget_name=0x848d999 "go_to_atom_residue_tree") at support.c:37
+	in support.c
+#0  0x081d1a88 in lookup_widget (widget=0x41, 
+    widget_name=0x848d999 "go_to_atom_residue_tree") at support.c:37
+#1  0x08146e4a in graphics_info_t::update_go_to_atom_window_on_changed_mol(int)
+    (this=0xbfff963f, imol=0) at graphics-info-navigation.cc:627
+#2  0x0814193e in graphics_info_t::do_mutation(std::string const&, short) (
+    this=0xbfff963f, residue_type=@0xbfff96e0, do_stub_flag=0)
+    at graphics-info-mutate.cc:224
+#4  0x409e1883 in gtk_marshal_NONE__NONE (object=0x87c2f70, 
+    func=0x8221b20 <on_residue_type_chooser_LYS_clicked>, func_data=0x0, 
+    args=0xbfff9800) at gtkmarshal.c:312
 
 
 
@@ -802,7 +823,7 @@ Tue Jul  3 21:45:19 BST 2007
 
 ---
 
-  Steven Graham:
+  Stephen Graham:
 
      I had just another minor quibble with coot... If one reads in a
      molecule with hydrogens in the PDB file, and one turns the

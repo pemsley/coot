@@ -1648,7 +1648,7 @@ on_display_control_ok_button_clicked   (GtkButton       *button,
    GtkWidget *molecules_vbox = 0;
    GtkWidget *pane = 0;
 
-  reset_graphics_display_control_window(); /* Not needed, I guess. */
+  reset_graphics_display_control_window(); /* Needed! (also resets the scroll group) */
   if (w) { 
      store_window_position(COOT_DISPLAY_CONTROL_WINDOW, w);
      maps_vbox      = lookup_widget(w, "display_map_vbox"); 
@@ -1672,7 +1672,7 @@ void
 on_display_control_window_glade_destroy (GtkObject       *object,
 					 gpointer         user_data)
 {
-  reset_graphics_display_control_window();
+  reset_graphics_display_control_window(); /* (also resets the scroll group) */
 }
 
 

@@ -4832,11 +4832,20 @@ void add_map_and_mol_display_control_widgets() {
 }
 
 
+// resets to NULL the scroll group too.
 void reset_graphics_display_control_window() { 
 
    graphics_info_t g; 
-   g.save_display_control_widget_in_graphics(NULL); 
+   g.save_display_control_widget_in_graphics(NULL);
+}
 
+void close_graphics_display_control_window() {
+   graphics_info_t g; 
+   GtkWidget *w = g.display_control_window();
+   if (w) {
+      gtk_widget_destroy(w);
+      reset_graphics_display_control_window();
+   }
 } 
 
 /*! \brief make the map displayed/undisplayed, 0 for off, 1 for on */
