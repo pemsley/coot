@@ -1056,9 +1056,11 @@ Bond_lines_container::addSymmetry_vector_symms(const atom_selection_container_t 
 	    float symm_distance,
 	    const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
 	    short int symmetry_as_ca_flag,
-            short int symmetry_whole_chain_flag) {
+            short int symmetry_whole_chain_flag,
+	    short int draw_hydrogens_flag) {
 
    std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > r;
+   do_bonds_to_hydrogens = draw_hydrogens_flag;
 
    for (unsigned int i=0; i<symm_trans.size(); i++) {
       std::pair<symm_trans_t, Cell_Translation>  this_symm_trans = symm_trans[i];
