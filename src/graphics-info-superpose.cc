@@ -364,11 +364,12 @@ graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
       if (n_selected_atoms_1 > 0) {
 	 std::cout << "      Moving  Reference   Distance" << std::endl;
 	 for (int ires=0; ires<n_selected_atoms_1; ires++) {
-	    std::cout << "ires: " << ires << " of " << n_selected_atoms_1 << std::endl;
 	    CAtom *mov_at = atom_selection1[ires];
-	    std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
 	    
 	    int mov_index = SSMAlign->Ca1[ires];
+	    std::cout << " ires: " << ires << " of " << n_selected_atoms_1
+		      << "   mov_index: " << mov_index << std::endl;
+	    std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
 	    if (mov_index > -1) { 
 	       CAtom *ref_at = atom_selection2[mov_index];
 	       clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
