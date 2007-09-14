@@ -154,11 +154,9 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 	       int orthcode;
 	       mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
 	       char *sg = mol->GetSpaceGroup();
-	       size_t l = strlen(sg+1);
-	       char *sgc = new char[l];
-	       strcpy(sgc, sg);
 	       mmdb_info.first->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-	       mmdb_info.first->SetSpaceGroup(sgc);
+	       if (sg)
+		  mmdb_info.first->SetSpaceGroup(sg);
 
       
 	       // create sequencer

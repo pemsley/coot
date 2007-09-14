@@ -756,15 +756,7 @@ molecule_class_info_t::update_symmetry() {
 	    //
 	    // symmetry_bonds_box.clear_up();
 	    clear_up_all_symmetry();
- 	    symmetry_bonds_box.resize(0);
-
-// 	    symmetry_bonds_box.resize(0);
-// 	    symmetry_bonds_box.push_back(bonds.addSymmetry(atom_sel,
-// 						   point,
-// 						   graphics_info_t::symmetry_search_radius,
-// 						   symm_trans_boxes,
-// 						   g.symmetry_as_calphas,
-// 						   g.symmetry_whole_chain_flag));
+ 	    symmetry_bonds_box.clear();
 
 // 	    for (unsigned int ibox=0; ibox<symm_trans_boxes.size(); ibox++)
 // 	       std::cout << "box " << ibox << "/" << symm_trans_boxes.size()
@@ -778,11 +770,6 @@ molecule_class_info_t::update_symmetry() {
 					      symmetry_as_calphas,
 					      symmetry_whole_chain_flag,
 					      draw_hydrogens_flag);
-	    
-	    //Bond_lines_container bonds(atom_sel,
-	    //			       point,
-	    //			       graphics_info_t::symmetry_search_radius,
-	    //			       symm_trans);
 	    
 	 } else {
 	    Bond_lines_container bonds(NO_SYMMETRY_BONDS);

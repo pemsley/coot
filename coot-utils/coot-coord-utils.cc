@@ -1221,10 +1221,7 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
    atoms_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
    char *sg = orig_mol->GetSpaceGroup();
    if (sg) { 
-      size_t l = strlen(sg+1);
-      char *sgc = new char[l];
-      strcpy(sgc, sg);
-      atoms_mol->SetSpaceGroup(sgc);
+      atoms_mol->SetSpaceGroup(sg);
    }
    atoms_mol->FinishStructEdit();
    return atoms_mol;

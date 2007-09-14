@@ -1896,10 +1896,8 @@ coot::reshelx(CMMDBManager *mol) {
    mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
    shelx_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
    char *sg = mol->GetSpaceGroup();
-   size_t l = strlen(sg+1);
-   char *sgc = new char[l];
-   strcpy(sgc, sg);
-   shelx_mol->SetSpaceGroup(sgc);
+   if (sg) 
+      shelx_mol->SetSpaceGroup(sg);
    
    shelx_mol->FinishStructEdit();
    shelx_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);

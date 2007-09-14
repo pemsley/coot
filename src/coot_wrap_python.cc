@@ -13507,6 +13507,18 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_close_graphics_display_control_window(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":close_graphics_display_control_window")) SWIG_fail;
+  close_graphics_display_control_window();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_set_map_displayed(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -31568,6 +31580,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"add_mol_display_control_widgets", _wrap_add_mol_display_control_widgets, METH_VARARGS, NULL},
 	 { (char *)"add_map_and_mol_display_control_widgets", _wrap_add_map_and_mol_display_control_widgets, METH_VARARGS, NULL},
 	 { (char *)"reset_graphics_display_control_window", _wrap_reset_graphics_display_control_window, METH_VARARGS, NULL},
+	 { (char *)"close_graphics_display_control_window", _wrap_close_graphics_display_control_window, METH_VARARGS, NULL},
 	 { (char *)"set_map_displayed", _wrap_set_map_displayed, METH_VARARGS, NULL},
 	 { (char *)"set_mol_displayed", _wrap_set_mol_displayed, METH_VARARGS, NULL},
 	 { (char *)"set_mol_active", _wrap_set_mol_active, METH_VARARGS, NULL},
