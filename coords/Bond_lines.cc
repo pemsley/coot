@@ -656,6 +656,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   float min_dist,
 					   float max_dist) {
 
+   // std::cout << "Environment distances NO symm" << std::endl;
    do_bonds_to_hydrogens = 1;  // added 20070629
    
    b_factor_scale = 1.0;
@@ -710,6 +711,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 
 // This finds bonds between a residue and the protein (in SelAtom).
 // It is used for the environment bonds box.
+//
+// It seems that this will draw bond to hydrogens, even if they are
+// not being displayed.  I guess that we need to pass
+// bonds_to_hydrogens flag.  And above.
 // 
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   PPCAtom residue_atoms,
@@ -717,6 +722,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   float min_dist,
 					   float max_dist,
 					   short int do_symm) {
+
+   // std::cout << "Environment distances with symm" << std::endl;
 
    do_bonds_to_hydrogens = 1;  // added 20070629
 
@@ -728,9 +735,6 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
       }
    }
    
-//    std::cout << "Bond_lines_container called with "
-// 	     << min_dist << "  " << max_dist << std::endl;
-   
    if (min_dist> max_dist) {
       float tmp = max_dist;
       max_dist = min_dist;
@@ -739,32 +743,35 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    
    for (int iresatom=0; iresatom< nResidueAtoms; iresatom++) { 
       coot::Cartesian res_atom_pos(residue_atoms[iresatom]->x,
-			     residue_atoms[iresatom]->y,
-			     residue_atoms[iresatom]->z);
+				   residue_atoms[iresatom]->y,
+				   residue_atoms[iresatom]->z);
       
       molecule_extents_t mol_extents(SelAtom, max_dist);
       std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
 	 mol_extents.which_boxes(res_atom_pos, SelAtom);
-
+      
       for (unsigned int ibox=0; ibox<boxes.size(); ibox++) { 
-	 PPCAtom translated = translated_atoms(SelAtom, boxes[ibox].first);
-
-	 for (int it=0; it<SelAtom.n_selected_atoms; it++) { 
+	 PPCAtom translated = trans_sel(SelAtom, boxes[ibox]);
 	 
+	 for (int it=0; it<SelAtom.n_selected_atoms; it++) { 
+	    
 	    coot::Cartesian symm_atom(translated[it]->x,
-				translated[it]->y,
-				translated[it]->z);
+				      translated[it]->y,
+				      translated[it]->z);
 	    
 	    float d = coot::Cartesian::LineLength(symm_atom, res_atom_pos);
-// 	    std::cout << translated[it] << " d = " << d << std::endl;
+ 	    // std::cout << translated[it] << " d = " << d << std::endl;
 	    if (d < max_dist && d >= min_dist) {
 	       std::string ele1 = residue_atoms[iresatom]->element;
 	       std::string ele2 = translated[it]->element;
 
+	       std::cout << "adding bond: " << residue_atoms[iresatom] << " -> "
+			 << translated[it] << std::endl;
+
 	       if (ele1 == " C" || ele2 == " C")
-		  addBond(1, symm_atom, res_atom_pos);
-	       else 
 		  addBond(0, symm_atom, res_atom_pos);
+	       else 
+		  addBond(1, symm_atom, res_atom_pos);
 	    }
 	 }
 	 // valgrind suggestion: 050803 - deleting translated[i] too.
@@ -777,7 +784,11 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // std::cout << "returning from Bond_lines_container (symm env) constructor \n" ;
 }
 
-
+// This *looks* like a kludge - symm_trans is forced into a vector.
+// But it is not a kludge. addSymmetry needs to take a vector, because
+// it's needed for CA symm addition too.
+// 
+//
 graphical_bonds_container
 Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 				  coot::Cartesian point,
@@ -799,7 +810,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
       } else {
 	 
       
-	 PSContact contact;
+	 PSContact contact = NULL;
 	 int ncontacts;
 
 	 if (SelAtom.n_selected_atoms > 0) { 
@@ -823,7 +834,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 	       // 
 	       PPCAtom trans_selection = trans_sel(SelAtom, symm_trans[ii]); // heavyweight
 
-	       contact = NULL;
+	       contact = NULL; // assigned next, deleted below.
 	       SelAtom.mol->SeekContacts(point_atom_p, trans_selection,
 					 SelAtom.n_selected_atoms,
 					 0.0, symm_distance,
@@ -832,8 +843,8 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 	 
 	       if (ncontacts > 0 ) {
 
-		  // the atom_selection of Contact_Sel is allocated,
-		  // where do we give it up?
+		  // the atom_selection of Contact_Sel is allocated.
+		  // We give it below.
 		  // 
 		  atom_selection_container_t Contact_Sel = 
 		     ContactSel(trans_selection, contact, ncontacts); 
