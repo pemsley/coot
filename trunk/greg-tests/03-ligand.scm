@@ -53,7 +53,7 @@
 		   (set-refinement-immediate-replacement 0))
 	       (if (= backup-mode 1)
 		   (turn-on-backup imol-ligand))
-	       #t ; pah
+	       #t ; success
 	       ))))))
 
 (greg-testcase "Many Molecules - Ligand Fitting" #t 
@@ -71,7 +71,8 @@
 	       (cond
 		((= count 50) 'done)
 		(else 
-		 (copy-molecule imol-npo)
+		 (let ((imol-copy (copy-molecule imol-npo)))
+		   (set-mol-displayed imol-copy 0))
 		 (loop (+ count 1)))))
 
 	     (let* ((imol-protein (read-pdb 43ca-pdb))
@@ -85,6 +86,10 @@
 
 	       (let ((solutions (execute-ligand-search))) ; crash
 		 (format #t "Fitting NPO gave these results: ~s~%" solutions)
+		 (set-map-displayed imol-map-1 0)
+		 (set-map-displayed imol-map-2 0)
+		 (set-mol-displayed imol-protein 0)
+		 (set-mol-displayed imol-npo 0)
 		 #t)))))))
 
 

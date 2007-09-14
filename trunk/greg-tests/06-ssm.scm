@@ -3,7 +3,7 @@
     (lambda ()
 
       (let ((imol-a (handle-read-draw-molecule-with-recentre (append-dir-file greg-data-dir "1wly.pdb") 0))
-	    (imol-b (handle-read-draw-molecule-with-recentre (append-dir-file "1yb5.pdb") 1)))
+	    (imol-b (handle-read-draw-molecule-with-recentre (append-dir-file greg-data-dir "1yb5.pdb") 1)))
 	
 	(graphics-to-ca-plus-ligands-representation imol-a)
 	(graphics-to-ca-plus-ligands-representation imol-b)
@@ -15,6 +15,21 @@
 				     98.9608 "SSM View")))
 	  (go-to-view-number view-number 1)
 	  (rotate-y-scene 100 0.1)
+	  (set-mol-displayed imol-a 0)
+	  (set-mol-displayed imol-b 0)
 
 	  #t)))) ; didn't crash.  That's success!   Thanks, Frank.
+
+(greg-testcase "SSM - Alice Dawson's Example" #t 
+    (lambda ()
+      (let ((imol-s (handle-read-draw-molecule-with-recentre (append-dir-file greg-data-dir "1pyd.pdb") 0)))
+
+	(graphics-to-ca-plus-ligands-representation imol-s)
+	(set-graphics-window-size 687 452)
+	
+	(superpose-with-atom-selection imol-s imol-s "A/100-400" "B/50-450" 1)
+	(let ((imol-copy (- (graphics-n-molecules) 1)))
+	  (graphics-to-ca-plus-ligands-representation imol-copy)
+	  (rotate-y-scene 100 0.1)
+	  #t)))) ; didn't crash!  Thanks Alice Dawson
 
