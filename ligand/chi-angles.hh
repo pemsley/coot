@@ -82,9 +82,13 @@ namespace coot {
 		     float percent_beta,
 		     float percent_other,
 		     float chi_1_mode,
+		     float chi_1_com,
 		     float chi_2_mode,
+		     float chi_2_com,
 		     float chi_3_mode,
-		     float chi_4_mode);
+		     float chi_3_com,
+		     float chi_4_mode,
+		     float chi_4_com);
 
       enum rotamer_t { RICHARDSON_ROTAMER, DUNBRACK_ROTAMER};
       

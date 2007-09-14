@@ -74,9 +74,13 @@ coot::simple_rotamer::simple_rotamer(std::string rotamer_name,
 				     float percent_beta,
 				     float percent_other,
 				     float chi_1_mode,
+				     float chi_1_com,
 				     float chi_2_mode,
+				     float chi_2_com,
 				     float chi_3_mode,
-				     float chi_4_mode) {
+				     float chi_3_com,
+				     float chi_4_mode,
+				     float chi_4_com) {
 
    rotamer_type = coot::simple_rotamer::RICHARDSON_ROTAMER;
    name = rotamer_name;
@@ -90,6 +94,20 @@ coot::simple_rotamer::simple_rotamer(std::string rotamer_name,
    chi2 = chi_2_mode;
    chi3 = chi_3_mode;
    chi4 = chi_4_mode;
+
+   // the awk program put in dummy -5555 for chi_mode values that have
+   // not been assigned.  This is because they are "additionally
+   // allowed" - not real rotamers.
+   // 
+   if (chi_1_mode < -555)
+      chi1 = chi_1_com;
+   if (chi_2_mode < -555)
+      chi2 = chi_2_com;
+   if (chi_3_mode < -555)
+      chi3 = chi_3_com;
+   if (chi_4_mode < -555)
+      chi4 = chi_4_com;
+   
    sig_chi1 = 40.0;
    sig_chi2 = 40.0;
    sig_chi3 = 40.0;
@@ -357,9 +375,13 @@ coot::chi_angles::add_richardson_rotamer(std::string restype,
 			    percent_beta,
 			    percent_other,
 			    chi_1_mode,
+			    chi_1_com,
 			    chi_2_mode,
+			    chi_2_com,
 			    chi_3_mode,
-			    chi_4_mode);
+			    chi_3_com,
+			    chi_4_mode,
+			    chi_4_com);
 
    bool added = 0;
    for (unsigned int i=0; i<typed_rotamers.size(); i++) {
