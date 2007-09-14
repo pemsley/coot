@@ -46,6 +46,7 @@ INCLUDES = \
 	-I $(top_srcdir)/surface	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
+	$(MMDBSSM_CXXFLAGS) 		\
 	$(GLUT_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
 	$(GTKGL_CONTEXT_CFLAGS)		\

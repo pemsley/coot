@@ -19,6 +19,7 @@ INCLUDES =  \
 	-I$(top_srcdir)/surface		\
 	-I$(top_srcdir)/src		\
 	$(MMDB_CXXFLAGS) 		\
+	$(MMDBSSM_CXXFLAGS) 		\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(GTKCANVAS_CFLAGS) 		\
 	$(COOT_GSL_FLAGS) 		\

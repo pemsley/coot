@@ -50,6 +50,10 @@
 
 #include "molecule-class-info.h"
 
+#ifdef HAVE_SSMLIB
+#include "ssm_align.h"
+#endif
+
 #include "db-main.hh"
 #include "CalphaBuild.hh"
 #include "simple-restraint.hh"
@@ -2333,6 +2337,14 @@ public:
 				      std::string moving_mol_name,
 				      std::string referennce_mol_name,
 				      short int move_copy_of_imol2_flag);
+
+   void print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+				     atom_selection_container_t asc_ref,
+				     atom_selection_container_t asc_mov,
+				     PCAtom *atom_selection1, 
+				     PCAtom *atom_selection2, 
+				     int n_selected_atoms_1, int n_selected_atoms_2, 
+				     short int move_copy_of_imol2_flag);
 
    // widget stuff:
 
