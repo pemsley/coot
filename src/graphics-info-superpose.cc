@@ -364,31 +364,33 @@ graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
       if (n_selected_atoms_1 > 0) {
 	 std::cout << "      Moving  Reference   Distance" << std::endl;
 	 for (int ires=0; ires<n_selected_atoms_1; ires++) {
-	    CAtom *mov_at = atom_selection1[ires];
+	    if (ires < SSMAlign->nalgn) { 
+	       CAtom *mov_at = atom_selection1[ires];
 	    
-	    int mov_index = SSMAlign->Ca1[ires];
-	    std::cout << " ires: " << ires << " of " << n_selected_atoms_1
-		      << "   mov_index: " << mov_index << std::endl;
-	    std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
-	    if (mov_index > -1) { 
-	       CAtom *ref_at = atom_selection2[mov_index];
-	       clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
-	       clipper::Coord_orth pos2(ref_at->x, ref_at->y, ref_at->z);
-	       double d = clipper::Coord_orth::length(pos1, pos2);
-	       if (move_copy_of_imol2_flag) { 
-		  clipper::Coord_orth pos3 =
-		     pos1.transform(coot::util::matrix_convert(SSMAlign->TMatrix));
-		  d = clipper::Coord_orth::length(pos3, pos2);
+	       int mov_index = SSMAlign->Ca1[ires];
+// 	       std::cout << " ires: " << ires << " of " << n_selected_atoms_1
+// 			 << "   mov_index: " << mov_index << std::endl;
+	       std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
+	       if (mov_index > -1) { 
+		  CAtom *ref_at = atom_selection2[mov_index];
+		  clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
+		  clipper::Coord_orth pos2(ref_at->x, ref_at->y, ref_at->z);
+		  double d = clipper::Coord_orth::length(pos1, pos2);
+		  if (move_copy_of_imol2_flag) { 
+		     clipper::Coord_orth pos3 =
+			pos1.transform(coot::util::matrix_convert(SSMAlign->TMatrix));
+		     d = clipper::Coord_orth::length(pos3, pos2);
+		  }
+		  std::cout << " <---> " << ref_at->GetChainID() << " "
+			    << ref_at->GetSeqNum() << "  : " << d << "  "
+		     // 				  << pos1.format() << "   "
+		     // 				  << pos2.format() << "   "
+		     // 				  << pos3.format() << "   "
+			    << " A\n";
+	       } else {
+		  std::cout << "\n";
 	       }
-	       std::cout << " <---> " << ref_at->GetChainID() << " "
-			 << ref_at->GetSeqNum() << "  : " << d << "  "
-		  // 				  << pos1.format() << "   "
-		  // 				  << pos2.format() << "   "
-		  // 				  << pos3.format() << "   "
-			 << " A\n";
-	    } else {
-	       std::cout << "\n";
-	    } 
+	    }
 	 }
       }
    } else {

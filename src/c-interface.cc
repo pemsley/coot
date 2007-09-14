@@ -4521,9 +4521,11 @@ void graphics_to_ca_representation(int imol) {
 } 
 
 void graphics_to_ca_plus_ligands_representation   (int imol) { 
-   graphics_info_t g;
-   g.molecules[imol].ca_plus_ligands_representation();
-   graphics_draw();
+   if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
+      g.molecules[imol].ca_plus_ligands_representation();
+      graphics_draw();
+   }
    std::vector<std::string> command_strings;
    command_strings.push_back("graphics-to-ca-plus-ligands-representation");
    command_strings.push_back(graphics_info_t::int_to_string(imol));
