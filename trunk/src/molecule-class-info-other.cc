@@ -336,7 +336,7 @@ molecule_class_info_t::pepflip_residue(int resno,
 
 
 graphical_bonds_container
-molecule_class_info_t:: make_environment_bonds_box(int atom_index) const {
+molecule_class_info_t::make_environment_bonds_box(int atom_index) const {
 
    graphical_bonds_container bonds_box;
    

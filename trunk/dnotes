@@ -5,6 +5,8 @@ Tue Jul  3 14:27:37 BST 2007
       Things to add or fix before 0.4
 
 
+   o Frank's SSM crash.
+
    o Do the strand restraints work well under refinement?
 
    o Try again to add chiral volumes to the geometry target function
@@ -13,22 +15,29 @@ Tue Jul  3 14:27:37 BST 2007
      He says no problem.  Therefore small example program is required
      to find the problem in SSM (or elsewhere of course).
 
-   o Frank's SSM crash.
-
-   o Don't display symmetry with hydrogens if the main molecule
-     doesn't have them [Stephen Graham]
-
-* Done.       
-
    o Post-install slim the binaries
 
    o Test Cootaneer by building from just a map.
 
-   o Build against new clipper (delete clipper from all autobuild trees).
-
    o Check where else we do a SetSpaceGroup().  Bug there too?
      Where else do I mess with the space group like I did at the end of 
      unshelxing?  Fix that too.
+
+      Fixed coot-utils/coot-coord-utils.cc:      atoms_mol->SetSpaceGroup(sgc);
+      Fixed coot-utils/coot-shelx-ins.cc:   shelx_mol->SetSpaceGroup(sgc);
+      Fixed src/c-interface-mutate.cc:             mmdb_info.first->SetSpaceGroup(sgc);
+
+      Not fixed: Frank's bug?
+      src/c-interface-superpose.cc:    m2->SetSpaceGroup(sgc);
+
+      The following need to be examined:
+src/c-interface-superpose.cc:    m2->SetSpaceGroup(sgc);
+src/graphics-info.cc:      int istat_spgr = MMDBManager->SetSpaceGroup(copied_str);
+src/graphics-info.cc:      std::cout << "status from SetSpaceGroup: " << istat_spgr << std::endl;
+src/molecule-class-info.cc:   mol_new->SetSpaceGroup(spacegroup_str);
+src/molecule-class-info.cc:      atom_sel.mol->SetSpaceGroup((char *)cell_spgr.second.c_str());
+src/molecule-class-info.cc:   atom_sel.mol->SetSpaceGroup((char *)spg.c_str());
+src/molecule-class-info-other.cc:           mol->SetSpaceGroup(sg);
 
    o Fix non-orthorhombic aniso Us.
 
@@ -38,11 +47,10 @@ Tue Jul  3 14:27:37 BST 2007
    o res098 from Lionel Colliandre - alt conf occ resetting problem on
      regularize. 
 
-   o "Environment distances that label everything" - David Briggs
-
    o Carsten's Map Masking crash
 
-     is passing a out of date group?   No, looks to be handled correctly.
+     is it passing an out-of-date group?  No, looks to be handled
+     correctly.  Wrote a test... didn't tickle the bug.  Tricky.
 
  #3  0x08295a48 in display_control_map_combo_box (
     display_control_window_glade=0x8cf4d60,
@@ -64,9 +72,34 @@ Tue Jul  3 14:27:37 BST 2007
     func=0x8221b20 <on_residue_type_chooser_LYS_clicked>, func_data=0x0, 
     args=0xbfff9800) at gtkmarshal.c:312
 
+    A job for valgrind.  Nothing obvious
+
+    Copy molecule is valgrind-clean (both coords and map)
+
+
+   o Lars Prade crash.
 
 
 
+
+
+
+   o Build against new clipper (delete clipper from all autobuild trees).
+
+	 York Bubbles: Don't care
+	 York Auto:    Done
+         Oxford cycle: Done
+         Home:         Don't care
+         Laptop:       Done
+
+   o "Environment distances that label everything" - David Briggs
+
+* Done.
+
+   o Don't display symmetry with hydrogens if the main molecule
+     doesn't have them [Stephen Graham]
+
+* Done.       
 
    o Richardson rotamers
 

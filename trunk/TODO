@@ -59,6 +59,8 @@
 
    o Revisit CCP4mg button
 
+   o graphics::molecules should be a std::vector
+
    o on_filename_filter_toggle_button_toggled() looks up the
      fileselection by going through all names of file selections. This
      is ugly (gives terminal warnings).  Make the user data also encode 
