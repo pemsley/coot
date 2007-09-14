@@ -23,9 +23,6 @@
 
 #include <iostream>
 #include "graphics-info.h"
-#ifdef HAVE_SSMLIB
-#include "ssm_align.h"
-#endif
 
 // ----------------------------------------------------------------------------
 //                              superposing
@@ -301,206 +298,17 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	    std::string res_no_str_1;
 	    std::string res_no_str_2;
 	    std::string reference_seq, moving_seq;
-	    std::string slc_1, slc_2; // single letter code.
 	    int rn1, rn2;
 
 	    // another go at the sequence alignment used in the superposition.
 	    // 
 	    // correct: number of residues in reference structure: " << SSMAlign->nres2
 
-	    std::cout << "Another Go...\n\n";
-
-	    CChain *moving_chain_p = 0;
-	    CChain *reference_chain_p = 0;
-	    std::string mov_chain_id = std::string(atom_selection1[0]->GetChainID());
-	    std::string ref_chain_id = std::string(atom_selection2[0]->GetChainID());
-
-	    int nchains_ref = asc_ref.mol->GetNumberOfChains(1);
-	    for (int ich=0; ich<nchains_ref; ich++) {
-	       CChain *chain_p = asc_ref.mol->GetChain(1, ich);
-	       std::string mol_chain_id(chain_p->GetChainID());
-	       if (mol_chain_id == std::string(ref_chain_id)) {
-		  reference_chain_p = chain_p;
-		  break;
-	       }
-	    }
-	    int nchains_mov = asc_mov.mol->GetNumberOfChains(1);
-	    for (int ich=0; ich<nchains_mov; ich++) {
-	       CChain *chain_p = asc_mov.mol->GetChain(1, ich);
-	       std::string mol_chain_id(chain_p->GetChainID());
-	       if (mol_chain_id == std::string(mov_chain_id)) {
-		  moving_chain_p = chain_p;
-		  break;
-	       }
-	    }
-
-	    if (moving_chain_p && reference_chain_p) {
-
-// 	       std::cout << "Reference Chain: "<< reference_chain_p->GetChainID() << " has "
-// 			 << reference_chain_p->GetNumberOfResidues() << " residues\n";
-// 	       std::cout << "Moving    Chain: "<< moving_chain_p->GetChainID() << " has "
-// 			 << moving_chain_p->GetNumberOfResidues() << " residues\n";
-
-	       std::vector<std::string> ref_seq(n_selected_atoms_2);
-	       std::vector<std::string> mov_seq(n_selected_atoms_1);
-
-	       for (int i=0; i<n_selected_atoms_2; i++)
-		  ref_seq[i] = coot::util::downcase(coot::util::three_letter_to_one_letter(atom_selection2[i]->GetResName()));
-	       for (int i=0; i<n_selected_atoms_1; i++)
-		  mov_seq[i] = coot::util::downcase(coot::util::three_letter_to_one_letter(atom_selection1[i]->GetResName()));
-
-// 	       std::cout << "Ca1 indexes: \n";
-// 	       for (int i=0; i<n_selected_atoms_1; i++)
-// 		  std::cout << SSMAlign->Ca1[i] << " ";
-// 	       std::cout << "\n";
-// 	       std::cout << "Ca2 indexes: \n";
-// 	       for (int i=0; i<n_selected_atoms_2; i++)
-// 		  std::cout << SSMAlign->Ca2[i] << " ";
-// 	       std::cout << "\n";
-		     
-// 	       std::cout << "Simple mov sequence:\n";
-// 	       for (int i=0; i<n_selected_atoms_1; i++)
-// 		  std::cout << mov_seq[i];
-// 	       std::cout << "\n";
-// 	       std::cout << "Simple ref sequence:\n";
-// 	       for (int i=0; i<n_selected_atoms_2; i++)
-// 		  std::cout << ref_seq[i];
-// 	       std::cout << "\n";
-
-	       std::string ral = "";
-	       std::string mal = "";
-
-	       std::string push_ral = "";
-	       std::string push_mal = "";
-
-	       std::string pushed_ral_char = " ";
-	       std::string pushed_mal_char = " ";
-
-	       std::string sum_push_ral = "";
-	       std::string sum_push_mal = "";
-
-	       // reference 2:
-	       // moving    1:
-
-	       int n_max_residues = SSMAlign->nres1;
-	       if (SSMAlign->nres2 > n_max_residues)
-		  n_max_residues = SSMAlign->nres2;
-
-// 	       slc_1 = "-";
-// 	       slc_2 = "-";
-
-	       int prev_diff_1 = 0;
-	       int prev_diff_2 = 0;
-	       int diff_1 = 1; 
-	       int diff_2 = 1; 
-	       for (int ires=0; ires<n_max_residues; ires++) {
-
-		  slc_1 = " ";
-		  slc_2 = " ";
-		  if (ires<SSMAlign->nres1) { 
-		     int mov_index = SSMAlign->Ca1[ires];
-		     if ((SSMAlign->Ca1[ires]>=0) && (SSMAlign->Ca1[ires-1]>=0)) { 
-			diff_1 =  SSMAlign->Ca1[ires] - SSMAlign->Ca1[ires-1];
-			if (diff_1 > prev_diff_1) { 
-			   std::cout << "dashing mal for " << ires << " " << diff_1 << " "
-				     << prev_diff_1 << " " << std::endl;
-			   for (int igap=0; igap<(diff_1-prev_diff_1); igap++)
-			      mal += "-";
-			}
-		     }
-		     if (mov_index > -1) { 
-			slc_1 = coot::util::three_letter_to_one_letter(atom_selection1[ires]->GetResName());
-			pushed_ral_char = "";
-		     } else { 
-			slc_1 = coot::util::downcase(coot::util::three_letter_to_one_letter(atom_selection1[ires]->GetResName()));
-		     }
-
-		     // push along the reference chain (maybe)
-		     if (mov_index == -1)
-			push_ral = pushed_ral_char;
-		     else
-			push_ral = "";
-			
-		  }
-		  if (ires<SSMAlign->nres2) { 
-		     int ref_index = SSMAlign->Ca2[ires];
-		     if ((SSMAlign->Ca2[ires]>=0) && (SSMAlign->Ca2[ires-1]>=0)) { 
-			diff_2 =  SSMAlign->Ca2[ires] - SSMAlign->Ca2[ires-1];
-			if (diff_2 > prev_diff_2) { 
-			   std::cout << "dashing ral for " << ires << " " << diff_1 << " "
-				     << prev_diff_1 << " " << std::endl;
-			   for (int igap=0; igap<(diff_1-prev_diff_1); igap++)
-			      ral += "-";
-			}
-		     }
-		     if (ref_index > -1) {
-			// for neatness a function to do this.
-			slc_2 = coot::util::three_letter_to_one_letter(atom_selection2[ires]->GetResName());
-			pushed_mal_char = "";
-		     } else {
-			slc_2 = coot::util::downcase(coot::util::three_letter_to_one_letter(atom_selection2[ires]->GetResName()));
-		     }
-
-		     // push along the moving chain (maybe)
-		     if (ref_index == -1) { 
-			push_mal = pushed_mal_char;
-		     } else {
-			push_mal = "";
-		     }
-		  }
-
-// 		  std::cout << "DEbug for ires " << ires << " adding :" << slc_1 << ": to mal"
-// 			    << " and " << slc_2 << " to ral" << std::endl;
-
-// 		  std::cout << "DEbug for ires " << ires << " adding :" << push_mal << ": to sum_push_mal"
-// 			    << " and " << push_ral << " to sum_push_ral" << std::endl;
-
-		  if (ral.length() == 0) 
-		     sum_push_mal += push_mal;
-		  sum_push_ral += push_ral;
-		  mal += slc_1;
-		  ral += slc_2;
-		  prev_diff_1 = diff_1;
-		  prev_diff_2 = diff_2;
-	       }
-	       std::cout << "INFO:: alignment (leading spacing might be wrong): " << std::endl;
-	       std::cout << "mov: " << sum_push_mal << mal << std::endl;
-	       std::cout << "ref: " << sum_push_ral << ral << std::endl;
-
-	       // print_alignment_table : just too painful to put an CSSMAlign into graphics-info.h
-	       // 
-	       if (SSMAlign->nres1 > 0) {
-		  std::cout << "      Moving  Reference   Distance" << std::endl;
-		  for (int ires=0; ires<SSMAlign->nres1; ires++) {
-		     CAtom *mov_at = atom_selection1[ires];
-		     std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
-		     
-		     int mov_index = SSMAlign->Ca1[ires];
-		     if (mov_index > -1) { 
-			CAtom *ref_at = atom_selection2[mov_index];
-			clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
-			clipper::Coord_orth pos2(ref_at->x, ref_at->y, ref_at->z);
-			double d = clipper::Coord_orth::length(pos1, pos2);
-			if (move_copy_of_imol2_flag) { 
-			   clipper::Coord_orth pos3 =
-			      pos1.transform(coot::util::matrix_convert(SSMAlign->TMatrix));
-			   d = clipper::Coord_orth::length(pos3, pos2);
-			}
-			std::cout << " <---> " << ref_at->GetChainID() << " "
-				  << ref_at->GetSeqNum() << "  : " << d << "  "
-// 				  << pos1.format() << "   "
-// 				  << pos2.format() << "   "
-// 				  << pos3.format() << "   "
-				  << " A\n";
-		     } else {
-			std::cout << "\n";
-		     } 
-		  }
-	       }
-
-	    } else {
-	       std::cout << "ERROR:: Failed to get moving or reference_chain pointer\n";
-	    }
+	    print_ssm_sequence_alignment(SSMAlign,
+					 asc_ref, asc_mov,
+					 atom_selection1, atom_selection2,
+					 n_selected_atoms_1, n_selected_atoms_2,
+					 move_copy_of_imol2_flag);
 	    graphics_draw();
 	 }
 	 delete SSMAlign;
@@ -513,3 +321,76 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 #endif // HAVE_SSMLIB
 }
 
+
+void
+graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+					      atom_selection_container_t asc_ref,
+					      atom_selection_container_t asc_mov,
+					      PCAtom *atom_selection1, PCAtom *atom_selection2,
+					      int n_selected_atoms_1, int n_selected_atoms_2,
+					      short int move_copy_of_imol2_flag) {
+
+   std::cout << "Another Go...\n\n";
+
+   CChain *moving_chain_p = 0;
+   CChain *reference_chain_p = 0;
+   std::string mov_chain_id = std::string(atom_selection1[0]->GetChainID());
+   std::string ref_chain_id = std::string(atom_selection2[0]->GetChainID());
+   std::string slc_1, slc_2; // single letter code.
+
+   int nchains_ref = asc_ref.mol->GetNumberOfChains(1);
+   for (int ich=0; ich<nchains_ref; ich++) {
+      CChain *chain_p = asc_ref.mol->GetChain(1, ich);
+      std::string mol_chain_id(chain_p->GetChainID());
+      if (mol_chain_id == std::string(ref_chain_id)) {
+	 reference_chain_p = chain_p;
+	 break;
+      }
+   }
+   int nchains_mov = asc_mov.mol->GetNumberOfChains(1);
+   for (int ich=0; ich<nchains_mov; ich++) {
+      CChain *chain_p = asc_mov.mol->GetChain(1, ich);
+      std::string mol_chain_id(chain_p->GetChainID());
+      if (mol_chain_id == std::string(mov_chain_id)) {
+	 moving_chain_p = chain_p;
+	 break;
+      }
+   }
+
+   if (moving_chain_p && reference_chain_p) {
+
+      // print_alignment_table (not sequence)
+      // 
+      if (n_selected_atoms_1 > 0) {
+	 std::cout << "      Moving  Reference   Distance" << std::endl;
+	 for (int ires=0; ires<n_selected_atoms_1; ires++) {
+	    std::cout << "ires: " << ires << " of " << n_selected_atoms_1 << std::endl;
+	    CAtom *mov_at = atom_selection1[ires];
+	    std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
+	    
+	    int mov_index = SSMAlign->Ca1[ires];
+	    if (mov_index > -1) { 
+	       CAtom *ref_at = atom_selection2[mov_index];
+	       clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
+	       clipper::Coord_orth pos2(ref_at->x, ref_at->y, ref_at->z);
+	       double d = clipper::Coord_orth::length(pos1, pos2);
+	       if (move_copy_of_imol2_flag) { 
+		  clipper::Coord_orth pos3 =
+		     pos1.transform(coot::util::matrix_convert(SSMAlign->TMatrix));
+		  d = clipper::Coord_orth::length(pos3, pos2);
+	       }
+	       std::cout << " <---> " << ref_at->GetChainID() << " "
+			 << ref_at->GetSeqNum() << "  : " << d << "  "
+		  // 				  << pos1.format() << "   "
+		  // 				  << pos2.format() << "   "
+		  // 				  << pos3.format() << "   "
+			 << " A\n";
+	    } else {
+	       std::cout << "\n";
+	    } 
+	 }
+      }
+   } else {
+      std::cout << "ERROR:: Failed to get moving or reference_chain pointer\n";
+   }
+}
