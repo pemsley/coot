@@ -1602,8 +1602,6 @@ Mon Aug 20 18:08:16 BST 2007
 	using show-spacegroup
 
 
-
-
 ------
 
    Something is going wrong on bubbles with the texi files.
@@ -1773,6 +1771,35 @@ clipper::Grad_orth<double>
 coot::restraints_container_t::electron_density_gradient_at_point(const clipper::Coord_orth &ao);
 
 
+----
+Thu Aug 30 10:15:37 BST 2007
+
+  From reading JED mail
+
+  Do some speed tests on regularizing with and without peptide plane restraints.
+
+
+  Interface to change the weight of the peptide plane restraint
+
+  Interface to turn on peptide plane restraints for refinement (or regularizing) only?
+
+  Allow the display of anisotropic atoms per molecule - from the
+  scripting layer at least.
+
+
+-----
+Fri Aug 31 16:28:42 BST 2007
+
+	Do a NCS ghosts for a blue map, 
+
+	Do it again for the difference map.
+
+	Does it recalculate the NCS operators?
+
+	   It shouldn't.
+
+
+
 ------
 Tue Aug 28 14:31:25 BST 2007
 
@@ -1836,6 +1863,3 @@ Date: 	Tue, 17 May 2005 10:39:44 +1000  (01:39 BST)
    make dist runs a scsh script.  configure should check for scsh?
    (not easy to convert to guile) 
 
-
-
- 

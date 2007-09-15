@@ -3582,6 +3582,14 @@ The dictionary is used to identify the chiral atoms of each of the
 model's residues.  A clickable list is created of atoms whose chiral
 volume in the model is of a different sign to that in the dictionary.
 
+During refinement and regularization, Coot will pop-up dialogs warning
+about chiral volume errors - if you have them.  This can be annoying
+@footnote{but that's partly the idea, I suppose.}. You can inhibit this
+dialog like this:
+
+@code{(set-show-chiral-volume-errors-dialog 0)}
+
+
 @subsection Fixing Chiral Volume Errors
 
 There are two obvious ways:
