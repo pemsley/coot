@@ -206,17 +206,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.696216"
+     inkscape:zoom="22.197802"
      inkscape:cx="12.601339"
-     inkscape:cy="7.9456204"
+     inkscape:cy="13.351561"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
      inkscape:window-width="906"
      inkscape:window-height="656"
-     inkscape:window-x="187"
-     inkscape:window-y="42" />
+     inkscape:window-x="308"
+     inkscape:window-y="46" />
   <metadata
      id="metadata3685">
     <rdf:RDF>
@@ -340,5 +340,15 @@
          d="M 448.57144,514.50507 A 177.85715,177.85715 0 1 1 92.857147,514.50507 A 177.85715,177.85715 0 1 1 448.57144,514.50507 z"
          transform="matrix(5.3363632e-3,0,0,5.3363632e-3,9.429501,5.3112043)" />
     </g>
+    <path
+       style="fill:#834f2a;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.28155276;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 9.9649732,2.1932188 C 11.165559,0.53570695 15.889175,1.0806424 15.889175,1.0806424 C 15.889175,1.0806424 11.677283,-0.21357928 10.732561,0.30865048 C 9.8422604,0.80079642 9.1973856,3.3739122 9.9649732,2.1932188 z"
+       id="path3200"
+       sodipodi:nodetypes="ccsc" />
+    <path
+       style="fill:#834f2a;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.28155276;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 6.3953503,2.1932188 C 5.1947645,0.53570699 0.47114851,1.0806425 0.47114851,1.0806425 C 0.47114851,1.0806425 4.6830405,-0.21357929 5.6277625,0.30865052 C 6.5180631,0.80079646 7.1629378,3.3739122 6.3953503,2.1932188 z"
+       id="path3202"
+       sodipodi:nodetypes="ccsc" />
   </g>
 </svg>

@@ -2383,7 +2383,8 @@ int secondary_structure_restraints_type();
    
 int imol_refinement_map();	/* return -1 on no map */
 
-/*! \brief set the molecule number of the map to be used for refinement/fitting.
+/*! \brief set the molecule number of the map to be used for
+  refinement/fitting.
 
    @return imol on success, -1 on failure*/
 int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 */

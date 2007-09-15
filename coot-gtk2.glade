@@ -17,6 +17,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="destroy" handler="on_window1_destroy"/>
   <signal name="configure_event" handler="on_window1_configure_event"/>
   <signal name="delete_event" handler="on_window1_delete_event"/>
@@ -36,6 +37,8 @@
 	  <child>
 	    <widget class="GtkMenuBar" id="menubar1">
 	      <property name="visible">True</property>
+	      <property name="pack_direction">GTK_PACK_DIRECTION_LTR</property>
+	      <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
 
 	      <child>
 		<widget class="GtkMenuItem" id="file1">
@@ -56,7 +59,7 @@
 			  <signal name="activate" handler="on_open_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3671">
+			    <widget class="GtkImage" id="image5524">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -77,7 +80,7 @@
 			  <signal name="activate" handler="on_auto_open_mtz_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3672">
+			    <widget class="GtkImage" id="image5525">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -99,7 +102,7 @@
 			  <signal name="activate" handler="on_open_dataset1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3673">
+			    <widget class="GtkImage" id="image5526">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -121,7 +124,7 @@
 			  <signal name="activate" handler="on_open_map1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3674">
+			    <widget class="GtkImage" id="image5527">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -142,7 +145,7 @@
 			  <signal name="activate" handler="on_close_molecule1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3675">
+			    <widget class="GtkImage" id="image5528">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-close</property>
 			      <property name="icon_size">1</property>
@@ -163,7 +166,7 @@
 			  <signal name="activate" handler="on_import_cif_dictionary1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3676">
+			    <widget class="GtkImage" id="image5529">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-add</property>
 			      <property name="icon_size">1</property>
@@ -185,10 +188,9 @@
 			  <signal name="activate" handler="on_get_monomer1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3677">
+			    <widget class="GtkImage" id="image5530">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-connect</property>
-			      <property name="icon_size">1</property>
+			      <property name="pixbuf">connect-to-ccp4.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -207,9 +209,9 @@
 			  <signal name="activate" handler="on_search_monomer_library1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3678">
+			    <widget class="GtkImage" id="image5531">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-connect</property>
+			      <property name="stock">gtk-index</property>
 			      <property name="icon_size">1</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
@@ -228,7 +230,7 @@
 			  <signal name="activate" handler="on_smiles1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3679">
+			    <widget class="GtkImage" id="image5532">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">smiles.png</property>
 			      <property name="xalign">0.5</property>
@@ -249,10 +251,9 @@
 			  <signal name="activate" handler="on_get_pdb_using_code1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3680">
+			    <widget class="GtkImage" id="image5533">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-connect</property>
-			      <property name="icon_size">1</property>
+			      <property name="pixbuf">connect-to-oca.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -271,10 +272,9 @@
 			  <signal name="activate" handler="on_get_pdb_and_map_using_eds1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3681">
+			    <widget class="GtkImage" id="image5534">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-connect</property>
-			      <property name="icon_size">1</property>
+			      <property name="pixbuf">connect-to-usf.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -292,7 +292,7 @@
 			  <signal name="activate" handler="on_save_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3682">
+			    <widget class="GtkImage" id="image5535">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save</property>
 			      <property name="icon_size">1</property>
@@ -313,10 +313,9 @@
 			  <signal name="activate" handler="on_save_symmetry_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3683">
+			    <widget class="GtkImage" id="image5536">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-save</property>
-			      <property name="icon_size">1</property>
+			      <property name="pixbuf">coot-save-symm.png</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -334,10 +333,9 @@
 			  <signal name="activate" handler="on_save_state1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3684">
+			    <widget class="GtkImage" id="image5537">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-save</property>
-			      <property name="icon_size">1</property>
+			      <property name="pixbuf">coot-save.png</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -355,7 +353,7 @@
 			  <signal name="activate" handler="on_recover_session1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3685">
+			    <widget class="GtkImage" id="image5538">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-find-and-replace</property>
 			      <property name="icon_size">1</property>
@@ -377,7 +375,7 @@
 			  <signal name="activate" handler="on_exit1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3686">
+			    <widget class="GtkImage" id="image5539">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-quit</property>
 			      <property name="icon_size">1</property>
@@ -411,7 +409,7 @@
 			  <signal name="activate" handler="on_map_colour1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3687">
+			    <widget class="GtkImage" id="image5540">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -432,7 +430,7 @@
 			  <signal name="activate" handler="on_density_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3688">
+			    <widget class="GtkImage" id="image5541">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -453,7 +451,7 @@
 			  <signal name="activate" handler="on_bond_colours1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3689">
+			    <widget class="GtkImage" id="image5542">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -474,7 +472,7 @@
 			  <signal name="activate" handler="on_bond_parameters1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3690">
+			    <widget class="GtkImage" id="image5543">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -494,7 +492,7 @@
 			  <property name="use_underline">True</property>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3691">
+			    <widget class="GtkImage" id="image5544">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -516,7 +514,7 @@
 				  <signal name="activate" handler="on_skeleton_colour1_activate"/>
 
 				  <child internal-child="image">
-				    <widget class="GtkImage" id="image3692">
+				    <widget class="GtkImage" id="image5545">
 				      <property name="visible">True</property>
 				      <property name="stock">gtk-select-color</property>
 				      <property name="icon_size">1</property>
@@ -552,11 +550,22 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="residue_info2">
+			<widget class="GtkImageMenuItem" id="residue_info2">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Residue Info...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_residue_info2_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5546">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">residue-info.png</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
@@ -568,7 +577,7 @@
 			  <signal name="activate" handler="on_font_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3693">
+			    <widget class="GtkImage" id="image5547">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">gtk-font.png</property>
 			      <property name="xalign">0.5</property>
@@ -588,7 +597,7 @@
 			  <signal name="activate" handler="on_pink_pointer_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3694">
+			    <widget class="GtkImage" id="image5548">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">pink-pointer.png</property>
 			      <property name="xalign">0.5</property>
@@ -608,7 +617,7 @@
 			  <signal name="activate" handler="on_background_colour1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3695">
+			    <widget class="GtkImage" id="image5549">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -661,20 +670,43 @@
 		    <widget class="GtkMenu" id="calculate1_menu">
 
 		      <child>
-			<widget class="GtkMenuItem" id="regularize1">
+			<widget class="GtkImageMenuItem" id="regularize1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Model/Fit/Refine...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_model_refine_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5550">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-find-and-replace</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="other_modelling_tools1">
+			<widget class="GtkImageMenuItem" id="other_modelling_tools1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Other Modelling Tools...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_other_modelling_tools1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5551">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">gnome-run.png</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
@@ -698,11 +730,22 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="merge_molecules1">
+			<widget class="GtkImageMenuItem" id="merge_molecules1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Merge Molecules...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_merge_molecules1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5552">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">merge-molecules.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
@@ -725,20 +768,42 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="renumber_residues1">
+			<widget class="GtkImageMenuItem" id="renumber_residues1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Renumber Residues...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_renumber_residues1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5553">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">renumber-residues.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="change_chain_ids2">
+			<widget class="GtkImageMenuItem" id="change_chain_ids2">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Change Chain IDs...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_change_chain_ids2_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5554">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">change-chain-id.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
@@ -770,20 +835,42 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="ncs_maps1">
+			<widget class="GtkImageMenuItem" id="ncs_maps1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">NCS Maps...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_ncs_maps1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5555">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">calculate-ghosts.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="frames/sec1">
+			<widget class="GtkImageMenuItem" id="frames/sec1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Frames/Sec...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_fps1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5556">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">appointment-new.png</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
@@ -795,7 +882,7 @@
 			  <signal name="activate" handler="on_scripting_window_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3696">
+			    <widget class="GtkImage" id="image5557">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-justify-left</property>
 			      <property name="icon_size">1</property>
@@ -816,7 +903,7 @@
 			  <signal name="activate" handler="on_run_script1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3697">
+			    <widget class="GtkImage" id="image5558">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-execute</property>
 			      <property name="icon_size">1</property>
@@ -850,7 +937,7 @@
 			  <signal name="activate" handler="on_go_to_atom1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3698">
+			    <widget class="GtkImage" id="image5559">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-jump-to</property>
 			      <property name="icon_size">1</property>
@@ -872,7 +959,7 @@
 			  <signal name="activate" handler="on_map_and_mol_control1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3699">
+			    <widget class="GtkImage" id="image5560">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">display-manager.png</property>
 			      <property name="xalign">0.5</property>
@@ -892,7 +979,7 @@
 			  <signal name="activate" handler="on_undo_last_navigation1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3700">
+			    <widget class="GtkImage" id="image5561">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-undo</property>
 			      <property name="icon_size">1</property>
@@ -913,7 +1000,7 @@
 			  <signal name="activate" handler="on_centre_atom_label1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3701">
+			    <widget class="GtkImage" id="image5562">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-justify-center</property>
 			      <property name="icon_size">1</property>
@@ -934,7 +1021,7 @@
 			  <signal name="activate" handler="on_sequence_view1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3702">
+			    <widget class="GtkImage" id="image5563">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">sequence-view.png</property>
 			      <property name="xalign">0.5</property>
@@ -954,7 +1041,7 @@
 			  <signal name="activate" handler="on_anisotropic_atoms1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3703">
+			    <widget class="GtkImage" id="image5564">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">aniso-atom.png</property>
 			      <property name="xalign">0.5</property>
@@ -974,7 +1061,7 @@
 			  <signal name="activate" handler="on_show_symmetry1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3704">
+			    <widget class="GtkImage" id="image5565">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">cell+symm.png</property>
 			      <property name="xalign">0.5</property>
@@ -995,7 +1082,7 @@
 			  <signal name="activate" handler="on_ncs_ghost_control1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3705">
+			    <widget class="GtkImage" id="image5566">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">ghosts.png</property>
 			      <property name="xalign">0.5</property>
@@ -1015,7 +1102,7 @@
 			  <signal name="activate" handler="on_spin_view_on/off1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3706">
+			    <widget class="GtkImage" id="image5567">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">spin-view.png</property>
 			      <property name="xalign">0.5</property>
@@ -1034,7 +1121,7 @@
 			  <property name="use_underline">True</property>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3707">
+			    <widget class="GtkImage" id="image5568">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">panel-screenshot.png</property>
 			      <property name="xalign">0.5</property>
@@ -1079,11 +1166,22 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="generic_display_objects1">
+			<widget class="GtkImageMenuItem" id="generic_display_objects1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Generic Display Objects...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_generic_display_objects1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5569">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">generic-display-objects.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
@@ -1095,7 +1193,7 @@
 			  <signal name="activate" handler="on_antialiasing1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3708">
+			    <widget class="GtkImage" id="image5570">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">add-peptide-1.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1108,11 +1206,22 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="stereo1">
+			<widget class="GtkImageMenuItem" id="stereo1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Stereo...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_stereo1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5571">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">stereo-view.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
@@ -1133,7 +1242,7 @@
 			  <signal name="activate" handler="on_crosshairs1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3709">
+			    <widget class="GtkImage" id="image5572">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">crosshairs.png</property>
 			      <property name="xalign">0.5</property>
@@ -1153,7 +1262,7 @@
 			  <signal name="activate" handler="on_zoom1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3710">
+			    <widget class="GtkImage" id="image5573">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-zoom-in</property>
 			      <property name="icon_size">1</property>
@@ -1215,9 +1324,9 @@
 			  <signal name="activate" handler="on_residue_info1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3711">
+			    <widget class="GtkImage" id="image5574">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">reside-info.svg</property>
+			      <property name="pixbuf">residue-info.png</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1235,7 +1344,7 @@
 			  <signal name="activate" handler="on_distances_and_angles1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3712">
+			    <widget class="GtkImage" id="image5575">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-unindent</property>
 			      <property name="icon_size">1</property>
@@ -1256,7 +1365,7 @@
 			  <signal name="activate" handler="on_environment_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3713">
+			    <widget class="GtkImage" id="image5576">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">env-distances.png</property>
 			      <property name="xalign">0.5</property>
@@ -1276,7 +1385,7 @@
 			  <signal name="activate" handler="on_plane_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3714">
+			    <widget class="GtkImage" id="image5577">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">plane-distances.png</property>
 			      <property name="xalign">0.5</property>
@@ -1296,7 +1405,7 @@
 			  <signal name="activate" handler="on_pointer_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3715">
+			    <widget class="GtkImage" id="image5578">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">pointer-distances.png</property>
 			      <property name="xalign">0.5</property>
@@ -1316,7 +1425,7 @@
 			  <signal name="activate" handler="on_clear_atom_labels1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3716">
+			    <widget class="GtkImage" id="image5579">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-clear</property>
 			      <property name="icon_size">1</property>
@@ -1351,7 +1460,7 @@
 			  <signal name="activate" handler="on_ramachandran_plot1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3717">
+			    <widget class="GtkImage" id="image5580">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">ramachandran.png</property>
 			      <property name="xalign">0.5</property>
@@ -1372,7 +1481,7 @@
 			  <signal name="activate" handler="on_ramachandran_differences_plot1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3718">
+			    <widget class="GtkImage" id="image5581">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">kleywegt.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1392,7 +1501,7 @@
 			  <signal name="activate" handler="on_incorrect_chiral_volumes1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3719">
+			    <widget class="GtkImage" id="image5582">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">chiral.png</property>
 			      <property name="xalign">0.5</property>
@@ -1412,7 +1521,7 @@
 			  <signal name="activate" handler="on_unmodelled_blobs1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3720">
+			    <widget class="GtkImage" id="image5583">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">unknown-blob.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1432,7 +1541,7 @@
 			  <signal name="activate" handler="on_difference_map_peaks1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3721">
+			    <widget class="GtkImage" id="image5584">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">diff-map.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1452,7 +1561,7 @@
 			  <signal name="activate" handler="on_check_waters1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3722">
+			    <widget class="GtkImage" id="image5585">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">water-drop.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1472,7 +1581,7 @@
 			  <signal name="activate" handler="on_check_waters_by_difference_map_variance1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3723">
+			    <widget class="GtkImage" id="image5586">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">water-diff-map.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1493,7 +1602,7 @@
 			  <signal name="activate" handler="on_geometry_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3724">
+			    <widget class="GtkImage" id="image5587">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">geom.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1514,7 +1623,7 @@
 			  <signal name="activate" handler="on_peptide_omega_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3725">
+			    <widget class="GtkImage" id="image5588">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">peptide-omega.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1535,7 +1644,7 @@
 			  <signal name="activate" handler="on_temp_fact_variance_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3726">
+			    <widget class="GtkImage" id="image5589">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">temperature.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1556,7 +1665,7 @@
 			  <signal name="activate" handler="on_gln_and_asn_b_factor_outliers1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3727">
+			    <widget class="GtkImage" id="image5590">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">gln-asn-b-factors.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1577,7 +1686,7 @@
 			  <signal name="activate" handler="on_rotamer_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3728">
+			    <widget class="GtkImage" id="image5591">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">rotamers.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1597,7 +1706,7 @@
 			  <signal name="activate" handler="on_density_fit_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3729">
+			    <widget class="GtkImage" id="image5592">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">density-fit.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1617,7 +1726,7 @@
 			  <signal name="activate" handler="on_probe_clashes1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3730">
+			    <widget class="GtkImage" id="image5593">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">probe-clash.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1651,7 +1760,7 @@
 			  <signal name="activate" handler="on_reset_view1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3731">
+			    <widget class="GtkImage" id="image5594">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-zoom-fit</property>
 			      <property name="icon_size">1</property>
@@ -1665,10 +1774,21 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="scrollwheel1">
+			<widget class="GtkImageMenuItem" id="scrollwheel1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">ScrollWheel</property>
 			  <property name="use_underline">True</property>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image5595">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">scroll-wheel.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 
 			  <child>
 			    <widget class="GtkMenu" id="scrollwheel1_menu">
@@ -1742,7 +1862,7 @@
 			  <signal name="activate" handler="on_on_line_docs_url1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3732">
+			    <widget class="GtkImage" id="image5596">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-justify-fill</property>
 			      <property name="icon_size">1</property>
@@ -1763,7 +1883,7 @@
 			  <signal name="activate" handler="on_about1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3733">
+			    <widget class="GtkImage" id="image5597">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-about</property>
 			      <property name="icon_size">1</property>
@@ -1784,7 +1904,7 @@
 			  <signal name="activate" handler="on_hints1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image3734">
+			    <widget class="GtkImage" id="image5598">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-dialog-info</property>
 			      <property name="icon_size">1</property>
@@ -2124,6 +2244,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
   <signal name="destroy" handler="on_coords_fileselection1_destroy"/>
 
@@ -2165,6 +2286,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
   <signal name="destroy" handler="on_dataset_fileselection1_destroy"/>
 
@@ -2205,6 +2327,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox2">
@@ -3260,6 +3383,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox4">
@@ -3419,6 +3543,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="map_properties_vbox">
@@ -4111,6 +4236,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox6">
@@ -4305,6 +4431,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox8">
@@ -4498,6 +4625,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox10">
@@ -5323,6 +5451,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox14">
@@ -5498,6 +5627,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox16">
@@ -6130,6 +6260,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox23">
@@ -6497,6 +6628,7 @@ distances more than:</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox26">
@@ -6721,6 +6853,7 @@ distances more than:</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
   <signal name="destroy" handler="on_map_name_fileselection1_destroy"/>
 
@@ -6761,6 +6894,7 @@ distances more than:</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox29">
@@ -7011,6 +7145,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
   <signal name="destroy" handler="on_phs_coordinates_fileselection_destroy"/>
 
@@ -7053,6 +7188,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="destroy" handler="on_display_control_window_glade_destroy"/>
   <signal name="configure_event" handler="on_display_control_window_glade_configure_event"/>
 
@@ -7323,6 +7459,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="destroy" handler="on_goto_atom_window_destroy"/>
   <signal name="configure_event" handler="on_goto_atom_window_configure_event"/>
 
@@ -8102,6 +8239,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox36">
@@ -8295,6 +8433,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox37">
@@ -8495,6 +8634,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox38">
@@ -8647,6 +8787,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox39">
@@ -8774,6 +8915,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkFrame" id="frame34">
@@ -8854,6 +8996,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="destroy" handler="on_dynarama_window_destroy"/>
   <signal name="configure_event" handler="on_dynarama_window_configure_event"/>
 
@@ -9182,6 +9325,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox2">
@@ -9330,6 +9474,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkVBox" id="vbox41">
@@ -9409,6 +9554,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -10235,6 +10381,7 @@ just the cell and symmetry)
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -10359,6 +10506,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_model_refine_dialog_destroy"/>
   <signal name="configure_event" handler="on_model_refine_dialog_configure_event"/>
@@ -11958,6 +12106,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_rotate_translate_obj_dialog_destroy"/>
   <signal name="configure_event" handler="on_rotate_translate_obj_dialog_configure_event"/>
@@ -12498,6 +12647,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -12684,6 +12834,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
   <signal name="destroy" handler="on_save_coords_fileselection1_destroy"/>
 
@@ -12724,6 +12875,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_refine_params_dialog_destroy"/>
 
@@ -13400,6 +13552,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_accept_reject_refinement_dialog_destroy"/>
   <signal name="configure_event" handler="on_accept_reject_refinement_dialog_configure_event"/>
@@ -13644,6 +13797,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -14168,6 +14322,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -14562,6 +14717,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
 
   <child internal-child="cancel_button">
@@ -14601,6 +14757,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkFrame" id="frame50">
@@ -15016,6 +15173,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
 
   <child internal-child="cancel_button">
@@ -15055,6 +15213,7 @@ Do you want to continue?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_delete_item_dialog_destroy"/>
   <signal name="configure_event" handler="on_delete_item_dialog_configure_event"/>
@@ -15398,6 +15557,7 @@ that you wish to delete.               </property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -15673,6 +15833,7 @@ that you wish to delete.               </property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_residue_info_dialog_destroy"/>
 
@@ -16168,6 +16329,7 @@ that you wish to delete.               </property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -16284,6 +16446,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_rotamer_selection_dialog_destroy"/>
 
@@ -16476,6 +16639,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -16785,6 +16949,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -17082,6 +17247,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -17235,6 +17401,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -17647,6 +17814,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -18030,6 +18198,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -18615,6 +18784,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -18736,6 +18906,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -18968,6 +19139,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_SPLASHSCREEN</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkImage" id="pixmap1">
@@ -18995,6 +19167,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -19149,6 +19322,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_add_alt_conf_dialog_destroy"/>
 
@@ -19342,6 +19516,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -19691,6 +19866,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -19993,6 +20169,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_edit_backbone_torsions_dialog_destroy"/>
 
@@ -20203,6 +20380,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -20419,6 +20597,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -20540,6 +20719,7 @@ programs to which you may be more accustomed.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -20625,6 +20805,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -20724,6 +20905,7 @@ PDB file match those of the restraints?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -20810,6 +20992,7 @@ PDB file match those of the restraints?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_ligand_big_blob_dialog_destroy"/>
 
@@ -20937,6 +21120,7 @@ density (too big to be waters):
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_edit_chi_angles_dialog_destroy"/>
 
@@ -21130,6 +21314,7 @@ density (too big to be waters):
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -22021,6 +22206,7 @@ density (too big to be waters):
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_geometry_dialog_destroy"/>
 
@@ -22211,6 +22397,7 @@ density (too big to be waters):
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -22328,6 +22515,7 @@ new molecules</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -22411,6 +22599,7 @@ sigma level or the acceptable fit fraction.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -22551,6 +22740,7 @@ sigma level or the acceptable fit fraction.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -22737,6 +22927,7 @@ sigma level or the acceptable fit fraction.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -22943,6 +23134,7 @@ sigma level or the acceptable fit fraction.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -23110,6 +23302,7 @@ sigma level or the acceptable fit fraction.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -23208,6 +23401,7 @@ the Ctrl key when moving the mouse.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -23296,6 +23490,7 @@ If you need symmetry, setup ccp4 before starting coot
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -23385,6 +23580,7 @@ If you need symmetry, setup ccp4 before starting coot
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -23806,6 +24002,7 @@ If you need symmetry, setup ccp4 before starting coot
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -23926,6 +24123,7 @@ Move a copy?</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -24014,6 +24212,7 @@ any acceptable configuration here.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -24101,6 +24300,7 @@ in this molecule.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -24254,6 +24454,7 @@ in this molecule.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -24351,6 +24552,7 @@ in this molecule.</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -24441,6 +24643,7 @@ Sorry.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -24558,6 +24761,7 @@ Calculate a skeleton now?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -24801,6 +25005,7 @@ into Molecule:
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -25340,6 +25545,7 @@ search (this may not work well)</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -25818,6 +26024,7 @@ search (this may not work well)</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -26207,6 +26414,7 @@ search (this may not work well)</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -26562,6 +26770,7 @@ search (this may not work well)</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -26673,6 +26882,7 @@ search (this may not work well)</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -26883,6 +27093,7 @@ search (this may not work well)</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -27214,6 +27425,7 @@ search (this may not work well)</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -27304,6 +27516,7 @@ search (this may not work well)</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -27601,6 +27814,7 @@ WARNING:: No Models with Waters Available!
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -27694,6 +27908,7 @@ WARNING:: No Models with Waters Available!
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -27783,6 +27998,7 @@ WARNING:: No Models with Waters Available!
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -27935,6 +28151,7 @@ Which map do you want to skeletonize?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -28101,6 +28318,7 @@ Which map do you want to skeletonize?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_geometry_graphs_dialog_destroy"/>
 
@@ -28183,6 +28401,7 @@ Which map do you want to skeletonize?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
   <signal name="destroy" handler="on_save_symmetry_coords_fileselection_destroy"/>
 
@@ -28223,6 +28442,7 @@ Which map do you want to skeletonize?
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -28432,6 +28652,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_preferences_destroy"/>
 
@@ -28740,6 +28961,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_diff_map_peaks_dialog_destroy"/>
 
@@ -28835,6 +29057,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -29307,6 +29530,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -29602,6 +29826,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
 
   <child>
     <widget class="GtkFrame" id="frame147">
@@ -29648,6 +29873,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -29923,6 +30149,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -30211,6 +30438,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -30611,6 +30839,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -30702,6 +30931,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_nucleic_acid_base_chooser_dialog_destroy"/>
 
@@ -30867,6 +31097,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -31421,6 +31652,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -31780,6 +32012,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
   <signal name="destroy" handler="on_save_state_fileselection_destroy"/>
 
@@ -31820,6 +32053,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_other_model_tools_dialog_destroy"/>
 
@@ -32069,6 +32303,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="show_fileops">True</property>
   <signal name="destroy" handler="on_screendump_fileselection_destroy"/>
 
@@ -32109,6 +32344,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -32471,6 +32707,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -32909,6 +33146,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_lsq_plane_dialog_destroy"/>
 
@@ -33130,6 +33368,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="destroy" handler="on_coords_colour_control_dialog_destroy"/>
 
@@ -33596,6 +33835,7 @@ View Mode</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -34152,6 +34392,7 @@ Nucleotide Builder
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -34414,6 +34655,7 @@ Move Molecule Here:</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -34841,6 +35083,7 @@ Move Molecule Here:</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -35592,6 +35835,7 @@ Move Molecule Here:</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
