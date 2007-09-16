@@ -1,10 +1,11 @@
 /* src/graphics-info.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
+ * Copyright 2007 by the University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -2083,7 +2084,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
       //    std::cout << "there are " << moving_atoms_asc->n_selected_atoms
       // 	     << " selected atoms in the moving_atoms_asc" << std::endl;
 
-      moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
+      moving_atoms_asc_type = coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF;
       make_moving_atoms_graphics_object(*moving_atoms_asc);
       graphics_draw();
       return 1;
@@ -2439,7 +2440,8 @@ void
 graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 
    if (moving_atoms_asc) { 
-      if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
+      if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE ||
+	  moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { // needed?
 	 if (moving_atoms_asc->mol) {
 
 	    std::string s = "Unset";

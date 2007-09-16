@@ -1356,22 +1356,25 @@ graphics_info_t::accept_moving_atoms() {
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) {
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
    } else { 
-      if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) { 
-	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc);
-
+      if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { 
+	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1);
 	 update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-	    
-      } else { 
-	 if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
-	    molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
+      } else {
+	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
+	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0);
+	    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
 	 } else { 
-	    if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
-	       molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
-	    } else {
-	       std::cout << "------------ ERROR! -------------------" << std::endl;
-	       std::cout << "       moving_atoms_asc_type not known: ";
-	       std::cout << moving_atoms_asc_type << std::endl;
-	       std::cout << "------------ ERROR! -------------------" << std::endl;
+	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
+	       molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
+	    } else { 
+	       if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
+		  molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
+	       } else {
+		  std::cout << "------------ ERROR! -------------------" << std::endl;
+		  std::cout << "       moving_atoms_asc_type not known: ";
+		  std::cout << moving_atoms_asc_type << std::endl;
+		  std::cout << "------------ ERROR! -------------------" << std::endl;
+	       }
 	    }
 	 }
       }
