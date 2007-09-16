@@ -33,6 +33,7 @@ EXTRA_DIST = notes Makefile.simple molmantest.cc
 include_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh
 
 INCLUDES = \
+	-I$(top_srcdir)/compat     \
 	-I$(top_srcdir)/coords     \
 	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/mini-mol   \
