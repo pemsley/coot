@@ -647,14 +647,12 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 					    at->u12/(a*b), at->u13/(a*c), at->u23/(b*c));
 		  clipper::U_aniso_orth cao = caf.u_aniso_orth(cell);
 
-		  if (1) { 
-		     at->u11 = cao(0,0);
-		     at->u22 = cao(1,1);
-		     at->u33 = cao(2,2);
-		     at->u12 = cao(0,1);
-		     at->u13 = cao(0,2);
-		     at->u23 = cao(1,2);
-		  }
+		  at->u11 = cao(0,0);
+		  at->u22 = cao(1,1);
+		  at->u33 = cao(2,2);
+		  at->u12 = cao(0,1);
+		  at->u13 = cao(0,2);
+		  at->u23 = cao(1,2);
 
 		  std::cout << "DEBUG::  pre-orthog:\n" << ocaf.format() << std::endl;
 		  std::cout << "DEBUG:: post-orthog:\n" <<  cao.format() << std::endl;
