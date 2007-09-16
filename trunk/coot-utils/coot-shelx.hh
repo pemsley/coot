@@ -200,7 +200,8 @@ namespace coot {
 				  int &current_res_no) const;
       void save_fvars(const shelx_card_info_t &card);
       CAtom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
-		       int udd_afix_handle, int have_udd_atoms, int current_afix) const;
+		       int udd_afix_handle, int have_udd_atoms, int current_afix,
+		       clipper::Cell &cell) const;
 
    public:
       ShelxIns() {init(); }

@@ -44,10 +44,11 @@
 
   `(begin
      (let ((replace-state (refinement-immediate-replacement-state)))
-       (set-refinement-immediate-replacement 0)
+       (set-refinement-immediate-replacement 1)
        ,@funcs
-       (if (= replace-state 1)
-	   (set-refinement-immediate-replacement 1)))))
+       (if (= replace-state 0)
+	   (set-refinement-immediate-replacement 0)))))
+
 ; e.g.:
 ; (with-auto-accept 
 ;   (format #t "tum tee tumm...~%")
