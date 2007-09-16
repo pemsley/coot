@@ -4457,7 +4457,8 @@ molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain
 // the atom_selection contains just the moving parts.
 //
 void
-molecule_class_info_t::replace_coords(const atom_selection_container_t &asc) {
+molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
+				      bool change_altconf_occs_flag) {
 
    int idx = -1;
    CAtom *atom;
@@ -4505,52 +4506,63 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc) {
 					    std::string(atom->altLoc));
 	 // std::cout << "DEBUG:: idx: " << idx << "\n";
       }
-      if (idx >= 0) {
-	 n_atom++;
-	 mol_atom = atom_sel.atom_selection[idx];
-	 float atom_occ = atom->occupancy;
-	 // if this is a shelx molecule, then we don't change
-	 // occupancies this way.  We do it by changing the FVAR
-	 if (is_from_shelx_ins_flag) { 
-	    atom_occ = mol_atom->occupancy;
 
-	    // OK, one more go.  We have an occupancy of 31 or -31
-	    // say.  Now, the alt conf atoms has been immmediately
-	    // added with the old occupancy for the actual FVAR number
-	    // - this happens before we get to twiddle the occupancy
-	    // slider.  So here we have to find out the index of the
-	    // replaced atom and set it's fvar to whatever the slider
-	    // value had been set to.
+      if (change_altconf_occs_flag) { 
+	 if (idx >= 0) {
+	    n_atom++;
+	    mol_atom = atom_sel.atom_selection[idx];
+	    float atom_occ = atom->occupancy;
+	    // if this is a shelx molecule, then we don't change
+	    // occupancies this way.  We do it by changing the FVAR
+	    if (is_from_shelx_ins_flag) { 
+	       atom_occ = mol_atom->occupancy;
 
-	    int fvar_number = coot::ShelxIns::shelx_occ_to_fvar(atom_occ);
-	    if (fvar_number > 1) { 
-// 	       std::cout << "DEBUG:: replace_coords: setting fvar number "
-// 			 <<  fvar_number << " (generated from occ " << atom_occ << ") to "
-// 			 << graphics_info_t::add_alt_conf_new_atoms_occupancy << std::endl;
-	       shelxins.set_fvar(fvar_number, graphics_info_t::add_alt_conf_new_atoms_occupancy);
-	    }
+	       // OK, one more go.  We have an occupancy of 31 or -31
+	       // say.  Now, the alt conf atoms has been immmediately
+	       // added with the old occupancy for the actual FVAR number
+	       // - this happens before we get to twiddle the occupancy
+	       // slider.  So here we have to find out the index of the
+	       // replaced atom and set it's fvar to whatever the slider
+	       // value had been set to.
+
+	       int fvar_number = coot::ShelxIns::shelx_occ_to_fvar(atom_occ);
+	       if (fvar_number > 1) { 
+		  // 	       std::cout << "DEBUG:: replace_coords: setting fvar number "
+		  // 			 <<  fvar_number << " (generated from occ " << atom_occ << ") to "
+		  // 			 << graphics_info_t::add_alt_conf_new_atoms_occupancy << std::endl;
+		  shelxins.set_fvar(fvar_number, graphics_info_t::add_alt_conf_new_atoms_occupancy);
+	       }
 	    
-	    mol_atom->SetCoordinates(atom->x,
-				     atom->y,
-				     atom->z,
-				     atom_occ,
-				     mol_atom->tempFactor);
-	 } else { 
-	    mol_atom->SetCoordinates(atom->x,
-				     atom->y,
-				     atom->z,
-				     atom_occ,
-				     mol_atom->tempFactor);
-	 }
+	       mol_atom->SetCoordinates(atom->x,
+					atom->y,
+					atom->z,
+					atom_occ,
+					mol_atom->tempFactor);
+	    } else { 
+	       mol_atom->SetCoordinates(atom->x,
+					atom->y,
+					atom->z,
+					atom_occ,
+					mol_atom->tempFactor);
+	    }
 
-	 // similarly we adjust occupancy if this is not a shelx molecule
-	 if (! is_from_shelx_ins_flag) 
-	    adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->residue, 0);
-	 // std::cout << atom << " coords replace " << idx << " " << mol_atom << std::endl;
+	    // similarly we adjust occupancy if this is not a shelx molecule
+	    if (! is_from_shelx_ins_flag) 
+	       adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->residue, 0);
+	    // std::cout << atom << " coords replace " << idx << " " << mol_atom << std::endl;
+	 } else {
+	    std::cout << "ERROR:: bad atom index in replace_coords replacing atom: "
+		      << atom << std::endl;
+	 }
       } else {
-	 std::cout << "ERROR:: bad atom index in replace_coords replacing atom: "
-		   << atom << std::endl;
-      } 
+	 mol_atom = atom_sel.atom_selection[idx];
+	 mol_atom->SetCoordinates(atom->x,
+				  atom->y,
+				  atom->z,
+				  mol_atom->occupancy,
+				  mol_atom->tempFactor);
+      }
+	 
    }
    std::cout << n_atom << " atoms updated." << std::endl;
    have_unsaved_changes_flag = 1; 

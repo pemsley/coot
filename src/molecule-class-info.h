@@ -1069,7 +1069,8 @@ class molecule_class_info_t {
 
 
    // regularization results:
-   void replace_coords(const atom_selection_container_t &asc);
+   void replace_coords(const atom_selection_container_t &asc,
+		       bool change_altconf_occs_flag);
    // extra modelling results, e.g. waters, terminal residues, etc
    void add_coords(const atom_selection_container_t &asc);
    //
