@@ -236,6 +236,11 @@ coot::ShelxIns::read_file(const std::string &filename) {
 			      cell_local[3] = atof(card.words[5].c_str());
 			      cell_local[4] = atof(card.words[6].c_str());
 			      cell_local[5] = atof(card.words[7].c_str());
+			      clipper::Cell_descr cell_d(cell_local[0], cell_local[1], cell_local[2], 
+							 clipper::Util::d2rad(cell_local[3]),
+							 clipper::Util::d2rad(cell_local[4]),
+							 clipper::Util::d2rad(cell_local[5]));
+			      cell.init(cell_d); // cell is class member
 			   }
 			} else { 
 			   if (card.words[0] == "UNIT") {
@@ -365,7 +370,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 									   if (! post_END_flag) { 
 									      // it's an atom
 									      CAtom *at = make_atom(card, altconf, udd_afix_handle,
-												    have_udd_atoms, current_afix);
+												    have_udd_atoms, current_afix, cell);
 									      if (at)
 										 atom_vector.push_back(at);
 									      else
@@ -572,7 +577,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 
 CAtom *
 coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
-			  int udd_afix_handle, int have_udd_atoms, int current_afix) const {
+			  int udd_afix_handle, int have_udd_atoms, int current_afix,
+			  clipper::Cell &cell) const {
 
    CAtom *at = new CAtom;  // returned
 
@@ -629,11 +635,35 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  at->u23 = atof(card.words[ 9].c_str());
 		  at->u13 = atof(card.words[10].c_str());
 		  at->u12 = atof(card.words[11].c_str());
-		  at->WhatIsSet += 64; // is anisotropic
+
+		  double a = cell.a();
+		  double b = cell.b();
+		  double c = cell.c();
+
+		  // Now othogonalize the U values:
+		  clipper::U_aniso_frac ocaf(at->u11, at->u22, at->u33,
+					     at->u12, at->u13, at->u23);
+		  clipper::U_aniso_frac caf(at->u11/(a*a), at->u22/(b*b), at->u33/(c*c),
+					    at->u12/(a*b), at->u13/(a*c), at->u23/(b*c));
+		  clipper::U_aniso_orth cao = caf.u_aniso_orth(cell);
+
+		  if (1) { 
+		     at->u11 = cao(0,0);
+		     at->u22 = cao(1,1);
+		     at->u33 = cao(2,2);
+		     at->u12 = cao(0,1);
+		     at->u13 = cao(0,2);
+		     at->u23 = cao(1,2);
+		  }
+
+		  std::cout << "DEBUG::  pre-orthog:\n" << ocaf.format() << std::endl;
+		  std::cout << "DEBUG:: post-orthog:\n" <<  cao.format() << std::endl;
+
+		  at->WhatIsSet |= ASET_Anis_tFac; // is anisotropic
 		  // std::cout << "DEBUG:: Found Anisotropic "
 		  //           << at->name << std::endl;
 		  float u_synth = (at->u11 + at->u22 + at->u33)/3.0;
-		  at->WhatIsSet += 4; // has synthetic B factor
+		  at->WhatIsSet |= ASET_tempFactor; // has synthetic B factor
 		  at->tempFactor = 8.0 * M_PI * M_PI * u_synth;
 	       }
 	    }

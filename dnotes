@@ -4,11 +4,8 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   11 outstanding issues
+   10 outstanding issues
 
-
-   o res098 from Lionel Colliandre - alt conf occ resetting problem on
-     regularize. 
 
    o Fix non-orthorhombic aniso Us.
 
@@ -79,6 +76,11 @@ src/molecule-class-info-other.cc:           mol->SetSpaceGroup(sg);
    o Lars Prade crash.
 
 
+
+   o res098 from Lionel Colliandre - alt conf occ resetting problem on
+     regularize. 
+
+* Fixed.  Needs a test. Done.
 
 
    o Alice Dawson SSM Problem, 1pyd.  Message sent to Eugene -
@@ -1876,4 +1878,25 @@ Sun Sep 16 00:33:44 BST 2007
     o "Reverse" chi angle fragment tail/dog
 
     o Cache libcheck results for faster "Get Monomer"
+
+-----
+Sun Sep 16 01:25:09 BST 2007
+
+
+texi2html ../../coot/doc/user-manual.texi
+*** Undefined node of menu_entry (Dictionary): * Dictionary::
+*** Undefined node of menu_entry (Planar Peptide Restraints): * Planar Peptide Restraints::
+*** Undefined node of menu_entry (The <TT>UNK</TT> residue type): * The @t{UNK} residue type::
+
+
+----
+Sun Sep 16 12:31:03 BST 2007
+
+	refine-zone, regularize-zone, auto-refine-zone all ignore the
+	alt-conf specifier.  They should not.
+
+	Priority: Medium.
+
+
+
 

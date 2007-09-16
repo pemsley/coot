@@ -217,4 +217,63 @@
 			       a-1 a-2 a-last)
 		       (throw 'fail))))))))))
 
-		     
+
+;; Don't reset the occupancies of the other parts of the residue
+;; on regularization using alt confs
+;; 
+(greg-testcase "Alt Conf Occ Sum Reset" #t
+
+  (lambda () 
+
+     (define (get-occ-sum imol-frag)
+
+       (define (occ att-atom-name att-alt-conf atom-ls)
+
+	 (let ((atom-ls atom-ls)
+	       (occ-sum 0))
+
+	   (let f ((atom-ls atom-ls))
+	     (cond 
+	      ((null? atom-ls) (throw 'fail))
+	      (else 
+	       (let* ((atom (car atom-ls))
+		      (compound-name (car atom))
+		      (atom-name (car compound-name))
+		      (alt-conf (car (cdr compound-name)))
+		      (occ (car (car (cdr atom)))))
+		 (if (string=? atom-name att-atom-name)
+		     (if (string=? alt-conf att-alt-conf)
+			 (begin 
+			   (format #t "for atom ~s ~s returning occ ~s~%" 
+				   att-atom-name att-alt-conf occ)
+			   occ)
+			 (f (cdr atom-ls)))
+		     (f (cdr atom-ls)))))))))
+
+       ;; get-occ-sum body
+       (let ((atom-ls (residue-info imol-frag "X" 15 "")))
+	 (if (not (list? atom-ls))
+	     (throw 'fail)
+	     (+ (occ " CE " "A" atom-ls) (occ " CE " "B" atom-ls)
+		(occ " NZ " "A" atom-ls) (occ " NZ " "B" atom-ls)))))
+
+	 
+
+     ;; main body 
+     ;; 
+     (let ((imol-frag (read-pdb (append-dir-file greg-data-dir "res098.pdb"))))
+
+       (let ((occ-sum-pre (get-occ-sum imol-frag)))
+
+	 (let ((replace-state (refinement-immediate-replacement-state)))
+	   (set-refinement-immediate-replacement 1)
+	   (regularize-zone imol-frag "X" 15 15 "A")
+	   (accept-regularizement)
+	   (if (= replace-state 0)
+	       (set-refinement-immediate-replacement 0))
+	  
+	   (let ((occ-sum-post (get-occ-sum imol-frag)))
+	     
+	     (format #t "test for closeness: ~s ~s~%" occ-sum-pre occ-sum-post)	    
+	     (close-float? occ-sum-pre occ-sum-post)))))))
+
