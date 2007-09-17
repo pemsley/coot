@@ -38,6 +38,12 @@
 #include <string>
 #include <vector>
 
+#include "mmdb_manager.h"
+#include "mmdb_tables.h"
+#include "mmdb-extras.h"
+#include "mmdb.h"
+#include "mmdb-crystal.h"
+
 #include "CIsoSurface.h"
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
@@ -67,11 +73,6 @@
 
 using namespace std; // change me in a spare half hour when in York.
 
-#include "mmdb_manager.h"
-#include "mmdb_tables.h"
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
 
 // For stat, mkdir:
 #include <sys/types.h>

@@ -84,6 +84,8 @@
 
     Release 0.6 and 0.7 [Mar/Apr 2008]
 
+   o multiple residue ranges, glycosylation, covalent bond entities
+  
    o Redo sequence view 
 
    o NCS differences graph (use master chain)
@@ -126,8 +128,6 @@
 
    o Other Button: tw & penny
 
-   o multiple residue ranges, glycosylation, covalent bond entities
-  
    o handle links properly (as above).
 
    o multiple representations?

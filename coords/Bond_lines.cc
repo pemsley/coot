@@ -2253,7 +2253,8 @@ Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_sele
 								 float min_dist, float max_dist) { 
    if (asc.n_selected_atoms > 0) { 
       CModel *model_p = asc.mol->GetModel(1);
-      model_p->CalcSecStructure(1);
+      int aminoSelHnd = -1;
+      model_p->CalcSecStructure(1, aminoSelHnd);
       do_Ca_plus_ligands_bonds(asc, min_dist, max_dist, coot::COLOUR_BY_SEC_STRUCT);
    }
 }
