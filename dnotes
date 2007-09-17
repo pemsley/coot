@@ -4,41 +4,19 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   9 outstanding issues
+   8 outstanding issues
 
 
    o Correct CISPEP if needed cards on writing pdb.
      Hand off to Eugene for now.  Needs mmdb-1.0.10
 
-   o Check where else we do a SetSpaceGroup()?  Bug there too?
-     Where else do I mess with the space group like I did at the end of 
-     unshelxing?  Fix that too.
-
-      Fixed coot-utils/coot-coord-utils.cc:      atoms_mol->SetSpaceGroup(sgc);
-      Fixed coot-utils/coot-shelx-ins.cc:   shelx_mol->SetSpaceGroup(sgc);
-      Fixed src/c-interface-mutate.cc:             mmdb_info.first->SetSpaceGroup(sgc);
-
-      Not fixed: Frank's bug? (No, that was not Frank's bug - Franks
-      bug was a mess in writing out the sequence alignment).
-
-      src/c-interface-superpose.cc:    m2->SetSpaceGroup(sgc);
-
-      The following need to be examined:
-src/c-interface-superpose.cc:    m2->SetSpaceGroup(sgc);
-src/graphics-info.cc:      int istat_spgr = MMDBManager->SetSpaceGroup(copied_str);
-src/graphics-info.cc:      std::cout << "status from SetSpaceGroup: " << istat_spgr << std::endl;
-src/molecule-class-info.cc:   mol_new->SetSpaceGroup(spacegroup_str);
-src/molecule-class-info.cc:      atom_sel.mol->SetSpaceGroup((char *)cell_spgr.second.c_str());
-src/molecule-class-info.cc:   atom_sel.mol->SetSpaceGroup((char *)spg.c_str());
-src/molecule-class-info-other.cc:           mol->SetSpaceGroup(sg);
-
    o Do the strand restraints work well under refinement?
 
-   o Try again to add chiral volumes to the geometry target function
+   o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
 
    o Post-install slim the binaries
 
-   o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
+   o Try again to add chiral volumes to the geometry target function
 
    o Carsten's Map Masking crash
 
@@ -73,9 +51,35 @@ src/molecule-class-info-other.cc:           mol->SetSpaceGroup(sg);
 
    o Lars Prade crash.
 
+   o GMS Molprobity problem
 
 
 
+
+
+   o Check where else we do a SetSpaceGroup()?  Bug there too?
+      Where else do I mess with the space group like I did at the end of 
+      unshelxing?  Fix that too.
+
+      Fixed coot-utils/coot-coord-utils.cc:      atoms_mol->SetSpaceGroup(sgc);
+      Fixed coot-utils/coot-shelx-ins.cc:   shelx_mol->SetSpaceGroup(sgc);
+      Fixed src/c-interface-mutate.cc:             mmdb_info.first->SetSpaceGroup(sgc);
+
+      Not fixed: Frank's bug? (No, that was not Frank's bug - Franks
+      bug was a mess in writing out the sequence alignment).
+
+      src/c-interface-superpose.cc:    m2->SetSpaceGroup(sgc);
+
+      The following need to be examined:
+      src/c-interface-superpose.cc:    m2->SetSpaceGroup(sgc); fixed
+      src/graphics-info.cc:      int istat_spgr = MMDBManager->SetSpaceGroup(copied_str); fixed
+      src/graphics-info.cc:      std::cout << "status from SetSpaceGroup: " << istat_spgr << std::endl; yep
+      src/molecule-class-info.cc:   mol_new->SetSpaceGroup(spacegroup_str); correct usage
+      src/molecule-class-info.cc:      atom_sel.mol->SetSpaceGroup((char *)cell_spgr.second.c_str()); good
+      src/molecule-class-info.cc:   atom_sel.mol->SetSpaceGroup((char *)spg.c_str()); // ok
+      src/molecule-class-info-other.cc:           mol->SetSpaceGroup(sg); // fine
+
+* Done
 
    o Fix non-orthorhombic aniso Us.
 

@@ -2758,16 +2758,13 @@ graphics_info_t::baton_build_atoms_molecule() const {
 			   clipper::Util::rad2d(molecules[imol_for_skel].xskel_cowtan.cell().descr().gamma()), 1);
       const char *spacegroup = molecules[imol_for_skel].xskel_cowtan.spacegroup().symbol_hm().c_str();
       std::cout << "setting spacegroup of Baton Atoms to be: " << spacegroup << std::endl;
-      // spacegroup = "P4322";
 
-      char *copied_str = new char[strlen(spacegroup) + 1];
-      strcpy(copied_str, spacegroup);
       std::cout << "setting spacegroup of Baton Atoms to be: " << copied_str << std::endl;
       std::cout << "setting cell of Baton Atoms to be: "
 		<< molecules[imol_for_skel].xskel_cowtan.cell().format() << std::endl;
       
-      int istat_spgr = MMDBManager->SetSpaceGroup(copied_str);
-      std::cout << "status from SetSpaceGroup: " << istat_spgr << std::endl;
+      int istat_spgr = MMDBManager->SetSpaceGroup(spacegroup);
+      std::cout << "DEBUG:: status from SetSpaceGroup: " << istat_spgr << std::endl;
       if (istat_spgr != 0) {
 	 std::cout << "Problem:: mmdb does not understand space group: " << copied_str << std::endl;
       }  

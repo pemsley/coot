@@ -208,12 +208,8 @@ void superpose_with_atom_selection(int imol1, int imol2,
 	 CMMDBManager *m2 = graphics_info_t::molecules[imol2].atom_sel.mol;
 	 m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
 	 char *sg = m1->GetSpaceGroup();
-	 size_t l = strlen(sg+1);
-	 char *sgc = new char[l];
-	 strcpy(sgc, sg);
+	 m2->SetSpaceGroup(sg);
 	 m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-	 m2->SetSpaceGroup(sgc);
-	 
       }
    }
 #endif // HAVE_SSMLIB
