@@ -107,62 +107,69 @@
 		 (refmac-log-file-name  (string-append dir-prefix "coot-libcheck-refmac-"
 						       code-str ".log"))
 		 (refmac-command-line (list "LIBIN" cif-file-name "XYZIN" pdb-file-name 
-					    "XYZOUT" post-refmac-pdb-file-name)))
+					    "XYZOUT" post-refmac-pdb-file-name))
+		 (coot-lib-name (string-append "coot-libcheck-" code-str ".cif")))
 
 
-	    (let ((libstatus (goosh-command libcheck-exe '() libcheck-input log-file-name #t)))
-	      
-	      (format #t "INFO:: libcheck status: ~s~%" libstatus)
+	    (if (and (file-exists? post-refmac-pdb-file-name)
+		     (file-exists? coot-lib-name))
+		(let ((pdb-status (handle-read-draw-molecule-with-recentre post-refmac-pdb-file-name 0)))
+		  (if (is-valid-model-molecule? pdb-status)
+		      (move-molecule-here pdb-status)
+		      (read-cif-dictionary coot-lib-name)))
 
-	      (if (not (number? libstatus))
-		  -3
-		  (if (= libstatus 0)
-		      ;; libcheck ran OK, 
-		      ;; 
-		      ;; But I now find that libcheck can run OK, but
-		      ;; not produce an output file (using dict .cif
-		      ;; file from PRODRG).
-		      ;;
-		      ;; So we first need to check that the output of
-		      ;; libcheck exists.
-		      ;; 
-		      (if (not (file-exists? cif-file-name))
 
-			  (format #t "libcheck failed to write the output cif file.~%")
+		(let ((libstatus (goosh-command libcheck-exe '() libcheck-input log-file-name #t)))
+		  
+		  (format #t "INFO:: libcheck status: ~s~%" libstatus)
 
-			  ;; OK, now let's run refmac:
+		  (if (not (number? libstatus))
+		      -3
+		      (if (= libstatus 0)
+			  ;; libcheck ran OK, 
 			  ;; 
-			  (let ((libcheck-minimal-desc-status (libcheck-minimal? log-file-name))
-				(refmac-status (goosh-command refmac-exe
-							      refmac-command-line
-							      refmac-input
-							      refmac-log-file-name #t)))
-			    
-			    (if (not (number? refmac-status))
-				-4 ; refmac fails 
-				(if (not (= 0 refmac-status))
-				    -4 ; refmac fails elsewise
-				    (let ((recentre-status (recentre-on-read-pdb))
-					  (nov (set-recentre-on-read-pdb 0))
-					  (pdb-status (read-pdb post-refmac-pdb-file-name)))
-				      
-				      ; move the coords to the centre of the screen 
-				      ; (i.e. by rotation-centre - molecule-centre)
-				      (if (>= pdb-status 0) 
-					  (begin
-					    (let ((rc (rotation-centre))
-						  (mc (molecule-centre pdb-status)))
-					      (apply translate-molecule-by (cons pdb-status (map - rc mc))))))
-				      
-				      (set-recentre-on-read-pdb recentre-status)
-				      (if libcheck-minimal-desc-status
-					    (let ((libcheck-lib "libcheck.lib")
-						  (coot-lib-name (string-append 
-								  "coot-libcheck-"
-								  code-str ".cif")))
-					      (if (file-exists? libcheck-lib)
-						  (begin
-						    (read-cif-dictionary libcheck-lib)
-						    (copy-file libcheck-lib coot-lib-name)))))
-				      pdb-status))))))))))))
+			  ;; But I now find that libcheck can run OK, but
+			  ;; not produce an output file (using dict .cif
+			  ;; file from PRODRG).
+			  ;;
+			  ;; So we first need to check that the output of
+			  ;; libcheck exists.
+			  ;; 
+			  (if (not (file-exists? cif-file-name))
+
+			      (format #t "libcheck failed to write the output cif file.~%")
+
+			      ;; OK, now let's run refmac:
+			      ;; 
+			      (let ((libcheck-minimal-desc-status (libcheck-minimal? log-file-name))
+				    (refmac-status (goosh-command refmac-exe
+								  refmac-command-line
+								  refmac-input
+								  refmac-log-file-name #t)))
+				
+				(if (not (number? refmac-status))
+				    -4 ; refmac fails 
+				    (if (not (= 0 refmac-status))
+					-4 ; refmac fails elsewise
+					(let ((recentre-status (recentre-on-read-pdb))
+					      (nov (set-recentre-on-read-pdb 0))
+					      (pdb-status (read-pdb post-refmac-pdb-file-name)))
+					  
+					; move the coords to the centre of the screen 
+					; (i.e. by rotation-centre - molecule-centre)
+					  (if (>= pdb-status 0) 
+					      (begin
+						(let ((rc (rotation-centre))
+						      (mc (molecule-centre pdb-status)))
+						  (apply translate-molecule-by (cons pdb-status (map - rc mc))))))
+					  
+					  (set-recentre-on-read-pdb recentre-status)
+					  (if libcheck-minimal-desc-status
+					      (let ((libcheck-lib "libcheck.lib"))
+						(if (file-exists? libcheck-lib)
+						    (begin
+						      (read-cif-dictionary libcheck-lib)
+						      (copy-file libcheck-lib coot-lib-name)))))
+					  pdb-status)))))))))))))
+
 
