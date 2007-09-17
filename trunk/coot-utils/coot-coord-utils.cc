@@ -3429,8 +3429,14 @@ coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
 int
 coot::util::count_cis_peptides(CMMDBManager *mol) {
 
-   int cis_count = 0;
+   return cis_peptides_info_from_coords(mol).size();
+}
 
+std::vector<coot::util::cis_peptide_info_t>
+coot::util::cis_peptides_info_from_coords(CMMDBManager *mol) {
+
+   std::vector<coot::util::cis_peptide_info_t> v;
+   
    int imod = 1;      
    CModel *model_p = mol->GetModel(imod);
    CChain *chain_p;
@@ -3442,9 +3448,9 @@ coot::util::count_cis_peptides(CMMDBManager *mol) {
       PCResidue residue_p_2;
       CAtom *at_1;
       CAtom *at_2;
-      CAtom *ca_first = NULL, *c_first = NULL, *n_next = NULL, *ca_next = NULL;
       for (int ires=0; ires<(nres-1); ires++) { 
    
+	 CAtom *ca_first = NULL, *c_first = NULL, *n_next = NULL, *ca_next = NULL;
 	 residue_p_1 = chain_p->GetResidue(ires);
 	 int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
 	 residue_p_2 = chain_p->GetResidue(ires+1);
@@ -3468,20 +3474,86 @@ coot::util::count_cis_peptides(CMMDBManager *mol) {
 		  n_next = at_2;
 	    }
 	 }
+	 
+	 if (ca_first && c_first && n_next && ca_next) {
+	    clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
+	    clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
+	    clipper::Coord_orth can( ca_next->x,  ca_next->y,  ca_next->z);
+	    clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
+	    double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
+	    double torsion = clipper::Util::rad2d(tors);
+	    torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
+	    double distortion = fabs(180.0 - torsion);
+	    if (distortion > 90.0) {
+	       coot::residue_spec_t rs1(residue_p_1);
+	       coot::residue_spec_t rs2(residue_p_2); 
+	       v.push_back(coot::util::cis_peptide_info_t(chain_p->GetChainID(),
+							  rs1, rs2, imod));
+	    }
+	 }
       }
-      if (ca_first && c_first && n_next && ca_next) {
-	 clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
-	 clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
-	 clipper::Coord_orth can(ca_next->x, ca_next->y, ca_next->z);
-	 clipper::Coord_orth  nn( n_next->x,  n_next->y,  n_next->z);
-	 double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
-	 double torsion = clipper::Util::rad2d(tors);
-	 torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
-	 double distortion = fabs(180.0 - torsion);
-	 if (distortion > 90.0) {
-	    cis_count++;
-	 } 
+   }
+   return v;
+} 
+
+
+// remove wrong cis_peptides
+void
+coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
+
+   std::vector<coot::util::cis_peptide_info_t> v_coords = 
+      coot::util::cis_peptides_info_from_coords(mol);
+
+   // fill v_header
+   std::vector<coot::util::cis_peptide_info_t> v_header;
+   PCCisPep       CisPep;
+
+   int n_models = mol->GetNumberOfModels();
+   for (int imod=1; imod<=n_models; imod++) { 
+      CModel *model_p = mol->GetModel(imod);
+      int ncp = model_p->GetNumberOfCisPeps();
+      for (int icp=1; icp<=ncp; icp++) {
+	 CisPep = model_p->GetCisPep(icp);
+	 if (CisPep)  {
+	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "<< CisPep->seqNum1 << " :" 
+		      << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
+	    coot::util::cis_peptide_info_t cph(CisPep);
+	    v_header.push_back(cph);
+	 }
       } 
    }
-   return cis_count;
+
+
+   std::cout << "There were " << v_header.size() << " CISPEPs in the PDB header"
+	     << std::endl;
+   std::cout << "There were " << v_coords.size() << " CISPEPs from the coordinates"
+	     << std::endl;
+   for (unsigned int ihcp=0; ihcp<v_header.size(); ihcp++) {
+      short int ifound = 0;
+      for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
+	 if (v_header[ihcp] == v_coords[iccp]) {
+	    std::cout << " ......header matches" << std::endl;
+	    ifound = 1;
+	    break;
+	 } else {
+	    std::cout << "       header not the same" << std::endl;
+	 }
+      }
+      if (ifound == 0) {
+	 // needs to be removed
+	 std::cout << "remove CIS peptide from PDB header" << std::endl;
+	 std::cout << v_header[ihcp].chain_id_1 << " "
+		   << v_header[ihcp].resno_1 << " "
+		   << v_header[ihcp].chain_id_2 << " "
+		   << v_header[ihcp].resno_2 << " "
+		   << std::endl;
+      } else {
+	 std::cout << "This  CIS peptide was real:" << std::endl;
+	 std::cout << v_header[ihcp].chain_id_1 << " "
+		   << v_header[ihcp].resno_1 << " "
+		   << v_header[ihcp].chain_id_2 << " "
+		   << v_header[ihcp].resno_2 << " "
+		   << std::endl;
+      } 
+   }   
 } 

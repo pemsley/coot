@@ -4,23 +4,13 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   10 outstanding issues
+   9 outstanding issues
 
-
-   o Fix non-orthorhombic aniso Us.
 
    o Correct CISPEP if needed cards on writing pdb.
      Hand off to Eugene for now.  Needs mmdb-1.0.10
 
-   o Do the strand restraints work well under refinement?
-
-   o Try again to add chiral volumes to the geometry target function
-
-   o Post-install slim the binaries
-
-   o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
-
-   o Check where else we do a SetSpaceGroup().  Bug there too?
+   o Check where else we do a SetSpaceGroup()?  Bug there too?
      Where else do I mess with the space group like I did at the end of 
      unshelxing?  Fix that too.
 
@@ -41,6 +31,14 @@ src/molecule-class-info.cc:   mol_new->SetSpaceGroup(spacegroup_str);
 src/molecule-class-info.cc:      atom_sel.mol->SetSpaceGroup((char *)cell_spgr.second.c_str());
 src/molecule-class-info.cc:   atom_sel.mol->SetSpaceGroup((char *)spg.c_str());
 src/molecule-class-info-other.cc:           mol->SetSpaceGroup(sg);
+
+   o Do the strand restraints work well under refinement?
+
+   o Try again to add chiral volumes to the geometry target function
+
+   o Post-install slim the binaries
+
+   o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
 
    o Carsten's Map Masking crash
 
@@ -75,6 +73,13 @@ src/molecule-class-info-other.cc:           mol->SetSpaceGroup(sg);
 
    o Lars Prade crash.
 
+
+
+
+
+   o Fix non-orthorhombic aniso Us.
+
+* Done.
 
 
    o res098 from Lionel Colliandre - alt conf occ resetting problem on

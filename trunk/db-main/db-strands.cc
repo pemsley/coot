@@ -63,7 +63,8 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
 	 CMMDBManager *mol = get_mol(filename);
 	 if (mol) { 
 	    CModel *model_p = mol->GetModel(1);
-	    int status = model_p->CalcSecStructure(1);
+	    int aminoSelHnd = -1;
+	    int status = model_p->CalcSecStructure(1, aminoSelHnd);
 	    if (status == SSERC_Ok) {
 	       std::cout << "INFO:: SSE status was OK\n";
 	       std::vector<coot::minimol::molecule> v_strand = 

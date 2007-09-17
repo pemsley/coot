@@ -22,6 +22,14 @@
 #include <stdlib.h>
 #include <iostream>
 
+#include "mmdb_model.h" // not needed, I think, all of mmdb is included elsewhere
+
+#include <gtk/gtk.h>
+
+#include "c-interface.h"
+#include "cc-interface.hh"  // includes coot-coord-utils.hh
+#include "coot-utils.hh"
+
 #ifdef USE_GUILE
 #include <guile/gh.h>
 
@@ -40,15 +48,10 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
-#include <gtk/gtk.h>
-
 #include <clipper/clipper-ccp4.h>
 #include <clipper/clipper-contrib.h>
 #include "cootaneer-sequence.h"
 
-#include "c-interface.h"
-#include "cc-interface.hh"
-#include "coot-utils.hh"
 
 #include "graphics-info.h"
 

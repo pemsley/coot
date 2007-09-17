@@ -1315,11 +1315,12 @@ if test -n "$build_mmdb" ; then
    echo BUILDING mmdb:
    echo BUILDING: mmdb >&2
 #
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-1.0.8-ysbl-2.tar.gz
+mmdb_version=1.0.10
+${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 (
 date
-gzip -dc ${AUTOBUILD_SOURCES}/mmdb-1.0.8-ysbl-2.tar.gz | tar xf -
-cd  mmdb-1.0.8-ysbl-2
+gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
+cd  mmdb-$mmdb_version
 ./configure $generic_prefix
 $MAKE
 $MAKE install

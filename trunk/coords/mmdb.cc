@@ -32,6 +32,7 @@
 #include "mmdb.h"
 
 #include "coot-utils.hh"
+#include "coot-coord-utils.hh"
 #include "coot-shelx.hh"
 
 
@@ -177,6 +178,7 @@ get_atom_selection(std::string pdb_name) {
        fix_nucleic_acid_residue_names(asc);
        fix_away_atoms(asc);
        fix_hydrogen_names(asc);
+       coot::util::remove_wrong_cis_peptides(asc.mol);
     }
     return asc; 
 }
