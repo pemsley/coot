@@ -3503,11 +3503,11 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
 
    std::vector<coot::util::cis_peptide_info_t> v_coords = 
       coot::util::cis_peptides_info_from_coords(mol);
+   std::cout << "INFO:: There were " << v_coords.size() << " CISPEPs from the coordinates"
+	     << std::endl;
 
-   // fill v_header
-   std::vector<coot::util::cis_peptide_info_t> v_header;
+
    PCCisPep       CisPep;
-
    int n_models = mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) { 
       CModel *model_p = mol->GetModel(imod);
@@ -3515,45 +3515,38 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
       for (int icp=1; icp<=ncp; icp++) {
 	 CisPep = model_p->GetCisPep(icp);
 	 if (CisPep)  {
-	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "<< CisPep->seqNum1 << " :" 
-		      << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
+// 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "<< CisPep->seqNum1 << " :" 
+// 		      << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
 	    coot::util::cis_peptide_info_t cph(CisPep);
-	    v_header.push_back(cph);
+
+	    // Does that match any of the coordinates cispeps?
+	    short int ifound = 0;
+	    for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
+	       if (cph == v_coords[iccp]) {
+		  // std::cout << " ......header matches" << std::endl;
+		  ifound = 1;
+		  break;
+	       } else {
+		  // std::cout << "       header not the same" << std::endl;
+	       }
+	    }
+	    if (ifound == 0) {
+	       // needs to be removed
+	       std::cout << "INFO:: Removing CIS peptide from PDB header: " 
+			 << cph.chain_id_1 << " "
+			 << cph.resno_1 << " "
+			 << cph.chain_id_2 << " "
+			 << cph.resno_2 << " "
+			 << std::endl;
+	    } else {
+	       std::cout << "This CIS peptide was real: " 
+			 << cph.chain_id_1 << " "
+			 << cph.resno_1 << " "
+			 << cph.chain_id_2 << " "
+			 << cph.resno_2 << " "
+			 << std::endl;
+	    } 
 	 }
       } 
    }
-
-
-   std::cout << "There were " << v_header.size() << " CISPEPs in the PDB header"
-	     << std::endl;
-   std::cout << "There were " << v_coords.size() << " CISPEPs from the coordinates"
-	     << std::endl;
-   for (unsigned int ihcp=0; ihcp<v_header.size(); ihcp++) {
-      short int ifound = 0;
-      for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
-	 if (v_header[ihcp] == v_coords[iccp]) {
-	    std::cout << " ......header matches" << std::endl;
-	    ifound = 1;
-	    break;
-	 } else {
-	    std::cout << "       header not the same" << std::endl;
-	 }
-      }
-      if (ifound == 0) {
-	 // needs to be removed
-	 std::cout << "remove CIS peptide from PDB header" << std::endl;
-	 std::cout << v_header[ihcp].chain_id_1 << " "
-		   << v_header[ihcp].resno_1 << " "
-		   << v_header[ihcp].chain_id_2 << " "
-		   << v_header[ihcp].resno_2 << " "
-		   << std::endl;
-      } else {
-	 std::cout << "This  CIS peptide was real:" << std::endl;
-	 std::cout << v_header[ihcp].chain_id_1 << " "
-		   << v_header[ihcp].resno_1 << " "
-		   << v_header[ihcp].chain_id_2 << " "
-		   << v_header[ihcp].resno_2 << " "
-		   << std::endl;
-      } 
-   }   
 } 
