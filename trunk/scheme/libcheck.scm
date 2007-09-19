@@ -62,7 +62,33 @@
 		(if (eq? #f m)
 		    (loop (read-line port))
 		    #t)))))))))
-	
+
+  ;; move file-name to some file name with a date extension
+  ;; 
+  (define (move-aside file-name)
+    (let ((extension 
+	   (let ((lt (localtime (current-time))))
+	     
+	     (string-append 
+	      (number->string (+ 1900 (vector-ref lt 5)))
+	      ":"
+	      (number->string (vector-ref lt 4))
+	      ":"
+	      (number->string (vector-ref lt 3))
+	      ":"
+	      (number->string (vector-ref lt 2))
+	      ":"
+	      (number->string (vector-ref lt 1))
+	      ":"
+	      (number->string (vector-ref lt 0))))))
+
+      (let ((new-file-name (string-append 
+			    file-name
+			    "-"
+			    extension)))
+	(rename-file file-name new-file-name))))
+
+
   ;; main body
   (if (not (or (string? code) (symbol? code)))
 	  
@@ -111,8 +137,9 @@
 		 (coot-lib-name (string-append "coot-libcheck-" code-str ".cif")))
 
 	    
-	    (format #t "checking for existance of ~s~%" post-refmac-pdb-file-name)
-	    (format #t "checking for existance of ~s~%" coot-lib-name)
+	    ;; move aside libcheck.lib if it exists.
+	    (if (file-exists? "libcheck.lib")
+		(move-aside "libcheck.lib"))
 	    
 
 	    (if (and (file-exists? post-refmac-pdb-file-name)
@@ -161,27 +188,17 @@
 				    -4 ; refmac fails 
 				    (if (not (= 0 refmac-status))
 					-4 ; refmac fails elsewise
-					(let ((recentre-status (recentre-on-read-pdb))
-					      (nov (set-recentre-on-read-pdb 0))
-					      (pdb-status (read-pdb post-refmac-pdb-file-name)))
+					(let ((pdb-status (read-pdb post-refmac-pdb-file-name)))
 					  
-					; move the coords to the centre of the screen 
-					; (i.e. by rotation-centre - molecule-centre)
-					  (if (>= pdb-status 0) 
-					      (begin
-						(let ((rc (rotation-centre))
-						      (mc (molecule-centre pdb-status)))
-						  (apply translate-molecule-by (cons pdb-status (map - rc mc))))))
-					  
-					  (set-recentre-on-read-pdb recentre-status)
-					  ;; If there was a minimal description, then cif-file-name is
-					  ;; full, if it was a full description, cif-file-name is minimal.  
-					  ;; Bizarre.
-					  (if (not libcheck-minimal-desc-status)
-					      (let ((libcheck-lib "libcheck.lib"))
-						(if (file-exists? libcheck-lib)
-						    (copy-file libcheck-lib cif-file-name))))
-					  (read-cif-dictionary cif-file-name)
-					  pdb-status)))))))))))))
+					  ;; move the coords to the centre of the screen 
+					  (if (valid-model-molecule? pdb-status) 
+						(move-molecule-here pdb-status))
+
+					  (let ((libcheck-lib "libcheck.lib"))
+					    (if (file-exists? libcheck-lib)
+						(copy-file libcheck-lib cif-file-name)))
+					(read-cif-dictionary cif-file-name)
+					pdb-status)))))))))))))
+
 
 
