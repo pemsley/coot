@@ -607,28 +607,32 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno,
 /*  ----------------------------------------------------------------------- */
 void delete_residue(int imol, const char *chain_id, int resno, const char *inscode) {
 
-   graphics_info_t g;
-   short int istat = g.molecules[imol].delete_residue(chain_id, resno, std::string(inscode));
-   if (istat) { 
-      // now if the go to atom widget was being displayed, we need to
-      // redraw the residue list and atom list (if the molecule of the
-      // residue and atom list is the molecule that has just been
-      // deleted)
+   if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
+      short int istat = g.molecules[imol].delete_residue(chain_id, resno, std::string(inscode));
+      if (istat) { 
+	 // now if the go to atom widget was being displayed, we need to
+	 // redraw the residue list and atom list (if the molecule of the
+	 // residue and atom list is the molecule that has just been
+	 // deleted)
 
-      g.update_go_to_atom_window_on_changed_mol(imol);
+	 g.update_go_to_atom_window_on_changed_mol(imol);
 
-      graphics_draw();
-   } else { 
-      std::cout << "failed to delete residue " << chain_id 
-		<< " " << resno << "\n";
+	 graphics_draw();
+      } else { 
+	 std::cout << "failed to delete residue " << chain_id 
+		   << " " << resno << "\n";
+      }
+      std::vector<std::string> command_strings;
+      command_strings.push_back("delete-residue");
+      command_strings.push_back(g.int_to_string(imol));
+      command_strings.push_back(single_quote(chain_id));
+      command_strings.push_back(g.int_to_string(resno));
+      command_strings.push_back(single_quote(std::string(inscode)));
+      add_to_history(command_strings);
+   } else {
+      add_status_bar_text("Oops bad molecule from whcih to delete a residue");
    }
-   std::vector<std::string> command_strings;
-   command_strings.push_back("delete-residue");
-   command_strings.push_back(g.int_to_string(imol));
-   command_strings.push_back(single_quote(chain_id));
-   command_strings.push_back(g.int_to_string(resno));
-   command_strings.push_back(single_quote(std::string(inscode)));
-   add_to_history(command_strings);
 }
 
 void delete_residue_hydrogens(int imol,
