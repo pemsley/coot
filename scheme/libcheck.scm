@@ -110,13 +110,20 @@
 					    "XYZOUT" post-refmac-pdb-file-name))
 		 (coot-lib-name (string-append "coot-libcheck-" code-str ".cif")))
 
+	    
+	    (format #t "checking for existance of ~s~%" post-refmac-pdb-file-name)
+	    (format #t "checking for existance of ~s~%" coot-lib-name)
+	    
 
 	    (if (and (file-exists? post-refmac-pdb-file-name)
-		     (file-exists? coot-lib-name))
-		(let ((pdb-status (handle-read-draw-molecule-with-recentre post-refmac-pdb-file-name 0)))
-		  (if (is-valid-model-molecule? pdb-status)
-		      (move-molecule-here pdb-status)
-		      (read-cif-dictionary coot-lib-name)))
+		     (file-exists? cif-file-name))
+		(let ((pdb-status (handle-read-draw-molecule-with-recentre 
+				   post-refmac-pdb-file-name 0)))
+		  (if (valid-model-molecule? pdb-status) 
+		      (begin
+			(move-molecule-here pdb-status)
+			(read-cif-dictionary cif-file-name)
+			pdb-status))) ; return imol of the ligand
 
 
 		(let ((libstatus (goosh-command libcheck-exe '() libcheck-input log-file-name #t)))
@@ -146,6 +153,9 @@
 								  refmac-command-line
 								  refmac-input
 								  refmac-log-file-name #t)))
+
+				(format #t "DEBUG:: libcheck-minimal? returns ~s~%" 
+					libcheck-minimal-desc-status)
 				
 				(if (not (number? refmac-status))
 				    -4 ; refmac fails 
@@ -164,12 +174,14 @@
 						  (apply translate-molecule-by (cons pdb-status (map - rc mc))))))
 					  
 					  (set-recentre-on-read-pdb recentre-status)
-					  (if libcheck-minimal-desc-status
+					  ;; If there was a minimal description, then cif-file-name is
+					  ;; full, if it was a full description, cif-file-name is minimal.  
+					  ;; Bizarre.
+					  (if (not libcheck-minimal-desc-status)
 					      (let ((libcheck-lib "libcheck.lib"))
 						(if (file-exists? libcheck-lib)
-						    (begin
-						      (read-cif-dictionary libcheck-lib)
-						      (copy-file libcheck-lib coot-lib-name)))))
+						    (copy-file libcheck-lib cif-file-name))))
+					  (read-cif-dictionary cif-file-name)
 					  pdb-status)))))))))))))
 
 

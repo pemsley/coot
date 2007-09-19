@@ -1050,6 +1050,19 @@
 	(turn-on-backup imol))))
 
 
+;; return a guess at the map to be refined (usually called after
+;; imol-refinement-map returns -1)
+;; 
+(define (guess-refinement-map)
+  
+  (let loop ((map-list (reverse (map-molecule-list))))
+    (cond
+     ((null? map-list) -1) ; failed to find a map
+     ((= map-is-difference-map (car map-list) 1) (car map-list))
+     (else 
+      (loop (cdr map-list))))))
+
+
 ;; Print the sequence of molecule number @var{imol}
 ;; 
 ;; This is not really a util, perhaps it should be somewhere else?
