@@ -4,13 +4,11 @@
 Coot
 -------
 
-Coot is a testbest toolkit for (Protein) Crystallography.  Coot uses
-professional (and free) widgets (with the gui builder glade), mmdb,
-clipper, and OpenGL, together with a new approach to map contouring
-and importing/creation and other (modelling) operations.
-
-The contouring and other code is being honed into a form suitable to
-be used in ccp4mg.
+Coot is a toolkit for Macromolecular Crystallography and
+model-building.  Coot uses professional (and free) widgets (with the
+gui builder glade), mmdb, clipper, and OpenGL, together with a new
+approach to map contouring and importing/creation and other
+modelling and building operations.
 
 
 Redistribution

@@ -2761,7 +2761,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
       std::cout << "setting cell of Baton Atoms to be: "
 		<< molecules[imol_for_skel].xskel_cowtan.cell().format() << std::endl;
       
-      int istat_spgr = MMDBManager->SetSpaceGroup((char *)spacegroup); // bleugh.
+      int istat_spgr = MMDBManager->SetSpaceGroup((char *)spacegroup); // bleugh!
       std::cout << "DEBUG:: status from SetSpaceGroup: " << istat_spgr << std::endl;
       if (istat_spgr != 0) {
 	 std::cout << "Problem:: mmdb does not understand space group: " << spacegroup << std::endl;

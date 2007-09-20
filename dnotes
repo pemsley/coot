@@ -57,6 +57,7 @@ Tue Jul  3 14:27:37 BST 2007
 
 
 
+
    o Check where else we do a SetSpaceGroup()?  Bug there too?
       Where else do I mess with the space group like I did at the end of 
       unshelxing?  Fix that too.
@@ -1839,7 +1840,7 @@ To: 	emsley@ysbl.york.ac.uk
 Subject: 	Coot and polynucleotide
 Date: 	Tue, 17 May 2005 10:39:44 +1000  (01:39 BST)
 
-    functionality for both RNA and DNA
+    Functionality for both RNA and DNA
 
     the ability to change RNA into DNA and visa versa
 
@@ -1897,6 +1898,8 @@ texi2html ../../coot/doc/user-manual.texi
 *** Undefined node of menu_entry (Planar Peptide Restraints): * Planar Peptide Restraints::
 *** Undefined node of menu_entry (The <TT>UNK</TT> residue type): * The @t{UNK} residue type::
 
+	Priority: Medium: Difficulty: Low
+
 
 ----
 Sun Sep 16 12:31:03 BST 2007
@@ -1907,5 +1910,25 @@ Sun Sep 16 12:31:03 BST 2007
 	Priority: Medium.
 
 
+-----
+Tue Sep 18 12:01:13 BST 2007
+
+	doing a flexible ligand fit in a ligands without flexible
+	bonds - e.g. SO4 gives non-optimal message ("Did you forget to
+	read the dictionary?").
+
+	Priority: Medium: Difficulty: Low
 
 
+----
+Tue Sep 18 16:12:29 BST 2007
+
+   Mischa 
+
+	if pick centering on an atom fails, can you fall back to test
+	against having clicked on the intermediate atoms?
+
+	   Indeed.  Why not.
+
+
+        rsr when map is ambiguous cancels rsr.  It should not.
