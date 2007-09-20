@@ -604,7 +604,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   strcpy(widget_name, "display_mol_frame_"); 
   tmp_name = widget_name + strlen(widget_name); 
   
-  snprintf(tmp_name, 3, "%-d", *n); 
+  snprintf(tmp_name, 4, "%-d", *n); 
 
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
 			    widget_name, 
@@ -626,7 +626,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
   strcpy(widget_name, "display_mol_number_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n);
+  snprintf(tmp_name, 4, "%-d", *n);
 
   mol_label = gtk_label_new (_(tmp_name));
   gtk_widget_ref (mol_label);
@@ -642,7 +642,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
   strcpy(widget_name, "display_mol_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n); 
+  snprintf(tmp_name, 4, "%-d", *n); 
 
   entry2 = gtk_entry_new ();
   gtk_widget_ref (entry2);
@@ -669,7 +669,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
   strcpy(widget_name, "displayed_button_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n); 
+  snprintf(tmp_name, 4, "%-d", *n); 
 
   displayed_button_1 = gtk_toggle_button_new_with_label (_("Display"));
   gtk_widget_ref (displayed_button_1);
@@ -686,7 +686,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
   strcpy(widget_name, "active_button_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n); 
+  snprintf(tmp_name, 4, "%-d", *n); 
 
   active_button_1 = gtk_toggle_button_new_with_label (_("Active"));
   gtk_widget_ref (active_button_1);
@@ -701,7 +701,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
   strcpy(widget_name, "render_optionmenu_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n); 
+  snprintf(tmp_name, 4, "%-d", *n); 
 
   render_optionmenu_1 = gtk_option_menu_new ();
   gtk_widget_ref (render_optionmenu_1);
@@ -946,7 +946,7 @@ update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_win
     entry_name[i]= 0;
   memcpy(entry_name, "display_mol_entry_", 18);
   tmp_name = entry_name + strlen(entry_name); 
-  snprintf(tmp_name, 3, "%-d", imol); 
+  snprintf(tmp_name, 4, "%-d", imol); 
 
 /*   printf("debug:: molecule number (dereferenced): %d\n", *n); */
 /*   printf("debug:: pointer string: %s\n", tmp_name); */
@@ -1062,7 +1062,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   strcpy(widget_name, "display_map_frame_"); 
   tmp_name = widget_name + strlen(widget_name); 
   
-  snprintf(tmp_name, 3, "%-d", *n); 
+  snprintf(tmp_name, 4, "%-d", *n); 
 
 /*   printf("display_map_frame_{thing} name constructed as: :%s:\n", widget_name);  */
   
@@ -1085,7 +1085,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
   strcpy(widget_name, "display_map_number_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n);
+  snprintf(tmp_name, 4, "%-d", *n);
 
   mol_label = gtk_label_new (_(tmp_name));
   gtk_widget_ref (mol_label);
@@ -1101,7 +1101,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
   strcpy(widget_name, "display_map_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n);
+  snprintf(tmp_name, 4, "%-d", *n);
 
   entry2 = gtk_entry_new ();
   gtk_widget_ref (entry2);
@@ -1126,7 +1126,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
   strcpy(widget_name, "displayed_button_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n);
+  snprintf(tmp_name, 4, "%-d", *n);
 
   displayed_button_1 = gtk_toggle_button_new_with_label (_("Display"));
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1), map_is_displayed(*n));
@@ -1155,7 +1155,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
   strcpy(widget_name, "map_scroll_button_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n);
+  snprintf(tmp_name, 4, "%-d", *n);
 
   scroll_radio_button_1 = gtk_radio_button_new_with_label(scroll_group, _("Scroll"));
   scroll_group = gtk_radio_button_group (GTK_RADIO_BUTTON(scroll_radio_button_1));
@@ -1181,7 +1181,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
   strcpy(widget_name, "properties_button_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *n);
+  snprintf(tmp_name, 4, "%-d", *n);
 
   displayed_button_1 = gtk_button_new_with_label (_("Properties"));
   gtk_widget_ref (displayed_button_1);
@@ -1376,7 +1376,7 @@ on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button
 
   strcpy(widget_name, "active_button_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", *imol);
+  snprintf(tmp_name, 4, "%-d", *imol);
 
 /*   printf("mol display button clicked %d, active: %d\n", *imol, button->active); */
 
@@ -1476,7 +1476,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   strcpy(widget_name, "phs_cell_radiobutton_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", n); 
+  snprintf(tmp_name, 4, "%-d", n); 
 
 
   phs_cell_radiobutton_1 = gtk_radio_button_new_with_label (phs_cell_group, "");
@@ -1500,7 +1500,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   strcpy(widget_name, "phs_cell_symm_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", n); 
+  snprintf(tmp_name, 4, "%-d", n); 
 
 
   phs_cell_symm_entry_1 = gtk_entry_new ();
@@ -1522,7 +1522,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   strcpy(widget_name, "phs_cell_a_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", n); 
+  snprintf(tmp_name, 4, "%-d", n); 
 
 
   phs_cell_a_entry_1 = gtk_entry_new ();
@@ -1544,7 +1544,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   strcpy(widget_name, "phs_cell_b_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", n); 
+  snprintf(tmp_name, 4, "%-d", n); 
 
 
   phs_cell_b_entry_1 = gtk_entry_new ();
@@ -1566,7 +1566,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   strcpy(widget_name, "phs_cell_c_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", n); 
+  snprintf(tmp_name, 4, "%-d", n); 
 
 
   phs_cell_c_entry_1 = gtk_entry_new ();
@@ -1588,7 +1588,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   strcpy(widget_name, "phs_cell_alpha_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", n); 
+  snprintf(tmp_name, 4, "%-d", n); 
 
 
   phs_cell_alpha_entry_1 = gtk_entry_new ();
@@ -1610,7 +1610,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   strcpy(widget_name, "phs_cell_beta_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", n); 
+  snprintf(tmp_name, 4, "%-d", n); 
 
 
   phs_cell_beta_entry_1 = gtk_entry_new ();
@@ -1632,7 +1632,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   strcpy(widget_name, "phs_cell_gamma_entry_"); 
   tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 3, "%-d", n); 
+  snprintf(tmp_name, 4, "%-d", n); 
 
 
   phs_cell_gamma_entry_1 = gtk_entry_new ();
