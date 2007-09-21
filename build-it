@@ -277,6 +277,48 @@ if [ "$BASH" = "" ] ; then
    exit
 fi
 
+
+# now the functions:
+
+# give args prefix-dir and is-static-flag "clear-static" or "clear-dynamic"
+#
+function post_install_slim { 
+
+    echo we are slimming directory $1
+    slim_dir=$1
+    clear_type=$2
+    
+
+    cleaned_dir=`basename $INSTALLED_PREFIX`-slimmed
+
+    mkdir $cleaned_dir
+    mkdir $cleaned_dir/bin
+    mkdir $cleaned_dir/lib
+
+    lib_sos=`cd $INSTALLED_PREFIX && ls -1 lib/lib*.so*`
+
+    for file in etc html info man share bin/coot bin/coot-real \
+        bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
+        $lib_sos ;
+    do
+       dn=`dirname $file`
+       if [ -e $INSTALLED_PREFIX/$file ] ; then
+          echo rsync -axr $INSTALLED_PREFIX/$file $cleaned_dir/$dn
+          rsync -axr $INSTALLED_PREFIX/$file $cleaned_dir/$dn
+       else
+          echo $INSTALLED_PREFIX/$file does not exist
+       fi
+    done
+}
+
+
+
+
+
+# now on to some code!
+
+
+
 if [ "$use_proxy" = 1 ] ; then
 # establish proxy settings
   printf "Proxy user: "
