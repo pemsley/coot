@@ -10,11 +10,11 @@ Tue Jul  3 14:27:37 BST 2007
    o Correct CISPEP if needed cards on writing pdb.
      Hand off to Eugene for now.  Needs mmdb-1.0.10
 
-   o Do the strand restraints work well under refinement?
-
-   o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
+* Done - needs test.
 
    o Post-install slim the binaries
+
+   o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
 
    o Try again to add chiral volumes to the geometry target function
 
@@ -53,12 +53,18 @@ Tue Jul  3 14:27:37 BST 2007
 
    o GMS Molprobity problem
 
+   o Pirkko Heikinheimo pdb entry 1o7d, space group P6122.  symmetry
+     pick is failing.
 
 
 
 
 
-   o Check where else we do a SetSpaceGroup()?  Bug there too?
+   o Do the strand restraints work well under refinement?
+
+* Seems OK.
+
+    o Check where else we do a SetSpaceGroup()?  Bug there too?
       Where else do I mess with the space group like I did at the end of 
       unshelxing?  Fix that too.
 
@@ -1910,15 +1916,30 @@ Sun Sep 16 12:31:03 BST 2007
 	Priority: Medium.
 
 
------
-Tue Sep 18 12:01:13 BST 2007
+------
+Wed Sep 19 17:20:41 BST 2007
 
 	doing a flexible ligand fit in a ligands without flexible
 	bonds - e.g. SO4 gives non-optimal message ("Did you forget to
 	read the dictionary?").
 
-	Priority: Medium: Difficulty: Low
 
+-----
+Tue Sep 18 12:01:13 BST 2007
+
+   Interesting/useful?
+	OpenBabel:
+	http://openbabel.sourceforge.net/wiki/Main_Page
+
+        pygtk-openbabel - A PyGTK frontend to OpenBabel A PyGTK
+        frontend to OpenBabel that utilizes the power of
+        python. Included is a graphical frontend to PubChem
+
+	PubChem:
+        http://pubchem.ncbi.nlm.nih.gov/
+
+
+	Priority: Medium: Difficulty: Low
 
 ----
 Tue Sep 18 16:12:29 BST 2007

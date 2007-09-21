@@ -274,7 +274,75 @@ graphics_info_t::save_state_file(const std::string &filename) {
 		  active_strings.push_back(int_to_string(1));
 		  commands.push_back(state_command(active_strings, il));
 	       }
+
+	       std::cout << "molecules[i].Bonds_box_type() is " << molecules[i].Bonds_box_type()
+			 << std::endl;
+	       if (molecules[i].Bonds_box_type() != coot::NORMAL_BONDS) {
+		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics-to-ca-representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_CHAIN_BONDS) {
+		     active_strings.clear();
+		     active_strings.push_back("set-colour-by-chain");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics-to-ca-plus-ligands-representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::BONDS_NO_WATERS) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics-to-bonds-no-waters-representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::BONDS_SEC_STRUCT_COLOUR) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics-to-sec-struct-bonds-representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics-to-ca-plus-ligands-sec-struct-representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_MOLECULE_BONDS) {
+		     active_strings.clear();
+		     active_strings.push_back("set-colour-by-molecule");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics-to-rainbow-representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_B_FACTOR_BONDS) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics_to_b_factor_representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_OCCUPANCY_BONDS) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics-to-occupancy-representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
+	       }
 	    }
+
+	    // Maps:
+	    // 
 	    if (molecules[i].has_map()) { 
 	       command_strings = molecules[i].set_map_colour_strings();
 	       commands.push_back(state_command(command_strings, il));
