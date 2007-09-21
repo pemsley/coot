@@ -1055,10 +1055,10 @@
 ;; 
 (define (guess-refinement-map)
   
-  (let loop ((map-list (reverse (map-molecule-list))))
+  (let loop ((map-list (map-molecule-list)))
     (cond
      ((null? map-list) -1) ; failed to find a map
-     ((= map-is-difference-map (car map-list) 1) (car map-list))
+     ((= (map-is-difference-map (car map-list)) 0) (car map-list))
      (else 
       (loop (cdr map-list))))))
 
