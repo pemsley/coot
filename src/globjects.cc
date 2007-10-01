@@ -2886,12 +2886,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 #ifdef USE_GUILE
 	    std::string scheme_command("(graphics-dot-key-pressed-hook)");
 	    safe_scheme_command(scheme_command);
-#else 	    
+#endif // USE_GUILE
 #ifdef USE_PYTHON
 	    std::string python_command("graphics_dot_key_pressed_hook()");
 	    safe_python_command(python_command);   
 #endif // PYTHON
-#endif // USE_GUILE
 	 }
       }
       handled = TRUE; 
@@ -2909,6 +2908,10 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    safe_scheme_command(scheme_command);
 	 }
 #endif // USE_GUILE
+#ifdef USE_PYTHON
+	    std::string python_command("graphics_comma_key_pressed_hook()");
+	    safe_python_command(python_command);   
+#endif // USE_PYTHON
       }
       handled = TRUE; 
       break;
@@ -2947,8 +2950,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
       if (handled == 0) { 
 	 if (event->keyval != GDK_backslash) {
-	 
 	    int ikey = event->keyval;
+
+#ifdef USE_GUILE
 	    std::string scheme_command("(graphics-general-key-press-hook ");
 	    // scheme_command += "\"";
 	    scheme_command += graphics_info_t::int_to_string(ikey);
@@ -2956,6 +2960,15 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    scheme_command += ")";
 	    std::cout << "running scheme command: " << scheme_command << std::endl;
 	    safe_scheme_command(scheme_command);
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+	    std::string python_command("graphics_general_key_press_hook(");
+	    python_command += graphics_info_t::int_to_string(ikey);
+	    python_command += ")";
+	    safe_python_command(python_command);
+#endif // USE_PYTHON	    
+	    
 	 } else {
 	    std::cout << "Ignoring GDK_backslash key press event" << std::endl;
 	 }
