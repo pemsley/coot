@@ -5000,11 +5000,59 @@ molecule_class_info_t::fix_nomenclature_errors() {    // by looking for bad rota
    return r;
 }
 
+int
+molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode) {
+
+   int imod = 1;
+
+   bool found = 0;
+   int r = 0; // returned value
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      if (chain_id == chain_p->GetChainID()) { 
+	 int nres = chain_p->GetNumberOfResidues();
+	 PCResidue residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) {
+	    residue_p = chain_p->GetResidue(ires);
+	    if (residue_p->GetSeqNum() == resno) {
+	       if (inscode == residue_p->GetInsCode()) { 
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     at = residue_p->GetAtom(iat);
+
+		     if (std::string(at->name) != " N  ") {
+
+			found = 1;
+			r = cis_trans_conversion(at, 0);
+		     }
+		     if (found)
+			break;
+		  }
+		  if (found)
+		     break;
+	       }
+	    }
+	    if (found)
+	       break;
+	 }
+      }
+      if (found)
+	 break;
+   }
+   return r;
+
+} 
 
 
 // ---- cis <-> trans conversion
 int
-molecule_class_info_t::cis_trans_convertion(CAtom *at, short int is_N_flag) {
+molecule_class_info_t::cis_trans_conversion(CAtom *at, short int is_N_flag) {
 
    // These 3 are pointers, each of which are of size 2
    PCResidue *trans_residues = NULL;
@@ -5123,12 +5171,12 @@ molecule_class_info_t::cis_trans_convert(PCResidue *mol_residues,
       PCResidue *cis_trans_init_match = trans_residues;
       PCResidue *converted_residues   = cis_residues;
       if ((omega.second < 1.57) && (omega.second > -1.57)) {
-	 std::cout << "INFO This is a CIS peptide - making is TRANS" << std::endl;
+	 std::cout << "INFO This is a CIS peptide - making it TRANS" << std::endl;
 	 is_cis_flag = 1;
 	 cis_trans_init_match = cis_residues;
 	 converted_residues = trans_residues;
       } else { 
-	 std::cout << "INFO This is a TRANS peptide - making is CIS" << std::endl;
+	 std::cout << "INFO This is a TRANS peptide - making it CIS" << std::endl;
       }
 	 
       // Now match cis_trans_init_match petide atoms onto the peptide

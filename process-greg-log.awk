@@ -4,9 +4,14 @@
 
 BEGIN{ print_this = 0}
 
-/^PASS: |^Entered testcase |^UNTESTED: |^FAIL|^UNRESOLVED: / 
+/^PASS: |^UNTESTED: |^FAIL|^UNRESOLVED: / 
+
+/^Entered testcase/ {print "   ",$0}
 
 / === greg-tests Summary ===/ {print_this = 1; print ""}
+
+/greg-tests - / {print $0; next }
+/Exception: / {print $0; }
 
 print_this == 1 {print $0}
 

@@ -293,10 +293,31 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
       
       delete [] contact;
    }
+}
 
-} 
 
-// we rely on SelAtom.atom_selection being properly constucted to contain all atoms
+PPCAtom
+coot::model_bond_atom_info_t::Hydrogen_atoms() const {
+
+   PPCAtom H_atoms = new PCAtom[hydrogen_atoms_.size()];
+   for (int i=0; i<hydrogen_atoms_.size(); i++) {
+      H_atoms[i] = hydrogen_atoms_[i];
+   }
+   return H_atoms;
+}
+
+PPCAtom
+coot::model_bond_atom_info_t::non_Hydrogen_atoms() const {
+
+   PPCAtom non_H_atoms = new PCAtom[non_hydrogen_atoms_.size()];
+   for (int i=0; i<non_hydrogen_atoms_.size(); i++) {
+      non_H_atoms[i] = non_hydrogen_atoms_[i];
+   }
+   return non_H_atoms;
+}
+
+// we rely on SelAtom.atom_selection being properly constucted to
+// contain all atoms
 void
 Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAtom, 
 					 float min_dist, float max_dist,
@@ -343,19 +364,19 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
    if (SelAtom.n_selected_atoms <= 0) return;
 
-   // count the number of hydrogen atoms and non-hydrgen atoms:
+   // count the number of hydrogen atoms and non-hydrogen atoms:
    //
-   std::string element;
-   int n_H = 0;
-   int n_non_H = 0;
-   for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-      element = SelAtom.atom_selection[i]->element;
-      if (element == " H" || element == " D") {
-	 n_H++;
-      } else {
-	 n_non_H++;
-      }
-   }
+//    std::string element;
+//    int n_H = 0;
+//    int n_non_H = 0;
+//    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
+//       element = SelAtom.atom_selection[i]->element;
+//       if (element == " H" || element == " D") {
+// 	 n_H++;
+//       } else {
+// 	 n_non_H++;
+//       }
+//    }
 
    // Now, let's not forget that some atoms don't have contacts, so
    // whenever we find a contact for an atom, we mark it with
@@ -372,143 +393,169 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	 SelAtom.atom_selection[i]->PutUDData(uddHnd,0);
    }
 
-   PPCAtom     Hydrogen_atoms = new PCAtom[n_H];
-   PPCAtom non_Hydrogen_atoms = new PCAtom[n_non_H];
+   // ------------------
+   //   FIXME
+   // ------------------
+   // 
+   // We need to loop over each model.  Currently the SelAtom is not
+   // selected on model.
+   //
+   // consider a vector (over all models) of these:
+   // 
+   // class model_bond_atom_info_t {
+   //       std::vector<PCAtom> hydrogen_atoms_;
+   //       std::vector<PCAtom> non_hydrogen_atoms_;
+   //    public:
+   //    PPCAtom     Hydrogen_atoms();
+   //    PPCAtom non_Hydrogen_atoms();
+   //    int n_H();
+   //    int n_non_H();
+   // }
+   
 
-   int iH=0;
-   int inH=0;
+   // old
+   // PPCAtom     Hydrogen_atoms = new PCAtom[n_H];
+   // PPCAtom non_Hydrogen_atoms = new PCAtom[n_non_H];
+   //    int iH=0;
+   //    int inH=0;
+
+   int imodel; 
+   int n_models = SelAtom.mol->GetNumberOfModels(); // models start at number 1
+   std::vector<coot::model_bond_atom_info_t> atom_stuff_vec(n_models+1);
+   
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-      element = SelAtom.atom_selection[i]->element;
-      if (element == " H" || element == " D") {
-	 Hydrogen_atoms[iH] = SelAtom.atom_selection[i];
-	 iH++;
-      } else { 
-	 non_Hydrogen_atoms[inH] = SelAtom.atom_selection[i];
-	 inH++;
+      imodel = SelAtom.atom_selection[i]->GetModelNum();
+      if ((imodel <= n_models) && (imodel > 0)) { 
+	 atom_stuff_vec[imodel].add_atom(SelAtom.atom_selection[i]);
       }
    }
 
-   // std::cout << "DEBUG:: (pre)  SelAtom: mol, n_selected_atoms "
-   // << SelAtom.mol << " " << SelAtom.n_selected_atoms << std::endl;
-   //
-   // ???
-   // std::cout << "have " << n_non_H << " non-Hydrogen_atoms" << std::endl;
-   
-   construct_from_atom_selection(SelAtom,
-				 non_Hydrogen_atoms, n_non_H,
-				 non_Hydrogen_atoms, n_non_H,
-				 min_dist, max_dist, atom_colour_type,
-				 0, have_udd_atoms, uddHnd);
 
-   if (do_bonds_to_hydrogens && (n_H > 0)) {
 
-      float H_min_dist = 0.7;
-      float H_max_dist = 1.42;
+   for (int imodel=1; imodel<=n_models; imodel++) { 
 
-      // H-H
+      PPCAtom     Hydrogen_atoms = atom_stuff_vec[imodel].Hydrogen_atoms();
+      PPCAtom non_Hydrogen_atoms = atom_stuff_vec[imodel].non_Hydrogen_atoms();
+      int n_non_H = atom_stuff_vec[imodel].n_non_H();
+      int n_H = atom_stuff_vec[imodel].n_H();
+
       construct_from_atom_selection(SelAtom,
-				    Hydrogen_atoms, n_H,
-				    Hydrogen_atoms, n_H,
-				    H_min_dist, H_max_dist, atom_colour_type,
+				    non_Hydrogen_atoms, n_non_H,
+				    non_Hydrogen_atoms, n_non_H,
+				    min_dist, max_dist, atom_colour_type,
 				    0, have_udd_atoms, uddHnd);
 
-      // H-X
-      construct_from_atom_selection(SelAtom,
- 				    non_Hydrogen_atoms, n_non_H,
- 				    Hydrogen_atoms, n_H,
- 				    H_min_dist, H_max_dist, atom_colour_type,
-				    1, have_udd_atoms, uddHnd);
-   } 
-
-   // std::cout << "DEBUG:: (post) SelAtom: mol, n_selected_atoms "
-   // << SelAtom.mol << " " << SelAtom.n_selected_atoms << std::endl;
-
-   if (do_disulfide_bonds_flag)
-      do_disulphide_bonds(SelAtom);
-
-   // now we have dealt with the bonded atoms, lets find the non-bonded
-   // atoms...
-
-   if (have_udd_atoms) {
-   
-      // for atoms with no neighbour (contacts):
-      coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
-      coot::Cartesian small_vec_y(0.0, star_size, 0.0);
-      coot::Cartesian small_vec_z(0.0, 0.0, star_size);
-
-      int ic; // changed by reference
-      int col;
-
-      for (int i=0; i<n_non_H; i++) {
-      
-	 if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
-	    if ((ic == 0) ||
-		(!strcmp(non_Hydrogen_atoms[i]->element, " S")) ||
-		(!strcmp(non_Hydrogen_atoms[i]->element, "SE")) ||
-		(!strcmp(non_Hydrogen_atoms[i]->element, " P"))) {
-	       
-	       // no contact found or was Sulphur, or Phosphor
-
-	       // So, was this a seleno-methione?
-	       //
-	       CResidue *atom_residue_p = non_Hydrogen_atoms[i]->residue;
-	       if (atom_residue_p) {
-		  std::string resname = non_Hydrogen_atoms[i]->GetResName();
-		  if ((is_from_symmetry_flag == 0) &&
-		      (resname == "MSE" || resname == "MET" || resname == "MSO"
-		       || resname == "CYS" )) {
-		     handle_MET_or_MSE_case(non_Hydrogen_atoms[i],
-					    atom_colour_type);
-		  } else {
-		     std::string ele = non_Hydrogen_atoms[i]->element;
-		     if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
-			 || ele == "AS" || ele == " P") {
-			handle_long_bonded_atom(non_Hydrogen_atoms[i],
-						atom_colour_type);
-		     } else { 
-			col = atom_colour(non_Hydrogen_atoms[i], atom_colour_type);
-			coot::Cartesian atom(non_Hydrogen_atoms[i]->x,
-					     non_Hydrogen_atoms[i]->y,
-					     non_Hydrogen_atoms[i]->z);
-	       
-			addBond(col, atom+small_vec_x, atom-small_vec_x);
-			addBond(col, atom+small_vec_y, atom-small_vec_y);
-			addBond(col, atom+small_vec_z, atom-small_vec_z);
-		     }
-		  }
-	       } else {
-		  std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
-			    << non_Hydrogen_atoms[i] << std::endl;
-	       }
-	    }
-	 } else {
-	    std::cout << "missing UDData for atom "
-		      << non_Hydrogen_atoms[i] << "\n";
-	 }
-      }
-
       if (do_bonds_to_hydrogens && (n_H > 0)) {
-	 for (int i=0; i<n_H; i++) {
-	    if (Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
-	       if (ic == 0) {
+
+	 float H_min_dist = 0.7;
+	 float H_max_dist = 1.42;
+
+	 // H-H
+	 construct_from_atom_selection(SelAtom,
+				       Hydrogen_atoms, n_H,
+				       Hydrogen_atoms, n_H,
+				       H_min_dist, H_max_dist, atom_colour_type,
+				       0, have_udd_atoms, uddHnd);
+
+	 // H-X
+	 construct_from_atom_selection(SelAtom,
+				       non_Hydrogen_atoms, n_non_H,
+				       Hydrogen_atoms, n_H,
+				       H_min_dist, H_max_dist, atom_colour_type,
+				       1, have_udd_atoms, uddHnd);
+      }
+
+      // std::cout << "DEBUG:: (post) SelAtom: mol, n_selected_atoms "
+      // << SelAtom.mol << " " << SelAtom.n_selected_atoms << std::endl;
+
+      if (do_disulfide_bonds_flag)
+	 do_disulphide_bonds(SelAtom, imodel);
+
+      // now we have dealt with the bonded atoms, lets find the non-bonded
+      // atoms...
+
+      if (have_udd_atoms) {
+   
+	 // for atoms with no neighbour (contacts):
+	 coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
+	 coot::Cartesian small_vec_y(0.0, star_size, 0.0);
+	 coot::Cartesian small_vec_z(0.0, 0.0, star_size);
+
+	 int ic; // changed by reference
+	 int col;
+
+	 for (int i=0; i<n_non_H; i++) {
+      
+	    if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	       if ((ic == 0) ||
+		   (!strcmp(non_Hydrogen_atoms[i]->element, " S")) ||
+		   (!strcmp(non_Hydrogen_atoms[i]->element, "SE")) ||
+		   (!strcmp(non_Hydrogen_atoms[i]->element, " P"))) {
 	       
-		  // no contact found
-		  col = atom_colour(Hydrogen_atoms[i], atom_colour_type);
-		  coot::Cartesian atom(Hydrogen_atoms[i]->x,
-				       Hydrogen_atoms[i]->y,
-				       Hydrogen_atoms[i]->z);
+		  // no contact found or was Sulphur, or Phosphor
+
+		  // So, was this a seleno-methione?
+		  //
+		  CResidue *atom_residue_p = non_Hydrogen_atoms[i]->residue;
+		  if (atom_residue_p) {
+		     std::string resname = non_Hydrogen_atoms[i]->GetResName();
+		     if ((is_from_symmetry_flag == 0) &&
+			 (resname == "MSE" || resname == "MET" || resname == "MSO"
+			  || resname == "CYS" )) {
+			handle_MET_or_MSE_case(non_Hydrogen_atoms[i],
+					       atom_colour_type);
+		     } else {
+			std::string ele = non_Hydrogen_atoms[i]->element;
+			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
+			    || ele == "AS" || ele == " P") {
+			   handle_long_bonded_atom(non_Hydrogen_atoms[i],
+						   atom_colour_type);
+			} else { 
+			   col = atom_colour(non_Hydrogen_atoms[i], atom_colour_type);
+			   coot::Cartesian atom(non_Hydrogen_atoms[i]->x,
+						non_Hydrogen_atoms[i]->y,
+						non_Hydrogen_atoms[i]->z);
 	       
-		  addBond(col, atom+small_vec_x, atom-small_vec_x);
-		  addBond(col, atom+small_vec_y, atom-small_vec_y);
-		  addBond(col, atom+small_vec_z, atom-small_vec_z);
+			   addBond(col, atom+small_vec_x, atom-small_vec_x);
+			   addBond(col, atom+small_vec_y, atom-small_vec_y);
+			   addBond(col, atom+small_vec_z, atom-small_vec_z);
+			}
+		     }
+		  } else {
+		     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+			       << non_Hydrogen_atoms[i] << std::endl;
+		  }
+	       }
+	    } else {
+	       std::cout << "missing UDData for atom "
+			 << non_Hydrogen_atoms[i] << "\n";
+	    }
+	 }
+
+	 if (do_bonds_to_hydrogens && (n_H > 0)) {
+	    for (int i=0; i<n_H; i++) {
+	       if (Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+		  if (ic == 0) {
+	       
+		     // no contact found
+		     col = atom_colour(Hydrogen_atoms[i], atom_colour_type);
+		     coot::Cartesian atom(Hydrogen_atoms[i]->x,
+					  Hydrogen_atoms[i]->y,
+					  Hydrogen_atoms[i]->z);
+	       
+		     addBond(col, atom+small_vec_x, atom-small_vec_x);
+		     addBond(col, atom+small_vec_y, atom-small_vec_y);
+		     addBond(col, atom+small_vec_z, atom-small_vec_z);
+		  }
 	       }
 	    }
 	 }
       }
+
+      delete [] Hydrogen_atoms;
+      delete [] non_Hydrogen_atoms;
    }
 
-   delete [] Hydrogen_atoms;
-   delete [] non_Hydrogen_atoms;
    add_zero_occ_spots(SelAtom);
    add_atom_centres(SelAtom, atom_colour_type);
 }
@@ -1476,7 +1523,8 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
 }
 
 void
-Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom) {
+Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
+					  int imodel) {
 
    // Lets make a new selection using mol.  We step back and sidestep
    // to a different atom selection.
@@ -1499,7 +1547,7 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom) {
    int selHnd2 = SelAtom.mol->NewSelection();
 
    // model 1
-   SelAtom.mol->SelectAtoms(selHnd2, 1,"*",ANY_RES,"*",ANY_RES,"*",
+   SelAtom.mol->SelectAtoms(selHnd2, imodel,"*",ANY_RES,"*",ANY_RES,"*",
 			    "*","*","S","*" );
 
    SelAtom.mol->GetSelIndex(selHnd2, Sulfur_selection, n_sulfurs);

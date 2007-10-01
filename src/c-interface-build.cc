@@ -1787,7 +1787,7 @@ mutate(int ires, const char *chain_id, int imol, const char *target_res_type) {
    std::string target_type(target_res_type);
 
    std::string inscode("");
-   if (imol < graphics_n_molecules()) {
+   if (is_valid_model_molecule(imol)) { 
       graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_draw();
    }
@@ -4250,6 +4250,21 @@ void do_cis_trans_conversion_setup(int istate) {
       normal_cursor(); // depends on ctrl key for rotate
    }
 } 
+
+// scriptable interface:
+// 
+void
+cis_trans_convert(int imol, const char *chain_id, int resno, const char *inscode) {
+
+   
+   graphics_info_t g;
+   if (is_valid_model_molecule(imol)) { 
+      short int is_N_flag = 0;
+      CAtom *at = 0;
+      g.molecules[imol].cis_trans_conversion(chain_id, resno, inscode);
+   }
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  180 degree flip                                         */

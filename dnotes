@@ -4,7 +4,7 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   8 outstanding issues
+   11 outstanding issues
 
 
    o Correct CISPEP if needed cards on writing pdb.
@@ -62,7 +62,6 @@ Tue Jul  3 14:27:37 BST 2007
    o Lars Prade crash.
 
    o GMS Molprobity problem
-
 
    o On reading a .res file, can you check for NCS with residue offset?
 
@@ -2098,7 +2097,7 @@ Thu Sep 27 09:27:26 BST 2007
 ---
 Thu Sep 27 09:30:20 BST 2007
 
-	John Berrisford:
+	John Berrisford complains about OXT refinement.
 
 	Make sure Coot properly refines OXT at some stage (by
 	correctly handling modifications).

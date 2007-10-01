@@ -3511,8 +3511,8 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
    PCCisPep       CisPep;
    int n_models = mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) { 
-      std::vector<PCCisPep> bad_cis_peptides;
-      std::vector<PCCisPep> good_cis_peptides;
+      std::vector<CCisPep> bad_cis_peptides;
+      std::vector<CCisPep> good_cis_peptides;
       CModel *model_p = mol->GetModel(imod);
       int ncp = model_p->GetNumberOfCisPeps();
       for (int icp=1; icp<=ncp; icp++) {
@@ -3541,9 +3541,9 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
 			 << cph.chain_id_2 << " "
 			 << cph.resno_2 << " "
 			 << std::endl;
-	       bad_cis_peptides.push_back(CisPep);
+	       bad_cis_peptides.push_back(*CisPep);
 	    } else {
-	       good_cis_peptides.push_back(CisPep);
+	       good_cis_peptides.push_back(*CisPep);
 	       std::cout << "This CIS peptide was real: " 
 			 << cph.chain_id_1 << " "
 			 << cph.resno_1 << " "
@@ -3557,8 +3557,12 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
 	 // delete all CISPEPs and add back the good ones
 	 model_p->RemoveCisPeps();
 	 for (unsigned int igood=0; igood<good_cis_peptides.size(); igood++) {
-	    model_p->AddCisPep(good_cis_peptides[igood]);
+	    PCCisPep good = new CCisPep;
+	    *good = good_cis_peptides[igood];
+	    model_p->AddCisPep(good);
 	 }
       } 
    }
 } 
+
+

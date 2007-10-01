@@ -126,4 +126,6 @@ def print_sequence(imol):
 
 
 
+def graphics_general_key_press_hook():
+    return True
 

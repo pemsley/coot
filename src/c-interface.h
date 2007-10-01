@@ -3300,6 +3300,7 @@ void set_rotate_translate_zone_rotates_about_zone_centre(int istate);
 /*                  cis <-> trans conversion                                */
 /*  ----------------------------------------------------------------------- */
 void do_cis_trans_conversion_setup(int istate);
+void cis_trans_convert(int imol, const char *chain_id, int resno, const char *altconf);
 
 /*  ----------------------------------------------------------------------- */
 /*                  db-main                                                 */

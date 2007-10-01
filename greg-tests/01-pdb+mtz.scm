@@ -277,3 +277,61 @@
 	     (format #t "test for closeness: ~s ~s~%" occ-sum-pre occ-sum-post)	    
 	     (close-float? occ-sum-pre occ-sum-post)))))))
 
+
+(greg-testcase "Correction of CISPEP test" #t
+   (lambda ()	      
+
+;; In this test the cis-pep-12A has indeed a CIS pep and has been
+;; refined with refmac and is correctly annotated.  There was 4 on
+;; read.  There should be 3 after we fix it and write it out.
+;; 
+;; Here we sythesise user actions:
+;; 1) CIS->TRANS on the residue 
+;; 2) convert leading residue to a ALA
+;; 3) mutate the leading residue and auto-fit it to correct the chiral
+;;    volume error :)
+
+      (let ((chain-id "A")
+	    (resno 11)
+	    (ins-code ""))
+
+	(let ((cis-pep-mol (read-pdb 
+			    (append-dir-file greg-data-dir 
+					     "tutorial-modern-cis-pep-12A_refmac0.pdb"))))
+
+	  (let ((view-number (add-view 
+			      (list    63.455 11.764 1.268)
+			      (list -0.760536 -0.0910907 0.118259 0.631906)
+			      15.7374
+			      "CIS-TRANS cispep View")))
+	    (go-to-view-number view-number 1))
+
+	  (cis-trans-convert cis-pep-mol chain-id resno ins-code)
+	  (pepflip resno chain-id cis-pep-mol)
+	  (let ((res-type (residue-name cis-pep-mol chain-id resno ins-code)))
+	    (mutate resno chain-id cis-pep-mol "GLY")
+	    (with-auto-accept
+	     (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
+	     (accept-regularizement)
+	     (mutate resno chain-id cis-pep-mol res-type)
+	     (auto-fit-best-rotamer resno "" ins-code chain-id cis-pep-mol 
+				    (imol-refinement-map) 1 1)
+	     (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
+	     (accept-regularizement))
+	     ;; should be repared now.  Write it out
+
+	    (let ((tmp-file "tmp-fixed-cis.pdb"))
+	      (write-pdb-file cis-pep-mol tmp-file)
+	      (let ((o (run-command/strings "grep" (list"-c" "CISPEP" tmp-file) '())))
+		(if (not (list? o))
+		    (throw 'fail)
+		    (if (not (= (length o) 1))
+			(throw 'fail)
+			(let ((parts (split-after-char-last #\: (car o) list)))
+			  (format #t "CISPEPs: ~s~%" (car (cdr parts)))
+			  (if (not (string=? "3" (car (cdr parts))))
+			      (throw 'fail)
+			      #t)))))))))))
+
+
+

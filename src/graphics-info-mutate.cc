@@ -296,7 +296,7 @@ void
 graphics_info_t::cis_trans_conversion(CAtom *at, int imol, short int is_N_flag) {
 
    if (molecules[imol].has_model()) { 
-      int istatus = molecules[imol].cis_trans_convertion(at, is_N_flag);
+      int istatus = molecules[imol].cis_trans_conversion(at, is_N_flag);
       if (istatus > 0)
 	 graphics_draw();
    }

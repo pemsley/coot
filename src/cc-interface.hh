@@ -241,6 +241,18 @@ std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::v
 SCM dictionaries_read();
 #endif // USE_GUILE
 
+/*  ----------------------------------------------------------------------- */
+/*                         Restraints                                       */
+/*  ----------------------------------------------------------------------- */
+#ifdef USE_GUILE
+SCM monomer_restraints(const char *monomer_type);
+void set_monomer_restraints(const char *monomer_type, SCM restraints);
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+// FIXME Bernhard
+#endif // USE_PYTHON
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  scripting                                               */

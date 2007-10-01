@@ -3,6 +3,8 @@
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
+ * Copyright 2007 The University of Oxford
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1646,6 +1648,25 @@ SCM dictionaries_read() {
 }
 #endif
 
+/*  ----------------------------------------------------------------------- */
+/*                         Restraints                                       */
+/*  ----------------------------------------------------------------------- */
+#ifdef USE_GUILE
+SCM monomer_restraints(const char *monomer_type) {
+
+   SCM r = SCM_BOOL_F;
+
+   return r;
+} 
+#endif // USE_GUILE
+
+#ifdef USE_GUILE
+void set_monomer_restraints(const char *monomer_type, SCM restraints) {
+
+   SCM r = SCM_BOOL_F;
+
+} 
+#endif // USE_GUILE
 
 
 /*  ----------------------------------------------------------------------- */
