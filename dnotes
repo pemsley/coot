@@ -4,22 +4,12 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   10 outstanding issues
+   9 outstanding issues
 
 
    o Post-install slim the binaries
 
    o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
-
-   o Steven Graham:
-
-      I seem to have found another small feature in 0.3.3.  When I
-      read in an ensemble of 20 lowest-energy NMR structures, they
-      display fine if displayed as C-alpha traces or as bonds coloured
-      by atom, B-value sec.  structure or occupancy.  However, if I
-      colour the bonds by chain or by molecule the connectivity goes
-      all screwy (presumably because the different members of the
-      ensemble all have the same chain ID).
 
    o Try again to add chiral volumes to the geometry target function
 
@@ -67,7 +57,15 @@ Tue Jul  3 14:27:37 BST 2007
 
 
 
+   o Steven Graham:
 
+      I seem to have found another small feature in 0.3.3.  When I
+      read in an ensemble of 20 lowest-energy NMR structures, they
+      display fine if displayed as C-alpha traces or as bonds coloured
+      by atom, B-value sec.  structure or occupancy.  However, if I
+      colour the bonds by chain or by molecule the connectivity goes
+      all screwy (presumably because the different members of the
+      ensemble all have the same chain ID).
 
    o Correct CISPEP if needed cards on writing pdb.
      Hand off to Eugene for now.  Needs mmdb-1.0.10
