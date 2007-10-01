@@ -78,7 +78,12 @@ namespace coot {
 
       Cartesian by_scalar(float scale); 
 
-      Cartesian operator=(const Cartesian &in);
+      Cartesian& operator=(const Cartesian &in) {
+	 x_ = in.x_;
+	 y_ = in.y_;
+	 z_ = in.z_;
+	 return *this;
+      } 
    
       void unit_vector_yourself() {
 	 float length = (*this).amplitude();

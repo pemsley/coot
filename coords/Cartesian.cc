@@ -174,15 +174,15 @@ coot::Cartesian::Cartesian() {
    z_ = 0.0;
 }
 
-coot::Cartesian
-coot::Cartesian::operator=(const coot::Cartesian &in) {
+// coot::Cartesian
+// coot::Cartesian::operator=(const coot::Cartesian &in) {
 
-   x_ = in.x_;
-   y_ = in.y_;
-   z_ = in.z_;
+//    x_ = in.x_;
+//    y_ = in.y_;
+//    z_ = in.z_;
 
-   return *this;
-}
+//    return *this;
+// }
 
 std::ostream& coot::operator<<(std::ostream&s, coot::Cartesian pt) {
 
