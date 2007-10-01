@@ -78,6 +78,7 @@ with_map_LDADD =  \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/coot-utils/libcoot-utils.la        \
+        $(top_builddir)/compat/libcoot-compat.la           \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 test_indexing_LDADD = \
