@@ -2,6 +2,8 @@
  * 
  * Copyright 2005, 2006 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 The University of Oxford
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1076,6 +1078,22 @@ parse_ccp4i_defs(const std::string &filename) {
       }
    }
    return v;
+}
+
+std::string
+ccp4_project_directory(const std::string &ccp4_project_name) {
+
+   std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
+   std::vector<std::pair<std::string, std::string> > v = 
+      parse_ccp4i_defs(ccp4_defs_file_name);
+   std::string r = "";
+   for (unsigned int i=0; i<v.size(); i++) {
+      if (v[i].first == ccp4_project_name) {
+	 r = v[i].second;
+	 break;
+      }
+   }
+   return r;
 }
 
 

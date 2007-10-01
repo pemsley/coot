@@ -115,7 +115,7 @@
   (jiggled-mol reference-mol reference-mol -1))
 
 ;;
-(define max-count 2000)
+(define max-count 5000)
 
 (let ((mol-no (add-molecule a-molecule "test molecule")))
   (if (not (= mol-no -1))
@@ -130,5 +130,7 @@
 					(/ count max-count))))
 	      ;; (format #t "cycle ~s ~s~%" count (/ count max-count))
 	      (clear-and-update-molecule mol-no new-mol)
+	      (if (gtk-events-pending)
+		  (gtk-main-iteration))
 	      (loop (+ count 1) new-mol))))))))
 

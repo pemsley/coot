@@ -155,7 +155,9 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
 
 // The OK button was pressed on the dialog, so read the dialog and do
-// the check
+// the check.
+//
+// called by a callbacks.c function.
 // 
 void do_check_waters_by_widget(GtkWidget *dialog) {
 
@@ -278,73 +280,74 @@ void check_waters_molecule_menu_item_activate(GtkWidget *item,
 // 
 GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag) {
 
-   GtkWidget *w = create_checked_waters_baddies_dialog();
-   graphics_info_t g;
+   GtkWidget *w = NULL;
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      w = create_checked_waters_baddies_dialog();
 
-   int imol_for_map = g.Imol_Refinement_Map();
+      graphics_info_t g;
+      int imol_for_map = g.Imol_Refinement_Map();
 
-   if (is_valid_model_molecule(imol)) {
-      if (!is_valid_map_molecule(imol_for_map)) {
-	 std::cout << "WARNING:: Not a valid map for density testing " << imol_for_map << std::endl;
-      } else {
-	 std::vector<coot::atom_spec_t> baddies = graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap_list[0], graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
-
-	 GtkWidget *button;
-	 GtkWidget *vbox = lookup_widget(w, "checked_waters_baddies_vbox");
-	 GSList *gr_group = NULL;
-
-	 if (baddies.size() > 0 ) { 
-	    for (int i=0; i<int(baddies.size()); i++) {
-
-// 	       std::cout << "Suspicious water: "
-// 			 << baddies[i].atom_name
-// 			 << baddies[i].alt_conf << " "
-// 			 << baddies[i].resno << " "
-// 			 << baddies[i].insertion_code << " "
-// 			 << baddies[i].chain << "\n";
-
-	       std::string button_label(" ");
-	       button_label += baddies[i].chain;
-	       button_label += " " ;
-	       button_label += graphics_info_t::int_to_string(baddies[i].resno);
-	       button_label += " " ;
-	       button_label += baddies[i].atom_name;
-	       button_label += " " ;
-	       button_label += baddies[i].alt_conf;
-	       button_label += " " ;
-	       button_label += baddies[i].string_user_data;
-	       button_label += " " ;
-
-	       button = gtk_radio_button_new_with_label(gr_group, button_label.c_str());
-	       gr_group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	       coot::atom_spec_t *atom_spec = new coot::atom_spec_t(baddies[i]);
-	       atom_spec->int_user_data = imol;
-      
-	       gtk_signal_connect(GTK_OBJECT(button), "clicked",
-				  GTK_SIGNAL_FUNC (graphics_info_t::on_generic_atom_spec_button_clicked),
-				  atom_spec);
-
-	       GtkWidget *frame = gtk_frame_new(NULL);
-	       gtk_container_add(GTK_CONTAINER(frame), button);
-
-	       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
-	       gtk_container_set_border_width(GTK_CONTAINER(frame), 2);
-	       gtk_widget_show(button);
-	       gtk_widget_show(frame);
-
-	    }
+      if (is_valid_model_molecule(imol)) {
+	 if (!is_valid_map_molecule(imol_for_map)) {
+	    std::cout << "WARNING:: Not a valid map for density testing "
+		      << imol_for_map << std::endl;
 	 } else {
 
-	    std::string s = "There were no suspicious waters \nmatching those criteria in\n";
-	    s += " Molecule ";
-	    s += graphics_info_t::molecules[imol].dotted_chopped_name();
-	    w = wrapped_nothing_bad_dialog(s);
+	    std::vector<coot::atom_spec_t> baddies = graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap_list[0], graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
+	 
+	    GtkWidget *button;
+	    GtkWidget *vbox = lookup_widget(w, "checked_waters_baddies_vbox");
+	    GSList *gr_group = NULL;
 	    
+	    if (baddies.size() > 0 ) { 
+	       for (int i=0; i<int(baddies.size()); i++) {
+		  
+		  // 	       std::cout << "Suspicious water: "
+		  // 			 << baddies[i].atom_name
+		  // 			 << baddies[i].alt_conf << " "
+		  // 			 << baddies[i].resno << " "
+		  // 			 << baddies[i].insertion_code << " "
+		  // 			 << baddies[i].chain << "\n";
+		  
+		  std::string button_label(" ");
+		  button_label += baddies[i].chain;
+		  button_label += " " ;
+		  button_label += graphics_info_t::int_to_string(baddies[i].resno);
+		  button_label += " " ;
+		  button_label += baddies[i].atom_name;
+		  button_label += " " ;
+		  button_label += baddies[i].alt_conf;
+		  button_label += " " ;
+		  button_label += baddies[i].string_user_data;
+		  button_label += " " ;
+		  
+		  button = gtk_radio_button_new_with_label(gr_group, button_label.c_str());
+		  gr_group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+		  coot::atom_spec_t *atom_spec = new coot::atom_spec_t(baddies[i]);
+		  atom_spec->int_user_data = imol;
+		  
+		  gtk_signal_connect(GTK_OBJECT(button), "clicked",
+				     GTK_SIGNAL_FUNC (graphics_info_t::on_generic_atom_spec_button_clicked),
+				     atom_spec);
+		  
+		  GtkWidget *frame = gtk_frame_new(NULL);
+		  gtk_container_add(GTK_CONTAINER(frame), button);
+		  
+		  gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
+		  gtk_container_set_border_width(GTK_CONTAINER(frame), 2);
+		  gtk_widget_show(button);
+		  gtk_widget_show(frame);
+	       }
+	    } else {
+	 
+	       std::string s = "There were no suspicious waters \nmatching those criteria in\n";
+	       s += " Molecule ";
+	       s += graphics_info_t::molecules[imol].dotted_chopped_name();
+	       w = wrapped_nothing_bad_dialog(s);
+	    }
 	 }
       }
    }
-
-
    return w;
 }
 
@@ -379,9 +382,11 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma
 	 std::string s = "Deleted ";
 	 s += graphics_info_t::int_to_string(ideleted);
 	 s += " waters";
-	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
-	 gtk_widget_show(w);
-	 graphics_draw();
+	 if (graphics_info_t::use_graphics_interface_flag) { 
+	    GtkWidget *w = wrapped_nothing_bad_dialog(s);
+	    gtk_widget_show(w);
+	    graphics_draw();
+	 }
       }
    }
 

@@ -168,6 +168,8 @@ bool compare_mtimes(coot::str_mtime a, coot::str_mtime b);
 
 std::vector<std::pair<std::string, std::string> > parse_ccp4i_defs(const std::string &filename);
 
+std::string ccp4_project_directory(const std::string &ccp4_project_name);
+
 /*  -------------------------------------------------------------------- */
 /*                     history                                           */
 /*  -------------------------------------------------------------------- */

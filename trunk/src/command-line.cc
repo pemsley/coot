@@ -39,6 +39,7 @@
 
 
 #include "c-interface.h"
+#include "cc-interface.hh"
 #include "command-line.h"
 #include "graphics-info.h"
 
@@ -86,6 +87,7 @@ parse_command_line(int argc, char ** argv ) {
       {"hklin",  1, 0, 0},
       {"auto",   1, 0, 0},
       {"script", 1, 0, 0},
+      {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
       {"port",       1, 0, 0},
       {"host",       1, 0, 0},
@@ -151,6 +153,9 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "dictionary") {
 	       cld.dictionaries.push_back(optarg);
+	    }
+	    if (arg_str == "ccp4-project") {
+	       cld.ccp4_project = optarg;
 	    }
 	    
 	 } else { 
@@ -317,6 +322,15 @@ handle_command_line_data(command_line_data cld) {
    
    for (unsigned int i=0; i< cld.dictionaries.size(); i++) {
       read_cif_dictionary(cld.dictionaries[i].c_str());
+   }
+
+   // ccp4 project directory given?
+   if (cld.ccp4_project != "") {
+      std::string dir = ccp4_project_directory(cld.ccp4_project);
+      if (dir != "") {
+	 graphics_info_t g;
+	 g.set_directory_for_fileselection_string(dir);
+      }
    }
 
    // --no-guano used?
