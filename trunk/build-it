@@ -280,26 +280,35 @@ fi
 
 # now the functions:
 
-# give args prefix-dir and is-static-flag "clear-static" or "clear-dynamic"
+# Give args: prefix-dir and (based on is-static-flag) either
+# "clear-static" or "clear-dynamic" #
 #
 function post_install_slim { 
 
     echo we are slimming directory $1
-    slim_dir=$1
-    clear_type=$2
+    slim_dir="$1"
+    cleaned_dir="$2"
+    clear_type="$3"
     
-
-    cleaned_dir=`basename $INSTALLED_PREFIX`-slimmed
 
     mkdir $cleaned_dir
     mkdir $cleaned_dir/bin
     mkdir $cleaned_dir/lib
 
     lib_sos=`cd $INSTALLED_PREFIX && ls -1 lib/lib*.so*`
+    lib_as=`cd $INSTALLED_PREFIX && ls -1 lib/lib*.a`
+
+    if [ "$clear_type" = "clear-dynamic" ] ; then
+       lib_archs="$lib_sos"
+    fi
+
+    if [ "$clear_type" = "clear-dynamic" ] ; then
+       lib_archs="$lib_as"
+    fi
 
     for file in etc html info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
-        $lib_sos ;
+        $lib_archs ;
     do
        dn=`dirname $file`
        if [ -e $INSTALLED_PREFIX/$file ] ; then
@@ -2315,6 +2324,19 @@ else
     tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/reference-structures.tar.gz
 fi
 
+# clear up the library dependencies
+#
+clear_up_type=
+if [ $shared_static_flag != "--disable-static" ] ; then
+    clear_up_type=clear-static
+fi   
+if [ $shared_static_flag != "--disable-shared" ] ; then
+    clear_up_type=clear-dynamic
+fi   
+
+if [ $clear_up_type != "" ] ; then 
+   post_install_slim($install_top_dir $install_top_dir-slimmed $clear_up_type)
+fi
 
 
     if test "$do_nightlies" = "1" ; then 
