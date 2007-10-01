@@ -65,6 +65,25 @@ namespace coot {
        return int(30.0*wheel_colour);
     }
   };
+
+   class model_bond_atom_info_t {
+      std::vector<PCAtom> hydrogen_atoms_;
+      std::vector<PCAtom> non_hydrogen_atoms_;
+   public:
+      PPCAtom     Hydrogen_atoms() const;
+      PPCAtom non_Hydrogen_atoms() const;
+      int n_H() const { return hydrogen_atoms_.size(); }
+      int n_non_H() const { return non_hydrogen_atoms_.size(); }
+      void add_atom(CAtom *atom) {
+	 std::string element = atom->element;
+	 if (element == " H" || element == " D") {
+	    hydrogen_atoms_.push_back(atom);
+	 } else {
+	    non_hydrogen_atoms_.push_back(atom);
+	 }
+      }
+   };
+   
 }
  
 // A poor man's vector.  For use when we can't use vectors
@@ -435,7 +454,7 @@ public:
 
    void check_graphical_bonds() const; 
    void check_static() const; 
-   void do_disulphide_bonds(atom_selection_container_t); 
+   void do_disulphide_bonds(atom_selection_container_t, int imodel);
    void do_Ca_bonds(atom_selection_container_t SelAtom, 
 		    float min_dist, float max_dist); 
    void do_Ca_bonds_internal(atom_selection_container_t SelAtom, 

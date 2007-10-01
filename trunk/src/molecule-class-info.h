@@ -1737,7 +1737,8 @@ class molecule_class_info_t {
 				                      // more likely rotamers
 
    // ---- cis <-> trans conversion
-   int cis_trans_convertion(CAtom *at, short int is_N_flag);
+   int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode);
+   int cis_trans_conversion(CAtom *at, short int is_N_flag);
    int cis_trans_convert(PCResidue *mol_residues,   // internal function, make private
 			 PCResidue *trans_residues, // or move into utils?
 			 PCResidue *cis_residues);

@@ -22612,6 +22612,60 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_cis_trans_convert(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:cis_trans_convert",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "cis_trans_convert" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "cis_trans_convert" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "cis_trans_convert" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "cis_trans_convert" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  cis_trans_convert(arg1,(char const *)arg2,arg3,(char const *)arg4);
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_do_db_main(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   short arg1 ;
@@ -29968,6 +30022,31 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_ccp4_project_directory(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  std::string result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:ccp4_project_directory",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_std__string,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ccp4_project_directory" "', argument " "1"" of type '" "std::string const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "ccp4_project_directory" "', argument " "1"" of type '" "std::string const &""'"); 
+  }
+  arg1 = reinterpret_cast< std::string * >(argp1);
+  result = ccp4_project_directory((std::string const &)*arg1);
+  resultobj = SWIG_NewPointerObj((new std::string(static_cast< const std::string& >(result))), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_new_command_arg_t__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -31937,6 +32016,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"rot_trans_reset_previous", _wrap_rot_trans_reset_previous, METH_VARARGS, NULL},
 	 { (char *)"set_rotate_translate_zone_rotates_about_zone_centre", _wrap_set_rotate_translate_zone_rotates_about_zone_centre, METH_VARARGS, NULL},
 	 { (char *)"do_cis_trans_conversion_setup", _wrap_do_cis_trans_conversion_setup, METH_VARARGS, NULL},
+	 { (char *)"cis_trans_convert", _wrap_cis_trans_convert, METH_VARARGS, NULL},
 	 { (char *)"do_db_main", _wrap_do_db_main, METH_VARARGS, NULL},
 	 { (char *)"db_mainchain", _wrap_db_mainchain, METH_VARARGS, NULL},
 	 { (char *)"close_molecule", _wrap_close_molecule, METH_VARARGS, NULL},
@@ -32178,6 +32258,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"file_attribs_info_t_swigregister", file_attribs_info_t_swigregister, METH_VARARGS, NULL},
 	 { (char *)"compare_mtimes", _wrap_compare_mtimes, METH_VARARGS, NULL},
 	 { (char *)"parse_ccp4i_defs", _wrap_parse_ccp4i_defs, METH_VARARGS, NULL},
+	 { (char *)"ccp4_project_directory", _wrap_ccp4_project_directory, METH_VARARGS, NULL},
 	 { (char *)"new_command_arg_t", _wrap_new_command_arg_t, METH_VARARGS, NULL},
 	 { (char *)"command_arg_t_type_set", _wrap_command_arg_t_type_set, METH_VARARGS, NULL},
 	 { (char *)"command_arg_t_type_get", _wrap_command_arg_t_type_get, METH_VARARGS, NULL},

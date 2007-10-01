@@ -178,7 +178,6 @@ get_atom_selection(std::string pdb_name) {
        fix_nucleic_acid_residue_names(asc);
        fix_away_atoms(asc);
        fix_hydrogen_names(asc);
-       coot::util::remove_wrong_cis_peptides(asc.mol);
     }
     return asc; 
 }
@@ -426,6 +425,8 @@ write_atom_selection_file(atom_selection_container_t asc,
 			  const std::string &filename) {
 
    int ierr = 0; 
+   coot::util::remove_wrong_cis_peptides(asc.mol);
+   
    if (coot::is_mmcif_filename(filename)) {
       ierr = asc.mol->WriteCIFASCII((char *)filename.c_str());
    } else {
