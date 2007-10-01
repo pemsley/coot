@@ -4,13 +4,8 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   11 outstanding issues
+   10 outstanding issues
 
-
-   o Correct CISPEP if needed cards on writing pdb.
-     Hand off to Eugene for now.  Needs mmdb-1.0.10
-
-* Done - needs test.
 
    o Post-install slim the binaries
 
@@ -74,6 +69,10 @@ Tue Jul  3 14:27:37 BST 2007
 
 
 
+   o Correct CISPEP if needed cards on writing pdb.
+     Hand off to Eugene for now.  Needs mmdb-1.0.10
+
+* Done - And tested.
 
 
    o Do the strand restraints work well under refinement?
