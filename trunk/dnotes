@@ -1953,3 +1953,19 @@ Tue Sep 18 16:12:29 BST 2007
 
 
         rsr when map is ambiguous cancels rsr.  It should not.
+
+----
+Thu Sep 27 09:27:26 BST 2007
+
+	Ramachandran plot from atom selection (no need for a gui for
+	this just yet).
+
+---
+Thu Sep 27 09:30:20 BST 2007
+
+	John Berrisford:
+
+	Make sure Coot properly refines OXT at some stage (by
+	correctly handling modifications).
+
+
