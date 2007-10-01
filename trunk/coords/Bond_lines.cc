@@ -2417,116 +2417,141 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
    int col = 0; // atom (segment) colour
 
-   asc.mol->SeekContacts(asc.atom_selection, asc.n_selected_atoms,
-			 asc.atom_selection, asc.n_selected_atoms,
-			 min_dist, max_dist, // min, max distances
-			 0,        // seqDist 0 -> in same res also
-			 contact, ncontacts,
-			 0, &my_matt, i_contact_group);
+   int n_models = asc.mol->GetNumberOfModels();
+   
+   for (int imodel=1; imodel<=n_models; imodel++) { 
 
-   coot::my_atom_colour_map_t atom_colour_map;
-   int res1, res2;
+      PPCAtom atom_selection = 0;
+      int n_selected_atoms = 0;
+      contact = NULL;
 
-   // Now, let's not forget that some atoms don't have contacts, so
-   // whenever we find a contact for an atom, we mark it with
-   // UserDefinedData "found bond".
-   // 
-   int uddHnd = asc.mol->RegisterUDInteger ( UDR_ATOM,"found bond" );
-   if (uddHnd<0)  {
-      std::cout << " atom bonding registration failed.\n";
-   } else {
-      for (int i=0; i<asc.n_selected_atoms; i++)
-	 asc.atom_selection[i]->PutUDData(uddHnd,0);
-   }
-
-   if (ncontacts > 0) { 
-
-      CAtom *at1 = 0;
-      CAtom *at2 = 0;
-      std::string element1;
-      std::string element2;
+      // make a new atom selection, based on the model.
+      int SelectionHandle = asc.mol->NewSelection();
+      asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
+			    ANY_RES, // starting resno, an int
+			    "*", // any insertion code
+			    ANY_RES, // ending resno
+			    "*", // ending insertion code
+			    "*", // any residue name
+			    "*", // atom name
+			    "*", // elements
+			    "*"  // alt loc.
+			    );
       
-      for (int i=0; i< ncontacts; i++) {
-	 if (contact[i].id2 > contact[i].id1) {
+      asc.mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+      
+      asc.mol->SeekContacts(atom_selection, n_selected_atoms,
+			    atom_selection, n_selected_atoms,
+			    min_dist, max_dist, // min, max distances
+			    0,        // seqDist 0 -> in same res also
+			    contact, ncontacts,
+			    0, &my_matt, i_contact_group);
+      
+      coot::my_atom_colour_map_t atom_colour_map;
+      int res1, res2;
 
-	    at1 = asc.atom_selection[ contact[i].id1 ];
-	    at2 = asc.atom_selection[ contact[i].id2 ];
+      // Now, let's not forget that some atoms don't have contacts, so
+      // whenever we find a contact for an atom, we mark it with
+      // UserDefinedData "found bond".
+      // 
+      int uddHnd = asc.mol->RegisterUDInteger ( UDR_ATOM,"found bond" );
+      if (uddHnd<0)  {
+	 std::cout << " atom bonding registration failed.\n";
+      } else {
+	 for (int i=0; i<n_selected_atoms; i++)
+	    atom_selection[i]->PutUDData(uddHnd,0);
+      }
+
+      if (ncontacts > 0) { 
+
+	 CAtom *at1 = 0;
+	 CAtom *at2 = 0;
+	 std::string element1;
+	 std::string element2;
+      
+	 for (int i=0; i< ncontacts; i++) {
+	    if (contact[i].id2 > contact[i].id1) {
+
+	       at1 = atom_selection[ contact[i].id1 ];
+	       at2 = atom_selection[ contact[i].id2 ];
 	    
-	    res1 = at1->GetSeqNum();
-	    res2 = at2->GetSeqNum();
+	       res1 = at1->GetSeqNum();
+	       res2 = at2->GetSeqNum();
 
-	    if (abs(res1 - res2) < 2) { 
+	       if (abs(res1 - res2) < 2) { 
 
-	       std::string segid1(at1->GetChainID());
-	       std::string segid2(at2->GetChainID());
-	       col = atom_colour_map.index_for_chain(segid1); 
+		  std::string segid1(at1->GetChainID());
+		  std::string segid2(at2->GetChainID());
+		  col = atom_colour_map.index_for_chain(segid1); 
 
-	       if (segid1 == segid2) {
+		  if (segid1 == segid2) {
 
-		  element1 = at1->element;
-		  element2 = at2->element;
-		  if ( (draw_hydrogens_flag == 1) ||
-		       (element1 != " H" && element1 != " D" &&
-			element2 != " H" && element2 != " D") ) { 
+		     element1 = at1->element;
+		     element2 = at2->element;
+		     if ( (draw_hydrogens_flag == 1) ||
+			  (element1 != " H" && element1 != " D" &&
+			   element2 != " H" && element2 != " D") ) { 
 
-		     coot::Cartesian atom_1(at1->x, at1->y, at1->z);
-		     coot::Cartesian atom_2(at2->x, at2->y, at2->z);
+			coot::Cartesian atom_1(at1->x, at1->y, at1->z);
+			coot::Cartesian atom_2(at2->x, at2->y, at2->z);
 		  
-		     // alternate location test
-		     // 	    
-		     std::string aloc_1(at1->altLoc);
-		     std::string aloc_2(at2->altLoc);
-		     // 
-		     if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
-			bonds_size_colour_check(col);
-			addBond(col, atom_1, atom_2);
+			// alternate location test
+			// 	    
+			std::string aloc_1(at1->altLoc);
+			std::string aloc_2(at2->altLoc);
+			// 
+			if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
+			   bonds_size_colour_check(col);
+			   addBond(col, atom_1, atom_2);
 		     
+			   if (uddHnd>=0) {
+			      at1->PutUDData(uddHnd,1);
+			      at2->PutUDData(uddHnd,1);
+			   }
+			}
+		     } else {
+			// It was a hydrogen (or bonded to Hydrogen).
+			// Mark it as bonded (we don't want to see single
+			// unbonded (stared) hydorgens.
 			if (uddHnd>=0) {
 			   at1->PutUDData(uddHnd,1);
 			   at2->PutUDData(uddHnd,1);
 			}
-		     }
-		  } else {
-		     // It was a hydrogen (or bonded to Hydrogen).
-		     // Mark it as bonded (we don't want to see single
-		     // unbonded (stared) hydorgens.
-		     if (uddHnd>=0) {
-			at1->PutUDData(uddHnd,1);
-			at2->PutUDData(uddHnd,1);
-		     }
-		  } 
+		     } 
+		  }
+	       }
+	    }
+	 }
+	 delete [] contact;
+      }
+
+      if (uddHnd>=0) {
+    
+	 // for atoms with no neighbour (contacts):
+	 coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
+	 coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
+	 coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
+
+	 int ic; // changed by reference;
+	 int col;
+	 for (int i=0; i<n_selected_atoms; i++) { 
+	    if ( atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
+	       if (ic == 0) {
+		  std::string segid(atom_selection[i]->GetChainID());
+		  col = atom_colour_map.index_for_chain(segid);
+		  bonds_size_colour_check(col);
+		  coot::Cartesian atom(atom_selection[i]->x,
+				       atom_selection[i]->y,
+				       atom_selection[i]->z);
+	       
+		  addBond(col, atom+small_vec_x, atom-small_vec_x); 
+		  addBond(col, atom+small_vec_y, atom-small_vec_y);
+		  addBond(col, atom+small_vec_z, atom-small_vec_z);
 	       }
 	    }
 	 }
       }
-      delete [] contact;
-   }
-
-   if (uddHnd>=0) {
-    
-      // for atoms with no neighbour (contacts):
-      coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
-      coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
-      coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
-
-      int ic; // changed by reference;
-      int col;
-      for (int i=0; i<asc.n_selected_atoms; i++) { 
-	 if ( asc.atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
-	    if (ic == 0) {
-	       std::string segid(asc.atom_selection[i]->GetChainID());
-	       col = atom_colour_map.index_for_chain(segid);
-	       bonds_size_colour_check(col);
-	       coot::Cartesian atom(asc.atom_selection[i]->x,
-			      asc.atom_selection[i]->y,
-			      asc.atom_selection[i]->z);
-	       
-	       addBond(col, atom+small_vec_x, atom-small_vec_x); 
-	       addBond(col, atom+small_vec_y, atom-small_vec_y);
-	       addBond(col, atom+small_vec_z, atom-small_vec_z);
-	    }
-	 }
-      }
+      asc.mol->DeleteSelection(SelectionHandle);
    }
 }
 
@@ -2557,147 +2582,171 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
       
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
-   asc.mol->SeekContacts(asc.atom_selection, asc.n_selected_atoms,
-			 asc.atom_selection, asc.n_selected_atoms,
-			 min_dist, max_dist, // min, max distances
-			 0,        // seqDist 0 -> in same res also
-			 contact, ncontacts,
-			 0, &my_matt, i_contact_group);
+   int n_models = asc.mol->GetNumberOfModels();
+   for (int imodel=1; imodel<=n_models; imodel++) { 
 
-   int uddHnd = asc.mol->RegisterUDInteger (UDR_ATOM, "found bond");
-   if (uddHnd<0)  {
-      std::cout << " atom bonding registration failed.\n";
-   } else {
-      for (int i=0; i<asc.n_selected_atoms; i++)
-	 asc.atom_selection[i]->PutUDData(uddHnd, 0);
-   }
+      PPCAtom atom_selection = 0;
+      int n_selected_atoms = 0;
+      contact = NULL;
 
-   if (ncontacts > 0) { 
-
-      CAtom *at1 = 0;
-      CAtom *at2 = 0;
-      std::string element1;
-      std::string element2;
-      int res1, res2;
-      int atom_colour_type = coot::COLOUR_BY_ATOM_TYPE;
+      // make a new atom selection, based on the model.
+      int SelectionHandle = asc.mol->NewSelection();
+      asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
+			    ANY_RES, // starting resno, an int
+			    "*", // any insertion code
+			    ANY_RES, // ending resno
+			    "*", // ending insertion code
+			    "*", // any residue name
+			    "*", // atom name
+			    "*", // elements
+			    "*"  // alt loc.
+			    );
       
-      for (int i=0; i< ncontacts; i++) {
-	 if (contact[i].id2 > contact[i].id1) {
+      asc.mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+      
 
-	    at1 = asc.atom_selection[ contact[i].id1 ];
-	    at2 = asc.atom_selection[ contact[i].id2 ];
+      asc.mol->SeekContacts(atom_selection, n_selected_atoms,
+			    atom_selection, n_selected_atoms,
+			    min_dist, max_dist, // min, max distances
+			    0,        // seqDist 0 -> in same res also
+			    contact, ncontacts,
+			    0, &my_matt, i_contact_group);
+
+      int uddHnd = asc.mol->RegisterUDInteger (UDR_ATOM, "found bond");
+      if (uddHnd<0)  {
+	 std::cout << " atom bonding registration failed.\n";
+      } else {
+	 for (int i=0; i<n_selected_atoms; i++)
+	    atom_selection[i]->PutUDData(uddHnd, 0);
+      }
+
+      if (ncontacts > 0) { 
+
+	 CAtom *at1 = 0;
+	 CAtom *at2 = 0;
+	 std::string element1;
+	 std::string element2;
+	 int res1, res2;
+	 int atom_colour_type = coot::COLOUR_BY_ATOM_TYPE;
+      
+	 for (int i=0; i< ncontacts; i++) {
+	    if (contact[i].id2 > contact[i].id1) {
+
+	       at1 = atom_selection[ contact[i].id1 ];
+	       at2 = atom_selection[ contact[i].id2 ];
 	    
-	    res1 = at1->GetSeqNum();
-	    res2 = at2->GetSeqNum();
+	       res1 = at1->GetSeqNum();
+	       res2 = at2->GetSeqNum();
 
-	    if (abs(res1 - res2) < 2) { 
+	       if (abs(res1 - res2) < 2) { 
 
-	       std::string segid1(at1->GetChainID());
-	       std::string segid2(at2->GetChainID());
-	       col = atom_colour_map.index_for_chain(segid1); 
+		  std::string segid1(at1->GetChainID());
+		  std::string segid2(at2->GetChainID());
+		  col = atom_colour_map.index_for_chain(segid1); 
 
-	       if (segid1 == segid2) {
+		  if (segid1 == segid2) {
 
-		  element1 = at1->element;
-		  element2 = at2->element;
-		  if ( (draw_hydrogens_flag == 1) ||
-		       (element1 != " H" && element1 != " D" &&
-			element2 != " H" && element2 != " D") ) { 
+		     element1 = at1->element;
+		     element2 = at2->element;
+		     if ( (draw_hydrogens_flag == 1) ||
+			  (element1 != " H" && element1 != " D" &&
+			   element2 != " H" && element2 != " D") ) { 
 
-		     coot::Cartesian atom_1(at1->x, at1->y, at1->z);
-		     coot::Cartesian atom_2(at2->x, at2->y, at2->z);
+			coot::Cartesian atom_1(at1->x, at1->y, at1->z);
+			coot::Cartesian atom_2(at2->x, at2->y, at2->z);
 		  
-		     // alternate location test
-		     // 	    
-		     std::string aloc_1(at1->altLoc);
-		     std::string aloc_2(at2->altLoc);
-		     // 
-		     if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
+			// alternate location test
+			// 	    
+			std::string aloc_1(at1->altLoc);
+			std::string aloc_2(at2->altLoc);
+			// 
+			if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
 
-			if (element1 != element2) {
+			   if (element1 != element2) {
 			   
-			   // Bonded to different atom elements.
-			   //
-			   coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
-			   if (element1 != " C") {
-			      col = atom_colour(asc.atom_selection[ contact[i].id1 ], atom_colour_type);
-			      bonds_size_colour_check(col);
-			      addBond(col, atom_1, bond_mid_point);
-			   } else {
-			      bonds_size_colour_check(col);
-			      addBond(col, atom_1, bond_mid_point);
-			   }
-			   if (element2 != " C") {
-			      col = atom_colour(asc.atom_selection[ contact[i].id2 ], atom_colour_type);
-			      bonds_size_colour_check(col);
-			      addBond(col, atom_2, bond_mid_point);
-			   } else {
-			      bonds_size_colour_check(col);
-			      addBond(col, atom_2, bond_mid_point);
-			   }
+			      // Bonded to different atom elements.
+			      //
+			      coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
+			      if (element1 != " C") {
+				 col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
+				 bonds_size_colour_check(col);
+				 addBond(col, atom_1, bond_mid_point);
+			      } else {
+				 bonds_size_colour_check(col);
+				 addBond(col, atom_1, bond_mid_point);
+			      }
+			      if (element2 != " C") {
+				 col = atom_colour(atom_selection[ contact[i].id2 ], atom_colour_type);
+				 bonds_size_colour_check(col);
+				 addBond(col, atom_2, bond_mid_point);
+			      } else {
+				 bonds_size_colour_check(col);
+				 addBond(col, atom_2, bond_mid_point);
+			      }
 			   
-			} else { 
+			   } else { 
 
-			   if (element1 == " C") { 
-			      bonds_size_colour_check(col);
-			      addBond(col, atom_1, atom_2);
-			   } else {
-			      col = atom_colour(asc.atom_selection[ contact[i].id1 ], atom_colour_type);
-			      bonds_size_colour_check(col);
-			      addBond(col, atom_1, atom_2);
-			   } 
+			      if (element1 == " C") { 
+				 bonds_size_colour_check(col);
+				 addBond(col, atom_1, atom_2);
+			      } else {
+				 col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
+				 bonds_size_colour_check(col);
+				 addBond(col, atom_1, atom_2);
+			      } 
+			   }
+
+			   // we drew a bond.  Mark it up.
+			   if (uddHnd>=0) {
+			      at1->PutUDData(uddHnd,1);
+			      at2->PutUDData(uddHnd,1);
+			   }
 			}
-
-			// we drew a bond.  Mark it up.
+		     } else {
+			// It was a hydrogen (or bonded to Hydrogen).
+			// Mark it as bonded (we don't want to see single
+			// unbonded (stared) hydorgens.
 			if (uddHnd>=0) {
 			   at1->PutUDData(uddHnd,1);
 			   at2->PutUDData(uddHnd,1);
 			}
-		     }
-		  } else {
-		     // It was a hydrogen (or bonded to Hydrogen).
-		     // Mark it as bonded (we don't want to see single
-		     // unbonded (stared) hydorgens.
-		     if (uddHnd>=0) {
-			at1->PutUDData(uddHnd,1);
-			at2->PutUDData(uddHnd,1);
-		     }
-		  } 
+		     } 
+		  }
+	       }
+	    }
+	 }
+	 delete [] contact;
+      }
+
+      if (uddHnd>=0) {
+    
+	 // for atoms with no neighbour (contacts):
+	 coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
+	 coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
+	 coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
+
+	 int ic; // changed by reference;
+	 int col;
+	 for (int i=0; i<n_selected_atoms; i++) { 
+	    if ( atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
+	       if (ic == 0) {
+		  std::string segid(atom_selection[i]->GetChainID());
+		  col = atom_colour_map.index_for_chain(segid);
+		  bonds_size_colour_check(col);
+		  coot::Cartesian atom(atom_selection[i]->x,
+				       atom_selection[i]->y,
+				       atom_selection[i]->z);
+	       
+		  addBond(col, atom+small_vec_x, atom-small_vec_x); 
+		  addBond(col, atom+small_vec_y, atom-small_vec_y);
+		  addBond(col, atom+small_vec_z, atom-small_vec_z);
 	       }
 	    }
 	 }
       }
-      delete [] contact;
-   }
-
-   if (uddHnd>=0) {
-    
-      // for atoms with no neighbour (contacts):
-      coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
-      coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
-      coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
-
-      int ic; // changed by reference;
-      int col;
-      for (int i=0; i<asc.n_selected_atoms; i++) { 
-	 if ( asc.atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
-	    if (ic == 0) {
-	       std::string segid(asc.atom_selection[i]->GetChainID());
-	       col = atom_colour_map.index_for_chain(segid);
-	       bonds_size_colour_check(col);
-	       coot::Cartesian atom(asc.atom_selection[i]->x,
-			      asc.atom_selection[i]->y,
-			      asc.atom_selection[i]->z);
-	       
-	       addBond(col, atom+small_vec_x, atom-small_vec_x); 
-	       addBond(col, atom+small_vec_y, atom-small_vec_y);
-	       addBond(col, atom+small_vec_z, atom-small_vec_z);
-	    }
-	 }
-      }
+      asc.mol->DeleteSelection(SelectionHandle);
    }
 }
-
 
 void
 Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
@@ -2725,104 +2774,131 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
    int col = 0; // atom (segment) colour
 
-   asc.mol->SeekContacts(asc.atom_selection, asc.n_selected_atoms,
-			 asc.atom_selection, asc.n_selected_atoms,
-			 min_dist, max_dist, // min, max distances
-			 0,        // seqDist 0 -> in same res also
-			 contact, ncontacts,
-			 0, &my_matt, i_contact_group);
 
-   coot::my_atom_colour_map_t atom_colour_map;
-   int res1, res2;
-   // Now, let's not forget that some atoms don't have contacts, so
-   // whenever we find a contact for an atom, we mark it with
-   // UserDefinedData "found bond".
-   // 
-   int uddHnd = asc.mol->RegisterUDInteger ( UDR_ATOM,"found bond" );
-   if (uddHnd<0)  {
-      std::cout << " atom bonding registration failed.\n";
-   } else {
-      for (int i=0; i<asc.n_selected_atoms; i++)
-	 asc.atom_selection[i]->PutUDData(uddHnd,0);
-   }
+   int n_models = asc.mol->GetNumberOfModels();
+   
+   for (int imodel=1; imodel<=n_models; imodel++) { 
 
-   if (ncontacts > 0) { 
+      PPCAtom atom_selection = 0;
+      int n_selected_atoms = 0;
+      contact = NULL;
+
+      // make a new atom selection, based on the model.
+      int SelectionHandle = asc.mol->NewSelection();
+      asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
+			    ANY_RES, // starting resno, an int
+			    "*", // any insertion code
+			    ANY_RES, // ending resno
+			    "*", // ending insertion code
+			    "*", // any residue name
+			    "*", // atom name
+			    "*", // elements
+			    "*"  // alt loc.
+			    );
       
-      std::string element1;
-      std::string element2;
-      for (int i=0; i< ncontacts; i++) {
-	 if (contact[i].id2 > contact[i].id1) {
-
-	    CAtom *at1 = asc.atom_selection[ contact[i].id1 ];
-	    CAtom *at2 = asc.atom_selection[ contact[i].id2 ];
+      asc.mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
       
-	    res1 = at1->GetSeqNum();
-	    res2 = at2->GetSeqNum();
+      asc.mol->SeekContacts(atom_selection, n_selected_atoms,
+			    atom_selection, n_selected_atoms,
+			    min_dist, max_dist, // min, max distances
+			    0,        // seqDist 0 -> in same res also
+			    contact, ncontacts,
+			    0, &my_matt, i_contact_group);
 
-	    if (abs(res1 - res2) < 2) { 
-	       coot::Cartesian atom_1(at1->x, at1->y, at1->z);
-	       coot::Cartesian atom_2(at2->x, at2->y, at2->z);
+      coot::my_atom_colour_map_t atom_colour_map;
+      int res1, res2;
+      // Now, let's not forget that some atoms don't have contacts, so
+      // whenever we find a contact for an atom, we mark it with
+      // UserDefinedData "found bond".
+      // 
+      int uddHnd = asc.mol->RegisterUDInteger (UDR_ATOM, "found bond");
+      if (uddHnd<0)  {
+	 std::cout << " atom bonding registration failed.\n";
+      } else {
+	 for (int i=0; i<n_selected_atoms; i++)
+	    atom_selection[i]->PutUDData(uddHnd,0);
+      }
 
-	       element1 = at1->element;
-	       element2 = at2->element;
-	       if ( (draw_hydrogens_flag == 1) ||
-		    (element1 != " H" && element1 != " D" &&
-		     element2 != " H" && element2 != " D") ) { 
+      if (ncontacts > 0) { 
+      
+	 std::string element1;
+	 std::string element2;
+	 for (int i=0; i< ncontacts; i++) {
+	    if (contact[i].id2 > contact[i].id1) {
+
+	       CAtom *at1 = atom_selection[ contact[i].id1 ];
+	       CAtom *at2 = atom_selection[ contact[i].id2 ];
+      
+	       res1 = at1->GetSeqNum();
+	       res2 = at2->GetSeqNum();
+
+	       if (abs(res1 - res2) < 2) { 
+		  coot::Cartesian atom_1(at1->x, at1->y, at1->z);
+		  coot::Cartesian atom_2(at2->x, at2->y, at2->z);
+
+		  element1 = at1->element;
+		  element2 = at2->element;
+		  if ( (draw_hydrogens_flag == 1) ||
+		       (element1 != " H" && element1 != " D" &&
+			element2 != " H" && element2 != " D") ) { 
 		  
-		  // alternate location test
-		  // 	    
-		  std::string aloc_1(at1->altLoc);
-		  std::string aloc_2(at2->altLoc);
-		  // 
-		  if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
-		     bonds_size_colour_check(col);
-		     addBond(col, atom_1, atom_2);
+		     // alternate location test
+		     // 	    
+		     std::string aloc_1(at1->altLoc);
+		     std::string aloc_2(at2->altLoc);
+		     // 
+		     if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
+			bonds_size_colour_check(col);
+			addBond(col, atom_1, atom_2);
 		     
+			if (uddHnd>=0) {
+			   at1->PutUDData(uddHnd,1);
+			   at2->PutUDData(uddHnd,1);
+			}
+		     }
+		  } else {
+		     // It was a hydrogen (or bonded to Hydrogen).
+		     // Mark it as bonded (we don't want to see single
+		     // unbonded (stared) hydorgens.
 		     if (uddHnd>=0) {
 			at1->PutUDData(uddHnd,1);
 			at2->PutUDData(uddHnd,1);
 		     }
 		  }
-	       } else {
-		  // It was a hydrogen (or bonded to Hydrogen).
-		  // Mark it as bonded (we don't want to see single
-		  // unbonded (stared) hydorgens.
-		  if (uddHnd>=0) {
-		     at1->PutUDData(uddHnd,1);
-		     at2->PutUDData(uddHnd,1);
-		  }
+	       }
+	    }
+	 }
+	 delete [] contact;
+	 contact = NULL;
+      }
+
+      if (uddHnd>=0) {
+    
+	 // for atoms with no neighbour (contacts):
+	 coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
+	 coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
+	 coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
+
+	 int ic; // changed by reference;
+	 int col;
+	 for (int i=0; i<n_selected_atoms; i++) { 
+	    if ( atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
+	       if (ic == 0) {
+		  std::string segid(atom_selection[i]->GetChainID());
+		  col = atom_colour_map.index_for_chain(segid);
+		  bonds_size_colour_check(col);
+		  coot::Cartesian atom(atom_selection[i]->x,
+				       atom_selection[i]->y,
+				       atom_selection[i]->z);
+	       
+		  addBond(col, atom+small_vec_x, atom-small_vec_x); 
+		  addBond(col, atom+small_vec_y, atom-small_vec_y);
+		  addBond(col, atom+small_vec_z, atom-small_vec_z);
 	       }
 	    }
 	 }
       }
-      delete [] contact;
-   }
-
-   if (uddHnd>=0) {
-    
-      // for atoms with no neighbour (contacts):
-      coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
-      coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
-      coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
-
-      int ic; // changed by reference;
-      int col;
-      for (int i=0; i<asc.n_selected_atoms; i++) { 
-	 if ( asc.atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
-	    if (ic == 0) {
-	       std::string segid(asc.atom_selection[i]->GetChainID());
-	       col = atom_colour_map.index_for_chain(segid);
-	       bonds_size_colour_check(col);
-	       coot::Cartesian atom(asc.atom_selection[i]->x,
-			      asc.atom_selection[i]->y,
-			      asc.atom_selection[i]->z);
-	       
-	       addBond(col, atom+small_vec_x, atom-small_vec_x); 
-	       addBond(col, atom+small_vec_y, atom-small_vec_y);
-	       addBond(col, atom+small_vec_z, atom-small_vec_z);
-	    }
-	 }
-      }
+      asc.mol->DeleteSelection(SelectionHandle);
    }
 }
 
