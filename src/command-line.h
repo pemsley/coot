@@ -13,6 +13,7 @@ public:
    short int hardware_stereo_flag;
    int port;
    std::string hostname;
+   std::string ccp4_project;
    short int try_listener;
    short int do_graphics;
    bool disable_state_script_writing;

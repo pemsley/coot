@@ -882,6 +882,10 @@ public:
    
    static int distances_and_angles_dialog_x_position; 
    static int distances_and_angles_dialog_y_position; 
+
+   std::string get_directory_for_fileselection() const {
+     return directory_for_fileselection;
+   }
    
    static int map_line_width;
 

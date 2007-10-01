@@ -243,10 +243,13 @@ void graphics_info_t::SetMouseBegin(double x, double y) {
 // static 
 GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) { 
 
-   GtkWidget *w = create_nothing_bad_dialog();
-   GtkWidget *label_widget = lookup_widget(w, "nothing_bad_label");
-   gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
-   return w;
+   GtkWidget *w = NULL;
+   if (use_graphics_interface_flag) { 
+      w = create_nothing_bad_dialog();
+      GtkWidget *label_widget = lookup_widget(w, "nothing_bad_label");
+      gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
+   }
+      return w;
 }
 
 void
@@ -441,7 +444,6 @@ graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const
    } else {
       // std::cout << "not setting directory_for_fileselection" << std::endl;
    } 
-   
 }
 
 void 

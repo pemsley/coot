@@ -16,6 +16,16 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
 
+   o Steven Graham:
+
+      I seem to have found another small feature in 0.3.3.  When I
+      read in an ensemble of 20 lowest-energy NMR structures, they
+      display fine if displayed as C-alpha traces or as bonds coloured
+      by atom, B-value sec.  structure or occupancy.  However, if I
+      colour the bonds by chain or by molecule the connectivity goes
+      all screwy (presumably because the different members of the
+      ensemble all have the same chain ID).
+
    o Try again to add chiral volumes to the geometry target function
 
    o Carsten's Map Masking crash
@@ -53,8 +63,15 @@ Tue Jul  3 14:27:37 BST 2007
 
    o GMS Molprobity problem
 
+
+   o On reading a .res file, can you check for NCS with residue offset?
+
    o Pirkko Heikinheimo pdb entry 1o7d, space group P6122.  symmetry
      pick is failing.
+
+
+
+
 
 
 
@@ -65,6 +82,7 @@ Tue Jul  3 14:27:37 BST 2007
 * Seems OK.
 
     o Check where else we do a SetSpaceGroup()?  Bug there too?
+
       Where else do I mess with the space group like I did at the end of 
       unshelxing?  Fix that too.
 
@@ -1952,7 +1970,124 @@ Tue Sep 18 16:12:29 BST 2007
 	   Indeed.  Why not.
 
 
-        rsr when map is ambiguous cancels rsr.  It should not.
+-----
+
+        RSR when map is ambiguous cancels rsr.  It should not.
+
+----
+Wed Sep 26 13:12:24 BST 2007
+
+
+   Regularize residue A 11, 2izq
+
+   Crashes in recently touched (well, the replace type has been
+   changed) replace_coords()
+
+(gdb) where
+#0  molecule_class_info_t::replace_coords (this=0x87bfc7c, asc=@0x866b518, change_altconf_occs_flag=false)
+    at ../../coot/src/molecule-class-info.cc:4564
+#1  0x080c4a9f in graphics_info_t::accept_moving_atoms (this=0xbf8b8463) at ../../coot/src/graphics-info.cc:1364
+#2  0x0815d612 in accept_regularizement () at ../../coot/src/c-interface-build.cc:5093
+#3  0x08218ae2 in on_accept_reject_refinement_accept_button_clicked (button=0x90a88e8, user_data=0x0)
+    at ../../coot/src/callbacks.c:2283
+#4  0xb6e009d9 in g_cclosure_marshal_VOID__VOID () from /usr/lib/libgobject-2.0.so.0
+#5  0xb6df362b in g_closure_invoke () from /usr/lib/libgobject-2.0.so.0
+#6  0xb6e04103 in ?? () from /usr/lib/libgobject-2.0.so.0
+
+
+----
+Wed Sep 26 14:52:14 BST 2007
+
+	read junk*.pdb in order (starting at junk.pdb) and it crashes on junk2.
+
+	note that model 0 is not a valid model.
+
+
+------
+Wed Sep 26 16:03:32 BST 2007
+
+    Crash:
+
+	coot --no-state-script --script delete-waters.scm --no-graphics
+
+* Fixed - don't display the dialog in delete_checked_waters_baddies().
+  
+    
+-------
+
+
+	A168 on 1A0F fails to properly find the right rotamer, even
+	though we select the rotamer by hand and do rigid body refine
+	it works fine. 
+
+	Bug?
+
+
+-------
+
+
+	Residue 13 of 1UBQ fails to Rigid body refine after chi1 was 
+        rotated by 180.
+	
+	Bug?
+
+        In fact, it looks like nothing with Rigid body refine.  Hmmm!
+
+
+------
+
+    What about interactions with pisa?
+
+
+------
+
+    NCS skip to next change should preserve the view.
+
+
+-----
+
+	what can be done for displaying and editing restraints?
+        (for a particular monomer).
+
+     export a restraints description to the scripting layer.
+
+
+
+------
+
+ Peter's talk:
+
+   need to set the ccp4 project from the start script.
+
+- Done.  Needs testing.  Also, the correct ccp4 project should
+  selected on creation of file-selection.  This may be a bit harder.
+
+-----
+
+    Frank:
+
+    add test peptide flips cf a database
+
+    This is quite important.
+
+-----
+Sat Sep 29 20:04:56 BST 2007
+
+CKChuang@LBL.GOV
+
+   Also, when I reverse direction of a chain, if I use Reverse
+   Direction followed by Ca Zone-> Mainchain, a few CAs will remain
+   without a chain.  If I delete the preexisting residues and try to
+   Rotate/Translate them myself they are automatically reversed back
+   to their original direction once I try to Regularize Zone.  Is
+   there a reason for this or a way to overwrite or go around this?
+
+-----
+Sat Sep 29 20:38:27 BST 2007
+
+	Steven Graham:
+
+    I don't want to be able to pick other atoms in CA mode.
 
 ----
 Thu Sep 27 09:27:26 BST 2007
@@ -1967,5 +2102,4 @@ Thu Sep 27 09:30:20 BST 2007
 
 	Make sure Coot properly refines OXT at some stage (by
 	correctly handling modifications).
-
 
