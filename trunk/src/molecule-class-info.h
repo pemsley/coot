@@ -384,7 +384,8 @@ class molecule_class_info_t {
    // have to take into account the potential built/non-built offsets:
    bool ncs_chains_match_p(const std::vector<std::pair<std::string, int> > &v1,
 			   const std::vector<std::pair<std::string, int> > &v2,
-			   float exact_homology_level) const;
+			   float exact_homology_level, 
+			   bool allow_offset_flag) const;
    void delete_ghost_selections();
 
    std::vector<coot::ghost_molecule_display_t> strict_ncs_info;
@@ -1786,7 +1787,8 @@ class molecule_class_info_t {
 					  std::vector<short int> first_chain_of_this_type,
 					  const std::vector<int> &chain_atom_selection_handles,
 					  short int do_rtops_flag,
-					  float homology_lev);
+					  float homology_lev, 
+					  bool allow_offset_flag);
    void add_ncs_ghosts_using_ncs_master(const std::string &master_chain_id,
 					const std::vector<std::string> &chain_ids,
 					const std::vector<std::vector<std::pair<std::string, int> > > &residue_types,

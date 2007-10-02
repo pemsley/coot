@@ -67,11 +67,12 @@ Tue Jul  3 14:27:37 BST 2007
       all screwy (presumably because the different members of the
       ensemble all have the same chain ID).
 
+* Done (except for bonds to hydrogens).
+
    o Correct CISPEP if needed cards on writing pdb.
      Hand off to Eugene for now.  Needs mmdb-1.0.10
 
 * Done - And tested.
-
 
    o Do the strand restraints work well under refinement?
 

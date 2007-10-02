@@ -43,6 +43,8 @@
 
    o Use Eugene's new LINK-reading and CISPEP-reading code
 
+   o Use libglade
+
    o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
 
    o Problem SHELX .ins file, enable bonds to symmetry atoms?
