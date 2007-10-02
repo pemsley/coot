@@ -166,7 +166,8 @@
 # 2.07 20070319 Remove == comparisons - Lothar Esser.
 # 2.08 20070424 --with-jpeg-lib-dir should be a lib dir!
 # 2.09 20070501 Fix the setting of coot_version when no pre-release set.
-script_version=2.09
+# 2.10 20071002 Post install slim the binaries.  Add helper functions.
+script_version=2.10
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
