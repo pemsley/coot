@@ -3566,3 +3566,13 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
 } 
 
 
+// Perhaps this should be a class function of a class derived from CMMDBManager?
+int
+coot::write_coords_pdb(CMMDBManager *mol, const std::string &file_name) {
+
+
+   coot::util::remove_wrong_cis_peptides(mol);
+   int r = mol->WritePDBASCII((char *)file_name.c_str());
+
+   return r;
+}

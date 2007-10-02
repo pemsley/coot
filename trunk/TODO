@@ -143,6 +143,8 @@
 
    o Clean up menu items, use Preferences.
 
+   o Internationalize (enable translations)
+
    o Switch to GTk2, guile1.8.  Dump Gtk1 interface, 
 
    o re-write build-it script
