@@ -204,6 +204,10 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
    std::vector<int> chain_atom_selection_handles;
    std::vector<short int> first_chain_of_this_type;
 
+   bool allow_offset_flag = 0;
+   if (is_from_shelx_ins_flag)
+      allow_offset_flag = 1;
+   
    // start from a blank slate:
    ncs_ghosts.resize(0); // potential memory leak.
    // OK, so after we have run through this function, there will be
@@ -263,7 +267,8 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
       }
 
       add_ncs_ghosts_no_explicit_master(chain_ids, residue_types, first_chain_of_this_type,
-					chain_atom_selection_handles, do_rtops_flag, homology_lev);
+					chain_atom_selection_handles, do_rtops_flag, homology_lev,
+					allow_offset_flag);
 
       if (ncs_ghosts.size() > 0) { 
 	 update_ghosts();
@@ -283,7 +288,8 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 							 std::vector<short int> first_chain_of_this_type, // modified
 							 const std::vector<int> &chain_atom_selection_handles,
 							 short int do_rtops_flag,
-							 float homology_level) {
+							 float homology_level,
+							 bool allow_offset_flag) {
    
    // when checking for ncs, we must make sure that the number of
    // residues is greater than 0 (because we get 0 for solvent
@@ -310,7 +316,8 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 	    // 			 << isec << std::endl;
 	    if (ncs_chains_match_p(residue_types[ifirst],
 				   residue_types[isec],
-				   homology_level)) {
+				   homology_level,
+				   allow_offset_flag)) {
 	       first_chain_of_this_type[isec] = 0; // trickiness
 	       coot::ghost_molecule_display_t ghost;
 	       // slow...
@@ -346,6 +353,7 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 
    // std::cout << "   %%%%%% add_ncs_ghosts_using_ncs_master " << std::endl;
    float homology_level = 0.7;
+   bool allow_offset_flag = 0;
    // First find imaster
    int imaster = -1; 
    for (unsigned int ichain=0; ichain<chain_ids.size(); ichain++) {
@@ -361,7 +369,8 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 	 if (chain_ids[ichain] != chain_ids[imaster]) {
 	    if (ncs_chains_match_p(residue_types[imaster],
 				   residue_types[ichain],
-				   homology_level)) {
+				   homology_level,
+				   allow_offset_flag)) {
 	       coot::ghost_molecule_display_t ghost;
 	       ghost.rtop = find_ncs_matrix(chain_atom_selection_handles[imaster],
 					    chain_atom_selection_handles[ichain]);
@@ -778,7 +787,8 @@ molecule_class_info_t::clear_ncs_ghost_matrices() {
 bool
 molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::string, int> > &v1,
 					  const std::vector<std::pair<std::string, int> > &v2,
-					  float exact_homology_level) const {
+					  float exact_homology_level,
+					  bool allow_offset_flag) const {
 
    bool imatch = 0;
    int min_v1 = 9999, max_v1 = -9999;
