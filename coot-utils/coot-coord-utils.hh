@@ -39,6 +39,9 @@
 
 namespace coot {
 
+   // Perhaps this should be a class function of a class derived from CMMDBManager?
+   int write_coords_pdb(CMMDBManager *mol, const std::string &file_name);
+
    std::string pad_atom_name(const std::string &atom_name_in,
 			     const std::string &element);
 

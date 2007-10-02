@@ -1966,9 +1966,19 @@ Tue Sep 18 16:12:29 BST 2007
 	   Indeed.  Why not.
 
 
+
+-----
+Fri Sep 21 18:17:52 BST 2007
+
+	
+	When there is a sytax error in ~/.coot, is it obvious what has
+	happened?
+
+
 -----
 
         RSR when map is ambiguous cancels rsr.  It should not.
+
 
 ----
 Wed Sep 26 13:12:24 BST 2007
@@ -2098,4 +2108,3 @@ Thu Sep 27 09:30:20 BST 2007
 
 	Make sure Coot properly refines OXT at some stage (by
 	correctly handling modifications).
-
