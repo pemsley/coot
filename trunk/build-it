@@ -280,44 +280,78 @@ fi
 
 # now the functions:
 
+function mkdir_maybe {
+
+  dir=$1
+  if [ ! -e "$dir" ] ; then
+     mkdir $dir
+  fi
+
+}
+
 # Give args: prefix-dir and (based on is-static-flag) either
 # "clear-static" or "clear-dynamic" #
 #
-function post_install_slim { 
+function post_install_slim {
 
     echo we are slimming directory $1
-    slim_dir="$1"
+    fat_dir="$1"
     cleaned_dir="$2"
     clear_type="$3"
-    
 
-    mkdir $cleaned_dir
-    mkdir $cleaned_dir/bin
-    mkdir $cleaned_dir/lib
+    mkdir_maybe $cleaned_dir
+    mkdir_maybe $cleaned_dir/bin
+    mkdir_maybe $cleaned_dir/lib
 
-    lib_sos=`cd $INSTALLED_PREFIX && ls -1 lib/lib*.so*`
-    lib_as=`cd $INSTALLED_PREFIX && ls -1 lib/lib*.a`
+    lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
+    lib_as=`cd $fat_dir && ls -1 lib/lib*.a`
 
     if [ "$clear_type" = "clear-dynamic" ] ; then
-       lib_archs="$lib_sos"
+       keep_lib_archs="$lib_as"
     fi
 
-    if [ "$clear_type" = "clear-dynamic" ] ; then
-       lib_archs="$lib_as"
+    if [ "$clear_type" = "clear-static" ] ; then
+       keep_lib_archs="$lib_sos"
     fi
 
     for file in etc html info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
-        $lib_archs ;
+        $keep_lib_archs ;
     do
        dn=`dirname $file`
-       if [ -e $INSTALLED_PREFIX/$file ] ; then
-          echo rsync -axr $INSTALLED_PREFIX/$file $cleaned_dir/$dn
-          rsync -axr $INSTALLED_PREFIX/$file $cleaned_dir/$dn
+       if [ -e $fat_dir/$file ] ; then
+          echo rsync -axr $fat_dir/$file $cleaned_dir/$dn
+          rsync -axr $fat_dir/$file $cleaned_dir/$dn
        else
-          echo $INSTALLED_PREFIX/$file does not exist
+          echo $fat_dir/$file does not exist
        fi
     done
+}
+
+
+function make_tar {
+
+    tar_dir=$1
+    tar_file_name=$2
+
+    cd $install_top_dir/..
+    if [ -e $tar_dir ] ; then
+       echo taring nightly... from $tar_dir to $tar_file_name
+       echo taring nightly... from $tar_dir to $tar_file_name >&2
+       tar czf $tar_file_name $tar_dir
+       status=$?
+       if [ "$status" != 0 ] ; then 
+	  echo ERROR:: tar czf $tar_file_name $tar_dir failed!
+	  echo ERROR:: tar failed > $tar_file_name.md5sum
+	  rm $tar_file_name
+       else 
+	  md5sum $tar_file_name > $tar_file_name.md5sum
+	  /bin/ls -l $tar_file_name >> $tar_file_name.md5sum
+	  echo done tar successfully.
+       fi
+    else
+       echo ERROR:: tar target directory $tar_dir does not exist.
+    fi
 }
 
 
@@ -2335,39 +2369,27 @@ if [ $shared_static_flag != "--disable-shared" ] ; then
 fi   
 
 if [ $clear_up_type != "" ] ; then 
-   post_install_slim($install_top_dir $install_top_dir-slimmed $clear_up_type)
+   slim_dir=coot-`dirname $install_top_dir`-${OS}-${systype}
+   post_install_slim($install_top_dir $slim_dir $clear_up_type)
 fi
 
 
     if test "$do_nightlies" = "1" ; then 
-      tar_dir=`basename $install_top_dir`
       python_tag=""
       if [ "$scripting" = "--with-python" ] ; then
          python_tag="-python"
       fi
       if [ -d $BINARY_TAR_DEST_DIR ] ; then 
-         tar_file_name=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}.tar.gz
-         cd $install_top_dir/..
-         if [ -e $tar_dir ] ; then
-            echo taring nightly... from $tar_dir to $tar_file_name
-            echo taring nightly... from $tar_dir to $tar_file_name >&2
-            tar czf $tar_file_name $tar_dir
-            status=$?
-            if [ "$status" != 0 ] ; then 
-	       echo ERROR:: tar czf $tar_file_name $tar_dir failed!
-	       echo ERROR:: tar failed > $tar_file_name.md5sum
-	       rm $tar_file_name
-	    else 
-	       md5sum $tar_file_name > $tar_file_name.md5sum
-	       /bin/ls -l $tar_file_name >> $tar_file_name.md5sum
-	       echo done tar successfully.
-	    fi
-         else
-            echo ERROR:: tar target directory $tar_dir does not exist.
-         fi
+
+         # original full fat:
+         make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
+         # slimmed:
+	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}.tar.gz
       else 
          echo directory for binaries does not exist. Skipping tar.
       fi
    else
       echo not doing tar files for nightlies: $do_nightlies
    fi
+
+
