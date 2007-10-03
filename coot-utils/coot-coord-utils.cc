@@ -88,8 +88,85 @@ coot::util::matrix_convert(mat44 mat) {
 				      mat[2][0], mat[2][1], mat[2][2]);
    clipper::Coord_orth cco(mat[0][3], mat[1][3], mat[2][3]);
    return clipper::RTop_orth(clipper_mat, cco);
+}
+
+// -------------------------------------------------------------
+//                       quaternions
+// -------------------------------------------------------------
+
+clipper::Mat33<double>
+coot::util::quaternion::matrix() const {
+
+   clipper::Mat33<double> mat;
+
+   mat(0,0) = 1.0 - 2.0 * (q1 * q1 + q2 * q2);
+   mat(0,1) = 2.0 * (q0 * q1 - q2 * q3);
+   mat(0,2) = 2.0 * (q2 * q0 + q1 * q3);
+   
+   mat(1,0) = 2.0 * (q0 * q1 + q2 * q3);
+   mat(1,1)= 1.0 - 2.0 * (q2 * q2 + q0 * q0);
+   mat(1,2) = 2.0 * (q1 * q2 - q0 * q3);
+   
+   mat(2,0) = 2.0 * (q2 * q0 - q1 * q3);
+   mat(2,1) = 2.0 * (q1 * q2 + q0 * q3);
+   mat(2,2) = 1.0 - 2.0 * (q1 * q1 + q0 * q0);
+   
+   return mat;
+}
+
+coot::util::quaternion::quaternion(const clipper::Mat33<double> &m) {
+
+   float pw = 1 + m(0,0) + m(1,1) + m(2,2);
+   float px = 1 + m(0,0) - m(1,1) - m(2,2);
+   float py = 1 - m(0,0) + m(1,1) - m(2,2); 
+   float pz = 1 - m(0,0) - m(1,1) + m(2,2);
+
+   float pr1 = sqrt( (pw>0) ? pw : 0) / 2.0;
+   float pr2 = sqrt( (px>0) ? px : 0) / 2.0;
+   float pr3 = sqrt( (py>0) ? py : 0) / 2.0;
+   float pr4 = sqrt( (pz>0) ? pz : 0) / 2.0;
+
+   std::cout << "print prs: " << pr1 << " " << pr2 << " " << pr3 << " " << pr4 << std::endl;
+   
+   q0 = convert_sign(pr2, m(2,1) - m(1,2));
+   q1 = convert_sign(pr3, m(0,2) - m(2,0));
+   q2 = convert_sign(pr4, m(1,0) - m(0,1));
+   q3 = pr1;
+   
+}
+
+// Return x with the sign of y.
+float 
+coot::util::quaternion::convert_sign(const float &x, const float &y) const {
+
+   if ((x > 0) && (y > 0)) return  x;
+   if ((x < 0) && (y > 0)) return -x; 
+   if ((x > 0) && (y < 0)) return -x; 
+   return  x; 
+}
+
+// static 
+void
+coot::util::quaternion::test_quaternion() {
+
+   // currently quaternions are tested in testcootutils
+
 } 
 
+std::ostream&  coot::util::operator<<(std::ostream& s, const coot::util::quaternion &q) {
+
+   s << "(" << q.q0 << ", " << q.q1 << ", " << q.q2 << ", " << q.q3 << ")";
+   return s;
+}
+
+std::ofstream& coot::util::operator<<(std::ofstream &s, const coot::util::quaternion &q) {
+
+   // s << "(" << q.q0 << ", " << q.q1 << ", " << q.q2 << ", " << q.q3 << ")";
+   return s;
+} 
+
+
+// -------------------------------------------------------------
 
 short int
 coot::is_main_chain_p(CAtom *at) { 

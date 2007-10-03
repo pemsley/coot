@@ -52,9 +52,6 @@ struct POINT3DXYZ {
 	friend POINT3DXYZ& operator+=(POINT3DXYZ& pt3dPoint1, const POINT3DXYZ& pt3dPoint2);
 	friend POINT3DXYZ& operator-=(POINT3DXYZ& pt3dPoint1, const POINT3DXYZ& pt3dPoint2);
 
-   // PE Adds:
-   float distance_to_line(const POINT3DXYZ& front_point, const POINT3DXYZ& back_point); 
-   
 };
 
 typedef POINT3DXYZ VECTOR3DXYZ;

@@ -1283,7 +1283,7 @@ molecule_class_info_t::name_for_display_manager() const {
 	 // e.g.:
 	 // thing/other.mtz -> other.mtz
 	 // but
-	 // Averged -> Averaged
+	 // Averaged -> Averaged
 
 	 std::vector<std::string> v = coot::util::split_string(name_, " ");
 	 for (unsigned int i=0; i<v.size(); i++) {

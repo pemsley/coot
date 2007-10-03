@@ -31,6 +31,8 @@
 			 (/ (sqrt v1) 2)))
 		     (list pw px py pz))))
 
+	(format #t "prs: ~s~%" pr)
+
 	(append (map (lambda (v signed)
 		       (convert-sign v signed))
 		     (cdr pr) (list (- m21 m12)

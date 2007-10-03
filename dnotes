@@ -4,14 +4,28 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   9 outstanding issues
+   13 outstanding issues
 
+
+   o glob overflow with latest-file.scm in top500H dir.
+
+   o Eliminate Stub from the Mutate and Autofit residue chooser - it
+     doesn't make sense there.
+
+   o Add user setable env distance limit
+
+   o Add darken-maps function
+
+   o The reading of a cif dictionary should set the file name for the
+     dialog like reading a pdb file does.
 
    o Post-install slim the binaries
 
    o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
 
    o Try again to add chiral volumes to the geometry target function
+
+   o Turn on pythoning in build-it.  No special days.
 
    o Carsten's Map Masking crash
 
@@ -21,6 +35,8 @@ Tue Jul  3 14:27:37 BST 2007
        #3  0x08295a48 in display_control_map_combo_box (
            display_control_window_glade=0x8cf4d60,
            name=0x86c1154 "Generic Masked Map", n=0x8767580) at gtk-manual.c:1160
+
+     valgrind it?
 
    o Steven Muchmore crash on mutating a residue
 
@@ -40,7 +56,8 @@ Tue Jul  3 14:27:37 BST 2007
   
       A job for valgrind. 
 
-         Hmmm - tried. Nothing obvious.
+         Hmmm - tried. Nothing obvious.  Mabye it was GTK2 problem?
+         Test on penelope.
 
       Copy molecule is valgrind-clean (both coords and map)
 
@@ -53,8 +70,25 @@ Tue Jul  3 14:27:37 BST 2007
    o Pirkko Heikinheimo pdb entry 1o7d, space group P6122.  symmetry
      pick is failing.
 
+   o JD symmetry failing
+
+   o S. Sheriff:
+
+     * I find that (set-colour-map-rotation-on-read-pdb-c-only-flag   1)
+       in my *.*coot file does not work (at least in v0.3.3), i.e. until
+       I click on the radio button in the bond colour pop-up menu, the
+       atoms are not atomic coloring.
 
 
+
+
+
+
+
+   o Dictionaries should have their name chopped in the state file
+     preamble - like pdbs and mtzs.
+
+* Fixed.
 
 
    o Steven Graham:
@@ -2109,3 +2143,22 @@ Thu Sep 27 09:30:20 BST 2007
 
 	Make sure Coot properly refines OXT at some stage (by
 	correctly handling modifications).
+
+-----
+Tue Oct  2 09:05:25 BST 2007
+
+	Put backrub into minimizer for auto-fit-rotamer - as an
+	alternative.
+
+----
+Wed Oct  3 12:23:09 BST 2007
+
+
+   NCS Ligands
+
+   Make the NCS ghost matrices available at the scripting layer
+
+	(let ((rtop ((get-ncs-matrix imol "A" "B"))))
+
+	   ;; now apply rtop to the ligand "C" in the "A" pocket to
+	   ;; make "D" in the "B" pocket

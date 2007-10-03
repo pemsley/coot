@@ -386,6 +386,42 @@ namespace coot {
 	 }
 	 
       };
+
+      class quaternion {
+      public:
+	 float q0, q1, q2, q3;
+	 quaternion(const float &q0in, const float &q1in,
+		    const float &q2in, const float &q3in) {
+	    q0 = q0in;
+	    q1 = q1in;
+	    q2 = q2in;
+	    q3 = q3in;
+	 } 
+	 quaternion(const clipper::Mat33<double> &mat_in);
+	 clipper::Mat33<double> matrix() const;
+	 float convert_sign(const float &x, const float &y) const;
+	 friend std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
+	 friend std::ofstream& operator<<(std::ofstream& s, const quaternion &q);
+
+	 static void test_quaternion(); // test yourself
+	 static bool close_float_p (const float &f1, const float &f2) { //testing func
+	    float d = fabsf(f1-f2);
+	    if (d < 0.001)
+	       return 1;
+	    else
+	       return 0;
+	 }
+	 bool is_similar_p(const quaternion &q) {
+	    bool r = 0;
+	    if (close_float_p(q.q0, q0) &&
+		close_float_p(q.q1, q1) && 
+		close_float_p(q.q2, q2) && 
+		close_float_p(q.q3, q3)) {
+	       r = 1;
+	    }
+	    return r;
+	 }
+      };
 	 
       std::string single_letter_to_3_letter_code(char code);
 
@@ -406,7 +442,7 @@ namespace coot {
       CChain *chain_only_of_type(CMMDBManager *mol, const std::string &residue_type);
 
       clipper::RTop_orth matrix_convert(mat44 mat);
-      
+
       // Return -1 on badness.
       // 
       // So that we can calculate the length of the graph x axis - there may

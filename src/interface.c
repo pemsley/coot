@@ -3471,7 +3471,7 @@ create_map_name_fileselection1 (void)
   GtkWidget *ok_button_map_name;
   GtkWidget *cancel_button_map_name;
 
-  map_name_fileselection1 = gtk_file_selection_new (_("Select CCP4 Map"));
+  map_name_fileselection1 = gtk_file_selection_new (_("Select Map..."));
   gtk_object_set_data (GTK_OBJECT (map_name_fileselection1), "map_name_fileselection1", map_name_fileselection1);
   gtk_container_set_border_width (GTK_CONTAINER (map_name_fileselection1), 10);
 

@@ -1443,3 +1443,96 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
    }
 }
 
+
+// Return a new orienation, to be used to set the view orienation/quaternion
+// 
+clipper::Mat33<double> 
+molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
+						     const std::string &current_chain,
+						     const std::string &next_ncs_chain) const {
+
+   clipper::Mat33<double> r = current_view_mat;
+
+   int n_ghosts = ncs_ghosts.size();
+   if (n_ghosts > 0) {
+
+      // If current_chain is not a target_chain_id
+      //    is there a ghost that has chain_id current_chain?
+      //    If so, note its target_chain_id.
+
+      //    if next_ncs_chain is not the target_chain_id then
+      //       Then look for a ghost that that chain_id next_ncs_chain
+      //       Note its target_chain_id.
+      //       if target_chain_ids match 
+      //          we can find the matrix
+      //    else  { next_ncs_chain *was* target_chain_id }
+      //          the ncs matrix is the ghost matrix
+      //
+      // else { were were sitting on a NCS master }
+      //
+      //     look at the next ghost
+      //     if the target chain for that is current_chain
+      //     then we want the inverse matrix of that next
+      //     ghost
+      
+      
+      if (! ncs_ghost_chain_is_a_target_chain_p(current_chain)) {
+
+	 //    Is there a ghost that has chain_id current_chain?
+	 //    If so, note its target_chain_id.
+	 std::string found_target_of_current_chain = "not-found";
+	 int i_ghost_chain_match = -1;
+	 for (unsigned int ighost=0; ighost<n_ghosts; ighost++) {
+	    if (ncs_ghosts[ighost].chain_id == current_chain) {
+	       found_target_of_current_chain = ncs_ghosts[ighost].target_chain_id;
+	       i_ghost_chain_match = ighost;
+	       break;
+	    }
+	 }
+	 
+	 if (i_ghost_chain_match != -1) {
+	    // should always happen
+
+	    // were we on the last ghost?
+	    if (i_ghost_chain_match == (ncs_ghosts.size()-1)) {
+	       // we need to go to the target_chain
+	       clipper::Mat33<double> ncs_mat = ncs_ghosts[0].rtop.rot();
+	       r = ncs_mat * r;
+	    } else {
+	       clipper::Mat33<double> ncs_mat_1 = ncs_ghosts[i_ghost_chain_match].rtop.rot();
+	       clipper::Mat33<double> ncs_mat_2 = ncs_ghosts[i_ghost_chain_match+1].rtop.rot();
+	       r = ncs_mat_2.inverse() * (ncs_mat_1 * r);
+	    }
+	 } else {
+	    std::cout << "ERROR:: An NCS reference chain finding error has occured"
+		      << std::endl;
+	 } 
+
+
+      } else {
+	 if (ncs_ghosts_have_rtops_flag) { 
+	    // we were sitting on an NCS master
+	    clipper::Mat33<double> ncs_mat = ncs_ghosts[0].rtop.rot();
+	    r = ncs_mat.inverse() * r;
+	 }
+      } 
+   } 
+   return r;
+}
+
+  
+bool
+molecule_class_info_t::ncs_ghost_chain_is_a_target_chain_p(const std::string &chain_id) const {
+
+   bool r = 0;
+   int n_ghosts = ncs_ghosts.size();
+   if (n_ghosts > 0) {
+      for (unsigned int ighost=0; ighost<n_ghosts; ighost++) {
+	 if (ncs_ghosts[ighost].target_chain_id == chain_id) { 
+	    r = 1;
+	    break;
+	 }
+      }
+   }
+   return r;
+} 
