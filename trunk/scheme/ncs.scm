@@ -56,7 +56,7 @@
 	  
 	  (if (not (string=? try-next-chain this-chain-id))
 	      
-	      (let ((found-atom-state (set-go-to-atom-chain-residue-atom-name
+	      (let ((found-atom-state (set-go-to-atom-chain-residue-atom-name-no-redraw
 				       try-next-chain 
 				       (go-to-atom-residue-number)
 				       (go-to-atom-atom-name))))
@@ -68,6 +68,11 @@
 		;; back to this-chain-id - in which case we have a "No NCS
 		;; Next Chain atom" status-bar message.
 		
+; 		(format #t "DEBUG:: gone to : ~s ~s s~%" 
+;			try-next-chain
+;			(go-to-atom-residue-number)
+;			(go-to-atom-atom-name))
+
 ; 		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
 		(if (= found-atom-state 0)
 		    ;; then we did *not* find the atom, e.g. next-chain was
@@ -75,7 +80,10 @@
 		    (loop (skip-to-chain try-next-chain chains))
 		    
 		    ;; otherwise all was hunky-dorey
-		    #t)))))))
+		    (begin
+		      ; set the orientation:
+		      (apply-ncs-to-view-orientation imol this-chain-id try-next-chain)
+		      #t))))))))
 
 	 
    

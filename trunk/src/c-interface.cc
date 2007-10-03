@@ -3326,6 +3326,35 @@ void set_view_quaternion(float i, float j, float k, float l) {
    } 
 }
 
+/*! \brief Given that we are in chain current_chain, apply the NCS
+  operator that maps current_chain on to next_ncs_chain, so that the
+  relative view is preserved.  For NCS skipping. */
+void apply_ncs_to_view_orientation(int imol, const char *current_chain, const char *next_ncs_chain) {
+
+   if (is_valid_model_molecule(imol)) {
+      
+      coot::util::quaternion q(graphics_info_t::quat[0],
+			       graphics_info_t::quat[1],
+			       graphics_info_t::quat[2],
+			       graphics_info_t::quat[3]);
+      clipper::Mat33<double> current_view_mat = q.matrix();
+      clipper::Mat33<double> new_ori = 
+	 graphics_info_t::molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
+									current_chain,
+									next_ncs_chain);
+
+//       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
+//       std::cout << "   NCS view out: \n" << new_ori.format() << std::endl;
+      float quat[4];
+      coot::util::quaternion vq(new_ori);
+      graphics_info_t::quat[0] = vq.q0;
+      graphics_info_t::quat[1] = vq.q1;
+      graphics_info_t::quat[2] = vq.q2;
+      graphics_info_t::quat[3] = vq.q3;
+      graphics_draw();
+   } 
+}
+
 
 
 // ------------------------------------------------------
@@ -3604,6 +3633,11 @@ int test_function(int i, int j) {
 //    return 0;
 
    if (1) {
+      coot::util::quaternion::test_quaternion();
+   }
+   
+
+   if (0) {
       graphics_info_t g;
       g.Geom_p()->hydrogens_connect_file("THH", "thh_connect.txt");
    }
@@ -4376,7 +4410,24 @@ char *go_to_atom_alt_conf() {
 int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const char *t3) {
 
    graphics_info_t g; 
+   int success = set_go_to_atom_chain_residue_atom_name_no_redraw(t1, iresno, t3);
+   if (success) { 
+      CAtom *at = 0; // passed but not used, it seems.
+      GtkWidget *window = graphics_info_t::go_to_atom_window;
+      if (window)
+	 g.update_widget_go_to_atom_values(window, at);
+   }
+   graphics_draw();
+   return success;
+}
 
+
+// Note that t3 is an atom name with (possibly) an altLoc tag (after the comma).
+// 
+int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3) {
+
+
+   graphics_info_t g; 
    // so we need to split t3 if it has a comma
    // 
    std::string t3s(t3);
@@ -4395,15 +4446,8 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
 					       altloc.c_str());
 
    }
-
    int success = g.try_centre_from_new_go_to_atom(); 
-   if (success) { 
-      update_things_on_move_and_redraw();
-      CAtom *at = 0; // passed but not used, it seems.
-      GtkWidget *window = graphics_info_t::go_to_atom_window;
-      if (window)
-	 g.update_widget_go_to_atom_values(window, at);
-   }
+   g.update_things_on_move();
    return success; 
 }
 

@@ -2609,14 +2609,20 @@ graphics_info_t::pointer_atom_molecule() const {
 
 void
 graphics_info_t::update_things_on_move_and_redraw() {
+
+   update_things_on_move();
+   graphics_draw();
+}
+
+
+void
+graphics_info_t::update_things_on_move() {
    
    for (int ii=0; ii<n_molecules; ii++) { 
       molecules[ii].update_map();
       molecules[ii].update_clipper_skeleton(); 
       molecules[ii].update_symmetry();
    }
-   graphics_draw();
-
 } 
 
 void

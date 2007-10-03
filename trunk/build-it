@@ -2360,7 +2360,7 @@ else
 fi
 
 # clear up the library dependencies
-#
+
 clear_up_type=
 if [ $shared_static_flag != "--disable-static" ] ; then
     clear_up_type=clear-static

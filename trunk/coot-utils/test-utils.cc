@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include "coot-utils.hh"
+#include "coot-coord-utils.hh"
 
 void split_test(const std::string &r) {
 
@@ -30,6 +31,35 @@ void split_test(const std::string &r) {
    }
    std::cout << "\n";
 }
+
+bool
+test_quaternion_matrix(clipper::Mat33<double> m){
+
+   coot::util::quaternion q1(m);
+   clipper::Mat33<double> m2 = q1.matrix();
+   coot::util::quaternion q2(m2);
+   bool match = q1.is_similar_p(q2);
+
+   std::cout << "   " << q1 << "\n" << "   " << q2 << "   ";
+   std::cout << "match: " << match << std::endl;
+   return match;
+}
+
+bool test_quaternion_quaternion(coot::util::quaternion q) {
+
+   clipper::Mat33<double> m2 = q.matrix();
+   coot::util::quaternion q2(m2);
+   bool match = q.is_similar_p(q2);
+
+
+   std::cout << std::endl;
+   std::cout << m2.format() << std::endl;
+   std::cout << "   " << q << "\n" << "   " << q2 << "   ";
+   std::cout << "match: " << match << std::endl;
+   return match;
+
+} 
+
 
 int main(int argv, char **argc) {
 
@@ -87,7 +117,29 @@ int main(int argv, char **argc) {
    split_test(r);
    r = " Columns     of   letters  ";
    split_test(r);
+
+   clipper::Mat33<double> m1 (1,0,0, 0,1,0, 0,0,1);
+   test_quaternion_matrix(m1);
+   clipper::Mat33<double> m2 (0,1,0, 1,0,0, 0,0,-1);
+   test_quaternion_matrix(m2);
+   // this one from quat-convert.scm:
+   clipper::Mat33<double> m3( 0.0347695872187614, 0.773433089256287,   0.632923781871796,
+			      0.774806916713715,  0.379149734973907,  -0.505885183811188,
+			     -0.631241261959076,  0.507983148097992,  -0.586078405380249);
+        // -> (-0.557 -0.694704 -0.0007537 0.454928)
+   test_quaternion_matrix(m3);
+
+   coot::util::quaternion q1(1,0,0,0);
+   coot::util::quaternion q2(0,1,0,0);
+   coot::util::quaternion q3(0,0,1,0);
+   coot::util::quaternion q4(0,0,0,1);
+   coot::util::quaternion q5(-0.557, -0.694704, -0.0007537, 0.454928);
+   test_quaternion_quaternion(q1);
+   test_quaternion_quaternion(q2);
+   test_quaternion_quaternion(q3);
+   test_quaternion_quaternion(q4);
+   test_quaternion_quaternion(q5);
    
-   return 0; 
+   return 0;
 }
 

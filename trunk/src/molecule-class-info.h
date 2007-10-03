@@ -379,6 +379,7 @@ class molecule_class_info_t {
    void update_ghosts();
    short int show_ghosts_flag;
    float ghost_bond_width;
+   bool ncs_ghost_chain_is_a_target_chain_p(const std::string &chain_id) const;
    clipper::RTop_orth find_ncs_matrix(int SelHandle1, int SelHandle2) const;
    short int ncs_ghosts_have_rtops_flag;
    // have to take into account the potential built/non-built offsets:
@@ -1696,6 +1697,12 @@ class molecule_class_info_t {
    void add_strict_ncs_matrix(const std::string &chain_id,
 			      const std::string &target_chain_id,
 			      const coot::coot_mat44 &m);
+
+   clipper::Mat33<double> 
+     apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
+				   const std::string &current_chain,
+				   const std::string &next_ncs_chain) const;
+   
 
    short int show_strict_ncs_flag;
 

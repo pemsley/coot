@@ -90,7 +90,7 @@ namespace coot {
       std::string intelligent_debackslash(const std::string &s);
 
       // remove the first bit from long
-      std::string remove_string(const std::string &long_string, const std::string &bit); 
+      std::string remove_string(const std::string &long_string, const std::string &bit);
 
    }
    

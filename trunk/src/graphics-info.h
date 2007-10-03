@@ -1039,6 +1039,7 @@ public:
    void setRotationCentre(const symm_atom_info_t &symm_atom_info);
    void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
 
+   void update_things_on_move();
    void update_things_on_move_and_redraw();
 
    float X(void) { return rotation_centre_x; };
