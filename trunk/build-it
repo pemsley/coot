@@ -170,7 +170,8 @@
 # 2.11 20071005 Add some debugging to make_tar.  It doesn't seem to work 
 #               currently.
 # 2.12 20071005 Fix post_install_slim call.
-script_version=2.12
+# 2.13 20071005 Fix slim_dir
+script_version=2.13
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2377,7 +2378,7 @@ if [ $shared_static_flag != "--disable-shared" ] ; then
 fi   
 
 if [ $clear_up_type != "" ] ; then 
-   slim_dir=coot-`dirname $install_top_dir`-${OS}-${systype}
+   slim_dir=`dirname $install_top_dir`/coot-${OS}-${systype}
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
