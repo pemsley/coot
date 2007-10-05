@@ -167,7 +167,9 @@
 # 2.08 20070424 --with-jpeg-lib-dir should be a lib dir!
 # 2.09 20070501 Fix the setting of coot_version when no pre-release set.
 # 2.10 20071002 Post install slim the binaries.  Add helper functions.
-script_version=2.10
+# 2.11 20071005 Add some debugging to make_tar.  It doesn't seem to work 
+#               currently.
+script_version=2.11
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -332,6 +334,9 @@ function post_install_slim {
 
 function make_tar {
 
+    echo in make_tar args: $1 $2
+    echo in make_tar: in dir: $PWD
+
     tar_dir=$1
     tar_file_name=$2
 
@@ -352,6 +357,7 @@ function make_tar {
        fi
     else
        echo ERROR:: tar target directory $tar_dir does not exist.
+       echo ERROR:: tar target directory $tar_dir does not exist. >&2
     fi
 }
 
@@ -2394,3 +2400,4 @@ fi
    fi
 
 
+echo finished.
