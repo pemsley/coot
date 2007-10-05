@@ -169,7 +169,8 @@
 # 2.10 20071002 Post install slim the binaries.  Add helper functions.
 # 2.11 20071005 Add some debugging to make_tar.  It doesn't seem to work 
 #               currently.
-script_version=2.11
+# 2.12 20071005 Fix post_install_slim call.
+script_version=2.12
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2377,7 +2378,7 @@ fi
 
 if [ $clear_up_type != "" ] ; then 
    slim_dir=coot-`dirname $install_top_dir`-${OS}-${systype}
-   post_install_slim($install_top_dir $slim_dir $clear_up_type)
+   post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
 
