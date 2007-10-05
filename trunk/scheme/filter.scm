@@ -21,9 +21,11 @@
 ;; 
 (define (filter fn ls)
 
-  (cond
-   ((null? ls) '())
-   ((fn (car ls)) 
-    (cons (car ls) (filter fn (cdr ls))))
-   (else 
-    (filter fn (cdr ls)))))
+  (let f ((ls ls)
+	  (acc '()))
+    (cond
+     ((null? ls) (reverse acc))
+     ((fn (car ls))  (f (cdr ls) (cons (car ls) acc)))
+     (else 
+      (f (cdr ls) acc)))))
+
