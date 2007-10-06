@@ -1927,7 +1927,7 @@ public:
    static int mutate_residue_imol;
    void do_mutation(const std::string &residue_type, short int do_stub_flag);
    static atom_selection_container_t standard_residues_asc;
-   GtkWidget *wrapped_create_residue_type_chooser_window() const; /* set the stub checkbox */
+   GtkWidget *wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const; /* set the stub checkbox */
 
    // mutate then auto fit:
    static short int in_mutate_auto_fit_define; 

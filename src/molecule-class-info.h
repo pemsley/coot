@@ -716,6 +716,8 @@ class molecule_class_info_t {
       drawit_for_map = state;
    }
 
+   void do_solid_surface_for_density(short int on_off_flag);
+
    int atom_selection_is_pickable() const { 
       return pickable_atom_selection && (atom_sel.n_selected_atoms > 0);
    } 
