@@ -778,10 +778,10 @@ molecule_class_info_t::clear_ncs_ghost_matrices() {
 }
 
 
-// e.g.  1 V    vs  0 M 
-//       2 T        1 V
-//       3 G        2 T
-//                  3 G
+// e.g.  V 1   vs  M 0 
+//       T 2       V 1
+//       G 3       T 2 
+//                 G 3
 // In such a case, we want to find a match.
 //
 bool
@@ -790,6 +790,21 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 					  float exact_homology_level,
 					  bool allow_offset_flag) const {
 
+   // First set max_v1 and min_v1 to the the max and min res numbers
+   // from the incoming vector.
+   // 
+   // Similarly for max_v2 and min_v2.
+   //
+   // a_offset is the min(min_v1, min_v2)
+   // max_index in max(max_v1, max_v2:
+   //
+   // Now create 2 string vectors, a and b between max_index and
+   // a_offset, either "" or "-".
+   //
+   // Into a, put the v1 sequence, applying offset.
+   //
+   //  
+      
    bool imatch = 0;
    int min_v1 = 9999, max_v1 = -9999;
    int min_v2 = 9999, max_v2 = -9999;

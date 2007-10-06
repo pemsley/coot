@@ -764,6 +764,8 @@ void set_contour_by_sigma_step_by_mol(float f, short int state, int imol);
    Return negative number on error, otherwise resolution in A (eg. 2.0) */
 float data_resolution(int imol);
 
+void solid_surface(int imap, short int on_off_flag);
+
 /*! \brief export (write to disk) the map of molecule number imol to
   filename */
 void export_map(int imol, const char *filename);

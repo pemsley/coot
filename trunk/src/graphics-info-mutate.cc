@@ -184,36 +184,36 @@ void
 graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_flag) {
 
    if (residue_type_chooser_auto_fit_flag) {
-      std::cout << "DEBUG:: stub path" << std::endl;
       molecules[mutate_auto_fit_residue_imol].mutate(mutate_auto_fit_residue_atom_index, 
 						     residue_type, do_stub_flag);
 
-      if (! do_stub_flag) { 
-
-	 int imol_map = Imol_Refinement_Map();
-	 if (imol_map >= 0) {
+      // 20071005 No longer check for stub state.  It doesn't make
+      // sense to autofit a stub.  So ignore the stub state and just
+      // autofit as normal.
+      
+      int imol_map = Imol_Refinement_Map();
+      if (imol_map >= 0) {
 	    
-	    float f = molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mutate_auto_fit_residue_atom_index, imol_map, rotamer_fit_clash_flag, rotamer_lowest_probability);
+	 float f = molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mutate_auto_fit_residue_atom_index, imol_map, rotamer_fit_clash_flag, rotamer_lowest_probability);
 
-	    if (mutate_auto_fit_do_post_refine_flag) {
-	       // Run refine zone with autoaccept, autorange on
-	       // the "clicked" atom:
-	       CAtom *at = molecules[mutate_auto_fit_residue_imol].atom_sel.atom_selection[mutate_auto_fit_residue_atom_index];
-	       std::string chain_id = at->GetChainID();
-	       short int auto_range = 1;
-	       refine(mutate_auto_fit_residue_imol, auto_range,
-		      mutate_auto_fit_residue_atom_index,
-		      mutate_auto_fit_residue_atom_index);
-	    }
-
-	    // This is the wrong function, isn't it?
-	    update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
-	    
-	 } else { 
-	    
-	    // imol map chooser
-	    show_select_map_dialog();
+	 if (mutate_auto_fit_do_post_refine_flag) {
+	    // Run refine zone with autoaccept, autorange on
+	    // the "clicked" atom:
+	    CAtom *at = molecules[mutate_auto_fit_residue_imol].atom_sel.atom_selection[mutate_auto_fit_residue_atom_index];
+	    std::string chain_id = at->GetChainID();
+	    short int auto_range = 1;
+	    refine(mutate_auto_fit_residue_imol, auto_range,
+		   mutate_auto_fit_residue_atom_index,
+		   mutate_auto_fit_residue_atom_index);
 	 }
+
+	 // This is the wrong function, isn't it?
+	 update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
+	    
+      } else { 
+	    
+	 // imol map chooser
+	 show_select_map_dialog();
       }
    } else {
       // simple mutation

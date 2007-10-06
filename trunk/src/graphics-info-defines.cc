@@ -1024,7 +1024,7 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
 	    GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
 	    gtk_widget_show(w);
 	 } else { 
-	    GtkWidget *widget = wrapped_create_residue_type_chooser_window();
+	    GtkWidget *widget = wrapped_create_residue_type_chooser_window(1);
 	    gtk_widget_show(widget);
 	 }
 	 g.in_mutate_define = 0;
@@ -1045,7 +1045,7 @@ graphics_info_t::check_if_in_mutate_auto_fit_define(GdkEventButton *event) {
       if (naii.success == GL_TRUE) {
 	 g.mutate_auto_fit_residue_imol = naii.imol;
 	 g.mutate_auto_fit_residue_atom_index = naii.atom_index;
-	 GtkWidget *widget = wrapped_create_residue_type_chooser_window();
+	 GtkWidget *widget = wrapped_create_residue_type_chooser_window(0);
 	 gtk_widget_show(widget);
 	 g.in_mutate_auto_fit_define = 0;
 	 g.residue_type_chooser_auto_fit_flag = 1;
@@ -1057,13 +1057,12 @@ graphics_info_t::check_if_in_mutate_auto_fit_define(GdkEventButton *event) {
 }
 
 GtkWidget *
-graphics_info_t::wrapped_create_residue_type_chooser_window() const {
+graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const {
 
    GtkWidget *w = create_residue_type_chooser_window();
    GtkWidget *b = lookup_widget(w, "residue_type_chooser_stub_checkbutton");
 
-   if (residue_type_chooser_stub_flag)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(b), TRUE);
+   gtk_widget_hide(b);
 
    return w;
 } 

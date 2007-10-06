@@ -1486,14 +1486,14 @@ void set_residue_type_chooser_stub_state(short int istat) {
 
 
 void
-do_mutation(const char *type, short int stub_flag) {
+do_mutation(const char *type, short int stub_button_state_flag) {
    graphics_info_t g;
    // use g.mutate_residue_atom_index and g.mutate_residue_imol
-   g.do_mutation(type, stub_flag);
+   g.do_mutation(type, stub_button_state_flag);
    std::string cmd = "do-mutatation";
    std::vector<coot::command_arg_t> args;
    args.push_back(coot::util::single_quote(type));
-   args.push_back(stub_flag);
+   args.push_back(stub_button_state_flag);
    add_to_history_typed(cmd, args);
 }
 
