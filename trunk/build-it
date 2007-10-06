@@ -171,7 +171,9 @@
 #               currently.
 # 2.12 20071005 Fix post_install_slim call.
 # 2.13 20071005 Fix slim_dir
-script_version=2.13
+# 2.14 20071006 Adjust python scripting settings, so that it should try
+#               to compile with python most of the time now.
+script_version=2.14
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2263,17 +2265,23 @@ if [ -n "$ENABLE_PYTHON_COOT" ] ; then
     # it was set to something
     if [ "$ENABLE_PYTHON_COOT" != "0" ] ; then 
        if [ "$ENABLE_PYTHON_COOT" != "no" ] ; then 
-          scripting='--with-python'
+          python_scripting='--with-python'
        fi
     fi
 else 
-   time_date=`date`
-   if [ ${time_date:0:3} = "Sun" ] ; then
-      scripting='--with-python'
-   fi
-   if [ ${time_date:0:3} = "Sun" ] ; then
-      scripting='--with-python'
-  fi
+    # if the env var was not set, then turn on python scripting
+    python_scripting='--with-python'
+fi
+
+# no longer makes sense now that python is in by default
+# else 
+#    time_date=`date`
+#    if [ ${time_date:0:3} = "Sun" ] ; then
+#       scripting='--with-python'
+#    fi
+#    if [ ${time_date:0:3} = "Sun" ] ; then
+#       scripting='--with-python'
+#   fi
 fi
 
 # question: did we build gtkglarea?
@@ -2281,8 +2289,8 @@ fi
 echo BUILDING coot: version $coot_version
 echo BUILDING coot: version $coot_version >&2
 (
-if [ "$scripting" = "--with-python" ] ; then
-    echo WARNING:: this is a python day
+if [ "$python_scripting" = "--with-python" ] ; then
+    echo INFO:: with python
     cp src/blank.cc src/coot_wrap_guile.cc
 fi
 echo building in: $PWD
@@ -2294,6 +2302,7 @@ echo ./configure $coot_prefix \
        $gtkglarea_prefix  \
        $glut_prefix       \
       $scripting          \
+      $python_scripting   \
       $shared_static_flag \
       $coot_extra_args    \
       CXXFLAGS="-g -O"
@@ -2306,6 +2315,7 @@ echo ./configure $coot_prefix \
        $gtkglarea_prefix  \
        $glut_prefix       \
       $scripting          \
+      $python_scripting   \
       $shared_static_flag \
       $coot_extra_args    \
       CXXFLAGS="-g -O"
@@ -2323,7 +2333,7 @@ else
    cp ChangeLog $BINARY_TAR_DEST_DIR
    cp README    $BINARY_TAR_DEST_DIR/coot-README
    cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
-   if [ "$scripting" = '--with-python' ] ; then
+   if [ "$python_scripting" = '--with-python' ] ; then
       echo copying src/coot.py $install_top_dir/share/coot/python
       cp src/coot.py $install_top_dir/share/coot/python
    fi
