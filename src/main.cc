@@ -40,6 +40,13 @@
 // #endif // DATADIR
 
 #include <gtk/gtk.h>
+
+// #define USE_LIBGLADE no
+
+#ifdef USE_LIBGLADE
+#include <glade/glade.h>
+#endif // USE_LIBGLADE
+
 #include <GL/glut.h> // for glutInit()
 
 
@@ -207,7 +214,16 @@ main (int argc, char *argv[]) {
   // 
   graphics_info.init();
 
-  if (graphics_info_t::use_graphics_interface_flag) { 
+  if (graphics_info_t::use_graphics_interface_flag) {
+
+#ifdef USE_LIBGLADE
+
+    /* load the interface */
+    GladeXML *xml = glade_xml_new("../../coot/coot-gtk2-try2.glade", NULL, NULL);
+    /* connect the signals in the interface */
+    glade_xml_signal_autoconnect(xml);
+
+#endif // USE_LIBGLADE     
      window1 = create_window1 ();
 
      // Trying to put a pixmap into the menu bar...

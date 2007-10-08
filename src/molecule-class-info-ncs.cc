@@ -2,6 +2,8 @@
  * 
  * Copyright 2004, 2005, 2006, 2007 by The University of York
  * Author: Paul Emsley
+ * Copyright 2007 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +17,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
  */
 
 #ifdef _MSC_VER
@@ -129,11 +132,13 @@ coot::ghost_molecule_display_t::update_bonds(CMMDBManager *mol) {
 		    ANY_RES, "*",
 		    "*", "*", "*", "*");
    
-   asc.mol->GetSelIndex(SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
+   asc.mol->GetSelIndex(SelectionHandle, asc.atom_selection,
+			asc.n_selected_atoms);
    asc.SelectionHandle = SelectionHandle;
 
-//    std::cout << "update_bonds ghost selection selected " << asc.n_selected_atoms
-// 	     << " atoms from chain " << chain_id << "\n";
+   //    std::cout << "update_bonds ghost selection selected "
+   // << asc.n_selected_atoms
+   // << " atoms from chain " << chain_id << "\n";
 
    float min_dist = 0.1;
    float max_dist = 1.85;
@@ -790,80 +795,119 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 					  float exact_homology_level,
 					  bool allow_offset_flag) const {
 
-   // First set max_v1 and min_v1 to the the max and min res numbers
-   // from the incoming vector.
-   // 
-   // Similarly for max_v2 and min_v2.
-   //
-   // a_offset is the min(min_v1, min_v2)
-   // max_index in max(max_v1, max_v2:
-   //
-   // Now create 2 string vectors, a and b between max_index and
-   // a_offset, either "" or "-".
-   //
-   // Into a, put the v1 sequence, applying offset.
-   //
-   //  
-      
    bool imatch = 0;
-   int min_v1 = 9999, max_v1 = -9999;
-   int min_v2 = 9999, max_v2 = -9999;
-   if (v1.size() > 0 && v2.size() > 0) {
-      for (unsigned int i=0; i<v1.size(); i++) { 
-	 if (v1[i].second > max_v1)
-	    max_v1 = v1[i].second;
-	 if (v1[i].second < min_v1)
-	    min_v1 = v1[i].second;
-      }
-      for (unsigned int i=0; i<v2.size(); i++) { 
-	 if (v2[i].second > max_v2)
-	    max_v2 = v2[i].second;
-	 if (v2[i].second < min_v2)
-	    min_v2 = v2[i].second;
-      }
+   if (allow_offset_flag == 1) {
 
-      int a_offset = min_v1;
-      int max_indx = max_v1;
-      if (min_v2 < min_v1)
-	 a_offset = min_v2;
-      if (max_v2 > max_v1)
-	 max_indx = max_v2;
+      return ncs_chains_match_with_offset_p(v1, v2, exact_homology_level);
+
+   } else { 
       
-      std::vector<std::string> a(max_indx-a_offset + 1, "");
-      std::vector<std::string> b(max_indx-a_offset + 1, "-");
-      for (unsigned int i=0; i<v1.size(); i++) {
-	 a[v1[i].second-a_offset] = v1[i].first;
-      }
-      for (unsigned int i=0; i<v2.size(); i++){ 
-	 b[v2[i].second-a_offset] = v2[i].first;
-// 	 std::cout << " adding residue type :" << v2[i].first
-// 		   << ": to b with index " << v2[i].second-a_offset
-// 		   << " parts " << v2[i].second << " and " << a_offset
-// 		   << " index " << i << " of " << v2.size()
-// 		   << std::endl;
-      }
-
-      int n_match = 0;
-      for (unsigned int i=0; i<a.size(); i++) {
-	 if (a[i] == b[i]) {
-	    n_match++;
+      // First set max_v1 and min_v1 to the the max and min res numbers
+      // from the incoming vector.
+      // 
+      // Similarly for max_v2 and min_v2.
+      //
+      // a_offset is the min(min_v1, min_v2)
+      // max_index in max(max_v1, max_v2:
+      //
+      // Now create 2 string vectors, a and b between max_index and
+      // a_offset, either "" or "-".
+      //
+      // Into a, put the v1 sequence, applying offset.
+      //
+      //
+      int min_v1 = 9999, max_v1 = -9999;
+      int min_v2 = 9999, max_v2 = -9999;
+      if (v1.size() > 0 && v2.size() > 0) {
+	 for (unsigned int i=0; i<v1.size(); i++) { 
+	    if (v1[i].second > max_v1)
+	       max_v1 = v1[i].second;
+	    if (v1[i].second < min_v1)
+	       min_v1 = v1[i].second;
 	 }
-      }
-      int n_count = a.size();
-      std::cout << "INFO:: NCS chain comparison " << n_match << "/" << v1.size() << std::endl;
-      if (n_count > 0) {
-	 // float hit_rate = float(n_match)/float(n_count);
-	 // case where protein is 1 to 123 but NAP at 500 fails.  So not n_count but v1.size():
-	 if (v1.size() > 0) { 
-	    float hit_rate = float(n_match)/float(v1.size());
-	    if (hit_rate > exact_homology_level) {
-	       imatch = 1;
+	 for (unsigned int i=0; i<v2.size(); i++) { 
+	    if (v2[i].second > max_v2)
+	       max_v2 = v2[i].second;
+	    if (v2[i].second < min_v2)
+	       min_v2 = v2[i].second;
+	 }
+
+	 int a_offset = min_v1;
+	 int max_indx = max_v1;
+	 if (min_v2 < min_v1)
+	    a_offset = min_v2;
+	 if (max_v2 > max_v1)
+	    max_indx = max_v2;
+      
+	 std::vector<std::string> a(max_indx-a_offset + 1, "");
+	 std::vector<std::string> b(max_indx-a_offset + 1, "-");
+	 for (unsigned int i=0; i<v1.size(); i++) {
+	    a[v1[i].second-a_offset] = v1[i].first;
+	 }
+	 for (unsigned int i=0; i<v2.size(); i++){ 
+	    b[v2[i].second-a_offset] = v2[i].first;
+	    // 	 std::cout << " adding residue type :" << v2[i].first
+	    // 		   << ": to b with index " << v2[i].second-a_offset
+	    // 		   << " parts " << v2[i].second << " and " << a_offset
+	    // 		   << " index " << i << " of " << v2.size()
+	    // 		   << std::endl;
+	 }
+
+	 int n_match = 0;
+	 for (unsigned int i=0; i<a.size(); i++) {
+	    if (a[i] == b[i]) {
+	       n_match++;
+	    }
+	 }
+	 int n_count = a.size();
+	 std::cout << "INFO:: NCS chain comparison " << n_match << "/" << v1.size() << std::endl;
+	 if (n_count > 0) {
+	    // float hit_rate = float(n_match)/float(n_count);
+	    // case where protein is 1 to 123 but NAP at 500 fails.  So not n_count but v1.size():
+	    if (v1.size() > 0) { 
+	       float hit_rate = float(n_match)/float(v1.size());
+	       if (hit_rate > exact_homology_level) {
+		  imatch = 1;
+	       }
 	    }
 	 }
       }
    }
    return imatch;
 }
+
+// Only allow matching if the sequences of v1 and v2 match.  Ignore
+// the residue numbering.  If the chains are not alligned (start at
+// the same place and have the same number of residues) then we fail.
+// Too bad.  Typically, this comes from shelxl molecules, so it is
+// more likely the user wil have consitent chains - if not they can
+// always fall back to the manual NCS method.
+// 
+bool
+molecule_class_info_t::ncs_chains_match_with_offset_p(const std::vector<std::pair<std::string, int> > &v1,
+						      const std::vector<std::pair<std::string, int> > &v2,
+						      float exact_homology_level) const {
+
+
+   bool match_flag = 0;
+   int n_match = 0;
+   if (v1.size() > 0) { 
+      unsigned int lim = v1.size();
+      if (v2.size() < lim)
+	 lim = v2.size();
+      
+      for (unsigned int i=0; i<lim; i++) {
+	 if (v1[i].first == v2[i].first) {
+	    n_match++;
+	 }
+      }
+      float ratio = float(n_match)/float(v1.size());
+      if (ratio > exact_homology_level)
+	 match_flag = 1;
+   }
+   return match_flag;
+}
+
 
 
 // overwrite the to_chain with a copy of the from_chain, internal private function.
@@ -1511,7 +1555,9 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	    // were we on the last ghost?
 	    if (i_ghost_chain_match == (ncs_ghosts.size()-1)) {
 	       // we need to go to the target_chain
-	       clipper::Mat33<double> ncs_mat = ncs_ghosts[0].rtop.rot();
+	       clipper::Mat33<double> ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop.rot();
+	       std::cout << "from " << current_chain << " to target chain "
+			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
 	       r = ncs_mat * r;
 	    } else {
 	       clipper::Mat33<double> ncs_mat_1 = ncs_ghosts[i_ghost_chain_match].rtop.rot();
@@ -1527,7 +1573,16 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
       } else {
 	 if (ncs_ghosts_have_rtops_flag) { 
 	    // we were sitting on an NCS master
+
+	    // find a ghost that has this current_chain_id as a target_chain_id
 	    clipper::Mat33<double> ncs_mat = ncs_ghosts[0].rtop.rot();
+	    // try to override that by the right operator:
+	    for (unsigned int ighost=0; ighost<n_ghosts; ighost++) {
+	       if (ncs_ghosts[ighost].target_chain_id == current_chain) {
+		  ncs_mat = ncs_ghosts[ighost].rtop.rot();
+		  break;
+	       }
+	    }
 	    r = ncs_mat.inverse() * r;
 	 }
       } 

@@ -380,7 +380,16 @@ void fill_about_window(GtkWidget *widget) {
    GtkWidget *text_widget;
    text_widget = lookup_widget(GTK_WIDGET(widget), "about_window_text");
 
-   std::string body_text("\n\n   Brought to you by:\n\n   Paul Emsley & Kevin Cowtan\n\n   Using the dictionaries of:\n    Alexei Vagin\n    Roland Dunbrack & co-workers\n\n  Using the libraries of:\n   Eugene Krissinel\n   Kevin Cowtan\n   Stuart McNicholas\n   Ralf W. Grosse-Kunstleve\n   Janne Lof\n   Raghavendra Chandrashekara\n   Paul Bourke & Cory Gene Bloyd\n   Matteo Frigo & Steven G. Johnson\n   & many others.\n\n  Windows 2000 Binaries\n   Bernhard Lohkamp\n\n  Macintosh Binaries\n   William Scott\n\n"); 
+   std::string body_text("\n\n   Brought to you by:\n\n   Paul Emsley & Kevin Cowtan\n\n   Using the dictionaries of:\n    Alexei Vagin\n");
+
+#ifdef USE_DUNBRACK_ROTAMERS
+   body_text += "    Roland Dunbrack & co-workers\n\n";
+#else   
+   body_text += "    Jane and David Richardson\n";
+   body_text += "    & co-workers\n\n";
+#endif   
+
+   body_text += "  Using the libraries of:\n   Eugene Krissinel\n   Kevin Cowtan\n   Stuart McNicholas\n   Ralf W. Grosse-Kunstleve\n   Janne Lof\n   Raghavendra Chandrashekara\n   Paul Bourke & Cory Gene Bloyd\n   Matteo Frigo & Steven G. Johnson\n   & many others.\n\n  Windows 2000 Binaries\n   Bernhard Lohkamp\n\n  Macintosh Binaries\n   William Scott\n\n";
 
    std::string widget_text("\n   Coot version ");
    widget_text += VERSION;

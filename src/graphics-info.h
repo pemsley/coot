@@ -1613,16 +1613,17 @@ public:
    static std::string backslash_filename(const std::string &s); // needed for windows?
    
    void set_find_ligands_mols(int map, int protein,
-			      const std::vector<int> &ligands,
-			      const std::vector<short int> &wiggly_ligands) {
+			      const std::vector<std::pair<int, bool> > &ligand_wiggly_info) {
       find_ligand_map_mol_ = map;
       find_ligand_protein_mol_ = protein; 
-      if (ligands.size() != wiggly_ligands.size()) { 
-	std::cout << "ERROR size mismatch ligands and wiggly_ligands flags\n";
-      } else { 
-	find_ligand_ligand_mols_->resize(ligands.size());
-	for (unsigned int il=0; il<ligands.size(); il++) {
-	  (*find_ligand_ligand_mols_)[il] = std::pair<int, bool>(ligands[il], wiggly_ligands[il]);
+      // *find_ligand_ligand_mols_ = ligand_wiggly_info; // lets add some protection..
+      find_ligand_ligand_mols_->clear();
+      for (unsigned int ilig=0; ilig<ligand_wiggly_info.size(); ilig++) {
+	int il=ligand_wiggly_info[ilig].first;
+	if (il < n_molecules) { 
+	  if (molecules[il].atom_sel.n_selected_atoms > 0) { 
+	    find_ligand_ligand_mols_->push_back(ligand_wiggly_info[ilig]);
+	  }
 	}
       }
    }
