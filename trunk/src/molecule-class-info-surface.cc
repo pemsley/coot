@@ -1,6 +1,7 @@
 /* src/molecule-class-info-surface.cc
  * 
- * Copyright 2004, 2006 by Paul Emsley, The University of York
+ * Copyright 2004, 2006 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +35,8 @@
 #include "molecule-class-info.h"
 
 
+// Atom-based LMB (e.g. electrostatic) surface.
+// 
 void
 molecule_class_info_t::draw_surface() {
 
@@ -62,3 +65,12 @@ molecule_class_info_t::make_surface(int on_off_flag) {
       glEndList();
    }
 }
+
+
+
+// electron density solid surface
+void
+molecule_class_info_t::do_solid_surface_for_density(short int on_off_flag) {
+
+}
+

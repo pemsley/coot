@@ -557,7 +557,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    GtkWidget *ligand_button;
    std::vector<int> chief_ligand_many_atoms; // caches imols with lots
 					     // of atoms.
-   std::vector<short int> wiggly_ligand(g.n_molecules);
+   std::vector<std::pair<int, bool> > wiggly_ligand_info; 
 
    // extract the sigma level and stick it in
    // graphics_info_t::ligand_cluster_sigma_level
@@ -575,7 +575,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    // This is where we store the mols:
    int find_ligand_map_mol = -1; // get set?
    int find_ligand_protein_mol;
-   std::vector<int> find_ligand_ligand_mols; 
+   // std::vector<int> find_ligand_ligand_mols;  old.
    
    // Find the first active map radiobutton
    found_active_button_for_map = 0;
@@ -638,18 +638,31 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 	 std::string ligand_str = "find_ligand_ligand_checkbutton_";
 	 ligand_str += g.int_to_string(imol);
 	 ligand_button = lookup_widget(button, ligand_str.c_str());
-	 if (ligand_button) { 
+
+	 std::string wiggly_str = "find_ligand_wligand_checkbutton_";
+	 wiggly_str += g.int_to_string(imol);
+	 GtkWidget *wiggly_button = lookup_widget(button, wiggly_str.c_str());
+		  
+	 if (ligand_button && wiggly_button) { 
 	    if (GTK_TOGGLE_BUTTON(ligand_button)->active) {
-	       find_ligand_ligand_mols.push_back(imol);
+	       
+	       bool wiggly_state = 0;
+	       if (GTK_TOGGLE_BUTTON(wiggly_button)->active)
+		  wiggly_state = 1;
+	       wiggly_ligand_info.push_back(std::pair<int, bool> (imol, wiggly_state));
+// 	       std::cout << "DEBUG:: wiggly info: " << imol <<  " " << wiggly_state
+// 			 << " pushed back" << std::endl;
 	       found_active_button_for_ligands = 1;
-	       if (g.molecules[imol].atom_sel.n_selected_atoms > 100) {
+	       int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
+	       if (n_atoms > 100) {
 		  std::cout << "WARNING:: molecule " << imol
-			    << " has unexpectedly many "
-			    << "atoms ("
-			    << g.molecules[imol].atom_sel.n_selected_atoms
-			    << ")" << std::endl;
+			    << " has unexpectedly many atoms ("
+			    << n_atoms << ")" << std::endl;
 		  chief_ligand_many_atoms.push_back(imol);
 	       } 
+// 	    } else {
+// 	       std::cout << "DEBUG:: button " << ligand_str
+// 			 << " was not active" << std::endl;
 	    }
 	 } else {
 	    std::cout << ligand_str << " widget not found in "
@@ -657,29 +670,6 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 	 }
       }
    }
-
-   // Wiggly ligands?
-   // 
-   for (int imol=0; imol<g.n_molecules; imol++) {
-      if (g.molecules[imol].has_model()) {
-	 if (g.molecules[imol].atom_sel.n_selected_atoms < graphics_info_t::find_ligand_ligand_atom_limit) {
-	    std::string ligand_str = "find_ligand_wligand_checkbutton_";
-	    ligand_str += g.int_to_string(imol);
-	    ligand_button = lookup_widget(button, ligand_str.c_str());
-	    if (!ligand_button) {
-	       std::cout << "ERROR:: find_ligand_wligand_checkbutton_ for imol "
-			 << imol << " not found!\n";
-	    } else { 
-	       if (GTK_TOGGLE_BUTTON(ligand_button)->active) {
-		  wiggly_ligand[imol] = 1;
-	       } else {
-		  wiggly_ligand[imol] = 0;	    
-	       }
-	    }
-	 }
-      }
-   }
-
 
    if ( found_active_button_for_map &&
 	found_active_button_for_protein &&
@@ -693,8 +683,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
       graphics_info_t g;
       g.set_find_ligands_mols(find_ligand_map_mol,
 			      find_ligand_protein_mol,
-			      find_ligand_ligand_mols,
-			      wiggly_ligand);
+			      wiggly_ligand_info);
 
       if (chief_ligand_many_atoms.size() == 0 ) {
 	 execute_ligand_search();
@@ -706,9 +695,10 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 	 do_find_ligand_many_atoms_in_ligands(widget);
       }
    } else {
-      std::cout << "Something wrong in the selection of map/molecules"
-		<< std::endl;
+	 std::cout << "Something wrong in the selection of map/molecules"
+		   << std::endl;
    }
+
 }
 
 // q_ligands is questionable ligands (i.e. very large)
@@ -792,10 +782,10 @@ void add_ligand_search_ligand_molecule(int imol_ligand) {
       graphics_info_t::find_ligand_add_rigid_ligand(imol_ligand);
 
    graphics_info_t g;
-   std::cout << "DEBUG:: graphics_info_t::find_ligand_wiggly_ligands()["
-	     << imol_ligand << "] is ("
-	     << g.find_ligand_ligand_mols()[imol_ligand].first  << ", " 
-	     << g.find_ligand_ligand_mols()[imol_ligand].second << ")" << std::endl;
+//    std::cout << "DEBUG:: graphics_info_t::find_ligand_wiggly_ligands()["
+// 	     << imol_ligand << "] is ("
+// 	     << g.find_ligand_ligand_mols()[imol_ligand].first  << ", " 
+// 	     << g.find_ligand_ligand_mols()[imol_ligand].second << ")" << std::endl;
 
 }
 
@@ -870,11 +860,11 @@ execute_ligand_search_internal() {
 	 for(unsigned int ifrag=0; ifrag<mmol.fragments.size(); ifrag++) {
 	    for (int ires=mmol[ifrag].min_res_no(); ires<=mmol[ifrag].max_residue_number();
 		 ires++) {
-	       if (mmol[ifrag][ires].n_atoms() > 0) {
-		  std::cout << "DEBUG:: in execute_ligand_search:  mmol["
-			    << ifrag << "][" << ires << "].name :"
-			    <<  mmol[ifrag][ires].name << ":" << std::endl;
-	       }
+// 	       if (mmol[ifrag][ires].n_atoms() > 0) {
+// 		  std::cout << "DEBUG:: in execute_ligand_search:  mmol["
+// 			    << ifrag << "][" << ires << "].name :"
+// 			    <<  mmol[ifrag][ires].name << ":" << std::endl;
+// 	       }
 	    }
 	 }
 
@@ -906,9 +896,9 @@ execute_ligand_search_internal() {
    } 
 
    std::string name("ligand masked map");
-   std::cout << "DEBUG:: calling mask_map\n";
+   // std::cout << "DEBUG:: calling mask_map\n";
    wlig.mask_map(protein_mol, mask_waters_flag); // mask by protein
-   std::cout << "DEBUG:: done mask_map\n";
+   // std::cout << "DEBUG:: done mask_map\n";
    g.expand_molecule_space_maybe(); 
    g.molecules[imol].new_map(wlig.masked_map(), wlig.masked_map_name());
    wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
