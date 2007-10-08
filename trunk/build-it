@@ -173,7 +173,8 @@
 # 2.13 20071005 Fix slim_dir
 # 2.14 20071006 Adjust python scripting settings, so that it should try
 #               to compile with python most of the time now.
-script_version=2.14
+# 2.15 20071008 Fix extra fi, uncommented typo.
+script_version=2.15
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2282,7 +2283,7 @@ fi
 #    if [ ${time_date:0:3} = "Sun" ] ; then
 #       scripting='--with-python'
 #   fi
-fi
+# fi
 
 # question: did we build gtkglarea?
 #
