@@ -82,6 +82,11 @@
      for a similar blob near molecule B and try to fit the same kind of
      ligand there as well [JED]
 
+   o If we have guile scripting in configure, then we should check for
+     net-http and goosh have been installed.  If not, fail gracefully,
+     not obscurely at run time!
+
+
 -----
 
     Release 0.6 and 0.7 [Mar/Apr 2008]

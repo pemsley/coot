@@ -4,8 +4,9 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   12 outstanding issues
+   13 outstanding issues
 
+   o remove debugging screen info in ncs ghosting
 
    o Eliminate Stub from the Mutate and Autofit residue chooser - it
      doesn't make sense there.
@@ -73,9 +74,12 @@ Tue Jul  3 14:27:37 BST 2007
    o S. Sheriff:
 
      * I find that (set-colour-map-rotation-on-read-pdb-c-only-flag   1)
-       in my *.*coot file does not work (at least in v0.3.3), i.e. until
+       in my .coot file does not work (at least in v0.3.3), i.e. until
        I click on the radio button in the bond colour pop-up menu, the
        atoms are not atomic coloring.
+
+    o dialog: clear up old/backup files on exit.
+      86400 seconds per day
 
 
 
@@ -1955,7 +1959,6 @@ texi2html ../../coot/doc/user-manual.texi
 
 	Priority: Medium: Difficulty: Low
 
-
 ----
 Sun Sep 16 12:31:03 BST 2007
 
@@ -1964,14 +1967,12 @@ Sun Sep 16 12:31:03 BST 2007
 
 	Priority: Medium.
 
-
 ------
 Wed Sep 19 17:20:41 BST 2007
 
 	doing a flexible ligand fit in a ligands without flexible
 	bonds - e.g. SO4 gives non-optimal message ("Did you forget to
 	read the dictionary?").
-
 
 -----
 Tue Sep 18 12:01:13 BST 2007
@@ -2066,7 +2067,6 @@ Wed Sep 26 16:03:32 BST 2007
 
 -------
 
-
 	Residue 13 of 1UBQ fails to Rigid body refine after chi1 was 
         rotated by 180.
 	
@@ -2074,16 +2074,15 @@ Wed Sep 26 16:03:32 BST 2007
 
         In fact, it looks like nothing with Rigid body refine.  Hmmm!
 
-
 ------
 
     What about interactions with pisa?
-
 
 ------
 
     NCS skip to next change should preserve the view.
 
+* It does now.
 
 -----
 
@@ -2091,8 +2090,6 @@ Wed Sep 26 16:03:32 BST 2007
         (for a particular monomer).
 
      export a restraints description to the scripting layer.
-
-
 
 ------
 
@@ -2162,3 +2159,23 @@ Wed Oct  3 12:23:09 BST 2007
 
 	   ;; now apply rtop to the ligand "C" in the "A" pocket to
 	   ;; make "D" in the "B" pocket
+
+----
+Wed Oct  3 18:59:34 BST 2007
+
+   write a triv app with latest glade with icons and libglade
+
+----
+Sat Oct  6 08:04:36 BST 2007
+
+
+pkg-config libglade-2.0 --cflags
+
+-I/usr/include/libglade-2.0 -I/usr/include/gtk-2.0 -I/usr/include/libxml2 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12  
+
+pkg-config libglade-2.0 --libs
+
+-lglade-2.0 -lgtk-x11-2.0 -lxml2 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lm -lpangocairo-1.0 -lfontconfig -lXext -lXrender -lXinerama -lXi -lXrandr -lXcursor -lXfixes -lpango-1.0 -lcairo -lX11 -lgobject-2.0 -lgmodule-2.0 -ldl -lglib-2.0  
+
+
+----

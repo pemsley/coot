@@ -1162,6 +1162,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    std::vector<std::pair<std::string, std::string> > v =
       monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
 
+   // std::cout << "DEBUG:: " << v.size() << " solutions matching" << std::endl;
+
    // here clear the current contents of the monomer vbox:
    // delete the user_data assocated with the buttons too.
     GList *children = gtk_container_children(GTK_CONTAINER(vbox_current));

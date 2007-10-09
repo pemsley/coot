@@ -126,8 +126,6 @@ coot::util::quaternion::quaternion(const clipper::Mat33<double> &m) {
    float pr3 = sqrt( (py>0) ? py : 0) / 2.0;
    float pr4 = sqrt( (pz>0) ? pz : 0) / 2.0;
 
-   std::cout << "print prs: " << pr1 << " " << pr2 << " " << pr3 << " " << pr4 << std::endl;
-   
    q0 = convert_sign(pr2, m(2,1) - m(1,2));
    q1 = convert_sign(pr3, m(0,2) - m(2,0));
    q2 = convert_sign(pr4, m(1,0) - m(0,1));
