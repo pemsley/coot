@@ -275,8 +275,10 @@ graphics_info_t::save_state_file(const std::string &filename) {
 		  commands.push_back(state_command(active_strings, il));
 	       }
 
-	       std::cout << "molecules[i].Bonds_box_type() is " << molecules[i].Bonds_box_type()
-			 << std::endl;
+// 	       std::cout << "molecules[i].Bonds_box_type() is "
+// 			 << molecules[i].Bonds_box_type()
+// 			 << std::endl;
+	       
 	       if (molecules[i].Bonds_box_type() != coot::NORMAL_BONDS) {
 		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
 		     active_strings.clear();
@@ -377,6 +379,12 @@ graphics_info_t::save_state_file(const std::string &filename) {
    }
 
    // last things to do:
+
+   // environment distances?
+   if (environment_show_distances) {
+      commands.push_back(state_command("set-show-environment-distances",
+				       int(1), il));
+   }
 
    // show symmetry.  Turn this on after molecules have been read so
    // that we don't get the error popup.

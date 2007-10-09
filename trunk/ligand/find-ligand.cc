@@ -2,6 +2,8 @@
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 The University of Oxford
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +56,7 @@ main(int argc, char **argv) {
 		<< " --flexible"
 		<< " --samples nsamples"
 		<< " --dictionary cif-dictionary-name" << "\n     "
+		<< " --script script-file-name\n"
 		<< "   ligand-pdb-file-name(s)\n";
       std::cout << "     where pdbin is the protein (typically)\n"
 		<< "           nclust is the number of clusters to fit [default 10]\n"
@@ -62,6 +65,8 @@ main(int argc, char **argv) {
 		<< "           --dictionary file containing the CIF ligand dictionary description\n"
 		<< "           nsamples is the number of flexible conformation samples [default 30]\n"
 		<< "           frac is the minimum fraction of atoms in density allowed after fit [default 0.75]"
+		<< "           script-file-name is a file name of helper script suitable for use in Coot"
+		<< "               (default: coot-ligands.scm)."
 		<< std::endl;
 
 
@@ -79,6 +84,7 @@ main(int argc, char **argv) {
       int wiggly_ligand_n_samples = 30;
       std::string cif_file_name = "";
       std::string fit_frac_str = "";
+      std::string coot_ligands_script_file_name = "coot-ligands.scm";
       float fit_frac = -1.0; // tested for positivity
 
       char *optstr = "i:h:f:p:s:c:w:n:d";
@@ -93,6 +99,7 @@ main(int argc, char **argv) {
 	 {"dictionary", 1, 0, 0},
 	 {"fit-fraction", 1, 0, 0},
 	 {"flexible",   0, 0, 0},
+	 {"script",   0, 0, 0},
 	 {0, 0, 0, 0}
       };
 
@@ -153,6 +160,11 @@ main(int argc, char **argv) {
 
 	       if (arg_str == "fit-fraction") { 
 		  fit_frac_str = optarg;
+		  n_used_args += 2;
+	       }
+	       
+	       if (arg_str == "script") { 
+		  coot_ligands_script_file_name = optarg;
 		  n_used_args += 2;
 	       }
 	       
@@ -284,7 +296,6 @@ main(int argc, char **argv) {
 
 	    } else {
 
-	       // use a different class, (wlig not lig)
 	       coot::wligand wlig;
 	       coot::protein_geometry geom;
 	       wlig.set_verbose_reporting();

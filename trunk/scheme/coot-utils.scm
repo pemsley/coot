@@ -62,10 +62,16 @@
 (define molecule-number-list
   (lambda ()
     (let ((n-molecules (graphics-n-molecules)))
-      (cond
-       ((= 0 n-molecules) '())
-       (else 
-	(number-list 0 (- n-molecules 1)))))))
+      (let loop ((ls (number-list 0 (- n-molecules 1)))
+		 (acc '()))
+	(cond
+	 ((null? ls) (reverse acc))
+	 ((or (valid-map-molecule? (car ls))
+	      (valid-model-molecule? (car ls)))
+	  (loop (cdr ls) (cons (car ls) acc)))
+	 (else 
+	  (loop (cdr ls) acc)))))))
+
 
 ;; Return a list of molecules that are maps
 ;; 
