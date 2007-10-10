@@ -174,7 +174,8 @@
 # 2.14 20071006 Adjust python scripting settings, so that it should try
 #               to compile with python most of the time now.
 # 2.15 20071008 Fix extra fi, uncommented typo.
-script_version=2.15
+# 2.16 20071010 ENABLE_PYTHON_COOT=no for now.
+script_version=2.16
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -191,6 +192,11 @@ script_version=2.15
 # ENABLE_PYTHON_COOT is set, but not set to 0 or no then python coot
 # is enabled.  If ENABLE_PYTHON_COOT is not set, the guile-coot is
 # enabled (python coot is not enabled).
+
+# pythonizing coot is broken on some platforms.  Turn it off for now. 20071010
+#
+ENABLE_PYTHON_COOT=no
+
 
 # Set the host and the OS.
 # Fairly fundamental.
@@ -2260,7 +2266,6 @@ scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_di
 # if ENABLE_PYTHON_COOT is set, then if it is set to 0 or no then we
 # do not build a python version, otherwise we do build a python
 # version
-
 
 if [ -n "$ENABLE_PYTHON_COOT" ] ; then 
     # it was set to something
