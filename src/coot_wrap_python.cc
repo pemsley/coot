@@ -6264,6 +6264,36 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_solid_surface(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  short arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  short val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:solid_surface",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "solid_surface" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "solid_surface" "', argument " "2"" of type '" "short""'");
+  } 
+  arg2 = static_cast< short >(val2);
+  solid_surface(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_export_map(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -16448,6 +16478,36 @@ SWIGINTERN PyObject *_wrap_show_environment_distances_state(PyObject *SWIGUNUSED
   if (!PyArg_ParseTuple(args,(char *)":show_environment_distances_state")) SWIG_fail;
   result = (int)show_environment_distances_state();
   resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_environment_distances_distance_limits(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float arg1 ;
+  float arg2 ;
+  float val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_environment_distances_distance_limits",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_environment_distances_distance_limits" "', argument " "1"" of type '" "float""'");
+  } 
+  arg1 = static_cast< float >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_environment_distances_distance_limits" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  set_environment_distances_distance_limits(arg1,arg2);
+  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
@@ -31472,6 +31532,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_contour_by_sigma_step_maybe", _wrap_set_contour_by_sigma_step_maybe, METH_VARARGS, NULL},
 	 { (char *)"set_contour_by_sigma_step_by_mol", _wrap_set_contour_by_sigma_step_by_mol, METH_VARARGS, NULL},
 	 { (char *)"data_resolution", _wrap_data_resolution, METH_VARARGS, NULL},
+	 { (char *)"solid_surface", _wrap_solid_surface, METH_VARARGS, NULL},
 	 { (char *)"export_map", _wrap_export_map, METH_VARARGS, NULL},
 	 { (char *)"transform_map_raw", _wrap_transform_map_raw, METH_VARARGS, NULL},
 	 { (char *)"rotate_map_round_screen_axis_x", _wrap_rotate_map_round_screen_axis_x, METH_VARARGS, NULL},
@@ -31868,6 +31929,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"toggle_environment_show_distances", _wrap_toggle_environment_show_distances, METH_VARARGS, NULL},
 	 { (char *)"set_show_environment_distances", _wrap_set_show_environment_distances, METH_VARARGS, NULL},
 	 { (char *)"show_environment_distances_state", _wrap_show_environment_distances_state, METH_VARARGS, NULL},
+	 { (char *)"set_environment_distances_distance_limits", _wrap_set_environment_distances_distance_limits, METH_VARARGS, NULL},
 	 { (char *)"fill_pointer_distances_widget", _wrap_fill_pointer_distances_widget, METH_VARARGS, NULL},
 	 { (char *)"execute_pointer_distances_settings", _wrap_execute_pointer_distances_settings, METH_VARARGS, NULL},
 	 { (char *)"toggle_pointer_distances_show_distances", _wrap_toggle_pointer_distances_show_distances, METH_VARARGS, NULL},
