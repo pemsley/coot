@@ -1,7 +1,7 @@
 /* src/c-interface-mutate.cc
  * 
  * Copyright 2007 by Paul Emsley
- * Copyright 2007 by The University of York
+ * Copyright 2007 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,14 @@
 
 #include <stdlib.h>
 #include <iostream>
+
+// ---------------------------------------------------------------
+// Note to self:
+//      Be very careful if you reorder include files here that the
+//      new order compiles on Mac and other autobulding system.
+//      There have been problems with preprocessor strangeness
+//      20071010
+// ---------------------------------------------------------------
 
 #include <gtk/gtk.h>
 #include "c-interface.h"
