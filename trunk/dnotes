@@ -4,16 +4,9 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   13 outstanding issues
+   14 outstanding issues
 
-   o remove debugging screen info in ncs ghosting
-
-   o Eliminate Stub from the Mutate and Autofit residue chooser - it
-     doesn't make sense there.
-
-   o Add user setable env distance limit
-
-   o Add darken-maps function
+   o remove debugging screen info in NCS ghosting
 
    o The reading of a cif dictionary should set the file name for the
      dialog like reading a pdb file does.
@@ -84,6 +77,18 @@ Tue Jul  3 14:27:37 BST 2007
 
 
 
+
+   o Eliminate Stub from the Mutate and Autofit residue chooser - it
+     doesn't make sense there.
+
+* Done.
+
+
+   o Add darken-maps function
+
+* Done
+
+   o Add user setable env distance limit
 
    o glob overflow with latest-file.scm in top500H dir.
 
@@ -2179,3 +2184,8 @@ pkg-config libglade-2.0 --libs
 
 
 ----
+Tue Oct  9 22:19:02 BST 2007
+
+	nice graphic output of SSM results.
+hari jayaram <harijay@gmail.com>
+

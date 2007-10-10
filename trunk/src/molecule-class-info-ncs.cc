@@ -1556,8 +1556,8 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	    if (i_ghost_chain_match == (ncs_ghosts.size()-1)) {
 	       // we need to go to the target_chain
 	       clipper::Mat33<double> ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop.rot();
-	       std::cout << "from " << current_chain << " to target chain "
-			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
+// 	       std::cout << "from " << current_chain << " to target chain "
+// 			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
 	       r = ncs_mat * r;
 	    } else {
 	       clipper::Mat33<double> ncs_mat_1 = ncs_ghosts[i_ghost_chain_match].rtop.rot();

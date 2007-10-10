@@ -956,17 +956,18 @@
 
 ;; Make the imol-th map brighter.
 ;; 
-(define (brighten-map imol)
+(define (brighten-map imol scale-factor)
 
   (if (valid-map-molecule? imol)
       (let ((current-colour (map-colour-components imol)))
 	(if (list? current-colour)
 	    (apply set-map-colour imol
 		   (map (lambda (v)
-			  (let ((new-v (* 1.25 v)))
-			    (if (< new-v 1.0)
-				new-v
-				1.0)))
+			  (let ((new-v (* scale-factor v)))
+			    (cond 
+			     ((< new-v 0.05) 0.05)
+			     ((> new-v 1.0) 1.0)
+			     (else new-v))))
 			current-colour))
 	    (format #t "bad non-list current-colour ~s~%"
 		    current-colour))
@@ -976,8 +977,16 @@
 ;; Make all maps brighter
 ;; 
 (define (brighten-maps)
-  (map brighten-map (map-molecule-list)))
+  (map (lambda (imap)
+	 (brighten-map imap 1.25))
+       (map-molecule-list)))
 
+;; Make all maps brighter
+;; 
+(define (darken-maps)
+  (map (lambda (imap)
+	 (brighten-map imap 0.8))
+       (map-molecule-list)))
     
 
 ;; Return a list of chain ids for given molecule number @var{imol}.

@@ -943,7 +943,15 @@ void set_show_environment_distances(int state) {
 
 int show_environment_distances_state() {
    return graphics_info_t::environment_show_distances;
+}
+
+/*! \brief min and max distances for the environment distances */
+void set_environment_distances_distance_limits(float min_dist, float max_dist) {
+
+   graphics_info_t::environment_min_distance = min_dist;
+   graphics_info_t::environment_max_distance = max_dist;
 } 
+
 
 
 void toggle_environment_show_distances(GtkToggleButton *button) {
@@ -966,8 +974,8 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
 
       // 
       std::pair<int, int> r =  g.get_closest_atom();
-      std::cout << "DEBUG:: got close info: " 
-		<< r.first << " " << r.second << std::endl;
+//       std::cout << "DEBUG:: got close info: " 
+// 		<< r.first << " " << r.second << std::endl;
       if (r.first >= 0) { 
 	 g.update_environment_distances_maybe(r.first, r.second);
 	 graphics_draw();
