@@ -183,7 +183,7 @@ INCLUDES = \
 	$(CLIPPER_CXXFLAGS) 		
 
 #	$(WITH_SCRIPT_CFLAGS) 
-#        -I/usr/include/libglade-2.0       \
+#        -I/usr/include/libglade-2.0      
 
 bin_PROGRAMS = coot-real density-score-by-residue fix-nomenclature-errors
 dist_bin_SCRIPTS = coot
