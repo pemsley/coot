@@ -2295,9 +2295,20 @@ fi
 echo BUILDING coot: version $coot_version
 echo BUILDING coot: version $coot_version >&2
 (
+
+# if we have python and not guile, then we don't want to compile
+# coot_wrap_guile.cc.
+# 
+# we *do* want to compile it usually though.
+#
 if [ "$python_scripting" = "--with-python" ] ; then
     echo INFO:: with python
-    cp src/blank.cc src/coot_wrap_guile.cc
+    if [ "$ENABLE_PYTHON_COOT" == "0" ] ; then
+       cp src/blank.cc src/coot_wrap_guile.cc
+    fi
+    if [ "$ENABLE_PYTHON_COOT" == "no" ] ; then 
+       cp src/blank.cc src/coot_wrap_guile.cc
+    fi
 fi
 echo building in: $PWD
 echo ./configure $coot_prefix \

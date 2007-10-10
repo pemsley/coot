@@ -52,7 +52,10 @@
 #include "c-inner-main.h"
 
 #if defined (USE_GUILE) || defined (USE_PYTHON)
-extern void SWIG_init();  
+extern void SWIG_init();
+
+/* #define SWIG_init    init_coot // this fails to init/register guile functions */
+
 void coot_init_glue();
 #endif
 
@@ -104,6 +107,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   int istat;
   short int use_graphics_flag = use_graphics_interface_state();
 
+  printf("::::::::::::::::: c_inner_main() SWIG_init\n");
   SWIG_init();   
 
 

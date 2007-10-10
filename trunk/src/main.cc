@@ -344,11 +344,12 @@ main (int argc, char *argv[]) {
      // interpreter not initialized (or something).
 
      // Now we want to import coot.py/_coot.so (coot load _coot)
-  
-     /* And now read the users own initialization code */
-
+     std::cout << "::::::::::::::::: Python path init_coot" << std::endl;
      init_coot(); // i.e. SWIG_init for python, best we do this before
                   // running .coot.py, eh?
+
+
+     /* And now read the users own initialization code */
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
      char *directory = getenv("COOT_HOME");
