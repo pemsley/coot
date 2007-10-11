@@ -194,36 +194,40 @@ fix_nucleic_acid_residue_names(atom_selection_container_t asc) {
 
       int n_models = asc.mol->GetNumberOfModels();
       for (int imod=1; imod<=n_models; imod++) { 
-      
+
 	 CModel *model_p = asc.mol->GetModel(imod);
-	 CChain *chain_p;
-	 // run over chains of the existing mol
-	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
-	    std::cout << "bad nchains in molecule " << nchains
-		      << std::endl;
-	 } else { 
-	    for (int ichain=0; ichain<nchains; ichain++) {
-	       chain_p = model_p->GetChain(ichain);
-	       if (chain_p == NULL) {  
-		  // This should not be necessary. It seem to be a
-		  // result of mmdb corruption elsewhere - possibly
-		  // DeleteChain in update_molecule_to().
-		  std::cout << "NULL chain in ... " << std::endl;
-	       } else { 
-		  int nres = chain_p->GetNumberOfResidues();
-		  PCResidue residue_p;
-		  for (int ires=0; ires<nres; ires++) { 
-		     residue_p = chain_p->GetResidue(ires);
-		     std::string residue_name(residue_p->name);
+	 // model can legitimately be null if that particular model
+	 // number was not in the PDB file.
+	 if (model_p) { 
+	    CChain *chain_p;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    if (nchains <= 0) { 
+	       std::cout << "bad nchains in molecule " << nchains
+			 << std::endl;
+	    } else { 
+	       for (int ichain=0; ichain<nchains; ichain++) {
+		  chain_p = model_p->GetChain(ichain);
+		  if (chain_p == NULL) {  
+		     // This should not be necessary. It seem to be a
+		     // result of mmdb corruption elsewhere - possibly
+		     // DeleteChain in update_molecule_to().
+		     std::cout << "NULL chain in ... " << std::endl;
+		  } else { 
+		     int nres = chain_p->GetNumberOfResidues();
+		     PCResidue residue_p;
+		     for (int ires=0; ires<nres; ires++) { 
+			residue_p = chain_p->GetResidue(ires);
+			std::string residue_name(residue_p->name);
 
-		     if (residue_name == "T" ||
-			 residue_name == "U" ||
-			 residue_name == "A" ||
-			 residue_name == "C" ||
-			 residue_name == "G") {
+			if (residue_name == "T" ||
+			    residue_name == "U" ||
+			    residue_name == "A" ||
+			    residue_name == "C" ||
+			    residue_name == "G") {
 
-			istat += fix_nucleic_acid_residue_name(residue_p);
+			   istat += fix_nucleic_acid_residue_name(residue_p);
+			}
 		     }
 		  }
 	       }
