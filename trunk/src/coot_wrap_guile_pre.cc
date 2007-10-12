@@ -1209,6 +1209,7 @@ SWIG_Guile_GetArgs (SCM *dest, SCM rest,
     #define gh_str2scm scm_mem2string
 
 
+static swig_guile_clientdata _swig_guile_clientdataalias_path_t = { NULL, SCM_EOL };
 static swig_guile_clientdata _swig_guile_clientdatastr_mtime = { NULL, SCM_EOL };
 static swig_guile_clientdata _swig_guile_clientdatafile_attribs_info_t = { NULL, SCM_EOL };
 static swig_guile_clientdata _swig_guile_clientdatacommand_arg_t = { NULL, SCM_EOL };
@@ -1228,32 +1229,34 @@ static swig_guile_clientdata _swig_guile_clientdatacommand_arg_t = { NULL, SCM_E
 #define SWIGTYPE_p_GtkWidget swig_types[10]
 #define SWIGTYPE_p_clipper__RTop_orth swig_types[11]
 #define SWIGTYPE_p_clipper__String swig_types[12]
-#define SWIGTYPE_p_coot__atom_spec_t swig_types[13]
-#define SWIGTYPE_p_coot__command_arg_t swig_types[14]
-#define SWIGTYPE_p_coot__file_attribs_info_t swig_types[15]
-#define SWIGTYPE_p_coot__str_mtime swig_types[16]
-#define SWIGTYPE_p_double swig_types[17]
-#define SWIGTYPE_p_gboolean swig_types[18]
-#define SWIGTYPE_p_gchar swig_types[19]
-#define SWIGTYPE_p_gdouble swig_types[20]
-#define SWIGTYPE_p_gpointer swig_types[21]
-#define SWIGTYPE_p_p_GSList swig_types[22]
-#define SWIGTYPE_p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t swig_types[23]
-#define SWIGTYPE_p_std__pairTint_std__vectorTstd__string_t_t swig_types[24]
-#define SWIGTYPE_p_std__pairTshort_float_t swig_types[25]
-#define SWIGTYPE_p_std__pairTshort_int_t swig_types[26]
-#define SWIGTYPE_p_std__pairTshort_std__string_t swig_types[27]
-#define SWIGTYPE_p_std__pairTstd__string_std__string_t swig_types[28]
-#define SWIGTYPE_p_std__string swig_types[29]
-#define SWIGTYPE_p_std__vectorTcoot__command_arg_t_t swig_types[30]
-#define SWIGTYPE_p_std__vectorTcoot__str_mtime_t swig_types[31]
-#define SWIGTYPE_p_std__vectorTint_t swig_types[32]
-#define SWIGTYPE_p_std__vectorTstd__pairTstd__string_std__string_t_t swig_types[33]
-#define SWIGTYPE_p_std__vectorTstd__string_t swig_types[34]
-#define SWIGTYPE_p_time_t swig_types[35]
-#define SWIGTYPE_p_unsigned_long swig_types[36]
-static swig_type_info *swig_types[38];
-static swig_module_info swig_module = {swig_types, 37, 0, 0, 0, 0};
+#define SWIGTYPE_p_coot__alias_path_t swig_types[13]
+#define SWIGTYPE_p_coot__atom_spec_t swig_types[14]
+#define SWIGTYPE_p_coot__command_arg_t swig_types[15]
+#define SWIGTYPE_p_coot__file_attribs_info_t swig_types[16]
+#define SWIGTYPE_p_coot__graph_match_info_t swig_types[17]
+#define SWIGTYPE_p_coot__str_mtime swig_types[18]
+#define SWIGTYPE_p_double swig_types[19]
+#define SWIGTYPE_p_gboolean swig_types[20]
+#define SWIGTYPE_p_gchar swig_types[21]
+#define SWIGTYPE_p_gdouble swig_types[22]
+#define SWIGTYPE_p_gpointer swig_types[23]
+#define SWIGTYPE_p_p_GSList swig_types[24]
+#define SWIGTYPE_p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t swig_types[25]
+#define SWIGTYPE_p_std__pairTint_std__vectorTstd__string_t_t swig_types[26]
+#define SWIGTYPE_p_std__pairTshort_float_t swig_types[27]
+#define SWIGTYPE_p_std__pairTshort_int_t swig_types[28]
+#define SWIGTYPE_p_std__pairTshort_std__string_t swig_types[29]
+#define SWIGTYPE_p_std__pairTstd__string_std__string_t swig_types[30]
+#define SWIGTYPE_p_std__string swig_types[31]
+#define SWIGTYPE_p_std__vectorTcoot__command_arg_t_t swig_types[32]
+#define SWIGTYPE_p_std__vectorTcoot__str_mtime_t swig_types[33]
+#define SWIGTYPE_p_std__vectorTint_t swig_types[34]
+#define SWIGTYPE_p_std__vectorTstd__pairTstd__string_std__string_t_t swig_types[35]
+#define SWIGTYPE_p_std__vectorTstd__string_t swig_types[36]
+#define SWIGTYPE_p_time_t swig_types[37]
+#define SWIGTYPE_p_unsigned_long swig_types[38]
+static swig_type_info *swig_types[40];
+static swig_module_info swig_module = {swig_types, 39, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2238,6 +2241,32 @@ _wrap_molecule_name (SCM s_0)
 
 
 static SCM
+_wrap_set_molecule_name (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "set-molecule-name"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int must_free2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  set_molecule_name(arg1,(char const *)arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free2 && arg2) SWIG_free(arg2);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_main_window ()
 {
 #define FUNC_NAME "main-window"
@@ -2666,6 +2695,35 @@ _wrap_replace_fragment (SCM s_0, SCM s_1, SCM s_2)
 
 
 static SCM
+_wrap_clear_and_update_model_molecule_from_file (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "clear-and-update-model-molecule-from-file"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  int must_free2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  result = (int)clear_and_update_model_molecule_from_file(arg1,(char const *)arg2);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free2 && arg2) SWIG_free(arg2);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_screendump_image (SCM s_0)
 {
 #define FUNC_NAME "screendump-image"
@@ -2942,6 +3000,39 @@ _wrap_set_view_quaternion (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
   }
   set_view_quaternion(arg1,arg2,arg3,arg4);
   gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_apply_ncs_to_view_orientation (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "apply-ncs-to-view-orientation"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int must_free2 = 0 ;
+  int must_free3 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  apply_ncs_to_view_orientation(arg1,(char const *)arg2,(char const *)arg3);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free3 && arg3) SWIG_free(arg3);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -3650,6 +3741,28 @@ _wrap_set_have_unsaved_changes (SCM s_0)
 
 
 static SCM
+_wrap_have_unsaved_changes_p (SCM s_0)
+{
+#define FUNC_NAME "have-unsaved-changes-p"
+  int arg1 ;
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)have_unsaved_changes_p(arg1);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_set_undo_molecule (SCM s_0)
 {
 #define FUNC_NAME "set-undo-molecule"
@@ -4335,6 +4448,29 @@ _wrap_data_resolution (SCM s_0)
   {
     gswig_result = scm_make_real(result);
   }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_solid_surface (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "solid-surface"
+  int arg1 ;
+  short arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2short(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  solid_surface(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -5578,6 +5714,28 @@ _wrap_set_map_is_difference_map (SCM s_0)
     arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   result = (int)set_map_is_difference_map(arg1);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_map_is_difference_map (SCM s_0)
+{
+#define FUNC_NAME "map-is-difference-map"
+  int arg1 ;
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)map_is_difference_map(arg1);
   {
     gswig_result = scm_long2num(result);
   }
@@ -10009,6 +10167,42 @@ _wrap_set_go_to_atom_chain_residue_atom_name (SCM s_0, SCM s_1, SCM s_2)
 
 
 static SCM
+_wrap_set_go_to_atom_chain_residue_atom_name_no_redraw (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "set-go-to-atom-chain-residue-atom-name-no-redraw"
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char *arg3 = (char *) 0 ;
+  int result;
+  int must_free1 = 0 ;
+  int must_free3 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  result = (int)set_go_to_atom_chain_residue_atom_name_no_redraw((char const *)arg1,arg2,(char const *)arg3);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  if (must_free1 && arg1) SWIG_free(arg1);
+  if (must_free3 && arg3) SWIG_free(arg3);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_set_go_to_atom_chain_residue_atom_name_strings (SCM s_0, SCM s_1, SCM s_2)
 {
 #define FUNC_NAME "set-go-to-atom-chain-residue-atom-name-strings"
@@ -10771,6 +10965,21 @@ _wrap_reset_graphics_display_control_window ()
 
 
 static SCM
+_wrap_close_graphics_display_control_window ()
+{
+#define FUNC_NAME "close-graphics-display-control-window"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  close_graphics_display_control_window();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_set_map_displayed (SCM s_0, SCM s_1)
 {
 #define FUNC_NAME "set-map-displayed"
@@ -10899,6 +11108,44 @@ _wrap_map_is_displayed (SCM s_0)
   {
     gswig_result = scm_long2num(result);
   }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_all_maps_displayed (SCM s_0)
+{
+#define FUNC_NAME "set-all-maps-displayed"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_all_maps_displayed(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_all_models_displayed_and_active (SCM s_0)
+{
+#define FUNC_NAME "set-all-models-displayed-and-active"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_all_models_displayed_and_active(arg1);
+  gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -12597,6 +12844,25 @@ _wrap_chiral_volume_molecule_option_menu_item_select (SCM s_0, SCM s_1)
 
 
 static SCM
+_wrap_set_show_chiral_volume_errors_dialog (SCM s_0)
+{
+#define FUNC_NAME "set-show-chiral-volume-errors-dialog"
+  short arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2short(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  set_show_chiral_volume_errors_dialog(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_set_secondary_structure_restraints_type (SCM s_0)
 {
 #define FUNC_NAME "set-secondary-structure-restraints-type"
@@ -13267,6 +13533,29 @@ _wrap_show_environment_distances_state ()
   {
     gswig_result = scm_long2num(result);
   }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_environment_distances_distance_limits (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "set-environment-distances-distance-limits"
+  float arg1 ;
+  float arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2dbl(s_0, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2dbl(s_1, FUNC_NAME);
+  }
+  set_environment_distances_distance_limits(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -14021,6 +14310,56 @@ _wrap_handle_shelx_fcf_file_internal (SCM s_0)
     gswig_result = scm_long2num(result);
   }
   if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_chain_id_for_shelxl_residue_number (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "chain-id-for-shelxl-residue-number"
+  int arg1 ;
+  int arg2 ;
+  SCM result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)chain_id_for_shelxl_residue_number(arg1,arg2);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_add_shelx_string_to_molecule (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "add-shelx-string-to-molecule"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int must_free2 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  add_shelx_string_to_molecule(arg1,(char const *)arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free2 && arg2) SWIG_free(arg2);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -16306,11 +16645,12 @@ static SCM
 _wrap_execute_ligand_search ()
 {
 #define FUNC_NAME "execute-ligand-search"
+  SCM result;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   
-  execute_ligand_search();
-  gswig_result = SCM_UNSPECIFIED;
+  result = (SCM)execute_ligand_search();
+  gswig_result=result;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -16331,6 +16671,21 @@ _wrap_free_ligand_search_user_data (SCM s_0)
   free_ligand_search_user_data(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_add_ligand_clear_ligands ()
+{
+#define FUNC_NAME "add-ligand-clear-ligands"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  add_ligand_clear_ligands();
+  gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -16677,6 +17032,41 @@ _wrap_overlap_ligands (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
 
 
 static SCM
+_wrap_analyse_ligand_differences (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
+{
+#define FUNC_NAME "analyse-ligand-differences"
+  int arg1 ;
+  int arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  SCM result;
+  int must_free3 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  {
+    arg4 = scm_num2int(s_3, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)analyse_ligand_differences(arg1,arg2,(char const *)arg3,arg4);
+  gswig_result=result;
+  if (must_free3 && arg3) SWIG_free(arg3);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_execute_get_mols_ligand_search (SCM s_0)
 {
 #define FUNC_NAME "execute-get-mols-ligand-search"
@@ -16799,6 +17189,41 @@ _wrap_execute_find_waters_real (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
     arg4 = scm_num2dbl(s_3, FUNC_NAME);
   }
   execute_find_waters_real(arg1,arg2,arg3,arg4);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_find_waters (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
+{
+#define FUNC_NAME "find-waters"
+  int arg1 ;
+  int arg2 ;
+  short arg3 ;
+  float arg4 ;
+  short arg5 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = scm_num2short(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = scm_num2dbl(s_3, FUNC_NAME);
+  }
+  {
+    arg5 = scm_num2short(s_4, SCM_ARG1, FUNC_NAME);
+  }
+  find_waters(arg1,arg2,arg3,arg4,arg5);
   gswig_result = SCM_UNSPECIFIED;
   
   return gswig_result;
@@ -18551,6 +18976,72 @@ _wrap_clear_pending_delete_item ()
 
 
 static SCM
+_wrap_clear_delete_item_widget ()
+{
+#define FUNC_NAME "clear-delete-item-widget"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  clear_delete_item_widget();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_store_delete_item_widget_position ()
+{
+#define FUNC_NAME "store-delete-item-widget-position"
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  store_delete_item_widget_position();
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_delete_item_widget_is_being_shown ()
+{
+#define FUNC_NAME "delete-item-widget-is-being-shown"
+  short result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  result = (short)delete_item_widget_is_being_shown();
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_delete_item_widget_keep_active_on ()
+{
+#define FUNC_NAME "delete-item-widget-keep-active-on"
+  short result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  result = (short)delete_item_widget_keep_active_on();
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_wrapped_create_delete_item_dialog ()
 {
 #define FUNC_NAME "wrapped-create-delete-item-dialog"
@@ -18654,6 +19145,43 @@ _wrap_do_cis_trans_conversion_setup (SCM s_0)
   }
   do_cis_trans_conversion_setup(arg1);
   gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_cis_trans_convert (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
+{
+#define FUNC_NAME "cis-trans-convert"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  int must_free2 = 0 ;
+  int must_free4 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg4 = (char *)SWIG_scm2str(s_3);
+    must_free4 = 1;
+  }
+  cis_trans_convert(arg1,(char const *)arg2,arg3,(char const *)arg4);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free4 && arg4) SWIG_free(arg4);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -19138,6 +19666,26 @@ _wrap_set_graphics_rotamer_dialog (SCM s_0)
   set_graphics_rotamer_dialog(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_rotamer_graphs (SCM s_0)
+{
+#define FUNC_NAME "rotamer-graphs"
+  int arg1 ;
+  SCM result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)rotamer_graphs(arg1);
+  gswig_result=result;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -20294,6 +20842,7 @@ _wrap_mask_map_by_molecule (SCM s_0, SCM s_1, SCM s_2)
   int arg1 ;
   int arg2 ;
   short arg3 ;
+  int result;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   
@@ -20306,8 +20855,10 @@ _wrap_mask_map_by_molecule (SCM s_0, SCM s_1, SCM s_2)
   {
     arg3 = scm_num2short(s_2, SCM_ARG1, FUNC_NAME);
   }
-  mask_map_by_molecule(arg1,arg2,arg3);
-  gswig_result = SCM_UNSPECIFIED;
+  result = (int)mask_map_by_molecule(arg1,arg2,arg3);
+  {
+    gswig_result = scm_long2num(result);
+  }
   
   return gswig_result;
 #undef FUNC_NAME
@@ -20322,6 +20873,7 @@ _wrap_mask_map_by_atom_selection (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
   int arg2 ;
   char *arg3 = (char *) 0 ;
   short arg4 ;
+  int result;
   int must_free3 = 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
@@ -20339,8 +20891,10 @@ _wrap_mask_map_by_atom_selection (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
   {
     arg4 = scm_num2short(s_3, SCM_ARG1, FUNC_NAME);
   }
-  mask_map_by_atom_selection(arg1,arg2,(char const *)arg3,arg4);
-  gswig_result = SCM_UNSPECIFIED;
+  result = (int)mask_map_by_atom_selection(arg1,arg2,(char const *)arg3,arg4);
+  {
+    gswig_result = scm_long2num(result);
+  }
   if (must_free3 && arg3) SWIG_free(arg3);
   
   return gswig_result;
@@ -21719,6 +22273,25 @@ SWIG_Guile_GetArgs (arg, rest, 15, 0, "add-ncs-matrix");
 return _wrap_add_ncs_matrix(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7], arg[8], arg[9], arg[10], arg[11], arg[12], arg[13], arg[14]);
 }
 static SCM
+_wrap_clear_ncs_ghost_matrices (SCM s_0)
+{
+#define FUNC_NAME "clear-ncs-ghost-matrices"
+  int arg1 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  clear_ncs_ghost_matrices(arg1);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_add_strict_ncs_matrix (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7, SCM s_8, SCM s_9, SCM s_10, SCM s_11, SCM s_12, SCM s_13, SCM s_14)
 {
 #define FUNC_NAME "add-strict-ncs-matrix"
@@ -22165,6 +22738,44 @@ _wrap_new_molecule_by_atom_selection (SCM s_0, SCM s_1)
 
 
 static SCM
+_wrap_new_molecule_by_sphere_selection (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
+{
+#define FUNC_NAME "new-molecule-by-sphere-selection"
+  int arg1 ;
+  float arg2 ;
+  float arg3 ;
+  float arg4 ;
+  float arg5 ;
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2dbl(s_1, FUNC_NAME);
+  }
+  {
+    arg3 = scm_num2dbl(s_2, FUNC_NAME);
+  }
+  {
+    arg4 = scm_num2dbl(s_3, FUNC_NAME);
+  }
+  {
+    arg5 = scm_num2dbl(s_4, FUNC_NAME);
+  }
+  result = (int)new_molecule_by_sphere_selection(arg1,arg2,arg3,arg4,arg5);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_set_axis_orientation_matrix (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7, SCM s_8)
 {
 #define FUNC_NAME "set-axis-orientation-matrix"
@@ -22375,6 +22986,39 @@ _wrap_assign_fasta_sequence (SCM s_0, SCM s_1, SCM s_2)
 
 
 static SCM
+_wrap_assign_pir_sequence (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "assign-pir-sequence"
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int must_free2 = 0 ;
+  int must_free3 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
+  }
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  assign_pir_sequence(arg1,(char const *)arg2,(char const *)arg3);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free2 && arg2) SWIG_free(arg2);
+  if (must_free3 && arg3) SWIG_free(arg3);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_assign_sequence (SCM s_0, SCM s_1, SCM s_2)
 {
 #define FUNC_NAME "assign-sequence"
@@ -22398,6 +23042,26 @@ _wrap_assign_sequence (SCM s_0, SCM s_1, SCM s_2)
   assign_sequence(arg1,arg2,(char const *)arg3);
   gswig_result = SCM_UNSPECIFIED;
   if (must_free3 && arg3) SWIG_free(arg3);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_sequence_info (SCM s_0)
+{
+#define FUNC_NAME "sequence-info"
+  int arg1 ;
+  SCM result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)sequence_info(arg1);
+  gswig_result=result;
   
   return gswig_result;
 #undef FUNC_NAME
@@ -23316,6 +23980,28 @@ _wrap_write_ccp4mg_picture_description (SCM s_0)
 
 
 static SCM
+_wrap_laplacian (SCM s_0)
+{
+#define FUNC_NAME "laplacian"
+  int arg1 ;
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (int)laplacian(arg1);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_do_smiles_gui ()
 {
 #define FUNC_NAME "do-smiles-gui"
@@ -23399,6 +24085,207 @@ _wrap_remove_text (SCM s_0)
   }
   remove_text(arg1);
   gswig_result = SCM_UNSPECIFIED;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_alias_path_t_index_set (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "alias-path-t-index-set"
+  coot::alias_path_t *arg1 = (coot::alias_path_t *) 0 ;
+  int arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (coot::alias_path_t *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_coot__alias_path_t, 1, 0);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  if (arg1) (arg1)->index = arg2;
+  
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_alias_path_t_index_get (SCM s_0)
+{
+#define FUNC_NAME "alias-path-t-index-get"
+  coot::alias_path_t *arg1 = (coot::alias_path_t *) 0 ;
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (coot::alias_path_t *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_coot__alias_path_t, 1, 0);
+  }
+  result = (int) ((arg1)->index);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_alias_path_t_s_set (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "alias-path-t-s-set"
+  coot::alias_path_t *arg1 = (coot::alias_path_t *) 0 ;
+  std::string arg2 ;
+  std::string *argp2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (coot::alias_path_t *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_coot__alias_path_t, 1, 0);
+  }
+  {
+    argp2 = (std::string *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_std__string, 2, 0);
+    arg2 = *argp2;
+  }
+  if (arg1) (arg1)->s = arg2;
+  
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_alias_path_t_s_get (SCM s_0)
+{
+#define FUNC_NAME "alias-path-t-s-get"
+  coot::alias_path_t *arg1 = (coot::alias_path_t *) 0 ;
+  std::string result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (coot::alias_path_t *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_coot__alias_path_t, 1, 0);
+  }
+  result =  ((arg1)->s);
+  {
+    std::string * resultptr;
+    resultptr = new std::string((std::string &) result);
+    gswig_result =  SWIG_NewPointerObj (resultptr, SWIGTYPE_p_std__string, 1);
+  }
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_alias_path_t_flag_set (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "alias-path-t-flag-set"
+  coot::alias_path_t *arg1 = (coot::alias_path_t *) 0 ;
+  bool arg2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (coot::alias_path_t *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_coot__alias_path_t, 1, 0);
+  }
+  {
+    arg2 = SCM_NFALSEP(s_1);
+  }
+  if (arg1) (arg1)->flag = arg2;
+  
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_alias_path_t_flag_get (SCM s_0)
+{
+#define FUNC_NAME "alias-path-t-flag-get"
+  coot::alias_path_t *arg1 = (coot::alias_path_t *) 0 ;
+  bool result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (coot::alias_path_t *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_coot__alias_path_t, 1, 0);
+  }
+  result = (bool) ((arg1)->flag);
+  {
+    gswig_result = SCM_BOOL(result);
+  }
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_new_alias_path_t (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "new-alias-path-t"
+  int arg1 ;
+  std::string *arg2 = 0 ;
+  bool arg3 ;
+  coot::alias_path_t *result = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = (std::string *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_std__string, 2, 0);
+  }
+  {
+    arg3 = SCM_NFALSEP(s_2);
+  }
+  result = (coot::alias_path_t *)new coot::alias_path_t(arg1,(std::string const &)*arg2,arg3);
+  {
+    gswig_result = SWIG_NewPointerObj (result, SWIGTYPE_p_coot__alias_path_t, 1);
+  }
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_delete_alias_path_t (SCM s_0)
+{
+#define FUNC_NAME "delete-alias-path-t"
+  coot::alias_path_t *arg1 = (coot::alias_path_t *) 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (coot::alias_path_t *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_coot__alias_path_t, 1, 0);
+  }
+  delete arg1;
+  
+  gswig_result = SCM_UNSPECIFIED;
+  
+  SWIG_Guile_MarkPointerDestroyed(s_0);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -24374,6 +25261,31 @@ _wrap_parse_ccp4i_defs (SCM s_0)
 
 
 static SCM
+_wrap_ccp4_project_directory (SCM s_0)
+{
+#define FUNC_NAME "ccp4-project-directory"
+  std::string *arg1 = 0 ;
+  std::string result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (std::string *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_std__string, 1, 0);
+  }
+  result = ccp4_project_directory((std::string const &)*arg1);
+  {
+    std::string * resultptr;
+    resultptr = new std::string((std::string &) result);
+    gswig_result =  SWIG_NewPointerObj (resultptr, SWIGTYPE_p_std__string, 1);
+  }
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_command_arg_t_INT(SCM s_0)
 {
 #define FUNC_NAME "command-arg-t-INT"
@@ -25068,6 +25980,53 @@ _wrap_dictionaries_read ()
 
 
 static SCM
+_wrap_monomer_restraints (SCM s_0)
+{
+#define FUNC_NAME "monomer-restraints"
+  char *arg1 = (char *) 0 ;
+  SCM result;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  result = (SCM)monomer_restraints((char const *)arg1);
+  gswig_result=result;
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_set_monomer_restraints (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "set-monomer-restraints"
+  char *arg1 = (char *) 0 ;
+  SCM arg2 ;
+  int must_free1 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (char *)SWIG_scm2str(s_0);
+    must_free1 = 1;
+  }
+  arg2=s_1;
+  set_monomer_restraints((char const *)arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  if (must_free1 && arg1) SWIG_free(arg1);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_safe_scheme_command_test (SCM s_0)
 {
 #define FUNC_NAME "safe-scheme-command-test"
@@ -25371,6 +26330,26 @@ _wrap_active_residue ()
 
 
 static SCM
+_wrap_closest_atom (SCM s_0)
+{
+#define FUNC_NAME "closest-atom"
+  int arg1 ;
+  SCM result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  result = (SCM)closest_atom(arg1);
+  gswig_result=result;
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_spin_search_by_atom_vectors (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6)
 {
 #define FUNC_NAME "spin-search-by-atom-vectors"
@@ -25556,6 +26535,128 @@ _wrap_mutate_internal (SCM s_0, SCM s_1, SCM s_2, SCM s_3)
 
 
 static SCM
+_wrap_execute_ligand_search_internal ()
+{
+#define FUNC_NAME "execute-ligand-search-internal"
+  std::vector<int > result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  result = execute_ligand_search_internal();
+  {
+    std::vector<int > * resultptr;
+    resultptr = new std::vector<int >((std::vector<int > &) result);
+    gswig_result =  SWIG_NewPointerObj (resultptr, SWIGTYPE_p_std__vectorTint_t, 1);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_overlap_ligands_internal (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4)
+{
+#define FUNC_NAME "overlap-ligands-internal"
+  int arg1 ;
+  int arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  bool arg5 ;
+  coot::graph_match_info_t result;
+  int must_free3 = 0 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (char *)SWIG_scm2str(s_2);
+    must_free3 = 1;
+  }
+  {
+    arg4 = scm_num2int(s_3, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg5 = SCM_NFALSEP(s_4);
+  }
+  result = overlap_ligands_internal(arg1,arg2,(char const *)arg3,arg4,arg5);
+  {
+    coot::graph_match_info_t * resultptr;
+    resultptr = new coot::graph_match_info_t((coot::graph_match_info_t &) result);
+    gswig_result =  SWIG_NewPointerObj (resultptr, SWIGTYPE_p_coot__graph_match_info_t, 1);
+  }
+  if (must_free3 && arg3) SWIG_free(arg3);
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_cootaneer_internal (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "cootaneer-internal"
+  int arg1 ;
+  int arg2 ;
+  coot::atom_spec_t *arg3 = 0 ;
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = (coot::atom_spec_t *)SWIG_MustGetPtr(s_2, SWIGTYPE_p_coot__atom_spec_t, 3, 0);
+  }
+  result = (int)cootaneer_internal(arg1,arg2,*arg3);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_cootaneer (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "cootaneer"
+  int arg1 ;
+  int arg2 ;
+  SCM arg3 ;
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  arg3=s_2;
+  result = (int)cootaneer(arg1,arg2,arg3);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_is_interesting_dots_object_next_p (SCM s_0)
 {
 #define FUNC_NAME "is-interesting-dots-object-next-p"
@@ -25602,6 +26703,27 @@ _wrap_generic_string_vector_to_list_internal (SCM s_0)
 
 
 static SCM
+_wrap_generic_int_vector_to_list_internal (SCM s_0)
+{
+#define FUNC_NAME "generic-int-vector-to-list-internal"
+  std::vector<int > *arg1 = 0 ;
+  SCM result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (std::vector<int > *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_std__vectorTint_t, 1, 0);
+  }
+  result = (SCM)generic_int_vector_to_list_internal((std::vector<int > const &)*arg1);
+  gswig_result=result;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_generic_list_to_string_vector_internal (SCM s_0)
 {
 #define FUNC_NAME "generic-list-to-string-vector-internal"
@@ -25638,6 +26760,28 @@ _wrap_rtop_to_scm (SCM s_0)
   result = (SCM)rtop_to_scm((clipper::RTop_orth const &)*arg1);
   gswig_result=result;
   
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_atom_spec_from_scm_expression (SCM s_0)
+{
+#define FUNC_NAME "atom-spec-from-scm-expression"
+  SCM arg1 ;
+  coot::atom_spec_t result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  arg1=s_0;
+  result = atom_spec_from_scm_expression(arg1);
+  {
+    coot::atom_spec_t * resultptr;
+    resultptr = new coot::atom_spec_t((coot::atom_spec_t &) result);
+    gswig_result =  SWIG_NewPointerObj (resultptr, SWIGTYPE_p_coot__atom_spec_t, 1);
+  }
   
   return gswig_result;
 #undef FUNC_NAME
@@ -25691,9 +26835,11 @@ static swig_type_info _swigt__p_GtkToggleButton = {"_p_GtkToggleButton", "GtkTog
 static swig_type_info _swigt__p_GtkWidget = {"_p_GtkWidget", "GtkWidget *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_clipper__RTop_orth = {"_p_clipper__RTop_orth", "clipper::RTop_orth *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_clipper__String = {"_p_clipper__String", "clipper::String *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_coot__alias_path_t = {"_p_coot__alias_path_t", "coot::alias_path_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_coot__atom_spec_t = {"_p_coot__atom_spec_t", "coot::atom_spec_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_coot__command_arg_t = {"_p_coot__command_arg_t", "coot::command_arg_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_coot__file_attribs_info_t = {"_p_coot__file_attribs_info_t", "coot::file_attribs_info_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_coot__graph_match_info_t = {"_p_coot__graph_match_info_t", "coot::graph_match_info_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_coot__str_mtime = {"_p_coot__str_mtime", "coot::str_mtime *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_double = {"_p_double", "double *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_gboolean = {"_p_gboolean", "gboolean *", 0, 0, (void*)0, 0};
@@ -25730,9 +26876,11 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_GtkWidget,
   &_swigt__p_clipper__RTop_orth,
   &_swigt__p_clipper__String,
+  &_swigt__p_coot__alias_path_t,
   &_swigt__p_coot__atom_spec_t,
   &_swigt__p_coot__command_arg_t,
   &_swigt__p_coot__file_attribs_info_t,
+  &_swigt__p_coot__graph_match_info_t,
   &_swigt__p_coot__str_mtime,
   &_swigt__p_double,
   &_swigt__p_gboolean,
@@ -25769,9 +26917,11 @@ static swig_cast_info _swigc__p_GtkToggleButton[] = {  {&_swigt__p_GtkToggleButt
 static swig_cast_info _swigc__p_GtkWidget[] = {  {&_swigt__p_GtkWidget, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_clipper__RTop_orth[] = {  {&_swigt__p_clipper__RTop_orth, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_clipper__String[] = {  {&_swigt__p_clipper__String, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_coot__alias_path_t[] = {  {&_swigt__p_coot__alias_path_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_coot__atom_spec_t[] = {  {&_swigt__p_coot__atom_spec_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_coot__command_arg_t[] = {  {&_swigt__p_coot__command_arg_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_coot__file_attribs_info_t[] = {  {&_swigt__p_coot__file_attribs_info_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_coot__graph_match_info_t[] = {  {&_swigt__p_coot__graph_match_info_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_coot__str_mtime[] = {  {&_swigt__p_coot__str_mtime, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_double[] = {  {&_swigt__p_double, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_gboolean[] = {  {&_swigt__p_gboolean, 0, 0, 0},{0, 0, 0, 0}};
@@ -25808,9 +26958,11 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_GtkWidget,
   _swigc__p_clipper__RTop_orth,
   _swigc__p_clipper__String,
+  _swigc__p_coot__alias_path_t,
   _swigc__p_coot__atom_spec_t,
   _swigc__p_coot__command_arg_t,
   _swigc__p_coot__file_attribs_info_t,
+  _swigc__p_coot__graph_match_info_t,
   _swigc__p_coot__str_mtime,
   _swigc__p_double,
   _swigc__p_gboolean,
@@ -26114,6 +27266,7 @@ SWIG_init(void)
   scm_c_define_gsubr("exchange-chain-ids-for-seg-ids", 1, 0, 0, (swig_guile_proc) _wrap_exchange_chain_ids_for_seg_ids);
   scm_c_define_gsubr("coot-version", 0, 0, 0, (swig_guile_proc) _wrap_coot_version);
   scm_c_define_gsubr("molecule-name", 1, 0, 0, (swig_guile_proc) _wrap_molecule_name);
+  scm_c_define_gsubr("set-molecule-name", 2, 0, 0, (swig_guile_proc) _wrap_set_molecule_name);
   scm_c_define_gsubr("main-window", 0, 0, 0, (swig_guile_proc) _wrap_main_window);
   scm_c_define_gsubr("coot-checked-exit", 1, 0, 0, (swig_guile_proc) _wrap_coot_checked_exit);
   scm_c_define_gsubr("coot-real-exit", 1, 0, 0, (swig_guile_proc) _wrap_coot_real_exit);
@@ -26135,6 +27288,7 @@ SWIG_init(void)
   scm_c_define_gsubr("handle-read-draw-molecule-with-recentre", 2, 0, 0, (swig_guile_proc) _wrap_handle_read_draw_molecule_with_recentre);
   scm_c_define_gsubr("read-pdb", 1, 0, 0, (swig_guile_proc) _wrap_read_pdb);
   scm_c_define_gsubr("replace-fragment", 3, 0, 0, (swig_guile_proc) _wrap_replace_fragment);
+  scm_c_define_gsubr("clear-and-update-model-molecule-from-file", 2, 0, 0, (swig_guile_proc) _wrap_clear_and_update_model_molecule_from_file);
   scm_c_define_gsubr("screendump-image", 1, 0, 0, (swig_guile_proc) _wrap_screendump_image);
   scm_c_define_gsubr("add-is-difference-map-checkbutton", 1, 0, 0, (swig_guile_proc) _wrap_add_is_difference_map_checkbutton);
   scm_c_define_gsubr("on-read-map-difference-map-toggle-button-toggled", 2, 0, 0, (swig_guile_proc) _wrap_on_read_map_difference_map_toggle_button_toggled);
@@ -26148,6 +27302,7 @@ SWIG_init(void)
   scm_c_define_gsubr("get-view-matrix-element", 2, 0, 0, (swig_guile_proc) _wrap_get_view_matrix_element);
   scm_c_define_gsubr("get-view-quaternion-internal", 1, 0, 0, (swig_guile_proc) _wrap_get_view_quaternion_internal);
   scm_c_define_gsubr("set-view-quaternion", 4, 0, 0, (swig_guile_proc) _wrap_set_view_quaternion);
+  scm_c_define_gsubr("apply-ncs-to-view-orientation", 3, 0, 0, (swig_guile_proc) _wrap_apply_ncs_to_view_orientation);
   scm_c_define_gsubr("set-fps-flag", 1, 0, 0, (swig_guile_proc) _wrap_set_fps_flag);
   scm_c_define_gsubr("get-fps-flag", 0, 0, 0, (swig_guile_proc) _wrap_get_fps_flag);
   scm_c_define_gsubr("set-show-origin-marker", 1, 0, 0, (swig_guile_proc) _wrap_set_show_origin_marker);
@@ -26187,6 +27342,7 @@ SWIG_init(void)
   scm_c_define_gsubr("apply-undo", 0, 0, 0, (swig_guile_proc) _wrap_apply_undo);
   scm_c_define_gsubr("apply-redo", 0, 0, 0, (swig_guile_proc) _wrap_apply_redo);
   scm_c_define_gsubr("set-have-unsaved-changes", 1, 0, 0, (swig_guile_proc) _wrap_set_have_unsaved_changes);
+  scm_c_define_gsubr("have-unsaved-changes-p", 1, 0, 0, (swig_guile_proc) _wrap_have_unsaved_changes_p);
   scm_c_define_gsubr("set-undo-molecule", 1, 0, 0, (swig_guile_proc) _wrap_set_undo_molecule);
   scm_c_define_gsubr("show-set-undo-molecule-chooser", 0, 0, 0, (swig_guile_proc) _wrap_show_set_undo_molecule_chooser);
   scm_c_define_gsubr("set-unpathed-backup-file-names", 1, 0, 0, (swig_guile_proc) _wrap_set_unpathed_backup_file_names);
@@ -26217,6 +27373,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-contour-by-sigma-step-maybe", 2, 0, 0, (swig_guile_proc) _wrap_set_contour_by_sigma_step_maybe);
   scm_c_define_gsubr("set-contour-by-sigma-step-by-mol", 3, 0, 0, (swig_guile_proc) _wrap_set_contour_by_sigma_step_by_mol);
   scm_c_define_gsubr("data-resolution", 1, 0, 0, (swig_guile_proc) _wrap_data_resolution);
+  scm_c_define_gsubr("solid-surface", 2, 0, 0, (swig_guile_proc) _wrap_solid_surface);
   scm_c_define_gsubr("export-map", 2, 0, 0, (swig_guile_proc) _wrap_export_map);
   scm_c_define_gsubr("transform-map-raw", 0, 0, 1, (swig_guile_proc) _wrap_transform_map_raw_rest);
   scm_c_define_gsubr("rotate-map-round-screen-axis-x", 1, 0, 0, (swig_guile_proc) _wrap_rotate_map_round_screen_axis_x);
@@ -26263,6 +27420,7 @@ SWIG_init(void)
   scm_c_define_gsubr("esoteric-depth-cue-state", 0, 0, 0, (swig_guile_proc) _wrap_esoteric_depth_cue_state);
   scm_c_define_gsubr("set-swap-difference-map-colours", 1, 0, 0, (swig_guile_proc) _wrap_set_swap_difference_map_colours);
   scm_c_define_gsubr("set-map-is-difference-map", 1, 0, 0, (swig_guile_proc) _wrap_set_map_is_difference_map);
+  scm_c_define_gsubr("map-is-difference-map", 1, 0, 0, (swig_guile_proc) _wrap_map_is_difference_map);
   scm_c_define_gsubr("another-level", 0, 0, 0, (swig_guile_proc) _wrap_another_level);
   scm_c_define_gsubr("another-level-from-map-molecule-number", 1, 0, 0, (swig_guile_proc) _wrap_another_level_from_map_molecule_number);
   scm_c_define_gsubr("residue-density-fit-scale-factor", 0, 0, 0, (swig_guile_proc) _wrap_residue_density_fit_scale_factor);
@@ -26464,6 +27622,7 @@ SWIG_init(void)
   scm_c_define_gsubr("go-to-atom-ins-code", 0, 0, 0, (swig_guile_proc) _wrap_go_to_atom_ins_code);
   scm_c_define_gsubr("go-to-atom-alt-conf", 0, 0, 0, (swig_guile_proc) _wrap_go_to_atom_alt_conf);
   scm_c_define_gsubr("set-go-to-atom-chain-residue-atom-name", 3, 0, 0, (swig_guile_proc) _wrap_set_go_to_atom_chain_residue_atom_name);
+  scm_c_define_gsubr("set-go-to-atom-chain-residue-atom-name-no-redraw", 3, 0, 0, (swig_guile_proc) _wrap_set_go_to_atom_chain_residue_atom_name_no_redraw);
   scm_c_define_gsubr("set-go-to-atom-chain-residue-atom-name-strings", 3, 0, 0, (swig_guile_proc) _wrap_set_go_to_atom_chain_residue_atom_name_strings);
   scm_c_define_gsubr("goto-prev-atom-maybe", 4, 0, 0, (swig_guile_proc) _wrap_goto_prev_atom_maybe);
   scm_c_define_gsubr("goto-near-atom-maybe", 5, 0, 0, (swig_guile_proc) _wrap_goto_near_atom_maybe);
@@ -26497,12 +27656,15 @@ SWIG_init(void)
   scm_c_define_gsubr("add-mol-display-control-widgets", 0, 0, 0, (swig_guile_proc) _wrap_add_mol_display_control_widgets);
   scm_c_define_gsubr("add-map-and-mol-display-control-widgets", 0, 0, 0, (swig_guile_proc) _wrap_add_map_and_mol_display_control_widgets);
   scm_c_define_gsubr("reset-graphics-display-control-window", 0, 0, 0, (swig_guile_proc) _wrap_reset_graphics_display_control_window);
+  scm_c_define_gsubr("close-graphics-display-control-window", 0, 0, 0, (swig_guile_proc) _wrap_close_graphics_display_control_window);
   scm_c_define_gsubr("set-map-displayed", 2, 0, 0, (swig_guile_proc) _wrap_set_map_displayed);
   scm_c_define_gsubr("set-mol-displayed", 2, 0, 0, (swig_guile_proc) _wrap_set_mol_displayed);
   scm_c_define_gsubr("set-mol-active", 2, 0, 0, (swig_guile_proc) _wrap_set_mol_active);
   scm_c_define_gsubr("mol-is-displayed", 1, 0, 0, (swig_guile_proc) _wrap_mol_is_displayed);
   scm_c_define_gsubr("mol-is-active", 1, 0, 0, (swig_guile_proc) _wrap_mol_is_active);
   scm_c_define_gsubr("map-is-displayed", 1, 0, 0, (swig_guile_proc) _wrap_map_is_displayed);
+  scm_c_define_gsubr("set-all-maps-displayed", 1, 0, 0, (swig_guile_proc) _wrap_set_all_maps_displayed);
+  scm_c_define_gsubr("set-all-models-displayed-and-active", 1, 0, 0, (swig_guile_proc) _wrap_set_all_models_displayed_and_active);
   scm_c_define_gsubr("show-spacegroup", 1, 0, 0, (swig_guile_proc) _wrap_show_spacegroup);
   scm_c_define_gsubr("wrapped-create-merge-molecules-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_merge_molecules_dialog);
   scm_c_define_gsubr("do-merge-molecules-gui", 0, 0, 0, (swig_guile_proc) _wrap_do_merge_molecules_gui);
@@ -26580,6 +27742,7 @@ SWIG_init(void)
   scm_c_define_gsubr("check-chiral-volumes-from-widget", 1, 0, 0, (swig_guile_proc) _wrap_check_chiral_volumes_from_widget);
   scm_c_define_gsubr("fill-chiral-volume-molecule-option-menu", 1, 0, 0, (swig_guile_proc) _wrap_fill_chiral_volume_molecule_option_menu);
   scm_c_define_gsubr("chiral-volume-molecule-option-menu-item-select", 2, 0, 0, (swig_guile_proc) _wrap_chiral_volume_molecule_option_menu_item_select);
+  scm_c_define_gsubr("set-show-chiral-volume-errors-dialog", 1, 0, 0, (swig_guile_proc) _wrap_set_show_chiral_volume_errors_dialog);
   scm_c_define_gsubr("set-secondary-structure-restraints-type", 1, 0, 0, (swig_guile_proc) _wrap_set_secondary_structure_restraints_type);
   scm_c_define_gsubr("secondary-structure-restraints-type", 0, 0, 0, (swig_guile_proc) _wrap_secondary_structure_restraints_type);
   scm_c_define_gsubr("imol-refinement-map", 0, 0, 0, (swig_guile_proc) _wrap_imol_refinement_map);
@@ -26611,6 +27774,7 @@ SWIG_init(void)
   scm_c_define_gsubr("toggle-environment-show-distances", 1, 0, 0, (swig_guile_proc) _wrap_toggle_environment_show_distances);
   scm_c_define_gsubr("set-show-environment-distances", 1, 0, 0, (swig_guile_proc) _wrap_set_show_environment_distances);
   scm_c_define_gsubr("show-environment-distances-state", 0, 0, 0, (swig_guile_proc) _wrap_show_environment_distances_state);
+  scm_c_define_gsubr("set-environment-distances-distance-limits", 2, 0, 0, (swig_guile_proc) _wrap_set_environment_distances_distance_limits);
   scm_c_define_gsubr("fill-pointer-distances-widget", 1, 0, 0, (swig_guile_proc) _wrap_fill_pointer_distances_widget);
   scm_c_define_gsubr("execute-pointer-distances-settings", 1, 0, 0, (swig_guile_proc) _wrap_execute_pointer_distances_settings);
   scm_c_define_gsubr("toggle-pointer-distances-show-distances", 1, 0, 0, (swig_guile_proc) _wrap_toggle_pointer_distances_show_distances);
@@ -26642,6 +27806,8 @@ SWIG_init(void)
   scm_c_define_gsubr("read-shelx-ins-file", 1, 0, 0, (swig_guile_proc) _wrap_read_shelx_ins_file);
   scm_c_define_gsubr("write-shelx-ins-file", 2, 0, 0, (swig_guile_proc) _wrap_write_shelx_ins_file);
   scm_c_define_gsubr("handle-shelx-fcf-file-internal", 1, 0, 0, (swig_guile_proc) _wrap_handle_shelx_fcf_file_internal);
+  scm_c_define_gsubr("chain-id-for-shelxl-residue-number", 2, 0, 0, (swig_guile_proc) _wrap_chain_id_for_shelxl_residue_number);
+  scm_c_define_gsubr("add-shelx-string-to-molecule", 2, 0, 0, (swig_guile_proc) _wrap_add_shelx_string_to_molecule);
   scm_c_define_gsubr("deviant-geometry", 1, 0, 0, (swig_guile_proc) _wrap_deviant_geometry);
   scm_c_define_gsubr("is-valid-model-molecule", 1, 0, 0, (swig_guile_proc) _wrap_is_valid_model_molecule);
   scm_c_define_gsubr("is-valid-map-molecule", 1, 0, 0, (swig_guile_proc) _wrap_is_valid_map_molecule);
@@ -26745,6 +27911,7 @@ SWIG_init(void)
   scm_c_define_gsubr("add-ligand-search-wiggly-ligand-molecule", 1, 0, 0, (swig_guile_proc) _wrap_add_ligand_search_wiggly_ligand_molecule);
   scm_c_define_gsubr("execute-ligand-search", 0, 0, 0, (swig_guile_proc) _wrap_execute_ligand_search);
   scm_c_define_gsubr("free-ligand-search-user-data", 1, 0, 0, (swig_guile_proc) _wrap_free_ligand_search_user_data);
+  scm_c_define_gsubr("add-ligand-clear-ligands", 0, 0, 0, (swig_guile_proc) _wrap_add_ligand_clear_ligands);
   scm_c_define_gsubr("ligand-expert", 0, 0, 0, (swig_guile_proc) _wrap_ligand_expert);
   scm_c_define_gsubr("do-find-ligands-dialog", 0, 0, 0, (swig_guile_proc) _wrap_do_find_ligands_dialog);
   scm_c_define_gsubr("fill-ligands-dialog", 1, 0, 0, (swig_guile_proc) _wrap_fill_ligands_dialog);
@@ -26759,12 +27926,14 @@ SWIG_init(void)
   scm_c_define_gsubr("fill-ligands-expert-options", 1, 0, 0, (swig_guile_proc) _wrap_fill_ligands_expert_options);
   scm_c_define_gsubr("set-ligand-expert-options-from-widget", 1, 0, 0, (swig_guile_proc) _wrap_set_ligand_expert_options_from_widget);
   scm_c_define_gsubr("overlap-ligands", 4, 0, 0, (swig_guile_proc) _wrap_overlap_ligands);
+  scm_c_define_gsubr("analyse-ligand-differences", 4, 0, 0, (swig_guile_proc) _wrap_analyse_ligand_differences);
   scm_c_define_gsubr("execute-get-mols-ligand-search", 1, 0, 0, (swig_guile_proc) _wrap_execute_get_mols_ligand_search);
   scm_c_define_gsubr("free-blob-dialog-memory", 1, 0, 0, (swig_guile_proc) _wrap_free_blob_dialog_memory);
   scm_c_define_gsubr("renumber-waters", 1, 0, 0, (swig_guile_proc) _wrap_renumber_waters);
   scm_c_define_gsubr("fill-find-waters-dialog", 1, 0, 0, (swig_guile_proc) _wrap_fill_find_waters_dialog);
   scm_c_define_gsubr("execute-find-waters", 1, 0, 0, (swig_guile_proc) _wrap_execute_find_waters);
   scm_c_define_gsubr("execute-find-waters-real", 4, 0, 0, (swig_guile_proc) _wrap_execute_find_waters_real);
+  scm_c_define_gsubr("find-waters", 5, 0, 0, (swig_guile_proc) _wrap_find_waters);
   scm_c_define_gsubr("get-text-for-find-waters-sigma-cut-off", 0, 0, 0, (swig_guile_proc) _wrap_get_text_for_find_waters_sigma_cut_off);
   scm_c_define_gsubr("set-value-for-find-waters-sigma-cut-off", 1, 0, 0, (swig_guile_proc) _wrap_set_value_for_find_waters_sigma_cut_off);
   scm_c_define_gsubr("on-big-blob-button-clicked", 2, 0, 0, (swig_guile_proc) _wrap_on_big_blob_button_clicked);
@@ -26844,12 +28013,17 @@ SWIG_init(void)
   scm_c_define_gsubr("delete-item-mode-is-sidechain-p", 0, 0, 0, (swig_guile_proc) _wrap_delete_item_mode_is_sidechain_p);
   scm_c_define_gsubr("store-delete-item-widget", 1, 0, 0, (swig_guile_proc) _wrap_store_delete_item_widget);
   scm_c_define_gsubr("clear-pending-delete-item", 0, 0, 0, (swig_guile_proc) _wrap_clear_pending_delete_item);
+  scm_c_define_gsubr("clear-delete-item-widget", 0, 0, 0, (swig_guile_proc) _wrap_clear_delete_item_widget);
+  scm_c_define_gsubr("store-delete-item-widget-position", 0, 0, 0, (swig_guile_proc) _wrap_store_delete_item_widget_position);
+  scm_c_define_gsubr("delete-item-widget-is-being-shown", 0, 0, 0, (swig_guile_proc) _wrap_delete_item_widget_is_being_shown);
+  scm_c_define_gsubr("delete-item-widget-keep-active-on", 0, 0, 0, (swig_guile_proc) _wrap_delete_item_widget_keep_active_on);
   scm_c_define_gsubr("wrapped-create-delete-item-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_delete_item_dialog);
   scm_c_define_gsubr("do-rot-trans-setup", 1, 0, 0, (swig_guile_proc) _wrap_do_rot_trans_setup);
   scm_c_define_gsubr("do-rot-trans-adjustments", 1, 0, 0, (swig_guile_proc) _wrap_do_rot_trans_adjustments);
   scm_c_define_gsubr("rot-trans-reset-previous", 0, 0, 0, (swig_guile_proc) _wrap_rot_trans_reset_previous);
   scm_c_define_gsubr("set-rotate-translate-zone-rotates-about-zone-centre", 1, 0, 0, (swig_guile_proc) _wrap_set_rotate_translate_zone_rotates_about_zone_centre);
   scm_c_define_gsubr("do-cis-trans-conversion-setup", 1, 0, 0, (swig_guile_proc) _wrap_do_cis_trans_conversion_setup);
+  scm_c_define_gsubr("cis-trans-convert", 4, 0, 0, (swig_guile_proc) _wrap_cis_trans_convert);
   scm_c_define_gsubr("do-db-main", 1, 0, 0, (swig_guile_proc) _wrap_do_db_main);
   scm_c_define_gsubr("db-mainchain", 5, 0, 0, (swig_guile_proc) _wrap_db_mainchain);
   scm_c_define_gsubr("close-molecule", 1, 0, 0, (swig_guile_proc) _wrap_close_molecule);
@@ -26869,6 +28043,7 @@ SWIG_init(void)
   scm_c_define_gsubr("fill-partial-residues", 1, 0, 0, (swig_guile_proc) _wrap_fill_partial_residues);
   scm_c_define_gsubr("fill-partial-residue", 4, 0, 0, (swig_guile_proc) _wrap_fill_partial_residue);
   scm_c_define_gsubr("set-graphics-rotamer-dialog", 1, 0, 0, (swig_guile_proc) _wrap_set_graphics_rotamer_dialog);
+  scm_c_define_gsubr("rotamer-graphs", 1, 0, 0, (swig_guile_proc) _wrap_rotamer_graphs);
   scm_c_define_gsubr("do-180-degree-side-chain-flip", 5, 0, 0, (swig_guile_proc) _wrap_do_180_degree_side_chain_flip);
   scm_c_define_gsubr("setup-180-degree-flip", 1, 0, 0, (swig_guile_proc) _wrap_setup_180_degree_flip);
   scm_c_define_gsubr("setup-mutate", 1, 0, 0, (swig_guile_proc) _wrap_setup_mutate);
@@ -26978,6 +28153,7 @@ SWIG_init(void)
   scm_c_define_gsubr("wrapped-create-ncs-maps-dialog", 0, 0, 0, (swig_guile_proc) _wrap_wrapped_create_ncs_maps_dialog);
   scm_c_define_gsubr("make-ncs-ghosts-maybe", 1, 0, 0, (swig_guile_proc) _wrap_make_ncs_ghosts_maybe);
   scm_c_define_gsubr("add-ncs-matrix", 0, 0, 1, (swig_guile_proc) _wrap_add_ncs_matrix_rest);
+  scm_c_define_gsubr("clear-ncs-ghost-matrices", 1, 0, 0, (swig_guile_proc) _wrap_clear_ncs_ghost_matrices);
   scm_c_define_gsubr("add-strict-ncs-matrix", 0, 0, 1, (swig_guile_proc) _wrap_add_strict_ncs_matrix_rest);
   scm_c_define_gsubr("show-strict-ncs-state", 1, 0, 0, (swig_guile_proc) _wrap_show_strict_ncs_state);
   scm_c_define_gsubr("set-show-strict-ncs", 2, 0, 0, (swig_guile_proc) _wrap_set_show_strict_ncs);
@@ -26993,6 +28169,7 @@ SWIG_init(void)
   scm_c_define_gsubr("place-strand-here", 2, 0, 0, (swig_guile_proc) _wrap_place_strand_here);
   scm_c_define_gsubr("new-molecule-by-residue-type-selection", 2, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_residue_type_selection);
   scm_c_define_gsubr("new-molecule-by-atom-selection", 2, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_atom_selection);
+  scm_c_define_gsubr("new-molecule-by-sphere-selection", 5, 0, 0, (swig_guile_proc) _wrap_new_molecule_by_sphere_selection);
   scm_c_define_gsubr("set-axis-orientation-matrix", 9, 0, 0, (swig_guile_proc) _wrap_set_axis_orientation_matrix);
   scm_c_define_gsubr("set-axis-orientation-matrix-usage", 1, 0, 0, (swig_guile_proc) _wrap_set_axis_orientation_matrix_usage);
   scm_c_define_gsubr("ideal-nucleic-acid", 4, 0, 0, (swig_guile_proc) _wrap_ideal_nucleic_acid);
@@ -27000,7 +28177,9 @@ SWIG_init(void)
   scm_c_define_gsubr("ideal-nucleic-acid-by-widget", 1, 0, 0, (swig_guile_proc) _wrap_ideal_nucleic_acid_by_widget);
   scm_c_define_gsubr("print-sequence-chain", 2, 0, 0, (swig_guile_proc) _wrap_print_sequence_chain);
   scm_c_define_gsubr("assign-fasta-sequence", 3, 0, 0, (swig_guile_proc) _wrap_assign_fasta_sequence);
+  scm_c_define_gsubr("assign-pir-sequence", 3, 0, 0, (swig_guile_proc) _wrap_assign_pir_sequence);
   scm_c_define_gsubr("assign-sequence", 3, 0, 0, (swig_guile_proc) _wrap_assign_sequence);
+  scm_c_define_gsubr("sequence-info", 1, 0, 0, (swig_guile_proc) _wrap_sequence_info);
   scm_c_define_gsubr("do-surface", 2, 0, 0, (swig_guile_proc) _wrap_do_surface);
   scm_c_define_gsubr("fffear-search", 2, 0, 0, (swig_guile_proc) _wrap_fffear_search);
   scm_c_define_gsubr("set-fffear-angular-resolution", 1, 0, 0, (swig_guile_proc) _wrap_set_fffear_angular_resolution);
@@ -27043,10 +28222,21 @@ SWIG_init(void)
   scm_c_define_gsubr("probe-available-p", 0, 0, 0, (swig_guile_proc) _wrap_probe_available_p);
   scm_c_define_gsubr("set-dti-stereo-mode", 1, 0, 0, (swig_guile_proc) _wrap_set_dti_stereo_mode);
   scm_c_define_gsubr("write-ccp4mg-picture-description", 1, 0, 0, (swig_guile_proc) _wrap_write_ccp4mg_picture_description);
+  scm_c_define_gsubr("laplacian", 1, 0, 0, (swig_guile_proc) _wrap_laplacian);
   scm_c_define_gsubr("do-smiles-gui", 0, 0, 0, (swig_guile_proc) _wrap_do_smiles_gui);
   scm_c_define_gsubr("do-tw", 0, 0, 0, (swig_guile_proc) _wrap_do_tw);
   scm_c_define_gsubr("place-text", 5, 0, 0, (swig_guile_proc) _wrap_place_text);
   scm_c_define_gsubr("remove-text", 1, 0, 0, (swig_guile_proc) _wrap_remove_text);
+  SWIG_TypeClientData(SWIGTYPE_p_coot__alias_path_t, (void *) &_swig_guile_clientdataalias_path_t);
+  scm_c_define_gsubr("alias-path-t-index-set", 2, 0, 0, (swig_guile_proc) _wrap_alias_path_t_index_set);
+  scm_c_define_gsubr("alias-path-t-index-get", 1, 0, 0, (swig_guile_proc) _wrap_alias_path_t_index_get);
+  scm_c_define_gsubr("alias-path-t-s-set", 2, 0, 0, (swig_guile_proc) _wrap_alias_path_t_s_set);
+  scm_c_define_gsubr("alias-path-t-s-get", 1, 0, 0, (swig_guile_proc) _wrap_alias_path_t_s_get);
+  scm_c_define_gsubr("alias-path-t-flag-set", 2, 0, 0, (swig_guile_proc) _wrap_alias_path_t_flag_set);
+  scm_c_define_gsubr("alias-path-t-flag-get", 1, 0, 0, (swig_guile_proc) _wrap_alias_path_t_flag_get);
+  scm_c_define_gsubr("new-alias-path-t", 3, 0, 0, (swig_guile_proc) _wrap_new_alias_path_t);
+  ((swig_guile_clientdata *)(SWIGTYPE_p_coot__alias_path_t->clientdata))->destroy = (guile_destructor) _wrap_delete_alias_path_t;
+  scm_c_define_gsubr("delete-alias-path-t", 1, 0, 0, (swig_guile_proc) _wrap_delete_alias_path_t);
   scm_c_define_gsubr("filtered-by-glob", 2, 0, 0, (swig_guile_proc) _wrap_filtered_by_glob);
   scm_c_define_gsubr("string-member", 2, 0, 0, (swig_guile_proc) _wrap_string_member);
   scm_c_define_gsubr("compare-strings", 2, 0, 0, (swig_guile_proc) _wrap_compare_strings);
@@ -27083,6 +28273,7 @@ SWIG_init(void)
   scm_c_define_gsubr("delete-file-attribs-info-t", 1, 0, 0, (swig_guile_proc) _wrap_delete_file_attribs_info_t);
   scm_c_define_gsubr("compare-mtimes", 2, 0, 0, (swig_guile_proc) _wrap_compare_mtimes);
   scm_c_define_gsubr("parse-ccp4i-defs", 1, 0, 0, (swig_guile_proc) _wrap_parse_ccp4i_defs);
+  scm_c_define_gsubr("ccp4-project-directory", 1, 0, 0, (swig_guile_proc) _wrap_ccp4_project_directory);
   SWIG_TypeClientData(SWIGTYPE_p_coot__command_arg_t, (void *) &_swig_guile_clientdatacommand_arg_t);
   scm_c_define_gsubr("command-arg-t-INT", 0, 0, 0, (swig_guile_proc) _wrap_command_arg_t_INT);
   scm_c_define_gsubr("command-arg-t-FLOAT", 0, 0, 0, (swig_guile_proc) _wrap_command_arg_t_FLOAT);
@@ -27109,6 +28300,8 @@ SWIG_init(void)
   scm_c_define_gsubr("add-to-database", 1, 0, 0, (swig_guile_proc) _wrap_add_to_database);
   scm_c_define_gsubr("merge-molecules-by-vector", 2, 0, 0, (swig_guile_proc) _wrap_merge_molecules_by_vector);
   scm_c_define_gsubr("dictionaries-read", 0, 0, 0, (swig_guile_proc) _wrap_dictionaries_read);
+  scm_c_define_gsubr("monomer-restraints", 1, 0, 0, (swig_guile_proc) _wrap_monomer_restraints);
+  scm_c_define_gsubr("set-monomer-restraints", 2, 0, 0, (swig_guile_proc) _wrap_set_monomer_restraints);
   scm_c_define_gsubr("safe-scheme-command-test", 1, 0, 0, (swig_guile_proc) _wrap_safe_scheme_command_test);
   scm_c_define_gsubr("safe-scheme-command", 1, 0, 0, (swig_guile_proc) _wrap_safe_scheme_command);
   scm_c_define_gsubr("safe-python-command", 1, 0, 0, (swig_guile_proc) _wrap_safe_python_command);
@@ -27120,15 +28313,22 @@ SWIG_init(void)
   scm_c_define_gsubr("clear-and-update-molecule", 2, 0, 0, (swig_guile_proc) _wrap_clear_and_update_molecule);
   scm_c_define_gsubr("add-molecule", 2, 0, 0, (swig_guile_proc) _wrap_add_molecule);
   scm_c_define_gsubr("active-residue", 0, 0, 0, (swig_guile_proc) _wrap_active_residue);
+  scm_c_define_gsubr("closest-atom", 1, 0, 0, (swig_guile_proc) _wrap_closest_atom);
   scm_c_define_gsubr("spin-search-by-atom-vectors", 7, 0, 0, (swig_guile_proc) _wrap_spin_search_by_atom_vectors);
   scm_c_define_gsubr("spin-search", 7, 0, 0, (swig_guile_proc) _wrap_spin_search);
   scm_c_define_gsubr("monomer-lib-3-letter-codes-matching", 2, 0, 0, (swig_guile_proc) _wrap_monomer_lib_3_letter_codes_matching);
   scm_c_define_gsubr("on-monomer-lib-search-results-button-press", 2, 0, 0, (swig_guile_proc) _wrap_on_monomer_lib_search_results_button_press);
   scm_c_define_gsubr("mutate-internal", 4, 0, 0, (swig_guile_proc) _wrap_mutate_internal);
+  scm_c_define_gsubr("execute-ligand-search-internal", 0, 0, 0, (swig_guile_proc) _wrap_execute_ligand_search_internal);
+  scm_c_define_gsubr("overlap-ligands-internal", 5, 0, 0, (swig_guile_proc) _wrap_overlap_ligands_internal);
+  scm_c_define_gsubr("cootaneer-internal", 3, 0, 0, (swig_guile_proc) _wrap_cootaneer_internal);
+  scm_c_define_gsubr("cootaneer", 3, 0, 0, (swig_guile_proc) _wrap_cootaneer);
   scm_c_define_gsubr("is-interesting-dots-object-next-p", 1, 0, 0, (swig_guile_proc) _wrap_is_interesting_dots_object_next_p);
   scm_c_define_gsubr("generic-string-vector-to-list-internal", 1, 0, 0, (swig_guile_proc) _wrap_generic_string_vector_to_list_internal);
+  scm_c_define_gsubr("generic-int-vector-to-list-internal", 1, 0, 0, (swig_guile_proc) _wrap_generic_int_vector_to_list_internal);
   scm_c_define_gsubr("generic-list-to-string-vector-internal", 1, 0, 0, (swig_guile_proc) _wrap_generic_list_to_string_vector_internal);
   scm_c_define_gsubr("rtop-to-scm", 1, 0, 0, (swig_guile_proc) _wrap_rtop_to_scm);
+  scm_c_define_gsubr("atom-spec-from-scm-expression", 1, 0, 0, (swig_guile_proc) _wrap_atom_spec_from_scm_expression);
   scm_c_define_gsubr("set-display-control-button-state", 3, 0, 0, (swig_guile_proc) _wrap_set_display_control_button_state);
 }
 
