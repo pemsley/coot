@@ -296,7 +296,10 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
    typedef clipper::Xmap<float>::Map_reference_coord MRC;
    MRC i0, iu, iv, iw;
    g = pt_new_centre.coord_frac(xmap_in.cell()).coord_grid(xmap_in.grid_sampling());
+
+   std::cout << "DEBUG:: pulling map from point:   " << about_pt.format() << std::endl;
    std::cout << "DEBUG:: creating map about point: " << pt_new_centre.format() << std::endl;
+   
    g0 = g + gr.min();
    g1 = g + gr.max();
    i0 = MRC( xmap, g0 );
