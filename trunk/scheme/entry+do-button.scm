@@ -30,7 +30,7 @@
 	 (go-button (gtk-button-new-with-label "  Done   ")))
 
     (gtk-container-add window vbox)
-    (file-selector-entry vbox)
+    (file-selector-entry vbox "Hint Text: ")
 
     (gtk-box-pack-start vbox go-button #f #f)
     (gtk-widget-show-all window)))
