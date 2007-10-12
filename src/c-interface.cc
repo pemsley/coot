@@ -357,7 +357,25 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 int read_pdb(const char *filename) {
    // history is done in the handle function
    return handle_read_draw_molecule(filename); 
+}
+
+
+/*! \brief replace pdb.  Fail if molecule_number is not a valid model molecule.
+  Return -1 on failure.  Else return molecule_number  */
+int clear_and_update_model_molecule_from_file(int molecule_number, 
+					      const char *file_name) {
+   int imol = -1;
+   if (is_valid_model_molecule(molecule_number)) {
+      atom_selection_container_t asc = get_atom_selection(file_name);
+      CMMDBManager *mol = asc.mol;
+      graphics_info_t::molecules[molecule_number].replace_molecule(mol);
+      imol = molecule_number;
+      graphics_draw();
+   }
+   return imol;
+
 } 
+
 
 void set_draw_zero_occ_markers(int status) { 
    

@@ -433,6 +433,11 @@ int read_pdb(const char *filename); // cc4mg function name
   duplicated in molecule number imol_frag */
 int replace_fragment(int imol_target, int imol_fragment, const char *atom_selection);
 
+/*! \brief replace pdb.  Fail if molecule_number is not a valid model molecule.
+  Return -1 on failure.  Else return molecule_number  */
+int clear_and_update_model_molecule_from_file(int molecule_number, 
+					      const char *file_name);
+
 /* Used in execute_rigid_body_refine */
 /* Fix this on a rainy day. */
 /* atom_selection_container_t  */
