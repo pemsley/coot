@@ -107,7 +107,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   int istat;
   short int use_graphics_flag = use_graphics_interface_state();
 
-  printf("::::::::::::::::: c_inner_main() SWIG_init\n");
+  // printf("::::::::::::::::: c_inner_main() SWIG_init\n");
   SWIG_init();   
 
 

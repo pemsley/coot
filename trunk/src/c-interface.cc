@@ -157,7 +157,16 @@ const char *molecule_name(int imol) {
    add_to_history_typed(cmd, args);
    
    return r;
+}
+
+void set_molecule_name(int imol, const char *new_name) {
+
+   if (is_valid_model_molecule(imol) ||
+       is_valid_map_molecule(imol)) { 
+      graphics_info_t::molecules[imol].set_name(new_name);
+   } 
 } 
+
 
 //  Display characteristics:
 //
@@ -5324,8 +5333,11 @@ int transform_map_raw(int imol,
       clipper::Mat33<double> m(r00, r01, r02, r10, r11, r12, r20, r21, r22);
       clipper::Coord_orth c(t0, t1, t2);
       clipper::RTop_orth rtop(m,c);
-      clipper::RTop_orth rtop_inv = rtop.inverse();
+      // clipper::RTop_orth rtop_inv = rtop.inverse();
       clipper::Coord_orth pt(pt1, pt2, pt3);
+
+      std::cout << "DEBUG:: in transform_map_raw pt is " << pt.format() << std::endl;
+      
       clipper::Xmap<float> new_map =
 	 coot::util::transform_map(graphics_info_t::molecules[imol].xmap_list[0],
 				   rtop, pt, box_size);

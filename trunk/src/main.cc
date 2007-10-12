@@ -222,9 +222,12 @@ main (int argc, char *argv[]) {
     GladeXML *xml = glade_xml_new("../../coot/coot-gtk2-try2.glade", NULL, NULL);
     /* connect the signals in the interface */
     glade_xml_signal_autoconnect(xml);
+    window1 = glade_xml_get_widget(xml, "window1");
 
-#endif // USE_LIBGLADE     
+#else
      window1 = create_window1 ();
+#endif // USE_LIBGLADE
+     
 
      // Trying to put a pixmap into the menu bar...
      GtkWidget *reset_view1 = lookup_widget(window1, "reset_view1");
@@ -344,7 +347,7 @@ main (int argc, char *argv[]) {
      // interpreter not initialized (or something).
 
      // Now we want to import coot.py/_coot.so (coot load _coot)
-     std::cout << "::::::::::::::::: Python path init_coot" << std::endl;
+     // std::cout << "::::::::::::::::: Python path init_coot" << std::endl;
      init_coot(); // i.e. SWIG_init for python, best we do this before
                   // running .coot.py, eh?
 

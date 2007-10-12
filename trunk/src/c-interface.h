@@ -335,6 +335,8 @@ char *coot_version();
  @return 0 if not a valid name ( -> #f in scheme) 
  e.g. "/a/b/c.pdb" for "d/e/f.mtz FWT PHWT" */ 
 const char *molecule_name(int imol);
+/*! \brief set the molecule name of the imol-th molecule */
+void set_molecule_name(int imol, const char *new_name);
 GtkWidget *main_window(); 
 gboolean coot_checked_exit(int retval); 
 /*! \brief exit from coot, give return value retval back to invoking
