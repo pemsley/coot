@@ -283,8 +283,11 @@ coot::util::sharpen_map(const clipper::Xmap<float> &xmap_in, float sharpen_facto
 clipper::Xmap<float>
 coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
 			  const clipper::RTop_orth &rtop,
-			  const clipper::Coord_orth &about_pt,
+			  const clipper::Coord_orth &to_pt,
 			  float box_size) {
+
+   // we now need to create about_pt: i.e. where the map is pulled *from*
+   clipper::Coord_orth about_pt = to_pt.transform(rtop.inverse());
 
    clipper::Xmap<float> xmap;
    xmap.init(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
