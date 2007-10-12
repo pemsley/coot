@@ -4002,6 +4002,39 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_set_molecule_name(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_molecule_name",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_molecule_name" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "set_molecule_name" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  set_molecule_name(arg1,(char const *)arg2);
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_main_window(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkWidget *result = 0 ;
@@ -31427,6 +31460,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"exchange_chain_ids_for_seg_ids", _wrap_exchange_chain_ids_for_seg_ids, METH_VARARGS, NULL},
 	 { (char *)"coot_version", _wrap_coot_version, METH_VARARGS, NULL},
 	 { (char *)"molecule_name", _wrap_molecule_name, METH_VARARGS, NULL},
+	 { (char *)"set_molecule_name", _wrap_set_molecule_name, METH_VARARGS, NULL},
 	 { (char *)"main_window", _wrap_main_window, METH_VARARGS, NULL},
 	 { (char *)"coot_checked_exit", _wrap_coot_checked_exit, METH_VARARGS, NULL},
 	 { (char *)"coot_real_exit", _wrap_coot_real_exit, METH_VARARGS, NULL},

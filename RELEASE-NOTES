@@ -4,7 +4,15 @@ Release 0.4
    o Fix occasional crash reported by Ketan Gajiwala on pressing CR in
      the graphics window after a refiement.
 
-   o Cootaneer [slim-line Buccaneer in Coot]
+   o Kevin Cowtan has given us "Cootaneer" [slim-line
+     side-chain-assigning Buccaneer for Coot]
+
+   o Map transformation now works differently.  Instead of providing
+     the point from which the map is copied, one passes the target
+     position to which the map should be copied (and the position from
+     which the map is copied is calculated from this target position
+     by the inverse transformation of the operator which moves the
+     coordinates).  This seems more natural to me.
 
    o Fix Shelx lst file reader when handling atoms with Alt Confs
      [Christian Stegmann]

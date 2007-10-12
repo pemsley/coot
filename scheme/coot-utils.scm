@@ -944,6 +944,9 @@
 ;; NCS Handling Programs
 ;; 
 ;; typical usage: (transform-map-using-lsq-matrix 1 "A" 10 30 0 "A" 10 30 2 (rotation-centre) 6)
+;;
+;; Remember that about-pt is the "from" point, the map is brought from
+;; around about-pt *to* the reference position.
 ;; 
 (define (transform-map-using-lsq-matrix imol-ref ref-chain ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start mov-resno-end imol-map about-pt radius)
 
