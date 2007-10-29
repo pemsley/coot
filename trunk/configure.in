@@ -132,6 +132,12 @@ AM_WITH_PYTHON
 AM_WITH_GUILE_GTK
 AM_PATH_GUILE_GTK
 
+# libglade:
+
+# AM_PATH_LIBGLADE, problems in glade-3 include files not including
+# declaration of GladeXML and other things.
+AM_PATH_LIBGLADE
+
 # #defines for SWIG:
 if test $coot_gtk2 = TRUE ; then
   SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"

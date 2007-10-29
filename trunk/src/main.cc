@@ -2,6 +2,7 @@
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Author: Paul Emsley
+ * Copyright 2007 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +42,7 @@
 
 #include <gtk/gtk.h>
 
-// #define USE_LIBGLADE no
+#undef USE_LIBGLADE // for now
 
 #ifdef USE_LIBGLADE
 #include <glade/glade.h>
@@ -217,12 +218,13 @@ main (int argc, char *argv[]) {
   if (graphics_info_t::use_graphics_interface_flag) {
 
 #ifdef USE_LIBGLADE
-
+	
     /* load the interface */
     GladeXML *xml = glade_xml_new("../../coot/coot-gtk2-try2.glade", NULL, NULL);
     /* connect the signals in the interface */
     glade_xml_signal_autoconnect(xml);
     window1 = glade_xml_get_widget(xml, "window1");
+    std::cout << "DEBUG:: ..... window1: " << window1 << std::endl;
 
 #else
      window1 = create_window1 ();
