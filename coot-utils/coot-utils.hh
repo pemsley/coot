@@ -92,7 +92,7 @@ namespace coot {
       // remove the first bit from long
       std::string remove_string(const std::string &long_string, const std::string &bit);
 
-   }
+   } // end of util name space
    
    short int
    is_member_p(const std::vector<std::string> &v, const std::string &a);

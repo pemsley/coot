@@ -175,6 +175,7 @@ INCLUDES = \
 	$(CANVAS_CFLAGS) 		\
 	$(SWIG_FLAGS)			\
 	$(GTKGL_CONTEXT_CFLAGS)		\
+	$(LIBGLADE_CFLAGS)		\
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
 	$(MMDBSSM_CXXFLAGS) 		\
@@ -183,7 +184,7 @@ INCLUDES = \
 	$(CLIPPER_CXXFLAGS) 		
 
 #	$(WITH_SCRIPT_CFLAGS) 
-#        -I/usr/include/libglade-2.0      
+
 
 bin_PROGRAMS = coot-real density-score-by-residue fix-nomenclature-errors
 dist_bin_SCRIPTS = coot
@@ -322,6 +323,7 @@ coot_real_LDADD = $(COOT_EXTRA_LIBS)    \
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS)		\
 		$(MYSQL_LIBS)		\
+		$(LIBGLADE_LIBS)	\
 		@GTK_LIBS@	
 
 #                -lglade-2.0

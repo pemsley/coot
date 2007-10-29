@@ -55,7 +55,7 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) { 
-      clipper::Coord_orth new_pt = move_helix_centre_point_guess(ptc);
+      clipper::Coord_orth new_pt = move_helix_centre_point_guess(ptc, density_level_for_trim);
 //       std::cout << "starting point: " << ptc.format() << std::endl;
 //       std::cout << "  ending point: " << new_pt.format() << std::endl;
       // double d = clipper::Coord_orth::length(ptc, new_pt);
@@ -271,7 +271,9 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) {
       // std::cout << "move point round number " << i << std::endl;
-      ptc = move_helix_centre_point_guess(ptc);
+      float max_density_lim = min_density_limit * 2.0; // min_density_limit is the 
+						       // wrong name, I think.
+      ptc = move_helix_centre_point_guess(ptc, max_density_lim);
    }
 
    float acell[6];
@@ -588,7 +590,8 @@ coot::helix_placement::optimize_rotation_fit(const coot::minimol::molecule &heli
 
 
 clipper::Coord_orth
-coot::helix_placement::move_helix_centre_point_guess(const clipper::Coord_orth &pt) const {
+coot::helix_placement::move_helix_centre_point_guess(const clipper::Coord_orth &pt,
+						     float density_max) const {
 
    int i=0;
 
@@ -626,7 +629,11 @@ coot::helix_placement::move_helix_centre_point_guess(const clipper::Coord_orth &
 	    if ( (iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()) - pt).lengthsq() < search_radius_sq) {
 	       // Get the position of that grid coord and weight it by xmap[iw]
 
-	       weight = xmap[iw] * xmap[iw]; 
+	       float d = xmap[iw];
+	       if (d > density_max)
+		  d = density_max;
+
+	       weight = d * d;
 	       sum += clipper::Coord_orth(iw.coord_orth().x() * weight,
 					  iw.coord_orth().y() * weight,
 					  iw.coord_orth().z() * weight);

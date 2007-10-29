@@ -126,7 +126,7 @@
 			(reduce-out-pdb-file "coot-molprobity/reduced.pdb"))
 		    (write-pdb-file imol mol-pdb-file)
 		    (goosh-command *reduce-command* 
-				   (list mol-pdb-file)
+				   (list "-build" mol-pdb-file)
 				   '() reduce-out-pdb-file #f)
 		    (let* ((probe-name-stub (strip-extension (strip-path (molecule-name imol))))
 			   (probe-pdb-in  (string-append 
@@ -137,7 +137,7 @@
 				     '() probe-pdb-in #f)
 		      (goosh-command *probe-command* (list "-u" "-stdbonds" "-mc"
 							   ; "'(chainA,chainZ) alta'" 
-							   "ALL ALL"
+							   "ALL"
 							   probe-pdb-in)
 				     '() probe-out #f)
 		      ; by default, we don't want to click on the
