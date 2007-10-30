@@ -1062,7 +1062,8 @@ graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_optio
    GtkWidget *w = create_residue_type_chooser_window();
    GtkWidget *b = lookup_widget(w, "residue_type_chooser_stub_checkbutton");
 
-   gtk_widget_hide(b);
+   if (show_stub_option_flag == 0) 
+      gtk_widget_hide(b);
 
    return w;
 } 

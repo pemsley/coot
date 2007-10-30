@@ -2479,6 +2479,7 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   GtkWidget *fileselection;
 
   fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
+  save_directory_from_fileselection(fileselection);
   filename = gtk_file_selection_get_filename 
     (GTK_FILE_SELECTION(fileselection));
   handle_cif_dictionary(filename);
