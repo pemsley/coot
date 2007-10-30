@@ -35,13 +35,13 @@
 
 -----
 
-   Release 0.5 Dec 2007
+   Release 0.5 Dec 2007/Jan 2008
 
    o Kevin's Ramachandran Refinement target
 
    o Torsion General
 
-   o Use Eugene's new LINK-reading and CISPEP-reading code
+   o Use Eugene's new LINK-reading code.
 
    o Use libglade
 

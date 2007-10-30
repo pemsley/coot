@@ -4,14 +4,19 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   14 outstanding issues
+   16 outstanding issues
 
    o remove debugging screen info in NCS ghosting
+
+   o Stub disappeared on simple mutate
 
    o The reading of a cif dictionary should set the file name for the
      dialog like reading a pdb file does.
 
    o Post-install slim the binaries
+ 
+   o Problem with resizing window starting from a big one from the
+     state file? JED
 
    o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
 
@@ -58,6 +63,7 @@ Tue Jul  3 14:27:37 BST 2007
    o GMS Molprobity problem
 
    o On reading a .res file, can you check for NCS with residue offset?
+     Needs a test
 
    o Pirkko Heikinheimo pdb entry 1o7d, space group P6122.  symmetry
      pick is failing.
@@ -71,12 +77,8 @@ Tue Jul  3 14:27:37 BST 2007
        I click on the radio button in the bond colour pop-up menu, the
        atoms are not atomic coloring.
 
-    o dialog: clear up old/backup files on exit.
-      86400 seconds per day
-
-
-
-
+   o dialog: clear up old/backup files on exit.
+     86400 seconds per day
 
    o Eliminate Stub from the Mutate and Autofit residue chooser - it
      doesn't make sense there.

@@ -42,6 +42,7 @@
 
 #include <gtk/gtk.h>
 
+// #define USE_LIBGLADE
 #undef USE_LIBGLADE // for now
 
 #ifdef USE_LIBGLADE
