@@ -5,7 +5,7 @@
 
 #
 current_exe_dir=`dirname $0`
-echo current_exe_dir is $current_exe_dir
+# echo current_exe_dir is $current_exe_dir
 
 if [ $current_exe_dir = . ] ; then 
   COOT_PREFIX=`dirname $PWD`
@@ -17,7 +17,8 @@ echo COOT_PREFIX is $COOT_PREFIX
 coot_real=$current_exe_dir/coot-real
 # echo coot-real is at $coot_real
 
-
+# unlimit coredumpsize:
+# ulimit -c unlimited
 
 
 # ----------------------------------------------------------------------------
