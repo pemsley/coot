@@ -86,6 +86,8 @@
      net-http and goosh have been installed.  If not, fail gracefully,
      not obscurely at run time!
 
+   o Lars Prade crash.  Try doing actions in a directory that you can't
+     write to.  Test Geometry validation.
 
 -----
 

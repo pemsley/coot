@@ -229,11 +229,17 @@ graphics_info_t::geometric_distortion(int imol) {
 
    CMMDBManager *mol = molecules[imol].atom_sel.mol; // short-hand usage
 
+   // This dcv used to be inside the mol test, but that tickled what I
+   // believe a compiler bug (on deconstructing this vector).  So now
+   // it is here and coot doesn't crash when doing geometry analysis
+   // of NMR model(s).  (In minimal testing).
+   
+   std::vector<coot::geometry_distortion_info_container_t> dcv;
+
    if (mol) {
 
       // big copy:
-      std::vector<coot::geometry_distortion_info_container_t> dcv =
-	 geometric_distortions_from_mol(molecules[imol].atom_sel);
+      dcv = geometric_distortions_from_mol(molecules[imol].atom_sel);
 
       int max_chain_length = coot::util::max_min_max_residue_range(mol);
       if (max_chain_length <= 0) {
@@ -257,8 +263,13 @@ graphics_info_t::geometric_distortion(int imol) {
 	 for(unsigned int i=0; i<dcv.size(); i++) { 
 	    graphs->render_to_canvas(dcv[i], i);
 	 }
+
+	 std::cout << "DEBUG:: geometry_distortion() here 1" << std::endl;
       }
+      std::cout << "DEBUG:: geometry_distortion() here 2" << std::endl;
    }
+   std::cout << "DEBUG:: geometry_distortion() here 3" << std::endl;
+   
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif
 }
@@ -271,6 +282,9 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 
    std::vector<coot::geometry_distortion_info_container_t> dcv;
    std::string altconf("");  // use this (e.g. "A") or "".
+
+   if (! asc.mol)
+      return dcv;
    
    int n_models = asc.mol->GetNumberOfModels();
    
@@ -305,7 +319,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	       // 
 	       // 
 	       // 
-	       asc.mol->Select(selHnd, STYPE_RESIDUE, 0,
+	       asc.mol->Select(selHnd, STYPE_RESIDUE, imod,
 			       chain_id,
 			       ANY_RES, "*",
 			       ANY_RES, "*",
@@ -383,7 +397,9 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 						do_link_torsions, pseudos);
 	       
 		  if (nrestraints > 0) {
-		  
+
+		     std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
+			       << " restraints" << std::endl;
 		     dcv.push_back(restraints.geometric_distortions(flags));
 		  
 		  } else {
