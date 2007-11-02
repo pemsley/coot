@@ -257,6 +257,16 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 		     ichain << "] is " << chain_atom_selection_handles[ichain] <<
 		     " for chain id :" << chain_p->GetChainID() << ":" << std::endl;
 		  
+		  // debugging the atom selection
+		  if (1) { 
+		     PPCAtom selatoms_1 = NULL;
+		     int n_sel_atoms_1; 
+		     atom_sel.mol->GetSelIndex(iselhnd, selatoms_1, n_sel_atoms_1);
+		     std::cout << "DEBUG:: fill_ghost_info: first atom of " << n_sel_atoms_1 << " in " << chain_p->GetChainID()
+			       << "  " << iselhnd 
+			       << "  selection " << selatoms_1[0] << std::endl;
+		  }
+		  
 		  int nres = chain_p->GetNumberOfResidues();
 		  residue_types[ichain].resize(nres);
 // 		  std::cout << "INFO:: residues_types[" << ichain << "] resized to "
@@ -335,8 +345,13 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 			    << ifirst << " " << chain_atom_selection_handles[ifirst]
 			    << " and isec: " << isec << " " << chain_atom_selection_handles[isec]
 			    << std::endl;
-		  ghost.rtop = find_ncs_matrix(chain_atom_selection_handles[ifirst],
-					       chain_atom_selection_handles[isec]);
+		  std::pair<bool, clipper::RTop_orth> ghost_info = 
+		     find_ncs_matrix(chain_atom_selection_handles[ifirst],
+				     chain_atom_selection_handles[isec]);
+		  if (ghost_info.first) { 
+		     ghost.rtop = ghost_info.second;
+		     ghost.display_it_flag = 1;
+		  }
 	       }
 	       ghost.SelectionHandle = chain_atom_selection_handles[isec];
 	       ghost.target_chain_id = chain_ids[ifirst];
@@ -347,11 +362,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 	       ghost.name += " onto Chain ";
 	       ghost.name += chain_ids[ifirst];
 	       // ghost.bonds_box filled by update_ghosts().
-	       if (do_rtops_flag)
-		  ghost.display_it_flag = 1;
 	       ncs_ghosts.push_back(ghost);
-	       if (do_rtops_flag)
-		  std::cout << "\n";
 	    } 
 	 }
       }
@@ -365,7 +376,7 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 						       const std::vector<std::vector<std::pair<std::string, int> > > &residue_types,
 						       const std::vector<int> &chain_atom_selection_handles) {
 
-   // std::cout << "   %%%%%% add_ncs_ghosts_using_ncs_master " << std::endl;
+   std::cout << "   %%%%%% add_ncs_ghosts_using_ncs_master " << std::endl;
    float homology_level = 0.7;
    bool allow_offset_flag = 0;
    // First find imaster
@@ -376,9 +387,12 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 	 break;
       }
    }
+
+   std::cout << "   %%%%%% imaster: " << imaster << std::endl;
+   
    
    if (imaster != -1) {
-      std::cout << "Checking chains for NCS matching to chain " << master_chain_id << std::endl;
+      std::cout << "   Checking chains for NCS matching to chain " << master_chain_id << std::endl;
       for (unsigned int ichain=0; ichain<chain_ids.size(); ichain++) {
 	 if (chain_ids[ichain] != chain_ids[imaster]) {
 	    if (ncs_chains_match_p(residue_types[imaster],
@@ -386,19 +400,23 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 				   homology_level,
 				   allow_offset_flag)) {
 	       coot::ghost_molecule_display_t ghost;
-	       ghost.rtop = find_ncs_matrix(chain_atom_selection_handles[imaster],
-					    chain_atom_selection_handles[ichain]);
-	       ghost.SelectionHandle = chain_atom_selection_handles[ichain];
-	       ghost.target_chain_id = master_chain_id;
-	       ghost.chain_id = chain_ids[ichain];
-	       ghost.name = "NCS found from matching Chain ";
-	       ghost.name += chain_ids[ichain];
-	       ghost.name += " onto Chain ";
-	       ghost.name += master_chain_id;
-	       ghost.display_it_flag = 1;
-	       std::cout << "Adding ghost with name: " << ghost.name << std::endl;
-	       ncs_ghosts.push_back(ghost);
-	       ncs_ghosts_have_rtops_flag = 1;
+	       std::pair<bool, clipper::RTop_orth> ghost_info = 	       
+		  find_ncs_matrix(chain_atom_selection_handles[imaster],
+				  chain_atom_selection_handles[ichain]);
+	       if (ghost_info.first) { 
+		  ghost.rtop = ghost_info.second;
+		  ghost.SelectionHandle = chain_atom_selection_handles[ichain];
+		  ghost.target_chain_id = master_chain_id;
+		  ghost.chain_id = chain_ids[ichain];
+		  ghost.name = "NCS found from matching Chain ";
+		  ghost.name += chain_ids[ichain];
+		  ghost.name += " onto Chain ";
+		  ghost.name += master_chain_id;
+		  ghost.display_it_flag = 1;
+		  std::cout << "   Adding ghost with name: " << ghost.name << std::endl;
+		  ncs_ghosts.push_back(ghost);
+		  ncs_ghosts_have_rtops_flag = 1;
+	       }
 	    }
 	 }
       }
@@ -416,40 +434,70 @@ molecule_class_info_t::set_show_ghosts(short int state) {
 }
 
 
-clipper::RTop_orth
+std::pair<bool, clipper::RTop_orth>
 molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 
-   clipper::RTop_orth rtop;
+   bool rtop_is_good = 0; 
+   clipper::RTop_orth rtop; // random numbers
 #ifdef HAVE_SSMLIB
 
    int precision = SSMP_Normal;
    int connectivity = CSSC_Flexible;
    CSSMAlign *SSMAlign = new CSSMAlign();
-   SSMAlign->Align(atom_sel.mol, atom_sel.mol,
-		   precision, connectivity, SelHandle2, SelHandle1);
+   int rc = SSMAlign->Align(atom_sel.mol, atom_sel.mol,
+			    precision, connectivity, SelHandle2, SelHandle1);
 
-   // debugging the atom selection
-   if (1) { 
-      PPCAtom selatoms_1 = NULL;
-      int n_sel_atoms_1; 
-      atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
-      PPCAtom selatoms_2 = NULL;
-      int n_sel_atoms_2; 
-      atom_sel.mol->GetSelIndex(SelHandle1, selatoms_2, n_sel_atoms_2);
-      std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection " << selatoms_1[0] << std::endl;
-      std::cout << "First atom of " << n_sel_atoms_2 << " in second selection " << selatoms_2[0] << std::endl;
+   if (rc)  {
+      std::string ws;
+      switch (rc)  {
+      case SSM_noHits :
+	 std::cout << " *** secondary structure does not match.\n";
+	 ws = "secondary structure does not match";
+	 break;
+      case SSM_noSPSN :
+	 std::cout << " *** structures are too remote.\n";
+	 ws = "structures are too remote";
+	 break;
+      case SSM_noGraph :
+	 std::cout << " *** can't make graph for 1\n";
+	 break;
+      case SSM_noVertices :
+	 std::cout << " *** empty graph for 1\n";
+	 break;
+      case SSM_noGraph2 :
+	 std::cout << " *** can't make graph for 2\n";
+	 break;
+      case SSM_noVertices2 :
+	 std::cout << " *** empty graph for 2\n";
+	 break;
+      default :
+	 std::cout << " *** undocumented return code: " << rc << "\n";
+      }
+   } else  {
+
+      // debugging the atom selection
+      if (1) { 
+	 PPCAtom selatoms_1 = NULL;
+	 int n_sel_atoms_1; 
+	 atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
+	 PPCAtom selatoms_2 = NULL;
+	 int n_sel_atoms_2; 
+	 atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
+	 std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection " << selatoms_1[0] << std::endl;
+	 std::cout << "First atom of " << n_sel_atoms_2 << " in second selection " << selatoms_2[0] << std::endl;
+      }
+      rtop = coot::util::make_rtop_orth_from(SSMAlign->TMatrix);
+      rtop_is_good = 1;
    }
 
-   
-   
-
-   rtop = coot::util::make_rtop_orth_from(SSMAlign->TMatrix);
-
-   std::cout << "   find_ncs_matrix returns \n" << rtop.format() << std::endl;
+   std::cout << "   find_ncs_matrix returns ";
+   if (! rtop_is_good)
+      std::cout << "junk";
+   std::cout << "\n" << rtop.format() << std::endl;
    delete SSMAlign; // added 071101
 
 #endif // HAVE_SSMLIB
-   return rtop;
+   return std::pair<bool, clipper::RTop_orth> (rtop_is_good, rtop);
 }
 
 
