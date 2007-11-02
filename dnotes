@@ -66,6 +66,8 @@ Tue Jul  3 14:27:37 BST 2007
    o Make a new dialog: clear up old/backup files on exit.
      86400 seconds per day
 
+   o Does the state file contain the hue shift for each of the
+     coordinate molecules?  It should do.
 
 
 

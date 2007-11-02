@@ -253,6 +253,9 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 					    "*", "*", "*", "*");
 		  atom_sel.mol->GetSelIndex(iselhnd, atom_selection, nSelAtoms);
 		  chain_atom_selection_handles[ichain] = iselhnd;
+		  std::cout << "DEBUG:: fill_ghost_info chain_atom_selection_handles[" <<
+		     ichain << "] is " << chain_atom_selection_handles[ichain] <<
+		     " for chain id :" << chain_p->GetChainID() << ":" << std::endl;
 		  
 		  int nres = chain_p->GetNumberOfResidues();
 		  residue_types[ichain].resize(nres);
@@ -271,6 +274,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	 }
       }
 
+      std::cout << "DEBUG:: fill_ghost_info allow_offset_flag: " << allow_offset_flag << std::endl;
       add_ncs_ghosts_no_explicit_master(chain_ids, residue_types, first_chain_of_this_type,
 					chain_atom_selection_handles, do_rtops_flag, homology_lev,
 					allow_offset_flag);
@@ -312,7 +316,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
    // matchers to this "second" chain.
    // 
 
-   std::cout << "Checking chains for NCS..." << std::endl;
+   std::cout << "Checking chains for NCS.. (no explicit master)" << std::endl;
    // So now let's check the chains against each other:
    for (unsigned int ifirst=0; ifirst<(chain_ids.size()-1); ifirst++) {
       if (first_chain_of_this_type[ifirst]) { // trickiness
@@ -326,9 +330,14 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 	       first_chain_of_this_type[isec] = 0; // trickiness
 	       coot::ghost_molecule_display_t ghost;
 	       // slow...
-	       if (do_rtops_flag) 
+	       if (do_rtops_flag) {
+		  std::cout << "DEBUG:: add_ncs_ghosts_no_explicit_master: first: "
+			    << ifirst << " " << chain_atom_selection_handles[ifirst]
+			    << " and isec: " << isec << " " << chain_atom_selection_handles[isec]
+			    << std::endl;
 		  ghost.rtop = find_ncs_matrix(chain_atom_selection_handles[ifirst],
 					       chain_atom_selection_handles[isec]);
+	       }
 	       ghost.SelectionHandle = chain_atom_selection_handles[isec];
 	       ghost.target_chain_id = chain_ids[ifirst];
 	       ghost.chain_id = chain_ids[isec];
@@ -419,10 +428,25 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
    SSMAlign->Align(atom_sel.mol, atom_sel.mol,
 		   precision, connectivity, SelHandle2, SelHandle1);
 
+   // debugging the atom selection
+   if (1) { 
+      PPCAtom selatoms_1 = NULL;
+      int n_sel_atoms_1; 
+      atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
+      PPCAtom selatoms_2 = NULL;
+      int n_sel_atoms_2; 
+      atom_sel.mol->GetSelIndex(SelHandle1, selatoms_2, n_sel_atoms_2);
+      std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection " << selatoms_1[0] << std::endl;
+      std::cout << "First atom of " << n_sel_atoms_2 << " in second selection " << selatoms_2[0] << std::endl;
+   }
+
+   
+   
+
    rtop = coot::util::make_rtop_orth_from(SSMAlign->TMatrix);
 
    std::cout << "   find_ncs_matrix returns \n" << rtop.format() << std::endl;
-
+   delete SSMAlign; // added 071101
 
 #endif // HAVE_SSMLIB
    return rtop;
@@ -795,6 +819,7 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 					  float exact_homology_level,
 					  bool allow_offset_flag) const {
 
+   std::cout << "DEBUG:: ncs_chains_match_p allow_offset_flag: " << allow_offset_flag << std::endl;
    bool imatch = 0;
    if (allow_offset_flag == 1) {
 
@@ -873,6 +898,7 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 	 }
       }
    }
+   std::cout << "DEBUG:: ncs_chains_match_p returns: " << imatch << std::endl;
    return imatch;
 }
 
@@ -902,9 +928,11 @@ molecule_class_info_t::ncs_chains_match_with_offset_p(const std::vector<std::pai
 	 }
       }
       float ratio = float(n_match)/float(v1.size());
+      std::cout << "DEBUG:: ncs_chains_match_with_offset_p ratio: " << ratio << std::endl;
       if (ratio > exact_homology_level)
 	 match_flag = 1;
    }
+   std::cout << "DEBUG:: ncs_chains_match_with_offset_p returns: " << match_flag << std::endl;
    return match_flag;
 }
 
