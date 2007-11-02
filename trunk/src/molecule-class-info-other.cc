@@ -4315,6 +4315,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	 } else { 
 	    cout << "Symmetry available for this molecule" << endl;
 	 }
+	 is_from_shelx_ins_flag = 1;
       
 	 set_have_unit_cell_flag_maybe();
 
@@ -4368,7 +4369,6 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	 }
 	 initialize_coordinate_things_on_read_molecule_internal(filename,
 								is_undo_or_redo);
-	 is_from_shelx_ins_flag = 1;
       }
 
       //    std::cout << "DEBUG:: Post read shelx: "<< std::endl;
