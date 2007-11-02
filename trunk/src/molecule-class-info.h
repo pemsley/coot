@@ -380,7 +380,7 @@ class molecule_class_info_t {
    short int show_ghosts_flag;
    float ghost_bond_width;
    bool ncs_ghost_chain_is_a_target_chain_p(const std::string &chain_id) const;
-   clipper::RTop_orth find_ncs_matrix(int SelHandle1, int SelHandle2) const;
+   std::pair<bool, clipper::RTop_orth> find_ncs_matrix(int SelHandle1, int SelHandle2) const;
    short int ncs_ghosts_have_rtops_flag;
    // have to take into account the potential built/non-built offsets:
    bool ncs_chains_match_p(const std::vector<std::pair<std::string, int> > &v1,

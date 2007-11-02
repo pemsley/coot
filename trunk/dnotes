@@ -19,7 +19,8 @@ Tue Jul  3 14:27:37 BST 2007
 
        #3  0x08295a48 in display_control_map_combo_box (
            display_control_window_glade=0x8cf4d60,
-           name=0x86c1154 "Generic Masked Map", n=0x8767580) at gtk-manual.c:1160
+           name=0x86c1154 "Generic Masked Map", n=0x8767580) at
+           gtk-manual.c:1160
 
      valgrind it?
 
@@ -68,6 +69,8 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Does the state file contain the hue shift for each of the
      coordinate molecules?  It should do.
+
+   o read in a .res file.  Does it see the default bond width?
 
 
 
