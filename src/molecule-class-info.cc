@@ -222,7 +222,9 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 
       // initialize some things.
       //
-      initialize_coordinate_things_on_read_molecule_internal(filename, is_undo_or_redo); 
+      initialize_coordinate_things_on_read_molecule_internal(filename, is_undo_or_redo);
+
+      // debug();
       
       // update the maps so that they appear around the new centre. 
       // 
@@ -8082,3 +8084,28 @@ molecule_class_info_t::chain_id_for_shelxl_residue_number(int shelxl_resno) cons
 
    return std::pair<bool, std::string> (found_it, chain_id_unshelxed);
 } 
+
+
+void
+molecule_class_info_t::debug() const {
+
+   int imod = 1;
+      
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p;
+      CAtom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 if (residue_p) {
+	    std::cout << "   " << chain_p->GetChainID() << " " << residue_p->GetSeqNum()
+		      << " " << residue_p->index << std::endl;
+	 }
+      }
+   }
+}

@@ -647,6 +647,7 @@ class molecule_class_info_t {
    void label_atom(int i, int brief_atom_labels_flag);
 
    void debug_selection() const; 
+   void debug() const;
 
    // Ugh.  Horrible.  I don't want outside access to setting of
    // imol_no - I want to do it in the constructor.  Must FIX. 
