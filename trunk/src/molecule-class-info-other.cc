@@ -4352,7 +4352,9 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    if (bonds_box_type == coot::UNSET_TYPE)
 	       bonds_box_type = coot::NORMAL_BONDS;
 	    make_bonds_type_checked();
+
 	 }
+	 // debug();
 
 	 short int reset_rotation_centre = 1;
 	 //

@@ -504,8 +504,9 @@ coot::ShelxIns::read_file(const std::string &filename) {
       std::cout << "INFO:: chain has " << chain->GetNumberOfResidues() << " residues"
 		<< std::endl;
       mol->AddModel(model);
-      mol->FinishStructEdit();
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      // we do these things below.      
+//       mol->FinishStructEdit();
+//       mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
 
       if (cell_local.size() != 6) { // found a cell?
 	 std::cout << "WARNING:: no cell found in shelx file\n";
@@ -1837,8 +1838,23 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 
 	 ires_prev = shelx_residue_p->GetSeqNum(); // set up for next round
       }
+
+      // Fix the index of the residues
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 chain_p->TrimResidueTable();
+	 PCResidue residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    if (residue_p) 
+	       residue_p->index = ires;
+	 }
+      }
       mol->FinishStructEdit();
       mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      
 
       // need to copy over cell and symmetry info:
       realtype a[6];
