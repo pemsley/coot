@@ -175,7 +175,9 @@
 #               to compile with python most of the time now.
 # 2.15 20071008 Fix extra fi, uncommented typo.
 # 2.16 20071010 ENABLE_PYTHON_COOT=no for now.
-script_version=2.16
+# 2.17 20071105 Swap out DL Clipper for York clipper [whoosh, bang, kerpow!]
+#               enable-cns
+script_version=2.17
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1488,14 +1490,15 @@ if test -n "$build_clipper" ; then
     # (it uses configure, not scons)
     #
     echo BUILDING clipper:
-    ${WGET} ftp://ftp.ccp4.ac.uk/prerelease/ccp4-onlylibs-dev.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper-new-ccp4-install.patch
+    clipper_version=20ac
+    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper$clipper_version.latest.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi 
     (
-	gzip -dc ${AUTOBUILD_SOURCES}/ccp4-onlylibs-dev.tar.gz | tar xf -
-    cd ccp4-onlylibs-dev
+    mkdir clipper
+    cd clipper
+    gzip -dc ${AUTOBUILD_SOURCES}/clipper$clipper_version.latest.tar.gz | tar xf -
     ccp4_libs_dir="`pwd`"
     
     # make clipper
@@ -1517,6 +1520,7 @@ if test -n "$build_clipper" ; then
 	--enable-cif     \
 	--enable-ccp4    \
 	--enable-minimol \
+	--enable-cns     \
        CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la \
        CXXFLAGS="-g -O2 -fno-strict-aliasing"
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
