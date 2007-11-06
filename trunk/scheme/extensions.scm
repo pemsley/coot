@@ -62,24 +62,43 @@
        (lambda ()
 	 (molecule-chooser-gui "Define the molecule that has atoms to mask the map"
 			       (lambda (imol)
-				 (generic-double-entry 
-				  " Map molecule number: "
-				  " Atom selection: " 
-				  (let f ((molecule-list (molecule-number-list)))
-				    (cond 
-				     ((null? molecule-list) "")
-				     ((= 1 (is-valid-map-molecule (car molecule-list)))
-				      (number->string (car molecule-list)))
-				     (else 
-				      (f (cdr molecule-list)))))
-				  "//A/1"
-				  " Invert Masking? "
-				  (lambda (active-state) 
-				    (format #t "changed active state to ~s~%" active-state))
+				 (generic-multiple-entries-with-check-button
+				  (list
+				   (list
+				    " Map molecule number: "
+				    (let f ((molecule-list (molecule-number-list)))
+				      (cond 
+				       ((null? molecule-list) "")
+				       ((= 1 (is-valid-map-molecule (car molecule-list)))
+					(number->string (car molecule-list)))
+				       (else 
+					(f (cdr molecule-list))))))
+				   (list 
+				    " Atom selection: " 
+				    "//A/1")
+				   (list 
+				    "Radius around atoms: "
+				    (let ((rad  (map-mask-atom-radius)))
+				      (if (> rad 0)
+					  (number->string rad)
+					  "default"))))
+				  (list
+				   " Invert Masking? "
+				   (lambda (active-state) 
+				     (format #t "changed active state to ~s~%" active-state)))
 				  "  Mask Map  "
-				  (lambda (text-1 text-2 invert-mask?)
-				    (let ((n (string->number text-1))
-					  (invert (if invert-mask? 1 0)))
+				  (lambda (texts-list invert-mask?)
+				    (let* ((text-1 (car texts-list))
+					   (text-2 (car (cdr texts-list)))
+					   (text-3 (car (cdr (cdr texts-list))))
+					   (n (string->number text-1))
+					   (invert (if invert-mask? 1 0)))
+				      (format #t "debug:: invert-mask? is ~s~%" invert-mask?)
+				      (let ((new-radius (if (string=? text-3 "default")
+							    #f
+							    (string->number text-3))))
+					(if (number? new-radius)
+					    (set-map-mask-atom-radius new-radius)))
 				      (if (number? n)
 					  (mask-map-by-atom-selection n imol text-2 invert)))))))))
 

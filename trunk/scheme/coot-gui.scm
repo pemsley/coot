@@ -322,6 +322,98 @@
 
       (gtk-widget-show-all window))))
 
+;; generic double entry widget, now with a check button
+;; 
+;; 
+;; 
+;; OLD:
+;; 
+;; pass a the hint labels of the entries and a function
+;; (handle-go-function) that gets called when user hits "Go" (which
+;; takes two string aguments and the active-state of the check button
+;; (either #t of #f).
+;; 
+;; if check-button-label not a string, then we don't display (or
+;; create, even) the check-button.  If it *is* a string, create a
+;; check button and add the callback handle-check-button-function
+;; which takes as an argument the active-state of the the checkbutton.
+;; 
+(define (generic-multiple-entries-with-check-button entry-info-list check-button-info go-button-label handle-go-function)
+
+  (let* ((window (gtk-window-new 'toplevel))
+	 (vbox (gtk-vbox-new #f 0))
+	 (hbox3 (gtk-hbox-new #f 0))
+	 (h-sep (gtk-hseparator-new))
+	 (cancel-button (gtk-button-new-with-label "  Cancel  "))
+	 (go-button (gtk-button-new-with-label go-button-label)))
+
+      
+    ;; all the labelled entries
+    ;; 
+    (let ((entries (map (lambda (entry-info)
+			  
+			  (let ((entry-1-hint-text (car entry-info))
+				(entry-1-default-text (car (cdr entry-info)))
+				(hbox1 (gtk-hbox-new #f 0)))
+			    
+			    (let ((label (gtk-label-new entry-1-hint-text))
+				  (entry (gtk-entry-new)))
+			      
+			      (if (string? entry-1-default-text) 
+				  (gtk-entry-set-text entry entry-1-default-text))
+			      
+			      (gtk-box-pack-start hbox1 label #f 0)
+			      (gtk-box-pack-start hbox1 entry #f 0)
+			      (gtk-box-pack-start vbox hbox1 #f #f 0)
+			      entry)))
+			entry-info-list)))
+      
+      (format #t "debug:: check-button-info: ~s~%" check-button-info)
+      (let ((check-button 
+	     (if (not (and (list? entry-info-list)
+			   (= (length check-button-info) 2)))
+		 (begin
+		   (format #t "check-button-info failed list and length test~%")
+		   #f)
+		 (if (string? (car check-button-info))
+		     (let ((c-button (gtk-check-button-new-with-label (car check-button-info))))
+		       (gtk-box-pack-start vbox c-button #f #f 2)
+		       (gtk-signal-connect c-button "toggled"
+					   (lambda ()
+					     (let ((active-state (gtk-toggle-button-get-active 
+								  c-button)))
+					       ((car (cdr check-button-info)) active-state))))
+		       c-button)
+		     #f)))) ; the check-button when we don't want to see it
+	
+	(format #t "Here check button creation.................. check-button is ~s~%"
+		check-button)
+	(gtk-box-pack-start vbox h-sep #t #f 3)
+	(gtk-box-pack-start vbox hbox3 #f #f 0)
+	(gtk-container-add window vbox)
+	(gtk-container-border-width vbox 6)
+	
+	(gtk-box-pack-start hbox3 go-button #t #f 6)
+	(gtk-box-pack-start hbox3 cancel-button #t #f 6)
+	
+	(gtk-signal-connect cancel-button "clicked"
+			    (lambda args
+			      (gtk-widget-destroy window)))
+	
+	(gtk-signal-connect go-button "clicked"
+			    (lambda ()
+			      (format #t "Here.................. check-button is ~s~%"
+				      check-button)
+			      (handle-go-function (map gtk-entry-get-text entries)
+						  (if check-button
+						      (gtk-toggle-button-get-active check-button)
+						      #f))
+			      (gtk-widget-destroy window)))
+	
+	(gtk-widget-show-all window)))))
+
+
+
 ;; A demo gui to move about to molecules.
 ;; 
 (define (molecule-centres-gui)
