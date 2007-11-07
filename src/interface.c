@@ -6263,6 +6263,8 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *accept_reject_refinement_dialog;
   GtkWidget *dialog_vbox9;
   GtkWidget *frame129;
+  GtkWidget *vbox193;
+  GtkWidget *extra_text_label;
   GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *dialog_action_area9;
   GtkWidget *hbox41;
@@ -6286,13 +6288,29 @@ create_accept_reject_refinement_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox9), frame129, FALSE, FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (frame129), 6);
 
+  vbox193 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox193);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "vbox193", vbox193,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox193);
+  gtk_container_add (GTK_CONTAINER (frame129), vbox193);
+
+  extra_text_label = gtk_label_new ("");
+  gtk_widget_ref (extra_text_label);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "extra_text_label", extra_text_label,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (extra_text_label);
+  gtk_box_pack_start (GTK_BOX (vbox193), extra_text_label, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (extra_text_label), GTK_JUSTIFY_LEFT);
+  gtk_misc_set_alignment (GTK_MISC (extra_text_label), 0.06, 0.5);
+
   accept_dialog_accept_label_string = gtk_label_new (_("Accept Refinement?"));
   gtk_widget_ref (accept_dialog_accept_label_string);
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_dialog_accept_label_string", accept_dialog_accept_label_string,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (accept_dialog_accept_label_string);
-  gtk_container_add (GTK_CONTAINER (frame129), accept_dialog_accept_label_string);
-  gtk_misc_set_padding (GTK_MISC (accept_dialog_accept_label_string), 80, 50);
+  gtk_box_pack_start (GTK_BOX (vbox193), accept_dialog_accept_label_string, FALSE, FALSE, 3);
+  gtk_misc_set_padding (GTK_MISC (accept_dialog_accept_label_string), 78, 30);
 
   dialog_action_area9 = GTK_DIALOG (accept_reject_refinement_dialog)->action_area;
   gtk_object_set_data (GTK_OBJECT (accept_reject_refinement_dialog), "dialog_action_area9", dialog_action_area9);
@@ -6306,7 +6324,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (hbox41);
   gtk_box_pack_start (GTK_BOX (dialog_action_area9), hbox41, TRUE, TRUE, 0);
 
-  accept_reject_refinement_accept_button = gtk_button_new_with_label (_("Accept"));
+  accept_reject_refinement_accept_button = gtk_button_new_with_label (_("OK"));
   gtk_widget_ref (accept_reject_refinement_accept_button);
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_refinement_accept_button", accept_reject_refinement_accept_button,
                             (GtkDestroyNotify) gtk_widget_unref);

@@ -25,13 +25,13 @@
   
    o Add planar peptide restraints as default
 
-   o Add select by sphere 
+   o Add atom selection by sphere 
+
+   o Add map masking by variable radius about atom (selection)
 
    o Cootaneer
 
    o Activate test suite
-
-   o Correct CISPEP if needed cards on writing pdb.
 
 -----
 
@@ -42,8 +42,6 @@
    o Torsion General
 
    o Use Eugene's new LINK-reading code.
-
-   o Use libglade
 
    o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
 
@@ -89,9 +87,16 @@
    o Lars Prade crash.  Try doing actions in a directory that you can't
      write to.  Test Geometry validation.
 
+   o Make a new dialog: clear up old/backup files on exit.
+     86400 seconds per day
+
+   o Correct CISPEP if needed cards on writing pdb.
+
 -----
 
     Release 0.6 and 0.7 [Mar/Apr 2008]
+
+   o Use libglade
 
    o multiple residue ranges, glycosylation, covalent bond entities
   

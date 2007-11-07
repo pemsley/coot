@@ -347,7 +347,7 @@ coot::restraints_container_t::assign_fixed_atom_indices() {
 
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 // 
-int
+coot::refinement_results_t
 coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 
    short int print_chi_sq_flag = 1;
@@ -358,7 +358,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
  
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 // 
-int
+coot::refinement_results_t
 coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, 
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
@@ -374,7 +374,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
       if (restraints_usage_flag != NO_GEOMETRY_RESTRAINTS) {
       std::cout << "SPECIFICATION ERROR:  There are no restraints. ";
       std::cout << "No minimization will happen" << std::endl;
-      return 0;
+      return coot::refinement_results_t(0, 0, "No Restraints!");
       }
    } 
    
@@ -451,7 +451,8 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 //        std::cout << gsl_vector_get(x, i) << std::endl;
 
    size_t iter = 0; 
-   int status; 
+   int status;
+   std::string results_string = ""; 
    do
       {
 	 iter++;
@@ -475,7 +476,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	 if (status == GSL_SUCCESS) { 
 	    std::cout << "Minimum found (iteration number " << iter << ") at ";
 	    std::cout << s->f << "\n"; 
-	    chi_squareds("Final Chi Squareds", s->x);
+	    results_string = chi_squareds("Final Chi Squareds", s->x);
+	    std::cout << "DEBUG:: results_string in minimize() is " << results_string
+		      << std::endl;
 	 }
 
 	 if (verbose_geometry_reporting)
@@ -492,7 +495,12 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
    gsl_multimin_fdfminimizer_free (s);
    gsl_vector_free (x);
-   return status; 
+   // (we don't get here unless restraints were found)
+   coot::refinement_results_t rr(1, status, results_string);
+   std::cout << "DEBUG:: returning from minimize() :" << results_string
+	     << ":" << std::endl;
+   
+   return rr;
 }
 
 
@@ -1568,7 +1576,7 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 }
 
 
-void
+std::string
 coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *v) const {
 
    int n_bond_restraints = 0; 
@@ -1631,18 +1639,28 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       }
    }
 
+   std::string r = "";
+
+   r += title;
+   r += "\n";
    std::cout << "    " << title << std::endl;
    if (n_bond_restraints == 0) {
       std::cout << "bonds:      N/A " << std::endl;
    } else {
       std::cout << "bonds:      " << bond_distortion/double(n_bond_restraints)
 		<< std::endl;
+      r += "   bonds: ";
+      r += coot::util::float_to_string(bond_distortion/double(n_bond_restraints));
+      r += "\n";
    } 
    if (n_angle_restraints == 0) {
       std::cout << "angles:     N/A " << std::endl;
    } else {
       std::cout << "angles:     " << angle_distortion/double(n_angle_restraints)
 		<< std::endl;
+      r += "   angles: ";
+      r += coot::util::float_to_string(angle_distortion/double(n_angle_restraints));
+      r += "\n";
    } 
    if (n_torsion_restraints == 0) {
       std::cout << "torsions:   N/A " << std::endl;
@@ -1655,19 +1673,28 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    } else {
       std::cout << "planes:     " << plane_distortion/double(n_plane_restraints)
 		<< std::endl;
+      r += "   planes: ";
+      r += coot::util::float_to_string(plane_distortion/double(n_plane_restraints));
+      r += "\n";
    }
    if (n_non_bonded_restraints == 0) {
       std::cout << "non-bonded: N/A " << std::endl;
    } else {
       std::cout << "non-bonded: " << non_bonded_distortion/double(n_non_bonded_restraints)
 		<< std::endl;
+      r += "   non-bonded: ";
+      r += coot::util::float_to_string(non_bonded_distortion/double(n_non_bonded_restraints));
+      r += "\n";
    }
    if (n_chiral_volumes == 0) { 
       std::cout << "chiral vol: N/A " << std::endl;
    } else {
       std::cout << "chiral vol: " << chiral_vol_distortion/double(n_chiral_volumes)
   		<< std::endl;
+      // r += ... FIXME!!
    }
+
+   return r; 
 } 
 
 void 

@@ -101,6 +101,26 @@ namespace coot {
 
    // ---------------------------------------------------------------
    // ---------------------------------------------------------------
+   //     class refinement_results_t, helper class for sending text
+   //     results back to invoking function.  Returned by minimize()
+   //     function.
+   // ---------------------------------------------------------------
+   // ---------------------------------------------------------------
+   
+   class refinement_results_t { 
+   public:
+      short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
+      int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
+      std::string info;
+      refinement_results_t(short int frf, int prog_in, std::string info_in) {
+	 found_restraints_flag = frf;
+	 info = info_in;
+	 progress = prog_in;
+     }
+   };
+
+   // ---------------------------------------------------------------
+   // ---------------------------------------------------------------
    //     class simple_restraint
    // ---------------------------------------------------------------
    // ---------------------------------------------------------------
@@ -465,7 +485,8 @@ namespace coot {
       std::vector<double> initial_position_params_vec;
 
       // print chi_squared values (after refinement)
-      void chi_squareds(std::string title, const gsl_vector *v) const;
+      // return a string that can be added into a dialog.
+      std::string chi_squareds(std::string title, const gsl_vector *v) const;
 
       // all the alt confs should either be the same as each other or ""
       // 
@@ -864,8 +885,8 @@ namespace coot {
 
       // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
       // 
-      int minimize(restraint_usage_Flags);
-      int minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+      refinement_results_t minimize(restraint_usage_Flags);
+      refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       void fix_chiral_atoms_maybe(gsl_vector *s);
 
       simple_restraint& operator[](int i) { 

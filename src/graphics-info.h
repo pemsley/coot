@@ -1141,6 +1141,7 @@ public:
    static gint drag_refine_idle_function(GtkWidget *widget);
    static void add_drag_refine_idle_function();
    static gint drag_refine_refine_intermediate_atoms();
+   static coot::refinement_results_t saved_dragged_refinement_results;
 
    // now that the refinement goes via the idle function callback
    // (which gets called several times) we need to external control of
@@ -1471,7 +1472,8 @@ public:
    // 
    // return 1 if restraints were found, 0 if not.
    // 
-   short int copy_mol_and_regularize(int imol,
+   coot::refinement_results_t
+     copy_mol_and_regularize(int imol,
 				int resno_1, 
 				int resno_2, 
 				std::string altconf, // use this altconf or "" atoms.
@@ -1481,7 +1483,8 @@ public:
    //
    // return 1 if restraints were found, 0 if not.
    // 
-   short int  copy_mol_and_refine(int imol_for_atoms,
+   coot::refinement_results_t
+   copy_mol_and_refine(int imol_for_atoms,
 			    int imol_for_map,
 			    int resno_1, 
 			    int resno_2, 
@@ -2651,7 +2654,7 @@ class molecule_rot_t {
 void initialize_graphics_molecules();
 
 
-void do_accept_reject_dialog(std::string fit_type);
+void do_accept_reject_dialog(std::string fit_type, std::string extra_text);
 GtkWidget *wrapped_create_accept_reject_refinement_dialog();
 
 

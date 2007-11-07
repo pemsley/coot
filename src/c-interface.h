@@ -3645,6 +3645,8 @@ int mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mm
 
 /*! \brief set the atom radius for map masking */
 void set_map_mask_atom_radius(float rad);
+/*! \brief get the atom radius for map masking */
+float map_mask_atom_radius();
 
 /*! \} */
 

@@ -87,7 +87,7 @@
 
 // Idealize the geometry without considering the map.
 //
-short int
+coot::refinement_results_t
 graphics_info_t::copy_mol_and_regularize(int imol,
 					 int resno_1, 
 					 int resno_2, 
@@ -113,7 +113,7 @@ graphics_info_t::copy_mol_and_regularize(int imol,
 //
 // Sigh.
 // 
-short int 
+coot::refinement_results_t
 graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 				     int imol_for_map,
 				     int resno_1, 
@@ -122,6 +122,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 				     std::string chain_id_1) {
 
    short int irest = 0; // make 1 when restraints found.
+   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
 
 #ifdef HAVE_GSL
 
@@ -382,11 +383,23 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
 	       while ((step_count < 10000) && continue_flag) {
 		  int retval = drag_refine_idle_function(NULL);
+		  std::cout << "...........retval: " << retval << std::endl;
 		  step_count += dragged_refinement_steps_per_frame;
-		  if (retval == GSL_SUCCESS)
+		  if (retval == GSL_SUCCESS) { 
 		     continue_flag = 0;
-		  if (retval == GSL_ENOPROG)
+		     rr = graphics_info_t::saved_dragged_refinement_results;
+		     std::cout << "DEBUG:: dragged_refinement finished, rr is"
+			       << rr.found_restraints_flag << " " << rr.progress << " "
+			       << rr.info << std::endl;
+			
+		  }
+		  if (retval == GSL_ENOPROG) {
 		     continue_flag = 0;
+		     rr = graphics_info_t::saved_dragged_refinement_results;
+		     std::cout << "DEBUG:: dragged_refinement finished, (NO progress) rr is"
+			       << rr.found_restraints_flag << " " << rr.progress << " "
+			       << rr.info << std::endl;
+		  }
 	       }
 	    }
 	 } else { 
@@ -402,8 +415,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    std::cout << "Cannot refine without compilation with GSL" << std::endl;
 #endif // HAVE_GSL
 
-   return irest;
-
+   return rr;
 }
 
 
@@ -621,14 +633,19 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       cout << "Picked atoms are not in the same chain.  Failure" << endl; 
    } else { 
       flash_selection        (imol, resno_1, resno_2, altconf, chain_id_1);
-      short int istat = copy_mol_and_regularize(imol, resno_1, resno_2, altconf, chain_id_1);
+      coot::refinement_results_t rr = 
+	 copy_mol_and_regularize(imol, resno_1, resno_2, altconf, chain_id_1);
+      short int istat = rr.found_restraints_flag;
       if (istat) { 
 	 graphics_draw();
-	 if (! refinement_immediate_replacement_flag) { 
-	    do_accept_reject_dialog("Regularization");
+	 if (! refinement_immediate_replacement_flag) {
+	    std::cout << "DEBUG:: Regularize: rr.info is " << rr.info << std::endl;
+	    do_accept_reject_dialog("Regularization", rr.info);
 	    check_and_warn_bad_chirals_and_cis_peptides();
 	 }
-      }
+      } else {
+	 std::cout << "No restraints: regularize()\n";
+      } 
    } // same chains test
 }
 
@@ -802,7 +819,7 @@ graphics_info_t::refine_residue_range(int imol,
       show_select_map_dialog();
    } else { 
 
-      //       if ( chain_id_1 != chain_id_2 ) {
+      // if ( chain_id_1 != chain_id_2 ) {
       // Used to be pointer comparison, let that be done in the calling function.
       if (chain_id_1 != chain_id_2) {
 
@@ -844,14 +861,15 @@ graphics_info_t::refine_residue_range(int imol,
 	    if (!simple_water) { 
 	       flash_selection(imol, resno_1, resno_2, altconf, chain_id_1);
 	       long t0 = glutGet(GLUT_ELAPSED_TIME);
-	       short int istat = 
+	       coot::refinement_results_t rr = 
 		  copy_mol_and_refine(imol, imol_map, resno_1, resno_2, altconf, chain_id_1);
+	       short int istat = rr.found_restraints_flag;
 	       long t1 = glutGet(GLUT_ELAPSED_TIME);
 	       std::cout << "Refinement elapsed time: " << float(t1-t0)/1000.0 << std::endl;
 	       if (istat) { 
 		  graphics_draw();
 		  if (! refinement_immediate_replacement_flag) { 
-		     do_accept_reject_dialog("Refinement");
+		     do_accept_reject_dialog("Refinement", rr.info);
 		     check_and_warn_bad_chirals_and_cis_peptides();
 		  }
 	       }
@@ -1024,7 +1042,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 // 		   << moving_atoms_asc->UDDOldAtomIndexHandle << std::endl;
 	 graphics_draw();
 	 if (! refinement_immediate_replacement_flag)
-	    do_accept_reject_dialog("Rigid Body Fit");
+	    do_accept_reject_dialog("Rigid Body Fit", "");
 	 // 
       } else {
 	 GtkWidget *w = create_rigid_body_refinement_failed_dialog();
@@ -1306,7 +1324,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  make_moving_atoms_graphics_object(tmp_asc);
 		  moving_atoms_asc_type = coot::NEW_COORDS_INSERT;
 		  graphics_draw();
-		  do_accept_reject_dialog("Terminal Residue");
+		  do_accept_reject_dialog("Terminal Residue", "");
 	       } else {
 		  molecules[imol_moving_atoms].insert_coords(tmp_asc);
 		  graphics_draw();

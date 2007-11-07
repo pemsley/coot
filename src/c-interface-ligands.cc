@@ -973,9 +973,12 @@ void set_find_ligand_mask_waters(int i) {
 /*! \brief set the atom radius for map masking */
 void set_map_mask_atom_radius(float rad) {
    graphics_info_t::map_mask_atom_radius = rad; 
-
 }
 
+/*! \brief get the atom radius for map masking, -99 is initial "unset" */
+float map_mask_atom_radius() {
+   return graphics_info_t::map_mask_atom_radius;
+}
 
 
 void set_ligand_flexible_ligand_n_samples(int i) {

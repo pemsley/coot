@@ -49,7 +49,12 @@ Tue Jul  3 14:27:37 BST 2007
 
       Copy molecule is valgrind-clean (both coords and map)
 
-   o GMS Molprobity problem
+   o GMS Molprobity problem.
+
+        Is a molprobity issue.  Get new version?
+
+   o On reading a .res file, can you check for NCS with residue offset?
+     Needs a test
 
    o Pirkko Heikinheimo pdb entry 1o7d, space group P6122.  symmetry
      pick is failing.
@@ -63,13 +68,12 @@ Tue Jul  3 14:27:37 BST 2007
        I click on the radio button in the bond colour pop-up menu, the
        atoms are not atomic coloring.
 
-   o Make a new dialog: clear up old/backup files on exit.
-     86400 seconds per day
-
    o Does the state file contain the hue shift for each of the
      coordinate molecules?  It should do.
 
+   o Refine across an insertion code.
 
+   
 
 
 
