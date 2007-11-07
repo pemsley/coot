@@ -17,13 +17,6 @@
 
 #include <gtk/gtk.h>
 
-#undef USE_LIBGLADE		/* for now */
-
-#ifdef USE_LIBGLADE
-#include <glade/glade.h>
-#endif
-
-
 #include "support.h"
 
 /* This is an internally used function to check if a pixmap file exists. */
@@ -33,8 +26,6 @@ static gchar* check_file_exists        (const gchar     *directory,
 /* This is an internally used function to create pixmaps. */
 static GtkWidget* create_dummy_pixmap  (GtkWidget       *widget);
 
-
-#ifndef USE_LIBGLADE
 GtkWidget*
 lookup_widget                          (GtkWidget       *widget,
                                         const gchar     *widget_name)
@@ -43,7 +34,6 @@ lookup_widget                          (GtkWidget       *widget,
 
   for (;;)
     {
-/*       printf("DEBUG:: loopup_widget: widget is 0x%x\n", widget); */
       if (GTK_IS_MENU (widget))
         parent = gtk_menu_get_attach_widget (GTK_MENU (widget));
       else
@@ -57,29 +47,8 @@ lookup_widget                          (GtkWidget       *widget,
                                                    widget_name);
   if (!found_widget)
     g_warning ("Widget not found: %s", widget_name);
-/*   printf("DEBUG:: loopup_widget returns 0x%x\n", found_widget); */
   return found_widget;
 }
-
-#else 
-
-/* search for a widget given a known widget (in the same widget tree) 
- * using libglade.
- */
-GtkWidget*
-lookup_widget( GtkWidget *widget, const gchar *widget_name )
-{
-  GladeXML *xml;
-  GtkWidget * wdgt;
-  xml = glade_get_widget_tree( widget );
-  wdgt =  glade_xml_get_widget( xml, widget_name );
-  if(wdgt == NULL)
-        g_warning ("Widget not found: %s", widget_name);
-  return wdgt;
-}
-
-#endif //USE_LIBGLADE
-
 
 /* This is a dummy pixmap we use when a pixmap can't be found. */
 static char *dummy_pixmap_xpm[] = {

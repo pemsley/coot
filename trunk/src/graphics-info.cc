@@ -89,7 +89,7 @@ void initialize_graphics_molecules() {
 
 // e.g. fit type is "Rigid Body Fit" or "Regularization" etc.
 // 
-void do_accept_reject_dialog(std::string fit_type) {
+void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
 
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
@@ -105,7 +105,14 @@ void do_accept_reject_dialog(std::string fit_type) {
 			       
    }
    
-   std::string txt = "Accept ";
+   std::string txt = "";
+   if (extra_text != "") { 
+      txt = extra_text;
+      txt += "\n";
+   }
+   
+   txt += "\n";
+   txt += "Accept ";
    txt += fit_type;
    txt += "?";
 
@@ -1505,12 +1512,12 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 
 #ifdef HAVE_GSL
 
-   int retval = graphics_info_t::drag_refine_refine_intermediate_atoms();
+   int retprog = graphics_info_t::drag_refine_refine_intermediate_atoms();
 
-   if (retval != GSL_CONTINUE) {
-      if (retval == GSL_ENOPROG)
+   if (retprog != GSL_CONTINUE) {
+      if (retprog == GSL_ENOPROG)
 	 std::cout << " NOPROGRESS" << std::endl;
-      if (retval == GSL_SUCCESS)
+      if (retprog == GSL_SUCCESS)
 	 std::cout << " SUCCESS" << std::endl;
       long t1 = glutGet(GLUT_ELAPSED_TIME);
       std::cout << " TIME:: (dragged refinement): " << float(t1-T0)/1000.0 << std::endl;
@@ -1525,16 +1532,16 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
    graphics_draw();
 
 #else
-   int retval = -1; 
+   int retprog = -1;
 #endif // HAVE_GSL   
-   return retval;
+   return retprog;
 }
 
 // static 
 gint
 graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
-   int retval = -1;
+   int retprog = -1;
 #ifdef HAVE_GSL
 
    graphics_info_t g;
@@ -1553,8 +1560,10 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
-   retval = g.last_restraints.minimize(flags, dragged_refinement_steps_per_frame,
-				       print_initial_chi_squareds_flag);
+   graphics_info_t::saved_dragged_refinement_results = 
+      g.last_restraints.minimize(flags, dragged_refinement_steps_per_frame,
+				 print_initial_chi_squareds_flag);
+   retprog = graphics_info_t::saved_dragged_refinement_results.progress;
    print_initial_chi_squareds_flag = 0;
    int do_disulphide_flag = 0;
    Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag);
@@ -1563,7 +1572,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    
 #endif // HAVE_GSL
 
-   return retval;
+   return retprog;
 }
 
 

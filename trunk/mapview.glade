@@ -8783,7 +8783,7 @@ Do you want to continue?
 	    <handler>on_accept_reject_refinement_accept_button_clicked</handler>
 	    <last_modification_time>Thu, 29 Jan 2004 13:09:14 GMT</last_modification_time>
 	  </signal>
-	  <label>Accept</label>
+	  <label>OK</label>
 	  <relief>GTK_RELIEF_NORMAL</relief>
 	  <child>
 	    <padding>6</padding>
@@ -8826,15 +8826,44 @@ Do you want to continue?
       </child>
 
       <widget>
-	<class>GtkLabel</class>
-	<name>accept_dialog_accept_label_string</name>
-	<label>Accept Refinement?</label>
-	<justify>GTK_JUSTIFY_CENTER</justify>
-	<wrap>False</wrap>
-	<xalign>0.5</xalign>
-	<yalign>0.5</yalign>
-	<xpad>80</xpad>
-	<ypad>50</ypad>
+	<class>GtkVBox</class>
+	<name>vbox193</name>
+	<homogeneous>False</homogeneous>
+	<spacing>0</spacing>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <name>extra_text_label</name>
+	  <label></label>
+	  <justify>GTK_JUSTIFY_LEFT</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.06</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <name>accept_dialog_accept_label_string</name>
+	  <label>Accept Refinement?</label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.5</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>78</xpad>
+	  <ypad>30</ypad>
+	  <child>
+	    <padding>3</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
       </widget>
     </widget>
   </widget>
