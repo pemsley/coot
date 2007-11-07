@@ -37,11 +37,17 @@ coot::db_strands::db_strands() {
       if (d)
 	 ref_str_dir_str = d;
       else {
+
 	 // fall back to the db-main reference structures
-	 std::string d1(PKGDATADIR); // prefix/share
-	 std::string d2 = coot::util::append_dir_dir(d1, "coot");
-	 std::string d3 = coot::util::append_dir_dir(d2, "reference-structures");
-	 ref_str_dir_str = d3;
+	 // std::string d1(PKGDATADIR); // prefix/share
+	 // std::string d2 = coot::util::append_dir_dir(d1, "coot");
+	 // std::string d3 = coot::util::append_dir_dir(d2, "reference-structures");
+	 // ref_str_dir_str = d3;
+
+	 ref_str_dir_str = "Undefined";
+	 std::cout << "WARNING:: reference structure directory undefined. COOT_REF_STRUCTS currently "
+		   << "\n"
+		   << "WARNING:: won't do\n";
       }
    } else {
       ref_str_dir_str = ds;
@@ -64,7 +70,12 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
 	 if (mol) { 
 	    CModel *model_p = mol->GetModel(1);
 	    int aminoSelHnd = -1;
+#ifdef HAVE_MMDB_WITH_CISPEP	    
 	    int status = model_p->CalcSecStructure(1, aminoSelHnd);
+#else 	    
+	    int status = model_p->CalcSecStructure(1);
+	    // int status = SSERC_Ok;
+#endif // HAVE_MMDB_WITH_CISPEP
 	    if (status == SSERC_Ok) {
 	       std::cout << "INFO:: SSE status was OK\n";
 	       std::vector<coot::minimol::molecule> v_strand = 

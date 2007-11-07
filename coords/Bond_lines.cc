@@ -2302,7 +2302,11 @@ Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_sele
    if (asc.n_selected_atoms > 0) { 
       CModel *model_p = asc.mol->GetModel(1);
       int aminoSelHnd = -1;
+#ifdef HAVE_MMDB_WITH_CISPEP
       model_p->CalcSecStructure(1, aminoSelHnd);
+#else
+      model_p->CalcSecStructure(1);
+#endif // HAVE_MMDB_WITH_CISPEP      
       do_Ca_plus_ligands_bonds(asc, min_dist, max_dist, coot::COLOUR_BY_SEC_STRUCT);
    }
 }

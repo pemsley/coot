@@ -96,8 +96,9 @@ AC_MSG_CHECKING([for MMDB])
  	#
 	AC_LANG_PUSH(C++)
 	AC_TRY_LINK([#include "mmdb_manager.h"] ,[ CMMDBManager a;  ], have_generic_mmdb=yes, have_generic_mmdb=no)
-	# AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CAtom at; const char *name = "test"; at.SetAtomName(name); ], have_mmdb=yes, have_mmdb=no)
-	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->GetModel(1)->GetNumberOfCisPeps(); ], have_mmdb=yes, have_mmdb=no)
+        AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CAtom at; const char *name = "test"; at.SetAtomName(name); ], have_mmdb=yes, have_mmdb=no)
+	# version 1.10 CISPEP code currently not used because of licence problem
+	#AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->GetModel(1)->GetNumberOfCisPeps(); ], have_mmdb=yes, have_mmdb=no)
 	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->SetFlag(MMDBF_IgnoreHash)  ], have_mmdb_ignore_hash=yes, have_mmdb_ignore_hash=no)
 	AC_LANG_POP(C++)  # the language we have just quit
 	AC_MSG_RESULT($have_mmdb)

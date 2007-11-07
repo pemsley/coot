@@ -144,6 +144,8 @@ coot::rama_plot::init_internal(float level_prefered, float level_allowed,
    gtk_canvas_init(); 
 #endif
 
+   allow_seqnum_offset_flag = 0;
+
    canvas = GTK_CANVAS(gtk_canvas_new());
    gtk_widget_set_usize(GTK_WIDGET(canvas), 400, 400);
 
@@ -1352,7 +1354,7 @@ coot::rama_plot::make_phi_psi_pair(CMMDBManager *mol1,
 				   CMMDBManager *mol2,
 				   const std::string &chain_id1,
 				   const std::string &chain_id2,
-				   int ires,
+				   int i_seq_num,
 				   const std::string &ins_code) const {
    PCResidue *SelResidue1;
    PCResidue *SelResidue2;
@@ -1363,8 +1365,8 @@ coot::rama_plot::make_phi_psi_pair(CMMDBManager *mol1,
    int selHnd1 = mol1->NewSelection();
    mol1->Select ( selHnd1, STYPE_RESIDUE, 1, // .. TYPE, iModel
 		  (char *) chain_id1.c_str(), // Chain id
-		  ires-1,"*",  // starting res
-		  ires+1,"*",  // ending res
+		  i_seq_num-1,"*",  // starting res
+		  i_seq_num+1,"*",  // ending res
 		  "*",  // residue name
 		  "*",  // Residue must contain this atom name?
 		  "*",  // Residue must contain this Element?
@@ -1372,12 +1374,15 @@ coot::rama_plot::make_phi_psi_pair(CMMDBManager *mol1,
 		  SKEY_NEW // selection key
 		  );
    mol1->GetSelIndex (selHnd1, SelResidue1, nSelResidues1);
+   int i_seq_num2 = i_seq_num;
+   if (allow_seqnum_offset_flag)
+      i_seq_num2 = get_seqnum_2(i_seq_num);
    if (nSelResidues1 == 3) {
       int selHnd2 = mol2->NewSelection();
       mol2->Select ( selHnd2, STYPE_RESIDUE, 1, // .. TYPE, iModel
 		     (char *) chain_id2.c_str(), // Chain id
-		     ires-1,"*",  // starting res
-		     ires+1,"*",  // ending res
+		     i_seq_num2-1,"*",  // starting res
+		     i_seq_num2+1,"*",  // ending res
 		     "*",  // residue name
 		     "*",  // Residue must contain this atom name?
 		     "*",  // Residue must contain this Element?
@@ -1666,14 +1671,83 @@ coot::rama_plot::draw_it(int imol1, int imol2,
 			 CMMDBManager *mol1, CMMDBManager *mol2,
 			 const std::string &chain_id_1, const std::string &chain_id_2) {
 
+   std::cout << "draw_it.... allow_seqnum_offset_flag: " << allow_seqnum_offset_flag << std::endl;
    molecule_numbers_ = std::pair<int, int> (imol1, imol2); // save for later
    chain_ids_ = std::pair<std::string, std::string> (chain_id_1, chain_id_2);
    display_background();
    draw_axes();
-   draw_zero_lines(); 
-   draw_2_phi_psi_sets_on_canvas(mol1, mol2, chain_id_1, chain_id_2); 
+   draw_zero_lines();
+   if (allow_seqnum_offset_flag)
+      set_seqnum_offset(imol1, imol2, mol1, mol2, chain_id_1, chain_id_2);
+   draw_2_phi_psi_sets_on_canvas(mol1, mol2, chain_id_1, chain_id_2);
    if (is_kleywegt_plot())
       hide_stats_frame();
+}
+
+// Was from a shelx molecule with A 1->100 and B 201->300.
+// For shelx molecule as above, what do we need to add to seqnum_1 to get the
+// corresponding residue in the B chain (in the above example it is 100).
+// 
+void
+coot::rama_plot::set_seqnum_offset(int imol1, int imol2,
+				   CMMDBManager *mol1,
+				   CMMDBManager *mol2,
+				   const std::string &chain_id_1,
+				   const std::string &chain_id_2) {
+
+   seqnum_offset = MinInt4;
+   if (is_valid_model_molecule(imol1)) { 
+      if (is_valid_model_molecule(imol2)) {
+
+	 int imod = 1;
+      
+	 CModel *model_p_1 = mol1->GetModel(imod);
+	 CChain *chain_p_1;
+	 // run over chains of the existing mol
+	 int nchains_1 = model_p_1->GetNumberOfChains();
+	 for (int ichain_1=0; ichain_1<nchains_1; ichain_1++) {
+	    chain_p_1 = model_p_1->GetChain(ichain_1);
+	    if (chain_id_1 == chain_p_1->GetChainID()) {
+	       int nres_1 = chain_p_1->GetNumberOfResidues();
+	       PCResidue residue_p_1;
+	       if (nres_1 > 0) {
+		  residue_p_1 = chain_p_1->GetResidue(0);
+		  CModel *model_p_2 = mol2->GetModel(imod);
+		  CChain *chain_p_2;
+		  int nchains_2 = model_p_2->GetNumberOfChains();
+		  for (int ichain_2=0; ichain_2<nchains_2; ichain_2++) {
+		     chain_p_2 = model_p_2->GetChain(ichain_2);
+		     if (chain_id_2 == chain_p_2->GetChainID()) {
+			int nres_2 = chain_p_2->GetNumberOfResidues();
+			PCResidue residue_p_2;
+			if (nres_2 > 0) {
+			   residue_p_2 = chain_p_2->GetResidue(0);
+
+			   seqnum_offset = residue_p_2->GetSeqNum() - residue_p_1->GetSeqNum();
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   std::cout << "DEBUG:: seqnum_offset is: " << seqnum_offset << std::endl;
+   
+   if (seqnum_offset == MinInt4) {
+      std::cout << "WARNING:: Ooops! Failed to set the Chain Residue numbering different\n"
+		<< "WARNING::        offset correctly." << std::endl;
+      std::cout << "WARNING:: Ooops! Bad Kleywegts will result!" << std::endl;
+      seqnum_offset = 0;
+   }
+} 
+
+int
+coot::rama_plot::get_seqnum_2(int seqnum_1) const {
+
+   return seqnum_1 + seqnum_offset;
+
 }
 
 void
@@ -2371,6 +2445,12 @@ coot::rama_plot::zoom_in() {
 			int(wf*canvas_scale), int(hf*canvas_scale));
 }
 
+void
+coot::rama_plot::allow_seqnum_offset() {
+
+   allow_seqnum_offset_flag = 1;
+   // debug();
+} 
 
 
 std::ostream& coot::operator<<(std::ostream &s, coot::phi_psi_t v) {
@@ -2390,6 +2470,7 @@ coot::rama_plot::debug() const {
    std::cout << "ramadebug: step is " << step << std::endl;
    std::cout << "ramadebug: is ifirst_res size " << ifirst_res.size() << std::endl;
    std::cout << "ramadebug: is phi_psi_sets.size " << phi_psi_sets.size() << std::endl;
+   std::cout << "ramadebug: allow_seqnum_offset_flag " << allow_seqnum_offset_flag << std::endl;
    //    std::cout << "ramadebug: is " << << std::endl;
 }
 
@@ -2421,3 +2502,4 @@ coot::rama_plot::debug() const {
 
 #endif // RAMA_PLOT
 #endif // HAVE_GTK_CANVAS
+

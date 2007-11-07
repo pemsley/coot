@@ -2723,9 +2723,10 @@ void setup_edit_phi_psi(short int state);	/* a button callback */
 
 void destroy_edit_backbone_rama_plot();
 
-/* and the 2 molecule ramachandran plot */
+/* \brief  2 molecule ramachandran plot (NCS differences) a.k.a. A Kleywegt Plot. */
 void ramachandran_plot_differences(int imol1, int imol2);
 
+/* \brief  A chain-specific Kleywegt Plot. */
 void ramachandran_plot_differences_by_chain(int imol1, int imol2, 
 					    const char *a_chain, const char *b_chain);
 

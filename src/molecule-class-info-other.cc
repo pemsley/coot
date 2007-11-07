@@ -4346,6 +4346,10 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    if (p.is_protein_flag)
 	       set_draw_hydrogens_state(0);
 
+	    if (! is_undo_or_redo) 
+	       bond_width = g.default_bond_width; // bleugh, perhaps this should
+	                                          // be a passed parameter?
+	    
 	    // Generate bonds and save them in the graphical_bonds_container
 	    // which has static data members.
 	    //

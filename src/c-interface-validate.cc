@@ -1217,6 +1217,9 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 		       graphics_info_t::rama_level_allowed,
 		       graphics_info_t::rama_plot_background_block_size,
 		       is_kleywegt_plot_flag);
+	    if (graphics_info_t::molecules[imol1].is_from_shelx_ins() ||
+		graphics_info_t::molecules[imol2].is_from_shelx_ins())
+	       rama->allow_seqnum_offset();
 	    std::cout << "rama differences on mols: " << imol1 << " " << a_chain
 		      << " to " << imol2 << " " << b_chain << std::endl;
 	    rama->draw_it(imol1, imol2,
