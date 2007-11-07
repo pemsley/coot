@@ -339,6 +339,7 @@ namespace coot {
 	    omega_torsion_angle = omega_torsion_angle_in;
 	 }
 
+#ifdef HAVE_MMDB_WITH_CISPEP
 	 // Full from mmdb structure
 	 cis_peptide_info_t(CCisPep *cis) {
 	    serial_number = cis->serNum;
@@ -353,6 +354,7 @@ namespace coot {
 	    model_number = cis->modNum;
 	    omega_torsion_angle = cis->measure;
 	 }
+#endif // HAVE_MMDB_WITH_CISPEP	 
 
 	 bool operator==(const cis_peptide_info_t &a) {
 	    bool r = 0;

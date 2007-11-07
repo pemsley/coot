@@ -276,7 +276,17 @@ class rama_plot {
    bool kleywegt_plot_uses_chain_ids;
    void hide_stats_frame();
    void counts_to_stats_frame(const rama_stats_container_t &sc);
+
    
+   bool allow_seqnum_offset_flag; // was from a shelx molecule with A 1->100 and B 201->300
+   int seqnum_offset; // for shelx molecule as above, what do we need to add to seqnum_1 to get the
+                      // corresponding residue in the B chain (in the above example it is 100).
+   int get_seqnum_2(int seqnum_1) const;
+   void set_seqnum_offset(int imol1, int imol2,
+			  CMMDBManager *mol1,
+			  CMMDBManager *mol2,
+			  const std::string &chain_id_1,
+			  const std::string &chain_id_2);
 public:
 
    rama_plot() {
@@ -288,6 +298,8 @@ public:
    void init(const std::string &type);
    // typically level_prefered = 0.02, level_allowed is 0.002, block_size is 10.0;
    void init(int imol_no, float level_prefered, float level_allowed, float block_size_for_background, short int is_kleywegt_plot_flag);
+
+   void allow_seqnum_offset();
 
    // The graphics interface, given that you have a CMMDBManager. 
    // 

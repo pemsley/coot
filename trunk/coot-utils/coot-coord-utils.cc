@@ -3577,6 +3577,8 @@ coot::util::cis_peptides_info_from_coords(CMMDBManager *mol) {
 void
 coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
 
+#ifdef HAVE_MMDB_WITH_CISPEP
+   
    std::vector<coot::util::cis_peptide_info_t> v_coords = 
       coot::util::cis_peptides_info_from_coords(mol);
    std::cout << "INFO:: There were " << v_coords.size() << " CISPEPs from the coordinates"
@@ -3638,6 +3640,7 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
 	 }
       } 
    }
+#endif // HAVE_MMDB_WITH_CISPEP
 } 
 
 
