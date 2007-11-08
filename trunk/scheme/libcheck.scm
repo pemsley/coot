@@ -188,7 +188,8 @@
 				    -4 ; refmac fails 
 				    (if (not (= 0 refmac-status))
 					-4 ; refmac fails elsewise
-					(let ((pdb-status (read-pdb post-refmac-pdb-file-name)))
+					(let ((pdb-status (handle-read-draw-molecule-with-recentre 
+							   post-refmac-pdb-file-name 0)))
 					  
 					  ;; move the coords to the centre of the screen 
 					  (if (valid-model-molecule? pdb-status) 
