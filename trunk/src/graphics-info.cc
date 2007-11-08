@@ -94,6 +94,8 @@ void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
  						     "window1"));
+   GtkWidget *label = lookup_widget(GTK_WIDGET(window),
+				    "accept_dialog_accept_label_string");
    gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
 
    // now set the position, if it was set:
@@ -102,32 +104,39 @@ void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
       gtk_widget_set_uposition(window,
 			       graphics_info_t::accept_reject_dialog_x_position,
 			       graphics_info_t::accept_reject_dialog_y_position);
-			       
    }
+
+   add_extra_text_to_accept_reject_dialog(window, coot::CHI_SQUAREDS, extra_text);
    
    std::string txt = "";
-   
-   txt += "\n";
    txt += "Accept ";
    txt += fit_type;
    txt += "?";
 
-   // now look up the label in window and change it.
-   GtkWidget *label = lookup_widget(GTK_WIDGET(window),
-				    "accept_dialog_accept_label_string");
-   GtkWidget *extra_label = lookup_widget(GTK_WIDGET(window),
-				    "extra_text_label");
-
-   if (extra_text != "") { 
-      std::string e_txt = extra_text;
-      gtk_label_set_text(GTK_LABEL(extra_label), e_txt.c_str());
-   }
-
-   
    gtk_label_set_text(GTK_LABEL(label), txt.c_str());
 
    gtk_widget_show(window);
 }
+
+
+void
+add_extra_text_to_accept_reject_dialog(GtkWidget *accept_reject_dialog,
+				       coot::accept_reject_text_type text_type,
+				       std::string extra_text) {
+
+   if (extra_text != "") {
+      
+      // now look up the label in window and change it.
+      GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+					     "extra_text_label");
+      
+      if (text_type == coot::CHIRAL_CENTRES)
+	 extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
+      
+      gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
+   }
+}
+
 
 GtkWidget *
 wrapped_create_accept_reject_refinement_dialog() {
@@ -1579,8 +1588,9 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // if we are doing dragged refinement).
    if (accept_reject_dialog) {
       if (saved_dragged_refinement_results.info != "") { 
-	 GtkWidget *extra_label = lookup_widget(accept_reject_dialog, "extra_text_label");
-	 gtk_label_set_text(GTK_LABEL(extra_label), saved_dragged_refinement_results.info.c_str());
+	 add_extra_text_to_accept_reject_dialog(accept_reject_dialog,
+						coot::CHI_SQUAREDS,
+						saved_dragged_refinement_results.info);
       }
    }
    

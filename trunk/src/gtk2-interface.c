@@ -6972,6 +6972,7 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *dialog_vbox9;
   GtkWidget *frame129;
   GtkWidget *vbox195;
+  GtkWidget *chiral_centre_text_label;
   GtkWidget *extra_text_label;
   GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *dialog_action_area9;
@@ -7003,10 +7004,17 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (vbox195);
   gtk_container_add (GTK_CONTAINER (frame129), vbox195);
 
+  chiral_centre_text_label = gtk_label_new ("");
+  gtk_widget_show (chiral_centre_text_label);
+  gtk_box_pack_start (GTK_BOX (vbox195), chiral_centre_text_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (chiral_centre_text_label), 0.04, 0.5);
+  gtk_misc_set_padding (GTK_MISC (chiral_centre_text_label), 10, 6);
+
   extra_text_label = gtk_label_new ("");
   gtk_widget_show (extra_text_label);
   gtk_box_pack_start (GTK_BOX (vbox195), extra_text_label, FALSE, FALSE, 0);
   gtk_misc_set_alignment (GTK_MISC (extra_text_label), 0.04, 0.5);
+  gtk_misc_set_padding (GTK_MISC (extra_text_label), 10, 0);
 
   accept_dialog_accept_label_string = gtk_label_new (_("Accept Refinement?"));
   gtk_widget_show (accept_dialog_accept_label_string);
@@ -7082,6 +7090,7 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_vbox9, "dialog_vbox9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame129, "frame129");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, vbox195, "vbox195");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chiral_centre_text_label, "chiral_centre_text_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, extra_text_label, "extra_text_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
   GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");

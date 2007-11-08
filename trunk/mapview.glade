@@ -8834,6 +8834,23 @@ Do you want to continue?
 
 	<widget>
 	  <class>GtkLabel</class>
+	  <name>chiral_centre_text_label</name>
+	  <label></label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.06</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>16</xpad>
+	  <ypad>6</ypad>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+	</widget>
+
+	<widget>
+	  <class>GtkLabel</class>
 	  <name>extra_text_label</name>
 	  <label>asdfasdfasdfasdf
     a sdfasdfasdf

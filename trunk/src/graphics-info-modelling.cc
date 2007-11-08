@@ -2513,9 +2513,18 @@ graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 	       }
 	    }
 	    
-	    if (s != "Unset") {
-	       if (show_chiral_volume_errors_dialog_flag) {
-		  info_dialog(s);
+	    if (show_chiral_volume_errors_dialog_flag) {
+	       if (accept_reject_dialog) { 
+		  // info_dialog(s);
+		  if (s != "Unset") {
+		     add_extra_text_to_accept_reject_dialog(accept_reject_dialog,
+							    coot::CHIRAL_CENTRES,
+							    s);
+		  } else { 
+		     add_extra_text_to_accept_reject_dialog(accept_reject_dialog,
+							    coot::CHIRAL_CENTRES,
+							    " ");
+		  }
 	       }
 	       std::cout << s << std::endl;
 	    } 

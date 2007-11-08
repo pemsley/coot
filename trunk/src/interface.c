@@ -6264,6 +6264,7 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *dialog_vbox9;
   GtkWidget *frame129;
   GtkWidget *vbox193;
+  GtkWidget *chiral_centre_text_label;
   GtkWidget *extra_text_label;
   GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *dialog_action_area9;
@@ -6294,6 +6295,15 @@ create_accept_reject_refinement_dialog (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (vbox193);
   gtk_container_add (GTK_CONTAINER (frame129), vbox193);
+
+  chiral_centre_text_label = gtk_label_new ("");
+  gtk_widget_ref (chiral_centre_text_label);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "chiral_centre_text_label", chiral_centre_text_label,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (chiral_centre_text_label);
+  gtk_box_pack_start (GTK_BOX (vbox193), chiral_centre_text_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (chiral_centre_text_label), 0.06, 0.5);
+  gtk_misc_set_padding (GTK_MISC (chiral_centre_text_label), 16, 6);
 
   extra_text_label = gtk_label_new (_("asdfasdfasdfasdf\n    a sdfasdfasdf\n    asdfasdfasdf\n    asdfasdfasd  \n    asdfasdf"));
   gtk_widget_ref (extra_text_label);

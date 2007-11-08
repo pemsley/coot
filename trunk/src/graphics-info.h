@@ -85,6 +85,7 @@ namespace coot {
 			   SIDE_BY_SIDE_STEREO=2,  // cross-eye
 			   DTI_SIDE_BY_SIDE_STEREO=3,
                            SIDE_BY_SIDE_STEREO_WALL_EYE=4};
+   enum accept_reject_text_type { CHI_SQUAREDS, CHIRAL_CENTRES};
 
    class coord_orth_triple {
    public:
@@ -2656,6 +2657,9 @@ void initialize_graphics_molecules();
 
 void do_accept_reject_dialog(std::string fit_type, std::string extra_text);
 GtkWidget *wrapped_create_accept_reject_refinement_dialog();
+void add_extra_text_to_accept_reject_dialog(GtkWidget *accept_reject_dialog,
+					    coot::accept_reject_text_type text_type,
+					    std::string extra_text);
 
 
 
