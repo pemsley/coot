@@ -178,7 +178,8 @@
 # 2.17 20071105 Swap out DL Clipper for York clipper [whoosh, bang, kerpow!]
 #               enable-cns
 # 2.18 20071105 Backpeddle to mmdb 1.08.  Baah.
-script_version=2.18
+# 2.19 20071108 Version 1.08-ysbl-3 of mmdb.
+script_version=2.19
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1422,7 +1423,7 @@ if test -n "$build_mmdb" ; then
    echo BUILDING: mmdb >&2
 #
 # mmdb_version=1.0.10.  Not yet.
-mmdb_version=1.0.8-ysbl-2
+mmdb_version=1.0.8-ysbl-3
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 (
 date
