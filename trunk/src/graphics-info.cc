@@ -106,10 +106,6 @@ void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
    }
    
    std::string txt = "";
-   if (extra_text != "") { 
-      txt = extra_text;
-      txt += "\n";
-   }
    
    txt += "\n";
    txt += "Accept ";
@@ -119,7 +115,15 @@ void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
    // now look up the label in window and change it.
    GtkWidget *label = lookup_widget(GTK_WIDGET(window),
 				    "accept_dialog_accept_label_string");
+   GtkWidget *extra_label = lookup_widget(GTK_WIDGET(window),
+				    "extra_text_label");
 
+   if (extra_text != "") { 
+      std::string e_txt = extra_text;
+      gtk_label_set_text(GTK_LABEL(extra_label), e_txt.c_str());
+   }
+
+   
    gtk_label_set_text(GTK_LABEL(label), txt.c_str());
 
    gtk_widget_show(window);
@@ -1569,6 +1573,16 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag);
    g.regularize_object_bonds_box.clear_up();
    g.regularize_object_bonds_box = bonds.make_graphical_bonds();
+
+
+   // Update the Accept/Reject Dialog if it exists (and it should do,
+   // if we are doing dragged refinement).
+   if (accept_reject_dialog) {
+      if (saved_dragged_refinement_results.info != "") { 
+	 GtkWidget *extra_label = lookup_widget(accept_reject_dialog, "extra_text_label");
+	 gtk_label_set_text(GTK_LABEL(extra_label), saved_dragged_refinement_results.info.c_str());
+      }
+   }
    
 #endif // HAVE_GSL
 
