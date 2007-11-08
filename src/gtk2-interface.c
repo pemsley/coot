@@ -7012,7 +7012,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (accept_dialog_accept_label_string);
   gtk_box_pack_start (GTK_BOX (vbox195), accept_dialog_accept_label_string, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (accept_dialog_accept_label_string), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (accept_dialog_accept_label_string), 50, 28);
+  gtk_misc_set_padding (GTK_MISC (accept_dialog_accept_label_string), 44, 20);
 
   dialog_action_area9 = GTK_DIALOG (accept_reject_refinement_dialog)->action_area;
   gtk_widget_show (dialog_action_area9);

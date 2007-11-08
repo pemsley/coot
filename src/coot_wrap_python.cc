@@ -24916,6 +24916,19 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_map_mask_atom_radius(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":map_mask_atom_radius")) SWIG_fail;
+  result = (float)map_mask_atom_radius();
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_wrapped_create_check_waters_dialog(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkWidget *result = 0 ;
@@ -32314,6 +32327,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"mask_map_by_molecule", _wrap_mask_map_by_molecule, METH_VARARGS, NULL},
 	 { (char *)"mask_map_by_atom_selection", _wrap_mask_map_by_atom_selection, METH_VARARGS, NULL},
 	 { (char *)"set_map_mask_atom_radius", _wrap_set_map_mask_atom_radius, METH_VARARGS, NULL},
+	 { (char *)"map_mask_atom_radius", _wrap_map_mask_atom_radius, METH_VARARGS, NULL},
 	 { (char *)"wrapped_create_check_waters_dialog", _wrap_wrapped_create_check_waters_dialog, METH_VARARGS, NULL},
 	 { (char *)"set_check_waters_b_factor_limit", _wrap_set_check_waters_b_factor_limit, METH_VARARGS, NULL},
 	 { (char *)"set_check_waters_map_sigma_limit", _wrap_set_check_waters_map_sigma_limit, METH_VARARGS, NULL},

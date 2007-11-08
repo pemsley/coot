@@ -383,22 +383,14 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
 	       while ((step_count < 10000) && continue_flag) {
 		  int retval = drag_refine_idle_function(NULL);
-		  std::cout << "...........retval: " << retval << std::endl;
 		  step_count += dragged_refinement_steps_per_frame;
 		  if (retval == GSL_SUCCESS) { 
 		     continue_flag = 0;
 		     rr = graphics_info_t::saved_dragged_refinement_results;
-		     std::cout << "DEBUG:: dragged_refinement finished, rr is"
-			       << rr.found_restraints_flag << " " << rr.progress << " "
-			       << rr.info << std::endl;
-			
 		  }
 		  if (retval == GSL_ENOPROG) {
 		     continue_flag = 0;
 		     rr = graphics_info_t::saved_dragged_refinement_results;
-		     std::cout << "DEBUG:: dragged_refinement finished, (NO progress) rr is"
-			       << rr.found_restraints_flag << " " << rr.progress << " "
-			       << rr.info << std::endl;
 		  }
 	       }
 	    }

@@ -477,8 +477,6 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    std::cout << "Minimum found (iteration number " << iter << ") at ";
 	    std::cout << s->f << "\n"; 
 	    results_string = chi_squareds("Final Chi Squareds", s->x);
-	    std::cout << "DEBUG:: results_string in minimize() is " << results_string
-		      << std::endl;
 	 }
 
 	 if (verbose_geometry_reporting)
@@ -497,8 +495,8 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    gsl_vector_free (x);
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, results_string);
-   std::cout << "DEBUG:: returning from minimize() :" << results_string
-	     << ":" << std::endl;
+//    std::cout << "DEBUG:: returning from minimize() :" << results_string
+// 	     << ":" << std::endl;
    
    return rr;
 }
@@ -1649,8 +1647,8 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    } else {
       std::cout << "bonds:      " << bond_distortion/double(n_bond_restraints)
 		<< std::endl;
-      r += "   bonds: ";
-      r += coot::util::float_to_string(bond_distortion/double(n_bond_restraints));
+      r += "   bonds:  ";
+      r += coot::util::float_to_string_using_dec_pl(bond_distortion/double(n_bond_restraints), 3);
       r += "\n";
    } 
    if (n_angle_restraints == 0) {
@@ -1659,7 +1657,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::cout << "angles:     " << angle_distortion/double(n_angle_restraints)
 		<< std::endl;
       r += "   angles: ";
-      r += coot::util::float_to_string(angle_distortion/double(n_angle_restraints));
+      r += coot::util::float_to_string_using_dec_pl(angle_distortion/double(n_angle_restraints), 3);
       r += "\n";
    } 
    if (n_torsion_restraints == 0) {
@@ -1674,7 +1672,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::cout << "planes:     " << plane_distortion/double(n_plane_restraints)
 		<< std::endl;
       r += "   planes: ";
-      r += coot::util::float_to_string(plane_distortion/double(n_plane_restraints));
+      r += coot::util::float_to_string_using_dec_pl(plane_distortion/double(n_plane_restraints), 3);
       r += "\n";
    }
    if (n_non_bonded_restraints == 0) {
@@ -1683,8 +1681,8 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::cout << "non-bonded: " << non_bonded_distortion/double(n_non_bonded_restraints)
 		<< std::endl;
       r += "   non-bonded: ";
-      r += coot::util::float_to_string(non_bonded_distortion/double(n_non_bonded_restraints));
-      r += "\n";
+      r += coot::util::float_to_string_using_dec_pl(non_bonded_distortion/double(n_non_bonded_restraints), 3);
+      // r += "\n";
    }
    if (n_chiral_volumes == 0) { 
       std::cout << "chiral vol: N/A " << std::endl;
