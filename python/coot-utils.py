@@ -124,8 +124,7 @@ def print_sequence(imol):
        print_sequence(imol,chain)
 
 
-
-
-def graphics_general_key_press_hook():
+# key is an int
+def graphics_general_key_press_hook(key):
     return True
 

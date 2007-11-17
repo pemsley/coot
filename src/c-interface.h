@@ -774,8 +774,10 @@ float data_resolution(int imol);
 void solid_surface(int imap, short int on_off_flag);
 
 /*! \brief export (write to disk) the map of molecule number imol to
-  filename */
-void export_map(int imol, const char *filename);
+  filename.  
+  
+  Return 0 on failure, 1 on success. */
+int export_map(int imol, const char *filename);
 
 /* return the new molecule number */
 int transform_map_raw(int imol, 

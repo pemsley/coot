@@ -16,6 +16,12 @@
 ;;;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 ;;;; 02110-1301, USA
 
+(define (add-coot-menu-seperator menu)
+  (let ((sep (gtk-menu-item-new)))
+    (gtk-container-add menu sep)
+    (gtk-widget-set-sensitive sep #f)
+    (gtk-widget-show sep)))
+
 (if (defined? 'coot-main-menubar)
 
     (let ((menu (coot-menubar-menu "Extensions")))
@@ -47,15 +53,7 @@
 				     (let ((s  "oops.  Must set a map to fit"))
 				       (add-status-bar-text s)))))))
 
-      (add-simple-coot-menu-menuitem menu "Residue Type Selection..."
-				     (lambda ()
-				       (generic-chooser-and-entry 
-					"Choose a molecule from which to select residues:"
-					"Residue Type:" ""
-					(lambda (imol text)
-					  (new-molecule-by-residue-type-selection imol text)
-					  (update-go-to-atom-window-on-new-mol)))))
-
+      (add-coot-menu-seperator menu)
 
       (add-simple-coot-menu-menuitem
        menu "Mask Map by Atom Selection..."
@@ -102,12 +100,6 @@
 				      (if (number? n)
 					  (mask-map-by-atom-selection n imol text-2 invert)))))))))
 
-      (add-simple-coot-menu-menuitem
-       menu "Copy Coordinates Molecule...."
-       (lambda ()
-	 (molecule-chooser-gui "Molecule to Copy..."
-			       (lambda (imol)
-				 (copy-molecule imol)))))
 
       (add-simple-coot-menu-menuitem
        menu "Copy Map Molecule...."
@@ -117,53 +109,26 @@
 				     (copy-molecule imol)))))
 
       (add-simple-coot-menu-menuitem
-       menu "Copy Fragment..."
+       menu "Export map..."
        (lambda ()
-	 (generic-chooser-and-entry "Create a new Molecule\nFrom which molecule shall we seed?"
-				    "Atom selection for fragment"
-				    "//A/1-10" 
-				    (lambda (imol text)
-				      (new-molecule-by-atom-selection imol text)))))
+	 (generic-chooser-and-file-selector
+	  "Export Map: " 
+	  valid-map-molecule?
+	  "File-name: " 
+	  "" 
+	  (lambda (imol text)
+	    (let ((export-status (export-map imol text)))
+	      (if (= export-status 1)
+		  (let ((s (string-append 
+			    "Map " (number->string imol)
+			    " exported to " text)))
+		    (add-status-bar-text s))))))))
+
 
       (add-simple-coot-menu-menuitem
-       menu "Replace Fragment"
+       menu "Brighten Maps"
        (lambda ()
-	 (molecule-chooser-gui "Define the molecule that needs updating"
-			       (lambda (imol-base)
-				 (generic-chooser-and-entry
-				  "Molecule that contains the new fragment:"
-				  "Atom Selection" "//"
-				  (lambda (imol-fragment atom-selection-str)
-				    (replace-fragment 
-				     imol-base imol-fragment atom-selection-str)))))))
-
-
-      (let ((submenu (gtk-menu-new))
-	    (menuitem2 (gtk-menu-item-new-with-label "Peptide Restraints...")))
-	
-	(gtk-menu-item-set-submenu menuitem2 submenu) 
-	(gtk-menu-append menu menuitem2)
-	(gtk-widget-show menuitem2)
-	
-	(add-simple-coot-menu-menuitem
-	 submenu "Add Planar Peptide Restraints"
-	 (lambda ()
-	   (format #t "Planar Peptide Restraints added~%")
-	   (add-planar-peptide-restraints)))
-	
-	(add-simple-coot-menu-menuitem
-	 submenu "Remove Planar Peptide Restraints"
-	 (lambda ()
-	   (format #t "Planar Peptide Restraints removed~%")
-	   (remove-planar-peptide-restraints))))
-	   
-
-      (add-simple-coot-menu-menuitem
-       menu "Set Undo Molecule..."
-       (lambda () 
-	 (molecule-chooser-gui "Set the Molecule for \"Undo\" Operations"
-			       (lambda (imol)
-				 (set-undo-molecule imol)))))
+	 (brighten-maps)))
 
       (add-simple-coot-menu-menuitem
        menu "Set map is a difference map..."
@@ -174,44 +139,54 @@
 					     imol)
 				     (set-map-is-difference-map imol)))))
 
-      (add-simple-coot-menu-menuitem
-       menu "Use SEGIDs..."
-       (lambda () 
-	 (molecule-chooser-gui 
-	  "Exchange the Chain IDs, replace with SEG IDs"
-	  (lambda (imol)
-	    (exchange-chain-ids-for-seg-ids imol)))))
-      
-      (add-simple-coot-menu-menuitem
-       menu "Dotted Surface..."
-       (lambda ()
-	   (generic-chooser-and-entry "Surface for molecule"
-				      "Atom Selection:"
-				      "//A/1-2"
-				      (lambda (imol text)
-					(let ((dots-handle (dots imol text 1 1)))
-					  (format #t "dots handle: ~s~%" dots-handle))))))
 
       (add-simple-coot-menu-menuitem
-       menu "Clear Surface Dots..."
+       menu "Another level..."
        (lambda ()
-	 (generic-chooser-and-entry "Molecule with Dotted Surface"
-				    "Dots Handle Number:"
-				    "0"
+	 (another-level)))
+
+      (add-coot-menu-seperator menu)
+
+
+      (add-simple-coot-menu-menuitem
+       menu "Copy Fragment..."
+       (lambda ()
+	 (generic-chooser-and-entry "Create a new Molecule\nFrom which molecule shall we seed?"
+				    "Atom selection for fragment"
+				    "//A/1-10" 
 				    (lambda (imol text)
-				      (let ((n (string->number text)))
-					(if (number? n)
-					    (clear-dots imol n)))))))
-      
-      (add-simple-coot-menu-menuitem menu "B factor bonds scale factor..."
+				      (new-molecule-by-atom-selection imol text)))))
+
+
+      (add-simple-coot-menu-menuitem
+       menu "Copy Coordinates Molecule...."
+       (lambda ()
+	 (molecule-chooser-gui "Molecule to Copy..."
+			       (lambda (imol)
+				 (copy-molecule imol)))))
+
+
+      (add-simple-coot-menu-menuitem menu "Residue Type Selection..."
 				     (lambda ()
 				       (generic-chooser-and-entry 
-					"Choose a molecule to which the b-factor colour scale is applied:"
-					"B factor scale:" "1.0"
+					"Choose a molecule from which to select residues:"
+					"Residue Type:" ""
 					(lambda (imol text)
-					  (let ((n (string->number text)))
-					    (if (number? n)
-						(set-b-factor-bonds-scale-factor imol n)))))))
+					  (new-molecule-by-residue-type-selection imol text)
+					  (update-go-to-atom-window-on-new-mol)))))
+
+
+      (add-simple-coot-menu-menuitem
+       menu "Replace Fragment..."
+       (lambda ()
+	 (molecule-chooser-gui "Define the molecule that needs updating"
+			       (lambda (imol-base)
+				 (generic-chooser-and-entry
+				  "Molecule that contains the new fragment:"
+				  "Atom Selection" "//"
+				  (lambda (imol-fragment atom-selection-str)
+				    (replace-fragment 
+				     imol-base imol-fragment atom-selection-str)))))))
 
       (add-simple-coot-menu-menuitem
        menu "Renumber Waters..."
@@ -229,102 +204,24 @@
 	  (lambda (imol)
 	    (alt-confs-gui imol)))))
 
-      (add-simple-coot-menu-menuitem
-       menu "Set Matrix (Refinement Weight)..."
+      (add-simple-coot-menu-menuitem 
+       menu "Phosphorylate this residue"
        (lambda ()
-	 (generic-single-entry "set matrix: (smaller means better geometry)" 
-			       (number->string (matrix-state))
-			       "  Set it  " (lambda (text) 
-					  (let ((t (string->number text)))
-					    (if (number? t)
-						(begin
-						  (let ((s (string-append "Matrix set to " text)))
-						    (set-matrix t)
-						    (add-status-bar-text s)))
-						(begin
-						  (add-status-bar-text 
-						   "Failed to read a number"))))))))
+	 (phosphorylate-active-residue)))
       
       (add-simple-coot-menu-menuitem
-       menu "Set Density Fit Graph Weight..."
-       (lambda ()
-	 (generic-single-entry "set scale factor (smaller number means smaller bars)" 
-			       "1.0"
-			       "Set it" (lambda (text) 
-					  (let ((t (string->number text)))
-					    (if (number? t)
-						(begin
-						  (let ((s (string-append 
-							    "Density Fit scale factor set to " 
-							    text)))
-						    (set-residue-density-fit-scale-factor t)
-						    (add-status-bar-text s)))
-						(begin
-						  (add-status-bar-text 
-						   "Failed to read a number"))))))))
+       menu "Use SEGIDs..."
+       (lambda () 
+	 (molecule-chooser-gui 
+	  "Exchange the Chain IDs, replace with SEG IDs"
+	  (lambda (imol)
+	    (exchange-chain-ids-for-seg-ids imol)))))
 
-      ;; An example with a submenu:
-      ;; 
-      (let ((submenu (gtk-menu-new))
-	    (menuitem2 (gtk-menu-item-new-with-label "Refinement Speed...")))
+      ;; ---------------------------------------------------------------------
+      ;;     Other Programs (?)
+      ;; ---------------------------------------------------------------------
 
-	(gtk-menu-item-set-submenu menuitem2 submenu) 
-	(gtk-menu-append menu menuitem2)
-	(gtk-widget-show menuitem2)
-
-	(add-simple-coot-menu-menuitem
-	 submenu "Molasses Refinement mode"
-	 (lambda ()
-	   (format #t "Molasses...~%")
-	   (set-dragged-refinement-steps-per-frame 4)))
-
-	(add-simple-coot-menu-menuitem
-	 submenu "Crocodile Refinement mode"
-	 (lambda ()
-	   (format #t "Crock...~%")
-	   (set-dragged-refinement-steps-per-frame 120)))
-
-	(add-simple-coot-menu-menuitem
-	 submenu "Default Refinement mode"
-	 (lambda ()
-	   (format #t "Default Speed...~%")
-	   (set-dragged-refinement-steps-per-frame 50))))
-
-      ;; 
-      (let ((submenu (gtk-menu-new))
-	    (menuitem2 (gtk-menu-item-new-with-label "Rotate Translate Zone Mode...")))
-	
-	(gtk-menu-item-set-submenu menuitem2 submenu) 
-	(gtk-menu-append menu menuitem2)
-	(gtk-widget-show menuitem2)
-
-	(add-simple-coot-menu-menuitem
-	 submenu "Rotate About Fragment Centre"
-	 (lambda ()
-	   (set-rotate-translate-zone-rotates-about-zone-centre 1)))
-
-	(add-simple-coot-menu-menuitem
-	 submenu "Rotate About Second Clicked Atom"
-	 (lambda ()
-	   (set-rotate-translate-zone-rotates-about-zone-centre 0))))
-
-      (add-simple-coot-menu-menuitem
-       menu "All Molecules use \"Near Chains\" Symmetry"
-       (lambda ()
-	 (for-each (lambda (imol)
-		     (if (valid-model-molecule? imol)
-			 (set-symmetry-whole-chain imol 1)))
-		   (molecule-number-list))))
-      
-      (add-simple-coot-menu-menuitem
-       menu "Question Accept Refinement"
-       (lambda ()
-	 (set-refinement-immediate-replacement 0)))
-
-      (add-simple-coot-menu-menuitem
-       menu "Another level..."
-       (lambda ()
-	 (another-level)))
+      (add-coot-menu-seperator menu)
 
       (add-simple-coot-menu-menuitem
        menu "CCP4MG..."
@@ -372,30 +269,12 @@
 	     (gtk-box-pack-start vbox cancel-button #t #f 0)
 	     (gtk-widget-show-all window)))))
 
-      (add-simple-coot-menu-menuitem 
-       menu "Phosphorylate this residue"
-       (lambda ()
-	 (phosphorylate-active-residue)))
 
-      (add-simple-coot-menu-menuitem 
-       menu "Set Spin Speed..."
-       (lambda ()
-	 (generic-single-entry "Set Spin Speed (smaller is slower)"
-			       (number->string (idle-function-rotate-angle))
-			       "Set it" (lambda (text)
-					  (let ((t (string->number text)))
-					    (if (number? t)
-						(set-idle-function-rotate-angle t)))))))
-
-      (add-simple-coot-menu-menuitem
-       menu "Brighten Maps"
-       (lambda ()
-	 (brighten-maps)))
-
-      (add-simple-coot-menu-menuitem
-       menu "Nudge Centre..."
-       (lambda ()
-	 (nudge-screen-centre-gui)))
+      ;; ---------------------------------------------------------------------
+      ;;     Building
+      ;; ---------------------------------------------------------------------
+      ;; 
+      (add-coot-menu-seperator menu)
 
 ;; Not this.  Instead fire up a new top level, where we have a molecule chooser, 
 ;; an entry for the chain spec and a text window where can paste in a sequence.
@@ -434,6 +313,7 @@
 	 (lambda ()
 	   (generic-chooser-entry-and-file-selector 
 	    "Associate Sequence to Model: "
+	    valid-model-molecule?
 	    "Chain ID"
 	    ""
 	    "Select PIR file"
@@ -460,12 +340,200 @@
 	   (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
 				 (lambda (imol)
 				   (cootaneer-gui imol))))))
-	
 
       (add-simple-coot-menu-menuitem
        menu "Add Strand Here..."
        (lambda ()
 	 (place-strand-here-gui)))
+
+
+      ;; ---------------------------------------------------------------------
+      ;;     Settings
+      ;; ---------------------------------------------------------------------
+      ;; 
+      (add-coot-menu-seperator menu)
+
+      (let ((submenu (gtk-menu-new))
+	    (menuitem2 (gtk-menu-item-new-with-label "Peptide Restraints...")))
+	
+	(gtk-menu-item-set-submenu menuitem2 submenu) 
+	(gtk-menu-append menu menuitem2)
+	(gtk-widget-show menuitem2)
+	
+	(add-simple-coot-menu-menuitem
+	 submenu "Add Planar Peptide Restraints"
+	 (lambda ()
+	   (format #t "Planar Peptide Restraints added~%")
+	   (add-planar-peptide-restraints)))
+	
+	(add-simple-coot-menu-menuitem
+	 submenu "Remove Planar Peptide Restraints"
+	 (lambda ()
+	   (format #t "Planar Peptide Restraints removed~%")
+	   (remove-planar-peptide-restraints))))
+	   
+
+      
+      ;; An example with a submenu:
+      ;; 
+      (let ((submenu (gtk-menu-new))
+	    (menuitem2 (gtk-menu-item-new-with-label "Refinement Speed...")))
+
+	(gtk-menu-item-set-submenu menuitem2 submenu) 
+	(gtk-menu-append menu menuitem2)
+	(gtk-widget-show menuitem2)
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Molasses Refinement mode"
+	 (lambda ()
+	   (format #t "Molasses...~%")
+	   (set-dragged-refinement-steps-per-frame 4)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Crocodile Refinement mode"
+	 (lambda ()
+	   (format #t "Crock...~%")
+	   (set-dragged-refinement-steps-per-frame 120)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Default Refinement mode"
+	 (lambda ()
+	   (format #t "Default Speed...~%")
+	   (set-dragged-refinement-steps-per-frame 50))))
+
+
+      (add-simple-coot-menu-menuitem 
+       menu "Set Spin Speed..."
+       (lambda ()
+	 (generic-single-entry "Set Spin Speed (smaller is slower)"
+			       (number->string (idle-function-rotate-angle))
+			       "Set it" (lambda (text)
+					  (let ((t (string->number text)))
+					    (if (number? t)
+						(set-idle-function-rotate-angle t)))))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Nudge Centre..."
+       (lambda ()
+	 (nudge-screen-centre-gui)))
+
+      (add-simple-coot-menu-menuitem
+       menu "Set Undo Molecule..."
+       (lambda () 
+	 (molecule-chooser-gui "Set the Molecule for \"Undo\" Operations"
+			       (lambda (imol)
+				 (set-undo-molecule imol)))))
+
+      (add-simple-coot-menu-menuitem menu "B factor bonds scale factor..."
+				     (lambda ()
+				       (generic-chooser-and-entry 
+					"Choose a molecule to which the b-factor colour scale is applied:"
+					"B factor scale:" "1.0"
+					(lambda (imol text)
+					  (let ((n (string->number text)))
+					    (if (number? n)
+						(set-b-factor-bonds-scale-factor imol n)))))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Set Matrix (Refinement Weight)..."
+       (lambda ()
+	 (generic-single-entry "set matrix: (smaller means better geometry)" 
+			       (number->string (matrix-state))
+			       "  Set it  " (lambda (text) 
+					  (let ((t (string->number text)))
+					    (if (number? t)
+						(begin
+						  (let ((s (string-append "Matrix set to " text)))
+						    (set-matrix t)
+						    (add-status-bar-text s)))
+						(begin
+						  (add-status-bar-text 
+						   "Failed to read a number"))))))))
+      
+      (add-simple-coot-menu-menuitem
+       menu "Set Density Fit Graph Weight..."
+       (lambda ()
+	 (generic-single-entry "set scale factor (smaller number means smaller bars)" 
+			       "1.0"
+			       "Set it" (lambda (text) 
+					  (let ((t (string->number text)))
+					    (if (number? t)
+						(begin
+						  (let ((s (string-append 
+							    "Density Fit scale factor set to " 
+							    text)))
+						    (set-residue-density-fit-scale-factor t)
+						    (add-status-bar-text s)))
+						(begin
+						  (add-status-bar-text 
+						   "Failed to read a number"))))))))
+
+
+      
+      ;; 
+      (let ((submenu (gtk-menu-new))
+	    (menuitem2 (gtk-menu-item-new-with-label "Rotate Translate Zone Mode...")))
+	
+	(gtk-menu-item-set-submenu menuitem2 submenu) 
+	(gtk-menu-append menu menuitem2)
+	(gtk-widget-show menuitem2)
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Rotate About Fragment Centre"
+	 (lambda ()
+	   (set-rotate-translate-zone-rotates-about-zone-centre 1)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu "Rotate About Second Clicked Atom"
+	 (lambda ()
+	   (set-rotate-translate-zone-rotates-about-zone-centre 0))))
+
+      (add-simple-coot-menu-menuitem
+       menu "All Molecules use \"Near Chains\" Symmetry"
+       (lambda ()
+	 (for-each (lambda (imol)
+		     (if (valid-model-molecule? imol)
+			 (set-symmetry-whole-chain imol 1)))
+		   (molecule-number-list))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Question Accept Refinement"
+       (lambda ()
+	 (set-refinement-immediate-replacement 0)))
+
+
+      ;; ---------------------------------------------------------------------
+      ;;     Views/Representations
+      ;; ---------------------------------------------------------------------
+      ;; 
+      (add-coot-menu-seperator menu)
+
+      (add-simple-coot-menu-menuitem
+       menu "Dotted Surface..."
+       (lambda ()
+	   (generic-chooser-and-entry "Surface for molecule"
+				      "Atom Selection:"
+				      "//A/1-2"
+				      (lambda (imol text)
+					(let ((dots-handle (dots imol text 1 1)))
+					  (format #t "dots handle: ~s~%" dots-handle))))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Clear Surface Dots..."
+       (lambda ()
+	 (generic-chooser-and-entry "Molecule with Dotted Surface"
+				    "Dots Handle Number:"
+				    "0"
+				    (lambda (imol text)
+				      (let ((n (string->number text)))
+					(if (number? n)
+					    (clear-dots imol n)))))))
+      (add-simple-coot-menu-menuitem
+       menu "Label All CAs..."
+       (lambda ()
+	 (molecule-chooser-gui "Choose a molecule to label"
+				 (lambda (imol)
+				   (label-all-CAs imol)))))
 
 
       (let ((submenu (gtk-menu-new))

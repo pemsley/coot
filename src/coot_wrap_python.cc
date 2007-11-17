@@ -6365,6 +6365,7 @@ SWIGINTERN PyObject *_wrap_export_map(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject *resultobj = 0;
   int arg1 ;
   char *arg2 = (char *) 0 ;
+  int result;
   int val1 ;
   int ecode1 = 0 ;
   int res2 ;
@@ -6384,8 +6385,8 @@ SWIGINTERN PyObject *_wrap_export_map(PyObject *SWIGUNUSEDPARM(self), PyObject *
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "export_map" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  export_map(arg1,(char const *)arg2);
-  resultobj = SWIG_Py_Void();
+  result = (int)export_map(arg1,(char const *)arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return resultobj;
 fail:

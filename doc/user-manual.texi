@@ -121,26 +121,49 @@ the source code.
 If have found this software to be useful, you are requested
 (if appropriate) to cite:
 
+@quotation
  "Coot: model-building tools for molecular graphics"
         Emsley P, Cowtan K
    @emph{Acta Crystallographica Section D-Biological Crystallography}
    @strong{60}: 2126-2132 Part 12 Sp. Iss. 1 DEC 2004
+@end quotation
 
-   The reference for the REFMAC5 Dictionary is:
 
+The reference for the REFMAC5 Dictionary is:
+
+@quotation
 REFMAC5 dictionary: "Organization of Prior Chemical Knowledge and
 Guidelines for its Use" Vagin AA, Steiner RA, Lebedev AA, Potterton L,
 McNicholas S Long F, Murshudov GN @emph{Acta Crystallographica Section
 D-Biological Crystallography} @strong{60}: 2184-2195 Part 12 Sp. Iss. 1
 DEC 2004"
+@end quotation
+
 
 If using "SSM Superposition", please cite:
 
+@quotation
    "Secondary-structure matching (SSM), a new tool for fast
    protein structure alignment in three dimensions"
    Krissinel E, Henrick K
    @emph{Acta Crystallographica Section D-Biological Crystallography}
    @strong{60}: 2256-2268 Part 12 Sp. Iss. 1 DEC 2004
+@end quotation
+
+
+
+The reference for the the Electron Density Server is: 
+
+@quotation
+GJ Kleywegt, MR Harris, JY Zou, TC Taylor, A W@"ahlby,  TA Jones (2004),
+"The Uppsala Electron-Density Server", 
+@emph{Acta Crystallographica Section D-Biological Crystallography} @strong{60}, 2240-2249.
+
+Please also cite the primary literature for the received structures.
+
+@end quotation
+
+
 
 @node What is Coot?
 @section What is Coot?
@@ -1427,6 +1450,13 @@ Coot can use the relative transformations of the NCS-related molecules
 in a coordinates molecule to transform maps. Use @command{Calculate}
 -> @command{NCS Maps@dots{}} to do this (note the NCS maps
 only make sense in the region of the reference chain (see above).
+
+Note also that the internal representation of the map is not
+transformed.  If you try to export a NCS overlay map you will get an
+untransformed map.  A transformated map only makes sense around a given
+point (and when using transformed maps in Coot, this reference point is
+changed on the fly, thus allowing map transformations on the fly).
+[This applies to NCS overlap maps, NCS averaged maps are transformed].
 
 @cindex NCS averaging
 This will also create an NCS averaged
