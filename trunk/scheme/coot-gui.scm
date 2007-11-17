@@ -855,7 +855,9 @@
 ;; callback-function is a function that takes a molecule number and 2
 ;; text strings (e.g chain-id and file-name)
 ;; 
-(define (generic-chooser-entry-and-file-selector chooser-label entry-hint-text default-entry-text file-selector-hint callback-function)
+;; chooser-filter is typically valid-map-molecule? or valid-model-molecule?
+;; 
+(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
@@ -869,7 +871,9 @@
 	 (ok-button (gtk-button-new-with-label "  OK  "))
 	 (cancel-button (gtk-button-new-with-label " Cancel "))
 	 (h-sep (gtk-hseparator-new))
-	 (model-mol-list (fill-option-menu-with-coordinates-mol-options menu)))
+	 (model-mol-list (fill-option-menu-with-mol-options menu chooser-filter)))
+
+    ;; (fill-option-menu-with-coordinates-mol-options menu)))
     
     (gtk-window-set-default-size window 400 100)
     (gtk-container-add window vbox)
@@ -914,7 +918,9 @@
 ;; callback-function is a function that takes a molecule number and a 
 ;; file-name
 ;; 
-(define (generic-chooser-and-file-selector chooser-label file-selector-hint default-file-name callback-function)
+;; chooser-filter is typically valid-map-molecule? or valid-model-molecule?
+;; 
+(define (generic-chooser-and-file-selector chooser-label chooser-filter file-selector-hint default-file-name callback-function)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
@@ -926,7 +932,7 @@
 	 (ok-button (gtk-button-new-with-label "  OK  "))
 	 (cancel-button (gtk-button-new-with-label " Cancel "))
 	 (h-sep (gtk-hseparator-new))
-	 (model-mol-list (fill-option-menu-with-coordinates-mol-options menu)))
+	 (model-mol-list (fill-option-menu-with-mol-options menu chooser-filter)))
     
     (gtk-window-set-default-size window 400 100)
     (gtk-container-add window vbox)

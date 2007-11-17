@@ -2401,12 +2401,6 @@ Mon Nov  5 11:49:30 GMT 2007
    different colour), the rest with Mainchain CAs.
 
 
------
-Mon Nov  5 16:47:26 GMT 2007
-
-   
-
-
 ----
 Mon Nov  5 20:31:59 GMT 2007
 
@@ -2417,5 +2411,31 @@ Mon Nov  5 20:32:25 GMT 2007
 
    export map on Extensions menu.
 
+
+----
+Fri Nov 16 12:51:54 GMT 2007
+
+Gregory C. Benison NMR program:
+http://oregonstate.edu/~benisong/software/burrow-owl/
+
+
+
+-----
+Fri Nov 16 20:23:19 GMT 2007
+
+   How do I change my residue to have insertion code and the following
+   residues to have -1 offset and it all to be joined up?
+
+   e.g.:
+   (change-residue-number 0 "C" 86 "" 85 "A")
+   Which is fine, execpt I can't then move C/85A to the A chain.
+
+
+----
+Sat Nov 17 12:14:46 GMT 2007
+
+	phosphorylate-active-residue: 
+
+	what about phospholysine?
 
 

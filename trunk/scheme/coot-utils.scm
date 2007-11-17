@@ -1397,6 +1397,28 @@
 	      (info-dialog s))))))))
 
 
+
+;; 
+(define (label-all-CAs imol)
+
+  (map (lambda (chain-id)
+	 (if (not (is-solvent-chain? imol chain-id))
+	     (let ((n-residues (chain-n-residues chain-id imol)))
+	       
+	       (for-each 
+		(lambda (serial-number)
+		  
+		  (let ((res-name (resname-from-serial-number imol chain-id serial-number))
+			(res-no   (seqnum-from-serial-number  imol chain-id serial-number))
+			(ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
+
+		    (add-atom-label imol chain-id res-no " CA ")))
+		(number-list 0 (- n-residues 1))))))
+       (chain-ids imol))
+  (graphics-draw))
+
+
+
 ;;
 (define (label-all-atoms-in-residue imol chain-id resno inscode)
 
@@ -1407,6 +1429,8 @@
 		      (add-atom-label imol chain-id resno (car (car atom-info))))
 		    atom-list)
 	  (graphics-draw)))))
+
+
   
 
 ;; 

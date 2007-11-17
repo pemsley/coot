@@ -5323,19 +5323,22 @@ void set_contour_by_sigma_step_by_mol(float f, short int state, int imol) {
    }
 }
 
-void export_map(int imol, const char *filename) {
+int export_map(int imol, const char *filename) {
 
+   int rv = 0; // fail
    if (is_valid_map_molecule(imol)) {
 
       clipper::CCP4MAPfile mapout;
       mapout.open_write(std::string(filename));
       mapout.export_xmap(graphics_info_t::molecules[imol].xmap_list[0]);
-      mapout.close_write(); 
+      mapout.close_write();
+      rv = 1;
       
    } else {
       graphics_info_t g;
       g.statusbar_text("Invalid map molecule number");
    }
+   return rv; 
 
 }
 

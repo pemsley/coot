@@ -393,6 +393,17 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 		     rr = graphics_info_t::saved_dragged_refinement_results;
 		  }
 	       }
+
+	       // if we reach here with continue_flag == 1, then we
+	       // were refining (regularizing more like) and ran out
+	       // of steps before convergence.  We still want to give
+	       // the use a dialog though.
+	       //
+	       if (continue_flag == 1) {
+		  rr = graphics_info_t::saved_dragged_refinement_results;
+		  rr.info = "Time's up...";
+	       }
+	       
 	    }
 	 } else { 
 	    GtkWidget *widget = create_no_restraints_info_dialog();
