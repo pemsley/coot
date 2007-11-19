@@ -204,6 +204,14 @@
 	  (lambda (imol)
 	    (alt-confs-gui imol)))))
 
+
+      (add-simple-coot-menu-menuitem
+       menu "Cis Peptides..."
+       (lambda ()
+	 (molecule-chooser-gui "Choose a molecule for checking for Cis Peptides" 
+			       (lambda (imol)
+				 (cis-peptides-gui imol)))))
+
       (add-simple-coot-menu-menuitem 
        menu "Phosphorylate this residue"
        (lambda ()

@@ -1578,6 +1578,67 @@
 			   (cons 200 190) buttons "  Close ")))
 
 
+(define (cis-peptides-gui imol)
+
+  (define (get-ca atom-list)
+    
+    (let loop ((atom-list atom-list))
+      (cond
+       ((null? atom-list) #f)
+       (else 
+	(let ((atom-name (car (car (car atom-list)))))
+	  (format #t "testing ~s from ~s~%" atom-name (car atom-list))
+	  (if (string=? atom-name " CA ")
+	      (car atom-list)
+	      (loop (cdr atom-list))))))))
+
+  
+  (let ((cis-peps (cis-peptides imol)))
+    
+    (format #t "found cis-peps: ~s~%" cis-peps)
+    (format #t "found car cis-peps: ~s~%" (car cis-peps))
+
+    (if (null? cis-peps)
+	(info-dialog "No Cis Peptides found")
+	(interesting-things-gui
+	 "Cis Peptides:"
+	 (map (lambda (cis-pep-spec)
+
+		(let ((r1 (list-ref cis-pep-spec 0))
+		      (r2 (list-ref cis-pep-spec 1))
+		      (omega (list-ref cis-pep-spec 2)))
+		  (let ((atom-list-r1 (apply residue-info 
+					     imol (cdr r1)))
+			(atom-list-r2 (apply residue-info 
+					     imol (cdr r2))))
+		    (let ((ca-1 (get-ca atom-list-r1))
+			  (ca-2 (get-ca atom-list-r2)))
+
+		      (if (not (and ca-1 ca-2))
+			  (list (string-append "Cis Pep (atom failure) " 
+					       (car (cdr r1))
+					       " "
+					       (number->string (car (cdr (cdr r1)))))
+				imol chain-id 
+				(car (cdr r1))
+				(car (cdr (cdr r1)))
+				"CA" "")
+			  (let ((p-1 (car (cdr (cdr ca-1))))
+				(p-2 (car (cdr (cdr ca-2)))))
+			    (let ((pos (map (lambda (x) (/ x 2)) 
+					    (map + p-1 p-2)))
+				  (mess (string-append 
+					 "Cis Peptide "
+					 (car (cdr r1)) ; "A"
+					 " "
+					 (number->string (car (cdr (cdr r1))))
+					 "-"
+					 (number->string (car (cdr (cdr r2)))))))
+							      
+			      (cons mess pos))))))))
+	      cis-peps)))))
+
+
 ; let the c++ part of mapview know that this file was loaded:
 (set-found-coot-gui)
 	 

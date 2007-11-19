@@ -74,6 +74,25 @@
 #include <libguile.h>
 #endif 
 
+#ifdef HAVE_GSL
+#else
+// fake in refinement_results_t
+namespace coot { 
+  class refinement_results_t {
+  public:
+      short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
+      int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
+      std::string info;
+      refinement_results_t(short int frf, int prog_in, std::string info_in) {
+         found_restraints_flag = frf;
+         info = info_in;
+         progress = prog_in;
+     }
+  };
+}
+#endif // HAVE_GSL
+
+
 namespace coot { 
    enum {MAX_LABELLED_ATOMS = 200};
    enum {NEW_COORDS_ADD = 1, NEW_COORDS_REPLACE = 2, NEW_COORDS_REPLACE_CHANGE_ALTCONF = 3, 
