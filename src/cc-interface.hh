@@ -270,6 +270,19 @@ void safe_python_command_by_char_star(const char *python_command);
 /*  Is this a repeat of something?  I don't know. */
 void run_generic_script(const std::vector<std::string> &cmd_strings);
 
+#ifdef USE_GUILE
+// Return a list describing a residue like that returned by
+// residues-matching-criteria (list return-val chain-id resno ins-code)
+// This is a library function really.  There should be somewhere else to put it.
+// It doesn't need expression at the scripting level.
+// return a null list on problem
+SCM scm_residue(const coot::residue_spec_t &res);
+#endif
+
+#ifdef USE_PYTHON
+// FIXME Bernhard
+// Pythonize py_residue(const coot::residue_spec_t &res);
+#endif
 
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */

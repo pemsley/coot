@@ -151,6 +151,8 @@
 
    o mutate residue range for bases
 
+   o Fix leak and deprecated functions message.
+
 ------
 
    Release 0.9, Facelift-release

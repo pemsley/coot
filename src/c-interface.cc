@@ -5604,6 +5604,65 @@ void safe_python_command_by_char_star(const char *python_cmd) {
 #endif   
 }
 
+#ifdef USE_GUILE
+// Return a list describing a residue like that returned by
+// residues-matching-criteria (list return-val chain-id resno ins-code)
+// This is a library function really.  There should be somewhere else to put it.
+// It doesn't need expression at the scripting level.
+// return a null list on problem
+SCM scm_residue(const coot::residue_spec_t &res) {
+   SCM r = SCM_EOL;
+
+   std::cout <<  "scm_residue on: " << res.chain << " " << res.resno << " "
+	     << res.insertion_code  << std::endl;
+   r = scm_cons(scm_makfrom0str(res.insertion_code.c_str()), r);
+   r = scm_cons(SCM_MAKINUM(res.resno), r);
+   r = scm_cons(scm_makfrom0str(res.chain.c_str()), r);
+   r = scm_cons(SCM_BOOL_T, r);
+   return r;
+}
+#endif
+
+#ifdef USE_GUILE 
+// Return a SCM list object of (residue1 residue2 omega) 
+SCM cis_peptides(int imol) {
+   SCM r = SCM_EOL;
+
+   // more info on the real cis peptides derived from atom positions:
+
+   if (is_valid_model_molecule(imol)) {
+
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<coot::util::cis_peptide_info_t> v =
+	 coot::util::cis_peptides_info_from_coords(mol);
+
+      for (int i=0; i<v.size(); i++) {
+	 coot::residue_spec_t r1(v[i].chain_id_1,
+				 v[i].resno_1,
+				 v[i].ins_code_1);
+	 coot::residue_spec_t r2(v[i].chain_id_2,
+				 v[i].resno_2,
+				 v[i].ins_code_2);
+	 SCM scm_r1 = scm_residue(r1);
+	 SCM scm_r2 = scm_residue(r2);
+	 SCM scm_residue_info = SCM_EOL;
+	 std::cout << "DEBUG:: cis pep with omega: "
+		   << v[1].omega_torsion_angle
+		   << std::endl;
+	 SCM scm_omega = 
+	    scm_double2num(clipper::Util::rad2d(v[1].omega_torsion_angle));
+	 scm_residue_info = scm_cons(scm_omega, scm_residue_info);
+	 scm_residue_info = scm_cons(scm_r2, scm_residue_info);
+	 scm_residue_info = scm_cons(scm_r1, scm_residue_info);
+
+	 // add scm_residue_info to r
+	 r = scm_cons(scm_residue_info, r);
+      }
+      r = scm_reverse(r);
+   }
+   return r;
+}
+#endif //  USE_GUILE 
 
 
 
