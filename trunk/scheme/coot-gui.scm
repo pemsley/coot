@@ -1587,7 +1587,6 @@
        ((null? atom-list) #f)
        (else 
 	(let ((atom-name (car (car (car atom-list)))))
-	  (format #t "testing ~s from ~s~%" atom-name (car atom-list))
 	  (if (string=? atom-name " CA ")
 	      (car atom-list)
 	      (loop (cdr atom-list))))))))
@@ -1595,9 +1594,6 @@
   
   (let ((cis-peps (cis-peptides imol)))
     
-    (format #t "found cis-peps: ~s~%" cis-peps)
-    (format #t "found car cis-peps: ~s~%" (car cis-peps))
-
     (if (null? cis-peps)
 	(info-dialog "No Cis Peptides found")
 	(interesting-things-gui
@@ -1625,15 +1621,25 @@
 				"CA" "")
 			  (let ((p-1 (car (cdr (cdr ca-1))))
 				(p-2 (car (cdr (cdr ca-2)))))
-			    (let ((pos (map (lambda (x) (/ x 2)) 
+			    (let* ((pos (map (lambda (x) (/ x 2)) 
 					    (map + p-1 p-2)))
-				  (mess (string-append 
-					 "Cis Peptide "
-					 (car (cdr r1)) ; "A"
-					 " "
-					 (number->string (car (cdr (cdr r1))))
-					 "-"
-					 (number->string (car (cdr (cdr r2)))))))
+				   (tors-s1 (number->string (list-ref cis-pep-spec 2)))
+				   (tors-string (if (< (string-length tors-s1) 6)
+						    tors-s1
+						    (substring tors-s1 0 6)))
+				   (mess (string-append 
+					  "Cis Pep: "
+					  (car (cdr r1)) ; "A"
+					  " "
+					  (number->string (car (cdr (cdr r1))))
+					  " " 
+					  (apply residue-name imol (cdr r1))
+					  " - "
+					  (number->string (car (cdr (cdr r2))))
+					  " " 
+					  (apply residue-name imol (cdr r2))
+					  "   "
+					  tors-string)))
 							      
 			      (cons mess pos))))))))
 	      cis-peps)))))

@@ -3558,13 +3558,13 @@ coot::util::cis_peptides_info_from_coords(CMMDBManager *mol) {
 	    clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
 	    double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
 	    double torsion = clipper::Util::rad2d(tors);
-	    torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
-	    double distortion = fabs(180.0 - torsion);
+	    double pos_torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
+	    double distortion = fabs(180.0 - pos_torsion);
 	    if (distortion > 90.0) {
 	       coot::residue_spec_t rs1(residue_p_1);
 	       coot::residue_spec_t rs2(residue_p_2); 
 	       v.push_back(coot::util::cis_peptide_info_t(chain_p->GetChainID(),
-							  rs1, rs2, imod));
+							  rs1, rs2, imod, torsion));
 	    }
 	 }
       }

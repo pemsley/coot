@@ -5613,8 +5613,8 @@ void safe_python_command_by_char_star(const char *python_cmd) {
 SCM scm_residue(const coot::residue_spec_t &res) {
    SCM r = SCM_EOL;
 
-   std::cout <<  "scm_residue on: " << res.chain << " " << res.resno << " "
-	     << res.insertion_code  << std::endl;
+//    std::cout <<  "scm_residue on: " << res.chain << " " << res.resno << " "
+// 	     << res.insertion_code  << std::endl;
    r = scm_cons(scm_makfrom0str(res.insertion_code.c_str()), r);
    r = scm_cons(SCM_MAKINUM(res.resno), r);
    r = scm_cons(scm_makfrom0str(res.chain.c_str()), r);
@@ -5646,11 +5646,12 @@ SCM cis_peptides(int imol) {
 	 SCM scm_r1 = scm_residue(r1);
 	 SCM scm_r2 = scm_residue(r2);
 	 SCM scm_residue_info = SCM_EOL;
-	 std::cout << "DEBUG:: cis pep with omega: "
-		   << v[1].omega_torsion_angle
-		   << std::endl;
-	 SCM scm_omega = 
-	    scm_double2num(clipper::Util::rad2d(v[1].omega_torsion_angle));
+// 	 std::cout << "DEBUG:: cis pep with omega: "
+// 		   << v[i].omega_torsion_angle
+// 		   << std::endl;
+// 	 SCM scm_omega = 
+// 	    scm_double2num(clipper::Util::rad2d(v[1].omega_torsion_angle));
+	 SCM scm_omega = scm_double2num(v[i].omega_torsion_angle);
 	 scm_residue_info = scm_cons(scm_omega, scm_residue_info);
 	 scm_residue_info = scm_cons(scm_r2, scm_residue_info);
 	 scm_residue_info = scm_cons(scm_r1, scm_residue_info);
