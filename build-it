@@ -179,7 +179,9 @@
 #               enable-cns
 # 2.18 20071105 Backpeddle to mmdb 1.08.  Baah.
 # 2.19 20071108 Version 1.08-ysbl-3 of mmdb.
-script_version=2.19
+# 2.21 20071108 Sourcefource no longer distributes libungif, now in 
+#               ysbl software/extras
+script_version=2.21
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1815,7 +1817,7 @@ if test -n "$build_libungif" ; then
     echo BUILDING libungif:
 #
 libungif_version=4.1.4
-${WGET} http://jaist.dl.sourceforge.net/sourceforge/libungif/libungif-$libungif_version.tar.gz
+${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libungif-$libungif_version.tar.gz
 (
 date
 pwd
