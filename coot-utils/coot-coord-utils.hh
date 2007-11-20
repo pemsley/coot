@@ -302,7 +302,8 @@ namespace coot {
 	 cis_peptide_info_t(const std::string &chain_id,
 			    residue_spec_t res1,
 			    residue_spec_t res2,
-			    int model_number_in) {
+			    int model_number_in,
+			    float tors_in) {
 	    model_number = model_number_in;
 	    serial_number = -1; // unset
 	    chain_id_1 = chain_id;
@@ -311,6 +312,7 @@ namespace coot {
 	    resno_2 = res2.resno;
 	    ins_code_1 = res1.insertion_code;
 	    ins_code_2 = res2.insertion_code;
+	    omega_torsion_angle = tors_in;
 	 } 
 
 	 // Full constructor
