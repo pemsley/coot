@@ -180,9 +180,10 @@
 # 2.18 20071105 Backpeddle to mmdb 1.08.  Baah.
 # 2.19 20071108 Version 1.08-ysbl-3 of mmdb.
 # 2.20 20071118 No longer make the full fat tar file.
-# 2.21 20071108 Sourcefource no longer distributes libungif, now in 
+# 2.21 20071120 Sourcefource no longer distributes libungif, now in 
 #               ysbl software/extras
-script_version=2.21
+# 2.22 20071121 set the architecture for ubuntu systems.
+script_version=2.22
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -498,6 +499,10 @@ fi
 systype=unknown 
 if test $OS = Linux ; then
   architecture=`uname -i`
+  # uname -i and uname -p (strangely) return unknown on my ubuntu
+  if test $architecture = unknown ; then
+     architecture=`uname -m`
+  fi
 fi
 
 if test $OS = Linux ; then 
@@ -511,9 +516,6 @@ if test $OS = Linux ; then
       dist_name='unknown'
     fi
   done
-
-  echo DEBUG:: dist_name is $dist_name
-  echo DEBUG:: dist_ver  is $dist_ver
 
   case ${dist_name} in
     redhat )
