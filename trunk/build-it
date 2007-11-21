@@ -179,6 +179,7 @@
 #               enable-cns
 # 2.18 20071105 Backpeddle to mmdb 1.08.  Baah.
 # 2.19 20071108 Version 1.08-ysbl-3 of mmdb.
+# 2.20 20071118 No longer make the full fat tar file.
 # 2.21 20071108 Sourcefource no longer distributes libungif, now in 
 #               ysbl software/extras
 script_version=2.21
@@ -2427,7 +2428,7 @@ fi
       if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
          # original full fat:
-         make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
+         # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
          # slimmed:
 	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}.tar.gz
       else 

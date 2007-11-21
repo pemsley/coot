@@ -33,6 +33,9 @@
 
    o Activate test suite
 
+   o Faster bonding of multiple models e.g. 1O5P.pdb.  It should take
+     1 or 2 seconds.
+
 -----
 
    Release 0.5 Dec 2007/Jan 2008
@@ -65,9 +68,6 @@
      fileselection by going through all names of file selections. This
      is ugly (gives terminal warnings).  Make the user data also encode 
      information about which fileslection this is (in 1000s, say).
-
-   o Faster bonding of multiple models e.g. 1O5P.pdb.  It should take
-     1 or 2 seconds.
 
    o Copy fragment (new-molecule-by-atom-selection) does not
      recalculate the NCS.  It should.
@@ -133,6 +133,9 @@
 
    o Calculate NCS matrices from molecules created by
      new_molecule_by_atom_selection()
+
+   o Check the distribution of selection of phi/psis from
+     random-phi-psi function matches a Ramachandran plot
 
  ------
     
