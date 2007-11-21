@@ -13,10 +13,11 @@ Tue Jul  3 14:27:37 BST 2007
    o Try again to add chiral volumes to the geometry target function
 
    o remove probability limit for RichRots
+     look at LEUs.
 
    o Carsten's Map Masking crash
 
-     is it passing an out-of-date group?  No, looks to be handled
+     Is it passing an out-of-date group?  No, looks to be handled
      correctly.  Wrote a test... didn't tickle the bug.  Tricky.
 
        #3  0x08295a48 in display_control_map_combo_box (
@@ -52,9 +53,6 @@ Tue Jul  3 14:27:37 BST 2007
    o GMS Molprobity problem.
 
         Is a molprobity issue.  Get new version?
-
-   o On reading a .res file, can you check for NCS with residue offset?
-     Needs a test
 
    o Pirkko Heikinheimo pdb entry 1o7d, space group P6122.  symmetry
      pick is failing.
@@ -2467,6 +2465,7 @@ Sat Nov 17 12:14:46 GMT 2007
 
 	what about phospholysine?
 
+----
+Sun Nov 18 16:47:57 GMT 2007
 
-
-
+	update Map Transformation example in user-manual
