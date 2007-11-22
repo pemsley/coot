@@ -87,6 +87,7 @@ namespace coot {
 	 friend std::ostream&  operator<<(std::ostream&, residue);
 	 int n_atoms() const { return atoms.size(); }
 	 std::vector<atom *> select_atoms_serial() const;
+	 void delete_atom_indices(const std::vector<int> &atom_indices);
       };
 
       class fragment {
@@ -220,6 +221,7 @@ namespace coot {
 	 void transform(const clipper::RTop_orth &rtop);
 
 	 void check() const;
+	 int count_atoms() const;
 
 	 molecule fragmentize() const;
 
@@ -228,10 +230,12 @@ namespace coot {
 	 zone_info_t zone_info() const;
 
       };
+      std::ostream& operator<<(std::ostream& s, coot::minimol::atom at);
+      std::ostream& operator<<(std::ostream& s, coot::minimol::residue res);
+      std::ostream& operator<<(std::ostream& s, coot::minimol::fragment frag);
    }
-} 
 
-
+}
 
 /* Need this construction?
    for(int ifrag=0; ifrag<fragments.size(); ifrag++) {
