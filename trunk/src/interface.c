@@ -8,7 +8,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <string.h>
 
 #include <gdk/gdkkeysyms.h>
@@ -17,6 +19,8 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "support.h"
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
 GtkWidget*
 create_window1 (void)
@@ -18422,3 +18426,4 @@ create_app1 (void)
   return app1;
 }
 
+#endif

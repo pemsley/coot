@@ -268,6 +268,11 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    
 }
 
+void store_checked_waters_baddies_dialog(GtkWidget *w) {
+   graphics_info_t::checked_waters_baddies_dialog = w;
+}
+
+
 
 void check_waters_molecule_menu_item_activate(GtkWidget *item, 
 					      GtkPositionType pos) {
@@ -294,6 +299,10 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 	 } else {
 
 	    std::vector<coot::atom_spec_t> baddies = graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap_list[0], graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
+
+	    // User data is used to keyboard up and down baddie water
+	    // list (in graphics_info_t::checked_waters_next_baddie).
+	    gtk_object_set_user_data(GTK_OBJECT(w), GINT_TO_POINTER(baddies.size()));
 	 
 	    GtkWidget *button;
 	    GtkWidget *vbox = lookup_widget(w, "checked_waters_baddies_vbox");
@@ -325,6 +334,13 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  gr_group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 		  coot::atom_spec_t *atom_spec = new coot::atom_spec_t(baddies[i]);
 		  atom_spec->int_user_data = imol;
+
+		  std::string button_name = "checked_waters_baddie_button_";
+		  button_name += coot::util::int_to_string(i);
+
+		  gtk_object_set_data_full(GTK_OBJECT(w),
+					   button_name.c_str(), button,
+					   (GtkDestroyNotify) gtk_widget_unref);
 		  
 		  gtk_signal_connect(GTK_OBJECT(button), "clicked",
 				     GTK_SIGNAL_FUNC (graphics_info_t::on_generic_atom_spec_button_clicked),
@@ -348,6 +364,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 	 }
       }
    }
+   store_checked_waters_baddies_dialog(w);
    return w;
 }
 

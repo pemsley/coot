@@ -3679,6 +3679,8 @@ void set_check_waters_max_dist_limit(float f);
 void check_waters_molecule_menu_item_activate(GtkWidget *item, 
 					      GtkPositionType pos);
 void do_check_waters_by_widget(GtkWidget *dialog);
+void store_checked_waters_baddies_dialog(GtkWidget *dialog);
+
 GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim, 
 						 float min_dist, float max_dist,
 						 short int part_occ_contact_flag,

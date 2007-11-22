@@ -2491,6 +2491,9 @@ public:
    static void difference_map_peaks_previous_peak();
    static void difference_map_peaks_neighbour_peak(int istep); // could be private
 
+   //  -------- keyboard baddie waters control: ------
+   static void checked_waters_next_baddie(int dir);
+
    // ------ NCS ------
    static float ncs_min_hit_ratio;
    static short int ncs_maps_do_average_flag;

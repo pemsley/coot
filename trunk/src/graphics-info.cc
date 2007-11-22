@@ -6438,6 +6438,56 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
    }
 }
 
+// static
+void
+graphics_info_t::checked_waters_next_baddie(int dir) {
+
+   graphics_info_t g;
+   GtkWidget *dialog = g.checked_waters_baddies_dialog;
+   if (dialog) {
+      int n_baddies = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dialog)));
+      GtkWidget *button;
+      bool ifound_active_button = 0;
+      int active_button_number = -99; // set later
+      int new_active_button_number = -99; // set later
+      
+      for (int i=0; i<n_baddies; i++) {
+	 std::string button_name = "checked_waters_baddie_button_";
+	 button_name += int_to_string(i);
+	 button = lookup_widget(dialog, button_name.c_str());
+	 if (button) {
+	    if (GTK_TOGGLE_BUTTON(button)->active) {
+	       ifound_active_button = 1;
+	       active_button_number = i;
+	    }
+	 } else {
+	    std::cout << "failed to find button " << button_name
+		      << std::endl;
+	 }
+      }
+      if (ifound_active_button) {
+	 if (dir == 1) {
+	    new_active_button_number = active_button_number + 1;
+	    if (new_active_button_number == n_baddies) {
+	       new_active_button_number = 0;
+	    }
+	 } else {
+	    new_active_button_number = active_button_number - 1;
+	    if (new_active_button_number < 0)
+	       new_active_button_number = n_baddies - 1;
+	 }
+	 std::string active_button_name = "checked_waters_baddie_button_";
+	 active_button_name += int_to_string(new_active_button_number);
+	 GtkWidget *new_active_button =
+	    lookup_widget(dialog, active_button_name.c_str());
+	 gtk_signal_emit_by_name(GTK_OBJECT(new_active_button), "clicked");
+      } else {
+	 std::cout << "active button not found" << std::endl;
+      }
+   }
+}
+
+
 
 #ifdef USE_GUILE
 // static
