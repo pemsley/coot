@@ -1530,3 +1530,64 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 			 << bfa_chain_info[idebug].residue_properties.size()
 			 << std::endl;
 	    
+
+      std::cout << "::::::::::::::::::::::::::::::::::::: mol (post-filtering): "
+		<< mol.count_atoms() << std::endl;
+      for(int ifrag=0; ifrag<mol.fragments.size(); ifrag++) {
+	 for(int ires=mol[ifrag].min_res_no(); ires<=mol[ifrag].max_residue_number(); ires++) {
+	    for (int iat=0; iat<mol[ifrag][ires].atoms.size(); iat++) {
+	       std::cout << "::::::::::::::::::::::: mol atom: "
+			 << " " << mol[ifrag].fragment_id
+			 << " " << mol[ifrag][ires].seqnum
+			 << " " << mol[ifrag][ires][iat].name
+			 << " :" << mol[ifrag][ires][iat].altLoc
+			 << ": " << mol[ifrag][ires][iat].pos.format() << std::endl;
+	    }
+	 }
+      }
+
+      std::cout << "::::::::::::::::::::::::::::::::::::: range_mol: "
+		<< range_mol.count_atoms() << std::endl;
+      for(int ifrag=0; ifrag<range_mol.fragments.size(); ifrag++) {
+	 for(int ires=range_mol[ifrag].min_res_no(); ires<=range_mol[ifrag].max_residue_number(); ires++) {
+	    for (int iat=0; iat<range_mol[ifrag][ires].atoms.size(); iat++) {
+	       std::cout << "::::::::::::::::::::::: range mol atom: "
+			 << " " << range_mol[ifrag].fragment_id
+			 << " " << range_mol[ifrag][ires].seqnum
+			 << " " << range_mol[ifrag][ires][iat].name
+			 << " :" << range_mol[ifrag][ires][iat].altLoc
+			 << ": " << range_mol[ifrag][ires][iat].pos.format() << std::endl;
+	    }
+	 }
+      }
+      
+      std::cout << "::::::::::::::::::::::::::::::::::::: moved_mol: "
+		<< moved_mol.count_atoms() << std::endl;
+      for(int ifrag=0; ifrag<moved_mol.fragments.size(); ifrag++) {
+	 for(int ires=moved_mol[ifrag].min_res_no(); ires<=moved_mol[ifrag].max_residue_number(); ires++) {
+	    for (int iat=0; iat<moved_mol[ifrag][ires].atoms.size(); iat++) {
+	       std::cout << "::::::::::::::::::::::: moved mol atom: "
+			 << " " << moved_mol[ifrag].fragment_id
+			 << " " << moved_mol[ifrag][ires].seqnum
+			 << " " << moved_mol[ifrag][ires][iat].name
+			 << " :" << moved_mol[ifrag][ires][iat].altLoc
+			 << ": " << moved_mol[ifrag][ires][iat].pos.format() << std::endl;
+	    }
+	 }
+      }
+
+      std::cout << "::::::::::::::::::::::::::::::::::::: mol (pre-filtering): "
+		<< mol.count_atoms() << std::endl;
+      for(int ifrag=0; ifrag<mol.fragments.size(); ifrag++) {
+	 for(int ires=mol[ifrag].min_res_no(); ires<=mol[ifrag].max_residue_number(); ires++) {
+	    for (int iat=0; iat<mol[ifrag][ires].atoms.size(); iat++) {
+	       std::cout << "::::::::::::::::::::::: mol atom: "
+			 << " " << mol[ifrag].fragment_id
+			 << " " << mol[ifrag][ires].seqnum
+			 << " " << mol[ifrag][ires][iat].name
+			 << " :" << mol[ifrag][ires][iat].altLoc
+			 << ": " << mol[ifrag][ires][iat].pos.format() << std::endl;
+	    }
+	 }
+      }
+       

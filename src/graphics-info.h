@@ -1440,8 +1440,10 @@ public:
    // is not a great ame for the function (or for the residues that it
    // sets) since they do obviously refer to rigid body refinement.
    // 
-   void set_residue_range_refine_atoms(int resno_start, int resno_end,
-				       const std::string &chain_id, int imol);
+   void set_residue_range_refine_atoms(const std::string &chain_id,
+					int resno_start, int resno_end,
+				       const std::string &alt_conf,
+				       int imol);
    void execute_rigid_body_refine(short int auto_range_flag);
 
    static short int in_residue_info_define; // initially 0

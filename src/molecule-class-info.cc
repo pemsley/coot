@@ -4315,8 +4315,9 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
    PPCAtom local_SelAtom; 
    atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
 
-//    std::cout << chain << " " << resno << " " << insertion_code << " " 
-// 	     << atom_name << " " << alt_conf << " finds " << nSelAtoms <<  " atoms\n";
+//    std::cout << "DEBUG:: full_atom_spec_to_atom_index for :" << chain << ": "
+// 	     << resno << " :" << insertion_code << ": :" 
+//  	     << atom_name << ": :" << alt_conf << ": finds " << nSelAtoms <<  " atoms\n";
 
    if (nSelAtoms == 0) { 
 
@@ -4338,7 +4339,7 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 
       atom_sel.mol->GetSelIndex(selHnd2, local_SelAtom, nSelAtoms);
 
-      std::cout << "There were " << nSelAtoms << " atoms with in that residue:\n";
+      std::cout << "There were " << nSelAtoms << " atoms in that residue:\n";
       for (int i=0; i<nSelAtoms; i++) { 
 	 std::cout << "      " << local_SelAtom[i] << "\n";
       }
@@ -4374,6 +4375,9 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
       }
       iatom_index = iatom_index_udd;
    }
+   atom_sel.mol->DeleteSelection(selHnd); // Oh dear, this should have
+					  // been in place for years
+					  // (shouldn't it?) 20071121
    return iatom_index; 
 }
 //       // compare pointers
@@ -4463,20 +4467,28 @@ void
 molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 				      bool change_altconf_occs_flag) {
 
-   int idx = -1;
-   CAtom *atom;
-   CAtom *mol_atom;
    int n_atom = 0;
    int tmp_index;
 
    make_backup();
-
    
-//    std::cout << "DEBUG:: --------------- replace_coords replacing " << asc.n_selected_atoms
-//  	     << " atoms " << std::endl;
+//    std::cout << "DEBUG:: --------------- replace_coords replacing "
+// 	     << asc.n_selected_atoms << " atoms " << std::endl;
+//    for (int i=0; i<asc.n_selected_atoms; i++) {
+//       CAtom *atom = asc.atom_selection[i];
+//       std::cout << "DEBUG:: intermediate atom on replace coords: chain-id :"
+// 		<< atom->residue->GetChainID() <<  ": "
+// 		<< atom->residue->seqNum << " inscode :" 
+// 		<< atom->GetInsCode() << ": name :" 
+// 		<< atom->name << ": altloc :"
+// 		<< atom->altLoc << ":" << std::endl;
+//    }
 
+   // For each atom in the new set of atoms:
+   // 
    for (int i=0; i<asc.n_selected_atoms; i++) {
-      atom = asc.atom_selection[i];
+      int idx = -1;
+      CAtom *atom = asc.atom_selection[i];
 //       idx = atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 // 				    atom->residue->seqNum,
 // 				    std::string(atom->name));
@@ -4500,20 +4512,29 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 	 } 
       } else {
 //  	 std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is " 
-//  		   << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index...";
+//   		   << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
+// 		   << std::endl;
 	    
 	 idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 					    atom->residue->seqNum,
 					    std::string(atom->GetInsCode()),
 					    std::string(atom->name),
 					    std::string(atom->altLoc));
-	 // std::cout << "DEBUG:: idx: " << idx << "\n";
+	 if (idx == -1) {
+	    std::cout << "DEBUG:: idx: " << idx << "\n";
+	    std::cout << "ERROR:: failed to find spec for chain-id :"
+		      << std::string(atom->residue->GetChainID()) <<  ": "
+		      << atom->residue->seqNum << " inscode :" 
+		      << std::string(atom->GetInsCode()) << ": name :" 
+		      << std::string(atom->name) << ": altloc :"
+		      << std::string(atom->altLoc) << ":" << std::endl;
+	 }
       }
 
       if (change_altconf_occs_flag) { 
 	 if (idx >= 0) {
 	    n_atom++;
-	    mol_atom = atom_sel.atom_selection[idx];
+	    CAtom *mol_atom = atom_sel.atom_selection[idx];
 	    float atom_occ = atom->occupancy;
 	    // if this is a shelx molecule, then we don't change
 	    // occupancies this way.  We do it by changing the FVAR
@@ -4558,14 +4579,18 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 		      << atom << std::endl;
 	 }
       } else {
-	 mol_atom = atom_sel.atom_selection[idx];
-	 mol_atom->SetCoordinates(atom->x,
-				  atom->y,
-				  atom->z,
-				  mol_atom->occupancy,
-				  mol_atom->tempFactor);
+
+	 // don't change alt confs.
+
+	 if (idx != -1 ) {  // enable this text when fixed.
+	       CAtom *mol_atom = atom_sel.atom_selection[idx];
+	    mol_atom->SetCoordinates(atom->x,
+				     atom->y,
+				     atom->z,
+				     mol_atom->occupancy,
+				     mol_atom->tempFactor);
+	 }
       }
-	 
    }
    std::cout << n_atom << " atoms updated." << std::endl;
    have_unsaved_changes_flag = 1; 

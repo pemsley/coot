@@ -773,6 +773,9 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
       resno_1 = SelAtom[i_atom_no_1]->GetSeqNum();
       resno_2 = SelAtom[i_atom_no_2]->GetSeqNum();
 
+//       std::cout << "DEBUG:: refine: atom1 " << SelAtom[i_atom_no_1] << std::endl;
+//       std::cout << "DEBUG:: refine: atom2 " << SelAtom[i_atom_no_2] << std::endl;
+
       if (auto_range_flag) { 
 	 // we want the residues that are +/- 1 [typically] from the residues that
 	 // contains the atom with the index i_atom_no_1.
@@ -792,6 +795,7 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
       short int is_water_flag = 0;
       std::string resname_1(SelAtom[i_atom_no_1]->GetResName());
       std::string resname_2(SelAtom[i_atom_no_2]->GetResName());
+      // std::cout << "DEBUG:: altconf in refine :" << altconf << ":" << std::endl;
       if (resname_1 == "WAT" || resname_1 == "HOH" ||
 	  resname_2 == "WAT" || resname_2 == "HOH")
 	 is_water_flag = 1;
@@ -853,7 +857,10 @@ graphics_info_t::refine_residue_range(int imol,
 
 		  // OK, in the simple water case, we do an atom selection
 
-		  set_residue_range_refine_atoms(resno_1, resno_2, chain_id_1, imol);
+// 		  std::cout << "DEBUG:: before set_residue_range_refine_atoms altconf is :"
+// 			    << altconf << ":" << std::endl;
+
+		  set_residue_range_refine_atoms(chain_id_1, resno_1, resno_2, altconf, imol);
 		  // There are now set by that function:
 		  // residue_range_atom_index_1 = i_atom_no_1;
 		  // residue_range_atom_index_2 = i_atom_no_1; // refining just one atom.
@@ -904,6 +911,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
    int ires2;
    char *chain_id_1;
    char *chain_id_2 = 0;
+   short int mask_water_flag = 0; // don't mask waters
 
    if (auto_range_flag) { 
       std::pair<int, int> p = auto_range_residues(residue_range_atom_index_1,
@@ -935,6 +943,12 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
       ires2 = atom2->residue->seqNum;
       chain_id_1 =  atom1->residue->GetChainID();
       chain_id_2 =  atom2->residue->GetChainID();
+      std::string resname_1(atom1->GetResName());
+      std::string resname_2(atom2->GetResName());
+      if (resname_1 == "WAT" || resname_1 == "HOH" ||
+	  resname_2 == "WAT" || resname_2 == "HOH")
+	 mask_water_flag = 1; // if the zone is (or contains) a water, then mask waters as if they
+                              // were protein atoms.
    }
 
    // duck out now if the chains were not the same!
@@ -945,12 +959,13 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
    }
    
    std::string chain(chain_id_1);
+   std::string altconf = atom1->altLoc;
 
+//    std::cout << "-----------------------------------------------------" << std::endl;
+//    std::cout << "-----------------------------------------------------" << std::endl;
    std::cout << " Rigid Body Refinement "
 	     << " imol: " << imol_rigid_body_refine << " residue "
 	     << ires1 << " to " << ires2 << " chain " << chain << std::endl;
-
-   //
 
    coot::ligand lig;
    int imol_ref_map = Imol_Refinement_Map();  // -1 is a magic number
@@ -964,23 +979,47 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
       lig.import_map_from(molecules[imol_ref_map].xmap_list[0], 
 			  molecules[imol_ref_map].map_sigma());
 
-      short int mask_water_flag = 0; // don't mask waters
 
       coot::minimol::molecule mol(molecules[imol_rigid_body_refine].atom_sel.mol);
-       
+      
       coot::minimol::molecule range_mol;
       int ir = range_mol.fragment_for_chain(chain);
       coot::minimol::residue empty_res;
-	 
+
+      // Fill range_mol and manipulate mol so that it has a blank (it
+      // will get copied and used as to mask the map).
+      // 
       for (unsigned int ifrag=0; ifrag<mol.fragments.size(); ifrag++) {
 	 if (mol[ifrag].fragment_id == chain) {
-	    for (int ires=mol.fragments[ifrag].min_res_no(); ires<=mol.fragments[ifrag].max_residue_number(); ires++) {
+	    for (int ires=mol.fragments[ifrag].min_res_no();
+		 ires<=mol.fragments[ifrag].max_residue_number();
+		 ires++) {
 	       if (ires>=ires1 && ires<=ires2) {
-		  // moving residue range
-		  range_mol[ir].addresidue(mol[ifrag][ires],1); // Add even if empty.
-		                                                // Sensible?
-		  // make mol have an empty residue at this position
-		  mol[ifrag][ires] = empty_res;
+
+		  // a vector of atoms that should be deleted from the
+		  // reference mol so that the density where the
+		  // moving atoms are is not deleted.
+		  std::vector<int> from_ref_delete_atom_indices;
+
+		  // a vector of atoms that should be deleted from the
+		  // moving mol, because they don't match the altconf
+		  std::vector<int> from_mov_delete_atom_indices;
+
+		  range_mol[ir].addresidue(mol[ifrag][ires], 1);
+
+		  for (int iat=0; iat<mol[ifrag][ires].atoms.size(); iat++) {
+		     if (mol[ifrag][ires][iat].altLoc == altconf) {
+// 			std::cout << "From ref res delete atom "
+// 				  << mol[ifrag][ires][iat] << std::endl;
+			from_ref_delete_atom_indices.push_back(iat);
+		     } else {
+// 			std::cout << "From mov res delete atom "
+// 				  << range_mol[ifrag][ires][iat] << std::endl;
+			from_mov_delete_atom_indices.push_back(iat);
+		     }
+		  }
+        		mol[ifrag][ires].delete_atom_indices(from_ref_delete_atom_indices);
+		  range_mol[ifrag][ires].delete_atom_indices(from_mov_delete_atom_indices);
 	       }
 	    }
 	 }
@@ -988,11 +1027,13 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
       coot::minimol::molecule mol_without_moving_zone = mol;
 
       std::vector<coot::minimol::atom *> range_atoms = range_mol.select_atoms_serial();
-      std::cout << "There are " << range_atoms.size() << " atoms from initial ligand " << std::endl;
+//       std::cout << "There are " << range_atoms.size() << " atoms from initial ligand "
+// 		<< std::endl;
       
       lig.install_ligand(range_mol);
       lig.find_centre_by_ligand(0); // don't test ligand size
-      lig.mask_map(mol_without_moving_zone,mask_water_flag);
+      lig.set_map_atom_mask_radius(0.5);
+      lig.mask_map(mol_without_moving_zone, mask_water_flag);
       lig.set_dont_write_solutions();
       lig.set_dont_test_rotations();
       lig.set_acceptable_fit_fraction(graphics_info_t::rigid_body_fit_acceptable_fit_fraction);
@@ -1000,9 +1041,9 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
       coot::minimol::molecule moved_mol = lig.get_solution(0);
 
       std::vector<coot::minimol::atom *> atoms = moved_mol.select_atoms_serial();
-
-      std::cout << "There are " << atoms.size() << " atoms from fitted zone."
-		<< std::endl;
+//       std::cout << "DEBUG:: There are " << atoms.size() << " atoms from fitted zone."
+// 		<< std::endl;
+      
       
       // lig.make_pseudo_atoms(); uncomment for a clipper mmdb crash (sigh)
 
@@ -1054,10 +1095,13 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
    }
 }
 
-
+// set residue_range_atom_index_1 and residue_range_atom_index_2.
+// 
 void
-graphics_info_t::set_residue_range_refine_atoms(int resno_start, int resno_end,
-						const std::string &chain_id, int imol) {
+graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
+						int resno_start, int resno_end,
+						const std::string &altconf,
+						int imol) {
 
    // do 2 atom selections to find the atom indices
    if (imol < n_molecules) {
@@ -1072,6 +1116,10 @@ graphics_info_t::set_residue_range_refine_atoms(int resno_start, int resno_end,
 	 int SelHnd = molecules[imol].atom_sel.mol->NewSelection();
 	 PPCAtom selatoms;
 	 int nselatoms;
+
+// 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms altconf :"
+// 		   << altconf << ":" << std::endl;
+	 
 	 molecules[imol].atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) chain_id.c_str(),
 						   resno_start, // starting resno, an int
 						   "*", // any insertion code
@@ -1080,9 +1128,11 @@ graphics_info_t::set_residue_range_refine_atoms(int resno_start, int resno_end,
 						   "*", // any residue name
 						   "*", // atom name
 						   "*", // elements
-						   "*"  // alt loc.
+						   (char *) altconf.c_str()  // alt loc.
 						   );
 	 molecules[imol].atom_sel.mol->GetSelIndex(SelHnd, selatoms, nselatoms);
+// 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms nselatoms (1) "
+// 		   << nselatoms << std::endl;
 	 if (nselatoms > 0) {
 	    if (selatoms[0]->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, ind_1) == UDDATA_Ok) {
 	       residue_range_atom_index_1 = ind_1;
@@ -1094,16 +1144,18 @@ graphics_info_t::set_residue_range_refine_atoms(int resno_start, int resno_end,
 	 // 
 	 SelHnd = molecules[imol].atom_sel.mol->NewSelection();
 	 molecules[imol].atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) chain_id.c_str(),
-						 resno_end, // starting resno, an int
-						 "*", // any insertion code
-						 resno_end, // ending resno
-						 "*", // ending insertion code
-						 "*", // any residue name
-						 "*", // atom name
-						 "*", // elements
-						 "*"  // alt loc.
-						 );
+						   resno_end, // starting resno, an int
+						   "*", // any insertion code
+						   resno_end, // ending resno
+						   "*", // ending insertion code
+						   "*", // any residue name
+						   "*", // atom name
+						   "*", // elements
+						   (char *) altconf.c_str()  // alt loc.
+						   );
 	 molecules[imol].atom_sel.mol->GetSelIndex(SelHnd, selatoms, nselatoms);
+// 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms nselatoms (2) "
+// 		   << nselatoms << std::endl;
 	 if (nselatoms > 0) {
 	    if (selatoms[0]->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, ind_2) == UDDATA_Ok) {
 	       residue_range_atom_index_2 = ind_2;

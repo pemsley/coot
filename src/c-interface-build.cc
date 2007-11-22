@@ -4798,8 +4798,10 @@ void execute_rigid_body_refine(short int auto_range_flag){
 
 void rigid_body_refine_zone(int resno_start, int resno_end, 
 			    const char *chain_id, int imol) {
-   graphics_info_t g;
 
+   graphics_info_t g;
+   std::string altconf = ""; // should be passed?
+   
    // need to set graphics_info's residue_range_atom_index_1,
    // residue_range_atom_index_2, imol_rigid_body_refine
 
@@ -4807,8 +4809,10 @@ void rigid_body_refine_zone(int resno_start, int resno_end,
       if (g.molecules[imol].has_model()) { 
 	 g.imol_rigid_body_refine = imol;
 
-	 g.set_residue_range_refine_atoms(resno_start, resno_end,
-					  std::string(chain_id), imol);
+	 g.set_residue_range_refine_atoms(std::string(chain_id),
+					  resno_start, resno_end,
+					  altconf,
+					  imol);
 	 g.execute_rigid_body_refine(0);
       }
    }

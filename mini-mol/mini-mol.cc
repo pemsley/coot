@@ -94,7 +94,6 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
 	       fragments.push_back(coot::minimol::fragment(fragment_id));
 	       ifrag = fragments.size() -1;
 	       
-
 	       if (chain_p == NULL) {  
 		  // This should not be necessary. It seem to be a
 		  // result of mmdb corruption elsewhere - possibly
@@ -471,6 +470,27 @@ coot::minimol::fragment::operator[](int i) {
 
 // }
 
+
+void
+coot::minimol::residue::delete_atom_indices(const std::vector<int> &atom_indices) {
+   
+   std::vector<coot::minimol::atom> new_atoms;
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
+      bool found = 0;
+      for (unsigned int iind=0; iind<atom_indices.size(); iind++) {
+	 if (iat == atom_indices[iind]) {
+	    found = 1;
+	    break;
+	 }
+      }
+      if (found == 0) {
+	 new_atoms.push_back(atoms[iat]);
+      }
+   }
+   atoms = new_atoms;
+}
+
+
 // Perhaps this should also return a status flag?
 //
 clipper::Coord_orth
@@ -540,6 +560,7 @@ coot::minimol::atom::atom(std::string atom_name,
    name = atom_name;
    element = ele;
    pos = pos_in;
+   altLoc = altloc;
    occupancy = 1.0;
 } 
 
@@ -550,6 +571,7 @@ coot::minimol::atom::atom(std::string atom_name,
    name = atom_name;
    element = ele;
    pos = pos_in;
+   altLoc = altloc;
    occupancy = occupancy_in;
 } 
 
@@ -763,21 +785,21 @@ coot::minimol::fragment::select_atoms_serial() const {
 
 
 std::ostream&
-operator<<(std::ostream& s, coot::minimol::atom at) {
+coot::minimol::operator<<(std::ostream& s, coot::minimol::atom at) {
 
-   s << at.name << " " << at.pos.format();
+   s << at.name << " :" << at.altLoc << ": " << at.pos.format();
    return s;
 }
 
 std::ostream&
-operator<<(std::ostream& s, coot::minimol::residue res) {
+coot::minimol::operator<<(std::ostream& s, coot::minimol::residue res) {
 
    s << res.name << " contains " << res.atoms.size() << " atoms";
    return s;
 }
 
 std::ostream&
-operator<<(std::ostream& s, coot::minimol::fragment frag) {
+coot::minimol::operator<<(std::ostream& s, coot::minimol::fragment frag) {
 
    s << frag.fragment_id << " contains " << frag.residues.size()
      << " residues";
@@ -793,6 +815,21 @@ coot::minimol::molecule::is_empty() const {
    return ival;
 }
 
+int
+coot::minimol::molecule::count_atoms() const {
+
+   int n_atoms = 0;
+   for(unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
+      for(int ires=(*this)[ifrag].min_res_no();
+	  ires<=(*this)[ifrag].max_residue_number();
+	  ires++) {
+	 for (unsigned int iat=0; iat<(*this)[ifrag][ires].atoms.size(); iat++) {
+	    n_atoms++;
+	 }
+      }
+   }
+   return n_atoms;
+}
 
 void
 coot::minimol::molecule::check() const {
@@ -800,10 +837,11 @@ coot::minimol::molecule::check() const {
    for(unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
       for(int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++) {
 	 for (unsigned int iat=0; iat<(*this)[ifrag][ires].atoms.size(); iat++) {
-	    std::cout << " " << (*this)[ifrag].fragment_id << " " << (*this)[ifrag][ires].seqnum
-		      << " " << (*this)[ifrag][ires].name
-		      << " " << (*this)[ifrag][ires][iat].name
-		      << " " << (*this)[ifrag][ires][iat].pos.format() << std::endl;
+	    std::cout << " "  << (*this)[ifrag].fragment_id << " " << (*this)[ifrag][ires].seqnum
+		      << " "  << (*this)[ifrag][ires].name
+		      << " "  << (*this)[ifrag][ires][iat].name
+		      << " :" << (*this)[ifrag][ires][iat].altLoc
+		      << ": " << (*this)[ifrag][ires][iat].pos.format() << std::endl;
 	 }
       }
    }
