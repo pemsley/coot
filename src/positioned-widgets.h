@@ -1,6 +1,7 @@
 /* src/positioned-widgets.h
  * 
- * Copyright 2005 by Paul Emsley, The University of York
+ * Copyright 2005 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +43,7 @@
 #define COOT_FILESELECTION_DIALOG          16
 #define COOT_REFINEMENT_CONTROL_DIALOG     17
 
+#define COOT_CHECKED_WATERS_BADDIES_DIALOG 18
 
 #define COOT_SCREENDUMP_SIMPLE   20
 #define COOT_SCREENDUMP_RASTER3D 21

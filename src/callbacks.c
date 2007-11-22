@@ -7628,6 +7628,6 @@ on_checked_waters_baddies_dialog_destroy
                                         (GtkObject       *object,
                                         gpointer         user_data)
 {
-
+  store_checked_waters_baddies_dialog(NULL);
 }
 

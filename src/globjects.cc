@@ -453,6 +453,7 @@ short int  graphics_info_t::model_fit_refine_dialog_was_sucked = 0;
 GtkWidget *graphics_info_t::residue_info_dialog = NULL;
 GtkWidget *graphics_info_t::rotamer_dialog = NULL;
 GtkWidget *graphics_info_t::difference_map_peaks_dialog = NULL;
+GtkWidget *graphics_info_t::checked_waters_baddies_dialog = NULL;
 
 GtkWidget *graphics_info_t::other_modelling_tools_dialog = 0;
 
@@ -2883,15 +2884,19 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       } else {
 	 if (graphics_info_t::difference_map_peaks_dialog) {
 	    graphics_info_t::difference_map_peaks_next_peak();
-	 } else { 
+	 } else {
+	    if (graphics_info_t::checked_waters_baddies_dialog) {
+	       graphics_info_t::checked_waters_next_baddie(+1);
+	    } else { 
 #ifdef USE_GUILE
-	    std::string scheme_command("(graphics-dot-key-pressed-hook)");
-	    safe_scheme_command(scheme_command);
+	       std::string scheme_command("(graphics-dot-key-pressed-hook)");
+	       safe_scheme_command(scheme_command);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
-	    std::string python_command("graphics_dot_key_pressed_hook()");
-	    safe_python_command(python_command);   
+	       std::string python_command("graphics_dot_key_pressed_hook()");
+	       safe_python_command(python_command);   
 #endif // PYTHON
+	    }
 	 }
       }
       handled = TRUE; 
@@ -2901,18 +2906,22 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       if (graphics_info_t::rotamer_dialog) {
 	 graphics_info_t::rotamer_dialog_previous_rotamer();
       } else {
-#ifdef USE_GUILE
 	 if (graphics_info_t::difference_map_peaks_dialog) {
 	    graphics_info_t::difference_map_peaks_previous_peak();
 	 } else { 
-	    std::string scheme_command("(graphics-comma-key-pressed-hook)");
-	    safe_scheme_command(scheme_command);
-	 }
+	    if (graphics_info_t::checked_waters_baddies_dialog) {
+	       graphics_info_t::checked_waters_next_baddie(-1); // prev
+	    } else { 
+#ifdef USE_GUILE
+	       std::string scheme_command("(graphics-comma-key-pressed-hook)");
+	       safe_scheme_command(scheme_command);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
-	    std::string python_command("graphics_comma_key_pressed_hook()");
-	    safe_python_command(python_command);   
+	       std::string python_command("graphics_comma_key_pressed_hook()");
+	       safe_python_command(python_command);   
 #endif // USE_PYTHON
+	    }
+	 }
       }
       handled = TRUE; 
       break;
