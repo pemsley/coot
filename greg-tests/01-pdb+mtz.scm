@@ -334,4 +334,19 @@
 			      #t)))))))))))
 
 
+(greg-testcase "Rigid Body Refine Alt Conf Waters" #t
+   (lambda ()
+
+     (let ((imol-alt-conf-waters (read-pdb (append-dir-file greg-data-dir
+							    "alt-conf-waters.pdb"))))
+       
+       (let ((rep-state (refinement-immediate-replacement-state)))
+	 (set-refinement-immediate-replacement 1)
+	 (refine-zone imol-alt-conf-waters "D" 71 71 "A")
+	 (accept-regularizement)
+	 (set-refinement-immediate-replacement rep-state)
+	 #t))))  ;; good it didn't crash.
+
+
+
 

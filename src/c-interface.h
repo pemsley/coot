@@ -4240,12 +4240,25 @@ state should be 0 or 1. */
 /* when it works, call it dti_side_by_side_stereo_mode() */
 void set_dti_stereo_mode(short int state);
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  EM Interface                                            */
+/*  ----------------------------------------------------------------------- */
+/*! \name EM interface */
+/* \{ */
+/* \brief Scale the cell, for use with EM maps, where the cell needs
+   to be adjusted.  Use like:  (scale-cell 2 1.012 1.012 1.012). Return error 
+   status, 1 means it worked, 0 means it did not work. */
+int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w); 
+/* \} */
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  CCP4MG Interface                                        */
 /*  ----------------------------------------------------------------------- */
 /*! \name CCP4mg Interface */
 /* \{ */
-/* \breif write a ccp4mg picture description file */
+/* \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
 /* \} */
 

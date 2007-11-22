@@ -2871,3 +2871,13 @@ void
 on_display_control_all_models_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_single_map_properties_contour_level_apply_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_checked_waters_baddies_dialog_destroy
+                                        (GtkObject       *object,
+                                        gpointer         user_data);
