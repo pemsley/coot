@@ -2312,6 +2312,8 @@ public:
    static float check_waters_min_dist_limit;
    static float check_waters_max_dist_limit;
    static float check_waters_by_difference_map_sigma_level;
+   // save the dialog so that . and , can be used on it
+   static GtkWidget *checked_waters_baddies_dialog;
 
    // zoom widget:
    // 

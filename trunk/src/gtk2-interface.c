@@ -8,20 +8,16 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 #include <string.h>
 #include <stdio.h>
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
-
-#include "callbacks.h"
-#include "interface.h"
-#include "support.h"
+#include "callbacks.h.gtk2"
+#include "interface.h.gtk2"
+#include "support.h.gtk2"
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
@@ -9337,11 +9333,27 @@ create_single_map_properties_dialog (void)
   GtkWidget *single_map_properties_sg_text;
   GtkWidget *label292;
   GtkWidget *frame103;
+  GtkWidget *vbox196;
+  GtkWidget *_;
+  GtkWidget *alignment70;
+  GtkWidget *hbox237;
+  GtkWidget *label406;
+  GtkWidget *single_map_properties_contour_level_entry;
+  GtkWidget *vbox198;
+  GtkWidget *single_map_properties_absolute_radiobutton;
+  GSList *single_map_properties_absolute_radiobutton_group = NULL;
+  GtkWidget *single_map_properties_sigma_radiobutton;
+  GtkWidget *vbox197;
+  GtkWidget *single_map_properties_contour_level_apply_button;
+  GtkWidget *label406;
+  GtkWidget *frame177;
+  GtkWidget *alignment71;
   GtkWidget *table1;
   GtkWidget *label167;
   GtkWidget *label168;
   GtkWidget *single_map_sigma_checkbutton;
   GtkWidget *single_map_sigma_step_entry;
+  GtkWidget *label407;
   GtkWidget *label293;
   GtkWidget *frame104;
   GtkWidget *hbox84;
@@ -9424,9 +9436,74 @@ create_single_map_properties_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox82), frame103, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame103), 6);
 
+  vbox196 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox196);
+  gtk_container_add (GTK_CONTAINER (frame103), vbox196);
+
+  _ = gtk_frame_new (NULL);
+  gtk_widget_show (_);
+  gtk_box_pack_start (GTK_BOX (vbox196), _, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (_), 6);
+
+  alignment70 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment70);
+  gtk_container_add (GTK_CONTAINER (_), alignment70);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment70), 0, 0, 12, 0);
+
+  hbox237 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox237);
+  gtk_container_add (GTK_CONTAINER (alignment70), hbox237);
+
+  label406 = gtk_label_new (_("Set Level: "));
+  gtk_widget_show (label406);
+  gtk_box_pack_start (GTK_BOX (hbox237), label406, FALSE, FALSE, 0);
+
+  single_map_properties_contour_level_entry = gtk_entry_new ();
+  gtk_widget_show (single_map_properties_contour_level_entry);
+  gtk_box_pack_start (GTK_BOX (hbox237), single_map_properties_contour_level_entry, TRUE, TRUE, 0);
+
+  vbox198 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox198);
+  gtk_box_pack_start (GTK_BOX (hbox237), vbox198, TRUE, TRUE, 0);
+
+  single_map_properties_absolute_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("absolute"));
+  gtk_widget_show (single_map_properties_absolute_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox198), single_map_properties_absolute_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (single_map_properties_absolute_radiobutton), single_map_properties_absolute_radiobutton_group);
+  single_map_properties_absolute_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (single_map_properties_absolute_radiobutton));
+
+  single_map_properties_sigma_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("sigma"));
+  gtk_widget_show (single_map_properties_sigma_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox198), single_map_properties_sigma_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (single_map_properties_sigma_radiobutton), single_map_properties_absolute_radiobutton_group);
+  single_map_properties_absolute_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (single_map_properties_sigma_radiobutton));
+
+  vbox197 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox197);
+  gtk_box_pack_start (GTK_BOX (hbox237), vbox197, TRUE, TRUE, 0);
+
+  single_map_properties_contour_level_apply_button = gtk_button_new_with_mnemonic (_("  Apply  "));
+  gtk_widget_show (single_map_properties_contour_level_apply_button);
+  gtk_box_pack_start (GTK_BOX (vbox197), single_map_properties_contour_level_apply_button, FALSE, FALSE, 0);
+
+  label406 = gtk_label_new (_("<b>frame176</b>"));
+  gtk_widget_show (label406);
+  gtk_frame_set_label_widget (GTK_FRAME (_), label406);
+  gtk_label_set_use_markup (GTK_LABEL (label406), TRUE);
+
+  frame177 = gtk_frame_new (NULL);
+  gtk_widget_show (frame177);
+  gtk_box_pack_start (GTK_BOX (vbox196), frame177, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame177), 6);
+
+  alignment71 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment71);
+  gtk_container_add (GTK_CONTAINER (frame177), alignment71);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment71), 0, 0, 12, 0);
+
   table1 = gtk_table_new (2, 2, FALSE);
   gtk_widget_show (table1);
-  gtk_container_add (GTK_CONTAINER (frame103), table1);
+  gtk_container_add (GTK_CONTAINER (alignment71), table1);
   gtk_container_set_border_width (GTK_CONTAINER (table1), 4);
 
   label167 = gtk_label_new ("");
@@ -9458,6 +9535,11 @@ create_single_map_properties_dialog (void)
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
   gtk_entry_set_invisible_char (GTK_ENTRY (single_map_sigma_step_entry), 9679);
+
+  label407 = gtk_label_new (_("<b>frame177</b>"));
+  gtk_widget_show (label407);
+  gtk_frame_set_label_widget (GTK_FRAME (frame177), label407);
+  gtk_label_set_use_markup (GTK_LABEL (label407), TRUE);
 
   label293 = gtk_label_new (_("Contouring:"));
   gtk_widget_show (label293);
@@ -9534,6 +9616,9 @@ create_single_map_properties_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (single_map_properties_ok_button), 6);
   GTK_WIDGET_SET_FLAGS (single_map_properties_ok_button, GTK_CAN_DEFAULT);
 
+  g_signal_connect ((gpointer) single_map_properties_contour_level_apply_button, "clicked",
+                    G_CALLBACK (on_single_map_properties_contour_level_apply_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) single_map_sigma_checkbutton, "toggled",
                     G_CALLBACK (on_single_map_sigma_checkbutton_toggled),
                     NULL);
@@ -9557,11 +9642,26 @@ create_single_map_properties_dialog (void)
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_sg_text, "single_map_properties_sg_text");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label292, "label292");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame103, "frame103");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox196, "vbox196");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, _, "_");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, alignment70, "alignment70");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox237, "hbox237");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label406, "label406");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_contour_level_entry, "single_map_properties_contour_level_entry");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox198, "vbox198");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_absolute_radiobutton, "single_map_properties_absolute_radiobutton");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_sigma_radiobutton, "single_map_properties_sigma_radiobutton");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox197, "vbox197");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_contour_level_apply_button, "single_map_properties_contour_level_apply_button");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label406, "label406");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame177, "frame177");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, alignment71, "alignment71");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, table1, "table1");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label167, "label167");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label168, "label168");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_sigma_checkbutton, "single_map_sigma_checkbutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_sigma_step_entry, "single_map_sigma_step_entry");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label407, "label407");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label293, "label293");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame104, "frame104");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox84, "hbox84");
@@ -18329,4 +18429,3 @@ create_sft_dialog (void)
   return sft_dialog;
 }
 
-#endif // (GTK_MAJOR_VERSION > 1)

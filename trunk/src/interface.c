@@ -8,9 +8,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 #include <string.h>
 
 #include <gdk/gdkkeysyms.h>
@@ -19,8 +17,6 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "support.h"
-
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
 GtkWidget*
 create_window1 (void)
@@ -8609,6 +8605,18 @@ create_single_map_properties_dialog (void)
   GtkWidget *label165;
   GtkWidget *single_map_properties_sg_text;
   GtkWidget *frame103;
+  GtkWidget *vbox194;
+  GtkWidget *frame176;
+  GtkWidget *hbox153;
+  GtkWidget *label301;
+  GtkWidget *single_map_properties_contour_level_entry;
+  GtkWidget *vbox195;
+  GSList *level_type_gr_group = NULL;
+  GtkWidget *single_map_properties_absolute_radiobutton;
+  GtkWidget *single_map_properties_sigma_radiobutton;
+  GtkWidget *vbox196;
+  GtkWidget *single_map_properties_contour_level_apply_button;
+  GtkWidget *frame175;
   GtkWidget *table1;
   GtkWidget *label167;
   GtkWidget *label168;
@@ -8714,12 +8722,93 @@ create_single_map_properties_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox82), frame103, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame103), 6);
 
+  vbox194 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox194);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "vbox194", vbox194,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox194);
+  gtk_container_add (GTK_CONTAINER (frame103), vbox194);
+
+  frame176 = gtk_frame_new (NULL);
+  gtk_widget_ref (frame176);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "frame176", frame176,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame176);
+  gtk_box_pack_start (GTK_BOX (vbox194), frame176, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame176), 6);
+
+  hbox153 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox153);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "hbox153", hbox153,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox153);
+  gtk_container_add (GTK_CONTAINER (frame176), hbox153);
+
+  label301 = gtk_label_new (_("Set Level: "));
+  gtk_widget_ref (label301);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "label301", label301,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label301);
+  gtk_box_pack_start (GTK_BOX (hbox153), label301, FALSE, FALSE, 0);
+
+  single_map_properties_contour_level_entry = gtk_entry_new ();
+  gtk_widget_ref (single_map_properties_contour_level_entry);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "single_map_properties_contour_level_entry", single_map_properties_contour_level_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (single_map_properties_contour_level_entry);
+  gtk_box_pack_start (GTK_BOX (hbox153), single_map_properties_contour_level_entry, TRUE, TRUE, 0);
+
+  vbox195 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox195);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "vbox195", vbox195,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox195);
+  gtk_box_pack_start (GTK_BOX (hbox153), vbox195, TRUE, TRUE, 0);
+
+  single_map_properties_absolute_radiobutton = gtk_radio_button_new_with_label (level_type_gr_group, _("absolute"));
+  level_type_gr_group = gtk_radio_button_group (GTK_RADIO_BUTTON (single_map_properties_absolute_radiobutton));
+  gtk_widget_ref (single_map_properties_absolute_radiobutton);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "single_map_properties_absolute_radiobutton", single_map_properties_absolute_radiobutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (single_map_properties_absolute_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox195), single_map_properties_absolute_radiobutton, FALSE, FALSE, 0);
+
+  single_map_properties_sigma_radiobutton = gtk_radio_button_new_with_label (level_type_gr_group, _("sigma"));
+  level_type_gr_group = gtk_radio_button_group (GTK_RADIO_BUTTON (single_map_properties_sigma_radiobutton));
+  gtk_widget_ref (single_map_properties_sigma_radiobutton);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "single_map_properties_sigma_radiobutton", single_map_properties_sigma_radiobutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (single_map_properties_sigma_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox195), single_map_properties_sigma_radiobutton, FALSE, FALSE, 0);
+
+  vbox196 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox196);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "vbox196", vbox196,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox196);
+  gtk_box_pack_start (GTK_BOX (hbox153), vbox196, FALSE, FALSE, 0);
+
+  single_map_properties_contour_level_apply_button = gtk_button_new_with_label (_("  Apply  "));
+  gtk_widget_ref (single_map_properties_contour_level_apply_button);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "single_map_properties_contour_level_apply_button", single_map_properties_contour_level_apply_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (single_map_properties_contour_level_apply_button);
+  gtk_box_pack_start (GTK_BOX (vbox196), single_map_properties_contour_level_apply_button, FALSE, FALSE, 0);
+
+  frame175 = gtk_frame_new (NULL);
+  gtk_widget_ref (frame175);
+  gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "frame175", frame175,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame175);
+  gtk_box_pack_start (GTK_BOX (vbox194), frame175, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame175), 6);
+
   table1 = gtk_table_new (2, 2, FALSE);
   gtk_widget_ref (table1);
   gtk_object_set_data_full (GTK_OBJECT (single_map_properties_dialog), "table1", table1,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (table1);
-  gtk_container_add (GTK_CONTAINER (frame103), table1);
+  gtk_container_add (GTK_CONTAINER (frame175), table1);
   gtk_container_set_border_width (GTK_CONTAINER (table1), 4);
 
   label167 = gtk_label_new ("");
@@ -8862,6 +8951,9 @@ create_single_map_properties_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (single_map_properties_ok_button), 6);
   GTK_WIDGET_SET_FLAGS (single_map_properties_ok_button, GTK_CAN_DEFAULT);
 
+  gtk_signal_connect (GTK_OBJECT (single_map_properties_contour_level_apply_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_single_map_properties_contour_level_apply_button_clicked),
+                      NULL);
   gtk_signal_connect (GTK_OBJECT (single_map_sigma_checkbutton), "toggled",
                       GTK_SIGNAL_FUNC (on_single_map_sigma_checkbutton_toggled),
                       NULL);
@@ -15628,6 +15720,9 @@ create_checked_waters_baddies_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_action_area83), checked_waters_baddies_cancel_button, TRUE, TRUE, 0);
   GTK_WIDGET_UNSET_FLAGS (checked_waters_baddies_cancel_button, GTK_CAN_FOCUS);
 
+  gtk_signal_connect (GTK_OBJECT (checked_waters_baddies_dialog), "destroy",
+                      GTK_SIGNAL_FUNC (on_checked_waters_baddies_dialog_destroy),
+                      NULL);
   gtk_signal_connect (GTK_OBJECT (checked_waters_baddies_cancel_button), "clicked",
                       GTK_SIGNAL_FUNC (on_checked_waters_baddies_cancel_button_clicked),
                       NULL);
@@ -18044,4 +18139,286 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
-#endif
+GtkWidget*
+create_window2 (void)
+{
+  GtkWidget *window2;
+
+  window2 = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_object_set_data (GTK_OBJECT (window2), "window2", window2);
+  gtk_window_set_title (GTK_WINDOW (window2), _("window2"));
+
+  return window2;
+}
+
+GtkWidget*
+create_dialog1 (void)
+{
+  GtkWidget *dialog1;
+  GtkWidget *dialog_vbox98;
+  GtkWidget *dialog_action_area97;
+  GtkWidget *button5;
+  GtkWidget *button6;
+  GtkWidget *button7;
+
+  dialog1 = gnome_dialog_new (NULL, NULL);
+  gtk_object_set_data (GTK_OBJECT (dialog1), "dialog1", dialog1);
+  gtk_window_set_policy (GTK_WINDOW (dialog1), FALSE, FALSE, FALSE);
+
+  dialog_vbox98 = GNOME_DIALOG (dialog1)->vbox;
+  gtk_object_set_data (GTK_OBJECT (dialog1), "dialog_vbox98", dialog_vbox98);
+  gtk_widget_show (dialog_vbox98);
+
+  dialog_action_area97 = GNOME_DIALOG (dialog1)->action_area;
+  gtk_object_set_data (GTK_OBJECT (dialog1), "dialog_action_area97", dialog_action_area97);
+  gtk_widget_show (dialog_action_area97);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area97), GTK_BUTTONBOX_END);
+  gtk_button_box_set_spacing (GTK_BUTTON_BOX (dialog_action_area97), 8);
+
+  gnome_dialog_append_button (GNOME_DIALOG (dialog1), GNOME_STOCK_BUTTON_OK);
+  button5 = GTK_WIDGET (g_list_last (GNOME_DIALOG (dialog1)->buttons)->data);
+  gtk_widget_ref (button5);
+  gtk_object_set_data_full (GTK_OBJECT (dialog1), "button5", button5,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (button5);
+  GTK_WIDGET_SET_FLAGS (button5, GTK_CAN_DEFAULT);
+
+  gnome_dialog_append_button (GNOME_DIALOG (dialog1), GNOME_STOCK_BUTTON_APPLY);
+  button6 = GTK_WIDGET (g_list_last (GNOME_DIALOG (dialog1)->buttons)->data);
+  gtk_widget_ref (button6);
+  gtk_object_set_data_full (GTK_OBJECT (dialog1), "button6", button6,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (button6);
+  GTK_WIDGET_SET_FLAGS (button6, GTK_CAN_DEFAULT);
+
+  gnome_dialog_append_button (GNOME_DIALOG (dialog1), GNOME_STOCK_BUTTON_CANCEL);
+  button7 = GTK_WIDGET (g_list_last (GNOME_DIALOG (dialog1)->buttons)->data);
+  gtk_widget_ref (button7);
+  gtk_object_set_data_full (GTK_OBJECT (dialog1), "button7", button7,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (button7);
+  GTK_WIDGET_SET_FLAGS (button7, GTK_CAN_DEFAULT);
+
+  return dialog1;
+}
+
+GtkWidget*
+create_app1 (void)
+{
+  GtkWidget *app1;
+  GtkWidget *dock1;
+  GtkWidget *menubar2;
+  guint tmp_key;
+  GtkWidget *file2;
+  GtkWidget *file2_menu;
+  GtkAccelGroup *file2_menu_accels;
+  GtkWidget *separator1;
+  GtkWidget *edit2;
+  GtkWidget *edit2_menu;
+  GtkAccelGroup *edit2_menu_accels;
+  GtkWidget *separator2;
+  GtkWidget *view1;
+  GtkWidget *view1_menu;
+  GtkAccelGroup *view1_menu_accels;
+  GtkWidget *settings1;
+  GtkWidget *settings1_menu;
+  GtkAccelGroup *settings1_menu_accels;
+  GtkWidget *help2;
+  GtkWidget *help2_menu;
+  GtkAccelGroup *help2_menu_accels;
+  GtkWidget *toolbar1;
+  GtkWidget *tmp_toolbar_icon;
+  GtkWidget *button8;
+  GtkWidget *button9;
+  GtkWidget *button10;
+  GtkWidget *appbar1;
+  GtkAccelGroup *accel_group;
+
+  accel_group = gtk_accel_group_new ();
+
+  app1 = gnome_app_new ("dynarama", _("dynarama"));
+  gtk_object_set_data (GTK_OBJECT (app1), "app1", app1);
+
+  dock1 = GNOME_APP (app1)->dock;
+  gtk_widget_ref (dock1);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "dock1", dock1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (dock1);
+
+  menubar2 = gtk_menu_bar_new ();
+  gtk_widget_ref (menubar2);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "menubar2", menubar2,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (menubar2);
+  gnome_app_create_menus (GNOME_APP (app1), menubar2_uiinfo);
+  gtk_menu_bar_set_shadow_type (GTK_MENU_BAR (menubar2), GTK_SHADOW_NONE);
+
+  file2 = gtk_menu_item_new_with_label ("");
+  tmp_key = gtk_label_parse_uline (GTK_LABEL (GTK_BIN (file2)->child),
+                                   _("_File"));
+  gtk_widget_add_accelerator (file2, "activate_item", accel_group,
+                              tmp_key, GDK_MOD1_MASK, (GtkAccelFlags) 0);
+  gtk_widget_ref (file2);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "file2", file2,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (file2);
+  gtk_container_add (GTK_CONTAINER (menubar2), file2);
+
+  file2_menu = gtk_menu_new ();
+  gtk_widget_ref (file2_menu);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "file2_menu", file2_menu,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (file2), file2_menu);
+  file2_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (file2_menu));
+
+  separator1 = gtk_menu_item_new ();
+  gtk_widget_ref (separator1);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "separator1", separator1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (separator1);
+  gtk_container_add (GTK_CONTAINER (file2_menu), separator1);
+  gtk_widget_set_sensitive (separator1, FALSE);
+
+  edit2 = gtk_menu_item_new_with_label ("");
+  tmp_key = gtk_label_parse_uline (GTK_LABEL (GTK_BIN (edit2)->child),
+                                   _("_Edit"));
+  gtk_widget_add_accelerator (edit2, "activate_item", accel_group,
+                              tmp_key, GDK_MOD1_MASK, (GtkAccelFlags) 0);
+  gtk_widget_ref (edit2);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "edit2", edit2,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (edit2);
+  gtk_container_add (GTK_CONTAINER (menubar2), edit2);
+
+  edit2_menu = gtk_menu_new ();
+  gtk_widget_ref (edit2_menu);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "edit2_menu", edit2_menu,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (edit2), edit2_menu);
+  edit2_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (edit2_menu));
+
+  separator2 = gtk_menu_item_new ();
+  gtk_widget_ref (separator2);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "separator2", separator2,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (separator2);
+  gtk_container_add (GTK_CONTAINER (edit2_menu), separator2);
+  gtk_widget_set_sensitive (separator2, FALSE);
+
+  view1 = gtk_menu_item_new_with_label ("");
+  tmp_key = gtk_label_parse_uline (GTK_LABEL (GTK_BIN (view1)->child),
+                                   _("_View"));
+  gtk_widget_add_accelerator (view1, "activate_item", accel_group,
+                              tmp_key, GDK_MOD1_MASK, (GtkAccelFlags) 0);
+  gtk_widget_ref (view1);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "view1", view1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (view1);
+  gtk_container_add (GTK_CONTAINER (menubar2), view1);
+
+  view1_menu = gtk_menu_new ();
+  gtk_widget_ref (view1_menu);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "view1_menu", view1_menu,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (view1), view1_menu);
+  view1_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (view1_menu));
+
+  settings1 = gtk_menu_item_new_with_label ("");
+  tmp_key = gtk_label_parse_uline (GTK_LABEL (GTK_BIN (settings1)->child),
+                                   _("_Settings"));
+  gtk_widget_add_accelerator (settings1, "activate_item", accel_group,
+                              tmp_key, GDK_MOD1_MASK, (GtkAccelFlags) 0);
+  gtk_widget_ref (settings1);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "settings1", settings1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (settings1);
+  gtk_container_add (GTK_CONTAINER (menubar2), settings1);
+
+  settings1_menu = gtk_menu_new ();
+  gtk_widget_ref (settings1_menu);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "settings1_menu", settings1_menu,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (settings1), settings1_menu);
+  settings1_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (settings1_menu));
+
+  help2 = gtk_menu_item_new_with_label ("");
+  tmp_key = gtk_label_parse_uline (GTK_LABEL (GTK_BIN (help2)->child),
+                                   _("_Help"));
+  gtk_widget_add_accelerator (help2, "activate_item", accel_group,
+                              tmp_key, GDK_MOD1_MASK, (GtkAccelFlags) 0);
+  gtk_widget_ref (help2);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "help2", help2,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (help2);
+  gtk_container_add (GTK_CONTAINER (menubar2), help2);
+
+  help2_menu = gtk_menu_new ();
+  gtk_widget_ref (help2_menu);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "help2_menu", help2_menu,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (help2), help2_menu);
+  help2_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (help2_menu));
+
+  toolbar1 = gtk_toolbar_new (GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_BOTH);
+  gtk_widget_ref (toolbar1);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "toolbar1", toolbar1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (toolbar1);
+  gnome_app_add_toolbar (GNOME_APP (app1), GTK_TOOLBAR (toolbar1), "toolbar1",
+                                GNOME_DOCK_ITEM_BEH_EXCLUSIVE,
+                                GNOME_DOCK_TOP, 1, 0, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (toolbar1), 1);
+  gtk_toolbar_set_space_size (GTK_TOOLBAR (toolbar1), 16);
+  gtk_toolbar_set_space_style (GTK_TOOLBAR (toolbar1), GTK_TOOLBAR_SPACE_LINE);
+  gtk_toolbar_set_button_relief (GTK_TOOLBAR (toolbar1), GTK_RELIEF_NONE);
+
+  tmp_toolbar_icon = gnome_stock_pixmap_widget (app1, GNOME_STOCK_PIXMAP_NEW);
+  button8 = gtk_toolbar_append_element (GTK_TOOLBAR (toolbar1),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("New"),
+                                _("New File"), NULL,
+                                tmp_toolbar_icon, NULL, NULL);
+  gtk_widget_ref (button8);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "button8", button8,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (button8);
+
+  tmp_toolbar_icon = gnome_stock_pixmap_widget (app1, GNOME_STOCK_PIXMAP_OPEN);
+  button9 = gtk_toolbar_append_element (GTK_TOOLBAR (toolbar1),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Open"),
+                                _("Open File"), NULL,
+                                tmp_toolbar_icon, NULL, NULL);
+  gtk_widget_ref (button9);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "button9", button9,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (button9);
+
+  tmp_toolbar_icon = gnome_stock_pixmap_widget (app1, GNOME_STOCK_PIXMAP_SAVE);
+  button10 = gtk_toolbar_append_element (GTK_TOOLBAR (toolbar1),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Save"),
+                                _("Save File"), NULL,
+                                tmp_toolbar_icon, NULL, NULL);
+  gtk_widget_ref (button10);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "button10", button10,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (button10);
+
+  appbar1 = gnome_appbar_new (TRUE, TRUE, GNOME_PREFERENCES_NEVER);
+  gtk_widget_ref (appbar1);
+  gtk_object_set_data_full (GTK_OBJECT (app1), "appbar1", appbar1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (appbar1);
+  gnome_app_set_statusbar (GNOME_APP (app1), appbar1);
+
+  gnome_app_install_menu_hints (GNOME_APP (app1), menubar2_uiinfo);
+
+  gtk_window_add_accel_group (GTK_WINDOW (app1), accel_group);
+
+  return app1;
+}
+

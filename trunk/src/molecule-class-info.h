@@ -1867,6 +1867,9 @@ class molecule_class_info_t {
 
    int delete_all_except_res(CResidue *res);
 
+   // EM map function
+   int scale_cell(float fac_u, float fac_v, float fac_w);
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

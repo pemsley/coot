@@ -6169,3 +6169,30 @@ molecule_class_info_t::replace_molecule(CMMDBManager *mol) {
    }
    return was_changed;
 }
+
+// EM map function
+int
+molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
+
+   int retval = 0;
+
+   if (has_map()) { 
+      clipper::Cell cell_orig = xmap_list[0].cell();
+      clipper::Cell_descr cell_d(cell_orig.a() * fac_u, 
+				 cell_orig.b() * fac_v,
+				 cell_orig.c() * fac_w,
+				 cell_orig.alpha(), 
+				 cell_orig.beta(), 
+				 cell_orig.gamma());
+
+      clipper::Cell new_cell(cell_d);
+      clipper::Spacegroup new_spg(xmap_list[0].spacegroup());
+      clipper::Xmap_base::Map_reference_index ix;
+      clipper::Grid_sampling gs = xmap_list[0].grid_sampling();
+      clipper::Xmap<float> new_map(new_spg, new_cell, gs);
+      for (ix = xmap_list[0].first(); !ix.last(); ix.next() ) {
+ 	 new_map[ix] = xmap_list[0][ix];
+      }
+   }
+   return retval; 
+} 

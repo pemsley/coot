@@ -2469,3 +2469,27 @@ Sat Nov 17 12:14:46 GMT 2007
 Sun Nov 18 16:47:57 GMT 2007
 
 	update Map Transformation example in user-manual
+
+
+-----
+Thu Nov 22 16:28:41 GMT 2007
+
+EJD crash:
+
+#0  0x0844eb3a in molecule_class_info_t::intelligent_this_residue_mmdb_atom ()
+#1  0x0834be67 in graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1 ()
+#2  0x0837f6c8 in on_go_to_atom_atom_list_selection_changed_gtk1 ()
+#3  0x089d2c26 in gtk_marshal_NONE__POINTER_INT_INT ()
+#4  0x08a0605b in gtk_handlers_run ()
+#5  0x08a0520b in gtk_signal_real_emit ()
+#6  0x08a02b07 in gtk_signal_emit ()
+#7  0x089d2a80 in gtk_marshal_NONE ()
+#8  0x08a05118 in gtk_signal_real_emit ()
+#9  0x08a02b07 in gtk_signal_emit ()
+#10 0x08a2dba0 in gtk_tree_select_item ()
+#11 0x08a2c571 in gtk_tree_button_release ()
+#12 0x0c520378 in ?? ()
+#13 0x00000000 in ?? ()
+
+
+
