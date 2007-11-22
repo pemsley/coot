@@ -138,9 +138,6 @@ GtkWidget* create_nucleotide_builder_dialog (void);
 GtkWidget* create_move_molecule_here_dialog (void);
 GtkWidget* create_monomer_search_dialog (void);
 GtkWidget* create_least_squares_dialog (void);
-GtkWidget* create_window2 (void);
-GtkWidget* create_dialog1 (void);
-GtkWidget* create_app1 (void);
 
 END_C_DECLS
 
