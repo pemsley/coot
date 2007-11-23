@@ -1193,9 +1193,10 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gtk_box_pack_start (GTK_BOX (hbox32), displayed_button_1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (displayed_button_1), 2);
 
+  printf("DEBUG:: in combo-box clicked to send imol: %d\n", *n);
   gtk_signal_connect(GTK_OBJECT (displayed_button_1),  "clicked",
 		     GTK_SIGNAL_FUNC (on_display_control_map_properties_button_clicked),
-		     GINT_TO_POINTER(n));
+		     GINT_TO_POINTER(*n));
 
 /*   // associate with the button a pointer to the variable which */
 /*   // contains the passed variable int n */
@@ -1249,11 +1250,9 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 						   gpointer         user_data)
 {
 
-/*  we cast back from (char *) to (int *) because that's what it is of course */
-
-/*   int *imol = (int *) gtk_object_get_user_data(GTK_OBJECT(button));  */
-  int *imol = (int *) user_data;
-  int *imol_pass = (int *) malloc(sizeof(int));
+/* Remove (comment out) archaic use of casting int * for user data. */
+  int imol = GPOINTER_TO_INT(user_data);
+/*   // int *imol_pass = (int *) malloc(sizeof(int)); */
   GtkWidget *frame;
   GtkWidget *window = create_single_map_properties_dialog();
   GtkWidget *patch_frame = lookup_widget(window, 
@@ -1273,20 +1272,22 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
   gtk_widget_modify_style (label, rc_style);
   gtk_rc_style_unref (rc_style);
 
-  fill_single_map_properties_dialog(window, *imol);
-  *imol_pass = *imol;  
+  printf("DEBUG:: on_display_control_map_properties_button_clicked: imol %d\n", imol);
+  
+  fill_single_map_properties_dialog(window, imol);
+/*   *imol_pass = *imol;   */
 /*   printf("DEBUG:: on_display_control_map_properties_button_clicked: imol %d\n", *imol); */
-  gtk_object_set_user_data(GTK_OBJECT(window), (char *) imol_pass);
+  gtk_object_set_user_data(GTK_OBJECT(window), GINT_TO_POINTER(imol));
 /*   printf("DEBUG:: setting pointer to 0x%x in single_map_properties_dialog\n", imol); */
 
 /*   fill_map_colour_patch(patch_frame, imol); */
 
   /*  and now the skeleton buttons */
   frame = lookup_widget(window, "single_map_skeleton_frame");
-  set_on_off_single_map_skeleton_radio_buttons(frame, *imol);
+  set_on_off_single_map_skeleton_radio_buttons(frame, imol);
 
   /* contour by sigma step */
-  set_contour_sigma_button_and_entry(window, *imol);
+  set_contour_sigma_button_and_entry(window, imol);
 
   gtk_widget_show(window);
 }

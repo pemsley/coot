@@ -1209,8 +1209,15 @@ graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol)
 	 } else { 
 	    gtk_widget_set_sensitive(entry, FALSE);
 	 }
+
+	 
+	 GtkWidget *level_entry =
+	    lookup_widget(window, "single_map_properties_contour_level_entry");
+	 float lev = molecules[imol].contour_level[0];
+	 gtk_entry_set_text(GTK_ENTRY(level_entry), float_to_string(lev).c_str());
       }
    }
+
 }
 
 
