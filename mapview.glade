@@ -21052,7 +21052,7 @@ Which map do you want to skeletonize?
 	  <handler>on_geometry_graphs_ok_button_clicked</handler>
 	  <last_modification_time>Sun, 05 Sep 2004 06:11:17 GMT</last_modification_time>
 	</signal>
-	<label>   OK   </label>
+	<label>         OK         </label>
 	<relief>GTK_RELIEF_NORMAL</relief>
 	<child>
 	  <padding>0</padding>
@@ -21063,12 +21063,10 @@ Which map do you want to skeletonize?
     </widget>
 
     <widget>
-      <class>GtkScrolledWindow</class>
-      <name>geometry_graphs_scrolledwindow</name>
-      <hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
-      <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+      <class>GtkVBox</class>
+      <name>vbox197</name>
+      <homogeneous>False</homogeneous>
+      <spacing>0</spacing>
       <child>
 	<padding>0</padding>
 	<expand>True</expand>
@@ -21076,12 +21074,43 @@ Which map do you want to skeletonize?
       </child>
 
       <widget>
-	<class>GtkViewport</class>
-	<name>geometry_graphs_viewport</name>
-	<shadow_type>GTK_SHADOW_IN</shadow_type>
+	<class>GtkLabel</class>
+	<name>geometry_graphs_label</name>
+	<label>Graph:</label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0.05</xalign>
+	<yalign>0.5</yalign>
+	<xpad>0</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <padding>2</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkScrolledWindow</class>
+	<name>geometry_graphs_scrolledwindow</name>
+	<hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
+	<vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
+	<hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	<vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
 
 	<widget>
-	  <class>Placeholder</class>
+	  <class>GtkViewport</class>
+	  <name>geometry_graphs_viewport</name>
+	  <shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	  <widget>
+	    <class>Placeholder</class>
+	  </widget>
 	</widget>
       </widget>
     </widget>

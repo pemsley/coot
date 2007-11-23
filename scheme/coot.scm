@@ -76,6 +76,7 @@
 			   "generic-objects.scm"
 			   "ncs.scm"
 			   "cns2coot.scm"
+			   "clear-backup.scm"
 			   "tips.scm"
 			   "americanisms.scm"
 			   "group-settings.scm")))

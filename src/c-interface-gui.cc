@@ -595,6 +595,10 @@ coot_checked_exit(int retval) {
 
    //    cout << "exitting with status " << retval << endl;
 
+#if USE_GUILE
+   safe_scheme_command("(clear-backups-maybe)");
+#endif    
+
    graphics_info_t g;
    int i = g.check_for_unsaved_changes();
    std::string cmd = "coot-checked-exit";
