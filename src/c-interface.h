@@ -1,8 +1,9 @@
 /* src/c-interface.h
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
- * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
+ * Copyright 2007 by The University of Oxford
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -756,6 +757,9 @@ void handle_map_colour_change     (int map_no, gdouble[4]);
 void handle_symmetry_colour_change(int mol,    gdouble[4]);
 void fill_single_map_properties_dialog(GtkWidget *window, int imol);
 
+void set_contour_level_absolute(int imol_map, float level);
+void set_contour_level_in_sigma(int imol_map, float level);
+
 /*! \brief set the sigma step of the last map to f sigma */
 void set_last_map_sigma_step(float f);
 void set_contour_sigma_button_and_entry(GtkWidget *window, int imol);
@@ -817,6 +821,10 @@ void set_iso_level_increment_from_text(const char *text, int imol);
 The is only activated when scrolling by sigma is turned off */
 void set_diff_map_iso_level_increment(float val);
 void set_diff_map_iso_level_increment_from_text(const char *text, int imol);
+
+/*  find the molecule that the single map dialog applies to and set
+    the contour level and redraw */
+void single_map_properties_apply_contour_level_to_map(GtkWidget *w);
 
 void set_map_sampling_rate_text(const char *text);
 

@@ -3630,18 +3630,16 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
 						gpointer         user_data)
 {
   
-  int imol; 
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "single_map_properties_dialog");
-  int *v = (int *) gtk_object_get_user_data(GTK_OBJECT(window));
   struct map_colour_data_type *map_colour_data; 
   GtkWidget *col_sel_window;   
   GtkWidget  *colorseldlg;
   GtkColorSelection *colorsel;
   gdouble *colour;
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
 
-  if (v) { 
-    imol = *v;
+  if (1) { 
     printf("pop up the colour chooser for map: %d \n", imol); 
     map_colour_data = (struct map_colour_data_type *) 
       malloc(sizeof(struct map_colour_data_type));
@@ -4828,19 +4826,19 @@ on_single_map_sigma_checkbutton_toggled (GtkToggleButton *togglebutton,
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
   GtkWidget *entry  = lookup_widget(window, "single_map_sigma_step_entry");
-  int *imol_pass = (int *) gtk_object_get_user_data(GTK_OBJECT(window));
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
   const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
   float v;
 
   if (togglebutton->active) {
     if (text) { 
       v = atof(text);
-      set_contour_by_sigma_step_by_mol(v, 1, *imol_pass);
+      set_contour_by_sigma_step_by_mol(v, 1, imol);
       gtk_widget_set_sensitive(entry, TRUE);
     }
   } else { 
     /* 0.0 is ignored. */
-    set_contour_by_sigma_step_by_mol(0.0, 0, *imol_pass);
+    set_contour_by_sigma_step_by_mol(0.0, 0, imol);
     gtk_widget_set_sensitive(entry, FALSE);
   }
 }
@@ -7619,6 +7617,9 @@ on_single_map_properties_contour_level_apply_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "single_map_properties_dialog");
+  single_map_properties_apply_contour_level_to_map(w);
 
 }
 

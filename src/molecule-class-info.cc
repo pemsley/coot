@@ -7816,13 +7816,18 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop, CResidue *re
 
 void
 molecule_class_info_t::set_contour_level(float f) {
-   contour_level[0] = f;
+   if (has_map()) { 
+      contour_level[0] = f;
+      update_map();
+   }
 }
 
 void
 molecule_class_info_t::set_contour_level_by_sigma(float f) {
-
-   contour_level[0] = f * map_sigma_;
+   if (has_map()) { 
+      contour_level[0] = f * map_sigma_;
+      update_map();
+   }
 }
 
 std::vector <std::string>

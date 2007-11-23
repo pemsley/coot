@@ -2130,6 +2130,30 @@ int  show_origin_marker_state() {
 
 
 
+void set_contour_level_absolute(int imol_map, float level) {
+
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t::molecules[imol_map].set_contour_level(level);
+   }
+   graphics_draw();
+
+   std::string cmd = "set-contour-level-absolute";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(level);
+   add_to_history_typed(cmd, args);
+}
+
+void set_contour_level_in_sigma(int imol_map, float level) {
+   
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t::molecules[imol_map].set_contour_level_by_sigma(level);
+   }
+   graphics_draw();
+   std::string cmd = "set-contour-level-in-sigma";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(level);
+   add_to_history_typed(cmd, args);
+}
 
 
 void set_last_map_contour_level(float level) {
