@@ -14287,6 +14287,8 @@ create_geometry_graphs_dialog (void)
 {
   GtkWidget *geometry_graphs_dialog;
   GtkWidget *dialog_vbox75;
+  GtkWidget *vbox197;
+  GtkWidget *geometry_graphs_label;
   GtkWidget *geometry_graphs_scrolledwindow;
   GtkWidget *geometry_graphs_viewport;
   GtkWidget *dialog_action_area74;
@@ -14301,12 +14303,27 @@ create_geometry_graphs_dialog (void)
   gtk_object_set_data (GTK_OBJECT (geometry_graphs_dialog), "dialog_vbox75", dialog_vbox75);
   gtk_widget_show (dialog_vbox75);
 
+  vbox197 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox197);
+  gtk_object_set_data_full (GTK_OBJECT (geometry_graphs_dialog), "vbox197", vbox197,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox197);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox75), vbox197, TRUE, TRUE, 0);
+
+  geometry_graphs_label = gtk_label_new (_("Graph:"));
+  gtk_widget_ref (geometry_graphs_label);
+  gtk_object_set_data_full (GTK_OBJECT (geometry_graphs_dialog), "geometry_graphs_label", geometry_graphs_label,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (geometry_graphs_label);
+  gtk_box_pack_start (GTK_BOX (vbox197), geometry_graphs_label, FALSE, FALSE, 2);
+  gtk_misc_set_alignment (GTK_MISC (geometry_graphs_label), 0.05, 0.5);
+
   geometry_graphs_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_ref (geometry_graphs_scrolledwindow);
   gtk_object_set_data_full (GTK_OBJECT (geometry_graphs_dialog), "geometry_graphs_scrolledwindow", geometry_graphs_scrolledwindow,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (geometry_graphs_scrolledwindow);
-  gtk_box_pack_start (GTK_BOX (dialog_vbox75), geometry_graphs_scrolledwindow, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox197), geometry_graphs_scrolledwindow, TRUE, TRUE, 0);
 
   geometry_graphs_viewport = gtk_viewport_new (NULL, NULL);
   gtk_widget_ref (geometry_graphs_viewport);
@@ -14320,7 +14337,7 @@ create_geometry_graphs_dialog (void)
   gtk_widget_show (dialog_action_area74);
   gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area74), 10);
 
-  geometry_graphs_ok_button = gtk_button_new_with_label (_("   OK   "));
+  geometry_graphs_ok_button = gtk_button_new_with_label (_("         OK         "));
   gtk_widget_ref (geometry_graphs_ok_button);
   gtk_object_set_data_full (GTK_OBJECT (geometry_graphs_dialog), "geometry_graphs_ok_button", geometry_graphs_ok_button,
                             (GtkDestroyNotify) gtk_widget_unref);

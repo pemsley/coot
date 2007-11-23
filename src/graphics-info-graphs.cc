@@ -248,7 +248,9 @@ graphics_info_t::geometric_distortion(int imol) {
 	 int nchains = coot::util::number_of_chains(mol);
       
 	 coot::geometry_graphs *graphs = new coot::geometry_graphs(coot::GEOMETRY_GRAPH_GEOMETRY,
-								   imol, nchains, max_chain_length);
+								   imol,
+								   graphics_info_t::molecules[imol].name_for_display_manager(), 
+								   nchains, max_chain_length);
 	 geometry_graph[imol] = graphs->dialog(); // store for potential updates
 
 	 // debugging.  Problem was negative occupancies.
@@ -445,7 +447,9 @@ graphics_info_t::b_factor_graphs(int imol) {
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs =
 		     new coot::geometry_graphs(coot::GEOMETRY_GRAPH_B_FACTOR,
-					       imol, n_chains, max_chain_length);
+					       imol,
+					       graphics_info_t::molecules[imol].name_for_display_manager(), 
+					       n_chains, max_chain_length);
 		  b_factor_variance_graph[imol] = graphs->dialog();
 
 		  coot::b_factor_block_info_t bfi;
@@ -509,7 +513,9 @@ graphics_info_t::omega_graphs(int imol) {
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs =
 		     new coot::geometry_graphs(coot::GEOMETRY_GRAPH_OMEGA_DISTORTION,
-					       imol, n_chains, max_chain_length);
+					       imol,
+					       graphics_info_t::molecules[imol].name_for_display_manager(), 
+					       n_chains, max_chain_length);
 		  omega_distortion_graph[imol] = graphs->dialog();
 
 		  for (int ich=0; ich<n_chains; ich++) {
@@ -596,7 +602,9 @@ graphics_info_t::rotamer_graphs(int imol) {
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs =
 		     new coot::geometry_graphs(coot::GEOMETRY_GRAPH_ROTAMER,
-					       imol, n_chains, max_chain_length);
+					       imol,
+					       graphics_info_t::molecules[imol].name_for_display_manager(), 
+					       n_chains, max_chain_length);
 
 		  rotamer_graph[imol] = graphs->dialog();
 		  for (int ich=0; ich<n_chains; ich++) {
@@ -947,7 +955,9 @@ graphics_info_t::density_fit_graphs(int imol) {
 		     int n_chains = model_p->GetNumberOfChains();
 		     coot::geometry_graphs *graphs =
 			new coot::geometry_graphs(coot::GEOMETRY_GRAPH_DENSITY_FIT,
-						  imol, n_chains, max_chain_length);
+						  imol,
+						  graphics_info_t::molecules[imol].name_for_display_manager(), 
+						  n_chains, max_chain_length);
 		     
 		     residue_density_fit_graph[imol] = graphs->dialog();
 		     

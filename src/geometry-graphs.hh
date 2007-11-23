@@ -106,6 +106,7 @@ namespace coot {
       geometry_graph_type graph_type;
       int n_chains;
       int max_chain_length;
+      std::string graph_label;
       GtkCanvas *canvas;
       void clear_tooltip_box();
       void tooltip_like_box(const geometry_graph_block_info &bi,
@@ -150,7 +151,8 @@ namespace coot {
       }
 
    public:
-      geometry_graphs(geometry_graph_type type, int imol, int nchains, int max_chain_length);
+      geometry_graphs(geometry_graph_type type, int imol, std::string graph_label,
+		      int nchains, int max_chain_length);
       void render_to_canvas(const coot::geometry_distortion_info_container_t &dv, 
 			    int chain_number);
       void render_to_canvas(const coot::geometry_distortion_info_container_t &dv, 

@@ -133,12 +133,15 @@ coot::geometry_graphs::mouse_over(GtkCanvasItem *item, GdkEvent *event,
 }
 
 coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
-				       int imol_in, int nchains_in, int max_chain_length_in) {
+				       int imol_in,
+				       std::string graph_label_in,
+				       int nchains_in, int max_chain_length_in) {
 
    graph_type = graph_type_in;
    imol = imol_in;
    n_chains = nchains_in;
    max_chain_length = max_chain_length_in;
+   graph_label = graph_label_in;
    setup_internal();
    setup_canvas(nchains_in, max_chain_length_in);
    // std::cout << "resizing geometry_graphs to " << nchains_in << std::endl;
@@ -165,6 +168,9 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
       
    gtk_window_set_title(GTK_WINDOW(dialog()), title.c_str());
 
+   // And now the graph label for EJD:
+   GtkWidget *label = lookup_widget(dialog(), "geometry_graphs_label");
+   gtk_label_set_text(GTK_LABEL(label), graph_label.c_str());
 }
 
 void
