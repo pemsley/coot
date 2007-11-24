@@ -449,19 +449,26 @@ if test "$OS" = "Darwin" ; then
    shared_static_flag="--disable-static"
    shared_lib_ext=dylib
    need_readline_patch=1
-   processor=`uname -a | awk '{print $NF}'`
+   processor=`uname -a | awk '{print $(NF-1)}'`
    need_gtk_imlib_libtool_fix=1
    if test "$processor" = "i386" ; then
       need_glib_getpwuid_fix=1
       need_glib_poll_fix=1
       need_gtk_canvas_patch=1
    fi
+   osversion=`sw_vers -productVersion`
+   systype=MacOSX-${osversion}-${processor}
+fi
 fi
 
 # now test for 64 bit Linux:
 if test "$OS" = "Linux" ; then
    processor=`uname -a | awk '{print $NF}'`
-   arch=`uname -a | awk '{print $(NF-1)}'`
+   # on my Redhat i386, uname returns: 
+   # Linux kalypso 2.6.12-1.1398_FC4 #1 Fri Jul 15 00:52:32 EDT 2005 i686 athlon i386 GNU/Linux
+   # from that I presume we need $(NF-2) to get the arch (not NF-1).
+   # arch=`uname -a | awk '{print $(NF-1)}'`
+   arch=`uname -a | awk '{print $(NF-2)}'`
    if test $arch = x86_64 -o $arch = ia64 ; then
       update_libtool=1
       update_config_guess_sub=1
@@ -543,11 +550,6 @@ if test $OS = Linux ; then
   esac
 fi
 
-if test $OS = Darwin ; then
-    processor=`uname -a | awk '{print $NF}'`
-    osversion=`sw_vers -productVersion`
-    systype=MacOSX-${osversion}-${processor}
-fi
 
 if test $OS = IRIX64 ; then
    osversion=`uname -r`

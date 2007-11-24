@@ -43,6 +43,15 @@
 
 #include "pick.h"
 
+// #define DEBUG_SYMM_PICK 1
+
+#ifdef DEBUG_SYMM_PICK
+#include <ostream>
+void write_symm_search_point(std::ofstream&s , const coot::Cartesian &cart) {
+   s << "(" << cart.x() << " " << cart.y() << " " << cart.z() << ")\n";
+}
+#endif 
+
 
 // 
 coot::Symm_Atom_Pick_Info_t
@@ -56,6 +65,9 @@ graphics_info_t::symmetry_atom_pick() const {
    coot::Cartesian mid_point = front.mid_point(back);
    float dist_front_to_back = (front - back).amplitude();
 
+#ifdef DEBUG_SYMM_PICK
+   std::ofstream sps("symm-points.txt");
+#endif 
    coot::Symm_Atom_Pick_Info_t p_i;
    p_i.success = GL_FALSE; // no atom found initially.
    float dist, min_dist = 0.4;
@@ -70,7 +82,7 @@ graphics_info_t::symmetry_atom_pick() const {
 	    std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
 	       mol_extents.which_boxes(screen_centre, atom_sel);
 
-	    if (boxes.size() > 1) {
+	    if (boxes.size() > 0) { // used to be 1 (which was a bug, I'm pretty sure).
 
 	       char *spacegroup_str = atom_sel.mol->GetSpaceGroup();
 	       if (!spacegroup_str) {
@@ -138,11 +150,13 @@ graphics_info_t::symmetry_atom_pick() const {
 
 		     std::vector<coot::clip_hybrid_atom> hybrid_atom(atom_sel.n_selected_atoms);
 
-// 		     std::cout << "symm_atom_pick: there are " << boxes.size() << " boxes" << std::endl;
-// 		     std::cout << "Here are the boxes: " << std::endl;
-// 		     for (int ii=0; ii< boxes.size(); ii++) {
-// 			std::cout << ii << " " << boxes[ii].first << " " << boxes[ii].second  << std::endl;
-// 		     } 
+#ifdef DEBUG_SYMM_PICK			   
+ 		     std::cout << "symm_atom_pick: there are " << boxes.size() << " boxes" << std::endl;
+ 		     std::cout << "Here are the boxes: " << std::endl;
+		     for (int ii=0; ii< boxes.size(); ii++) {
+ 			std::cout << ii << " " << boxes[ii].first << " " << boxes[ii].second  << std::endl;
+ 		     } 
+#endif // DEBUG_SYMM_PICK			   
 
 		     for (unsigned int ii=0; ii< boxes.size(); ii++) {
 
@@ -154,6 +168,7 @@ graphics_info_t::symmetry_atom_pick() const {
 			// 
 			fill_hybrid_atoms(&hybrid_atom, atom_sel, spg, cell, boxes[ii]);
 			int n = hybrid_atom.size();
+			// std::cout << "DEBUG:: n hybrid_atoms" << n << std::endl;
 			for(int i=0; i<n; i++) { 
 			   dist = hybrid_atom[i].pos.distance_to_line(front, back);
 
@@ -162,6 +177,10 @@ graphics_info_t::symmetry_atom_pick() const {
 			   // 				  << hybrid_atom[i].pos << " "
 			   // 				  << "scrcent " << screen_centre << std::endl;
 			   // 		  }
+
+#ifdef DEBUG_SYMM_PICK			   
+			   write_symm_search_point(sps, hybrid_atom[i].pos);
+#endif			   
 		  
 			   if (dist < min_dist) {
 
@@ -790,3 +809,4 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
       }
    }
 } 
+
