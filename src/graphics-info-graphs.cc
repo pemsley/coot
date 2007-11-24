@@ -32,7 +32,6 @@
 #include <GL/glut.h>  // for some reason...  // Eh?
 
 #include <iostream>
-#include <dirent.h>   // for refmac dictionary files
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"

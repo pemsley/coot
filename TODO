@@ -110,6 +110,8 @@
 
    o helix fitting overshoots
 
+   o consider making bonds to hydrogens thinner
+
    o check for updates?
 
    o (un)Label atoms in given atom selection

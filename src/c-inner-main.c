@@ -205,6 +205,10 @@ c_inner_main(void *closure, int argc, char** argv) {
     scm_catch(SCM_BOOL_T, thunk, handler);
   }
 
+/* And now read the (group's, for example) extra code repository (dir) */
+
+  try_load_scheme_extras_dir();
+
 /* And now read the users own initialization code */
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
   directory = getenv("COOT_HOME"); 

@@ -94,6 +94,11 @@ BEGIN_C_DECLS
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
 
 /*  ------------------------------------------------------------------------ */
+/*                         Startup Functions:                                */
+/*  ------------------------------------------------------------------------ */
+void try_load_scheme_extras_dir();
+
+/*  ------------------------------------------------------------------------ */
 /*                         File system Functions:                            */
 /*  ------------------------------------------------------------------------ */
 /*  File system Utility function: maybe there is a better place for it... */

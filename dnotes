@@ -71,6 +71,8 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Refine across an insertion code.
 
+   o Turn on pythoning in build-it.  No special days.
+
    
 
 
@@ -84,15 +86,10 @@ Tue Jul  3 14:27:37 BST 2007
 
 * Done.
 
-   o Turn on pythoning in build-it.  No special days.
-
-* Done.
-
    o Problem with resizing window starting from a big one from the
      state file? JED
 
 * Done.
-
 
    o Post-install slim the binaries
 
@@ -273,11 +270,6 @@ Tue Jul  3 14:27:37 BST 2007
        Date: 	Fri, 27 Jul 2007 00:26:26 +0200  (Thu, 23:26 BST)
 
 * Seems OK under valgrind - a WinCoot bug?
-
-   o Crash report by "Gajiwala, Ketan": CR in graphics after Acc/Rej
-     was deleted.
-
-* Fixed.
 
    o Get B factors from shelx Us (for B factor variance plot)
 

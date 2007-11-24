@@ -7,12 +7,28 @@ Release 0.4
    o Kevin Cowtan has given us "Cootaneer" [slim-line
      side-chain-assigning Buccaneer for Coot]
 
+   o Richardson Rotamers (instead of Dunbrack's) on by default.  
+     Rotamers are named int the dialog [Dirk Kostrewa]
+
    o Map transformation now works differently.  Instead of providing
      the point from which the map is copied, one passes the target
      position to which the map should be copied (and the position from
      which the map is copied is calculated from this target position
      by the inverse transformation of the operator which moves the
      coordinates).  This seems more natural to me.
+
+   o New environment variable COOT_SCHEME_EXTRA_DIR introduced. If the 
+     directory pointd to by COOT_SCHEME_EXTRA_DIR exists, then Coot
+     will read all the .scm files in that directory
+
+   o Symmetry atom picker improved [Jan Dohnalek, Pirkko Heikinheimo]
+
+   o Cis-peptide Gui added to extensions
+
+   o Check for chiral volume and cis-peptide errors introduced on
+     refinement.  Add Chi-squared values to Accept/Reject dialog.
+
+   o Old backup-files cleaner-upper added.
 
    o Fix Shelx lst file reader when handling atoms with Alt Confs
      [Christian Stegmann]
@@ -24,11 +40,23 @@ Release 0.4
    o Temperature factor variance validation now works for SHELXL
      molecules [GMS, JED]
 
+   o NCS matching (Kleywegt Plots) work using SHELXL molecules
+
+   o Binaries no longer include include file and static library 
+     "junk" [Clemens Vonrhein]
+  
+   o No longer a "stub" option in mutate and autofit [Stephen Sheriff]
+
+   o Cell expansion/contraction function for EM users
+
    o Ca Zone->Mainchain no longer spews warnings
 
    o Planar peptide restraints are ON by default now [Phil Evans]
 
    o Omega Distortion graph now updates on Accept Refine Zone
+
+   o SSM superposition improved (crash fixed) 
+     [Frank von Delft, Alice Dawson]
 
    o CCP4i aliases are also added to the Project Dir options in the
      file selector [Ingo Korndoerfer]
@@ -40,6 +68,13 @@ Release 0.4
    o Fix typo in transform-map-using-lsq-matrix [Nick Furnham]
 
    o U-matrix correctly output to shelx .res file [Annette Langkilde]
+
+   o Environment Distances now can work to symmetry-related atoms 
+     [David Briggs]
+
+   o Faster bonding of multiple model molecules [e.g. from NMR]
+
+   o Extensions menu tided.
 
 
     -------------------------------------------------------
