@@ -6189,6 +6189,66 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_set_contour_level_absolute(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  float arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_contour_level_absolute",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_contour_level_absolute" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_contour_level_absolute" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  set_contour_level_absolute(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_set_contour_level_in_sigma(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  float arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:set_contour_level_in_sigma",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_contour_level_in_sigma" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_contour_level_in_sigma" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  set_contour_level_in_sigma(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_set_last_map_sigma_step(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   float arg1 ;
@@ -6775,6 +6835,27 @@ SWIGINTERN PyObject *_wrap_set_diff_map_iso_level_increment_from_text(PyObject *
   return resultobj;
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_single_map_properties_apply_contour_level_to_map(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:single_map_properties_apply_contour_level_to_map",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkWidget, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "single_map_properties_apply_contour_level_to_map" "', argument " "1"" of type '" "GtkWidget *""'"); 
+  }
+  arg1 = reinterpret_cast< GtkWidget * >(argp1);
+  single_map_properties_apply_contour_level_to_map(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
   return NULL;
 }
 
@@ -22467,6 +22548,7 @@ SWIGINTERN PyObject *_wrap_delete_residue_sidechain(PyObject *SWIGUNUSEDPARM(sel
   char *arg2 = (char *) 0 ;
   int arg3 ;
   char *arg4 = (char *) 0 ;
+  short arg5 ;
   int val1 ;
   int ecode1 = 0 ;
   int res2 ;
@@ -22477,12 +22559,15 @@ SWIGINTERN PyObject *_wrap_delete_residue_sidechain(PyObject *SWIGUNUSEDPARM(sel
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  short val5 ;
+  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:delete_residue_sidechain",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:delete_residue_sidechain",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
   ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
     SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "delete_residue_sidechain" "', argument " "1"" of type '" "int""'");
@@ -22503,7 +22588,12 @@ SWIGINTERN PyObject *_wrap_delete_residue_sidechain(PyObject *SWIGUNUSEDPARM(sel
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "delete_residue_sidechain" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  delete_residue_sidechain(arg1,(char const *)arg2,arg3,(char const *)arg4);
+  ecode5 = SWIG_AsVal_short(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "delete_residue_sidechain" "', argument " "5"" of type '" "short""'");
+  } 
+  arg5 = static_cast< short >(val5);
+  delete_residue_sidechain(arg1,(char const *)arg2,arg3,(char const *)arg4,arg5);
   resultobj = SWIG_Py_Void();
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
@@ -25079,6 +25169,27 @@ SWIGINTERN PyObject *_wrap_do_check_waters_by_widget(PyObject *SWIGUNUSEDPARM(se
   }
   arg1 = reinterpret_cast< GtkWidget * >(argp1);
   do_check_waters_by_widget(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_store_checked_waters_baddies_dialog(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  GtkWidget *arg1 = (GtkWidget *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:store_checked_waters_baddies_dialog",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_GtkWidget, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "store_checked_waters_baddies_dialog" "', argument " "1"" of type '" "GtkWidget *""'"); 
+  }
+  arg1 = reinterpret_cast< GtkWidget * >(argp1);
+  store_checked_waters_baddies_dialog(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -28614,6 +28725,55 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_scale_cell(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  float arg2 ;
+  float arg3 ;
+  float arg4 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  float val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  float val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:scale_cell",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "scale_cell" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_float(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "scale_cell" "', argument " "2"" of type '" "float""'");
+  } 
+  arg2 = static_cast< float >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "scale_cell" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  ecode4 = SWIG_AsVal_float(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "scale_cell" "', argument " "4"" of type '" "float""'");
+  } 
+  arg4 = static_cast< float >(val4);
+  result = (int)scale_cell(arg1,arg2,arg3,arg4);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_write_ccp4mg_picture_description(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -31610,6 +31770,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"handle_map_colour_change", _wrap_handle_map_colour_change, METH_VARARGS, NULL},
 	 { (char *)"handle_symmetry_colour_change", _wrap_handle_symmetry_colour_change, METH_VARARGS, NULL},
 	 { (char *)"fill_single_map_properties_dialog", _wrap_fill_single_map_properties_dialog, METH_VARARGS, NULL},
+	 { (char *)"set_contour_level_absolute", _wrap_set_contour_level_absolute, METH_VARARGS, NULL},
+	 { (char *)"set_contour_level_in_sigma", _wrap_set_contour_level_in_sigma, METH_VARARGS, NULL},
 	 { (char *)"set_last_map_sigma_step", _wrap_set_last_map_sigma_step, METH_VARARGS, NULL},
 	 { (char *)"set_contour_sigma_button_and_entry", _wrap_set_contour_sigma_button_and_entry, METH_VARARGS, NULL},
 	 { (char *)"set_contour_by_sigma_step_maybe", _wrap_set_contour_by_sigma_step_maybe, METH_VARARGS, NULL},
@@ -31627,6 +31789,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_iso_level_increment_from_text", _wrap_set_iso_level_increment_from_text, METH_VARARGS, NULL},
 	 { (char *)"set_diff_map_iso_level_increment", _wrap_set_diff_map_iso_level_increment, METH_VARARGS, NULL},
 	 { (char *)"set_diff_map_iso_level_increment_from_text", _wrap_set_diff_map_iso_level_increment_from_text, METH_VARARGS, NULL},
+	 { (char *)"single_map_properties_apply_contour_level_to_map", _wrap_single_map_properties_apply_contour_level_to_map, METH_VARARGS, NULL},
 	 { (char *)"set_map_sampling_rate_text", _wrap_set_map_sampling_rate_text, METH_VARARGS, NULL},
 	 { (char *)"set_map_sampling_rate", _wrap_set_map_sampling_rate, METH_VARARGS, NULL},
 	 { (char *)"get_text_for_map_sampling_rate_text", _wrap_get_text_for_map_sampling_rate_text, METH_VARARGS, NULL},
@@ -32336,6 +32499,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_check_waters_max_dist_limit", _wrap_set_check_waters_max_dist_limit, METH_VARARGS, NULL},
 	 { (char *)"check_waters_molecule_menu_item_activate", _wrap_check_waters_molecule_menu_item_activate, METH_VARARGS, NULL},
 	 { (char *)"do_check_waters_by_widget", _wrap_do_check_waters_by_widget, METH_VARARGS, NULL},
+	 { (char *)"store_checked_waters_baddies_dialog", _wrap_store_checked_waters_baddies_dialog, METH_VARARGS, NULL},
 	 { (char *)"wrapped_checked_waters_baddies_dialog", _wrap_wrapped_checked_waters_baddies_dialog, METH_VARARGS, NULL},
 	 { (char *)"delete_checked_waters_baddies", _wrap_delete_checked_waters_baddies, METH_VARARGS, NULL},
 	 { (char *)"check_waters_by_difference_map", _wrap_check_waters_by_difference_map, METH_VARARGS, NULL},
@@ -32450,6 +32614,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"interactive_probe_dots_molprobity_radius", _wrap_interactive_probe_dots_molprobity_radius, METH_VARARGS, NULL},
 	 { (char *)"probe_available_p", _wrap_probe_available_p, METH_VARARGS, NULL},
 	 { (char *)"set_dti_stereo_mode", _wrap_set_dti_stereo_mode, METH_VARARGS, NULL},
+	 { (char *)"scale_cell", _wrap_scale_cell, METH_VARARGS, NULL},
 	 { (char *)"write_ccp4mg_picture_description", _wrap_write_ccp4mg_picture_description, METH_VARARGS, NULL},
 	 { (char *)"laplacian", _wrap_laplacian, METH_VARARGS, NULL},
 	 { (char *)"do_smiles_gui", _wrap_do_smiles_gui, METH_VARARGS, NULL},
