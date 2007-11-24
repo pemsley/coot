@@ -28,5 +28,4 @@ void c_inner_main(void *closure, int argc, char** argv);
 void c_wrapper_scm_boot_guile(int argc, char** argv); 
 char* does_file_exist (const char     *directory,
 		       const char     *filename); 
-
 END_C_DECLS

@@ -44,6 +44,8 @@
 #include <direct.h>
 #endif // _MSC_VER
 
+#include <dirent.h>   // for extra scheme dir
+
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -1119,5 +1121,56 @@ int movie_frame_number() {
 
 void set_make_movie_mode(int make_movie_flag) {
    graphics_info_t::make_movie_flag = make_movie_flag;
+}
+
+
+void try_load_scheme_extras_dir() {
+
+   char *s = getenv("COOT_SCHEME_EXTRAS_DIR");
+   if (s) {
+      struct stat buf;
+      int status = stat(s, &buf);
+      if (status != 0) {
+	 std::cout << "WARNING:: no directory " << s << std::endl;
+      } else {
+	 if (S_ISDIR(buf.st_mode)) {
+
+	    DIR *lib_dir = opendir(s);
+	    if (lib_dir == NULL) {
+	       std::cout << "An ERROR occured on opening the directory "
+			 << s << std::endl;
+	    } else {
+
+	       struct dirent *dir_ent;
+
+	       // loop until the end of the filelist (readdir returns NULL)
+	       // 
+	       while (1) {
+		  dir_ent = readdir(lib_dir);
+		  if (dir_ent == NULL) {
+		     break;
+		  } else {
+		     std::string sub_part(std::string(dir_ent->d_name));
+		     struct stat buf2;
+		     std::string fp = s;
+		     fp += "/";
+		     fp += sub_part;
+		     int status2 = stat(fp.c_str(), &buf2);
+		     if (status2 != 0) {
+			std::cout << "WARNING:: no file " << sub_part << std::endl;
+		     } else {
+			if (S_ISREG(buf2.st_mode)) {
+			   if (coot::util::file_name_extension(sub_part) == ".scm") {
+			      std::cout << "loading extra: " << fp << std::endl;
+			      scm_c_primitive_load(fp.c_str()); 
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }      
+   }
 }
 
