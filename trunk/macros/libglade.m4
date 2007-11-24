@@ -27,7 +27,7 @@ AC_ARG_WITH(libglade-prefix,
 [  --with-libglade-prefix=LIBGLADE_PREFIX  Location of libglade],
 LIBGLADE_PREFIX="$withval")
 
-echo xxxxxxxxxxxxxxxxxxxxxxxxxx LIBGLADE_PREFIX is $LIBGLADE_PREFIX
+# echo xxxxxxxxxxxxxxxxxxxxxxxxxx LIBGLADE_PREFIX is $LIBGLADE_PREFIX
 
 if test $coot_gtk2 = TRUE ; then
 
