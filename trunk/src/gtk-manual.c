@@ -1193,7 +1193,6 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gtk_box_pack_start (GTK_BOX (hbox32), displayed_button_1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (displayed_button_1), 2);
 
-  printf("DEBUG:: in combo-box clicked to send imol: %d\n", *n);
   gtk_signal_connect(GTK_OBJECT (displayed_button_1),  "clicked",
 		     GTK_SIGNAL_FUNC (on_display_control_map_properties_button_clicked),
 		     GINT_TO_POINTER(*n));
