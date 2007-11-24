@@ -51,6 +51,7 @@ short int delete_item_widget_keep_active_on() {
 	 r = 1;
       }
    }
+   return r;
 }
 
 void store_delete_item_widget_position() {

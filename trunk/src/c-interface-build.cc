@@ -702,7 +702,8 @@ void delete_residue_with_altconf(int imol,
    add_to_history(command_strings);
 }
 
-void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char *ins_code) {
+void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char *ins_code,
+			      short int do_delete_dialog) {
 
    std::string inscode(ins_code);
    graphics_info_t g;
@@ -713,15 +714,15 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
 						    inscode);
       
       if (istat) {
-      g.update_go_to_atom_window_on_changed_mol(imol);
-      graphics_draw();
+	 g.update_go_to_atom_window_on_changed_mol(imol);
+	 graphics_draw();
       }
-      
+
       if (delete_item_widget_is_being_shown()) {
 	 if (delete_item_widget_keep_active_on()) { 
 	    // dont destroy it
 	 } else {
-	    store_delete_item_widget_position();
+	    store_delete_item_widget_position(); // and destroy it.
 	 }
       }
    }

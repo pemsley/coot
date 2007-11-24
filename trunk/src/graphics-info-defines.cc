@@ -690,7 +690,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       int resno = res->GetSeqNum();
 	       const char *ins_code = res->GetInsCode();
 	       const char *chain_id = res->GetChainID();
-	       delete_residue_sidechain(naii.imol, chain_id, resno, ins_code);
+	       delete_residue_sidechain(naii.imol, chain_id, resno, ins_code,
+					destroy_delete_dialog_flag_by_ctrl_press);
 	    }
 	 }
       } 
