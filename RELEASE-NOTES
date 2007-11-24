@@ -17,6 +17,8 @@ Release 0.4
      by the inverse transformation of the operator which moves the
      coordinates).  This seems more natural to me.
 
+   o Fix crash on refining a water with an Alt Conf [Stephen Graham].
+
    o New environment variable COOT_SCHEME_EXTRA_DIR introduced. If the 
      directory pointd to by COOT_SCHEME_EXTRA_DIR exists, then Coot
      will read all the .scm files in that directory
@@ -28,12 +30,13 @@ Release 0.4
    o Check for chiral volume and cis-peptide errors introduced on
      refinement.  Add Chi-squared values to Accept/Reject dialog.
 
-   o Old backup-files cleaner-upper added.
+   o Old backup-files cleaner-upper added
+
+   o SSM superposition improved (crash fixed) 
+     [Frank von Delft, Alice Dawson]
 
    o Fix Shelx lst file reader when handling atoms with Alt Confs
      [Christian Stegmann]
-
-   o Select residues (for new molecule) by sphere [Joel Bard]
 
    o Multiple model ligand overlaying [Bob Nolte]
 
@@ -42,10 +45,17 @@ Release 0.4
 
    o NCS matching (Kleywegt Plots) work using SHELXL molecules
 
+   o Add "Laplacian" transform (the magnitude of the curvature)
+     function for maps
+
    o Binaries no longer include include file and static library 
      "junk" [Clemens Vonrhein]
   
    o No longer a "stub" option in mutate and autofit [Stephen Sheriff]
+
+   o Select residues (for new molecule) by sphere [Joel Bard]
+
+   o Get Monomer checks for pre-calculated results before re-running.
 
    o Cell expansion/contraction function for EM users
 
@@ -54,9 +64,6 @@ Release 0.4
    o Planar peptide restraints are ON by default now [Phil Evans]
 
    o Omega Distortion graph now updates on Accept Refine Zone
-
-   o SSM superposition improved (crash fixed) 
-     [Frank von Delft, Alice Dawson]
 
    o CCP4i aliases are also added to the Project Dir options in the
      file selector [Ingo Korndoerfer]
