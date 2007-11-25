@@ -5,7 +5,8 @@ Release 0.4
      side-chain-assigning Buccaneer for Coot]
 
    o FEATURE: Richardson Rotamers (instead of Dunbrack's) on by default.  
-     Rotamers are named int the dialog [Dirk Kostrewa]
+     Rotamers are named int the dialog (the probability limits are no
+     longer meaninful) [Dirk Kostrewa]
 
    o FEATURE: New environment variable COOT_SCHEME_EXTRA_DIR introduced. If the 
      directory pointd to by COOT_SCHEME_EXTRA_DIR exists, then Coot
@@ -14,9 +15,12 @@ Release 0.4
    o FEATURE: Cis-peptide Gui added to extensions
 
    o FEATURE: Check for chiral volume and cis-peptide errors introduced on
-     refinement.  Add Chi-squared values to Accept/Reject dialog.
+     refinement.  Add Chi-squared values to Accept/Reject dialog
 
    o FEATURE: Old backup-files cleaner-upper added
+
+   o FEATURE: CCP4i aliases are also added to the Project Dir options in the
+     file selector [Ingo Korndoerfer]
 
    o FEATURE: Multiple model ligand overlaying [Bob Nolte]
 
@@ -25,15 +29,9 @@ Release 0.4
    o FEATURE: Add "Laplacian" transform (the magnitude of the curvature)
      function for maps
 
-   o FEATURE: Binaries no longer include include file and static library 
-     "junk" [Clemens Vonrhein]
-  
    o FEATURE: Select residues (for new molecule) by sphere [Joel Bard]
 
    o FEATURE: Cell expansion/contraction function for EM users
-
-   o FEATURE: CCP4i aliases are also added to the Project Dir options in the
-     file selector [Ingo Korndoerfer]
 
    o BUG-FIX: Fix occasional crash reported by Ketan Gajiwala on
      pressing CR in the graphics window after a refiement.
@@ -81,6 +79,9 @@ Release 0.4
 
    o CHANGE: Faster bonding of multiple model molecules [e.g. from NMR, Rapper]
 
+   o CHANGE: Binaries no longer include include file and static library 
+     "junk" [Clemens Vonrhein]
+  
    o CHANGE: Extensions menu tided.
 
 

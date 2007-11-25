@@ -6305,7 +6305,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (chiral_centre_text_label), 0.06, 0.5);
   gtk_misc_set_padding (GTK_MISC (chiral_centre_text_label), 16, 6);
 
-  extra_text_label = gtk_label_new (_("asdfasdfasdfasdf\n    a sdfasdfasdf\n    asdfasdfasdf\n    asdfasdfasd  \n    asdfasdf"));
+  extra_text_label = gtk_label_new ("");
   gtk_widget_ref (extra_text_label);
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "extra_text_label", extra_text_label,
                             (GtkDestroyNotify) gtk_widget_unref);

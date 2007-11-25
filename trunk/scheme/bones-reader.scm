@@ -1,6 +1,9 @@
 
 (define *mapman-exe* (string-append (getenv "HOME") "/usf/lx_mapman"))
 
+(define (f n) (+ -1 (/ (- n 1) 2)))
+
+
 (define (generic-object-from-bones bones-file)
   (let ((atom-xyz-list '())
 	(bone-list '())
@@ -32,11 +35,13 @@
 				conn-list))
 	  (set! running-list '()))))))
 
-    (define (my-round num)
-      (if (integer? num)
-	  num
-	  (+ (/ 1 2) num)))
+    (define (my-indexer n)
+      (let ((num (f n)))
+	(if (integer? num)
+	    num
+	    (inexact->exact (+ (/ 1 2) num)))))
     
+
 
     ;; main body
     (if (string? bones-file)
@@ -118,36 +123,42 @@
 	    (length atom-xyz-list) (length bone-list) (length conn-list))
 
     (let ((ordered-atoms (reverse atom-xyz-list))
-	  (gen-obj (new-generic-object-number "Points")))
+	  (lines-obj (new-generic-object-number "Lines")))
 
       ; (format #t "conn-list: ~s~%" conn-list)
 
       (if #t
 	  (let loop ((connections conn-list))
 	    (cond
-	     ((null? connections) 'done)
+	     ((null? connections)
+	      (set-display-generic-object lines-obj 1))
 	     (else 
-;	      (let ((from-index (- (car (car connections)) 1))
-;		    (to-index (- (cadr (car connections)) 1)))
-	      (let ((from-index (my-round(+ -1 (/ (- (car  (car connections)) 1) 2))))
-		    (  to-index (my-round (+ -1 (/ (- (cadr (car connections)) 1) 2)))))
 
-		(format #t "from-index: ~s to-index: ~s~%" from-index to-index)
-		(if (and (< from-index (length atom-xyz-list))
-			 (< to-index (length atom-xyz-list)))
-		    (apply to-generic-object-add-line gen-obj "red" 2 
+	      (let ((from-index (my-indexer (car  (car connections))))
+		    (  to-index (my-indexer (cadr (car connections)))))
+
+		(format #t "(~s ~s) -> (~s ~s)~%" 
+			(car  (car connections))
+			(cadr (car connections))
+			from-index to-index)
+
+		(if (not (and (< from-index (length atom-xyz-list))
+			      (< to-index (length atom-xyz-list))))
+		    (format #t "     reject: (~s ~s)~%" from-index to-index)
+		    (apply to-generic-object-add-line lines-obj "red" 2 
 			   (append (list-ref atom-xyz-list from-index)
 				   (list-ref atom-xyz-list to-index))))
 		(loop (cdr connections)))))))
 
-      (let loop ((xyz-list atom-xyz-list))
-	(cond
-	 ((null? xyz-list) 'done)
-	 (else 
-	  (apply to-generic-object-add-point gen-obj "blue" 4 (car xyz-list))
-	  (loop (cdr xyz-list)))))
+      (let ((points-obj (new-generic-object-number "Points")))
+	(let loop ((xyz-list atom-xyz-list))
+	  (cond
+	   ((null? xyz-list)
+	    (set-display-generic-object points-obj 1))
+	   (else 
+	    (apply to-generic-object-add-point points-obj "blue" 4 (car xyz-list))
+	    (loop (cdr xyz-list)))))))))
 
-      (set-display-generic-object gen-obj 1))))
 
 ;;;
 (define (bones-it map-file-name)

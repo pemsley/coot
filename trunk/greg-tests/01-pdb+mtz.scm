@@ -344,6 +344,8 @@
 	 (set-refinement-immediate-replacement 1)
 	 (refine-zone imol-alt-conf-waters "D" 71 71 "A")
 	 (accept-regularizement)
+	 (refine-zone imol-alt-conf-waters "D" 2 2 "")
+	 (accept-regularizement)
 	 (set-refinement-immediate-replacement rep-state)
 	 #t))))  ;; good it didn't crash.
 

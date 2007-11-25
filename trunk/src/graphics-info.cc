@@ -124,6 +124,7 @@ add_extra_text_to_accept_reject_dialog(GtkWidget *accept_reject_dialog,
 				       coot::accept_reject_text_type text_type,
 				       std::string extra_text) {
 
+   std::cout << "DEUBB:: extra_text is :" << extra_text << ":" << std::endl;
    if (extra_text != "") {
       
       // now look up the label in window and change it.
@@ -577,7 +578,7 @@ graphics_info_t::update_environment_distances_maybe(int index, int imol) {
 
    if (environment_show_distances) { 
       if (go_to_atom_molecule() < n_molecules) {
- 	 if (molecules[go_to_atom_molecule()].atom_sel.n_selected_atoms > 0 ) { 
+ 	 if (is_valid_model_molecule(imol)) { 
  	    update_environment_graphics_object(index, imol);
  	    if (show_symmetry)
   	       update_symmetry_environment_graphics_object(index, imol);
@@ -1423,6 +1424,18 @@ graphics_info_t::accept_moving_atoms() {
    }
 #endif // HAVE_GTK_CANVAS || HAVE_GNOME_CANVAS
 
+   // Oh this is grimly "long hand".
+   if (environment_show_distances) {
+      coot::at_dist_info_t at_d_i = molecules[imol_moving_atoms].closest_atom(RotationCentre());
+      if (at_d_i.atom) {
+	 int atom_index;
+	 if (at_d_i.atom->GetUDData(molecules[imol_moving_atoms].atom_sel.UDDAtomIndexHandle,
+				    atom_index) == UDDATA_Ok) {
+	    update_environment_distances_maybe(atom_index, imol_moving_atoms);
+	 }
+      }
+   }
+
    normal_cursor(); // we may have had fleur cursor.
    // and set the rotation translation atom index to unknown again:
    // rot_trans_atom_index_rotation_origin_atom = -1;
@@ -1572,7 +1585,10 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // GSL_ENOPROG(RESS) and GSL_SUCCESS.... actually, we will remove
    // it on anything other than a GSL_CONTINUE
    //
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+
+   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
+
    if (do_torsion_restraints)
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
 	    
@@ -1746,7 +1762,7 @@ graphics_info_t::moving_atoms_graphics_object() {
    }
 }
 
-// This does symmetry too.
+// This does (draws) symmetry too.
 // 
 // static
 void

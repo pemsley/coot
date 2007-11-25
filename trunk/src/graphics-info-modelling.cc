@@ -337,8 +337,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
 	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
-	 flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+	 // flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; 20071124
+	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;  // try chirals
 
 	 short int do_link_torsions = 0;
 	 short int do_residue_internal_torsions = 0;
@@ -1016,8 +1016,15 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 			from_mov_delete_atom_indices.push_back(iat);
 		     }
 		  }
-        		mol[ifrag][ires].delete_atom_indices(from_ref_delete_atom_indices);
-		  range_mol[ifrag][ires].delete_atom_indices(from_mov_delete_atom_indices);
+// 		  std::cout << "--------------------------------" << std::endl;
+// 		  mol.check();
+// 		  mol[ifrag].check();
+// 		  std::cout << "--------------------------------" << std::endl;
+// 		  range_mol.check();
+// 		  range_mol[ir].check();
+// 		  std::cout << "--------------------------------" << std::endl;
+          	     mol[ifrag][ires].delete_atom_indices(from_ref_delete_atom_indices);
+		  range_mol[ir][ires].delete_atom_indices(from_mov_delete_atom_indices);
 	       }
 	    }
 	 }
@@ -2587,7 +2594,9 @@ graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 							    " ");
 		  }
 	       }
-	       std::cout << s << std::endl;
+	       if (s != "Unset") {
+		  std::cout << s << std::endl;
+	       }
 	    } 
 	 }
       }

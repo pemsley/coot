@@ -756,8 +756,8 @@ coot::distortion_score(const gsl_vector *v, void *params) {
 	 }
       }
 
-      // if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
-      if (0) { 
+      if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
+	 // if (0) { 
 	 
    	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
    	    d = coot::distortion_score_chiral_volume( (*restraints)[i], v);
@@ -1682,14 +1682,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 		<< std::endl;
       r += "   non-bonded: ";
       r += coot::util::float_to_string_using_dec_pl(non_bonded_distortion/double(n_non_bonded_restraints), 3);
-      // r += "\n";
+      r += "\n";
    }
    if (n_chiral_volumes == 0) { 
       std::cout << "chiral vol: N/A " << std::endl;
    } else {
       std::cout << "chiral vol: " << chiral_vol_distortion/double(n_chiral_volumes)
   		<< std::endl;
-      // r += ... FIXME!!
+      r += "   chirals: ";
+      r += coot::util::float_to_string_using_dec_pl(chiral_vol_distortion/double(n_chiral_volumes), 3);
    }
 
    return r; 
@@ -2416,8 +2417,8 @@ coot::my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df) {
    double cv;
    double distortion;
    
-   // if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
-   if (0) {
+   if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
+      // if (0) {
       
       for (int i=0; i<restraints->size(); i++) {
 	 
@@ -4198,7 +4199,7 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
    int n_chiral_restr = 0;
    int index1, index2, index3, indexc;
 
-   // std::cout << "DEBUG:: trying to add chirals..." << std::endl;
+   std::cout << "DEBUG:: trying to add chirals for this residue..." << std::endl;
    
    for (unsigned int ic=0; ic<geom[idr].chiral_restraint.size(); ic++) {
       for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
@@ -4234,6 +4235,12 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 // 			      add(CHIRAL_VOLUME_RESTRAINT,
 // 				  indexc, index1, index2, index3,
 // 				  geom[idr].chiral_restraint[ic].volume_sign);
+
+			      std::cout << "   Adduing chiral restraint for " << res_selection[iatc]->name
+					<< " " << res_selection[iatc]->GetSeqNum() <<  " "
+					<< res_selection[iatc]->GetChainID() 
+					<< " with target volume " << geom[idr].chiral_restraint[ic].target_volume()
+					<< std::endl;
 
 			      restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
 									index1, index2, index3,

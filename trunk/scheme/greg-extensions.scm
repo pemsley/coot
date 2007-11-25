@@ -24,11 +24,23 @@
     (let ((menu (coot-menubar-menu "Test")))
 
       (add-simple-coot-menu-menuitem
-       menu "Run Greg Tests"
+       menu "Run All Greg Tests"
        (lambda ()
 
 	 ;; use set! not define 
 	 (set! greg-tools (list "greg-tests"))
 	 (set! greg-debug #t)
 	 (set! greg-verbose 5)
+	 (greg-test-run)))
+
+      (add-simple-coot-menu-menuitem
+       menu "Run One Greg Test"
+       (lambda ()
+
+	 ;; use set! not define 
+	 (set! greg-tools (list "greg-one-test"))
+	 (set! greg-debug #t)
+	 (set! greg-verbose 5)
 	 (greg-test-run)))))
+
+

@@ -6193,6 +6193,8 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
       for (ix = xmap_list[0].first(); !ix.last(); ix.next() ) {
  	 new_map[ix] = xmap_list[0][ix];
       }
+      xmap_list[0] = new_map;
+      update_map();
    }
    return retval; 
 } 
