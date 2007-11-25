@@ -75,7 +75,11 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Fix mapman bones reader.
 
-   
+   o Crash on OK on Map properties after changing map colour:
+     [corrupted, useless stack]
+
+
+
 
 
 
@@ -96,12 +100,10 @@ Tue Jul  3 14:27:37 BST 2007
    o Post-install slim the binaries
 
 * Done.
- 
 
    o Stub disappeared on simple mutate
 
 * Done.
-
 
    o The reading of a cif dictionary should set the file name for the
      dialog like reading a pdb file does.
@@ -112,7 +114,6 @@ Tue Jul  3 14:27:37 BST 2007
      doesn't make sense there.
 
 * Done.
-
 
    o Add darken-maps function
 

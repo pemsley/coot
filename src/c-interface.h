@@ -3400,7 +3400,9 @@ void setup_rotamers(short int state);
 /*  moving_atoms_asc */
 void do_rotamers(int atom_index, int imol);
 
- /* as a percentage i.e. 1.00 is quite low */
+/* \brief For Dunbrack rotamers, set the lowest probability to be
+   considered.  Set as a percentage i.e. 1.00 is quite low.  For
+   Richardson Rotamers, this has no effect. */
 void set_rotamer_lowest_probability(float f);
 
 /*! \brief set a flag: 0 is off, 1 is on */
