@@ -183,7 +183,8 @@
 # 2.21 20071120 Sourcefource no longer distributes libungif, now in 
 #               ysbl software/extras
 # 2.22 20071121 set the architecture for ubuntu systems.
-script_version=2.22
+# 2.23 20071125 Fix typo in recent fixes.
+script_version=2.23
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -458,7 +459,6 @@ if test "$OS" = "Darwin" ; then
    fi
    osversion=`sw_vers -productVersion`
    systype=MacOSX-${osversion}-${processor}
-fi
 fi
 
 # now test for 64 bit Linux:
