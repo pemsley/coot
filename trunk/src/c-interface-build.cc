@@ -1275,12 +1275,14 @@ void do_rotamers(int atom_index, int imol) {
 
 void
 set_rotamer_lowest_probability(float f) {
+#ifdef USE_DUNBRACK_ROTAMERS
    graphics_info_t g;
    g.rotamer_lowest_probability = f;
    std::string cmd = "set-rotamer-lowest-probability";
    std::vector<coot::command_arg_t> args;
    args.push_back(f);
    add_to_history_typed(cmd, args);
+#endif    
 }
 
 void

@@ -714,12 +714,17 @@ short int graphics_info_t::terminal_residue_do_rigid_body_refine = 1; // on by d
 float graphics_info_t::rigid_body_fit_acceptable_fit_fraction = 0.75;
 
 // rotamer
+#ifdef USE_DUNBRACK_ROTAMERS
 float graphics_info_t::rotamer_lowest_probability = 2.0; // percent
+#else 
+float graphics_info_t::rotamer_lowest_probability = 0.0; // compatibility.  Limit
+                                                         // not used, practically.
+#endif 
 short int graphics_info_t::in_rotamer_define = 0;
 int graphics_info_t::rotamer_residue_atom_index = -1; // unset initially.
-int graphics_info_t::rotamer_residue_imol = -1; // unset initially.
-int graphics_info_t::rotamer_fit_clash_flag = 1; //  check clashes initially.
-short int graphics_info_t::in_auto_fit_define = 0; // not in auto fit initially.
+int graphics_info_t::rotamer_residue_imol = -1;       // unset initially.
+int graphics_info_t::rotamer_fit_clash_flag = 1;      //  check clashes initially.
+short int graphics_info_t::in_auto_fit_define = 0;    // not in auto fit initially.
 
 // mutation
 short int graphics_info_t::in_mutate_define = 0; // not, initially.

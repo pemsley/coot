@@ -31,7 +31,14 @@
 	  (set! conn-list (cons (reverse (cons con running-list))
 				conn-list))
 	  (set! running-list '()))))))
+
+    (define (my-round num)
+      (if (integer? num)
+	  num
+	  (+ (/ 1 2) num)))
     
+
+    ;; main body
     (if (string? bones-file)
 	(if (file-exists? bones-file)
 
@@ -45,17 +52,18 @@
 		      (reading-atom-colour-flag #f)
 		      (reading-residue-name-flag #f)
 		      (reading-residue-type-flag #f)
-		      (reading-residue-pointers-flag #f))
+		      (reading-residue-pointers-flag #f)
+		      (continue-flag #t))
 		  
-		  (while #t 
+		  (while continue-flag
 		       
 			 (set! obj (read port))
 			 
 			 (cond
-			  ((eof-object? obj) 
-			   (break (length atom-xyz-list)
-				  (length bone-list)
-				  (length conn-list)))
+			  ((eof-object? obj)
+			   (begin
+			     (format #t ":::: reached end-of-file~%")
+			     (set! continue-flag #f)))
 
 			  ;; atom colour
 			  ((eq? obj 'SKL_ATOM_COLOUR)
@@ -106,7 +114,7 @@
 			   (else 'something))))))))
 
     
-    (format #t "atom-xyz-list: ~s~% bone-list: ~s~% conn-list ~s~%" 
+    (format #t "length atom-xyz-list: ~s~% length bone-list: ~s~% length conn-list ~s~%" 
 	    (length atom-xyz-list) (length bone-list) (length conn-list))
 
     (let ((ordered-atoms (reverse atom-xyz-list))
@@ -121,8 +129,10 @@
 	     (else 
 ;	      (let ((from-index (- (car (car connections)) 1))
 ;		    (to-index (- (cadr (car connections)) 1)))
-	      (let ((from-index (inexact->exact (+ -1 (/ (- (car  (car connections)) 1) 2))))
-		    (  to-index (inexact->exact (+ -1 (/ (- (cadr (car connections)) 1) 2)))))
+	      (let ((from-index (my-round(+ -1 (/ (- (car  (car connections)) 1) 2))))
+		    (  to-index (my-round (+ -1 (/ (- (cadr (car connections)) 1) 2)))))
+
+		(format #t "from-index: ~s to-index: ~s~%" from-index to-index)
 		(if (and (< from-index (length atom-xyz-list))
 			 (< to-index (length atom-xyz-list)))
 		    (apply to-generic-object-add-line gen-obj "red" 2 
@@ -140,10 +150,10 @@
       (set-display-generic-object gen-obj 1))))
 
 ;;;
-(define (bones-it map-name)
+(define (bones-it map-file-name)
   
   (let* ((bones-file "my.bones")
-	 (data-lines (list (string-append "read m1 " map-name " ccp4")
+	 (data-lines (list (string-append "read m1 " map-file-name " ccp4")
 			   "bo sk m1 0.5 0.15 1"
 			   "bones connect"
 			   bones-file
