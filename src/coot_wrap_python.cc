@@ -2977,6 +2977,18 @@ SWIGINTERNINLINE PyObject*
 #ifdef __cplusplus
 extern "C" {
 #endif
+SWIGINTERN PyObject *_wrap_try_load_scheme_extras_dir(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":try_load_scheme_extras_dir")) SWIG_fail;
+  try_load_scheme_extras_dir();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_make_directory_maybe(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -31627,6 +31639,7 @@ fail:
 
 
 static PyMethodDef SwigMethods[] = {
+	 { (char *)"try_load_scheme_extras_dir", _wrap_try_load_scheme_extras_dir, METH_VARARGS, NULL},
 	 { (char *)"make_directory_maybe", _wrap_make_directory_maybe, METH_VARARGS, NULL},
 	 { (char *)"set_show_paths_in_display_manager", _wrap_set_show_paths_in_display_manager, METH_VARARGS, NULL},
 	 { (char *)"show_paths_in_display_manager_state", _wrap_show_paths_in_display_manager_state, METH_VARARGS, NULL},

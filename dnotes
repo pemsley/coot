@@ -4,16 +4,11 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   12 outstanding issues
+   16 outstanding issues
 
-   o remove debugging screen info in NCS ghosting (including on reading pdb)
-
-   o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
+   o Remove debugging screen info in NCS ghosting (including on reading pdb)
 
    o Try again to add chiral volumes to the geometry target function
-
-   o remove probability limit for RichRots
-     look at LEUs.
 
    o Carsten's Map Masking crash
 
@@ -50,15 +45,6 @@ Tue Jul  3 14:27:37 BST 2007
 
       Copy molecule is valgrind-clean (both coords and map)
 
-   o GMS Molprobity problem.
-
-        Is a molprobity issue.  Get new version?
-
-   o Pirkko Heikinheimo pdb entry 1o7d, space group P6122.  symmetry
-     pick is failing.
-
-   o Jan Dohnalek symmetry failing
-
    o S. Sheriff:
 
      * I find that (set-colour-map-rotation-on-read-pdb-c-only-flag   1)
@@ -66,22 +52,70 @@ Tue Jul  3 14:27:37 BST 2007
        I click on the radio button in the bond colour pop-up menu, the
        atoms are not atomic coloring.
 
-   o Does the state file contain the hue shift for each of the
-     coordinate molecules?  It should do.
-
-   o Refine across an insertion code.
+   o Refine across an insertion code [Steven Sheriff] 27 -> 28 L in 1ruk.  
+     Write a greg test for it.
 
    o Turn on pythoning in build-it.  No special days.
 
    o Fix mapman bones reader.
 
+   o Turn on pythoning in build-it.  No special days.
+
+   o Fix mapman bones reader.  What does G(DVD)K say?
+
    o Crash on OK on Map properties after changing map colour:
      [corrupted, useless stack]
 
+   o Load latest .scm file, key binding (96)
+   
 
 
 
 
+
+   o Update environement distances after refinement
+
+* Done.  Nice
+
+   o Fix Rigid body fit zone dialog message.
+
+* Done.
+
+   o remove probability limit for RichRots
+     look at LEUs.
+
+* Done.
+
+   o Extend the length of the entries in the SMILES interface
+
+* Done
+
+   o "Carriage Return" in the entry in Export map should do an "OK"
+
+* Done.
+
+   o Does the state file contain the hue shift for each of the
+     coordinate molecules?  It should do.
+
+Yes, it's fine.
+
+
+   o Test Cootaneer by building from just a map - MOK's CSHL tutorial map.
+
+* PE is not doing that. Job for BL.
+
+   o Jan Dohnalek symmetry failing
+
+* Fixed.
+
+   o GMS Molprobity problem.
+
+        Is a molprobity issue.  Get new version?
+
+   o Pirkko Heikinheimo pdb entry 1o7d, space group P6122.  symmetry
+     pick is failing.
+
+* Done.
 
    o On reading a .res file, can you check for NCS with residue offset?
      Needs a test
@@ -100,10 +134,12 @@ Tue Jul  3 14:27:37 BST 2007
    o Post-install slim the binaries
 
 * Done.
+ 
 
    o Stub disappeared on simple mutate
 
 * Done.
+
 
    o The reading of a cif dictionary should set the file name for the
      dialog like reading a pdb file does.
@@ -114,6 +150,7 @@ Tue Jul  3 14:27:37 BST 2007
      doesn't make sense there.
 
 * Done.
+
 
    o Add darken-maps function
 

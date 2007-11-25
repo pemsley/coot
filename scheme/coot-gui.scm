@@ -160,12 +160,12 @@
 	 (go-button (gtk-button-new-with-label "  Go  ")))
 
     (gtk-box-pack-start vbox hbox1 #f #f 0)
-    (gtk-box-pack-start vbox hbox2 #f #f 0)
+    (gtk-box-pack-start vbox hbox2 #f #f 4)
     (gtk-box-pack-start vbox go-button #f #f 6)
     (gtk-box-pack-start hbox1 tlc-label #f 0)
     (gtk-box-pack-start hbox1 tlc-entry #f 0)
     (gtk-box-pack-start hbox2 smiles-label #f 0)
-    (gtk-box-pack-start hbox2 smiles-entry #f 0)
+    (gtk-box-pack-start hbox2 smiles-entry #t 4)
     (gtk-container-add window vbox)
     (gtk-container-border-width vbox 6)
 
@@ -368,7 +368,6 @@
 			      entry)))
 			entry-info-list)))
       
-      (format #t "debug:: check-button-info: ~s~%" check-button-info)
       (let ((check-button 
 	     (if (not (and (list? entry-info-list)
 			   (= (length check-button-info) 2)))
@@ -386,8 +385,6 @@
 		       c-button)
 		     #f)))) ; the check-button when we don't want to see it
 	
-	(format #t "Here check button creation.................. check-button is ~s~%"
-		check-button)
 	(gtk-box-pack-start vbox h-sep #t #f 3)
 	(gtk-box-pack-start vbox hbox3 #f #f 0)
 	(gtk-container-add window vbox)
@@ -402,8 +399,6 @@
 	
 	(gtk-signal-connect go-button "clicked"
 			    (lambda ()
-			      (format #t "Here.................. check-button is ~s~%"
-				      check-button)
 			      (handle-go-function (map gtk-entry-get-text entries)
 						  (if check-button
 						      (gtk-toggle-button-get-active check-button)
@@ -946,27 +941,37 @@
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
     
       (gtk-option-menu-set-menu option-menu menu)
-      
-      ;; button callbacks:
-      (gtk-signal-connect ok-button "clicked"
-			  (lambda args
-			    ;; what is the molecule number of the option menu?
-			    (let ((active-mol-no (get-option-menu-active-molecule 
-						  option-menu
-						  model-mol-list)))
-			      
-			      (if (number? active-mol-no)
+
+      (let ((go-func
+	     (lambda ()
+	       ;; what is the molecule number of the option menu?
+	       (let ((active-mol-no (get-option-menu-active-molecule 
+				     option-menu
+				     model-mol-list)))
+		 
+		 (if (number? active-mol-no)
+		     (begin
+		       (let ((file-sel-text (gtk-entry-get-text file-sel-entry)))
+			 (callback-function active-mol-no file-sel-text))))))))
+
+	;; button callbacks:
+	(gtk-signal-connect ok-button "clicked"
+			    (lambda args
+			      (go-func)
+			      (gtk-widget-destroy window)))
+
+	(gtk-signal-connect file-sel-entry "key-press-event"
+			    (lambda (event)
+			      (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
 				  (begin
-				    (let ((file-sel-text (gtk-entry-get-text file-sel-entry)))
-				      (callback-function active-mol-no file-sel-text)))))
-			    
-			    (gtk-widget-destroy window)))
-      
-      (gtk-signal-connect cancel-button "clicked"
-			  (lambda args
-			    (gtk-widget-destroy window)))
-      
-      (gtk-widget-show-all window))))
+				    (go-func)
+				    (gtk-widget-destroy window)))))
+	
+	(gtk-signal-connect cancel-button "clicked"
+			    (lambda args
+			      (gtk-widget-destroy window)))
+	
+	(gtk-widget-show-all window)))))
 
 
 ;; If a menu with label menu-label is not found in the coot main
@@ -1409,7 +1414,6 @@
 
 	     (if (string? description)
 		 (let ((text-box (gtk-text-new #f #f)))
-		   (format #t "DEBUG::description: ~s~%" description)
 		   (add-text-to-text-widget text-box description)
 		   (gtk-box-pack-start inside-vbox text-box #f #f 2)
 

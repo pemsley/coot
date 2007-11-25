@@ -15,10 +15,18 @@
 ;;;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 ;;;; 02110-1301, USA
 
+(define *clear-out-backup-run-n-days* 7) ; Run every 7 days.
+(define *clear-out-backup-old-days*   7) ; Files older than 7 days are consider suitable
+                                         ; for deletion.
+
+
 (define (delete-coot-backup-files action-type)
   (let* ((files (glob "*.pdb*" "coot-backup"))
 	 (now (current-time))
-	 (last-week (- now (* 60 60 24 7))) ;; clear out more than 7 days old.
+	 (n-days (if (number? *clear-out-backup-old-days*)
+		     *clear-out-backup-old-days*
+		     7))
+	 (last-week (- now (* 60 60 24 n-days))) ;; clear out more than 7 days old.
 	 (dir "coot-backup"))
     
     (define add-dir-prefix
@@ -88,6 +96,7 @@
 	       (hbox (gtk-hbox-new #f 10))
 	       (ok-button (gtk-button-new-with-label " Clear up "))
 	       (cancel-button (gtk-button-new-with-label " Stay messy "))
+	       (h-sep (gtk-hseparator-new))
 	       (label (gtk-label-new (string-append "  There are "
 						    (number->string (car file-stats))
 						    " old backup files ("
@@ -106,20 +115,21 @@
 				(gtk-widget-destroy window)))
 
 	  (gtk-tooltips-set-tip (gtk-tooltips-new) ok-button 
-				" Consider yourself patted on the back " "")
+				" Consider yourself patted on the back! " "")
 	  (gtk-tooltips-set-tip (gtk-tooltips-new) 
 				cancel-button
 				(string-append 
 				 "A less pejorative label here might be \"Keep\" or \"Cancel\" "
-				 "but seeing as I like my intestines where they are and not used "
-				 "as hosiery fastenings for Systems Adminstrators then we get this "
-				 "rather nannying label...")
+				 "but seeing as (for the moment) I like my intestines where they are "
+				 "and not used as hosiery fastenings for Systems Adminstrators then "
+				 "we get this rather nannying label...")
 				"")
 
 	  (gtk-container-add window frame)
 	  (gtk-container-border-width frame 6)
 	  (gtk-container-add frame vbox)
 	  (gtk-box-pack-start vbox label #f #f 6)
+	  (gtk-box-pack-start vbox h-sep)
 	  (gtk-box-pack-start vbox hbox)
 	  (gtk-container-border-width hbox 10)
 	  (gtk-container-border-width vbox 6)
@@ -137,7 +147,10 @@
 (define (clear-backups-maybe)
 
   (let* ((now (current-time))
-	 (last-week (- now (* 60 60 24 7)))) ;; Clear out every 7 days... Hmmm.
+	 (n-days (if (number? *clear-out-backup-run-n-days*) 
+		     *clear-out-backup-run-n-days*
+		     7))
+	 (last-week (- now (* 60 60 24 n-days)))) ;; Clear out every 7 days... Hmmm.
     (let ((last-cleaned-file (append-dir-file "coot-backup"
 					      "last-cleaned")))
       (if (not (file-exists? last-cleaned-file))

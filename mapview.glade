@@ -8852,11 +8852,7 @@ Do you want to continue?
 	<widget>
 	  <class>GtkLabel</class>
 	  <name>extra_text_label</name>
-	  <label>asdfasdfasdfasdf
-    a sdfasdfasdf
-    asdfasdfasdf
-    asdfasdfasd  
-    asdfasdf</label>
+	  <label></label>
 	  <justify>GTK_JUSTIFY_LEFT</justify>
 	  <wrap>False</wrap>
 	  <xalign>0.06</xalign>
