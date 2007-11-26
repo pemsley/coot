@@ -1423,17 +1423,7 @@ graphics_info_t::accept_moving_atoms() {
    }
 #endif // HAVE_GTK_CANVAS || HAVE_GNOME_CANVAS
 
-   // Oh this is grimly "long hand".
-   if (environment_show_distances) {
-      coot::at_dist_info_t at_d_i = molecules[imol_moving_atoms].closest_atom(RotationCentre());
-      if (at_d_i.atom) {
-	 int atom_index;
-	 if (at_d_i.atom->GetUDData(molecules[imol_moving_atoms].atom_sel.UDDAtomIndexHandle,
-				    atom_index) == UDDATA_Ok) {
-	    update_environment_distances_maybe(atom_index, imol_moving_atoms);
-	 }
-      }
-   }
+   update_environment_distances_by_rotation_centre_maybe(imol_moving_atoms);
 
    normal_cursor(); // we may have had fleur cursor.
    // and set the rotation translation atom index to unknown again:
@@ -1445,6 +1435,24 @@ graphics_info_t::accept_moving_atoms() {
 
    if (do_probe_dots_post_refine_flag) {
       do_interactive_probe();
+   }
+}
+
+
+void
+graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_moving_atoms) {
+   
+   // Oh this is grimly "long hand".
+   graphics_info_t g;
+   if (g.environment_show_distances) {
+      coot::at_dist_info_t at_d_i = g.molecules[imol_moving_atoms].closest_atom(RotationCentre());
+      if (at_d_i.atom) {
+	 int atom_index;
+	 if (at_d_i.atom->GetUDData(g.molecules[imol_moving_atoms].atom_sel.UDDAtomIndexHandle,
+				    atom_index) == UDDATA_Ok) {
+	    g.update_environment_distances_maybe(atom_index, imol_moving_atoms);
+	 }
+      }
    }
 }
 

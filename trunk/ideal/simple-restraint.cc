@@ -4850,10 +4850,10 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 // 		  std::cout << ind << " " << atom[pos[ind]]->name << " "
 // 			    << atom[pos[ind]]->GetSeqNum() << std::endl;
 // 	       }
-	       std::cout << "DEBUG:: adding link plane with pos indexes ";
-	       for (int ipos=0; ipos<pos.size(); ipos++)
-		  std::cout << " " << pos[ipos];
-	       std::cout << "\n";
+// 	       std::cout << "DEBUG:: adding link plane with pos indexes ";
+// 	       for (int ipos=0; ipos<pos.size(); ipos++)
+// 		  std::cout << " " << pos[ipos];
+// 	       std::cout << "\n";
 	       add_plane(pos, fixed_flag, geom.link(i).link_plane_restraint[ip].dist_esd());
 	       n_plane++;
 	    }

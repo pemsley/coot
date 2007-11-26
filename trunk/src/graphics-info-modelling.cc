@@ -124,11 +124,12 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 				     std::string chain_id_1) {
 
 
-   std::cout << "In copy_mol_and_refine() refine range: "
-	     << resno_1 << " :" << inscode_1 << ": "
-	     << resno_2 << " :" << inscode_2 << ": "
-	     << "coords mol: " << imol_for_atoms << " map mol: " << imol_for_map
-	     << std::endl;
+//    std::cout << "DEBUG:: In copy_mol_and_refine() refine range: "
+// 	     << "chain  :" << chain_id_1 << ": "
+// 	     << resno_1 << " :" << inscode_1 << ": "
+// 	     << resno_2 << " :" << inscode_2 << ": "
+// 	     << "coords mol: " << imol_for_atoms << " map mol: " << imol_for_map
+// 	     << std::endl;
       
 
    short int irest = 0; // make 1 when restraints found.
@@ -173,8 +174,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    PCResidue *residue_first = NULL;
    mol->Select(SelHnd_first, STYPE_RESIDUE, 0,
 	       (char *) chain_id_1.c_str(),
-	       resno_1, "*",
-	       resno_1, "*",
+	       resno_1, (char *) inscode_1.c_str(),
+	       resno_1, (char *) inscode_1.c_str(),
 	       "*",  // residue name
 	       "*",  // Residue must contain this atom name?
 	       "*",  // Residue must contain this Element?
@@ -651,7 +652,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
 		<< "\" and \"" << chain_id_2 << "\"" << std::endl;
       cout << "Picked atoms are not in the same chain.  Failure" << endl; 
    } else { 
-      flash_selection        (imol, resno_1, resno_2, altconf, chain_id_1);
+      flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       coot::refinement_results_t rr = 
 	 copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       short int istat = rr.found_restraints_flag;
@@ -700,7 +701,9 @@ graphics_info_t::auto_range_residues(int atom_index, int imol) const {
 void
 graphics_info_t::flash_selection(int imol,
 				 int resno_1, 
+				 std::string ins_code_1,
 				 int resno_2, 
+				 std::string ins_code_2,
 				 std::string altconf,
 				 std::string chain_id_1) { 
 
@@ -709,12 +712,15 @@ graphics_info_t::flash_selection(int imol,
    int selHnd = ((CMMDBManager *)molecules[imol].atom_sel.mol)->NewSelection();
    int nSelAtoms;
    PPCAtom SelAtom;
-   char *chn = (char *) chain_id_1.c_str();
+   char *chn  = (char *) chain_id_1.c_str();
+   char *ins1 = (char *) ins_code_1.c_str();
+   char *ins2 = (char *) ins_code_2.c_str();
 
    ((CMMDBManager *)molecules[imol].atom_sel.mol)->SelectAtoms(selHnd, 0, 
 							       // (char *) chain_id_1.c_str(),
 							       chn,
-							       resno_1,"*",resno_2, "*",
+							       resno_1, ins1,
+							       resno_2, ins2,
 							       "*",      // RNames
 							       "*","*",  // ANames, Elements
 							       "*" );    // Alternate locations.
@@ -846,7 +852,7 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &altconf,
 				      short int is_water_flag) {
 
-   std::cout << "DEBUG:: refine_residue_range: " << imol << chain_id_1
+   std::cout << "DEBUG:: refine_residue_range: " << imol << " " << chain_id_1
 	     << " " <<  resno_1 << ":" << ins_code_1 << ":"
 	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
 	     << " " << ":" << altconf << ": " << is_water_flag << std::endl;
@@ -900,7 +906,7 @@ graphics_info_t::refine_residue_range(int imol,
 	       }
 	    }
 	    if (!simple_water) { 
-	       flash_selection(imol, resno_1, resno_2, altconf, chain_id_1);
+	       flash_selection(imol, resno_1, ins_code_1, resno_2, ins_code_2, altconf, chain_id_1);
 	       long t0 = glutGet(GLUT_ELAPSED_TIME);
 	       coot::refinement_results_t rr = 
 		  copy_mol_and_refine(imol, imol_map, resno_1, ins_code_1, resno_2, ins_code_2,
@@ -2232,6 +2238,9 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
    if (imol >= 0 && imol < n_molecules) {
       if (molecules[imol].open_molecule_p()) { 
 	 molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
+
+	 update_environment_distances_by_rotation_centre_maybe(imol);
+	 
 	 graphics_draw();
       } else {
 	 std::cout << "ERROR:: invalid (closed) molecule in place_typed_atom_at_pointer: "
