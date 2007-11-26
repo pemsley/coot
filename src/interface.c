@@ -7771,7 +7771,7 @@ create_unsaved_changes_dialog (void)
 
   unsaved_changes_dialog = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (unsaved_changes_dialog), "unsaved_changes_dialog", unsaved_changes_dialog);
-  gtk_window_set_title (GTK_WINDOW (unsaved_changes_dialog), _("dialog1"));
+  gtk_window_set_title (GTK_WINDOW (unsaved_changes_dialog), _("Unsaved Changes"));
   gtk_window_set_policy (GTK_WINDOW (unsaved_changes_dialog), TRUE, TRUE, FALSE);
 
   dialog_vbox17 = GTK_DIALOG (unsaved_changes_dialog)->vbox;

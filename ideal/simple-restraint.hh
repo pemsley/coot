@@ -594,12 +594,14 @@ namespace coot {
 			int resno,
 			const char *chain_id) const; 
 
-      int get_asc_index_new(const std::string &at_name,
+      int get_asc_index_new(const char *at_name,
 			int resno,
+			const char *ins_code,
 			const char *chain_id) const; 
 
-      int get_asc_index(const std::string &at_name,
+      int get_asc_index(const char *at_name,
 			int resno,
+			const char *ins_code,
 			const char *chain_id) const; 
 
       int add_bonds(int idr, PPCAtom res_selection,

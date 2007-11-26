@@ -4714,7 +4714,7 @@ void graphics_to_b_factor_representation(int imol) {
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t::molecules[imol].b_factor_representation();
       std::vector<std::string> command_strings;
-      command_strings.push_back("b-factor-representation");
+      command_strings.push_back("graphics-to-b-factor-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
       add_to_history(command_strings);
    }
@@ -4725,12 +4725,12 @@ void graphics_to_b_factor_representation(int imol) {
    graphics_draw();
 }
 
-void graphics_to_occupancy_represenation(int imol) {
+void graphics_to_occupancy_representation(int imol) {
 
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t::molecules[imol].occupancy_representation();
       std::vector<std::string> command_strings;
-      command_strings.push_back("occupancy-representation");
+      command_strings.push_back("graphics-to-occupancy-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
       add_to_history(command_strings);
    }

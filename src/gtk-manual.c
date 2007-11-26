@@ -1018,7 +1018,7 @@ void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositio
 }
 
 void render_as_occupancy_representation_button_select(GtkWidget *item, GtkPositionType pos) {
-   graphics_to_occupancy_represenation(pos);
+   graphics_to_occupancy_representation(pos);
 }
 
 

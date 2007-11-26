@@ -253,18 +253,19 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 					    "*", "*", "*", "*");
 		  atom_sel.mol->GetSelIndex(iselhnd, atom_selection, nSelAtoms);
 		  chain_atom_selection_handles[ichain] = iselhnd;
-		  std::cout << "DEBUG:: fill_ghost_info chain_atom_selection_handles[" <<
-		     ichain << "] is " << chain_atom_selection_handles[ichain] <<
-		     " for chain id :" << chain_p->GetChainID() << ":" << std::endl;
+// 		  std::cout << "DEBUG:: fill_ghost_info chain_atom_selection_handles[" <<
+// 		     ichain << "] is " << chain_atom_selection_handles[ichain] <<
+// 		     " for chain id :" << chain_p->GetChainID() << ":" << std::endl;
 		  
 		  // debugging the atom selection
 		  if (1) { 
 		     PPCAtom selatoms_1 = NULL;
 		     int n_sel_atoms_1; 
 		     atom_sel.mol->GetSelIndex(iselhnd, selatoms_1, n_sel_atoms_1);
-		     std::cout << "DEBUG:: fill_ghost_info: first atom of " << n_sel_atoms_1 << " in " << chain_p->GetChainID()
-			       << "  " << iselhnd 
-			       << "  selection " << selatoms_1[0] << std::endl;
+// 		     std::cout << "DEBUG:: fill_ghost_info: first atom of " << n_sel_atoms_1
+// 			       << " in " << chain_p->GetChainID()
+// 			       << "  " << iselhnd 
+// 			       << "  selection " << selatoms_1[0] << std::endl;
 		  }
 		  
 		  int nres = chain_p->GetNumberOfResidues();
@@ -284,7 +285,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	 }
       }
 
-      std::cout << "DEBUG:: fill_ghost_info allow_offset_flag: " << allow_offset_flag << std::endl;
+      // std::cout << "DEBUG:: fill_ghost_info allow_offset_flag: " << allow_offset_flag << std::endl;
       add_ncs_ghosts_no_explicit_master(chain_ids, residue_types, first_chain_of_this_type,
 					chain_atom_selection_handles, do_rtops_flag, homology_lev,
 					allow_offset_flag);
@@ -326,7 +327,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
    // matchers to this "second" chain.
    // 
 
-   std::cout << "Checking chains for NCS.. (no explicit master)" << std::endl;
+   //    std::cout << "Checking chains for NCS.. (no explicit master)" << std::endl;
    // So now let's check the chains against each other:
    for (unsigned int ifirst=0; ifirst<(chain_ids.size()-1); ifirst++) {
       if (first_chain_of_this_type[ifirst]) { // trickiness
@@ -341,10 +342,10 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 	       coot::ghost_molecule_display_t ghost;
 	       // slow...
 	       if (do_rtops_flag) {
-		  std::cout << "DEBUG:: add_ncs_ghosts_no_explicit_master: first: "
-			    << ifirst << " " << chain_atom_selection_handles[ifirst]
-			    << " and isec: " << isec << " " << chain_atom_selection_handles[isec]
-			    << std::endl;
+// 		  std::cout << "DEBUG:: add_ncs_ghosts_no_explicit_master: first: "
+// 			    << ifirst << " " << chain_atom_selection_handles[ifirst]
+// 			    << " and isec: " << isec << " " << chain_atom_selection_handles[isec]
+// 			    << std::endl;
 		  std::pair<bool, clipper::RTop_orth> ghost_info = 
 		     find_ncs_matrix(chain_atom_selection_handles[ifirst],
 				     chain_atom_selection_handles[isec]);
@@ -867,7 +868,7 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 					  float exact_homology_level,
 					  bool allow_offset_flag) const {
 
-   std::cout << "DEBUG:: ncs_chains_match_p allow_offset_flag: " << allow_offset_flag << std::endl;
+   //    std::cout << "DEBUG:: ncs_chains_match_p allow_offset_flag: " << allow_offset_flag << std::endl;
    bool imatch = 0;
    if (allow_offset_flag == 1) {
 
@@ -946,7 +947,7 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 	 }
       }
    }
-   std::cout << "DEBUG:: ncs_chains_match_p returns: " << imatch << std::endl;
+   // std::cout << "DEBUG:: ncs_chains_match_p returns: " << imatch << std::endl;
    return imatch;
 }
 
@@ -976,11 +977,11 @@ molecule_class_info_t::ncs_chains_match_with_offset_p(const std::vector<std::pai
 	 }
       }
       float ratio = float(n_match)/float(v1.size());
-      std::cout << "DEBUG:: ncs_chains_match_with_offset_p ratio: " << ratio << std::endl;
+      // std::cout << "DEBUG:: ncs_chains_match_with_offset_p ratio: " << ratio << std::endl;
       if (ratio > exact_homology_level)
 	 match_flag = 1;
    }
-   std::cout << "DEBUG:: ncs_chains_match_with_offset_p returns: " << match_flag << std::endl;
+   // std::cout << "DEBUG:: ncs_chains_match_with_offset_p returns: " << match_flag << std::endl;
    return match_flag;
 }
 

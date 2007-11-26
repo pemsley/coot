@@ -124,7 +124,6 @@ add_extra_text_to_accept_reject_dialog(GtkWidget *accept_reject_dialog,
 				       coot::accept_reject_text_type text_type,
 				       std::string extra_text) {
 
-   std::cout << "DEUBB:: extra_text is :" << extra_text << ":" << std::endl;
    if (extra_text != "") {
       
       // now look up the label in window and change it.

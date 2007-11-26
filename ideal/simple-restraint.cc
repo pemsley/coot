@@ -1497,6 +1497,7 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	 if (plane_restraint.atom_index[i] < 0) {
 	    std::cout << "trapped bad plane restraint! " << plane_restraint.atom_index[i]
 		      << std::endl;
+	    // return info;
 	 } else {
 	    sum_x += gsl_vector_get(v,idx);
 	    sum_y += gsl_vector_get(v,idx+1);
@@ -4148,17 +4149,21 @@ coot::restraints_container_t::add_torsions(int idr, PPCAtom res_selection,
 			      // pdb_atom_name1 and
 			      // pdb_atom_name2 in asc.atom_selection:
 
-			      int index1 = get_asc_index(pdb_atom_name1,
+			      int index1 = get_asc_index(res_selection[iat]->name,
 							 SelRes->seqNum,
+							 SelRes->GetInsCode(),
 							 SelRes->GetChainID());
-			      int index2 = get_asc_index(pdb_atom_name2,
+			      int index2 = get_asc_index(res_selection[iat2]->name,
 							 SelRes->seqNum,
+							 SelRes->GetInsCode(),
 							 SelRes->GetChainID());
-			      int index3 = get_asc_index(pdb_atom_name3,
+			      int index3 = get_asc_index(res_selection[iat3]->name,
 							 SelRes->seqNum,
+							 SelRes->GetInsCode(),
 							 SelRes->GetChainID());
-			      int index4 = get_asc_index(pdb_atom_name4,
+			      int index4 = get_asc_index(res_selection[iat4]->name,
 							 SelRes->seqNum,
+							 SelRes->GetInsCode(),
 							 SelRes->GetChainID());
 
 			      std::vector<short int> fixed_flags(4);
@@ -4199,7 +4204,7 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
    int n_chiral_restr = 0;
    int index1, index2, index3, indexc;
 
-   std::cout << "DEBUG:: trying to add chirals for this residue..." << std::endl;
+   // std::cout << "DEBUG:: trying to add chirals for this residue..." << std::endl;
    
    for (unsigned int ic=0; ic<geom[idr].chiral_restraint.size(); ic++) {
       for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
@@ -4236,11 +4241,11 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 // 				  indexc, index1, index2, index3,
 // 				  geom[idr].chiral_restraint[ic].volume_sign);
 
-			      std::cout << "   Adduing chiral restraint for " << res_selection[iatc]->name
-					<< " " << res_selection[iatc]->GetSeqNum() <<  " "
-					<< res_selection[iatc]->GetChainID() 
-					<< " with target volume " << geom[idr].chiral_restraint[ic].target_volume()
-					<< std::endl;
+// 			      std::cout << "   Adduing chiral restraint for " << res_selection[iatc]->name
+// 					<< " " << res_selection[iatc]->GetSeqNum() <<  " "
+// 					<< res_selection[iatc]->GetChainID() 
+// 					<< " with target volume " << geom[idr].chiral_restraint[ic].target_volume()
+//    		         	      << std::endl;
 
 			      restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
 									index1, index2, index3,
@@ -4285,8 +4290,14 @@ coot::restraints_container_t::add_planes(int idr, PPCAtom res_selection,
 	 std::string pdb_atom_name(res_selection[iat]->name);
 	 for (int irest_at=0; irest_at<geom[idr].plane_restraint[ip].n_atoms(); irest_at++) {
 	    if (pdb_atom_name == geom[idr].plane_restraint[ip].atom_id(irest_at)) {
-	       pos.push_back(get_asc_index(pdb_atom_name, SelRes->seqNum, SelRes->GetChainID()));
-	       altconfs.push_back(res_selection[iat]->altLoc);
+	       int idx = get_asc_index(res_selection[iat]->name,
+				       SelRes->seqNum,
+				       SelRes->GetInsCode(),
+				       SelRes->GetChainID());
+	       if (idx >= 0) { 
+		  pos.push_back(idx);
+		  altconfs.push_back(res_selection[iat]->altLoc);
+	       }
 	    }
 	 }
       }
@@ -4298,6 +4309,17 @@ coot::restraints_container_t::add_planes(int idr, PPCAtom res_selection,
 	    // 		   << geom[idr].plane_restraint[ip].dist_esd() << std::endl; 
 	    // add_plane is in the .h file
 	    std::vector<short int> fixed_flags(pos.size(), 0);
+	    std::cout << "DEBUG:: add_monomer plane restraint for plane-id: comp-id: "
+		      << geom[idr].comp_id << " "
+		      << geom[idr].plane_restraint[ip].plane_id << " "
+		      << SelRes->GetChainID()
+		      << " " << SelRes->GetSeqNum()
+		      << " :" << SelRes->GetInsCode() << ":"
+		      << std::endl;   
+	    std::cout << "DEBUG:: adding monomer plane with pos indexes ";
+	    for (int ipos=0; ipos<pos.size(); ipos++)
+	       std::cout << " " << pos[ipos];
+	    std::cout << "\n";
 	    add_plane(pos, fixed_flags, geom[idr].plane_restraint[ip].dist_esd());
 	    n_plane_restr++;
 	 }
@@ -4678,20 +4700,24 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 				 			   
 				 if (pdb_atom_name_4 == geom.link(i).link_torsion_restraint[j].atom_id_4_4c()) {
 				    
-				    int index1 = get_asc_index(pdb_atom_name_1,
+				    int index1 = get_asc_index(atom_1_sel[ifat]->name,
 							       atom_1_sel[ifat]->residue->seqNum,
-							       atom_1_sel[ifat]->residue->GetChainID());
+							       atom_1_sel[ifat]->GetInsCode(),
+							       atom_1_sel[ifat]->GetChainID());
 			
-				    int index2 = get_asc_index(pdb_atom_name_2,
+				    int index2 = get_asc_index(atom_2_sel[isat]->name,
 							       atom_2_sel[isat]->residue->seqNum,
-							       atom_2_sel[isat]->residue->GetChainID());
+							       atom_2_sel[ifat]->GetInsCode(),
+							       atom_2_sel[isat]->GetChainID());
 				    
-				    int index3 = get_asc_index(pdb_atom_name_3,
+				    int index3 = get_asc_index(atom_3_sel[itat]->name,
 							       atom_3_sel[itat]->residue->seqNum,
-							       atom_3_sel[itat]->residue->GetChainID());
+							       atom_3_sel[itat]->GetInsCode(),
+							       atom_3_sel[itat]->GetChainID());
 
-				    int index4 = get_asc_index(pdb_atom_name_4,
+				    int index4 = get_asc_index(atom_4_sel[iffat]->name,
 							       atom_4_sel[iffat]->residue->seqNum,
+							       atom_4_sel[iffat]->GetInsCode(),
 							       atom_4_sel[iffat]->residue->GetChainID());
 
 // 				    std::cout << "making torsion " << geom.link(i).link_torsion_restraint[j].id()
@@ -4760,6 +4786,12 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 						 short int is_fixed_first_res,
 						 short int is_fixed_second_res,
 						 const coot::protein_geometry &geom) {
+
+   std::cout << "DEBUG:: add_link_plane for " << first->GetChainID() << " " << first->GetSeqNum()
+	     << " :" << first->GetInsCode() << ":"
+	     << " -> " << second->GetChainID() << " " << second->GetSeqNum()
+	     << " :" << second->GetInsCode() << ":" << std::endl;
+   
    int n_plane = 0;
 
    PPCAtom first_sel;
@@ -4801,7 +4833,10 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	       for (int iat=0; iat<link_res_n_atoms; iat++) { 
 		  std::string pdb_atom_name(atom_sel[iat]->name);
 		  if (geom.link(i).link_plane_restraint[ip].atom_id(irest_at) == pdb_atom_name) {
-		     pos.push_back(get_asc_index(pdb_atom_name, res->seqNum, res->GetChainID()));
+		     pos.push_back(get_asc_index(atom_sel[iat]->name,
+						 res->seqNum,
+						 res->GetInsCode(),
+						 res->GetChainID()));
 		  }
 	       }
 	    }
@@ -4815,6 +4850,10 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 // 		  std::cout << ind << " " << atom[pos[ind]]->name << " "
 // 			    << atom[pos[ind]]->GetSeqNum() << std::endl;
 // 	       }
+	       std::cout << "DEBUG:: adding link plane with pos indexes ";
+	       for (int ipos=0; ipos<pos.size(); ipos++)
+		  std::cout << " " << pos[ipos];
+	       std::cout << "\n";
 	       add_plane(pos, fixed_flag, geom.link(i).link_plane_restraint[ip].dist_esd());
 	       n_plane++;
 	    }
@@ -4837,32 +4876,34 @@ int coot::restraints_container_t::add_link_plane_tmp(std::string link_type,
 
 
 int
-coot::restraints_container_t::get_asc_index(const std::string &at_name,
+coot::restraints_container_t::get_asc_index(const char *at_name,
 					    int resno,
+					    const char *ins_code,
 					    const char *chain_id) const {
 
-   return get_asc_index_new(at_name, resno, chain_id);
+   return get_asc_index_new(at_name, resno, ins_code, chain_id);
    
 }
 
 int
-coot::restraints_container_t::get_asc_index_new(const std::string &at_name,
+coot::restraints_container_t::get_asc_index_new(const char *at_name,
 						int resno,
+						const char *ins_code,
 						const char *chain_id) const {
 
    int index = -1;
    int SelHnd = mol->NewSelection();
    
    mol->SelectAtoms(SelHnd,
-			0,
-			(char *)chain_id,
-			resno, "*",
-			resno, "*",
-			"*", // rnames
-			(char *) at_name.c_str(), // anames
-			"*", // elements
-			"*" // altLocs 
-			);
+		    0,
+		    (char *) chain_id,
+		    resno, (char *) ins_code,
+		    resno, (char *) ins_code,
+		    "*", // rnames
+		    (char *) at_name, // anames
+		    "*", // elements
+		    "*" // altLocs 
+		    );
 
    int nSelAtoms;
    PPCAtom SelAtom = NULL;
