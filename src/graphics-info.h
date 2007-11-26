@@ -1486,7 +1486,10 @@ public:
 			     short int is_water_flag);
    
    // used by above:
-   void flash_selection(int imol, int resno_1, int resno_2, 
+   void flash_selection(int imol, int resno_1, 
+			std::string ins_code_1,
+			int resno_2, 
+			std::string ins_code_2,
 			std::string altconf, // use this altconf or "" atoms.
 			std::string chain_id_1); 
    std::pair<int, int> auto_range_residues(int atom_index, int imol) const; 
@@ -1551,8 +1554,8 @@ public:
    static void environment_graphics_object();
    // void symmetry_environment_graphics_object() const;
    
-   // non-fuctional currently 4 July 2003
    void update_environment_distances_maybe(int index, int imol);
+   void update_environment_distances_by_rotation_centre_maybe(int imol); 
 
    // cif dictionary read number.  Update on reading (or attempting to
    // read) a cif dictionary file.  Public because reading cif file in

@@ -292,7 +292,9 @@ void output_residue_info_as_text(int atom_index, int imol) {
    
    g.flash_selection(imol, 
 		     picked_atom->residue->seqNum,
+		     picked_atom->GetInsCode(),
 		     picked_atom->residue->seqNum,
+		     picked_atom->GetInsCode(),
 		     picked_atom->altLoc,
 		     picked_atom->residue->GetChainID());
 
