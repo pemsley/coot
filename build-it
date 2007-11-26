@@ -185,7 +185,8 @@
 # 2.22 20071121 set the architecture for ubuntu systems.
 # 2.23 20071125 Fix typo in recent fixes.
 # 2.24 20071126 Fix setting of systype for MacOSX, hopefully.
-script_version=2.24
+# 2.25 20071126 Another try to fix setting of systype for MacOSX.
+script_version=2.25
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -452,7 +453,8 @@ if test "$OS" = "Darwin" ; then
    shared_static_flag="--disable-static"
    shared_lib_ext=dylib
    need_readline_patch=1
-   processor=`uname -a | awk '{print $(NF-1)}'`
+   # uname -a gives processor type in last field on Darwin
+   processor=`uname -a | awk '{print $(NF)}'`
    need_gtk_imlib_libtool_fix=1
    if test "$processor" = "i386" ; then
       need_glib_getpwuid_fix=1
