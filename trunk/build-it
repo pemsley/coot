@@ -184,7 +184,8 @@
 #               ysbl software/extras
 # 2.22 20071121 set the architecture for ubuntu systems.
 # 2.23 20071125 Fix typo in recent fixes.
-script_version=2.23
+# 2.24 20071126 Fix setting of systype for MacOSX, hopefully.
+script_version=2.24
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -438,6 +439,7 @@ mkdir -p $LOGS
 
 shared_static_flag="--disable-shared"
 shared_lib_ext=so
+systype=unknown 
 
 # malloc.h business, Darwin does not have malloc.h
 # used in the gtk_canvas build
@@ -503,7 +505,6 @@ if [ -n "$specs" ] ; then
 fi
 
 #initially unset:
-systype=unknown 
 if test $OS = Linux ; then
   architecture=`uname -i`
   # uname -i and uname -p (strangely) return unknown on my ubuntu
