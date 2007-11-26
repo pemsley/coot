@@ -2266,8 +2266,6 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
    // The passed window, is the refmac dialog, where one selects the
    // coords molecule and the map molecule.
 
-   std::cout << "DEUBG here 1" << std::endl;
-
    GtkWidget *option_menu = lookup_widget(window,
 					  "run_refmac_coords_optionmenu");
 
@@ -4362,7 +4360,8 @@ void fill_partial_residues(int imol) {
       	    std::string altconf("");
 	    short int is_water = 0;
 	    // hmmm backups are being done....
-      	    g.refine_residue_range(imol, chain_id, chain_id, resno, resno, altconf, is_water);
+      	    g.refine_residue_range(imol, chain_id, chain_id, resno, inscode, resno, inscode,
+				   altconf, is_water);
 	    accept_regularizement();
       	 }
 	 set_refinement_immediate_replacement(refinement_replacement_state);
@@ -4386,7 +4385,8 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
 	 std::string altconf("");
 	 short int is_water = 0;
 	 // hmmm backups are being done....
-	 g.refine_residue_range(imol, chain_id, chain_id, resno, resno, altconf, is_water);
+	 g.refine_residue_range(imol, chain_id, chain_id, resno, inscode, resno, inscode,
+				altconf, is_water);
 	 accept_regularizement();
 	 set_refinement_immediate_replacement(refinement_replacement_state);
 
@@ -4547,8 +4547,8 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	    coot::pseudo_restraint_bond_type save_pseudos = g.pseudo_bonds_type;
 	    g.pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
 	    g.refinement_immediate_replacement_flag = 1;
-	    g.refine_residue_range(imol, zi.chain_id, zi.chain_id, zi.resno_1, zi.resno_2,
-				   "", 0);
+	    g.refine_residue_range(imol, zi.chain_id, zi.chain_id, zi.resno_1, "",
+				   zi.resno_2, "", "", 0);
 	    accept_regularizement();
 	    g.pseudo_bonds_type = save_pseudos;
 #endif // HAVE_GSL	    
@@ -4890,14 +4890,25 @@ void refine_zone(int imol, const char *chain_id,
 		 int resno2,
 		 const char *altconf) {
 
+   refine_zone_with_full_residue_spec(imol, chain_id, resno1, "", resno2, "", altconf);
+}
+
+
+void refine_zone_with_full_residue_spec(int imol, const char *chain_id,
+					int resno1,
+					const char*inscode_1,
+					int resno2,
+					const char*inscode_2,
+					const char *altconf) {
+
    if (imol >= 0) {
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 // 	 int index1 = atom_index(imol, chain_id, resno1, " CA ");
 // 	 int index2 = atom_index(imol, chain_id, resno2, " CA ");
 	 // the "" is the insertion code (not passed to this function (yet)
-	 int index1 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno1, ""); 
-	 int index2 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno2, "");
+	 int index1 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno1, inscode_1); 
+	 int index2 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno2, inscode_2);
 	 short int auto_range = 0;
 	 if (index1 >= 0) {
 	    if (index2 >= 0) { 
@@ -4915,7 +4926,6 @@ void refine_zone(int imol, const char *chain_id,
       }
    }
 }
-
 
 void refine_auto_range(int imol, const char *chain_id, int resno1, const char *altconf) {
 

@@ -42,6 +42,9 @@
 #include <direct.h>
 #endif // _MSC_VER
 
+#ifdef USE_GUILE
+#include <guile/gh.h>
+#endif // USE_GUILE
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -595,22 +598,40 @@ coot_checked_exit(int retval) {
 
    //    cout << "exitting with status " << retval << endl;
 
-#if USE_GUILE
-   safe_scheme_command("(clear-backups-maybe)");
-#endif    
 
    graphics_info_t g;
-   int i = g.check_for_unsaved_changes();
+   int i_unsaved = g.check_for_unsaved_changes();
    std::string cmd = "coot-checked-exit";
    std::vector<coot::command_arg_t> args;
    args.push_back(retval);
    add_to_history_typed(cmd, args);
-   if (i == 0)
+   if (i_unsaved == 0) { // no unsaved.
+#if USE_GUILE
+      SCM r = safe_scheme_command("(clear-backups-maybe)");
+      // if (scm_is_false(r)) { // gui did not run, not in 1.6.x?
+      if (! SCM_NFALSEP(r)) { // backup gui was not needed/shown
+	 coot_real_exit(retval);
+      }
+#else
       coot_real_exit(retval);
+#endif
+   }
    return TRUE; // path where there were unsaved changes, we don't
 		// want to exit.
-
 }
+
+void coot_clear_backup_or_real_exit(int retval) {
+
+#if USE_GUILE
+      SCM r = safe_scheme_command("(clear-backups-maybe)");
+      // if (scm_is_false(r)) { // gui did not run, not in 1.6.x?
+      if (! SCM_NFALSEP(r)) { // backup gui was not needed/shown
+	 coot_real_exit(retval);
+      }
+#else
+      coot_real_exit(retval);
+#endif
+} 
    
 void
 coot_real_exit(int retval) {

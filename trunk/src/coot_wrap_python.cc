@@ -4103,6 +4103,27 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_coot_clear_backup_or_real_exit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:coot_clear_backup_or_real_exit",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "coot_clear_backup_or_real_exit" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  coot_clear_backup_or_real_exit(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_fill_about_window(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   GtkWidget *arg1 = (GtkWidget *) 0 ;
@@ -15573,6 +15594,93 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_refine_zone_with_full_residue_spec(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  char *arg6 = (char *) 0 ;
+  char *arg7 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  int res6 ;
+  char *buf6 = 0 ;
+  int alloc6 = 0 ;
+  int res7 ;
+  char *buf7 = 0 ;
+  int alloc7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:refine_zone_with_full_residue_spec",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "refine_zone_with_full_residue_spec" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "refine_zone_with_full_residue_spec" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "refine_zone_with_full_residue_spec" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "refine_zone_with_full_residue_spec" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "refine_zone_with_full_residue_spec" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = static_cast< int >(val5);
+  res6 = SWIG_AsCharPtrAndSize(obj5, &buf6, NULL, &alloc6);
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "refine_zone_with_full_residue_spec" "', argument " "6"" of type '" "char const *""'");
+  }
+  arg6 = reinterpret_cast< char * >(buf6);
+  res7 = SWIG_AsCharPtrAndSize(obj6, &buf7, NULL, &alloc7);
+  if (!SWIG_IsOK(res7)) {
+    SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "refine_zone_with_full_residue_spec" "', argument " "7"" of type '" "char const *""'");
+  }
+  arg7 = reinterpret_cast< char * >(buf7);
+  refine_zone_with_full_residue_spec(arg1,(char const *)arg2,arg3,(char const *)arg4,arg5,(char const *)arg6,(char const *)arg7);
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+  if (alloc7 == SWIG_NEWOBJ) delete[] buf7;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+  if (alloc7 == SWIG_NEWOBJ) delete[] buf7;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_refine_auto_range(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -21288,20 +21396,20 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_graphics_to_occupancy_represenation(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_graphics_to_occupancy_representation(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
   int val1 ;
   int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:graphics_to_occupancy_represenation",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:graphics_to_occupancy_representation",&obj0)) SWIG_fail;
   ecode1 = SWIG_AsVal_int(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "graphics_to_occupancy_represenation" "', argument " "1"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "graphics_to_occupancy_representation" "', argument " "1"" of type '" "int""'");
   } 
   arg1 = static_cast< int >(val1);
-  graphics_to_occupancy_represenation(arg1);
+  graphics_to_occupancy_representation(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -31685,6 +31793,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"main_window", _wrap_main_window, METH_VARARGS, NULL},
 	 { (char *)"coot_checked_exit", _wrap_coot_checked_exit, METH_VARARGS, NULL},
 	 { (char *)"coot_real_exit", _wrap_coot_real_exit, METH_VARARGS, NULL},
+	 { (char *)"coot_clear_backup_or_real_exit", _wrap_coot_clear_backup_or_real_exit, METH_VARARGS, NULL},
 	 { (char *)"fill_about_window", _wrap_fill_about_window, METH_VARARGS, NULL},
 	 { (char *)"first_coords_imol", _wrap_first_coords_imol, METH_VARARGS, NULL},
 	 { (char *)"set_do_anti_aliasing", _wrap_set_do_anti_aliasing, METH_VARARGS, NULL},
@@ -32145,6 +32254,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_refine_max_residues", _wrap_set_refine_max_residues, METH_VARARGS, NULL},
 	 { (char *)"refine_zone_atom_index_define", _wrap_refine_zone_atom_index_define, METH_VARARGS, NULL},
 	 { (char *)"refine_zone", _wrap_refine_zone, METH_VARARGS, NULL},
+	 { (char *)"refine_zone_with_full_residue_spec", _wrap_refine_zone_with_full_residue_spec, METH_VARARGS, NULL},
 	 { (char *)"refine_auto_range", _wrap_refine_auto_range, METH_VARARGS, NULL},
 	 { (char *)"regularize_zone", _wrap_regularize_zone, METH_VARARGS, NULL},
 	 { (char *)"set_dragged_refinement_steps_per_frame", _wrap_set_dragged_refinement_steps_per_frame, METH_VARARGS, NULL},
@@ -32365,7 +32475,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"graphics_to_sec_struct_bonds_representation", _wrap_graphics_to_sec_struct_bonds_representation, METH_VARARGS, NULL},
 	 { (char *)"graphics_to_rainbow_representation", _wrap_graphics_to_rainbow_representation, METH_VARARGS, NULL},
 	 { (char *)"graphics_to_b_factor_representation", _wrap_graphics_to_b_factor_representation, METH_VARARGS, NULL},
-	 { (char *)"graphics_to_occupancy_represenation", _wrap_graphics_to_occupancy_represenation, METH_VARARGS, NULL},
+	 { (char *)"graphics_to_occupancy_representation", _wrap_graphics_to_occupancy_representation, METH_VARARGS, NULL},
 	 { (char *)"graphics_molecule_bond_type", _wrap_graphics_molecule_bond_type, METH_VARARGS, NULL},
 	 { (char *)"set_b_factor_bonds_scale_factor", _wrap_set_b_factor_bonds_scale_factor, METH_VARARGS, NULL},
 	 { (char *)"wrapped_create_bond_parameters_dialog", _wrap_wrapped_create_bond_parameters_dialog, METH_VARARGS, NULL},

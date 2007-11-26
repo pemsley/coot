@@ -1472,14 +1472,16 @@ public:
    static short int do_peptide_torsion_restraints; // phi/psi
    static short int do_peptide_omega_torsion_restraints;
 
-   void regularize(int imol, short int auto_range_flag, int i_res_start, int i_res_end); 
-   void refine    (int imol, short int auto_range_flag, int i_res_start, int i_res_end);
+   void regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
+   void refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
    // a more modern interface to refine:
    void refine_residue_range(int imol,
 			     const std::string &chain_id1,
 			     const std::string &chain_id2,
 			     int resno_1,
+			     const std::string &ins_code_1,
 			     int resno_2,
+			     const std::string &ins_code_2,
 			     const std::string &altconf,
 			     short int is_water_flag);
    
@@ -1496,10 +1498,12 @@ public:
    // 
    coot::refinement_results_t
      copy_mol_and_regularize(int imol,
-				int resno_1, 
-				int resno_2, 
-				std::string altconf, // use this altconf or "" atoms.
-				std::string chain_id_1); 
+			     int resno_1, 
+			     std::string inscode_1,
+			     int resno_2, 
+			     std::string inscode_2,
+			     std::string altconf, // use this altconf or "" atoms.
+			     std::string chain_id_1); 
 
    // Regularize *and* fit to density.
    //
@@ -1507,11 +1511,13 @@ public:
    // 
    coot::refinement_results_t
    copy_mol_and_refine(int imol_for_atoms,
-			    int imol_for_map,
-			    int resno_1, 
-			    int resno_2, 
-			    std::string altconf, // use this altconf or "" atoms.
-			    std::string chain_id_1);
+		       int imol_for_map,
+		       int resno_1, 
+		       std::string inscode_1,
+		       int resno_2, 
+		       std::string inscode_2,
+		       std::string altconf, // use this altconf or "" atoms.
+		       std::string chain_id_1);
 
    // return 0 if any of the residues in selection don't have (at least) bond 
    // restraints.  Try to auto-load the dictionary cifs and try again.

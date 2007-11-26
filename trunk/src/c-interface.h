@@ -348,6 +348,8 @@ gboolean coot_checked_exit(int retval);
 /*! \brief exit from coot, give return value retval back to invoking
   process. */
 void coot_real_exit(int retval); 
+void coot_clear_backup_or_real_exit(int retval);
+
 void fill_about_window(GtkWidget *widget);
  
 /*! \brief What is the molecule number of first coordinates molecule?
@@ -2342,6 +2344,16 @@ void refine_zone_atom_index_define(int imol, int ind1, int ind2);
  presumes that imol_Refinement_Map has been set */
 void refine_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
 
+/*! \brief refine a zone, allowing the specification of insertion codes for the residues too.
+
+ presumes that imol_Refinement_Map has been set */
+void refine_zone_with_full_residue_spec(int imol, const char *chain_id,
+					int resno1,
+					const char*inscode_1,
+					int resno2,
+					const char*inscode_2,
+					const char *altconf);
+
 /*! \brief refine a zone using auto-range
 
  presumes that imol_Refinement_Map has been set */
@@ -3130,7 +3142,7 @@ void graphics_to_rainbow_representation(int imol);
 /*! \brief draw molecule number imol coloured by B-factor */
 void graphics_to_b_factor_representation(int imol);
 /*! \brief draw molecule number imol coloured by occupancy */
-void graphics_to_occupancy_represenation(int imol);
+void graphics_to_occupancy_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
 int graphics_molecule_bond_type(int imol); 
 /*! \brief scale the colours for colour by b factor representation */

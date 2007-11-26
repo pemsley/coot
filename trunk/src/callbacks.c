@@ -3272,7 +3272,7 @@ on_unsaved_changes_continue_button_clicked
    GtkWidget *dialog = lookup_widget(GTK_WIDGET(button),
 				     "unsaved_changes_dialog");
    gtk_widget_destroy(dialog);
-   coot_real_exit(0);
+   coot_clear_backup_or_real_exit(0);
 }
 
 
@@ -3601,12 +3601,11 @@ on_single_map_properties_ok_button_clicked (GtkButton       *button,
 {
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "single_map_properties_dialog");
-  int *imol_pass = (int *) gtk_object_get_user_data(GTK_OBJECT(window));
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
 
-  set_contour_by_sigma_step_maybe(window, *imol_pass);
+  set_contour_by_sigma_step_maybe(window, imol);
   
-  skeletonize_map_single_map_maybe(window, *imol_pass);
-  free(imol_pass);
+  skeletonize_map_single_map_maybe(window, imol);
   gtk_widget_destroy(window);
 
 }
@@ -3640,7 +3639,7 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
 
   if (1) { 
-    printf("pop up the colour chooser for map: %d \n", imol); 
+/*     printf("pop up the colour chooser for map: %d \n", imol);  */
     map_colour_data = (struct map_colour_data_type *) 
       malloc(sizeof(struct map_colour_data_type));
     map_colour_data->imol = imol; 

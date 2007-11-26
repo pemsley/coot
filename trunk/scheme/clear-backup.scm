@@ -107,12 +107,11 @@
 	  (gtk-signal-connect ok-button "clicked"
 			      (lambda ()
 				(delete-coot-backup-files 'delete)
-				(gtk-widget-destroy window)))
+				(coot-real-exit 0)))
 
 	  (gtk-signal-connect cancel-button "clicked"
 			      (lambda ()
-				;; (coot-real-exit 0)
-				(gtk-widget-destroy window)))
+				(coot-real-exit 0)))
 
 	  (gtk-tooltips-set-tip (gtk-tooltips-new) ok-button 
 				" Consider yourself patted on the back! " "")
@@ -140,10 +139,11 @@
 	  (gtk-widget-set-flags cancel-button '(can-default))
 	  (gtk-widget-grab-default ok-button)
 	  
-	  (gtk-widget-show-all window)
-	  (gtk-standalone-main window)))))
+	  (gtk-widget-show-all window)))))
 
 
+;; return a status, #f or #t, did the GUI run?
+;; 
 (define (clear-backups-maybe)
 
   (let* ((now (current-time))
@@ -154,16 +154,22 @@
     (let ((last-cleaned-file (append-dir-file "coot-backup"
 					      "last-cleaned")))
       (if (not (file-exists? last-cleaned-file))
-	  (clear-backup-gui)
+	  (begin	  
+	    (clear-backup-gui)
+	    #t)
 	  (begin
 	    (call-with-input-file last-cleaned-file
 	      (lambda (port)
 		(let ((val (read port)))
 		  (if (number? val)
 		      (if (< val last-week)
-			  (clear-backup-gui)
-			  (format #t "INFO:: backup clearout done ~s days ago~%"
-				  (/ (- now val) (* 60 60 24)))))))))))))
+			  (begin
+			    (clear-backup-gui)
+			    #t)
+			  (begin
+			    (format #t "INFO:: backup clearout done ~s days ago~%"
+				    (/ (- now val) (* 60 60 24)))
+			    #f)))))))))))
 
 ; (gtk-main)
 

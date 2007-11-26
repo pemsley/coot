@@ -46,6 +46,7 @@
      (let ((replace-state (refinement-immediate-replacement-state)))
        (set-refinement-immediate-replacement 1)
        ,@funcs
+       (accept-regularizement)
        (if (= replace-state 0)
 	   (set-refinement-immediate-replacement 0)))))
 

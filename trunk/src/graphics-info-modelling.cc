@@ -88,11 +88,13 @@
 coot::refinement_results_t
 graphics_info_t::copy_mol_and_regularize(int imol,
 					 int resno_1, 
+					 std::string inscode_1,
 					 int resno_2, 
+					 std::string inscode_2,
 					 std::string altconf,// use this (e.g. "A") or "".
 					 std::string chain_id_1) {
 
-   return copy_mol_and_refine(imol, -1, resno_1, resno_2, altconf, chain_id_1);
+   return copy_mol_and_refine(imol, -1, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
 }
 
 
@@ -115,9 +117,19 @@ coot::refinement_results_t
 graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 				     int imol_for_map,
 				     int resno_1, 
+				     std::string inscode_1,
 				     int resno_2, 
+				     std::string inscode_2,
 				     std::string altconf,// use this (e.g. "A") or "".
 				     std::string chain_id_1) {
+
+
+   std::cout << "In copy_mol_and_refine() refine range: "
+	     << resno_1 << " :" << inscode_1 << ": "
+	     << resno_2 << " :" << inscode_2 << ": "
+	     << "coords mol: " << imol_for_atoms << " map mol: " << imol_for_map
+	     << std::endl;
+      
 
    short int irest = 0; // make 1 when restraints found.
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
@@ -606,10 +618,16 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
    resno_1 = SelAtom[i_atom_no_1]->residue->seqNum;
    resno_2 = SelAtom[i_atom_no_2]->residue->seqNum;
 
+   std::string inscode_1 = SelAtom[i_atom_no_1]->residue->GetInsCode();
+   std::string inscode_2 = SelAtom[i_atom_no_2]->residue->GetInsCode();
+
    if (resno_1 > resno_2) { 
       tmp = resno_1;
       resno_1 = resno_2;
       resno_2 = tmp;
+      std::string tmp_ins = inscode_2;
+      inscode_2 = inscode_1;
+      inscode_1 = tmp_ins;
    } 
 
    std::string chain_id_1(SelAtom[i_atom_no_1]->residue->GetChainID());
@@ -635,7 +653,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
    } else { 
       flash_selection        (imol, resno_1, resno_2, altconf, chain_id_1);
       coot::refinement_results_t rr = 
-	 copy_mol_and_regularize(imol, resno_1, resno_2, altconf, chain_id_1);
+	 copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       short int istat = rr.found_restraints_flag;
       if (istat) { 
 	 graphics_draw();
@@ -782,22 +800,30 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
 	 resno_2 = p.second;
       }
 
-      if (resno_1 > resno_2) { 
-	 tmp = resno_1;
-	 resno_1 = resno_2;
-	 resno_2 = tmp;
-      }
+      
       std::string chain_id_1(SelAtom[i_atom_no_1]->residue->GetChainID());
       std::string chain_id_2(SelAtom[i_atom_no_2]->residue->GetChainID());
       std::string altconf(SelAtom[i_atom_no_2]->altLoc);
       short int is_water_flag = 0;
       std::string resname_1(SelAtom[i_atom_no_1]->GetResName());
       std::string resname_2(SelAtom[i_atom_no_2]->GetResName());
+      std::string inscode_1(SelAtom[i_atom_no_1]->GetInsCode());
+      std::string inscode_2(SelAtom[i_atom_no_2]->GetInsCode());
+
+      if (resno_1 > resno_2) { 
+	 tmp = resno_1;
+	 resno_1 = resno_2;
+	 resno_2 = tmp;
+	 std::string tmp_ins = inscode_2;
+	 inscode_2 = inscode_1;
+	 inscode_1 = tmp_ins;
+      }
+      
       // std::cout << "DEBUG:: altconf in refine :" << altconf << ":" << std::endl;
       if (resname_1 == "WAT" || resname_1 == "HOH" ||
 	  resname_2 == "WAT" || resname_2 == "HOH")
 	 is_water_flag = 1;
-      refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, resno_2, altconf,
+      refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, inscode_1, resno_2, inscode_2, altconf,
 			   is_water_flag);
    }
 }
@@ -814,9 +840,16 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &chain_id_1,
 				      const std::string &chain_id_2,
 				      int resno_1,
+				      const std::string &ins_code_1,
 				      int resno_2,
+				      const std::string &ins_code_2,
 				      const std::string &altconf,
 				      short int is_water_flag) {
+
+   std::cout << "DEBUG:: refine_residue_range: " << imol << chain_id_1
+	     << " " <<  resno_1 << ":" << ins_code_1 << ":"
+	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
+	     << " " << ":" << altconf << ": " << is_water_flag << std::endl;
 
    int imol_map = Imol_Refinement_Map();
    if (imol_map == -1) { // magic number check,
@@ -870,7 +903,8 @@ graphics_info_t::refine_residue_range(int imol,
 	       flash_selection(imol, resno_1, resno_2, altconf, chain_id_1);
 	       long t0 = glutGet(GLUT_ELAPSED_TIME);
 	       coot::refinement_results_t rr = 
-		  copy_mol_and_refine(imol, imol_map, resno_1, resno_2, altconf, chain_id_1);
+		  copy_mol_and_refine(imol, imol_map, resno_1, ins_code_1, resno_2, ins_code_2,
+				      altconf, chain_id_1);
 	       short int istat = rr.found_restraints_flag;
 	       long t1 = glutGet(GLUT_ELAPSED_TIME);
 	       std::cout << "Refinement elapsed time: " << float(t1-t0)/1000.0 << std::endl;
@@ -1507,7 +1541,8 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       // shall we refine it?  If there is a map, yes.
 	       int imol_map = Imol_Refinement_Map();
 	       if (imol_map >= 0) {
-		  refine_residue_range(imol, chain_id, chain_id, new_resno, new_resno, "", 0);
+		  refine_residue_range(imol, chain_id, chain_id, new_resno, "",
+				       new_resno, "", "", 0);
 	       }
 	    }
 	 }
