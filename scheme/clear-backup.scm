@@ -83,12 +83,18 @@
 
 
 ;; Make a GUI:
+;;
+;; Return #t or #f depending on if the GUI dialog was shown (it isn't
+;; show if there are no files to delete).
+;; 
 (define (clear-backup-gui)
 
   (let* ((file-stats (delete-coot-backup-files 'count)))
 
     ;; more than 1 file to possibly delete?
-    (if (> (car file-stats) 1) 
+    (if (= (car file-stats) 0) 
+
+	#f ; didn't run
 
 	(let* ((window (gtk-window-new 'toplevel))
 	       (frame (gtk-frame-new "Old Backups"))
@@ -139,7 +145,8 @@
 	  (gtk-widget-set-flags cancel-button '(can-default))
 	  (gtk-widget-grab-default ok-button)
 	  
-	  (gtk-widget-show-all window)))))
+	  (gtk-widget-show-all window)
+	  #t)))) ; it ran
 
 
 ;; return a status, #f or #t, did the GUI run?
@@ -155,8 +162,8 @@
 					      "last-cleaned")))
       (if (not (file-exists? last-cleaned-file))
 	  (begin	  
-	    (clear-backup-gui)
-	    #t)
+	    (clear-backup-gui))
+
 	  (begin
 	    (call-with-input-file last-cleaned-file
 	      (lambda (port)
