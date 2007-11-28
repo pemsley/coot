@@ -570,7 +570,9 @@
 				    
 				    (if (and (number? n1)
 					     (number? n2))
-					(add-spin-view "Spin" n1 n2)))))))
+					(let* ((view-name "Spin")
+					       (new-view-number (add-spin-view view-name n1 n2)))
+					  (add-view-to-views-panel view-name new-view-number))))))))
 
 	(add-simple-coot-menu-menuitem 
 	 submenu "Views Panel..."

@@ -44,7 +44,16 @@
 
 #ifdef USE_GUILE
 #include <guile/gh.h>
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+// no fix up needed 
+#else    
+#define scm_to_int gh_scm2int
+#define scm_to_locale_string SCM_STRING_CHARS
+#define scm_to_double  gh_scm2double
+#define  scm_is_true gh_scm2bool
+#endif // SCM version
 #endif // USE_GUILE
+#include "c-interface-scm.hh"
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -607,11 +616,7 @@ coot_checked_exit(int retval) {
    add_to_history_typed(cmd, args);
    if (i_unsaved == 0) { // no unsaved.
 #if USE_GUILE
-      SCM r = safe_scheme_command("(clear-backups-maybe)");
-      // if (scm_is_false(r)) { // gui did not run, not in 1.6.x?
-      if (! SCM_NFALSEP(r)) { // backup gui was not needed/shown
-	 coot_real_exit(retval);
-      }
+      run_clear_backups(retval);
 #else
       coot_real_exit(retval);
 #endif
@@ -620,16 +625,40 @@ coot_checked_exit(int retval) {
 		// want to exit.
 }
 
+#ifdef USE_GUILE
+void run_clear_backups(int retval) {
+
+   SCM r = safe_scheme_command("(clear-backups-maybe)");
+   short int test = 0; 
+   if (SCM_NFALSEP(r)) {
+      test = 1;
+   }
+
+   if (SCM_BOOL_NOT(r)) {
+      test++;
+   }
+
+   if (test == 2) { 
+      // not false and not not false, function didn't run then...
+      std::cout << "WARNING:: (clear-backups-maybe) returns "
+		<< scm_to_locale_string(display_scm(r))
+		<< std::endl;
+      coot_real_exit(retval);
+   }
+   
+   // if (scm_is_false(r)) { // gui did not run, not in 1.6.x?
+   if (! SCM_NFALSEP(r)) { // backup gui was not needed/shown
+      coot_real_exit(retval);
+   }
+} 
+#endif
+
 void coot_clear_backup_or_real_exit(int retval) {
 
 #if USE_GUILE
-      SCM r = safe_scheme_command("(clear-backups-maybe)");
-      // if (scm_is_false(r)) { // gui did not run, not in 1.6.x?
-      if (! SCM_NFALSEP(r)) { // backup gui was not needed/shown
-	 coot_real_exit(retval);
-      }
+   run_clear_backups(retval);
 #else
-      coot_real_exit(retval);
+   coot_real_exit(retval);
 #endif
 } 
    

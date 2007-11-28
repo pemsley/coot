@@ -4,7 +4,7 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   7 outstanding issues
+   12 outstanding issues
 
    o Carsten's Map Masking crash
 
@@ -41,6 +41,40 @@ Tue Jul  3 14:27:37 BST 2007
 
       Copy molecule is valgrind-clean (both coords and map)
 
+   o Turn on pythoning in build-it.  No special days.
+
+   o Fix mapman bones reader.  What does G(DVD)K say? he says move-to, draw-to.  But 
+     can I make that work?
+
+   o Turn on pythoning in build-it.  No special days.
+
+   o Dynamically add view to the Views Panel [FvD]
+
+   o Fix Get Monomer for GLC (or is it search mon lib for glucose?)
+
+   o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
+
+   o Submarining of green spot on Ramachandran Plot.  Also no green
+     spot for GLY.
+
+   o kalypso gkt2: Fit Loop.  undo.  Fit loop. crash.
+
+   o Ask about Rotamer misses.
+
+   o Put limit of 180 clusters in fascinating-clusters-gui.
+
+   o Eddie's Snell anisotropic Bs form .res file.
+     Write a test that checks that the shelx output is anisotropic.
+
+
+
+
+
+
+
+   o Refine across an insertion code [Steven Sheriff] 27 -> 28 L in 1ruk.  
+     Write a greg test for it.
+
    o S. Sheriff:
 
      * I find that (set-colour-map-rotation-on-read-pdb-c-only-flag   1)
@@ -48,20 +82,7 @@ Tue Jul  3 14:27:37 BST 2007
        I click on the radio button in the bond colour pop-up menu, the
        atoms are not atomic coloring.
 
-   o Turn on pythoning in build-it.  No special days.
-
-   o Fix mapman bones reader.  What does G(DVD)K say?
-
-   o Refine across an insertion code [Steven Sheriff] 27 -> 28 L in 1ruk.  
-     Write a greg test for it.
-
-   o Turn on pythoning in build-it.  No special days.
-
-
-
-   
-
-
+* Can't reproduce.
 
    o Crash on OK on Map properties after changing map colour:
      [corrupted, useless stack]

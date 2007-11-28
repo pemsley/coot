@@ -4158,16 +4158,17 @@ create_goto_atom_window (void)
   GtkWidget *label43;
   GtkWidget *update_go_to_atom_from_current_position_button;
   GtkWidget *hseparator1;
-  GtkWidget *go_to_atom_next_residue_button;
-  GtkWidget *alignment16;
-  GtkWidget *hbox167;
-  GtkWidget *image346;
-  GtkWidget *label341;
+  GtkWidget *hbox238;
   GtkWidget *go_to_atom_previous_residue_button;
   GtkWidget *alignment17;
   GtkWidget *hbox168;
   GtkWidget *image347;
   GtkWidget *label342;
+  GtkWidget *go_to_atom_next_residue_button;
+  GtkWidget *alignment16;
+  GtkWidget *hbox167;
+  GtkWidget *image346;
+  GtkWidget *label341;
   GtkWidget *frame59;
   GtkWidget *go_to_atom_model_view_hbox;
   GtkWidget *go_to_atom_residue_scrolledwindow;
@@ -4300,31 +4301,14 @@ create_goto_atom_window (void)
   gtk_widget_show (hseparator1);
   gtk_box_pack_start (GTK_BOX (vbox33), hseparator1, FALSE, TRUE, 0);
 
-  go_to_atom_next_residue_button = gtk_button_new ();
-  gtk_widget_show (go_to_atom_next_residue_button);
-  gtk_box_pack_start (GTK_BOX (vbox33), go_to_atom_next_residue_button, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_next_residue_button), 8);
-
-  alignment16 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment16);
-  gtk_container_add (GTK_CONTAINER (go_to_atom_next_residue_button), alignment16);
-
-  hbox167 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_show (hbox167);
-  gtk_container_add (GTK_CONTAINER (alignment16), hbox167);
-
-  image346 = gtk_image_new_from_stock ("gtk-media-next", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image346);
-  gtk_box_pack_start (GTK_BOX (hbox167), image346, FALSE, FALSE, 0);
-
-  label341 = gtk_label_new_with_mnemonic (_("Next Residue"));
-  gtk_widget_show (label341);
-  gtk_box_pack_start (GTK_BOX (hbox167), label341, FALSE, FALSE, 0);
+  hbox238 = gtk_hbox_new (TRUE, 0);
+  gtk_widget_show (hbox238);
+  gtk_box_pack_start (GTK_BOX (vbox33), hbox238, FALSE, FALSE, 0);
 
   go_to_atom_previous_residue_button = gtk_button_new ();
   gtk_widget_show (go_to_atom_previous_residue_button);
-  gtk_box_pack_start (GTK_BOX (vbox33), go_to_atom_previous_residue_button, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_previous_residue_button), 8);
+  gtk_box_pack_start (GTK_BOX (hbox238), go_to_atom_previous_residue_button, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_previous_residue_button), 6);
 
   alignment17 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment17);
@@ -4338,9 +4322,30 @@ create_goto_atom_window (void)
   gtk_widget_show (image347);
   gtk_box_pack_start (GTK_BOX (hbox168), image347, FALSE, FALSE, 0);
 
-  label342 = gtk_label_new_with_mnemonic (_("Previous Residue"));
+  label342 = gtk_label_new_with_mnemonic (_("  Previous Residue     "));
   gtk_widget_show (label342);
   gtk_box_pack_start (GTK_BOX (hbox168), label342, FALSE, FALSE, 0);
+
+  go_to_atom_next_residue_button = gtk_button_new ();
+  gtk_widget_show (go_to_atom_next_residue_button);
+  gtk_box_pack_start (GTK_BOX (hbox238), go_to_atom_next_residue_button, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_next_residue_button), 6);
+
+  alignment16 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment16);
+  gtk_container_add (GTK_CONTAINER (go_to_atom_next_residue_button), alignment16);
+
+  hbox167 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox167);
+  gtk_container_add (GTK_CONTAINER (alignment16), hbox167);
+
+  image346 = gtk_image_new_from_stock ("gtk-media-next", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image346);
+  gtk_box_pack_start (GTK_BOX (hbox167), image346, FALSE, FALSE, 0);
+
+  label341 = gtk_label_new_with_mnemonic (_("  Next Residue        "));
+  gtk_widget_show (label341);
+  gtk_box_pack_start (GTK_BOX (hbox167), label341, FALSE, FALSE, 0);
 
   frame59 = gtk_frame_new (NULL);
   gtk_widget_show (frame59);
@@ -4428,11 +4433,11 @@ create_goto_atom_window (void)
   g_signal_connect ((gpointer) update_go_to_atom_from_current_position_button, "clicked",
                     G_CALLBACK (on_update_go_to_atom_from_current_position_button_clicked),
                     NULL);
-  g_signal_connect ((gpointer) go_to_atom_next_residue_button, "clicked",
-                    G_CALLBACK (on_go_to_atom_next_residue_button_clicked),
-                    NULL);
   g_signal_connect ((gpointer) go_to_atom_previous_residue_button, "clicked",
                     G_CALLBACK (on_go_to_atom_previous_residue_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) go_to_atom_next_residue_button, "clicked",
+                    G_CALLBACK (on_go_to_atom_next_residue_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) go_to_atom_apply_button, "clicked",
                     G_CALLBACK (on_go_to_atom_apply_button_clicked),
@@ -4464,16 +4469,17 @@ create_goto_atom_window (void)
   GLADE_HOOKUP_OBJECT (goto_atom_window, label43, "label43");
   GLADE_HOOKUP_OBJECT (goto_atom_window, update_go_to_atom_from_current_position_button, "update_go_to_atom_from_current_position_button");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hseparator1, "hseparator1");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_next_residue_button, "go_to_atom_next_residue_button");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, alignment16, "alignment16");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, hbox167, "hbox167");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, image346, "image346");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, label341, "label341");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, hbox238, "hbox238");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_previous_residue_button, "go_to_atom_previous_residue_button");
   GLADE_HOOKUP_OBJECT (goto_atom_window, alignment17, "alignment17");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox168, "hbox168");
   GLADE_HOOKUP_OBJECT (goto_atom_window, image347, "image347");
   GLADE_HOOKUP_OBJECT (goto_atom_window, label342, "label342");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_next_residue_button, "go_to_atom_next_residue_button");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, alignment16, "alignment16");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, hbox167, "hbox167");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, image346, "image346");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, label341, "label341");
   GLADE_HOOKUP_OBJECT (goto_atom_window, frame59, "frame59");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_model_view_hbox, "go_to_atom_model_view_hbox");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_residue_scrolledwindow, "go_to_atom_residue_scrolledwindow");

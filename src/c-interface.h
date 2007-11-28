@@ -350,6 +350,12 @@ gboolean coot_checked_exit(int retval);
 void coot_real_exit(int retval); 
 void coot_clear_backup_or_real_exit(int retval);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+void run_clear_backups(int retval);
+#endif 
+#endif
+
 void fill_about_window(GtkWidget *widget);
  
 /*! \brief What is the molecule number of first coordinates molecule?
