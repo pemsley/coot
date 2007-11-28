@@ -1070,6 +1070,7 @@ create_window1 (void)
   reset_view_button = gtk_button_new ();
   gtk_widget_show (reset_view_button);
   gtk_container_add (GTK_CONTAINER (toolitem1), reset_view_button);
+  GTK_WIDGET_UNSET_FLAGS (reset_view_button, GTK_CAN_FOCUS);
 
   alignment1 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment1);
@@ -1094,6 +1095,7 @@ create_window1 (void)
   display_manager_button = gtk_button_new ();
   gtk_widget_show (display_manager_button);
   gtk_container_add (GTK_CONTAINER (toolitem2), display_manager_button);
+  GTK_WIDGET_UNSET_FLAGS (display_manager_button, GTK_CAN_FOCUS);
 
   alignment2 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment2);
