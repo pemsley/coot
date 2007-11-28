@@ -659,8 +659,6 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 // 		  std::cout << "DEBUG:: post-orthog:\n" <<  cao.format() << std::endl;
 
 		  at->WhatIsSet |= ASET_Anis_tFac; // is anisotropic
-		  // std::cout << "DEBUG:: Found Anisotropic "
-		  //           << at->name << std::endl;
 		  float u_synth = (at->u11 + at->u22 + at->u33)/3.0;
 		  at->WhatIsSet |= ASET_tempFactor; // has synthetic B factor
 		  at->tempFactor = 8.0 * M_PI * M_PI * u_synth;
@@ -1058,7 +1056,7 @@ coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
 			   int ipart = altloc_to_part_no(std::string(at->altLoc));
 			   f << "PART    " << ipart << "\n";
 			}
-			if (at->WhatIsSet & 64) {
+			if (at->WhatIsSet & ASET_Anis_tFac) {
 			   // Anisotropic
 			   std::string at_name(at->name);
 			   f.setf(std::ios::fixed);
@@ -1071,7 +1069,7 @@ coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
 			     << at->u23 << "  " << at->u13 << "  " << at->u12
 			     << "\n";
 			} else { 
-			   if (at->WhatIsSet & 4) {
+			   if (at->WhatIsSet & ASET_tempFactor) {
 			      // Isotropic B factor
 			      std::string at_name(at->name);
 			      float b_factor = at->tempFactor;

@@ -1378,11 +1378,28 @@
 	       (else
 		(iloop (+ jview 1)))))))))
 
-    (generic-single-entry "View Name: " (local-view-name) " Add View " 
-                          (lambda (text) 
-                            (add-view-here text)))))
+    (let ((view-name (local-view-name)))
+      (generic-single-entry "View Name: " view-name " Add View " 
+			    (lambda (text)
+			      (let ((new-view-number (add-view-here text)))
+				(add-view-to-views-panel view-name new-view-number)))))))
+				
 
-;; geometry is an improper list of ints
+;; 
+(define (add-view-to-views-panel view-name view-number)
+
+  (if *views-dialog-vbox*
+      (let ((button (gtk-button-new-with-label view-name)))
+	(gtk-signal-connect button "clicked" (lambda ()
+					       (go-to-view-number 
+						view-number 0)))
+	(gtk-box-pack-start *views-dialog-vbox* button #f #f 2)
+	(gtk-widget-show button))))
+
+
+;; geometry is an improper list of ints.
+;; 
+;; return the h-box of the buttons
 ;; 
 (define (dialog-box-of-buttons window-name geometry buttons close-button-label)
 
@@ -1428,8 +1445,10 @@
       (gtk-box-pack-end outside-vbox ok-button #f #f 0)
       (gtk-signal-connect ok-button "clicked"
 			  (lambda args
-			    (gtk-widget-destroy window))))
-    (gtk-widget-show-all window)))
+			    (gtk-widget-destroy window)
+			    (set! inside-vbox #f))))
+    (gtk-widget-show-all window)
+    inside-vbox))
 
 ;; geometry is an improper list of ints
 ;; buttons is a list of: (list (list button-1-label button-1-action
@@ -1492,6 +1511,8 @@
 			    (gtk-widget-destroy window))))
     (gtk-widget-show-all window)))
 
+(define *views-dialog-vbox* #f)
+
 ;; A gui showing views:
 (define views-panel-gui
   (lambda ()
@@ -1534,8 +1555,12 @@
 		   (reverse (cons view-button (reverse buttons))))
 		 buttons)))
       
-	(dialog-box-of-buttons " Views " (cons 200 140) all-buttons "  Close  ")))))
+	(let ((views-vbox
+	       (dialog-box-of-buttons " Views " (cons 200 140) all-buttons "  Close  ")))
 
+	  (set! *views-dialog-vbox* views-vbox))))))
+
+    
     
 ;; nudge screen centre box.  Useful when Ctrl left-mouse has been
 ;; taken over by another function.

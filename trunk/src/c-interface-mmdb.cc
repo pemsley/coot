@@ -215,17 +215,4 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
    return mol;
 } 
 
-// This is a common denominator really.  It does not depend on mmdb,
-// but it can't be declared in c-interface.h because then we'd have to
-// include c-interface.h which would cause (resolvable, I think, not
-// checked) problems.
-// 
-// return a scm string, decode to c++ using scm_to_locale_string();
-SCM display_scm(SCM o) {
-
-   SCM dest = SCM_BOOL_F;
-   SCM mess = scm_makfrom0str("object: ~s\n");
-   return scm_simple_format(dest, mess, scm_list_1(o));
-}
-
 #endif  // USE_GUILE

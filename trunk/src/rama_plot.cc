@@ -203,6 +203,7 @@ coot::rama_plot::big_square(int i,
 			    const std::string &ins_code,
 			    const std::string &chain_id) {
 
+
    for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) {
       if (phi_psi_sets[ich].chain_id == chain_id) {
 
@@ -632,7 +633,8 @@ coot::rama_plot::draw_phi_psi_point_internal(int i,
 
    if ((*phi_psi_vec)[i].residue_name() == "GLY") {
       region = draw_phi_psi_as_gly(i,phi_psi_vec);
-      // draw_green_box((*phi_psi_vec)[i].phi(), (*phi_psi_vec)[i].psi()); eh?
+      if (box_size == 4) 
+	 draw_green_box((*phi_psi_vec)[i].phi(), (*phi_psi_vec)[i].psi()); 
    } else {
       GtkCanvasItem *item;
       std::string colour;

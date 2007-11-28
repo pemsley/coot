@@ -223,11 +223,13 @@ coot_real_SOURCES = \
 	graphics-info-navigation-gtk2.cc\
 	pick.cc			 \
 	cmtz-interface.hh	 \
+	c-interface-scm.hh	 \
 	cmtz-interface.cc	 \
 	c-interface.cc		 \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
 	c-interface-ncs.cc	 \
+	c-interface-scm.cc	 \
 	c-interface-info.cc	 \
 	c-interface-mmdb.cc	 \
 	c-interface-build.cc	 \
