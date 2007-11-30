@@ -186,7 +186,8 @@
 # 2.23 20071125 Fix typo in recent fixes.
 # 2.24 20071126 Fix setting of systype for MacOSX, hopefully.
 # 2.25 20071126 Another try to fix setting of systype for MacOSX.
-script_version=2.25
+# 2.26 20071130 Try to enable python
+script_version=2.26
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -206,7 +207,7 @@ script_version=2.25
 
 # pythonizing coot is broken on some platforms.  Turn it off for now. 20071010
 #
-ENABLE_PYTHON_COOT=no
+ENABLE_PYTHON_COOT=yes
 
 
 # Set the host and the OS.
