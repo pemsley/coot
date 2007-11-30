@@ -2320,12 +2320,17 @@ echo BUILDING coot: version $coot_version >&2
 #
 if [ "$python_scripting" = "--with-python" ] ; then
     echo INFO:: with python
+
+    # I doubt the need for these setting!  If no python then blank out
+    # the guile scripting?  Does that make sense?
+    #
     if [ "$ENABLE_PYTHON_COOT" == "0" ] ; then
        cp src/blank.cc src/coot_wrap_guile.cc
     fi
     if [ "$ENABLE_PYTHON_COOT" == "no" ] ; then 
        cp src/blank.cc src/coot_wrap_guile.cc
     fi
+
 fi
 echo building in: $PWD
 echo ./configure $coot_prefix \

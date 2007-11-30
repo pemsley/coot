@@ -1,7 +1,11 @@
 
 (define *mapman-exe* (string-append (getenv "HOME") "/usf/lx_mapman"))
 
-(define (f n) (+ -1 (/ (- n 1) 2)))
+(define (f n) 
+  (- (if (even? n)
+	 (/ n 2) ; un-fortran indexing
+	 (/ (- n 1) 2))
+     1))
 
 
 (define (generic-object-from-bones bones-file)
@@ -24,7 +28,7 @@
       (lambda (x)
 	(set! bone-list (cons x bone-list))))
 
-    (define add-connection
+    (define add-connection-in-pairs
       (let ((running-list '()))
       (lambda (con)
 	(cond 
@@ -35,13 +39,20 @@
 				conn-list))
 	  (set! running-list '()))))))
 
+    (define add-connection
+      (lambda (con)
+	(cond 
+	 ((null? conn-list)
+	  (set! conn-list (list con)))
+	 (else 
+	  (set! conn-list (cons con conn-list))))))
+
     (define (my-indexer n)
       (let ((num (f n)))
 	(if (integer? num)
 	    num
 	    (inexact->exact (+ (/ 1 2) num)))))
     
-
 
     ;; main body
     (if (string? bones-file)
@@ -125,39 +136,48 @@
     (let ((ordered-atoms (reverse atom-xyz-list))
 	  (lines-obj (new-generic-object-number "Lines")))
 
-      ; (format #t "conn-list: ~s~%" conn-list)
+;       (format #t "rcon: ~s~%" (reverse conn-list))
+;       (format #t "ordered-atoms: ~s~%" ordered-atoms)
 
       (if #t
-	  (let loop ((connections conn-list))
+	  (let loop ((connections (reverse conn-list))
+		     (current-position #f))
 	    (cond
 	     ((null? connections)
 	      (set-display-generic-object lines-obj 1))
 	     (else 
-
-	      (let ((from-index (my-indexer (car  (car connections))))
-		    (  to-index (my-indexer (cadr (car connections)))))
-
-		(format #t "(~s ~s) -> (~s ~s)~%" 
-			(car  (car connections))
-			(cadr (car connections))
-			from-index to-index)
-
-		(if (not (and (< from-index (length atom-xyz-list))
-			      (< to-index (length atom-xyz-list))))
-		    (format #t "     reject: (~s ~s)~%" from-index to-index)
-		    (apply to-generic-object-add-line lines-obj "red" 2 
-			   (append (list-ref atom-xyz-list from-index)
-				   (list-ref atom-xyz-list to-index))))
-		(loop (cdr connections)))))))
-
+	      (let ((next-index (car connections)))
+		(if (not current-position)
+		    (begin
+;		      (format #t "(from ~s) init move to : ~s ~%" (car connections) 
+;			      (my-indexer (car connections)))
+		      (loop (cdr connections) (my-indexer (car connections))))
+		    (let ((xyz-index (my-indexer (car connections))))
+		      (if (even? (car connections))
+			  (begin
+			    ;; a move to: 
+;			    (format #t "(from ~s) move to : ~s ~%" (car connections)
+;				    xyz-index)
+			    (loop (cdr connections) xyz-index))
+			  (begin
+			    ;; a draw to:
+;			    (format #t "(from ~s) line: ~s ~s ~%" (car connections)
+;				    current-position xyz-index)
+			    (apply to-generic-object-add-line lines-obj "green" 3
+				   (append (list-ref ordered-atoms current-position)
+					   (list-ref ordered-atoms xyz-index)))
+			    (loop (cdr connections) xyz-index))))))))))
+					   
       (let ((points-obj (new-generic-object-number "Points")))
-	(let loop ((xyz-list atom-xyz-list))
+	(let loop ((xyz-list ordered-atoms)
+		   (point-number 0))
 	  (cond
 	   ((null? xyz-list)
 	    (set-display-generic-object points-obj 1))
 	   (else 
-	    (apply to-generic-object-add-point points-obj "blue" 4 (car xyz-list))
-	    (loop (cdr xyz-list)))))))))
+	    (apply to-generic-object-add-point points-obj "green" 10 (car xyz-list))
+	    ; (apply place-text (number->string point-number) (append (car xyz-list) (list 2)))
+	    (loop (cdr xyz-list) (+ point-number 1)))))))))
 
 
 ;;;
