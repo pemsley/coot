@@ -1443,12 +1443,20 @@
     (gtk-container-border-width outside-vbox 2)
     (let ((ok-button (gtk-button-new-with-label close-button-label)))
       (gtk-box-pack-end outside-vbox ok-button #f #f 0)
+
+      ;; Note to self: the setting of inside-vbox should not be done
+      ;; in this generic dialog-box-of-buttons, but passed as an
+      ;; argment to the function (e.g. destroy-window-extra-func)
+      ;; 
       (gtk-signal-connect ok-button "clicked"
 			  (lambda args
 			    (gtk-widget-destroy window)
-			    (set! inside-vbox #f))))
-    (gtk-widget-show-all window)
-    inside-vbox))
+			    (set! inside-vbox #f)))) ; redundant?
+      (gtk-signal-connect widow "destroy"
+			  (lambda args
+			    (set! inside-vbox #f)))
+      (gtk-widget-show-all window)
+      inside-vbox))
 
 ;; geometry is an improper list of ints
 ;; buttons is a list of: (list (list button-1-label button-1-action
