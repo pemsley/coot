@@ -43,7 +43,7 @@ def make_texi_file(python_file, doc_file):
     docout = open(doc_file, 'w')
     lines = pyin.readlines()
     for i in range(len(lines)):
-        line = lines[i]
+        line = str(lines[i])
         if "def" in line[0:3]:
             extract_info(i)
         # This is for xtra documentations!
