@@ -6792,9 +6792,11 @@ void povray(const char *filename) {
 }
 
 void set_raster3d_bond_thickness(float f) { 
-
    graphics_info_t::raster3d_bond_thickness = f;
+} 
 
+void set_raster3d_bone_thickness(float f) { 
+   graphics_info_t::raster3d_bone_thickness = f;
 } 
 
 void set_raster3d_atom_radius(float f) { 

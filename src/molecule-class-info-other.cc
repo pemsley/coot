@@ -2725,6 +2725,20 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
 	    }
 	 }
       }
+
+      if (fc_skeleton_draw_on == 1) {
+
+	 rtmi.bones_colour.col.resize(3);
+	 for (int i=0; i<3; i++) 
+	    rtmi.bones_colour.col[i] = graphics_info_t::skeleton_colour[i];
+	 for (int l=0; l<fc_skel_box.num_colours; l++) {
+	    for (int j=0; j<fc_skel_box.bonds_[l].num_lines; j++) {
+	       std::pair<coot::Cartesian, coot::Cartesian> p(fc_skel_box.bonds_[l].pair_list[j].getStart(),
+							     fc_skel_box.bonds_[l].pair_list[j].getFinish());
+	       rtmi.bone_lines.push_back(p);
+	    }
+	 }
+      }
    } 
    return rtmi;
 }

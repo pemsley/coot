@@ -23,16 +23,20 @@ namespace coot {
       float density_thickness;
       float zoom;
    public:
+
+      colour_t bones_colour;
       std::vector<std::pair<Cartesian, Cartesian> > density_lines;
       colour_t density_colour;
       // bond_lines and bond_colour have the same length
       std::vector<std::pair<Cartesian, Cartesian> > bond_lines;
+      std::vector<std::pair<Cartesian, Cartesian> > bone_lines;
       std::vector<colour_t> bond_colour;
       std::vector<std::pair<Cartesian, colour_t> > atom;
       void render_molecule(std::ofstream &render_stream,
 			   float bond_thickness,
 			   float atom_radius,
-			   float density_thickness);
+			   float density_thickness,
+			   float bone_thickness);
       void povray_molecule(std::ofstream &render_stream,
 			   float bond_thickness,
 			   float density_thickness,
@@ -49,6 +53,7 @@ namespace coot {
       void render_molecules(std::ofstream &render_stream);
       void povray_molecules(std::ofstream &render_stream);
       float bond_thickness; 
+      float bone_thickness; 
       float density_thickness;
       float clipping;
       float atom_radius;
@@ -69,6 +74,7 @@ namespace coot {
 		      int window_height_in,
 		      float clipping_in,
 		      float bond_thickness_in,
+		      float bone_thickness_in,
 		      float atom_radius_in,
 		      float density_thickness_in) {
 	 view_centre = centre_view_in;
@@ -78,6 +84,7 @@ namespace coot {
 	 window_height = window_height_in;
 	 quality = 8;
 	 bond_thickness = bond_thickness_in;
+	 bone_thickness = bone_thickness_in;
 	 density_thickness = density_thickness_in;
 	 clipping = clipping_in;
 	 atom_radius = atom_radius_in;

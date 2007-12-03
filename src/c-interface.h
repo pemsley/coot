@@ -3807,7 +3807,7 @@ void trim_molecule_by_map(int imol_coords, int imol_map,
 /* \{ */
 /* \name Povray and Raster3D Interface */
 
-/* \brief create a r3d file for the current view */
+/*! \brief create a r3d file for the current view */
 void raster3d(const char *rd3_filename);
 void povray(const char *filename);
 /* a wrapper for the (scheme) function that makes the image, callable
@@ -3815,14 +3815,17 @@ void povray(const char *filename);
 void make_image_raster3d(const char *filename);
 void make_image_povray(const char *filename);
 
-/* set the bond thickness for the Raster3D representation  */
+/*! \brief set the bond thickness for the Raster3D representation  */
 void set_raster3d_bond_thickness(float f);
-/* set the atom radius for the Raster3D representation  */
+/* \brief set the atom radius for the Raster3D representation  */
 void set_raster3d_atom_radius(float f);
-/* set the density line thickness for the Raster3D representation  */
+/*! \brief set the density line thickness for the Raster3D representation  */
 void set_raster3d_density_thickness(float f);
-/* set the flag to show atoms for the Raster3D representation  */
+/*! \brief set the flag to show atoms for the Raster3D representation  */
 void set_renderer_show_atoms(int istate);
+/*! \brief set the bone (skeleton) thickness for the Raster3D representation  */
+void set_raster3d_bone_thickness(float f);
+/*! \brief run raster3d and display the resulting image.  */
 void raster_screen_shot(); /* run raster3d or povray and guile */
                            /* script to render and display image */
 

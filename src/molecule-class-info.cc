@@ -2735,11 +2735,19 @@ molecule_class_info_t::set_skeleton_bond_colour(float f) {
       rotation_size -= 1.0;
    }
 
-   std::vector<float> c(3);
-   c[0] = 0.1+0.6*f*graphics_info_t::skeleton_colour[0];
-   c[1] = 0.1+0.9*f*graphics_info_t::skeleton_colour[1];
-   c[2] = 0.1+0.2*f*graphics_info_t::skeleton_colour[2];
-   std::vector<float> rgb_new = rotate_rgb(c, rotation_size);
+   if (0) { 
+      std::vector<float> c(3);
+      c[0] = 0.1+0.6*f*graphics_info_t::skeleton_colour[0];
+      c[1] = 0.1+0.9*f*graphics_info_t::skeleton_colour[1];
+      c[2] = 0.1+0.2*f*graphics_info_t::skeleton_colour[2];
+      std::vector<float> rgb_new = rotate_rgb(c, rotation_size);
+   }
+
+   // none of this colour rotation nonsense.  Just set it to the
+   // graphics_info_t variable:
+   std::vector<float> rgb_new(3);
+   for (int i=0; i<3; i++) 
+      rgb_new[i] = graphics_info_t::skeleton_colour[i];
 
    glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
 }

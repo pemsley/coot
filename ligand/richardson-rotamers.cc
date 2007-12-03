@@ -111,7 +111,7 @@ coot::chi_angles::add_richardson_rotamers() {
        add_richardson_rotamer("ASP", "p30", 194, 9, 1, 5, 12, 65, 62, 9, 30, 0, 0, 0, 0);
        add_richardson_rotamer("ASP", "t 0 ", 438, 21, 8, 44, 20, -176, -177, 1, 0, 0, 0, 0, 0);
        add_richardson_rotamer("ASP", "t70", 118, 6, 11, 7, 4, -179, -177, 65, 65, 0, 0, 0, 0);
-       add_richardson_rotamer("ASP", "m -20 ", 1088, 51, 77, 38, 47, -71, -70, -15, -15, 0, 0, 0, 0);
+       add_richardson_rotamer("ASP", "m-20 ", 1088, 51, 77, 38, 47, -71, -70, -15, -15, 0, 0, 0, 0);
        add_richardson_rotamer("ASN", "p-10", 103, 7, 0, 1, 10, 63, 62, -13, -10, 0, 0, 0, 0);
        add_richardson_rotamer("ASN", "p30", 132, 9, 0, 7, 12, 64, 62, 34, 30, 0, 0, 0, 0);
        add_richardson_rotamer("ASN", "t-20", 177, 12, 5, 21, 12, -174, -174, -20, -20, 0, 0, 0, 0);
