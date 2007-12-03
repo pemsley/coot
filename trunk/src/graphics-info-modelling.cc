@@ -48,10 +48,6 @@
 #include <guile/gh.h>
 #endif
 
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
-
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
@@ -78,6 +74,14 @@
 #include "ligand.hh"
 #include "ideal-rna.hh"
 #include "graphics-info.h"
+
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+//
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif // USE_PYTHON
 
 
 #include "coot-utils.hh"
