@@ -195,14 +195,11 @@ c_inner_main(void *closure, int argc, char** argv) {
     if (use_graphics_flag) { 
 #ifdef USE_GUILE_GTK
       thunk_str = "(lambda () (load-all-scheme #t))";
-      printf("load-all-scheme #t\n");
 #else 
       thunk_str = "(lambda () (load-all-scheme #f))";
-      printf("load-all-scheme #f 1\n");
 #endif // USE_GUILE_GTK
     } else { 
       thunk_str = "(lambda () (load-all-scheme #f))";
-      printf("load-all-scheme #f 2\n");
     }
     thunk = scm_c_eval_string(thunk_str); 
     scm_catch(SCM_BOOL_T, thunk, handler);

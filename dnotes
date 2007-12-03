@@ -59,6 +59,8 @@ Tue Jul  3 14:27:37 BST 2007
 
 
 
+
+
    o kalypso gkt2: Fit Loop.  undo.  Fit loop. crash.
 
 * Can't reproduce. Loop fitting is now backed up at start.
@@ -66,16 +68,17 @@ Tue Jul  3 14:27:37 BST 2007
    o Fix mapman bones reader.  What does G(DVD)K say? he says move-to, draw-to.  But 
      can I make that work?  Yes I can. move it over.
 
-* Done.
+* Done. Libcheck problem.  Needs new libcheck and/or dictionary.
 
-   o Submarining of green spot on Ramachandran Plot.  Also no green
-     spot for GLY.
+     libcheck << !
+     N
+     MON GLC
+     !  -> failure:    ERROR: can"t open (lib.):g/GLC-B-D
+
+o Submarining of green spot on Ramachandran Plot.  Also no green
+  spot for GLY.
 
 *Fixed.
-
-   o Fix Get Monomer for GLC (or is it search mon lib for glucose?)
-
-* Libcheck problem.  Needs new libcheck and/or dictionary.
 
    o Put limit of 180 clusters in fascinating-clusters-gui.
 
