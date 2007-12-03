@@ -33,6 +33,9 @@ Release 0.4
 
    o FEATURE: Cell expansion/contraction function for EM users
 
+   o FEATURE: skeletons now appear in Raster3D output and are properly
+     coloured using the colour wheel
+
    o BUG-FIX: Fix occasional crash reported by Ketan Gajiwala on
      pressing CR in the graphics window after a refiement.
 
