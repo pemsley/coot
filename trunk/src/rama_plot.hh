@@ -287,6 +287,11 @@ class rama_plot {
 			  CMMDBManager *mol2,
 			  const std::string &chain_id_1,
 			  const std::string &chain_id_2);
+   phi_psi_t green_box;
+   void draw_green_box() ; // use above stored position to draw green square
+   bool green_box_is_sensible(phi_psi_t gb) const; // have the phi and psi been set to something sensible?
+      
+   
 public:
 
    rama_plot() {

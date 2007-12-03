@@ -90,6 +90,7 @@ coot::rama_plot::init(int imol_in, float level_prefered, float level_allowed, fl
    init_internal(level_prefered, level_allowed, block_size, 0,
 		 is_kleywegt_plot_flag_in);
    // is_kleywegt_plot_flag = is_kleywegt_plot_flag_in;
+
 }
 
 // We could pass to this init the level_prefered and level_allowed
@@ -193,6 +194,7 @@ coot::rama_plot::init_internal(float level_prefered, float level_allowed,
    step = step_in;
    kleywegt_plot_uses_chain_ids = 0;
 
+   green_box = coot::phi_psi_t(-999, -999, "", "", 0, "", ""); // set unsensible phi phi initially.
    setup_canvas(); 
 }
 
@@ -694,25 +696,8 @@ coot::rama_plot::draw_phi_psi_point_internal(int i,
       }
 
       if (box_size == 4) {
-	 // std::cout << "adding box at " << phi << " " << psi << std::endl;
-	 colour = "green";
-	 if (big_box_item) {
-	    // std::cout << "debug: destroying big_box_item" << std::endl;
-	    gtk_object_destroy(GTK_OBJECT(big_box_item));
-	    // std::cout << "debug: destroyed  big_box_item" << std::endl;
-	 }
+	 draw_green_box(phi, psi);
       }
-      item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				 GTK_CANVAS_TYPE_CANVAS_RECT,
-				 "x1", phi-box_size,
-				 "y1",-psi-box_size,
-				 "x2", phi+box_size,
-				 "y2",-psi+box_size,
-				 "fill_color", colour.c_str(),
-				 "outline_color", outline_color.c_str(),
-				 NULL);
-      if (box_size == 4) 
-	 big_box_item = item;
 
       // needs to be kept here:
       if (box_size != 4) { 
@@ -733,8 +718,10 @@ coot::rama_plot::draw_phi_psi_point_internal(int i,
    return region;
 }
 
+// store the green box position too
 void
 coot::rama_plot::draw_green_box(double phi, double psi) {
+
 
    // std::cout << "adding box at " << phi << " " << psi << std::endl;
    std::string colour = "green";
@@ -753,8 +740,30 @@ coot::rama_plot::draw_green_box(double phi, double psi) {
 					     "outline_color", outline_color.c_str(),
 					     NULL);
    big_box_item = item;
+   green_box = coot::phi_psi_t(phi, psi, "", "",  0, "", ""); 
 
-} 
+}
+
+
+void
+coot::rama_plot::draw_green_box() {
+
+   if (green_box_is_sensible(green_box))
+      draw_green_box(green_box.phi(), green_box.psi());
+}
+
+
+// could/should be a member function of coot::phi_psi_t
+bool
+coot::rama_plot::green_box_is_sensible(coot::phi_psi_t gb) const { // have the phi and psi been set to something sensible?
+
+   bool r = 0;
+   if (gb.phi()>= -180.0)
+      if (gb.phi()<= 180.0)
+	 r = 1;
+   return r;
+}
+
 
 int // return region
 coot::rama_plot::draw_phi_psi_as_gly(int i, const vector<phi_psi_t> *phi_psi_vec) {
@@ -1273,6 +1282,8 @@ coot::rama_plot::all_plot(clipper::Ramachandran::TYPE type) {
       for (unsigned int ich=0; ich<phi_psi_sets.size(); ich++) 
 	 draw_phi_psi_points(ich);
    }
+
+   draw_green_box();
 }
 
 void
@@ -1347,6 +1358,8 @@ coot::rama_plot::tooltip_like_box(const mouse_util_t &t) {
 					     "fill_color", "black",
 					     NULL);
 }
+
+
 
 // The helper type contains a flag the signals validity (this residue
 // existed in the both the first and seconde molecules).
