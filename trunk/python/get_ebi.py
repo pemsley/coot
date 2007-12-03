@@ -1,43 +1,20 @@
-# Copyright 2004, 2005 by The University of York
-# Copyright 2005 by Bernhard Lohkamp
- 
-#;;; This program is free software; you can redistribute it and/or modify
-#;;; it under the terms of the GNU General Public License as published by
-#;;; the Free Software Foundation; either version 2 of the License, or (at
-#;;; your option) any later version.
- 
-#;;; This program is distributed in the hope that it will be useful, but
-#;;; WITHOUT ANY WARRANTY; without even the implied warranty of
-#;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#;;; General Public License for more details.
- 
-#;;; You should have received a copy of the GNU General Public License
-#;;; along with this program; if not, write to the Free Software
-#;;; Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# get-ebi.py
+# Copyright 2005, 2006 by Bernhard Lohkamp
+# Copyright 2005, 2006 by Paul Emsley, The University of York
 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at
+# your option) any later version.
 
-#;; direction is either 'forwards or 'backwards
-#;; 
-#;; start-resno is higher than stop-resno if we are building backwards
-#;; 
-#;; (fit-gap 0 "A"  23 26)   ; we'll build forwards
-#;; (fit-gap 0 "A"  26 23)   ; we'll build backwards
-#;;
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
 
-global coot_tmp_dir
-coot_tmp_dir = "coot-download"
-
-def coot_mkdir(dir_name):
-  import os
-  if (os.path.isfile(dir_name)):
-     return False
-  else:
-     if (os.path.isdir(dir_name)):
-       return True
-     else:
-       os.mkdir(dir_name)
-       return True
-
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # this is get-ebi stuff
 global oca_server
@@ -59,13 +36,35 @@ global oca_sfs_request_tail
 oca_sfs_request_tail = ""
 #oca_sfs_request_tail = "sf.ent.Z"
 
-#now the proper stuff
+global coot_tmp_dir
+coot_tmp_dir = "coot-download"
 
+# e.g. (ebi-get-pdb "1crn")
+# 
+# no useful return value
+#
+# Note that that for sf data, we need to construct something like the
+# string: http://oca.ebi.ac.uk/oca-bin/send-sf?r2acesf.ent.Z and we
+# don't need to strip any html (thank goodness). Also not that the
+# accession code now is lower case.
+#
+# data-type(here string) can be 'pdb' or 'sfs' (structure factors). 
+# We might like to use
+# 'coordinates rather than 'pdb in the future.
+# 
+# The optional argument imol-coords-arg-list is necessary for
+# ouptutting sfs, because we need coordinates from which we can
+# calculate phases.
+#
+
+# we dont need something like net-get-url in python 
+# since we have build in functions like urlretrieve (in module urllib)
+
+# check the directory and get url url_string.
+#
 def check_dir_and_get_url(dir,file_name,url_string):
     import os,urllib
 
-#    print "BL DEBUG:: dir, filename, url_string: ",dir,file_name,url_string
-  
     if (os.path.isfile(dir) or os.path.isdir(dir)):
        if (os.path.isfile(dir)):
           print dir," is atually a file and not a dir, so we can't write to it"
@@ -87,29 +86,26 @@ def check_dir_and_get_url(dir,file_name,url_string):
        else:
          print "ERROR:: Oops - create-directory ",dir," failed!"
 
-
+# get url_string for data type (string actually) 'pdb' or 'sfs'
+#
 def get_url_str(id,url_string,data_type,imol_coords_arg_list):
     import operator
 
     if (data_type == "pdb"):
        pdb_file_name = coot_tmp_dir + "/" + id + ".pdb" + pdb_file_name_tail
        check_dir_and_get_url(coot_tmp_dir,pdb_file_name,url_string)
-#       handle_read_draw_molecule(pdb_file_name)
-#       pdb_file_name = "bollocks.pdb"
        imol_coords = handle_read_draw_molecule(pdb_file_name)
-#       print "BL DEBUG:: imol_coords is (1)", imol_coords
        return imol_coords
 
     if (data_type == "sfs"):
        sfs_file_name = coot_tmp_dir + "/" + id + ".cif"
-       print "BL DEBUG:: cif output file is: ",sfs_file_name
+#       print "BL DEBUG:: cif output file is: ",sfs_file_name
        imol_coords = imol_coords_arg_list
-#       print "BL DEBUG:: imol_coords is (2)", imol_coords
        if (operator.isNumberType(imol_coords) and imol_coords>=-1):
          check_dir_and_get_url(coot_tmp_dir,sfs_file_name,url_string)
          read_cif_data(sfs_file_name,imol_coords_arg_list) 
 
-
+# Get the pdb and sfs. @var{id} is the accession code
 def get_ebi_pdb_and_sfs(id):
     import operator,string
 
@@ -126,25 +122,33 @@ def get_ebi_pdb_and_sfs(id):
 #       print "BL DEBUG:: get_url_str with",id,url_str,"sfs",imol_coords
        get_url_str(id,url_str,"sfs",imol_coords)
 
-
+# Return a molecule number on success
+# or not a number (False) or -1 on error.
+#
 def get_ebi_pdb(id):
     import urllib, string
 
     up_id = string.upper(id)
     url_str = oca_server + "/" + oca_pdb_request_stub + up_id
     imol_coords = get_url_str(id,url_str,"pdb",None)
-#    print "BL DEBUG:: imol_coords is (4)", imol_coords
     return imol_coords
 
 
+# Get data and pdb for accession code id from the Electron Density
+# Server.
+#
+# @var{id} is the accession code.
+#
+# 20050725 EDS code
+#
 def get_eds_pdb_and_mtz(id):
     import string
     import urllib
 
-    #; Gerard DVD Kleywegt says we can find the coords/mtz thusly:
-    #;
-    #; - model = http://eds.bmc.uu.se/eds/sfd/1cbs/pdb1cbs.ent
-    #; - mtz   = http://eds.bmc.uu.se/eds/sfd/1cbs/1cbs_sigmaa.mtz
+    # Gerard DVD Kleywegt says we can find the coords/mtz thusly:
+    #
+    # - model = http://eds.bmc.uu.se/eds/sfd/1cbs/pdb1cbs.ent
+    # - mtz   = http://eds.bmc.uu.se/eds/sfd/1cbs/1cbs_sigmaa.mtz
 
     eds_site = "http://eds.bmc.uu.se/eds"
 
@@ -159,23 +163,25 @@ def get_eds_pdb_and_mtz(id):
       target_mtz_file = down_id + "_sigmaa.mtz"
       dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
       mtz_url = eds_url + down_id + "/" + target_mtz_file
+#      print "BL DEBUG: pdb file:",model_url
+#      print "BL DEBUG: mtz file:",mtz_url
 
       try:
         s1 = urllib.urlretrieve(model_url, dir_target_pdb_file)
         print "read model status: ",s1
       except IOError:
-        print "BL INFO:: We can't open ", model_url
+        print "BL ERROR:: We can't open ", model_url
       try:
         s2 = urllib.urlretrieve(mtz_url, dir_target_mtz_file)
         print "read mtz   status: ",s2
       except IOError:
-        print "BL INFO:: We can't open ", mtz_url 
+        print "BL ERROR:: We can't open ", mtz_url 
 
 
       handle_read_draw_molecule(dir_target_pdb_file)
       sc_map = make_and_draw_map(dir_target_mtz_file,"2FOFCWT","PH2FOFCWT","",0,0)
       make_and_draw_map(dir_target_mtz_file,"FOFCWT","PHFOFCWT","",0,1)
-      set_scrollable_map(sc_map,0)
+      set_scrollable_map(sc_map)
 
     else:
       print "Can't make directory ",coot_tmp_dir

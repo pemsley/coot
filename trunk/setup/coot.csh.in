@@ -68,8 +68,9 @@ setenv COOT_STANDARD_RESIDUES $COOT_PREFIX/share/coot/standard-residues.pdb
 setenv COOT_RESOURCES_FILE    $COOT_PREFIX/share/coot/cootrc
 setenv COOT_PIXMAPS_DIR       $COOT_PREFIX/share/coot/pixmaps
 setenv COOT_DATA_DIR          $COOT_PREFIX/share/coot
+setenv COOT_PYTHON_DIR        $COOT_PREFIX/share/coot/python
 if ($?PYTHONPATH) then 
-   setenv PYTHONPATH             ${PYTHONPATH}:$COOT_PREFIX/share/coot/python
+   setenv PYTHONPATH             $COOT_PREFIX/share/coot/python:${PYTHONPATH}
 else 
    setenv PYTHONPATH             $COOT_PREFIX/share/coot/python
 endif

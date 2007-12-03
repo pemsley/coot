@@ -50,10 +50,27 @@ if test x$with_python != x; then
 	echo error
    fi
    
+   # BL says: we need to have something special for MinGW since Python 
+   # files are called different! E.g. no dots in version name
+   # and put -lglob there too, dunno where else to put it
+   
+   # for MinGW
+   py_uname=`uname`
+   case "$py_uname" in 
+     MINGW*|Mingw*|mingw*)
+     py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print drive + path + "/include"'
+     PYTHON_CFLAGS="-DUSE_PYTHON -I`python -c "$py_cmd"`"
+     py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print drive + path + "/libs -lpython" + sys.version[[0]]+sys.version[[2]]'
+     PYTHON_LIBS_PRE="-L`python -c "$py_cmd"`"
+     break;;
+
+     *)
    # normal execution proceeds..
-   PYTHON_CFLAGS="-DUSE_PYTHON -I`python -c 'import sys; print sys.prefix + "/include/python" + sys.version[[:3]]'`"
+     PYTHON_CFLAGS="-DUSE_PYTHON -I`python -c 'import sys; print sys.prefix + "/include/python" + sys.version[[:3]]'`"
    # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
-   PYTHON_LIBS_PRE="-L`python -c 'import sys; print sys.prefix + "/lib/python" + sys.version[[:3]] + "/config"'` -lpython`python -c 'import sys; print sys.version[[:3]]'`"
+     PYTHON_LIBS_PRE="-L`python -c 'import sys; print sys.prefix + "/lib/python" + sys.version[[:3]] + "/config"'` -lpython`python -c 'import sys; print sys.version[[:3]]'`"
+     break;;
+   esac
 	
    # now we have to deal with the -lutil issue.  On GNU/Linux, we need
    # it, MacOS X we don't (it doesn't exist and the compliation fails)
@@ -74,12 +91,32 @@ if test x$with_python != x; then
 	Cygwin*|CYGWIN*|cygwin*)
 		UTIL_LIB=""
 	;;
+	# BL says:: same as for cygwin in mingw
+	# dunno where else to put the glob at the moment
+	MINGW*|Mingw*|mingw*)
+		UTIL_LIB="-lglob"
+	;;
    esac	
 
    PYTHON_LIBS="$PYTHON_LIBS_PRE $UTIL_LIB"
    AC_MSG_RESULT(yes)
    echo Cool, using Python
    coot_python=true	
+
+   # BL says:: we shall check for PyGTK as well
+   # let's try
+   PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
+   AC_SUBST(PYGTK_CFLAGS)
+   AC_SUBST(PYGTK_LIBS)
+
+   if $have_pygtk; then
+	AC_MSG_RESULT(yes)
+   	echo Good we have pygtk
+   	PYTHON_CFLAGS="$PYTHON_CFLAGS -DUSE_PYGTK"
+   else
+	AC_MSG_RESULT(no)
+   	echo we dont have pygtk-2
+   fi
 
 else 
 

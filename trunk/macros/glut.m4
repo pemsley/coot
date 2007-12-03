@@ -78,6 +78,12 @@ if test x$glut_prefix != x ; then
 	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut -L/usr/X11R6/lib $GL_LIBS -lXext -lX11 -lm"
 	   break;;
 
+	*-mingw*)
+	   # BL says:: this is for MinGW Windows
+	   # for now we try just with GL_LIBS may have to be GTK_LIBS
+	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut32 $GL_LIBS"
+	   break;;
+
 	mips-sgi-irix6*)
 	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut $GL_LIBS -lXmu -lX11 -lm"
 	   break;;
@@ -122,6 +128,12 @@ else
 	   fi
 	   break;;
 	
+	*-mingw*)
+	   # BL says:: this is for MinGW Windows
+	   # for now we try just with GL_LIBS may have to be GTK_LIBS
+	   GLUT_LDOPTS="-lglut32 $GL_LIBS $GTK_LIBS"
+	   break;;
+
 	mips-sgi-irix6*)
 	   GLUT_LDOPTS="-lglut $GL_LIBS -lXmu -lX11 -lm"
 	   break;

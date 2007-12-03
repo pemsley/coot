@@ -1,36 +1,26 @@
-# Makefile.am
-# 
-# Copyright 2005, 2006, 2007 The University of York
-# Copyright 2005, 2006, 2007 Bernhard Lohkamp
-# 
+# coot-lsq.py
+
+# Copyright 2005, 2006 by Bernhard Lohkamp
+# Copyright 2005, 2006 by Paul Emsley, The University of York
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or (at
 # your option) any later version.
-# 
+
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA
+# Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#;; A silly (but somewhat amusing) demo that changes the background colour
-#;; over a range of colours.
-#;;
-#;; The scene is spun too, for extra eye-candy (so have a molecule
-#;; loaded before you run this).
-#;;
-#;; What's the point?  It's to show that we can display the result of
-#;; an arbitarily complex computation, i.e, we have a real extension
-#;; language, not just a list of commands (like some other molecular
-#;; graphics programs).
 
-# BL attempt to translate coot-lsq from Paul's script
-
+# Internal type conversion for LSQ fitting.  Return a number
+# according to the symbod match_type_in
+#
 def lsq_match_type_symbol(match_type_in):
   import operator
 
@@ -44,16 +34,16 @@ def lsq_match_type_symbol(match_type_in):
      elif (match_type_in in ["ALL","all","All"]):
         match_type_in = 2
      else:
-        match_type_in = -1   # unknowN
+        match_type_in = -1   # unknown
   return match_type_in
 #BL says, I guess I could make that more elegant...
 #we use 0, 1 ,2 for ca, main, all (as it is in c++ code and not Paul's guile script)!!
 
-#; Create matchers, 7 elements: 
-#;   (list ref-start-resno ref-end-resno ref-chain-id imol-ref
-#; 	   mov-start-resno mov-end-resno mov-chain-id imol-mov
-#; 	   match-type)
-
+# Create matchers, 7 elements: 
+#   [ref_start_resno, ref_end_resno, ref_chain_id, imol_ref,
+#    mov_start_resno, mov_end_resno, mov_chain_id, imol_mov,
+#    match_type]
+#
 def set_match_element(m):
 # m should be a list!!!!
 # something like:
@@ -67,6 +57,10 @@ def set_match_element(m):
      print "Wrong number of elements in match (was",len(m)," should be 7)"
 
 
+# The scripting interface to LSQ matching.  Pass molecule numbers for
+# the reference (imol_ref) and moving (imol_moving) molecules and a
+# match list.  The match list format is described in the manual.
+#
 def lsq_match(imol_ref,imol_moving,match_list):
     
     clear_lsq_matches()
@@ -75,9 +69,11 @@ def lsq_match(imol_ref,imol_moving,match_list):
     apply_lsq_matches(imol_ref,imol_moving)
 
 
-def simple_lsq_match (ref_start_resno,ref_end_resno,ref_chain_id,imol_ref,
-                      mov_start_resno,mov_end_resno,mov_chain_id,imol_mov,
-                      match_type):
+# Simple interface to LSQ fitting.  More often than not this is what
+# you will want, I imagine,
+# e.g. simple_lsq_match(940, 950, "A", 0, 940, 950, "A", 1, "main")
+#
+def simple_lsq_match (ref_start_resno, ref_end_resno, ref_chain_id, imol_ref, mov_start_resno, mov_end_resno, mov_chain_id, imol_mov, match_type):
 
       internal_match_type=lsq_match_type_symbol(match_type)
       clear_lsq_matches()
@@ -87,7 +83,7 @@ def simple_lsq_match (ref_start_resno,ref_end_resno,ref_chain_id,imol_ref,
       apply_lsq_matches(imol_ref,imol_mov)
 
 		    
-# example:
+# examples:
 # simple_lsq_match(940,950,"A",0,940,950,"A",1,"main")
 #
 # or another one:

@@ -1,55 +1,113 @@
-# Makefile.am
-# 
-# Copyright 2005, 2006, 2007 The University of York
-# Copyright 2005, 2006, 2007 Bernhard Lohkamp
-# 
+# coot_load_modules+gui.py
+
+# Copyright 2004, 2005, 2006 by Bernhard Lohkamp
+# Copyright 2007 by Bernhard Lohkamp, The University of York
+# Copyright 2004, 2005, 2006 by Paul Emsley, The University of York
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or (at
 # your option) any later version.
-# 
+
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA
+# Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#;; A silly (but somewhat amusing) demo that changes the background colour
-#;; over a range of colours.
-#;;
-#;; The scene is spun too, for extra eye-candy (so have a molecule
-#;; loaded before you run this).
-#;;
-#;; What's the point?  It's to show that we can display the result of
-#;; an arbitarily complex computation, i.e, we have a real extension
-#;; language, not just a list of commands (like some other molecular
-#;; graphics programs).
-
-# try to translate from scheme files. -- BL
+# load coot python modules (including gui s)
 
 import os
 
-files_list = ["coot-utils.py","hello.py","mutate.py","gap.py","fitting.py","refmac.py","americanisms.py","raster3d.py","povray.py","coot-lsq.py","get-ebi.py","shelx.py"]
+# globals
 
-coot_python_dir =  os.getenv('COOT_PYTHON_DIR')
+# This is full pathname of molprobity's probe program
+# deftexi probe_command
+global probe_command
+probe_command = 'probe'
+
+# This is full pathname of molprobity's reduce program
+# deftexi reduce_command
+global reduce_command
+reduce_command = 'reduce'
+
+# This has be be here (in a general place) because tips_gui (where it
+# used to be is conditionally loaded).
+# (default to tips_gui displayed is True).
+# deftexi do_coot_tips_flag
+global do_coot_tips_flag
+do_coot_tips_flag = True
+
+global use_gui_qm
+
+pre_list = ["coot_utils.py",
+            "filter.py",
+            "coot_lsq.py",
+            "shelx.py",
+            "get_ebi.py",
+            "local_code.py",
+# hello might give some people problems (according to Paul),
+# if so, just comment out the next line
+            "hello.py",
+            "mutate.py",
+            "refmac.py",
+            "libcheck.py",
+            "gap.py",
+            "fitting.py",
+            "raster3d.py",
+            "povray.py",
+            "generic_objects.py",
+            "ncs.py",
+            "cns2coot.py",
+            "tips.py",
+            "americanisms.py",
+	    "group_settings.py"]
+post_list = ["coot_gui.py",
+             "extensions.py",
+             "tips_gui.py"]
+
+python_list = pre_list
+
+if use_gui_qm:
+    try:
+	# we only append the graphics modules if we have pygtk 2
+	import pygtk
+	pygtk.require("2.0")
+	python_list += post_list
+    except:
+	pass
+
+# some extras for BL for testing etc
+#import getpass
+#if ((getpass.getuser == 'bernhard') and (os.getenv('HOSTNAME') == 'BERNIE')):
+#	files_list += "unittest-extension.py"
+
+coot_python_dir = os.getenv('COOT_PYTHON_DIR')
 if coot_python_dir:
     search_load_path = coot_python_dir
 else:
     search_load_path = "@prefix@/share/coot/python"
 
+for name in python_list:
+    filename = os.path.join(search_load_path, name)
+    if filename and os.path.isfile(filename):
+        print "Loading:", name
+        try:
+            # BL says::
+            # We execute the files rather than loading it as modules since
+            # some and parts thereof are actually scripts and not modules
+            # if you wish to rather use modules use, e.g.
+            # exec "from " + base + " import *"
+            # and set PYTHONPATH to point to COOT_PYTHON_DIR
+            execfile(filename)
+        except:
+            import traceback
+            traceback.print_exc()
+            print "BL ERROR: couldn't load ", name
+    else:
+        print "ERROR: cannot find", name
 
-for i in files_list:
-#          print "i",i
-          f = os.path.join(search_load_path, i)
-#          print "f", f
-          if f and os.path.isfile(f) :
-	     print "Loading:", i
-#             print "f is ", f
-             execfile(f)
-          else : print "Error finding ",i
 
-# now lets define some variables:
