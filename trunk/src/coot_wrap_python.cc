@@ -26241,6 +26241,27 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_set_raster3d_bone_thickness(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  float arg1 ;
+  float val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:set_raster3d_bone_thickness",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_float(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_raster3d_bone_thickness" "', argument " "1"" of type '" "float""'");
+  } 
+  arg1 = static_cast< float >(val1);
+  set_raster3d_bone_thickness(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_raster_screen_shot(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   
@@ -32654,6 +32675,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_raster3d_atom_radius", _wrap_set_raster3d_atom_radius, METH_VARARGS, NULL},
 	 { (char *)"set_raster3d_density_thickness", _wrap_set_raster3d_density_thickness, METH_VARARGS, NULL},
 	 { (char *)"set_renderer_show_atoms", _wrap_set_renderer_show_atoms, METH_VARARGS, NULL},
+	 { (char *)"set_raster3d_bone_thickness", _wrap_set_raster3d_bone_thickness, METH_VARARGS, NULL},
 	 { (char *)"raster_screen_shot", _wrap_raster_screen_shot, METH_VARARGS, NULL},
 	 { (char *)"citation_notice_off", _wrap_citation_notice_off, METH_VARARGS, NULL},
 	 { (char *)"superpose", _wrap_superpose, METH_VARARGS, NULL},

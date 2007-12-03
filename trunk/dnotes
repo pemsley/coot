@@ -4,7 +4,7 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   12 outstanding issues
+   6 outstanding issues
 
    o Carsten's Map Masking crash
 
@@ -43,26 +43,58 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Turn on pythoning in build-it.  No special days.
 
-   o Fix mapman bones reader.  What does G(DVD)K say? he says move-to, draw-to.  But 
-     can I make that work?
-
-   o Fix Get Monomer for GLC (or is it search mon lib for glucose?)
-
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
+     Ask about Rotamer misses.  Well, the dictionary is fine. Why does
+     molprobity web site gives less bad rotamers then? (First: Does it?).
+     Yes it does: e.g. for 1sar molprobity notes only these:
+     "Bad rotamer B  47 GLN (0.3%)" 
+     "Bad rotamer A  91 LEU (0.4%)" 
+     "Bad rotamer A  13 PRO (0.9%)" 
+     "Bad rotamer B  41 GLU (0.7%)" 
+
+     There are 10 times more for Coot.  
+     (fix-nomenclature-errors doesn't fix anything)
+
+
+   o consider a function generator for dialog box of buttons.  Because
+     we need a function that accepts args for close-dialog and one
+     that does not.  A macro maybe.
+
+
+
+
+
+
+   o kalypso gkt2: Fit Loop.  undo.  Fit loop. crash.
+
+* Can't reproduce. Loop fitting is now backed up at start.
+
+   o Fix mapman bones reader.  What does G(DVD)K say? he says move-to, draw-to.  But 
+     can I make that work?  Yes I can. move it over.
+
+* Done.
 
    o Submarining of green spot on Ramachandran Plot.  Also no green
      spot for GLY.
 
-   o kalypso gkt2: Fit Loop.  undo.  Fit loop. crash.
+*Fixed.
+
+   o Fix Get Monomer for GLC (or is it search mon lib for glucose?)
+
+* Libcheck problem.  Needs new libcheck and/or dictionary.
 
    o Put limit of 180 clusters in fascinating-clusters-gui.
 
+* Done
 
+   o Dynamically add view to the Views Panel [FvD]
 
+* Done.
 
+   o Eddie's Snell anisotropic Bs form .res file.
+     Write a test that checks that the shelx output is anisotropic.  
 
-
-
+* Bug fixed.  Test another time (it's 10x harder than the fix)
 
    o Dynamically add view to the Views Panel [FvD]
 
@@ -2563,4 +2595,21 @@ EJD crash:
 #13 0x00000000 in ?? ()
 
 
+
+------
+texi2html ../../coot/doc/user-manual.texi
+*** Undefined node of menu_entry (Dictionary): * Dictionary::
+*** Undefined node of menu_entry (Planar Peptide Restraints): * Planar Peptide Restraints::
+*** Undefined node of menu_entry (The <TT>UNK</TT> residue type): * The @t{UNK} residue type::
+mkdir -p chapters ; \
+cd chapters ; \
+splitstr='-split_chapter' ; \
+texi2html --version ; \
+if [ $? = 0 ] ; then splitstr='-split=chapter' ; fi ; \
+texi2html $splitstr ../../../coot/doc/user-manual.texi ; \
+cd ..
+1.64
+*** Undefined node of menu_entry (Dictionary): * Dictionary::
+*** Undefined node of menu_entry (Planar Peptide Restraints): * Planar Peptide Restraints::
+*** Undefined node of menu_entry (The <TT>UNK</TT> residue type): * The @t{UNK} residue type::
 

@@ -132,6 +132,8 @@ coot::geometry_graphs::mouse_over(GtkCanvasItem *item, GdkEvent *event,
    
 }
 
+// "Molecule 2: " (for example) get prepended to the graph_label_in.
+// 
 coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
 				       int imol_in,
 				       std::string graph_label_in,
@@ -141,13 +143,16 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
    imol = imol_in;
    n_chains = nchains_in;
    max_chain_length = max_chain_length_in;
-   graph_label = graph_label_in;
    setup_internal();
    setup_canvas(nchains_in, max_chain_length_in);
    // std::cout << "resizing geometry_graphs to " << nchains_in << std::endl;
    blocks.resize(nchains_in);
    offsets.resize(nchains_in);
    chain_index.resize(n_chains);
+   graph_label = "Molecule ";
+   graph_label += coot::util::int_to_string(imol);
+   graph_label += ": ";
+   graph_label += graph_label_in;
 
    // set the window title:
    std::string title("Graph");

@@ -55,6 +55,7 @@ graphics_info_t::raster3d(std::string filename) {
 			    width, height,
 			    clipping_front,
 			    raster3d_bond_thickness,
+			    raster3d_bone_thickness,
 			    raster3d_atom_radius,
 			    raster3d_density_thickness);
    GL_matrix m;
@@ -100,6 +101,7 @@ graphics_info_t::povray(std::string filename) {
 			    glarea->allocation.height, 
 			    clipping_front,
 			    raster3d_bond_thickness,
+			    raster3d_bone_thickness,
 			    raster3d_atom_radius,
 			    raster3d_density_thickness);
    GL_matrix m;
@@ -256,7 +258,8 @@ coot::raytrace_info_t::render_molecules(std::ofstream &render_stream) {
    for (unsigned int i=0; i<rt_mol_info.size(); i++) {
       std::cout << "rendering ray trace number: " << i << std::endl;
       rt_mol_info[i].render_molecule(render_stream, bond_thickness,
-				     atom_radius, density_thickness);
+				     atom_radius, density_thickness,
+				     bone_thickness);
    }
 }
 
@@ -264,7 +267,8 @@ void
 coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
 					       float bond_thickness,
 					       float atom_radius,
-					       float density_thickness) {
+					       float density_thickness,
+					       float bone_thickness) {
 
    for(unsigned int id=0; id<density_lines.size(); id++) {
       render_stream << "5" << "\n";
@@ -313,6 +317,24 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
 		       << "\n";
       }
    }
+
+   for (unsigned int ib=0; ib<bone_lines.size(); ib++) {
+      render_stream << "5" << "\n";
+      // coord1 radius coord2 dummy colour
+      render_stream << "  " 
+		    << bone_lines[ib].first.x() << " "
+		    << bone_lines[ib].first.y() << " "
+		    << bone_lines[ib].first.z() << " "
+		    << bone_thickness << " "
+		    << bone_lines[ib].second.x() << " "
+		    << bone_lines[ib].second.y() << " "
+		    << bone_lines[ib].second.z() << " "
+		    << bone_thickness << " "
+		    << bones_colour.col[0] << " "
+		    << bones_colour.col[1] << " "
+		    << bones_colour.col[2] << "\n";
+   }
+
 }
 
 // ---------------------------------------------------------------------

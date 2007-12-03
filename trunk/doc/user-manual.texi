@@ -231,8 +231,13 @@ behaviour.
   containing the standard amino acid residues in ``standard
   conformation'' @footnote{as it is known in Clipper.}
 @item @env{COOT_SCHEME_DIR} 
-  The directory containing auxiliary scheme
+  The directory containing standard (part of the distribution) scheme
   files 
+@item @env{COOT_SCHEME_EXTRAS_DIR} 
+  The directory containing bespoke scheme files.  This variable is not
+  set by default.  If you set it, Coot will test that it points to a
+  directory, and if it does, Coot will load all the .scm files in that
+  directory.
 @item @env{COOT_REF_STRUCTS} 
   The directory containing a set of
   high resolution pdb files used as 

@@ -2324,12 +2324,14 @@ if [ "$python_scripting" = "--with-python" ] ; then
 
     # I doubt the need for these setting!  If no python then blank out
     # the guile scripting?  Does that make sense?
+    # 
+    # I guess not.  I will change it to python
     #
     if [ "$ENABLE_PYTHON_COOT" == "0" ] ; then
-       cp src/blank.cc src/coot_wrap_guile.cc
+       cp src/blank.cc src/coot_python_guile.cc
     fi
     if [ "$ENABLE_PYTHON_COOT" == "no" ] ; then 
-       cp src/blank.cc src/coot_wrap_guile.cc
+       cp src/blank.cc src/coot_python_guile.cc
     fi
 
 fi

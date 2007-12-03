@@ -80,7 +80,15 @@
     (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
     
-    (map (lambda (cluster-info)
+    (let loop ((cluser-list cluster-list)
+	       (count 0))
+      
+      (cond
+       ((null? cluster-list) 'done)
+       ((= 180 count) 'done)
+       (else 
+
+	(let ((cluster-info) (car cluster-list))
 	   (let* ((frame (gtk-frame-new #f))
 		  (vbox (gtk-vbox-new #f 2)))
 
@@ -100,9 +108,9 @@
 	       ;; now we have a list of individual features:
 	       (let ((features (list-ref cluster-info 4)))
 		 (if (> (length features) 0)
-		     (add-feature-buttons features vbox))))))
+		     (add-feature-buttons features vbox)))
+	       (loop (cdr cluster-list) (+ count 1))))))))
 		   
-	 cluster-list)
 
     (gtk-container-border-width outside-vbox 2)
     (let ((ok-button (gtk-button-new-with-label "  Close  ")))

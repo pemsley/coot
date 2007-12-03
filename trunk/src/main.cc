@@ -345,14 +345,18 @@ main (int argc, char *argv[]) {
 #ifdef USE_PYTHON
      //  (on Mac OS, call PyMac_Initialize() instead)
      //http://www.python.org/doc/current/ext/embedding.html
-   
-     Py_Initialize(); // otherwise it core dumps saying python
-     // interpreter not initialized (or something).
 
-     // Now we want to import coot.py/_coot.so (coot load _coot)
-     // std::cout << "::::::::::::::::: Python path init_coot" << std::endl;
-     init_coot(); // i.e. SWIG_init for python, best we do this before
-                  // running .coot.py, eh?
+#ifdef USE_PYMAC_INIT 
+  PyMac_Initialize();
+#else  
+  Py_Initialize(); // otherwise it core dumps saying python
+  // interpreter not initialized (or something).
+#endif     
+
+  // Now we want to import coot.py/_coot.so (coot load _coot)
+  // std::cout << "::::::::::::::::: Python path init_coot" << std::endl;
+  init_coot(); // i.e. SWIG_init for python, best we do this before
+               // running .coot.py, eh?
 
 
      /* And now read the users own initialization code */

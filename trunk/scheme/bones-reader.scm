@@ -167,17 +167,21 @@
 				   (append (list-ref ordered-atoms current-position)
 					   (list-ref ordered-atoms xyz-index)))
 			    (loop (cdr connections) xyz-index))))))))))
-					   
-      (let ((points-obj (new-generic-object-number "Points")))
-	(let loop ((xyz-list ordered-atoms)
-		   (point-number 0))
-	  (cond
-	   ((null? xyz-list)
-	    (set-display-generic-object points-obj 1))
-	   (else 
-	    (apply to-generic-object-add-point points-obj "green" 10 (car xyz-list))
-	    ; (apply place-text (number->string point-number) (append (car xyz-list) (list 2)))
-	    (loop (cdr xyz-list) (+ point-number 1)))))))))
+
+; debugging: output the points too.					   
+;      (let ((points-obj (new-generic-object-number "Points")))
+;	(let loop ((xyz-list ordered-atoms)
+;		   (point-number 0))
+;	  (cond
+;	   ((null? xyz-list)
+;	    (set-display-generic-object points-obj 1))
+;	   (else 
+;	    (apply to-generic-object-add-point points-obj "green" 10 (car xyz-list))
+;	    ; (apply place-text (number->string point-number) (append (car xyz-list) (list 2)))
+;	    (loop (cdr xyz-list) (+ point-number 1))))))
+
+      )))
+
 
 
 ;;;
