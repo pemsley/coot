@@ -39,6 +39,8 @@
 #include <clipper/clipper-contrib.h>
 #include "cootaneer-sequence.h"
 
+#include "graphics-info.h"
+
 #ifdef USE_GUILE
 #include <guile/gh.h>
 
@@ -57,8 +59,6 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
-
-#include "graphics-info.h"
 
 #ifdef USE_GUILE
 coot::atom_spec_t

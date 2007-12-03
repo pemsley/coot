@@ -27,14 +27,6 @@
 #include <windows.h>
 #endif
 
-#ifdef USE_GUILE
-#include <guile/gh.h>
-#endif // USE_GUILE
-
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
-
  
 #include "globjects.h" //includes gtk/gtk.h
 
@@ -57,6 +49,18 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+
+#ifdef USE_GUILE
+#include <guile/gh.h>
+#endif // USE_GUILE
+
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+//
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif // USE_PYTHON
 
 int add_strict_ncs_matrix(int imol,
 			  const char *this_chain_id,
