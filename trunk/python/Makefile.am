@@ -25,7 +25,7 @@ python_DATA =  $(EXTRA_DIST) coot_load_modules.py
 if COOT_USE_PYTHON
 TEXI_FILE =  coot-python-functions.texi
 coot-python-functions.texi:
-	python python_coot_docs.py 
+	python $(top_srcdir)/python/python_coot_docs.py 
 endif
 
 EXTRA_DIST =    \
