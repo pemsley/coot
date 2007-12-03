@@ -23,14 +23,6 @@
 #include <stdlib.h>
 #include <iostream>
 
-#ifdef USE_GUILE
-#include <guile/gh.h>
-#endif // USE_GUILE
-
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
-
 #define HAVE_CIF  // will become unnessary at some stage.
 
 #include <sys/types.h> // for stating
@@ -78,6 +70,20 @@
 
 #include "coot-utils.hh"  // for is_member_p
 #include "coot-map-heavy.hh"  // for fffear
+
+#ifdef USE_GUILE
+#include <guile/gh.h>
+#endif // USE_GUILE
+
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+//
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif // USE_PYTHON
+
+
 #include "c-interface.h"
 #include "cc-interface.hh"
 

@@ -36,10 +36,6 @@
 #include <guile/gh.h>
 #endif // USE_GUILE
 
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
-
 
 #if defined(_MSC_VER)
 #define usleep(x) Sleep(x/1000)
@@ -109,6 +105,15 @@
 // moving column_label selection to c-interface from mtz bits.
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
+
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+//
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif // USE_PYTHON
+
 
 char *coot_version() {
 

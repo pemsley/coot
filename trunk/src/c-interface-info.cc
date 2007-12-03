@@ -26,14 +26,6 @@
 #include <iostream>
 #include <fstream>
 
-#ifdef USE_GUILE
-#include <guile/gh.h>
-#endif // USE_GUILE
-
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
-
 
 #define HAVE_CIF  // will become unnessary at some stage.
 
@@ -50,7 +42,6 @@
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "callbacks.h"
-#include "cc-interface.hh"
 #include "interface.h" // now that we are moving callback
 		       // functionality to the file, we need this
 		       // header since some of the callbacks call
@@ -80,6 +71,19 @@
 #include "c-interface.h"
 #include "coot-database.hh"
 
+#ifdef USE_GUILE
+#include <guile/gh.h>
+#endif // USE_GUILE
+
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+//
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif // USE_PYTHON
+
+#include "cc-interface.hh"
 
 /*  ------------------------------------------------------------------------ */
 /*                         Molecule Functions       :                        */
