@@ -4,6 +4,7 @@
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
  * Copyright 2007 by The University of Oxford
+ * Copyright 2006, 2007 by Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2170,6 +2171,7 @@ coot::compare_atom_specs_user_float(const coot::atom_spec_t &a1, const coot::ato
 std::string
 coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
 
+#ifdef USE_GUILE
    // e.g. (list) for empty v
    // (list (list "button label" imol-no chain-id resno atom-name)
    //       (list "button label" imol-no chain-id resno atom-name)
@@ -2222,6 +2224,62 @@ coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
 
    r += ")";
    return r;
+#endif // GUILE
+#ifdef USE_PYTHON
+// BL says:: we want to have [] lists in python, separated by commas (,)
+   // e.g. [] for empty v
+   // [["button label",imol-no,chain-id,resno,atom-name],
+   //  ["button label",imol-no,chain-id,resno,atom-name]
+   // ]
+
+   std::string r = "[";
+
+   for (unsigned int i=0; i<v.size(); i++) {
+
+      std::string atom_str("\"");
+      atom_str += v[i].chain;
+      atom_str += "\",";
+      atom_str += int_to_string(v[i].resno);
+      atom_str += ",\"";
+      atom_str += v[i].insertion_code;
+      atom_str += "\",\"";
+      atom_str += v[i].atom_name;
+      atom_str += "\",\"";
+      atom_str += v[i].alt_conf;
+      atom_str += " \"";
+
+      std::string button_label("Clash gap: ");
+      button_label += float_to_string(v[i].float_user_data);
+      button_label += " : ";
+      button_label += v[i].chain;
+      button_label += " ";
+      button_label += int_to_string(v[i].resno);
+      button_label += " ";
+      if (v[i].insertion_code != "") {
+         button_label += v[i].insertion_code;
+         button_label += " ";
+      }
+      button_label += v[i].atom_name;
+      if (v[i].alt_conf != "") {
+         button_label += ",";
+         button_label += v[i].alt_conf;
+         button_label += " ";
+      }
+
+      std::string s = "[";
+      s += single_quote(button_label);
+      s += ",";
+      s += int_to_string(v[i].int_user_data);
+      s += ",";
+      s += atom_str;
+      s += "],\n";
+
+      r += s;
+   }
+
+   r += "]";
+   return r;
+#endif // PYTHON
 }
 
 // error_type is e.g. "Z score", "Clash gap"
@@ -2230,6 +2288,7 @@ std::string
 coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_spec_and_button_info_t> &v,
 					     const std::string error_type) {
 
+#ifdef USE_GUILE
    // e.g. (list) for empty v
    // (list (list "button label" imol-no chain-id resno atom-name)
    //       (list "button label" imol-no chain-id resno atom-name)
@@ -2281,6 +2340,51 @@ coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_
 
    r += ")";
    return r;
+#endif // GUILE
+#ifdef USE_PYTHON
+// BL says:: here again we need a [] list in python 
+   std::string r = "[";
+
+   for (unsigned int i=0; i<v.size(); i++) {
+
+      std::string atom_str("\"");
+      atom_str += v[i].as.chain;
+      atom_str += "\",";
+      atom_str += int_to_string(v[i].as.resno);
+      atom_str += ",\"";
+      atom_str += v[i].as.insertion_code;
+      atom_str += "\",\"";
+      atom_str += v[i].as.atom_name;
+      atom_str += "\",\"";
+      atom_str += v[i].as.alt_conf;
+      atom_str += " \"";
+
+      std::string button_label = v[i].button_label;
+
+      std::string s = "[";
+      s += single_quote(button_label);
+      s += ",";
+      s += int_to_string(v[i].as.int_user_data);
+      s += ",";
+      s += atom_str;
+
+      if (v[i].callback_func != "") {
+         s += ",";
+         s +=  v[i].callback_func;
+      }
+
+      if (i<(v.size()-1)) {
+         s += "],\n";
+      } else {
+         s += "]\n";
+      }
+
+      r += s;
+   }
+
+   r += "]";
+   return r;
+#endif // PYTHON
 }
 
 

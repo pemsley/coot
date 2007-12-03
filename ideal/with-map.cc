@@ -28,6 +28,18 @@
 // Glasgow
 #define MTZFILENAME "/home/paule/data/rnase/rnasa-1.8-all_refmac1.mtz"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#ifdef __GNU_LIBRARY__
+#include "coot-getopt.h"
+#else
+#define __GNU_LIBRARY__
+#include "coot-getopt.h"
+#undef __GNU_LIBRARY__
+#endif
+
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 #ifndef _MSC_VER
@@ -58,18 +70,6 @@
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
 #include "mmdb.h"
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
-#ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
-#else
-#define __GNU_LIBRARY__
-#include "coot-getopt.h"
-#undef __GNU_LIBRARY__
-#endif
 
 #include "simple-restraint.hh"
 

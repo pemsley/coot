@@ -442,7 +442,12 @@ coot::sequence_view::tooltip_like_box(const coot::sequence_view_res_info_t &si) 
    float x1 = float (res_offset + res_scale*si.residue_serial_number) - 60;
    float y1 = float (row_offset + si.row*row_scale) + 10 ;
 
-   float tw = label.size() * 6.0 + 10.0;
+#ifdef WINDOWS_MINGW
+// BL says: again we want to make it bigger to fit
+  float tw = label.size() * 8.0 + 10.0;
+#else
+  float tw = label.size() * 6.0 + 10.0;
+#endif // MINGW
 
    clear_tooltip_box();
 

@@ -34,7 +34,9 @@
 #include <windows.h>
 #include <lm.h>
 #else
+#if !defined(WINDOWS_MINGW)
 #include <pwd.h>
+#endif // MINGW
 #endif
 
 // These 2 are for getpwnam
@@ -44,6 +46,9 @@
 
 #include <sys/stat.h>   // for mkdir
 #include <sys/types.h>
+#if defined WINDOWS_MINGW
+#include <unistd.h>   // BL says: in windows needed for mkdir
+#endif // MINGW
 
 #include "clipper/core/hkl_compute.h"
 #include "coot-utils.hh"
@@ -81,6 +86,15 @@ coot::util::append_dir_file(const std::string &s1, const std::string &file) {
 std::pair<std::string, std::string> coot::get_userid_name_pair() {
 
    std::pair<std::string, std::string> p("unknown","unknown");
+// BL says:: in windows we dont have USER and no getpwnam, so do somethign else
+// and we avoid the ugly code below!!!
+#if defined WINDOWS_MINGW
+   const char *u = getenv("USERNAME");
+   if (u) {
+      p.first  = u;
+      p.second = u;
+   }
+#else
    const char *u = getenv("USER");
 #ifdef _MSC_VER
    // Man this is ugly windows code...
@@ -104,7 +118,8 @@ std::pair<std::string, std::string> coot::get_userid_name_pair() {
       p.first  = pwbits->pw_name;
       p.second = pwbits->pw_gecos;
    }
-#endif
+#endif // MSC
+#endif // MINGW
    return p;
 }
 
@@ -416,7 +431,13 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
    
    for (int i=file_name.length()-1; i>=0; i--) {
       // std::cout << file_name.substr(0, i) << std::endl;
+// BL says:: in windows we should check for \ too. Too much pain to get
+// everything converted to / for file_chooser, e.g. with debackslash!
+#ifdef WINDOWS_MINGW
+      if (file_name[i] == '/' || file_name[i] == '\\') {
+#else
       if (file_name[i] == '/') {
+#endif
 	 if (i < int(file_name.length())) { 
 	    end_char = i;
 	 } else {

@@ -22,11 +22,21 @@ pythondir = $(pkgdatadir)/python
 
 python_DATA =  $(EXTRA_DIST) coot_load_modules.py
 
+if COOT_USE_PYTHON
+TEXI_FILE =  coot-python-functions.texi
+coot-python-functions.texi:
+	python python_coot_docs.py 
+endif
+
 EXTRA_DIST =    \
    Makefile.am  \
    americanisms.py       fitting.py    refmac.py      \
-   background-demo.py    gap.py        shelx.py       \
-   get-ebi.py            mutate.py     coot-lsq.py    \
-   hello.py              povray.py     coot-utils.py  \
-   raster3d.py
+   background_demo.py    gap.py        shelx.py       \
+   get_ebi.py            mutate.py     coot_lsq.py    \
+   hello.py              povray.py     coot_utils.py  \
+   raster3d.py           extensions.py generic_objects.py \
+   ncs.py                tips_gui.py   tips.py          \
+   coot_load_modules.py  filter.py     local_code.py	\
+   coot_gui.py           libcheck.py   cns2coot.py      \
+   group_settings.py     ../src/coot.py $(TEXI_FILE)
 

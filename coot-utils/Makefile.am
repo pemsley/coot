@@ -18,6 +18,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+if COOT_USE_GUILE
+WITH_GUILE_CFLAGS=-DUSE_GUILE
+else
+if COOT_USE_PYTHON
+WITH_PYTHON_CFLAGS=-DUSE_PYTHON
+endif
+endif
+
 lib_LTLIBRARIES=libcoot-utils.la libcoot-map-utils.la libcoot-coord-utils.la  libcoot-coord-extras.la libcoot-map-heavy.la libcoot-shelx.la
 
 include_HEADERS = coot-utils.hh peak-search.hh coot-trim.hh \
@@ -29,7 +37,9 @@ INCLUDES = \
 	-I$(top_srcdir)/geometry	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
-	$(GSL_CFLAGS)
+	$(GSL_CFLAGS)			\
+	$(WITH_GUILE_CFLAGS)		\
+	$(WITH_PYTHON_CFLAGS)
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"'
