@@ -92,6 +92,11 @@
 
    o Correct CISPEP if needed cards on writing pdb.
 
+   o consider a function generator for dialog box of buttons.  Because
+     we need a function that accepts args for close-dialog and one
+     that does not.  A macro maybe.
+
+
 -----
 
     Release 0.6 and 0.7 [May 2008]
