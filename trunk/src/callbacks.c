@@ -4239,7 +4239,6 @@ on_workflow_ok_button_clicked          (GtkButton       *button,
 
 }
 
-
 void
 on_workflow_cancel_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
@@ -7629,5 +7628,230 @@ on_checked_waters_baddies_dialog_destroy
                                         gpointer         user_data)
 {
   store_checked_waters_baddies_dialog(NULL);
+}
+
+
+void
+on_model_toolbar_refine_control_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *widget = create_refine_params_dialog();
+  gtk_widget_show(widget);
+}
+
+
+void
+on_model_toolbar_select_map_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   show_select_map_dialog();
+}
+
+
+void
+on_model_toolbar_refine_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+    do_refine(1);
+  else 
+    do_refine(0);		/* unclick button */
+    
+}
+
+
+void
+on_model_toolbar_regularize_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+    do_regularize(1);
+  else 
+    do_regularize(0);		/* unclick button */
+}
+
+
+void
+on_model_toolbar_rigid_body_fit_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
+    printf("Rigid Body:\n");
+    do_rigid_body_refine(1);
+  } else {
+     do_rigid_body_refine(0);
+  }
+}
+
+
+void
+on_model_toolbar_rot_trans_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
+    do_rot_trans_setup(1);
+  } else {
+    do_rot_trans_setup(0);
+  }
+   
+}
+
+
+void
+on_model_toolbar_auto_fit_rotamer_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+     setup_auto_fit_rotamer(1);
+  else 
+    setup_auto_fit_rotamer(0);
+}
+
+
+void
+on_model_toolbar_rotamers_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+      setup_rotamers(1);
+   else 
+      setup_rotamers(0);
+}
+
+
+void
+on_model_toolbar_edit_chi_angles_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    setup_edit_chi_angles(1);
+  } else { 
+    setup_edit_chi_angles(0);
+    set_show_chi_angle_bond(0);
+  }
+}
+
+
+void
+on_model_toolbar_flip_peptide_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+    do_pepflip(1);
+  else 
+     do_pepflip(0);
+}
+
+
+void
+on_model_toolbar_sidechain_180_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active)
+    setup_180_degree_flip(1);
+  else 
+    setup_180_degree_flip(0);
+}
+
+
+void
+on_model_toolbar_mutate_and_autofit_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+    setup_mutate_auto_fit(1);
+  else 
+     setup_mutate_auto_fit(0);
+}
+
+
+void
+on_model_toolbar_simple_mutate_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+      setup_mutate(1);
+   else 
+      setup_mutate(0);
+}
+
+
+void
+on_model_toolbar_find_water_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *widget = create_find_waters_dialog();
+   fill_find_waters_dialog(widget);
+   gtk_widget_show(widget);
+}
+
+
+void
+on_model_toolbar_add_terminal_residue_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+    do_add_terminal_residue(1);
+  else 
+    do_add_terminal_residue(0);
+}
+
+
+void
+on_model_toolbar_add_atom_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   place_atom_at_pointer();
+}
+
+
+void
+on_model_toolbar_clear_pending_picks_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   clear_pending_picks();
+}
+
+
+void
+on_model_toolbar_delete_button_clicked (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *widget = wrapped_create_delete_item_dialog();
+  gtk_widget_show(widget);
+}
+
+
+void
+on_model_toolbar_undo_button_clicked   (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   apply_undo();
+}
+
+
+void
+on_model_toolbar_redo_button_clicked   (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  apply_redo();
 }
 

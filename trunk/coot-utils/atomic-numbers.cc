@@ -22,7 +22,7 @@
 #include "coot-utils.hh"
 
 std::vector<std::pair<std::string, int> > 
-coot::util::atomic_number_atom_list() { 
+coot::util::atomic_number_atom_list() {
 
    std::vector<std::pair<std::string, int> > atom_list;
    std::pair<std::string, int> a;

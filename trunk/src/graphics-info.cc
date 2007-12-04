@@ -3755,8 +3755,45 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
 	 std::cout << "ERROR:: failed to find button: " << button_name << std::endl;
       
    } else {
-      std::cout << "DEBUG:: model_fit_refine_dialog not found" << std::endl;
+      // std::cout << "DEBUG:: model_fit_refine_dialog not found" << std::endl;
    }
+
+#if (GTK_MAJOR_VERSION > 1)
+
+   std::string toolbar_button_name = "not-found";
+   if (button_name == "model_refine_dialog_refine_togglebutton")
+      toolbar_button_name = "model_toolbar_refine_togglebutton";
+   if (button_name == "model_refine_dialog_regularize_zone_togglebutton")
+      toolbar_button_name = "model_toolbar_regularize_togglebutton";
+   if (button_name == "model_refine_dialog_rigid_body_togglebutton")
+      toolbar_button_name = "model_toolbar_rigid_body_fit_togglebutton";
+   if (button_name == "model_refine_dialog_rot_trans_togglebutton")
+      toolbar_button_name = "model_toolbar_rot_trans_togglebutton";
+   if (button_name == "model_refine_dialog_auto_fit_rotamer_togglebutton")
+      toolbar_button_name = "model_toolbar_auto_fit_rotamer_togglebutton";
+   if (button_name == "model_refine_dialog_rotamer_togglebutton")
+      toolbar_button_name = "model_toolbar_rotamers_togglebutton";
+   if (button_name == "model_refine_dialog_edit_chi_angles_togglebutton")
+      toolbar_button_name = "model_toolbar_edit_chi_angles_togglebutton";
+   if (button_name == "model_refine_dialog_pepflip_togglebutton")
+      toolbar_button_name = "model_toolbar_flip_peptide_togglebutton";
+   if (button_name == "model_refine_dialog_do_180_degree_sidechain_flip_togglebutton")
+      toolbar_button_name = "model_toolbar_sidechain_180_togglebutton";
+   if (button_name == "model_refine_dialog_mutate_auto_fit_togglebutton")
+      toolbar_button_name = "model_toolbar_mutate_and_autofit_togglebutton";
+   if (button_name == "model_refine_dialog_mutate_togglebutton")
+      toolbar_button_name = "model_toolbar_simple_mutate_togglebutton";
+   if (button_name == "model_refine_dialog_fit_terminal_residue_togglebutton")
+      toolbar_button_name = "model_toolbar_add_terminal_residue_togglebutton";
+
+   
+   GtkWidget *toggle_button = lookup_widget(graphics_info_t::glarea,
+					    toolbar_button_name.c_str());
+   if (toggle_button)
+      if (GTK_TOGGLE_BUTTON(toggle_button)->active)
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
+#endif    
+   
 } 
 
 
