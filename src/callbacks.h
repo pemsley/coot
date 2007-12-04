@@ -2881,3 +2881,100 @@ void
 on_checked_waters_baddies_dialog_destroy
                                         (GtkObject       *object,
                                         gpointer         user_data);
+
+void
+on_model_toolbar_refine_control_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_select_map_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_refine_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_regularize_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_rigid_body_fit_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_rot_trans_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_auto_fit_rotamer_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_rotamers_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_edit_chi_angles_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_flip_peptide_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_sidechain_180_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_mutate_and_autofit_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_simple_mutate_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_find_water_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_add_terminal_residue_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_add_atom_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_clear_pending_picks_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_delete_button_clicked (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_undo_button_clicked   (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_redo_button_clicked   (GtkButton       *button,
+                                        gpointer         user_data);

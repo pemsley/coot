@@ -468,51 +468,11 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 
 }
 
-
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 /*                               skeleton                                   */
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-
-GtkWidget *
-create_skeleton_colour_selection_window() { 
-
-   GtkWidget  *colorseldialog;
-
-   GtkButton *ok_button;
-   GtkButton *cancel_button;
-   GtkButton *help_button;
-   GtkWidget *colorsel;
-
-   colorseldialog = 
-      gtk_color_selection_dialog_new("Skeleton Colour Selection"); 
-
-
-/* How do we get to the buttons? */
-
-   colorsel = GTK_COLOR_SELECTION_DIALOG(colorseldialog)->colorsel;
-
-  /* Capture "color_changed" events in col_sel_window */
-
-  gtk_signal_connect (GTK_OBJECT (colorsel), "color_changed",
-                      (GtkSignalFunc)on_skeleton_color_changed, 
-		      (gpointer)colorsel);
-  
-  gtk_signal_connect(GTK_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
-				ok_button), "clicked",
-		     GTK_SIGNAL_FUNC(on_skeleton_col_sel_cancel_button_clicked),
-		     colorseldialog);
-
-  gtk_signal_connect(GTK_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
-				cancel_button), "clicked",
-		     GTK_SIGNAL_FUNC(on_skeleton_col_sel_cancel_button_clicked), 
-		     colorseldialog);
-
-  return GTK_WIDGET(colorseldialog);
-
-}
-
 
 void 
 on_skeleton_color_changed(GtkWidget *w,
