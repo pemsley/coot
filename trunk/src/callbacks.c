@@ -7088,7 +7088,7 @@ void
 on_spin_view_on_off1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  toggle_idle_function();
+  toggle_idle_spin_function();
 }
 
 

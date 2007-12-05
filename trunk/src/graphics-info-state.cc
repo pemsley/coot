@@ -28,7 +28,7 @@
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
-
+#include "c-interface-scm.hh"
 
 // save state
 int
@@ -800,14 +800,25 @@ graphics_info_t::pythonize_command_strings(const std::vector<std::string> &comma
 std::string
 graphics_info_t::schemize_command_strings(const std::vector<std::string> &command_strings) {
 
-   std::string command = "(";
-   for (int i=0; i<(int(command_strings.size())-1); i++) {
-      command += command_strings[i];
-      command += " ";
+   std::string command;
+   bool done = 0; 
+   if (command_strings.size() == 2) {
+      if (command_strings[0] == DIRECT_SCM_STRING) {
+	 command = command_strings[1];
+	 done = 1;
+      }
    }
-   command += command_strings.back();
-   command += ")";
-   // std::cout << "INFO:: history command: " << command << std::endl;
+
+   if (! done) { 
+      command = "(";
+      for (int i=0; i<(int(command_strings.size())-1); i++) {
+	 command += command_strings[i];
+	 command += " ";
+      }
+      command += command_strings.back();
+      command += ")";
+      // std::cout << "INFO:: history command: " << command << std::endl;
+   }
    return command;
 }
 

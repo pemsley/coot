@@ -1828,6 +1828,7 @@ public:
    static std::string pythonize_command_strings(const std::vector<std::string> &command_strings);
    static std::string schemize_command_strings(const std::vector<std::string> &command_strings);
    static short int console_display_commands;
+   static short int console_display_commands_hilight;
 
    // build one residue by phi psi
    static int add_terminal_residue_n_phi_psi_trials;

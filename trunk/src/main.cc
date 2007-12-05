@@ -42,8 +42,9 @@
 
 #include <gtk/gtk.h>
 
+// Sorted out by configure.
 // #define USE_LIBGLADE
-#undef USE_LIBGLADE // for now
+// #undef USE_LIBGLADE // for now
 
 #ifdef USE_LIBGLADE
 #include <glade/glade.h>

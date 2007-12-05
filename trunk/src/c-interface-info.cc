@@ -1251,10 +1251,23 @@ void add_to_history(const std::vector<std::string> &command_strings) {
    graphics_info_t g;
    g.add_history_command(command_strings);
 
-   if (g.console_display_commands) 
-      std::cout << "INFO:: Command: "
-		<< graphics_info_t::schemize_command_strings(command_strings)
+   if (g.console_display_commands) { 
+
+      char esc = 27;
+      if (g.console_display_commands_hilight) {
+	 // std::cout << esc << "[34m";
+	 std::cout << esc << "[1m";
+      } else {
+	 std::cout << "INFO:: Command: ";
+      }
+
+      std::cout << graphics_info_t::schemize_command_strings(command_strings)
 		<< std::endl;
+      
+      if (g.console_display_commands_hilight) // hilight off
+	 std::cout << esc << "[0m"; // reset
+
+   }
 
 #ifdef USE_MYSQL_DATABASE
 

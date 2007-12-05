@@ -56,10 +56,15 @@ Tue Jul  3 14:27:37 BST 2007
      (fix-nomenclature-errors doesn't fix anything)
 
 
+   o Wendy Offen: disulphide drawn between CYS and close MET. Oops.
+
+
+
+
+
    o skeleton colour set correctly in the colour selector?
 
-
-
+* Done.
 
    o kalypso gkt2: Fit Loop.  undo.  Fit loop. crash.
 
