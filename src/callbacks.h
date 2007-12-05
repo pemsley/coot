@@ -2978,3 +2978,10 @@ on_model_toolbar_undo_button_clicked   (GtkButton       *button,
 void
 on_model_toolbar_redo_button_clicked   (GtkButton       *button,
                                         gpointer         user_data);
+void
+on_scripting_python1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_scripting_scheme1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

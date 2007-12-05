@@ -5703,9 +5703,16 @@ SCM cis_peptides(int imol) {
 void post_scripting_window() {
 
 #ifdef USE_GUILE
-  // window = create_guile_window(); 
-//   entry = lookup_widget(window, "guile_window_entry"); 
-//   setup_guile_window_entry(entry); // USE_PYTHON and USE_GUILE used here
+   post_scheme_scripting_window();
+#endif    
+
+}
+
+
+/*! \brief pop-up a scripting window for scheming */
+void post_scheme_scripting_window() {
+
+#ifdef USE_GUILE
 
   if (graphics_info_t::guile_gui_loaded_flag == TRUE) { 
 
@@ -5727,6 +5734,10 @@ void post_scripting_window() {
   } 
 #endif
 
+}
+
+/*! \brief pop-up a scripting window for pythoning */
+void post_python_scripting_window() {
 
 #ifdef USE_PYTHON
 
@@ -5739,9 +5750,12 @@ void post_scripting_window() {
   gtk_widget_show(window);
 
   // clear the entry here
+#else
+  std::cout << "No python" << std::endl;
 #endif
 
 }
+
 
 /* called from c-inner-main */
 void run_command_line_scripts() {

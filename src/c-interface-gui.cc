@@ -628,17 +628,12 @@ coot_checked_exit(int retval) {
 #ifdef USE_GUILE
 void run_clear_backups(int retval) {
 
+   SCM v1 = SCM_BOOL_T;
+   SCM v2 = SCM_BOOL_F;
+
    SCM r = safe_scheme_command("(clear-backups-maybe)");
-   short int test = 0; 
-   if (SCM_NFALSEP(r)) {
-      test = 1;
-   }
 
-   if (SCM_BOOL_NOT(r)) {
-      test++;
-   }
-
-   if (test == 2) { 
+   if (scm_is_undefined(r)) { 
       // not false and not not false, function didn't run then...
       std::cout << "WARNING:: (clear-backups-maybe) returns "
 		<< scm_to_locale_string(display_scm(r))

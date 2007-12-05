@@ -45,5 +45,11 @@ SCM display_scm(SCM o) {
    return scm_simple_format(dest, mess, scm_list_1(o));
 }
 
+bool scm_is_undefined(SCM o) {
+
+   // #t and #f don't have that bit set.  Not sure about others, but
+   // undefined does.
+   return (1024 & SCM_UNPACK(o)) > 0 ? 1 : 0;
+}
 
 #endif // USE_GUILE

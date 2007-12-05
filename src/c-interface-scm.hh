@@ -34,6 +34,8 @@
 // return a scm string, decode to c++ using scm_to_locale_string();
 SCM display_scm(SCM o);
 
+bool scm_is_undefined(SCM o); // ?
+
 #define DIRECT_SCM_STRING ";; # DIRECT SCHEME"
 
 #endif 
