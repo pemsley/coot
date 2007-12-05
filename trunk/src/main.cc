@@ -2,6 +2,7 @@
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Author: Paul Emsley
+ * Copyright 2003, 2004, 2005, 2006, 2007 by Bernhard Lohkamp
  * Copyright 2007 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -39,6 +40,11 @@
 // #endif
 // #ifdef DATADIR
 // #endif // DATADIR
+#if defined (WINDOWS_MINGW)
+#include <windows.h>
+#define sleep(t) Sleep(1000*t);
+#define usleep(t) Sleep(t/1000);
+#endif
 
 #include <gtk/gtk.h>
 
@@ -199,7 +205,7 @@ main (int argc, char *argv[]) {
 #if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
 	usleep(10000);
 #else
-	_sleep(10);
+	usleep(10000);
 #endif
 	gtk_main_iteration();
      }
@@ -305,6 +311,7 @@ main (int argc, char *argv[]) {
 	create_initial_validation_graph_submenu_generic(window1 , "probe_clashes1", "probe_submenu");
 	create_initial_validation_graph_submenu_generic(window1 , "gln_and_asn_b_factor_outliers1",
 							"gln_and_asn_b_factor_outliers_submenu");
+
      } else {
 	std::cout << "CATASTROPHIC ERROR:: failed to create Gtk GL widget"
 		  << "  (Check that your X11 server is working and has (at least)"
@@ -368,6 +375,9 @@ main (int argc, char *argv[]) {
      char *directory = getenv("HOME");
 #endif
 
+// BL says: we do some more insert to accommodate use_graphics_flag and tips-gui!
+     short int use_graphics_flag = use_graphics_interface_state();
+
      // First load coot.py, then load the standard startup files, 
      // then load 0-coot.state.py
      
@@ -379,7 +389,7 @@ main (int argc, char *argv[]) {
 	pydirectory = pydirectory_cs;
      }
 
-     // std::cout << "DEBUG:: stating pydirectory " << pydirectory << std::endl;
+     std::cout << "DEBUG:: stating pydirectory " << pydirectory << std::endl;
      
      struct stat buf;
      int status = stat(pydirectory.c_str(), &buf);
@@ -395,16 +405,30 @@ main (int argc, char *argv[]) {
 	    run_python_script(coot_dot_py_checked);
 	    std::cout << "INFO:: coot.py loaded" << std::endl;
 
-             char *coot_load_modules_dot_py = "coot_load_modules.py";
-             char *coot_load_modules_dot_py_checked = 
+            char *coot_load_modules_dot_py;
+            if (use_graphics_flag) {
+	      // we have gui
+	      // BL says:: lets initialize glue too but only if we have pygtk
+#ifdef USE_PYGTK
+	      initcoot_python();
+	      safe_python_command("global use_gui_qm; use_gui_qm = True");
+#else
+	      safe_python_command("global use_gui_qm; use_gui_qm = False");
+#endif // PYTGK
+                 } else {
+	      // we dont have gui
+	      safe_python_command("global use_gui_qm; use_gui_qm = False");
+              }
+	    coot_load_modules_dot_py = "coot_load_modules.py";
+            char *coot_load_modules_dot_py_checked = 
                   does_file_exist(pydirectory.c_str(), coot_load_modules_dot_py);
-             if (coot_load_modules_dot_py_checked) { 
+            if (coot_load_modules_dot_py_checked) { 
                  std::cout << "INFO loading coot python modules" << std::endl;
                  run_python_script(coot_load_modules_dot_py_checked);
-             } else { 
-               std::cout << "WARNING:: No coot modules found! Python scripting crippled. " 
-                         << std::endl;
-             } 
+                } else {
+                 std::cout << "WARNING:: No coot modules found! Python scripting crippled. " 
+                                << std::endl;
+            }
          } else { 
             std::cout << "WARNING:: No coot.py file found! Python scripting unavailable. " 
                       << std::endl;
@@ -424,6 +448,13 @@ main (int argc, char *argv[]) {
 #ifndef USE_GUILE     
      run_state_file_maybe(); // run local 0-coot.state.py?
 #endif // USE_GUILE - not both start-up scripts
+
+#ifdef USE_PYGTK
+     // BL says: we wanna run tips-gui now, I suggest/decide
+     if (use_graphics_flag) {
+       PyRun_SimpleString("tips_gui()");
+     }
+#endif // USE_PYGTK
      
 
 #endif // USE_PYTHON  
