@@ -833,8 +833,8 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
       if (resname_1 == "WAT" || resname_1 == "HOH" ||
 	  resname_2 == "WAT" || resname_2 == "HOH")
 	 is_water_flag = 1;
-      refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, inscode_1, resno_2, inscode_2, altconf,
-			   is_water_flag);
+      refine_residue_range(imol, chain_id_1, chain_id_2, resno_1, inscode_1,
+			   resno_2, inscode_2, altconf, is_water_flag);
    }
 }
 

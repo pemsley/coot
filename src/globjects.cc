@@ -705,6 +705,7 @@ short int graphics_info_t::python_history = 1; // on
 short int graphics_info_t::guile_history  = 1; // on
 coot::history_list_t graphics_info_t::history_list;
 short int graphics_info_t::console_display_commands = 0; // off
+short int graphics_info_t::console_display_commands_hilight = 1; // on
 
 // build one residue, n trials:
 int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 100;
@@ -3146,7 +3147,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_I:
       // toggle the idle function using the I key.
       // 
-      toggle_idle_function(); 
+      toggle_idle_spin_function(); 
       break; 
       
    case GDK_l:

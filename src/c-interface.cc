@@ -34,6 +34,7 @@
 
 #ifdef USE_GUILE
 #include <guile/gh.h>
+#include "c-interface-scm.hh"
 #endif // USE_GUILE
 
 
@@ -436,7 +437,7 @@ void hardware_stereo_mode() {
 	    if (glarea) { 
 	       std::cout << "INFO:: switch to hardware_stereo_mode succeeded\n";
 	       if (graphics_info_t::i_fn_token) { 
-		  toggle_idle_function(); // turn it off;
+		  toggle_idle_spin_function(); // turn it off;
 	       }
 	       gtk_widget_destroy(graphics_info_t::glarea);
 	       graphics_info_t::glarea = glarea;
@@ -471,7 +472,7 @@ void mono_mode() {
 	    if (glarea) { 
 	       std::cout << "INFO:: switch to mono_mode succeeded\n";
 	       if (graphics_info_t::i_fn_token) { 
-		  toggle_idle_function(); // turn it off;
+		  toggle_idle_spin_function(); // turn it off;
 	       }
 	       gtk_widget_destroy(graphics_info_t::glarea);
 	       if (graphics_info_t::glarea_2) { 
@@ -521,7 +522,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
 	 if (glarea) {
 	    if (graphics_info_t::i_fn_token) { 
-	       toggle_idle_function(); // turn it off;
+	       toggle_idle_spin_function(); // turn it off;
 	    }
 	    gtk_widget_destroy(graphics_info_t::glarea);
 	    graphics_info_t::glarea = glarea; // glarea_2 is stored by gl_extras()
@@ -561,7 +562,7 @@ void set_dti_stereo_mode(short int state) {
 	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
 	 if (glarea) {
 	    if (graphics_info_t::i_fn_token) { 
-	       toggle_idle_function(); // turn it off;
+	       toggle_idle_spin_function(); // turn it off;
 	    }
 	    gtk_widget_destroy(graphics_info_t::glarea);
 	    graphics_info_t::glarea = glarea; // glarea_2 is stored by gl_extras()
@@ -1473,7 +1474,7 @@ void set_auto_read_column_labels(const char *fwt, const char *phwt,
 }
 
 
-void toggle_idle_function() { 
+void toggle_idle_spin_function() { 
 
    graphics_info_t g; 
 
@@ -1483,7 +1484,7 @@ void toggle_idle_function() {
       gtk_idle_remove(g.i_fn_token);
       g.i_fn_token = 0; 
    }
-   add_to_history_simple("toggle_idle_function");
+   add_to_history_simple("toggle-idle-function");
 }
 
 // in degrees
@@ -5600,8 +5601,11 @@ void handle_get_accession_code(GtkWidget *widget) {
 
 
 #ifdef USE_GUILE
-SCM safe_scheme_command(const std::string &scheme_command) { 
-   add_to_history_simple(scheme_command);
+SCM safe_scheme_command(const std::string &scheme_command) {
+   std::vector<std::string> cs;
+   cs.push_back(DIRECT_SCM_STRING);
+   cs.push_back(scheme_command);
+   add_to_history(cs);
    return graphics_info_t::safe_scheme_command(scheme_command);
 }
 SCM safe_scheme_command_test(const char *cmd) {

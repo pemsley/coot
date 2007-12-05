@@ -1361,6 +1361,7 @@ create_window1 (void)
   gtk_widget_show (model_toolbar_mutate_and_autofit_togglebutton);
   gtk_container_add (GTK_CONTAINER (toolitem16), model_toolbar_mutate_and_autofit_togglebutton);
   gtk_tooltips_set_tip (tooltips, model_toolbar_mutate_and_autofit_togglebutton, _("Mutate & AutoFit... (click on an atom)"), NULL);
+  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), FALSE);
 
   toolitem17 = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_show (toolitem17);
@@ -1434,6 +1435,7 @@ create_window1 (void)
   model_toolbar_delete_button = gtk_button_new ();
   gtk_widget_show (model_toolbar_delete_button);
   gtk_container_add (GTK_CONTAINER (toolitem22), model_toolbar_delete_button);
+  gtk_tooltips_set_tip (tooltips, model_toolbar_delete_button, _("Delete Item..."), NULL);
   gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_delete_button), FALSE);
 
   image5611 = gtk_image_new_from_stock ("gtk-delete", GTK_ICON_SIZE_BUTTON);
@@ -1447,6 +1449,7 @@ create_window1 (void)
   model_toolbar_undo_button = gtk_button_new ();
   gtk_widget_show (model_toolbar_undo_button);
   gtk_container_add (GTK_CONTAINER (toolitem23), model_toolbar_undo_button);
+  gtk_tooltips_set_tip (tooltips, model_toolbar_undo_button, _("Undo"), NULL);
   gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_undo_button), FALSE);
 
   image5612 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_BUTTON);
@@ -1460,6 +1463,7 @@ create_window1 (void)
   model_toolbar_redo_button = gtk_button_new ();
   gtk_widget_show (model_toolbar_redo_button);
   gtk_container_add (GTK_CONTAINER (toolitem24), model_toolbar_redo_button);
+  gtk_tooltips_set_tip (tooltips, model_toolbar_redo_button, _("Redo"), NULL);
   gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_redo_button), FALSE);
 
   image5613 = gtk_image_new_from_stock ("gtk-redo", GTK_ICON_SIZE_BUTTON);
