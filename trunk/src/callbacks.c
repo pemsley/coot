@@ -1796,7 +1796,10 @@ void
 on_scripting_window_activate           (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  post_scripting_window();
+
+#if (GTK_MAJOR_VERSION == 1) 
+  post_scheme_scripting_window();
+#endif
 }
 
 
@@ -7855,3 +7858,18 @@ on_model_toolbar_redo_button_clicked   (GtkButton       *button,
   apply_redo();
 }
 
+void
+on_scripting_python1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) { 
+
+  post_python_scripting_window();
+
+} 
+
+
+void
+on_scripting_scheme1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) { 
+  post_scheme_scripting_window();
+
+} 
