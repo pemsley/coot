@@ -410,7 +410,7 @@ main (int argc, char *argv[]) {
 	      // we have gui
 	      // BL says:: lets initialize glue too but only if we have pygtk
 #ifdef USE_PYGTK
-	      initcoot_python();
+	       // initcoot_python(); undefined
 	      safe_python_command("global use_gui_qm; use_gui_qm = True");
 #else
 	      safe_python_command("global use_gui_qm; use_gui_qm = False");
