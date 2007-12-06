@@ -78,17 +78,16 @@ if test x$with_python != x; then
    # config.guess returns e.g. i686-pc-linux-gnu, powerpc-apple-darwin7.0.0
    #
    UTIL_LIB="-lutil"
-   py_uname=`uname`
-   case	"$py_uname" in
-	Darwin)
+   case	$ac_cv_build_alias in
+	*apple-darwin*)
 		UTIL_LIB=""
 	;; 
-	Cygwin*|CYGWIN*|cygwin*)
+	Cygwin*|CYGWIN*|*cygwin*)
 		UTIL_LIB=""
 	;;
 	# BL says:: same as for cygwin in mingw
 	# dunno where else to put the glob at the moment
-	MINGW*|Mingw*|mingw*)
+	MINGW*|Mingw*|*mingw*)
 		UTIL_LIB="-lglob"
 	;;
    esac	
