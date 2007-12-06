@@ -322,6 +322,21 @@ namespace coot {
 				       view_info_t &view);
    };
 
+   class console_display_commands_t {
+   public:
+     bool display_commands_flag;
+     bool hilight_flag;
+     bool hilight_colour_flag; 
+     int colour_prefix;
+     console_display_commands_t() { 
+       // hilighting
+       display_commands_flag = 1;
+       hilight_flag = 1;
+       colour_prefix = 4;
+       hilight_colour_flag = 0;
+     }
+   };
+
 } 
 
 #include "select-atom-info.hh"
@@ -1827,8 +1842,8 @@ public:
    static coot::history_list_t history_list;
    static std::string pythonize_command_strings(const std::vector<std::string> &command_strings);
    static std::string schemize_command_strings(const std::vector<std::string> &command_strings);
-   static short int console_display_commands;
-   static short int console_display_commands_hilight;
+
+   static coot::console_display_commands_t console_display_commands;
 
    // build one residue by phi psi
    static int add_terminal_residue_n_phi_psi_trials;

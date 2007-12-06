@@ -1251,29 +1251,34 @@ void add_to_history(const std::vector<std::string> &command_strings) {
    graphics_info_t g;
    g.add_history_command(command_strings);
 
-   if (g.console_display_commands) { 
+   if (g.console_display_commands.display_commands_flag) { 
 
       char esc = 27;
-      if (g.console_display_commands_hilight) {
+      // std::string esc = "esc";
+      if (g.console_display_commands.hilight_flag) {
 	 // std::cout << esc << "[34m";
 	 std::cout << esc << "[1m";
       } else {
 	 std::cout << "INFO:: Command: ";
       }
 
-      std::cout << graphics_info_t::schemize_command_strings(command_strings)
-		<< std::endl;
-      
-      if (g.console_display_commands_hilight) // hilight off
-	 std::cout << esc << "[0m"; // reset
+      // Make it colourful?
+      if (g.console_display_commands.hilight_colour_flag)
+	 std::cout << esc << "[3"
+		   << g.console_display_commands.colour_prefix << "m";
 
+      std::cout << graphics_info_t::schemize_command_strings(command_strings);
+      
+      if (g.console_display_commands.hilight_flag) {// hilight off
+	 std::cout << esc << "[0m"; // reset
+      }
+      std::cout << std::endl;
    }
 
 #ifdef USE_MYSQL_DATABASE
 
    add_to_database(command_strings);
 #endif
-   
 }
 
 void add_to_history_typed(const std::string &command,
@@ -1434,8 +1439,17 @@ void print_all_history_in_python() {
   1 for on, 0 for off. */
 void set_console_display_commands_state(short int istate) {
 
-   graphics_info_t::console_display_commands = istate;
-} 
+   graphics_info_t::console_display_commands.display_commands_flag = istate;
+}
+
+void set_console_display_commands_hilights(short int bold_flag, short int colour_flag, int colour_index) {
+
+   graphics_info_t g;
+   g.console_display_commands.hilight_flag = bold_flag;
+   g.console_display_commands.hilight_colour_flag = colour_flag;
+   g.console_display_commands.colour_prefix = colour_index;
+}
+
 
 
 std::string languagize_command(const std::vector<std::string> &command_parts) {
