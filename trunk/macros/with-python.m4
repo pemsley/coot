@@ -55,22 +55,18 @@ if test x$with_python != x; then
    # and put -lglob there too, dunno where else to put it
    
    # for MinGW
-   py_uname=`uname`
-   case "$py_uname" in 
-     MINGW*|Mingw*|mingw*)
+   if test $have_windows_mingw = yes ; then 
      py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print drive + path + "/include"'
      PYTHON_CFLAGS="-DUSE_PYTHON -I`python -c "$py_cmd"`"
      py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print drive + path + "/libs -lpython" + sys.version[[0]]+sys.version[[2]]'
      PYTHON_LIBS_PRE="-L`python -c "$py_cmd"`"
-     break;;
-
-     *)
-   # normal execution proceeds..
+   else 
+     # normal execution proceeds..
      PYTHON_CFLAGS="-DUSE_PYTHON -I`python -c 'import sys; print sys.prefix + "/include/python" + sys.version[[:3]]'`"
    # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
      PYTHON_LIBS_PRE="-L`python -c 'import sys; print sys.prefix + "/lib/python" + sys.version[[:3]] + "/config"'` -lpython`python -c 'import sys; print sys.version[[:3]]'`"
      break;;
-   esac
+   fi
 	
    # now we have to deal with the -lutil issue.  On GNU/Linux, we need
    # it, MacOS X we don't (it doesn't exist and the compliation fails)
