@@ -60,8 +60,6 @@
 				    (substring mb-size-str-1 0 5)
 				    mb-size-str-1)))
 		
-	    (format #t "1 and 2: ~s ~s~%" mb-size-str-1 mb-size-str-2)
-
 	    (format #t "There are ~s old files  (~s bytes) (~aMb) in ~s~%"
 		    (length olds) 
 		    total-size
@@ -72,7 +70,7 @@
 	  (if (eq? action-type 'delete)
 	      (begin
 		(map (lambda (file)
-		       (format #t "deleting old file ~s from ~s~%" file dir)
+		       (format #t "Deleting old file ~s from ~s~%" file dir)
 		       (let ((full-name (add-dir-prefix file)))
 			 (delete-file full-name)))
 		     olds)
