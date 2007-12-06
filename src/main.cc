@@ -415,10 +415,10 @@ main (int argc, char *argv[]) {
 #else
 	      safe_python_command("global use_gui_qm; use_gui_qm = False");
 #endif // PYTGK
-                 } else {
-	      // we dont have gui
-	      safe_python_command("global use_gui_qm; use_gui_qm = False");
-              }
+	    } else {
+	       // we dont have gui
+	       safe_python_command("global use_gui_qm; use_gui_qm = False");
+	    }
 	    coot_load_modules_dot_py = "coot_load_modules.py";
             char *coot_load_modules_dot_py_checked = 
                   does_file_exist(pydirectory.c_str(), coot_load_modules_dot_py);
