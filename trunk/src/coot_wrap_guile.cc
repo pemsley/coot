@@ -784,7 +784,7 @@ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
   if (!ret) return NULL;
 
-  memcpy(ret, scm_to_locale_string(str), l);
+  memcpy(ret, SCM_STRING_CHARS(str), l);
   ret[l] = '\0';
   if (len) *len = l;
   return ret;
@@ -1229,44 +1229,45 @@ static swig_guile_clientdata _swig_guile_clientdatacommand_arg_t = { NULL, SCM_E
 #define SWIGTYPE_p_GdkEventKey swig_types[0]
 #define SWIGTYPE_p_GtkAdjustment swig_types[1]
 #define SWIGTYPE_p_GtkButton swig_types[2]
-#define SWIGTYPE_p_GtkEntry swig_types[3]
-#define SWIGTYPE_p_GtkList swig_types[4]
-#define SWIGTYPE_p_GtkMenuItem swig_types[5]
-#define SWIGTYPE_p_GtkPositionType swig_types[6]
-#define SWIGTYPE_p_GtkSignalFunc swig_types[7]
-#define SWIGTYPE_p_GtkToggleButton swig_types[8]
-#define SWIGTYPE_p_GtkWidget swig_types[9]
-#define SWIGTYPE_p_clipper__RTop_orth swig_types[10]
-#define SWIGTYPE_p_clipper__String swig_types[11]
-#define SWIGTYPE_p_coot__alias_path_t swig_types[12]
-#define SWIGTYPE_p_coot__atom_spec_t swig_types[13]
-#define SWIGTYPE_p_coot__command_arg_t swig_types[14]
-#define SWIGTYPE_p_coot__file_attribs_info_t swig_types[15]
-#define SWIGTYPE_p_coot__graph_match_info_t swig_types[16]
-#define SWIGTYPE_p_coot__residue_spec_t swig_types[17]
-#define SWIGTYPE_p_coot__str_mtime swig_types[18]
-#define SWIGTYPE_p_double swig_types[19]
-#define SWIGTYPE_p_gboolean swig_types[20]
-#define SWIGTYPE_p_gchar swig_types[21]
-#define SWIGTYPE_p_gdouble swig_types[22]
-#define SWIGTYPE_p_gpointer swig_types[23]
-#define SWIGTYPE_p_p_GSList swig_types[24]
-#define SWIGTYPE_p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t swig_types[25]
-#define SWIGTYPE_p_std__pairTint_std__vectorTstd__string_t_t swig_types[26]
-#define SWIGTYPE_p_std__pairTshort_float_t swig_types[27]
-#define SWIGTYPE_p_std__pairTshort_int_t swig_types[28]
-#define SWIGTYPE_p_std__pairTshort_std__string_t swig_types[29]
-#define SWIGTYPE_p_std__pairTstd__string_std__string_t swig_types[30]
-#define SWIGTYPE_p_std__string swig_types[31]
-#define SWIGTYPE_p_std__vectorTcoot__command_arg_t_t swig_types[32]
-#define SWIGTYPE_p_std__vectorTcoot__str_mtime_t swig_types[33]
-#define SWIGTYPE_p_std__vectorTint_t swig_types[34]
-#define SWIGTYPE_p_std__vectorTstd__pairTstd__string_std__string_t_t swig_types[35]
-#define SWIGTYPE_p_std__vectorTstd__string_t swig_types[36]
-#define SWIGTYPE_p_time_t swig_types[37]
-#define SWIGTYPE_p_unsigned_long swig_types[38]
-static swig_type_info *swig_types[40];
-static swig_module_info swig_module = {swig_types, 39, 0, 0, 0, 0};
+#define SWIGTYPE_p_GtkCList swig_types[3]
+#define SWIGTYPE_p_GtkEntry swig_types[4]
+#define SWIGTYPE_p_GtkList swig_types[5]
+#define SWIGTYPE_p_GtkMenuItem swig_types[6]
+#define SWIGTYPE_p_GtkPositionType swig_types[7]
+#define SWIGTYPE_p_GtkSignalFunc swig_types[8]
+#define SWIGTYPE_p_GtkToggleButton swig_types[9]
+#define SWIGTYPE_p_GtkWidget swig_types[10]
+#define SWIGTYPE_p_clipper__RTop_orth swig_types[11]
+#define SWIGTYPE_p_clipper__String swig_types[12]
+#define SWIGTYPE_p_coot__alias_path_t swig_types[13]
+#define SWIGTYPE_p_coot__atom_spec_t swig_types[14]
+#define SWIGTYPE_p_coot__command_arg_t swig_types[15]
+#define SWIGTYPE_p_coot__file_attribs_info_t swig_types[16]
+#define SWIGTYPE_p_coot__graph_match_info_t swig_types[17]
+#define SWIGTYPE_p_coot__residue_spec_t swig_types[18]
+#define SWIGTYPE_p_coot__str_mtime swig_types[19]
+#define SWIGTYPE_p_double swig_types[20]
+#define SWIGTYPE_p_gboolean swig_types[21]
+#define SWIGTYPE_p_gchar swig_types[22]
+#define SWIGTYPE_p_gdouble swig_types[23]
+#define SWIGTYPE_p_gpointer swig_types[24]
+#define SWIGTYPE_p_p_GSList swig_types[25]
+#define SWIGTYPE_p_std__pairTbool_std__pairTint_coot__atom_spec_t_t_t swig_types[26]
+#define SWIGTYPE_p_std__pairTint_std__vectorTstd__string_t_t swig_types[27]
+#define SWIGTYPE_p_std__pairTshort_float_t swig_types[28]
+#define SWIGTYPE_p_std__pairTshort_int_t swig_types[29]
+#define SWIGTYPE_p_std__pairTshort_std__string_t swig_types[30]
+#define SWIGTYPE_p_std__pairTstd__string_std__string_t swig_types[31]
+#define SWIGTYPE_p_std__string swig_types[32]
+#define SWIGTYPE_p_std__vectorTcoot__command_arg_t_t swig_types[33]
+#define SWIGTYPE_p_std__vectorTcoot__str_mtime_t swig_types[34]
+#define SWIGTYPE_p_std__vectorTint_t swig_types[35]
+#define SWIGTYPE_p_std__vectorTstd__pairTstd__string_std__string_t_t swig_types[36]
+#define SWIGTYPE_p_std__vectorTstd__string_t swig_types[37]
+#define SWIGTYPE_p_time_t swig_types[38]
+#define SWIGTYPE_p_unsigned_long swig_types[39]
+static swig_type_info *swig_types[41];
+static swig_module_info swig_module = {swig_types, 40, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1564,9 +1565,9 @@ _wrap_filter_fileselection_filenames_state ()
 
 
 static SCM
-_wrap_on_filename_filter_toggle_button_toggled (SCM s_0, SCM s_1)
+_wrap_on_filename_filter_toggle_button_toggled_gtk1 (SCM s_0, SCM s_1)
 {
-#define FUNC_NAME "on-filename-filter-toggle-button-toggled"
+#define FUNC_NAME "on-filename-filter-toggle-button-toggled-gtk1"
   GtkButton *arg1 = (GtkButton *) 0 ;
   gpointer arg2 ;
   gpointer *argp2 ;
@@ -1580,7 +1581,7 @@ _wrap_on_filename_filter_toggle_button_toggled (SCM s_0, SCM s_1)
     argp2 = (gpointer *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_gpointer, 2, 0);
     arg2 = *argp2;
   }
-  on_filename_filter_toggle_button_toggled(arg1,arg2);
+  on_filename_filter_toggle_button_toggled_gtk1(arg1,arg2);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -1787,9 +1788,9 @@ _wrap_get_positive_float_from_entry (SCM s_0)
 
 
 static SCM
-_wrap_handle_filename_filter_gtk2 (SCM s_0)
+_wrap_handle_filename_filter_gtk1 (SCM s_0)
 {
-#define FUNC_NAME "handle-filename-filter-gtk2"
+#define FUNC_NAME "handle-filename-filter-gtk1"
   GtkWidget *arg1 = (GtkWidget *) 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
@@ -1797,7 +1798,7 @@ _wrap_handle_filename_filter_gtk2 (SCM s_0)
   {
     arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
   }
-  handle_filename_filter_gtk2(arg1);
+  handle_filename_filter_gtk1(arg1);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -7084,11 +7085,11 @@ _wrap_lookup_file_selection_widgets (SCM s_0)
 
 
 static SCM
-_wrap_fileselection_sort_button_clicked (SCM s_0, SCM s_1)
+_wrap_fileselection_sort_button_clicked_gtk1 (SCM s_0, SCM s_1)
 {
-#define FUNC_NAME "fileselection-sort-button-clicked"
+#define FUNC_NAME "fileselection-sort-button-clicked-gtk1"
   GtkWidget *arg1 = (GtkWidget *) 0 ;
-  GtkWidget *arg2 = (GtkWidget *) 0 ;
+  GtkCList *arg2 = (GtkCList *) 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   
@@ -7096,9 +7097,9 @@ _wrap_fileselection_sort_button_clicked (SCM s_0, SCM s_1)
     arg1 = (GtkWidget *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkWidget, 1, 0);
   }
   {
-    arg2 = (GtkWidget *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkWidget, 2, 0);
+    arg2 = (GtkCList *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkCList, 2, 0);
   }
-  fileselection_sort_button_clicked(arg1,arg2);
+  fileselection_sort_button_clicked_gtk1(arg1,arg2);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -10847,6 +10848,89 @@ _wrap_on_go_to_atom_residue_list_select_child (SCM s_0, SCM s_1, SCM s_2)
     arg3 = *argp3;
   }
   on_go_to_atom_residue_list_select_child(arg1,arg2,arg3);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_on_go_to_atom_residue_tree_selection_changed_gtk1 (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "on-go-to-atom-residue-tree-selection-changed-gtk1"
+  GtkList *arg1 = (GtkList *) 0 ;
+  gpointer arg2 ;
+  gpointer *argp2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkList *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkList, 1, 0);
+  }
+  {
+    argp2 = (gpointer *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_gpointer, 2, 0);
+    arg2 = *argp2;
+  }
+  on_go_to_atom_residue_tree_selection_changed_gtk1(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_on_go_to_atom_atom_list_selection_changed_gtk1 (SCM s_0, SCM s_1)
+{
+#define FUNC_NAME "on-go-to-atom-atom-list-selection-changed-gtk1"
+  GtkList *arg1 = (GtkList *) 0 ;
+  gpointer arg2 ;
+  gpointer *argp2 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkList *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkList, 1, 0);
+  }
+  {
+    argp2 = (gpointer *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_gpointer, 2, 0);
+    arg2 = *argp2;
+  }
+  on_go_to_atom_atom_list_selection_changed_gtk1(arg1,arg2);
+  gswig_result = SCM_UNSPECIFIED;
+  
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
+_wrap_on_go_to_atom_residue_list_unselect_child (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "on-go-to-atom-residue-list-unselect-child"
+  GtkList *arg1 = (GtkList *) 0 ;
+  GtkWidget *arg2 = (GtkWidget *) 0 ;
+  gpointer arg3 ;
+  gpointer *argp3 ;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = (GtkList *)SWIG_MustGetPtr(s_0, SWIGTYPE_p_GtkList, 1, 0);
+  }
+  {
+    arg2 = (GtkWidget *)SWIG_MustGetPtr(s_1, SWIGTYPE_p_GtkWidget, 2, 0);
+  }
+  {
+    argp3 = (gpointer *)SWIG_MustGetPtr(s_2, SWIGTYPE_p_gpointer, 3, 0);
+    arg3 = *argp3;
+  }
+  on_go_to_atom_residue_list_unselect_child(arg1,arg2,arg3);
   gswig_result = SCM_UNSPECIFIED;
   
   
@@ -27122,6 +27206,7 @@ extern "C" {
 static swig_type_info _swigt__p_GdkEventKey = {"_p_GdkEventKey", "GdkEventKey *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkAdjustment = {"_p_GtkAdjustment", "GtkAdjustment *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkButton = {"_p_GtkButton", "GtkButton *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_GtkCList = {"_p_GtkCList", "GtkCList *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkEntry = {"_p_GtkEntry", "GtkEntry *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkList = {"_p_GtkList", "GtkList *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_GtkMenuItem = {"_p_GtkMenuItem", "GtkMenuItem *", 0, 0, (void*)0, 0};
@@ -27163,6 +27248,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_GdkEventKey,
   &_swigt__p_GtkAdjustment,
   &_swigt__p_GtkButton,
+  &_swigt__p_GtkCList,
   &_swigt__p_GtkEntry,
   &_swigt__p_GtkList,
   &_swigt__p_GtkMenuItem,
@@ -27204,6 +27290,7 @@ static swig_type_info *swig_type_initial[] = {
 static swig_cast_info _swigc__p_GdkEventKey[] = {  {&_swigt__p_GdkEventKey, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkAdjustment[] = {  {&_swigt__p_GtkAdjustment, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkButton[] = {  {&_swigt__p_GtkButton, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_GtkCList[] = {  {&_swigt__p_GtkCList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkEntry[] = {  {&_swigt__p_GtkEntry, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkList[] = {  {&_swigt__p_GtkList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_GtkMenuItem[] = {  {&_swigt__p_GtkMenuItem, 0, 0, 0},{0, 0, 0, 0}};
@@ -27245,6 +27332,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_GdkEventKey,
   _swigc__p_GtkAdjustment,
   _swigc__p_GtkButton,
+  _swigc__p_GtkCList,
   _swigc__p_GtkEntry,
   _swigc__p_GtkList,
   _swigc__p_GtkMenuItem,
@@ -27535,7 +27623,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-filter-fileselection-filenames", 1, 0, 0, (swig_guile_proc) _wrap_set_filter_fileselection_filenames);
   scm_c_define_gsubr("set-file-selection-dialog-size", 1, 0, 0, (swig_guile_proc) _wrap_set_file_selection_dialog_size);
   scm_c_define_gsubr("filter-fileselection-filenames-state", 0, 0, 0, (swig_guile_proc) _wrap_filter_fileselection_filenames_state);
-  scm_c_define_gsubr("on-filename-filter-toggle-button-toggled", 2, 0, 0, (swig_guile_proc) _wrap_on_filename_filter_toggle_button_toggled);
+  scm_c_define_gsubr("on-filename-filter-toggle-button-toggled-gtk1", 2, 0, 0, (swig_guile_proc) _wrap_on_filename_filter_toggle_button_toggled_gtk1);
   scm_c_define_gsubr("add-filename-filter", 1, 0, 0, (swig_guile_proc) _wrap_add_filename_filter);
   scm_c_define_gsubr("add-filename-filter-button", 2, 0, 0, (swig_guile_proc) _wrap_add_filename_filter_button);
   scm_c_define_gsubr("on-filename-filter-key-press-event", 3, 0, 0, (swig_guile_proc) _wrap_on_filename_filter_key_press_event);
@@ -27544,7 +27632,7 @@ SWIG_init(void)
   scm_c_define_gsubr("set-directory-for-coot-file-chooser", 1, 0, 0, (swig_guile_proc) _wrap_set_directory_for_coot_file_chooser);
   scm_c_define_gsubr("coot-file-chooser-file-name", 1, 0, 0, (swig_guile_proc) _wrap_coot_file_chooser_file_name);
   scm_c_define_gsubr("get-positive-float-from-entry", 1, 0, 0, (swig_guile_proc) _wrap_get_positive_float_from_entry);
-  scm_c_define_gsubr("handle-filename-filter-gtk2", 1, 0, 0, (swig_guile_proc) _wrap_handle_filename_filter_gtk2);
+  scm_c_define_gsubr("handle-filename-filter-gtk1", 1, 0, 0, (swig_guile_proc) _wrap_handle_filename_filter_gtk1);
   scm_c_define_gsubr("set-transient-and-position", 2, 0, 0, (swig_guile_proc) _wrap_set_transient_and_position);
   scm_c_define_gsubr("info-dialog", 1, 0, 0, (swig_guile_proc) _wrap_info_dialog);
   scm_c_define_gsubr("main-menubar", 0, 0, 0, (swig_guile_proc) _wrap_main_menubar);
@@ -27778,7 +27866,7 @@ SWIG_init(void)
   scm_c_define_gsubr("run-refmac-ccp4i-option-menu-signal-func", 2, 0, 0, (swig_guile_proc) _wrap_run_refmac_ccp4i_option_menu_signal_func);
   scm_c_define_gsubr("clear-refmac-ccp4i-project", 0, 0, 0, (swig_guile_proc) _wrap_clear_refmac_ccp4i_project);
   scm_c_define_gsubr("lookup-file-selection-widgets", 1, 0, 0, (swig_guile_proc) _wrap_lookup_file_selection_widgets);
-  scm_c_define_gsubr("fileselection-sort-button-clicked", 2, 0, 0, (swig_guile_proc) _wrap_fileselection_sort_button_clicked);
+  scm_c_define_gsubr("fileselection-sort-button-clicked-gtk1", 2, 0, 0, (swig_guile_proc) _wrap_fileselection_sort_button_clicked_gtk1);
   scm_c_define_gsubr("push-the-buttons-on-fileselection", 3, 0, 0, (swig_guile_proc) _wrap_push_the_buttons_on_fileselection);
   scm_c_define_gsubr("print-all-history-in-scheme", 0, 0, 0, (swig_guile_proc) _wrap_print_all_history_in_scheme);
   scm_c_define_gsubr("print-all-history-in-python", 0, 0, 0, (swig_guile_proc) _wrap_print_all_history_in_python);
@@ -27946,6 +28034,9 @@ SWIG_init(void)
   scm_c_define_gsubr("clear-atom-list", 1, 0, 0, (swig_guile_proc) _wrap_clear_atom_list);
   scm_c_define_gsubr("apply-go-to-atom-from-widget", 1, 0, 0, (swig_guile_proc) _wrap_apply_go_to_atom_from_widget);
   scm_c_define_gsubr("on-go-to-atom-residue-list-select-child", 3, 0, 0, (swig_guile_proc) _wrap_on_go_to_atom_residue_list_select_child);
+  scm_c_define_gsubr("on-go-to-atom-residue-tree-selection-changed-gtk1", 2, 0, 0, (swig_guile_proc) _wrap_on_go_to_atom_residue_tree_selection_changed_gtk1);
+  scm_c_define_gsubr("on-go-to-atom-atom-list-selection-changed-gtk1", 2, 0, 0, (swig_guile_proc) _wrap_on_go_to_atom_atom_list_selection_changed_gtk1);
+  scm_c_define_gsubr("on-go-to-atom-residue-list-unselect-child", 3, 0, 0, (swig_guile_proc) _wrap_on_go_to_atom_residue_list_unselect_child);
   scm_c_define_gsubr("autobuild-ca-off", 0, 0, 0, (swig_guile_proc) _wrap_autobuild_ca_off);
   scm_c_define_gsubr("test-fragment", 0, 0, 0, (swig_guile_proc) _wrap_test_fragment);
   scm_c_define_gsubr("do-skeleton-prune", 0, 0, 0, (swig_guile_proc) _wrap_do_skeleton_prune);
