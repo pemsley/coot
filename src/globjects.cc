@@ -316,7 +316,8 @@ int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
 // generic display objects, gets set in init.
 std::vector<coot::generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
 
-//
+coot::console_display_commands_t graphics_info_t::console_display_commands;
+
 // 20 molecules is enough for anyone, surely?
 // FIXME - we should be using dynamic allocation, and allocating
 // an new array of molecule_class_info_ts and moving over the pointers.
@@ -704,8 +705,6 @@ int       graphics_info_t::dynamic_map_zoom_offset = 0;
 short int graphics_info_t::python_history = 1; // on
 short int graphics_info_t::guile_history  = 1; // on
 coot::history_list_t graphics_info_t::history_list;
-short int graphics_info_t::console_display_commands = 0; // off
-short int graphics_info_t::console_display_commands_hilight = 1; // on
 
 // build one residue, n trials:
 int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 100;

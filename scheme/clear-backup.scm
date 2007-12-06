@@ -54,13 +54,17 @@
     (let ((olds (old-files-list)))
       (if (eq? action-type 'count)
 	  (let* ((total-size (apply + (map file-size olds)))
-		 (mb-size-str-1 (number->string (/ total-size (* 1024 1024))))
+		 (mb-size-str-1 (number->string (exact->inexact
+						 (/ total-size (* 1024 1024)))))
 		 (mb-size-str-2 (if (> (string-length mb-size-str-1) 5)
 				    (substring mb-size-str-1 0 5)
 				    mb-size-str-1)))
 		
-	    (format #t "There are ~s old files (~aMb) in ~s~%"
+	    (format #t "1 and 2: ~s ~s~%" mb-size-str-1 mb-size-str-2)
+
+	    (format #t "There are ~s old files  (~s bytes) (~aMb) in ~s~%"
 		    (length olds) 
+		    total-size
 		    mb-size-str-2
 		    dir)
 	    (list (length olds) mb-size-str-2))
@@ -107,9 +111,8 @@
 						    (number->string (car file-stats))
 						    " old backup files ("
 						    (car (cdr file-stats))
-						    
 						    "Mb)  \n"
-						    "Delete Them?"))))
+						    "   Delete Them?"))))
 	  (gtk-signal-connect ok-button "clicked"
 			      (lambda ()
 				(delete-coot-backup-files 'delete)

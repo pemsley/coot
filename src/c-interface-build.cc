@@ -1377,7 +1377,7 @@ setup_auto_fit_rotamer(short int state) {
    } else {
       graphics_info_t::normal_cursor();
    }
-   std::string cmd = "setup-aut-fit-rotamer";
+   std::string cmd = "setup-auto-fit-rotamer";
    std::vector<coot::command_arg_t> args;
    args.push_back(state);
    add_to_history_typed(cmd, args);

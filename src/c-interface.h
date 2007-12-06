@@ -1302,6 +1302,7 @@ void print_all_history_in_python();
 
   1 for on, 0 for off. */
 void set_console_display_commands_state(short int istate);
+void set_console_display_commands_hilights(short int bold_flag, short int colour_flag, int colour_index);
 
 /* \} */
 
