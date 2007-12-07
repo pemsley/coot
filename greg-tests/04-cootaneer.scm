@@ -37,7 +37,7 @@
 			 (inscode  (list-ref n-atom 3))
 			 (at-name  (list-ref n-atom 4))
 			 (alt-conf (list-ref n-atom 5)))
-		     (format #t "imol ~s chain-id ~s resno ~s inscode ~s at-name ~s alt-conf ~s~%"
+		     (format #t "   Cootaneering: imol ~s chain-id ~s resno ~s inscode ~s at-name ~s alt-conf ~s~%"
 			     imol chain-id resno inscode at-name alt-conf)
 		     (cootaneer imol-map imol (list chain-id resno inscode 
 						    at-name alt-conf))

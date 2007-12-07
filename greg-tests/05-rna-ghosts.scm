@@ -10,7 +10,7 @@
 	 (map (lambda (chain-id)
 		(if (not (is-solvent-chain? imol chain-id))
 		    (let ((n-residues (chain-n-residues chain-id imol)))
-		      (format #t "There are ~s residues in chain ~s~%" n-residues chain-id)
+		      (format #t "   There are ~s residues in chain ~s~%" n-residues chain-id)
 		      
 		      (for-each 
 		       (lambda (serial-number)

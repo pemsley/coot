@@ -601,11 +601,10 @@ graphics_info_t::rotamer_graphs(int imol) {
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs = 0;
 		  if (use_graphics_interface_flag) { 
-		     coot::geometry_graphs *graphs =
-			new coot::geometry_graphs(coot::GEOMETRY_GRAPH_ROTAMER,
-						  imol,
-						  graphics_info_t::molecules[imol].name_for_display_manager(), 
-						  n_chains, max_chain_length);
+		     graphs = new coot::geometry_graphs(coot::GEOMETRY_GRAPH_ROTAMER,
+							imol,
+							graphics_info_t::molecules[imol].name_for_display_manager(), 
+							n_chains, max_chain_length);
 		     
 		     rotamer_graph[imol] = graphs->dialog();
 		  }
