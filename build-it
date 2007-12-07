@@ -419,8 +419,8 @@ if test "$in_york" = true ; then
          (set! greg-verbose 5)
          (let ((r (greg-test-run)))
             (if r
-	        (exit 0)
-	        (exit 1)))
+	        (coot-real-exit 0)
+	        (coot-real-exit 1)))
 EOF
 
    echo $install_top_dir/bin/coot-real --no-graphics --script command-line-greg.scm
