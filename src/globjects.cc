@@ -1693,7 +1693,16 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    glFogfv(GL_FOG_COLOR, graphics_info_t::background_colour);
    glEnable(GL_DEPTH_TEST);
 #endif
- 
+
+
+   // From the Book:   What's going on when I generate
+   
+   // glClear (GL_COLOR_BUFFER_BIT);
+   // glEnable (GL_BLEND);
+   // glEnable (GL_POLYGON_SMOOTH);
+   //    glDisable (GL_DEPTH_TEST);
+
+      
       // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
       glMatrixMode(GL_PROJECTION);

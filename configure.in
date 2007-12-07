@@ -210,6 +210,7 @@ doc/Makefile
 high-res/Makefile
 tw/Makefile
 cootaneer/Makefile
+greg-tests/Makefile
 setup/coot.sh	
 setup/coot.csh
 python/coot_load_modules.py

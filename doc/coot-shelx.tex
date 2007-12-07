@@ -106,15 +106,40 @@ However, not all SHELX commands are interpreted.
 
 \item {\bf AFIX cards} are handled as attributes of atoms.
 
-\item {\bf Most other} pre-coordinate SHELXL instructions are not interpreted\footnote{This includes SHELX style restraints. As a consequence, unconventional residues, e.g. ligand molecules, require refmac style descriptions for refinement/regularization in Coot.} and are written to \texttt{ins} unchanged. (In other words, there are certain limitations of Coot's ability to create a fully valid \texttt{ins} file, and will definitely fail if we try to create \texttt{ins} from scratch, e.g. from a \texttt{pdb} file.\footnote{You should be using SHELXPRO for that.}) There is, however, a mechanism to insert SHELX instructions into the the new \texttt{ins} file: with the scripting command \texttt{(add-shelx-string-to-molecule \emph{imol string})}\\It is also accessible through the SHELX menu (after running the script\linebreak[4]\texttt{shelx-extension.scm}).
-%% I found that button a bit dull, so took the liberty and made a chooser-entry thingy for this in the shelx-extensions -- much more useful, isn't it?
-%% Do I need to say anything about the reshelx process?
+\item {\bf Most other} pre-coordinate SHELXL instructions are not
+  interpreted\footnote{This includes SHELX style restraints. As a
+    consequence, unconventional residues, e.g. ligand molecules,
+    require refmac style descriptions for refinement/regularization in
+    Coot.} and are written to \texttt{ins} unchanged. (In other words,
+  there are certain limitations of Coot's ability to create a fully
+  valid \texttt{ins} file, and will definitely fail if we try to
+  create \texttt{ins} from scratch, e.g. from a \texttt{pdb}
+  file.\footnote{You should be using SHELXPRO for that.}) There is,
+  however, a mechanism to insert SHELX instructions into the the new
+  \texttt{ins} file: with the scripting command
+  \texttt{(add-shelx-string-to-molecule \emph{imol string})}\\It is
+  also accessible through the SHELX menu (after running the
+  script\linebreak[4]\texttt{shelx-extension.scm}).
+
+  %% I found that button a bit dull, so took the liberty and made a
+  %% chooser-entry thingy for this in the shelx-extensions -- much
+  %% more useful, isn't it?  Do I need to say anything about the
+  %% reshelx process?
+
 \end{itemize}
 
-To make SHELXL coordinate formats filterable in the file selection window,\linebreak[4]\texttt{(add-coordinates-glob-extension ".res")} and \\\texttt{(add-coordinates-glob-extension ".ins")} should be included in the\linebreak[4]\texttt{.coot} file.
+To make SHELXL coordinate formats filterable in the file selection
+window,\linebreak[4]\texttt{(add-coordinates-glob-extension ".res")}
+and \\\texttt{(add-coordinates-glob-extension ".ins")} should be
+included in the\linebreak[4]\texttt{.coot} file.
 
 \subsection{Reading \texttt{fcf} files}
-Coot can open \texttt{fcf} files and calculate electron density maps on the fly. More precisely, it converts \texttt{fcf} into mmCIF format, loads that and calculates\linebreak[4]$\sigma$-A-weighted electron density and difference maps. The new mmCIF is saved as\linebreak[4]\texttt{\emph{my-project}.fcf.cif}.
+
+Coot can open \texttt{fcf} files and calculate electron density maps
+on the fly. More precisely, it converts \texttt{fcf} into mmCIF
+format, loads that and calculates\linebreak[4]$\sigma$-A-weighted
+electron density and difference maps. The new mmCIF is saved
+as\linebreak[4]\texttt{\emph{my-project}.fcf.cif}.
 
 \subsection{Reading \texttt{lst} files}
 % needs chain unsplitting. -- Urgh? Don't get it.
@@ -130,6 +155,7 @@ alternatively, \texttt{shelx-extensions.scm} provides a GUI option:
 \textsf{SHELX$\to$Read LST File\ldots}
 
 \subsection{Opening SHELXL projects} 
+
 % Yet another undocumented thing.
 Due to SHELXL's conservative file naming convention, it is
 straight-forward to open all relevant files of a project
@@ -138,9 +164,12 @@ done using \texttt{(read-shelx-project \emph{file-name})} where
 filename's root is the SHELX project's name. There is also a GUI
 option in the SHELX menu (after running the script
 \texttt{shelx-extension.scm}).
-%% .pdb was not recognized as project file. It is now. (.insh disappeared. That was just a trick to fool silly gmail.)
+
+%% .pdb was not recognized as project file. It is now. (.insh
+%% disappeared. That was just a trick to fool silly gmail.)
 
 \subsection{Running SHELXL from Coot}
+
 SHELXL can be run from Coot using either the function
 \texttt{(shelxl-refine \emph{imol hkl-file})} or
 \textsf{Extensions$\to$SHELXL refine\ldots} Specifying a \texttt{hkl}
@@ -156,7 +185,14 @@ automatically after refinement has finished.
 
 \section{03srv}
 %% How do we get the files i.e. who's going to host them?
-In the small molecular world, at least in most cases, it is not necessary to display electron density maps, as they can be represented by a simple peaklist quite precisely. However, visual examination of especially difference density maps can reveal subtle errors in refinement and can prove quite educational. So, suppose we have a small molecule project in some middle stage of refinement and wish to have a glance of the electron density map and maybe fix problematic parts of the structure.
+In the small molecular world, at least in most cases, it is not
+necessary to display electron density maps, as they can be represented
+by a simple peaklist quite precisely. However, visual examination of
+especially difference density maps can reveal subtle errors in
+refinement and can prove quite educational. So, suppose we have a
+small molecule project in some middle stage of refinement and wish to
+have a glance of the electron density map and maybe fix problematic
+parts of the structure.
 
 \subsection{Reading the project}
 \begin{itemize}
@@ -170,7 +206,7 @@ In the small molecular world, at least in most cases, it is not necessary to dis
 
   [\textsl{Coot now displays the 03srv molecule and the corresponding
     electron density maps. Note that it has also created
-    \texttt{03srf.fcf.cif}, a macromolecular equivalent of
+    \texttt{03srv.fcf.cif}, a macromolecular equivalent of
     \texttt{03srv.fcf}.}]\footnote{Alternatively, we could have opened
     the coordinates and the \texttt{fcf} file
     using\\\textsf{File$\to$Open coordinates\ldots} and
@@ -368,21 +404,32 @@ out of density.
 
 \subsection{Adding Atoms}
 \begin{itemize}
-\item Let's locate missing bits of the structure now. Select \textsf{Validate$\to$Difference Map Peaks\ldots} and hit \textsf{Find blobs}.
 
-[\textsl{The new pop-up contains a clickable list of difference density blobs. We click on the first one and Coot navigates to a large green cloud.}]
+\item Let's locate missing bits of the structure now. Select
+  \textsf{Validate$\to$Difference Map Peaks\ldots} and hit
+  \textsf{Find blobs}.
 
-Let's examine the first blob: it is clearly tetrahedral. We know that the crystals grew from ammonium-sulfate, so we will try to fit a sulfate ion here.
+  [\textsl{The new pop-up contains a clickable list of difference
+    density blobs. We click on the first one and Coot navigates to a
+    large green cloud.}]
+
+  Let's examine the first blob: it is clearly tetrahedral. We know
+  that the crystals grew from ammonium-sulfate, so we will try to fit
+  a sulfate ion here.
 
 \item Select \textsf{Place Atom At Pointer} in the \textsf{Model/Fit/Refine} window.
 
 [\textsl{We are given a new window to pick what kind of atom/molecule we wish to place here.}]
 
-Select \textsf{SO4}. Select viscotoxin-b2.res to put the sulfate into and hit \textsf{OK}.
+Select \textsf{SO4}. Select viscotoxin-b2.res to put the sulfate into
+and hit \textsf{OK}.
 
 [\textsl{A pretty sulfate ion appears, but it is a bit out of density. Let's fix it.}]
 
-\item Simply select \textsf{Real Space Refine} in the \textsf{Model/Fit/Refine} window and click twice on the new sulfate ion. And finally hit \textsf{Accept} in the \textsf{Accept Refinement?} window. Done.
+\item Simply select \textsf{Real Space Refine} in the
+  \textsf{Model/Fit/Refine} window and click twice on the new sulfate
+  ion. And finally hit \textsf{Accept} in the \textsf{Accept
+    Refinement?} window. Done.
 
 %% Oh dear. I thought of showing properly set occupancies for SO4 (i.e. 11.00). And what do I get? 1.00. Baah.
 %% In no time, the PDB will be full of residues with different occupancies for all atoms.
@@ -390,6 +437,7 @@ Select \textsf{SO4}. Select viscotoxin-b2.res to put the sulfate into and hit \t
 \end{itemize}
 
 \subsection{Adding Alternate Conformations}
+
 SHELXL gives us the flexibility to refine occupancies of discretely
 disordered atoms, where free variables are used to control occupancies
 of alternate atom pairs. Coot, on the other hand, can set free

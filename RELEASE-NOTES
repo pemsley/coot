@@ -14,8 +14,9 @@ Release 0.4
 
    o FEATURE: Cis-peptide Gui added to extensions
 
-   o FEATURE: Check for chiral volume and cis-peptide errors introduced on
-     refinement.  Add Chi-squared values to Accept/Reject dialog
+   o FEATURE: Chiral volumes are added to the geometry target
+     function. Check for chiral volume and cis-peptide errors introduced
+     on refinement.  Add Chi-squared values to Accept/Reject dialog
 
    o FEATURE: Old backup-files cleaner-upper added
 
@@ -35,6 +36,24 @@ Release 0.4
 
    o FEATURE: skeletons now appear in Raster3D output and are properly
      coloured using the colour wheel
+
+   o FEATURE: a new command has been introduce, so that one can highlight the 
+     command equivalent of gui operations using colour.  e.g.: 
+     (set-console-display-commands-highlights 1 1 4)
+
+   o FEATURE: binary builds now are scriptable in Python and scheme.
+
+   o FEATURE: GTK2 version has toolbar modelling buttons.
+
+   o FEATURE: a mapman bones reader has been introduced.
+
+   o FEATURE: Key presses . and , now work when navigating the checked
+     waters baddies dialog
+
+   o FEATURE: label-all-CAs function added.
+
+   o FEATURE: one can now specify a radius around the atoms when
+     masking
 
    o BUG-FIX: Fix occasional crash reported by Ketan Gajiwala on
      pressing CR in the graphics window after a refiement.
@@ -57,6 +76,12 @@ Release 0.4
 
    o BUG-FIX: Environment Distances now can work to symmetry-related atoms 
      [David Briggs]
+
+   o BUG-FIX: residues with inscodes are now correctly flashed when
+     refining 
+
+   o BUG-FIX: SHELXL .res molecules now generate ghosts correctly
+     (given that NCS-related chains start at the "same" residue)
 
    o CHANGE: Temperature factor variance validation now works for SHELXL
      molecules [GMS, JED]

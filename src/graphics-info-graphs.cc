@@ -599,13 +599,16 @@ graphics_info_t::rotamer_graphs(int imol) {
 		  CChain *chain_p;
 		  char *chain_id;
 		  int n_chains = model_p->GetNumberOfChains();
-		  coot::geometry_graphs *graphs =
-		     new coot::geometry_graphs(coot::GEOMETRY_GRAPH_ROTAMER,
-					       imol,
-					       graphics_info_t::molecules[imol].name_for_display_manager(), 
-					       n_chains, max_chain_length);
-
-		  rotamer_graph[imol] = graphs->dialog();
+		  coot::geometry_graphs *graphs = 0;
+		  if (use_graphics_interface_flag) { 
+		     coot::geometry_graphs *graphs =
+			new coot::geometry_graphs(coot::GEOMETRY_GRAPH_ROTAMER,
+						  imol,
+						  graphics_info_t::molecules[imol].name_for_display_manager(), 
+						  n_chains, max_chain_length);
+		     
+		     rotamer_graph[imol] = graphs->dialog();
+		  }
 		  for (int ich=0; ich<n_chains; ich++) {
 		     chain_p = model_p->GetChain(ich);
 		     if (! chain_p->isSolventChain()) { 
@@ -713,8 +716,9 @@ graphics_info_t::rotamer_graphs(int imol) {
 // 			      std::cout << "render_to_canvas: (rotamer) chain: " << ich << " min_resno: "
 // 					<< m.second << " max_resno: " << max_resno
 // 					<< " offset: " << offset << std::endl;
-			      graphs->render_to_canvas(v, ich, std::string(chain_id),
-						       max_resno, m.second, offset);
+			      if (use_graphics_interface_flag)
+				 graphs->render_to_canvas(v, ich, std::string(chain_id),
+							  max_resno, m.second, offset);
 			   }
 
 			   mol->DeleteSelection(selHnd);

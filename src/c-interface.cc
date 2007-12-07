@@ -287,9 +287,14 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
    int imol = g.n_molecules;
    if (! filename)
       return -1;
-   
-   std::string f(filename);
 
+   std::string cmd = "handle-read-draw-molecule-with-recentre";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(filename));
+   args.push_back(recentre_on_read_pdb_flag);
+   add_to_history_typed(cmd, args);
+
+   std::string f(filename);
    g.expand_molecule_space_maybe();
 
    // returns e.g. ".ins"
@@ -350,12 +355,6 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 r =  -1;
       }
    }
-
-   std::string cmd = "handle-read-draw-molecule-with-recentre";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(single_quote(filename));
-   args.push_back(recentre_on_read_pdb_flag);
-   add_to_history_typed(cmd, args);
    return r; 
 }
 
@@ -1146,7 +1145,17 @@ int make_and_draw_map(const char* mtz_file_name,
 
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) { 
       
-	 std::cout << "making map from mtz filename " << mtz_file_name << std::endl;
+	 std::vector<std::string> command_strings;
+	 command_strings.push_back("make-and-draw-map");
+	 command_strings.push_back(single_quote(mtz_file_name));
+	 command_strings.push_back(single_quote(f_col));
+	 command_strings.push_back(single_quote(phi_col));
+	 command_strings.push_back(single_quote(weight_col));
+	 command_strings.push_back(graphics_info_t::int_to_string(use_weights));
+	 command_strings.push_back(graphics_info_t::int_to_string(is_diff_map));
+	 add_to_history(command_strings);
+
+	 std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
 	 imol = g.n_molecules;
 	 g.molecules[imol].map_fill_from_mtz(std::string(mtz_file_name),
 					     f_col_str,
@@ -1157,15 +1166,6 @@ int make_and_draw_map(const char* mtz_file_name,
 	 g.n_molecules++;
 	 graphics_draw();
 	 g.activate_scroll_radio_button_in_display_manager(imol);
-	 std::vector<std::string> command_strings;
-	 command_strings.push_back("make-and-draw-map");
-	 command_strings.push_back(single_quote(mtz_file_name));
-	 command_strings.push_back(single_quote(f_col));
-	 command_strings.push_back(single_quote(phi_col));
-	 command_strings.push_back(single_quote(weight_col));
-	 command_strings.push_back(graphics_info_t::int_to_string(use_weights));
-	 command_strings.push_back(graphics_info_t::int_to_string(is_diff_map));
-	 add_to_history(command_strings);
 	 
       } else {
 	 std::cout << "WARNING:: label(s) not found in mtz file " 
