@@ -392,6 +392,9 @@ function make_tar {
 #
 function test_coot { 
 
+echo currently we are here:
+pwd
+
 if test "$in_york" = true ; then
    # let's test our new coot
    cd $AUTOBUILD_BUILD
