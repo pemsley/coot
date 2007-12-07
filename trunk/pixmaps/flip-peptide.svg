@@ -6,109 +6,113 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="16px"
-   height="16px"
-   id="svg2160"
-   sodipodi:version="0.32"
-   inkscape:version="0.45"
-   sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
-   sodipodi:docname="flip-peptide.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/flip-peptide.png"
-   inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
-   sodipodi:modified="TRUE">
+   inkscape:export-xdpi="90"
+   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/flip-peptide.png"
+   sodipodi:docname="flip-peptide.svg"
+   sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
+   inkscape:version="0.41"
+   sodipodi:version="0.32"
+   id="svg2160"
+   height="16px"
+   width="16px">
   <defs
      id="defs2162">
     <marker
-       inkscape:stockid="TriangleOutS"
-       orient="auto"
-       refY="0.0"
-       refX="0.0"
+       style="overflow:visible"
        id="TriangleOutS"
-       style="overflow:visible">
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="TriangleOutS">
       <path
-         id="path3674"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         transform="scale(0.2)"
          style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
-         transform="scale(0.2)" />
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         id="path3674" />
     </marker>
     <marker
-       inkscape:stockid="TriangleOutL"
-       orient="auto"
-       refY="0.0"
-       refX="0.0"
+       style="overflow:visible"
        id="TriangleOutL"
-       style="overflow:visible">
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="TriangleOutL">
       <path
-         id="path3680"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         transform="scale(0.8)"
          style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
-         transform="scale(0.8)" />
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         id="path3680" />
     </marker>
   </defs>
   <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="15.696216"
-     inkscape:cx="8"
-     inkscape:cy="8.4865631"
-     inkscape:current-layer="layer1"
-     showgrid="true"
-     inkscape:grid-bbox="true"
-     inkscape:document-units="px"
-     inkscape:window-width="822"
+     inkscape:window-y="97"
+     inkscape:window-x="711"
      inkscape:window-height="584"
-     inkscape:window-x="104"
-     inkscape:window-y="164" />
+     inkscape:window-width="822"
+     inkscape:document-units="px"
+     inkscape:grid-bbox="true"
+     showgrid="true"
+     inkscape:current-layer="layer1"
+     inkscape:cy="8.4865639"
+     inkscape:cx="8.0000003"
+     inkscape:zoom="15.696216"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
   <metadata
      id="metadata2165">
-    <rdf:RDF>
+    <rdf:RDF
+       id="RDF10">
       <cc:Work
+         id="Work12"
          rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
+        <dc:format
+           id="format14">image/svg+xml</dc:format>
         <dc:type
+           id="type16"
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
-     id="layer1"
+     inkscape:groupmode="layer"
      inkscape:label="Layer 1"
-     inkscape:groupmode="layer">
+     id="layer1">
     <g
-       id="g3029"
-       transform="translate(-0.136214,-0.645626)">
+       style="fill:none;fill-opacity:1.0000000;stroke:#23ad4a;stroke-width:1.5000000;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
+       transform="matrix(0.998851,4.791961e-2,-4.791961e-2,0.998851,-14.91515,-10.24551)"
+       id="g3025">
       <path
-         sodipodi:nodetypes="cccc"
-         id="path2168"
-         d="M 0.55851441,11.395626 L 6.2682784,5.8824241 L 12.247806,10.631629 L 15.886214,5.5128752"
-         style="fill:none;fill-rule:evenodd;stroke:#12125a;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill-rule:evenodd;stroke-linecap:butt;stroke-linejoin:miter"
+         d="M 16.099839,20.228949 L 21.809603,14.715747 L 27.789131,19.464952 L 31.427539,14.346199"
+         id="path3021"
+         sodipodi:nodetypes="cccc" />
       <path
-         sodipodi:nodetypes="cc"
-         id="path3383"
-         d="M 6.4283398,0.2841866 L 6.4005888,5.5994112"
-         style="fill:none;fill-rule:evenodd;stroke:#000050;stroke-width:2.8011775;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill-rule:evenodd;stroke-linecap:butt;stroke-linejoin:miter"
+         d="M 21.874050,8.9909968 L 21.846299,14.306221"
+         id="path3023"
+         sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="g3025"
-       transform="matrix(0.849447,-0.527674,-0.527674,-0.849447,-2.751669,34.77915)">
+       style="fill:none;fill-opacity:1.0000000;stroke:#233fad;stroke-width:1.5000000;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
+       transform="matrix(0.849447,-0.527674,-0.527674,-0.849447,-3.251669,35.42974)"
+       id="g2074">
       <path
-         sodipodi:nodetypes="cccc"
-         id="path3021"
+         style="fill-rule:evenodd;stroke-linecap:butt;stroke-linejoin:miter"
          d="M 16.099839,20.228949 L 21.809603,14.715747 L 27.789131,19.464952 L 31.427539,14.346199"
-         style="fill:none;fill-rule:evenodd;stroke:#4040ed;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         id="path2076"
+         sodipodi:nodetypes="cccc" />
       <path
-         sodipodi:nodetypes="cc"
-         id="path3023"
-         d="M 21.87405,8.9909968 L 21.846299,14.306221"
-         style="fill:none;fill-rule:evenodd;stroke:#4040ed;stroke-width:2.8011775;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill-rule:evenodd;stroke-linecap:butt;stroke-linejoin:miter"
+         d="M 21.874050,8.9909968 L 21.846299,14.306221"
+         id="path2078"
+         sodipodi:nodetypes="cc" />
     </g>
   </g>
 </svg>
