@@ -187,7 +187,8 @@
 # 2.24 20071126 Fix setting of systype for MacOSX, hopefully.
 # 2.25 20071126 Another try to fix setting of systype for MacOSX.
 # 2.26 20071130 Try to enable python
-script_version=2.26
+# 2.27 2.271207 More python tinkering.  Upgrade to 2.5.1
+script_version=2.27
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1736,14 +1737,14 @@ fi
 PATH=$install_top_dir/bin:$PATH
 export PATH
 
-python_version=python2.4
+python_version=python2.5.1
 
 # python
 #
 if test -n "$build_python" ; then 
     echo BUILDING ${python_version}:
 #
-pver=2.4.1
+pver=2.5.1
 
 ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
 (
