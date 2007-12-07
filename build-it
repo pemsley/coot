@@ -399,6 +399,7 @@ function make_tar {
 #
 function test_coot { 
 
+echo testing with greg
 echo currently we are here:
 pwd
 
@@ -422,7 +423,8 @@ if test "$in_york" = true ; then
 	        (exit 1)))
 EOF
 
-   $AUTOBUILD_INSTALLED/bin/coot --no-state-script --no-graphics --script command-line-greg.scm
+   echo $install_top_dir/bin/coot --no-state-script --no-graphics --script command-line-greg.scm
+   $install_top_dir/bin/coot --no-state-script --no-graphics --script command-line-greg.scm
    status=$?
    if [ $status = 0 ] ; then
       echo coot test passed
