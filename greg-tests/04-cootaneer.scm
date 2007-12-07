@@ -1,6 +1,6 @@
 
-(define rnase-pir "greg-data/rnase.pir")
-(define poly-ala-frag "greg-data/crashes_on_cootaneering.pdb")
+(define rnase-pir     (append-dir-file greg-data-dir "rnase.pir"))
+(define poly-ala-frag (append-dir-file greg-data-dir "crashes_on_cootaneering.pdb"))
 
 (greg-testcase "Cootaneer Beta Strand" #t 
    (lambda ()
