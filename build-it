@@ -188,7 +188,8 @@
 # 2.25 20071126 Another try to fix setting of systype for MacOSX.
 # 2.26 20071130 Try to enable python
 # 2.27 2.271207 More python tinkering.  Upgrade to 2.5.1
-script_version=2.27
+# 2.28 2.271207 Add greg. If in York, use it to test before installing.
+script_version=2.28
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1144,6 +1145,19 @@ else
    build_net_http=1
 fi
 
+
+# do we have greg? 
+guile -c '(use-modules (ice-9 greg))'
+status=$?
+if test $status = 0 ; then
+   echo installation has greg
+   build_greg=
+else
+   echo greg should be built
+   build_greg=1
+fi
+
+
 python -V
 if test $? != 0 ; then
    echo python should be built
@@ -1290,6 +1304,10 @@ else
    echo system has gtkglarea
    build_gtkglarea=
 fi
+
+
+# do we have greg? 
+
 
 should_download_and_build_ccp4_libs=1
 
@@ -2195,6 +2213,26 @@ $MAKE install
 else 
     echo not building guile_goosh:
 fi
+
+
+
+if test -n $build_greg ; then 
+    echo building greg:
+    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/greg-2.0.0-pe.tar.gz
+    (
+    date 
+    gzip -dc ${AUTOBUILD_SOURCES}/greg-2.0.0-pe.tar.gz | tar xf -
+    cd  greg-2.0.0-pe
+    ./configure $generic_prefix
+    $MAKE
+    $MAKE install
+    ) $HOSTLOGDIR/10-greg.txt 2>&1
+else
+    echo not building greg:
+fi
+
+
+
 
 
 if test -n "$build_gsl" ; then 
