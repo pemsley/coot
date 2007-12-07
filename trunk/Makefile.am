@@ -27,7 +27,7 @@ ACLOCAL_AMFLAGS=-I macros
 SUBDIRS = auxil scheme python macros compat coot-utils surface coot-surface \
 	skeleton ccp4mg-utils density-contour coords angles \
 	mini-mol db-main  geometry  \
-	ideal ligand high-res build \
+	ideal ligand high-res build greg-tests \
 	analysis sequence-view tw atom-utils cootaneer src doc 
 
 # po, no po today.

@@ -31,7 +31,8 @@
 	 (set! greg-tools (list "greg-tests"))
 	 (set! greg-debug #t)
 	 (set! greg-verbose 5)
-	 (greg-test-run)))
+	 (greg-test-run)
+	 (force-output)))
 
       (add-simple-coot-menu-menuitem
        menu "Run One Greg Test"
@@ -41,6 +42,8 @@
 	 (set! greg-tools (list "greg-one-test"))
 	 (set! greg-debug #t)
 	 (set! greg-verbose 5)
-	 (greg-test-run)))))
+	 (greg-test-run)
+	 (force-output)))))
+
 
 

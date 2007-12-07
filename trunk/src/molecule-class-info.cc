@@ -2028,8 +2028,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    clipper::MTZdataset myset; 
    clipper::MTZcrystal myxtl; 
 
-   std::cout << "reading mtz file..." << std::endl; 
-
    long T0 = 0; // timer
    T0 = glutGet(GLUT_ELAPSED_TIME);
 
@@ -2105,15 +2103,15 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 } 
    
    
-	 cout << "finding ASU unique map points with sampling rate "
+	 cout << "INFO:: finding ASU unique map points with sampling rate "
    	      << graphics_info_t::map_sampling_rate	<< endl;
          clipper::Grid_sampling gs(myhkl.spacegroup(),
 				    myhkl.cell(),
 				    fft_reso,
 				    graphics_info_t::map_sampling_rate);
-	 cout << "done grid sampling..." << gs.format() << endl; 
+	 cout << "INFO grid sampling..." << gs.format() << endl; 
 	 xmap_list[0].init( myhkl.spacegroup(), myhkl.cell(), gs); // 1.5 default
-	 cout << "Grid..." << xmap_list[0].grid_sampling().format() << "\n";
+	 // 	 cout << "Grid..." << xmap_list[0].grid_sampling().format() << "\n";
    
 	 long T2 = glutGet(GLUT_ELAPSED_TIME);
 // 	 std::cout << "MTZ:: debug:: " << myhkl.spacegroup().symbol_hm() << " " 
@@ -2136,9 +2134,9 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 // 	    ncount++;
 // 	 } 
    
-	 cout << "doing fft..." << endl;
+	 // cout << "doing fft..." << endl;
 	 xmap_list[0].fft_from( fphidata );                  // generate map
-	 cout << "done fft..." << endl;
+	 // cout << "done fft..." << endl;
    
 	 long T3 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read MTZ file\n";

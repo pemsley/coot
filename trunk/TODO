@@ -96,6 +96,9 @@
      we need a function that accepts args for close-dialog and one
      that does not.  A macro maybe.
 
+   o The default occupancy for new atoms in a shelx molecule should be
+     11.0.  Is it? [JED]
+
 
 -----
 

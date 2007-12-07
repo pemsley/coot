@@ -965,7 +965,9 @@
 			      (if (= 65293 (gdk-event-keyval event)) ; GDK_Return
 				  (begin
 				    (go-func)
-				    (gtk-widget-destroy window)))))
+				    (gtk-widget-destroy window)))
+			      #f))
+				    
 	
 	(gtk-signal-connect cancel-button "clicked"
 			    (lambda args
