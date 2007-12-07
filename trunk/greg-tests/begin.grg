@@ -6,9 +6,9 @@
 
 (define greg-data-dir "greg-data")
 
-(define greg-data-dir (append-dir-dir (append-dir-dir (getenv "HOME")
-						      "data")
-				      "greg-data"))
+;(define greg-data-dir (append-dir-dir (append-dir-dir (getenv "HOME")
+;						      "data")
+;				      "greg-data"))
 
 
 
