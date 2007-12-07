@@ -2,8 +2,8 @@
 ;; NOTE: hof.fcf has  _refln_A_calc and _refln_B_calc, not fcalc and phase.
 ;; This will not work.  Why is it here?
 ;; 
-(define hof-fcf "greg-data/hof.fcf")
-(define hof-res "greg-data/HOF.RES")
+(define hof-fcf (append-data-dir greg-data-dir "hof.fcf"))
+(define hof-res (append-data-dir greg-data-dir "HOF.RES"))
 
 (define imol-hof-res #f)
 
