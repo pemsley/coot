@@ -98,6 +98,13 @@ terminate called after throwing an instance of 'std::bad_alloc'
   what():  St9bad_alloc
 Abort
 
+    o To make the test non-tedious, especially on slow computers, we
+      need a set-atoms-attributes that takes a list of attribute sets.
+     
+      No need to re-calulate the bonding for each atom move.
+
+      No need to redraw, except once at the end.
+
 
 
 

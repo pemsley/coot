@@ -137,7 +137,7 @@
 		  (apply + (map (lambda (chain-id)
 				  ;; return the number of atoms in this chain
 				  (let ((n-residues (chain-n-residues chain-id imol-sphere)))
-				    (format #t "Sphere mol: there are ~s residues in chain ~s~%" 
+				    (format #t "   Sphere mol: there are ~s residues in chain ~s~%" 
 					    n-residues chain-id)
 
 				    (let loop ((residue-list (number-list 0 (- n-residues 1)))
@@ -145,7 +145,6 @@
 
 				      (cond 
 				       ((null? residue-list) 
-					(format #t "chain-n-atoms for chain ~s is ~s~%" chain-id chain-n-atoms)
 					chain-n-atoms)
 				       (else 
 					(let ((serial-number (car residue-list)))
@@ -156,7 +155,7 @@
 					      (loop (cdr residue-list) (+ (length residue-atoms-info) chain-n-atoms))))))))))
 				(chain-ids imol-sphere)))))
 	     
-	     (format #t "Found ~s sphere atoms ~%" n-atoms)
+	     (format #t "   Found ~s sphere atoms ~%" n-atoms)
 
 	     (= n-atoms 20))))))
 
@@ -244,7 +243,7 @@
 		 (if (string=? atom-name att-atom-name)
 		     (if (string=? alt-conf att-alt-conf)
 			 (begin 
-			   (format #t "for atom ~s ~s returning occ ~s~%" 
+			   (format #t "   For atom ~s ~s returning occ ~s~%" 
 				   att-atom-name att-alt-conf occ)
 			   occ)
 			 (f (cdr atom-ls)))
@@ -274,7 +273,7 @@
 	  
 	   (let ((occ-sum-post (get-occ-sum imol-frag)))
 	     
-	     (format #t "test for closeness: ~s ~s~%" occ-sum-pre occ-sum-post)	    
+	     (format #t "   test for closeness: ~s ~s~%" occ-sum-pre occ-sum-post)	    
 	     (close-float? occ-sum-pre occ-sum-post)))))))
 
 
@@ -294,6 +293,7 @@
 ;; 3) mutate the leading residue and auto-fit it to correct the chiral
 ;;    volume error :)
 
+
       (let ((chain-id "A")
 	    (resno 11)
 	    (ins-code ""))
@@ -312,29 +312,34 @@
 	  (cis-trans-convert cis-pep-mol chain-id resno ins-code)
 	  (pepflip resno chain-id cis-pep-mol)
 	  (let ((res-type (residue-name cis-pep-mol chain-id resno ins-code)))
-	    (mutate resno chain-id cis-pep-mol "GLY")
-	    (with-auto-accept
-	     (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
-	     (accept-regularizement)
-	     (mutate resno chain-id cis-pep-mol res-type)
-	     (auto-fit-best-rotamer resno "" ins-code chain-id cis-pep-mol 
-				    (imol-refinement-map) 1 1)
-	     (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
-	     (accept-regularizement))
-	     ;; should be repared now.  Write it out
-
-	    (let ((tmp-file "tmp-fixed-cis.pdb"))
-	      (write-pdb-file cis-pep-mol tmp-file)
-	      (let ((o (run-command/strings "grep" (list"-c" "CISPEP" tmp-file) '())))
-		(if (not (list? o))
-		    (throw 'fail)
-		    (if (not (= (length o) 1))
-			(throw 'fail)
-			(let ((parts (split-after-char-last #\: (car o) list)))
-			  (format #t "CISPEPs: ~s~%" (car (cdr parts)))
-			  (if (not (string=? "3" (car (cdr parts))))
+	    (if (not (string? res-type))
+		(throw 'fail)
+		(begin
+		  (mutate resno chain-id cis-pep-mol "GLY")
+		  (with-auto-accept
+		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
+		   (accept-regularizement)
+		   (mutate resno chain-id cis-pep-mol res-type)
+		   (auto-fit-best-rotamer resno "" ins-code chain-id cis-pep-mol 
+					  (imol-refinement-map) 1 1)
+		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
+		   (accept-regularizement))
+		  ;; should be repared now.  Write it out
+		  
+		  (let ((tmp-file "tmp-fixed-cis.pdb"))
+		    (write-pdb-file cis-pep-mol tmp-file)
+		    (display "Here 4\n")
+		    (let ((o (run-command/strings "grep" (list"-c" "CISPEP" tmp-file) '())))
+		      (if (not (list? o))
+			  (throw 'fail)
+			  (if (not (= (length o) 1))
 			      (throw 'fail)
-			      #t)))))))))))
+			      (let ((parts (split-after-char-last #\: (car o) list)))
+				(format #t "CISPEPs: ~s~%" (car (cdr parts)))
+				(if (not (string=? "3" (car (cdr parts))))
+				    (throw 'fail)
+				    #t)))))))))))))
+
 
 
 (greg-testcase "Rigid Body Refine Alt Conf Waters" #t

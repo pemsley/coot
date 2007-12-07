@@ -85,7 +85,7 @@
 	       (add-ligand-search-ligand-molecule imol-npo)
 
 	       (let ((solutions (execute-ligand-search))) ; crash
-		 (format #t "Fitting NPO gave these results: ~s~%" solutions)
+		 (format #t "   Fitting NPO gave these results: ~s~%" solutions)
 		 (set-map-displayed imol-map-1 0)
 		 (set-map-displayed imol-map-2 0)
 		 (set-mol-displayed imol-protein 0)
