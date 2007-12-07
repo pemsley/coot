@@ -921,6 +921,13 @@ else
         LD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
 fi
 export LD_LIBRARY_PATH
+#for Macs:
+if [ -z "$LD_LIBRARY_PATH" ] ; then
+	DYLD_LIBRARY_PATH=$install_top_dir/lib
+else
+        DYLD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+fi
+export DYLD_LIBRARY_PATH
 
 #
 # IRIX64 (on batman at least) does not seem to use LD_LIBRARY_PATH, 
@@ -1147,6 +1154,8 @@ fi
 
 
 # do we have greg? 
+
+# LD_LIBRARY_PATH has been set by now
 guile -c '(use-modules (ice-9 greg))'
 status=$?
 if test $status = 0 ; then
