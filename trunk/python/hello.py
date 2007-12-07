@@ -41,16 +41,19 @@ def first_non_trivial_name(str_list):
 
 import time
 import string
-import os
+import os, sys
 
-user = os.getenv('USERNAME')
+if (sys.platform == 'darwin'):
+    user = os.getenv('USER')
+else:
+    user = os.getenv('USERNAME')
 
 hour = int(time.strftime("%H", time.localtime()))
 if hour < 12: time_str = "Morning"
 elif hour < 18: time_str = "Afternoon"
 else : time_str = "Evening"
 
-name_strings = string.split(user)
+name_strings = string.split(str(user))
 
 # BL says: sorry but in windows we dont have a proper LC_* or language
 # setting, so no swapping of names for Japanese, Koreans etc.
