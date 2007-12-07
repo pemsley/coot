@@ -2226,7 +2226,7 @@ if test -n $build_greg ; then
     ./configure $generic_prefix
     $MAKE
     $MAKE install
-    ) $HOSTLOGDIR/10-greg.txt 2>&1
+    ) > $HOSTLOGDIR/10-greg.txt 2>&1
 else
     echo not building greg:
 fi
