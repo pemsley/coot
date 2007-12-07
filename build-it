@@ -423,14 +423,15 @@ if test "$in_york" = true ; then
 	        (exit 1)))
 EOF
 
-   echo $install_top_dir/bin/coot --no-state-script --no-graphics --script command-line-greg.scm
-   $install_top_dir/bin/coot --no-state-script --no-graphics --script command-line-greg.scm
+   echo $install_top_dir/bin/coot-real --no-graphics --script command-line-greg.scm
+        $install_top_dir/bin/coot-real --no-graphics --script command-line-greg.scm
+
    status=$?
    if [ $status = 0 ] ; then
-      echo coot test passed
+      echo test_coot: coot test passed
       return 0
    else 
-      echo coot test failed
+      echo test_coot: coot test failed
       return 1
    fi
 else 
@@ -2512,19 +2513,6 @@ fi
 echo done coot build. 
 echo done coot build. >&2
 
-if test "$in_york" ; then
-   # let's test our new coot
-   cat <<'EOF'
-   (use-modules (ice-9 greg))
-         (set! greg-tools (list "greg-tests"))
-         (set! greg-debug #t)
-         (set! greg-verbose 5)
-         (let ((r (greg-test-run)))
-               (if r
-	(exit 0)
-	(exit 1)))
-'EOF' > command-line-greg.scm
-fi
 
 # now, do we need to add the extra data files, the refmac monomer
 # library and the reference structures?
