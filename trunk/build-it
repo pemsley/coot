@@ -388,6 +388,57 @@ function make_tar {
 
 
 
+# return 0 on success, 1 on failure (or not tested)
+#
+function test_coot { 
+
+if test "$in_york" = true ; then
+   # let's test our new coot
+   cd $AUTOBUILD_BUILD
+   if [ -d greg-test ] ; then
+      echo INFO:: directory greg-test exits
+   else
+      mkdir greg-test
+   fi 
+   cd greg-test
+   
+   # the greg tests are where the coot source code was untarred.
+   # 
+   if [ -e  $AUTOBUILD_BUILD/$coot_dir_name/greg-tests ] ; then 
+     ln -s $AUTOBUILD_BUILD/$coot_dir_name/greg-tests .
+   else 
+     echo OOps\!  $AUTOBUILD_BUILD/$coot_dir_name/greg-tests not exist\!
+   fi
+
+   cat <<EOF > command-line-greg.scm
+   (use-modules (ice-9 greg))
+         (set! greg-tools (list "greg-tests"))
+         (set! greg-debug #t)
+         (set! greg-verbose 5)
+         (let ((r (greg-test-run)))
+            (if r
+	        (exit 0)
+	        (exit 1)))
+EOF
+
+   $AUTOBUILD_INSTALLED/bin/coot --no-state-script --no-graphics --script command-line-greg.scm
+   status=$?
+   if [ $status = 0 ] ; then
+      echo coot test passed
+      return 0
+   else 
+      echo coot test failed
+      return 1
+   fi
+else 
+   return 1
+fi
+
+}
+
+
+
+
 
 
 # now on to some code!
@@ -807,6 +858,7 @@ coot_prefix=
 if [ "$domainname" = "yorksbl" ] ; then
     # we are in York, let's try the pre-release coot...
     echo we are in York
+    in_york=true
     build_coot_prerelease=1
 fi
 
@@ -2356,6 +2408,16 @@ fi
 #   fi
 # fi
 
+
+test_coot
+r=$?
+if [ $r = 0 ] ; then
+   echo coot test passed
+else
+   echo coot test failed
+fi
+
+
 # question: did we build gtkglarea?
 #
 echo BUILDING coot: version $coot_version
@@ -2447,6 +2509,19 @@ fi
 echo done coot build. 
 echo done coot build. >&2
 
+if test "$in_york" ; then
+   # let's test our new coot
+   cat <<'EOF'
+   (use-modules (ice-9 greg))
+         (set! greg-tools (list "greg-tests"))
+         (set! greg-debug #t)
+         (set! greg-verbose 5)
+         (let ((r (greg-test-run)))
+               (if r
+	(exit 0)
+	(exit 1)))
+'EOF' > command-line-greg.scm
+fi
 
 # now, do we need to add the extra data files, the refmac monomer
 # library and the reference structures?
