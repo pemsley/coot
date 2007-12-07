@@ -393,6 +393,9 @@ function make_tar {
 #
 # This can only be run when the coot tar file and greg tests have been
 # untared (in this particular build) 
+# 
+# we should be in the directory where coot was untarred for building 
+# when this function was called.
 #
 function test_coot { 
 
@@ -401,20 +404,11 @@ pwd
 
 if test "$in_york" = true ; then
    # let's test our new coot
-   cd $AUTOBUILD_BUILD
-   if [ -d greg-test ] ; then
-      echo INFO:: directory greg-test exits
-   else
-      mkdir greg-test
-   fi 
-   cd greg-test
    
    # the greg tests are where the coot source code was untarred.
    # 
-   if [ -e  $AUTOBUILD_BUILD/$coot_dir_name/greg-tests ] ; then 
-     ln -s $AUTOBUILD_BUILD/$coot_dir_name/greg-tests .
-   else 
-     echo OOps\!  $AUTOBUILD_BUILD/$coot_dir_name/greg-tests not exist\!
+   if [ ! -d greg-tests ] ; then 
+      return 1
    fi
 
    cat <<EOF > command-line-greg.scm
