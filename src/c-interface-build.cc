@@ -5481,7 +5481,7 @@ void do_pepflip(short int state) {
 void pepflip(int ires, const char *chain_id, int imol) { /* the residue with CO,
 							   for scripting interface. */
 
-   if (imol < graphics_n_molecules()) { 
+   if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
       g.molecules[imol].pepflip_residue(ires, std::string(""), std::string(chain_id));
       graphics_draw();
