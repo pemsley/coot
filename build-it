@@ -386,6 +386,15 @@ function make_tar {
     fi
 }
 
+function setup_ccp4 {
+
+   # we have access to $OS and $arch.
+
+   if test "$OS" = Linux ; then
+      . /y/programs/xtal/ccp4-6.0/ccp4-6.0/include/ccp4.setup-sh
+   fi
+
+}
 
 
 # Return 0 on success, 1 on failure (or not tested)
@@ -411,6 +420,8 @@ if test "$in_york" = true ; then
    if [ ! -d greg-tests ] ; then 
       return 1
    fi
+
+   setup_ccp4
 
    cat <<EOF > command-line-greg.scm
    (use-modules (ice-9 greg))
