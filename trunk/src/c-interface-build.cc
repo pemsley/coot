@@ -2573,18 +2573,13 @@ execute_refmac_real(std::string pdb_in_filename,
 #endif
    if (ilang == coot::STATE_PYTHON) { 
       cmd = g.state_command(cmds, ilang);
+#ifdef USE_PYTHON
       safe_python_command(cmd);
+#endif
    } else {
       cmd = g.state_command(cmds, ilang);
       safe_scheme_command(cmd);
    } 
-
-#ifdef USE_PYTHON
-
-   std::cout << "put construction of python command code here\n"; 
-   // Why is all done!?
-
-#endif // USE_PYTHON   
 } 
 
 // Not needed? because we look at the active menu item at OK button-press time?

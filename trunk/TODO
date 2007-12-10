@@ -99,6 +99,9 @@
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
 
+   o Mutate should not change the order of the atoms in the pdb.
+     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
+
 
 -----
 
