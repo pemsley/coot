@@ -5852,9 +5852,8 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
     return ret;
     Py_DECREF(ret);
-
-#endif //PYTHON
 }
+#endif //PYTHON
 
 void safe_python_command_by_char_star(const char *python_cmd) {
 
