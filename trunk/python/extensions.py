@@ -24,6 +24,13 @@ import time
 # try to program it, so that we can easily switch to proper extension when
 # eventualy functional!?
 
+def add_coot_menu_separator(menu):
+  sep = gtk.MenuItem()
+  menu.add(sep)
+  sep.props.sensitive = False
+  sep.show()
+   
+
 try: 
   import coot_python
   if coot_python.main_menubar():
@@ -34,14 +41,17 @@ try:
 	lambda func: molecule_chooser_gui("Find and Fill residues with missing atoms",
 		lambda imol: fill_partial_residues(imol)))
 
+
      def fit_prot_func(imol):
 	if imol_refinement_map()==-1:
 	   add_status_bar_text("oops. Must set a map to fit")
 	else:
 	   fit_protein(imol)
+
      add_simple_coot_menu_menuitem(menu,"[Post MR] Fit Protein...",
 	lambda func: molecule_chooser_gui("Fit Protein using Rotamer Search",
 		lambda imol: fit_prot_func(imol)))
+
 
      def step_ref_func(imol):
 	if imol_refinement_map()==-1:
@@ -52,9 +62,8 @@ try:
 	lambda func: molecule_chooser_gui("Stepped Refine: ",
 		lambda imol: step_ref_func(imol)))
 
-     add_simple_coot_menu_menuitem(menu,"Residue Type Selection",
-	lambda func: generic_chooser_and_entry("Choose a molecule to select residues from: ","Residue Type:","",
-		lambda imol,text: map(eval,("new_molecule_by_residue_type_selection(imol,text)", "update_go_to_atom_window_on_new_mol()"))))
+
+     add_coot_menu_separator(menu)
 
 
 # BL says: currently doesnt check for valid molecules etc.!!
@@ -91,18 +100,59 @@ try:
 			"Mask Map", 
 			lambda text_1, text_2, invert: mask_map_func2(text_1, text_2, imol, invert))))
 
-     add_simple_coot_menu_menuitem(menu,"Copy Coordinates Molecule...", 
-	lambda func: molecule_chooser_gui("Molecule to Copy...", 
-		lambda imol: copy_molecule(imol)))
 
      add_simple_coot_menu_menuitem(menu,"Copy Map Molecule...", 
-	lambda func: map_molecule_chooser_gui("Molecule to Copy...", 
+	lambda func: map_molecule_chooser_gui("Map to Copy...", 
 		lambda imol: copy_molecule(imol)))
+
+
+     def export_map_func(imol, text):
+       export_status = export_map(imol, text)
+       if (export_status == 1):
+         s = "Map " + str(imol) + " exported to " + text
+         add_status_bar_text(s)
+
+     add_simple_coot_menu_menuitem(menu, "Export map...",
+        lambda func: generic_chooser_and_file_selector("Export Map: ",
+                valid_map_molecule_qm, "File_name: ", "",
+                lambda imol, text: export_map_func(imol, text)))
+
+
+     add_simple_coot_menu_menuitem(menu,"Brighten Maps",
+               lambda func: brighten_maps())
+
+
+     def set_diff_map_func(imol):
+	print "setting map number %s to be a difference map" %imol
+        set_map_is_difference_map(imol)
+        
+     add_simple_coot_menu_menuitem(menu,"Set map is a difference map...",
+	lambda func: map_molecule_chooser_gui("Which map should be considered a difference map?",
+		lambda imol: set_diff_map_func(imol)))
+
+
+     add_simple_coot_menu_menuitem(menu, "Another (contour) level...",
+	lambda func: another_level())
+
+
+     add_coot_menu_separator(menu)
+     
 
      add_simple_coot_menu_menuitem(menu,"Copy Fragment...", 
 	lambda func: generic_chooser_and_entry("Create a new Molecule\nFrom which molecule shall we seed?", 
 	"Atom selection for fragment", "//A/1-10", 
 		lambda imol, text: new_molecule_by_atom_selection(imol,text)))
+
+
+     add_simple_coot_menu_menuitem(menu,"Copy Coordinates Molecule...", 
+	lambda func: molecule_chooser_gui("Molecule to Copy...", 
+		lambda imol: copy_molecule(imol)))
+
+
+     add_simple_coot_menu_menuitem(menu,"Residue Type Selection",
+	lambda func: generic_chooser_and_entry("Choose a molecule to select residues from: ","Residue Type:","",
+		lambda imol,text: map(eval,("new_molecule_by_residue_type_selection(imol,text)", "update_go_to_atom_window_on_new_mol()"))))
+
 
 # BL says:: may work, not sure about function entirely
      add_simple_coot_menu_menuitem(menu, "Replace Fragment",
@@ -113,7 +163,22 @@ try:
 				lambda imol_fragment, atom_selection_str:
 				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
 
-#
+
+     add_simple_coot_menu_menuitem(menu,"Renumber Waters...",
+	lambda func: molecule_chooser_gui("Renumber waters of which molecule?",
+		lambda imol: renumber_waters(imol)))
+
+
+     add_simple_coot_menu_menuitem(menu, "Residues with Alt Confs...",
+	lambda func: molecule_chooser_gui(
+		"Which molecule to check for Alt Confs?",
+		lambda imol: alt_confs_gui(imol)))
+
+
+     add_simple_coot_menu_menuitem(menu, "Cis Peptides...",
+        lambda func: molecule_chooser_gui("Choose a molecule for checking for Cis Peptides",
+                lambda imol: cis_peptides_gui(imol)))
+
 #
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Peptide Restraints...")
@@ -138,13 +203,6 @@ try:
      add_simple_coot_menu_menuitem(menu,"Set Undo Molecule...",
 	lambda func: molecule_chooser_gui("Set the Molecule for 'Undo' Operations",
 		lambda imol: set_undo_molecule(imol)))
-
-     def set_diff_map_func(imol):
-	print "setting map number %s to be a difference map" %imol
-	set_map_is_difference_map(imol)
-     add_simple_coot_menu_menuitem(menu,"Set map is a difference map...",
-	lambda func: map_molecule_chooser_gui("Which map should be considered a difference map?",
-		lambda imol: set_diff_map_func(imol)))
 
      add_simple_coot_menu_menuitem(menu,"Use SEGIDs...",
 	lambda func: molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
@@ -174,15 +232,6 @@ try:
 	lambda func: generic_chooser_and_entry("Choose a molecule to which the B-factor colour scale is applied:",
 		"B-factor scale:", "1.0", 
 		lambda imol, text: set_b_factor_bonds_scale_factor(imol,float(text))))
-
-     add_simple_coot_menu_menuitem(menu,"Renumber Waters...",
-	lambda func: molecule_chooser_gui("Renumber waters of which molecule?",
-		lambda imol: renumber_waters(imol)))
-
-     add_simple_coot_menu_menuitem(menu, "Residues with Alt Confs...",
-	lambda func: molecule_chooser_gui(
-		"Which molecule to check for Alt Confs?",
-		lambda imol: alt_confs_gui(imol)))
 
      def set_mat_func(text):
 	import operator
@@ -265,9 +314,6 @@ try:
      add_simple_coot_menu_menuitem(menu, "Question Accept Refinement", 
 	lambda func: set_refinement_immediate_replacement(0))
 
-     add_simple_coot_menu_menuitem(menu, "Another (contour) level...",
-	lambda func: another_level())
-
      def ccp4mg_func1():
 	import os
 	pd_file_name = "1.mgpic.py"
@@ -304,9 +350,6 @@ try:
 		lambda func: generic_single_entry("Set Spin Speed (smaller is slower)",
 			str(idle_function_rotate_angle()), "Set it",
 			lambda text: set_idle_function_rotate_angle(float(text))))
-
-     add_simple_coot_menu_menuitem(menu,"Brighten Maps",
-               lambda func: brighten_maps())
 
      add_simple_coot_menu_menuitem(menu, "Nudge Centre...",
 	lambda func: nudge_screen_centre_gui())
