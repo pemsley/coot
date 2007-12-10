@@ -190,7 +190,8 @@
 # 2.27 20071207 More python tinkering.  Upgrade to 2.5.1
 # 2.28 20071207 Add greg. If in York, use it to test before installing.
 # 2.29 20071208 Setup CCP4 and use it to test coot before making binaries. 
-script_version=2.29
+# 2.30 20071209 Add dewinter's ccp4 setup in setup_ccp4.
+script_version=2.30
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -393,6 +394,9 @@ function setup_ccp4 {
 
    if test "$OS" = Linux ; then
       . /y/programs/xtal/ccp4-6.0/ccp4-6.0/include/ccp4.setup-sh
+   fi
+   if test "$OS" = Darwin ; then
+      . /usr/local/ccp4-6.0.2/bin/ccp4.setup-sh
    fi
 
 }
