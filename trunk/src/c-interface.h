@@ -65,6 +65,10 @@
 #ifdef USE_GUILE
 #include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
 #endif // USE_GUILE
+// BL says:: ok then we put python here too
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif // PYTHON
 #endif 
 
 #ifndef BEGIN_C_DECLS
@@ -96,7 +100,9 @@ BEGIN_C_DECLS
 /*  ------------------------------------------------------------------------ */
 /*                         Startup Functions:                                */
 /*  ------------------------------------------------------------------------ */
+#ifdef USE_GUILE
 void try_load_scheme_extras_dir();
+#endif // USE_GUILE
 
 /*  ------------------------------------------------------------------------ */
 /*                         File system Functions:                            */
@@ -533,6 +539,7 @@ int  show_origin_marker_state();
 /*! \brief reparent the Model/Fit/Refine dialog so that it becomes
   part of the main window, next to the GL graphics context */
 int suck_model_fit_dialog();
+int suck_model_fit_dialog_bl();
 
 /* return the dialog if it exists, else null */
 GtkWidget *close_model_fit_dialog(GtkWidget *dialog_hbox);
@@ -677,6 +684,9 @@ void set_undo_molecule(int imol);
 /*! \brief show the Undo Molecule chooser - i.e. choose the molecule
   to which the "Undo" button applies. */
 void show_set_undo_molecule_chooser(); 
+#ifdef USE_PYTHON
+void show_set_undo_molecule_chooser_py(); 
+#endif // USE_PYTHON
 
 /*! \brief set the state for adding paths to backup file names
 
@@ -1335,10 +1345,16 @@ char *save_state_file_name();
 void set_run_state_file_status(short int istat);
 /*! \brief run the state file (reading from default filenname) */
 void run_state_file();		/* just do it */
+#ifdef USE_PYTHON
+void run_state_file_py();		/* just do it */
+#endif // USE_PYTHON
 /*! \brief run the state file depending on the state variables */
 void run_state_file_maybe();	/* depending on the above state variables */
 
 GtkWidget *wrapped_create_run_state_file_dialog();
+#ifdef USE_PYTHON
+GtkWidget *wrapped_create_run_state_file_dialog_py();
+#endif // USE_PYTHON
 
 /* \} */
 
@@ -1644,6 +1660,9 @@ float median_temperature_factor(int imol);
 float average_temperature_factor(int imol);
 void clear_pending_picks(); 
 char *centre_of_mass_string(int imol);
+#ifdef USE_PYTHON
+char *centre_of_mass_string_py(int imol);
+#endif // PYTHON
 /*! \brief set the default temperature factor for newly created atoms
   (initial default 20) */
 void set_default_temperature_factor_for_new_atoms(float new_b);
@@ -2101,8 +2120,8 @@ SCM merge_molecules(SCM add_molecules, int imol);
 #endif
 
 #ifdef USE_PYTHON
-// Bernhard, fill me in...
-#endif 
+PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
+#endif // PYTHON
 #endif	/* c++ */
 
 
@@ -2588,6 +2607,7 @@ int      smooth_scroll_do_zoom();
 float    smooth_scroll_zoom_limit(); 
 void set_smooth_scroll_zoom_limit(float f);
 void set_zoom_adjustment(GtkWidget *w);
+void set_zoom(float f);
 
 /* \} */
 
@@ -2653,11 +2673,14 @@ int handle_shelx_fcf_file_internal(const char *filename);
   can't do it/fail. */
 SCM chain_id_for_shelxl_residue_number(int imol, int resno);
 #endif 
-void add_shelx_string_to_molecule(int imol, const char *string);
 
 #ifdef USE_PYTHON
-/* Fill me in Bernhard */
+/*! \brief @return the chain id for the given residue.  Return Py_False if
+  can't do it/fail. */
+PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno);
 #endif 
+
+void add_shelx_string_to_molecule(int imol, const char *string);
 #endif 
 
 /* \} */
@@ -2715,6 +2738,9 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog();
   O and N temperature factore idfference to the distribution of
   temperature factors from the other atoms.  */
 void gln_asn_b_factor_outliers(int imol);
+#ifdef USE_PYTHON
+void gln_asn_b_factor_outliers_py(int imol);
+#endif // USE_PYTHON
 
 /* \} */
 
@@ -2906,6 +2932,11 @@ SCM view_name(int view_number);
 SCM view_description(int view_number);
 void go_to_view(SCM view);
 #endif	/* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *view_name_py(int view_number);
+PyObject *view_description_py(int view_number);
+void go_to_view_py(PyObject *view);
+#endif // PYTHON
 #endif	/* __cplusplus */
 /*! \brief Clear the view list */
 void clear_all_views();
@@ -2917,6 +2948,9 @@ void set_movie_frame_number(int frame_number);
 #ifdef USE_GUILE
 SCM movie_file_name_prefix();
 #endif
+#ifdef USE_PYTHON
+PyObject *movie_file_name_prefix_py();
+#endif // PYTHON
 #endif
 int movie_frame_number();
 void set_make_movie_mode(int make_movies_flag);
@@ -2995,10 +3029,10 @@ void add_ligand_search_wiggly_ligand_molecule(int imol_ligand);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM execute_ligand_search();  
-#else 
-// Fixme Bernhard
-void execute_ligand_search();  
-#endif 
+#endif
+#ifdef USE_PYTHON
+PyObject *execute_ligand_search_py();  
+#endif
 #endif // __cplusplus
 void free_ligand_search_user_data(GtkWidget *button); 
 void add_ligand_clear_ligands(); 
@@ -3047,6 +3081,11 @@ SCM overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int
 SCM analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			       int resno_ref);
 #endif 
+#ifdef USE_PYTHON
+PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
+PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
+			       int resno_ref);
+#endif // PYTHON
 #endif	/* __cplusplus */
 
 void execute_get_mols_ligand_search(GtkWidget *button); 
@@ -3367,9 +3406,10 @@ void cis_trans_convert(int imol, const char *chain_id, int resno, const char *al
 
 Return a SCM list object of (residue1 residue2 omega) */
 SCM cis_peptides(int imol);
-#else
-/* FIXME Bernhard */
-#endif 
+#endif // GUILE
+#ifdef USE_PYTHON
+PyObject *cis_peptides_py(int imol);
+#endif // PYTHON
 #endif 
 
 
@@ -3477,9 +3517,10 @@ set_graphics_rotamer_dialog(GtkWidget *w);
 
 Return rotamer info - function used in testing.  */
 SCM rotamer_graphs(int imol);
-#else
-/* FIXME Bernhard */
-#endif 
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *rotamer_graphs_py(int imol);
+#endif // USE_PYTHON
 #endif 
 
 /* \} */
@@ -3767,6 +3808,9 @@ void add_lsq_match(int reference_resno_start,
 #ifdef USE_GUILE
 SCM apply_lsq_matches(int imol_reference, int imol_moving);
 #endif
+#ifdef USE_PYTHON
+PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving);
+#endif // PYTHON
 #endif
 
 /* poor old python programmers... */
@@ -3821,6 +3865,10 @@ void povray(const char *filename);
    from callbacks.c  */
 void make_image_raster3d(const char *filename);
 void make_image_povray(const char *filename);
+#ifdef USE_PYTHON
+void make_image_raster3d_py(const char *filename);
+void make_image_povray_py(const char *filename);
+#endif // USE_PYTHON
 
 /*! \brief set the bond thickness for the Raster3D representation  */
 void set_raster3d_bond_thickness(float f);
@@ -3835,7 +3883,9 @@ void set_raster3d_bone_thickness(float f);
 /*! \brief run raster3d and display the resulting image.  */
 void raster_screen_shot(); /* run raster3d or povray and guile */
                            /* script to render and display image */
-
+#ifdef USE_PYTHON
+void raster_screen_shot_py(); /* run raster3d or povray and python */
+#endif
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4067,7 +4117,10 @@ void assign_sequence(int imol_model, int imol_map, const char *chain_id);
 SCM sequence_info(int imol);
 #endif 
 #ifdef USE_PYTHON
-/* fill me in, Bernhard. */
+/*! \brief return the sequence info that has been assigned to molecule
+  number imol. return as a list of dotted pairs [[chain-id,
+  seq]].  To be used in constructing the cootaneer gui. */
+PyObject *sequence_info_py(int imol);
 #endif 
 #endif /* C++ */
 /* \} */
@@ -4244,6 +4297,9 @@ void handle_read_draw_probe_dots(const char *dots_file);
 /*! \brief pass a filename that contains molprobity's probe output in unformatted
 format */
 void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol, int show_clash_gui_flag);
+#ifdef USE_PYTHON
+void handle_read_draw_probe_dots_unformatted_py(const char *dots_file, int imol, int show_clash_gui_flag);
+#endif // USE_PYTHON
 
 
 /*! \brief shall we run molprobity for on edit chi angles intermediate atoms? */
@@ -4277,6 +4333,9 @@ float interactive_probe_dots_molprobity_radius();
 
 @return 1 for yes, 2 for no  */
 int probe_available_p();
+#ifdef USE_PYTHON
+int probe_available_p_py();
+#endif
 
 /* \} */
 

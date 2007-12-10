@@ -30,6 +30,11 @@
 #include <vector>
 #endif
 
+#ifdef WINDOWS_MINGW
+// window magic jiggery pokery.
+#define AddAtomA AddAtom
+#endif
+
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #include <GL/glut.h>  // for some reason...  // Eh?
 

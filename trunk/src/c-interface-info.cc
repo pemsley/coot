@@ -5,6 +5,8 @@
  * Copyright 2007 by Paul Emsley
  * Copyright 2007 The University of Oxford
  * Author: Paul Emsley
+ * Copyright 2007 by Bernhard Lohkamp
+ * Copyright 2007 The University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,6 +162,41 @@ SCM sequence_info(int imol) {
 } 
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+PyObject *sequence_info_py(int imol) {
+
+   PyObject *r;
+   r = PyList_New(0);
+
+   if (is_valid_model_molecule(imol)) { 
+      std::cout << "BL DEBUG:: we make the seq" <<std::endl;
+      
+      std::vector<std::pair<std::string, std::string> > seq =
+	 graphics_info_t::molecules[imol].sequence_info();
+
+      std::cout << "BL DEBUG:: seqi length is" << seq.size() <<std::endl;
+
+      if (seq.size() > 0) {
+	std::cout << "BL DEBUG:: size of seq is >0" << std::endl;
+	 // unsigned int does't work here because then the termination
+	 // condition never fails.
+         r = PyList_New(seq.size());
+	 for (int iv=int(seq.size()-1); iv>=0; iv--) {
+	    std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
+	    std::cout << "debug pythoning" << seq[iv].first.c_str()
+		      << " and " << seq[iv].second.c_str() << std::endl;
+	    PyObject *a = PyString_FromString(seq[iv].first.c_str());
+	    PyObject *b = PyString_FromString(seq[iv].second.c_str());
+	    PyObject *ls = PyList_New(2);
+            PyList_SetItem(ls, 0, a);
+            PyList_SetItem(ls, 1, b);
+            PyList_SetItem(r, iv, ls);
+	 }
+      }
+   }
+   return r;
+} 
+#endif // USE_PYTHON
 
 
 // Called from a graphics-info-defines routine, would you believe? :)
@@ -426,6 +463,56 @@ const char *atom_info_string(int imol, const char *chain_id, int resno,
    return r;
 }
 #endif // USE_GUILE
+// BL says:: we return a string in python list compatible format.
+// to use it in python you need to eval the string!
+#ifdef USE_PYTHON
+// "[occ,temp_factor,element,x,y,z]" or 0
+const char *atom_info_string_py(int imol, const char *chain_id, int resno,
+                     const char *ins_code, const char *atname,
+                     const char *altconf) {
+
+   const char *r = 0;  // python/SWIG sees this as False (esp once eval'ed)
+   if (is_valid_model_molecule(imol)) {
+      int index =
+         graphics_info_t::molecules[imol].full_atom_spec_to_atom_index(std::string(chain_id),
+                                                                       resno,
+                                                                       std::string(ins_code),
+                                                                       std::string(atname),
+                                                                       std::string(altconf));
+      if (index > -1) { 
+         CAtom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
+
+         // we need the ' because eval needs it.
+         std::string s = "[";
+         s += coot::util::float_to_string(atom->occupancy);
+         s += ",";
+         s += coot::util::float_to_string(atom->tempFactor);
+         s += ",";
+         s += single_quote(atom->element);
+         s += ",";
+         s += coot::util::float_to_string(atom->x);
+         s += ",";
+         s += coot::util::float_to_string(atom->y);
+         s += ",";
+         s += coot::util::float_to_string(atom->z);
+         s += "]";
+         r = new char[s.length() + 1];
+         strcpy((char *)r, s.c_str());
+      }
+   }
+   std::string cmd = "atom_info_string";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(chain_id);
+   args.push_back(resno);
+   args.push_back(ins_code);
+   args.push_back(atname);
+   args.push_back(altconf);
+   add_to_history_typed(cmd, args);
+
+   return r;
+}
+#endif // PYTHON
 
 #ifdef USE_GUILE
 // output is like this:
@@ -492,6 +579,88 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
    return r;
 }
 #endif // USE_GUILE
+// BL says:: this is my attepmt to code it in python
+#ifdef USE_PYTHON
+PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code) {
+
+   PyObject *r;
+   PyObject *all_atoms;
+   PyObject *compound_name;
+   PyObject *compound_attrib;
+   r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int imod = 1;
+      
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+         chain_p = model_p->GetChain(ichain);
+         std::string chain_id_mol(chain_p->GetChainID());
+         if (chain_id_mol == std::string(chain_id)) { 
+            int nres = chain_p->GetNumberOfResidues();
+            PCResidue residue_p;
+            CAtom *at;
+
+            // why use this bizarre contrivance to get a null list for
+            // starting? I must be missing something.
+            for (int ires=0; ires<nres; ires++) { 
+               residue_p = chain_p->GetResidue(ires);
+               std::string res_ins_code(residue_p->GetInsCode());
+               if (residue_p->GetSeqNum() == resno) { 
+                  if (res_ins_code == std::string(ins_code)) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     PyObject *at_info = Py_False;
+                     PyObject *at_pos;
+                     PyObject *at_occ, *at_b, *at_ele, *at_name, *at_altconf;
+                     PyObject *at_x, *at_y, *at_z;
+                     all_atoms = PyList_New(n_atoms);
+                     for (int iat=0; iat<n_atoms; iat++) {
+
+                        at = residue_p->GetAtom(iat);
+                        at_x  = PyFloat_FromDouble(at->x);
+                        at_y  = PyFloat_FromDouble(at->y);
+                        at_z  = PyFloat_FromDouble(at->z);
+                        at_pos = PyList_New(3);
+                        PyList_SetItem(at_pos,0,at_x);
+                        PyList_SetItem(at_pos,1,at_y);
+                        PyList_SetItem(at_pos,2,at_z);
+
+                        at_occ = PyFloat_FromDouble(at->occupancy);
+                        at_b   = PyFloat_FromDouble(at->tempFactor);
+                        at_ele = PyString_FromString(at->element);
+                        at_name = PyString_FromString(at->name);
+                        at_altconf = PyString_FromString(at->altLoc);
+
+                        compound_name = PyList_New(2);
+                        PyList_SetItem(compound_name, 0 ,at_name);
+                        PyList_SetItem(compound_name, 1 ,at_altconf);
+
+                        compound_attrib = PyList_New(3);
+                        PyList_SetItem(compound_attrib, 0, at_occ);
+                        PyList_SetItem(compound_attrib, 1, at_b);
+                        PyList_SetItem(compound_attrib, 2, at_ele);
+
+                        at_info = PyList_New(3);
+                        PyList_SetItem(at_info, 0, compound_name);
+                        PyList_SetItem(at_info, 1, compound_attrib);
+                        PyList_SetItem(at_info, 2, at_pos);
+
+                        PyList_SetItem(all_atoms, iat, at_info);
+                     }
+                  }
+               }
+            }
+            r = all_atoms;
+         }
+      }
+   }
+   return r;
+}
+
+#endif //PYTHON
 
 
 #ifdef USE_GUILE
@@ -532,6 +701,45 @@ SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code
    return r;
 }
 #endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code) {
+
+   PyObject *r;
+   r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int imod = 1;
+      bool have_resname_flag = 0;
+      
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+         chain_p = model_p->GetChain(ichain);
+         std::string chain_id_mol(chain_p->GetChainID());
+         if (chain_id_mol == std::string(chain_id)) { 
+            int nres = chain_p->GetNumberOfResidues();
+            PCResidue residue_p;
+            for (int ires=0; ires<nres; ires++) { 
+               residue_p = chain_p->GetResidue(ires);
+               if (residue_p->GetSeqNum() == resno) { 
+                  std::string ins = residue_p->GetInsCode();
+                  if (ins == ins_code) {
+                     r = PyString_FromString(residue_p->GetResName());
+                     have_resname_flag = 1;
+                     break;
+                  }
+               }
+            }
+         }
+         if (have_resname_flag)
+            break;
+      }
+   }
+   return r;
+}
+#endif // USE_PYTHON
 
 
 // A C++ function interface:
@@ -614,6 +822,25 @@ SCM active_residue() {
 }
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+PyObject *active_residue_py() {
+
+   PyObject *s;
+   s = Py_False;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+
+   if (pp.first) {
+      s = PyList_New(6);
+      PyList_SetItem(s, 0, PyInt_FromLong(pp.second.first));
+      PyList_SetItem(s, 1, PyString_FromString(pp.second.second.chain.c_str()));      PyList_SetItem(s, 2, PyInt_FromLong(pp.second.second.resno));
+      PyList_SetItem(s, 3, PyString_FromString(pp.second.second.insertion_code.c_str()));
+      PyList_SetItem(s, 4, PyString_FromString(pp.second.second.atom_name.c_str()));
+      PyList_SetItem(s, 5, PyString_FromString(pp.second.second.alt_conf.c_str()));
+   }
+   return s;
+}
+#endif // PYTHON
+
 #ifdef USE_GUILE
 SCM closest_atom(int imol) {
 
@@ -639,6 +866,31 @@ SCM closest_atom(int imol) {
 } 
 #endif 
 
+#ifdef USE_PYTHON
+PyObject *closest_atom_py(int imol) {
+
+   PyObject *r;
+   r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      coot::at_dist_info_t at_info =
+	 graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
+      if (at_info.atom) {
+         r = PyList_New(9);
+	 PyList_SetItem(r, 8, PyFloat_FromDouble(at_info.atom->z));
+	 PyList_SetItem(r, 7, PyFloat_FromDouble(at_info.atom->y));
+	 PyList_SetItem(r, 6, PyFloat_FromDouble(at_info.atom->x));
+	 PyList_SetItem(r, 5, PyString_FromString(at_info.atom->altLoc));
+	 PyList_SetItem(r, 4, PyString_FromString(at_info.atom->name));
+	 PyList_SetItem(r, 3, PyString_FromString(at_info.atom->GetInsCode()));
+	 PyList_SetItem(r, 2, PyInt_FromLong(at_info.atom->GetSeqNum()));
+	 PyList_SetItem(r, 1, PyString_FromString(at_info.atom->GetChainID()));
+	 PyList_SetItem(r, 0, PyInt_FromLong(imol));
+      }
+   }
+   return r;
+} 
+#endif // USE_PYTHON
 
 /*! \brief update the Go To Atom widget entries to atom closest to
   screen centre. */
@@ -665,6 +917,20 @@ SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v) {
    return r; 
 }
 #endif // USE_GUILE
+
+// BL says:: python version 
+#ifdef USE_PYTHON
+PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::string> &v) {
+
+  PyObject *r = PyList_New(0);
+
+   r = PyList_New(v.size());
+   for (int i=v.size()-1; i>=0; i--) {
+      PyList_SetItem(r, i, PyString_FromString(v[i].c_str()));
+   }
+   return r;
+}
+#endif // PYTHON
 
 // and the reverse function:
 #ifdef USE_GUILE
@@ -697,6 +963,23 @@ generic_list_to_string_vector_internal(SCM l) {
 }
 #endif
 
+#ifdef USE_PYTHON
+std::vector<std::string>
+generic_list_to_string_vector_internal_py(PyObject *l) {
+   std::vector<std::string> r;
+
+   int l_length = PyObject_Length(l);
+   for (int i=0; i<l_length; i++) {
+      PyObject *le = PyList_GetItem(l, i);
+      std::string s = PyString_AsString(le);
+      r.push_back(s);
+   } 
+
+   return r;
+}
+   
+#endif // USE_PYTHON
+
 #ifdef USE_GUILE
 SCM generic_int_vector_to_list_internal(const std::vector<int> &v) {
 
@@ -708,8 +991,17 @@ SCM generic_int_vector_to_list_internal(const std::vector<int> &v) {
 }
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+PyObject *generic_int_vector_to_list_internal_py(const std::vector<int> &v) {
 
-
+   PyObject *r;
+   r = PyList_New(v.size()); 
+   for (int i=v.size()-1; i>=0; i--) {
+      PyList_SetItem(r, i, PyInt_FromLong(v[i]));
+   }
+   return r; 
+}
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 SCM rtop_to_scm(const clipper::RTop_orth &rtop) {
@@ -744,6 +1036,42 @@ SCM rtop_to_scm(const clipper::RTop_orth &rtop) {
 }
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+PyObject *rtop_to_python(const clipper::RTop_orth &rtop) {
+
+   PyObject *r;
+   PyObject *tr_list;
+   PyObject *rot_list;
+
+   r = PyList_New(2);
+   tr_list = PyList_New(3);
+   rot_list = PyList_New(9);
+
+   clipper::Mat33<double>  mat = rtop.rot();
+   clipper::Vec3<double> trans = rtop.trn();
+
+   double x;
+   PyList_SetItem(tr_list, 0, PyFloat_FromDouble(trans[0]));
+   PyList_SetItem(tr_list, 1, PyFloat_FromDouble(trans[1]));
+   PyList_SetItem(tr_list, 2, PyFloat_FromDouble(trans[2]));
+
+   PyList_SetItem(rot_list, 0, PyFloat_FromDouble(mat(0,0)));
+   PyList_SetItem(rot_list, 1, PyFloat_FromDouble(mat(0,1)));
+   PyList_SetItem(rot_list, 2, PyFloat_FromDouble(mat(0,2)));
+   PyList_SetItem(rot_list, 3, PyFloat_FromDouble(mat(1,0)));
+   PyList_SetItem(rot_list, 4, PyFloat_FromDouble(mat(1,1)));
+   PyList_SetItem(rot_list, 5, PyFloat_FromDouble(mat(1,2)));
+   PyList_SetItem(rot_list, 6, PyFloat_FromDouble(mat(2,0)));
+   PyList_SetItem(rot_list, 7, PyFloat_FromDouble(mat(2,1)));
+   PyList_SetItem(rot_list, 8, PyFloat_FromDouble(mat(2,2)));
+
+// BL says:: or maybe the other way round
+   PyList_SetItem(r, 0, rot_list);
+   PyList_SetItem(r, 1, tr_list);
+   return r;
+
+}
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 // get the symmetry operators strings for the given molecule
@@ -764,6 +1092,22 @@ SCM get_symmetry(int imol) {
    return r; 
 } 
 #endif 
+
+// BL says:: python's get_symmetry:
+#ifdef USE_PYTHON
+PyObject *get_symmetry_py(int imol) {
+
+   PyObject *r;
+   r = PyList_New(0);
+   if (is_valid_model_molecule(imol) ||
+       is_valid_map_molecule(imol)) {
+      std::vector<std::string> symop_list =
+         graphics_info_t::molecules[imol].get_symop_strings();
+      r = generic_string_vector_to_list_internal_py(symop_list);
+   }
+   return r;
+}
+#endif //PYTHON
 
 
 void residue_info_apply_all_checkbutton_toggled() {
@@ -1702,6 +2046,15 @@ SCM dictionaries_read() {
 }
 #endif
 
+// BL says:: python's fucn
+#ifdef USE_PYTHON
+PyObject *dictionaries_read_py() {
+
+   return generic_string_vector_to_list_internal_py(*graphics_info_t::cif_dictionary_filename_vec);
+}
+#endif // PYTHON
+
+
 /*  ----------------------------------------------------------------------- */
 /*                         Restraints                                       */
 /*  ----------------------------------------------------------------------- */
@@ -1714,6 +2067,16 @@ SCM monomer_restraints(const char *monomer_type) {
 } 
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+PyObject *monomer_restraints_py(const char *monomer_type) {
+
+   PyObject *r;
+   r = Py_False;
+
+   return r;
+}
+#endif // USE_PYTHON
+
 #ifdef USE_GUILE
 void set_monomer_restraints(const char *monomer_type, SCM restraints) {
 
@@ -1721,6 +2084,16 @@ void set_monomer_restraints(const char *monomer_type, SCM restraints) {
 
 } 
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+void set_monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
+
+   PyObject *r;
+   r = Py_False;
+
+} 
+#endif // USE_PYTHON
+
 
 
 /*  ----------------------------------------------------------------------- */

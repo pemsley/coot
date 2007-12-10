@@ -401,6 +401,11 @@ void fill_about_window(GtkWidget *widget) {
    body_text += "    & co-workers\n\n";
 #endif   
 
+#ifdef WINDOWS_MINGW
+   body_text += "    Ported to Windows for you by:\n";
+   body_text += "    Bernhard Lohkamp\n\n";
+#endif // MINGW
+
    body_text += "  Using the libraries of:\n   Eugene Krissinel\n   Kevin Cowtan\n   Stuart McNicholas\n   Ralf W. Grosse-Kunstleve\n   Janne Lof\n   Raghavendra Chandrashekara\n   Paul Bourke & Cory Gene Bloyd\n   Matteo Frigo & Steven G. Johnson\n   & many others.\n\n  Windows 2000 Binaries\n   Bernhard Lohkamp\n\n  Macintosh Binaries\n   William Scott\n\n";
 
    std::string widget_text("\n   Coot version ");
@@ -483,7 +488,14 @@ store_window_position(int window_type, GtkWidget *widget) {
    // widget->window is NULL, and gdk_window_get_root_origin fails.
 
    gint upositionx, upositiony;
+
+// BL says:: in windows root is not properly defined as in X11, so ok to use
+// simple gdk_window_get_position function, I hope!
+#ifdef WINDOWS_MINGW
+   gdk_window_get_position (widget->window, &upositionx, &upositiony);
+#else
    gdk_window_get_root_origin (widget->window, &upositionx, &upositiony);
+#endif // MINGW
 
 //    std::cout << "in store_window_position, widget is " << widget
 //      	     << " widget->window is " << widget->window << std::endl;
@@ -789,6 +801,37 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
 //            reparenting
 /*  ------------------------------------------------------------------------ */
 // 
+int suck_model_fit_dialog_bl() {
+
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *main_window_hbox = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+						  "main_window_hbox");
+      GtkWidget *box_for_handle = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+							"main_window_hbox");
+      GtkWidget *dialog = graphics_info_t::model_fit_refine_dialog;
+
+      if (main_window_hbox) {
+	 if (dialog) {
+	    GtkWidget *handlebox2 = gtk_handle_box_new();
+	    GtkWidget *hbox = lookup_widget(dialog, "model_fit_refine_dialog_vbox");
+	    gtk_container_add (GTK_CONTAINER(handlebox2), hbox);
+	    gtk_widget_reparent(hbox, handlebox2);
+	    gtk_box_pack_start(GTK_BOX(main_window_hbox), handlebox2, FALSE, TRUE, 0);
+	    gtk_widget_show(handlebox2);
+	    gtk_widget_destroy(dialog);
+	 } else {
+	    std::cout << "no dialog\n";
+	 } 
+      } else {
+	 std::cout << "no hbox\n";
+      }
+      // I mean that it *should be* sucked.
+      graphics_info_t::model_fit_refine_dialog_was_sucked = 1;
+   }
+   add_to_history_simple("suck-model-fit-dialog-bl");
+   return 0;
+}
+
 int suck_model_fit_dialog() {
 
    if (graphics_info_t::use_graphics_interface_flag) { 

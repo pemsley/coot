@@ -19,7 +19,7 @@
  */
 
 
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+#if defined(_MSC_VER)
 #define GTK_ENABLE_BROKEN
 #if defined _MSC_VER
 #include <windows.h>

@@ -92,7 +92,7 @@ EXTRA_DIST = \
 
 
 coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ $(SWIG_FLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
+	swig -o $@ $(SWIG_FLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 coot_wrap_guile_pre.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
@@ -171,6 +171,7 @@ INCLUDES = \
 	-I$(top_srcdir)/cootaneer	\
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
+	$(GUILE_GTK_CFLAGS)		\
 	$(GUILE_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
 	$(SWIG_FLAGS)			\
@@ -181,7 +182,8 @@ INCLUDES = \
 	$(MMDBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
-	$(CLIPPER_CXXFLAGS) 		
+	$(CLIPPER_CXXFLAGS) 		\
+	$(PYGTK_CFLAGS)
 
 #	$(WITH_SCRIPT_CFLAGS) 
 
@@ -281,7 +283,8 @@ coot_real_SOURCES = \
 	select-atom-info.hh     \
 	coot-render.hh \
 	coot-glue.c \
-	coot-glue-gtk2.c
+	coot-glue-gtk2.c	\
+	coot_pythonmodule.c
 
 # testcartesian_SOURCES = testcartesian.cc
 

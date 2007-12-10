@@ -2,6 +2,7 @@
  * 
  * Copyright 2003, 2004, 2005 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 by Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +37,9 @@
 #include <gtk/gtk.h> 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
 //#include "mmdb_spose.h" old ssmlib
 // #include "ss_vxedge.h"
 #include "ssm_align.h"
@@ -419,6 +423,31 @@ apply_lsq_matches(int imol_reference, int imol_moving) {
    return scm_status;
 }
 #endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving) {
+
+   PyObject *python_status;
+   python_status = Py_False;
+   if (is_valid_model_molecule(imol_reference)) {
+      if (is_valid_model_molecule(imol_moving)) {
+         graphics_info_t g;
+         std::cout << "INFO:: Matching/moving molecule number " << imol_moving << " to "
+                   << imol_reference << std::endl;
+         std::pair<int, clipper::RTop_orth> status_and_rtop =
+            g.apply_lsq(imol_reference, imol_moving, *graphics_info_t::lsq_matchers);
+         if (status_and_rtop.first) {
+            python_status = rtop_to_python(status_and_rtop.second);
+         }
+
+      } else {
+         std::cout << "INFO:: Invalid reference molecule number " << imol_reference << std::endl;
+      }
+   } else {
+      std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
+   }
+   return python_status;
+}
+#endif // USE_PYTHON
 
 int
 apply_lsq_matches_simple(int imol_reference, int imol_moving) {
