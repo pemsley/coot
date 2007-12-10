@@ -456,7 +456,10 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
       float dp3 = coot::dot_product(v3,  back_clip_to_centre_vec);
       float dp4 = coot::dot_product(v4,  back_clip_to_centre_vec);
       if ((dp1 > 0.0) && (dp2 > 0.0) && (dp3 > 0.0) && (dp4 > 0.0)) { 
-	 render_stream << "cylinder{<"
+	if (density_lines[id].first.x() != density_lines[id].second.x() &&
+	    density_lines[id].first.y() != density_lines[id].second.y() &&
+	    density_lines[id].first.z() != density_lines[id].second.z()) {	 
+	  render_stream << "cylinder{<"
 		       << density_lines[id].first.x() << ", "
 		       << density_lines[id].first.y() << ", "
 		       << density_lines[id].first.z() << ">\n "
@@ -471,6 +474,19 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
 		       << density_colour.col[2] <<"> " << "} "
 		       << "scale " << 1.0 
 		       << "}\n";
+	} else {
+	  render_stream<< "sphere{ <"
+		       << density_lines[id].first.x() << ", "
+		       << density_lines[id].first.y() << ", "
+		       << density_lines[id].first.z() << "> "
+		       << density_thickness
+		       << "   pigment { color <"
+		       << density_colour.col[0] <<", "
+		       << density_colour.col[1] <<", "
+		       << density_colour.col[2] <<">} "
+		       << ""
+		       << "}\n";
+	}
       }
    }
    for (unsigned int ib=0; ib<bond_lines.size(); ib++) {

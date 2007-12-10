@@ -25,9 +25,13 @@
 #include <vector>
 
 #include <gtk/gtk.h>
-#include "c-interface.h"
-
 #include "graphics-info.h"
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+// BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
+// since the follwing two include python graphics-info.h is moved up
+#include "c-interface.h"
 
 void do_rot_trans_adjustments(GtkWidget *dialog) { 
    graphics_info_t g;

@@ -3,6 +3,8 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
+ * Copyright 2007 by Bernhard Lohkamp
+ * Copyright 2007 The University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -154,7 +156,8 @@ void calc_phases_generic(const char *mtz_file_name) {
 	 std::string sigfobs_col = r.sigf_cols[0].column_label;
 	 std::vector<std::string> v;
 	 v.push_back("refmac-for-phases-and-make-map");
-	 v.push_back(coot::util::single_quote(mtz_file_name));
+// BL says:: dunno if we need the backslashing here, but just do it in case
+	 v.push_back(coot::util::single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
 	 v.push_back(coot::util::single_quote(f_obs_col));
 	 v.push_back(coot::util::single_quote(sigfobs_col));
 	 std::string c = languagize_command(v);
@@ -360,11 +363,39 @@ void show_set_undo_molecule_chooser() {
 
    safe_scheme_command(s);
 
+#else
+#ifdef USE_PYGTK
+ 
+   std::string s("molecule_chooser_gui(");
+   s += "\"Choose Molecule for Undo operations\",";
+   s += "lambda imol: set_undo_molecule(imol))";
+   // std::cout << s << std::endl;
+
+   safe_python_command(s);
+ 
+#endif // PYGTK
 #endif // USE_GUILE   
 
    add_to_history_simple("show-set-undo-molecule-chooser");
 } 
 
+#ifdef USE_PYTHON
+void show_set_undo_molecule_chooser_py() {
+ 
+#ifdef USE_PYGTK
+   std::string s("molecule_chooser_gui(");
+   s += "\"Choose Molecule for Undo operations\",";
+   s += "lambda imol: set_undo_molecule(imol))";
+   // std::cout << s << std::endl;
+
+   safe_python_command(s);
+ 
+   add_to_history_simple("show-set-undo-molecule-chooser");
+#else
+   std::cout << "BL INFO:: wont work since there is no pygtk!" << std::endl;
+#endif // PYGTK
+} 
+#endif // USE_PYTHON
 
 
 void set_unpathed_backup_file_names(int state) {
@@ -606,6 +637,22 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno,
    } 
 } 
 #endif
+#ifdef USE_PYTHON
+void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
+                 const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list) {
+
+   std::vector<std::string> s = generic_list_to_string_vector_internal_py(direction_atoms_list);
+
+   if (s.size() == 2) {
+      std::pair<std::string, std::string> p(s[0], s[1]);
+
+      spin_search_by_atom_vectors(imol_map, imol, chain_id, resno, ins_code, p,
+                                  generic_list_to_string_vector_internal_py(moving_atoms_list));
+   } else {
+      std::cout << "bad direction atom pair" << std::endl;
+   }
+}
+#endif // PYTHON
 
 
 /*  ----------------------------------------------------------------------- */
@@ -2475,11 +2522,12 @@ execute_refmac_real(std::string pdb_in_filename,
    std::vector<std::string> cmds;
 
    cmds.push_back(std::string("run-refmac-by-filename"));
-   cmds.push_back(single_quote(pdb_in_filename));
-   cmds.push_back(single_quote(pdb_out_filename));
-   cmds.push_back(single_quote(mtz_in_filename));
-   cmds.push_back(single_quote(mtz_out_filename));
-   cmds.push_back(single_quote(cif_lib_filename));
+// BL says:: again debackslashing
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(pdb_in_filename)));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(pdb_out_filename)));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(mtz_in_filename)));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(mtz_out_filename)));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(cif_lib_filename)));
    cmds.push_back(refmac_count_str);
    cmds.push_back(graphics_info_t::int_to_string(swap_map_colours_post_refmac_flag));
    cmds.push_back(graphics_info_t::int_to_string(imol_refmac_map));
@@ -2495,12 +2543,18 @@ execute_refmac_real(std::string pdb_in_filename,
       phase_combine_cmd += "\")";
       phase_combine_cmd += " ";
    } else {
+// BL says: assume this is python specific and not just windows
+#ifdef USE_PYTHON
+      phase_combine_cmd += "''";
+#else
       phase_combine_cmd += "'dummy ";
+#endif
    }
    cmds.push_back(phase_combine_cmd);
 
    cmds.push_back(graphics_info_t::int_to_string(-1)); // don't use NCYCLES
-   cmds.push_back(single_quote(ccp4i_project_dir));
+// BL says:: again debackslash
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir)));
    cmds.push_back(single_quote(fobs_col_name));
    cmds.push_back(single_quote(sigfobs_col_name));
 
@@ -2528,6 +2582,7 @@ execute_refmac_real(std::string pdb_in_filename,
 #ifdef USE_PYTHON
 
    std::cout << "put construction of python command code here\n"; 
+   // Why is all done!?
 
 #endif // USE_PYTHON   
 } 
@@ -3342,6 +3397,36 @@ SCM merge_molecules(SCM add_molecules, int imol) {
 
 #ifdef USE_PYTHON
 // some python version of the merge_molecules()
+// return e.g [1,"C","D"]
+// 
+PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
+   PyObject *r;
+   PyObject *le;
+   PyObject *vos;
+   r = Py_False;
+
+   std::vector<int> vam;
+
+   int l_length = PyObject_Length(add_molecules);
+   for (int i=0; i<l_length; i++) {
+      le = PyList_GetItem(add_molecules, i);
+//      int ii = (int)le;
+      int ii = PyInt_AsLong(le);
+      vam.push_back(ii);
+   } 
+   
+   std::pair<int, std::vector<std::string> > v = merge_molecules_by_vector(vam, imol);
+
+   vos = generic_string_vector_to_list_internal_py(v.second);
+   int vos_length = PyObject_Length(vos);
+   r = PyList_New(vos_length + 1);
+   PyList_SetItem(r, 0, PyInt_FromLong(v.first));
+   for (int i=0; i<vos_length; i++) {
+      PyList_SetItem(r, i+1, PyList_GetItem(vos,i));
+   }
+   
+   return r;
+}
 #endif
 
 std::pair<int, std::vector<std::string> > 
@@ -3510,10 +3595,14 @@ void do_mutate_sequence(GtkWidget *dialog) {
    if ((t > -999) && (t < 9999))
       res2 = t;
 
+// BL says: we should set a flag tha we swapped the direction and swap back
+// before we call fit-gap to actually build backwards!!
+   int swap_flag = 0;
    if (res2 < res1) {
       t = res1;
       res1 = res2;
       res2 = t;
+      swap_flag = 1;
    }
 
 
@@ -3571,9 +3660,18 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	       cmd_strings.push_back(graphics_info_t::int_to_string(res2));
 	       cmd_strings.push_back(single_quote(sequence));
 	       std::string cmd = g.state_command(cmd_strings, state_lang);
+// BL says: I believe we should distinguish between python and guile here!?
+#ifdef USE_GUILE
 	       if (state_lang == coot::STATE_SCM) {
 		  safe_scheme_command(cmd);
 	       }
+#else
+#ifdef USE_PYTHON
+              if (state_lang == coot::STATE_PYTHON) {
+                 safe_python_command(cmd);
+              }
+#endif // PYTHON
+#endif // GUILE
 	       update_go_to_atom_window_on_changed_mol(imol);
 	    } else {
 	       std::cout << "WARNING:: can't mutate.  Sequence of length: "
@@ -3649,10 +3747,14 @@ void fit_loop_from_widget(GtkWidget *dialog) {
    if ((t > -999) && (t < 9999))
       res2 = t;
 
+// BL says: we should set a flag that we swapped the direction and swap back
+// before we call fit-gap to actually build backwards!!
+   int swap_flag = 0;
    if (res2 < res1) {
       t = res1;
       res1 = res2;
       res2 = t;
+      swap_flag = 1;
    }
 
 
@@ -3714,6 +3816,11 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	       GtkWidget *w = wrapped_nothing_bad_dialog(s);
 	       gtk_widget_show(w);
 	    }
+            if (swap_flag == 1) {
+               t = res1;
+               res1 = res2;
+               res2 = t;
+            }
 	    std::vector<std::string> cmd_strings;
 	    cmd_strings.push_back("fit-gap");
 	    cmd_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -3722,9 +3829,17 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	    cmd_strings.push_back(graphics_info_t::int_to_string(res2));
 	    cmd_strings.push_back(single_quote(sequence));
 	    std::string cmd = g.state_command(cmd_strings, state_lang);
+#ifdef USE_GUILE
 	    if (state_lang == coot::STATE_SCM) {
 	       safe_scheme_command(cmd);
 	    }
+#else
+#ifdef USE_PYTHON
+            if (state_lang == coot::STATE_PYTHON) {
+               safe_python_command(cmd);
+            }
+#endif // PYTHON
+#endif // GUILE
 	 }
       }
    }
@@ -3756,6 +3871,25 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
 }
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_expression) {
+
+   int state = 0;
+   if (is_valid_model_molecule(molecule_number)) {
+
+      CMMDBManager *mol =
+         mmdb_manager_from_python_expression(molecule_expression);
+
+      if (mol) {
+         state = 1;
+         graphics_info_t::molecules[molecule_number].replace_molecule(mol);
+         graphics_draw();
+      }
+   }
+   return state;
+}
+#endif // USE_GUILE
+
 #ifdef USE_GUILE
 // Return a molecule number, -1 on error.
 int add_molecule(SCM molecule_expression, const char *name) {
@@ -3776,6 +3910,27 @@ int add_molecule(SCM molecule_expression, const char *name) {
    return imol;
 }
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+// Return a molecule number, -1 on error.
+int add_molecule_py(PyObject *molecule_expression, const char *name) {
+
+   int imol = -1;
+   CMMDBManager *mol =
+      mmdb_manager_from_python_expression(molecule_expression);
+   if (mol) {
+      imol = graphics_info_t::n_molecules;
+      atom_selection_container_t asc = make_asc(mol);
+      graphics_info_t::molecules[imol].install_model(asc, name, 1);
+      graphics_info_t::n_molecules++;
+      graphics_draw();
+   } else {
+      std::cout << "WARNING:: bad format, no molecule created"
+                << std::endl;
+   }
+   return imol;
+}
+#endif // USE_PYTHON
 
 /*  ----------------------------------------------------------------------- */
 /*                         Align and Mutate GUI                             */
@@ -3870,9 +4025,9 @@ int do_align_mutate_sequence(GtkWidget *w) {
 		  s.push_back("fit-chain");
 		  s.push_back(coot::util::int_to_string(imol));
 		  s.push_back(single_quote(chain_id));
-#ifdef USE_GUILE
+		  //#ifdef USE_GUILE
 		  safe_scheme_command(languagize_command(s));
-#endif // USE_GUILE		  
+		  //#endif // USE_GUILE		  
 	       }
 	       graphics_draw();
 	    }
@@ -5388,7 +5543,7 @@ int read_shelx_ins_file(const char *filename) {
 	 graphics_draw();
 	 std::vector<std::string> command_strings;
 	 command_strings.push_back("read-shelx-ins-file");
-	 command_strings.push_back(single_quote(filename));
+	 command_strings.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
 	 add_to_history(command_strings);
       }
       g.recentre_on_read_pdb = reset_centre_flag;
@@ -5438,6 +5593,23 @@ SCM chain_id_for_shelxl_residue_number(int imol, int resno) {
 #endif
 
 // Bernie code here for pythonized version...
+// BL says:: here we go
+#ifdef USE_PYTHON
+PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
+
+   PyObject *r;
+   r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, std::string> ch =
+	 graphics_info_t::molecules[imol].chain_id_for_shelxl_residue_number(resno);
+      if (ch.first)
+	 r = PyString_FromString(ch.second.c_str());
+   } 
+   return r;
+} 
+#endif // USE_PYTHON
+
+
 
 
 
@@ -5455,6 +5627,12 @@ void do_smiles_gui() {
 
 
 #endif // USE_GUILE
+#ifdef USE_PYGTK
+
+   safe_python_command("smiles_gui()");
+
+
+#endif // USE_PYGTK
 
 } 
 
@@ -5686,8 +5864,53 @@ int get_monomer(const char *three_letter_code) {
 
 #else 
    
-   std::cout << "not compiled with guile.  This won't work \n"
-	     << "Need function to be coded in python..." << std::endl; 
+#ifdef USE_PYTHON
+   string python_command;
+
+   python_command = "monomer_molecule_from_3_let_code(\"";
+
+   python_command += three_letter_code;
+   python_command += "\"";
+
+   // now add in the bespoke cif library if it was given
+   // ignored in the libcheck script if cif_lib_filename is "".
+   //
+   // However, we only want to pass the bespoke cif library if the
+   // monomer to be generated is in the cif file.
+   std::string cif_lib_filename = "";
+   if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
+      std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
+      coot::simple_cif_reader r(dict_name);
+      if (r.has_restraints_for(three_letter_code))
+         cif_lib_filename = dict_name;
+   }
+
+   python_command += ",";
+   std::string quoted_cif_lib_filename = single_quote(coot::util::intelligent_debackslash(cif_lib_filename));
+   python_command += quoted_cif_lib_filename;
+   python_command += ",";
+
+   std::string cif_lib_dirname = "";
+   if (graphics_info_t::libcheck_ccp4i_project_dir != "") {
+      cif_lib_dirname = (graphics_info_t::libcheck_ccp4i_project_dir);
+   }
+   std::string quoted_cif_lib_dirname = single_quote(coot::util::intelligent_debackslash(cif_lib_dirname));
+   python_command += quoted_cif_lib_dirname;
+   python_command += ")";
+
+   PyObject *v = safe_python_command_with_return(python_command);
+
+   int was_int_flag = PyInt_AsLong(v);
+
+//   std::cout << "BL DEBUG:: was_int_flag is " << was_int_flag << std::endl;
+
+   if (was_int_flag)
+      imol = was_int_flag;
+   
+// BL says: I guess I've done it now..., at least sort of
+//   std::cout << "not compiled with guile.  This won't work \n"
+//          << "Need function to be coded in python..." << std::endl; 
+#endif // USE_PYTHON
 
 #endif // USE_GUILE
 

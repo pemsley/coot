@@ -2,6 +2,8 @@
  * 
  * Copyright 2007 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 Bernhard Lohkamp
+ * Copyright 2007 University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +26,13 @@
 #include <iostream>
 #include <string>
 
-#ifdef USE_GUILE
-
 #ifdef _MSC_VER
 #define AddAtomA AddAtom
 #endif
 
 #include "c-interface-mmdb.hh"
+
+#ifdef USE_GUILE
 
    // Instead of cut and pasting here, perhaps I should have done a typedef?
    
@@ -216,3 +218,183 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 } 
 
 #endif  // USE_GUILE
+#ifdef USE_PYTHON
+
+CMMDBManager *
+mmdb_manager_from_python_expression(PyObject *molecule_expression) {
+
+   CMMDBManager *mol = 0;
+
+   int inmodel = PyObject_Length(molecule_expression);
+
+   if (inmodel > 0) {
+      mol = new CMMDBManager; 
+      for(int imodel=0; imodel<inmodel; imodel++) {
+         CModel *model_p = new CModel;
+         PyObject *model_expression = PyList_GetItem(molecule_expression, imodel);
+         int len_model_expression = PyObject_Length(model_expression);
+         if (len_model_expression > 0) {
+            PyObject *chain_list = model_expression; // interesting
+            int nchains = len_model_expression;
+
+            for (int ichain=0; ichain<nchains; ichain++) {
+               
+               PyObject *chain_expression = PyList_GetItem(model_expression,
+                                                   ichain);
+               int chain_is_list_python = PyList_Size(chain_expression);
+               if (chain_is_list_python > 0) {
+                  // printf("chain_expression is a list\n");
+               } else {
+                  printf("chain_expression is not a list\n");
+               }
+               //           display_scm(chain_expression);
+               int len_chain_expr = PyObject_Length(chain_expression);
+               if (len_chain_expr != 2) {
+                  std::cout << "bad chain expression, length "
+                            << len_chain_expr << std::endl;
+               } else {
+                  // normal case
+                  // std::cout << "good chain expression " << std::endl;
+                  std::cout << "good chain expression " << std::endl;
+                  PyObject *chain_id_python = PyList_GetItem(chain_expression, 0);
+                  PyObject *residues_list = PyList_GetItem(chain_expression, 1);
+                  if (PyList_Size(residues_list) > 0) {
+                     // printf("residues_list is a list\n");
+                  } else {
+                     printf("residue_list is not a list\n");
+                  }
+                  int n_residues = PyObject_Length(residues_list);
+		  // printf("there were %d residues\n", n_residues);
+                  printf("there were %d residues\n", n_residues);
+                  if (n_residues > 0) {
+                     CChain *chain_p = new CChain;
+                     std::string chain_id = PyString_AsString(chain_id_python);
+                     chain_p->SetChainID(chain_id.c_str());
+                     for (int ires=0; ires<n_residues; ires++) {
+                        PyObject *python_residue = PyList_GetItem(residues_list, ires);
+                        int len_residue_expr = PyObject_Length(python_residue);
+                        if (len_residue_expr != 4) {
+                           std::cout << "bad residue expression, length "
+                                     << len_residue_expr << std::endl;
+                        } else {
+                           // normal case
+                           // std::cout << "good residue expression" << std::endl;
+                           PyObject *python_residue_number = PyList_GetItem(python_residue, 0);
+                           PyObject *python_residue_inscode = PyList_GetItem(python_residue, 1);
+                           PyObject *python_residue_name = PyList_GetItem(python_residue, 2);
+                           PyObject *atoms_list = PyList_GetItem(python_residue, 3);
+
+                           if (PyList_Size(atoms_list) > 0) {
+                              // printf("atoms_list is a list\n");
+                           } else {
+                              printf("atoms_list is not a list\n");
+                           }
+                           int n_atoms = PyObject_Length(atoms_list);
+                           if (n_atoms > 0) {
+                              CResidue *residue_p = new CResidue;
+                              std::string resname = PyString_AsString(python_residue_name);
+                              int resno = PyInt_AsLong(python_residue_number);
+                              // std::cout << "DEBUG:: Found resno:   " << resno << std::endl;
+                              // std::cout << "DEBUG:: Found resname: " << resname << std::endl;
+                              std::string inscode = PyString_AsString(python_residue_inscode);
+                              residue_p->SetResName(resname.c_str());
+                              residue_p->seqNum = resno;
+                              memcpy(residue_p->insCode, inscode.c_str(), sizeof(InsCode));
+                              for (int iat=0; iat<n_atoms; iat++) {
+                                 PyObject *atom_expression = PyList_GetItem(atoms_list, iat);
+                                 int len_atom_expr = PyObject_Length(atom_expression);
+                                 if (len_atom_expr != 3) {
+                                    std::cout << "bad atom expression, length "
+                                              << len_residue_expr << std::endl;
+                                    PyObject *dest = Py_False;
+                                    char *mess =  "object: %S\n";
+                                    PyObject *bad_python = PyString_FromFormat(mess, atom_expression);
+                                    std::string bad_str = PyString_AsString(bad_python);
+                                    std::cout << bad_str << std::endl;
+                                 } else {
+                                    // normal case
+                                    // std::cout << "good atom expression " << std::endl;
+                                    PyObject *name_alt_conf_pair = PyList_GetItem(atom_expression, 0);
+                                    PyObject *occ_b_ele = PyList_GetItem(atom_expression, 1);
+                                    PyObject *pos_expr = PyList_GetItem(atom_expression, 2);
+                                    int len_name_alt_conf = PyObject_Length(name_alt_conf_pair);
+                                    int len_occ_b_ele = PyObject_Length(occ_b_ele);
+                                    int len_pos_expr = PyObject_Length(pos_expr);
+                                    if (len_name_alt_conf == 2) {
+                                       if (len_occ_b_ele == 3) {
+                                          if (len_pos_expr == 3) {
+                                             PyObject *atom_name_python = PyList_GetItem(name_alt_conf_pair, 0);
+                                             std::string atom_name = PyString_AsString(atom_name_python);
+                                             PyObject *alt_conf_python = PyList_GetItem(name_alt_conf_pair, 1);
+                                             std::string alt_conf = PyString_AsString(alt_conf_python);
+                                             PyObject *occ_python = PyList_GetItem(occ_b_ele, 0);
+                                             PyObject *b_python = PyList_GetItem(occ_b_ele, 1);
+                                             PyObject *ele_python = PyList_GetItem(occ_b_ele, 2);
+                                             float b = PyFloat_AsDouble(b_python);
+                                             float occ = PyFloat_AsDouble(occ_python);
+                                             std::string ele = PyString_AsString(ele_python);
+                                             float x = PyFloat_AsDouble(PyList_GetItem(pos_expr, 0));
+                                             float y = PyFloat_AsDouble(PyList_GetItem(pos_expr, 1));
+                                             float z = PyFloat_AsDouble(PyList_GetItem(pos_expr, 2));
+                                             CAtom *atom = new CAtom;
+                                             atom->SetCoordinates(x, y, z, occ, b);
+                                             atom->SetAtomName(atom_name.c_str());
+                                             atom->SetElementName(ele.c_str());
+                                             strncpy(atom->altLoc, alt_conf.c_str(), 2);
+                                             residue_p->AddAtom(atom);
+                                             // std::cout << "DEBUG:: adding atom " << atom << std::endl;
+                                          } else {
+                                             std::cout << "bad atom (position expression) "
+                                                       << std::endl;
+                                             PyObject *bad_python = display_python(pos_expr);
+                                             std::string bad_str = PyString_AsString(bad_python);
+                                             std::cout << bad_str << std::endl;
+                                          }
+                                       } else {
+                                          std::cout << "bad atom (occ b element expression) "
+                                                    << std::endl;
+                                          PyObject *bad_python = display_python(occ_b_ele);
+                                          std::string bad_str = PyString_AsString(bad_python);
+                                          std::cout << bad_str << std::endl;
+                                       }
+                                    } else {
+                                       std::cout << "bad atom (name alt-conf expression) "
+                                                 << std::endl;
+                                       PyObject *bad_python = display_python(name_alt_conf_pair);
+                                       std::string bad_str = PyString_AsString(bad_python);
+                                       std::cout << bad_str << std::endl;
+                                    }
+                                 }
+                              }
+                              chain_p->AddResidue(residue_p);
+                           }
+                        }
+                     }
+                     model_p->AddChain(chain_p);
+                  }
+               }
+               mol->AddModel(model_p);
+            }
+         }
+      }
+   }
+   return mol;
+} 
+
+// This is a common denominator really.  It does not depend on mmdb,
+// but it can't be declared in c-interface.h because then we'd have to
+// include c-interface.h which would cause (resolvable, I think, not
+// checked) problems.
+// 
+// return a python string, decode to c++ using PyString_FromFormat();
+// keep it here for now. Maybe should go in something like c-interface-python.cc ....
+PyObject * display_python(PyObject *o) {
+
+   PyObject *dest;
+   dest = Py_False;
+   char *mess = "object: %s\n";
+   return PyString_FromFormat(mess, o);
+}
+
+#endif // USE_PYTHON
+

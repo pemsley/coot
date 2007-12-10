@@ -2,6 +2,7 @@
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
+ * Copyright 2006, 2007 by Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -586,6 +587,40 @@ SCM rotamer_graphs(int imol) {
 } 
 #endif
 
+#ifdef USE_PYTHON
+/*! \brief Activate rotamer graph analysis for molecule number imol.  
+
+Return rotamer info - function used in testing.  */
+PyObject *rotamer_graphs_py(int imol) {
+
+   PyObject *r;
+   r = Py_False;
+
+   graphics_info_t g;
+   coot::rotamer_graphs_info_t results = g.rotamer_graphs(imol);
+   if (results.info.size() > 0) {
+      r = PyList_New(results.info.size());
+      for (int ir=int(results.info.size()-1); ir>=0; ir--) {
+	 PyObject *ele = PyList_New(5);
+	 PyObject *name = PyString_FromString(results.info[ir].rotamer_name.c_str());
+	 PyList_SetItem(ele, 4, name);;
+	 PyObject *pr = PyFloat_FromDouble(results.info[ir].probability);
+	 PyList_SetItem(ele, 3, pr);
+	 PyObject *inscode = PyString_FromString(results.info[ir].inscode.c_str());
+	 PyList_SetItem(ele, 2, inscode);
+	 PyObject *resno = PyInt_FromLong(results.info[ir].resno);
+	 PyList_SetItem(ele, 1, resno);
+	 PyObject *chainid = PyString_FromString(results.info[ir].chain_id.c_str());
+	 PyList_SetItem(ele, 0, chainid);
+
+         PyList_SetItem(r, ir, ele);
+      }
+   } 
+
+   return r;
+}
+#endif // USE_PYTHON
+
 
 // -----------------------------------------------------
 // The geometry graphs have a home on the range:
@@ -771,10 +806,46 @@ int probe_available_p() {
       if (gh_scm2bool(scm_thunk) == 1)
 	 r = 1;
 
+#else
+// BL says:: here comes some (experimental) code to do the same thing in python
+// it's a bit longer and uses compiled python code but dont see another option
+// currently (and there might be none..)
+#ifdef USE_PYTHON
+
+    PyObject *result;
+    result = safe_python_command_with_return("command_in_path_qm(probe_command)");
+
+    int was_boolean_flag = PyInt_AsLong(result);
+    if (was_boolean_flag) {
+              r = 1;
+//	      std::cout << "BL DEBUG:: flag here " << was_boolean_flag << std::endl;
+    }
+
+//    std::cout << "BL DEBUG:: r here " << r << std::endl;
+
+#endif // USE_PYTHON
 #endif // USE_GUILE   
-   
+
    return r;
 } 
+
+#ifdef USE_PYTHON
+// is the probe executable available?
+// 1 for yes, 0 for no.
+// 
+int probe_available_p_py() {
+    int r=0;
+
+    PyObject *result;
+    result = safe_python_command_with_return("command_in_path_qm(probe_command)");
+
+    int was_boolean_flag = PyInt_AsLong(result);
+    if (was_boolean_flag) {
+              r = 1;
+    }
+   return r;
+} 
+#endif // USE_PYTHON
 
 void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuitem,
 							 gpointer         user_data) {
@@ -1436,7 +1507,7 @@ void gln_asn_b_factor_outliers(int imol) {
 	 std::cout << "Found " << v.size() << " GLN/ASN B-factor outliers" << std::endl;
 	 if (v.size() > 0) {
 	    // c-interface-preferences unformatted dots reader had
-	    // intereting code to make an interesting-places gui:
+	    // interesting code to make an interesting-places gui:
 	    for (int i=0; i<v.size(); i++) {
 	       std::cout << v[i].second << std::endl;
 	    }
@@ -1468,7 +1539,38 @@ void gln_asn_b_factor_outliers(int imol) {
 	    std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
 	    std::cout << "scheme command: " << s << std::endl;
 	    safe_scheme_command(s);
-#endif
+#else
+#ifdef USE_PYGTK
+            graphics_info_t g;
+            std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
+            for (int i=0; i<v.size(); i++) {
+               std::string callback_func = "[do_180_degree_side_chain_flip,";
+               callback_func += coot::util::int_to_string(imol);
+               callback_func += ",";
+               callback_func += single_quote(v[i].first.chain);
+               callback_func += ",";
+               callback_func += coot::util::int_to_string(v[i].first.resno);
+               callback_func += ",";
+               callback_func += single_quote(v[i].first.insertion_code);
+               callback_func += ",";
+               callback_func += single_quote(v[i].first.alt_conf);
+               callback_func += "]";
+               v[i].first.int_user_data = imol; // kludge in the imol, used for callback.
+               coot::util::atom_spec_and_button_info_t asi(v[i].first, v[i].second, callback_func);
+               outlier_atoms.push_back(asi);
+            }
+            std::string error_type = "Z score: ";
+            std::vector<std::string> cmd_strings;
+            cmd_strings.push_back("interesting_things_with_fix_maybe");
+            cmd_strings.push_back(single_quote("GLN and ASN B-factor Outliers"));
+            std::string ls = coot::util::interesting_things_list_with_fix(outlier_atoms, error_type);
+            cmd_strings.push_back(ls);
+            std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
+            std::cout << "python command: " << s << std::endl;
+            safe_python_command(s);
+
+#endif // PYGTK
+#endif // USE_GUILE
 	 } else {
 	    std::string label = "Coot detected no GLN or ASN B-factor Outliers";
 	    GtkWidget *w = wrapped_nothing_bad_dialog(label);
@@ -1477,6 +1579,61 @@ void gln_asn_b_factor_outliers(int imol) {
       }
    } 
 } 
+
+#ifdef USE_PYTHON
+void gln_asn_b_factor_outliers_py(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (graphics_info_t::use_graphics_interface_flag) { 
+	 std::vector<std::pair<coot::atom_spec_t, std::string> > v = 
+	    coot::util::gln_asn_b_factor_outliers(graphics_info_t::molecules[imol].atom_sel.mol);
+	 
+	 std::cout << "Found " << v.size() << " GLN/ASN B-factor outliers" << std::endl;
+	 if (v.size() > 0) {
+	    // c-interface-preferences unformatted dots reader had
+	    // interesting code to make an interesting-places gui:
+	    for (int i=0; i<v.size(); i++) {
+	       std::cout << v[i].second << std::endl;
+	    }
+#ifdef USE_PYGTK
+            graphics_info_t g;
+            std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
+            for (int i=0; i<v.size(); i++) {
+               std::string callback_func = "[do_180_degree_side_chain_flip,";
+               callback_func += coot::util::int_to_string(imol);
+               callback_func += ",";
+               callback_func += single_quote(v[i].first.chain);
+               callback_func += ",";
+               callback_func += coot::util::int_to_string(v[i].first.resno);
+               callback_func += ",";
+               callback_func += single_quote(v[i].first.insertion_code);
+               callback_func += ",";
+               callback_func += single_quote(v[i].first.alt_conf);
+               callback_func += "]";
+               v[i].first.int_user_data = imol; // kludge in the imol, used for callback.
+               coot::util::atom_spec_and_button_info_t asi(v[i].first, v[i].second, callback_func);
+               outlier_atoms.push_back(asi);
+            }
+            std::string error_type = "Z score: ";
+            std::vector<std::string> cmd_strings;
+            cmd_strings.push_back("interesting_things_with_fix_maybe");
+            cmd_strings.push_back(single_quote("GLN and ASN B-factor Outliers"));
+            std::string ls = coot::util::interesting_things_list_with_fix(outlier_atoms, error_type);
+            cmd_strings.push_back(ls);
+            std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
+            std::cout << "python command: " << s << std::endl;
+            safe_python_command(s);
+#endif // PYGTK
+
+	 } else {
+	    std::string label = "Coot detected no GLN or ASN B-factor Outliers";
+	    GtkWidget *w = wrapped_nothing_bad_dialog(label);
+	    gtk_widget_show(w);
+	 }
+      }
+   } 
+} 
+#endif // PYTHON
 
 /*! \brief For experienced Cooters who don't like Coot nannying about
   chiral volumes during refinement. */

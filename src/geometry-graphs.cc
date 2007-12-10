@@ -595,9 +595,14 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
 
    GtkWidget *dialog = create_geometry_graphs_dialog();
    canvas = GTK_CANVAS(gtk_canvas_new());
+#ifdef WINDOWS_MINGW
+   int canvas_usize_x = max_chain_length*10 + 300; // add a bit more to get (may be
+                                                   // general for GNOME_CANVAS)
+#else
    int canvas_usize_x = max_chain_length*10 + 200; // add a bit to get
 						  // the label at the
 						  // right hand side
+#endif //MINGW
 
    // If the canvas is 3500+ or so, then it can't be resized width-wise (Doug Kuntz)
    if (canvas_usize_x > 32100) {
@@ -906,7 +911,13 @@ coot::geometry_graphs::tooltip_like_box(const geometry_graph_block_info &bi,
    clear_tooltip_box();
 
    std::string label = bi.distortion_info_string;
+// BL says:: think the box should be larger
+// think that is for Gnome_canvas build
+#ifdef HAVE_GNOME_CANVAS
+   double tw = label.size() * 8.0 + 10.0;
+#else
    double tw = label.size() * 6.0 + 10.0;
+#endif // GNOME_CANVAS
 
    double x1 = 0.0, y1 = 0.0;
    // int x_as_int, y_as_int;

@@ -2,6 +2,8 @@
  * 
  * Copyright 2007 by Paul Emsley
  * Copyright 2007 by The University of Oxford
+ * Copyright 2007 by Bernhard Lohkamp
+ * Copyright 2007 by The University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +33,13 @@
 // ---------------------------------------------------------------
 
 #include <gtk/gtk.h>
+
+#include "graphics-info.h"
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+// BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
+// since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
 #include "cc-interface.hh"  // includes coot-coord-utils.hh
 #include "coot-utils.hh"
@@ -38,8 +47,6 @@
 #include <clipper/clipper-ccp4.h>
 #include <clipper/clipper-contrib.h>
 #include "cootaneer-sequence.h"
-
-#include "graphics-info.h"
 
 #ifdef USE_GUILE
 #include <guile/gh.h>
@@ -102,6 +109,42 @@ atom_spec_from_scm_expression(SCM expr) {
 }
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+coot::atom_spec_t
+atom_spec_from_python_expression(PyObject *expr) {
+
+   coot::atom_spec_t atom_spec;
+   atom_spec.string_user_data = "Bad Spec";
+
+   int len_view = PyList_Size(expr);
+   if (len_view == 5) {
+      
+      PyObject *chain_id_python = PyList_GetItem(expr, 0);
+      std::string chain_id = PyString_AsString(chain_id_python);
+
+      PyObject *resno_python = PyList_GetItem(expr, 1);
+      int resno = PyInt_AsLong(resno_python);
+
+      PyObject *ins_code_python = PyList_GetItem(expr, 2);
+      std::string ins_code = PyString_AsString(ins_code_python);
+      
+      PyObject *atom_name_python = PyList_GetItem(expr, 3);
+      std::string atom_name = PyString_AsString(atom_name_python);
+      
+      PyObject *alt_conf_python = PyList_GetItem(expr, 4);
+      std::string alt_conf = PyString_AsString(alt_conf_python);
+
+//       std::cout << "decoding spec :" << chain_id << ": " << resno << " :" << ins_code
+// 		<< ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
+      atom_spec = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
+      // if all OK:
+      atom_spec.string_user_data = "OK";
+   }
+   
+   return atom_spec;
+}
+#endif // USE_PYTHON
+
 /*  ----------------------------------------------------------------------- */
 /*                  Cootaneer                                               */
 /*  ----------------------------------------------------------------------- */
@@ -121,6 +164,24 @@ int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec) {
    }
    return istat;
 }
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_spec) {
+
+   int istat = 0;
+   coot::atom_spec_t atom_spec =
+      atom_spec_from_python_expression(atom_in_fragment_atom_spec);
+   if (atom_spec.string_user_data == "Bad Spec") {
+      std::cout << "Bad Python expression for atom spec" << std::endl;
+      return -1; 
+   } else { 
+      istat = cootaneer_internal(imol_map, imol_model, atom_spec);
+      graphics_draw();
+   }
+   return istat;
+}
+#endif // USE_PYTHON
 
 int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spec) {
    int istat = 0;
@@ -217,5 +278,4 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 
    return istat;
 }
-#endif // USE_GUILE
 

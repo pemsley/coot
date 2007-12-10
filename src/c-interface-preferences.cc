@@ -4,6 +4,7 @@
  * Author: Paul Emsley
  * Copyright 2007 The University of Oxford
  * Author: Paul Emsley
+ * Copyright 2006, 2007 by Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +52,9 @@
 #include "interface.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif // PYTHON
 
 void preferences() {
 
@@ -674,12 +678,247 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 	    cmd_strings.push_back(ls);
 	    std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
 	    safe_scheme_command(s);
-#endif
+#else
+// BL says:: we need some python code here too!!!
+#ifdef USE_PYGTK
+           graphics_info_t g;
+           std::vector<std::string> cmd_strings;
+           cmd_strings.push_back("interesting_things_gui");
+           cmd_strings.push_back(single_quote("Molprobity Probe Clash Gaps"));
+           std::sort(clash_atoms.begin(), clash_atoms.end(), coot::compare_atom_specs_user_float);
+           std::string ls = coot::util::interesting_things_list(clash_atoms);
+           cmd_strings.push_back(ls);
+           std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
+           safe_python_command(s);
+#endif // PYGTK
+#endif // GUILE
 	 }
       }
    }
 }
 
+#ifdef USE_PYTHON
+void handle_read_draw_probe_dots_unformatted_py(const char *dots_file, int imol,
+					     int show_clash_gui_flag) {
+
+   std::vector<coot::atom_spec_t> clash_atoms;
+   
+   if (dots_file) {
+
+      FILE* dots = fopen(dots_file, "r" );
+      if ( dots == NULL ) { 
+	 std::cout << "handle_read_draw_probe_dots  - Could not read: "
+		   << dots_file << std::endl;
+	 fclose(dots);
+      } else {
+
+	 // clear up what probe contacts/overlaps we already have:
+	 std::vector<std::string> deletable_names;
+	 deletable_names.push_back("wide contact");
+	 deletable_names.push_back("close contact");
+	 deletable_names.push_back("small overlap");
+	 deletable_names.push_back("bad overlap");
+	 deletable_names.push_back("H-bonds");
+	 int nobjs = graphics_info_t::generic_objects_p->size();
+	 for (unsigned int i=0; i< nobjs; i++) {
+	    for (unsigned int d=0; d<deletable_names.size(); d++) { 
+	       if ((*graphics_info_t::generic_objects_p)[i].name == deletable_names[d]) {
+		  close_generic_object(i); // empty it, really
+	       }
+	    }
+	 }
+
+	 int n_input_lines = 0; 
+	 int n_lines = 0;
+	 int n_points = 0;
+	 std::string current_colour = "blue"; // should be reset.
+	 int obj_no = number_of_generic_objects();
+
+	 int imol_source, imol_target;
+	 float gap1, factor3, gap2, factor4, factor5, factor6;
+	 char line[240];
+	 char c_type[20];
+	 char atom_id1[30];
+	 char atom_id2[30];
+	 char contact_type1[200];
+	 char contact_type2[3];
+	 float x1, x2, x3, x4, x5, x6;
+	 std::string current_contact_type = "none";
+	 int dot_size = 2; // 3 for hydrogen bonds
+
+	 // null string arrays
+	 for (int i=0; i<20; i++) c_type[i] = 0;
+	 for (int i=0; i<30; i++) atom_id1[i] = 0;
+	 for (int i=0; i<30; i++) atom_id2[i] = 0;
+	 std::string current_useful_name; 
+
+	 while ( fgets( line, 240, dots ) != NULL ) {
+	    n_input_lines++; 
+	    for (int i=0; i<3; i++) contact_type1[i] = 0;
+	    for (int i=0; i<3; i++) contact_type2[i] = 0;
+
+
+	    if (sscanf(line,
+		       ":%d->%d:%2c:%15c:%15c:%f:%f:%f:%f:%f:%f:%f:%s",
+		       &imol_source, &imol_target, c_type, atom_id1, atom_id2,
+		       &gap1, &gap2, &x1, &x2, &x3, &factor3, &factor4,
+		       contact_type1)) {
+
+	       if (strlen(contact_type1) > 2) {
+		  int colon_count = 0;
+		  int offset = 0; 
+
+		  // std::cout << "colon search |" << contact_type1 << std::endl;
+		  for (int i=0; i<10; i++) {
+		     if (contact_type1[i] == ':')
+			colon_count++;
+		     if (colon_count == 2) {
+			offset = i + 1;
+			break;
+		     }
+		  }
+
+
+		  if (offset > 0) { 
+		     // std::cout << "scanning |" << contact_type1+offset << std::endl;
+		     
+		     if (sscanf((contact_type1+offset), "%f:%f:%f:%f:%f", 
+				&x4, &x5, &x6, &factor5, &factor6)) {
+			
+			std::string atom_id_1_str(atom_id1);
+			std::string atom_id_2_str(atom_id2);
+			std::string contact_type(c_type);
+			
+// 			std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
+// 				  << "\"..to..\""
+// 				  << atom_id_2_str << "\" " << gap1 << " " << gap2
+// 				  << " (" << x1 << "," << x2 << "," << x3 << ")"
+// 				  << " (" << x4 << "," << x5 << "," << x6 << ")"
+// 				  << "\n";
+
+	    
+			// assign the colour and dot size
+			if (contact_type == "hb") { 
+			   current_colour = "greentint";
+			   dot_size = 3;
+			} else {
+			   dot_size = 2;
+			   current_colour = "hotpink";
+			   if (gap2> -0.4) current_colour = "red";
+			   if (gap2> -0.3) current_colour = "orange";
+			   if (gap2> -0.2) current_colour = "yellow";
+			   if (gap2> -0.1) current_colour = "yellowtint";
+			   if (gap2>  0.0) current_colour = "green";
+			   if (gap2> 0.15) current_colour = "sea";
+			   if (gap2> 0.25) current_colour = "sky";
+			   if (gap2> 0.35) current_colour = "blue";
+			}
+
+			// do we need a new object?
+			if (contact_type != current_contact_type) {
+
+			   current_useful_name = probe_dots_short_contact_name_to_expanded_name(contact_type);
+			   // do we have an object of that name already?
+			   int maybe_old_object = generic_object_index(current_useful_name.c_str());
+			   current_contact_type = contact_type;
+
+			   if (maybe_old_object > -1) {
+			      obj_no = maybe_old_object;
+			   } else { 
+			      obj_no = new_generic_object_number(current_useful_name.c_str());
+			      // std::cout << "changing type to " << contact_type << std::endl;
+			   }
+			   // non-member function usage, so that we don't do the redraw.
+			   (*graphics_info_t::generic_objects_p)[obj_no].is_displayed_flag = 1;
+			   (*graphics_info_t::generic_objects_p)[obj_no].is_closed_flag = 0;
+			}
+
+			float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);
+			if (length2 > 0.04) {
+			   n_lines++;
+			   to_generic_object_add_line(obj_no, current_colour.c_str(), 3,
+						      x1, x2, x3, x4, x5, x6);
+			} else {
+			   n_points++;
+			   to_generic_object_add_point(obj_no, current_colour.c_str(), dot_size,
+						       x1, x2, x3);
+			}
+
+			if (length2 > 5) {
+			   // a really long
+			   std::cout << "DEBUG:: long line at line number "
+				     << n_input_lines
+				     << "  (" << x1 << "," << x2 << "," << x3 << ")"
+				     << "  (" << x4 << "," << x5 << "," << x6 << ")"
+				     << std::endl;
+			   std::cout << line;
+			}
+
+			if (gap2 < -0.42) {
+			   // it's a bad contact.  Add the 1st clash atom to the list of bad clashes.
+		  
+			   std::string chain_id = atom_id_1_str.substr(0,1);
+			   std::string atom_name = atom_id_1_str.substr(10,4);
+			   std::string insertion_code = atom_id_1_str.substr(5,1);
+			   std::string altconf = atom_id_1_str.substr(14,1);
+			   if (altconf == " ")
+			      altconf = "";
+		     
+			   int resno = atoi(atom_id_1_str.substr(1,4).c_str());
+
+			   // 		  std::cout << "   makes atom " << chain_id << ":" << resno << ":"
+			   // 			    << insertion_code << ":" << atom_name << ":" << altconf << ":" << "\n";
+			   coot::atom_spec_t r(chain_id, resno, insertion_code, atom_name, altconf);
+
+			   short int ifound = 0;
+			   for (unsigned int ic=0; ic<clash_atoms.size(); ic++) {
+			      if (resno == clash_atoms[ic].resno) {
+				 if (insertion_code == clash_atoms[ic].insertion_code) {
+				    if (altconf == clash_atoms[ic].alt_conf) {
+				       if (chain_id == clash_atoms[ic].chain) {
+				 
+					  // we are intested in bad (low) gaps
+					  if (gap2 < clash_atoms[ic].float_user_data)
+					     clash_atoms[ic].float_user_data = gap2;
+				 
+					  ifound = 1;
+					  break;
+				       }
+				    }
+				 }
+			      }
+			   }
+			   if (ifound == 0) {
+			      r.int_user_data = imol;
+			      r.float_user_data = gap2;
+			      r.string_user_data = current_useful_name;
+			      // don't put hydrogen bonds in the bad contact list
+			      if (contact_type != "hb") 
+				 clash_atoms.push_back(r);
+			   }
+			} 
+		     }
+		  }
+	       }
+	    }
+	 }
+	 if (show_clash_gui_flag) { 
+#ifdef USE_PYGTK
+           graphics_info_t g;
+           std::vector<std::string> cmd_strings;
+           cmd_strings.push_back("interesting_things_gui");
+           cmd_strings.push_back(single_quote("Molprobity Probe Clash Gaps"));
+           std::sort(clash_atoms.begin(), clash_atoms.end(), coot::compare_atom_specs_user_float);
+           std::string ls = coot::util::interesting_things_list(clash_atoms);
+           cmd_strings.push_back(ls);
+           std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
+           safe_python_command(s);
+#endif // PYGTK
+	 }
+      }
+   }
+}
+#endif // PYTHON
 
 char *unmangle_hydrogen_name(const char *pdb_hydrogen_name) {
 
@@ -768,12 +1007,12 @@ void generic_objects_gui_wrapper() {
 
 
 #else
-#ifdef USE_PYTHON
+#ifdef USE_PYGTK
 
    std::string s = g.state_command(cmd, coot::STATE_PYTHON);
    safe_python_command(s);
 
-#endif // USE_PYTHON
+#endif // USE_PYGTK
 
 #endif // USE_GUILE
 
@@ -1114,6 +1353,13 @@ SCM movie_file_name_prefix() {
    return r;
 }
 #endif
+#ifdef USE_PYTHON
+PyObject * movie_file_name_prefix_py() {
+   PyObject *r;
+   r = PyString_FromString(graphics_info_t::movie_file_prefix.c_str());
+   return r;
+}
+#endif // PYTHON
 
 int movie_frame_number() {
    return graphics_info_t::movie_frame_number;
@@ -1124,6 +1370,7 @@ void set_make_movie_mode(int make_movie_flag) {
 }
 
 
+#ifdef USE_GUILE
 void try_load_scheme_extras_dir() {
 
    char *s = getenv("COOT_SCHEME_EXTRAS_DIR");
@@ -1173,4 +1420,5 @@ void try_load_scheme_extras_dir() {
       }      
    }
 }
+#endif // USE_GUILE
 

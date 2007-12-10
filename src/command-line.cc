@@ -28,6 +28,14 @@
 #define _GNU_SOURCE
 #endif
 
+#ifdef __GNU_LIBRARY__
+#include "coot-getopt.h"
+#else
+#define __GNU_LIBRARY__
+#include "coot-getopt.h"
+#undef __GNU_LIBRARY__
+#endif
+
 
 #include <iostream>
 #include <string>
@@ -37,20 +45,16 @@
 // #include "mtz-bits.h" use cmtz-interface
 #include "cmtz-interface.hh"
 
-
+#include "graphics-info.h"
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+// BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
+// since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "command-line.h"
-#include "graphics-info.h"
 
-
-#ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
-#else
-#define __GNU_LIBRARY__
-#include "coot-getopt.h"
-#undef __GNU_LIBRARY__
-#endif
 
 command_line_data
 parse_command_line(int argc, char ** argv ) { 

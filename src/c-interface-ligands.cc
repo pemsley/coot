@@ -42,6 +42,9 @@
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
 #include "wligand.hh"
 
 
@@ -71,6 +74,26 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 }
 #endif
 
+#ifdef USE_PYTHON
+PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
+		int resno_ref) {
+
+   PyObject *python_status;
+   python_status = Py_False;
+   coot::graph_match_info_t rtop_info =
+      overlap_ligands_internal(imol_ligand, imol_ref, chain_id_ref, resno_ref, 1);
+
+   if (rtop_info.success) { 
+      // BL says:: DEBUG AND FIX ME!
+      PyObject *match_info = PyList_New(2);
+      PyList_SetItem(match_info, 0, PyInt_FromLong(rtop_info.n_match));
+      PyList_SetItem(match_info, 1, PyFloat_FromDouble(rtop_info.dist_score));
+      PyObject *s = match_info;
+      python_status = rtop_to_python(rtop_info.rtop);
+   }
+   return python_status;
+}
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 SCM
@@ -96,6 +119,34 @@ analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_r
    return scm_status;
 }
 #endif   
+
+#ifdef USE_PYTHON
+PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
+			   int resno_ref) {
+
+   PyObject *python_status;
+   python_status = Py_False;
+   coot::graph_match_info_t rtop_info =
+      overlap_ligands_internal(imol_ligand, imol_ref, chain_id_ref, resno_ref, 0);
+
+   std::cout << "analyse_ligand_differences: success       " << rtop_info.success << std::endl;
+   std::cout << "analyse_ligand_differences: n_match       " << rtop_info.n_match << std::endl;
+   std::cout << "analyse_ligand_differences: dist_score    " << rtop_info.dist_score << std::endl;
+   std::cout << "analyse_ligand_differences: atoms matched " << rtop_info.matching_atom_names.size() << std::endl;
+   std::cout << "analyse_ligand_differences: rtop: \n" << rtop_info.rtop.format() << std::endl;
+   
+   if (rtop_info.success) {
+      // BL says:: DEBUG AND FIX ME!
+      PyObject *match_info;
+      PyList_New(2);
+      PyList_SetItem(match_info, 0, PyInt_FromLong(rtop_info.n_match));
+      PyList_SetItem(match_info, 1, PyFloat_FromDouble(rtop_info.dist_score));
+      PyObject *s = match_info;
+      python_status = rtop_to_python(rtop_info.rtop);
+   }
+   return python_status;
+}
+#endif //USE_PYTHON
 
 
 coot::graph_match_info_t
@@ -686,7 +737,13 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 			      wiggly_ligand_info);
 
       if (chief_ligand_many_atoms.size() == 0 ) {
+#ifdef USE_GUILE
 	 execute_ligand_search();
+#else
+#ifdef USE_PYTHON
+	 execute_ligand_search_py();
+#endif // USE_PYTHON
+#endif // USE_GUILE
       } else {
 	 // we need to delete this widget when OK and cancel of the
 	 // many atoms widget is pressed, so let's attach it as user
@@ -806,13 +863,14 @@ SCM execute_ligand_search() {
    std::vector<int> solutions = execute_ligand_search_internal();
    return generic_int_vector_to_list_internal(solutions);
 }
-#else
-// Fixme Bernhard
-void execute_ligand_search() {
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *execute_ligand_search_py() {
 
    std::vector<int> solutions = execute_ligand_search_internal();
+   return generic_int_vector_to_list_internal_py(solutions);
 }
-#endif 
+#endif // USE_PYTHON
 
 std::vector<int>
 execute_ligand_search_internal() {
@@ -939,24 +997,27 @@ execute_ligand_search_internal() {
 #ifdef USE_GUILE
    if (graphics_info_t::use_graphics_interface_flag)
       safe_scheme_command("(post-ligand-fit-gui)");
+#else
+// BL says:: guess we shall do it for python too (done it...)
+#ifdef USE_PYGTK
+      safe_python_command("post_ligand_fit_gui()");
+#endif // USE_PYGTK
 #endif // USE_GUILE
 
-   if (graphics_info_t::use_graphics_interface_flag) { 
-      if (n_new_ligand) { 
-	 GtkWidget *w = create_new_ligands_info_dialog();
-	 GtkWidget *label = lookup_widget(w, "new_ligands_info_dialog_label");
-	 std::string label_str("  Found ");
-	 label_str += graphics_info_t::int_to_string(n_new_ligand);
-	 if (n_new_ligand == 1) 
-	    label_str += " acceptable ligand  ";
-	 else 
-	    label_str += " acceptable ligands  ";
-	 gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
-	 gtk_widget_show(w);
-      } else { 
-	 GtkWidget *w = create_no_new_ligands_info_dialog();
-	 gtk_widget_show(w);
-      }
+   if (n_new_ligand) { 
+      GtkWidget *w = create_new_ligands_info_dialog();
+      GtkWidget *label = lookup_widget(w, "new_ligands_info_dialog_label");
+      std::string label_str("  Found ");
+      label_str += graphics_info_t::int_to_string(n_new_ligand);
+      if (n_new_ligand == 1) 
+	 label_str += " acceptable ligand  ";
+      else 
+	 label_str += " acceptable ligands  ";
+      gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
+      gtk_widget_show(w);
+   } else { 
+      GtkWidget *w = create_no_new_ligands_info_dialog();
+      gtk_widget_show(w);
    }
 
    graphics_draw();

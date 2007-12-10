@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
+ * Copyright 2004, 2005, 2006, 2007 by Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +29,14 @@
 #include <iostream>
 #include <fstream>
 
-#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
+#if !defined(_MSC_VER)
 #include <glob.h> // for globbing.
+#endif
+
+#if defined (WINDOWS_MINGW)
+#include <windows.h>
+#define sleep(t) Sleep(1000*t);
+#define usleep(t) Sleep(t/1000);
 #endif
 
 #ifdef USE_GUILE
@@ -467,6 +474,11 @@ void mono_mode() {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
 	    short int try_hardware_stereo_flag = 0;
+// BL says:: and we switch the lists_maps back to normal
+#if (GTK_MAJOR_VERSION > 1)
+            set_display_lists_for_maps(1);
+//	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
+#endif //GTK2
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) { 
 	       std::cout << "INFO:: switch to mono_mode succeeded\n";
@@ -528,6 +540,13 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	    gtk_widget_show(glarea);
 	    gtk_widget_show(graphics_info_t::glarea_2);
 	    graphics_draw();
+// BL says:: maybe we should set the set_display_lists_for_maps here for
+// windows, actually Mac as well if I remember correctly
+// well, it seems actually to be a GTK2 (or gtkglext) thing!!
+#if (GTK_MAJOR_VERSION > 1)
+//	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
+            set_display_lists_for_maps(0);
+#endif //GTK2
 	 } else {
 	    std::cout << "WARNING:: switch to side by side mode failed!\n";
 	 } 
@@ -854,7 +873,7 @@ std::vector<std::string> filtered_by_glob(const std::string &pre_directory,
    std::vector<std::string> v; // returned object
    std::vector<std::string> globs;
 
-#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
+#if !defined(_MSC_VER)
 
    // std::map<std::string, int, std::less<std::string> >  files;
 
@@ -891,7 +910,7 @@ std::vector<std::string> filtered_by_glob(const std::string &pre_directory,
    // now we need to sort v;
    std::sort(v.begin(), v.end(), compare_strings);
 
-#endif // WINDOWS_MINGW
+#endif // MSC
 
    return v;
 }
@@ -1312,7 +1331,7 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
       
       std::vector<std::string> command_strings;
       command_strings.push_back("make-and-draw-map-with-reso-with-refmac-params");
-      command_strings.push_back(single_quote(mtz_file_name));
+      command_strings.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
       command_strings.push_back(single_quote(f_col));
       command_strings.push_back(single_quote(phi_col));
       command_strings.push_back(weight_col_str);
@@ -2253,6 +2272,25 @@ SCM map_colour_components(int imol) {
    return r; 
 }
 #endif
+// BL says:: this is for python
+#ifdef USE_PYTHON
+PyObject *map_colour_components_py(int imol) {
+   
+   PyObject *r;
+   r = Py_False;
+   if (is_valid_map_molecule(imol)) {
+      double rc = graphics_info_t::molecules[imol].map_colour[0][0];
+      double gc = graphics_info_t::molecules[imol].map_colour[0][1];
+      double bc = graphics_info_t::molecules[imol].map_colour[0][2];
+      r = PyList_New(3);
+      // put red at the front of the resulting list
+      PyList_SetItem(r, 0, PyFloat_FromDouble(rc));
+      PyList_SetItem(r, 1, PyFloat_FromDouble(gc));
+      PyList_SetItem(r, 2, PyFloat_FromDouble(bc));
+   }
+   return r;
+}
+#endif // USE_PYTHON
 
 
 /* Functions for Cancel button on map colour selection  */
@@ -3309,6 +3347,7 @@ float average_temperature_factor(int imol) {
 
 char *centre_of_mass_string(int imol) {
 
+#ifdef USE_GUILE
    char *s = 0; // guile/SWIG sees this as #f
    if (is_valid_model_molecule(imol)) {
       realtype x, y, z;
@@ -3327,8 +3366,54 @@ char *centre_of_mass_string(int imol) {
       return s;
    }
    return s;
+#else
+// BL says:: we need a python version
+#ifdef USE_PYTHON
+   char *s = 0; // should do for python too
+   if (is_valid_model_molecule(imol)) {
+      realtype x, y, z;
+      GetMassCenter(graphics_info_t::molecules[imol].atom_sel.atom_selection,
+		    graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
+		    x, y, z);
+      std::string sc = "[";
+      sc += graphics_info_t::float_to_string(x);
+      sc += ",";
+      sc += graphics_info_t::float_to_string(y);
+      sc += ",";
+      sc += graphics_info_t::float_to_string(z);
+      sc += "]";
+      s = new char [sc.length() + 1];
+      strcpy(s, sc.c_str());
+      return s;
+   }
+   return s;
+#endif // PYTHON
+#endif // GUILE
 }
 
+#ifdef USE_PYTHON
+char *centre_of_mass_string_py(int imol) {
+
+   char *s = 0; // should do for python too
+   if (is_valid_model_molecule(imol)) {
+      realtype x, y, z;
+      GetMassCenter(graphics_info_t::molecules[imol].atom_sel.atom_selection,
+		    graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
+		    x, y, z);
+      std::string sc = "[";
+      sc += graphics_info_t::float_to_string(x);
+      sc += ",";
+      sc += graphics_info_t::float_to_string(y);
+      sc += ",";
+      sc += graphics_info_t::float_to_string(z);
+      sc += "]";
+      s = new char [sc.length() + 1];
+      strcpy(s, sc.c_str());
+      return s;
+   }
+   return s;
+}
+#endif // PYTHON
 
 
 void clear_pending_picks() {
@@ -3789,6 +3874,15 @@ void screendump_image(const char *filename) {
       s += " written";
       graphics_info_t g;
       g.statusbar_text(s);
+// BL says: we wanna be nice and convert ppm to bmp for windoze user!?
+#ifdef WINDOWS_MINGW
+#ifdef USE_PYTHON
+      std::string cmd("ppm2bmp(");
+      cmd += single_quote(coot::util::intelligent_debackslash(filename));
+      cmd += ")";
+      safe_python_command(cmd);
+#endif // USE_PYTHON
+#endif // MINGW
    }
 }
 
@@ -3806,8 +3900,32 @@ void make_image_raster3d(const char *filename) {
    cmd += "'dummy 'dummy)";
    safe_scheme_command(cmd);
    
-#endif   
+#else   
+#ifdef USE_PYTHON
+   std::string cmd("raytrace('raster3d',");
+   cmd += single_quote(coot::util::intelligent_debackslash(r3d_name));
+   cmd += ",";
+   cmd += single_quote(coot::util::intelligent_debackslash(filename));
+   cmd += ",1,1)";
+   safe_python_command(cmd);
+#endif // USE_PYTHON
+#endif // USE_GUILE
 }
+
+#ifdef USE_PYTHON
+void make_image_raster3d_py(const char *filename) {
+
+   std::string r3d_name = filename;
+   r3d_name += ".r3d";
+   raster3d(r3d_name.c_str());
+   std::string cmd("raytrace('raster3d',");
+   cmd += single_quote(coot::util::intelligent_debackslash(r3d_name));
+   cmd += ",";
+   cmd += single_quote(coot::util::intelligent_debackslash(filename));
+   cmd += ",1,1)";
+   safe_python_command(cmd);
+}
+#endif // USE_PYTHON
 
 void make_image_povray(const char *filename) {
    std::string pov_name = filename;
@@ -3828,9 +3946,43 @@ void make_image_povray(const char *filename) {
    cmd += ")";
    safe_scheme_command(cmd);
 
-#endif   
+#else   
+#ifdef USE_PYTHON
+   int x_size = graphics_info_t::glarea->allocation.width;
+   int y_size = graphics_info_t::glarea->allocation.height;
+   std::string cmd("raytrace('povray',");
+   cmd += single_quote(coot::util::intelligent_debackslash(pov_name));
+   cmd += ",";
+   cmd += single_quote(coot::util::intelligent_debackslash(filename));
+   cmd += ",";
+   cmd += graphics_info_t::int_to_string(x_size);
+   cmd += ",";
+   cmd += graphics_info_t::int_to_string(y_size);
+   cmd += ")";
+   safe_python_command(cmd);
+#endif // USE_PYTHON
+#endif // USE_GUILE
 }
 
+#ifdef USE_PYTHON
+void make_image_povray_py(const char *filename) {
+   std::string pov_name = filename;
+   pov_name += ".pov";
+   povray(pov_name.c_str());
+   int x_size = graphics_info_t::glarea->allocation.width;
+   int y_size = graphics_info_t::glarea->allocation.height;
+   std::string cmd("raytrace('povray',");
+   cmd += single_quote(coot::util::intelligent_debackslash(pov_name));
+   cmd += ",";
+   cmd += single_quote(coot::util::intelligent_debackslash(filename));
+   cmd += ",";
+   cmd += graphics_info_t::int_to_string(x_size);
+   cmd += ",";
+   cmd += graphics_info_t::int_to_string(y_size);
+   cmd += ")";
+   safe_python_command(cmd);
+}
+#endif // USE_PYTHON
 
 
 void
@@ -5158,6 +5310,11 @@ void set_zoom_adjustment(GtkWidget *w) {
    graphics_info_t::set_zoom_adjustment(w);
 } 
 
+// BL says:: I like a function to change the zoom externally
+// havent found one anywhere
+void set_zoom(float f) {
+   graphics_info_t::zoom = f;
+}
 
 
 
@@ -5586,7 +5743,31 @@ void handle_get_accession_code(GtkWidget *widget) {
 
 #else 
    
-   cout << "not compiled with guile.  This won't work" << endl; 
+//   cout << "not compiled with guile.  This won't work" << endl; 
+#ifdef USE_PYTHON
+      string python_command;
+
+   if (*n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+      // 20050725 EDS code:
+
+      python_command = "get_eds_pdb_and_mtz(";
+      python_command += single_quote(text);
+      python_command += ")";
+   } else {
+      if (*n == 1) {
+         python_command = "get_ebi_pdb(";
+      } else {
+         // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
+         python_command = "get_ebi_pdb_and_sfs(";
+      }
+      python_command += single_quote(text);
+      python_command += ")";
+   }
+
+   safe_python_command(python_command);
+
+
+#endif // USE_PYTHON
 
 #endif // USE_GUILE
 
@@ -5627,6 +5808,54 @@ void safe_python_command(const std::string &python_cmd) {
 #endif   
 }
 
+// BL says:: let's have a python command with can receive return values
+// we need to pass the script file containing the funcn and the funcn itself
+// returns a PyObject which can then be used further
+// returns NULL for failed run
+PyObject *safe_python_command_with_return(const std::string &python_cmd) {
+#ifdef USE_PYTHON
+
+    PyObject *pName, *pModule, *pDict, *pFunc;
+    PyObject *ret, *globals;
+
+    ret = NULL;
+
+    // include $COOT_PYTHON_DIR in module search path
+    PyRun_SimpleString("import sys, os");
+    PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
+
+
+    // Build the name object
+    const char *modulename = "__main__";
+    pName = PyString_FromString(modulename);
+    pModule = PyImport_Import(pName);
+    pDict = PyModule_GetDict(pModule);
+    globals = PyRun_String("globals()", Py_eval_input, pDict, pDict);
+    pDict = globals;
+
+    PyObject *pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
+
+    if (pValue != NULL)
+    {
+        ret = pValue;
+        Py_DECREF(pValue);
+
+    }
+    else
+    {
+        PyErr_Print();
+    }
+
+    // Clean up
+    Py_DECREF(pModule);
+    Py_DECREF(pName);
+
+    return ret;
+    Py_DECREF(ret);
+
+#endif //PYTHON
+}
+
 void safe_python_command_by_char_star(const char *python_cmd) {
 
    std::cout <<  "DEBUG in safe_python_command_by_char_star: running: "
@@ -5655,6 +5884,26 @@ SCM scm_residue(const coot::residue_spec_t &res) {
    return r;
 }
 #endif
+
+#ifdef USE_PYTHON
+// Return a list describing a residue like that returned by
+// residues-matching-criteria [return-val, chain-id, resno, ins-code]
+// This is a library function really.  There should be somewhere else to put it.
+// It doesn't need expression at the scripting level.
+// return a null list on problem
+PyObject *py_residue(const coot::residue_spec_t &res) {
+   PyObject *r;
+   r = PyList_New(0);
+
+//    std::cout <<  "scm_residue on: " << res.chain << " " << res.resno << " "
+// 	     << res.insertion_code  << std::endl;
+   PyList_SetItem(r, 3, PyString_FromString(res.insertion_code.c_str()));
+   PyList_SetItem(r, 2, PyInt_FromLong(res.resno));
+   PyList_SetItem(r, 1, PyString_FromString(res.chain.c_str()));
+   PyList_SetItem(r, 0, Py_True);
+   return r;
+}
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE 
 // Return a SCM list object of (residue1 residue2 omega) 
@@ -5698,6 +5947,49 @@ SCM cis_peptides(int imol) {
 }
 #endif //  USE_GUILE 
 
+#ifdef USE_PYTHON 
+// Return a python list object of [residue1, residue2, omega] 
+PyObject *cis_peptides_py(int imol) {
+   PyObject *r;
+   r = PyList_New(0);
+
+   // more info on the real cis peptides derived from atom positions:
+
+   if (is_valid_model_molecule(imol)) {
+
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<coot::util::cis_peptide_info_t> v =
+	 coot::util::cis_peptides_info_from_coords(mol);
+
+      for (int i=0; i<v.size(); i++) {
+	 coot::residue_spec_t r1(v[i].chain_id_1,
+				 v[i].resno_1,
+				 v[i].ins_code_1);
+	 coot::residue_spec_t r2(v[i].chain_id_2,
+				 v[i].resno_2,
+				 v[i].ins_code_2);
+	 PyObject *py_r1, *py_r2, *py_residue_info;
+	 py_r1 = py_residue(r1);
+	 py_r2 = py_residue(r2);
+	 py_residue_info = PyList_New(3);
+// 	 std::cout << "DEBUG:: cis pep with omega: "
+// 		   << v[i].omega_torsion_angle
+// 		   << std::endl;
+// 	 SCM scm_omega = 
+// 	    scm_double2num(clipper::Util::rad2d(v[1].omega_torsion_angle));
+	 PyObject *py_omega;
+	 py_omega = PyFloat_FromDouble(v[i].omega_torsion_angle);
+	 PyList_SetItem(py_residue_info, 2, py_omega);
+	 PyList_SetItem(py_residue_info, 1, py_r2);
+	 PyList_SetItem(py_residue_info, 0, py_r1);
+
+	 // add py_residue_info to r
+	 r = py_residue_info;
+      }
+   }
+   return r;
+}
+#endif //  USE_PYTHON
 
 
 void post_scripting_window() {
@@ -5741,6 +6033,26 @@ void post_python_scripting_window() {
 
 #ifdef USE_PYTHON
 
+// BL says: let's try and get coot_gui loaded
+
+  if (graphics_info_t::guile_gui_loaded_flag == TRUE) {
+
+     PyRun_SimpleString("coot_gui()");
+
+  } else {
+     // we don't get a proper status from guile_gui_loaded_flag so
+     // lets check again here whether MAPVIEW_GUI_DIR was defined.
+     char *t;
+     t = getenv("COOT_PYTHON_DIR"); // was #defined
+     if (t) {
+        std::cout << "COOT_PYTHON_DIR was defined to be " << t << std::endl
+                  << "   but loading of scripting window python code failed."
+                  << std::endl;
+     } else {
+        std::cout << "COOT_PYTHON_DIR  was not defined - cannot open ";
+        std::cout << "scripting window" << std::endl;
+     }
+// so let's load the usual window!!
   GtkWidget *window; 
   GtkWidget *entry; 
   window = create_python_window();
@@ -5748,6 +6060,7 @@ void post_python_scripting_window() {
   entry = lookup_widget(window, "python_window_entry");
   setup_python_window_entry(entry); // USE_PYTHON and USE_GUILE used here
   gtk_widget_show(window);
+  }
 
   // clear the entry here
 #else
@@ -5857,6 +6170,19 @@ run_state_file() {
 #endif
 }
 
+#ifdef USE_PYTHON
+void
+run_state_file_py() { 
+   std::string filename;
+   filename = "0-coot.state.py";
+   struct stat buf;
+   int status = stat(filename.c_str(), &buf);
+   if (status == 0) { 
+      run_python_script(filename.c_str());
+   }
+}
+#endif // USE_PYTHON
+
 
 void
 run_state_file_maybe() { 
@@ -5893,7 +6219,14 @@ run_state_file_maybe() {
 
 GtkWidget *wrapped_create_run_state_file_dialog() {
 
+#ifdef USE_GUILE
    std::string filename("0-coot.state.scm");
+#else
+// BL says:: we might want to have it in python too
+#ifdef USE_PYTHON
+   std::string filename("0-coot.state.py");
+#endif // python
+#endif // USE_GUILE
    short int il = 1;
    GtkWidget *w = create_run_state_file_dialog();
 
@@ -5912,6 +6245,30 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
    } 
    return w;
 }
+
+#ifdef USE_PYTHON
+GtkWidget *wrapped_create_run_state_file_dialog_py() {
+
+   std::string filename("0-coot.state.py");
+   short int il = 1;
+   GtkWidget *w = create_run_state_file_dialog();
+
+   GtkWidget *vbox_mols = lookup_widget(w, "mols_vbox");
+
+   graphics_info_t g;
+   std::vector<std::string> v = g.save_state_data_and_models(filename, il);
+   for (unsigned int i=0; i<v.size(); i++) { 
+      //       std::cout << "Got molecule: " << v[i] << std::endl;
+      std::string s = "    ";
+      s += v[i];
+      GtkWidget *label = gtk_label_new(s.c_str());
+      gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+      gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
+      gtk_widget_show(label);
+   } 
+   return w;
+}
+#endif // USE_PYTHON
 
 
 void
@@ -6464,7 +6821,7 @@ int handle_shelx_fcf_file_internal(const char *filename) {
    graphics_info_t g;
    std::vector<std::string> cmd;
    cmd.push_back("handle-shelx-fcf-file");
-   cmd.push_back(single_quote(filename));
+   cmd.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
 
 #ifdef USE_GUILE   
    std::string s = g.state_command(cmd, coot::STATE_SCM);
@@ -6840,12 +7197,39 @@ raster_screen_shot() {  // run raster3d or povray and guile
 
    // do some checking for povray/render here:
 
+// BL says: lets make it for python too:
+#ifdef USE_GUILE
    std::string cmd("(render-image)");  // this is a render function 
    
    // cmd = "(povray-image)";
 
    safe_scheme_command(cmd);
+
+#else
+#ifdef USE_PYTHON
+   std::string cmd("render_image()");  // this is a render function 
+   
+   // cmd = "(povray-image)";
+
+   safe_python_command(cmd);
+#endif // USE_PYTHON
+#endif //USE_GUILE
 }
+
+#ifdef USE_PYTHON
+void
+raster_screen_shot_py() {  // run raster3d or povray and guile
+                		         // script to render and display image
+
+   // do some checking for povray/render here:
+
+   std::string cmd("render_image()");  // this is a render function 
+   
+   // cmd = "(povray-image)";
+
+   safe_python_command(cmd);
+}
+#endif // USE_PYTHON
 
 
 void set_renderer_show_atoms(int istate) {
@@ -6885,6 +7269,13 @@ void browser_url(const char *url) {
       safe_scheme_command(c);
 #else
 #ifdef USE_PYTHON
+// BL says: not the way to do it in windows. Maybe a 2-liner python script
+// required. Might be the way for on other platforms in python too
+   #ifdef WINDOWS_MINGW
+      c = "open_url(";
+      c += single_quote(u);
+      c += ")";
+   #endif // MINGW
       safe_python_command(c);
 #endif
 #endif
@@ -7225,6 +7616,21 @@ SCM view_name(int view_number) {
    return r;
 }
 #endif	/* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *view_name_py(int view_number) {
+
+   PyObject *r;
+   r = Py_False;
+   int n_view = graphics_info_t::views->size();
+   if (view_number < n_view)
+      if (view_number >= 0) {
+         std::string name = (*graphics_info_t::views)[view_number].view_name;
+         r = PyString_FromString(name.c_str());
+      }
+   return r;
+}
+
+#endif // PYTHON
 
 #ifdef USE_GUILE
 SCM view_description(int view_number) { 
@@ -7240,6 +7646,21 @@ SCM view_description(int view_number) {
    return r;
 }
 #endif	/* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *view_description_py(int view_number) {
+
+   PyObject *r;
+   r = Py_False;
+   if (view_number >= 0)
+      if (view_number < graphics_info_t::views->size()) {
+         std::string d = (*graphics_info_t::views)[view_number].description;
+         if (d != "") {
+            r = PyString_FromString(d.c_str());
+         }
+      }
+   return r;
+}
+#endif // PYTHON
 
 
 /*! \brief save views to view_file_name */
@@ -7252,7 +7673,12 @@ void save_views(const char *view_file_name) {
 	 std::cout << "Cannot open view output file"
 		   << view_file_name << std::endl;
       } else {
+#ifdef USE_GUILE
 	 f << "; Views\n";
+#endif // GUIL$E
+#ifdef USE_PYTHON
+	 f << "# Views\n";
+#endif // PYTHON
 	 for (unsigned int i=0; i<n_views; i++) {
 	    f << (*graphics_info_t::views)[i];
 	 }
@@ -7412,6 +7838,77 @@ void go_to_view(SCM view) {
    }
 } 
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+void go_to_view_py(PyObject *view) {
+   
+   int len_view;
+
+   len_view = PyObject_Length(view);
+   
+   if (len_view == 4) { 
+
+      graphics_info_t g;
+      int nsteps = 2000;
+      if (graphics_info_t::views_play_speed > 0.000000001)
+         nsteps = int(2000.0/graphics_info_t::views_play_speed);
+   
+      // What is the current view:
+      // 
+      std::string name("Current Position");
+      float quat[4];
+      for (int i=0; i<4; i++)
+         quat[i] = graphics_info_t::quat[i];
+      coot::Cartesian rc = g.RotationCentre();
+      float zoom = graphics_info_t::zoom;
+      coot::view_info_t view_c(quat, rc, zoom, name);
+
+      // view_target is where we want to go
+      float quat_target[4];
+      PyObject *quat_python = PyList_GetItem(view, 0);
+      int len_quat = PyObject_Length(quat_python);
+      if (len_quat == 4) { 
+         PyObject *q0_python = PyList_GetItem(quat_python, 0);
+         PyObject *q1_python = PyList_GetItem(quat_python, 1);
+         PyObject *q2_python = PyList_GetItem(quat_python, 2);
+         PyObject *q3_python = PyList_GetItem(quat_python, 3);
+         quat_target[0] = PyFloat_AsDouble(q0_python);
+         quat_target[1] = PyFloat_AsDouble(q1_python);
+         quat_target[2] = PyFloat_AsDouble(q2_python);
+         quat_target[3] = PyFloat_AsDouble(q3_python);
+
+         PyObject *rc_target_python = PyList_GetItem(view, 1);
+         int len_rc_target = PyObject_Length(rc_target_python);
+         if (len_rc_target == 3) {
+
+            PyObject *centre_x = PyList_GetItem(rc_target_python, 0);
+            PyObject *centre_y = PyList_GetItem(rc_target_python, 1);
+            PyObject *centre_z = PyList_GetItem(rc_target_python, 2);
+
+            double x = PyFloat_AsDouble(centre_x);
+            double y = PyFloat_AsDouble(centre_y);
+            double z = PyFloat_AsDouble(centre_z);
+            coot::Cartesian rc_target(x,y,z);
+
+            PyObject *target_zoom_python = PyList_GetItem(view, 2);
+            double zoom_target = PyFloat_AsDouble(target_zoom_python);
+
+            PyObject *name_target_python = PyList_GetItem(view, 3);
+            std::string name_target = PyString_AsString(name_target_python);
+               
+            coot::view_info_t view_target(quat_target, rc_target, zoom_target, name_target);
+            
+            // do the animation
+            coot::view_info_t::interpolate(view_c, view_target, nsteps);
+         } else {
+            std::cout << "WARNING:: bad centre in view" << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: bad quat in view" << std::endl;
+      } 
+   }
+} 
+#endif // PYTHON
 
 
 int add_spin_view(const char *view_name, int n_steps, float degrees_total) {

@@ -90,11 +90,13 @@ std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
   given molecule. If imol is a not a valid molecule, return an empty
   list.*/
 SCM get_symmetry(int imol);
-#else 
+#endif // USE_GUILE
+
 #ifdef USE_PYTHON
 // return a python object as a list (or some other python container)
-#endif 
-#endif
+#include "Python.h"
+PyObject *get_symmetry_py(int imol);
+#endif // USE_PYTHON
 
 /*  ---------------------------------------------------------------------- */
 /*                       map functions:                                    */
@@ -112,7 +114,14 @@ void add_map_scroll_wheel_mol_menu_item(int imol,
 // 
 #ifdef USE_GUILE
 SCM map_colour_components(int imol);
-#endif
+#endif // GUILE
+
+#ifdef USE_PYTHON
+// \brief return the colour of the imolth map (e.g.: [0.4, 0.6,
+// 0.8]. If invalid imol return Py_False.
+//
+PyObject *map_colour_components_py(int imol);
+#endif // PYTHON
 
 /*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */
@@ -241,6 +250,10 @@ std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::v
 SCM dictionaries_read();
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+PyObject *dictionaries_read_py();
+#endif // PYTHON
+
 /*  ----------------------------------------------------------------------- */
 /*                         Restraints                                       */
 /*  ----------------------------------------------------------------------- */
@@ -250,7 +263,8 @@ void set_monomer_restraints(const char *monomer_type, SCM restraints);
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-// FIXME Bernhard
+PyObject *monomer_restraints_py(const char *monomer_type);
+void set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
 #endif // USE_PYTHON
 
 
@@ -265,8 +279,11 @@ SCM safe_scheme_command(const std::string &scheme_command);
 void safe_scheme_command(const std::string &scheme_command); /* do nothing */
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
 void safe_python_command(const std::string &python_command); 
 void safe_python_command_by_char_star(const char *python_command);
+PyObject *safe_python_command_with_return(const std::string &python_cmd);
+#endif // PYTHON
 /*  Is this a repeat of something?  I don't know. */
 void run_generic_script(const std::vector<std::string> &cmd_strings);
 
@@ -280,8 +297,12 @@ SCM scm_residue(const coot::residue_spec_t &res);
 #endif
 
 #ifdef USE_PYTHON
-// FIXME Bernhard
-// Pythonize py_residue(const coot::residue_spec_t &res);
+// Return a list describing a residue like that returned by
+// residues-matching-criteria [return_val, chain_id, resno, ins_code]
+// This is a library function really.  There should be somewhere else to put it.
+// It doesn't need expression at the scripting level.
+// return a null list on problem
+PyObject *py_residue(const coot::residue_spec_t &res);
 #endif
 
 /*  ----------------------------------------------------------------------- */
@@ -340,11 +361,57 @@ SCM closest_atom(int imol);
 
 #endif	/* USE_GUILE */
 
-#ifdef USE_PYTHON
-// nearest_atom()
-// Fill me in Bernhard
-#endif 
+/* Here the Python code for ATOM INFO */
 
+/*! \brief output atom info in a python list for use in scripting:
+
+in this format [occ, temp_factor, element, x, y, z].  Return empty
+list if atom not found. */
+#ifdef USE_PYTHON
+const char *atom_info_string_py(int imol, const char *chain_id, int resno,
+			     const char *ins_code, const char *atname,
+			     const char *altconf);
+//! \brief
+// Return a list of atom info for each atom in the specified residue:
+//
+// output is like this:
+// [
+//     [[atom-name,alt-conf]
+//      [occ,temp_fact,element]
+//      [x,y,z]]]
+//
+PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
+PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code);
+
+// And going the other way, given an python-expression, update
+// molecule_number by the given molecule.  Clear what's currently
+// there first though.
+//
+int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_expression);
+// return a molecule number, -1 on error
+int add_molecule_py(PyObject *molecule_expression, const char *name);
+
+//! \brief
+// Return a list of [imol, chain-id, resno, ins-code, atom-name,
+// alt-conf] for atom that is closest to the screen centre.  If there
+// are multiple models with the same coordinates at the screen centre,
+// return the attributes of the atom in the highest number molecule
+// number.
+//
+// return #f if no active residue
+//
+PyObject *active_residue_py();
+
+//! \brief
+// 
+// Return a list of [imol, chain-id, resno, ins-code, atom-name,
+// alt-conf, [x, y, z]] for atom that is closest to the screen
+// centre in the given molecule (unlike active-residue, no account is
+// taken of the displayed state of the molecule).  If there is no
+// atom, or if imol is not a valid model molecule, return #f.
+// 
+PyObject *closest_atom_py(int imol);
+#endif // USE_PYTHON
 
 /*  ----------------------------------------------------------------------- */
 /*                  spin search                                             */
@@ -359,7 +426,12 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno, const 
 #endif
 
 #ifdef USE_PYTHON
-// Bernhard, fill me (spin_search() from python) in...
+/*! \brief for the given residue, spin the atoms in moving_atom_list
+  around the bond defined by direction_atoms_list looking for the best
+  fit to density of imom_map map of the first atom in
+  moving_atom_list.  Works (only) with atoms in altconf "" */
+void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
+                 const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
 #endif 
 
 /*  ----------------------------------------------------------------------- */
@@ -396,8 +468,7 @@ int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec);
 #endif 
 
 #ifdef USE_PYTHON
-// Bernhard, fix/fill me in.
-int cootaneer(int imol_map, int imol_model, const char *something);
+int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_spec);
 #endif
 
 
@@ -423,7 +494,14 @@ coot::atom_spec_t atom_spec_from_scm_expression(SCM expr);
 
 #ifdef USE_PYTHON
 // Bernhard, I suppose that there should be python equivalents of the above.
-#endif
+// BL says:: here they are:
+PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::string>&v);
+PyObject *generic_int_vector_to_list_internal_py(const std::vector<int> &v);
+std::vector<std::string> generic_list_to_string_vector_internal_py(PyObject *l);
+PyObject *rtop_to_python(const clipper::RTop_orth &rtop);
+coot::atom_spec_t atom_spec_from_python_expression(PyObject *expr);
+#endif // PYTHON
+
 
 void set_display_control_button_state(int imol, const std::string &button_type, int state);
 

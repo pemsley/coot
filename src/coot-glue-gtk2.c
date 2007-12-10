@@ -258,3 +258,91 @@ coot_init_glue ()
 
 #endif // GTK_MAJOR_VERSION > 1
 #endif //  USE_GUILE
+
+//BL says: this is the python code!!
+#if defined (USE_PYTHON) && (USE_PYGTK)
+/* -- THIS FILE IS GENERATED - DO NOT EDIT *//* -*- Mode: C; c-basic-offset: 4 
+-
+*- */
+
+#include <Python.h>
+
+
+
+//#line 3 "coot_python.override"
+#include <Python.h>               
+#include "pygobject.h"
+#include <gtk/gtk.h>
+#include <c-interface.h>
+//#line 12 "coot_python.c"
+
+
+/* ---------- types from other modules ---------- */
+static PyTypeObject *_PyGObject_Type;
+#define PyGObject_Type (*_PyGObject_Type)
+
+
+/* ---------- forward type declarations ---------- */
+
+//#line 22 "coot_python.c"
+
+
+
+/* ----------- functions ----------- */
+
+static PyObject *
+_wrap_main_menubar(PyObject *self)
+{
+    GtkWidget *ret;
+
+    
+    ret = main_menubar();
+    
+    /* pygobject_new handles NULL checking */
+    return pygobject_new((GObject *)ret);
+}
+
+static PyObject *
+_wrap_main_statusbar(PyObject *self)
+{
+    GtkWidget *ret;
+
+    
+    ret = main_statusbar();
+    
+    /* pygobject_new handles NULL checking */
+    return pygobject_new((GObject *)ret);
+}
+
+const PyMethodDef coot_python_functions[] = {
+    { "main_menubar", (PyCFunction)_wrap_main_menubar, METH_NOARGS,
+      NULL },
+    { "main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS,
+      NULL },
+    { NULL, NULL, 0, NULL }
+};
+
+/* initialise stuff extension classes */
+void
+coot_python_register_classes(PyObject *d)
+{
+    PyObject *module;
+
+    if ((module = PyImport_ImportModule("gobject")) != NULL) {
+        _PyGObject_Type = (PyTypeObject *)PyObject_GetAttrString(module, "GObject");
+        if (_PyGObject_Type == NULL) {
+            PyErr_SetString(PyExc_ImportError,
+                "cannot import name GObject from gobject");
+            return ;
+        }
+    } else {
+        PyErr_SetString(PyExc_ImportError,
+            "could not import gobject");
+        return ;
+    }
+
+
+}
+
+#endif // PYTHON
+

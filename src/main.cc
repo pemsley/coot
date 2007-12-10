@@ -90,9 +90,14 @@
 
 #include "command-line.h"
 
+#include "graphics-info.h"
+// Including python needs to come after graphics-info.h, because
+// something in Python.h (2.4 - chihiro) is redefining FF1 (in
+// ssm_superpose.h) to be 0x00004000 (Grrr).
+// BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
+// since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
 #include "cc-interface.hh"
-#include "graphics-info.h"
 
 #include "rgbreps.h"
 
@@ -408,10 +413,17 @@ main (int argc, char *argv[]) {
             char *coot_load_modules_dot_py;
             if (use_graphics_flag) {
 	      // we have gui
-	      // BL says:: lets initialize glue too but only if we have pygtk
+	      // BL says:: lets initialize glue too but only if we have pygtk 
+	      // (and gtk2)
 #ifdef USE_PYGTK
-	       // initcoot_python(); undefined
-	      safe_python_command("global use_gui_qm; use_gui_qm = True");
+#ifdef COOT_USE_GTK2_INTERFACE
+	      initcoot_python();
+#endif // GKT2
+#ifdef USE_GUILE_GTK
+	      safe_python_command("global use_gui_qm; use_gui_qm = 2");
+#else
+	      safe_python_command("global use_gui_qm; use_gui_qm = 1");
+#endif
 #else
 	      safe_python_command("global use_gui_qm; use_gui_qm = False");
 #endif // PYTGK
@@ -449,8 +461,9 @@ main (int argc, char *argv[]) {
      run_state_file_maybe(); // run local 0-coot.state.py?
 #endif // USE_GUILE - not both start-up scripts
 
-#ifdef USE_PYGTK
-     // BL says: we wanna run tips-gui now, I suggest/decide
+#if defined USE_PYGTK && !defined USE_GUILE_GTK
+     // BL says: we wanna run tips-gui now, but only if we dont use guile_gtk
+     // otherwise we'll get 2
      if (use_graphics_flag) {
        PyRun_SimpleString("tips_gui()");
      }

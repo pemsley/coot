@@ -1986,7 +1986,13 @@ on_find_ligand_many_atoms_continue_button_clicked (GtkButton       *button,
 				     "find_ligand_many_atoms_dialog");
    GtkWidget *find_ligand_dialog = (GtkWidget *) gtk_object_get_user_data(GTK_OBJECT(window));
 
+#ifdef USE_GUILE
    execute_ligand_search();
+#else
+#ifdef USE_PYTHON
+   execute_ligand_search_py();
+#endif // USE_PYTHON
+#endif // USE_GUILE
    gtk_widget_destroy(window);
    gtk_widget_destroy(find_ligand_dialog); 
 }
