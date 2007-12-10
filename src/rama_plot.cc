@@ -288,10 +288,12 @@ coot::rama_plot::clear_last_canvas_items(int np) {
    for (int i=0; i<np; i++) { 
       item = canvas_item_vec[n+i];
       if (item == NULL) {
-	 std::cout << "oops - null canvas item" << std::endl;
+ 	 std::cout << "ERROR:: - null canvas item in clear_last_canvas_items() " << i
+ 		   << " of " << n << std::endl;
       } else { 
+// 	 std::cout << "clearing canvas item " <<  i << " of " << n << " "
+// 		   << item << std::endl;
 	 gtk_object_destroy(GTK_OBJECT(item));
-	 // std::cout << "clearing canvas item " <<  item << std::endl;
       }
    }
    canvas_item_vec.resize(n);
@@ -633,75 +635,74 @@ coot::rama_plot::draw_phi_psi_point_internal(int i,
    
    std::string outline_color("black"); 
 
-   if ((*phi_psi_vec)[i].residue_name() == "GLY") {
-      region = draw_phi_psi_as_gly(i,phi_psi_vec);
-      if (box_size == 4) 
-	 draw_green_box((*phi_psi_vec)[i].phi(), (*phi_psi_vec)[i].psi()); 
+   if (box_size == 4) {
+      draw_green_box((*phi_psi_vec)[i].phi(), (*phi_psi_vec)[i].psi());
    } else {
-      GtkCanvasItem *item;
-      std::string colour;
-      double phi = (*phi_psi_vec)[i].phi();
-      double psi = (*phi_psi_vec)[i].psi();
 
-      if (rama.allowed(clipper::Util::d2rad(phi),
-		       clipper::Util::d2rad(psi))) {
-	 colour = "blue";
-	 region = coot::rama_plot::RAMA_ALLOWED;
-	 if (rama.favored(clipper::Util::d2rad(phi),
-			  clipper::Util::d2rad(psi))) {
-	    region = coot::rama_plot::RAMA_PREFERRED;
-	 }
+      if ((*phi_psi_vec)[i].residue_name() == "GLY") {
+	 region = draw_phi_psi_as_gly(i,phi_psi_vec);
       } else {
-	 colour = "red";
-	 region = coot::rama_plot::RAMA_OUTLIER;
-      }
+	 std::string colour;
+	 double phi = (*phi_psi_vec)[i].phi();
+	 double psi = (*phi_psi_vec)[i].psi();
 
-      if ( as_white_flag == 1 ) {
-	 colour = "white";
-      } else { 
-	 if ((*phi_psi_vec)[i].residue_name() == "PRO") {
-	    outline_color = "grey";
-	 
-	    double phi = (*phi_psi_vec)[i].phi();
-	    double psi = (*phi_psi_vec)[i].psi();
-	 
-	    if (r_pro.allowed(clipper::Util::d2rad(phi),
-			      clipper::Util::d2rad(psi))) {
-	       colour = "blue";
-	       region = coot::rama_plot::RAMA_ALLOWED;
-	       if (r_pro.favored(clipper::Util::d2rad(phi),
-				 clipper::Util::d2rad(psi))) {
-		  region = coot::rama_plot::RAMA_PREFERRED;
-	       }
-	    } else {
-	       colour = "red3";
-	       region = coot::rama_plot::RAMA_OUTLIER;
+	 if (rama.allowed(clipper::Util::d2rad(phi),
+			  clipper::Util::d2rad(psi))) {
+	    colour = "blue";
+	    region = coot::rama_plot::RAMA_ALLOWED;
+	    if (rama.favored(clipper::Util::d2rad(phi),
+			     clipper::Util::d2rad(psi))) {
+	       region = coot::rama_plot::RAMA_PREFERRED;
 	    }
 	 } else {
+	    colour = "red";
+	    region = coot::rama_plot::RAMA_OUTLIER;
+	 }
 
-	    // conventional residue
-	    if (r_non_gly_pro.allowed(clipper::Util::d2rad(phi),
-				      clipper::Util::d2rad(psi))) {
-	       region = coot::rama_plot::RAMA_ALLOWED;
-	       colour = "blue"; 
-	       if (r_non_gly_pro.favored(clipper::Util::d2rad(phi),
-					 clipper::Util::d2rad(psi))) {
-		  region = coot::rama_plot::RAMA_PREFERRED;
+	 if ( as_white_flag == 1 ) {
+	    colour = "white";
+	 } else { 
+	    if ((*phi_psi_vec)[i].residue_name() == "PRO") {
+	       outline_color = "grey";
+	 
+	       if (r_pro.allowed(clipper::Util::d2rad(phi),
+				 clipper::Util::d2rad(psi))) {
+		  colour = "blue";
+		  region = coot::rama_plot::RAMA_ALLOWED;
+		  if (r_pro.favored(clipper::Util::d2rad(phi),
+				    clipper::Util::d2rad(psi))) {
+		     region = coot::rama_plot::RAMA_PREFERRED;
+		  }
+	       } else {
+		  colour = "red3";
+		  region = coot::rama_plot::RAMA_OUTLIER;
 	       }
 	    } else {
-	       colour = "red3";
-	       region = coot::rama_plot::RAMA_OUTLIER;
+
+	       // conventional residue
+	       if (r_non_gly_pro.allowed(clipper::Util::d2rad(phi),
+					 clipper::Util::d2rad(psi))) {
+		  region = coot::rama_plot::RAMA_ALLOWED;
+		  colour = "blue"; 
+		  if (r_non_gly_pro.favored(clipper::Util::d2rad(phi),
+					    clipper::Util::d2rad(psi))) {
+		     region = coot::rama_plot::RAMA_PREFERRED;
+		  }
+	       } else {
+		  colour = "red3";
+		  region = coot::rama_plot::RAMA_OUTLIER;
+	       }
 	    }
 	 }
-      }
-
-      if (box_size == 4) {
-	 draw_green_box(phi, psi);
-      }
-
-      // needs to be kept here:
-      if (box_size != 4) { 
-	 // std::cout << "adding to canvas_item_vec: " << item << std::endl;
+	 GtkCanvasItem *item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+						   GTK_CANVAS_TYPE_CANVAS_RECT,
+						   "x1", phi-box_size,
+						   "y1",-psi-box_size,
+						   "x2", phi+box_size,
+						   "y2",-psi+box_size,
+						   "fill_color", colour.c_str(),
+						   "outline_color", outline_color.c_str(),
+						   NULL);
 	 canvas_item_vec.push_back(item);
       }
    }

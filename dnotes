@@ -98,17 +98,57 @@ terminate called after throwing an instance of 'std::bad_alloc'
   what():  St9bad_alloc
 Abort
 
+    o Mark Sapper: 
+
+      I'm also seeing a crash when I try check waters with the latest
+      coot from Fink, on Intel running 10.4.11.
+
+(stereo-mode-state)
+State file /Users/saper/Research/HI1655/YraM257-575/Monoclinic/Refinement/ccp4/0-coot.state.scm written.
+(save-state-file /Users/saper/Research/HI1655/YraM257-575/Monoclinic/Refinement/ccp4/0-coot.state.scm)
+(command-in-path? *probe-command*)
+
+(coot:24624): Gtk-CRITICAL **: gtk_widget_destroy: assertion `GTK_IS_WIDGET (widget)' failed
+
+(coot:24624): Gtk-CRITICAL **: gtk_menu_get_active: assertion `GTK_IS_MENU (menu)' failed
+Bus error
+
+ 
+    o Mark Sapper: 
+
+    I'm running the most recent coot from Fink (0.4-pre-2 [with guile
+    1.8.3 embedded] [with python 2.3.5 embedded]).
+
+    While trying to adjust backbone torsions, I had a crash.  Perhaps
+    it was because the following residue was beyond bonding distance
+    to the carbonyl carbon?  Her's the output from the terminal:
+
+click on an atom in the peptide to change
+(5)  CA /1/chainid="A"/428/ASN,  occ: 1 with B-factor: 34.53 element:  C at (16.9337,29.5642,-1.2658) : 0.0119083
+Debug:: initing rama with levels 0.02 0.002
+
+** (coot:24288): WARNING **: Widget not found: not-found
+
+(coot:24288): GLib-GObject-WARNING **: invalid uninstantiatable type `<unknown>' in cast to `GtkObject'
+
+(coot:24288): Gtk-CRITICAL **: gtk_object_destroy: assertion `GTK_IS_OBJECT (object)' failed
+Segmentation fault
+[sapir:Monoclinic/Refinement/ccp4] saper% coot --version
+0.4-pre-2 [with guile 1.8.3 embedded] [with python 2.3.5 embedded]
+[sapir:Monoclinic/Refinement/ccp4] saper% 
+
+
+
+
+
+
+
     o To make the test non-tedious, especially on slow computers, we
       need a set-atoms-attributes that takes a list of attribute sets.
      
       No need to re-calulate the bonding for each atom move.
 
       No need to redraw, except once at the end.
-
-
-
-
-
 
    o skeleton colour set correctly in the colour selector?
 
@@ -2717,3 +2757,8 @@ Wed Dec  5 16:05:13 GMT 2007
    "Is it in the red or in the black?"
 
 
+----
+
+	Tested/Not Tested:
+
+   green_box on rama plot
