@@ -5812,8 +5812,8 @@ void safe_python_command(const std::string &python_cmd) {
 // we need to pass the script file containing the funcn and the funcn itself
 // returns a PyObject which can then be used further
 // returns NULL for failed run
-PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 #ifdef USE_PYTHON
+PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
     PyObject *pName, *pModule, *pDict, *pFunc;
     PyObject *ret, *globals;
