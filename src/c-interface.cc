@@ -5894,12 +5894,14 @@ PyObject *py_residue(const coot::residue_spec_t &res) {
    PyObject *r;
    r = PyList_New(0);
 
-//    std::cout <<  "scm_residue on: " << res.chain << " " << res.resno << " "
+//    std::cout <<  "py_residue on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
-   PyList_SetItem(r, 3, PyString_FromString(res.insertion_code.c_str()));
-   PyList_SetItem(r, 2, PyInt_FromLong(res.resno));
-   PyList_SetItem(r, 1, PyString_FromString(res.chain.c_str()));
-   PyList_SetItem(r, 0, Py_True);
+   PyList_Append(r,  PyString_FromString(res.insertion_code.c_str()));
+   PyList_Append(r,  PyInt_FromLong(res.resno));
+   PyList_Append(r,  PyString_FromString(res.chain.c_str()));
+   PyList_Append(r,  Py_True);
+   PyList_Reverse(r);
+   int len = PyList_Size(r);
    return r;
 }
 #endif // USE_PYTHON
@@ -5983,7 +5985,7 @@ PyObject *cis_peptides_py(int imol) {
 	 PyList_SetItem(py_residue_info, 0, py_r1);
 
 	 // add py_residue_info to r
-	 r = py_residue_info;
+	 PyList_Append(r, py_residue_info);
       }
    }
    return r;

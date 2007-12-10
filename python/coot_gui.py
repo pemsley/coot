@@ -839,7 +839,7 @@ def interesting_things_with_fix_maybe(title,baddie_list):
 # filter_function returns True then add it.  Typical value of
 # filter_function is valid-model-molecule_qm
 #
-def fill_option_menu_with_mol_options(menu,filter_function):
+def fill_option_menu_with_mol_options(menu, filter_function):
 
     mols = 0
     n_molecules = graphics_n_molecules()
@@ -859,7 +859,7 @@ def fill_option_menu_with_mol_options(menu,filter_function):
 # Fill an option menu with maps
 #
 def fill_option_menu_with_map_mol_options(menu):
-    fill_option_menu_with_mol_options(menu,valid_map_molecule_qm)
+    fill_option_menu_with_mol_options(menu, valid_map_molecule_qm)
 
 # Helper function for molecule chooser.  Not really for users.
 # 
@@ -870,7 +870,7 @@ def fill_option_menu_with_map_mol_options(menu):
 # molecules.
 # 
 def fill_option_menu_with_coordinates_mol_options(menu):
-    fill_option_menu_with_mol_options(menu,valid_model_molecule_qm)
+    fill_option_menu_with_mol_options(menu, valid_model_molecule_qm)
 
 #
 def fill_option_menu_with_number_options(menu, number_list, default_option_value):
@@ -889,6 +889,7 @@ def fill_option_menu_with_number_options(menu, number_list, default_option_value
 # or return False if there was a problem (e.g. closed molecule)
 #
 # BL says:: we do it for gtk_combobox instead! option_menu is deprecated
+#
 def get_option_menu_active_molecule(option_menu, model_mol_list):
 
     model = option_menu.get_model()
@@ -1041,7 +1042,9 @@ def generic_chooser_and_entry(chooser_label,entry_hint_text,default_entry_text,c
 # callback_function is a function that takes a molecule number and a
 # text string (e.g. chain_id and file_name)
 #
-def generic_chooser_entry_and_file_selector(chooser_label, entry_hint_text, default_entry_text, file_selector_hint, callback_function):
+# chooser_filter is typically vali_map_molecule_qm or valid_model_molecule_qm
+#
+def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter, entry_hint_text, default_entry_text, file_selector_hint, callback_function):
 
     import operator
 
@@ -1073,7 +1076,7 @@ def generic_chooser_entry_and_file_selector(chooser_label, entry_hint_text, defa
     ok_button = gtk.Button("  OK  ")
     cancel_button = gtk.Button(" Cancel ")
     h_sep = gtk.HSeparator()
-    model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
+    model_mol_list = fill_option_menu_with_mol_options(option_menu, chooser_filter)
     
     window.set_default_size(400,100)
     window.add(vbox)
@@ -1101,7 +1104,9 @@ def generic_chooser_entry_and_file_selector(chooser_label, entry_hint_text, defa
 # callback_function is a function that takes a molecule number and a
 # file_name
 #
-def generic_chooser_and_file_selector(chooser_label, file_selector_hint, default_file_name, callback_function):
+# chooser_filter is typically valid_map_molecule_qm or valid_model_molecule_qm
+#
+def generic_chooser_and_file_selector(chooser_label, chooser_filter, file_selector_hint, default_file_name, callback_function):
 
     import operator
 
@@ -1130,7 +1135,7 @@ def generic_chooser_and_file_selector(chooser_label, file_selector_hint, default
     ok_button = gtk.Button("  OK  ")
     cancel_button = gtk.Button(" Cancel ")
     h_sep = gtk.HSeparator()
-    model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
+    model_mol_list = fill_option_menu_with_mol_options(option_menu, chooser_filter)
     
     window.set_default_size(400,100)
     window.add(vbox)
@@ -1919,7 +1924,66 @@ def nudge_screen_centre_extra_gui():
    zoom_adj.connect("value_changed", change_zoom)
 
    dialog_box_of_buttons_with_widget("Nudge Screen Centre with Extras", [200,400], buttons, vbox, "  Close ")
-	
+
+
+def cis_peptides_gui(imol):
+
+   def get_ca(atom_list):
+
+      if (atom_list == []):
+         return False
+      else:
+         for atom in atom_list:
+            atom_name = atom[0][0]
+            if (atom_name == ' CA '):
+               print "BL DEBUG:: returning ", atom
+               return atom     # check me
+
+   def make_list_of_cis_peps(imol, list_of_cis_peps):
+
+      ret = []
+
+      for cis_pep_spec in list_of_cis_peps:
+         r1 = cis_pep_spec[0]
+         r2 = cis_pep_spec[1]
+         omega = cis_pep_spec[2]
+         atom_list_r1 = residue_info(imol, *r1[1:4])
+         atom_list_r2 = residue_info(imol, *r2[1:4])
+         ca_1 = get_ca(atom_list_r1)
+         ca_2 = get_ca(atom_list_r2)
+         chain_id = r1[1]
+
+         if ((not ca_1) and (not ca_2)):
+            ret.append(["Cis Pep (atom failure) " + r1[1] + " " + str(r1[2]),
+                    imol, chain_id, r1[3], r1[2], "CA", ""])
+         else:
+            p1 = ca_1[2]
+            p2 = ca_2[2]
+            pos = map(lambda x, y: (x + y) / 2.0, p1, p2)
+            tors_s1 = str(omega)
+            if (len(tors_s1) < 6):
+               tors_string = tors_s1
+            else:
+               tors_string = tors_s1[0:6]
+            mess = ("Cis Pep: " + chain_id + " " +
+                   str(r1[2]) + " " + 
+                   residue_name(imol, *r1[1:4]) + " - " +
+                   str(r2[2]) + " " +
+                   residue_name(imol, *r1[1:4]) + "   " +
+                   tors_string)
+            ls = pos
+            ls.insert(0,mess)
+            ret.append(ls)
+      return ret
+
+   cis_peps = cis_peptides(imol)
+
+   if (cis_peps == []):
+      info_dialog("No Cis Peptides found")
+   else:
+      list_of_cis_peptides = make_list_of_cis_peps(imol, cis_peps)
+      interesting_things_gui("Cis Peptides:", list_of_cis_peptides)
+
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_gui()
 
