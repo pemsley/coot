@@ -65,33 +65,11 @@ Tue Jul  3 14:27:37 BST 2007
 
    o Fix map transformation text pointed out by Stephen Graham
 
-   o Get rid of this debugging:
-
-refine (fit to map): molecule 12 atom index 0 to 0
-DEBUG:: refine_residue_range: 12 A 1:: 1:: :: 0
-24 atoms selected to regularize from residue 1 to 1 chain A
-INFO:: 1 residues selected for refined and flanking residues
-INFO::24 atoms selected from molecule for refinement (this includes fixed and flanking atoms).
-INFO:: GetSelIndex returned 1 residues (monomer restraints)
-DEBUG:: add_monomer plane restraint for plane-id: comp-id: 3GP plan-1 A 1 ::
-DEBUG:: adding monomer plane with pos indexes  0 1 2 3 4 5 6 7 8 9 10 11
-
-flanking atom check starting at isr=10
-INFO:: GetSelIndex (make_flanking_atoms_restraints) returned 2 residues (flanking restraints)
-looking for (flanking) bonds between residues 10 11
-DEBUG:: add_link_plane for A 10 :: -> A 11 ::
-flanking atom check starting at isr=12
-INFO:: GetSelIndex (make_flanking_atoms_restraints) returned 2 residues (flanking restraints)
-looking for (flanking) bonds between residues 12 13
-DEBUG:: add_link_plane for A 12 :: -> A 13 ::
-
-
    o Mark Saper: 
 
-   I got another crash error with similar results.  This time clicking
-   on a water (part of a 3 water split) and doing Real Space Refine
-   Zone, it crashed everything.
-
+     I got another crash error with similar results.  This time
+     clicking on a water (part of a 3 water split) and doing Real
+     Space Refine Zone, it crashed everything.
 
 click on 2 atoms (in the same molecule)
 (0)  O  ,C/1/chainid="B"/2/HOH,  occ: 0.5 with B-factor: 29.98 element:  O at (34.2394,37.8481,18.0267) : 0.0223551
@@ -106,7 +84,7 @@ terminate called after throwing an instance of 'std::bad_alloc'
   what():  St9bad_alloc
 Abort
 
-    o Mark Sapper: 
+    o Mark Saper: 
 
       I'm also seeing a crash when I try check waters with the latest
       coot from Fink, on Intel running 10.4.11.
@@ -129,6 +107,14 @@ Bus error
 
       No need to redraw, except once at the end.
 
+
+    o To make the test non-tedious, especially on slow computers, we
+      need a set-atoms-attributes that takes a list of attribute sets.
+     
+      No need to re-calulate the bonding for each atom move.
+
+      No need to redraw, except once at the end.
+
    o Fix this:  
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
       (it comes from building from the tar file)
@@ -138,6 +124,22 @@ Bus error
 
 
 
+
+
+
+
+   o Get rid of this debugging:
+
+refine (fit to map): molecule 12 atom index 0 to 0
+DEBUG:: refine_residue_range: 12 A 1:: 1:: :: 0
+24 atoms selected to regularize from residue 1 to 1 chain A
+INFO:: 1 residues selected for refined and flanking residues
+INFO::24 atoms selected from molecule for refinement (this includes fixed and flanking atoms).
+INFO:: GetSelIndex returned 1 residues (monomer restraints)
+DEBUG:: add_monomer plane restraint for plane-id: comp-id: 3GP plan-1 A 1 ::
+DEBUG:: adding monomer plane with pos indexes  0 1 2 3 4 5 6 7 8 9 10 11
+
+* Done.
 
 
     o Mark Sapper: 
@@ -2780,4 +2782,6 @@ Wed Dec  5 16:05:13 GMT 2007
 
 	Tested/Not Tested:
 
-   green_box on rama plot
+   green_box on rama plot, on edit backbone angles crashed because
+   canvas items where not being generated properly (not assigned to a
+   canvas item before being pushed back into vector).
