@@ -72,7 +72,8 @@ GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         const gchar     *filename);
 
 /* This is an internally used function to find pixmap files. */
-static gchar*
+/* static */
+gchar*
 find_pixmap_file                       (const gchar     *filename);
 
 /* This is used to create the pixbufs used in the interface - from Gtk2's support.h. */

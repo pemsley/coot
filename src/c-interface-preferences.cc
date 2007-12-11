@@ -234,16 +234,20 @@ void to_generic_object_add_line(int object_number,
    std::string c(colour_name);
    coot::colour_holder colour =
       coot::generic_display_object_t::colour_values_from_colour_name(c);
-
-   if (object_number >=0 && object_number < g.generic_objects_p->size()) { 
-      (*g.generic_objects_p)[object_number].add_line(colour,
-						     c,
-						     line_width,
-						     coords);
-   
+   if (object_number >= 0) { 
+      unsigned int object_number_u(object_number);
+      if (object_number_u < g.generic_objects_p->size()) { 
+	 (*g.generic_objects_p)[object_number].add_line(colour,
+							c,
+							line_width,
+							coords);
+	 
+      } else {
+	 std::cout << "BAD object_number in to_generic_object_add_line" << std::endl;
+      }
    } else {
       std::cout << "BAD object_number in to_generic_object_add_line" << std::endl;
-   } 
+   }
 }
 
 
@@ -1123,8 +1127,10 @@ std::string probe_dots_short_contact_name_to_expanded_name(const std::string &sh
 void close_generic_object(int object_number) {
 
    graphics_info_t g;
-   if ((object_number >=0) && (object_number < g.generic_objects_p->size())) {
-      (*g.generic_objects_p)[object_number].close_yourself();
+   if (object_number >=0) {
+      if (object_number < int(g.generic_objects_p->size())) {
+	 (*g.generic_objects_p)[object_number].close_yourself();
+      }
    }
 } 
 
@@ -1136,8 +1142,10 @@ short int is_closed_generic_object_p(int object_number) {
 
    short int state = 0;
    graphics_info_t g;
-   if ((object_number >=0) && (object_number < g.generic_objects_p->size())) {
-      state = (*g.generic_objects_p)[object_number].is_closed_flag;
+   if (object_number >=0) { 
+      if (object_number < int(g.generic_objects_p->size())) {
+	 state = (*g.generic_objects_p)[object_number].is_closed_flag;
+      }
    }
    return state;
 } 

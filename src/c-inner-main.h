@@ -29,8 +29,4 @@ void c_wrapper_scm_boot_guile(int argc, char** argv);
 char* does_file_exist (const char     *directory,
 		       const char     *filename); 
 
-// BL says:: we need this for extensions
-#ifdef USE_PYTHON
-void initcoot_python(void);
-#endif //PYTHON
 END_C_DECLS
