@@ -18548,6 +18548,19 @@ create_aboutdialog (void)
     "Paul Emsley",
     "Kevin Cowtan",
     "Bernhard Lohkamp",
+    "Using the libraries of:",
+    "   Eugene Krissinel",
+    "   Kevin Cowtan",
+    "   Stuart McNicholas",
+    "   Janne Lof",
+    "   Raghavendra Chandrashekara",
+    "   Paul Bourke & Cory Gene Bloyd",
+    "   Matteo Frigo & Steven G. Johnson",
+    "   & many others.",
+    "Windows 2000 Binaries",
+    "   Bernhard Lohkamp",
+    "  Macintosh Binaries",
+    "   William Scott",
     NULL
   };
   const gchar *documenters[] = {
@@ -18555,19 +18568,20 @@ create_aboutdialog (void)
     NULL
   };
   const gchar *artists[] = {
-    "Paul Emsley",
+    "\"Coots on a Pond\" - by Bill  Scott",
+    "Everything else: Paul Emsley",
     NULL
   };
   /* TRANSLATORS: Replace this string with your names, one name per line. */
-  gchar *translators = _("translator-credits");
+  gchar *translators = "Miguel Ortiz-Lombardia";
   GdkPixbuf *aboutdialog_logo_pixbuf;
 
   aboutdialog = gtk_about_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (aboutdialog), 4);
   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
   gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), _("Coot"));
-  gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _("Copyright the University of York\nCopyright the University of Oxford\nPaul Emsley"));
-  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _("Pre-release"));
+  gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _("Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York\nCopyright 2007 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley"));
+  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _("Pre-release [\"Shropshire\"]"));
   gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), _("GNU GPL"));
   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (aboutdialog), "http://wwww.ysbl.york.ac.uk/~emsley/coot");
   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (aboutdialog), _("Coot Website"));
