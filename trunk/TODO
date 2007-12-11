@@ -99,8 +99,13 @@
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
 
+   o work in the svn-revision.cc.  svn-revision.cc should be in
+     Makefile.am, and be part of the tar file.  It should be generated
+     after every time we do a svn update or commit.
+
    o Mutate should not change the order of the atoms in the pdb.
      http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
+
 
 
 -----
@@ -149,6 +154,8 @@
 
    o Check the distribution of selection of phi/psis from
      random-phi-psi function matches a Ramachandran plot
+
+   o Randy's side-by-side frame drawing?
 
  ------
     
