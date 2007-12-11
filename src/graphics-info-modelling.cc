@@ -738,8 +738,8 @@ graphics_info_t::flash_selection(int imol,
    ((CMMDBManager *)molecules[imol].atom_sel.mol)->GetSelIndex(selHnd,
 							       SelAtom,
 							       nSelAtoms);
-   cout << nSelAtoms << " atoms selected to regularize from residue "
-	<< resno_1 << " to " << resno_2 << " chain " << chn << endl;
+//    cout << nSelAtoms << " atoms selected to regularize from residue "
+// 	<< resno_1 << " to " << resno_2 << " chain " << chn << endl;
 
    if (nSelAtoms) { 
       // now we can make an atom_selection_container_t with our new
@@ -785,9 +785,9 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
    }
    // now i_atom_no_2 is greater than i_atom_no_1.
 
-   cout << "refine (fit to map): molecule " << imol
-	<< " atom index " << i_atom_no_1
-	<< " to " << i_atom_no_2 << endl; 
+//    cout << "refine (fit to map): molecule " << imol
+// 	<< " atom index " << i_atom_no_1
+// 	<< " to " << i_atom_no_2 << endl; 
 
    int resno_1, resno_2;
 
@@ -861,10 +861,10 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &altconf,
 				      short int is_water_flag) {
 
-   std::cout << "DEBUG:: refine_residue_range: " << imol << " " << chain_id_1
-	     << " " <<  resno_1 << ":" << ins_code_1 << ":"
-	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
-	     << " " << ":" << altconf << ": " << is_water_flag << std::endl;
+//    std::cout << "DEBUG:: refine_residue_range: " << imol << " " << chain_id_1
+// 	     << " " <<  resno_1 << ":" << ins_code_1 << ":"
+// 	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
+// 	     << " " << ":" << altconf << ": " << is_water_flag << std::endl;
 
    int imol_map = Imol_Refinement_Map();
    if (imol_map == -1) { // magic number check,

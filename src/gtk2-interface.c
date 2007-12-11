@@ -18540,4 +18540,48 @@ create_sft_dialog (void)
   return sft_dialog;
 }
 
+GtkWidget*
+create_aboutdialog (void)
+{
+  GtkWidget *aboutdialog;
+  const gchar *authors[] = {
+    "Paul Emsley",
+    "Kevin Cowtan",
+    "Bernhard Lohkamp",
+    NULL
+  };
+  const gchar *documenters[] = {
+    "Paul Emsley",
+    NULL
+  };
+  const gchar *artists[] = {
+    "Paul Emsley",
+    NULL
+  };
+  /* TRANSLATORS: Replace this string with your names, one name per line. */
+  gchar *translators = _("translator-credits");
+  GdkPixbuf *aboutdialog_logo_pixbuf;
+
+  aboutdialog = gtk_about_dialog_new ();
+  gtk_container_set_border_width (GTK_CONTAINER (aboutdialog), 4);
+  gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
+  gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), _("Coot"));
+  gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _("Copyright the University of York\nCopyright the University of Oxford\nPaul Emsley"));
+  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _("Pre-release"));
+  gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), _("GNU GPL"));
+  gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (aboutdialog), "http://wwww.ysbl.york.ac.uk/~emsley/coot");
+  gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (aboutdialog), _("Coot Website"));
+  gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG (aboutdialog), authors);
+  gtk_about_dialog_set_documenters (GTK_ABOUT_DIALOG (aboutdialog), documenters);
+  gtk_about_dialog_set_artists (GTK_ABOUT_DIALOG (aboutdialog), artists);
+  gtk_about_dialog_set_translator_credits (GTK_ABOUT_DIALOG (aboutdialog), translators);
+  aboutdialog_logo_pixbuf = create_pixbuf ("coot-icon.png");
+  gtk_about_dialog_set_logo (GTK_ABOUT_DIALOG (aboutdialog), aboutdialog_logo_pixbuf);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (aboutdialog, aboutdialog, "aboutdialog");
+
+  return aboutdialog;
+}
+
 #endif // (GTK_MAJOR_VERSION > 1)

@@ -2985,3 +2985,4 @@ on_scripting_python1_activate          (GtkMenuItem     *menuitem,
 void
 on_scripting_scheme1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+

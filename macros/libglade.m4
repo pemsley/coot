@@ -35,6 +35,7 @@ if test $coot_gtk2 = TRUE ; then
 
    saved_LIBS="$LIBS"
    saved_CXXFLAGS="$CXXFLAGS"
+   saved_CFLAGS="$CFLAGS"
 
 
    # Note:  I tried $LIBGLADE_PREFIX/lib/libglade-2.0.la, like Ezra 
@@ -49,9 +50,14 @@ if test $coot_gtk2 = TRUE ; then
    if test x$LIBGLADE_PREFIX != x ; then
       LIBGLADE_LIBS="-L$LIBGLADE_PREFIX/lib -lglade-2.0"
       LIBGLADE_CFLAGS="-I$LIBGLADE_PREFIX/include/libglade-2.0 -DUSE_LIBGLADE"
-   else
-      LIBGLADE_LIBS=-lglade-2.0
-      LIBGLADE_CFLAGS="-I/usr/include/libglade-2.0"
+
+# Comment this out until I think what I was trying to do, currently it is 
+# nonsense in the usual case (where --with-libglade is not specificied)
+#
+#   else
+#      LIBGLADE_LIBS=-lglade-2.0
+#      LIBGLADE_CFLAGS="-I/usr/include/libglade-2.0"
+
    fi
    
    LIBS="$LIBS $LIBGLADE_LIBS $pkg_cv_GTK_LIBS"
@@ -59,6 +65,7 @@ if test $coot_gtk2 = TRUE ; then
    AC_TRY_LINK([#include <glade/glade.h>], [GladeXML *xml = glade_xml_new("x",NULL,NULL);], have_libglade=yes, have_libglade=no)
 
    CXXFLAGS="$saved_CXXFLAGS"
+   CFLAGS="$saved_CXXFLAGS"
    LIBS="$saved_LIBS"
    AC_MSG_RESULT($have_libglade)
 

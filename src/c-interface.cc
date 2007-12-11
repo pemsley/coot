@@ -122,10 +122,18 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
+// no include file for this?
+int svn_revision(); 
+
 
 char *coot_version() {
 
    std::string version_string = VERSION;
+
+   version_string += " (revision ";
+   version_string += coot::util::int_to_string(svn_revision());
+   version_string += ") ";
+   
 #ifdef USE_GUILE
    version_string += " [with guile ";
    version_string += coot::util::int_to_string(SCM_MAJOR_VERSION);

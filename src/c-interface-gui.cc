@@ -448,14 +448,19 @@ void set_graphics_window_size(int x_size, int y_size) {
 void store_graphics_window_position(int x_pos, int y_pos) { 
 
    graphics_info_t g;
-   g.graphics_x_position = x_pos;
-   g.graphics_y_position = y_pos;
 
-   std::string cmd = "store-graphics-window-position";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(x_pos);
-   args.push_back(y_pos);
-   add_to_history_typed(cmd, args);
+   if ((x_pos == g.graphics_x_position) && (y_pos == g.graphics_y_position)) {
+      // do nothing
+   } else { 
+      g.graphics_x_position = x_pos;
+      g.graphics_y_position = y_pos;
+      
+      std::string cmd = "store-graphics-window-position";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(x_pos);
+      args.push_back(y_pos);
+      add_to_history_typed(cmd, args);
+   }
 } 
 
 void set_graphics_window_position(int x_pos, int y_pos) {
