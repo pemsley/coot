@@ -1,7 +1,7 @@
 
 #ifdef USE_PYGTK
 
-#if defined COOT_USE_GTK2_INTERFACE || (GTK_MAJOR_VERSION == 2)
+#if (GTK_MAJOR_VERSION > 1)
 
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
@@ -31,36 +31,38 @@ initcoot_python(void)
     }
 }
 
-#else   // use gtk-1.2
+#else   /* use gtk-1.2 */
 
-// Actually dont know if it will work like this yet!
+/* Actually dont know if it will work like this yet! */
 
-#include <pygtk/pygtk.h>
-#include <c-interface.h>
+/* it doesn't. */
 
-void coot_python_register_classes (PyObject *d);
-extern PyMethodDef coot_python_functions[];
+/* #include <pygtk/pygtk.h> */
+/* #include <c-interface.h> */
 
-DL_EXPORT(void)
-#ifdef WIN32
-__declspec(dllexport)
-#endif
-initcoot_python(void)
-{
-    PyObject *m, *d;
+/* void coot_python_register_classes (PyObject *d); */
+/* extern PyMethodDef coot_python_functions[]; */
 
-    init_pygobject ();
-    init_pygtk ();
+/* DL_EXPORT(void) */
+/* #ifdef WIN32 */
+/* __declspec(dllexport) */
+/* #endif */
+/* initcoot_python(void) */
+/* { */
+/*     PyObject *m, *d; */
 
-    m = Py_InitModule ("coot_python", coot_python_functions);
-    d = PyModule_GetDict (m);
+/*     init_pygobject (); */
+/*     init_pygtk (); */
 
-    coot_python_register_classes (d);
+/*     m = Py_InitModule ("coot_python", coot_python_functions); */
+/*     d = PyModule_GetDict (m); */
 
-    if (PyErr_Occurred ()) {
-        Py_FatalError ("can't initialise module coot_python");
-    }
-}
+/*     coot_python_register_classes (d); */
+
+/*     if (PyErr_Occurred ()) { */
+/*         Py_FatalError ("can't initialise module coot_python"); */
+/*     } */
+/* } */
 
 #endif // GTK2
 
