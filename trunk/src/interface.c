@@ -9,7 +9,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifndef _MSC_VER
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #endif
 #include <string.h>
 
@@ -19,6 +21,8 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "support.h"
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
@@ -18160,4 +18164,5 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
+#endif
 #endif

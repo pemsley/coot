@@ -39,7 +39,7 @@ Release 0.4
 
    o FEATURE: a new command has been introduce, so that one can highlight the 
      command equivalent of gui operations using colour.  e.g.: 
-     (set-console-display-commands-highlights 1 1 4)
+     (set-console-display-commands-hilights 1 1 4)
 
    o FEATURE: binary builds now are scriptable in Python and scheme.
 

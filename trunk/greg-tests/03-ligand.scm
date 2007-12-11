@@ -10,7 +10,7 @@
 		 (delete-residue-hydrogens imol "A" 1 "" "")
 		 #t)))
 	 (begin
-	   (format #t "CCP4 not set up - skipping 3GP test~%")
+	   (format #t "   CCP4 not set up - skipping 3GP test~%")
 	   (throw 'untested)))))
 
 (greg-testcase "Set Bond thickness" #t 
@@ -20,7 +20,7 @@
 	   (set-bond-thickness imol-ligand 5)
 	   #t)
 	 (begin
-	   (format #t "No ligand molecule - Skipping bond thickness test~%")
+	   (format #t "   No ligand molecule - Skipping bond thickness test~%")
 	   (throw 'untested)))))
 	 
 

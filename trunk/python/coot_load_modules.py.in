@@ -50,8 +50,8 @@ pre_list = ["coot_utils.py",
             "shelx.py",
             "get_ebi.py",
             "local_code.py",
-# hello might give some people problems (according to Paul),
-# if so, just comment out the next line
+# hello might give some people problems (according to Paul, it does 
+# in the scheme version), if so, just comment out the next line:
             "hello.py",
             "mutate.py",
             "refmac.py",

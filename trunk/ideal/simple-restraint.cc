@@ -252,8 +252,8 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 //                 << tmp_res_asc.atom_selection[kk] << "\n";
 //    } 
 
-   std::cout << "INFO::" << n_atoms << " atoms selected from molecule for refinement" ;
-   std::cout << " (this includes fixed and flanking atoms)." << std::endl;
+//    std::cout << "INFO::" << n_atoms << " atoms selected from molecule for refinement" ;
+//    std::cout << " (this includes fixed and flanking atoms)." << std::endl;
 
    if (n_atoms == 0) { 
       std::cout << "ERROR:: atom selection disaster:" << std::endl;
@@ -3124,8 +3124,8 @@ coot::restraints_container_t::make_monomer_restraints(const coot::protein_geomet
 		);
    SelResidue_active = NULL;
    mol->GetSelIndex (selHnd, SelResidue_active, nSelResidues);
-   std::cout << "INFO:: GetSelIndex returned " << nSelResidues
-	     << " residues (monomer restraints) " << std::endl;
+//    std::cout << "INFO:: GetSelIndex returned " << nSelResidues
+// 	     << " residues (monomer restraints) " << std::endl;
    // save the (new (7Nov2003)) class variables (used in non_bonded
    // stuff) that keep the "active" (as opposed to "flanking") residues:
    nSelResidues_active = nSelResidues; 
@@ -3587,7 +3587,7 @@ coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein
       if ( (iround == 0 && istart_minus_flag == 1) ||  // we have checked the molecule for 
 	   (iround == 1 && iend_plus_flag    == 1) ) { // flanking residues already.
 	 
-	 std::cout << "flanking atom check starting at isr=" << isr << std::endl;
+	 // std::cout << "flanking atom check starting at isr=" << isr << std::endl;
       
 	 if (isr == istart_res-1) { 
 	    // the istart_res-1 -> istart_res link:
@@ -3630,9 +3630,9 @@ coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein
 		     link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 		     
 		     if (link_type != "") { 
-			std::cout << "looking for (flanking) bonds between residues " 
-				  << SelResidue[i]->seqNum << " " << SelResidue[i+1]->seqNum
-				  << std::endl; 
+// 			std::cout << "looking for (flanking) bonds between residues " 
+// 				  << SelResidue[i]->seqNum << " " << SelResidue[i+1]->seqNum
+// 				  << std::endl; 
 			n_link_plane_restr += add_link_plane(link_type,
 							     SelResidue[i], SelResidue[i+1],
 							     fixed_1, fixed_2,
@@ -4309,17 +4309,17 @@ coot::restraints_container_t::add_planes(int idr, PPCAtom res_selection,
 	    // 		   << geom[idr].plane_restraint[ip].dist_esd() << std::endl; 
 	    // add_plane is in the .h file
 	    std::vector<short int> fixed_flags(pos.size(), 0);
-	    std::cout << "DEBUG:: add_monomer plane restraint for plane-id: comp-id: "
-		      << geom[idr].comp_id << " "
-		      << geom[idr].plane_restraint[ip].plane_id << " "
-		      << SelRes->GetChainID()
-		      << " " << SelRes->GetSeqNum()
-		      << " :" << SelRes->GetInsCode() << ":"
-		      << std::endl;   
-	    std::cout << "DEBUG:: adding monomer plane with pos indexes ";
-	    for (int ipos=0; ipos<pos.size(); ipos++)
-	       std::cout << " " << pos[ipos];
-	    std::cout << "\n";
+// 	    std::cout << "DEBUG:: add_monomer plane restraint for plane-id: comp-id: "
+// 		      << geom[idr].comp_id << " "
+// 		      << geom[idr].plane_restraint[ip].plane_id << " "
+// 		      << SelRes->GetChainID()
+// 		      << " " << SelRes->GetSeqNum()
+// 		      << " :" << SelRes->GetInsCode() << ":"
+// 		      << std::endl;   
+// 	    std::cout << "DEBUG:: adding monomer plane with pos indexes ";
+// 	    for (int ipos=0; ipos<pos.size(); ipos++)
+// 	       std::cout << " " << pos[ipos];
+// 	    std::cout << "\n";
 	    add_plane(pos, fixed_flags, geom[idr].plane_restraint[ip].dist_esd());
 	    n_plane_restr++;
 	 }
@@ -4787,10 +4787,10 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 						 short int is_fixed_second_res,
 						 const coot::protein_geometry &geom) {
 
-   std::cout << "DEBUG:: add_link_plane for " << first->GetChainID() << " " << first->GetSeqNum()
-	     << " :" << first->GetInsCode() << ":"
-	     << " -> " << second->GetChainID() << " " << second->GetSeqNum()
-	     << " :" << second->GetInsCode() << ":" << std::endl;
+//    std::cout << "DEBUG:: add_link_plane for " << first->GetChainID() << " " << first->GetSeqNum()
+// 	     << " :" << first->GetInsCode() << ":"
+// 	     << " -> " << second->GetChainID() << " " << second->GetSeqNum()
+// 	     << " :" << second->GetInsCode() << ":" << std::endl;
    
    int n_plane = 0;
 

@@ -6,20 +6,63 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="16px"
    height="16px"
    id="svg3803"
    sodipodi:version="0.32"
-   inkscape:version="0.43"
-   sodipodi:docbase="/lmb/wear/emsley/Projects/coot/pixmaps"
+   inkscape:version="0.45.1"
+   sodipodi:docbase="/home/paule/Projects/coot/pixmaps"
    sodipodi:docname="side-chain-180.svg"
    inkscape:export-filename="/lmb/wear/emsley/Projects/coot/pixmaps/side-chain-180.png"
    inkscape:export-xdpi="100"
-   inkscape:export-ydpi="100">
+   inkscape:export-ydpi="100"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
   <defs
-     id="defs3805" />
+     id="defs3805">
+    <linearGradient
+       id="linearGradient3238">
+      <stop
+         style="stop-color:#27c42b;stop-opacity:1;"
+         offset="0"
+         id="stop3240" />
+      <stop
+         style="stop-color:#aff0b1;stop-opacity:1;"
+         offset="1"
+         id="stop3242" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3230">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop3232" />
+      <stop
+         style="stop-color:#b3b3b3;stop-opacity:1;"
+         offset="1"
+         id="stop3234" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3230"
+       id="linearGradient3236"
+       x1="2.2448671"
+       y1="10.793498"
+       x2="15.189291"
+       y2="10.793498"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3238"
+       id="linearGradient3244"
+       x1="2.2448671"
+       y1="10.793498"
+       x2="15.189291"
+       y2="10.793498"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -27,17 +70,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.696216"
+     inkscape:zoom="31.392432"
      inkscape:cx="8"
      inkscape:cy="7.6288015"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="822"
-     inkscape:window-height="584"
-     inkscape:window-x="64"
-     inkscape:window-y="208" />
+     inkscape:window-width="1138"
+     inkscape:window-height="842"
+     inkscape:window-x="241"
+     inkscape:window-y="91" />
   <metadata
      id="metadata3808">
     <rdf:RDF>
@@ -55,7 +98,7 @@
      inkscape:groupmode="layer">
     <path
        sodipodi:type="arc"
-       style="opacity:1;fill:#27c42b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:url(#linearGradient3244);fill-opacity:1.0;fill-rule:evenodd;stroke:url(#linearGradient3236);stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path3811"
        sodipodi:cx="8.7170792"
        sodipodi:cy="8.093812"
@@ -68,14 +111,14 @@
        transform="matrix(1.242168,0,0,1.448377,-2.738616,-4.325491)" />
     <text
        xml:space="preserve"
-       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="1.3540039"
-       y="6.6796875"
+       style="font-size:6px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="1.3466797"
+       y="5.5585938"
        id="text3813"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
-         id="tspan3815"
-         x="1.3540039"
-         y="6.6796875">SC</tspan></text>
+         id="tspan3246"
+         x="1.3466797"
+         y="5.5585938">Side</tspan></text>
   </g>
 </svg>

@@ -539,27 +539,12 @@ if test "$OS" = "Darwin" ; then
    systype=MacOSX-${osversion}-${processor}
 fi
 
-# now test for 64 bit Linux:
-if test "$OS" = "Linux" ; then
-   processor=`uname -a | awk '{print $NF}'`
-   # on my Redhat i386, uname returns: 
-   # Linux kalypso 2.6.12-1.1398_FC4 #1 Fri Jul 15 00:52:32 EDT 2005 i686 athlon i386 GNU/Linux
-   # from that I presume we need $(NF-2) to get the arch (not NF-1).
-   # arch=`uname -a | awk '{print $(NF-1)}'`
-   arch=`uname -a | awk '{print $(NF-2)}'`
-   if test $arch = x86_64 -o $arch = ia64 ; then
-      update_libtool=1
-      update_config_guess_sub=1
-   fi 
-fi
-
 # redirect the output.
 #
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
 exec > $LOGS/$HOST.log
-
 echo This is script version $script_version
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
@@ -587,6 +572,26 @@ if test $OS = Linux ; then
   if test $architecture = unknown ; then
      architecture=`uname -m`
   fi
+fi
+# now architecture is something like i386 or x86_64
+
+# now test for 64 bit Linux:
+if test "$OS" = "Linux" ; then
+   processor=`uname -a | awk '{print $NF}'`
+   # on my Redhat i386, uname returns: 
+   # Linux kalypso 2.6.12-1.1398_FC4 #1 Fri Jul 15 00:52:32 EDT 2005 i686 athlon i386 GNU/Linux
+   # 64 bit Ubuntu:
+   # Linux kalypso 2.6.22-14-generic #1 SMP Sun Oct 14 21:45:15 GMT 2007 x86_64 GNU/Linux
+   # from that I presume we need $(NF-2) to get the arch (not NF-1).  Eh?
+   # arch=`uname -a | awk '{print $(NF-1)}'`
+   arch=`uname -a | awk '{print $(NF-1)}'`
+   echo currently architecture is $architecture
+   if test "$architecture" = x86_64 -o "$architecture" = ia64 ; then
+      update_libtool=1
+      update_config_guess_sub=1
+   else 
+       echo this is not a 64 bit machine
+   fi 
 fi
 
 if test $OS = Linux ; then 
@@ -644,6 +649,10 @@ if test $OS = OSF1 ; then
 fi
 
 echo systype: $systype
+
+echo update_libtool: $update_libtool
+echo update_config_guess_sub: $update_config_guess_sub
+
 
 # give us some diagnostic shell information:
 # (what extra things did $specs give us?)
@@ -2025,7 +2034,13 @@ if test -n "$build_libpng" ; then
      # cp scripts/makefile.$png_sys Makefile
      sed "s?^prefix=/usr/local?prefix=$install_top_dir?" scripts/makefile.$png_sys > Makefile.new
      $MAKE -f Makefile.new
-     $MAKE -f Makefile.new install
+     png_status=$?
+     echo png_status: $png_status
+     if [ $png_status = 0 ] ; then 
+        $MAKE -f Makefile.new install
+    else 
+        echo build PNG: FAILED
+    fi
     ) > $HOSTLOGDIR/08-libpng.txt
 else
    echo not building PNG:
@@ -2170,10 +2185,12 @@ fi
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
-guile_version=1.6.7
+guile_version=1.6.8
 # mirror has gone/moved.
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
+# ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
+${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
+
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-1.6.7-guile.c-patch
 ( 
 date
@@ -2322,7 +2339,9 @@ if test -n "$build_gsl" ; then
 # wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
 # wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
 gsl_version=1.8
-${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+# ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+# ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 ( 
 date
 pwd

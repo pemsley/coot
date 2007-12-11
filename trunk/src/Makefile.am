@@ -205,6 +205,7 @@ coot_real_SOURCES = \
 	history_list.hh		 \
 	positioned-widgets.h     \
 	main.cc 		 \
+	svn-revision.cc 	 \
 	coot-align.cc 		 \
 	coot-align.hh		 \
 	c-inner-main.c		 \
