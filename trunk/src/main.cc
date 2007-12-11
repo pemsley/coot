@@ -416,14 +416,16 @@ main (int argc, char *argv[]) {
 	      // BL says:: lets initialize glue too but only if we have pygtk 
 	      // (and gtk2)
 #ifdef USE_PYGTK
-#ifdef COOT_USE_GTK2_INTERFACE
+  #ifdef COOT_USE_GTK2_INTERFACE
 	      initcoot_python();
-#endif // GKT2
-#ifdef USE_GUILE_GTK
+    #ifdef USE_GUILE_GTK
 	      safe_python_command("global use_gui_qm; use_gui_qm = 2");
-#else
+    #else
 	      safe_python_command("global use_gui_qm; use_gui_qm = 1");
-#endif
+    #endif
+  #else
+	      safe_python_command("global use_gui_qm; use_gui_qm = False");
+  #endif // GKT2
 #else
 	      safe_python_command("global use_gui_qm; use_gui_qm = False");
 #endif // PYTGK
