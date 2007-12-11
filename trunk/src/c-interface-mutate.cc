@@ -34,7 +34,11 @@
 
 #include <gtk/gtk.h>
 
+#include <clipper/clipper-ccp4.h>
+#include <clipper/clipper-contrib.h>
+#include "cootaneer-sequence.h"
 #include "graphics-info.h"
+
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
 // ssm_superpose.h) to be 0x00004000 (Grrr).
@@ -43,10 +47,6 @@
 #include "c-interface.h"
 #include "cc-interface.hh"  // includes coot-coord-utils.hh
 #include "coot-utils.hh"
-
-#include <clipper/clipper-ccp4.h>
-#include <clipper/clipper-contrib.h>
-#include "cootaneer-sequence.h"
 
 #ifdef USE_GUILE
 #include <guile/gh.h>
