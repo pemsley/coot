@@ -138,6 +138,7 @@ SWIGEXPORT(void) SWIG_init(void);
 #endif
 
 #include "c-inner-main.h"
+#include "coot-glue.hh"
 
 void show_citation_request();
 void load_gtk_resources();
@@ -155,6 +156,7 @@ int setup_database();
 // #if (GTK_MAJOR_VERSION > 1) 
 // #define ENABLE_NLS
 // #endif
+
 
 // This main is used for both python/guile useage and unscripted. 
 int
@@ -417,7 +419,7 @@ main (int argc, char *argv[]) {
 	      // (and gtk2)
 #ifdef USE_PYGTK
   #ifdef COOT_USE_GTK2_INTERFACE
-	      initcoot_python();
+	       my_initcoot_python();
     #ifdef USE_GUILE_GTK
 	      safe_python_command("global use_gui_qm; use_gui_qm = 2");
     #else

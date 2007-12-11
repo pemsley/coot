@@ -64,11 +64,11 @@
 #ifdef __cplusplus
 #ifdef USE_GUILE
 #include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
-#endif // USE_GUILE
+#endif /*  USE_GUILE */
 // BL says:: ok then we put python here too
 #ifdef USE_PYTHON
 #include <Python.h>
-#endif // PYTHON
+#endif /*  PYTHON */
 #endif 
 
 #ifndef BEGIN_C_DECLS
@@ -1208,7 +1208,7 @@ GtkWidget *symmetry_molecule_controller_dialog();
 
 /*! \brief molecule number imol has a unit cell? 
 
-/* @return 1 on "yes, it has a cell", 0 for "no" */
+   @return 1 on "yes, it has a cell", 0 for "no" */
 int has_unit_cell_state(int imol); 
 
 /*! \brief save the symmetry coordinates of molecule number imol to

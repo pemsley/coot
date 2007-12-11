@@ -2852,7 +2852,7 @@ int make_ball_and_stick(int imol, const char *atom_selection_str,
 int clear_ball_and_stick(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      GLuint dummy_tag;
+      GLuint dummy_tag = 0;
       graphics_info_t::molecules[imol].clear_display_list_object(dummy_tag);
       graphics_draw();
    }
@@ -4178,7 +4178,6 @@ read_phs_and_make_map_using_cell_symm_from_previous_mol(const char *phs_filename
 
    clipper::Spacegroup spacegroup; 
    clipper::Cell cell;
-   short int done_flag = 0;
    int r = -1;
 
    int imol_ref = -1;
@@ -5280,7 +5279,6 @@ scale_zoom_internal(float f) {
 
 void scale_zoom(float f) {
 
-   graphics_info_t g;
    scale_zoom_internal(f);
    graphics_draw();
 
@@ -5927,7 +5925,7 @@ SCM cis_peptides(int imol) {
       std::vector<coot::util::cis_peptide_info_t> v =
 	 coot::util::cis_peptides_info_from_coords(mol);
 
-      for (int i=0; i<v.size(); i++) {
+      for (unsigned int i=0; i<v.size(); i++) {
 	 coot::residue_spec_t r1(v[i].chain_id_1,
 				 v[i].resno_1,
 				 v[i].ins_code_1);
@@ -7723,7 +7721,7 @@ int insert_action_view_after_view(int view_number, const char *view_name, const 
    } else {
       // insert a view
       std::vector <coot::view_info_t> new_views;
-      for (unsigned int iview=0; iview<n_views; iview++) {
+      for (int iview=0; iview<n_views; iview++) {
 	 new_views.push_back((*graphics_info_t::views)[iview]);
 	 if (iview == view_number)
 	    new_views.push_back(view);
@@ -7736,7 +7734,7 @@ int insert_action_view_after_view(int view_number, const char *view_name, const 
 
 void add_view_description(int view_number, const char *descr) {
 
-   if (view_number <= graphics_info_t::views->size())
+   if (view_number <= int(graphics_info_t::views->size()))
       if (view_number >= 0)
 	 (*graphics_info_t::views)[view_number].add_description(descr);
 
@@ -7922,7 +7920,6 @@ void go_to_view_py(PyObject *view) {
 
 int add_spin_view(const char *view_name, int n_steps, float degrees_total) {
 
-   graphics_info_t g;
    coot::view_info_t v(view_name, n_steps, degrees_total);
    graphics_info_t::views->push_back(v);
    std::string cmd = "add-spin-view";

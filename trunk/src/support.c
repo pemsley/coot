@@ -205,7 +205,8 @@ create_pixbuf                          (const gchar     *filename)
 
 #if (GTK_MAJOR_VERSION > 1) 
 /* This is an internally used function to find pixmap files. */
-static gchar*
+/* static */
+gchar*
 find_pixmap_file                       (const gchar     *filename)
 {
   GList *elem;

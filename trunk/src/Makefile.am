@@ -282,10 +282,11 @@ coot_real_SOURCES = \
 	geometry-graphs.cc	\
 	geometry-graphs.hh	\
 	select-atom-info.hh     \
-	coot-render.hh \
-	coot-glue.c \
+	coot-render.hh          \
+	coot-glue.c             \
 	coot-glue-gtk2.c	\
-	coot_pythonmodule.c
+	coot-glue-gtk2-python.cc \
+	coot_pythonmodule.cc
 
 # testcartesian_SOURCES = testcartesian.cc
 
