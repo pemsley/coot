@@ -168,6 +168,7 @@ check_file_exists                      (const gchar     *directory,
   return NULL;
 }
 
+#if (GTK_MAJOR_VERSION > 1) 
 /* This is from GTK2's support.c - needed because create_pixbuf is
    used in the new aboutdialog */
 /* This is an internally used function to create pixmaps. */
@@ -199,6 +200,7 @@ create_pixbuf                          (const gchar     *filename)
   g_free (pathname);
   return pixbuf;
 }
+#endif /*  (GTK_MAJOR_VERSION > 1)  */
 
 /* This is an internally used function to find pixmap files. */
 static gchar*
