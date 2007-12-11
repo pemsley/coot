@@ -259,7 +259,9 @@ coot_init_glue ()
 #endif // GTK_MAJOR_VERSION > 1
 #endif //  USE_GUILE
 
-//BL says: this is the python code!!
+/* BL says: this is the python code!! */
+
+#if (GTK_MAJOR_VERSION == 2)
 #if defined (USE_PYTHON) && (USE_PYGTK)
 /* -- THIS FILE IS GENERATED - DO NOT EDIT *//* -*- Mode: C; c-basic-offset: 4 
 -
@@ -269,12 +271,12 @@ coot_init_glue ()
 
 
 
-//#line 3 "coot_python.override"
+/* #line 3 "coot_python.override" */
 #include <Python.h>               
 #include "pygobject.h"
 #include <gtk/gtk.h>
 #include <c-interface.h>
-//#line 12 "coot_python.c"
+/* #line 12 "coot_python.c" */
 
 
 /* ---------- types from other modules ---------- */
@@ -284,7 +286,7 @@ static PyTypeObject *_PyGObject_Type;
 
 /* ---------- forward type declarations ---------- */
 
-//#line 22 "coot_python.c"
+/* #line 22 "coot_python.c" */
 
 
 
@@ -344,5 +346,6 @@ coot_python_register_classes(PyObject *d)
 
 }
 
-#endif // PYTHON
+#endif /* PYTHON */
+#endif /* not GTK1 */
 
