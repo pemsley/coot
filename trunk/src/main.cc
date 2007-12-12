@@ -419,7 +419,7 @@ main (int argc, char *argv[]) {
 	      // (and gtk2)
 #ifdef USE_PYGTK
   #ifdef COOT_USE_GTK2_INTERFACE
-	       my_initcoot_python();
+	       initcoot_python();
     #ifdef USE_GUILE_GTK
 	      safe_python_command("global use_gui_qm; use_gui_qm = 2");
     #else
