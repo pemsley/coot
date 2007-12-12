@@ -52,7 +52,7 @@
     (gtk-window-set-default-size window 400 250)
     ; (gtk-box-pack-start vbox text #t #t 5)
     (gtk-container-add window vbox)
-    (gtk-window-set-title window "Coot Scripting")
+    (gtk-window-set-title window "Coot Scheme Scripting")
     (gtk-container-border-width vbox 5)
 
     (gtk-box-pack-start hbox label #f #f 0) ; expand fill padding
@@ -467,7 +467,7 @@
 
   (let* ( ; (new-release-time 1200000000) ; 10 Jan 2008
 	  ; (new-release-time 1205678900) ; 16 Mar 2008
-	 (new-release-time 1222222222))   ; 24 Jul 2008 0.4
+	 (new-release-time 1222222222)   ; 24 Jul 2008 0.4
 	 (time-diff (- (current-time) new-release-time)))
     (if (> time-diff 0)
 	(info-dialog "This is an Old Coot!\n\nIt's time to upgrade."))))
