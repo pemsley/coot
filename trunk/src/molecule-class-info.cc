@@ -3151,7 +3151,8 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
 		    mydata.cell(), 
 		    clipper::Grid_sampling(mydata.spacegroup(),
 					   mydata.cell(), 
-					   mydata.resolution()));
+					   mydata.resolution(),
+					   graphics_info_t::map_sampling_rate));
   cout << "done."<< endl; 
 
 //   cout << "Map Grid (from phs file)..." 
@@ -3669,7 +3670,8 @@ molecule_class_info_t::make_map_from_cif_sigmaa(std::string cif_file_name,
 			   mydata.cell(), 
 			   clipper::Grid_sampling(mydata.spacegroup(),
 						  mydata.cell(), 
-						  mydata.resolution()));
+						  mydata.resolution(),
+						  graphics_info_t::map_sampling_rate));
 	 cout << "done."<< endl; 
 
 	 cout << "doing fft..." ; 
@@ -3807,7 +3809,8 @@ molecule_class_info_t::make_map_from_cif_nfofc(std::string cif_file_name,
 			   mydata.cell(), 
 			   clipper::Grid_sampling(mydata.spacegroup(),
 						  mydata.cell(), 
-						  mydata.resolution()));
+						  mydata.resolution(),
+						  graphics_info_t::map_sampling_rate));
 	 std::cout << "done."<< std::endl;
 
 	 // Here we need to fix up fphidata to be a combination
@@ -4027,7 +4030,8 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 		    mydata.cell(), 
 		    clipper::Grid_sampling(mydata.spacegroup(),
 					   mydata.cell(), 
-					   mydata.resolution()));
+					   mydata.resolution(),
+					   graphics_info_t::map_sampling_rate));
   cout << "done."<< endl;
 
   std::cout << "PHS:: debug:: " << mydata.spacegroup().symbol_hm() << " " 
