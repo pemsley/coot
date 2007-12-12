@@ -191,7 +191,8 @@
 # 2.28 20071207 Add greg. If in York, use it to test before installing.
 # 2.29 20071208 Setup CCP4 and use it to test coot before making binaries. 
 # 2.30 20071209 Add dewinter's ccp4 setup in setup_ccp4.
-script_version=2.30
+# 2.31 20071212 Redirect testing output to $LOGS/$HOST-testing.log
+script_version=2.31
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2513,9 +2514,6 @@ else
    echo '                                ' make install
    echo 1 ----------------------------------------------------------------
    $MAKE install
-   cp ChangeLog $BINARY_TAR_DEST_DIR
-   cp README    $BINARY_TAR_DEST_DIR/coot-README
-   cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
    if [ "$python_scripting" = '--with-python' ] ; then
       echo copying src/coot.py $install_top_dir/share/coot/python
       cp src/coot.py $install_top_dir/share/coot/python
@@ -2575,7 +2573,7 @@ if [ $clear_up_type != "" ] ; then
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
-test_coot
+test_coot > $LOGS/$HOST-testing.log
 r=$?
 if [ $r = 0 ] ; then
    echo coot test passed
@@ -2586,6 +2584,9 @@ if [ $r = 0 ] ; then
          # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
          # slimmed:
 	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}.tar.gz
+         cp ChangeLog $BINARY_TAR_DEST_DIR
+         cp README    $BINARY_TAR_DEST_DIR/coot-README
+         cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
       else 
          echo directory for binaries does not exist. Skipping tar.
       fi
