@@ -109,9 +109,11 @@ export DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
+echo $coot_real $*
 $coot_real $*
+status=$?
 
-if [ $? != 0 ] ; then
+if [ $status != 0 ] ; then
     #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
     # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
     $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real

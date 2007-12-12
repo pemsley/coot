@@ -21,10 +21,13 @@
 
 #ifdef USE_PYGTK
 
+#include <gtk/gtk.h>
+
+#if (GTK_MAJOR_VERSION > 1)
+
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
 
 #include <c-interface.h>
 #include "coot-glue.hh"
