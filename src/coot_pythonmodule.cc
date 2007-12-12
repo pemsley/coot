@@ -115,29 +115,24 @@ coot_python_register_classes(PyObject *d) {
 
 
 
-// Is this causing problems?  Maybe not.
-//
-// DL_EXPORT(void)
-// #ifdef WIN32
-// __declspec(dllexport)
-// #endif
-
-void
-my_initcoot_python() {
+DL_EXPORT(void)
+#ifdef WIN32
+__declspec(dllexport)
+#endif
+initcoot_python() {
    
-    PyObject *m, *d;
-    init_pygobject ();
-    init_pygtk ();
-    
-    m = Py_InitModule ("coot_python", coot_python_functions);
-    d = PyModule_GetDict (m);
-    
-    coot_python_register_classes (d);
-    
-    if (PyErr_Occurred ()) {
-       Py_FatalError ("can't initialise module coot_python");
-    }
-
+   PyObject *m, *d;
+   init_pygobject ();
+   init_pygtk ();
+   
+   m = Py_InitModule ("coot_python", coot_python_functions);
+   d = PyModule_GetDict (m);
+   
+   coot_python_register_classes (d);
+   
+   if (PyErr_Occurred ()) {
+      Py_FatalError ("can't initialise module coot_python");
+   }
 }
 
 

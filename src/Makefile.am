@@ -264,27 +264,28 @@ coot_real_SOURCES = \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \
-	globjects.h gl-matrix.h \
-	gl-matrix.cc 		\
-	gtk-manual.c 		\
-	gtk-manual.h		\
-	read-phs.h		\
-	read-phs.c		\
-	read-cif.h		\
-	read-cif.c		\
-	xmap-utils.cc 		\
-	xmap-utils.h		\
-	rama_mousey.cc		\
-	rama_mousey.hh		\
-	rama_plot.cc		\
-	rama_plot.hh		\
-	coot-nomenclature.cc	\
-	geometry-graphs.cc	\
-	geometry-graphs.hh	\
-	select-atom-info.hh     \
-	coot-render.hh          \
-	coot-glue.c             \
-	coot-glue-gtk2.c	\
+	globjects.h gl-matrix.h  \
+	gl-matrix.cc 		 \
+	gtk-manual.c 		 \
+	gtk-manual.h		 \
+	read-phs.h		 \
+	read-phs.c		 \
+	read-cif.h		 \
+	read-cif.c		 \
+	xmap-utils.cc 		 \
+	xmap-utils.h		 \
+	rama_mousey.cc		 \
+	rama_mousey.hh		 \
+	rama_plot.cc		 \
+	rama_plot.hh		 \
+	coot-nomenclature.cc	 \
+	geometry-graphs.cc	 \
+	geometry-graphs.hh	 \
+	select-atom-info.hh      \
+	coot-render.hh           \
+	coot-glue.hh             \
+	coot-glue.c              \
+	coot-glue-gtk2.c	 \
 	coot-glue-gtk2-python.cc \
 	coot_pythonmodule.cc
 
