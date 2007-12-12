@@ -1000,24 +1000,27 @@ execute_ligand_search_internal() {
 #else
 // BL says:: guess we shall do it for python too (done it...)
 #ifdef USE_PYGTK
+   if (graphics_info_t::use_graphics_interface_flag)
       safe_python_command("post_ligand_fit_gui()");
 #endif // USE_PYGTK
 #endif // USE_GUILE
 
-   if (n_new_ligand) { 
-      GtkWidget *w = create_new_ligands_info_dialog();
-      GtkWidget *label = lookup_widget(w, "new_ligands_info_dialog_label");
-      std::string label_str("  Found ");
-      label_str += graphics_info_t::int_to_string(n_new_ligand);
-      if (n_new_ligand == 1) 
-	 label_str += " acceptable ligand  ";
-      else 
-	 label_str += " acceptable ligands  ";
-      gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
-      gtk_widget_show(w);
-   } else { 
-      GtkWidget *w = create_no_new_ligands_info_dialog();
-      gtk_widget_show(w);
+   if (graphics_info_t::use_graphics_interface_flag) {
+      if (n_new_ligand) { 
+	 GtkWidget *w = create_new_ligands_info_dialog();
+	 GtkWidget *label = lookup_widget(w, "new_ligands_info_dialog_label");
+	 std::string label_str("  Found ");
+	 label_str += graphics_info_t::int_to_string(n_new_ligand);
+	 if (n_new_ligand == 1) 
+	    label_str += " acceptable ligand  ";
+	 else 
+	    label_str += " acceptable ligands  ";
+	 gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
+	 gtk_widget_show(w);
+      } else { 
+	 GtkWidget *w = create_no_new_ligands_info_dialog();
+	 gtk_widget_show(w);
+      }
    }
 
    graphics_draw();

@@ -112,6 +112,9 @@ Release 0.4
   
    o CHANGE: Extensions menu tided.
 
+   o KNOWN PROBLEM: There may a be (is?) a problem in the sigmaa difference maps 
+     from some .fcf files
+    
 
     -------------------------------------------------------
     -------------------- Old Releases ---------------------
