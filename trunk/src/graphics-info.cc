@@ -320,9 +320,11 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
    } else {
       std::cout << "init_refmac_mon_lib "  << cif_dictionary_filename
 		<< " had no bond restraints\n";
-      if (show_no_bonds_dialog_maybe_flag) {
-	 GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
-	 gtk_widget_show(widget);
+      if (use_graphics_interface_flag) { 
+	 if (show_no_bonds_dialog_maybe_flag) {
+	    GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
+	    gtk_widget_show(widget);
+	 }
       }
    }
 }
