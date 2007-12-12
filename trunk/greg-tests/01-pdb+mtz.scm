@@ -217,6 +217,7 @@
 		       (throw 'fail))))))))))
 
 
+
 ;; Don't reset the occupancies of the other parts of the residue
 ;; on regularization using alt confs
 ;; 
@@ -262,19 +263,24 @@
      ;; 
      (let ((imol-frag (read-pdb (append-dir-file greg-data-dir "res098.pdb"))))
 
-       (let ((occ-sum-pre (get-occ-sum imol-frag)))
-
-	 (let ((replace-state (refinement-immediate-replacement-state)))
-	   (set-refinement-immediate-replacement 1)
-	   (regularize-zone imol-frag "X" 15 15 "A")
-	   (accept-regularizement)
-	   (if (= replace-state 0)
-	       (set-refinement-immediate-replacement 0))
-	  
-	   (let ((occ-sum-post (get-occ-sum imol-frag)))
+       (if (not (valid-model-molecule? imol-frag))
+	   (begin
+	     (format #t "bad molecule for reading coords in Alt Conf Occ test~%")
+	     (throw 'fail))
+	   (let ((occ-sum-pre (get-occ-sum imol-frag)))
 	     
-	     (format #t "   test for closeness: ~s ~s~%" occ-sum-pre occ-sum-post)	    
-	     (close-float? occ-sum-pre occ-sum-post)))))))
+	     (let ((replace-state (refinement-immediate-replacement-state)))
+	       (set-refinement-immediate-replacement 1)
+	       (regularize-zone imol-frag "X" 15 15 "A")
+	       (accept-regularizement)
+	       (if (= replace-state 0)
+		   (set-refinement-immediate-replacement 0))
+	       
+	       (let ((occ-sum-post (get-occ-sum imol-frag)))
+		 
+		 (format #t "   test for closeness: ~s ~s~%" occ-sum-pre occ-sum-post)	    
+		 (close-float? occ-sum-pre occ-sum-post))))))))
+
 
 
 ;; This test we expect to fail until the CISPEP correction code is in
