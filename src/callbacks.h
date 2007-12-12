@@ -2985,4 +2985,17 @@ on_scripting_python1_activate          (GtkMenuItem     *menuitem,
 void
 on_scripting_scheme1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+void
+on_aboutdialog_close                   (GtkDialog       *dialog,
+                                        gpointer         user_data);
+void
+on_aboutdialog_response                (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+void
+on_check_waters_check1_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
 
+void
+on_check_waters_delete1_activate       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

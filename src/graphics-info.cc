@@ -1109,8 +1109,15 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 							   int imol_active_position) {
 
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+   std::cout << "option_menu: " << option_menu << std::endl;
+   std::cout << "menu: " << menu << std::endl;
+   std::cout << "menu is widget: " << GTK_IS_WIDGET(menu) << std::endl;
+   std::cout << "menu is menu: " << GTK_IS_MENU(menu) << std::endl;
 
-   gtk_widget_destroy(menu);
+   // menu is not GTK_MENU on Gtk2 Ubuntu kalypso 64 bit
+   if (GTK_IS_MENU(menu))
+      gtk_widget_destroy(menu);
+   
    menu = gtk_menu_new();
 
    GtkWidget *menuitem;

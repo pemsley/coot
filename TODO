@@ -40,6 +40,19 @@
 
    Release 0.5 Dec March 2008
 
+   o To make the test non-tedious, especially on slow computers, we
+     need a set-atoms-attributes that takes a list of attribute sets.
+     
+     No need to re-calulate the bonding for each atom move.
+
+     No need to redraw, except once at the end.
+
+
+   o Fix this:  
+      ./configure: line 26927: ./po/POTFILES.in: No such file or directory
+      (it comes from building from the tar file)
+
+
    o Kevin's Ramachandran Refinement target
 
    o Torsion General
@@ -106,6 +119,15 @@
    o Mutate should not change the order of the atoms in the pdb.
      http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
 
+   o On pressing the filter button we get this ugliness:
+
+** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
 
 
 -----
