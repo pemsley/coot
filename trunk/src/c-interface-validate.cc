@@ -6,7 +6,7 @@
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -106,17 +106,19 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // There is a imol_refinement map check done in the callbacks.c
    // function that calls this function
 
-
-
    GtkWidget *dialog = create_check_waters_dialog();
 
    // Opps - this (logical OR) should be on by default:
    GtkWidget *check_waters_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
+
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_waters_OR_radiobutton), TRUE);
 
    GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(check_waters_molecule_menu_item_activate);
 
    GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
+//    std::cout << "optionmenu: " << optionmenu << std::endl;
+//    std::cout << "optionmenu is widget: " << GTK_IS_WIDGET(optionmenu) << std::endl;
+//    std::cout << "optionmenu is option menu: " << GTK_IS_OPTION_MENU(optionmenu) << std::endl;
 
    // now fill that dialog's optionmenu with coordinate options.
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
@@ -127,8 +129,10 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    }
    graphics_info_t g;
    g.fill_option_menu_with_coordinates_options(optionmenu, callback_func,
-					     graphics_info_t::check_waters_molecule);
+					       graphics_info_t::check_waters_molecule);
 
+   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
+   
    GtkWidget *entry;
    // char text[100];
    std::string text_str;
@@ -165,6 +169,7 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 // called by a callbacks.c function.
 // 
 void do_check_waters_by_widget(GtkWidget *dialog) {
+
 
    // GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
    GtkWidget *action_optionmenu = lookup_widget(dialog, "check_waters_action_optionmenu");

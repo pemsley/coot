@@ -4137,16 +4137,16 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
    if ( max_dist < 0.0 )
       use_max_dist_test = 0;
 
-   std::cout << "DEBUG:: passed: b_factor_lim "
-	     << b_factor_lim << " outlier_sigma_level "
- 	     << outlier_sigma_level << " min_dist "
-	     << min_dist << " max_dist " << max_dist
- 	     << std::endl;
+//    std::cout << "DEBUG:: passed: b_factor_lim "
+// 	     << b_factor_lim << " outlier_sigma_level "
+//  	     << outlier_sigma_level << " min_dist "
+// 	     << min_dist << " max_dist " << max_dist
+//  	     << std::endl;
 
-    std::cout << "DEBUG:: Usage flags b-factor: " << use_b_factor_limit_test
-	     << " map sigma: " << use_map_sigma_limit_test
- 	     << " min dist: " << use_min_dist_test
- 	     << " max_dist: " << use_max_dist_test << std::endl;
+//     std::cout << "DEBUG:: Usage flags b-factor: " << use_b_factor_limit_test
+// 	     << " map sigma: " << use_map_sigma_limit_test
+//  	     << " min dist: " << use_min_dist_test
+//  	     << " max_dist: " << use_max_dist_test << std::endl;
        
    if (atom_sel.n_selected_atoms > 0) { 
       
