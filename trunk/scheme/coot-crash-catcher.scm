@@ -259,6 +259,9 @@
   (lambda (coot-exe)
 
     (format #t "coot-exe: ~s~%" coot-exe)
+    (format #t "coot-version: ~%" )
+    (run-command/strings coot-exe (list "--version") '())
+    
     (let ((s (get-gdb-strings coot-exe)))
       (if (list? s)
 	  (let ((gui-string (add-newlines s "")))
