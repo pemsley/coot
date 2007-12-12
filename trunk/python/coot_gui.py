@@ -234,7 +234,7 @@ def coot_gui():
 
 
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   window.set_title("Coot Python Scripting Window")
+   window.set_title("Coot Python Scripting")
    text = gtk.TextView()
    textbuffer = text.get_buffer()
    scrolled_win = gtk.ScrolledWindow()
@@ -281,7 +281,7 @@ def coot_gui():
    textbuffer.insert_with_tags(end,"coot >> ",tag)
 #   textbuffer.set_text("coot >> ")
 
-   text.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#99FF99"))
+   text.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#bfe6bf"))
    window.show_all()
 #   gtk.main()
 
