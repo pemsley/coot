@@ -658,6 +658,9 @@ namespace coot {
       // not const because we can do a dynamic add.
       int get_monomer_type_index(const std::string &monomer_type);
       std::string get_padded_name(const std::string &atom_id, const int &comp_id_index) const;
+      std::vector <coot::dict_torsion_restraint_t>
+      filter_torsion_restraints(const std::vector <coot::dict_torsion_restraint_t> &restraints_in) const;
+      static bool torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b);
 
    public:
 

@@ -2,6 +2,7 @@
  * 
  * Copyright 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 
 #include <iostream>
 #include <map>
+#include <algorithm>  // needed for sort?
 
 #include "protein-geometry.hh"
 #include "coot-utils.hh"
@@ -2073,6 +2075,7 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
       std::cout << "WARNING: residue type " << monomer_type << " not found "
 		<< "in restraints dictionary (torsion)" << std::endl;
    }
+   rv = filter_torsion_restraints(rv);
    return rv;
 }  
 
@@ -2134,7 +2137,51 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
       std::cout << "WARNING: residue type " << monomer_type << " not found "
 		<< "in restraints dictionary (in get_monomer_torsions_from_geometry(mon, hy)" << std::endl;
    }
+   rv = filter_torsion_restraints(rv);
    return rv;
+}
+
+std::vector <coot::dict_torsion_restraint_t>
+coot::protein_geometry::filter_torsion_restraints(const std::vector <coot::dict_torsion_restraint_t> &restraints_in) const {
+
+   std::vector <coot::dict_torsion_restraint_t> r;
+
+   for (unsigned int i=0; i<restraints_in.size(); i++) {
+      std::string a2 = restraints_in[i].atom_id_2_4c();
+      std::string a3 = restraints_in[i].atom_id_3_4c();
+      bool match = 0;
+      for (unsigned int j=0; j<r.size(); j++) {
+	 if (r[j].atom_id_2_4c() == a2)
+	    if (r[j].atom_id_3_4c() == a3)
+	       match = 1;
+      }
+      if (match == 0)
+	 r.push_back(restraints_in[i]);
+   }
+
+   std::sort(r.begin(), r.end(), torsion_restraints_comparer);
+   return r;
+}
+
+// static
+bool
+coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b) {
+   
+      std::string a2 = a.atom_id_2_4c();
+      std::string a3 = a.atom_id_3_4c();
+      std::string b2 = b.atom_id_2_4c();
+      std::string b3 = b.atom_id_3_4c();
+
+      if (a2 < b2)
+	 return 0;
+      else
+	 if (a2 > b2)
+	    return 1;
+	 else
+	    if (a3 < b3)
+	       return 0;
+      
+      return 1;
 }
 
 

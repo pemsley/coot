@@ -382,15 +382,19 @@ coot::get_selection_handle(CMMDBManager *mol, const coot::atom_spec_t &at) {
    int SelHnd = -1;
    if (mol) { 
       SelHnd = mol->NewSelection();
-      mol->SelectAtoms (SelHnd, 0, (char *) at.chain.c_str(),
+      char *chain   = (char *) at.chain.c_str();
+      char *inscode = (char *) at.insertion_code.c_str();
+      char *atname  = (char *) at.atom_name.c_str(); // atom name
+      char *altconf = (char *) at.alt_conf.c_str();
+      mol->SelectAtoms (SelHnd, 0, chain,
 			at.resno, // starting resno, an int
-			(char *) at.insertion_code.c_str(), // any insertion code
+			inscode, // any insertion code
 			at.resno, // ending resno
-			(char *) at.insertion_code.c_str(), // ending insertion code
+			inscode, // ending insertion code
 			"*", // any residue name
-			(char *) at.atom_name.c_str(), // atom name
+			atname,
 			"*", // elements
-			(char *) at.alt_conf.c_str()  // alt loc.
+			altconf  // alt loc.
 			);
    }
    return SelHnd;
