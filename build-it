@@ -192,7 +192,8 @@
 # 2.29 20071208 Setup CCP4 and use it to test coot before making binaries. 
 # 2.30 20071209 Add dewinter's ccp4 setup in setup_ccp4.
 # 2.31 20071212 Redirect testing output to $LOGS/$HOST-testing.log
-script_version=2.31
+# 2.32 20071213 Copy over the ChangeLog, README and RELEASE-NOTES on good test
+script_version=2.32
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -801,6 +802,7 @@ cd ${HOST}_$date
 if [ $? -ne 0 ] ; then
 	echo cd ${HOST}_$date failed for some reason. Now in `pwd`
 fi
+build_dir=`pwd`
 
 echo checking wget
 echo which wget
@@ -2584,6 +2586,10 @@ if [ $r = 0 ] ; then
          # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
          # slimmed:
 	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}.tar.gz
+
+         # update the ChangeLog, README and RELEASE-NOTES
+         cd "$build_dir"
+         cd $coot_dir_name
          cp ChangeLog $BINARY_TAR_DEST_DIR
          cp README    $BINARY_TAR_DEST_DIR/coot-README
          cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
