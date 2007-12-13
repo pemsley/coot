@@ -85,13 +85,17 @@ namespace coot {
 	 string_user_data = user_data_string;
       }
       void selectatoms(CMMDBManager *mol, int SelHnd) {
-	 mol->SelectAtoms(SelHnd, 0, (char *) chain.c_str(),
-			  resno, (char *) insertion_code.c_str(),
-			  resno, (char *) insertion_code.c_str(),
+	 char *chainid = (char *) chain.c_str();
+	 char *inscode = (char *) insertion_code.c_str();
+	 char *atname  = (char *) atom_name.c_str(); // atom name
+	 char *altconf = (char *) alt_conf.c_str();
+	 mol->SelectAtoms(SelHnd, 0, chainid,
+			  resno, inscode,
+			  resno, inscode,
 			  "*",
-			  (char *) atom_name.c_str(),
+			  atname,
 			  "*",
-			  (char *) alt_conf.c_str());
+			  altconf);
       }
 
       // Presumes that atom can get to SeqNum() and InsCode()? Need
