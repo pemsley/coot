@@ -802,12 +802,14 @@ graphics_info_t::schemize_command_strings(const std::vector<std::string> &comman
 
    std::string command;
    bool done = 0; 
+#ifdef USE_GUILE
    if (command_strings.size() == 2) {
       if (command_strings[0] == DIRECT_SCM_STRING) {
 	 command = command_strings[1];
 	 done = 1;
       }
    }
+#endif // USE_GUILE   
 
    if (! done) { 
       command = "(";
