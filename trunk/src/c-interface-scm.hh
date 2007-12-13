@@ -38,4 +38,4 @@ bool scm_is_undefined(SCM o); // ?
 
 #define DIRECT_SCM_STRING ";; # DIRECT SCHEME"
 
-#endif 
+#endif  // USE_GUILE
