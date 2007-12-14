@@ -976,7 +976,7 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
    GtkWidget *menuitem;
 
-   std::cout << "DEBUG:: menu: " << menu << std::endl;
+   //   std::cout << "DEBUG:: menu: " << menu << std::endl;
    if (menu)
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
