@@ -133,9 +133,12 @@ coot::setup_refmac_parameters(GtkWidget *window,
 
   GtkWidget *menuitem;
 
-  gtk_widget_destroy(fobs_menu);
-  gtk_widget_destroy(sigfobs_menu);
-  gtk_widget_destroy(r_free_menu);
+  if (fobs_menu)
+     gtk_widget_destroy(fobs_menu);
+  if (sigfobs_menu)
+     gtk_widget_destroy(sigfobs_menu);
+  if (r_free_menu)
+     gtk_widget_destroy(r_free_menu);
 
   fobs_menu = gtk_menu_new();
   sigfobs_menu = gtk_menu_new();

@@ -930,6 +930,7 @@ graphics_info_t::show_select_map_dialog() {
 	    }
 	 }
       }
+      // note that this uses one of 2 similarly named function:
       fill_option_menu_with_map_options(optionmenu,
 					GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select),
 					imol_refinement_map);
@@ -962,6 +963,12 @@ graphics_info_t::show_select_map_dialog() {
 } 
 
 // See also the below function, which should be used in future.
+// 
+// c.f. the other function:
+// graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
+// 						   GtkSignalFunc signal_func,
+//						   int imol_active_position).
+// 
 void
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 						   GtkSignalFunc signal_func) {
@@ -969,7 +976,9 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
    GtkWidget *menuitem;
 
-   gtk_widget_destroy(menu);
+   std::cout << "DEBUG:: menu: " << menu << std::endl;
+   if (menu)
+      gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    
    for (int i=0; i<n_molecules; i++) {
@@ -990,6 +999,10 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 }
 
+// c.f. the other function:
+// graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
+// 						   GtkSignalFunc signal_func)
+// 
 void
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 						   GtkSignalFunc signal_func,
@@ -998,7 +1011,8 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
    GtkWidget *menuitem;
 
-   gtk_widget_destroy(menu);
+   if (menu)
+      gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    int menu_index = 0;
    
@@ -1111,10 +1125,10 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 							   int imol_active_position) {
 
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-   std::cout << "option_menu: " << option_menu << std::endl;
-   std::cout << "menu: " << menu << std::endl;
-   std::cout << "menu is widget: " << GTK_IS_WIDGET(menu) << std::endl;
-   std::cout << "menu is menu: " << GTK_IS_MENU(menu) << std::endl;
+//    std::cout << "option_menu: " << option_menu << std::endl;
+//    std::cout << "menu: " << menu << std::endl;
+//    std::cout << "menu is widget: " << GTK_IS_WIDGET(menu) << std::endl;
+//    std::cout << "menu is menu: " << GTK_IS_MENU(menu) << std::endl;
 
    // menu is not GTK_MENU on Gtk2 Ubuntu kalypso 64 bit
    if (GTK_IS_MENU(menu))
