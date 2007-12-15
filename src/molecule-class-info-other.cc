@@ -4260,7 +4260,9 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 	 s += coot::util::float_to_string(marked_for_display[i].second);
 	 s += " sigma";
       }
-      v.push_back(coot::atom_spec_t(marked_for_display[i].first, s));
+      coot::atom_spec_t as(marked_for_display[i].first, s);
+      as.float_user_data = marked_for_display[i].first->occupancy;
+      v.push_back(as);
    }
    return v;
 }
@@ -4467,7 +4469,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       dloi.tag = bonds_tag;
       display_list_tags.push_back(dloi);
 
-      GLfloat bgcolor[4]={1.0,1.0,0.3,1.0};
+      GLfloat bgcolor[4]={1.0, 1.0, 0.3, 1.0};
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
       glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
@@ -4477,9 +4479,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
       glEnable(GL_COLOR_MATERIAL);
 
-      GLfloat  mat_specular[] = {1.0, 0.3, 0.2, 1.0};
-      GLfloat  mat_ambient[] = {0.8, 0.1, 0.1, 1.0};
-      GLfloat  mat_diffuse[] = {0.2, 0.2, 0.2, 0.5};
+      GLfloat  mat_specular[]  = {1.0, 0.3, 0.2, 1.0};
+      GLfloat  mat_ambient[]   = {0.8, 0.1, 0.1, 1.0};
+      GLfloat  mat_diffuse[]   = {0.2, 0.2, 0.2, 0.5};
       GLfloat  mat_shininess[] = {50.0};
       // GLfloat  light_position[] = {1.0, 1.0, 1.0, 1.0};
       
