@@ -19,7 +19,7 @@
   ;; the next chain to be jumped to (use wrapping).  If the list of
   ;; chain-ids is less then length 2, return #f.
   ;; 
-  (define (skip-to-chain this-chain-id chain-id-list)
+  (define (skip-to-chain-internal this-chain-id chain-id-list)
     ;; (format #t "this-chain-id: ~s~%" this-chain-id)
     (if (< (length chain-id-list) 2)
 	#f 
@@ -36,11 +36,27 @@
 	    (loop (cdr local-chain-id-list)))))))
 
 
+  (define (skip-to-chain imol this-chain-id chain-id-list)
+    
+    ;; Given a chain-id and a list of chain-ids, return the chain-id of
+    ;; the next chain to be jumped to (use wrapping).  If the list of
+    ;; chain-ids is less then length 2, return #f.
+    ;; 
+    (let ((chain-guess (skip-to-chain-internal this-chain-id chain-id-list)))
+      
+      (if (not (string? chain-guess))
+	  chain-guess
+	  (if (not (is-solvent-chain? imol chain-guess))	  
+	      chain-guess
+	      (skip-to-chain imol chain-guess chain-id-list)))))
+	       
+
+
   ;; First, what is imol?  imol is the go to atom molecule
   (let* ((imol (go-to-atom-molecule-number))
 	 (chains (chain-ids imol))
 	 (this-chain-id (go-to-atom-chain-id))
-	 (next-chain (skip-to-chain this-chain-id chains)))
+	 (next-chain (skip-to-chain imol this-chain-id chains)))
 
 ;     (format #t "next-chain: ~s~%" next-chain)
     
@@ -77,7 +93,7 @@
 		(if (= found-atom-state 0)
 		    ;; then we did *not* find the atom, e.g. next-chain was
 		    ;; the water chain
-		    (loop (skip-to-chain try-next-chain chains))
+		    (loop (skip-to-chain imol try-next-chain chains))
 		    
 		    ;; otherwise all was hunky-dorey
 		    (begin
