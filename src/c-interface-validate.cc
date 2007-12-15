@@ -336,7 +336,9 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  button_label += baddies[i].atom_name;
 		  button_label += " " ;
 		  button_label += baddies[i].alt_conf;
-		  button_label += " " ;
+		  button_label += " [Occ: " ;
+		  button_label += graphics_info_t::float_to_string(baddies[i].float_user_data);
+		  button_label += "]   " ;
 		  button_label += baddies[i].string_user_data;
 		  button_label += " " ;
 		  
