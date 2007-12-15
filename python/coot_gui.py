@@ -1381,7 +1381,7 @@ def generic_molecule_chooser(hbox, hint_text):
 
 	menu = gtk.Menu()
 # BL says:: option menu is depricated, so we use combox instead, maybe!?!
-	option_menu = gtk.combo_box_new_with_text()
+	option_menu = gtk.combo_box_new_text()
 	label = gtk.Label(hint_text)
 	model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
 

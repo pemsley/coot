@@ -30,9 +30,15 @@ def add_coot_menu_separator(menu):
   sep.props.sensitive = False
   sep.show()
    
-
+have_coot_python = False
 try: 
   import coot_python
+  have_coot_python = True
+except:
+  print """BL WARNING:: could not import coot_python module!!
+Some things, esp. extensions, may be crippled!"""
+
+if (have_coot_python):
   if coot_python.main_menubar():
 
      menu = coot_menubar_menu("Extensions")
@@ -179,140 +185,22 @@ try:
         lambda func: molecule_chooser_gui("Choose a molecule for checking for Cis Peptides",
                 lambda imol: cis_peptides_gui(imol)))
 
-#
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Peptide Restraints...")
 
-     menuitem2.set_submenu(submenu)
-     menu.append(menuitem2)
-     menuitem2.show()
+     add_simple_coot_menu_menuitem(menu, "Phosphorylate this residue",
+	lambda func: phosphorylate_active_residue())
 
-     def add_restr_func1():
-	print 'Planar Peptide Restraints added'
-	add_planar_peptide_restraints()
-     add_simple_coot_menu_menuitem(submenu, "Add Planar Peptide Restraints",
-			lambda func: add_restr_func1())
-
-     def add_restr_func2():
-	print 'Planar Peptide Restraints removed'
-	remove_planar_peptide_restraints()
-     add_simple_coot_menu_menuitem(submenu, "Remove Planar Peptide Restraints",
-	lambda func: add_restr_func2())
-#
-
-     add_simple_coot_menu_menuitem(menu,"Set Undo Molecule...",
-	lambda func: molecule_chooser_gui("Set the Molecule for 'Undo' Operations",
-		lambda imol: set_undo_molecule(imol)))
 
      add_simple_coot_menu_menuitem(menu,"Use SEGIDs...",
 	lambda func: molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
 		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
 
-     def make_dot_surf_func(imol,text):
-	dots_handle = dots(imol, text, 1, 1)
-	print "dots handle: ", dots_handle
-     add_simple_coot_menu_menuitem(menu,"Dotted Surface...",
-	lambda func: generic_chooser_and_entry("Surface for molecule", 
-		"Atom Selection:", "//A/1-2", 
-		lambda imol, text: make_dot_surf_func(imol, text)))
+     #---------------------------------------------------------------------
+     #     Other Programs (?)
+     #
+     #---------------------------------------------------------------------
 
-     def clear_dot_surf_func(imol,text):
-	try:
-		n = int(text)
-		clear_dots(imol,n)
-	except:
-		print "BL WARNING:: dots handle number shall be an integer!!"
-     add_simple_coot_menu_menuitem(menu,"Clear Surface Dots...",
-	lambda func: generic_chooser_and_entry("Molecule with Dotted Surface", 
-		"Dots Handle Number:", "0", 
-		lambda imol, text: clear_dot_surf_func(imol, text)))
+     add_coot_menu_separator(menu)
 
-# BL says: has no checking for text = number yet
-     add_simple_coot_menu_menuitem(menu, "B factor bonds scale factor...",
-	lambda func: generic_chooser_and_entry("Choose a molecule to which the B-factor colour scale is applied:",
-		"B-factor scale:", "1.0", 
-		lambda imol, text: set_b_factor_bonds_scale_factor(imol,float(text))))
-
-     def set_mat_func(text):
-	import operator
-	t = float(text)
-	if operator.isNumberType(t):
-		s = "Matrix set to " + text
-		set_matrix(t)
-		add_status_bar_text(s)
-	else:
-		add_status_bar_text("Failed to read a number")
-     add_simple_coot_menu_menuitem(menu,"Set Matrix (Refinement Weight)...",
-	lambda func: generic_single_entry("set matrix: (smaller means better geometry)", 
-		str(matrix_state()), "Set it", 
-		lambda text: set_mat_func(text)))
-
-     def set_den_gra_func(text):
-	import operator
-	t = float(text)
-	if operator.isNumberType(t):
-		s = "Density Fit scale factor set to " + text
-		set_residue_density_fit_scale_factor(t)
-		add_status_bar_text(s)
-	else:
-		add_status_bar_text("Failed to read a number")
-     add_simple_coot_menu_menuitem(menu,"Set Density Fit Graph Weight...",
-	lambda func: generic_single_entry("set weight (smaller means apparently better fit)", 
-		"1.0", "Set it", 
-		lambda text: set_den_gra_func(text)))
-
-# An example with a submenu:
-#
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Refinement Speed...")
-     menuitem2.set_submenu(submenu)
-     menu.append(menuitem2)
-     menuitem2.show()
-
-     def ref_mode_func1():
-	print "Molasses..."
-	set_dragged_refinement_steps_per_frame(4)
-     add_simple_coot_menu_menuitem(submenu, "Molasses Refinement mode", 
-	lambda func: ref_mode_func1())
-
-     def ref_mode_func2():
-	print "Crock..."
-	set_dragged_refinement_steps_per_frame(120)
-     add_simple_coot_menu_menuitem(submenu, "Crocodile Refinement mode", 
-	lambda func: ref_mode_func2())
-
-     def ref_mode_func2():
-	print "Back to normal (1 Emsley)..."
-	set_dragged_refinement_steps_per_frame(50)
-     add_simple_coot_menu_menuitem(submenu, "Normal speed Refinement mode (1 Emsley)", 
-	lambda func: ref_mode_func2())
-
-#
-# another submenu
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Rotate Translate Zone Mode...")
- 
-     menuitem2.set_submenu(submenu)
-     menu.append(menuitem2)
-     menuitem2.show()
-
-     add_simple_coot_menu_menuitem(submenu, "Rotate About Fragment Centre",
-	lambda func: set_rotate_translate_zone_rotates_about_zone_centre(1))
-
-     add_simple_coot_menu_menuitem(submenu, "Rotate About Second Clicked Atom",
-	lambda func: set_rotate_translate_zone_rotates_about_zone_centre(0))
-
-#
-# back to 'normal' extensions
-     def all_mol_symm_func():
-	for imol in molecule_number_list():
-		if valid_model_molecule_qm(imol):
-			set_symmetry_whole_chain(imol, 1)
-     add_simple_coot_menu_menuitem(menu, "All Molecules use \"Near Chains\" Symmetry", 
-	lambda func: all_mol_symm_func())
-
-     add_simple_coot_menu_menuitem(menu, "Question Accept Refinement", 
-	lambda func: set_refinement_immediate_replacement(0))
 
      def ccp4mg_func1():
 	import os
@@ -329,21 +217,158 @@ try:
 		os.spawnv(os.P_NOWAIT, ccp4mg_file_exe, args)
 	else:
 		print "BL WARNING:: sorry cannot find %s in $PATH" %ccp4mg_exe
+
      add_simple_coot_menu_menuitem(menu, "CCP4MG...",
 	lambda func: ccp4mg_func1())
 
-     def shelx_ref_func(imol,text):
-	if len(text)>0:
-		shelxl_refine(imol,text)
-	else:
-		shelxl_refine(imol)
-     add_simple_coot_menu_menuitem(menu, "SHELXL Refine...", 
-	lambda func: generic_chooser_and_entry("Molecule for refinement:", 
-		"HKL data filename (leave blank for default)", "", 
-		lambda imol, text: shelx_ref_func(imol,text)))
 
-     add_simple_coot_menu_menuitem(menu, "Phosphorylate this residue",
-	lambda func: phosphorylate_active_residue())
+     def shelx_ref_func(*args):
+       print "BL DEBUG:: we are in shelx func"
+       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+       hbox = gtk.HBox(False, 0)
+       vbox = gtk.VBox(False, 0)
+       go_button = gtk.Button("  Refine  ")
+       cancel_button = gtk.Button("  Cancel  ")
+       entry_hint_text = "HKL data filename \n(leave blank for default)"
+       chooser_hint_text = " Choose molecule for SHELX refinement  "
+       h_sep = gtk.HSeparator()
+
+       window.add(hbox)
+       options_menu_mol_list_pair = generic_molecule_chooser(hbox, chooser_hint_text)
+       entry = file_selector_entry(hbox, entry_hint_text)
+
+       def shelx_delete_event(*args):
+         window.destroy()
+         return False
+
+       def shelx_go_funcn_event(*args):
+         import operator
+         txt = entry.get_text()
+         imol = get_option_menu_active_molecule(option_menu_list_pair)
+         if (operator.isNumberType(imol)):
+           if (len(txt) == 0):
+             shelxl_refine(imol)
+           else:
+             shelxl_refine(imol, txt)
+         window.destroy()
+         return False
+
+       go_button.connect("clicked", shelx_go_funcn_event)
+       cancel_button.connect("clicked", shelx_delete_event)
+
+       hbox.pack_start(h_sep, False, False, 2)
+       hbox.pack_start(vbox, False, False, 2)
+       vbox.pack_start(go_button, True, False, 0)
+       vbox.pack_start(cancel_button, True, False, 0)
+       print "BL DEBUG:: and packed everything, ready to show"
+       window.show_all()
+       
+     add_simple_coot_menu_menuitem(menu, "SHELXL Refine...", 
+	shelx_ref_func)
+
+     # ---------------------------------------------------------------------
+     #     Building
+     # ---------------------------------------------------------------------
+     add_coot_menu_separator(menu)
+
+     submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("Cootaneering")
+
+     menuitem2.set_submenu(submenu)
+     menu.append(menuitem2)
+     menuitem2.show()
+
+     def cootaneer_func1(imol, chain_id, pir_file_name):
+	print "assoc seq: ", imol, chain_id, pir_file_name
+	import os
+	if os.path.isfile(pir_file_name):
+		fin = open(pir_file_name, 'r')
+		lines = fin.readlines()
+		for line in lines:
+			seq_text += line
+		fin.close()
+                assign_pir_sequence(imol, chain_id, seq_text)
+	else:
+		print "BL WARINING: no such file ", pir_file_name
+
+     add_simple_coot_menu_menuitem(submenu, "Associate Sequence....", 
+	lambda func: generic_chooser_entry_and_file_selector(
+		"Associate Sequence to Model: ",
+                valid_model_molecule_qm,
+		"Chain ID", "", "Select PIR file", 
+		lambda imol, chain_id, pir_file_name: 
+			cootaneer_func1(imol, chain_id, pir_file_name)))
+
+
+     add_simple_coot_menu_menuitem(submenu, "Cootaneer this fragment...",
+	lambda func: molecule_chooser_gui("Choose a molecule to apply sequence assignment", 
+		lambda imol: coontaneer_gui(imol)))
+
+
+     add_simple_coot_menu_menuitem(menu,"Add Strand Here...",
+                        lambda func: place_strand_here_gui())
+
+     # ---------------------------------------------------------------------
+     #     Settings
+     # ---------------------------------------------------------------------
+     #
+     add_coot_menu_separator(menu)
+
+ 
+     submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("Peptide Restraints...")
+
+     menuitem2.set_submenu(submenu)
+     menu.append(menuitem2)
+     menuitem2.show()
+
+     def add_restr_func1():
+	print 'Planar Peptide Restraints added'
+	add_planar_peptide_restraints()
+
+     add_simple_coot_menu_menuitem(submenu, "Add Planar Peptide Restraints",
+			lambda func: add_restr_func1())
+
+
+     def add_restr_func2():
+	print 'Planar Peptide Restraints removed'
+	remove_planar_peptide_restraints()
+
+     add_simple_coot_menu_menuitem(submenu, "Remove Planar Peptide Restraints",
+	lambda func: add_restr_func2())
+
+
+     # An example with a submenu:
+     #
+     submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("Refinement Speed...")
+     menuitem2.set_submenu(submenu)
+     menu.append(menuitem2)
+     menuitem2.show()
+
+     def ref_mode_func1():
+	print "Molasses..."
+	set_dragged_refinement_steps_per_frame(4)
+
+     add_simple_coot_menu_menuitem(submenu, "Molasses Refinement mode", 
+	lambda func: ref_mode_func1())
+
+
+     def ref_mode_func2():
+	print "Crock..."
+	set_dragged_refinement_steps_per_frame(120)
+
+     add_simple_coot_menu_menuitem(submenu, "Crocodile Refinement mode", 
+	lambda func: ref_mode_func2())
+
+
+     def ref_mode_func2():
+	print "Back to normal (1 Emsley)..."
+	set_dragged_refinement_steps_per_frame(50)
+
+     add_simple_coot_menu_menuitem(submenu, "Normal speed Refinement mode (1 Emsley)", 
+	lambda func: ref_mode_func2())
+
 
 # BL says:: maybe check if number at some point
      add_simple_coot_menu_menuitem(menu, "Set Spin Speed",
@@ -351,69 +376,116 @@ try:
 			str(idle_function_rotate_angle()), "Set it",
 			lambda text: set_idle_function_rotate_angle(float(text))))
 
+
      add_simple_coot_menu_menuitem(menu, "Nudge Centre...",
 	lambda func: nudge_screen_centre_gui())
 
-# Not this.  Instead fire up a new top level, where we have a molecule chooser, 
-# an entry for the chain spec and a text window where can paste in a sequence.
-# 
-# No, that doesn't work either.  We need a set of pairs of entries
-# and text boxes.
-# 
-# Hmm..
 
-#      (add-simple-coot-menu-menuitem
-#       menu "Cootaneer this fragment [try sequence assignment]"
-#       (lambda ()
-#	 (let ((imol-map (imol-refinement-map)))
-#	   (if (= imol-map -1)
-#	       (info-dialog "Need to assign a map to fit against")
-#	       (let ((active-atom (active-residue)))
-#		 (if (list? active-atom)
-#		     (let ((imol     (list-ref active-atom 0))
-#			   (chain-id (list-ref active-atom 1))
-#			   (resno    (list-ref active-atom 2))
-#			   (inscode  (list-ref active-atom 3))
-#			   (at-name  (list-ref active-atom 4))
-#			   (alt-conf (list-ref active-atom 5)))
-#		       (cootaneer imol-map imol (list chain-id resno inscode 
-#						      at-name alt-conf)))))))))
+     add_simple_coot_menu_menuitem(menu,"Set Undo Molecule...",
+	lambda func: molecule_chooser_gui("Set the Molecule for 'Undo' Operations",
+		lambda imol: set_undo_molecule(imol)))
 
-#     submenu = gtk.Menu()
-#     menuitem2 = gtk.MenuItem("Cootaneering")
 
-#     menuitem2.set_submenu(submenu)
-#     menu.append(menuitem2)
-#     menuitem2.show()
+# BL says: has no checking for text = number yet
+     add_simple_coot_menu_menuitem(menu, "B factor bonds scale factor...",
+	lambda func: generic_chooser_and_entry("Choose a molecule to which the B-factor colour scale is applied:",
+		"B-factor scale:", "1.0", 
+		lambda imol, text: set_b_factor_bonds_scale_factor(imol,float(text))))
 
-#     def cootaneer_func1(imol, chain_id, pir_file_name):
-#	print "assoc seq: ", imol, chain_id, pir_file_name
-#	import os
-#	if os.path.isfile(pir_file_name):
-#		fin = open(pir_file_name, 'r')
-#		lines = fin.readlines()
-#		for line in lines:
-#			seq_text += line
-#		fin.close()
-#		assign_pir_sequence(imol, chain_id, seq_text)
-#	else:
-#		print "BL WARINING: no such file ", pir_file_name
+
+     def set_mat_func(text):
+	import operator
+	t = float(text)
+	if operator.isNumberType(t):
+		s = "Matrix set to " + text
+		set_matrix(t)
+		add_status_bar_text(s)
+	else:
+		add_status_bar_text("Failed to read a number")
+
+     add_simple_coot_menu_menuitem(menu,"Set Matrix (Refinement Weight)...",
+	lambda func: generic_single_entry("set matrix: (smaller means better geometry)", 
+		str(matrix_state()), "Set it", 
+		lambda text: set_mat_func(text)))
+
+
+     def set_den_gra_func(text):
+	import operator
+	t = float(text)
+	if operator.isNumberType(t):
+		s = "Density Fit scale factor set to " + text
+		set_residue_density_fit_scale_factor(t)
+		add_status_bar_text(s)
+	else:
+		add_status_bar_text("Failed to read a number")
+
+     add_simple_coot_menu_menuitem(menu,"Set Density Fit Graph Weight...",
+	lambda func: generic_single_entry("set weight (smaller means apparently better fit)", 
+		"1.0", "Set it", 
+		lambda text: set_den_gra_func(text)))
+
+
 #
-#     add_simple_coot_menu_menuitem(submenu, "Associate Sequence....", 
-#	lambda func: generic_chooser_entry_and_file_selector(
-#		"Associate Sequence to Model: ",
-#		"Chain ID", "", "Select PIR file", 
-#		lambda imol, chain_id, pir_file_name: 
-#			cootaneer_func1(imol, chain_id, pir_file_name)))
+     submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("Rotate Translate Zone Mode...")
+ 
+     menuitem2.set_submenu(submenu)
+     menu.append(menuitem2)
+     menuitem2.show()
 
-#     add_simple_coot_menu_menuitem(submenu, "Cootaneer this fragment...",
-#	lambda func: molecule_chooser_gui("Choose a molecule to apply sequence assignment", 
-#		lambda imol: coontaneer_gui(imol)))
+     add_simple_coot_menu_menuitem(submenu, "Rotate About Fragment Centre",
+	lambda func: set_rotate_translate_zone_rotates_about_zone_centre(1))
 
 
-     add_simple_coot_menu_menuitem(menu,"Add Strand Here...",
-                        lambda func: place_strand_here_gui())
+     add_simple_coot_menu_menuitem(submenu, "Rotate About Second Clicked Atom",
+	lambda func: set_rotate_translate_zone_rotates_about_zone_centre(0))
 
+
+     def all_mol_symm_func():
+	for imol in molecule_number_list():
+		if valid_model_molecule_qm(imol):
+			set_symmetry_whole_chain(imol, 1)
+
+     add_simple_coot_menu_menuitem(menu, "All Molecules use \"Near Chains\" Symmetry", 
+	lambda func: all_mol_symm_func())
+
+
+     add_simple_coot_menu_menuitem(menu, "Question Accept Refinement", 
+	lambda func: set_refinement_immediate_replacement(0))
+
+
+     # ---------------------------------------------------------------------
+     #     Views/Representations
+     # ---------------------------------------------------------------------
+     #
+     add_coot_menu_separator(menu)
+
+     def make_dot_surf_func(imol,text):
+	dots_handle = dots(imol, text, 1, 1)
+	print "dots handle: ", dots_handle
+
+     add_simple_coot_menu_menuitem(menu,"Dotted Surface...",
+	lambda func: generic_chooser_and_entry("Surface for molecule", 
+		"Atom Selection:", "//A/1-2", 
+		lambda imol, text: make_dot_surf_func(imol, text)))
+
+
+     def clear_dot_surf_func(imol,text):
+	try:
+		n = int(text)
+		clear_dots(imol,n)
+	except:
+		print "BL WARNING:: dots handle number shall be an integer!!"
+
+     add_simple_coot_menu_menuitem(menu,"Clear Surface Dots...",
+	lambda func: generic_chooser_and_entry("Molecule with Dotted Surface", 
+		"Dots Handle Number:", "0", 
+		lambda imol, text: clear_dot_surf_func(imol, text)))
+
+
+     add_simple_coot_menu_menuitem(menu, "Label All CAs...",
+        lambda func: molecule_chooser_gui("Choose a molecule to label",
+                                          lambda imol: label_all_CAs(imol)))
  
 # Views submenu
      submenu = gtk.Menu()
@@ -454,9 +526,6 @@ try:
 
   else:
 	print "BL WARNING:: could not find the main_menubar! Sorry, no extensions!"
-
-except: print """BL WARNING:: could not import coot_python module!!
-Some things, esp. extensions, may be crippled!"""
 
 # finally, show it
 

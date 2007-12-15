@@ -897,6 +897,19 @@ def phosphorylate_active_residue():
 		s = "Can't Phosphorylate residue of type " + res_name
 		info_dialog(s)
 
+def label_all_CAs(imol):
+    
+    for chain_id in chain_ids(imol):
+        if not (is_solvent_chain_qm(imol, chain_id)):
+            n_residues = chain_n_residues(chain_id, imol)
+            for serial_number in number_list(0, n_residues):
+                res_name = resname_from_serial_number(imol, chain_id, serial_number)
+                res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
+                ins_code = insertion_code_from_serial_number(imol, chain_id, serial_number)
+                add_atom_label(imol, chain_id, res_no, " CA ")
+    graphics_draw()
+
+
 def label_all_atoms_in_residue(imol, chain_id, resno, inscode):
 	import types
 
