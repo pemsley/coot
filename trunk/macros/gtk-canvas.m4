@@ -16,8 +16,14 @@ if test x$gtkcanvas_prefix != x; then
 
 
    # first test for imlib, setting IMLIB_CFLAGS and IMLIB_LIBS
+ case $ac_cv_build_alias in 
 
-  AM_PATH_IMLIB
+  *-mingw*)
+    break;;
+  *)
+    AM_PATH_IMLIB
+    ;;
+ esac
 
   # echo debug: here we have IMLIB_CFLAGS: $IMLIB_CFLAGS and IMLIB_LIBS $IMLIB_LIBS   
 
