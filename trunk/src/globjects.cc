@@ -1000,6 +1000,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
       GDK_GL_BLUE_SIZE,  1,
       GDK_GL_DEPTH_SIZE, 1,
       GDK_GL_DOUBLEBUFFER,
+      //      GDK_GL_MODE_MULTISAMPLE | /* 2x FSAA */ (2 << GDK_GL_MODE_SAMPLE_SHIFT),
+      // (1 << 7) | /* 2x FSAA */ (2 << 24),
       GDK_GL_NONE
    };
    attrlist = mono_attrlist;
@@ -1192,7 +1194,9 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
    GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
       (GDK_GL_MODE_RGB    |
        GDK_GL_MODE_DEPTH  |
-       GDK_GL_MODE_DOUBLE);
+       // GDK_GL_MODE_MULTISAMPLE |
+       GDK_GL_MODE_DOUBLE
+       );
 
    if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
       mode = static_cast<GdkGLConfigMode>
@@ -1694,13 +1698,16 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    glEnable(GL_DEPTH_TEST);
 #endif
 
+   glEnable(GL_MULTISAMPLE_ARB);
+   // glHints(G); sample nicest
 
    // From the Book:   What's going on when I generate
-   
-   // glClear (GL_COLOR_BUFFER_BIT);
-   // glEnable (GL_BLEND);
-   // glEnable (GL_POLYGON_SMOOTH);
-   //    glDisable (GL_DEPTH_TEST);
+
+   // Martin says that this is not what you want to do!
+//    glClear (GL_COLOR_BUFFER_BIT);
+//    glEnable (GL_BLEND);
+//    glEnable (GL_POLYGON_SMOOTH);
+//    glDisable (GL_DEPTH_TEST);
 
       
       // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -1866,7 +1873,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glPushMatrix();
 	 glMatrixMode(GL_MODELVIEW);
 	 glLoadIdentity();
-	 GLfloat  light_position[] = {1.0, 1.0, 1.0, 1.0};
+	 GLfloat  light_position[] = {1.,1.,1.,0.};
 	 glLightfv(GL_LIGHT0,  GL_POSITION, light_position);
 	 glEnable(GL_LIGHTING);
 	 glEnable(GL_LIGHT0);
