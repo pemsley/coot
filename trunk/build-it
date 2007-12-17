@@ -2462,8 +2462,10 @@ echo BUILDING coot: version $coot_version >&2
 if [ "$ENABLE_PYTHON_COOT" == "no" ] ; then 
    INFO:: not a pythonized build
    cp src/blank.cc src/coot_wrap_python.cc
+   python_tag=
 else 
    INFO:: A pythonized build
+   python_tag=-python
 fi
 
 
@@ -2573,7 +2575,7 @@ if [ $r = 0 ] ; then
          # original full fat:
          # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
          # slimmed:
-	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}.tar.gz
+	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}.tar.gz
 
          # update the ChangeLog, README and RELEASE-NOTES
          cd "$build_dir"
