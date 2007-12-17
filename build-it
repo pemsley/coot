@@ -212,10 +212,14 @@ script_version=2.32
 # is enabled.  If ENABLE_PYTHON_COOT is not set, the guile-coot is
 # enabled (python coot is not enabled).
 
-# pythonizing coot is broken on some platforms.  Turn it off for now. 20071010
+# Pythonizing coot makes non-transferable binararies (why?).  Let
+# the pythonness be controlled on the command line:
 #
-ENABLE_PYTHON_COOT=yes
-
+if [ "$1" = "python" ] ; then 
+   ENABLE_PYTHON_COOT=yes
+else 
+   ENABLE_PYTHON_COOT=no
+fi
 
 # Set the host and the OS.
 # Fairly fundamental.
@@ -2459,7 +2463,7 @@ echo BUILDING coot: version $coot_version
 echo BUILDING coot: version $coot_version >&2
 (
 
-if [ "$ENABLE_PYTHON_COOT" == "no" ] ; then 
+if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
    echo INFO:: not a pythonized build
    cp src/blank.cc src/coot_wrap_python.cc
    python_tag=
