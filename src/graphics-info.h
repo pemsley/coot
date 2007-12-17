@@ -1318,6 +1318,8 @@ public:
 			      gboolean path_currently_selected,
 			      gpointer data);
 
+// BL says:: put my gtk2 stuff in here too:
+   static int gtk2_chooser_selector_flag;
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
    void apply_go_to_atom_from_widget(GtkWidget *widget); 

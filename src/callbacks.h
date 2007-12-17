@@ -2859,6 +2859,61 @@ void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
                                         gpointer         user_data);
 
+void
+on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_coords_filechooserdialog1_destroy
+                                        (GtkObject       *object,
+                                        gpointer         user_data);
+
+void
+on_coords_filechooser1_recentre_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_dataset_filechooserdialog1_destroy  (GtkObject       *object,
+                                        gpointer         user_data);
+
+void
+on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_map_file_chooser_is_difference_map_button_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_map_name_filechooserdialog2_destroy (GtkObject       *object,
+                                        gpointer         user_data);
+
+void
+on_map_name_filechooserdialog2_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_filechooserdialog1_response         (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_phs_coordinates_filechooserdialog1_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_phs_coordinates_filechooserdialog1_destroy
+                                        (GtkObject       *object,
+                                        gpointer         user_data);
+
 #endif 
 
 
@@ -2999,3 +3054,5 @@ on_check_waters_check1_activate        (GtkMenuItem     *menuitem,
 void
 on_check_waters_delete1_activate       (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+
+

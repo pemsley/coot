@@ -702,6 +702,7 @@ coot_real_exit(int retval) {
 
 void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) { 
 
+ if (graphics_info_t::gtk2_chooser_selector_flag != 1) {
    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
    GtkWidget *button = gtk_check_button_new_with_label("Recentre");
    GtkWidget *frame = gtk_frame_new("Recentre?");
@@ -725,6 +726,9 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
 		       GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
 		       NULL);
    gtk_widget_show(frame);
+ } else {
+   // we have chooser
+ }
 
 }
 
@@ -776,7 +780,11 @@ GtkWidget *coot_file_chooser() {
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
    w = create_coords_fileselection1 ();
 #else
-   w = create_coords_fileselection1();
+   if (graphics_info_t::gtk2_chooser_selector_flag == 0) {
+	w = create_coords_fileselection1();
+   } else {
+	w = create_coords_filechooserdialog1();
+   }
    // w = 0;
 #endif
    return w;
@@ -1448,6 +1456,23 @@ close_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
 
 void add_ccp4i_project_optionmenu(GtkWidget *fileselection) {
 
+ if (graphics_info_t::gtk2_chooser_selector_flag == 1) {
+   // BL says: we simply add a short cut to ccp4 project folder
+   // based on ccp4_defs_file_name()
+   // add all projects to shortcut (the easiest option for now)
+   std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
+
+   std::vector<std::pair<std::string, std::string> > project_pairs =
+      parse_ccp4i_defs(ccp4_defs_file_name);
+
+   for (unsigned int i=0; i<project_pairs.size(); i++) {
+      const char *folder = project_pairs[i].second.c_str();
+      int len = strlen(folder);
+      if (len > 0) {
+         gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),project_pairs[i].second.c_str(),NULL);
+      }
+   }
+ } else {
    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 
    GtkWidget *optionmenu = gtk_option_menu_new();
@@ -1462,6 +1487,7 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection) {
    gtk_container_add(GTK_CONTAINER(aa), frame);
    gtk_widget_show(frame);
    gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+ }
 }
 
 void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
@@ -2502,3 +2528,14 @@ GtkWidget *wrapped_create_display_control_window() {
    }
    return widget;
 }
+
+// BL things for file_chooser
+#ifdef COOT_USE_GTK2_INTERFACE
+void set_gtk2_chooser_selector_flag(int istate) {
+   graphics_info_t::gtk2_chooser_selector_flag = istate;
+}
+
+int gtk2_chooser_selector_flag_state(){
+   return graphics_info_t::gtk2_chooser_selector_flag;
+}
+#endif
