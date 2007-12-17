@@ -1705,7 +1705,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    glEnable(GL_DEPTH_TEST);
 #endif
 
+// BL says:: doesnt seem to be in windows, need to check out further
+#if !WINDOWS_MINGW
    glEnable(GL_MULTISAMPLE_ARB);
+#endif
    // glHints(G); sample nicest
 
    // From the Book:   What's going on when I generate
