@@ -2460,11 +2460,11 @@ echo BUILDING coot: version $coot_version >&2
 (
 
 if [ "$ENABLE_PYTHON_COOT" == "no" ] ; then 
-   INFO:: not a pythonized build
+   echo INFO:: not a pythonized build
    cp src/blank.cc src/coot_wrap_python.cc
    python_tag=
 else 
-   INFO:: A pythonized build
+   echo INFO:: A pythonized build
    python_tag=-python
 fi
 
