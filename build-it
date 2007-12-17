@@ -194,7 +194,8 @@
 # 2.31 20071212 Redirect testing output to $LOGS/$HOST-testing.log
 # 2.32 20071213 Copy over the ChangeLog, README and RELEASE-NOTES on good test
 # 2.33 20071215 Pythonize only sometimes, default off.
-script_version=2.32
+# 2.34 20071215 Tell us some Python info
+script_version=2.34
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2459,8 +2460,8 @@ fi
 
 # question: did we build gtkglarea?
 #
-echo BUILDING coot: version $coot_version
-echo BUILDING coot: version $coot_version >&2
+echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
+echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
 (
 
 if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
