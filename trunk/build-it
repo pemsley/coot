@@ -2373,8 +2373,8 @@ else
 fi
 
 
-echo BUILDING coot: version $coot_version
-echo BUILDING coot: version $coot_version >&2
+echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
+echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
