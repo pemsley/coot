@@ -193,6 +193,7 @@
 # 2.30 20071209 Add dewinter's ccp4 setup in setup_ccp4.
 # 2.31 20071212 Redirect testing output to $LOGS/$HOST-testing.log
 # 2.32 20071213 Copy over the ChangeLog, README and RELEASE-NOTES on good test
+# 2.33 20071215 Pythonize only sometimes, default off.
 script_version=2.32
 
 # :: NOTE:: 
@@ -2435,7 +2436,7 @@ if [ -n "$ENABLE_PYTHON_COOT" ] ; then
        fi
     fi
 else 
-    # if the env var was not set, then turn on python scripting
+    # if ENABLE_PYTHON_COOT was not set, then turn on python scripting
     python_scripting='--with-python'
 fi
 
@@ -2458,27 +2459,14 @@ echo BUILDING coot: version $coot_version
 echo BUILDING coot: version $coot_version >&2
 (
 
-# if we have python and not guile, then we don't want to compile
-# coot_wrap_guile.cc.
-# 
-# we *do* want to compile it usually though.
-#
-if [ "$python_scripting" = "--with-python" ] ; then
-    echo INFO:: with python
-
-    # I doubt the need for these setting!  If no python then blank out
-    # the guile scripting?  Does that make sense?
-    # 
-    # I guess not.  I will change it to python
-    #
-    if [ "$ENABLE_PYTHON_COOT" == "0" ] ; then
-       cp src/blank.cc src/coot_python_guile.cc
-    fi
-    if [ "$ENABLE_PYTHON_COOT" == "no" ] ; then 
-       cp src/blank.cc src/coot_python_guile.cc
-    fi
-
+if [ "$ENABLE_PYTHON_COOT" == "no" ] ; then 
+   INFO:: not a pythonized build
+   cp src/blank.cc src/coot_wrap_python.cc
+else 
+   INFO:: A pythonized build
 fi
+
+
 echo building in: $PWD
 echo ./configure $coot_prefix \
    --with-gtkcanvas-prefix=$install_top_dir \
@@ -2488,7 +2476,7 @@ echo ./configure $coot_prefix \
        $gtkglarea_prefix  \
        $glut_prefix       \
       $scripting          \
-      $python_scripting   \
+      "$python_scripting" \
       $shared_static_flag \
       $coot_extra_args    \
       CXXFLAGS="-g -O"
@@ -2501,7 +2489,7 @@ echo ./configure $coot_prefix \
        $gtkglarea_prefix  \
        $glut_prefix       \
       $scripting          \
-      $python_scripting   \
+      "$python_scripting" \
       $shared_static_flag \
       $coot_extra_args    \
       CXXFLAGS="-g -O"
