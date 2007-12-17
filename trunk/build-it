@@ -195,7 +195,8 @@
 # 2.32 20071213 Copy over the ChangeLog, README and RELEASE-NOTES on good test
 # 2.33 20071215 Pythonize only sometimes, default off.
 # 2.34 20071215 Tell us some Python info
-script_version=2.34
+# 2.35 20071215 Pyhton settings outside the subshell.
+script_version=2.35
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2462,15 +2463,21 @@ fi
 #
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
+
+
+# qSet python_tag outside the subshell.
+if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
+   python_tag=
+else 
+   python_tag=-python
+fi
 (
 
 if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
    echo INFO:: not a pythonized build
    cp src/blank.cc src/coot_wrap_python.cc
-   python_tag=
 else 
    echo INFO:: A pythonized build
-   python_tag=-python
 fi
 
 
