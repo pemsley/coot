@@ -1180,6 +1180,13 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
 #else
 
+// BL things for chooser
+#ifdef USE_MINGW
+int graphics_info_t::gtk2_chooser_selector_flag = 1;
+#else
+int graphics_info_t::gtk2_chooser_selector_flag = 0;
+#endif // MINGW
+
 // GTK2 code
 // 
 // if try_stereo_flag is 1, then hardware stereo.
