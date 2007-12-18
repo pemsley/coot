@@ -787,11 +787,10 @@ GtkWidget *coot_file_chooser() {
    w = create_coords_fileselection1 ();
 #else
    if (graphics_info_t::gtk2_chooser_selector_flag == 0) {
-	w = create_coords_fileselection1();
+      w = create_coords_fileselection1();
    } else {
-	w = create_coords_filechooserdialog1();
+      w = create_coords_filechooserdialog1(); 
    }
-   // w = 0;
 #endif
    return w;
 }
