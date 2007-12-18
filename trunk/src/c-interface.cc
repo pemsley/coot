@@ -1673,9 +1673,6 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
    GtkWidget *button = 0;
    bool doit = 1;
 
-   std::cout << " DEBUG:: graphics_info_t::gtk2_chooser_selector_flag "
-	     << graphics_info_t::gtk2_chooser_selector_flag << std::endl;
-   
 #if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_chooser_selector_flag == 1) {
       doit = 0;
