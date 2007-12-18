@@ -2896,3 +2896,10 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
 Which can be a crash of atom1 is deleted between its click and the second rt-zone click.
 Hmm...
+
+
+----
+Tue Dec 18 16:45:06 GMT 2007
+
+
+ fill_close_option_menu_with_all_molecule_options() does not use GINT_TO_POINTER().  It should.
