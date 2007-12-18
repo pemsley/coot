@@ -211,10 +211,13 @@ void set_directory_for_coot_file_chooser(GtkWidget *w);
 const char *coot_file_chooser_file_name(GtkWidget *widget);
 
 /* some BL functions for gtk2 */
-// this flag set chooser as default for windows, otherwise use selector
-// 0 is selector 1 is chooser
+
+/*! \brief this flag set chooser as default for windows, otherwise use
+  selector 0 is selector 1 is chooser */
+#ifdef COOT_USE_GTK2_INTERFACE
 void set_gtk2_chooser_selector_flag(int istate);
 int gtk2_chooser_selector_flag_state();
+#endif
 /* \} */
 
 

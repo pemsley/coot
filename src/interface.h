@@ -158,7 +158,7 @@ END_C_DECLS
 
 END_C_DECLS
 
-#endif // GTK1
+#endif /* GTK1 */
 #if (GTK_MAJOR_VERSION == 2)
 #ifndef BEGIN_C_DECLS
 #ifdef __cplusplus
@@ -309,4 +309,4 @@ GtkWidget* create_phs_coordinates_filechooserdialog1 (void);
 
 END_C_DECLS
 
-#endif // GTK2
+#endif /* GTK2 */

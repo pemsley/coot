@@ -24,8 +24,6 @@
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
 GtkWidget*
 create_window1 (void)
 {
@@ -1501,6 +1499,7 @@ create_dataset_fileselection1 (void)
 
   return dataset_fileselection1;
 }
+
 
 GtkWidget*
 create_column_label_window (void)
@@ -18164,5 +18163,4 @@ create_least_squares_dialog (void)
   return least_squares_dialog;
 }
 
-#endif
 #endif
