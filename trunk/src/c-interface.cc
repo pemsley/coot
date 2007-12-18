@@ -1670,41 +1670,54 @@ void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection
 */
 GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
 
- if (graphics_info_t::gtk2_chooser_selector_flag != 1) {
-   GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-   GtkWidget *frame = gtk_frame_new("File Order");
-   GtkWidget *button = gtk_button_new_with_label("  Sort by Date  ");
-   gtk_widget_ref(button);
-   gtk_object_set_data_full(GTK_OBJECT(fileselection),
-			    "fileselection_sort_button",
-			    button,
-			    (GtkDestroyNotify) gtk_widget_unref);
-   GtkWidget *file_list = GTK_FILE_SELECTION(fileselection)->file_list;
- 
-   GtkOptionMenu *history_pulldown =
-      GTK_OPTION_MENU(GTK_FILE_SELECTION(fileselection)->history_pulldown);
+   GtkWidget *button = 0;
+   bool doit = 1;
 
-   gtk_object_set_user_data(GTK_OBJECT(button), (char *) history_pulldown); 
-
-
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-   gtk_signal_connect (GTK_OBJECT(button), "clicked",
-		       (GtkSignalFunc) fileselection_sort_button_clicked_gtk1,
-		       file_list);
-#else
-   gtk_signal_connect (GTK_OBJECT(button), "clicked",
-		       (GtkSignalFunc) fileselection_sort_button_clicked,
-		       file_list);
+   std::cout << " DEBUG:: graphics_info_t::gtk2_chooser_selector_flag "
+	     << graphics_info_t::gtk2_chooser_selector_flag << std::endl;
+   
+#if (GTK_MAJOR_VERSION > 1)
+   if (graphics_info_t::gtk2_chooser_selector_flag == 1) {
+      doit = 0;
+   }
 #endif
+   
+   if (doit) {
+      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+      GtkWidget *frame = gtk_frame_new("File Order");
+      button = gtk_button_new_with_label("  Sort by Date  ");
+      gtk_widget_ref(button);
+      gtk_object_set_data_full(GTK_OBJECT(fileselection),
+			       "fileselection_sort_button",
+			       button,
+			       (GtkDestroyNotify) gtk_widget_unref);
+      GtkWidget *file_list = GTK_FILE_SELECTION(fileselection)->file_list;
+      
+      GtkOptionMenu *history_pulldown =
+	 GTK_OPTION_MENU(GTK_FILE_SELECTION(fileselection)->history_pulldown);
+      
+      gtk_object_set_user_data(GTK_OBJECT(button), (char *) history_pulldown); 
+      
+      
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+      gtk_signal_connect (GTK_OBJECT(button), "clicked",
+			  (GtkSignalFunc) fileselection_sort_button_clicked_gtk1,
+			  file_list);
+#else
+      gtk_signal_connect (GTK_OBJECT(button), "clicked",
+			  (GtkSignalFunc) fileselection_sort_button_clicked,
+			  file_list);
+#endif
+      
+      gtk_container_add(GTK_CONTAINER(aa),frame);
+      gtk_container_add(GTK_CONTAINER(frame), button);
+      gtk_widget_show(frame);
+      gtk_widget_show(button);
 
-   gtk_container_add(GTK_CONTAINER(aa),frame);
-   gtk_container_add(GTK_CONTAINER(frame), button);
-   gtk_widget_show(frame);
-   gtk_widget_show(button);
-   return button;
- } else {
+   } else {
 	// we have the chooser and dont need a sort button
- }
+   }
+   return button;
 }
 
 bool compare_mtimes(coot::str_mtime a, coot::str_mtime b) {
