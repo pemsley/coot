@@ -7911,6 +7911,8 @@ void
 on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data){
+
+#if (GTK_MAJOR_VERSION > 1)
  if (response_id == GTK_RESPONSE_OK) {
   const gchar *filename; 
   GtkWidget *coords_fileselection1;
@@ -7949,7 +7951,7 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
   gtk_widget_destroy(coords_fileselection1);
 
  }
-
+#endif /* GTK_MAJOR_VERSION  */
 }
 
 void
