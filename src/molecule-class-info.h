@@ -1060,6 +1060,10 @@ class molecule_class_info_t {
 				    const std::string &atom_name,
 				    const std::string &alt_conf) const;
 
+   // Does atom at from moving atoms match atom_sel.atom_selection[this_mol_index_maybe]?
+   // or has atom_sel changed in the mean time?
+   bool moving_atom_matches(CAtom *at, int this_mol_index_maybe) const;
+
    int atom_index_first_atom_in_residue(const std::string &chain_id,
 					int iresno,
 					const std::string &ins_code);

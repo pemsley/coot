@@ -1574,8 +1574,6 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 void
 graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
-
-      
    CAtom *atom1 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_1];
    CAtom *atom2 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_2];
 

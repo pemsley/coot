@@ -519,11 +519,17 @@
 ;; 
 (define (multi-read-pdb glob-pattern dir)
 
-  (map (lambda (file)
-	 (format #t "Reading ~s in ~s~%" file dir)
-	 (let ((full-path (append-dir-file dir file)))
-	   (read-pdb full-path)))
-       (glob glob-pattern dir)))
+  (let ((mol-list
+	 (map (lambda (file)
+		(format #t "Reading ~s in ~s~%" file dir)
+		(let ((full-path (append-dir-file dir file)))
+		  (handle-read-draw-molecule-with-recentre full-path 0)))
+       (glob glob-pattern dir))))
+    (if (not (null? mol-list))
+	(let ((last-model (car (reverse mol-list))))
+	  (if (valid-model-molecule? last-model)
+	      (apply set-rotation-centre (molecule-centre last-model)))))))
+
 
 ;; read-pdb-all reads all the "*.pdb" files in the current directory.
 ;; 

@@ -3086,15 +3086,15 @@ void
 on_delete_item_cancel_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget = lookup_widget(GTK_WIDGET(button), 
-				     "delete_item_dialog"); 
+  GtkWidget *widget;
+
+   widget = lookup_widget(GTK_WIDGET(button), "delete_item_dialog"); 
    clear_pending_delete_item();
    clear_pending_picks(); 	/* hmmm.. not sure 20050610 */
    normal_cursor();
-   store_delete_item_widget(NULL);
    store_window_position(COOT_DELETE_WINDOW, widget);
+   store_delete_item_widget(NULL);
    gtk_widget_destroy(widget); 
-  
 }
 
 
