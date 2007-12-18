@@ -918,8 +918,9 @@ namespace coot {
       // Read restraints from the refmac .rst file
       int make_restraints(std::string ciffilename);
 
-      void update_atoms(gsl_vector *s); 
-      void write_new_atoms(std::string pdb_file_name);
+      void update_atoms(gsl_vector *s);
+      // return the WritePDBASCII() status, or -1 if mol was 0.
+      int write_new_atoms(std::string pdb_file_name);
       void info() const;
 
       // The restraints have flags in them to tell us whether to

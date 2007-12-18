@@ -169,9 +169,10 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    
       if (ierr!=CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl; 
-      } else { 
-	 std::cout << "There are " << ciffile.GetNofData() << " data in "
-		   << ciffilename << std::endl; 
+      } else {
+	 if (verbose_mode)
+	    std::cout << "There are " << ciffile.GetNofData() << " data in "
+		      << ciffilename << std::endl; 
       
 	 for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
          
@@ -1721,6 +1722,11 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
       coot::dict_link_plane_restraint_t res(atom_id, plane_id, atom_comp_id, dist_esd);
       dict_link_res_restraints[dict_link_res_restraints.size()-1].link_plane_restraint.push_back(res);
    }
+}
+
+void
+coot::protein_geometry::set_verbose(bool verbose_flag) {
+   verbose_mode = verbose_flag;
 }
 
 int 
