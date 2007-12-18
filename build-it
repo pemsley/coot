@@ -195,7 +195,7 @@
 # 2.32 20071213 Copy over the ChangeLog, README and RELEASE-NOTES on good test
 # 2.33 20071215 Pythonize only sometimes, default off.
 # 2.34 20071215 Tell us some Python info
-# 2.35 20071215 Pyhton settings outside the subshell.
+# 2.35 20071215 Python settings outside the subshell.
 script_version=2.35
 
 # :: NOTE:: 
@@ -2464,8 +2464,7 @@ fi
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
 
-
-# qSet python_tag outside the subshell.
+# set the python tag outside the compile/install sub-shell.
 if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
    python_tag=
 else 
