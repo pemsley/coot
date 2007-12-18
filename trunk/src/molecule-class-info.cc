@@ -4401,6 +4401,45 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 	 // 		      << iatom_index << " " << iatom_index_udd << std::endl;
 	 // 	 }
 
+
+// Does atom at from moving atoms match atom_sel.atom_selection[this_mol_index_maybe]?
+// or has atom_sel changed in the mean time?
+bool
+molecule_class_info_t::moving_atom_matches(CAtom *at, int this_mol_index_maybe) const {
+
+   bool matches = 0;
+   if (atom_sel.n_selected_atoms > 0) { 
+      if (this_mol_index_maybe >= atom_sel.n_selected_atoms) {
+	 return 0;
+      } else {
+	 std::string atom_name_mov = at->name;
+	 std::string ins_code_mov  = at->GetInsCode();
+	 std::string alt_conf_mov  = at->altLoc;
+	 std::string chain_id_mov  = at->GetChainID();
+	 int resno_mov = at->GetSeqNum();
+
+	 std::string atom_name_ref = atom_sel.atom_selection[this_mol_index_maybe]->name;
+	 std::string ins_code_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetInsCode();
+	 std::string alt_conf_ref  = atom_sel.atom_selection[this_mol_index_maybe]->altLoc;
+	 std::string chain_id_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetChainID();
+	 int resno_ref = atom_sel.atom_selection[this_mol_index_maybe]->GetSeqNum();
+
+	 if (atom_name_ref == atom_name_mov) {
+	    if (ins_code_ref == ins_code_mov) {
+	       if (resno_ref == resno_mov) {
+		  if (alt_conf_ref == alt_conf_mov) {
+		     matches = 1;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return matches;
+}
+
+
+
 // Another attempt at that:
 // 
 // find "by hand" the atom with the given characteristics in
@@ -4504,8 +4543,19 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
       if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
 	 if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == UDDATA_Ok) {
 	    if (tmp_index >= 0) { 
-	       // std::cout << "successfully found old atom index" << std::endl;
-	       idx = tmp_index;
+	       if (moving_atom_matches(atom, tmp_index)) { 
+		  // std::cout << "DEBUG:: successfully found old atom index" << std::endl;
+		  idx = tmp_index;
+	       } else {
+		  // std::cout << "DEBUG:: atom index mismatch (this molecule was changed)"
+		  // << std::endl;
+		  idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+						     atom->residue->seqNum,
+						     std::string(atom->GetInsCode()),
+						     std::string(atom->name),
+						     std::string(atom->altLoc));
+		  // std::cout << "full_atom_spec_to_atom_index gives index: " << idx << std::endl;
+	       }
 	    } else {
 	       // This shouldn't happen.
 	       std::cout << "Good Handle, bad index found for old atom: specing" << std::endl;
@@ -4593,11 +4643,11 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 
 	 if (idx != -1 ) {  // enable this text when fixed.
 	       CAtom *mol_atom = atom_sel.atom_selection[idx];
-	    mol_atom->SetCoordinates(atom->x,
-				     atom->y,
-				     atom->z,
-				     mol_atom->occupancy,
-				     mol_atom->tempFactor);
+	       mol_atom->SetCoordinates(atom->x,
+					atom->y,
+					atom->z,
+					mol_atom->occupancy,
+					mol_atom->tempFactor);
 	 }
       }
    }

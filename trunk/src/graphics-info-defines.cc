@@ -601,7 +601,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	    } else {
 	       normal_cursor();
 	       delete_atom_by_atom_index(naii.imol, naii.atom_index,
-				      destroy_delete_dialog_flag_by_ctrl_press);
+					 destroy_delete_dialog_flag_by_ctrl_press);
 	       pick_pending_flag = 0;
 	    }
 	 } else { 
