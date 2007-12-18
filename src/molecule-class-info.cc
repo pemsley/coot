@@ -68,12 +68,6 @@
 #include "clipper/contrib/sfcalc.h"
 #endif // HAVE_CIF
 
-// using namespace clipper::float_data; old clipper version (before datatypes)
-// 
-
-using namespace std; // change me in a spare half hour when in York.
-
-
 // For stat, mkdir:
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -101,7 +95,8 @@ using namespace std; // change me in a spare half hour when in York.
 #define GetAtomNameA GetAtomName
 #endif
 
-//
+
+
 // Return the molecule number of the molecule that we just filled.
 // Return -1 if there was a failure.
 // 
@@ -3458,8 +3453,12 @@ molecule_class_info_t::calculate_sfs_and_make_map(const std::string &mol_name,
 	 */
 
 	 // do sigmaa calc
-	 int n_refln = mydata.num_reflections();
-	 int n_param = 10;
+
+	 // Bug! 20071218 Kevin fixes it.
+// 	 int n_refln = mydata.num_reflections();
+// 	 int n_param = 10;
+	 int n_refln = 1000;
+	 int n_param = 20;
 	 clipper::SFweight_spline<float> sfw( n_refln, n_param );
 	 sfw( fb, fd, phiw, fo, fc, flag );
 
@@ -3649,8 +3648,8 @@ molecule_class_info_t::make_map_from_cif_sigmaa(std::string cif_file_name,
 	 */
 
 	 // do sigmaa calc
-	 int n_refln = mydata.num_reflections();
-	 int n_param = 10;
+	 int n_refln = 1000;
+	 int n_param = 20;
 	 clipper::SFweight_spline<float> sfw( n_refln, n_param );
 	 sfw( fb, fd, phiw, fo, fc, flag );
 	 // fb is F+phi for "Best"
