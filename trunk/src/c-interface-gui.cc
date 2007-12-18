@@ -702,34 +702,40 @@ coot_real_exit(int retval) {
 
 void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) { 
 
- if (graphics_info_t::gtk2_chooser_selector_flag != 1) {
-   GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-   GtkWidget *button = gtk_check_button_new_with_label("Recentre");
-   GtkWidget *frame = gtk_frame_new("Recentre?");
-   GtkTooltips *tooltips = gtk_tooltips_new();
+   bool doit = 1;
+#if (GTK_MAJOR_VERSION > 1)
+   if (graphics_info_t::gtk2_chooser_selector_flag == 1) {
+      doit = 0;
+   }
+#endif
+   
+ if (doit) {
+    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+    GtkWidget *button = gtk_check_button_new_with_label("Recentre");
+    GtkWidget *frame = gtk_frame_new("Recentre?");
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
-   gtk_widget_ref(button);
-   gtk_object_set_data_full(GTK_OBJECT(fileselection),
-			    "coords_fileselection1_recentre_checkbutton",
-			    button,
-			    (GtkDestroyNotify) gtk_widget_unref);
-   gtk_tooltips_set_tip(tooltips, button,
-			_("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
+    gtk_widget_ref(button);
+    gtk_object_set_data_full(GTK_OBJECT(fileselection),
+			     "coords_fileselection1_recentre_checkbutton",
+			     button,
+			     (GtkDestroyNotify) gtk_widget_unref);
+    gtk_tooltips_set_tip(tooltips, button,
+			 _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
 
-   // shall we activate the button?
-   if (graphics_info_t::recentre_on_read_pdb)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-   gtk_widget_show(button);
-   gtk_container_add(GTK_CONTAINER(aa),frame);
-   gtk_container_add(GTK_CONTAINER(frame), button);
-   gtk_signal_connect (GTK_OBJECT (button), "toggled",
-		       GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
-		       NULL);
-   gtk_widget_show(frame);
+    // shall we activate the button?
+    if (graphics_info_t::recentre_on_read_pdb)
+       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    gtk_widget_show(button);
+    gtk_container_add(GTK_CONTAINER(aa),frame);
+    gtk_container_add(GTK_CONTAINER(frame), button);
+    gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
+			NULL);
+    gtk_widget_show(frame);
  } else {
    // we have chooser
  }
-
 }
 
 
@@ -1454,40 +1460,57 @@ close_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
    
 }
 
-void add_ccp4i_project_optionmenu(GtkWidget *fileselection) {
+void add_ccp4i_project_shortcut(GtkWidget *fileselection) {
 
- if (graphics_info_t::gtk2_chooser_selector_flag == 1) {
+#if (GTK_MAJOR_VERSION > 1)
    // BL says: we simply add a short cut to ccp4 project folder
    // based on ccp4_defs_file_name()
    // add all projects to shortcut (the easiest option for now)
    std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
-
+   
    std::vector<std::pair<std::string, std::string> > project_pairs =
       parse_ccp4i_defs(ccp4_defs_file_name);
-
+   
    for (unsigned int i=0; i<project_pairs.size(); i++) {
       const char *folder = project_pairs[i].second.c_str();
       int len = strlen(folder);
       if (len > 0) {
-         gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),project_pairs[i].second.c_str(),NULL);
+	 gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
+					      project_pairs[i].second.c_str(),
+					      NULL);
       }
    }
- } else {
-   GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+#endif   // GTK_MAJOR_VERSION
+}
 
-   GtkWidget *optionmenu = gtk_option_menu_new();
-   gtk_widget_ref(optionmenu);
-   gtk_widget_show(optionmenu);
-   GtkSignalFunc project_signal_func =
-      GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
-   add_ccp4i_projects_to_optionmenu(optionmenu, project_signal_func);
+void add_ccp4i_project_optionmenu(GtkWidget *fileselection) {
 
-   // lets put the optionmenu in a frame with a label
-   GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
-   gtk_container_add(GTK_CONTAINER(aa), frame);
-   gtk_widget_show(frame);
-   gtk_container_add(GTK_CONTAINER(frame),optionmenu);
- }
+   bool add_shortcut = 0;
+
+#if (GTK_MAJOR_VERSION > 1)
+   if (graphics_info_t::gtk2_chooser_selector_flag == 1) {
+      add_shortcut = 1;
+   }
+#endif
+
+   if (add_shortcut) {
+      add_ccp4i_project_shortcut(fileselection);
+   } else {
+      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+
+      GtkWidget *optionmenu = gtk_option_menu_new();
+      gtk_widget_ref(optionmenu);
+      gtk_widget_show(optionmenu);
+      GtkSignalFunc project_signal_func =
+	 GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
+      add_ccp4i_projects_to_optionmenu(optionmenu, project_signal_func);
+
+      // lets put the optionmenu in a frame with a label
+      GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
+      gtk_container_add(GTK_CONTAINER(aa), frame);
+      gtk_widget_show(frame);
+      gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+   }
 }
 
 void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,

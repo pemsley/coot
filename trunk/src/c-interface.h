@@ -1275,6 +1275,7 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection);
 
 void add_ccp4i_project_optionmenu(GtkWidget *fileselection);
 void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu, GtkSignalFunc func);
+void add_ccp4i_project_shortcut(GtkWidget *fileselection);
 void option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos);
 void run_refmac_ccp4i_option_menu_signal_func(GtkWidget *item, GtkPositionType pos);
 void clear_refmac_ccp4i_project();
