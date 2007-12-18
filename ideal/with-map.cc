@@ -73,6 +73,9 @@
 
 #include "simple-restraint.hh"
 
+// for debugging (the density_around_point function)
+#include "coot-map-utils.hh"
+
 clipper::Xmap<float>
 map_from_mtz(std::string mtz_file_name,
 	     std::string f_col,
@@ -116,8 +119,8 @@ main(int argc, char **argv) {
    std::string phi_col("PHWT");
 
    if (argc < 2) {
-      std::cout << "Usage: " << argv[0]
-		<< " --pdbin pdb-in-filename\n"
+      std::cout << "Usage: " << argv[0] << "\n"
+		<< "       --pdbin pdb-in-filename\n"
 		<< "       --hklin mtz-filename\n"
 		<< "       --f f_col_label\n"
 		<< "       --phi phi_col_label\n"
@@ -133,6 +136,7 @@ main(int argc, char **argv) {
 
    } else {
 
+      geom.set_verbose(0);
       geom.init_standard();
 
       //coot::restraints_container_t restraints(asc);
@@ -171,9 +175,17 @@ main(int argc, char **argv) {
 	 clipper::Xmap<float> xmap;
 
 	 if (! inputs.given_map_flag) {
-	    xmap = map_from_mtz(inputs.mtz_file_name,
-				inputs.f_col, inputs.phi_col,
-				"", 0, 0);
+	    xmap = map_from_mtz(inputs.mtz_file_name, inputs.f_col,
+				inputs.phi_col, "", 0, 0);
+	    clipper::Coord_orth pt(51.148,   8.121,  -1.418);
+	    coot::util::density_stats_info_t ds =
+	       coot::util::density_around_point(pt, xmap, 10.0);
+
+	    std::pair<float, float> mv = ds.mean_and_variance();
+	    std::cout << "INFO:: density stats: N:" << ds.n << " sum: " << ds.sum
+		      << " mean: " << mv.first << "  variance: "
+		      << mv.second << std::endl;
+	    
 	 } else { 
 	    clipper::CCP4MAPfile file;
 	    file.open_read(inputs.map_file_name);
@@ -182,8 +194,10 @@ main(int argc, char **argv) {
 	 }
 
 	 float map_weight = 60.0;
-	 if (inputs.map_weight > 0)
+	 if (inputs.map_weight > 0) { 
 	    map_weight = inputs.map_weight;
+	    std::cout << "INFO:: using weight " << map_weight << std::endl;
+	 }
 	 
 	 std::string altloc("");
 	 coot::restraints_container_t restraints(inputs.resno_start,
@@ -192,16 +206,18 @@ main(int argc, char **argv) {
 						 altloc,
 						 chain_id,
 						 asc.mol,
-						 fixed_atoms,
-						 xmap, map_weight);
+						 fixed_atoms);
       
+	 restraints.add_map(xmap, map_weight);
+
 	 // coot::restraint_usage_Flags flags = coot::NO_GEOMETRY_RESTRAINTS;
 	 // coot::restraint_usage_Flags flags = coot::BONDS;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
+	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
 	 // flags = coot::NON_BONDED;
-	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
       
 	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 	 restraints.make_restraints(geom, flags, 1, 0, pseudos);
@@ -405,7 +421,7 @@ input_data_t get_input_details(int argc, char **argv) {
 	    if ( (d.map_file_name != "") || (d.mtz_file_name != "" && d.f_col != "" && d.phi_col != "") ) { 
 	       d.is_good = 1;
 	    } else {
-	       std::cout << "error in input map or HKLIN f phi" << std::endl;
+	       std::cout << "error in input map or [HKLIN, f, or phi]" << std::endl;
 	    }
 	 } else {
 	    std::cout << "error in input chain-id" << std::endl;

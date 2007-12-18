@@ -5045,15 +5045,24 @@ coot::restraints_container_t::position_OXT() {
    }
 } 
 
-void
+int
 coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) { 
 
-   // 
-   if (mol != NULL) { 
-      mol->WritePDBASCII((char *)pdb_file_name.c_str());
+   //
+   int status = -1;
+   if (mol != NULL) {
+      // return 0 on success, non-zero on failure.
+      status = mol->WritePDBASCII((char *)pdb_file_name.c_str());
+      if (status == 0)
+	 std::cout << "INFO:: output file: " << pdb_file_name
+		   << " written." << std::endl;
+      else
+	 std::cout << "WARNING:: output file: " << pdb_file_name
+		   << " not written." << std::endl;
    } else { 
       cout << "not constructed from asc, not writing coords" << endl; 
    }
+   return status;
 }
 
 void

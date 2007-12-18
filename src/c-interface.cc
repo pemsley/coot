@@ -5592,18 +5592,22 @@ int export_map(int imol, const char *filename) {
    int rv = 0; // fail
    if (is_valid_map_molecule(imol)) {
 
-      clipper::CCP4MAPfile mapout;
-      mapout.open_write(std::string(filename));
-      mapout.export_xmap(graphics_info_t::molecules[imol].xmap_list[0]);
-      mapout.close_write();
-      rv = 1;
+      try { 
+	 clipper::CCP4MAPfile mapout;
+	 mapout.open_write(std::string(filename));
+	 mapout.export_xmap(graphics_info_t::molecules[imol].xmap_list[0]);
+	 mapout.close_write();
+	 rv = 1;
+      }
+      catch (...) {
+	 std::cout << "CCP4 map writing error for " << filename << std::endl;
+      }
       
    } else {
       graphics_info_t g;
       g.statusbar_text("Invalid map molecule number");
    }
    return rv; 
-
 }
 
 int transform_map_raw(int imol, 

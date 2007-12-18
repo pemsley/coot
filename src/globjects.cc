@@ -1705,20 +1705,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    glEnable(GL_DEPTH_TEST);
 #endif
 
-// BL says:: doesnt seem to be in windows, need to check out further
-#if !WINDOWS_MINGW
-   glEnable(GL_MULTISAMPLE_ARB);
-#endif
-   // glHints(G); sample nicest
+   if (0) { 
+      //   glEnable(GL_MULTISAMPLE_ARB);
+   }
 
-   // From the Book:   What's going on when I generate
-
-   // Martin says that this is not what you want to do!
+//    Martin says that this is not what you want to do!
 //    glClear (GL_COLOR_BUFFER_BIT);
 //    glEnable (GL_BLEND);
 //    glEnable (GL_POLYGON_SMOOTH);
 //    glDisable (GL_DEPTH_TEST);
-
       
       // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
@@ -1731,8 +1726,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //	 if (graphics_info_t::esoteric_depth_cue_flag) 
       glOrtho(-0.3*graphics_info_t::zoom*aspect_ratio, 0.3*graphics_info_t::zoom*aspect_ratio,
 	      -0.3*graphics_info_t::zoom,  0.3*graphics_info_t::zoom,
-	      -0.10*graphics_info_t::zoom*(graphics_info_t::clipping_front*-0.1 + 1.0),
-	      +0.30*graphics_info_t::zoom*(graphics_info_t::clipping_back* -0.1 + 1.0));
+	      -0.10*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0),
+	      +0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0));
       // 	 else
       // 	    glOrtho(-0.3*info.zoom*aspect_ratio, 0.3*info.zoom*aspect_ratio,
       // 		    -0.3*info.zoom,  0.3*info.zoom,

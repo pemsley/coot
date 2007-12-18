@@ -508,6 +508,7 @@ namespace coot {
       
       // std::vector<simple_residue_t> residue; 
       std::vector<std::string> residue_codes;
+      bool verbose_mode;
 
       std::vector<dictionary_residue_restraints_t> dict_res_restraints;
       std::vector<dictionary_residue_link_restraints_t> dict_link_res_restraints;
@@ -664,7 +665,7 @@ namespace coot {
 
    public:
 
-      protein_geometry() { read_number = 0;}
+      protein_geometry() { read_number = 0; set_verbose(1); }
 #ifdef USE_SBASE   
       // SBase things
       int init_sbase(); // inits SBase
@@ -686,8 +687,10 @@ namespace coot {
       void info() const;
       std::string three_letter_code(const unsigned int &i) const;
 
+      void set_verbose(bool verbose_mode_in);
+
       int init_standard(); // standard protein residues and links.
-			   // Return the current read_number
+       			   // Return the current read_number
       
       // Return 0 on failure to do a dynamic add (actually, the number of
       // bond restraints found).
