@@ -689,8 +689,6 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
    
 #if (GTK_MAJOR_VERSION > 1)
    selector_condition = graphics_info_t::gtk2_chooser_selector_flag;
-#endif    
-   
    if (selector_condition == 1) {
       int d = data_type;
       int i = 0;
@@ -754,7 +752,14 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
       gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection), GTK_FILE_FILTER (filterall));
       gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection), GTK_FILE_FILTER (filterselect));
 
-   } else {
+   } else
+
+#endif    // This is really ugly split.  Make it cleaner.  Put gtk
+	  // code in a different function, so we can conditionally
+	  // compile the whole function. Not mess around with
+	  // splitting like this.
+
+      {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
       GtkWidget *frame = gtk_frame_new("File-name filter:");
       int d = data_type;
