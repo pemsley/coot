@@ -19,6 +19,9 @@
  * 02110-1301, USA
  */
 
+#include <string>
+#include <vector>
+
 #include "c-interface-scm.hh"
 
 #ifdef USE_GUILE
@@ -31,6 +34,7 @@
 #define scm_to_double  gh_scm2double
 #define  scm_is_true gh_scm2bool
 #endif // SCM version
+
 
 // This is a common denominator really.  It does not depend on mmdb,
 // but it can't be declared in c-interface.h because then we'd have to
@@ -51,5 +55,6 @@ bool scm_is_undefined(SCM o) {
    // undefined does.
    return (1024 & SCM_UNPACK(o)) > 0 ? 1 : 0;
 }
+
 
 #endif // USE_GUILE

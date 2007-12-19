@@ -1688,6 +1688,18 @@ int set_atom_attribute(int imol, const char *chain_id, int resno, const char *in
 Attributes can be "atom-name", "alt-conf" or "element". */
 int set_atom_string_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, const char *attribute_value);
 
+/*! \brief set lots of atom attributes at once by-passing the rebonding and redrawing of the above 2 functions  */
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+int set_atom_attributes(SCM attribute_expression_list);
+#endif 
+
+#ifdef USE_PYTHON
+// FIXME Bernhard
+// int set_atom_attributes()
+#endif 
+#endif // __cplusplus
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
