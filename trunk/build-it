@@ -411,6 +411,7 @@ function setup_ccp4 {
       if test -e $setup_file ; then
          . $setup_file
       fi
+   fi
    if test "$OS" = Darwin ; then
       . /usr/local/ccp4-6.0.2/bin/ccp4.setup-sh
    fi
