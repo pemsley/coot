@@ -75,6 +75,14 @@
 
 #ifdef USE_GUILE
 #include <guile/gh.h>
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+  // no fix up needed 
+#else    
+  #define scm_to_int gh_scm2int
+  #define scm_to_locale_string SCM_STRING_CHARS
+  #define scm_to_double  gh_scm2double
+  #define  scm_is_true gh_scm2bool
+#endif // SCM version
 #endif // USE_GUILE
 
 // Including python needs to come after graphics-info.h, because
@@ -841,6 +849,60 @@ int set_atom_string_attribute(int imol, const char *chain_id, int resno, const c
    return istat;
 }
 
+#ifdef USE_GUILE
+int set_atom_attributes(SCM attribute_expression_list) {
+
+   int r= 0;
+   SCM list_length_scm = scm_length(attribute_expression_list);
+   int list_length = scm_to_int(list_length_scm);
+   int n = graphics_info_t::n_molecules; 
+   std::vector<std::vector<coot::atom_attribute_setting_t> > v(n);
+
+   if (list_length > 0) {
+      for (int iattr=0; iattr<list_length; iattr++) { 
+	 SCM iattr_scm = SCM_MAKINUM(iattr);
+	 SCM attribute_expression = scm_list_ref(attribute_expression_list, iattr_scm);
+	 if (scm_is_true(scm_list_p(attribute_expression))) { 
+	    SCM attr_expression_length_scm = scm_length(attribute_expression);
+	    int attr_expression_length = scm_to_int(attr_expression_length_scm);
+	    if (attr_expression_length == 8) {
+	       SCM imol_scm            = scm_list_ref(attribute_expression, SCM_MAKINUM(0));
+	       SCM chain_id_scm        = scm_list_ref(attribute_expression, SCM_MAKINUM(1));
+	       SCM resno_scm           = scm_list_ref(attribute_expression, SCM_MAKINUM(2));
+	       SCM ins_code_scm        = scm_list_ref(attribute_expression, SCM_MAKINUM(3));
+	       SCM atom_name_scm       = scm_list_ref(attribute_expression, SCM_MAKINUM(4));
+	       SCM alt_conf_scm        = scm_list_ref(attribute_expression, SCM_MAKINUM(5));
+	       SCM attribute_name_scm  = scm_list_ref(attribute_expression, SCM_MAKINUM(6));
+	       SCM attribute_value_scm = scm_list_ref(attribute_expression, SCM_MAKINUM(7));
+	       int imol = scm_to_int(imol_scm);
+	       if (is_valid_model_molecule(imol)) {
+		  std::string chain_id = scm_to_locale_string(chain_id_scm);
+		  int resno = scm_to_int(resno_scm);
+		  std::string inscode        = scm_to_locale_string(resno_scm);
+		  std::string atom_name      = scm_to_locale_string(atom_name_scm);
+		  std::string alt_conf       = scm_to_locale_string(alt_conf_scm);
+		  std::string attribute_name = scm_to_locale_string(attribute_name_scm);
+		  coot::atom_attribute_setting_help_t att_val;
+		  if (scm_string_p(attribute_value_scm)) {
+		     att_val = coot::atom_attribute_setting_help_t(scm_to_locale_string(attribute_value_scm));
+		  } else {
+		     att_val = coot::atom_attribute_setting_help_t(scm_to_double(attribute_value_scm));
+		  } 
+		  v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
+	       }
+	    }
+	 }
+      }
+   }
+
+   for (int i=0; i<n; i++) {
+      if (v[i].size() > 0){
+	 graphics_info_t::molecules[i].set_atom_attributes(v[i]);
+      } 
+   }
+   return r;
+} 
+#endif // USE_GUILE
 
 
 

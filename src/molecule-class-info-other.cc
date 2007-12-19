@@ -293,6 +293,61 @@ molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno
    return istate;
 }
 
+int
+molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribute_setting_t> &v) {
+
+   int istate = 0;
+   if (has_model()) {
+      if (v.size() > 0) { 
+	 for (unsigned int iv=0; iv<v.size(); iv++) { 
+	    int SelectionHandle = atom_sel.mol->NewSelection();
+	    atom_sel.mol->SelectAtoms(SelectionHandle, 0,
+				      (char *) v[iv].atom_spec.chain.c_str(),
+				      v[iv].atom_spec.resno, (char *) v[iv].atom_spec.insertion_code.c_str(),
+				      v[iv].atom_spec.resno, (char *) v[iv].atom_spec.insertion_code.c_str(),
+				      "*",
+				      (char *) v[iv].atom_spec.atom_name.c_str(),
+				      (char *) v[iv].atom_spec.alt_conf.c_str(), "*");
+	    int nSelAtoms;
+	    PPCAtom SelAtoms;
+	    atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
+	    if (nSelAtoms > 0) {
+	       CAtom *at = SelAtoms[0];
+	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_STRING) { 
+		  if (v[iv].attribute_name == "atom-name")
+		     at->SetAtomName((char *) v[iv].attribute_value.s.c_str());
+		  if (v[iv].attribute_name == "alt-conf") {
+		     strncpy(at->altLoc, v[iv].attribute_value.s.c_str(), 2);
+		  }
+		  if (v[iv].attribute_name == "element") {
+		     at->SetElementName(v[iv].attribute_value.s.c_str());
+		  }
+	       }
+	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_FLOAT) {
+		  if (v[iv].attribute_name == "x")
+		     at->x = v[iv].attribute_value.val;
+		  if (v[iv].attribute_name == "y")
+		     at->y = v[iv].attribute_value.val;
+		  if (v[iv].attribute_name == "z")
+		     at->z = v[iv].attribute_value.val;
+		  if (v[iv].attribute_name == "b")
+		     at->tempFactor = v[iv].attribute_value.val;
+		  if (v[iv].attribute_name == "B")
+		     at->tempFactor = v[iv].attribute_value.val;
+		  if (v[iv].attribute_name == "occ")
+		     at->occupancy = v[iv].attribute_value.val;
+	       }
+	    }
+	 }
+	 have_unsaved_changes_flag = 1;
+	 atom_sel.mol->FinishStructEdit();
+	 make_bonds_type_checked(); // calls update_ghosts()
+      }
+   } 
+   return istate;
+}
+
+
 // -----------------------------------------------------------------------------
 //                     pepflip
 // -----------------------------------------------------------------------------
