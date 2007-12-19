@@ -196,7 +196,8 @@
 # 2.33 20071215 Pythonize only sometimes, default off.
 # 2.34 20071215 Tell us some Python info
 # 2.35 20071215 Python settings outside the subshell.
-script_version=2.35
+# 2.36 20071219 Set up for testing and tars on biop too.
+script_version=2.36
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -402,8 +403,14 @@ function setup_ccp4 {
    # we have access to $OS and $arch.
 
    if test "$OS" = Linux ; then
-      . /y/programs/xtal/ccp4-6.0/ccp4-6.0/include/ccp4.setup-sh
-   fi
+      setup_file=/y/programs/xtal/ccp4-6.0/ccp4-6.0/include/ccp4.setup-sh 
+      if test -e $setup_file ; then
+         . $setup_file
+      fi
+      setup_file=/lmb/dorset/linux_software/ccp4-6.0/include/ccp4.setup-bash
+      if test -e $setup_file ; then
+         . $setup_file
+      fi
    if test "$OS" = Darwin ; then
       . /usr/local/ccp4-6.0.2/bin/ccp4.setup-sh
    fi
@@ -426,7 +433,7 @@ echo testing with greg
 echo currently we are here:
 pwd
 
-if test "$in_york" = true ; then
+if test "$run_tests" = true ; then
    # let's test our new coot
    
    # the greg tests are where the coot source code was untarred.
@@ -897,9 +904,14 @@ coot_prefix=
 if [ "$domainname" = "yorksbl" ] ; then
     # we are in York, let's try the pre-release coot...
     echo we are in York
-    in_york=true
+    run_tests=true
     build_coot_prerelease=1
 fi
+if [ "$domainname" = "biop" ] ; then
+    run_tests=true
+    build_coot_prerelease=1
+fi
+
 
 # override the switch which turns off the building of the pre-release here:
 # build_coot_prerelease=1
