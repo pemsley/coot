@@ -878,17 +878,41 @@ int set_atom_attributes(SCM attribute_expression_list) {
 	       if (is_valid_model_molecule(imol)) {
 		  std::string chain_id = scm_to_locale_string(chain_id_scm);
 		  int resno = scm_to_int(resno_scm);
-		  std::string inscode        = scm_to_locale_string(resno_scm);
-		  std::string atom_name      = scm_to_locale_string(atom_name_scm);
-		  std::string alt_conf       = scm_to_locale_string(alt_conf_scm);
-		  std::string attribute_name = scm_to_locale_string(attribute_name_scm);
-		  coot::atom_attribute_setting_help_t att_val;
-		  if (scm_string_p(attribute_value_scm)) {
-		     att_val = coot::atom_attribute_setting_help_t(scm_to_locale_string(attribute_value_scm));
-		  } else {
-		     att_val = coot::atom_attribute_setting_help_t(scm_to_double(attribute_value_scm));
-		  } 
-		  v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
+		  
+		  std::string inscode        = "-*-unset-*-:";
+		  std::string atom_name      = "-*-unset-*-:";
+		  std::string alt_conf       = "-*-unset-*-:";
+		  std::string attribute_name = "-*-unset-*-:";
+
+		  if (scm_is_true(scm_string_p(ins_code_scm))) 
+		      inscode        = scm_to_locale_string(ins_code_scm);
+		  if (scm_is_true(scm_string_p(atom_name_scm))) 
+		     atom_name      = scm_to_locale_string(atom_name_scm);
+		  if (scm_is_true(scm_string_p(alt_conf_scm))) 
+		     alt_conf       = scm_to_locale_string(alt_conf_scm); 
+		  if (scm_is_true(scm_string_p(attribute_name_scm))) 
+		     attribute_name = scm_to_locale_string(attribute_name_scm);
+
+		  if ((inscode        == "-*-unset-*-:") ||
+		      (atom_name      == "-*-unset-*-:") ||
+		      (alt_conf       == "-*-unset-*-:") ||
+		      (attribute_name == "-*-unset-*-:")) {
+
+		     std::cout << "WARNING:: bad attribute expression: "
+			       << scm_to_locale_string(display_scm(attribute_expression))
+			       << std::endl;
+
+		  } else { 
+		      
+		     coot::atom_attribute_setting_help_t att_val;
+		     if (scm_string_p(attribute_value_scm)) {
+			att_val = coot::atom_attribute_setting_help_t(scm_to_locale_string(attribute_value_scm));
+		     } else {
+			att_val = coot::atom_attribute_setting_help_t(scm_to_double(attribute_value_scm));
+		     } 
+		     v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
+		     std::cout << "DEBUG:: Added attribute: " << scm_to_locale_string(display_scm(attribute_expression)) << std::endl;
+		  }
 	       }
 	    }
 	 }
