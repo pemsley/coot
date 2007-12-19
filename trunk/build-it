@@ -1418,38 +1418,6 @@ else
 fi
 
 
-# do we have greg? 
-
-
-should_download_and_build_ccp4_libs=1
-
-# look to see if there is a libs tar file
-   # if there is keep a note of the date
-   # wget new tar file
-   # compare dates of current/new tar file and previous date
-   # if current is not newer
-   #        should_download_and_build_ccp4_libs=0
-
-
-if [ -e $AUTOBUILD_SOURCES/ccp4-onlylibs-dev.tar.gz ] ; then
-    # we can't do a touch -r ccp4-onlylibs-dev.tar.gz because that 
-    # creates a file of the same date - and thus the find always 
-    # returns true! (Argh).
-    # OK, but when I wget ftp a file it is created now, not the creation 
-    # date of the file on the server.
-    touch $AUTOBUILD_SOURCES/ccp4-libs-timestamp
-    ${WGET} ftp://ftp.ccp4.ac.uk/prerelease/ccp4-onlylibs-dev.tar.gz
-    r=`find $AUTOBUILD_SOURCES/ccp4-onlylibs-dev.tar.gz -cnewer \
-        $AUTOBUILD_SOURCES/ccp4-libs-timestamp`
-    if [ "$r" = $AUTOBUILD_SOURCES/ccp4-onlylibs-dev.tar.gz ] ; then
-        should_download_and_build_ccp4_libs=1
-    else 
-        # we did not download a new tar file, so the ccp4 tar file has 
-        # not changed.
-        should_download_and_build_ccp4_libs=
-    fi
-fi
-
 # test for mmdb: Does mmdb_file.h exist, and if it does, does it
 # contain MMDBF_IgnoreHash.  If not, then build mmdb.
 #
