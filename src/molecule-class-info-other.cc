@@ -229,7 +229,7 @@ molecule_class_info_t::set_atom_attribute(std::string chain_id, int resno, std::
 				resno, (char *) ins_code.c_str(),
 				"*",  // res type
 				(char *) atom_name.c_str(),
-				"*",  // andy element
+				"*",  // any element
 				(char *) alt_conf.c_str(), SKEY_NEW);
       int nSelAtoms;
       PPCAtom SelAtoms = NULL;
@@ -271,7 +271,8 @@ molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno
 				resno, (char *) ins_code.c_str(),
 				"*",
 				(char *) atom_name.c_str(),
-				(char *) alt_conf.c_str(), "*");
+				"*",
+				(char *) alt_conf.c_str());
       int nSelAtoms;
       PPCAtom SelAtoms;
       atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
@@ -298,8 +299,9 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 
    int istate = 0;
    if (has_model()) {
-      if (v.size() > 0) { 
-	 for (unsigned int iv=0; iv<v.size(); iv++) { 
+      if (v.size() > 0) {
+	 for (unsigned int iv=0; iv<v.size(); iv++) {
+	    std::cout << "DEBUG:: considering " << v[iv].atom_spec << std::endl;
 	    int SelectionHandle = atom_sel.mol->NewSelection();
 	    atom_sel.mol->SelectAtoms(SelectionHandle, 0,
 				      (char *) v[iv].atom_spec.chain.c_str(),
@@ -307,10 +309,12 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 				      v[iv].atom_spec.resno, (char *) v[iv].atom_spec.insertion_code.c_str(),
 				      "*",
 				      (char *) v[iv].atom_spec.atom_name.c_str(),
-				      (char *) v[iv].atom_spec.alt_conf.c_str(), "*");
+				      "*",
+				      (char *) v[iv].atom_spec.alt_conf.c_str());
 	    int nSelAtoms;
 	    PPCAtom SelAtoms;
 	    atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
+	    std::cout << "DEBUG:: considering " << v[iv].atom_spec << " nSelAtoms: " << nSelAtoms << std::endl;
 	    if (nSelAtoms > 0) {
 	       CAtom *at = SelAtoms[0];
 	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_STRING) { 
