@@ -1,12 +1,17 @@
 
-
 (greg-testcase "RNA NCS Ghosts" #t 
     (lambda ()
 
      (define (jiggle-random)
         (- (/ (random 10000) 10000) 0.25)) ; between -0.5 to 0.5
-       
-       (define (jiggle-atoms-of-mol imol)
+     
+     ;; a bit of ugliness here, we set! additions to
+     ;; atom-attribute-settings, rather than consing them with
+     ;; recursion over chain-id, serial-number and atom-list.  
+     ;; Hmm...  Come back to improve one day?
+     ;; 
+     (define (jiggle-atoms-of-mol imol)
+       (let ((atom-attribute-settings '()))
 	 (map (lambda (chain-id)
 		(if (not (is-solvent-chain? imol chain-id))
 		    (let ((n-residues (chain-n-residues chain-id imol)))
@@ -31,15 +36,22 @@
 					(x (car xyz))
 					(y (car (cdr xyz)))
 					(z (car (cdr (cdr xyz)))))
-				   (set-atom-attribute imol chain-id res-no ins-code atom-name alt-conf
-						       "x" (+ 24 x (* 0.3 (jiggle-random))))
-				   (set-atom-attribute imol chain-id res-no ins-code atom-name alt-conf
-						       "y" (+ 6 y (* 0.3 (jiggle-random))))
-				   (set-atom-attribute imol chain-id res-no ins-code atom-name alt-conf
-						       "z" (+ 3 z (* 0.3 (jiggle-random)))))
-				 (f (cdr atom-ls))))))))
+				   (set! atom-attribute-settings
+					 (cons (list imol chain-id res-no ins-code atom-name alt-conf
+						     "x" (+ 24 x (* 0.3 (jiggle-random))))
+					       atom-attribute-settings))
+				   (set! atom-attribute-settings
+					 (cons (list imol chain-id res-no ins-code atom-name alt-conf
+						     "y" (+ 24 y (* 0.3 (jiggle-random))))
+					       atom-attribute-settings))
+				   (set! atom-attribute-settings
+					 (cons (list imol chain-id res-no ins-code atom-name alt-conf
+						     "z" (+ 24 z (* 0.3 (jiggle-random))))
+					       atom-attribute-settings))
+				   (f (cdr atom-ls)))))))))
 		       (number-list 0 (- n-residues 1))))))
-	      (chain-ids imol)))
+	      (chain-ids imol))
+	 (set-atom-attributes atom-attribute-settings)))
 
      ;; main body
      (let* ((rna-mol (ideal-nucleic-acid "RNA" "A" 0 "GACUCUAG"))
@@ -81,6 +93,4 @@
 		   (go-to-view-number view-number 1)
 		   (rotate-y-scene 200 1)
 		   #t))))))))
-
-       
 

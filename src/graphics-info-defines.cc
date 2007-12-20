@@ -1,10 +1,12 @@
 /* src/graphics-info-defines.cc
  * 
- * Copyright 2004, 2005 by Paul Emsley, The University of York
+ * Copyright 2004, 2005 by The University of York
+ * Copyright 2007 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -232,7 +234,7 @@ graphics_info_t::check_if_in_residue_info_define(GdkEventButton *event) {
 	 int im = nearest_atom_index_info.imol; 
 	 std::cout << "info: clicked on imol: " << im << std::endl;
 	 // a c-interface-info function...
-	 output_residue_info(nearest_atom_index_info.atom_index, im); 
+	 output_residue_info_dialog(nearest_atom_index_info.atom_index, im); 
 	 info.in_residue_info_define = 0;
 	 normal_cursor();
 	 pick_pending_flag = 0;

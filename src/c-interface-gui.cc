@@ -2508,6 +2508,36 @@ void apply_go_to_atom_from_widget(GtkWidget *widget) {
    g.apply_go_to_atom_from_widget(widget);
 } 
 
+// This is a different action to wrapped_create_goto_atom_window,
+// because we don't want to raise an already existing dialog, we need
+// to destroy it.
+// 
+GtkWidget *wrapped_create_residue_info_dialog() { 
+
+   GtkWidget *widget = graphics_info_t::residue_info_dialog;
+   if (widget) {
+      // raise/uniconify (or whatever) what we have:
+      // 
+// not this widget...
+//       if (!GTK_WIDGET_MAPPED(widget))
+// 	 gtk_widget_show(widget);
+//       else
+// 	 gdk_window_raise(widget->window);
+      
+      gtk_widget_destroy(widget);
+      widget = create_residue_info_dialog();
+      graphics_info_t::residue_info_dialog = widget;
+   } else {
+
+      // create (then store) a new one.
+      
+      widget = create_residue_info_dialog();
+      graphics_info_t::residue_info_dialog = widget;
+   }
+   return widget; 
+
+} 
+
 
 
 GtkWidget *wrapped_create_display_control_window() { 
