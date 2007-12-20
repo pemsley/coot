@@ -120,7 +120,7 @@ on_sequence_view_dialog_destroy            (GtkObject       *object,
                                             gpointer         user_data)
 {
    GtkWidget *dialog = (GtkWidget *) user_data;
-   int imol = (int) gtk_object_get_user_data(GTK_OBJECT(dialog));
+   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dialog)));
 /*    printf("debug:: on_sequence_view_dialog_destroy unsetting sequence view for molecule %d using widget %ld\n", imol, dialog); */
    set_sequence_view_is_displayed(0, imol);
 }

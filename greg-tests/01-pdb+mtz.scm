@@ -366,3 +366,55 @@
 
 
 
+(greg-testcase "Setting multiple atom attributes" #t
+   (lambda ()
+
+     (if (not (valid-model-molecule? imol-rnase))
+	 (begin 
+	   (format #t "   Error invalid imol-rnase~%")
+	   (throw 'fail))
+	      
+         (let* ((x-test-val 2.1)
+		(y-test-val 2.2)
+		(z-test-val 2.3)
+		(o-test-val 0.5)
+		(b-test-val 44.4)
+		(ls (list (list 0 "A" 2 "" " CA " "" "x" x-test-val)
+			  (list 0 "A" 2 "" " CA " "" "y" y-test-val)
+			  (list 0 "A" 2 "" " CA " "" "z" z-test-val)
+			  (list 0 "A" 2 "" " CA " "" "occ" o-test-val)
+			  (list 0 "A" 2 "" " CA " "" "b" b-test-val))))
+           (set-atom-attributes ls)
+	   (let ((atom-ls (residue-info imol-rnase "A" 2 "")))
+	     (let f ((atom-ls atom-ls))
+	       (cond 
+		((null? atom-ls) (throw 'fail))
+		(else 
+		 (let* ((atom (car atom-ls))
+			(compound-name (car atom))
+			(atom-name (car compound-name)))
+		   (if (string=? atom-name " CA ")
+		       (let* ((xyz (car (cdr (cdr atom))))
+			      (x (car xyz))
+			      (y (car (cdr xyz)))
+			      (z (car (cdr (cdr xyz))))
+			      (occ-b-ele (car (cdr atom)))
+			      (occ (car occ-b-ele))
+			      (b (car (cdr occ-b-ele))))
+			      
+			 (if 
+			  (and 
+			   (close-float? x   x-test-val)
+			   (close-float? y   y-test-val)
+			   (close-float? z   z-test-val)
+			   (close-float? occ o-test-val)
+			   (close-float? b   b-test-val))
+			  #t ; success
+			  (begin
+			    (format #t "Error in setting multiple atom attributes~%")
+			    #f)))
+		       (f (cdr atom-ls))))))))))))
+
+
+
+	   
