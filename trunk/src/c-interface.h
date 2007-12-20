@@ -2553,8 +2553,10 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 /*! \name Residue Info */
 /* \{ */
 /* Similar to above, we need only one click though. */
-void do_residue_info();
-void output_residue_info    (int atom_index, int imol); /* widget version */
+void do_residue_info_dialog();
+void output_residue_info_dialog    (int atom_index, int imol); /* widget version */
+/* scripting version */
+void residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code); 
 void output_residue_info_as_text(int atom_index, int imol); /* text version */
 /* functions that uses mmdb_manager functions/data types moved to graphics_info_t */
 

@@ -118,7 +118,7 @@ float molecule_centre_internal(int imol, int iaxis) {
 /*               (Eleanor's) Residue info                                   */
 /*  ----------------------------------------------------------------------- */
 /* Similar to above, we need only one click though. */
-void do_residue_info() {
+void do_residue_info_dialog() {
 
    if (graphics_info_t::residue_info_edits->size() > 0) {
 
@@ -205,7 +205,7 @@ PyObject *sequence_info_py(int imol) {
 //
 // The reader is graphics_info_t::apply_residue_info_changes(GtkWidget *dialog);
 // 
-void output_residue_info(int atom_index, int imol) {
+void output_residue_info_dialog(int atom_index, int imol) {
 
    if (graphics_info_t::residue_info_edits->size() > 0) {
 
@@ -235,7 +235,7 @@ void output_residue_info(int atom_index, int imol) {
 		  new coot::residue_spec_t(residue->GetChainID(),
 					   residue->GetSeqNum(),
 					   residue->GetInsCode());
-
+	       
 	       // fill the master atom
 	       GtkWidget *master_occ_entry =
 		  lookup_widget(widget, "residue_info_master_atom_occ_entry"); 
@@ -271,35 +271,24 @@ void output_residue_info(int atom_index, int imol) {
    add_to_history_typed(cmd, args);
 }
 
-// This is a different action to wrapped_create_goto_atom_window,
-// because we don't want to raise an already existing dialog, we need
-// to destroy it.
-// 
-GtkWidget *wrapped_create_residue_info_dialog() { 
+void residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code) {
 
-   GtkWidget *widget = graphics_info_t::residue_info_dialog;
-   if (widget) {
-      // raise/uniconify (or whatever) what we have:
-      // 
-// not this widget...
-//       if (!GTK_WIDGET_MAPPED(widget))
-// 	 gtk_widget_show(widget);
-//       else
-// 	 gdk_window_raise(widget->window);
-      
-      gtk_widget_destroy(widget);
-      widget = create_residue_info_dialog();
-      graphics_info_t::residue_info_dialog = widget;
-   } else {
-
-      // create (then store) a new one.
-      
-      widget = create_residue_info_dialog();
-      graphics_info_t::residue_info_dialog = widget;
+   if (is_valid_model_molecule(imol)) {
+      int atom_index = -1;
+      CResidue *res = graphics_info_t::molecules[imol].residue_from_external(resno, ins_code, chain_id);
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      res->GetAtomTable(residue_atoms, n_residue_atoms);
+      if (n_residue_atoms > 0) {
+	 CAtom *at = residue_atoms[0];
+	 int handle = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
+	 int ierr = at->GetUDData(handle, atom_index);
+	 if (ierr == UDDATA_Ok)
+	    if (atom_index != -1) 
+	       output_residue_info_dialog(atom_index, imol);
+      }
    }
-   return widget; 
-
-} 
+}
 
 
 // 23 Oct 2003: Why is this so difficult?  Because we want to attach

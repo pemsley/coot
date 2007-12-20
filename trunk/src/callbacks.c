@@ -2025,7 +2025,7 @@ void
 on_residue_info1_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  do_residue_info();
+  do_residue_info_dialog();
 }
 
 /* the model fit refine menu item was activated */
@@ -3824,8 +3824,7 @@ void
 on_residue_info2_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  do_residue_info();
-
+  do_residue_info_dialog();
 }
 
 
@@ -3859,7 +3858,7 @@ void
 on_residue_parameters1_activate        (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  do_residue_info();
+  do_residue_info_dialog();
 }
 
 
