@@ -905,13 +905,17 @@ int set_atom_attributes(SCM attribute_expression_list) {
 		  } else { 
 		      
 		     coot::atom_attribute_setting_help_t att_val;
-		     if (scm_string_p(attribute_value_scm)) {
+		     if (scm_is_true(scm_string_p(attribute_value_scm))) {
+			// std::cout << "a string value :" << att_val.s << ":" << std::endl;
 			att_val = coot::atom_attribute_setting_help_t(scm_to_locale_string(attribute_value_scm));
 		     } else {
 			att_val = coot::atom_attribute_setting_help_t(scm_to_double(attribute_value_scm));
+			// std::cout << "a float value :" << att_val.val << ":" << std::endl;
 		     } 
 		     v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
-		     std::cout << "DEBUG:: Added attribute: " << scm_to_locale_string(display_scm(attribute_expression)) << std::endl;
+		     //		     std::cout << "DEBUG:: Added attribute: "
+		     //                        << scm_to_locale_string(display_scm(attribute_expression))
+		     //        << std::endl;
 		  }
 	       }
 	    }

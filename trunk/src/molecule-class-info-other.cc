@@ -1,6 +1,7 @@
 /* src/molecule-class-info-other.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+ * Copyright 2007 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -301,7 +302,6 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
    if (has_model()) {
       if (v.size() > 0) {
 	 for (unsigned int iv=0; iv<v.size(); iv++) {
-	    std::cout << "DEBUG:: considering " << v[iv].atom_spec << std::endl;
 	    int SelectionHandle = atom_sel.mol->NewSelection();
 	    atom_sel.mol->SelectAtoms(SelectionHandle, 0,
 				      (char *) v[iv].atom_spec.chain.c_str(),
@@ -314,9 +314,13 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 	    int nSelAtoms;
 	    PPCAtom SelAtoms;
 	    atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
-	    std::cout << "DEBUG:: considering " << v[iv].atom_spec << " nSelAtoms: " << nSelAtoms << std::endl;
+	    // 	    std::cout << "DEBUG:: considering " << v[iv].atom_spec << " nSelAtoms: " << nSelAtoms << std::endl;
 	    if (nSelAtoms > 0) {
 	       CAtom *at = SelAtoms[0];
+// 	       std::cout << "DEBUG:: "
+// 			 << v[iv].attribute_value.type << " " << v[iv].attribute_name << " :"
+// 			 << v[iv].attribute_value.s << ": " << v[iv].attribute_value.val
+// 			 << std::endl;
 	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_STRING) { 
 		  if (v[iv].attribute_name == "atom-name")
 		     at->SetAtomName((char *) v[iv].attribute_value.s.c_str());

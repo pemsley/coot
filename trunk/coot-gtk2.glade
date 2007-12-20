@@ -17205,7 +17205,7 @@ programs to which you may be more accustomed.
 </widget>
 
 <widget class="GtkDialog" id="rotamer_selection_dialog">
-  <property name="width_request">170</property>
+  <property name="width_request">248</property>
   <property name="height_request">250</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">Select Rotamer</property>
