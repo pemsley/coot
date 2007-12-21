@@ -3479,22 +3479,19 @@ If you want to transform a map, you can do it thusly:
 
 where:
 
-@code{@emph{rotation-matrix}} is a 9-membered list of numbers
+@code{@emph{rotation-matrix}} is a 9-membered list of numbers for an orthogonal rotation matrix.
 
- @code{@emph{trans}} is a 3-membered list of numbers
+ @code{@emph{trans}} is a 3-membered list of numbers (distances in @AA{}ngst@"{o}ms).
 
- @code{@emph{point}} is a 3-membered list of numbers
+ @code{@emph{point}} is a 3-membered list of numbers (centre point in @AA{}ngst@"{o}ms).
 
- @code{@emph{radius}} is a single number
+ @code{@emph{radius}} is a single number (also in @AA{}ngst@"{o}ms).
 
 
 This applies the rotation @code{@emph{rotation-matrix}} and a
-translation @code{@emph{trans}} to the map about the position
-@code{@emph{point}}.  The resulting map is built in a
-@code{@emph{radius}}@AA{} grid around a position which is
-@code{@emph{point}} tranformed by @code{@emph{rotation-matrix}} and
-@code{@emph{trans}}, @emph{i.e.} @code{@emph{point}} is where the map was before it
-was transformed.
+translation @code{@emph{trans}} to a map fragment, so that when the
+transformation is applied the centre of the new map is at
+@code{@emph{point}}.  
 
 Example usage:
 
@@ -3506,7 +3503,7 @@ axis, centred at the screen centre for 10@AA{} around that centre.
 Here's a more real-world example:
 
 Let's say we want to tranform the density over the ``B'' molecule to a
-position over the ``A'' molecule: So first we do a LSQ transformation to
+position over the ``A'' molecule. First we do a LSQ transformation to
 get the rotation and translation that moves the ``B'' coordinates over
 the ``A'' coordinates:
 
@@ -3519,7 +3516,7 @@ In the terminal output we get:
 (    -33.34,     21.14,     18.82)
 @end verbatim
 
-The centre of the ``B'' molecule is at  (58.456 5.65 11.108).  So we do:
+The centre of the ``A'' molecule is at (58.456, 5.65, 11.108).  So we do:
 
 @code{(transform-map 3 (list 0.9707 0.2351 0.05033 -0.04676 0.39 -0.9196
 -0.2358 0.8903 0.3896) (list -33.34 21.14 18.82) (list 58.456 5.65

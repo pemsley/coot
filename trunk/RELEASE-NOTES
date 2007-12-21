@@ -83,6 +83,8 @@ Release 0.4
    o BUG-FIX: SHELXL .res molecules now generate ghosts correctly
      (given that NCS-related chains start at the "same" residue)
 
+   o METs can no longer form disulphide bridges [Wendy Offen].
+
    o CHANGE: Temperature factor variance validation now works for SHELXL
      molecules [GMS, JED]
 
@@ -109,11 +111,19 @@ Release 0.4
 
    o CHANGE: Binaries no longer include include file and static library 
      "junk" [Clemens Vonrhein]
+
+   o CHANGE: Check Waters results now display the occupancy too.
+
+   o CHANGE: fcf/cif maps now can be honour the map sampling rate [Dale Tronrud]
   
    o CHANGE: Extensions menu tided.
 
+   o CHANGE: multi-read-pdb no longer recentres.  Speeds things up [JED].
+
    o KNOWN PROBLEM: There may a be (is?) a problem in the sigmaa difference maps 
      from some .fcf files
+
+   o KNOWN PROBLEM: Rotamer analysis gives too many bad/unusual rotamers.
     
 
     -------------------------------------------------------

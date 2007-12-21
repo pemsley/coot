@@ -4,42 +4,7 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   4 outstanding issues
-
-   o Carsten's Map Masking crash
-
-     Is it passing an out-of-date group?  No, looks to be handled
-     correctly.  Wrote a test... didn't tickle the bug.  Tricky.
-
-       #3  0x08295a48 in display_control_map_combo_box (
-           display_control_window_glade=0x8cf4d60,
-           name=0x86c1154 "Generic Masked Map", n=0x8767580) at
-           gtk-manual.c:1160
-
-     valgrind it?
-
-   o Steven Muchmore crash on mutating a residue
-
-      #0  0x081d1a88 in lookup_widget (widget=0x41, 
-          widget_name=0x848d999 "go_to_atom_residue_tree") at support.c:37
-   	   in support.c
-      #0  0x081d1a88 in lookup_widget (widget=0x41, 
-          widget_name=0x848d999 "go_to_atom_residue_tree") at support.c:37
-      #1  0x08146e4a in graphics_info_t::update_go_to_atom_window_on_changed_mol(int)
-          (this=0xbfff963f, imol=0) at graphics-info-navigation.cc:627
-      #2  0x0814193e in graphics_info_t::do_mutation(std::string const&, short) (
-          this=0xbfff963f, residue_type=@0xbfff96e0, do_stub_flag=0)
-          at graphics-info-mutate.cc:224
-      #4  0x409e1883 in gtk_marshal_NONE__NONE (object=0x87c2f70, 
-          func=0x8221b20 <on_residue_type_chooser_LYS_clicked>, func_data=0x0, 
-          args=0xbfff9800) at gtkmarshal.c:312
-  
-      A job for valgrind. 
-
-         Hmmm - tried. Nothing obvious.  Mabye it was GTK2 problem?
-         Test on penelope.
-
-      Copy molecule is valgrind-clean (both coords and map)
+   3 outstanding issues
 
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
@@ -53,12 +18,35 @@ Tue Jul  3 14:27:37 BST 2007
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
-   o Wendy Offen: disulphide drawn between CYS and close MET. Oops.
+   o Check that map sampling rate can be varied for fcf files.
 
-   o How about a post-swig command to add #ifdef USE_PYTHON around coot_wrap_python.cc 
-     (or is it coot_wrap_python_pre.cc?)
+   o check that sigmaA maps work now.
+
+
+
+
+
 
    o Fix map transformation text pointed out by Stephen Graham
+
+* Done.
+
+   o Wendy Offen: disulphide drawn between CYS and close MET. Oops.
+ 
+* Done.
+
+   o Carsten's Map Masking crash
+
+     Is it passing an out-of-date group?  No, looks to be handled
+     correctly.  Wrote a test... didn't tickle the bug.  Tricky.
+
+       #3  0x08295a48 in display_control_map_combo_box (
+           display_control_window_glade=0x8cf4d60,
+           name=0x86c1154 "Generic Masked Map", n=0x8767580) at
+           gtk-manual.c:1160
+
+     valgrind it?
+* Will pass on this for now.  :-(.  More info needed.
 
    o Mark Saper: 
 
@@ -82,8 +70,30 @@ Abort
 * Can't reproduce this.  But maybe it was a version before the alt conf of waters rigid body 
   refinement was touched.    
 
+   o Steven Muchmore crash on mutating a residue
 
+      #0  0x081d1a88 in lookup_widget (widget=0x41, 
+          widget_name=0x848d999 "go_to_atom_residue_tree") at support.c:37
+   	   in support.c
+      #0  0x081d1a88 in lookup_widget (widget=0x41, 
+          widget_name=0x848d999 "go_to_atom_residue_tree") at support.c:37
+      #1  0x08146e4a in graphics_info_t::update_go_to_atom_window_on_changed_mol(int)
+          (this=0xbfff963f, imol=0) at graphics-info-navigation.cc:627
+      #2  0x0814193e in graphics_info_t::do_mutation(std::string const&, short) (
+          this=0xbfff963f, residue_type=@0xbfff96e0, do_stub_flag=0)
+          at graphics-info-mutate.cc:224
+      #4  0x409e1883 in gtk_marshal_NONE__NONE (object=0x87c2f70, 
+          func=0x8221b20 <on_residue_type_chooser_LYS_clicked>, func_data=0x0, 
+          args=0xbfff9800) at gtkmarshal.c:312
+  
+      A job for valgrind. 
 
+         Hmmm - tried. Nothing obvious.  Mabye it was GTK2 problem?
+         Test on penelope.
+
+* Tested with Gtk2 and Valgrind.  Can't spot the problem.
+
+      Copy molecule is valgrind-clean (both coords and map)
    o To make the test non-tedious, especially on slow computers, we
      need a set-atoms-attributes that takes a list of attribute sets.
      
@@ -93,15 +103,16 @@ Abort
 
        Not for now.   Next release.
 
+* Done. 
 
    o When undisplay a model, the ball and stick representation should be undisplayed too.
 
-   
+* Done.   
+
+
    o multireadpdb should not recentre [JED]
 
-
-
-
+* Done.
 
     o Mark Saper: 
 
@@ -2953,6 +2964,87 @@ Fri Dec 21 13:51:31 GMT 200
 
  c-interface.cc:
  * Copyright 2004, 2005, 2006, 2007 by Bernhard Lohkamp
- Remove that.
+coot_utils.py:
+# Copyright 2004, 2005, 2006, 2007 by Bernhard Lohkamp
+
+ Remove that - unless there is good reason not to.
+
+-----
+Fri Dec 21 14:08:25 GMT 2007
+
+   Bill report of starting up with GUI, but no scripting window available:
 
 
+
+
+Latest coot, I am getting this when I try to open the python scripting window (used to work):
+
+Traceback (most recent call last):
+ File "<string>", line 1, in <module>
+NameError: name 'coot_gui' is not defined
+
+
+I think everyting loaded:
+
+DEBUG:: stating pydirectory /sw/share/coot/python
+INFO:: loading coot.py from /sw/share/coot/python/coot.py
+Running python script /sw/share/coot/python/coot.py
+INFO:: coot.py loaded
+INFO loading coot python modules
+Running python script /sw/share/coot/python/coot_load_modules.py
+Loading: coot_utils.py
+Loading: filter.py
+Loading: coot_lsq.py
+Loading: shelx.py
+Loading: get_ebi.py
+Loading: local_code.py
+Loading: hello.py
+Good Evening Wgscott, Welcome to Coot.
+(set-display-intro-string "Good Evening Wgscott, Welcome to Coot.")
+Loading: mutate.py
+Loading: refmac.py
+Loading: libcheck.py
+Loading: gap.py
+Loading: fitting.py
+Loading: raster3d.py
+Loading: povray.py
+Loading: generic_objects.py
+Loading: ncs.py
+Loading: cns2coot.py
+Loading: tips.py
+Loading: americanisms.py
+Loading: group_settings.py 
+
+
+Note that it is not starting up in python_gui mode.
+
+Note also that pygtk is not needed for the python gui.
+
+   Priority: Important.
+   Bernhard to fix.
+   (It doesn't happen to me, I get good results on searching for pygtk in configure).
+
+   Try compile without pygtk.
+   We should get python scripting window without pygtk.
+
+
+
+-----
+Fri Dec 21 15:11:40 GMT 2007
+
+A valgrind thing to think about:
+
+==15565== 496 (160 direct, 336 indirect) bytes in 1 blocks are definitely lost in loss record 264 of 402
+==15565==    at 0x4C220C5: operator new[](unsigned long) (vg_replace_malloc.c:199)
+==15565==    by 0x65F7293: Bond_lines_container::make_graphical_bonds() const (Bond_lines.cc:1642)
+==15565==    by 0x4AD80C: graphics_info_t::flash_selection(int, int, std::string, int, std::string, std::string, std::string) (graphics-info-modelling.cc:757)
+==15565==    by 0x4B3CE2: graphics_info_t::refine_residue_range(int, std::string const&, std::string const&, int, std::string const&, int, std::string const&, std::string const&, short) (graphics-info-modelling.cc:918)
+==15565==    by 0x4B44DD: graphics_info_t::refine(int, short, int, int) (graphics-info-modelling.cc:842)
+==15565==    by 0x53122B: refine_zone_with_full_residue_spec (c-interface-build.cc:5165)
+==15565==    by 0x531308: refine_zone (c-interface-build.cc:5143)
+==15565==    by 0x83E0EBB: _wrap_refine_zone(scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*) (coot_wrap_guile.cc:12815)
+==15565==    by 0x8FF5107: scm_gsubr_apply (in /home/paule/x64/lib/libguile.so.17.1.1)
+==15565==    by 0x8FDE10C: scm_dapply (in /home/paule/x64/lib/libguile.so.17.1.1)
+==15565==    by 0x8FE2801: deval (in /home/paule/x64/lib/libguile.so.17.1.1)
+==15565==    by 0x8FE2F44: deval (in /home/paule/x64/lib/libguile.so.17.1.1)
+==15565== 
