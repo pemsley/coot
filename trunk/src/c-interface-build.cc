@@ -865,7 +865,11 @@ int set_atom_attributes(SCM attribute_expression_list) {
 	 if (scm_is_true(scm_list_p(attribute_expression))) { 
 	    SCM attr_expression_length_scm = scm_length(attribute_expression);
 	    int attr_expression_length = scm_to_int(attr_expression_length_scm);
-	    if (attr_expression_length == 8) {
+	    if (attr_expression_length != 8) {
+	       std::cout << "Incomplete attribute expression: "
+			 << scm_to_locale_string(display_scm(attribute_expression))
+			 << std::endl;		  
+	    } else {
 	       SCM imol_scm            = scm_list_ref(attribute_expression, SCM_MAKINUM(0));
 	       SCM chain_id_scm        = scm_list_ref(attribute_expression, SCM_MAKINUM(1));
 	       SCM resno_scm           = scm_list_ref(attribute_expression, SCM_MAKINUM(2));
@@ -928,6 +932,8 @@ int set_atom_attributes(SCM attribute_expression_list) {
 	 graphics_info_t::molecules[i].set_atom_attributes(v[i]);
       } 
    }
+   if (v.size() > 0)
+      graphics_draw();
    return r;
 } 
 #endif // USE_GUILE
@@ -996,8 +1002,6 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 #else 	    
 	    g.fill_go_to_atom_residue_tree_gtk2(gtktree);
 #endif	    
-	 } else { 
-	    std::cout << "DEBUG:: no molecule number match\n";
 	 } 
       }
       graphics_draw();

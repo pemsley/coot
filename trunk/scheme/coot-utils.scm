@@ -106,6 +106,12 @@
       (loop (cdr molecule-list)
 	    model-list)))))
 
+;; Return #t (#f) if @var{imol} is (isn't) a shelx molecule.
+;;
+(define (shelx-molecule? imol)
+  (= (is-shelx-molecule imol) 1))
+
+
 ;;; No! don't define this.  It is misleading.  It can return 0, which
 ;;; is true!  use instead valid-model-molecule?
 ;;; 
@@ -511,6 +517,10 @@
 	 (f (cons (car ls) res) (cdr ls) (- n 1)))
 	(else 
 	 (f res (cdr ls) (- count 1)))))))
+
+;;
+(define (residue-info-dialog-displayed?)
+  (= (residue-info-dialog-is-displayed) 1))
 
 ;; multi-read-pdb reads all the files matching
 ;; @code{@emph{glob-pattern}} in
@@ -1454,3 +1464,71 @@
   (graphics-draw))
 
 
+
+;; Resets alt confs and occupancies of atoms in residue that have
+;; orphan alt-loc attributes.
+(define (sanitise-alt-confs atom-info atom-ls)
+
+  ;; return a matching atom (name match) if it exists.  Else return #f
+  (define (name-match? atom-1 atom-ls)
+    (let* ((compound-name-1 (car atom-1))
+	   (atom-name-1 (car compound-name-1)))
+      (let loop ((atom-ls atom-ls)
+		 (matchers '()))
+	(cond 
+	 ((null? atom-ls) matchers) ; return the matching atoms
+	 (else 
+	  (let* ((compound-name-2 (car (car atom-ls)))
+		 (atom-name-2 (car compound-name-2)))
+
+	    (if (string=? atom-name-1 atom-name-2)
+		(loop (cdr atom-ls) (cons (car atom-ls) matchers))
+		(loop (cdr atom-ls) matchers))))))))
+
+
+
+  ;; main body
+  (let ((imol     (list-ref atom-info 0))
+	(chain-id (list-ref atom-info 1))
+	(resno    (list-ref atom-info 2))
+	(inscode  (list-ref atom-info 3))
+	(atom-attribute-settings '())) ; add to this with set!
+    (for-each
+     (lambda (atom)
+       
+       (let* ((compound-name (car atom))
+	      (atom-name (car compound-name))
+	      (alt-conf (car (cdr compound-name))))
+	 (if (not (string=? alt-conf ""))
+	     (let ((matchers (name-match? atom atom-ls)))
+	       (if (= (length matchers) 1)
+		   (set! atom-attribute-settings 
+			 (cons (list imol chain-id resno inscode atom-name alt-conf
+				     "alt-conf" "")
+			       atom-attribute-settings))
+		   (set! atom-attribute-settings
+			 (cons (list imol chain-id resno inscode atom-name alt-conf
+				     "occ" (shelx-molecule? imol) 11.0 1.0))))))))
+     atom-ls)
+    ; (format #t "DEBUG:: atom-attribute-settings: ~s~%" atom-attribute-settings)
+    (if (not (null? atom-attribute-settings))
+	(begin
+	  (set-atom-attributes atom-attribute-settings)
+	  (if (residue-info-dialog-displayed?)
+	      (residue-info-dialog imol chain-id resno inscode))))))
+
+
+;; Resets alt confs and occupancies of atoms in residue that have
+;; orphan alt-loc attributes.  Use the active-residue.
+(define (sanitise-alt-confs-active-residue)
+  (let* ((active-atom (active-residue)))
+    (if (list? active-atom)
+	(let ((imol     (list-ref active-atom 0))
+	      (chain-id (list-ref active-atom 1))
+	      (resno    (list-ref active-atom 2))
+	      (inscode  (list-ref active-atom 3)))
+	  
+	  (let ((atom-ls (residue-info imol chain-id resno inscode)))
+	    
+	    (if (list? atom-ls) 
+		(sanitise-alt-confs active-atom atom-ls)))))))

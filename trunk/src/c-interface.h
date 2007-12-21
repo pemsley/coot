@@ -1057,6 +1057,11 @@ int another_level_from_map_molecule_number(int imap);
 /*! \brief return the scale factor for the Residue Density fit analysis */
 float residue_density_fit_scale_factor();
 
+/*! \brief return the density at the given point for the given
+  map. Return 0 for bad imol */
+float density_at_point(int imol, float x, float y, float z);
+
+
 /* \} */
  
 
@@ -2557,6 +2562,7 @@ void do_residue_info_dialog();
 void output_residue_info_dialog    (int atom_index, int imol); /* widget version */
 /* scripting version */
 void residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code); 
+int residue_info_dialog_is_displayed();
 void output_residue_info_as_text(int atom_index, int imol); /* text version */
 /* functions that uses mmdb_manager functions/data types moved to graphics_info_t */
 
@@ -2695,6 +2701,8 @@ int handle_shelx_fcf_file_internal(const char *filename);
 /*! \brief @return the chain id for the given residue.  Return #f if
   can't do it/fail. */
 SCM chain_id_for_shelxl_residue_number(int imol, int resno);
+/* return 1 for yes, 0 for invalid imol or no. */
+int is_shelx_molecule(int imol);
 #endif 
 
 #ifdef USE_PYTHON
