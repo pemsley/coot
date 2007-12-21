@@ -2538,6 +2538,13 @@ GtkWidget *wrapped_create_residue_info_dialog() {
 
 } 
 
+int residue_info_dialog_is_displayed() {
+
+   int r = 0;
+   if (graphics_info_t::residue_info_dialog)
+      r = 1;
+   return r;
+}
 
 
 GtkWidget *wrapped_create_display_control_window() { 

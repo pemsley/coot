@@ -114,6 +114,17 @@ float molecule_centre_internal(int imol, int iaxis) {
    return fstat;
 }
 
+int is_shelx_molecule(int imol) {
+
+   int r=0;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].is_from_shelx_ins();
+   }
+   return r;
+
+}
+
+
 /*  ----------------------------------------------------------------------- */
 /*               (Eleanor's) Residue info                                   */
 /*  ----------------------------------------------------------------------- */

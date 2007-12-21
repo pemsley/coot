@@ -418,3 +418,40 @@
 
 
 	   
+
+(greg-testcase "Tweak Alt Confs on Active Residue" #t 
+    (lambda ()
+
+      ;; did it reset it?
+      (define (matches-alt-conf? atom-name-ref alt-conf-ref)
+	(let* ((active-atom (active-residue)))
+	  (if (list? active-atom)
+	      (let ((imol     (list-ref active-atom 0))
+		    (chain-id (list-ref active-atom 1))
+		    (resno    (list-ref active-atom 2))
+		    (inscode  (list-ref active-atom 3)))
+		
+		(let ((atom-ls (residue-info imol chain-id resno inscode)))
+		  (if (not (list? atom-ls))
+		      #f
+		      (let loop ((atom-ls atom-ls))
+			(cond
+			 ((null? atom-ls) #f)
+			 (let* ((atom (car atom-ls))
+				(compound-name (car atom))
+				(atom-name (car compound-name))
+				(alt-conf (car (cdr compound-name))))
+			   (if (not (string=? atom-name atom-name-ref))
+			       (loop (cdr atom-ls))
+			       (string=? alt-conf alt-conf-ref)))))))))))
+      
+      ;; main line
+      (set-go-to-atom-molecule imol-rnase)
+      (set-go-to-atom-chain-residue-atom-name "B" 58 " CA ")
+      (set-atom-string-attribute imol-rnase "B" 58 "" " CB " "" "alt-conf" "B")
+      (if (not (matches-alt-conf? " CB " "B"))
+	  (throw 'fail))
+      (sanitise-alt-confs-active-residue)
+      (if (not (matches-alt-conf? " CB " ""))
+	  (throw 'fail))
+      #t))

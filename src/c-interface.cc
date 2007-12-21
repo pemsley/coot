@@ -1881,8 +1881,19 @@ char* get_text_for_symmetry_size_widget() {
    snprintf(text,100,"%-5.1f", g.symmetry_search_radius);
 
    return text;
-
 }
+
+/*! \brief return the density at the given point for the given map */
+float density_at_point(int imol, float x, float y, float z) {
+
+   float r;
+   if (is_valid_map_molecule(imol)) {
+      clipper::Coord_orth p(x,y,z);
+      r = graphics_info_t::molecules[imol].density_at_point(p);
+   }
+   return r;
+}
+
 
 void set_density_size_from_widget(const char *text) {
 
