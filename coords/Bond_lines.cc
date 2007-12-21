@@ -1547,8 +1547,9 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
    int selHnd2 = SelAtom.mol->NewSelection();
 
    // model 1
-   SelAtom.mol->SelectAtoms(selHnd2, imodel,"*",ANY_RES,"*",ANY_RES,"*",
-			    "*","*","S","*" );
+   // Note that now we force the resname to be CYS and atom name to be SG
+   SelAtom.mol->SelectAtoms(selHnd2, imodel,"*", ANY_RES, "*", ANY_RES, "*",
+			    "CYS"," SG ","S","*" );
 
    SelAtom.mol->GetSelIndex(selHnd2, Sulfur_selection, n_sulfurs);
 

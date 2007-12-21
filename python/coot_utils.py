@@ -658,13 +658,17 @@ def graphics_general_key_press_hook(key):
 	print "Key %s was pressed" %(key)
 #	return False
 # example
-	if (key==80): 		# bind the P key
-		set_pointer_atom_is_dummy(1)
-		place_atom_at_pointer()
-	if (key==75):		# bind the K key
-		skip_to_next_ncs_chain()
-	else:
-		print "No binding for key ", key
+
+# The P key is already bound
+# skip_to_next_ncs_chain is already bound to O key.
+
+# 	if (key==80): 		# bind the P key
+# 		set_pointer_atom_is_dummy(1)
+# 		place_atom_at_pointer()
+# 	if (key==75):		# bind the K key
+# 		skip_to_next_ncs_chain()
+# 	else:
+# 		print "No python binding for key ", key
 
 
 # def read_vu_file(filename, obj_name):

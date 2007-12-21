@@ -129,6 +129,9 @@
 
 ** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
 
+   o How about a post-swig command to add #ifdef USE_PYTHON around coot_wrap_python.cc 
+     (or is it coot_wrap_python_pre.cc?)
+
 
 -----
 
