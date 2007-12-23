@@ -2159,13 +2159,6 @@ create_window1 (void)
   return window1;
 }
 
-/* Hack in a function, because it's missing somehow from Bernhard's commits */
-GtkWidget*
-create_coords_filechooserdialog1 (void)
-{
-  return 0;
-}
-
 GtkWidget*
 create_coords_fileselection1 (void)
 {
@@ -15011,6 +15004,10 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   GtkWidget *interesting_waters_by_difference_map_check_vbox;
   GtkWidget *dialog_action_area70;
   GtkWidget *interesting_waters_by_difference_map_check_ok_button;
+  GtkWidget *alignment102;
+  GtkWidget *hbox269;
+  GtkWidget *image6021;
+  GtkWidget *label438;
 
   interesting_waters_by_difference_map_check_dialog = gtk_dialog_new ();
   gtk_widget_set_size_request (interesting_waters_by_difference_map_check_dialog, -1, 200);
@@ -15023,6 +15020,7 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   scrolledwindow17 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow17);
   gtk_box_pack_start (GTK_BOX (dialog_vbox71), scrolledwindow17, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow17, 275, 80);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow17, GTK_CAN_FOCUS);
 
   viewport10 = gtk_viewport_new (NULL, NULL);
@@ -15037,9 +15035,25 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   gtk_widget_show (dialog_action_area70);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area70), GTK_BUTTONBOX_END);
 
-  interesting_waters_by_difference_map_check_ok_button = gtk_button_new_with_mnemonic (_("   Cancel   "));
+  interesting_waters_by_difference_map_check_ok_button = gtk_button_new ();
   gtk_widget_show (interesting_waters_by_difference_map_check_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (interesting_waters_by_difference_map_check_dialog), interesting_waters_by_difference_map_check_ok_button, 0);
+
+  alignment102 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment102);
+  gtk_container_add (GTK_CONTAINER (interesting_waters_by_difference_map_check_ok_button), alignment102);
+
+  hbox269 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox269);
+  gtk_container_add (GTK_CONTAINER (alignment102), hbox269);
+
+  image6021 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6021);
+  gtk_box_pack_start (GTK_BOX (hbox269), image6021, FALSE, FALSE, 0);
+
+  label438 = gtk_label_new_with_mnemonic (_("   Close   "));
+  gtk_widget_show (label438);
+  gtk_box_pack_start (GTK_BOX (hbox269), label438, FALSE, FALSE, 0);
 
   g_signal_connect ((gpointer) interesting_waters_by_difference_map_check_ok_button, "clicked",
                     G_CALLBACK (on_interesting_waters_by_difference_map_check_ok_button_clicked),
@@ -15053,6 +15067,10 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_vbox, "interesting_waters_by_difference_map_check_vbox");
   GLADE_HOOKUP_OBJECT_NO_REF (interesting_waters_by_difference_map_check_dialog, dialog_action_area70, "dialog_action_area70");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_ok_button, "interesting_waters_by_difference_map_check_ok_button");
+  GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, alignment102, "alignment102");
+  GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, hbox269, "hbox269");
+  GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, image6021, "image6021");
+  GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, label438, "label438");
 
   return interesting_waters_by_difference_map_check_dialog;
 }
@@ -15693,6 +15711,10 @@ create_diff_map_peaks_dialog (void)
   GtkWidget *diff_map_peaks_vbox;
   GtkWidget *dialog_action_area77;
   GtkWidget *diff_map_peaks_dialog_ok_button;
+  GtkWidget *alignment99;
+  GtkWidget *hbox266;
+  GtkWidget *image6018;
+  GtkWidget *label435;
 
   diff_map_peaks_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (diff_map_peaks_dialog), _("Difference Map Peaks"));
@@ -15704,6 +15726,7 @@ create_diff_map_peaks_dialog (void)
   scrolledwindow18 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow18);
   gtk_box_pack_start (GTK_BOX (dialog_vbox78), scrolledwindow18, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow18, 277, 126);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow18, GTK_CAN_FOCUS);
 
   viewport11 = gtk_viewport_new (NULL, NULL);
@@ -15719,9 +15742,25 @@ create_diff_map_peaks_dialog (void)
   gtk_widget_show (dialog_action_area77);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area77), GTK_BUTTONBOX_END);
 
-  diff_map_peaks_dialog_ok_button = gtk_button_new_with_mnemonic (_("   OK   "));
+  diff_map_peaks_dialog_ok_button = gtk_button_new ();
   gtk_widget_show (diff_map_peaks_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (diff_map_peaks_dialog), diff_map_peaks_dialog_ok_button, 0);
+
+  alignment99 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment99);
+  gtk_container_add (GTK_CONTAINER (diff_map_peaks_dialog_ok_button), alignment99);
+
+  hbox266 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox266);
+  gtk_container_add (GTK_CONTAINER (alignment99), hbox266);
+
+  image6018 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6018);
+  gtk_box_pack_start (GTK_BOX (hbox266), image6018, FALSE, FALSE, 0);
+
+  label435 = gtk_label_new_with_mnemonic (_("   Close     "));
+  gtk_widget_show (label435);
+  gtk_box_pack_start (GTK_BOX (hbox266), label435, FALSE, FALSE, 0);
 
   g_signal_connect ((gpointer) diff_map_peaks_dialog, "destroy",
                     G_CALLBACK (on_diff_map_peaks_dialog_destroy),
@@ -15738,6 +15777,10 @@ create_diff_map_peaks_dialog (void)
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, diff_map_peaks_vbox, "diff_map_peaks_vbox");
   GLADE_HOOKUP_OBJECT_NO_REF (diff_map_peaks_dialog, dialog_action_area77, "dialog_action_area77");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, diff_map_peaks_dialog_ok_button, "diff_map_peaks_dialog_ok_button");
+  GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, alignment99, "alignment99");
+  GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, hbox266, "hbox266");
+  GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, image6018, "image6018");
+  GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, label435, "label435");
 
   return diff_map_peaks_dialog;
 }
@@ -15773,7 +15816,15 @@ create_generate_diff_map_peaks_dialog (void)
   GtkWidget *dialog_action_area78;
   GtkWidget *hbox116;
   GtkWidget *generate_diff_map_peaks_ok_button;
+  GtkWidget *alignment100;
+  GtkWidget *hbox267;
+  GtkWidget *image6019;
+  GtkWidget *label436;
   GtkWidget *generate_diff_map_peaks_cancel_button;
+  GtkWidget *alignment101;
+  GtkWidget *hbox268;
+  GtkWidget *image6020;
+  GtkWidget *label437;
 
   generate_diff_map_peaks_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (generate_diff_map_peaks_dialog), _("Difference Map Peak Analysis"));
@@ -15893,15 +15944,47 @@ create_generate_diff_map_peaks_dialog (void)
   gtk_widget_show (hbox116);
   gtk_container_add (GTK_CONTAINER (dialog_action_area78), hbox116);
 
-  generate_diff_map_peaks_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  generate_diff_map_peaks_ok_button = gtk_button_new ();
   gtk_widget_show (generate_diff_map_peaks_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox116), generate_diff_map_peaks_ok_button, TRUE, TRUE, 6);
   GTK_WIDGET_SET_FLAGS (generate_diff_map_peaks_ok_button, GTK_CAN_DEFAULT);
 
-  generate_diff_map_peaks_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  alignment100 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment100);
+  gtk_container_add (GTK_CONTAINER (generate_diff_map_peaks_ok_button), alignment100);
+
+  hbox267 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox267);
+  gtk_container_add (GTK_CONTAINER (alignment100), hbox267);
+
+  image6019 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6019);
+  gtk_box_pack_start (GTK_BOX (hbox267), image6019, FALSE, FALSE, 0);
+
+  label436 = gtk_label_new_with_mnemonic (_("  Find Peaks    "));
+  gtk_widget_show (label436);
+  gtk_box_pack_start (GTK_BOX (hbox267), label436, FALSE, FALSE, 0);
+
+  generate_diff_map_peaks_cancel_button = gtk_button_new ();
   gtk_widget_show (generate_diff_map_peaks_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox116), generate_diff_map_peaks_cancel_button, TRUE, TRUE, 6);
   GTK_WIDGET_SET_FLAGS (generate_diff_map_peaks_cancel_button, GTK_CAN_DEFAULT);
+
+  alignment101 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment101);
+  gtk_container_add (GTK_CONTAINER (generate_diff_map_peaks_cancel_button), alignment101);
+
+  hbox268 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox268);
+  gtk_container_add (GTK_CONTAINER (alignment101), hbox268);
+
+  image6020 = gtk_image_new_from_stock ("gtk-cancel", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6020);
+  gtk_box_pack_start (GTK_BOX (hbox268), image6020, FALSE, FALSE, 0);
+
+  label437 = gtk_label_new_with_mnemonic (_("  Cancel  "));
+  gtk_widget_show (label437);
+  gtk_box_pack_start (GTK_BOX (hbox268), label437, FALSE, FALSE, 0);
 
   g_signal_connect ((gpointer) generate_diff_map_peaks_ok_button, "clicked",
                     G_CALLBACK (on_generate_diff_map_peaks_ok_button_clicked),
@@ -15939,7 +16022,15 @@ create_generate_diff_map_peaks_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, dialog_action_area78, "dialog_action_area78");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, hbox116, "hbox116");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_ok_button, "generate_diff_map_peaks_ok_button");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, alignment100, "alignment100");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, hbox267, "hbox267");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, image6019, "image6019");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, label436, "label436");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_cancel_button, "generate_diff_map_peaks_cancel_button");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, alignment101, "alignment101");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, hbox268, "hbox268");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, image6020, "image6020");
+  GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, label437, "label437");
 
   gtk_widget_grab_focus (generate_diff_map_peaks_ok_button);
   gtk_widget_grab_default (generate_diff_map_peaks_ok_button);

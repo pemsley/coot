@@ -334,7 +334,6 @@
 		  
 		  (let ((tmp-file "tmp-fixed-cis.pdb"))
 		    (write-pdb-file cis-pep-mol tmp-file)
-		    (display "Here 4\n")
 		    (let ((o (run-command/strings "grep" (list"-c" "CISPEP" tmp-file) '())))
 		      (if (not (list? o))
 			  (throw 'fail)
@@ -416,9 +415,7 @@
 		       (f (cdr atom-ls))))))))))))
 
 
-
-	   
-
+;; 
 (greg-testcase "Tweak Alt Confs on Active Residue" #t 
     (lambda ()
 
@@ -437,13 +434,14 @@
 		      (let loop ((atom-ls atom-ls))
 			(cond
 			 ((null? atom-ls) #f)
-			 (let* ((atom (car atom-ls))
-				(compound-name (car atom))
-				(atom-name (car compound-name))
-				(alt-conf (car (cdr compound-name))))
-			   (if (not (string=? atom-name atom-name-ref))
-			       (loop (cdr atom-ls))
-			       (string=? alt-conf alt-conf-ref)))))))))))
+			 (else 
+			  (let* ((atom (car atom-ls))
+				 (compound-name (car atom))
+				 (atom-name (car compound-name))
+				 (alt-conf (car (cdr compound-name))))
+			    (if (not (string=? atom-name atom-name-ref))
+				(loop (cdr atom-ls))
+				(string=? alt-conf alt-conf-ref))))))))))))
       
       ;; main line
       (set-go-to-atom-molecule imol-rnase)
@@ -455,3 +453,4 @@
       (if (not (matches-alt-conf? " CB " ""))
 	  (throw 'fail))
       #t))
+	   
