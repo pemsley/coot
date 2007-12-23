@@ -5970,7 +5970,6 @@ on_check_waters1_activate              (GtkMenuItem     *menuitem,
 	  it to appear after the water check dialog so that it appears
 	  on top rather than underneath. */
    GtkWidget *w = wrapped_create_check_waters_dialog();
-   GtkWidget show_map_dialog;
    int imol_map = imol_refinement_map();
    gtk_widget_show(w);
    if (imol_map < 0)

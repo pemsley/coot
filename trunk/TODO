@@ -36,6 +36,7 @@
    o Faster bonding of multiple models e.g. 1O5P.pdb.  It should take
      1 or 2 seconds.
 
+
 -----
 
    Release 0.5 Dec March 2008
@@ -47,6 +48,7 @@
 
      No need to redraw, except once at the end.
 
+* Done.
 
    o Fix this:  
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
@@ -60,8 +62,6 @@
    o Use Eugene's new LINK-reading code.
 
    o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
-
-   o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
    o Valgrind long/multiple fit-proteins
 
@@ -132,6 +132,18 @@
    o How about a post-swig command to add #ifdef USE_PYTHON around coot_wrap_python.cc 
      (or is it coot_wrap_python_pre.cc?)
 
+   o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
+     Ask about Rotamer misses.  Well, the dictionary is fine. Why does
+     molprobity web site gives less bad rotamers then? (First: Does it?).
+     Yes it does: e.g. for 1sar molprobity notes only these:
+     "Bad rotamer B  47 GLN (0.3%)" 
+     "Bad rotamer A  91 LEU (0.4%)" 
+     "Bad rotamer A  13 PRO (0.9%)" 
+     "Bad rotamer B  41 GLU (0.7%)" 
+
+     There are 10 times more for Coot.  
+     (fix-nomenclature-errors doesn't fix anything)
+
 
 -----
 
@@ -152,6 +164,8 @@
    o helix fitting overshoots
 
    o consider making bonds to hydrogens thinner
+
+   o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
    o check for updates?
 
@@ -184,7 +198,7 @@
 
  ------
     
-    Release 0.8
+    Release 0.8 [Aug 2008?]
 
    o User pickable atoms
 
@@ -203,7 +217,7 @@
 
 ------
 
-   Release 0.9, Facelift-release
+   Release 0.9, Facelift-release 
 
    o Clean up menu items, use Preferences.
 
@@ -218,5 +232,5 @@
 
 -----
  
-   Release 1.0 [~Sept 2008]
+   Release 1.0 [~Dec 2008]
 

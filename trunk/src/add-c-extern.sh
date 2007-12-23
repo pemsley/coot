@@ -22,8 +22,12 @@ echo ""              >> "$1".tmp.a
 echo "BEGIN_C_DECLS" >> "$1".tmp.a 
 echo ""              >> "$1".tmp.a
 
-
-echo ""             > "$1".tmp.b
+echo ""                                                    > "$1".tmp.b
+echo "#ifdef COOT_USE_GTK2_INTERFACE"                     >> "$1".tmp.b
+echo "GtkWidget* create_aboutdialog (void);"              >> "$1".tmp.b
+echo "GtkWidget* create_coords_filechooserdialog1(void);" >> "$1".tmp.b
+echo "#endif /* COOT_USE_GTK2_INTERFACE */ "              >> "$1".tmp.b
+echo ""            >> "$1".tmp.b
 echo "END_C_DECLS" >> "$1".tmp.b
 echo ""            >> "$1".tmp.b
 

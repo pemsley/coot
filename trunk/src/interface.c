@@ -9,9 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifndef _MSC_VER
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 #endif
 #include <string.h>
 
@@ -1499,7 +1497,6 @@ create_dataset_fileselection1 (void)
 
   return dataset_fileselection1;
 }
-
 
 GtkWidget*
 create_column_label_window (void)

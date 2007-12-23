@@ -1644,3 +1644,16 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox34), phs_cell_none_radiobutton, FALSE, FALSE, 4);
 
 }
+
+
+#ifdef COOT_USE_GTK2_INTERFACE
+/* Hack in a function, because it's missing somehow from Bernhard's
+   commits */
+
+GtkWidget*
+create_coords_filechooserdialog1 (void)
+{
+  return 0;
+}
+
+#endif	/* COOT_USE_GTK2_INTERFACE */

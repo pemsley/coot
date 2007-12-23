@@ -30,6 +30,7 @@ static gchar* check_file_exists        (const gchar     *directory,
 
 /* This is an internally used function to create pixmaps. */
 static GtkWidget* create_dummy_pixmap  (GtkWidget       *widget);
+gchar* find_pixmap_file                       (const gchar     *filename);
 
 GtkWidget*
 lookup_widget                          (GtkWidget       *widget,

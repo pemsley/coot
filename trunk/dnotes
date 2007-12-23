@@ -4,28 +4,35 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   3 outstanding issues
 
-   o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
-     Ask about Rotamer misses.  Well, the dictionary is fine. Why does
-     molprobity web site gives less bad rotamers then? (First: Does it?).
-     Yes it does: e.g. for 1sar molprobity notes only these:
-     "Bad rotamer B  47 GLN (0.3%)" 
-     "Bad rotamer A  91 LEU (0.4%)" 
-     "Bad rotamer A  13 PRO (0.9%)" 
-     "Bad rotamer B  41 GLU (0.7%)" 
+   o Look at this: CSHL crash:
 
-     There are 10 times more for Coot.  
-     (fix-nomenclature-errors doesn't fix anything)
+     on calculating a skeleton after deleting a map (and skeleton) and
+     reading in a new map.
+
+   
+   o [having closed the Go To Atom dialog] and shift clicking on an atom:
+
+(lt-coot-real:18301): Gtk-CRITICAL **: gtk_widget_unref: assertion `GTK_IS_WIDGET (widget)' failed
+clicked on imol:
+ (0)  CG2/1/chainid="B"/2/VAL,  occ: 1 with B-factor: 24.45 element:  C at (15.656,16.936,17.674) : 0.0882503
+
+     on simply closing the Go To Atom Widget
+
+(lt-coot-real:18301): Gtk-CRITICAL **: gtk_widget_unref: assertion `GTK_IS_WIDGET (widget)' failed
+
+
+
+
+
 
    o Check that map sampling rate can be varied for fcf files.
+ 
+* Done.
 
    o check that sigmaA maps work now.
 
-
-
-
-
+* Done.
 
    o Fix map transformation text pointed out by Stephen Graham
 
@@ -252,7 +259,6 @@ o Submarining of green spot on Ramachandran Plot.  Also no green
 
 * Can't reproduce.
 
->>>>>>> .r498
    o Crash on OK on Map properties after changing map colour:
      [corrupted, useless stack]
 
@@ -331,12 +337,10 @@ Yes, it's fine.
    o Post-install slim the binaries
 
 * Done.
- 
 
    o Stub disappeared on simple mutate
 
 * Done.
-
 
    o The reading of a cif dictionary should set the file name for the
      dialog like reading a pdb file does.
@@ -347,7 +351,6 @@ Yes, it's fine.
      doesn't make sense there.
 
 * Done.
-
 
    o Add darken-maps function
 
@@ -419,7 +422,6 @@ Yes, it's fine.
      regularize. 
 
 * Fixed.  Needs a test. Done.
-
 
    o Alice Dawson SSM Problem, 1pyd.  Message sent to Eugene -
      He says no problem.  Therefore small example program is required
@@ -927,6 +929,7 @@ interesting!
   layer.  Then the "delete atoms below a certain level" can be done in
   scheme.
 
+* Done.
 
 -----
 Sun May 13 13:33:46 BST 2007
@@ -1079,7 +1082,7 @@ Wed May 16 20:30:02 BST 2007
 
 	CA representation by default:
 
-       Swanand	sg363@mole.bio.cam.ac.uk
+       Swanand sg363@mole.bio.cam.ac.uk
 
 ----
 Thu May 17 12:44:56 BST 2007
@@ -2695,7 +2698,8 @@ Tue Nov 13 23:30:57 GMT 2007
 
    Gregory C. Benison NMR program:
    http://oregonstate.edu/~benisong/software/burrow-owl/
-
+   now at
+   http://sourceforge.net/projects/burrow-owl
 
 -----
 Fri Nov 16 20:23:19 GMT 2007

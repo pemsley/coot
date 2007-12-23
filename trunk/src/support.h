@@ -71,16 +71,11 @@ void        add_pixmap_directory       (const gchar     *directory);
 GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         const gchar     *filename);
 
-/* This is an internally used function to find pixmap files. */
-/* static */
-gchar*
-find_pixmap_file                       (const gchar     *filename);
 
-/* This is used to create the pixbufs used in the interface - from Gtk2's support.h. */
-#if (GTK_MAJOR_VERSION > 1) 
-GdkPixbuf*  create_pixbuf              (const gchar     *filename);
-#endif /*  (GTK_MAJOR_VERSION > 1)  */
-
+#ifdef COOT_USE_GTK2_INTERFACE
+GtkWidget* create_aboutdialog (void);
+GtkWidget* create_coords_filechooserdialog1(void);
+#endif /* COOT_USE_GTK2_INTERFACE */ 
 
 END_C_DECLS
 

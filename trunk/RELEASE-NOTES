@@ -1,12 +1,12 @@
 
-Release 0.4
+Release 0.4 "Kendall"
 
    o FEATURE: Kevin Cowtan has given us "Cootaneer" [slim-line
      side-chain-assigning Buccaneer for Coot]
 
-   o FEATURE: Richardson Rotamers (instead of Dunbrack's) on by default.  
-     Rotamers are named int the dialog (the probability limits are no
-     longer meaninful) [Dirk Kostrewa]
+   o FEATURE: Richardson Rotamers (instead of Dunbrack's) are used by
+     default. Rotamers are named int the dialog (the probability
+     limits are no longer meaninful) [Dirk Kostrewa]
 
    o FEATURE: New environment variable COOT_SCHEME_EXTRA_DIR introduced. If the 
      directory pointd to by COOT_SCHEME_EXTRA_DIR exists, then Coot
@@ -83,7 +83,7 @@ Release 0.4
    o BUG-FIX: SHELXL .res molecules now generate ghosts correctly
      (given that NCS-related chains start at the "same" residue)
 
-   o METs can no longer form disulphide bridges [Wendy Offen].
+   o BUG-FIX: METs can no longer form disulphide bridges [Wendy Offen].
 
    o CHANGE: Temperature factor variance validation now works for SHELXL
      molecules [GMS, JED]
@@ -119,9 +119,6 @@ Release 0.4
    o CHANGE: Extensions menu tided.
 
    o CHANGE: multi-read-pdb no longer recentres.  Speeds things up [JED].
-
-   o KNOWN PROBLEM: There may a be (is?) a problem in the sigmaa difference maps 
-     from some .fcf files
 
    o KNOWN PROBLEM: Rotamer analysis gives too many bad/unusual rotamers.
     
