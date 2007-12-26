@@ -9014,7 +9014,7 @@ create_unsaved_changes_dialog (void)
   gtk_widget_show (hbox218);
   gtk_container_add (GTK_CONTAINER (alignment67), hbox218);
 
-  image1828 = gtk_image_new_from_stock ("gtk-ok", GTK_ICON_SIZE_BUTTON);
+  image1828 = gtk_image_new_from_stock ("gtk-quit", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image1828);
   gtk_box_pack_start (GTK_BOX (hbox218), image1828, FALSE, FALSE, 0);
 
@@ -10839,18 +10839,20 @@ create_edit_backbone_torsions_dialog (void)
   gtk_widget_show (dialog_action_area30);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area30), GTK_BUTTONBOX_END);
 
-  hbox67 = gtk_hbox_new (FALSE, 0);
+  hbox67 = gtk_hbox_new (TRUE, 0);
   gtk_widget_show (hbox67);
   gtk_container_add (GTK_CONTAINER (dialog_action_area30), hbox67);
 
-  edit_backbone_torsion_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  edit_backbone_torsion_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (edit_backbone_torsion_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox67), edit_backbone_torsion_ok_button, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (edit_backbone_torsion_ok_button), 2);
   GTK_WIDGET_SET_FLAGS (edit_backbone_torsion_ok_button, GTK_CAN_DEFAULT);
 
-  edit_backbone_torsion_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  edit_backbone_torsion_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (edit_backbone_torsion_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox67), edit_backbone_torsion_cancel_button, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (edit_backbone_torsion_cancel_button), 2);
   GTK_WIDGET_SET_FLAGS (edit_backbone_torsion_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) edit_backbone_torsions_dialog, "destroy",
@@ -16586,13 +16588,13 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (hbox122);
   gtk_container_add (GTK_CONTAINER (dialog_action_area82), hbox122);
 
-  ramachandran_plot_differences_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  ramachandran_plot_differences_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (ramachandran_plot_differences_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox122), ramachandran_plot_differences_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (ramachandran_plot_differences_ok_button), 6);
   GTK_WIDGET_SET_FLAGS (ramachandran_plot_differences_ok_button, GTK_CAN_DEFAULT);
 
-  ramachandran_plot_differences_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  ramachandran_plot_differences_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (ramachandran_plot_differences_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox122), ramachandran_plot_differences_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (ramachandran_plot_differences_cancel_button), 6);
@@ -19397,6 +19399,148 @@ create_aboutdialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (aboutdialog, aboutdialog, "aboutdialog");
 
   return aboutdialog;
+}
+
+GtkWidget*
+create_globularize_dialog (void)
+{
+  GtkWidget *globularize_dialog;
+  GtkWidget *dialog_vbox99;
+  GtkWidget *vbox200;
+  GtkWidget *label439;
+  GtkWidget *globularize_molecule_molecule_chooser_combobox;
+  GtkWidget *frame176;
+  GtkWidget *alignment103;
+  GtkWidget *vbox201;
+  GtkWidget *globularize_centre_molecule_radiobutton;
+  GSList *globularize_centre_molecule_radiobutton_group = NULL;
+  GtkWidget *globularize_centre_screen_radiobutton;
+  GtkWidget *hbox270;
+  GtkWidget *globularize_centre_position_radiobutton;
+  GtkWidget *globularize_centre_x_entry;
+  GtkWidget *globularize_centre_y_entry;
+  GtkWidget *globularize_centre_z_entry;
+  GtkWidget *label440;
+  GtkWidget *dialog_action_area98;
+  GtkWidget *globularize_ok_button;
+  GtkWidget *globularize_cancel_button;
+
+  globularize_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (globularize_dialog), _("Globularize"));
+  gtk_window_set_type_hint (GTK_WINDOW (globularize_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox99 = GTK_DIALOG (globularize_dialog)->vbox;
+  gtk_widget_show (dialog_vbox99);
+
+  vbox200 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox200);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox99), vbox200, TRUE, TRUE, 0);
+
+  label439 = gtk_label_new (_("Globularize Molecule:"));
+  gtk_widget_show (label439);
+  gtk_box_pack_start (GTK_BOX (vbox200), label439, FALSE, FALSE, 0);
+  gtk_misc_set_padding (GTK_MISC (label439), 0, 4);
+
+  globularize_molecule_molecule_chooser_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (globularize_molecule_molecule_chooser_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox200), globularize_molecule_molecule_chooser_combobox, TRUE, TRUE, 0);
+
+  frame176 = gtk_frame_new (NULL);
+  gtk_widget_show (frame176);
+  gtk_box_pack_start (GTK_BOX (vbox200), frame176, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame176), 6);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame176), GTK_SHADOW_NONE);
+
+  alignment103 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment103);
+  gtk_container_add (GTK_CONTAINER (frame176), alignment103);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment103), 0, 0, 12, 0);
+
+  vbox201 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox201);
+  gtk_container_add (GTK_CONTAINER (alignment103), vbox201);
+
+  globularize_centre_molecule_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Centre of Molecule"));
+  gtk_widget_show (globularize_centre_molecule_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox201), globularize_centre_molecule_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (globularize_centre_molecule_radiobutton), globularize_centre_molecule_radiobutton_group);
+  globularize_centre_molecule_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (globularize_centre_molecule_radiobutton));
+
+  globularize_centre_screen_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Screen Centre"));
+  gtk_widget_show (globularize_centre_screen_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox201), globularize_centre_screen_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (globularize_centre_screen_radiobutton), globularize_centre_molecule_radiobutton_group);
+  globularize_centre_molecule_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (globularize_centre_screen_radiobutton));
+
+  hbox270 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox270);
+  gtk_box_pack_start (GTK_BOX (vbox201), hbox270, FALSE, FALSE, 0);
+
+  globularize_centre_position_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Position   "));
+  gtk_widget_show (globularize_centre_position_radiobutton);
+  gtk_box_pack_start (GTK_BOX (hbox270), globularize_centre_position_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (globularize_centre_position_radiobutton), globularize_centre_molecule_radiobutton_group);
+  globularize_centre_molecule_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (globularize_centre_position_radiobutton));
+
+  globularize_centre_x_entry = gtk_entry_new ();
+  gtk_widget_show (globularize_centre_x_entry);
+  gtk_box_pack_start (GTK_BOX (hbox270), globularize_centre_x_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (globularize_centre_x_entry, 80, -1);
+  gtk_entry_set_invisible_char (GTK_ENTRY (globularize_centre_x_entry), 9679);
+
+  globularize_centre_y_entry = gtk_entry_new ();
+  gtk_widget_show (globularize_centre_y_entry);
+  gtk_box_pack_start (GTK_BOX (hbox270), globularize_centre_y_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (globularize_centre_y_entry, 80, -1);
+  gtk_entry_set_invisible_char (GTK_ENTRY (globularize_centre_y_entry), 9679);
+
+  globularize_centre_z_entry = gtk_entry_new ();
+  gtk_widget_show (globularize_centre_z_entry);
+  gtk_box_pack_start (GTK_BOX (hbox270), globularize_centre_z_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (globularize_centre_z_entry, 80, -1);
+  gtk_entry_set_invisible_char (GTK_ENTRY (globularize_centre_z_entry), 9679);
+
+  label440 = gtk_label_new (_("<b>frame176</b>"));
+  gtk_widget_show (label440);
+  gtk_frame_set_label_widget (GTK_FRAME (frame176), label440);
+  gtk_label_set_use_markup (GTK_LABEL (label440), TRUE);
+
+  dialog_action_area98 = GTK_DIALOG (globularize_dialog)->action_area;
+  gtk_widget_show (dialog_action_area98);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area98), GTK_BUTTONBOX_END);
+
+  globularize_ok_button = gtk_button_new_from_stock ("gtk-ok");
+  gtk_widget_show (globularize_ok_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (globularize_dialog), globularize_ok_button, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (globularize_ok_button, GTK_CAN_DEFAULT);
+
+  globularize_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (globularize_cancel_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (globularize_dialog), globularize_cancel_button, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (globularize_cancel_button, GTK_CAN_DEFAULT);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, globularize_dialog, "globularize_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, dialog_vbox99, "dialog_vbox99");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, vbox200, "vbox200");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, label439, "label439");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_molecule_molecule_chooser_combobox, "globularize_molecule_molecule_chooser_combobox");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, frame176, "frame176");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, alignment103, "alignment103");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, vbox201, "vbox201");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_molecule_radiobutton, "globularize_centre_molecule_radiobutton");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_screen_radiobutton, "globularize_centre_screen_radiobutton");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, hbox270, "hbox270");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_position_radiobutton, "globularize_centre_position_radiobutton");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_x_entry, "globularize_centre_x_entry");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_y_entry, "globularize_centre_y_entry");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_z_entry, "globularize_centre_z_entry");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, label440, "label440");
+  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, dialog_action_area98, "dialog_action_area98");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_ok_button, "globularize_ok_button");
+  GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_cancel_button, "globularize_cancel_button");
+
+  return globularize_dialog;
 }
 
 #endif // (GTK_MAJOR_VERSION > 1)

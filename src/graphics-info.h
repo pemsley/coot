@@ -105,6 +105,7 @@ namespace coot {
 			   DTI_SIDE_BY_SIDE_STEREO=3,
                            SIDE_BY_SIDE_STEREO_WALL_EYE=4};
    enum accept_reject_text_type { CHI_SQUAREDS, CHIRAL_CENTRES};
+   enum chooser_selctor_type { OLD_STYLE, CHOOSER_STYLE };
 
    class coord_orth_triple {
    public:
@@ -596,6 +597,7 @@ class graphics_info_t {
    void check_if_in_reverse_direction_define(GdkEventButton *event);
    void check_if_in_lsq_plane_define(GdkEventButton *event);
    void check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event);
+   void check_if_in_torsion_general_define(GdkEventButton *event);
    static std::vector<std::string> model_fit_refine_toggle_button_name_list();
    static std::vector<std::string> model_fit_refine_button_name_list();
    static std::vector<std::string> other_modelling_tools_toggle_button_name_list();
@@ -1319,7 +1321,7 @@ public:
 			      gpointer data);
 
 // BL says:: put my gtk2 stuff in here too:
-   static int gtk2_chooser_selector_flag;
+   static int gtk2_file_chooser_selector_flag;
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
    void apply_go_to_atom_from_widget(GtkWidget *widget); 
@@ -1402,6 +1404,16 @@ public:
    static short int fix_chiral_volume_before_refinement_flag;
    static short int show_chiral_volume_errors_dialog_flag;
 
+   // torsion general
+   static int torsion_general_atom_index_1;
+   static int torsion_general_atom_index_2;
+   static int torsion_general_atom_index_3;
+   static int torsion_general_atom_index_4;
+   static int torsion_general_atom_index_1_mol_no;
+   static int torsion_general_atom_index_2_mol_no;
+   static int torsion_general_atom_index_3_mol_no;
+   static int torsion_general_atom_index_4_mol_no;
+
    // 
    static int imol_pepflip;
    static int iresno_pepflip;
@@ -1423,6 +1435,8 @@ public:
    static int rot_trans_atom_index_2;
    static int imol_rot_trans_object;
    static short int rot_trans_zone_rotates_about_zone_centre;
+
+   static short int in_torsion_general_define;
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.
    static CAtom *rot_trans_rotation_origin_atom; // "Eugene's way"
 
@@ -2226,6 +2240,9 @@ public:
 					     // chi editting
    					     // function
 
+   // torsion general
+   void execute_torsion_general();
+
    // which bond are we rotating about in the ligand?
    
    void add_flash_bond(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &p); 
@@ -2683,6 +2700,9 @@ public:
    // MYSQL database
    static MYSQL *mysql;
    static int query_number;
+   static std::string mysql_host;
+   static std::string mysql_user;
+   static std::string mysql_passwd;
 string   static std::string sessionid; 
    static std::pair<std::string, std::string> db_userid_username;
 #endif

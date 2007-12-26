@@ -139,10 +139,10 @@ GtkWidget* create_move_molecule_here_dialog (void);
 GtkWidget* create_monomer_search_dialog (void);
 GtkWidget* create_least_squares_dialog (void);
 
-#ifdef COOT_USE_GTK2_INTERFACE
+#if (GTK_MAJOR_VERSION > 1)
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
-#endif /* COOT_USE_GTK2_INTERFACE */ 
+#endif /*  (GTK_MAJOR_VERSION > 1) */
 
 END_C_DECLS
 

@@ -1100,8 +1100,10 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
 
    // We don't have to worry about chains because they are not active on startup.
 
-   GtkWidget *optionmenu1 = lookup_widget(w, "ramachandran_plot_differences_first_mol_optionmenu");
-   GtkWidget *optionmenu2 = lookup_widget(w, "ramachandran_plot_differences_second_mol_optionmenu");
+   GtkWidget *optionmenu1 =
+      lookup_widget(w, "ramachandran_plot_differences_first_mol_optionmenu");
+   GtkWidget *optionmenu2 =
+      lookup_widget(w, "ramachandran_plot_differences_second_mol_optionmenu");
 
    GtkSignalFunc signal_func1 =
       GTK_SIGNAL_FUNC(ramachandran_plot_differences_mol_option_menu_activate_first);
@@ -1319,8 +1321,8 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 	    if (graphics_info_t::molecules[imol1].is_from_shelx_ins() ||
 		graphics_info_t::molecules[imol2].is_from_shelx_ins())
 	       rama->allow_seqnum_offset();
-	    std::cout << "rama differences on mols: " << imol1 << " " << a_chain
-		      << " to " << imol2 << " " << b_chain << std::endl;
+// 	    std::cout << "rama differences on mols: " << imol1 << " " << a_chain
+// 		      << " to " << imol2 << " " << b_chain << std::endl;
 	    rama->draw_it(imol1, imol2,
 			  graphics_info_t::molecules[imol1].atom_sel.mol,
 			  graphics_info_t::molecules[imol2].atom_sel.mol,

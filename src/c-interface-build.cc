@@ -3002,7 +3002,6 @@ void fill_occupancy_residue_range(int imol, const char *chain_id, int ires1, int
 void setup_edit_chi_angles(short int state) {
 
    graphics_info_t g;
-
    if (state) { 
       g.in_edit_chi_angles_define = 1;
       std::cout << "Click on an atom in the residue that you want to edit" << std::endl;
@@ -3013,6 +3012,23 @@ void setup_edit_chi_angles(short int state) {
       g.in_edit_chi_angles_define = 0;
    }
    std::string cmd = "setup-edit-chi-angles";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
+}
+
+void setup_torsion_general(short int state) {
+
+   graphics_info_t g;
+   if (state) {
+      g.in_torsion_general_define = 1;
+      g.pick_cursor_maybe();
+      g.statusbar_text("Click on a atom. The order of the clicked atoms affects the torsion's wagging dog/tail...");
+      g.pick_pending_flag = 1;
+   } else {
+      g.in_torsion_general_define = 0;
+   }
+   std::string cmd = "setup-torsion-general";
    std::vector<coot::command_arg_t> args;
    args.push_back(state);
    add_to_history_typed(cmd, args);

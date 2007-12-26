@@ -4487,14 +4487,16 @@ int
 molecule_class_info_t::draw_display_list_objects() {
 
    int n_objects = 0;
-   if (display_list_tags.size() > 0) { 
-      glEnable(GL_LIGHTING);
-      std::list<coot::display_list_object_info>::const_iterator it;
-      for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
-	 n_objects++;
-	 glCallList(it->tag);
+   if (drawit) { 
+      if (display_list_tags.size() > 0) { 
+	 glEnable(GL_LIGHTING);
+	 std::list<coot::display_list_object_info>::const_iterator it;
+	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
+	    n_objects++;
+	    glCallList(it->tag);
+	 }
+	 glDisable(GL_LIGHTING);
       }
-      glDisable(GL_LIGHTING);
    }
    return n_objects;
 }
@@ -4507,148 +4509,146 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 
    int i= -1;
    if (has_model()) {
-      if (drawit) { 
-	 int SelHnd = atom_sel.mol->NewSelection();
-	 atom_sel.mol->Select(SelHnd, STYPE_ATOM,
-			      (char *) atom_selection_str.c_str(), // sigh...
-			      SKEY_OR);
-	 int n_selected_atoms;
-	 PPCAtom atom_selection = NULL;
-	 atom_sel.mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
-	 atom_selection_container_t asc = atom_sel;
-	 asc.atom_selection = atom_selection;
-	 asc.n_selected_atoms = n_selected_atoms;
-	 asc.SelectionHandle = SelHnd;
-	 std::cout << "INFO:: " << n_selected_atoms
-		   << " atoms selected for ball & stick" << std::endl;
-	 float min_dist = 0.1;
-	 float max_dist = 1.9; // prevent ambiguity in constructor def.
-	 Bond_lines_container bonds(asc, min_dist, max_dist);
-	 graphical_bonds_container bonds_box_local = bonds.make_graphical_bonds();
-	 Lines_list ll;
-	 // start display list object
-	 GLuint bonds_tag = glGenLists(1);
-	 glNewList(bonds_tag, GL_COMPILE);
-	 coot::display_list_object_info dloi;
-	 dloi.tag = bonds_tag;
-	 display_list_tags.push_back(dloi);
+      int SelHnd = atom_sel.mol->NewSelection();
+      atom_sel.mol->Select(SelHnd, STYPE_ATOM,
+			   (char *) atom_selection_str.c_str(), // sigh...
+			   SKEY_OR);
+      int n_selected_atoms;
+      PPCAtom atom_selection = NULL;
+      atom_sel.mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
+      atom_selection_container_t asc = atom_sel;
+      asc.atom_selection = atom_selection;
+      asc.n_selected_atoms = n_selected_atoms;
+      asc.SelectionHandle = SelHnd;
+      std::cout << "INFO:: " << n_selected_atoms
+		<< " atoms selected for ball & stick" << std::endl;
+      float min_dist = 0.1;
+      float max_dist = 1.9; // prevent ambiguity in constructor def.
+      Bond_lines_container bonds(asc, min_dist, max_dist);
+      graphical_bonds_container bonds_box_local = bonds.make_graphical_bonds();
+      Lines_list ll;
+      // start display list object
+      GLuint bonds_tag = glGenLists(1);
+      glNewList(bonds_tag, GL_COMPILE);
+      coot::display_list_object_info dloi;
+      dloi.tag = bonds_tag;
+      display_list_tags.push_back(dloi);
 
-	 GLfloat bgcolor[4]={1.0, 1.0, 0.3, 1.0};
+      GLfloat bgcolor[4]={1.0, 1.0, 0.3, 1.0};
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
+      glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
+      // glMaterialfv(GL_FRONT, GL_EMISSION, bgcolor);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
+      //Let the returned colour dictate: note obligatory order of these calls
+      glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+      glEnable(GL_COLOR_MATERIAL);
+
+      GLfloat  mat_specular[]  = {1.0, 0.3, 0.2, 1.0};
+      GLfloat  mat_ambient[]   = {0.8, 0.1, 0.1, 1.0};
+      GLfloat  mat_diffuse[]   = {0.2, 0.2, 0.2, 0.5};
+      GLfloat  mat_shininess[] = {50.0};
+      // GLfloat  light_position[] = {1.0, 1.0, 1.0, 1.0};
+      
+      glClearColor(0.0, 0.0, 0.0, 0.0);
+      glShadeModel(GL_SMOOTH);
+
+      glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+      glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+      glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+      glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+      // glLightfv(GL_LIGHT0,  GL_POSITION, light_position);
+
+      //       glEnable(GL_LIGHTING);
+      //       glEnable(GL_LIGHT0);
+      glEnable(GL_DEPTH_TEST);
+      glEnable(GL_NORMALIZE);
+      
+      for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
+	 ll = bonds_box_local.bonds_[ii];
+	 set_bond_colour_by_mol_no(ii);
+	 //	 GLfloat bgcolor[4]={1.0,1.0,0.3,1.0};
+	 GLfloat bgcolor[4]={bond_colour_internal[0],
+			     bond_colour_internal[1],
+			     bond_colour_internal[2],
+			     1.0};
 	 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	 // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
 	 glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
 	 // glMaterialfv(GL_FRONT, GL_EMISSION, bgcolor);
-	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
-	 //Let the returned colour dictate: note obligatory order of these calls
-	 glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	 glEnable(GL_COLOR_MATERIAL);
-
-	 GLfloat  mat_specular[]  = {1.0, 0.3, 0.2, 1.0};
-	 GLfloat  mat_ambient[]   = {0.8, 0.1, 0.1, 1.0};
-	 GLfloat  mat_diffuse[]   = {0.2, 0.2, 0.2, 0.5};
-	 GLfloat  mat_shininess[] = {50.0};
-	 // GLfloat  light_position[] = {1.0, 1.0, 1.0, 1.0};
-      
-	 glClearColor(0.0, 0.0, 0.0, 0.0);
-	 glShadeModel(GL_SMOOTH);
-
-	 glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-	 glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-	 glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	 glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	 // glLightfv(GL_LIGHT0,  GL_POSITION, light_position);
-
-	 //       glEnable(GL_LIGHTING);
-	 //       glEnable(GL_LIGHT0);
-	 glEnable(GL_DEPTH_TEST);
-	 glEnable(GL_NORMALIZE);
-      
-	 for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
-	    ll = bonds_box_local.bonds_[ii];
-	    set_bond_colour_by_mol_no(ii);
-	    //	 GLfloat bgcolor[4]={1.0,1.0,0.3,1.0};
-	    GLfloat bgcolor[4]={bond_colour_internal[0],
-				bond_colour_internal[1],
-				bond_colour_internal[2],
-				1.0};
-	    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	    // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
-	    glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
-	    // glMaterialfv(GL_FRONT, GL_EMISSION, bgcolor);
-	    for (int j=0; j< bonds_box_local.bonds_[ii].num_lines; j++) {
-	       glPushMatrix();
-	       glTranslatef(ll.pair_list[j].getFinish().get_x(),
-			    ll.pair_list[j].getFinish().get_y(),
-			    ll.pair_list[j].getFinish().get_z());
-	       double base = bond_thickness;
-	       double top = bond_thickness;
-	       coot::Cartesian bond_height =
-		  ll.pair_list[j].getFinish() - ll.pair_list[j].getStart();
-	       double height = bond_height.amplitude();
-	       int slices = 10;
-	       int stacks = 2;
-
-	       // 	    This code from cc4mg's cprimitive.cc (but modified)
-	       //  	    ----- 
-	       double ax;
-	       double rx = 0; 
-	       double ry = 0;
-	       double length = bond_height.length();
-	       double vz = bond_height.get_z();
-
-	       bool rot_x = false;
-	       if(fabs(vz)>1e-7){
-		  ax = 180.0/M_PI*acos(vz/length);
-		  if(vz<0.0) ax = -ax;
-		  rx = -bond_height.get_y()*vz;
-		  ry = bond_height.get_x()*vz;
-	       }else{
-		  double vx = bond_height.get_x();
-		  double vy = bond_height.get_y();
-		  ax = 180.0/M_PI*acos(vx/length);
-		  if(vy<0) ax = -ax;
-		  rot_x = true;
-	       }
-
-	       if (rot_x) { 
-		  glRotated(90.0, 0.0, 1.0, 0.0);
-		  glRotated(ax,  -1.0, 0.0, 0.0);
-	       } else {
-		  glRotated(ax, rx, ry, 0.0);
-	       }
-	       // 	    --------
-
-	       GLUquadric* quad = gluNewQuadric();
-	       glScalef(1.0, 1.0, -1.0); // account for mg maths :-)
-	       gluCylinder(quad, base, top, height, slices, stacks);
-	       // gluQuadricNormals(quad, GL_SMOOTH);
-	       gluDeleteQuadric(quad);
-	       glPopMatrix();
-	    }
-	 }
-
-	 if (do_spheres_flag) { 
+	 for (int j=0; j< bonds_box_local.bonds_[ii].num_lines; j++) {
+	    glPushMatrix();
+	    glTranslatef(ll.pair_list[j].getFinish().get_x(),
+			 ll.pair_list[j].getFinish().get_y(),
+			 ll.pair_list[j].getFinish().get_z());
+	    double base = bond_thickness;
+	    double top = bond_thickness;
+	    coot::Cartesian bond_height =
+	       ll.pair_list[j].getFinish() - ll.pair_list[j].getStart();
+	    double height = bond_height.amplitude();
 	    int slices = 10;
-	    int stacks = 20;
-	    for (int i=0; i<bonds_box_local.n_atom_centres_; i++) {
-	       set_bond_colour_by_mol_no(bonds_box.atom_centres_colour_[i]);
-	       glPushMatrix();
-	       glTranslatef(bonds_box_local.atom_centres_[i].get_x(),
-			    bonds_box_local.atom_centres_[i].get_y(),
-			    bonds_box_local.atom_centres_[i].get_z());
+	    int stacks = 2;
 
-	       GLUquadric* quad = gluNewQuadric();
-	       gluSphere(quad, sphere_size, slices, stacks);
-	       // gluQuadricNormals(quad, GL_SMOOTH);
-	       gluDeleteQuadric(quad);
-	       glPopMatrix();
+	    // 	    This code from cc4mg's cprimitive.cc (but modified)
+	    //  	    ----- 
+	    double ax;
+	    double rx = 0; 
+	    double ry = 0;
+	    double length = bond_height.length();
+	    double vz = bond_height.get_z();
+
+	    bool rot_x = false;
+	    if(fabs(vz)>1e-7){
+	       ax = 180.0/M_PI*acos(vz/length);
+	       if(vz<0.0) ax = -ax;
+	       rx = -bond_height.get_y()*vz;
+	       ry = bond_height.get_x()*vz;
+	    }else{
+	       double vx = bond_height.get_x();
+	       double vy = bond_height.get_y();
+	       ax = 180.0/M_PI*acos(vx/length);
+	       if(vy<0) ax = -ax;
+	       rot_x = true;
 	    }
+
+	    if (rot_x) { 
+	       glRotated(90.0, 0.0, 1.0, 0.0);
+	       glRotated(ax,  -1.0, 0.0, 0.0);
+	    } else {
+	       glRotated(ax, rx, ry, 0.0);
+	    }
+	    // 	    --------
+
+	    GLUquadric* quad = gluNewQuadric();
+	    glScalef(1.0, 1.0, -1.0); // account for mg maths :-)
+	    gluCylinder(quad, base, top, height, slices, stacks);
+	    // gluQuadricNormals(quad, GL_SMOOTH);
+	    gluDeleteQuadric(quad);
+	    glPopMatrix();
 	 }
-      
-	 glEndList();
-	 bonds_box_local.clear_up();
-	 atom_sel.mol->DeleteSelection(SelHnd);
       }
+
+      if (do_spheres_flag) { 
+	 int slices = 10;
+	 int stacks = 20;
+	 for (int i=0; i<bonds_box_local.n_atom_centres_; i++) {
+	    set_bond_colour_by_mol_no(bonds_box.atom_centres_colour_[i]);
+	    glPushMatrix();
+	    glTranslatef(bonds_box_local.atom_centres_[i].get_x(),
+			 bonds_box_local.atom_centres_[i].get_y(),
+			 bonds_box_local.atom_centres_[i].get_z());
+
+	    GLUquadric* quad = gluNewQuadric();
+	    gluSphere(quad, sphere_size, slices, stacks);
+	    // gluQuadricNormals(quad, GL_SMOOTH);
+	    gluDeleteQuadric(quad);
+	    glPopMatrix();
+	 }
+      }
+      
+      glEndList();
+      bonds_box_local.clear_up();
+      atom_sel.mol->DeleteSelection(SelHnd);
    }
    return i;
 }

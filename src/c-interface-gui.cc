@@ -700,11 +700,143 @@ coot_real_exit(int retval) {
 
 }
 
+// where data type:
+// 0 coords
+// 1 mtz etc
+// 2 maps
+// 3 cif dictionary
+// 4 scripting files
+// 
+GtkWidget *add_filename_filter_button(GtkWidget *fileselection, 
+				      short int data_type) { 
+
+   
+   GtkWidget *button = 0;
+   int selector_condition = 0;
+   
+#if (GTK_MAJOR_VERSION > 1)
+   selector_condition = graphics_info_t::gtk2_file_chooser_selector_flag;
+   if (selector_condition == 1) {
+      int d = data_type;
+      int i = 0;
+      std::vector<std::string> globs;
+
+      GtkFileFilter *filterall = gtk_file_filter_new ();
+      GtkFileFilter *filterselect = gtk_file_filter_new ();
+
+      gtk_file_filter_set_name (filterall, "all-files");
+      gtk_file_filter_add_pattern (filterall, "*");
+
+      if (d == 0) {
+
+	 gtk_file_filter_set_name (filterselect, "coordinate-files");
+
+	 globs = *graphics_info_t::coordinates_glob_extensions;
+      };
+
+      if (d == 1) {
+
+	 gtk_file_filter_set_name (filterselect, "data-files");
+
+	 globs = *graphics_info_t::data_glob_extensions;
+      };
+
+      if (d == 2) {
+
+	 gtk_file_filter_set_name (filterselect, "map-files");
+
+	 globs = *graphics_info_t::map_glob_extensions;
+      };
+
+      if (d == 3) {
+
+	 gtk_file_filter_set_name (filterselect, "dictionary-files");
+
+	 globs = *graphics_info_t::dictionary_glob_extensions;
+      };
+
+      if (d == 4) {
+	 // BL says:: we dont have a script extensions (yet)
+	 // so we make one just here (no adding of extensions etc as yet)
+
+	 std::vector<std::string> script_glob_extension;
+	 script_glob_extension.push_back("*.py"); 
+	 script_glob_extension.push_back("*.scm"); 
+
+	 gtk_file_filter_set_name (filterselect, "python-files");
+
+	 globs = script_glob_extension;
+
+      };
+
+      std::string s;
+      for (unsigned int i=0; i<globs.size(); i++) {
+	 s = "*";
+	 s += globs[i];
+	 gtk_file_filter_add_pattern (filterselect, s.c_str());
+      };
+
+      gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection), GTK_FILE_FILTER (filterall));
+      gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection), GTK_FILE_FILTER (filterselect));
+
+   } else
+
+#endif    // This is really ugly split.  Make it cleaner.  Put gtk
+	  // code in a different function, so we can conditionally
+	  // compile the whole function. Not mess around with
+	  // splitting like this.
+
+      {
+      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+      GtkWidget *frame = gtk_frame_new("File-name filter:");
+      int d = data_type;
+      button = gtk_toggle_button_new_with_label("Filter");
+   
+      gtk_widget_ref(button);
+      gtk_widget_show(button);
+      gtk_container_add(GTK_CONTAINER(aa),frame);
+      gtk_container_add(GTK_CONTAINER(frame), button);
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+      gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
+			  GINT_TO_POINTER(d));
+#else   
+      gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
+			  GINT_TO_POINTER(d));
+#endif   
+      gtk_widget_show(frame);
+   }
+   return button;
+}
+
+void add_is_difference_map_checkbutton(GtkWidget *fileselection) { 
+
+   GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+   GtkWidget *button = gtk_check_button_new_with_label("Is Difference Map");
+   GtkWidget *frame = gtk_frame_new("Difference Map?");
+   int imol = 0; // FIXME
+
+   gtk_widget_ref(button);
+   gtk_object_set_data_full(GTK_OBJECT(fileselection),
+			    "map_fileselection_is_difference_map_button",
+			    button,
+			    (GtkDestroyNotify) gtk_widget_unref);
+   gtk_widget_show(button);
+   gtk_container_add(GTK_CONTAINER(aa),frame);
+   gtk_container_add(GTK_CONTAINER(frame), button);
+   gtk_signal_connect (GTK_OBJECT (button), "toggled",
+		       GTK_SIGNAL_FUNC (on_read_map_difference_map_toggle_button_toggled),
+		       GINT_TO_POINTER(imol));
+   gtk_widget_show(frame);
+
+}
+
 void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) { 
 
    bool doit = 1;
 #if (GTK_MAJOR_VERSION > 1)
-   if (graphics_info_t::gtk2_chooser_selector_flag == 1) {
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       doit = 0;
    }
 #endif
@@ -786,7 +918,7 @@ GtkWidget *coot_file_chooser() {
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
    w = create_coords_fileselection1 ();
 #else
-   if (graphics_info_t::gtk2_chooser_selector_flag == 0) {
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_coords_fileselection1();
    } else {
       w = create_coords_filechooserdialog1(); 
@@ -1462,6 +1594,8 @@ close_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
 void add_ccp4i_project_shortcut(GtkWidget *fileselection) {
 
 #if (GTK_MAJOR_VERSION > 1)
+//    std::cout << "DEBUG:: adding a short cut..." << std::endl;
+//    std::cout << "DEBUG:: widget is filechooser: " << GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
    // BL says: we simply add a short cut to ccp4 project folder
    // based on ccp4_defs_file_name()
    // add all projects to shortcut (the easiest option for now)
@@ -1487,12 +1621,14 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection) {
    bool add_shortcut = 0;
 
 #if (GTK_MAJOR_VERSION > 1)
-   if (graphics_info_t::gtk2_chooser_selector_flag == 1) {
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       add_shortcut = 1;
    }
 #endif
 
    if (add_shortcut) {
+      std::cout << "in add_ccp4i_project_optionmenu widget is fileselection "
+		<< GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
       add_ccp4i_project_shortcut(fileselection);
    } else {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
@@ -2590,11 +2726,11 @@ GtkWidget *wrapped_create_display_control_window() {
 
 // BL things for file_chooser
 #ifdef COOT_USE_GTK2_INTERFACE
-void set_gtk2_chooser_selector_flag(int istate) {
-   graphics_info_t::gtk2_chooser_selector_flag = istate;
+void set_file_chooser_selector(int istate) {
+   graphics_info_t::gtk2_file_chooser_selector_flag = istate;
 }
 
-int gtk2_chooser_selector_flag_state(){
-   return graphics_info_t::gtk2_chooser_selector_flag;
+int file_chooser_selector_state(){
+   return graphics_info_t::gtk2_file_chooser_selector_flag;
 }
 #endif

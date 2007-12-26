@@ -149,7 +149,7 @@ std::ostream& operator<<(std::ostream&s, GL_matrix m) {
 // Given a symmetric positive definate matrix,
 // return the lower triangular matrix by LU decomposition.
 //
-GL_matrix
+std::pair<bool, GL_matrix>
 GL_matrix::cholesky() const {
 
    //
@@ -194,7 +194,7 @@ GL_matrix::cholesky() const {
    l.mat[11] = 0;
    l.mat[15] = 1; 
 
-   return l; 
+   return std::pair<bool,GL_matrix> (1, l); 
 }
 
 // Use the GSL for cholesky then:

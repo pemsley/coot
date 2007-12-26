@@ -507,9 +507,21 @@ int graphics_info_t::geometry_atom_index_1_mol_no = -1; // must be set before us
 int graphics_info_t::geometry_atom_index_2_mol_no = -1;
 int graphics_info_t::geometry_atom_index_3_mol_no = -1;
 int graphics_info_t::geometry_atom_index_4_mol_no = -1;
+
+// torsion general
+int graphics_info_t::torsion_general_atom_index_1 = -1;
+int graphics_info_t::torsion_general_atom_index_2 = -1;
+int graphics_info_t::torsion_general_atom_index_3 = -1;
+int graphics_info_t::torsion_general_atom_index_4 = -1;
+int graphics_info_t::torsion_general_atom_index_1_mol_no = -1;
+int graphics_info_t::torsion_general_atom_index_2_mol_no = -1;
+int graphics_info_t::torsion_general_atom_index_3_mol_no = -1;
+int graphics_info_t::torsion_general_atom_index_4_mol_no = -1;
+
 //
 short int graphics_info_t::in_residue_info_define = 0;
 int graphics_info_t::residue_selection_flash_frames_number = 3;
+short int graphics_info_t::in_torsion_general_define = 0;
 
 short int graphics_info_t::in_save_symmetry_define = 0; 
 
@@ -962,6 +974,9 @@ MYSQL *graphics_info_t::mysql = 0;
 int    graphics_info_t::query_number = 1;
 std::string graphics_info_t::sessionid = "";
 std::pair<std::string, std::string> graphics_info_t::db_userid_username("no-userid","no-user-name");
+std::string graphics_info_t::mysql_host   = "localhost";
+std::string graphics_info_t::mysql_user   = "cootuser";
+std::string graphics_info_t::mysql_passwd = "password";
 #endif // USE_MYSQL_DATABASE
 
 //
@@ -1180,11 +1195,11 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
 #else
 
-// BL things for chooser
+// Defaults for the file chooser
 #ifdef USE_MINGW
-int graphics_info_t::gtk2_chooser_selector_flag = 1;
+int graphics_info_t::gtk2_file_chooser_selector_flag = coot::CHOOSER_STYLE;
 #else
-int graphics_info_t::gtk2_chooser_selector_flag = 0;
+int graphics_info_t::gtk2_file_chooser_selector_flag = coot::OLD_STYLE;
 #endif // MINGW
 
 // GTK2 code
@@ -1437,8 +1452,8 @@ init_gl_widget(GtkWidget *widget) {
    // Solid model lighting
    //
    setup_lighting(graphics_info_t::do_lighting_flag);
-   
 
+   
    graphics_info_t::symm_colour_merge_weight[0] = 0.5; // 0.0 -> 1.0
    
    graphics_info_t::symm_colour[0] = new double[4];
@@ -1468,10 +1483,10 @@ void
 setup_lighting(short int do_lighting_flag) {
 
    if (do_lighting_flag) { // set this to 1 to light a surface currently.
-      GLfloat  mat_specular[] = {1.0, 0.3, 0.2, 1.0};
-      GLfloat  mat_ambient[] = {0.8, 0.1, 0.1, 1.0};
-      GLfloat  mat_diffuse[] = {0.2, 1.0, 0.0, 1.0};
-      GLfloat  mat_shininess[] = {50.0};
+      GLfloat  mat_specular[]   = {1.0, 0.3, 0.2, 1.0};
+      GLfloat  mat_ambient[]    = {0.8, 0.1, 0.1, 1.0};
+      GLfloat  mat_diffuse[]    = {0.2, 1.0, 0.0, 1.0};
+      GLfloat  mat_shininess[]  = {50.0};
       GLfloat  light_position[] = {1.0, 1.0, 1.0, 0.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -1479,9 +1494,9 @@ setup_lighting(short int do_lighting_flag) {
 
       glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
       glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-      glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-      glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-      glLightfv(GL_LIGHT0,  GL_POSITION, light_position);
+      glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
+      glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+      glLightfv(GL_LIGHT0,   GL_POSITION, light_position);
 
       glEnable(GL_LIGHT0);
       glEnable(GL_DEPTH_TEST);
@@ -1878,8 +1893,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glPushMatrix();
 	 glMatrixMode(GL_MODELVIEW);
 	 glLoadIdentity();
-	 GLfloat  light_position[] = {1.,1.,1.,0.};
-	 glLightfv(GL_LIGHT0,  GL_POSITION, light_position);
+	 GLfloat  light_position_0[] = {1.0, 1.0, 1.0, 0.0};
+	 GLfloat  light_position_1[] = {0.0, 0.0, 1.0, 0.0};
+	 glLightfv(GL_LIGHT0,  GL_POSITION, light_position_0);
 	 glEnable(GL_LIGHTING);
 	 glEnable(GL_LIGHT0);
 	 glPopMatrix();

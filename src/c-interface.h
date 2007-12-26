@@ -215,8 +215,8 @@ const char *coot_file_chooser_file_name(GtkWidget *widget);
 /*! \brief this flag set chooser as default for windows, otherwise use
   selector 0 is selector 1 is chooser */
 #ifdef COOT_USE_GTK2_INTERFACE
-void set_gtk2_chooser_selector_flag(int istate);
-int gtk2_chooser_selector_flag_state();
+void set_file_chooser_selector(int istate);
+int file_chooser_selector_state();
 #endif
 /* \} */
 
@@ -3750,6 +3750,10 @@ int edit_chi_angles(int imol, const char *chain_id, int resno,
 
 int set_show_chi_angle_bond(int imode);
 
+/*! \brief beloved torsion general at last makes an entrance onto the
+  Coot scene...  */
+void setup_torsion_general(short int state);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4061,6 +4065,8 @@ int place_helix_here();
 int place_strand_here(int n_residues, int n_sample_strands);
 
 /* \} */
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*             New Molecule by Various Selection                            */

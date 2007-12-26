@@ -341,9 +341,6 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    
    //clipper defaults: 0.01 0.0005
 
-
-   std::cout << "Debug:: initing rama with levels " << level_prefered << " " << level_allowed
-	     << std::endl;
    rama.set_thresholds(level_prefered, level_allowed);
    //
    r_gly.init(clipper::Ramachandran::Gly);
@@ -1687,7 +1684,6 @@ coot::rama_plot::draw_it(int imol1, int imol2,
 			 CMMDBManager *mol1, CMMDBManager *mol2,
 			 const std::string &chain_id_1, const std::string &chain_id_2) {
 
-   std::cout << "draw_it.... allow_seqnum_offset_flag: " << allow_seqnum_offset_flag << std::endl;
    molecule_numbers_ = std::pair<int, int> (imol1, imol2); // save for later
    chain_ids_ = std::pair<std::string, std::string> (chain_id_1, chain_id_2);
    display_background();
@@ -2107,12 +2103,12 @@ coot::rama_plot::draw_phi_psi_differences() {
 
 void
 coot::rama_plot::draw_kleywegt_arrow(const phi_psi_t &phi_psi_primary,
-				     const phi_psi_t &phi_psi_secondardy,
+				     const phi_psi_t &phi_psi_secondary,
 				     GtkCanvasPoints *points) {
 
    
    coot::rama_kleywegt_wrap_info wi = test_kleywegt_wrap(phi_psi_primary,
-							 phi_psi_secondardy);
+							 phi_psi_secondary);
    
    GtkCanvasItem *item;
 
@@ -2121,8 +2117,8 @@ coot::rama_plot::draw_kleywegt_arrow(const phi_psi_t &phi_psi_primary,
       points->coords[0] =  phi_psi_primary.phi(); 
       points->coords[1] = -phi_psi_primary.psi();
       
-      points->coords[2] =  phi_psi_secondardy.phi(); 
-      points->coords[3] = -phi_psi_secondardy.psi();
+      points->coords[2] =  phi_psi_secondary.phi(); 
+      points->coords[3] = -phi_psi_secondary.psi();
       item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				 GTK_CANVAS_TYPE_CANVAS_LINE,
 				 "width_pixels", 1,
@@ -2143,6 +2139,14 @@ coot::rama_plot::draw_kleywegt_arrow(const phi_psi_t &phi_psi_primary,
       
       points->coords[2] =  wi.primary_border_point.first;
       points->coords[3] = -wi.primary_border_point.second;
+
+      std::cout << "Borderline 1 : "
+		<< "(" << phi_psi_primary.phi() << "," << phi_psi_primary.psi() << ")"
+		<< " to "
+		<< "("
+		<< wi.primary_border_point.first
+		<< ", " << wi.primary_border_point.second
+		<< ")" << std::endl;
       
       item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				 GTK_CANVAS_TYPE_CANVAS_LINE,
@@ -2161,9 +2165,16 @@ coot::rama_plot::draw_kleywegt_arrow(const phi_psi_t &phi_psi_primary,
       points->coords[0] =  wi.secondary_border_point.first;
       points->coords[1] = -wi.secondary_border_point.second;
       
-      points->coords[2] =  phi_psi_secondardy.phi(); 
-      points->coords[3] = -phi_psi_secondardy.psi();
+      points->coords[2] =  phi_psi_secondary.phi(); 
+      points->coords[3] = -phi_psi_secondary.psi();
 
+      std::cout << "Borderline 2: "
+		<< "(" << wi.secondary_border_point.first << ","
+		<< wi.secondary_border_point.second << ")"
+		<< " to " 
+		<< "("  << phi_psi_secondary.phi()
+		<< ", " << phi_psi_secondary.psi()
+		<< ")" << std::endl;
       
       item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 				 GTK_CANVAS_TYPE_CANVAS_LINE,
@@ -2186,27 +2197,51 @@ coot::rama_plot::test_kleywegt_wrap(const phi_psi_t &phi_psi_primary,
 
    coot::rama_kleywegt_wrap_info wi;
 
-   if (fabs(phi_psi_primary.phi() - phi_psi_secondary.phi()) > 280.0) {
-      std::cout << "DEBUG:: PHI Outlier detected: " << phi_psi_primary.chain_id
-		<< " " << phi_psi_primary.residue_number << std::endl;
-      float phi_diff = phi_psi_secondary.phi() - phi_psi_primary.phi();
-      float psi_diff = phi_psi_secondary.psi() - phi_psi_primary.psi();
-      float phi_gradient = psi_diff/phi_diff;
 
-      float psi_at_phi_crosser = phi_psi_primary.psi() +
-	 psi_diff*(phi_psi_primary.phi()+180);
-      float phi_crosser = -180.0;
-      wi.primary_border_point.first = phi_crosser;
-      wi.primary_border_point.second = psi_at_phi_crosser;
-      wi.secondary_border_point.first = 180;
-      wi.secondary_border_point.second = psi_at_phi_crosser;
+   if (fabs(phi_psi_primary.phi() - phi_psi_secondary.phi()) > 200.0) {
+       std::cout << "DEBUG:: PHI Outlier detected: " << phi_psi_primary.chain_id
+		 << " " << phi_psi_primary.residue_number << std::endl;
+      wi.is_wrapped = 1;
       
+      float phi_1 = phi_psi_primary.phi();
+      float psi_1 = phi_psi_primary.psi();
+      float phi_2 = phi_psi_secondary.phi();
+      float psi_2 = phi_psi_secondary.psi();
+
+      float phi_diff = phi_2 - phi_1; 
+      float psi_diff = psi_2 - psi_1; 
+      float psi_gradient = 999999999.9;
+      if (fabs(psi_diff > 0.000000001))
+	 psi_gradient = (180.0 - phi_1)/(phi_2 + 360.0 - phi_1);
+
+      float psi_critical = psi_1 + psi_gradient * (psi_2 - psi_1);
+      wi.primary_border_point.first = 180.0;
+      wi.primary_border_point.second = psi_critical;
+      wi.secondary_border_point.first = -180.0;
+      wi.secondary_border_point.second = psi_critical;
    } 
-   if (fabs(phi_psi_primary.psi() - phi_psi_secondary.psi()) > 280.0) {
+   if (fabs(phi_psi_primary.psi() - phi_psi_secondary.psi()) > 200.0) {
       std::cout << "DEBUG:: PSI Outlier detected: " << phi_psi_primary.chain_id
 		<< " " << phi_psi_primary.residue_number << std::endl;
-   } 
+      wi.is_wrapped = 1;
 
+      float phi_1 = phi_psi_primary.phi();
+      float psi_1 = phi_psi_primary.psi();
+      float phi_2 = phi_psi_secondary.phi();
+      float psi_2 = phi_psi_secondary.psi();
+
+      float phi_diff = phi_2 - phi_1; 
+      float psi_diff = psi_2 - psi_1; 
+      float psi_gradient = 999999999.9;
+      if (fabs(psi_diff > 0.000000001))
+	 psi_gradient = (-180.0 - (psi_2 - 360.0))/(psi_1 - (psi_2 - 360.0));
+
+      float phi_critical = phi_2 + psi_gradient * (phi_1 - phi_2);
+      wi.primary_border_point.first = phi_critical;
+      wi.primary_border_point.second = -180.0;
+      wi.secondary_border_point.first = phi_critical;
+      wi.secondary_border_point.second = 180.0;
+   } 
    return wi;
 } 
 

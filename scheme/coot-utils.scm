@@ -1517,6 +1517,14 @@
 	  (if (residue-info-dialog-displayed?)
 	      (residue-info-dialog imol chain-id resno inscode))))))
 
+;; 
+(define (sanitise-alt-confs-in-residue imol chain-id resno inscode)
+
+  (let ((atom-info (list imol chain-id resno inscode 'dummy 'dummy))
+	(atom-ls (residue-info imol chain-id resno inscode)))
+    (sanitise-alt-confs atom-info atom-ls)))
+
+  
 
 ;; Resets alt confs and occupancies of atoms in residue that have
 ;; orphan alt-loc attributes.  Use the active-residue.

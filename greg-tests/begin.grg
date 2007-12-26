@@ -10,5 +10,17 @@
 						      "data")
 				      "greg-data"))
 
+; How fast does the graphics rotate things (relative to kalypso)
+(define rotate-speed 1)
 
+(let ((host (getenv "HOST")))
+  (if (string? host)
+      (cond
+       ((string=? host "penelope")
+	(set! rotate-speed 0.1))
+       ((string=? host "cycle")
+	(set! rotate-speed 0.1)))))
+
+(define (rotate-n-frames n)
+  (inexact->exact (round (* n rotate-speed))))
 

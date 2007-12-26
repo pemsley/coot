@@ -241,6 +241,7 @@ coot_real_SOURCES = \
 	c-interface-ligands.cc   \
 	c-interface-widgets.cc   \
 	c-interface-validate.cc	 \
+	c-interface-database.cc  \
 	c-interface-superpose.cc \
 	c-interface-preferences.cc \
 	c-interface-mmdb.hh      \

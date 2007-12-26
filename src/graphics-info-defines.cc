@@ -51,6 +51,7 @@ graphics_info_t::clear_pending_picks() {
    in_cis_trans_convert_define = 0;
    in_180_degree_flip_define   = 0;
    in_reverse_direction_define = 0;
+   in_torsion_general_define   = 0;
    pick_pending_flag           = 0;
 
    std::vector<std::string> button_name_vec =
@@ -218,6 +219,7 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
    check_if_in_reverse_direction_define(event);
    check_if_in_lsq_plane_define(event);
    check_if_in_lsq_plane_deviant_atom_define(event);
+   check_if_in_torsion_general_define(event);
 
    return iv;
 }
@@ -1261,6 +1263,42 @@ graphics_info_t::check_if_in_180_degree_flip_define(GdkEventButton *event) {
    }
 }
 
+void
+graphics_info_t::check_if_in_torsion_general_define(GdkEventButton *event) {
+
+   if (in_torsion_general_define) {
+      pick_info nearest_atom_index_info = atom_pick(event);
+      if (nearest_atom_index_info.success == GL_TRUE) {
+	 int im = nearest_atom_index_info.imol;
+	 molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+	 if (in_torsion_general_define == 1) {
+	    torsion_general_atom_index_1 = nearest_atom_index_info.atom_index;
+	    torsion_general_atom_index_1_mol_no = im;
+	    in_torsion_general_define = 2;
+	 }
+	 if (in_torsion_general_define == 2) {
+	    torsion_general_atom_index_2 = nearest_atom_index_info.atom_index;
+	    torsion_general_atom_index_2_mol_no = im;
+	    in_torsion_general_define = 3;
+	 }
+	 if (in_torsion_general_define == 3) {
+	    torsion_general_atom_index_3 = nearest_atom_index_info.atom_index;
+	    torsion_general_atom_index_3_mol_no = im;
+	    in_torsion_general_define = 4;
+	 }
+	 if (in_torsion_general_define == 4) {
+	    torsion_general_atom_index_4 = nearest_atom_index_info.atom_index;
+	    torsion_general_atom_index_4_mol_no = im;
+	    // act on the torsion general setup
+	    execute_torsion_general();
+	    in_torsion_general_define = 0;
+	    setup_torsion_general(1);
+	    normal_cursor();
+	 }
+	 graphics_draw();
+      }
+   }
+}
 
 
 void 
