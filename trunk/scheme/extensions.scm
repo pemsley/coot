@@ -517,6 +517,16 @@
       (add-coot-menu-seperator menu)
 
       (add-simple-coot-menu-menuitem
+       menu "Ball & Stick..."
+       (lambda ()
+	   (generic-chooser-and-entry "Ball & Stick"
+				      "Atom Selection:"
+				      "//A/1-2"
+				      (lambda (imol text)
+					(let ((handle (make-ball-and-stick imol text 0.18 0.3 1)))
+					  (format #t "handle: ~s~%" handle))))))
+
+      (add-simple-coot-menu-menuitem
        menu "Dotted Surface..."
        (lambda ()
 	   (generic-chooser-and-entry "Surface for molecule"

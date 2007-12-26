@@ -18,7 +18,7 @@
 					   (list -0.772277 0.277494 0.292497 0.490948)
 					   98.9608 "SSM View")))
 		(go-to-view-number view-number 1)
-		(rotate-y-scene 100 0.1)
+		(rotate-y-scene (rotate-n-frames 100) 0.1)
 		(set-mol-displayed imol-a 0)
 		(set-mol-displayed imol-b 0)
 		
@@ -34,6 +34,6 @@
 	(superpose-with-atom-selection imol-s imol-s "A/100-400" "B/50-450" 1)
 	(let ((imol-copy (- (graphics-n-molecules) 1)))
 	  (graphics-to-ca-plus-ligands-representation imol-copy)
-	  (rotate-y-scene 100 0.1)
+	  (rotate-y-scene (rotate-n-frames 100) 0.1)
 	  #t)))) ; didn't crash!  Thanks Alice Dawson
 

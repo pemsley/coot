@@ -91,6 +91,6 @@
 					      14.9021
 					      "RNA-ghots-view")))
 		   (go-to-view-number view-number 1)
-		   (rotate-y-scene 200 1)
+		   (rotate-y-scene (rotate-n-frames 200) 1)
 		   #t))))))))
 

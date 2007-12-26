@@ -1042,7 +1042,8 @@ void
 graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
 
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-   gtk_widget_destroy(menu);
+   if (menu)
+      gtk_widget_destroy(menu);
    menu = gtk_menu_new();
 
    
@@ -3446,12 +3447,15 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget 
    //                           go_to_atom_molecule_optionmenu_menu);
    //
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+   
 
    // for the strangeness of destroying and re-adding the menu to the
    // option menu, set the comments in the
    // fill_close_option_menu_with_all_molecule_options function
 
-   gtk_widget_destroy(menu);
+   // menu is not GTK_MENU on Gtk2 Ubuntu kalypso 64 bit
+   if (menu) 
+      gtk_widget_destroy(menu);
 
    /* Create a menu for the optionmenu button.  The various molecule
     numbers will be added to this menu as menuitems*/
@@ -3594,7 +3598,8 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 
    
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-   gtk_widget_destroy(menu);
+   if (menu) 
+      gtk_widget_destroy(menu);
    menu = gtk_menu_new();
 
    GtkWidget *menuitem;
@@ -5945,7 +5950,8 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
    // 
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(bond_width_option_menu));
    GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(graphics_info_t::bond_width_item_select);
-   gtk_widget_destroy(menu);
+   if (menu) 
+      gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    GtkWidget *menu_item;
    int current_bond_width = 3;
@@ -6199,7 +6205,8 @@ graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
 	    std::vector<std::string> chains = coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
 	    GtkWidget *menu_item;
 	    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(chain_option_menu));
-	    gtk_widget_destroy(menu);
+	    if (menu)
+	       gtk_widget_destroy(menu);
 	    menu = gtk_menu_new();
 	    short int first_chain_set_flag = 0;
 	    std::string first_chain;

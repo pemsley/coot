@@ -72,10 +72,11 @@ GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         const gchar     *filename);
 
 
-#ifdef COOT_USE_GTK2_INTERFACE
+#if (GTK_MAJOR_VERSION > 1) 
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
-#endif /* COOT_USE_GTK2_INTERFACE */ 
+GdkPixbuf *create_pixbuf (const gchar *filename);
+#endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS
 

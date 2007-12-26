@@ -118,6 +118,7 @@ else
    echo Not using python
    PYTHON_CFLAGS=""
    PYTHON_LIBS=""
+   # COOT_WRAP_PYTHON_CONVERT is not used anywhere.  Perhaps it should be?
    # COOT_WRAP_PYTHON_CONVERT="cp"
    coot_python=false
 
@@ -134,6 +135,8 @@ dnl Yes, but make sure python is in your path.
 
 dnl echo "import sys;print sys.prefix + '/include/python' + sys.version[:3]" | 
 dnl python
+
+
 
 dnl and 
 dnl echo "import sys;print '-L' + sys.prefix + '/lib/python' + sys.version[:3] + 

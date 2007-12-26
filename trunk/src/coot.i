@@ -15,6 +15,7 @@
 #include "coot-coord-utils.hh"
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "c-interface-database.hh"
 %}
 
 
@@ -22,6 +23,7 @@
 #include "coot-coord-utils.hh"
 %include "c-interface.h"
 %include "cc-interface.hh"
+%include "c-interface-database.hh"
 #ifdef USE_PYTHON
 // from c-interface-info.cc
 extern PyObject *sequence_info_py(int imol);

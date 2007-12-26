@@ -1893,7 +1893,7 @@ on_dynarama_cancel_button_clicked      (GtkButton       *button,
 				     "dynarama_window"); 
    int imol = get_mol_from_dynarama(window); // return -9999 on edit rama window
 
-   printf("get_mol_from_dynarama return %d\n", imol);
+/*    printf("get_mol_from_dynarama return %d\n", imol); */
 
 /* No need to free dynarama plot data here, because it is done on
    window destroy callback */

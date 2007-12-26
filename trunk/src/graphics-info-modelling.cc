@@ -140,11 +140,11 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 // 	     << "coords mol: " << imol_for_atoms << " map mol: " << imol_for_map
 // 	     << std::endl;
       
+#ifdef HAVE_GSL
 
    short int irest = 0; // make 1 when restraints found.
-   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
 
-#ifdef HAVE_GSL
+   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
 
    int imol = imol_for_atoms;
    imol_moving_atoms = imol_for_atoms;  // for use when we accept the
@@ -434,11 +434,13 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       std::cout << "No Atoms!!!!  This should never happen: " << std::endl;
       std::cout << "  in create_regularized_graphical_object" << std::endl;
    } 
-#else 
-   std::cout << "Cannot refine without compilation with GSL" << std::endl;
-#endif // HAVE_GSL
-
    return rr;
+#else 
+
+   std::cout << "Cannot refine without compilation with GSL" << std::endl;
+   return coot::refinement_results_t(0, 0, "");
+
+#endif // HAVE_GSL
 }
 
 
@@ -1679,6 +1681,54 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 }
 
 
+void
+graphics_info_t::execute_torsion_general() {
+
+   if (torsion_general_atom_index_1_mol_no = torsion_general_atom_index_2_mol_no) { 
+      if (torsion_general_atom_index_1_mol_no = torsion_general_atom_index_3_mol_no) { 
+	 if (torsion_general_atom_index_1_mol_no = torsion_general_atom_index_4_mol_no) {
+	    if (torsion_general_atom_index_4_mol_no < n_molecules) {
+	       
+	       CAtom *atom_1 = 0; 
+	       CAtom *atom_2 = 0; 
+	       CAtom *atom_3 = 0; 
+	       CAtom *atom_4 = 0;
+	       int im = torsion_general_atom_index_1_mol_no;
+
+	       if (torsion_general_atom_index_1 < molecules[im].atom_sel.n_selected_atoms) { 
+		  if (torsion_general_atom_index_2 < molecules[im].atom_sel.n_selected_atoms) { 
+		     if (torsion_general_atom_index_3 < molecules[im].atom_sel.n_selected_atoms) { 
+			if (torsion_general_atom_index_4 < molecules[im].atom_sel.n_selected_atoms) {
+
+			   atom_1 = molecules[im].atom_sel.atom_selection[torsion_general_atom_index_1];
+			   atom_2 = molecules[im].atom_sel.atom_selection[torsion_general_atom_index_2];
+			   atom_3 = molecules[im].atom_sel.atom_selection[torsion_general_atom_index_3];
+			   atom_4 = molecules[im].atom_sel.atom_selection[torsion_general_atom_index_4];
+
+			   CResidue *r1 = atom_1->GetResidue();
+			   CResidue *r2 = atom_2->GetResidue();
+			   CResidue *r3 = atom_3->GetResidue();
+			   CResidue *r4 = atom_4->GetResidue();
+
+			   // pointer comparison:
+			   if (r1 == r2) { 
+			      if (r1 == r3) { 
+				 if (r1 == r4) {
+				    
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+
 void 
 graphics_info_t::do_rot_trans_adjustments(GtkWidget *dialog) { 
 
@@ -2568,6 +2618,7 @@ graphics_info_t::do_interactive_probe() const {
 void
 graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 
+#ifdef HAVE_GSL   
    if (moving_atoms_asc) { 
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE ||
 	  moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { // needed?
@@ -2652,6 +2703,7 @@ graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 	 }
       }
    }
+#endif // HAVE_GSL   
 }
 
 

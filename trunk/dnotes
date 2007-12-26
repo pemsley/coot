@@ -21,10 +21,37 @@ clicked on imol:
 
 (lt-coot-real:18301): Gtk-CRITICAL **: gtk_widget_unref: assertion `GTK_IS_WIDGET (widget)' failed
 
+ 
+    o Put globularize protein into Coot.  Make it a bit more clever?
+
+
+    o remove this junk from output:
+
+residue_range_atom_index_1 33
+residue_range_atom_index_2 33
+ Rigid Body Refinement  imol: 10 residue 2 to 2 chain D
+INFO:: setup minimol has spacegroup: P 21 21 21
+masking....masking done
+:::: INFO:: imol moving atoms is 10
+
+
+   o Python test should test for presence of Python.h in the appropriate include dir.
+     (python exe environement may have been installed without python-dev)
 
 
 
 
+
+
+
+    o when no gsl:
+l_and_refine(int, int, int, std::string, int, std::string, std::string, std::string)~:
+../../coot/src/graphics-info-modelling.cc:145: error: ~GSL_CONTINUE~ was not declared in this scope
+../../coot/src/graphics-info-modelling.cc: In member function ~void graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const~:
+../../coot/src/graphics-info-modelling.cc:2580: error: ~bad_chiral_volumes~ is not a member of ~coot~
+make[1]: *** [graphics-info-modelling.o] Error 1
+
+* Fixed.
 
    o Check that map sampling rate can be varied for fcf files.
  
@@ -3052,3 +3079,11 @@ A valgrind thing to think about:
 ==15565==    by 0x8FE2801: deval (in /home/paule/x64/lib/libguile.so.17.1.1)
 ==15565==    by 0x8FE2F44: deval (in /home/paule/x64/lib/libguile.so.17.1.1)
 ==15565== 
+
+-----
+Mon Dec 24 16:48:47 GMT 2007
+	
+  B has introduced split in on_open_coordinates1_activate.  Needs
+  rationalizing.
+
+

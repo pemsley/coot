@@ -48,7 +48,7 @@
 	       (set-refinement-immediate-replacement 1)
 	       (refine-zone imol-ligand "A" 1 1 alt-conf)
 	       (accept-regularizement)
-	       (rotate-y-scene 600 0.1)
+	       (rotate-y-scene (rotate-n-frames 600) 0.1)
 	       (if (= replacement-state 0)
 		   (set-refinement-immediate-replacement 0))
 	       (if (= backup-mode 1)

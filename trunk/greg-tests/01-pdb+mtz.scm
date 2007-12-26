@@ -178,11 +178,11 @@
        (map (lambda (n)
 	      (label-all-atoms-in-residue imol-frag "B" n ""))
 	    '(10 11 12))
-       (rotate-y-scene 100 0.1)
+       (rotate-y-scene (rotate-n-frames 200) 0.1)
        (delete-residue imol-frag "B" 10 "")
        (delete-residue imol-frag "B" 11 "")
        (delete-residue imol-frag "B" 12 "")
-       (rotate-y-scene 100 0.1)
+       (rotate-y-scene (rotate-n-frames 200) 0.1)
        #t))) ; it didn't crash - good :)
 
 
@@ -415,42 +415,50 @@
 		       (f (cdr atom-ls))))))))))))
 
 
+
 ;; 
 (greg-testcase "Tweak Alt Confs on Active Residue" #t 
     (lambda ()
 
       ;; did it reset it?
-      (define (matches-alt-conf? atom-name-ref alt-conf-ref)
-	(let* ((active-atom (active-residue)))
-	  (if (list? active-atom)
-	      (let ((imol     (list-ref active-atom 0))
-		    (chain-id (list-ref active-atom 1))
-		    (resno    (list-ref active-atom 2))
-		    (inscode  (list-ref active-atom 3)))
-		
-		(let ((atom-ls (residue-info imol chain-id resno inscode)))
-		  (if (not (list? atom-ls))
-		      #f
-		      (let loop ((atom-ls atom-ls))
-			(cond
-			 ((null? atom-ls) #f)
-			 (else 
-			  (let* ((atom (car atom-ls))
-				 (compound-name (car atom))
-				 (atom-name (car compound-name))
-				 (alt-conf (car (cdr compound-name))))
-			    (if (not (string=? atom-name atom-name-ref))
-				(loop (cdr atom-ls))
-				(string=? alt-conf alt-conf-ref))))))))))))
-      
+      (define (matches-alt-conf? imol chain-id resno inscode atom-name-ref alt-conf-ref)
+	(let ((atom-ls (residue-info imol chain-id resno inscode)))
+	  (if (not (list? atom-ls))
+	      (begin
+		(format #t "No atom list found - failing.") 
+		(throw 'fail))
+	      (let loop ((atom-ls atom-ls))
+		(cond
+		 ((null? atom-ls) #f)
+		 (else 
+		  (let* ((atom (car atom-ls))
+			 (compound-name (car atom))
+			 (atom-name (car compound-name))
+			 (alt-conf (car (cdr compound-name))))
+		    ; (format #t "DEBUG:: atom: ~s~%" atom)
+		    (if (not (string=? atom-name atom-name-ref))
+			(loop (cdr atom-ls))
+			(string=? alt-conf alt-conf-ref)))))))))
+
       ;; main line
-      (set-go-to-atom-molecule imol-rnase)
-      (set-go-to-atom-chain-residue-atom-name "B" 58 " CA ")
-      (set-atom-string-attribute imol-rnase "B" 58 "" " CB " "" "alt-conf" "B")
-      (if (not (matches-alt-conf? " CB " "B"))
-	  (throw 'fail))
-      (sanitise-alt-confs-active-residue)
-      (if (not (matches-alt-conf? " CB " ""))
-	  (throw 'fail))
-      #t))
+      (let ((chain-id "B")
+	    (resno 58)
+	    (inscode "")
+	    (atom-name " CB ")
+	    (new-alt-conf-id "B"))
+	(set-go-to-atom-molecule imol-rnase)
+	(set-go-to-atom-chain-residue-atom-name chain-id resno " CA ")
+	(set-atom-string-attribute imol-rnase chain-id resno inscode
+				   atom-name "" "alt-conf" new-alt-conf-id)
+	(if (not (matches-alt-conf? imol-rnase chain-id resno inscode 
+				    atom-name new-alt-conf-id))
+	    (begin
+	      (format #t "   No matching pre CB altconfed - failing.~%")
+	      (throw 'fail)))
+	(sanitise-alt-confs-in-residue imol-rnase chain-id resno inscode)
+	(if (not (matches-alt-conf? imol-rnase chain-id resno inscode atom-name ""))
+	    (begin
+	      (format #t "   No matching post CB (unaltconfed) - failing.~%")
+	      (throw 'fail)))
+	#t)))
 	   
