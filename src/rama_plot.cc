@@ -2211,7 +2211,7 @@ coot::rama_plot::test_kleywegt_wrap(const phi_psi_t &phi_psi_primary,
       float phi_diff = phi_2 - phi_1; 
       float psi_diff = psi_2 - psi_1; 
       float psi_gradient = 999999999.9;
-      if (fabs(psi_diff > 0.000000001))
+      if (fabs(psi_diff) > 0.000000001)
 	 psi_gradient = (180.0 - phi_1)/(phi_2 + 360.0 - phi_1);
 
       float psi_critical = psi_1 + psi_gradient * (psi_2 - psi_1);
@@ -2233,7 +2233,7 @@ coot::rama_plot::test_kleywegt_wrap(const phi_psi_t &phi_psi_primary,
       float phi_diff = phi_2 - phi_1; 
       float psi_diff = psi_2 - psi_1; 
       float psi_gradient = 999999999.9;
-      if (fabs(psi_diff > 0.000000001))
+      if (fabs(psi_diff) > 0.000000001)
 	 psi_gradient = (-180.0 - (psi_2 - 360.0))/(psi_1 - (psi_2 - 360.0));
 
       float phi_critical = phi_2 + psi_gradient * (phi_1 - phi_2);
