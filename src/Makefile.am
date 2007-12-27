@@ -247,6 +247,7 @@ coot_real_SOURCES = \
 	c-interface-mmdb.hh      \
 	cc-interface.hh		 \
 	coot-database.hh	 \
+	c-interface-database.hh  \
 	globjects.cc 		 \
 	support.c support.h 	 \
 	interface.c	 	 \
