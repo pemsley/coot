@@ -517,6 +517,9 @@ int graphics_info_t::torsion_general_atom_index_1_mol_no = -1;
 int graphics_info_t::torsion_general_atom_index_2_mol_no = -1;
 int graphics_info_t::torsion_general_atom_index_3_mol_no = -1;
 int graphics_info_t::torsion_general_atom_index_4_mol_no = -1;
+short int graphics_info_t::in_edit_torsion_general_flag = 0;
+std::vector<coot::atom_spec_t> graphics_info_t::torsion_general_atom_specs;
+
 
 //
 short int graphics_info_t::in_residue_info_define = 0;
@@ -2234,28 +2237,29 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 
       } else {
 
-	 if (info.in_edit_chi_mode_flag) {
-
-	    if (info.in_edit_chi_mode_view_rotate_mode) { 
-	       local_rotate_view_mode = 1;
-	    } else { 
-// 	       std::cout << graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag
-// 			 << std::endl;
-	       if (graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag) {
-// 		  std::cout << "inside "
-// 			    << graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag
-// 			    << std::endl;
-		  
-		  // do fun dots stuff
-		  graphics_info_t g;
-		  g.do_probe_dots_on_rotamers_and_chis();
-		  
-	       } 
-	       info.rotate_chi(x, y);
+	 if (info.in_edit_chi_mode_flag || info.in_edit_torsion_general_flag) {
+	    if (info.in_edit_chi_mode_flag) {
+	       
+	       if (info.in_edit_chi_mode_view_rotate_mode) { 
+		  local_rotate_view_mode = 1;
+	       } else { 
+		  if (graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag) {
+		     graphics_info_t g;
+		     g.do_probe_dots_on_rotamers_and_chis();
+		  } 
+		  info.rotate_chi(x, y);
+	       }
 	    }
-
+	    if (info.in_edit_torsion_general_flag) {
+	       if (info.in_edit_chi_mode_view_rotate_mode) { 
+		  local_rotate_view_mode = 1;
+	       } else {
+		  info.rotate_chi_torsion_general(x,y);
+	       }
+	    }
+	    
 	 } else {
-
+	    // not rotating chi or torsion_general
 	    if (info.in_moving_atoms_drag_atom_mode_flag) {
 
 	       if (info.control_is_pressed) {
@@ -2651,6 +2655,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
       graphics_info_t::control_is_pressed = 1; // TRUE.
       if (graphics_info_t::in_edit_chi_mode_flag)
+	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 1;
+      if (graphics_info_t::in_edit_torsion_general_flag)
 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 1;
 
       if (graphics_info_t::control_key_for_rotate_flag) {

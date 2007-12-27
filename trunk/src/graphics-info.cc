@@ -1373,6 +1373,7 @@ void
 graphics_info_t::clear_moving_atoms_object() {
 
    in_edit_chi_mode_flag = 0;
+   in_edit_torsion_general_flag = 0;
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
    have_fixed_points_sheared_drag_flag = 0;
    // and set the rotation translation atom index to unknown again:

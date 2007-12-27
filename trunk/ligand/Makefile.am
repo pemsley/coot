@@ -38,12 +38,13 @@ INCLUDES = \
 
 include_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \
 	chi-angles.hh dunbrack.hh helix-placement.hh rigid-body.hh ideal-rna.hh \
-	rotamer.hh richardson-rotamer.hh
+	rotamer.hh richardson-rotamer.hh torsion-general.hh
 
 libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	wiggly-ligand.cc monomer-utils.cc dunbrack.cc chi-angles-autogen.cc   \
 	chi-angles.cc helix-placement.cc rigid-body.cc ideal-rna.cc           \
-	richardson-rotamers.cc richardson-rotamer.cc rotamer.cc
+	richardson-rotamers.cc richardson-rotamer.cc rotamer.cc               \
+	torsion-general.cc 
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
@@ -51,15 +52,35 @@ AM_CXXFLAGS = \
 
 bin_PROGRAMS = findligand-real findwaters-real
 
-noinst_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack test-random
+noinst_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack test-random test-ligand
 
 findligand_real_SOURCES = find-ligand.cc
 findwaters_real_SOURCES = find-waters.cc
 
+test_ligand_SOURCES = test-ligand.cc
+
 test_helix_placement_SOURCES = test-helix-placement.cc
 
 test_random_SOURCES = test-random.cc
+
 test_random_LDADD = \
+	./libcoot-ligand.la \
+	$(top_builddir)/ideal/libcoot-ideal.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/coords/libcoot-coords.la           \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
+	$(top_builddir)/db-main/libcoot-db-main.la         \
+	$(top_builddir)/coot-utils/libcoot-shelx.la        \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/coot-utils/libcoot-utils.la        \
+	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(top_builddir)/compat/libcoot-compat.la           \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+test_ligand_LDADD = \
 	./libcoot-ligand.la \
 	$(top_builddir)/ideal/libcoot-ideal.la       \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
