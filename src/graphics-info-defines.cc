@@ -1269,31 +1269,39 @@ graphics_info_t::check_if_in_torsion_general_define(GdkEventButton *event) {
    if (in_torsion_general_define) {
       pick_info nearest_atom_index_info = atom_pick(event);
       if (nearest_atom_index_info.success == GL_TRUE) {
+	 std::cout << "in_torsion_general_define was " << in_torsion_general_define
+		   << std::endl;
 	 int im = nearest_atom_index_info.imol;
 	 molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
 	 if (in_torsion_general_define == 1) {
+	    std::cout << " 1" << std::endl;
 	    torsion_general_atom_index_1 = nearest_atom_index_info.atom_index;
 	    torsion_general_atom_index_1_mol_no = im;
 	    in_torsion_general_define = 2;
-	 }
-	 if (in_torsion_general_define == 2) {
-	    torsion_general_atom_index_2 = nearest_atom_index_info.atom_index;
-	    torsion_general_atom_index_2_mol_no = im;
-	    in_torsion_general_define = 3;
-	 }
-	 if (in_torsion_general_define == 3) {
-	    torsion_general_atom_index_3 = nearest_atom_index_info.atom_index;
-	    torsion_general_atom_index_3_mol_no = im;
-	    in_torsion_general_define = 4;
-	 }
-	 if (in_torsion_general_define == 4) {
-	    torsion_general_atom_index_4 = nearest_atom_index_info.atom_index;
-	    torsion_general_atom_index_4_mol_no = im;
-	    // act on the torsion general setup
-	    execute_torsion_general();
-	    in_torsion_general_define = 0;
-	    setup_torsion_general(1);
-	    normal_cursor();
+	 } else { 
+	    if (in_torsion_general_define == 2) {
+	       std::cout << " 2" << std::endl;
+	       torsion_general_atom_index_2 = nearest_atom_index_info.atom_index;
+	       torsion_general_atom_index_2_mol_no = im;
+	       in_torsion_general_define = 3;
+	    } else { 
+	       if (in_torsion_general_define == 3) {
+		  std::cout << " 3" << std::endl;
+		  torsion_general_atom_index_3 = nearest_atom_index_info.atom_index;
+		  torsion_general_atom_index_3_mol_no = im;
+		  in_torsion_general_define = 4;
+	       } else { 
+		  if (in_torsion_general_define == 4) {
+		     std::cout << " 4" << std::endl;
+		     torsion_general_atom_index_4 = nearest_atom_index_info.atom_index;
+		     torsion_general_atom_index_4_mol_no = im;
+		     // act on the torsion general setup
+		     execute_torsion_general();
+		     in_torsion_general_define = 0;
+		     normal_cursor();
+		  }
+	       }
+	    }
 	 }
 	 graphics_draw();
       }

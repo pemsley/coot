@@ -76,6 +76,7 @@
 
 
 #include "globjects.h"
+#include "torsion-general.hh"
 #include "ligand.hh"
 #include "ideal-rna.hh"
 #include "graphics-info.h"
@@ -1684,9 +1685,9 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 void
 graphics_info_t::execute_torsion_general() {
 
-   if (torsion_general_atom_index_1_mol_no = torsion_general_atom_index_2_mol_no) { 
-      if (torsion_general_atom_index_1_mol_no = torsion_general_atom_index_3_mol_no) { 
-	 if (torsion_general_atom_index_1_mol_no = torsion_general_atom_index_4_mol_no) {
+   if (torsion_general_atom_index_1_mol_no == torsion_general_atom_index_2_mol_no) { 
+      if (torsion_general_atom_index_1_mol_no == torsion_general_atom_index_3_mol_no) { 
+	 if (torsion_general_atom_index_1_mol_no == torsion_general_atom_index_4_mol_no) {
 	    if (torsion_general_atom_index_4_mol_no < n_molecules) {
 	       
 	       CAtom *atom_1 = 0; 
@@ -1714,7 +1715,25 @@ graphics_info_t::execute_torsion_general() {
 			   if (r1 == r2) { 
 			      if (r1 == r3) { 
 				 if (r1 == r4) {
-				    
+
+				    moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
+				    in_edit_torsion_general_flag = 1;
+				    imol_moving_atoms = im;
+				    int ai  = torsion_general_atom_index_1;
+				    short int whole_res_flag = 0;
+				    atom_selection_container_t residue_asc =
+				       graphics_info_t::molecules[im].edit_residue_pull_residue(ai, whole_res_flag);
+				    regularize_object_bonds_box.clear_up();
+				    make_moving_atoms_graphics_object(residue_asc);
+
+				    std::vector<coot::atom_spec_t> as;
+				    as.push_back(atom_1);
+				    as.push_back(atom_2);
+				    as.push_back(atom_3);
+				    as.push_back(atom_4);
+				    torsion_general_atom_specs = as;
+				    graphics_draw();
+				    do_accept_reject_dialog("Torsion General", "");
 				 }
 			      }
 			   }
@@ -2423,6 +2442,44 @@ graphics_info_t::rotate_chi(double x, double y) {
    } 
    
 }
+
+// Called by mouse motion callback (in_edit_chi_mode_flag)
+// 
+void
+graphics_info_t::rotate_chi_torsion_general(double x, double y) {
+
+   mouse_current_x = x;
+   mouse_current_y = y;
+   double diff = mouse_current_x - GetMouseBeginX();
+   diff += mouse_current_y - GetMouseBeginY();
+
+   diff *= 0.5;
+
+   short int istat = 1; // failure
+   if (! moving_atoms_asc) {
+      std::cout << "ERROR:: No moving atoms in rotate_chi_torsion_general" << std::endl;
+   } else {
+      CModel *model_p = moving_atoms_asc->mol->GetModel(1);
+      if (model_p) {
+	 CChain *chain_p = model_p->GetChain(0);
+	 if (chain_p) {
+	    CResidue *residue_p = chain_p->GetResidue(0);
+	    if (residue_p) {
+	       coot::torsion_general tg(residue_p, moving_atoms_asc->mol,
+					torsion_general_atom_specs);
+	       istat = tg.change_by(diff);
+	    }
+	 }
+      }
+   }
+
+   if (istat == 0) {
+      regularize_object_bonds_box.clear_up();
+      make_moving_atoms_graphics_object(*moving_atoms_asc);
+      graphics_draw();
+   }
+}
+
 
 // 	 //  debug:
 // 	 std::cout << "DEBUG:: residue_mol: ----------------- " << std::endl;

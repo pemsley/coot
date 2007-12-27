@@ -1413,6 +1413,7 @@ public:
    static int torsion_general_atom_index_2_mol_no;
    static int torsion_general_atom_index_3_mol_no;
    static int torsion_general_atom_index_4_mol_no;
+   static std::vector<coot::atom_spec_t> torsion_general_atom_specs;
 
    // 
    static int imol_pepflip;
@@ -2240,7 +2241,10 @@ public:
 					     // chi editting
    					     // function
 
-   // torsion general
+   // Torsion General
+   static short int in_edit_torsion_general_flag; 
+   void rotate_chi_torsion_general(double x, double y);
+
    void execute_torsion_general();
 
    // which bond are we rotating about in the ligand?
