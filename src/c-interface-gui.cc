@@ -1627,8 +1627,8 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection) {
 #endif
 
    if (add_shortcut) {
-      std::cout << "in add_ccp4i_project_optionmenu widget is fileselection "
-		<< GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
+//       std::cout << "in add_ccp4i_project_optionmenu widget is fileselection "
+// 		<< GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
       add_ccp4i_project_shortcut(fileselection);
    } else {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
