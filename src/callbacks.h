@@ -3056,3 +3056,12 @@ on_check_waters_delete1_activate       (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
 
+
+void
+on_model_refine_dialog_torsion_general_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+void
+on_accept_reject_reverse_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data);

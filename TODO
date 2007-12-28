@@ -41,8 +41,6 @@
 
    Release 0.5 Dec March 2008
 
-   o Correct CISPEP if needed cards on writing pdb.
-
    o To make the test non-tedious, especially on slow computers, we
      need a set-atoms-attributes that takes a list of attribute sets.
      
@@ -55,15 +53,52 @@
    o Make a new dialog: clear up old/backup files on exit.
      86400 seconds per day
 
+* Done.
+
+   o Kleywegt plot should not draw ("wrapped") long arrows
+
+* Done.
+
+   o Torsion General
+
+* Done.
+
+   o Lars Prade crash.  Try doing actions in a directory that you can't
+     write to.  Test Geometry validation.
+
+* Seems OK to me.
+
+   o work in the svn-revision.cc.  svn-revision.cc should be in
+     Makefile.am, and be part of the tar file.  It should be generated
+     after every time we do a svn update or commit.
+ 
+* Done.
+
+   o Correct CISPEP if needed cards on writing pdb.
+
+   o Mutate should not change the order of the atoms in the pdb.
+     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
+
+   o On pressing the filter button we get this ugliness:
+
+** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
+
+     on_filename_filter_toggle_button_toggled() looks up the
+     fileselection by going through all names of file selections. This
+     is ugly (gives terminal warnings).  Make the user data also encode 
+     information about which fileselection this is (in 1000s, say).
+
    o Fix this:  
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
       (it comes from building from the tar file)
 
-   o Kleywegt plot should not draw ("wrapped") long arrows
-
    o Kevin's Ramachandran Refinement target
-
-   o Torsion General
 
    o Use Eugene's new LINK-reading code.
 
@@ -73,9 +108,9 @@
 
    o "Thick bonds" for ligands etc
 
-   o insertion codes for intelligent next atom
+   o Insertion codes for intelligent next atom
 
-   o Add some SHELX reading to the test suite.
+   o Add some SHELX reading to the test suite.  Insulin for starters.
 
    o Dynamic distances on moving atom/fragments
 
@@ -96,37 +131,12 @@
      net-http and goosh have been installed.  If not, fail gracefully,
      not obscurely at run time!
 
-   o Lars Prade crash.  Try doing actions in a directory that you can't
-     write to.  Test Geometry validation.
-
    o consider a function generator for dialog box of buttons.  Because
      we need a function that accepts args for close-dialog and one
      that does not.  A macro maybe.
 
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
-
-   o work in the svn-revision.cc.  svn-revision.cc should be in
-     Makefile.am, and be part of the tar file.  It should be generated
-     after every time we do a svn update or commit.
-
-   o Mutate should not change the order of the atoms in the pdb.
-     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
-
-   o On pressing the filter button we get this ugliness:
-
-** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
-
-** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
-
-** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
-
-** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
-
-     on_filename_filter_toggle_button_toggled() looks up the
-     fileselection by going through all names of file selections. This
-     is ugly (gives terminal warnings).  Make the user data also encode 
-     information about which fileslection this is (in 1000s, say).
 
    o How about a post-swig command to add #ifdef USE_PYTHON around coot_wrap_python.cc 
      (or is it coot_wrap_python_pre.cc?)
@@ -194,6 +204,8 @@
      random-phi-psi function matches a Ramachandran plot
 
    o Randy's side-by-side frame drawing?
+
+   o Investigate communcation with PISA
 
  ------
     

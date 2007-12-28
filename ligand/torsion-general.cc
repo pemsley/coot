@@ -134,6 +134,9 @@ coot::torsion_general::atom_index(const coot::atom_spec_t &spec) const {
    return r;
 }
 
+// This may well become a general purpose bonding calculator, in a
+// base class from which chi angles and monomer are derived.
+//
 std::vector<std::vector<int> >
 coot::torsion_general::get_contact_indices() const {
 
@@ -142,6 +145,7 @@ coot::torsion_general::get_contact_indices() const {
    int n_contacts;
    float min_dist = 0.1;
    float max_dist = 1.9; // CB->SG CYS 1.8A
+   float max_dist_bond_to_H = 1.42; // is this a good value?
    if (std::string(residue_p->GetResName()) == "MSE")
       max_dist = 2.0;
    long i_contact_group = 1;
@@ -154,10 +158,49 @@ coot::torsion_general::get_contact_indices() const {
 
    PPCAtom residue_atoms;
    int n_residue_atoms;
+   PPCAtom non_H_residue_atoms;
+   int n_non_H_residue_atoms = 0;
+   PPCAtom H_residue_atoms;
+   int n_H_residue_atoms = 0;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   // count the number of Hydrogens and non-Hydrogrens in the residue,
+   // then fill the non_H_residue_atoms and H_residue_atoms.
+   // 
+   // There is some trickiness because the indices returned from
+   // SeekContacts (in the contacts variable) are for the local atom
+   // selections, whereas we need them for the residue as a whole, so
+   // we keep a mapping from local indexing to residue indexing.
+   // 
+   for (int i=0; i<n_residue_atoms; i++) {
+      std::string element(residue_atoms[i]->element);
+      if (element == " H" || element == " D") {
+	 n_H_residue_atoms++;
+      } else {
+	 n_non_H_residue_atoms++;
+      }
+   }
+   non_H_residue_atoms = new PCAtom[n_non_H_residue_atoms];
+   H_residue_atoms = new PCAtom[n_H_residue_atoms];
+   std::vector<int>     H_atom_orig_indcies(    n_H_residue_atoms);
+   std::vector<int> non_H_atom_orig_indcies(n_non_H_residue_atoms);
+   int iH=0;
+   int inH=0;
+   for (int i=0; i<n_residue_atoms; i++) {
+      std::string element(residue_atoms[i]->element);
+      if (element == " H" || element == " D") {
+	 H_residue_atoms[iH] = residue_atoms[i];
+	 H_atom_orig_indcies[iH]=i;
+	 iH++;
+      } else {
+	 non_H_residue_atoms[inH] = residue_atoms[i];
+	 non_H_atom_orig_indcies[inH]=i;
+	 inH++;
+      }
+   }
    
-   mol->SeekContacts(residue_atoms, n_residue_atoms,
-		     residue_atoms, n_residue_atoms,
+   mol->SeekContacts(non_H_residue_atoms, n_non_H_residue_atoms,
+		     non_H_residue_atoms, n_non_H_residue_atoms,
 		     min_dist, max_dist, // min, max distances
 		     0,        // seqDist 0 -> in same res also
 		     pscontact, n_contacts,
@@ -165,9 +208,29 @@ coot::torsion_general::get_contact_indices() const {
 
    v.resize(n_residue_atoms);
    for (int ic=0; ic< n_contacts; ic++) {
-      // std::cout << pscontact[ic].id1 << " " << pscontact[ic].id2 << std::endl;
-      v[pscontact[ic].id1].push_back(pscontact[ic].id2);
-      v[pscontact[ic].id2].push_back(pscontact[ic].id1);
+      v[non_H_atom_orig_indcies[pscontact[ic].id1]].push_back(non_H_atom_orig_indcies[pscontact[ic].id2]);
+      //       v[non_H_atom_orig_indcies[pscontact[ic].id2]].push_back(non_H_atom_orig_indcies[pscontact[ic].id1]);
    }
+   delete [] pscontact;
+   pscontact = 0;
+
+   mol->SeekContacts(H_residue_atoms, n_H_residue_atoms,
+		     non_H_residue_atoms, n_non_H_residue_atoms,
+		     min_dist, max_dist_bond_to_H,
+		     0,        // seqDist 0 -> in same res also
+		     pscontact, n_contacts,
+		     0, &my_matt, i_contact_group);
+
+   v.resize(n_residue_atoms);
+   for (int ic=0; ic< n_contacts; ic++) {
+      v[H_atom_orig_indcies[pscontact[ic].id1]].push_back(non_H_atom_orig_indcies[pscontact[ic].id2]);
+      // v[non_H_atom_orig_indcies[pscontact[ic].id2]].push_back(H_atom_orig_indcies[pscontact[ic].id1]);
+   }
+
+   
+   if (n_non_H_residue_atoms > 0)
+      delete [] non_H_residue_atoms;
+   if (n_H_residue_atoms > 0)
+      delete [] H_residue_atoms;
    return v;
 }

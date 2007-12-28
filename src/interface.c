@@ -5227,6 +5227,7 @@ create_model_refine_dialog (void)
   GtkWidget *model_refine_dialog_auto_fit_rotamer_togglebutton;
   GtkWidget *model_refine_dialog_rotamer_togglebutton;
   GtkWidget *model_refine_dialog_edit_chi_angles_togglebutton;
+  GtkWidget *model_refine_dialog_torsion_general_togglebutton;
   GtkWidget *model_refine_dialog_pepflip_togglebutton;
   GtkWidget *model_refine_dialog_do_180_degree_sidechain_flip_togglebutton;
   GtkWidget *model_refine_dialog_edit_phi_psi_togglebutton;
@@ -5363,6 +5364,14 @@ create_model_refine_dialog (void)
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_edit_chi_angles_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_edit_chi_angles_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_chi_angles_togglebutton, _("Edit the Chi angles (torsions) of an amino acid residue \"by hand\"  (by mouse, that is)"), NULL);
+
+  model_refine_dialog_torsion_general_togglebutton = gtk_toggle_button_new_with_label (_(" Torsion General "));
+  gtk_widget_ref (model_refine_dialog_torsion_general_togglebutton);
+  gtk_object_set_data_full (GTK_OBJECT (model_refine_dialog), "model_refine_dialog_torsion_general_togglebutton", model_refine_dialog_torsion_general_togglebutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (model_refine_dialog_torsion_general_togglebutton);
+  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_torsion_general_togglebutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_torsion_general_togglebutton), 1);
 
   model_refine_dialog_pepflip_togglebutton = gtk_toggle_button_new_with_label (_("Flip Peptide "));
   gtk_widget_ref (model_refine_dialog_pepflip_togglebutton);
@@ -5562,6 +5571,9 @@ create_model_refine_dialog (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (model_refine_dialog_edit_chi_angles_togglebutton), "toggled",
                       GTK_SIGNAL_FUNC (on_model_refine_dialog_edit_chi_angles_togglebutton_toggled),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (model_refine_dialog_torsion_general_togglebutton), "toggled",
+                      GTK_SIGNAL_FUNC (on_model_refine_dialog_torsion_general_togglebutton_toggled),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (model_refine_dialog_pepflip_togglebutton), "toggled",
                       GTK_SIGNAL_FUNC (on_model_refine_dialog_pepflip_togglebutton_toggled),

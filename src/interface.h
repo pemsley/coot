@@ -142,7 +142,7 @@ GtkWidget* create_least_squares_dialog (void);
 #if (GTK_MAJOR_VERSION > 1)
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
-#endif /*  (GTK_MAJOR_VERSION > 1) */
+#endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS
 

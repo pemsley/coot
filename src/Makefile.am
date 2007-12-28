@@ -267,6 +267,7 @@ coot_real_SOURCES = \
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \
 	globjects.h gl-matrix.h  \
+	coot-fileselections.h    \
 	gl-matrix.cc 		 \
 	gtk-manual.c 		 \
 	gtk-manual.h		 \

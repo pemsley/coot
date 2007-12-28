@@ -1733,6 +1733,7 @@ graphics_info_t::execute_torsion_general() {
 				    as.push_back(atom_4);
 				    torsion_general_atom_specs = as;
 				    graphics_draw();
+				    torsion_general_reverse_flag = 0;
 				    do_accept_reject_dialog("Torsion General", "");
 				 }
 			      }
@@ -2455,6 +2456,13 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 
    diff *= 0.5;
 
+   std::vector<coot::atom_spec_t> specs_local =
+      graphics_info_t::torsion_general_atom_specs;
+   
+   if (torsion_general_reverse_flag)
+      std::reverse(specs_local.begin(),
+		   specs_local.end());
+
    short int istat = 1; // failure
    if (! moving_atoms_asc) {
       std::cout << "ERROR:: No moving atoms in rotate_chi_torsion_general" << std::endl;
@@ -2466,7 +2474,7 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 	    CResidue *residue_p = chain_p->GetResidue(0);
 	    if (residue_p) {
 	       coot::torsion_general tg(residue_p, moving_atoms_asc->mol,
-					torsion_general_atom_specs);
+					specs_local);
 	       istat = tg.change_by(diff);
 	    }
 	 }

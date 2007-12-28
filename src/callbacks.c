@@ -36,6 +36,8 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
+#include "coot-fileselections.h"
+
 #include "callbacks.h"
 #include "interface.h"
 #include "gtk-manual.h"
@@ -97,7 +99,8 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
   GtkWidget *sort_button;
   add_ccp4i_project_optionmenu(coords_fileselection1);
 
-  file_filter_button = add_filename_filter_button(coords_fileselection1, 0);
+  file_filter_button = add_filename_filter_button(coords_fileselection1, 
+						  COOT_COORDS_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(coords_fileselection1); 
   add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
   set_directory_for_fileselection(coords_fileselection1);
@@ -114,7 +117,8 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
   GtkWidget *sort_button;
   GtkWidget *coords_fileselection1 = coot_file_chooser();
   add_ccp4i_project_optionmenu(coords_fileselection1);
-  file_filter_button = add_filename_filter_button(coords_fileselection1, 0);
+  file_filter_button = add_filename_filter_button(coords_fileselection1, 
+						  COOT_COORDS_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(coords_fileselection1); 
   add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
   set_directory_for_coot_file_chooser(coords_fileselection1);
@@ -137,7 +141,8 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   GtkWidget *sort_button;
   GtkWidget *dataset_fileselection1 = create_dataset_fileselection1 ();
   add_ccp4i_project_optionmenu(dataset_fileselection1);
-  file_filter_button = add_filename_filter_button(dataset_fileselection1, 1);
+  file_filter_button = add_filename_filter_button(dataset_fileselection1, 
+						  COOT_DATASET_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
   /* add_filename_filter_button needs the sort button to be in place (for now) */
   set_directory_for_fileselection(dataset_fileselection1);
@@ -162,7 +167,8 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
   GtkWidget *sort_button;
   GtkWidget *dataset_fileselection1 = create_dataset_fileselection1 ();
   add_ccp4i_project_optionmenu(dataset_fileselection1);
-  file_filter_button = add_filename_filter_button(dataset_fileselection1, 1);
+  file_filter_button = add_filename_filter_button(dataset_fileselection1, 
+						  COOT_DATASET_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
   set_directory_for_fileselection(dataset_fileselection1);
   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
@@ -259,7 +265,7 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
    filename = gtk_file_selection_get_filename 
      (GTK_FILE_SELECTION(dataset_fileselection1));
    
-   printf("dataset filename: %s\n", filename);
+/*    printf("dataset filename: %s\n", filename); */
 
    copied_filename = (char *) malloc(strlen(filename) + 1);
    strcpy(copied_filename, filename);
@@ -1211,7 +1217,8 @@ on_open_map1_activate                  (GtkMenuItem     *menuitem,
    gtk_widget_show (map_name_fileselection1);
    add_is_difference_map_checkbutton(map_name_fileselection1);
    add_ccp4i_project_optionmenu(map_name_fileselection1);
-   filter_button = add_filename_filter_button(map_name_fileselection1,2);
+   filter_button = add_filename_filter_button(map_name_fileselection1,
+					      COOT_MAP_FILE_SELECTION);
    sort_button = add_sort_button_fileselection(map_name_fileselection1); 
    set_directory_for_fileselection(map_name_fileselection1);
    push_the_buttons_on_fileselection(filter_button, sort_button, 
@@ -2125,7 +2132,7 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
      set_file_for_save_fileselection(widget);
      add_ccp4i_project_optionmenu(widget);
      /*   add_filename_filter(widget); */
-     add_filename_filter_button(widget, 0);
+     add_filename_filter_button(widget, COOT_SAVE_COORDS_FILE_SELECTION);
      set_file_selection_dialog_size(widget);
 
      gtk_widget_show(widget);
@@ -2475,7 +2482,7 @@ void on_import_cif_dictionary1_activate     (GtkMenuItem     *menuitem,
   GtkWidget *fileselection;
   fileselection = create_cif_dictionary_fileselection();
   add_ccp4i_project_optionmenu(fileselection);
-  add_filename_filter_button(fileselection, 3);
+  add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
   add_sort_button_fileselection(fileselection); 
   set_directory_for_fileselection(fileselection);
   set_file_selection_dialog_size(fileselection);
@@ -8040,3 +8047,24 @@ on_phs_coordinates_filechooserdialog1_destroy
 
 }
 
+
+void
+on_model_refine_dialog_torsion_general_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (togglebutton->active) 
+    setup_torsion_general(1);
+  else 
+    setup_torsion_general(0);
+
+}
+
+void
+on_accept_reject_reverse_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  toggle_torsion_general_reverse();
+}

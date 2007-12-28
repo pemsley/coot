@@ -19,7 +19,7 @@
 (define *clear-out-backup-old-days*   7) ; Files older than 7 days are consider suitable
                                          ; for deletion.
 
-
+;; 
 (define (delete-coot-backup-files action-type)
   (let* ((files (glob "*.pdb*" "coot-backup"))
 	 (now (current-time))
@@ -77,11 +77,12 @@
 		;; now create a last-backup file with a time stamp:
 		(let ((last-cleaned-file (append-dir-file
 					  "coot-backup" "last-cleaned")))
-		  (call-with-output-file last-cleaned-file
-		    (lambda (port)
-		      (display (current-time) port)
-		      (newline port))))
-		#t))))))
+		  (if (file-exists? "coot-backup")
+		      (call-with-output-file last-cleaned-file
+			(lambda (port)
+			  (display (current-time) port)
+			  (newline port))))
+		  #t)))))))
 
 
 ;; Make a GUI:

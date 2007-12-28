@@ -13,9 +13,10 @@
    height="16px"
    id="svg6806"
    sodipodi:version="0.32"
-   inkscape:version="0.45+devel"
+   inkscape:version="0.45.1"
    sodipodi:docname="connect-to-usf.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:docbase="/home/paule/Projects/coot/pixmaps">
   <defs
      id="defs6808">
     <linearGradient
@@ -481,7 +482,7 @@
      inkscape:groupmode="layer">
     <g
        id="g3068"
-       style="opacity:0.77604167">
+       style="opacity:0.34895833">
       <a
          style="fill:url(#radialGradient2857);fill-opacity:1"
          transform="matrix(1.0107939e-2,0,0,1.0107939e-2,5.5094359,1.8352673)"
@@ -524,7 +525,7 @@
     </g>
     <g
        id="g3382"
-       transform="matrix(0.9984446,0,0,0.9984446,1.6530348,-9.9601358)">
+       transform="matrix(0.9984446,0,0,0.9984446,2.1926489,-10.160549)">
       <g
          transform="translate(-9.4927336,0.7008058)"
          id="g3370">
@@ -550,42 +551,46 @@
       <path
          sodipodi:nodetypes="czcczcc"
          id="path6877"
-         d="M -1.8481363,20.977845 C -1.8481363,20.977845 1.1328627,21.427246 2.1783152,20.727061 C 3.2447045,20.012853 3.1903628,16.928192 6.2235129,18.093829 C 6.1976766,21.448065 6.1975434,20.387118 6.1661953,25.496843 C 3.2289349,26.724253 3.5575733,24.472567 2.2334048,23.419456 C 0.9092366,22.366345 -1.8427588,23.005248 -1.8427588,23.005248 L -1.8481363,20.977845 z"
+         d="M -1.8481363,20.977845 C -1.8481363,20.977845 1.1328627,21.427246 2.1783152,20.727061 C 3.2447045,20.012853 3.1903628,16.928192 6.2235129,18.093829 C 6.1976766,21.448065 6.1975434,20.387118 6.1661953,25.496843 C 3.2289349,26.724253 3.5575733,24.472567 2.2334048,23.419456 C 0.9092366,22.366345 -1.8427588,23.005248 -1.8427588,23.005248 L -1.8481363,20.977845 z "
          style="fill:#e56e03;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.69585681px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="cczczc"
          id="path7276"
-         d="M 5.8027434,24.845451 C 5.8581594,22.573396 5.8803258,20.079678 5.8581594,18.306367 C 5.1931679,18.140119 4.8086301,18.161191 4.3951779,18.295284 C 3.9850998,18.428282 3.5196056,19.226272 3.2757754,19.780432 C 3.8631845,19.536601 4.5281762,18.395032 5.1155855,19.547685 C 5.7029947,20.700336 5.1377518,22.79506 5.8027434,24.845451 z"
+         d="M 5.8027434,24.845451 C 5.8581594,22.573396 5.8803258,20.079678 5.8581594,18.306367 C 5.1931679,18.140119 4.8086301,18.161191 4.3951779,18.295284 C 3.9850998,18.428282 3.5196056,19.226272 3.2757754,19.780432 C 3.8631845,19.536601 4.5281762,18.395032 5.1155855,19.547685 C 5.7029947,20.700336 5.1377518,22.79506 5.8027434,24.845451 z "
          style="fill:url(#linearGradient3394);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="ccccccc"
          id="path7286"
-         d="M -1.4998517,22.579207 C -1.4890387,22.317339 -1.5018126,22.257659 -1.4998517,22.014942 C -0.3556495,21.920898 1.5640218,21.531901 3.076957,22.20303 C 4.589892,22.87416 4.6625573,24.692181 4.8976673,25.507229 C 4.5657685,25.499967 4.414904,25.541708 4.0618452,25.278103 C 3.3951712,24.684421 3.5551296,24.267619 2.4410262,23.117712 C 1.0838806,22.26371 -0.3880158,22.448456 -1.4998517,22.579207 z"
+         d="M -1.4998517,22.579207 C -1.4890387,22.317339 -1.5018126,22.257659 -1.4998517,22.014942 C -0.3556495,21.920898 1.5640218,21.531901 3.076957,22.20303 C 4.589892,22.87416 4.6625573,24.692181 4.8976673,25.507229 C 4.5657685,25.499967 4.414904,25.541708 4.0618452,25.278103 C 3.3951712,24.684421 3.5551296,24.267619 2.4410262,23.117712 C 1.0838806,22.26371 -0.3880158,22.448456 -1.4998517,22.579207 z "
          style="fill:#3c3c3c;fill-opacity:0.45454544;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
-    <text
-       xml:space="preserve"
-       style="font-size:7.75220966px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="1.0569292"
-       y="6.2052064"
-       id="text2482"
-       sodipodi:linespacing="125%"
-       transform="scale(0.8754908,1.1422164)"><tspan
-         sodipodi:role="line"
-         id="tspan2484"
+    <g
+       id="g2368"
+       transform="translate(-0.2327981,0.2251646)">
+      <text
+         transform="scale(0.8754908,1.1422164)"
+         sodipodi:linespacing="125%"
+         id="text2482"
+         y="6.2052064"
          x="1.0569292"
-         y="6.2052064">USF</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:7.75220966000000011px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#834f2a;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="0.69649363"
-       y="5.7142253"
-       id="text2478"
-       sodipodi:linespacing="125%"
-       transform="scale(0.8754908,1.1422164)"><tspan
-         sodipodi:role="line"
-         id="tspan2480"
+         style="font-size:7.75220966px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="6.2052064"
+           x="1.0569292"
+           id="tspan2484"
+           sodipodi:role="line">USF</tspan></text>
+      <text
+         transform="scale(0.8754908,1.1422164)"
+         sodipodi:linespacing="125%"
+         id="text2478"
+         y="5.7142253"
          x="0.69649363"
-         y="5.7142253">USF</tspan></text>
+         style="font-size:7.75220966px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#834f2a;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="5.7142253"
+           x="0.69649363"
+           id="tspan2480"
+           sodipodi:role="line">USF</tspan></text>
+    </g>
   </g>
 </svg>

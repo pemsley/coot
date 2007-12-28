@@ -3034,6 +3034,14 @@ void setup_torsion_general(short int state) {
    add_to_history_typed(cmd, args);
 }
 
+void toggle_torsion_general_reverse()  { /* a bool really */
+   if (graphics_info_t::torsion_general_reverse_flag)
+      graphics_info_t::torsion_general_reverse_flag = 0;
+   else 
+      graphics_info_t::torsion_general_reverse_flag = 1;
+}
+
+
 int set_show_chi_angle_bond(int imode) {
 
    graphics_info_t::draw_chi_angle_flash_bond_flag = imode;

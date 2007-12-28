@@ -115,6 +115,14 @@ void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
 
    gtk_label_set_text(GTK_LABEL(label), txt.c_str());
 
+
+   // Was this a torsion general, in which we need to active the reverse button?
+   if (fit_type == "Torsion General") {
+      GtkWidget *reverse_button = lookup_widget(window, "accept_reject_reverse_button");
+      gtk_widget_show(reverse_button);	
+   }
+   
+
    gtk_widget_show(window);
 }
 

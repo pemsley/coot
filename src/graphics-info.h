@@ -1414,6 +1414,7 @@ public:
    static int torsion_general_atom_index_3_mol_no;
    static int torsion_general_atom_index_4_mol_no;
    static std::vector<coot::atom_spec_t> torsion_general_atom_specs;
+   static bool torsion_general_reverse_flag;
 
    // 
    static int imol_pepflip;
