@@ -1287,7 +1287,7 @@ void add_ccp4i_project_shortcut(GtkWidget *fileselection);
 void option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos);
 void run_refmac_ccp4i_option_menu_signal_func(GtkWidget *item, GtkPositionType pos);
 void clear_refmac_ccp4i_project();
-GtkWidget *lookup_file_selection_widgets(GtkWidget *item);
+GtkWidget *lookup_file_selection_widgets(GtkWidget *item, int file_selector_type);
 
 /* We wrote this button/callback by hand, most of the rest are in
    callbacks.c  */
@@ -3750,9 +3750,12 @@ int edit_chi_angles(int imol, const char *chain_id, int resno,
 
 int set_show_chi_angle_bond(int imode);
 
+/* No need for this to be exported to scripting */
 /*! \brief beloved torsion general at last makes an entrance onto the
   Coot scene...  */
 void setup_torsion_general(short int state);
+/* No need for this to be exported to scripting */
+void toggle_torsion_general_reverse();
 
 /* \} */
 

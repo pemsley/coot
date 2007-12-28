@@ -3864,12 +3864,15 @@ do now.
 
 @node    Coot Droppings
 @section Coot Droppings
+@cindex  coot droppings
+@cindex  droppings
 
 This describes the files and directory that coot leaves behind after it
 has been fed (sorry, I mean ``used'').  Everything except the
 @t{0-coot.state.scm} state file can comfortably be deleted if needed
 after coot has finished.
 
+@cindex guano
 You can stop the state and history files being written if you start coot
 with the @code{--no-guano} option.
 
@@ -3902,7 +3905,31 @@ with the @code{--no-guano} option.
 
 @end itemize
 
+@node    Clearing Backups
+@section Clearing Backups
+@cindex  clearing backups
+@cindex  backups, clearing
 
+Coot will occasionally ask you to clear up the @file{coot-backup}
+directory.  You can adjust the behaviour in a number of ways:
+
+@itemize
+@item @code{(define *clear-out-backup-run-n-days* 3)} will run the backup clearance every 3 days (the default is every 7).
+@item @code{(define *clear-out-backup-old-days* 1)} will clear out files older then 1 day (rather than the default 7 days).
+@item You can create your own version of the function that is run on exiting Coot:
+   @code{(clear-backups-maybe)}
+@end itemize
+
+So, if you wanted to clear out everything more than 1 day old, every
+time, without Coot asking you about it:
+
+@smalllisp
+(define *clear-out-backup-run-n-days* 0)
+(define *clear-out-backup-old-days* 1)
+(define (clear-backups-maybe) 
+  (delete-coot-backup-files 'delete)
+  (coot-real-exit 0))
+@end smalllisp
 
 
 @node chap-hints 

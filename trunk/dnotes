@@ -4,6 +4,24 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
+   o int fileselection_type = 0; // FIXME
+     c-interface-gui.cc:
+void
+option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos) {
+
+also:
+
+void
+handle_filename_filter_gtk1(GtkWidget *entry_widget) {
+   
+   int file_selection_type = 0; // FIXME
+
+ 
+Test by filtering scripts
+
+
+
+
 
    o Look at this: CSHL crash:
 
@@ -3083,7 +3101,24 @@ A valgrind thing to think about:
 -----
 Mon Dec 24 16:48:47 GMT 2007
 	
-  B has introduced split in on_open_coordinates1_activate.  Needs
+  BL has introduced split in on_open_coordinates1_activate.  Needs
   rationalizing.
 
+
+----
+Fri Dec 28 17:12:58 GMT 2007
+
+    how do I test torsion general?
+
+    I can use test-ligand, for sure.
+
+    maybe, I'll libify the test, so coot main can use it.
+    Hmm...
+
+    So we make molecules every n*10 degress
+ 
+    rotate the bond the other -n*10.
+
+    Overlap results.  
+       Test for closeness.
 

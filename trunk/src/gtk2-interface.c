@@ -6023,6 +6023,11 @@ create_model_refine_dialog (void)
   GtkWidget *hbox158;
   GtkWidget *image7;
   GtkWidget *label332;
+  GtkWidget *model_refine_dialog_torsion_general_togglebutton;
+  GtkWidget *alignment104;
+  GtkWidget *hbox271;
+  GtkWidget *image6022;
+  GtkWidget *label441;
   GtkWidget *model_refine_dialog_pepflip_togglebutton;
   GtkWidget *alignment8;
   GtkWidget *hbox159;
@@ -6269,6 +6274,29 @@ create_model_refine_dialog (void)
   gtk_widget_show (label332);
   gtk_box_pack_start (GTK_BOX (hbox158), label332, FALSE, FALSE, 0);
 
+  model_refine_dialog_torsion_general_togglebutton = gtk_toggle_button_new ();
+  gtk_widget_show (model_refine_dialog_torsion_general_togglebutton);
+  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_torsion_general_togglebutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_torsion_general_togglebutton), 1);
+  GTK_WIDGET_UNSET_FLAGS (model_refine_dialog_torsion_general_togglebutton, GTK_CAN_FOCUS);
+  gtk_tooltips_set_tip (tooltips, model_refine_dialog_torsion_general_togglebutton, _("Named after the famous function in O that Coot users have been having to do without for years (and quite happily too, if (only?) they have had proper dictionaries for their ligands).     But it turns out that some users don't have proper dictionaries and they shout loud and often (and at *me* rather than the author of the dictionary generating program would you believe!)   So my arm has been twisted eventually (but I resisted for quite a good while, I think)...  Enjoy.... (if you must)."), NULL);
+
+  alignment104 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment104);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_torsion_general_togglebutton), alignment104);
+
+  hbox271 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox271);
+  gtk_container_add (GTK_CONTAINER (alignment104), hbox271);
+
+  image6022 = create_pixmap (model_refine_dialog, "edit-chi.svg");
+  gtk_widget_show (image6022);
+  gtk_box_pack_start (GTK_BOX (hbox271), image6022, FALSE, FALSE, 0);
+
+  label441 = gtk_label_new_with_mnemonic (_(" Torsion General"));
+  gtk_widget_show (label441);
+  gtk_box_pack_start (GTK_BOX (hbox271), label441, FALSE, FALSE, 0);
+
   model_refine_dialog_pepflip_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_pepflip_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_pepflip_togglebutton, FALSE, FALSE, 0);
@@ -6283,7 +6311,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox159);
   gtk_container_add (GTK_CONTAINER (alignment8), hbox159);
 
-  image8 = create_pixmap (model_refine_dialog, "flip-peptide.png");
+  image8 = create_pixmap (model_refine_dialog, "flip-peptide.svg");
   gtk_widget_show (image8);
   gtk_box_pack_start (GTK_BOX (hbox159), image8, FALSE, FALSE, 0);
 
@@ -6305,7 +6333,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox160);
   gtk_container_add (GTK_CONTAINER (alignment9), hbox160);
 
-  image9 = create_pixmap (model_refine_dialog, "side-chain-180.png");
+  image9 = create_pixmap (model_refine_dialog, "side-chain-180.svg");
   gtk_widget_show (image9);
   gtk_box_pack_start (GTK_BOX (hbox160), image9, FALSE, FALSE, 0);
 
@@ -6552,6 +6580,9 @@ create_model_refine_dialog (void)
   g_signal_connect ((gpointer) model_refine_dialog_edit_chi_angles_togglebutton, "toggled",
                     G_CALLBACK (on_model_refine_dialog_edit_chi_angles_togglebutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) model_refine_dialog_torsion_general_togglebutton, "toggled",
+                    G_CALLBACK (on_model_refine_dialog_torsion_general_togglebutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) model_refine_dialog_pepflip_togglebutton, "toggled",
                     G_CALLBACK (on_model_refine_dialog_pepflip_togglebutton_toggled),
                     NULL);
@@ -6647,6 +6678,11 @@ create_model_refine_dialog (void)
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox158, "hbox158");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image7, "image7");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label332, "label332");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_torsion_general_togglebutton, "model_refine_dialog_torsion_general_togglebutton");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment104, "alignment104");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox271, "hbox271");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, image6022, "image6022");
+  GLADE_HOOKUP_OBJECT (model_refine_dialog, label441, "label441");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_pepflip_togglebutton, "model_refine_dialog_pepflip_togglebutton");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment8, "alignment8");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox159, "hbox159");
@@ -7393,6 +7429,11 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *frame129;
   GtkWidget *vbox195;
   GtkWidget *chiral_centre_text_label;
+  GtkWidget *accept_reject_reverse_button;
+  GtkWidget *alignment105;
+  GtkWidget *hbox272;
+  GtkWidget *image6023;
+  GtkWidget *label442;
   GtkWidget *extra_text_label;
   GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *dialog_action_area9;
@@ -7429,6 +7470,27 @@ create_accept_reject_refinement_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox195), chiral_centre_text_label, FALSE, FALSE, 0);
   gtk_misc_set_alignment (GTK_MISC (chiral_centre_text_label), 0.04, 0.5);
   gtk_misc_set_padding (GTK_MISC (chiral_centre_text_label), 10, 6);
+
+  accept_reject_reverse_button = gtk_button_new ();
+  gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_reverse_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (accept_reject_reverse_button), 10);
+  GTK_WIDGET_UNSET_FLAGS (accept_reject_reverse_button, GTK_CAN_FOCUS);
+
+  alignment105 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment105);
+  gtk_container_add (GTK_CONTAINER (accept_reject_reverse_button), alignment105);
+
+  hbox272 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox272);
+  gtk_container_add (GTK_CONTAINER (alignment105), hbox272);
+
+  image6023 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6023);
+  gtk_box_pack_start (GTK_BOX (hbox272), image6023, FALSE, FALSE, 0);
+
+  label442 = gtk_label_new_with_mnemonic (_("  Reverse"));
+  gtk_widget_show (label442);
+  gtk_box_pack_start (GTK_BOX (hbox272), label442, FALSE, FALSE, 0);
 
   extra_text_label = gtk_label_new ("");
   gtk_widget_show (extra_text_label);
@@ -7498,6 +7560,9 @@ create_accept_reject_refinement_dialog (void)
   g_signal_connect ((gpointer) accept_reject_refinement_dialog, "destroy",
                     G_CALLBACK (on_accept_reject_refinement_dialog_destroy),
                     NULL);
+  g_signal_connect ((gpointer) accept_reject_reverse_button, "clicked",
+                    G_CALLBACK (on_accept_reject_reverse_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) accept_reject_refinement_accept_button, "clicked",
                     G_CALLBACK (on_accept_reject_refinement_accept_button_clicked),
                     NULL);
@@ -7511,6 +7576,11 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame129, "frame129");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, vbox195, "vbox195");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chiral_centre_text_label, "chiral_centre_text_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_reverse_button, "accept_reject_reverse_button");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment105, "alignment105");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox272, "hbox272");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, image6023, "image6023");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label442, "label442");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, extra_text_label, "extra_text_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
   GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");

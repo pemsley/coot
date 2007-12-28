@@ -284,7 +284,14 @@ on_filename_filter_toggle_button_toggled(GtkButton       *button,
 {
 
    // user_data is used to set the glob filter 
-   int data_type = GPOINTER_TO_INT(user_data);
+   int int_user_data = GPOINTER_TO_INT(user_data);
+   int data_type = int_user_data & 31; // lower 5 bits
+
+   //    std::cout << "DEBUG:: data_type:" << data_type << std::endl;
+   
+//    std::cout << "more user data:" << (32>>5) << " " << (int_user_data>>5)
+// 	     << std::endl;
+   int file_selection_type = data_type;
 
    // We need to add text to the string of the dictectory we are in
    // (pre_directory), so first we need to find pre_directory (as per
@@ -299,13 +306,14 @@ on_filename_filter_toggle_button_toggled(GtkButton       *button,
       std::cout << "Boo we failed to find the sort button!\n";
    } 
    std::string pre_directory = pre_directory_file_selection(sort_button);
-   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button);
+   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button,
+							    file_selection_type);
    
    std::vector<std::string> v;
    
    if (fileselection) { 
       if (GTK_TOGGLE_BUTTON(button)->active) { 
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Unfilter");
+	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child), "Unfilter");
 	 
 	 // so now we have pre_directory
 	 // 

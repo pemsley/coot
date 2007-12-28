@@ -30,7 +30,7 @@
 #include <fstream>
 
 #if !defined(_MSC_VER)
-#include <glob.h> // for globbing.
+#include <glob.h> // for globbing.  Needed here?
 #endif
 
 #if defined (WINDOWS_MINGW)
@@ -94,6 +94,7 @@
 #include "coot-utils.hh"
 #include "coot-map-utils.hh"
 #include "coot-database.hh"
+#include "coot-fileselections.h"
 
 // #include "xmap-interface.h"
 #include "graphics-info.h"
@@ -649,29 +650,6 @@ void set_sticky_sort_by_date() {
 
 }
 
-void add_filename_filter(GtkWidget *fileselection) { 
-
-   GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-
-   GtkWidget *frame = gtk_frame_new("File-name filter:");
-   GtkWidget *entry = gtk_entry_new();
-   gtk_widget_set_usize (entry, 60, -2);
-
-   gtk_widget_ref(entry);
-   gtk_widget_show(entry);
-   gtk_widget_ref(frame);
-
-   gtk_container_add(GTK_CONTAINER(aa),frame);
-   gtk_container_add(GTK_CONTAINER(frame), entry);
-   // I want the entry to be not-expandable:  How do I do that?
-   // gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, TRUE, 0);
-
-   gtk_signal_connect (GTK_OBJECT (entry), "key_press_event",
-		       GTK_SIGNAL_FUNC (on_filename_filter_key_press_event),
-		       NULL);
-   gtk_widget_show(frame);
-
-}
 
 void set_filter_fileselection_filenames(int istate) {
    std::string cmd = "set-filter-fileselection-filenames";
@@ -744,84 +722,6 @@ int keep_map_colour_after_refmac_state() {
    return graphics_info_t::swap_pre_post_refmac_map_colours_flag;
 } 
 
-void
-on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
-						  gpointer         user_data)
-{
-   if (GTK_TOGGLE_BUTTON(button)->active) { 
-      std::cout << "is a difference map...!\n";
-   } 
-}
-
-#if (GTK_MAJOR_VERSION > 1) || defined (GTK_ENABLE_BROKEN)
-#else 
-void
-on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
-					     gpointer         user_data)
-{
-   int data_type = GPOINTER_TO_INT(user_data);
-
-   // We need to add text to the string of the dictectory we are in
-   // (pre_directory), so first we need to find pre_directory (as per
-   // fileselection_sort_button_clicked()
-   // 
-   GtkWidget *sort_button = lookup_widget(GTK_WIDGET(button),
-					  "fileselection_sort_button");
-   if (sort_button) { 
-      // std::cout << "Hooray! we found the sort button!\n";
-      // usually, we do.
-   } else { 
-      std::cout << "Boo we failed to find the sort button!\n";
-   } 
-   std::string pre_directory = pre_directory_file_selection(sort_button);
-   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button);
-   
-   if (fileselection) { 
-      if (GTK_TOGGLE_BUTTON(button)->active) { 
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Unfilter");
-	 
-	 // so now we have pre_directory
-	 // 
-	 // std::cout << "DEBUG:: pre_directory: " << pre_directory << std::endl;
-	 std::vector<std::string> v = filtered_by_glob(pre_directory, data_type);
-	 // std::cout << "DEBUG:: filtering by glob using data type: " << data_type
-	 // << " returns" << std::endl;
-	 // for (unsigned int iv=0; iv< v.size(); iv++)
-	 // std::cout << iv << " " << v[iv] << std::endl;
-
-	 filelist_into_fileselection_clist(fileselection, v);
-
-      } else { 
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Filter");
-	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-					 (pre_directory + "/").c_str());
-      }
-   } else {
-      std::cout << "no fileselection found from sort button\n";
-   }
-}
-#endif // GTK_MAJOR_VERSION > 1 or BROKEN
-
-void 
-filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v) {
-
-   GtkCList  *file_list = GTK_CLIST(GTK_FILE_SELECTION(fileselection)->file_list);
-   gtk_clist_clear(file_list);
-   std::string::size_type islash;
-   std::string t;
-   for (unsigned int i=0; i<v.size(); i++) {
-      islash = v[i].find_last_of("/");
-      if (islash == string::npos) { 
-	 // no slash found:
-	 t = v[i];
-      } else {
-	 t = v[i].substr(islash + 1);
-      }
-      char *text = new char[t.length()+1];
-      strncpy(text, t.c_str(), t.length()+1);
-      gtk_clist_append(file_list, &text);
-   }
-}
 
 std::vector<std::string> filtered_by_glob(const std::string &pre_directory, 
 					  int data_type) { 
@@ -833,14 +733,18 @@ std::vector<std::string> filtered_by_glob(const std::string &pre_directory,
 
    // std::map<std::string, int, std::less<std::string> >  files;
 
-   if (data_type == 0) 
+   if (data_type == COOT_COORDS_FILE_SELECTION)
       globs = *graphics_info_t::coordinates_glob_extensions;
-   if (data_type == 1) 
+   if (data_type == COOT_DATASET_FILE_SELECTION) 
       globs = *graphics_info_t::data_glob_extensions;
-   if (data_type == 2) 
+   if (data_type == COOT_MAP_FILE_SELECTION) 
       globs = *graphics_info_t::map_glob_extensions;
-   if (data_type == 3) 
+   if (data_type == COOT_CIF_DICTIONARY_FILE_SELECTION) 
       globs = *graphics_info_t::dictionary_glob_extensions;
+   if (data_type == COOT_SAVE_COORDS_FILE_SELECTION) 
+      globs = *graphics_info_t::coordinates_glob_extensions;
+   if (data_type == COOT_PHS_COORDS_FILE_SELECTION)
+      globs = *graphics_info_t::coordinates_glob_extensions;
 
    for (unsigned int i=0; i<globs.size(); i++) { 
 
@@ -891,153 +795,6 @@ string_member(const std::string &search, const std::vector<std::string> &list) {
    }
    return v;
 } 
-
-#include <gdk/gdkkeysyms.h> // for keyboarding.
-
-gboolean
-on_filename_filter_key_press_event (GtkWidget       *widget,
-				    GdkEventKey     *event,
-				    gpointer         user_data)
-{
-   //    if (event->keyval == GDK_Return || event->keyval == GDK_Tab)
-   //    { // Tab is not good.  It takes you to the next widget too,
-   //    which is not want we want.  It's confusing, so let's just use
-   //    return.
-   if (event->keyval == GDK_Return) { 
-      // std::cout << "Return pressed!\n";
-#ifdef COOT_USE_GTK2_INTERFACE
-      handle_filename_filter_gtk2(widget);
-#else       
-
-      handle_filename_filter_gtk1(widget);
-#endif       
-   } 
-   return FALSE;
-}
-
-
-void
-handle_filename_filter_gtk1(GtkWidget *entry_widget) {
-   
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-   // nothing
-#else 
-
-   std::cout << "running handle_filename_filter\n";
-
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry_widget));
-
-   // We need to add text to the string of the dictectory we are in
-   // (pre_directory), so first we need to find pre_directory (as per
-   // fileselection_sort_button_clicked()
-   // 
-   GtkWidget *sort_button = lookup_widget(entry_widget, "fileselection_sort_button");
-   if (sort_button) { 
-      // std::cout << "Hooray! we found the sort button!\n";
-      // usually, we do.
-   } else { 
-      std::cout << "Boo we failed to find the sort button!\n";
-   } 
-   std::string pre_directory = pre_directory_file_selection(sort_button);
-
-
-   // so now we have pre_directory
-   // 
-   // std::cout << "DEBUG:: pre_directory: " << pre_directory << std::endl;
-   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button);
-   if (fileselection) { 
-      GtkCList  *file_list = GTK_CLIST(GTK_FILE_SELECTION(fileselection)->file_list);
-      std::string file_name_glob;
-      file_name_glob = pre_directory;
-      file_name_glob += "/";
-      file_name_glob += text;
-
-      glob_t myglob;
-      int flags = 0;
-      glob(file_name_glob.c_str(), flags, 0, &myglob);
-      size_t count;
-
-
-      char **p;
-      std::vector<std::string> v;
-      for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
-	 v.push_back(std::string(*p));
-      }
-      globfree(&myglob);
-
-      if (v.size() > 0) { 
-	 gtk_clist_clear(file_list);
-	 std::string::size_type islash;
-	 std::string t;
-	 for (unsigned int i=0; i<v.size(); i++) {
-	    islash = v[i].find_last_of("/");
-	    if (islash == string::npos) { 
-	       // no slash found:
-	       t = v[i];
-	    } else {
-	       t = v[i].substr(islash + 1);
-	    }
-	    char *text = new char[t.length()+1];
-	    strncpy(text, t.c_str(), t.length()+1);
-	    gtk_clist_append(file_list, &text);
-	 }
-      }
-   } else { 
-      std::cout << "ERROR:: couldn't find fileselection\n";
-   } 
-
-#endif // WINDOWS_MINGW
-}
-
-std::string pre_directory_file_selection(GtkWidget *sort_button) { 
-
-   GtkOptionMenu *history_pulldown =
-      GTK_OPTION_MENU(gtk_object_get_user_data(GTK_OBJECT(sort_button)));
-
-   // The menu item is a container than contains a label.
-   // How do we get to the label given the container?
-   // Strangely enough we use the history_pulldown.
-
-   GList *dlist = gtk_container_children(GTK_CONTAINER(history_pulldown));
-   GList *free_list = dlist;
-   std::string pre_directory("");
-   
-   while (dlist) {
-      // GtkWidget *list_item;
-      // list_item = (GtkWidget *) (dlist->data);
-      gchar *t = GTK_LABEL(dlist->data)->label;
-      if (t != NULL) {
-	 pre_directory = t; 
-      } else {
-	 std::cout << "WARNING:: null label t " << std::endl;
-      } 
-      dlist = dlist->next;
-   }
-   g_list_free(free_list); 
-
-   return pre_directory;
-}
-
-
-
-
-void push_the_buttons_on_fileselection(GtkWidget *filter_button, 
-				       GtkWidget *sort_button,
-				       GtkWidget *fileselection) {
-
-  if (filter_fileselection_filenames_state()) { 
-    gtk_signal_emit_by_name(GTK_OBJECT(filter_button), "clicked");
-  }
-  if (graphics_info_t::sticky_sort_by_date) {
-     GtkWidget *file_list = GTK_FILE_SELECTION(fileselection)->file_list;
-     std::cout << "INFO:: Sorting files by date\n";
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-     fileselection_sort_button_clicked_gtk1(sort_button, (GtkCList *) file_list);
-#else     
-     fileselection_sort_button_clicked(sort_button, file_list);
-#endif     
-  }
-}
 
 
 // --------------------------------------------------------------------

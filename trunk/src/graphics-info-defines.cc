@@ -100,6 +100,7 @@ graphics_info_t::model_fit_refine_toggle_button_name_list() {
    names.push_back("model_refine_dialog_auto_fit_rotamer_togglebutton");
    names.push_back("model_refine_dialog_edit_phi_psi_togglebutton");
    names.push_back("model_refine_dialog_edit_chi_angles_togglebutton");
+   names.push_back("model_refine_dialog_torsion_general_togglebutton");
    names.push_back("model_refine_dialog_do_180_degree_sidechain_flip_togglebutton");
    names.push_back("model_refine_dialog_edit_backbone_torsions_togglebutton");
    return names;
@@ -1298,6 +1299,7 @@ graphics_info_t::check_if_in_torsion_general_define(GdkEventButton *event) {
 		     // act on the torsion general setup
 		     execute_torsion_general();
 		     in_torsion_general_define = 0;
+		     model_fit_refine_unactive_togglebutton("model_refine_dialog_torsion_general_togglebutton");
 		     normal_cursor();
 		  }
 	       }

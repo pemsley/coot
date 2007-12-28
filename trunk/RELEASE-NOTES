@@ -18,7 +18,7 @@ Release 0.4 "Kendall"
      function. Check for chiral volume and cis-peptide errors introduced
      on refinement.  Add Chi-squared values to Accept/Reject dialog
 
-   o FEATURE: Old backup-files cleaner-upper added
+   o FEATURE: Old backup-files cleaner-upper added.
 
    o FEATURE: CCP4i aliases are also added to the Project Dir options in the
      file selector [Ingo Korndoerfer]
@@ -35,11 +35,11 @@ Release 0.4 "Kendall"
    o FEATURE: Cell expansion/contraction function for EM users
 
    o FEATURE: skeletons now appear in Raster3D output and are properly
-     coloured using the colour wheel
+     coloured using the colour wheel.
 
    o FEATURE: a new command has been introduce, so that one can highlight the 
      command equivalent of gui operations using colour.  e.g.: 
-     (set-console-display-commands-hilights 1 1 4)
+     (set-console-display-commands-hilights 1 1 4).
 
    o FEATURE: binary builds now are scriptable in Python and scheme.
 
@@ -48,12 +48,14 @@ Release 0.4 "Kendall"
    o FEATURE: a mapman bones reader has been introduced.
 
    o FEATURE: Key presses . and , now work when navigating the checked
-     waters baddies dialog
+     waters "baddies" dialog.
 
    o FEATURE: label-all-CAs function added.
 
    o FEATURE: one can now specify a radius around the atoms when
-     masking
+     masking.
+
+   o FEATURE: Torsion General added.
 
    o BUG-FIX: Fix occasional crash reported by Ketan Gajiwala on
      pressing CR in the graphics window after a refiement.
@@ -115,6 +117,9 @@ Release 0.4 "Kendall"
    o CHANGE: Check Waters results now display the occupancy too.
 
    o CHANGE: fcf/cif maps now can be honour the map sampling rate [Dale Tronrud]
+
+   o CHANGE: Kleywegt Plots arrows "wrap" rather than extend across
+     large regions of the plot [GMS]
   
    o CHANGE: Extensions menu tided.
 

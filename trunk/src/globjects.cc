@@ -519,6 +519,7 @@ int graphics_info_t::torsion_general_atom_index_3_mol_no = -1;
 int graphics_info_t::torsion_general_atom_index_4_mol_no = -1;
 short int graphics_info_t::in_edit_torsion_general_flag = 0;
 std::vector<coot::atom_spec_t> graphics_info_t::torsion_general_atom_specs;
+bool graphics_info_t::torsion_general_reverse_flag = 0;
 
 
 //
@@ -3084,6 +3085,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       
       graphics_info_t::control_is_pressed = 0; // FALSE.
       if (graphics_info_t::in_edit_chi_mode_flag)
+	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
+      if (graphics_info_t::in_edit_torsion_general_flag)
 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
 
       if (graphics_info_t::control_key_for_rotate_flag) {

@@ -70,6 +70,12 @@ style "edit-chi-angles-button" = "default"
    bg[PRELIGHT] = { 0.3, 0.95, 0.3 }
 }
 
+style "edit-torsion-general-button" = "default"
+{
+   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+   bg[PRELIGHT] = { 0.3, 0.95, 0.3 }
+}
+
 
 style "model-fit-refine" = "button"
 {
@@ -130,14 +136,19 @@ style "model-fit-refine-rotamer" = "model-fit-refine"
   bg[NORMAL]   = { 0.95, 0.79, 0.71 }
 }
 
-style "model-fit-refine-pepflip" = "model-fit-refine"
-{
-  bg[NORMAL]   = { 0.95, 0.75, 0.69 }
-}
-
 style "model-fit-refine-edit-chi" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.95, 0.77, 0.66 }
+}
+
+style "model-fit-refine-torsion-general" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.76, 0.68 }
+}
+
+style "model-fit-refine-pepflip" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.75, 0.69 }
 }
 
 style "model-fit-refine-180-degree-flip" = "model-fit-refine"  
@@ -293,6 +304,7 @@ widget "*.*.model_refine_dialog_mutate_auto_fit_togglebutton" style "model-fit-r
 widget "*.*.model_refine_dialog_auto_fit_rotamer_togglebutton" style "model-fit-refine-auto-fit-rotamer"
 widget "*.*.model_refine_dialog_edit_backbone_torsions_togglebutton" style "model-fit-refine-edit-phi-psi"
 widget "*.*.model_refine_dialog_edit_chi_angles_togglebutton" style "model-fit-refine-edit-chi"
+widget "*.*.model_refine_dialog_torsion_general_togglebutton" style "model-fit-refine-torsion-general"
 widget "*.*.model_refine_dialog_do_180_degree_sidechain_flip_togglebutton" style "model-fit-refine-180-degree-flip"
 widget "*.*.edit_chi_angles_button" style "edit-chi-angles-button"
 

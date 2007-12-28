@@ -429,10 +429,9 @@ coot::column_selector_using_cmtz(const std::string &filename) {
    *f_phi_columns = coot::get_f_phi_columns(filename);
    f_phi_columns->mtz_filename = filename;
 
-   std::cout << "DEBUG:: in column_selector_using_cmtz got read success of "
-	     << f_phi_columns->read_success << std::endl;
+//    std::cout << "DEBUG:: in column_selector_using_cmtz got read success of "
+// 	     << f_phi_columns->read_success << std::endl;
       
-
    if (f_phi_columns->read_success == 0 ) { /*  not a valid mtz file */
       std::cout << "INFO:: data file " << filename << " is not a valid mtz file\n";
       is_phs = try_read_phs_file(filename.c_str()); /* Try reading the data file 
