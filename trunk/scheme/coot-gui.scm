@@ -1455,7 +1455,7 @@
 			  (lambda args
 			    (gtk-widget-destroy window)
 			    (set! inside-vbox #f)))) ; redundant?
-      (gtk-signal-connect widow "destroy"
+      (gtk-signal-connect window "destroy"
 			  (lambda args
 			    (set! inside-vbox #f)))
       (gtk-widget-show-all window)
