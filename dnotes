@@ -15,12 +15,16 @@ void
 handle_filename_filter_gtk1(GtkWidget *entry_widget) {
    
    int file_selection_type = 0; // FIXME
-
  
 Test by filtering scripts
 
 
+   o Every time I use "Edit backbone torsions", if I hit "cancel".
+     The backbone thick white line is still there and it can be dragged
+     to anywhere, which is kinda annoying.  But if I hit "OK", the white
+     line is gone.
 
+     Jianghai Zhu, Ph.D
 
 
    o Look at this: CSHL crash:
@@ -3121,4 +3125,13 @@ Fri Dec 28 17:12:58 GMT 2007
 
     Overlap results.  
        Test for closeness.
+
+-----
+Sun Dec 30 10:29:43 GMT 2007
+
+   Google for this from the office:
+
+   The Lancet : Ten pieces of free software every doctor should have
+
+
 

@@ -249,16 +249,21 @@ namespace coot {
 // 	    std::cout << "Not Adding in extra PHE/TYR\n";
 	 if (add_extra_PHE_and_TYR_rotamers_flag)
 	    add_IUPAC_extras_PHE_and_TYR_rotamers();
-	 setup_chi_atom_pairs();
+	 setup_chi_atom_quads();
       }
 
       CResidue *Residue() const { return residue; } 
       std::string Residue_Type() const { return residue_type; }
-      void setup_chi_atom_pairs();
+      void setup_chi_atom_quads();
       void add_chi_pair(const std::string &residue_type,
 			const std::string &atom_name_1,
 			const std::string &atom_name_2);
-      
+      void add_chi_quad(const std::string &residue_type,
+			const std::string &atom_name_1,
+			const std::string &atom_name_2,
+			const std::string &atom_name_3,
+			const std::string &atom_name_4);
+	 
       std::vector<simple_rotamer> rotamers(const std::string &res_type,
 					   float prob_cut) const;
 
@@ -294,6 +299,9 @@ namespace coot {
       // names of a given bond in the ligand:
       // return empty names on indexing failure
       std::pair<std::string, std::string> atom_names_of_bond(int i) const;
+
+      // return the chi angle (e.g. 1, 2, 3) [not 0-based]
+      std::vector<std::pair<int,float> > get_chi_angles() const;
    };
    
 } // namespace coot
