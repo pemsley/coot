@@ -18387,14 +18387,23 @@ create_nucleotide_builder_dialog (void)
   GtkWidget *vbox180;
   GtkWidget *label283;
   GtkWidget *nucleotide_builder_type_optionmenu;
+  GtkWidget *menu2;
+  GtkWidget *rna1;
+  GtkWidget *dna1;
   GtkWidget *frame165;
   GtkWidget *vbox181;
   GtkWidget *label284;
   GtkWidget *nucleotide_builder_form_optionmenu;
+  GtkWidget *menu3;
+  GtkWidget *a1;
+  GtkWidget *b1;
   GtkWidget *frame166;
   GtkWidget *vbox182;
   GtkWidget *label285;
   GtkWidget *nucleotide_builder_strand_optionmenu;
+  GtkWidget *menu4;
+  GtkWidget *double_stranded1;
+  GtkWidget *single_stranded1;
   GtkWidget *frame167;
   GtkWidget *vbox183;
   GtkWidget *label286;
@@ -18446,6 +18455,18 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (nucleotide_builder_type_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox180), nucleotide_builder_type_optionmenu, FALSE, FALSE, 0);
 
+  menu2 = gtk_menu_new ();
+
+  rna1 = gtk_menu_item_new_with_mnemonic (_("RNA"));
+  gtk_widget_show (rna1);
+  gtk_container_add (GTK_CONTAINER (menu2), rna1);
+
+  dna1 = gtk_menu_item_new_with_mnemonic (_("DNA"));
+  gtk_widget_show (dna1);
+  gtk_container_add (GTK_CONTAINER (menu2), dna1);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_type_optionmenu), menu2);
+
   frame165 = gtk_frame_new (NULL);
   gtk_widget_show (frame165);
   gtk_box_pack_start (GTK_BOX (vbox179), frame165, TRUE, TRUE, 0);
@@ -18464,6 +18485,18 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (nucleotide_builder_form_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox181), nucleotide_builder_form_optionmenu, FALSE, FALSE, 0);
 
+  menu3 = gtk_menu_new ();
+
+  a1 = gtk_menu_item_new_with_mnemonic (_("A"));
+  gtk_widget_show (a1);
+  gtk_container_add (GTK_CONTAINER (menu3), a1);
+
+  b1 = gtk_menu_item_new_with_mnemonic (_("B"));
+  gtk_widget_show (b1);
+  gtk_container_add (GTK_CONTAINER (menu3), b1);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_form_optionmenu), menu3);
+
   frame166 = gtk_frame_new (NULL);
   gtk_widget_show (frame166);
   gtk_box_pack_start (GTK_BOX (vbox179), frame166, TRUE, TRUE, 0);
@@ -18481,6 +18514,18 @@ create_nucleotide_builder_dialog (void)
   nucleotide_builder_strand_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (nucleotide_builder_strand_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox182), nucleotide_builder_strand_optionmenu, FALSE, FALSE, 0);
+
+  menu4 = gtk_menu_new ();
+
+  double_stranded1 = gtk_menu_item_new_with_mnemonic (_("Double Stranded"));
+  gtk_widget_show (double_stranded1);
+  gtk_container_add (GTK_CONTAINER (menu4), double_stranded1);
+
+  single_stranded1 = gtk_menu_item_new_with_mnemonic (_("Single Stranded"));
+  gtk_widget_show (single_stranded1);
+  gtk_container_add (GTK_CONTAINER (menu4), single_stranded1);
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_strand_optionmenu), menu4);
 
   frame167 = gtk_frame_new (NULL);
   gtk_widget_show (frame167);
@@ -18564,14 +18609,23 @@ create_nucleotide_builder_dialog (void)
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox180, "vbox180");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label283, "label283");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_type_optionmenu, "nucleotide_builder_type_optionmenu");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu2, "menu2");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, rna1, "rna1");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, dna1, "dna1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame165, "frame165");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox181, "vbox181");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label284, "label284");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_form_optionmenu, "nucleotide_builder_form_optionmenu");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu3, "menu3");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, a1, "a1");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, b1, "b1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame166, "frame166");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox182, "vbox182");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label285, "label285");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_strand_optionmenu, "nucleotide_builder_strand_optionmenu");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu4, "menu4");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, double_stranded1, "double_stranded1");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, single_stranded1, "single_stranded1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame167, "frame167");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox183, "vbox183");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label286, "label286");
