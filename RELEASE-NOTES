@@ -52,6 +52,9 @@ Release 0.4 "Kendall"
 
    o FEATURE: label-all-CAs function added.
 
+   o FEATURE: Dynamic Distances (distances to intermediate atoms)
+     added [Found in the Distances and Angles dialog].
+
    o FEATURE: one can now specify a radius around the atoms when
      masking.
 

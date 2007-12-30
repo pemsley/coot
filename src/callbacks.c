@@ -8068,3 +8068,16 @@ on_accept_reject_reverse_button_clicked
 {
   toggle_torsion_general_reverse();
 }
+
+
+void
+on_geometry_dynamic_distance_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) 
+    setup_dynamic_distances(1);
+  else 
+    setup_dynamic_distances(0);
+}
+

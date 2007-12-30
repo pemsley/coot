@@ -2818,6 +2818,10 @@ void set_moving_atoms(double phi, double psi);
 void accept_phi_psi_moving_atoms();
 void setup_edit_phi_psi(short int state);	/* a button callback */
 
+
+/* no need to export this to scripting interface */
+void setup_dynamic_distances(short int state); 
+
 void destroy_edit_backbone_rama_plot();
 
 /* \brief  2 molecule ramachandran plot (NCS differences) a.k.a. A Kleywegt Plot. */

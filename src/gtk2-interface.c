@@ -11878,12 +11878,16 @@ create_geometry_dialog (void)
   GtkWidget *geometry_distance_togglebutton;
   GtkWidget *geometry_angle_togglebutton;
   GtkWidget *geometry_torsion_togglebutton;
+  GtkWidget *geometry_dynamic_distance_togglebutton;
   GtkWidget *hseparator10;
   GtkWidget *geometry_clear_last_distance_button;
   GtkWidget *geometry_clear_all_distances_button;
   GtkWidget *geometry_clear_atom_labels_button;
   GtkWidget *dialog_action_area39;
   GtkWidget *geometry_dialog_close_button;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
 
   geometry_dialog = gtk_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (geometry_dialog), 6);
@@ -11901,6 +11905,7 @@ create_geometry_dialog (void)
   gtk_widget_show (geometry_distance_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_distance_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_distance_togglebutton), 2);
+  gtk_tooltips_set_tip (tooltips, geometry_distance_togglebutton, _("The distance between static (molecule) atoms"), NULL);
 
   geometry_angle_togglebutton = gtk_toggle_button_new_with_mnemonic (_("  Angle  "));
   gtk_widget_show (geometry_angle_togglebutton);
@@ -11911,6 +11916,13 @@ create_geometry_dialog (void)
   gtk_widget_show (geometry_torsion_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_torsion_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_torsion_togglebutton), 2);
+  gtk_tooltips_set_tip (tooltips, geometry_torsion_togglebutton, _("Or dihedral, if you prefer"), NULL);
+
+  geometry_dynamic_distance_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Dynamic Distance"));
+  gtk_widget_show (geometry_dynamic_distance_togglebutton);
+  gtk_box_pack_start (GTK_BOX (vbox102), geometry_dynamic_distance_togglebutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (geometry_dynamic_distance_togglebutton), 2);
+  gtk_tooltips_set_tip (tooltips, geometry_dynamic_distance_togglebutton, _("The distance between an intermediate (white) atom and a static (molecule) atom"), NULL);
 
   hseparator10 = gtk_hseparator_new ();
   gtk_widget_show (hseparator10);
@@ -11951,6 +11963,9 @@ create_geometry_dialog (void)
   g_signal_connect ((gpointer) geometry_torsion_togglebutton, "toggled",
                     G_CALLBACK (on_geometry_torsion_togglebutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) geometry_dynamic_distance_togglebutton, "toggled",
+                    G_CALLBACK (on_geometry_dynamic_distance_togglebutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) geometry_clear_last_distance_button, "clicked",
                     G_CALLBACK (on_geometry_clear_last_distance_button_clicked),
                     NULL);
@@ -11971,12 +11986,14 @@ create_geometry_dialog (void)
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_distance_togglebutton, "geometry_distance_togglebutton");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_angle_togglebutton, "geometry_angle_togglebutton");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_torsion_togglebutton, "geometry_torsion_togglebutton");
+  GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_dynamic_distance_togglebutton, "geometry_dynamic_distance_togglebutton");
   GLADE_HOOKUP_OBJECT (geometry_dialog, hseparator10, "hseparator10");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_last_distance_button, "geometry_clear_last_distance_button");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_all_distances_button, "geometry_clear_all_distances_button");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_atom_labels_button, "geometry_clear_atom_labels_button");
   GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, dialog_action_area39, "dialog_action_area39");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_dialog_close_button, "geometry_dialog_close_button");
+  GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, tooltips, "tooltips");
 
   return geometry_dialog;
 }

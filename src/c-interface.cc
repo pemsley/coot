@@ -6252,6 +6252,13 @@ void setup_backbone_torsion_edit(short int state) {
    }
 }
 
+void setup_dynamic_distances(short int state) {
+
+   graphics_info_t::in_dynamic_distance_define = state;
+
+}
+
+
 void set_refine_with_torsion_restraints(int istate) {
 
    graphics_info_t::do_torsion_restraints = istate;

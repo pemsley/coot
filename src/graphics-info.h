@@ -205,6 +205,43 @@ namespace coot {
      }
    };
 
+
+   class intermediate_atom_distance_t {
+     Cartesian static_position;
+     CAtom *dynamic_atom;
+     bool static_pos_filled_flag;
+     
+   public: 
+     intermediate_atom_distance_t() { 
+       dynamic_atom = 0;
+       static_pos_filled_flag = 0;
+     }
+     intermediate_atom_distance_t(const coot::Cartesian &pt) { 
+       dynamic_atom = 0;
+       static_position = pt;
+       static_pos_filled_flag = 1;
+     }
+     intermediate_atom_distance_t(CAtom *at) { 
+       dynamic_atom = at;
+       static_pos_filled_flag = 0;
+     }
+     void draw_dynamic_distance() const;
+     bool static_position_is_filled() const { return static_pos_filled_flag; }
+     bool atom_is_filled() const {
+       return (dynamic_atom != 0);
+     }
+     void add_atom(CAtom *at) {
+       dynamic_atom = at;
+     }
+     void add_static_point(Cartesian &pt) {
+       static_position = pt;
+       static_pos_filled_flag = 1;
+     }
+     bool filled() const {
+       return (static_pos_filled_flag && dynamic_atom);
+     }
+   };
+
    class ramachandran_points_container_t {
 
       std::vector<std::pair<std::string, clipper::Coord_orth> > points;
@@ -2030,6 +2067,11 @@ public:
    static void pointer_distances_objects(); // draw them
    void make_pointer_distance_objects(); // (re)generate them
 
+   // Dynamic distances to intermediate atoms:
+   static short int in_dynamic_distance_define;
+   static coot::intermediate_atom_distance_t running_dynamic_distance;
+   static std::vector<coot::intermediate_atom_distance_t> dynamic_distances;
+
    // Pointer atoms
    static short int pointer_atom_is_dummy; // force dummy atom, no atom type choice.
    void place_dummy_atom_at_pointer();
@@ -2300,6 +2342,7 @@ public:
    // distances and angles displayed on screen
    // uses distance_objects vector
    static void geometry_objects();
+   static void draw_dynamic_distances();
    static void draw_generic_objects();
    static void draw_generic_text();
    void clear_simple_distances();
@@ -2308,6 +2351,7 @@ public:
    void unset_geometry_dialog_distance_togglebutton();
    void unset_geometry_dialog_angle_togglebutton();
    void unset_geometry_dialog_torsion_togglebutton();
+   void unset_geometry_dialog_dynamic_distance_togglebutton();
    
 
    static short int find_hydrogen_torsions;

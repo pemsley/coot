@@ -47,6 +47,40 @@
 
 #include "pick.h"
 
+pick_info
+pick_atom(const atom_selection_container_t &SelAtom, int imol, const coot::Cartesian &front, const coot::Cartesian &back) {
+
+   float min_dist = 0.4;
+   int nearest_atom_index = -1;
+   float dist = -999.9;
+   pick_info p_i;
+   p_i.success = GL_FALSE; 
+   for (int i=0; i< SelAtom.n_selected_atoms; i++) {
+
+      coot::Cartesian atom(SelAtom.atom_selection[i]->x,
+			   SelAtom.atom_selection[i]->y,
+			   SelAtom.atom_selection[i]->z);
+      //
+      if (atom.within_box(front,back)) { 
+
+	 dist = atom.distance_to_line(front, back);
+
+	 if (dist < min_dist) {
+
+	    min_dist = dist;
+	    nearest_atom_index = i;
+	    p_i.success = GL_TRUE;
+	    p_i.atom_index = nearest_atom_index;
+	    p_i.imol = imol;
+	    p_i.min_dist = dist;
+
+	    // std::cout << "DEBUG:: atom index " << nearest_atom_index << std::endl;
+	 }
+      }
+   }
+   return p_i;
+}
+
 //
 pick_info
 atom_pick(GdkEventButton *event) { 
@@ -58,7 +92,7 @@ atom_pick(GdkEventButton *event) {
 
    coot::Cartesian back  = unproject(1.0);
 
-   float dist, min_dist = 0.4;
+   float dist_closest = 999999999999999999.9;
    int nearest_atom_index = 0;
 
    //cout << "front: " << front << endl;
@@ -104,68 +138,13 @@ atom_pick(GdkEventButton *event) {
 
 	       n_pickable++;
 
-	       atom_selection_container_t SelAtom = graphics_info_t::molecules[ii].atom_sel; 
+	       atom_selection_container_t SelAtom = graphics_info_t::molecules[ii].atom_sel;
 
-	       for (int i=0; i< SelAtom.n_selected_atoms; i++) {
-
-		  coot::Cartesian atom(SelAtom.atom_selection[i]->x,
-				       SelAtom.atom_selection[i]->y,
-				       SelAtom.atom_selection[i]->z);
-		  //
-		  if (atom.within_box(front,back)) { 
-		     dist = atom.distance_to_line(front, back);
-
-		     if (dist < min_dist) {
-
-			min_dist = dist;
-			nearest_atom_index = i;
-			p_i.success = GL_TRUE;
-			p_i.atom_index = nearest_atom_index;
-			p_i.imol = ii;
-
-			// make sure that we are looking at the molecule that had
-			// the nearest contact:
-			// 
-			SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel; 
-
-			std::string alt_conf_bit("");
-			CAtom *at = SelAtom.atom_selection[nearest_atom_index];
-			if (strncmp(at->altLoc, "", 1))
-			   alt_conf_bit=std::string(",") + std::string(at->altLoc);
-		  
-			cout << "(" << p_i.imol << ") " 
-			     << (SelAtom.atom_selection)[nearest_atom_index]->name 
-			     << alt_conf_bit << "/"
-			     << (SelAtom.atom_selection)[nearest_atom_index]->GetModelNum()
-			     << "/chainid=\""
-			     << (SelAtom.atom_selection)[nearest_atom_index]->GetChainID()
-			     << "\"/"
-			     << (SelAtom.atom_selection)[nearest_atom_index]->GetSeqNum()
-			     << (SelAtom.atom_selection)[nearest_atom_index]->GetInsCode()
-			     << "/"
-			     << (SelAtom.atom_selection)[nearest_atom_index]->GetResName()
-			     << ", "
-			     << (SelAtom.atom_selection)[nearest_atom_index]->segID
-			     << " occ: " 
-			     << (SelAtom.atom_selection)[nearest_atom_index]->occupancy 
-			     << " with B-factor: "
-			     << (SelAtom.atom_selection)[nearest_atom_index]->tempFactor
-			     << " element: "
-			     << (SelAtom.atom_selection)[nearest_atom_index]->element
-			     << " at " << "("
-			     << (SelAtom.atom_selection)[nearest_atom_index]->x << ","
-			     << (SelAtom.atom_selection)[nearest_atom_index]->y << ","
-			     << (SelAtom.atom_selection)[nearest_atom_index]->z << ")"
-			     << " : " << min_dist << endl;
-			// std::cout << "DEBUG:: atom index " << nearest_atom_index << std::endl;
-
-		     }
-	    
-		  } else {
-		     i_outside_count ++;
-		     // 		  std::cout << "atom " << i << " outside box " 
-		     // 			    << front << " " << back << "\n";
-
+	       pick_info mpi = pick_atom(SelAtom, ii, front, back);
+	       if (mpi.success) {
+		  if (mpi.min_dist < dist_closest) {
+		     p_i = mpi;
+		     dist_closest = mpi.min_dist;
 		  }
 	       }
 	    }
@@ -194,6 +173,35 @@ atom_pick(GdkEventButton *event) {
 	    graphics_info_t::molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
 	 std::string alt_conf_bit("");
 	 std::string segid = at->segID;
+	 if (strncmp(at->altLoc, "", 1))
+	    alt_conf_bit=std::string(",") + std::string(at->altLoc);
+	 atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel;
+		  
+	 cout << "(" << p_i.imol << ") " 
+	      << (SelAtom.atom_selection)[nearest_atom_index]->name 
+	      << alt_conf_bit << "/"
+	      << (SelAtom.atom_selection)[nearest_atom_index]->GetModelNum()
+	      << "/chainid=\""
+	      << (SelAtom.atom_selection)[nearest_atom_index]->GetChainID()
+	      << "\"/"
+	      << (SelAtom.atom_selection)[nearest_atom_index]->GetSeqNum()
+	      << (SelAtom.atom_selection)[nearest_atom_index]->GetInsCode()
+	      << "/"
+	      << (SelAtom.atom_selection)[nearest_atom_index]->GetResName()
+	      << ", "
+	      << (SelAtom.atom_selection)[nearest_atom_index]->segID
+	      << " occ: " 
+	      << (SelAtom.atom_selection)[nearest_atom_index]->occupancy 
+	      << " with B-factor: "
+	      << (SelAtom.atom_selection)[nearest_atom_index]->tempFactor
+	      << " element: "
+	      << (SelAtom.atom_selection)[nearest_atom_index]->element
+	      << " at " << "("
+	      << (SelAtom.atom_selection)[nearest_atom_index]->x << ","
+	      << (SelAtom.atom_selection)[nearest_atom_index]->y << ","
+	      << (SelAtom.atom_selection)[nearest_atom_index]->z << ")"
+	      << " : " << dist_closest << endl;
+
 	 if (strncmp(at->altLoc, "", 1))
 	    alt_conf_bit=std::string(",") + std::string(at->altLoc);
 	 ai += "(mol. no: ";
@@ -235,6 +243,13 @@ atom_pick(GdkEventButton *event) {
 }
 
 
+
+pick_info
+pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
+   coot::Cartesian front = unproject(0.0);
+   coot::Cartesian back  = unproject(1.0);
+   return pick_atom(SelAtom, -1, front, back);
+}
 
 
 // Return the real world coordinates corresponding to the mouse

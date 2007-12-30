@@ -19,6 +19,8 @@
 
 (use-modules (ice-9 greg))
 
+(set-run-state-file-status 0) 
+
 (if (defined? 'coot-main-menubar)
 
     (let ((menu (coot-menubar-menu "Test")))

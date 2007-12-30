@@ -765,6 +765,10 @@ coot::distortion_score(const gsl_vector *v, void *params) {
    	    distortion += d;
    	 }
       }
+
+      if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) {
+	 
+      }
    }
 
 //     std::cout << "nbc_diff   distortion: " << nbc_diff << std::endl;
