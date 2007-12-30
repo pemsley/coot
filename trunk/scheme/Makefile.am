@@ -14,7 +14,7 @@ gap.scm		     remote-control.scm   povray.scm      coot-lsq.scm	   \
 shelx.scm	     group-settings.scm   fitting.scm     americanisms.scm \
 tips.scm             tips-gui.scm         generic-objects.scm cns2coot.scm \
 extensions.scm       ncs.scm create-server.scsh coot-crash-catcher.scm     \
-snarf-coot-docs.scm  clear-backup.scm
+snarf-coot-docs.scm  clear-backup.scm     bones-reader.scm
 
 
 
