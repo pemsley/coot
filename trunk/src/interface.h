@@ -142,6 +142,8 @@ GtkWidget* create_least_squares_dialog (void);
 #if (GTK_MAJOR_VERSION > 1)
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
+GdkPixbuf* create_pixbuf(const gchar *filename);
+gchar* find_pixmap_file (const gchar     *filename);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS

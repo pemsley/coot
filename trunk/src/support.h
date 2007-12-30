@@ -71,12 +71,12 @@ void        add_pixmap_directory       (const gchar     *directory);
 GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         const gchar     *filename);
 
-GdkPixbuf*
-create_pixbuf                          (const gchar     *filename);
 
 #if (GTK_MAJOR_VERSION > 1)
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
+GdkPixbuf* create_pixbuf(const gchar *filename);
+gchar* find_pixmap_file (const gchar     *filename);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS

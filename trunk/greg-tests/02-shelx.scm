@@ -7,6 +7,9 @@
 
 (define imol-hof-res #f)
 
+(define insulin-fcf (append-dir-file greg-data-dir "insulin.fcf"))
+(define insulin-res (append-dir-file greg-data-dir "insulin.res"))
+
 (greg-testcase "Read small molecule .res file" #t
    (lambda ()
      (if (string? hof-res)
@@ -24,28 +27,26 @@
 	   (throw 'untested)))))
 
 
-;(greg-testcase "read shelx fcf" #t 
-;   (lambda ()
+(greg-testcase "read shelx insulin with fcf" #t 
+   (lambda ()
 
-;     ;; close imol-hof-res too if it was set properly.
-;     (if (not (string? hof-fcf))
-;	 (begin
-;	   (format #t "hof-fcf not defined - skipping test~%")
-;	   (throw 'untested))
-;	 (begin
-;	   (if (not (file-exists? hof-fcf))
-;	       (begin
-;		 (format #t "~s does not exist - skipping test~%" hof-fcf)
-;		 (throw 'untested))
-	       
-;	       (let ((imol (handle-shelx-fcf-file hof-fcf)))
-;		 (let ((success (valid-map-molecule? imol)))
-;		   (if success
-;		       (begin
-;			 (rotate-y-scene 1000 0.1)
-;			 (if success
-;			     (close-molecule imol))))
-;		   (if (valid-model-molecule? imol-hof-res)
-;		       (close-molecule imol-hof-res))
-;		   success)))))))
+     (let ((imol-insulin-res
+	    (handle-read-draw-molecule-with-recentre insulin-res 1)))
+       (if (not (valid-model-molecule? imol-insulin-res))
+	   (begin
+	     (format #t "Bad insulin.res~%")
+	     (throw 'fail)))
+
+       (let ((imol (handle-shelx-fcf-file insulin-fcf)))
+	 (if (not (valid-map-molecule? imol))
+	     (begin
+	       (format #t "Bad read of insulin.fcf~%")
+	       (throw 'fail))
+	     (begin
+	       (rotate-y-scene (rotate-n-frames 200) 0.1)
+	       (close-molecule imol)
+	       (close-molecule imol-insulin-res)
+	       #t))))))
+
+
 

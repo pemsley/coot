@@ -23418,6 +23418,7 @@ density (too big to be waters):
 	    <widget class="GtkToggleButton" id="geometry_distance_togglebutton">
 	      <property name="border_width">2</property>
 	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">The distance between static (molecule) atoms</property>
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">  Distance  </property>
 	      <property name="use_underline">True</property>
@@ -23458,6 +23459,7 @@ density (too big to be waters):
 	    <widget class="GtkToggleButton" id="geometry_torsion_togglebutton">
 	      <property name="border_width">2</property>
 	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">Or dihedral, if you prefer</property>
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">  Torsion  </property>
 	      <property name="use_underline">True</property>
@@ -23466,6 +23468,27 @@ density (too big to be waters):
 	      <property name="active">False</property>
 	      <property name="inconsistent">False</property>
 	      <signal name="toggled" handler="on_geometry_torsion_togglebutton_toggled"/>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkToggleButton" id="geometry_dynamic_distance_togglebutton">
+	      <property name="border_width">2</property>
+	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">The distance between an intermediate (white) atom and a static (molecule) atom</property>
+	      <property name="can_focus">True</property>
+	      <property name="label" translatable="yes">Dynamic Distance</property>
+	      <property name="use_underline">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <property name="active">False</property>
+	      <property name="inconsistent">False</property>
+	      <signal name="toggled" handler="on_geometry_dynamic_distance_togglebutton_toggled" last_modification_time="Sat, 29 Dec 2007 15:48:54 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>

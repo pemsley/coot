@@ -709,6 +709,12 @@ float graphics_info_t::environment_max_distance = 3.2;
 short int graphics_info_t::environment_show_distances = 0;
 short int graphics_info_t::environment_distance_label_atom = 0;
 
+// dynamic distances to intermediate atoms:
+short int graphics_info_t::in_dynamic_distance_define = 0;
+coot::intermediate_atom_distance_t graphics_info_t::running_dynamic_distance;
+std::vector<coot::intermediate_atom_distance_t> graphics_info_t::dynamic_distances;
+
+// 
 bool graphics_info_t::disable_state_script_writing = 0;
 
 // Dynamic map resampling and sizing
@@ -3922,7 +3928,9 @@ void set_skeleton_bond_colour_random(int i, const vector< vector<float> > &colou
 
 
 // ----------------------------------------------------------
-
+//
+// Remember, being GL_LINES mode will cause this to fail silently.
+// 
 void printString(std::string s) {
    glPushAttrib (GL_LIST_BIT);
    for (unsigned int i = 0; i < s.length(); i++)

@@ -3065,3 +3065,13 @@ void
 on_accept_reject_reverse_button_clicked
                                         (GtkButton       *button,
 					 gpointer         user_data);
+
+void
+on_accept_reject_reverse_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_geometry_dynamic_distance_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

@@ -6277,6 +6277,7 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *frame129;
   GtkWidget *vbox193;
   GtkWidget *chiral_centre_text_label;
+  GtkWidget *accept_reject_reverse_button;
   GtkWidget *extra_text_label;
   GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *dialog_action_area9;
@@ -6316,6 +6317,14 @@ create_accept_reject_refinement_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox193), chiral_centre_text_label, FALSE, FALSE, 0);
   gtk_misc_set_alignment (GTK_MISC (chiral_centre_text_label), 0.06, 0.5);
   gtk_misc_set_padding (GTK_MISC (chiral_centre_text_label), 16, 6);
+
+  accept_reject_reverse_button = gtk_button_new_with_label (_("Reverse"));
+  gtk_widget_ref (accept_reject_reverse_button);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_reverse_button", accept_reject_reverse_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (accept_reject_reverse_button);
+  gtk_box_pack_start (GTK_BOX (vbox193), accept_reject_reverse_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (accept_reject_reverse_button), 4);
 
   extra_text_label = gtk_label_new ("");
   gtk_widget_ref (extra_text_label);
@@ -6371,6 +6380,9 @@ create_accept_reject_refinement_dialog (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (accept_reject_refinement_dialog), "configure_event",
                       GTK_SIGNAL_FUNC (on_accept_reject_refinement_dialog_configure_event),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (accept_reject_reverse_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_accept_reject_reverse_button_clicked),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (accept_reject_refinement_accept_button), "clicked",
                       GTK_SIGNAL_FUNC (on_accept_reject_refinement_accept_button_clicked),
@@ -10874,6 +10886,7 @@ create_geometry_dialog (void)
   GtkWidget *geometry_distance_togglebutton;
   GtkWidget *geometry_angle_togglebutton;
   GtkWidget *geometry_torsion_togglebutton;
+  GtkWidget *geometry_dynamic_distance_togglebutton;
   GtkWidget *hseparator10;
   GtkWidget *geometry_clear_last_distance_button;
   GtkWidget *geometry_clear_all_distances_button;
@@ -10921,6 +10934,14 @@ create_geometry_dialog (void)
   gtk_widget_show (geometry_torsion_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_torsion_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_torsion_togglebutton), 2);
+
+  geometry_dynamic_distance_togglebutton = gtk_toggle_button_new_with_label (_("Dynamic Distance"));
+  gtk_widget_ref (geometry_dynamic_distance_togglebutton);
+  gtk_object_set_data_full (GTK_OBJECT (geometry_dialog), "geometry_dynamic_distance_togglebutton", geometry_dynamic_distance_togglebutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (geometry_dynamic_distance_togglebutton);
+  gtk_box_pack_start (GTK_BOX (vbox102), geometry_dynamic_distance_togglebutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (geometry_dynamic_distance_togglebutton), 2);
 
   hseparator10 = gtk_hseparator_new ();
   gtk_widget_ref (hseparator10);
@@ -10977,6 +10998,9 @@ create_geometry_dialog (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (geometry_torsion_togglebutton), "toggled",
                       GTK_SIGNAL_FUNC (on_geometry_torsion_togglebutton_toggled),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (geometry_dynamic_distance_togglebutton), "toggled",
+                      GTK_SIGNAL_FUNC (on_geometry_dynamic_distance_togglebutton_toggled),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (geometry_clear_last_distance_button), "clicked",
                       GTK_SIGNAL_FUNC (on_geometry_clear_last_distance_button_clicked),

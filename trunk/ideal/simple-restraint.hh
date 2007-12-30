@@ -69,13 +69,16 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRAL = 63,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
+				RAMA = 64, 
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRAL_AND_RAMA = 127
+				
    };
 
    enum peptide_restraints_usage_Flags { OMEGA_TORSION = 1,
 					 OMEGA_PHI_PSI_TORSION = 3 };
 					 
    enum { BONDS_MASK = 1,  ANGLES_MASK = 2, TORSIONS_MASK = 4, PLANES_MASK = 8, 
-          NON_BONDED_MASK = 16, CHIRAL_VOLUME_MASK = 32};
+          NON_BONDED_MASK = 16, CHIRAL_VOLUME_MASK = 32, RAMA_PLOT_MASK = 64};
 
    // ---------------------------------------------------------------
    // helper class for linkage selection

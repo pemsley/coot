@@ -51,6 +51,7 @@ graphics_info_t::clear_pending_picks() {
    in_cis_trans_convert_define = 0;
    in_180_degree_flip_define   = 0;
    in_reverse_direction_define = 0;
+   in_dynamic_distance_define  = 0;
    in_torsion_general_define   = 0;
    pick_pending_flag           = 0;
 
@@ -550,6 +551,91 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 		  unset_geometry_dialog_torsion_togglebutton(); 
 	       }
 	    }
+	 }
+      }
+   }
+
+   if (in_dynamic_distance_define) {
+      if (! moving_atoms_asc) {
+	 std::cout << "No intermediate atoms available" << std::endl;
+	 add_status_bar_text("No intermediate atoms available");
+      } else {
+	 std::cout << "in_dynamic_distance_define check "
+		   << in_dynamic_distance_define << std::endl;
+	 if (in_dynamic_distance_define == 1) { 
+	    pick_info nearest_atom_index_info = atom_pick(event);
+	    pick_info nearest_intermediate_atom_info = pick_intermediate_atom(*moving_atoms_asc);
+	    bool do_static_atom = 0;
+	    bool do_intermediate_atom = 0;
+	    if (nearest_atom_index_info.success)
+	       if (nearest_intermediate_atom_info.success)
+		  if (nearest_atom_index_info.min_dist < nearest_intermediate_atom_info.min_dist)
+		     do_static_atom = 1;
+	       else
+		  do_intermediate_atom = 1;
+	    else
+	       do_static_atom = 1;
+	    else
+	       if (nearest_intermediate_atom_info.success)
+		  do_intermediate_atom = 1;
+	 
+	    CAtom *atom = 0;
+	    coot::Cartesian pos;
+	    if (do_static_atom) {
+	       std::cout << "in_dynamic_distance_define pick 1 static atom "
+			 << in_dynamic_distance_define << std::endl;
+	       int im = nearest_atom_index_info.imol;
+	       atom = molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index];
+	       molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+	       pos = coot::Cartesian(atom->x, atom->y, atom->z);
+	       running_dynamic_distance = coot::intermediate_atom_distance_t(pos);
+	       in_dynamic_distance_define = 2;
+	       graphics_draw();
+	    } else {
+	       if (do_intermediate_atom) { 
+		  std::cout << "in_dynamic_distance_define pick 1 dynamic atom "
+			    << in_dynamic_distance_define << std::endl;
+		  int ai = nearest_intermediate_atom_info.atom_index;
+		  CAtom *at = moving_atoms_asc->atom_selection[ai];
+		  running_dynamic_distance = coot::intermediate_atom_distance_t(at);
+		  add_status_bar_text("Now click on a molecule atom");
+		  in_dynamic_distance_define = 2; 
+		  graphics_draw();
+	       }
+	    }
+	 } else {
+
+	    if (in_dynamic_distance_define == 2) {
+	       if (running_dynamic_distance.atom_is_filled()) {
+		  pick_info naii = atom_pick(event);
+		  if (naii.success == GL_TRUE) {
+		     std::cout << "in_dynamic_distance_define pick 2 static atom "
+			       << in_dynamic_distance_define << std::endl;
+		     int im = naii.imol;
+		     CAtom *at = molecules[im].atom_sel.atom_selection[naii.atom_index];
+		     coot::Cartesian pt(at->x, at->y, at->z);
+		     running_dynamic_distance.add_static_point(pt);
+		  }
+	       }
+	       
+	       if (running_dynamic_distance.static_position_is_filled()) {
+		  pick_info niaii = pick_intermediate_atom(*moving_atoms_asc);
+		  if (niaii.success == GL_TRUE) {
+		     std::cout << "in_dynamic_distance_define pick 2 dynamic atom "
+			       << in_dynamic_distance_define << std::endl;
+		     CAtom *at = moving_atoms_asc->atom_selection[niaii.atom_index];
+		     running_dynamic_distance.add_atom(at);
+		  }
+	       }
+	    }
+	 }
+
+	 if (running_dynamic_distance.filled()) {
+	    dynamic_distances.push_back(running_dynamic_distance);
+	    graphics_draw();
+	    in_dynamic_distance_define = 0;
+	    running_dynamic_distance = coot::intermediate_atom_distance_t();
+	    unset_geometry_dialog_dynamic_distance_togglebutton();
 	 }
       }
    }

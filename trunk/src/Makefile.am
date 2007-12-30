@@ -250,6 +250,7 @@ coot_real_SOURCES = \
 	c-interface-database.hh  \
 	globjects.cc 		 \
 	support.c support.h 	 \
+	support-gtk2-extras.c    \
 	interface.c	 	 \
 	gtk2-interface.c	 \
 	interface.h              \

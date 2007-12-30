@@ -1392,6 +1392,9 @@ graphics_info_t::clear_moving_atoms_object() {
    graphical_bonds_container empty_box;
    regularize_object_bonds_box.clear_up();
    regularize_object_bonds_box = empty_box;
+
+   dynamic_distances.clear();
+   
    graphics_draw();
 }
 
@@ -1569,6 +1572,8 @@ graphics_info_t::clear_up_moving_atoms() {
       std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
       std::cout << "ignoring " << std::endl;
    }
+
+   dynamic_distances.clear();
 
    // and now the signal that moving_atoms_asc has been cleared:
    //
@@ -5196,6 +5201,55 @@ graphics_info_t::geometry_objects() {
       glDisable(GL_LINE_STIPPLE);
    }
 
+   if (dynamic_distances.size() > 0) {
+      draw_dynamic_distances();
+   }
+}
+
+// static
+void
+graphics_info_t::draw_dynamic_distances() {
+
+   if (dynamic_distances.size() > 0) {
+      glLineWidth(2.0);
+      glColor3f(0.5, 0.8, 0.6);
+
+      glEnable(GL_LINE_STIPPLE);
+      for (unsigned int i=0; i<dynamic_distances.size(); i++) {
+	 dynamic_distances[i].draw_dynamic_distance();
+      }
+      glDisable(GL_LINE_STIPPLE);
+   }
+}
+
+void
+coot::intermediate_atom_distance_t::draw_dynamic_distance() const {
+   
+   //glEnable(GL_LINE_STIPPLE);
+   glBegin(GL_LINES);
+   glVertex3d(dynamic_atom->x,
+	      dynamic_atom->y,
+	      dynamic_atom->z);
+   
+   glVertex3d(static_position.x(),
+	      static_position.y(),
+	      static_position.z());
+   glEnd();
+   // glDisable(GL_LINE_STIPPLE);
+
+   coot::Cartesian at_pt(dynamic_atom->x,
+			 dynamic_atom->y,
+			 dynamic_atom->z);
+
+   // The length of the intermediate distance:
+   coot::Cartesian text_pos = at_pt + static_position;
+   text_pos *= 0.5;
+   text_pos += coot::Cartesian(0.0, 0.1, 0.1);
+   coot::Cartesian vec_diff = at_pt - static_position;
+   float dist = vec_diff.length();
+   glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
+   std::string t = coot::util::float_to_string(dist);
+   printString(t);
 }
 
 void
@@ -5543,7 +5597,17 @@ graphics_info_t::unset_geometry_dialog_distance_togglebutton() {
 					       "geometry_distance_togglebutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
    }
-} 
+}
+
+void
+graphics_info_t::unset_geometry_dialog_dynamic_distance_togglebutton() {
+
+   if (geometry_dialog) { 
+      GtkWidget *toggle_button = lookup_widget(geometry_dialog, 
+					       "geometry_dynamic_distance_togglebutton");
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
+   }
+}
 
 
 void

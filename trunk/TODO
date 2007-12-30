@@ -43,9 +43,7 @@
 
    o To make the test non-tedious, especially on slow computers, we
      need a set-atoms-attributes that takes a list of attribute sets.
-     
      No need to re-calulate the bonding for each atom move.
-
      No need to redraw, except once at the end.
 
 * Done.
@@ -74,11 +72,6 @@
  
 * Done.
 
-   o Correct CISPEP if needed cards on writing pdb.
-
-   o Mutate should not change the order of the atoms in the pdb.
-     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
-
    o On pressing the filter button we get this ugliness:
 
 ** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
@@ -93,6 +86,17 @@
      fileselection by going through all names of file selections. This
      is ugly (gives terminal warnings).  Make the user data also encode 
      information about which fileselection this is (in 1000s, say).
+
+* Fixed.
+
+   o Dynamic distances on moving atom/fragments
+
+* Fixed.
+
+   o Correct CISPEP if needed cards on writing pdb.
+
+   o Mutate should not change the order of the atoms in the pdb.
+     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
 
    o Fix this:  
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
@@ -111,8 +115,6 @@
    o Insertion codes for intelligent next atom
 
    o Add some SHELX reading to the test suite.  Insulin for starters.
-
-   o Dynamic distances on moving atom/fragments
 
    o Revisit CCP4mg button
 
