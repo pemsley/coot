@@ -55,7 +55,18 @@ coot::monomer_utils::add_torsion_bond_by_name(const std::string &atom_name_1,
 
    atom_name_pair_list.push_back(coot::atom_name_pair(atom_name_1,
 						      atom_name_2)); 
+}
 
+void
+coot::monomer_utils::add_torsion_bond_by_name(const std::string &atom_name_1,
+					      const std::string &atom_name_2,
+					      const std::string &atom_name_3,
+					      const std::string &atom_name_4) {
+
+   atom_name_quad_list.push_back(coot::atom_name_quad(atom_name_1,
+						      atom_name_2,
+						      atom_name_3,
+						      atom_name_4)); 
 }
 
 
@@ -119,10 +130,79 @@ coot::monomer_utils::get_atom_index_pairs(const std::vector<coot::atom_name_pair
    if (index_pairs.size() != atom_name_pairs_in.size()) {
       std::cout << "failure to find all atom pair in residue atoms\n" ;
    } else {
-      std::cout << "found all pairs in residue atoms\n" ;
+      // std::cout << "DEBUG:: found all pairs in residue atoms\n" ;
    } 
    return index_pairs;
-} 
+}
+
+
+std::vector<coot::atom_index_quad>
+coot::monomer_utils::get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads_in,
+					  const PPCAtom atoms, int nresatoms) const {
+
+   std::vector<coot::atom_index_quad> v;
+   for (int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
+      int ifound = 0;
+      for (int i1=0; i1<nresatoms; i1++) {
+	 std::string atom_name = atoms[i1]->name;
+	 if (atom_name == atom_name_quads_in[iquad].atom1) {
+	    for (int i2=0; i2<nresatoms; i2++) {
+	       std::string atom_name = atoms[i2]->name;
+	       if (atom_name == atom_name_quads_in[iquad].atom2) {
+		  for (int i3=0; i3<nresatoms; i3++) {
+		     std::string atom_name = atoms[i3]->name;
+		     if (atom_name == atom_name_quads_in[iquad].atom3) {
+			for (int i4=0; i4<nresatoms; i4++) {
+			   std::string atom_name = atoms[i4]->name;
+			   if (atom_name == atom_name_quads_in[iquad].atom4) {
+			      v.push_back(coot::atom_index_quad(i1, i2, i3, i4));
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   if (v.size() != atom_name_quads_in.size()) {
+      std::cout << "failure to find all atom quads in residue atoms\n" ;
+   } else {
+      std::cout << "found all quads in residue atoms\n" ;
+   } 
+   return v;
+}
+
+// [1-indexed]
+std::vector<std::pair<int, float> >
+coot::monomer_utils::get_chi_angles(CResidue *residue) const {
+   
+   std::vector<std::pair<int, float> > v;
+   std::vector<coot::atom_index_quad> quads = get_quads(atom_name_quad_list, residue);
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue->GetAtomTable(residue_atoms, n_residue_atoms);
+   
+   for (unsigned int i_quad = 0; i_quad<quads.size(); i_quad++) {
+      clipper::Coord_orth p1(atom_to_co(residue_atoms[quads[i_quad].index1]));
+      clipper::Coord_orth p2(atom_to_co(residue_atoms[quads[i_quad].index2]));
+      clipper::Coord_orth p3(atom_to_co(residue_atoms[quads[i_quad].index3]));
+      clipper::Coord_orth p4(atom_to_co(residue_atoms[quads[i_quad].index4]));
+      double tors =  clipper::Util::rad2d(clipper::Coord_orth::torsion(p1, p2, p3, p4));
+      v.push_back(std::pair<int,float>(i_quad+1, tors));
+   }
+   return v;
+}
+
+std::vector<coot::atom_index_quad>
+coot::monomer_utils::get_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
+			       CResidue *residue) const {
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue->GetAtomTable(residue_atoms, n_residue_atoms);
+   return get_atom_index_quads(atom_name_quads, residue_atoms, n_residue_atoms);
+}
+
 
 coot::Cartesian
 coot::monomer_utils::coord_orth_to_cartesian(const clipper::Coord_orth &c) {
@@ -132,3 +212,8 @@ coot::monomer_utils::coord_orth_to_cartesian(const clipper::Coord_orth &c) {
 clipper::Coord_orth coot::monomer_utils::coord_orth_to_cart(const Cartesian &c) {
    return clipper::Coord_orth(c.x(), c.y(), c.z());
 } 
+
+clipper::Coord_orth
+coot::monomer_utils::atom_to_co(CAtom *at) const {
+   return clipper::Coord_orth(at->x, at->y, at->z);
+}

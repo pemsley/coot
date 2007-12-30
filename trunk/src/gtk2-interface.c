@@ -8641,6 +8641,16 @@ create_residue_info_dialog (void)
   GtkWidget *frame53;
   GtkWidget *residue_info_hbox;
   GtkWidget *residue_info_atom_table;
+  GtkWidget *chi_angles_frame;
+  GtkWidget *alignment106;
+  GtkWidget *vbox202;
+  GtkWidget *label444;
+  GtkWidget *residue_info_chi_1_label;
+  GtkWidget *residue_info_chi_2_label;
+  GtkWidget *residue_info_chi_3_label;
+  GtkWidget *residue_info_chi_4_label;
+  GtkWidget *residue_info_chi_5_label;
+  GtkWidget *label443;
   GtkWidget *dialog_action_area14;
   GtkWidget *hbox49;
   GtkWidget *residue_info_ok_button;
@@ -8741,6 +8751,49 @@ create_residue_info_dialog (void)
   gtk_widget_show (residue_info_atom_table);
   gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_atom_table, TRUE, TRUE, 0);
 
+  chi_angles_frame = gtk_frame_new (NULL);
+  gtk_box_pack_start (GTK_BOX (vbox65), chi_angles_frame, TRUE, TRUE, 0);
+
+  alignment106 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment106);
+  gtk_container_add (GTK_CONTAINER (chi_angles_frame), alignment106);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment106), 0, 0, 12, 0);
+
+  vbox202 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox202);
+  gtk_container_add (GTK_CONTAINER (alignment106), vbox202);
+
+  label444 = gtk_label_new (_("     Chi Angles"));
+  gtk_widget_show (label444);
+  gtk_box_pack_start (GTK_BOX (vbox202), label444, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (label444), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label444), 0, 4);
+
+  residue_info_chi_1_label = gtk_label_new (_("residue_info_chi_1_label"));
+  gtk_box_pack_start (GTK_BOX (vbox202), residue_info_chi_1_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (residue_info_chi_1_label), 0, 0.5);
+
+  residue_info_chi_2_label = gtk_label_new (_("residue_info_chi_2_label"));
+  gtk_box_pack_start (GTK_BOX (vbox202), residue_info_chi_2_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (residue_info_chi_2_label), 0, 0.5);
+
+  residue_info_chi_3_label = gtk_label_new (_("residue_info_chi_3_label"));
+  gtk_box_pack_start (GTK_BOX (vbox202), residue_info_chi_3_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (residue_info_chi_3_label), 0, 0.5);
+
+  residue_info_chi_4_label = gtk_label_new (_("residue_info_chi_4_label"));
+  gtk_box_pack_start (GTK_BOX (vbox202), residue_info_chi_4_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (residue_info_chi_4_label), 0, 0.5);
+
+  residue_info_chi_5_label = gtk_label_new (_("residue_info_chi_5_label"));
+  gtk_box_pack_start (GTK_BOX (vbox202), residue_info_chi_5_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (residue_info_chi_5_label), 0, 0.5);
+
+  label443 = gtk_label_new ("");
+  gtk_widget_show (label443);
+  gtk_frame_set_label_widget (GTK_FRAME (chi_angles_frame), label443);
+  gtk_label_set_use_markup (GTK_LABEL (label443), TRUE);
+
   dialog_action_area14 = GTK_DIALOG (residue_info_dialog)->action_area;
   gtk_widget_show (dialog_action_area14);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area14), GTK_BUTTONBOX_END);
@@ -8829,6 +8882,16 @@ create_residue_info_dialog (void)
   GLADE_HOOKUP_OBJECT (residue_info_dialog, frame53, "frame53");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_hbox, "residue_info_hbox");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_atom_table, "residue_info_atom_table");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, chi_angles_frame, "chi_angles_frame");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, alignment106, "alignment106");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, vbox202, "vbox202");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, label444, "label444");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_1_label, "residue_info_chi_1_label");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_2_label, "residue_info_chi_2_label");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_3_label, "residue_info_chi_3_label");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_4_label, "residue_info_chi_4_label");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_5_label, "residue_info_chi_5_label");
+  GLADE_HOOKUP_OBJECT (residue_info_dialog, label443, "label443");
   GLADE_HOOKUP_OBJECT_NO_REF (residue_info_dialog, dialog_action_area14, "dialog_action_area14");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, hbox49, "hbox49");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_ok_button, "residue_info_ok_button");

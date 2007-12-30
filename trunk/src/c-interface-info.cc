@@ -67,6 +67,7 @@
 // #include "db-main.h" not yet
 
 #include "BuildCas.h"
+#include "chi-angles.hh"
 
 #include "trackball.h" // adding exportable rotate interface
 
@@ -270,6 +271,32 @@ void output_residue_info_dialog(int atom_index, int imol) {
 	       g.fill_output_residue_info_widget(widget, imol, atoms, n_atoms);
 	       gtk_widget_show(widget);
 	       g.reset_residue_info_edits();
+
+	       coot::chi_angles chi_angles(residue, 0);
+	       std::vector<std::pair<int, float> > chis = chi_angles.get_chi_angles();
+	       if (chis.size() > 0) {
+		  GtkWidget *chi_angles_frame = lookup_widget(widget, "chi_angles_frame");
+		  gtk_widget_show(chi_angles_frame);
+		  for (unsigned int ich=0; ich<chis.size(); ich++) {
+
+		     int ic = chis[ich].first;
+		     std::string label_name = "residue_info_chi_";
+		     label_name += coot::util::int_to_string(ic);
+		     label_name += "_label";
+		     GtkWidget *label = lookup_widget(widget, label_name.c_str());
+		     if (label) {
+			std::string text = "Chi ";
+			text += coot::util::int_to_string(ic);
+			text += ":  ";
+			text += coot::util::float_to_string(chis[ich].second);
+			text += " degrees";
+			gtk_label_set_text(GTK_LABEL(label), text.c_str());
+			gtk_widget_show(label);
+		     } else {
+			std::cout << "WARNING:: chi label not found " << label_name << std::endl;
+		     } 
+		  } 
+	       }
 	    }
 	 }
       }
@@ -344,24 +371,41 @@ void output_residue_info_as_text(int atom_index, int imol) {
 
    picked_atom->residue->GetAtomTable(atoms,n_atoms);
    for (int i=0; i<n_atoms; i++) { 
-      cout << "(" << imol << ") " 
-	   << atoms[i]->name << "/"
-	   << atoms[i]->GetModelNum()
-	   << "/"
-	   << atoms[i]->GetChainID()  << "/"
-	   << atoms[i]->GetSeqNum()   << "/"
-	   << atoms[i]->GetResName()
-	   << ", occ: " 
-	   << atoms[i]->occupancy 
-	   << " with B-factor: "
-	   << atoms[i]->tempFactor
-	   << " element: \""
-	   << atoms[i]->element
-	   << "\""
-	   << " at " << "("
-	   << atoms[i]->x << "," << atoms[i]->y << "," 
-	   << atoms[i]->z << ")" << endl;
+      std::string segid = atoms[i]->segID;
+      std::cout << "(" << imol << ") " 
+		<< atoms[i]->name << "/"
+		<< atoms[i]->GetModelNum()
+		<< "/"
+		<< atoms[i]->GetChainID()  << "/"
+		<< atoms[i]->GetSeqNum()   << "/"
+		<< atoms[i]->GetResName()
+		<< ", "
+		<< segid
+		<< " occ: " 
+		<< atoms[i]->occupancy 
+		<< " with B-factor: "
+		<< atoms[i]->tempFactor
+		<< " element: \""
+		<< atoms[i]->element
+		<< "\""
+		<< " at " << "("
+		<< atoms[i]->x << "," << atoms[i]->y << "," 
+		<< atoms[i]->z << ")" << std::endl;
    }
+
+   // chi angles:
+   coot::chi_angles chi_angles(picked_atom->residue, 0);
+   std::vector<std::pair<int, float> > chis = chi_angles.get_chi_angles();
+   if (chis.size() > 0) {
+      std::cout << "   Chi Angles:" << std::endl;
+      for (unsigned int ich=0; ich<chis.size(); ich++) {
+	 std::cout << "     chi "<< chis[ich].first << ": " << chis[ich].second
+		   << " degrees" << std::endl;
+      }
+   } else {
+      std::cout << "No Chi Angles for this residue" << std::endl;
+   } 
+   
    std::string cmd = "output-residue-info-as-text";
    std::vector<coot::command_arg_t> args;
    args.push_back(atom_index);
@@ -402,6 +446,18 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 		<< " at " << "("
 		<< atom->x << "," << atom->y << "," 
 		<< atom->z << ")" << std::endl;
+      // chi angles:
+      coot::chi_angles chi_angles(atom->residue, 0);
+      std::vector<std::pair<int, float> > chis = chi_angles.get_chi_angles();
+      if (chis.size() > 0) {
+	 std::cout << "   Chi Angles:" << std::endl;
+	 for (unsigned int ich=0; ich<chis.size(); ich++) {
+	    std::cout << "     chi "<< chis[ich].first << ": " << chis[ich].second
+		      << " degrees" << std::endl;
+	 }
+      } else {
+	 std::cout << "No Chi Angles for this residue" << std::endl;
+      }
    }
    std::string cmd = "output-atom-info-as-text";
    std::vector<coot::command_arg_t> args;

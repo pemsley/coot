@@ -171,87 +171,91 @@ coot::chi_angles::add_IUPAC_extras_PHE_and_TYR_rotamers() {
    
 }
 
+
 void
-coot::chi_angles::setup_chi_atom_pairs() {
+coot::chi_angles::setup_chi_atom_quads() {
 
-   add_chi_pair("VAL", " CA ", " CB ");
+   add_chi_quad("VAL", " N  ", " CA ", " CB ", " CG1");
 
-   add_chi_pair("TYR", " CA ", " CB ");
-   add_chi_pair("TYR", " CB ", " CG ");
+   add_chi_quad("TYR", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("TYR", " CA ", " CB ", " CG ", " CD1");
 
-   add_chi_pair("TRP", " CA ", " CB ");
-   add_chi_pair("TRP", " CB ", " CG ");
+   add_chi_quad("TRP", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("TRP", " CA ", " CB ", " CG ", " CD1");
 
-   add_chi_pair("THR", " CA ", " CB ");
+   add_chi_quad("THR", " N  ", " CA ", " CB ", " OG1");
 
-   add_chi_pair("SER", " CA ", " CB ");
+   add_chi_quad("SER", " N  ", " CA ", " CB ", " OG ");
 
-   add_chi_pair("PRO", " CA ", " CB ");
-   add_chi_pair("PRO", " CB ", " CG ");
+   add_chi_quad("PRO", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("PRO", " CA ", " CB ", " CG ", " CD ");
 
-   add_chi_pair("PHE", " CA ", " CB ");
-   add_chi_pair("PHE", " CB ", " CG ");
+   add_chi_quad("PHE", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("PHE", " CA ", " CB ", " CG ", " CD1");
    
-   add_chi_pair("MET", " CA ", " CB ");
-   add_chi_pair("MET", " CB ", " CG ");
-   add_chi_pair("MET", " CG ", " SD ");
+   add_chi_quad("MET", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("MET", " CA ", " CB ", " CG ", " SD ");
+   add_chi_quad("MET", " CB ", " CG ", " SD ", " CE ");
 
    // Use the monomer dictionary bonding instead   
-   add_chi_pair("MSE", " CA ", " CB ");
-   add_chi_pair("MSE", " CB ", " CG ");
-   add_chi_pair("MSE", " CG ", "SE  ");
+   add_chi_quad("MSE", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("MSE", " CA ", " CB ", " CG ", "SE  ");
+   add_chi_quad("MSE", " CB ", " CG ", "SE  ", " CE ");
 
-   add_chi_pair("LYS", " CA ", " CB ");
-   add_chi_pair("LYS", " CB ", " CG ");
-   add_chi_pair("LYS", " CG ", " CD ");
-   add_chi_pair("LYS", " CD ", " CE ");
+   add_chi_quad("LYS", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("LYS", " CA ", " CB ", " CG ", " CD ");
+   add_chi_quad("LYS", " CB ", " CG ", " CD ", " CE ");
+   add_chi_quad("LYS", " CG ", " CD ", " CE ", " NZ ");
 
-   add_chi_pair("LEU", " CA ", " CB ");
-   add_chi_pair("LEU", " CB ", " CG ");
+   add_chi_quad("LEU", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("LEU", " CA ", " CB ", " CG ", " CD1");
 
-   add_chi_pair("ILE", " CA ", " CB ");
-   add_chi_pair("ILE", " CB ", " CG1");
+   add_chi_quad("ILE", " N  ", " CA ", " CB ", " CG1");
+   add_chi_quad("ILE", " CA ", " CB ", " CG1", " CD1");
 
-   add_chi_pair("HIS", " CA ", " CB ");
-   add_chi_pair("HIS", " CB ", " CG ");
+   add_chi_quad("HIS", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("HIS", " CA ", " CB ", " CG ", " ND1");
 
-   add_chi_pair("GLU", " CA ", " CB ");
-   add_chi_pair("GLU", " CB ", " CG ");
-   add_chi_pair("GLU", " CG ", " CD ");
+   add_chi_quad("GLU", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("GLU", " CA ", " CB ", " CG ", " CD ");
+   add_chi_quad("GLU", " CB ", " CG ", " CD ", " OE1");
 
-   add_chi_pair("GLN", " CA ", " CB ");
-   add_chi_pair("GLN", " CB ", " CG ");
-   add_chi_pair("GLN", " CG ", " CD ");
+   add_chi_quad("GLN", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("GLN", " CA ", " CB ", " CG ", " CD ");
+   add_chi_quad("GLN", " CB ", " CG ", " CD ", " OE1");
 
-   add_chi_pair("CYS", " CA ", " CB ");
+   add_chi_quad("CYS", " N  ", " CA ", " CB ", " SG ");
    
-   add_chi_pair("ASP", " CA ", " CB ");
-   add_chi_pair("ASP", " CB ", " CG ");
+   add_chi_quad("ASP", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("ASP", " CA ", " CB ", " CG ", " OD1");
 
-   add_chi_pair("ASN", " CA ", " CB ");
-   add_chi_pair("ASN", " CB ", " CG ");
+   add_chi_quad("ASN", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("ASN", " CA ", " CB ", " CG ", " OD1 ");
 
-   add_chi_pair("ARG", " CA ", " CB ");
-   add_chi_pair("ARG", " CB ", " CG ");
-   add_chi_pair("ARG", " CG ", " CD ");
-   add_chi_pair("ARG", " CD ", " NE ");
+   add_chi_quad("ARG", " N  ", " CA ", " CB ", " CG ");
+   add_chi_quad("ARG", " CA ", " CB ", " CG ", " CD ");
+   add_chi_quad("ARG", " CB ", " CG ", " CD ", " NE ");
+   add_chi_quad("ARG", " CG ", " CD ", " NE ", " CZ ");
 
 }
 
 // Return chi angle pair for the chi angles in setup_chi_atom_pairs
 // (above).  Not used by generic ligands (as far as I can see).
 void
-coot::chi_angles::add_chi_pair(const std::string &residue_type,
+coot::chi_angles::add_chi_quad(const std::string &residue_type,
 			       const std::string &atom_name_1,
-			       const std::string &atom_name_2) {
+			       const std::string &atom_name_2,
+			       const std::string &atom_name_3,
+			       const std::string &atom_name_4) {
 
    short int found_res = 0;
    for(unsigned int i=0; i< typed_rotamers.size(); i++) {
       if (typed_rotamers[i].Type() == residue_type) {
 	 found_res = 1;
-	 // std::cout << "DEBUG:: adding chi pair " << residue_type << " " 
-	 // << atom_name_1 << " " << atom_name_2 << std::endl;
-	 typed_rotamers[i].add_torsion_bond_by_name(atom_name_1, atom_name_2);
+	 // chi pairs:
+	 typed_rotamers[i].add_torsion_bond_by_name(atom_name_2, atom_name_3);
+	 typed_rotamers[i].add_torsion_bond_by_name(atom_name_1, atom_name_2,
+						    atom_name_3, atom_name_4);
       } 
    }
 
@@ -259,7 +263,8 @@ coot::chi_angles::add_chi_pair(const std::string &residue_type,
       std::cout << "Oops, " << residue_type << " not found in typed_rotamers"
 		<< std::endl;
    }
-} 
+}
+
 
 std::ostream&
 coot::operator<<(std::ostream &s, coot::simple_rotamer rot) {
@@ -917,3 +922,16 @@ coot::chi_angles::atom_names_of_bond(int i) const {
    return std::pair<std::string, std::string>(a1, a2);
 }
 
+
+std::vector<std::pair<int,float> > 
+coot::chi_angles::get_chi_angles() const {
+
+   std::vector<std::pair <int, float> > v;
+   for (unsigned int ir=0; ir<typed_rotamers.size(); ir++) {
+      if (typed_rotamers[ir].Type() == Residue_Type()) {
+	 v = typed_rotamers[ir].get_chi_angles(residue);
+	 break;
+      }
+   }
+   return v;
+} 
