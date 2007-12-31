@@ -92,29 +92,51 @@ if test x$with_python != x; then
 	;;
    esac	
 
-   PYTHON_LIBS="$PYTHON_LIBS_PRE $UTIL_LIB"
-   AC_MSG_RESULT(yes)
-   echo Cool, using Python
-   coot_python=true	
+   save_CPPFLAGS="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
+   AC_CHECK_HEADER(Python.h, found_python_include_file=true, found_python_include_file=false)
+   CPPFLAGS="$save_CPPFLAGS"
+	
+   # if found_python_include_file=false, then we can't compile with python or pygtk.
 
-   # BL says:: we shall check for PyGTK as well
-   # let's try
-   PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
-   AC_SUBST(PYGTK_CFLAGS)
-   AC_SUBST(PYGTK_LIBS)
+   if test "$found_python_include_file" = true ; then 
 
-   if $have_pygtk; then
-	AC_MSG_RESULT(yes)
-   	echo Good we have pygtk
-   	PYTHON_CFLAGS="$PYTHON_CFLAGS -DUSE_PYGTK"
-   else
-	AC_MSG_RESULT(no)
-   	echo we dont have pygtk-2
+      PYTHON_LIBS="$PYTHON_LIBS_PRE $UTIL_LIB"
+
+dnl    this results in a random yes on its own line.  Commenting it out.
+dnl    echo Bmessage
+dnl    AC_MSG_RESULT(yes)
+dnl    echo done Bmessage
+
+      echo Cool, using Python
+      coot_python=true	
+
+      # BL says:: we shall check for PyGTK as well
+      # let's try
+      PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
+      AC_SUBST(PYGTK_CFLAGS)
+      AC_SUBST(PYGTK_LIBS)
+
+      if $have_pygtk ; then
+dnl     Random yes line. Commenting it out.
+dnl 	AC_MSG_RESULT(yes)
+   	   echo Good we have pygtk
+   	   PYTHON_CFLAGS="$PYTHON_CFLAGS -DUSE_PYGTK"
+      else
+	   AC_MSG_RESULT(no)
+   	   echo we dont have pygtk-2
+      fi
+
+   else 
+      PYTHON_CFLAGS=""
+      PYTHON_LIBS=""
+      # COOT_WRAP_PYTHON_CONVERT="cp"
+      coot_python=false
    fi
 
 else 
 
-   AC_MSG_RESULT(no)
+dnl    AC_MSG_RESULT(no) yeuch.
    echo Not using python
    PYTHON_CFLAGS=""
    PYTHON_LIBS=""
