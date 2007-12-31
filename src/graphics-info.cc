@@ -1415,8 +1415,8 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
-   std::cout << ":::: INFO:: imol moving atoms is "
-	     << imol_moving_atoms << std::endl;
+//    std::cout << ":::: INFO:: imol moving atoms is "
+// 	     << imol_moving_atoms << std::endl;
    
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) {
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);

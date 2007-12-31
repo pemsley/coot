@@ -12,7 +12,7 @@ Release 0.4 "Kendall"
      directory pointd to by COOT_SCHEME_EXTRA_DIR exists, then Coot
      will read all the .scm files in that directory
 
-   o FEATURE: Cis-peptide Gui added to extensions
+   o FEATURE: Cis-peptide GUI added to extensions
 
    o FEATURE: Chiral volumes are added to the geometry target
      function. Check for chiral volume and cis-peptide errors introduced
@@ -73,6 +73,9 @@ Release 0.4 "Kendall"
    o BUG-FIX: Fix Shelx lst file reader when handling atoms with Alt Confs
      [Christian Stegmann]
 
+   o BUG-FIX: Lighting of Ball&Stick representations improved (with the help of 
+     Martin Noble).
+
    o BUG-FIX: Ca Zone->Mainchain no longer spews warnings
 
    o BUG-FIX: Fix typo in transform-map-using-lsq-matrix [Nick Furnham]
@@ -114,10 +117,13 @@ Release 0.4 "Kendall"
 
    o CHANGE: Faster bonding of multiple model molecules [e.g. from NMR, Rapper]
 
-   o CHANGE: Binaries no longer include include file and static library 
+   o CHANGE: Binaries no longer contain include file and static library 
      "junk" [Clemens Vonrhein]
 
    o CHANGE: Check Waters results now display the occupancy too.
+
+   o CHANGE: Residue Info now displays Chi Angles for conventional residues 
+     [Mark Mayer].
 
    o CHANGE: fcf/cif maps now can be honour the map sampling rate [Dale Tronrud]
 

@@ -273,7 +273,7 @@ coot::ligand::mask_map(CMMDBManager *mol, short int mask_waters_flag) {
    protein_centre = clipper::Coord_orth(xmc, ymc, zmc);
    std::cout << "Protein centre at: " << protein_centre.format() << std::endl; 
 
-   std::cout << "masking....";
+   // std::cout << "masking....";
    for(int i=0; i<n_atoms; i++) {
       clipper::Coord_orth co(atoms[i]->x, atoms[i]->y, atoms[i]->z);
 
@@ -290,7 +290,7 @@ coot::ligand::mask_map(CMMDBManager *mol, short int mask_waters_flag) {
       }
    }
    xmap_masked = xmap_cluster;
-   std::cout << "masking done." << std::endl;
+   // std::cout << "masking done." << std::endl;
 }
 
 void

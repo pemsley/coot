@@ -981,11 +981,11 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 	 residue_range_atom_index_1 = tmp;
       }
 
-      std::cout << "imol_rigid_body_refine " << imol_rigid_body_refine << std::endl;
-      std::cout << "residue_range_atom_index_1 "
-		<< residue_range_atom_index_1 << std::endl;
-      std::cout << "residue_range_atom_index_2 "
-		<< residue_range_atom_index_2 << std::endl;
+//       std::cout << "imol_rigid_body_refine " << imol_rigid_body_refine << std::endl;
+//       std::cout << "residue_range_atom_index_1 "
+// 		<< residue_range_atom_index_1 << std::endl;
+//       std::cout << "residue_range_atom_index_2 "
+// 		<< residue_range_atom_index_2 << std::endl;
 
       atom1 = molecules[imol_rigid_body_refine].atom_sel.atom_selection[residue_range_atom_index_1];
       atom2 = molecules[imol_rigid_body_refine].atom_sel.atom_selection[residue_range_atom_index_2];
@@ -1013,9 +1013,9 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 
 //    std::cout << "-----------------------------------------------------" << std::endl;
 //    std::cout << "-----------------------------------------------------" << std::endl;
-   std::cout << " Rigid Body Refinement "
-	     << " imol: " << imol_rigid_body_refine << " residue "
-	     << ires1 << " to " << ires2 << " chain " << chain << std::endl;
+//    std::cout << " Rigid Body Refinement "
+// 	     << " imol: " << imol_rigid_body_refine << " residue "
+// 	     << ires1 << " to " << ires2 << " chain " << chain << std::endl;
 
    coot::ligand lig;
    int imol_ref_map = Imol_Refinement_Map();  // -1 is a magic number
