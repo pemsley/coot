@@ -2776,34 +2776,39 @@ molecule_class_info_t::draw_fc_skeleton() {
 void
 molecule_class_info_t::update_clipper_skeleton() {
 
-   // Create map extents (the extents of the skeletonization)
-   // from the current centre.
+   if (has_map()) { 
 
-   if (xskel_is_filled == 1) { 
+      // Create map extents (the extents of the skeletonization)
+      // from the current centre.
 
-      graphics_info_t g;
+      if (xskel_is_filled == 1) { 
 
-      if (xmap_is_filled[0] == 1 && xmap_is_diff_map[0] != 1) { 
-	 //
-	 float skeleton_box_radius = g.skeleton_box_radius; 
-	 graphics_info_t g;
+	 // graphics_info_t g;
 
-	 GraphicalSkel cowtan; 
+	 if (xmap_is_filled[0] == 1 && xmap_is_diff_map[0] != 1) { 
+	    //
+	    float skeleton_box_radius = graphics_info_t::skeleton_box_radius; 
+	    graphics_info_t g;
 
-	 // fc_skel_box: class object type graphical_bonds_container
-	 //
-	 cout<< "making graphical bonds..." << endl; 
-	 fc_skel_box = cowtan.make_graphical_bonds(xmap_list[0],xskel_cowtan,
-						   g.RotationCentre(),
-						   skeleton_box_radius,
-						   g.skeleton_level);
+	    GraphicalSkel cowtan; 
 
-// 	 cout << "DEBUG: " << "fc_skel_box.num_lines = "
-// 	      << fc_skel_box.num_colours << endl;
-// 	 cout << "DEBUG: " << "fc_skel_box.bonds_ = "
-// 	      << fc_skel_box.bonds_ << endl;
-// 	 cout << "DEBUG: " << "fc_skel_box.bonds_[0].num_lines = "
-// 	      << fc_skel_box.bonds_[0].num_lines << endl;
+	    // fc_skel_box: class object type graphical_bonds_container
+	    //
+	    coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
+			       graphics_info_t::RotationCentre_y(),
+			       graphics_info_t::RotationCentre_z());
+	    fc_skel_box = cowtan.make_graphical_bonds(xmap_list[0],xskel_cowtan,
+						      rc, 
+						      skeleton_box_radius,
+						      graphics_info_t::skeleton_level);
+
+	    // 	 cout << "DEBUG: " << "fc_skel_box.num_lines = "
+	    // 	      << fc_skel_box.num_colours << endl;
+	    // 	 cout << "DEBUG: " << "fc_skel_box.bonds_ = "
+	    // 	      << fc_skel_box.bonds_ << endl;
+	    // 	 cout << "DEBUG: " << "fc_skel_box.bonds_[0].num_lines = "
+	    // 	      << fc_skel_box.bonds_[0].num_lines << endl;
+	 }
       }
    }
 }
@@ -7937,62 +7942,64 @@ short int
 molecule_class_info_t::change_contour(int direction) {
 
    short int istat = 0;
-   // std::cout << "DEBUG:: contour_by_sigma_flag " << contour_by_sigma_flag << std::endl;
-   // std::cout << "DEBUG:: adding " << contour_sigma_step << " * " << map_sigma_
-   // << " to  " << contour_level[0] << std::endl;
-   if (has_map()) {
+   if (has_map()) { 
+      // std::cout << "DEBUG:: contour_by_sigma_flag " << contour_by_sigma_flag << std::endl;
+      // std::cout << "DEBUG:: adding " << contour_sigma_step << " * " << map_sigma_
+      // << " to  " << contour_level[0] << std::endl;
+      if (has_map()) {
 
-      float shift = graphics_info_t::diff_map_iso_level_increment;
-      if (contour_by_sigma_flag) { 
-	 shift = contour_sigma_step * map_sigma_;
-      } else { 
-	 if (xmap_is_diff_map[0]) { 
-	    shift = graphics_info_t::diff_map_iso_level_increment;
+	 float shift = graphics_info_t::diff_map_iso_level_increment;
+	 if (contour_by_sigma_flag) { 
+	    shift = contour_sigma_step * map_sigma_;
 	 } else { 
-	    shift = graphics_info_t::iso_level_increment;
+	    if (xmap_is_diff_map[0]) { 
+	       shift = graphics_info_t::diff_map_iso_level_increment;
+	    } else { 
+	       shift = graphics_info_t::iso_level_increment;
+	    }
 	 }
-      }
 
-      if (xmap_is_diff_map[0]) {
-	 if (direction == -1) {
-	    if (graphics_info_t::stop_scroll_diff_map_flag) {
-	       if ((contour_level[0] - shift) > 
-		   graphics_info_t::stop_scroll_diff_map_level) { 
+	 if (xmap_is_diff_map[0]) {
+	    if (direction == -1) {
+	       if (graphics_info_t::stop_scroll_diff_map_flag) {
+		  if ((contour_level[0] - shift) > 
+		      graphics_info_t::stop_scroll_diff_map_level) { 
+		     contour_level[0] -= shift;
+		     istat = 1;
+		  }
+	       } else {
 		  contour_level[0] -= shift;
 		  istat = 1;
 	       }
 	    } else {
-	       contour_level[0] -= shift;
-	       istat = 1;
+	       // add, but don't go past the top of the map or the bottom of the map
+	       // 
+	       if (contour_level[0] <= map_max_ || contour_level[0] <= -map_min_) {
+		  contour_level[0] += shift;
+		  istat = 1;
+	       }
 	    }
 	 } else {
-	    // add, but don't go past the top of the map or the bottom of the map
-	    // 
-	    if (contour_level[0] <= map_max_ || contour_level[0] <= -map_min_) {
-	       contour_level[0] += shift;
-	       istat = 1;
-	    }
-	 }
-      } else {
-	 // iso map
+	    // iso map
 
-	 if (direction == -1) {
-	    if (graphics_info_t::stop_scroll_iso_map_flag) {
-	       if ((contour_level[0] - shift) >
-		   graphics_info_t::stop_scroll_iso_map_level) {
+	    if (direction == -1) {
+	       if (graphics_info_t::stop_scroll_iso_map_flag) {
+		  if ((contour_level[0] - shift) >
+		      graphics_info_t::stop_scroll_iso_map_level) {
+		     contour_level[0] -= shift;
+		     istat = 1;
+		  }
+	       } else {
 		  contour_level[0] -= shift;
 		  istat = 1;
 	       }
 	    } else {
-	       contour_level[0] -= shift;
-	       istat = 1;
-	    }
-	 } else {
-	    if (contour_level[0] <= map_max_) {
-	       contour_level[0] += shift;
-	       istat = 1;
-	    }
-	 } 
+	       if (contour_level[0] <= map_max_) {
+		  contour_level[0] += shift;
+		  istat = 1;
+	       }
+	    } 
+	 }
       }
    }
    return istat;
