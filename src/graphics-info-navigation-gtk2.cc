@@ -53,11 +53,11 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
    GtkWidget *residue_tree = gtk_tree_view_new(); 
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(residue_tree_scrolled_window),
 					 residue_tree);
-   gtk_widget_ref(residue_tree);
-   gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window),
-			    "go_to_atom_residue_tree",
-			    residue_tree, 
-			    (GtkDestroyNotify) gtk_widget_unref);
+    gtk_widget_ref(residue_tree);
+    gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window),
+ 			    "go_to_atom_residue_tree",
+ 			    residue_tree, 
+ 			    (GtkDestroyNotify) gtk_widget_unref);
    graphics_info_t::fill_go_to_atom_residue_tree_gtk2(residue_tree);
    gtk_widget_show(residue_tree);
 
@@ -69,9 +69,13 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					  GTK_WIDGET(atom_tree));
    /* attach the name to the widget (by hand (as interface.c does
       it) so that we can look it up in the callback of residue selection changed */
+
+   // However, we can't unref it because we can't ref the atom tree
+   // (as we normally do with things for which we do
+   // gtk_object_set_data_full() because it is not a GtkWidget (or
+   // something).
    gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window), "go_to_atom_atom_list", 
-			    atom_tree, 
-			    (GtkDestroyNotify) gtk_widget_unref);
+			    atom_tree, NULL);
    
    gtk_widget_show(GTK_WIDGET(atom_tree));
 

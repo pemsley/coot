@@ -4,42 +4,38 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-
-   o File -> Exit doesn't quit in gtk1 coot - backup-maybe problems I suspect.
-
-
+   o Python test should test for presence of Python.h in the appropriate include dir.
+     (python exe environement may have been installed without python-dev)
 
    o Look at this: CSHL crash:
 
      on calculating a skeleton after deleting a map (and skeleton) and
      reading in a new map.
 
-   
-   o [having closed the Go To Atom dialog] and shift clicking on an atom:
 
-(lt-coot-real:18301): Gtk-CRITICAL **: gtk_widget_unref: assertion `GTK_IS_WIDGET (widget)' failed
-clicked on imol:
- (0)  CG2/1/chainid="B"/2/VAL,  occ: 1 with B-factor: 24.45 element:  C at (15.656,16.936,17.674) : 0.0882503
 
-     on simply closing the Go To Atom Widget
 
-(lt-coot-real:18301): Gtk-CRITICAL **: gtk_widget_unref: assertion `GTK_IS_WIDGET (widget)' failed
 
- 
 
-   o Python test should test for presence of Python.h in the appropriate include dir.
-     (python exe environement may have been installed without python-dev)
+
+
+   o  on simply closing the Go To Atom Widget
+
+    (lt-coot-real:18301): Gtk-CRITICAL **: gtk_widget_unref: assertion `GTK_IS_WIDGET (widget)' failed
+
+* Fixed
 
    o Pressing -Current-Dir- in Gtk2 version in Select Map results in:
 
-INFO:: Sorting files by date
+      INFO:: Sorting files by date
+      ** (lt-coot-real:6070): WARNING **: Widget not found: coords_fileselection1
+      WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_func
 
-** (lt-coot-real:6070): WARNING **: Widget not found: coords_fileselection1
-WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_func
+Fixed.
 
+   o File -> Exit doesn't quit in gtk1 coot - backup-maybe problems I suspect.
 
-
-
+* Fixed.  It was.  How did it ever work before?
 
 
    o int fileselection_type = 0; // FIXME
