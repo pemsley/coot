@@ -2544,7 +2544,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 
    GtkWidget *table = lookup_widget(dialog, "residue_info_atom_table");
 
-#if (GTK_MAJOR_VERSION == 2)
+#if (GTK_MAJOR_VERSION > 1)
    GList *container_list = gtk_container_get_children(GTK_CONTAINER(table));
 #else    
    GList *container_list = gtk_container_children(GTK_CONTAINER(table));
@@ -6179,7 +6179,9 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 gtk_object_set_user_data(GTK_OBJECT(adjustment_mol), GINT_TO_POINTER(imol));
 	 
 	 gtk_widget_ref (coords_colour_hscale_mol_N);
-	 gtk_object_set_data_full (GTK_OBJECT (coords_colour_control_dialog), "coords_colour_hscale_mol_N", coords_colour_hscale_mol_N,
+	 gtk_object_set_data_full (GTK_OBJECT (coords_colour_control_dialog),
+				   "coords_colour_hscale_mol_N",
+				   coords_colour_hscale_mol_N,
 				   (GtkDestroyNotify) gtk_widget_unref);
 	 gtk_widget_show (coords_colour_hscale_mol_N);
 	 gtk_box_pack_start (GTK_BOX (hbox136), coords_colour_hscale_mol_N, TRUE, TRUE, 0);
