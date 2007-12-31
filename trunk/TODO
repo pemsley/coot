@@ -112,6 +112,8 @@
 
    o "Thick bonds" for ligands etc
 
+   o Put globularize protein into Coot.  Make it a bit more clever?
+
    o Insertion codes for intelligent next atom
 
    o Add some SHELX reading to the test suite.  Insulin for starters.

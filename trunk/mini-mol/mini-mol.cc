@@ -144,8 +144,8 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
       if (spacegroup_str) {
 	 have_spacegroup = 1;
 	 mmdb_spacegroup = spacegroup_str;
-	 std::cout << "INFO:: setup minimol has spacegroup: "
-		   << mmdb_spacegroup << std::endl;
+// 	 std::cout << "INFO:: setup minimol has spacegroup: "
+// 		   << mmdb_spacegroup << std::endl;
       } else {
 	 std::cout << "INFO:: setup minimol from mol: no spacegroup"
 		   << std::endl;

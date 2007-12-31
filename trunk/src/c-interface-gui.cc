@@ -1059,7 +1059,6 @@ void add_is_difference_map_checkbutton(GtkWidget *fileselection) {
    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
    GtkWidget *button = gtk_check_button_new_with_label("Is Difference Map");
    GtkWidget *frame = gtk_frame_new("Difference Map?");
-   int imol = 0; // FIXME
 
    gtk_widget_ref(button);
    gtk_object_set_data_full(GTK_OBJECT(fileselection),
@@ -1071,7 +1070,7 @@ void add_is_difference_map_checkbutton(GtkWidget *fileselection) {
    gtk_container_add(GTK_CONTAINER(frame), button);
    gtk_signal_connect (GTK_OBJECT (button), "toggled",
 		       GTK_SIGNAL_FUNC (on_read_map_difference_map_toggle_button_toggled),
-		       GINT_TO_POINTER(imol));
+		       NULL);
    gtk_widget_show(frame);
 
 }

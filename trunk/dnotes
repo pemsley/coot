@@ -19,13 +19,6 @@ handle_filename_filter_gtk1(GtkWidget *entry_widget) {
 Test by filtering scripts
 
 
-   o Every time I use "Edit backbone torsions", if I hit "cancel".
-     The backbone thick white line is still there and it can be dragged
-     to anywhere, which is kinda annoying.  But if I hit "OK", the white
-     line is gone.
-
-     Jianghai Zhu, Ph.D
-
 
    o Look at this: CSHL crash:
 
@@ -44,27 +37,43 @@ clicked on imol:
 (lt-coot-real:18301): Gtk-CRITICAL **: gtk_widget_unref: assertion `GTK_IS_WIDGET (widget)' failed
 
  
-    o Put globularize protein into Coot.  Make it a bit more clever?
-
-
-    o remove this junk from output:
-
-residue_range_atom_index_1 33
-residue_range_atom_index_2 33
- Rigid Body Refinement  imol: 10 residue 2 to 2 chain D
-INFO:: setup minimol has spacegroup: P 21 21 21
-masking....masking done
-:::: INFO:: imol moving atoms is 10
-
 
    o Python test should test for presence of Python.h in the appropriate include dir.
      (python exe environement may have been installed without python-dev)
 
+   o Pressing -Current-Dir- in Gtk2 version in Select Map results in:
+
+INFO:: Sorting files by date
+
+** (lt-coot-real:6070): WARNING **: Widget not found: coords_fileselection1
+WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_func
 
 
 
 
 
+
+
+   o Every time I use "Edit backbone torsions", if I hit "cancel".
+     The backbone thick white line is still there and it can be dragged
+     to anywhere, which is kinda annoying.  But if I hit "OK", the white
+     line is gone.
+
+     Jianghai Zhu, Ph.D
+
+* Can't reproduce.
+
+    o remove this junk from output:
+
+INFO:: setup minimol has spacegroup: P 21 21 21
+
+Rigid Body Refinement  imol: 10 residue 2 to 2 chain D
+residue_range_atom_index_1 33
+residue_range_atom_index_2 33
+masking....masking done
+:::: INFO:: imol moving atoms is 10
+
+* Done
 
     o when no gsl:
 l_and_refine(int, int, int, std::string, int, std::string, std::string, std::string)~:
@@ -3133,5 +3142,42 @@ Sun Dec 30 10:29:43 GMT 2007
 
    The Lancet : Ten pieces of free software every doctor should have
 
+
+
+-----
+Mon Dec 31 16:44:49 GMT 2007
+
+   on doing a refinement: 
+
+
+INFO:: graphics_info_t::clear_up_moving_atoms...
+clearing intermediate object...
+c-interface clear_up_moving_atoms...
+INFO:: graphics_info_t::clear_up_moving_atoms...
+WARNING:: attempting to delete NULL moving_atoms_asc.atom_selection
+Ignoring. 
+attempting to delete NULL moving_atoms_asc.mol
+ignoring 
+clearing intermediate object...
+
+    (ugliness)
+
+-----
+Mon Dec 31 16:53:00 GMT 2007
+
+   For 0.5:
+
+   o Tests for chi angles: 
+       Make some residue that you know the chi angles of.
+          Generate values, compare.
+       Chi angles of a Water
+       Chi angles of 3GP
+
+     Where should this code go?  In a new testing.cc/testing.hh?  
+     test_chi_angles(imol_3gp, imol_ref, imol_water);
+        and the actual target values are embedded in the test code.
+        Hmm...  Well, I could try it.
+
+     Note to self:  Write the test first!
 
 
