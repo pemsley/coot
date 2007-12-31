@@ -97,7 +97,7 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
   GtkWidget *coords_fileselection1 = coot_file_chooser();
   GtkWidget *file_filter_button;
   GtkWidget *sort_button;
-  add_ccp4i_project_optionmenu(coords_fileselection1);
+  add_ccp4i_project_optionmenu(coords_fileselection1, COOT_COORDS_FILE_SELECTION);
 
   file_filter_button = add_filename_filter_button(coords_fileselection1, 
 						  COOT_COORDS_FILE_SELECTION);
@@ -116,7 +116,7 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
   GtkWidget *file_filter_button;
   GtkWidget *sort_button;
   GtkWidget *coords_fileselection1 = coot_file_chooser();
-  add_ccp4i_project_optionmenu(coords_fileselection1);
+  add_ccp4i_project_optionmenu(coords_fileselection1, COOT_COORDS_FILE_SELECTION);
   file_filter_button = add_filename_filter_button(coords_fileselection1, 
 						  COOT_COORDS_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(coords_fileselection1); 
@@ -140,7 +140,7 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   GtkWidget *file_filter_button;
   GtkWidget *sort_button;
   GtkWidget *dataset_fileselection1 = create_dataset_fileselection1 ();
-  add_ccp4i_project_optionmenu(dataset_fileselection1);
+  add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
   file_filter_button = add_filename_filter_button(dataset_fileselection1, 
 						  COOT_DATASET_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
@@ -166,7 +166,7 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
   GtkWidget *file_filter_button;
   GtkWidget *sort_button;
   GtkWidget *dataset_fileselection1 = create_dataset_fileselection1 ();
-  add_ccp4i_project_optionmenu(dataset_fileselection1);
+  add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
   file_filter_button = add_filename_filter_button(dataset_fileselection1, 
 						  COOT_DATASET_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
@@ -1216,7 +1216,7 @@ on_open_map1_activate                  (GtkMenuItem     *menuitem,
 
    gtk_widget_show (map_name_fileselection1);
    add_is_difference_map_checkbutton(map_name_fileselection1);
-   add_ccp4i_project_optionmenu(map_name_fileselection1);
+   add_ccp4i_project_optionmenu(map_name_fileselection1, COOT_MAP_FILE_SELECTION);
    filter_button = add_filename_filter_button(map_name_fileselection1,
 					      COOT_MAP_FILE_SELECTION);
    sort_button = add_sort_button_fileselection(map_name_fileselection1); 
@@ -2130,7 +2130,7 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
      add_sort_button_fileselection(widget); 
      /*   set_directory_for_fileselection(widget); */
      set_file_for_save_fileselection(widget);
-     add_ccp4i_project_optionmenu(widget);
+     add_ccp4i_project_optionmenu(widget, COOT_SAVE_COORDS_FILE_SELECTION);
      /*   add_filename_filter(widget); */
      add_filename_filter_button(widget, COOT_SAVE_COORDS_FILE_SELECTION);
      set_file_selection_dialog_size(widget);
@@ -2481,7 +2481,7 @@ void on_import_cif_dictionary1_activate     (GtkMenuItem     *menuitem,
 {
   GtkWidget *fileselection;
   fileselection = create_cif_dictionary_fileselection();
-  add_ccp4i_project_optionmenu(fileselection);
+  add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
   add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
   add_sort_button_fileselection(fileselection); 
   set_directory_for_fileselection(fileselection);

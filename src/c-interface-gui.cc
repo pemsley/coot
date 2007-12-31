@@ -662,9 +662,14 @@ void run_clear_backups(int retval) {
 		<< scm_to_locale_string(display_scm(r))
 		<< std::endl;
       coot_real_exit(retval);
+   } else {
+//       std::cout << "DEBUG:: (clear-babckups-maybe) returned: "
+// 		<< scm_to_locale_string(display_scm(r))
+// 		<< std::endl;
    }
    
-   // if (scm_is_false(r)) { // gui did not run, not in 1.6.x?
+   // if r was #f then exit.
+   // 
    if (! SCM_NFALSEP(r)) { // backup gui was not needed/shown
       coot_real_exit(retval);
    }
@@ -900,7 +905,6 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
 #ifdef COOT_USE_GTK2_INTERFACE
       handle_filename_filter_gtk2(widget);
 #else       
-
       handle_filename_filter_gtk1(widget);
 #endif       
    } 
@@ -908,6 +912,8 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
 }
 
 
+// This is for the "bespoke" filename filtering, reading the glob from
+// an entry added to the action area.
 void
 handle_filename_filter_gtk1(GtkWidget *entry_widget) {
    
@@ -932,7 +938,7 @@ handle_filename_filter_gtk1(GtkWidget *entry_widget) {
    } 
    std::string pre_directory = pre_directory_file_selection(sort_button);
 
-   int file_selection_type = 0; // FIXME
+   int file_selection_type = COOT_SCRIPTS_FILE_SELECTION; 
 
    // so now we have pre_directory
    // 
@@ -1859,7 +1865,7 @@ void add_ccp4i_project_shortcut(GtkWidget *fileselection) {
 #endif   // GTK_MAJOR_VERSION
 }
 
-void add_ccp4i_project_optionmenu(GtkWidget *fileselection) {
+void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selection_type) {
 
    bool add_shortcut = 0;
 
@@ -1873,17 +1879,21 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection) {
 //       std::cout << "in add_ccp4i_project_optionmenu widget is fileselection "
 // 		<< GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
       add_ccp4i_project_shortcut(fileselection);
+
    } else {
+
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 
       GtkWidget *optionmenu = gtk_option_menu_new();
       gtk_widget_ref(optionmenu);
       gtk_widget_show(optionmenu);
+      gtk_object_set_data(GTK_OBJECT(fileselection), "ccp4i_project_optionmenu", optionmenu);
+      gtk_object_set_user_data(GTK_OBJECT(optionmenu), GINT_TO_POINTER(file_selection_type));
       GtkSignalFunc project_signal_func =
 	 GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
       add_ccp4i_projects_to_optionmenu(optionmenu, project_signal_func);
 
-      // lets put the optionmenu in a frame with a label
+      // Let's put the optionmenu in a frame with a label
       GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
       gtk_container_add(GTK_CONTAINER(aa), frame);
       gtk_widget_show(frame);
@@ -1918,6 +1928,8 @@ void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
    gtk_widget_show(menu);
 }
 
+// This happens when someone actives the option menu of the CCP4i
+// project in file selectors.
 void
 option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos) {
    graphics_info_t g;
@@ -1935,15 +1947,23 @@ option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType po
       // Here, we don't know, so we try to look up each of the
       // fileselection widgets
       //
-      GtkWidget *fileselection;
-      int fileselection_type = 0; // FIXME
-      fileselection = lookup_file_selection_widgets(item, fileselection_type);
+      GtkWidget *optionmenu = lookup_widget(item, "ccp4i_project_optionmenu");
 
-      if (fileselection) {
-	 g.set_directory_for_fileselection(fileselection);
-      } else {
-	 std::cout << "WARNING:: failed to find filesection in "
+      if (! optionmenu) {
+	 std::cout << "WARNING:: failed to find ccp4i optionmenu in "
 		   << "option_menu_refmac_ccp4i_project_signal_func" << std::endl;
+      } else { 
+	 int file_selection_type = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(optionmenu)));
+	 GtkWidget *fileselection;
+	 int fileselection_type = 0; // FIXME
+	 fileselection = lookup_file_selection_widgets(item, fileselection_type);
+	 
+	 if (fileselection) {
+	    g.set_directory_for_fileselection(fileselection);
+	 } else {
+	    std::cout << "WARNING:: failed to find filesection in "
+		      << "option_menu_refmac_ccp4i_project_signal_func" << std::endl;
+	 }
       }
    } else {
       std::cout << "ERROR:: error in indexing in option_menu_refmac_ccp4i_project_signal_func"

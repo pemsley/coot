@@ -151,7 +151,12 @@
 	  #t)))) ; it ran
 
 
-;; return a status, #f or #t, did the GUI run?
+;; Return a status, #f or #t, did the GUI run?
+;; 
+;; Note that clear-backup-gui returns either #t or #f too.
+;; 
+;; If this function returns #f, then coot_real_exit() just exits with
+;; coot_real_exit().  Otherwise we wait for the GUI.
 ;; 
 (define (clear-backups-maybe)
 
@@ -170,11 +175,11 @@
 	    (call-with-input-file last-cleaned-file
 	      (lambda (port)
 		(let ((val (read port)))
-		  (if (number? val)
+		  (if (not (number? val))
+		      #f
 		      (if (< val last-week)
 			  (begin
-			    (clear-backup-gui)
-			    #t)
+			    (clear-backup-gui))
 			  (begin
 			    (format #t "INFO:: backup clearout done ~s days ago~%"
 				    (/ (- now val) (* 60 60 24)))
