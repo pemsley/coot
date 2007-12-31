@@ -2560,6 +2560,7 @@ void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 		   << graphics_info_t::map_for_skeletonize << std::endl;
 	 graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
       }
+   }
 } 
 
 void
