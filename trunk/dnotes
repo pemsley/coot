@@ -4,10 +4,6 @@ Tue Jul  3 14:27:37 BST 2007
 
       Things to add or fix before 0.4
 
-   o Python test should test for presence of Python.h in the
-     appropriate include dir. (python exe environement may have been
-     installed without python-dev)
-
    o Look at this: CSHL crash:
 
      on calculating a skeleton after deleting a map (and skeleton) and
@@ -19,6 +15,11 @@ Tue Jul  3 14:27:37 BST 2007
 
 
 
+   o Python test should test for presence of Python.h in the
+     appropriate include dir. (python exe environement may have been
+     installed without python-dev)
+
+* Done
 
    o  on simply closing the Go To Atom Widget
 

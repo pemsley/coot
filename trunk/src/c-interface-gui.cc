@@ -2541,22 +2541,25 @@ void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
    on_radio_button = lookup_widget(window, "skeleton_on_radiobutton");
 
    short int do_it = 0; 
-   short int prune_it = 0; 
-   if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
-      do_it = 1;
-   }
-   prune_check_button = lookup_widget(window,"skeleton_prune_and_colour_checkbutton");
-   if (GTK_TOGGLE_BUTTON(prune_check_button)->active) { 
-      prune_it = 1;
-   }
+   short int prune_it = 0;
+   if (! is_valid_map_molecule(graphics_info_t::map_for_skeletonize)) {
+      std::cout << "ERROR:: Trapped a bad map for skeletoning!" << std::endl;
+   } else {
+      if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
+	 do_it = 1;
+      }
+      prune_check_button = lookup_widget(window,"skeleton_prune_and_colour_checkbutton");
+      if (GTK_TOGGLE_BUTTON(prune_check_button)->active) { 
+	 prune_it = 1;
+      }
 
-   if (do_it)
-      graphics_info_t::skeletonize_map(prune_it, graphics_info_t::map_for_skeletonize);
-   else {
-      std::cout << "INFO:: unskeletonizing map number "
-		<< graphics_info_t::map_for_skeletonize << std::endl;
-      graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
-   }
+      if (do_it)
+	 graphics_info_t::skeletonize_map(prune_it, graphics_info_t::map_for_skeletonize);
+      else {
+	 std::cout << "INFO:: unskeletonizing map number "
+		   << graphics_info_t::map_for_skeletonize << std::endl;
+	 graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
+      }
 } 
 
 void
