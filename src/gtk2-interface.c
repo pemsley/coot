@@ -8,20 +8,16 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 #include <string.h>
 #include <stdio.h>
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
-
-#include "callbacks.h"
-#include "interface.h"
-#include "support.h"
+#include "callbacks.h.gtk2"
+#include "interface.h.gtk2"
+#include "support.h.gtk2"
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
@@ -19729,13 +19725,16 @@ create_aboutdialog (void)
 {
   GtkWidget *aboutdialog;
   const gchar *authors[] = {
-    "Paul Emsley",
-    "Kevin Cowtan",
-    "Bernhard Lohkamp",
+    "   Paul Emsley",
+    "   Kevin Cowtan",
+    "   Bernhard Lohkamp",
+    "Using addtional code by",
+    "   Stuart McNicholas",
+    "   Martin Noble",
+    "   Jan Gruber",
     "Using the libraries of:",
     "   Eugene Krissinel",
     "   Kevin Cowtan",
-    "   Stuart McNicholas",
     "   Janne Lof",
     "   Raghavendra Chandrashekara",
     "   Paul Bourke & Cory Gene Bloyd",
@@ -19931,4 +19930,3 @@ create_globularize_dialog (void)
   return globularize_dialog;
 }
 
-#endif // (GTK_MAJOR_VERSION > 1)
