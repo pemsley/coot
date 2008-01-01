@@ -95,6 +95,11 @@
 
    o Correct CISPEP if needed cards on writing pdb.
 
+   o Make build-it-gtk2 and use it.
+
+   o Make a demo script that downloads data and runs it - add it to
+     the package and make it available to run from extensions.
+
    o Mutate should not change the order of the atoms in the pdb.
      http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
 
