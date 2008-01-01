@@ -2787,10 +2787,9 @@ void add_accept_reject_lights_gtk1(GtkWidget *window, const coot::refinement_res
 void add_accept_reject_lights_gtk2(GtkWidget *window, const coot::refinement_results_t &ref_results);
 #endif 
 GtkWidget *wrapped_create_accept_reject_refinement_dialog();
-void add_extra_text_to_accept_reject_dialog(GtkWidget *accept_reject_dialog,
-					    coot::accept_reject_text_type text_type,
-					    std::string extra_text);
-
+void update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
+					      coot::accept_reject_text_type text_type,
+					      const coot::refinement_results_t &rr);
 
 
 // Some currently useless Perspective View definition

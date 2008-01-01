@@ -88,6 +88,8 @@ void initialize_graphics_molecules() {
 } 
 
 // e.g. fit type is "Rigid Body Fit" or "Regularization" etc.
+//
+// if fit_type is "Torsion General" show the Reverse button.
 // 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
@@ -106,8 +108,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 			       graphics_info_t::accept_reject_dialog_y_position);
    }
 
-   std::string extra_text = rr.info;
-   add_extra_text_to_accept_reject_dialog(window, coot::CHI_SQUAREDS, extra_text);
+   update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
    std::cout << "accept_reject here 0 " << rr.lights.size() << std::endl;
    if (rr.lights.size() > 0)
       add_accept_reject_lights(window, rr);
@@ -119,25 +120,19 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 
    gtk_label_set_text(GTK_LABEL(label), txt.c_str());
 
-
    // Was this a torsion general, in which we need to active the reverse button?
    if (fit_type == "Torsion General") {
       GtkWidget *reverse_button = lookup_widget(window, "accept_reject_reverse_button");
       gtk_widget_show(reverse_button);	
    }
-   
-
    gtk_widget_show(window);
 }
 
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results) {
 
-   std::cout << "accept_reject here 1" << std::endl;
 #if (GTK_MAJOR_VERSION == 1) 
-   std::cout << "accept_reject here 1.1" << std::endl;
    add_accept_reject_lights_gtk1(window, ref_results);
 #else
-   std::cout << "accept_reject here 1.2" << std::endl;
    add_accept_reject_lights_gtk2(window, ref_results);
 #endif    
 }
@@ -149,7 +144,7 @@ void add_accept_reject_lights_gtk1(GtkWidget *window, const coot::refinement_res
 
 #else 
 void add_accept_reject_lights_gtk2(GtkWidget *window, const coot::refinement_results_t &ref_results) {
-   std::cout << "accept_reject here 2" << std::endl;
+
    GtkWidget *frame = lookup_widget(window, "accept_reject_lights_frame");
    gtk_widget_show(frame);
    for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
@@ -202,14 +197,20 @@ GdkColor colour_by_distortion(float dist) {
    
    if (dist < 2.0) { 
       col.red   = 0;
-      col.green = 65535;
+      col.green = 55535;
    } else {
       if (dist < 5.0) {
-	 col.red   = 32000;
-	 col.green = 32000;
+	 col.red   = 55000;
+	 col.green = 55000;
+	 // col.blue  = 22000;
       } else {
-	 col.red   = 65535;
-	 col.green = 0;
+	 if (dist < 8.0) {
+	    col.red   = 55000;
+	    col.green = 27000;
+	 } else { 
+	    col.red   = 65535;
+	    col.green = 0;
+	 }
       }
    }
    return col;
@@ -217,10 +218,11 @@ GdkColor colour_by_distortion(float dist) {
 
 
 void
-add_extra_text_to_accept_reject_dialog(GtkWidget *accept_reject_dialog,
-				       coot::accept_reject_text_type text_type,
-				       std::string extra_text) {
+update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
+					 coot::accept_reject_text_type text_type,
+					 const coot::refinement_results_t &rr) {
 
+   std::string extra_text = rr.info;
    if (extra_text != "") {
       
       // now look up the label in window and change it.
@@ -232,6 +234,8 @@ add_extra_text_to_accept_reject_dialog(GtkWidget *accept_reject_dialog,
       
       gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
    }
+   if (rr.lights.size() > 0)
+      add_accept_reject_lights(accept_reject_dialog, rr);
 }
 
 
@@ -1745,9 +1749,9 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // if we are doing dragged refinement).
    if (accept_reject_dialog) {
       if (saved_dragged_refinement_results.info != "") { 
-	 add_extra_text_to_accept_reject_dialog(accept_reject_dialog,
-						coot::CHI_SQUAREDS,
-						saved_dragged_refinement_results.info);
+	 update_accept_reject_dialog_with_results(accept_reject_dialog,
+						  coot::CHI_SQUAREDS,
+						  saved_dragged_refinement_results);
       }
    }
    
