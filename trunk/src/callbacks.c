@@ -2222,18 +2222,7 @@ on_model_refine_dialog_refine_params_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = create_refine_params_dialog();
-  GtkWidget *optionmenu;
-  GtkWidget *dialog;
-
-/*   lookup the optionmenu: */  
-/*   optionmenu = lookup_widget(GTK_WIDGET(widget),  */
-/* 			     "refine_params_map_optionmenu"); */
-
-/*   fill the optionmenu */ 
-/*   fill_option_menu_with_refine_options(optionmenu); */
-
-  set_refine_params_toggle_buttons(GTK_WIDGET(widget));
+  GtkWidget *widget = wrapped_create_refine_params_dialog();
   gtk_widget_show(widget);
 }
 
@@ -7654,7 +7643,7 @@ on_model_toolbar_refine_control_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = create_refine_params_dialog();
+  GtkWidget *widget = wrapped_create_refine_params_dialog();
   gtk_widget_show(widget);
 }
 

@@ -2343,6 +2343,8 @@ void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done
 /* now we use */
 void fill_option_menu_with_refine_options(GtkWidget *option_menu);
 
+GtkWidget *wrapped_create_refine_params_dialog(); 
+
 void do_torsions_toggle(GtkWidget *button);
 void do_peptide_torsions_toggle();
 

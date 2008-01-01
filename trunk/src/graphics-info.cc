@@ -129,72 +129,51 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results) {
 
-#if (GTK_MAJOR_VERSION == 1) 
-   add_accept_reject_lights_gtk1(window, ref_results);
-#else
-   add_accept_reject_lights_gtk2(window, ref_results);
-#endif    
-}
-
-
-#if (GTK_MAJOR_VERSION == 1) 
-void add_accept_reject_lights_gtk1(GtkWidget *window, const coot::refinement_results_t &ref_results) {
-
-   // we don't have gtk_widget_modify_bg, so we don't do what Gtk2 does.
-}
-
-#else 
-void add_accept_reject_lights_gtk2(GtkWidget *window, const coot::refinement_results_t &ref_results) {
-
+#if (GTK_MAJOR_VERSION > 1) 
    GtkWidget *frame = lookup_widget(window, "accept_reject_lights_frame");
    gtk_widget_show(frame);
 
+   std::vector<std::pair<std::string, std::string> > boxes;
+   boxes.push_back(std::pair<std::string, std::string>("Bonds",                    "bonds_eventbox"));
+   boxes.push_back(std::pair<std::string, std::string>("Angles",                  "angles_eventbox"));
+   boxes.push_back(std::pair<std::string, std::string>("Torsions",              "torsions_eventbox"));
+   boxes.push_back(std::pair<std::string, std::string>("Planes",                  "planes_eventbox"));
+   boxes.push_back(std::pair<std::string, std::string>("Chirals",                "chirals_eventbox"));
+   boxes.push_back(std::pair<std::string, std::string>("Non-bonded", "non_bonded_contacts_eventbox"));
+   boxes.push_back(std::pair<std::string, std::string>("Rama", "                     rama_eventbox"));
+
    for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
-      if (ref_results.lights[i_rest_type].second == "Bonds") {
-	 GtkWidget *w = lookup_widget(frame, "bonds_eventbox");
-	 GtkWidget *p = w->parent;
-	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
-	 gtk_widget_show(p);
-      } 
-      if (ref_results.lights[i_rest_type].second == "Angles") {
-	 GtkWidget *w = lookup_widget(frame, "angles_eventbox");
-	 GtkWidget *p = w->parent;
-	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
-	 gtk_widget_show(p);
-      } 
-      if (ref_results.lights[i_rest_type].second == "Torsions") {
-	 GtkWidget *w = lookup_widget(frame, "torsions_eventbox");
-	 GtkWidget *p = w->parent;
-	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
-	 gtk_widget_show(p);
-      } 
-      if (ref_results.lights[i_rest_type].second == "Planes") {
-	 GtkWidget *w = lookup_widget(frame, "planes_eventbox");
-	 GtkWidget *p = w->parent;
-	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
-	 gtk_widget_show(p);
-      } 
-      if (ref_results.lights[i_rest_type].second == "Non-bonded") {
-	 GtkWidget *w = lookup_widget(frame, "non_bonded_contacts_eventbox");
-	 GtkWidget *p = w->parent;
-	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
-	 gtk_widget_show(p);
-      } 
-      if (ref_results.lights[i_rest_type].second == "Chirals") {
-	 GtkWidget *w = lookup_widget(frame, "chirals_eventbox");
-	 GtkWidget *p = w->parent;
-	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
-	 gtk_widget_show(p);
-      } 
+      // std::cout << "Lights for " << ref_results.lights[i_rest_type].second << std::endl;
+      for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
+	 if (ref_results.lights[i_rest_type].second == boxes[ibox].first) {
+	    GtkWidget *w = lookup_widget(frame, boxes[ibox].second.c_str());
+	    GtkWidget *p = w->parent;
+	    GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	    set_colour_accept_reject_event_box(w, color);
+	    gtk_widget_show(p);
+	 }
+      }
    }
+#endif // GTK_MAJOR_VERSION   
 }
+
+// Actually, it seems that this does not do anything for GTK == 1. So
+// the function that calls it is not compiled (for Gtk1).
+// 
+void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col) {
+
+#if (GTK_MAJOR_VERSION == 1)    
+  GtkRcStyle *rc_style = gtk_rc_style_new ();
+  rc_style->fg[GTK_STATE_NORMAL] = *col;
+  // rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_FG; // compiler failure, try...
+  GtkRcFlags new_colour_flags = GtkRcFlags(GTK_RC_FG | rc_style->color_flags[GTK_STATE_NORMAL]);
+  rc_style->color_flags[GTK_STATE_NORMAL] = new_colour_flags;
+  gtk_widget_modify_style (eventbox, rc_style);
+#else    
+   gtk_widget_modify_bg(eventbox, GTK_STATE_NORMAL, col);
 #endif
+   
+}
 
 GdkColor *colour_by_distortion(float dist) {
 
@@ -1742,13 +1721,16 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    //
 
    // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 
    if (do_torsion_restraints)
-      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	    
    if (do_peptide_torsion_restraints)
-      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
    graphics_info_t::saved_dragged_refinement_results = 

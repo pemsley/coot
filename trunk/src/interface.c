@@ -6279,7 +6279,7 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *chiral_centre_text_label;
   GtkWidget *accept_reject_reverse_button;
   GtkWidget *extra_text_label;
-  GtkWidget *frame177;
+  GtkWidget *accept_reject_lights_frame;
   GtkWidget *hbox154;
   GtkWidget *frame178;
   GtkWidget *bonds_eventbox;
@@ -6351,25 +6351,26 @@ create_accept_reject_refinement_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (extra_text_label), 0.06, 0.5);
   gtk_misc_set_padding (GTK_MISC (extra_text_label), 16, 0);
 
-  frame177 = gtk_frame_new (NULL);
-  gtk_widget_ref (frame177);
-  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame177", frame177,
+  accept_reject_lights_frame = gtk_frame_new (NULL);
+  gtk_widget_ref (accept_reject_lights_frame);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_lights_frame", accept_reject_lights_frame,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_box_pack_start (GTK_BOX (vbox193), frame177, TRUE, TRUE, 0);
-  gtk_widget_set_sensitive (frame177, FALSE);
+  gtk_box_pack_start (GTK_BOX (vbox193), accept_reject_lights_frame, TRUE, TRUE, 0);
+  gtk_widget_set_sensitive (accept_reject_lights_frame, FALSE);
 
   hbox154 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox154);
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "hbox154", hbox154,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox154);
-  gtk_container_add (GTK_CONTAINER (frame177), hbox154);
+  gtk_container_add (GTK_CONTAINER (accept_reject_lights_frame), hbox154);
 
   frame178 = gtk_frame_new (NULL);
   gtk_widget_ref (frame178);
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame178", frame178,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_box_pack_start (GTK_BOX (hbox154), frame178, TRUE, TRUE, 0);
+  gtk_widget_set_usize (frame178, 33, 33);
 
   bonds_eventbox = gtk_event_box_new ();
   gtk_widget_ref (bonds_eventbox);
@@ -6383,6 +6384,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame179", frame179,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_box_pack_start (GTK_BOX (hbox154), frame179, TRUE, TRUE, 0);
+  gtk_widget_set_usize (frame179, 33, 33);
 
   angles_eventbox = gtk_event_box_new ();
   gtk_widget_ref (angles_eventbox);
@@ -6396,6 +6398,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame180", frame180,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_box_pack_start (GTK_BOX (hbox154), frame180, TRUE, TRUE, 0);
+  gtk_widget_set_usize (frame180, 33, 33);
 
   torsions_eventbox = gtk_event_box_new ();
   gtk_widget_ref (torsions_eventbox);
@@ -6409,6 +6412,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame181", frame181,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_box_pack_start (GTK_BOX (hbox154), frame181, TRUE, TRUE, 0);
+  gtk_widget_set_usize (frame181, 33, 33);
 
   planes_eventbox = gtk_event_box_new ();
   gtk_widget_ref (planes_eventbox);
@@ -6422,6 +6426,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame182", frame182,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_box_pack_start (GTK_BOX (hbox154), frame182, TRUE, TRUE, 0);
+  gtk_widget_set_usize (frame182, 33, 33);
 
   non_bonded_contacts_eventbox = gtk_event_box_new ();
   gtk_widget_ref (non_bonded_contacts_eventbox);
@@ -6435,6 +6440,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame183", frame183,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_box_pack_start (GTK_BOX (hbox154), frame183, TRUE, TRUE, 0);
+  gtk_widget_set_usize (frame183, 33, 33);
 
   chirals_eventbox = gtk_event_box_new ();
   gtk_widget_ref (chirals_eventbox);
@@ -6448,6 +6454,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame184", frame184,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_box_pack_start (GTK_BOX (hbox154), frame184, TRUE, TRUE, 0);
+  gtk_widget_set_usize (frame184, 33, 33);
 
   rama_eventbox = gtk_event_box_new ();
   gtk_widget_ref (rama_eventbox);

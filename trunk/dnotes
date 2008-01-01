@@ -10,7 +10,11 @@ Tue Jul  3 14:27:37 BST 2007
      reading in a new map.
 
 
+   o Refine and regularization parameters dialog: The Torsions
+     Restraints check button is not set when it should be.
 
+
+    move to interface-gui  handle_get_accession_code(GtkWidget *widget)
 
 
 
