@@ -7435,6 +7435,16 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *image6023;
   GtkWidget *label442;
   GtkWidget *extra_text_label;
+  GtkWidget *accept_reject_lights_frame;
+  GtkWidget *alignment107;
+  GtkWidget *hbox273;
+  GtkWidget *accept_reject_bonds_colorbutton;
+  GtkWidget *accept_reject_angles_colorbutton;
+  GtkWidget *accept_reject_torsions_colorbutton;
+  GtkWidget *accept_reject_planes_colorbutton;
+  GtkWidget *accept_reject_non_bonded_colorbutton;
+  GtkWidget *accept_reject_chirals_colorbutton;
+  GtkWidget *label445;
   GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *dialog_action_area9;
   GtkWidget *hbox41;
@@ -7498,7 +7508,55 @@ create_accept_reject_refinement_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (extra_text_label), 0.04, 0.5);
   gtk_misc_set_padding (GTK_MISC (extra_text_label), 10, 0);
 
-  accept_dialog_accept_label_string = gtk_label_new (_("Accept Refinement?"));
+  accept_reject_lights_frame = gtk_frame_new (NULL);
+  gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_lights_frame, TRUE, TRUE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (accept_reject_lights_frame), GTK_SHADOW_NONE);
+
+  alignment107 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment107);
+  gtk_container_add (GTK_CONTAINER (accept_reject_lights_frame), alignment107);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment107), 0, 0, 12, 0);
+
+  hbox273 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox273);
+  gtk_container_add (GTK_CONTAINER (alignment107), hbox273);
+
+  accept_reject_bonds_colorbutton = gtk_color_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox273), accept_reject_bonds_colorbutton, FALSE, FALSE, 0);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (accept_reject_bonds_colorbutton), _("Bonds..."));
+  gtk_button_set_focus_on_click (GTK_BUTTON (accept_reject_bonds_colorbutton), FALSE);
+
+  accept_reject_angles_colorbutton = gtk_color_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox273), accept_reject_angles_colorbutton, FALSE, FALSE, 0);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (accept_reject_angles_colorbutton), _("Angles..."));
+  gtk_button_set_focus_on_click (GTK_BUTTON (accept_reject_angles_colorbutton), FALSE);
+
+  accept_reject_torsions_colorbutton = gtk_color_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox273), accept_reject_torsions_colorbutton, FALSE, FALSE, 0);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (accept_reject_torsions_colorbutton), _("Torsions"));
+  gtk_button_set_focus_on_click (GTK_BUTTON (accept_reject_torsions_colorbutton), FALSE);
+
+  accept_reject_planes_colorbutton = gtk_color_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox273), accept_reject_planes_colorbutton, FALSE, FALSE, 0);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (accept_reject_planes_colorbutton), _("Planes..."));
+  gtk_button_set_focus_on_click (GTK_BUTTON (accept_reject_planes_colorbutton), FALSE);
+
+  accept_reject_non_bonded_colorbutton = gtk_color_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox273), accept_reject_non_bonded_colorbutton, FALSE, FALSE, 0);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (accept_reject_non_bonded_colorbutton), _("Non-bondeds..."));
+  gtk_button_set_focus_on_click (GTK_BUTTON (accept_reject_non_bonded_colorbutton), FALSE);
+
+  accept_reject_chirals_colorbutton = gtk_color_button_new ();
+  gtk_box_pack_start (GTK_BOX (hbox273), accept_reject_chirals_colorbutton, FALSE, FALSE, 0);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (accept_reject_chirals_colorbutton), _("Chirals..."));
+  gtk_button_set_focus_on_click (GTK_BUTTON (accept_reject_chirals_colorbutton), FALSE);
+
+  label445 = gtk_label_new (_("Lights"));
+  gtk_widget_show (label445);
+  gtk_frame_set_label_widget (GTK_FRAME (accept_reject_lights_frame), label445);
+  gtk_label_set_use_markup (GTK_LABEL (label445), TRUE);
+
+  accept_dialog_accept_label_string = gtk_label_new (_("<b>Accept Refinement?</b>"));
   gtk_widget_show (accept_dialog_accept_label_string);
   gtk_box_pack_start (GTK_BOX (vbox195), accept_dialog_accept_label_string, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (accept_dialog_accept_label_string), GTK_JUSTIFY_CENTER);
@@ -7582,6 +7640,16 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, image6023, "image6023");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label442, "label442");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, extra_text_label, "extra_text_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_lights_frame, "accept_reject_lights_frame");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment107, "alignment107");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox273, "hbox273");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_bonds_colorbutton, "accept_reject_bonds_colorbutton");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_angles_colorbutton, "accept_reject_angles_colorbutton");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_torsions_colorbutton, "accept_reject_torsions_colorbutton");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_planes_colorbutton, "accept_reject_planes_colorbutton");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_non_bonded_colorbutton, "accept_reject_non_bonded_colorbutton");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_chirals_colorbutton, "accept_reject_chirals_colorbutton");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label445, "label445");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
   GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox41, "hbox41");

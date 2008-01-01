@@ -3328,7 +3328,7 @@ molecule_class_info_t::split_residue_internal(CResidue *residue, const std::stri
 //       nbonds += regularize_object_bonds_box.bonds_[i].num_lines;
 //    std::cout << "Post new bonds we have " << nbonds << " bonds lines\n";
 
-   do_accept_reject_dialog("Alt Conf Split", "");
+   do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
 }
 
 // We don't create an intermediate atom.

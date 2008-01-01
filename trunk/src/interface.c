@@ -6279,11 +6279,22 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *chiral_centre_text_label;
   GtkWidget *accept_reject_reverse_button;
   GtkWidget *extra_text_label;
+  GtkWidget *frame177;
+  GtkWidget *hbox154;
+  GtkWidget *accept_reject_bonds_entry;
+  GtkWidget *accept_reject_angles_entry;
+  GtkWidget *accept_reject_torsions_entry;
+  GtkWidget *accept_reject_planes_entry;
+  GtkWidget *accept_reject_non_bonded_entry;
+  GtkWidget *accept_reject_chiral_entry;
   GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *dialog_action_area9;
   GtkWidget *hbox41;
   GtkWidget *accept_reject_refinement_accept_button;
   GtkWidget *accept_reject_refinement_reject_button;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
 
   accept_reject_refinement_dialog = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_refinement_dialog", accept_reject_refinement_dialog);
@@ -6322,7 +6333,6 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_ref (accept_reject_reverse_button);
   gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_reverse_button", accept_reject_reverse_button,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (accept_reject_reverse_button);
   gtk_box_pack_start (GTK_BOX (vbox193), accept_reject_reverse_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (accept_reject_reverse_button), 4);
 
@@ -6335,6 +6345,69 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_justify (GTK_LABEL (extra_text_label), GTK_JUSTIFY_LEFT);
   gtk_misc_set_alignment (GTK_MISC (extra_text_label), 0.06, 0.5);
   gtk_misc_set_padding (GTK_MISC (extra_text_label), 16, 0);
+
+  frame177 = gtk_frame_new (NULL);
+  gtk_widget_ref (frame177);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "frame177", frame177,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_box_pack_start (GTK_BOX (vbox193), frame177, TRUE, TRUE, 0);
+  gtk_widget_set_sensitive (frame177, FALSE);
+
+  hbox154 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox154);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "hbox154", hbox154,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox154);
+  gtk_container_add (GTK_CONTAINER (frame177), hbox154);
+
+  accept_reject_bonds_entry = gtk_entry_new ();
+  gtk_widget_ref (accept_reject_bonds_entry);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_bonds_entry", accept_reject_bonds_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_box_pack_start (GTK_BOX (hbox154), accept_reject_bonds_entry, TRUE, TRUE, 0);
+  gtk_widget_set_usize (accept_reject_bonds_entry, 10, -2);
+  gtk_widget_set_sensitive (accept_reject_bonds_entry, FALSE);
+  gtk_tooltips_set_tip (tooltips, accept_reject_bonds_entry, _("Bonds......"), NULL);
+
+  accept_reject_angles_entry = gtk_entry_new ();
+  gtk_widget_ref (accept_reject_angles_entry);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_angles_entry", accept_reject_angles_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_box_pack_start (GTK_BOX (hbox154), accept_reject_angles_entry, TRUE, TRUE, 0);
+  gtk_widget_set_usize (accept_reject_angles_entry, 10, -2);
+  gtk_widget_set_sensitive (accept_reject_angles_entry, FALSE);
+  gtk_tooltips_set_tip (tooltips, accept_reject_angles_entry, _("Angles......"), NULL);
+
+  accept_reject_torsions_entry = gtk_entry_new ();
+  gtk_widget_ref (accept_reject_torsions_entry);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_torsions_entry", accept_reject_torsions_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_box_pack_start (GTK_BOX (hbox154), accept_reject_torsions_entry, TRUE, TRUE, 0);
+  gtk_widget_set_usize (accept_reject_torsions_entry, 10, -2);
+  gtk_widget_set_sensitive (accept_reject_torsions_entry, FALSE);
+
+  accept_reject_planes_entry = gtk_entry_new ();
+  gtk_widget_ref (accept_reject_planes_entry);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_planes_entry", accept_reject_planes_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_box_pack_start (GTK_BOX (hbox154), accept_reject_planes_entry, TRUE, TRUE, 0);
+  gtk_widget_set_usize (accept_reject_planes_entry, 10, -2);
+  gtk_widget_set_sensitive (accept_reject_planes_entry, FALSE);
+
+  accept_reject_non_bonded_entry = gtk_entry_new ();
+  gtk_widget_ref (accept_reject_non_bonded_entry);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_non_bonded_entry", accept_reject_non_bonded_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_box_pack_start (GTK_BOX (hbox154), accept_reject_non_bonded_entry, TRUE, TRUE, 0);
+  gtk_widget_set_usize (accept_reject_non_bonded_entry, 10, -2);
+  gtk_widget_set_sensitive (accept_reject_non_bonded_entry, FALSE);
+
+  accept_reject_chiral_entry = gtk_entry_new ();
+  gtk_widget_ref (accept_reject_chiral_entry);
+  gtk_object_set_data_full (GTK_OBJECT (accept_reject_refinement_dialog), "accept_reject_chiral_entry", accept_reject_chiral_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_box_pack_start (GTK_BOX (hbox154), accept_reject_chiral_entry, TRUE, TRUE, 0);
+  gtk_widget_set_usize (accept_reject_chiral_entry, 10, -2);
 
   accept_dialog_accept_label_string = gtk_label_new (_("Accept Refinement?"));
   gtk_widget_ref (accept_dialog_accept_label_string);
@@ -6392,6 +6465,8 @@ create_accept_reject_refinement_dialog (void)
                       NULL);
 
   gtk_widget_grab_default (accept_reject_refinement_accept_button);
+  gtk_object_set_data (GTK_OBJECT (accept_reject_refinement_dialog), "tooltips", tooltips);
+
   return accept_reject_refinement_dialog;
 }
 

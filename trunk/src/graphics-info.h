@@ -2778,7 +2778,14 @@ class molecule_rot_t {
 void initialize_graphics_molecules();
 
 
-void do_accept_reject_dialog(std::string fit_type, std::string extra_text);
+void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &ref_results);
+void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results);
+GdkColor colour_by_distortion(float dist);
+#if (GTK_MAJOR_VERSION == 1) 
+void add_accept_reject_lights_gtk1(GtkWidget *window, const coot::refinement_results_t &ref_results);
+#else 
+void add_accept_reject_lights_gtk2(GtkWidget *window, const coot::refinement_results_t &ref_results);
+#endif 
 GtkWidget *wrapped_create_accept_reject_refinement_dialog();
 void add_extra_text_to_accept_reject_dialog(GtkWidget *accept_reject_dialog,
 					    coot::accept_reject_text_type text_type,
