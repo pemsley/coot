@@ -845,7 +845,7 @@ on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
 {
    int int_user_data = GPOINTER_TO_INT(user_data);
    int data_type = int_user_data & 31; // lower 5 bits
-   int file_selection_type = 0;
+   int file_selection_type = data_type; 
 
    // We need to add text to the string of the dictectory we are in
    // (pre_directory), so first we need to find pre_directory (as per
@@ -884,7 +884,10 @@ on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
 					 (pre_directory + "/").c_str());
       }
    } else {
-      std::cout << "no fileselection found from sort button\n";
+      std::cout << "ERROR:: no fileselection found from sort button\n";
+      std::cout << "ERROR:: lookup of file selection from " << sort_button
+		<< " failed for file selection type: " << file_selection_type
+		<< std::endl;
    }
 }
 #endif // GTK_MAJOR_VERSION > 1 or BROKEN

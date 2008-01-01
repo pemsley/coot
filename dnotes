@@ -3190,3 +3190,13 @@ Mon Dec 31 19:48:09 GMT 2007
    FBSS:
    http://cisrg.shef.ac.uk/projects/fbss//man_contents.html
 
+
+-----
+Mon Dec 31 23:08:32 GMT 2007
+
+  molecule_info_class_other.cc has:
+  do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
+  Yeuuuuucch!
+
+
+

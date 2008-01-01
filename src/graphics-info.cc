@@ -89,7 +89,7 @@ void initialize_graphics_molecules() {
 
 // e.g. fit type is "Rigid Body Fit" or "Regularization" etc.
 // 
-void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
+void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
@@ -106,7 +106,11 @@ void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
 			       graphics_info_t::accept_reject_dialog_y_position);
    }
 
+   std::string extra_text = rr.info;
    add_extra_text_to_accept_reject_dialog(window, coot::CHI_SQUAREDS, extra_text);
+   std::cout << "accept_reject here 0 " << rr.lights.size() << std::endl;
+   if (rr.lights.size() > 0)
+      add_accept_reject_lights(window, rr);
    
    std::string txt = "";
    txt += "Accept ";
@@ -125,6 +129,91 @@ void do_accept_reject_dialog(std::string fit_type, std::string extra_text) {
 
    gtk_widget_show(window);
 }
+
+void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results) {
+
+   std::cout << "accept_reject here 1" << std::endl;
+#if (GTK_MAJOR_VERSION == 1) 
+   std::cout << "accept_reject here 1.1" << std::endl;
+   add_accept_reject_lights_gtk1(window, ref_results);
+#else
+   std::cout << "accept_reject here 1.2" << std::endl;
+   add_accept_reject_lights_gtk2(window, ref_results);
+#endif    
+}
+
+
+#if (GTK_MAJOR_VERSION == 1) 
+void add_accept_reject_lights_gtk1(GtkWidget *window, const coot::refinement_results_t &ref_results) {
+}
+
+#else 
+void add_accept_reject_lights_gtk2(GtkWidget *window, const coot::refinement_results_t &ref_results) {
+   std::cout << "accept_reject here 2" << std::endl;
+   GtkWidget *frame = lookup_widget(window, "accept_reject_lights_frame");
+   gtk_widget_show(frame);
+   for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
+      if (ref_results.lights[i_rest_type].second == "Bonds") {
+	 GtkWidget *w = lookup_widget(frame, "accept_reject_bonds_colorbutton");
+	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
+	 gtk_widget_show(w);
+      } 
+      if (ref_results.lights[i_rest_type].second == "Angles") {
+	 GtkWidget *w = lookup_widget(frame, "accept_reject_angles_colorbutton");
+	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
+	 gtk_widget_show(w);
+      } 
+      if (ref_results.lights[i_rest_type].second == "Torsions") {
+	 GtkWidget *w = lookup_widget(frame, "accept_reject_torsions_colorbutton");
+	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
+	 gtk_widget_show(w);
+      } 
+      if (ref_results.lights[i_rest_type].second == "Planes") {
+	 GtkWidget *w = lookup_widget(frame, "accept_reject_planes_colorbutton");
+	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
+	 gtk_widget_show(w);
+      } 
+      if (ref_results.lights[i_rest_type].second == "Non-bonded") {
+	 GtkWidget *w = lookup_widget(frame, "accept_reject_non_bonded_colorbutton");
+	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
+	 gtk_widget_show(w);
+      } 
+      if (ref_results.lights[i_rest_type].second == "Chirals") {
+	 GtkWidget *w = lookup_widget(frame, "accept_reject_chirals_colorbutton");
+	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
+	 gtk_widget_show(w);
+      } 
+   }
+}
+#endif
+
+GdkColor colour_by_distortion(float dist) {
+
+   GdkColor col;
+
+   col.pixel = 1;
+   col.blue  = 0;
+   
+   if (dist < 2.0) { 
+      col.red   = 0;
+      col.green = 65535;
+   } else {
+      if (dist < 5.0) {
+	 col.red   = 32000;
+	 col.green = 32000;
+      } else {
+	 col.red   = 65535;
+	 col.green = 0;
+      }
+   }
+   return col;
+} 
 
 
 void

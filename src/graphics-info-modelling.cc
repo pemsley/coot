@@ -672,7 +672,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
 	 graphics_draw();
 	 if (! refinement_immediate_replacement_flag) {
 	    std::cout << "DEBUG:: Regularize: rr.info is " << rr.info << std::endl;
-	    do_accept_reject_dialog("Regularization", rr.info);
+	    do_accept_reject_dialog("Regularization", rr);
 	    check_and_warn_bad_chirals_and_cis_peptides();
 	 }
       } else {
@@ -929,7 +929,7 @@ graphics_info_t::refine_residue_range(int imol,
 	       if (istat) { 
 		  graphics_draw();
 		  if (! refinement_immediate_replacement_flag) { 
-		     do_accept_reject_dialog("Refinement", rr.info);
+		     do_accept_reject_dialog("Refinement", rr);
 		     check_and_warn_bad_chirals_and_cis_peptides();
 		  }
 	       }
@@ -1142,8 +1142,10 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 // 		   << " make_moving_atoms_graphics_object UDDOldAtomIndexHandle " 
 // 		   << moving_atoms_asc->UDDOldAtomIndexHandle << std::endl;
 	 graphics_draw();
-	 if (! refinement_immediate_replacement_flag)
-	    do_accept_reject_dialog("Rigid Body Fit", "");
+	 if (! refinement_immediate_replacement_flag) { 
+	    coot::refinement_results_t dummy;
+	    do_accept_reject_dialog("Rigid Body Fit", dummy); // constructed ref res
+	 }
 	 // 
       } else {
 	 GtkWidget *w = create_rigid_body_refinement_failed_dialog();
@@ -1436,7 +1438,8 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  make_moving_atoms_graphics_object(tmp_asc);
 		  moving_atoms_asc_type = coot::NEW_COORDS_INSERT;
 		  graphics_draw();
-		  do_accept_reject_dialog("Terminal Residue", "");
+		  coot::refinement_results_t dummy;
+		  do_accept_reject_dialog("Terminal Residue", dummy);
 	       } else {
 		  molecules[imol_moving_atoms].insert_coords(tmp_asc);
 		  graphics_draw();
@@ -1734,7 +1737,8 @@ graphics_info_t::execute_torsion_general() {
 				    torsion_general_atom_specs = as;
 				    graphics_draw();
 				    torsion_general_reverse_flag = 0;
-				    do_accept_reject_dialog("Torsion General", "");
+				    coot::refinement_results_t dummy;
+				    do_accept_reject_dialog("Torsion General", dummy);
 				 }
 			      }
 			   }

@@ -3,11 +3,54 @@
 #ifndef HAVE_SIMPLE_RESTRAINT_HH
 #define HAVE_SIMPLE_RESTRAINT_HH
 
+#include <vector>
+#include <string>
+
+// refinement_results_t is outside of the GSL test because it is
+// needed to make the accept_reject_dialog, and that can be compiled
+// without the GSL.
+// 
+namespace coot { 
+   // ---------------------------------------------------------------
+   // ---------------------------------------------------------------
+   //     class refinement_results_t, helper class for sending text
+   //     results back to invoking function.  Returned by minimize()
+   //     function.
+   // ---------------------------------------------------------------
+   // ---------------------------------------------------------------
+   
+   class refinement_results_t { 
+   public:
+      short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
+      int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
+      std::string info;
+      std::vector<std::pair<float, std::string> > lights;      
+      refinement_results_t(short int frf, int prog_in, std::string info_in,
+			   const std::vector<std::pair<float, std::string> > &lights_in) {
+	 found_restraints_flag = frf;
+	 info = info_in;
+	 progress = prog_in;
+	 lights = lights_in;
+     }
+      refinement_results_t(short int frf, int prog_in, std::string info_in) {
+	 found_restraints_flag = frf;
+	 info = info_in;
+	 progress = prog_in;
+      }
+      refinement_results_t() {
+	 info = "";
+	 found_restraints_flag = 0;
+      }
+      refinement_results_t(const std::string s_in) {
+	 info = s_in;
+	 found_restraints_flag = 0;
+      }
+   };
+}
+
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL  
 
-#include <vector>
-#include <string>
 #include <map>
 
 #include "gsl/gsl_multimin.h"
@@ -102,25 +145,6 @@ namespace coot {
       }
    };
 
-   // ---------------------------------------------------------------
-   // ---------------------------------------------------------------
-   //     class refinement_results_t, helper class for sending text
-   //     results back to invoking function.  Returned by minimize()
-   //     function.
-   // ---------------------------------------------------------------
-   // ---------------------------------------------------------------
-   
-   class refinement_results_t { 
-   public:
-      short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
-      int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
-      std::string info;
-      refinement_results_t(short int frf, int prog_in, std::string info_in) {
-	 found_restraints_flag = frf;
-	 info = info_in;
-	 progress = prog_in;
-     }
-   };
 
    // ---------------------------------------------------------------
    // ---------------------------------------------------------------
@@ -489,7 +513,8 @@ namespace coot {
 
       // print chi_squared values (after refinement)
       // return a string that can be added into a dialog.
-      std::string chi_squareds(std::string title, const gsl_vector *v) const;
+      std::pair<std::string, std::vector<std::pair<float, std::string> > > 
+      chi_squareds(std::string title, const gsl_vector *v) const;
 
       // all the alt confs should either be the same as each other or ""
       // 
