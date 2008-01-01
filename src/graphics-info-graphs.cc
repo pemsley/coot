@@ -376,8 +376,10 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		  // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
 		  // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-		  flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
+		  flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 		  flags = coot::BONDS_ANGLES_AND_PLANES;
+		  flags = coot::BONDS_ANGLES_PLANES_AND_CHIRALS;
+		  
 	       
 		  short int do_link_torsions = 0;
 		  short int do_residue_internal_torsions = 0;

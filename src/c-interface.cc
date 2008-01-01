@@ -5258,24 +5258,6 @@ int transform_map_raw(int imol,
 }
 
 
-
-void do_torsions_toggle(GtkWidget *button) {
-
-   graphics_info_t g;
-   GtkWidget *peptide_checkbutton =
-      lookup_widget(button,
-		    "refine_params_use_peptide_torsions_checkbutton");
-
-
-   if (g.do_torsion_restraints) {
-      g.do_torsion_restraints = 0;
-      gtk_widget_set_sensitive(peptide_checkbutton, FALSE);
-   } else {
-      g.do_torsion_restraints = 1;
-      gtk_widget_set_sensitive(peptide_checkbutton, TRUE);
-   }
-}
-
 void do_peptide_torsions_toggle() {
    graphics_info_t g;
    if (g.do_peptide_torsion_restraints) {
@@ -5285,64 +5267,6 @@ void do_peptide_torsions_toggle() {
    }
 }
 
-void set_refine_params_toggle_buttons(GtkWidget *button) {
-
-   // initiallly buttons are inactive and sensitive
-
-   graphics_info_t g;
-   GtkWidget *checkbutton =
-      lookup_widget(button, "refine_params_use_torsions_checkbutton");
-   GtkWidget *phi_psi_peptide_checkbutton =
-      lookup_widget(button, "refine_params_use_peptide_torsions_checkbutton");
-   GtkWidget *link_torsion_type_vbox =
-      lookup_widget(button, "peptide_torsions_restraints_vbox");
-   
-
-   if (g.do_torsion_restraints) {
-      g.do_torsion_restraints = 0;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   } else {
-      gtk_widget_set_sensitive(GTK_WIDGET(phi_psi_peptide_checkbutton), FALSE);
-   }
-
-   if (g.do_peptide_torsion_restraints) {
-      g.do_peptide_torsion_restraints = 0;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(phi_psi_peptide_checkbutton), TRUE);
-      gtk_widget_set_sensitive(link_torsion_type_vbox, TRUE);
-   } else {
-      gtk_widget_set_sensitive(link_torsion_type_vbox, FALSE);
-   } 
-
-   GtkWidget *omega = lookup_widget(button,
-		       "refine_params_use_peptide_omegas_checkbutton");
-   if (g.do_peptide_omega_torsion_restraints) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(omega), TRUE);
-   } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(omega), FALSE);
-   }
-
-
-   // refine_params_use_helix_peptide_torsions_radiobutton
-   // refine_params_use_beta_strand_peptide_torsions_radiobutton
-   // refine_params_use_ramachandran_goodness_torsions_radiobutton
-
-   GtkWidget *sec_str_rest_no_rest_radiobutton =
-      lookup_widget(button, "sec_str_rest_no_rest_radiobutton");
-   GtkWidget *sec_str_rest_helix_rest_radiobutton = 
-      lookup_widget(button, "sec_str_rest_helix_rest_radiobutton");
-   GtkWidget *sec_str_rest_strand_rest_radiobutton = 
-      lookup_widget(button, "sec_str_rest_strand_rest_radiobutton");
-
-#ifdef HAVE_GSL   
-   if (graphics_info_t::pseudo_bonds_type == coot::NO_PSEUDO_BONDS)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_no_rest_radiobutton), TRUE);
-   if (graphics_info_t::pseudo_bonds_type == coot::HELIX_PSEUDO_BONDS)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_helix_rest_radiobutton), TRUE);
-   if (graphics_info_t::pseudo_bonds_type == coot::STRAND_PSEUDO_BONDS)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_strand_rest_radiobutton), TRUE);
-#endif // HAVE_GSL   
-
-} 
 
 // either alpha helix, beta strand or ramachandran goodness
 // (see ideal/simple_restraint.hh link torsions)
@@ -5353,26 +5277,6 @@ void set_refine_params_phi_psi_restraints_type(int restraints_type) {
   graphics_info_t::do_peptide_torsion_restraints = restraints_type;
 
 } 
-
-void fill_chiral_volume_molecule_option_menu(GtkWidget *w) { 
-
-   GtkWidget *optionmenu = lookup_widget(w, "check_chiral_volumes_molecule_optionmenu");
-
-   // now set chiral_volume_molecule_option_menu_item_select_molecule to the top of the list
-   for (int i=0; i<graphics_info_t::n_molecules; i++) { 
-      if (graphics_info_t::molecules[i].has_model()) {
-	 graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = i;
-	 break;
-      } 
-   }
-   int imol = graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule;
-   GtkSignalFunc callback_func =
-      GTK_SIGNAL_FUNC(chiral_volume_molecule_option_menu_item_select);
-
-   graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol);
-
-}
 
 void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
 

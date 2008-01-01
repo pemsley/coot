@@ -7456,7 +7456,6 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *frame183;
   GtkWidget *chirals_eventbox;
   GtkWidget *label453;
-  GtkWidget *label446;
   GtkWidget *frame184;
   GtkWidget *rama_eventbox;
   GtkWidget *label454;
@@ -7543,6 +7542,7 @@ create_accept_reject_refinement_dialog (void)
   frame178 = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox273), frame178, FALSE, FALSE, 0);
   gtk_widget_set_size_request (frame178, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame178), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame178), GTK_SHADOW_ETCHED_OUT);
 
   bonds_eventbox = gtk_event_box_new ();
@@ -7558,6 +7558,7 @@ create_accept_reject_refinement_dialog (void)
   frame179 = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox273), frame179, FALSE, FALSE, 0);
   gtk_widget_set_size_request (frame179, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame179), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame179), GTK_SHADOW_ETCHED_OUT);
 
   angles_eventbox = gtk_event_box_new ();
@@ -7573,6 +7574,7 @@ create_accept_reject_refinement_dialog (void)
   frame180 = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox273), frame180, FALSE, FALSE, 0);
   gtk_widget_set_size_request (frame180, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame180), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame180), GTK_SHADOW_ETCHED_OUT);
 
   torsions_eventbox = gtk_event_box_new ();
@@ -7588,6 +7590,7 @@ create_accept_reject_refinement_dialog (void)
   frame181 = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox273), frame181, FALSE, FALSE, 0);
   gtk_widget_set_size_request (frame181, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame181), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame181), GTK_SHADOW_ETCHED_OUT);
 
   planes_eventbox = gtk_event_box_new ();
@@ -7603,6 +7606,7 @@ create_accept_reject_refinement_dialog (void)
   frame182 = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox273), frame182, FALSE, FALSE, 0);
   gtk_widget_set_size_request (frame182, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame182), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame182), GTK_SHADOW_ETCHED_OUT);
 
   non_bonded_contacts_eventbox = gtk_event_box_new ();
@@ -7618,6 +7622,7 @@ create_accept_reject_refinement_dialog (void)
   frame183 = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox273), frame183, FALSE, FALSE, 0);
   gtk_widget_set_size_request (frame183, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame183), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame183), GTK_SHADOW_ETCHED_OUT);
 
   chirals_eventbox = gtk_event_box_new ();
@@ -7630,13 +7635,10 @@ create_accept_reject_refinement_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame183), label453);
   gtk_label_set_use_markup (GTK_LABEL (label453), TRUE);
 
-  label446 = gtk_label_new (_("  "));
-  gtk_widget_show (label446);
-  gtk_box_pack_start (GTK_BOX (hbox273), label446, FALSE, FALSE, 0);
-
   frame184 = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox273), frame184, TRUE, TRUE, 0);
   gtk_widget_set_size_request (frame184, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame184), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame184), GTK_SHADOW_ETCHED_OUT);
 
   rama_eventbox = gtk_event_box_new ();
@@ -7759,7 +7761,6 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame183, "frame183");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chirals_eventbox, "chirals_eventbox");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label453, "label453");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label446, "label446");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame184, "frame184");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, rama_eventbox, "rama_eventbox");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label454, "label454");

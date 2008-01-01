@@ -217,7 +217,7 @@ main(int argc, char **argv) {
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
 	 // flags = coot::NON_BONDED;
-	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
+	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       
 	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 	 restraints.make_restraints(geom, flags, 1, 0, pseudos);

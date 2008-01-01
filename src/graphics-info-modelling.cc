@@ -361,19 +361,19 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
 	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
 	 // flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; 20071124
-	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;  // try chirals
+	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 
 	 short int do_link_torsions = 0;
 	 short int do_residue_internal_torsions = 0;
 
 	 if (do_torsion_restraints) { 
 	    do_residue_internal_torsions = 1;
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	 } 
 	    
 	 if (do_peptide_torsion_restraints) {
 	    do_link_torsions = 1;
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	 }
 
 	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;

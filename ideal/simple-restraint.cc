@@ -1677,9 +1677,11 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    if (n_torsion_restraints == 0) {
       std::cout << "torsions:   N/A " << std::endl;
    } else {
-      std::cout << "torsions:   " << torsion_distortion/double(n_torsion_restraints)
-		<< std::endl;
       double td = torsion_distortion/double(n_torsion_restraints);
+      std::cout << "torsions:   " << td << std::endl;
+      r += "   torsions: ";
+      r += coot::util::float_to_string_using_dec_pl(td, 3);
+      r += "\n";
       lights_vec.push_back(std::pair<float, string>(td, "Torsions"));
    } 
    if (n_plane_restraints == 0) {

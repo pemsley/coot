@@ -8904,7 +8904,7 @@ Do you want to continue?
 
 	<widget>
 	  <class>GtkFrame</class>
-	  <name>frame177</name>
+	  <name>accept_reject_lights_frame</name>
 	  <visible>False</visible>
 	  <sensitive>False</sensitive>
 	  <label_xalign>0</label_xalign>
@@ -8924,6 +8924,8 @@ Do you want to continue?
 	    <widget>
 	      <class>GtkFrame</class>
 	      <name>frame178</name>
+	      <width>33</width>
+	      <height>33</height>
 	      <visible>False</visible>
 	      <label_xalign>0</label_xalign>
 	      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -8946,6 +8948,8 @@ Do you want to continue?
 	    <widget>
 	      <class>GtkFrame</class>
 	      <name>frame179</name>
+	      <width>33</width>
+	      <height>33</height>
 	      <visible>False</visible>
 	      <label_xalign>0</label_xalign>
 	      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -8968,6 +8972,8 @@ Do you want to continue?
 	    <widget>
 	      <class>GtkFrame</class>
 	      <name>frame180</name>
+	      <width>33</width>
+	      <height>33</height>
 	      <visible>False</visible>
 	      <label_xalign>0</label_xalign>
 	      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -8990,6 +8996,8 @@ Do you want to continue?
 	    <widget>
 	      <class>GtkFrame</class>
 	      <name>frame181</name>
+	      <width>33</width>
+	      <height>33</height>
 	      <visible>False</visible>
 	      <label_xalign>0</label_xalign>
 	      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -9012,6 +9020,8 @@ Do you want to continue?
 	    <widget>
 	      <class>GtkFrame</class>
 	      <name>frame182</name>
+	      <width>33</width>
+	      <height>33</height>
 	      <visible>False</visible>
 	      <label_xalign>0</label_xalign>
 	      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -9034,6 +9044,8 @@ Do you want to continue?
 	    <widget>
 	      <class>GtkFrame</class>
 	      <name>frame183</name>
+	      <width>33</width>
+	      <height>33</height>
 	      <visible>False</visible>
 	      <label_xalign>0</label_xalign>
 	      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -9056,6 +9068,8 @@ Do you want to continue?
 	    <widget>
 	      <class>GtkFrame</class>
 	      <name>frame184</name>
+	      <width>33</width>
+	      <height>33</height>
 	      <visible>False</visible>
 	      <label_xalign>0</label_xalign>
 	      <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>

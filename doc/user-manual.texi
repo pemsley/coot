@@ -1949,6 +1949,14 @@ manner - so some care must be taken.  Press the @key{A} key as you
 left-mouse click to move atoms more ``locally'' (rather than a linear
 shear) and @key{Ctrl} key as you left-mouse click to move just one atom.
 
+In more up to date versions, Coot will display colour patches (something
+like a traffic light system) 
+@cindex traffic lights
+representing the chi squared values of each
+of types of geometric feature refined.  Typically ``5 greens'' is the
+thing to aim for, the colour changes occuring at chi squared values 2, 5
+and 8 (8 being the most red).
+
 To prevent the unintentional refinement of a large number of residues,
 there is a ``heuristic fencepost'' of 20 residues.  A selection of
 than 20 residues will not be regularized or refined.  The limit can be
