@@ -109,7 +109,6 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    }
 
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
-   std::cout << "accept_reject here 0 " << rr.lights.size() << std::endl;
    if (rr.lights.size() > 0)
       add_accept_reject_lights(window, rr);
    
@@ -140,6 +139,8 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 
 #if (GTK_MAJOR_VERSION == 1) 
 void add_accept_reject_lights_gtk1(GtkWidget *window, const coot::refinement_results_t &ref_results) {
+
+   // we don't have gtk_widget_modify_bg, so we don't do what Gtk2 does.
 }
 
 #else 
@@ -147,73 +148,89 @@ void add_accept_reject_lights_gtk2(GtkWidget *window, const coot::refinement_res
 
    GtkWidget *frame = lookup_widget(window, "accept_reject_lights_frame");
    gtk_widget_show(frame);
+
    for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
       if (ref_results.lights[i_rest_type].second == "Bonds") {
-	 GtkWidget *w = lookup_widget(frame, "accept_reject_bonds_colorbutton");
-	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
-	 gtk_widget_show(w);
+	 GtkWidget *w = lookup_widget(frame, "bonds_eventbox");
+	 GtkWidget *p = w->parent;
+	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
+	 gtk_widget_show(p);
       } 
       if (ref_results.lights[i_rest_type].second == "Angles") {
-	 GtkWidget *w = lookup_widget(frame, "accept_reject_angles_colorbutton");
-	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
-	 gtk_widget_show(w);
+	 GtkWidget *w = lookup_widget(frame, "angles_eventbox");
+	 GtkWidget *p = w->parent;
+	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
+	 gtk_widget_show(p);
       } 
       if (ref_results.lights[i_rest_type].second == "Torsions") {
-	 GtkWidget *w = lookup_widget(frame, "accept_reject_torsions_colorbutton");
-	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
-	 gtk_widget_show(w);
+	 GtkWidget *w = lookup_widget(frame, "torsions_eventbox");
+	 GtkWidget *p = w->parent;
+	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
+	 gtk_widget_show(p);
       } 
       if (ref_results.lights[i_rest_type].second == "Planes") {
-	 GtkWidget *w = lookup_widget(frame, "accept_reject_planes_colorbutton");
-	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
-	 gtk_widget_show(w);
+	 GtkWidget *w = lookup_widget(frame, "planes_eventbox");
+	 GtkWidget *p = w->parent;
+	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
+	 gtk_widget_show(p);
       } 
       if (ref_results.lights[i_rest_type].second == "Non-bonded") {
-	 GtkWidget *w = lookup_widget(frame, "accept_reject_non_bonded_colorbutton");
-	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
-	 gtk_widget_show(w);
+	 GtkWidget *w = lookup_widget(frame, "non_bonded_contacts_eventbox");
+	 GtkWidget *p = w->parent;
+	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
+	 gtk_widget_show(p);
       } 
       if (ref_results.lights[i_rest_type].second == "Chirals") {
-	 GtkWidget *w = lookup_widget(frame, "accept_reject_chirals_colorbutton");
-	 GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].first);
-	 gtk_color_button_set_color(GTK_COLOR_BUTTON(w), &color);
-	 gtk_widget_show(w);
+	 GtkWidget *w = lookup_widget(frame, "chirals_eventbox");
+	 GtkWidget *p = w->parent;
+	 GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	 gtk_widget_modify_bg(w, GTK_STATE_NORMAL, color);
+	 gtk_widget_show(p);
       } 
    }
 }
 #endif
 
-GdkColor colour_by_distortion(float dist) {
+GdkColor *colour_by_distortion(float dist) {
 
    GdkColor col;
 
    col.pixel = 1;
    col.blue  = 0;
-   
-   if (dist < 2.0) { 
+
+   if (dist < 0.0) { 
+      // black for negative numbers
       col.red   = 0;
-      col.green = 55535;
+      col.green = 0;
    } else {
-      if (dist < 5.0) {
-	 col.red   = 55000;
-	 col.green = 55000;
-	 // col.blue  = 22000;
+      if (dist < 2.0) { 
+	 col.red   = 0;
+	 col.green = 55535;
       } else {
-	 if (dist < 8.0) {
+	 if (dist < 5.0) {
 	    col.red   = 55000;
-	    col.green = 27000;
-	 } else { 
-	    col.red   = 65535;
-	    col.green = 0;
+	    col.green = 55000;
+	    // col.blue  = 22000;
+      } else {
+	    if (dist < 8.0) {
+	       col.red   = 55000;
+	       col.green = 27000;
+	    } else {
+	       col.red   = 65535;
+	       col.green = 0;
+	    }
 	 }
       }
    }
-   return col;
+
+   GdkColor *r = new GdkColor;
+   *r = col;
+   return r;
 } 
 
 
