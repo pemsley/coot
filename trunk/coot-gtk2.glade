@@ -40003,14 +40003,18 @@ Copyright 2001, 2007 by Paul Emsley</property>
   <property name="wrap_license">False</property>
   <property name="website">http://www.ysbl.york.ac.uk/~emsley/coot</property>
   <property name="website_label" translatable="yes">Coot Website</property>
-  <property name="authors">Paul Emsley
-Kevin Cowtan
-Bernhard Lohkamp
+  <property name="authors">   Paul Emsley
+   Kevin Cowtan
+   Bernhard Lohkamp
+
+Using addtional code by
+   Stuart McNicholas
+   Martin Noble
+   Jan Gruber
 
 Using the libraries of:
    Eugene Krissinel
    Kevin Cowtan
-   Stuart McNicholas
    Janne Lof
    Raghavendra Chandrashekara
    Paul Bourke &amp; Cory Gene Bloyd
