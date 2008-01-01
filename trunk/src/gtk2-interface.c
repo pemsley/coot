@@ -8,16 +8,20 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <string.h>
 #include <stdio.h>
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#include "callbacks.h.gtk2"
-#include "interface.h.gtk2"
-#include "support.h.gtk2"
+#if (GTK_MAJOR_VERSION > 1)
+
+#include "callbacks.h"
+#include "interface.h"
+#include "support.h"
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
@@ -19930,3 +19934,4 @@ create_globularize_dialog (void)
   return globularize_dialog;
 }
 
+#endif // (GTK_MAJOR_VERSION > 1)
