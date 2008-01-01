@@ -2780,7 +2780,8 @@ void initialize_graphics_molecules();
 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &ref_results);
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results);
-GdkColor colour_by_distortion(float dist);
+// return a pointer to a "new" object
+GdkColor *colour_by_distortion(float dist);
 #if (GTK_MAJOR_VERSION == 1) 
 void add_accept_reject_lights_gtk1(GtkWidget *window, const coot::refinement_results_t &ref_results);
 #else 
