@@ -17,8 +17,9 @@ Release 0.4 "Kendall"
    o FEATURE: Chiral volumes are added to the geometry target
      function. Check for chiral volume and cis-peptide errors introduced
      on refinement.  Add Chi-squared values to Accept/Reject dialog
+     (along with traffic lights in the Gtk2 version)
 
-   o FEATURE: Old backup-files cleaner-upper added.
+   o FEATURE: Old backup-files cleaner-upper added
 
    o FEATURE: CCP4i aliases are also added to the Project Dir options in the
      file selector [Ingo Korndoerfer]
@@ -61,22 +62,22 @@ Release 0.4 "Kendall"
    o FEATURE: Torsion General added.
 
    o BUG-FIX: Fix occasional crash reported by Ketan Gajiwala on
-     pressing CR in the graphics window after a refiement.
+     pressing CR in the graphics window after a refinement.
 
    o BUG-FIX: Fix crash on refining a water with an Alt Conf [Stephen Graham].
 
    o BUG-FIX: Symmetry atom picker improved [Jan Dohnalek, Pirkko Heikinheimo]
 
    o BUG-FIX: SSM superposition improved (crash fixed) 
-     [Frank von Delft, Alice Dawson]
+     [Frank von Delft, Alice Dawson].
 
    o BUG-FIX: Fix Shelx lst file reader when handling atoms with Alt Confs
-     [Christian Stegmann]
+     [Christian Stegmann].
 
    o BUG-FIX: Lighting of Ball&Stick representations improved (with the help of 
      Martin Noble).
 
-   o BUG-FIX: Ca Zone->Mainchain no longer spews warnings
+   o BUG-FIX: Ca Zone->Mainchain no longer spews warnings.
 
    o BUG-FIX: Fix typo in transform-map-using-lsq-matrix [Nick Furnham]
 
@@ -110,6 +111,8 @@ Release 0.4 "Kendall"
    o CHANGE: Planar peptide restraints are ON by default now [Phil Evans]
 
    o CHANGE: Omega Distortion graph now updates on Accept Refine Zone
+ 
+   o CHANGE: svn revision number added to version information
 
    o CHANGE: Moving the Rotate-Translate Y slider in the positve direction
      moves the fragment in the +Y direction on the screen (instead of 
@@ -125,7 +128,7 @@ Release 0.4 "Kendall"
    o CHANGE: Residue Info now displays Chi Angles for conventional residues 
      [Mark Mayer].
 
-   o CHANGE: fcf/cif maps now can be honour the map sampling rate [Dale Tronrud]
+   o CHANGE: fcf/cif maps now honour the map sampling rate [Dale Tronrud]
 
    o CHANGE: Kleywegt Plots arrows "wrap" rather than extend across
      large regions of the plot [GMS]

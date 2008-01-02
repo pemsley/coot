@@ -27,6 +27,7 @@
  * Glade will not overwrite this file.
  */
 
+#include <sys/time.h>
 #include <iostream>
 
 #ifdef HAVE_CONFIG_H
@@ -200,15 +201,10 @@ main (int argc, char *argv[]) {
 
   if (graphics_info_t::use_graphics_interface_flag) {
 
-     bool do_conventional = 0; // Jan is conventional
      timeval current_time;
      gettimeofday(&current_time, NULL);
      time_t now = current_time.tv_sec;
-     std::cout << "time: " << now << std::endl;
-     if (now < 1201824001)
-	do_conventional = 1;
-     
-     if (do_conventional) 
+     if (now < 1201824001) // 1st Feb 2008
 	splash = create_splash_screen_window();
      else 
 	splash = create_splash_screen_alternate_1_window();
