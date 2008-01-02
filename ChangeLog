@@ -1,3 +1,7 @@
+2008-01-02  Paul Emsley  <paul.emsley@bioc.ox.ac.uk>
+
+	* Release 0.4
+
 2007-07-12  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* src/graphics-info.h: add geom_p->add_planar_peptide_restraint()

@@ -9364,7 +9364,7 @@ create_splash_screen_window (void)
   gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
 
-  pixmap1 = create_pixmap (splash_screen_window, "coot-0.4-pre.xpm");
+  pixmap1 = create_pixmap (splash_screen_window, "coot-0.4.xpm");
   gtk_widget_ref (pixmap1);
   gtk_object_set_data_full (GTK_OBJECT (splash_screen_window), "pixmap1", pixmap1,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -18321,6 +18321,27 @@ create_least_squares_dialog (void)
                       NULL);
 
   return least_squares_dialog;
+}
+
+GtkWidget*
+create_splash_screen_alternate_1_window (void)
+{
+  GtkWidget *splash_screen_alternate_1_window;
+  GtkWidget *pixmap2;
+
+  splash_screen_alternate_1_window = gtk_window_new (GTK_WINDOW_POPUP);
+  gtk_object_set_data (GTK_OBJECT (splash_screen_alternate_1_window), "splash_screen_alternate_1_window", splash_screen_alternate_1_window);
+  gtk_window_set_title (GTK_WINDOW (splash_screen_alternate_1_window), _("Coot"));
+  gtk_window_set_position (GTK_WINDOW (splash_screen_alternate_1_window), GTK_WIN_POS_CENTER);
+
+  pixmap2 = create_pixmap (splash_screen_alternate_1_window, "coot-0.4-alternate.xpm");
+  gtk_widget_ref (pixmap2);
+  gtk_object_set_data_full (GTK_OBJECT (splash_screen_alternate_1_window), "pixmap2", pixmap2,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (pixmap2);
+  gtk_container_add (GTK_CONTAINER (splash_screen_alternate_1_window), pixmap2);
+
+  return splash_screen_alternate_1_window;
 }
 
 #endif

@@ -39996,9 +39996,9 @@ Move Molecule Here:</property>
   <property name="destroy_with_parent">False</property>
   <property name="name" translatable="yes">Coot</property>
   <property name="copyright" translatable="yes">Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
-Copyright 2007 by The University of Oxford
+Copyright 2007, 2008 by The University of Oxford
 Copyright 2001, 2007 by Paul Emsley</property>
-  <property name="comments" translatable="yes">Pre-release [&quot;Shropshire&quot;]</property>
+  <property name="comments" translatable="yes">Kendall</property>
   <property name="license" translatable="yes">GNU GPL</property>
   <property name="wrap_license">False</property>
   <property name="website">http://www.ysbl.york.ac.uk/~emsley/coot</property>

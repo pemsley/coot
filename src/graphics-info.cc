@@ -197,8 +197,8 @@ GdkColor *colour_by_distortion(float dist) {
 	    // col.blue  = 22000;
       } else {
 	    if (dist < 8.0) {
-	       col.red   = 55000;
-	       col.green = 27000;
+	       col.red   = 64000;
+	       col.green = 32000;
 	    } else {
 	       col.red   = 65535;
 	       col.green = 0;

@@ -7,9 +7,7 @@ Tue Jul  3 14:27:37 BST 2007
 
    o  move to interface-gui  handle_get_accession_code(GtkWidget *widget)
 
-
-
-
+* Done
 
    o Refine and regularization parameters dialog: The Torsions
      Restraints check button is not set when it should be.
