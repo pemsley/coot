@@ -34,7 +34,8 @@
 	    (handle-read-draw-molecule-with-recentre insulin-res 1)))
        (if (not (valid-model-molecule? imol-insulin-res))
 	   (begin
-	     (format #t "   Bad insulin.res: ~s for ~s~%" insulin-res)
+	     (format #t "   Bad insulin.res: ~s for ~s~%" 
+		     insulin-res imol-insulin-res)
 	     (throw 'fail)))
 
        (let ((imol (handle-shelx-fcf-file insulin-fcf)))
