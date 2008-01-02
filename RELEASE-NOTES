@@ -104,7 +104,7 @@ Release 0.4 "Kendall"
      by the inverse transformation of the operator which moves the
      coordinates).  This seems more natural to me.
 
-   o CHANGE: No longer a "stub" option in mutate and autofit [Stephen Sheriff]
+   o CHANGE: No longer a "stub" option in mutate and autofit [Steven Sheriff]
 
    o CHANGE: Get Monomer checks for pre-calculated results before re-running.
 
