@@ -3075,8 +3075,17 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    // std::cout << "key release event" << std::endl;
    graphics_info_t g; 
    int s = graphics_info_t::scroll_wheel_map;
-   if (! graphics_info_t::molecules[s].has_map())
+   if (s < graphics_info_t::n_molecules) { 
+      if (s >= 0) { 
+	 if (! graphics_info_t::molecules[s].has_map()) {
+	    s = -1; // NO MAP
+	 }
+      }
+   } else {
       s = -1; // NO MAP
+   }
+   
+   
    std::vector<int> num_displayed_maps = g.displayed_map_imols();
    if (num_displayed_maps.size() == 1) 
       s = num_displayed_maps[0];
