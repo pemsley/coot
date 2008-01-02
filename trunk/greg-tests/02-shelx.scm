@@ -34,13 +34,13 @@
 	    (handle-read-draw-molecule-with-recentre insulin-res 1)))
        (if (not (valid-model-molecule? imol-insulin-res))
 	   (begin
-	     (format #t "Bad insulin.res~%")
+	     (format #t "   Bad insulin.res: ~s for ~s~%" insulin-res)
 	     (throw 'fail)))
 
        (let ((imol (handle-shelx-fcf-file insulin-fcf)))
 	 (if (not (valid-map-molecule? imol))
 	     (begin
-	       (format #t "Bad read of insulin.fcf~%")
+	       (format #t "   Bad read of ~s ~s~%" insulin-fcf imol)
 	       (throw 'fail))
 	     (begin
 	       (rotate-y-scene (rotate-n-frames 200) 0.1)
