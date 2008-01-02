@@ -20920,9 +20920,9 @@ programs to which you may be more accustomed.
   <property name="urgency_hint">False</property>
 
   <child>
-    <widget class="GtkImage" id="pixmap1">
+    <widget class="GtkImage" id="image6025">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.4-pre.xpm</property>
+      <property name="pixbuf">coot-0.4.xpm</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
@@ -40348,6 +40348,34 @@ have a Spanish Coot because of Miguel's work.
 	  <property name="fill">True</property>
 	</packing>
       </child>
+    </widget>
+  </child>
+</widget>
+
+<widget class="GtkWindow" id="splash_screen_alternate_1_window">
+  <property name="visible">True</property>
+  <property name="title" translatable="yes">Coot</property>
+  <property name="type">GTK_WINDOW_POPUP</property>
+  <property name="window_position">GTK_WIN_POS_CENTER</property>
+  <property name="modal">False</property>
+  <property name="resizable">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="decorated">True</property>
+  <property name="skip_taskbar_hint">False</property>
+  <property name="skip_pager_hint">False</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_SPLASHSCREEN</property>
+  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+  <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
+
+  <child>
+    <widget class="GtkImage" id="image6024">
+      <property name="visible">True</property>
+      <property name="pixbuf">coot-0.4-alternate.xpm</property>
+      <property name="xalign">0.5</property>
+      <property name="yalign">0.5</property>
+      <property name="xpad">0</property>
+      <property name="ypad">0</property>
     </widget>
   </child>
 </widget>
