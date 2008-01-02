@@ -10587,20 +10587,20 @@ GtkWidget*
 create_splash_screen_window (void)
 {
   GtkWidget *splash_screen_window;
-  GtkWidget *pixmap1;
+  GtkWidget *image6025;
 
   splash_screen_window = gtk_window_new (GTK_WINDOW_POPUP);
   gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  pixmap1 = create_pixmap (splash_screen_window, "coot-0.4-pre.xpm");
-  gtk_widget_show (pixmap1);
-  gtk_container_add (GTK_CONTAINER (splash_screen_window), pixmap1);
+  image6025 = create_pixmap (splash_screen_window, "coot-0.4.xpm");
+  gtk_widget_show (image6025);
+  gtk_container_add (GTK_CONTAINER (splash_screen_window), image6025);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (splash_screen_window, splash_screen_window, "splash_screen_window");
-  GLADE_HOOKUP_OBJECT (splash_screen_window, pixmap1, "pixmap1");
+  GLADE_HOOKUP_OBJECT (splash_screen_window, image6025, "image6025");
 
   return splash_screen_window;
 }
@@ -19932,6 +19932,28 @@ create_globularize_dialog (void)
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_cancel_button, "globularize_cancel_button");
 
   return globularize_dialog;
+}
+
+GtkWidget*
+create_splash_screen_alternate_1_window (void)
+{
+  GtkWidget *splash_screen_alternate_1_window;
+  GtkWidget *image6024;
+
+  splash_screen_alternate_1_window = gtk_window_new (GTK_WINDOW_POPUP);
+  gtk_window_set_title (GTK_WINDOW (splash_screen_alternate_1_window), _("Coot"));
+  gtk_window_set_position (GTK_WINDOW (splash_screen_alternate_1_window), GTK_WIN_POS_CENTER);
+  gtk_window_set_type_hint (GTK_WINDOW (splash_screen_alternate_1_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+
+  image6024 = create_pixmap (splash_screen_alternate_1_window, "coot-0.4-alternate.xpm");
+  gtk_widget_show (image6024);
+  gtk_container_add (GTK_CONTAINER (splash_screen_alternate_1_window), image6024);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (splash_screen_alternate_1_window, splash_screen_alternate_1_window, "splash_screen_alternate_1_window");
+  GLADE_HOOKUP_OBJECT (splash_screen_alternate_1_window, image6024, "image6024");
+
+  return splash_screen_alternate_1_window;
 }
 
 #endif // (GTK_MAJOR_VERSION > 1)

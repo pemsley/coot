@@ -198,8 +198,21 @@ main (int argc, char *argv[]) {
   
   GtkWidget *splash = NULL;
 
-  if (graphics_info_t::use_graphics_interface_flag) { 
-     splash = create_splash_screen_window();
+  if (graphics_info_t::use_graphics_interface_flag) {
+
+     bool do_conventional = 0; // Jan is conventional
+     timeval current_time;
+     gettimeofday(&current_time, NULL);
+     time_t now = current_time.tv_sec;
+     std::cout << "time: " << now << std::endl;
+     if (now < 1201824001)
+	do_conventional = 1;
+     
+     if (do_conventional) 
+	splash = create_splash_screen_window();
+     else 
+	splash = create_splash_screen_alternate_1_window();
+     
      gtk_widget_show(splash);
   
      // usleep(100000);
