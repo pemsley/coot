@@ -1,4 +1,8 @@
 
+Release 0.4.1 "Kendall^2"
+
+   o BUG-FIX: Fix problem of key press with no map causing crash.
+
 Release 0.4 "Kendall"
 
    o FEATURE: Kevin Cowtan has given us "Cootaneer" [slim-line
