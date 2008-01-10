@@ -2,6 +2,8 @@
  * 
  * Copyright 2003, 2004, 2007 The University of York
  * Author: Paul Emsley
+ * Copyright 2007 The University of York
+ * Author: Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -720,113 +722,147 @@ coot_real_exit(int retval) {
 GtkWidget *add_filename_filter_button(GtkWidget *fileselection, 
 				      short int data_type) { 
 
-   
+   bool no_chooser_filter = 1;
    GtkWidget *button = 0;
-   int selector_condition = coot::OLD_STYLE;
-   int d = data_type;
-   
+
 #if (GTK_MAJOR_VERSION > 1)
-   selector_condition = graphics_info_t::gtk2_file_chooser_selector_flag;
-#endif 
-   
-#if (GTK_MAJOR_VERSION > 1)
-   if (selector_condition == coot::CHOOSER_STYLE) {
-      int i = 0;
-      std::vector<std::string> globs;
-
-      GtkFileFilter *filterall = gtk_file_filter_new ();
-      GtkFileFilter *filterselect = gtk_file_filter_new ();
-
-      gtk_file_filter_set_name (filterall, "all-files");
-      gtk_file_filter_add_pattern (filterall, "*");
-
-      if (d == COOT_COORDS_FILE_SELECTION) {
-
-	 gtk_file_filter_set_name (filterselect, "coordinate-files");
-
-	 globs = *graphics_info_t::coordinates_glob_extensions;
-      };
-
-      if (d == COOT_DATASET_FILE_SELECTION) {
-
-	 gtk_file_filter_set_name (filterselect, "data-files");
-
-	 globs = *graphics_info_t::data_glob_extensions;
-      };
-
-      if (d == COOT_MAP_FILE_SELECTION) {
-
-	 gtk_file_filter_set_name (filterselect, "map-files");
-
-	 globs = *graphics_info_t::map_glob_extensions;
-      };
-
-      if (d == COOT_CIF_DICTIONARY_FILE_SELECTION) {
-
-	 gtk_file_filter_set_name (filterselect, "dictionary-files");
-
-	 globs = *graphics_info_t::dictionary_glob_extensions;
-      };
-
-      if (d == COOT_SCRIPTS_FILE_SELECTION) {
-	 // BL says:: we dont have a script extensions (yet)
-	 // so we make one just here (no adding of extensions etc as yet)
-
-	 std::vector<std::string> script_glob_extension;
-	 script_glob_extension.push_back("*.py"); 
-	 script_glob_extension.push_back("*.scm"); 
-
-	 gtk_file_filter_set_name (filterselect, "python-files");
-
-	 globs = script_glob_extension;
-
-      };
-
-      std::string s;
-      for (unsigned int i=0; i<globs.size(); i++) {
-	 s = "*";
-	 s += globs[i];
-	 gtk_file_filter_add_pattern (filterselect, s.c_str());
-      };
-
-      gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
-				   GTK_FILE_FILTER (filterall));
-      gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
-				   GTK_FILE_FILTER (filterselect));
-
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      	no_chooser_filter = 0;
+	add_filechooser_filter_button(fileselection, data_type);
    }
-#endif    // This is really ugly split.  Make it cleaner.  Put gtk
-	  // code in a different function, so we can conditionally
-	  // compile the whole function. Not mess around with
-	  // splitting like this.  Yes, that will involve some
-	  // duplication of the code.  But that is better than this.
+#endif
 
-   if (selector_condition == coot::OLD_STYLE) { 
+   if (no_chooser_filter) {
+    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+    GtkWidget *frame = gtk_frame_new("File-name filter:");
+    int d = data_type;
+    button = gtk_toggle_button_new_with_label("Filter");
+ //       std::cout << "in add_filename_filter_button data_type is " << data_type << std::endl;
 
-      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-      GtkWidget *frame = gtk_frame_new("File-name filter:");
-      int d = data_type;
-      button = gtk_toggle_button_new_with_label("Filter");
-//       std::cout << "in add_filename_filter_button data_type is " << data_type << std::endl;
-   
-      gtk_widget_ref(button);
-      gtk_widget_show(button);
-      gtk_container_add(GTK_CONTAINER(aa),frame);
-      gtk_container_add(GTK_CONTAINER(frame), button);
+    gtk_widget_ref(button);
+    gtk_widget_show(button);
+    gtk_container_add(GTK_CONTAINER(aa),frame);
+    gtk_container_add(GTK_CONTAINER(frame), button);
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-      gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
-			  GINT_TO_POINTER(d));
+    gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
+			GINT_TO_POINTER(d));
 #else
-      // callback in c-interface-gtk2.cc
-      gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
-			  GINT_TO_POINTER(d));
+       // callback in c-interface-gtk2.cc
+    gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
+			GINT_TO_POINTER(d));
 #endif   
-      gtk_widget_show(frame);
+    gtk_widget_show(frame);
    }
+
    return button;
 }
+
+// Paul requested a new function for filechooser filter
+// only available in gtk2
+// here we go
+
+#if (GTK_MAJOR_VERSION > 1)
+// where data type:
+// 0 coords
+// 1 mtz etc
+// 2 maps
+// 3 cif dictionary
+// 4 scripting files
+// 
+void add_filechooser_filter_button(GtkWidget *fileselection, 
+				      short int data_type) { 
+
+   
+  int d = data_type;
+
+  int i = 0;
+  std::vector<std::string> globs;
+
+  GtkFileFilter *filterall = gtk_file_filter_new ();
+  GtkFileFilter *filterselect = gtk_file_filter_new ();
+
+  gtk_file_filter_set_name (filterall, "all-files");
+  gtk_file_filter_add_pattern (filterall, "*");
+      
+  if (d == COOT_COORDS_FILE_SELECTION) {
+
+    gtk_file_filter_set_name (filterselect, "coordinate-files");
+
+    globs = *graphics_info_t::coordinates_glob_extensions;
+  };
+
+  if (d == COOT_DATASET_FILE_SELECTION) {
+
+    gtk_file_filter_set_name (filterselect, "data-files");
+
+    globs = *graphics_info_t::data_glob_extensions;
+  };
+
+  if (d == COOT_MAP_FILE_SELECTION) {
+
+    gtk_file_filter_set_name (filterselect, "map-files");
+
+    globs = *graphics_info_t::map_glob_extensions;
+  };
+
+  if (d == COOT_CIF_DICTIONARY_FILE_SELECTION) {
+
+    gtk_file_filter_set_name (filterselect, "dictionary-files");
+
+    globs = *graphics_info_t::dictionary_glob_extensions;
+  };
+
+  if (d == COOT_SCRIPTS_FILE_SELECTION) {
+    // BL says:: we dont have a script extensions (yet)
+    // so we make one just here (no adding of extensions etc as yet)
+
+    std::vector<std::string> script_glob_extension;
+#ifdef USE_PYTHON
+    script_glob_extension.push_back("*.py"); 
+#endif // USE_PYTHON
+#ifdef USE_GUILE
+    script_glob_extension.push_back("*.scm");
+#endif // USE_GUILE
+
+    gtk_file_filter_set_name (filterselect, "scripting-files");
+
+    globs = script_glob_extension;
+
+  };
+
+  std::string s;
+  for (unsigned int i=0; i<globs.size(); i++) {
+    s = "*";
+    s += globs[i];
+    gtk_file_filter_add_pattern (filterselect, s.c_str());
+  };
+
+  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
+			       GTK_FILE_FILTER (filterall));
+  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
+			       GTK_FILE_FILTER (filterselect));
+ 
+}
+
+// and lets have a function for extra custom filters//
+
+void add_filechooser_extra_filter_button(GtkWidget *fileselection, 
+				      const gchar *filtername,
+                                      const gchar *globname) { 
+   
+  GtkFileFilter *filter = gtk_file_filter_new ();
+
+  gtk_file_filter_set_name (filter, filtername);
+  gtk_file_filter_add_pattern (filter, globname);
+  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
+			       GTK_FILE_FILTER (filter));
+
+}
+
+
+#endif // GTK_MAJOR_VERSION
 
 void
 on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
@@ -1116,6 +1152,13 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
 
 void add_is_difference_map_checkbutton(GtkWidget *fileselection) { 
 
+  bool add_map_button = 1;
+#if (GTK_MAJOR_VERSION > 1)
+  if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      add_map_button = 0;
+  }
+#endif // GTK_MAJOR_VERSION
+  if (add_map_button) {
    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
    GtkWidget *button = gtk_check_button_new_with_label("Is Difference Map");
    GtkWidget *frame = gtk_frame_new("Difference Map?");
@@ -1132,6 +1175,7 @@ void add_is_difference_map_checkbutton(GtkWidget *fileselection) {
 		       GTK_SIGNAL_FUNC (on_read_map_difference_map_toggle_button_toggled),
 		       NULL);
    gtk_widget_show(frame);
+  }
 
 }
 
@@ -1141,6 +1185,10 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
 #if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       doit = 0;
+      GtkWidget *button =lookup_widget(GTK_WIDGET(fileselection),
+				     "coords_filechooserdialog1_recentre_checkbutton");
+      if (graphics_info_t::recentre_on_read_pdb)
+     	  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
    }
 #endif
    
@@ -1230,12 +1278,142 @@ GtkWidget *coot_file_chooser() {
    return w;
 }
 
+GtkWidget *coot_dataset_chooser() {
+
+   GtkWidget *w;
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   w = create_dataset_fileselection1 ();
+#else
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      w = create_dataset_fileselection1();
+   } else {
+      w = create_dataset_filechooserdialog1(); 
+   }
+#endif
+   return w;
+}
+
+GtkWidget *coot_map_name_chooser() {
+
+   GtkWidget *w;
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   w = create_map_name_fileselection1();
+#else
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      w = create_map_name_fileselection1();
+   } else {
+      w = create_map_name_filechooserdialog1(); 
+   }
+#endif
+   return w;
+}
+
+GtkWidget *coot_save_coords_chooser() {
+
+   GtkWidget *w;
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   w = create_save_coords_fileselection1 ();
+#else
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      w = create_save_coords_fileselection1();
+   } else {
+      w = create_save_coords_filechooserdialog1(); 
+   }
+#endif
+   return w;
+}
+
+GtkWidget *coot_cif_dictionary_chooser() {
+
+   GtkWidget *w;
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   w = create_cif_dictionary_fileselection ();
+#else
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      w = create_cif_dictionary_fileselection();
+   } else {
+      w = create_cif_dictionary_filechooserdialog1(); 
+   }
+#endif
+   return w;
+}
+
+GtkWidget *coot_run_script_chooser() {
+
+   GtkWidget *w;
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   w = create_run_script_fileselection();
+#else
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      w = create_run_script_fileselection();
+   } else {
+      w = create_run_script_filechooserdialog1(); 
+   }
+#endif
+   return w;
+}
+
+GtkWidget *coot_save_state_chooser() {
+
+   GtkWidget *w;
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   w = create_save_state_fileselection();
+#else
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      w = create_save_state_fileselection();
+   } else {
+      w = create_save_state_filechooserdialog1(); 
+   }
+#endif
+   return w;
+}
+
+GtkWidget *coot_save_symmetry_chooser() {
+
+   GtkWidget *w;
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   w = create_save_symmetry_coords_fileselection();
+#else
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      w = create_save_symmetry_coords_fileselection();
+   } else {
+      w = create_save_symmetry_coords_filechooserdialog1();
+   }
+#endif
+   return w;
+}
+
+GtkWidget *coot_screendump_chooser() {
+
+   GtkWidget *w;
+
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+   w = create_screendump_fileselection();
+#else
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      w = create_screendump_fileselection();
+   } else {
+     w = create_screendump_filechooserdialog1(); 
+   }
+#endif
+   return w;
+
+}
+
+
 void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
       set_directory_for_fileselection(coords_fileselection1);
 #else
-
+      set_directory_for_filechooser(coords_fileselection1);
 #endif
 }
 
@@ -2233,6 +2411,16 @@ void clear_refmac_ccp4i_project() {
 
 void add_filename_filter(GtkWidget *fileselection) { 
 
+  bool add_filter = 1;
+#if (GTK_MAJOR_VERSION > 1)
+  if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      add_filter = 0;
+      // maybe we use it to set the scripting filter for now!
+      // not general enough but may do for now!
+      add_filechooser_filter_button(fileselection, COOT_SCRIPTS_FILE_SELECTION);
+  }
+#endif
+  if (add_filter) {
    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 
    GtkWidget *frame = gtk_frame_new("File-name filter:");
@@ -2252,6 +2440,7 @@ void add_filename_filter(GtkWidget *fileselection) {
 		       GTK_SIGNAL_FUNC (on_filename_filter_key_press_event),
 		       NULL);
    gtk_widget_show(frame);
+  }
 
 }
 
@@ -2766,7 +2955,16 @@ skeletonize_map_single_map_maybe(GtkWidget *window, int imol) {
 void set_file_for_save_fileselection(GtkWidget *fileselection) { 
 
    graphics_info_t g;
-   g.set_file_for_save_fileselection(fileselection);
+   bool no_chooser = 1;
+#if (GTK_MAJOR_VERSION > 1)
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      no_chooser = 0;
+      g.set_file_for_save_filechooser(fileselection);
+   }
+#endif
+   if (no_chooser) {
+     g.set_file_for_save_fileselection(fileselection);
+   }
 }
 
 void save_coordinates_using_widget(GtkWidget *widget) {
@@ -2785,9 +2983,20 @@ void save_coordinates_using_widget(GtkWidget *widget) {
       int imol = *((int *) stuff);
 
       // How do we get the filename?
-   
-      const gchar *filename = gtk_file_selection_get_filename
+
+      const gchar *filename;
+#if (GTK_MAJOR_VERSION > 1)
+      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)  {
+      	filename = gtk_file_chooser_get_filename
+	 (GTK_FILE_CHOOSER(widget));
+      } else {
+	filename = gtk_file_selection_get_filename
 	 (GTK_FILE_SELECTION(widget));
+     }
+#else
+      filename = gtk_file_selection_get_filename
+	 (GTK_FILE_SELECTION(widget));
+#endif
 
       std::cout << "save coordinates for molecule "
 		<< imol << " to file " << filename << std::endl;
@@ -3264,4 +3473,38 @@ void set_file_chooser_selector(int istate) {
 int file_chooser_selector_state(){
    return graphics_info_t::gtk2_file_chooser_selector_flag;
 }
+
+void set_file_chooser_overwrite(int istate) {
+   graphics_info_t::gtk2_chooser_overwrite_flag = istate;
+}
+
+int file_chooser_overwrite_state(){
+   return graphics_info_t::gtk2_chooser_overwrite_flag;
+}
+
 #endif
+
+// we add a universal function to set the file names
+// in file chooser or selector
+
+void set_filename_for_filechooserselection(GtkWidget *fileselection,
+					   const gchar *filename) {
+
+   bool chooser = 0;
+#if (GTK_MAJOR_VERSION > 1)
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      chooser = 1;
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
+					filename);
+   }
+#endif
+
+   if (chooser) {
+	// dont do anything, as already done
+   } else {
+	   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),  
+					   filename);
+   }
+}
+
+

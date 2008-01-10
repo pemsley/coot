@@ -105,7 +105,8 @@ namespace coot {
 			   DTI_SIDE_BY_SIDE_STEREO=3,
                            SIDE_BY_SIDE_STEREO_WALL_EYE=4};
    enum accept_reject_text_type { CHI_SQUAREDS, CHIRAL_CENTRES};
-   enum chooser_selctor_type { OLD_STYLE, CHOOSER_STYLE };
+   enum chooser_selector_type { OLD_STYLE, CHOOSER_STYLE };
+   enum chooser_overwrite_type { CHOOSER_OVERWRITE, CHOOSER_OVERWRITE_PROTECT };
 
    class coord_orth_triple {
    public:
@@ -554,6 +555,10 @@ class graphics_info_t {
    //
    static std::string directory_for_fileselection;
    static std::string directory_for_saving_for_fileselection;
+#if (GTK_MAJOR_VERSION > 1)
+   static std::string directory_for_filechooser;
+   static std::string directory_for_saving_for_filechooser;
+#endif // GTK_MAJOR_VERSION
 
    // distance object vector, and angle
    static std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *distance_object_vec;
@@ -714,6 +719,9 @@ public:
       lsq_plane_atom_positions = new std::vector<clipper::Coord_orth>;
 
       directory_for_fileselection = "";
+#if (GTK_MAJOR_VERSION > 1)
+      directory_for_filechooser = "";
+#endif // GTK_MAJOR_VERSION
       baton_next_ca_options = new std::vector<coot::scored_skel_coord>;
       baton_previous_ca_positions = new std::vector<clipper::Coord_orth>;
 
@@ -960,6 +968,11 @@ public:
    std::string get_directory_for_fileselection() const {
      return directory_for_fileselection;
    }
+#if (GTK_MAJOR_VERSION > 1)
+   std::string get_directory_for_filechooser() const {
+     return directory_for_filechooser;
+   }
+#endif // GTK_MAJOR_VERSION
    
    static int map_line_width;
 
@@ -1359,6 +1372,7 @@ public:
 
 // BL says:: put my gtk2 stuff in here too:
    static int gtk2_file_chooser_selector_flag;
+   static int gtk2_chooser_overwrite_flag;
 #endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
    void apply_go_to_atom_from_widget(GtkWidget *widget); 
@@ -1636,6 +1650,7 @@ public:
 
    // scripting
    static short int guile_gui_loaded_flag;
+   static short int python_gui_loaded_flag;
    static std::vector<std::string> *command_line_scripts;
 
    // background colour
@@ -2112,6 +2127,14 @@ public:
    void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection);
    void set_file_for_save_fileselection(GtkWidget *fileselection) const;
 
+   // for file_chooser
+#if (GTK_MAJOR_VERSION > 1)
+   void set_directory_for_filechooser(GtkWidget *fileselection) const;
+   void save_directory_from_filechooser(const GtkWidget *fileselection);
+   void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection);
+   void set_file_for_save_filechooser(GtkWidget *fileselection) const;
+#endif
+
    // saving temporary files (undo)
    //
    std::string save_molecule_dir(int imol) const;
@@ -2391,6 +2414,10 @@ public:
    static int ccp4_projects_index_last;
    void set_directory_for_fileselection_string(std::string filename);
    void set_directory_for_saving_for_fileselection_string(std::string filename);
+#if (GTK_MAJOR_VERSION > 1)
+   void set_directory_for_filechooser_string(std::string filename);
+   void set_directory_for_saving_for_filechooser_string(std::string filename);
+#endif // GKT_MAJOR_VERSION
    static int file_selection_dialog_x_size;
    static int file_selection_dialog_y_size; 
 

@@ -22,13 +22,22 @@ echo ""              >> "$1".tmp.a
 echo "BEGIN_C_DECLS" >> "$1".tmp.a 
 echo ""              >> "$1".tmp.a
 
-echo ""                                                      > "$1".tmp.b
-echo "#if (GTK_MAJOR_VERSION > 1)"                          >> "$1".tmp.b
-echo "GtkWidget* create_aboutdialog (void);"                >> "$1".tmp.b
-echo "GtkWidget* create_coords_filechooserdialog1(void);"   >> "$1".tmp.b
+echo ""                                                    > "$1".tmp.b
+echo "#if (GTK_MAJOR_VERSION > 1)"                        >> "$1".tmp.b
+echo "GtkWidget* create_aboutdialog (void);"              >> "$1".tmp.b
+echo "GtkWidget* create_coords_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_dataset_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_map_name_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_phs_coordinates_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_save_coords_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_cif_dictionary_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_run_script_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_save_symmetry_coords_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_save_state_filechooserdialog1(void);" >> "$1".tmp.b
+echo "GtkWidget* create_screendump_filechooserdialog1(void);" >> "$1".tmp.b
 echo "GdkPixbuf* create_pixbuf(const gchar *filename);"     >> "$1".tmp.b
 echo "gchar* find_pixmap_file (const gchar     *filename);" >> "$1".tmp.b
-echo "#endif /* GTK_MAJOR_VERSION */ "                      >> "$1".tmp.b
+echo "#endif /* GTK_MAJOR_VERSION */ "                    >> "$1".tmp.b
 echo ""            >> "$1".tmp.b
 echo "END_C_DECLS" >> "$1".tmp.b
 echo ""            >> "$1".tmp.b

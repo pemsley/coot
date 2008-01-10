@@ -139,7 +139,7 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   int is;
   GtkWidget *file_filter_button;
   GtkWidget *sort_button;
-  GtkWidget *dataset_fileselection1 = create_dataset_fileselection1 ();
+  GtkWidget *dataset_fileselection1 = coot_dataset_chooser ();
   add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
   file_filter_button = add_filename_filter_button(dataset_fileselection1, 
 						  COOT_DATASET_FILE_SELECTION);
@@ -155,6 +155,7 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   set_file_selection_dialog_size(dataset_fileselection1);
 
   gtk_widget_show (dataset_fileselection1);
+
 }
 
 void
@@ -165,7 +166,7 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
   int is;
   GtkWidget *file_filter_button;
   GtkWidget *sort_button;
-  GtkWidget *dataset_fileselection1 = create_dataset_fileselection1 ();
+  GtkWidget *dataset_fileselection1 = coot_dataset_chooser ();
   add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
   file_filter_button = add_filename_filter_button(dataset_fileselection1, 
 						  COOT_DATASET_FILE_SELECTION);
@@ -1208,11 +1209,11 @@ void
 on_open_map1_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *map_name_fileselection1; 
+  GtkWidget *map_name_fileselection1; 
   GtkWidget *filter_button;
   GtkWidget *sort_button;
    
-   map_name_fileselection1 = create_map_name_fileselection1(); 
+   map_name_fileselection1 = coot_map_name_chooser(); 
 
    gtk_widget_show (map_name_fileselection1);
    add_is_difference_map_checkbutton(map_name_fileselection1);
@@ -2123,7 +2124,7 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
      itmp_p = (int *) malloc(sizeof(int));
      *itmp_p = imol_of_save_active_menu_item; 
      imol_str = (char *) itmp_p;
-     widget = create_save_coords_fileselection1();
+     widget = coot_save_coords_chooser();
   
      /* we transfer the pointer to imol to the save coordinates fileselection */
      gtk_object_set_user_data(GTK_OBJECT(widget), imol_str);
@@ -2469,7 +2470,7 @@ void on_import_cif_dictionary1_activate     (GtkMenuItem     *menuitem,
 					     gpointer         user_data)
 {
   GtkWidget *fileselection;
-  fileselection = create_cif_dictionary_fileselection();
+  fileselection = coot_cif_dictionary_chooser();
   add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
   add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
   add_sort_button_fileselection(fileselection); 
@@ -2928,7 +2929,7 @@ void
 on_run_script1_activate                (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = create_run_script_fileselection();
+  GtkWidget *widget = coot_run_script_chooser();
   add_sort_button_fileselection(widget);
   add_filename_filter(widget);
   gtk_widget_show(widget);
@@ -6034,9 +6035,11 @@ on_save_state1_activate                (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 /*    save_state(); old inteface - before DK. */
-   GtkWidget *fileselection = create_save_state_fileselection();
-   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),  
-				   save_state_file_name());
+   GtkWidget *fileselection = coot_save_state_chooser();
+   /*   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),  
+	save_state_file_name()); */
+   set_filename_for_filechooserselection(fileselection,
+					 save_state_file_name());
    set_file_selection_dialog_size(fileselection);
    gtk_widget_show(fileselection);
 }
@@ -6498,10 +6501,12 @@ void
 on_simple1_activate                    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *fileselection = create_screendump_fileselection();
+   GtkWidget *fileselection = coot_screendump_chooser();
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
-   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection), 
-				   "coot.ppm");
+   set_filename_for_filechooserselection(fileselection,
+					 "coot.ppm");
+   /*   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection), 
+	"coot.ppm");*/
    set_file_selection_dialog_size(fileselection);
    gtk_widget_show(fileselection);
 
@@ -6513,9 +6518,9 @@ on_povray1_activate                    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-   GtkWidget *fileselection = create_screendump_fileselection();
+   GtkWidget *fileselection = coot_screendump_chooser();
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_POVRAY));
-   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection), 
+   set_filename_for_filechooserselection(fileselection,
 				   "coot-povray");
    set_file_selection_dialog_size(fileselection);
    gtk_widget_show(fileselection);
@@ -6527,9 +6532,9 @@ on_raster3d1_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-   GtkWidget *fileselection = create_screendump_fileselection();
+   GtkWidget *fileselection = coot_screendump_chooser();
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_RASTER3D));
-   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection), 
+   set_filename_for_filechooserselection(fileselection, 
 				   "coot.png");
    set_file_selection_dialog_size(fileselection);
    gtk_widget_show(fileselection);
@@ -7901,6 +7906,8 @@ on_check_waters_delete1_activate       (GtkMenuItem     *menuitem,
                                         gpointer         user_data){ 
 }
 
+
+/* start of chooser insert */
 void
 on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
                                         gint             response_id,
@@ -7917,12 +7924,12 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
                                         "coords_filechooserdialog1");
   
   checkbutton = lookup_widget(GTK_WIDGET(dialog), 
-                              "coords_filechooser1_recentre_checkbutton");
+                              "coords_filechooserdialog1_recentre_checkbutton");
   if (checkbutton) 
     if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       recentre_on_read_pdb_flag = 1;
 
-  save_directory_from_fileselection(coords_fileselection1);
+  save_directory_from_filechooser(coords_fileselection1);
 
   filename = gtk_file_chooser_get_filename 
      (GTK_FILE_CHOOSER(coords_fileselection1));
@@ -7961,7 +7968,7 @@ on_coords_filechooserdialog1_destroy  (GtkObject       *object,
 
 
 void
-on_coords_filechooser1_recentre_checkbutton_toggled
+on_coords_filechooserdialog1_recentre_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -7980,6 +7987,53 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
                                         gpointer         user_data)
 {
 
+#if (GTK_MAJOR_VERSION > 1)
+ if (response_id == GTK_RESPONSE_OK) {
+  const gchar *filename; 
+  gchar *copied_filename;
+  int auto_read_flag = 0;
+  int itmp = -1;
+
+  GtkWidget *dataset_fileselection1;
+
+  dataset_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+					 "dataset_filechooserdialog1");
+
+   save_directory_from_filechooser(dataset_fileselection1);
+   filename = gtk_file_chooser_get_filename 
+     (GTK_FILE_CHOOSER(dataset_fileselection1));
+   
+/*    printf("dataset filename: %s\n", filename); */
+
+   copied_filename = (char *) malloc(strlen(filename) + 1);
+   strcpy(copied_filename, filename);
+
+   if (mtz_file_has_phases_p(filename)) {
+
+     auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
+     
+     if (auto_read_flag) 
+       auto_read_make_and_draw_maps(filename);
+     else 
+       /* this does a create_column_label_window, fills and displays it. */
+       manage_column_selector(copied_filename);
+   } else { 
+     /* no phases path */
+     if (is_mtz_file_p(filename))
+       calc_phases_generic(filename);
+     else 
+       /* try to read as a phs, cif etc... */
+       manage_column_selector(copied_filename);
+   } 
+   gtk_widget_destroy(dataset_fileselection1);
+ } else {
+  GtkWidget *dataset_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+                                                "dataset_filechooserdialog1");
+
+  gtk_widget_destroy(dataset_fileselection1);
+   
+ }
+#endif /* GTK_MAJOR_VERSION  */
 }
 
 
@@ -7988,11 +8042,64 @@ on_dataset_filechooserdialog1_destroy (GtkObject       *object,
                                         gpointer         user_data)
 {
 
+  GtkWidget *dataset_fileselection1 = lookup_widget(GTK_WIDGET(object),
+                                                "dataset_filechooserdialog1");
+
+  gtk_widget_destroy(dataset_fileselection1);
 }
 
 
 void
-on_map_file_chooser_is_difference_map_button_toggled
+on_map_name_filechooserdialog1_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) { 
+   const char* filename; 
+   char *sfile; 
+   GtkWidget* map_name_fileselection1; 
+   GtkWidget *checkbutton;
+   short int is_diff_map_flag = 0;
+   
+   map_name_fileselection1 = GTK_WIDGET(lookup_widget(GTK_WIDGET(dialog), 
+						      "map_name_filechooserdialog1"));
+   save_directory_from_filechooser(map_name_fileselection1);
+
+   /* I don't think that we need to malloc this. */
+
+   checkbutton = lookup_widget(GTK_WIDGET(dialog), 
+			       "map_filechooser_is_difference_map_button");
+
+   if (checkbutton)
+     if (GTK_TOGGLE_BUTTON(checkbutton)->active) 
+       is_diff_map_flag = 1;
+
+   filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(map_name_fileselection1)); 
+   
+
+   printf("CCP4 map filename: %s\n", filename); 
+   sfile = (char *) malloc (1001); 
+   strncpy(sfile, filename, 1000); 
+
+   gtk_widget_destroy(map_name_fileselection1); /* the file browser,
+						   when destroyed,
+						   scribbles over
+						   filename. */
+   handle_read_ccp4_map(sfile, is_diff_map_flag);
+  } else {
+    GtkWidget *map_name_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+                                                "map_name_filechooserdialog1");
+
+    gtk_widget_destroy(map_name_fileselection1);
+  }
+#endif /* GTK_MAJOR_VERSION  */
+}
+
+
+void
+on_map_filechooser_is_difference_map_button_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -8001,20 +8108,14 @@ on_map_file_chooser_is_difference_map_button_toggled
 
 
 void
-on_map_name_filechooserdialog2_destroy (GtkObject       *object,
+on_map_name_filechooserdialog1_destroy (GtkObject       *object,
                                         gpointer         user_data)
 {
 
-}
+  GtkWidget *map_name_fileselection1 = lookup_widget(GTK_WIDGET(object),
+                                                "map_name_filechooserdialog1");
 
-
-void
-on_map_name_filechooserdialog2_response
-                                        (GtkDialog       *dialog,
-                                        gint             response_id,
-                                        gpointer         user_data)
-{
-
+  gtk_widget_destroy(map_name_fileselection1);
 }
 
 
@@ -8024,7 +8125,29 @@ on_phs_coordinates_filechooserdialog1_response
                                         gint             response_id,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) {
+   const char *filename;
+   GtkWidget *phs_fileselection; 
 
+   phs_fileselection = lookup_widget(GTK_WIDGET(dialog), 
+				     "phs_coordinates_fileselection");
+
+   filename = gtk_file_chooser_get_filename
+     (GTK_FILE_CHOOSER(phs_fileselection));
+
+   save_directory_from_filechooser(phs_fileselection);
+   read_phs_and_coords_and_make_map(filename); 
+
+   gtk_widget_destroy(phs_fileselection); /* destroy *after* we use filename */
+   
+  } else {
+    GtkWidget *phs_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+                                                "phs_coordinates_filechooserdialog1");
+
+    gtk_widget_destroy(phs_fileselection1);
+  }
+#endif /* GTK_MAJOR_VERSION  */
 }
 
 
@@ -8034,7 +8157,295 @@ on_phs_coordinates_filechooserdialog1_destroy
                                         gpointer         user_data)
 {
 
+  GtkWidget *phs_fileselection1 = lookup_widget(GTK_WIDGET(object),
+                                                "phs_coordinates_filechooserdialog1");
+
+  gtk_widget_destroy(phs_fileselection1);
 }
+
+
+#if (GTK_MAJOR_VERSION > 1)
+GtkFileChooserConfirmation
+on_save_coords_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data)
+{
+
+}
+#endif /* GTK_MAJOR_VERSION */
+
+
+void
+on_save_coords_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) {
+    GtkWidget *widget;
+    char *stuff;
+    GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog), "save_coords_filechooserdialog1");
+
+    widget = lookup_widget(GTK_WIDGET(dialog), "save_coords_filechooserdialog1");
+    save_directory_for_saving_from_filechooser(fileselection);
+    stuff = gtk_object_get_user_data(GTK_OBJECT(widget));
+    save_coordinates_using_widget(widget);
+    free(stuff);
+    gtk_widget_destroy(widget); 
+  } else {
+    GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog),
+                                                "save_coords_filechooserdialog1");
+
+    gtk_widget_destroy(fileselection);
+  }
+#endif /* GTK_MAJOR_VERSION  */
+}
+
+
+void
+on_save_coords_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data)
+{
+
+  GtkWidget *fileselection = lookup_widget(GTK_WIDGET(object),
+                                                "save_coords_filechooserdialog1");
+
+  gtk_widget_destroy(fileselection);
+}
+
+
+void
+on_cif_dictionary_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) {
+    const char *filename;
+    GtkWidget *fileselection;
+
+    fileselection = lookup_widget(GTK_WIDGET(dialog), "cif_dictionary_filechooserdialog1");
+    save_directory_from_filechooser(fileselection);
+    filename = gtk_file_chooser_get_filename 
+      (GTK_FILE_CHOOSER(fileselection));
+    handle_cif_dictionary(filename);
+
+    gtk_widget_destroy(fileselection);
+  } else {
+    GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog),
+                                                "cif_dictionary_filechooserdialog1");
+
+    gtk_widget_destroy(fileselection);
+  }
+#endif /* GTK_MAJOR_VERSION  */
+}
+
+
+void
+on_cif_dictionary_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data)
+{
+
+  GtkWidget *fileselection = lookup_widget(GTK_WIDGET(object),
+                                                "cif_dictionary_filechooserdialog1");
+
+  gtk_widget_destroy(fileselection);
+}
+
+
+void
+on_run_script_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) {
+    GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog),
+					   "run_script_filechooserdialog1");
+
+    const char *script_filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+    run_script(script_filename);
+    gtk_widget_destroy(fileselection);
+
+  } else {
+    GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog),
+                                                "run_script_filechooserdialog1");
+
+    gtk_widget_destroy(fileselection);
+  }
+#endif /* GTK_MAJOR_VERSION  */
+}
+
+
+void
+on_run_script_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data)
+{
+
+  GtkWidget *fileselection = lookup_widget(GTK_WIDGET(object),
+                                                "run_script_filechooserdialog1");
+
+  gtk_widget_destroy(fileselection);
+}
+
+
+#if (GTK_MAJOR_VERSION > 1)
+GtkFileChooserConfirmation
+on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data)
+{
+
+}
+#endif /* GTK_MAJOR_VERSION */
+
+
+void
+on_save_symmetry_coords_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) {
+    GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_symmetry_coords_filechooserdialog1");
+    save_symmetry_coords_from_fileselection(w);
+    gtk_widget_destroy(w);
+  } else {
+    GtkWidget *coords_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+                                                "save_symmetry_coords_filechooserdialog1");
+
+    gtk_widget_destroy(coords_fileselection1);
+
+  }
+#endif /* GTK_MAJOR_VERSION  */
+}
+
+
+void
+on_save_symmetry_coords_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data)
+{
+
+  GtkWidget *coords_fileselection1 = lookup_widget(GTK_WIDGET(object),
+                                                "save_symmetry_coords_filechooserdialog1");
+
+  gtk_widget_destroy(coords_fileselection1);
+}
+
+
+#if (GTK_MAJOR_VERSION > 1)
+GtkFileChooserConfirmation
+on_save_state_filechooserdialog1_confirm_overwrite 
+					(GtkFileChooser * filechooser, 
+					gpointer user_data)
+{
+
+}
+#endif /* GTK_MAJOR_VERSION */
+
+
+void
+on_save_state_filechooserdialog1_response (GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) {
+   GtkWidget *w = lookup_widget(GTK_WIDGET(dialog),
+				"save_state_filechooserdialog1");
+
+   const char *filename = gtk_file_chooser_get_filename 
+     (GTK_FILE_CHOOSER(w));
+
+   save_state_file(filename);    /* write the file */
+   set_save_state_file_name(filename); /* save as a static in graphics_info_t */
+   gtk_widget_destroy(w);
+  } else {
+    GtkWidget *coords_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+						   "save_state_filechooserdialog1");
+
+    gtk_widget_destroy(coords_fileselection1);
+  }
+#endif /* GTK_MAJOR_VERSION  */
+}
+
+
+void
+on_save_state_filechooserdialog1_destroy (GtkObject * object, 
+					gpointer user_data)
+{
+
+  GtkWidget *coords_fileselection1 = lookup_widget(GTK_WIDGET(object),
+                                                "save_state_filechooserdialog1");
+
+  gtk_widget_destroy(coords_fileselection1);
+}
+
+
+#if (GTK_MAJOR_VERSION > 1)
+GtkFileChooserConfirmation
+on_screendump_filechooserdialog1_confirm_overwrite 
+					(GtkFileChooser * filechooser, 
+					gpointer user_data)
+{
+
+}
+#endif /* GKT_MAJOR_VERSION */
+
+
+void
+on_screendump_filechooserdialog1_response (GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) {
+
+   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog), 
+					    "screendump_filechooserdialog1");
+   int image_type = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(fileselection)));
+   const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+
+   if (image_type == COOT_SCREENDUMP_SIMPLE) { 
+      screendump_image(filename);
+   } 
+   if (image_type == COOT_SCREENDUMP_POVRAY) { 
+      make_image_povray(filename);
+   } 
+   if (image_type == COOT_SCREENDUMP_RASTER3D) { 
+      make_image_raster3d(filename);
+   } 
+   gtk_widget_destroy(fileselection);
+
+  } else {
+    GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog),
+                                                "screendump_filechooserdialog1");
+
+    gtk_widget_destroy(fileselection);
+  }
+#endif /* GTK_MAJOR_VERSION  */
+}
+
+
+void
+on_screendump_filechooserdialog1_destroy (GtkObject * object, 
+					gpointer user_data)
+{
+
+  GtkWidget *fileselection = lookup_widget(GTK_WIDGET(object),
+                                                "screendump_filechooserdialog1");
+
+  gtk_widget_destroy(fileselection);
+}
+/* end of chooser insert */
 
 
 void

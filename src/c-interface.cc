@@ -1290,6 +1290,28 @@ void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection
    g.save_directory_for_saving_from_fileselection(fileselection);
 } 
 
+/* and the gtk2 equivalents, we dont use most of them any more but keep
+   them for gtk2 move maybe  */
+#if (GTK_MAJOR_VERSION > 1)
+
+void
+set_directory_for_filechooser(GtkWidget *fileselection1) {
+   graphics_info_t g;
+   g.set_directory_for_filechooser(fileselection1);
+}
+
+void
+save_directory_from_filechooser(const GtkWidget *fileselection) {
+   graphics_info_t g;
+   g.save_directory_from_filechooser(fileselection);
+}
+
+void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection) {
+   graphics_info_t g;
+   g.save_directory_for_saving_from_filechooser(fileselection);
+}
+#endif // GTK2
+
 
 
 bool compare_mtimes(coot::str_mtime a, coot::str_mtime b) {
@@ -5553,12 +5575,12 @@ void post_python_scripting_window() {
 
 // BL says: let's try and get coot_gui loaded
 
-  if (graphics_info_t::guile_gui_loaded_flag == TRUE) {
+  if (graphics_info_t::python_gui_loaded_flag == TRUE) {
 
      PyRun_SimpleString("coot_gui()");
 
   } else {
-     // we don't get a proper status from guile_gui_loaded_flag so
+     // we don't get a proper status from python_gui_loaded_flag so
      // lets check again here whether MAPVIEW_GUI_DIR was defined.
      char *t;
      t = getenv("COOT_PYTHON_DIR"); // was #defined
@@ -5604,13 +5626,26 @@ set_guile_gui_loaded_flag() {
    
    graphics_info_t g; 
    g.guile_gui_loaded_flag = TRUE; 
-} 
+}
+
+void
+set_python_gui_loaded_flag() { 
+   
+   graphics_info_t g; 
+   g.python_gui_loaded_flag = TRUE; 
+}
 
 void set_found_coot_gui() { 
    
-   cout << "Coot Scripting GUI code found and loaded." << endl; 
    graphics_info_t g; 
+#ifdef USE_GUILE
+   cout << "Coot Scheme Scripting GUI code found and loaded." << endl; 
    g.guile_gui_loaded_flag = TRUE; 
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+   cout << "Coot Python Scripting GUI code found and loaded." << endl; 
+   g.python_gui_loaded_flag = TRUE;
+#endif // USE_PYTHON
 }
 
 // return an atom index

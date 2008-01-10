@@ -1650,10 +1650,9 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 /* Hack in a function, because it's missing somehow from Bernhard's
    commits */
 
-GtkWidget*
-create_coords_filechooserdialog1 (void)
-{
-  return 0;
-}
+/* I dont think this should be here at all!
+   I think it should be in gtk2-interface.c !
+   But somehow it disappeared from there, so I will put it back!!!
+   Where did all my things go........ */ 
 
 #endif	/* COOT_USE_GTK2_INTERFACE */
