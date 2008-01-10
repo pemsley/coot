@@ -72,7 +72,8 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
        r3d_dir = os.path.dirname(r3d_exe)
        os.environ['R3D_LIB'] = r3d_dir + "/materials"
        #we have to check filenames for spaces for dodgy windows path
-       image_file_name_mod, source_file_name_mod, space_flag = os.path.normpath(image_file_name,source_file_name)
+       image_file_name_mod, source_file_name_mod, space_flag = \
+		check_file_names_for_space_and_move(image_file_name, source_file_name)
        r3d_call = r3d_exe + image_format + image_file_name_mod + " < " + source_file_name_mod
        print "BL DEBUG:: r3d_call is ", r3d_call
        print "calling render..."
@@ -98,7 +99,8 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
     # again, we just assume povray exe is pvengine on all systems
     povray_exe = find_exe(povray_command_name, "PATH", False)
     if (povray_exe):
-      image_file_name_mod, source_file_name_mod, space_flag = os.path.normpath(image_file_name,source_file_name)
+      image_file_name_mod, source_file_name_mod, space_flag = \
+		check_file_names_for_space_and_move(image_file_name, source_file_name)
       if (os.name == 'nt'):
 		args = " /EXIT /RENDER "
       else:
@@ -144,11 +146,11 @@ def ppm2bmp(ppm_file_name):
     else:
       print "BL WARNING:: Cannot find bmp file ",bmp_file_name
 
-# Obsolete function!
-# Tests file names for spaces. 
-def check_file_names(image_file_name,source_file_name):
+# Tests file names for spaces. there is certainly on problem on windows
+# not sure about other OS, yet
+def check_file_names_for_space_and_move(image_file_name,source_file_name):
 
-    import string,os,shutil
+    import string, os, shutil
 
     space_flag = False
 

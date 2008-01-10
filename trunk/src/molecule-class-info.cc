@@ -1274,7 +1274,11 @@ molecule_class_info_t::name_for_display_manager() const {
       s = name_;
    } else {
       if (has_model()) {
+#ifdef WINDOWS_MINGW
+	 std::string::size_type islash = coot::util::intelligent_debackslash(name_).find_last_of("/");
+#else
 	 std::string::size_type islash = name_.find_last_of("/");
+#endif // MINGW
 	 if (islash == std::string::npos) { 
 	    s = name_;
 	 } else {
@@ -2232,8 +2236,13 @@ molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
    std::string phi_col = phi_col_in;
    std::string weight_col = weight_col_in;
 
+#ifdef WINDOWS_MINGW
+   std::string::size_type islash_f   =      coot::util::intelligent_debackslash(f_col).find_last_of("/");
+   std::string::size_type islash_phi =    coot::util::intelligent_debackslash(phi_col).find_last_of("/");
+#else
    std::string::size_type islash_f   =      f_col.find_last_of("/");
    std::string::size_type islash_phi =    phi_col.find_last_of("/");
+#endif // MINGW
    short int label_error = 0; 
 
    if (islash_f != std::string::npos) {
@@ -2253,7 +2262,11 @@ molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
    }
 
    if (use_weights) { 
+#ifdef WINDOWS_MINGW
+      std::string::size_type islash_fom = coot::util::intelligent_debackslash(weight_col).find_last_of("/");
+#else
       std::string::size_type islash_fom = weight_col.find_last_of("/");
+#endif
       if (islash_fom != std::string::npos) {
 	 // weight_col is of form e.g. xxx/yyy/WT
 	 if (weight_col.length() > islash_fom)
@@ -2875,7 +2888,11 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       
       // was a regular file, let's check the extension:
       // 
+#ifdef WINDOWS_MINGW
+      std::string::size_type islash = coot::util::intelligent_debackslash(filename).find_last_of("/");
+#else
       std::string::size_type islash = filename.find_last_of("/");
+#endif // MINGW
       std::string tstring;
       if (islash == std::string::npos) { 
 	 // no slash found
@@ -6378,15 +6395,22 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       // convert "/" to "_"
       int slen = clean_name.length();
       for (int i=0; i<slen; i++)
+#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW)
+// BL says: we change /, \ and : to _ in windows
+         if (clean_name[i] == '/' || clean_name[i] == '\\' 
+                             || clean_name[i] == ':')
+            clean_name[i] = '_';
+#else
 	 if (clean_name[i] == '/')
 	    clean_name[i] = '_';
+#endif // win32 things
 
       time_string += clean_name;
       time_string += "_";
       
       // add in the time component:
 
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
+#if defined(__WIN32__) || defined(__CYGWIN__) || defined(_MSC_VER)
 
       // but not if we are in windows:
 
@@ -6394,8 +6418,18 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       time_t t;
       time(&t);
       char *chars_time = ctime(&t);
+#ifdef WINDOWS_MINGW
+// BL says: why not? We can fix this. I show you how it's done in MINGW:
+//dunno if it works in other win32 systems. Havent checked
+// we just convert the : to _
+      for (int i=0; i<24; i++) {
+         if (chars_time[i] == ':') {
+             chars_time[i] = '_';
+         }
+      }
+#endif // MINGW
       time_string += chars_time;
-#endif
+#endif // other WIN32
 
       // strip off the trailing newline:
       slen = time_string.length();
@@ -6412,10 +6446,14 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       // convert : to underscores in windows
       // 
+#ifndef WINDOWS_MINGW
+      // BL say: nonsense since we would transform the directory C: here.
+      // we have done it before already
       for (int i=0; i<time_string.length(); i++)
 	 if (time_string[i] == ':')
 	    time_string[i] = '_';
-#endif
+#endif // MINGW
+#endif // other win32
       
       time_string += "_modification_";
 
@@ -7339,7 +7377,11 @@ molecule_class_info_t::Refmac_name_stub() const {
    // First strip off the path of name_:
    std::string stripped_name; 
    // /a/b.mtz -> b.mtz
+#ifdef WINDOWS_MINGW
+   std::string::size_type islash = coot::util::intelligent_debackslash(name_).find_last_of("/");
+#else
    std::string::size_type islash = name_.find_last_of("/");
+#endif // MINGW
    if (islash == string::npos) {
       // std::cout << "DEBUG:: slash not found in " << name_ << std::endl;
       stripped_name = name_;
@@ -7693,7 +7735,11 @@ molecule_class_info_t::stripped_save_name_suggestion() {
    std::string s;
    
    std::string stripped_name1;
+#ifdef WINDOWS_MINGW
+   std::string::size_type islash = coot::util::intelligent_debackslash(name_).find_last_of("/");
+#else
    std::string::size_type islash = name_.find_last_of("/");
+#endif // MINGW
    if (islash == std::string::npos) { 
       stripped_name1 = name_;
    } else {

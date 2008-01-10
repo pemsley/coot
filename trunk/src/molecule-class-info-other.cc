@@ -2537,7 +2537,7 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
    // letter after the newline.
 
    // sequence is member data.  Let's fill it.
-   std::cout << "in assign_fasta_sequence\n";
+   std::cout << "in assign_pir_sequence\n";
 
    std::string seq;
 
@@ -2581,7 +2581,7 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
 		<< std::endl;
       input_sequence.push_back(std::pair<std::string, std::string> (chain_id,seq));
    } else { 
-      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+      std::cout << "WARNING:: no sequence found or improper pir sequence format\n";
    }
    
 }

@@ -555,6 +555,25 @@ graphics_info_t::set_directory_for_fileselection_string(std::string filename) {
 void
 graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const {
 
+#if (GTK_MAJOR_VERSION > 1)
+  if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+    if (directory_for_filechooser != "") {
+      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
+					  directory_for_filechooser.c_str());
+    } else {
+      // std::cout << "not setting directory_for_fileselection" << std::endl;
+    }
+  } else {
+    if (directory_for_fileselection != "") {
+//       std::cout << "set directory_for_fileselection "
+// 		<< directory_for_fileselection << std::endl;
+      gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
+				      directory_for_fileselection.c_str());
+    } else {
+      // std::cout << "not setting directory_for_fileselection" << std::endl;
+    }
+  }
+#else
    if (directory_for_fileselection != "") {
 //       std::cout << "set directory_for_fileselection "
 // 		<< directory_for_fileselection << std::endl;
@@ -563,6 +582,7 @@ graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const
    } else {
       // std::cout << "not setting directory_for_fileselection" << std::endl;
    } 
+#endif // GTK_MAJOR_VERSION
 }
 
 void 
@@ -586,6 +606,82 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
 				      full_name.c_str());
    }
 }
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+graphics_info_t::save_directory_from_filechooser(const GtkWidget *fileselection) {
+
+   const gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+   directory_for_filechooser = coot::util::file_name_directory(filename);
+   // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
+   std::cout << "saved directory name: " << directory_for_filechooser << std::endl;
+}
+
+void
+graphics_info_t::save_directory_for_saving_from_filechooser(const GtkWidget *fileselection) {
+
+   const gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+   directory_for_saving_for_filechooser = coot::util::file_name_directory(filename);
+   // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
+   std::cout << "saved directory name: " << directory_for_filechooser << std::endl;
+}
+
+void
+graphics_info_t::set_directory_for_filechooser_string(std::string filename) {
+
+   directory_for_filechooser = filename;
+}
+
+void
+graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
+
+   if (directory_for_filechooser != "") {
+//       std::cout << "set directory_for_fileselection "
+//              << directory_for_fileselection << std::endl;
+       std::cout << "set directory_for_fileselection "
+              << directory_for_filechooser << std::endl;
+      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
+                                      directory_for_filechooser.c_str());
+   } else {
+      // std::cout << "not setting directory_for_fileselection" << std::endl;
+   }
+
+}
+
+void
+graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
+   // just like set_directory_for_fileselection actually, but we give
+   // it the full filename, not just the directory.
+
+   int imol = save_imol;
+   if (imol >= 0 && imol < graphics_info_t::n_molecules) {
+      std::string stripped_name =
+         graphics_info_t::molecules[imol].stripped_save_name_suggestion();
+      std::string full_name = stripped_name;
+      //       if (graphics_info_t::save_coordinates_in_original_dir_flag != 0)
+      if (graphics_info_t::directory_for_saving_for_filechooser != "") {
+         full_name = directory_for_saving_for_filechooser + stripped_name;
+      } else {
+         gchar *current_dir = g_get_current_dir();
+         full_name = g_build_filename(current_dir, stripped_name.c_str(), NULL);
+         directory_for_saving_for_fileselection = current_dir;
+         g_free(current_dir);
+      }
+
+      std::cout << "INFO:: Setting fileselection with file: " << full_name
+                << std::endl;
+      if (g_file_test(full_name.c_str(), G_FILE_TEST_EXISTS)) {
+         gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileselection),
+                                      full_name.c_str());
+      } else {
+         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
+                                      directory_for_saving_for_fileselection.c_str());
+         gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
+                                      stripped_name.c_str());
+      }
+   }
+}
+#endif // GTK_MAJOR_VERSION
 
 
 // I find this somewhat asthetically pleasing (maybe because the
@@ -5742,10 +5838,16 @@ std::string
 graphics_info_t::ccp4_defs_file_name() {
 
 #if defined WIN32
+#ifdef WINDOWS_MINGW
+// BL says:: in my windows it's found in $USERPROFILE
+// would guess that's true for other win32 too....
+    char *home = getenv("USERPROFILE");
+#else
     char *home = getenv("HOMEPATH");
+#endif // WINDOWS_MINGW
 #else
     char *home = getenv("HOME");
-#endif
+#endif // WIN32
 
 #if defined(WINDOWS_MINGW)|| defined(_MSC_VER)
     std::string path = "/CCP4/windows/directories.def";

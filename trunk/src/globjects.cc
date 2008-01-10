@@ -573,6 +573,7 @@ short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
 
 // 
 short int graphics_info_t::guile_gui_loaded_flag = FALSE;
+short int graphics_info_t::python_gui_loaded_flag = FALSE;
 
 //
 int graphics_info_t::find_ligand_map_mol_ = -1;
@@ -822,6 +823,10 @@ short int graphics_info_t::state_language = 1; // scheme
 // directory saving:
 std::string graphics_info_t::directory_for_fileselection = ""; 
 std::string graphics_info_t::directory_for_saving_for_fileselection = ""; 
+#if (GTK_MAJOR_VERSION > 1)
+std::string graphics_info_t::directory_for_filechooser = "";
+std::string graphics_info_t::directory_for_saving_for_filechooser = "";
+#endif // GTK_MAJOR_VERSION
 
 
 // Residue info
@@ -1206,10 +1211,12 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 #else
 
 // Defaults for the file chooser
-#ifdef USE_MINGW
+#ifdef WINDOWS_MINGW
 int graphics_info_t::gtk2_file_chooser_selector_flag = coot::CHOOSER_STYLE;
+int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE_PROTECT;
 #else
 int graphics_info_t::gtk2_file_chooser_selector_flag = coot::OLD_STYLE;
+int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE;
 #endif // MINGW
 
 // GTK2 code

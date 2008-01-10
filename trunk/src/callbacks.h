@@ -2870,12 +2870,8 @@ on_coords_filechooserdialog1_destroy
                                         gpointer         user_data);
 
 void
-on_coords_filechooser1_recentre_checkbutton_toggled
+on_coords_filechooserdialog1_recentre_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
-                                        gpointer         user_data);
-
-void
-on_dataset_filechooserdialog1_destroy  (GtkObject       *object,
                                         gpointer         user_data);
 
 void
@@ -2884,23 +2880,22 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
                                         gpointer         user_data);
 
 void
-on_map_file_chooser_is_difference_map_button_toggled
-                                        (GtkToggleButton *togglebutton,
+on_dataset_filechooserdialog1_destroy  (GtkObject       *object,
                                         gpointer         user_data);
 
 void
-on_map_name_filechooserdialog2_destroy (GtkObject       *object,
-                                        gpointer         user_data);
-
-void
-on_map_name_filechooserdialog2_response
+on_map_name_filechooserdialog1_response
                                         (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data);
 
 void
-on_filechooserdialog1_response         (GtkDialog       *dialog,
-                                        gint             response_id,
+on_map_name_filechooserdialog1_destroy (GtkObject       *object,
+                                        gpointer         user_data);
+
+void
+on_map_filechooser_is_difference_map_button_toggled
+                                        (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
 void
@@ -2913,6 +2908,92 @@ void
 on_phs_coordinates_filechooserdialog1_destroy
                                         (GtkObject       *object,
                                         gpointer         user_data);
+
+GtkFileChooserConfirmation
+on_save_coords_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data);
+
+void
+on_save_coords_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data);
+
+void
+on_save_coords_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data);
+
+void
+on_cif_dictionary_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data);
+
+void
+on_cif_dictionary_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data);
+
+void
+on_run_script_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 	
+					gpointer user_data);
+
+void
+on_run_script_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data);
+
+GtkFileChooserConfirmation
+on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data);
+
+void
+on_save_symmetry_coords_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data);
+
+void
+on_save_symmetry_coords_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data);
+
+GtkFileChooserConfirmation
+on_save_state_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data);
+
+void
+on_save_state_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data);
+
+void
+on_save_state_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data);
+
+GtkFileChooserConfirmation
+on_screendump_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data);
+
+void
+on_screendump_filechooserdialog1_response
+					(GtkDialog * dialog, 
+					gint response_id, 
+					gpointer user_data);
+
+void
+on_screendump_filechooserdialog1_destroy
+					(GtkObject * object, 
+					gpointer user_data);
 
 #endif 
 

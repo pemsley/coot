@@ -49,12 +49,18 @@ def generic_object_with_name(obj_name):
 # display a GUI for generic objects
 #
 def generic_objects_gui():
-	
+
+  pygtk_flag = False
   try:
 	import pygtk
 	pygtk.require("2.0")
 	import gtk, pango
-
+	pygtk_flag = True
+  except:
+	print "BL WARNING:: no pygtk2. Function wont work!!!"
+	  
+  if (pygtk_flag):
+	  # Now we run the gui
 	def delete_event(*args):
 		# BL says: first we shall close the generic objects
 		for generic_object_number in range(n_objects):
@@ -72,6 +78,7 @@ def generic_objects_gui():
 			set_display_generic_object(generic_object_number,0)
 
 	n_objects = number_of_generic_objects()
+	
 	if (n_objects > 0):
 		gen_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 		gen_window.set_title("Generic objects")
@@ -79,7 +86,10 @@ def generic_objects_gui():
 
 		for generic_object_number in range(n_objects):
 
-			print "INFO:: generic object attributes: ", generic_object_number, generic_object_name(generic_object_number), is_closed_generic_object_qm(generic_object_number)
+			print "INFO:: generic object attributes: ", \
+			      generic_object_number, \
+			      generic_object_name(generic_object_number), \
+			      is_closed_generic_object_qm(generic_object_number)
 
 			if (is_closed_generic_object_qm(generic_object_number) == 0):
 				name = generic_object_name(generic_object_number)
@@ -104,17 +114,14 @@ def generic_objects_gui():
 					frame.show()
 					check_button.show()
 
-				gen_window.connect("delete_event", delete_event)
+		gen_window.connect("delete_event", delete_event)
 
-			vbox.show()
-			gen_window.add(vbox)
-			gen_window.set_border_width(10)
-			gen_window.show()
+		vbox.show()
+		gen_window.add(vbox)
+		gen_window.set_border_width(10)
+		gen_window.show()
 
-  except:
-	print "BL WARNING:: no pygtk2. Function wont work!!!"
        
-
 # run molprobity (well reduce and probe) to make generic objects (and
 # display the generic objects gui)
 #

@@ -28,20 +28,42 @@ def find_first_model_molecule():
 # 
 def skip_to_next_ncs_chain():
 
+  import types
+
   # Given a chain-id and a list of chain-ids, return the chain-id of
   # the next chain to be jumped to (use wrapping).  If the list of
   # chain-ids is less then length 2, return #f.
   # 
-  def skip_to_chain(this_chain_id, chain_id_list):
+  def skip_to_chain_internal(this_chain_id, chain_id_list):
+    # print "this_chain_id: ", this_chain_id
     if len(chain_id_list) < 2:
        return False
     else:
-	current_chain = chain_id_list.index(this_chain_id)
-	if current_chain == len(chain_id_list)-1:	# last chain
-		return chain_id_list[0]
+        # we do it differnt to Paul's function, as I dont understand it and
+        # feel that this is easier and equally good!?
+        current_chain_index = chain_id_list.index(this_chain_id)
+	if current_chain_index == len(chain_id_list)-1:	# last chain
+            # return the first chain
+            return chain_id_list[0]
 	else:
-		return chain_id_list[current_chain+1]
+            # return the next chain
+            return chain_id_list[current_chain_index + 1]
 
+
+  def skip_to_chain(imol, this_chain_id, chain_id_list):
+
+      # Given a chain-id and a list of chain-ids, return the chain-id of
+      # the next chain to be jumped to (use wrapping).  If the list of
+      # chain-ids is less then length 2, return #f.
+      # 
+      chain_guess = skip_to_chain_internal(this_chain_id, chain_id_list)
+
+      if ((not type(chain_guess) is StringType) or \
+             is_solvent_chain_qm(imol, chain_guess)):
+          skip_to_chain(imol, chain_guess, chain_id_list)
+      else:
+          return chain_guess
+          
   # First, what is imol? imol is the go to atom molecule
   imol = go_to_atom_molecule_number()
   chains = chain_ids(imol)
@@ -49,18 +71,24 @@ def skip_to_next_ncs_chain():
   if this_chain_id not in chains:
 	print "BL WARNING:: chain id %s wasnt found, set it to %s" %(this_chain_id, chains[0])
 	this_chain_id = chains[0]	#set to first chain
-  next_chain = skip_to_chain(this_chain_id, chains)
+  next_chain = skip_to_chain(imol, this_chain_id, chains)
 
-  # OK, stop trying for next chain if we have looped round
-  # (as it were) so that we are back at the starting chain:
-  # e.g. consider the case: ["A" is protein, "B" is water,
-  # "C" is ligand]
-  # 
   try_next_chain = next_chain
   while (not try_next_chain == this_chain_id):
-     found_atom_state = set_go_to_atom_chain_residue_atom_name(try_next_chain,
-			go_to_atom_residue_number(),
-			go_to_atom_atom_name())
+      
+      # OK, stop trying for next chain if we have looped round
+      # (as it were) so that we are back at the starting chain:
+      # e.g. consider the case: ["A" is protein, "B" is water,
+      # "C" is ligand]
+      #
+      if not(next_chain):
+          add_status_bar_text("No 'NCS Next Chain' found")
+      else:
+          if not(try_next_chain == this_chain_id):
+              found_atom_state = set_go_to_atom_chain_residue_atom_name_no_redraw(
+                  try_next_chain,
+                  go_to_atom_residue_number(),
+                  go_to_atom_atom_name())
 
                 # now, did that set-go-to-atom function work (was there a
                 # real atom)?  If not, then that could have been the ligand
@@ -69,13 +97,19 @@ def skip_to_next_ncs_chain():
                 # back to this-chain-id - in which case we have a "No NCS
                 # Next Chain atom" status-bar message.
 
-     if found_atom_state == 0:
+          if (found_atom_state == 0):
                     # then we did *not* find the atom, e.g. next-chain was
                     # the water chain
                     break
-     try_next_chain = skip_to_chain(try_next_chain, chains)
+          else:
+              # otherwise all was hunkey-dorey
+              # set the orientation
+              apply_ncs_to_view_orientation(imol, this_chain_id, try_next_chain)
+              return True
 
-  add_status_bar_text("No 'NCS Next Chain' found")
+          try_next_chain = skip_to_chain(try_next_chain, chains)
+
+  
             
 
 # A function inspired by a question from Bill Scott.  He wanted to

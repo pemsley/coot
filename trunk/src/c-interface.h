@@ -196,6 +196,16 @@ void add_filename_filter(GtkWidget *fileselection);
 // (return the button)
 GtkWidget *add_filename_filter_button(GtkWidget *fileselection, 
 				      short int type);
+
+#ifdef COOT_USE_GTK2_INTERFACE
+void add_filechooser_filter_button(GtkWidget *fileselection, 
+				      short int data_type);
+
+void add_filechooser_extra_filter_button(GtkWidget *fileselection, 
+				      const gchar *name,
+                                      const gchar *name2);
+#endif // GTK2
+
 gboolean on_filename_filter_key_press_event (GtkWidget       *widget,
 					     GdkEventKey     *event,
 					     gpointer         user_data);
@@ -206,9 +216,27 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 					       int imol_active_position);
 GtkWidget *coot_file_chooser();
 
+GtkWidget *coot_dataset_chooser();
+
+GtkWidget *coot_map_name_chooser();
+
+GtkWidget *coot_save_coords_chooser();
+
+GtkWidget *coot_cif_dictionary_chooser();
+
+GtkWidget *coot_run_script_chooser();
+
+GtkWidget *coot_save_state_chooser();
+
+GtkWidget *coot_save_symmetry_chooser();
+
+GtkWidget *coot_screendump_chooser();
+
 void set_directory_for_coot_file_chooser(GtkWidget *w);
 
 const char *coot_file_chooser_file_name(GtkWidget *widget);
+
+void set_filename_for_filechooserselection(GtkWidget *widget, const gchar *name);
 
 /* some BL functions for gtk2 */
 
@@ -217,6 +245,9 @@ const char *coot_file_chooser_file_name(GtkWidget *widget);
 #ifdef COOT_USE_GTK2_INTERFACE
 void set_file_chooser_selector(int istate);
 int file_chooser_selector_state();
+
+void set_file_chooser_overwrite(int istate);
+int file_chooser_overwrite_state();
 #endif
 /* \} */
 
@@ -1276,6 +1307,13 @@ void save_directory_from_fileselection(const GtkWidget *fileselection);
 void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection);
 void set_file_for_save_fileselection(GtkWidget *fileselection);
 
+/* we include thes functions for the chooser here */
+#ifdef COOT_USE_GTK2_INTERFACE
+void set_directory_for_filechooser(GtkWidget *coords_fileselection1); 
+void save_directory_from_filechooser(const GtkWidget *fileselection);
+void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection);
+#endif
+
 /* Eleanor likes to sort her files by date when selecting a file */
 
 /* return the button. */
@@ -2255,6 +2293,7 @@ void python_window_enter_callback( GtkWidget *widget,
 #endif /* USE_PYTHON */
 
 void set_guile_gui_loaded_flag(); 
+void set_python_gui_loaded_flag(); 
 void set_found_coot_gui(); 
 
 /* Accession code */

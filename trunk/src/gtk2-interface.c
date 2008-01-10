@@ -19768,7 +19768,7 @@ create_aboutdialog (void)
   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
   gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), _("Coot"));
   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), _("Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York\nCopyright 2007, 2008 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley"));
-  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _("Kendall"));
+  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), _("Post-Kendall"));
   gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), _("GNU GPL"));
   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (aboutdialog), "http://www.ysbl.york.ac.uk/~emsley/coot");
   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (aboutdialog), _("Coot Website"));
@@ -19954,6 +19954,808 @@ create_splash_screen_alternate_1_window (void)
   GLADE_HOOKUP_OBJECT (splash_screen_alternate_1_window, image6024, "image6024");
 
   return splash_screen_alternate_1_window;
+}
+
+GtkWidget *
+create_coords_filechooserdialog1 (void)
+{
+  GtkWidget *coords_filechooserdialog1;
+  GtkWidget *dialog_vbox100;
+  GtkWidget *frame177;
+  GtkWidget *alignment104;
+  GtkWidget *coords_filechooserdialog1_recentre_checkbutton;
+  GtkWidget *label441;
+  GtkWidget *dialog_action_area99;
+  GtkWidget *button5;
+  GtkWidget *button6;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
+
+  coords_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select Coordinates File"), NULL,
+				 GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
+  gtk_widget_set_name (coords_filechooserdialog1,
+		       "coords_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER (coords_filechooserdialog1),
+				  10);
+  gtk_window_set_type_hint (GTK_WINDOW (coords_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox100 = GTK_DIALOG (coords_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox100, "dialog_vbox100");
+  gtk_widget_show (dialog_vbox100);
+
+  frame177 = gtk_frame_new (NULL);
+  gtk_widget_set_name (frame177, "frame177");
+  gtk_widget_show (frame177);
+  gtk_box_pack_end (GTK_BOX (dialog_vbox100), frame177, FALSE, TRUE, 0);
+
+  alignment104 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment104, "alignment104");
+  gtk_widget_show (alignment104);
+  gtk_container_add (GTK_CONTAINER (frame177), alignment104);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment104), 0, 0, 12, 0);
+
+  coords_filechooserdialog1_recentre_checkbutton =
+    gtk_check_button_new_with_mnemonic (_("Recentre"));
+  gtk_widget_set_name (coords_filechooserdialog1_recentre_checkbutton,
+		       "coords_filechooserdialog1_recentre_checkbutton");
+  gtk_widget_show (coords_filechooserdialog1_recentre_checkbutton);
+  gtk_container_add (GTK_CONTAINER (alignment104),
+		     coords_filechooserdialog1_recentre_checkbutton);
+  gtk_tooltips_set_tip (tooltips,
+			coords_filechooserdialog1_recentre_checkbutton,
+			_
+			("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"),
+			NULL);
+
+  label441 = gtk_label_new (_("Recentre?"));
+  gtk_widget_set_name (label441, "label441");
+  gtk_widget_show (label441);
+  gtk_frame_set_label_widget (GTK_FRAME (frame177), label441);
+  gtk_label_set_use_markup (GTK_LABEL (label441), TRUE);
+
+  dialog_action_area99 = GTK_DIALOG (coords_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area99, "dialog_action_area99");
+  gtk_widget_show (dialog_action_area99);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area99),
+			     GTK_BUTTONBOX_END);
+
+  button5 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button5, "button5");
+  gtk_widget_show (button5);
+  gtk_dialog_add_action_widget (GTK_DIALOG (coords_filechooserdialog1),
+				button5, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button5, GTK_CAN_DEFAULT);
+
+  button6 = gtk_button_new_from_stock ("gtk-open");
+  gtk_widget_set_name (button6, "button6");
+  gtk_widget_show (button6);
+  gtk_dialog_add_action_widget (GTK_DIALOG (coords_filechooserdialog1),
+				button6, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button6, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) coords_filechooserdialog1, "response",
+		    G_CALLBACK (on_coords_filechooserdialog1_response), NULL);
+  g_signal_connect ((gpointer) coords_filechooserdialog1, "destroy",
+		    G_CALLBACK (on_coords_filechooserdialog1_destroy), NULL);
+  g_signal_connect ((gpointer) coords_filechooserdialog1_recentre_checkbutton,
+		    "toggled",
+		    G_CALLBACK
+		    (on_coords_filechooserdialog1_recentre_checkbutton_toggled),
+		    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1,
+			      coords_filechooserdialog1,
+			      "coords_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, dialog_vbox100,
+			      "dialog_vbox100");
+  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, frame177, "frame177");
+  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, alignment104,
+		       "alignment104");
+  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1,
+		       coords_filechooserdialog1_recentre_checkbutton,
+		       "coords_filechooserdialog1_recentre_checkbutton");
+  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, label441, "label441");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, dialog_action_area99,
+			      "dialog_action_area99");
+  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, button5, "button5");
+  GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, button6, "button6");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, tooltips,
+			      "tooltips");
+
+  gtk_widget_grab_default (button6);
+  return coords_filechooserdialog1;
+}
+
+GtkWidget *
+create_dataset_filechooserdialog1 (void)
+{
+  GtkWidget *dataset_filechooserdialog1;
+  GtkWidget *dialog_vbox101;
+  GtkWidget *dialog_action_area100;
+  GtkWidget *button7;
+  GtkWidget *button8;
+
+  dataset_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select Dataset File"), NULL,
+				 GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
+  gtk_widget_set_name (dataset_filechooserdialog1,
+		       "dataset_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER (dataset_filechooserdialog1),
+				  10);
+  gtk_window_set_type_hint (GTK_WINDOW (dataset_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox101 = GTK_DIALOG (dataset_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox101, "dialog_vbox101");
+  gtk_widget_show (dialog_vbox101);
+
+  dialog_action_area100 =
+    GTK_DIALOG (dataset_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area100, "dialog_action_area100");
+  gtk_widget_show (dialog_action_area100);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area100),
+			     GTK_BUTTONBOX_END);
+
+  button7 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button7, "button7");
+  gtk_widget_show (button7);
+  gtk_dialog_add_action_widget (GTK_DIALOG (dataset_filechooserdialog1),
+				button7, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button7, GTK_CAN_DEFAULT);
+
+  button8 = gtk_button_new_from_stock ("gtk-open");
+  gtk_widget_set_name (button8, "button8");
+  gtk_widget_show (button8);
+  gtk_dialog_add_action_widget (GTK_DIALOG (dataset_filechooserdialog1),
+				button8, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button8, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) dataset_filechooserdialog1, "response",
+		    G_CALLBACK (on_dataset_filechooserdialog1_response),
+		    NULL);
+  g_signal_connect ((gpointer) dataset_filechooserdialog1, "destroy",
+		    G_CALLBACK (on_dataset_filechooserdialog1_destroy), NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1,
+			      dataset_filechooserdialog1,
+			      "dataset_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1, dialog_vbox101,
+			      "dialog_vbox101");
+  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1,
+			      dialog_action_area100, "dialog_action_area100");
+  GLADE_HOOKUP_OBJECT (dataset_filechooserdialog1, button7, "button7");
+  GLADE_HOOKUP_OBJECT (dataset_filechooserdialog1, button8, "button8");
+
+  gtk_widget_grab_default (button8);
+  return dataset_filechooserdialog1;
+}
+
+GtkWidget *
+create_map_name_filechooserdialog1 (void)
+{
+  GtkWidget *map_name_filechooserdialog1;
+  GtkWidget *dialog_vbox102;
+  GtkWidget *frame178;
+  GtkWidget *alignment105;
+  GtkWidget *map_filechooser_is_difference_map_button;
+  GtkWidget *label442;
+  GtkWidget *dialog_action_area101;
+  GtkWidget *button9;
+  GtkWidget *button10;
+
+  map_name_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select Map..."), NULL,
+				 GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
+  gtk_widget_set_name (map_name_filechooserdialog1,
+		       "map_name_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER (map_name_filechooserdialog1),
+				  10);
+  gtk_window_set_type_hint (GTK_WINDOW (map_name_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox102 = GTK_DIALOG (map_name_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox102, "dialog_vbox102");
+  gtk_widget_show (dialog_vbox102);
+
+  frame178 = gtk_frame_new (NULL);
+  gtk_widget_set_name (frame178, "frame178");
+  gtk_widget_show (frame178);
+  gtk_box_pack_end (GTK_BOX (dialog_vbox102), frame178, FALSE, TRUE, 0);
+
+  alignment105 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment105, "alignment105");
+  gtk_widget_show (alignment105);
+  gtk_container_add (GTK_CONTAINER (frame178), alignment105);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment105), 0, 0, 12, 0);
+
+  map_filechooser_is_difference_map_button =
+    gtk_check_button_new_with_mnemonic (_("Is Difference Map"));
+  gtk_widget_set_name (map_filechooser_is_difference_map_button,
+		       "map_filechooser_is_difference_map_button");
+  gtk_widget_show (map_filechooser_is_difference_map_button);
+  gtk_container_add (GTK_CONTAINER (alignment105),
+		     map_filechooser_is_difference_map_button);
+
+  label442 = gtk_label_new (_("Difference Map?"));
+  gtk_widget_set_name (label442, "label442");
+  gtk_widget_show (label442);
+  gtk_frame_set_label_widget (GTK_FRAME (frame178), label442);
+  gtk_label_set_use_markup (GTK_LABEL (label442), TRUE);
+
+  dialog_action_area101 =
+    GTK_DIALOG (map_name_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area101, "dialog_action_area101");
+  gtk_widget_show (dialog_action_area101);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area101),
+			     GTK_BUTTONBOX_END);
+
+  button9 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button9, "button9");
+  gtk_widget_show (button9);
+  gtk_dialog_add_action_widget (GTK_DIALOG (map_name_filechooserdialog1),
+				button9, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button9, GTK_CAN_DEFAULT);
+
+  button10 = gtk_button_new_from_stock ("gtk-open");
+  gtk_widget_set_name (button10, "button10");
+  gtk_widget_show (button10);
+  gtk_dialog_add_action_widget (GTK_DIALOG (map_name_filechooserdialog1),
+				button10, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button10, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) map_name_filechooserdialog1, "response",
+		    G_CALLBACK (on_map_name_filechooserdialog1_response),
+		    NULL);
+  g_signal_connect ((gpointer) map_name_filechooserdialog1, "destroy",
+		    G_CALLBACK (on_map_name_filechooserdialog1_destroy),
+		    NULL);
+  g_signal_connect ((gpointer) map_filechooser_is_difference_map_button,
+		    "toggled",
+		    G_CALLBACK
+		    (on_map_filechooser_is_difference_map_button_toggled),
+		    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1,
+			      map_name_filechooserdialog1,
+			      "map_name_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1, dialog_vbox102,
+			      "dialog_vbox102");
+  GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, frame178, "frame178");
+  GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, alignment105,
+		       "alignment105");
+  GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1,
+		       map_filechooser_is_difference_map_button,
+		       "map_filechooser_is_difference_map_button");
+  GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, label442, "label442");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1,
+			      dialog_action_area101, "dialog_action_area101");
+  GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, button9, "button9");
+  GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, button10, "button10");
+
+  gtk_widget_grab_default (button10);
+  return map_name_filechooserdialog1;
+}
+
+GtkWidget *
+create_phs_coordinates_filechooserdialog1 (void)
+{
+  GtkWidget *phs_coordinates_filechooserdialog1;
+  GtkWidget *dialog_vbox103;
+  GtkWidget *dialog_action_area102;
+  GtkWidget *button11;
+  GtkWidget *button12;
+
+  phs_coordinates_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_
+				 ("Select Coordinates File for .phs symm/cell"),
+				 NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
+  gtk_widget_set_name (phs_coordinates_filechooserdialog1,
+		       "phs_coordinates_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER
+				  (phs_coordinates_filechooserdialog1), 10);
+  gtk_window_set_type_hint (GTK_WINDOW (phs_coordinates_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox103 = GTK_DIALOG (phs_coordinates_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox103, "dialog_vbox103");
+  gtk_widget_show (dialog_vbox103);
+
+  dialog_action_area102 =
+    GTK_DIALOG (phs_coordinates_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area102, "dialog_action_area102");
+  gtk_widget_show (dialog_action_area102);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area102),
+			     GTK_BUTTONBOX_END);
+
+  button11 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button11, "button11");
+  gtk_widget_show (button11);
+  gtk_dialog_add_action_widget (GTK_DIALOG
+				(phs_coordinates_filechooserdialog1),
+				button11, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button11, GTK_CAN_DEFAULT);
+
+  button12 = gtk_button_new_from_stock ("gtk-open");
+  gtk_widget_set_name (button12, "button12");
+  gtk_widget_show (button12);
+  gtk_dialog_add_action_widget (GTK_DIALOG
+				(phs_coordinates_filechooserdialog1),
+				button12, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button12, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) phs_coordinates_filechooserdialog1, "response",
+		    G_CALLBACK
+		    (on_phs_coordinates_filechooserdialog1_response), NULL);
+  g_signal_connect ((gpointer) phs_coordinates_filechooserdialog1, "destroy",
+		    G_CALLBACK
+		    (on_phs_coordinates_filechooserdialog1_destroy), NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1,
+			      phs_coordinates_filechooserdialog1,
+			      "phs_coordinates_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1,
+			      dialog_vbox103, "dialog_vbox103");
+  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1,
+			      dialog_action_area102, "dialog_action_area102");
+  GLADE_HOOKUP_OBJECT (phs_coordinates_filechooserdialog1, button11,
+		       "button11");
+  GLADE_HOOKUP_OBJECT (phs_coordinates_filechooserdialog1, button12,
+		       "button12");
+
+  gtk_widget_grab_default (button12);
+  return phs_coordinates_filechooserdialog1;
+}
+
+GtkWidget *
+create_save_coords_filechooserdialog1 (void)
+{
+  GtkWidget *save_coords_filechooserdialog1;
+  GtkWidget *dialog_vbox104;
+  GtkWidget *dialog_action_area103;
+  GtkWidget *button13;
+  GtkWidget *button14;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
+
+  save_coords_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select Filename for Saved Coordinates "),
+				 NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
+  gtk_widget_set_name (save_coords_filechooserdialog1,
+		       "save_coords_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER
+				  (save_coords_filechooserdialog1), 10);
+  gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1,
+			_("Saved File type: By extension"), NULL);
+  gtk_window_set_resizable (GTK_WINDOW (save_coords_filechooserdialog1),
+			    FALSE);
+  gtk_window_set_type_hint (GTK_WINDOW (save_coords_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox104 = GTK_DIALOG (save_coords_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox104, "dialog_vbox104");
+  gtk_widget_show (dialog_vbox104);
+
+  dialog_action_area103 =
+    GTK_DIALOG (save_coords_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area103, "dialog_action_area103");
+  gtk_widget_show (dialog_action_area103);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area103),
+			     GTK_BUTTONBOX_END);
+
+  button13 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button13, "button13");
+  gtk_widget_show (button13);
+  gtk_dialog_add_action_widget (GTK_DIALOG (save_coords_filechooserdialog1),
+				button13, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button13, GTK_CAN_DEFAULT);
+
+  button14 = gtk_button_new_from_stock ("gtk-save");
+  gtk_widget_set_name (button14, "button14");
+  gtk_widget_show (button14);
+  gtk_dialog_add_action_widget (GTK_DIALOG (save_coords_filechooserdialog1),
+				button14, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button14, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) save_coords_filechooserdialog1,
+		    "confirm_overwrite",
+		    G_CALLBACK
+		    (on_save_coords_filechooserdialog1_confirm_overwrite),
+		    NULL);
+  g_signal_connect ((gpointer) save_coords_filechooserdialog1, "response",
+		    G_CALLBACK (on_save_coords_filechooserdialog1_response),
+		    NULL);
+  g_signal_connect ((gpointer) save_coords_filechooserdialog1, "destroy",
+		    G_CALLBACK (on_save_coords_filechooserdialog1_destroy),
+		    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1,
+			      save_coords_filechooserdialog1,
+			      "save_coords_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, dialog_vbox104,
+			      "dialog_vbox104");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1,
+			      dialog_action_area103, "dialog_action_area103");
+  GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, button13, "button13");
+  GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, button14, "button14");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, tooltips,
+			      "tooltips");
+
+  gtk_widget_grab_default (button14);
+  return save_coords_filechooserdialog1;
+}
+
+GtkWidget *
+create_cif_dictionary_filechooserdialog1 (void)
+{
+  GtkWidget *cif_dictionary_filechooserdialog1;
+  GtkWidget *dialog_vbox105;
+  GtkWidget *dialog_action_area104;
+  GtkWidget *button15;
+  GtkWidget *button16;
+
+  cif_dictionary_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select Cif Dictionary File"), NULL,
+				 GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
+  gtk_widget_set_name (cif_dictionary_filechooserdialog1,
+		       "cif_dictionary_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER
+				  (cif_dictionary_filechooserdialog1), 10);
+  gtk_window_set_type_hint (GTK_WINDOW (cif_dictionary_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox105 = GTK_DIALOG (cif_dictionary_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox105, "dialog_vbox105");
+  gtk_widget_show (dialog_vbox105);
+
+  dialog_action_area104 =
+    GTK_DIALOG (cif_dictionary_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area104, "dialog_action_area104");
+  gtk_widget_show (dialog_action_area104);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area104),
+			     GTK_BUTTONBOX_END);
+
+  button15 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button15, "button15");
+  gtk_widget_show (button15);
+  gtk_dialog_add_action_widget (GTK_DIALOG
+				(cif_dictionary_filechooserdialog1), button15,
+				GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button15, GTK_CAN_DEFAULT);
+
+  button16 = gtk_button_new_from_stock ("gtk-open");
+  gtk_widget_set_name (button16, "button16");
+  gtk_widget_show (button16);
+  gtk_dialog_add_action_widget (GTK_DIALOG
+				(cif_dictionary_filechooserdialog1), button16,
+				GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button16, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) cif_dictionary_filechooserdialog1, "response",
+		    G_CALLBACK
+		    (on_cif_dictionary_filechooserdialog1_response), NULL);
+  g_signal_connect ((gpointer) cif_dictionary_filechooserdialog1, "destroy",
+		    G_CALLBACK (on_cif_dictionary_filechooserdialog1_destroy),
+		    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1,
+			      cif_dictionary_filechooserdialog1,
+			      "cif_dictionary_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1,
+			      dialog_vbox105, "dialog_vbox105");
+  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1,
+			      dialog_action_area104, "dialog_action_area104");
+  GLADE_HOOKUP_OBJECT (cif_dictionary_filechooserdialog1, button15,
+		       "button15");
+  GLADE_HOOKUP_OBJECT (cif_dictionary_filechooserdialog1, button16,
+		       "button16");
+
+  gtk_widget_grab_default (button16);
+  return cif_dictionary_filechooserdialog1;
+}
+
+GtkWidget *
+create_run_script_filechooserdialog1 (void)
+{
+  GtkWidget *run_script_filechooserdialog1;
+  GtkWidget *dialog_vbox106;
+  GtkWidget *dialog_action_area105;
+  GtkWidget *button17;
+  GtkWidget *button18;
+
+  run_script_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select Scripting File"), NULL,
+				 GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
+  gtk_widget_set_name (run_script_filechooserdialog1,
+		       "run_script_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER
+				  (run_script_filechooserdialog1), 10);
+  gtk_window_set_type_hint (GTK_WINDOW (run_script_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox106 = GTK_DIALOG (run_script_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox106, "dialog_vbox106");
+  gtk_widget_show (dialog_vbox106);
+
+  dialog_action_area105 =
+    GTK_DIALOG (run_script_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area105, "dialog_action_area105");
+  gtk_widget_show (dialog_action_area105);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area105),
+			     GTK_BUTTONBOX_END);
+
+  button17 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button17, "button17");
+  gtk_widget_show (button17);
+  gtk_dialog_add_action_widget (GTK_DIALOG (run_script_filechooserdialog1),
+				button17, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button17, GTK_CAN_DEFAULT);
+
+  button18 = gtk_button_new_from_stock ("gtk-open");
+  gtk_widget_set_name (button18, "button18");
+  gtk_widget_show (button18);
+  gtk_dialog_add_action_widget (GTK_DIALOG (run_script_filechooserdialog1),
+				button18, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button18, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) run_script_filechooserdialog1, "response",
+		    G_CALLBACK (on_run_script_filechooserdialog1_response),
+		    NULL);
+  g_signal_connect ((gpointer) run_script_filechooserdialog1, "destroy",
+		    G_CALLBACK (on_run_script_filechooserdialog1_destroy),
+		    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1,
+			      run_script_filechooserdialog1,
+			      "run_script_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1, dialog_vbox106,
+			      "dialog_vbox106");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1,
+			      dialog_action_area105, "dialog_action_area105");
+  GLADE_HOOKUP_OBJECT (run_script_filechooserdialog1, button17, "button17");
+  GLADE_HOOKUP_OBJECT (run_script_filechooserdialog1, button18, "button18");
+
+  gtk_widget_grab_default (button18);
+  return run_script_filechooserdialog1;
+}
+
+GtkWidget *
+create_save_symmetry_coords_filechooserdialog1 (void)
+{
+  GtkWidget *save_symmetry_coords_filechooserdialog1;
+  GtkWidget *dialog_vbox107;
+  GtkWidget *dialog_action_area106;
+  GtkWidget *button19;
+  GtkWidget *button20;
+
+  save_symmetry_coords_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select File"), NULL,
+				 GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
+  gtk_widget_set_name (save_symmetry_coords_filechooserdialog1,
+		       "save_symmetry_coords_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER
+				  (save_symmetry_coords_filechooserdialog1),
+				  10);
+  gtk_window_set_resizable (GTK_WINDOW
+			    (save_symmetry_coords_filechooserdialog1), FALSE);
+  gtk_window_set_type_hint (GTK_WINDOW
+			    (save_symmetry_coords_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox107 = GTK_DIALOG (save_symmetry_coords_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox107, "dialog_vbox107");
+  gtk_widget_show (dialog_vbox107);
+
+  dialog_action_area106 =
+    GTK_DIALOG (save_symmetry_coords_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area106, "dialog_action_area106");
+  gtk_widget_show (dialog_action_area106);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area106),
+			     GTK_BUTTONBOX_END);
+
+  button19 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button19, "button19");
+  gtk_widget_show (button19);
+  gtk_dialog_add_action_widget (GTK_DIALOG
+				(save_symmetry_coords_filechooserdialog1),
+				button19, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button19, GTK_CAN_DEFAULT);
+
+  button20 = gtk_button_new_from_stock ("gtk-save");
+  gtk_widget_set_name (button20, "button20");
+  gtk_widget_show (button20);
+  gtk_dialog_add_action_widget (GTK_DIALOG
+				(save_symmetry_coords_filechooserdialog1),
+				button20, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button20, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1,
+		    "confirm_overwrite",
+		    G_CALLBACK
+		    (on_save_symmetry_coords_filechooserdialog1_confirm_overwrite),
+		    NULL);
+  g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1,
+		    "response",
+		    G_CALLBACK
+		    (on_save_symmetry_coords_filechooserdialog1_response),
+		    NULL);
+  g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1,
+		    "destroy",
+		    G_CALLBACK
+		    (on_save_symmetry_coords_filechooserdialog1_destroy),
+		    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1,
+			      save_symmetry_coords_filechooserdialog1,
+			      "save_symmetry_coords_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1,
+			      dialog_vbox107, "dialog_vbox107");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1,
+			      dialog_action_area106, "dialog_action_area106");
+  GLADE_HOOKUP_OBJECT (save_symmetry_coords_filechooserdialog1, button19,
+		       "button19");
+  GLADE_HOOKUP_OBJECT (save_symmetry_coords_filechooserdialog1, button20,
+		       "button20");
+
+  gtk_widget_grab_default (button20);
+  return save_symmetry_coords_filechooserdialog1;
+}
+
+GtkWidget *
+create_save_state_filechooserdialog1 (void)
+{
+  GtkWidget *save_state_filechooserdialog1;
+  GtkWidget *dialog_vbox108;
+  GtkWidget *dialog_action_area107;
+  GtkWidget *button21;
+  GtkWidget *button22;
+
+  save_state_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select File-name for State File"), NULL,
+				 GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
+  gtk_widget_set_name (save_state_filechooserdialog1,
+		       "save_state_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER
+				  (save_state_filechooserdialog1), 10);
+  gtk_window_set_resizable (GTK_WINDOW (save_state_filechooserdialog1),
+			    FALSE);
+  gtk_window_set_type_hint (GTK_WINDOW (save_state_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox108 = GTK_DIALOG (save_state_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox108, "dialog_vbox108");
+  gtk_widget_show (dialog_vbox108);
+
+  dialog_action_area107 =
+    GTK_DIALOG (save_state_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area107, "dialog_action_area107");
+  gtk_widget_show (dialog_action_area107);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area107),
+			     GTK_BUTTONBOX_END);
+
+  button21 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button21, "button21");
+  gtk_widget_show (button21);
+  gtk_dialog_add_action_widget (GTK_DIALOG (save_state_filechooserdialog1),
+				button21, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button21, GTK_CAN_DEFAULT);
+
+  button22 = gtk_button_new_from_stock ("gtk-save");
+  gtk_widget_set_name (button22, "button22");
+  gtk_widget_show (button22);
+  gtk_dialog_add_action_widget (GTK_DIALOG (save_state_filechooserdialog1),
+				button22, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button22, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) save_state_filechooserdialog1,
+		    "confirm_overwrite",
+		    G_CALLBACK
+		    (on_save_state_filechooserdialog1_confirm_overwrite),
+		    NULL);
+  g_signal_connect ((gpointer) save_state_filechooserdialog1, "response",
+		    G_CALLBACK (on_save_state_filechooserdialog1_response),
+		    NULL);
+  g_signal_connect ((gpointer) save_state_filechooserdialog1, "destroy",
+		    G_CALLBACK (on_save_state_filechooserdialog1_destroy),
+		    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1,
+			      save_state_filechooserdialog1,
+			      "save_state_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1, dialog_vbox108,
+			      "dialog_vbox108");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1,
+			      dialog_action_area107, "dialog_action_area107");
+  GLADE_HOOKUP_OBJECT (save_state_filechooserdialog1, button21, "button21");
+  GLADE_HOOKUP_OBJECT (save_state_filechooserdialog1, button22, "button22");
+
+  gtk_widget_grab_default (button22);
+  return save_state_filechooserdialog1;
+}
+
+GtkWidget *
+create_screendump_filechooserdialog1 (void)
+{
+  GtkWidget *screendump_filechooserdialog1;
+  GtkWidget *dialog_vbox109;
+  GtkWidget *dialog_action_area108;
+  GtkWidget *button23;
+  GtkWidget *button24;
+
+  screendump_filechooserdialog1 =
+    gtk_file_chooser_dialog_new (_("Select File"), NULL,
+				 GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
+  gtk_widget_set_name (screendump_filechooserdialog1,
+		       "screendump_filechooserdialog1");
+  gtk_container_set_border_width (GTK_CONTAINER
+				  (screendump_filechooserdialog1), 10);
+  gtk_window_set_resizable (GTK_WINDOW (screendump_filechooserdialog1),
+			    FALSE);
+  gtk_window_set_type_hint (GTK_WINDOW (screendump_filechooserdialog1),
+			    GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox109 = GTK_DIALOG (screendump_filechooserdialog1)->vbox;
+  gtk_widget_set_name (dialog_vbox109, "dialog_vbox109");
+  gtk_widget_show (dialog_vbox109);
+
+  dialog_action_area108 =
+    GTK_DIALOG (screendump_filechooserdialog1)->action_area;
+  gtk_widget_set_name (dialog_action_area108, "dialog_action_area108");
+  gtk_widget_show (dialog_action_area108);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area108),
+			     GTK_BUTTONBOX_END);
+
+  button23 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button23, "button23");
+  gtk_widget_show (button23);
+  gtk_dialog_add_action_widget (GTK_DIALOG (screendump_filechooserdialog1),
+				button23, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button23, GTK_CAN_DEFAULT);
+
+  button24 = gtk_button_new_from_stock ("gtk-save");
+  gtk_widget_set_name (button24, "button24");
+  gtk_widget_show (button24);
+  gtk_dialog_add_action_widget (GTK_DIALOG (screendump_filechooserdialog1),
+				button24, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button24, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) screendump_filechooserdialog1,
+		    "confirm_overwrite",
+		    G_CALLBACK
+		    (on_screendump_filechooserdialog1_confirm_overwrite),
+		    NULL);
+  g_signal_connect ((gpointer) screendump_filechooserdialog1, "response",
+		    G_CALLBACK (on_screendump_filechooserdialog1_response),
+		    NULL);
+  g_signal_connect ((gpointer) screendump_filechooserdialog1, "destroy",
+		    G_CALLBACK (on_screendump_filechooserdialog1_destroy),
+		    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1,
+			      screendump_filechooserdialog1,
+			      "screendump_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1, dialog_vbox109,
+			      "dialog_vbox109");
+  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1,
+			      dialog_action_area108, "dialog_action_area108");
+  GLADE_HOOKUP_OBJECT (screendump_filechooserdialog1, button23, "button23");
+  GLADE_HOOKUP_OBJECT (screendump_filechooserdialog1, button24, "button24");
+
+  gtk_widget_grab_default (button24);
+  return screendump_filechooserdialog1;
 }
 
 #endif // (GTK_MAJOR_VERSION > 1)

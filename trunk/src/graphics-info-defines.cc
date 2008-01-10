@@ -1425,7 +1425,7 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
       if (naii.success == GL_TRUE) { 
 
 	 in_save_symmetry_define = 0;
-	 GtkWidget *w = create_save_symmetry_coords_fileselection();
+	 GtkWidget *w = coot_save_symmetry_chooser();
 
 	 // attach symmetry info to the widget for use in the OK
 	 // button callback:
@@ -1442,8 +1442,18 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 filename += int_to_string(naii.symm_trans.isym());
 	 filename += ".pdb";
 
+#if (GTK_MAJOR_VERSION > 1)
+	 if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w),
+                                         filename.c_str());
+	 } else {
+	 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(w),
+					 filename.c_str());
+	 }
+#else
 	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(w),
 					 filename.c_str());
+#endif // GTK_MAJOR_VERSION
 	 
 	 normal_cursor();
 	 gtk_widget_show(w);
