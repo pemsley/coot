@@ -251,7 +251,9 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 			       << chnnum << "\tOffset: " << chnoff+1 << "\n";
 
 		     if (conf > 0.9) {
-			std::string chain_id = seq[chnnum].first;
+		       // BL and KC says:: we do not want to change the chain_id of the sequenced 
+		       // fragment here!!
+		       //			std::string chain_id = seq[chnnum].first;
 			std::vector<coot::residue_spec_t> mmdb_residues = mmdb_info.second;
 			int istat = 
 			   graphics_info_t::molecules[imol_model].apply_sequence(imol_map,

@@ -26,6 +26,11 @@
 
     (let ((menu (coot-menubar-menu "Extensions")))
 
+      ;; ---------------------------------------------------------------------
+      ;;     Post MR
+      ;;
+      ;; ---------------------------------------------------------------------
+       
       (add-simple-coot-menu-menuitem
        menu "[Post MR] Fill Partial Residues..."
        (lambda ()
@@ -55,6 +60,10 @@
 
       (add-coot-menu-seperator menu)
 
+      ;; ---------------------------------------------------------------------
+      ;;     Map functions
+      ;;
+      ;; ---------------------------------------------------------------------
       (add-simple-coot-menu-menuitem
        menu "Mask Map by Atom Selection..."
        (lambda ()
@@ -148,6 +157,10 @@
       (add-coot-menu-seperator menu)
 
 
+      ;; ---------------------------------------------------------------------
+      ;;     Molecule functions
+      ;;
+      ;; ---------------------------------------------------------------------
       (add-simple-coot-menu-menuitem
        menu "Copy Fragment..."
        (lambda ()

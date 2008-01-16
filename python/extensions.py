@@ -43,6 +43,11 @@ if (have_coot_python):
 
      menu = coot_menubar_menu("Extensions")
 
+     #---------------------------------------------------------------------
+     #     Post MR
+     #
+     #---------------------------------------------------------------------
+
      add_simple_coot_menu_menuitem(menu,"[Post MR] Fill Partial Residues...",
 	lambda func: molecule_chooser_gui("Find and Fill residues with missing atoms",
 		lambda imol: fill_partial_residues(imol)))
@@ -71,8 +76,11 @@ if (have_coot_python):
 
      add_coot_menu_separator(menu)
 
+     #---------------------------------------------------------------------
+     #     Map functions
+     #
+     #---------------------------------------------------------------------
 
-# BL says: currently doesnt check for valid molecules etc.!!
      def mask_map_func():
 	f = ""
 	molecule_list = molecule_number_list()
@@ -143,10 +151,15 @@ if (have_coot_python):
 
      add_coot_menu_separator(menu)
      
+     #---------------------------------------------------------------------
+     #     Molecule functions
+     #
+     #---------------------------------------------------------------------
 
      add_simple_coot_menu_menuitem(menu,"Copy Fragment...", 
-	lambda func: generic_chooser_and_entry("Create a new Molecule\nFrom which molecule shall we seed?", 
-	"Atom selection for fragment", "//A/1-10", 
+	lambda func: generic_chooser_and_entry("Create a new Molecule\n \
+                                  From which molecule shall we seed?", 
+                                 "Atom selection for fragment", "//A/1-10", 
 		lambda imol, text: new_molecule_by_atom_selection(imol,text)))
 
 
@@ -194,13 +207,13 @@ if (have_coot_python):
 	lambda func: molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
 		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
 
+
+     add_coot_menu_separator(menu)
+
      #---------------------------------------------------------------------
      #     Other Programs (?)
      #
      #---------------------------------------------------------------------
-
-     add_coot_menu_separator(menu)
-
 
      def ccp4mg_func1():
 	import os
@@ -266,54 +279,27 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(menu, "SHELXL Refine...", 
 	shelx_ref_func)
 
+
+     add_coot_menu_separator(menu)
+
      # ---------------------------------------------------------------------
      #     Building
      # ---------------------------------------------------------------------
-     add_coot_menu_separator(menu)
 
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Cootaneering")
-
-     menuitem2.set_submenu(submenu)
-     menu.append(menuitem2)
-     menuitem2.show()
-
-     def cootaneer_func1(imol, chain_id, pir_file_name):
-	print "assoc seq: ", imol, chain_id, pir_file_name
-	import os
-	if os.path.isfile(pir_file_name):
-		fin = open(pir_file_name, 'r')
-		lines = fin.readlines()
-		for line in lines:
-			seq_text += line
-		fin.close()
-                assign_pir_sequence(imol, chain_id, seq_text)
-	else:
-		print "BL WARINING: no such file ", pir_file_name
-
-     add_simple_coot_menu_menuitem(submenu, "Associate Sequence....", 
-	lambda func: generic_chooser_entry_and_file_selector(
-		"Associate Sequence to Model: ",
-                valid_model_molecule_qm,
-		"Chain ID", "", "Select PIR file", 
-		lambda imol, chain_id, pir_file_name: 
-			cootaneer_func1(imol, chain_id, pir_file_name)))
-
-
-     add_simple_coot_menu_menuitem(submenu, "Cootaneer this fragment...",
-	lambda func: molecule_chooser_gui("Choose a molecule to apply sequence assignment", 
-		lambda imol: coontaneer_gui(imol)))
+     add_simple_coot_menu_menuitem(submenu, "Sequencing/Cootaneering", 
+                                   lambda func: cootaneer_gui_bl())
 
 
      add_simple_coot_menu_menuitem(menu,"Add Strand Here...",
-                        lambda func: place_strand_here_gui())
+                                   lambda func: place_strand_here_gui())
+
+
+     add_coot_menu_separator(menu)
 
      # ---------------------------------------------------------------------
      #     Settings
      # ---------------------------------------------------------------------
      #
-     add_coot_menu_separator(menu)
-
  
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Peptide Restraints...")
@@ -363,10 +349,10 @@ if (have_coot_python):
 
 
      def ref_mode_func2():
-	print "Back to normal (1 Emsley)..."
+	print "Default Refinement mode (1 Emsley)..."
 	set_dragged_refinement_steps_per_frame(50)
 
-     add_simple_coot_menu_menuitem(submenu, "Normal speed Refinement mode (1 Emsley)", 
+     add_simple_coot_menu_menuitem(submenu, "Normal Refinement mode (1 Emsley)", 
 	lambda func: ref_mode_func2())
 
 
@@ -459,6 +445,17 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
      #
      add_coot_menu_separator(menu)
+
+     def make_ball_n_stick_func(imol, text):
+       bns_handle = make_ball_and_stick(imol, text, 0.18, 0.3, 1)
+       print "handle: ", bns_handle
+
+     add_simple_coot_menu_menuitem(menu, "Ball & Stick...",
+        lambda func: generic_chooser_and_entry("Ball & Stick",
+                                               "Atom Selection:",
+                                               "//A/1-2",
+                                               lambda imol, text: make_ball_n_stick_func(imol, text)))
+     
 
      def make_dot_surf_func(imol,text):
 	dots_handle = dots(imol, text, 1, 1)

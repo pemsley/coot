@@ -47,6 +47,7 @@
 
 #include "clipper/core/xmap.h"
 #include "clipper/cns/cns_hkl_io.h"
+#include "clipper/minimol/minimol_io.h"
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
@@ -2584,6 +2585,105 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
       std::cout << "WARNING:: no sequence found or improper pir sequence format\n";
    }
    
+}
+
+// we let clipper assign the sequence for us from any sequence file
+void 
+molecule_class_info_t::assign_sequence_from_file(const std::string &filename) {
+
+  // read in file via clipper
+  // maybe check if file exists first
+  if (coot::file_exists(filename)) {
+    clipper::SEQfile seq_file;
+    clipper::MMoleculeSequence molecule_sequence;
+    seq_file.read_file(filename);
+    seq_file.import_molecule_sequence(molecule_sequence);
+
+    // previous assigned sequences?
+    std::vector<std::pair<std::string, std::string> > seq_old =
+         graphics_info_t::molecules[imol_no].sequence_info();
+
+    bool skip_chain = 0;
+    std::string old_chain_id;
+    std::string new_chain_id;
+
+    if (!molecule_sequence.is_null()) {
+      for (int i=0; i<int(molecule_sequence.size()); i++) {
+	new_chain_id = molecule_sequence[i].id();
+	std::pair<std::string, std::string> new_seq_info(new_chain_id, molecule_sequence[i].sequence());
+	if (seq_old.size() > 0) {
+	  skip_chain = 0;
+	  for (int j=0; j<int(seq_old.size()); j++) {
+	    old_chain_id = seq_old[j].first;
+	    if (new_chain_id == old_chain_id) {
+	      skip_chain = 1;
+	      break;
+	    }
+	  }
+	  if (!skip_chain) {
+	    input_sequence.push_back(new_seq_info);
+	  }
+	} else {
+	  input_sequence.push_back(new_seq_info);
+	}
+      }
+    } else {
+      std::cout <<"WARNING:: no valid sequence model" <<std::endl;
+    }
+  } else {
+    std::cout <<"ERROR:: filename not found " <<std::endl;
+  }
+}
+
+// to assign a sequence from a simple string
+void
+molecule_class_info_t::assign_sequence_from_string(const std::string &chain_id, const std::string &seq_in) {
+
+   std::cout << "in assign_sequence_from_string\n";
+
+   std::string seq = seq_in;
+   if (seq.length() > 0) { 
+      std::cout << "storing sequence: " << seq << " for chain id: " << chain_id
+		<< std::endl;
+      input_sequence.push_back(std::pair<std::string, std::string> (chain_id, seq));
+   } else { 
+      std::cout << "WARNING:: no sequence found or improper string\n";
+   }
+}
+
+// Delete all the associated sequences from the molecule
+void 
+molecule_class_info_t::delete_all_sequences_from_molecule() {
+  
+  std::vector<std::pair<std::string, std::string> > seq =
+    graphics_info_t::molecules[imol_no].sequence_info();
+  std::cout<<"BL DEBUG:: seq len before delete all " << seq.size() <<std::endl;
+  input_sequence.clear();
+  seq = graphics_info_t::molecules[imol_no].sequence_info();
+  std::cout<<"BL DEBUG:: seq len after delete all " << seq.size() <<std::endl;
+
+}
+
+// Delete the to chain_id associated sequence from the molecule
+void 
+molecule_class_info_t::delete_sequence_by_chain_id(const std::string &chain_id_in) {
+  
+  std::vector<std::pair<std::string, std::string> > seq =
+    graphics_info_t::molecules[imol_no].sequence_info();
+  std::cout<<"BL DEBUG:: seq len before delete chain " << seq.size() <<std::endl;
+  std::vector<std::pair<std::string, std::string> >::iterator iter;
+  for (iter = input_sequence.begin(); iter != input_sequence.end(); iter++) {
+    std::string chain_id = (*(iter)).first;
+    if (chain_id == chain_id_in) {
+      // delete the seq for this chain
+      std::cout<<"BL DEBUG:: chain id and positions " << chain_id  <<std::endl; 
+      input_sequence.erase(iter);
+      break;
+    }
+  }
+  seq = graphics_info_t::molecules[imol_no].sequence_info();
+  std::cout<<"BL DEBUG:: seq len after delete chain " << seq.size() <<std::endl;
+
 }
 
 

@@ -909,6 +909,13 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
 	 char seq_char = best_seq[ichar];
 	 if (seq_char == '?') {
 	    std::cout << "bypassing ? at " << ichar << std::endl;
+
+	    // but we still need to set the sequence offset
+	    CResidue *poly_ala_res = SelResidues[ichar];
+
+	    poly_ala_res->seqNum = resno_offset + ichar;
+	    if (ichar < mmdb_residues.size())
+		    r_del.push_back(mmdb_residues[ichar]);	    
 	 } else { 
 	    std::string res_type = coot::util:: single_letter_to_3_letter_code(best_seq[ichar]);
 	    if (res_type != "") {

@@ -1041,7 +1041,7 @@ def generic_chooser_and_entry(chooser_label,entry_hint_text,default_entry_text,c
 # callback_function is a function that takes a molecule number and a
 # text string (e.g. chain_id and file_name)
 #
-# chooser_filter is typically vali_map_molecule_qm or valid_model_molecule_qm
+# chooser_filter is typically valid_map_molecule_qm or valid_model_molecule_qm
 #
 def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter, entry_hint_text, default_entry_text, file_selector_hint, callback_function):
 
@@ -1182,7 +1182,7 @@ def coot_menubar_menu(menu_label):
     found_menu = False
     for f in menu_bar_label_list():
        if menu_label in f: 
-          print "BL DEBUG:: f is ", f
+          print "BL DEBUG:: found menu label is ", f
           found_menu = f[1]
     if found_menu:
        return found_menu
@@ -1438,11 +1438,7 @@ def file_chooser_entry(hbox, hint_text):
                 if response == gtk.RESPONSE_OK:
                    file_ok_sel(fc_window, entry)
                 elif response == gtk.RESPONSE_CANCEL:
-                   fc_window.destroy
-#		fc_window.ok_button.connect("clicked", file_ok_sel)
-#		fc_window.cancel_button.connect("clicked",
-#				lambda w: fc_window.destroy())
-#		fc_window.show()
+                   fc_window.destroy()
 
 	entry = entry_do_button(vbox, hint_text, "  File...  ", file_func1)
 
@@ -1507,15 +1503,16 @@ def cootaneer_gui(imol):
 		vbox = gtk.VBox(False, 3)
 		entry = gtk.Entry()
 		textview = gtk.TextView()
+                textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
 		text_box = textview.get_buffer()
-		chain_id_label = gtk.label("Chain ID")
-		sequence_label = gtk.label("Sequence")
+		chain_id_label = gtk.Label("Chain ID")
+		sequence_label = gtk.Label("Sequence")
 	
 		frame.add(vbox)
 		vbox.pack_start(chain_id_label, False, False, 2)
 		vbox.pack_start(entry, False, False, 2)
 		vbox.pack_start(sequence_label, False, False, 2)
-		vbox.pack_start(text_box, False, False, 2)
+		vbox.pack_start(textview, False, False, 2)
 		add_text_to_text_box(text_box, seq_info[1])
 		entry.set_text(seq_info[0])
 		return [frame, entry, text_box]
@@ -1554,6 +1551,145 @@ def cootaneer_gui(imol):
         window.add(outside_vbox)
 	window.show_all()
 	
+
+# Cootaneer gui BL mod
+# based on cootaneer gui and generic_chooser_entry_and_file_selector
+def cootaneer_gui_bl():
+   
+	def delete_event(*args):
+		window.destroy()
+		return False
+
+	def go_function_event(widget, imol):
+		print "apply the sequence info here\n"
+		print "then cootaneer\n"
+
+		# no active atom won't do.  We need
+		# to find the nearest atom in imol to (rotation-centre).
+		#
+		# if it is too far away, give a
+		# warning and do't do anything.
+
+		n_atom = closest_atom(imol)
+		if n_atom:
+			imol	= n_atom[0]
+			chain_id= n_atom[1]
+			resno	= n_atom[2]
+			inscode	= n_atom[3]
+			at_name	= n_atom[4]
+			alt_conf= n_atom[5]
+			cootaneer(imol_map, imol, [chain_id, resno, inscode, 
+				at_name, alt_conf])
+		else:
+			print "BL WARNING:: no close atom found!"
+
+        def import_function_event(*args):
+           print "BL says:: we shall do somthign!!"
+
+
+	def add_text_to_text_box(text_box, description):
+		start = text_box.get_start_iter()
+		text_box.create_tag("tag", foreground="black", 
+			background = "#c0e6c0")
+		text_box.insert_with_tags_by_name(start, description, "tag")
+
+	# return the (entry . textbuffer/box)
+	#
+	def entry_text_pair_frame_with_button(seq_info):
+           
+           def fragment_go_event(widget, imol):
+              print "Cootaneer this fragment", imol
+               
+           frame = gtk.Frame()
+           vbox = gtk.VBox(False, 3)
+           hbox = gtk.HBox(False, 3)
+           entry = gtk.Entry()
+           textview = gtk.TextView()
+           textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
+           text_box = textview.get_buffer()
+           chain_id_label = gtk.Label("Chain ID")
+           sequence_label = gtk.Label("Sequence")
+           fragment_button = gtk.Button("  Cootaneer closest fragment  ")
+           
+           frame.add(hbox)
+           vbox.pack_start(chain_id_label, False, False, 2)
+           vbox.pack_start(entry, False, False, 2)
+           vbox.pack_start(sequence_label, False, False, 2)
+           vbox.pack_start(textview, False, False, 2)
+           add_text_to_text_box(text_box, seq_info[1])
+           entry.set_text(seq_info[0])
+           hbox.pack_start(vbox, False, False, 2)
+           hbox.pack_start(fragment_button, False, False, 2)
+              
+           fragment_button.connect("clicked", fragment_go_event, imol)
+              
+           return [frame, entry, text_box]
+
+	# main body
+        imol = False
+	imol_map = imol_refinement_map()
+	if (imol_map == -1):
+		show_select_map_dialog()
+		print "BL DEBUG:: probably should wait here for input!?"
+	
+	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.set_title("Cootaneer Gui")
+        tooltips = gtk.Tooltips()
+        label = gtk.Label("Molecule to be sequenced")
+	vbox = gtk.VBox(False, 2)
+        option_menu = gtk.combo_box_new_text()
+        model_mol_list = fill_option_menu_with_mol_options(option_menu, valid_model_molecule_qm)
+	inside_vbox = gtk.VBox(False, 2)
+        hbox_for_spin = gtk.HBox(False, 0)
+        spin_label = gtk.Label("Number of Sequences:")
+        spin_adj = gtk.Adjustment(1, 1, 10, 1, 4, 0)
+        spin_button = gtk.SpinButton(spin_adj, 0, 0)
+	h_sep = gtk.HSeparator()
+	h_sep2 = gtk.HSeparator()
+	buttons_hbox = gtk.HBox(True, 2)
+        import_button = gtk.Button("  Import Sequence from file  ")
+	go_button = gtk.Button("  Cootaneer all Fragments!  ")
+        tooltips.set_tip(go_button, "This currently ignores all chain IDs")
+	cancel_button = gtk.Button("  Cancel  ")
+
+        window.set_default_size(400, 200)
+        window.add(vbox)
+        vbox.pack_start(label, False, False, 5)
+        vbox.pack_start(option_menu, True, True, 0)
+
+        hbox_for_spin.pack_start(spin_label, False, False, 2)
+        hbox_for_spin.pack_start(spin_button, False, False, 2)       
+        vbox.pack_start(hbox_for_spin, False, False, 5)
+
+        vbox.pack_start(inside_vbox, False, False, 2)
+#	for seq_info in seq_info_ls:
+        seq_widgets = entry_text_pair_frame_with_button(["A", "no seq"])
+        inside_vbox.pack_start(seq_widgets[0], False, False, 2)
+
+        vbox.pack_start(h_sep, True, False, 2)
+        file_sel_entry = file_chooser_entry(vbox, "Select PIR file")
+        vbox.pack_start(import_button, True, False, 6)
+
+	buttons_hbox.pack_start(go_button, True, False, 6)
+	buttons_hbox.pack_start(cancel_button, True, False, 6)
+
+        vbox.pack_start(h_sep, True, False, 2)
+        vbox.pack_start(buttons_hbox, False, False, 5)
+        
+
+#	seq_info_ls = sequence_info(imol)
+#        print "BL DEBUG:: sequence_list and imol is", seq_info_ls, imol
+
+        import_button.connect("clicked", import_function_event)
+
+	cancel_button.connect("clicked", delete_event)
+
+	go_button.connect("clicked", go_function_event, imol)
+                               
+
+        window.add(outside_vbox)
+	window.show_all()
+
 
 # The gui for saving views
 def view_saver_gui():
@@ -1823,7 +1959,7 @@ def nudge_screen_centre_paule_gui():
 # 
 def nudge_screen_centre_gui():
 
-	zsc = 0.01
+	zsc = 0.02
 # BL says:: in python we need some helper functn, no 'proper' lambda
 # axis 0-2 = x,y,z and 0=+ and 1=-
 	def nudge_screen_func(axis, operand):
@@ -1857,7 +1993,7 @@ def nudge_screen_centre_gui():
 def nudge_screen_centre_extra_gui():
 
    # this is for the centre nudging
-   zsc = 0.01
+   zsc = 0.02
 # BL says:: in python we need some helper functn, no 'proper' lambda
 # axis 0-2 = x,y,z and 0=+ and 1=-
    def nudge_screen_func(axis, operand):
@@ -1982,6 +2118,412 @@ def cis_peptides_gui(imol):
    else:
       list_of_cis_peptides = make_list_of_cis_peps(imol, cis_peps)
       interesting_things_gui("Cis Peptides:", list_of_cis_peptides)
+
+# Cootaneer/sequencing gui modified by BL with ideas from KC
+# based on Paul's cootaneer gui and generic_chooser_entry_and_file_selector
+def cootaneer_gui_bl():
+
+	# unfortunately currently I dont see a way to avoid a global variable here
+	# contains flag if file was imported and no of sequences
+	global imported_sequence_file_flags
+	imported_sequence_file_flags = [False, 0]
+
+	def delete_event(*args):
+		window.destroy()
+		return False
+
+	def refine_function_event(widget):
+		# doesnt need to do anything
+		status = refine_check_button.get_active()
+		if (status):
+			print "INFO:: refinement on"
+		else:
+			print "INFO:: refinement off"
+
+	def go_function_event(widget):
+		print "apply the sequence info here\n"
+		print "then cootaneer\n"
+
+		# no active atom won't do.  We need
+		# to find the nearest atom in imol to (rotation-centre).
+		#
+		# if it is too far away, give a
+		# warning and do't do anything.
+		active_mol_no, junk = get_option_menu_active_molecule(option_menu, model_mol_list).split(' ', 1)
+		imol = int(active_mol_no)
+		imol_map = imol_refinement_map()
+
+		do_it = assign_sequences_to_mol(imol)
+
+		if (do_it):
+			# now cootaneer it
+			chain_ls = chain_ids(imol)
+			for chain_id in chain_ls:
+				res_name = resname_from_serial_number(imol, chain_id, 0)
+				res_no = seqnum_from_serial_number(imol, chain_id, 0)
+				ins_code = insertion_code_from_serial_number(imol, chain_id, 0)
+				alt_conf = ""
+				at_name = residue_spec2atom_for_centre(imol, chain_id, res_no, ins_code)[0]
+				cootaneer(imol_map, imol, [chain_id, res_no, ins_code, 
+							   at_name, alt_conf])
+				
+				refine_qm = refine_check_button.get_active()
+			# refine?
+			window.hide()
+			if (refine_qm):
+				fit_protein(imol)
+					
+			delete_event()
+
+
+        def import_function_event(widget, selector_entry):
+		# we import a sequence file and update the cootaneer table
+		global imported_sequence_file_flags
+		imported_sequence_file_qm = imported_sequence_file_flags[0]
+		active_mol_no, junk = get_option_menu_active_molecule(option_menu, model_mol_list).split(' ', 1)
+		imol = int(active_mol_no)
+		
+		seq_info_ls = []
+		seq_file_name = selector_entry.get_text()
+		if (seq_file_name):
+		    # get and set sequence info
+		    assign_sequence_from_file(imol, str(seq_file_name))
+		    seq_info_ls = sequence_info(imol)
+		    no_of_sequences = len(seq_info_ls)
+
+		    # remove children if new file
+		    if not imported_sequence_file_qm:
+			    table_children = seq_table.get_children()
+			    for child in table_children:
+				    seq_table.remove(child)
+			    widget_range = range(no_of_sequences)
+		    else:
+			    # we update the number of sequences
+			    spin_len = int(spin_button.get_value())
+			    widget_range = range(spin_len, no_of_sequences)
+			    
+		    # make new table
+		    imported_sequence_file_flags = [True, no_of_sequences]
+		    spin_button.set_value(no_of_sequences)
+		    seq_table.resize(no_of_sequences, 1)
+		    for i in widget_range:
+			    seq_widget = entry_text_pair_frame_with_button(seq_info_ls[i])
+			    seq_table.attach(seq_widget[0], 0, 1, i, i+1)
+			    seq_widget[0].show_all()
+		else:
+			print "BL WARNING:: no filename"
+
+	def fill_table_with_sequences(*args):
+		# fills the table with sequences if they have been associated with the model imol
+		# already
+		global imported_sequence_file_flags
+		active_mol_no, junk = get_option_menu_active_molecule(option_menu, model_mol_list).split(' ', 1)
+		imol = int(active_mol_no)
+		seq_info_ls = sequence_info(imol)
+		if (seq_info_ls):
+			# we have a sequence and fill the table
+			no_of_sequences = len(seq_info_ls)
+			imported_sequence_file_flags = [True, no_of_sequences]
+			spin_button.set_value(no_of_sequences)
+			seq_table.resize(no_of_sequences, 1)
+			# remove existing children
+			table_children = seq_table.get_children()
+			for child in table_children:
+				seq_table.remove(child)
+			widget_range = range(no_of_sequences)
+			for i in widget_range:
+				seq_widget = entry_text_pair_frame_with_button(seq_info_ls[i])
+				seq_table.attach(seq_widget[0], 0, 1, i, i+1)
+				seq_widget[0].show_all()
+		else:
+			# no sequence information, reset the table
+			clear_function_event()
+			
+
+
+	def add_text_to_text_buffer(text_buffer, description):
+		start = text_buffer.get_start_iter()
+		text_buffer.create_tag("tag", foreground="black", 
+			background = "#c0e6c0")
+		text_buffer.insert_with_tags_by_name(start, description, "tag")
+
+	# return the (entry . textbuffer/box)
+	#
+	def entry_text_pair_frame_with_button(seq_info):
+           
+           def fragment_go_event(widget):
+		active_mol_no, junk = get_option_menu_active_molecule(option_menu, model_mol_list).split(' ', 1)
+		imol = int(active_mol_no)
+		imol_map = imol_refinement_map()
+		print "apply the sequence info here\n"
+		print "then cootaneer\n"
+
+		# no active atom won't do.  We need
+		# to find the nearest atom in imol to (rotation-centre).
+		#
+		# if it is too far away, give a
+		# warning and do't do anything.
+
+		do_it = assign_sequences_to_mol(imol)
+		if (do_it):
+
+			n_atom = closest_atom(imol)
+			if n_atom:
+				imol	= n_atom[0]
+				chain_id= n_atom[1]
+				res_no	= n_atom[2]
+				ins_code= n_atom[3]
+				at_name	= n_atom[4]
+				alt_conf= n_atom[5]
+				cootaneer(imol_map, imol, [chain_id, res_no, ins_code, 
+							   at_name, alt_conf])
+				refine_qm = refine_check_button.get_active()
+				if (chain_check_button.get_active()):
+					# we try to change the chain
+					from_chain_id = chain_id
+					to_chain_id = entry.get_text()
+					start_resno = seqnum_from_serial_number(imol, from_chain_id, 0)
+					end_resno = seqnum_from_serial_number(imol, from_chain_id, (chain_n_residues(from_chain_id, imol) - 1))
+					[istat, message] = change_chain_id_with_result_py(imol, from_chain_id, to_chain_id, 1, start_resno, end_resno)
+					if (istat == 1):
+						# renaming ok
+						chain_id = to_chain_id
+					else:
+						# renaming failed
+						if (refine_qm):
+							message += "\nRefinement proceeded with old=new chain "
+							message += chain_id
+						info_dialog(message)
+					
+				if (refine_qm):
+					fit_chain(imol, chain_id)
+			else:
+				print "BL WARNING:: no close atom found!"
+		else:
+			print "BL ERROR:: something went wrong assigning the sequence"
+
+	   def chain_toggled(widget):
+		   # doesnt need to do anything
+		   status = chain_check_button.get_active()
+		   if(status):
+			   print "BL INFO:: assign chain_id too"
+		   else:
+			   print "BL INFO:: do not assign chain_id"
+               
+           frame = gtk.Frame()
+           vbox = gtk.VBox(False, 3)
+           hbox = gtk.HBox(False, 3)
+           entry = gtk.Entry()
+           textview = gtk.TextView()
+           textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
+	   textview.set_editable(True)
+	   textview.set_size_request(300, -1)
+	   textview.modify_font(pango.FontDescription("Courier 11"))
+           text_buffer = textview.get_buffer()
+           chain_id_label = gtk.Label("Chain ID")
+           sequence_label = gtk.Label("Sequence")
+	   vbox_for_buttons = gtk.VBox(False, 3)
+           fragment_button = gtk.Button("  Sequence closest fragment  ")
+	   chain_check_button = gtk.CheckButton("Assign Chain ID as well?")
+           
+           frame.add(hbox)
+           vbox.pack_start(chain_id_label, False, False, 2)
+           vbox.pack_start(entry, False, False, 2)
+           vbox.pack_start(sequence_label, False, False, 2)
+           vbox.pack_start(textview, False, False, 2)
+           add_text_to_text_buffer(text_buffer, seq_info[1])
+           entry.set_text(seq_info[0])
+           hbox.pack_start(vbox, False, False, 2)
+	   vbox_for_buttons.pack_start(chain_check_button, True, False, 6)
+	   vbox_for_buttons.pack_start(fragment_button, True, False, 6)
+           hbox.pack_start(vbox_for_buttons, False, False, 2)
+              
+           fragment_button.connect("clicked", fragment_go_event)
+	   chain_check_button.connect("toggled", chain_toggled)
+              
+           return [frame, entry, text_buffer]
+
+        # redraw the table when spin_button is changed
+        def spin_button_changed(widget):
+		global imported_sequence_file_flags
+		no_of_frames = int(spin_button.get_value())
+		imported_sequence_file_qm = imported_sequence_file_flags[0]
+		no_of_sequences = imported_sequence_file_flags[1]
+
+		# get table information
+		table_children = seq_table.get_children()
+		no_of_children = len(table_children)
+
+		# make range for redraw
+		if (imported_sequence_file_qm):
+			# we only make extra ones
+			redraw_range = range(no_of_sequences, no_of_frames)
+			if (no_of_sequences > no_of_frames):
+				child_range = []    # do not remove children
+				redraw_range = []   # do not redraw
+				spin_button.set_value(no_of_sequences)
+				no_of_frames = no_of_sequences
+			else:
+				if (no_of_children == no_of_sequences):
+					# do not remove any
+					child_range = []
+				else:
+					child_range = range(0, no_of_children - no_of_sequences)
+					# children seem to be added in the beginning ???????
+		else:
+			# we make everything new
+			redraw_range = range(no_of_frames)
+			child_range = range(no_of_children)
+			
+		# lets remove the children
+		for j in child_range:
+			child = table_children[j]
+			seq_table.remove(child)
+			
+		# make new cells
+		for i in redraw_range:
+			make_cell(i)
+
+		# resize the table
+		seq_table.resize(no_of_frames, 1)
+
+	# reset the table
+	def clear_function_event(*args):
+		global imported_sequence_file_flags
+		imported_sequence_file_flags = [False, 0]
+		seq_table.resize(1, 1)
+		# remove children
+		table_children = seq_table.get_children()
+		for child in table_children:
+			seq_table.remove(child)
+		# make new
+		make_cell(0)
+		spin_button.set_value(1)
+		
+	# make one cell in line with deafult fill
+	def make_cell(line):
+		seq_widget = entry_text_pair_frame_with_button(["", "Cut and Paste Sequence to here or import a sequence file"])
+		seq_table.attach(seq_widget[0], 0, 1, line, line + 1)
+		seq_widget[0].show_all()
+		
+	# assign the in table given sequences to the model imol
+	def assign_sequences_to_mol(imol):
+		no_of_seq = int(spin_button.get_value())
+		frame_list = seq_table.get_children()
+		seq_all = []
+		write_sequence = True
+		for i in range(no_of_seq):
+			fframe = frame_list[i]
+			hhbox = fframe.get_children()[0]
+			vvbox = hhbox.get_children()[0]
+			child_list = vvbox.get_children()
+			chain_id = child_list[1].get_text()
+			seq_textbuffer = child_list[3].get_buffer()
+			startiter, enditer = seq_textbuffer.get_bounds() 
+			seq_in = seq_textbuffer.get_text(startiter, enditer)
+			pair = [chain_id, seq_in]
+			if (len(chain_id) == 0) or (
+			    "Cut and Paste Sequence to here or import a sequence file") in pair:
+				print "ERROR:: the input contains an invalid chain and/or sequence"
+				write_sequence = False
+			seq_all.append(pair)
+
+		if (write_sequence):
+			for element in seq_all:
+				chain_id_new = element[0]
+				seq = element[1].upper()
+				# first check if chain_id is already in mol
+				# if so delete it so that it can be replaced by the new sequence
+				seq_info = sequence_info(imol)
+				for info in seq_info:
+					chain_id_old = info[0]
+					if (chain_id_new == chain_id_old):
+						delete_sequence_by_chain_id(imol, chain_id_old)
+				
+				# replace space, eol etc in sequence first
+				seq = seq.replace(" ", "")
+				seq = seq.replace("\r", "")       # mac?
+				seq = seq.replace("\r\n", "")     # win?
+				seq = seq.replace("\n", "")       # unix?
+				assign_sequence_from_string(imol, chain_id_new, seq)
+			return True
+		else:
+			add_status_bar_text("Invalid chain_id and/or sequence provided")
+			return False
+
+
+	# main body
+	imol_map = imol_refinement_map()
+	if (imol_map == -1):
+		show_select_map_dialog()
+	
+	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.set_title("Sequencing Gui")
+        tooltips = gtk.Tooltips()
+        label = gtk.Label("Molecule to be sequenced")
+	vbox = gtk.VBox(False, 2)
+        option_menu = gtk.combo_box_new_text()
+        model_mol_list = fill_option_menu_with_mol_options(option_menu, valid_model_molecule_qm)
+	inside_vbox = gtk.VBox(False, 2)
+	seq_table = gtk.Table(1, 1, True)
+        hbox_for_spin = gtk.HBox(False, 0)
+        spin_label = gtk.Label("Number of Sequences:")
+        spin_adj = gtk.Adjustment(1, 1, 10, 1, 4, 0)
+        spin_button = gtk.SpinButton(spin_adj, 0, 0)
+	refine_check_button = gtk.CheckButton("Auto-fit-refine after sequencing?")
+	h_sep = gtk.HSeparator()
+	h_sep2 = gtk.HSeparator()
+	buttons_hbox = gtk.HBox(True, 2)
+        import_button = gtk.Button("  Import and associate sequence from file  ")
+	go_button = gtk.Button("  Sequence all fragments!  ")
+        tooltips.set_tip(go_button, "This currently ignores all chain IDs")
+	cancel_button = gtk.Button("  Cancel  ")
+	clear_button = gtk.Button("  Clear all  ")
+
+        window.set_default_size(400, 200)
+        window.add(vbox)
+        vbox.pack_start(label, False, False, 5)
+        vbox.pack_start(option_menu, True, True, 0)
+
+        hbox_for_spin.pack_start(spin_label, False, False, 2)
+        hbox_for_spin.pack_start(spin_button, False, False, 2)
+	hbox_for_spin.pack_end(refine_check_button, False, False, 2)
+        vbox.pack_start(hbox_for_spin, False, False, 5)
+
+        vbox.pack_start(inside_vbox, True, False, 2)
+        inside_vbox.add(seq_table)
+	make_cell(0)
+	fill_table_with_sequences()
+	
+        vbox.pack_start(h_sep, True, False, 2)
+        file_sel_entry = file_chooser_entry(vbox, "Select PIR file")
+        vbox.pack_start(import_button, True, False, 6)
+
+	buttons_hbox.pack_start(go_button, True, False, 6)
+	buttons_hbox.pack_start(cancel_button, True, False, 6)
+	buttons_hbox.pack_start(clear_button, True, False, 6)
+
+        vbox.pack_start(h_sep2, True, False, 2)
+        vbox.pack_start(buttons_hbox, False, False, 5)
+
+
+        import_button.connect("clicked", import_function_event, file_sel_entry)
+
+	cancel_button.connect("clicked", delete_event)
+
+	go_button.connect("clicked", go_function_event)
+
+	clear_button.connect("clicked", clear_function_event)
+                               
+	spin_adj.connect("value_changed", spin_button_changed)
+
+	refine_check_button.connect("toggled", refine_function_event)
+
+	option_menu.connect("changed", fill_table_with_sequences)
+
+#        window.add(vbox)
+	window.show_all()
+
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_gui()

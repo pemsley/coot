@@ -57,6 +57,8 @@ extern void spin_search_py(int imol_map, int imol, const char *chain_id, int res
                  const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
 extern PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 extern PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno);
+extern PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, 
+                                         short int use_res_range_flag, int from_resno, int to_resno);
 // from c-interface-ligands.cc
 extern PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 extern PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
