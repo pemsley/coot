@@ -181,21 +181,18 @@ PyObject *sequence_info_py(int imol) {
    r = PyList_New(0);
 
    if (is_valid_model_molecule(imol)) { 
-      std::cout << "BL DEBUG:: we make the seq" <<std::endl;
       
       std::vector<std::pair<std::string, std::string> > seq =
 	 graphics_info_t::molecules[imol].sequence_info();
 
-      std::cout << "BL DEBUG:: seqi length is" << seq.size() <<std::endl;
 
       if (seq.size() > 0) {
-	std::cout << "BL DEBUG:: size of seq is >0" << std::endl;
 	 // unsigned int does't work here because then the termination
 	 // condition never fails.
          r = PyList_New(seq.size());
 	 for (int iv=int(seq.size()-1); iv>=0; iv--) {
 	    std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
-	    std::cout << "debug pythoning" << seq[iv].first.c_str()
+	    std::cout << "debug pythoning " << seq[iv].first.c_str()
 		      << " and " << seq[iv].second.c_str() << std::endl;
 	    PyObject *a = PyString_FromString(seq[iv].first.c_str());
 	    PyObject *b = PyString_FromString(seq[iv].second.c_str());

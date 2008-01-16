@@ -1647,6 +1647,14 @@ class molecule_class_info_t {
 
    void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 
+   void assign_sequence_from_file(const std::string &filename);
+
+   void assign_sequence_from_string(const std::string &chain_id, const std::string &seq);
+
+   void delete_all_sequences_from_molecule();
+
+   void delete_sequence_by_chain_id(const std::string &chain_id);
+
 
    // render option (other functions)
    coot::ray_trace_molecule_info fill_raster_model_info(); // messes with bond_colour_internal

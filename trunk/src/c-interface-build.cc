@@ -3194,6 +3194,7 @@ void transform_molecule_by(int imol,
 }
 
 
+// Sequenc utils
 
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq) { 
 
@@ -3217,6 +3218,52 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq) {
    add_to_history(command_strings);
 }
 
+void assign_sequence_from_file(int imol, const char *file) {
+  if (imol < graphics_info_t::n_molecules && imol >= 0) {
+    graphics_info_t::molecules[imol].assign_sequence_from_file(std::string(file));
+  }
+  std::string cmd = "assign-sequence-from-file";
+  std::vector<coot::command_arg_t> args;
+  args.push_back(imol);
+  args.push_back(single_quote(file));
+  add_to_history_typed(cmd, args);
+}
+
+void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq) {
+  if (imol < graphics_info_t::n_molecules && imol >= 0) {
+    const std::string chain_id = chain_id_in;
+    graphics_info_t::molecules[imol].assign_sequence_from_string(chain_id, std::string(seq));
+  }
+  std::string cmd = "assign-sequence-from-string";
+  std::vector<coot::command_arg_t> args;
+  args.push_back(imol);
+  args.push_back(single_quote(chain_id_in));
+  args.push_back(single_quote(seq));
+  add_to_history_typed(cmd, args);
+}
+
+void delete_all_sequences_from_molecule(int imol) {
+  if (imol < graphics_info_t::n_molecules && imol >= 0) {
+    if ((graphics_info_t::molecules[imol].sequence_info()).size() > 0) {
+      std::cout <<"BL DEBUG:: we have sequence info"<<std::endl;
+      graphics_info_t::molecules[imol].delete_all_sequences_from_molecule();
+    } else {
+      std::cout <<"BL DEBUG:: no sequence info"<<std::endl;
+    }
+  }
+}
+
+void delete_sequence_by_chain_id(int imol, const char *chain_id_in) {
+  if (imol < graphics_info_t::n_molecules && imol >= 0) {
+    if ((graphics_info_t::molecules[imol].sequence_info()).size() > 0) {
+      std::cout <<"BL DEBUG:: we have sequence info"<<std::endl;
+      const std::string chain_id = chain_id_in;
+      graphics_info_t::molecules[imol].delete_sequence_by_chain_id(chain_id);
+    } else {
+      std::cout <<"BL DEBUG:: no sequence info"<<std::endl;
+    }  
+  }
+}
 
 
 /*  ----------------------------------------------------------------------- */
@@ -4495,6 +4542,33 @@ void change_chain_id(int imol, const char *from_chain_id, const char *to_chain_i
 						       from_resno,
 						       to_resno);
 } 
+
+#ifdef USE_GUILE
+SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const char *to_chain_id,
+				    short int use_res_range_flag, int from_resno, int to_resno){
+  // Paul fill me in please
+}
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, 
+					 short int use_res_range_flag, int from_resno, int to_resno){
+
+   std::pair<int, std::string> r = 
+      graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
+						       to_chain_id,
+						       use_res_range_flag,
+						       from_resno,
+						       to_resno);
+   
+   PyObject *v;
+   v = PyList_New(2);
+   PyList_SetItem(v, 0, PyInt_FromLong(r.first));
+   PyList_SetItem(v, 1, PyString_FromString(r.second.c_str()));
+
+   return v;
+
+}
+#endif // USE_PYTHON
 
 
 

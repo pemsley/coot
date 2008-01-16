@@ -2258,6 +2258,18 @@ void change_chain_ids_chain_menu_item_activate(GtkWidget *item,
 void  change_chain_id(int imol, const char *from_chain_id, const char *to_chain_id, 
 		      short int use_res_range_flag, int from_resno, int to_resno);
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+/* Paul fill me in please */
+SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const char *to_chain_id,
+                                         short int use_res_range_flag, int from_resno, int to_resno);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, 
+					 short int use_res_range_flag, int from_resno, int to_resno);
+#endif // USE_PYTHON
+#endif  /* c++ */
+
 /*  ----------------------------------------------------------------------- */
 /*                  scripting                                               */
 /*  ----------------------------------------------------------------------- */
@@ -4193,6 +4205,15 @@ void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq);
 void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq);
 /* I don't know what this does. */
 void assign_sequence(int imol_model, int imol_map, const char *chain_id);
+/*! \brief Assign a sequence to a given molecule from (whatever) sequence
+  file. */
+void assign_sequence_from_file(int imol, const char *file);
+/*! \brief Assign a sequence to a given molecule from a simple string */
+void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq);
+/*! \brief Delete all the sequences from a given molecule */
+void delete_all_sequences_from_molecule(int imol);
+/*! \brief Delete the sequence for a given chain_id from a given molecule */
+void delete_sequence_by_chain_id(int imol, const char *chain_id_in);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
