@@ -663,7 +663,6 @@ molecule_class_info_t::mutate_base_internal(CResidue *residue, CResidue *std_bas
 int
 molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
 
-   int istat = 0;
    short int changed_flag = 0;
    if (atom_sel.n_selected_atoms > 0) {
 
@@ -673,7 +672,7 @@ molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
       for (int imod=1; imod<=n_models; imod++) { 
       
 	 CModel *model_p = atom_sel.mol->GetModel(imod);
-	 CChain *chain_p = 0;
+
 	 std::vector<int> chain_vec;
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
@@ -746,7 +745,7 @@ molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
 	    }
 	 }
 	 // now (finally) delete the chains of the model:
-	 for (int ich=0; ich<chain_vec.size(); ich++) {
+	 for (unsigned int ich=0; ich<chain_vec.size(); ich++) {
 	    model_p->DeleteChain(chain_vec[ich]);
 	 }
       }
@@ -899,7 +898,7 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
    PCResidue *SelResidues = 0; 
    int nSelResidues;
    poly_ala_mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-   if (nSelResidues != best_seq.length()) {
+   if (nSelResidues != int(best_seq.length())) {
       std::cout << "oops residue mismatch " << best_seq.length() << " " << nSelResidues
 		<< std::endl;
    } else { 

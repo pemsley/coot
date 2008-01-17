@@ -9,6 +9,10 @@
 (define imol-ligand -1) 
 (define imol-terminal-residue-test -1)
 
+(define horne-works-cif (append-dir-file greg-data-dir "lib-B3A.cif"))
+(define horne-cif       (append-dir-file greg-data-dir "lib-both.cif"))
+(define horne-pdb       (append-dir-file greg-data-dir "coords-B3A.pdb"))
+
 ;; CCP4 is set up? If so, set have-ccp4? #t
 
 
@@ -462,3 +466,39 @@
 	      (throw 'fail)))
 	#t)))
 	   
+(greg-testcase "Libcif horne" #t
+   (lambda ()
+
+     (if (not (file-exists? horne-pdb))
+	 (begin
+	   (format #t "file ~s not found - skipping test~%" horne-pdb)
+	   (throw 'untested))
+
+	 (if (not (file-exists? horne-cif))
+	     (begin
+	       (format #t "file ~s not found - skipping test~%" horne-cif)
+	       (throw 'untested))
+
+	     (let ((imol (read-pdb horne-pdb)))
+	       (if (not (valid-model-molecule? imol))
+		   (begin
+		     (format #t "bad molecule number~%" imol)
+		     (throw 'fail))
+		   
+		   (begin
+		     (read-cif-dictionary horne-works-cif)
+		     (with-auto-accept
+		      (regularize-zone imol "A" 1 1 ""))
+		     (newline) (newline)
+		     (newline) (newline)
+		     (read-cif-dictionary horne-cif)
+		     (with-auto-accept
+		      (regularize-zone imol "A" 1 1 ""))
+		     (let ((cent (molecule-centre imol)))
+		       (if (not (< (car cent) 2000))
+			   (begin 
+			     (format #t "Position fail 2000 test: ~s in ~s~%"
+				     (car cent) cent)
+			     (throw 'fail))
+			   #t ; pass
+			   )))))))))

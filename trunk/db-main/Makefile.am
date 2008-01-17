@@ -14,11 +14,20 @@ include_HEADERS = db-main.hh db-strands.hh
 
 libcoot_db_main_la_SOURCES  = db-main.cc db-strands.cc
 
-noinst_PROGRAMS = testdbmain
+noinst_PROGRAMS = testdbmain train-pepflip
 
 testdbmain_SOURCES = testdbmain.cc
 
 testdbmain_LDADD = libcoot-db-main.la \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-utils.la \
+	$(CLIPPER_LIBS)      \
+	$(MMDB_LIBS)
+
+train_pepflip_SOURCES = train-pepflip.cc
+
+train_pepflip_LDADD = libcoot-db-main.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-utils.la \

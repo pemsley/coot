@@ -446,7 +446,7 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
    float anglim = alpha1;
    for ( float bdeg=step/2; bdeg < beta1; bdeg += step ) {
       float beta = clipper::Util::d2rad(bdeg);
-      float s = anglim/clipper::Util::intf(sin(beta)*anglim/step+1);
+      // float s = anglim/clipper::Util::intf(sin(beta)*anglim/step+1);
       for ( float adeg=step/2; adeg < alpha1; adeg += step ) {
 	 float alpha = clipper::Util::d2rad(adeg);
 	 clipper::Euler_ccp4 euler( alpha, beta, 0.0 );
@@ -1224,7 +1224,7 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
    // for each strand, fit as rigid body, both directions and return the score.
    float best_score = -999.0;
    coot::minimol::molecule best_mol;
-   for (int imol=0; imol<strands.size(); imol++) {
+   for (unsigned int imol=0; imol<strands.size(); imol++) {
       std::cout << "Scoring fragment " << imol+1 << " of " << strands.size() << std::endl;
       coot::scored_helix_info_t info = fit_strand(strands[imol], op_plus_trans, imol);
       if (info.score > best_score) {
@@ -1317,8 +1317,6 @@ coot::helix_placement::find_strand_candidates_by_shift_sampling(const coot::mini
    float z_shift_step_size = 0.35; // the step size along the strand
 				   // axis, to get the zig-zag in the
 				   // right place.
-
-   float best_score = -9999.9; // the score to beat
 
    std::vector<coot::scored_helix_info_t> scored_strand_vector_working;
    std::vector<coot::scored_helix_info_t> scored_strand_vector_returned;

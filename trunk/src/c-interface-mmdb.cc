@@ -7,7 +7,7 @@
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -62,7 +62,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 	 SCM model_expression_length = scm_length(model_expression);
 	 int len_model_expression = scm_to_int(model_expression_length);
 	 if (len_model_expression > 0) {
-	    SCM chain_list = model_expression; // interesting
+	    // SCM chain_list = model_expression; // interesting
 	    int nchains = len_model_expression;
 
 	    for (int ichain=0; ichain<nchains; ichain++) {
@@ -306,7 +306,7 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                  if (len_atom_expr != 3) {
                                     std::cout << "bad atom expression, length "
                                               << len_residue_expr << std::endl;
-                                    PyObject *dest = Py_False;
+                                    // PyObject *dest = Py_False;
                                     char *mess =  "object: %S\n";
                                     PyObject *bad_python = PyString_FromFormat(mess, atom_expression);
                                     std::string bad_str = PyString_AsString(bad_python);

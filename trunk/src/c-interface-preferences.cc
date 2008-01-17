@@ -3,8 +3,7 @@
  * Copyright 2005, 2006 The University of York
  * Author: Paul Emsley
  * Copyright 2007 The University of Oxford
- * Author: Paul Emsley
- * Copyright 2006, 2007 by Bernhard Lohkamp
+ * Author: Paul Emsley, Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -197,19 +196,32 @@ void set_ramachandran_plot_dialog_position(int x_pos, int y_pos) {
 /*                     state (a graphics_info thing)                         */
 /*  ------------------------------------------------------------------------ */
 void set_save_state_file_name(const char *filename) {
-
    graphics_info_t::save_state_file_name = filename; 
 }
 
-
-char *save_state_file_name() {
-
-   // Chew up a bit of memory here.
-   // 
-   char *f = (char *) malloc(graphics_info_t::save_state_file_name.length() +1);
-   strcpy(f, graphics_info_t::save_state_file_name.c_str());
-   return f;
+const char *save_state_file_name_raw() {
+   return graphics_info_t::save_state_file_name.c_str();
 }
+
+
+#ifdef USE_GUILE
+SCM save_state_file_name_scm() {
+
+//    char *f = (char *) malloc(graphics_info_t::save_state_file_name.length() +1);
+//    strcpy(f, graphics_info_t::save_state_file_name.c_str());
+//    return f;
+
+   std::string f = graphics_info_t::save_state_file_name;
+   return scm_makfrom0str(f.c_str());
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *save_state_file_name_py() {
+   PyObject *r = 0;
+   return r;
+}
+#endif // USE_PYTHON
 
 
 /*  ----------------------------------------------------------------------- */

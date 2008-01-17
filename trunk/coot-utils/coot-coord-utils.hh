@@ -1,6 +1,7 @@
 /* coot-utils/coot-coord-utils.hh
  * 
- * Copyright 2006, by The University of York
+ * Copyright 2006, 2007, by The University of York
+ * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -187,6 +188,7 @@ namespace coot {
 
    class lsq_range_match_info_t {
    public:
+      enum { CA, MAIN, ALL};
       int to_reference_start_resno;
       int to_reference_end_resno;
       int from_matcher_start_resno;
@@ -259,7 +261,7 @@ namespace coot {
    //
    // Usually though apply_rtop_flag will be 1.
    // 
-   coot::graph_match_info_t graph_match(CResidue *res_moving, CResidue *res_reference, bool apply_rtop_flag);
+   graph_match_info_t graph_match(CResidue *res_moving, CResidue *res_reference, bool apply_rtop_flag);
 
    namespace util {
 
@@ -440,6 +442,11 @@ namespace coot {
 
       bool residue_has_hydrogens_p(CResidue *res);
 
+      // Return NULL on residue not found in this molecule.
+      // 
+      CResidue *get_residue(int reso, const std::string &insertion_code,
+			    const std::string &chain_id, CMMDBManager *mol);
+      
       std::vector<std::string> residue_types_in_molecule(CMMDBManager *mol);
       std::vector<std::string> residue_types_in_chain(CChain *chain_p);
       std::vector<std::string> chains_in_molecule(CMMDBManager *mol);
@@ -532,9 +539,8 @@ namespace coot {
 						      residue_spec_t clicked_residue);
 
       // deleted by calling process
-      std::pair<CMMDBManager *, std::vector<coot::residue_spec_t> > 
-      get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
-						CMMDBManager *mol);
+      std::pair<CMMDBManager *, std::vector<residue_spec_t> > 
+      get_fragment_from_atom_spec(const atom_spec_t &atom_spec, CMMDBManager *mol);
 
 
       // transform atoms in residue
@@ -550,7 +556,10 @@ namespace coot {
 					      const clipper::Coord_orth &position,
 					      const clipper::Coord_orth &origin_shift,
 					      double angle);
-      
+
+      // This presumes that a_residue_p and b_residue_p are valid.
+      std::vector<std::pair<int, int> > pair_residue_atoms(CResidue *a_residue_p,
+							   CResidue *b_residue_p);
 
       // A useful function that was (is) in molecule_class_info_t
       //
@@ -591,7 +600,7 @@ namespace coot {
       std::pair<short int, clipper::RTop_orth>
       get_lsq_matrix(CMMDBManager *mol1,
 		     CMMDBManager *mol2,
-		     const std::vector<coot::lsq_range_match_info_t> &matches);
+		     const std::vector<lsq_range_match_info_t> &matches);
       // used by above
       // On useful return, first.length == second.length and first.length > 0.
       // 
@@ -600,7 +609,7 @@ namespace coot {
 			   CMMDBManager *mol2,
 			   int SelHnd1,
 			   int SelHnd2,
-			   const coot::lsq_range_match_info_t &match);
+			   const lsq_range_match_info_t &match);
 
       // Return the status in the first position
       // Return the angle in radians.
@@ -650,7 +659,7 @@ namespace coot {
       // button.  Atsushi Nakagawa told me about the problem of these
       // flips and how they could be identified by B factor
       // outlierness.
-      std::vector<std::pair<coot::atom_spec_t, std::string> >
+      std::vector<std::pair<atom_spec_t, std::string> >
       gln_asn_b_factor_outliers(CMMDBManager *mol);
 
       // return the number of cis peptides in mol:

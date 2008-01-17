@@ -1384,10 +1384,24 @@ void save_state_file(const char *filename);
 /*! \brief set the default state file name (default 0-coot.state.scm) */
 /* set the filename */
 void set_save_state_file_name(const char *filename);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
 /*! \brief the save state file name 
 
   @return the save state file name*/
-char *save_state_file_name();
+SCM save_state_file_name_scm();
+#endif
+#ifdef USE_PYTHON
+/*! \brief the save state file name 
+
+  @return the save state file name*/
+PyObject *save_state_file_name_py();
+#endif
+#endif	/* c++ */
+
+/* only to be used in callbacks.c, don't export */
+const char *save_state_file_name_raw();
 
 /*! \brief set run state file status
 
@@ -1406,7 +1420,7 @@ void run_state_file_maybe();	/* depending on the above state variables */
 GtkWidget *wrapped_create_run_state_file_dialog();
 #ifdef USE_PYTHON
 GtkWidget *wrapped_create_run_state_file_dialog_py();
-#endif // USE_PYTHON
+#endif /* USE_PYTHON */
 
 /* \} */
 
@@ -4094,6 +4108,24 @@ void ncs_control_change_ncs_master_to_chain(int imol, int ichain);
 void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol, int ichain); 
 /*! \brief display the NCS master chain  */
 void ncs_control_display_chain(int imol, int ichain, int state);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/* Return e.g. ("B" "A" '(((1 "") (1 "") 0.4) ((2 "") (2 "") 0.3))
+   i.e. ncs-related-chain its-master-chain-id and a list of residue
+   info: (residue number matches: (this-resno this-inscode
+   matching-mater-resno matching-master-inscode
+   rms-atom-position-differences))) */
+SCM ncs_chain_differences_scm(int imol, const char *master_chain_id);
+
+/*! \brief return something like: '(("A" "B")) or '(("A" "C" "E") ("B"
+  "D" "F")). The master chain goes in first. 
+
+   If imol does not have NCS ghosts, return #f */
+SCM ncs_chains_ids_scm(int imol);
+#endif	/* USE_GUILE */
+#endif	/* __cplusplus */
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4450,6 +4482,28 @@ int probe_available_p_py();
 state should be 0 or 1. */
 /* when it works, call it dti_side_by_side_stereo_mode() */
 void set_dti_stereo_mode(short int state);
+
+
+/*  ----------------------------------------------------------------------- */
+/*           Sharpen                                                        */
+/*  ----------------------------------------------------------------------- */
+void sharpen(int imol, float b_factor);
+
+/*  ----------------------------------------------------------------------- */
+/*           Intermediate Atom Manipulation                                 */
+/*  ----------------------------------------------------------------------- */
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position);
+SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
+#endif 
+#ifdef USE_PYTHON
+PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
+PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
+#endif 
+#endif 
+
 
 
 /*  ----------------------------------------------------------------------- */

@@ -1,11 +1,12 @@
 /* ideal/simple-resetraint.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
+ * Copyright 2008,  The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -333,7 +334,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 
    // similarly for the fixed atoms:   
    // 
-   assign_fixed_atom_indices(); // convert from std::vector<CAtom *>
+   assign_fixed_atom_indices(fixed_atoms); // convert from std::vector<CAtom *>
 				// to std::vector<int>
 				// fixed_atom_indices;
 }
@@ -341,7 +342,10 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 
 
 void
-coot::restraints_container_t::assign_fixed_atom_indices() {
+coot::restraints_container_t::assign_fixed_atom_indices(const std::vector<CAtom *> &fixed_atoms) {
+
+   std::cout << "Finding atom indices for " << fixed_atoms.size()
+	     << " fixed atoms " << std::endl;
 
 }
 
@@ -765,7 +769,7 @@ coot::distortion_score(const gsl_vector *v, void *params) {
 	 
    	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
    	    d = coot::distortion_score_chiral_volume( (*restraints)[i], v);
-   	    // std::cout << "distortion for chiral: " << d << std::endl;
+	    // std::cout << "DEBUG:: distortion for chiral: " << d << std::endl;
    	    distortion += d;
    	 }
       }
@@ -1078,7 +1082,7 @@ coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restra
 //    std::cout << "DEBUG:: (distortion) chiral volume target "
 // 	     << chiral_restraint.target_chiral_volume
 // 	     << " chiral actual " << cv << " distortion: " << distortion
-// 	      << "\n";
+// 	     << "\n";
 
    distortion *= distortion;
    distortion /= chiral_restraint.sigma * chiral_restraint.sigma;
@@ -2815,6 +2819,8 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 					      coot::restraint_usage_Flags flags_in, 
 					      short int do_residue_internal_torsions,
 					      short int link_torsions_restraints_type,
+					      float rama_plot_target_weight,
+					      bool do_rama_plot_retraints, 
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds) {
 
 //   std::cout << "----- make restraints called with link_torsions_restraints_type: "
@@ -3475,7 +3481,7 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
 //    }
    std::string link_type("");
    
-   short int found_link = 0;
+   // short int found_link = 0;
    float smallest_link_dist = 99999.9;
    for (unsigned int i=0; i<close.size(); i++) {
       std::string name_1(close[i].at1->name);
@@ -4224,7 +4230,7 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
    int n_chiral_restr = 0;
    int index1, index2, index3, indexc;
 
-   // std::cout << "DEBUG:: trying to add chirals for this residue..." << std::endl;
+   //   std::cout << "DEBUG:: trying to add chirals for this residue..." << std::endl;
    
    for (unsigned int ic=0; ic<geom[idr].chiral_restraint.size(); ic++) {
       for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
@@ -4243,14 +4249,14 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 			   std::string pdb_atom_namec(res_selection[iatc]->name);
 			   if (pdb_atom_namec == geom[idr].chiral_restraint[ic].atom_id_c_4c()) {
 
-//  			      std::cout << "DEBUG:: adding chiral number " << ic << " for " 
-//  					<< res_selection[iatc]->GetSeqNum() << " "
-//  					<< res_selection[0]->GetResName()
-//  					<< pdb_atom_namec << " bonds to "
-//  					<< pdb_atom_name1 << " "
-//  					<< pdb_atom_name2 << " "
-//  					<< pdb_atom_name3 << " "
-//  					<< std::endl;
+//   			      std::cout << "DEBUG:: adding chiral number " << ic << " for " 
+//   					<< res_selection[iatc]->GetSeqNum() << " "
+//   					<< res_selection[0]->GetResName()
+//   					<< pdb_atom_namec << " bonds to "
+//   					<< pdb_atom_name1 << " "
+//   					<< pdb_atom_name2 << " "
+//   					<< pdb_atom_name3 << " "
+//   					<< std::endl;
 
 			      res_selection[iat1]->GetUDData(udd_atom_index_handle, index1);
 			      res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
@@ -4261,11 +4267,13 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 // 				  indexc, index1, index2, index3,
 // 				  geom[idr].chiral_restraint[ic].volume_sign);
 
-// 			      std::cout << "   Adduing chiral restraint for " << res_selection[iatc]->name
-// 					<< " " << res_selection[iatc]->GetSeqNum() <<  " "
-// 					<< res_selection[iatc]->GetChainID() 
-// 					<< " with target volume " << geom[idr].chiral_restraint[ic].target_volume()
-//    		         	      << std::endl;
+//  			      std::cout << "   Adduing chiral restraint for " << res_selection[iatc]->name
+//  					<< " " << res_selection[iatc]->GetSeqNum() <<  " "
+//  					<< res_selection[iatc]->GetChainID() 
+//  					<< " with target volume " << geom[idr].chiral_restraint[ic].target_volume()
+// 					<< " with volume sigma " << geom[idr].chiral_restraint[ic].volume_sigma()
+// 					<< " with volume sign " << geom[idr].chiral_restraint[ic].volume_sign
+// 					<< " idr index: " << idr << " ic index: " << ic << std::endl;
 
 			      restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
 									index1, index2, index3,
@@ -4273,8 +4281,6 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 									geom[idr].chiral_restraint[ic].target_volume(),
 									geom[idr].chiral_restraint[ic].volume_sigma()));
 			      n_chiral_restr++;
-
-			      
 			   }
 			}
 		     }

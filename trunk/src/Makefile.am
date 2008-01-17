@@ -261,6 +261,7 @@ coot_real_SOURCES = \
 	command-line.cc		 \
 	command-line.h		 \
 	molecule-class-info.cc 	 \
+	molecule-class-info-maps.cc 	\
 	molecule-class-info-other.cc 	\
 	molecule-class-info.h 	        \
 	molecule-class-info-mutate.cc 	\

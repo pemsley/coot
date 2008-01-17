@@ -101,7 +101,6 @@ coot::ShelxIns::read_file(const std::string &filename) {
       std::vector<std::string> symm_vec;
       std::vector<double> cell_local;
       std::string altconf;
-      int sfac_index;
       short int encountered_atoms_flag = 0;
       short int post_atoms_flag = 0; // we have got past atoms?, old, not useful?
       short int post_END_flag = 0;   // END marks the end of atoms, I hope.
@@ -112,7 +111,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
       if (udd_afix_handle>=0)  {
 	 have_udd_atoms = 1;
       }
-      float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
+      // float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
       int current_afix = -1; // undefined initially.  AFIX is
 			     // independent of RESI and should not be
 			     // reset for every residue (as had been
@@ -306,6 +305,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card.words[0].substr(0, 4) == "STIR") ||
 							   (card.words[0].substr(0, 4) == "TEMP") ||
 							   (card.words[0].substr(0, 4) == "SADI") ||
+							   (card.words[0].substr(0, 4) == "DISP") ||
 							   (card.words[0].substr(0, 4) == "SPEC") ||
 							   (card.words[0].substr(0, 4) == "PLAN") ||
 							   (card.words[0].substr(0, 4) == "LIST") ||
@@ -319,10 +319,11 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card.words[0].substr(0, 4) == "ISOR") ||
 							   (card.words[0].substr(0, 4) == "MERG") ||
 							   (card.words[0].substr(0, 4) == "ACTA") ||
+							   (card.words[0].substr(0, 4) == "TWIN") ||
 							   (card.words[0].substr(0, 4) == "OMIT") ||
 							   (card.words[0].substr(0, 4) == "SWAT") ||
 							   (card.words[0].substr(0, 4) == "ANIS") ||
-							   (card.words[0].substr(0, 4) == "ACTA") ||
+							   (card.words[0].substr(0, 4) == "BASF") ||
 							   (card.words[0].substr(0, 4) == "SAME") ||
 							   (card.words[0].substr(0, 4) == "BIND") ||
 							   (card.words[0].substr(0, 4) == "L.S.") ||
@@ -427,7 +428,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 cell.init(cell_d);
 	 mol->SetCell(cell_local[0], cell_local[1], cell_local[2],
 		      cell_local[3], cell_local[4], cell_local[5]);
-	 std::cout << "INFO:: CELL set to " << cell_local[0]
+	 std::cout << "INFO:: CELL set to "
+		   << cell_local[0] << " "
 		   << cell_local[1] << " "
 		   << cell_local[2] << " "
 		   << cell_local[3] << " "
@@ -482,23 +484,33 @@ coot::ShelxIns::read_file(const std::string &filename) {
       }
       if (symmetry_ops != "") {
  	 // std::cout << "DEBUG:: initing spacegroup with " << symmetry_ops << std::endl;
- 	 space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
-//  	 std::cout << "INFO:: set space group to :"
-//  		   << space_group.descr().symbol_hm()
-//  		   << ":" << std::endl;
-	 mol->SetSpaceGroup((char *)space_group.descr().symbol_hm().c_str());
-	 char *spg = mol->GetSpaceGroup();
-	 if (spg) { 
-	    std::string sgrp(spg);
-	    std::cout << "READ-INS:: Spacegroup: " << sgrp << "\n";
-	 } else {
-	    std::cout << "READ-INS:: No Spacegroup found in res file\n";
-	    // Is that because mmdb doesn't know about SYMINFO?
-	    char *si = getenv("SYMINFO");
-	    if (! si) {
-	       std::cout << "   possible cause: SYMINFO not set.\n";
+
+	 bool spacegroup_ok = 1;
+	 try {
+	    space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
+	 } catch ( clipper::Message_base exc ) {
+	    std::cout << "Oops, trouble.  No such spacegroup\n";
+	    spacegroup_ok = 0;
+	 }
+
+	 if (spacegroup_ok) {
+
+	    std::cout << "INFO:: set space group to :" << space_group.descr().symbol_hm()
+		      << ":" << std::endl;
+	    mol->SetSpaceGroup((char *)space_group.descr().symbol_hm().c_str());
+	    char *spg = mol->GetSpaceGroup();
+	    if (spg) { 
+	       std::string sgrp(spg);
+	       std::cout << "READ-INS:: Spacegroup: " << sgrp << "\n";
+	    } else {
+	       std::cout << "READ-INS:: No Spacegroup found in res file\n";
+	       // Is that because mmdb doesn't know about SYMINFO?
+	       char *si = getenv("SYMINFO");
+	       if (! si) {
+		  std::cout << "   possible cause: SYMINFO not set.\n";
+	       }
 	    }
-	 } 
+	 }
       }
 
       std::cout << "INFO:: chain has " << chain->GetNumberOfResidues() << " residues"
@@ -833,10 +845,6 @@ coot::shelx_card_info_t::last_word_is_equal_symbol() const {
 	 r = 1;
       } else {
 	 if (s.length() == 2) {
-	    int i1 = s[0];
-	    int i2 = s[1];
-// 	    std::cout << "2 chars: " << i1 << " " << i2 << " in :" << s
-// 		      << ":" << std::endl;
 	    if (s[0] == 61) { // = symbol
 	       if (s[1] == 13) {
 		  std::cout << "windows =" << std::endl;
@@ -1289,35 +1297,38 @@ coot::symm_card_composition_t::symm_card_composition_t(const std::string &symm_c
    // 
    for (int iele=0; iele<3; iele++) {
       // these need case insensitivity
-      std::string::size_type ixp = ele[iele].find("+X"); 
-      std::string::size_type ixm = ele[iele].find("-X");
-      std::string::size_type ix  = ele[iele].find( "X");
-      std::string::size_type iyp = ele[iele].find("+Y");
-      std::string::size_type iym = ele[iele].find("-Y");
-      std::string::size_type iy  = ele[iele].find( "Y");
-      std::string::size_type izp = ele[iele].find("+Z");
-      std::string::size_type izm = ele[iele].find("-Z");
-      std::string::size_type iz  = ele[iele].find( "Z");
+
+      std::string this_ele = coot::util::upcase(ele[iele]);
+      
+      std::string::size_type ixp = this_ele.find("+X"); 
+      std::string::size_type ixm = this_ele.find("-X");
+      std::string::size_type ix  = this_ele.find( "X");
+      std::string::size_type iyp = this_ele.find("+Y");
+      std::string::size_type iym = this_ele.find("-Y");
+      std::string::size_type iy  = this_ele.find( "Y");
+      std::string::size_type izp = this_ele.find("+Z");
+      std::string::size_type izm = this_ele.find("-Z");
+      std::string::size_type iz  = this_ele.find( "Z");
 
       if (ixp == std::string::npos)
-	 ixp = ele[iele].find("+ X"); 
+	 ixp = this_ele.find("+ X"); 
       if (ixm == std::string::npos)
-	 ixm = ele[iele].find("- X"); 
+	 ixm = this_ele.find("- X"); 
 
       if (iyp == std::string::npos)
-	 iyp = ele[iele].find("+ Y"); 
+	 iyp = this_ele.find("+ Y"); 
       if (iym == std::string::npos)
-	 iym = ele[iele].find("- Y"); 
+	 iym = this_ele.find("- Y"); 
 
       if (izp == std::string::npos)
-	 izp = ele[iele].find("+ Z"); 
+	 izp = this_ele.find("+ Z"); 
       if (izm == std::string::npos)
-	 izm = ele[iele].find("- Z"); 
+	 izm = this_ele.find("- Z"); 
 
-//       std::cout << "looking in iele=" << iele << " " << ele[iele]
+//       std::cout << "looking in iele=" << iele << " " << this_ele
 // 		<< std::endl;
       
-      std::string substituted = ele[iele];
+      std::string substituted = this_ele;
       if (ixp != std::string::npos) {
 	 substituted[ixp] = ' ';
 	 substituted[ixp+1] = ' ';

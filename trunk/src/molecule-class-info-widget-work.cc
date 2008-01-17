@@ -1,6 +1,7 @@
 /* src/molecule-class-info-widget-work.cc
  * 
- * Copyright 2005, 2006 by Paul Emsley, The University of York
+ * Copyright 2005, 2006 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -453,7 +454,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 
       
       ighost = -1;
-      for (int jghost=0; jghost<ncs_ghosts.size(); jghost++) {
+      for (unsigned int jghost=0; jghost<ncs_ghosts.size(); jghost++) {
 	 if ( v[ich] == ncs_ghosts[jghost].chain_id) {
 	    ighost = jghost;
 	    break;
@@ -552,7 +553,7 @@ molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkW
 	 name += "_checkbutton";
 	 GtkWidget *checkbutton = lookup_widget(vbox, name.c_str());
 	 if (checkbutton) {
-	    if (i == imaster) {
+	    if (int(i) == imaster) {
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
 	       gtk_widget_set_sensitive(checkbutton, FALSE);
 	    } else { 

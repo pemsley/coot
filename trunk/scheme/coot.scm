@@ -60,6 +60,7 @@
   (lambda (use-gui?)
 
     (let ((pre-list (list "filter.scm" 
+			  "matrices.scm"
 			  "coot-utils.scm"))
 	  (post-list (list "coot-lsq.scm"
 			   "shelx.scm"

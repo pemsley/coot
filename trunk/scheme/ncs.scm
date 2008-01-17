@@ -49,13 +49,24 @@
 	  (if (not (is-solvent-chain? imol chain-guess))	  
 	      chain-guess
 	      (skip-to-chain imol chain-guess chain-id-list)))))
-	       
 
+  (define (get-chain-id-list imol this-chain-id)
+    (let ((att (ncs-chain-ids imol)))
+      (if (not att)
+	  (chain-ids imol)
+	  (let loop ((attempts att))
+	    (cond
+	     ((null? attempts) (chain-ids imol))
+	     ((string-member? this-chain-id (car attempts))
+	      (car attempts))
+	     (else loop (cdr attempts)))))))
+	       
 
   ;; First, what is imol?  imol is the go to atom molecule
   (let* ((imol (go-to-atom-molecule-number))
-	 (chains (chain-ids imol))
 	 (this-chain-id (go-to-atom-chain-id))
+	 (chains (get-chain-id-list imol this-chain-id))
+	 ; (nov (format #t "Got chains: ~s~%" chains))
 	 (next-chain (skip-to-chain imol this-chain-id chains)))
 
 ;     (format #t "next-chain: ~s~%" next-chain)

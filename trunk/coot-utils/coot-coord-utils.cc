@@ -81,6 +81,37 @@ coot::util::residue_types_in_molecule(CMMDBManager *mol) {
    return v;
 }
 
+std::vector<std::pair<int, int> >
+coot::util::pair_residue_atoms(CResidue *a_residue_p,
+			       CResidue *b_residue_p) {
+
+   std::vector<std::pair<int, int> > pv;
+
+   PPCAtom residue_atoms_1 = NULL;
+   PPCAtom residue_atoms_2 = NULL;
+   int n_residue_atoms_1, n_residue_atoms_2;
+   a_residue_p->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+   b_residue_p->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+
+   for (int i=0; i<n_residue_atoms_1; i++) {
+      std::string atn1(residue_atoms_1[i]->name);
+      std::string alt1(residue_atoms_1[i]->altLoc);
+      for (int j=0; j<n_residue_atoms_2; j++) {
+	 std::string atn2(residue_atoms_2[j]->name);
+	 std::string alt2(residue_atoms_2[j]->altLoc);
+	 if (atn1 == atn2) {
+	    if (alt1 == alt2) {
+	       std::pair<int, int> p(i,j);
+	       pv.push_back(p);
+	       break;
+	    }
+	 }
+      }
+   }
+   return pv;
+}
+
+
 clipper::RTop_orth
 coot::util::matrix_convert(mat44 mat) {
    
@@ -500,7 +531,6 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
       CChain *chain_p = search_atom->GetChain();
       int nres = chain_p->GetNumberOfResidues();
       PCResidue residue_p;
-      CAtom *at;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 if (residue_p == search_atom->GetResidue()) {
@@ -1065,6 +1095,46 @@ coot::util::average_temperature_factor(PPCAtom atom_selection,
 } 
 
 
+// Return NULL on residue not found in this molecule.
+// 
+CResidue *
+coot::util::get_residue(int reso, const std::string &insertion_code,
+			const std::string &chain_id, CMMDBManager *mol) {
+
+   CResidue *res = NULL;
+   bool found_res = 0;
+      
+   if (mol) {
+      CModel *model_p = mol->GetModel(1);
+      CChain *chain_p;
+      int n_chains = model_p->GetNumberOfChains(); 
+      for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	 chain_p = model_p->GetChain(i_chain);
+	 std::string mol_chain(chain_p->GetChainID());
+	 if (mol_chain == chain_id) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) { // ires is a serial number
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p->GetSeqNum() == reso) {
+		  std::string ins_code(residue_p->GetInsCode());
+		  if (insertion_code == ins_code) {
+		     res = residue_p;
+		     found_res = 1;
+		     break;
+		  } else {
+		     std::cout << "strange? Insertion codes non-match :"
+			       << residue_p->GetInsCode() << ": :"
+			       << insertion_code << ":" << std::endl;
+		  }
+	       }
+	    }
+	 }
+	 if (found_res) break;
+      }
+   }
+   return res;
+}
 
 
 // The flanking residues (if any) are in the residue selection (SelResidues).
@@ -1121,7 +1191,7 @@ coot::util::create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol,
    int afix_handle_new_mol = -1;
    if (afix_handle_orig >= 0) { 
       afix_handle_new_mol = residues_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
-      int udd_afix_handle_test = residues_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+      // int udd_afix_handle_test = residues_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
 //       std::cout << "DEBUG:: in create_mmdbmanager_from_res_selection, "
 // 		<< "test : " << afix_handle_new_mol << " vs " << udd_afix_handle_test << std::endl;
    }
@@ -1159,10 +1229,9 @@ coot::util::create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol,
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 PCResidue residue_p;
-	 CAtom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    // 	    int n_atoms = residue_p->GetNumberOfAtoms();
 	    
 // 	    for (int iat=0; iat<n_atoms; iat++) {
 // 	       at = residue_p->GetAtom(iat);
@@ -2898,7 +2967,7 @@ std::pair<bool, clipper::RTop_orth> coot::util::nucleotide_to_nucleotide(CResidu
 	       for (int istd=0; istd<n_std_base_atoms; istd++) {
 		  std::string std_base_atom_name = std_base_atoms[istd]->name;
 		  if (std_base_atom_name == const_nuc_atoms[inuc]) { 
-		     for (unsigned imol=0; imol<n_mol_base_atoms; imol++) {
+		     for (int imol=0; imol<n_mol_base_atoms; imol++) {
 			std::string mol_base_atom_name = mol_base_atoms[imol]->name;
 			if (mol_base_atom_name == std_base_atom_name) {
 			   std::string altconf1 = std_base_atoms[istd]->altLoc;

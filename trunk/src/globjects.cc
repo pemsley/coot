@@ -199,7 +199,7 @@ short int graphics_info_t::draw_chi_angle_flash_bond_flag = 0;
 std::pair<clipper::Coord_orth, clipper::Coord_orth> graphics_info_t::flash_bond = 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> (clipper::Coord_orth(0,0,0),
 							clipper::Coord_orth(0,0,0));
-int graphics_info_t::default_bond_width = 3;
+int graphics_info_t::default_bond_width = 5;
 
    
 int graphics_info_t::rotamer_selection_dialog_x_position = -1;
@@ -553,6 +553,7 @@ int graphics_info_t::show_origin_marker_flag = 1;
 
 //
 float graphics_info_t::geometry_vs_map_weight = 60.0;
+float graphics_info_t::rama_plot_restraint_weight = 1.0;
 
 atom_selection_container_t *graphics_info_t::moving_atoms_asc = NULL;
 short int graphics_info_t::moving_atoms_asc_type = 0; // unset
@@ -1500,19 +1501,19 @@ void
 setup_lighting(short int do_lighting_flag) {
 
    if (do_lighting_flag) { // set this to 1 to light a surface currently.
-      GLfloat  mat_specular[]   = {1.0, 0.3, 0.2, 1.0};
-      GLfloat  mat_ambient[]    = {0.8, 0.1, 0.1, 1.0};
-      GLfloat  mat_diffuse[]    = {0.2, 1.0, 0.0, 1.0};
-      GLfloat  mat_shininess[]  = {50.0};
+//       GLfloat  mat_specular[]   = {1.0, 0.3, 0.2, 1.0};
+//       GLfloat  mat_ambient[]    = {0.8, 0.1, 0.1, 1.0};
+//       GLfloat  mat_diffuse[]    = {0.2, 1.0, 0.0, 1.0};
+//       GLfloat  mat_shininess[]  = {50.0};
       GLfloat  light_position[] = {1.0, 1.0, 1.0, 0.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
-      glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-      glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-      glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
-      glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+//       glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+//       glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+//       glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
+//       glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
       glLightfv(GL_LIGHT0,   GL_POSITION, light_position);
 
       glEnable(GL_LIGHT0);
@@ -1808,7 +1809,11 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag);
 
 	 // draw display list objects
-	 n_display_list_objects += graphics_info_t::molecules[ii].draw_display_list_objects();
+	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
+	    glEnable(GL_LIGHT0);
+	    n_display_list_objects += graphics_info_t::molecules[ii].draw_display_list_objects();
+	    glDisable(GL_LIGHT0);
+	 }
 
 	 // draw anisotropic atoms maybe
 	 graphics_info_t::molecules[ii].anisotropic_atoms();

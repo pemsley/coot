@@ -346,12 +346,14 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 // 			    << ifirst << " " << chain_atom_selection_handles[ifirst]
 // 			    << " and isec: " << isec << " " << chain_atom_selection_handles[isec]
 // 			    << std::endl;
-		  std::pair<bool, clipper::RTop_orth> ghost_info = 
+
+		  coot::ncs_matrix_info_t ghost_info = 
 		     find_ncs_matrix(chain_atom_selection_handles[ifirst],
 				     chain_atom_selection_handles[isec]);
-		  if (ghost_info.first) { 
-		     ghost.rtop = ghost_info.second;
+		  if (ghost_info.state) { 
+		     ghost.rtop = ghost_info.rtop;
 		     ghost.display_it_flag = 1;
+		     ghost.residue_matches = ghost_info.residue_matches;
 		  }
 	       }
 	       ghost.SelectionHandle = chain_atom_selection_handles[isec];
@@ -401,11 +403,11 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 				   homology_level,
 				   allow_offset_flag)) {
 	       coot::ghost_molecule_display_t ghost;
-	       std::pair<bool, clipper::RTop_orth> ghost_info = 	       
+	       coot::ncs_matrix_info_t ghost_info = 
 		  find_ncs_matrix(chain_atom_selection_handles[imaster],
 				  chain_atom_selection_handles[ichain]);
-	       if (ghost_info.first) { 
-		  ghost.rtop = ghost_info.second;
+	       if (ghost_info.state) { 
+		  ghost.rtop = ghost_info.rtop;
 		  ghost.SelectionHandle = chain_atom_selection_handles[ichain];
 		  ghost.target_chain_id = master_chain_id;
 		  ghost.chain_id = chain_ids[ichain];
@@ -435,11 +437,13 @@ molecule_class_info_t::set_show_ghosts(short int state) {
 }
 
 
-std::pair<bool, clipper::RTop_orth>
+// was std::pair<bool, clipper::RTop_orth>
+coot::ncs_matrix_info_t
 molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 
    bool rtop_is_good = 0; 
    clipper::RTop_orth rtop; // random numbers
+   std::vector<int> residue_matches; 
 #ifdef HAVE_SSMLIB
 
    int precision = SSMP_Normal;
@@ -484,11 +488,34 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	 PPCAtom selatoms_2 = NULL;
 	 int n_sel_atoms_2; 
 	 atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
-	 std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection " << selatoms_1[0] << std::endl;
-	 std::cout << "First atom of " << n_sel_atoms_2 << " in second selection " << selatoms_2[0] << std::endl;
+	 std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection "
+		   << selatoms_1[0] << std::endl;
+	 std::cout << "First atom of " << n_sel_atoms_2 << " in second selection "
+		   << selatoms_2[0] << std::endl;
       }
       rtop = coot::util::make_rtop_orth_from(SSMAlign->TMatrix);
       rtop_is_good = 1;
+
+      // add residue_matches
+      // 
+      // int      selHndCa1,selHndCa2; // selection handles to used C-alphas
+      // ivector  Ca1,Ca2;      // C-alpha correspondence vectors
+                                // Ca1[i] corresponds to a[i], where a is
+                                // selection identified by selHndCa1
+      PCAtom *atom_selection1 = NULL;
+      int n_selected_atoms_1;
+      atom_sel.mol->GetSelIndex(SSMAlign->selHndCa1,
+				atom_selection1,
+				n_selected_atoms_1);
+      for (int iat=0; iat<n_selected_atoms_1; iat++) {
+	 residue_matches.push_back(SSMAlign->Ca1[iat]);
+      }
+
+      std::cout << "  Residue Matches" << std::endl;
+      for (unsigned int imatch=0; imatch<residue_matches.size(); imatch++) {
+	 std::cout << "match " << imatch << " " << residue_matches[imatch]
+		   << std::endl;
+      }
    }
 
    std::cout << "   find_ncs_matrix returns ";
@@ -498,7 +525,7 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
    delete SSMAlign; // added 071101
 
 #endif // HAVE_SSMLIB
-   return std::pair<bool, clipper::RTop_orth> (rtop_is_good, rtop);
+   return coot::ncs_matrix_info_t(rtop_is_good, rtop, residue_matches);
 }
 
 
@@ -1431,6 +1458,7 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_others(const std::s
 int
 molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_id) {
 
+   int retval = 0;
    std::vector<std::string> chain_ids;
    std::vector<std::vector<std::pair<std::string, int> > > residue_types;
    std::vector<int> chain_atom_selection_handles;
@@ -1499,6 +1527,7 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 	 }
       }
    }
+   return retval;
 }
 
 void
@@ -1543,7 +1572,7 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
       }
 
       std::vector<std::string> chain_ids = coot::util::chains_in_molecule(atom_sel.mol);
-      if (ichain < chain_ids.size()) {
+      if (ichain < int(chain_ids.size())) {
 	 for (unsigned int ich=0; ich<ncs_ghosts.size(); ich++) {
 //  	    std::cout << "getting ghost_index: chain_ids[" << ichain << "] is "
 //  		      << chain_ids[ichain] << " and ncs_ghosts[" << ich
@@ -1558,7 +1587,7 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 	 
 	 // 	 std::cout << "   Here ghost_index is " << ghost_index << std::endl;
 	 if (ghost_index > -1 ) { 
-	    if (ncs_ghosts.size() > ghost_index) {
+	    if (int(ncs_ghosts.size()) > ghost_index) {
 	       ncs_ghosts[ghost_index].display_it_flag = state;
 	    }
 	 }
@@ -1589,7 +1618,7 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 
    clipper::Mat33<double> r = current_view_mat;
 
-   int n_ghosts = ncs_ghosts.size();
+   unsigned int n_ghosts = ncs_ghosts.size();
    if (n_ghosts > 0) {
 
       // If current_chain is not a target_chain_id
@@ -1630,7 +1659,7 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	    // should always happen
 
 	    // were we on the last ghost?
-	    if (i_ghost_chain_match == (ncs_ghosts.size()-1)) {
+	    if (i_ghost_chain_match == (int(ncs_ghosts.size())-1)) {
 	       // we need to go to the target_chain
 	       clipper::Mat33<double> ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop.rot();
 // 	       std::cout << "from " << current_chain << " to target chain "
@@ -1644,9 +1673,9 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	 } else {
 	    std::cout << "ERROR:: An NCS reference chain finding error has occured"
 		      << std::endl;
-	 } 
+	 }
 
-
+	 
       } else {
 	 if (ncs_ghosts_have_rtops_flag) { 
 	    // we were sitting on an NCS master
@@ -1672,7 +1701,7 @@ bool
 molecule_class_info_t::ncs_ghost_chain_is_a_target_chain_p(const std::string &chain_id) const {
 
    bool r = 0;
-   int n_ghosts = ncs_ghosts.size();
+   unsigned int n_ghosts = ncs_ghosts.size();
    if (n_ghosts > 0) {
       for (unsigned int ighost=0; ighost<n_ghosts; ighost++) {
 	 if (ncs_ghosts[ighost].target_chain_id == chain_id) { 
@@ -1683,3 +1712,144 @@ molecule_class_info_t::ncs_ghost_chain_is_a_target_chain_p(const std::string &ch
    }
    return r;
 } 
+
+coot::ncs_differences_t
+molecule_class_info_t::ncs_chain_differences(std::string master_chain_id) const {
+
+   std::vector<coot::ncs_chain_difference_t> diffs;
+
+   // Note to self: recall:
+   // 
+   // class ncs_chain_difference_t {
+   //    std::string peer_chain_id;
+   //    std::vector<ncs_residue_info_t> residue_info;
+
+
+   if (ncs_ghosts.size() > 0) {
+      if (ncs_ghosts_have_rtops_flag) {
+	 for (unsigned int ighost = 0; ighost<ncs_ghosts.size(); ighost++) {
+	    int imod = 1;
+	    CModel *model_p = atom_sel.mol->GetModel(imod);
+	    CChain *chain_p;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    CChain *this_chain_p = 0;
+	    CChain *master_chain_p = 0;
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       if (std::string(chain_p->GetChainID()) == ncs_ghosts[ighost].chain_id) {
+		  this_chain_p = chain_p;
+	       }
+	       if (std::string(chain_p->GetChainID()) == ncs_ghosts[ighost].target_chain_id) {
+		  master_chain_p = chain_p;
+	       }
+	    }
+	    if (this_chain_p && master_chain_p) {
+	       
+	       int nres_this     = this_chain_p->GetNumberOfResidues();
+	       int nres_master = master_chain_p->GetNumberOfResidues();
+	       PCResidue this_residue_p;
+	       PCResidue master_residue_p;
+	       std::vector<coot::ncs_residue_info_t> residue_info;
+	       for (int ires=0; ires<nres_this && ires<nres_master; ires++) {
+		  this_residue_p = this_chain_p->GetResidue(ires);
+		  master_residue_p = master_chain_p->GetResidue(ires);
+		  coot::ncs_residue_info_t ds = 
+		     ncs_ghosts[ighost].get_differences(this_residue_p, master_residue_p);
+		  residue_info.push_back(ds);
+	       }
+	       coot::ncs_chain_difference_t d(ncs_ghosts[ighost].chain_id, residue_info);
+	       if (residue_info.size() > 0)
+		  diffs.push_back(d);
+	    }
+	 }
+      }
+   }
+   return coot::ncs_differences_t(master_chain_id, diffs);
+}
+
+
+coot::ncs_residue_info_t
+coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p, 
+						CResidue *master_residue_p) const {
+   // has access to rtop
+   coot::ncs_residue_info_t r;
+
+   if (std::string(this_residue_p->GetResName()) == std::string(master_residue_p->GetResName())) {
+      std::vector<std::pair<int, int> > index_pairs =
+	 coot::util::pair_residue_atoms(this_residue_p, master_residue_p);
+      PPCAtom residue_atoms_1 = NULL;
+      PPCAtom residue_atoms_2 = NULL;
+      int n_residue_atoms_1, n_residue_atoms_2;
+      this_residue_p->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+      master_residue_p->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+      int n_atoms = 0;
+      double sum_dist = 0.0;
+      for (unsigned int i=0; i<index_pairs.size(); i++) {
+	 CAtom *at1 = residue_atoms_1[index_pairs[i].first];
+	 CAtom *at2 = residue_atoms_2[index_pairs[i].second];
+	 clipper::Coord_orth pt1(at1->x, at1->y, at1->z);
+	 clipper::Coord_orth pt2(at2->x, at2->y, at2->z);
+	 double len = clipper::Coord_orth::length(pt1.transform(rtop), pt2);
+	 sum_dist +=len;
+	 n_atoms++;
+      }
+      if (n_atoms > 0) {
+	 r = coot::ncs_residue_info_t(this_residue_p->GetSeqNum(),
+				      this_residue_p->GetInsCode(),
+				      this_residue_p->index,
+				      master_residue_p->GetSeqNum(),
+				      master_residue_p->GetInsCode(),
+				      master_residue_p->index);
+	 r.mean_diff = sum_dist/float(n_atoms);
+	 r.n_atoms = n_atoms;
+      }
+   } else {
+      std::cout << "different residue types" << std::endl;
+   }
+   return r;
+}
+
+std::vector<std::vector<std::string> > 
+molecule_class_info_t::ncs_ghost_chains() const {
+
+   std::vector<std::vector<std::string> > v;
+   std::vector<std::string> ghost_vec;
+   if (ncs_ghosts.size() > 0) {
+      std::vector<std::pair<std::string, std::vector<std::string> > > grouped_ghosts;
+      for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+// 	 std::cout << "doing ghost number " << ighost << " " 
+// 		   << ncs_ghosts[ighost].chain_id << " "
+// 		   << ncs_ghosts[ighost].target_chain_id
+// 		   << std::endl;
+	 std::string master_chain = ncs_ghosts[ighost].target_chain_id;
+	 bool found = 0;
+	 for (unsigned int igroup=0; igroup<grouped_ghosts.size(); igroup++) {
+	    if (grouped_ghosts[igroup].first == master_chain) {
+	       grouped_ghosts[igroup].second.push_back(ncs_ghosts[ighost].chain_id);
+	       found = 1;
+	       break;
+	    }
+	 }
+	 if (! found) {
+	    std::vector<string> v;
+	    v.push_back(ncs_ghosts[ighost].chain_id);
+	    std::pair<std::string, std::vector<std::string> > group(master_chain, v);
+	    grouped_ghosts.push_back(group);
+	 }
+      }
+//       std::cout << "There are " << grouped_ghosts.size() << " grouped ghosts"
+// 		<< std::endl;
+      if (grouped_ghosts.size() > 0) {
+	 for (unsigned int igroup=0; igroup<grouped_ghosts.size(); igroup++) {
+	    std::vector<std::string> linear_ghost;
+	    linear_ghost.push_back(grouped_ghosts[igroup].first);
+	    for (unsigned int ipeer=0; ipeer<grouped_ghosts[igroup].second.size(); ipeer++) {
+	       linear_ghost.push_back(grouped_ghosts[igroup].second[ipeer]);
+	    }
+	    v.push_back(linear_ghost);
+	 }
+      }
+   }
+   return v;
+}

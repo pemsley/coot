@@ -220,7 +220,7 @@ main(int argc, char **argv) {
 	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       
 	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-	 restraints.make_restraints(geom, flags, 1, 0, pseudos);
+	 restraints.make_restraints(geom, flags, 1, 0, 0.0, 0, pseudos);
 
 	 restraints.minimize(flags);
 	 restraints.write_new_atoms(inputs.output_pdb_file_name);
@@ -301,7 +301,8 @@ map_from_mtz(std::string mtz_file_name,
 }
 
 
-input_data_t get_input_details(int argc, char **argv) {
+input_data_t
+get_input_details(int argc, char **argv) {
 
    input_data_t d;
    d.is_good = 0;

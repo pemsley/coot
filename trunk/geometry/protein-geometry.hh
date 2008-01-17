@@ -278,6 +278,8 @@ namespace coot {
 	 local_atom_id_2 = atom_id_2_in;
 	 local_atom_id_3 = atom_id_3_in;
 	 volume_sign = volume_sign_in;
+	 target_volume_ = -999.9;  // unassigned
+	 volume_sigma_  = -999.9;
       }
       std::string atom_id_1_4c() const { return atom_id_mmdb_expand(local_atom_id_1);}
       std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
@@ -287,6 +289,9 @@ namespace coot {
 					 const std::vector <dict_angle_restraint_t> &angles);
       double target_volume() const { return target_volume_;}
       double volume_sigma()  const { return volume_sigma_;}
+      bool has_unassigned_chiral_volume() const {
+	 return (volume_sigma_ < 0.0) ? 1 : 0;
+      }
 
    };
 
@@ -344,8 +349,9 @@ namespace coot {
       std::vector  <dict_chiral_restraint_t>  chiral_restraint;
       std::vector   <dict_plane_restraint_t>   plane_restraint;
       // Return 1 for hydrogen or deuterium, 0 for not found or not a hydrogen.
-      short int is_hydrogen(const std::string &atom_name) const;
+      bool is_hydrogen(const std::string &atom_name) const;
       int assign_chiral_volume_targets(); // return the number of targets made.
+      bool has_unassigned_chiral_volumes() const;
    };
 
    // ------------------------------------------------------------------------

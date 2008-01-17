@@ -140,6 +140,74 @@ namespace coot {
       }
    };
 
+   // Maybe we want a mainchain/side chain split here...
+   class ncs_residue_info_t {
+   public:
+     float mean_diff;
+     int n_atoms;
+     int resno; 
+     std::string inscode;
+     int serial_number;
+     int target_resno; 
+     int target_serial_number;
+     std::string target_inscode;
+     ncs_residue_info_t() {
+       mean_diff = -1;
+       n_atoms = 0;
+     }
+     ncs_residue_info_t(int resno_in, const std::string &ins_code_in, int serial_number_in,
+			int target_resno_in, const std::string &target_ins_code_in, int target_serial_number_in) {
+       resno = resno_in;
+       inscode = ins_code_in;
+       serial_number = serial_number_in;
+       target_resno = target_resno_in;
+       target_inscode = target_ins_code_in;
+       target_serial_number = target_serial_number_in;
+     }
+   };
+
+   class ncs_chain_difference_t {
+   public:
+     std::string peer_chain_id;
+     std::vector<ncs_residue_info_t> residue_info;
+     ncs_chain_difference_t() {
+     }
+     ncs_chain_difference_t(const std::string &peer_chain_id_in,
+			    const std::vector<ncs_residue_info_t> &residue_info_in) {
+       peer_chain_id = peer_chain_id_in;
+       residue_info = residue_info_in;
+     }
+   };
+
+   class ncs_differences_t {
+   public:
+     std::string target_chain_id;
+     std::vector<ncs_chain_difference_t> diffs;
+     unsigned int size() const { return diffs.size(); }
+     ncs_differences_t() {}
+     ncs_differences_t(const std::string &target_chain_id_in, 
+		       std::vector<ncs_chain_difference_t> diffs_in) {
+       target_chain_id = target_chain_id_in;
+       diffs = diffs_in;
+     }
+   };
+
+   class ncs_matrix_info_t {
+   public: 
+     bool state; 
+     clipper::RTop_orth rtop;
+     std::vector<int> residue_matches;
+     ncs_matrix_info_t() {
+       state = 0;
+     }
+     ncs_matrix_info_t(bool state_in, clipper::RTop_orth rtop_in, 
+		       std::vector<int> residue_matches_in) {
+       state = state_in;
+       rtop = rtop_in;
+       residue_matches = residue_matches_in;
+     }
+   };
+
    class ghost_molecule_display_t {
    public:
       clipper::RTop_orth rtop;
@@ -149,6 +217,7 @@ namespace coot {
       std::string chain_id;
       std::string target_chain_id;  // this operator matches to this chain.
       short int display_it_flag;
+      std::vector<int> residue_matches;
       ghost_molecule_display_t() { SelectionHandle = -1;
 	 display_it_flag = 0; }
       ghost_molecule_display_t(const clipper::RTop_orth &rtop_in,
@@ -161,6 +230,8 @@ namespace coot {
       }
       void update_bonds(CMMDBManager *mol); // the parent's mol
       bool is_empty() { return (SelectionHandle == -1); }
+      ncs_residue_info_t get_differences(CResidue *this_residue_p, 
+					 CResidue *master_residue_p) const;
    };
 
    class display_list_object_info {
@@ -241,7 +312,6 @@ namespace coot {
        attribute_value = att_val;
      } 
    };
-
 }
 
 
@@ -418,7 +488,7 @@ class molecule_class_info_t {
    short int show_ghosts_flag;
    float ghost_bond_width;
    bool ncs_ghost_chain_is_a_target_chain_p(const std::string &chain_id) const;
-   std::pair<bool, clipper::RTop_orth> find_ncs_matrix(int SelHandle1, int SelHandle2) const;
+   coot::ncs_matrix_info_t find_ncs_matrix(int SelHandle1, int SelHandle2) const;
    short int ncs_ghosts_have_rtops_flag;
    // have to take into account the potential built/non-built offsets:
    bool ncs_chains_match_p(const std::vector<std::pair<std::string, int> > &v1,
@@ -500,6 +570,13 @@ class molecule_class_info_t {
    std::vector<coot::dots_representation_info_t> dots;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
 				     bool ca_check_flag) const;
+
+   // save the data used for the fourier, so that we can use it to
+   // sharpen the map:
+   // uncommenting the following line causes a crash in the multi-molecule
+   // (expand molecule space) test.
+   // clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
+
    
 
    // ------------------------------------------------------------------
@@ -720,7 +797,8 @@ class molecule_class_info_t {
 			  std::string phi_col,
 			  std::string weight_col,
 			  int use_weights,
-			  int is_diff_map);
+			  int is_diff_map, 
+			  float map_sampling_rate);
 
    void map_fill_from_mtz_with_reso_limits(std::string mtz_file_name,
 					   std::string f_col,
@@ -731,7 +809,8 @@ class molecule_class_info_t {
 					   int is_diff_map,
 					   short int use_reso_flag,
 					   float low_reso_limit,
-					   float high_reso_limit);
+					   float high_reso_limit, 
+					   float map_sampling_rate);
 
    atom_selection_container_t atom_sel;
    int drawit; // used by Molecule Display control, toggled using
@@ -781,6 +860,8 @@ class molecule_class_info_t {
    void draw_molecule(short int do_zero_occ_spots);
    void zero_occupancy_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
+
+   std::vector<coot::atom_spec_t> fixed_atom_specs;
 
    // we could combine these 2, because a bonds_box contains symmetry
    // data members, but we do not, because update_symmetry is more 
@@ -968,6 +1049,7 @@ class molecule_class_info_t {
    void compile_density_map_display_list();
    void draw_density_map(short int display_list_for_maps_flag);
    void draw_surface();
+   bool has_display_list_objects();
    int draw_display_list_objects(); // return number of display list objects to be drawn
    // return the display list tag
    int make_ball_and_stick(const std::string &atom_selection_str,
@@ -1034,7 +1116,8 @@ class molecule_class_info_t {
 				    const clipper::Spacegroup &sg,
 				    const clipper::Cell &cell,
 				    float reso_limit_low,
-				    float reso_limit_high);
+				    float reso_limit_high, 
+				    float map_sampling_rate);
 
    int make_map_from_phs(const clipper::Spacegroup &sg,
 			 const clipper::Cell &cell,
@@ -1671,7 +1754,7 @@ class molecule_class_info_t {
 					    std::string chain_id, int imol_for_map);
 
    // residue splitting (add alt conf)
-   void split_residue(int atom_index);
+   void split_residue(int atom_index, int alt_conf_split_type);
 
    // internal (private) functions:
    void split_residue_internal(CResidue *residue, const std::string &altconf, 
@@ -1716,6 +1799,8 @@ class molecule_class_info_t {
 			  // their waters start at residue 1 and
 			  // continue monotonically.
 
+   void mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bool state);
+
 
    // validation
    void find_deviant_geometry(float strictness);
@@ -1729,6 +1814,7 @@ class molecule_class_info_t {
    int draw_ncs_ghosts_p() const { // needed for setting the Bond Parameters checkbutton
       return show_ghosts_flag;
    }
+   std::vector<std::vector<std::string> > ncs_ghost_chains() const;
    int make_dynamically_transformed_maps(int imol_map,
 					 short int do_average_map,
 					 float homology_lev);
@@ -1759,8 +1845,8 @@ class molecule_class_info_t {
 				   const std::string &current_chain,
 				   const std::string &next_ncs_chain) const;
    
-
    short int show_strict_ncs_flag;
+   coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id) const;
 
    // shelx stuff
    std::pair<int, std::string> write_shelx_ins_file(const std::string &filename);
@@ -1922,6 +2008,9 @@ class molecule_class_info_t {
 
    // EM map function
    int scale_cell(float fac_u, float fac_v, float fac_w);
+
+   // 
+   void sharpen(float b_factor);
 
 };
 

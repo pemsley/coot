@@ -1,3 +1,4 @@
+
 #ifndef BEGIN_C_DECLS
 #ifdef __cplusplus
 #define BEGIN_C_DECLS extern "C" {
@@ -157,4 +158,3 @@ gchar* find_pixmap_file (const gchar     *filename);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS
-

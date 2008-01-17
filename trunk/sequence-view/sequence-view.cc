@@ -504,7 +504,7 @@ coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
    CModel *model_p = mol_in->GetModel(1);
 
    std::cout << "calculating secondary structure...";
-   int aminoSelHnd = -1;
+
 #ifdef HAVE_MMDB_WITH_CISPEP
    int status = model_p->CalcSecStructure(1, aminoSelHnd);
 #else   

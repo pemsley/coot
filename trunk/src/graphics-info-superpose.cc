@@ -1,6 +1,7 @@
 /* src/graphics-info-superpose.cc
  * 
- * Copyright 2004, 2005 by Paul Emsley, The University of York
+ * Copyright 2004, 2005 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -298,7 +299,6 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	    std::string res_no_str_1;
 	    std::string res_no_str_2;
 	    std::string reference_seq, moving_seq;
-	    int rn1, rn2;
 
 	    // another go at the sequence alignment used in the superposition.
 	    // 

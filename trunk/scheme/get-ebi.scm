@@ -1,7 +1,6 @@
 
 (use-modules (oop goops) (oop goops describe) (net http))
 
-
 ;;; Allow the user to set these variables in their .mapview file if
 ;;; they want some server other than the default choice.  (These
 ;;; values cribbed from pdb-mode.el, btw (thanks Charlie Bond)).

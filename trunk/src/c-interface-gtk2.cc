@@ -5,7 +5,7 @@
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -15,7 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 
@@ -167,7 +168,7 @@ handle_filename_filter_gtk2(GtkWidget *entry_widget) {
       GtkTreeModel *model = gtk_tree_view_get_model(tv);
       GtkTreeIter iter;
       gtk_list_store_clear(GTK_LIST_STORE(model));
-      for (int i=0; i<v.size(); i++) {
+      for (unsigned int i=0; i<v.size(); i++) {
 	 gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	 gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 			    0, coot::util::file_name_non_directory(v[i]).c_str(),
@@ -190,7 +191,7 @@ fileselection_filter_button_foreach_func
   GtkTreeIter  *iter,
   gpointer      user_data)
 {
-   gchar *file_name, *tree_path_str;
+   gchar *file_name;
    gtk_tree_model_get (model, iter,
 		       0, &file_name,
 		       -1);
@@ -244,7 +245,7 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
       if (lab == "Files") {
 	 GtkTreeModel *model = gtk_tree_view_get_model(tv);
 	 GtkTreeIter iter;
-	 GtkListStore *liststore; // model and liststore are the same thing?
+	 // GtkListStore *liststore; // model and liststore are the same thing?
 	 coot::file_attribs_info_t file_infos;
 	 file_infos.directory_prefix = pre_directory;
 
@@ -265,7 +266,7 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
 
 	 gtk_list_store_clear(GTK_LIST_STORE(model));
 
-	 for (int i=0; i<file_infos.file_mtimes.size(); i++) {
+	 for (unsigned int i=0; i<file_infos.file_mtimes.size(); i++) {
 	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	    gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 			       0, file_infos.file_mtimes[i].file.c_str(), -1);
@@ -329,7 +330,7 @@ on_filename_filter_toggle_button_toggled(GtkButton       *button,
 	 
 	 gtk_list_store_clear(GTK_LIST_STORE(model));
 	 std::vector<std::string> file_vec = filtered_by_glob(pre_directory, data_type);
-	 for (int i=0; i<file_vec.size(); i++) {
+	 for (unsigned int i=0; i<file_vec.size(); i++) {
 	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	    gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 			       0, coot::util::file_name_non_directory(file_vec[i]).c_str(),

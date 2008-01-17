@@ -100,6 +100,7 @@
 #include "ideal-rna.hh"
 #include "cmtz-interface.hh" // for valid columns mtz_column_types_info_t
 #include "c-interface-mmdb.hh"
+#include "c-interface-scm.hh"
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps - (somewhere else?):                               */
@@ -272,8 +273,6 @@ int replace_fragment(int imol_target, int imol_fragment,
    int istate = 0;
    if (is_valid_model_molecule(imol_target)) {
       if (is_valid_model_molecule(imol_fragment)) {
-	 PPCAtom atom_selection = NULL;
-	 int n_atoms;
 	 CMMDBManager *mol = graphics_info_t::molecules[imol_fragment].atom_sel.mol;
 	 int SelHnd = mol->NewSelection();
 	 mol->Select(SelHnd, STYPE_ATOM, (char *) mmdb_atom_selection_str, SKEY_OR);
@@ -3387,6 +3386,58 @@ void remove_omega_torsion_restriants() {
    g.Geom_p()->remove_omega_peptide_restraints();
 }
 
+#ifdef USE_GUILE
+// e.g. atom_spec: '("A" 81 "" " CA " "")
+//      position   '(2.3 3.4 5.6)
+SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position) {
+   SCM retval = SCM_BOOL_F;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec(atom_spec);
+   if (p.first) {
+      SCM pos_length_scm = scm_length(position);
+      int pos_length = scm_to_int(pos_length_scm);
+      if (pos_length == 3) {
+	 SCM x_scm = scm_list_ref(position, SCM_MAKINUM(0));
+	 SCM y_scm = scm_list_ref(position, SCM_MAKINUM(1));
+	 SCM z_scm = scm_list_ref(position, SCM_MAKINUM(2));
+	 double x = scm_to_double(x_scm);
+	 double y = scm_to_double(y_scm);
+	 double z = scm_to_double(z_scm);
+	 clipper::Coord_orth pt(x,y,z);
+	 graphics_info_t::drag_intermediate_atom(p.second, pt);
+      }
+   }
+   return retval;
+}
+#endif
+
+#ifdef USE_GUILE
+SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state) {
+   SCM retval = SCM_BOOL_F;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec(atom_spec);
+   if (p.first) {
+      graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
+   }
+   return retval;
+}
+#endif
+
+
+#ifdef USE_PYTHON
+PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
+   PyObject *r = 0;
+   return r;
+}
+#endif 
+
+
+#ifdef USE_PYTHON
+PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
+   PyObject *r = 0;
+   return r;
+}
+
+#endif 
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -4617,8 +4668,6 @@ cis_trans_convert(int imol, const char *chain_id, int resno, const char *inscode
    
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) { 
-      short int is_N_flag = 0;
-      CAtom *at = 0;
       g.molecules[imol].cis_trans_conversion(chain_id, resno, inscode);
    }
 }
@@ -4768,8 +4817,7 @@ void copy_from_ncs_master_to_others(int imol, const char *chain_id) {
 
    if (is_valid_model_molecule(imol)) {
       std::string c(chain_id);
-      int ncopied =
-	 graphics_info_t::molecules[imol].copy_from_ncs_master_to_others(c);
+      graphics_info_t::molecules[imol].copy_from_ncs_master_to_others(c);
       graphics_draw();
    }
 }
@@ -4783,10 +4831,9 @@ void copy_residue_range_from_ncs_master_to_others(int imol,
 
    if (is_valid_model_molecule(imol)) {
       std::string c(master_chain_id);
-      int ncopied =
-	 graphics_info_t::molecules[imol].copy_residue_range_from_ncs_master_to_others(c,
-										       res_range_start,
-										       res_range_end);
+      graphics_info_t::molecules[imol].copy_residue_range_from_ncs_master_to_others(c,
+										    res_range_start,
+										    res_range_end);
       graphics_draw();
    }
 }
@@ -5517,8 +5564,6 @@ int new_molecule_by_residue_type_selection(int imol_orig, const char *residue_ty
 
    if (is_valid_model_molecule(imol_orig)) {
 
-      PCAtom *atom_selection = 0;
-      int nSelAtoms = 0;
       imol = graphics_info_t::n_molecules;
       CMMDBManager *mol_orig = graphics_info_t::molecules[imol_orig].atom_sel.mol;
       int SelectionHandle = mol_orig->NewSelection();
@@ -5555,8 +5600,6 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 
    int imol = -1;
    if (is_valid_model_molecule(imol_orig)) {
-      PCAtom *atom_selection = 0;
-      int nSelAtoms = 0;
       imol = graphics_info_t::n_molecules;
       CMMDBManager *mol_orig = graphics_info_t::molecules[imol_orig].atom_sel.mol;
       int SelectionHandle = mol_orig->NewSelection();
@@ -5628,8 +5671,6 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 
    int imol = -1;
    if (is_valid_model_molecule(imol_orig)) {
-      PCAtom *atom_selection = 0;
-      int nSelAtoms = 0;
       imol = graphics_info_t::n_molecules;
       CMMDBManager *mol_orig = graphics_info_t::molecules[imol_orig].atom_sel.mol;
       int SelectionHandle = mol_orig->NewSelection();
@@ -5996,7 +6037,7 @@ handle_get_libcheck_monomer_code(GtkWidget *widget) {
 
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
    std::cout << "Refmac monomer Code: " << text << std::endl;
-   int imol = get_monomer(text);
+   get_monomer(text);
 
    // and kill the libcheck code window
    GtkWidget *window = lookup_widget(GTK_WIDGET(widget), "libcheck_monomer_dialog");
@@ -6148,15 +6189,10 @@ GtkWidget *
 create_skeleton_colour_selection_window() { 
 
    GtkWidget  *colorseldialog;
-
-   GtkButton *ok_button;
-   GtkButton *cancel_button;
-   GtkButton *help_button;
    GtkWidget *colorsel;
 
    colorseldialog = 
       gtk_color_selection_dialog_new("Skeleton Colour Selection"); 
-
 
 /* How do we get to the buttons? */
 

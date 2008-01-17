@@ -21,7 +21,7 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
 
       int min_resno =  9999;
       int max_resno = -9999;
-      for (int i=0; i<single_insertions.size(); i++) {
+      for (unsigned int i=0; i<single_insertions.size(); i++) {
 	 // std::cout << "single insertion residue number: "
 	 // << single_insertions[i].first.resno << std::endl;
 	 if (single_insertions[i].first.resno < min_resno)
@@ -33,7 +33,7 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
       // << min_resno << " " << max_resno << std::endl;
 
       std::vector<std::pair<int, std::string> > ins((max_resno - min_resno + 1), (std::pair<int, std::string>(0, "")));
-      for (int i=0; i<single_insertions.size(); i++) {
+      for (unsigned int i=0; i<single_insertions.size(); i++) {
 	 ins[single_insertions[i].first.resno-min_resno].first++;
 	 ins[single_insertions[i].first.resno-min_resno].second =
 	    single_insertions[i].second;
@@ -70,10 +70,10 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
       }
 
       std::cout << "INFO:: There were " << insertions.size() << " insertion ranges\n";
-      for (int irange=0; irange<insertions.size(); irange++) {
+      for (unsigned int irange=0; irange<insertions.size(); irange++) {
 	 std::cout << "From " << insertions[irange].start_resno << " to "
 		   << insertions[irange].end_resno() << std::endl;
-	 for (int it=0; it<insertions[irange].types.size(); it++) {
+	 for (unsigned int it=0; it<insertions[irange].types.size(); it++) {
 	    std::cout << "    " << insertions[irange].types[it] << std::endl;
 	 }
       }

@@ -1,11 +1,11 @@
 /* src/graphics-info.cc
  * 
- * Copyright 2004, 2005 by Paul Emsley, The University of York
- * Copryright 2005 by Bernhard Lohkamp
+ * Copyright 2004, 2005 by The University of York
+ * Author Paul Emsley, Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -132,7 +132,8 @@ coot::geometry_graphs::mouse_over(GtkCanvasItem *item, GdkEvent *event,
    
 }
 
-// "Molecule 2: " (for example) get prepended to the graph_label_in.
+// "Molecule 2: " (for example) gets prepended to the graph_label_in
+// before becoming at GtkLabel.
 // 
 coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
 				       int imol_in,
@@ -166,6 +167,8 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
       title = _("Peptide Omega Distortion Graphs");
    if (graph_type == coot::GEOMETRY_GRAPH_ROTAMER)
       title = _("Unusual Rotamer Graphs");
+   if (graph_type == coot::GEOMETRY_GRAPH_NCS_DIFFS)
+      title = _("NCS Differences");
 
    // adjust distortion_max depending on graph type
    if (graph_type == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION)
@@ -489,7 +492,7 @@ coot::geometry_graphs::update_omega_blocks(const coot::omega_distortion_info_con
    if (chain_index != -1) {
       
       // delete the omega blocks in om_dist
-      for (int iblock=0; iblock<om_dist.omega_distortions.size(); iblock++) {
+      for (unsigned int iblock=0; iblock<om_dist.omega_distortions.size(); iblock++) {
 	 int raw_resno = om_dist.omega_distortions[iblock].resno;
 	 int offsetted_residue_number = raw_resno - offsets[chain_number];
 	 if (offsetted_residue_number < int(blocks[chain_number].size())) { 
@@ -565,7 +568,7 @@ coot::geometry_graphs::delete_block(int chain_number, int raw_resno) {
 // 		      << offsets[chain_number] << " offsetted_residue_number = "
 // 		      << offsetted_residue_number << std::endl;
 	    if (offsetted_residue_number >= 1) {
-	       if (offsetted_residue_number < blocks[chain_number].size()) { 
+	       if (offsetted_residue_number < int(blocks[chain_number].size())) { 
 		  if (blocks[chain_number][offsetted_residue_number]) { 
 		     gtk_object_destroy(GTK_OBJECT(blocks[chain_number][offsetted_residue_number])); 
 		     blocks[chain_number][offsetted_residue_number] = NULL;

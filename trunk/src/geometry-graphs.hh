@@ -1,10 +1,11 @@
 /* src/geometry-graphs.hh
  * 
- * Copyright 2004, 2005 by Paul Emsley, The University of York
+ * Copyright 2004, 2005 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -43,8 +44,8 @@ namespace coot {
 			     GEOMETRY_GRAPH_B_FACTOR,
 			     GEOMETRY_GRAPH_DENSITY_FIT,
 			     GEOMETRY_GRAPH_OMEGA_DISTORTION,
-			     GEOMETRY_GRAPH_ROTAMER
-			     
+			     GEOMETRY_GRAPH_ROTAMER,
+			     GEOMETRY_GRAPH_NCS_DIFFS
    };
 
    gint on_geometry_graph_block_clicked(GtkCanvasItem *item, 

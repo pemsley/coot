@@ -1,11 +1,12 @@
 /* src/c-interface-ncs.cc
  * 
  * Copyright 2004, 2005 The University of York
+ * Copyright 2007, 2008 The University of Oxford
  * Author: Paul Emsley 
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -250,7 +251,7 @@ void ncs_control_change_ncs_master_to_chain(int imol, int ichain) {
    if (is_valid_model_molecule(imol)) {
       std::vector<std::string> chain_ids =
 	 coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
-      if (ichain < chain_ids.size())
+      if (ichain < int(chain_ids.size()))
 	 graphics_info_t::molecules[imol].set_ncs_master_chain(chain_ids[ichain]);
       graphics_draw();
    } 
@@ -409,3 +410,77 @@ int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w) {
    }
    return retval; 
 }
+
+#ifdef USE_GUILE
+SCM ncs_chain_differences_scm(int imol, const char *master_chain_id) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      coot::ncs_differences_t diffs = 
+	 graphics_info_t::molecules[imol].ncs_chain_differences(master_chain_id);
+      if (diffs.size() == 0) {
+	 std::cout << "no diffs" << std::endl;
+      } else {
+	 r = SCM_EOL;
+	 for (int idiff=int(diffs.size()-1); idiff>=0; idiff--) {
+	    SCM l_residue_data = SCM_EOL;
+	    coot::ncs_chain_difference_t cd = diffs.diffs[idiff];
+	    if (cd.residue_info.size() > 0) {
+	       std::cout << "NCS target chain has " << cd.residue_info.size()
+			 << " peers." << std::endl;
+	       //	       for (int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
+	       for (int iresinf=(int(cd.residue_info.size())-1); iresinf>=0; iresinf--) {
+		  std::cout << "resinfo: "
+			    << cd.residue_info[iresinf].resno << " "
+			    << cd.residue_info[iresinf].inscode << " "
+			    << cd.residue_info[iresinf].serial_number << " to "
+			    << cd.residue_info[iresinf].target_resno << " "
+			    << cd.residue_info[iresinf].target_inscode << " "
+			    << cd.residue_info[iresinf].target_serial_number << " diff: "
+			    << cd.residue_info[iresinf].mean_diff
+			    << std::endl;
+		  coot::residue_spec_t this_res(cd.peer_chain_id,
+						cd.residue_info[iresinf].resno,
+						cd.residue_info[iresinf].inscode);
+		  coot::residue_spec_t target_res(diffs.target_chain_id,
+						  cd.residue_info[iresinf].target_resno,
+						  cd.residue_info[iresinf].target_inscode);
+		  SCM res_l = SCM_EOL;
+		  res_l = scm_cons(scm_double2num(cd.residue_info[iresinf].mean_diff), res_l);
+		  res_l = scm_cons(scm_cdr(scm_residue(target_res)), res_l);
+		  res_l = scm_cons(scm_cdr(scm_residue(this_res)), res_l);
+		  l_residue_data = scm_cons(res_l, l_residue_data);
+	       }
+	       r = scm_cons(l_residue_data, SCM_EOL);
+	       r = scm_cons(scm_makfrom0str(diffs.target_chain_id.c_str()), r);
+	       r = scm_cons(scm_makfrom0str(cd.peer_chain_id.c_str()), r);
+	    }
+	 }
+      }
+   }
+   return r;
+}
+#endif	/* USE_GUILE */
+
+#ifdef USE_GUILE
+SCM ncs_chains_ids_scm(int imol) {
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      if (graphics_info_t::molecules[imol].has_ncs_p()) {
+	 std::vector<std::vector<std::string> > ncs_ghost_chains =
+	    graphics_info_t::molecules[imol].ncs_ghost_chains();
+// 	 std::cout << "There are " << ncs_ghost_chains.size() << " ncs ghost chains"
+// 		<< std::endl;
+	 if (ncs_ghost_chains.size() > 0) {
+	    r = SCM_EOL;
+	    for (int i=(int(ncs_ghost_chains.size())-1); i>=0; i--) {
+	       SCM string_list_scm =
+		  generic_string_vector_to_list_internal(ncs_ghost_chains[i]);
+	       r = scm_cons(string_list_scm, r);
+	    }
+	 }
+      }
+   }
+   return r;
+}
+#endif	/* USE_GUILE */

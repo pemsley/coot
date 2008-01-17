@@ -1067,7 +1067,6 @@ SCM rtop_to_scm(const clipper::RTop_orth &rtop) {
    clipper::Mat33<double>  mat = rtop.rot();
    clipper::Vec3<double> trans = rtop.trn();
 
-   double x;
    tr_list = scm_cons(scm_double2num(trans[2]), tr_list);
    tr_list = scm_cons(scm_double2num(trans[1]), tr_list);
    tr_list = scm_cons(scm_double2num(trans[0]), tr_list);
@@ -1103,7 +1102,6 @@ PyObject *rtop_to_python(const clipper::RTop_orth &rtop) {
    clipper::Mat33<double>  mat = rtop.rot();
    clipper::Vec3<double> trans = rtop.trn();
 
-   double x;
    PyList_SetItem(tr_list, 0, PyFloat_FromDouble(trans[0]));
    PyList_SetItem(tr_list, 1, PyFloat_FromDouble(trans[1]));
    PyList_SetItem(tr_list, 2, PyFloat_FromDouble(trans[2]));
@@ -1684,7 +1682,7 @@ void add_to_history_typed(const std::string &command,
    std::vector<std::string> command_strings;
 
    command_strings.push_back(command);
-   for (int i=0; i<args.size(); i++)
+   for (unsigned int i=0; i<args.size(); i++)
       command_strings.push_back(args[i].as_string());
 
    add_to_history(command_strings);
@@ -2132,9 +2130,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 
 #ifdef USE_GUILE
 void set_monomer_restraints(const char *monomer_type, SCM restraints) {
-
-   SCM r = SCM_BOOL_F;
-
+   // SCM r = SCM_BOOL_F;
 } 
 #endif // USE_GUILE
 
@@ -2206,7 +2202,7 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    std::string w   = g.molecules[imol].save_weight_col;
 	    float lev       = g.molecules[imol].contour_level[0];
 	    float r         = g.box_radius;
-	    int use_weights_flag = g.molecules[imol].save_use_weights;
+	    // int use_weights_flag = g.molecules[imol].save_use_weights;
 	    std::string name = single_quote(graphics_info_t::molecules[imol].save_mtz_file_name);
 	    mg_stream << "MapData (\n";
 	    mg_stream << "   filename = [\n";

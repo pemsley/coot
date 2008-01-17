@@ -1,3 +1,156 @@
+-*-text-*-
+
+   Things to fix before 0.5
+
+   22 Items
+
+   o Correct CISPEP if needed cards on writing pdb.
+
+   o Make build-it-gtk2 and use it.
+
+   o fill SCM ncs_chains_scm(int imol) and use it in
+     ncs-other-chain-jump.  It can return #f, so in that case, revert
+     back to using, as currently, (chain-ids imol).
+
+* Done
+
+   o Make a demo script that downloads data and runs it - add it to
+     the package and make it available to run from extensions.
+
+   o Mutate should not change the order of the atoms in the pdb.
+     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
+
+   o Fix this:  
+      ./configure: line 26927: ./po/POTFILES.in: No such file or directory
+      (it comes from building from the tar file)
+
+* No problem on penelope, gtk2
+
+   o The default occupancy for new atoms in a shelx molecule should be
+     11.0.  Is it? [JED]
+
+   o Kevin's Ramachandran Refinement target
+
+   o Use Eugene's new LINK-reading code.
+
+   o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
+
+   o Valgrind long/multiple fit-proteins
+
+   o "Thick bonds" for ligands etc
+
+   o Put globularize protein into Coot.  Make it a bit more clever?
+
+   o Insertion codes for intelligent next atom.  Antibody, Kabat
+
+   o Revisit CCP4mg button
+
+   o graphics::molecules should be a std::vector
+
+   o Copy fragment (new-molecule-by-atom-selection) does not
+     recalculate the NCS.  It should.
+
+   o test/fix hardware stereo in Gtk2 mode.
+
+   o NCS Ligands: if we find a ligand C in molecule A, we should look
+     for a similar blob near molecule B and try to fit the same kind of
+     ligand there as well [JED]
+
+   o If we have guile scripting in configure, then we should check for
+     net-http and goosh have been installed.  If not, fail gracefully,
+     not obscurely at run time!
+
+   o consider a function generator for dialog box of buttons.  Because
+     we need a function that accepts args for close-dialog and one
+     that does not.  A macro maybe.
+
+   o How about a post-swig command to add #ifdef USE_PYTHON around coot_wrap_python.cc 
+     (or is it coot_wrap_python_pre.cc?)
+
+   o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
+     Ask about Rotamer misses.  Well, the dictionary is fine. Why does
+     molprobity web site gives less bad rotamers then? (First: Does it?).
+     Yes it does: e.g. for 1sar molprobity notes only these:
+     "Bad rotamer B  47 GLN (0.3%)" 
+     "Bad rotamer A  91 LEU (0.4%)" 
+     "Bad rotamer A  13 PRO (0.9%)" 
+     "Bad rotamer B  41 GLU (0.7%)" 
+
+     There are 10 times more for Coot.  
+     (fix-nomenclature-errors doesn't fix anything)
+
+   o doing a flexible ligand fit in a ligands without flexible bonds -
+     e.g. SO4 gives non-optimal message ("Did you forget to read the
+     dictionary?").
+
+   o Update stand-alone refinement program. 
+     (Write a test for it?)
+
+   o Upgrade to guile-1.8.3.  Does that fix the greg child process
+     problem?  If not, mail list.
+
+   o Try to improve the picking algorithm.
+
+
+
+
+
+   o Add some SHELX reading to the test suite.  Insulin for starters.
+
+* Done.
+
+   o To make the test non-tedious, especially on slow computers, we
+     need a set-atoms-attributes that takes a list of attribute sets.
+     No need to re-calulate the bonding for each atom move.
+     No need to redraw, except once at the end.
+
+* Done.
+
+   o Make a new dialog: clear up old/backup files on exit.
+     86400 seconds per day
+
+* Done.
+
+   o Kleywegt plot should not draw ("wrapped") long arrows
+
+* Done.
+
+   o Torsion General
+
+* Done.
+
+   o Lars Prade crash.  Try doing actions in a directory that you can't
+     write to.  Test Geometry validation.
+
+* Seems OK to me.
+
+   o work in the svn-revision.cc.  svn-revision.cc should be in
+     Makefile.am, and be part of the tar file.  It should be generated
+     after every time we do a svn update or commit.
+ 
+* Done.
+
+   o On pressing the filter button we get this ugliness:
+
+** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
+
+     on_filename_filter_toggle_button_toggled() looks up the
+     fileselection by going through all names of file selections. This
+     is ugly (gives terminal warnings).  Make the user data also encode 
+     information about which fileselection this is (in 1000s, say).
+
+* Fixed.
+
+   o Dynamic distances on moving atom/fragments
+
+* Fixed.
+
 
 -------------------
 Tue Jul  3 14:27:37 BST 2007
@@ -307,11 +460,6 @@ o Submarining of green spot on Ramachandran Plot.  Also no green
        atoms are not atomic coloring.
 
 * Can't reproduce.  Bad ~/.coot, bugging out early?
-
-   o Eddie's Snell anisotropic Bs form .res file.
-     Write a test that checks that the shelx output is anisotropic.
-
-* Done.
 
    o Refine across an insertion code [Steven Sheriff] 27 -> 28 L in 1ruk.  
      Write a greg test for it.
@@ -883,11 +1031,9 @@ cd guile-gtk-2.0
 # gtkglext:
 wget "http://downloads.sourceforge.net/gtkglext/gtkglext-1.2.0.tar.gz?modtime=1139081517 & big_mirror=1"
 
-
 # make sure when you compile guile-gtk-2.0, you pick up the right
 # guile in your path (i.e. 1.8.x) otherwise libguile will be stuck in
 # the guilegtk.la file and it wil cause a mess.
-
 
  ----- 
 Sat Apr 28 16:21:54 BST 2007
@@ -895,7 +1041,6 @@ Sat Apr 28 16:21:54 BST 2007
    Those who compile with gtk2 need to regenerate the interface files
    coot_wrap_guile.cc and coot_wrap_guile_pre.cc by runing swig
    (delete them and make)
-
 
 ----
 Wed May  2 11:20:29 BST 2007
@@ -922,7 +1067,6 @@ Wed May  9 13:54:04 BST 2007
 
    Dirk Kostewa:
    overblend for electron density?
-
 
 -----
 Thu May 10 16:03:56 BST 2007
@@ -1153,6 +1297,7 @@ Wed May 16 20:30:02 BST 2007
 ----
 Thu May 17 12:44:56 BST 2007
 
+   INFO::
 	use gtk_widget_get_name(widget) to find out about what type a
 	widget is.
 
@@ -2355,7 +2500,6 @@ Tue Sep 18 16:12:29 BST 2007
 	   Indeed.  Why not.
 
 
-
 -----
 Fri Sep 21 18:17:52 BST 2007
 
@@ -2367,7 +2511,6 @@ Fri Sep 21 18:17:52 BST 2007
 -----
 
         RSR when map is ambiguous cancels rsr.  It should not.
-
 
 ----
 Wed Sep 26 13:12:24 BST 2007
@@ -2480,6 +2623,8 @@ Sat Sep 29 20:38:27 BST 2007
 
     I don't want to be able to pick other atoms in CA mode.
 
+* Done
+
 ----
 Thu Sep 27 09:27:26 BST 2007
 
@@ -2539,6 +2684,7 @@ pkg-config libglade-2.0 --libs
 ----
 Tue Oct  9 22:19:02 BST 2007
 
+    GSOC project?
 	nice graphic output of SSM results.
 hari jayaram <harijay@gmail.com>
 
@@ -2565,9 +2711,7 @@ Mon Oct 29 09:36:34 GMT 2007
 					  int residue_range_start, int residue_range_end)
 
    which looks up the master_chain_id from the ghost of the target_chain_id
-
-
-        
+   
 
 ------
 
@@ -2708,7 +2852,6 @@ Tue Oct 30 15:54:27 GMT 2007
 
     Also (set-find-hydrogen-torsions 1) fails.  Same cause?
 
-
 ---
 Mon Nov  5 11:49:30 GMT 2007
 
@@ -2722,17 +2865,23 @@ Mon Nov  5 20:31:59 GMT 2007
 
    mask map by sphere
 
+* Done - or close enough
+
 ----
 Mon Nov  5 20:32:25 GMT 2007
 
    export map on Extensions menu.
 
+* Done.
+
 ----
 Fri Nov 16 12:51:54 GMT 2007
 
-      short int is_hydrogen(const std::string &atom_name) const;
+    short int is_hydrogen(const std::string &atom_name) const;
 
-should be bool
+    should be bool
+
+* Done.
 
 ----
 Tue Nov 13 23:30:57 GMT 2007
@@ -2874,8 +3023,6 @@ Wed Dec  5 14:13:31 GMT 2007
      o Was that residue in a chain that has a line_representation?
 
 
-
-
 -----
 Wed Dec  5 16:05:13 GMT 2007
 
@@ -2889,15 +3036,15 @@ Wed Dec  5 16:05:13 GMT 2007
 	Tested/Not Tested:
 
    green_box on rama plot, on edit backbone angles crashed because
-   canvas items where not being generated properly (not assigned to a
+   canvas items were not being generated properly (not assigned to a
    canvas item before being pushed back into vector).
 
 -----
 Wed Dec 12 13:20:33 GMT 2007
 
-	Make nice images for nucleic acid base chooser.  
+   Make nice images for nucleic acid base chooser.  
  	
-	The buttons don't need to be small.
+   The buttons don't need to be small.
 
 
 -----
@@ -2905,12 +3052,10 @@ Thu Dec 13 17:48:24 GMT 2007
 
    write a test for fix-nomenclature-errors
 
-
 -----
 Sat Dec 15 12:18:46 GMT 2007
 
    1OHY is good for displaying NCS skipping
-
 
 -----
 Sat Dec 15 13:12:08 GMT 2007
@@ -2962,6 +3107,7 @@ Mon Dec 17 12:50:36 GMT 2007
    Priority: Low
    Difficulty: Trivial
 
+* Done.
 
 -----
 Mon Dec 17 16:52:20 GMT 2007
@@ -2982,10 +3128,6 @@ Mon Dec 17 16:52:20 GMT 2007
     Weighted average, maybe?
 
 
-
-
-
-
 ------
 Tue Dec 18 13:41:58 GMT 2007
 
@@ -2998,7 +3140,6 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
 Which can be a crash of atom1 is deleted between its click and the second rt-zone click.
 Hmm...
-
 
 ----
 Tue Dec 18 16:45:06 GMT 2007
@@ -3015,7 +3156,6 @@ Tue Dec 18 16:46:52 GMT 2007
   c-interface-gui.hh (or should it be .h? - Yes I think it should be
   because those functions will also be called by callbacks.c)
 
-
 -----
 Thu Dec 20 20:25:45 GMT 2007
 
@@ -3025,7 +3165,6 @@ Thu Dec 20 20:25:45 GMT 2007
 
     Give me a key binding to run this function on the active
     residue. And re-display the residue-info dialog.
-
 
 * Done: (sanitise-alt-confs)
 
@@ -3047,7 +3186,8 @@ Fri Dec 21 14:08:25 GMT 2007
 
 
 
-Latest coot, I am getting this when I try to open the python scripting window (used to work):
+Latest coot, I am getting this when I try to open the python scripting
+window (used to work):
 
 Traceback (most recent call last):
  File "<string>", line 1, in <module>
@@ -3097,7 +3237,7 @@ Note also that pygtk is not needed for the python gui.
    Try compile without pygtk.
    We should get python scripting window without pygtk.
 
-
+* Discussed this with Bernhard.  He will try to untangle it.
 
 -----
 Fri Dec 21 15:11:40 GMT 2007
@@ -3125,24 +3265,6 @@ Mon Dec 24 16:48:47 GMT 2007
   BL has introduced split in on_open_coordinates1_activate.  Needs
   rationalizing.
 
-
-----
-Fri Dec 28 17:12:58 GMT 2007
-
-    how do I test torsion general?
-
-    I can use test-ligand, for sure.
-
-    maybe, I'll libify the test, so coot main can use it.
-    Hmm...
-
-    So we make molecules every n*10 degress
- 
-    rotate the bond the other -n*10.
-
-    Overlap results.  
-       Test for closeness.
-
 -----
 Sun Dec 30 10:29:43 GMT 2007
 
@@ -3150,13 +3272,10 @@ Sun Dec 30 10:29:43 GMT 2007
 
    The Lancet : Ten pieces of free software every doctor should have
 
-
-
 -----
 Mon Dec 31 16:44:49 GMT 2007
 
    on doing a refinement: 
-
 
 INFO:: graphics_info_t::clear_up_moving_atoms...
 clearing intermediate object...
@@ -3188,6 +3307,24 @@ Mon Dec 31 16:53:00 GMT 2007
 
      Note to self:  Write the test first!
 
+* Done.  In test-ligand
+
+----
+Fri Dec 28 17:12:58 GMT 2007
+
+    how do I test torsion general?
+
+    I can use test-ligand, for sure.
+
+    maybe, I'll libify the test, so coot main can use it.
+    Hmm...
+
+    So we make molecules every n*10 degress
+ 
+    rotate the bond the other -n*10.
+
+    Overlap results.  
+       Test for closeness.
 
 -----
 Mon Dec 31 19:48:09 GMT 2007
@@ -3196,7 +3333,6 @@ Mon Dec 31 19:48:09 GMT 2007
    FBSS:
    http://cisrg.shef.ac.uk/projects/fbss//man_contents.html
 
-
 -----
 Mon Dec 31 23:08:32 GMT 2007
 
@@ -3204,5 +3340,324 @@ Mon Dec 31 23:08:32 GMT 2007
   do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
   Yeuuuuucch!
 
+  I see why I did it I think - it was cheap :)
+  It is in split_residue_internal(), so the resulting value from this
+  function needs to be propogated back up through split_residue()
+
+-----
+Mon Jan  7 08:48:31 GMT 2008
+
+   Funny shapped protein?
+
+	1l7l 
+
+---
+Tue Jan  8 04:12:57 GMT 2008
+
+  Make a test for alt conf split a residue?
+  What is the test?  There is not functions at the scripting layer:
+  add_alt_conf( [residue spec] ) 
+  or 
+  split_residue ( [residue spec] ) 
+  
+  Hmmm...
+
+-----
+Tue Jan  8 07:57:19 GMT 2008
+
+    Transfer transpose matrix to Coot from Chart.
+    Use it, like Bernhard does on the nudge view buttons.
+
+* Done
+
+----
+Tue Jan  8 09:40:44 GMT 2008
+
+   A graph tool to represent NCS differences
+
+----
+Tue Jan  8 09:41:15 GMT 2008
+
+   Rewrite sequence view (from scratch)
+
+----
+Tue Jan  8 10:42:12 GMT 2008
+
+this needs filling
+set_monomer_restraints(). 
+and the function should be in c-interface-build.cc I think.
+
+
+---
+Tue Jan  8 11:56:22 GMT 2008
+
+   A script that identifies badly fitting residues, 
+   (by density fit and geometry and rotamer say - these residue
+   attributes need to be exported to scripting surface)
+
+   make a list of residues
+     view to residue
+     rotate view
+     try rotamer search
+     does it fit now?
+     if not
+        delete residue
+        add-terminal-residue
+        mutate to previous residue type
+     rotate view
+
+   Do it in scripting
+
+----
+
+    PSK18 has tunnel for C16, long chain fatty acid 
+    Ruckmini 2004
+    Might be fun to do an annimatation of this.
+
+    Priority: (Fun), Low
+ 
+----
+Tue Jan  8 12:10:28 GMT 2008
+
+    Turn the traffic lights to be vertical, 
+    Minimize function needs to return a vector<float, string> and fill a table
+    e.g. (1.245 "Bonds: 1.245")
+
+    Maybe a type is needed too, so that we activate (show) the right
+    GtkLabel and frame
+
+    Priority: Low, but it's the right thing.
+
+----
+Tue Jan  8 13:06:56 GMT 2008
+
+    Testing fixed atoms:
+
+    need to:
+    create a bad rotamer
+    refine residue
+      {generates intermediate atoms}
+    fix a wrongly positioned atom
+    drag another atom
+      {fixed atom doesn't move}
+      {continue refinement}
+    accept refinement
+    get atom attributes for fixed atom
+    check that it is where it should be (fixed position)
+   
+
+----
+Tue Jan  8 13:14:48 GMT 2008
+
+    Rotamer funtion:
+    set_rotamer_at_residue(imol, chain_id, resno, ins_code, alt_conf, rotamer_name);
+    where rotamer name is "t" or "tpp" etc.
+
+-----
+Wed Jan  9 00:30:49 GMT 2008
+
+    For 0.5:
+
+    Do a validation on a fitted 3GP.  Is the most deviant geometry the
+    one shown in the tooltip?
+
+    Priority: High.
+
+-----
+Wed Jan  9 06:59:22 GMT 2008
+
+   Needs fixing?
+
+void
+molecule_class_info_t::make_ca_plus_ligands_bonds() { 
+
+   bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS; // FIXME
+
+---
+Wed Jan  9 07:03:22 GMT 2008
+
+
+  Look up the "Ramachandran" plot for torsions around the glycosidic
+  bond in carbohydrate linkages
+
+  phi vs psi
+
+  (-90, 60) is the big peak
+
+  around c2-o and o-xxx on the other subunit
+
+  Look For The Database analysis of Glycosylation
+
+  1f31 has axial carbohydrate in ganglioside, a mistake maybe?
+
+-----
+
+molecule_class_info_ncs: has this construction:
+
+   for(unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+
+      if (ncs_ghosts_have_rtops_flag == 0) {
+	 // std::cout << "   %%%%%%%%% calling fill_ghost_info from "
+	 // std::cout << make_dynamically_transformed_maps "
+	 // << std::endl;
+	 fill_ghost_info(1, homology_lev); // fill the rtops and set the flag
+      }
+
+is that right?
+
+-----
+Thu Jan 10 08:19:19 GMT 2008
+	
+   write a testing.cc test for 
+	std::vector<std::pair<int, int> >
+	coot::util::pair_residue_atoms(CResidue *a_residue_p,
+				       CResidue *b_residue_p) {
+
+    passing different residue types
+
+-----
+Thu Jan 10 09:24:28 GMT 2008
+
+   suramin for parasites, including trapanosomes
+   but cannot cross blood-brain barrier
+
+   trapanosome is a protazoa
+  
+----
+Thu Jan 10 10:43:33 GMT 2008
+
+  Aspirin and paracetamol are simple.
+
+  See if coot can fit them (do they exist in the EDS?).  Add to test
+  suite?
+
+  Selenium: 
+  Manuel Soriano-Garcia, 11, 1657 Curr Medicinal Chemistry (2004)
+
+----
+Fri Jan 11 08:40:05 GMT 2008
+
+   Look at fitting strands at low resolution.
+   an OMP pore protein perhaps.
+
+   One for the test suite?
+
+-----
+Fri Jan 11 08:51:06 GMT 2008
+
+   Make the default bond thickness thicker!
+
+* Done.
+
+----
+Fri Jan 11 10:40:28 GMT 2008
+
+   Transfer map functions to molecule-class-info-maps.cc
+
+-----
+Sun Jan 13 14:50:19 GMT 2008
+
+    A function to return the density fit score of a residue.  Can be
+    done in scripting of course, now (not sure if that is for the
+    best)
+
+---
+Sun Jan 13 14:51:14 GMT 2008
+
+   In ligand fitting, I want to see the scores and the positions of
+   the best fits in the other orientations.  The B factors should be
+   set to the ligand fit score for this testing.  Perhaps the ligand
+   fitting should return a vector of std::pair<name, mol>s.  Best fit,
+   ori1, ori2, etc.
+
+   So maybe set a developer option to do this.
+
+---
+Sun Jan 13 15:11:30 GMT 2008
+
+   Residue info should also contain phi psi values and a percentile
+   (like molprobity)
+
+   How about a graph of Ramachandran percentile? 
+
+
+----
+Sun Jan 13 15:36:10 GMT 2008
+
+    Test that skip-to-next-ncs-chain works with a2b2 hemoglobin.  
+
+
+----
+Sun Jan 13 18:42:32 GMT 2008
+
+    How To Add Another Geometry Graph
+  
+    in geometry_graphs.hh:
+    --------------------------
+    Add new type to geometry_graph_type 
+
+    in geometry_graphs.cc
+    --------------------------
+    In the coot::geometry_graphs::geometry_graphs(...) constructor, add title
+
+    in graphics-info-graphs.cc
+    --------------------------
+    graphics_info_t::update_geometry_graphs(...) 
+    Add a function to update new graph.
+
+      coot::geometry_graphs *gr =
+	 geometry_graph_dialog_to_object(residue_density_fit_graph[imol_moving_atoms]);
+	 std::vector<coot::geometry_graph_block_info_generic> dv =
+	    geomtry_graph_xxx_from_mol(moving_atoms_asc_local,
+				 imol_moving_atoms,
+				 Imol_Refinement_Map());
+	 gr->update_residue_blocks(dv);
+
+    Create a function:
+    void graphics_info_t::xxx_graphs(int imol)...
+
+
+    
+-----
+Mon Jan 14 13:22:33 GMT 2008
+
+    testdbmain is broken.
+
+
+----
+Mon Jan 14 13:22:48 GMT 2008
+
+    Really test out Ca Zone -> Mainchain.  
+
+    It seems to me that most of the time it works well, but there are
+    regions where it does not. e.g. CA - N bonds of less than 0.5A.
+    I am thinking that that can only be coming from a bug.
+
+    Think about how to test that. 
+
+    Very few reference structures?
+
+    We need to know how many fragment are contributing to each
+    position.
+
+
+-----
+
+   configure should check for scsh.
+   only if it has it should it be used for the documentation.
+
+----
+Thu Jan 17 09:50:46 GMT 2008
+
+    think about user-defined bond, as seen on Phenix list recently:
+    e.g.:
+
+    add-user-defined-bond(int imol, atom_spec atom1, atom_spec_atom2, float dist_ideal, float sigma);
+
+
+----
+Thu Jan 17 10:14:18 GMT 2008
+
+    tinker with a libglade project.
 
 

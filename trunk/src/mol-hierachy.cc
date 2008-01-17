@@ -50,7 +50,6 @@
 
 
    int imod = 1;
-      
    CModel *model_p = mol->GetModel(imod);
    CChain *chain_p;
    // run over chains of the existing mol
