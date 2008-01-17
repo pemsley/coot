@@ -1,10 +1,11 @@
 /* src/graphics-info-pick.cc
  * 
- * Copyright 2004, 2005 by Paul Emsley, The University of York
+ * Copyright 2004, 2005 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -609,9 +610,8 @@ void
 graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff_std, short int squared_flag) {
 
    coot::Cartesian diff = diff_std;
-   coot::Cartesian moving_atom(moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index]->x,
-			 moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index]->y,
-			 moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index]->z);
+   CAtom *mat = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
+   coot::Cartesian moving_atom(mat->x, mat->y, mat->z);
    float d_to_moving_at_max = -9999999.9;
    int d_array_size = moving_atoms_asc->n_selected_atoms;
    float *d_to_moving_at = new float[d_array_size];
@@ -631,14 +631,18 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
    double dr;
    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 
-      if (squared_flag == 0)
-	 frac = (1.0 - d_to_moving_at[i]/d_to_moving_at_max);
-      else {
+      CAtom *at = moving_atoms_asc->atom_selection[i];
+      coot::Cartesian atom_pt(at->x, at->y, at->z);
+      if (squared_flag == 0) {
+	 // 	 frac = (1.0 - d_to_moving_at[i]/d_to_moving_at_max); old
 	 dr = d_to_moving_at[i]/d_to_moving_at_max;
-	 frac = (1.0 - dr)*(1.0 - dr);
+	 frac = (1-pow(dr, 2.0));
+      } else {
+	 dr = d_to_moving_at[i]/d_to_moving_at_max;
+	 // frac = (1.0 - dr)*(1.0 - dr);
+	 frac = (1.0 - dr);
       }
 	    
-      CAtom *at = moving_atoms_asc->atom_selection[i];
       at->x += frac*diff.x();
       at->y += frac*diff.y();
       at->z += frac*diff.z();

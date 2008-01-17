@@ -1,6 +1,6 @@
 /* ligand/test-ligand.cc
  * 
- * Copyright 2007 by The University of Oxford
+ * Copyright 2007, 2008 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -19,53 +19,265 @@
  * 02110-1301, USA.
 */
 
+#include "clipper/core/rotation.h" 
 #include "mmdb-extras.h" 
 #include "mmdb.h" 
+#include "coot-coord-utils.hh"
 #include "torsion-general.hh"
 
-int main(int argc, char **argv) {
+class compare_stats_t {
+ public:
+   float angle;
+   float sum_deviance;
+   int n_atoms;
+   compare_stats_t() {
+      angle = -999.9;
+      sum_deviance = 999.9;
+      n_atoms = 0;
+   }
+   compare_stats_t(float ang_in, float dev_in, int n_atoms_in) {
+      angle = ang_in;
+      sum_deviance = dev_in;
+      n_atoms = n_atoms_in;
+   }
+};
 
-   int r=0;
-   int istat = 1;
+// return 1 on rtop being identity matrix
+bool identity_matrix_test(const clipper::RTop_orth &rtop) {
 
-   if (argc > 1) {
-      std::string pdb_filename = argv[1];
-      atom_selection_container_t asc = get_atom_selection(pdb_filename);
-      std::string chain_id = "B";
-      int resno = 81;
-      bool reverse_torsion = 0;
-      CModel *model_p = asc.mol->GetModel(1);
-      if (model_p) {
-	 CChain *chain_p = model_p->GetChain(0);
-	 if (chain_p) {
-	    CResidue *residue_p = chain_p->GetResidue(0);
-	    if (residue_p) {
-	       std::vector<coot::atom_spec_t> torsion_general_atom_specs;
-	       coot::atom_spec_t a1(chain_id, resno, "", " C  ", "");
-	       coot::atom_spec_t a2(chain_id, resno, "", " CA ", "");
-	       coot::atom_spec_t a3(chain_id, resno, "", " CB ", "");
-	       coot::atom_spec_t a4(chain_id, resno, "", " CG ", "");
-	       if (reverse_torsion) { 
-		  torsion_general_atom_specs.push_back(a4);
-		  torsion_general_atom_specs.push_back(a3);
-		  torsion_general_atom_specs.push_back(a2);
-		  torsion_general_atom_specs.push_back(a1);
-	       } else {
-		  torsion_general_atom_specs.push_back(a1);
-		  torsion_general_atom_specs.push_back(a2);
-		  torsion_general_atom_specs.push_back(a3);
-		  torsion_general_atom_specs.push_back(a4);
+   clipper::Coord_orth t(rtop.trn());
+   double lensq = t.lengthsq();
+   //std::cout << "lensq " << lensq << std::endl;
+   if (lensq > 0.01) return 0;
+   clipper::Rotation rot(rtop.rot());
+   double abs_angle = 180.0/M_PI * rot.abs_angle();
+   std::cout << "abs_angle " << abs_angle << std::endl;
+   if (abs_angle > 0.01) return 0;
+   return 1;
+}
+
+// return the matrix rotation angle
+compare_stats_t
+compare_by_overlap(std::string chain_id, int resno, CMMDBManager *mol1, CMMDBManager *mol2) {
+
+   compare_stats_t stats;
+   std::vector<coot::lsq_range_match_info_t> matches;
+   matches.push_back(coot::lsq_range_match_info_t(resno, resno, chain_id,
+						  resno, resno, chain_id,
+						  COOT_LSQ_ALL));
+
+   std::pair<short int, clipper::RTop_orth> p = coot::util::get_lsq_matrix(mol1, mol2, matches);
+
+   if (!p.first) {
+      std::cout << "   Couldn't get matrix" << std::endl;
+      return stats;
+   } else {
+      std::cout << "Got operator: \n" << p.second.format() << std::endl;
+      if (identity_matrix_test(p.second)) {
+	 std::cout << "   Identity matrix detected.  Overlap not tested." << std::endl
+		   << "   Failed" << std::endl;
+	 return stats;
+      }
+	 
+      coot::util::transform_mol(mol2, p.second);
+      float atom_dist_diff = 0.0;
+      int n_atoms_matched = 0;
+
+      int imod = 1;
+      
+      CModel *model_p_1 = mol1->GetModel(imod);
+      CChain *chain_p_1;
+      int nchains_1 = model_p_1->GetNumberOfChains();
+      for (int ichain_1=0; ichain_1<nchains_1; ichain_1++) {
+	 chain_p_1 = model_p_1->GetChain(ichain_1);
+	 int nres_1 = chain_p_1->GetNumberOfResidues();
+	 PCResidue residue_p_1;
+	 CAtom *at_1;
+	 for (int ires_1=0; ires_1<nres_1; ires_1++) { 
+	    residue_p_1 = chain_p_1->GetResidue(ires_1);
+	    int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
+	 
+	    for (int iat_1=0; iat_1<n_atoms_1; iat_1++) {
+	       at_1 = residue_p_1->GetAtom(iat_1);
+	       coot::atom_spec_t s(at_1);
+
+	       // other molecule:
+	       CModel *model_p_2 = mol2->GetModel(imod);
+	       CChain *chain_p_2;
+	       int nchains_2 = model_p_2->GetNumberOfChains();
+	       for (int ichain_2=0; ichain_2<nchains_2; ichain_2++) {
+		  chain_p_2 = model_p_2->GetChain(ichain_2);
+		  if (std::string(chain_p_1->GetChainID()) == std::string(chain_p_2->GetChainID())) {
+		     int nres_2 = chain_p_2->GetNumberOfResidues();
+		     PCResidue residue_p_2;
+		     CAtom *at_2;
+		     for (int ires_2=0; ires_2<nres_2; ires_2++) { 
+			residue_p_2 = chain_p_2->GetResidue(ires_2);
+			if (residue_p_1->GetSeqNum() == residue_p_2->GetSeqNum()) { 
+			   int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
+			   
+			   for (int iat_2=0; iat_2<n_atoms_2; iat_2++) {
+			      at_2 = residue_p_2->GetAtom(iat_2);
+			      if (s.matches_spec(at_2)) {
+				 n_atoms_matched++;
+				 coot::Cartesian p1(at_1->x, at_1->y, at_1->z);
+				 coot::Cartesian p2(at_2->x, at_2->y, at_2->z);
+				 float d = coot::Cartesian::LineLength(p1, p2);
+				 atom_dist_diff += d;
+			      }
+			   }
+			}
+		     }
+		  }
 	       }
-		  
-	       coot::torsion_general tg(residue_p, asc.mol,
-					torsion_general_atom_specs);
-	       double diff = 20;
-	       istat = tg.change_by(diff);
-
-	       asc.mol->WritePDBASCII("rotated.pdb");
 	    }
 	 }
       }
+      std::cout << "  Number of atoms matched: " << n_atoms_matched << " deviation sum: "
+		<< atom_dist_diff << std::endl;
+      clipper::Rotation rot(p.second.rot());
+      float abs_angle = 180.0/M_PI * rot.abs_angle();
+      stats.angle = abs_angle;
+      stats.n_atoms = n_atoms_matched;
+      stats.sum_deviance = atom_dist_diff;
+   }
+   return stats;
+}
+
+int test_torsion_general(atom_selection_container_t asc, std::string pdb_filename) { 
+
+   if (!asc.read_success) {
+	 std::cout << "   Problem reading " << pdb_filename << std::endl;
+	 return 2; 
+   }
+   bool tested = 0;
+   std::string target_chain_id = "B"; // but note that atom specs
+   // are always blank, because
+   // chain id gets lost on
+   // create_mmdbmanager_from_residue()
+   int target_resno = 81;
+   bool reverse_torsion = 0;
+   CModel *model_p = asc.mol->GetModel(1);
+   if (! model_p) {
+      std::cout << "   Model not found " << std::endl;
+   } else { 
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 if (target_chain_id == chain_p->GetChainID()) { 
+	    int nres = chain_p->GetNumberOfResidues();
+	    PCResidue residue_p;
+	    CAtom *at;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p->GetSeqNum() == target_resno) { 
+		  std::vector<std::string> atom_names;
+		  atom_names.push_back(" C  ");
+		  atom_names.push_back(" CA ");
+		  atom_names.push_back(" CB ");
+		  atom_names.push_back(" CG ");
+		  std::vector<coot::atom_spec_t> torsion_general_atom_specs;
+		  std::vector<coot::atom_spec_t> reverse_atom_specs;
+		  std::vector<std::string>::iterator it;
+		  for (it = atom_names.begin(); it != atom_names.end(); it++) {
+		     coot::atom_spec_t as("", target_resno, "", *it, "");
+		     torsion_general_atom_specs.push_back(as);
+		     reverse_atom_specs.push_back(as);
+		  }
+		  std::reverse(reverse_atom_specs.begin(), reverse_atom_specs.end());
+		  CMMDBManager *res_mol_1 =
+		     coot::util::create_mmdbmanager_from_residue(asc.mol, residue_p);
+		  CMMDBManager *res_mol_2 =
+		     coot::util::create_mmdbmanager_from_residue(asc.mol, residue_p);
+
+		  CResidue *res_copy_1 = coot::util::get_residue(target_resno, "", "", res_mol_1);
+		  CResidue *res_copy_2 = coot::util::get_residue(target_resno, "", "", res_mol_2);
+
+		  if (! res_copy_1) {
+		     std::cout << "   Error can't find residue in new molecule" << std::endl;
+		     return 2;
+		  }
+		  if (! res_copy_2) {
+		     std::cout << "   Error can't find residue in new molecule" << std::endl;
+		     return 2;
+		  }
+		     
+		  coot::torsion_general tg_1(res_copy_1, res_mol_1, torsion_general_atom_specs);
+		  coot::torsion_general tg_2(res_copy_2, res_mol_2,         reverse_atom_specs);
+		  double diff = 20;
+		  int istat_1 = tg_1.change_by(diff);
+		  int istat_2 = tg_2.change_by(diff);
+
+		  PPCAtom residue_atoms;
+		  int n_residue_atoms;
+		  res_copy_1->GetAtomTable(residue_atoms, n_residue_atoms);
+		  std::vector< coot::Cartesian > coords;
+
+		  res_mol_1->WritePDBASCII("rotated-1.pdb");
+		  res_mol_2->WritePDBASCII("rotated-2.pdb");
+
+		  if (istat_1 != 0) {
+		     std::cout << "  Error rotating coordinates 1" << std::endl;
+		     return 2;
+		  } else {
+		     if (istat_2 != 0) {
+			std::cout << "  Error rotating coordinates 2" << std::endl;
+			return 2;
+		     } else {
+			tested=1;
+			// So in 1 we have turned the top fragment by 20 degrees
+			// in 2 we have turned the bottom by 20 degrees.
+			//
+			// after overlapping, the structures should be very similar
+			compare_stats_t stats =
+			   compare_by_overlap("", target_resno, res_mol_1, res_mol_2);
+			if (fabs(diff - stats.angle) > 0.001) {
+			   std::cout << "  Error in angle of rotation matrix" << std::endl;
+			   return 2;
+			} else {
+			   if (stats.n_atoms < 6) {
+			      std::cout << "  Error:: not enough atoms matched" << std::endl;
+			      return 2;
+			   } else {
+			      if (stats.sum_deviance > 0.01) {
+				 std::cout << "  Error:: atoms too different" << std::endl;
+				 return 2;
+			      } else { 
+				 std::cout << "  Similar rotation, low deviance: pass"
+					   << std::endl;
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      if (!tested) {
+	 std::cout << "   Failed to find residue \"" << target_chain_id << "\" "
+		   << target_resno << " in input coordinates" << std::endl;
+	 return 2;
+      }
+   }
+   return 0;
+}
+
+
+int main(int argc, char **argv) {
+
+   int r=1; // file not provided
+
+   if (argc < 2) {
+      std::cout << "Need to pass a pdb file name" << std::endl;
+      return 1;
+   } else {
+      std::string pdb_filename = argv[1];
+      atom_selection_container_t asc = get_atom_selection(pdb_filename);
+      int retval = test_torsion_general(asc, pdb_filename);
+      r = retval;
    }
    return r;
 }

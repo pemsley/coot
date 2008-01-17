@@ -1410,40 +1410,12 @@ molecule_class_info_t::auto_fit_best_rotamer(int atom_index, int imol_map, int c
 // Return NULL on residue not found in this molecule.
 // 
 CResidue *
-molecule_class_info_t::get_residue(int reso, const std::string &insertion_code,
+molecule_class_info_t::get_residue(int resno, const std::string &insertion_code,
 				   const std::string &chain_id) const {
 
    CResidue *res = NULL;
-   short int found_res = 0;
-      
    if (atom_sel.n_selected_atoms > 0) {
-      CModel *model_p = atom_sel.mol->GetModel(1);
-      CChain *chain_p;
-      int n_chains = model_p->GetNumberOfChains(); 
-      for (int i_chain=0; i_chain<n_chains; i_chain++) {
-	 chain_p = model_p->GetChain(i_chain);
-	 std::string mol_chain(chain_p->GetChainID());
-	 if (mol_chain == chain_id) {
-	    int nres = chain_p->GetNumberOfResidues();
-	    CResidue *residue_p;
-	    for (int ires=0; ires<nres; ires++) { // ires is a serial number
-	       residue_p = chain_p->GetResidue(ires);
-	       if (residue_p->GetSeqNum() == reso) {
-		  std::string ins_code(residue_p->GetInsCode());
-		  if (insertion_code == ins_code) {
-		     res = residue_p;
-		     found_res = 1;
-		     break;
-		  } else {
-		     std::cout << "strange? Insertion codes non-match :"
-			       << residue_p->GetInsCode() << ": :"
-			       << insertion_code << ":" << std::endl;
-		  }
-	       }
-	    }
-	 }
-	 if (found_res) break;
-      }
+      res = coot::util::get_residue(resno, insertion_code, chain_id, atom_sel.mol);
    }
    return res;
 }
@@ -2732,7 +2704,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 		  // where is clicked_residue in SelResidues?
 		  bool found = 0;
 		  int frag_seqnum;
-		  for (int ires=0; ires<input_sequence[ich].second.length(); ires++) {
+		  for (unsigned int ires=0; ires<input_sequence[ich].second.length(); ires++) {
 		     if (SelResidues[ires]->GetSeqNum() == clicked_residue.resno) {
 			if (clicked_residue.chain == SelResidues[ires]->GetChainID()) {
 			   // found clicked_residue
@@ -2753,7 +2725,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 			added_res_resno = frag_seqnum + 1;
 		     }
 
-		     if (a.alignedT.length() > added_res_resno) {
+		     if (int(a.alignedT.length()) > added_res_resno) {
 			if (added_res_resno >= 0) {
 			   char code = a.alignedT[added_res_resno];
 			   std::cout << " code: " << code << std::endl;
@@ -2991,8 +2963,6 @@ std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
 molecule_class_info_t::bad_chiral_volumes() const {
 
    std::vector <coot::atom_spec_t> v;
-   graphics_info_t g;
-   int restraints_status = 1;
    std::vector<std::string> unknown_types_vec; 
    std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > pair(unknown_types_vec, v);
 
@@ -3091,7 +3061,7 @@ molecule_class_info_t::fit_residue_range_to_map_by_simplex(int resno1, int resno
 
 
 void
-molecule_class_info_t::split_residue(int atom_index) { 
+molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) { 
 
    if (atom_index < atom_sel.n_selected_atoms) {
       int do_intermediate_atoms = 0;
@@ -3117,7 +3087,7 @@ molecule_class_info_t::split_residue(int atom_index) {
       // if is from SHELXL
       if (is_from_shelx_ins_flag)
 	 // if splitting after/with CA
-	 if (graphics_info_t::alt_conf_split_type == 0)
+	 if (alt_conf_split_type == 0)
 	    // a member function?
 	    residue_mol = filter_atom_selection_container_CA_sidechain_only(residue_mol);
 
@@ -3126,7 +3096,7 @@ molecule_class_info_t::split_residue(int atom_index) {
 // 	 std::cout << "residue mol " << residue_mol.atom_selection[i] << std::endl;
 //       } 
 
-      int udd_afix_handle_inter = residue_mol.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+//       int udd_afix_handle_inter = residue_mol.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
 //       std::cout << "DEBUG:: split_residue got udd_afix_handle_inter : "
 // 		<< udd_afix_handle_inter << std::endl;
 //       for (int i=0; i<residue_mol.n_selected_atoms; i++) {
@@ -3158,7 +3128,7 @@ molecule_class_info_t::split_residue(int atom_index) {
 	  have_atoms_for_rotamer(res_copy)) {
 
 	 // We want to delete atoms if we chose alt_conf_split_type.. thing
-	 if (graphics_info_t::alt_conf_split_type == 0) { // partial split (not whole residue)
+	 if (alt_conf_split_type == 0) { // partial split (not whole residue)
 	    PPCAtom residue_atoms = NULL;
 	    int nResidueAtoms;
 	    res_copy->GetAtomTable(residue_atoms, nResidueAtoms);
@@ -3185,7 +3155,7 @@ molecule_class_info_t::split_residue(int atom_index) {
 	 // just go ahead and stuff in the atoms to the
 	 // molecule, no user intervention required.
 	 // 
-	 // std::cout << "Calling  -------------- split_residue_then_rotamer path ----------------\n";
+	 // std::cout << "Calling  ------------ split_residue_then_rotamer path -------------\n";
 	 short int use_residue_mol_flag = 0;
 	 if (is_from_shelx_ins_flag)
 	    use_residue_mol_flag = 1;
@@ -3197,7 +3167,7 @@ molecule_class_info_t::split_residue(int atom_index) {
 	 // rotamer, therefore we must fall back to showing the
 	 // intermediate atoms.
 	 do_intermediate_atoms = 1;
-	 if (graphics_info_t::alt_conf_split_type == 0) { // partial split (not whole residue)
+	 if (alt_conf_split_type == 0) { // partial split (not whole residue)
 
 	    if (! is_water_flag) { 
 	       // so we need to delete some atoms from this residue:
@@ -3229,7 +3199,7 @@ molecule_class_info_t::split_residue(int atom_index) {
 	       }
 	    }
 	 } else { 
-	    std::cout << "split_residue split type " << graphics_info_t::alt_conf_split_type
+	    std::cout << "split_residue split type " << alt_conf_split_type
 		      << " no deleting atoms  of this residue\n";
 	 }
 	 
@@ -4514,7 +4484,8 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    // I'll reinstate it.
 	    int nmodels = atom_sel.mol->GetNumberOfModels();
 	    if (nmodels == 1) { 
-	       int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+	       // int nghosts =
+	       fill_ghost_info(do_rtops_flag, 0.7);
 	    }
 
 	    // Turn off hydrogen display if this is a protein
@@ -4581,6 +4552,18 @@ molecule_class_info_t::add_shelx_string_to_molecule(const std::string &str) {
 // -----------------------------------------------------------------
 //              display list lovelies
 // -----------------------------------------------------------------
+
+bool
+molecule_class_info_t::has_display_list_objects() {
+
+   bool r = 0;
+   if (drawit) { 
+      if (display_list_tags.size() > 0) {
+	 r = 1;
+      }
+   }
+   return r;
+}
 
 
 int 
@@ -6045,6 +6028,7 @@ molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
 			       refinement_map_number, clash_flag,
 			       lowest_probability);
    }
+   return 0;
 }
 
 
@@ -6073,7 +6057,7 @@ molecule_class_info_t::draw_dots() {
 void
 molecule_class_info_t::clear_dots(int dots_handle) {
 
-   if ((dots_handle >= 0) && (dots_handle < dots.size())) { 
+   if ((dots_handle >= 0) && (dots_handle < int(dots.size()))) { 
       dots[dots_handle].close_yourself();
    } else {
       std::cout << "WARNING:: bad dots_handle in clear_dots: "
@@ -6103,7 +6087,6 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
 	 phi_step   /= dot_density;
 	 theta_step /= dot_density;
       }
-      float f = 0.1;
       float r = 1.0;
       
       std::vector<clipper::Coord_orth> points;
@@ -6313,11 +6296,10 @@ molecule_class_info_t::find_peak_along_line(const clipper::Coord_orth &p1,
 					    const clipper::Coord_orth &p2) const {
 
    float high_point_1 = -9999999.9;
-   float high_point_2 = -9999999.9;
    clipper::Coord_orth pbest;
    int istep_max = 500;
 
-   for (unsigned int istep=0; istep<=istep_max; istep++) {
+   for (int istep=0; istep<=istep_max; istep++) {
       float fr = float(istep)/float(istep_max);
       clipper::Coord_orth pc = p1 + fr*(p2-p1);
       float d = density_at_point(pc);

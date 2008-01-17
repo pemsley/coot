@@ -4,7 +4,7 @@
 
 BEGIN{ print_this = 0}
 
-/^PASS: |^UNTESTED: |^FAIL|^UNRESOLVED: / 
+/^PASS: |^UNTESTED: |^FAIL:|^UNRESOLVED:|^UPASS: / 
 
 /^Entered testcase/ {print "   ",$0}
 

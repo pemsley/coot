@@ -1,10 +1,11 @@
 /* src/graphics-info.cc
  * 
- * Copyright 2002, 2003, 2004, 2005 by Paul Emsley, The University of York
+ * Copyright 2002, 2003, 2004, 2005 by The University of York
+ * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -173,7 +174,8 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 	       chain_id = chain_p->GetChainID();
 	       std::pair<short int, int> m = coot::util::min_resno_in_chain(chain_p);
 	       if (m.first) {
-		  int offset = m.second - 1; // min resno = 1 -> offset = 0
+		  // not used:
+		  // int offset = m.second - 1; // min resno = 1 -> offset = 0
 
 		  coot::omega_distortion_info_container_t om_dist = 
 		     omega_distortions_from_mol(moving_atoms_asc_local, chain_id);	
@@ -397,7 +399,9 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		     restraints.make_restraints(*geom_p,
 						flags,
 						do_residue_internal_torsions,
-						do_link_torsions, pseudos);
+						do_link_torsions,
+						0.0, 0,
+						pseudos);
 	       
 		  if (nrestraints > 0) {
 
@@ -445,7 +449,7 @@ graphics_info_t::b_factor_graphs(int imol) {
 	       for (int imodel = 1; imodel <= n_models; imodel++) { 
 		  CModel *model_p = mol->GetModel(imodel);
 		  CChain *chain_p;
-		  int n_chains = model_p->GetNumberOfChains();
+		  unsigned int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs =
 		     new coot::geometry_graphs(coot::GEOMETRY_GRAPH_B_FACTOR,
 					       imol,
@@ -457,7 +461,7 @@ graphics_info_t::b_factor_graphs(int imol) {
 		  float std_dev;
 		  int offset;
 
-		  for (int ich=0; ich<n_chains; ich++) {
+		  for (unsigned int ich=0; ich<n_chains; ich++) {
 
 		     if (ich < bfa_chain_info.size()) { 
 			chain_p = model_p->GetChain(ich);
@@ -745,7 +749,7 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
    std::vector<coot::geometry_graph_block_info_generic> dv;
 
    CMMDBManager *mol = molecules[imol_moving_atoms].atom_sel.mol;
-   int n_models = mol->GetNumberOfModels();
+   // int n_models = mol->GetNumberOfModels();
    // for (int imodel = 1; imodel <= n_models; imodel++) { 
    int imodel = 1;
    CModel *model_p = mol->GetModel(imodel);
@@ -759,7 +763,7 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 	 chain_id = chain_p->GetChainID();
 	 std::pair<short int, int> m = coot::util::min_resno_in_chain(chain_p);
 	 if (m.first) {
-	    int offset = m.second - 1;
+	    // int offset = m.second - 1;
 	    int selHnd = mol->NewSelection();
 	    PCResidue *SelResidues = NULL;
 	    int nSelResidues;

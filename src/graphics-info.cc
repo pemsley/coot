@@ -1,10 +1,11 @@
 /* src/graphics-info.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
+ * Copyright 2007, 2008 by the University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -325,7 +326,7 @@ graphics_info_t::statusbar_text(const std::string &text) const {
       if (statusbar) {
 	 std::string sbt = text;
 	 // If it is "too long" chop it down.
-	 int max_width = 130;
+	 unsigned int max_width = 130;
 	 GtkWidget *main_window = lookup_widget(glarea, "window1");
 	 // some conversion between the window width and the max text length
 	 max_width = main_window->allocation.width/4 -38;
@@ -2725,7 +2726,7 @@ graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai,
 void
 graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 
-   int atom_count = 0;
+
    int imol = -1;
    // This is where we accumulate the residue edits:
    std::vector<coot::select_atom_info> local_atom_edits;
@@ -4452,7 +4453,7 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 			} else {
 			   hydrogen_torsion_count++;
 			}
-			if ((bond - 2 + hydrogen_torsion_count) == i) {
+			if ((bond - 2 + hydrogen_torsion_count) == int(i)) {
 			   std::string atom2 = monomer_torsions[i].atom_id_2();
 			   std::string atom3 = monomer_torsions[i].atom_id_3();
 			   atom_names = std::pair<std::string, std::string> (atom2, atom3);
@@ -5623,7 +5624,7 @@ graphics_info_t::draw_generic_objects() {
 		      (*generic_objects_p)[i].points_set[ips].colour.green,
 		      (*generic_objects_p)[i].points_set[ips].colour.blue);
 	    glBegin(GL_POINTS);
-	    int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
+	    unsigned int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
 	    for (unsigned int ipoint=0; ipoint<npoints; ipoint++) { 
 	       glVertex3f((*generic_objects_p)[i].points_set[ips].points[ipoint].x(),
 			  (*generic_objects_p)[i].points_set[ips].points[ipoint].y(),
@@ -6408,11 +6409,7 @@ void graphics_info_t::bond_parameters_colour_rotation_adjustment_changed(GtkAdju
 // static 
 void graphics_info_t::bonds_colour_rotation_adjustment_changed(GtkAdjustment *adj,
 							       GtkWidget *window) {
-
-   graphics_info_t g;
-   int imol = -1;
-
-   imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(adj)));
+   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(adj)));
 
    if (molecules[imol].has_model()) {
       molecules[imol].bonds_colour_map_rotation = adj->value;
@@ -6945,10 +6942,11 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
       // try internal evaluation:
       if (1) {
 	 SCM ss_scm = scm_makfrom0str(ss.c_str());
-	 SCM ie_scm = scm_interaction_environment();
+
 	 std::cout << "DEBUG: evaluting :" << ss << ":" << std::endl;
 	 // SCM r = safe_scheme_command(ss);
-	 SCM r = scm_eval_string(ss_scm);
+	 // SCM r = scm_eval_string(ss_scm);
+	 scm_eval_string(ss_scm);
 	 // should store r.
 	 std::cout << "DEBUG: done evaluating" << std::endl;
       }
@@ -6962,7 +6960,7 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
 
 	 graphics_info_t g;
 	 std::string s = g.state_command(v, coot::STATE_SCM);
-	 SCM r = safe_scheme_command(s);
+	 safe_scheme_command(s);
       }
    }
    std::cout << " =============== unsetting mutex lock =========" << std::endl;

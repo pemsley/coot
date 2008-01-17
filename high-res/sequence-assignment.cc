@@ -121,7 +121,7 @@ coot::sequence_assignment::scored_chain_info_t::add_score(int resno,
       std::cout << "unable to assign to residue " << resno
 		<< " in chain " << chain_name_ << std::endl;
    } else {
-      if (resno <= residue_side_chain_score.size() ) {
+      if (resno <= int(residue_side_chain_score.size()) ) {
 	 if (residue_side_chain_score[resno].size() == 0) {
 	    residue_side_chain_score[resno].resize(20);
 	 }
@@ -142,7 +142,7 @@ coot::sequence_assignment::side_chain_score_t::add_score(int chain_number,
 							 int residue_idx,
 							 double score) { 
 
-   if (side_chain_score.size() <= chain_number) { 
+   if (int(side_chain_score.size()) <= chain_number) { 
       // side_chain_score element needs to be initialized with
       // chain_id and number of residues in the chain.
       side_chain_score.resize(chain_number+1, 
@@ -391,7 +391,7 @@ coot::sequence_assignment::scored_chain_info_t::outstanding_slider_position(cons
 	    sum += r[i];
 	    sum_sq += r[i]*r[i];
 	 }
-	 float mean = sum/float(r.size());
+	 // float mean = sum/float(r.size());
 	 float std_dev = sqrt(sum_sq/(float(r.size())));
 
 	 float smallest_diff = 9e50;
@@ -478,7 +478,7 @@ coot::sequence_assignment::scored_chain_info_t::slider_hit(const std::vector<std
 	 sc_name_idx = seq[i_in_seq].first;
 	 residues_table_index = offset + i_in_seq;
 	 if (residues_table_index >=0 && residues_table_index < n) {
-	    if (residue_side_chain_score[residues_table_index].size() > sc_name_idx) { 
+	    if (int(residue_side_chain_score[residues_table_index].size()) > sc_name_idx) { 
 	       sum_score += residue_side_chain_score[residues_table_index][sc_name_idx];
 	    } else {
 	       std::cout << "ERROR:: Trapped indexing problem (slider_hit): table index "
@@ -639,7 +639,6 @@ coot::sequence_assignment::side_chain_score_t::move_std_res_to_this_res_pos(cons
 CResidue *
 coot::sequence_assignment::side_chain_score_t::get_standard_residue(const coot::sequence_assignment::side_chain_name_index &idx) const {
 
-   CResidue *res;
    return standard_residues[idx];
 }
 

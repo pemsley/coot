@@ -6035,11 +6035,13 @@ on_save_state1_activate                (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 /*    save_state(); old inteface - before DK. */
+
    GtkWidget *fileselection = coot_save_state_chooser();
    /*   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),  
-	save_state_file_name()); */
+	save_state_file_name_raw()); */
    set_filename_for_filechooserselection(fileselection,
-					 save_state_file_name());
+					 save_state_file_name_raw());
+
    set_file_selection_dialog_size(fileselection);
    gtk_widget_show(fileselection);
 }
@@ -6253,7 +6255,7 @@ on_save_state_ok_button1_clicked       (GtkButton       *button,
    const char *filename = gtk_file_selection_get_filename 
      (GTK_FILE_SELECTION(w));
 
-   save_state_file(filename);    /* write the file */
+   save_state_file_name_raw(filename);    /* write the file */
    set_save_state_file_name(filename); /* save as a static in graphics_info_t */
    gtk_widget_destroy(w);
 }

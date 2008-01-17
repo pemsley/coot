@@ -1,12 +1,11 @@
 /* src/c-interface.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
- * Author: Paul Emsley
- * Copyright 2004, 2005, 2006, 2007 by Bernhard Lohkamp
+ * Author: Paul Emsley, Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
+ * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -534,7 +533,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
 	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
 	 }
-	 int previous_mode = graphics_info_t::display_mode;
+	 // int previous_mode = graphics_info_t::display_mode;
 	 short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
 	 if (use_wall_eye_flag)
 	    stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
@@ -583,7 +582,7 @@ void set_dti_stereo_mode(short int state) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       if (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO) {
-	 int previous_mode = graphics_info_t::display_mode;
+	 // int previous_mode = graphics_info_t::display_mode;
 	 short int stereo_mode = coot::DTI_SIDE_BY_SIDE_STEREO;
 	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
 	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
@@ -893,7 +892,8 @@ int make_and_draw_map(const char* mtz_file_name,
 					     f_col_str,
 					     phi_col_str,
 					     weight_col_str,
-					     use_weights, is_diff_map);
+					     use_weights, is_diff_map,
+					     graphics_info_t::map_sampling_rate);
 	 g.scroll_wheel_map = imol;
 	 g.n_molecules++;
 	 graphics_draw();
@@ -994,6 +994,7 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 	 if (use_weights)
 	    weight_col_str = std::string(weight_col);
 	 imol = g.n_molecules;
+	 float msr = graphics_info_t::map_sampling_rate;
 	 g.molecules[imol].map_fill_from_mtz_with_reso_limits(std::string(mtz_file_name),
 							      std::string(f_col),
 							      std::string(phi_col),
@@ -1003,7 +1004,8 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 							      is_diff_map,
 							      use_reso_limits,
 							      low_reso_limit,
-							      high_reso_limit);
+							      high_reso_limit,
+							      msr);
 	 g.scroll_wheel_map = imol;
 	 g.n_molecules++;
 	 g.activate_scroll_radio_button_in_display_manager(imol);
@@ -3197,7 +3199,6 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 
 //       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
 //       std::cout << "   NCS view out: \n" << new_ori.format() << std::endl;
-      float quat[4];
       coot::util::quaternion vq(new_ori);
       graphics_info_t::quat[0] = vq.q0;
       graphics_info_t::quat[1] = vq.q1;
@@ -3946,9 +3947,10 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
       //
       std::string phs_file(phs_filename);
       istat = g.molecules[imol].make_map_from_phs_using_reso(phs_file,
-								 spacegroup,
-								 cell, 
-								 reso_lim_low, reso_lim_high);
+							     spacegroup,
+							     cell, 
+							     reso_lim_low, reso_lim_high,
+							     graphics_info_t::map_sampling_rate);
 
       if (istat != -1) {
 	 imol = istat;
@@ -5354,7 +5356,7 @@ void safe_python_command(const std::string &python_cmd) {
 #ifdef USE_PYTHON
 PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
-    PyObject *pName, *pModule, *pDict, *pFunc;
+   PyObject *pName, *pModule, *pDict;
     PyObject *ret, *globals;
 
     ret = NULL;
@@ -5440,7 +5442,7 @@ PyObject *py_residue(const coot::residue_spec_t &res) {
    PyList_Append(r,  PyString_FromString(res.chain.c_str()));
    PyList_Append(r,  Py_True);
    PyList_Reverse(r);
-   int len = PyList_Size(r);
+   // int len = PyList_Size(r);
    return r;
 }
 #endif // USE_PYTHON
@@ -5501,7 +5503,7 @@ PyObject *cis_peptides_py(int imol) {
       std::vector<coot::util::cis_peptide_info_t> v =
 	 coot::util::cis_peptides_info_from_coords(mol);
 
-      for (int i=0; i<v.size(); i++) {
+      for (unsigned int i=0; i<v.size(); i++) {
 	 coot::residue_spec_t r1(v[i].chain_id_1,
 				 v[i].resno_1,
 				 v[i].ins_code_1);
@@ -6250,7 +6252,6 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
    graphics_info_t g; 
    int imol = g.n_molecules;
    
-   int returned_mol_index = -1;
    // first, does the file exist?
    struct stat s; 
    int status = stat(filename, &s);
@@ -6288,7 +6289,6 @@ int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
    graphics_info_t g; 
    int imol = g.n_molecules;
    
-   int returned_mol_index = -1;
    // first, does the file exist?
    struct stat s; 
    int status = stat(filename, &s);
@@ -6653,9 +6653,6 @@ int do_GL_lighting_state() {
 }
 
 
-// Glaxo people: Chuang Chang (surely not how you spell it), Moira X.
-// 
-
 /*  ----------------------------------------------------------------------- */
 /*                  crosshairs                                              */
 /*  ----------------------------------------------------------------------- */
@@ -6858,7 +6855,7 @@ void handle_online_coot_search_request(const char *entry_text) {
       if (bits.size() > 0) { 
 	 std::string s = "http://www.google.co.uk/search?q=";
 	 s += bits[0];
-	 for (int i=1; i<bits.size(); i++) {
+	 for (unsigned int i=1; i<bits.size(); i++) {
 	    s += "+";
 	    s += bits[i];
 	 }
@@ -6928,6 +6925,15 @@ void do_surface(int imol, int state) {
    }
 }
 
+/*  ----------------------------------------------------------------------- */
+/*           Sharpen                                                        */
+/*  ----------------------------------------------------------------------- */
+void sharpen(int imol, float b_factor) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].sharpen(b_factor);
+   }
+}
 
 
 /*  ----------------------------------------------------------------------- */
@@ -6971,7 +6977,7 @@ int remove_named_view(const char *view_name) {
 
    // don't push back the view if it has the same name and if we
    // haven't found a view with that name before.
-   for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
+   for (unsigned int iv=0; iv<graphics_info_t::views->size(); iv++) {
       if ((*graphics_info_t::views)[iv].view_name == vn) {
 	 if (found == 1) {
 	    new_views.push_back((*graphics_info_t::views)[iv]);
@@ -6996,8 +7002,8 @@ int remove_named_view(const char *view_name) {
 void remove_view(int view_number) {
 
    std::vector<coot::view_info_t> new_views;
-   for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
-      if (iv != view_number)
+   for (unsigned int iv=0; iv<graphics_info_t::views->size(); iv++) {
+      if (int(iv) != view_number)
 	 new_views.push_back((*graphics_info_t::views)[iv]);
    }
    *graphics_info_t::views = new_views;
@@ -7019,9 +7025,9 @@ void play_views() {
       play_speed = graphics_info_t::views_play_speed;
    
 //    std::cout << "DEBUG:: # Views "<< graphics_info_t::views->size() << std::endl;
-   for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
+   for (unsigned int iv=0; iv<graphics_info_t::views->size(); iv++) {
       coot::view_info_t view1 = (*graphics_info_t::views)[iv];
-      std::cout << "DEBUG:: View "<< iv << " " << view1.view_name << std::endl;
+      // std::cout << "DEBUG:: View "<< iv << " " << view1.view_name << std::endl;
       if (! (view1.is_simple_spin_view_flag ||
 	     view1.is_action_view_flag)) {
 	 if ((iv+1) < graphics_info_t::views->size()) { 
@@ -7079,7 +7085,7 @@ void remove_this_view() {
    // don't push back the view if it has the same name and if we
    // haven't found a view with that name before.
    std::vector<coot::view_info_t> new_views;
-   for (int iv=0; iv<graphics_info_t::views->size(); iv++) {
+   for (unsigned int iv=0; iv<graphics_info_t::views->size(); iv++) {
       if ((*graphics_info_t::views)[iv].matches_view(v)) {
 	 if (found == 1) {
 	    new_views.push_back((*graphics_info_t::views)[iv]);
@@ -7113,7 +7119,7 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 
    int r = 0;
    graphics_info_t g;
-   if ((graphics_info_t::views->size() > view_number) && (view_number >= 0)) {
+   if ((int(graphics_info_t::views->size()) > view_number) && (view_number >= 0)) {
       coot::view_info_t view = (*graphics_info_t::views)[view_number];
       if (view.is_simple_spin_view_flag) {
 	 int nsteps = 2000;
@@ -7197,7 +7203,7 @@ SCM view_description(int view_number) {
 
    SCM r = SCM_BOOL_F;
    if (view_number >= 0)
-      if (view_number < graphics_info_t::views->size()) {
+      if (view_number < int(graphics_info_t::views->size())) {
 	 std::string d = (*graphics_info_t::views)[view_number].description;
 	 if (d != "") {
 	    r = scm_makfrom0str(d.c_str());
@@ -7212,7 +7218,7 @@ PyObject *view_description_py(int view_number) {
    PyObject *r;
    r = Py_False;
    if (view_number >= 0)
-      if (view_number < graphics_info_t::views->size()) {
+      if (view_number < int(graphics_info_t::views->size())) {
          std::string d = (*graphics_info_t::views)[view_number].description;
          if (d != "") {
             r = PyString_FromString(d.c_str());
@@ -7541,3 +7547,4 @@ void set_socket_string_waiting(const char *s) {
    // 			   &event, &return_val);
    
 }
+

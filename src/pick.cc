@@ -48,7 +48,8 @@
 #include "pick.h"
 
 pick_info
-pick_atom(const atom_selection_container_t &SelAtom, int imol, const coot::Cartesian &front, const coot::Cartesian &back) {
+pick_atom(const atom_selection_container_t &SelAtom, int imol,
+	  const coot::Cartesian &front, const coot::Cartesian &back, short int pick_mode) {
 
    float min_dist = 0.4;
    int nearest_atom_index = -1;
@@ -66,15 +67,18 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol, const coot::Carte
 	 dist = atom.distance_to_line(front, back);
 
 	 if (dist < min_dist) {
-
-	    min_dist = dist;
-	    nearest_atom_index = i;
-	    p_i.success = GL_TRUE;
-	    p_i.atom_index = nearest_atom_index;
-	    p_i.imol = imol;
-	    p_i.min_dist = dist;
-
-	    // std::cout << "DEBUG:: atom index " << nearest_atom_index << std::endl;
+	    if ((pick_mode != PICK_ATOM_CA_ONLY) ||
+		(std::string(SelAtom.atom_selection[i]->name) == " CA ")) {
+		  
+	       min_dist = dist;
+	       nearest_atom_index = i;
+	       p_i.success = GL_TRUE;
+	       p_i.atom_index = nearest_atom_index;
+	       p_i.imol = imol;
+	       p_i.min_dist = dist;
+	       
+	       // std::cout << "DEBUG:: atom index " << nearest_atom_index << std::endl;
+	    }
 	 }
       }
    }
@@ -85,15 +89,12 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol, const coot::Carte
 pick_info
 atom_pick(GdkEventButton *event) { 
 
-   int i_outside_count = 0;
-   
-   
    coot::Cartesian front = unproject(0.0);
 
    coot::Cartesian back  = unproject(1.0);
 
    float dist_closest = 999999999999999999.9;
-   int nearest_atom_index = 0;
+   int nearest_atom_index = -1;
 
    //cout << "front: " << front << endl;
    //cout << "back:  " << back  << endl;
@@ -139,8 +140,11 @@ atom_pick(GdkEventButton *event) {
 	       n_pickable++;
 
 	       atom_selection_container_t SelAtom = graphics_info_t::molecules[ii].atom_sel;
+	       short int pick_mode = PICK_ATOM_ALL_ATOM;
+	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS)
+		  pick_mode = PICK_ATOM_CA_ONLY;
 
-	       pick_info mpi = pick_atom(SelAtom, ii, front, back);
+	       pick_info mpi = pick_atom(SelAtom, ii, front, back, pick_mode);
 	       if (mpi.success) {
 		  if (mpi.min_dist < dist_closest) {
 		     p_i = mpi;
@@ -176,6 +180,7 @@ atom_pick(GdkEventButton *event) {
 	 if (strncmp(at->altLoc, "", 1))
 	    alt_conf_bit=std::string(",") + std::string(at->altLoc);
 	 atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel;
+	 nearest_atom_index = p_i.atom_index;
 		  
 	 cout << "(" << p_i.imol << ") " 
 	      << (SelAtom.atom_selection)[nearest_atom_index]->name 
@@ -248,7 +253,8 @@ pick_info
 pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
-   return pick_atom(SelAtom, -1, front, back);
+   short int pick_mode = PICK_ATOM_ALL_ATOM;
+   return pick_atom(SelAtom, -1, front, back, pick_mode);
 }
 
 

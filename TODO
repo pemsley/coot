@@ -123,6 +123,7 @@
    o Insertion codes for intelligent next atom
 
    o Add some SHELX reading to the test suite.  Insulin for starters.
+     Check that the space groups agree.
 
    o Revisit CCP4mg button
 
@@ -216,6 +217,13 @@
    o Randy's side-by-side frame drawing?
 
    o Investigate communcation with PISA
+
+   o Non-bonded contacts.  Can they be speeded up.  What about nbcs
+     with Hydrogens.  Are they good?  Refine 50 residues and profile.
+
+   o Why does loop fitting fail on residue 96A of tutorial-modern.pdb?
+
+   o Make fit-loop work backward.  
 
  ------
     

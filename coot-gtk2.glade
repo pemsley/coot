@@ -2327,7 +2327,7 @@
 		  <child>
 		    <widget class="GtkToggleButton" id="model_toolbar_regularize_togglebutton">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Regularize Zone (click 2 atoms)</property>
+		      <property name="tooltip" translatable="yes">Send in the Bond Angels!    Ahem, I mean &quot;Regularize Zone (click 2 atoms)&quot;</property>
 		      <property name="can_focus">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">False</property>
@@ -39998,7 +39998,7 @@ Move Molecule Here:</property>
   <property name="copyright" translatable="yes">Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
 Copyright 2007, 2008 by The University of Oxford
 Copyright 2001, 2007 by Paul Emsley</property>
-  <property name="comments" translatable="yes">Kendall</property>
+  <property name="comments" translatable="yes">Northumberland</property>
   <property name="license" translatable="yes">GNU GPL</property>
   <property name="wrap_license">False</property>
   <property name="website">http://www.ysbl.york.ac.uk/~emsley/coot</property>
@@ -40354,10 +40354,6 @@ have a Spanish Coot because of Miguel's work.
 
 <widget class="GtkWindow" id="splash_screen_alternate_1_window">
   <property name="visible">True</property>
-  <property name="action">GTK_FILE_CHOOSER_ACTION_OPEN</property>
-  <property name="local_only">True</property>
-  <property name="select_multiple">False</property>
-  <property name="show_hidden">False</property>
   <property name="title" translatable="yes">Select Coordinates File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -40391,6 +40387,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select Coordinates File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -40403,6 +40400,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="response" handler="on_coords_filechooserdialog1_response" last_modification_time="Sat, 29 Dec 2007 18:04:04 GMT"/>
   <signal name="destroy" handler="on_coords_filechooserdialog1_destroy" last_modification_time="Sat, 29 Dec 2007 18:04:35 GMT"/>
 
@@ -40530,6 +40528,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select Dataset File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -40542,6 +40541,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="response" handler="on_dataset_filechooserdialog1_response" last_modification_time="Sat, 29 Dec 2007 19:03:09 GMT"/>
   <signal name="destroy" handler="on_dataset_filechooserdialog1_destroy" last_modification_time="Sat, 29 Dec 2007 19:03:17 GMT"/>
 
@@ -40601,6 +40601,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select Map...</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -40613,6 +40614,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="response" handler="on_map_name_filechooserdialog1_response" last_modification_time="Sat, 29 Dec 2007 19:12:33 GMT"/>
   <signal name="destroy" handler="on_map_name_filechooserdialog1_destroy" last_modification_time="Sat, 29 Dec 2007 19:12:40 GMT"/>
 
@@ -40739,6 +40741,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select Coordinates File for .phs symm/cell</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -40751,6 +40754,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="response" handler="on_phs_coordinates_filechooserdialog1_response" last_modification_time="Sat, 29 Dec 2007 19:18:21 GMT"/>
   <signal name="destroy" handler="on_phs_coordinates_filechooserdialog1_destroy" last_modification_time="Sat, 29 Dec 2007 19:18:27 GMT"/>
 
@@ -40811,6 +40815,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select Filename for Saved Coordinates </property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -40823,6 +40828,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="confirm_overwrite" handler="on_save_coords_filechooserdialog1_confirm_overwrite" last_modification_time="Sat, 29 Dec 2007 19:19:56 GMT"/>
   <signal name="response" handler="on_save_coords_filechooserdialog1_response" last_modification_time="Sat, 29 Dec 2007 19:20:08 GMT"/>
   <signal name="destroy" handler="on_save_coords_filechooserdialog1_destroy" last_modification_time="Sat, 29 Dec 2007 19:20:13 GMT"/>
@@ -40883,6 +40889,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select Cif Dictionary File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -40895,6 +40902,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="response" handler="on_cif_dictionary_filechooserdialog1_response" last_modification_time="Sat, 29 Dec 2007 19:24:18 GMT"/>
   <signal name="destroy" handler="on_cif_dictionary_filechooserdialog1_destroy" last_modification_time="Sat, 29 Dec 2007 19:24:23 GMT"/>
 
@@ -40954,6 +40962,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select Scripting File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -40966,6 +40975,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="response" handler="on_run_script_filechooserdialog1_response" last_modification_time="Sat, 29 Dec 2007 19:25:29 GMT"/>
   <signal name="destroy" handler="on_run_script_filechooserdialog1_destroy" last_modification_time="Sat, 29 Dec 2007 19:25:38 GMT"/>
 
@@ -41025,6 +41035,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -41037,6 +41048,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="confirm_overwrite" handler="on_save_symmetry_coords_filechooserdialog1_confirm_overwrite" last_modification_time="Sun, 30 Dec 2007 09:40:58 GMT"/>
   <signal name="response" handler="on_save_symmetry_coords_filechooserdialog1_response" last_modification_time="Sun, 30 Dec 2007 09:41:16 GMT"/>
   <signal name="destroy" handler="on_save_symmetry_coords_filechooserdialog1_destroy" last_modification_time="Sun, 30 Dec 2007 09:41:24 GMT"/>
@@ -41097,6 +41109,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select File-name for State File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -41109,6 +41122,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="confirm_overwrite" handler="on_save_state_filechooserdialog1_confirm_overwrite" last_modification_time="Sun, 30 Dec 2007 09:43:28 GMT"/>
   <signal name="response" handler="on_save_state_filechooserdialog1_response" last_modification_time="Sun, 30 Dec 2007 09:43:32 GMT"/>
   <signal name="destroy" handler="on_save_state_filechooserdialog1_destroy" last_modification_time="Sun, 30 Dec 2007 09:43:39 GMT"/>
@@ -41169,6 +41183,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
+  <property name="do_overwrite_confirmation">False</property>
   <property name="title" translatable="yes">Select File</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -41181,6 +41196,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <signal name="confirm_overwrite" handler="on_screendump_filechooserdialog1_confirm_overwrite" last_modification_time="Sun, 30 Dec 2007 09:44:46 GMT"/>
   <signal name="response" handler="on_screendump_filechooserdialog1_response" last_modification_time="Sun, 30 Dec 2007 09:44:51 GMT"/>
   <signal name="destroy" handler="on_screendump_filechooserdialog1_destroy" last_modification_time="Sun, 30 Dec 2007 09:44:56 GMT"/>

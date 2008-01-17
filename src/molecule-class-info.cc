@@ -184,7 +184,7 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	    // model per manager.  This may change in future...
 	    int nmodels = atom_sel.mol->GetNumberOfModels();
 	    if (nmodels == 1) { 
-	       int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
+	       fill_ghost_info(do_rtops_flag, 0.7); // returns nghosts
 	       // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 	    }
 	 }
@@ -1362,8 +1362,6 @@ molecule_class_info_t::unlabel_atom(int atom_index) {
    // 
    // Remove atom_index from the list of atoms to be labelled.
    //
-   int offset = 0;
-
    std::vector<int>::iterator it;
    for (it = labelled_atom_index_list.begin(); it != labelled_atom_index_list.end(); it++) {
       if ( *it == atom_index) {
@@ -1982,7 +1980,8 @@ molecule_class_info_t::map_fill_from_mtz(std::string mtz_file_name,
 					 std::string phi_col,
 					 std::string weight_col,
 					 int use_weights,
-					 int is_diff_map) {
+					 int is_diff_map,
+					 float sampling_rate) {
 
    short int use_reso_flag = 0;
    short int is_anomalous_flag = 0;
@@ -1993,7 +1992,7 @@ molecule_class_info_t::map_fill_from_mtz(std::string mtz_file_name,
 				      use_weights,
 				      is_anomalous_flag,
 				      is_diff_map,
-				      use_reso_flag, 0.0, 0.0); // don't use these reso limits.
+				      use_reso_flag, 0.0, 0.0, sampling_rate); // don't use these reso limits.
 
 }
 
@@ -2009,7 +2008,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 							  int is_diff_map,
 							  short int use_reso_limits,
 							  float low_reso_limit,
-							  float high_reso_limit) {
+							  float high_reso_limit,
+							  float map_sampling_rate) {
 
    graphics_info_t g;
 
@@ -2109,11 +2109,11 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    
    
 	 cout << "INFO:: finding ASU unique map points with sampling rate "
-   	      << graphics_info_t::map_sampling_rate	<< endl;
+   	      << map_sampling_rate	<< endl;
          clipper::Grid_sampling gs(myhkl.spacegroup(),
-				    myhkl.cell(),
-				    fft_reso,
-				    graphics_info_t::map_sampling_rate);
+				   myhkl.cell(),
+				   fft_reso,
+				   map_sampling_rate);
 	 cout << "INFO grid sampling..." << gs.format() << endl; 
 	 xmap_list[0].init( myhkl.spacegroup(), myhkl.cell(), gs); // 1.5 default
 	 // 	 cout << "Grid..." << xmap_list[0].grid_sampling().format() << "\n";
@@ -2138,7 +2138,10 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 // 			 << clipper::Util::rad2d(fphidata[hri].phi()) << std::endl;
 // 	    ncount++;
 // 	 } 
-   
+
+// 	 original_fphis = fphidata;
+
+	 
 	 // cout << "doing fft..." << endl;
 	 xmap_list[0].fft_from( fphidata );                  // generate map
 	 // cout << "done fft..." << endl;
@@ -2801,7 +2804,6 @@ molecule_class_info_t::update_clipper_skeleton() {
 	 if (xmap_is_filled[0] == 1 && xmap_is_diff_map[0] != 1) { 
 	    //
 	    float skeleton_box_radius = graphics_info_t::skeleton_box_radius; 
-	    graphics_info_t g;
 
 	    GraphicalSkel cowtan; 
 
@@ -3116,7 +3118,8 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
 						    const clipper::Spacegroup &sg,
 						    const clipper::Cell &cell,
 						    float reso_limit_low,
-						    float reso_limit_high) {
+						    float reso_limit_high,
+						    float map_sampling_rate) {
 
    clipper::PHSfile phs;
 
@@ -3175,7 +3178,7 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
 		    clipper::Grid_sampling(mydata.spacegroup(),
 					   mydata.cell(), 
 					   mydata.resolution(),
-					   graphics_info_t::map_sampling_rate));
+					   map_sampling_rate));
   cout << "done."<< endl; 
 
 //   cout << "Map Grid (from phs file)..." 
@@ -3379,7 +3382,6 @@ molecule_class_info_t::calculate_sfs_and_make_map(const std::string &mol_name,
    //clipper::ResolutionFn fscale( mydata, basis_f1f2,
    //                              target_f1f2, params_init );
 
-   int i=0;
    float r_top = 0.0, r_bot = 0.0;
    float sum_fo = 0.0, sum_fc = 0.0, sum_scale = 0.0;
    int n_data = 0;
@@ -3581,7 +3583,7 @@ molecule_class_info_t::make_map_from_cif_diff_sigmaa(std::string cif_file_name) 
 // 
 int
 molecule_class_info_t::make_map_from_cif_sigmaa(std::string cif_file_name,
-					       int sigmaa_map_type) {
+						int sigmaa_map_type) {
 
 #ifdef HAVE_CIF
 
@@ -8214,7 +8216,6 @@ molecule_class_info_t::chain_id_for_shelxl_residue_number(int shelxl_resno) cons
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       PCResidue residue_p;
-      CAtom *at;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 int resno = residue_p->GetSeqNum();
@@ -8247,12 +8248,56 @@ molecule_class_info_t::debug() const {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       PCResidue residue_p;
-      CAtom *at;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 if (residue_p) {
 	    std::cout << "   " << chain_p->GetChainID() << " " << residue_p->GetSeqNum()
 		      << " " << residue_p->index << std::endl;
+	 }
+      }
+   }
+}
+
+void
+molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bool state) {
+
+   if (has_model()) {
+      int imod = 1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 PCResidue residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	 
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       if (atom_spec.matches_spec(at)) {
+		  if (state) { 
+		     // fixed_atoms.push_back(spec);
+		     std::cout << "INFO:: " << atom_spec << " marked as fixed"
+			       << std::endl;
+		  } else {
+		     // try to remove at from marked list
+// 		     if (fixed_intermediate_atoms.size() > 0) {
+// 			std::vector<CAtom *>::iterator it;
+// 			for (it=fixed_intermediate_atoms.begin();
+// 			     it != fixed_intermediate_atoms.end();
+// 			     it++) {
+// 			   if (atom_spec.matches_spec(*it)) {
+// 			      fixed_atoms.push_back(atom_spec);
+// 			      break;
+// 			   }
+// 			}
+// 		     }
+		  }
+	       }
+	    }
 	 }
       }
    }

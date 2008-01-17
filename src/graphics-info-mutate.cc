@@ -5,7 +5,7 @@
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -193,7 +193,8 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
       int imol_map = Imol_Refinement_Map();
       if (imol_map >= 0) {
 	    
-	 float f = molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mutate_auto_fit_residue_atom_index, imol_map, rotamer_fit_clash_flag, rotamer_lowest_probability);
+	 // float f =
+	 molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mutate_auto_fit_residue_atom_index, imol_map, rotamer_fit_clash_flag, rotamer_lowest_probability);
 
 	 if (mutate_auto_fit_do_post_refine_flag) {
 	    // Run refine zone with autoaccept, autorange on

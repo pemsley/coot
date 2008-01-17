@@ -1,10 +1,11 @@
 
 ;;;; Copyright 2000 by Paul Emsley
 ;;;; Copyright 2004, 2005, 2006, 2007 by The University of York
+;;;; Copyright 2008 by The University of York
 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
-;;;; the Free Software Foundation; either version 2 of the License, or (at
+;;;; the Free Software Foundation; either version 3 of the License, or (at
 ;;;; your option) any later version.
  
 ;;;; This program is distributed in the hope that it will be useful, but
@@ -20,6 +21,14 @@
 	     (ice-9 string-fun)
 	     (ice-9 rdelim))
 (use-modules (goosh))
+
+;; scm aliases
+(define drag-intermediate-atom drag-intermediate-atom-scm)
+(define mark-atom-as-fixed mark-atom-as-fixed-scm)
+(define ncs-chain-ids ncs-chains-ids-scm)
+(define ncs-chain-differences ncs-chain-differences-scm)
+
+
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.

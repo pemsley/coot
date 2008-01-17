@@ -56,5 +56,31 @@ bool scm_is_undefined(SCM o) {
    return (1024 & SCM_UNPACK(o)) > 0 ? 1 : 0;
 }
 
+// e.g. '("B" 41 "" " CA " "")
+std::pair<bool, coot::atom_spec_t>
+make_atom_spec(SCM spec) {
+
+   bool good_spec = 0;
+   coot::atom_spec_t as;
+   SCM spec_length_scm = scm_length(spec);
+   int spec_length = scm_to_int(spec_length_scm);
+
+   if (spec_length == 5) {
+      SCM  chain_id_scm = scm_list_ref(spec, SCM_MAKINUM(0));
+      SCM     resno_scm = scm_list_ref(spec, SCM_MAKINUM(1));
+      SCM  ins_code_scm = scm_list_ref(spec, SCM_MAKINUM(2));
+      SCM atom_name_scm = scm_list_ref(spec, SCM_MAKINUM(3));
+      SCM  alt_conf_scm = scm_list_ref(spec, SCM_MAKINUM(4));
+      std::string chain_id = scm_to_locale_string(chain_id_scm);
+      int resno = scm_to_int(resno_scm);
+      std::string ins_code  = scm_to_locale_string(ins_code_scm);
+      std::string atom_name = scm_to_locale_string(atom_name_scm);
+      std::string alt_conf  = scm_to_locale_string(alt_conf_scm);
+      as = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
+      good_spec = 1;
+   }
+   return std::pair<bool, coot::atom_spec_t> (good_spec, as);
+}
+
 
 #endif // USE_GUILE

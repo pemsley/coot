@@ -69,7 +69,6 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
 	 CMMDBManager *mol = get_mol(filename);
 	 if (mol) { 
 	    CModel *model_p = mol->GetModel(1);
-	    int aminoSelHnd = -1;
 #ifdef HAVE_MMDB_WITH_CISPEP	    
 	    int status = model_p->CalcSecStructure(1, aminoSelHnd);
 #else 	    
@@ -82,7 +81,7 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
 		  strand_analysis(model_p, mol, filename, strand_length);
 	       if (v_strand.size() > 0) {
 		  for (unsigned int iv=0; iv<v_strand.size(); iv++) {
-		     if (mv.size() < n_strands) {
+		     if (int(mv.size()) < n_strands) {
 			mv.push_back(v_strand[iv]);
 		  }
 		  }
@@ -285,14 +284,14 @@ coot::db_strands::orient_strand_on_z(int SelHnd, CMMDBManager *mol) const {
 	 if (atom_name == " CA ") {
 	    clipper::Coord_orth pt(at->x, at->y, at->z);
 	    atom_vec.push_back(pt);
-	 } 
+	 }
 	 if (atom_name == " C  ") {
 	    clipper::Coord_orth pt(at->x, at->y, at->z);
 	    atom_vec.push_back(pt);
 	 } 
       } 
    }
-   if (atom_vec.size() != 3* nSelResidues) {
+   if (int(atom_vec.size()) != 3* nSelResidues) {
       std::cout << "skipping this strange strand with " << atom_vec.size()
 		<< " atoms (should be " << 3*nSelResidues << ") and "
 		<< nSelResidues << " residues" << std::endl;
@@ -336,8 +335,8 @@ coot::db_strands::z_control_points(int nres) const {
    std::vector<clipper::Coord_orth> r;
    double stl = 3.8 * 0.866; // the angle subtended on the z-axis of
 			     // the CA-CA distance.
-   double curve_len = 0.2; // how much the strand curves per residues:
-                           // used to set the control points.
+//    double curve_len = 0.2; // how much the strand curves per residues:
+//                            // used to set the control points.
 
    double base = -double(nres-1)/2.0 * stl;
    // double curve_base = double(nres-1)/2.0 * curve_len; 

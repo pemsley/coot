@@ -1,11 +1,12 @@
 /* db-main/db-main.cc
  * 
  * Copyright 2002, 2003, 2006 The University of York
+ * Copyright 2008 The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -35,6 +36,7 @@ coot::main_fragment_t::main_fragment_t(int i_start_res,
 				       int mol_no,
 				       std::vector<float> eigns_sqrt,
 				       std::string seg_id,
+				       std::pair<bool, clipper::Coord_orth> mid_o_pt,
 				       int ilen) {
    
    i_start_res_ = i_start_res; 
@@ -42,6 +44,7 @@ coot::main_fragment_t::main_fragment_t(int i_start_res,
    sqrt_eigen_values = eigns_sqrt; 
    segment_id = seg_id;
    ilength = ilen;
+   middle_carbonyl_oxygen_position = mid_o_pt;
 }
 
 int 
@@ -81,15 +84,19 @@ coot::db_main::fill_with_fragments(int ilength) {
 	    // of the protein chain, it is not).
 
 	    //  min: 2 max: 7:  has range-length: 6:
-	    if ( (fragment.n_filled_residues() == ilength)) {
+	    if ( (int(fragment.n_filled_residues()) == ilength)) {
+
+	       // What is the position of the oxygen in the 2th (0 indexed) residue?
+	       
 	       // now get the eigen values/functions for that fragment:
 	       clipper::Matrix<float> mat = make_cov_matrix(frag_to_coords(fragment));
 	       std::vector<float> eigens = mat.eigen( true );
 	       for(unsigned int j=0; j<eigens.size(); j++)
 		  eigens[j] = sqrt(eigens[j]);
+	       std::pair<bool, clipper::Coord_orth> mid_o_pt = get_middle_ox_pos(fragment);
 	       mainchain_frag_db.push_back(main_fragment_t(istart,i,eigens,
 							   fragment.fragment_id,
-							   ilength));
+							   mid_o_pt, ilength));
 	       istart++;
 	       nfragment++;
 	    } else {
@@ -103,6 +110,32 @@ coot::db_main::fill_with_fragments(int ilength) {
    std::cout << mainchain_frag_db.size() << " fragments found in total" << std::endl;
    return mainchain_frag_db.size();
 }
+
+std::pair<bool, clipper::Coord_orth>
+coot::db_main::get_middle_ox_pos(const coot::minimol::fragment &fragment) const {
+
+   bool have = 0;
+   clipper::Coord_orth pt;
+
+   int residue_count = 0;
+   for (int ires=fragment.min_res_no(); ires<=fragment.max_residue_number(); ires++) {
+      if (residue_count == 2) {
+	 if (fragment[ires].atoms.size() > 0) {
+	    for (unsigned int iatom=0; iatom<fragment[ires].atoms.size(); iatom++) {
+	       if (fragment[ires][iatom].name == " O  ") {
+		  if (fragment[ires][iatom].altLoc == "") {
+		     have = 1;
+		     pt = fragment[ires][iatom].pos;
+		  }
+	       }
+	    }
+	 }
+      }
+      residue_count++;
+   }
+   return std::pair<bool, clipper::Coord_orth> (have, pt);
+}
+
 
 std::vector<clipper::Coord_orth>
 coot::db_main::frag_to_coords(const coot::minimol::fragment &fragment) const {
@@ -803,7 +836,7 @@ coot::weighted_residue::add_residue_pos(const minimol::residue &in_res,
 }
 
 
-short int 
+bool
 coot::db_main::is_empty() const {
 
    if (mainchain_frag_db.size() == 0)
@@ -817,4 +850,25 @@ void
 coot::db_main::clear_results() {
    big_results.clear();
    output_fragment.clear();
+}
+
+
+
+
+// ----------------------- Pepflip extras --------------------
+void
+coot::db_main::match_targets_for_pepflip(const minimol::fragment &target_ca_coords_5_res_frag) {
+
+   std::vector<coot::minimol::fragment> fits;
+
+
+
+   pepflip_fragments = fits;
+}
+
+
+// check that internal vector against the oxygen position
+void
+coot::db_main::mid_oxt_outliers(const clipper::Coord_orth &my_peptide_oxt_pos, float cutoff) {
+
 }

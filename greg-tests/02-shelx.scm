@@ -9,6 +9,7 @@
 
 (define insulin-fcf (append-dir-file greg-data-dir "insulin.fcf"))
 (define insulin-res (append-dir-file greg-data-dir "insulin.res"))
+(define hollander-ins (append-dir-file greg-data-dir "hollander.ins"))
 
 (greg-testcase "Read small molecule .res file" #t
    (lambda ()
@@ -25,6 +26,27 @@
 	 (begin
 	   (format #t "hof-res not defined - skipping test~%")
 	   (throw 'untested)))))
+
+
+(greg-testcase "Read hollander small molecule .res file" #t
+   (lambda ()
+
+     (if (not (file-exists? hollander-ins))
+	 (begin
+	   (format #t "~s does not exist - skipping test~%" hollander-ins)
+	   (throw 'untested))
+	 (let ((imol (read-pdb hollander-ins)))
+	   (if (not (valid-model-molecule? imol))
+	       (begin
+		 (format #t "   fail: bad molecule for ~%" hollander-ins)
+		 (throw 'fail))
+	       (let ((spg (show-spacegroup imol)))
+		 (if (not (string=? spg "I 41 2 2"))
+		     (begin
+		       (format #t "   fail: wrong spacegroup for ~s ~s ~%" 
+			       hollander-ins spg)
+		       (throw 'fail))
+		     #t)))))))
 
 
 (greg-testcase "read shelx insulin with fcf" #t 
@@ -44,10 +66,28 @@
 	       (format #t "   Bad read of ~s ~s~%" insulin-fcf imol)
 	       (throw 'fail))
 	     (begin
-	       (rotate-y-scene (rotate-n-frames 200) 0.1)
-	       (close-molecule imol)
-	       (close-molecule imol-insulin-res)
-	       #t))))))
+	       (if (not (string=? (show-spacegroup imol)
+				  (show-spacegroup imol-insulin-res)))
+		   (begin
+		     (format #t "   Mismatch spacegroups ~s ~s~%" 
+			     (show-spacegroup imol)
+			     (show-spacegroup imol-insulin-res))
+		     (throw 'fail))
+		   
+		   (if (not (string=? (show-spacegroup imol)
+				      "I 21 3"))
+		       (begin
+			 (format #t "   Bad spacegroups ~s~%" 
+				 (show-spacegroup imol))
+			 (throw 'fail))
+
+		       ;; good then:
+		       (begin
+			 (rotate-y-scene (rotate-n-frames 200) 0.1)
+			 (close-molecule imol)
+			 (close-molecule imol-insulin-res)
+			 #t)))))))))
+
 
 
 

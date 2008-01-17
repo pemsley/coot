@@ -264,10 +264,14 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 void
 coot::protein_geometry::assign_chiral_volume_targets() {
 
-   int n_last = dict_res_restraints.size() - 1;
-
-   if (n_last >= 0)
-      dict_res_restraints[n_last].assign_chiral_volume_targets();
+   for (unsigned int idict=0; idict<dict_res_restraints.size(); idict++) {
+      if (dict_res_restraints[idict].has_unassigned_chiral_volumes()) {
+// 	 std::cout << "DEBUG:: assign_chiral_volume_targets for dict_res_restraints entry: "
+// 		   << idict << " " << dict_res_restraints[idict].comp_id
+// 		   << " has unassigned chiral volumes" << std::endl;
+	 dict_res_restraints[idict].assign_chiral_volume_targets();
+      }
+   }
 }
 
 void
@@ -2313,7 +2317,7 @@ coot::protein_geometry::get_monomer_type_index(const std::string &monomer_type) 
 
 // Return 1 for hydrogen or deuterium, 0 for not found or not a hydrogen.
 //
-short int
+bool
 coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name) const {
 
    short int r = 0;
@@ -2328,12 +2332,25 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
    return r;
 }
 
+bool
+coot::dictionary_residue_restraints_t::has_unassigned_chiral_volumes() const {
+   bool r = 0;
+   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) {
+      if (chiral_restraint[ic].has_unassigned_chiral_volume()) {
+	 r = 1;
+	 break;
+      }
+   }
+   return r;
+}
+
 int
 coot::dictionary_residue_restraints_t::assign_chiral_volume_targets() {
 
    int ich = 0;
 //    std::cout << "DEBUG:: in dictionary_residue_restraints_t::assign_chiral_volume_targets "
-// 	     << "there are " << chiral_restraint.size() << " chiral restraints\n";
+//  	     << "there are " << chiral_restraint.size() << " chiral restraints for "
+// 	     << comp_id << " \n";
    for (unsigned int i=0; i<chiral_restraint.size(); i++) {
       chiral_restraint[i].assign_chiral_volume_target(bond_restraint, angle_restraint);
       ich++;
@@ -2474,7 +2491,6 @@ coot::protein_geometry::add_planar_peptide_restraint() {
    realtype dist_esd = 0.05;
 
    std::string atom_id; 
-   int atom_comp_id;
    std::vector<std::pair<int, std::string> > v;
    v.push_back(std::pair<int, std::string> (1, "CA"));
    v.push_back(std::pair<int, std::string> (1, "C"));

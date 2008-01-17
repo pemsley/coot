@@ -5,7 +5,7 @@
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -88,7 +88,7 @@ PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id
       PyObject *match_info = PyList_New(2);
       PyList_SetItem(match_info, 0, PyInt_FromLong(rtop_info.n_match));
       PyList_SetItem(match_info, 1, PyFloat_FromDouble(rtop_info.dist_score));
-      PyObject *s = match_info;
+      // PyObject *s = match_info;
       python_status = rtop_to_python(rtop_info.rtop);
    }
    return python_status;
@@ -141,7 +141,7 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
       PyList_New(2);
       PyList_SetItem(match_info, 0, PyInt_FromLong(rtop_info.n_match));
       PyList_SetItem(match_info, 1, PyFloat_FromDouble(rtop_info.dist_score));
-      PyObject *s = match_info;
+      // PyObject *s = match_info;
       python_status = rtop_to_python(rtop_info.rtop);
    }
    return python_status;
@@ -155,8 +155,6 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 
    coot::graph_match_info_t graph_info;
    
-   int istat = 0;
-
    CResidue *residue_moving = 0;
    CResidue *residue_reference = 0;
 
@@ -837,13 +835,6 @@ void add_ligand_search_wiggly_ligand_molecule(int imol_ligand) {
 void add_ligand_search_ligand_molecule(int imol_ligand) {
    if (is_valid_model_molecule(imol_ligand))
       graphics_info_t::find_ligand_add_rigid_ligand(imol_ligand);
-
-   graphics_info_t g;
-//    std::cout << "DEBUG:: graphics_info_t::find_ligand_wiggly_ligands()["
-// 	     << imol_ligand << "] is ("
-// 	     << g.find_ligand_ligand_mols()[imol_ligand].first  << ", " 
-// 	     << g.find_ligand_ligand_mols()[imol_ligand].second << ")" << std::endl;
-
 }
 
 void add_ligand_clear_ligands() {
@@ -1151,7 +1142,6 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
       if (is_valid_model_molecule(coords_mol_no)) {
 	 std::cout << "making lig..." << std::endl;
 	 coot::ligand lig;
-	 short int mask_waters_flag; // treat the waters like protein atoms?
 	 lig.import_map_from(g.molecules[map_mol_no].xmap_list[0]);
 
 	 if (graphics_info_t::map_mask_atom_radius > 0) {

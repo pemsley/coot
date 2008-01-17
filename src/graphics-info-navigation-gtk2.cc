@@ -350,7 +350,6 @@ graphics_info_t::atom_tree_atom_row_activated(GtkTreeView        *treeview,
    
    GtkTreeModel *model = gtk_tree_view_get_model(treeview);
    GtkTreeIter   iter;
-   graphics_info_t g;
    
    if (gtk_tree_model_get_iter(model, &iter, path)) {
       gchar *name;
@@ -394,7 +393,6 @@ graphics_info_t::atom_tree_selection_func(GtkTreeSelection *selection,
 
    gboolean can_change_selected_status_flag = TRUE;
    GtkTreeIter   iter;
-   graphics_info_t g;
    
    if (gtk_tree_model_get_iter(model, &iter, path)) {
       gchar *name;

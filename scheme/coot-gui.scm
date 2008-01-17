@@ -1571,48 +1571,43 @@
 
 	  (set! *views-dialog-vbox* views-vbox))))))
 
-    
-    
+   
+;   (* nudge (apply + (map * (list-ref tvm 0) ori)))
+;   (* nudge (apply + (map * (list-ref tvm 1) ori)))
+;   (* nudge (apply + (map * (list-ref tvm 2) ori)))))
+  
+
+; (display  
+;(screen-coords-nudge (transpose-simple-matrix (view-matrix))
+;		     1.0
+;		     (list 1 0 0)))
+;(newline)
+     
 ;; nudge screen centre box.  Useful when Ctrl left-mouse has been
 ;; taken over by another function.
 ;; 
 (define (nudge-screen-centre-gui)
-  
+
+  (define (screen-coords-nudge tvm nudge ori)
+    (map (lambda (e) (* nudge (apply + (map * e ori)))) tvm))
+
   (let* ((zsc 0.02)
+	 (f (lambda (axes)
+	      (let ((nudge (* (zoom-factor) zsc))
+		    (rc (rotation-centre))
+		    (tvm (transpose-simple-matrix (view-matrix))))
+		;; new-x new-y new-z:
+		;; rc + tvm*nudge
+		(apply set-rotation-centre 
+		       (map + rc (screen-coords-nudge tvm nudge axes))))))
 	 (buttons 
 	  (list 
-	   (list "Nudge +X" (lambda () 
-			      (let ((nudge (* (zoom-factor) zsc))
-				    (rc (rotation-centre)))
-				(apply set-rotation-centre (cons (+ nudge (car rc)) (cdr rc))))))
-	   (list "Nudge -X" (lambda () 
-			      (let ((nudge (* (zoom-factor) zsc))
-				    (rc (rotation-centre)))
-				(apply set-rotation-centre (cons (- (car rc) nudge) (cdr rc))))))
-	   (list "Nudge +Y" (lambda ()  
-			      (let ((nudge (* (zoom-factor) zsc))
-				    (rc (rotation-centre)))
-				(set-rotation-centre (list-ref rc 0)
-						     (+ nudge (list-ref rc 1))
-						     (list-ref rc 2)))))
-	   (list "Nudge -Y" (lambda ()  
-			      (let ((nudge (* (zoom-factor) zsc))
-				    (rc (rotation-centre)))
-				(set-rotation-centre (list-ref rc 0)
-						     (- (list-ref rc 1) nudge)
-						     (list-ref rc 2)))))
-	   (list "Nudge +Z" (lambda ()  
-			      (let ((nudge (* (zoom-factor) zsc))
-				    (rc (rotation-centre)))
-				(set-rotation-centre (list-ref rc 0)
-						     (list-ref rc 1)
-						     (+ nudge (list-ref rc 2))))))
-	   (list "Nudge -Z" (lambda ()  
-			      (let ((nudge (* (zoom-factor) zsc))
-				    (rc (rotation-centre)))
-				(set-rotation-centre (list-ref rc 0)
-						     (list-ref rc 1)
-						     (- (list-ref rc 2) nudge))))))))
+	   (list "Nudge +X" (lambda () (f (list  1 0 0))))
+	   (list "Nudge -X" (lambda () (f (list -1 0 0))))
+	   (list "Nudge +Y" (lambda () (f (list 0  1 0))))
+	   (list "Nudge -Y" (lambda () (f (list 0 -1 0))))
+	   (list "Nudge +Z" (lambda () (f (list 0 0  1))))
+	   (list "Nudge -Z" (lambda () (f (list 0 0 -1)))))))
 
     (dialog-box-of-buttons "Nudge Screen Centre" 
 			   (cons 200 190) buttons "  Close ")))

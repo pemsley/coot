@@ -1527,7 +1527,7 @@ coot::rama_plot::add_phi_psi(vector <phi_psi_t> *phi_psi_vec,
    // next one (for psi).
    // 
 
-   CMMDBManager *mol = (CMMDBManager *)mol_in;
+   //    CMMDBManager *mol = (CMMDBManager *)mol_in;
    PCAtom *res_selection;
    int i_no_res_atoms;
    
@@ -1881,7 +1881,6 @@ coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1,
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       PCResidue residue_p;
-      CAtom *at;
       phi_psi_sets.push_back(coot::phi_psi_set_container());
       secondary_phi_psi_sets.push_back(coot::phi_psi_set_container());
       for (int ires=0; ires<nres; ires++) { 
@@ -1936,7 +1935,6 @@ coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1,
       int nres = chain_p->GetNumberOfResidues();
       std::string this_chain = chain_p->GetChainID();
       PCResidue residue_p;
-      CAtom *at;
       phi_psi_sets.push_back(coot::phi_psi_set_container());
       secondary_phi_psi_sets.push_back(coot::phi_psi_set_container());
       for (int ires=0; ires<nres; ires++) { 
@@ -2077,7 +2075,6 @@ coot::rama_plot::draw_phi_psi_differences() {
 // 		   << " diffs with diffs.size(): " << diff_sq.size()
 // 		   << std::endl;
 
-	 GtkCanvasItem *item; 
 	 GtkCanvasPoints *points = gtk_canvas_points_new(2);
 	 int i; 
       
@@ -2208,7 +2205,6 @@ coot::rama_plot::test_kleywegt_wrap(const phi_psi_t &phi_psi_primary,
       float phi_2 = phi_psi_secondary.phi();
       float psi_2 = phi_psi_secondary.psi();
 
-      float phi_diff = phi_2 - phi_1; 
       float psi_diff = psi_2 - psi_1; 
       float psi_gradient = 999999999.9;
       if (fabs(psi_diff) > 0.000000001)
@@ -2230,7 +2226,6 @@ coot::rama_plot::test_kleywegt_wrap(const phi_psi_t &phi_psi_primary,
       float phi_2 = phi_psi_secondary.phi();
       float psi_2 = phi_psi_secondary.psi();
 
-      float phi_diff = phi_2 - phi_1; 
       float psi_diff = psi_2 - psi_1; 
       float psi_gradient = 999999999.9;
       if (fabs(psi_diff) > 0.000000001)

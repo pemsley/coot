@@ -95,6 +95,11 @@ coot::torsion_general::change_by(double diff) {
 	    std::cout << "disaster in atom selection, tors_general\n";
 	 } else {
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
+//  	       std::cout << residue_atoms[iat]->name << " ("
+//  			 << residue_atoms[iat]->x << " "
+//  			 << residue_atoms[iat]->y << " " 
+//  			 << residue_atoms[iat]->z << ") to  "
+//  			 << coords_rotatated[iat] << std::endl;
 	       residue_atoms[iat]->x = coords_rotatated[iat].get_x();
 	       residue_atoms[iat]->y = coords_rotatated[iat].get_y();
 	       residue_atoms[iat]->z = coords_rotatated[iat].get_z();
@@ -105,6 +110,11 @@ coot::torsion_general::change_by(double diff) {
 	 std::cout << "WARNING: this vertex " << clicked_atom_indices[2]
 		   << " has no children (strangely)\n";
       } 
+      for(int i=0; i<n_residue_atoms; i++) {
+	 ::Cartesian c(residue_atoms[i]->x,
+		       residue_atoms[i]->y,
+		       residue_atoms[i]->z);
+      }
    } else {
       std::cout << "Sorry torsion_general not setup correctly" << std::endl;
    }
@@ -126,8 +136,9 @@ coot::torsion_general::atom_index(const coot::atom_spec_t &spec) const {
 	 if (spec.matches_spec(residue_atoms[i])) {
 	    // 	    std::cout << "Found a spec match for " << spec << std::endl;
 	    return i;
-// 	 } else {
-// 	    std::cout << spec << " does not match " << coot::atom_spec_t(residue_atoms[i]) << std::endl;
+ 	 } else {
+//  	    std::cout << spec << " does not match " << coot::atom_spec_t(residue_atoms[i])
+// 		      << std::endl;
 	 }
       }
    }

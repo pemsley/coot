@@ -127,11 +127,6 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    GtkWidget *sigfobs_menu;
    GtkWidget *r_free_menu;
      
-   GtkWidget *menuitem;
-   GtkWidget *active_menu;
-   int imol;
-   int *n;
-   
    GtkCheckButton *check_weights;
    GtkCheckButton *is_diff_map_checkbutton;
    GtkCheckButton *resolution_limit_check_button;
@@ -182,7 +177,7 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
       phi_label = saved_f_phi_columns->phi_cols[icol].column_label; 
 
      icol = saved_f_phi_columns->selected_f_col;
-     if (icol < saved_f_phi_columns->f_cols.size()) 
+     if (icol < int(saved_f_phi_columns->f_cols.size()))
 	f_label = saved_f_phi_columns->f_cols[icol].column_label;
      else {
 	f_label = saved_f_phi_columns->d_cols[icol-saved_f_phi_columns->f_cols.size()].column_label;
@@ -653,9 +648,6 @@ coot_checked_exit(int retval) {
 #ifdef USE_GUILE
 void run_clear_backups(int retval) {
 
-   SCM v1 = SCM_BOOL_T;
-   SCM v2 = SCM_BOOL_F;
-
    SCM r = safe_scheme_command("(clear-backups-maybe)");
 
    if (scm_is_undefined(r)) { 
@@ -773,7 +765,6 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
 // 
 void add_filechooser_filter_button(GtkWidget *fileselection, 
 				      short int data_type) { 
-
    
   int d = data_type;
 
@@ -1619,8 +1610,6 @@ int suck_model_fit_dialog_bl() {
    if (graphics_info_t::use_graphics_interface_flag) { 
       GtkWidget *main_window_hbox = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
 						  "main_window_hbox");
-      GtkWidget *box_for_handle = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
-							"main_window_hbox");
       GtkWidget *dialog = graphics_info_t::model_fit_refine_dialog;
 
       if (main_window_hbox) {
@@ -2366,7 +2355,7 @@ option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType po
 	 std::cout << "WARNING:: failed to find ccp4i optionmenu in "
 		   << "option_menu_refmac_ccp4i_project_signal_func" << std::endl;
       } else { 
-	 int file_selection_type = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(optionmenu)));
+
 	 GtkWidget *fileselection;
 	 int fileselection_type = 0; // FIXME
 	 fileselection = lookup_file_selection_widgets(item, fileselection_type);
@@ -3083,9 +3072,7 @@ void fill_go_to_atom_window(GtkWidget *widget) {
      GtkWidget *chain_entry;
      GtkWidget *residue_entry; 
      GtkWidget *atom_name_entry; 
-     GtkWidget *atom_gtklist;
      GtkWidget *residue_gtklist;
-     GtkWidget *residue_tree;
      gchar *text; 
      GtkWidget *scrolled_window;
 
@@ -3152,7 +3139,7 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
-     residue_tree=gtk_tree_new();
+     GtkWidget *residue_tree = gtk_tree_new();
      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					   residue_tree);
      gtk_tree_set_selection_mode (GTK_TREE(residue_tree),
@@ -3184,7 +3171,7 @@ void fill_go_to_atom_window(GtkWidget *widget) {
      /* The atom list */
      scrolled_window = lookup_widget(GTK_WIDGET(widget),
 				     "go_to_atom_atom_scrolledwindow");
-     atom_gtklist=gtk_list_new();
+     GtkWidget *atom_gtklist=gtk_list_new();
      gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
 					    atom_gtklist);
      /* attach the name to the widget (by hand (as interface.c does

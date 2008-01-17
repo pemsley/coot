@@ -2,12 +2,13 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
+ * Copyright 2007, 2008 by The University of Oxford
  * 
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -1532,6 +1533,7 @@ public:
 
    static short int in_residue_info_define; // initially 0
    static float geometry_vs_map_weight; 
+   static float rama_plot_restraint_weight;
 
    // similarly for distance and angles:
    //
@@ -2263,9 +2265,6 @@ public:
    static float add_alt_conf_new_atoms_occupancy;
    static short int show_alt_conf_intermediate_atoms_flag; 
    static void new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
-   // axis: 0 for Z, 1 for X.
-   void rotate_intermediate_atoms_round_screen_z(double angle);
-   void rotate_intermediate_atoms_round_screen_x(double angle);
 
    
    // Backbone torsion
@@ -2393,7 +2392,14 @@ public:
    short int rotate_intermediate_atoms_maybe(short int axis, double angle); 
                                                  // do it if have intermediate atoms
                                                  // and ctrl is pressed.
-   
+   // axis: 0 for Z, 1 for X.
+   void rotate_intermediate_atoms_round_screen_z(double angle);
+   void rotate_intermediate_atoms_round_screen_x(double angle);
+
+   static void drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt);
+   static void mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
+   // static std::vector<CAtom *> fixed_intermediate_atoms;
+
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
    // 

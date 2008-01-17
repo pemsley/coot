@@ -1,6 +1,7 @@
 /* db-main/test-dbmain.cc
  * 
  * Copyright 2005 The University of York
+ * Copyright 2008 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -19,13 +20,27 @@
  * 02110-1301, USA
  */
 
-
 #include "db-main.hh"
+
+class generate_fragments_t {
+public:
+   coot::minimol::fragment five_residues_as_cas;
+   clipper::Coord_orth ox_pos;
+   bool have_oxt;
+};
+
+generate_fragments_t
+make_target_5_res_frag(const coot::minimol::fragment &tf, int ires_start) {
+
+   generate_fragments_t g;
+
+   return g;
+}
 
 int 
 main(int argc, char **argv) { 
 
-   int ilength = 6;
+   int ilength = 5;
    std::string filename; 
    int iresno_start = 1;
    int iresno_end   = 46;
@@ -52,43 +67,34 @@ main(int argc, char **argv) {
    coot::minimol::molecule target_all_coords;
    std::cout << "Reading target coordinates: " << filename << std::endl;
    target_all_coords.read_file(filename);
-   coot::minimol::molecule target_ca_coords = target_all_coords.molecule_of_atom_types(std::string(" CA "));
+      
+   coot::db_main main_chain;
+   main_chain.fill_with_fragments(ilength);
 
-   if (target_all_coords.fragments.size() == 0) {
-      std::cout << "Problem reading testfragment/Ca-selection thereof"
-		<< std::endl;
-   } else { 
+   for (unsigned int ifrag=0; ifrag<target_all_coords.fragments.size(); ifrag++) {
 
-      iresno_end = target_ca_coords[0].max_residue_number();
-      // iresno_end = 40; 
-	 
-      // Now setup the library, fill it with data (coordinates)
-      coot::db_main main_chain;
-      int idbfrags = main_chain.fill_with_fragments(ilength);
+      if (target_all_coords[ifrag].fragment_id == chain_id) { 
 
-      // could also use main_chain.is_empty() here.
-      if (idbfrags > 0) { 
+	 for (int i=iresno_start; (i+5)<=iresno_end; i++) {
 
-	 // now fill big results.
-	 //
-	 for(unsigned int ifrag=0; ifrag<target_ca_coords.fragments.size(); ifrag++) {
-//  	    std::cout << "target_ca_coords fragment " << ifrag << " has "
-//  		      << target_ca_coords[ifrag].n_residues()
-//  		      << " residues " << std::endl; 
+	    generate_fragments_t frag_info =
+	       make_target_5_res_frag(target_all_coords[ifrag], iresno_start);
+	    
+	    if (frag_info.five_residues_as_cas.n_filled_residues() > 0) {
+
+	       if (frag_info.have_oxt) { 
+
+		  // load up an internal vector of fragments that have been
+		  // rtop onto this target_ca_coords_5_res_frag
+		  // 
+		  main_chain.match_targets_for_pepflip(frag_info.five_residues_as_cas);
+
+		  float cutoff = 0.2;
+		  // check that internal vector against the oxygen position
+		  main_chain.mid_oxt_outliers(frag_info.ox_pos, cutoff);
+	       }
+	    }
 	 }
-
-	 main_chain.match_target_fragment(target_ca_coords,
-					  iresno_start,
-					  iresno_end,
-					  ilength);
-
-	 main_chain.merge_fragments();
-
-	 coot::minimol::molecule mol;
-
-	 mol.fragments.push_back(main_chain.mainchain_fragment());
-
-	 mol.write_file("db-mainchain.pdb", 20.0);
       }
    }
    return 0; 

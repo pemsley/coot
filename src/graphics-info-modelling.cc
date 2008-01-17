@@ -196,9 +196,11 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    if (n_residue_first > 0) {
       std::string residue_type_first = residue_first[0]->name;
       // does a dynamic add if needed.
-      int status =
-	 geom_p->have_dictionary_for_residue_type(residue_type_first,
-						  cif_dictionary_read_number);
+      
+//       not used:
+//       int status =
+// 	 geom_p->have_dictionary_for_residue_type(residue_type_first,
+// 						  cif_dictionary_read_number);
       std::pair<short int, coot::dictionary_residue_restraints_t> p =
 	 geom_p->get_monomer_restraints(residue_type_first);
       if (p.first) {
@@ -376,12 +378,26 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	 }
 
+	 bool do_rama_restraints = 0;
+	 if (do_peptide_torsion_restraints == coot::restraints_container_t::LINK_TORSION_RAMACHANDRAN_GOODNESS)
+	    do_rama_restraints = 1;
+
 	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+
+	 // 20080108 Recall that we do secondary structure restraints
+	 // with pseudo bonds now.  We don't do it by torsion
+	 // refinement of the phi and psi.
+	 //
+	 // However, ramachandran goodness will use phi and psi
+	 // 
 	 coot::pseudo_restraint_bond_type pseudos = graphics_info_t::pseudo_bonds_type;
 	 int nrestraints = 
 	    restraints.make_restraints(*geom_p, flags,
 				       do_residue_internal_torsions,
-				       do_link_torsions, pseudos);
+				       do_link_torsions,
+				       rama_plot_restraint_weight,
+				       do_rama_restraints,
+				       pseudos);
 	 
 	 if (nrestraints > 0) { 
 	    irest = 1;
@@ -1057,7 +1073,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 
 		  range_mol[ir].addresidue(mol[ifrag][ires], 1);
 
-		  for (int iat=0; iat<mol[ifrag][ires].atoms.size(); iat++) {
+		  for (unsigned int iat=0; iat<mol[ifrag][ires].atoms.size(); iat++) {
 		     if (mol[ifrag][ires][iat].altLoc == altconf) {
 // 			std::cout << "From ref res delete atom "
 // 				  << mol[ifrag][ires][iat] << std::endl;
@@ -1248,8 +1264,8 @@ graphics_info_t::execute_add_terminal_residue(int imol,
       } else { 
 	 // just shove it on without a map
 	 if (molecules[imol].has_model()) {
-	    float phi = graphics_info_t::terminal_residue_addition_direct_phi;
-	    float psi = graphics_info_t::terminal_residue_addition_direct_psi;
+	    // float phi = graphics_info_t::terminal_residue_addition_direct_phi;
+	    // float psi = graphics_info_t::terminal_residue_addition_direct_psi;
 	    CMMDBManager *orig_mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	    //	    CResidue *res_new = add_terminal_residue_directly(terminus_type, res_p,
 	    // chain_id, res_type, phi, psi);
@@ -1504,7 +1520,6 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       PCResidue residue_p;
-      CAtom *at;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 // 	 std::cout << "testing vs resno " << residue_p->GetSeqNum()
@@ -1534,7 +1549,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	    int new_resno = res_p->GetSeqNum() + interesting_resno - match_resno;
 	    interesting_residue_p->seqNum = new_resno;
 	    coot::util::transform_mol(mol, rtop_pair.second);
-	    byte gz = GZM_NONE;
+	    // byte gz = GZM_NONE;
 	    // mol->WritePDBASCII("overlapped.pdb", gz);
 	    CMMDBManager *residue_mol =
 	       coot::util::create_mmdbmanager_from_residue(mol, interesting_residue_p);
@@ -2117,6 +2132,58 @@ void graphics_info_t::new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj,
    }
 }
 
+// static
+void
+graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt) {
+
+   // std::cout << "DEBUG:: " << atom_spec << " to " << pt.format() << std::endl;
+   if (! moving_atoms_asc) {
+      std::cout << "WARNING:: No intermediate atoms - fail" << std::endl;
+   } else {
+      int imod = 1;
+      CModel *model_p = moving_atoms_asc->mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 PCResidue residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       if (atom_spec.matches_spec(at)) {
+		  at->x = pt.x();
+		  at->y = pt.y();
+		  at->z = pt.z();
+	       }
+	    }
+	 }
+      }
+   }
+   Bond_lines_container bonds(*moving_atoms_asc, 0);
+   regularize_object_bonds_box.clear_up();
+   regularize_object_bonds_box = bonds.make_graphical_bonds();
+   graphics_draw();
+}
+
+
+// static
+void
+graphics_info_t::mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state) {
+   if (!moving_atoms_asc) {
+      std::cout << "WARNING:: No intermediate atoms - fail" << std::endl;
+   } else {
+      if ((imol >=0) && (imol < n_molecules)) {
+	 if (graphics_info_t::molecules[imol].has_model()) {
+	    graphics_info_t::molecules[imol].mark_atom_as_fixed(atom_spec, state);
+	 }
+      }
+   }      
+}
 
 void
 graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_index, int imol) const {
@@ -2346,8 +2413,6 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
    // add phi/try rotamers? no.
    coot::chi_angles chi_ang(residue, 0);
    
-   int nResidueAtoms = residue->GetNumberOfAtoms();
-      
    // Contact indices:
    //
    coot::contact_info contact = coot::getcontacts(asc);
@@ -2555,7 +2620,7 @@ graphics_info_t::split_residue(int imol, int atom_index) {
 
    if (imol<n_molecules) { 
       if (molecules[imol].has_model()) {
-	 graphics_info_t::molecules[imol].split_residue(atom_index);
+	 graphics_info_t::molecules[imol].split_residue(atom_index, alt_conf_split_type);
 	 graphics_draw();
       } else {
 	 std::cout << "WARNING:: split_residue: molecule has no model.\n";
@@ -2715,7 +2780,6 @@ graphics_info_t::check_and_warn_bad_chirals_and_cis_peptides() const {
 		  s += bv.second[i].alt_conf;
 		  s += "\n";
 	       } else {
-		  int i = 0;
 		  s = "There are ";
 		  s += coot::util::int_to_string(bv.second.size());
 		  s += " residues with \n";

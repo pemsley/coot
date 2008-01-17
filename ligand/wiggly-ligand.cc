@@ -82,7 +82,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       // Let's make the coordinates:
       // 
       std::vector< ::Cartesian> coords;
-      for(int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
+      for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
 	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
 	       // coords.push_back(coord_orth_to_cartesian(ligand[ifrag][ires][iat].pos));
@@ -140,7 +140,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
       int ncoord = 0;
       std::vector< ::Cartesian > rotated_coords = tree.GetAllCartesians();
-      for(int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
+      for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
 	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
 	       ligand[ifrag][ires][iat].pos =
@@ -227,7 +227,7 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
    float non_rotating_torsion_cut_off = 11.0;
 
    if (0) { 
-      for(int itor=0; itor<m_torsions.size(); itor++) {
+      for(unsigned int itor=0; itor<m_torsions.size(); itor++) {
 	 std::cout << "DEBUG input torsion: " << itor << " "
 		   << m_torsions[itor].atom_id_2_4c() << " "
 		   << m_torsions[itor].atom_id_3_4c() << " "
@@ -236,7 +236,7 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
       }
    }
    
-   for(int itor=0; itor<m_torsions.size(); itor++) {
+   for(unsigned int itor=0; itor<m_torsions.size(); itor++) {
       if (m_torsions[itor].periodicity() == 1) {
 	 if (m_torsions[itor].esd() < non_rotating_torsion_cut_off) {
 	    sample_tors[itor] = m_torsions[itor].angle(); // don't sample it.
@@ -268,7 +268,7 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
    }
 
    if (0) { // debugging torsions
-      for(int itor=0; itor<m_torsions.size(); itor++)
+      for(unsigned int itor=0; itor<m_torsions.size(); itor++)
 	 std::cout << "DEBUG:: sampled torsion " << itor << "  "
 		   <<  sample_tors[itor] << std::endl;
    }

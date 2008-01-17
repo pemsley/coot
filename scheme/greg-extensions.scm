@@ -23,7 +23,7 @@
 
 (if (defined? 'coot-main-menubar)
 
-    (let ((menu (coot-menubar-menu "Test")))
+    (let ((menu (coot-menubar-menu "Greg")))
 
       (add-simple-coot-menu-menuitem
        menu "Run All Greg Tests"

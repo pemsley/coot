@@ -52,9 +52,11 @@ namespace coot {
       int ilength; 
       int molecule_number; 
       std::vector<float> sqrt_eigen_values; 
-      std::string segment_id; 
+      std::string segment_id;
+      std::pair<bool,clipper::Coord_orth> middle_carbonyl_oxygen_position;
       main_fragment_t(int i_start_res, int mol_no,
 		      std::vector<float> eigns_sqrt, std::string seg_id,
+		      std::pair<bool, clipper::Coord_orth> mid_o_pt,
 		      int ilen); 
       int i_start_res() const {return i_start_res_;}
    };
@@ -177,7 +179,15 @@ namespace coot {
       float weight_pos_in_frag(int ipos, int ilength) const;
       // 
       coot::minimol::residue pull_db_residue(const coot::db_fitting_result &res,
-					     int ipos) const; 
+					     int ipos) const;
+
+
+      // Pepflip extras:
+      std::pair<bool, clipper::Coord_orth> get_middle_ox_pos(const coot::minimol::fragment &fragment) const;
+      // a vector of fragments that have been matches to a target 5 CA
+      // peptide (that target 5 CA peptide is constructed, for the
+      // moment, outside this class.
+      std::vector<coot::minimol::fragment> pepflip_fragments;
 
    public:
       db_main() { max_devi = 2.0; }
@@ -205,7 +215,7 @@ namespace coot {
       // Molecular Graphics usage: We only want to load the graphics
       // once.  So let's do that and store it in a static.
       // 
-      short int is_empty() const; 
+      bool is_empty() const; 
 
       // This is the big complex one:
       //
@@ -216,7 +226,14 @@ namespace coot {
       minimol::fragment mainchain_fragment() const;
 
       // clear results
-      void clear_results(); 
+      void clear_results();
+
+      // ----------------------- Pepflip extras --------------------
+      void match_targets_for_pepflip(const minimol::fragment &target_ca_coords_5_res_frag);
+
+      // check that internal vector against the oxygen position
+      void mid_oxt_outliers(const clipper::Coord_orth &my_peptide_oxt_pos, float cutoff);
+
    };
 
 } // namespace coot

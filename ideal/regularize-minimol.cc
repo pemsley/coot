@@ -76,7 +76,9 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
       coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
       int nrestraints = restraints.make_restraints(geom, flags,
 						   do_residue_internal_torsions,
-						   do_link_torsions, pseudos);
+						   do_link_torsions,
+						   0.0, 0,
+						   pseudos);
 	 
       if (nrestraints > 0) { 
 	 restraints.minimize(flags);

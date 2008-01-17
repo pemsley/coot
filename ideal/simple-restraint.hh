@@ -1,4 +1,25 @@
 // -*-c++-*-
+/* ideal/simple-resetraint.hh
+ * 
+ * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
+ * Copyright 2008 by The University of Oxford
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifndef HAVE_SIMPLE_RESTRAINT_HH
 #define HAVE_SIMPLE_RESTRAINT_HH
@@ -865,7 +886,7 @@ namespace coot {
 	 verbose_geometry_reporting = 1; 
       } 
 
-      void assign_fixed_atom_indices();
+      void assign_fixed_atom_indices(const std::vector<CAtom *> &fixed_atoms);
 
       double initial_position(int i) {
 	 return initial_position_params_vec[i]; 
@@ -941,6 +962,8 @@ namespace coot {
 			  coot::restraint_usage_Flags flags,
 			  short int do_residue_internal_torsions,
 			  short int do_link_torsions,
+			  float rama_plot_target_weight,
+			  bool do_rama_plot_retraints, 
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
 
       // old code:
