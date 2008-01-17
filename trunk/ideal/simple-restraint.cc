@@ -1,7 +1,7 @@
 /* ideal/simple-resetraint.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
- * Copyright 2008,  The University of Oxford
+ * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
+ * Copyright 2008  by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -456,8 +456,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
    size_t iter = 0; 
    int status;
-   std::string results_string = ""; 
-   std::vector<std::pair<float, std::string> > lights_vec;
+   std::vector<coot::refinement_lights_info_t> lights_vec;
    do
       {
 	 iter++;
@@ -481,10 +480,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	 if (status == GSL_SUCCESS) { 
 	    std::cout << "Minimum found (iteration number " << iter << ") at ";
 	    std::cout << s->f << "\n";
-	    std::pair<std::string, std::vector<std::pair<float, std::string> > >  results = 
+	    std::vector <coot::refinement_lights_info_t> results = 
 	       chi_squareds("Final Chi Squareds", s->x);
-	    results_string = results.first;
-	    lights_vec = results.second;
+	    lights_vec = results;
 	 }
 
 	 if (verbose_geometry_reporting)
@@ -502,7 +500,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    gsl_multimin_fdfminimizer_free (s);
    gsl_vector_free (x);
    // (we don't get here unless restraints were found)
-   coot::refinement_results_t rr(1, status, results_string, lights_vec);
+   coot::refinement_results_t rr(1, status, lights_vec);
 //    std::cout << "DEBUG:: returning from minimize() :" << results_string
 // 	     << ":" << std::endl;
    
@@ -1587,10 +1585,10 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 }
 
 
-std::pair<std::string, std::vector<std::pair<float, std::string> > > 
+std::vector<coot::refinement_lights_info_t>
 coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *v) const {
 
-   std::vector<std::pair<float, std::string> > lights_vec;
+   std::vector<coot::refinement_lights_info_t> lights_vec;
    int n_bond_restraints = 0; 
    int n_angle_restraints = 0; 
    int n_torsion_restraints = 0; 
@@ -1663,9 +1661,11 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 		<< std::endl;
       double bd = bond_distortion/double(n_bond_restraints);
       r += "   bonds:  ";
-      r += coot::util::float_to_string_using_dec_pl(bond_distortion/double(n_bond_restraints), 3);
+      r += coot::util::float_to_string_using_dec_pl(bd, 3);
       r += "\n";
-      lights_vec.push_back(std::pair<float, string>(bd, "Bonds"));
+      std::string s = "Bonds:  ";
+      s += coot::util::float_to_string_using_dec_pl(bd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Bonds", s, bd));
    } 
    if (n_angle_restraints == 0) {
       std::cout << "angles:     N/A " << std::endl;
@@ -1676,7 +1676,10 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       r += "   angles: ";
       r += coot::util::float_to_string_using_dec_pl(angle_distortion/double(n_angle_restraints), 3);
       r += "\n";
-      lights_vec.push_back(std::pair<float, string>(ad, "Angles"));
+      std::string s = "Angles: ";
+      s += coot::util::float_to_string_using_dec_pl(ad, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Angles", s, ad));
+
    } 
    if (n_torsion_restraints == 0) {
       std::cout << "torsions:   N/A " << std::endl;
@@ -1686,7 +1689,9 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       r += "   torsions: ";
       r += coot::util::float_to_string_using_dec_pl(td, 3);
       r += "\n";
-      lights_vec.push_back(std::pair<float, string>(td, "Torsions"));
+      std::string s = "Torsions: ";
+      s += coot::util::float_to_string_using_dec_pl(td, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Torsions", s, td));
    } 
    if (n_plane_restraints == 0) {
       std::cout << "planes:     N/A " << std::endl;
@@ -1696,7 +1701,9 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       r += "   planes: ";
       r += coot::util::float_to_string_using_dec_pl(pd, 3);
       r += "\n";
-      lights_vec.push_back(std::pair<float, string>(pd, "Planes"));
+      std::string s = "Planes: ";
+      s += coot::util::float_to_string_using_dec_pl(pd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Planes", s, pd));
    }
    if (n_non_bonded_restraints == 0) {
       std::cout << "non-bonded: N/A " << std::endl;
@@ -1707,7 +1714,9 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       r += "   non-bonded: ";
       r += coot::util::float_to_string_using_dec_pl(nbd, 3);
       r += "\n";
-      lights_vec.push_back(std::pair<float, string>(nbd, "Non-bonded"));
+      std::string s = "Non-bonded: ";
+      s += coot::util::float_to_string_using_dec_pl(nbd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Non-bonded", s, nbd));
    }
    if (n_chiral_volumes == 0) { 
       std::cout << "chiral vol: N/A " << std::endl;
@@ -1716,9 +1725,11 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::cout << "chiral vol: " << cd << std::endl;
       r += "   chirals: ";
       r += coot::util::float_to_string_using_dec_pl(cd, 3);
-      lights_vec.push_back(std::pair<float, string>(cd, "Chirals"));
+      std::string s = "Chirals: ";
+      s += coot::util::float_to_string_using_dec_pl(cd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("Chirals", s, cd));
    }
-   return std::pair<std::string, std::vector<std::pair<float, std::string> > > (r, lights_vec);
+   return lights_vec;
 } 
 
 void 

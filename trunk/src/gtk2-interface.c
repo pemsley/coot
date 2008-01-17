@@ -7438,6 +7438,14 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *accept_reject_lights_frame;
   GtkWidget *alignment107;
   GtkWidget *hbox273;
+  GtkWidget *label445;
+  GtkWidget *accept_dialog_accept_label_string;
+  GtkWidget *refinement_lights_table;
+  GtkWidget *bonds_label;
+  GtkWidget *angles_label;
+  GtkWidget *torsions_label;
+  GtkWidget *planes_label;
+  GtkWidget *rama_label;
   GtkWidget *frame178;
   GtkWidget *bonds_eventbox;
   GtkWidget *label448;
@@ -7450,17 +7458,17 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *frame181;
   GtkWidget *planes_eventbox;
   GtkWidget *label451;
-  GtkWidget *frame182;
-  GtkWidget *non_bonded_contacts_eventbox;
-  GtkWidget *label452;
-  GtkWidget *frame183;
-  GtkWidget *chirals_eventbox;
-  GtkWidget *label453;
   GtkWidget *frame184;
   GtkWidget *rama_eventbox;
   GtkWidget *label454;
-  GtkWidget *label445;
-  GtkWidget *accept_dialog_accept_label_string;
+  GtkWidget *chirals_label;
+  GtkWidget *frame183;
+  GtkWidget *chirals_eventbox;
+  GtkWidget *label453;
+  GtkWidget *non_bonded_contacts_label;
+  GtkWidget *frame182;
+  GtkWidget *non_bonded_contacts_eventbox;
+  GtkWidget *label452;
   GtkWidget *dialog_action_area9;
   GtkWidget *hbox41;
   GtkWidget *accept_reject_refinement_accept_button;
@@ -7497,7 +7505,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (chiral_centre_text_label);
   gtk_box_pack_start (GTK_BOX (vbox195), chiral_centre_text_label, FALSE, FALSE, 0);
   gtk_misc_set_alignment (GTK_MISC (chiral_centre_text_label), 0.04, 0.5);
-  gtk_misc_set_padding (GTK_MISC (chiral_centre_text_label), 10, 6);
+  gtk_misc_set_padding (GTK_MISC (chiral_centre_text_label), 0, 1);
 
   accept_reject_reverse_button = gtk_button_new ();
   gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_reverse_button, FALSE, FALSE, 1);
@@ -7527,7 +7535,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_misc_set_padding (GTK_MISC (extra_text_label), 10, 0);
 
   accept_reject_lights_frame = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_lights_frame, TRUE, TRUE, 2);
+  gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_lights_frame, TRUE, TRUE, 0);
   gtk_frame_set_shadow_type (GTK_FRAME (accept_reject_lights_frame), GTK_SHADOW_NONE);
 
   alignment107 = gtk_alignment_new (0.5, 0.5, 1, 1);
@@ -7539,8 +7547,55 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (hbox273);
   gtk_container_add (GTK_CONTAINER (alignment107), hbox273);
 
+  label445 = gtk_label_new ("");
+  gtk_widget_show (label445);
+  gtk_frame_set_label_widget (GTK_FRAME (accept_reject_lights_frame), label445);
+  gtk_label_set_use_markup (GTK_LABEL (label445), TRUE);
+
+  accept_dialog_accept_label_string = gtk_label_new (_("Accept Refinement?"));
+  gtk_widget_show (accept_dialog_accept_label_string);
+  gtk_box_pack_start (GTK_BOX (vbox195), accept_dialog_accept_label_string, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (accept_dialog_accept_label_string), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (accept_dialog_accept_label_string), 22, 20);
+
+  refinement_lights_table = gtk_table_new (7, 2, FALSE);
+  gtk_widget_show (refinement_lights_table);
+  gtk_box_pack_start (GTK_BOX (vbox195), refinement_lights_table, TRUE, TRUE, 0);
+
+  bonds_label = gtk_label_new (_("label455"));
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), bonds_label, 1, 2, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (bonds_label), 0, 0);
+
+  angles_label = gtk_label_new (_("label456"));
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), angles_label, 1, 2, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (angles_label), 0, 0);
+
+  torsions_label = gtk_label_new (_("label457"));
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), torsions_label, 1, 2, 2, 3,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (torsions_label), 0, 0.5);
+
+  planes_label = gtk_label_new (_("label458"));
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), planes_label, 1, 2, 3, 4,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (planes_label), 0, 0.5);
+
+  rama_label = gtk_label_new (_("label461"));
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), rama_label, 1, 2, 6, 7,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (rama_label), 0, 1);
+
   frame178 = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (hbox273), frame178, FALSE, FALSE, 0);
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), frame178, 0, 1, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
   gtk_widget_set_size_request (frame178, 34, 34);
   gtk_container_set_border_width (GTK_CONTAINER (frame178), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame178), GTK_SHADOW_ETCHED_OUT);
@@ -7556,7 +7611,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (label448), TRUE);
 
   frame179 = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (hbox273), frame179, FALSE, FALSE, 0);
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), frame179, 0, 1, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
   gtk_widget_set_size_request (frame179, 34, 34);
   gtk_container_set_border_width (GTK_CONTAINER (frame179), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame179), GTK_SHADOW_ETCHED_OUT);
@@ -7572,9 +7629,12 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (label449), TRUE);
 
   frame180 = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (hbox273), frame180, FALSE, FALSE, 0);
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), frame180, 0, 1, 2, 3,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
   gtk_widget_set_size_request (frame180, 34, 34);
   gtk_container_set_border_width (GTK_CONTAINER (frame180), 2);
+  gtk_frame_set_label_align (GTK_FRAME (frame180), 0.02, 0.5);
   gtk_frame_set_shadow_type (GTK_FRAME (frame180), GTK_SHADOW_ETCHED_OUT);
 
   torsions_eventbox = gtk_event_box_new ();
@@ -7588,7 +7648,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (label450), TRUE);
 
   frame181 = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (hbox273), frame181, FALSE, FALSE, 0);
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), frame181, 0, 1, 3, 4,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
   gtk_widget_set_size_request (frame181, 34, 34);
   gtk_container_set_border_width (GTK_CONTAINER (frame181), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame181), GTK_SHADOW_ETCHED_OUT);
@@ -7603,40 +7665,10 @@ create_accept_reject_refinement_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame181), label451);
   gtk_label_set_use_markup (GTK_LABEL (label451), TRUE);
 
-  frame182 = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (hbox273), frame182, FALSE, FALSE, 0);
-  gtk_widget_set_size_request (frame182, 34, 34);
-  gtk_container_set_border_width (GTK_CONTAINER (frame182), 2);
-  gtk_frame_set_shadow_type (GTK_FRAME (frame182), GTK_SHADOW_ETCHED_OUT);
-
-  non_bonded_contacts_eventbox = gtk_event_box_new ();
-  gtk_widget_show (non_bonded_contacts_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame182), non_bonded_contacts_eventbox);
-  gtk_tooltips_set_tip (tooltips, non_bonded_contacts_eventbox, _("Non-bonded Contacts"), NULL);
-
-  label452 = gtk_label_new ("");
-  gtk_widget_show (label452);
-  gtk_frame_set_label_widget (GTK_FRAME (frame182), label452);
-  gtk_label_set_use_markup (GTK_LABEL (label452), TRUE);
-
-  frame183 = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (hbox273), frame183, FALSE, FALSE, 0);
-  gtk_widget_set_size_request (frame183, 34, 34);
-  gtk_container_set_border_width (GTK_CONTAINER (frame183), 2);
-  gtk_frame_set_shadow_type (GTK_FRAME (frame183), GTK_SHADOW_ETCHED_OUT);
-
-  chirals_eventbox = gtk_event_box_new ();
-  gtk_widget_show (chirals_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame183), chirals_eventbox);
-  gtk_tooltips_set_tip (tooltips, chirals_eventbox, _("Chirals"), NULL);
-
-  label453 = gtk_label_new ("");
-  gtk_widget_show (label453);
-  gtk_frame_set_label_widget (GTK_FRAME (frame183), label453);
-  gtk_label_set_use_markup (GTK_LABEL (label453), TRUE);
-
   frame184 = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (hbox273), frame184, TRUE, TRUE, 0);
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), frame184, 0, 1, 6, 7,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
   gtk_widget_set_size_request (frame184, 34, 34);
   gtk_container_set_border_width (GTK_CONTAINER (frame184), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame184), GTK_SHADOW_ETCHED_OUT);
@@ -7651,16 +7683,53 @@ create_accept_reject_refinement_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame184), label454);
   gtk_label_set_use_markup (GTK_LABEL (label454), TRUE);
 
-  label445 = gtk_label_new ("");
-  gtk_widget_show (label445);
-  gtk_frame_set_label_widget (GTK_FRAME (accept_reject_lights_frame), label445);
-  gtk_label_set_use_markup (GTK_LABEL (label445), TRUE);
+  chirals_label = gtk_label_new (_("label460"));
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), chirals_label, 1, 2, 4, 5,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (chirals_label), 0, 1);
 
-  accept_dialog_accept_label_string = gtk_label_new (_("Accept Refinement?"));
-  gtk_widget_show (accept_dialog_accept_label_string);
-  gtk_box_pack_start (GTK_BOX (vbox195), accept_dialog_accept_label_string, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (accept_dialog_accept_label_string), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (accept_dialog_accept_label_string), 44, 20);
+  frame183 = gtk_frame_new (NULL);
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), frame183, 0, 1, 4, 5,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_widget_set_size_request (frame183, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame183), 2);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame183), GTK_SHADOW_ETCHED_OUT);
+
+  chirals_eventbox = gtk_event_box_new ();
+  gtk_widget_show (chirals_eventbox);
+  gtk_container_add (GTK_CONTAINER (frame183), chirals_eventbox);
+  gtk_tooltips_set_tip (tooltips, chirals_eventbox, _("Chirals"), NULL);
+
+  label453 = gtk_label_new ("");
+  gtk_widget_show (label453);
+  gtk_frame_set_label_widget (GTK_FRAME (frame183), label453);
+  gtk_label_set_use_markup (GTK_LABEL (label453), TRUE);
+
+  non_bonded_contacts_label = gtk_label_new (_("label459"));
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), non_bonded_contacts_label, 1, 2, 5, 6,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (non_bonded_contacts_label), 0, 1);
+
+  frame182 = gtk_frame_new (NULL);
+  gtk_table_attach (GTK_TABLE (refinement_lights_table), frame182, 0, 1, 5, 6,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_widget_set_size_request (frame182, 34, 34);
+  gtk_container_set_border_width (GTK_CONTAINER (frame182), 2);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame182), GTK_SHADOW_ETCHED_OUT);
+
+  non_bonded_contacts_eventbox = gtk_event_box_new ();
+  gtk_widget_show (non_bonded_contacts_eventbox);
+  gtk_container_add (GTK_CONTAINER (frame182), non_bonded_contacts_eventbox);
+  gtk_tooltips_set_tip (tooltips, non_bonded_contacts_eventbox, _("Non-bonded Contacts"), NULL);
+
+  label452 = gtk_label_new ("");
+  gtk_widget_show (label452);
+  gtk_frame_set_label_widget (GTK_FRAME (frame182), label452);
+  gtk_label_set_use_markup (GTK_LABEL (label452), TRUE);
 
   dialog_action_area9 = GTK_DIALOG (accept_reject_refinement_dialog)->action_area;
   gtk_widget_show (dialog_action_area9);
@@ -7743,6 +7812,14 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_lights_frame, "accept_reject_lights_frame");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment107, "alignment107");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox273, "hbox273");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label445, "label445");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, refinement_lights_table, "refinement_lights_table");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, bonds_label, "bonds_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, angles_label, "angles_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, torsions_label, "torsions_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, planes_label, "planes_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, rama_label, "rama_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame178, "frame178");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, bonds_eventbox, "bonds_eventbox");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label448, "label448");
@@ -7755,17 +7832,17 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame181, "frame181");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, planes_eventbox, "planes_eventbox");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label451, "label451");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame182, "frame182");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, non_bonded_contacts_eventbox, "non_bonded_contacts_eventbox");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label452, "label452");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame183, "frame183");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chirals_eventbox, "chirals_eventbox");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label453, "label453");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame184, "frame184");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, rama_eventbox, "rama_eventbox");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label454, "label454");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label445, "label445");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chirals_label, "chirals_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame183, "frame183");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chirals_eventbox, "chirals_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label453, "label453");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, non_bonded_contacts_label, "non_bonded_contacts_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame182, "frame182");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, non_bonded_contacts_eventbox, "non_bonded_contacts_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label452, "label452");
   GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox41, "hbox41");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_refinement_accept_button, "accept_reject_refinement_accept_button");

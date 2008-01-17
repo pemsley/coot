@@ -32,6 +32,19 @@
 // without the GSL.
 // 
 namespace coot { 
+
+   class refinement_lights_info_t {
+   public:
+      std::string name;   // e.g. "Bonds" or "Angles"
+      std::string label;  // e.g. "Bonds:  6.543" 
+      float value;        // e.g. 6.543
+      refinement_lights_info_t(const std::string &name_in, const std::string label_in, float value_in) {
+	 name = name_in;
+	 label = label_in;
+	 value = value_in;
+      }
+   };
+
    // ---------------------------------------------------------------
    // ---------------------------------------------------------------
    //     class refinement_results_t, helper class for sending text
@@ -45,11 +58,11 @@ namespace coot {
       short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
       int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
       std::string info;
-      std::vector<std::pair<float, std::string> > lights;      
-      refinement_results_t(short int frf, int prog_in, std::string info_in,
-			   const std::vector<std::pair<float, std::string> > &lights_in) {
+      std::vector<refinement_lights_info_t> lights;      
+      refinement_results_t(short int frf, int prog_in,
+			   const std::vector<refinement_lights_info_t> &lights_in) {
 	 found_restraints_flag = frf;
-	 info = info_in;
+	 info = ""; // not used
 	 progress = prog_in;
 	 lights = lights_in;
      }
@@ -405,6 +418,7 @@ namespace coot {
       }
    };
 
+
    double distortion_score(const gsl_vector *v, void *params); 
    double distortion_score_bond(const simple_restraint &bond_restraint,
 				    const gsl_vector *v); 
@@ -535,7 +549,7 @@ namespace coot {
 
       // print chi_squared values (after refinement)
       // return a string that can be added into a dialog.
-      std::pair<std::string, std::vector<std::pair<float, std::string> > > 
+      std::vector<refinement_lights_info_t>
       chi_squareds(std::string title, const gsl_vector *v) const;
 
       // all the alt confs should either be the same as each other or ""

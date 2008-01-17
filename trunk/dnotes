@@ -3661,3 +3661,24 @@ Thu Jan 17 10:14:18 GMT 2008
     tinker with a libglade project.
 
 
+-----
+Thu Jan 17 11:56:57 GMT 2008
+
+    ubuild, ie. without python out the box please.  
+    i.e. coot_wrap_python.cc needs to be not compiled somehow.
+
+   Priority: Important.
+
+
+----
+Thu Jan 17 16:27:11 GMT 2008
+
+
+   I was trying to find a map in the current dir and accidently went to a subdir.  I pressed 
+   -Current-Dir- to get back and got this
+
+** (lt-coot-real:3659): WARNING **: Widget not found: coords_fileselection1
+WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_func
+
+
+   Priority: Critical.
