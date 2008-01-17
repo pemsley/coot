@@ -558,12 +558,7 @@ graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const
 
 #if (GTK_MAJOR_VERSION > 1)
   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-    if (directory_for_filechooser != "") {
-      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
-					  directory_for_filechooser.c_str());
-    } else {
-      // std::cout << "not setting directory_for_fileselection" << std::endl;
-    }
+    set_directory_for_filechooser(fileselection);
   } else {
     if (directory_for_fileselection != "") {
 //       std::cout << "set directory_for_fileselection "
@@ -612,19 +607,21 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
 void
 graphics_info_t::save_directory_from_filechooser(const GtkWidget *fileselection) {
 
-   const gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+   gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
    directory_for_filechooser = coot::util::file_name_directory(filename);
    // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
    std::cout << "saved directory name: " << directory_for_filechooser << std::endl;
+   g_free(filename);
 }
 
 void
 graphics_info_t::save_directory_for_saving_from_filechooser(const GtkWidget *fileselection) {
 
-   const gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+   gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
    directory_for_saving_for_filechooser = coot::util::file_name_directory(filename);
    // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
-   std::cout << "saved directory name: " << directory_for_filechooser << std::endl;
+   std::cout << "saved directory name and filename: " << directory_for_filechooser <<" "<<filename << std::endl;
+   g_free(filename);
 }
 
 void
@@ -651,7 +648,7 @@ graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
 
 void
 graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
-   // just like set_directory_for_fileselection actually, but we give
+   // just like set_directory_for_filechooser actually, but we give
    // it the full filename, not just the directory.
 
    int imol = save_imol;
@@ -659,14 +656,21 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
       std::string stripped_name =
          graphics_info_t::molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
-      //       if (graphics_info_t::save_coordinates_in_original_dir_flag != 0)
+
       if (graphics_info_t::directory_for_saving_for_filechooser != "") {
-         full_name = directory_for_saving_for_filechooser + stripped_name;
+	full_name = directory_for_saving_for_filechooser + stripped_name;
       } else {
-         gchar *current_dir = g_get_current_dir();
-         full_name = g_build_filename(current_dir, stripped_name.c_str(), NULL);
-         directory_for_saving_for_fileselection = current_dir;
-         g_free(current_dir);
+	// if we have a directory in the fileselection path we take this
+	if (graphics_info_t::directory_for_saving_for_fileselection != "") {
+	  directory_for_saving_for_filechooser = graphics_info_t::directory_for_saving_for_fileselection;
+	  
+	} else {
+	  // otherwise we make one
+	  gchar *current_dir = g_get_current_dir();
+	  full_name = g_build_filename(current_dir, stripped_name.c_str(), NULL);
+	  directory_for_saving_for_filechooser = current_dir;
+	  g_free(current_dir);
+	}
       }
 
       std::cout << "INFO:: Setting fileselection with file: " << full_name
@@ -674,9 +678,14 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
       if (g_file_test(full_name.c_str(), G_FILE_TEST_EXISTS)) {
          gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileselection),
                                       full_name.c_str());
+	 // we shouldnt need to call set_current_name and the filename
+	 // should be automatically set in the entry field, but this seems
+	 // to be buggy at least on gtk+-2.0 v. 1.20.13
+	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
+					   stripped_name.c_str());
       } else {
          gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
-                                      directory_for_saving_for_fileselection.c_str());
+                                      directory_for_saving_for_filechooser.c_str());
          gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
                                       stripped_name.c_str());
       }

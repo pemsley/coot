@@ -8173,6 +8173,16 @@ on_save_coords_filechooserdialog1_confirm_overwrite
 					gpointer user_data)
 {
 
+  if (file_chooser_overwrite_state() == 1) {
+
+    return GTK_FILE_CHOOSER_CONFIRMATION_CONFIRM;
+
+  } else {
+
+    return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
+
+  }
+
 }
 #endif /* GTK_MAJOR_VERSION */
 
@@ -8185,16 +8195,14 @@ on_save_coords_filechooserdialog1_response
 {
 #if (GTK_MAJOR_VERSION > 1)
   if (response_id == GTK_RESPONSE_OK) {
-    GtkWidget *widget;
     char *stuff;
     GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog), "save_coords_filechooserdialog1");
 
-    widget = lookup_widget(GTK_WIDGET(dialog), "save_coords_filechooserdialog1");
     save_directory_for_saving_from_filechooser(fileselection);
-    stuff = gtk_object_get_user_data(GTK_OBJECT(widget));
-    save_coordinates_using_widget(widget);
+    stuff = gtk_object_get_user_data(GTK_OBJECT(fileselection));
+    save_coordinates_using_widget(fileselection);
     free(stuff);
-    gtk_widget_destroy(widget); 
+    gtk_widget_destroy(fileselection); 
   } else {
     GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog),
                                                 "save_coords_filechooserdialog1");
@@ -8304,6 +8312,16 @@ on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
 					gpointer user_data)
 {
 
+  if (file_chooser_overwrite_state() == 1) {
+
+    return GTK_FILE_CHOOSER_CONFIRMATION_CONFIRM;
+
+  } else {
+
+    return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
+
+  }
+
 }
 #endif /* GTK_MAJOR_VERSION */
 
@@ -8349,6 +8367,16 @@ on_save_state_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
 					gpointer user_data)
 {
+
+  if (file_chooser_overwrite_state() == 1) {
+
+    return GTK_FILE_CHOOSER_CONFIRMATION_CONFIRM;
+
+  } else {
+
+    return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
+
+  }
 
 }
 #endif /* GTK_MAJOR_VERSION */
@@ -8398,6 +8426,16 @@ on_screendump_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
 					gpointer user_data)
 {
+
+  if (file_chooser_overwrite_state() == 1) {
+
+    return GTK_FILE_CHOOSER_CONFIRMATION_CONFIRM;
+
+  } else {
+
+    return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
+
+  }
 
 }
 #endif /* GKT_MAJOR_VERSION */

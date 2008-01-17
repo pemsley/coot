@@ -26,6 +26,7 @@
 
 #ifdef USE_GUILE
 
+
 #if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 // no fix up needed 
 #else    
