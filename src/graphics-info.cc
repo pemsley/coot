@@ -135,23 +135,31 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    gtk_widget_show(frame);
 
    std::vector<std::pair<std::string, std::string> > boxes;
-   boxes.push_back(std::pair<std::string, std::string>("Bonds",                    "bonds_eventbox"));
-   boxes.push_back(std::pair<std::string, std::string>("Angles",                  "angles_eventbox"));
-   boxes.push_back(std::pair<std::string, std::string>("Torsions",              "torsions_eventbox"));
-   boxes.push_back(std::pair<std::string, std::string>("Planes",                  "planes_eventbox"));
-   boxes.push_back(std::pair<std::string, std::string>("Chirals",                "chirals_eventbox"));
-   boxes.push_back(std::pair<std::string, std::string>("Non-bonded", "non_bonded_contacts_eventbox"));
-   boxes.push_back(std::pair<std::string, std::string>("Rama", "                     rama_eventbox"));
+   boxes.push_back(std::pair<std::string, std::string>("Bonds",                    "bonds_"));
+   boxes.push_back(std::pair<std::string, std::string>("Angles",                  "angles_"));
+   boxes.push_back(std::pair<std::string, std::string>("Torsions",              "torsions_"));
+   boxes.push_back(std::pair<std::string, std::string>("Planes",                  "planes_"));
+   boxes.push_back(std::pair<std::string, std::string>("Chirals",                "chirals_"));
+   boxes.push_back(std::pair<std::string, std::string>("Non-bonded", "non_bonded_contacts_"));
+   boxes.push_back(std::pair<std::string, std::string>("Rama", "                     rama_"));
 
    for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
       // std::cout << "Lights for " << ref_results.lights[i_rest_type].second << std::endl;
       for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
-	 if (ref_results.lights[i_rest_type].second == boxes[ibox].first) {
-	    GtkWidget *w = lookup_widget(frame, boxes[ibox].second.c_str());
+	 if (ref_results.lights[i_rest_type].name == boxes[ibox].first) {
+	    std::string stub = boxes[ibox].second.c_str();
+	    std::string event_box_name = stub + "eventbox";
+	    GtkWidget *w = lookup_widget(frame, event_box_name.c_str());
 	    GtkWidget *p = w->parent;
-	    GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].first);
+	    GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].value);
 	    set_colour_accept_reject_event_box(w, color);
+
+	    std::string label_name = stub + "label";
+	    GtkWidget *label = lookup_widget(frame, label_name.c_str());
+	    gtk_label_set_text(GTK_LABEL(label), ref_results.lights[i_rest_type].label.c_str());
+	    
 	    gtk_widget_show(p);
+	    gtk_widget_show(label);
 	 }
       }
    }
@@ -1853,7 +1861,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
    if (accept_reject_dialog) {
-      if (saved_dragged_refinement_results.info != "") { 
+      if (saved_dragged_refinement_results.lights.size() > 0) { 
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);

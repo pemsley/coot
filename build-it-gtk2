@@ -1735,8 +1735,8 @@ date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-${guile_version}.tar.gz | tar xf -
 cd guile-${guile_version}
-patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.6.7-guile.c-patch
-patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.6.7-rpath.patch
+# patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.6.7-guile.c-patch
+# patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.6.7-rpath.patch
 # we need to pass CFLAGS and LDFLAGS because there is no --with-readline-prefix
 # arg to guile's configure
 ./configure $generic_prefix CFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib

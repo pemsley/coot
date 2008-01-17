@@ -13,8 +13,11 @@ Release 0.4 "Kendall"
      limits are no longer meaninful) [Dirk Kostrewa]
 
    o FEATURE: New environment variable COOT_SCHEME_EXTRA_DIR introduced. If the 
-     directory pointd to by COOT_SCHEME_EXTRA_DIR exists, then Coot
+     directory pointed to by COOT_SCHEME_EXTRA_DIR exists, then Coot
      will read all the .scm files in that directory
+
+     :::: CORRECTION ::::
+     That should be COOT_SCHEME_EXTRAS_DIR (note the extra "S").
 
    o FEATURE: Cis-peptide GUI added to extensions
 
