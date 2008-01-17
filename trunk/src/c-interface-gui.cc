@@ -777,7 +777,7 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
   gtk_file_filter_set_name (filterall, "all-files");
   gtk_file_filter_add_pattern (filterall, "*");
       
-  if (d == COOT_COORDS_FILE_SELECTION) {
+  if (d == COOT_COORDS_FILE_SELECTION || d == COOT_SAVE_COORDS_FILE_SELECTION) {
 
     gtk_file_filter_set_name (filterselect, "coordinate-files");
 
@@ -1311,7 +1311,8 @@ GtkWidget *coot_save_coords_chooser() {
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_save_coords_fileselection1();
    } else {
-      w = create_save_coords_filechooserdialog1(); 
+      w = create_save_coords_filechooserdialog1();
+      gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    }
 #endif
    return w;
@@ -1360,6 +1361,7 @@ GtkWidget *coot_save_state_chooser() {
       w = create_save_state_fileselection();
    } else {
       w = create_save_state_filechooserdialog1(); 
+      gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    }
 #endif
    return w;
@@ -1376,6 +1378,7 @@ GtkWidget *coot_save_symmetry_chooser() {
       w = create_save_symmetry_coords_fileselection();
    } else {
       w = create_save_symmetry_coords_filechooserdialog1();
+      gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    }
 #endif
    return w;
@@ -1391,7 +1394,8 @@ GtkWidget *coot_screendump_chooser() {
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_screendump_fileselection();
    } else {
-     w = create_screendump_filechooserdialog1(); 
+      w = create_screendump_filechooserdialog1(); 
+      gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    }
 #endif
    return w;
@@ -2946,13 +2950,13 @@ void set_file_for_save_fileselection(GtkWidget *fileselection) {
    graphics_info_t g;
    bool no_chooser = 1;
 #if (GTK_MAJOR_VERSION > 1)
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+   if (g.gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       no_chooser = 0;
       g.set_file_for_save_filechooser(fileselection);
    }
 #endif
    if (no_chooser) {
-     g.set_file_for_save_fileselection(fileselection);
+      g.set_file_for_save_fileselection(fileselection);
    }
 }
 
@@ -3482,7 +3486,7 @@ void set_filename_for_filechooserselection(GtkWidget *fileselection,
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       chooser = 1;
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
-					filename);
+					filename);     
    }
 #endif
 

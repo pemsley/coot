@@ -456,8 +456,8 @@ SCM ncs_chain_differences_scm(int imol, const char *master_chain_id) {
 						  cd.residue_info[iresinf].target_inscode);
 		  SCM res_l = SCM_EOL;
 		  res_l = scm_cons(scm_double2num(cd.residue_info[iresinf].mean_diff), res_l);
-		  res_l = scm_cons(scm_cdr(scm_residue(target_res)), res_l);
-		  res_l = scm_cons(scm_cdr(scm_residue(this_res)), res_l);
+//		  res_l = scm_cons(scm_cdr(scm_residue(target_res)), res_l);
+//		  res_l = scm_cons(scm_cdr(scm_residue(this_res)), res_l);
 		  l_residue_data = scm_cons(res_l, l_residue_data);
 	       }
 	       r = scm_cons(l_residue_data, SCM_EOL);
