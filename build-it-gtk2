@@ -1118,7 +1118,7 @@ build_gsl=0
 # build_imlib=0
 # build_gtk_canvas=0
 build_guile_gtk=0
-# build_gtkglarea=0
+build_gtkglext=0
 build_freeglut=0
 
 # In Gtk2, we presume that glib, gtk2 and gnomecanvas are available.  
@@ -1188,7 +1188,7 @@ build_libtool=1
 if test -e ${install_top_dir}/lib/libltdl.so.3 ; then
     build_libtool=
 fi
-if test -z "$build_readline" ; then
+if test -z "$build_libtool" ; then
     echo installation has libtool
 else 
     echo libtool should be built
@@ -1351,13 +1351,20 @@ fi
 
 
 # ##############################################################
-#   Gtk Canvas
+#   GtkGLExt
 # ##############################################################
 
-# gtk canvas
-# We don't check the system for gtk-canvas, just the installation.
-# (this means that the builder makes gtk-canvas and it is not
-# an irritating fink dependency for Mac users)
+build_gtkglext=1
+if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
+    build_gtkglext=
+fi
+if test -z "$build_gtkglext" ; then
+    echo installation has gtkglext
+else 
+    echo gtkglext should be built
+fi
+
+
 
 # guile-gtk, only look in installation, not system.
 for dir in ${install_top_dir} ; do
@@ -1668,6 +1675,26 @@ else
 fi
 
 
+if test -n "$build_gtkglext" ; then
+    echo BUILDING gtkglext:
+    gtkglext_version=1.2.0
+    ${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
+    (date
+     pwd
+     gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
+     cd gtkglext-$gtkglext_version
+     ./configure $generic_prefix
+     $MAKE
+    status=$?
+    if [ "$status" != 0 ] ; then
+       echo make of gtkglext failed
+    else
+       $MAKE install
+    fi
+    ) > $HOSTLOGDIR/08-pre-gtkglext.txt 2>&1
+else
+    echo not building gtkglext:
+fi 
 
 
 # So that python is found when it is installed:
