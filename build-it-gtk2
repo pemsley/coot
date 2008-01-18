@@ -198,7 +198,8 @@
 # 2.35 20071215 Python settings outside the subshell.
 # 2.36 20071219 Set up for testing and tars on biop too.
 # 3.00 20080108 Gtk+-2 version
-script_version=3.0
+# 3.01 20080118 Add GtkGlExt
+script_version=3.01
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -563,7 +564,7 @@ fi
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
 exec > $LOGS/$HOST.log
-echo This is script version $script_version
+echo This is script version $script_version for Gtk2 
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
 if [ $HOST = batman ] ; then
@@ -2129,12 +2130,17 @@ fi
 # consider getting rid of $shared_static_flag, which does a --disable-shared.
 # i.e. we should keep and use shared libs
 
+# This allows standard pkg-config to find gtkglext:
+PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+export PKG_CONFIG_PATH
+
 echo building in: $PWD
 echo ./configure $coot_prefix \
    --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
+      --with-gtkgl-prefix=$install_top_dir \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
@@ -2147,6 +2153,7 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
+      --with-gtkgl-prefix=$install_top_dir \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
