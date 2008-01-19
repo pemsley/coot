@@ -200,12 +200,23 @@ coot::db_main::make_cov_matrix(const std::vector<clipper::Coord_orth> &frag_coor
       sum[2] += frag_coord[i].z(); 
    }
 
-   clipper::Coord_orth mean_pos(sum[0]/frag_coord.size(), 
-				sum[1]/frag_coord.size(), 
-				sum[2]/frag_coord.size());
+   clipper::Coord_orth mean_pos(sum[0]/float(frag_coord.size()), 
+				sum[1]/float(frag_coord.size()), 
+				sum[2]/float(frag_coord.size()));
    // this is symmetric, isn't it?
-   // 
-   for (unsigned int i=0; i<frag_coord.size(); i++) { 
+   //
+//    std::cout << "Adding " << frag_coord.size() << " coords diffs to covmatrix "
+// 	     << std::endl;
+   for (unsigned int i=0; i<frag_coord.size(); i++) {
+//       std::cout << "was " << mat(0,0) << " "; 
+//       std::cout << mat(0,1) << " "; 
+//       std::cout << mat(0,1) << std::endl; 
+//       std::cout << "was " << mat(1,0) << " "; 
+//       std::cout << mat(1,1) << " "; 
+//       std::cout << mat(1,1) << std::endl; 
+//       std::cout << "was " << mat(2,0) << " "; 
+//       std::cout << mat(2,1) << " "; 
+//       std::cout << mat(2,1) << std::endl; 
       mat(0,0) += (frag_coord[i].x() - mean_pos.x()) * 
                   (frag_coord[i].x() - mean_pos.x()); 
       mat(0,1) += (frag_coord[i].x() - mean_pos.x()) * 
@@ -226,6 +237,14 @@ coot::db_main::make_cov_matrix(const std::vector<clipper::Coord_orth> &frag_coor
                   (frag_coord[i].z() - mean_pos.z());
    }
 
+//    for (int i=0; i<3; i++) {
+//       std::cout << "| ";
+//       for (int j=0; j<3; j++) {
+// 	 std::cout << mat(i,j) << "  ";
+//       }
+//       std::cout << "|" << std::endl;
+//    }
+//    std::cout << std::endl;
    return mat;
 }
 
@@ -552,10 +571,10 @@ coot::db_main::similar_eigens(float tolerance_frac,
 			const std::vector<float> &target, 
 			const std::vector<float> &frag) const { 
 
-//    std::cout << "comparing " << target[0] << "  " << target[1] << "  "
-// 	     << target[2] << std::endl; 
-//    std::cout << "with      " << frag[0] << "  " << frag[1] << "  "
-//  	     << frag[2] << std::endl; 
+//     std::cout << "comparing " << target[0] << "  " << target[1] << "  "
+//  	     << target[2] << std::endl; 
+//     std::cout << "with      " << frag[0] << "  " << frag[1] << "  "
+//   	     << frag[2] << std::endl; 
    
    short int sim = 1;
    for (unsigned int i=0; i<target.size(); i++) {
@@ -680,6 +699,24 @@ coot::db_main::pull_db_residue(const coot::db_fitting_result &fit, int ipos) con
    
    return res;
 }
+
+coot::minimol::fragment
+coot::db_main::pull_db_fragment(const coot::main_fragment_t &dbfit, int ilength) {
+   
+   int imolno = dbfit.molecule_number;
+   int frag_start_res = dbfit.i_start_res();
+   std::string chain_id = dbfit.segment_id;
+
+   coot::minimol::fragment f(chain_id);
+      
+
+   for (int ipos=0; ipos<ilength; ipos++) {
+      coot::minimol::residue res = molecule_list[imolno][0][frag_start_res+ipos];
+      f.addresidue(res, 0);
+   }
+   return f;
+}
+
 
 coot::minimol::residue
 coot::weighted_residue::pull_residue() const {
@@ -854,15 +891,77 @@ coot::db_main::clear_results() {
 
 
 
-
-// ----------------------- Pepflip extras --------------------
+// --------------------------------------------------------------------------
+//        ----------------------- Pepflip extras --------------------
+// --------------------------------------------------------------------------
+// 
 void
 coot::db_main::match_targets_for_pepflip(const minimol::fragment &target_ca_coords_5_res_frag) {
 
    std::vector<coot::minimol::fragment> fits;
+   float devi;
+   int ilength = 5;
+   std::vector<clipper::Coord_orth> target_ca;
+   std::cout << "Running over target fragment, getting CA vector from "
+	     << target_ca_coords_5_res_frag.min_res_no() << " to "
+	     << target_ca_coords_5_res_frag.max_residue_number()
+	     << std::endl;
+   
+   for (int ires=target_ca_coords_5_res_frag.min_res_no();
+	ires<=target_ca_coords_5_res_frag.max_residue_number();
+	ires++) {
+      std::cout << "     in CA vector " << ires << " "
+		<< target_ca_coords_5_res_frag[ires] << std::endl;
+      for (unsigned int iat=0; iat<target_ca_coords_5_res_frag[ires].atoms.size();
+	   iat++) {
+	 if (target_ca_coords_5_res_frag[ires][iat].name == " CA ") {
+	    target_ca.push_back(target_ca_coords_5_res_frag[ires][iat].pos);
+	 }
+      }
+   }
 
+   // std::cout << "atom_count for vect: " << target_ca.size() << std::endl;
+   if (target_ca.size() == 5) { 
+      clipper::Matrix<float> mat = make_cov_matrix(target_ca);
+      std::vector<float> target_eigens = mat.eigen( true );
+      std::cout << "Eigens: "
+		<< target_eigens[0] << " "
+		<< target_eigens[1] << " "
+		<< target_eigens[2] << " " << std::endl;
+      for (unsigned int j=0; j<target_eigens.size(); j++)
+	 target_eigens[j] = sqrt(target_eigens[j]);
 
+      float best_devi = 9999999.9;
+      for (unsigned int i=0; i<mainchain_frag_db.size(); i++) { // several 1000s.
 
+	 if (similar_eigens(0.4, target_eigens,
+			    mainchain_frag_db[i].sqrt_eigen_values)) {
+	    // std::cout << "eigens OK" << std::endl;
+	    std::vector<clipper::Coord_orth> mcfca =
+	       mainchain_ca_coords_of_db_frag(i, ilength);
+
+	    // and get devi
+	    if (int(mcfca.size()) == ilength ) {
+	       if (int(target_ca.size()) == ilength) {
+		  clipper::RTop_orth rtop(mcfca, target_ca);
+		  coot::minimol::fragment db_fragment =
+		     pull_db_fragment(mainchain_frag_db[i], ilength);
+		  db_fragment.transform(rtop);
+		  float this_devi = deviance(mcfca, target_ca, rtop);
+		  std::cout << "d: " << this_devi << "\n";
+		  if (this_devi < best_devi)
+		     best_devi = this_devi;
+		  fits.push_back(db_fragment);
+	       } else {
+		  std::cout << "wrong target ca size" << std::endl;
+	       }
+	    }
+	 }
+      }
+      std::cout << "best devi: " << best_devi << std::endl;
+   }
+   std::cout << "Generated " << fits.size() << " fits from "
+	     << mainchain_frag_db.size() << " candiates" << std::endl;
    pepflip_fragments = fits;
 }
 
@@ -871,4 +970,27 @@ coot::db_main::match_targets_for_pepflip(const minimol::fragment &target_ca_coor
 void
 coot::db_main::mid_oxt_outliers(const clipper::Coord_orth &my_peptide_oxt_pos, float cutoff) {
 
+   for (unsigned int ifit=0; ifit<pepflip_fragments.size(); ifit++) {
+
+      int rescount=0;
+      for (int ires=pepflip_fragments[ifit].min_res_no();
+	   ires<=pepflip_fragments[ifit].max_residue_number();
+	   ires++) {
+	 if (pepflip_fragments[ifit][ires].atoms.size() > 0) {
+	       rescount++;
+	 }
+	 if (rescount==3) {
+	    for (unsigned int iat=0; iat<pepflip_fragments[ifit][ires].atoms.size();
+		 iat++) {
+	       if (pepflip_fragments[ifit][ires][iat].name == " O  ") {
+
+		  float l = clipper::Coord_orth::length(my_peptide_oxt_pos,
+							pepflip_fragments[ifit][ires][iat].pos);
+		  std::cout << "o_devi: " << l << std::endl;
+		  break;
+	       }
+	    }
+	 }
+      } 
+   }
 }

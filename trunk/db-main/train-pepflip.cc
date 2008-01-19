@@ -32,8 +32,31 @@ public:
 generate_fragments_t
 make_target_5_res_frag(const coot::minimol::fragment &tf, int ires_start) {
 
+   coot::minimol::fragment f;
    generate_fragments_t g;
-
+   g.have_oxt = 0;
+   for (int ii=0; ii<5; ii++) {
+      int ires = ii+ires_start;
+      coot::minimol::residue r(ires);
+      int natoms = tf[ires].atoms.size();
+      // std::cout << tf[ires] << std::endl;
+      for (int iat=0; iat<natoms; iat++) {
+	 // std::cout << tf[ires][iat] << std::endl;
+	 if (tf[ires][iat].name == " CA ") {
+	    r.addatom(tf[ires][iat]);
+	 }
+	 if (ii==2) { 
+	    if (tf[ires][iat].name == " O  ") {
+	       g.ox_pos = tf[ires][iat].pos;
+	       g.have_oxt = 1;
+	    }
+	 }
+      }
+      std::cout << " in make_target_5_res_frag adding residue with seqnum: "
+		<< r.seqnum << std::endl;
+      f.addresidue(r, 0);
+   }
+   g.five_residues_as_cas = f;
    return g;
 }
 
@@ -75,10 +98,10 @@ main(int argc, char **argv) {
 
       if (target_all_coords[ifrag].fragment_id == chain_id) { 
 
-	 for (int i=iresno_start; (i+5)<=iresno_end; i++) {
-
+	 for (int ires=iresno_start; (ires+5)<=iresno_end; ires++) {
+	    std::cout << "---------------------------------------" << std::endl;
 	    generate_fragments_t frag_info =
-	       make_target_5_res_frag(target_all_coords[ifrag], iresno_start);
+	       make_target_5_res_frag(target_all_coords[ifrag], ires);
 	    
 	    if (frag_info.five_residues_as_cas.n_filled_residues() > 0) {
 
@@ -86,7 +109,9 @@ main(int argc, char **argv) {
 
 		  // load up an internal vector of fragments that have been
 		  // rtop onto this target_ca_coords_5_res_frag
-		  // 
+		  //
+		  std::cout << "Inner Matching to target starting at " << ires
+			    << std::endl;
 		  main_chain.match_targets_for_pepflip(frag_info.five_residues_as_cas);
 
 		  float cutoff = 0.2;
