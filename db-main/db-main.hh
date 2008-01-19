@@ -178,8 +178,10 @@ namespace coot {
       // helper function for merge_fragments:
       float weight_pos_in_frag(int ipos, int ilength) const;
       // 
-      coot::minimol::residue pull_db_residue(const coot::db_fitting_result &res,
+      minimol::residue pull_db_residue(const coot::db_fitting_result &res,
 					     int ipos) const;
+
+      minimol::fragment pull_db_fragment(const coot::main_fragment_t &res, int ilength);
 
 
       // Pepflip extras:
