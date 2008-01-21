@@ -2221,741 +2221,531 @@
 	  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
 	  <child>
-	    <widget class="GtkToolbar" id="model_toolbar">
+	    <widget class="GtkHandleBox" id="handlebox1">
 	      <property name="visible">True</property>
-	      <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
-	      <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>
-	      <property name="tooltips">True</property>
-	      <property name="show_arrow">True</property>
+	      <property name="shadow_type">GTK_SHADOW_OUT</property>
+	      <property name="handle_position">GTK_POS_TOP</property>
+	      <property name="snap_edge">GTK_POS_RIGHT</property>
 
 	      <child>
-		<widget class="GtkToolItem" id="toolitem4">
+		<widget class="GtkToolbar" id="model_toolbar">
+		  <property name="border_width">3</property>
 		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
+		  <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+		  <property name="toolbar_style">GTK_TOOLBAR_ICONS</property>
+		  <property name="tooltips">True</property>
+		  <property name="show_arrow">False</property>
+		  <signal name="style_changed" handler="on_model_toolbar_style_changed" last_modification_time="Thu, 17 Jan 2008 13:08:49 GMT"/>
 
 		  <child>
-		    <widget class="GtkButton" id="model_toolbar_refine_control_button">
+		    <widget class="GtkToolItem" id="toolitem4">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Refine/Regularize Control...</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">R/RC</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
-		      <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked"/>
-		    </widget>
-		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 
-	      <child>
-		<widget class="GtkToolItem" id="toolitem5">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
+		      <child>
+			<widget class="GtkButton" id="model_toolbar_refine_control_button">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Refine/Regularize Control...</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">R/RC</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">False</property>
+			  <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked"/>
+			</widget>
+		      </child>
+		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
+		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="model_toolbar_select_map_button">
+		    <widget class="GtkToolItem" id="toolitem5">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Select Map...</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Map</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
-		      <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked"/>
-		    </widget>
-		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 
-	      <child>
-		<widget class="GtkToolItem" id="toolitem6">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
+		      <child>
+			<widget class="GtkButton" id="model_toolbar_select_map_button">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Select Map...</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">Map</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">False</property>
+			  <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked"/>
+			</widget>
+		      </child>
+		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
+		  </child>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_refine_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_refine_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Real Space Refine Zone</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Real Space Refine Zone</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">refine-1.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_refine_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5599">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">refine-1.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_refine_togglebutton_toggled" last_modification_time="Thu, 17 Jan 2008 13:32:30 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem7">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_regularize_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_regularize_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Send in the Bond Angels!    Ahem, I mean &quot;Regularize Zone (click 2 atoms)&quot;</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Regularize Zone</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">regularize-1.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_regularize_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5600">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">regularize-1.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_regularize_togglebutton_toggled" last_modification_time="Thu, 17 Jan 2008 15:28:49 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem8">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_rigid_body_fit_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_rigid_body_fit_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Rigid Body Fit Zone (click on 2 atoms)</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Rigid Body Fit Zone</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">rigid-body.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5601">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">rigid-body.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 15:31:30 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem9">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_rot_trans_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_rot_trans_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Rotate/Translate Zone...</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Rigid Body Fit Zone</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">rtz.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_rot_trans_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5602">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">rtz.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_rot_trans_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:10:48 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem10">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_auto_fit_rotamer_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_auto_fit_rotamer_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Auto Fit Rotamer (click on an atom)</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Auto Fit Rotamer</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">auto-fit-rotamer.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_auto_fit_rotamer_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5603">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">auto-fit-rotamer.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_auto_fit_rotamer_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:13:12 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem12">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_rotamers_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_rotamers_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Rotamers... (click on an atom)</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Rotamers...</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">rotamers.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_rotamers_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5604">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">rotamers.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_rotamers_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:14:37 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem11">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_edit_chi_angles_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_edit_chi_angles_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Edit Chi Angles (click on an atom)</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Edit Chi Angles</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">edit-chi.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5605">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">edit-chi.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:15:41 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem13">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_flip_peptide_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_flip_peptide_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Flip peptide... (click on an atom)</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Flip Peptide</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">flip-peptide.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_flip_peptide_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5606">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">flip-peptide.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_flip_peptide_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:17:03 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem14">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_sidechain_180_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_sidechain_180_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Flip sidechain 180 degrees (click on an atom)</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes"> Sidechain 180 Degree Flip</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">side-chain-180.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_sidechain_180_togglebutton_toggled"/>
+		      <signal name="toggled" handler="on_model_toolbar_sidechain_180_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:18:08 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkToolItem" id="toolitem15">
+		      <property name="visible">True</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 
 		      <child>
-			<widget class="GtkImage" id="image5607">
+			<widget class="GtkHSeparator" id="hseparator13">
+			  <property name="height_request">13</property>
 			  <property name="visible">True</property>
-			  <property name="pixbuf">side-chain-180.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
 			</widget>
 		      </child>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem15">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkHSeparator" id="hseparator13">
-		      <property name="height_request">13</property>
-		      <property name="visible">True</property>
-		    </widget>
-		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem16">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
-
-		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_mutate_and_autofit_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_mutate_and_autofit_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Mutate &amp; AutoFit... (click on an atom)</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Mutate &amp; Auto Fit...</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">mutate-auto-fit.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_mutate_and_autofit_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5986">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">mutate-auto-fit.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_mutate_and_autofit_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:19:26 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem17">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_simple_mutate_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_simple_mutate_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
+		      <property name="label" translatable="yes">Simple Mutate...</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">mutate.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_simple_mutate_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5987">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">mutate.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_simple_mutate_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:20:51 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem18">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkButton" id="model_toolbar_find_water_button">
+		    <widget class="GtkToolButton" id="model_toolbar_find_water_button">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Solvate...</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
-		      <signal name="clicked" handler="on_model_toolbar_find_water_button_clicked"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5614">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">add-water.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <property name="label" translatable="yes">Find Waters...</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">add-water.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+		      <signal name="clicked" handler="on_model_toolbar_find_water_button_clicked" last_modification_time="Fri, 18 Jan 2008 14:21:56 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem19">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkToggleButton" id="model_toolbar_add_terminal_residue_togglebutton">
+		    <widget class="GtkToggleToolButton" id="model_toolbar_add_terminal_residue_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Add Residue...</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
+		      <property name="label" translatable="yes">Add Terminal Residue...</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">add-peptide-1.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <signal name="toggled" handler="on_model_toolbar_add_terminal_residue_togglebutton_toggled"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5608">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">add-peptide-1.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="toggled" handler="on_model_toolbar_add_terminal_residue_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:22:44 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem20">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkButton" id="model_toolbar_add_atom_button">
+		    <widget class="GtkToolButton" id="model_toolbar_add_atom_button">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Place Atom at Pointer...</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
-		      <signal name="clicked" handler="on_model_toolbar_add_atom_button_clicked"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5609">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">atom-at-pointer.svg</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <property name="label" translatable="yes">Place Atom At Pointer</property>
+		      <property name="use_underline">True</property>
+		      <property name="icon">atom-at-pointer.svg</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+		      <signal name="clicked" handler="on_model_toolbar_add_atom_button_clicked" last_modification_time="Fri, 18 Jan 2008 14:24:30 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem21">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkButton" id="model_toolbar_clear_pending_picks_button">
+		    <widget class="GtkToolButton" id="model_toolbar_clear_pending_picks_button">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Clear Pending Picks</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
-		      <signal name="clicked" handler="on_model_toolbar_clear_pending_picks_button_clicked"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5610">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-clear</property>
-			  <property name="icon_size">4</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <property name="label" translatable="yes">Clear Pending Picks</property>
+		      <property name="use_underline">True</property>
+		      <property name="stock_id">gtk-clear</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+		      <signal name="clicked" handler="on_model_toolbar_clear_pending_picks_button_clicked" last_modification_time="Fri, 18 Jan 2008 14:26:08 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem22">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkButton" id="model_toolbar_delete_button">
+		    <widget class="GtkToolButton" id="model_toolbar_delete_button">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Delete Item...</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
-		      <signal name="clicked" handler="on_model_toolbar_delete_button_clicked"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5611">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-delete</property>
-			  <property name="icon_size">4</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <property name="label" translatable="yes">Delete...</property>
+		      <property name="use_underline">True</property>
+		      <property name="stock_id">gtk-delete</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+		      <signal name="clicked" handler="on_model_toolbar_delete_button_clicked" last_modification_time="Fri, 18 Jan 2008 14:27:18 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem23">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkButton" id="model_toolbar_undo_button">
+		    <widget class="GtkToolButton" id="model_toolbar_undo_button">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Undo</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
-		      <signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
-
-		      <child>
-			<widget class="GtkImage" id="image5612">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-undo</property>
-			  <property name="icon_size">4</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <property name="label" translatable="yes">Undo</property>
+		      <property name="use_underline">True</property>
+		      <property name="stock_id">gtk-undo</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+		      <signal name="clicked" handler="on_model_toolbar_undo_button_clicked" last_modification_time="Fri, 18 Jan 2008 16:47:29 GMT"/>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkToolItem" id="toolitem24">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
 
 		  <child>
-		    <widget class="GtkButton" id="model_toolbar_redo_button">
+		    <widget class="GtkToolButton" id="model_toolbar_redo_button">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Redo</property>
-		      <property name="can_focus">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">False</property>
-		      <signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
+		      <property name="label" translatable="yes">Redo</property>
+		      <property name="use_underline">True</property>
+		      <property name="stock_id">gtk-redo</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+		      <signal name="clicked" handler="on_model_toolbar_redo_button_clicked" last_modification_time="Fri, 18 Jan 2008 14:29:18 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkToolItem" id="toolitem25">
+		      <property name="visible">True</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
 
 		      <child>
-			<widget class="GtkImage" id="image5613">
+			<widget class="GtkHSeparator" id="hseparator14">
+			  <property name="height_request">15</property>
 			  <property name="visible">True</property>
-			  <property name="stock">gtk-redo</property>
-			  <property name="icon_size">4</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
 			</widget>
 		      </child>
 		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkToolItem" id="toolitem29">
+		      <property name="visible">True</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+
+		      <child>
+			<widget class="GtkMenuBar" id="model_toolbar_menubar1">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Use this to change between text, icons or both</property>
+			  <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
+			  <property name="pack_direction">GTK_PACK_DIRECTION_RTL</property>
+
+			  <child>
+			    <widget class="GtkImageMenuItem" id="model_toolbar_setting1">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes"> </property>
+			      <property name="use_underline">True</property>
+			      <signal name="activate" handler="on_model_toolbar_setting1_activate" last_modification_time="Fri, 18 Jan 2008 13:36:15 GMT"/>
+
+			      <child internal-child="image">
+				<widget class="GtkImage" id="image6028">
+				  <property name="visible">True</property>
+				  <property name="stock">gtk-media-play</property>
+				  <property name="icon_size">1</property>
+				  <property name="xalign">0.5</property>
+				  <property name="yalign">0.5</property>
+				  <property name="xpad">0</property>
+				  <property name="ypad">0</property>
+				</widget>
+			      </child>
+
+			      <child>
+				<widget class="GtkMenu" id="model_toolbar_setting1_menu">
+				  <property name="visible">True</property>
+
+				  <child>
+				    <widget class="GtkRadioMenuItem" id="model_toolbar_icons1">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">Icons</property>
+				      <property name="use_underline">True</property>
+				      <property name="active">True</property>
+				      <signal name="activate" handler="on_model_toolbar_icons1_activate" last_modification_time="Fri, 18 Jan 2008 13:34:27 GMT"/>
+				    </widget>
+				  </child>
+
+				  <child>
+				    <widget class="GtkRadioMenuItem" id="model_toolbar_text1">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">Text</property>
+				      <property name="use_underline">True</property>
+				      <property name="active">False</property>
+				      <property name="group">model_toolbar_icons1</property>
+				      <signal name="activate" handler="on_model_toolbar_text1_activate" last_modification_time="Fri, 18 Jan 2008 13:34:57 GMT"/>
+				    </widget>
+				  </child>
+
+				  <child>
+				    <widget class="GtkRadioMenuItem" id="model_toolbar_icons_and_text1">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">Icons and text</property>
+				      <property name="use_underline">True</property>
+				      <property name="active">False</property>
+				      <property name="group">model_toolbar_icons1</property>
+				      <signal name="activate" handler="on_model_toolbar_icons_and_text1_activate" last_modification_time="Fri, 18 Jan 2008 13:53:17 GMT"/>
+				    </widget>
+				  </child>
+				</widget>
+			      </child>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+		    </widget>
+		    <packing>
+		      <property name="expand">True</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
 		  </child>
 		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
 	      </child>
 	    </widget>
 	  </child>
@@ -41069,7 +40859,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="local_only">True</property>
   <property name="select_multiple">False</property>
   <property name="show_hidden">False</property>
-  <property name="do_overwrite_confirmation">False</property>
+  <property name="do_overwrite_confirmation">True</property>
   <property name="title" translatable="yes">Select Filename for Saved Coordinates </property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>

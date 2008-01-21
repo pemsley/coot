@@ -7646,6 +7646,18 @@ on_checked_waters_baddies_dialog_destroy
 
 
 void
+on_model_toolbar_style_changed         (GtkToolbar      *toolbar,
+                                        GtkToolbarStyle  style,
+                                        gpointer         user_data)
+{
+
+  /* this does not do anything and doesnt need to */
+
+
+}
+
+
+void
 on_model_toolbar_refine_control_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
@@ -7666,10 +7678,11 @@ on_model_toolbar_select_map_button_clicked
 
 void
 on_model_toolbar_refine_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active)
     do_refine(1);
   else 
     do_refine(0);		/* unclick button */
@@ -7679,10 +7692,11 @@ on_model_toolbar_refine_togglebutton_toggled
 
 void
 on_model_toolbar_regularize_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active)
     do_regularize(1);
   else 
     do_regularize(0);		/* unclick button */
@@ -7691,10 +7705,11 @@ on_model_toolbar_regularize_togglebutton_toggled
 
 void
 on_model_toolbar_rigid_body_fit_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active) { 
     printf("Rigid Body:\n");
     do_rigid_body_refine(1);
   } else {
@@ -7705,10 +7720,11 @@ on_model_toolbar_rigid_body_fit_togglebutton_toggled
 
 void
 on_model_toolbar_rot_trans_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-   if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
+   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+   if (active) { 
     do_rot_trans_setup(1);
   } else {
     do_rot_trans_setup(0);
@@ -7719,10 +7735,11 @@ on_model_toolbar_rot_trans_togglebutton_toggled
 
 void
 on_model_toolbar_auto_fit_rotamer_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active)
      setup_auto_fit_rotamer(1);
   else 
     setup_auto_fit_rotamer(0);
@@ -7731,10 +7748,11 @@ on_model_toolbar_auto_fit_rotamer_togglebutton_toggled
 
 void
 on_model_toolbar_rotamers_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-   if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+   if (active)
       setup_rotamers(1);
    else 
       setup_rotamers(0);
@@ -7743,10 +7761,11 @@ on_model_toolbar_rotamers_togglebutton_toggled
 
 void
 on_model_toolbar_edit_chi_angles_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  if (togglebutton->active) {
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active) {
     setup_edit_chi_angles(1);
   } else { 
     setup_edit_chi_angles(0);
@@ -7757,11 +7776,11 @@ on_model_toolbar_edit_chi_angles_togglebutton_toggled
 
 void
 on_model_toolbar_flip_peptide_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-
-  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active)
     do_pepflip(1);
   else 
      do_pepflip(0);
@@ -7770,10 +7789,11 @@ on_model_toolbar_flip_peptide_togglebutton_toggled
 
 void
 on_model_toolbar_sidechain_180_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  if (togglebutton->active)
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active)
     setup_180_degree_flip(1);
   else 
     setup_180_degree_flip(0);
@@ -7782,10 +7802,11 @@ on_model_toolbar_sidechain_180_togglebutton_toggled
 
 void
 on_model_toolbar_mutate_and_autofit_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active)
     setup_mutate_auto_fit(1);
   else 
      setup_mutate_auto_fit(0);
@@ -7794,10 +7815,11 @@ on_model_toolbar_mutate_and_autofit_togglebutton_toggled
 
 void
 on_model_toolbar_simple_mutate_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-   if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+   gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+   if (active)
       setup_mutate(1);
    else 
       setup_mutate(0);
@@ -7817,10 +7839,11 @@ on_model_toolbar_find_water_button_clicked
 
 void
 on_model_toolbar_add_terminal_residue_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
-  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active)
     do_add_terminal_residue(1);
   else 
     do_add_terminal_residue(0);
@@ -7868,6 +7891,63 @@ on_model_toolbar_redo_button_clicked   (GtkButton       *button,
 {
   apply_redo();
 }
+
+
+void
+on_model_toolbar_icons_and_text1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+    gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ); 
+  }
+
+}
+
+
+void
+on_model_toolbar_icons1_activate       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+    gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS); 
+  }
+
+}
+
+
+void
+on_model_toolbar_text1_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+    gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT); 
+  }
+
+}
+
+
+void
+on_model_toolbar_setting1_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  /* I dont think anything needs to happen here */
+
+}
+
+
+void
+on_model_toolbar_menutoolbutton1_show_menu
+                                        (GtkMenuToolButton *menutoolbutton,
+                                        gpointer         user_data)
+{
+  /* I dont think anything needs to happen here */
+
+}
+
 
 void
 on_scripting_python1_activate          (GtkMenuItem     *menuitem,

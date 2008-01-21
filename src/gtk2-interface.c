@@ -254,67 +254,44 @@ create_window1 (void)
   GtkWidget *main_window_graphics_hbox;
   GtkWidget *main_window_statusbar;
   GtkWidget *main_window_model_fit_dialog_frame;
+  GtkWidget *handlebox1;
   GtkWidget *model_toolbar;
   GtkWidget *toolitem4;
   GtkWidget *model_toolbar_refine_control_button;
   GtkWidget *toolitem5;
   GtkWidget *model_toolbar_select_map_button;
-  GtkWidget *toolitem6;
+  GtkWidget *tmp_image;
   GtkWidget *model_toolbar_refine_togglebutton;
-  GtkWidget *image5599;
-  GtkWidget *toolitem7;
   GtkWidget *model_toolbar_regularize_togglebutton;
-  GtkWidget *image5600;
-  GtkWidget *toolitem8;
   GtkWidget *model_toolbar_rigid_body_fit_togglebutton;
-  GtkWidget *image5601;
-  GtkWidget *toolitem9;
   GtkWidget *model_toolbar_rot_trans_togglebutton;
-  GtkWidget *image5602;
-  GtkWidget *toolitem10;
   GtkWidget *model_toolbar_auto_fit_rotamer_togglebutton;
-  GtkWidget *image5603;
-  GtkWidget *toolitem12;
   GtkWidget *model_toolbar_rotamers_togglebutton;
-  GtkWidget *image5604;
-  GtkWidget *toolitem11;
   GtkWidget *model_toolbar_edit_chi_angles_togglebutton;
-  GtkWidget *image5605;
-  GtkWidget *toolitem13;
   GtkWidget *model_toolbar_flip_peptide_togglebutton;
-  GtkWidget *image5606;
-  GtkWidget *toolitem14;
   GtkWidget *model_toolbar_sidechain_180_togglebutton;
-  GtkWidget *image5607;
   GtkWidget *toolitem15;
   GtkWidget *hseparator13;
-  GtkWidget *toolitem16;
   GtkWidget *model_toolbar_mutate_and_autofit_togglebutton;
-  GtkWidget *image5986;
-  GtkWidget *toolitem17;
   GtkWidget *model_toolbar_simple_mutate_togglebutton;
-  GtkWidget *image5987;
-  GtkWidget *toolitem18;
   GtkWidget *model_toolbar_find_water_button;
-  GtkWidget *image5614;
-  GtkWidget *toolitem19;
   GtkWidget *model_toolbar_add_terminal_residue_togglebutton;
-  GtkWidget *image5608;
-  GtkWidget *toolitem20;
   GtkWidget *model_toolbar_add_atom_button;
-  GtkWidget *image5609;
-  GtkWidget *toolitem21;
   GtkWidget *model_toolbar_clear_pending_picks_button;
-  GtkWidget *image5610;
-  GtkWidget *toolitem22;
   GtkWidget *model_toolbar_delete_button;
-  GtkWidget *image5611;
-  GtkWidget *toolitem23;
   GtkWidget *model_toolbar_undo_button;
-  GtkWidget *image5612;
-  GtkWidget *toolitem24;
   GtkWidget *model_toolbar_redo_button;
-  GtkWidget *image5613;
+  GtkWidget *toolitem25;
+  GtkWidget *hseparator14;
+  GtkWidget *toolitem29;
+  GtkWidget *model_toolbar_menubar1;
+  GtkWidget *model_toolbar_setting1;
+  GtkWidget *image6028;
+  GtkWidget *model_toolbar_setting1_menu;
+  GSList *model_toolbar_icons1_group = NULL;
+  GtkWidget *model_toolbar_icons1;
+  GtkWidget *model_toolbar_text1;
+  GtkWidget *model_toolbar_icons_and_text1;
   GtkWidget *gtkhtml_frame;
   GtkTooltips *tooltips;
 
@@ -1207,11 +1184,19 @@ create_window1 (void)
   gtk_widget_show (main_window_model_fit_dialog_frame);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
 
+  handlebox1 = gtk_handle_box_new ();
+  gtk_widget_show (handlebox1);
+  gtk_container_add (GTK_CONTAINER (main_window_model_fit_dialog_frame), handlebox1);
+  gtk_handle_box_set_handle_position (GTK_HANDLE_BOX (handlebox1), GTK_POS_TOP);
+  gtk_handle_box_set_snap_edge (GTK_HANDLE_BOX (handlebox1), GTK_POS_RIGHT);
+
   model_toolbar = gtk_toolbar_new ();
   gtk_widget_show (model_toolbar);
-  gtk_container_add (GTK_CONTAINER (main_window_model_fit_dialog_frame), model_toolbar);
-  gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_BOTH);
+  gtk_container_add (GTK_CONTAINER (handlebox1), model_toolbar);
+  gtk_container_set_border_width (GTK_CONTAINER (model_toolbar), 3);
+  gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_ICONS);
   gtk_toolbar_set_orientation (GTK_TOOLBAR (model_toolbar), GTK_ORIENTATION_VERTICAL);
+  gtk_toolbar_set_show_arrow (GTK_TOOLBAR (model_toolbar), FALSE);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (model_toolbar));
 
   toolitem4 = (GtkWidget*) gtk_tool_item_new ();
@@ -1234,131 +1219,95 @@ create_window1 (void)
   gtk_tooltips_set_tip (tooltips, model_toolbar_select_map_button, _("Select Map..."), NULL);
   gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_select_map_button), FALSE);
 
-  toolitem6 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem6);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem6);
-
-  model_toolbar_refine_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_refine_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), _("Real Space Refine Zone"));
+  tmp_image = create_pixmap (window1, "refine-1.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_refine_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem6), model_toolbar_refine_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_refine_togglebutton, _("Real Space Refine Zone"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_refine_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_refine_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_refine_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_refine_togglebutton), tooltips, _("Real Space Refine Zone"), NULL);
 
-  image5599 = create_pixmap (window1, "refine-1.svg");
-  gtk_widget_show (image5599);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_refine_togglebutton), image5599);
-
-  toolitem7 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem7);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem7);
-
-  model_toolbar_regularize_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_regularize_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), _("Regularize Zone"));
+  tmp_image = create_pixmap (window1, "regularize-1.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_regularize_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem7), model_toolbar_regularize_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_regularize_togglebutton, _("Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\""), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_regularize_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_regularize_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, _("Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\""), NULL);
 
-  image5600 = create_pixmap (window1, "regularize-1.svg");
-  gtk_widget_show (image5600);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_regularize_togglebutton), image5600);
-
-  toolitem8 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem8);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem8);
-
-  model_toolbar_rigid_body_fit_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_rigid_body_fit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), _("Rigid Body Fit Zone"));
+  tmp_image = create_pixmap (window1, "rigid-body.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_rigid_body_fit_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem8), model_toolbar_rigid_body_fit_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_rigid_body_fit_togglebutton, _("Rigid Body Fit Zone (click on 2 atoms)"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_rigid_body_fit_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rigid_body_fit_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, _("Rigid Body Fit Zone (click on 2 atoms)"), NULL);
 
-  image5601 = create_pixmap (window1, "rigid-body.svg");
-  gtk_widget_show (image5601);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_rigid_body_fit_togglebutton), image5601);
-
-  toolitem9 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem9);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem9);
-
-  model_toolbar_rot_trans_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_rot_trans_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rot_trans_togglebutton), _("Rigid Body Fit Zone"));
+  tmp_image = create_pixmap (window1, "rtz.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rot_trans_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_rot_trans_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem9), model_toolbar_rot_trans_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_rot_trans_togglebutton, _("Rotate/Translate Zone..."), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_rot_trans_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_togglebutton), tooltips, _("Rotate/Translate Zone..."), NULL);
 
-  image5602 = create_pixmap (window1, "rtz.svg");
-  gtk_widget_show (image5602);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_rot_trans_togglebutton), image5602);
-
-  toolitem10 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem10);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem10);
-
-  model_toolbar_auto_fit_rotamer_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), _("Auto Fit Rotamer"));
+  tmp_image = create_pixmap (window1, "auto-fit-rotamer.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_auto_fit_rotamer_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem10), model_toolbar_auto_fit_rotamer_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_auto_fit_rotamer_togglebutton, _("Auto Fit Rotamer (click on an atom)"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_auto_fit_rotamer_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_auto_fit_rotamer_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_auto_fit_rotamer_togglebutton), tooltips, _("Auto Fit Rotamer (click on an atom)"), NULL);
 
-  image5603 = create_pixmap (window1, "auto-fit-rotamer.svg");
-  gtk_widget_show (image5603);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_auto_fit_rotamer_togglebutton), image5603);
-
-  toolitem12 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem12);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem12);
-
-  model_toolbar_rotamers_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_rotamers_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), _("Rotamers..."));
+  tmp_image = create_pixmap (window1, "rotamers.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_rotamers_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem12), model_toolbar_rotamers_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_rotamers_togglebutton, _("Rotamers... (click on an atom)"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_rotamers_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rotamers_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rotamers_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rotamers_togglebutton), tooltips, _("Rotamers... (click on an atom)"), NULL);
 
-  image5604 = create_pixmap (window1, "rotamers.svg");
-  gtk_widget_show (image5604);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_rotamers_togglebutton), image5604);
-
-  toolitem11 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem11);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem11);
-
-  model_toolbar_edit_chi_angles_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_edit_chi_angles_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), _("Edit Chi Angles"));
+  tmp_image = create_pixmap (window1, "edit-chi.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_edit_chi_angles_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem11), model_toolbar_edit_chi_angles_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_edit_chi_angles_togglebutton, _("Edit Chi Angles (click on an atom)"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_edit_chi_angles_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_edit_chi_angles_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_edit_chi_angles_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_edit_chi_angles_togglebutton), tooltips, _("Edit Chi Angles (click on an atom)"), NULL);
 
-  image5605 = create_pixmap (window1, "edit-chi.svg");
-  gtk_widget_show (image5605);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_edit_chi_angles_togglebutton), image5605);
-
-  toolitem13 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem13);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem13);
-
-  model_toolbar_flip_peptide_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_flip_peptide_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), _("Flip Peptide"));
+  tmp_image = create_pixmap (window1, "flip-peptide.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_flip_peptide_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem13), model_toolbar_flip_peptide_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_flip_peptide_togglebutton, _("Flip peptide... (click on an atom)"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_flip_peptide_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_flip_peptide_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_flip_peptide_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_flip_peptide_togglebutton), tooltips, _("Flip peptide... (click on an atom)"), NULL);
 
-  image5606 = create_pixmap (window1, "flip-peptide.svg");
-  gtk_widget_show (image5606);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_flip_peptide_togglebutton), image5606);
-
-  toolitem14 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem14);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem14);
-
-  model_toolbar_sidechain_180_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_sidechain_180_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), _(" Sidechain 180 Degree Flip"));
+  tmp_image = create_pixmap (window1, "side-chain-180.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_sidechain_180_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem14), model_toolbar_sidechain_180_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_sidechain_180_togglebutton, _("Flip sidechain 180 degrees (click on an atom)"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_sidechain_180_togglebutton), FALSE);
-
-  image5607 = create_pixmap (window1, "side-chain-180.svg");
-  gtk_widget_show (image5607);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_sidechain_180_togglebutton), image5607);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_sidechain_180_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_sidechain_180_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_sidechain_180_togglebutton), tooltips, _("Flip sidechain 180 degrees (click on an atom)"), NULL);
 
   toolitem15 = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_show (toolitem15);
@@ -1369,130 +1318,130 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (toolitem15), hseparator13);
   gtk_widget_set_size_request (hseparator13, -1, 13);
 
-  toolitem16 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem16);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem16);
-
-  model_toolbar_mutate_and_autofit_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_mutate_and_autofit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), _("Mutate & Auto Fit..."));
+  tmp_image = create_pixmap (window1, "mutate-auto-fit.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_mutate_and_autofit_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem16), model_toolbar_mutate_and_autofit_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_mutate_and_autofit_togglebutton, _("Mutate & AutoFit... (click on an atom)"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_mutate_and_autofit_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_mutate_and_autofit_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_mutate_and_autofit_togglebutton), tooltips, _("Mutate & AutoFit... (click on an atom)"), NULL);
 
-  image5986 = create_pixmap (window1, "mutate-auto-fit.svg");
-  gtk_widget_show (image5986);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_mutate_and_autofit_togglebutton), image5986);
-
-  toolitem17 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem17);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem17);
-
-  model_toolbar_simple_mutate_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_simple_mutate_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), _("Simple Mutate..."));
+  tmp_image = create_pixmap (window1, "mutate.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_simple_mutate_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem17), model_toolbar_simple_mutate_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_simple_mutate_togglebutton, _("Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_simple_mutate_togglebutton), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_simple_mutate_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_simple_mutate_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_simple_mutate_togglebutton), tooltips, _("Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens"), NULL);
 
-  image5987 = create_pixmap (window1, "mutate.svg");
-  gtk_widget_show (image5987);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_simple_mutate_togglebutton), image5987);
-
-  toolitem18 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem18);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem18);
-
-  model_toolbar_find_water_button = gtk_button_new ();
+  tmp_image = create_pixmap (window1, "add-water.svg");
+  gtk_widget_show (tmp_image);
+  model_toolbar_find_water_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Find Waters..."));
   gtk_widget_show (model_toolbar_find_water_button);
-  gtk_container_add (GTK_CONTAINER (toolitem18), model_toolbar_find_water_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_find_water_button, _("Solvate..."), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_find_water_button), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_find_water_button), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_find_water_button);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_find_water_button), tooltips, _("Solvate..."), NULL);
 
-  image5614 = create_pixmap (window1, "add-water.svg");
-  gtk_widget_show (image5614);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_find_water_button), image5614);
-
-  toolitem19 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem19);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem19);
-
-  model_toolbar_add_terminal_residue_togglebutton = gtk_toggle_button_new ();
+  model_toolbar_add_terminal_residue_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), _("Add Terminal Residue..."));
+  tmp_image = create_pixmap (window1, "add-peptide-1.svg");
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_add_terminal_residue_togglebutton);
-  gtk_container_add (GTK_CONTAINER (toolitem19), model_toolbar_add_terminal_residue_togglebutton);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_add_terminal_residue_togglebutton, _("Add Residue..."), NULL);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_add_terminal_residue_togglebutton), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_add_terminal_residue_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_terminal_residue_togglebutton), tooltips, _("Add Residue..."), NULL);
 
-  image5608 = create_pixmap (window1, "add-peptide-1.svg");
-  gtk_widget_show (image5608);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_add_terminal_residue_togglebutton), image5608);
-
-  toolitem20 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem20);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem20);
-
-  model_toolbar_add_atom_button = gtk_button_new ();
+  tmp_image = create_pixmap (window1, "atom-at-pointer.svg");
+  gtk_widget_show (tmp_image);
+  model_toolbar_add_atom_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Place Atom At Pointer"));
   gtk_widget_show (model_toolbar_add_atom_button);
-  gtk_container_add (GTK_CONTAINER (toolitem20), model_toolbar_add_atom_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_add_atom_button, _("Place Atom at Pointer..."), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_add_atom_button), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_add_atom_button), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_add_atom_button);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_atom_button), tooltips, _("Place Atom at Pointer..."), NULL);
 
-  image5609 = create_pixmap (window1, "atom-at-pointer.svg");
-  gtk_widget_show (image5609);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_add_atom_button), image5609);
-
-  toolitem21 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem21);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem21);
-
-  model_toolbar_clear_pending_picks_button = gtk_button_new ();
+  tmp_image = gtk_image_new_from_stock ("gtk-clear", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  model_toolbar_clear_pending_picks_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Clear Pending Picks"));
   gtk_widget_show (model_toolbar_clear_pending_picks_button);
-  gtk_container_add (GTK_CONTAINER (toolitem21), model_toolbar_clear_pending_picks_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_clear_pending_picks_button, _("Clear Pending Picks"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_clear_pending_picks_button), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_clear_pending_picks_button), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_clear_pending_picks_button);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_clear_pending_picks_button), tooltips, _("Clear Pending Picks"), NULL);
 
-  image5610 = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image5610);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_clear_pending_picks_button), image5610);
-
-  toolitem22 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem22);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem22);
-
-  model_toolbar_delete_button = gtk_button_new ();
+  tmp_image = gtk_image_new_from_stock ("gtk-delete", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  model_toolbar_delete_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Delete..."));
   gtk_widget_show (model_toolbar_delete_button);
-  gtk_container_add (GTK_CONTAINER (toolitem22), model_toolbar_delete_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_delete_button, _("Delete Item..."), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_delete_button), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_delete_button), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_delete_button);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_delete_button), tooltips, _("Delete Item..."), NULL);
 
-  image5611 = gtk_image_new_from_stock ("gtk-delete", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image5611);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_delete_button), image5611);
-
-  toolitem23 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem23);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem23);
-
-  model_toolbar_undo_button = gtk_button_new ();
+  tmp_image = gtk_image_new_from_stock ("gtk-undo", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  model_toolbar_undo_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Undo"));
   gtk_widget_show (model_toolbar_undo_button);
-  gtk_container_add (GTK_CONTAINER (toolitem23), model_toolbar_undo_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_undo_button, _("Undo"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_undo_button), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_undo_button), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_undo_button);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_undo_button), tooltips, _("Undo"), NULL);
 
-  image5612 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image5612);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_undo_button), image5612);
-
-  toolitem24 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem24);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem24);
-
-  model_toolbar_redo_button = gtk_button_new ();
+  tmp_image = gtk_image_new_from_stock ("gtk-redo", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  model_toolbar_redo_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Redo"));
   gtk_widget_show (model_toolbar_redo_button);
-  gtk_container_add (GTK_CONTAINER (toolitem24), model_toolbar_redo_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_redo_button, _("Redo"), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_redo_button), FALSE);
+  gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_redo_button), FALSE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_redo_button);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_redo_button), tooltips, _("Redo"), NULL);
 
-  image5613 = gtk_image_new_from_stock ("gtk-redo", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image5613);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_redo_button), image5613);
+  toolitem25 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem25);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem25);
+
+  hseparator14 = gtk_hseparator_new ();
+  gtk_widget_show (hseparator14);
+  gtk_container_add (GTK_CONTAINER (toolitem25), hseparator14);
+  gtk_widget_set_size_request (hseparator14, -1, 15);
+
+  toolitem29 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem29);
+  gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem29), TRUE);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem29);
+
+  model_toolbar_menubar1 = gtk_menu_bar_new ();
+  gtk_widget_show (model_toolbar_menubar1);
+  gtk_container_add (GTK_CONTAINER (toolitem29), model_toolbar_menubar1);
+  gtk_tooltips_set_tip (tooltips, model_toolbar_menubar1, _("Use this to change between text, icons or both"), NULL);
+  gtk_menu_bar_set_pack_direction (GTK_MENU_BAR (model_toolbar_menubar1), GTK_PACK_DIRECTION_RTL);
+
+  model_toolbar_setting1 = gtk_image_menu_item_new_with_mnemonic (_(" "));
+  gtk_widget_show (model_toolbar_setting1);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_menubar1), model_toolbar_setting1);
+
+  image6028 = gtk_image_new_from_stock ("gtk-media-play", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image6028);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (model_toolbar_setting1), image6028);
+
+  model_toolbar_setting1_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (model_toolbar_setting1), model_toolbar_setting1_menu);
+
+  model_toolbar_icons1 = gtk_radio_menu_item_new_with_mnemonic (model_toolbar_icons1_group, _("Icons"));
+  model_toolbar_icons1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_toolbar_icons1));
+  gtk_widget_show (model_toolbar_icons1);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_icons1);
+  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (model_toolbar_icons1), TRUE);
+
+  model_toolbar_text1 = gtk_radio_menu_item_new_with_mnemonic (model_toolbar_icons1_group, _("Text"));
+  model_toolbar_icons1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_toolbar_text1));
+  gtk_widget_show (model_toolbar_text1);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_text1);
+
+  model_toolbar_icons_and_text1 = gtk_radio_menu_item_new_with_mnemonic (model_toolbar_icons1_group, _("Icons and text"));
+  model_toolbar_icons1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_toolbar_icons_and_text1));
+  gtk_widget_show (model_toolbar_icons_and_text1);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_icons_and_text1);
 
   gtkhtml_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
@@ -1812,6 +1761,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) main_window_statusbar, "text_popped",
                     G_CALLBACK (on_main_window_statusbar_text_popped),
                     NULL);
+  g_signal_connect ((gpointer) model_toolbar, "style_changed",
+                    G_CALLBACK (on_model_toolbar_style_changed),
+                    NULL);
   g_signal_connect ((gpointer) model_toolbar_refine_control_button, "clicked",
                     G_CALLBACK (on_model_toolbar_refine_control_button_clicked),
                     NULL);
@@ -1871,6 +1823,18 @@ create_window1 (void)
                     NULL);
   g_signal_connect ((gpointer) model_toolbar_redo_button, "clicked",
                     G_CALLBACK (on_model_toolbar_redo_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) model_toolbar_setting1, "activate",
+                    G_CALLBACK (on_model_toolbar_setting1_activate),
+                    NULL);
+  g_signal_connect ((gpointer) model_toolbar_icons1, "activate",
+                    G_CALLBACK (on_model_toolbar_icons1_activate),
+                    NULL);
+  g_signal_connect ((gpointer) model_toolbar_text1, "activate",
+                    G_CALLBACK (on_model_toolbar_text1_activate),
+                    NULL);
+  g_signal_connect ((gpointer) model_toolbar_icons_and_text1, "activate",
+                    G_CALLBACK (on_model_toolbar_icons_and_text1_activate),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
@@ -2092,67 +2056,42 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_statusbar, "main_window_statusbar");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame, "main_window_model_fit_dialog_frame");
+  GLADE_HOOKUP_OBJECT (window1, handlebox1, "handlebox1");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar, "model_toolbar");
   GLADE_HOOKUP_OBJECT (window1, toolitem4, "toolitem4");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_refine_control_button, "model_toolbar_refine_control_button");
   GLADE_HOOKUP_OBJECT (window1, toolitem5, "toolitem5");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_select_map_button, "model_toolbar_select_map_button");
-  GLADE_HOOKUP_OBJECT (window1, toolitem6, "toolitem6");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_refine_togglebutton, "model_toolbar_refine_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5599, "image5599");
-  GLADE_HOOKUP_OBJECT (window1, toolitem7, "toolitem7");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_regularize_togglebutton, "model_toolbar_regularize_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5600, "image5600");
-  GLADE_HOOKUP_OBJECT (window1, toolitem8, "toolitem8");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5601, "image5601");
-  GLADE_HOOKUP_OBJECT (window1, toolitem9, "toolitem9");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_togglebutton, "model_toolbar_rot_trans_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5602, "image5602");
-  GLADE_HOOKUP_OBJECT (window1, toolitem10, "toolitem10");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5603, "image5603");
-  GLADE_HOOKUP_OBJECT (window1, toolitem12, "toolitem12");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rotamers_togglebutton, "model_toolbar_rotamers_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5604, "image5604");
-  GLADE_HOOKUP_OBJECT (window1, toolitem11, "toolitem11");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_edit_chi_angles_togglebutton, "model_toolbar_edit_chi_angles_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5605, "image5605");
-  GLADE_HOOKUP_OBJECT (window1, toolitem13, "toolitem13");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_flip_peptide_togglebutton, "model_toolbar_flip_peptide_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5606, "image5606");
-  GLADE_HOOKUP_OBJECT (window1, toolitem14, "toolitem14");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_sidechain_180_togglebutton, "model_toolbar_sidechain_180_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5607, "image5607");
   GLADE_HOOKUP_OBJECT (window1, toolitem15, "toolitem15");
   GLADE_HOOKUP_OBJECT (window1, hseparator13, "hseparator13");
-  GLADE_HOOKUP_OBJECT (window1, toolitem16, "toolitem16");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_mutate_and_autofit_togglebutton, "model_toolbar_mutate_and_autofit_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5986, "image5986");
-  GLADE_HOOKUP_OBJECT (window1, toolitem17, "toolitem17");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_simple_mutate_togglebutton, "model_toolbar_simple_mutate_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5987, "image5987");
-  GLADE_HOOKUP_OBJECT (window1, toolitem18, "toolitem18");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_find_water_button, "model_toolbar_find_water_button");
-  GLADE_HOOKUP_OBJECT (window1, image5614, "image5614");
-  GLADE_HOOKUP_OBJECT (window1, toolitem19, "toolitem19");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_add_terminal_residue_togglebutton, "model_toolbar_add_terminal_residue_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, image5608, "image5608");
-  GLADE_HOOKUP_OBJECT (window1, toolitem20, "toolitem20");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_add_atom_button, "model_toolbar_add_atom_button");
-  GLADE_HOOKUP_OBJECT (window1, image5609, "image5609");
-  GLADE_HOOKUP_OBJECT (window1, toolitem21, "toolitem21");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_clear_pending_picks_button, "model_toolbar_clear_pending_picks_button");
-  GLADE_HOOKUP_OBJECT (window1, image5610, "image5610");
-  GLADE_HOOKUP_OBJECT (window1, toolitem22, "toolitem22");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_delete_button, "model_toolbar_delete_button");
-  GLADE_HOOKUP_OBJECT (window1, image5611, "image5611");
-  GLADE_HOOKUP_OBJECT (window1, toolitem23, "toolitem23");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_undo_button, "model_toolbar_undo_button");
-  GLADE_HOOKUP_OBJECT (window1, image5612, "image5612");
-  GLADE_HOOKUP_OBJECT (window1, toolitem24, "toolitem24");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_redo_button, "model_toolbar_redo_button");
-  GLADE_HOOKUP_OBJECT (window1, image5613, "image5613");
+  GLADE_HOOKUP_OBJECT (window1, toolitem25, "toolitem25");
+  GLADE_HOOKUP_OBJECT (window1, hseparator14, "hseparator14");
+  GLADE_HOOKUP_OBJECT (window1, toolitem29, "toolitem29");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_menubar1, "model_toolbar_menubar1");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_setting1, "model_toolbar_setting1");
+  GLADE_HOOKUP_OBJECT (window1, image6028, "image6028");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_setting1_menu, "model_toolbar_setting1_menu");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_icons1, "model_toolbar_icons1");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_text1, "model_toolbar_text1");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_icons_and_text1, "model_toolbar_icons_and_text1");
   GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
   GLADE_HOOKUP_OBJECT_NO_REF (window1, tooltips, "tooltips");
 
@@ -20302,6 +20241,9 @@ create_save_coords_filechooserdialog1 (void)
   save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Filename for Saved Coordinates "), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_filechooserdialog1), 10);
   gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, _("Saved File type: By extension"), NULL);
+  g_object_set (save_coords_filechooserdialog1,
+                "confirm", TRUE,
+                NULL);
   gtk_window_set_resizable (GTK_WINDOW (save_coords_filechooserdialog1), FALSE);
   gtk_window_set_type_hint (GTK_WINDOW (save_coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 

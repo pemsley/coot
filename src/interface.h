@@ -155,6 +155,7 @@ GtkWidget *create_save_state_filechooserdialog1 (void);
 GtkWidget *create_screendump_filechooserdialog1 (void);
 GdkPixbuf* create_pixbuf(const gchar *filename);
 gchar* find_pixmap_file (const gchar     *filename);
+GtkWidget *create_model_toolbar_menu (void);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS
