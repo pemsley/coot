@@ -3019,6 +3019,11 @@ on_checked_waters_baddies_dialog_destroy
                                         gpointer         user_data);
 
 void
+on_model_toolbar_style_changed         (GtkToolbar      *toolbar,
+                                        GtkToolbarStyle  style,
+                                        gpointer         user_data);
+
+void
 on_model_toolbar_refine_control_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
@@ -3030,57 +3035,57 @@ on_model_toolbar_select_map_button_clicked
 
 void
 on_model_toolbar_refine_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_regularize_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_rigid_body_fit_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_rot_trans_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_auto_fit_rotamer_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_rotamers_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_edit_chi_angles_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_flip_peptide_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_sidechain_180_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_mutate_and_autofit_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_simple_mutate_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
@@ -3090,7 +3095,7 @@ on_model_toolbar_find_water_button_clicked
 
 void
 on_model_toolbar_add_terminal_residue_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
@@ -3114,6 +3119,27 @@ on_model_toolbar_undo_button_clicked   (GtkButton       *button,
 void
 on_model_toolbar_redo_button_clicked   (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_model_toolbar_icons1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_text1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_icons_and_text1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_setting1_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+
 void
 on_scripting_python1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data);

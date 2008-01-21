@@ -4044,9 +4044,13 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
 					       toolbar_button_name.c_str());
 //       std::cout << "DEBUG:: toggle_button for gtk2 toolbar: " << button_name << "->"
 // 		<< toolbar_button_name << " " << toggle_button << std::endl;
-      if (toggle_button)
-	 if (GTK_TOGGLE_BUTTON(toggle_button)->active)
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
+
+      if (toggle_button) {
+	// somehow we cannot use ->active on the toggle_tool_buttons?!
+	gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggle_button));
+	if (active)
+	  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(toggle_button), FALSE);
+      }
    }
 #endif    
    
