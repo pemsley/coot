@@ -3345,11 +3345,17 @@ Mon Dec 31 23:08:32 GMT 2007
   function needs to be propogated back up through split_residue()
 
 -----
-Mon Jan  7 08:48:31 GMT 2008
+Wed Jan  2 18:57:42 GMT 2008
 
    Funny shapped protein?
 
 	1l7l 
+
+-----
+Mon Jan  7 08:48:31 GMT 2008
+
+   Export chi angles for a residue spec to scripting layer.
+   Can test from there.
 
 ---
 Tue Jan  8 04:12:57 GMT 2008
@@ -3682,3 +3688,142 @@ WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_
 
 
    Priority: Critical.
+
+----
+Mon Jan 21 13:04:37 GMT 2008
+
+    Now I am compiling gtk2+ becuase the system gtk2+ on cycle (FC4)
+    is too old to complile Coot.
+
+    I am doing it on cycle in ~/compile
+    I created setup pango-glib-gtk2 with PKG_CONFIG settings.
+    ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4
+
+    glib 2.12.13 straightforward
+    pango 1.16.4 straightforward
+    fine.  
+    Oh for gtk2 though, cairo is not an option.  It is a must.  Baah.
+    That was not clear in www.gtk.org.
+
+    So get cairo 1.4.14 from http://cairographics.org/releases/
+
+    which means get glitz from http://cairographics.org/snapshots/
+    (gotta have glitz, right?)
+
+    glitz-0.5.6 
+    ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4
+    Compiles OK.
+
+    back to cairo
+    ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4 --enable-glitz
+    This displays a warning about using glitz, but configures OK.
+    Compiles OK.
+
+    back to pango:
+    now with cairo in place, pango's configure finds cairo
+    ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4
+    Compiles OK.
+
+    back to Gtk2+:
+    glib version test failed, so need to add LD_LIBRARY_PATH too (to the setup file)
+    ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4
+    Compiles OK.
+
+    Fine.  But Coot configure fails on gtlglExt
+
+    http://downloads.sourceforge.net/gtkglext/gtkglext-1.2.0.tar.gz?modtime=1139081517&big_mirror=1
+    back to GtkGLExt:
+    ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4
+    Compiles OK.
+
+    Coot now compiles OK.  And runs! Great.
+    But - it doesn't load svgs.
+
+    OK, backup. 
+
+    config.log for cairo tells us we need a newer librsvg:
+    http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/
+    http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-2.20.0.tar.gz (2 days old at 
+    time of writting)
+
+    ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4
+    Warns us that we are not compiling with libcroco.
+    Oh well.
+
+    OK, now librsvg is in place configure finds it.
+    Rebuilding cairo
+    Install.
+
+    Fine.  Now coot loads its svgs.  Yay!
+
+
+    Correct build order:
+    glitz
+    librsvg
+    cairo
+    glib
+    pango
+    gtk+-2
+    glkglext
+
+
+Now on to guile-gtk:
+
+A new guile: 1.8.3:
+
+./configure --prefix=/lmb/wear/emsley/guile-1.8.1 CFLAGS="-I/lmb/wear/emsley/guile-1.8.1/include -O" LDFLAGS=-L/lmb/wear/emsley/guile-1.8.1/lib
+
+if I use -g instead of -O, I get:
+
+$ guile
+Backtrace:
+In unknown file:
+     ...
+   ?: 123  [list apply ...
+   ?: 124*  [list lambda (syntmp-dummy-3 syntmp-name-4 syntmp-rules-5) ...
+   ?: 125*   [syntmp-chi-151 #(syntax-object # #) (# # # # ...) ...
+   ?: 126*    [syntmp-make-binding-wrap-132 (# # #) ("i" "i" "i") (())]
+   ?: 127     (if (null? syntmp-ids-949) syntmp-w-951 ...)
+   ?: 128     [cons () ...
+   ?: 129*     [cons ...
+   ?: 130*      (let* ((syntmp-labelvec-952 #)) (let* (#) (let # #)))
+   ?: 131       (let* ((syntmp-n-953 #)) (let (# #) (begin # #)))
+          ...
+   ?: 132       (begin # #)
+   ?: 133*      [syntmp-f-956 (# # #) 0]
+   ?: 134       (if (not #) (call-with-values # #))
+          ...
+   ?: 135       [call-with-values #<procedure #f ()> #<procedure #f #>]
+   ?: 136       (@call-with-values (producer consumer))
+   ?: 137*      [#<procedure #f ()>]
+   ?: 138*      [syntmp-id-sym-name&marks-116 #(syntax-object dummy #) (())]
+   ?: 139       (if (syntmp-syntax-object?-101 syntmp-x-980) (values # #) ...)
+   ?: 140*      [syntmp-syntax-object?-101 #(syntax-object dummy (# # # shift ...))]
+   ?: 141       (and (vector? syntmp-x-1008) (= (vector-length syntmp-x-1008) 3) ...)
+   ?: 142*      (vector? syntmp-x-1008)
+
+
+guile-gtk-2.1:
+
+./configure --prefix=$HOME/autobuild/Linux/Coot-0.4 --without-gtkgl
+
+-----
+Mon Jan 21 15:49:32 GMT 2008
+
+    reference for EDS:
+
+ Title: The Uppsala Electron-Density Server
+Author(s): Kleywegt GJ, Harris MR, Zou JY, Taylor TC, Wahlby A, Jones TA
+Source: ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY 60: 2240-2249 Part 12 Sp. Iss. 1, DEC 2004 
+
+
+
+----
+Mon Jan 21 17:07:30 GMT 2008
+
+    Refinement (with chiral volumes) on a residue that does not have
+    the atoms for a chiral centre fails with E_NO_PROGRESS.
+
+    Priority: Critical
+
+
