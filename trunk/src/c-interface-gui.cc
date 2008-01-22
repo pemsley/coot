@@ -3498,4 +3498,11 @@ void set_filename_for_filechooserselection(GtkWidget *fileselection,
    }
 }
 
+// functions to dock the accept/reject dialog
+void set_accept_reject_dialog_docked(int istate){
+  graphics_info_t::accept_reject_dialog_docked_flag = istate;
+}
 
+int accept_reject_dialog_docked_state(){
+  return graphics_info_t::accept_reject_dialog_docked_flag;
+}

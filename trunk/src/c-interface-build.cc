@@ -937,6 +937,11 @@ int set_atom_attributes(SCM attribute_expression_list) {
 } 
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+// Bernhard fill me in!
+//int set_atom_attributes(SCM attribute_expression_list) {
+//}
+#endif // USE_PYTHON
 
 
 // imol has changed.
@@ -3426,6 +3431,7 @@ SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state) {
 PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
    PyObject *r = 0;
    return r;
+// Bernhard fill me in!
 }
 #endif 
 
@@ -3434,6 +3440,7 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
    PyObject *r = 0;
    return r;
+// Bernhard fill me in
 }
 
 #endif 
@@ -5829,8 +5836,6 @@ SCM chain_id_for_shelxl_residue_number(int imol, int resno) {
 } 
 #endif
 
-// Bernie code here for pythonized version...
-// BL says:: here we go
 #ifdef USE_PYTHON
 PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
 

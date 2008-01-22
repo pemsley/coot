@@ -97,21 +97,32 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
  						     "window1"));
-   GtkWidget *label = lookup_widget(GTK_WIDGET(window),
-				    "accept_dialog_accept_label_string");
-   gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
+   GtkWidget *label;
+   if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
+     label = lookup_widget(GTK_WIDGET(main_window),
+				      "accept_dialog_accept_docked_label_string");
+   } else {
+     label = lookup_widget(GTK_WIDGET(window),
+				      "accept_dialog_accept_label_string");
+     gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
 
-   // now set the position, if it was set:
-   if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
-       (graphics_info_t::accept_reject_dialog_y_position > -100)) {
-      gtk_widget_set_uposition(window,
-			       graphics_info_t::accept_reject_dialog_x_position,
-			       graphics_info_t::accept_reject_dialog_y_position);
+     // now set the position, if it was set:
+     if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
+	 (graphics_info_t::accept_reject_dialog_y_position > -100)) {
+       gtk_widget_set_uposition(window,
+				graphics_info_t::accept_reject_dialog_x_position,
+				graphics_info_t::accept_reject_dialog_y_position);
+     }
    }
 
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
-   if (rr.lights.size() > 0)
-      add_accept_reject_lights(window, rr);
+   if (rr.lights.size() > 0){
+     if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
+       add_accept_reject_lights(GTK_WIDGET(main_window), rr);
+     } else {
+       add_accept_reject_lights(window, rr);
+     }
+   }
    
    std::string txt = "";
    txt += "Accept ";
@@ -125,13 +136,28 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
       GtkWidget *reverse_button = lookup_widget(window, "accept_reject_reverse_button");
       gtk_widget_show(reverse_button);	
    }
-   gtk_widget_show(window);
+   
+   if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
+     // we need to show some individual widget to make sure we get the right amount
+     // of light boxes
+     GtkWidget *button_box = lookup_widget(GTK_WIDGET(main_window), "hbuttonbox1");
+     gtk_widget_show_all(button_box);
+     gtk_widget_show(label);
+     gtk_widget_show(window);
+   } else {
+     gtk_widget_show(window);
+   }
 }
 
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results) {
 
 #if (GTK_MAJOR_VERSION > 1) 
-   GtkWidget *frame = lookup_widget(window, "accept_reject_lights_frame");
+   GtkWidget *frame;
+   if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
+     frame = lookup_widget(window, "accept_reject_lights_frame_docked");
+   } else {
+     frame = lookup_widget(window, "accept_reject_lights_frame");
+   }
    gtk_widget_show(frame);
 
    std::vector<std::pair<std::string, std::string> > boxes;
@@ -148,18 +174,26 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
       for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
 	 if (ref_results.lights[i_rest_type].name == boxes[ibox].first) {
 	    std::string stub = boxes[ibox].second.c_str();
-	    std::string event_box_name = stub + "eventbox";
+	    std::string event_box_name;
+	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
+	      event_box_name = stub + "eventbox_docked";
+		} else {
+	      event_box_name = stub + "eventbox";
+	    }
 	    GtkWidget *w = lookup_widget(frame, event_box_name.c_str());
 	    GtkWidget *p = w->parent;
 	    GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].value);
 	    set_colour_accept_reject_event_box(w, color);
 
-	    std::string label_name = stub + "label";
-	    GtkWidget *label = lookup_widget(frame, label_name.c_str());
-	    gtk_label_set_text(GTK_LABEL(label), ref_results.lights[i_rest_type].label.c_str());
+	    // we do not add labels for the docked box
+	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG){
 	    
+	      std::string label_name = stub + "label";
+	      GtkWidget *label = lookup_widget(frame, label_name.c_str());
+	      gtk_label_set_text(GTK_LABEL(label), ref_results.lights[i_rest_type].label.c_str());
+	      gtk_widget_show(label);
+	    }
 	    gtk_widget_show(p);
-	    gtk_widget_show(label);
 	 }
       }
    }
@@ -227,19 +261,21 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 					 coot::accept_reject_text_type text_type,
 					 const coot::refinement_results_t &rr) {
 
-   std::string extra_text = rr.info;
-   if (extra_text != "") {
+    std::string extra_text = rr.info;
+    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG){
+      if (extra_text != "") {
       
-      // now look up the label in window and change it.
-      GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-					     "extra_text_label");
+	// now look up the label in window and change it.
+	GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+					       "extra_text_label");
       
-      if (text_type == coot::CHIRAL_CENTRES)
-	 extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
+	if (text_type == coot::CHIRAL_CENTRES)
+	  extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
       
-      gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
-   }
-   if (rr.lights.size() > 0)
+	gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
+      }
+    }
+    if (rr.lights.size() > 0)
       add_accept_reject_lights(accept_reject_dialog, rr);
 }
 
@@ -247,10 +283,15 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 GtkWidget *
 wrapped_create_accept_reject_refinement_dialog() {
 
-   GtkWidget *w = create_accept_reject_refinement_dialog();
-   graphics_info_t::accept_reject_dialog = w;
-   return w;
-}
+  GtkWidget *w;
+  if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
+    w = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), "accept_reject_dialog_frame_docked");
+  } else {
+    w = create_accept_reject_refinement_dialog();
+  }
+  graphics_info_t::accept_reject_dialog = w;
+  return w;
+ }
 
 // static
 void
@@ -7251,18 +7292,10 @@ coot::view_info_t::dot_product(const coot::view_info_t &view1,
 std::ofstream&
 coot::operator<<(std::ofstream &f, coot::view_info_t &view) {
 
-#ifndef USE_GUILE   
-#ifdef USE_PYTHON
-
-   // You want a pythonized view, presumably.  Bernhard to fill this
-   // section.
-#endif // USE_PYTHON
-
-#else // USE_GUILE   
-
    // position quaternion zoom view-name
    //
 
+#ifdef USE_GUILE
    if (! view.is_simple_spin_view_flag) { 
       f << "(add-view ";
       f << "(list ";
@@ -7301,12 +7334,51 @@ coot::operator<<(std::ofstream &f, coot::view_info_t &view) {
       f << view.degrees_per_step * view.n_spin_steps;
       f << ")\n";
    }
+#else
+#ifdef USE_PYTHON
+   if (! view.is_simple_spin_view_flag) { 
+      f << "add_view(";
+      f << "[";
+      f << view.rotation_centre.x();
+      f << ", ";
+      f << view.rotation_centre.y();
+      f << ", ";
+      f << view.rotation_centre.z();
+      f << "],\n";
 
+      f << "   [";
+      f << view.quat[0]; 
+      f << ", ";
+      f << view.quat[1]; 
+      f << ", ";
+      f << view.quat[2]; 
+      f << ", ";
+      f << view.quat[3];
+      f << "],\n";
+      
+      f << "   ";
+      f << view.zoom; 
+      f << ",\n";
+
+      f << "   ";
+      f << coot::util::single_quote(view.view_name);
+   
+      f << ")\n";
+   } else {
+      f << "add_spin_view(";
+      f << coot::util::single_quote(view.view_name);
+      f << ", ";
+      f << view.n_spin_steps;
+      f << ", ";
+      f << view.degrees_per_step * view.n_spin_steps;
+      f << ")\n";
+   }
+#endif // USE_PYTHON
 #endif // USE_GUILE
-
    return f;
 
 }
+
    
 bool
 coot::view_info_t::matches_view (const coot::view_info_t &view) const { 

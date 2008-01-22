@@ -2303,7 +2303,7 @@ on_accept_reject_refinement_reject_button_clicked (GtkButton       *button,
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "accept_reject_refinement_dialog");
   save_accept_reject_dialog_window_position(window);
-/*   clear_up_moving_atoms(); done in destroy of the window */
+  /*   clear_up_moving_atoms(); done in destroy of the window */
   gtk_widget_destroy(window);
 }
 
@@ -2322,6 +2322,31 @@ on_accept_reject_refinement_dialog_destroy
   clear_up_moving_atoms();
 }
 
+
+/* accept_reject_refinement_docked_accept_button */
+
+void
+on_accept_reject_refinement_docked_accept_button_clicked (GtkButton       *button,
+							  gpointer         user_data)
+{
+  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
+				    "accept_reject_dialog_frame_docked");
+  accept_regularizement();
+  gtk_widget_hide(window);
+}
+
+
+void
+on_accept_reject_refinement_docked_reject_button_clicked (GtkButton       *button,
+							  gpointer         user_data)
+{
+  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
+				    "accept_reject_dialog_frame_docked");
+  /* we only hide the widget, I guess we may have to clean up as well */
+  set_accept_reject_dialog(0);
+  clear_up_moving_atoms();
+  gtk_widget_hide(window);
+}
 
 
 void
@@ -7676,6 +7701,7 @@ on_model_toolbar_select_map_button_clicked
 }
 
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_model_toolbar_refine_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -7893,6 +7919,7 @@ on_model_toolbar_redo_button_clicked   (GtkButton       *button,
 }
 
 
+#if (GTK_MAJOR_VERSOIN > 1)
 void
 on_model_toolbar_icons_and_text1_activate
                                         (GtkMenuItem     *menuitem,
@@ -7904,6 +7931,7 @@ on_model_toolbar_icons_and_text1_activate
   }
 
 }
+#endif // GTK_MAJOR_VERSION
 
 
 void
@@ -7947,6 +7975,7 @@ on_model_toolbar_menutoolbutton1_show_menu
   /* I dont think anything needs to happen here */
 
 }
+#endif // GTK_MAJOR_VERSION
 
 
 void
