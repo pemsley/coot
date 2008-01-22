@@ -128,6 +128,9 @@ AM_PATH_CLIPPER(, [echo Error locating Clipper - a shiny new version of Clipper 
 
 AM_WITH_GUILE(, [echo optional guile\?],,)
 GUILE_FLAGS
+AM_GUILE_GOOSH
+AM_GUILE_NET_HTTP
+AM_GUILE_GUI
 
 AM_WITH_PYTHON
 
