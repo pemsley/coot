@@ -3194,3 +3194,6 @@ void
 on_geometry_dynamic_distance_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+void
+on_accession_code_ok_button_clicked    (GtkButton       *button,
+                                        gpointer         user_data);
