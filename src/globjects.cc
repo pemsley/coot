@@ -681,6 +681,10 @@ coot::colour_holder graphics_info_t::cell_colour =
 //
 coot::protein_geometry *graphics_info_t::geom_p = NULL;
 
+// PHENIX support
+std::string graphics_info_t::external_refinement_program_button_label = "*-*";
+
+
 // pepflip
 int graphics_info_t::atom_index_pepflip = 0;
 int graphics_info_t::imol_pepflip = 0;

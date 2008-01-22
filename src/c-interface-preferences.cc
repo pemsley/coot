@@ -1442,3 +1442,6 @@ void try_load_scheme_extras_dir() {
 }
 #endif // USE_GUILE
 
+void set_button_label_for_external_refinement(const char *button_label) {
+   graphics_info_t::external_refinement_program_button_label = button_label;
+}

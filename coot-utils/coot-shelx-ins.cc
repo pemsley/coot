@@ -950,9 +950,42 @@ coot::ShelxIns::make_atom_element(const std::string &atom_name_in,
 }
 
 
+bool
+coot::ShelxIns::try_assign_cell(CMMDBManager *mol) {
+
+   if (!have_cell_flag) {
+      mat44 my_matt;
+      int err = mol->GetTMatrix(my_matt, 0, 0, 0, 0);
+      if (err != 0) {
+	 std::cout << "!! Warning:: No symmetry available for this template molecule"
+		   << std::endl;
+      } else {
+	 realtype a[6];
+	 realtype vol;
+	 int orthcode;
+	 mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+	 
+	 clipper::Cell_descr cdr(a[0], a[1], a[2],
+				 clipper::Util::d2rad(a[3]),
+				 clipper::Util::d2rad(a[4]),
+				 clipper::Util::d2rad(a[5]));
+	 cell = clipper::Cell(cdr);
+	 have_cell_flag = 1;
+      }
+   }
+}
 
 std::pair<int, std::string>
 coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
+					const std::string &filename) {
+   if (!have_cell_flag) { // Need cell for orth->frac convertion for atoms
+      have_cell_flag = try_assign_cell(mol_in);
+   }
+   return write_ins_file_internal(mol_in, filename);
+} 
+
+std::pair<int, std::string>
+coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			       const std::string &filename) const {
 
    int istat = 0;
@@ -961,6 +994,7 @@ coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
    
    float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
 
+   
    if (have_cell_flag) { // Need cell for orth->frac convertion for atoms
       
       std::ofstream f(filename.c_str());
@@ -1103,7 +1137,7 @@ coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
 	    f << post_atom_lines[i] << "\n";
       }
       f.close();
-      message =  "INFO:: shelxl file ";
+      message =  "INFO:: SHELXL file ";
       message += filename;
       message += " written.";
       
@@ -1801,6 +1835,7 @@ coot::unshelx(CMMDBManager *shelx_mol) {
       int nres = shelx_chain_p->GetNumberOfResidues();
       bool need_new_chain = 1;
       int ires_prev = -1000;
+      bool made_afix_transfer_message = 0;
       for (int ires=0; ires<nres; ires++) {
 
 	 CResidue *shelx_residue_p = shelx_chain_p->GetResidue(ires);
@@ -1837,7 +1872,10 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 	       if (istatus == UDDATA_Ok) { 
 		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle, afix);
 	       } else {
-		  std::cout << "ERROR transfering afix" << std::endl;
+		  if (! made_afix_transfer_message) { 
+		     std::cout << "ERROR transfering afix" << std::endl;
+		     made_afix_transfer_message = 1;
+		  }
 	       } 
 	    }
 	 } else {
@@ -1890,11 +1928,13 @@ coot::reshelx(CMMDBManager *mol) {
 
    CMMDBManager *shelx_mol = new CMMDBManager;
 
+
    int imod = 1;
    CModel *shelx_model_p = new CModel;
    shelx_mol->AddModel(shelx_model_p);
    CChain *shelx_chain_p = new CChain;
    shelx_model_p->AddChain(shelx_chain_p);
+   bool made_afix_transfer_message = 0;
    
    int udd_afix_handle = mol->GetUDDHandle(UDR_ATOM, "shelx afix");
    int udd_afix_handle_shelx = shelx_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
@@ -1932,7 +1972,10 @@ coot::reshelx(CMMDBManager *mol) {
 	       if (istatus == UDDATA_Ok) { 
 		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle, afix);
 	       } else {
-		  std::cout << "ERROR transfering afix back" << std::endl;
+		  if (!made_afix_transfer_message) { 
+		     std::cout << "ERROR transfering afix back" << std::endl;
+		     made_afix_transfer_message = 1;
+		  }
 	       } 
 	    }
 	 } else {
