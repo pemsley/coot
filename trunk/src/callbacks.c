@@ -7919,7 +7919,7 @@ on_model_toolbar_redo_button_clicked   (GtkButton       *button,
 }
 
 
-#if (GTK_MAJOR_VERSOIN > 1)
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_model_toolbar_icons_and_text1_activate
                                         (GtkMenuItem     *menuitem,
