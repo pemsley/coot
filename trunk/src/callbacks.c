@@ -1863,6 +1863,15 @@ gboolean on_accession_code_entry_key_press_event (GtkWidget       *widget,
   return FALSE;
 }
 
+void
+on_accession_code_ok_button_clicked    (GtkButton       *button,
+                                        gpointer         user_data) {
+  
+  GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "accession_code_entry");
+  handle_get_accession_code(entry); 
+}
+
+
 
 void
 on_ramachandran_plot1_activate         (GtkMenuItem     *menuitem,

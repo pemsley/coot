@@ -1682,7 +1682,6 @@ create_window1 (void)
   gtk_widget_show (model_toolbar_menubar1);
   gtk_container_add (GTK_CONTAINER (toolitem29), model_toolbar_menubar1);
   gtk_tooltips_set_tip (tooltips, model_toolbar_menubar1, _("Use this to change between text, icons or both"), NULL);
-  gtk_menu_bar_set_pack_direction (GTK_MENU_BAR (model_toolbar_menubar1), GTK_PACK_DIRECTION_RTL);
 
   model_toolbar_setting1 = gtk_image_menu_item_new_with_mnemonic (_(" "));
   gtk_widget_show (model_toolbar_setting1);
@@ -5502,7 +5501,9 @@ create_accession_code_window (void)
   GtkWidget *frame34;
   GtkWidget *vbox40;
   GtkWidget *label69;
+  GtkWidget *hbox279;
   GtkWidget *accession_code_entry;
+  GtkWidget *accession_code_ok_button;
 
   accession_code_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (accession_code_window), _("PDB Accession Code "));
@@ -5521,12 +5522,24 @@ create_accession_code_window (void)
   gtk_box_pack_start (GTK_BOX (vbox40), label69, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label69), GTK_JUSTIFY_CENTER);
 
+  hbox279 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox279);
+  gtk_box_pack_start (GTK_BOX (vbox40), hbox279, FALSE, FALSE, 2);
+
   accession_code_entry = gtk_entry_new ();
   gtk_widget_show (accession_code_entry);
-  gtk_box_pack_start (GTK_BOX (vbox40), accession_code_entry, FALSE, FALSE, 2);
+  gtk_box_pack_start (GTK_BOX (hbox279), accession_code_entry, TRUE, TRUE, 2);
+
+  accession_code_ok_button = gtk_button_new_with_mnemonic (_("  Get it  "));
+  gtk_widget_show (accession_code_ok_button);
+  gtk_box_pack_start (GTK_BOX (hbox279), accession_code_ok_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (accession_code_ok_button), 2);
 
   g_signal_connect ((gpointer) accession_code_entry, "key_press_event",
                     G_CALLBACK (on_accession_code_entry_key_press_event),
+                    NULL);
+  g_signal_connect ((gpointer) accession_code_ok_button, "clicked",
+                    G_CALLBACK (on_accession_code_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
@@ -5534,7 +5547,9 @@ create_accession_code_window (void)
   GLADE_HOOKUP_OBJECT (accession_code_window, frame34, "frame34");
   GLADE_HOOKUP_OBJECT (accession_code_window, vbox40, "vbox40");
   GLADE_HOOKUP_OBJECT (accession_code_window, label69, "label69");
+  GLADE_HOOKUP_OBJECT (accession_code_window, hbox279, "hbox279");
   GLADE_HOOKUP_OBJECT (accession_code_window, accession_code_entry, "accession_code_entry");
+  GLADE_HOOKUP_OBJECT (accession_code_window, accession_code_ok_button, "accession_code_ok_button");
 
   return accession_code_window;
 }
@@ -20559,9 +20574,6 @@ create_save_coords_filechooserdialog1 (void)
   save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Filename for Saved Coordinates "), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_filechooserdialog1), 10);
   gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, _("Saved File type: By extension"), NULL);
-  g_object_set (save_coords_filechooserdialog1,
-                "confirm", TRUE,
-                NULL);
   gtk_window_set_resizable (GTK_WINDOW (save_coords_filechooserdialog1), FALSE);
   gtk_window_set_type_hint (GTK_WINDOW (save_coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -20856,4 +20868,4 @@ create_screendump_filechooserdialog1 (void)
   return screendump_filechooserdialog1;
 }
 
-#endif // (GTK_MAJOR_VERSION > 1)
+#endif /* (GTK_MAJOR_VERSION > 1) */
