@@ -29,11 +29,16 @@
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
 
+* It is, but the residue number is "1" and the SFAC index is -1.  Bad.
+
    o Kevin's Ramachandran Refinement target
 
    o Use Eugene's new LINK-reading code.
 
    o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
+
+* Done.  Sort of.  It writes a file now at least.  What more do you want?
+  Added a test.
 
    o Valgrind long/multiple fit-proteins
 

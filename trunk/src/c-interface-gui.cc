@@ -1742,6 +1742,15 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
    }
    graphics_info_t::set_model_fit_refine_button_names(widget);
 
+   // Refmac button
+   GtkWidget *refmac_button = lookup_widget(widget, "model_refine_dialog_refmac_button");
+   if (refmac_button) {
+      if (graphics_info_t::external_refinement_program_button_label != "*-*") {
+	 gtk_label_set_text(GTK_LABEL(GTK_BIN(refmac_button)->child),
+			    graphics_info_t::external_refinement_program_button_label.c_str());
+      }
+   } 
+
    return widget; 
 }
 

@@ -161,7 +161,7 @@ namespace coot {
    class ShelxIns {
       std::string title;
       short int filled_flag; 
-      short int have_cell_flag;
+      bool have_cell_flag;
       clipper::Cell cell;
       std::vector<std::string> sfac; // atom (types). RESI atom index into this vector
       std::vector<int> unit;
@@ -190,6 +190,9 @@ namespace coot {
 				 const std::string &element) const; // used now (20051017)
       std::string make_atom_element(const std::string &atom_name_in,
 				    const int &atomic_weight) const;
+      // return the success status of the assignment, 1 is OK, 0 is fail.
+      bool try_assign_cell(CMMDBManager *mol);
+      
       shelx_card_info_t read_line(std::ifstream &f);
       shelx_card_info_t read_card(std::ifstream &f);
       shelx_card_info_t read_card_extended(std::ifstream &f);
@@ -202,14 +205,15 @@ namespace coot {
       CAtom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
 		       int udd_afix_handle, int have_udd_atoms, int current_afix,
 		       clipper::Cell &cell) const;
-
+      std::pair<int, std::string> write_ins_file_internal(CMMDBManager *mol_in,
+							  const std::string &filename) const;
    public:
       ShelxIns() {init(); }
       // pair: status (0: bad), udd_afix_handle (-1 bad)
       shelx_read_file_info_t read_file(const std::string &filename);
       ShelxIns(const std::string &filename);
       // return status and message string
-      std::pair<int, std::string> write_ins_file(CMMDBManager *mol, const std::string &filename) const;
+      std::pair<int, std::string> write_ins_file(CMMDBManager *mol, const std::string &filename);
       // is this real shelx data or an empty holder?
       short int is_filled_p() const { return filled_flag; }
       int add_fvar(float f); // return the shelx index FVAR number for this fvar

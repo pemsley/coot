@@ -2763,7 +2763,9 @@ void import_all_refmac_cifs();
 /* section SHELXL Functions */
 /*! \name SHELXL Functions */
 /* \{ */
+/*! \brief read a SHELXL .ins file */
 int read_shelx_ins_file(const char *filename);
+/*! \brief write a SHELXL .ins file for molecule number imol */
 int write_shelx_ins_file(int imol, const char *filename);
 /* for shelx fcf file that needs to be filtered: */
 int handle_shelx_fcf_file_internal(const char *filename);
@@ -4560,6 +4562,16 @@ void do_smiles_gui();
 /*  ----------------------------------------------------------------------- */
 /* section Fun */
 void do_tw();
+
+/*  ----------------------------------------------------------------------- */
+/*                  Phenix Support                                          */
+/*  ----------------------------------------------------------------------- */
+/*! \name PHENIX Support */
+/* \{ */
+/*! \brief set the button label of the external Refinement program */
+void set_button_label_for_external_refinement(const char *button_label);
+/* \} */
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Text                                                    */

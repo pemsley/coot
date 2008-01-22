@@ -2764,6 +2764,9 @@ public:
    static int ncs_residue_skip_key;
    static int update_go_to_atom_from_current_residue_key;
 
+   // -- PHENIX support
+   static std::string external_refinement_program_button_label;
+
 #ifdef HAVE_GSL
    // ---- pseudo bond for sec str restraints
    static coot::pseudo_restraint_bond_type pseudo_bonds_type;

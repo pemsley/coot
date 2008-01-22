@@ -89,5 +89,19 @@
 			 #t)))))))))
 
 
+;; The "SHELX Woe" problem
+;; 
+(greg-testcase "Write a INS from PDB test" #t 
+   (lambda ()	      
+
+     (if (not (valid-model-molecule? imol-rnase))
+	 (throw 'fail)
+	 (let* ((rnase-ins "rnase.ins")
+		(status (write-shelx-ins-file imol-rnase rnase-ins)))
+	   (if (not (= status 1)) 
+	       (begin
+		 (format #t "failure to write INS file ~s from PDB~%" rnase-ins)
+		 (throw 'fail))
+	       #t)))))
 
 
