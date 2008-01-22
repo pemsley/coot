@@ -727,6 +727,16 @@ on_accept_reject_refinement_reject_button_clicked
                                         gpointer         user_data);
 
 void
+on_accept_reject_refinement_docked_accept_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_refinement_docked_reject_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_model_refine_dialog_find_waters_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
@@ -3033,6 +3043,7 @@ on_model_toolbar_select_map_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_model_toolbar_refine_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -3089,13 +3100,14 @@ on_model_toolbar_simple_mutate_togglebutton_toggled
                                         gpointer         user_data);
 
 void
-on_model_toolbar_find_water_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
 on_model_toolbar_add_terminal_residue_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+#endif // GTK_MAJOR_VERSION
+
+void
+on_model_toolbar_find_water_button_clicked
+                                        (GtkButton       *button,
                                         gpointer         user_data);
 
 void

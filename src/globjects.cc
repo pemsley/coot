@@ -126,6 +126,9 @@ GtkWidget *graphics_info_t::accept_reject_dialog = 0;
 // refinement control dialog (so that we don't get multiple copies)
 GtkWidget *graphics_info_t::refine_params_dialog = 0;
 
+// flag to display the accep/reject dialog in the toolbar
+int graphics_info_t::accept_reject_dialog_docked_flag = coot::DIALOG;
+
 // refmac option menu
 int graphics_info_t::refmac_molecule = -1; 
 

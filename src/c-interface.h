@@ -597,6 +597,10 @@ int model_fit_refine_dialog_stays_on_top_state();
 void save_accept_reject_dialog_window_position(GtkWidget *acc_reg_dialog);
 void set_accept_reject_dialog(GtkWidget *w); /* used by callbacks to unset the widget */
 
+/* functions to dock the accept/reject dialog to the toolbar */
+void set_accept_reject_dialog_docked(int state);
+int accept_reject_dialog_docked_state();
+
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */

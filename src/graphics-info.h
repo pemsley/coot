@@ -108,6 +108,7 @@ namespace coot {
    enum accept_reject_text_type { CHI_SQUAREDS, CHIRAL_CENTRES};
    enum chooser_selector_type { OLD_STYLE, CHOOSER_STYLE };
    enum chooser_overwrite_type { CHOOSER_OVERWRITE, CHOOSER_OVERWRITE_PROTECT };
+   enum accept_reject_dialog_type { DIALOG, DIALOG_DOCKED };
 
    class coord_orth_triple {
    public:
@@ -646,7 +647,6 @@ class graphics_info_t {
    static std::vector<std::string> other_modelling_tools_toggle_button_name_list();
    static std::vector<std::string> other_modelling_tools_button_name_list();
 
-   
    // ----------------------------------------------------------------
    //             public:
    // ----------------------------------------------------------------
@@ -898,6 +898,9 @@ public:
    static GtkWidget *accept_reject_dialog;
    static GtkWidget *refine_params_dialog;
 
+   // flag to display the accep/reject dialog in the toolbar
+   static int accept_reject_dialog_docked_flag;
+   
 
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);

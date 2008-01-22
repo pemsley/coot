@@ -7241,10 +7241,11 @@ void save_views(const char *view_file_name) {
       } else {
 #ifdef USE_GUILE
 	 f << "; Views\n";
-#endif // GUIL$E
+#else
 #ifdef USE_PYTHON
 	 f << "# Views\n";
 #endif // PYTHON
+#endif // GUILE
 	 for (unsigned int i=0; i<n_views; i++) {
 	    f << (*graphics_info_t::views)[i];
 	 }
