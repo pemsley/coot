@@ -168,14 +168,16 @@ Please also cite the primary literature for the received structures.
 @node What is Coot?
 @section What is Coot?
 
-Coot is a stand-alone portion of CCP4's Molecular Graphics project. Its
-focus is crystallographic model-building and manipulation rather than
-representation @emph{i.e.} more like Frodo than Rasmol
-@c @cindex{Rasmol}
-.
+Coot is a molecular graphics application. Its primary focus is
+crystallographic macromolecular model-building and manipulation rather
+than representation @emph{i.e.} more like Frodo than Rasmol
+@c @cindex{Rasmol}.  
+Having said that, Coot can work with small molecule (SHELXL) and elecron
+microscopy data, be used for homology modelling, make passably pretty
+pictures and display NMR structures.
 
-Coot is Free Software.  You can give it away. If you don't like the
-way it behaves, you can fix it yourself.
+Coot is Free Software.  You can give it away. If you don't like the way
+it behaves, you can fix it yourself.
 
 @node What Coot is Not
 @section What Coot is Not

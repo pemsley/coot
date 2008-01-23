@@ -51,7 +51,8 @@ namespace coot {
    public:
       int ilength; 
       int molecule_number; 
-      std::vector<float> sqrt_eigen_values; 
+      std::vector<float> sqrt_eigen_values;
+      float eigen_similarity_score; // how similar is this to target eigens?
       std::string segment_id;
       std::pair<bool,clipper::Coord_orth> middle_carbonyl_oxygen_position;
       main_fragment_t(int i_start_res, int mol_no,
@@ -76,6 +77,16 @@ namespace coot {
 	 istart_res_of_ca_target = ist_res; 
       }
    };
+
+   class peptide_match_fragment_info_t {
+   public:
+      minimol::fragment fragment;
+      float devi;
+      peptide_match_fragment_info_t(const minimol::fragment &frag_in, float devi_in) {
+	 fragment = frag_in;
+	 devi = devi_in;
+      } 
+   }; 
 
    class weighted_residue : public minimol::residue {
    public:
@@ -189,7 +200,12 @@ namespace coot {
       // a vector of fragments that have been matches to a target 5 CA
       // peptide (that target 5 CA peptide is constructed, for the
       // moment, outside this class.
-      std::vector<coot::minimol::fragment> pepflip_fragments;
+      std::vector<peptide_match_fragment_info_t> pepflip_fragments;
+      void sort_mainchain_fragments_by_eigens(std::vector<float> target_eigens);
+      static bool mainchain_fragment_sorter(const coot::main_fragment_t &fit_a,
+					    const coot::main_fragment_t &fit_b);
+      std::vector<float> tmp_target_eigens;
+      void assign_eigen_similarity_scores(const std::vector<float> &target_eigens);
 
    public:
       db_main() { max_devi = 2.0; }
@@ -233,8 +249,13 @@ namespace coot {
       // ----------------------- Pepflip extras --------------------
       void match_targets_for_pepflip(const minimol::fragment &target_ca_coords_5_res_frag);
 
-      // check that internal vector against the oxygen position
-      void mid_oxt_outliers(const clipper::Coord_orth &my_peptide_oxt_pos, float cutoff);
+      // Check that internal vector against the oxygen position.
+      //
+      // Return the fraction fo the best fitting peptides that have their
+      // oxygen closer than d_crit
+      float mid_oxt_outliers(const clipper::Coord_orth &my_peptide_oxt_pos, int resno_oxt, float cutoff);
+      static bool pepflip_sorter(const coot::peptide_match_fragment_info_t &fit_a,
+				 const coot::peptide_match_fragment_info_t &fit_b);
 
    };
 

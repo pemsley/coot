@@ -407,6 +407,47 @@
 (define (refine-active-residue-triple)
   (refine-active-residue-generic 1))
 
+
+;; For just one (this) residue, side-residue-offset is 0.
+;; 
+(define (manual-refine-residues side-residue-offset)
+
+  (let ((active-atom (active-residue)))
+    
+    (if (not active-atom)
+	(format #t "No active atom~%")
+	(let ((imol      (list-ref active-atom 0))
+	      (chain-id  (list-ref active-atom 1))
+	      (res-no    (list-ref active-atom 2))
+	      (ins-code  (list-ref active-atom 3))
+	      (atom-name (list-ref active-atom 4))
+	      (alt-conf  (list-ref active-atom 5)))
+
+	  (let ((imol-map (imol-refinement-map)))
+	    
+	    (if (= imol-map -1)
+		(info-dialog "Oops.  Must Select Map to fit to!")
+		
+		(refine-zone imol chain-id 
+			     (- res-no side-residue-offset)
+			     (+ res-no side-residue-offset)
+			     alt-conf)))))))
+
+;; Pepflip the active residue - needs a key binding.
+;;
+(define (pepflip-active-residue)
+  (let ((active-atom (active-residue)))
+    (if (not active-atom)
+	(format #t "No active atom~%")
+	(let ((imol      (list-ref active-atom 0))
+	      (chain-id  (list-ref active-atom 1))
+	      (res-no    (list-ref active-atom 2))
+	      (ins-code  (list-ref active-atom 3))
+	      (atom-name (list-ref active-atom 4))
+	      (alt-conf  (list-ref active-atom 5)))
+	  
+	  (pepflip imol chain-id res-no ins-code)))))
+
 ;; Another cool function that needs a key binding.
 ;; 
 (define (auto-fit-rotamer-active-residue)

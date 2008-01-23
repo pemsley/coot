@@ -2772,36 +2772,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_Q:
-   case GDK_q:
-      rotate_x_scene(1,  graphics_info_t::idle_function_rotate_angle);
-      handled = TRUE; 
-      break;
-   case GDK_W:
-   case GDK_w:
-      rotate_x_scene(1, -graphics_info_t::idle_function_rotate_angle);
-      handled = TRUE; 
-      break;
-   case GDK_E:
-   case GDK_e:
-      rotate_y_scene(1,  graphics_info_t::idle_function_rotate_angle);
-      handled = TRUE; 
-      break;
-   case GDK_R:
-   case GDK_r:
-      rotate_y_scene(1, -graphics_info_t::idle_function_rotate_angle);
-      handled = TRUE; 
-      break;
-   case GDK_T:
-   case GDK_t:
-      rotate_z_scene(1,  graphics_info_t::idle_function_rotate_angle);
-      handled = TRUE; 
-      break;
-   case GDK_Y:
-   case GDK_y:
-      rotate_z_scene(1, -graphics_info_t::idle_function_rotate_angle);
-      handled = TRUE; 
-      break;
 
    case GDK_D:
    case GDK_d:

@@ -109,7 +109,7 @@ coot::pepflip(CMMDBManager *mol, int resno,
 		<< " Sorry\n";
       return 0;
    } else { 
-      std::cout << "DEBUG:: found CAs\n";
+      // std::cout << "DEBUG:: found CAs\n";
    } 
 
    std::vector<clipper::Coord_orth> ca(2);
@@ -160,17 +160,16 @@ coot::pepflip(CMMDBManager *mol, int resno,
       mol->GetSelIndex(selHnd_first[iat], SelAtom_first[iat], nSelAtoms_first[iat]);
       if (nSelAtoms_first[iat] > 0) { 
 	 flipped_atom[0] = SelAtom_first[iat][0];
-	 std::cout << " start coords for iat: " << iat << " "
-		   << flipped_atom[0]->x << " " 
-		   << flipped_atom[0]->y << " " 
-		   << flipped_atom[0]->z << " " 
-		   << std::endl;
+// 	 std::cout << " start coords for iat: " << iat << " "
+// 		   << flipped_atom[0]->x << " " 
+// 		   << flipped_atom[0]->y << " " 
+// 		   << flipped_atom[0]->z << " " 
+// 		   << std::endl;
 	 std::vector<clipper::Coord_orth> c = flip_internal(ca, flipped_atom);
 	 SelAtom_first[iat][0]->x = c[0].x();
 	 SelAtom_first[iat][0]->y = c[0].y();
 	 SelAtom_first[iat][0]->z = c[0].z();
 	 status = 1;
-	 std::cout << iat << " assinging coords" << c[0].format() << std::endl;
       }
       mol->DeleteSelection(selHnd_first[iat]);
    }
@@ -188,16 +187,15 @@ coot::pepflip(CMMDBManager *mol, int resno,
    mol->GetSelIndex(SelHnd_second, SelAtom_second, nSelAtoms_second);
    if (nSelAtoms_second > 0) { 
       flipped_atom[0] = SelAtom_second[0];
-      std::cout << " start coords for second " 
-		<< flipped_atom[0]->x << " " 
-		<< flipped_atom[0]->y << " " 
-		<< flipped_atom[0]->z << " " 
-		<< std::endl;
+//       std::cout << " start coords for second " 
+// 		<< flipped_atom[0]->x << " " 
+// 		<< flipped_atom[0]->y << " " 
+// 		<< flipped_atom[0]->z << " " 
+// 		<< std::endl;
       std::vector<clipper::Coord_orth> c = flip_internal(ca, flipped_atom);
       SelAtom_second[0]->x = c[0].x();
       SelAtom_second[0]->y = c[0].y();
       SelAtom_second[0]->z = c[0].z();
-      std::cout << "assinging coords for second " << c[0].format() << std::endl;
    }
    mol->DeleteSelection(SelHnd_second);
 
