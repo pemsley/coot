@@ -52,8 +52,8 @@ make_target_5_res_frag(const coot::minimol::fragment &tf, int ires_start) {
 	    }
 	 }
       }
-      std::cout << " in make_target_5_res_frag adding residue with seqnum: "
-		<< r.seqnum << std::endl;
+//       std::cout << " in make_target_5_res_frag adding residue with seqnum: "
+// 		<< r.seqnum << std::endl;
       f.addresidue(r, 0);
    }
    g.five_residues_as_cas = f;
@@ -114,9 +114,11 @@ main(int argc, char **argv) {
 			    << std::endl;
 		  main_chain.match_targets_for_pepflip(frag_info.five_residues_as_cas);
 
-		  float cutoff = 0.2;
+		  float cutoff = 2.5;
 		  // check that internal vector against the oxygen position
-		  main_chain.mid_oxt_outliers(frag_info.ox_pos, cutoff);
+		  float frac = main_chain.mid_oxt_outliers(frag_info.ox_pos, ires+2, cutoff);
+		  std::cout << "Fraction better: " << 100.0*frac
+			    << "% have oxygen dist closer than " << cutoff << std::endl;
 	       }
 	    }
 	 }

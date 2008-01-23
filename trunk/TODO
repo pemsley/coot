@@ -229,6 +229,9 @@
 
    o Make fit-loop work backward.  
 
+   o Profile the bonding on reading in a ribosome fragment. 2 minutes? 
+     Not good.
+
  ------
     
     Release 0.8 [Aug 2008?]

@@ -3526,14 +3526,6 @@ Thu Jan 10 08:19:19 GMT 2008
 
     passing different residue types
 
------
-Thu Jan 10 09:24:28 GMT 2008
-
-   suramin for parasites, including trapanosomes
-   but cannot cross blood-brain barrier
-
-   trapanosome is a protazoa
-  
 ----
 Thu Jan 10 10:43:33 GMT 2008
 
@@ -3541,9 +3533,6 @@ Thu Jan 10 10:43:33 GMT 2008
 
   See if coot can fit them (do they exist in the EDS?).  Add to test
   suite?
-
-  Selenium: 
-  Manuel Soriano-Garcia, 11, 1657 Curr Medicinal Chemistry (2004)
 
 ----
 Fri Jan 11 08:40:05 GMT 2008
@@ -3694,6 +3683,51 @@ WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_
 
    Priority: Critical.
 
+-----
+Fri Jan 18 08:36:45 GMT 2008
+
+    Hydrogen - Hydrogen environment distances should be yellow not pink.
+
+    Priority: Critical.
+
+----
+
+Accession code accessor needs a "Get it" button.
+
+
+   Priority: Important.
+
+
+----
+
+   Need python_loaded_p -> python-loaded? { #t #f}
+
+   and guile_loaded()  { False True }
+
+
+----
+Sat Jan 19 11:35:01 GMT 2008
+
+    Build GTk2 on YSBL.
+
+chihiro fails: no GL include files.
+dewinter fails: in mmdb: C++ compiler can't compile
+
+bubbles fails: gtk2 version is 2.0.6, needs 2.2.0
+bragg3 fails: can't compile a working guile 1.8.3
+
+----
+Sat Jan 19 11:56:58 GMT 2008
+
+    Molprobity interaction dots around a ligand.  
+    Surely that would be super cool?
+
+
+-----
+Sat Jan 19 16:09:27 GMT 2008
+
+    Read charges from dict and calculate and display diapole moments
+
 ----
 Mon Jan 21 13:04:37 GMT 2008
 
@@ -3744,7 +3778,7 @@ Mon Jan 21 13:04:37 GMT 2008
     Coot now compiles OK.  And runs! Great.
     But - it doesn't load svgs.
 
-    OK, backup. 
+    OK, back-up. 
 
     config.log for cairo tells us we need a newer librsvg:
     http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/

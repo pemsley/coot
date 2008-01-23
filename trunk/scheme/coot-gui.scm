@@ -466,7 +466,7 @@
 (define (old-coot?)
 
   (let* ( ; (new-release-time 1200000000) ; 10 Jan 2008
-	  ; (new-release-time 1205678900) ; 16 Mar 2008
+	  ; (new-release-time 1205678900) ; 16 Mar 2008 0.3.3
 	 (new-release-time 1222222222)   ; 24 Jul 2008 0.4
 	 (time-diff (- (current-time) new-release-time)))
     (if (> time-diff 0)

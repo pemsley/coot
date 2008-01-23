@@ -5893,12 +5893,13 @@ void do_pepflip(short int state) {
       
 } 
 
-void pepflip(int ires, const char *chain_id, int imol) { /* the residue with CO,
+void pepflip(int imol, const char *chain_id, int resno, const char *inscode) { /* the residue with CO,
 							   for scripting interface. */
 
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
-      g.molecules[imol].pepflip_residue(ires, std::string(""), std::string(chain_id));
+      g.molecules[imol].pepflip_residue(resno, std::string(""),
+					std::string(chain_id));
       graphics_draw();
    } 
 } 
