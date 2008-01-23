@@ -1377,7 +1377,7 @@ if [ "$build_gtk" = "" ] ; then
    for dir in ${install_top_dir} ; do
       if test -e "${dir}/include/guile-gtk.h" ; then
          echo installation has guile-gtk
-         if [ "$build_guile" -ne 1 ] ; then
+         if [ "$build_guile" != 1 ] ; then
             build_guile_gtk=
          else
             build_guile_gtk=1
