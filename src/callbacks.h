@@ -3197,3 +3197,7 @@ on_geometry_dynamic_distance_togglebutton_toggled
 void
 on_accession_code_ok_button_clicked    (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_ncs_differences1_activate           (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

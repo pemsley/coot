@@ -478,19 +478,19 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       coot::ncs_differences_t diffs = 
-	 graphics_info_t::molecules[imol].ncs_chain_differences(master_chain_id);
+	 graphics_info_t::molecules[imol].ncs_chain_differences(master_chain_id, 1.0);
       if (diffs.size() == 0) {
 	 std::cout << "no diffs" << std::endl;
       } else {
 	 r = PyList_New(0);
-	 for (int idiff=0; idiff<diffs.size(); idiff++) {
+	 for (unsigned int idiff=0; idiff<diffs.size(); idiff++) {
 	    PyObject *l_residue_data = PyList_New(0);
 	    coot::ncs_chain_difference_t cd = diffs.diffs[idiff];
 	    if (cd.residue_info.size() > 0) {
 	       std::cout << "NCS target chain has " << cd.residue_info.size()
 			 << " peers." << std::endl;
 	       //	       for (int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
-	       for (int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
+	       for (unsigned int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
 		  std::cout << "resinfo: "
 			    << cd.residue_info[iresinf].resno << " "
 			    << cd.residue_info[iresinf].inscode << " "
@@ -568,7 +568,7 @@ PyObject *ncs_chains_ids_py(int imol) {
 // 		<< std::endl;
 	 if (ncs_ghost_chains.size() > 0) {
 	    r = PyList_New(ncs_ghost_chains.size());
-	    for (int i=0; i<ncs_ghost_chains.size(); i++) {
+	    for (unsigned int i=0; i<ncs_ghost_chains.size(); i++) {
 	       PyObject *string_list_py =
 		  generic_string_vector_to_list_internal_py(ncs_ghost_chains[i]);
 	       PyList_SetItem(r, i, string_list_py);

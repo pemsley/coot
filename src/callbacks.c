@@ -8639,3 +8639,11 @@ on_geometry_dynamic_distance_togglebutton_toggled
     setup_dynamic_distances(0);
 }
 
+
+void
+on_ncs_differences1_activate           (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
