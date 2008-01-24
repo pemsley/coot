@@ -200,6 +200,7 @@
 # 3.00 20080108 Gtk+-2 version
 # 3.01 20080118 Add GtkGlExt
 # 3.02 20080121 Tinker with guile build settings.
+# 3.03 20080124 Build GTK2 from scratch: librsvg, cairo, pango, glitz. glib, gtk+-2
 script_version=3.02
 
 # :: NOTE:: 
@@ -1372,6 +1373,10 @@ fi
 
 
 
+# ##############################################################
+#   guile-gtk
+# ##############################################################
+
 # guile-gtk, only look in installation, not system.
 if [ "$build_gtk" = "" ] ; then 
    for dir in ${install_top_dir} ; do
@@ -1389,6 +1394,10 @@ if test -n "${build_guile_gtk}" ; then
    echo guile-gtk should be built
    build_guile_gtk=1
 fi
+
+# ##############################################################
+#   gnomecanvas
+# ##############################################################
 
 # test for gnomecanvas here
 if [ "$build_gtk" = "" ] ; then 
@@ -1691,11 +1700,116 @@ fi
 
 
 ###############################################################################
-##########              gtk and friends                           #############
+##########         build gtk and friends                          #############
 ###############################################################################
 
 if test -n "$build_gtk" ; then 
    echo BUILDING Gtk+-2 and dependencies...
+   glitz_version=0.5.6
+   ${WGET} http://cairographics.org/snapshots/glitz-$glitz_version.tar.gz
+   (
+   date
+   echo BUILDING glitz
+   gzip -dc ${AUTOBUILD_SOURCES}/glitz-$glitz_version.tar.gz | tar xf -
+   cd $glitz-$glitz_version
+   ./configure $generic_prefix
+   $MAKE
+   glitz_status=$?
+   if [ "$glitz_status" != 0 ] ; then
+      echo make of glitz failed
+   else
+      $MAKE install
+   fi
+   cd - 
+ 
+   if [ "$glitz_status" = 0 ] ; then
+      echo BUILDING librsvg
+      librsvg_version=2.20.0
+      ${WGET} http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-$librsvg_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.tar.gz | tar xf -
+      cd $librsvg-$librsvg_version
+      ./configure $generic_prefix
+      $MAKE
+      librsvg_status=$?
+      if [ "$librsvg_status" != 0 ] ; then
+         echo make of librsvg failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
+   if [ "$librsvg_status" = 0 ] ; then
+      echo BUILDING cairo
+      cairo_version=1.4.14
+      ${WGET} http://cairographics.org/releases/cairo-$cairo_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/cairo-$cairo_version.tar.gz | tar xf -
+      cd $cairo-$cairo_version
+      ./configure $generic_prefix --enable-glitz
+      $MAKE
+      cairo_status=$?
+      if [ "$cairo_status" != 0 ] ; then
+         echo make of cairo failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
+   if [ "$cairo_status" = 0 ] ; then
+      echo BUILDING glib
+      glib_version=2.15.3
+      ${WGET} ftp://ftp.gtk.org/pub/glib/2.15/glib-$glib_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz | tar xf -
+      cd $glib-$glib_version
+      ./configure $generic_prefix
+      $MAKE
+      glib_status=$?
+      if [ "$glib_status" != 0 ] ; then
+         echo make of glib failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
+   if [ "$glib_status" = 0 ] ; then
+      echo BUILDING pango
+      pango_version=1.16.4
+      ${WGET} ftp://ftp.gtk.org/pub/pango/1.16/pango-$pango_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/pango-$pango_version.tar.gz | tar xf -
+      cd $pango-$pango_version
+      ./configure $generic_prefix
+      $MAKE
+      pango_status=$?
+      if [ "$pango_status" != 0 ] ; then
+         echo make of pango failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
+   if [ "$pango_status" = 0 ] ; then
+      echo BUILDING gtk+2
+      gtk2_version=2.10.14
+#      ${WGET} ftp://ftp.gtk.org/pub/gtk/v2.10/gtk+-$gtk2_version.tar.gz
+      ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/gtk+-$gtk2_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/gtk+-$gtk2_version.tar.gz | tar xf -
+      cd $gtk+-$_version
+      ./configure $generic_prefix
+      $MAKE
+      gtk2_status=$?
+      if [ "$gtk2_status" != 0 ] ; then
+         echo make of gtk+2 failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
+   ) > 07-gtk-prerequisites.txt 2>&1
+   
 fi
 
 
