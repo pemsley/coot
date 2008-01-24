@@ -201,7 +201,7 @@
 # 3.01 20080118 Add GtkGlExt
 # 3.02 20080121 Tinker with guile build settings.
 # 3.03 20080124 Build GTK2 from scratch: librsvg, cairo, pango, glitz. glib, gtk+-2
-script_version=3.02
+script_version=3.03
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1808,8 +1808,7 @@ if test -n "$build_gtk" ; then
       cd - 
    fi
 
-   ) > 07-gtk-prerequisites.txt 2>&1
-   
+   ) > $HOSTLOGDIR/06-gtk-prerequisites.txt 2>&1
 fi
 
 
