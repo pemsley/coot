@@ -1723,6 +1723,23 @@ if test -n "$build_gtk" ; then
    cd - 
  
    if [ "$glitz_status" = 0 ] ; then
+      echo BUILDING glib
+      glib_version=2.15.3
+      ${WGET} ftp://ftp.gtk.org/pub/glib/2.15/glib-$glib_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz | tar xf -
+      cd glib-$glib_version
+      ./configure $generic_prefix
+      $MAKE
+      glib_status=$?
+      if [ "$glib_status" != 0 ] ; then
+         echo make of glib failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
+   if [ "$glib_status" = 0 ] ; then
       echo BUILDING librsvg
       librsvg_version=2.20.0
       ${WGET} http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-$librsvg_version.tar.gz
@@ -1757,23 +1774,6 @@ if test -n "$build_gtk" ; then
    fi
 
    if [ "$cairo_status" = 0 ] ; then
-      echo BUILDING glib
-      glib_version=2.15.3
-      ${WGET} ftp://ftp.gtk.org/pub/glib/2.15/glib-$glib_version.tar.gz
-      gzip -dc ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz | tar xf -
-      cd glib-$glib_version
-      ./configure $generic_prefix
-      $MAKE
-      glib_status=$?
-      if [ "$glib_status" != 0 ] ; then
-         echo make of glib failed
-      else
-         $MAKE install
-      fi
-      cd - 
-   fi
-
-   if [ "$glib_status" = 0 ] ; then
       echo BUILDING pango
       pango_version=1.16.4
       ${WGET} ftp://ftp.gtk.org/pub/pango/1.16/pango-$pango_version.tar.gz
