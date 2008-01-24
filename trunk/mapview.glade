@@ -1228,6 +1228,18 @@
 	      <label>Probe clashes</label>
 	      <right_justify>False</right_justify>
 	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>ncs_differences1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_ncs_differences1_activate</handler>
+		<last_modification_time>Thu, 24 Jan 2008 20:07:48 GMT</last_modification_time>
+	      </signal>
+	      <label>NCS Differences</label>
+	      <right_justify>False</right_justify>
+	    </widget>
 	  </widget>
 	</widget>
 

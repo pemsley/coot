@@ -1204,7 +1204,7 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
 
       
    } 
-   
+   return drv;
 }
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL

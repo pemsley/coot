@@ -143,6 +143,7 @@ create_window1 (void)
   GtkWidget *rotamer_analysis1;
   GtkWidget *density_fit_analysis1;
   GtkWidget *probe_clashes1;
+  GtkWidget *ncs_differences1;
   GtkWidget *hid1;
   GtkWidget *hid1_menu;
   GtkAccelGroup *hid1_menu_accels;
@@ -972,6 +973,13 @@ create_window1 (void)
   gtk_widget_show (probe_clashes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), probe_clashes1);
 
+  ncs_differences1 = gtk_menu_item_new_with_label (_("NCS Differences"));
+  gtk_widget_ref (ncs_differences1);
+  gtk_object_set_data_full (GTK_OBJECT (window1), "ncs_differences1", ncs_differences1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (ncs_differences1);
+  gtk_container_add (GTK_CONTAINER (validate1_menu), ncs_differences1);
+
   hid1 = gtk_menu_item_new_with_label (_("HID"));
   gtk_widget_ref (hid1);
   gtk_object_set_data_full (GTK_OBJECT (window1), "hid1", hid1,
@@ -1391,6 +1399,9 @@ create_window1 (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (probe_clashes1), "activate",
                       GTK_SIGNAL_FUNC (on_probe_clashes1_activate),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (ncs_differences1), "activate",
+                      GTK_SIGNAL_FUNC (on_ncs_differences1_activate),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (attach_scroll_wheel_to_which_map_1), "activate",
                       GTK_SIGNAL_FUNC (on_attach_scroll_wheel_to_which_map_1_activate),
