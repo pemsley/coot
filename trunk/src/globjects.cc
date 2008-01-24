@@ -656,6 +656,7 @@ GtkWidget **graphics_info_t::b_factor_variance_graph    = NULL;
 GtkWidget **graphics_info_t::residue_density_fit_graph  = NULL;
 GtkWidget **graphics_info_t::omega_distortion_graph     = NULL;
 GtkWidget **graphics_info_t::rotamer_graph              = NULL;
+GtkWidget **graphics_info_t::ncs_diffs_graph            = NULL;
 float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
 
 

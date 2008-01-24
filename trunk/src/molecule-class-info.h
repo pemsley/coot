@@ -144,8 +144,9 @@ namespace coot {
    class ncs_residue_info_t {
    public:
      float mean_diff;
-     int n_atoms;
+     float n_weighted_atoms;
      int resno; 
+     bool filled;
      std::string inscode;
      int serial_number;
      int target_resno; 
@@ -153,10 +154,12 @@ namespace coot {
      std::string target_inscode;
      ncs_residue_info_t() {
        mean_diff = -1;
-       n_atoms = 0;
+       n_weighted_atoms = 0;
+       filled = 0;
      }
      ncs_residue_info_t(int resno_in, const std::string &ins_code_in, int serial_number_in,
 			int target_resno_in, const std::string &target_ins_code_in, int target_serial_number_in) {
+       filled = 1;
        resno = resno_in;
        inscode = ins_code_in;
        serial_number = serial_number_in;
@@ -231,7 +234,8 @@ namespace coot {
       void update_bonds(CMMDBManager *mol); // the parent's mol
       bool is_empty() { return (SelectionHandle == -1); }
       ncs_residue_info_t get_differences(CResidue *this_residue_p, 
-					 CResidue *master_residue_p) const;
+					 CResidue *master_residue_p, 
+					 float main_chain_weight) const;
    };
 
    class display_list_object_info {
@@ -1846,7 +1850,8 @@ class molecule_class_info_t {
 				   const std::string &next_ncs_chain) const;
    
    short int show_strict_ncs_flag;
-   coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id) const;
+   coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id, 
+						 float main_chain_weight) const;
 
    // shelx stuff
    std::pair<int, std::string> write_shelx_ins_file(const std::string &filename);

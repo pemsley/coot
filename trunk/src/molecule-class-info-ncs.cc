@@ -1714,7 +1714,8 @@ molecule_class_info_t::ncs_ghost_chain_is_a_target_chain_p(const std::string &ch
 } 
 
 coot::ncs_differences_t
-molecule_class_info_t::ncs_chain_differences(std::string master_chain_id) const {
+molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
+					     float main_chain_weight) const {
 
    std::vector<coot::ncs_chain_difference_t> diffs;
 
@@ -1755,7 +1756,8 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id) const 
 		  this_residue_p = this_chain_p->GetResidue(ires);
 		  master_residue_p = master_chain_p->GetResidue(ires);
 		  coot::ncs_residue_info_t ds = 
-		     ncs_ghosts[ighost].get_differences(this_residue_p, master_residue_p);
+		     ncs_ghosts[ighost].get_differences(this_residue_p, master_residue_p,
+							main_chain_weight);
 		  residue_info.push_back(ds);
 	       }
 	       coot::ncs_chain_difference_t d(ncs_ghosts[ighost].chain_id, residue_info);
@@ -1771,7 +1773,8 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id) const 
 
 coot::ncs_residue_info_t
 coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p, 
-						CResidue *master_residue_p) const {
+						CResidue *master_residue_p,
+						float main_chain_weight) const {
    // has access to rtop
    coot::ncs_residue_info_t r;
 
@@ -1781,28 +1784,31 @@ coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p,
       PPCAtom residue_atoms_1 = NULL;
       PPCAtom residue_atoms_2 = NULL;
       int n_residue_atoms_1, n_residue_atoms_2;
-      this_residue_p->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+        this_residue_p->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
       master_residue_p->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
-      int n_atoms = 0;
+      float n_weighted_atoms = 0.0;
       double sum_dist = 0.0;
       for (unsigned int i=0; i<index_pairs.size(); i++) {
+	 float atom_weight = 1.0;
 	 CAtom *at1 = residue_atoms_1[index_pairs[i].first];
 	 CAtom *at2 = residue_atoms_2[index_pairs[i].second];
+	 if (coot::is_main_chain_p(at1))
+	    atom_weight = main_chain_weight;
 	 clipper::Coord_orth pt1(at1->x, at1->y, at1->z);
 	 clipper::Coord_orth pt2(at2->x, at2->y, at2->z);
 	 double len = clipper::Coord_orth::length(pt1.transform(rtop), pt2);
 	 sum_dist +=len;
-	 n_atoms++;
+	 n_weighted_atoms += atom_weight;
       }
-      if (n_atoms > 0) {
+      if (n_weighted_atoms > 0.0) {
 	 r = coot::ncs_residue_info_t(this_residue_p->GetSeqNum(),
 				      this_residue_p->GetInsCode(),
 				      this_residue_p->index,
 				      master_residue_p->GetSeqNum(),
 				      master_residue_p->GetInsCode(),
 				      master_residue_p->index);
-	 r.mean_diff = sum_dist/float(n_atoms);
-	 r.n_atoms = n_atoms;
+	 r.mean_diff = sum_dist/float(n_weighted_atoms);
+	 r.n_weighted_atoms = n_weighted_atoms;
       }
    } else {
       std::cout << "different residue types" << std::endl;

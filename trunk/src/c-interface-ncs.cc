@@ -423,10 +423,12 @@ int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w) {
 #ifdef USE_GUILE
 SCM ncs_chain_differences_scm(int imol, const char *master_chain_id) {
 
+   float mc_weight = 1.0;
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       coot::ncs_differences_t diffs = 
-	 graphics_info_t::molecules[imol].ncs_chain_differences(master_chain_id);
+	 graphics_info_t::molecules[imol].ncs_chain_differences(master_chain_id,
+								mc_weight);
       if (diffs.size() == 0) {
 	 std::cout << "no diffs" << std::endl;
       } else {
@@ -493,3 +495,17 @@ SCM ncs_chains_ids_scm(int imol) {
    return r;
 }
 #endif	/* USE_GUILE */
+
+// This should be  in c-interface-ncs-gui.cc
+void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
+						      gpointer         user_data) {
+   
+   int imol = GPOINTER_TO_INT(user_data);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   graphics_info_t g;
+   g.ncs_diffs_from_mol(imol);
+#else    
+   printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#endif /* HAVE_GTK_CANVAS */
+
+}

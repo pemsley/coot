@@ -2819,6 +2819,8 @@ void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuit
 						   gpointer         user_data);
 void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuitem,
 							 gpointer         user_data);
+void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
+						       gpointer         user_data);
 
 void probe_mol_selector_activate (GtkMenuItem     *menuitem,
 				  gpointer         user_data);
