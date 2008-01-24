@@ -1711,7 +1711,7 @@ if test -n "$build_gtk" ; then
    date
    echo BUILDING glitz
    gzip -dc ${AUTOBUILD_SOURCES}/glitz-$glitz_version.tar.gz | tar xf -
-   cd $glitz-$glitz_version
+   cd glitz-$glitz_version
    ./configure $generic_prefix
    $MAKE
    glitz_status=$?
@@ -1727,7 +1727,7 @@ if test -n "$build_gtk" ; then
       librsvg_version=2.20.0
       ${WGET} http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-$librsvg_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.tar.gz | tar xf -
-      cd $librsvg-$librsvg_version
+      cd librsvg-$librsvg_version
       ./configure $generic_prefix
       $MAKE
       librsvg_status=$?
@@ -1744,7 +1744,7 @@ if test -n "$build_gtk" ; then
       cairo_version=1.4.14
       ${WGET} http://cairographics.org/releases/cairo-$cairo_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/cairo-$cairo_version.tar.gz | tar xf -
-      cd $cairo-$cairo_version
+      cd cairo-$cairo_version
       ./configure $generic_prefix --enable-glitz
       $MAKE
       cairo_status=$?
@@ -1761,7 +1761,7 @@ if test -n "$build_gtk" ; then
       glib_version=2.15.3
       ${WGET} ftp://ftp.gtk.org/pub/glib/2.15/glib-$glib_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz | tar xf -
-      cd $glib-$glib_version
+      cd glib-$glib_version
       ./configure $generic_prefix
       $MAKE
       glib_status=$?
@@ -1778,7 +1778,7 @@ if test -n "$build_gtk" ; then
       pango_version=1.16.4
       ${WGET} ftp://ftp.gtk.org/pub/pango/1.16/pango-$pango_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/pango-$pango_version.tar.gz | tar xf -
-      cd $pango-$pango_version
+      cd pango-$pango_version
       ./configure $generic_prefix
       $MAKE
       pango_status=$?
@@ -1796,7 +1796,7 @@ if test -n "$build_gtk" ; then
 #      ${WGET} ftp://ftp.gtk.org/pub/gtk/v2.10/gtk+-$gtk2_version.tar.gz
       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/gtk+-$gtk2_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/gtk+-$gtk2_version.tar.gz | tar xf -
-      cd $gtk+-$_version
+      cd gtk+-$gtk2_version
       ./configure $generic_prefix
       $MAKE
       gtk2_status=$?
