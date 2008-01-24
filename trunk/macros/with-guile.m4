@@ -32,7 +32,7 @@ AC_ARG_WITH(guile, [  --with-guile=PFX Prefix where GUILE has been installed],
 saved_LIBS="$LIBS"
 saved_CFLAGS="$CFLAGS"
 
-if test x$with_guile != x; then
+if test x$with_guile = xyes; then
    echo Congratulations, you are using Guile
    coot_guile=true
 else 
