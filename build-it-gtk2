@@ -1724,8 +1724,8 @@ if test -n "$build_gtk" ; then
  
    if [ "$glitz_status" = 0 ] ; then
       echo BUILDING glib
-      glib_version=2.15.3
-      ${WGET} ftp://ftp.gtk.org/pub/glib/2.15/glib-$glib_version.tar.gz
+      glib_version=2.14.5
+      ${WGET} ftp://ftp.gtk.org/pub/glib/2.14/glib-$glib_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz | tar xf -
       cd glib-$glib_version
       ./configure $generic_prefix
