@@ -50,11 +50,14 @@ extern PyObject *view_name_py(int view_number);
 extern PyObject *view_description_py(int view_number);
 extern void go_to_view_py(PyObject *view);
 // from c-interface-build.cc
+extern PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
+extern PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
 extern PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 extern int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_expression);
 extern int add_molecule_py(PyObject *molecule_expression, const char *name);
 extern void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
                  const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
+extern int set_atom_attributes_py(PyObject *attribute_expression_list);
 extern PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 extern PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno);
 extern PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, 
@@ -72,4 +75,7 @@ extern PyObject *rotamer_graphs_py(int imol);
 // from c-interface-mutate.cc
 extern coot::atom_spec_t atom_spec_from_python_expression(PyObject *expr);
 extern int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_spec);
+// from c-interface-ncs.cc
+extern PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id);
+extern PyObject *ncs_chains_ids_py(int imol);
 #endif // USE_PYTHON

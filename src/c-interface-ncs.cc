@@ -472,6 +472,67 @@ SCM ncs_chain_differences_scm(int imol, const char *master_chain_id) {
    return r;
 }
 #endif	/* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      coot::ncs_differences_t diffs = 
+	 graphics_info_t::molecules[imol].ncs_chain_differences(master_chain_id);
+      if (diffs.size() == 0) {
+	 std::cout << "no diffs" << std::endl;
+      } else {
+	 r = PyList_New(0);
+	 for (int idiff=0; idiff<diffs.size(); idiff++) {
+	    PyObject *l_residue_data = PyList_New(0);
+	    coot::ncs_chain_difference_t cd = diffs.diffs[idiff];
+	    if (cd.residue_info.size() > 0) {
+	       std::cout << "NCS target chain has " << cd.residue_info.size()
+			 << " peers." << std::endl;
+	       //	       for (int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
+	       for (int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
+		  std::cout << "resinfo: "
+			    << cd.residue_info[iresinf].resno << " "
+			    << cd.residue_info[iresinf].inscode << " "
+			    << cd.residue_info[iresinf].serial_number << " to "
+			    << cd.residue_info[iresinf].target_resno << " "
+			    << cd.residue_info[iresinf].target_inscode << " "
+			    << cd.residue_info[iresinf].target_serial_number << " diff: "
+			    << cd.residue_info[iresinf].mean_diff
+			    << std::endl;
+		  coot::residue_spec_t this_res(cd.peer_chain_id,
+						cd.residue_info[iresinf].resno,
+						cd.residue_info[iresinf].inscode);
+		  coot::residue_spec_t target_res(diffs.target_chain_id,
+						  cd.residue_info[iresinf].target_resno,
+						  cd.residue_info[iresinf].target_inscode);
+		  // according to Paul's documentation we should have resno and inscode
+		  // for both residues here too
+		  PyObject *thisr = PyList_GetSlice(py_residue(this_res), 2, 4);
+		  
+		  PyObject *masta = PyList_GetSlice(py_residue(target_res), 2, 4);
+
+		  // res_l list seems only to have one element in Paul's scm code
+		  // currently?! Correct?!
+		  PyObject *res_l = PyList_New(0);
+		  PyList_Append(res_l, thisr);
+		  PyList_Append(res_l, masta);
+		  PyList_Append(res_l, PyFloat_FromDouble(cd.residue_info[iresinf].mean_diff));
+//		  res_l = scm_cons(scm_cdr(scm_residue(target_res)), res_l);
+//		  res_l = scm_cons(scm_cdr(scm_residue(this_res)), res_l);
+		  PyList_Append(l_residue_data, res_l);
+	       }
+	       PyList_Append(r, PyString_FromString(cd.peer_chain_id.c_str()));
+	       PyList_Append(r, PyString_FromString(diffs.target_chain_id.c_str()));
+	       PyList_Append(r, l_residue_data); 
+	    }
+	 }
+      }
+   }
+   return r;
+}
+#endif	/* USE_PYTHON */
+
 
 #ifdef USE_GUILE
 SCM ncs_chains_ids_scm(int imol) {
@@ -495,6 +556,29 @@ SCM ncs_chains_ids_scm(int imol) {
    return r;
 }
 #endif	/* USE_GUILE */
+
+#ifdef USE_PYTHON
+PyObject *ncs_chains_ids_py(int imol) {
+   PyObject *r = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (graphics_info_t::molecules[imol].has_ncs_p()) {
+	 std::vector<std::vector<std::string> > ncs_ghost_chains =
+	    graphics_info_t::molecules[imol].ncs_ghost_chains();
+// 	 std::cout << "There are " << ncs_ghost_chains.size() << " ncs ghost chains"
+// 		<< std::endl;
+	 if (ncs_ghost_chains.size() > 0) {
+	    r = PyList_New(ncs_ghost_chains.size());
+	    for (int i=0; i<ncs_ghost_chains.size(); i++) {
+	       PyObject *string_list_py =
+		  generic_string_vector_to_list_internal_py(ncs_ghost_chains[i]);
+	       PyList_SetItem(r, i, string_list_py);
+	    }
+	 }
+      }
+   }
+   return r;
+}
+#endif	/* USE_PYTHON */
 
 // This should be  in c-interface-ncs-gui.cc
 void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,

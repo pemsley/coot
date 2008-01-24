@@ -81,7 +81,7 @@
   #define scm_to_int gh_scm2int
   #define scm_to_locale_string SCM_STRING_CHARS
   #define scm_to_double  gh_scm2double
-  #define  scm_is_true gh_scm2bool
+  #define scm_is_true gh_scm2bool
 #endif // SCM version
 #endif // USE_GUILE
 
@@ -101,6 +101,7 @@
 #include "cmtz-interface.hh" // for valid columns mtz_column_types_info_t
 #include "c-interface-mmdb.hh"
 #include "c-interface-scm.hh"
+#include "c-interface-python.hh"
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps - (somewhere else?):                               */
@@ -938,9 +939,89 @@ int set_atom_attributes(SCM attribute_expression_list) {
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-// Bernhard fill me in!
-//int set_atom_attributes(SCM attribute_expression_list) {
-//}
+int set_atom_attributes_py(PyObject *attribute_expression_list) {
+
+   int r= 0;
+   int list_length = PyObject_Length(attribute_expression_list);
+   int n = graphics_info_t::n_molecules; 
+   std::vector<std::vector<coot::atom_attribute_setting_t> > v(n);
+
+   if (list_length > 0) {
+      for (int iattr=0; iattr<list_length; iattr++) { 
+	 PyObject *attribute_expression = PyList_GetItem(attribute_expression_list, iattr);
+	 if (PyList_Check(attribute_expression)) { 
+	    int attr_expression_length = PyObject_Length(attribute_expression);
+	    if (attr_expression_length != 8) {
+	       std::cout << "Incomplete attribute expression: "
+			 << PyString_AsString(attribute_expression)
+			 << std::endl;		  
+	    } else {
+	       PyObject *imol_py            = PyList_GetItem(attribute_expression, 0);
+	       PyObject *chain_id_py        = PyList_GetItem(attribute_expression, 1);
+	       PyObject *resno_py           = PyList_GetItem(attribute_expression, 2);
+	       PyObject *ins_code_py        = PyList_GetItem(attribute_expression, 3);
+	       PyObject *atom_name_py       = PyList_GetItem(attribute_expression, 4);
+	       PyObject *alt_conf_py        = PyList_GetItem(attribute_expression, 5);
+	       PyObject *attribute_name_py  = PyList_GetItem(attribute_expression, 6);
+	       PyObject *attribute_value_py = PyList_GetItem(attribute_expression, 7);
+	       int imol = PyInt_AsLong(imol_py);
+	       if (is_valid_model_molecule(imol)) {
+		  std::string chain_id = PyString_AsString(chain_id_py);
+		  int resno = PyInt_AsLong(resno_py);
+		  
+		  std::string inscode        = "-*-unset-*-:";
+		  std::string atom_name      = "-*-unset-*-:";
+		  std::string alt_conf       = "-*-unset-*-:";
+		  std::string attribute_name = "-*-unset-*-:";
+
+		  if (PyString_Check(ins_code_py)) 
+		    inscode        = PyString_AsString(ins_code_py);
+		  if (PyString_Check(atom_name_py))
+		    atom_name      = PyString_AsString(atom_name_py);
+		  if (PyString_Check(alt_conf_py))
+		    alt_conf       = PyString_AsString(alt_conf_py); 
+		  if (PyString_Check(attribute_name_py)) 
+		    attribute_name = PyString_AsString(attribute_name_py);
+
+		  if ((inscode        == "-*-unset-*-:") ||
+		      (atom_name      == "-*-unset-*-:") ||
+		      (alt_conf       == "-*-unset-*-:") ||
+		      (attribute_name == "-*-unset-*-:")) {
+
+		     std::cout << "WARNING:: bad attribute expression: "
+			       << PyString_AsString(attribute_expression)
+			       << std::endl;
+
+		  } else { 
+		      
+		     coot::atom_attribute_setting_help_t att_val;
+		     if (PyString_Check(attribute_value_py)) {
+			// std::cout << "a string value :" << att_val.s << ":" << std::endl;
+			att_val = coot::atom_attribute_setting_help_t(PyString_AsString(attribute_value_py));
+		     } else {
+			att_val = coot::atom_attribute_setting_help_t(PyFloat_AsDouble(attribute_value_py));
+			// std::cout << "a float value :" << att_val.val << ":" << std::endl;
+		     } 
+		     v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
+		     //		     std::cout << "DEBUG:: Added attribute: "
+		     //                        << scm_to_locale_string(display_scm(attribute_expression))
+		     //        << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   for (int i=0; i<n; i++) {
+      if (v[i].size() > 0){
+	 graphics_info_t::molecules[i].set_atom_attributes(v[i]);
+      } 
+   }
+   if (v.size() > 0)
+      graphics_draw();
+   return r;
+}
 #endif // USE_PYTHON
 
 
@@ -3429,21 +3510,38 @@ SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state) {
 
 #ifdef USE_PYTHON
 PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
-   PyObject *r = 0;
-   return r;
-// Bernhard fill me in!
+// e.g. atom_spec: ["A", 81, "", " CA ", ""]
+//      position   [2.3, 3.4, 5.6]
+   PyObject *retval = Py_False;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
+   if (p.first) {
+      int pos_length = PyObject_Length(position);
+      if (pos_length == 3) {
+	 PyObject *x_py = PyList_GetItem(position, 0);
+	 PyObject *y_py = PyList_GetItem(position, 1);
+	 PyObject *z_py = PyList_GetItem(position, 2);
+	 double x = PyFloat_AsDouble(x_py);
+	 double y = PyFloat_AsDouble(y_py);
+	 double z = PyFloat_AsDouble(z_py);
+	 clipper::Coord_orth pt(x,y,z);
+	 graphics_info_t::drag_intermediate_atom(p.second, pt);
+      }
+   }
+   return retval;
 }
-#endif 
+#endif // USE_PYTHON
 
 
 #ifdef USE_PYTHON
 PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
-   PyObject *r = 0;
-   return r;
-// Bernhard fill me in
+   PyObject *retval = Py_False;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
+   if (p.first) {
+      graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
+   }
+   return retval;
 }
-
-#endif 
+#endif // USE_PYTHON 
 
 
 

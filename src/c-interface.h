@@ -1756,8 +1756,7 @@ int set_atom_attributes(SCM attribute_expression_list);
 #endif 
 
 #ifdef USE_PYTHON
-// FIXME Bernhard
-// int set_atom_attributes()
+int set_atom_attributes_py(PyObject *attribute_expression_list);
 #endif 
 #endif // __cplusplus
 
@@ -4132,6 +4131,20 @@ SCM ncs_chain_differences_scm(int imol, const char *master_chain_id);
    If imol does not have NCS ghosts, return #f */
 SCM ncs_chains_ids_scm(int imol);
 #endif	/* USE_GUILE */
+#ifdef USE_PYTHON
+/* Return e.g. ["B", "A", [[[1, ""], [1, ""], 0.4], [[2, ""], [2, ""], 0.3]]]
+   i.e. ncs-related-chain its-master-chain-id and a list of residue
+   info: [residue number matches: [this-resno, this-inscode
+   matching-master-resno, matching-master-inscode, 
+   rms-atom-position-differences]] */
+PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id);
+
+/*! \brief return something like: [["A", "B"]] or [["A", "C", "E"], ["B",
+  "D", "F"]]. The master chain goes in first.
+
+   If imol does not have NCS ghosts, return #f */
+PyObject *ncs_chains_ids_py(int imol);
+#endif  /* USE_PYTHON */
 #endif	/* __cplusplus */
 
 /* \} */

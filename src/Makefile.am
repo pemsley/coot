@@ -227,12 +227,14 @@ coot_real_SOURCES = \
 	pick.cc			 \
 	cmtz-interface.hh	 \
 	c-interface-scm.hh	 \
+	c-interface-python.hh	 \
 	cmtz-interface.cc	 \
 	c-interface.cc		 \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
 	c-interface-ncs.cc	 \
 	c-interface-scm.cc	 \
+	c-interface-python.cc	 \
 	c-interface-info.cc	 \
 	c-interface-mmdb.cc	 \
 	c-interface-build.cc	 \

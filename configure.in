@@ -126,11 +126,15 @@ dnl Check for Clipper.  we exit if clipper is not found.
 #
 AM_PATH_CLIPPER(, [echo Error locating Clipper - a shiny new version of Clipper is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
 
+# we set default coot_guile to true
+coot_guile=true
 AM_WITH_GUILE(, [echo optional guile\?],,)
-GUILE_FLAGS
-AM_GUILE_GOOSH
-AM_GUILE_NET_HTTP
-AM_GUILE_GUI
+if test x$coot_guile = xtrue ; then
+   GUILE_FLAGS
+   AM_GUILE_GOOSH
+   AM_GUILE_NET_HTTP
+   AM_GUILE_GUI
+fi
 
 AM_WITH_PYTHON
 
