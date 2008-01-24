@@ -1156,3 +1156,55 @@ graphics_info_t::density_fit_from_residues(PCResidue *SelResidues, int nSelResid
 }
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
+
+#ifdef HAVE_GSL
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+std::vector<coot::geometry_graph_block_info_generic>
+graphics_info_t::ncs_diffs(const coot::ncs_chain_difference_t &d) {
+   std::vector<coot::geometry_graph_block_info_generic> v;
+   return v;
+}
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+#endif // HAVE_GSL
+
+#ifdef HAVE_GSL
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+std::vector<coot::geometry_graph_block_info_generic>
+graphics_info_t::ncs_diffs_from_mol(int imol) {
+
+   int imodel = 1;
+   std::vector<coot::geometry_graph_block_info_generic> drv;
+   std::string altconf("");  // use this (e.g. "A") or "".
+
+   std::string master = "A"; // master chain id
+   float w = 1.0; // main chain weight
+   coot::ncs_differences_t diff = graphics_info_t::molecules[imol].ncs_chain_differences(master, w);
+   
+   CMMDBManager *mol = molecules[imol].atom_sel.mol;
+   CModel *model_p = mol->GetModel(imodel);
+   int n_chains = diff.diffs.size();
+   int max_chain_length = coot::util::max_min_max_residue_range(mol);
+   coot::geometry_graphs *graphs =
+      new coot::geometry_graphs(coot::GEOMETRY_GRAPH_NCS_DIFFS, imol,
+				graphics_info_t::molecules[imol].name_for_display_manager(), 
+				n_chains, max_chain_length);
+		     
+   ncs_diffs_graph[imol] = graphs->dialog();
+   for (int ich=0; ich<diff.diffs.size(); ich++) {
+
+      // do this for each chain
+      int min_resno = 0; 
+      int max_resno = 0; 
+      int offset = 0; 
+      
+      std::vector<coot::geometry_graph_block_info_generic> v = 
+	 graphics_info_t::ncs_diffs(diff.diffs[ich]);
+      graphs->render_to_canvas(v, ich, diff.diffs[ich].peer_chain_id, max_resno, min_resno, offset);
+      
+
+      
+   } 
+   
+}
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+#endif // HAVE_GSL

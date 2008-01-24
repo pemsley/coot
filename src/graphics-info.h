@@ -679,6 +679,7 @@ public:
 	 residue_density_fit_graph[i]  = NULL;
 	 omega_distortion_graph[i]     = NULL;
 	 rotamer_graph[i]              = NULL;
+	 ncs_diffs_graph[i]            = NULL;
       }
    }
 
@@ -763,6 +764,11 @@ public:
       omega_distortion_graph = new GtkWidget * [n_molecules_max];
       for (int i=0; i<n_molecules_max; i++)
 	 omega_distortion_graph[i] = NULL;
+
+      // NCS diffs graph
+      ncs_diffs_graph = new GtkWidget * [n_molecules_max];
+      for (int i=0; i<n_molecules_max; i++)
+	 ncs_diffs_graph[i] = NULL;
 
       // ---- Adding something here? Like another graph?  don't forget
       // to update expand_molecule_space()
@@ -1678,6 +1684,8 @@ public:
    static GtkWidget **residue_density_fit_graph;
    static GtkWidget **omega_distortion_graph;
    static GtkWidget **rotamer_graph;
+   static GtkWidget **ncs_diffs_graph;
+
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    std::vector<coot::geometry_graph_block_info_generic>
@@ -1696,6 +1704,9 @@ public:
    std::vector<coot::geometry_graph_block_info_generic>
      rotamers_from_residue_selection(PCResidue *SelResidues,
 				   int nSelResidues, int imol); 
+
+   std::vector<coot::geometry_graph_block_info_generic> ncs_diffs_from_mol(int imol);
+   std::vector<coot::geometry_graph_block_info_generic> ncs_diffs(const coot::ncs_chain_difference_t &d);
 #endif   
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    static float residue_density_fit_scale_factor; // 1.0 usually, adjustable for CNS/mapman map users.
