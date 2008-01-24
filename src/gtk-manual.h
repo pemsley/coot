@@ -127,10 +127,10 @@ void on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
    display_control_molecule_combo_box (or the vbox thereof). */
 void display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
 					const gchar *name, 
-					const int *n); 
+					int n); 
 void update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
 						       const gchar *name, 
-						       const int *n);
+						       int n);
 
 
 void render_as_bonds_button_select(GtkWidget *item, GtkPositionType pos);
@@ -146,7 +146,7 @@ void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositio
 void render_as_occupancy_representation_button_select(GtkWidget *item, GtkPositionType pos);
 GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade, 
 					 const gchar *name, 
-					 const int *n); 
+					 int n); 
 
 /* void */
 /* on_display_control_map_displayed_button_clicked   (GtkButton       *button, */

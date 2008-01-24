@@ -1229,7 +1229,7 @@ molecule_class_info_t::update_map_in_display_control_widget() const {
    if (g.display_control_window())
       display_control_map_combo_box(g.display_control_window(), 
 				    dmn.c_str(),
-				    imol_no_ptr);
+				    imol_no);
 
 } 
 
@@ -1248,7 +1248,7 @@ molecule_class_info_t::update_mol_in_display_control_widget() const {
    if (g.display_control_window()) 
       update_name_in_display_control_molecule_combo_box(g.display_control_window(), 
 							dmn.c_str(), 
-							imol_no_ptr);
+							imol_no);
 }
 
 void
@@ -1263,7 +1263,7 @@ molecule_class_info_t::new_mol_in_display_control_widget() const {
    if (g.display_control_window()) 
       display_control_molecule_combo_box(g.display_control_window(), 
 							dmn.c_str(), 
-							imol_no_ptr);
+							imol_no);
 }
 
 std::string
