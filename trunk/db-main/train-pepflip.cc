@@ -110,15 +110,16 @@ main(int argc, char **argv) {
 		  // load up an internal vector of fragments that have been
 		  // rtop onto this target_ca_coords_5_res_frag
 		  //
-		  std::cout << "Inner Matching to target starting at " << ires
-			    << std::endl;
+// 		  std::cout << "Inner Matching to target starting at " << ires
+// 			    << std::endl;
 		  main_chain.match_targets_for_pepflip(frag_info.five_residues_as_cas);
 
 		  float cutoff = 2.5;
 		  // check that internal vector against the oxygen position
 		  float frac = main_chain.mid_oxt_outliers(frag_info.ox_pos, ires+2, cutoff);
-		  std::cout << "Fraction better: " << 100.0*frac
-			    << "% have oxygen dist closer than " << cutoff << std::endl;
+// 		  std::cout << "Fraction better: " << 100.0*frac
+// 			    << "% have oxygen dist closer than " << cutoff << std::endl;
+		  main_chain.clear_results();
 	       }
 	    }
 	 }

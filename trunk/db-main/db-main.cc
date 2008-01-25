@@ -107,7 +107,15 @@ coot::db_main::fill_with_fragments(int ilength) {
 		   << pdb_filename_list[i] << std::endl;
       }
    }
-   std::cout << mainchain_frag_db.size() << " fragments found in total" << std::endl;
+
+   int n5 = 0;
+   for (unsigned int i=0; i<mainchain_frag_db.size(); i++) {
+      if (mainchain_frag_db[i].ilength == 5)
+	 n5++;
+   }
+   
+   std::cout << "INFO:: " << mainchain_frag_db.size() << " fragments found in total";
+   std::cout << "       of which " << n5 << " were 5 peptides " << std::endl;
    return mainchain_frag_db.size();
 }
 
@@ -881,12 +889,20 @@ coot::db_main::is_empty() const {
    else
       return 0;
 }
+
+bool
+coot::db_main::is_empty_of_pepflips() const {
+
+   return 0;
+}
+
       
 
 void
 coot::db_main::clear_results() {
    big_results.clear();
    output_fragment.clear();
+   pepflip_fragments.clear();
 }
 
 
@@ -936,34 +952,36 @@ coot::db_main::match_targets_for_pepflip(const minimol::fragment &target_ca_coor
       
       assign_eigen_similarity_scores(target_eigens);
       sort_mainchain_fragments_by_eigens(target_eigens);
-      const int max_frag_count = 200;
+      const int max_frag_count = 100;
       int frag_count = 0;
       
       for (unsigned int i=0; (i<mainchain_frag_db.size() && i<max_frag_count); i++) { // several 1000s.
+	 if (mainchain_frag_db[i].ilength == 5) { 
 // 	 std::cout << "eigen similarilty score: " << mainchain_frag_db[i].eigen_similarity_score
 // 		   << std::endl;
-	 frag_count++;
+	    frag_count++;
 
-	 if (similar_eigens(0.2, target_eigens,
-			    mainchain_frag_db[i].sqrt_eigen_values)) {
-	    // std::cout << "eigens OK" << std::endl;
-	    std::vector<clipper::Coord_orth> mcfca =
-	       mainchain_ca_coords_of_db_frag(i, ilength);
+	    if (similar_eigens(0.2, target_eigens,
+			       mainchain_frag_db[i].sqrt_eigen_values)) {
+	       // std::cout << "eigens OK" << std::endl;
+	       std::vector<clipper::Coord_orth> mcfca =
+		  mainchain_ca_coords_of_db_frag(i, ilength);
 
-	    // and get devi
-	    if (int(mcfca.size()) == ilength ) {
-	       if (int(target_ca.size()) == ilength) {
-		  clipper::RTop_orth rtop(mcfca, target_ca);
-		  coot::minimol::fragment db_fragment =
-		     pull_db_fragment(mainchain_frag_db[i], ilength);
-		  db_fragment.transform(rtop);
-		  float this_devi = deviance(mcfca, target_ca, rtop);
-		  // std::cout << "d: " << this_devi << "\n";
-		  if (this_devi < best_devi)
-		     best_devi = this_devi;
-		  fits.push_back(coot::peptide_match_fragment_info_t(db_fragment, this_devi));
-	       } else {
-		  std::cout << "wrong target ca size" << std::endl;
+	       // and get devi
+	       if (int(mcfca.size()) == ilength ) {
+		  if (int(target_ca.size()) == ilength) {
+		     clipper::RTop_orth rtop(mcfca, target_ca);
+		     coot::minimol::fragment db_fragment =
+			pull_db_fragment(mainchain_frag_db[i], ilength);
+		     db_fragment.transform(rtop);
+		     float this_devi = deviance(mcfca, target_ca, rtop);
+		     // std::cout << "d: " << this_devi << "\n";
+		     if (this_devi < best_devi)
+			best_devi = this_devi;
+		     fits.push_back(coot::peptide_match_fragment_info_t(db_fragment, this_devi));
+		  } else {
+		     std::cout << "wrong target ca size" << std::endl;
+		  }
 	       }
 	    }
 	 }
@@ -985,14 +1003,14 @@ coot::db_main::mid_oxt_outliers(const clipper::Coord_orth &my_peptide_oxt_pos, i
 
    float ret_frac = -1.;
    int n_better = 0;
-   const int frag_count_max = 100;
+   const int frag_count_max = 70;
    int frag_count = 0;
 
    std::sort(pepflip_fragments.begin(), pepflip_fragments.end(), pepflip_sorter);
    std::vector<clipper::Coord_orth> matched_oxt_pos;
-   for (unsigned int ifit=0; (ifit<pepflip_fragments.size()) && (ifit<5) ; ifit++) {
-      std::cout << ifit << " " << pepflip_fragments[ifit].devi << "\n";
-   }
+//    for (unsigned int ifit=0; (ifit<pepflip_fragments.size()) && (ifit<5) ; ifit++) {
+//       std::cout << ifit << " " << pepflip_fragments[ifit].devi << "\n";
+//    }
 
    for (unsigned int ifit=0; (ifit<pepflip_fragments.size()) && (frag_count<frag_count_max) ; ifit++) {
       //       std::cout << "pepflip_fragments devi: " << pepflip_fragments[ifit].devi << std::endl;
@@ -1066,8 +1084,8 @@ coot::db_main::mid_oxt_outliers(const clipper::Coord_orth &my_peptide_oxt_pos, i
    
       ret_frac = float(n_better)/float(frag_count);
       std::cout << "z_jones_frac: " << resno_oxt << " " << z << " " << z_jones << " "
-		<< jones_rms << " " << rmsd << " " << 100.0*ret_frac <<  " [" << pepflip_fragments.size()
-		<< " samples]" << std::endl;
+		<< jones_rms << " " << rmsd << " " << 100.0*ret_frac <<  "% ["
+		<< pepflip_fragments.size() << " samples]" << std::endl;
    }
    return ret_frac;
 }

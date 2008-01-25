@@ -234,6 +234,7 @@ namespace coot {
       // once.  So let's do that and store it in a static.
       // 
       bool is_empty() const; 
+      bool is_empty_of_pepflips() const; 
 
       // This is the big complex one:
       //
