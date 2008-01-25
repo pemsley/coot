@@ -95,7 +95,9 @@
    (lambda ()	      
 
      (if (not (valid-model-molecule? imol-rnase))
-	 (throw 'fail)
+         (begin
+            (format #t "imol-rnase not valid.~%")
+	    (throw 'fail))
 	 (let* ((rnase-ins "rnase.ins")
 		(status (write-shelx-ins-file imol-rnase rnase-ins)))
 	   (if (not (= status 1)) 
