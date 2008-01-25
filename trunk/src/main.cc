@@ -329,6 +329,7 @@ main (int argc, char *argv[]) {
 	create_initial_validation_graph_submenu_generic(window1 , "probe_clashes1", "probe_submenu");
 	create_initial_validation_graph_submenu_generic(window1 , "gln_and_asn_b_factor_outliers1",
 							"gln_and_asn_b_factor_outliers_submenu");
+	create_initial_validation_graph_submenu_generic(window1 , "ncs_differences1", "ncs_diffs_submenu");
 
      } else {
 	std::cout << "CATASTROPHIC ERROR:: failed to create Gtk GL widget"

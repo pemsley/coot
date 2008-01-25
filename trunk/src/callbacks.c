@@ -5545,13 +5545,25 @@ on_peptide_omega_analysis1_activate    (GtkMenuItem     *menuitem,
 
 }
 
+void
+on_ncs_differences1_activate           (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  char *type = "ncs-diffs";
+  GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "ncs_differences1");
+  if (menu) { 
+    add_on_validation_graph_mol_options(menu, type);
+  } else { 
+    printf("failed to get menu in on_peptide_omega_analysis1_activate\n");
+  }
+}
+
 
 void
 on_temp_fact_variance_analysis1_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
   char *type = "b factor";
   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "temp_fact_variance_analysis1");
   if (menu) { 
@@ -8639,11 +8651,4 @@ on_geometry_dynamic_distance_togglebutton_toggled
     setup_dynamic_distances(0);
 }
 
-
-void
-on_ncs_differences1_activate           (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
 

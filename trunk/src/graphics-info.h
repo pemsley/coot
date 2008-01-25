@@ -1706,7 +1706,8 @@ public:
 				   int nSelResidues, int imol); 
 
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs_from_mol(int imol);
-   std::vector<coot::geometry_graph_block_info_generic> ncs_diffs(const coot::ncs_chain_difference_t &d);
+   std::vector<coot::geometry_graph_block_info_generic> ncs_diffs(int imol, 
+								  const coot::ncs_chain_difference_t &d);
 #endif   
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    static float residue_density_fit_scale_factor; // 1.0 usually, adjustable for CNS/mapman map users.

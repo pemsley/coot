@@ -1160,8 +1160,35 @@ graphics_info_t::density_fit_from_residues(PCResidue *SelResidues, int nSelResid
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
-graphics_info_t::ncs_diffs(const coot::ncs_chain_difference_t &d) {
+graphics_info_t::ncs_diffs(int imol, const coot::ncs_chain_difference_t &d) {
    std::vector<coot::geometry_graph_block_info_generic> v;
+
+   std::cout << "peer chain id in ncs_diffs: " << d.peer_chain_id << std::endl;
+   for (unsigned int ires=0; ires<d.residue_info.size(); ires++) {
+      if (d.residue_info[ires].filled) { 
+	 float distance = d.residue_info[ires].mean_diff;
+	 CAtom *at = molecules[imol].atom_intelligent(d.peer_chain_id,
+						      d.residue_info[ires].resno,
+						      d.residue_info[ires].inscode);
+	 std::string atom_name = " CA ";
+	 std::string altconf = "";
+	 if (at) {
+	    atom_name = at->name;
+	    altconf = at->altLoc;
+	 }
+	 
+	 coot::atom_spec_t as(d.peer_chain_id,
+			      d.residue_info[ires].resno,
+			      d.residue_info[ires].inscode,
+			      atom_name, altconf);
+	 std::string str = "mean d = ";
+	 str += coot::util::float_to_string(distance);
+	 str += "A";
+	 coot::geometry_graph_block_info_generic block(imol, d.residue_info[ires].resno, as,
+						       30.0*distance, str);
+	 v.push_back(block);
+      }
+   }
    return v;
 }
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
@@ -1188,18 +1215,30 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
       new coot::geometry_graphs(coot::GEOMETRY_GRAPH_NCS_DIFFS, imol,
 				graphics_info_t::molecules[imol].name_for_display_manager(), 
 				n_chains, max_chain_length);
-		     
+
    ncs_diffs_graph[imol] = graphs->dialog();
-   for (int ich=0; ich<diff.diffs.size(); ich++) {
+   for (unsigned int incs_set=0; incs_set<diff.diffs.size(); incs_set++) {
 
       // do this for each chain
-      int min_resno = 0; 
-      int max_resno = 0; 
-      int offset = 0; 
+      int min_resno =  99999; 
+      int max_resno = -99999; 
+      int offset = 0;
+
+      // diffs.diffs is a vector of chain differences (vector of ncs_chain_differences_t)
+      // A ncs_chain_differences_t contains a vector of residue difference infos.
+
+      for (unsigned int ires=0; ires<diff.diffs[incs_set].residue_info.size(); ires++) {
+
+	 if (diff.diffs[incs_set].residue_info[ires].resno < min_resno)
+	    min_resno = diff.diffs[incs_set].residue_info[ires].resno;
+	 if (diff.diffs[incs_set].residue_info[ires].resno > max_resno)
+	    max_resno = diff.diffs[incs_set].residue_info[ires].resno;
+      }
+      offset = min_resno - 1; 
       
       std::vector<coot::geometry_graph_block_info_generic> v = 
-	 graphics_info_t::ncs_diffs(diff.diffs[ich]);
-      graphs->render_to_canvas(v, ich, diff.diffs[ich].peer_chain_id, max_resno, min_resno, offset);
+	 graphics_info_t::ncs_diffs(imol, diff.diffs[incs_set]);
+      graphs->render_to_canvas(v, incs_set, diff.diffs[incs_set].peer_chain_id, max_resno, min_resno, offset);
       
 
       
