@@ -677,6 +677,11 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
       found_validation_type = 1;
       sub_menu_name = "gln_and_asn_b_factor_outliers_submenu";
    }
+   if (validation_type == "ncs-diffs") {
+      callback = GTK_SIGNAL_FUNC(validation_graph_ncs_diffs_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "ncs_diffs_submenu";
+   }
 
    GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
 
