@@ -6,7 +6,7 @@
    (lambda ()
 
      ;; should return #f
-     (let ((ncs-chain-info (ncs-chains -1)))
+     (let ((ncs-chain-info (ncs-chain-ids -1)))
        (if ncs-chain-info
 	   (begin
 	     (format #t "   Fail: ncs-chains returns ~s, should be #f~%" ncs-chain-info)
@@ -14,10 +14,10 @@
 
      ;; a normal case
      (make-ncs-ghosts-maybe imol-rnase)
-     (let ((ncs-chain-info (ncs-chains imol-rnase)))
+     (let ((ncs-chain-info (ncs-chain-ids imol-rnase)))
        (if (not ncs-chain-info)
 	   (begin
-	     (format #t "   Fail: ncs-chains returns #f~%")
+	     (format #t "   Fail: ncs-chain-ids returns #f~%")
 	     (throw 'fail))
 	   (if (not (> (length ncs-chain-info) 0))
 	       (begin
