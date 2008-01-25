@@ -7,6 +7,11 @@
 
 (define is-valid-model-molecule 1) ;; hack to get past problem loading
 				   ;; coot-utils on bubbles
+(define  drag-intermediate-atom-scm #t)
+(define  mark-atom-as-fixed-scm #t)
+(define  ncs-chains-ids-scm #t)
+(define  ncs-chain-differences-scm #t)
+
 (load "filter.scm")
 (load "coot-utils.scm")
 
