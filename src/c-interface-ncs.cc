@@ -535,7 +535,7 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 
 
 #ifdef USE_GUILE
-SCM ncs_chains_ids_scm(int imol) {
+SCM ncs_chain_ids_scm(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       if (graphics_info_t::molecules[imol].has_ncs_p()) {

@@ -26,7 +26,7 @@
 ;; 
 (define drag-intermediate-atom drag-intermediate-atom-scm)
 (define mark-atom-as-fixed mark-atom-as-fixed-scm)
-(define ncs-chain-ids ncs-chains-ids-scm)
+(define ncs-chain-ids ncs-chain-ids-scm)
 (define ncs-chain-differences ncs-chain-differences-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup

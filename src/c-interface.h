@@ -4129,7 +4129,7 @@ SCM ncs_chain_differences_scm(int imol, const char *master_chain_id);
   "D" "F")). The master chain goes in first. 
 
    If imol does not have NCS ghosts, return #f */
-SCM ncs_chains_ids_scm(int imol);
+SCM ncs_chain_ids_scm(int imol);
 #endif	/* USE_GUILE */
 #ifdef USE_PYTHON
 /* Return e.g. ["B", "A", [[[1, ""], [1, ""], 0.4], [[2, ""], [2, ""], 0.3]]]

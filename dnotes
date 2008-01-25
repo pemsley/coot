@@ -20,7 +20,7 @@
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
       (it comes from building from the tar file)
 
-* No problem on penelope, gtk2
+* No problem on penelope, gtk.  It is a problem on dragon (or was it braggn?).
 
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
@@ -71,6 +71,8 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
+   o Valgrind long/multiple fit-proteins
+
    o doing a flexible ligand fit in a ligands without flexible bonds -
      e.g. SO4 gives non-optimal message ("Did you forget to read the
      dictionary?").
@@ -89,11 +91,29 @@
 
    o on building source tar on bubbles:
 
+   o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
+
+* Done.  Sort of.  It writes a file now at least.  What more do you want?
+  Added a test.
+
     cp -r doxygen /y/people/emsley/public_html/coot/doc
     snafing coot docs...
     ERROR: Unbound variable: drag-intermediate-atom-scm
     snafing coot docs done.
     texi2html coot-scheme.texi
+
+   o fill SCM ncs_chains_scm(int imol) and use it in
+     ncs-other-chain-jump.  It can return #f, so in that case, revert
+     back to using, as currently, (chain-ids imol).
+
+* Done
+
+   o If we have guile scripting in configure, then we should check for
+     net-http and goosh have been installed.  If not, fail gracefully,
+     not obscurely at run time!
+
+* Done
+
 
 
 
