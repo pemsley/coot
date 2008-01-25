@@ -320,7 +320,7 @@
 	    (go-to-view-number view-number 1))
 
 	  (cis-trans-convert cis-pep-mol chain-id resno ins-code)
-	  (pepflip resno chain-id cis-pep-mol)
+	  (pepflip cis-pep-mol chain-id resno ins-code) 
 	  (let ((res-type (residue-name cis-pep-mol chain-id resno ins-code)))
 	    (if (not (string? res-type))
 		(throw 'fail)
