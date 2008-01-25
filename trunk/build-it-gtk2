@@ -1321,9 +1321,13 @@ else
          echo python $python_version_installed installed but not up to date...
          echo python  should be built
          build_python=1
+         build_pygtk=1
          ;;
    esac
 fi
+
+# test for pygtk
+
 
 # force the GSL config to be in $install_top_dir, rather than
 # potenially getting it from the system
@@ -1910,6 +1914,27 @@ echo done python linking.
 else
     echo not building python:
 fi
+
+# http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.12/pygtk-2.12.1.tar.gz
+if test -n "$build_pygtk" ; then 
+    echo BUILDING pygtk:
+#
+py_gtk_version=2.12.1
+${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.12/pygtk-$py_gtk_version.tar.gz
+(
+date
+gzip -dc ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.tar.gz | tar xf -
+cd pygtk-$py_gtk_version
+./configure $generic_prefix
+$MAKE
+pygtk_status=$?
+if [ "$pygtk_status" != 0 ] ; then
+   echo make of gtk+2 failed
+else
+   $MAKE install
+fi
+) > $HOSTLOGDIR/05-pygtk.txt
+
 
 # Now we need:
 #  * guile

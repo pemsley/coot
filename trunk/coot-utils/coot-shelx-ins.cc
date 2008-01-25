@@ -986,7 +986,7 @@ coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
 
 std::pair<int, std::string>
 coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
-			       const std::string &filename) const {
+					const std::string &filename) const {
 
    int istat = 0;
    std::string message;
@@ -1084,7 +1084,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			   }
 			   current_afix = ic;
 			} else {
-			   std::cout << "ERROR:: failed to get AFIX handle for "
+			   std::cout << "WARNING:: failed to get AFIX handle for "
 				     << at->GetChainID() << " "
 				     << at->GetSeqNum() << " " << at->GetResName() << " "
 				     << at->GetAtomName() << " ," << at->altLoc <<"\n";
@@ -1140,6 +1140,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
       message =  "INFO:: SHELXL file ";
       message += filename;
       message += " written.";
+      istat = 1;
       
    } else {
       std::cout << "WARNING:: no cell available... failure to write ins file."
