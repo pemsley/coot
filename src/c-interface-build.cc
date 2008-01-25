@@ -2722,21 +2722,20 @@ execute_refmac_real(std::string pdb_in_filename,
       phase_combine_cmd += "\")";
       phase_combine_cmd += " ";
    } else {
-// BL says: assume this is python specific and not just windows
-#ifdef USE_PYTHON
-      phase_combine_cmd += "''";
-#else
-      phase_combine_cmd += "'dummy ";
-#endif
+      phase_combine_cmd += single_quote("dummy");
    }
    cmds.push_back(phase_combine_cmd);
 
    cmds.push_back(graphics_info_t::int_to_string(-1)); // don't use NCYCLES
-// BL says:: again debackslash
+   // BL says:: again debackslash
    cmds.push_back(single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir)));
    cmds.push_back(single_quote(fobs_col_name));
    cmds.push_back(single_quote(sigfobs_col_name));
 
+   std::cout << "DEBUG in execute_refmac_real ccp4i_project_dir :"
+	     << single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir))
+	     << ":" << std::endl;
+		
    if (have_sensible_free_r_flag) { 
       cmds.push_back(single_quote(r_free_col_name));
    }
