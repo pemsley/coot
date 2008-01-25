@@ -10,9 +10,6 @@
 
 * Done.
 
-   o Make a demo script that downloads data and runs it - add it to
-     the package and make it available to run from extensions.
-
    o Mutate should not change the order of the atoms in the pdb.
      http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
 
@@ -52,10 +49,6 @@
      for a similar blob near molecule B and try to fit the same kind of
      ligand there as well [JED]
 
-   o consider a function generator for dialog box of buttons.  Because
-     we need a function that accepts args for close-dialog and one
-     that does not.  A macro maybe.
-
    o How about a post-swig command to add #ifdef USE_PYTHON around coot_wrap_python.cc 
      (or is it coot_wrap_python_pre.cc?)
 
@@ -87,14 +80,20 @@
 
    o Fixed atoms in refinement.  Code needs finishing.
 
-   o NCS diffs graph need finishing.
+   o NCS diffs graph need finishing.  Almost there.  Needs code to do
+     dynamic update.
 
-   o on building source tar on bubbles:
+
+
+
+
 
    o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
 
 * Done.  Sort of.  It writes a file now at least.  What more do you want?
   Added a test.
+
+   o on building source tar on bubbles:
 
     cp -r doxygen /y/people/emsley/public_html/coot/doc
     snafing coot docs...
@@ -102,6 +101,8 @@
     snafing coot docs done.
     texi2html coot-scheme.texi
 
+* Fixed.
+
    o fill SCM ncs_chains_scm(int imol) and use it in
      ncs-other-chain-jump.  It can return #f, so in that case, revert
      back to using, as currently, (chain-ids imol).
@@ -114,29 +115,17 @@
 
 * Done
 
-
-
-
-
-
-
    o If we have guile scripting in configure, then we should check for
      net-http and goosh have been installed.  If not, fail gracefully,
      not obscurely at run time!
 
 * Done
 
-   o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
-
-* Done.  Sort of.  It writes a file now at least.  What more do you want?
-  Added a test.
-
    o fill SCM ncs_chains_scm(int imol) and use it in
      ncs-other-chain-jump.  It can return #f, so in that case, revert
      back to using, as currently, (chain-ids imol).
 
 * Done
-
 
    o Add some SHELX reading to the test suite.  Insulin for starters.
 

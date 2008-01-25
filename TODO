@@ -47,31 +47,19 @@
      No need to re-calulate the bonding for each atom move.
      No need to redraw, except once at the end.
 
-* Done.
-
    o Make a new dialog: clear up old/backup files on exit.
      86400 seconds per day
 
-* Done.
-
    o Kleywegt plot should not draw ("wrapped") long arrows
 
-* Done.
-
    o Torsion General
-
-* Done.
 
    o Lars Prade crash.  Try doing actions in a directory that you can't
      write to.  Test Geometry validation.
 
-* Seems OK to me.
-
    o work in the svn-revision.cc.  svn-revision.cc should be in
      Makefile.am, and be part of the tar file.  It should be generated
      after every time we do a svn update or commit.
- 
-* Done.
 
    o On pressing the filter button we get this ugliness:
 
@@ -88,18 +76,11 @@
      is ugly (gives terminal warnings).  Make the user data also encode 
      information about which fileselection this is (in 1000s, say).
 
-* Fixed.
-
    o Dynamic distances on moving atom/fragments
-
-* Fixed.
-
-   o Correct CISPEP if needed cards on writing pdb.
 
    o Make build-it-gtk2 and use it.
 
-   o Make a demo script that downloads data and runs it - add it to
-     the package and make it available to run from extensions.
+   o Correct CISPEP if needed cards on writing pdb.
 
    o Mutate should not change the order of the atoms in the pdb.
      http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
@@ -144,10 +125,6 @@
      not obscurely at run time!  
      net-http and goosh to go into Coot directly?  Maybe not, the get 
      installed in a different place.  Hmm.
-
-   o consider a function generator for dialog box of buttons.  Because
-     we need a function that accepts args for close-dialog and one
-     that does not.  A macro maybe.
 
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
@@ -231,6 +208,13 @@
 
    o Profile the bonding on reading in a ribosome fragment. 2 minutes? 
      Not good.
+
+   o Make a demo script that downloads data and runs it - add it to
+     the package and make it available to run from extensions.
+
+   o consider a function generator for dialog box of buttons.  Because
+     we need a function that accepts args for close-dialog and one
+     that does not.  A macro maybe.
 
  ------
     
