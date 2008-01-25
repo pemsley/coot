@@ -7,7 +7,7 @@ dnl If that is the case, then we check for net http, goosh and gui (separately).
 dnl If that is NOT the case (e.g. we configured only for python) then
 dnl    we do not exit if net http, goosh or gui were not found.
 
-AC_MSG_CHECKING([if we have net hhtp])
+AC_MSG_CHECKING([for net-hhtp])
 if test -z "$ac_cv_path_GUILE" ; then 
    have_net_http=not_installed
 else 
@@ -28,7 +28,7 @@ fi
 
 AC_DEFUN([AM_GUILE_GOOSH],
 [
-AC_MSG_CHECKING([if we have Guile Goosh])
+AC_MSG_CHECKING([for Guile Goosh])
 if test -z "$ac_cv_path_GUILE" ; then 
    have_goosh=not_installed
 else 
@@ -50,11 +50,11 @@ fi
 
 AC_DEFUN([AM_GUILE_GUI],
 [
-AC_MSG_CHECKING([if we have Guile GUI])
+AC_MSG_CHECKING([for guile-gui])
 if test -z "$ac_cv_path_GUILE" ; then 
    have_guile_gui=not_installed
 else 
-   guile -c '(use-modules (gui event-loop))'
+   guile -c '(use-modules (gui paren-match))'
    if test "$?" = 0  ; then 
       have_guile_gui=yes
    else 
