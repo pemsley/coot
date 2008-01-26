@@ -11,12 +11,13 @@ Release 0.5
    o CHANGE: default bond width changed to 5.
 
    o CHANGE: Traffic lights verticallized.
+ 
+   o CHANGE: the argument order for "mutate" have been canonicalised.
 
    o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
 
    o BUG-FIX: chiral volumes are now correctly handled for multiple
      monomer bespoke ligand dictionaries.
-
 
 Release 0.4.1 "Kendall^2"
 

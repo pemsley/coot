@@ -2017,13 +2017,13 @@ mutate_internal(int ires_serial, const char *chain_id, int imol, std::string &ta
 
 // causes a make_backup()
 int
-mutate(int ires, const char *chain_id, int imol, const char *target_res_type) {
+mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type) { 
 
+   int istate = 0;
    std::string target_type(target_res_type);
 
-   std::string inscode("");
    if (is_valid_model_molecule(imol)) { 
-      graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
+      istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_draw();
    }
    std::string cmd = "mutate";
@@ -2034,7 +2034,7 @@ mutate(int ires, const char *chain_id, int imol, const char *target_res_type) {
    args.push_back(coot::util::single_quote(target_res_type));
    add_to_history_typed(cmd, args);
    
-   return 0;
+   return istate;
 } 
 
 

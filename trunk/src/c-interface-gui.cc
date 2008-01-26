@@ -2347,6 +2347,7 @@ void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
 // project in file selectors.
 void
 option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos) {
+
    graphics_info_t g;
    g.ccp4_projects_index_last = pos;
    std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
@@ -2370,7 +2371,7 @@ option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType po
       } else { 
 
 	 GtkWidget *fileselection;
-	 int fileselection_type = 0; // FIXME
+	 int fileselection_type = COOT_MAP_FILE_SELECTION;
 	 fileselection = lookup_file_selection_widgets(item, fileselection_type);
 	 
 	 if (fileselection) {

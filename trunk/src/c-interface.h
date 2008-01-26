@@ -3668,8 +3668,10 @@ short int progressive_residues_in_chain_check(const char *chain_id, int imol);
 
 /*! \brief mutate a given residue 
 
-target_res_type is a three-letter-code. */
-int mutate(int ires, const char *chain_id, int imol,  const char *target_res_type);
+target_res_type is a three-letter-code.
+
+Return 1 on a good mutate. */
+int mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type);
 
 /*! \brief Do you want Coot to automatically run a refinement after
   every mutate and autofit?
