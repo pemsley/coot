@@ -6,13 +6,6 @@
 
    o Correct CISPEP if needed cards on writing pdb.
 
-   o Make build-it-gtk2 and use it.
-
-* Done.
-
-   o Mutate should not change the order of the atoms in the pdb.
-     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
-
    o Fix this:  
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
       (it comes from building from the tar file)
@@ -87,6 +80,21 @@
 
 
 
+
+   o Make build-it-gtk2 and use it.
+
+* Done.
+
+   o Mutate should not change the order of the atoms in the pdb.
+     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
+
+     "For amino acids, the traditional order of atom records within a
+     residue is N, CA, C, O, followed by the sidechain atoms (CB, CG1,
+     CG2 . . . ) in order first of increasing remoteness, and then
+     branch. The extra oxygen at the carboxyl terminal is called "
+     OXT", and appears after all sidechain atoms."
+
+* Done.
 
    o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
 
@@ -3709,12 +3717,10 @@ Thu Jan 17 09:50:46 GMT 2008
 
     add-user-defined-bond(int imol, atom_spec atom1, atom_spec_atom2, float dist_ideal, float sigma);
 
-
 ----
 Thu Jan 17 10:14:18 GMT 2008
 
-    tinker with a libglade project.
-
+    Tinker with a libglade project.
 
 -----
 Thu Jan 17 11:56:57 GMT 2008
@@ -3776,7 +3782,6 @@ Sat Jan 19 11:56:58 GMT 2008
 
     Molprobity interaction dots around a ligand.  
     Surely that would be super cool?
-
 
 -----
 Sat Jan 19 16:09:27 GMT 2008
@@ -3850,6 +3855,8 @@ Mon Jan 21 13:04:37 GMT 2008
 
     Fine.  Now coot loads its svgs.  Yay!
 
+    PyGtk needs pycairo
+
 
     Correct build order:
     glitz
@@ -3921,7 +3928,6 @@ Mon Jan 21 17:07:30 GMT 2008
 
     Priority: Critical
 
-
 ----
 Thu Jan 24 20:46:35 GMT 2008
 
@@ -3929,4 +3935,11 @@ Thu Jan 24 20:46:35 GMT 2008
 SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const char *to_chain_id,
 				    short int use_res_range_flag, int from_resno, int to_resno){
    // Paul fill me in please
+
+* Done.
+
+----
+Sat Jan 26 14:14:39 GMT 2008
+
+    Don't forget to distribute val.pdb.  Else the tests will fail.
 

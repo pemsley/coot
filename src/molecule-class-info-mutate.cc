@@ -131,8 +131,6 @@ molecule_class_info_t::mutate(CResidue *res, const std::string &residue_type) {
       }
    }
 
-   // ok then, we did the setup coot:
-   // 
    int selHnd = g.standard_residues_asc.mol->NewSelection(); // deleted at end.
    g.standard_residues_asc.mol->Select ( selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
 					 "*", // Chain(s) it's "A" in this case.

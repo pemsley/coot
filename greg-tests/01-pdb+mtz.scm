@@ -1,3 +1,23 @@
+;;;; Copyright 2007, 2008 by The University of Oxford
+;;;; Author: Paul Emsley
+
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 3 of the License, or (at
+;;;; your option) any later version.
+ 
+;;;; This program is distributed in the hope that it will be useful, but
+;;;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;;;; General Public License for more details.
+ 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this program; if not, write to the Free Software
+;;;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+;;;; 02110-1301, USA
+
+;; provides read-line:
+(use-modules (ice-9 rdelim))
 
 (define rnase-pdb (append-dir-file greg-data-dir "tutorial-modern.pdb"))
 (define rnase-mtz (append-dir-file greg-data-dir "rnasa-1.8-all_refmac1.mtz"))
@@ -502,3 +522,66 @@
 			     (throw 'fail))
 			   #t ; pass
 			   )))))))))
+
+(greg-testcase "The position of the oxygen after a mutation" #t
+   (lambda ()
+
+     ;; Return the o-pos (can be #f) and the number of atoms read.
+     ;; 
+     (define (get-o-pos hist-pdb-name)
+       (call-with-input-file hist-pdb-name
+	 (lambda (port)
+	   
+	   (let loop ((line (read-line port))
+		      (o-pos #f)
+		      (n-atoms 0))
+	     (cond
+	      ((eof-object? line) (values o-pos n-atoms))
+	      (else 
+	       (if (< (string-length line) 20)
+		   (loop (read-line port) o-pos n-atoms)
+		   (let ((atom-name (substring line 12 16))
+			 (new-n-atoms (if (string=? (substring line 0 4) "ATOM")
+					  (+ n-atoms 1)
+					  n-atoms)))
+		     (if (string=? atom-name " O  ")
+			 (loop (read-line port) new-n-atoms new-n-atoms)
+			 (loop (read-line port) o-pos new-n-atoms))))))))))
+	    
+     ;; main body
+     ;; 
+     (let ((hist-pdb-name "his.pdb"))
+       
+       (let ((imol (read-pdb (append-dir-file greg-data-dir "val.pdb"))))
+	 (if (not (valid-model-molecule? imol))
+	     (begin
+	       (format #t "   failed to read file val.pdb~%")
+	       (throw 'fail))
+	     (let ((mutate-state (mutate imol "C" 3 "" "HIS")))
+	       (if (not (= 1 mutate-state))
+		   (begin
+		     (format #t "   failure in mutate function~%")
+		     (throw 'fail))
+		   (begin
+		     (write-pdb-file imol hist-pdb-name)
+		     (if (not (file-exists? hist-pdb-name))
+			 (begin
+			   (format #t "   file not found: ~s~%" hist-pdb-name)
+			   (throw 'fail))
+			 (call-with-values
+			     (lambda () (get-o-pos hist-pdb-name))
+			   (lambda (o-pos n-atoms)
+			     
+			     (if (not (= n-atoms 10))
+				 (begin
+				   (format #t "   found ~s atoms (not 10)~%" n-atoms)
+				   (throw 'fail))
+				 (if (not (number? o-pos))
+				     (begin
+				       (format #t "   Oxygen O position not found~%")
+				       (throw 'fail))
+				     (if (not (= o-pos 4))
+					 (begin
+					   (format #t "   found O atom at ~s (not 4)~%" o-pos)
+					   (throw 'fail))
+					 #t))))))))))))))

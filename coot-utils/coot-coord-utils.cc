@@ -4,7 +4,7 @@
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
  * Copyright 2007 by The University of Oxford
- * Copyright 2006, 2007 by Bernhard Lohkamp
+ * Author: Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -3027,43 +3027,44 @@ coot::util::mutate_internal(CResidue *residue, CResidue *std_residue, short int 
 
    //
 
-   short int verb = 0;
+   bool verb = 0;
    if (verb) { 
-      // std::cout << "Mutate Atom Tables" << std::endl;
-      // std::cout << "Before" << std::endl;
+      std::cout << "Mutate Atom Tables" << std::endl;
+      std::cout << "Before" << std::endl;
       for(int i=0; i<nResidueAtoms; i++)
-	 std::cout << residue_atoms[i] << std::endl;
-      // std::cout << "To be replaced by:" << std::endl;
-//       for(int i=0; i<n_std_ResidueAtoms; i++)
-// 	 std::cout << std_residue_atoms[i] << std::endl;
+	 std::cout << residue_atoms[i]->name << std::endl;
+      std::cout << "To be replaced by:" << std::endl;
+      for(int i=0; i<n_std_ResidueAtoms; i++)
+	 std::cout << std_residue_atoms[i]->name << std::endl;
    }
 
-   std::vector<CAtom *> keep_atoms;
-   // if (coot::util::is_standard_residue_name()
+   // std::vector<CAtom *> keep_atoms;
    for(int i=0; i<nResidueAtoms; i++) {
       std::string residue_this_atom (residue_atoms[i]->name);
-      if (residue_this_atom == " O  ") {
+      if (coot::is_main_chain_p(residue_atoms[i])) {
 	 // copy the atom, and add the copied atom to the keep_atoms
 	 // vector
-	 CAtom *c_copy = new CAtom;
-	 c_copy->Copy(residue_atoms[i]);
-	 keep_atoms.push_back(c_copy);
+// 	 CAtom *c_copy = new CAtom;
+// 	 c_copy->Copy(residue_atoms[i]);
+// 	 keep_atoms.push_back(c_copy);
+      } else { 
+	 residue->DeleteAtom(i);
       }
-      residue->DeleteAtom(i);
    };
 
+//    // now add the mainchain atoms back
+//    for (unsigned int i=0; i<keep_atoms.size(); i++)
+//       residue->AddAtom(keep_atoms[i]);
+   
    // add all atoms of std residue to 
    for(int i=0; i<n_std_ResidueAtoms; i++) {
       std::string std_residue_this_atom (std_residue_atoms[i]->name);
-      if (std_residue_this_atom != " O  ") {
+      if (! coot::is_main_chain_p(std_residue_atoms[i])) {
 	 if (is_from_shelx_ins_flag)
 	    std_residue_atoms[i]->occupancy = 11.0;
 	 residue->AddAtom(std_residue_atoms[i]);
       }
    };
-   // now add the Oxygen atoms (most often, only 1 of course).
-   for (unsigned int i=0; i<keep_atoms.size(); i++)
-      residue->AddAtom(keep_atoms[i]);
 
    if (std::string(residue->name).length() <= std::string(std_residue->name).length()) 
       strcpy(residue->name, std_residue->name);

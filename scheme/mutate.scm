@@ -158,7 +158,7 @@
 ;; 
 (define (mutate-and-auto-fit residue-number chain-id mol mol-for-map residue-type)
 
-  (mutate residue-number chain-id mol residue-type)
+  (mutate mol chain-id residue-number ""residue-type)
   (auto-fit-best-rotamer residue-number "" "" chain-id mol mol-for-map 0 0.5))
 
 ;; a short-hand for mutate-and-auto-fit
@@ -197,7 +197,7 @@
 	    ((string=? residue-type "TYR" ) #\Y)
 	    ((string=? residue-type "VAL" ) #\V)
 	    (else #\A))))
-      (mutate residue-number ins-code chain-id imol res-type-1lc))))
+      (mutate imol chain-id residue-number "" res-type-1lc))))
 
 ;;; Prompted by Tim Gruene's email to CCP4bb 20060201.  
 ;;; Turn all residues (including GLY) of imol to ALA.
