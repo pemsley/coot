@@ -245,8 +245,8 @@ void execute_superpose(GtkWidget *w) {
       make_copy = 0;
    
    
-   if (imol1 >= 0 && imol1 < graphics_info_t::n_molecules) { 
-      if (imol2 >= 0 && imol2 < graphics_info_t::n_molecules) {
+   if (imol1 >= 0 && imol1 < graphics_info_t::n_molecules()) { 
+      if (imol2 >= 0 && imol2 < graphics_info_t::n_molecules()) {
 
 	 // now check the chains:
 	 //
@@ -339,7 +339,7 @@ GtkWidget *wrapped_create_superpose_dialog() {
    graphics_info_t::superpose_imol2 = -1;
    // and what should the "set" values of graphics_info_t::superpose_imol1 and 2 be?
    // 
-   for (int i=0; i<g.n_molecules; i++) { 
+   for (int i=0; i<g.n_molecules(); i++) { 
       if (g.molecules[i].has_model()) { 
 	 graphics_info_t::superpose_imol1 = i;
 	 graphics_info_t::superpose_imol2 = i;
@@ -634,7 +634,7 @@ fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
    std::cout << "in fill_lsq_option_menu_with_chain_options " << imol << " "
 	     << is_reference_structure_flag << std::endl;
    
-   if (imol >=0 && imol < graphics_info_t::n_molecules) { 
+   if (imol >=0 && imol < graphics_info_t::n_molecules()) { 
       std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu,
 								      imol, callback_func);
       if (is_reference_structure_flag) {

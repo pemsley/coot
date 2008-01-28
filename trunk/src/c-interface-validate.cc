@@ -423,7 +423,7 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma
 
 void check_chiral_volumes(int imol) { 
    graphics_info_t g;
-   if (imol < graphics_info_t::n_molecules) { 
+   if (imol < graphics_info_t::n_molecules()) { 
       if (graphics_info_t::molecules[imol].has_model()) { 
 	 g.check_chiral_volumes(imol);
       } else {
@@ -691,7 +691,7 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
 			    my_delete_validaton_graph_mol_option,
 			    (gpointer) sub_menu);
 
-      for(int i=0; i<g.n_molecules; i++) {
+      for(int i=0; i<g.n_molecules(); i++) {
 	 if (g.molecules[i].has_model()) {
 	    std::string name;
 	    name = graphics_info_t::molecules[i].dotted_chopped_name();
@@ -1008,7 +1008,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    // the strings correspond to the above function with _radiobuton_ tagged on.
    
    GtkWidget *map_button;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_map()) {
 	 if (graphics_info_t::molecules[imol].is_difference_map_p()) {
 	    std::string map_str = "generate_diff_map_peaks_map_radiobutton_";
@@ -1029,7 +1029,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    // Check the coords:
    
    GtkWidget *coords_button;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_model()) {
 	 std::string coords_str = "generate_diff_map_peaks_model_radiobutton_";
 	 coords_str += graphics_info_t::int_to_string(imol);
@@ -1116,7 +1116,7 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
       GTK_SIGNAL_FUNC(ramachandran_plot_differences_mol_option_menu_activate_second);
 
    int imol = -1;
-   for (int i=0; i<graphics_info_t::n_molecules; i++) {
+   for (int i=0; i<graphics_info_t::n_molecules(); i++) {
       if (graphics_info_t::molecules[i].has_model()) {
 	 imol = i;
 	 break;
@@ -1242,7 +1242,7 @@ void do_ramachandran_plot(int imol) {
    coot::rama_plot *rama;
 
    if (imol >= 0) {
-      if (imol < graphics_info_t::n_molecules) { 
+      if (imol < graphics_info_t::n_molecules()) { 
 	 if (graphics_info_t::molecules[imol].has_model()) { 
 	    rama = new coot::rama_plot;
 	    if (graphics_info_t::ramachandran_plot_x_position > 0)
@@ -1276,10 +1276,10 @@ ramachandran_plot_differences(int imol1, int imol2) {
    } else { 
       coot::rama_plot *rama = 0;
       if (imol1 >= 0) {
-	 if (imol1 < graphics_info_t::n_molecules) {  
+	 if (imol1 < graphics_info_t::n_molecules()) {  
 	    if (graphics_info_t::molecules[imol1].has_model()) { 
 	       if (imol2 >= 0) {
-		  if (imol2 < graphics_info_t::n_molecules) { 
+		  if (imol2 < graphics_info_t::n_molecules()) { 
 		     if (graphics_info_t::molecules[imol2].has_model()) { 
 			rama = new coot::rama_plot;
 			short int is_kleywegt_plot_flag = 1;
@@ -1373,7 +1373,7 @@ void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget
 	 GTK_SIGNAL_FUNC(ramachandran_plot_differences_chain_option_menu_activate_second);
    }
 
-   if (imol >=0 && imol< graphics_info_t::n_molecules) {
+   if (imol >=0 && imol< graphics_info_t::n_molecules()) {
       std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu, imol, callback_func);
       if (is_first_mol_flag) {
 	 graphics_info_t::ramachandran_plot_differences_imol1_chain = set_chain;
@@ -1455,7 +1455,7 @@ int get_mol_from_dynarama(GtkWidget *window) {
 GtkWidget *dynarama_widget(int imol) {
 
    GtkWidget *w = NULL;
-   if (imol < graphics_info_t::n_molecules) {
+   if (imol < graphics_info_t::n_molecules()) {
       w = graphics_info_t::dynarama_is_displayed[imol];
    }
    return w;

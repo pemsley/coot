@@ -297,14 +297,14 @@ int reset_view() {
    // If not, then move to the last read molecule.
    //
    graphics_info_t g;
-   std::vector<coot::Cartesian> molecule_centres(graphics_info_t::n_molecules,
+   std::vector<coot::Cartesian> molecule_centres(g.n_molecules(),
 						 coot::Cartesian(0,0,0));
    int centred_on_molecule_number = -1;
    coot::Cartesian current_centre = g.RotationCentre();
    coot::Cartesian new_centre(0,0,0); // gets set.
    int last_molecule = -1;
    
-   for (int imol=(graphics_info_t::n_molecules -1); imol>=0; imol--) {
+   for (int imol=(graphics_info_t::n_molecules() -1); imol>=0; imol--) {
       if (graphics_info_t::molecules[imol].is_displayed_p()) {
 	 if (last_molecule == -1)
 	    last_molecule = imol;
@@ -341,7 +341,7 @@ int reset_view() {
       // want to centre on?
       // Let's make a list of the available molecules:
       std::vector<int> available_molecules;
-      for(int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      for(int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 	 if (graphics_info_t::molecules[imol].is_displayed_p()) {
 	    available_molecules.push_back(imol);
 	 }
@@ -380,7 +380,7 @@ int reset_view() {
    g.setRotationCentreAndZoom(new_centre, 100.0);
    g.zoom = 100.0;
       
-   for(int ii=0; ii<graphics_info_t::n_molecules; ii++) {
+   for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
       graphics_info_t::molecules[ii].update_map();
       graphics_info_t::molecules[ii].update_symmetry();
    }
@@ -1590,7 +1590,7 @@ void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
    GtkWidget *optionmenu = lookup_widget(w, "check_chiral_volumes_molecule_optionmenu");
 
    // now set chiral_volume_molecule_option_menu_item_select_molecule to the top of the list
-   for (int i=0; i<graphics_info_t::n_molecules; i++) { 
+   for (int i=0; i<graphics_info_t::n_molecules(); i++) { 
       if (graphics_info_t::molecules[i].has_model()) {
 	 graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = i;
 	 break;
@@ -2013,7 +2013,7 @@ new_close_molecules(GtkWidget *window) {
    std::vector<int> closed_model_molecules;
 
    GtkWidget *checkbutton;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) { 
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) { 
       if (graphics_info_t::molecules[imol].has_model() || 
 	  graphics_info_t::molecules[imol].has_map()) { 
 	 std::string button_name("delete_molecule_checkbutton_");
@@ -2064,7 +2064,7 @@ new_close_molecules(GtkWidget *window) {
    // but emptied Display Control
    //
    int n_maps_left = 0;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (is_valid_map_molecule(imol)) {
 	 n_maps_left++;
 	 break;
@@ -2081,7 +2081,7 @@ new_close_molecules(GtkWidget *window) {
       for (unsigned int i=0; i<closed_model_molecules.size(); i++) {
 	 if (closed_model_molecules[i] == g.go_to_atom_molecule()) {
 	    // set it to the bottom model molecule:
-	    for (int imol=graphics_info_t::n_molecules-1; imol>=0; imol--) {
+	    for (int imol=graphics_info_t::n_molecules()-1; imol>=0; imol--) {
 	       if (is_valid_model_molecule(imol)) {
 		  g.set_go_to_atom_molecule(imol);
 		  break;
@@ -2115,7 +2115,7 @@ GtkWidget *wrapped_create_new_close_molecules_dialog() {
    GtkWidget *vbox = lookup_widget(w, "new_delete_molecules_vbox");
    GtkWidget *checkbutton;
    GtkWidget *frame;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) { 
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) { 
       if (graphics_info_t::molecules[imol].has_model() || 
 	  graphics_info_t::molecules[imol].has_map()) { 
 	 std::string button_name("delete_molecule_checkbutton_");
@@ -2159,7 +2159,7 @@ close_molecule_by_widget(GtkWidget *optionmenu) {
 
 	 std::cout << " Closing molecule number " << *imol << std::endl;
 	 graphics_info_t g;
-	 if ((*imol >= 0) && (*imol < g.n_molecules)) { 
+	 if ((*imol >= 0) && (*imol < g.n_molecules())) { 
 	    g.molecules[*imol].close_yourself();
 	    fill_close_option_menu_with_all_molecule_options(optionmenu);
 	    graphics_draw();
@@ -2215,7 +2215,7 @@ void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
    
    GtkWidget *menuitem;
 
-   for (int imol=0; imol<graphics_n_molecules(); imol++) {
+   for (int imol=0; imol<g.n_molecules(); imol++) {
       
       if (g.molecules[imol].atom_sel.n_selected_atoms > 0 ||
 	  g.molecules[imol].xmap_is_filled[0]) {
@@ -2238,7 +2238,7 @@ void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
       }
    }
 
-   if (graphics_n_molecules() > 0) {
+   if (g.n_molecules() > 0) {
       gtk_menu_set_active(GTK_MENU(menu), 0);
    }
    gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu),
@@ -2670,7 +2670,7 @@ void add_on_map_colour_choices(GtkWidget *menu) {
       gtk_container_foreach(GTK_CONTAINER(sub_menu),
 			    my_delete_menu_items,
 			    (gpointer) sub_menu);
-      for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 	 if (graphics_info_t::molecules[imol].has_map()) {
 	    std::string name;
 	    name = graphics_info_t::molecules[imol].dotted_chopped_name();
@@ -2745,7 +2745,7 @@ void add_on_map_scroll_whell_choices(GtkWidget *menu) {
       gtk_container_foreach(GTK_CONTAINER(sub_menu),
 			    my_delete_menu_items,
 			    (gpointer) sub_menu);
-      for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 	 if (graphics_info_t::molecules[imol].has_map()) {
 	    std::string name;
 	    name = graphics_info_t::molecules[imol].dotted_chopped_name();
@@ -2833,7 +2833,7 @@ void apply_bond_parameters(GtkWidget *w) {
 
    
    if (imol >= 0) {
-      if (imol < g.n_molecules) {
+      if (imol < g.n_molecules()) {
 	 if (graphics_info_t::molecules[imol].has_model()) {
 
 	    // bond thickness

@@ -63,7 +63,7 @@ graphics_info_t::raster3d(std::string filename) {
    rt.set_view_matrix(m);
 
    std::cout << "Generating raytrace molecule objects..." << std::endl;
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
       
       if (molecules[imol].has_model()) {
@@ -117,7 +117,7 @@ graphics_info_t::povray(std::string filename) {
    // a scaled amount
 
    
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
       
       if (molecules[imol].has_model()) {

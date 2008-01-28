@@ -110,7 +110,7 @@ const char *graphics_info_t::go_to_atom_chain() {
 int graphics_info_t::go_to_atom_residue() {
 
    if (go_to_atom_residue_ == -9999) { // magic number
-      for (int imol=0; imol<n_molecules; imol++) {
+      for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].atom_sel.n_selected_atoms > 0) {
 
 	    if (molecules[imol].drawit) {
@@ -451,7 +451,7 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
       
    } else { 
 
-      if (imol >= n_molecules) { 
+      if (imol >= n_molecules()) { 
 	 std::cout << "WARNING:: no molecule for imol = " << imol << std::endl;
       } else { 
       
@@ -744,7 +744,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       // Update the residue and atom list to the last displayed
       // molecule.
       int mol_no= -1;
-      for (int imol=0; imol<n_molecules; imol++) {
+      for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model()) {
 	    mol_no = imol;
 	 }
@@ -839,7 +839,7 @@ graphics_info_t::undo_last_move() {  // suggested by Frank von Delft
    
    std::cout << "INFO:: Moving back to old centre: " << c << std::endl;
    setRotationCentre(c);
-   for(int ii=0; ii<n_molecules; ii++) {
+   for(int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_map();
       molecules[ii].update_symmetry();
    }

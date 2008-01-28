@@ -430,7 +430,7 @@ graphics_info_t::b_factor_graphs(int imol) {
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    
-   if (imol<n_molecules)
+   if (imol<n_molecules())
       if (imol >= 0)
 	 if (molecules[imol].has_model()) {
 	    CMMDBManager *mol = molecules[imol].atom_sel.mol;
@@ -503,7 +503,7 @@ graphics_info_t::omega_graphs(int imol) {
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    
    if (imol >= 0) {
-      if (imol < n_molecules) {
+      if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
 	    CMMDBManager *mol = molecules[imol].atom_sel.mol;
 	    int n_models = mol->GetNumberOfModels();
@@ -592,7 +592,7 @@ graphics_info_t::rotamer_graphs(int imol) {
 #ifdef HAVE_GSL    
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    if (imol >= 0) {
-      if (imol < n_molecules) {
+      if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
 	    CMMDBManager *mol = molecules[imol].atom_sel.mol;
 	    int n_models = mol->GetNumberOfModels();
@@ -934,7 +934,7 @@ graphics_info_t::density_fit_graphs(int imol) {
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    if (imol >= 0) {
-      if (imol < n_molecules) {
+      if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
 	    
 	    int imol_for_map = Imol_Refinement_Map();
@@ -1036,7 +1036,7 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
    std::vector<coot::geometry_graph_block_info_generic> drv;
    std::string altconf("");  // use this (e.g. "A") or "".
    
-   if (imol_map < n_molecules && graphics_info_t::molecules[imol_map].has_map()) { 
+   if (imol_map < n_molecules() && graphics_info_t::molecules[imol_map].has_map()) { 
       int n_models = asc.mol->GetNumberOfModels();
    
       if (n_models > 0) { 

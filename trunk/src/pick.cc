@@ -132,7 +132,7 @@ atom_pick(GdkEventButton *event) {
 
    if (check_pick) { 
       int n_pickable = 0;
-      for (int ii=(graphics_info_t::n_molecules-1); ii>=0; ii--) {
+      for (int ii=(graphics_info_t::n_molecules()-1); ii>=0; ii--) {
 
 	 if (graphics_info_t::molecules[ii].has_model()) { 
 	    if (graphics_info_t::molecules[ii].atom_selection_is_pickable()) {

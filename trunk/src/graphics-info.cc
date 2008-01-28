@@ -701,7 +701,7 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
    // it the full filename, not just the directory.
 
    int imol = save_imol;
-   if (imol >= 0 && imol < graphics_info_t::n_molecules) { 
+   if (imol >= 0 && imol < graphics_info_t::n_molecules()) { 
       std::string stripped_name = 
 	 graphics_info_t::molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
@@ -765,7 +765,7 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
    // it the full filename, not just the directory.
 
    int imol = save_imol;
-   if (imol >= 0 && imol < graphics_info_t::n_molecules) {
+   if (imol >= 0 && imol < graphics_info_t::n_molecules()) {
       std::string stripped_name =
          graphics_info_t::molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
@@ -894,7 +894,7 @@ void
 graphics_info_t::update_environment_distances_maybe(int index, int imol) {
 
    if (environment_show_distances) { 
-      if (go_to_atom_molecule() < n_molecules) {
+      if (go_to_atom_molecule() < n_molecules()) {
  	 if (is_valid_model_molecule(imol)) { 
  	    update_environment_graphics_object(index, imol);
  	    if (show_symmetry)
@@ -917,7 +917,7 @@ graphics_info_t::get_closest_atom() const {
    int imol_close = -1;
    int index_close = -1;
 
-   for (int imol=0; imol<n_molecules; imol++) { 
+   for (int imol=0; imol<n_molecules(); imol++) { 
 
       if (molecules[imol].has_model()) { 
 	 dist_info = molecules[imol].nearest_atom(rc);
@@ -1061,7 +1061,7 @@ std::vector<int>
 graphics_info_t::displayed_map_imols() const {
 
    std::vector<int> is;
-   for (int i=0; i<n_molecules; i++) {
+   for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].drawit_for_map == 1) {
 	 is.push_back(i);
       }
@@ -1180,7 +1180,7 @@ graphics_info_t::set_font_size(int size) {
 void
 graphics_info_t::update_map_colour_menu()
 {
-   for (int ii=0; ii<n_molecules; ii++)
+   for (int ii=0; ii<n_molecules(); ii++)
       molecules[ii].update_map_colour_menu_maybe(ii);
 }
 
@@ -1239,7 +1239,7 @@ graphics_info_t::show_select_map_dialog() {
       // list (if there are maps in the list)
       // 
       if (imol_map == -1) { 
-	 for (int imol=0; imol<n_molecules; imol++) { 
+	 for (int imol=0; imol<n_molecules(); imol++) { 
 	    if (molecules[imol].has_map()) {
 	       imol_refinement_map = imol;
 	       break;
@@ -1297,7 +1297,7 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    
-   for (int i=0; i<n_molecules; i++) {
+   for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].xmap_is_filled[0] == 1) {
 	 char s[200];
 	 snprintf(s,199,"%d", i);
@@ -1332,7 +1332,7 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    menu = gtk_menu_new();
    int menu_index = 0;
    
-   for (int i=0; i<n_molecules; i++) {
+   for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].xmap_is_filled[0] == 1) {
 	 char s[200];
 	 snprintf(s,199,"%d", i);
@@ -1365,7 +1365,7 @@ graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
    
    GtkWidget *menuitem;
    
-   for (int i=0; i<n_molecules; i++) {
+   for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].Have_sensible_refmac_params()) {
 	 char s[200];
 	 snprintf(s, 199, "%d", i);
@@ -1456,7 +1456,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
    GtkWidget *menuitem;
    int item_count = 0; 
 
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
 
       if (molecules[imol].has_model() > 0) { 
 
@@ -1540,7 +1540,7 @@ graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol)
    GtkWidget *entry = lookup_widget(window, "single_map_sigma_step_entry");
    GtkWidget *checkbutton = lookup_widget(window, "single_map_sigma_checkbutton");
 
-   if (imol < n_molecules) { 
+   if (imol < n_molecules()) { 
       if (molecules[imol].has_map()) { 
 	 float v = molecules[imol].contour_sigma_step;
 	 gtk_entry_set_text(GTK_ENTRY(entry), float_to_string(v).c_str());
@@ -1654,7 +1654,7 @@ graphics_info_t::set_initial_map_for_skeletonize() {
    
    if (graphics_info_t::map_for_skeletonize == -1) { 
       graphics_info_t g;
-      for (int imol=0; imol<g.n_molecules;imol++) { 
+      for (int imol=0; imol<n_molecules();imol++) { 
 	 if (graphics_info_t::molecules[imol].has_map()) { 
 	    graphics_info_t::map_for_skeletonize = imol;
 	    break;
@@ -2000,7 +2000,7 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
    // first delete the old plot for this molecule (if it exists)
    // 
-   if (imol < graphics_info_t::n_molecules && imol >= 0) {
+   if (imol < graphics_info_t::n_molecules() && imol >= 0) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
       if (dynarama_is_displayed[imol] != 0) {
 	 coot::rama_plot * plot =
@@ -2466,13 +2466,13 @@ graphics_info_t::Imol_Refinement_Map() const {
 
    if (imol_refinement_map != -1) { // has been set by user
 
-      if (imol_refinement_map < n_molecules)
+      if (imol_refinement_map < n_molecules())
 	 if (imol_refinement_map >= 0)
 	    if (molecules[imol_refinement_map].has_map())
 	       return imol_refinement_map;
    }
       
-   for (int imol=0; imol<n_molecules; imol++) { 
+   for (int imol=0; imol<n_molecules(); imol++) { 
       if (molecules[imol].has_map()) { 
 	 nmaps++;
 	 only_map = imol;
@@ -2508,14 +2508,14 @@ graphics_info_t::add_vector_to_RotationCentre(const coot::Cartesian &vec) {
    rotation_centre_z += vec.z();
 
    if (GetActiveMapDrag() == 1) {
-      for (int ii=0; ii<n_molecules; ii++) { 
+      for (int ii=0; ii<n_molecules(); ii++) { 
 	 if (molecules[ii].has_map()) { 
 	    molecules[ii].update_map(); // to take account
 	                                // of new rotation centre.
 	 }
       }
    }
-   for (int ii=0; ii<n_molecules; ii++) { 
+   for (int ii=0; ii<n_molecules(); ii++) { 
       molecules[ii].update_symmetry();
    }
    graphics_draw();
@@ -2977,7 +2977,7 @@ graphics_info_t::pointer_atom_molecule() const {
    int i = -1; // must be changed by this function.
 
    if (user_pointer_atom_molecule >= 0) {
-      if (user_pointer_atom_molecule < n_molecules) {
+      if (user_pointer_atom_molecule < n_molecules()) {
 	 if (molecules[user_pointer_atom_molecule].open_molecule_p()) {
 	    i = user_pointer_atom_molecule;
 	 }
@@ -2987,7 +2987,7 @@ graphics_info_t::pointer_atom_molecule() const {
    if (i == -1) { 
       // user did not explicictly set the molecule, the usual case:
 
-      for (int imol=0; imol<n_molecules; imol++) {
+      for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].open_molecule_p()) { // not closed
 	    if (molecules[imol].name_ == "Pointer Atoms") {
 	       return imol;
@@ -3009,14 +3009,11 @@ graphics_info_t::pointer_atom_molecule() const {
       MMDBManager->AddModel(model_p);
    
       atom_selection_container_t asc = make_asc(MMDBManager);
-      int imol = n_molecules;
-      molecules[imol].install_model(asc, "Pointer Atoms", 1);
-      n_molecules++;
+      int imol = create_molecule();
+      molecules[imol].install_model(imol, asc, "Pointer Atoms", 1);
       return imol;
    }
-
    return i;
-   
 }
 
 void
@@ -3030,7 +3027,7 @@ graphics_info_t::update_things_on_move_and_redraw() {
 void
 graphics_info_t::update_things_on_move() {
    
-   for (int ii=0; ii<n_molecules; ii++) { 
+   for (int ii=0; ii<n_molecules(); ii++) { 
       molecules[ii].update_map();
       molecules[ii].update_clipper_skeleton(); 
       molecules[ii].update_symmetry();
@@ -3143,7 +3140,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
 
    int imol = -1;
    
-   for (int im=0; im<n_molecules; im++) {
+   for (int im=0; im<n_molecules(); im++) {
       if (molecules[im].name_ == "Baton Atoms") {
 	 return im;
       }
@@ -3193,14 +3190,12 @@ graphics_info_t::baton_build_atoms_molecule() const {
    
    atom_selection_container_t asc = make_asc(MMDBManager);
    asc.SelectionHandle = -1;
-   imol = n_molecules;
-   molecules[imol].install_model(asc, "Baton Atoms", 1);
+   imol = create_molecule();
+   molecules[imol].install_model(imol, asc, "Baton Atoms", 1);
    std::cout << "INFO:: Baton Build molecule has SelectionHandle: " 
 	     << molecules[imol].atom_sel.SelectionHandle << " " 
 	     <<  asc.SelectionHandle << std::endl;
-   n_molecules++;
    return imol;
-
 } 
 
 void
@@ -3227,7 +3222,7 @@ graphics_info_t::accept_baton_position() {
    }
    std::cout << "setting screen rotation centre to " << baton_tip << std::endl; 
    setRotationCentre(baton_tip);
-   for(int ii=0; ii<n_molecules; ii++) {
+   for(int ii=0; ii<n_molecules(); ii++) {
       // but not skeleton, lets do skeleton only on a middle-mouse recentre
       molecules[ii].update_map();
       molecules[ii].update_symmetry();
@@ -3485,7 +3480,7 @@ graphics_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &pos_po
 int
 graphics_info_t::lookup_molecule_name(const std::string &molname) const {
    
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].name_ == molname) {
 	 return imol;
       }
@@ -3498,9 +3493,6 @@ graphics_info_t::lookup_molecule_name(const std::string &molname) const {
 int
 graphics_info_t::create_empty_molecule(const std::string &molname) {
 
-   if ( n_molecules >= n_molecules_max ) {
-      expand_molecule_space();
-   }
    std::cout << "Creating a molecule for " << molname << std::endl;
 
    MyCMMDBManager *MMDBManager = new MyCMMDBManager();
@@ -3512,21 +3504,22 @@ graphics_info_t::create_empty_molecule(const std::string &molname) {
    MMDBManager->AddModel(model_p);
    
    atom_selection_container_t asc = make_asc(MMDBManager);
-   int imol = n_molecules;
-   molecules[imol].install_model(asc, molname, 1);
+   int imol = create_molecule();
+   molecules[imol].install_model(imol, asc, molname, 1);
    asc.read_error_message = "No error";
    asc.read_success = 1;
-   n_molecules++;
    return imol;
 } 
 
 // resize the molecule array, copying over data.
+// 
+// Remove this function these days.
 short int
 graphics_info_t::expand_molecule_space_maybe() {
 
-   if (n_molecules == n_molecules_max) {
-      return expand_molecule_space();
-   }
+//    if (n_molecules == n_molecules_max) {
+//       return expand_molecule_space();
+//    }
 
    return 0;
 }
@@ -3534,6 +3527,9 @@ graphics_info_t::expand_molecule_space_maybe() {
 // resize the molecule array, copying over data.
 short int
 graphics_info_t::expand_molecule_space() {
+
+   // surely these pointer should be part of the molecule_class_info_t
+   // these days?
 
    std::cout << "...... expanding molecules space..." << std::endl;
    int new_size = int(1.8 * n_molecules_max);
@@ -3547,7 +3543,7 @@ graphics_info_t::expand_molecule_space() {
    GtkWidget **new_omegas    = new GtkWidget * [new_size];
    GtkWidget **new_rotamers  = new GtkWidget * [new_size];
    
-   for (int i=0;  i<n_molecules; i++) {
+   for (int i=0;  i<n_molecules(); i++) {
       new_molecules[i] = molecules                 [i];
       new_dynaramas[i] = dynarama_is_displayed     [i];
       new_sequences[i] = sequence_view_is_displayed[i];
@@ -3558,7 +3554,7 @@ graphics_info_t::expand_molecule_space() {
       new_rotamers [i] = rotamer_graph             [i];
    }
 
-   for (int i=n_molecules;  i<new_size; i++) {
+   for (int i=n_molecules();  i<new_size; i++) {
       new_molecules[i].set_mol_number(i);
       new_dynaramas[i] = 0;
       new_sequences[i] = 0;
@@ -3585,9 +3581,10 @@ graphics_info_t::expand_molecule_space() {
    omega_distortion_graph     = new_omegas;
    rotamer_graph              = new_rotamers;
 
-   delete [] molecules;
-   molecules = new_molecules;
-   n_molecules_max = new_size;
+   // delete [] molecules;
+   // molecules = new_molecules;
+   // n_molecules_max = new_size;
+   
    return 1; // OK 
 } 
 
@@ -3792,7 +3789,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget 
    int last_menu_item_index = 0;
 
    int menu_index = 0; // for setting of imol_active as active mol in go to atom
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
 
 //       std::cout << "in fill_option_menu_with_coordinates_options, "
 // 		<< "g.molecules[" << imol << "].atom_sel.n_selected_atoms is "
@@ -3892,7 +3889,7 @@ graphics_info_t::Undo_molecule(coot::undo_type undo_type) const {
       r = undo_molecule;
    else {
       int n_mol = 0; 
-      for (int imol=0; imol<n_molecules; imol++) {
+      for (int imol=0; imol<n_molecules(); imol++) {
 	 // Argh.  I want to store an function (name) as a variable.
 	 // How do I do that?
 
@@ -3930,7 +3927,7 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
    GtkWidget *menuitem;
    int first = -1;
    
-   for (int i=0; i<n_molecules; i++) {
+   for (int i=0; i<n_molecules(); i++) {
       // if (molecules[i].has_model()) { 
       if (molecules[i].atom_sel.mol) { 
 	 if (molecules[i].Have_modifications_p()) {
@@ -3992,7 +3989,7 @@ graphics_info_t::set_baton_build_params(int istart_resno,
 void
 graphics_info_t::set_bond_thickness(int imol, float t) {
 
-   if (imol < n_molecules) {
+   if (imol < n_molecules()) {
       if (imol >= 0) {
 	 if (graphics_info_t::molecules[imol].has_model()) { 
 	    molecules[imol].set_bond_thickness(t);
@@ -4667,7 +4664,7 @@ void
 graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const { 
 
    int imap = -1; 
-   for (int i=0; i<n_molecules; i++) { 
+   for (int i=0; i<n_molecules(); i++) { 
       if (molecules[i].has_map()) { 
 	 imap = i;
       }
@@ -4689,7 +4686,7 @@ void
 graphics_info_t::set_last_map_contour_level(float level) {
 
    int imap = -1; 
-   for (int i=0; i<n_molecules; i++) { 
+   for (int i=0; i<n_molecules(); i++) { 
       if (molecules[i].has_map()) { 
 	 imap = i;
       }
@@ -4706,7 +4703,7 @@ void
 graphics_info_t::set_last_map_contour_level_by_sigma(float f) {
 
    int imap = -1; 
-   for (int i=0; i<n_molecules; i++) { 
+   for (int i=0; i<n_molecules(); i++) { 
       if (molecules[i].has_map()) { 
 	 imap = i;
       }
@@ -4725,7 +4722,7 @@ void
 graphics_info_t::set_last_map_sigma_step(float f) { 
 
    int imap = -1;
-   for (int i=0; i<n_molecules; i++) { 
+   for (int i=0; i<n_molecules(); i++) { 
       if (molecules[i].has_map()) { 
 	 imap = i;
       }
@@ -4762,7 +4759,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
    // means that get_first_atom_with_atom_name() will work like we
    // want it to.
 
-   if (imol < n_molecules) { 
+   if (imol < n_molecules()) { 
       if (molecules[imol].has_model()) { 
 	 if (atom_index < molecules[imol].atom_sel.n_selected_atoms) { 
 	    CAtom *this_atom_p = molecules[imol].atom_sel.atom_selection[atom_index];
@@ -5449,7 +5446,7 @@ graphics_info_t::get_sequence_view(int imol) {
    GtkWidget *w = NULL;
    coot::sequence_view *r = NULL;
 
-   if (n_molecules > imol) {
+   if (imol < n_molecules()) {
       if (molecules[imol].has_model()) {
 	 w = sequence_view_is_displayed[imol];
 	 r = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
@@ -5472,7 +5469,7 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
       delete sv;
    }
 
-   if (imol < n_molecules) {
+   if (imol < n_molecules()) {
 //       coot::sequence_view *sv = (coot::sequence_view *)
 // 	 gtk_object_get_user_data(GTK_OBJECT(sequence_view_is_displayed[imol]));
 //       std::cout << "DEBUG:: seting sequence_view_is_displayed[" << imol
@@ -5611,7 +5608,7 @@ graphics_info_t::make_pointer_distance_objects() {
    std::vector<clipper::Coord_orth> mol_distances;
 
    if (show_pointer_distances_flag) { 
-      for (int imol=0; imol<n_molecules; imol++) {
+      for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].is_displayed_p()) { 
 	       mol_distances = molecules[imol].distances_to_point(cen,
@@ -5950,7 +5947,7 @@ graphics_info_t::unset_geometry_dialog_torsion_togglebutton() {
 void
 graphics_info_t::remove_all_atom_labels() { 
 
-   for (int i=0; i<n_molecules; i++) { 
+   for (int i=0; i<n_molecules(); i++) { 
       if (molecules[i].has_model()) { 
 	 molecules[i].remove_atom_labels();
       } 
@@ -6052,8 +6049,8 @@ void
 graphics_info_t::check_waters_by_difference_map(int imol_waters, int imol_diff_map, 
 						int interactive_flag) {
    
-   if (imol_waters < n_molecules) {
-      if (imol_diff_map < n_molecules) {
+   if (imol_waters < n_molecules()) {
+      if (imol_diff_map < n_molecules()) {
 	 if (molecules[imol_waters].has_model()) {
 	    if (molecules[imol_diff_map].has_map()) {
 	       if (molecules[imol_diff_map].is_difference_map_p()) {
@@ -6165,7 +6162,7 @@ graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
 void
 graphics_info_t::check_chiral_volumes(int imol) {
 
-   if (imol < n_molecules) {
+   if (imol < n_molecules()) {
       if (molecules[imol].has_model()) {
 	 // return a pair: first is the residues for which no
 	 // restraints were found second is a vector of atom specs
@@ -6350,7 +6347,7 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
    GtkWidget *menu_item;
    int current_bond_width = 3;
    if (imol >= 0 ) {
-      if (imol < n_molecules) {
+      if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
 	    current_bond_width = molecules[imol].bond_thickness();
 	 }
@@ -6374,7 +6371,7 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
 
    // Draw Hydrogens?
    if (imol >= 0 ) {
-      if (imol < n_molecules) {
+      if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].draw_hydrogens()) {
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_hydrogens_yes_radiobutton), TRUE);
@@ -6387,7 +6384,7 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
 
    // Draw NCS ghosts?
    if (imol >= 0 ) {
-      if (imol < n_molecules) {
+      if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].draw_ncs_ghosts_p()) {
 	       if (molecules[imol].ncs_ghosts_have_rtops_p()) { 
@@ -6405,7 +6402,7 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
    GtkWidget *frame = lookup_widget(w, "ncs_frame");
    short int make_insensitive = 1;
    if (imol >= 0 ) {
-      if (imol < n_molecules) {
+      if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].has_ncs_p()) {
 	       make_insensitive = 0;
@@ -6460,7 +6457,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
    GtkWidget *label270;
    GtkWidget *coords_colour_hscale_mol_N;
    
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) { 
 
 	 std::string m = "Molecule ";
@@ -6591,7 +6588,7 @@ graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
 
    std::string r("no-chain");
 
-   if (imol<graphics_info_t::n_molecules) {
+   if (imol<graphics_info_t::n_molecules()) {
       if (imol >= 0) { 
 	 if (graphics_info_t::molecules[imol].has_model()) {
 	    std::vector<std::string> chains = coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
@@ -6762,7 +6759,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
       graphics_info_t g;
       coot::Cartesian c(centres[0].first.x(), centres[0].first.y(), centres[0].first.z());
       g.setRotationCentre(c);
-      for(int ii=0; ii<n_molecules; ii++) {
+      for(int ii=0; ii<n_molecules(); ii++) {
 	 molecules[ii].update_map();
 	 molecules[ii].update_symmetry();
       }
@@ -6786,7 +6783,7 @@ graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *but
       // std::cout << "button number " << i << " was active\n";
       coot::Cartesian c(hd->pos.x(), hd->pos.y(), hd->pos.z());
       g.setRotationCentre(c);
-      for(int ii=0; ii<n_molecules; ii++) {
+      for(int ii=0; ii<n_molecules(); ii++) {
 	 molecules[ii].update_map();
 	 molecules[ii].update_symmetry();
       }
@@ -7153,7 +7150,7 @@ graphics_info_t::backslash_filename(const std::string &s) { // needed for window
 GtkWidget *graphics_info_t::wrapped_create_symmetry_controller_dialog() const {
 
    GtkWidget *w = create_symmetry_controller_dialog();
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model())
  	 molecules[imol].fill_symmetry_control_frame(w);
    }

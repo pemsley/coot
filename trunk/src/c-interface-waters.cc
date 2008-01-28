@@ -1,6 +1,6 @@
 /* src/c-interface-waters.cc
  * 
- * Copyright 2004 2005 The University of York
+ * Copyright 2004, 2005 by The University of York
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -113,7 +113,7 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
       // Find the first active map radiobutton
       GtkWidget *map_button;
       short int found_active_button_for_map = 0;
-      for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 	 if (graphics_info_t::molecules[imol].has_map()) { 
 	    std::string map_str = "find_blobs_map_radiobutton_";
 	    map_str += graphics_info_t::int_to_string(imol);
@@ -134,7 +134,7 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
       // Find the first active protein radiobutton
       GtkWidget *protein_button;
       short int found_active_button_for_protein = 0;
-      for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 	 if (graphics_info_t::molecules[imol].has_model()) { 
 	    std::string protein_str = "find_blobs_protein_radiobutton_";
 	    protein_str += graphics_info_t::int_to_string(imol);
@@ -172,7 +172,7 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 			float sigma_cut_off, short int interactive_flag) { 
 
    if (imol_model >= 0) { 
-      if (imol_model < graphics_info_t::n_molecules) { 
+      if (imol_model < graphics_info_t::n_molecules()) { 
 	 if (graphics_info_t::molecules[imol_model].has_model()) { 
 
 	    // check imol_for_map here.. FIXME
@@ -316,7 +316,7 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
    GtkWidget *dialog_button;
 
    // Find the active map radiobutton:
-   for (int imol=0; imol<g.n_molecules; imol++) {
+   for (int imol=0; imol<g.n_molecules(); imol++) {
       if (g.molecules[imol].has_map()) {
 	 std::string map_str = "find_waters_map_radiobutton_";
 	 map_str += g.int_to_string(imol);
@@ -335,7 +335,7 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
    }
 
    // Find the active protein radiobutton:
-   for (int imol=0; imol<g.n_molecules; imol++) {
+   for (int imol=0; imol<g.n_molecules(); imol++) {
       if (g.molecules[imol].has_model()) {
 	 std::string protein_str = "find_waters_protein_radiobutton_";
 	 protein_str += g.int_to_string(imol);
@@ -488,9 +488,8 @@ void find_waters(int imol_for_map,
       if (! water_mol.is_empty()) {
 	 float bf = graphics_info_t::default_new_atoms_b_factor;
 	 atom_selection_container_t asc = make_asc(water_mol.pcmmdbmanager(bf));
-	 int g_mol_for_waters = g.n_molecules;
-	 g.molecules[g_mol_for_waters].install_model(asc, "waters", 1);
-	 g.n_molecules++;
+	 int g_mol_for_waters = graphics_info_t::create_molecule();
+	 g.molecules[g_mol_for_waters].install_model(g_mol_for_waters, asc, "waters", 1);
 	 if (g.go_to_atom_window){
 	    g.update_go_to_atom_window_on_new_mol();
 	    g.update_go_to_atom_window_on_changed_mol(g_mol_for_waters);
@@ -590,7 +589,7 @@ void check_waters_by_difference_map_by_widget(GtkWidget *dialog) {
    // Find the first active map radiobutton
    GtkWidget *map_button;
    short int found_active_button_for_map = 0;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_map()) { 
 	 if (graphics_info_t::molecules[imol].is_difference_map_p()) { 
 	    std::string map_str = "check_waters_diff_map_map_radiobutton_";
@@ -612,7 +611,7 @@ void check_waters_by_difference_map_by_widget(GtkWidget *dialog) {
    // Find the first active water radiobutton
    GtkWidget *water_button;
    short int found_active_button_for_waters = 0;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_model()) { 
 	 std::string water_str = "check_waters_diff_map_model_radiobutton_";
 	 water_str += graphics_info_t::int_to_string(imol);
@@ -689,7 +688,7 @@ int blob_under_pointer_to_screen_centre() {
       coot::Cartesian cc(blob.x(), blob.y(), blob.z());
       graphics_info_t g;
       g.setRotationCentre(cc);
-      for(int ii=0; ii<graphics_info_t::n_molecules; ii++) {
+      for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
 	 graphics_info_t::molecules[ii].update_map();
 	 graphics_info_t::molecules[ii].update_symmetry();
       }

@@ -246,7 +246,7 @@ GtkWidget *wrapped_create_ncs_control_dialog() {
 
    GtkWidget *w = create_ncs_control_dialog();
 
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++)
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++)
       if (is_valid_model_molecule(imol))
 	 graphics_info_t::molecules[imol].fill_ncs_control_frame(w);
    return w; 
@@ -354,7 +354,7 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
  
    GtkWidget *map_button;
    short int found_active_button_for_map = 0;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_map()) {
 	 std::string map_str = "ncs_maps_maps_radiobutton_";
 	 map_str += graphics_info_t::int_to_string(imol);
@@ -374,7 +374,7 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
 
    GtkWidget *coords_button;
    short int found_active_button_for_coords = 0;
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_model()) {
 	 if (graphics_info_t::molecules[imol].has_ncs_p()) {
 	    std::string coords_str = "ncs_maps_models_radiobutton_";

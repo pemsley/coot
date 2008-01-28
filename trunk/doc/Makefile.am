@@ -38,10 +38,12 @@ coot-manual.ps: user-manual.dvi
 	dvips $^ -o $@
 
 functions.tex: $(top_srcdir)/src/c-interface.h
-	scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
+# scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
+	echo passing
 
 functions.texi: $(top_srcdir)/src/c-interface.h
-	scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
+# scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
+	echo passing
 
 reference.dvi: $(top_srcdir)/doc/reference.tex functions.tex
 	-latex -interaction=nonstopmode $^

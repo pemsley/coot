@@ -59,9 +59,9 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 
    int status = 0;
    clipper::RTop_orth rtop_r;
-   if (imol_ref < n_molecules) {
+   if (imol_ref < n_molecules()) {
       if (molecules[imol_ref].has_model()) {
-	 if (imol_moving < n_molecules) {
+	 if (imol_moving < n_molecules()) {
 	    if (molecules[imol_moving].has_model()) {
 	       std::pair<short int, clipper::RTop_orth> rtop_info =
 		  coot::util::get_lsq_matrix(molecules[imol_ref].atom_sel.mol,

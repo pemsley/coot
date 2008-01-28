@@ -73,7 +73,7 @@ graphics_info_t::add_cb_to_terminal_res(atom_selection_container_t asc) {
    int istat;
    molecule_class_info_t molci;
    short int display_in_display_control_widget_status = 0;
-   molci.install_model(asc, "terminal residue", display_in_display_control_widget_status);
+   molci.install_model(0, asc, "terminal residue", display_in_display_control_widget_status);
 
    // every (usually 1, occasionally 2) residue in the molecule
    CModel *model_p = asc.mol->GetModel(1);
@@ -276,7 +276,7 @@ void
 graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
 			      const std::string &seq) {
 
-   if (imol < n_molecules) { 
+   if (imol < n_molecules()) { 
       if (imol >= 0) { 
 	 if (molecules[imol].has_model()) {
 	    std::cout << "INFO:: aligning to mol number " << imol << "chain: "

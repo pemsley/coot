@@ -378,7 +378,7 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
    if (find_ligand_map_vbox == NULL) {
       std::cout << "disaster! find_ligand map vbox not found " << std::endl;
    } else { 
-      for (int imol=0; imol<g.n_molecules; imol++) {
+      for (int imol=0; imol<g.n_molecules(); imol++) {
 	 if (g.molecules[imol].has_map()) {
 
 	    if ((!diff_maps_only_flag) ||
@@ -437,7 +437,7 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
    if (find_ligand_protein_vbox == NULL) {
       std::cout << "disaster! find_ligand protein vbox not found " << std::endl;
    } else { 
-      for (int imol=0; imol<g.n_molecules; imol++) {
+      for (int imol=0; imol<g.n_molecules(); imol++) {
 	 if (g.molecules[imol].atom_sel.n_selected_atoms) {
 	    //
 	    ifound = 1; // there was a protein
@@ -486,7 +486,7 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
       std::cout << "disaster! fill_vbox_with_coords_options_by_dialog_name coords"
 		<< " vbox not found " << std::endl;
    } else { 
-      for (int imol=0; imol<g.n_molecules; imol++) {
+      for (int imol=0; imol<g.n_molecules(); imol++) {
 	 if (g.molecules[imol].has_model()) {
 
 	    if (!have_ncs_flag || g.molecules[imol].has_ncs_p()) { 
@@ -533,7 +533,7 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
    if (find_ligand_ligands_vbox == NULL) {
       std::cout << "disaster! find_ligand protein vbox not found " << std::endl;
    } else { 
-      for (int imol=0; imol<g.n_molecules; imol++) {
+      for (int imol=0; imol<g.n_molecules(); imol++) {
 	 if ((g.molecules[imol].atom_sel.n_selected_atoms < graphics_info_t::find_ligand_ligand_atom_limit) &&
 	     g.molecules[imol].has_model()) {
 	    ifound = 1; // there was a ligand
@@ -628,7 +628,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    
    // Find the first active map radiobutton
    found_active_button_for_map = 0;
-   for (int imol=0; imol<g.n_molecules; imol++) {
+   for (int imol=0; imol<g.n_molecules(); imol++) {
       if (g.molecules[imol].xmap_is_filled[0]) { 
 	 std::string map_str = "find_ligand_map_radiobutton_";
 	 map_str += g.int_to_string(imol);
@@ -648,7 +648,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 
    // Find the first active protein radiobutton
    found_active_button_for_protein = 0;
-   for (int imol=0; imol<g.n_molecules; imol++) {
+   for (int imol=0; imol<g.n_molecules(); imol++) {
       if (g.molecules[imol].atom_sel.n_selected_atoms > 0) { 
 	 std::string protein_str = "find_ligand_protein_radiobutton_";
 	 protein_str += g.int_to_string(imol);
@@ -681,7 +681,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    // molecule number
    
    found_active_button_for_ligands = 0;
-   for (int imol=0; imol<g.n_molecules; imol++) {
+   for (int imol=0; imol<g.n_molecules(); imol++) {
       if (g.molecules[imol].has_model() &&
 	  g.molecules[imol].atom_sel.n_selected_atoms < graphics_info_t::find_ligand_ligand_atom_limit) {
 	 std::string ligand_str = "find_ligand_ligand_checkbutton_";
@@ -933,7 +933,7 @@ execute_ligand_search_internal() {
       }
    }
 
-   int imol = g.n_molecules;
+   int imol = graphics_info_t::create_molecule();
    
    short int mask_waters_flag; // treat waters like other atoms?
    mask_waters_flag = g.find_ligand_mask_waters_flag;
@@ -958,8 +958,6 @@ execute_ligand_search_internal() {
    g.scroll_wheel_map = imol;  // change the current scrollable map to
 			       // the masked map.
 
-   g.n_molecules++; 
-
    // now add in the solution ligands:
    int n_final_ligands = wlig.n_final_ligands(); 
    int n_new_ligand = 0;
@@ -969,13 +967,12 @@ execute_ligand_search_internal() {
       if (! m.is_empty()) {
 	 float bf = graphics_info_t::default_new_atoms_b_factor;
 	 atom_selection_container_t asc = make_asc(m.pcmmdbmanager(bf));
-	 int g_mol = g.n_molecules;
+	 int g_mol = graphics_info_t::create_molecule();
 	 std::string label = "Fitted ligand #";
 	 label += g.int_to_string(ilig);
 	 g.expand_molecule_space_maybe(); 
-	 g.molecules[g_mol].install_model(asc, label, 1);
+	 g.molecules[g_mol].install_model(g_mol, asc, label, 1);
 	 solutions.push_back(g_mol);
-	 g.n_molecules++;
 	 n_new_ligand++;
 	 if (g.go_to_atom_window){
 	    g.update_go_to_atom_window_on_new_mol();
@@ -1084,11 +1081,11 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
    // Where should the bulk of this function be?  Let's put it here for now.
    coot::ligand lig;
    graphics_info_t g;
-   if (map_mol_no >= g.n_molecules) {
+   if (map_mol_no >= g.n_molecules()) {
       std::cout << "No such molecule (no map) at molecule number " << map_mol_no << std::endl;
    } else {
 
-      if (coord_mol_no >= g.n_molecules) {
+      if (coord_mol_no >= g.n_molecules()) {
 	 std::cout << "No such molecule (no coords) at molecule number " << map_mol_no << std::endl;
       } else { 
       
@@ -1122,9 +1119,8 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	       g.molecules[coord_mol_no].atom_sel.mol->DeleteSelection(selectionhandle);
 	       std::cout << "INFO:: Creating masked  map in molecule number "
 			 << g.n_molecules << std::endl;
-	       g.molecules[g.n_molecules].new_map(lig.masked_map(), "Generic Masked Map");
-	       imol_new_map = g.n_molecules; 
-	       g.n_molecules++;
+	       imol_new_map = graphics_info_t::create_molecule();
+	       g.molecules[imol_new_map].new_map(lig.masked_map(), "Generic Masked Map");
 	       graphics_draw();
 	    }
 	 }
@@ -1152,9 +1148,8 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 							 (char *) mmdb_atom_selection,
 							 SKEY_NEW);
 	 lig.mask_map(g.molecules[coords_mol_no].atom_sel.mol, selectionhandle, invert_flag);
-	 g.molecules[g.n_molecules].new_map(lig.masked_map(), "Generic Masked Map");
-	 imol_new_map = g.n_molecules; 
-	 g.n_molecules++;
+	 imol_new_map = graphics_info_t::create_molecule();
+	 g.molecules[imol_new_map].new_map(lig.masked_map(), "Generic Masked Map");
 	 graphics_draw();
       } else {
 	 std::cout << "No model molecule in " << coords_mol_no << std::endl;

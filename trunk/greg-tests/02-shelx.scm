@@ -66,6 +66,13 @@
 	       (format #t "   Bad read of ~s ~s~%" insulin-fcf imol)
 	       (throw 'fail))
 	     (begin
+	       (let ((name (molecule-name imol))
+		     (cif-name (string-append insulin-fcf ".cif SigmaA")))
+		 (if (not (string=? name cif-name))
+		     (begin
+		       (format #t "   Bad name match ~s != ~s~%" name cif-name)
+		       (throw 'fail))))
+
 	       (if (not (string=? (show-spacegroup imol)
 				  (show-spacegroup imol-insulin-res)))
 		   (begin

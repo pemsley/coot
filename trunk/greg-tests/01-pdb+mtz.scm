@@ -345,11 +345,11 @@
 	    (if (not (string? res-type))
 		(throw 'fail)
 		(begin
-		  (mutate resno chain-id cis-pep-mol "GLY")
+		  (mutate cis-pep-mol chain-id resno "" "GLY")
 		  (with-auto-accept
 		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
 		   (accept-regularizement)
-		   (mutate resno chain-id cis-pep-mol res-type)
+		   (mutate cis-pep-mol chain-id resno "" res-type)
 		   (auto-fit-best-rotamer resno "" ins-code chain-id cis-pep-mol 
 					  (imol-refinement-map) 1 1)
 		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
