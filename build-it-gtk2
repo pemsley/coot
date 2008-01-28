@@ -201,7 +201,9 @@
 # 3.01 20080118 Add GtkGlExt
 # 3.02 20080121 Tinker with guile build settings.
 # 3.03 20080124 Build GTK2 from scratch: librsvg, cairo, pango, glitz. glib, gtk+-2
-script_version=3.03
+# 3.04 20080128 Add a test for the existance of pygtk
+script_version=3.04
+
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1310,6 +1312,7 @@ python -V
 if test $? != 0 ; then
    echo python should be built
    build_python=1
+   build_pygtk=1
 else 
    python_version_installed=`python -V 2>&1`
    case "$python_version_installed" in 
@@ -1327,6 +1330,14 @@ else
 fi
 
 # test for pygtk
+if test -z "$build_pygtk" ; then
+   if test -e $install_top_dir/python/2.5/site-packages/gtk+-2.0/gtk/keysyms.py ; then
+      echo pygtk keysyms exists, no build pygtk
+   else 
+      echo pygtk keysyms NOT exists, pygtk should be built
+      build_pygtk=1
+   fi      
+fi
 
 
 # force the GSL config to be in $install_top_dir, rather than
