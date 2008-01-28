@@ -362,7 +362,7 @@ function post_install_slim {
 
     for file in etc html info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
-	bin/guile $keep_lib_archs ;
+	bin/guile lib/python2.5 $keep_lib_archs ;
     do
        dn=`dirname $file`
        if [ -e $fat_dir/$file ] ; then
