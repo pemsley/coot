@@ -1915,6 +1915,7 @@ else
     echo not building python:
 fi
 
+echo done testing for pygtk build
 # http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.12/pygtk-2.12.1.tar.gz
 if test -n "$build_pygtk" ; then 
     echo BUILDING pygtk:
@@ -1934,6 +1935,7 @@ else
    $MAKE install
 fi
 ) > $HOSTLOGDIR/05-pygtk.txt
+echo done testing for pygtk build
 
 
 # Now we need:
@@ -1944,6 +1946,8 @@ fi
 #  * goosh
 #  * gsl
 
+
+echo testing for gmp build
 
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
@@ -1965,7 +1969,9 @@ if test -n "$build_gmp" ; then
 else
     echo not building gmp:
 fi 
+echo done testing for gmp build
 
+echo  testing for build libtool
 
 if test -n "$build_libtool" ; then
     echo BUILDING libtool:
@@ -1987,8 +1993,10 @@ if test -n "$build_libtool" ; then
 else
     echo not building libtool:
 fi 
+echo done testing for libtool build
 
 
+echo testing for readline build
 if test -n "$build_readline" ; then
     echo BUILDING readline:
     readline_version=5.1
@@ -2015,7 +2023,9 @@ if test -n "$build_readline" ; then
 else 
     echo not building readline:
 fi 
+echo done testing for readline build
 
+echo testing for guile build
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
@@ -2049,6 +2059,7 @@ fi
 else
     echo not building guile:
 fi
+echo done testing for guile build
 
 if test -n "$build_net_http" ; then 
    echo BUILDING net http for guile
