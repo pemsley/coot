@@ -1179,7 +1179,7 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 						int imol) {
 
    // do 2 atom selections to find the atom indices
-   if (imol < n_molecules) {
+   if (imol < n_molecules()) {
       if (molecules[imol].has_model()) {
 
 	 // recall that we can't use the
@@ -1706,7 +1706,7 @@ graphics_info_t::execute_torsion_general() {
    if (torsion_general_atom_index_1_mol_no == torsion_general_atom_index_2_mol_no) { 
       if (torsion_general_atom_index_1_mol_no == torsion_general_atom_index_3_mol_no) { 
 	 if (torsion_general_atom_index_1_mol_no == torsion_general_atom_index_4_mol_no) {
-	    if (torsion_general_atom_index_4_mol_no < n_molecules) {
+	    if (torsion_general_atom_index_4_mol_no < n_molecules()) {
 	       
 	       CAtom *atom_1 = 0; 
 	       CAtom *atom_2 = 0; 
@@ -2039,9 +2039,8 @@ graphics_info_t::execute_db_main(int imol,
 	 atom_selection_container_t asc = make_asc(mol.pcmmdbmanager(bf));
 	 set_mmdb_cell_and_symm(asc, cell_spgr); // tinker with asc. 
 	                                         // Consider asc as an object.
-	 molecules[n_molecules].install_model(asc, "mainchain", 1);
-	 // molecules[n_molecules].set_mmdb_cell_and_symm(cell_spgr);
-	 n_molecules++;
+	 int imol_new = create_molecule();
+	 molecules[imol_new].install_model(imol_new, asc, "mainchain", 1);
 	 graphics_draw();
       } else {
 	 std::string s("Sorry, failed to convert that residue range.\nToo short, perhaps?");
@@ -2177,7 +2176,7 @@ graphics_info_t::mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec
    if (!moving_atoms_asc) {
       std::cout << "WARNING:: No intermediate atoms - fail" << std::endl;
    } else {
-      if ((imol >=0) && (imol < n_molecules)) {
+      if ((imol >=0) && (imol < n_molecules())) {
 	 if (graphics_info_t::molecules[imol].has_model()) {
 	    graphics_info_t::molecules[imol].mark_atom_as_fixed(atom_spec, state);
 	 }
@@ -2383,7 +2382,7 @@ void
 graphics_info_t::place_typed_atom_at_pointer(const std::string &type) { 
 
    int imol = pointer_atom_molecule();
-   if (imol >= 0 && imol < n_molecules) {
+   if (imol >= 0 && imol < n_molecules()) {
       if (molecules[imol].open_molecule_p()) { 
 	 molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
 
@@ -2618,7 +2617,7 @@ graphics_info_t::split_residue(int imol, int atom_index) {
    // need to know the what the alt conf (and atom spec) of a newly
    // created alt conf atom.
 
-   if (imol<n_molecules) { 
+   if (imol<n_molecules()) { 
       if (molecules[imol].has_model()) {
 	 graphics_info_t::molecules[imol].split_residue(atom_index, alt_conf_split_type);
 	 graphics_draw();
@@ -2666,7 +2665,7 @@ graphics_info_t::delete_residue_range(int imol,
       }
    }
 
-   if ((imol >=0) && (imol < n_molecules)) {
+   if ((imol >=0) && (imol < n_molecules())) {
       graphics_info_t::molecules[imol].delete_zone(res1, res2);
       if (graphics_info_t::go_to_atom_window) {
 	 update_go_to_atom_window_on_changed_mol(imol);

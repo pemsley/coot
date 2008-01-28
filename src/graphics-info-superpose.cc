@@ -85,7 +85,7 @@ void graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *c
 	 GTK_SIGNAL_FUNC(graphics_info_t::superpose_moving_chain_option_menu_item_activate);
    }
    
-   if (imol >=0 && imol < n_molecules) { 
+   if (imol >=0 && imol < n_molecules()) { 
       std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu,
 								      imol, callback_func);
       if (is_reference_structure_flag) {
@@ -246,9 +246,9 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	       mol2->Copy(asc_mov.mol, MMDBFCM_All);
 	       std::string name = "Copy of ";
 	       name += moving_mol_name;
-	       graphics_info_t::molecules[graphics_info_t::n_molecules].install_model(make_asc(mol2), name, 1);
-	       imol2 = graphics_info_t::n_molecules;
-	       graphics_info_t::n_molecules++;
+	       int imol = graphics_info_t::create_molecule();
+	       graphics_info_t::molecules[imol].install_model(imol, make_asc(mol2), name, 1);
+	       imol2 = graphics_info_t::n_molecules();
 	    }
 	    
 	    graphics_info_t::molecules[imol2].transform_by(SSMAlign->TMatrix);

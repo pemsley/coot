@@ -39,7 +39,7 @@ COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
 COOT_DATA_DIR=$COOT_PREFIX/share/coot
 COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
-COOT_PYTHON_DIR=$COOT_PREFIX/share/coot/python
+PYTHONPATH=$COOT_PREFIX/share/coot/python
 if [ -z "$PYTHONPATH" ] ; then
     PYTHONPATH=$COOT_PREFIX/share/coot/python
 else

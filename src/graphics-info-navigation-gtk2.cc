@@ -190,7 +190,7 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 	     // that!?  Check the level, is how I did it in gtk1...
 	     graphics_info_t g;
 	     int go_to_imol = g.go_to_atom_molecule();
-	     if (go_to_imol<n_molecules) {
+	     if (go_to_imol<n_molecules()) {
 		gpointer residue_data;
 		gtk_tree_model_get(model, &iter, RESIDUE_COL, &residue_data, -1);
 		if (!residue_data) {
@@ -247,7 +247,7 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
        if (1) {
 	  graphics_info_t g;
 	  int go_to_imol = g.go_to_atom_molecule();
-	  if (go_to_imol<n_molecules) {
+	  if (go_to_imol< n_molecules()) {
 	     gpointer residue_data;
 	     gtk_tree_model_get(model, &iter, RESIDUE_COL, &residue_data, -1);
 	     if (!residue_data) {
@@ -358,7 +358,7 @@ graphics_info_t::atom_tree_atom_row_activated(GtkTreeView        *treeview,
       if (1) {
 	 graphics_info_t g;
 	 int go_to_imol = g.go_to_atom_molecule();
-	 if (go_to_imol<n_molecules) {
+	 if (go_to_imol< n_molecules()) {
 	    gpointer atom_data;
 	    gtk_tree_model_get(model, &iter, RESIDUE_COL, &atom_data, -1);
 	    if (! atom_data) {
@@ -401,7 +401,7 @@ graphics_info_t::atom_tree_selection_func(GtkTreeSelection *selection,
       if (!path_currently_selected) {
 	 graphics_info_t g;
 	 int go_to_imol = g.go_to_atom_molecule();
-	 if (go_to_imol<n_molecules) {
+	 if (go_to_imol< n_molecules()) {
 	    gpointer atom_data;
 	    gtk_tree_model_get(model, &iter, RESIDUE_COL, &atom_data, -1);
 	    if (! atom_data) {

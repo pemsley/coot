@@ -602,6 +602,7 @@ class molecule_class_info_t {
       skeleton_treenodemap_is_filled = 0;
       bond_width = 3.0;
       ghost_bond_width = 2.0;
+      xmap_is_filled = NULL;
    } 
 
    // See graphics_info_t::initialize_graphics_molecules()
@@ -615,6 +616,7 @@ class molecule_class_info_t {
       draw_hydrogens_flag = 1;
       bond_width = 3.0; 
       ghost_bond_width = 2.0;
+      xmap_is_filled = NULL;
    }
 
    // Why did I add this?  It causes a bug in "expanding molecule space"
@@ -756,9 +758,11 @@ class molecule_class_info_t {
       symmetry_colour_by_symop_flag = 0;
    }
 
-   int handle_read_draw_molecule(std::string filename,
+   int handle_read_draw_molecule(int imol_no_in,
+				 std::string filename,
 				 short int recentre_rotation_centre,
-				 short int is_undo_or_redo);
+				 short int is_undo_or_redo, 
+				 float bond_width_in);
 
    void      label_symm_atom(int i, symm_trans_t symm_trans);
    void test_label_symm_atom(int i);
@@ -944,7 +948,8 @@ class molecule_class_info_t {
    void initialize_coordinate_things_on_read_molecule(std::string name);
    void initialize_coordinate_things_on_read_molecule_internal(std::string name,
 							       short int is_undo_or_redo);
-   void install_model(atom_selection_container_t asc, const std::string &mol_name,
+   void install_model(int imol_no_in, 
+		      atom_selection_container_t asc, const std::string &mol_name,
 		      short int display_in_display_control_widget_status);
 
    const coot::CartesianPair* draw_vectors;
@@ -1131,32 +1136,44 @@ class molecule_class_info_t {
 			      const clipper::Cell &cell,
 			      std::string cns_data_filename);
 
-   int make_map_from_cif_sigmaa(std::string cif_filename, int sigma_map_type); // has phases
-   int make_map_from_cif(std::string cif_file_name); // uses above with type SIGMAA
-   int make_map_from_cif_diff_sigmaa(std::string cif_file_name); // uses above with TYPE_DIFF_SIGMAA
+   int make_map_from_cif_sigmaa(int imol_no_in,
+				std::string cif_filename, int sigma_map_type); // has phases
+   int make_map_from_cif(int imol_no_in,
+			 std::string cif_file_name); // uses above with type SIGMAA
+   int make_map_from_cif_diff_sigmaa(int imol_no_in,
+				     std::string cif_file_name); // uses above with TYPE_DIFF_SIGMAA
 
-   int make_map_from_cif(std::string cif_filename,  // generate phases from mol
+   int make_map_from_cif(int imol_no_in, 
+			 std::string cif_filename,  // generate phases from mol
 			  int imol_coords);
-   int make_map_from_cif(std::string cif_file_name,
+   int make_map_from_cif(int imol_no_in, 
+			 std::string cif_file_name,
 			 atom_selection_container_t SelAtom);
-   int make_map_from_cif_2fofc(std::string cif_file_name,
+   int make_map_from_cif_2fofc(int imol_no_in, 
+			       std::string cif_file_name,
 			       atom_selection_container_t SelAtom);
-   int make_map_from_cif_2fofc(std::string cif_file_name,
+   int make_map_from_cif_2fofc(int imol_no_in, 
+			       std::string cif_file_name,
 			       int imol_coords);
-   int make_map_from_cif_fofc(std::string cif_file_name,
-			       int imol_coords);
-   int make_map_from_cif_generic(std::string cif_file_name,
+   int make_map_from_cif_fofc(int imol_no_in, 
+			      std::string cif_file_name,
+			      int imol_coords);
+   int make_map_from_cif_generic(int imol_no_in,
+				 std::string cif_file_name,
 				 atom_selection_container_t SelAtom,
 				 short int is_2fofc_type); 
-   int make_map_from_cif_nfofc(std::string cif_file_name,  // Virgina request
+   int make_map_from_cif_nfofc(int imol_map_in,
+			       std::string cif_file_name,  // Virgina request
 			       int map_type,
 			       short int swap_difference_map_colours);
-   int calculate_sfs_and_make_map(const std::string &mol_name,
+   int calculate_sfs_and_make_map(int imol_no_in,
+				  const std::string &mol_name,
 				  const clipper::HKL_info &mydata,
 				  const clipper::HKL_data< clipper::datatypes::F_sigF<float> > &myfsigf,
 				  atom_selection_container_t SelAtom,
 				  short int is_2fofc_type);
-   int make_map_from_mtz_by_calc_phases(const std::string &mtz_file_name,
+   int make_map_from_mtz_by_calc_phases(int imol_no_in, 
+					const std::string &mtz_file_name,
 					const std::string &f_col,
 					const std::string &sigf_col,
 					atom_selection_container_t SelAtom,
@@ -1570,6 +1587,16 @@ class molecule_class_info_t {
    std::string Refmac_r_free_col() const { return refmac_r_free_col; }
    short int Refmac_r_free_sensible() const { return refmac_r_free_flag_sensible; }
    void set_refmac_counter(int i) { refmac_count = i; } 
+   void set_refmac_save_state_commands(std::string mtz_file_name,
+				       std::string f_col,
+				       std::string phi_col,
+				       std::string weight_col,
+				       bool use_weights,
+				       bool is_diff_map,
+				       std::string refmac_fobs_col,
+				       std::string refmac_sigfobs_col,
+				       std::string refmac_r_free_col,
+				       bool refmac_r_free_flag_sensible);
    std::string Refmac_name_stub() const;
    std::string Refmac_in_name() const;
    std::string Refmac_out_name() const;

@@ -664,12 +664,12 @@ public:
       // 
       // Actually you can, just use it as you would a constructor.
       //
-      std::cout << "initializing molecules..."; 
-      molecules = new molecule_class_info_t[n_molecules_max];
-      std::cout << "done" << std::endl;
-      for (int i=0; i<n_molecules_max; i++) {
-         molecules[i].set_mol_number(i); 
-      }
+      // std::cout << "initializing molecules..."; 
+      // molecules = new molecule_class_info_t[n_molecules_max];
+     // std::cout << "done" << std::endl;
+/*       for (int i=0; i<n_molecules_max; i++) { */
+/*          molecules[i].set_mol_number(i);  */
+/*       } */
 
       for (int i=0; i<n_molecules_max; i++) {
 	 dynarama_is_displayed[i]      = NULL;
@@ -850,8 +850,8 @@ public:
    }
 
    static bool do_expose_swap_buffers_flag;
-
-  static void graphics_draw() {
+   
+   static void graphics_draw() {
      if (glarea) { 
        gtk_widget_draw(glarea, NULL);
        if (make_movie_flag)
@@ -862,31 +862,31 @@ public:
    }
 
 
-  static bool is_valid_model_molecule(int imol) {
-
-    bool v = 0;
-    if (imol >= 0) {
-      if (imol < n_molecules) {
-	if (molecules[imol].has_model()) {
-	  v = 1;
-	}
-      }
-    }
-    return v;
-  }
-
-  static bool is_valid_map_molecule(int imol) {
-
-    bool v = 0;
-    if (imol >= 0) {
-      if (imol < n_molecules) {
-	if (molecules[imol].has_map()) {
-	  v = 1;
-	}
-      }
-    }
-    return v;
-  }
+   static bool is_valid_model_molecule(int imol) {
+     
+     bool v = 0;
+     if (imol >= 0) {
+       if (imol < n_molecules()) {
+	 if (molecules[imol].has_model()) {
+	   v = 1;
+	 }
+       }
+     }
+     return v;
+   }
+   
+   static bool is_valid_map_molecule(int imol) {
+     
+     bool v = 0;
+     if (imol >= 0) {
+       if (imol < n_molecules()) {
+	 if (molecules[imol].has_map()) {
+	   v = 1;
+	 }
+       }
+     }
+     return v;
+   }
 
    // ------------- main window -----------------------
    static GtkWidget *glarea; // so that the molecule redraw function
@@ -917,10 +917,18 @@ public:
 
    short int expand_molecule_space_maybe(); 
 
-   // urg - loathsome public access:
+   // return the new molecule number
+   static int create_molecule() { 
+     int imol = molecules.size();
+     molecules.push_back(molecule_class_info_t(imol));
+     return imol;
+   } 
 
-   int has_position_for_molecule(int imol) {
-      return imol < n_molecules_max ? 1 : 0;
+   // urg - loathsome public access:
+   // Pointless function. get rid of it one day.
+  int has_position_for_molecule(int imol) {
+     return 1; // always, these days... 
+      // return imol < n_molecules_max ? 1 : 0;
    }
 
    // 
@@ -1083,10 +1091,8 @@ public:
    static coot::colour_holder font_colour;
    void remove_all_atom_labels();
 
-   // Conversion variables for Stuart:
-   // 
-   static int n_molecules ;  // incremented on pdb reading
-   static molecule_class_info_t* molecules; 
+   static int n_molecules() { return molecules.size();}
+   static std::vector<molecule_class_info_t> molecules; 
 
    // To which map is the mouse scroll wheel attached?
    // 
@@ -1756,7 +1762,7 @@ public:
       find_ligand_ligand_mols_->clear();
       for (unsigned int ilig=0; ilig<ligand_wiggly_info.size(); ilig++) {
 	int il=ligand_wiggly_info[ilig].first;
-	if (il < n_molecules) { 
+	if (il < n_molecules()) {
 	  if (molecules[il].atom_sel.n_selected_atoms > 0) { 
 	    find_ligand_ligand_mols_->push_back(ligand_wiggly_info[ilig]);
 	  }
@@ -1771,17 +1777,17 @@ public:
    }
    static void set_ligand_protein_mol(int imol) { 
      if (imol >=0) 
-       if (imol < n_molecules) 
+       if (imol < n_molecules()) 
 	 find_ligand_protein_mol_ = imol;
    }
    static void set_ligand_map_mol(int imol) { 
      if (imol >=0) 
-       if (imol < n_molecules) 
+       if (imol < n_molecules())
        find_ligand_map_mol_ = imol;
    }
    static void find_ligand_add_rigid_ligand(int imol) { 
      if (imol >=0) {
-       if (imol < n_molecules) { 
+       if (imol < n_molecules()) { 
 	 if (molecules[imol].has_model()) { 
 	   find_ligand_ligand_mols_->push_back(std::pair<int, bool>(imol, 0));
 	 }
@@ -1790,7 +1796,7 @@ public:
    }
    static void find_ligand_add_flexible_ligand(int imol) { 
      if (imol >=0) {
-       if (imol < n_molecules) { 
+       if (imol < n_molecules()) { 
 	 if (molecules[imol].has_model()) { 
 	   find_ligand_ligand_mols_->push_back(std::pair<int, bool>(imol, 1));
 	 }

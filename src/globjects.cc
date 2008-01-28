@@ -81,6 +81,9 @@
 
 #include "coot-database.hh"  
 
+std::vector<molecule_class_info_t> graphics_info_t::molecules;
+
+
 // Initialize the graphics_info_t mouse positions
 // and rotation centre.
 
@@ -314,7 +317,7 @@ std::string graphics_info_t::model_fit_refine_rotate_translate_zone_string = "";
 // We need to store how many molecules we have and where to find them.
 
 int graphics_info_t::n_molecules_max = 60; 
-int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
+// int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
 
 // generic display objects, gets set in init.
 std::vector<coot::generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
@@ -327,7 +330,7 @@ coot::console_display_commands_t graphics_info_t::console_display_commands;
 // 
 // Fixed ( see graphics_info_t::initialize_graphics_molecules(); ) 
 //
-molecule_class_info_t* graphics_info_t::molecules = NULL;
+// molecule_class_info_t* graphics_info_t::molecules = NULL; yesterday's array
 
 // The molecule for undoing
 int graphics_info_t::undo_molecule = -1; 
@@ -1810,7 +1813,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;
 	 
-      for (int ii=graphics_info_t::n_molecules-1; ii>=0; ii--) { 
+      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 
 	 // Molecule stuff
 	 //
@@ -2389,12 +2392,12 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		     info.add_to_RotationCentre(vec_x_y, -x_diff*0.02, -y_diff*0.02);
 
 		     if (info.GetActiveMapDrag() == 1) {
-			for (int ii=0; ii<info.n_molecules; ii++) { 
+			for (int ii=0; ii<info.n_molecules(); ii++) { 
 			   info.molecules[ii].update_map(); // to take account
 			   // of new rotation centre.
 			}
 		     }
-		     for (int ii=0; ii<info.n_molecules; ii++) { 
+		     for (int ii=0; ii<info.n_molecules(); ii++) { 
 			info.molecules[ii].update_symmetry();
 		     }
 		     info.graphics_draw();
@@ -2555,7 +2558,7 @@ do_button_zoom(gdouble x, gdouble y) {
       int iv = 1 + int (0.009*(info.zoom + info.dynamic_map_zoom_offset)); 
       if (iv != info.graphics_sample_step) {
 	    
-	 for (int imap=0; imap<info.n_molecules; imap++) {
+	 for (int imap=0; imap<info.n_molecules(); imap++) {
 	    info.molecules[imap].update_map(); // uses g.zoom
 	 }
 	 info.graphics_sample_step = iv;
@@ -3065,7 +3068,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    // std::cout << "key release event" << std::endl;
    graphics_info_t g; 
    int s = graphics_info_t::scroll_wheel_map;
-   if (s < graphics_info_t::n_molecules) { 
+   if (s < graphics_info_t::n_molecules()) { 
       if (s >= 0) { 
 	 if (! graphics_info_t::molecules[s].has_map()) {
 	    s = -1; // NO MAP
@@ -3116,7 +3119,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       // When we don't have active map dragging, we want to renew the map at
       // control release, not anywhere else.
       //
-      for (int ii=0; ii<graphics_info_t::n_molecules; ii++) { 
+      for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) { 
 	 graphics_info_t::molecules[ii].update_map();
 	 graphics_info_t::molecules[ii].update_clipper_skeleton(); 
       }
@@ -3190,7 +3193,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_s:
    case GDK_S:
-      for (int ii = 0; ii< graphics_info_t::n_molecules; ii++)
+      for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
 	 graphics_info_t::molecules[ii].update_clipper_skeleton();
       g.graphics_draw();
       break;
@@ -3527,7 +3530,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 #if 1
 	 int t0 = glutGet(GLUT_ELAPSED_TIME);
 #endif
-	 for (int ii=0; ii<info.n_molecules; ii++) {
+	 for (int ii=0; ii<info.n_molecules(); ii++) {
 	    info.molecules[ii].update_clipper_skeleton();
 	    info.molecules[ii].update_map();  // uses statics in graphics_info_t
 	    // and redraw the screen using the new map
@@ -3538,7 +3541,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 int t1 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "Elapsed time for map contouring: " << t1-t0 << "ms" << std::endl;
 #endif
-	 for (int ii=0; ii<info.n_molecules; ii++) {
+	 for (int ii=0; ii<info.n_molecules(); ii++) {
 	    info.molecules[ii].update_symmetry();
 	 }
 	 info.make_pointer_distance_objects();
@@ -3569,11 +3572,11 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	       
 	       // clear_symm_atom_info(symm_atom_info);
 
-	       for (int ii=0; ii<info.n_molecules; ii++) {
+	       for (int ii=0; ii<info.n_molecules(); ii++) {
 		  info.molecules[ii].update_symmetry();
 	       }
 	       info.graphics_draw();
-	       for (int ii=0; ii<info.n_molecules; ii++) {
+	       for (int ii=0; ii<info.n_molecules(); ii++) {
 		  info.molecules[ii].update_clipper_skeleton();
 		  info.molecules[ii].update_map();
 	       }

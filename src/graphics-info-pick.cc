@@ -73,7 +73,7 @@ graphics_info_t::symmetry_atom_pick() const {
    p_i.success = GL_FALSE; // no atom found initially.
    float dist, min_dist = 0.4;
 
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
 
       if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) { 
       

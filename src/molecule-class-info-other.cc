@@ -2303,7 +2303,8 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
    std::vector<std::string> save_save_state = save_state_command_strings_;
    short int is_undo_or_redo = 1;
    short int reset_rotation_centre = 0;
-   handle_read_draw_molecule(backup_file_name, reset_rotation_centre, is_undo_or_redo);
+   handle_read_draw_molecule(imol_no, backup_file_name, reset_rotation_centre,
+			     is_undo_or_redo, bond_width);
    save_state_command_strings_ = save_save_state;
    imol_no = save_imol; 
    name_ = save_name;
@@ -4435,7 +4436,6 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
       istat = -1;
    } else {
 
-
       int udd_afix_handle = p.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
       // std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is "
       // << udd_afix_handle << " and srf.udd_afix_handle was "
@@ -4465,6 +4465,11 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    cout << "Symmetry available for this molecule" << endl;
 	 }
 	 is_from_shelx_ins_flag = 1;
+	 
+	 std::cout << " ##### initing coord things in read_shelx_ins_file" << std::endl;
+	 initialize_coordinate_things_on_read_molecule_internal(filename,
+								is_undo_or_redo);
+	 std::cout << " ##### done initing coord things in read_shelx_ins_file" << std::endl;
       
 	 set_have_unit_cell_flag_maybe();
 
@@ -4492,9 +4497,11 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    // (currently the hydrogen names are different from a
 	    // shelx molecule, leading to a mess when refining.  So
 	    // let's just undisplay those hydrogens :) 20070721
-	    
-	    if (p.is_protein_flag)
-	       set_draw_hydrogens_state(0);
+	    // 
+	    // 20080126 Let reactivate the hydrogens.
+	    // 
+// 	    if (p.is_protein_flag)
+// 	       set_draw_hydrogens_state(0);
 
 	    if (! is_undo_or_redo) 
 	       bond_width = g.default_bond_width; // bleugh, perhaps this should
@@ -4512,19 +4519,19 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 
 	 short int reset_rotation_centre = 1;
 	 //
-	 if (g.recentre_on_read_pdb || g.n_molecules == 0)  // n_molecules
+	 if (g.recentre_on_read_pdb || g.n_molecules() == 0)  // n_molecules
 	    // is updated
 	    // in
 	    // c-interface.cc
+	    std::cout << " ##### setting rotation centre in read_shelx_ins_file" << std::endl;
 	    if (reset_rotation_centre) 
 	       g.setRotationCentre(::centre_of_molecule(atom_sel)); 
+	    std::cout << " ##### done setting rotation centre in read_shelx_ins_file" << std::endl;
 
 	 drawit = 1;
 	 if (graphics_info_t::show_symmetry == 1) {
 	    update_symmetry();
 	 }
-	 initialize_coordinate_things_on_read_molecule_internal(filename,
-								is_undo_or_redo);
       }
 
       //    std::cout << "DEBUG:: Post read shelx: "<< std::endl;
@@ -4534,6 +4541,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
       save_state_command_strings_.push_back("read-shelx-ins-file");
       save_state_command_strings_.push_back(single_quote(filename));
    }
+   std::cout << " ##### read_shelx_ins_file returning " << istat << std::endl;
    return istat;
 }
 
@@ -6282,10 +6290,13 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
    xmap_is_filled[0] = 1; 
    contour_level[0] = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
 
-   graphics_info_t g; 
-   g.scroll_wheel_map = g.n_molecules; // change the current scrollable map.
-   update_map();
-   return g.n_molecules;
+   // what is this graphics_info_t doing here.
+//    graphics_info_t g; 
+//    // g.scroll_wheel_map = g.n_molecules(); // change the current scrollable map.
+//    update_map();
+//    return g.n_molecules;
+
+   return imol_no;
 }
 
 // This seems to pick the front edge of the blob of density.  Why is

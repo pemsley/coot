@@ -28,9 +28,10 @@ void asc_to_graphics(atom_selection_container_t asc,
 
 
    graphics_info_t g; 
-   int imol = g.n_molecules; 
    
-   std::cout <<  "initializing molecule " << imol << std::endl; 
+   int imol = g.n_molecules(); 
+   g.molecules.push_back(molecule_class_info_t(imol));
+   std::cout <<  "initializing molecule " << imol << std::endl;
 
    g.molecules[imol].initialize_coordinate_things_on_read_molecule(label); 
    g.molecules[imol].atom_sel = asc; 
@@ -65,7 +66,7 @@ void asc_to_graphics(atom_selection_container_t asc,
    std::cout << "DEBUG: molecule " << imol << " with title: "
 	<< g.molecules[imol].name_ << std::endl; 
    
-   g.n_molecules++; 
+   // g.n_molecules++;
 } 
 
 

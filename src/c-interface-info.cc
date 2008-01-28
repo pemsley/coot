@@ -225,7 +225,7 @@ void output_residue_info_dialog(int atom_index, int imol) {
 
    } else { 
 
-      if (imol <graphics_info_t::n_molecules) {
+      if (imol <graphics_info_t::n_molecules()) {
 	 if (graphics_info_t::molecules[imol].has_model()) {
 	    if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) { 
 
@@ -824,7 +824,7 @@ std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {
    int imol_closest = -1;
    CAtom *at_close = 0;
    
-   for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 
       if (is_valid_model_molecule(imol)) {
 	 if (graphics_info_t::molecules[imol].is_displayed_p()) { 
@@ -2175,7 +2175,7 @@ void write_ccp4mg_picture_description(const char *filename) {
       mg_stream << ")\n";
 
       // Molecules:
-      for (int imol=0; imol<graphics_info_t::n_molecules; imol++) {
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 	 if (is_valid_model_molecule(imol)) {
 	    mg_stream << "MolData (\n";
 	    mg_stream << "   filename = [\n";

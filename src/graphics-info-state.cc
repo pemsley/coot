@@ -195,7 +195,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
    // toggle-last-mol-display toggle-last-mol-active functions.
    // 
    int molecule_count = 0;
-   for (int i=0; i<n_molecules; i++) {
+   for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_map() || molecules[i].has_model()) { 
 	 // i.e. it was not Closed...
 	 command_strings = molecules[i].save_state_command_strings();
@@ -467,7 +467,7 @@ std::vector<std::string>
 graphics_info_t::save_state_data_and_models(short int lang_flag) const {
 
    std::vector<std::string> v;
-   for (int i=0; i<n_molecules; i++) {
+   for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_map() || molecules[i].has_model()) {
 	 std::string s = ";;molecule-info: ";
 	 s += molecules[i].name_for_display_manager();
@@ -704,7 +704,7 @@ int
 graphics_info_t::check_for_unsaved_changes() const {
 
    int iv = 0;
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].Have_unsaved_changes_p()) {
 	 GtkWidget *dialog = create_unsaved_changes_dialog();
 	 fill_unsaved_changes_dialog(dialog);
@@ -722,7 +722,7 @@ graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
    GtkWidget *vbox = lookup_widget(GTK_WIDGET(dialog),
 				   "unsaved_changes_molecule_vbox");
 
-   for (int imol=0; imol<n_molecules; imol++) {
+   for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].Have_unsaved_changes_p()) {
 	 std::string labelstr = int_to_string(imol);
 	 labelstr += "  ";

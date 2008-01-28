@@ -107,17 +107,18 @@
 // Return -1 if there was a failure.
 // 
 int
-molecule_class_info_t::handle_read_draw_molecule(std::string filename,
-						 short int reset_rotation_centre, 
-						 short int is_undo_or_redo) {
+molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
+						 std::string filename,
+						 short int reset_rotation_centre,
+						 short int is_undo_or_redo,
+						 float bond_width_in) {
 
    //
    graphics_info_t g;
-   imol_no = g.n_molecules; // g.n_molecules gets updated outside afterwards
+   imol_no = imol_no_in;
 
    if (! is_undo_or_redo) 
-      bond_width = g.default_bond_width; // bleugh, perhaps this should
-                                         // be a passed parameter?
+      bond_width = bond_width_in;
 
    // std::cout << "DEBUG:: ---- imol_no is now " << imol_no << std::endl;
 
@@ -166,6 +167,12 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	 cout << "Symmetry available for this molecule" << endl;
       }
       
+      // initialize some things.
+      //
+//       std::cout << "initialize_coordinate_things_on_read_molecule_internal for mol no "
+// 		<< imol_no << std::endl;
+      initialize_coordinate_things_on_read_molecule_internal(filename, is_undo_or_redo);
+
       set_have_unit_cell_flag_maybe();
 
       if (molecule_is_all_c_alphas()) {
@@ -188,23 +195,13 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
 	       // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 	    }
 	 }
-	    
 	 // Generate bonds and save them in the graphical_bonds_container
 	 // which has static data members.
 	 //
 	 if (bonds_box_type == coot::UNSET_TYPE)
 	    bonds_box_type = coot::NORMAL_BONDS;
 	 make_bonds_type_checked();
-	 
       }
-
-      //
-      if (g.recentre_on_read_pdb || g.n_molecules == 0)  // n_molecules
-							 // is updated
-							 // in
-							 // c-interface.cc
-	 if (reset_rotation_centre) 
-	    g.setRotationCentre(::centre_of_molecule(atom_sel)); 
 
       drawit = 1;
       if (g.show_symmetry == 1) {
@@ -221,16 +218,18 @@ molecule_class_info_t::handle_read_draw_molecule(std::string filename,
       // we:
       //
 
-      // initialize some things.
-      //
-      initialize_coordinate_things_on_read_molecule_internal(filename, is_undo_or_redo);
-
       // debug();
       
+      //
+      if (g.recentre_on_read_pdb || imol_no_in == 0)  // n_molecules is updated
+						      // in c-interface.cc
+	 if (reset_rotation_centre) 
+	    g.setRotationCentre(::centre_of_molecule(atom_sel)); 
+
       // update the maps so that they appear around the new centre. 
       // 
       if (reset_rotation_centre) 
-	 for (int ii=0; ii<g.n_molecules; ii++) {
+	 for (int ii=0; ii<g.n_molecules(); ii++) {
 	    g.molecules[ii].update_map(); 
 	 }
 
@@ -375,13 +374,13 @@ molecule_class_info_t::single_quote(const std::string &s) const {
 }
 
 void
-molecule_class_info_t::install_model(atom_selection_container_t asc,
+molecule_class_info_t::install_model(int imol_no_in,
+				     atom_selection_container_t asc,
 				     const std::string &name, 
 				     short int display_in_display_control_widget_status) {
 
+   imol_no = imol_no_in;
    graphics_info_t g;
-   imol_no = g.n_molecules;
-
    bond_width = g.default_bond_width; // bleugh, perhaps this should
 				      // be a passed parameter?
 
@@ -2190,7 +2189,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
 
-	 imol_no = graphics_info_t::n_molecules; // gets updated outside afterwards
 	 update_map();
 	 long T5 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
@@ -2225,6 +2223,34 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       }
    }
 }
+
+void
+molecule_class_info_t::set_refmac_save_state_commands(std::string mtz_file_name,
+						      std::string f_col,
+						      std::string phi_col,
+						      std::string weight_col,
+						      bool use_weights,
+						      bool is_diff_map,
+						      std::string refmac_fobs_col,
+						      std::string refmac_sigfobs_col,
+						      std::string refmac_r_free_col,
+						      bool refmac_r_free_flag_sensible) {
+
+   have_sensible_refmac_params = 1;
+   save_state_command_strings_.clear();
+   save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
+   save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
+   save_state_command_strings_.push_back(single_quote(f_col));
+   save_state_command_strings_.push_back(single_quote(phi_col));
+   save_state_command_strings_.push_back(single_quote(weight_col));
+   save_state_command_strings_.push_back(coot::util::int_to_string(use_weights));
+   save_state_command_strings_.push_back(coot::util::int_to_string(is_diff_map));
+   save_state_command_strings_.push_back(coot::util::int_to_string(1)); // have refmac params
+   save_state_command_strings_.push_back(single_quote(refmac_fobs_col));
+   save_state_command_strings_.push_back(single_quote(refmac_sigfobs_col));
+   save_state_command_strings_.push_back(single_quote(refmac_r_free_col));
+   save_state_command_strings_.push_back(coot::util::int_to_string(refmac_r_free_flag_sensible));
+} 
 
 // Return a pair.first string of length 0 on error to construct dataname(s).
 std::pair<std::string, std::string>
@@ -3202,12 +3228,6 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   xmap_is_filled[0] = 1; 
   contour_level[0] = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
 
-  graphics_info_t g; 
-  // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
-  // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str());
-
-  g.scroll_wheel_map = g.n_molecules; // change the current scrollable map.
-
   std::cout << "updating map..." << std::endl;
   update_map();
   std::cout << "done updating map..." << std::endl;
@@ -3216,68 +3236,76 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   save_state_command_strings_.push_back("read-phs-and-make-map-using-cell-symm");
   save_state_command_strings_.push_back(single_quote(phs_filename));
   save_state_command_strings_.push_back(single_quote(sg.symbol_hm()));
-  save_state_command_strings_.push_back(g.float_to_string(cell.descr().a()));
-  save_state_command_strings_.push_back(g.float_to_string(cell.descr().b()));
-  save_state_command_strings_.push_back(g.float_to_string(cell.descr().c()));
-  save_state_command_strings_.push_back(g.float_to_string(clipper::Util::rad2d(cell.descr().alpha())));
-  save_state_command_strings_.push_back(g.float_to_string(clipper::Util::rad2d(cell.descr().beta())));
-  save_state_command_strings_.push_back(g.float_to_string(clipper::Util::rad2d(cell.descr().gamma())));
+  save_state_command_strings_.push_back(coot::util::float_to_string(cell.descr().a()));
+  save_state_command_strings_.push_back(coot::util::float_to_string(cell.descr().b()));
+  save_state_command_strings_.push_back(coot::util::float_to_string(cell.descr().c()));
+  save_state_command_strings_.push_back(coot::util::float_to_string(clipper::Util::rad2d(cell.descr().alpha())));
+  save_state_command_strings_.push_back(coot::util::float_to_string(clipper::Util::rad2d(cell.descr().beta())));
+  save_state_command_strings_.push_back(coot::util::float_to_string(clipper::Util::rad2d(cell.descr().gamma())));
 
-  return g.n_molecules;
+  return imol_no;
 }
 
 
 
 // and the molecule number imol_coords where the coordinates are.
 int
-molecule_class_info_t::make_map_from_cif(std::string cif_file_name,
+molecule_class_info_t::make_map_from_cif(int imol_no_in,
+					 std::string cif_file_name,
 					 int imol_coords) {
 
-   return make_map_from_cif(cif_file_name,
+   return make_map_from_cif(imol_no_in, cif_file_name,
 			    graphics_info_t::molecules[imol_coords].atom_sel); 
 }
 
 // and the molecule number imol_coords where the coordinates are.
 int
-molecule_class_info_t::make_map_from_cif_2fofc(std::string cif_file_name,
+molecule_class_info_t::make_map_from_cif_2fofc(int imol_no_in,
+					       std::string cif_file_name,
 					       int imol_coords) {
 
-   return make_map_from_cif_2fofc(cif_file_name,
+   return make_map_from_cif_2fofc(imol_no_in,
+				  cif_file_name,
 				  graphics_info_t::molecules[imol_coords].atom_sel); 
 }
 
 // and the molecule number imol_coords where the coordinates are.
 int
-molecule_class_info_t::make_map_from_cif_fofc(std::string cif_file_name,
+molecule_class_info_t::make_map_from_cif_fofc(int imol_no_in,
+					      std::string cif_file_name,
 					      int imol_coords) {
 
-   return make_map_from_cif_generic(cif_file_name,
+   return make_map_from_cif_generic(imol_no_in,
+				    cif_file_name,
 				    graphics_info_t::molecules[imol_coords].atom_sel,
 				    2);  // 2 -> is Fo-Fc map
 }
 
 
 int
-molecule_class_info_t::make_map_from_cif(std::string cif_file_name,
+molecule_class_info_t::make_map_from_cif(int imol_no_in,
+					 std::string cif_file_name,
 					 atom_selection_container_t SelAtom) {
 
    // 0 is not is_2fofc_type map (is sigmaa)
-   return make_map_from_cif_generic(cif_file_name, SelAtom, 0);
+   return make_map_from_cif_generic(imol_no_in, cif_file_name, SelAtom, 0);
 
 }
 
 int
-molecule_class_info_t::make_map_from_cif_2fofc(std::string cif_file_name,
-					 atom_selection_container_t SelAtom) {
+molecule_class_info_t::make_map_from_cif_2fofc(int imol_no_in,
+					       std::string cif_file_name,
+					       atom_selection_container_t SelAtom) {
 
    // 1 is is_2fofc_type map (not sigmaa)
-   return make_map_from_cif_generic(cif_file_name, SelAtom, 1); 
+   return make_map_from_cif_generic(imol_no_in, cif_file_name, SelAtom, 1); 
 
 }
 
 
 int
-molecule_class_info_t::make_map_from_cif_generic(std::string cif_file_name,
+molecule_class_info_t::make_map_from_cif_generic(int imol_in,
+						 std::string cif_file_name,
 						 atom_selection_container_t SelAtom,
 						 short int is_2fofc_type) {
 
@@ -3300,12 +3328,13 @@ molecule_class_info_t::make_map_from_cif_generic(std::string cif_file_name,
       std::cout << "Error reading cif file, can't make a map" << std::endl;
       return -1; // Error
    }
-   return calculate_sfs_and_make_map(cif_file_name, mydata, myfsigf,
+   return calculate_sfs_and_make_map(imol_in, cif_file_name, mydata, myfsigf,
 				     SelAtom, is_2fofc_type);
 }
    
 int
-molecule_class_info_t::calculate_sfs_and_make_map(const std::string &mol_name,
+molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
+						  const std::string &mol_name,
 						  const clipper::HKL_info &mydata,
 						  const clipper::HKL_data< clipper::datatypes::F_sigF<float> > &myfsigf,
 						  atom_selection_container_t SelAtom,
@@ -3544,13 +3573,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(const std::string &mol_name,
    
   set_initial_contour_level();
 
-   graphics_info_t g; 
-   // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
-   // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
-
-   g.scroll_wheel_map = g.n_molecules; // change the current scrollable map.
-
-   int imol = g.n_molecules;
+   int imol = imol_no_in;
    update_map(); 
    return imol;
 
@@ -3569,24 +3592,30 @@ molecule_class_info_t::calculate_sfs_and_make_map(const std::string &mol_name,
 // We make a Fc alpha-c map.  Which is not usually what we want.
 // 
 int
-molecule_class_info_t::make_map_from_cif(std::string cif_file_name) {
-   return make_map_from_cif_sigmaa(cif_file_name, molecule_map_type::TYPE_SIGMAA);
+molecule_class_info_t::make_map_from_cif(int imol_no_in,
+					 std::string cif_file_name) {
+   return make_map_from_cif_sigmaa(imol_no_in,
+				   cif_file_name, molecule_map_type::TYPE_SIGMAA);
 }
 
 int
-molecule_class_info_t::make_map_from_cif_diff_sigmaa(std::string cif_file_name) {
-   return make_map_from_cif_sigmaa(cif_file_name,
+molecule_class_info_t::make_map_from_cif_diff_sigmaa(int imol_no_in,
+						     std::string cif_file_name) {
+   return make_map_from_cif_sigmaa(imol_no_in,
+				   cif_file_name,
 				   molecule_map_type::TYPE_DIFF_SIGMAA);
 }
 
 // SigmaA map type, either molecule_map_type::TYPE_SIGMAA or TYPE_DIFF_SIGMAA.
 // 
 int
-molecule_class_info_t::make_map_from_cif_sigmaa(std::string cif_file_name,
+molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
+						std::string cif_file_name,
 						int sigmaa_map_type) {
 
 #ifdef HAVE_CIF
 
+   imol_no = imol_no_in;
    clipper::HKL_info mydata;
    clipper::CIFfile cif; 
       
@@ -3728,10 +3757,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(std::string cif_file_name,
 	 
 	 set_initial_contour_level();
 
-	 int imol = graphics_info_t::n_molecules;
-	 // update_map_colour_menu_manual(graphics_info_t::n_molecules, name_.c_str()); 
-	 // update_map_scroll_wheel_menu_manual(graphics_info_t::n_molecules,
-	 // name_.c_str());
+	 int imol = imol_no_in;
 	 update_map(); 
 
 	 if (sigmaa_map_type != molecule_map_type::TYPE_DIFF_SIGMAA) {
@@ -3761,11 +3787,13 @@ molecule_class_info_t::make_map_from_cif_sigmaa(std::string cif_file_name,
 // get the file (i.e. it doesn't specify the coordinates (molecule)) because
 // this cif file has (or it is hoped that it has) calculated structure factors.
 int
-molecule_class_info_t::make_map_from_cif_nfofc(std::string cif_file_name,
+molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
+					       std::string cif_file_name,
 					       int map_type,
 					       short int swap_difference_map_colours) {
 
    int ir = -1;
+   imol_no = imol_no_in;
    
 #ifdef HAVE_CIF
 
@@ -3904,13 +3932,7 @@ molecule_class_info_t::make_map_from_cif_nfofc(std::string cif_file_name,
 	 xmap_is_diff_map[0] = is_diff_map_flag; 
 	 xmap_is_filled[0] = 1; 
 
-	 graphics_info_t g; 
-	 // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
-	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str());
-
-	 g.scroll_wheel_map = g.n_molecules; // change the current scrollable map.
-
-	 int imol = g.n_molecules;
+	 int imol = imol_no_in;
    
 	 update_map();
 
@@ -3931,7 +3953,8 @@ molecule_class_info_t::make_map_from_cif_nfofc(std::string cif_file_name,
 }
 
 int
-molecule_class_info_t::make_map_from_mtz_by_calc_phases(const std::string &mtz_file_name,
+molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
+							const std::string &mtz_file_name,
 							const std::string &f_col,
 							const std::string &sigf_col,
 							atom_selection_container_t SelAtom,
@@ -3952,7 +3975,8 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(const std::string &mtz_f
    mtz.import_hkl_data(myfsigf, myset, myxtal, p.first);
    mtz.close_read();
    
-   return calculate_sfs_and_make_map(mtz_file_name, mydata, myfsigf,
+   return calculate_sfs_and_make_map(imol_no_in,
+				     mtz_file_name, mydata, myfsigf,
 				     SelAtom, is_2fofc_type);
 }
 
@@ -4106,12 +4130,6 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
   xmap_is_filled[0] = 1; 
   contour_level[0] = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
 
-  graphics_info_t g; 
-  // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
-  // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str());
-
-  g.scroll_wheel_map = g.n_molecules; // change the current scrollable map.
-
   std::cout << "updating map..." << std::endl;
   update_map();
   std::cout << "done updating map..." << std::endl;
@@ -4120,14 +4138,14 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
   save_state_command_strings_.push_back("read-phs-and-make-map-using-cell-symm");
   save_state_command_strings_.push_back(single_quote(phs_filename));
   save_state_command_strings_.push_back(single_quote(sg.symbol_hm()));
-  save_state_command_strings_.push_back(g.float_to_string(cell.descr().a()));
-  save_state_command_strings_.push_back(g.float_to_string(cell.descr().b()));
-  save_state_command_strings_.push_back(g.float_to_string(cell.descr().c()));
-  save_state_command_strings_.push_back(g.float_to_string(clipper::Util::rad2d(cell.descr().alpha())));
-  save_state_command_strings_.push_back(g.float_to_string(clipper::Util::rad2d(cell.descr().beta())));
-  save_state_command_strings_.push_back(g.float_to_string(clipper::Util::rad2d(cell.descr().gamma())));
+  save_state_command_strings_.push_back(coot::util::float_to_string(cell.descr().a()));
+  save_state_command_strings_.push_back(coot::util::float_to_string(cell.descr().b()));
+  save_state_command_strings_.push_back(coot::util::float_to_string(cell.descr().c()));
+  save_state_command_strings_.push_back(coot::util::float_to_string(clipper::Util::rad2d(cell.descr().alpha())));
+  save_state_command_strings_.push_back(coot::util::float_to_string(clipper::Util::rad2d(cell.descr().beta())));
+  save_state_command_strings_.push_back(coot::util::float_to_string(clipper::Util::rad2d(cell.descr().gamma())));
 
-  return g.n_molecules;
+  return imol_no;
 }
  
 
@@ -6620,7 +6638,8 @@ molecule_class_info_t::restore_from_backup(int history_offset) {
       // don't want that either:
       std::vector<std::string> save_save_state = save_state_command_strings_;
       short int is_undo_or_redo = 1;
-      handle_read_draw_molecule(filename, reset_rotation_centre, is_undo_or_redo);
+      handle_read_draw_molecule(imol_no, filename, reset_rotation_centre, is_undo_or_redo,
+				bond_width);
       save_state_command_strings_ = save_save_state;
       imol_no = save_imol; 
       name_ = save_name;
