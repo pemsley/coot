@@ -1318,6 +1318,7 @@ else
    case "$python_version_installed" in 
        "Python 2.5.1") 
          echo system has python, $python_version_installed
+         which python
          build_python=
          ;;
        *)
