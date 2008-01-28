@@ -1317,7 +1317,7 @@ else
    python_version_installed=`python -V 2>&1`
    case "$python_version_installed" in 
        "Python 2.5.1") 
-         echo system has python
+         echo system has python, $python_version_installed
          build_python=
          ;;
        *)
@@ -1945,7 +1945,7 @@ if test -n "$build_pygtk" ; then
    else
       $MAKE install
    fi
-) > $HOSTLOGDIR/05-pygtk.txt
+) > $HOSTLOGDIR/05-pygtk.txt 2>&1
 else 
    echo not building pytgtk
 fi
