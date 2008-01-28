@@ -1915,7 +1915,7 @@ else
     echo not building python:
 fi
 
-echo done testing for pygtk build
+echo testing for pygtk build
 # http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.12/pygtk-2.12.1.tar.gz
 if test -n "$build_pygtk" ; then 
     echo BUILDING pygtk:
@@ -1930,7 +1930,7 @@ cd pygtk-$py_gtk_version
 $MAKE
 pygtk_status=$?
 if [ "$pygtk_status" != 0 ] ; then
-   echo make of gtk+2 failed
+   echo make of pygtk failed
 else
    $MAKE install
 fi
