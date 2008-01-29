@@ -1346,9 +1346,10 @@ fi
 if test -z "$build_pygobject" ; then
    if test -e $install_top_dir/pygtk-2.0/pygobject.h ; then
       echo installation has pygobject
-      build_pygtk=
+      build_pygobject=
    else 
       echo pygobject NOT exists, pygobject should be built
+      build_pygobject=1
       build_pygtk=1
    fi      
 fi
