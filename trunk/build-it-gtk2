@@ -1153,6 +1153,14 @@ if test -n "$build_fftw" ; then
    build_fftw=1
 fi
 
+# test for pkg-config
+if pkg-config --atleast-pkgconfig-version 0.16 ; then
+   build_pkg_config=
+   echo pkg-config is new enough `pkg-version --version`
+else 
+   build_pkg_config=1
+   echo pkg-config should be built
+fi
 
 # This allows standard pkg-config to find gtkglext and several other things.
 PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
@@ -1327,16 +1335,10 @@ else
          echo python $python_version_installed installed but not up to date...
          echo python  should be built
          build_python=1
+         build_pygobject=1
          build_pygtk=1
          ;;
    esac
-fi
-
-# test for pkg-config
-if pkg-config --atleast-pkgconfig-version 0.16 ; then
-   build_pkg_config=
-else 
-   build_pkg_config=1
 fi
 
 
@@ -1344,6 +1346,7 @@ fi
 if test -z "$build_pygobject" ; then
    if test -e $install_top_dir/pygtk-2.0/pygobject.h ; then
       echo installation has pygobject
+      build_pygtk=
    else 
       echo pygobject NOT exists, pygobject should be built
       build_pygtk=1
@@ -1980,7 +1983,7 @@ else
     echo not building python:
 fi
 
-if test -n "$build_pyobject" ; then 
+if test -n "$build_pygobject" ; then 
    echo BUILDING pygobject:
    #
    py_gobject_version=2.14.1
@@ -1999,7 +2002,7 @@ if test -n "$build_pyobject" ; then
    fi
 ) > $HOSTLOGDIR/05-pygobject.txt 2>&1
 else 
-   echo not building pytgobject
+   echo not building pygobject:
 fi
 
 
