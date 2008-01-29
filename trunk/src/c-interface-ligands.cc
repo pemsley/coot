@@ -1117,9 +1117,9 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	       
 	       lig.mask_map(g.molecules[coord_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	       g.molecules[coord_mol_no].atom_sel.mol->DeleteSelection(selectionhandle);
-	       std::cout << "INFO:: Creating masked  map in molecule number "
-			 << g.n_molecules << std::endl;
 	       imol_new_map = graphics_info_t::create_molecule();
+	       std::cout << "INFO:: Creating masked  map in molecule number "
+			 << imol_new_map << std::endl;
 	       g.molecules[imol_new_map].new_map(lig.masked_map(), "Generic Masked Map");
 	       graphics_draw();
 	    }

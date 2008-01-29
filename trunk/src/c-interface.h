@@ -1004,6 +1004,19 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 						   float low_reso_limit,
 						   float high_reso_lim);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM refmac_parameters_scm(int imol);
+#endif	/* USE_GUILE */
+
+#ifdef USE_PYTHON
+/* FIXME Bernhard */
+PyObject *refmac_parameters_py(int imol);
+#endif	/* USE_PYTHON */
+
+#endif	/* __cplusplus */
+
+
 /*! \brief does the mtz file have the columms that we want it to have? */
 int valid_labels(const char *mtz_file_name, const char *f_col, 
 		 const char *phi_col, 

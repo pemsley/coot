@@ -368,6 +368,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 g.statusbar_text(s);
 	 r =  imol;
       } else {
+	 g.erase_last_molecule();
 	 std::string s("Failed to read coordinates file ");
 	 s += filename;
 	 g.statusbar_text(s);

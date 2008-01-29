@@ -28,6 +28,7 @@
 (define mark-atom-as-fixed mark-atom-as-fixed-scm)
 (define ncs-chain-ids ncs-chain-ids-scm)
 (define ncs-chain-differences ncs-chain-differences-scm)
+(define refmac-parameters refmac-parameters-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.

@@ -33,9 +33,6 @@
 
    o graphics::molecules should be a std::vector
 
-   o Copy fragment (new-molecule-by-atom-selection) does not
-     recalculate the NCS.  It should.
-
    o test/fix hardware stereo in Gtk2 mode.
 
    o NCS Ligands: if we find a ligand C in molecule A, we should look
@@ -3942,4 +3939,58 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 Sat Jan 26 14:14:39 GMT 2008
 
     Don't forget to distribute val.pdb.  Else the tests will fail.
+
+----
+Sat Jan 26 15:49:27 GMT 2008
+
+   o Copy fragment (new-molecule-by-atom-selection) does not
+     calculate the NCS.  Maybe it should.
+
+
+-----
+Sat Jan 26 20:49:44 GMT 2008
+
+    for scroll wheel map template see cinterface.cc:1003
+
+    set the scroll wheel map correctly from a cns map.
+    molecule-class-info-other.cc:6288
+
+    set the scroll wheel map correctly from a phs map.
+    molecule-class-info.cc:3203
+
+    set the scroll wheel map correctly from a sfcalc map
+    molecule-class-info.cc:3538
+
+    set the scroll wheel map correctly from a cif nfofc map
+    molecule-class-info.cc:3896
+
+    set the scroll wheel map correctly from a cif phs
+    molecule-class-info.cc:4018
+
+    add tests for reading phs and cif files, 
+    test that they return sensible molecule numbers.
+
+    add a test for creating a new molecule from water fitting.
+    using void find_waters(imol_for_map,  imol_for_protein,  new_waters_mol_flag, 
+		 sigma_cut_off, show_blobs_dialog);
+
+
+    add a test that, when a map is made with refmac params, the refmac
+    params are correct.  May need an accessor function (return a SCM)
+
+    add a test for both a map and a molecule that the new molecule
+    number is correct (should match graphics-n-molecules, I think).
+
+    test try setting an atom attribute of a bugus (-1, 888) molecule number
+
+
+    think about what to do with:
+    graphics_info_t::expand_molecule_space()
+
+    why in this function:
+    handle_cns_data_file_with_cell(const char *filename, int imol..)
+    is imol  passed?
+
+
+
 

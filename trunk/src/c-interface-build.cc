@@ -906,7 +906,7 @@ int set_atom_attributes(SCM attribute_expression_list) {
 			// std::cout << "a string value :" << att_val.s << ":" << std::endl;
 			att_val = coot::atom_attribute_setting_help_t(scm_to_locale_string(attribute_value_scm));
 		     } else {
-			att_val = coot::atom_attribute_setting_help_t(scm_to_double(attribute_value_scm));
+			att_val = coot::atom_attribute_setting_help_t(float(scm_to_double(attribute_value_scm)));
 			// std::cout << "a float value :" << att_val.val << ":" << std::endl;
 		     } 
 		     v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
@@ -1016,6 +1016,41 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
    return r;
 }
 #endif // USE_PYTHON
+
+
+#ifdef USE_GUILE
+// return a list of refmac parameters.  Used so that we can test that
+// the save state of a refmac map works correctly.
+SCM refmac_parameters_scm(int imol) {
+
+   SCM r = SCM_EOL;
+   if (is_valid_map_molecule(imol)) { 
+      std::vector<coot::atom_attribute_setting_help_t>
+	 refmac_params = graphics_info_t::molecules[imol].get_refmac_params();
+      if (refmac_params.size() > 0) {
+	 // values have to go in in reverse order, as usual.
+	 for (int i=(int(refmac_params.size())-1); i>=0; i--) {
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_STRING)
+	       r = scm_cons(scm_makfrom0str(refmac_params[i].s.c_str()) ,r);
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_FLOAT)
+	       r = scm_cons(scm_double2num(refmac_params[i].val) ,r);
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_INT)
+	       r = scm_cons(SCM_MAKINUM(refmac_params[i].i) ,r);
+	 }
+      }
+   }
+   return r;
+}
+
+#endif	/* USE_GUILE */
+
+#ifdef USE_PYTHON
+/* FIXME Bernhard */
+PyObject *refmac_parameters_py(int imol) {
+   PyObject *r = 0;
+   return r;
+}
+#endif	/* USE_PYTHON */
 
 
 // imol has changed.
@@ -5854,9 +5889,7 @@ int read_shelx_ins_file(const char *filename) {
 	    g.set_go_to_atom_molecule(imol);
 	    g.update_go_to_atom_window_on_new_mol();
 	 }
-	 std::cout << " ########### force draw in read_shelx_ins_file" << std::endl;
 	 graphics_draw();
-	 std::cout << " ########### done force draw in read_shelx_ins_file" << std::endl;
 	 std::vector<std::string> command_strings;
 	 command_strings.push_back("read-shelx-ins-file");
 	 command_strings.push_back(single_quote(coot::util::intelligent_debackslash(filename)));

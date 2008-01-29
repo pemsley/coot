@@ -420,7 +420,7 @@ molecule_class_info_t::install_model(int imol_no_in,
 void
 molecule_class_info_t::update_map() {
 
-   if (xmap_is_filled[0]) {
+   if (has_map()) {
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 			 graphics_info_t::RotationCentre_y(),
 			 graphics_info_t::RotationCentre_z());
@@ -2250,7 +2250,31 @@ molecule_class_info_t::set_refmac_save_state_commands(std::string mtz_file_name,
    save_state_command_strings_.push_back(single_quote(refmac_sigfobs_col));
    save_state_command_strings_.push_back(single_quote(refmac_r_free_col));
    save_state_command_strings_.push_back(coot::util::int_to_string(refmac_r_free_flag_sensible));
+}
+
+
+std::vector<coot::atom_attribute_setting_help_t>
+molecule_class_info_t::get_refmac_params() const {
+
+   std::vector<coot::atom_attribute_setting_help_t> r;
+
+   if (Have_sensible_refmac_params()) {
+      r.push_back(coot::util::intelligent_debackslash(save_mtz_file_name));
+      r.push_back(save_f_col);
+      r.push_back(save_phi_col);
+      r.push_back(save_weight_col);
+      r.push_back(save_use_weights);
+      r.push_back(save_is_diff_map_flag);
+      r.push_back(1); // have refmac_params
+      // r.push_back(refmac_mtz_filename); not sure if this should be given twice...
+      r.push_back(refmac_fobs_col);
+      r.push_back(refmac_sigfobs_col);
+      r.push_back(refmac_r_free_col);
+      r.push_back(refmac_r_free_flag_sensible);
+   }
+   return r;
 } 
+
 
 // Return a pair.first string of length 0 on error to construct dataname(s).
 std::pair<std::string, std::string>
