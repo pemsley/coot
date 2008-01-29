@@ -118,7 +118,7 @@ dnl    echo done Bmessage
        with_pygtk_prefix="$withval",
        with_pygtk_prefix="no")
 
-     echo debug with_pygtk_prefix is :{$with_pygtk_prefix}:
+     echo debug with_pygtk_prefix is :${with_pygtk_prefix}:
 
      if test "$with_pygtk_prefix" != "no" ; then 
 
