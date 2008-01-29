@@ -111,8 +111,16 @@ dnl    echo done Bmessage
       echo Cool, using Python
       coot_python=true	
 
-      # BL says:: we shall check for PyGTK as well
-      # let's try
+      # Check for PyGTK as well
+      # let's try if --with-pygtk was given on the command line
+
+      AC_ARG_WITH(pygtk, [  --with-pygtk=PFX Prefix where pygtk has been installed],
+       with_pygtk_prefix="$withval",
+       with_pygtk_prefix="no")
+
+     echo debug with_pygtk_prefix is :{$with_pygtk_prefix}:
+
+
       PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
       AC_SUBST(PYGTK_CFLAGS)
       AC_SUBST(PYGTK_LIBS)
