@@ -202,7 +202,8 @@
 # 3.02 20080121 Tinker with guile build settings.
 # 3.03 20080124 Build GTK2 from scratch: librsvg, cairo, pango, glitz. glib, gtk+-2
 # 3.04 20080128 Add a test for the existance of pygtk
-script_version=3.04
+# 3.05 20080129 Add pkg-config and pygobject 
+script_version=3.05
 
 
 # :: NOTE:: 
@@ -1313,6 +1314,7 @@ if test $? != 0 ; then
    echo python should be built
    build_python=1
    build_pygtk=1
+   build_pygobject=1
 else 
    python_version_installed=`python -V 2>&1`
    case "$python_version_installed" in 
@@ -1328,6 +1330,24 @@ else
          build_pygtk=1
          ;;
    esac
+fi
+
+# test for pkg-config
+if pkg-config --atleast-pkgconfig-version 0.16 ; then
+   build_pkg_config=
+else 
+   build_pkg_config=1
+fi
+
+
+# test for pygobject
+if test -z "$build_pygobject" ; then
+   if test -e $install_top_dir/pygtk-2.0/pygobject.h ; then
+      echo installation has pygobject
+   else 
+      echo pygobject NOT exists, pygobject should be built
+      build_pygtk=1
+   fi      
 fi
 
 # test for pygtk
@@ -1858,6 +1878,39 @@ else
 fi 
 
 
+###############################################################################
+##########         pkg-config (blimey)                            #############
+###############################################################################
+
+if test -n "$build_pkg_config" ; then 
+   echo BUILDING pkg-config:
+   #
+   pkg_config_version=0.19
+   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pkg-config/0.19/pkg-conifg-$pkg_config_version.tar.gz
+   (
+   date
+   gzip -dc ${AUTOBUILD_SOURCES}/pkg-config-$pkg_config_version.tar.gz | tar xf -
+   cd pkg-config-$pkg_config_version
+   ./configure $generic_prefix
+   $MAKE
+   pygtk_status=$?
+   if [ "$pkg_config_status" != 0 ] ; then
+      echo make of pkg-config failed
+   else
+      $MAKE install
+   fi
+) > $HOSTLOGDIR/05-pkg-config.txt 2>&1
+else 
+   echo not building pkg-conifg:
+fi
+
+
+
+
+###############################################################################
+##########         build python and friends                       #############
+###############################################################################
+
 # So that python is found when it is installed:
 #
 PATH=$install_top_dir/bin:$PATH
@@ -1927,7 +1980,29 @@ else
     echo not building python:
 fi
 
-echo testing for pygtk build
+if test -n "$build_pyobject" ; then 
+   echo BUILDING pygobject:
+   #
+   py_gobject_version=2.14.1
+   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/2.12/pygobject-$py_gobject_version.tar.gz
+   (
+   date
+   gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$py_gobject_version.tar.gz | tar xf -
+   cd pygobject-$py_goject_version
+   ./configure $generic_prefix
+   $MAKE
+   pygtk_status=$?
+   if [ "$pygobject_status" != 0 ] ; then
+      echo make of pygobject failed
+   else
+      $MAKE install
+   fi
+) > $HOSTLOGDIR/05-pygobject.txt 2>&1
+else 
+   echo not building pytgobject
+fi
+
+
 # http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.12/pygtk-2.12.1.tar.gz
 if test -n "$build_pygtk" ; then 
    echo BUILDING pygtk:
@@ -1950,7 +2025,6 @@ if test -n "$build_pygtk" ; then
 else 
    echo not building pytgtk
 fi
-echo done testing for pygtk build
 
 
 # Now we need:
@@ -1962,7 +2036,10 @@ echo done testing for pygtk build
 #  * gsl
 
 
-echo testing for gmp build
+
+###############################################################################
+##########         build guile and friends                        #############
+###############################################################################
 
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
@@ -1984,9 +2061,8 @@ if test -n "$build_gmp" ; then
 else
     echo not building gmp:
 fi 
-echo done testing for gmp build
 
-echo  testing for build libtool
+
 
 if test -n "$build_libtool" ; then
     echo BUILDING libtool:
@@ -2008,10 +2084,8 @@ if test -n "$build_libtool" ; then
 else
     echo not building libtool:
 fi 
-echo done testing for libtool build
 
 
-echo testing for readline build
 if test -n "$build_readline" ; then
     echo BUILDING readline:
     readline_version=5.1
@@ -2038,9 +2112,9 @@ if test -n "$build_readline" ; then
 else 
     echo not building readline:
 fi 
-echo done testing for readline build
 
-echo testing for guile build
+
+
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
@@ -2074,7 +2148,7 @@ fi
 else
     echo not building guile:
 fi
-echo done testing for guile build
+
 
 if test -n "$build_net_http" ; then 
    echo BUILDING net http for guile
