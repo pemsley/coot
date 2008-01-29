@@ -724,8 +724,9 @@ def interesting_things_gui(title,baddie_list):
 
 # In this case, each baddie can have a function at the end which is
 # called when the fix button is clicked.
+# And extra string argument can givethe name of the button
 # 
-def interesting_things_with_fix_maybe(title,baddie_list):
+def interesting_things_with_fix_maybe(title, baddie_list):
 
    # does this baddie have a fix at the end?.  If yes, return the
    # func, if not, return #f.
@@ -736,18 +737,31 @@ def interesting_things_with_fix_maybe(title,baddie_list):
        
        l = len(baddie)
        if (l < 5):
-          return False
+          # certainly no fix
+          return False, False
        else:
-          func_maybe = baddie[l-1]
-          if (isinstance(func_maybe,types.ListType) and len(func_maybe)>0):
-             func_maybe_strip = func_maybe[0]
+          func_maybe1 = baddie[l-1]
+          func_maybe2 = baddie[l-2]
+          if (isinstance(func_maybe1, types.ListType) and len(func_maybe1)>0):
+             # the last one is probably a funcn (no button name)
+             func_maybe_strip = func_maybe1[0]
 #             print "BL DEBUG:: func_maybe_strip is", func_maybe_strip
              if (callable(func_maybe_strip)):
-                return func_maybe
+                return func_maybe1, False
              else:
-                return False
+                return False, False
+          elif (isinstance(func_maybe2, types.ListType) and len(func_maybe2)>0
+                and isinstance(func_maybe1, types.StringType)):
+             # the second last is function, last is button name
+             func_maybe_strip = func_maybe2[0]
+             button_name = func_maybe1
+             if (callable(func_maybe_strip)):
+                return func_maybe2, button_name
+             else:
+                return False, False
+             
           else:
-             return False
+             return False, False
 
    def fix_func_call(widget, call_func):
        func_maybe_strip = call_func[0]
@@ -798,16 +812,20 @@ def interesting_things_with_fix_maybe(title,baddie_list):
           button = gtk.Button(label)
 
           inside_vbox.pack_start(hbox,False,False,2)
-          hbox.pack_start(button,False,False,2)
+          hbox.pack_start(button, True, True, 1)
 
           # add the a button for the fix func if it exists.  Add
           # the callback.
-          fix_func = baddie_had_fix_qm(baddie_items)
+          fix_func, button_name = baddie_had_fix_qm(baddie_items)
           if (fix_func):
-             fix_button = gtk.Button("  Fix  ")
-             hbox.pack_start(fix_button,False,False,2)
+             if (button_name):
+                fix_button_name = button_name
+             else:
+                fix_button_name = "  Fix  "
+             fix_button = gtk.Button(fix_button_name)
+             hbox.pack_end(fix_button, False, False, 2)
              fix_button.show()
-             fix_button.connect("clicked",fix_func_call,fix_func)
+             fix_button.connect("clicked", fix_func_call, fix_func)
 
           if (len(baddie_items) == 4):               # e.g. ["blob",1,2,3]
 
