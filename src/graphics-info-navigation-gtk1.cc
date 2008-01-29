@@ -163,7 +163,7 @@ graphics_info_t::fill_go_to_atom_residue_list_gtk1(GtkWidget *gtktree) {
    // proceeding: Slightly inelegant logic, so that we can make a
    // small patch instead of a big one.
    bool stop_now = 1;
-   if (g.go_to_atom_molecule() < n_molecules)
+   if (g.go_to_atom_molecule() < n_molecules())
       if (is_valid_model_molecule(g.go_to_atom_molecule()))
 	 stop_now = 0;
 

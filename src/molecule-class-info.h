@@ -282,8 +282,9 @@ namespace coot {
 
    class atom_attribute_setting_help_t {
    public:
-      enum { UNSET, IS_FLOAT, IS_STRING};
+     enum { UNSET, IS_FLOAT, IS_STRING, IS_INT};
       short int type;
+      int i;
       float val;
       std::string s;
       atom_attribute_setting_help_t(const std::string &s_in) {
@@ -293,6 +294,10 @@ namespace coot {
       atom_attribute_setting_help_t(float v) {
 	 val = v;
 	 type = IS_FLOAT;
+      }
+      atom_attribute_setting_help_t(int iin) {
+	i = iin;
+	type = IS_INT;
       }
       atom_attribute_setting_help_t() {
 	 type = UNSET;
@@ -1298,10 +1303,19 @@ class molecule_class_info_t {
    // directly, lets provide these functions:
 
    short int has_map() const {
-      if (xmap_is_filled[0])
+
+     if (!xmap_is_filled) {
+       // If you see this, then a molecule is being displayed before
+       // it is initialized, somehow.
+       std::cout << "!!! Bogus bogus bogus bogus bogus bogus bogus!!!!!! " << std::endl;
+       std::cout << "!!! molecule number apparently: " << imol_no << std::endl;
+       return 0;
+     } else {
+       if (xmap_is_filled[0])
 	 return 1;
-      else
+       else
 	 return 0;
+     }
    }
 
    short int has_model() const {
@@ -1575,10 +1589,12 @@ class molecule_class_info_t {
 			    const std::string &sigfobs_col,
 			    const std::string &r_free_col,
 			    int r_free_flag_sensible);
+   std::vector<coot::atom_attribute_setting_help_t> get_refmac_params() const;
+
    // more refmac stuff
    //
    int write_pdb_file(const std::string &filename); // not const because of shelx/name manip
-   short int Have_sensible_refmac_params() { return has_map() && have_sensible_refmac_params; }
+   short int Have_sensible_refmac_params() const { return has_map() && have_sensible_refmac_params; }
    void increment_refmac_count() { refmac_count++; }
    int Refmac_count() const { return refmac_count; }
    std::string Refmac_mtz_filename() const { return refmac_mtz_filename; }

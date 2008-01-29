@@ -924,6 +924,11 @@ public:
      return imol;
    } 
 
+   static void erase_last_molecule() { 
+     std::vector<molecule_class_info_t>::iterator it = molecules.end();
+     molecules.erase(it);
+   }
+
    // urg - loathsome public access:
    // Pointless function. get rid of it one day.
   int has_position_for_molecule(int imol) {

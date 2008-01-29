@@ -11,6 +11,7 @@
 (define  mark-atom-as-fixed-scm #t)
 (define  ncs-chains-ids-scm #t)
 (define  ncs-chain-differences-scm #t)
+(define  refmac-parameters-scm #t)
 
 (load "filter.scm")
 (load "coot-utils.scm")
