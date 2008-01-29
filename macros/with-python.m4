@@ -120,19 +120,21 @@ dnl    echo done Bmessage
 
      echo debug with_pygtk_prefix is :{$with_pygtk_prefix}:
 
+     if test "$with_pygtk_prefix" != "no" ; then 
 
-      PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
-      AC_SUBST(PYGTK_CFLAGS)
-      AC_SUBST(PYGTK_LIBS)
+         PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
+         AC_SUBST(PYGTK_CFLAGS)
+         AC_SUBST(PYGTK_LIBS)
 
-      if $have_pygtk ; then
-dnl     Random yes line. Commenting it out.
-dnl 	AC_MSG_RESULT(yes)
-   	   echo Good we have pygtk
-   	   PYTHON_CFLAGS="$PYTHON_CFLAGS -DUSE_PYGTK"
-      else
-	   AC_MSG_RESULT(no)
-   	   echo we dont have pygtk-2
+          if $have_pygtk ; then
+dnl        Random yes line. Commenting it out.
+dnl    	   AC_MSG_RESULT(yes)
+   	      echo Good we have pygtk
+   	      PYTHON_CFLAGS="$PYTHON_CFLAGS -DUSE_PYGTK"
+         else
+	      AC_MSG_RESULT(no)
+   	      echo we dont have pygtk-2
+         fi
       fi
 
    else 
