@@ -288,7 +288,7 @@ if (have_coot_python):
      #     Building
      # ---------------------------------------------------------------------
 
-     add_simple_coot_menu_menuitem(submenu, "Sequencing/Cootaneering", 
+     add_simple_coot_menu_menuitem(menu, "Sequencing/Cootaneering", 
                                    lambda func: cootaneer_gui_bl())
 
 
