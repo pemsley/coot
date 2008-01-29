@@ -1988,7 +1988,10 @@ if test -n "$build_pygobject" ; then
    echo BUILDING pygobject:
    #
    py_gobject_version=2.14.1
-   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/2.12/pygobject-$py_gobject_version.tar.gz
+   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/2.14/pygobject-$py_gobject_version.tar.gz
+   if test $? != 0 ; then 
+      echo problem getting pygobject source code
+   fi
    (
    date
    gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$py_gobject_version.tar.gz | tar xf -
