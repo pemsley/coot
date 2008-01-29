@@ -992,7 +992,7 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 			// std::cout << "a string value :" << att_val.s << ":" << std::endl;
 			att_val = coot::atom_attribute_setting_help_t(PyString_AsString(attribute_value_py));
 		     } else {
-			att_val = coot::atom_attribute_setting_help_t(PyFloat_AsDouble(attribute_value_py));
+			att_val = float(coot::atom_attribute_setting_help_t(PyFloat_AsDouble(attribute_value_py)));
 			// std::cout << "a float value :" << att_val.val << ":" << std::endl;
 		     } 
 		     v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
