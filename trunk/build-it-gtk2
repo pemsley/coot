@@ -1163,7 +1163,7 @@ else
 fi
 
 # This allows standard pkg-config to find gtkglext and several other things.
-PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:/usr/lib/pkgconfig
 export PKG_CONFIG_PATH
 
 # is the system gtk+2 new enough?  Needs to be 2.8 or better
@@ -1737,6 +1737,32 @@ export CFLAGS
 else
    echo not building freeglut:
 fi
+###############################################################################
+##########         pkg-config (blimey)                            #############
+###############################################################################
+
+if test -n "$build_pkg_config" ; then 
+   echo BUILDING pkg-config:
+   #
+   pkg_config_version=0.19
+   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pkg-config/0.19/pkg-conifg-$pkg_config_version.tar.gz
+   (
+   date
+   gzip -dc ${AUTOBUILD_SOURCES}/pkg-config-$pkg_config_version.tar.gz | tar xf -
+   cd pkg-config-$pkg_config_version
+   ./configure $generic_prefix
+   $MAKE
+   pygtk_status=$?
+   if [ "$pkg_config_status" != 0 ] ; then
+      echo make of pkg-config failed
+   else
+      $MAKE install
+   fi
+) > $HOSTLOGDIR/05-pkg-config.txt 2>&1
+else 
+   echo not building pkg-conifg:
+fi
+
 
 
 ###############################################################################
@@ -1882,33 +1908,6 @@ else
 fi 
 
 
-###############################################################################
-##########         pkg-config (blimey)                            #############
-###############################################################################
-
-if test -n "$build_pkg_config" ; then 
-   echo BUILDING pkg-config:
-   #
-   pkg_config_version=0.19
-   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pkg-config/0.19/pkg-conifg-$pkg_config_version.tar.gz
-   (
-   date
-   gzip -dc ${AUTOBUILD_SOURCES}/pkg-config-$pkg_config_version.tar.gz | tar xf -
-   cd pkg-config-$pkg_config_version
-   ./configure $generic_prefix
-   $MAKE
-   pygtk_status=$?
-   if [ "$pkg_config_status" != 0 ] ; then
-      echo make of pkg-config failed
-   else
-      $MAKE install
-   fi
-) > $HOSTLOGDIR/05-pkg-config.txt 2>&1
-else 
-   echo not building pkg-conifg:
-fi
-
-
 
 
 ###############################################################################
@@ -2008,6 +2007,34 @@ if test -n "$build_pygobject" ; then
 else 
    echo not building pygobject:
 fi
+
+
+if test -n "$build_pycairo" ; then 
+   echo BUILDING pycairo:
+   #
+   pycairo_version=1.4.12
+   ${WGET} http://cairographics.org/releases/pycairo-$pycairo_version.tar.gz
+   if test $? != 0 ; then 
+      echo PROBLEM:: getting pycairo source code
+   fi
+   (
+   date
+   gzip -dc ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz | tar xf -
+   cd pycairo-$pycairo_version
+   ./configure $generic_prefix
+   $MAKE
+   pycairo_status=$?
+   if [ "$pycairo_status" != 0 ] ; then
+      echo make of pycairo failed
+   else
+      $MAKE install
+   fi
+) > $HOSTLOGDIR/05-pycairo.txt 2>&1
+else 
+   echo not building pycairo:
+fi
+
+
 
 
 # http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.12/pygtk-2.12.1.tar.gz
