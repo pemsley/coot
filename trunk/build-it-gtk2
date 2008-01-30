@@ -1913,7 +1913,7 @@ if test -n "$build_gtk" ; then
       exit 1
    fi
    ) > $HOSTLOGDIR/06-gtk-prerequisites.txt 2>&1
-   if $? != 0 ; then
+   if test "$?" != 0 ; then
       echo gtk set failed somewhere
    fi
 fi
