@@ -1775,7 +1775,7 @@ if test -n "$build_pkg_config" ; then
    cd pkg-config-$pkg_config_version
    ./configure $generic_prefix
    $MAKE
-   pygtk_status=$?
+   pkg_config_status=$?
    if [ "$pkg_config_status" != 0 ] ; then
       echo make of pkg-config failed
    else
