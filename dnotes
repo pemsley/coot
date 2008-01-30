@@ -39,8 +39,8 @@
      for a similar blob near molecule B and try to fit the same kind of
      ligand there as well [JED]
 
-   o How about a post-swig command to add #ifdef USE_PYTHON around coot_wrap_python.cc 
-     (or is it coot_wrap_python_pre.cc?)
+   o How about a post-swig command to add #ifdef USE_PYTHON around 
+     coot_wrap_python.cc (or is it coot_wrap_python_pre.cc?)
 
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
@@ -53,8 +53,6 @@
 
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
-
-   o Valgrind long/multiple fit-proteins
 
    o doing a flexible ligand fit in a ligands without flexible bonds -
      e.g. SO4 gives non-optimal message ("Did you forget to read the
@@ -3992,9 +3990,32 @@ Sat Jan 26 20:49:44 GMT 2008
     is imol  passed?
 
 
+------
+Tue Jan 29 14:49:39 GMT 2008
+
+    expose overlap ligands to the gui.
+
+-----
+Wed Jan 30 13:57:25 GMT 2008
+
+   Randy Read: 
+
+   "I've just run across what seems like a bug for proteins with
+   hydrogens, in coot 0.4.1.  I've just been refitting something
+   refined with all hydrogens on.  If I choose a new rotamer for some
+   of them (e.g. Lys), it seems everything is fine.  However, if I
+   choose a new rotamer for Arg, Asn, Val or Leu, it looks fine until
+   I click "Accept", and then (at least some of) the hydrogens get
+   left behind in their old positions"
+
+   Hmmm... Hydrogen name problem, I'd guess
+
+   Need to test on a protein that comes from molprobity.
+
 
 ------
 Tue Jan 29 16:41:56 GMT 2008
+
 
     What is happening in Go To Atom at residue 119 in 1bl8.pdb.
 
@@ -4010,14 +4031,43 @@ Tue Jan 29 16:41:56 GMT 2008
    /usr/lib/pkgconfig to PKG_CONFIG_PATH environment variable.
 
 
-
 ----
 Wed Jan 30 02:11:56 GMT 2008
 
      tests: open a ccp4 map with the wrong file name
-            open a cns map with the wrong file name
-	    oen a mtz file with the wrong file name
+            open a  cns map with the wrong file name
+	    open an mtz file with the wrong file name
+
+----
+Wed 30 Jan 2008 14:12:55 GMT
 
 
-  
+on compiling freeglut on impala:
+
+
+ -o CallbackMaker-CallbackMaker.o `test -f CallbackMaker.c || echo './'`CallbackMaker.c
+/bin/sh ../../../libtool --mode=link gcc  -I/usr/X11R6/include   -o CallbackMaker -export-dynamic ../../../src/
+libglut.la CallbackMaker-CallbackMaker.o  
+mkdir .libs
+gcc -I/usr/X11R6/include -o .libs/CallbackMaker CallbackMaker-CallbackMaker.o  -L../../../src/.libs -lglut -lm 
+-L/usr/X11/lib -lGL -lGLU -lXxf86vm -lXext -lX11 -lXdmcp -lXau
+ld: cycle in dylib re-exports with /usr/X11/lib/libGL.
+
+http://www.mail-archive.com/fink-devel@lists.sourceforge.net/msg16105.html
+
+Problem solved - I have it working.
+To the ConfigureParams section of the info file I added:
+
+LDFLAGS="-dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"
+
+
+------
+Wed 30 Jan 2008 14:50:08 GMT
+
+   cairo depends on freetype
    
+   (but it fails during compile, not cofigure, baah)
+
+   http://download.savannah.gnu.org/releases/freetype/
+
+
