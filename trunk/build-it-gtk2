@@ -1159,7 +1159,7 @@ fi
 # test for pkg-config
 if pkg-config --atleast-pkgconfig-version 0.16 ; then
    build_pkg_config=
-   echo pkg-config is new enough `pkg-version --version`
+   echo pkg-config is new enough `pkg-config --version`
 else 
    build_pkg_config=1
    echo pkg-config should be built
