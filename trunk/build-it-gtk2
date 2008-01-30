@@ -206,8 +206,8 @@
 # 3.06 20080130 Add test for pycairo
 # 3.07 20080130 pycairo needs 1.4.12 - so test for cairo, setting build_gtk=1 on 
 #               failure
-script_version=3.07
-
+# 3.08 20080130 Remove static patch (for sgi).  Add test/build for freetype2
+script_version=3.08
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1172,8 +1172,20 @@ export PKG_CONFIG_PATH
 # is the system gtk+2 new enough?  Needs to be 2.8 or better
 build_gtk=
 
+
+# Do we have freetype2?  cairo depends on it.
+if pkg-config freetype2 ; then
+   build_freetype2=
+else 
+   build_freetype2=1
+   build_cairo=1
+   build_pycairo=1
+fi
+
+
 # Test the output of pkg-config gtk+-2.0 for recent enough gtk. 
 # If not, then build it yourself.
+
 
 pkg-config --atleast-version=2.8 gtk+-2.0
 gtk_pkg_config_status=$?
@@ -1184,6 +1196,7 @@ if [ "$gtk_pkg_config_status" = 0 ] ; then
       build_gtk=
    else
       echo cairo is not not up to date, rebuild gtk and friends
+      build_cairo=1
       build_gtk=1
    fi
 else 
@@ -1191,6 +1204,7 @@ else
    echo :::::::: gtk and dependencies need to be built
    build_gtk=1
 fi 
+
 
 
 
@@ -1419,7 +1433,7 @@ fi
 
 
 # ##############################################################
-#   GtkGLExt
+#   test for GtkGLExt
 # ##############################################################
 
 build_gtkglext=1
@@ -1437,7 +1451,7 @@ fi
 
 
 # ##############################################################
-#   guile-gtk
+#   test for guile-gtk
 # ##############################################################
 
 # guile-gtk, only look in installation, not system.
@@ -1459,7 +1473,7 @@ if test -n "${build_guile_gtk}" ; then
 fi
 
 # ##############################################################
-#   gnomecanvas
+#   test for gnomecanvas
 # ##############################################################
 
 # test for gnomecanvas here
@@ -1837,6 +1851,25 @@ if test -n "$build_gtk" ; then
       cd - 
    fi
 
+   # cairo(?) dependends on freetype2 (RedHat 8 doesn't have it)
+   if [ "$build_freetype2" = 1 ] ; then
+      echo BUILDING freetype2
+      freetype2_version=2.3.5
+      ${WGET} http://download.savannah.gnu.org/releases/freetype/freetype-$freetype2_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/freetype2-$freetype2_version.tar.gz | tar xf -
+      cd freetype2-$freetype2_version
+      ./configure $generic_prefix
+      $MAKE
+      freetype2_status=$?
+      if [ "$freetype2_status" != 0 ] ; then
+         gtk_set_failure="make of freetype2 failed"
+         echo make of freetype2 failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
    if [ "$glib_status" = 0 ] ; then
       echo BUILDING cairo
       cairo_version=1.4.14
@@ -1854,6 +1887,7 @@ if test -n "$build_gtk" ; then
       fi
       cd - 
    fi
+ 
 
    if [ "$cairo_status" = 0 ] ; then
       echo BUILDING librsvg
@@ -2206,13 +2240,18 @@ $MAKE
 status=$?
 if [ "$status" != 0 ] ; then 
     echo guile make failed.
+    guile_build_status=$status
 else
    echo 1 ---------------------------------------------------------------------
    echo '                               ' make install
    echo 1 ---------------------------------------------------------------------
    $MAKE install
 fi 
+exit $status
 ) > $HOSTLOGDIR/10-guile.txt 2>&1
+if $status ; then 
+   echo guile build failed
+fi
 else
     echo not building guile:
 fi
@@ -2364,7 +2403,7 @@ echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
-   ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
+   # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 else 
    # If we are building pre-release coot_source_tar_file is set only if we can find 
    # a pre-release source tar in the pre-release directory, otherwise it is not set
@@ -2374,7 +2413,7 @@ else
       # compile release code then:
       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
    fi 
-   ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
+   # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 fi
 
 echo using coot version $coot_version
@@ -2391,16 +2430,6 @@ pwd
 gzip -dc ${AUTOBUILD_SOURCES}/$coot_version.tar.gz | tar xf -
 coot_dir_name=`echo $coot_version | sed 's/-revision.*//'`
 cd $coot_dir_name
-if [ $shared_static_flag = --disable-shared ] ; then
-    if [ $OS != IRIX64 ] ; then 
-	echo patching for static build
-	patch -p0 < ${AUTOBUILD_SOURCES}/coot-static.patch
-    else 
-        echo Not patching for static build on this sgi
-    fi
-else
-	echo Not patching for static build
-fi
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
