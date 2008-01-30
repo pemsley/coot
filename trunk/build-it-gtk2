@@ -1909,7 +1909,7 @@ if test -n "$build_gtk" ; then
       fi
       cd - 
    fi
-   if test -n "$gtk_set_failure" ; 
+   if test -n "$gtk_set_failure" ; then 
       exit 1
    fi
    ) > $HOSTLOGDIR/06-gtk-prerequisites.txt 2>&1
