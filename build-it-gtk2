@@ -1768,7 +1768,7 @@ if test -n "$build_pkg_config" ; then
    echo BUILDING pkg-config:
    #
    pkg_config_version=0.19
-   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pkg-config/0.19/pkg-conifg-$pkg_config_version.tar.gz
+   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pkg-config/0.19/pkg-config-$pkg_config_version.tar.gz
    (
    date
    gzip -dc ${AUTOBUILD_SOURCES}/pkg-config-$pkg_config_version.tar.gz | tar xf -
