@@ -1176,7 +1176,9 @@ build_gtk=
 # Do we have freetype2?  cairo depends on it.
 if pkg-config freetype2 ; then
    build_freetype2=
+   echo system/installation has freetype2
 else 
+   echo freetype2 should be built
    build_freetype2=1
    build_cairo=1
    build_pycairo=1
@@ -1856,8 +1858,8 @@ if test -n "$build_gtk" ; then
       echo BUILDING freetype2
       freetype2_version=2.3.5
       ${WGET} http://download.savannah.gnu.org/releases/freetype/freetype-$freetype2_version.tar.gz
-      gzip -dc ${AUTOBUILD_SOURCES}/freetype2-$freetype2_version.tar.gz | tar xf -
-      cd freetype2-$freetype2_version
+      gzip -dc ${AUTOBUILD_SOURCES}/freetype-$freetype2_version.tar.gz | tar xf -
+      cd freetype-$freetype2_version
       ./configure $generic_prefix
       $MAKE
       freetype2_status=$?

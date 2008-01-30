@@ -4070,4 +4070,14 @@ Wed 30 Jan 2008 14:50:08 GMT
 
    http://download.savannah.gnu.org/releases/freetype/
 
+* Done.  in build-it-gtk2 now.
+
+------
+Wed Jan 30 15:44:59 GMT 2008
+
+   JED NCS problem:
+   
+   Check that the ncs ghost matrix is a good rotation matrix before
+   applying it to the view matrix.
+
 
