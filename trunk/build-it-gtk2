@@ -1920,28 +1920,8 @@ if test -n "$build_gtk" ; then
       cd - 
    fi
 
+   # cairo depends dependends on librsvg (for testing) otherwise warning.
    if [ "$glib_status" = 0 ] ; then
-      echo  ======================================================
-      echo  BUILDING cairo
-      echo  ======================================================
-      cairo_version=1.4.14
-      ${WGET} http://cairographics.org/releases/cairo-$cairo_version.tar.gz
-      gzip -dc ${AUTOBUILD_SOURCES}/cairo-$cairo_version.tar.gz | tar xf -
-      cd cairo-$cairo_version
-      ./configure $generic_prefix --enable-glitz
-      $MAKE
-      cairo_status=$?
-      if [ "$cairo_status" != 0 ] ; then
-         gtk_set_failure="make of cairo failed"
-         echo make of cairo failed
-      else
-         $MAKE install
-      fi
-      cd - 
-   fi
- 
-
-   if [ "$cairo_status" = 0 ] ; then
       echo  ======================================================
       echo  BUILDING librsvg
       echo  ======================================================
@@ -1961,6 +1941,26 @@ if test -n "$build_gtk" ; then
       cd - 
    fi
 
+   if [ "$librsvg_status" = 0 ] ; then
+      echo  ======================================================
+      echo  BUILDING cairo
+      echo  ======================================================
+      cairo_version=1.4.14
+      ${WGET} http://cairographics.org/releases/cairo-$cairo_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/cairo-$cairo_version.tar.gz | tar xf -
+      cd cairo-$cairo_version
+      ./configure $generic_prefix --enable-glitz
+      $MAKE
+      cairo_status=$?
+      if [ "$cairo_status" != 0 ] ; then
+         gtk_set_failure="make of cairo failed"
+         echo make of cairo failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+ 
    if [ "$librsvg_status" = 0 ] ; then
       echo  ======================================================
       echo  BUILDING pango
