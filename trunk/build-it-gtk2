@@ -203,7 +203,8 @@
 # 3.03 20080124 Build GTK2 from scratch: librsvg, cairo, pango, glitz. glib, gtk+-2
 # 3.04 20080128 Add a test for the existance of pygtk
 # 3.05 20080129 Add pkg-config and pygobject 
-script_version=3.05
+# 3.06 20080130 Add test for pycairo
+script_version=3.06
 
 
 # :: NOTE:: 
@@ -1322,6 +1323,7 @@ if test $? != 0 ; then
    echo python should be built
    build_python=1
    build_pygtk=1
+   build_pycairo=1
    build_pygobject=1
 else 
    python_version_installed=`python -V 2>&1`
@@ -1336,6 +1338,7 @@ else
          echo python  should be built
          build_python=1
          build_pygobject=1
+         build_pycairo=1
          build_pygtk=1
          ;;
    esac
@@ -1350,6 +1353,19 @@ if test -z "$build_pygobject" ; then
    else 
       echo pygobject NOT exists, pygobject should be built
       build_pygobject=1
+      build_pycairo=1
+      build_pygtk=1
+   fi      
+fi
+
+# test for pycairo
+if test -z "$build_pycairo" ; then
+   if test -e $install_top_dir/include/pycairo/pycairo.h ; then
+      echo installation has pycairo
+      build_pycairo=
+   else 
+      echo pycairo NOT exists, pycairo should be built
+      build_pycairo=1
       build_pygtk=1
    fi      
 fi
