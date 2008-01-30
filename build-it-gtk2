@@ -207,7 +207,8 @@
 # 3.07 20080130 pycairo needs 1.4.12 - so test for cairo, setting build_gtk=1 on 
 #               failure
 # 3.08 20080130 Remove static patch (for sgi).  Add test/build for freetype2
-script_version=3.08
+# 3.09 20080130 fontconfig added too.
+script_version=3.09
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1184,6 +1185,24 @@ else
    build_pycairo=1
 fi
 
+# Do we have fontconfig?  cairo depends on it.
+if test -z "$build_freetype2" ; then 
+   if pkg-config fontconfig ; then
+      build_fontconfig=
+     echo system/installation has fontconfig
+   else 
+      echo fontconfig should be built
+      build_fontconfig=1
+      build_cairo=1
+      build_pycairo=1
+   fi
+else 
+   echo no freetype, fontconfig should be built too.
+   build_fontconfig=1
+   build_cairo=1
+   build_pycairo=1
+fi
+
 
 # Test the output of pkg-config gtk+-2.0 for recent enough gtk. 
 # If not, then build it yourself.
@@ -1817,9 +1836,12 @@ fi
 
 if test -n "$build_gtk" ; then 
    echo BUILDING Gtk+-2 and dependencies...
+   (
+   echo  ======================================================
+   echo BUILDING GLitz!
+   echo  ======================================================
    glitz_version=0.5.6
    ${WGET} http://cairographics.org/snapshots/glitz-$glitz_version.tar.gz
-   (
    date
    echo BUILDING glitz
    gzip -dc ${AUTOBUILD_SOURCES}/glitz-$glitz_version.tar.gz | tar xf -
@@ -1836,7 +1858,9 @@ if test -n "$build_gtk" ; then
    cd - 
  
    if [ "$glitz_status" = 0 ] ; then
+      echo  ======================================================
       echo BUILDING glib
+      echo  ======================================================
       glib_version=2.14.5
       ${WGET} ftp://ftp.gtk.org/pub/glib/2.14/glib-$glib_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz | tar xf -
@@ -1855,7 +1879,9 @@ if test -n "$build_gtk" ; then
 
    # cairo(?) dependends on freetype2 (RedHat 8 doesn't have it)
    if [ "$build_freetype2" = 1 ] ; then
+      echo  ======================================================
       echo BUILDING freetype2
+      echo  ======================================================
       freetype2_version=2.3.5
       ${WGET} http://download.savannah.gnu.org/releases/freetype/freetype-$freetype2_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/freetype-$freetype2_version.tar.gz | tar xf -
@@ -1872,8 +1898,32 @@ if test -n "$build_gtk" ; then
       cd - 
    fi
 
+   # cairo(?) dependends on fontconfig (include file?) to define `FC_RGBA_UNKNOWN'
+   # fontconfig depends on Freetype2 (what fun).
+   if [ "$build_fontconfig" = 1 ] ; then
+      echo  ======================================================
+      echo BUILDING fontconfig
+      echo  ======================================================
+      fontconfig_version=2.5.91
+      ${WGET} http://fontconfig.org/release/fontconfig-$fontconfig_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/fontconfig-$fontconfig_version.tar.gz | tar xf -
+      cd fontconfig-$fontconfig_version
+      ./configure $generic_prefix
+      $MAKE
+      fontconfig_status=$?
+      if [ "$fontconfig_status" != 0 ] ; then
+         gtk_set_failure="make of fontconfig failed"
+         echo make of fontconfig failed
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
    if [ "$glib_status" = 0 ] ; then
-      echo BUILDING cairo
+      echo  ======================================================
+      echo  BUILDING cairo
+      echo  ======================================================
       cairo_version=1.4.14
       ${WGET} http://cairographics.org/releases/cairo-$cairo_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/cairo-$cairo_version.tar.gz | tar xf -
@@ -1892,7 +1942,9 @@ if test -n "$build_gtk" ; then
  
 
    if [ "$cairo_status" = 0 ] ; then
-      echo BUILDING librsvg
+      echo  ======================================================
+      echo  BUILDING librsvg
+      echo  ======================================================
       librsvg_version=2.20.0
       ${WGET} http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-$librsvg_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.tar.gz | tar xf -
@@ -1910,7 +1962,9 @@ if test -n "$build_gtk" ; then
    fi
 
    if [ "$librsvg_status" = 0 ] ; then
-      echo BUILDING pango
+      echo  ======================================================
+      echo  BUILDING pango
+      echo  ======================================================
       pango_version=1.16.4
       ${WGET} ftp://ftp.gtk.org/pub/pango/1.16/pango-$pango_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/pango-$pango_version.tar.gz | tar xf -
@@ -1928,7 +1982,9 @@ if test -n "$build_gtk" ; then
    fi
 
    if [ "$pango_status" = 0 ] ; then
-      echo BUILDING gtk+2
+      echo  ======================================================
+      echo  BUILDING gtk+2
+      echo  ======================================================
       gtk2_version=2.10.14
 #      ${WGET} ftp://ftp.gtk.org/pub/gtk/v2.10/gtk+-$gtk2_version.tar.gz
       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/gtk+-$gtk2_version.tar.gz
