@@ -2422,12 +2422,12 @@ if [ -n "$ENABLE_PYTHON_COOT" ] ; then
     # it was set to something
     if [ "$ENABLE_PYTHON_COOT" != "0" ] ; then 
        if [ "$ENABLE_PYTHON_COOT" != "no" ] ; then 
-          python_scripting='--with-python'
+          python_scripting='--with-python --with-pygtk'
        fi
     fi
 else 
     # if ENABLE_PYTHON_COOT was not set, then turn on python scripting
-    python_scripting='--with-python'
+    python_scripting='--with-python --with-pygtk'
 fi
 
 # no longer makes sense now that python is in by default
@@ -2442,6 +2442,10 @@ fi
 # fi
 
 
+
+###############################################################################
+##########         build Coot                                     #############
+###############################################################################
 #
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
