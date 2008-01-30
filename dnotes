@@ -4000,3 +4000,14 @@ Tue Jan 29 16:41:56 GMT 2008
 
     Problem of TER card?
 
+-----
+
+   pygtk needs pycairo:
+
+   http://cairographics.org/releases/pycairo-1.4.12.tar.gz
+
+   If you build your own pkg-config, you need to add
+   /usr/lib/pkgconfig to PKG_CONFIG_PATH environment variable.
+
+
+
