@@ -4082,3 +4082,63 @@ Wed Jan 30 15:44:59 GMT 2008
    applying it to the view matrix.
 
 
+------
+Thu Jan 31 00:48:53 GMT 2008
+
+   Alice Dawson:
+
+   1:
+   > I can't set the occupancy to a number greater than 1 in the
+   > residue info box.  This is quite annoying when fiddling with
+   > disordered residues - e.g. when I delete CA, B for a residue the
+   > remaining CA still has occupancy -21 which I can't alter in
+   > Coot..  Also when I add any molecules (waters, ligands) they are
+   > added with an occupancy of 1 not 11.
+
+   2:
+   > An item for a wishlist: my protein has 1000 residues in the
+   > asymmetric unit and it's very difficult to keep track of the free
+   > variables.  Including the FVAR number and value in the Residues
+   > with Alt confs box would be really helpful.
+
+   1: Priority High
+
+   2: Priority Medium
+
+----
+Thu Jan 31 00:49:48 GMT 2008
+
+
+   Francis Reyes:
+ 
+   > I'm trying to merge / append two molecules. However, when I click
+   > on Merge, I get ...  INFO:: adding molecule 6 to merging list
+
+   > ... and that's it..
+
+   > Yet the residue does not appear as a new chain in the molecule
+   > into which I'm merging?  Earlier versions of coot actually show
+   > INFO:'s telling you which chain it made, etc.
+
+----
+Thu Jan 31 07:49:51 GMT 2008
+
+   command line tool to get OS version on Mac?
+
+   These of use?
+
+/bin/arch              = unknown
+/usr/bin/arch -k       = unknown
+/usr/convex/getsysinfo = unknown
+/usr/bin/hostinfo      = unknown
+/bin/machine           = unknown
+/usr/bin/oslevel       = unknown
+/bin/universe          = unknown
+
+------
+Thu Jan 31 08:32:26 GMT 2008
+
+    select rotamer button box has an OK button that needs to be homogenized.
+
+    Priority: High
+
