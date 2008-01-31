@@ -572,7 +572,7 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-exec > $LOGS/$HOST.log
+exec > $LOGS/gtk2-build.log
 echo This is script version $script_version for Gtk2 
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
@@ -1795,6 +1795,8 @@ export CFLAGS
 else
    echo not building freeglut:
 fi
+
+
 ###############################################################################
 ##########         pkg-config (blimey)                            #############
 ###############################################################################
@@ -2657,7 +2659,7 @@ if [ $clear_up_type != "" ] ; then
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
-test_coot > $LOGS/$HOST-testing.log
+test_coot > $LOGS/gtk2-build-testing.log
 r=$?
 gtk2=-gtk2
 if [ $r = 0 ] ; then
