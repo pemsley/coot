@@ -2905,7 +2905,67 @@ coot::restraints_container_t::mark_OXT() {
 	 }
       }
    }
+}
+
+
+std::vector<bool>
+coot::restraints_container_t::make_fixed_flags(int index1, int index2) const {
+
+   std::vector<bool> r(2,0);
+   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+      if (index1 == fixed_atom_indices[ifixed])
+	 r[0] = 1;
+      if (index2 == fixed_atom_indices[ifixed])
+	 r[1] = 1;
+   }
+   return r;
 } 
+
+std::vector<bool>
+coot::restraints_container_t::make_fixed_flags(int index1, int index2, int index3) const {
+
+   std::vector<bool> r(3,0);
+   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+      if (index1 == fixed_atom_indices[ifixed])
+	 r[0] = 1;
+      if (index2 == fixed_atom_indices[ifixed])
+	 r[1] = 1;
+      if (index3 == fixed_atom_indices[ifixed])
+	 r[2] = 1;
+   }
+   return r;
+} 
+
+std::vector<bool>
+coot::restraints_container_t::make_fixed_flags(int index1, int index2, int index3, int index4) const {
+
+   std::vector<bool> r(4,0);
+   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+      if (index1 == fixed_atom_indices[ifixed])
+	 r[0] = 1;
+      if (index2 == fixed_atom_indices[ifixed])
+	 r[1] = 1;
+      if (index3 == fixed_atom_indices[ifixed])
+	 r[2] = 1;
+      if (index4 == fixed_atom_indices[ifixed])
+	 r[3] = 1;
+   }
+   return r;
+}
+
+std::vector<bool>
+coot::restraints_container_t::make_fixed_flags(const std::vector<int> &indices) const {
+
+   std::vector<bool> r(indices.size(), 0);
+   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+      for (unsigned int i_index=0; i_index<indices.size(); i_index++) {
+	 if (indices[i_index] == fixed_atom_indices[ifixed])
+	    r[i_index] = 1;
+      }
+   }
+   return r;
+} 
+
 
 void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
@@ -2948,6 +3008,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 	 SelResidue[i]->GetAtomTable(res_1_atoms, n_res_1_atoms);
 	 for (int iat1=0; iat1<n_res_1_atoms; iat1++) {
 	    std::string at_1_name(res_1_atoms[iat1]->name);
+	    
 	    if (at_1_name == " N  ") {
 	       CResidue *contact_res = SelResidue[i-4];
 	       if (SelResidue[i]->GetSeqNum() == (contact_res->GetSeqNum() + 4)) {
@@ -2955,9 +3016,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 		  for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
 		     std::string at_2_name(res_2_atoms[iat2]->name);
 		     if (at_2_name == " O  ") {
-			std::vector<short int> fixed_flags(2);
-			fixed_flags[0] = 0;
-			fixed_flags[1] = 0;
+			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 			res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
 			res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
 			add(BOND_RESTRAINT, index1, index2, fixed_flags,
@@ -2976,9 +3035,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 		  for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
 		     std::string at_2_name(res_2_atoms[iat2]->name);
 		     if (at_2_name == " O  ") {
-			std::vector<short int> fixed_flags(2);
-			fixed_flags[0] = 0;
-			fixed_flags[1] = 0;
+			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 			res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
 			res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
 			add(BOND_RESTRAINT, index1, index2, fixed_flags,
@@ -3049,9 +3106,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 		  for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
 		     std::string at_2_name(res_2_atoms[iat2]->name);
 		     if (at_2_name == " O  ") {
-			std::vector<short int> fixed_flags(2);
-			fixed_flags[0] = 0;
-			fixed_flags[1] = 0;
+			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 			res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
 			res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
 			add(BOND_RESTRAINT, index1, index2, fixed_flags,
@@ -3070,7 +3125,8 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 			      for (int iat3=0; iat3<n_res_3_atoms; iat3++) {
 				 std::string at_3_name(res_3_atoms[iat3]->name);
 				 if (at_3_name == " O  ") {
-				    std::vector<short int> fixed_flag(3,0);
+				    std::vector<bool> fixed_flag =
+				       make_fixed_flags(index2, index1, index3);
 				    res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
 				    // 98.0 degrees
 				    add(ANGLE_RESTRAINT, index2, index1, index3,
@@ -3110,7 +3166,8 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 			      for (int iat3=0; iat3<n_res_3_atoms; iat3++) {
 				 std::string at_3_name(res_3_atoms[iat3]->name);
 				 if (at_3_name == " CA ") {
-				    std::vector<short int> fixed_flag(3,0);
+				    std::vector<bool> fixed_flag =
+				       make_fixed_flags(index1, index2, index3);
 				    res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
 				    res_2_atoms[iat3]->GetUDData(udd_atom_index_handle, index2);
 				    res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
@@ -3770,7 +3827,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints() {
 
    construct_non_bonded_contact_list();
    // so now filtered_non_bonded_atom_indices is filled.
-   std::vector<short int> fixed_atom_flags(2);  // 2 atoms in this restraint.
+   std::vector<bool> fixed_atom_flags(2);  // 2 atoms in this restraint.
 
 
 //   std::cout << "non-bonded list:" << std::endl;
@@ -3798,9 +3855,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints() {
 	 add_non_bonded(i, filtered_non_bonded_atom_indices[i][j]);
       }
    }
-
    return 0;
-} 
+}
 
 // fill the member data filtered_non_bonded_atom_indices
 // 
@@ -4037,9 +4093,7 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 		     // than just knowing that these are not flanking
 		     // atoms).
 		     // 
-		     std::vector<short int> fixed_flags(2);
-		     fixed_flags[0] = 0;
-		     fixed_flags[1] = 0;
+		     std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 
 		     add(BOND_RESTRAINT, index1, index2,
 			 fixed_flags,
@@ -4136,10 +4190,7 @@ coot::restraints_container_t::add_angles(int idr, PPCAtom res_selection,
 			   // than just knowing that these are not flanking
 			   // atoms).
 			   // 
-			   std::vector<short int> fixed_flag(3);
-			   fixed_flag[0] = 0;  // not fixed
-			   fixed_flag[1] = 0;
-			   fixed_flag[2] = 0;
+			   std::vector<bool> fixed_flag = make_fixed_flags(index1, index2, index3);
 
 			   add(ANGLE_RESTRAINT, index1, index2, index3,
 			       fixed_flag,
@@ -4212,12 +4263,8 @@ coot::restraints_container_t::add_torsions(int idr, PPCAtom res_selection,
 							 SelRes->GetInsCode(),
 							 SelRes->GetChainID());
 
-			      std::vector<short int> fixed_flags(4);
-			      fixed_flags[0] = 0;  // not fixed
-			      fixed_flags[1] = 0;
-			      fixed_flags[2] = 0;
-			      fixed_flags[3] = 0;
-
+			      std::vector<bool> fixed_flags =
+				 make_fixed_flags(index1, index2, index3, index4);
 			      if (geom[idr].torsion_restraint[ib].periodicity() > 0) { 
 				 add(TORSION_RESTRAINT, index1, index2, index3, index4,
 				     fixed_flags,
@@ -4354,7 +4401,7 @@ coot::restraints_container_t::add_planes(int idr, PPCAtom res_selection,
 	    //  		   << geom[idr].comp_id << " esd: "
 	    // 		   << geom[idr].plane_restraint[ip].dist_esd() << std::endl; 
 	    // add_plane is in the .h file
-	    std::vector<short int> fixed_flags(pos.size(), 0);
+	    std::vector<bool> fixed_flags = make_fixed_flags(pos);
 // 	    std::cout << "DEBUG:: add_monomer plane restraint for plane-id: comp-id: "
 // 		      << geom[idr].comp_id << " "
 // 		      << geom[idr].plane_restraint[ip].plane_id << " "
@@ -4396,7 +4443,7 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
    PPCAtom first_sel;
    PPCAtom second_sel;
    int n_first_res_atoms, n_second_res_atoms;
-   std::vector<short int> fixed_atom_flags(2);  // 2 atoms in this restraint.
+   std::vector<bool> fixed_atom_flags(2);  // 2 atoms in this restraint.
 
    first->GetAtomTable(first_sel,   n_first_res_atoms); 
    second->GetAtomTable(second_sel, n_second_res_atoms);
@@ -4528,7 +4575,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
       std::cout << "no atoms in second residue!? " << std::endl;
    }
 
-   std::vector<short int> fixed_flag(3);
+   std::vector<bool> fixed_flag(3);
    fixed_flag[0] = 0;  // not fixed
    fixed_flag[1] = 0;
    fixed_flag[2] = 0;
@@ -4680,7 +4727,7 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
       std::cout << "no atoms in second residue!? " << std::endl;
    }
 
-   std::vector<short int> fixed_flag(4);
+   std::vector<bool> fixed_flag(4);
    fixed_flag[0] = 0;  // not fixed
    fixed_flag[1] = 0;
    fixed_flag[2] = 0;
@@ -4862,7 +4909,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
       if (geom.link(i).link_id == link_type) { // typically "TRANS"
 	 for (unsigned int ip=0; ip<geom.link(i).link_plane_restraint.size(); ip++) {
 	    std::vector <int> pos; 
-	    std::vector<short int> fixed_flag(geom.link(i).link_plane_restraint[ip].n_atoms());
+	    std::vector<bool> fixed_flag(geom.link(i).link_plane_restraint[ip].n_atoms());
 
 	    for (int irest_at=0; irest_at<geom.link(i).link_plane_restraint[ip].n_atoms(); irest_at++) {
 	       if (geom.link(i).link_plane_restraint[ip].atom_comp_ids[irest_at] == 1) {

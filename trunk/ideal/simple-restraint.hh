@@ -201,14 +201,14 @@ namespace coot {
       int periodicity; 
       int chiral_volume_sign;
       double target_chiral_volume;
-      std::vector<short int> fixed_atom_flags;
+      std::vector<bool> fixed_atom_flags;
 
       // allocator for geometry_distortion_info_t
       simple_restraint() {}
       
       // Bond
       simple_restraint(short int rest_type, int atom_1, int atom_2, 
-		       const std::vector<short int> &fixed_atom_flags_in,
+		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
 		       float sig, float obs){
 	 
@@ -229,7 +229,7 @@ namespace coot {
       // Angle
       simple_restraint(short int rest_type, int atom_1, int atom_2, 
 		       int atom_3, 
-		       const std::vector<short int> &fixed_atom_flags_in,
+		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
 		       float sig, float obs){
 	 
@@ -250,7 +250,7 @@ namespace coot {
       // Torsion
       simple_restraint(short int rest_type, int atom_1, int atom_2, 
 		       int atom_3, int atom_4, 
-		       const std::vector<short int> &fixed_atom_flags_in,
+		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
 		       float sig, float obs, int periodicity_in){
 
@@ -273,7 +273,7 @@ namespace coot {
       // Plane
       simple_restraint(short int restraint_type_in,
 		       const std::vector<int> &atom_index_in,
-		       const std::vector<short int> &fixed_atom_flags_in,
+		       const std::vector<bool> &fixed_atom_flags_in,
 		       float sig) {
 	 
 	 restraint_type = restraint_type_in; 
@@ -603,7 +603,7 @@ namespace coot {
       double map_weight; 
 
       void add(short int rest_type, int atom_1, int atom_2, 
-	       const std::vector<short int> &fixed_atom_flags,
+	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
 	       float sig, float obs){
     
@@ -612,7 +612,7 @@ namespace coot {
       }
 
       void add(short int rest_type, int atom_1, int atom_2, int atom_3, 
-	       const std::vector<short int> &fixed_atom_flags,
+	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
 	       float sig, float obs){
     
@@ -624,7 +624,7 @@ namespace coot {
 
       void add(short int rest_type, int atom_1, int atom_2, 
 	       int atom_3, int atom_4,
-	       const std::vector<short int> &fixed_atom_flags,
+	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
 	       float sig, float obs, int periodicty){
     
@@ -641,7 +641,7 @@ namespace coot {
       // construct a restraint and add it to restraints_vec
       // 
       void add_plane(const std::vector<int> atom_index_in,
-		     const std::vector<short int> &fixed_atom_flags,
+		     const std::vector<bool> &fixed_atom_flags,
 		     float sigma) {
 	 restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT, 
 						   atom_index_in, 
@@ -771,6 +771,11 @@ namespace coot {
       // validation:
       coot::geometry_distortion_info_container_t
       distortion_vector(const gsl_vector *v) const;
+
+      std::vector<bool>  make_fixed_flags(int index1, int index2) const;
+      std::vector<bool>  make_fixed_flags(int index1, int index2, int index3) const;
+      std::vector<bool>  make_fixed_flags(int index1, int index2, int index3, int index4) const;
+      std::vector<bool>  make_fixed_flags(const std::vector<int> &indices) const;
 
       // return in milliseconds
       //

@@ -18817,7 +18817,7 @@ programs to which you may be more accustomed.
 	  <child>
 	    <widget class="GtkHBox" id="hbox50">
 	      <property name="visible">True</property>
-	      <property name="homogeneous">False</property>
+	      <property name="homogeneous">True</property>
 	      <property name="spacing">0</property>
 
 	      <child>
@@ -18876,6 +18876,7 @@ programs to which you may be more accustomed.
 
 	  <child>
 	    <widget class="GtkScrolledWindow" id="scrolledwindow6">
+	      <property name="height_request">112</property>
 	      <property name="visible">True</property>
 	      <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
 	      <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>

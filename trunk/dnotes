@@ -2,9 +2,11 @@
 
    Things to fix before 0.5
 
-   25 Items
+   22 Items
 
    o Correct CISPEP if needed cards on writing pdb.
+
+   o PDB v3.0 compatibility
 
    o Fix this:  
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
