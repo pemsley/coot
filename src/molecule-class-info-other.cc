@@ -4016,7 +4016,7 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 
 #ifdef HAVE_GSL   
    if (atom_sel.n_selected_atoms > 0) {
-      std::vector<CAtom *> fixed_atoms;
+      std::vector<coot::atom_spec_t> fixed_atom_specs;
       short int have_flanking_residue_at_end = 0;
       short int have_flanking_residue_at_start = 0;
       // int resno_1, resno_2;
@@ -4090,7 +4090,7 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 			     altconf,
 			     (char *) mol_chain.c_str(),
 			     residues_mol,
-			     fixed_atoms);
+			     fixed_atom_specs);
 	    }
 	 }
       }

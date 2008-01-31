@@ -47,14 +47,14 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const std::string &altloc,
 						     const char *chain_id,
 						     CMMDBManager *mol_in, 
-						     const std::vector<CAtom *> &fixed_atoms) {
+						     const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
    init_from_mol(istart_res_in, iend_res_in, 
 		 have_flanking_residue_at_start, 
 		 have_flanking_residue_at_end,
 		 have_disulfide_residues,
 		 altloc,
-		 chain_id, mol_in, fixed_atoms);
+		 chain_id, mol_in, fixed_atom_specs);
 }
 
 // Used in omega distortion graph
@@ -132,7 +132,7 @@ coot::restraints_container_t::restraints_container_t(PCResidue *SelResidues, int
 						     const std::string &chain_id,
 						     CMMDBManager *mol_in) { 
    
-   std::vector<CAtom *> fixed_atoms_dummy;
+   std::vector<coot::atom_spec_t> fixed_atoms_dummy;
    int istart_res = 999999;
    int iend_res = -9999999;
    int resno;
@@ -167,7 +167,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const std::string &altloc,
 						     const char *chain_id,
 						     CMMDBManager *mol, // const in an ideal world
-						     const std::vector<CAtom *> &fixed_atoms,
+						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> &map_in,
 						     float map_weight_in) {
 
@@ -176,7 +176,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 		 have_flanking_residue_at_end,
 		 have_disulfide_residues,
 		 altloc,
-		 chain_id, mol, fixed_atoms);
+		 chain_id, mol, fixed_atom_specs);
    map = map_in;
    map_weight = map_weight_in;
    include_map_terms_flag = 1;
@@ -200,7 +200,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 					    const std::string &altloc,
 					    const char *chain_id,
 					    CMMDBManager *mol_in, 
-					    const std::vector<CAtom *> &fixed_atoms) {
+					    const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
    do_numerical_gradients_flag = 0;
    verbose_geometry_reporting = 0;
@@ -294,7 +294,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 
    // Set the UDD of the indices in the atom array (i.e. the thing
    // that get_asc_index returns)
-   udd_atom_index_handle = mol_in->RegisterUDInteger ( UDR_ATOM,"atom_array_index" );
+   udd_atom_index_handle = mol_in->RegisterUDInteger ( UDR_ATOM, "atom_array_index");
    if (udd_atom_index_handle < 0) { 
      std::cout << "ERROR:: can't make udd_handle in init_from_mol\n";
    } else { 
@@ -334,7 +334,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 
    // similarly for the fixed atoms:   
    // 
-   assign_fixed_atom_indices(fixed_atoms); // convert from std::vector<CAtom *>
+   assign_fixed_atom_indices(fixed_atom_specs); // convert from std::vector<CAtom *>
 				// to std::vector<int>
 				// fixed_atom_indices;
 }
@@ -342,11 +342,20 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 
 
 void
-coot::restraints_container_t::assign_fixed_atom_indices(const std::vector<CAtom *> &fixed_atoms) {
+coot::restraints_container_t::assign_fixed_atom_indices(const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
-   std::cout << "Finding atom indices for " << fixed_atoms.size()
+   fixed_atom_indices.clear();
+   std::cout << "Finding atom indices for " << fixed_atom_specs.size()
 	     << " fixed atoms " << std::endl;
-
+   for (unsigned int i=0; i<fixed_atom_specs.size(); i++) {
+      for (int iat=0; iat<n_atoms; iat++) {
+	 if (fixed_atom_specs[i].matches_spec(atom[iat])) {
+	    fixed_atom_indices.push_back(iat);
+	 }
+      }
+   }
+   std::cout << "Found indices for " << fixed_atom_indices.size() << " fixed atoms"
+	     << std::endl;
 }
 
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)

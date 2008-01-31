@@ -2171,7 +2171,12 @@ molecule_class_info_t::update_fixed_atom_positions() {
       }
    }
 }
- 
+
+std::vector<coot::atom_spec_t>
+molecule_class_info_t::get_fixed_atoms() const {
+   return fixed_atom_specs;
+}
+
 
 // export the molecule in atom_selection_container_t atom_sel;
 // 

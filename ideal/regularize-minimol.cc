@@ -59,7 +59,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
 //       molin.check();
    
       const char *chn = chain_id.c_str(); 
-      std::vector<CAtom *> fixed_atoms;
+      std::vector<coot::atom_spec_t> fixed_atom_specs;
    
       coot::restraints_container_t restraints(resno_1,
 					      resno_2,
@@ -69,7 +69,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
 					      altconf,
 					      chn,
 					      mol,
-					      fixed_atoms);
+					      fixed_atom_specs);
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
       int do_residue_internal_torsions = 0;
       int do_link_torsions = 0;

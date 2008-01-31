@@ -891,6 +891,7 @@ class molecule_class_info_t {
    void update_fixed_atom_positions();
    void draw_fixed_atom_positions() const;
    void clear_all_fixed_atoms();
+   std::vector<coot::atom_spec_t> get_fixed_atoms() const;
 
    // we could combine these 2, because a bonds_box contains symmetry
    // data members, but we do not, because update_symmetry is more 
