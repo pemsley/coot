@@ -61,8 +61,41 @@
        (set! imol-rnase imol)
        (valid-model-molecule? imol))))
 
+(greg-testcase "Read a bogus map" #t
+    (lambda ()
+      (let ((pre-n-molecules (graphics-n-molecules))
+	    (imol (handle-read-ccp4-map "bogus.map")))
+	(if (not (= -1 imol))
+	    (begin
+	      (format #t "bogus ccp4 map returns wrong molecule number~%")
+	      (throw 'fail))
+	    (let ((now-n-molecules (graphics-n-molecules)))
+	      (if (not (= now-n-molecules pre-n-molecules))
+		  (begin
+		    (format #t "bogus ccp4 map creates extra map ~s ~s~%"
+			    pre-n-molecules now-n-molecules)
+		    (throw 'fail))
+		  #t))))))
+
+
 (greg-testcase "Read MTZ test" #t 
    (lambda ()
+
+     ;; bogus map test
+     (let ((pre-n-molecules (graphics-n-molecules))
+	   (imol-map (make-and-draw-map "bogus.mtz" "FWT" "PHWT" "" 5 6)))
+       (if (not (= -1 imol))
+	   (begin
+	     (format #t "bogus MTZ returns wrong molecule number~%")
+	     (throw 'fail))
+	   (let ((now-n-molecules (graphics-n-molecules)))
+	     (if (not (= now-n-molecules pre-n-molecules))
+		 (begin
+		   (format #t "bogus MTZ creates extra map ~s ~s~%"
+			   pre-n-molecules now-n-molecules)
+		   (throw 'fail))))))
+
+     ;; correct mtz test
      (let ((imol-map (make-and-draw-map 
 		      rnase-mtz "FWT" "PHWT" "" 0 0)))
        (change-contour-level 0)
@@ -522,6 +555,32 @@
 			     (throw 'fail))
 			   #t ; pass
 			   )))))))))
+
+
+(greg-testcase "Refmac Parameters Storage" #t
+   (lambda ()
+
+     (let* ((arg-list (list rnase-mtz "/RNASE3GMP/COMPLEX/FWT" "/RNASE3GMP/COMPLEX/PHWT" "" 0 0 1 
+			    "/RNASE3GMP/COMPLEX/FGMP18" "/RNASE3GMP/COMPLEX/SIGFGMP18" 
+			    "/RNASE/NATIVE/FreeR_flag" 1))
+	    (imol (apply make-and-draw-map-with-refmac-params arg-list)))
+
+       (format #t "  refmac map molecule returned status ~s~%" imol)
+       (if (not (valid-map-molecule? imol))
+	   (begin
+	     (format #t "  Can't get valid refmac map molecule from ~s~%" rnase-mtz)
+	     (throw 'fail)))
+       
+       (let ((refmac-params (refmac-parameters imol)))
+	 
+	 (format #t "          comparing: ~s~% with refmac params: ~s~%" arg-list refmac-params)
+	 (if (not (equal? refmac-params arg-list))
+	     (begin
+	       (format #t "        non matching refmac params~%")
+	       (throw 'fail))
+	     #t)))))
+
+
 
 (greg-testcase "The position of the oxygen after a mutation" #t
    (lambda ()
