@@ -148,7 +148,7 @@ main(int argc, char **argv) {
       // provide a vector of indices in the the moving_residue_atoms
       // array to define those (lovely mixture of styles - heh).
       //
-      std::vector<CAtom *> fixed_atoms;
+      std::vector<coot::atom_spec_t> fixed_atom_specs;
 
       // This interface has been withdrawn because we need the whole
       // molecule (acutally, a pointer to it) to do some atom selection.
@@ -206,7 +206,7 @@ main(int argc, char **argv) {
 						 altloc,
 						 chain_id,
 						 asc.mol,
-						 fixed_atoms);
+						 fixed_atom_specs);
       
 	 restraints.add_map(xmap, map_weight);
 

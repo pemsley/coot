@@ -596,7 +596,7 @@ namespace coot {
 			 const std::string &altloc,
 			 const char *chain_id,
 			 CMMDBManager *mol_in, 
-			 const std::vector<CAtom *> &fixed_atoms);
+			 const std::vector<atom_spec_t> &fixed_atom_specs);
    
       // 
       clipper::Xmap<float> map; 
@@ -847,7 +847,7 @@ namespace coot {
 			     const std::string &altloc,
 			     const char *chain_id,
 			     CMMDBManager *mol, // const in an ideal world
-			     const std::vector<CAtom *> &fixed_atoms);
+			     const std::vector<atom_spec_t> &fixed_atom_specs);
 
       // Interface used by Refine button callback:
       // 
@@ -858,7 +858,7 @@ namespace coot {
 			     const std::string &altloc,
 			     const char *chain_id,
 			     CMMDBManager *mol, // const in an ideal world
-			     const std::vector<CAtom *> &fixed_atoms,
+			     const std::vector<atom_spec_t> &fixed_atom_specs,
 			     const clipper::Xmap<float> &map_in,
 			     float map_weight);
 
@@ -900,7 +900,7 @@ namespace coot {
 	 verbose_geometry_reporting = 1; 
       } 
 
-      void assign_fixed_atom_indices(const std::vector<CAtom *> &fixed_atoms);
+      void assign_fixed_atom_indices(const std::vector<atom_spec_t> &fixed_atom_specs);
 
       double initial_position(int i) {
 	 return initial_position_params_vec[i]; 

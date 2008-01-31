@@ -277,7 +277,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
    if (nSelResidues > 0) {
 
-      std::vector<CAtom *> fixed_atoms;
+      std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol_for_atoms].get_fixed_atoms();
+      
       char *chn = (char *) chain_id_1.c_str();
 
       if (nSelResidues > refine_regularize_max_residues) { 
@@ -320,6 +321,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 						  in_alt_conf_split_flag, 
 						  imol);
 
+	 std::cout << "=========== copy_mol_and_refine fixed_atom_specs.size() is "
+		   << fixed_atom_specs.size() << " ===========" << std::endl;
 	 coot::restraints_container_t restraints(resno_1,
 						 resno_2,
 						 have_flanking_residue_at_start,
@@ -328,7 +331,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 						 altconf,
 						 chn,
 						 residues_mol,
-						 fixed_atoms);
+						 fixed_atom_specs);
 
 	 // this is where regularize and refine differ:
 	 if (imol_for_map != -1)
