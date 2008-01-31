@@ -1852,11 +1852,11 @@ gdouble* get_skeleton_colour();
 /*  ----------------------------------------------------------------------- */
 /*                         read a ccp4 map                                  */
 /*  ----------------------------------------------------------------------- */
-/* section Read CCP4 Map */
-/*! \name  Read CCP4 Map */
+/* section Read Maps */
+/*! \name  Read Maps */
 /* \{ */
 
-/*! \brief read a CCP4 map */
+/*! \brief read a CCP4 map or a CNS map (despite the name). */
 void handle_read_ccp4_map(const char* filename, int is_diff_map_flag); 
 /* \} */
 

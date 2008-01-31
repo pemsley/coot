@@ -103,6 +103,21 @@ namespace coot {
       // tested against a residue not in a hierarchy.
       bool matches_spec(CAtom *atom) const;
 
+      bool operator==(const atom_spec_t &matcher) const {
+	 if (matcher.chain == chain) {
+	    if (matcher.resno == resno) {
+	       if (matcher.insertion_code == insertion_code) {
+		  if (matcher.atom_name == atom_name) {
+		     if (matcher.alt_conf == alt_conf) {
+			return 1; 
+		     }
+		  }
+	       }
+	    }
+	 }
+	 return 0;
+      }
+
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
    };
    
