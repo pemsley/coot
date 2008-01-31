@@ -9539,6 +9539,7 @@ create_rotamer_selection_dialog (void)
   scrolledwindow6 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow6);
   gtk_box_pack_start (GTK_BOX (vbox158), scrolledwindow6, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow6, -1, 112);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow6, GTK_CAN_FOCUS);
 
   viewport3 = gtk_viewport_new (NULL, NULL);
@@ -9567,7 +9568,7 @@ create_rotamer_selection_dialog (void)
   gtk_widget_show (dialog_action_area16);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area16), GTK_BUTTONBOX_END);
 
-  hbox50 = gtk_hbox_new (FALSE, 0);
+  hbox50 = gtk_hbox_new (TRUE, 0);
   gtk_widget_show (hbox50);
   gtk_container_add (GTK_CONTAINER (dialog_action_area16), hbox50);
 
