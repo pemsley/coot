@@ -4532,14 +4532,27 @@ void sharpen(int imol, float b_factor);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position);
-SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
 #endif 
 #ifdef USE_PYTHON
 PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
-PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
 #endif 
 #endif 
 
+/*  ----------------------------------------------------------------------- */
+/*           Fixed Atom Manipulation                                        */
+/*  ----------------------------------------------------------------------- */
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
+#endif 
+#ifdef USE_PYTHON
+PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
+#endif 
+#endif 
+
+/*! \brief clear all fixed atoms */
+void clear_all_fixed_atoms(int imol);
 
 
 /*  ----------------------------------------------------------------------- */

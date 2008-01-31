@@ -580,6 +580,17 @@ class molecule_class_info_t {
    std::vector<coot::dots_representation_info_t> dots;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
 				     bool ca_check_flag) const;
+   // return -1 on not found
+   int get_atom_index(CAtom *atom) { 
+     int idx = -1;
+     if (has_model()) { 
+       int ic;
+       if (atom->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+	 idx = ic;
+       }
+     }
+     return idx;
+   } 
 
    // save the data used for the fourier, so that we can use it to
    // sharpen the map:
@@ -876,6 +887,10 @@ class molecule_class_info_t {
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
 
    std::vector<coot::atom_spec_t> fixed_atom_specs;
+   std::vector<coot::Cartesian>   fixed_atom_positions; // updated on make_bonds_type_checked()
+   void update_fixed_atom_positions();
+   void draw_fixed_atom_positions() const;
+   void clear_all_fixed_atoms();
 
    // we could combine these 2, because a bonds_box contains symmetry
    // data members, but we do not, because update_symmetry is more 
@@ -1207,6 +1222,8 @@ class molecule_class_info_t {
 				    const std::string &insersion_code,
 				    const std::string &atom_name,
 				    const std::string &alt_conf) const;
+
+   int full_atom_spec_to_atom_index(const coot::atom_spec_t &spec) const;
 
    // Does atom at from moving atoms match atom_sel.atom_selection[this_mol_index_maybe]?
    // or has atom_sel changed in the mean time?

@@ -1591,3 +1591,33 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	 }
       }
        
+
+
+			      for (it=fixed_atom_specs.begin();
+				   it != fixed_atom_specs.end();
+				   it++) {
+				 if (atom_spec == *it) {
+				    fixed_atom_specs.erase(it);
+				    break;
+				 }
+			      }
+
+			      for (unsigned int ispec=0; ispec<fixed_atom_specs.size(); ispec++) {
+				 if (atom_spec == fixed_atom_specs[ispec]) {
+				    // delete this!
+				    std::cout << "delete this fixed atom" << std::endl;
+				    break;
+				 }
+			      }
+
+
+#ifdef USE_PYTHON
+PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
+   PyObject *retval = Py_False;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
+   if (p.first) {
+      graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
+   }
+   return retval;
+}
+#endif // USE_PYTHON 

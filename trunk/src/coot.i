@@ -51,7 +51,6 @@ extern PyObject *view_description_py(int view_number);
 extern void go_to_view_py(PyObject *view);
 // from c-interface-build.cc
 extern PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
-extern PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
 extern PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 extern int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_expression);
 extern int add_molecule_py(PyObject *molecule_expression, const char *name);
