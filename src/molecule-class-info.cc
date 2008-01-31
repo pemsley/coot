@@ -1518,6 +1518,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots) {
 	    if (do_zero_occ_spots)
 	       zero_occupancy_spots();
 	    display_bonds();
+	    draw_fixed_atom_positions(); 
 
 	    // ghosts
 // 	    std::cout << "debug ghosts: " << show_ghosts_flag << " " << ncs_ghosts.size()
@@ -1547,6 +1548,23 @@ molecule_class_info_t::zero_occupancy_spots() const {
 	 glVertex3f(bonds_box.zero_occ_spot[i].x(),
 		    bonds_box.zero_occ_spot[i].y(),
 		    bonds_box.zero_occ_spot[i].z());
+      }
+      glEnd();
+   }
+}
+
+void
+molecule_class_info_t::draw_fixed_atom_positions() const {
+
+   if (fixed_atom_positions.size() > 0) {
+
+      glColor3f(0.6, 0.95, 0.6);
+      glPointSize(10.5);
+      glBegin(GL_POINTS); 
+      for (int i=0; i<fixed_atom_positions.size(); i++) {
+	 glVertex3f(fixed_atom_positions[i].x(),
+		    fixed_atom_positions[i].y(),
+		    fixed_atom_positions[i].z());
       }
       glEnd();
    }
@@ -2118,10 +2136,41 @@ molecule_class_info_t::make_bonds_type_checked() {
       occupancy_representation();
    if (bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS)
       b_factor_representation();
-   
+
+   update_fixed_atom_positions();
    update_ghosts();
 }
 
+void
+molecule_class_info_t::update_fixed_atom_positions() {
+
+   fixed_atom_positions.clear();
+   bool found_match = 0; 
+   for(unsigned int i=0; i<fixed_atom_specs.size(); i++) {
+      int ifast_index = fixed_atom_specs[i].int_user_data;
+      if (ifast_index != -1) {
+	 if (ifast_index < atom_sel.n_selected_atoms) {
+	    CAtom *at = atom_sel.atom_selection[ifast_index];
+	    if (fixed_atom_specs[i].matches_spec(at)) {
+	       found_match = 1;
+	       coot::Cartesian pos(at->x, at->y, at->z);
+	       fixed_atom_positions.push_back(pos);
+	    } 
+	 } 
+      }
+      if (! found_match) {
+	 // use a slower method to find atom
+	 int idx = full_atom_spec_to_atom_index(fixed_atom_specs[i]);
+	 if (idx != -1) {
+	    CAtom *at = atom_sel.atom_selection[idx];
+	    if (fixed_atom_specs[i].matches_spec(at)) {
+	       coot::Cartesian pos(at->x, at->y, at->z);
+	       fixed_atom_positions.push_back(pos);
+	    }
+	 }
+      }
+   }
+}
  
 
 // export the molecule in atom_selection_container_t atom_sel;
@@ -2321,7 +2370,18 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
    } 
    return iatom_index; 
 }			    
-			    
+
+int
+molecule_class_info_t::full_atom_spec_to_atom_index(const coot::atom_spec_t &atom_spec) const {
+
+   return full_atom_spec_to_atom_index(atom_spec.chain,
+				       atom_spec.resno,
+				       atom_spec.insertion_code,
+				       atom_spec.atom_name,
+				       atom_spec.alt_conf);
+
+} 
+
 
 // return -1 on no atom found.
 int
@@ -6077,10 +6137,17 @@ molecule_class_info_t::debug() const {
 }
 
 void
+molecule_class_info_t::clear_all_fixed_atoms() {
+   fixed_atom_specs.clear();
+   fixed_atom_positions.clear();
+}
+
+void
 molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bool state) {
 
    if (has_model()) {
       int imod = 1;
+      bool found = 0;
       CModel *model_p = atom_sel.mol->GetModel(imod);
       CChain *chain_p;
       int nchains = model_p->GetNumberOfChains();
@@ -6100,10 +6167,20 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     at = residue_p->GetAtom(iat);
 		     if (atom_spec.matches_spec(at)) {
-			if (state) { 
-			   fixed_atom_specs.push_back(atom_spec);
+			if (state) {
+			   // try to get the atom index of this atom
+			   // (at) and make it part of the spec.  So
+			   // that we can use it again in
+			   // update_fixed_atom_positions().  If the
+			   // atom index is correct, we don't need to
+			   // search the molecule for the spec.
+			   coot::atom_spec_t atom_spec_local = atom_spec;
+			   int idx = get_atom_index(at);
+			   atom_spec_local.int_user_data = idx;
+			   fixed_atom_specs.push_back(atom_spec_local);
 			   std::cout << "INFO:: " << atom_spec << " marked as fixed"
 				     << std::endl;
+			   found = 1; 
 			} else {
 			   //  try to remove at from marked list
 			   if (fixed_atom_specs.size() > 0) {
@@ -6112,7 +6189,10 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
 				   it != fixed_atom_specs.end();
 				   it++) {
 				 if (atom_spec == *it) {
+				    std::cout << "INFO:: removed " << atom_spec
+					      << " from fixed atom." << std::endl;
 				    fixed_atom_specs.erase(it);
+				    found = 1;
 				    break;
 				 }
 			      }
@@ -6123,6 +6203,9 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
 	       }
 	    }
 	 }
+      }
+      if (found) {
+	 update_fixed_atom_positions();
       }
    }
 }

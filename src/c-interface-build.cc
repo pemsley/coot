@@ -3513,10 +3513,24 @@ SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state) {
    std::pair<bool, coot::atom_spec_t> p = make_atom_spec(atom_spec);
    if (p.first) {
       graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
+      graphics_draw();
    }
    return retval;
 }
 #endif
+
+
+#ifdef USE_PYTHON
+PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
+   PyObject *retval = Py_False;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
+   if (p.first) {
+      graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
+      graphics_draw();
+   }
+   return retval;
+}
+#endif // USE_PYTHON 
 
 
 #ifdef USE_PYTHON
@@ -3543,17 +3557,15 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 #endif // USE_PYTHON
 
 
-#ifdef USE_PYTHON
-PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
-   PyObject *retval = Py_False;
-   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
-   if (p.first) {
-      graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
-   }
-   return retval;
-}
-#endif // USE_PYTHON 
 
+/*! \brief clear all fixed atoms */
+void clear_all_fixed_atoms(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].clear_all_fixed_atoms();
+      graphics_draw();
+   }
+} 
 
 
 /*  ----------------------------------------------------------------------- */
