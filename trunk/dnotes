@@ -3865,6 +3865,20 @@ Mon Jan 21 13:04:37 GMT 2008
     gtk+-2
     glkglext
 
+Hmm...
+
+
+checking for LIBRSVG... configure: error: Package requirements (        gdk-pixbuf-2.0 >= 1.3.7         glib-2.0 >= 2.12.0      libxml-2.
+0 >= 2.4.7      pangoft2 >= 1.2.0       pangocairo >= 1.2.0     cairo >= 1.2.0  cairo-png >= 1.2.0      fontconfig >= 1.0.1
+        freetype2) were not met:
+
+Requested 'pangoft2 >= 1.2.0' but version of Pango FT2 is 1.1.1
+
+http://www.linuxfromscratch.org/blfs/view/svn/x/cairo.html
+
+  Note that the GTK, Poppler and librsvg packages are circular in that
+  using them for test suite coverage requires installing cairo first,
+  then installing the desired package(s), then installing cairo again.
 
 Now on to guile-gtk:
 
@@ -4143,4 +4157,18 @@ Thu Jan 31 08:32:26 GMT 2008
     select rotamer button box has an OK button that needs to be homogenized.
 
     Priority: High
+
+----
+Thu Jan 31 20:12:56 GMT 2008
+
+   Clemens (on density fit graphs):
+
+   Since I find it easier to ask others for those mental gymnastics
+   (aka Paul in this case) than doing it myself: how about having all
+   those graphs always starting at number 1 - or at the lowest residue
+   number of any chain?
+
+   Yes the lowest number in any chain.
+
+   Priority: Medium.  Do before 0.6.
 

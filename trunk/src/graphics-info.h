@@ -2425,6 +2425,8 @@ public:
    static void drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt);
    static void mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
    // static std::vector<CAtom *> fixed_intermediate_atoms;
+   static bool fixed_atom_for_refinement_p(CAtom *);  // examines the imol_moving_atoms molecule
+                                                      // for correspondence
 
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
