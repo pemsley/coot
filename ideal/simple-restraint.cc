@@ -349,8 +349,8 @@ void
 coot::restraints_container_t::assign_fixed_atom_indices(const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
    fixed_atom_indices.clear();
-   std::cout << "Finding atom indices for " << fixed_atom_specs.size()
-	     << " fixed atoms " << std::endl;
+//    std::cout << "Finding atom indices for " << fixed_atom_specs.size()
+// 	     << " fixed atoms " << std::endl;
    for (unsigned int i=0; i<fixed_atom_specs.size(); i++) {
       for (int iat=0; iat<n_atoms; iat++) {
 	 if (fixed_atom_specs[i].matches_spec(atom[iat])) {
@@ -358,8 +358,8 @@ coot::restraints_container_t::assign_fixed_atom_indices(const std::vector<coot::
 	 }
       }
    }
-   std::cout << "Found indices for " << fixed_atom_indices.size() << " fixed atoms"
-	     << std::endl;
+   //    std::cout << "Found indices for " << fixed_atom_indices.size()
+   // << " fixed atoms" << std::endl;
 }
 
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
@@ -4166,13 +4166,13 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 		     // atoms).
 		     // 
 		     std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
-		     std::cout << "creating (monomer) bond restraint with fixed flags "
-			       << fixed_flags[0] << " " << fixed_flags[1] << " "
-			       << atom[index1]->GetSeqNum() << " "
-			       << atom[index1]->name << " to "
-			       << atom[index2]->GetSeqNum() << " "
-			       << atom[index2]->name
-			       << " restraint index " << n_bond_restr << "\n";
+// 		     std::cout << "creating (monomer) bond restraint with fixed flags "
+// 			       << fixed_flags[0] << " " << fixed_flags[1] << " "
+// 			       << atom[index1]->GetSeqNum() << " "
+// 			       << atom[index1]->name << " to "
+// 			       << atom[index2]->GetSeqNum() << " "
+// 			       << atom[index2]->name
+// 			       << " restraint index " << n_bond_restr << "\n";
 
 		     add(BOND_RESTRAINT, index1, index2,
 			 fixed_flags,

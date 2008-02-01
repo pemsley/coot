@@ -1025,7 +1025,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       update_map();
    }
 
-   int stat = 0;
+   int stat = imol_no;
    if (bad_read)
       stat = -1;
    return stat;

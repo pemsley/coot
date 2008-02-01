@@ -321,8 +321,6 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 						  in_alt_conf_split_flag, 
 						  imol);
 
-	 std::cout << "=========== copy_mol_and_refine fixed_atom_specs.size() is "
-		   << fixed_atom_specs.size() << " ===========" << std::endl;
 	 coot::restraints_container_t restraints(resno_1,
 						 resno_2,
 						 have_flanking_residue_at_start,

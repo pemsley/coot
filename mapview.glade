@@ -27302,4 +27302,126 @@ Move Molecule Here:</label>
   </widget>
 </widget>
 
+<widget>
+  <class>GtkDialog</class>
+  <name>fixed_atom_dialog</name>
+  <title>Fixed Atoms for Refinement</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>True</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>Dialog:vbox</child_name>
+    <name>dialog-vbox98</name>
+    <homogeneous>False</homogeneous>
+    <spacing>0</spacing>
+
+    <widget>
+      <class>GtkHBox</class>
+      <child_name>Dialog:action_area</child_name>
+      <name>dialog-action_area97</name>
+      <border_width>10</border_width>
+      <homogeneous>True</homogeneous>
+      <spacing>5</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>fixed_atom_close_button</name>
+	<can_focus>True</can_focus>
+	<signal>
+	  <name>clicked</name>
+	  <handler>on_fixed_atom_close_button_clicked</handler>
+	  <last_modification_time>Fri, 01 Feb 2008 13:25:15 GMT</last_modification_time>
+	</signal>
+	<label>   Close  </label>
+	<relief>GTK_RELIEF_NORMAL</relief>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkVBox</class>
+      <name>vbox198</name>
+      <border_width>10</border_width>
+      <homogeneous>False</homogeneous>
+      <spacing>3</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkToggleButton</class>
+	<name>fix_atom_togglebutton</name>
+	<can_focus>True</can_focus>
+	<signal>
+	  <name>toggled</name>
+	  <handler>on_fix_atom_togglebutton_toggled</handler>
+	  <last_modification_time>Fri, 01 Feb 2008 13:27:33 GMT</last_modification_time>
+	</signal>
+	<label>Fix Atom</label>
+	<relief>GTK_RELIEF_NORMAL</relief>
+	<active>False</active>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkToggleButton</class>
+	<name>unfix_atom_togglebutton</name>
+	<can_focus>True</can_focus>
+	<signal>
+	  <name>toggled</name>
+	  <handler>on_unfix_atom_togglebutton_toggled</handler>
+	  <last_modification_time>Fri, 01 Feb 2008 13:27:39 GMT</last_modification_time>
+	</signal>
+	<label>Unfix Atom</label>
+	<relief>GTK_RELIEF_NORMAL</relief>
+	<active>False</active>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>clear_fixed_atoms_button</name>
+	<can_focus>True</can_focus>
+	<signal>
+	  <name>clicked</name>
+	  <handler>on_clear_fixed_atoms_button_clicked</handler>
+	  <last_modification_time>Fri, 01 Feb 2008 13:27:44 GMT</last_modification_time>
+	</signal>
+	<label>Clear All Fixed Atoms</label>
+	<relief>GTK_RELIEF_NORMAL</relief>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
 </GTK-Interface>

@@ -3706,22 +3706,24 @@ autobuild_ca_off() {
 
 }
 
-void
+int
 handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
 
+   int istate = -1;
    if (filename) { 
       std::string str(filename); 
       graphics_info_t g;
       int imol_new = graphics_info_t::create_molecule();
 
-      int istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag,
-						       *graphics_info_t::map_glob_extensions);
+      istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag,
+						   *graphics_info_t::map_glob_extensions);
 
       if (istate > -1) { // not a failure
 
 	 std::string name = g.molecules[imol_new].dotted_chopped_name();
 	 g.scroll_wheel_map = imol_new;  // change the current scrollable map.
-      } else { 
+      } else {
+	 g.erase_last_molecule();
 	 std::cout << "Read map " << str << " failed" << std::endl;
 	 std::string s = "Read map ";
 	 s += str;
@@ -3732,7 +3734,8 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
    } else {
       // error
       std::cout << "ERROR:: filename null in handle_read_ccp4_map\n";
-   } 
+   }
+   return istate;
 }
 
 

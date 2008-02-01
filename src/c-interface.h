@@ -1857,7 +1857,7 @@ gdouble* get_skeleton_colour();
 /* \{ */
 
 /*! \brief read a CCP4 map or a CNS map (despite the name). */
-void handle_read_ccp4_map(const char* filename, int is_diff_map_flag); 
+int handle_read_ccp4_map(const char* filename, int is_diff_map_flag); 
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

@@ -3201,3 +3201,19 @@ on_accession_code_ok_button_clicked    (GtkButton       *button,
 void
 on_ncs_differences1_activate           (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+
+void
+on_fix_atom_togglebutton_toggled       (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_unfix_atom_togglebutton_toggled     (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_clear_fixed_atoms_button_clicked    (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_fixed_atom_close_button_clicked     (GtkButton       *button,
+                                        gpointer         user_data);
