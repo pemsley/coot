@@ -18355,4 +18355,82 @@ create_splash_screen_alternate_1_window (void)
   return splash_screen_alternate_1_window;
 }
 
+GtkWidget*
+create_fixed_atom_dialog (void)
+{
+  GtkWidget *fixed_atom_dialog;
+  GtkWidget *dialog_vbox98;
+  GtkWidget *vbox198;
+  GtkWidget *fix_atom_togglebutton;
+  GtkWidget *unfix_atom_togglebutton;
+  GtkWidget *clear_fixed_atoms_button;
+  GtkWidget *dialog_action_area97;
+  GtkWidget *fixed_atom_close_button;
+
+  fixed_atom_dialog = gtk_dialog_new ();
+  gtk_object_set_data (GTK_OBJECT (fixed_atom_dialog), "fixed_atom_dialog", fixed_atom_dialog);
+  gtk_window_set_title (GTK_WINDOW (fixed_atom_dialog), _("Fixed Atoms for Refinement"));
+  gtk_window_set_policy (GTK_WINDOW (fixed_atom_dialog), TRUE, TRUE, FALSE);
+
+  dialog_vbox98 = GTK_DIALOG (fixed_atom_dialog)->vbox;
+  gtk_object_set_data (GTK_OBJECT (fixed_atom_dialog), "dialog_vbox98", dialog_vbox98);
+  gtk_widget_show (dialog_vbox98);
+
+  vbox198 = gtk_vbox_new (FALSE, 3);
+  gtk_widget_ref (vbox198);
+  gtk_object_set_data_full (GTK_OBJECT (fixed_atom_dialog), "vbox198", vbox198,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox198);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox98), vbox198, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox198), 10);
+
+  fix_atom_togglebutton = gtk_toggle_button_new_with_label (_("Fix Atom"));
+  gtk_widget_ref (fix_atom_togglebutton);
+  gtk_object_set_data_full (GTK_OBJECT (fixed_atom_dialog), "fix_atom_togglebutton", fix_atom_togglebutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (fix_atom_togglebutton);
+  gtk_box_pack_start (GTK_BOX (vbox198), fix_atom_togglebutton, FALSE, FALSE, 0);
+
+  unfix_atom_togglebutton = gtk_toggle_button_new_with_label (_("Unfix Atom"));
+  gtk_widget_ref (unfix_atom_togglebutton);
+  gtk_object_set_data_full (GTK_OBJECT (fixed_atom_dialog), "unfix_atom_togglebutton", unfix_atom_togglebutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (unfix_atom_togglebutton);
+  gtk_box_pack_start (GTK_BOX (vbox198), unfix_atom_togglebutton, FALSE, FALSE, 0);
+
+  clear_fixed_atoms_button = gtk_button_new_with_label (_("Clear All Fixed Atoms"));
+  gtk_widget_ref (clear_fixed_atoms_button);
+  gtk_object_set_data_full (GTK_OBJECT (fixed_atom_dialog), "clear_fixed_atoms_button", clear_fixed_atoms_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (clear_fixed_atoms_button);
+  gtk_box_pack_start (GTK_BOX (vbox198), clear_fixed_atoms_button, FALSE, FALSE, 0);
+
+  dialog_action_area97 = GTK_DIALOG (fixed_atom_dialog)->action_area;
+  gtk_object_set_data (GTK_OBJECT (fixed_atom_dialog), "dialog_action_area97", dialog_action_area97);
+  gtk_widget_show (dialog_action_area97);
+  gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area97), 10);
+
+  fixed_atom_close_button = gtk_button_new_with_label (_("   Close  "));
+  gtk_widget_ref (fixed_atom_close_button);
+  gtk_object_set_data_full (GTK_OBJECT (fixed_atom_dialog), "fixed_atom_close_button", fixed_atom_close_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (fixed_atom_close_button);
+  gtk_box_pack_start (GTK_BOX (dialog_action_area97), fixed_atom_close_button, FALSE, FALSE, 0);
+
+  gtk_signal_connect (GTK_OBJECT (fix_atom_togglebutton), "toggled",
+                      GTK_SIGNAL_FUNC (on_fix_atom_togglebutton_toggled),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (unfix_atom_togglebutton), "toggled",
+                      GTK_SIGNAL_FUNC (on_unfix_atom_togglebutton_toggled),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (clear_fixed_atoms_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_clear_fixed_atoms_button_clicked),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (fixed_atom_close_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_fixed_atom_close_button_clicked),
+                      NULL);
+
+  return fixed_atom_dialog;
+}
+
 #endif

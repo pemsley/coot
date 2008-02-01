@@ -64,7 +64,7 @@
 (greg-testcase "Read a bogus map" #t
     (lambda ()
       (let ((pre-n-molecules (graphics-n-molecules))
-	    (imol (handle-read-ccp4-map "bogus.map")))
+	    (imol (handle-read-ccp4-map "bogus.map" 0)))
 	(if (not (= -1 imol))
 	    (begin
 	      (format #t "bogus ccp4 map returns wrong molecule number~%")
@@ -84,14 +84,14 @@
      ;; bogus map test
      (let ((pre-n-molecules (graphics-n-molecules))
 	   (imol-map (make-and-draw-map "bogus.mtz" "FWT" "PHWT" "" 5 6)))
-       (if (not (= -1 imol))
+       (if (not (= -1 imol-map))
 	   (begin
-	     (format #t "bogus MTZ returns wrong molecule number~%")
+	     (format #t "   bogus MTZ returns wrong molecule number~%")
 	     (throw 'fail))
 	   (let ((now-n-molecules (graphics-n-molecules)))
 	     (if (not (= now-n-molecules pre-n-molecules))
 		 (begin
-		   (format #t "bogus MTZ creates extra map ~s ~s~%"
+		   (format #t "   bogus MTZ creates extra map ~s ~s~%"
 			   pre-n-molecules now-n-molecules)
 		   (throw 'fail))))))
 
