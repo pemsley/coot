@@ -1391,7 +1391,7 @@ fi
 
 # test for pygobject
 if test -z "$build_pygobject" ; then
-   if test -e $install_top_dir/pygtk-2.0/pygobject.h ; then
+   if test -e $install_top_dir/include/pygtk-2.0/pygobject.h ; then
       echo installation has pygobject
       build_pygobject=
    else 
@@ -1416,7 +1416,7 @@ fi
 
 # test for pygtk
 if test -z "$build_pygtk" ; then
-   if test -e $install_top_dir/python/2.5/site-packages/gtk+-2.0/gtk/keysyms.py ; then
+   if test -e $install_top_dir/lib/python2.5/site-packages/gtk-2.0/gtk/keysyms.py ; then
       echo pygtk keysyms exists, no build pygtk
    else 
       echo pygtk keysyms NOT exists, pygtk should be built
