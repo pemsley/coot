@@ -209,7 +209,8 @@
 # 3.08 20080130 Remove static patch (for sgi).  Add test/build for freetype2
 # 3.09 20080130 fontconfig added too.
 # 3.10 20080131 Change HOSTLOGDIR to include gtk2 to separate it from gtk1 build logs.
-script_version=3.10
+# 3.11 20080201 Fix problem in scripting args to coot's configure.
+script_version=3.11
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2566,11 +2567,11 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtkgl-prefix=$install_top_dir \
+      --with-gtkgl-prefix=$install_top_dir  \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
-      "$python_scripting" \
+      $python_scripting   \
       $shared_static_flag \
       $coot_extra_args   
 
@@ -2579,11 +2580,11 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtkgl-prefix=$install_top_dir \
+      --with-gtkgl-prefix=$install_top_dir  \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
-      "$python_scripting" \
+      $python_scripting   \
       $shared_static_flag \
       $coot_extra_args    
 
