@@ -20878,4 +20878,76 @@ create_screendump_filechooserdialog1 (void)
   return screendump_filechooserdialog1;
 }
 
+GtkWidget*
+create_fixed_atom_dialog (void)
+{
+  GtkWidget *fixed_atom_dialog;
+  GtkWidget *dialog_vbox110;
+  GtkWidget *vbox204;
+  GtkWidget *fix_atom_togglebutton;
+  GtkWidget *unfix_atom_togglebutton;
+  GtkWidget *clear_fixed_atoms_button;
+  GtkWidget *dialog_action_area109;
+  GtkWidget *fixed_atom_close_button;
+
+  fixed_atom_dialog = gtk_dialog_new ();
+  gtk_widget_set_size_request (fixed_atom_dialog, 210, -1);
+  gtk_window_set_title (GTK_WINDOW (fixed_atom_dialog), _("Fixed Atoms for Refinement"));
+  gtk_window_set_type_hint (GTK_WINDOW (fixed_atom_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox110 = GTK_DIALOG (fixed_atom_dialog)->vbox;
+  gtk_widget_show (dialog_vbox110);
+
+  vbox204 = gtk_vbox_new (FALSE, 2);
+  gtk_widget_show (vbox204);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox110), vbox204, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox204), 6);
+
+  fix_atom_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Fix Atom"));
+  gtk_widget_show (fix_atom_togglebutton);
+  gtk_box_pack_start (GTK_BOX (vbox204), fix_atom_togglebutton, FALSE, FALSE, 0);
+
+  unfix_atom_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Unfix Atom"));
+  gtk_widget_show (unfix_atom_togglebutton);
+  gtk_box_pack_start (GTK_BOX (vbox204), unfix_atom_togglebutton, FALSE, FALSE, 0);
+
+  clear_fixed_atoms_button = gtk_button_new_with_mnemonic (_("  Clear Fixed Atoms"));
+  gtk_widget_show (clear_fixed_atoms_button);
+  gtk_box_pack_start (GTK_BOX (vbox204), clear_fixed_atoms_button, FALSE, FALSE, 0);
+
+  dialog_action_area109 = GTK_DIALOG (fixed_atom_dialog)->action_area;
+  gtk_widget_show (dialog_action_area109);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area109), GTK_BUTTONBOX_END);
+
+  fixed_atom_close_button = gtk_button_new_from_stock ("gtk-close");
+  gtk_widget_show (fixed_atom_close_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (fixed_atom_dialog), fixed_atom_close_button, GTK_RESPONSE_CLOSE);
+  GTK_WIDGET_SET_FLAGS (fixed_atom_close_button, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) fix_atom_togglebutton, "toggled",
+                    G_CALLBACK (on_fix_atom_togglebutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) unfix_atom_togglebutton, "toggled",
+                    G_CALLBACK (on_unfix_atom_togglebutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) clear_fixed_atoms_button, "clicked",
+                    G_CALLBACK (on_clear_fixed_atoms_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) fixed_atom_close_button, "clicked",
+                    G_CALLBACK (on_fixed_atom_close_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, fixed_atom_dialog, "fixed_atom_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, dialog_vbox110, "dialog_vbox110");
+  GLADE_HOOKUP_OBJECT (fixed_atom_dialog, vbox204, "vbox204");
+  GLADE_HOOKUP_OBJECT (fixed_atom_dialog, fix_atom_togglebutton, "fix_atom_togglebutton");
+  GLADE_HOOKUP_OBJECT (fixed_atom_dialog, unfix_atom_togglebutton, "unfix_atom_togglebutton");
+  GLADE_HOOKUP_OBJECT (fixed_atom_dialog, clear_fixed_atoms_button, "clear_fixed_atoms_button");
+  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, dialog_action_area109, "dialog_action_area109");
+  GLADE_HOOKUP_OBJECT (fixed_atom_dialog, fixed_atom_close_button, "fixed_atom_close_button");
+
+  return fixed_atom_dialog;
+}
+
 #endif /* (GTK_MAJOR_VERSION > 1) */
