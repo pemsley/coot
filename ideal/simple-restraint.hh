@@ -539,7 +539,6 @@ namespace coot {
       // 
       PCResidue previous_residue;
       PCResidue next_residue;
-      std::vector<int> fixed_atom_indices; 
       
       short int verbose_geometry_reporting;
    
@@ -789,6 +788,9 @@ namespace coot {
 					  LINK_TORSION_ALPHA_HELIX = 2,
 					  LINK_TORSION_BETA_STRAND = 3 }; 
 
+      // my_df_electron_density and electron_density_score need access
+      // to fixed_atom_indices.
+      std::vector<int> fixed_atom_indices; 
 
       // In all of these constructors the PPCAtom that is passed, either
       // explicitly or as part of an atom_selection_container_t has the
@@ -900,6 +902,10 @@ namespace coot {
 			     const std::vector<int> &fixed_atom_indices);
 
       restraints_container_t(){};
+
+      CAtom *get_atom(int i) const {
+	 return atom[i];
+      }
 
       void set_verbose_geometry_reporting() { 
 	 verbose_geometry_reporting = 1; 

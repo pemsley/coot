@@ -413,21 +413,21 @@ graphics_info_t::fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_a
 //
 pick_info
 graphics_info_t::moving_atoms_atom_pick() const {
-
+   
    pick_info p_i;
    p_i.success = GL_FALSE;
    p_i.imol = -1;
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
    float dist, min_dist = 0.2;
-
+   
    // This is the signal that moving_atoms_asc is clear
    if (moving_atoms_asc->n_selected_atoms > 0) {
-
+      
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 	 coot::Cartesian atom( (moving_atoms_asc->atom_selection)[i]->x,
-			 (moving_atoms_asc->atom_selection)[i]->y,
-			 (moving_atoms_asc->atom_selection)[i]->z);
+			       (moving_atoms_asc->atom_selection)[i]->y,
+			       (moving_atoms_asc->atom_selection)[i]->z);
 	 //
 	 if (atom.within_box(front,back)) { 
 	    dist = atom.distance_to_line(front, back);
@@ -441,9 +441,29 @@ graphics_info_t::moving_atoms_atom_pick() const {
 	 }
       }
    }
-
    return p_i;
 }
+
+// examines the imol_moving_atoms molecule for correspondence
+// 
+// static
+bool
+graphics_info_t::fixed_atom_for_refinement_p(CAtom *at) {
+
+   bool r = 0; 
+   if (is_valid_model_molecule(imol_moving_atoms)) {
+      std::vector<coot::atom_spec_t> fixed = molecules[imol_moving_atoms].get_fixed_atoms();
+      for (unsigned int ifixed=0; ifixed<fixed.size(); ifixed++) {
+	 if (fixed[ifixed].matches_spec(at)) {
+// 	    std::cout << " fixed_atom_for_refinement_p found a matcher "
+// 		      << fixed[ifixed] << std::endl;
+	    r = 1;
+	    break;
+	 } 
+      }
+   }
+   return r;
+} 
 
 
 // Setup moving atom-drag if we are.
@@ -498,7 +518,7 @@ graphics_info_t::set_fixed_points_for_sheared_drag() {
 void
 graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
 					    short int squared_flag) {
-
+   
    // First we have to find the "fixed" points connected to them most
    // distant from the moving_atoms_dragged_atom.
    //
@@ -508,20 +528,20 @@ graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
    // unproject to find the shift in world coordinates...
    //
    coot::Cartesian old_mouse_real_world = unproject_xyz(int(GetMouseBeginX()),
-						  int(GetMouseBeginY()),
-						  0.5);
+							int(GetMouseBeginY()),
+							0.5);
    coot::Cartesian current_mouse_real_world = unproject_xyz(screenx, screeny, 0.5);
-
+   
    coot::Cartesian diff = current_mouse_real_world - old_mouse_real_world;
-
+   
    // now tinker with the moving atoms coordinates...
    if (moving_atoms_dragged_atom_index >= 0) {
       if (moving_atoms_dragged_atom_index < moving_atoms_asc->n_selected_atoms) {
 	 CAtom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
 	 if (at) {
-
+	    
 	    move_moving_atoms_by_shear_internal(diff, squared_flag);
-
+	    
 	    // and regenerate the bonds of the moving atoms:
 	    // 
 	    int do_disulphide_flag = 0;
@@ -543,7 +563,7 @@ graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
 
 // For rotate/translate moving atoms dragged movement
 // 
-void
+   void
 graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screeny) { 
 
    coot::Cartesian old_mouse_real_world = unproject_xyz(int(GetMouseBeginX()),
@@ -643,9 +663,12 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
 	 frac = (1.0 - dr);
       }
 	    
-      at->x += frac*diff.x();
-      at->y += frac*diff.y();
-      at->z += frac*diff.z();
+      if (! fixed_atom_for_refinement_p(at)) { 
+	       
+	 at->x += frac*diff.x();
+	 at->y += frac*diff.y();
+	 at->z += frac*diff.z();
+      }
    }
    delete [] d_to_moving_at;
 } 

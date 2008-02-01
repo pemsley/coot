@@ -1924,28 +1924,7 @@ if test -n "$build_gtk" ; then
       cd - 
    fi
 
-   # cairo depends dependends on librsvg (for testing) otherwise warning.
-   if [ "$glib_status" = 0 ] ; then
-      echo  ======================================================
-      echo  BUILDING librsvg
-      echo  ======================================================
-      librsvg_version=2.20.0
-      ${WGET} http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-$librsvg_version.tar.gz
-      gzip -dc ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.tar.gz | tar xf -
-      cd librsvg-$librsvg_version
-      ./configure $generic_prefix
-      $MAKE
-      librsvg_status=$?
-      if [ "$librsvg_status" != 0 ] ; then
-         echo make of librsvg failed
-         gtk_set_failure="make of librsvg failed"
-      else
-         $MAKE install
-      fi
-      cd - 
-   fi
-
-   if [ "$librsvg_status" = 0 ] ; then
+   if [ "$fontconfig_status" = 0 ] ; then
       echo  ======================================================
       echo  BUILDING cairo
       echo  ======================================================
@@ -1965,7 +1944,7 @@ if test -n "$build_gtk" ; then
       cd - 
    fi
  
-   if [ "$librsvg_status" = 0 ] ; then
+   if [ "$cairo_status" = 0 ] ; then
       echo  ======================================================
       echo  BUILDING pango
       echo  ======================================================
@@ -1979,6 +1958,30 @@ if test -n "$build_gtk" ; then
       if [ "$pango_status" != 0 ] ; then
          echo make of pango failed
          gtk_set_failure="make of pango failed"
+      else
+         $MAKE install
+      fi
+      cd - 
+   fi
+
+   # cairo depends dependends on librsvg (for testing) otherwise warning.
+   # But.  librsvg depends on pango (the pangoft2 part).  This is crazy.
+   # But.  cairo depend on librsvg (doesn't it?)
+   # Does cairo depend on pango? Yes.
+   if [ "$pango_status" = 0 ] ; then
+      echo  ======================================================
+      echo  BUILDING librsvg
+      echo  ======================================================
+      librsvg_version=2.20.0
+      ${WGET} http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-$librsvg_version.tar.gz
+      gzip -dc ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.tar.gz | tar xf -
+      cd librsvg-$librsvg_version
+      ./configure $generic_prefix
+      $MAKE
+      librsvg_status=$?
+      if [ "$librsvg_status" != 0 ] ; then
+         echo make of librsvg failed
+         gtk_set_failure="make of librsvg failed"
       else
          $MAKE install
       fi

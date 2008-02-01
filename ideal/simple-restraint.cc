@@ -326,17 +326,21 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
       atom_z_weight[i] = z;
    }
    
+   // similarly for the fixed atoms:   
+   // 
+   assign_fixed_atom_indices(fixed_atom_specs); // convert from std::vector<CAtom *>
+   				                // to std::vector<int> fixed_atom_indices;
+
+   // blank out those atoms from seeing electron density and map gradients
+   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+      use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = 0;
+   } 
    
    if (verbose_geometry_reporting)
       for (int i=0; i<n_atoms; i++)
 	 std::cout << atom[i]->name << " " << atom[i]->residue->seqNum << " "
 		   << use_map_gradient_for_atom[i] << std::endl;
 
-   // similarly for the fixed atoms:   
-   // 
-   assign_fixed_atom_indices(fixed_atom_specs); // convert from std::vector<CAtom *>
-				// to std::vector<int>
-				// fixed_atom_indices;
 }
 
 
@@ -1865,6 +1869,22 @@ void coot::my_df_bonds (const gsl_vector *v,
        
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) { 
 
+// 	    std::cout << "DEBUG bond restraint fixed flags: "
+// 		      << (*restraints)[i].fixed_atom_flags[0] << " "
+// 		      << (*restraints)[i].fixed_atom_flags[1] << " "
+// 		      << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " "
+// 		      << restraints->get_atom((*restraints)[i].atom_index_1)->name
+// 		      << " to " 
+// 		      << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " "
+// 		      << restraints->get_atom((*restraints)[i].atom_index_2)->name
+// 		      << std::endl;
+	    
+// 	    int n_fixed=0;
+// 	    if  ((*restraints)[i].fixed_atom_flags[0])
+// 	       n_fixed++;
+// 	    if  ((*restraints)[i].fixed_atom_flags[1])
+// 	       n_fixed++;
+	    
 	    n_bond_restr++; 
 
 	    target_val = (*restraints)[i].target_value;
@@ -1903,7 +1923,17 @@ void coot::my_df_bonds (const gsl_vector *v,
 	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
 	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
 	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib); 
-	    }
+	    } else {
+	       idx = 3*((*restraints)[i].atom_index_1 - 0);  
+// 	       std::cout << "Fixed atom[0] "
+// 			 << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " " 
+// 			 << restraints->get_atom((*restraints)[i].atom_index_1)->name << " " 
+// 			 << ", Not adding " << x_k_contrib << " "
+// 			 << y_k_contrib << " "
+// 			 << z_k_contrib << " to " << gsl_vector_get(df, idx) << " "
+// 			 << gsl_vector_get(df, idx+1) << " "
+// 			 << gsl_vector_get(df, idx+2) << std::endl;
+	    } 
 
 	    if (!(*restraints)[i].fixed_atom_flags[1]) { 
 	       idx = 3*((*restraints)[i].atom_index_2 - 0); 
@@ -1911,7 +1941,18 @@ void coot::my_df_bonds (const gsl_vector *v,
 	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
 	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
 	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib); 
-	    }
+	    } else {
+	       idx = 3*((*restraints)[i].atom_index_2 - 0);  
+// 	       std::cout << "Fixed atom[1] "
+// 			 << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " " 
+// 			 << restraints->get_atom((*restraints)[i].atom_index_2)->name << " " 
+// 			 << ", Not adding " << x_k_contrib << " "
+// 			 << y_k_contrib << " "
+// 			 << z_k_contrib << " to "
+// 			 << gsl_vector_get(df, idx) << " "
+// 			 << gsl_vector_get(df, idx+1) << " "
+// 			 << gsl_vector_get(df, idx+2) << std::endl;
+	    } 
 	 }
       }
    }
@@ -2531,26 +2572,33 @@ coot::my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df) {
 
 	    double s = 2*distortion/((*restraints)[i].sigma * (*restraints)[i].sigma);
 
-	    idx = 3*( (*restraints)[i].atom_index_centre);
-	    gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + s * P0_x_contrib); 
-	    gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + s * P0_y_contrib); 
-	    gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + s * P0_z_contrib); 
+	    if (!(*restraints)[i].fixed_atom_flags[0]) { 
+	       idx = 3*( (*restraints)[i].atom_index_centre);
+	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + s * P0_x_contrib); 
+	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + s * P0_y_contrib); 
+	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + s * P0_z_contrib);
+	    }
+	       
+	    if (!(*restraints)[i].fixed_atom_flags[1]) { 
+	       idx = 3*( (*restraints)[i].atom_index_1);
+	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + s * P1_x_contrib); 
+	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + s * P1_y_contrib); 
+	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + s * P1_z_contrib);
+	    }
 
-	    idx = 3*( (*restraints)[i].atom_index_1);
-	    gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + s * P1_x_contrib); 
-	    gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + s * P1_y_contrib); 
-	    gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + s * P1_z_contrib); 
+	    if (!(*restraints)[i].fixed_atom_flags[2]) { 
+	       idx = 3*( (*restraints)[i].atom_index_2);
+	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + s * P2_x_contrib); 
+	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + s * P2_y_contrib); 
+	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + s * P2_z_contrib);
+	    }
 
-	    idx = 3*( (*restraints)[i].atom_index_2);
-	    gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + s * P2_x_contrib); 
-	    gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + s * P2_y_contrib); 
-	    gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + s * P2_z_contrib); 
-
-	    idx = 3*( (*restraints)[i].atom_index_3);
-	    gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + s * P3_x_contrib); 
-	    gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + s * P3_y_contrib); 
-	    gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + s * P3_z_contrib);
-
+	    if (!(*restraints)[i].fixed_atom_flags[3]) { 
+	       idx = 3*( (*restraints)[i].atom_index_3);
+	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + s * P3_x_contrib); 
+	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + s * P3_y_contrib); 
+	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + s * P3_z_contrib);
+	    }
 	 }
       }
    }
@@ -2604,14 +2652,16 @@ coot::my_df_planes(const gsl_vector *v,
 		  clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
 					       2.0 * weight * devi_len * plane_info.abcd[1],
 					       2.0 * weight * devi_len * plane_info.abcd[2]);
-	       
-		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
-		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
-		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
-		  if (n_plane_restr == 1) {
-		     clipper::Coord_orth normal(plane_info.abcd[0],
-						plane_info.abcd[1],
-						plane_info.abcd[2]);
+
+		  if (!(*restraints)[i].fixed_atom_flags[j]) { 
+		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
+		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
+		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
+// 		     if (n_plane_restr == 1) {
+// 			clipper::Coord_orth normal(plane_info.abcd[0],
+// 						   plane_info.abcd[1],
+// 						   plane_info.abcd[2]);
+// 		     }
 		  }
 	       }
 	    }
@@ -2666,15 +2716,25 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
       // convert from variables to coord_orths of where the atoms are
       
       for (unsigned int i=0; i< v->size; i += 3) { 
-
-	 if (restraints->use_map_gradient_for_atom[i/3] == 1) {
-	    clipper::Coord_orth ao(gsl_vector_get(v,i), 
-				   gsl_vector_get(v,i+1), 
-				   gsl_vector_get(v,i+2));
-	    
-	    score += restraints->Map_weight() *
-	       restraints->atom_z_weight[i/3] *
-	       restraints->electron_density_score_at_point(ao);
+	 int iat = i/3;
+	 if (restraints->use_map_gradient_for_atom[iat] == 1) {
+	    bool use_it = 1;
+// 	    for (unsigned int ifixed=0; ifixed<restraints->fixed_atom_indices.size(); ifixed++) {
+// 	       if (restraints->fixed_atom_indices[ifixed] == iat) { 
+// 		  std::cout << "ignoring density term for atom " << iat << std::endl;
+// 		  use_it = 0;
+// 		  break;
+// 	       }
+// 	    }
+	    if (use_it) { 
+	       clipper::Coord_orth ao(gsl_vector_get(v,i), 
+				      gsl_vector_get(v,i+1), 
+				      gsl_vector_get(v,i+2));
+	       
+	       score += restraints->Map_weight() *
+		  restraints->atom_z_weight[iat] *
+		  restraints->electron_density_score_at_point(ao);
+	    }
 	 }
       }
    }
@@ -2712,7 +2772,11 @@ void coot::my_df_electron_density (gsl_vector *v,
       
       for (unsigned int i=0; i<v->size; i+=3) {
 
-	 if (restraints->use_map_gradient_for_atom[i/3] == 1) {
+	 int iat = i/3;
+// 	 std::cout << "restraints->use_map_gradient_for_atom[" << iat << "] == "
+// 		   << restraints->use_map_gradient_for_atom[iat] << "\n";
+	 
+	 if (restraints->use_map_gradient_for_atom[iat] == 1) {
 
 	    clipper::Coord_orth ao(gsl_vector_get(v,i), 
 				   gsl_vector_get(v,i+1), 
@@ -2724,7 +2788,15 @@ void coot::my_df_electron_density (gsl_vector *v,
 	    //
 	    // 
 	    grad_orth = restraints->electron_density_gradient_at_point(ao);
-	    zs = scale * restraints->atom_z_weight[i/3];
+	    zs = scale * restraints->atom_z_weight[iat];
+
+// 	    std::cout << "electron density df: adding "
+// 		      <<  - zs * grad_orth.dx() << " "
+// 		      <<  - zs * grad_orth.dy() << " "
+// 		      <<  - zs * grad_orth.dz() << " to "
+// 		      <<  gsl_vector_get(df, i  ) << " "
+// 		      <<  gsl_vector_get(df, i+1) << " "
+// 		      <<  gsl_vector_get(df, i+2) << "\n";
 	    gsl_vector_set(df, i,   gsl_vector_get(df, i  ) - zs * grad_orth.dx());
 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
@@ -4094,6 +4166,13 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 		     // atoms).
 		     // 
 		     std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
+		     std::cout << "creating (monomer) bond restraint with fixed flags "
+			       << fixed_flags[0] << " " << fixed_flags[1] << " "
+			       << atom[index1]->GetSeqNum() << " "
+			       << atom[index1]->name << " to "
+			       << atom[index2]->GetSeqNum() << " "
+			       << atom[index2]->name
+			       << " restraint index " << n_bond_restr << "\n";
 
 		     add(BOND_RESTRAINT, index1, index2,
 			 fixed_flags,
@@ -4547,7 +4626,7 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 int
 coot::restraints_container_t::add_link_angle(std::string link_type,
 					     PCResidue first, PCResidue second,
-					     short int is_fixed_first, // residue
+					     short int is_fixed_first,  // residue
 					     short int is_fixed_second, // residue
 					     const coot::protein_geometry &geom) {
 
@@ -4689,7 +4768,6 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 	 }
       } 
    } 
-
    return nangle;
 }
 
