@@ -356,9 +356,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
       
 	 // now force a draw of the molecule
 	 //
-	 std::cout << " ########### force draw" << std::endl;
 	 graphics_draw();
-	 std::cout << " ########### done force draw" << std::endl;
 
 	 std::string s("Successfully read coordinates file ");
 	 s += filename;
