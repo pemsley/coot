@@ -2038,6 +2038,38 @@ void
 on_residue_type_chooser_MSE_clicked    (GtkButton       *button,
                                         gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_preferences_general_radiotoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_bond_radiotoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_geometry_radiotoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_colour_radiotoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_map_radiotoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_other_radiotoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+#endif /* GTK_MAJOR_VERSION */
 void
 on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
@@ -2045,6 +2077,120 @@ on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
 
 void
 on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_bond_hydrogen_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_bond_hydrogen_radiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_bond_ghosts_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_bond_ghosts_radiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_bond_colours_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preference_bg_colour_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_bg_colourradiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_map_dynamic_sampling_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_map_dynamic_size_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_diff_map_colour_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_diff_map_colours_radiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_antialias_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_antialias_radiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+void
+on_preferences_hid_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_hid_radiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_filechooser_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_filechooser_radiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_file_overwrite_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_file_overwrite_radiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_accept_dialog_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_accept_dialog_radiobutton2_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_console_info_radiobutton1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_console_info_radiobutton2_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
@@ -3103,7 +3249,7 @@ void
 on_model_toolbar_add_terminal_residue_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
-#endif // GTK_MAJOR_VERSION
+#endif /* GTK_MAJOR_VERSION */
 
 void
 on_model_toolbar_find_water_button_clicked

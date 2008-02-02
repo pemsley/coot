@@ -39,6 +39,7 @@ COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
 COOT_DATA_DIR=$COOT_PREFIX/share/coot
 COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
+COOT_PYTHON_DIR=$COOT_PREFIX/share/coot/python
 PYTHONPATH=$COOT_PREFIX/share/coot/python
 if [ -z "$PYTHONPATH" ] ; then
     PYTHONPATH=$COOT_PREFIX/share/coot/python
@@ -98,6 +99,7 @@ export SYMINFO
 export COOT_PREFIX
 export COOT_STANDARD_RESIDUES
 # export COOT_REFMAC_LIB_DIR
+export COOT_PYTHON_DIR
 export PYTHONPATH
 export COOT_SCHEME_DIR
 export COOT_REF_STRUCTS

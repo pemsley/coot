@@ -51,6 +51,7 @@
 #include "interface.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "coot-preferences.h"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif // PYTHON
@@ -79,7 +80,43 @@ int show_mark_cis_peptides_as_bad_state() {
 
 }
 
+#if (GTK_MAJOR_VERSION > 1)
+void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type) {
 
+  GtkWidget *frame;
+
+  std::vector<std::string> preferences_tabs;
+  
+  if (preference_type == COOT_GENERAL_PREFERENCES) {
+    preferences_tabs = *graphics_info_t::preferences_general_tabs;
+  }
+  if (preference_type == COOT_BOND_PREFERENCES) {
+    preferences_tabs = *graphics_info_t::preferences_bond_tabs;
+  }
+  if (preference_type == COOT_GEOMETRY_PREFERENCES) {
+    preferences_tabs = *graphics_info_t::preferences_geometry_tabs;
+  }
+  if (preference_type == COOT_COLOUR_PREFERENCES) {
+    preferences_tabs = *graphics_info_t::preferences_colour_tabs;
+  }
+  if (preference_type == COOT_MAP_PREFERENCES) {
+    preferences_tabs = *graphics_info_t::preferences_map_tabs;
+  }
+  if (preference_type == COOT_OTHER_PREFERENCES) {
+    preferences_tabs = *graphics_info_t::preferences_other_tabs;
+  }
+
+  for (int i=0; i<preferences_tabs.size(); i++) {
+    frame = lookup_widget(GTK_WIDGET(toggletoolbutton), preferences_tabs[i].c_str());
+    if (gtk_toggle_tool_button_get_active(toggletoolbutton)){
+	  gtk_widget_show(frame);
+	} else {
+	  gtk_widget_hide(frame);
+	}
+  }
+
+}
+#endif // GTK_MAJOR_VERSION
  
 
 GtkWidget *popup_window(const char *str) {
@@ -218,8 +255,8 @@ SCM save_state_file_name_scm() {
 
 #ifdef USE_PYTHON
 PyObject *save_state_file_name_py() {
-   PyObject *r = 0;
-   return r;
+   std::string f = graphics_info_t::save_state_file_name;
+   return PyString_FromString(f.c_str());
 }
 #endif // USE_PYTHON
 
