@@ -2544,5 +2544,5 @@ def cootaneer_gui_bl():
 
 
 # let the c++ part of mapview know that this file was loaded:
-set_found_coot_gui()
+set_found_coot_python_gui()
 

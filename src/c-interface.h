@@ -1010,7 +1010,6 @@ SCM refmac_parameters_scm(int imol);
 #endif	/* USE_GUILE */
 
 #ifdef USE_PYTHON
-/* FIXME Bernhard */
 PyObject *refmac_parameters_py(int imol);
 #endif	/* USE_PYTHON */
 
@@ -4358,6 +4357,9 @@ void preferences();
 void clear_preferences();
 void set_mark_cis_peptides_as_bad(int istate);
 int show_mark_cis_peptides_as_bad_state();
+#if (GTK_MAJOR_VERSION > 1)
+void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type);
+#endif // GTK_MAJOR_VERSION
 
 /*  ----------------------------------------------------------------------- */
 /*                  Browser Help                                            */

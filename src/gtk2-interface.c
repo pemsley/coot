@@ -1461,6 +1461,7 @@ create_window1 (void)
   handlebox1 = gtk_handle_box_new ();
   gtk_widget_show (handlebox1);
   gtk_container_add (GTK_CONTAINER (main_window_model_fit_dialog_frame), handlebox1);
+  gtk_handle_box_set_shadow_type (GTK_HANDLE_BOX (handlebox1), GTK_SHADOW_NONE);
   gtk_handle_box_set_handle_position (GTK_HANDLE_BOX (handlebox1), GTK_POS_TOP);
   gtk_handle_box_set_snap_edge (GTK_HANDLE_BOX (handlebox1), GTK_POS_RIGHT);
 
@@ -16253,10 +16254,44 @@ create_preferences (void)
   GtkWidget *dialog_vbox77;
   GtkWidget *hbox114;
   GtkWidget *frame137;
+  GtkWidget *preferences_toolbar;
+  GtkIconSize tmp_toolbar_icon_size;
+  GSList *preferences_general_radiotoolbutton_group = NULL;
+  GtkWidget *tmp_image;
+  GtkWidget *preferences_general_radiotoolbutton;
+  GtkWidget *preferences_bond_radiotoolbutton;
+  GtkWidget *preferences_geometry_radiotoolbutton;
+  GtkWidget *preferences_colour_radiotoolbutton;
+  GtkWidget *preferences_map_radiotoolbutton;
+  GtkWidget *preferences_other_radiotoolbutton;
   GtkWidget *notebook3;
-  GtkWidget *empty_notebook_page;
+  GtkWidget *preferences_bond_parameters;
+  GtkWidget *vbox222;
+  GtkWidget *vbox223;
+  GtkWidget *hbox303;
+  GtkWidget *label524;
+  GtkWidget *optionmenu7;
+  GtkWidget *label525;
+  GtkWidget *frame212;
+  GtkWidget *vbox224;
+  GtkWidget *hbox304;
+  GtkWidget *optionmenu8;
+  GtkWidget *label526;
+  GtkWidget *label527;
+  GtkWidget *frame213;
+  GtkWidget *vbox225;
+  GtkWidget *preferences_bond_hydrogen_radiobutton1;
+  GSList *preferences_bond_hydrogen_radiobutton1_group = NULL;
+  GtkWidget *preferences_bond_hydrogen_radiobutton2;
+  GtkWidget *label528;
+  GtkWidget *frame214;
+  GtkWidget *vbox226;
+  GtkWidget *preferences_bond_ghosts_radiobutton1;
+  GSList *preferences_bond_ghosts_radiobutton1_group = NULL;
+  GtkWidget *preferences_bond_ghosts_radiobutton2;
+  GtkWidget *label529;
   GtkWidget *label223;
-  GtkWidget *frame135;
+  GtkWidget *preferences_cis_peptides;
   GtkWidget *vbox139;
   GtkWidget *label226;
   GtkWidget *frame136;
@@ -16265,10 +16300,122 @@ create_preferences (void)
   GSList *preferences_geometry_cis_peptide_bad_yes_radiobutton_group = NULL;
   GtkWidget *preferences_geometry_cis_peptide_bad_no_radiobutton;
   GtkWidget *label224;
+  GtkWidget *preferences_bond_colours;
+  GtkWidget *vbox212;
+  GtkWidget *frame200;
+  GtkWidget *vbox213;
+  GtkWidget *label495;
+  GtkWidget *hbox287;
+  GtkWidget *label496;
+  GtkWidget *hscale5;
+  GtkWidget *label497;
+  GtkWidget *frame201;
+  GtkWidget *preferences_bond_colours_checkbutton;
+  GtkWidget *label498;
   GtkWidget *label225;
-  GtkWidget *dialog_action_area76;
+  GtkWidget *preferences_background_colour;
+  GtkWidget *vbox234;
+  GtkWidget *label561;
+  GtkWidget *frame229;
+  GtkWidget *vbox235;
+  GtkWidget *preference_bg_colour_radiobutton1;
+  GSList *preference_bg_colour_radiobutton1_group = NULL;
+  GtkWidget *preferences_bg_colourradiobutton2;
+  GtkWidget *label476;
+  GtkWidget *preferences_map_parameters;
+  GtkWidget *vbox232;
+  GtkWidget *label550;
+  GtkWidget *frame223;
+  GtkWidget *hbox316;
+  GtkWidget *label551;
+  GtkWidget *preferences_map_radius_entry;
+  GtkWidget *label552;
+  GtkWidget *label553;
+  GtkWidget *frame224;
+  GtkWidget *hbox317;
+  GtkWidget *label554;
+  GtkWidget *preferences_map_increment_size_entry;
+  GtkWidget *label555;
+  GtkWidget *frame225;
+  GtkWidget *hbox318;
+  GtkWidget *label556;
+  GtkWidget *preferences_map_diff_increment_entry;
+  GtkWidget *label557;
+  GtkWidget *frame226;
+  GtkWidget *hbox319;
+  GtkWidget *label558;
+  GtkWidget *preferences_map_sampling_entry;
+  GtkWidget *frame227;
+  GtkWidget *vbox233;
+  GtkWidget *preferences_map_dynamic_sampling_checkbutton;
+  GtkWidget *preferences_map_dynamic_size_checkbutton;
+  GtkWidget *label477;
+  GtkWidget *preferences_map_colours;
+  GtkWidget *vbox236;
+  GtkWidget *label562;
+  GtkWidget *frame231;
+  GtkWidget *vbox237;
+  GtkWidget *preferences_diff_map_colour_radiobutton1;
+  GSList *preferences_diff_map_colour_radiobutton1_group = NULL;
+  GtkWidget *preferences_diff_map_colours_radiobutton2;
+  GtkWidget *label478;
+  GtkWidget *preferences_antialias;
+  GtkWidget *vbox216;
+  GtkWidget *label509;
+  GtkWidget *frame208;
+  GtkWidget *vbox217;
+  GtkWidget *preferences_antialias_radiobutton1;
+  GSList *preferences_antialias_radiobutton1_group = NULL;
+  GtkWidget *preferences_antialias_radiobutton2;
+  GtkWidget *label479;
+  GtkWidget *preferences_hid;
+  GtkWidget *vbox238;
+  GtkWidget *label563;
+  GtkWidget *frame233;
+  GtkWidget *vbox239;
+  GtkWidget *preferences_hid_radiobutton1;
+  GSList *preferences_hid_radiobutton1_group = NULL;
+  GtkWidget *preferences_hid_radiobutton2;
+  GtkWidget *label480;
+  GtkWidget *preferences_file_selection;
+  GtkWidget *vbox240;
+  GtkWidget *frame235;
+  GtkWidget *vbox241;
+  GtkWidget *preferences_filechooser_radiobutton1;
+  GSList *preferences_filechooser_radiobutton1_group = NULL;
+  GtkWidget *preferences_filechooser_radiobutton2;
+  GtkWidget *label564;
+  GtkWidget *frame236;
+  GtkWidget *vbox242;
+  GtkWidget *preferences_file_overwrite_radiobutton1;
+  GSList *preferences_file_overwrite_radiobutton1_group = NULL;
+  GtkWidget *preferences_file_overwrite_radiobutton2;
+  GtkWidget *label565;
+  GtkWidget *label510;
+  GtkWidget *preferences_dock_accept_dialog;
+  GtkWidget *vbox243;
+  GtkWidget *frame238;
+  GtkWidget *vbox244;
+  GtkWidget *preferences_accept_dialog_radiobutton1;
+  GSList *preferences_accept_dialog_radiobutton1_group = NULL;
+  GtkWidget *preferences_accept_dialog_radiobutton2;
+  GtkWidget *label566;
+  GtkWidget *label511;
+  GtkWidget *preferences_console;
+  GtkWidget *vbox246;
+  GtkWidget *frame240;
+  GtkWidget *vbox247;
+  GtkWidget *preferences_console_info_radiobutton1;
+  GSList *preferences_console_info_radiobutton1_group = NULL;
+  GtkWidget *preferences_console_info_radiobutton2;
+  GtkWidget *label567;
+  GtkWidget *label512;
+  GtkWidget *hbuttonbox5;
   GtkWidget *hbox115;
   GtkWidget *preferences_ok_button;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
 
   preferences = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (preferences), _("Preferences"));
@@ -16283,29 +16430,201 @@ create_preferences (void)
 
   frame137 = gtk_frame_new (NULL);
   gtk_widget_show (frame137);
-  gtk_box_pack_start (GTK_BOX (hbox114), frame137, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox114), frame137, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame137), 3);
+
+  preferences_toolbar = gtk_toolbar_new ();
+  gtk_widget_show (preferences_toolbar);
+  gtk_container_add (GTK_CONTAINER (frame137), preferences_toolbar);
+  gtk_toolbar_set_style (GTK_TOOLBAR (preferences_toolbar), GTK_TOOLBAR_BOTH);
+  gtk_toolbar_set_orientation (GTK_TOOLBAR (preferences_toolbar), GTK_ORIENTATION_VERTICAL);
+  gtk_toolbar_set_show_arrow (GTK_TOOLBAR (preferences_toolbar), FALSE);
+  tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (preferences_toolbar));
+
+  preferences_general_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_general_radiotoolbutton), _("General"));
+  tmp_image = gtk_image_new_from_stock ("gtk-preferences", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_general_radiotoolbutton), tmp_image);
+  gtk_widget_show (preferences_general_radiotoolbutton);
+  gtk_container_add (GTK_CONTAINER (preferences_toolbar), preferences_general_radiotoolbutton);
+  gtk_radio_tool_button_set_group (GTK_RADIO_TOOL_BUTTON (preferences_general_radiotoolbutton), preferences_general_radiotoolbutton_group);
+  preferences_general_radiotoolbutton_group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (preferences_general_radiotoolbutton));
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (preferences_general_radiotoolbutton), TRUE);
+
+  preferences_bond_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_bond_radiotoolbutton), _("Bonds"));
+  tmp_image = gtk_image_new_from_stock ("gtk-properties", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_bond_radiotoolbutton), tmp_image);
+  gtk_widget_show (preferences_bond_radiotoolbutton);
+  gtk_container_add (GTK_CONTAINER (preferences_toolbar), preferences_bond_radiotoolbutton);
+  gtk_radio_tool_button_set_group (GTK_RADIO_TOOL_BUTTON (preferences_bond_radiotoolbutton), preferences_general_radiotoolbutton_group);
+  preferences_general_radiotoolbutton_group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (preferences_bond_radiotoolbutton));
+
+  preferences_geometry_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_geometry_radiotoolbutton), _("Geometry"));
+  tmp_image = gtk_image_new_from_stock ("gtk-cut", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_geometry_radiotoolbutton), tmp_image);
+  gtk_widget_show (preferences_geometry_radiotoolbutton);
+  gtk_container_add (GTK_CONTAINER (preferences_toolbar), preferences_geometry_radiotoolbutton);
+  gtk_radio_tool_button_set_group (GTK_RADIO_TOOL_BUTTON (preferences_geometry_radiotoolbutton), preferences_general_radiotoolbutton_group);
+  preferences_general_radiotoolbutton_group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (preferences_geometry_radiotoolbutton));
+
+  preferences_colour_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_colour_radiotoolbutton), _("Colours"));
+  tmp_image = gtk_image_new_from_stock ("gtk-select-color", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_colour_radiotoolbutton), tmp_image);
+  gtk_widget_show (preferences_colour_radiotoolbutton);
+  gtk_container_add (GTK_CONTAINER (preferences_toolbar), preferences_colour_radiotoolbutton);
+  gtk_radio_tool_button_set_group (GTK_RADIO_TOOL_BUTTON (preferences_colour_radiotoolbutton), preferences_general_radiotoolbutton_group);
+  preferences_general_radiotoolbutton_group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (preferences_colour_radiotoolbutton));
+
+  preferences_map_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_map_radiotoolbutton), _("Maps"));
+  tmp_image = gtk_image_new_from_stock ("gtk-connect", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_map_radiotoolbutton), tmp_image);
+  gtk_widget_show (preferences_map_radiotoolbutton);
+  gtk_container_add (GTK_CONTAINER (preferences_toolbar), preferences_map_radiotoolbutton);
+  gtk_radio_tool_button_set_group (GTK_RADIO_TOOL_BUTTON (preferences_map_radiotoolbutton), preferences_general_radiotoolbutton_group);
+  preferences_general_radiotoolbutton_group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (preferences_map_radiotoolbutton));
+
+  preferences_other_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_other_radiotoolbutton), _("Others"));
+  tmp_image = gtk_image_new_from_stock ("gtk-info", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_other_radiotoolbutton), tmp_image);
+  gtk_widget_show (preferences_other_radiotoolbutton);
+  gtk_container_add (GTK_CONTAINER (preferences_toolbar), preferences_other_radiotoolbutton);
+  gtk_radio_tool_button_set_group (GTK_RADIO_TOOL_BUTTON (preferences_other_radiotoolbutton), preferences_general_radiotoolbutton_group);
+  preferences_general_radiotoolbutton_group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (preferences_other_radiotoolbutton));
 
   notebook3 = gtk_notebook_new ();
   gtk_widget_show (notebook3);
   gtk_box_pack_start (GTK_BOX (hbox114), notebook3, TRUE, TRUE, 0);
 
-  empty_notebook_page = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (empty_notebook_page);
-  gtk_container_add (GTK_CONTAINER (notebook3), empty_notebook_page);
+  preferences_bond_parameters = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_bond_parameters);
+
+  vbox222 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox222);
+  gtk_container_add (GTK_CONTAINER (preferences_bond_parameters), vbox222);
+
+  vbox223 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox223);
+  gtk_box_pack_start (GTK_BOX (vbox222), vbox223, TRUE, TRUE, 0);
+
+  hbox303 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox303);
+  gtk_box_pack_start (GTK_BOX (vbox223), hbox303, TRUE, TRUE, 5);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox303), 6);
+
+  label524 = gtk_label_new (_("  Molecule:  "));
+  gtk_widget_show (label524);
+  gtk_box_pack_start (GTK_BOX (hbox303), label524, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label524), GTK_JUSTIFY_CENTER);
+
+  optionmenu7 = gtk_option_menu_new ();
+  gtk_widget_show (optionmenu7);
+  gtk_box_pack_start (GTK_BOX (hbox303), optionmenu7, FALSE, FALSE, 0);
+
+  label525 = gtk_label_new (_("   "));
+  gtk_widget_show (label525);
+  gtk_box_pack_start (GTK_BOX (hbox303), label525, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label525), GTK_JUSTIFY_CENTER);
+
+  frame212 = gtk_frame_new (NULL);
+  gtk_widget_show (frame212);
+  gtk_box_pack_start (GTK_BOX (vbox223), frame212, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame212), 8);
+
+  vbox224 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox224);
+  gtk_container_add (GTK_CONTAINER (frame212), vbox224);
+
+  hbox304 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox304);
+  gtk_box_pack_start (GTK_BOX (vbox224), hbox304, TRUE, TRUE, 0);
+
+  optionmenu8 = gtk_option_menu_new ();
+  gtk_widget_show (optionmenu8);
+  gtk_box_pack_start (GTK_BOX (hbox304), optionmenu8, FALSE, FALSE, 0);
+
+  label526 = gtk_label_new (_("  pixels  "));
+  gtk_widget_show (label526);
+  gtk_box_pack_start (GTK_BOX (hbox304), label526, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label526), GTK_JUSTIFY_CENTER);
+
+  label527 = gtk_label_new (_("Molecule Bond Width:"));
+  gtk_widget_show (label527);
+  gtk_frame_set_label_widget (GTK_FRAME (frame212), label527);
+
+  frame213 = gtk_frame_new (NULL);
+  gtk_widget_show (frame213);
+  gtk_box_pack_start (GTK_BOX (vbox223), frame213, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame213), 8);
+
+  vbox225 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox225);
+  gtk_container_add (GTK_CONTAINER (frame213), vbox225);
+
+  preferences_bond_hydrogen_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_bond_hydrogen_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox225), preferences_bond_hydrogen_radiobutton1, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bond_hydrogen_radiobutton1), preferences_bond_hydrogen_radiobutton1_group);
+  preferences_bond_hydrogen_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bond_hydrogen_radiobutton1));
+
+  preferences_bond_hydrogen_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_bond_hydrogen_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox225), preferences_bond_hydrogen_radiobutton2, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bond_hydrogen_radiobutton2), preferences_bond_hydrogen_radiobutton1_group);
+  preferences_bond_hydrogen_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bond_hydrogen_radiobutton2));
+
+  label528 = gtk_label_new (_("Draw Hydrogens?"));
+  gtk_widget_show (label528);
+  gtk_frame_set_label_widget (GTK_FRAME (frame213), label528);
+
+  frame214 = gtk_frame_new (NULL);
+  gtk_box_pack_start (GTK_BOX (vbox223), frame214, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame214), 8);
+  gtk_widget_set_sensitive (frame214, FALSE);
+
+  vbox226 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox226);
+  gtk_container_add (GTK_CONTAINER (frame214), vbox226);
+
+  preferences_bond_ghosts_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_bond_ghosts_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox226), preferences_bond_ghosts_radiobutton1, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, preferences_bond_ghosts_radiobutton1, _("Note that the sequences must match exactly for NCS ghosts to be generated"), NULL);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bond_ghosts_radiobutton1), preferences_bond_ghosts_radiobutton1_group);
+  preferences_bond_ghosts_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bond_ghosts_radiobutton1));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (preferences_bond_ghosts_radiobutton1), TRUE);
+
+  preferences_bond_ghosts_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_bond_ghosts_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox226), preferences_bond_ghosts_radiobutton2, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bond_ghosts_radiobutton2), preferences_bond_ghosts_radiobutton1_group);
+  preferences_bond_ghosts_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bond_ghosts_radiobutton2));
+
+  label529 = gtk_label_new (_("Draw Non-Crystallographic Ghosts?"));
+  gtk_widget_show (label529);
+  gtk_frame_set_label_widget (GTK_FRAME (frame214), label529);
 
   label223 = gtk_label_new (_("Bond Parameters"));
   gtk_widget_show (label223);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 0), label223);
   gtk_label_set_justify (GTK_LABEL (label223), GTK_JUSTIFY_CENTER);
 
-  frame135 = gtk_frame_new (NULL);
-  gtk_widget_show (frame135);
-  gtk_container_add (GTK_CONTAINER (notebook3), frame135);
+  preferences_cis_peptides = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_cis_peptides);
 
   vbox139 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox139);
-  gtk_container_add (GTK_CONTAINER (frame135), vbox139);
+  gtk_container_add (GTK_CONTAINER (preferences_cis_peptides), vbox139);
 
   label226 = gtk_label_new (_("Mark Cis-Peptides as Bad in Geometry Graph?"));
   gtk_widget_show (label226);
@@ -16315,7 +16634,7 @@ create_preferences (void)
 
   frame136 = gtk_frame_new (NULL);
   gtk_widget_show (frame136);
-  gtk_box_pack_start (GTK_BOX (vbox139), frame136, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox139), frame136, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame136), 10);
 
   vbox140 = gtk_vbox_new (FALSE, 0);
@@ -16325,49 +16644,628 @@ create_preferences (void)
   preferences_geometry_cis_peptide_bad_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _(" Yes"));
   gtk_widget_show (preferences_geometry_cis_peptide_bad_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox140), preferences_geometry_cis_peptide_bad_yes_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_geometry_cis_peptide_bad_yes_radiobutton), 5);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_yes_radiobutton), preferences_geometry_cis_peptide_bad_yes_radiobutton_group);
   preferences_geometry_cis_peptide_bad_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_yes_radiobutton));
 
   preferences_geometry_cis_peptide_bad_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _(" No"));
   gtk_widget_show (preferences_geometry_cis_peptide_bad_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox140), preferences_geometry_cis_peptide_bad_no_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_geometry_cis_peptide_bad_no_radiobutton), 5);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_no_radiobutton), preferences_geometry_cis_peptide_bad_yes_radiobutton_group);
   preferences_geometry_cis_peptide_bad_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_no_radiobutton));
 
-  label224 = gtk_label_new (_("Geometry"));
+  label224 = gtk_label_new (_("Cis-Peptides"));
   gtk_widget_show (label224);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 1), label224);
   gtk_label_set_justify (GTK_LABEL (label224), GTK_JUSTIFY_CENTER);
 
-  empty_notebook_page = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (empty_notebook_page);
-  gtk_container_add (GTK_CONTAINER (notebook3), empty_notebook_page);
+  preferences_bond_colours = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_bond_colours);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_bond_colours), 4);
 
-  label225 = gtk_label_new (_("Other"));
+  vbox212 = gtk_vbox_new (FALSE, 9);
+  gtk_widget_show (vbox212);
+  gtk_container_add (GTK_CONTAINER (preferences_bond_colours), vbox212);
+
+  frame200 = gtk_frame_new (NULL);
+  gtk_widget_show (frame200);
+  gtk_box_pack_start (GTK_BOX (vbox212), frame200, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame200), 2);
+
+  vbox213 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox213);
+  gtk_container_add (GTK_CONTAINER (frame200), vbox213);
+
+  label495 = gtk_label_new (_("  New molecule rotates colour map"));
+  gtk_widget_show (label495);
+  gtk_box_pack_start (GTK_BOX (vbox213), label495, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label495), GTK_JUSTIFY_CENTER);
+
+  hbox287 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox287);
+  gtk_box_pack_start (GTK_BOX (vbox213), hbox287, TRUE, TRUE, 0);
+
+  label496 = gtk_label_new (_("   by  "));
+  gtk_widget_show (label496);
+  gtk_box_pack_start (GTK_BOX (hbox287), label496, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label496), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label496), 0.5, 0.95);
+
+  hscale5 = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 0, 0, 0, 0)));
+  gtk_widget_show (hscale5);
+  gtk_box_pack_start (GTK_BOX (hbox287), hscale5, TRUE, TRUE, 0);
+
+  label497 = gtk_label_new (_("  degrees   "));
+  gtk_widget_show (label497);
+  gtk_box_pack_start (GTK_BOX (hbox287), label497, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label497), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label497), 0.5, 0.95);
+
+  frame201 = gtk_frame_new (NULL);
+  gtk_widget_show (frame201);
+  gtk_box_pack_start (GTK_BOX (vbox212), frame201, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame201), 2);
+
+  preferences_bond_colours_checkbutton = gtk_check_button_new_with_mnemonic (_(" Change colour for Carbons only"));
+  gtk_widget_show (preferences_bond_colours_checkbutton);
+  gtk_container_add (GTK_CONTAINER (frame201), preferences_bond_colours_checkbutton);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_bond_colours_checkbutton), 5);
+
+  label498 = gtk_label_new (_("Colour Map Rotation [Molecule Independent] "));
+  gtk_widget_show (label498);
+  gtk_frame_set_label_widget (GTK_FRAME (preferences_bond_colours), label498);
+
+  label225 = gtk_label_new (_("Bond Colours"));
   gtk_widget_show (label225);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 2), label225);
   gtk_label_set_justify (GTK_LABEL (label225), GTK_JUSTIFY_CENTER);
 
-  dialog_action_area76 = GTK_DIALOG (preferences)->action_area;
-  gtk_widget_show (dialog_action_area76);
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area76), GTK_BUTTONBOX_END);
+  preferences_background_colour = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_background_colour);
+  gtk_frame_set_shadow_type (GTK_FRAME (preferences_background_colour), GTK_SHADOW_NONE);
+
+  vbox234 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox234);
+  gtk_container_add (GTK_CONTAINER (preferences_background_colour), vbox234);
+
+  label561 = gtk_label_new (_("Background colour?"));
+  gtk_widget_show (label561);
+  gtk_box_pack_start (GTK_BOX (vbox234), label561, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label561), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label561), 0, 9);
+
+  frame229 = gtk_frame_new (NULL);
+  gtk_widget_show (frame229);
+  gtk_box_pack_start (GTK_BOX (vbox234), frame229, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame229), 10);
+
+  vbox235 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox235);
+  gtk_container_add (GTK_CONTAINER (frame229), vbox235);
+
+  preference_bg_colour_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Black"));
+  gtk_widget_show (preference_bg_colour_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox235), preference_bg_colour_radiobutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preference_bg_colour_radiobutton1), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preference_bg_colour_radiobutton1), preference_bg_colour_radiobutton1_group);
+  preference_bg_colour_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preference_bg_colour_radiobutton1));
+
+  preferences_bg_colourradiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("White"));
+  gtk_widget_show (preferences_bg_colourradiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox235), preferences_bg_colourradiobutton2, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_bg_colourradiobutton2), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bg_colourradiobutton2), preference_bg_colour_radiobutton1_group);
+  preference_bg_colour_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bg_colourradiobutton2));
+
+  label476 = gtk_label_new (_("Background Colour"));
+  gtk_widget_show (label476);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 3), label476);
+
+  preferences_map_parameters = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_map_parameters);
+
+  vbox232 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox232);
+  gtk_container_add (GTK_CONTAINER (preferences_map_parameters), vbox232);
+
+  label550 = gtk_label_new (_("Density Settings"));
+  gtk_widget_show (label550);
+  gtk_box_pack_start (GTK_BOX (vbox232), label550, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label550), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label550), 2, 6);
+
+  frame223 = gtk_frame_new (NULL);
+  gtk_widget_show (frame223);
+  gtk_box_pack_start (GTK_BOX (vbox232), frame223, TRUE, TRUE, 0);
+
+  hbox316 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox316);
+  gtk_container_add (GTK_CONTAINER (frame223), hbox316);
+
+  label551 = gtk_label_new (_("Map Radius: "));
+  gtk_widget_show (label551);
+  gtk_box_pack_start (GTK_BOX (hbox316), label551, FALSE, FALSE, 7);
+  gtk_label_set_justify (GTK_LABEL (label551), GTK_JUSTIFY_CENTER);
+
+  preferences_map_radius_entry = gtk_entry_new ();
+  gtk_widget_show (preferences_map_radius_entry);
+  gtk_box_pack_start (GTK_BOX (hbox316), preferences_map_radius_entry, FALSE, TRUE, 11);
+
+  label552 = gtk_label_new (_("Angstroems"));
+  gtk_widget_show (label552);
+  gtk_box_pack_start (GTK_BOX (hbox316), label552, FALSE, FALSE, 18);
+  gtk_label_set_justify (GTK_LABEL (label552), GTK_JUSTIFY_CENTER);
+
+  label553 = gtk_label_new (_("  "));
+  gtk_widget_show (label553);
+  gtk_box_pack_start (GTK_BOX (hbox316), label553, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label553), GTK_JUSTIFY_CENTER);
+
+  frame224 = gtk_frame_new (NULL);
+  gtk_widget_show (frame224);
+  gtk_box_pack_start (GTK_BOX (vbox232), frame224, TRUE, TRUE, 0);
+
+  hbox317 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox317);
+  gtk_container_add (GTK_CONTAINER (frame224), hbox317);
+
+  label554 = gtk_label_new (_("Increment Size"));
+  gtk_widget_show (label554);
+  gtk_box_pack_start (GTK_BOX (hbox317), label554, FALSE, FALSE, 6);
+  gtk_label_set_justify (GTK_LABEL (label554), GTK_JUSTIFY_CENTER);
+
+  preferences_map_increment_size_entry = gtk_entry_new ();
+  gtk_widget_show (preferences_map_increment_size_entry);
+  gtk_box_pack_start (GTK_BOX (hbox317), preferences_map_increment_size_entry, FALSE, TRUE, 6);
+
+  label555 = gtk_label_new (_("e/A^3"));
+  gtk_widget_show (label555);
+  gtk_box_pack_start (GTK_BOX (hbox317), label555, FALSE, FALSE, 6);
+  gtk_label_set_justify (GTK_LABEL (label555), GTK_JUSTIFY_CENTER);
+
+  frame225 = gtk_frame_new (NULL);
+  gtk_widget_show (frame225);
+  gtk_box_pack_start (GTK_BOX (vbox232), frame225, TRUE, TRUE, 0);
+
+  hbox318 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox318);
+  gtk_container_add (GTK_CONTAINER (frame225), hbox318);
+
+  label556 = gtk_label_new (_("Diff Map Increment"));
+  gtk_widget_show (label556);
+  gtk_box_pack_start (GTK_BOX (hbox318), label556, FALSE, FALSE, 6);
+  gtk_label_set_justify (GTK_LABEL (label556), GTK_JUSTIFY_CENTER);
+
+  preferences_map_diff_increment_entry = gtk_entry_new ();
+  gtk_widget_show (preferences_map_diff_increment_entry);
+  gtk_box_pack_start (GTK_BOX (hbox318), preferences_map_diff_increment_entry, FALSE, TRUE, 0);
+
+  label557 = gtk_label_new (_("e/A^3"));
+  gtk_widget_show (label557);
+  gtk_box_pack_start (GTK_BOX (hbox318), label557, FALSE, FALSE, 6);
+  gtk_label_set_justify (GTK_LABEL (label557), GTK_JUSTIFY_CENTER);
+
+  frame226 = gtk_frame_new (NULL);
+  gtk_widget_show (frame226);
+  gtk_box_pack_start (GTK_BOX (vbox232), frame226, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame226), 6);
+
+  hbox319 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox319);
+  gtk_container_add (GTK_CONTAINER (frame226), hbox319);
+
+  label558 = gtk_label_new (_("Sampling Rate: "));
+  gtk_widget_show (label558);
+  gtk_box_pack_start (GTK_BOX (hbox319), label558, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label558), GTK_JUSTIFY_CENTER);
+
+  preferences_map_sampling_entry = gtk_entry_new ();
+  gtk_widget_show (preferences_map_sampling_entry);
+  gtk_box_pack_start (GTK_BOX (hbox319), preferences_map_sampling_entry, FALSE, TRUE, 0);
+  gtk_tooltips_set_tip (tooltips, preferences_map_sampling_entry, _("Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps"), NULL);
+
+  frame227 = gtk_frame_new (NULL);
+  gtk_widget_show (frame227);
+  gtk_box_pack_start (GTK_BOX (vbox232), frame227, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame227), 5);
+
+  vbox233 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox233);
+  gtk_container_add (GTK_CONTAINER (frame227), vbox233);
+
+  preferences_map_dynamic_sampling_checkbutton = gtk_check_button_new_with_mnemonic (_("Dynamic Map Sampling"));
+  gtk_widget_show (preferences_map_dynamic_sampling_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox233), preferences_map_dynamic_sampling_checkbutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_map_dynamic_sampling_checkbutton), 1);
+
+  preferences_map_dynamic_size_checkbutton = gtk_check_button_new_with_mnemonic (_("Dynamic Map Display Size"));
+  gtk_widget_show (preferences_map_dynamic_size_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox233), preferences_map_dynamic_size_checkbutton, FALSE, FALSE, 0);
+
+  label477 = gtk_label_new (_("Map Parameters"));
+  gtk_widget_show (label477);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 4), label477);
+
+  preferences_map_colours = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_map_colours);
+
+  vbox236 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox236);
+  gtk_container_add (GTK_CONTAINER (preferences_map_colours), vbox236);
+
+  label562 = gtk_label_new (_("Swap difference map colours?"));
+  gtk_widget_show (label562);
+  gtk_box_pack_start (GTK_BOX (vbox236), label562, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label562), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label562), 0, 9);
+
+  frame231 = gtk_frame_new (NULL);
+  gtk_widget_show (frame231);
+  gtk_box_pack_start (GTK_BOX (vbox236), frame231, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame231), 10);
+
+  vbox237 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox237);
+  gtk_container_add (GTK_CONTAINER (frame231), vbox237);
+
+  preferences_diff_map_colour_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Coot colours"));
+  gtk_widget_show (preferences_diff_map_colour_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox237), preferences_diff_map_colour_radiobutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_diff_map_colour_radiobutton1), 5);
+  gtk_tooltips_set_tip (tooltips, preferences_diff_map_colour_radiobutton1, _("positive - green; negative - red"), NULL);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_diff_map_colour_radiobutton1), preferences_diff_map_colour_radiobutton1_group);
+  preferences_diff_map_colour_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_diff_map_colour_radiobutton1));
+
+  preferences_diff_map_colours_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("O colours"));
+  gtk_widget_show (preferences_diff_map_colours_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox237), preferences_diff_map_colours_radiobutton2, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_diff_map_colours_radiobutton2), 5);
+  gtk_tooltips_set_tip (tooltips, preferences_diff_map_colours_radiobutton2, _("positive - red; negative - green"), NULL);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_diff_map_colours_radiobutton2), preferences_diff_map_colour_radiobutton1_group);
+  preferences_diff_map_colour_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_diff_map_colours_radiobutton2));
+
+  label478 = gtk_label_new (_("Map Colours"));
+  gtk_widget_show (label478);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 5), label478);
+
+  preferences_antialias = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_antialias);
+
+  vbox216 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox216);
+  gtk_container_add (GTK_CONTAINER (preferences_antialias), vbox216);
+
+  label509 = gtk_label_new (_("Antialias Lines?"));
+  gtk_widget_show (label509);
+  gtk_box_pack_start (GTK_BOX (vbox216), label509, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label509), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label509), 9, 7);
+
+  frame208 = gtk_frame_new (NULL);
+  gtk_widget_show (frame208);
+  gtk_box_pack_start (GTK_BOX (vbox216), frame208, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame208), 12);
+
+  vbox217 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox217);
+  gtk_container_add (GTK_CONTAINER (frame208), vbox217);
+
+  preferences_antialias_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_antialias_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox217), preferences_antialias_radiobutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_antialias_radiobutton1), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_antialias_radiobutton1), preferences_antialias_radiobutton1_group);
+  preferences_antialias_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_antialias_radiobutton1));
+
+  preferences_antialias_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_antialias_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox217), preferences_antialias_radiobutton2, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_antialias_radiobutton2), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_antialias_radiobutton2), preferences_antialias_radiobutton1_group);
+  preferences_antialias_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_antialias_radiobutton2));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (preferences_antialias_radiobutton2), TRUE);
+
+  label479 = gtk_label_new (_("Antialiasing"));
+  gtk_widget_show (label479);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 6), label479);
+
+  preferences_hid = gtk_frame_new (NULL);
+  gtk_widget_show (preferences_hid);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_hid);
+
+  vbox238 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox238);
+  gtk_container_add (GTK_CONTAINER (preferences_hid), vbox238);
+
+  label563 = gtk_label_new (_("Virtual trackball"));
+  gtk_widget_show (label563);
+  gtk_box_pack_start (GTK_BOX (vbox238), label563, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label563), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label563), 9, 7);
+
+  frame233 = gtk_frame_new (NULL);
+  gtk_widget_show (frame233);
+  gtk_box_pack_start (GTK_BOX (vbox238), frame233, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame233), 12);
+
+  vbox239 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox239);
+  gtk_container_add (GTK_CONTAINER (frame233), vbox239);
+
+  preferences_hid_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Spherical surface"));
+  gtk_widget_show (preferences_hid_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox239), preferences_hid_radiobutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_hid_radiobutton1), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_hid_radiobutton1), preferences_hid_radiobutton1_group);
+  preferences_hid_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_hid_radiobutton1));
+
+  preferences_hid_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("Flat"));
+  gtk_widget_show (preferences_hid_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox239), preferences_hid_radiobutton2, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_hid_radiobutton2), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_hid_radiobutton2), preferences_hid_radiobutton1_group);
+  preferences_hid_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_hid_radiobutton2));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (preferences_hid_radiobutton2), TRUE);
+
+  label480 = gtk_label_new (_("HID"));
+  gtk_widget_show (label480);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 7), label480);
+
+  preferences_file_selection = gtk_frame_new (NULL);
+  gtk_widget_show (preferences_file_selection);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_file_selection);
+
+  vbox240 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox240);
+  gtk_container_add (GTK_CONTAINER (preferences_file_selection), vbox240);
+
+  frame235 = gtk_frame_new (NULL);
+  gtk_widget_show (frame235);
+  gtk_box_pack_start (GTK_BOX (vbox240), frame235, TRUE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame235), 8);
+
+  vbox241 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox241);
+  gtk_container_add (GTK_CONTAINER (frame235), vbox241);
+
+  preferences_filechooser_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Classic File Selector"));
+  gtk_widget_show (preferences_filechooser_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox241), preferences_filechooser_radiobutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_filechooser_radiobutton1), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_filechooser_radiobutton1), preferences_filechooser_radiobutton1_group);
+  preferences_filechooser_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_filechooser_radiobutton1));
+
+  preferences_filechooser_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("Modern File Chooser"));
+  gtk_widget_show (preferences_filechooser_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox241), preferences_filechooser_radiobutton2, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_filechooser_radiobutton2), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_filechooser_radiobutton2), preferences_filechooser_radiobutton1_group);
+  preferences_filechooser_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_filechooser_radiobutton2));
+
+  label564 = gtk_label_new (_("File Selector/Chooser?"));
+  gtk_widget_show (label564);
+  gtk_frame_set_label_widget (GTK_FRAME (frame235), label564);
+  gtk_label_set_use_markup (GTK_LABEL (label564), TRUE);
+
+  frame236 = gtk_frame_new (NULL);
+  gtk_widget_show (frame236);
+  gtk_box_pack_start (GTK_BOX (vbox240), frame236, TRUE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame236), 8);
+
+  vbox242 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox242);
+  gtk_container_add (GTK_CONTAINER (frame236), vbox242);
+
+  preferences_file_overwrite_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Ask before overwriting file"));
+  gtk_widget_show (preferences_file_overwrite_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox242), preferences_file_overwrite_radiobutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_overwrite_radiobutton1), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_overwrite_radiobutton1), preferences_file_overwrite_radiobutton1_group);
+  preferences_file_overwrite_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_overwrite_radiobutton1));
+
+  preferences_file_overwrite_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("Do not ask when overwriting file"));
+  gtk_widget_show (preferences_file_overwrite_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox242), preferences_file_overwrite_radiobutton2, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_overwrite_radiobutton2), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_overwrite_radiobutton2), preferences_file_overwrite_radiobutton1_group);
+  preferences_file_overwrite_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_overwrite_radiobutton2));
+
+  label565 = gtk_label_new (_("Overwrite protection (currently only for chooser)"));
+  gtk_widget_show (label565);
+  gtk_frame_set_label_widget (GTK_FRAME (frame236), label565);
+  gtk_label_set_use_markup (GTK_LABEL (label565), TRUE);
+
+  label510 = gtk_label_new (_("File Selection"));
+  gtk_widget_show (label510);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 8), label510);
+
+  preferences_dock_accept_dialog = gtk_frame_new (NULL);
+  gtk_widget_show (preferences_dock_accept_dialog);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_dock_accept_dialog);
+
+  vbox243 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox243);
+  gtk_container_add (GTK_CONTAINER (preferences_dock_accept_dialog), vbox243);
+
+  frame238 = gtk_frame_new (NULL);
+  gtk_widget_show (frame238);
+  gtk_box_pack_start (GTK_BOX (vbox243), frame238, TRUE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame238), 8);
+
+  vbox244 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox244);
+  gtk_container_add (GTK_CONTAINER (frame238), vbox244);
+
+  preferences_accept_dialog_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_accept_dialog_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox244), preferences_accept_dialog_radiobutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_accept_dialog_radiobutton1), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_accept_dialog_radiobutton1), preferences_accept_dialog_radiobutton1_group);
+  preferences_accept_dialog_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_accept_dialog_radiobutton1));
+
+  preferences_accept_dialog_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_accept_dialog_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox244), preferences_accept_dialog_radiobutton2, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_accept_dialog_radiobutton2), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_accept_dialog_radiobutton2), preferences_accept_dialog_radiobutton1_group);
+  preferences_accept_dialog_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_accept_dialog_radiobutton2));
+
+  label566 = gtk_label_new (_("Dock Accept/Reject Dialog?"));
+  gtk_widget_show (label566);
+  gtk_frame_set_label_widget (GTK_FRAME (frame238), label566);
+  gtk_label_set_use_markup (GTK_LABEL (label566), TRUE);
+
+  label511 = gtk_label_new (_("Dialogs"));
+  gtk_widget_show (label511);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 9), label511);
+
+  preferences_console = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (notebook3), preferences_console);
+
+  vbox246 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox246);
+  gtk_container_add (GTK_CONTAINER (preferences_console), vbox246);
+
+  frame240 = gtk_frame_new (NULL);
+  gtk_widget_show (frame240);
+  gtk_box_pack_start (GTK_BOX (vbox246), frame240, TRUE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame240), 8);
+
+  vbox247 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox247);
+  gtk_container_add (GTK_CONTAINER (frame240), vbox247);
+
+  preferences_console_info_radiobutton1 = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_console_info_radiobutton1);
+  gtk_box_pack_start (GTK_BOX (vbox247), preferences_console_info_radiobutton1, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_console_info_radiobutton1), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_console_info_radiobutton1), preferences_console_info_radiobutton1_group);
+  preferences_console_info_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_console_info_radiobutton1));
+
+  preferences_console_info_radiobutton2 = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_console_info_radiobutton2);
+  gtk_box_pack_start (GTK_BOX (vbox247), preferences_console_info_radiobutton2, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_console_info_radiobutton2), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_console_info_radiobutton2), preferences_console_info_radiobutton1_group);
+  preferences_console_info_radiobutton1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_console_info_radiobutton2));
+
+  label567 = gtk_label_new (_("Show console extra information..........(check?)"));
+  gtk_widget_show (label567);
+  gtk_frame_set_label_widget (GTK_FRAME (frame240), label567);
+  gtk_label_set_use_markup (GTK_LABEL (label567), TRUE);
+
+  label512 = gtk_label_new (_("Console"));
+  gtk_widget_show (label512);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook3), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook3), 10), label512);
+
+  hbuttonbox5 = GTK_DIALOG (preferences)->action_area;
+  gtk_widget_show (hbuttonbox5);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox5), GTK_BUTTONBOX_END);
 
   hbox115 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox115);
-  gtk_container_add (GTK_CONTAINER (dialog_action_area76), hbox115);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox5), hbox115);
 
-  preferences_ok_button = gtk_button_new_with_mnemonic (_("  OK  "));
+  preferences_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (preferences_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox115), preferences_ok_button, TRUE, TRUE, 0);
 
   g_signal_connect ((gpointer) preferences, "destroy",
                     G_CALLBACK (on_preferences_destroy),
                     NULL);
+  g_signal_connect ((gpointer) preferences_general_radiotoolbutton, "toggled",
+                    G_CALLBACK (on_preferences_general_radiotoolbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_radiotoolbutton, "toggled",
+                    G_CALLBACK (on_preferences_bond_radiotoolbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_geometry_radiotoolbutton, "toggled",
+                    G_CALLBACK (on_preferences_geometry_radiotoolbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_colour_radiotoolbutton, "toggled",
+                    G_CALLBACK (on_preferences_colour_radiotoolbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_map_radiotoolbutton, "toggled",
+                    G_CALLBACK (on_preferences_map_radiotoolbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_other_radiotoolbutton, "toggled",
+                    G_CALLBACK (on_preferences_other_radiotoolbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_hydrogen_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_bond_hydrogen_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_hydrogen_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_bond_hydrogen_radiobutton2_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_ghosts_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_bond_ghosts_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_ghosts_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_bond_ghosts_radiobutton2_toggled),
+                    NULL);
   g_signal_connect ((gpointer) preferences_geometry_cis_peptide_bad_yes_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) preferences_geometry_cis_peptide_bad_no_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_colours_checkbutton, "toggled",
+                    G_CALLBACK (on_preferences_bond_colours_checkbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preference_bg_colour_radiobutton1, "toggled",
+                    G_CALLBACK (on_preference_bg_colour_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bg_colourradiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_bg_colourradiobutton2_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_map_dynamic_sampling_checkbutton, "toggled",
+                    G_CALLBACK (on_preferences_map_dynamic_sampling_checkbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_map_dynamic_size_checkbutton, "toggled",
+                    G_CALLBACK (on_preferences_map_dynamic_size_checkbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_diff_map_colour_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_diff_map_colour_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_diff_map_colours_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_diff_map_colours_radiobutton2_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_antialias_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_antialias_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_antialias_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_antialias_radiobutton2_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_hid_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_hid_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_hid_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_hid_radiobutton2_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_filechooser_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_filechooser_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_filechooser_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_filechooser_radiobutton2_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_file_overwrite_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_file_overwrite_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_file_overwrite_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_file_overwrite_radiobutton2_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_accept_dialog_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_accept_dialog_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_accept_dialog_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_accept_dialog_radiobutton2_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_console_info_radiobutton1, "toggled",
+                    G_CALLBACK (on_preferences_console_info_radiobutton1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_console_info_radiobutton2, "toggled",
+                    G_CALLBACK (on_preferences_console_info_radiobutton2_toggled),
                     NULL);
   g_signal_connect ((gpointer) preferences_ok_button, "clicked",
                     G_CALLBACK (on_preferences_ok_button_clicked),
@@ -16378,9 +17276,39 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT_NO_REF (preferences, dialog_vbox77, "dialog_vbox77");
   GLADE_HOOKUP_OBJECT (preferences, hbox114, "hbox114");
   GLADE_HOOKUP_OBJECT (preferences, frame137, "frame137");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_toolbar, "preferences_toolbar");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_general_radiotoolbutton, "preferences_general_radiotoolbutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bond_radiotoolbutton, "preferences_bond_radiotoolbutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_geometry_radiotoolbutton, "preferences_geometry_radiotoolbutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_colour_radiotoolbutton, "preferences_colour_radiotoolbutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_radiotoolbutton, "preferences_map_radiotoolbutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_other_radiotoolbutton, "preferences_other_radiotoolbutton");
   GLADE_HOOKUP_OBJECT (preferences, notebook3, "notebook3");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bond_parameters, "preferences_bond_parameters");
+  GLADE_HOOKUP_OBJECT (preferences, vbox222, "vbox222");
+  GLADE_HOOKUP_OBJECT (preferences, vbox223, "vbox223");
+  GLADE_HOOKUP_OBJECT (preferences, hbox303, "hbox303");
+  GLADE_HOOKUP_OBJECT (preferences, label524, "label524");
+  GLADE_HOOKUP_OBJECT (preferences, optionmenu7, "optionmenu7");
+  GLADE_HOOKUP_OBJECT (preferences, label525, "label525");
+  GLADE_HOOKUP_OBJECT (preferences, frame212, "frame212");
+  GLADE_HOOKUP_OBJECT (preferences, vbox224, "vbox224");
+  GLADE_HOOKUP_OBJECT (preferences, hbox304, "hbox304");
+  GLADE_HOOKUP_OBJECT (preferences, optionmenu8, "optionmenu8");
+  GLADE_HOOKUP_OBJECT (preferences, label526, "label526");
+  GLADE_HOOKUP_OBJECT (preferences, label527, "label527");
+  GLADE_HOOKUP_OBJECT (preferences, frame213, "frame213");
+  GLADE_HOOKUP_OBJECT (preferences, vbox225, "vbox225");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bond_hydrogen_radiobutton1, "preferences_bond_hydrogen_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bond_hydrogen_radiobutton2, "preferences_bond_hydrogen_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label528, "label528");
+  GLADE_HOOKUP_OBJECT (preferences, frame214, "frame214");
+  GLADE_HOOKUP_OBJECT (preferences, vbox226, "vbox226");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bond_ghosts_radiobutton1, "preferences_bond_ghosts_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bond_ghosts_radiobutton2, "preferences_bond_ghosts_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label529, "label529");
   GLADE_HOOKUP_OBJECT (preferences, label223, "label223");
-  GLADE_HOOKUP_OBJECT (preferences, frame135, "frame135");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_cis_peptides, "preferences_cis_peptides");
   GLADE_HOOKUP_OBJECT (preferences, vbox139, "vbox139");
   GLADE_HOOKUP_OBJECT (preferences, label226, "label226");
   GLADE_HOOKUP_OBJECT (preferences, frame136, "frame136");
@@ -16388,10 +17316,112 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, preferences_geometry_cis_peptide_bad_yes_radiobutton, "preferences_geometry_cis_peptide_bad_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_geometry_cis_peptide_bad_no_radiobutton, "preferences_geometry_cis_peptide_bad_no_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, label224, "label224");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bond_colours, "preferences_bond_colours");
+  GLADE_HOOKUP_OBJECT (preferences, vbox212, "vbox212");
+  GLADE_HOOKUP_OBJECT (preferences, frame200, "frame200");
+  GLADE_HOOKUP_OBJECT (preferences, vbox213, "vbox213");
+  GLADE_HOOKUP_OBJECT (preferences, label495, "label495");
+  GLADE_HOOKUP_OBJECT (preferences, hbox287, "hbox287");
+  GLADE_HOOKUP_OBJECT (preferences, label496, "label496");
+  GLADE_HOOKUP_OBJECT (preferences, hscale5, "hscale5");
+  GLADE_HOOKUP_OBJECT (preferences, label497, "label497");
+  GLADE_HOOKUP_OBJECT (preferences, frame201, "frame201");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bond_colours_checkbutton, "preferences_bond_colours_checkbutton");
+  GLADE_HOOKUP_OBJECT (preferences, label498, "label498");
   GLADE_HOOKUP_OBJECT (preferences, label225, "label225");
-  GLADE_HOOKUP_OBJECT_NO_REF (preferences, dialog_action_area76, "dialog_action_area76");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_background_colour, "preferences_background_colour");
+  GLADE_HOOKUP_OBJECT (preferences, vbox234, "vbox234");
+  GLADE_HOOKUP_OBJECT (preferences, label561, "label561");
+  GLADE_HOOKUP_OBJECT (preferences, frame229, "frame229");
+  GLADE_HOOKUP_OBJECT (preferences, vbox235, "vbox235");
+  GLADE_HOOKUP_OBJECT (preferences, preference_bg_colour_radiobutton1, "preference_bg_colour_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colourradiobutton2, "preferences_bg_colourradiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label476, "label476");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_parameters, "preferences_map_parameters");
+  GLADE_HOOKUP_OBJECT (preferences, vbox232, "vbox232");
+  GLADE_HOOKUP_OBJECT (preferences, label550, "label550");
+  GLADE_HOOKUP_OBJECT (preferences, frame223, "frame223");
+  GLADE_HOOKUP_OBJECT (preferences, hbox316, "hbox316");
+  GLADE_HOOKUP_OBJECT (preferences, label551, "label551");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_radius_entry, "preferences_map_radius_entry");
+  GLADE_HOOKUP_OBJECT (preferences, label552, "label552");
+  GLADE_HOOKUP_OBJECT (preferences, label553, "label553");
+  GLADE_HOOKUP_OBJECT (preferences, frame224, "frame224");
+  GLADE_HOOKUP_OBJECT (preferences, hbox317, "hbox317");
+  GLADE_HOOKUP_OBJECT (preferences, label554, "label554");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_increment_size_entry, "preferences_map_increment_size_entry");
+  GLADE_HOOKUP_OBJECT (preferences, label555, "label555");
+  GLADE_HOOKUP_OBJECT (preferences, frame225, "frame225");
+  GLADE_HOOKUP_OBJECT (preferences, hbox318, "hbox318");
+  GLADE_HOOKUP_OBJECT (preferences, label556, "label556");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_diff_increment_entry, "preferences_map_diff_increment_entry");
+  GLADE_HOOKUP_OBJECT (preferences, label557, "label557");
+  GLADE_HOOKUP_OBJECT (preferences, frame226, "frame226");
+  GLADE_HOOKUP_OBJECT (preferences, hbox319, "hbox319");
+  GLADE_HOOKUP_OBJECT (preferences, label558, "label558");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_sampling_entry, "preferences_map_sampling_entry");
+  GLADE_HOOKUP_OBJECT (preferences, frame227, "frame227");
+  GLADE_HOOKUP_OBJECT (preferences, vbox233, "vbox233");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_dynamic_sampling_checkbutton, "preferences_map_dynamic_sampling_checkbutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_dynamic_size_checkbutton, "preferences_map_dynamic_size_checkbutton");
+  GLADE_HOOKUP_OBJECT (preferences, label477, "label477");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_map_colours, "preferences_map_colours");
+  GLADE_HOOKUP_OBJECT (preferences, vbox236, "vbox236");
+  GLADE_HOOKUP_OBJECT (preferences, label562, "label562");
+  GLADE_HOOKUP_OBJECT (preferences, frame231, "frame231");
+  GLADE_HOOKUP_OBJECT (preferences, vbox237, "vbox237");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_diff_map_colour_radiobutton1, "preferences_diff_map_colour_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_diff_map_colours_radiobutton2, "preferences_diff_map_colours_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label478, "label478");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias, "preferences_antialias");
+  GLADE_HOOKUP_OBJECT (preferences, vbox216, "vbox216");
+  GLADE_HOOKUP_OBJECT (preferences, label509, "label509");
+  GLADE_HOOKUP_OBJECT (preferences, frame208, "frame208");
+  GLADE_HOOKUP_OBJECT (preferences, vbox217, "vbox217");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias_radiobutton1, "preferences_antialias_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias_radiobutton2, "preferences_antialias_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label479, "label479");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_hid, "preferences_hid");
+  GLADE_HOOKUP_OBJECT (preferences, vbox238, "vbox238");
+  GLADE_HOOKUP_OBJECT (preferences, label563, "label563");
+  GLADE_HOOKUP_OBJECT (preferences, frame233, "frame233");
+  GLADE_HOOKUP_OBJECT (preferences, vbox239, "vbox239");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_hid_radiobutton1, "preferences_hid_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_hid_radiobutton2, "preferences_hid_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label480, "label480");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_selection, "preferences_file_selection");
+  GLADE_HOOKUP_OBJECT (preferences, vbox240, "vbox240");
+  GLADE_HOOKUP_OBJECT (preferences, frame235, "frame235");
+  GLADE_HOOKUP_OBJECT (preferences, vbox241, "vbox241");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_filechooser_radiobutton1, "preferences_filechooser_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_filechooser_radiobutton2, "preferences_filechooser_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label564, "label564");
+  GLADE_HOOKUP_OBJECT (preferences, frame236, "frame236");
+  GLADE_HOOKUP_OBJECT (preferences, vbox242, "vbox242");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_overwrite_radiobutton1, "preferences_file_overwrite_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_overwrite_radiobutton2, "preferences_file_overwrite_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label565, "label565");
+  GLADE_HOOKUP_OBJECT (preferences, label510, "label510");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_dock_accept_dialog, "preferences_dock_accept_dialog");
+  GLADE_HOOKUP_OBJECT (preferences, vbox243, "vbox243");
+  GLADE_HOOKUP_OBJECT (preferences, frame238, "frame238");
+  GLADE_HOOKUP_OBJECT (preferences, vbox244, "vbox244");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_accept_dialog_radiobutton1, "preferences_accept_dialog_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_accept_dialog_radiobutton2, "preferences_accept_dialog_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label566, "label566");
+  GLADE_HOOKUP_OBJECT (preferences, label511, "label511");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_console, "preferences_console");
+  GLADE_HOOKUP_OBJECT (preferences, vbox246, "vbox246");
+  GLADE_HOOKUP_OBJECT (preferences, frame240, "frame240");
+  GLADE_HOOKUP_OBJECT (preferences, vbox247, "vbox247");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_console_info_radiobutton1, "preferences_console_info_radiobutton1");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_console_info_radiobutton2, "preferences_console_info_radiobutton2");
+  GLADE_HOOKUP_OBJECT (preferences, label567, "label567");
+  GLADE_HOOKUP_OBJECT (preferences, label512, "label512");
+  GLADE_HOOKUP_OBJECT_NO_REF (preferences, hbuttonbox5, "hbuttonbox5");
   GLADE_HOOKUP_OBJECT (preferences, hbox115, "hbox115");
   GLADE_HOOKUP_OBJECT (preferences, preferences_ok_button, "preferences_ok_button");
+  GLADE_HOOKUP_OBJECT_NO_REF (preferences, tooltips, "tooltips");
 
   return preferences;
 }

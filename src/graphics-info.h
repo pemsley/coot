@@ -846,6 +846,34 @@ public:
       dictionary_glob_extensions->push_back(".mmcif.gz");
       dictionary_glob_extensions->push_back(".mmCIF.gz");
 
+      /* things for preferences */
+      preferences_general_tabs = new std::vector<std::string>;
+      preferences_bond_tabs = new std::vector<std::string>;
+      preferences_geometry_tabs = new std::vector<std::string>;
+      preferences_colour_tabs = new std::vector<std::string>;
+      preferences_map_tabs = new std::vector<std::string>;
+      preferences_other_tabs = new std::vector<std::string>;
+      
+      preferences_general_tabs->push_back("preferences_hid");
+      preferences_general_tabs->push_back("preferences_file_selection");
+      preferences_general_tabs->push_back("preferences_dock_accept_dialog");
+      
+      preferences_bond_tabs->push_back("preferences_bond_parameters");
+      preferences_bond_tabs->push_back("preferences_bond_colours");
+      
+      preferences_geometry_tabs->push_back("preferences_cis_peptides");
+      //preferences_geometry_tab->push_back("preferences_bond_colours");
+
+      preferences_colour_tabs->push_back("preferences_background_colour");
+      //preferences_colours_tab->push_back("preferences_bond_colours");
+
+      preferences_map_tabs->push_back("preferences_map_parameters");
+      preferences_map_tabs->push_back("preferences_map_colours");
+      
+      preferences_other_tabs->push_back("preferences_antialias");
+      preferences_other_tabs->push_back("preferences_console");
+
+
       do_expose_swap_buffers_flag = 1;
    }
 
@@ -2683,6 +2711,13 @@ public:
    // --------- preferences ---------------
    static GtkWidget *preferences_widget;
    static int mark_cis_peptides_as_bad_flag;
+
+   static std::vector<std::string> *preferences_general_tabs;
+   static std::vector<std::string> *preferences_bond_tabs;
+   static std::vector<std::string> *preferences_geometry_tabs;
+   static std::vector<std::string> *preferences_colour_tabs;
+   static std::vector<std::string> *preferences_map_tabs;
+   static std::vector<std::string> *preferences_other_tabs;
 
    // --- remote controlled coot: ----
    static int try_port_listener;

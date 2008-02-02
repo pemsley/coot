@@ -5031,13 +5031,19 @@ setup_python_window_entry(GtkWidget *entry) {
 
 #ifdef USE_PYTHON
 
-   // add python entery in entry callback code here...
+   // add python entry in entry callback code here...
 
-      gtk_signal_connect(GTK_OBJECT(entry), "activate",
-		      GTK_SIGNAL_FUNC(python_window_enter_callback),
-		      entry);
+#if (GTK_MAJOR_VERSION > 1) 
+    g_signal_connect(G_OBJECT(entry), "activate",
+		     G_CALLBACK(python_window_enter_callback),
+		     (gpointer) entry);
+#else
+    gtk_signal_connect(GTK_OBJECT(entry), "activate",
+		       GTK_SIGNAL_FUNC(python_window_enter_callback),
+		       entry);
+# endif // GTK_MAJOR_VERSION
 
-#endif
+#endif // PYTHON
 
 }
 
@@ -5059,19 +5065,14 @@ setup_guile_window_entry(GtkWidget *entry) {
 void python_window_enter_callback( GtkWidget *widget,
 				   GtkWidget *entry )
 {
-  const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+  const gchar *entry_text;
+  entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
   printf("Entry contents: %s\n", entry_text);
-  {
-     char *py_text;
-     py_text = new char [strlen(entry_text)+1];
-     strncpy(py_text, entry_text, 500); 
-     //
-     // Py_Initialize();
-     PyRun_SimpleString(py_text);
 
-     // clear the entry
-     gtk_entry_set_text(GTK_ENTRY(entry),"");
-  }
+  PyRun_SimpleString(entry_text);
+  
+  // clear the entry
+  gtk_entry_set_text(GTK_ENTRY(entry),"");
 
 }
 #endif
@@ -5582,7 +5583,7 @@ void post_python_scripting_window() {
      t = getenv("COOT_PYTHON_DIR"); // was #defined
      if (t) {
         std::cout << "COOT_PYTHON_DIR was defined to be " << t << std::endl
-                  << "   but loading of scripting window python code failed."
+                  << "  but no PyGtk and hence no coot_gui."
                   << std::endl;
      } else {
         std::cout << "COOT_PYTHON_DIR  was not defined - cannot open ";
@@ -5590,11 +5591,11 @@ void post_python_scripting_window() {
      }
 // so let's load the usual window!!
   GtkWidget *window; 
-  GtkWidget *entry; 
+  GtkWidget *python_entry; 
   window = create_python_window();
 
-  entry = lookup_widget(window, "python_window_entry");
-  setup_python_window_entry(entry); // USE_PYTHON and USE_GUILE used here
+  python_entry = lookup_widget(window, "python_window_entry");
+  setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
   gtk_widget_show(window);
   }
 
@@ -5638,10 +5639,16 @@ void set_found_coot_gui() {
    cout << "Coot Scheme Scripting GUI code found and loaded." << endl; 
    g.guile_gui_loaded_flag = TRUE; 
 #endif // USE_GUILE
+}
+
+void set_found_coot_python_gui() {
+  
+  graphics_info_t g;
 #ifdef USE_PYTHON
    cout << "Coot Python Scripting GUI code found and loaded." << endl; 
    g.python_gui_loaded_flag = TRUE;
 #endif // USE_PYTHON
+
 }
 
 // return an atom index

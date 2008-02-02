@@ -1045,9 +1045,25 @@ SCM refmac_parameters_scm(int imol) {
 #endif	/* USE_GUILE */
 
 #ifdef USE_PYTHON
-/* FIXME Bernhard */
 PyObject *refmac_parameters_py(int imol) {
-   PyObject *r = 0;
+
+   PyObject *r;
+   if (is_valid_map_molecule(imol)) { 
+      std::vector<coot::atom_attribute_setting_help_t>
+	 refmac_params = graphics_info_t::molecules[imol].get_refmac_params();
+      if (refmac_params.size() > 0) {
+	 // values have dont have to go in in reverse order.
+	r = PyList_New(refmac_params.size());
+	for (int i=0; i<refmac_params.size(); i++) {
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_INT)
+	      PyList_Append(r, PyInt_FromLong(refmac_params[i].i));
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_FLOAT)
+	      PyList_Append(r, PyFloat_FromDouble(refmac_params[i].val));
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_STRING)
+	      PyList_Append(r, PyString_FromString(refmac_params[i].s.c_str()));
+	 }
+      }
+   }
    return r;
 }
 #endif	/* USE_PYTHON */

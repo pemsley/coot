@@ -57,6 +57,7 @@ extern int add_molecule_py(PyObject *molecule_expression, const char *name);
 extern void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
                  const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
 extern int set_atom_attributes_py(PyObject *attribute_expression_list);
+extern PyObject *refmac_parameters_py(int imol);
 extern PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 extern PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno);
 extern PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, 
@@ -66,6 +67,7 @@ extern PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *c
 extern PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 extern PyObject *execute_ligand_search_py();
 // from c-interface-preferences.cc
+extern PyObject *save_state_file_name_py();
 extern PyObject *movie_file_name_prefix_py();
 // from c-interface-superimpose.cc
 extern PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving);

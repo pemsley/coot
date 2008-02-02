@@ -424,6 +424,13 @@ short int graphics_info_t::run_state_file_status = 1;
 GtkWidget *graphics_info_t::preferences_widget = NULL;
 int        graphics_info_t::mark_cis_peptides_as_bad_flag = 0;
 
+std::vector<std::string> *graphics_info_t::preferences_general_tabs;
+std::vector<std::string> *graphics_info_t::preferences_bond_tabs;
+std::vector<std::string> *graphics_info_t::preferences_geometry_tabs;
+std::vector<std::string> *graphics_info_t::preferences_colour_tabs;
+std::vector<std::string> *graphics_info_t::preferences_map_tabs;
+std::vector<std::string> *graphics_info_t::preferences_other_tabs;
+
 // Torsions with hydrogens?
 short int graphics_info_t::find_hydrogen_torsions = 0; // no
 
