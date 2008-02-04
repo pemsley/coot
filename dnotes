@@ -4029,6 +4029,7 @@ Wed Jan 30 13:57:25 GMT 2008
 
    Need to test on a protein that comes from molprobity.
 
+* Randy Agrees.
 
 ------
 Tue Jan 29 16:41:56 GMT 2008
@@ -4054,6 +4055,8 @@ Wed Jan 30 02:11:56 GMT 2008
      tests: open a ccp4 map with the wrong file name
             open a  cns map with the wrong file name
 	    open an mtz file with the wrong file name
+
+* Done.  It found a problem.
 
 ----
 Wed 30 Jan 2008 14:12:55 GMT
@@ -4171,4 +4174,11 @@ Thu Jan 31 20:12:56 GMT 2008
    Yes the lowest number in any chain.
 
    Priority: Medium.  Do before 0.6.
+
+
+------
+
+	look in ejd/2a4d something and residue 
+	218A rotamers, fails.
+	But works after regularization
 
