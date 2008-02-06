@@ -1113,7 +1113,6 @@ build_ssmlib=0
 build_fftw=0
 build_python=0
 build_clipper=0
-# build_glib=0
 # build_gtk=0
 build_guile=0
 build_guile_www=0
@@ -1132,6 +1131,8 @@ build_gsl=0
 build_guile_gtk=0
 build_gtkglext=0
 build_freeglut=0
+build_glib=
+
 
 # In Gtk2, we presume that glib, gtk2 and gnomecanvas are available.  
 # We shall test for these, but not build them.
@@ -1171,10 +1172,10 @@ fi
 # This allows standard pkg-config to find gtkglext and several other things.
 PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:/usr/lib/pkgconfig
 export PKG_CONFIG_PATH
+echo  PKG_CONFIG_PATH is $PKG_CONFIG_PATH
 
 # is the system gtk+2 new enough?  Needs to be 2.8 or better
 build_gtk=
-
 
 # Do we have freetype2?  cairo depends on it.
 if pkg-config freetype2 ; then
@@ -1205,23 +1206,53 @@ else
    build_pycairo=1
 fi
 
+if pkg-config --atleast-version=2.14.5 glib ; then
+   # have glib
+   echo :::::::: glib is up to date
+   build_glib=
+else
+   echo glib is not not up to date, rebuild glib
+   build_glib=1
+fi
+
+if pkg-config --atleast-version=0.5.6 glitz ; then
+   # have glitz
+   echo :::::::: glitz is up to date
+   build_glitz=
+else
+   echo cairo is not not up to date, rebuild gtk and friends
+   build_glitz=1
+fi
+
+# Pango depends on cairo.
+# 
+if pkg-config --atleast-version=1.4.12 cairo ; then
+   # have cairo
+   echo :::::::: cairo is up to date
+   build_cairo=
+else
+   echo cairo is not not up to date, rebuild gtk and friends
+   build_pango=1
+   build_cairo=1
+   build_gtk=1
+fi
+
+# pango version 1.12 is what gtk2+ 2.10.14 needs
+if [ "$build_pango" != 1 ] ; then 
+   if pkg-config --atleast-version=1.12 pango ; then
+       build_pango=
+   else
+       build_pango=1
+   fi
+fi
 
 # Test the output of pkg-config gtk+-2.0 for recent enough gtk. 
 # If not, then build it yourself.
-
-
 pkg-config --atleast-version=2.8 gtk+-2.0
 gtk_pkg_config_status=$?
 if [ "$gtk_pkg_config_status" = 0 ] ; then 
-   if pkg-config --atleast-version=1.4.12 cairo ; then
-      # have gtk
-      echo :::::::: gtk is up to date, cairo is up to date
-      build_gtk=
-   else
-      echo cairo is not not up to date, rebuild gtk and friends
-      build_cairo=1
-      build_gtk=1
-   fi
+   build_cairo=
+   build_gtk=
 else 
    # no recent/good gtk
    echo :::::::: gtk and dependencies need to be built
@@ -1838,30 +1869,43 @@ fi
 # http://pkgconfig.freedesktop.org/releases/pkg-config-0.23.tar.gz
 
 
+# gtk2 build says that pango depends on cairo:
+# checking Pango flags... configure: error:
+# *** Pango not found. Pango built with Cairo support is required
+# *** to build GTK+. See http://www.pango.org for Pango information.
+# 
+# so, if we build cairo, we must build pango too
+
+
+
+
 if test -n "$build_gtk" ; then 
    echo BUILDING Gtk+-2 and dependencies...
    (
-   echo  ======================================================
-   echo BUILDING GLitz!
-   echo  ======================================================
-   glitz_version=0.5.6
-   ${WGET} http://cairographics.org/snapshots/glitz-$glitz_version.tar.gz
-   date
-   echo BUILDING glitz
-   gzip -dc ${AUTOBUILD_SOURCES}/glitz-$glitz_version.tar.gz | tar xf -
-   cd glitz-$glitz_version
-   ./configure $generic_prefix
-   $MAKE
-   glitz_status=$?
-   if [ "$glitz_status" != 0 ] ; then
-      echo make of glitz failed
-      gtk_set_failure="make of glitz failed"
+   if [ "$build_glitz" = 1 ] ; then 
+      echo  ======================================================
+      echo BUILDING GLitz!
+      echo  ======================================================
+      glitz_version=0.5.6
+      ${WGET} http://cairographics.org/snapshots/glitz-$glitz_version.tar.gz
+      date
+      gzip -dc ${AUTOBUILD_SOURCES}/glitz-$glitz_version.tar.gz | tar xf -
+      cd glitz-$glitz_version
+      ./configure $generic_prefix
+      $MAKE
+      glitz_status=$?
+      if [ "$glitz_status" != 0 ] ; then
+         echo make of glitz failed
+         gtk_set_failure="make of glitz failed"
+      else
+         $MAKE install
+      fi
+      cd - 
    else
-      $MAKE install
-   fi
-   cd - 
+      echo not BUILDING glitz
+   fi 
  
-   if [ "$glitz_status" = 0 ] ; then
+   if [ "$build_glib" = 1 ] ; then
       echo  ======================================================
       echo BUILDING glib
       echo  ======================================================
@@ -1879,6 +1923,8 @@ if test -n "$build_gtk" ; then
          $MAKE install
       fi
       cd - 
+   else 
+      echo not BUILDING glib
    fi
 
    # cairo(?) dependends on freetype2 (RedHat 8 doesn't have it)
@@ -1900,6 +1946,8 @@ if test -n "$build_gtk" ; then
          $MAKE install
       fi
       cd - 
+   else 
+      echo NOT BUILDING freetype2
    fi
 
    # cairo(?) dependends on fontconfig (include file?) to define `FC_RGBA_UNKNOWN'
@@ -1922,9 +1970,11 @@ if test -n "$build_gtk" ; then
          $MAKE install
       fi
       cd - 
+   else
+      echo NOT BUILDING fontconfig
    fi
 
-   if [ "$fontconfig_status" = 0 ] ; then
+   if [ "$build_cairo" = 1 ] ; then
       echo  ======================================================
       echo  BUILDING cairo
       echo  ======================================================
@@ -1942,9 +1992,11 @@ if test -n "$build_gtk" ; then
          $MAKE install
       fi
       cd - 
+   else
+      echo NOT BUILDING cairo
    fi
  
-   if [ "$cairo_status" = 0 ] ; then
+   if [ "$build_pango" = 1 ] ; then
       echo  ======================================================
       echo  BUILDING pango
       echo  ======================================================
@@ -1962,6 +2014,8 @@ if test -n "$build_gtk" ; then
          $MAKE install
       fi
       cd - 
+   else
+      echo NOT BUILDING pango
    fi
 
    # cairo depends dependends on librsvg (for testing) otherwise warning.
@@ -1986,9 +2040,11 @@ if test -n "$build_gtk" ; then
          $MAKE install
       fi
       cd - 
+   else
+      echo NOT BUILDING librsvg
    fi
 
-   if [ "$pango_status" = 0 ] ; then
+   if [ "$build_gtk" = 1 ] ; then
       echo  ======================================================
       echo  BUILDING gtk+2
       echo  ======================================================
@@ -2007,6 +2063,8 @@ if test -n "$build_gtk" ; then
          $MAKE install
       fi
       cd - 
+   else
+      echo NOT BUILDING gtk2
    fi
    if test -n "$gtk_set_failure" ; then 
       exit 1
@@ -2145,7 +2203,7 @@ fi
 if test -n "$build_pycairo" ; then 
    echo BUILDING pycairo:
    #
-   pycairo_version=1.4.12
+   pycairo_version=1.2.6
    ${WGET} http://cairographics.org/releases/pycairo-$pycairo_version.tar.gz
    if test $? != 0 ; then 
       echo PROBLEM:: getting pycairo source code
@@ -2180,7 +2238,7 @@ if test -n "$build_pygtk" ; then
    date
    gzip -dc ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.tar.gz | tar xf -
    cd pygtk-$py_gtk_version
-   ./configure $generic_prefix
+   ./configure $generic_prefix --with-pango --with-pangocairo PYGOBJECT_CFLAGS=-I$install_top_dir/include/pygtk-2.0 PYGOBJECT_LIBS=-L$install_top_dir/lib
    $MAKE
    pygtk_status=$?
    if [ "$pygtk_status" != 0 ] ; then
