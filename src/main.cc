@@ -432,6 +432,7 @@ main (int argc, char *argv[]) {
 #ifdef USE_PYGTK
   #ifdef COOT_USE_GTK2_INTERFACE
 	       initcoot_python();
+	       std::cout << "INFO:: coot_python initialized" << std::endl;
     #ifdef USE_GUILE_GTK
 	      safe_python_command("global use_gui_qm; use_gui_qm = 2");
     #else

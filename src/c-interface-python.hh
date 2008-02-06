@@ -36,7 +36,7 @@
 // checked) problems.
 // 
 // return a python string, decode to c++ using scm_to_locale_string();
-//PyObject *display_py(PyObject *o);
+PyObject *display_python(PyObject *o);
 
 std::pair<bool, coot::atom_spec_t> make_atom_spec_py(PyObject *spec);
 
