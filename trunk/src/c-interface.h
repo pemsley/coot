@@ -2292,11 +2292,10 @@ void  change_chain_id(int imol, const char *from_chain_id, const char *to_chain_
 /* Paul fill me in please */
 SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const char *to_chain_id,
                                          short int use_res_range_flag, int from_resno, int to_resno);
-#endif // USE_GUILE
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
-PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, 
-					 short int use_res_range_flag, int from_resno, int to_resno);
-#endif // USE_PYTHON
+PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, const char *to_chain_id, short int use_res_range_flag, int from_resno, int to_resno);
+#endif /* USE_PYTHON */
 #endif  /* c++ */
 
 /*  ----------------------------------------------------------------------- */
@@ -2336,6 +2335,7 @@ void python_window_enter_callback( GtkWidget *widget,
 void set_guile_gui_loaded_flag(); 
 void set_python_gui_loaded_flag(); 
 void set_found_coot_gui(); 
+void set_found_coot_python_gui(); 
 
 /* Accession code */
 void handle_get_accession_code(GtkWidget *widget); 
@@ -3204,9 +3204,8 @@ SCM analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_
 #endif 
 #ifdef USE_PYTHON
 PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
-PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
-			       int resno_ref);
-#endif // PYTHON
+PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
+#endif /* PYTHON*/
 #endif	/* __cplusplus */
 
 void execute_get_mols_ligand_search(GtkWidget *button); 

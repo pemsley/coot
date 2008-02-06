@@ -430,8 +430,7 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno, const 
   around the bond defined by direction_atoms_list looking for the best
   fit to density of imom_map map of the first atom in
   moving_atom_list.  Works (only) with atoms in altconf "" */
-void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
-                 const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
+void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
 #endif 
 
 /*  ----------------------------------------------------------------------- */
@@ -493,8 +492,8 @@ coot::atom_spec_t atom_spec_from_scm_expression(SCM expr);
 #endif	/* USE_GUILE */
 
 #ifdef USE_PYTHON
-// Bernhard, I suppose that there should be python equivalents of the above.
-// BL says:: here they are:
+/* Bernhard, I suppose that there should be python equivalents of the above. */
+/* BL says:: here they are: */
 PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::string>&v);
 PyObject *generic_int_vector_to_list_internal_py(const std::vector<int> &v);
 std::vector<std::string> generic_list_to_string_vector_internal_py(PyObject *l);

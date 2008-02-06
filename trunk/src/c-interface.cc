@@ -585,16 +585,15 @@ void set_dti_stereo_mode(short int state) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       if (state) { 
+	 short int stereo_mode;
 	 if (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO) {
 	    // int previous_mode = graphics_info_t::display_mode;
-	    short int stereo_mode = coot::DTI_SIDE_BY_SIDE_STEREO;
-	    GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
-	    GtkWidget *glarea = gl_extras(vbox, stereo_mode);
+	    stereo_mode = coot::DTI_SIDE_BY_SIDE_STEREO;
 	 } else {
-	    short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
-	    GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
-	    GtkWidget *glarea = gl_extras(vbox, stereo_mode);
+	    stereo_mode = coot::SIDE_BY_SIDE_STEREO;
 	 }
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
 	 if (graphics_info_t::use_graphics_interface_flag) {
 	    if (graphics_info_t::i_fn_token) { 
 	       toggle_idle_spin_function(); // turn it off;

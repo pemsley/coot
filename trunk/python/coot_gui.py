@@ -724,7 +724,10 @@ def interesting_things_gui(title,baddie_list):
 
 # In this case, each baddie can have a function at the end which is
 # called when the fix button is clicked.
-# And extra string argument can givethe name of the button
+# And extra string arguments can give the name of the button and a tooltip
+# as these two are ambigious, they can only be:
+# 1 extra string:  button name
+# 2 extra strings: button name and tooltip
 # 
 def interesting_things_with_fix_maybe(title, baddie_list):
 
@@ -738,37 +741,54 @@ def interesting_things_with_fix_maybe(title, baddie_list):
        l = len(baddie)
        if (l < 5):
           # certainly no fix
-          return False, False
+          return False, False, False
        else:
           func_maybe1 = baddie[l-1]
           func_maybe2 = baddie[l-2]
+          func_maybe3 = baddie[l-3]
+
           if (isinstance(func_maybe1, types.ListType) and len(func_maybe1)>0):
              # the last one is probably a funcn (no button name)
              func_maybe_strip = func_maybe1[0]
 #             print "BL DEBUG:: func_maybe_strip is", func_maybe_strip
              if (callable(func_maybe_strip)):
-                return func_maybe1, False
+                return func_maybe1, False, False
              else:
-                return False, False
+                return False, False, False
+             
           elif (isinstance(func_maybe2, types.ListType) and len(func_maybe2)>0
                 and isinstance(func_maybe1, types.StringType)):
              # the second last is function, last is button name
              func_maybe_strip = func_maybe2[0]
              button_name = func_maybe1
              if (callable(func_maybe_strip)):
-                return func_maybe2, button_name
+                return func_maybe2, button_name, False
              else:
-                return False, False
+                return False, False, False
+             
+          elif (isinstance(func_maybe3, types.ListType) and len(func_maybe3)>0
+                and isinstance(func_maybe2, types.StringType)
+                and isinstance(func_maybe1, types.StringType)):
+             # the third last is function, second last is button name, last is tooltip
+             func_maybe_strip = func_maybe3[0]
+             button_name = func_maybe2
+             tooltip_str = func_maybe1
+             if (callable(func_maybe_strip)):
+                return func_maybe3, button_name, tooltip_str
+             elif (func_maybe_strip == "dummy"):
+                return False, False, tooltip_str
+             else:
+                return False, False, False
+          
              
           else:
-             return False, False
+             return False, False, False
 
    def fix_func_call(widget, call_func):
        func_maybe_strip = call_func[0]
        func_args = call_func[1:len(call_func)]
        func_maybe_strip(*func_args)
 
-   # main body
    def delete_event(*args):
        window.destroy()
        return False
@@ -787,19 +807,27 @@ def interesting_things_with_fix_maybe(title, baddie_list):
              print "Failed to centre on demangled name: ", new_name
              set_go_to_atom_chain_residue_atom_name(atom_info[0],atom_info[1]," CA ")
 
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   # main body
+   # to accomodated tooltips we need to either have a gtk.Window with gtk.main()
+   # or a dialog and run() it! I prefer the second option, not to interfere with
+   # the gtk_main() of coot itself
+   # window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   window = gtk.Dialog(title)
    scrolled_win = gtk.ScrolledWindow()
    outside_vbox = gtk.VBox(False,2)
    inside_vbox = gtk.VBox(False,0)
 
    window.set_default_size(250,250)
-   window.set_title(title)
+   #window.set_title(title)
    inside_vbox.set_border_width(4)
 
-   window.add(outside_vbox)
+   #window.add(outside_vbox)
+   # the dialog already contains a vbox which we use
+   outside_vbox = window.vbox
    outside_vbox.add(scrolled_win)
    scrolled_win.add_with_viewport(inside_vbox)
    scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   tooltips = gtk.Tooltips()
 
    for baddie_items in baddie_list:
 
@@ -808,6 +836,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
        else:
           hbox = gtk.HBox(False,0) # hbox to contain Baddie button and
                                    # and fix it button
+
           label = baddie_items[0]
           button = gtk.Button(label)
 
@@ -816,7 +845,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
 
           # add the a button for the fix func if it exists.  Add
           # the callback.
-          fix_func, button_name = baddie_had_fix_qm(baddie_items)
+          fix_func, button_name, tooltip_str = baddie_had_fix_qm(baddie_items)
           if (fix_func):
              if (button_name):
                 fix_button_name = button_name
@@ -827,19 +856,22 @@ def interesting_things_with_fix_maybe(title, baddie_list):
              fix_button.show()
              fix_button.connect("clicked", fix_func_call, fix_func)
 
-          if (len(baddie_items) == 4):               # e.g. ["blob",1,2,3]
+          if (tooltip_str):
+             # we have a tooltip str
+             tooltips.set_tip(button, tooltip_str)
 
+
+          if (len(baddie_items) == 4):               # e.g. ["blob",1,2,3]
              # we go to a place
              coords = [baddie_items[1],baddie_items[2],baddie_items[3]]
              button.connect("clicked",callback_func1,coords)
 
           else:
-
              # we go to an atom
              mol_no = baddie_items[1]
              atom_info = [baddie_items[2],baddie_items[3],baddie_items[5]]
-
              button.connect("clicked",callback_func2,mol_no,atom_info)
+
        
    outside_vbox.set_border_width(4)
    ok_button = gtk.Button("  OK  ")
@@ -847,6 +879,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
    ok_button.connect("clicked",delete_event)
 
    window.show_all()
+   window.run()
 
 #interesting_things_gui("Bad things by Analysis X",[["Bad Chiral",0,"A",23,"","CA","A"],["Bad Density Fit",0,"B",65,"","CA",""],["Interesting blob",45.6,46.7,87.5],["Interesting blob 2",45.6,41.7,80.5]])
 #interesting_things_gui("Bad things by Analysis X",[["Bad Chiral",0,"A",23,"","CA","A",[print_sequence_chain,0,'A']],["Bad Density Fit",0,"B",65,"","CA",""],["Interesting blob",45.6,46.7,87.5],["Interesting blob 2",45.6,41.7,80.5]])
@@ -1200,7 +1233,7 @@ def coot_menubar_menu(menu_label):
     found_menu = False
     for f in menu_bar_label_list():
        if menu_label in f: 
-          print "BL DEBUG:: found menu label is ", f
+          # print "BL DEBUG:: found menu label is ", f
           found_menu = f[1]
     if found_menu:
        return found_menu
@@ -1550,7 +1583,7 @@ def cootaneer_gui(imol):
 	cancel_button = gtk.Button("  Cancel  ")
 
 	seq_info_ls = sequence_info(imol)
-        print "BL DEBUG:: sequence_list and imol is", seq_info_ls, imol
+        # print "BL DEBUG:: sequence_list and imol is", seq_info_ls, imol
 
 	for seq_info in seq_info_ls:
 		seq_widgets = entry_text_pair_frame(seq_info)

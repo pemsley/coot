@@ -355,8 +355,10 @@ def read_refmac_log(imol, refmac_log_file):
 
             info_text = "pre-WARNING: CIS bond: " + chain_id + " " + str(res_no1) + " - " \
                         + str(res_no2) + angle_str
+            tooltip = this_line + next_line
 
-            warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", ""])
+            warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
+                                      ["dummy"], "", tooltip]) # first 2 are dummies for tooltip to work
             
         elif ("gap" in this_line):
             # gap-link
@@ -367,14 +369,17 @@ def read_refmac_log(imol, refmac_log_file):
             res_no2   = int(next_line[54:58])
             res_name2 = next_line[60:63]
             extra_info = ""
+            tooltip = this_line
             if ("-link will" in next_line):
                 # we have extra info
                 extra_info = "'gap'-link created"
+                tooltip += next_line
 
             info_text = "pre-WARNING: connection gap: " + chain_id + " " \
                         + str(res_no1) + " - " + str(res_no2) + extra_info
 
-            warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", ""])
+            warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
+                                      ["dummy"], "", tooltip])
 
         elif ("big distance" in this_line):
             # large distance
@@ -388,10 +393,41 @@ def read_refmac_log(imol, refmac_log_file):
 
             info_text = "pre-WARNING: large distance: " + chain_id + " " \
                         + str(res_no1) + " - " + str(res_no2) + dist_str
+            tooltip = this_line + next_line
 
-            warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", ""])
+            warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
+                                      ["dummy"], "", tooltip])
+
+        elif ("link" in this_line):
+            # link usually SS
+            chain1     = next_line[15:17]       # this is e.g. "AA"
+            chain_id1  = chain1[1]              # we just take the second char
+            res_no1    = int(next_line[22:26])
+            res_name1  = next_line[28:31]
+            atom_name1 = next_line[40:43]
+            alt_conf1  = next_line[44]          # guess this is alt_conf ("." here)
+            link_type  = this_line[17:26].rstrip()
+            chain2     = next_line[47:49]
+            chain_id2  = chain2[1]
+            res_no2    = int(next_line[54:58])
+            res_name2  = next_line[60:63]
+            atom_name2 = next_line[72:75]
+            alt_conf2  = next_line[76]
+
+            if (alt_conf1 == "."):
+                alt_conf1 = ""
+
+            info_text = "pre-WARNING: " + link_type + " link found: " \
+                        + chain_id1 + " " + str(res_no1) + " " + atom_name1 + " - " \
+                        + chain_id2 + " " + str(res_no2) + " " + atom_name2
+            tooltip = this_line + next_line
+
+            warning_info_list.append([info_text, imol, chain_id1, res_no1, "", atom_name1, alt_conf1,
+                                      ["dummy"], "", tooltip])
+       
             
         # elif(): not sure what other warnings there could be...
+        # FIXME maybe include tooltip with some fancyness
 
     def get_info(i):
         this_line = lines[i]
@@ -418,8 +454,10 @@ def read_refmac_log(imol, refmac_log_file):
             info_text = "pre-INFO: not used link: " \
                         + chain_id1 + " " + str(res_no1) + " " + atom_name1 + " - " \
                         + chain_id2 + " " + str(res_no2) + " " + atom_name2
+            tooltip = this_line + next_line
 
-            warning_info_list.append([info_text, imol, chain_id1, res_no1, "", atom_name1, alt_conf1])
+            warning_info_list.append([info_text, imol, chain_id1, res_no1, "", atom_name1, alt_conf1,
+                                      ["dummy"], "", tooltip])
             
         # elif ("" in this_line): not sure what other INFO there may be
 
@@ -449,7 +487,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Bond distance",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         res_no2, res_name2, atom2, alt_conf2,
-                                                        mod, ideal, dev, sig]]])
+                                                        mod, ideal, dev, sig, line]]])
                
             i += 1
 
@@ -479,7 +517,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Bond angle",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         res_no2, res_name2, atom2, alt_conf2,
-                                                        mod, ideal, dev, sig]]])
+                                                        mod, ideal, dev, sig, line]]])
                
             i += 1
 
@@ -510,7 +548,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Torsion angle",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         res_no2, res_name2, atom2, alt_conf2,
-                                                        mod, ideal, dev, sig]]])
+                                                        mod, ideal, dev, sig, line]]])
                
             i += 1
 
@@ -535,7 +573,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Chiral",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         -999999, "", "", "",
-                                                        mod, ideal, dev, sig]]])
+                                                        mod, ideal, dev, sig, line]]])
                
             i += 1
 
@@ -556,8 +594,8 @@ def read_refmac_log(imol, refmac_log_file):
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Planarity",
                                                        [res_no1, res_name1, atom1, alt_conf1,
-                                                        -999999, "", "", "",
-                                                        -99999., -99999., dev, sig]]])       
+                                                        -999999, "", "", "", line,
+                                                        -99999., -99999., dev, sig, line]]])       
                
             i += 1
 
@@ -588,7 +626,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["VDW",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         res_no2, res_name2, atom2, alt_conf2,
-                                                        mod, ideal, dev, sig]]])
+                                                        mod, ideal, dev, sig, line]]])
                
             i += 1
 
@@ -616,7 +654,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["B-value",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         res_no2, res_name2, atom2, alt_conf2,
-                                                        -99999., -99999., dev, sig]]])
+                                                        -99999., -99999., dev, sig, line]]])
                
             i += 1
 
@@ -641,7 +679,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, [["NCS", ncs_type],
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         -999999, "", "", "",
-                                                        -99999., -99999., dev, sig]]])       
+                                                        -99999., -99999., dev, sig, line]]])       
                
             i += 1
 
@@ -664,7 +702,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Sphericity",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         -999999, "", "", "",
-                                                        -99999., -99999., dev, sig]]])       
+                                                        -99999., -99999., dev, sig, line]]])       
                                                        
             i += 1
 
@@ -688,7 +726,7 @@ def read_refmac_log(imol, refmac_log_file):
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Rigid",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         res_no2, res_name2, atom2, alt_conf2,
-                                                        -99999., -99999., dev, sig]]])
+                                                        -99999., -99999., dev, sig, line]]])
                
             i += 1
 
@@ -751,9 +789,9 @@ def read_refmac_log(imol, refmac_log_file):
     #   next res] 
     #
     # TO
-    # e.g.  [["A 23: Chiral Deviation CA",0,"A",23,"","CA","A"],
-    #        ["B 65: Bond Angle Deviation CA - CB",0,"B",65,"","CA",""],
-    #        ["Multiple deviations, x bond distances, y torsion angles",,0,"A",23,"","CA","A"]]
+    # e.g.  [["A 23: Chiral Deviation CA",0,"A",23,"","CA","A","fulltext_for_tooltip"],
+    #        ["B 65: Bond Angle Deviation CA - CB",0,"B",65,"","CA","","fulltext_for_tooltip],
+    #        ["Multiple deviations, x bond distances, y torsion angles",,0,"A",23,"","CA","A","fulltest_for_tooltip]]
     def make_interesting_things_list(list):
 
         ret_ls = []
@@ -765,6 +803,7 @@ def read_refmac_log(imol, refmac_log_file):
             ref_to_res = res_no
 
             dev_name = chain_id + " " + str(res_no) + ": "
+            tooltip = ""
 
             no_diff_dev = len(res) - 3
 
@@ -778,8 +817,17 @@ def read_refmac_log(imol, refmac_log_file):
                     no_of_this_dev = len(dev_type) - 1
                     if (no_of_this_dev > 1):
                         plural_str = "s"
+                        for item in dev_type[1:len(dev_type)]:
+                            tmp_ls = item[12].split()
+                            tmp_tip = " ".join(tmp_ls) + "\n"
+                            tooltip += tmp_tip
+
                     else:
                         plural_str = ""
+                        tmp_ls = dev_type[1][12].split()
+                        tmp_tip = " ".join(tmp_ls) + "\n"                       
+                        tooltip += tmp_tip
+                        
                     if (res.index(dev_type) < (len(res) - 1)):
                         end_str = ", "
                     else:
@@ -791,7 +839,10 @@ def read_refmac_log(imol, refmac_log_file):
                 alt_conf  = res[3][1][3]
                 func = [refine_zone, imol, chain_id, res_no, ref_to_res, alt_conf]
                 button_name = "Refine"
-                ret_ls.append([dev_name, imol, chain_id, res_no, ins_code, atom_name, alt_conf, func, button_name])  # maybe a fix button
+
+                tooltip = tooltip.rstrip("\n")
+                ret_ls.append([dev_name, imol, chain_id, res_no, ins_code, atom_name, alt_conf,
+                               func, button_name, tooltip])  # with a fix button and tooltip
                 
             else:
                 # single deviation
@@ -813,7 +864,11 @@ def read_refmac_log(imol, refmac_log_file):
                         func = [refine_zone, imol, chain_id, res_no, res_no2, alt_conf]
 
                 button_name = "Refine"
-                ret_ls.append([dev_name, imol, chain_id, res_no, ins_code, atom_name, alt_conf, func, button_name])  # maybe a fix button
+                tooltip = res[3][1][12]
+                tmp_ls = tooltip.split()
+                tooltip = " ".join(tmp_ls)
+                ret_ls.append([dev_name, imol, chain_id, res_no, ins_code, atom_name, alt_conf,
+                               func, button_name, tooltip])  # with a fix button and tooltip
 
         return ret_ls
 
