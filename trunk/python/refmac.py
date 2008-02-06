@@ -355,7 +355,8 @@ def read_refmac_log(imol, refmac_log_file):
 
             info_text = "pre-WARNING: CIS bond: " + chain_id + " " + str(res_no1) + " - " \
                         + str(res_no2) + angle_str
-            tooltip = this_line + next_line
+
+            tooltip = " ".join(this_line.split()) + "\n" + " ".join(next_line.split())
 
             warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
                                       ["dummy"], "", tooltip]) # first 2 are dummies for tooltip to work
@@ -369,11 +370,12 @@ def read_refmac_log(imol, refmac_log_file):
             res_no2   = int(next_line[54:58])
             res_name2 = next_line[60:63]
             extra_info = ""
-            tooltip = this_line
+            tooltip = " ".join(this_line.split())
             if ("-link will" in next_line):
                 # we have extra info
                 extra_info = "'gap'-link created"
-                tooltip += next_line
+                tooltip += "\n"
+                tooltip += " ".join(next_line.split())
 
             info_text = "pre-WARNING: connection gap: " + chain_id + " " \
                         + str(res_no1) + " - " + str(res_no2) + extra_info
@@ -393,7 +395,7 @@ def read_refmac_log(imol, refmac_log_file):
 
             info_text = "pre-WARNING: large distance: " + chain_id + " " \
                         + str(res_no1) + " - " + str(res_no2) + dist_str
-            tooltip = this_line + next_line
+            tooltip = " ".join(this_line.split()) + "\n" + " ".join(next_line.split())
 
             warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
                                       ["dummy"], "", tooltip])
@@ -420,7 +422,8 @@ def read_refmac_log(imol, refmac_log_file):
             info_text = "pre-WARNING: " + link_type + " link found: " \
                         + chain_id1 + " " + str(res_no1) + " " + atom_name1 + " - " \
                         + chain_id2 + " " + str(res_no2) + " " + atom_name2
-            tooltip = this_line + next_line
+
+            tooltip = " ".join(this_line.split()) + "\n" + " ".join(next_line.split())
 
             warning_info_list.append([info_text, imol, chain_id1, res_no1, "", atom_name1, alt_conf1,
                                       ["dummy"], "", tooltip])
@@ -454,7 +457,8 @@ def read_refmac_log(imol, refmac_log_file):
             info_text = "pre-INFO: not used link: " \
                         + chain_id1 + " " + str(res_no1) + " " + atom_name1 + " - " \
                         + chain_id2 + " " + str(res_no2) + " " + atom_name2
-            tooltip = this_line + next_line
+
+            tooltip = " ".join(this_line.split()) + "\n" + " ".join(next_line.split())
 
             warning_info_list.append([info_text, imol, chain_id1, res_no1, "", atom_name1, alt_conf1,
                                       ["dummy"], "", tooltip])
@@ -815,25 +819,28 @@ def read_refmac_log(imol, refmac_log_file):
                 for dev_type in res[3:len(res)]:
                     # iterate the different deviation types
                     no_of_this_dev = len(dev_type) - 1
+                    tmp_tip = ""
                     if (no_of_this_dev > 1):
                         plural_str = "s"
                         for item in dev_type[1:len(dev_type)]:
                             tmp_ls = item[12].split()
-                            tmp_tip = " ".join(tmp_ls) + "\n"
-                            tooltip += tmp_tip
+                            tmp_tip += " ".join(tmp_ls) + "\n"
 
                     else:
                         plural_str = ""
                         tmp_ls = dev_type[1][12].split()
                         tmp_tip = " ".join(tmp_ls) + "\n"                       
-                        tooltip += tmp_tip
                         
-                    if (res.index(dev_type) < (len(res) - 1)):
-                        end_str = ", "
+                    if (len(res) == 4):
+                        #only one type of deviation
+                        tooltip = tmp_tip
+                        dev_name += str(no_of_this_dev) + " " + dev_type[0] + " deviation" + plural_str
                     else:
-                        end_str = ""
-                    dev_name += str(no_of_this_dev) + " " + dev_type[0] + " deviation" + plural_str + end_str
-                    
+                        # multiple types
+                        tooltip += str(no_of_this_dev) + " " + dev_type[0] + " deviation" + \
+                                   plural_str + ":\n" + tmp_tip
+                        dev_name = chain_id + " " + str(res_no) + ": Multiple deviations"
+                        
                 ins_code  = ""
                 atom_name = res[3][1][2]         # use the first atom to centre (maybe should use CA or next atom
                 alt_conf  = res[3][1][3]

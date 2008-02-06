@@ -791,6 +791,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
 
    def delete_event(*args):
        window.destroy()
+       gtk.main_quit()
        return False
 
    def callback_func1(widget,coords):
@@ -809,21 +810,18 @@ def interesting_things_with_fix_maybe(title, baddie_list):
 
    # main body
    # to accomodated tooltips we need to either have a gtk.Window with gtk.main()
-   # or a dialog and run() it! I prefer the second option, not to interfere with
-   # the gtk_main() of coot itself
-   # window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   window = gtk.Dialog(title)
+   # or a dialog and run() it! We use Window to not block events and hope not to
+   # interfere with the gtk_main() of coot itself
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    scrolled_win = gtk.ScrolledWindow()
    outside_vbox = gtk.VBox(False,2)
    inside_vbox = gtk.VBox(False,0)
 
    window.set_default_size(250,250)
-   #window.set_title(title)
+   window.set_title(title)
    inside_vbox.set_border_width(4)
 
-   #window.add(outside_vbox)
-   # the dialog already contains a vbox which we use
-   outside_vbox = window.vbox
+   window.add(outside_vbox)
    outside_vbox.add(scrolled_win)
    scrolled_win.add_with_viewport(inside_vbox)
    scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
@@ -863,23 +861,25 @@ def interesting_things_with_fix_maybe(title, baddie_list):
 
           if (len(baddie_items) == 4):               # e.g. ["blob",1,2,3]
              # we go to a place
-             coords = [baddie_items[1],baddie_items[2],baddie_items[3]]
-             button.connect("clicked",callback_func1,coords)
+             coords = [baddie_items[1], baddie_items[2], baddie_items[3]]
+             button.connect("clicked", callback_func1, coords)
 
           else:
              # we go to an atom
              mol_no = baddie_items[1]
-             atom_info = [baddie_items[2],baddie_items[3],baddie_items[5]]
-             button.connect("clicked",callback_func2,mol_no,atom_info)
+             atom_info = [baddie_items[2], baddie_items[3], baddie_items[5]]
+             button.connect("clicked", callback_func2, mol_no, atom_info)
 
        
    outside_vbox.set_border_width(4)
    ok_button = gtk.Button("  OK  ")
-   outside_vbox.pack_start(ok_button,False,False,6)
-   ok_button.connect("clicked",delete_event)
+   outside_vbox.pack_start(ok_button, False, False, 6)
+   ok_button.connect("clicked", delete_event)
+
+   window.connect("destroy", delete_event)
 
    window.show_all()
-   window.run()
+   gtk.main()
 
 #interesting_things_gui("Bad things by Analysis X",[["Bad Chiral",0,"A",23,"","CA","A"],["Bad Density Fit",0,"B",65,"","CA",""],["Interesting blob",45.6,46.7,87.5],["Interesting blob 2",45.6,41.7,80.5]])
 #interesting_things_gui("Bad things by Analysis X",[["Bad Chiral",0,"A",23,"","CA","A",[print_sequence_chain,0,'A']],["Bad Density Fit",0,"B",65,"","CA",""],["Interesting blob",45.6,46.7,87.5],["Interesting blob 2",45.6,41.7,80.5]])
@@ -1571,8 +1571,8 @@ def cootaneer_gui(imol):
 	# main body
 	imol_map = imol_refinement_map()
 	if (imol_map == -1):
-		show_select_map_dialog()
-		print "BL DEBUG:: probably should wait here for input!?"
+           show_select_map_dialog()
+           print "BL DEBUG:: probably should wait here for input!?"
 	
 	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 	outside_vbox = gtk.VBox(False, 2)
@@ -1600,146 +1600,7 @@ def cootaneer_gui(imol):
 	go_button.connect("clicked", go_function_event, imol)
 
         window.add(outside_vbox)
-	window.show_all()
-	
-
-# Cootaneer gui BL mod
-# based on cootaneer gui and generic_chooser_entry_and_file_selector
-def cootaneer_gui_bl():
-   
-	def delete_event(*args):
-		window.destroy()
-		return False
-
-	def go_function_event(widget, imol):
-		print "apply the sequence info here\n"
-		print "then cootaneer\n"
-
-		# no active atom won't do.  We need
-		# to find the nearest atom in imol to (rotation-centre).
-		#
-		# if it is too far away, give a
-		# warning and do't do anything.
-
-		n_atom = closest_atom(imol)
-		if n_atom:
-			imol	= n_atom[0]
-			chain_id= n_atom[1]
-			resno	= n_atom[2]
-			inscode	= n_atom[3]
-			at_name	= n_atom[4]
-			alt_conf= n_atom[5]
-			cootaneer(imol_map, imol, [chain_id, resno, inscode, 
-				at_name, alt_conf])
-		else:
-			print "BL WARNING:: no close atom found!"
-
-        def import_function_event(*args):
-           print "BL says:: we shall do somthign!!"
-
-
-	def add_text_to_text_box(text_box, description):
-		start = text_box.get_start_iter()
-		text_box.create_tag("tag", foreground="black", 
-			background = "#c0e6c0")
-		text_box.insert_with_tags_by_name(start, description, "tag")
-
-	# return the (entry . textbuffer/box)
-	#
-	def entry_text_pair_frame_with_button(seq_info):
-           
-           def fragment_go_event(widget, imol):
-              print "Cootaneer this fragment", imol
-               
-           frame = gtk.Frame()
-           vbox = gtk.VBox(False, 3)
-           hbox = gtk.HBox(False, 3)
-           entry = gtk.Entry()
-           textview = gtk.TextView()
-           textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
-           text_box = textview.get_buffer()
-           chain_id_label = gtk.Label("Chain ID")
-           sequence_label = gtk.Label("Sequence")
-           fragment_button = gtk.Button("  Cootaneer closest fragment  ")
-           
-           frame.add(hbox)
-           vbox.pack_start(chain_id_label, False, False, 2)
-           vbox.pack_start(entry, False, False, 2)
-           vbox.pack_start(sequence_label, False, False, 2)
-           vbox.pack_start(textview, False, False, 2)
-           add_text_to_text_box(text_box, seq_info[1])
-           entry.set_text(seq_info[0])
-           hbox.pack_start(vbox, False, False, 2)
-           hbox.pack_start(fragment_button, False, False, 2)
-              
-           fragment_button.connect("clicked", fragment_go_event, imol)
-              
-           return [frame, entry, text_box]
-
-	# main body
-        imol = False
-	imol_map = imol_refinement_map()
-	if (imol_map == -1):
-		show_select_map_dialog()
-		print "BL DEBUG:: probably should wait here for input!?"
-	
-	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.set_title("Cootaneer Gui")
-        tooltips = gtk.Tooltips()
-        label = gtk.Label("Molecule to be sequenced")
-	vbox = gtk.VBox(False, 2)
-        option_menu = gtk.combo_box_new_text()
-        model_mol_list = fill_option_menu_with_mol_options(option_menu, valid_model_molecule_qm)
-	inside_vbox = gtk.VBox(False, 2)
-        hbox_for_spin = gtk.HBox(False, 0)
-        spin_label = gtk.Label("Number of Sequences:")
-        spin_adj = gtk.Adjustment(1, 1, 10, 1, 4, 0)
-        spin_button = gtk.SpinButton(spin_adj, 0, 0)
-	h_sep = gtk.HSeparator()
-	h_sep2 = gtk.HSeparator()
-	buttons_hbox = gtk.HBox(True, 2)
-        import_button = gtk.Button("  Import Sequence from file  ")
-	go_button = gtk.Button("  Cootaneer all Fragments!  ")
-        tooltips.set_tip(go_button, "This currently ignores all chain IDs")
-	cancel_button = gtk.Button("  Cancel  ")
-
-        window.set_default_size(400, 200)
-        window.add(vbox)
-        vbox.pack_start(label, False, False, 5)
-        vbox.pack_start(option_menu, True, True, 0)
-
-        hbox_for_spin.pack_start(spin_label, False, False, 2)
-        hbox_for_spin.pack_start(spin_button, False, False, 2)       
-        vbox.pack_start(hbox_for_spin, False, False, 5)
-
-        vbox.pack_start(inside_vbox, False, False, 2)
-#	for seq_info in seq_info_ls:
-        seq_widgets = entry_text_pair_frame_with_button(["A", "no seq"])
-        inside_vbox.pack_start(seq_widgets[0], False, False, 2)
-
-        vbox.pack_start(h_sep, True, False, 2)
-        file_sel_entry = file_chooser_entry(vbox, "Select PIR file")
-        vbox.pack_start(import_button, True, False, 6)
-
-	buttons_hbox.pack_start(go_button, True, False, 6)
-	buttons_hbox.pack_start(cancel_button, True, False, 6)
-
-        vbox.pack_start(h_sep, True, False, 2)
-        vbox.pack_start(buttons_hbox, False, False, 5)
-        
-
-#	seq_info_ls = sequence_info(imol)
-#        print "BL DEBUG:: sequence_list and imol is", seq_info_ls, imol
-
-        import_button.connect("clicked", import_function_event)
-
-	cancel_button.connect("clicked", delete_event)
-
-	go_button.connect("clicked", go_function_event, imol)
-                               
-
-        window.add(outside_vbox)
-	window.show_all()
+	window.show_all()	
 
 
 # The gui for saving views
@@ -2381,12 +2242,12 @@ def cootaneer_gui_bl():
            vbox.pack_start(chain_id_label, False, False, 2)
            vbox.pack_start(entry, False, False, 2)
            vbox.pack_start(sequence_label, False, False, 2)
-           vbox.pack_start(textview, False, False, 2)
+           vbox.pack_start(textview, True, False, 2)
            add_text_to_text_buffer(text_buffer, seq_info[1])
            entry.set_text(seq_info[0])
            hbox.pack_start(vbox, False, False, 2)
-	   vbox_for_buttons.pack_start(chain_check_button, True, False, 6)
-	   vbox_for_buttons.pack_start(fragment_button, True, False, 6)
+	   vbox_for_buttons.pack_start(chain_check_button, False, False, 6)
+	   vbox_for_buttons.pack_start(fragment_button, False, False, 6)
            hbox.pack_start(vbox_for_buttons, False, False, 2)
               
            fragment_button.connect("clicked", fragment_go_event)
@@ -2509,7 +2370,7 @@ def cootaneer_gui_bl():
 		show_select_map_dialog()
 	
 	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.set_title("Sequencing Gui")
+        window.set_title("Sequencing GUI")
         tooltips = gtk.Tooltips()
         label = gtk.Label("Molecule to be sequenced")
 	vbox = gtk.VBox(False, 2)
@@ -2524,7 +2385,7 @@ def cootaneer_gui_bl():
 	refine_check_button = gtk.CheckButton("Auto-fit-refine after sequencing?")
 	h_sep = gtk.HSeparator()
 	h_sep2 = gtk.HSeparator()
-	buttons_hbox = gtk.HBox(True, 2)
+	buttons_hbox = gtk.HBox(False, 2)
         import_button = gtk.Button("  Import and associate sequence from file  ")
 	go_button = gtk.Button("  Sequence all fragments!  ")
         tooltips.set_tip(go_button, "This currently ignores all chain IDs")
@@ -2534,27 +2395,27 @@ def cootaneer_gui_bl():
         window.set_default_size(400, 200)
         window.add(vbox)
         vbox.pack_start(label, False, False, 5)
-        vbox.pack_start(option_menu, True, True, 0)
+        vbox.pack_start(option_menu, False, False, 0)
 
         hbox_for_spin.pack_start(spin_label, False, False, 2)
         hbox_for_spin.pack_start(spin_button, False, False, 2)
 	hbox_for_spin.pack_end(refine_check_button, False, False, 2)
         vbox.pack_start(hbox_for_spin, False, False, 5)
 
-        vbox.pack_start(inside_vbox, True, False, 2)
+        vbox.pack_start(inside_vbox, False, False, 2)
         inside_vbox.add(seq_table)
 	make_cell(0)
 	fill_table_with_sequences()
 	
-        vbox.pack_start(h_sep, True, False, 2)
+        vbox.pack_start(h_sep, False, False, 2)
         file_sel_entry = file_chooser_entry(vbox, "Select PIR file")
-        vbox.pack_start(import_button, True, False, 6)
+        vbox.pack_start(import_button, False, False, 6)
 
-	buttons_hbox.pack_start(go_button, True, False, 6)
-	buttons_hbox.pack_start(cancel_button, True, False, 6)
-	buttons_hbox.pack_start(clear_button, True, False, 6)
+	buttons_hbox.pack_start(go_button, False, False, 6)
+	buttons_hbox.pack_start(cancel_button, False, False, 6)
+	buttons_hbox.pack_start(clear_button, False, False, 6)
 
-        vbox.pack_start(h_sep2, True, False, 2)
+        vbox.pack_start(h_sep2, False, False, 2)
         vbox.pack_start(buttons_hbox, False, False, 5)
 
 
