@@ -606,10 +606,10 @@ graphics_info_t::rotamer_graphs(int imol) {
 		  char *chain_id;
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs = 0;
-		  if (use_graphics_interface_flag) { 
+		  if (use_graphics_interface_flag) {
+		     std::string mol_name = graphics_info_t::molecules[imol].name_for_display_manager();
 		     graphs = new coot::geometry_graphs(coot::GEOMETRY_GRAPH_ROTAMER,
-							imol,
-							graphics_info_t::molecules[imol].name_for_display_manager(), 
+							imol, mol_name,
 							n_chains, max_chain_length);
 		     
 		     rotamer_graph[imol] = graphs->dialog();
