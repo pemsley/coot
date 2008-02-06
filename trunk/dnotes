@@ -4157,7 +4157,7 @@ Thu Jan 31 07:49:51 GMT 2008
 ------
 Thu Jan 31 08:32:26 GMT 2008
 
-    select rotamer button box has an OK button that needs to be homogenized.
+    Select rotamer button box has an OK button that needs to be homogenized.
 
     Priority: High
 
@@ -4171,14 +4171,85 @@ Thu Jan 31 20:12:56 GMT 2008
    those graphs always starting at number 1 - or at the lowest residue
    number of any chain?
 
-   Yes the lowest number in any chain.
+   Yes the lowest number in any chain.  That is, if the difference is
+   not too large (like 100 or so)
 
    Priority: Medium.  Do before 0.6.
 
+-----
+Fri Feb  1 19:03:34 GMT 2008
+
+    Need a test for merging molecules.
+    merge-molecules is used in the rna test.
+    But let's make more of a torture test and test the resulting molecule
 
 ------
 
 	look in ejd/2a4d something and residue 
 	218A rotamers, fails.
 	But works after regularization
+
+-----
+Wed Feb  6 14:05:16 GMT 2008
+
+    cc-interface-build.cc has the following bit of code:
+
+	 if (p.size() > 0) {
+	    // install new molecule(s) that has been rotated.
+	 }
+
+   Should fix/fill.
+
+
+
+
+
+-------
+
+    create_molecule() hygiene
+
+    c-interface-build.cc is clean
+   
+   to go
+   c-interface.cc   
+   c-interface-ligands.cc
+   graphics-info.cc
+   graphics-info-modelling.cc
+   graphics-info-superpose.cc
+   molecule-class-info.cc  
+   molecule-class-info-ncs.cc  
+
+
+-----
+Wed Feb  6 14:58:14 GMT 2008
+
+   Dave Schuller:
+
+   In Coot 0.4.1, I have a molecule displayed as "Ca + ligands." After
+   I ran some regularisation, the color of my molecule changed! I
+   switched the molecule display mode to bonds, then back to Ca +
+   ligands and everything was OK again. Interesting "feature."
+
+   Priority: High:
+   Difficulty: Easy.
+
+-----
+Wed Feb  6 16:15:31 GMT 2008
+
+    On mutate and insert residue we can additionally set the seg-id of
+    the new atoms (given that the current/previous residue is sensible).
+
+    Priority: Medium:
+    Difficulty: Medium/Easy
+
+
+----
+Wed Feb  6 16:17:51 GMT 2008
+
+    Doug Kuntz:
+
+    Make a method to save the symmetry colour.
+
+    Priority: High.  Do it for 0.5
+    Difficulty: Easy 
 

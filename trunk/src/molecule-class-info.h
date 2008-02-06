@@ -62,6 +62,13 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 
 #include "protein-geometry.hh"
 
+
+#include "validation-graphs.hh"  // GTK things, now part of
+				 // molecule_class_info_t, they used
+				 // to be part of graphics_info_t before the 
+                                 // array->vector change-over.
+
+
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3, TYPE_DIFF_SIGMAA=4 };
 }
@@ -322,6 +329,9 @@ namespace coot {
        attribute_value = att_val;
      } 
    };
+
+
+
 }
 
 
@@ -1867,7 +1877,6 @@ class molecule_class_info_t {
 
    void mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bool state);
 
-
    // validation
    void find_deviant_geometry(float strictness);
 
@@ -2078,6 +2087,11 @@ class molecule_class_info_t {
 
    // 
    void sharpen(float b_factor);
+
+
+   // 
+
+   coot::validation_graphs_t validation_graphs;
 
 };
 

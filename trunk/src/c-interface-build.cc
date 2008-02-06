@@ -128,6 +128,7 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
 	 ir = imol_map;
       } else {
 	 ir = -1; // error
+	 graphics_info_t::erase_last_molecule();
       }
    }
    std::vector<std::string> command_strings;
@@ -5152,7 +5153,7 @@ int fffear_search(int imol_model, int imol_map) {
 
    float angular_resolution = graphics_info_t::fffear_angular_resolution;
    int imol_new = -1;
-   if (is_valid_model_molecule(imol_model))
+   if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) { 
 	 coot::util::fffear_search f(graphics_info_t::molecules[imol_model].atom_sel.mol,
 				     graphics_info_t::molecules[imol_model].atom_sel.SelectionHandle,
@@ -5167,11 +5168,9 @@ int fffear_search(int imol_model, int imol_map) {
 	 if (p.size() > 0) {
 	    // install new molecule(s) that has been rotated.
 	 }
-
       }
-
+   }
    return imol_new;
-
 }
 
 
@@ -5730,6 +5729,7 @@ int new_molecule_by_residue_type_selection(int imol_orig, const char *residue_ty
       } else {
 	 std::cout << "in new_molecule_by_residue_type_selection "
 		   << "Something bad happened - null molecule" << std::endl;
+	 graphics_info_t::erase_last_molecule();
       } 
       mol_orig->DeleteSelection(SelectionHandle);
       graphics_draw();
@@ -5775,6 +5775,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 if (asc.n_selected_atoms > 0){ 
 	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
 	 } else {
+	    graphics_info_t::erase_last_molecule();
 	    std::cout << "in new_molecule_by_atom_selection "
 		      << "Something bad happened - No atoms selected"
 		      << std::endl;
@@ -5791,6 +5792,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 // mol will (currently) never be null,
 	 // create_mmdbmanager_from_atom_selection() always returns a
 	 // good CMMDBManager pointer.
+	 graphics_info_t::erase_last_molecule();
 	 std::cout << "in new_molecule_by_atom_selection "
 		   << "Something bad happened - null molecule" << std::endl;
 	 std::string s = "Oops, failed to create fragment.  ";
@@ -5829,6 +5831,7 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	 if (asc.n_selected_atoms > 0){ 
 	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
 	 } else {
+	    graphics_info_t::erase_last_molecule();
 	    std::cout << "in new_molecule_by_atom_selection "
 		      << "Something bad happened - No atoms selected"
 		      << std::endl;
@@ -5851,6 +5854,7 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	 // mol will (currently) never be null,
 	 // create_mmdbmanager_from_atom_selection() always returns a
 	 // good CMMDBManager pointer.
+	 graphics_info_t::erase_last_molecule();
 	 std::cout << "in new_molecule_by_atom_selection "
 		   << "Something bad happened - null molecule" << std::endl;
 	 std::string s = "Oops, failed to create fragment.  ";
@@ -5908,6 +5912,7 @@ int read_shelx_ins_file(const char *filename) {
       g.recentre_on_read_pdb = 0;
       istat = g.molecules[imol].read_shelx_ins_file(std::string(filename));
       if (istat != 1) {
+	 graphics_info_t::erase_last_molecule();
 	 std::cout << "WARNING:: " << istat << " on read_shelx_ins_file "
 		   << filename << std::endl;
       } else {
@@ -6112,7 +6117,11 @@ int handle_cns_data_file(const char *filename, int imol_coords) {
 									       filename);
 	       if (istat != -1) { 
 		  graphics_draw();
-	       }
+	       } else {
+		  graphics_info_t::erase_last_molecule();
+	       } 
+	    } else {
+	       graphics_info_t::erase_last_molecule();
 	    }
 	 } 
       }
@@ -6125,7 +6134,6 @@ void
 my_delete_ramachandran_mol_option(GtkWidget *widget, void *data) {
    gtk_container_remove(GTK_CONTAINER(data), widget);
 }
-
 
 
 void
