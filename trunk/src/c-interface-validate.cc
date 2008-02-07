@@ -532,23 +532,30 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
 	 
 	    imol = graphs->Imol();
 	 
-	    if (is_valid_model_molecule(imol)) { 
+	    if (is_valid_model_molecule(imol)) {
+	       
+	       coot::set_validation_graph(imol, graphs->Graph_Type(), NULL);
 
-	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_GEOMETRY) {
-		  g.geometry_graph[imol] = NULL;
-	       }
-	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_B_FACTOR) {
-		  g.b_factor_variance_graph[imol] = NULL;
-	       }
-	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION) {
-		  g.omega_distortion_graph[imol] = NULL;
-	       }
-	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_ROTAMER) {
-		  g.rotamer_graph[imol] = NULL;
-	       }
-	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_DENSITY_FIT) {
-		  g.residue_density_fit_graph[imol] = NULL;
-	       }
+// Old style array of molecules code
+// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_GEOMETRY) {
+// 		  g.geometry_graph[imol] = NULL;
+// 	       }
+// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_B_FACTOR) {
+// 		  g.b_factor_variance_graph[imol] = NULL;
+// 	       }
+// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION) {
+// 		  g.omega_distortion_graph[imol] = NULL;
+// 	       }
+// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_ROTAMER) {
+// 		  g.rotamer_graph[imol] = NULL;
+// 	       }
+// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_DENSITY_FIT) {
+// 		  g.residue_density_fit_graph[imol] = NULL;
+// 	       }
+// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_NCS_DIFFS) {
+// 		  g.ncs_diffs_graph[imol] = NULL;
+// 	       }
+
 	    }
 	 }
       } else {
@@ -1409,7 +1416,19 @@ GtkWidget *dynarama_is_displayed_state(int imol) {
 
    GtkWidget *w = NULL;
    if (is_valid_model_molecule(imol)) {
-      w = graphics_info_t::dynarama_is_displayed[imol];
+      // w = graphics_info_t::dynarama_is_displayed[imol];
+      w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
+   }
+   return w;
+}
+
+
+GtkWidget *dynarama_widget(int imol) {
+
+   GtkWidget *w = NULL;
+   if (imol < graphics_info_t::n_molecules()) {
+      // w = graphics_info_t::dynarama_is_displayed[imol];
+      w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    }
    return w;
 }
@@ -1450,16 +1469,6 @@ int get_mol_from_dynarama(GtkWidget *window) {
    return imol; 
 }
    
-
-
-GtkWidget *dynarama_widget(int imol) {
-
-   GtkWidget *w = NULL;
-   if (imol < graphics_info_t::n_molecules()) {
-      w = graphics_info_t::dynarama_is_displayed[imol];
-   }
-   return w;
-}
 
 // ----------------------------------------------------------------------------------
 //                            LSQ

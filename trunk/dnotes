@@ -3668,8 +3668,7 @@ Sun Jan 13 18:42:32 GMT 2008
   } else { 
     printf("failed to get menu in on_density_fit1_activate\n");
   }
-  
-  
+    
    in c-interface-validate.cc
    -------------------------
 
@@ -3678,6 +3677,13 @@ Sun Jan 13 18:42:32 GMT 2008
    The validation_type must match that from callbacks.c
    The sub_menu_name must match that from main.cc 
      create_initial_validation_graph_submenu_generic()
+
+   Also unset_geometry_graph(GtkWidget *dialog) needs to know about the new graph
+
+   in graphics_info_graphs.cc 
+   --------------------------
+   set_validation_graph need to know about the new graph
+
 
 -----
 Mon Jan 14 13:22:33 GMT 2008
@@ -4208,17 +4214,14 @@ Wed Feb  6 14:05:16 GMT 2008
 
     create_molecule() hygiene
 
-    c-interface-build.cc is clean
-   
-   to go
-   c-interface.cc   
+   c-interface-build.cc is clean
    c-interface-ligands.cc
+   c-interface.cc   
    graphics-info.cc
    graphics-info-modelling.cc
    graphics-info-superpose.cc
-   molecule-class-info.cc  
    molecule-class-info-ncs.cc  
-
+   
 
 -----
 Wed Feb  6 14:58:14 GMT 2008
@@ -4253,3 +4256,33 @@ Wed Feb  6 16:17:51 GMT 2008
     Priority: High.  Do it for 0.5
     Difficulty: Easy 
 
+-----
+Wed Feb  6 23:18:23 GMT 2008
+
+    After graphs moved over to molecules class, 
+
+    Need to test Ramachandran plot and sequence view for molecules
+
+----
+Wed Feb  6 23:36:45 GMT 2008
+
+    JED:
+
+   "More on removing alt confs: if I try to remove a non-existing
+   residue (e.g. from scripting with delete-residue-with-altconf),
+   coot crashes on the next attempt to centre on something, even
+   though it knows that the residue in question couldn't be found."
+
+   Write a test.
+
+    Priority: Critical
+    Difficulty: Medium/Easy
+
+
+
+-----
+Thu Feb  7 00:00:14 GMT 2008
+
+    Why is there a delete plot in 
+    void
+    graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol)

@@ -659,16 +659,7 @@ std::string graphics_info_t::display_density_level_screen_string =
 //
 // This kills the compiler:  Move the allocation to init.
 // GtkWidget **graphics_info_t::dynarama_is_displayed = new GtkWidget *[graphics_info_t::n_molecules_max];
-GtkWidget **graphics_info_t::dynarama_is_displayed      = NULL;
-GtkWidget **graphics_info_t::sequence_view_is_displayed = NULL;
-GtkWidget **graphics_info_t::geometry_graph             = NULL;
-GtkWidget **graphics_info_t::b_factor_variance_graph    = NULL;
-GtkWidget **graphics_info_t::residue_density_fit_graph  = NULL;
-GtkWidget **graphics_info_t::omega_distortion_graph     = NULL;
-GtkWidget **graphics_info_t::rotamer_graph              = NULL;
-GtkWidget **graphics_info_t::ncs_diffs_graph            = NULL;
 float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
-
 
 // cif dictionary
 std::vector<std::string> *graphics_info_t::cif_dictionary_filename_vec = NULL;

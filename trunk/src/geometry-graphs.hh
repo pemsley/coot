@@ -1,4 +1,4 @@
-/* src/geometry-graphs.hh
+/* Sec/geometry-graphs.hh
  * 
  * Copyright 2004, 2005 by The University of York
  * Author: Paul Emsley
@@ -45,7 +45,9 @@ namespace coot {
 			     GEOMETRY_GRAPH_DENSITY_FIT,
 			     GEOMETRY_GRAPH_OMEGA_DISTORTION,
 			     GEOMETRY_GRAPH_ROTAMER,
-			     GEOMETRY_GRAPH_NCS_DIFFS
+			     GEOMETRY_GRAPH_NCS_DIFFS,
+			     SEQUENCE_VIEW,
+			     RAMACHANDRAN_PLOT
    };
 
    gint on_geometry_graph_block_clicked(GtkCanvasItem *item, 
@@ -101,6 +103,7 @@ namespace coot {
       }
    };
    
+
    class geometry_graphs {
       int imol; // for block click callback (and unset widget from
 		// graphics info on destroy)
@@ -135,9 +138,9 @@ namespace coot {
       std::string fixed_font_str;
       int chain_id_to_chain_index(const std::string &chain_id) const;
 
-      void render_geometry_distortion_blocks_internal(const coot::geometry_distortion_info_container_t &dc,
+      void render_geometry_distortion_blocks_internal(const geometry_distortion_info_container_t &dc,
 				  int min_res, int max_resno);
-      std::vector<coot::geometry_distortion_info_container_t>
+      std::vector<geometry_distortion_info_container_t>
       geometric_distortions_from_mol(const atom_selection_container_t &asc) const;
 
       double sane_occupancy(const double &occ_in) {
@@ -154,15 +157,15 @@ namespace coot {
    public:
       geometry_graphs(geometry_graph_type type, int imol, std::string graph_label,
 		      int nchains, int max_chain_length);
-      void render_to_canvas(const coot::geometry_distortion_info_container_t &dv, 
+      void render_to_canvas(const geometry_distortion_info_container_t &dv, 
 			    int chain_number);
-      void render_to_canvas(const coot::geometry_distortion_info_container_t &dv, 
+      void render_to_canvas(const geometry_distortion_info_container_t &dv, 
 			    const std::string &chain_id_in) {
 	 int ch =  chain_id_to_chain_index(chain_id_in);
 	 if (ch >= 0) 
 	    render_to_canvas(dv, ch);
       }
-      void render_to_canvas(const std::vector<coot::geometry_graph_block_info_generic> &gbi,
+      void render_to_canvas(const std::vector<geometry_graph_block_info_generic> &gbi,
 			    int ichain,
 			    const std::string &chain_id,
 			    int max_resno,
@@ -172,30 +175,29 @@ namespace coot {
 				  int ichain,
 				  const std::string  &chain_id,
 				  int offset, 
-				  const std::vector<coot::b_factor_block_info_t> &biv);
+				  const std::vector<b_factor_block_info_t> &biv);
 
-      void render_omega_blocks(const coot::omega_distortion_info_container_t &om_dist,
+      void render_omega_blocks(const omega_distortion_info_container_t &om_dist,
 			       int chain_number,
 			       const std::string &chain_id,
 			       int offset_in);
-      void update_omega_blocks(const coot::omega_distortion_info_container_t &om_dist,
+      void update_omega_blocks(const omega_distortion_info_container_t &om_dist,
 			       int chain_number,
 			       const std::string &chain_id);
       
-      void update_residue_blocks(const coot::geometry_distortion_info_container_t &dv);
-      void update_residue_blocks(const std::vector<coot::geometry_graph_block_info_generic> &dv);
+      void update_residue_blocks(const geometry_distortion_info_container_t &dv);
+      void update_residue_blocks(const std::vector<geometry_graph_block_info_generic> &dv);
       
       void set_sensitivity(double d); // becomes the distortion_max.
       void button_press(GtkCanvasItem *item, GdkEvent *event, 
-			const coot::geometry_graph_block_info &binfo);
+			const geometry_graph_block_info &binfo);
       void mouse_over(GtkCanvasItem *item, GdkEvent *event, 
-		      const coot::geometry_graph_block_info &binfo);
+		      const geometry_graph_block_info &binfo);
       GtkWidget *dialog() const;
       int Imol() const { return imol; }
       geometry_graph_type Graph_Type() const { return graph_type; }
       void close_yourself();
    };
-
 }
 
 

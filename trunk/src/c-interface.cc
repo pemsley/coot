@@ -3870,6 +3870,7 @@ read_phs_and_coords_and_make_map(const gchar *pdb_filename){
       graphics_draw();
    } else {
       // give us a warning message then
+      g.erase_last_molecule();
       std::string w = "Sadly, the cell or space group is not comprehensible in\n";
       w += "the pdb file: ";
       w += pdb_filename;
@@ -3963,6 +3964,7 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
 	 imol = istat;
 	 graphics_draw();
       } else {
+	 g.erase_last_molecule();
 	 std::string w = "Sadly, something bad happened reading phs file using\n";
 	 w += "the molecule number ";
 	 w += coot::util::int_to_string(imol_ref); 
@@ -3972,6 +3974,7 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
 	 gtk_widget_show(widget);
       }
    } else {
+      g.erase_last_molecule();
       // give us a warning message then
       std::string w = "Sadly, the cell or space group is not comprehensible in\n";
       w += "the molecule number ";
@@ -5966,11 +5969,13 @@ void do_sequence_view(int imol) {
    if (g.molecules[imol].has_model()) {
       graphics_info_t g;
 
-      if (g.sequence_view_is_displayed[imol] != 0) {
+      GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+      if (w) {
 
 	 // it already exists... just raise it and map it.
 
-	 GtkWidget *canvas = g.sequence_view_is_displayed[imol];
+	 // GtkWidget *canvas = g.sequence_view_is_displayed[imol];
+	 GtkWidget *canvas = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
 	 // so what is the window (which we shall call widget)?
 	 GtkWidget *widget = lookup_widget(canvas, "sequence_view_dialog");
 
@@ -6256,7 +6261,7 @@ int auto_read_cif_data_with_phases(const char *filename) {
 int read_cif_data_with_phases_sigmaa(const char *filename) {
 
    graphics_info_t g; 
-   int imol = g.create_molecule();
+   int imol = -1;
    
    // first, does the file exist?
    struct stat s; 
@@ -6278,11 +6283,13 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
       // c.f. read_phs_and_coords_and_make_map or make_and_draw_map,
       // map_fill_from_mtz.
       std::string fn = filename;
+      imol = g.create_molecule();
       int istat = g.molecules[imol].make_map_from_cif(imol, fn);
       if (istat != -1) {
 	 g.scroll_wheel_map = imol;
 	 graphics_draw();
       } else {
+	 g.erase_last_molecule();
 	 imol = -1;
       }
    }
@@ -6292,7 +6299,7 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
 int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
 
    graphics_info_t g; 
-   int imol = g.create_molecule();
+   int imol = -1;
    
    // first, does the file exist?
    struct stat s; 
@@ -6314,11 +6321,13 @@ int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
       // c.f. read_phs_and_coords_and_make_map or make_and_draw_map,
       // map_fill_from_mtz.
       std::string fn = filename;
+      imol = g.create_molecule();
       int istat = g.molecules[imol].make_map_from_cif_diff_sigmaa(imol, fn);
       if (istat != -1) {
 	 g.scroll_wheel_map = imol;
 	 graphics_draw();
       } else {
+	 g.erase_last_molecule();
 	 imol = -1;
       }
    }
@@ -6373,7 +6382,9 @@ int read_cif_data_with_phases_nfo_fc(const char *filename,
 	 g.scroll_wheel_map = imol; // change the current scrollable map.
 	 graphics_draw();
 	 return imol;
-      }
+      } else {
+	 g.erase_last_molecule();
+      } 
       return -1; // error
    }
 }

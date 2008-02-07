@@ -17355,6 +17355,7 @@ Do you want to continue?
 
 <widget class="GtkDialog" id="delete_item_dialog">
   <property name="visible">True</property>
+  <property name="tooltip" translatable="yes">Delete a Residue/Monomer.  Note that if an atom with an alternative conformation specifier is picked, then only those atoms in the residue with the same alternative conformation as the picked atom are deleted.</property>
   <property name="title" translatable="yes">Delete item</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
