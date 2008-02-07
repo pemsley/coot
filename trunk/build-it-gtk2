@@ -1120,7 +1120,6 @@ build_guile_www=0
 build_guile_gui=0
 build_guile_goosh=0
 build_libtool=0
-build_readline=0
 build_net_http=0
 build_gsl=0
 # build_libungif=0
@@ -1133,6 +1132,7 @@ build_guile_gtk=0
 build_gtkglext=0
 build_freeglut=0
 build_glib=
+build_readline=
 
 
 # In Gtk2, we presume that glib, gtk2 and gnomecanvas are available.  
@@ -1218,7 +1218,7 @@ fi
 
 if pkg-config --atleast-version=2.14.5 glib ; then
    # have glib
-   echo :::::::: glib is up to date
+   echo glib is up to date
    build_glib=
 else
    echo glib is not not up to date, rebuild glib
@@ -1227,7 +1227,7 @@ fi
 
 if pkg-config --atleast-version=0.5.6 glitz ; then
    # have glitz
-   echo :::::::: glitz is up to date
+   echo glitz is up to date
    build_glitz=
 else
    echo cairo is not not up to date, rebuild gtk and friends
@@ -1238,7 +1238,7 @@ fi
 # 
 if pkg-config --atleast-version=1.4.12 cairo ; then
    # have cairo
-   echo :::::::: cairo is up to date
+   echo cairo is up to date
    build_cairo=
 else
    echo cairo is not not up to date, rebuild gtk and friends
@@ -1299,10 +1299,8 @@ fi
 
 build_gmp=1
 if test -e ${install_top_dir}/lib/libgmp.so.3 ; then
-    build_gmp=
-fi
-if test -z "$build_readline" ; then
     echo installation has gmp
+    build_gmp=
 else 
     echo gmp should be built
 fi
