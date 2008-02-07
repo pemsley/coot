@@ -70,7 +70,7 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="31.392432"
+     inkscape:zoom="15.696216"
      inkscape:cx="8"
      inkscape:cy="7.6288015"
      inkscape:current-layer="layer1"
@@ -78,9 +78,9 @@
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
      inkscape:window-width="1138"
-     inkscape:window-height="842"
-     inkscape:window-x="241"
-     inkscape:window-y="91" />
+     inkscape:window-height="722"
+     inkscape:window-x="15"
+     inkscape:window-y="24" />
   <metadata
      id="metadata3808">
     <rdf:RDF>
@@ -96,6 +96,13 @@
      id="layer1"
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
+    <rect
+       style="opacity:1;fill:#c7c6c6;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3357"
+       width="15.927405"
+       height="15.872581"
+       x="0.072594643"
+       y="0" />
     <path
        sodipodi:type="arc"
        style="opacity:1;fill:url(#linearGradient3244);fill-opacity:1.0;fill-rule:evenodd;stroke:url(#linearGradient3236);stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"

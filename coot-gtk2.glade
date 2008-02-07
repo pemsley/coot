@@ -3167,7 +3167,7 @@
 		      <property name="tooltip" translatable="yes">Flip sidechain 180 degrees (click on an atom)</property>
 		      <property name="label" translatable="yes"> Sidechain 180 Degree Flip</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">side-chain-180.svg</property>
+		      <property name="icon">side-chain-180.png</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
