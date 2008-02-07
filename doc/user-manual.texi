@@ -2930,13 +2930,15 @@ geometry functions (such as Distance and Angle).
 @section Delete 
 @cindex delete 
 
-Single atoms or residues can be deleted from the
-molecule using ``Delete@dots{}'' from the ``Model/Fit/Refine''dialog.
-Pressing this button results in a new dialog, with the options of
-``Residue'' (the default), ``Atom'' and ``Hydrogen Atoms''.  Now click
-on an atom in the graphics - the deleted object will be the whole
-residue of the atom if ``Residue'' was selected and just that atom if
-``Atom'' was selected.
+Single atoms or residues can be deleted from the molecule using
+``Delete@dots{}'' from the ``Model/Fit/Refine''dialog.  Pressing this
+button results in a new dialog, with the options of ``Residue'' (the
+default), ``Atom'' and ``Hydrogen Atoms''.  Now click on an atom in the
+graphics - the deleted object will be the whole residue of the atom if
+``Residue'' was selected and just that atom if ``Atom'' was selected.
+Note that if a residue has an alternative conformation, then ``Delete
+Residue'' will delete only the conformation that matches that
+alternative conformation specifier of the clicked atom.
 
 Only waters are deletable if the "Water" check button is active and
 waters are not deletable if the "Residue/Monomer" check button is

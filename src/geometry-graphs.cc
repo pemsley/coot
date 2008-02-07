@@ -96,9 +96,7 @@ coot::on_geometry_graph_block_clicked(GtkCanvasItem *item, GdkEvent *event, gpoi
 	 graphs->mouse_over(item, event, *block_info);
       }
    }
-
    return FALSE;
-
 }
 
 // this could be a static?

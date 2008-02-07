@@ -435,11 +435,12 @@
 		(z-test-val 2.3)
 		(o-test-val 0.5)
 		(b-test-val 44.4)
-		(ls (list (list 0 "A" 2 "" " CA " "" "x" x-test-val)
-			  (list 0 "A" 2 "" " CA " "" "y" y-test-val)
-			  (list 0 "A" 2 "" " CA " "" "z" z-test-val)
-			  (list 0 "A" 2 "" " CA " "" "occ" o-test-val)
-			  (list 0 "A" 2 "" " CA " "" "b" b-test-val))))
+		(ls (list (list imol-rnase "A" 2 "" " CA " "" "x" x-test-val)
+			  (list imol-rnase "A" 2 "" " CA " "" "y" y-test-val)
+			  (list imol-rnase "A" 2 "" " CA " "" "z" z-test-val)
+			  (list imol-rnase "A" 2 "" " CA " "" "occ" o-test-val)
+			  (list imol-rnase "A" 2 "" " CA " "" "b" b-test-val))))
+
            (set-atom-attributes ls)
 	   (let ((atom-ls (residue-info imol-rnase "A" 2 "")))
 	     (let f ((atom-ls atom-ls))
@@ -467,7 +468,13 @@
 			   (close-float? b   b-test-val))
 			  #t ; success
 			  (begin
-			    (format #t "Error in setting multiple atom attributes~%")
+			    (format #t "   Error in setting multiple atom attributes~%")
+			    (format #t "   These are not close: ~%")
+			    (format #t "      ~s ~s~%"   x x-test-val)
+			    (format #t "      ~s ~s~%"   y y-test-val)
+			    (format #t "      ~s ~s~%"   z z-test-val)
+			    (format #t "      ~s ~s~%" occ o-test-val)
+			    (format #t "      ~s ~s~%"   b b-test-val)
 			    #f)))
 		       (f (cdr atom-ls))))))))))))
 
@@ -565,7 +572,6 @@
 			    "/RNASE/NATIVE/FreeR_flag" 1))
 	    (imol (apply make-and-draw-map-with-refmac-params arg-list)))
 
-       (format #t "  refmac map molecule returned status ~s~%" imol)
        (if (not (valid-map-molecule? imol))
 	   (begin
 	     (format #t "  Can't get valid refmac map molecule from ~s~%" rnase-mtz)
@@ -573,7 +579,7 @@
        
        (let ((refmac-params (refmac-parameters imol)))
 	 
-	 (format #t "          comparing: ~s~% with refmac params: ~s~%" arg-list refmac-params)
+;; 	 (format #t "          comparing: ~s~% with refmac params: ~s~%" arg-list refmac-params)
 	 (if (not (equal? refmac-params arg-list))
 	     (begin
 	       (format #t "        non matching refmac params~%")

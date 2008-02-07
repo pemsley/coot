@@ -8876,6 +8876,7 @@ create_delete_item_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   delete_item_dialog = gtk_dialog_new ();
+  gtk_tooltips_set_tip (tooltips, delete_item_dialog, _("Delete a Residue/Monomer.  Note that if an atom with an alternative conformation specifier is picked, then only those atoms in the residue with the same alternative conformation as the picked atom are deleted."), NULL);
   gtk_window_set_title (GTK_WINDOW (delete_item_dialog), _("Delete item"));
   gtk_window_set_type_hint (GTK_WINDOW (delete_item_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 

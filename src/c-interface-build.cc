@@ -5086,7 +5086,6 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 // molecule has been accepted.
 	 float bf = graphics_info_t::default_new_atoms_b_factor;
 	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager(bf));
-	 g.expand_molecule_space_maybe();
 	 imol = g.create_molecule();
 	 graphics_info_t::molecules[imol].install_model(imol, asc, "Strand", 1);
 	 g.statusbar_text("Strand added");

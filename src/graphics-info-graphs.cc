@@ -74,6 +74,100 @@
 
 // Validation stuff	    //
 
+
+
+void
+coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog) {
+
+   if (graphics_info_t::is_valid_model_molecule(imol)) {
+
+      bool found = 0; 
+      if (type == coot::GEOMETRY_GRAPH_GEOMETRY) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.geometry_graph = dialog;
+      }
+      if (type == coot::GEOMETRY_GRAPH_B_FACTOR) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.b_factor_variance_graph = dialog;
+      }
+      if (type == coot::GEOMETRY_GRAPH_DENSITY_FIT) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.residue_density_fit_graph = dialog;
+      }
+      if (type == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.omega_distortion_graph = dialog;
+      }
+      if (type == coot::GEOMETRY_GRAPH_ROTAMER) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.rotamer_graph = dialog;
+      }
+      if (type == coot::GEOMETRY_GRAPH_NCS_DIFFS) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.ncs_diffs_graph = dialog;
+      }
+      if (type == coot::SEQUENCE_VIEW) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed = dialog;
+      }
+      if (type == coot::RAMACHANDRAN_PLOT) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed = dialog;
+      }
+
+
+      if (!found) {
+	 std::cout << "ERROR:: graph type " << type << " not found " << std::endl;
+      }
+      
+   } else {
+      std::cout << "WARNING:: set_validation_graph no valid molecule for imol = "
+		<< imol << std::endl;
+   } 
+} 
+
+GtkWidget *
+coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
+
+   GtkWidget *w = 0;
+   if (graphics_info_t::is_valid_model_molecule(imol)) {
+      bool found = 0; 
+      if (type == coot::GEOMETRY_GRAPH_GEOMETRY) {
+	 found = 1;
+	 w = graphics_info_t::molecules[imol].validation_graphs.geometry_graph;
+      }
+      if (type == coot::GEOMETRY_GRAPH_B_FACTOR) {
+	 found = 1;
+	 w = graphics_info_t::molecules[imol].validation_graphs.b_factor_variance_graph;
+      }
+      if (type == coot::GEOMETRY_GRAPH_DENSITY_FIT) {
+	 found = 1;
+	 w = graphics_info_t::molecules[imol].validation_graphs.residue_density_fit_graph;
+      }
+      if (type == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION) {
+	 found = 1;
+	 w = graphics_info_t::molecules[imol].validation_graphs.omega_distortion_graph;
+      }
+      if (type == coot::GEOMETRY_GRAPH_ROTAMER) {
+	 found = 1;
+	 w = graphics_info_t::molecules[imol].validation_graphs.rotamer_graph ;
+      }
+      if (type == coot::GEOMETRY_GRAPH_NCS_DIFFS) {
+	 found = 1;
+	 w = graphics_info_t::molecules[imol].validation_graphs.ncs_diffs_graph;
+      }
+      if (type == coot::SEQUENCE_VIEW) {
+	 found = 1;
+	 w = graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed;
+      }
+      if (type == coot::RAMACHANDRAN_PLOT) {
+	 found = 1;
+	 w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;
+      }
+   }
+   return w;
+} 
+
 // imol map is passed in case that the density fit graph was displayed.
 // If there is no imol_map then the geometry graph could not have been displayed.  You can
 // pass -1 for the map in that case.
@@ -83,9 +177,10 @@ graphics_info_t::update_geometry_graphs(PCResidue *SelResidues, int nSelResidues
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    
-   if (rotamer_graph[imol_moving_atoms]) {
-      coot::geometry_graphs *gr =
-	 geometry_graph_dialog_to_object(rotamer_graph[imol_moving_atoms]);
+   //    if (rotamer_graph[imol_moving_atoms]) {
+   GtkWidget *graph = coot::get_validation_graph(imol, coot::GEOMETRY_GRAPH_ROTAMER);
+   if (graph) {
+      coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
       if (!gr) {
 	 std::cout << "ERROR:: failed to get rotamer_graph from dialog\n";
       } else {
@@ -107,10 +202,10 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
-   if (geometry_graph[imol_moving_atoms]) {
+   GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
+   if (graph) {
       // get deviations and replace those positions in the graph:
-      coot::geometry_graphs *gr =
-	 geometry_graph_dialog_to_object(geometry_graph[imol_moving_atoms]);
+      coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
       if (!gr) {
 	 std::cout << "ERROR:: failed to get geometry_graph from dialog\n";
       } else {
@@ -121,9 +216,9 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       }
    }
 
-   if (residue_density_fit_graph[imol_moving_atoms]) {
-      coot::geometry_graphs *gr =
-	 geometry_graph_dialog_to_object(residue_density_fit_graph[imol_moving_atoms]);
+   graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_DENSITY_FIT);
+   if (graph) {
+      coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
       if (!gr) {
 	 std::cout << "ERROR:: failed to get residue_density_fit_graph from dialog\n";
       } else {
@@ -138,9 +233,9 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       }
    }
 
-   if (rotamer_graph[imol_moving_atoms]) {
-      coot::geometry_graphs *gr =
-	 geometry_graph_dialog_to_object(rotamer_graph[imol_moving_atoms]);
+   graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_ROTAMER);
+   if (graph) {
+      coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
       if (!gr) {
 	 std::cout << "ERROR:: failed to get rotamer_graph from dialog\n";
       } else {
@@ -151,9 +246,9 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       }
    }
 
-   if (omega_distortion_graph[imol_moving_atoms]) {
-      coot::geometry_graphs *gr =
-	 geometry_graph_dialog_to_object(omega_distortion_graph[imol_moving_atoms]);
+   graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_OMEGA_DISTORTION);
+   if (graph) {
+      coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
       if (!gr) {
 	 std::cout << "ERROR:: failed to get omega_graph from dialog\n";
       } else {
@@ -252,7 +347,7 @@ graphics_info_t::geometric_distortion(int imol) {
 								   imol,
 								   graphics_info_t::molecules[imol].name_for_display_manager(), 
 								   nchains, max_chain_length);
-	 geometry_graph[imol] = graphs->dialog(); // store for potential updates
+	 coot::set_validation_graph(imol, coot::GEOMETRY_GRAPH_GEOMETRY, graphs->dialog()); // store for potential updates
 
 	 // debugging.  Problem was negative occupancies.
 // 	 for(unsigned int i=0; i<dcv.size(); i++) {
@@ -455,7 +550,8 @@ graphics_info_t::b_factor_graphs(int imol) {
 					       imol,
 					       graphics_info_t::molecules[imol].name_for_display_manager(), 
 					       n_chains, max_chain_length);
-		  b_factor_variance_graph[imol] = graphs->dialog();
+		  // b_factor_variance_graph[imol] = graphs->dialog();
+		  set_validation_graph(imol, coot::GEOMETRY_GRAPH_B_FACTOR, graphs->dialog());
 
 		  coot::b_factor_block_info_t bfi;
 		  float std_dev;
@@ -521,7 +617,8 @@ graphics_info_t::omega_graphs(int imol) {
 					       imol,
 					       graphics_info_t::molecules[imol].name_for_display_manager(), 
 					       n_chains, max_chain_length);
-		  omega_distortion_graph[imol] = graphs->dialog();
+		  // omega_distortion_graph[imol] = graphs->dialog();
+		  coot::set_validation_graph(imol, coot::GEOMETRY_GRAPH_OMEGA_DISTORTION, graphs->dialog());
 
 		  for (int ich=0; ich<n_chains; ich++) {
 		     chain_p = model_p->GetChain(ich);
@@ -612,7 +709,8 @@ graphics_info_t::rotamer_graphs(int imol) {
 							imol, mol_name,
 							n_chains, max_chain_length);
 		     
-		     rotamer_graph[imol] = graphs->dialog();
+		     // rotamer_graph[imol] = graphs->dialog();
+		     coot::set_validation_graph(imol, coot::GEOMETRY_GRAPH_ROTAMER, graphs->dialog());
 		  }
 		  for (int ich=0; ich<n_chains; ich++) {
 		     chain_p = model_p->GetChain(ich);
@@ -967,7 +1065,8 @@ graphics_info_t::density_fit_graphs(int imol) {
 						  graphics_info_t::molecules[imol].name_for_display_manager(), 
 						  n_chains, max_chain_length);
 		     
-		     residue_density_fit_graph[imol] = graphs->dialog();
+		     // residue_density_fit_graph[imol] = graphs->dialog();
+		     set_validation_graph(imol, coot::GEOMETRY_GRAPH_DENSITY_FIT, graphs->dialog());
 		     
 		     for (int ich=0; ich<n_chains; ich++) {
 			chain_p = model_p->GetChain(ich);
@@ -1216,7 +1315,8 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
 				graphics_info_t::molecules[imol].name_for_display_manager(), 
 				n_chains, max_chain_length);
 
-   ncs_diffs_graph[imol] = graphs->dialog();
+   // ncs_diffs_graph[imol] = graphs->dialog();
+   set_validation_graph(imol, coot::GEOMETRY_GRAPH_NCS_DIFFS, graphs->dialog());
    for (unsigned int incs_set=0; incs_set<diff.diffs.size(); incs_set++) {
 
       // do this for each chain

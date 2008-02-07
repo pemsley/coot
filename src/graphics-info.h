@@ -68,6 +68,7 @@
 #include "coot-coord-extras.hh"
 
 #include "positioned-widgets.h"
+#include "geometry-graphs.hh"
 
 #include "coot-database.hh"
 
@@ -109,6 +110,9 @@ namespace coot {
    enum chooser_selector_type { OLD_STYLE, CHOOSER_STYLE };
    enum chooser_overwrite_type { CHOOSER_OVERWRITE, CHOOSER_OVERWRITE_PROTECT };
    enum accept_reject_dialog_type { DIALOG, DIALOG_DOCKED };
+
+   void set_validation_graph(int imol, geometry_graph_type type, GtkWidget *dialog);
+   GtkWidget *get_validation_graph(int imol, geometry_graph_type type); 
 
    class coord_orth_triple {
    public:
@@ -540,9 +544,6 @@ class graphics_info_t {
    void update_molecule_to(std::vector<coot::scored_skel_coord> &pos_position,
 			   const std::string &molname);
    int create_empty_molecule(const std::string &molname);
-   // short int expand_molecule_space_maybe(); is public
-   short int expand_molecule_space(); 
-
 
    // symm_atom_pick (public) uses this (private) function:
 
@@ -671,16 +672,18 @@ public:
 /*          molecules[i].set_mol_number(i);  */
 /*       } */
 
-      for (int i=0; i<n_molecules_max; i++) {
-	 dynarama_is_displayed[i]      = NULL;
-	 sequence_view_is_displayed[i] = NULL;
-	 geometry_graph[i]             = NULL;
-	 b_factor_variance_graph[i]    = NULL;
-	 residue_density_fit_graph[i]  = NULL;
-	 omega_distortion_graph[i]     = NULL;
-	 rotamer_graph[i]              = NULL;
-	 ncs_diffs_graph[i]            = NULL;
-      }
+/* Old style array of molecules code */
+/*       for (int i=0; i<n_molecules_max; i++) { */
+/* 	 dynarama_is_displayed[i]      = NULL; */
+/* 	 sequence_view_is_displayed[i] = NULL; */
+/* 	 geometry_graph[i]             = NULL; */
+/* 	 b_factor_variance_graph[i]    = NULL; */
+/* 	 residue_density_fit_graph[i]  = NULL; */
+/* 	 omega_distortion_graph[i]     = NULL; */
+/* 	 rotamer_graph[i]              = NULL; */
+/* 	 ncs_diffs_graph[i]            = NULL; */
+/*       } */
+
    }
 
    void init() { 
@@ -730,45 +733,16 @@ public:
       // cif dictionary
       cif_dictionary_filename_vec = new std::vector<std::string>;
 
-      // ramachandran plots:
-      dynarama_is_displayed = new GtkWidget *[n_molecules_max];
-      for (int i=0; i<n_molecules_max; i++)
-	 dynarama_is_displayed[i] = NULL; // belt and braces
+/*       // ramachandran plots: */
+/*       dynarama_is_displayed = new GtkWidget *[n_molecules_max]; */
+/*       for (int i=0; i<n_molecules_max; i++) */
+/* 	 dynarama_is_displayed[i] = NULL; // belt and braces */
 
-      // sequence_view
-      sequence_view_is_displayed = new GtkWidget * [n_molecules_max];
-      for (int i=0; i<n_molecules_max; i++)
-	 sequence_view_is_displayed[i] = NULL;
+/*       // sequence_view */
+/*       sequence_view_is_displayed = new GtkWidget * [n_molecules_max]; */
+/*       for (int i=0; i<n_molecules_max; i++) */
+/* 	 sequence_view_is_displayed[i] = NULL; */
 
-      // geometry graph
-      geometry_graph = new GtkWidget * [n_molecules_max];
-      for (int i=0; i<n_molecules_max; i++)
-	 geometry_graph[i] = NULL;
-      
-      // b factor variance graph
-      b_factor_variance_graph = new GtkWidget * [n_molecules_max];
-      for (int i=0; i<n_molecules_max; i++)
-	 b_factor_variance_graph[i] = NULL;
-      
-      // rotamer graph
-      rotamer_graph = new GtkWidget * [n_molecules_max];
-      for (int i=0; i<n_molecules_max; i++)
-	 rotamer_graph[i] = NULL;
-	    
-      // residue density fit graph
-      residue_density_fit_graph = new GtkWidget * [n_molecules_max];
-      for (int i=0; i<n_molecules_max; i++)
-	 residue_density_fit_graph[i] = NULL;
-
-      // residue omega distortion
-      omega_distortion_graph = new GtkWidget * [n_molecules_max];
-      for (int i=0; i<n_molecules_max; i++)
-	 omega_distortion_graph[i] = NULL;
-
-      // NCS diffs graph
-      ncs_diffs_graph = new GtkWidget * [n_molecules_max];
-      for (int i=0; i<n_molecules_max; i++)
-	 ncs_diffs_graph[i] = NULL;
 
       // ---- Adding something here? Like another graph?  don't forget
       // to update expand_molecule_space()
@@ -942,8 +916,6 @@ public:
    static float hardware_stereo_angle_factor;
    static short int do_lighting_flag; 
    static short int in_wall_eyed_side_by_side_stereo_mode;
-
-   short int expand_molecule_space_maybe(); 
 
    // return the new molecule number
    static int create_molecule() { 
@@ -1718,12 +1690,14 @@ public:
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
 
    // Geometry Graphs:
-   static GtkWidget **geometry_graph;
-   static GtkWidget **b_factor_variance_graph;
-   static GtkWidget **residue_density_fit_graph;
-   static GtkWidget **omega_distortion_graph;
-   static GtkWidget **rotamer_graph;
-   static GtkWidget **ncs_diffs_graph;
+
+/* Old style array of molecules code */
+/*    static GtkWidget **geometry_graph; */
+/*    static GtkWidget **b_factor_variance_graph; */
+/*    static GtkWidget **residue_density_fit_graph; */
+/*    static GtkWidget **omega_distortion_graph; */
+/*    static GtkWidget **rotamer_graph; */
+/*    static GtkWidget **ncs_diffs_graph; */
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)

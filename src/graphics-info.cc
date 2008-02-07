@@ -854,10 +854,11 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 //    std::cout << "DEBUG:: dynarama_is_displayed[" << imol << "] is "
 // 	     << dynarama_is_displayed[imol] << std::endl;
 
-   if (dynarama_is_displayed[imol]) {
+   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
+   if (w) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
       coot::rama_plot *plot = (coot::rama_plot *)
-	 gtk_object_get_user_data(GTK_OBJECT(dynarama_is_displayed[imol]));
+	 gtk_object_get_user_data(GTK_OBJECT(w));
       int ires = atom->GetSeqNum();
       std::string chainid(atom->GetChainID());
 //       std::cout << "DEBUG:: about to plot big square " << plot
@@ -1759,9 +1760,10 @@ graphics_info_t::accept_moving_atoms() {
    clear_up_moving_atoms();
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-   if (dynarama_is_displayed[imol_moving_atoms]) {
+   GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
+   if (w) {
       coot::rama_plot *plot = (coot::rama_plot *)
-	 gtk_object_get_user_data(GTK_OBJECT(dynarama_is_displayed[imol_moving_atoms]));
+	 gtk_object_get_user_data(GTK_OBJECT(w));
       // std::cout << "updating rama plot for " << imol_moving_atoms << std::endl;
       handle_rama_plot_update(plot);
    }
@@ -2002,15 +2004,16 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
    // 
    if (imol < graphics_info_t::n_molecules() && imol >= 0) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-      if (dynarama_is_displayed[imol] != 0) {
-	 coot::rama_plot * plot =
-	    (coot::rama_plot *)
-	    gtk_object_get_user_data(GTK_OBJECT(dynarama_is_displayed[imol]));
+
+      // Clear out the old one if it was there.
+      GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
+      if (w) {
+	 coot::rama_plot *plot =
+	    (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
 	 delete plot;
       }
 #endif // HAVE_GTK_CANVAS   
-
-      dynarama_is_displayed[imol] = dyna_toplev;
+      coot::set_validation_graph(imol, coot::RAMACHANDRAN_PLOT, dyna_toplev);
    }
 }
 
@@ -3511,82 +3514,6 @@ graphics_info_t::create_empty_molecule(const std::string &molname) {
    return imol;
 } 
 
-// resize the molecule array, copying over data.
-// 
-// Remove this function these days.
-short int
-graphics_info_t::expand_molecule_space_maybe() {
-
-//    if (n_molecules == n_molecules_max) {
-//       return expand_molecule_space();
-//    }
-
-   return 0;
-}
-
-// resize the molecule array, copying over data.
-short int
-graphics_info_t::expand_molecule_space() {
-
-   // surely these pointer should be part of the molecule_class_info_t
-   // these days?
-
-   std::cout << "...... expanding molecules space..." << std::endl;
-   int new_size = int(1.8 * n_molecules_max);
-   molecule_class_info_t *new_molecules = new molecule_class_info_t[new_size];
-
-   GtkWidget **new_dynaramas = new GtkWidget * [new_size];
-   GtkWidget **new_sequences = new GtkWidget * [new_size];
-   GtkWidget **new_geometrys = new GtkWidget * [new_size];
-   GtkWidget **new_b_factors = new GtkWidget * [new_size];
-   GtkWidget **new_residuesd = new GtkWidget * [new_size];
-   GtkWidget **new_omegas    = new GtkWidget * [new_size];
-   GtkWidget **new_rotamers  = new GtkWidget * [new_size];
-   
-   for (int i=0;  i<n_molecules(); i++) {
-      new_molecules[i] = molecules                 [i];
-      new_dynaramas[i] = dynarama_is_displayed     [i];
-      new_sequences[i] = sequence_view_is_displayed[i];
-      new_geometrys[i] = geometry_graph            [i];
-      new_b_factors[i] = b_factor_variance_graph   [i];
-      new_residuesd[i] = residue_density_fit_graph [i];
-      new_omegas   [i] = omega_distortion_graph    [i];
-      new_rotamers [i] = rotamer_graph             [i];
-   }
-
-   for (int i=n_molecules();  i<new_size; i++) {
-      new_molecules[i].set_mol_number(i);
-      new_dynaramas[i] = 0;
-      new_sequences[i] = 0;
-      new_geometrys[i] = 0;
-      new_b_factors[i] = 0;
-      new_residuesd[i] = 0;
-      new_omegas   [i] = 0;
-      new_rotamers [i] = 0;
-   }
-
-   delete [] dynarama_is_displayed;
-   delete [] sequence_view_is_displayed;
-   delete [] geometry_graph;
-   delete [] b_factor_variance_graph;
-   delete [] residue_density_fit_graph;
-   delete [] omega_distortion_graph;
-   delete [] rotamer_graph;
-
-   dynarama_is_displayed      = new_dynaramas;
-   sequence_view_is_displayed = new_sequences;
-   geometry_graph             = new_geometrys;
-   b_factor_variance_graph    = new_b_factors;
-   residue_density_fit_graph  = new_residuesd;
-   omega_distortion_graph     = new_omegas;
-   rotamer_graph              = new_rotamers;
-
-   // delete [] molecules;
-   // molecules = new_molecules;
-   // n_molecules_max = new_size;
-   
-   return 1; // OK 
-} 
 
 // ------------------------------------------------------------------
 //                        undo functions
@@ -3633,9 +3560,10 @@ graphics_info_t::apply_undo() {
 
 	       // update the ramachandran, if there was one
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-	       if (dynarama_is_displayed[umol]) {
+	       GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
+	       if (w) {
 		  coot::rama_plot *plot = (coot::rama_plot *)
-		     gtk_object_get_user_data(GTK_OBJECT(dynarama_is_displayed[umol]));
+		     gtk_object_get_user_data(GTK_OBJECT(w));
 		  handle_rama_plot_update(plot);
 	       }
 #endif // HAVE_GTK_CANVAS   
@@ -5448,7 +5376,8 @@ graphics_info_t::get_sequence_view(int imol) {
 
    if (imol < n_molecules()) {
       if (molecules[imol].has_model()) {
-	 w = sequence_view_is_displayed[imol];
+	 // w = sequence_view_is_displayed[imol];
+	 w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
 	 r = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
 	 // std::cout << "DEBUG:: user data from " << w << " is " << r << std::endl;
       }
@@ -5463,9 +5392,10 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    // first delete the old sequence view if it exists
-   if (sequence_view_is_displayed[imol] != 0) {
+   GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+   if (w) {
       coot::sequence_view *sv = (coot::sequence_view *)
-	 gtk_object_get_user_data(GTK_OBJECT(sequence_view_is_displayed[imol]));
+	 gtk_object_get_user_data(GTK_OBJECT(w));
       delete sv;
    }
 
@@ -5474,7 +5404,8 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 // 	 gtk_object_get_user_data(GTK_OBJECT(sequence_view_is_displayed[imol]));
 //       std::cout << "DEBUG:: seting sequence_view_is_displayed[" << imol
 // 		<< "] " << widget << std::endl;
-      sequence_view_is_displayed[imol] = widget;
+      // sequence_view_is_displayed[imol] = widget; // ols style
+      coot::set_validation_graph(imol, coot::SEQUENCE_VIEW, widget);
    }
 #endif // HAVE_GTK_CANVAS   
 } 

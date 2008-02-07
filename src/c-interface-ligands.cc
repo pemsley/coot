@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
+ * Copyright 2008 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -948,7 +949,6 @@ execute_ligand_search_internal() {
    // std::cout << "DEBUG:: calling mask_map\n";
    wlig.mask_map(protein_mol, mask_waters_flag); // mask by protein
    // std::cout << "DEBUG:: done mask_map\n";
-   g.expand_molecule_space_maybe(); 
    g.molecules[imol].new_map(wlig.masked_map(), wlig.masked_map_name());
    wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
    wlig.find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
@@ -970,7 +970,6 @@ execute_ligand_search_internal() {
 	 int g_mol = graphics_info_t::create_molecule();
 	 std::string label = "Fitted ligand #";
 	 label += g.int_to_string(ilig);
-	 g.expand_molecule_space_maybe(); 
 	 g.molecules[g_mol].install_model(g_mol, asc, label, 1);
 	 solutions.push_back(g_mol);
 	 n_new_ligand++;
