@@ -288,6 +288,7 @@ coot_real_SOURCES = \
 	coot-nomenclature.cc	 \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
+	validataion-graphs.hh	 \
 	select-atom-info.hh      \
 	coot-render.hh           \
 	coot-glue.hh             \
