@@ -210,7 +210,8 @@
 # 3.09 20080130 fontconfig added too.
 # 3.10 20080131 Change HOSTLOGDIR to include gtk2 to separate it from gtk1 build logs.
 # 3.11 20080201 Fix problem in scripting args to coot's configure.
-script_version=3.11
+# 3.12 20080207 Add test and build of ATK, needed for gtk+2.10.x
+script_version=3.12
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1206,6 +1207,15 @@ else
    build_pycairo=1
 fi
 
+# gtk 2.10.x says that it needs atk >= 1.9.0 
+if pkg-config --atleast-version=1.9 atk ; then
+    echo atk is up to date
+    build_atk=
+else
+    echo atk should be built
+    build_atk=1
+fi
+
 if pkg-config --atleast-version=2.14.5 glib ; then
    # have glib
    echo :::::::: glib is up to date
@@ -1882,6 +1892,31 @@ fi
 if test -n "$build_gtk" ; then 
    echo BUILDING Gtk+-2 and dependencies...
    (
+
+   if [ "$build_atk" = 1 ] ; then 
+      echo  ======================================================
+      echo BUILDING atk
+      echo  ======================================================
+      atk_version=1.20.0
+      ${WGET} http://ftp.gnome.org/pub/gnome/sources/atk/1.20/atk-$atk_version.tar.gz
+      date
+      gzip -dc ${AUTOBUILD_SOURCES}/atk-$atk_version.tar.gz | tar xf -
+      cd atk-$atk_version
+      ./configure $generic_prefix
+      $MAKE
+      atk_status=$?
+      if $atk_status ; then 
+         $MAKE install
+      else
+         echo make of ATK failed.
+      fi
+      cd -
+   else
+      echo not BUILDING atk
+   fi
+
+
+
    if [ "$build_glitz" = 1 ] ; then 
       echo  ======================================================
       echo BUILDING GLitz!
