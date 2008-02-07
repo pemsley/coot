@@ -9,7 +9,7 @@
 				   ;; coot-utils on bubbles
 (define  drag-intermediate-atom-scm #t)
 (define  mark-atom-as-fixed-scm #t)
-(define  ncs-chains-ids-scm #t)
+(define  ncs-chain-ids-scm #t)
 (define  ncs-chain-differences-scm #t)
 (define  refmac-parameters-scm #t)
 

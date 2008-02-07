@@ -4,6 +4,8 @@
 
    22 Items
 
+   o "Thick bonds" for ligands etc
+
    o Correct CISPEP if needed cards on writing pdb.
 
    o PDB v3.0 compatibility
@@ -25,15 +27,11 @@
 
    o Valgrind long/multiple fit-proteins
 
-   o "Thick bonds" for ligands etc
-
    o Put globularize protein into Coot.  Make it a bit more clever?
 
    o Insertion codes for intelligent next atom.  Antibody, Kabat
 
    o Revisit CCP4mg button
-
-   o graphics::molecules should be a std::vector
 
    o test/fix hardware stereo in Gtk2 mode.
 
@@ -78,6 +76,11 @@
 
 
 
+
+
+   o graphics::molecules should be a std::vector
+
+* Done.  Yay!
 
    o Make build-it-gtk2 and use it.
 
