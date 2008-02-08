@@ -1274,6 +1274,8 @@ gtk_pkg_config_status=$?
 if [ "$gtk_pkg_config_status" = 0 ] ; then 
    build_cairo=
    build_gtk=
+   echo :::::::: gtk version is at least $needed_gkt_version
+   echo :::::::: gtk version is `pkg-config --modversion gtk+-2.0`
 else 
    # no recent/good gtk
    echo :::::::: gtk and dependencies need to be built
