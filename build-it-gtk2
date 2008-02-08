@@ -211,7 +211,8 @@
 # 3.10 20080131 Change HOSTLOGDIR to include gtk2 to separate it from gtk1 build logs.
 # 3.11 20080201 Fix problem in scripting args to coot's configure.
 # 3.12 20080207 Add test and build of ATK, needed for gtk+2.10.x
-script_version=3.12
+# 3.13 20080208 lib cleaning problems, add debugging.
+script_version=3.13
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -352,6 +353,9 @@ function post_install_slim {
     fat_dir="$1"
     cleaned_dir="$2"
     clear_type="$3"
+    echo fat_dir is $fat_dir
+    echo clear_type is $clear_type
+    echo cleaned_dir is $cleaned_dir
 
     mkdir_maybe $cleaned_dir
     mkdir_maybe $cleaned_dir/bin
@@ -1221,7 +1225,7 @@ if pkg-config --atleast-version=2.14.5 glib ; then
    echo glib is up to date
    build_glib=
 else
-   echo glib is not not up to date, rebuild glib
+   echo glib is not not up to date, rebuild glib - maybe.
    build_glib=1
 fi
 
@@ -1230,7 +1234,7 @@ if pkg-config --atleast-version=0.5.6 glitz ; then
    echo glitz is up to date
    build_glitz=
 else
-   echo cairo is not not up to date, rebuild gtk and friends
+   echo glitz is not up to date, rebuild glitz, maybe
    build_glitz=1
 fi
 
@@ -2130,6 +2134,7 @@ if test -n "$build_gtkglext" ; then
 else
     echo not building gtkglext:
 fi 
+echo done with Gtk+-2 and dependencies...
 
 
 
