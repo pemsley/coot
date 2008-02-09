@@ -1226,7 +1226,7 @@ if pkg-config --atleast-version=2.14.5 glib ; then
    echo glib is up to date
    build_glib=
 else
-   echo glib is not not up to date, rebuild glib - maybe.
+   echo glib is not up to date, rebuild glib - maybe.
    build_glib=1
 fi
 
@@ -1903,7 +1903,6 @@ fi
 if test -n "$build_gtk" ; then 
    echo BUILDING Gtk+-2 and dependencies...
    (
-
    if [ "$build_atk" = 1 ] ; then 
       echo  ======================================================
       echo BUILDING atk
@@ -1916,7 +1915,7 @@ if test -n "$build_gtk" ; then
       ./configure $generic_prefix
       $MAKE
       atk_status=$?
-      if $atk_status ; then 
+      if [ "$atk_status" = 0 ] ; then 
          $MAKE install
       else
          echo make of ATK failed.
