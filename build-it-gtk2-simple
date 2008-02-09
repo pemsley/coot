@@ -2014,8 +2014,9 @@ fi
 if test -n "$build_pygtk" ; then 
    echo BUILDING pygtk:
    #
-   py_gtk_version=2.12.1
-   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.12/pygtk-$py_gtk_version.tar.gz
+   #  py_gtk_version=2.12.1
+   py_gtk_version=2.8.6
+   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.8/pygtk-$py_gtk_version.tar.gz
    (
    date
    gzip -dc ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.tar.gz | tar xf -
