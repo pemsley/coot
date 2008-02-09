@@ -4427,7 +4427,14 @@ int generic_object_index(const char *name);
 /*! \brief what is the name of generic object number obj_number? 
 
  @return 0 (NULL) #f  on obj_number not available */
-const char *generic_object_name(int obj_number);
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM generic_object_name_scm(int obj_number);
+#endif /* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *generic_object_name_py(int obj_number);
+#endif /* USE_PYTHON */
+#endif /*  __cplusplus */
 
 /*! \brief return the number of generic display objects */
 int number_of_generic_objects();
