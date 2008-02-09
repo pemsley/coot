@@ -1135,7 +1135,7 @@ build_gsl=0
 # build_imlib=0
 # build_gtk_canvas=0
 build_guile_gtk=0
-build_gtkglext=0
+build_gtkglext=
 build_freeglut=0
 build_glib=
 build_readline=
@@ -1175,6 +1175,9 @@ else
    build_pkg_config=1
    echo pkg-config should be built
 fi
+
+# Hmmm... I am not sure that I want to mess with pkg-config in the
+# simple version.
 
 # This allows standard pkg-config to find gtkglext and several other things.
 PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:/usr/lib/pkgconfig
@@ -1517,12 +1520,17 @@ if [ "$build_gtk" = "" ] ; then
    if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
       build_gtkglext=
    fi
-   if test -z "$build_gtkglext" ; then
-      echo installation has gtkglext
-   else 
-      echo gtkglext should be built
+else 
+   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
+      build_gtkglext=
    fi
 fi
+if test -z "$build_gtkglext" ; then
+   echo installation has gtkglext
+else 
+   echo gtkglext should be built
+fi
+
 
 
 
@@ -1850,6 +1858,28 @@ export CFLAGS
 else
    echo not building freeglut:
 fi
+
+
+if [ "$build_gtkglext" = 1 ] ; then
+    echo BUILDING gtkglext:
+    gtkglext_version=1.2.0
+    ${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
+    (date
+     pwd
+     gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
+     cd gtkglext-$gtkglext_version
+     ./configure $generic_prefix
+     $MAKE
+    status=$?
+    if [ "$status" != 0 ] ; then
+       echo make of gtkglext failed
+    else
+       $MAKE install
+    fi
+    ) > $HOSTLOGDIR/08-pre-gtkglext.txt 2>&1
+else
+    echo not building gtkglext:
+fi 
 
 
 
