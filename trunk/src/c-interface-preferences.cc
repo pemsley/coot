@@ -389,30 +389,65 @@ int generic_object_index(const char *name) {
       int nobjs = g.generic_objects_p->size();
       for (int iobj=0; iobj<nobjs; iobj++) {
 	 if ((*g.generic_objects_p)[iobj].name == n) {
-	    index = iobj;
-	    break;
+	    if (!(*g.generic_objects_p)[i].is_closed_flag) { 
+	       index = iobj;
+	       break;
+	    }
 	 }
       }
    }
    return index;
 }
 
+
+// OLD code passing back a const char (yeuch)
+//
+// /*! \brief what is the name of generic object number obj_number? 
+
+// return 0 (NULL) #f  on obj_number not available */
+// const char *generic_object_name(int obj_number) {
+
+//    std::string s;
+//    const char *r = 0;
+//    graphics_info_t g;
+//    int n_objs = g.generic_objects_p->size();
+//    // funny way! (no good reason)
+//    for (unsigned int i=0; i<n_objs; i++) {
+//       if (i == obj_number)
+// 	 r = (*g.generic_objects_p)[i].name.c_str();
+//    }
+//    return r;
+// }
+
+
+
 /*! \brief what is the name of generic object number obj_number? 
-
-return 0 (NULL) #f  on obj_number not available */
-const char *generic_object_name(int obj_number) {
-
-   std::string s;
-   const char *r = 0;
+  return #f on obj_number not available */
+#ifdef USE_GUILE
+SCM generic_object_name_scm(int obj_number) {
    graphics_info_t g;
    int n_objs = g.generic_objects_p->size();
-   // funny way! (no good reason)
-   for (unsigned int i=0; i<n_objs; i++) {
-      if (i == obj_number)
-	 r = (*g.generic_objects_p)[i].name.c_str();
+   SCM r = SCM_BOOL_F;
+   for (int i=(n_objs-1); i>=0; i--) {
+      if (i == obj_number) {
+	 if (!(*g.generic_objects_p)[i].is_closed_flag) { 
+	    r = scm_makfrom0str((*g.generic_objects_p)[i].name.c_str());
+	 }
+      }
    }
    return r;
+}
+#endif /* USE_GUILE */
+
+#ifdef USE_PYTHON
+PyObject *generic_object_name_py(int obj_number) {
+   PyObject *r = 0;
+
+   return r;
 } 
+#endif /* USE_PYTHON */
+
+
 
 
 /*! \brief pass a filename that contains molprobity's probe output in XtalView 
