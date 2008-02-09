@@ -389,7 +389,7 @@ int generic_object_index(const char *name) {
       int nobjs = g.generic_objects_p->size();
       for (int iobj=0; iobj<nobjs; iobj++) {
 	 if ((*g.generic_objects_p)[iobj].name == n) {
-	    if (!(*g.generic_objects_p)[i].is_closed_flag) { 
+	    if (!(*g.generic_objects_p)[iobj].is_closed_flag) { 
 	       index = iobj;
 	       break;
 	    }
