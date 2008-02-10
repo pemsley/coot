@@ -3048,6 +3048,94 @@
 		  </child>
 
 		  <child>
+		    <widget class="GtkToolItem" id="toolitem32">
+		      <property name="visible">True</property>
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+
+		      <child>
+			<widget class="GtkButton" id="model_toolbar_fixed_atoms_button">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Fixed Atoms...</property>
+			  <property name="can_focus">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">False</property>
+			  <signal name="clicked" handler="on_model_toolbar_fixed_atoms_button_clicked" last_modification_time="Thu, 07 Feb 2008 15:23:01 GMT"/>
+
+			  <child>
+			    <widget class="GtkAlignment" id="alignment110">
+			      <property name="visible">True</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xscale">0</property>
+			      <property name="yscale">0</property>
+			      <property name="top_padding">0</property>
+			      <property name="bottom_padding">0</property>
+			      <property name="left_padding">0</property>
+			      <property name="right_padding">0</property>
+
+			      <child>
+				<widget class="GtkHBox" id="hbox320">
+				  <property name="visible">True</property>
+				  <property name="homogeneous">False</property>
+				  <property name="spacing">2</property>
+
+				  <child>
+				    <widget class="GtkImage" id="image6106">
+				      <property name="visible">True</property>
+				      <property name="stock">gtk-sort-ascending</property>
+				      <property name="icon_size">4</property>
+				      <property name="xalign">0.5</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				    </widget>
+				    <packing>
+				      <property name="padding">0</property>
+				      <property name="expand">False</property>
+				      <property name="fill">False</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkLabel" id="label568">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">Fixed Atoms...</property>
+				      <property name="use_underline">True</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0.5</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">-1</property>
+				      <property name="single_line_mode">False</property>
+				      <property name="angle">0</property>
+				    </widget>
+				    <packing>
+				      <property name="padding">0</property>
+				      <property name="expand">False</property>
+				      <property name="fill">False</property>
+				    </packing>
+				  </child>
+				</widget>
+			      </child>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
 		    <widget class="GtkToggleToolButton" id="model_toolbar_rigid_body_fit_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Rigid Body Fit Zone (click on 2 atoms)</property>
@@ -3062,7 +3150,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3081,7 +3169,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3100,7 +3188,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3119,7 +3207,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3138,7 +3226,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3157,7 +3245,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3176,12 +3264,12 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkToolItem" id="toolitem15">
+		    <widget class="GtkToolItem" id="toolitem31">
 		      <property name="visible">True</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
@@ -3215,7 +3303,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3234,7 +3322,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3252,7 +3340,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3271,7 +3359,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3289,7 +3377,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3307,7 +3395,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3325,7 +3413,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3343,7 +3431,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3361,12 +3449,12 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkToolItem" id="toolitem25">
+		    <widget class="GtkToolItem" id="toolitem29">
 		      <property name="visible">True</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
@@ -3386,7 +3474,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkToolItem" id="toolitem29">
+		    <widget class="GtkToolItem" id="toolitem30">
 		      <property name="visible">True</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
