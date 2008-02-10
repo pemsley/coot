@@ -76,12 +76,12 @@ if use_gui_qm:
     try:
 	# we only append the graphics modules if we have pygtk 2
 	import pygtk
-	pygtk.require("2.0")
+	# pygtk.require("2.0")
 	python_list += post_list
-	if (use_gui_qm == 2):
-		# we do have guile_gtk and dont want to have 
-		# the extra extensions from python
-		python_list.remove("extensions.py")
+ 	if (use_gui_qm == 2):
+ 		# we do have guile_gtk and dont want to have 
+ 		# the extra extensions from python
+ 		python_list.remove("extensions.py")
     except:
 	pass
 
