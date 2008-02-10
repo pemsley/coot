@@ -2,6 +2,7 @@
  * 
  * Copyright 2004, 2005 by The University of York
  * Copyright 2007 by The University of York
+ * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -222,6 +223,7 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
    check_if_in_lsq_plane_define(event);
    check_if_in_lsq_plane_deviant_atom_define(event);
    check_if_in_torsion_general_define(event);
+   check_if_in_fixed_atom_define(event);
 
    return iv;
 }
@@ -1528,3 +1530,13 @@ graphics_info_t::check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event
 }
 
 
+void
+graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event) {
+
+   if (in_fixed_atom_define) {
+      pick_info naii = atom_pick(event);
+      if (naii.success == GL_TRUE) {
+	 
+      }
+   }
+}

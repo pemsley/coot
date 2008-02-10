@@ -2,7 +2,21 @@
 
    Things to fix before 0.5
 
-   22 Items
+   23 Items
+
+   o Fixed atoms in refinement (and marking in molecules).  Code needs
+     finishing.  mark_atom_as_fixed()
+
+   o NCS diffs graph need finishing.  Almost there.  Needs code to do
+     dynamic update.
+
+   o Save symmetry colour to state (Doug Kuntz)
+
+   o Test for non positive definite anisotropic atoms from a .ins file
+     [test should crash]
+
+   o Test for JED's delete residue with alt conf and recentre [test
+     should crash]
 
    o "Thick bonds" for ligands etc
 
@@ -65,12 +79,6 @@
      problem?  If not, mail list.
 
    o Try to improve the picking algorithm.
-
-   o Fixed atoms in refinement (and marking in molecules).  Code needs finishing.
-     mark_atom_as_fixed() 
-
-   o NCS diffs graph need finishing.  Almost there.  Needs code to do
-     dynamic update.
 
 
 
@@ -4259,6 +4267,24 @@ Wed Feb  6 16:17:51 GMT 2008
     Priority: High.  Do it for 0.5
     Difficulty: Easy 
 
+
+---
+Thu Feb  7 12:24:59 GMT 2008
+
+Doug Kuntz:
+
+> > > 2) The selection of active molecules seems screwed up.
+> > >
+> > > I can now only have one active molecule.  Even though all the active 
+> > > boxes are nice and pink in the Display Manager window.  To move a 
+> > > molecule I have to ensure all the others are turned to inactive. But 
+> > > there seems no way to make more than one molecule active at a time. If 
+> > > I want to compare two superimposed molecules for distances between 
+> > > them  at a particular atom I can no longer  pick both atoms
+
+      Ingo Korndoefer reported something similar.
+
+
 -----
 Wed Feb  6 23:18:23 GMT 2008
 
@@ -4289,3 +4315,26 @@ Thu Feb  7 00:00:14 GMT 2008
     Why is there a delete plot in 
     void
     graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol)
+
+---
+Fri Feb  8 20:37:43 GMT 2008
+
+    If you are going to edit restraints, wouldn't it be a good idea to
+    write a restraints file (mmdb write mmCIF interface).
+
+
+---
+Sat Feb  9 22:40:38 GMT 2008
+
+
+A FC3 machine:
+
+
+bunyip ~> pkg-config --modversion gtk+-2.0
+2.4.14
+
+A FC4 machine:
+
+cycle ~> pkg-config --modversion gtk+-2.0
+2.6.7 
+

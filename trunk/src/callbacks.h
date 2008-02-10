@@ -3065,11 +3065,6 @@ on_phs_coordinates_filechooserdialog1_destroy
                                         (GtkObject       *object,
                                         gpointer         user_data);
 
-GtkFileChooserConfirmation
-on_save_coords_filechooserdialog1_confirm_overwrite
-					(GtkFileChooser * filechooser, 
-					gpointer user_data);
-
 void
 on_save_coords_filechooserdialog1_response
 					(GtkDialog * dialog, 
@@ -3103,10 +3098,27 @@ on_run_script_filechooserdialog1_destroy
 					(GtkObject * object, 
 					gpointer user_data);
 
+#if (GTK_MINOR_VERSION > 9)
+GtkFileChooserConfirmation
+on_save_coords_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data);
+
 GtkFileChooserConfirmation
 on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
 					gpointer user_data);
+
+GtkFileChooserConfirmation
+on_save_state_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data);
+
+GtkFileChooserConfirmation
+on_screendump_filechooserdialog1_confirm_overwrite
+					(GtkFileChooser * filechooser, 
+					gpointer user_data);
+#endif	/* GTK_MINOR_VERSION */
 
 void
 on_save_symmetry_coords_filechooserdialog1_response
@@ -3119,10 +3131,6 @@ on_save_symmetry_coords_filechooserdialog1_destroy
 					(GtkObject * object, 
 					gpointer user_data);
 
-GtkFileChooserConfirmation
-on_save_state_filechooserdialog1_confirm_overwrite
-					(GtkFileChooser * filechooser, 
-					gpointer user_data);
 
 void
 on_save_state_filechooserdialog1_response
@@ -3135,10 +3143,6 @@ on_save_state_filechooserdialog1_destroy
 					(GtkObject * object, 
 					gpointer user_data);
 
-GtkFileChooserConfirmation
-on_screendump_filechooserdialog1_confirm_overwrite
-					(GtkFileChooser * filechooser, 
-					gpointer user_data);
 
 void
 on_screendump_filechooserdialog1_response
@@ -3199,6 +3203,13 @@ void
 on_model_toolbar_regularize_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
+
+
+void
+on_model_toolbar_fixed_atoms_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
 
 void
 on_model_toolbar_rigid_body_fit_togglebutton_toggled

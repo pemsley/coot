@@ -82,7 +82,8 @@ if test $coot_gtk2 = TRUE ; then
 
      # GTK2 path:
 
-  PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.8.0)
+  dnl PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.8.0)
+  PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
   PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
   if test -n "$GNOME_CANVAS_CFLAGS" ; then 
 	GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"

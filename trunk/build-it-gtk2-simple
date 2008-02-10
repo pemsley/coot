@@ -1286,7 +1286,17 @@ else
    build_gtk=1
 fi 
 
-
+# guilegtk2.1 need version 2.8 of gtk to compile out of the box.  If
+# we have less than that then we need to apply a fix
+#
+gtk_version=`pkg-config --modversion gtk+-2.0`
+if pkg-config --atleast-version=2.8 gtk+-2.0 ; then
+    echo new enough for guile-gtk
+    gtk_new_enough_for_guilegtk=true
+else 
+    echo guile-gtk need fixing up
+    gtk_new_enough_for_guilegtk=false
+fi
 
 
 
@@ -2015,12 +2025,17 @@ if test -n "$build_pygtk" ; then
    echo BUILDING pygtk:
    #
    #  py_gtk_version=2.12.1
-   py_gtk_version=2.8.6
-   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.8/pygtk-$py_gtk_version.tar.gz
+   #   pygtk_version=2.8.6  # too recent, need  'pango >= 1.10.0' but version of Pango is 1.8.1
+   #      Requested 'pygobject-2.0 >= 2.9' but version of PyGObject is 2.6.0
+   #      GTK... Requested 'gtk+-2.0 >= 2.7' but version of GTK+ is 2.6.7
+   #      GTK... Requested 'gtk+-2.0 >= 2.8.0' but version of GTK+ is 2.6.7
+   #      GLIB - version >= 2.8.0
+   pygtk_version=2.6.3
+   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.6/pygtk-$pygtk_version.tar.gz
    (
    date
-   gzip -dc ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.tar.gz | tar xf -
-   cd pygtk-$py_gtk_version
+   gzip -dc ${AUTOBUILD_SOURCES}/pygtk-$pygtk_version.tar.gz | tar xf -
+   cd pygtk-$pygtk_version
    ./configure $generic_prefix --with-pango --with-pangocairo PYGOBJECT_CFLAGS=-I$install_top_dir/include/pygtk-2.0 PYGOBJECT_LIBS=-L$install_top_dir/lib
    $MAKE
    pygtk_status=$?
@@ -2201,6 +2216,18 @@ cd guile-gtk-$guile_gtk_version
 # fix ulong if needed:
 # sed 's/(ulong)/(unsigned long)/g' guile-gtk.c > tmp.c
 # mv tmp.c guile-gtk.c
+
+# apply gtk_dialog_get_response_for_widget fix up if needed
+if [ $gtk_new_enough_for_guilegtk = false ] ; then
+    echo fixing up guile-gtk
+    cp gtk-glue.c glue.tmp.c
+    awk '
+$0 !~ " gtk_dialog_get_response_for_widget" 
+/ gtk_dialog_get_response_for_widget/ { print "  cr_ret = 0;"; }
+' glue.tmp.c > gtk-glue.c
+fi
+
+
 $MAKE
 status=$?
 guile_gtk_status=$status

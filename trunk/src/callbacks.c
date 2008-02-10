@@ -2,6 +2,7 @@
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
+ * Copyright 2008 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8017,6 +8018,16 @@ on_model_toolbar_regularize_togglebutton_toggled
 
 
 void
+on_model_toolbar_fixed_atoms_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *w = create_fixed_atom_dialog();
+  gtk_widget_show(w);
+}
+
+
+void
 on_model_toolbar_rigid_body_fit_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
@@ -8562,7 +8573,7 @@ on_phs_coordinates_filechooserdialog1_destroy
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
+#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
@@ -8701,7 +8712,7 @@ on_run_script_filechooserdialog1_destroy
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
+#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
@@ -8757,7 +8768,7 @@ on_save_symmetry_coords_filechooserdialog1_destroy
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
+#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_state_filechooserdialog1_confirm_overwrite 
 					(GtkFileChooser * filechooser, 
@@ -8816,7 +8827,7 @@ on_save_state_filechooserdialog1_destroy (GtkObject * object,
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
+#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_screendump_filechooserdialog1_confirm_overwrite 
 					(GtkFileChooser * filechooser, 
