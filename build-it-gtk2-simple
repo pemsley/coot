@@ -1195,7 +1195,6 @@ else
    echo freetype2 should be built
    build_freetype2=1
    build_cairo=1
-   build_pycairo=1
 fi
 
 # Do we have fontconfig?  cairo depends on it.
@@ -1207,13 +1206,11 @@ if test -z "$build_freetype2" ; then
       echo fontconfig should be built
       build_fontconfig=1
       build_cairo=1
-      build_pycairo=1
    fi
 else 
    echo no freetype, fontconfig should be built too.
    build_fontconfig=1
    build_cairo=1
-   build_pycairo=1
 fi
 
 # gtk 2.10.x says that it needs atk >= 1.9.0 
