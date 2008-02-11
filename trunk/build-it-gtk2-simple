@@ -214,7 +214,8 @@
 # 3.13 20080208 lib cleaning problems, add debugging.
 # 3.14 20080208 Try requiring gtk 2.10
 # 4.00 20080208 Remove gtk2 and pkg-config building.  Test for Fedora core 5.
-script_version=4.00
+# 4.01 20080211 Remove pycairo build and fix up test for build for guile_gtk
+script_version=4.01
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1134,7 +1135,7 @@ build_gsl=0
 # build_libpng=0
 # build_imlib=0
 # build_gtk_canvas=0
-build_guile_gtk=0
+build_guile_gtk=
 build_gtkglext=
 build_freeglut=0
 build_glib=
@@ -1288,7 +1289,7 @@ fi
 #
 gtk_version=`pkg-config --modversion gtk+-2.0`
 if pkg-config --atleast-version=2.8 gtk+-2.0 ; then
-    echo new enough for guile-gtk
+    echo gtk is new enough for guile-gtk
     gtk_new_enough_for_guilegtk=true
 else 
     echo guile-gtk need fixing up
@@ -1465,17 +1466,6 @@ if test -z "$build_pygobject" ; then
    fi      
 fi
 
-# test for pycairo
-if test -z "$build_pycairo" ; then
-   if test -e $install_top_dir/include/pycairo/pycairo.h ; then
-      echo installation has pycairo
-      build_pycairo=
-   else 
-      echo pycairo NOT exists, pycairo should be built
-      build_pycairo=1
-      build_pygtk=1
-   fi      
-fi
 
 # test for pygtk
 if test -z "$build_pygtk" ; then
@@ -1986,32 +1976,6 @@ if test -n "$build_pygobject" ; then
 ) > $HOSTLOGDIR/05-pygobject.txt 2>&1
 else 
    echo not building pygobject:
-fi
-
-
-if test -n "$build_pycairo" ; then 
-   echo BUILDING pycairo:
-   #
-   pycairo_version=1.2.6
-   ${WGET} http://cairographics.org/releases/pycairo-$pycairo_version.tar.gz
-   if test $? != 0 ; then 
-      echo PROBLEM:: getting pycairo source code
-   fi
-   (
-   date
-   gzip -dc ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz | tar xf -
-   cd pycairo-$pycairo_version
-   ./configure $generic_prefix
-   $MAKE
-   pycairo_status=$?
-   if [ "$pycairo_status" != 0 ] ; then
-      echo make of pycairo failed
-   else
-      $MAKE install
-   fi
-) > $HOSTLOGDIR/05-pycairo.txt 2>&1
-else 
-   echo not building pycairo:
 fi
 
 
