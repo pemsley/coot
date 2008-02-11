@@ -135,6 +135,12 @@ if test x$coot_guile = xtrue ; then
    AM_GUILE_GOOSH
    AM_GUILE_NET_HTTP
    AM_GUILE_GUI
+   echo ..........................................................
+   guile-config --version
+   GUILE_VERSION=`guile-config --version  2>&1 | awk '{split($NF, arr, "[[.]]");  print arr[[1]] "." arr[[2]]}'`
+   echo GUILE_VERSION is $GUILE_VERSION
+   AC_SUBST(GUILE_VERSION)
+   echo ..........................................................
 fi
 
 AM_WITH_PYTHON
@@ -214,13 +220,14 @@ geometry/Makefile
 ideal/Makefile
 build/Makefile
 analysis/Makefile
-sequence-view/Makefile	
-src/Makefile
-doc/Makefile
 high-res/Makefile
+sequence-view/Makefile	
 tw/Makefile
 cootaneer/Makefile
 greg-tests/Makefile
+doc/Makefile
+src/Makefile
+src/coot
 setup/coot.sh	
 setup/coot.csh
 python/coot_load_modules.py
