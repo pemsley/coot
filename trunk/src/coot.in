@@ -47,10 +47,10 @@ else
     PYTHONPATH=${PYTHONPATH}:$COOT_PREFIX/share/coot/python
 fi
 
-GUILE_VERSION=1.6
+# GUILE_VERSION=1.6
 
 GUILE_LOAD_PATH=\
-$COOT_PREFIX/share/guile/$GUILE_VERSION:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
+$COOT_PREFIX/share/guile/@GUILE_VERSION@:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
 GUILE_WARN_DEPRECATED=no
 
 if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then 
