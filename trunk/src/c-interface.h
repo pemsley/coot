@@ -4563,6 +4563,9 @@ void setup_fixed_atom_pick(short int ipick, short int is_unpick);
 
 /*! \brief clear all fixed atoms */
 void clear_all_fixed_atoms(int imol);
+void store_fixed_atom_dialog(GtkWidget *w);
+GtkWidget *wrapped_create_fixed_atom_dialog();
+void clear_fixed_atoms_all();
 
 
 /*  ----------------------------------------------------------------------- */

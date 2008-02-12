@@ -223,7 +223,7 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
    check_if_in_lsq_plane_define(event);
    check_if_in_lsq_plane_deviant_atom_define(event);
    check_if_in_torsion_general_define(event);
-   check_if_in_fixed_atom_define(event);
+   check_if_in_fixed_atom_define(event, state);
 
    return iv;
 }
@@ -1531,9 +1531,12 @@ graphics_info_t::check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event
 
 
 void
-graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event) {
+graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
+					       const GdkModifierType &state) {
 
-   if (in_fixed_atom_define) {
+   
+   if (in_fixed_atom_define != coot::FIXED_ATOM_NO_PICK) {
+      // we were listening for a pick then...
       bool pick_state = 0;
       if (in_fixed_atom_define == coot::FIXED_ATOM_FIX) {
 	 pick_state = 1;
@@ -1550,6 +1553,22 @@ graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event) {
       if (naii.success == GL_TRUE) {
 	 coot::atom_spec_t as(molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]);
 	 mark_atom_as_fixed(naii.imol, as, pick_state);
+	 std::cout << "   " << as << " is a marked as fixed " << pick_state << std::endl;
+	 graphics_draw();
+
+	 // Sadly, Ctrl + left mouse click is intercepted upstream of
+	 // this and we don't get to see it here.  Currently (20080212).
+	 
+	 if (! (state & GDK_CONTROL_MASK)) { 
+	    // Ctrl key is not pressed.
+	    GtkWidget *button1 = lookup_widget(fixed_atom_dialog,   "fix_atom_togglebutton");
+	    GtkWidget *button2 = lookup_widget(fixed_atom_dialog, "unfix_atom_togglebutton");
+	    if (button1)
+	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button1), FALSE);
+	    if (button2)
+	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button2), FALSE);
+	    in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
+	 }
       }
    }
 }

@@ -3516,3 +3516,17 @@ void set_accept_reject_dialog_docked(int istate){
 int accept_reject_dialog_docked_state(){
   return graphics_info_t::accept_reject_dialog_docked_flag;
 }
+
+
+void store_fixed_atom_dialog(GtkWidget *w) {
+
+   graphics_info_t::fixed_atom_dialog = w;
+
+} 
+
+GtkWidget *wrapped_create_fixed_atom_dialog() {
+
+   GtkWidget *w = create_fixed_atom_dialog();
+   graphics_info_t::fixed_atom_dialog = w;
+   return w;
+} 

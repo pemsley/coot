@@ -8022,7 +8022,7 @@ on_model_toolbar_fixed_atoms_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = create_fixed_atom_dialog();
+  GtkWidget *w = wrapped_create_fixed_atom_dialog();
   gtk_widget_show(w);
 }
 
@@ -8958,7 +8958,7 @@ void
 on_clear_fixed_atoms_button_clicked    (GtkButton       *button,
                                         gpointer         user_data)
 {
-
+  clear_fixed_atoms_all();
 }
 
 
@@ -8977,6 +8977,6 @@ void
 on_fixed_atom_dialog_destroy           (GtkObject       *object,
                                         gpointer         user_data)
 {
-
+  store_fixed_atom_dialog(0);
 }
 
