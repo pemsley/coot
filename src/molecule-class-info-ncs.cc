@@ -1757,7 +1757,11 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
 		  coot::ncs_residue_info_t ds = 
 		     ncs_ghosts[ighost].get_differences(this_residue_p, master_residue_p,
 							main_chain_weight);
-		  residue_info.push_back(ds);
+		  if (ds.filled) { 
+		     std::cout << "     pushing back a residue_info with resno "
+			       << ds.resno << std::endl;
+		     residue_info.push_back(ds);
+		  }
 	       }
 	       coot::ncs_chain_difference_t d(ncs_ghosts[ighost].chain_id, residue_info);
 	       if (residue_info.size() > 0)
@@ -1770,6 +1774,9 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
 }
 
 
+// Return a ncs_residue_info_t, note we cannot use that
+// ncs_residue_info_t if filled is 0.
+// 
 coot::ncs_residue_info_t
 coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p, 
 						CResidue *master_residue_p,
@@ -1810,7 +1817,11 @@ coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p,
 	 r.n_weighted_atoms = n_weighted_atoms;
       }
    } else {
-      std::cout << "different residue types" << std::endl;
+      std::cout << "different residue types " << this_residue_p->GetSeqNum()
+		<< " " << this_residue_p->GetInsCode() << " "
+		<< this_residue_p->GetResName() << "   vs  "
+		<< master_residue_p->GetSeqNum() << " " << master_residue_p->GetInsCode()
+		<< " " << master_residue_p->GetResName() << std::endl;
    }
    return r;
 }
