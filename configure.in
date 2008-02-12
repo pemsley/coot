@@ -135,12 +135,9 @@ if test x$coot_guile = xtrue ; then
    AM_GUILE_GOOSH
    AM_GUILE_NET_HTTP
    AM_GUILE_GUI
-   echo ..........................................................
-   guile-config --version
    GUILE_VERSION=`guile-config --version  2>&1 | awk '{split($NF, arr, "[[.]]");  print arr[[1]] "." arr[[2]]}'`
-   echo GUILE_VERSION is $GUILE_VERSION
+   echo checking GUILE_VERSION: $GUILE_VERSION
    AC_SUBST(GUILE_VERSION)
-   echo ..........................................................
 fi
 
 AM_WITH_PYTHON

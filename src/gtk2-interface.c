@@ -307,12 +307,7 @@ create_window1 (void)
   GtkWidget *tmp_image;
   GtkWidget *model_toolbar_refine_togglebutton;
   GtkWidget *model_toolbar_regularize_togglebutton;
-  GtkWidget *toolitem32;
   GtkWidget *model_toolbar_fixed_atoms_button;
-  GtkWidget *alignment110;
-  GtkWidget *hbox320;
-  GtkWidget *image6106;
-  GtkWidget *label568;
   GtkWidget *model_toolbar_rigid_body_fit_togglebutton;
   GtkWidget *model_toolbar_rot_trans_togglebutton;
   GtkWidget *model_toolbar_auto_fit_rotamer_togglebutton;
@@ -1520,31 +1515,11 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_regularize_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, _("Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\""), NULL);
 
-  toolitem32 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem32);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem32);
-
-  model_toolbar_fixed_atoms_button = gtk_button_new ();
+  tmp_image = gtk_image_new_from_stock ("gtk-justify-fill", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  model_toolbar_fixed_atoms_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Fixed Atoms..."));
   gtk_widget_show (model_toolbar_fixed_atoms_button);
-  gtk_container_add (GTK_CONTAINER (toolitem32), model_toolbar_fixed_atoms_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_fixed_atoms_button, _("Fixed Atoms..."), NULL);
-  gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_fixed_atoms_button), FALSE);
-
-  alignment110 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment110);
-  gtk_container_add (GTK_CONTAINER (model_toolbar_fixed_atoms_button), alignment110);
-
-  hbox320 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_show (hbox320);
-  gtk_container_add (GTK_CONTAINER (alignment110), hbox320);
-
-  image6106 = gtk_image_new_from_stock ("gtk-sort-ascending", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image6106);
-  gtk_box_pack_start (GTK_BOX (hbox320), image6106, FALSE, FALSE, 0);
-
-  label568 = gtk_label_new_with_mnemonic (_("Fixed Atoms..."));
-  gtk_widget_show (label568);
-  gtk_box_pack_start (GTK_BOX (hbox320), label568, FALSE, FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_fixed_atoms_button);
 
   model_toolbar_rigid_body_fit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), _("Rigid Body Fit Zone"));
@@ -2409,12 +2384,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_select_map_button, "model_toolbar_select_map_button");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_refine_togglebutton, "model_toolbar_refine_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_regularize_togglebutton, "model_toolbar_regularize_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, toolitem32, "toolitem32");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_fixed_atoms_button, "model_toolbar_fixed_atoms_button");
-  GLADE_HOOKUP_OBJECT (window1, alignment110, "alignment110");
-  GLADE_HOOKUP_OBJECT (window1, hbox320, "hbox320");
-  GLADE_HOOKUP_OBJECT (window1, image6106, "image6106");
-  GLADE_HOOKUP_OBJECT (window1, label568, "label568");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_togglebutton, "model_toolbar_rot_trans_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
@@ -16520,9 +16490,6 @@ create_preferences (void)
 
   preferences_other_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_other_radiotoolbutton), _("Others"));
-  tmp_image = gtk_image_new_from_stock ("gtk-info", tmp_toolbar_icon_size);
-  gtk_widget_show (tmp_image);
-  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_other_radiotoolbutton), tmp_image);
   gtk_widget_show (preferences_other_radiotoolbutton);
   gtk_container_add (GTK_CONTAINER (preferences_toolbar), preferences_other_radiotoolbutton);
   gtk_radio_tool_button_set_group (GTK_RADIO_TOOL_BUTTON (preferences_other_radiotoolbutton), preferences_general_radiotoolbutton_group);
