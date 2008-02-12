@@ -3585,15 +3585,30 @@ void clear_all_fixed_atoms(int imol) {
 }
 
 
+void clear_fixed_atoms_all() {
+
+   for (int i=0; i<graphics_info_t::n_molecules(); i++) {
+      if (is_valid_model_molecule(i)) {
+	 clear_all_fixed_atoms(i);
+      }
+   }
+   graphics_draw();
+}
+
+
+// ipick is on/off, is_unpick is when we are picking a fixed atom to
+// be unfixed.
+// 
 void setup_fixed_atom_pick(short int ipick, short int is_unpick) {
 
    if (ipick == 0) {
       graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
    } else {
-      if (is_unpick)
+      if (is_unpick) {
 	 graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_UNFIX;
-      else 
+      } else { 
 	 graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_FIX;
+      }
    }
 }
 

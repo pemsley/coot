@@ -646,7 +646,8 @@ class graphics_info_t {
    void check_if_in_lsq_plane_define(GdkEventButton *event);
    void check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event);
    void check_if_in_torsion_general_define(GdkEventButton *event);
-   void check_if_in_fixed_atom_define(GdkEventButton *event);
+   void check_if_in_fixed_atom_define(GdkEventButton *event,
+				      const GdkModifierType &state); // can use Ctrl key
    static std::vector<std::string> model_fit_refine_toggle_button_name_list();
    static std::vector<std::string> model_fit_refine_button_name_list();
    static std::vector<std::string> other_modelling_tools_toggle_button_name_list();
@@ -1515,6 +1516,7 @@ public:
    static short int rot_trans_zone_rotates_about_zone_centre;
 
    static coot::fixed_atom_pick_state_t in_fixed_atom_define;
+   static GtkWidget *fixed_atom_dialog;
 
    static short int in_torsion_general_define;
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.
