@@ -215,7 +215,8 @@
 # 3.14 20080208 Try requiring gtk 2.10
 # 4.00 20080208 Remove gtk2 and pkg-config building.  Test for Fedora core 5.
 # 4.01 20080211 Remove pycairo build and fix up test for build for guile_gtk
-script_version=4.01
+# 4.02 20080212 Add in the Neil Jerram guile-gui patch.
+script_version=4.02
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2209,10 +2210,12 @@ if test -n "$build_guile_gui" ; then
    echo BUILDING guile-gui:
 #
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
+${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/neil-jerram.guile-gui.patch
 ( 
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.2.tar.gz | tar xf -
+patch -p0 < ${AUTOBUILD_SOURCES}/neil-jerram.guile-gui.patch
 cd guile-gui-0.2
 ./configure $generic_prefix
 $MAKE
