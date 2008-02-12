@@ -1257,7 +1257,7 @@ GtkWidget *coot_file_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 8)
    w = create_coords_fileselection1 ();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
@@ -1273,7 +1273,7 @@ GtkWidget *coot_dataset_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 8)
    w = create_dataset_fileselection1 ();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
@@ -1289,7 +1289,7 @@ GtkWidget *coot_map_name_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 8)
    w = create_map_name_fileselection1();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {

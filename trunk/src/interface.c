@@ -18417,6 +18417,9 @@ create_fixed_atom_dialog (void)
   gtk_widget_show (fixed_atom_close_button);
   gtk_box_pack_start (GTK_BOX (dialog_action_area97), fixed_atom_close_button, FALSE, FALSE, 0);
 
+  gtk_signal_connect (GTK_OBJECT (fixed_atom_dialog), "destroy",
+                      GTK_SIGNAL_FUNC (on_fixed_atom_dialog_destroy),
+                      NULL);
   gtk_signal_connect (GTK_OBJECT (fix_atom_togglebutton), "toggled",
                       GTK_SIGNAL_FUNC (on_fix_atom_togglebutton_toggled),
                       NULL);

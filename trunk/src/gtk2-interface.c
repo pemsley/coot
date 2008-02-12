@@ -1172,6 +1172,7 @@ create_window1 (void)
   gtk_widget_show (reset_view_button);
   gtk_container_add (GTK_CONTAINER (toolitem1), reset_view_button);
   GTK_WIDGET_UNSET_FLAGS (reset_view_button, GTK_CAN_FOCUS);
+  gtk_tooltips_set_tip (tooltips, reset_view_button, _("Usage Note: click again to centre on a different molecule"), NULL);
 
   alignment1 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment1);
@@ -1197,6 +1198,7 @@ create_window1 (void)
   gtk_widget_show (display_manager_button);
   gtk_container_add (GTK_CONTAINER (toolitem2), display_manager_button);
   GTK_WIDGET_UNSET_FLAGS (display_manager_button, GTK_CAN_FOCUS);
+  gtk_tooltips_set_tip (tooltips, display_manager_button, _("Display the dialog for displaying and undisplaying molecules and changing their representation"), NULL);
 
   alignment2 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment2);
@@ -1515,11 +1517,12 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_regularize_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, _("Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\""), NULL);
 
-  tmp_image = gtk_image_new_from_stock ("gtk-justify-fill", tmp_toolbar_icon_size);
+  tmp_image = create_pixmap (window1, "anchor.svg");
   gtk_widget_show (tmp_image);
   model_toolbar_fixed_atoms_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Fixed Atoms..."));
   gtk_widget_show (model_toolbar_fixed_atoms_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_fixed_atoms_button);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_fixed_atoms_button), tooltips, _("Fix Atoms in Refinement and Regularization..."), NULL);
 
   model_toolbar_rigid_body_fit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), _("Rigid Body Fit Zone"));
@@ -21959,6 +21962,9 @@ create_fixed_atom_dialog (void)
   gtk_dialog_add_action_widget (GTK_DIALOG (fixed_atom_dialog), fixed_atom_close_button, GTK_RESPONSE_CLOSE);
   GTK_WIDGET_SET_FLAGS (fixed_atom_close_button, GTK_CAN_DEFAULT);
 
+  g_signal_connect ((gpointer) fixed_atom_dialog, "destroy",
+                    G_CALLBACK (on_fixed_atom_dialog_destroy),
+                    NULL);
   g_signal_connect ((gpointer) fix_atom_togglebutton, "toggled",
                     G_CALLBACK (on_fix_atom_togglebutton_toggled),
                     NULL);

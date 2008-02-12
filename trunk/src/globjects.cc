@@ -558,7 +558,7 @@ int graphics_info_t::db_main_atom_index_1 = -1;
 int graphics_info_t::db_main_atom_index_2 = -1; 
 coot::db_main graphics_info_t::main_chain;
 
-short int graphics_info_t::in_fixed_atom_define = 0;
+coot::fixed_atom_pick_state_t graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
 
 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *graphics_info_t::distance_object_vec = NULL;
 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *graphics_info_t::pointer_distances_object_vec = NULL;
