@@ -4338,3 +4338,42 @@ A FC4 machine:
 cycle ~> pkg-config --modversion gtk+-2.0
 2.6.7 
 
+-----
+Mon Feb 11 08:26:02 GMT 2008
+
+GDK_PIXBUF_MODULE_FILE=$HOME/autobuild/Linux-bragg1.chem.york.ac.uk-pre-release-gtk2/etc/gtk-2.0/gdk-pixbuf.loaders
+
+export GDK_PIXBUF_MODULE_FILE
+
+----
+Mon Feb 11 13:02:51 GMT 2008
+
+    There was a problem of left-over muddled gtk libs and dependencies
+    in coot-Linux-fedora-5-gtk.
+
+    Which caused problems in startup.  If I ran the slim function by
+    hand to a clean directory, it worked (woop!)
+
+    diagnosed by using 
+    diff -r dir-1 dir-2
+
+    Now rebuilding fc5 (bragg3) from scratch.
+
+    Need to test that there are no dependencies on
+    autobuild/Linux-bragg3-pre-release-gtk2 when its done.
+
+    Question:  are pygobject and pycairo needed for pygtk 2.6.3?
+
+
+-----
+Tue Feb 12 01:37:53 GMT 2008
+
+    coot-real from kalypso ~/Projects/build-coot-fc4-gtk2/src> ./coot-real
+
+    Try to open an mtz file from tutorials, 
+
+    on changin to  "tutorials" in the ccp4i project option menu:
+
+** (lt-coot-real:32355): WARNING **: Widget not found: map_name_fileselection1
+WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_func
+
