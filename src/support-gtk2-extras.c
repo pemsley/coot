@@ -3,6 +3,7 @@
 
 #if (GTK_MAJOR_VERSION > 1) 
 static GList *pixmaps_directories;
+gchar* find_pixmap_file(const gchar     *filename);
 #endif 
 
 #if (GTK_MAJOR_VERSION > 1) 

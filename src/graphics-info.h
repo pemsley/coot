@@ -110,6 +110,9 @@ namespace coot {
    enum chooser_selector_type { OLD_STYLE, CHOOSER_STYLE };
    enum chooser_overwrite_type { CHOOSER_OVERWRITE, CHOOSER_OVERWRITE_PROTECT };
    enum accept_reject_dialog_type { DIALOG, DIALOG_DOCKED };
+   enum fixed_atom_pick_state_t { FIXED_ATOM_NO_PICK = 0, 
+				  FIXED_ATOM_FIX = 1, 
+				  FIXED_ATOM_UNFIX = 2 };
 
    void set_validation_graph(int imol, geometry_graph_type type, GtkWidget *dialog);
    GtkWidget *get_validation_graph(int imol, geometry_graph_type type); 
@@ -1511,7 +1514,7 @@ public:
    static int imol_rot_trans_object;
    static short int rot_trans_zone_rotates_about_zone_centre;
 
-   static short int in_fixed_atom_define;
+   static coot::fixed_atom_pick_state_t in_fixed_atom_define;
 
    static short int in_torsion_general_define;
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.

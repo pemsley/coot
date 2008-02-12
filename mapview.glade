@@ -27305,6 +27305,11 @@ Move Molecule Here:</label>
 <widget>
   <class>GtkDialog</class>
   <name>fixed_atom_dialog</name>
+  <signal>
+    <name>destroy</name>
+    <handler>on_fixed_atom_dialog_destroy</handler>
+    <last_modification_time>Tue, 12 Feb 2008 14:02:44 GMT</last_modification_time>
+  </signal>
   <title>Fixed Atoms for Refinement</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>

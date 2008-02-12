@@ -1975,6 +1975,7 @@
 		  <child>
 		    <widget class="GtkButton" id="reset_view_button">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Usage Note: click again to centre on a different molecule</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="clicked" handler="on_reset_view_button_clicked"/>
@@ -2061,6 +2062,7 @@
 		  <child>
 		    <widget class="GtkButton" id="display_manager_button">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Display the dialog for displaying and undisplaying molecules and changing their representation</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="clicked" handler="on_display_manager_button_clicked"/>
@@ -3047,9 +3049,10 @@
 		  <child>
 		    <widget class="GtkToolButton" id="model_toolbar_fixed_atoms_button">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Fix Atoms in Refinement and Regularization...</property>
 		      <property name="label" translatable="yes">Fixed Atoms...</property>
 		      <property name="use_underline">True</property>
-		      <property name="stock_id">gtk-justify-fill</property>
+		      <property name="icon">anchor.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -44185,6 +44188,7 @@ have a Spanish Coot because of Miguel's work.
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
   <property name="has_separator">True</property>
+  <signal name="destroy" handler="on_fixed_atom_dialog_destroy" last_modification_time="Tue, 12 Feb 2008 14:03:38 GMT"/>
 
   <child internal-child="vbox">
     <widget class="GtkVBox" id="dialog-vbox110">

@@ -1534,9 +1534,22 @@ void
 graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event) {
 
    if (in_fixed_atom_define) {
+      bool pick_state = 0;
+      if (in_fixed_atom_define == coot::FIXED_ATOM_FIX) {
+	 pick_state = 1;
+      }
+      if (in_fixed_atom_define == coot::FIXED_ATOM_UNFIX) {
+	 pick_state = 0;
+      }
+
+      // pick and fix are interchanged here. I mean on
+      // UNFIX/pick_state=0 that an atom that is marked as FIXED (it
+      // should have a dot) becomes unmarked as fixed.
+      // 
       pick_info naii = atom_pick(event);
       if (naii.success == GL_TRUE) {
-	 
+	 coot::atom_spec_t as(molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]);
+	 mark_atom_as_fixed(naii.imol, as, pick_state);
       }
    }
 }

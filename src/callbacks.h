@@ -3374,3 +3374,7 @@ on_clear_fixed_atoms_button_clicked    (GtkButton       *button,
 void
 on_fixed_atom_close_button_clicked     (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_fixed_atom_dialog_destroy           (GtkObject       *object,
+                                        gpointer         user_data);

@@ -3582,7 +3582,20 @@ void clear_all_fixed_atoms(int imol) {
       graphics_info_t::molecules[imol].clear_all_fixed_atoms();
       graphics_draw();
    }
-} 
+}
+
+
+void setup_fixed_atom_pick(short int ipick, short int is_unpick) {
+
+   if (ipick == 0) {
+      graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
+   } else {
+      if (is_unpick)
+	 graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_UNFIX;
+      else 
+	 graphics_info_t::in_fixed_atom_define = coot::FIXED_ATOM_FIX;
+   }
+}
 
 
 /*  ----------------------------------------------------------------------- */

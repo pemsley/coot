@@ -4559,6 +4559,8 @@ PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
 #endif 
 #endif 
 
+void setup_fixed_atom_pick(short int ipick, short int is_unpick);
+
 /*! \brief clear all fixed atoms */
 void clear_all_fixed_atoms(int imol);
 

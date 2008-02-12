@@ -8934,7 +8934,11 @@ void
 on_fix_atom_togglebutton_toggled       (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-
+  if (togglebutton->active) { 
+    setup_fixed_atom_pick(1, 0);
+  } else {
+    setup_fixed_atom_pick(0, 0);
+  }
 }
 
 
@@ -8942,7 +8946,11 @@ void
 on_unfix_atom_togglebutton_toggled     (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-
+  if (togglebutton->active) { 
+    setup_fixed_atom_pick(1, 1);
+  } else {
+    setup_fixed_atom_pick(0, 1);
+  }
 }
 
 
@@ -8956,6 +8964,17 @@ on_clear_fixed_atoms_button_clicked    (GtkButton       *button,
 
 void
 on_fixed_atom_close_button_clicked     (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), 
+				    "fixed_atom_dialog");
+  gtk_widget_destroy(dialog);
+}
+
+
+void
+on_fixed_atom_dialog_destroy           (GtkObject       *object,
                                         gpointer         user_data)
 {
 
