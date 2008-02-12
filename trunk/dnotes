@@ -2,10 +2,7 @@
 
    Things to fix before 0.5
 
-   23 Items
-
-   o Fixed atoms in refinement (and marking in molecules).  Code needs
-     finishing.  mark_atom_as_fixed()
+   22 Items
 
    o NCS diffs graph need finishing.  Almost there.  Needs code to do
      dynamic update.
@@ -85,6 +82,11 @@
 
 
 
+
+   o Fixed atoms in refinement (and marking in molecules).  Code needs
+     finishing.  mark_atom_as_fixed()
+
+* Done.  Refinement sometimes unstable, sadly.
 
    o graphics::molecules should be a std::vector
 

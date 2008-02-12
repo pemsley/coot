@@ -1,6 +1,7 @@
 /* src/graphics-info.cc
  * 
  * Copyright 2002, 2003, 2004, 2005 by The University of York
+ * Copyright 2008  by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,7 +16,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 
@@ -1328,17 +1330,27 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
       // A ncs_chain_differences_t contains a vector of residue difference infos.
 
       for (unsigned int ires=0; ires<diff.diffs[incs_set].residue_info.size(); ires++) {
-
-	 if (diff.diffs[incs_set].residue_info[ires].resno < min_resno)
+ 	 std::cout << " resno for diffs: "
+ 		   << diff.diffs[incs_set].residue_info[ires].resno
+ 		   << std::endl;
+	    
+	 if (diff.diffs[incs_set].residue_info[ires].resno < min_resno) { 
 	    min_resno = diff.diffs[incs_set].residue_info[ires].resno;
-	 if (diff.diffs[incs_set].residue_info[ires].resno > max_resno)
+	    std::cout << "updated min_resno to " << min_resno << std::endl;
+	 }
+	 if (diff.diffs[incs_set].residue_info[ires].resno > max_resno) { 
 	    max_resno = diff.diffs[incs_set].residue_info[ires].resno;
+	    std::cout << "updated max_resno to " << max_resno << std::endl;
+	 }
       }
       offset = min_resno - 1; 
+      std::cout << "max_resno, min_resno " << max_resno << " "
+		<< min_resno << std::endl;
       
       std::vector<coot::geometry_graph_block_info_generic> v = 
 	 graphics_info_t::ncs_diffs(imol, diff.diffs[incs_set]);
-      graphs->render_to_canvas(v, incs_set, diff.diffs[incs_set].peer_chain_id, max_resno, min_resno, offset);
+      graphs->render_to_canvas(v, incs_set, diff.diffs[incs_set].peer_chain_id,
+			       max_resno, min_resno, offset);
       
 
       
