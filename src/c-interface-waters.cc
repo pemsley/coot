@@ -2,6 +2,7 @@
  * 
  * Copyright 2004, 2005 by The University of York
  * Author: Paul Emsley
+ * Copyright 2008 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -700,3 +701,48 @@ int blob_under_pointer_to_screen_centre() {
    }
    return r;
 }
+
+
+#ifdef USE_GUILE
+/*! return the chain id of the water chain from a shelx molecule.  Raw interface
+  Return #f if no chain or bad imol*/
+SCM water_chain_from_shelx_ins_scm(int imol) {
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      CChain *water_chain =
+	 graphics_info_t::molecules[imol].water_chain_from_shelx_ins();
+      if (water_chain) {
+	 r = scm_makfrom0str(water_chain->GetChainID());
+      } 
+   }
+   return r;
+}
+/*! return the chain id of the water chain. Raw interface */
+SCM water_chain_scm(int imol) {
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      CChain *water_chain = graphics_info_t::molecules[imol].water_chain();
+      if (water_chain) {
+	 r = scm_makfrom0str(water_chain->GetChainID());
+      } 
+   }
+   return r;
+}
+#endif 
+
+#ifdef USE_PYTHON
+/*! return the chain id of the water chain from a shelx molecule.  Raw interface.
+Return False if no chain or bad imol*/
+PyObject *water_chain_from_shelx_ins_py(int imol) {
+
+   PyObject *r = 0;
+
+   return r;
+}
+/*! return the chain id of the water chain. Raw interface */
+PyObject *water_chain_py(int imol) {
+   PyObject *r = 0;
+
+   return r;
+}
+#endif 

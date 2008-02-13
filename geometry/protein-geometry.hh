@@ -332,9 +332,11 @@ namespace coot {
    // ------------------------------------------------------------------------
    // 
    class dictionary_residue_restraints_t {
+      bool has_partial_charges_flag; 
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,
-				      int read_number_in) { 
+				      int read_number_in) {
+	 has_partial_charges_flag = 0;
 	 comp_id = comp_id_in;
 	 read_number = read_number_in;
       }
@@ -352,6 +354,10 @@ namespace coot {
       bool is_hydrogen(const std::string &atom_name) const;
       int assign_chiral_volume_targets(); // return the number of targets made.
       bool has_unassigned_chiral_volumes() const;
+      bool has_partial_charges() const;
+      void set_has_partial_charges(bool state) {
+	 has_partial_charges_flag = state;
+      }
    };
 
    // ------------------------------------------------------------------------

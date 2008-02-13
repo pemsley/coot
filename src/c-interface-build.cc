@@ -1055,7 +1055,7 @@ PyObject *refmac_parameters_py(int imol) {
       if (refmac_params.size() > 0) {
 	 // values have dont have to go in in reverse order.
 	r = PyList_New(refmac_params.size());
-	for (int i=0; i<refmac_params.size(); i++) {
+	for (unsigned int i=0; i<refmac_params.size(); i++) {
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_INT)
 	      PyList_Append(r, PyInt_FromLong(refmac_params[i].i));
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_FLOAT)
@@ -1879,6 +1879,18 @@ void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) {
    gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu),
 			    menu);
 } 
+
+int pointer_atom_molecule() {
+   graphics_info_t g;
+   return g.pointer_atom_molecule();
+}
+
+void
+set_pointer_atom_molecule(int imol) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::user_pointer_atom_molecule = imol;
+   }
+}
 
 void
 place_typed_atom_at_pointer(const char *type) {
@@ -5814,6 +5826,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	    s += "\"";
 	    info_dialog(s.c_str());
 	    imol = -1;
+	    graphics_info_t::erase_last_molecule();
 	 }
       } else {
 	 // mol will (currently) never be null,
@@ -5829,6 +5842,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 s += "\"";
 	 info_dialog(s.c_str());
 	 imol = -1;
+	 graphics_info_t::erase_last_molecule();
       } 
       mol_orig->DeleteSelection(SelectionHandle);
       graphics_draw();
@@ -6336,7 +6350,6 @@ int laplacian (int imol) {
       int new_molecule_number = graphics_info_t::create_molecule();
       std::string label = "Laplacian of ";
       label += graphics_info_t::molecules[imol].name_;
-      graphics_info_t g;
       graphics_info_t::molecules[new_molecule_number].new_map(xmap, label);
       iret = new_molecule_number;
    }
@@ -6385,4 +6398,23 @@ create_skeleton_colour_selection_window() {
 
   return GTK_WIDGET(colorseldialog);
 
+}
+
+
+void
+show_partial_charge_info(int imol, const char *chain_id, int resno, const char *ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      CResidue *residue =
+	 graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+      if (residue) {
+	 std::string resname = residue->GetResName();
+	 int read_number = graphics_info_t::cif_dictionary_read_number;
+	 graphics_info_t g; 
+	 if (g.Geom_p()->have_dictionary_for_residue_type(resname, read_number)) {
+	    
+	 }
+	 graphics_info_t::cif_dictionary_read_number++;
+      }
+   }
 }

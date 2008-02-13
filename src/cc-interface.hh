@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
+ * Copyright 2008 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -412,6 +413,28 @@ PyObject *active_residue_py();
 // 
 PyObject *closest_atom_py(int imol);
 #endif // USE_PYTHON
+
+/*  ----------------------------------------------------------------------- */
+/*                  water chain                                             */
+/*  ----------------------------------------------------------------------- */
+
+#ifdef USE_GUILE
+/*! return the chain id of the water chain from a shelx molecule.  Raw interface
+  Return #f if no chain or bad imol*/
+SCM water_chain_from_shelx_ins_scm(int imol); 
+/*! return the chain id of the water chain. Raw interface */
+SCM water_chain_scm(int imol);
+#endif 
+
+#ifdef USE_PYTHON
+/*! return the chain id of the water chain from a shelx molecule.  Raw interface.
+
+Return False if no chain or bad imol*/
+PyObject *water_chain_from_shelx_ins_py(int imol); 
+/*! return the chain id of the water chain. Raw interface */
+PyObject *water_chain_py(int imol);
+#endif 
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  spin search                                             */
