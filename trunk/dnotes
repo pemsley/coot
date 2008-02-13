@@ -4,8 +4,12 @@
 
    22 Items
 
+   o Fix problem of ccp4i project open menu (for maps?)
+
    o NCS diffs graph need finishing.  Almost there.  Needs code to do
      dynamic update.
+
+* Done.
 
    o Save symmetry colour to state (Doug Kuntz)
 
