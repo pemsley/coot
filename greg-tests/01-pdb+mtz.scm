@@ -82,7 +82,7 @@
 	     (new-mol (new-molecule-by-atom-selection  imol-rnase "//A/100"))
 	     (post-n-molecules (graphics-n-molecules)))
 	;; what should happen if there are no atoms in the new-mol?
-	(format #t "INFO:: pre-n-molecules ~s   post-n-molecules ~s~%"
+	(format #t "   INFO:: pre-n-molecules ~s   post-n-molecules ~s~%"
 		pre-n-molecules post-n-molecules)
 	#t)))
 

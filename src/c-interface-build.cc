@@ -5814,7 +5814,6 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 if (asc.n_selected_atoms > 0){ 
 	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
 	 } else {
-	    graphics_info_t::erase_last_molecule();
 	    std::cout << "in new_molecule_by_atom_selection "
 		      << "Something bad happened - No atoms selected"
 		      << std::endl;
@@ -5832,7 +5831,6 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 // mol will (currently) never be null,
 	 // create_mmdbmanager_from_atom_selection() always returns a
 	 // good CMMDBManager pointer.
-	 graphics_info_t::erase_last_molecule();
 	 std::cout << "in new_molecule_by_atom_selection "
 		   << "Something bad happened - null molecule" << std::endl;
 	 std::string s = "Oops, failed to create fragment.  ";
