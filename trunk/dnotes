@@ -4374,8 +4374,19 @@ Tue Feb 12 01:37:53 GMT 2008
 
     Try to open an mtz file from tutorials, 
 
-    on changin to  "tutorials" in the ccp4i project option menu:
+    on changing to  "tutorials" in the ccp4i project option menu:
 
 ** (lt-coot-real:32355): WARNING **: Widget not found: map_name_fileselection1
 WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_func
+
+
+
+------
+Wed Feb 13 10:48:53 GMT 2008
+
+   The flatland thing on NCS happened without drawing NCS ghosts first.
+
+   So, is an NCS matrix being applied when it shouldn't? NCS ghost are
+   marked as filled, but they are not?
+
 

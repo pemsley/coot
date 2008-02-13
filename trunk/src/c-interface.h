@@ -3269,6 +3269,9 @@ void execute_find_blobs(int imol_model, int imol_for_map, float cut_off, short i
 void execute_find_blobs_from_widget(GtkWidget *dialog);
 
 GtkWidget *wrapped_create_unmodelled_blobs_dialog();
+
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -3761,6 +3764,8 @@ void set_pointer_atom_is_dummy(int i);
 void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu);
 void display_where_is_pointer(); /* print the coordinates of the
 				    pointer to the console */
+int pointer_atom_molecule();
+void set_pointer_atom_molecule(int imol);
 
 /*! \} */
 
@@ -4567,6 +4572,14 @@ void store_fixed_atom_dialog(GtkWidget *w);
 GtkWidget *wrapped_create_fixed_atom_dialog();
 void clear_fixed_atoms_all();
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  Partial Charge                                          */
+/*  ----------------------------------------------------------------------- */
+/*! \name Partial Charges */
+/* \{ */
+void show_partial_charge_info(int imol, const char *chain_id, int resno, const char *ins_code); 
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  EM Interface                                            */

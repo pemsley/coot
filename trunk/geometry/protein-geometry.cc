@@ -279,6 +279,7 @@ coot::dictionary_residue_restraints_t::clear_dictionary_residue() {
 
    comp_id = ""; 
    residue_info = coot::dict_chem_comp_t("", "", "", 0, 0, "");
+   has_partial_charges_flag = 0;
 
    // need different constructors.
 //    atom_info.resize(0);
@@ -805,7 +806,14 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 void
 coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 
+   // If the number of atoms with partial charge matches the number of
+   // atoms, then set a flag in the residue that this monomer has
+   // partial charges.
+   
    int ierr = 0;
+   int n_atoms = 0;
+   int n_atoms_with_partial_charge = 0;
+   std::string comp_id_for_partial_charges = "unset"; // unassigned.
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
 
@@ -815,7 +823,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
       std::string atom_id;
       std::string type_symbol; 
       std::string type_energy;
-      realtype partial_charge; 
+      realtype partial_charge;
 
       if (ierr == 0) {
 	 int ierr_tot = 0; 
@@ -847,6 +855,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 // ierr_tot += ierr;  // not for partial charge
 	 if (ierr == 0) {
 	    have_partial_charge_flag = 1;
+	    n_atoms_with_partial_charge++;
 	 }
 
 	 if (ierr_tot == 0) {
@@ -854,13 +863,34 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	    std::string padded_name = comp_atom_pad_atom_name(atom_id, type_symbol);
 // 	    std::cout << "comp_atom_pad_atom_name: in :" << atom_id << ": out :"
 // 		      << padded_name << ":" << std::endl;
+	    n_atoms++;
+	    if (comp_id_for_partial_charges != "bad match") { 
+	       if (comp_id_for_partial_charges == "unset") {
+		  comp_id_for_partial_charges = comp_id;
+	       } else {
+		  if (comp_id != comp_id_for_partial_charges) {
+		     comp_id_for_partial_charges == "bad match";
+		  }
+	       }
+	    }
 	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
 			     partial_charge, have_partial_charge_flag);
 
 	 }
       }
    }
-   
+
+   if (n_atoms_with_partial_charge == n_atoms) {
+      if (comp_id_for_partial_charges != "unset") {
+	 if (comp_id_for_partial_charges != "bad match") {
+	    for (unsigned int id=0; id<dict_res_restraints.size(); id++) {
+	       if (dict_res_restraints[id].comp_id == comp_id_for_partial_charges) {
+		  dict_res_restraints[id].set_has_partial_charges(1);
+	       } 
+	    }
+	 }
+      }
+   }
 }
 
 

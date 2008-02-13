@@ -1282,7 +1282,9 @@ graphics_info_t::ncs_diffs(int imol, const coot::ncs_chain_difference_t &d) {
 			      d.residue_info[ires].resno,
 			      d.residue_info[ires].inscode,
 			      atom_name, altconf);
-	 std::string str = "mean d = ";
+	 std::string str = coot::util::int_to_string(d.residue_info[ires].resno);
+	 str += d.peer_chain_id;
+	 str += " mean d = ";
 	 str += coot::util::float_to_string(distance);
 	 str += "A";
 	 coot::geometry_graph_block_info_generic block(imol, d.residue_info[ires].resno, as,
@@ -1336,16 +1338,14 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
 	    
 	 if (diff.diffs[incs_set].residue_info[ires].resno < min_resno) { 
 	    min_resno = diff.diffs[incs_set].residue_info[ires].resno;
-	    std::cout << "updated min_resno to " << min_resno << std::endl;
 	 }
 	 if (diff.diffs[incs_set].residue_info[ires].resno > max_resno) { 
 	    max_resno = diff.diffs[incs_set].residue_info[ires].resno;
-	    std::cout << "updated max_resno to " << max_resno << std::endl;
 	 }
       }
       offset = min_resno - 1; 
-      std::cout << "max_resno, min_resno " << max_resno << " "
-		<< min_resno << std::endl;
+//       std::cout << "max_resno, min_resno " << max_resno << " "
+// 		<< min_resno << std::endl;
       
       std::vector<coot::geometry_graph_block_info_generic> v = 
 	 graphics_info_t::ncs_diffs(imol, diff.diffs[incs_set]);

@@ -1751,16 +1751,33 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
 	       PCResidue this_residue_p;
 	       PCResidue master_residue_p;
 	       std::vector<coot::ncs_residue_info_t> residue_info;
-	       for (int ires=0; ires<nres_this && ires<nres_master; ires++) {
-		  this_residue_p = this_chain_p->GetResidue(ires);
-		  master_residue_p = master_chain_p->GetResidue(ires);
-		  coot::ncs_residue_info_t ds = 
-		     ncs_ghosts[ighost].get_differences(this_residue_p, master_residue_p,
-							main_chain_weight);
-		  if (ds.filled) { 
-		     std::cout << "     pushing back a residue_info with resno "
-			       << ds.resno << std::endl;
-		     residue_info.push_back(ds);
+
+	       // return first == 0 if residues not found in chain
+	       std::pair<short int, int> mm_master =
+		  coot::util::min_resno_in_chain(master_chain_p);
+	       std::pair<short int, int> mm_this =
+		  coot::util::min_resno_in_chain(this_chain_p);
+
+	       if (mm_master.first && mm_this.first) {
+		  int resno_offset = mm_this.second - mm_master.second;
+
+		  for (int ires=0; ires<nres_this && ires<nres_master; ires++) {
+		     master_residue_p = master_chain_p->GetResidue(ires);
+		     this_residue_p = 0;
+		     if ( ((ires-resno_offset)<nres_this) && ((ires-resno_offset)>=0))
+			this_residue_p = this_chain_p->GetResidue(ires-resno_offset);
+		     if (this_residue_p && master_residue_p) {
+			if (this_residue_p->GetSeqNum() == master_residue_p->GetSeqNum()) {
+			   coot::ncs_residue_info_t ds = 
+			      ncs_ghosts[ighost].get_differences(this_residue_p, master_residue_p,
+								 main_chain_weight);
+			   if (ds.filled) { 
+// 			      std::cout << "     pushing back a residue_info with resno "
+// 				     << ds.resno << std::endl;
+			      residue_info.push_back(ds);
+			   }
+			}
+		     }
 		  }
 	       }
 	       coot::ncs_chain_difference_t d(ncs_ghosts[ighost].chain_id, residue_info);
