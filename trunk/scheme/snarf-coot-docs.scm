@@ -12,6 +12,9 @@
 (define  ncs-chain-ids-scm #t)
 (define  ncs-chain-differences-scm #t)
 (define  refmac-parameters-scm #t)
+(define  water-chain #f)
+(define  water-chain-from-shelx-ins #f)
+
 
 (load "filter.scm")
 (load "coot-utils.scm")
