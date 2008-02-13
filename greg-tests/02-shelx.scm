@@ -10,6 +10,7 @@
 (define insulin-fcf (append-dir-file greg-data-dir "insulin.fcf"))
 (define insulin-res (append-dir-file greg-data-dir "insulin.res"))
 (define hollander-ins (append-dir-file greg-data-dir "hollander.ins"))
+(define imol-insulin-res -1) ; set later
 
 (greg-testcase "Read small molecule .res file" #t
    (lambda ()
@@ -52,14 +53,15 @@
 (greg-testcase "read shelx insulin with fcf" #t 
    (lambda ()
 
-     (let ((imol-insulin-res
+     (let ((imol-insulin-res-local
 	    (handle-read-draw-molecule-with-recentre insulin-res 1)))
-       (if (not (valid-model-molecule? imol-insulin-res))
+       (if (not (valid-model-molecule? imol-insulin-res-local))
 	   (begin
 	     (format #t "   Bad insulin.res: ~s for ~s~%" 
-		     insulin-res imol-insulin-res)
+		     insulin-res imol-insulin-res-local)
 	     (throw 'fail)))
 
+       (set! imol-insulin-res imol-insulin-res-local) ; used in water addition test
        (let ((imol (handle-shelx-fcf-file insulin-fcf)))
 	 (if (not (valid-map-molecule? imol))
 	     (begin
@@ -74,11 +76,11 @@
 		       (throw 'fail))))
 
 	       (if (not (string=? (show-spacegroup imol)
-				  (show-spacegroup imol-insulin-res)))
+				  (show-spacegroup imol-insulin-res-local)))
 		   (begin
 		     (format #t "   Mismatch spacegroups ~s ~s~%" 
 			     (show-spacegroup imol)
-			     (show-spacegroup imol-insulin-res))
+			     (show-spacegroup imol-insulin-res-local))
 		     (throw 'fail))
 		   
 		   (if (not (string=? (show-spacegroup imol)
@@ -92,7 +94,7 @@
 		       (begin
 			 (rotate-y-scene (rotate-n-frames 200) 0.1)
 			 (close-molecule imol)
-			 (close-molecule imol-insulin-res)
+			 ;; (close-molecule imol-insulin-res-local) ; needed later
 			 #t)))))))))
 
 
@@ -114,3 +116,29 @@
 	       #t)))))
 
 
+
+(greg-testcase "Add water to SHELX molecule" #t
+   (lambda ()
+
+     (set-pointer-atom-molecule imol-insulin-res)
+     (set-rotation-centre 3 -1 60)
+     (place-typed-atom-at-pointer "Water")
+     ;; test is to have to occupancy of the new HOH to be 11.0
+     (let ((chain-id (water-chain imol-insulin-res)))
+       (let ((n-residues (chain-n-residues chain-id imol-insulin-res)))
+	 (let ((serial-number (- n-residues 1)))
+	   (let ((res-name (resname-from-serial-number imol-insulin-res chain-id serial-number))
+		 (res-no   (seqnum-from-serial-number  imol-insulin-res chain-id serial-number))
+		 (ins-code (insertion-code-from-serial-number imol-insulin-res chain-id serial-number)))
+		  
+	     (if (string=? res-name "HOH")
+		 (let ((atom-list (residue-info imol-insulin-res chain-id res-no ins-code)))
+		   (for-each 
+		    (lambda (atom)
+		      (let ((occ (car (car (cdr atom)))))
+			(if (not (close-float? occ 11.0))
+			    (begin
+			      (format #t "  bad occupancy in SHELXL molecule ~s~%" atom)
+			      (throw 'fail)))))
+		    atom-list)))))
+	 #t))))
