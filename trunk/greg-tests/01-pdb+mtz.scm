@@ -61,6 +61,31 @@
        (set! imol-rnase imol)
        (valid-model-molecule? imol))))
 
+(greg-testcase "New molecule from bogus molecule" #t
+    (lambda ()
+      (let* ((pre-n-molecules (graphics-n-molecules))
+	     (new-mol (new-molecule-by-atom-selection -5 "//A/0"))
+	     (post-n-molecules (graphics-n-molecules)))
+	(if (not (= new-mol -1))
+	    (begin
+	      (format #t "  fail on non-matching n molecules.")
+	      (throw 'fail))
+	    (if (not (= pre-n-molecules post-n-molecules))
+		(begin 
+		  (format #t "  fail on non-matching n molecules.")
+		  (throw 'fail))
+		#t)))))
+
+(greg-testcase "New molecule from bogus atom selection" #t
+    (lambda ()
+      (let* ((pre-n-molecules (graphics-n-molecules))
+	     (new-mol (new-molecule-by-atom-selection  imol-rnase "//A/100"))
+	     (post-n-molecules (graphics-n-molecules)))
+	;; what should happen if there are no atoms in the new-mol?
+	(format #t "INFO:: pre-n-molecules ~s   post-n-molecules ~s~%"
+		pre-n-molecules post-n-molecules)
+	#t)))
+
 (greg-testcase "Read a bogus map" #t
     (lambda ()
       (let ((pre-n-molecules (graphics-n-molecules))
