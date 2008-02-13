@@ -29,6 +29,8 @@
 (define ncs-chain-ids ncs-chain-ids-scm)
 (define ncs-chain-differences ncs-chain-differences-scm)
 (define refmac-parameters refmac-parameters-scm)
+(define water-chain water-chain-scm)
+(define water-chain-from-shelx-ins water-chain-from-shelx-ins-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
