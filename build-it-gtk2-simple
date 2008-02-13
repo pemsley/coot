@@ -1913,7 +1913,7 @@ ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/python251_cci_patches
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
-patch -p0 < ${AUTOBUILD_SOURCES}/python251_cci_patches_critical
+patch --strip 1 < ${AUTOBUILD_SOURCES}/python251_cci_patches_critical
 cd Python-$pver
 
 echo INFO:: ./configure $generic_prefix $python_spec_flags for python
