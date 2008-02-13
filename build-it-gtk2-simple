@@ -216,7 +216,8 @@
 # 4.00 20080208 Remove gtk2 and pkg-config building.  Test for Fedora core 5.
 # 4.01 20080211 Remove pycairo build and fix up test for build for guile_gtk
 # 4.02 20080212 Add in the Neil Jerram guile-gui patch.
-script_version=4.02
+# 4.03 20080213 Add Joseph Moran's fix for handling CC when set.
+script_version=4.03
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -720,15 +721,20 @@ fi
 # if not, try c++
 
 if [ -n "$CC" ] ; then
-	# CC was set
-	v=$CC-`$CC --version`
-	if [ $? -ne 0 ] ; then
-	   # but not gcc 
-	   v=$CC-`$CC -v`
-	      if [ $? -ne 0 ] ; then
-	    	 v="missing_version"
-	      fi
-	fi
+
+        # CC was set
+        v=$CC-`$CC --version | awk 'NR==1 {print $2}'`
+        if [ "$v" != "(GCC)" ] ; then
+           # but not gcc 
+           v=$CC-`$CC -v`
+              if [ $? -ne 0 ] ; then
+                 v="missing_version"
+              fi
+        else
+              # gcc
+              v=$CC-`$CC --version | awk 'NR==1 {print $3}'`
+        fi
+
 else
 	# CC not set
 	v=gcc-`gcc -dumpversion | head -1`
@@ -1120,7 +1126,6 @@ fi
 build_mmdb=0
 build_ssmlib=0
 build_fftw=0
-build_python=0
 build_clipper=0
 # build_gtk=0
 build_guile=0
@@ -1136,6 +1141,7 @@ build_gsl=0
 # build_libpng=0
 # build_imlib=0
 # build_gtk_canvas=0
+build_python=
 build_guile_gtk=
 build_gtkglext=
 build_freeglut=0
@@ -1903,10 +1909,11 @@ if test -n "$build_python" ; then
 #
 
 ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
+${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/python251_cci_patches_critical
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
-
+patch -p0 < ${AUTOBUILD_SOURCES}/python251_cci_patches_critical
 cd Python-$pver
 
 echo INFO:: ./configure $generic_prefix $python_spec_flags for python
