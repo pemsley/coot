@@ -1610,15 +1610,16 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 
 // Return a new orienation, to be used to set the view orienation/quaternion
 // 
-clipper::Mat33<double> 
+std::pair<bool, clipper::Mat33<double> >
 molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
 						     const std::string &current_chain,
 						     const std::string &next_ncs_chain) const {
 
    clipper::Mat33<double> r = current_view_mat;
+   bool apply_it = 0;
 
    unsigned int n_ghosts = ncs_ghosts.size();
-   if (n_ghosts > 0) {
+   if ((n_ghosts > 0) && (ncs_ghosts_have_rtops_flag))  {
 
       // If current_chain is not a target_chain_id
       //    is there a ghost that has chain_id current_chain?
@@ -1664,10 +1665,12 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 // 	       std::cout << "from " << current_chain << " to target chain "
 // 			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
 	       r = ncs_mat * r;
+	       apply_it = 1;
 	    } else {
 	       clipper::Mat33<double> ncs_mat_1 = ncs_ghosts[i_ghost_chain_match].rtop.rot();
 	       clipper::Mat33<double> ncs_mat_2 = ncs_ghosts[i_ghost_chain_match+1].rtop.rot();
 	       r = ncs_mat_2.inverse() * (ncs_mat_1 * r);
+	       apply_it = 1;
 	    }
 	 } else {
 	    std::cout << "ERROR:: An NCS reference chain finding error has occured"
@@ -1689,10 +1692,11 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	       }
 	    }
 	    r = ncs_mat.inverse() * r;
+	    apply_it = 1;
 	 }
       } 
    } 
-   return r;
+   return std::pair<bool, clipper::Mat33<double> > (apply_it,r);
 }
 
   

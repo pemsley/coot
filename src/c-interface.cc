@@ -3214,18 +3214,22 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 			       graphics_info_t::quat[2],
 			       graphics_info_t::quat[3]);
       clipper::Mat33<double> current_view_mat = q.matrix();
-      clipper::Mat33<double> new_ori = 
+      std::pair<bool, clipper::Mat33<double> > new_ori = 
 	 graphics_info_t::molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
 									current_chain,
 									next_ncs_chain);
 
 //       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
-//       std::cout << "   NCS view out: \n" << new_ori.format() << std::endl;
-      coot::util::quaternion vq(new_ori);
-      graphics_info_t::quat[0] = vq.q0;
-      graphics_info_t::quat[1] = vq.q1;
-      graphics_info_t::quat[2] = vq.q2;
-      graphics_info_t::quat[3] = vq.q3;
+
+//       std::cout << "   NCS view out: " << new_ori.first << std::endl;
+//       std::cout << "   NCS view out: \n" << new_ori.second.format() << "\n";
+      if (new_ori.first) {
+	 coot::util::quaternion vq(new_ori.second);
+	 graphics_info_t::quat[0] = vq.q0;
+	 graphics_info_t::quat[1] = vq.q1;
+	 graphics_info_t::quat[2] = vq.q2;
+	 graphics_info_t::quat[3] = vq.q3;
+      }
       graphics_draw();
    } 
 }
