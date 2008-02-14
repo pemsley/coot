@@ -1938,9 +1938,9 @@ void
 handle_symmetry_colour_change(int mol, gdouble* col) {
 
    //
-   graphics_info_t::symm_colour[0][0] = col[0];
-   graphics_info_t::symm_colour[0][1] = col[1];
-   graphics_info_t::symm_colour[0][2] = col[2];
+   graphics_info_t::symmetry_colour[0] = col[0];
+   graphics_info_t::symmetry_colour[1] = col[1];
+   graphics_info_t::symmetry_colour[2] = col[2];
 
    graphics_draw();
 
@@ -2047,9 +2047,9 @@ get_symmetry_bonds_colour(int idummy) {
    gdouble* colour;
    colour = (gdouble *) malloc(4*sizeof(gdouble));
 
-   colour[0] = graphics_info_t::symm_colour[0][0];
-   colour[1] = graphics_info_t::symm_colour[0][1];
-   colour[2] = graphics_info_t::symm_colour[0][2];
+   colour[0] = graphics_info_t::symmetry_colour[0];
+   colour[1] = graphics_info_t::symmetry_colour[1];
+   colour[2] = graphics_info_t::symmetry_colour[2];
    return colour;
 }
 
@@ -2206,16 +2206,31 @@ set_clipping_back(float v) {
 /*  ----------------------------------------------------------------------- */
 
 void
-set_symmetry_colour_merge(int mol_no, float v) {
+set_symmetry_colour_merge(float v) {
 
-   graphics_info_t::symm_colour_merge_weight[mol_no] = v;
+   graphics_info_t::symmetry_colour_merge_weight = v;
    graphics_draw();
-   std::string cmd = "";
+
+   std::string cmd = "set-symmetry-colour-merge";
    std::vector<coot::command_arg_t> args;
-   args.push_back(mol_no);
    args.push_back(v);
    add_to_history_typed(cmd, args);
 }
+
+/*! \brief set the symmetry colour base */
+void set_symmetry_colour(float r, float g, float b) {
+
+   graphics_info_t::symmetry_colour[0] = r;
+   graphics_info_t::symmetry_colour[1] = g;
+   graphics_info_t::symmetry_colour[2] = b;
+
+   std::string cmd = "set-symmetry-colour";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(r);
+   args.push_back(g);
+   args.push_back(b);
+   add_to_history_typed(cmd, args);}
+
 
 void set_colour_map_rotation_on_read_pdb(float f) {
    graphics_info_t::rotate_colour_map_on_read_pdb = f; 

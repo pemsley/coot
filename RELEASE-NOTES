@@ -13,6 +13,9 @@ Release 0.5
    o CHANGE: Traffic lights verticallized.
  
    o CHANGE: the argument order for "mutate" have been canonicalised.
+  
+   o CHANGE: set-symmetry-colour-merge now takes only a fraction
+     argument.
 
    o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
 

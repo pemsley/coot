@@ -141,6 +141,12 @@ graphics_info_t::save_state_file(const std::string &filename) {
 
    
    commands.push_back(state_command("set-symmetry-size", symmetry_search_radius, il));
+   commands.push_back(state_command("set-symmetry-colour-merge", float(symmetry_colour_merge_weight), il));
+   commands.push_back(state_command("set-symmetry-colour",
+				    symmetry_colour[0],
+				    symmetry_colour[1],
+				    symmetry_colour[2], il));
+				    
    // FIXME
    //    commands.push_back(state_command("set-symmetry-whole-chain", symmetry_whole_chain_flag, il));
    commands.push_back(state_command("set-symmetry-atom-labels-expanded", symmetry_atom_labels_expanded_flag, il));
