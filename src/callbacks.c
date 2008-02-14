@@ -3632,6 +3632,7 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
   optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
   clear_refmac_ccp4i_project();
   add_ccp4i_projects_to_optionmenu(optionmenu, 
+				   COOT_COORDS_FILE_SELECTION,
 				   GTK_SIGNAL_FUNC(run_refmac_ccp4i_option_menu_signal_func));
 
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);

@@ -217,7 +217,8 @@
 # 4.01 20080211 Remove pycairo build and fix up test for build for guile_gtk
 # 4.02 20080212 Add in the Neil Jerram guile-gui patch.
 # 4.03 20080213 Add Joseph Moran's fix for handling CC when set.
-script_version=4.03
+# 4.04 20080213 Allow python to get through rsync filter, for PHENIX usage.
+script_version=4.04
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -365,6 +366,7 @@ function post_install_slim {
     mkdir_maybe $cleaned_dir
     mkdir_maybe $cleaned_dir/bin
     mkdir_maybe $cleaned_dir/lib
+    mkdir_maybe $cleaned_dir/include/python2.5
 
     lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
     lib_as=`cd $fat_dir && ls -1 lib/lib*.a`
@@ -379,6 +381,8 @@ function post_install_slim {
 
     for file in etc html info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
+	bin/python bin/python2.5 bin/python-config bin/python2.5-config \
+	include/python2.5 \
 	bin/guile lib/$python_version $keep_lib_archs ;
     do
        dn=`dirname $file`
