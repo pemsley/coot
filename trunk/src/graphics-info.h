@@ -710,6 +710,13 @@ public:
       standard_residues_asc.n_selected_atoms = 0;
       read_standard_residues(); // updates read_success
 
+      symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
+
+      symmetry_colour = std::vector<double> (4, 0.5);
+      symmetry_colour[0] = 0.1;
+      symmetry_colour[1] = 0.2;
+      symmetry_colour[2] = 0.8;
+
       // use_graphics_interface_flag = 1;  don't (re)set this here, 
       // it is set as a static and possibly modified by immediate 
       // handling of command line data in main.cc
@@ -1047,8 +1054,9 @@ public:
    // (all we need to do is get and set). 
    // 
 
-   static double*  symm_colour_merge_weight;
-   static double** symm_colour; 
+   // symm colour is a part of the molecule now
+    static double  symmetry_colour_merge_weight;
+    static std::vector<double> symmetry_colour;
 
    // Rotate colour map?
    static short int rotate_colour_map_on_read_pdb_flag;

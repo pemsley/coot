@@ -1096,8 +1096,8 @@ float
 molecule_class_info_t::combine_colour(float v, int col_part_index) {
 
    // col_part_index is 0,1,2 for red gree blue components of the colour
-   double w = graphics_info_t::symm_colour_merge_weight[0];
-   return w*graphics_info_t::symm_colour[0][col_part_index] + v*(1.0-w);
+   double w = graphics_info_t::symmetry_colour_merge_weight;
+   return w*graphics_info_t::symmetry_colour[col_part_index] + v*(1.0-w);
 }
 
 // amount is not in degrees, it is in fractions of a circle, e.g. 10/360.

@@ -265,8 +265,12 @@ short int graphics_info_t::baton_build_params_active = 0; // not active initiall
 std::string graphics_info_t::baton_build_chain_id = std::string("");
 
 
-double*  graphics_info_t::symm_colour_merge_weight = new double[10];
-double **graphics_info_t::symm_colour = new double*[10];
+// double*  graphics_info_t::symm_colour_merge_weight = new double[10];
+// double **graphics_info_t::symm_colour = new double*[10];
+
+double graphics_info_t::symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
+
+std::vector<double> graphics_info_t::symmetry_colour = std::vector<double> (4, 0.5);
 
 double*  graphics_info_t::skeleton_colour = new double[4]; 
 int      graphics_info_t::map_for_skeletonize = -1; 
@@ -1484,12 +1488,6 @@ init_gl_widget(GtkWidget *widget) {
    setup_lighting(graphics_info_t::do_lighting_flag);
 
    
-   graphics_info_t::symm_colour_merge_weight[0] = 0.5; // 0.0 -> 1.0
-   
-   graphics_info_t::symm_colour[0] = new double[4];
-   graphics_info_t::symm_colour[0][0] = 0.1;
-   graphics_info_t::symm_colour[0][1] = 0.2;
-   graphics_info_t::symm_colour[0][2] = 0.8;
    
    // set the skeleton to initially be yellow
    graphics_info_t::skeleton_colour[0] = 0.7;

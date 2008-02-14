@@ -4,15 +4,13 @@
 
    22 Items
 
-   o Fix problem of ccp4i project open menu (for maps? certainly on
-     Select Coordiantes File.)
-
    o NCS diffs graph need finishing.  Almost there.  Needs code to do
      dynamic update.
 
-* Done.
+* Done.  Needs testing.  Does it dynamically update?
 
-   o Save symmetry colour to state (Doug Kuntz)
+   o Save symmetry colour to state (Doug Kuntz).  When the slider
+     moves, it should update the graphics
 
    o Test for non positive definite anisotropic atoms from a .ins file
      [test should crash]
@@ -21,6 +19,8 @@
      should crash]
 
    o "Thick bonds" for ligands etc
+
+   o Kevin's Ramachandran Refinement target
 
    o Correct CISPEP if needed cards on writing pdb.
 
@@ -36,8 +36,6 @@
      11.0.  Is it? [JED]
 
 * It is, but the residue number is "1" and the SFAC index is -1.  Bad.
-
-   o Kevin's Ramachandran Refinement target
 
    o Use Eugene's new LINK-reading code.
 
@@ -87,6 +85,11 @@
 
 
 
+
+   o Fix problem of ccp4i project open menu (for maps? certainly on
+     Select Coordiantes File.)
+
+* Done.
 
    o Fixed atoms in refinement (and marking in molecules).  Code needs
      finishing.  mark_atom_as_fixed()

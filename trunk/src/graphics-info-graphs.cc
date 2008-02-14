@@ -248,6 +248,18 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       }
    }
 
+   graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_NCS_DIFFS);
+   if (graph) {
+      coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
+      if (!gr) {
+	 std::cout << "ERROR:: failed to get rotamer_graph from dialog\n";
+      } else {
+	 std::vector<coot::geometry_graph_block_info_generic> dv =
+	    ncs_diffs_from_mol(imol_moving_atoms); // update everything
+	 gr->update_residue_blocks(dv);
+      }
+   }
+   
    graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_OMEGA_DISTORTION);
    if (graph) {
       coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);

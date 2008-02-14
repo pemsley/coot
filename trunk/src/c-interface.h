@@ -1506,7 +1506,8 @@ void set_unit_cell_colour(float red, float green, float blue);
 /*! \name  Colour */
 /* \{ */
 
-void set_symmetry_colour_merge(int mol_no, float v);
+/* set the colour merge ratio (a fraction 0.0 to 1.0) */
+void set_symmetry_colour_merge(float v);
 
 /*! \brief set the hue change step on reading a new molecule */
 void set_colour_map_rotation_on_read_pdb(float f); 
@@ -1526,6 +1527,9 @@ void set_colour_by_chain(int imol);
 
 /*! \brief colour molecule number imol by molecule */
 void set_colour_by_molecule(int imol); 
+
+/*! \brief set the symmetry colour base */
+void set_symmetry_colour(float r, float g, float b); 
 
 /* \} */
 

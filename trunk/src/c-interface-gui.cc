@@ -2334,7 +2334,7 @@ void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
       gtk_widget_show(menu_item);
       gtk_menu_append(GTK_MENU(menu), menu_item);
       int i_info = file_selection_type;
-      i_info <<= 9;
+      i_info <<= 10;
       i_info += i;
       gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
 			 GTK_SIGNAL_FUNC(func),
@@ -2353,17 +2353,15 @@ void
 option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos) {
 
    graphics_info_t g;
-   int file_selection_type =  pos >> 9;
-// std::cout << "a,b : " << file_selection_type << " " << (file_selection_type << 9) << std::endl;
-   g.ccp4_projects_index_last = pos - (file_selection_type << 9);
-//    std::cout << "pos: " << pos << std::endl;
-//    std::cout << "ccp4_projects_index_last: " << g.ccp4_projects_index_last << std::endl;
-//    std::cout << "file_selection_type: " << file_selection_type << std::endl;
+   int file_selection_type =  pos >> 10;
+   int idx = pos - (file_selection_type << 10);
+   g.ccp4_projects_index_last = idx;
+   
    std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
    std::vector<std::pair<std::string, std::string> > pr_pairs =
       parse_ccp4i_defs(ccp4_defs_file_name);
-   if (g.ccp4_projects_index_last < int(pr_pairs.size())) {
-      g.set_directory_for_fileselection_string(pr_pairs[pos].second);
+   if (idx < int(pr_pairs.size())) {
+      g.set_directory_for_fileselection_string(pr_pairs[idx].second);
 
       // we need to call set_directory_for_fileselection with an
       // argument that is the fileselection widget.  The question is:
@@ -2621,19 +2619,16 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 void symmetry_colour_adjustment_changed (GtkAdjustment *adj, 
 					 GtkWidget *window) { 
 
-/*    printf("Clipping adjustment: %f\n", adj->value); */
 
-/* We will have a mol_no at some stage, set it to 1 for now. */
-
-   set_symmetry_colour_merge(0, adj->value); /* this adjusts
-						graphics_info_t::
-						symm_colour_merge_weight,
-						which is a double
-						array.  But we only
-						ever use the 0th
-						position of it in
-						combine_colour() */
-
+   // does a graphics_draw() for us...
+   set_symmetry_colour_merge(adj->value); /* this adjusts
+				             graphics_info_t::
+					     symm_colour_merge_weight,
+					     which is a double
+					     array.  But we only
+					     ever use the 0th
+					     position of it in
+					     combine_colour() */
 }
 
 void
