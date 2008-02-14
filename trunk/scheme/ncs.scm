@@ -101,6 +101,7 @@
 ;			(go-to-atom-atom-name))
 
 ; 		(format #t "DEBUG:: found atom state: ~s~%" found-atom-state)
+
 		(if (= found-atom-state 0)
 		    ;; then we did *not* find the atom, e.g. next-chain was
 		    ;; the water chain

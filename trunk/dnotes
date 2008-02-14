@@ -4,19 +4,16 @@
 
    22 Items
 
-   o NCS diffs graph need finishing.  Almost there.  Needs code to do
-     dynamic update.
-
-* Done.  Needs testing.  Does it dynamically update?
-
-   o Save symmetry colour to state (Doug Kuntz).  When the slider
-     moves, it should update the graphics
 
    o Test for non positive definite anisotropic atoms from a .ins file
-     [test should crash]
+     [test should crash, Mitch Miller, Stanford]
+
+* Can't reproduce   
 
    o Test for JED's delete residue with alt conf and recentre [test
      should crash]
+
+* Can't reproduce   
 
    o "Thick bonds" for ligands etc
 
@@ -85,6 +82,13 @@
 
 
 
+   o NCS diffs graph need finishing.  Almost there.  Needs code to do
+     dynamic update.
+
+* Done.  Needs testing.  Does it dynamically update?
+
+   o Save symmetry colour to state (Doug Kuntz).  When the slider
+     moves, it should update the graphics
 
    o Fix problem of ccp4i project open menu (for maps? certainly on
      Select Coordiantes File.)

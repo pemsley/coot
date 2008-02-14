@@ -1915,7 +1915,8 @@ class molecule_class_info_t {
 			      const std::string &target_chain_id,
 			      const coot::coot_mat44 &m);
 
-   clipper::Mat33<double> 
+   // the first value is if we should apply the matrix or not (we may not have ghosts)
+   std::pair<bool, clipper::Mat33<double> >
      apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
 				   const std::string &current_chain,
 				   const std::string &next_ncs_chain) const;
