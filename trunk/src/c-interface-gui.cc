@@ -2306,7 +2306,7 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selection_t
       gtk_object_set_user_data(GTK_OBJECT(optionmenu), GINT_TO_POINTER(file_selection_type));
       GtkSignalFunc project_signal_func =
 	 GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
-      add_ccp4i_projects_to_optionmenu(optionmenu, project_signal_func);
+      add_ccp4i_projects_to_optionmenu(optionmenu, file_selection_type, project_signal_func);
 
       // Let's put the optionmenu in a frame with a label
       GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
@@ -2317,6 +2317,7 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selection_t
 }
 
 void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
+				      int file_selection_type,
 				      GtkSignalFunc func) {
 
    std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
@@ -2332,9 +2333,12 @@ void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
       GtkWidget *menu_item = gtk_menu_item_new_with_label(project_pairs[i].first.c_str());
       gtk_widget_show(menu_item);
       gtk_menu_append(GTK_MENU(menu), menu_item);
+      int i_info = file_selection_type;
+      i_info <<= 9;
+      i_info += i;
       gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
 			 GTK_SIGNAL_FUNC(func),
-			 GINT_TO_POINTER(i));
+			 GINT_TO_POINTER(i_info));
    }
    gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu), menu);
 
@@ -2349,11 +2353,16 @@ void
 option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos) {
 
    graphics_info_t g;
-   g.ccp4_projects_index_last = pos;
+   int file_selection_type =  pos >> 9;
+// std::cout << "a,b : " << file_selection_type << " " << (file_selection_type << 9) << std::endl;
+   g.ccp4_projects_index_last = pos - (file_selection_type << 9);
+//    std::cout << "pos: " << pos << std::endl;
+//    std::cout << "ccp4_projects_index_last: " << g.ccp4_projects_index_last << std::endl;
+//    std::cout << "file_selection_type: " << file_selection_type << std::endl;
    std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
    std::vector<std::pair<std::string, std::string> > pr_pairs =
       parse_ccp4i_defs(ccp4_defs_file_name);
-   if (pos < int(pr_pairs.size())) {
+   if (g.ccp4_projects_index_last < int(pr_pairs.size())) {
       g.set_directory_for_fileselection_string(pr_pairs[pos].second);
 
       // we need to call set_directory_for_fileselection with an
@@ -2371,8 +2380,7 @@ option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType po
       } else { 
 
 	 GtkWidget *fileselection;
-	 int fileselection_type = COOT_MAP_FILE_SELECTION;
-	 fileselection = lookup_file_selection_widgets(item, fileselection_type);
+	 fileselection = lookup_file_selection_widgets(item, file_selection_type);
 	 
 	 if (fileselection) {
 	    g.set_directory_for_fileselection(fileselection);

@@ -4,7 +4,8 @@
 
    22 Items
 
-   o Fix problem of ccp4i project open menu (for maps?)
+   o Fix problem of ccp4i project open menu (for maps? certainly on
+     Select Coordiantes File.)
 
    o NCS diffs graph need finishing.  Almost there.  Needs code to do
      dynamic update.
