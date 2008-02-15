@@ -435,6 +435,9 @@ std::vector<std::string> *graphics_info_t::preferences_colour_tabs;
 std::vector<std::string> *graphics_info_t::preferences_map_tabs;
 std::vector<std::string> *graphics_info_t::preferences_other_tabs;
 
+std::vector<coot::preference_info_t> graphics_info_t::preferences_internal;
+std::vector<coot::preference_info_t> graphics_info_t::preferences_internal_default;
+
 // Torsions with hydrogens?
 short int graphics_info_t::find_hydrogen_torsions = 0; // no
 

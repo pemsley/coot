@@ -1167,7 +1167,23 @@ graphics_info_t::set_font_size(int size) {
       if (size < 2) { 
       atom_label_font = GLUT_BITMAP_HELVETICA_10;
       } else {
-      atom_label_font = GLUT_BITMAP_HELVETICA_18;
+	if (size == 3) {
+	  atom_label_font = GLUT_BITMAP_HELVETICA_18;
+	} else {
+	  // no all other fonts
+	  if (size == 4) {
+	    atom_label_font = GLUT_BITMAP_TIMES_ROMAN_10;
+	  } else if (size == 5) {
+	    atom_label_font = GLUT_BITMAP_TIMES_ROMAN_24;
+	  } else if (size == 6) {
+	    atom_label_font = GLUT_BITMAP_8_BY_13;
+	  } else if (size == 7) {
+	    atom_label_font = GLUT_BITMAP_9_BY_15;
+	  } else {
+	    // somethign above 7 -> reset default
+	    atom_label_font = GLUT_BITMAP_HELVETICA_12;
+	  }
+	}
       }
    }
 

@@ -224,6 +224,7 @@ coot_real_SOURCES = \
 	graphics-info-navigation.cc	\
 	graphics-info-navigation-gtk1.cc\
 	graphics-info-navigation-gtk2.cc\
+	graphics-info-preferences.cc	\
 	pick.cc			 \
 	cmtz-interface.hh	 \
 	c-interface-scm.hh	 \

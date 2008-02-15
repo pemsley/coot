@@ -658,6 +658,15 @@ void set_sticky_sort_by_date() {
 }
 
 
+void unset_sticky_sort_by_date() {
+
+   add_to_history_simple("unset-sticky-sort-by-date");
+   graphics_info_t g;
+   g.sticky_sort_by_date = 0;
+
+}
+
+
 void set_filter_fileselection_filenames(int istate) {
    std::string cmd = "set-filter-fileselection-filenames";
    std::vector<coot::command_arg_t> args;
@@ -1543,6 +1552,12 @@ void set_map_radius(float f) {
    set_density_size(f);
 } 
 
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius() {
+  float ret = graphics_info_t::box_radius;
+  return ret;
+} 
+
 
 
 void set_display_intro_string(const char *str) {
@@ -1569,6 +1584,11 @@ void set_swap_difference_map_colours(int i) {
    args.push_back(i);
    add_to_history_typed(cmd, args);
    
+}
+
+int swap_difference_map_colours_state() {
+  int ret = graphics_info_t::swap_difference_map_colours;
+  return ret;
 }
 
 /* return success status 0 = failure (imol does not have a map) */
@@ -2274,6 +2294,11 @@ void set_symmetry_atom_labels_expanded(int state) {
    add_to_history_typed(cmd, args);
 }
 
+int get_colour_map_rotation_on_read_pdb_c_only_flag() {
+  
+  int ret = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
+  return ret;
+}
 
 /* widget work */
 GtkWidget *wrapped_create_coords_colour_control_dialog() {
@@ -2554,11 +2579,16 @@ void set_bond_thickness_intermediate_atoms(float t) {
 
 } 
 
-
 void set_unbonded_atom_star_size(float f) {
    graphics_info_t g;
    g.unbonded_atom_star_size = f;
 } 
+
+int get_default_bond_thickness() {
+   graphics_info_t g;
+   int ret = g.default_bond_width;
+   return ret;
+}
 
 int make_ball_and_stick(int imol, const char *atom_selection_str,
 			float bond_thickness, float sphere_size,
@@ -2864,6 +2894,11 @@ void set_iso_level_increment(float val) {
    g.iso_level_increment = val;
 } 
 
+float get_iso_level_increment() {
+  float ret = graphics_info_t:: iso_level_increment;
+  return ret;
+}
+
 // imol is ignored.
 //
 char* get_text_for_diff_map_iso_level_increment_entry(int imol) {
@@ -2896,6 +2931,11 @@ void set_diff_map_iso_level_increment_from_text(const char *text, int imol) {
 void set_diff_map_iso_level_increment(float val) { 
    graphics_info_t::diff_map_iso_level_increment = val;
 } 
+
+float get_diff_map_iso_level_increment() { 
+   float ret =graphics_info_t::diff_map_iso_level_increment;
+   return ret;
+}
 
 void set_map_sampling_rate_text(const char *text) {
 
