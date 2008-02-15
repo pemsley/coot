@@ -368,6 +368,8 @@ main (int argc, char *argv[]) {
      // 
      // run_state_file_maybe();
 
+  // before we run the scripting, lets make default preferences
+  make_preferences_internal_default();
 
 #ifdef USE_PYTHON
      //  (on Mac OS, call PyMac_Initialize() instead)
@@ -463,6 +465,20 @@ main (int argc, char *argv[]) {
                       << std::endl;
          }
      }
+
+     // load preferences file .coot_preferences.py
+     char *preferences_filename = ".coot_preferences.py";
+     if (directory) {
+       char *check_preferences_file = does_file_exist(directory, preferences_filename);
+       if (check_preferences_file) {
+	   std::cout << "Loading Preferences ~/.coot_preferences.py..." << std::endl;
+	   run_python_script(check_preferences_file);
+       }
+     }
+     // update the preferences
+     make_preferences_internal();
+
+     // load personal coot file .coot.py
      char *filename = ".coot.py";
      if (directory) { 
         char *check_file = does_file_exist(directory, filename);

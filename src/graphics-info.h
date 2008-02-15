@@ -385,6 +385,17 @@ namespace coot {
      }
    };
 
+  // for preferences
+  class preference_info_t {
+    
+  public:
+    int preference_type;   // e.g. PREFERENCES_bla
+    int ivalue;
+    float fvalue1;
+    float fvalue2;
+    float fvalue3;
+  };
+  
 } 
 
 #include "select-atom-info.hh"
@@ -833,6 +844,7 @@ public:
       dictionary_glob_extensions->push_back(".mmCIF.gz");
 
       /* things for preferences */
+      //preferences_internal = new std::vector<coot::preference_info_t>;
       preferences_general_tabs = new std::vector<std::string>;
       preferences_bond_tabs = new std::vector<std::string>;
       preferences_geometry_tabs = new std::vector<std::string>;
@@ -840,25 +852,30 @@ public:
       preferences_map_tabs = new std::vector<std::string>;
       preferences_other_tabs = new std::vector<std::string>;
       
-      preferences_general_tabs->push_back("preferences_hid");
       preferences_general_tabs->push_back("preferences_file_selection");
       preferences_general_tabs->push_back("preferences_dock_accept_dialog");
+      preferences_general_tabs->push_back("preferences_hid");
+      preferences_general_tabs->push_back("preferences_recentre_pdb");
       
       preferences_bond_tabs->push_back("preferences_bond_parameters");
       preferences_bond_tabs->push_back("preferences_bond_colours");
       
-      preferences_geometry_tabs->push_back("preferences_cis_peptides");
-      //preferences_geometry_tab->push_back("preferences_bond_colours");
-
-      preferences_colour_tabs->push_back("preferences_background_colour");
-      //preferences_colours_tab->push_back("preferences_bond_colours");
-
       preferences_map_tabs->push_back("preferences_map_parameters");
       preferences_map_tabs->push_back("preferences_map_colours");
+      preferences_map_tabs->push_back("preferences_smooth_scroll");
+      preferences_map_tabs->push_back("preferences_map_drag");      
       
+      preferences_geometry_tabs->push_back("preferences_cis_peptides");
+
+      preferences_colour_tabs->push_back("preferences_background_colour");
+      preferences_colour_tabs->push_back("preferences_bond_colours");
+      preferences_colour_tabs->push_back("preferences_map_colours");
+
       preferences_other_tabs->push_back("preferences_antialias");
       preferences_other_tabs->push_back("preferences_console");
-
+      preferences_other_tabs->push_back("preferences_speed");
+      preferences_other_tabs->push_back("preferences_font");
+      preferences_other_tabs->push_back("preferences_pink_pointer");
 
       do_expose_swap_buffers_flag = 1;
    }
@@ -2709,6 +2726,16 @@ public:
    static std::vector<std::string> *preferences_map_tabs;
    static std::vector<std::string> *preferences_other_tabs;
 
+   short int save_preference_file(const std::string &filename, short int il);
+   static std::vector<coot::preference_info_t> preferences_internal;
+   static std::vector<coot::preference_info_t> preferences_internal_default;
+   void make_preferences_internal();
+   void preferences_internal_change_value(int preference_type, int ivalue);
+   void preferences_internal_change_value(int preference_type, float fvalue);
+   void preferences_internal_change_value(int preference_type, 
+					  float fvalue1, float fvalue2, float fvalue3);
+  
+
    // --- remote controlled coot: ----
    static int try_port_listener;
    static int remote_control_port_number;
@@ -2863,7 +2890,6 @@ class molecule_rot_t {
    static float y_axis_angle;
 }; 
    
-
 void initialize_graphics_molecules();
 
 

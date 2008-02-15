@@ -170,6 +170,11 @@ void add_map_glob_extension(const char *ext);
   some people like to have their files sorted by date by default */
 void set_sticky_sort_by_date(); 
 
+/*! \brief do not sort files in the file selection by date?
+
+  removes the sorting of files by date */
+void unset_sticky_sort_by_date(); 
+
 /*! \brief on opening a file selection dialog, pre-filter the files.
 
 set to 1 to pre-filter, [0 (off, non-pre-filtering) is the default */
@@ -879,13 +884,15 @@ char* get_text_for_diff_map_iso_level_increment_entry(int imol); /* const gchar 
   2Fo-Fc-style maps to val
 
 The is only activated when scrolling by sigma is turned off */
-void set_iso_level_increment(float val); 
+void set_iso_level_increment(float val);
+float get_iso_level_increment();
 void set_iso_level_increment_from_text(const char *text, int imol);
 /*! \brief set the contour scroll step for difference map (in absolute
   e/A3) to val
 
 The is only activated when scrolling by sigma is turned off */
 void set_diff_map_iso_level_increment(float val);
+float get_diff_map_iso_level_increment();
 void set_diff_map_iso_level_increment_from_text(const char *text, int imol);
 
 /*  find the molecule that the single map dialog applies to and set
@@ -1063,7 +1070,10 @@ void set_density_size(float f);
 void set_map_radius_slider_max(float f); 
 
 /*! \brief Give me this nice message str when I start coot */
-void set_display_intro_string(const char *str); 
+void set_display_intro_string(const char *str);
+
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius();
 
 /*! \brief not everone likes coot's esoteric depth cueing system
 
@@ -1082,6 +1092,7 @@ int  esoteric_depth_cue_state();
    Pass an argument i=1 to swap the difference map colouring so that
    red is positve and green is negative. */
 void set_swap_difference_map_colours(int i);
+int swap_difference_map_colours_state();
 /*! \brief post-hoc set the map of molecule number imol to be a
   difference map
   @return success status, 0 -> failure (imol does not have a map) */
@@ -1520,13 +1531,16 @@ void set_colour_map_rotation_on_read_pdb_flag(short int i);
 /*! \brief shall the colour map rotation apply only to C atoms?
 
  @param i 0 for no, 1 for yes */
-void set_colour_map_rotation_on_read_pdb_c_only_flag(short int i); 
+void set_colour_map_rotation_on_read_pdb_c_only_flag(short int i);
 
 /*! \brief colour molecule number imol by chain type */
 void set_colour_by_chain(int imol); 
 
 /*! \brief colour molecule number imol by molecule */
 void set_colour_by_molecule(int imol); 
+
+/* get the value of graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag */
+int get_colour_map_rotation_on_read_pdb_c_only_flag();
 
 /*! \brief set the symmetry colour base */
 void set_symmetry_colour(float r, float g, float b); 
@@ -3294,6 +3308,9 @@ void set_bond_thickness(int imol, float t);
 void set_bond_thickness_intermediate_atoms(float t);
 void set_unbonded_atom_star_size(float f);
 
+/* \brief get the default thickness for bonds*/
+int get_default_bond_thickness();
+
 /*! \brief set status of drawing zero occupancy markers.
 
   default status is 1. */
@@ -3418,8 +3435,10 @@ void   set_map_dynamic_map_display_size_checkbutton(GtkWidget *checkbutton);
 /* scripting interface: */
 void set_dynamic_map_size_display_on();
 void set_dynamic_map_size_display_off();
+int get_dynamic_map_size_display();
 void set_dynamic_map_sampling_on();
 void set_dynamic_map_sampling_off();
+int get_dynamic_map_sampling();
 void set_dynamic_map_zoom_offset(int i);
 
 /* \} */
@@ -4362,12 +4381,22 @@ void set_display_lists_for_maps(int i);
 /*  ----------------------------------------------------------------------- */
 /* section Preferences */
 void preferences();
+void show_preferences();
 void clear_preferences();
 void set_mark_cis_peptides_as_bad(int istate);
 int show_mark_cis_peptides_as_bad_state();
 #if (GTK_MAJOR_VERSION > 1)
 void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type);
 #endif // GTK_MAJOR_VERSION
+void update_preference_gui();
+void make_preferences_internal();
+void make_preferences_internal_default();
+void reset_preferences();
+void save_preferences();
+void preferences_internal_change_value_int(int preference_type, int ivalue);
+void preferences_internal_change_value_float(int preference_type, float fvalue);
+void preferences_internal_change_value_float3(int preference_type, 
+					float fvalue1, float fvalue2, float fvalue3);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Browser Help                                            */

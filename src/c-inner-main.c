@@ -92,7 +92,8 @@ c_inner_main(void *closure, int argc, char** argv) {
 
 /*    export commands */
    
-  char *filename = ".coot"; 
+  char *filename = ".coot";
+  char *preferences_filename = ".coot-preferences.scm";
   char *directory;
   char* check_file;
   char *gui_lib = 0; 
@@ -209,13 +210,24 @@ c_inner_main(void *closure, int argc, char** argv) {
 
   try_load_scheme_extras_dir();
 
-/* And now read the users own initialization code */
+/* And now read the users own initialization code and preferences*/
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
   directory = getenv("COOT_HOME"); 
 #else
   directory = getenv("HOME"); 
 #endif
-  if (directory) {  
+  if (directory) {
+     /* first the preferences  */
+     check_file = does_file_exist(directory, preferences_filename);
+     if (check_file) {
+       printf("Loading Preferences ~/.coot-preferences.scm...");
+       scm_c_primitive_load(check_file);
+       printf("done. \n");
+     }
+     /* update the preferences */;
+     make_preferences_internal();
+
+    /* now the own code */
      check_file = does_file_exist(directory, filename); 
 
      if (check_file) { 

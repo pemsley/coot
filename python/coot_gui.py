@@ -166,7 +166,7 @@ def coot_gui():
              insert_normal_text(error + "\n")
 
        if res is not None:
-             print "BL DEBUG:: result is", res
+             print "BL INFO:: result is", res
              insert_normal_text(str(res) + "\n")
 
        if his:
@@ -180,7 +180,6 @@ def coot_gui():
 
              histpos += 1
              history.append('')
-#             print "BL DEBUG:: hist and pos", history, histpos
        
        entry.set_text("")
        entry_text = ""

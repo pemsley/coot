@@ -1618,6 +1618,11 @@ void
 set_dynamic_map_size_display_off() {
    graphics_info_t::dynamic_map_size_display = 0;
 } 
+int
+get_dynamic_map_size_display(){
+   int ret = graphics_info_t::dynamic_map_size_display;
+   return ret;
+}
 void
 set_dynamic_map_sampling_on() {
    graphics_info_t::dynamic_map_resampling = 1;
@@ -1625,6 +1630,11 @@ set_dynamic_map_sampling_on() {
 void
 set_dynamic_map_sampling_off() {
    graphics_info_t::dynamic_map_resampling = 0;
+}
+int
+get_dynamic_map_sampling(){
+   int ret = graphics_info_t::dynamic_map_resampling;
+   return ret;
 }
 
 void
