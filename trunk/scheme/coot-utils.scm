@@ -31,6 +31,7 @@
 (define refmac-parameters refmac-parameters-scm)
 (define water-chain water-chain-scm)
 (define water-chain-from-shelx-ins water-chain-from-shelx-ins-scm)
+(define generic-object-name generic-object-name-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
