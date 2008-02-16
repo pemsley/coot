@@ -211,6 +211,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   try_load_scheme_extras_dir();
 
 /* And now read the users own initialization code and preferences*/
+/* preferences only GTK2 */
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
   directory = getenv("COOT_HOME"); 
 #else
@@ -218,6 +219,7 @@ c_inner_main(void *closure, int argc, char** argv) {
 #endif
   if (directory) {
      /* first the preferences  */
+#ifdef COOT_USE_GTK2_INTERFACE
      check_file = does_file_exist(directory, preferences_filename);
      if (check_file) {
        printf("Loading Preferences ~/.coot-preferences.scm...");
@@ -226,6 +228,7 @@ c_inner_main(void *closure, int argc, char** argv) {
      }
      /* update the preferences */;
      make_preferences_internal();
+#endif
 
     /* now the own code */
      check_file = does_file_exist(directory, filename); 
