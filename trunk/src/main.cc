@@ -467,6 +467,8 @@ main (int argc, char *argv[]) {
      }
 
      // load preferences file .coot_preferences.py
+     // only GTK2
+#if COOT_USE_GTK2_INTERFACE
      char *preferences_filename = ".coot_preferences.py";
      if (directory) {
        char *check_preferences_file = does_file_exist(directory, preferences_filename);
@@ -477,6 +479,7 @@ main (int argc, char *argv[]) {
      }
      // update the preferences
      make_preferences_internal();
+#endif // GTK2
 
      // load personal coot file .coot.py
      char *filename = ".coot.py";

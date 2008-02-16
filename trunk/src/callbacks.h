@@ -2110,10 +2110,12 @@ on_preferences_bg_colour_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bg_colour_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data);
+#endif
 
 void
 on_preferences_bg_colour_colorbutton_clicked
@@ -2380,6 +2382,7 @@ on_preferences_font_size_others_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_font_size_combobox_changed
                                         (GtkComboBox     *combobox,
@@ -2389,6 +2392,7 @@ void
 on_preferences_font_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data);
+#endif
 
 void
 on_preferences_font_colorbutton_clicked
@@ -2405,10 +2409,12 @@ on_preferences_pink_pointer_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data);
 
+#if (GRK_MAJOR_VERSION > 1)
 void
 on_preferences_bond_width_combobox_changed
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data);
+#endif
 
 void
 on_preferences_ok_button_clicked       (GtkButton       *button,

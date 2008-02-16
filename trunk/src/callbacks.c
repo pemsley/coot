@@ -5827,12 +5827,14 @@ on_preferences_bond_colours_hscale_value_changed
                                         (GtkRange        *range,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
   GtkAdjustment *adjustment;
   float fvalue;
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = gtk_adjustment_get_value(adjustment);
   preferences_internal_change_value_float(PREFERENCES_BOND_COLOURS_MAP_ROTATION, fvalue);
   set_colour_map_rotation_on_read_pdb(fvalue);
+#endif
 }
 
 void
@@ -5881,6 +5883,7 @@ on_preferences_bg_colour_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *w;
   w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_bg_colour_colorbutton");
   GdkColor bg_colour;
@@ -5894,10 +5897,12 @@ on_preferences_bg_colour_own_radiobutton_toggled
     
   preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
   set_background_colour(fval1, fval2, fval3);
+#endif
 
 }
 
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bg_colour_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
@@ -5920,6 +5925,7 @@ on_preferences_bg_colour_colorbutton_color_set
   }
 
 }
+#endif
 
 
 void
@@ -6306,10 +6312,12 @@ on_preferences_filechooser_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
   if (gtk_toggle_button_get_active(togglebutton)) {
     preferences_internal_change_value_int(PREFERENCES_FILE_CHOOSER, 0);
     set_file_chooser_selector(0);
   }
+#endif
 
 }
 
@@ -6319,10 +6327,12 @@ on_preferences_filechooser_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
   if (gtk_toggle_button_get_active(togglebutton)) {
     preferences_internal_change_value_int(PREFERENCES_FILE_CHOOSER, 1);
     set_file_chooser_selector(1);
   }
+#endif
 
 }
 
@@ -6332,10 +6342,12 @@ on_preferences_file_overwrite_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
   if (gtk_toggle_button_get_active(togglebutton)) {
     preferences_internal_change_value_int(PREFERENCES_FILE_OVERWRITE, 1);
     set_file_chooser_overwrite(1);
   }
+#endif
 
 }
 
@@ -6345,10 +6357,12 @@ on_preferences_file_overwrite_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
   if (gtk_toggle_button_get_active(togglebutton)) {
     preferences_internal_change_value_int(PREFERENCES_FILE_OVERWRITE, 0);
     set_file_chooser_overwrite(0);
   }
+#endif
 
 }
 
@@ -6695,6 +6709,7 @@ on_preferences_font_size_others_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
   if (gtk_toggle_button_get_active(togglebutton)) {
     GtkWidget *w;
     w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_size_combobox");
@@ -6703,9 +6718,11 @@ on_preferences_font_size_others_radiobutton_toggled
     preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, ival);
     set_font_size(ival);
   }
+#endif
 
 }
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_font_size_combobox_changed
                                         (GtkComboBox     *combobox,
@@ -6738,6 +6755,7 @@ on_preferences_font_colorbutton_color_set
   preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
   set_font_colour(fval1, fval2, fval3);
 }
+#endif
 
 void
 on_preferences_font_colorbutton_clicked
@@ -6786,6 +6804,7 @@ on_preferences_pink_pointer_entry_changed
 }
 
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bond_width_combobox_changed
                                         (GtkComboBox     *combobox,
@@ -6797,6 +6816,7 @@ on_preferences_bond_width_combobox_changed
   preferences_internal_change_value_int(PREFERENCES_BONDS_THICKNESS, val);
   set_default_bond_thickness(val);
 }
+#endif
 
 
 /* end preferences */
