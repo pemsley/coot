@@ -17167,7 +17167,7 @@ create_preferences (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_off_radiobutton), preferences_file_sort_by_date_on_radiobutton_group);
   preferences_file_sort_by_date_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_off_radiobutton));
 
-  label576 = gtk_label_new (_("Always sort by date (ocurrently only for selector)?"));
+  label576 = gtk_label_new (_("Always sort by date (currently only for selector)?"));
   gtk_widget_show (label576);
   gtk_frame_set_label_widget (GTK_FRAME (frame247), label576);
   gtk_label_set_use_markup (GTK_LABEL (label576), TRUE);

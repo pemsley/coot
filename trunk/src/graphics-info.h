@@ -1453,6 +1453,9 @@ public:
    // file selection should be sorted by date?
    static short int sticky_sort_by_date;
    
+   // file filter should be on?
+   static short int sticky_file_filter;
+   
    // 
    void show_refine_params_dialog(); // not used for map selection now.
    void show_select_map_dialog();

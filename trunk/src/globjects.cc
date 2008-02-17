@@ -491,7 +491,6 @@ short int graphics_info_t::autobuild_flag = 0;
 // Fileselection sorting:
 short int graphics_info_t::sticky_sort_by_date = 0; // initally not.
 
-
 // Maps and Molecule Display Control window:
 GtkWidget *graphics_info_t::display_control_window_ = NULL;
 GSList    *graphics_info_t::gslist_for_scroll_in_display_manager = NULL;

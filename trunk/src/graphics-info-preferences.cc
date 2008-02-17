@@ -75,8 +75,8 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        break;
        
      case PREFERENCES_FILE_FILTER:
-       //       commands.push_back(state_command("set-file-chooser-overwrite",
-       //			g.preferences_internal[i].ivalue, il));
+       commands.push_back(state_command("set-filter-fileselection-filenames", 
+					g.preferences_internal[i].ivalue, il));
        break;
        
      case PREFERENCES_FILE_SORT_DATE:
@@ -294,7 +294,7 @@ graphics_info_t::make_preferences_internal() {
   p.ivalue = on;
   ret.push_back(p);
  
-  on = 0;  // dummy for now
+  on = filter_fileselection_filenames_state();
   p.preference_type = PREFERENCES_FILE_FILTER;
   p.ivalue = on;
   ret.push_back(p);
