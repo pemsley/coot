@@ -2409,7 +2409,7 @@ on_preferences_pink_pointer_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data);
 
-#if (GRK_MAJOR_VERSION > 1)
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bond_width_combobox_changed
                                         (GtkComboBox     *combobox,

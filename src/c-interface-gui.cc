@@ -740,16 +740,17 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
 			GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
 			GINT_TO_POINTER(d));
 #else
-       // callback in c-interface-gtk2.cc
+    // callback in c-interface-gtk2.cc
     gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
 			GINT_TO_POINTER(d));
 #endif   
     gtk_widget_show(frame);
    }
-
+   
    return button;
 }
+
 
 // Paul requested a new function for filechooser filter
 // only available in gtk2
@@ -834,6 +835,16 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
 			       GTK_FILE_FILTER (filterall));
   gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
 			       GTK_FILE_FILTER (filterselect));
+
+  if (filter_fileselection_filenames_state() == 1) {
+    // filter automatically
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (fileselection),
+				GTK_FILE_FILTER (filterselect));
+  } else {
+    // show all
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (fileselection),
+				GTK_FILE_FILTER (filterall));
+  }
  
 }
 
@@ -1055,8 +1066,19 @@ void push_the_buttons_on_fileselection(GtkWidget *filter_button,
 				       GtkWidget *sort_button,
 				       GtkWidget *fileselection) {
 
-  if (filter_fileselection_filenames_state()) { 
-    gtk_signal_emit_by_name(GTK_OBJECT(filter_button), "clicked");
+  int data_type = 0;
+  bool no_chooser = 1;
+#if (GTK_MAJOR_VERSION > 1)
+  if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)
+    {
+      no_chooser = 0;
+    }
+#endif
+  if (filter_fileselection_filenames_state() && no_chooser) {
+    //gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(filter_button), TRUE);
+    //gtk_signal_emit_by_name(GTK_OBJECT(filter_button), "toggled", data_type, NULL);
+    gtk_signal_emit_by_name(GTK_OBJECT(filter_button), "clicked");    
+    //std::cout << "INFO:: Filtering file names \n";
   }
   if (graphics_info_t::sticky_sort_by_date) {
      GtkWidget *file_list = GTK_FILE_SELECTION(fileselection)->file_list;

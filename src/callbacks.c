@@ -103,7 +103,7 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
 
   file_filter_button = add_filename_filter_button(coords_fileselection1, 
 						  COOT_COORDS_FILE_SELECTION);
-  sort_button = add_sort_button_fileselection(coords_fileselection1); 
+  sort_button = add_sort_button_fileselection(coords_fileselection1);
   add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
   set_directory_for_fileselection(coords_fileselection1);
   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
@@ -6358,7 +6358,7 @@ on_preferences_file_overwrite_no_radiobutton_toggled
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION > 1)
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_OVERWRITE, 0);
     set_file_chooser_overwrite(0);
   }
@@ -6371,9 +6371,9 @@ on_preferences_file_filter_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_FILTER, 1);
-    //set_file_filter_always(1);
+    set_filter_fileselection_filenames(1);
   }
 
 }
@@ -6384,9 +6384,9 @@ on_preferences_file_filter_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_FILTER, 0);
-    //set_file_filter_always(0);
+    set_filter_fileselection_filenames(0);
   }
 
 }

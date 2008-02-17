@@ -194,6 +194,7 @@ void on_filename_filter_toggle_button_toggled_gtk1 (GtkButton       *button,
 #endif 
 void add_filename_filter(GtkWidget *fileselection);
 
+
 // where data type:
 // 0 coords
 // 1 mtz etc
