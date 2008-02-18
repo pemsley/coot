@@ -4367,6 +4367,10 @@ void set_coot_listener_socket_state_internal(int sock_state);
 
 void set_socket_string_waiting(const char *s);
 
+
+/* tooltip */
+void set_tip_of_the_day_flag(int state);
+
 /* \} */
 /*  ----------------------------------------------------------------------- */
 /*                  Display lists                                           */

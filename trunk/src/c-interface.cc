@@ -678,7 +678,7 @@ void set_filter_fileselection_filenames(int istate) {
 }
 
 int filter_fileselection_filenames_state() {
-   add_to_history_simple("filter_fileselection_filenames_state");
+   add_to_history_simple("filter-fileselection-filenames-state");
    return graphics_info_t::filter_fileselection_filenames_flag;
 }
 
@@ -6984,6 +6984,17 @@ int coot_socket_listener_idle_func(GtkWidget *w) {
    }
 #endif
    return 1;
+}
+
+/* tooltips */
+void
+set_tip_of_the_day_flag (int state) {
+   graphics_info_t g;
+   if (state == 0) {
+	g.do_tip_of_the_day_flag = 0;
+   } else {
+	g.do_tip_of_the_day_flag = 1;
+   }
 }
 
 /*  ----------------------------------------------------------------------- */

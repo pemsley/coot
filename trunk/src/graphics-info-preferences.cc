@@ -218,6 +218,12 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        commands.push_back(state_command("set-dragged-refinement-steps-per-frame",
 					g.preferences_internal[i].ivalue, il));
        break;
+
+     case PREFERENCES_TIPS:
+       if (g.preferences_internal[i].ivalue == 0) {
+	 commands.push_back(state_command("no-coot-tips", il));
+       }
+       break;
       
      case PREFERENCES_SPIN_SPEED:
        commands.push_back(state_command("set-idle-function-rotate-angle",
@@ -434,6 +440,11 @@ graphics_info_t::make_preferences_internal() {
   // Console
   p.preference_type = PREFERENCES_CONSOLE_COMMANDS;
   p.ivalue = graphics_info_t::console_display_commands.display_commands_flag;
+  ret.push_back(p);
+
+  // Tips
+  p.preference_type = PREFERENCES_TIPS;
+  p.ivalue = graphics_info_t::do_tip_of_the_day_flag;
   ret.push_back(p);
 
   // Speed

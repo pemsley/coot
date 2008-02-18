@@ -871,9 +871,10 @@ public:
       preferences_colour_tabs->push_back("preferences_bond_colours");
       preferences_colour_tabs->push_back("preferences_map_colours");
 
-      preferences_other_tabs->push_back("preferences_antialias");
       preferences_other_tabs->push_back("preferences_console");
+      preferences_other_tabs->push_back("preferences_tips");
       preferences_other_tabs->push_back("preferences_speed");
+      preferences_other_tabs->push_back("preferences_antialias");
       preferences_other_tabs->push_back("preferences_font");
       preferences_other_tabs->push_back("preferences_pink_pointer");
 

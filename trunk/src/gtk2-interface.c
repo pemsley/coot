@@ -16289,6 +16289,78 @@ create_preferences (void)
   GtkWidget *preferences_colour_radiotoolbutton;
   GtkWidget *preferences_other_radiotoolbutton;
   GtkWidget *preferences_notebook;
+  GtkWidget *preferences_file_selection;
+  GtkWidget *vbox240;
+  GtkWidget *frame235;
+  GtkWidget *vbox241;
+  GtkWidget *preferences_filechooser_off_radiobutton;
+  GSList *preferences_filechooser_off_radiobutton_group = NULL;
+  GtkWidget *preferences_filechooser_on_radiobutton;
+  GtkWidget *label564;
+  GtkWidget *frame251;
+  GtkWidget *vbox258;
+  GtkWidget *preferences_file_filter_on_radiobutton;
+  GSList *preferences_file_filter_on_radiobutton_group = NULL;
+  GtkWidget *preferences_file_filter_off_radiobutton;
+  GtkWidget *label586;
+  GtkWidget *frame247;
+  GtkWidget *vbox254;
+  GtkWidget *preferences_file_sort_by_date_on_radiobutton;
+  GSList *preferences_file_sort_by_date_on_radiobutton_group = NULL;
+  GtkWidget *preferences_file_sort_by_date_off_radiobutton;
+  GtkWidget *label576;
+  GtkWidget *frame236;
+  GtkWidget *vbox242;
+  GtkWidget *preferences_file_overwrite_yes_radiobutton;
+  GSList *preferences_file_overwrite_yes_radiobutton_group = NULL;
+  GtkWidget *preferences_file_overwrite_no_radiobutton;
+  GtkWidget *label565;
+  GtkWidget *label223;
+  GtkWidget *preferences_dock_accept_dialog;
+  GtkWidget *vbox243;
+  GtkWidget *frame238;
+  GtkWidget *vbox244;
+  GtkWidget *preferences_dialog_accept_docked_radiobutton;
+  GSList *preferences_dialog_accept_docked_radiobutton_group = NULL;
+  GtkWidget *preferences_dialog_accept_detouched_radiobutton;
+  GtkWidget *label566;
+  GtkWidget *frame246;
+  GtkWidget *vbox253;
+  GtkWidget *preferences_dialog_accept_on_radiobutton;
+  GSList *preferences_dialog_accept_on_radiobutton_group = NULL;
+  GtkWidget *preferences_dialog_accept_off_radiobutton;
+  GtkWidget *label575;
+  GtkWidget *label224;
+  GtkWidget *preferences_recentre_pdb;
+  GtkWidget *vbox263;
+  GtkWidget *label604;
+  GtkWidget *frame262;
+  GtkWidget *vbox264;
+  GtkWidget *preferences_recentre_pdb_on_radiobutton;
+  GSList *preferences_recentre_pdb_on_radiobutton_group = NULL;
+  GtkWidget *preferences_recentre_pdb_off_radiobutton;
+  GtkWidget *label225;
+  GtkWidget *preferences_hid;
+  GtkWidget *vbox238;
+  GtkWidget *label563;
+  GtkWidget *frame233;
+  GtkWidget *vbox239;
+  GtkWidget *preferences_hid_spherical_radiobutton;
+  GSList *preferences_hid_spherical_radiobutton_group = NULL;
+  GtkWidget *preferences_hid_flat_radiobutton;
+  GtkWidget *label476;
+  GtkWidget *preferences_background_colour;
+  GtkWidget *vbox234;
+  GtkWidget *label561;
+  GtkWidget *frame229;
+  GtkWidget *vbox235;
+  GtkWidget *preferences_bg_colour_black_radiobutton;
+  GSList *preferences_bg_colour_black_radiobutton_group = NULL;
+  GtkWidget *preferences_bg_colour_white_radiobutton;
+  GtkWidget *hbox322;
+  GtkWidget *preferences_bg_colour_own_radiobutton;
+  GtkWidget *preferences_bg_colour_colorbutton;
+  GtkWidget *label477;
   GtkWidget *preferences_bond_parameters;
   GtkWidget *vbox222;
   GtkWidget *vbox223;
@@ -16298,16 +16370,7 @@ create_preferences (void)
   GtkWidget *preferences_bond_width_combobox;
   GtkWidget *label526;
   GtkWidget *label527;
-  GtkWidget *label223;
-  GtkWidget *preferences_cis_peptides;
-  GtkWidget *vbox139;
-  GtkWidget *label226;
-  GtkWidget *frame136;
-  GtkWidget *vbox140;
-  GtkWidget *preferences_geometry_cis_peptide_bad_yes_radiobutton;
-  GSList *preferences_geometry_cis_peptide_bad_yes_radiobutton_group = NULL;
-  GtkWidget *preferences_geometry_cis_peptide_bad_no_radiobutton;
-  GtkWidget *label224;
+  GtkWidget *label478;
   GtkWidget *preferences_bond_colours;
   GtkWidget *vbox212;
   GtkWidget *frame200;
@@ -16320,19 +16383,7 @@ create_preferences (void)
   GtkWidget *frame201;
   GtkWidget *preferences_bond_colours_checkbutton;
   GtkWidget *label498;
-  GtkWidget *label225;
-  GtkWidget *preferences_background_colour;
-  GtkWidget *vbox234;
-  GtkWidget *label561;
-  GtkWidget *frame229;
-  GtkWidget *vbox235;
-  GtkWidget *preferences_bg_colour_black_radiobutton;
-  GSList *preferences_bg_colour_black_radiobutton_group = NULL;
-  GtkWidget *preferences_bg_colour_white_radiobutton;
-  GtkWidget *hbox322;
-  GtkWidget *preferences_bg_colour_own_radiobutton;
-  GtkWidget *preferences_bg_colour_colorbutton;
-  GtkWidget *label476;
+  GtkWidget *label479;
   GtkWidget *preferences_map_parameters;
   GtkWidget *vbox232;
   GtkWidget *label550;
@@ -16360,7 +16411,7 @@ create_preferences (void)
   GtkWidget *vbox233;
   GtkWidget *preferences_map_dynamic_sampling_checkbutton;
   GtkWidget *preferences_map_dynamic_size_checkbutton;
-  GtkWidget *label477;
+  GtkWidget *label480;
   GtkWidget *preferences_map_colours;
   GtkWidget *vbox236;
   GtkWidget *label562;
@@ -16369,123 +16420,7 @@ create_preferences (void)
   GtkWidget *preferences_diff_map_colours_coot_radiobutton;
   GSList *preferences_diff_map_colours_coot_radiobutton_group = NULL;
   GtkWidget *preferences_diff_map_colours_o_radiobutton;
-  GtkWidget *label478;
-  GtkWidget *preferences_antialias;
-  GtkWidget *vbox216;
-  GtkWidget *label509;
-  GtkWidget *frame208;
-  GtkWidget *vbox217;
-  GtkWidget *preferences_antialias_on_radiobutton;
-  GSList *preferences_antialias_on_radiobutton_group = NULL;
-  GtkWidget *preferences_antialias_off_radiobutton;
-  GtkWidget *label479;
-  GtkWidget *preferences_hid;
-  GtkWidget *vbox238;
-  GtkWidget *label563;
-  GtkWidget *frame233;
-  GtkWidget *vbox239;
-  GtkWidget *preferences_hid_spherical_radiobutton;
-  GSList *preferences_hid_spherical_radiobutton_group = NULL;
-  GtkWidget *preferences_hid_flat_radiobutton;
-  GtkWidget *label480;
-  GtkWidget *preferences_file_selection;
-  GtkWidget *vbox240;
-  GtkWidget *frame235;
-  GtkWidget *vbox241;
-  GtkWidget *preferences_filechooser_off_radiobutton;
-  GSList *preferences_filechooser_off_radiobutton_group = NULL;
-  GtkWidget *preferences_filechooser_on_radiobutton;
-  GtkWidget *label564;
-  GtkWidget *frame251;
-  GtkWidget *vbox258;
-  GtkWidget *preferences_file_filter_on_radiobutton;
-  GSList *preferences_file_filter_on_radiobutton_group = NULL;
-  GtkWidget *preferences_file_filter_off_radiobutton;
-  GtkWidget *label586;
-  GtkWidget *frame247;
-  GtkWidget *vbox254;
-  GtkWidget *preferences_file_sort_by_date_on_radiobutton;
-  GSList *preferences_file_sort_by_date_on_radiobutton_group = NULL;
-  GtkWidget *preferences_file_sort_by_date_off_radiobutton;
-  GtkWidget *label576;
-  GtkWidget *frame236;
-  GtkWidget *vbox242;
-  GtkWidget *preferences_file_overwrite_yes_radiobutton;
-  GSList *preferences_file_overwrite_yes_radiobutton_group = NULL;
-  GtkWidget *preferences_file_overwrite_no_radiobutton;
-  GtkWidget *label565;
   GtkWidget *label510;
-  GtkWidget *preferences_dock_accept_dialog;
-  GtkWidget *vbox243;
-  GtkWidget *frame238;
-  GtkWidget *vbox244;
-  GtkWidget *preferences_dialog_accept_docked_radiobutton;
-  GSList *preferences_dialog_accept_docked_radiobutton_group = NULL;
-  GtkWidget *preferences_dialog_accept_detouched_radiobutton;
-  GtkWidget *label566;
-  GtkWidget *frame246;
-  GtkWidget *vbox253;
-  GtkWidget *preferences_dialog_accept_on_radiobutton;
-  GSList *preferences_dialog_accept_on_radiobutton_group = NULL;
-  GtkWidget *preferences_dialog_accept_off_radiobutton;
-  GtkWidget *label575;
-  GtkWidget *label511;
-  GtkWidget *preferences_console;
-  GtkWidget *vbox246;
-  GtkWidget *frame240;
-  GtkWidget *vbox247;
-  GtkWidget *preferences_console_info_on_radiobutton;
-  GSList *preferences_console_info_on_radiobutton_group = NULL;
-  GtkWidget *preferences_console_info_off_radiobutton;
-  GtkWidget *label567;
-  GtkWidget *label512;
-  GtkWidget *preferences_font;
-  GtkWidget *vbox255;
-  GtkWidget *frame248;
-  GtkWidget *vbox256;
-  GtkWidget *preferences_font_size_small_radiobutton;
-  GSList *preferences_font_size_small_radiobutton_group = NULL;
-  GtkWidget *preferences_font_size_medium_radiobutton;
-  GtkWidget *preferences_font_size_large_radiobutton;
-  GtkWidget *hbox323;
-  GtkWidget *preferences_font_size_others_radiobutton;
-  GtkWidget *preferences_font_size_combobox;
-  GtkWidget *label587;
-  GtkWidget *frame252;
-  GtkWidget *hbox325;
-  GtkWidget *label589;
-  GtkWidget *preferences_font_colorbutton;
-  GtkWidget *label588;
-  GtkWidget *label568;
-  GtkWidget *preferences_speed;
-  GtkWidget *vbox250;
-  GtkWidget *frame244;
-  GtkWidget *vbox251;
-  GtkWidget *preferences_refinement_speed_molasses_radiobutton;
-  GSList *preferences_refinement_speed_molasses_radiobutton_group = NULL;
-  GtkWidget *preferences_refinement_speed_crock_radiobutton;
-  GtkWidget *preferences_refinement_speed_default_radiobutton;
-  GtkWidget *hbox320;
-  GtkWidget *preferences_refinement_speed_own_radiobutton;
-  GtkWidget *preferences_refinement_speed_entry;
-  GtkWidget *label572;
-  GtkWidget *frame245;
-  GtkWidget *vbox252;
-  GtkWidget *hbox321;
-  GtkWidget *label574;
-  GtkWidget *preferences_spin_speed_entry;
-  GtkWidget *label573;
-  GtkWidget *label569;
-  GtkWidget *preferences_pink_pointer;
-  GtkWidget *vbox257;
-  GtkWidget *label585;
-  GtkWidget *frame250;
-  GtkWidget *hbox324;
-  GtkWidget *label582;
-  GtkWidget *preferences_pink_pointer_entry;
-  GtkWidget *label583;
-  GtkWidget *label584;
-  GtkWidget *label578;
   GtkWidget *preferences_smooth_scroll;
   GtkWidget *vbox259;
   GtkWidget *label594;
@@ -16505,7 +16440,7 @@ create_preferences (void)
   GtkWidget *label598;
   GtkWidget *preferences_smooth_scroll_limit_entry;
   GtkWidget *label599;
-  GtkWidget *label591;
+  GtkWidget *label511;
   GtkWidget *preferences_map_drag;
   GtkWidget *vbox261;
   GtkWidget *label603;
@@ -16514,16 +16449,90 @@ create_preferences (void)
   GtkWidget *preferences_map_drag_on_radiobutton;
   GSList *preferences_map_drag_on_radiobutton_group = NULL;
   GtkWidget *preferences_map_drag_off_radiobutton;
+  GtkWidget *label512;
+  GtkWidget *preferences_cis_peptides;
+  GtkWidget *vbox139;
+  GtkWidget *label226;
+  GtkWidget *frame136;
+  GtkWidget *vbox140;
+  GtkWidget *preferences_geometry_cis_peptide_bad_yes_radiobutton;
+  GSList *preferences_geometry_cis_peptide_bad_yes_radiobutton_group = NULL;
+  GtkWidget *preferences_geometry_cis_peptide_bad_no_radiobutton;
+  GtkWidget *label568;
+  GtkWidget *preferences_console;
+  GtkWidget *vbox246;
+  GtkWidget *frame240;
+  GtkWidget *vbox247;
+  GtkWidget *preferences_console_info_on_radiobutton;
+  GSList *preferences_console_info_on_radiobutton_group = NULL;
+  GtkWidget *preferences_console_info_off_radiobutton;
+  GtkWidget *label567;
+  GtkWidget *label569;
+  GtkWidget *preferences_tips;
+  GtkWidget *vbox265;
+  GtkWidget *frame264;
+  GtkWidget *vbox266;
+  GtkWidget *preferences_tips_on_radiobutton;
+  GSList *preferences_tips_on_radiobutton_group = NULL;
+  GtkWidget *preferences_tips_off_radiobutton;
+  GtkWidget *label607;
+  GtkWidget *label578;
+  GtkWidget *preferences_font;
+  GtkWidget *vbox255;
+  GtkWidget *frame248;
+  GtkWidget *vbox256;
+  GtkWidget *preferences_font_size_small_radiobutton;
+  GSList *preferences_font_size_small_radiobutton_group = NULL;
+  GtkWidget *preferences_font_size_medium_radiobutton;
+  GtkWidget *preferences_font_size_large_radiobutton;
+  GtkWidget *hbox323;
+  GtkWidget *preferences_font_size_others_radiobutton;
+  GtkWidget *preferences_font_size_combobox;
+  GtkWidget *label587;
+  GtkWidget *frame252;
+  GtkWidget *hbox325;
+  GtkWidget *label589;
+  GtkWidget *preferences_font_colorbutton;
+  GtkWidget *label588;
+  GtkWidget *label591;
+  GtkWidget *preferences_speed;
+  GtkWidget *vbox250;
+  GtkWidget *frame244;
+  GtkWidget *vbox251;
+  GtkWidget *preferences_refinement_speed_molasses_radiobutton;
+  GSList *preferences_refinement_speed_molasses_radiobutton_group = NULL;
+  GtkWidget *preferences_refinement_speed_crock_radiobutton;
+  GtkWidget *preferences_refinement_speed_default_radiobutton;
+  GtkWidget *hbox320;
+  GtkWidget *preferences_refinement_speed_own_radiobutton;
+  GtkWidget *preferences_refinement_speed_entry;
+  GtkWidget *label572;
+  GtkWidget *frame245;
+  GtkWidget *vbox252;
+  GtkWidget *hbox321;
+  GtkWidget *label574;
+  GtkWidget *preferences_spin_speed_entry;
+  GtkWidget *label573;
   GtkWidget *label592;
-  GtkWidget *preferences_recentre_pdb;
-  GtkWidget *vbox263;
-  GtkWidget *label604;
-  GtkWidget *frame262;
-  GtkWidget *vbox264;
-  GtkWidget *preferences_recentre_pdb_on_radiobutton;
-  GSList *preferences_recentre_pdb_on_radiobutton_group = NULL;
-  GtkWidget *preferences_recentre_pdb_off_radiobutton;
+  GtkWidget *preferences_antialias;
+  GtkWidget *vbox216;
+  GtkWidget *label509;
+  GtkWidget *frame208;
+  GtkWidget *vbox217;
+  GtkWidget *preferences_antialias_on_radiobutton;
+  GSList *preferences_antialias_on_radiobutton_group = NULL;
+  GtkWidget *preferences_antialias_off_radiobutton;
   GtkWidget *label593;
+  GtkWidget *preferences_pink_pointer;
+  GtkWidget *vbox257;
+  GtkWidget *label585;
+  GtkWidget *frame250;
+  GtkWidget *hbox324;
+  GtkWidget *label582;
+  GtkWidget *preferences_pink_pointer_entry;
+  GtkWidget *label583;
+  GtkWidget *label584;
+  GtkWidget *label606;
   GtkWidget *hbuttonbox5;
   GtkWidget *hbox115;
   GtkWidget *preferences_reset_button;
@@ -16537,7 +16546,7 @@ create_preferences (void)
   tooltips = gtk_tooltips_new ();
 
   preferences = gtk_dialog_new ();
-  gtk_widget_set_size_request (preferences, 550, 480);
+  gtk_widget_set_size_request (preferences, 570, 480);
   gtk_window_set_title (GTK_WINDOW (preferences), _("Preferences"));
   gtk_window_set_type_hint (GTK_WINDOW (preferences), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -16626,6 +16635,342 @@ create_preferences (void)
   gtk_widget_show (preferences_notebook);
   gtk_box_pack_start (GTK_BOX (hbox114), preferences_notebook, TRUE, TRUE, 0);
 
+  preferences_file_selection = gtk_frame_new (NULL);
+  gtk_widget_show (preferences_file_selection);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_file_selection);
+
+  vbox240 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox240);
+  gtk_container_add (GTK_CONTAINER (preferences_file_selection), vbox240);
+
+  frame235 = gtk_frame_new (NULL);
+  gtk_widget_show (frame235);
+  gtk_box_pack_start (GTK_BOX (vbox240), frame235, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame235), 8);
+
+  vbox241 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox241);
+  gtk_container_add (GTK_CONTAINER (frame235), vbox241);
+
+  preferences_filechooser_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Classic File Selector"));
+  gtk_widget_show (preferences_filechooser_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox241), preferences_filechooser_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_filechooser_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_filechooser_off_radiobutton), preferences_filechooser_off_radiobutton_group);
+  preferences_filechooser_off_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_filechooser_off_radiobutton));
+
+  preferences_filechooser_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Modern File Chooser"));
+  gtk_widget_show (preferences_filechooser_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox241), preferences_filechooser_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_filechooser_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_filechooser_on_radiobutton), preferences_filechooser_off_radiobutton_group);
+  preferences_filechooser_off_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_filechooser_on_radiobutton));
+
+  label564 = gtk_label_new (_("File Selector/Chooser?"));
+  gtk_widget_show (label564);
+  gtk_frame_set_label_widget (GTK_FRAME (frame235), label564);
+  gtk_label_set_use_markup (GTK_LABEL (label564), TRUE);
+
+  frame251 = gtk_frame_new (NULL);
+  gtk_widget_show (frame251);
+  gtk_box_pack_start (GTK_BOX (vbox240), frame251, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame251), 8);
+
+  vbox258 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox258);
+  gtk_container_add (GTK_CONTAINER (frame251), vbox258);
+
+  preferences_file_filter_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_file_filter_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox258), preferences_file_filter_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_filter_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_filter_on_radiobutton), preferences_file_filter_on_radiobutton_group);
+  preferences_file_filter_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_filter_on_radiobutton));
+
+  preferences_file_filter_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_file_filter_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox258), preferences_file_filter_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_filter_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_filter_off_radiobutton), preferences_file_filter_on_radiobutton_group);
+  preferences_file_filter_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_filter_off_radiobutton));
+
+  label586 = gtk_label_new (_("Automatically filter files?"));
+  gtk_widget_show (label586);
+  gtk_frame_set_label_widget (GTK_FRAME (frame251), label586);
+  gtk_label_set_use_markup (GTK_LABEL (label586), TRUE);
+
+  frame247 = gtk_frame_new (NULL);
+  gtk_widget_show (frame247);
+  gtk_box_pack_start (GTK_BOX (vbox240), frame247, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame247), 8);
+
+  vbox254 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox254);
+  gtk_container_add (GTK_CONTAINER (frame247), vbox254);
+
+  preferences_file_sort_by_date_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_file_sort_by_date_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox254), preferences_file_sort_by_date_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_sort_by_date_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_on_radiobutton), preferences_file_sort_by_date_on_radiobutton_group);
+  preferences_file_sort_by_date_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_on_radiobutton));
+
+  preferences_file_sort_by_date_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_file_sort_by_date_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox254), preferences_file_sort_by_date_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_sort_by_date_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_off_radiobutton), preferences_file_sort_by_date_on_radiobutton_group);
+  preferences_file_sort_by_date_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_off_radiobutton));
+
+  label576 = gtk_label_new (_("Always sort by date (currently only for selector)?"));
+  gtk_widget_show (label576);
+  gtk_frame_set_label_widget (GTK_FRAME (frame247), label576);
+  gtk_label_set_use_markup (GTK_LABEL (label576), TRUE);
+
+  frame236 = gtk_frame_new (NULL);
+  gtk_widget_show (frame236);
+  gtk_box_pack_start (GTK_BOX (vbox240), frame236, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame236), 8);
+
+  vbox242 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox242);
+  gtk_container_add (GTK_CONTAINER (frame236), vbox242);
+
+  preferences_file_overwrite_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Ask before overwriting file"));
+  gtk_widget_show (preferences_file_overwrite_yes_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox242), preferences_file_overwrite_yes_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_overwrite_yes_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_overwrite_yes_radiobutton), preferences_file_overwrite_yes_radiobutton_group);
+  preferences_file_overwrite_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_overwrite_yes_radiobutton));
+
+  preferences_file_overwrite_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Do not ask when overwriting file"));
+  gtk_widget_show (preferences_file_overwrite_no_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox242), preferences_file_overwrite_no_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_overwrite_no_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_overwrite_no_radiobutton), preferences_file_overwrite_yes_radiobutton_group);
+  preferences_file_overwrite_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_overwrite_no_radiobutton));
+
+  label565 = gtk_label_new (_("Overwrite protection (currently only for chooser)"));
+  gtk_widget_show (label565);
+  gtk_frame_set_label_widget (GTK_FRAME (frame236), label565);
+  gtk_label_set_use_markup (GTK_LABEL (label565), TRUE);
+
+  label223 = gtk_label_new (_("File Selection"));
+  gtk_widget_show (label223);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 0), label223);
+  gtk_label_set_justify (GTK_LABEL (label223), GTK_JUSTIFY_CENTER);
+
+  preferences_dock_accept_dialog = gtk_frame_new (NULL);
+  gtk_widget_show (preferences_dock_accept_dialog);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_dock_accept_dialog);
+
+  vbox243 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox243);
+  gtk_container_add (GTK_CONTAINER (preferences_dock_accept_dialog), vbox243);
+
+  frame238 = gtk_frame_new (NULL);
+  gtk_widget_show (frame238);
+  gtk_box_pack_start (GTK_BOX (vbox243), frame238, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame238), 8);
+
+  vbox244 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox244);
+  gtk_container_add (GTK_CONTAINER (frame238), vbox244);
+
+  preferences_dialog_accept_docked_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_dialog_accept_docked_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox244), preferences_dialog_accept_docked_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_docked_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_docked_radiobutton), preferences_dialog_accept_docked_radiobutton_group);
+  preferences_dialog_accept_docked_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_docked_radiobutton));
+
+  preferences_dialog_accept_detouched_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_dialog_accept_detouched_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox244), preferences_dialog_accept_detouched_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_detouched_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_detouched_radiobutton), preferences_dialog_accept_docked_radiobutton_group);
+  preferences_dialog_accept_docked_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_detouched_radiobutton));
+
+  label566 = gtk_label_new (_("Dock Accept/Reject Dialog?"));
+  gtk_widget_show (label566);
+  gtk_frame_set_label_widget (GTK_FRAME (frame238), label566);
+  gtk_label_set_use_markup (GTK_LABEL (label566), TRUE);
+
+  frame246 = gtk_frame_new (NULL);
+  gtk_widget_show (frame246);
+  gtk_box_pack_start (GTK_BOX (vbox243), frame246, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame246), 8);
+
+  vbox253 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox253);
+  gtk_container_add (GTK_CONTAINER (frame246), vbox253);
+
+  preferences_dialog_accept_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_dialog_accept_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox253), preferences_dialog_accept_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_on_radiobutton), preferences_dialog_accept_on_radiobutton_group);
+  preferences_dialog_accept_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_on_radiobutton));
+
+  preferences_dialog_accept_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_dialog_accept_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox253), preferences_dialog_accept_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_off_radiobutton), preferences_dialog_accept_on_radiobutton_group);
+  preferences_dialog_accept_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_off_radiobutton));
+
+  label575 = gtk_label_new (_("Question Accept Refinement?"));
+  gtk_widget_show (label575);
+  gtk_frame_set_label_widget (GTK_FRAME (frame246), label575);
+  gtk_label_set_use_markup (GTK_LABEL (label575), TRUE);
+
+  label224 = gtk_label_new (_("Dialogs"));
+  gtk_widget_show (label224);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 1), label224);
+  gtk_label_set_justify (GTK_LABEL (label224), GTK_JUSTIFY_CENTER);
+
+  preferences_recentre_pdb = gtk_frame_new (NULL);
+  gtk_widget_show (preferences_recentre_pdb);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_recentre_pdb);
+
+  vbox263 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox263);
+  gtk_container_add (GTK_CONTAINER (preferences_recentre_pdb), vbox263);
+
+  label604 = gtk_label_new (_("Recentre on read new PDB?"));
+  gtk_widget_show (label604);
+  gtk_box_pack_start (GTK_BOX (vbox263), label604, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label604), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label604), 9, 7);
+
+  frame262 = gtk_frame_new (NULL);
+  gtk_widget_show (frame262);
+  gtk_box_pack_start (GTK_BOX (vbox263), frame262, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame262), 12);
+
+  vbox264 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox264);
+  gtk_container_add (GTK_CONTAINER (frame262), vbox264);
+
+  preferences_recentre_pdb_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_recentre_pdb_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox264), preferences_recentre_pdb_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_recentre_pdb_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_recentre_pdb_on_radiobutton), preferences_recentre_pdb_on_radiobutton_group);
+  preferences_recentre_pdb_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_recentre_pdb_on_radiobutton));
+
+  preferences_recentre_pdb_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_recentre_pdb_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox264), preferences_recentre_pdb_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_recentre_pdb_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_recentre_pdb_off_radiobutton), preferences_recentre_pdb_on_radiobutton_group);
+  preferences_recentre_pdb_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_recentre_pdb_off_radiobutton));
+
+  label225 = gtk_label_new (_("Coordinates Recentring"));
+  gtk_widget_show (label225);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 2), label225);
+  gtk_label_set_justify (GTK_LABEL (label225), GTK_JUSTIFY_CENTER);
+
+  preferences_hid = gtk_frame_new (NULL);
+  gtk_widget_show (preferences_hid);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_hid);
+
+  vbox238 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox238);
+  gtk_container_add (GTK_CONTAINER (preferences_hid), vbox238);
+
+  label563 = gtk_label_new (_("Virtual trackball"));
+  gtk_widget_show (label563);
+  gtk_box_pack_start (GTK_BOX (vbox238), label563, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label563), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label563), 9, 7);
+
+  frame233 = gtk_frame_new (NULL);
+  gtk_widget_show (frame233);
+  gtk_box_pack_start (GTK_BOX (vbox238), frame233, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame233), 12);
+
+  vbox239 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox239);
+  gtk_container_add (GTK_CONTAINER (frame233), vbox239);
+
+  preferences_hid_spherical_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Spherical surface"));
+  gtk_widget_show (preferences_hid_spherical_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox239), preferences_hid_spherical_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_hid_spherical_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_hid_spherical_radiobutton), preferences_hid_spherical_radiobutton_group);
+  preferences_hid_spherical_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_hid_spherical_radiobutton));
+
+  preferences_hid_flat_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Flat"));
+  gtk_widget_show (preferences_hid_flat_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox239), preferences_hid_flat_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_hid_flat_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_hid_flat_radiobutton), preferences_hid_spherical_radiobutton_group);
+  preferences_hid_spherical_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_hid_flat_radiobutton));
+
+  label476 = gtk_label_new (_("HID"));
+  gtk_widget_show (label476);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 3), label476);
+
+  preferences_background_colour = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_background_colour);
+  gtk_frame_set_shadow_type (GTK_FRAME (preferences_background_colour), GTK_SHADOW_NONE);
+
+  vbox234 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox234);
+  gtk_container_add (GTK_CONTAINER (preferences_background_colour), vbox234);
+
+  label561 = gtk_label_new (_("Background colour?"));
+  gtk_widget_show (label561);
+  gtk_box_pack_start (GTK_BOX (vbox234), label561, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label561), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label561), 0, 9);
+
+  frame229 = gtk_frame_new (NULL);
+  gtk_widget_show (frame229);
+  gtk_box_pack_start (GTK_BOX (vbox234), frame229, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame229), 10);
+
+  vbox235 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox235);
+  gtk_container_add (GTK_CONTAINER (frame229), vbox235);
+
+  preferences_bg_colour_black_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Black"));
+  gtk_widget_show (preferences_bg_colour_black_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox235), preferences_bg_colour_black_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_bg_colour_black_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bg_colour_black_radiobutton), preferences_bg_colour_black_radiobutton_group);
+  preferences_bg_colour_black_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bg_colour_black_radiobutton));
+
+  preferences_bg_colour_white_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("White"));
+  gtk_widget_show (preferences_bg_colour_white_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox235), preferences_bg_colour_white_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_bg_colour_white_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bg_colour_white_radiobutton), preferences_bg_colour_black_radiobutton_group);
+  preferences_bg_colour_black_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bg_colour_white_radiobutton));
+
+  hbox322 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox322);
+  gtk_box_pack_start (GTK_BOX (vbox235), hbox322, FALSE, FALSE, 0);
+
+  preferences_bg_colour_own_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Own colour"));
+  gtk_widget_show (preferences_bg_colour_own_radiobutton);
+  gtk_box_pack_start (GTK_BOX (hbox322), preferences_bg_colour_own_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_bg_colour_own_radiobutton), 5);
+  gtk_tooltips_set_tip (tooltips, preferences_bg_colour_own_radiobutton, _("Select to choose you own colour"), NULL);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bg_colour_own_radiobutton), preferences_bg_colour_black_radiobutton_group);
+  preferences_bg_colour_black_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bg_colour_own_radiobutton));
+
+  preferences_bg_colour_colorbutton = gtk_color_button_new ();
+  gtk_widget_show (preferences_bg_colour_colorbutton);
+  gtk_box_pack_start (GTK_BOX (hbox322), preferences_bg_colour_colorbutton, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, preferences_bg_colour_colorbutton, _("Press here to choose your own colour"), NULL);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (preferences_bg_colour_colorbutton), _("Pick a Background Colour"));
+
+  label477 = gtk_label_new (_("Background colour"));
+  gtk_widget_show (label477);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 4), label477);
+
   preferences_bond_parameters = gtk_frame_new (NULL);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_bond_parameters);
 
@@ -16663,51 +17008,9 @@ create_preferences (void)
   gtk_widget_show (label527);
   gtk_frame_set_label_widget (GTK_FRAME (frame212), label527);
 
-  label223 = gtk_label_new (_("Bond Parameters"));
-  gtk_widget_show (label223);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 0), label223);
-  gtk_label_set_justify (GTK_LABEL (label223), GTK_JUSTIFY_CENTER);
-
-  preferences_cis_peptides = gtk_frame_new (NULL);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_cis_peptides);
-
-  vbox139 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox139);
-  gtk_container_add (GTK_CONTAINER (preferences_cis_peptides), vbox139);
-
-  label226 = gtk_label_new (_("Mark Cis-Peptides as Bad in Geometry Graph?"));
-  gtk_widget_show (label226);
-  gtk_box_pack_start (GTK_BOX (vbox139), label226, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label226), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label226), 0, 9);
-
-  frame136 = gtk_frame_new (NULL);
-  gtk_widget_show (frame136);
-  gtk_box_pack_start (GTK_BOX (vbox139), frame136, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame136), 10);
-
-  vbox140 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox140);
-  gtk_container_add (GTK_CONTAINER (frame136), vbox140);
-
-  preferences_geometry_cis_peptide_bad_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _(" Yes"));
-  gtk_widget_show (preferences_geometry_cis_peptide_bad_yes_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox140), preferences_geometry_cis_peptide_bad_yes_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_geometry_cis_peptide_bad_yes_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_yes_radiobutton), preferences_geometry_cis_peptide_bad_yes_radiobutton_group);
-  preferences_geometry_cis_peptide_bad_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_yes_radiobutton));
-
-  preferences_geometry_cis_peptide_bad_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _(" No"));
-  gtk_widget_show (preferences_geometry_cis_peptide_bad_no_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox140), preferences_geometry_cis_peptide_bad_no_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_geometry_cis_peptide_bad_no_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_no_radiobutton), preferences_geometry_cis_peptide_bad_yes_radiobutton_group);
-  preferences_geometry_cis_peptide_bad_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_no_radiobutton));
-
-  label224 = gtk_label_new (_("Cis-Peptides"));
-  gtk_widget_show (label224);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 1), label224);
-  gtk_label_set_justify (GTK_LABEL (label224), GTK_JUSTIFY_CENTER);
+  label478 = gtk_label_new (_("Bond Parameters"));
+  gtk_widget_show (label478);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 5), label478);
 
   preferences_bond_colours = gtk_frame_new (NULL);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_bond_colours);
@@ -16765,69 +17068,9 @@ create_preferences (void)
   gtk_widget_show (label498);
   gtk_frame_set_label_widget (GTK_FRAME (preferences_bond_colours), label498);
 
-  label225 = gtk_label_new (_("Bond Colours"));
-  gtk_widget_show (label225);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 2), label225);
-  gtk_label_set_justify (GTK_LABEL (label225), GTK_JUSTIFY_CENTER);
-
-  preferences_background_colour = gtk_frame_new (NULL);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_background_colour);
-  gtk_frame_set_shadow_type (GTK_FRAME (preferences_background_colour), GTK_SHADOW_NONE);
-
-  vbox234 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox234);
-  gtk_container_add (GTK_CONTAINER (preferences_background_colour), vbox234);
-
-  label561 = gtk_label_new (_("Background colour?"));
-  gtk_widget_show (label561);
-  gtk_box_pack_start (GTK_BOX (vbox234), label561, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label561), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label561), 0, 9);
-
-  frame229 = gtk_frame_new (NULL);
-  gtk_widget_show (frame229);
-  gtk_box_pack_start (GTK_BOX (vbox234), frame229, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame229), 10);
-
-  vbox235 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox235);
-  gtk_container_add (GTK_CONTAINER (frame229), vbox235);
-
-  preferences_bg_colour_black_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Black"));
-  gtk_widget_show (preferences_bg_colour_black_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox235), preferences_bg_colour_black_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_bg_colour_black_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bg_colour_black_radiobutton), preferences_bg_colour_black_radiobutton_group);
-  preferences_bg_colour_black_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bg_colour_black_radiobutton));
-
-  preferences_bg_colour_white_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("White"));
-  gtk_widget_show (preferences_bg_colour_white_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox235), preferences_bg_colour_white_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_bg_colour_white_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bg_colour_white_radiobutton), preferences_bg_colour_black_radiobutton_group);
-  preferences_bg_colour_black_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bg_colour_white_radiobutton));
-
-  hbox322 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox322);
-  gtk_box_pack_start (GTK_BOX (vbox235), hbox322, FALSE, FALSE, 0);
-
-  preferences_bg_colour_own_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Own colour"));
-  gtk_widget_show (preferences_bg_colour_own_radiobutton);
-  gtk_box_pack_start (GTK_BOX (hbox322), preferences_bg_colour_own_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_bg_colour_own_radiobutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_bg_colour_own_radiobutton, _("Select to choose you own colour"), NULL);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bg_colour_own_radiobutton), preferences_bg_colour_black_radiobutton_group);
-  preferences_bg_colour_black_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bg_colour_own_radiobutton));
-
-  preferences_bg_colour_colorbutton = gtk_color_button_new ();
-  gtk_widget_show (preferences_bg_colour_colorbutton);
-  gtk_box_pack_start (GTK_BOX (hbox322), preferences_bg_colour_colorbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, preferences_bg_colour_colorbutton, _("Press here to choose your own colour"), NULL);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (preferences_bg_colour_colorbutton), _("Pick a Background Colour"));
-
-  label476 = gtk_label_new (_("Background Colour"));
-  gtk_widget_show (label476);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 3), label476);
+  label479 = gtk_label_new (_("Bond Colours"));
+  gtk_widget_show (label479);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 6), label479);
 
   preferences_map_parameters = gtk_frame_new (NULL);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_map_parameters);
@@ -16953,9 +17196,9 @@ create_preferences (void)
   gtk_widget_show (preferences_map_dynamic_size_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox233), preferences_map_dynamic_size_checkbutton, FALSE, FALSE, 0);
 
-  label477 = gtk_label_new (_("Map Parameters"));
-  gtk_widget_show (label477);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 4), label477);
+  label480 = gtk_label_new (_("Map Parameters"));
+  gtk_widget_show (label480);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 7), label480);
 
   preferences_map_colours = gtk_frame_new (NULL);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_map_colours);
@@ -16995,282 +17238,180 @@ create_preferences (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_diff_map_colours_o_radiobutton), preferences_diff_map_colours_coot_radiobutton_group);
   preferences_diff_map_colours_coot_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_diff_map_colours_o_radiobutton));
 
-  label478 = gtk_label_new (_("Map Colours"));
-  gtk_widget_show (label478);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 5), label478);
-
-  preferences_antialias = gtk_frame_new (NULL);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_antialias);
-
-  vbox216 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox216);
-  gtk_container_add (GTK_CONTAINER (preferences_antialias), vbox216);
-
-  label509 = gtk_label_new (_("Antialias Lines?"));
-  gtk_widget_show (label509);
-  gtk_box_pack_start (GTK_BOX (vbox216), label509, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label509), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label509), 9, 7);
-
-  frame208 = gtk_frame_new (NULL);
-  gtk_widget_show (frame208);
-  gtk_box_pack_start (GTK_BOX (vbox216), frame208, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame208), 12);
-
-  vbox217 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox217);
-  gtk_container_add (GTK_CONTAINER (frame208), vbox217);
-
-  preferences_antialias_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
-  gtk_widget_show (preferences_antialias_on_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox217), preferences_antialias_on_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_antialias_on_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_antialias_on_radiobutton), preferences_antialias_on_radiobutton_group);
-  preferences_antialias_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_antialias_on_radiobutton));
-
-  preferences_antialias_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
-  gtk_widget_show (preferences_antialias_off_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox217), preferences_antialias_off_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_antialias_off_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_antialias_off_radiobutton), preferences_antialias_on_radiobutton_group);
-  preferences_antialias_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_antialias_off_radiobutton));
-
-  label479 = gtk_label_new (_("Antialiasing"));
-  gtk_widget_show (label479);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 6), label479);
-
-  preferences_hid = gtk_frame_new (NULL);
-  gtk_widget_show (preferences_hid);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_hid);
-
-  vbox238 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox238);
-  gtk_container_add (GTK_CONTAINER (preferences_hid), vbox238);
-
-  label563 = gtk_label_new (_("Virtual trackball"));
-  gtk_widget_show (label563);
-  gtk_box_pack_start (GTK_BOX (vbox238), label563, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label563), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label563), 9, 7);
-
-  frame233 = gtk_frame_new (NULL);
-  gtk_widget_show (frame233);
-  gtk_box_pack_start (GTK_BOX (vbox238), frame233, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame233), 12);
-
-  vbox239 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox239);
-  gtk_container_add (GTK_CONTAINER (frame233), vbox239);
-
-  preferences_hid_spherical_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Spherical surface"));
-  gtk_widget_show (preferences_hid_spherical_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox239), preferences_hid_spherical_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_hid_spherical_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_hid_spherical_radiobutton), preferences_hid_spherical_radiobutton_group);
-  preferences_hid_spherical_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_hid_spherical_radiobutton));
-
-  preferences_hid_flat_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Flat"));
-  gtk_widget_show (preferences_hid_flat_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox239), preferences_hid_flat_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_hid_flat_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_hid_flat_radiobutton), preferences_hid_spherical_radiobutton_group);
-  preferences_hid_spherical_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_hid_flat_radiobutton));
-
-  label480 = gtk_label_new (_("HID"));
-  gtk_widget_show (label480);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 7), label480);
-
-  preferences_file_selection = gtk_frame_new (NULL);
-  gtk_widget_show (preferences_file_selection);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_file_selection);
-
-  vbox240 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox240);
-  gtk_container_add (GTK_CONTAINER (preferences_file_selection), vbox240);
-
-  frame235 = gtk_frame_new (NULL);
-  gtk_widget_show (frame235);
-  gtk_box_pack_start (GTK_BOX (vbox240), frame235, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame235), 8);
-
-  vbox241 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox241);
-  gtk_container_add (GTK_CONTAINER (frame235), vbox241);
-
-  preferences_filechooser_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Classic File Selector"));
-  gtk_widget_show (preferences_filechooser_off_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox241), preferences_filechooser_off_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_filechooser_off_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_filechooser_off_radiobutton), preferences_filechooser_off_radiobutton_group);
-  preferences_filechooser_off_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_filechooser_off_radiobutton));
-
-  preferences_filechooser_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Modern File Chooser"));
-  gtk_widget_show (preferences_filechooser_on_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox241), preferences_filechooser_on_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_filechooser_on_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_filechooser_on_radiobutton), preferences_filechooser_off_radiobutton_group);
-  preferences_filechooser_off_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_filechooser_on_radiobutton));
-
-  label564 = gtk_label_new (_("File Selector/Chooser?"));
-  gtk_widget_show (label564);
-  gtk_frame_set_label_widget (GTK_FRAME (frame235), label564);
-  gtk_label_set_use_markup (GTK_LABEL (label564), TRUE);
-
-  frame251 = gtk_frame_new (NULL);
-  gtk_widget_show (frame251);
-  gtk_box_pack_start (GTK_BOX (vbox240), frame251, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame251), 8);
-
-  vbox258 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox258);
-  gtk_container_add (GTK_CONTAINER (frame251), vbox258);
-
-  preferences_file_filter_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
-  gtk_widget_show (preferences_file_filter_on_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox258), preferences_file_filter_on_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_filter_on_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_filter_on_radiobutton), preferences_file_filter_on_radiobutton_group);
-  preferences_file_filter_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_filter_on_radiobutton));
-
-  preferences_file_filter_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
-  gtk_widget_show (preferences_file_filter_off_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox258), preferences_file_filter_off_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_filter_off_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_filter_off_radiobutton), preferences_file_filter_on_radiobutton_group);
-  preferences_file_filter_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_filter_off_radiobutton));
-
-  label586 = gtk_label_new (_("Automatically filter files?"));
-  gtk_widget_show (label586);
-  gtk_frame_set_label_widget (GTK_FRAME (frame251), label586);
-  gtk_label_set_use_markup (GTK_LABEL (label586), TRUE);
-
-  frame247 = gtk_frame_new (NULL);
-  gtk_widget_show (frame247);
-  gtk_box_pack_start (GTK_BOX (vbox240), frame247, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame247), 8);
-
-  vbox254 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox254);
-  gtk_container_add (GTK_CONTAINER (frame247), vbox254);
-
-  preferences_file_sort_by_date_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
-  gtk_widget_show (preferences_file_sort_by_date_on_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox254), preferences_file_sort_by_date_on_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_sort_by_date_on_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_on_radiobutton), preferences_file_sort_by_date_on_radiobutton_group);
-  preferences_file_sort_by_date_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_on_radiobutton));
-
-  preferences_file_sort_by_date_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
-  gtk_widget_show (preferences_file_sort_by_date_off_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox254), preferences_file_sort_by_date_off_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_sort_by_date_off_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_off_radiobutton), preferences_file_sort_by_date_on_radiobutton_group);
-  preferences_file_sort_by_date_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_sort_by_date_off_radiobutton));
-
-  label576 = gtk_label_new (_("Always sort by date (currently only for selector)?"));
-  gtk_widget_show (label576);
-  gtk_frame_set_label_widget (GTK_FRAME (frame247), label576);
-  gtk_label_set_use_markup (GTK_LABEL (label576), TRUE);
-
-  frame236 = gtk_frame_new (NULL);
-  gtk_widget_show (frame236);
-  gtk_box_pack_start (GTK_BOX (vbox240), frame236, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame236), 8);
-
-  vbox242 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox242);
-  gtk_container_add (GTK_CONTAINER (frame236), vbox242);
-
-  preferences_file_overwrite_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Ask before overwriting file"));
-  gtk_widget_show (preferences_file_overwrite_yes_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox242), preferences_file_overwrite_yes_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_overwrite_yes_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_overwrite_yes_radiobutton), preferences_file_overwrite_yes_radiobutton_group);
-  preferences_file_overwrite_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_overwrite_yes_radiobutton));
-
-  preferences_file_overwrite_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Do not ask when overwriting file"));
-  gtk_widget_show (preferences_file_overwrite_no_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox242), preferences_file_overwrite_no_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_file_overwrite_no_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_file_overwrite_no_radiobutton), preferences_file_overwrite_yes_radiobutton_group);
-  preferences_file_overwrite_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_file_overwrite_no_radiobutton));
-
-  label565 = gtk_label_new (_("Overwrite protection (currently only for chooser)"));
-  gtk_widget_show (label565);
-  gtk_frame_set_label_widget (GTK_FRAME (frame236), label565);
-  gtk_label_set_use_markup (GTK_LABEL (label565), TRUE);
-
-  label510 = gtk_label_new (_("File Selection"));
+  label510 = gtk_label_new (_("Map Colours"));
   gtk_widget_show (label510);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 8), label510);
 
-  preferences_dock_accept_dialog = gtk_frame_new (NULL);
-  gtk_widget_show (preferences_dock_accept_dialog);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_dock_accept_dialog);
+  preferences_smooth_scroll = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_smooth_scroll);
 
-  vbox243 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox243);
-  gtk_container_add (GTK_CONTAINER (preferences_dock_accept_dialog), vbox243);
+  vbox259 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox259);
+  gtk_container_add (GTK_CONTAINER (preferences_smooth_scroll), vbox259);
 
-  frame238 = gtk_frame_new (NULL);
-  gtk_widget_show (frame238);
-  gtk_box_pack_start (GTK_BOX (vbox243), frame238, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame238), 8);
+  label594 = gtk_label_new (_("Recentring Smooth Scrolling"));
+  gtk_widget_show (label594);
+  gtk_box_pack_start (GTK_BOX (vbox259), label594, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label594), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label594), 2, 6);
 
-  vbox244 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox244);
-  gtk_container_add (GTK_CONTAINER (frame238), vbox244);
+  frame258 = gtk_frame_new (NULL);
+  gtk_widget_show (frame258);
+  gtk_box_pack_start (GTK_BOX (vbox259), frame258, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame258), 8);
 
-  preferences_dialog_accept_docked_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
-  gtk_widget_show (preferences_dialog_accept_docked_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox244), preferences_dialog_accept_docked_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_docked_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_docked_radiobutton), preferences_dialog_accept_docked_radiobutton_group);
-  preferences_dialog_accept_docked_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_docked_radiobutton));
+  vbox260 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox260);
+  gtk_container_add (GTK_CONTAINER (frame258), vbox260);
 
-  preferences_dialog_accept_detouched_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
-  gtk_widget_show (preferences_dialog_accept_detouched_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox244), preferences_dialog_accept_detouched_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_detouched_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_detouched_radiobutton), preferences_dialog_accept_docked_radiobutton_group);
-  preferences_dialog_accept_docked_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_detouched_radiobutton));
+  preferences_smooth_scroll_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_smooth_scroll_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox260), preferences_smooth_scroll_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_smooth_scroll_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_smooth_scroll_on_radiobutton), preferences_smooth_scroll_on_radiobutton_group);
+  preferences_smooth_scroll_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_smooth_scroll_on_radiobutton));
 
-  label566 = gtk_label_new (_("Dock Accept/Reject Dialog?"));
-  gtk_widget_show (label566);
-  gtk_frame_set_label_widget (GTK_FRAME (frame238), label566);
-  gtk_label_set_use_markup (GTK_LABEL (label566), TRUE);
+  preferences_smooth_scroll_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_smooth_scroll_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox260), preferences_smooth_scroll_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_smooth_scroll_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_smooth_scroll_off_radiobutton), preferences_smooth_scroll_on_radiobutton_group);
+  preferences_smooth_scroll_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_smooth_scroll_off_radiobutton));
 
-  frame246 = gtk_frame_new (NULL);
-  gtk_widget_show (frame246);
-  gtk_box_pack_start (GTK_BOX (vbox243), frame246, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame246), 8);
+  label602 = gtk_label_new ("");
+  gtk_widget_show (label602);
+  gtk_frame_set_label_widget (GTK_FRAME (frame258), label602);
+  gtk_label_set_use_markup (GTK_LABEL (label602), TRUE);
 
-  vbox253 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox253);
-  gtk_container_add (GTK_CONTAINER (frame246), vbox253);
+  frame254 = gtk_frame_new (NULL);
+  gtk_widget_show (frame254);
+  gtk_box_pack_start (GTK_BOX (vbox259), frame254, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame254), 5);
 
-  preferences_dialog_accept_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
-  gtk_widget_show (preferences_dialog_accept_on_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox253), preferences_dialog_accept_on_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_on_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_on_radiobutton), preferences_dialog_accept_on_radiobutton_group);
-  preferences_dialog_accept_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_on_radiobutton));
+  hbox327 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox327);
+  gtk_container_add (GTK_CONTAINER (frame254), hbox327);
 
-  preferences_dialog_accept_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
-  gtk_widget_show (preferences_dialog_accept_off_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox253), preferences_dialog_accept_off_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_dialog_accept_off_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_dialog_accept_off_radiobutton), preferences_dialog_accept_on_radiobutton_group);
-  preferences_dialog_accept_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_dialog_accept_off_radiobutton));
+  label595 = gtk_label_new (_("Number of Steps: "));
+  gtk_widget_show (label595);
+  gtk_box_pack_start (GTK_BOX (hbox327), label595, FALSE, FALSE, 7);
+  gtk_label_set_justify (GTK_LABEL (label595), GTK_JUSTIFY_CENTER);
 
-  label575 = gtk_label_new (_("Question Accept Refinement?"));
-  gtk_widget_show (label575);
-  gtk_frame_set_label_widget (GTK_FRAME (frame246), label575);
-  gtk_label_set_use_markup (GTK_LABEL (label575), TRUE);
+  preferences_smooth_scroll_steps_entry = gtk_entry_new ();
+  gtk_widget_show (preferences_smooth_scroll_steps_entry);
+  gtk_box_pack_start (GTK_BOX (hbox327), preferences_smooth_scroll_steps_entry, FALSE, FALSE, 11);
 
-  label511 = gtk_label_new (_("Dialogs"));
+  label597 = gtk_label_new (_("  "));
+  gtk_widget_show (label597);
+  gtk_box_pack_start (GTK_BOX (hbox327), label597, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label597), GTK_JUSTIFY_CENTER);
+
+  frame255 = gtk_frame_new (NULL);
+  gtk_widget_show (frame255);
+  gtk_box_pack_start (GTK_BOX (vbox259), frame255, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame255), 5);
+
+  hbox328 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox328);
+  gtk_container_add (GTK_CONTAINER (frame255), hbox328);
+
+  label598 = gtk_label_new (_("Do Not Scroll for\ndistances more than:"));
+  gtk_widget_show (label598);
+  gtk_box_pack_start (GTK_BOX (hbox328), label598, FALSE, FALSE, 6);
+  gtk_label_set_justify (GTK_LABEL (label598), GTK_JUSTIFY_CENTER);
+
+  preferences_smooth_scroll_limit_entry = gtk_entry_new ();
+  gtk_widget_show (preferences_smooth_scroll_limit_entry);
+  gtk_box_pack_start (GTK_BOX (hbox328), preferences_smooth_scroll_limit_entry, FALSE, TRUE, 6);
+
+  label599 = gtk_label_new (_("A"));
+  gtk_widget_show (label599);
+  gtk_box_pack_start (GTK_BOX (hbox328), label599, FALSE, FALSE, 6);
+  gtk_label_set_justify (GTK_LABEL (label599), GTK_JUSTIFY_CENTER);
+
+  label511 = gtk_label_new (_("Smooth Recentring"));
   gtk_widget_show (label511);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 9), label511);
+
+  preferences_map_drag = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_map_drag);
+
+  vbox261 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox261);
+  gtk_container_add (GTK_CONTAINER (preferences_map_drag), vbox261);
+
+  label603 = gtk_label_new (_("Active Map on Dragging?"));
+  gtk_widget_show (label603);
+  gtk_box_pack_start (GTK_BOX (vbox261), label603, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label603), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label603), 9, 7);
+
+  frame260 = gtk_frame_new (NULL);
+  gtk_widget_show (frame260);
+  gtk_box_pack_start (GTK_BOX (vbox261), frame260, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame260), 12);
+
+  vbox262 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox262);
+  gtk_container_add (GTK_CONTAINER (frame260), vbox262);
+
+  preferences_map_drag_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_map_drag_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox262), preferences_map_drag_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_map_drag_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_map_drag_on_radiobutton), preferences_map_drag_on_radiobutton_group);
+  preferences_map_drag_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_map_drag_on_radiobutton));
+
+  preferences_map_drag_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_map_drag_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox262), preferences_map_drag_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_map_drag_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_map_drag_off_radiobutton), preferences_map_drag_on_radiobutton_group);
+  preferences_map_drag_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_map_drag_off_radiobutton));
+
+  label512 = gtk_label_new (_("Dragged Map"));
+  gtk_widget_show (label512);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 10), label512);
+
+  preferences_cis_peptides = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_cis_peptides);
+
+  vbox139 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox139);
+  gtk_container_add (GTK_CONTAINER (preferences_cis_peptides), vbox139);
+
+  label226 = gtk_label_new (_("Mark Cis-Peptides as Bad in Geometry Graph?"));
+  gtk_widget_show (label226);
+  gtk_box_pack_start (GTK_BOX (vbox139), label226, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label226), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label226), 0, 9);
+
+  frame136 = gtk_frame_new (NULL);
+  gtk_widget_show (frame136);
+  gtk_box_pack_start (GTK_BOX (vbox139), frame136, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame136), 10);
+
+  vbox140 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox140);
+  gtk_container_add (GTK_CONTAINER (frame136), vbox140);
+
+  preferences_geometry_cis_peptide_bad_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _(" Yes"));
+  gtk_widget_show (preferences_geometry_cis_peptide_bad_yes_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox140), preferences_geometry_cis_peptide_bad_yes_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_geometry_cis_peptide_bad_yes_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_yes_radiobutton), preferences_geometry_cis_peptide_bad_yes_radiobutton_group);
+  preferences_geometry_cis_peptide_bad_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_yes_radiobutton));
+
+  preferences_geometry_cis_peptide_bad_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _(" No"));
+  gtk_widget_show (preferences_geometry_cis_peptide_bad_no_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox140), preferences_geometry_cis_peptide_bad_no_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_geometry_cis_peptide_bad_no_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_no_radiobutton), preferences_geometry_cis_peptide_bad_yes_radiobutton_group);
+  preferences_geometry_cis_peptide_bad_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_geometry_cis_peptide_bad_no_radiobutton));
+
+  label568 = gtk_label_new (_("Cis-Peptides"));
+  gtk_widget_show (label568);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 11), label568);
 
   preferences_console = gtk_frame_new (NULL);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_console);
@@ -17307,9 +17448,48 @@ create_preferences (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame240), label567);
   gtk_label_set_use_markup (GTK_LABEL (label567), TRUE);
 
-  label512 = gtk_label_new (_("Console"));
-  gtk_widget_show (label512);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 10), label512);
+  label569 = gtk_label_new (_("Console"));
+  gtk_widget_show (label569);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 12), label569);
+
+  preferences_tips = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_tips);
+
+  vbox265 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox265);
+  gtk_container_add (GTK_CONTAINER (preferences_tips), vbox265);
+
+  frame264 = gtk_frame_new (NULL);
+  gtk_widget_show (frame264);
+  gtk_box_pack_start (GTK_BOX (vbox265), frame264, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame264), 8);
+
+  vbox266 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox266);
+  gtk_container_add (GTK_CONTAINER (frame264), vbox266);
+
+  preferences_tips_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_tips_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox266), preferences_tips_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_tips_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_tips_on_radiobutton), preferences_tips_on_radiobutton_group);
+  preferences_tips_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_tips_on_radiobutton));
+
+  preferences_tips_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_tips_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox266), preferences_tips_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_tips_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_tips_off_radiobutton), preferences_tips_on_radiobutton_group);
+  preferences_tips_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_tips_off_radiobutton));
+
+  label607 = gtk_label_new (_("Show Coot Tips on start-up?"));
+  gtk_widget_show (label607);
+  gtk_frame_set_label_widget (GTK_FRAME (frame264), label607);
+  gtk_label_set_use_markup (GTK_LABEL (label607), TRUE);
+
+  label578 = gtk_label_new (_("Coot Tips"));
+  gtk_widget_show (label578);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 13), label578);
 
   preferences_font = gtk_frame_new (NULL);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_font);
@@ -17393,9 +17573,9 @@ create_preferences (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame252), label588);
   gtk_label_set_use_markup (GTK_LABEL (label588), TRUE);
 
-  label568 = gtk_label_new (_("Fonts"));
-  gtk_widget_show (label568);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 11), label568);
+  label591 = gtk_label_new (_("Fonts"));
+  gtk_widget_show (label591);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 14), label591);
 
   preferences_speed = gtk_frame_new (NULL);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_speed);
@@ -17487,9 +17667,49 @@ create_preferences (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame245), label573);
   gtk_label_set_use_markup (GTK_LABEL (label573), TRUE);
 
-  label569 = gtk_label_new (_("Speed Settings"));
-  gtk_widget_show (label569);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 12), label569);
+  label592 = gtk_label_new (_("Speed Settings"));
+  gtk_widget_show (label592);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 15), label592);
+
+  preferences_antialias = gtk_frame_new (NULL);
+  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_antialias);
+
+  vbox216 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox216);
+  gtk_container_add (GTK_CONTAINER (preferences_antialias), vbox216);
+
+  label509 = gtk_label_new (_("Antialias Lines?"));
+  gtk_widget_show (label509);
+  gtk_box_pack_start (GTK_BOX (vbox216), label509, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label509), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label509), 9, 7);
+
+  frame208 = gtk_frame_new (NULL);
+  gtk_widget_show (frame208);
+  gtk_box_pack_start (GTK_BOX (vbox216), frame208, FALSE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame208), 12);
+
+  vbox217 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox217);
+  gtk_container_add (GTK_CONTAINER (frame208), vbox217);
+
+  preferences_antialias_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_antialias_on_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox217), preferences_antialias_on_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_antialias_on_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_antialias_on_radiobutton), preferences_antialias_on_radiobutton_group);
+  preferences_antialias_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_antialias_on_radiobutton));
+
+  preferences_antialias_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_antialias_off_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox217), preferences_antialias_off_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_antialias_off_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_antialias_off_radiobutton), preferences_antialias_on_radiobutton_group);
+  preferences_antialias_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_antialias_off_radiobutton));
+
+  label593 = gtk_label_new (_("Antialiasing"));
+  gtk_widget_show (label593);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 16), label593);
 
   preferences_pink_pointer = gtk_frame_new (NULL);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_pink_pointer);
@@ -17533,181 +17753,9 @@ create_preferences (void)
   gtk_box_pack_start (GTK_BOX (hbox324), label584, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label584), GTK_JUSTIFY_CENTER);
 
-  label578 = gtk_label_new (_("Pink Pointer Size"));
-  gtk_widget_show (label578);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 13), label578);
-
-  preferences_smooth_scroll = gtk_frame_new (NULL);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_smooth_scroll);
-
-  vbox259 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox259);
-  gtk_container_add (GTK_CONTAINER (preferences_smooth_scroll), vbox259);
-
-  label594 = gtk_label_new (_("Recentring Smooth Scrolling"));
-  gtk_widget_show (label594);
-  gtk_box_pack_start (GTK_BOX (vbox259), label594, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label594), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label594), 2, 6);
-
-  frame258 = gtk_frame_new (NULL);
-  gtk_widget_show (frame258);
-  gtk_box_pack_start (GTK_BOX (vbox259), frame258, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame258), 8);
-
-  vbox260 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox260);
-  gtk_container_add (GTK_CONTAINER (frame258), vbox260);
-
-  preferences_smooth_scroll_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
-  gtk_widget_show (preferences_smooth_scroll_on_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox260), preferences_smooth_scroll_on_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_smooth_scroll_on_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_smooth_scroll_on_radiobutton), preferences_smooth_scroll_on_radiobutton_group);
-  preferences_smooth_scroll_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_smooth_scroll_on_radiobutton));
-
-  preferences_smooth_scroll_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
-  gtk_widget_show (preferences_smooth_scroll_off_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox260), preferences_smooth_scroll_off_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_smooth_scroll_off_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_smooth_scroll_off_radiobutton), preferences_smooth_scroll_on_radiobutton_group);
-  preferences_smooth_scroll_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_smooth_scroll_off_radiobutton));
-
-  label602 = gtk_label_new ("");
-  gtk_widget_show (label602);
-  gtk_frame_set_label_widget (GTK_FRAME (frame258), label602);
-  gtk_label_set_use_markup (GTK_LABEL (label602), TRUE);
-
-  frame254 = gtk_frame_new (NULL);
-  gtk_widget_show (frame254);
-  gtk_box_pack_start (GTK_BOX (vbox259), frame254, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame254), 5);
-
-  hbox327 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox327);
-  gtk_container_add (GTK_CONTAINER (frame254), hbox327);
-
-  label595 = gtk_label_new (_("Number of Steps: "));
-  gtk_widget_show (label595);
-  gtk_box_pack_start (GTK_BOX (hbox327), label595, FALSE, FALSE, 7);
-  gtk_label_set_justify (GTK_LABEL (label595), GTK_JUSTIFY_CENTER);
-
-  preferences_smooth_scroll_steps_entry = gtk_entry_new ();
-  gtk_widget_show (preferences_smooth_scroll_steps_entry);
-  gtk_box_pack_start (GTK_BOX (hbox327), preferences_smooth_scroll_steps_entry, FALSE, FALSE, 11);
-
-  label597 = gtk_label_new (_("  "));
-  gtk_widget_show (label597);
-  gtk_box_pack_start (GTK_BOX (hbox327), label597, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label597), GTK_JUSTIFY_CENTER);
-
-  frame255 = gtk_frame_new (NULL);
-  gtk_widget_show (frame255);
-  gtk_box_pack_start (GTK_BOX (vbox259), frame255, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame255), 5);
-
-  hbox328 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox328);
-  gtk_container_add (GTK_CONTAINER (frame255), hbox328);
-
-  label598 = gtk_label_new (_("Do Not Scroll for\ndistances more than:"));
-  gtk_widget_show (label598);
-  gtk_box_pack_start (GTK_BOX (hbox328), label598, FALSE, FALSE, 6);
-  gtk_label_set_justify (GTK_LABEL (label598), GTK_JUSTIFY_CENTER);
-
-  preferences_smooth_scroll_limit_entry = gtk_entry_new ();
-  gtk_widget_show (preferences_smooth_scroll_limit_entry);
-  gtk_box_pack_start (GTK_BOX (hbox328), preferences_smooth_scroll_limit_entry, FALSE, TRUE, 6);
-
-  label599 = gtk_label_new (_("A"));
-  gtk_widget_show (label599);
-  gtk_box_pack_start (GTK_BOX (hbox328), label599, FALSE, FALSE, 6);
-  gtk_label_set_justify (GTK_LABEL (label599), GTK_JUSTIFY_CENTER);
-
-  label591 = gtk_label_new (_("Smooth Recentring"));
-  gtk_widget_show (label591);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 14), label591);
-
-  preferences_map_drag = gtk_frame_new (NULL);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_map_drag);
-
-  vbox261 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox261);
-  gtk_container_add (GTK_CONTAINER (preferences_map_drag), vbox261);
-
-  label603 = gtk_label_new (_("Active Map on Dragging?"));
-  gtk_widget_show (label603);
-  gtk_box_pack_start (GTK_BOX (vbox261), label603, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label603), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label603), 9, 7);
-
-  frame260 = gtk_frame_new (NULL);
-  gtk_widget_show (frame260);
-  gtk_box_pack_start (GTK_BOX (vbox261), frame260, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame260), 12);
-
-  vbox262 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox262);
-  gtk_container_add (GTK_CONTAINER (frame260), vbox262);
-
-  preferences_map_drag_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
-  gtk_widget_show (preferences_map_drag_on_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox262), preferences_map_drag_on_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_map_drag_on_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_map_drag_on_radiobutton), preferences_map_drag_on_radiobutton_group);
-  preferences_map_drag_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_map_drag_on_radiobutton));
-
-  preferences_map_drag_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
-  gtk_widget_show (preferences_map_drag_off_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox262), preferences_map_drag_off_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_map_drag_off_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_map_drag_off_radiobutton), preferences_map_drag_on_radiobutton_group);
-  preferences_map_drag_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_map_drag_off_radiobutton));
-
-  label592 = gtk_label_new (_("Dragged Map"));
-  gtk_widget_show (label592);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 15), label592);
-
-  preferences_recentre_pdb = gtk_frame_new (NULL);
-  gtk_widget_show (preferences_recentre_pdb);
-  gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_recentre_pdb);
-
-  vbox263 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox263);
-  gtk_container_add (GTK_CONTAINER (preferences_recentre_pdb), vbox263);
-
-  label604 = gtk_label_new (_("Recentre on read new PDB?"));
-  gtk_widget_show (label604);
-  gtk_box_pack_start (GTK_BOX (vbox263), label604, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label604), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label604), 9, 7);
-
-  frame262 = gtk_frame_new (NULL);
-  gtk_widget_show (frame262);
-  gtk_box_pack_start (GTK_BOX (vbox263), frame262, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame262), 12);
-
-  vbox264 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox264);
-  gtk_container_add (GTK_CONTAINER (frame262), vbox264);
-
-  preferences_recentre_pdb_on_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
-  gtk_widget_show (preferences_recentre_pdb_on_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox264), preferences_recentre_pdb_on_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_recentre_pdb_on_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_recentre_pdb_on_radiobutton), preferences_recentre_pdb_on_radiobutton_group);
-  preferences_recentre_pdb_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_recentre_pdb_on_radiobutton));
-
-  preferences_recentre_pdb_off_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
-  gtk_widget_show (preferences_recentre_pdb_off_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox264), preferences_recentre_pdb_off_radiobutton, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (preferences_recentre_pdb_off_radiobutton), 5);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_recentre_pdb_off_radiobutton), preferences_recentre_pdb_on_radiobutton_group);
-  preferences_recentre_pdb_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_recentre_pdb_off_radiobutton));
-
-  label593 = gtk_label_new (_("Coordinates Recentring"));
-  gtk_widget_show (label593);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 16), label593);
+  label606 = gtk_label_new (_("Pink Pointer Size"));
+  gtk_widget_show (label606);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 17), label606);
 
   hbuttonbox5 = GTK_DIALOG (preferences)->action_area;
   gtk_widget_show (hbuttonbox5);
@@ -17764,20 +17812,53 @@ create_preferences (void)
   g_signal_connect ((gpointer) preferences_other_radiotoolbutton, "toggled",
                     G_CALLBACK (on_preferences_other_radiotoolbutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_bond_width_combobox, "changed",
-                    G_CALLBACK (on_preferences_bond_width_combobox_changed),
+  g_signal_connect ((gpointer) preferences_filechooser_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_filechooser_off_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_geometry_cis_peptide_bad_yes_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_filechooser_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_filechooser_on_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_geometry_cis_peptide_bad_no_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_file_filter_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_file_filter_on_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_bond_colours_hscale, "value_changed",
-                    G_CALLBACK (on_preferences_bond_colours_hscale_value_changed),
+  g_signal_connect ((gpointer) preferences_file_filter_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_file_filter_off_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_bond_colours_checkbutton, "toggled",
-                    G_CALLBACK (on_preferences_bond_colours_checkbutton_toggled),
+  g_signal_connect ((gpointer) preferences_file_sort_by_date_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_file_sort_by_date_on_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_file_sort_by_date_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_file_sort_by_date_off_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_file_overwrite_yes_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_file_overwrite_yes_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_file_overwrite_no_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_file_overwrite_no_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_dialog_accept_docked_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_dialog_accept_docked_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_dialog_accept_detouched_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_dialog_accept_detouched_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_dialog_accept_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_dialog_accept_on_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_dialog_accept_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_dialog_accept_off_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_recentre_pdb_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_recentre_pdb_on_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_recentre_pdb_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_recentre_pdb_off_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_hid_spherical_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_hid_spherical_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_hid_flat_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_hid_flat_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) preferences_bg_colour_black_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_bg_colour_black_radiobutton_toggled),
@@ -17793,6 +17874,15 @@ create_preferences (void)
                     NULL);
   g_signal_connect ((gpointer) preferences_bg_colour_colorbutton, "clicked",
                     G_CALLBACK (on_preferences_bg_colour_colorbutton_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_width_combobox, "changed",
+                    G_CALLBACK (on_preferences_bond_width_combobox_changed),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_colours_hscale, "value_changed",
+                    G_CALLBACK (on_preferences_bond_colours_hscale_value_changed),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_bond_colours_checkbutton, "toggled",
+                    G_CALLBACK (on_preferences_bond_colours_checkbutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) preferences_map_radius_entry, "activate",
                     G_CALLBACK (on_preferences_map_radius_entry_activate),
@@ -17830,59 +17920,47 @@ create_preferences (void)
   g_signal_connect ((gpointer) preferences_diff_map_colours_o_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_diff_map_colours_o_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_antialias_on_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_antialias_on_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_smooth_scroll_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_smooth_scroll_on_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_antialias_off_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_antialias_off_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_smooth_scroll_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_smooth_scroll_off_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_hid_spherical_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_hid_spherical_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_smooth_scroll_steps_entry, "activate",
+                    G_CALLBACK (on_preferences_smooth_scroll_steps_entry_activate),
                     NULL);
-  g_signal_connect ((gpointer) preferences_hid_flat_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_hid_flat_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_smooth_scroll_steps_entry, "changed",
+                    G_CALLBACK (on_preferences_smooth_scroll_steps_entry_changed),
                     NULL);
-  g_signal_connect ((gpointer) preferences_filechooser_off_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_filechooser_off_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_smooth_scroll_limit_entry, "activate",
+                    G_CALLBACK (on_preferences_smooth_scroll_limit_entry_activate),
                     NULL);
-  g_signal_connect ((gpointer) preferences_filechooser_on_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_filechooser_on_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_smooth_scroll_limit_entry, "changed",
+                    G_CALLBACK (on_preferences_smooth_scroll_limit_entry_changed),
                     NULL);
-  g_signal_connect ((gpointer) preferences_file_filter_on_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_file_filter_on_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_map_drag_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_map_drag_on_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_file_filter_off_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_file_filter_off_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_map_drag_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_map_drag_off_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_file_sort_by_date_on_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_file_sort_by_date_on_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_geometry_cis_peptide_bad_yes_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled),
                     NULL);
-  g_signal_connect ((gpointer) preferences_file_sort_by_date_off_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_file_sort_by_date_off_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_file_overwrite_yes_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_file_overwrite_yes_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_file_overwrite_no_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_file_overwrite_no_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_dialog_accept_docked_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_dialog_accept_docked_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_dialog_accept_detouched_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_dialog_accept_detouched_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_dialog_accept_on_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_dialog_accept_on_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_dialog_accept_off_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_dialog_accept_off_radiobutton_toggled),
+  g_signal_connect ((gpointer) preferences_geometry_cis_peptide_bad_no_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) preferences_console_info_on_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_console_info_on_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) preferences_console_info_off_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_console_info_off_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_tips_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_tips_on_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_tips_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_tips_off_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) preferences_font_size_small_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_font_size_small_radiobutton_toggled),
@@ -17929,41 +18007,17 @@ create_preferences (void)
   g_signal_connect ((gpointer) preferences_spin_speed_entry, "changed",
                     G_CALLBACK (on_preferences_spin_speed_entry_changed),
                     NULL);
+  g_signal_connect ((gpointer) preferences_antialias_on_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_antialias_on_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_antialias_off_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_antialias_off_radiobutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) preferences_pink_pointer_entry, "activate",
                     G_CALLBACK (on_preferences_pink_pointer_entry_activate),
                     NULL);
   g_signal_connect ((gpointer) preferences_pink_pointer_entry, "changed",
                     G_CALLBACK (on_preferences_pink_pointer_entry_changed),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_smooth_scroll_on_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_smooth_scroll_on_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_smooth_scroll_off_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_smooth_scroll_off_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_smooth_scroll_steps_entry, "activate",
-                    G_CALLBACK (on_preferences_smooth_scroll_steps_entry_activate),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_smooth_scroll_steps_entry, "changed",
-                    G_CALLBACK (on_preferences_smooth_scroll_steps_entry_changed),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_smooth_scroll_limit_entry, "activate",
-                    G_CALLBACK (on_preferences_smooth_scroll_limit_entry_activate),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_smooth_scroll_limit_entry, "changed",
-                    G_CALLBACK (on_preferences_smooth_scroll_limit_entry_changed),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_map_drag_on_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_map_drag_on_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_map_drag_off_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_map_drag_off_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_recentre_pdb_on_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_recentre_pdb_on_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) preferences_recentre_pdb_off_radiobutton, "toggled",
-                    G_CALLBACK (on_preferences_recentre_pdb_off_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) preferences_reset_button, "clicked",
                     G_CALLBACK (on_preferences_reset_button_clicked),
@@ -17985,6 +18039,69 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, preferences_colour_radiotoolbutton, "preferences_colour_radiotoolbutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_other_radiotoolbutton, "preferences_other_radiotoolbutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_notebook, "preferences_notebook");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_selection, "preferences_file_selection");
+  GLADE_HOOKUP_OBJECT (preferences, vbox240, "vbox240");
+  GLADE_HOOKUP_OBJECT (preferences, frame235, "frame235");
+  GLADE_HOOKUP_OBJECT (preferences, vbox241, "vbox241");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_filechooser_off_radiobutton, "preferences_filechooser_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_filechooser_on_radiobutton, "preferences_filechooser_on_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label564, "label564");
+  GLADE_HOOKUP_OBJECT (preferences, frame251, "frame251");
+  GLADE_HOOKUP_OBJECT (preferences, vbox258, "vbox258");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_filter_on_radiobutton, "preferences_file_filter_on_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_filter_off_radiobutton, "preferences_file_filter_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label586, "label586");
+  GLADE_HOOKUP_OBJECT (preferences, frame247, "frame247");
+  GLADE_HOOKUP_OBJECT (preferences, vbox254, "vbox254");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_sort_by_date_on_radiobutton, "preferences_file_sort_by_date_on_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_sort_by_date_off_radiobutton, "preferences_file_sort_by_date_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label576, "label576");
+  GLADE_HOOKUP_OBJECT (preferences, frame236, "frame236");
+  GLADE_HOOKUP_OBJECT (preferences, vbox242, "vbox242");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_overwrite_yes_radiobutton, "preferences_file_overwrite_yes_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_file_overwrite_no_radiobutton, "preferences_file_overwrite_no_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label565, "label565");
+  GLADE_HOOKUP_OBJECT (preferences, label223, "label223");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_dock_accept_dialog, "preferences_dock_accept_dialog");
+  GLADE_HOOKUP_OBJECT (preferences, vbox243, "vbox243");
+  GLADE_HOOKUP_OBJECT (preferences, frame238, "frame238");
+  GLADE_HOOKUP_OBJECT (preferences, vbox244, "vbox244");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_dialog_accept_docked_radiobutton, "preferences_dialog_accept_docked_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_dialog_accept_detouched_radiobutton, "preferences_dialog_accept_detouched_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label566, "label566");
+  GLADE_HOOKUP_OBJECT (preferences, frame246, "frame246");
+  GLADE_HOOKUP_OBJECT (preferences, vbox253, "vbox253");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_dialog_accept_on_radiobutton, "preferences_dialog_accept_on_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_dialog_accept_off_radiobutton, "preferences_dialog_accept_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label575, "label575");
+  GLADE_HOOKUP_OBJECT (preferences, label224, "label224");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_recentre_pdb, "preferences_recentre_pdb");
+  GLADE_HOOKUP_OBJECT (preferences, vbox263, "vbox263");
+  GLADE_HOOKUP_OBJECT (preferences, label604, "label604");
+  GLADE_HOOKUP_OBJECT (preferences, frame262, "frame262");
+  GLADE_HOOKUP_OBJECT (preferences, vbox264, "vbox264");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_recentre_pdb_on_radiobutton, "preferences_recentre_pdb_on_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_recentre_pdb_off_radiobutton, "preferences_recentre_pdb_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label225, "label225");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_hid, "preferences_hid");
+  GLADE_HOOKUP_OBJECT (preferences, vbox238, "vbox238");
+  GLADE_HOOKUP_OBJECT (preferences, label563, "label563");
+  GLADE_HOOKUP_OBJECT (preferences, frame233, "frame233");
+  GLADE_HOOKUP_OBJECT (preferences, vbox239, "vbox239");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_hid_spherical_radiobutton, "preferences_hid_spherical_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_hid_flat_radiobutton, "preferences_hid_flat_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label476, "label476");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_background_colour, "preferences_background_colour");
+  GLADE_HOOKUP_OBJECT (preferences, vbox234, "vbox234");
+  GLADE_HOOKUP_OBJECT (preferences, label561, "label561");
+  GLADE_HOOKUP_OBJECT (preferences, frame229, "frame229");
+  GLADE_HOOKUP_OBJECT (preferences, vbox235, "vbox235");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colour_black_radiobutton, "preferences_bg_colour_black_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colour_white_radiobutton, "preferences_bg_colour_white_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, hbox322, "hbox322");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colour_own_radiobutton, "preferences_bg_colour_own_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colour_colorbutton, "preferences_bg_colour_colorbutton");
+  GLADE_HOOKUP_OBJECT (preferences, label477, "label477");
   GLADE_HOOKUP_OBJECT (preferences, preferences_bond_parameters, "preferences_bond_parameters");
   GLADE_HOOKUP_OBJECT (preferences, vbox222, "vbox222");
   GLADE_HOOKUP_OBJECT (preferences, vbox223, "vbox223");
@@ -17994,15 +18111,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, preferences_bond_width_combobox, "preferences_bond_width_combobox");
   GLADE_HOOKUP_OBJECT (preferences, label526, "label526");
   GLADE_HOOKUP_OBJECT (preferences, label527, "label527");
-  GLADE_HOOKUP_OBJECT (preferences, label223, "label223");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_cis_peptides, "preferences_cis_peptides");
-  GLADE_HOOKUP_OBJECT (preferences, vbox139, "vbox139");
-  GLADE_HOOKUP_OBJECT (preferences, label226, "label226");
-  GLADE_HOOKUP_OBJECT (preferences, frame136, "frame136");
-  GLADE_HOOKUP_OBJECT (preferences, vbox140, "vbox140");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_geometry_cis_peptide_bad_yes_radiobutton, "preferences_geometry_cis_peptide_bad_yes_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_geometry_cis_peptide_bad_no_radiobutton, "preferences_geometry_cis_peptide_bad_no_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label224, "label224");
+  GLADE_HOOKUP_OBJECT (preferences, label478, "label478");
   GLADE_HOOKUP_OBJECT (preferences, preferences_bond_colours, "preferences_bond_colours");
   GLADE_HOOKUP_OBJECT (preferences, vbox212, "vbox212");
   GLADE_HOOKUP_OBJECT (preferences, frame200, "frame200");
@@ -18015,18 +18124,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, frame201, "frame201");
   GLADE_HOOKUP_OBJECT (preferences, preferences_bond_colours_checkbutton, "preferences_bond_colours_checkbutton");
   GLADE_HOOKUP_OBJECT (preferences, label498, "label498");
-  GLADE_HOOKUP_OBJECT (preferences, label225, "label225");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_background_colour, "preferences_background_colour");
-  GLADE_HOOKUP_OBJECT (preferences, vbox234, "vbox234");
-  GLADE_HOOKUP_OBJECT (preferences, label561, "label561");
-  GLADE_HOOKUP_OBJECT (preferences, frame229, "frame229");
-  GLADE_HOOKUP_OBJECT (preferences, vbox235, "vbox235");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colour_black_radiobutton, "preferences_bg_colour_black_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colour_white_radiobutton, "preferences_bg_colour_white_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, hbox322, "hbox322");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colour_own_radiobutton, "preferences_bg_colour_own_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_bg_colour_colorbutton, "preferences_bg_colour_colorbutton");
-  GLADE_HOOKUP_OBJECT (preferences, label476, "label476");
+  GLADE_HOOKUP_OBJECT (preferences, label479, "label479");
   GLADE_HOOKUP_OBJECT (preferences, preferences_map_parameters, "preferences_map_parameters");
   GLADE_HOOKUP_OBJECT (preferences, vbox232, "vbox232");
   GLADE_HOOKUP_OBJECT (preferences, label550, "label550");
@@ -18054,7 +18152,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, vbox233, "vbox233");
   GLADE_HOOKUP_OBJECT (preferences, preferences_map_dynamic_sampling_checkbutton, "preferences_map_dynamic_sampling_checkbutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_map_dynamic_size_checkbutton, "preferences_map_dynamic_size_checkbutton");
-  GLADE_HOOKUP_OBJECT (preferences, label477, "label477");
+  GLADE_HOOKUP_OBJECT (preferences, label480, "label480");
   GLADE_HOOKUP_OBJECT (preferences, preferences_map_colours, "preferences_map_colours");
   GLADE_HOOKUP_OBJECT (preferences, vbox236, "vbox236");
   GLADE_HOOKUP_OBJECT (preferences, label562, "label562");
@@ -18062,112 +18160,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, vbox237, "vbox237");
   GLADE_HOOKUP_OBJECT (preferences, preferences_diff_map_colours_coot_radiobutton, "preferences_diff_map_colours_coot_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_diff_map_colours_o_radiobutton, "preferences_diff_map_colours_o_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label478, "label478");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias, "preferences_antialias");
-  GLADE_HOOKUP_OBJECT (preferences, vbox216, "vbox216");
-  GLADE_HOOKUP_OBJECT (preferences, label509, "label509");
-  GLADE_HOOKUP_OBJECT (preferences, frame208, "frame208");
-  GLADE_HOOKUP_OBJECT (preferences, vbox217, "vbox217");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias_on_radiobutton, "preferences_antialias_on_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias_off_radiobutton, "preferences_antialias_off_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label479, "label479");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_hid, "preferences_hid");
-  GLADE_HOOKUP_OBJECT (preferences, vbox238, "vbox238");
-  GLADE_HOOKUP_OBJECT (preferences, label563, "label563");
-  GLADE_HOOKUP_OBJECT (preferences, frame233, "frame233");
-  GLADE_HOOKUP_OBJECT (preferences, vbox239, "vbox239");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_hid_spherical_radiobutton, "preferences_hid_spherical_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_hid_flat_radiobutton, "preferences_hid_flat_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label480, "label480");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_file_selection, "preferences_file_selection");
-  GLADE_HOOKUP_OBJECT (preferences, vbox240, "vbox240");
-  GLADE_HOOKUP_OBJECT (preferences, frame235, "frame235");
-  GLADE_HOOKUP_OBJECT (preferences, vbox241, "vbox241");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_filechooser_off_radiobutton, "preferences_filechooser_off_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_filechooser_on_radiobutton, "preferences_filechooser_on_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label564, "label564");
-  GLADE_HOOKUP_OBJECT (preferences, frame251, "frame251");
-  GLADE_HOOKUP_OBJECT (preferences, vbox258, "vbox258");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_file_filter_on_radiobutton, "preferences_file_filter_on_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_file_filter_off_radiobutton, "preferences_file_filter_off_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label586, "label586");
-  GLADE_HOOKUP_OBJECT (preferences, frame247, "frame247");
-  GLADE_HOOKUP_OBJECT (preferences, vbox254, "vbox254");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_file_sort_by_date_on_radiobutton, "preferences_file_sort_by_date_on_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_file_sort_by_date_off_radiobutton, "preferences_file_sort_by_date_off_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label576, "label576");
-  GLADE_HOOKUP_OBJECT (preferences, frame236, "frame236");
-  GLADE_HOOKUP_OBJECT (preferences, vbox242, "vbox242");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_file_overwrite_yes_radiobutton, "preferences_file_overwrite_yes_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_file_overwrite_no_radiobutton, "preferences_file_overwrite_no_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label565, "label565");
   GLADE_HOOKUP_OBJECT (preferences, label510, "label510");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_dock_accept_dialog, "preferences_dock_accept_dialog");
-  GLADE_HOOKUP_OBJECT (preferences, vbox243, "vbox243");
-  GLADE_HOOKUP_OBJECT (preferences, frame238, "frame238");
-  GLADE_HOOKUP_OBJECT (preferences, vbox244, "vbox244");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_dialog_accept_docked_radiobutton, "preferences_dialog_accept_docked_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_dialog_accept_detouched_radiobutton, "preferences_dialog_accept_detouched_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label566, "label566");
-  GLADE_HOOKUP_OBJECT (preferences, frame246, "frame246");
-  GLADE_HOOKUP_OBJECT (preferences, vbox253, "vbox253");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_dialog_accept_on_radiobutton, "preferences_dialog_accept_on_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_dialog_accept_off_radiobutton, "preferences_dialog_accept_off_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label575, "label575");
-  GLADE_HOOKUP_OBJECT (preferences, label511, "label511");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_console, "preferences_console");
-  GLADE_HOOKUP_OBJECT (preferences, vbox246, "vbox246");
-  GLADE_HOOKUP_OBJECT (preferences, frame240, "frame240");
-  GLADE_HOOKUP_OBJECT (preferences, vbox247, "vbox247");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_console_info_on_radiobutton, "preferences_console_info_on_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_console_info_off_radiobutton, "preferences_console_info_off_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, label567, "label567");
-  GLADE_HOOKUP_OBJECT (preferences, label512, "label512");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_font, "preferences_font");
-  GLADE_HOOKUP_OBJECT (preferences, vbox255, "vbox255");
-  GLADE_HOOKUP_OBJECT (preferences, frame248, "frame248");
-  GLADE_HOOKUP_OBJECT (preferences, vbox256, "vbox256");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_small_radiobutton, "preferences_font_size_small_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_medium_radiobutton, "preferences_font_size_medium_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_large_radiobutton, "preferences_font_size_large_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, hbox323, "hbox323");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_others_radiobutton, "preferences_font_size_others_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_combobox, "preferences_font_size_combobox");
-  GLADE_HOOKUP_OBJECT (preferences, label587, "label587");
-  GLADE_HOOKUP_OBJECT (preferences, frame252, "frame252");
-  GLADE_HOOKUP_OBJECT (preferences, hbox325, "hbox325");
-  GLADE_HOOKUP_OBJECT (preferences, label589, "label589");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_font_colorbutton, "preferences_font_colorbutton");
-  GLADE_HOOKUP_OBJECT (preferences, label588, "label588");
-  GLADE_HOOKUP_OBJECT (preferences, label568, "label568");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_speed, "preferences_speed");
-  GLADE_HOOKUP_OBJECT (preferences, vbox250, "vbox250");
-  GLADE_HOOKUP_OBJECT (preferences, frame244, "frame244");
-  GLADE_HOOKUP_OBJECT (preferences, vbox251, "vbox251");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_molasses_radiobutton, "preferences_refinement_speed_molasses_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_crock_radiobutton, "preferences_refinement_speed_crock_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_default_radiobutton, "preferences_refinement_speed_default_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, hbox320, "hbox320");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_own_radiobutton, "preferences_refinement_speed_own_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_entry, "preferences_refinement_speed_entry");
-  GLADE_HOOKUP_OBJECT (preferences, label572, "label572");
-  GLADE_HOOKUP_OBJECT (preferences, frame245, "frame245");
-  GLADE_HOOKUP_OBJECT (preferences, vbox252, "vbox252");
-  GLADE_HOOKUP_OBJECT (preferences, hbox321, "hbox321");
-  GLADE_HOOKUP_OBJECT (preferences, label574, "label574");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_spin_speed_entry, "preferences_spin_speed_entry");
-  GLADE_HOOKUP_OBJECT (preferences, label573, "label573");
-  GLADE_HOOKUP_OBJECT (preferences, label569, "label569");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_pink_pointer, "preferences_pink_pointer");
-  GLADE_HOOKUP_OBJECT (preferences, vbox257, "vbox257");
-  GLADE_HOOKUP_OBJECT (preferences, label585, "label585");
-  GLADE_HOOKUP_OBJECT (preferences, frame250, "frame250");
-  GLADE_HOOKUP_OBJECT (preferences, hbox324, "hbox324");
-  GLADE_HOOKUP_OBJECT (preferences, label582, "label582");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_pink_pointer_entry, "preferences_pink_pointer_entry");
-  GLADE_HOOKUP_OBJECT (preferences, label583, "label583");
-  GLADE_HOOKUP_OBJECT (preferences, label584, "label584");
-  GLADE_HOOKUP_OBJECT (preferences, label578, "label578");
   GLADE_HOOKUP_OBJECT (preferences, preferences_smooth_scroll, "preferences_smooth_scroll");
   GLADE_HOOKUP_OBJECT (preferences, vbox259, "vbox259");
   GLADE_HOOKUP_OBJECT (preferences, label594, "label594");
@@ -18186,7 +18179,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, label598, "label598");
   GLADE_HOOKUP_OBJECT (preferences, preferences_smooth_scroll_limit_entry, "preferences_smooth_scroll_limit_entry");
   GLADE_HOOKUP_OBJECT (preferences, label599, "label599");
-  GLADE_HOOKUP_OBJECT (preferences, label591, "label591");
+  GLADE_HOOKUP_OBJECT (preferences, label511, "label511");
   GLADE_HOOKUP_OBJECT (preferences, preferences_map_drag, "preferences_map_drag");
   GLADE_HOOKUP_OBJECT (preferences, vbox261, "vbox261");
   GLADE_HOOKUP_OBJECT (preferences, label603, "label603");
@@ -18194,15 +18187,84 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, vbox262, "vbox262");
   GLADE_HOOKUP_OBJECT (preferences, preferences_map_drag_on_radiobutton, "preferences_map_drag_on_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_map_drag_off_radiobutton, "preferences_map_drag_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label512, "label512");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_cis_peptides, "preferences_cis_peptides");
+  GLADE_HOOKUP_OBJECT (preferences, vbox139, "vbox139");
+  GLADE_HOOKUP_OBJECT (preferences, label226, "label226");
+  GLADE_HOOKUP_OBJECT (preferences, frame136, "frame136");
+  GLADE_HOOKUP_OBJECT (preferences, vbox140, "vbox140");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_geometry_cis_peptide_bad_yes_radiobutton, "preferences_geometry_cis_peptide_bad_yes_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_geometry_cis_peptide_bad_no_radiobutton, "preferences_geometry_cis_peptide_bad_no_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label568, "label568");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_console, "preferences_console");
+  GLADE_HOOKUP_OBJECT (preferences, vbox246, "vbox246");
+  GLADE_HOOKUP_OBJECT (preferences, frame240, "frame240");
+  GLADE_HOOKUP_OBJECT (preferences, vbox247, "vbox247");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_console_info_on_radiobutton, "preferences_console_info_on_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_console_info_off_radiobutton, "preferences_console_info_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label567, "label567");
+  GLADE_HOOKUP_OBJECT (preferences, label569, "label569");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_tips, "preferences_tips");
+  GLADE_HOOKUP_OBJECT (preferences, vbox265, "vbox265");
+  GLADE_HOOKUP_OBJECT (preferences, frame264, "frame264");
+  GLADE_HOOKUP_OBJECT (preferences, vbox266, "vbox266");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_tips_on_radiobutton, "preferences_tips_on_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_tips_off_radiobutton, "preferences_tips_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label607, "label607");
+  GLADE_HOOKUP_OBJECT (preferences, label578, "label578");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font, "preferences_font");
+  GLADE_HOOKUP_OBJECT (preferences, vbox255, "vbox255");
+  GLADE_HOOKUP_OBJECT (preferences, frame248, "frame248");
+  GLADE_HOOKUP_OBJECT (preferences, vbox256, "vbox256");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_small_radiobutton, "preferences_font_size_small_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_medium_radiobutton, "preferences_font_size_medium_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_large_radiobutton, "preferences_font_size_large_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, hbox323, "hbox323");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_others_radiobutton, "preferences_font_size_others_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_combobox, "preferences_font_size_combobox");
+  GLADE_HOOKUP_OBJECT (preferences, label587, "label587");
+  GLADE_HOOKUP_OBJECT (preferences, frame252, "frame252");
+  GLADE_HOOKUP_OBJECT (preferences, hbox325, "hbox325");
+  GLADE_HOOKUP_OBJECT (preferences, label589, "label589");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font_colorbutton, "preferences_font_colorbutton");
+  GLADE_HOOKUP_OBJECT (preferences, label588, "label588");
+  GLADE_HOOKUP_OBJECT (preferences, label591, "label591");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_speed, "preferences_speed");
+  GLADE_HOOKUP_OBJECT (preferences, vbox250, "vbox250");
+  GLADE_HOOKUP_OBJECT (preferences, frame244, "frame244");
+  GLADE_HOOKUP_OBJECT (preferences, vbox251, "vbox251");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_molasses_radiobutton, "preferences_refinement_speed_molasses_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_crock_radiobutton, "preferences_refinement_speed_crock_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_default_radiobutton, "preferences_refinement_speed_default_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, hbox320, "hbox320");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_own_radiobutton, "preferences_refinement_speed_own_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_refinement_speed_entry, "preferences_refinement_speed_entry");
+  GLADE_HOOKUP_OBJECT (preferences, label572, "label572");
+  GLADE_HOOKUP_OBJECT (preferences, frame245, "frame245");
+  GLADE_HOOKUP_OBJECT (preferences, vbox252, "vbox252");
+  GLADE_HOOKUP_OBJECT (preferences, hbox321, "hbox321");
+  GLADE_HOOKUP_OBJECT (preferences, label574, "label574");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_spin_speed_entry, "preferences_spin_speed_entry");
+  GLADE_HOOKUP_OBJECT (preferences, label573, "label573");
   GLADE_HOOKUP_OBJECT (preferences, label592, "label592");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_recentre_pdb, "preferences_recentre_pdb");
-  GLADE_HOOKUP_OBJECT (preferences, vbox263, "vbox263");
-  GLADE_HOOKUP_OBJECT (preferences, label604, "label604");
-  GLADE_HOOKUP_OBJECT (preferences, frame262, "frame262");
-  GLADE_HOOKUP_OBJECT (preferences, vbox264, "vbox264");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_recentre_pdb_on_radiobutton, "preferences_recentre_pdb_on_radiobutton");
-  GLADE_HOOKUP_OBJECT (preferences, preferences_recentre_pdb_off_radiobutton, "preferences_recentre_pdb_off_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias, "preferences_antialias");
+  GLADE_HOOKUP_OBJECT (preferences, vbox216, "vbox216");
+  GLADE_HOOKUP_OBJECT (preferences, label509, "label509");
+  GLADE_HOOKUP_OBJECT (preferences, frame208, "frame208");
+  GLADE_HOOKUP_OBJECT (preferences, vbox217, "vbox217");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias_on_radiobutton, "preferences_antialias_on_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_antialias_off_radiobutton, "preferences_antialias_off_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, label593, "label593");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_pink_pointer, "preferences_pink_pointer");
+  GLADE_HOOKUP_OBJECT (preferences, vbox257, "vbox257");
+  GLADE_HOOKUP_OBJECT (preferences, label585, "label585");
+  GLADE_HOOKUP_OBJECT (preferences, frame250, "frame250");
+  GLADE_HOOKUP_OBJECT (preferences, hbox324, "hbox324");
+  GLADE_HOOKUP_OBJECT (preferences, label582, "label582");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_pink_pointer_entry, "preferences_pink_pointer_entry");
+  GLADE_HOOKUP_OBJECT (preferences, label583, "label583");
+  GLADE_HOOKUP_OBJECT (preferences, label584, "label584");
+  GLADE_HOOKUP_OBJECT (preferences, label606, "label606");
   GLADE_HOOKUP_OBJECT_NO_REF (preferences, hbuttonbox5, "hbuttonbox5");
   GLADE_HOOKUP_OBJECT (preferences, hbox115, "hbox115");
   GLADE_HOOKUP_OBJECT (preferences, preferences_reset_button, "preferences_reset_button");
