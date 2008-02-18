@@ -61,4 +61,5 @@
 ;; Function to turn off coot tips at start
 (define no-coot-tips
   (lambda ()
-    (set! *do-coot-tips-flag* #f)))
+    (set! *do-coot-tips-flag* #f)
+    (set-tip-of-the-day-flag 0)))

@@ -1066,7 +1066,6 @@ void push_the_buttons_on_fileselection(GtkWidget *filter_button,
 				       GtkWidget *sort_button,
 				       GtkWidget *fileselection) {
 
-  int data_type = 0;
   bool no_chooser = 1;
 #if (GTK_MAJOR_VERSION > 1)
   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)
@@ -1075,18 +1074,25 @@ void push_the_buttons_on_fileselection(GtkWidget *filter_button,
     }
 #endif
   if (filter_fileselection_filenames_state() && no_chooser) {
-    //gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(filter_button), TRUE);
-    //gtk_signal_emit_by_name(GTK_OBJECT(filter_button), "toggled", data_type, NULL);
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
     gtk_signal_emit_by_name(GTK_OBJECT(filter_button), "clicked");    
-    //std::cout << "INFO:: Filtering file names \n";
+#else
+    g_signal_emit_by_name(G_OBJECT(filter_button), "clicked");
+#endif
+    std::cout << "INFO:: Filtering file names \n";
   }
   if (graphics_info_t::sticky_sort_by_date) {
-     GtkWidget *file_list = GTK_FILE_SELECTION(fileselection)->file_list;
-     std::cout << "INFO:: Sorting files by date\n";
+    GtkWidget *file_list;
+    if (no_chooser) {
+      std::cout << "INFO:: Sorting files by date\n";
+      file_list = GTK_FILE_SELECTION(fileselection)->file_list;
+    }
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
      fileselection_sort_button_clicked_gtk1(sort_button, (GtkCList *) file_list);
-#else     
-     fileselection_sort_button_clicked(sort_button, file_list);
+#else
+     if (no_chooser) {
+       g_signal_emit_by_name(G_OBJECT(sort_button), "clicked", file_list);
+     }
 #endif     
   }
 }
@@ -1147,9 +1153,9 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
 			  (GtkSignalFunc) fileselection_sort_button_clicked_gtk1,
 			  file_list);
 #else
-      gtk_signal_connect (GTK_OBJECT(button), "clicked",
-			  (GtkSignalFunc) fileselection_sort_button_clicked,
-			  file_list);
+      g_signal_connect (G_OBJECT(button), "clicked",
+			G_CALLBACK(fileselection_sort_button_clicked),
+			file_list);
 #endif
       
       gtk_container_add(GTK_CONTAINER(aa),frame);

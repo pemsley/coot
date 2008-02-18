@@ -453,6 +453,16 @@ void update_preference_gui() {
       }
       break;
 
+    case PREFERENCES_TIPS:
+      w = lookup_widget(dialog, "preferences_tips_on_radiobutton");
+      if (g.preferences_internal[i].ivalue) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      } else {
+	w = lookup_widget(dialog, "preferences_tips_off_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      }
+      break;
+
     case PREFERENCES_REFINEMENT_SPEED:
       ivalue = g.preferences_internal[i].ivalue;
       if (ivalue == 4) {

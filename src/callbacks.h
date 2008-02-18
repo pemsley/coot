@@ -2323,6 +2323,16 @@ on_preferences_console_info_off_radiobutton_toggled
                                         gpointer         user_data);
 
 void
+on_preferences_tips_on_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_tips_off_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_preferences_refinement_speed_molasses_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);

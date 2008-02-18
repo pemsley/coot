@@ -269,7 +269,7 @@ void fileselection_sort_button_clicked( GtkWidget *sort_button,
 	 for (unsigned int i=0; i<file_infos.file_mtimes.size(); i++) {
 	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	    gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			       0, file_infos.file_mtimes[i].file.c_str(), -1);
+	    		       0, file_infos.file_mtimes[i].file.c_str(), -1);
 	 }
       }
 	 

@@ -125,9 +125,10 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
   add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
   set_directory_for_coot_file_chooser(coords_fileselection1);
   set_file_selection_dialog_size(coords_fileselection1);
+  gtk_widget_show (coords_fileselection1);
+  /* in gtk2 we have to push the buttons after we show the selection */
   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
 				    coords_fileselection1);
-  gtk_widget_show (coords_fileselection1);
 #endif
 }
 
@@ -148,8 +149,10 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
   /* add_filename_filter_button needs the sort button to be in place (for now) */
   set_directory_for_fileselection(dataset_fileselection1);
+#if (GTK_MAJOR_VERSION == 1)
   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
 				    dataset_fileselection1);
+#endif
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
@@ -157,6 +160,11 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   set_file_selection_dialog_size(dataset_fileselection1);
 
   gtk_widget_show (dataset_fileselection1);
+#if (GTK_MAJOR_VERSION > 1)
+  /* in gtk2 we have to push the buttons after we show the selection */
+  push_the_buttons_on_fileselection(file_filter_button, sort_button, 
+				    dataset_fileselection1);
+#endif
 
 }
 
@@ -174,8 +182,10 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
 						  COOT_DATASET_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
   set_directory_for_fileselection(dataset_fileselection1);
+# if (GTK_MAJOR_VERSION == 1)
   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
 				    dataset_fileselection1);
+#endif
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
@@ -183,6 +193,10 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
   set_file_selection_dialog_size(dataset_fileselection1);
 
   gtk_widget_show (dataset_fileselection1);
+# if (GTK_MAJOR_VERSION > 1)
+  push_the_buttons_on_fileselection(file_filter_button, sort_button, 
+				    dataset_fileselection1);
+#endif
 }
 
 
@@ -1224,10 +1238,16 @@ on_open_map1_activate                  (GtkMenuItem     *menuitem,
 					      COOT_MAP_FILE_SELECTION);
    sort_button = add_sort_button_fileselection(map_name_fileselection1); 
    set_directory_for_fileselection(map_name_fileselection1);
+#if (GTK_MAJOR_VERSION == 1)
    push_the_buttons_on_fileselection(filter_button, sort_button, 
 				     map_name_fileselection1);
+#endif
    set_file_selection_dialog_size(map_name_fileselection1);
    gtk_widget_show (map_name_fileselection1);
+#if (GTK_MAJOR_VERSION > 1)
+   push_the_buttons_on_fileselection(filter_button, sort_button, 
+				     map_name_fileselection1);
+#endif
 }
 
 
@@ -5805,7 +5825,7 @@ on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 1);
     set_mark_cis_peptides_as_bad(1);
   }
@@ -5816,7 +5836,7 @@ on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 0);
     set_mark_cis_peptides_as_bad(0);
   }
@@ -5842,7 +5862,7 @@ on_preferences_bond_colours_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY, 1);
     set_colour_map_rotation_on_read_pdb_c_only_flag(1);
   } else {
@@ -5858,7 +5878,7 @@ on_preferences_bg_colour_black_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, 0, 0, 0);
     set_background_colour(0, 0, 0);
   }
@@ -5870,7 +5890,7 @@ on_preferences_bg_colour_white_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, 1, 1, 1);
     set_background_colour(1, 1, 1);
   }
@@ -6082,7 +6102,7 @@ on_preferences_map_dynamic_sampling_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_DYNAMIC_MAP_SAMPLING, 1);
     set_dynamic_map_sampling_on();
   } else {
@@ -6098,7 +6118,7 @@ on_preferences_map_dynamic_size_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY, 1);
     set_dynamic_map_size_display_on();
   } else {
@@ -6114,7 +6134,7 @@ on_preferences_diff_map_colours_coot_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_SWAP_DIFF_MAP_COLOURS, 0);
     set_swap_difference_map_colours(0);
   }
@@ -6140,7 +6160,7 @@ on_preferences_smooth_scroll_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
 					 gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 1);
     set_smooth_scroll_flag(1);
   }
@@ -6153,7 +6173,7 @@ on_preferences_smooth_scroll_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 0);
     set_smooth_scroll_flag(0);
   }
@@ -6234,7 +6254,7 @@ on_preferences_map_drag_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 1);
     set_active_map_drag_flag(1);
   }
@@ -6247,7 +6267,7 @@ on_preferences_map_drag_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 0);
     set_active_map_drag_flag(0);
   }
@@ -6260,7 +6280,7 @@ on_preferences_antialias_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ANTIALIAS, 1);
     set_do_anti_aliasing(1);
   }
@@ -6273,7 +6293,7 @@ on_preferences_antialias_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ANTIALIAS, 0);
     set_do_anti_aliasing(0);
   }
@@ -6286,7 +6306,7 @@ on_preferences_hid_spherical_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 2);
     vt_surface(2);
   }
@@ -6299,7 +6319,7 @@ on_preferences_hid_flat_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 1);
     vt_surface(1);
   }
@@ -6313,7 +6333,7 @@ on_preferences_filechooser_off_radiobutton_toggled
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION > 1)
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_CHOOSER, 0);
     set_file_chooser_selector(0);
   }
@@ -6328,7 +6348,7 @@ on_preferences_filechooser_on_radiobutton_toggled
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION > 1)
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_CHOOSER, 1);
     set_file_chooser_selector(1);
   }
@@ -6343,7 +6363,7 @@ on_preferences_file_overwrite_yes_radiobutton_toggled
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION > 1)
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_OVERWRITE, 1);
     set_file_chooser_overwrite(1);
   }
@@ -6396,7 +6416,7 @@ on_preferences_file_sort_by_date_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_SORT_DATE, 1);
     set_sticky_sort_by_date();
   }
@@ -6409,7 +6429,7 @@ on_preferences_file_sort_by_date_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_SORT_DATE, 0);
     unset_sticky_sort_by_date();
   }
@@ -6421,7 +6441,7 @@ on_preferences_dialog_accept_docked_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 1);
     set_accept_reject_dialog_docked(1);
   }
@@ -6434,7 +6454,7 @@ on_preferences_dialog_accept_detouched_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 0);
     set_accept_reject_dialog_docked(0);
   }
@@ -6447,7 +6467,7 @@ on_preferences_dialog_accept_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 1);
     set_refinement_immediate_replacement(1);
   }
@@ -6460,7 +6480,7 @@ on_preferences_dialog_accept_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 0);
     set_refinement_immediate_replacement(0);
   }
@@ -6473,7 +6493,7 @@ on_preferences_recentre_pdb_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_RECENTRE_PDB, 1);
     set_recentre_on_read_pdb(1);
   }
@@ -6486,7 +6506,7 @@ on_preferences_recentre_pdb_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_RECENTRE_PDB, 0);
     set_recentre_on_read_pdb(0);
   }
@@ -6499,7 +6519,7 @@ on_preferences_console_info_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_CONSOLE_COMMANDS, 1);
     set_console_display_commands_state(1);
   }
@@ -6512,9 +6532,35 @@ on_preferences_console_info_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_CONSOLE_COMMANDS, 0);
     set_console_display_commands_state(0);
+  }
+
+}
+
+
+void
+on_preferences_tips_on_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_TIPS, 1);
+    set_tip_of_the_day_flag(1);
+  }
+
+}
+
+
+void
+on_preferences_tips_off_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_TIPS, 0);
+    set_tip_of_the_day_flag(0);
   }
 
 }
@@ -6525,7 +6571,7 @@ on_preferences_refinement_speed_molasses_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 4);
     set_dragged_refinement_steps_per_frame(4);
   }
@@ -6538,7 +6584,7 @@ on_preferences_refinement_speed_crock_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 120);
     set_dragged_refinement_steps_per_frame(120);
   }
@@ -6551,7 +6597,7 @@ on_preferences_refinement_speed_default_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 80);
     set_dragged_refinement_steps_per_frame(80);
   }
@@ -6566,7 +6612,7 @@ on_preferences_refinement_speed_own_radiobutton_toggled
 {
   GtkWidget *w;
   w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_refinement_speed_entry");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
     int val;
     val = atoi(entry_text);
@@ -6671,7 +6717,7 @@ on_preferences_font_size_small_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, 1);
     set_font_size(1);
   }
@@ -6684,7 +6730,7 @@ on_preferences_font_size_medium_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, 2);
     set_font_size(2);
   }
@@ -6697,7 +6743,7 @@ on_preferences_font_size_large_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, 3);
     set_font_size(3);
   }
@@ -6710,7 +6756,7 @@ on_preferences_font_size_others_radiobutton_toggled
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION > 1)
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     GtkWidget *w;
     w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_size_combobox");
     gint ival = gtk_combo_box_get_active(GTK_COMBO_BOX(w));

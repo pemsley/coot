@@ -37,5 +37,6 @@
 #define PREFERENCES_FONT_SIZE                     28
 #define PREFERENCES_FONT_COLOUR                   29
 #define PREFERENCES_PINK_POINTER                  30
+#define PREFERENCES_TIPS                          31
 
 
