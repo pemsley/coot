@@ -26,6 +26,10 @@
 #define AddAtomA AddAtom
 #endif
 
+#ifdef WINDOWS_MINGW
+#define AddAtomA AddAtom
+#endif
+
 #include "Cartesian.h"
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
