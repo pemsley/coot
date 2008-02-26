@@ -7435,7 +7435,7 @@ on_save_state_ok_button1_clicked       (GtkButton       *button,
    const char *filename = gtk_file_selection_get_filename 
      (GTK_FILE_SELECTION(w));
 
-   save_state_file_name_raw(filename);    /* write the file */
+   save_state_file(filename);    /* write the file */
    set_save_state_file_name(filename); /* save as a static in graphics_info_t */
    gtk_widget_destroy(w);
 }

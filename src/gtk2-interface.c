@@ -1516,6 +1516,7 @@ create_window1 (void)
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_refine_togglebutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_refine_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_refine_togglebutton), tooltips, _("Real Space Refine Zone"), NULL);
+  gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_refine_togglebutton), TRUE);
 
   model_toolbar_regularize_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), _("Regularize Zone"));
@@ -1526,6 +1527,7 @@ create_window1 (void)
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_regularize_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, _("Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\""), NULL);
+  gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), TRUE);
 
   tmp_image = create_pixmap (window1, "anchor.svg");
   gtk_widget_show (tmp_image);
@@ -1544,7 +1546,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, _("Rigid Body Fit Zone (click on 2 atoms)"), NULL);
 
   model_toolbar_rot_trans_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
-  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rot_trans_togglebutton), _("Rigid Body Fit Zone"));
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rot_trans_togglebutton), _("Rotate/Translate Zone"));
   tmp_image = create_pixmap (window1, "rtz.svg");
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rot_trans_togglebutton), tmp_image);
@@ -1630,6 +1632,7 @@ create_window1 (void)
   gtk_widget_show (model_toolbar_find_water_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_find_water_button);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_find_water_button), tooltips, _("Solvate..."), NULL);
+  gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_find_water_button), TRUE);
 
   model_toolbar_add_terminal_residue_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), _("Add Terminal Residue..."));
@@ -19969,7 +19972,7 @@ create_other_model_tools_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (cis_trans_conversion_toggle_button), 1);
   gtk_tooltips_set_tip (tooltips, cis_trans_conversion_toggle_button, _("Convert peptide: CIS -> TRANS or TRANS -> CIS... It depends on what you have currently"), NULL);
 
-  model_refine_dialog_baton_button = gtk_button_new_with_mnemonic (_("Ca Baton Mode..."));
+  model_refine_dialog_baton_button = gtk_button_new_with_mnemonic (_("C-alpha Baton Mode..."));
   gtk_widget_show (model_refine_dialog_baton_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_baton_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_baton_button), 1);

@@ -1,8 +1,9 @@
 /* ligand/find-waters.cc
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
+ * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
- * 
+  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
@@ -348,7 +349,6 @@ coot::util::laplacian_transform(const clipper::Xmap<float> &xmap_in) {
 
    clipper::Xmap<float> laplacian = xmap_in;
 
-   
    clipper::Coord_map pos;
    float val;
    clipper::Grad_map<float> grad;
@@ -412,4 +412,27 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, CResidue *res, coot::t
    }
    // std::cout << "returning " << best_ori << std::endl;
    return best_ori;
+}
+
+// return a map and its standard deviation.  scale is applied to
+// map_in_2 before substraction.
+std::pair<clipper::Xmap<float>, float>
+coot::util::difference_map(const clipper::Xmap<float> &xmap_in_1,
+			   const clipper::Xmap<float> &xmap_in_2,
+			   float map_scale) {
+   clipper::Xmap<float> r = xmap_in_1;
+   float std_dev = 0.2;
+
+    clipper::Xmap_base::Map_reference_index ix;
+    for (ix = r.first(); !ix.last(); ix.next())  {
+       clipper::Coord_map  cm1 = ix.coord().coord_map();
+       clipper::Coord_frac cf1 = cm1.coord_frac(xmap_in_1.grid_sampling());
+       clipper::Coord_orth co  = cf1.coord_orth(xmap_in_1.cell());
+       clipper::Coord_frac cf2 =  co.coord_frac(xmap_in_2.cell());
+       clipper::Coord_map  cm2 = cf2.coord_map(xmap_in_2.grid_sampling());
+       float map_2_val;
+       clipper::Interp_cubic::interp(xmap_in_2, cm2, map_2_val);
+       r[ix] = xmap_in_1[ix] - map_scale * map_2_val;
+    }
+   return std::pair<clipper::Xmap<float>, float> (r, std_dev); 
 }

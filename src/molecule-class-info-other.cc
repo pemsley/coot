@@ -804,6 +804,8 @@ molecule_class_info_t::delete_residue_with_altconf(const std::string &chain_id,
    CChain *chain;
    CResidue *residue_for_deletion = NULL;
    std::vector<std::pair<std::string, float> > deleted_atom;
+   std::cout << "DEBUG:: start of delete-residue-with-altconf n-atoms: "
+	     << atom_sel.n_selected_atoms << std::endl;
 
    // run over chains of the existing mol
    int nchains = atom_sel.mol->GetNumberOfChains(1);
@@ -827,22 +829,32 @@ molecule_class_info_t::delete_residue_with_altconf(const std::string &chain_id,
 		  
 		     // so we have a matching residue:
 		     residue_for_deletion = res;
-		     make_backup();
-		     atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
-		     delete_ghost_selections();
-   
+
 		     // delete the specific atoms of the residue:
 		     PPCAtom atoms;
 		     int n_atoms;
+		     bool have_deletable_atom = 0;
 		     res->GetAtomTable(atoms, n_atoms);
 		     for (int i=0; i<n_atoms; i++) {
 		        if (std::string(atoms[i]->altLoc) == altconf) {
-			   std::pair<std::string, float> p(atoms[i]->name,
-							   atoms[i]->occupancy);
-			   deleted_atom.push_back(p);
-			   res->DeleteAtom(i);
-			   was_deleted = 1;
-		        }
+			   have_deletable_atom = 1;
+			}
+		     }
+
+		     if (have_deletable_atom) { 
+			make_backup();
+			atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+			delete_ghost_selections();
+			
+			for (int i=0; i<n_atoms; i++) {
+			   if (std::string(atoms[i]->altLoc) == altconf) {
+			      std::pair<std::string, float> p(atoms[i]->name,
+							      atoms[i]->occupancy);
+			      deleted_atom.push_back(p);
+			      res->DeleteAtom(i);
+			      was_deleted = 1;
+			   }
+			}
 		     }
                   }
 		  break;
@@ -914,6 +926,8 @@ molecule_class_info_t::delete_residue_with_altconf(const std::string &chain_id,
       make_bonds_type_checked();
       update_symmetry();
    }
+   std::cout << "DEBUG:: End of delete-residue-with-altconf n-atoms: "
+	     << atom_sel.n_selected_atoms << std::endl;
    return was_deleted;
 }
 

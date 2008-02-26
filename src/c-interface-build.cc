@@ -731,6 +731,7 @@ void delete_residue_with_altconf(int imol,
 				 const char *altloc) {
    std::string altconf(altloc);
    graphics_info_t g;
+   std::cout << "BEFORE " << g.molecules[imol].atom_sel.atom_selection << std::endl;
    short int istat =
       g.molecules[imol].delete_residue_with_altconf(chain_id, resno, inscode, altconf);
    
@@ -755,6 +756,7 @@ void delete_residue_with_altconf(int imol,
    command_strings.push_back(single_quote(inscode));
    command_strings.push_back(single_quote(altloc));
    add_to_history(command_strings);
+   std::cout << "AFTER  " << g.molecules[imol].atom_sel.atom_selection << std::endl;
 }
 
 void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char *ins_code,
@@ -4504,42 +4506,9 @@ void setup_save_symmetry_coords() {
 
 }
 
-void save_symmetry_coords_from_fileselection(GtkWidget *fileselection) {
 
-   coot::Symm_Atom_Pick_Info_t *symm_info =
-      (coot::Symm_Atom_Pick_Info_t *) gtk_object_get_user_data(GTK_OBJECT(fileselection));
-
-   const gchar *filename;
-#if (GTK_MAJOR_VERSION > 1)
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-	 filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-   } else {
-	 filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
-   }
-#else
-   filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
-#endif // GTK_MAJOR_VERSION
-
-   if (symm_info) {
-      // std::cout << "Preshift to origin:  " << symm_info->pre_shift_to_origin << std::endl;
-      save_symmetry_coords(filename,
-			   symm_info->imol,
-			   symm_info->symm_trans.isym(),
-			   symm_info->symm_trans.x(), 
-			   symm_info->symm_trans.y(), 
-			   symm_info->symm_trans.z(), 
-			   symm_info->pre_shift_to_origin.us,			   
-			   symm_info->pre_shift_to_origin.vs,
-			   symm_info->pre_shift_to_origin.ws);
-   } else {
-      std::cout << "ERROR:: failed to get user data from save symmetry coords fileselection"
-		<< std::endl;
-      std::cout << "ERROR:: saving of symmetry coordinates failed" << std::endl;
-   }
-}
-
-void save_symmetry_coords(const char *filename,
-			  int imol, 
+void save_symmetry_coords(int imol, 
+			  const char *filename,
 			  int symop_no, 
 			  int shift_a, 
 			  int shift_b, 
@@ -4611,6 +4580,19 @@ void save_symmetry_coords(const char *filename,
 	       graphics_info_t g;
 	       g.statusbar_text(s);
 	    }
+	    
+	    std::vector<std::string> command_strings;
+	    command_strings.push_back("save-symmetry-coords");
+	    command_strings.push_back(coot::util::int_to_string(imol));
+	    command_strings.push_back(single_quote(filename));
+	    command_strings.push_back(coot::util::int_to_string(symop_no));
+	    command_strings.push_back(coot::util::int_to_string(shift_a));
+	    command_strings.push_back(coot::util::int_to_string(shift_b));
+	    command_strings.push_back(coot::util::int_to_string(shift_c));
+	    command_strings.push_back(coot::util::int_to_string(pre_shift_to_origin_na));
+	    command_strings.push_back(coot::util::int_to_string(pre_shift_to_origin_nb));
+	    command_strings.push_back(coot::util::int_to_string(pre_shift_to_origin_nc));
+	    add_to_history(command_strings);
 	 }
       }
    }

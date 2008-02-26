@@ -506,11 +506,11 @@ const char *atom_info_string(int imol, const char *chain_id, int resno,
    std::string cmd = "atom-info-string";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
-   args.push_back(chain_id);
+   args.push_back(coot::util::single_quote(chain_id));
    args.push_back(resno);
-   args.push_back(ins_code);
-   args.push_back(atname);
-   args.push_back(altconf);
+   args.push_back(coot::util::single_quote(ins_code));
+   args.push_back(coot::util::single_quote(atname));
+   args.push_back(coot::util::single_quote(altconf));
    add_to_history_typed(cmd, args);
 
    return r;
@@ -1900,7 +1900,7 @@ save_state_file(const char *filename) {
    g.save_state_file(std::string(filename));
    std::string cmd = "save-state-file";
    std::vector<coot::command_arg_t> args;
-   args.push_back(filename);
+   args.push_back(single_quote(filename));
    add_to_history_typed(cmd, args);
 }
 

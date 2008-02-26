@@ -643,6 +643,7 @@ class molecule_class_info_t {
       draw_hydrogens_flag = 1;
       bond_width = 3.0; 
       ghost_bond_width = 2.0;
+      skeleton_treenodemap_is_filled = 0;
       xmap_is_filled = NULL;
    }
 
@@ -1244,11 +1245,11 @@ class molecule_class_info_t {
 					int iresno,
 					const std::string &ins_code);
 
-   void install_map(const clipper::Xmap<float> &mapin, std::string name,
-		    const coot::ghost_molecule_display_t &ghost_info,
-		    int is_diff_map_flag,
-		    int swap_difference_map_colours_flag,
-		    float sigma_in);
+   void install_ghost_map(const clipper::Xmap<float> &mapin, std::string name,
+			  const coot::ghost_molecule_display_t &ghost_info,
+			  int is_diff_map_flag,
+			  int swap_difference_map_colours_flag,
+			  float sigma_in);
    
    void new_map(const clipper::Xmap<float> &mapin, std::string name);
    void set_name(std::string name); // you are encouraged not to use

@@ -135,12 +135,21 @@ namespace coot {
 
       clipper::Xmap<float> laplacian_transform(const clipper::Xmap<float> &xmap_in);
 
+      // return a map and its standard deviation.  scale is applied to
+      // map_in_2 before substraction.
+      std::pair<clipper::Xmap<float>, float>
+      difference_map(const clipper::Xmap<float> &xmap_in_1,
+		     const clipper::Xmap<float> &xmap_in_2,
+		     float map_scale);
+
       // Spin the torsioned atom round the rotatable bond and find the
       // orientation (in degrees) from the current position that is in
       // the highest density.
       // 
       // return a torsion
       float spin_search(const clipper::Xmap<float> &xmap, CResidue *res, coot::torsion tors);
+
+      
 
    }
 }

@@ -4402,3 +4402,252 @@ Wed Feb 13 10:48:53 GMT 2008
    marked as filled, but they are not?
 
 
+----
+Sun Feb 17 00:14:05 GMT 2008
+
+    in simple-restraint init_from_mol() we do
+    SelHnd_atom = mol->NewSelection();
+
+    do we ever give SelHnd_atom back?
+
+
+-----
+Mon Feb 18 12:36:34 GMT 2008
+
+    delete-residue-range seems to do 2 backups.
+
+
+-----
+Mon Feb 18 12:38:02 GMT 2008
+
+DEBUG::  display toggle of molecule: 0
+DEBUG::  display toggle of molecule: 2
+
+----
+Tue Feb 19 11:40:31 GMT 2008
+
+    1QEX from the PDB.
+
+
+-----
+Wed Feb 20 04:36:04 GMT 2008
+
+    Read in 1qex from EDS.
+
+    calculate ghosts
+
+    density fit.
+
+    rescale 0.5
+
+    recale 0.3
+
+    click on first residue in water chain
+
+       -> crash
+
+INFO:: canvas size based on 3 chains with max length 302
+INFO:: canvas size: 3220 270
+DEBUG:: min_resno: 1 max_resno: 288 chain_number 0
+DEBUG:: min_resno: 1 max_resno: 288 chain_number 1
+DEBUG:: min_resno: 1 max_resno: 302 chain_number 2
+INFO:: trying to centre on:  1  O  
+(set-go-to-atom-molecule 0)
+Segmentation fault (core dumped)
+
+
+----
+Wed Feb 20 05:27:36 GMT 2008
+
+    302 EPE in 1QEX.  Look at the bonding to the Sulfur.  One of the
+    oxygens has a cross. Fix?
+
+----
+Wed Feb 20 11:27:37 GMT 2008
+
+   Here: 
+   void
+   graphics_info_t::start_baton_here()
+
+   we do: 
+      int *imol_copy = new int;
+      *imol_copy = imol_for_skel;
+      gtk_object_set_user_data(GTK_OBJECT(w), (char *)imol_copy);
+
+   should use GINT_TO_POINTER
+
+-----
+Thu Feb 21 03:52:58 GMT 2008
+
+    save symmetry coordinates and save coordinates should have an
+    scripting history expression.
+
+----
+Thu Feb 21 03:53:46 GMT 2008
+
+    Crash on Baton building in the new version
+
+* Fixed.
+
+-----
+Thu Feb 21 06:52:25 GMT 2008
+
+    display manager should resize better.
+    Autosize up to a certain size (ysize).
+
+----
+Thu Feb 21 06:53:17 GMT 2008
+
+    Frank says make a selection in the go to atom window and use it to
+    make new molecules.  Or cut/paste.
+
+    Idea needs more details.
+
+----
+
+ARP/wARP peptide torsion from pseudo bonds
+
+2 torsions from CA-O-CA-O-CA  -> "American View of the World"
+
+
+------
+
+   when the fcf file is in someone else's directory, the writing of
+   the cif file fails.
+
+-----
+
+ D. Gayathri 
+gaya_raju@rediffmail.com, dcbgaya@gmail.com
+
+ 
+------
+
+   Crash by Martyn
+
+   do unmodeled blobs.
+   dont close results
+   
+   get unmodelled blobs dialog again
+   and martyn said that he didn't click...
+
+-----
+Fri Feb 22 08:36:20 GMT 2008
+
+    Note to self:
+
+    Redo the ligand fitting slides.
+
+    Easy to do 
+   
+----
+
+ Sergs' presentation:
+ Autosolve ligand detection Mooji (?) 2006?
+
+
+ Use cluster volume vs contour threshhold plot (of the difference map)
+ to detect the cluster (volume decreases with contour level less for
+ real ligand than noise.
+
+ and use the blob that is closest to the protein (Frank is sceptical
+ about that).
+ 
+ there is some sort of shape function too (I missed how).  ah, 7
+ statistics, sufrace to volume ratio, eigen values etc.
+
+
+------
+Fri Feb 22 09:31:35 GMT 2008
+
+    Import an ATP.
+
+    Regularize it.
+
+    furanose ring is flattened... why?
+
+    Bug, I'd say
+
+    On testing, maybe not.  Is the restraints.
+    Need to get other restraints for ATP.
+
+
+----
+Fri Feb 22 09:45:25 GMT 2008
+
+  Get a list of ATPs from pdb to fit *this* particular ATP
+
+  (will do conformation search for us).
+
+  Report the structure that matched.
+
+  In fact, download the matchng structure and overlay it on the
+  ligand.
+
+
+-----
+
+	Can I get to MSDchem via SOAP or some such?
+	Don't bother - use sbase.
+
+-----
+	
+	Add Atom here:
+
+	Need to make sure that in the pdb file written out is
+	capitalized.
+
+* Done.
+
+----
+
+	Add a water over a symmetry atom.
+
+	go to real space of symmetry atom.
+
+	move the real space atoms a bit.
+
+	shift left on sym water. Fails to label.
+
+---
+  
+   Turn off the ability to translate a rotamer withe atom drag
+   Also in chi angles mode?  Herb Klei.
+
+
+----
+Sun Feb 24 09:47:02 GMT 2008
+
+    User gui save state is failing!
+
+    Priority: critical.
+
+* Fixed.   
+
+-----
+Sun Feb 24 09:55:35 GMT 2008
+
+    Try running baton mode without first making a skeleton.
+    
+    It doesn't work properly.
+
+    Priority: Medium
+    Difficulty: Medium
+
+
+----
+
+    remove 
+    making lig...
+
+* Done
+
+----
+Sun Feb 24 23:51:37 GMT 2008
+
+    check for isTerm() in atom_pick() and the function that sends atom
+    info to the Go To Atom window.
+
+* Done
+
+

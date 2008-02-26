@@ -2,7 +2,7 @@
  * 
  * Copyright 2002, 2003 The University of York
  * Author: Paul Emsley
- * Copyright 2007 The University of Oxford
+ * Copyright 2007, 2008 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,6 +88,8 @@ class input_data_t {
 public:
    bool is_good;
    bool given_map_flag;
+   bool use_rama_targets;
+   bool use_torsion_targets;
    int resno_start;
    int resno_end;
    float map_weight; 
@@ -129,6 +131,7 @@ main(int argc, char **argv) {
 		<< "       --resno-end resno_high\n"
 		<< "       --chain-id chain-id\n"
 		<< "       --weight w (weight of map gradients, default 60)\n"
+		<< "       --rama\n"
 		<< "\n"
 		<< "     --mapin ccp4-map-name can be used\n"
 		<< "       instead of --hklin --f --phi\n"
@@ -200,9 +203,16 @@ main(int argc, char **argv) {
 	 }
 	 
 	 std::string altloc("");
+
+	 // This needs to be determined programmatically.  If
+	 // have_flanking_atoms = 1 and there are not atoms in the
+	 // coordinate file for those flanking residues, then we will
+	 // get a crash.
+	 short int have_flanking_atoms = 0;
+	 
 	 coot::restraints_container_t restraints(inputs.resno_start,
 						 inputs.resno_end,
-						 1, 1, 0,
+						 0, 0, 0,
 						 altloc,
 						 chain_id,
 						 asc.mol,
@@ -218,9 +228,20 @@ main(int argc, char **argv) {
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
 	 // flags = coot::NON_BONDED;
 	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-      
+	 if (inputs.use_torsion_targets) {
+	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+	    if (inputs.use_rama_targets)
+	       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	 } else { 
+	    if (inputs.use_rama_targets)
+	       flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	 }
+
 	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-	 restraints.make_restraints(geom, flags, 1, 0, 0.0, 0, pseudos);
+	 bool do_rama_plot_restraints = 0;
+	 if (inputs.use_rama_targets)
+	    do_rama_plot_restraints = 1;
+	 restraints.make_restraints(geom, flags, 1, 0, 1.0, do_rama_plot_restraints, pseudos);
 
 	 restraints.minimize(flags);
 	 restraints.write_new_atoms(inputs.output_pdb_file_name);
@@ -310,6 +331,9 @@ get_input_details(int argc, char **argv) {
    d.resno_start = UNSET;
    d.resno_end = UNSET;
    d.map_weight = UNSET;
+   d.use_rama_targets = 0;
+   d.use_torsion_targets = 0;
+   
    int ch;
    int option_index = 0;
 
@@ -326,6 +350,9 @@ get_input_details(int argc, char **argv) {
       {"resno-end",   1, 0, 0}, 
       {"chain-id",    1, 0, 0},
       {"weight",    1, 0, 0},
+      {"rama",      0, 0, 0},
+      {"torsions",      0, 0, 0},
+      {"torsion",      0, 0, 0},
       {0, 0, 0, 0}
    };
 
@@ -370,7 +397,20 @@ get_input_details(int argc, char **argv) {
 	    if (arg_str == "weight") { 
 	       d.map_weight = atof(optarg);
 	    }
-	 }
+	 } else {
+	    // long argument without parameter:
+	    std::string arg_str(long_options[option_index].name);
+	 
+	    if (arg_str == "rama") {
+	       d.use_rama_targets = 1;
+	    }
+	    if (arg_str == "torsions") {
+	       d.use_torsion_targets = 1;
+	    }
+	    if (arg_str == "torsion") {
+	       d.use_torsion_targets = 1;
+	    }
+	 } 
 	 break;
 
       case 'i':

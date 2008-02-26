@@ -12,6 +12,7 @@
 (define hollander-ins (append-dir-file greg-data-dir "hollander.ins"))
 (define imol-insulin-res -1) ; set later
 
+
 (greg-testcase "Read small molecule .res file" #t
    (lambda ()
      (if (string? hof-res)
@@ -105,13 +106,13 @@
 
      (if (not (valid-model-molecule? imol-rnase))
          (begin
-            (format #t "imol-rnase not valid.~%")
+            (format #t "   imol-rnase not valid.~%")
 	    (throw 'fail))
 	 (let* ((rnase-ins "rnase.ins")
 		(status (write-shelx-ins-file imol-rnase rnase-ins)))
 	   (if (not (= status 1)) 
 	       (begin
-		 (format #t "failure to write INS file ~s from PDB~%" rnase-ins)
+		 (format #t "   failure to write INS file ~s from PDB~%" rnase-ins)
 		 (throw 'fail))
 	       #t)))))
 
@@ -142,3 +143,19 @@
 			      (throw 'fail)))))
 		    atom-list)))))
 	 #t))))
+
+
+;(greg-testcase "Aniso Shelx Atoms - Mitch Miller" #t
+;   (lambda ()
+
+;     (let* ((bad-anis-res (append-dir-file greg-data-dir "mmiller.res"))
+;	    (aniso-bad-mol (read-pdb bad-anis-res)))
+
+;       (if (not (valid-model-molecule? aniso-bad-mol))
+;	   (begin
+;	     (format #t "   No Mitch Miller molecule yet~%")
+;	     (throw 'untested))
+;	   (begin
+;	     (set-show-aniso 1) ; should (used to) crash
+;	     #t)))))
+

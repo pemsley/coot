@@ -109,6 +109,9 @@ namespace coot {
 // for protein dictionary container:
 #include "protein-geometry.hh"
 
+// For Kevin's (Log) Ramachandran Plot and derivatives
+#include "lograma.h"
+
 #ifndef DEGTORAD 
 #define DEGTORAD 0.017453293
 #endif
@@ -122,7 +125,7 @@ namespace coot {
    // restraint types:
    // 
    enum {BOND_RESTRAINT, ANGLE_RESTRAINT, TORSION_RESTRAINT, PLANE_RESTRAINT,
-         NON_BONDED_CONTACT_RESTRAINT, CHIRAL_VOLUME_RESTRAINT};
+         NON_BONDED_CONTACT_RESTRAINT, CHIRAL_VOLUME_RESTRAINT, RAMACHANDRAN_RESTRAINT};
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
 				    STRAND_PSEUDO_BONDS};
@@ -148,7 +151,8 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED = 31,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
 				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
+				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 123
 				
    };
 
@@ -191,7 +195,7 @@ namespace coot {
 
    public: 
    
-      int atom_index_1, atom_index_2, atom_index_3, atom_index_4;
+      int atom_index_1, atom_index_2, atom_index_3, atom_index_4, atom_index_5, atom_index_6;
       int atom_index_centre;
       std::vector <int> atom_index; // atom_index can return negative (-1) for planes
       float target_value; 
@@ -270,6 +274,25 @@ namespace coot {
 	 }
       }
 
+      // Rama
+      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+		       int atom_3, int atom_4, int atom_5, int atom_6,
+		       const std::vector<bool> &fixed_atom_flags_in) { 
+
+	 restraint_type = rest_type; 
+	 atom_index_1 = atom_1; 
+	 atom_index_2 = atom_2;
+	 atom_index_3 = atom_3;
+	 atom_index_4 = atom_4;
+	 atom_index_5 = atom_5;
+	 atom_index_6 = atom_6;
+	 fixed_atom_flags = fixed_atom_flags_in;
+	 if (rest_type != RAMACHANDRAN_RESTRAINT) { 
+	    std::cout << "RAMACHANDRAN_RESTRAINT ERROR" << std::endl; 
+	    exit(1); 
+	 }
+      }
+      
       // Plane
       simple_restraint(short int restraint_type_in,
 		       const std::vector<int> &atom_index_in,
@@ -430,6 +453,9 @@ namespace coot {
 				  const gsl_vector *v); 
    double distortion_score_chiral_volume(const simple_restraint &chiral_restraint,
 					 const gsl_vector *v); 
+   double distortion_score_rama(const simple_restraint &chiral_restraint,
+				const gsl_vector *v,
+				const LogRamachandran &lograma); 
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
 					      const gsl_vector *v); 
    void fix_chiral_atom_maybe (const simple_restraint &chiral_restraint,
@@ -449,6 +475,8 @@ namespace coot {
    void my_df_angles(const gsl_vector *v, void *params, gsl_vector *df); 
    //  just the torsion terms:
    void my_df_torsions(const gsl_vector *v, void *params, gsl_vector *df); 
+   //  just the ramachandran plot gradient terms:
+   void my_df_rama(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the deviation from starting point terms:
    void my_df_planes(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the non-bonded contacts
@@ -587,6 +615,8 @@ namespace coot {
 
       short int include_map_terms_flag;
 
+      LogRamachandran lograma;
+
       // internal function, most of the job of the constructor:
       void init_from_mol(int istart_res_in, int iend_res_in,
 			 short int have_flanking_residue_at_start,
@@ -633,6 +663,18 @@ namespace coot {
 						   tar, sig, obs, periodicty)); 
       }
 
+      void add(short int rest_type,
+	       int atom_1, int atom_2, int atom_3, 
+	       int atom_4, int atom_5, int atom_6, 
+	       const std::vector<bool> &fixed_atom_flag){
+    
+	 restraints_vec.push_back(simple_restraint(rest_type,
+						   atom_1, atom_2, atom_3,
+						   atom_4, atom_5, atom_6,
+						   fixed_atom_flag));
+      }
+
+      
       void add_non_bonded(int index1, int index2) { 
 	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, index1, index2));
       } 
@@ -704,17 +746,19 @@ namespace coot {
       }
 
       int make_link_restraints          (const protein_geometry &geom,
-					 short int do_link_torsions);
+					 short int do_link_torsions,
+					 bool do_rama_plot_retraints);
       int make_monomer_restraints       (const protein_geometry &geom,
 					 short int do_residue_internal_torsions);
-      int make_flanking_atoms_restraints(const protein_geometry &geom); // no torsions
+      int make_flanking_atoms_restraints(const protein_geometry &geom,
+					 bool do_link_torsions,
+					 bool do_rama_plot_retraints); // no torsions
 
       std::string find_link_type(CResidue *first, CResidue *second,
 				 const protein_geometry &geom) const;
 
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
-
 
       // return " on failure to find link
       std::string find_glycosidic_linkage_type(CResidue *first, CResidue *second,
@@ -736,6 +780,11 @@ namespace coot {
 
       int add_link_torsion(std::string link_type,
 			   int phi_psi_restraints_type,
+			   PCResidue first, PCResidue second,
+			   short int is_fixed_first, short int is_fixed_second,
+			   const coot::protein_geometry &geom);
+
+      int add_rama(std::string link_type,
 			   PCResidue first, PCResidue second,
 			   short int is_fixed_first_res,
 			   short int is_fixed_second_res,
@@ -1015,6 +1064,8 @@ namespace coot {
       // PCMMDBManager.  It is the users responsibility to delete it.
       CMMDBManager *results() const;
       void adjust_variables(const atom_selection_container_t &asc);
+
+      LogRamachandran LogRama() const { return lograma; };
       
       // more debugging interface:
       //

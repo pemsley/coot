@@ -3041,7 +3041,7 @@
 		      <property name="icon">refine-1.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
-		      <property name="is_important">False</property>
+		      <property name="is_important">True</property>
 		      <property name="active">False</property>
 		      <signal name="toggled" handler="on_model_toolbar_refine_togglebutton_toggled" last_modification_time="Thu, 17 Jan 2008 13:32:30 GMT"/>
 		    </widget>
@@ -3060,7 +3060,7 @@
 		      <property name="icon">regularize-1.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
-		      <property name="is_important">False</property>
+		      <property name="is_important">True</property>
 		      <property name="active">False</property>
 		      <signal name="toggled" handler="on_model_toolbar_regularize_togglebutton_toggled" last_modification_time="Thu, 17 Jan 2008 15:28:49 GMT"/>
 		    </widget>
@@ -3111,7 +3111,7 @@
 		    <widget class="GtkToggleToolButton" id="model_toolbar_rot_trans_togglebutton">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Rotate/Translate Zone...</property>
-		      <property name="label" translatable="yes">Rigid Body Fit Zone</property>
+		      <property name="label" translatable="yes">Rotate/Translate Zone</property>
 		      <property name="use_underline">True</property>
 		      <property name="icon">rtz.svg</property>
 		      <property name="visible_horizontal">True</property>
@@ -3288,7 +3288,7 @@
 		      <property name="icon">add-water.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
-		      <property name="is_important">False</property>
+		      <property name="is_important">True</property>
 		      <signal name="clicked" handler="on_model_toolbar_find_water_button_clicked" last_modification_time="Fri, 18 Jan 2008 14:21:56 GMT"/>
 		    </widget>
 		    <packing>
@@ -40565,7 +40565,7 @@ distances more than:</property>
 		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Make sure that you are about 3.8A away from where you wish to put your first atom before you start Baton Mode.</property>
 		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Ca Baton Mode...</property>
+		  <property name="label" translatable="yes">C-alpha Baton Mode...</property>
 		  <property name="use_underline">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>

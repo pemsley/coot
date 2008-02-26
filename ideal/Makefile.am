@@ -30,7 +30,7 @@ lib_LTLIBRARIES=libcoot-ideal.la
 
 EXTRA_DIST = notes Makefile.simple molmantest.cc
 
-include_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh
+include_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h
 
 INCLUDES = \
 	-I$(top_srcdir)/compat     \
@@ -43,7 +43,7 @@ INCLUDES = \
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS)
 
-libcoot_ideal_la_SOURCES = simple-restraint.cc  pepflip.cc regularize-minimol.cc
+libcoot_ideal_la_SOURCES = simple-restraint.cc  pepflip.cc regularize-minimol.cc lograma.cpp
 
 noinst_PROGRAMS = test-indexing with-geometry with-map
 # bin_PROGRAMS = 

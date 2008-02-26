@@ -970,9 +970,11 @@ coot::ShelxIns::try_assign_cell(CMMDBManager *mol) {
 				 clipper::Util::d2rad(a[4]),
 				 clipper::Util::d2rad(a[5]));
 	 cell = clipper::Cell(cdr);
+	 std::cout << "try_assign_cell assigned cell" << std::endl;
 	 have_cell_flag = 1;
       }
    }
+   std::cout << "try_assign_cell have_cell_flag " << have_cell_flag << std::endl;
 }
 
 std::pair<int, std::string>

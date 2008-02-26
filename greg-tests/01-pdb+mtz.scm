@@ -675,3 +675,104 @@
 					   (format #t "   found O atom at ~s (not 4)~%" o-pos)
 					   (throw 'fail))
 					 #t))))))))))))))
+
+(define rnase-pdb (append-dir-file greg-data-dir "tutorial-modern.pdb"))
+(define rnase-mtz (append-dir-file greg-data-dir "rnasa-1.8-all_refmac1.mtz"))
+
+
+(greg-testcase "Mask and difference map" #t 
+  (lambda ()
+
+    (define (get-ca-coords imol-model resno-1 resno-2)
+      (let loop ((resno resno-1)
+	    (coords '()))
+	(cond 
+	 ((> resno resno-2) coords)
+	 (else 
+	  (let ((atom-info (atom-specs imol-model "A" resno "" " CA " "")))
+	    (loop (+ resno 1)
+		  (cons 
+		   (cdr (cdr (cdr atom-info)))
+		   coords)))))))
+
+    (let ((d-1 (difference-map -1 2 -9))
+	  (d-2 (difference-map 2 -1 -9)))
+
+      (if (not (= d-1 -1))
+	  (begin
+	    (format #t "failed on bad d-1~%")
+	    (throw 'fail)))
+
+      (if (not (= d-2 -1))
+	  (begin
+	    (format #t "failed on bad d-2~%")
+	    (throw 'fail))))
+
+    (let* ((imol-map-nrml-res (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0))
+	   (prev-sampling-rate (get-map-sampling-rate))
+	   (nov-1 (set-map-sampling-rate 2.2))
+	   (imol-map-high-res (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0))
+	   (nov-2 (set-map-sampling-rate prev-sampling-rate))
+	   (imol-model (handle-read-draw-molecule-with-recentre rnase-pdb 0)))
+      
+      (let ((imol-masked (mask-map-by-atom-selection imol-map-nrml-res imol-model
+						     "//A/1-10" 0)))
+	(if (not (valid-map-molecule? imol-map-nrml-res))
+	    (throw 'fail))
+
+	;; check that imol-map-nrml-res is good here by selecting
+	;; regions where the density should be positive. The masked
+	;; region should be 0.0
+	;; 
+	(let ((high-pts (get-ca-coords imol-model 20 30))
+	      (low-pts  (get-ca-coords imol-model  1 10)))
+
+	(let ((high-values (map (lambda(pt) 
+				  (apply density-at-point imol-masked pt)) high-pts))
+	      (low-values (map (lambda(pt) 
+				 (apply density-at-point imol-masked pt)) low-pts)))
+
+	  (format #t "high-values: ~s  low values: ~s~%" 
+		  high-values low-values)
+
+
+	  (if (not (< (apply + low-values) 0.000001))
+	      (begin
+		(format #t "Bad low values~%")
+		(throw 'fail)))
+
+	  (if (not (> (apply + high-values) 5))
+	      (begin
+		(format #t "Bad high values~%")
+		(throw 'fail)))
+
+	  (let ((diff-map (difference-map imol-masked imol-map-high-res 1.0)))
+	    (if (not (valid-map-molecule? diff-map))
+		(begin
+		  (format #t "failure to make good difference map")
+		  (throw 'fail)))
+
+	    ;; now in diff-map low pt should have high values and high
+	    ;; pts should have low values
+	    
+	    (let ((diff-high-values (map (lambda(pt) 
+					   (apply density-at-point diff-map pt)) high-pts))
+		  (diff-low-values (map (lambda(pt) 
+					  (apply density-at-point diff-map pt)) low-pts)))
+	   
+	      (format #t "diff-high-values: ~s  diff-low-values: ~s~%" 
+		      diff-high-values diff-low-values)
+
+	      (if (not (< (apply + diff-high-values) 0.000001))
+		  (begin
+		    (format #t "Bad diff high values~%")
+		    (throw 'fail)))
+	      
+	      (if (not (< (apply + diff-low-values) -5))
+		  (begin
+		    (format #t "Bad diff low values ~s ~%" (apply + diff-low-values))
+		    (throw 'fail)))
+	      
+	      #t))))))))
+
+

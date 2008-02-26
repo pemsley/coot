@@ -335,8 +335,10 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_fla
 	    PPCAtom residue_atoms;
 	    res->GetAtomTable(residue_atoms, natoms);
 	    for (int iatom=0; iatom<natoms; iatom++) {
-	       if (! strcmp(residue_atoms[iatom]->name, " CA ")) {
-		  at_best = residue_atoms[iatom];
+	       if (! residue_atoms[iat]->isTer()) { 
+		  if (! strcmp(residue_atoms[iatom]->name, " CA ")) {
+		     at_best = residue_atoms[iatom];
+		  }
 	       }
 	    }
 	 }
@@ -3858,27 +3860,27 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
 	    if (type == "Br") { 
 	       atom_p->SetAtomName("BR  ");
-	       atom_p->SetElementName("Br");
+	       atom_p->SetElementName("BR");
 	       res_p->SetResName("BR ");
 	    } else { 
 	      if (type == "Ca") { 
 		atom_p->SetAtomName("CA  ");
-		atom_p->SetElementName("Ca");
+		atom_p->SetElementName("CA");
 		res_p->SetResName("CA ");
 	      } else { 
 		if (type == "Na") { 
 		  atom_p->SetAtomName("NA  ");
-		  atom_p->SetElementName("Na");
+		  atom_p->SetElementName("NA");
 		  res_p->SetResName("NA ");
 		} else { 
 		  if (type == "Cl") { 
 		    atom_p->SetAtomName("CL  ");
-		    atom_p->SetElementName("Cl");
+		    atom_p->SetElementName("CL");
 		    res_p->SetResName("CL ");
 		  } else { 
 		    if (type == "Mg") { 
 		      atom_p->SetAtomName("MG  ");
-		      atom_p->SetElementName("Mg");
+		      atom_p->SetElementName("MG");
 		      res_p->SetResName("MG ");
 		    } else { 
 
@@ -4295,6 +4297,10 @@ molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &p
 
    std::vector<coot::scored_skel_coord> t; 
    coot::CalphaBuild buildca(max_skeleton_search_depth);
+
+   std::cout << "DEBUG:: "
+	     << "in molecule_class_info_t::next_ca_by_skel skeleton_treenodemap_is_filled is "
+	     << skeleton_treenodemap_is_filled << " for molecule " << imol_no << std::endl;
 
    if (skeleton_treenodemap_is_filled) { 
       t = buildca.next_ca_by_skel(previous_ca_positions,
@@ -4821,19 +4827,20 @@ molecule_class_info_t::model_view_atom_button_labels(char *chain_id, int seqno) 
 
 		     res_p->GetAtomTable(residue_atoms, nResidueAtoms);
 		     for (int i=0; i<nResidueAtoms; i++) {
-			std::string button_label = residue_atoms[i]->name;
-			std::string altConf = residue_atoms[i]->altLoc;
-			if (altConf != "") { 
-			   button_label += ",";
-			   button_label += altConf;
+			if (! residue_atoms[i]->isTer()) { 
+			   std::string button_label = residue_atoms[i]->name;
+			   std::string altConf = residue_atoms[i]->altLoc;
+			   if (altConf != "") { 
+			      button_label += ",";
+			      button_label += altConf;
+			   }
+			   button_label += " occ=";
+			   button_label += g.float_to_string(residue_atoms[i]->occupancy);
+			   button_label += " bf=";
+			   button_label += g.float_to_string(residue_atoms[i]->tempFactor);
+			   
+			   v.push_back(coot::model_view_atom_button_info_t(button_label, residue_atoms[i]));
 			}
-			button_label += " occ=";
-			button_label += g.float_to_string(residue_atoms[i]->occupancy);
-			button_label += " bf=";
-			button_label += g.float_to_string(residue_atoms[i]->tempFactor);
-	    
-			v.push_back(coot::model_view_atom_button_info_t(button_label, residue_atoms[i]));
-		  
 		     }
 		  }
 	       }

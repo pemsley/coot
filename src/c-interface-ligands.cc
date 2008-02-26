@@ -1135,7 +1135,7 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
    graphics_info_t g;
    if (is_valid_map_molecule(map_mol_no)) {
       if (is_valid_model_molecule(coords_mol_no)) {
-	 std::cout << "making lig..." << std::endl;
+	 // std::cout << "making lig..." << std::endl;
 	 coot::ligand lig;
 	 lig.import_map_from(g.molecules[map_mol_no].xmap_list[0]);
 
