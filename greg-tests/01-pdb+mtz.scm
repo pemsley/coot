@@ -676,9 +676,6 @@
 					   (throw 'fail))
 					 #t))))))))))))))
 
-(define rnase-pdb (append-dir-file greg-data-dir "tutorial-modern.pdb"))
-(define rnase-mtz (append-dir-file greg-data-dir "rnasa-1.8-all_refmac1.mtz"))
-
 
 (greg-testcase "Mask and difference map" #t 
   (lambda ()
@@ -774,5 +771,15 @@
 		    (throw 'fail)))
 	      
 	      #t))))))))
+
+
+(greg-testcase "Delete (non-existing) Alt conf and Go To Atom [JED]" #t
+   (lambda ()
+
+     ;; alt conf "A" does not exist in this residue:
+     (delete-residue-with-altconf imol-rnase "A" 88 "" "A")
+     ;; to activate the bug, we need to search over all atoms
+     (active-residue) ; crash
+     #t))
 
 
