@@ -1,4 +1,5 @@
-;;;; Copyright 2004, 2006 by Paul Emsley, The University of York
+;;;; Copyright 2004, 2006 The University of York
+;;;; Author: Paul Emsley
  
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -31,7 +32,10 @@
 
 ;; York setting for molprobity. 
 ;; 
-(set! *probe-command* "/y/people/emsley/coot/Linux/bin/probe.2.11.050121.linux.RH9")
-(set! *reduce-command* "/y/people/emsley/coot/Linux/bin/reduce.2.21.030604")
+; (set! *probe-command* "/y/people/emsley/coot/Linux/bin/probe.2.11.050121.linux.RH9")
+; (set! *reduce-command* "/y/people/emsley/coot/Linux/bin/reduce.2.21.030604")
+
+(set! *probe-command* "probe")
+(set! *reduce-command* "reduce")
 
     

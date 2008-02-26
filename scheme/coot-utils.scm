@@ -2,6 +2,7 @@
 ;;;; Copyright 2000 by Paul Emsley
 ;;;; Copyright 2004, 2005, 2006, 2007 by The University of York
 ;;;; Copyright 2008 by The University of York
+;;;; Copyright 2008 by The University of Oxford
 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -84,6 +85,25 @@
 	  (loop (cdr ls) (cons (car ls) acc)))
 	 (else 
 	  (loop (cdr ls) acc)))))))
+
+;; first n fields of ls. if lenghth ls is less than n, return ls.
+;; if ls is not a list, return ls.  If n is negative, return ls.
+;; 
+(define (first-n n ls)
+  (if (not (list? ls))
+      ls
+      (if (< n 0)
+	  ls 
+	  (if (<= (length ls) n)
+	      ls
+	      (let loop ((r (reverse ls))
+			 (count (- (length ls) n)))
+		(cond
+		 ((= 0 count) (reverse r))
+		 (else 
+		  (loop (cdr r) (- count 1)))))))))
+
+		
 
 
 ;; Return a list of molecules that are maps
