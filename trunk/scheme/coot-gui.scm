@@ -242,6 +242,9 @@
 ;; (handle-go-function) that gets called when user hits "Go" (which
 ;; takes two string aguments and the active-state of the check button
 ;; (either #t of #f).
+;;
+;; handle-go-function takes 3 arguments, the third of which is the
+;; state of the check button.
 ;; 
 ;; if check-button-label not a string, then we don't display (or
 ;; create, even) the check-button.  If it *is* a string, create a
@@ -1047,27 +1050,35 @@
 ;;;
 (define (alt-confs-gui imol)
 
+  (interesting-residues-gui imol "Residues with Alt Confs"
+			    (residues-with-alt-confs imol)))
+
+;;; Make an interesting things GUI for residues of molecule number
+;;; imol for the given imol.   A generalization of alt-confs gui
+;;;
+(define (interesting-residues-gui imol title interesting-residues)
+
   (if (valid-model-molecule? imol)
 
-      (let* ((alt-conf-residues (residues-with-alt-confs imol))
+      (let* ((residues interesting-residues)
 	     (centre-atoms (map (lambda (spec)
 				  (if (list? spec)
-				      (apply residue-spec->atom-for-centre (cons imol (cdr spec)))
+				      (apply residue-spec->atom-for-centre
+					     (cons imol (cdr spec)))
 				      #f))
-				alt-conf-residues)))
+				residues)))
 	(interesting-things-gui
-	 "Residues with Alt Confs"
-	 (map (lambda (alt-conf-residue-cpmd centre-atom)
-		(let* ((alt-conf-residue (cdr alt-conf-residue-cpmd))
+	 title
+	 (map (lambda (residue-cpmd centre-atom)
+		(let* ((residue (cdr residue-cpmd))
 		       (label (string-append 
-			       (car alt-conf-residue) " "
-			       (number->string (car (cdr alt-conf-residue))) " "
-			       (car (cdr (cdr alt-conf-residue))) " "
+			       (car residue) " "
+			       (number->string (car (cdr residue))) " "
+			       (car (cdr (cdr residue))) " "
 			       (car centre-atom) " "
 			       (car (cdr centre-atom)))))
-		       (append (list label imol) alt-conf-residue centre-atom)))
-	      alt-conf-residues centre-atoms)))))
-
+		       (append (list label imol) residue centre-atom)))
+	      residues centre-atoms)))))
 
 
 ;; button-list is a list of pairs (improper list) the first item of

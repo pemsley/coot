@@ -14,6 +14,7 @@
 (define  refmac-parameters-scm #t)
 (define  water-chain #f)
 (define  water-chain-from-shelx-ins #f)
+(define  generic-object-name #f)
 
 
 (load "filter.scm")
