@@ -58,26 +58,29 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
    p_i.success = GL_FALSE; 
    for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 
-      coot::Cartesian atom(SelAtom.atom_selection[i]->x,
-			   SelAtom.atom_selection[i]->y,
-			   SelAtom.atom_selection[i]->z);
-      //
-      if (atom.within_box(front,back)) { 
+      if (! SelAtom.atom_selection[i]->isTer()) {
 
-	 dist = atom.distance_to_line(front, back);
+	 coot::Cartesian atom(SelAtom.atom_selection[i]->x,
+			      SelAtom.atom_selection[i]->y,
+			      SelAtom.atom_selection[i]->z);
+	 //
+	 if (atom.within_box(front,back)) { 
 
-	 if (dist < min_dist) {
-	    if ((pick_mode != PICK_ATOM_CA_ONLY) ||
-		(std::string(SelAtom.atom_selection[i]->name) == " CA ")) {
+	    dist = atom.distance_to_line(front, back);
+
+	    if (dist < min_dist) {
+	       if ((pick_mode != PICK_ATOM_CA_ONLY) ||
+		   (std::string(SelAtom.atom_selection[i]->name) == " CA ")) {
 		  
-	       min_dist = dist;
-	       nearest_atom_index = i;
-	       p_i.success = GL_TRUE;
-	       p_i.atom_index = nearest_atom_index;
-	       p_i.imol = imol;
-	       p_i.min_dist = dist;
+		  min_dist = dist;
+		  nearest_atom_index = i;
+		  p_i.success = GL_TRUE;
+		  p_i.atom_index = nearest_atom_index;
+		  p_i.imol = imol;
+		  p_i.min_dist = dist;
 	       
-	       // std::cout << "DEBUG:: atom index " << nearest_atom_index << std::endl;
+		  // std::cout << "DEBUG:: atom index " << nearest_atom_index << std::endl;
+	       }
 	    }
 	 }
       }

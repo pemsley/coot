@@ -577,12 +577,12 @@ molecule_class_info_t::make_dynamically_transformed_maps(int imol_map,
 	 n_new_maps++;
 	 graphics_info_t::molecules.push_back(molecule_class_info_t(imol));
 
-	 graphics_info_t::molecules[imol].install_map(g.molecules[imol_map].xmap_list[0],
-						      ncs_ghosts[ighost].name,
-						      ncs_ghosts[ighost],
-						      g.molecules[imol_map].is_difference_map_p(),
-						      g.swap_difference_map_colours,
-						      g.molecules[imol_map].map_sigma());
+	 graphics_info_t::molecules[imol].install_ghost_map(g.molecules[imol_map].xmap_list[0],
+							    ncs_ghosts[ighost].name,
+							    ncs_ghosts[ighost],
+							    g.molecules[imol_map].is_difference_map_p(),
+							    g.swap_difference_map_colours,
+							    g.molecules[imol_map].map_sigma());
       } else {
 	 std::cout << "WARNING:: omitting extra map " << ighost << "  - no space!\n";
       }
@@ -815,13 +815,15 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
 }
 
 void
-molecule_class_info_t::install_map(const clipper::Xmap<float> &map_in, std::string name_in,
-				   const coot::ghost_molecule_display_t &ghost_info,
-				   int is_diff_map_flag,
-				   int swap_difference_map_colours_flag,
-				   float sigma_in) {
+molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std::string name_in,
+					 const coot::ghost_molecule_display_t &ghost_info,
+					 int is_diff_map_flag,
+					 int swap_difference_map_colours_flag,
+					 float sigma_in) {
 
    std::cout << "INFO:: installing ghost map with name :" << name_in << std::endl;
+   std::cout << "INFO::  max_xmaps :" << max_xmaps << std::endl;
+   std::cout << "INFO::  xmap_list :" << xmap_list << std::endl;
 
    is_dynamically_transformed_map_flag = 1;
    if (max_xmaps == 0) {
@@ -830,6 +832,7 @@ molecule_class_info_t::install_map(const clipper::Xmap<float> &map_in, std::stri
       xmap_is_diff_map = new int[1];
       contour_level    = new float[1];
    }
+   std::cout << "INFO:: installing xmap_list :" << xmap_list << std::endl;
    xmap_list[0] = map_in; 
    max_xmaps++;
    initialize_map_things_on_read_molecule(name_in,
@@ -1819,13 +1822,15 @@ coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p,
 	 float atom_weight = 1.0;
 	 CAtom *at1 = residue_atoms_1[index_pairs[i].first];
 	 CAtom *at2 = residue_atoms_2[index_pairs[i].second];
-	 if (coot::is_main_chain_p(at1))
-	    atom_weight = main_chain_weight;
-	 clipper::Coord_orth pt1(at1->x, at1->y, at1->z);
-	 clipper::Coord_orth pt2(at2->x, at2->y, at2->z);
-	 double len = clipper::Coord_orth::length(pt1.transform(rtop), pt2);
-	 sum_dist +=len;
-	 n_weighted_atoms += atom_weight;
+	 if (!at1->isTer() && !at2->isTer()) { 
+	    if (coot::is_main_chain_p(at1))
+	       atom_weight = main_chain_weight;
+	    clipper::Coord_orth pt1(at1->x, at1->y, at1->z);
+	    clipper::Coord_orth pt2(at2->x, at2->y, at2->z);
+	    double len = clipper::Coord_orth::length(pt1.transform(rtop), pt2);
+	    sum_dist +=len;
+	    n_weighted_atoms += atom_weight;
+	 }
       }
       if (n_weighted_atoms > 0.0) {
 	 r = coot::ncs_residue_info_t(this_residue_p->GetSeqNum(),

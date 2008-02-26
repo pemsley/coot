@@ -3870,17 +3870,14 @@ int vt_surface_status() {
 int save_coordinates(int imol, const char *filename) { 
 
    int ierr = 0;
-   if (imol >= 0) { 
-      if (imol < graphics_info_t::n_molecules()) { 
-	 if (graphics_info_t::molecules[imol].has_model()) { 
-	    ierr = graphics_info_t::molecules[imol].save_coordinates(filename);
-	 }
-      } 
-   } 
+   if (is_valid_model_molecule(imol)) { 
+      ierr = graphics_info_t::molecules[imol].save_coordinates(filename);
+   }
+   
    std::vector<std::string> command_strings;
    command_strings.push_back("save-coordinates");
    command_strings.push_back(coot::util::int_to_string(imol));
-   command_strings.push_back(filename);
+   command_strings.push_back(single_quote(filename));
    add_to_history(command_strings);
    return ierr;
 }
@@ -5342,6 +5339,33 @@ int transform_map_raw(int imol,
    }
    return imol_new;
 }
+
+/*! \brief make a difference map, taking map_scale * imap2 from imap1,
+  on the grid of imap1.  Return the new molecule number.  
+  Return -1 on failure. */
+int difference_map(int imol1, int imol2, float map_scale) {
+
+   int r = -1;
+
+   if (is_valid_map_molecule(imol1)) {
+      if (is_valid_map_molecule(imol2)) {
+ 	 std::pair<clipper::Xmap<float>, float> dm =
+ 	    coot::util::difference_map(graphics_info_t::molecules[imol1].xmap_list[0],
+ 				       graphics_info_t::molecules[imol2].xmap_list[0],
+ 				       map_scale);
+	 int imol = graphics_info_t::create_molecule();
+	 std::string name = "difference-map";
+	 int swpcolf = graphics_info_t::swap_difference_map_colours;
+	 graphics_info_t::molecules[imol].new_map(dm.first, name);
+	 graphics_info_t::molecules[imol].set_map_is_difference_map();
+	 
+	 r = imol;
+	 graphics_draw();
+      }
+   }
+   return r;
+}
+
 
 
 void do_peptide_torsions_toggle() {

@@ -94,7 +94,8 @@ molecule_class_info_t::update_map() {
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 			 graphics_info_t::RotationCentre_y(),
 			 graphics_info_t::RotationCentre_z());
-      
+
+      std::cout << "DEBUG:: update_map with rc: " << rc << std::endl;
       update_map_triangles(graphics_info_t::box_radius, rc); 
       if (graphics_info_t::display_lists_for_maps_flag) {
 	 compile_density_map_display_list();
@@ -251,6 +252,11 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 		<< ") setting to 10" << std::endl;
       dy_radius = 10.0;
    }
+
+   std::cout << "DEBUG:: update_map with centre: "
+	     << centre.x() << " "
+	     << centre.y() << " "
+	     << centre.z() << std::endl;
 
    // dynamically transformed maps get their vectors from molecule B
    // (we are looking at molecule at atoms in molecule A) which then

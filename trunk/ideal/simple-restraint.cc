@@ -1,4 +1,4 @@
-/* ideal/simple-resetraint.cc
+/* ideal/simple-restraint.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
  * Copyright 2008  by The University of Oxford
@@ -786,7 +786,11 @@ coot::distortion_score(const gsl_vector *v, void *params) {
       }
 
       if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) {
-	 
+   	 if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
+   	    d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
+	    std::cout << "DEBUG:: distortion for rama: " << d << std::endl;
+   	    distortion += d;
+   	 }
       }
    }
 
@@ -836,6 +840,11 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
       if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) 
    	 if (restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) 
    	    distortion = coot::distortion_score_chiral_volume(restraints_vec[i], v);
+
+      // FIXME      
+//       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) 
+//    	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) 
+//    	    distortion = coot::distortion_score_rama(restraints_vec[i], v, restraints->LogRama());
 
       distortion_vec_container.geometry_distortion.push_back(coot::geometry_distortion_info_t(distortion, restraints_vec[i]));
    }
@@ -1101,6 +1110,93 @@ coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restra
    return distortion;
 }
 
+double 
+coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
+			    const gsl_vector *v,
+			    const LogRamachandran &lograma) {
+
+   double distortion = 0;
+   // First calculate the torsions:
+   // theta = arctan(E/G); 
+   // where E = a.(bxc) and G = -a.c + (a.b)(b.c)
+
+   int idx; 
+
+   idx = 3*(rama_restraint.atom_index_1);
+   clipper::Coord_orth P1(gsl_vector_get(v,idx), 
+			  gsl_vector_get(v,idx+1), 
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_2); 
+   clipper::Coord_orth P2(gsl_vector_get(v,idx), 
+			  gsl_vector_get(v,idx+1), 
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_3); 
+   clipper::Coord_orth P3(gsl_vector_get(v,idx), 
+			  gsl_vector_get(v,idx+1), 
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_4); 
+   clipper::Coord_orth P4(gsl_vector_get(v,idx), 
+			  gsl_vector_get(v,idx+1), 
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_5); 
+   clipper::Coord_orth P5(gsl_vector_get(v,idx), 
+			  gsl_vector_get(v,idx+1), 
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_6); 
+   clipper::Coord_orth P6(gsl_vector_get(v,idx), 
+			  gsl_vector_get(v,idx+1), 
+			  gsl_vector_get(v,idx+2));
+
+//    P1 = clipper::Coord_orth(1.0, 0.0, 1.0); 
+//    P2 = clipper::Coord_orth(0.0, -1.0, 1.0); 
+//    P3 = clipper::Coord_orth(0.0, 0.0, 0.0); 
+//    P4 = clipper::Coord_orth(-1.0, -1.0, 1.0); 
+//    P4 = clipper::Coord_orth(1.0, 1.0, 1.0); 
+
+   clipper::Coord_orth a = P2 - P1; 
+   clipper::Coord_orth b = P3 - P2; 
+   clipper::Coord_orth c = P4 - P3;
+   clipper::Coord_orth d = P5 - P4;
+   clipper::Coord_orth e = P6 - P5;
+
+   // TRANS    psi      1 N (P1)    1 CA (P2)     1 C  (P3)    2 N (P4)
+   // TRANS    phi      1 C (P3)    2  N (P4)     2 CA (P5)    2 C (P6)
+
+   // ---------- psi ------------------
+   // b*b * [ a.(bxc)/b ]
+   double E = clipper::Coord_orth::dot(a,clipper::Coord_orth::cross(b,c)) *
+      sqrt( b.lengthsq() );
+
+   // b*b * [ -a.c+(a.b)(b.c)/(b*b) ] = -a.c*b*b + (a.b)(b.c)
+   double G = - clipper::Coord_orth::dot(a,c)*b.lengthsq()
+      + clipper::Coord_orth::dot(a,b)*clipper::Coord_orth::dot(b,c);
+
+   double psi = clipper::Util::rad2d(atan2(E,G));
+
+   // ---------- phi ------------------
+   // b*b * [ a.(bxc)/b ]
+   double H = clipper::Coord_orth::dot(c, clipper::Coord_orth::cross(d,e)) *
+      sqrt( d.lengthsq() );
+
+   // b*b * [ -a.c+(a.b)(b.c)/(b*b) ] = -a.c*b*b + (a.b)(b.c)
+   double I = - clipper::Coord_orth::dot(c,e)*d.lengthsq()
+      + clipper::Coord_orth::dot(c,d)*clipper::Coord_orth::dot(d,e);
+
+   double phi = clipper::Util::rad2d(atan2(H,I));
+
+   double R = -pow(10.0, 10.0) * lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   std::cout << "rama distortion for " << phi << " " << psi << " is " << R << std::endl;
+
+
+   if ( clipper::Util::isnan(phi) ) {
+      std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
+   } 
+   if ( clipper::Util::isnan(psi) ) {
+      std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
+   } 
+
+   return R;
+}
 
 
 // Before we ask this question, we need to match residues which chiral
@@ -1809,6 +1905,7 @@ void coot::my_df(const gsl_vector *v,
    coot::my_df_bonds     (v, params, df); 
    coot::my_df_angles    (v, params, df);
    coot::my_df_torsions  (v, params, df);
+   coot::my_df_rama      (v, params, df);
    coot::my_df_planes    (v, params, df);
    coot::my_df_non_bonded(v, params, df);
    coot::my_df_chiral_vol(v, params, df);
@@ -1907,15 +2004,17 @@ void coot::my_df_bonds (const gsl_vector *v,
 	    
 	    // weight = 1.0;
 	    // weight = pow(0.021, -2.0);
-	    // std::cout << "df weight is " << weight << std::endl; 
+	    // std::cout << "df weight is " << weight << std::endl;
+
+	    double constant_part = 2.0*weight*(b_i - target_val)/b_i;
 	    
-	    x_k_contrib = 2*weight*(b_i - target_val)*(a1.x()-a2.x())/b_i;
-	    y_k_contrib = 2*weight*(b_i - target_val)*(a1.y()-a2.y())/b_i;
-	    z_k_contrib = 2*weight*(b_i - target_val)*(a1.z()-a2.z())/b_i;
+	    x_k_contrib = constant_part*(a1.x()-a2.x());
+	    y_k_contrib = constant_part*(a1.y()-a2.y());
+	    z_k_contrib = constant_part*(a1.z()-a2.z());
 	    
-	    x_l_contrib = 2*weight*(b_i - target_val)*(a2.x()-a1.x())/b_i;
-	    y_l_contrib = 2*weight*(b_i - target_val)*(a2.y()-a1.y())/b_i;
-	    z_l_contrib = 2*weight*(b_i - target_val)*(a2.z()-a1.z())/b_i;
+	    x_l_contrib = constant_part*(a2.x()-a1.x());
+	    y_l_contrib = constant_part*(a2.y()-a1.y());
+	    z_l_contrib = constant_part*(a2.z()-a1.z());
 
 	    if (!(*restraints)[i].fixed_atom_flags[0]) { 
 	       idx = 3*((*restraints)[i].atom_index_1 - 0);  
@@ -2022,14 +2121,15 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	    // std::cout << "df weight is " << weight << std::endl; 
 	    
 	    if (b_i < (*restraints)[i].target_value) {
-	    
-	       x_k_contrib = 2*weight*(b_i - target_val)*(a1.x()-a2.x())/b_i;
-	       y_k_contrib = 2*weight*(b_i - target_val)*(a1.y()-a2.y())/b_i;
-	       z_k_contrib = 2*weight*(b_i - target_val)*(a1.z()-a2.z())/b_i;
 
-	       x_l_contrib = 2*weight*(b_i - target_val)*(a2.x()-a1.x())/b_i;
-	       y_l_contrib = 2*weight*(b_i - target_val)*(a2.y()-a1.y())/b_i;
-	       z_l_contrib = 2*weight*(b_i - target_val)*(a2.z()-a1.z())/b_i;
+	       double constant_part = 2.0*weight*(b_i - target_val)/b_i;
+	       x_k_contrib = constant_part*(a1.x()-a2.x());
+	       y_k_contrib = constant_part*(a1.y()-a2.y());
+	       z_k_contrib = constant_part*(a1.z()-a2.z());
+
+	       x_l_contrib = constant_part*(a2.x()-a1.x());
+	       y_l_contrib = constant_part*(a2.y()-a1.y());
+	       z_l_contrib = constant_part*(a2.z()-a1.z());
 
 	       if (!(*restraints)[i].fixed_atom_flags[0]) { 
 		  idx = 3*((*restraints)[i].atom_index_1 - 0); 
@@ -2491,6 +2591,104 @@ void coot::my_df_torsions(const gsl_vector *v,
    }
 }
 
+// Add in the torsion gradients
+//
+void coot::my_df_rama(const gsl_vector *v, 
+		      void *params, 
+		      gsl_vector *df) {
+
+   // First calculate the torsions:
+   // theta = arctan(E/G); 
+   // where E = a.(bxc) and G = -a.c + (a.b)(b.c)
+
+   coot::restraints_container_t *restraints =
+      (coot::restraints_container_t *)params;
+
+   if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) { 
+     
+      for (int i=0; i<restraints->size(); i++) {
+      
+	 if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
+
+	    int idx;
+	    coot::simple_restraint rama_restraint = (*restraints)[i];
+
+	    idx = 3*(rama_restraint.atom_index_1);
+	    clipper::Coord_orth P1(gsl_vector_get(v,idx), 
+				   gsl_vector_get(v,idx+1), 
+				   gsl_vector_get(v,idx+2));
+	    idx = 3*(rama_restraint.atom_index_2); 
+	    clipper::Coord_orth P2(gsl_vector_get(v,idx), 
+				   gsl_vector_get(v,idx+1), 
+				   gsl_vector_get(v,idx+2));
+	    idx = 3*(rama_restraint.atom_index_3); 
+	    clipper::Coord_orth P3(gsl_vector_get(v,idx), 
+				   gsl_vector_get(v,idx+1), 
+				   gsl_vector_get(v,idx+2));
+	    idx = 3*(rama_restraint.atom_index_4); 
+	    clipper::Coord_orth P4(gsl_vector_get(v,idx), 
+				   gsl_vector_get(v,idx+1), 
+				   gsl_vector_get(v,idx+2));
+	    idx = 3*(rama_restraint.atom_index_5); 
+	    clipper::Coord_orth P5(gsl_vector_get(v,idx), 
+				   gsl_vector_get(v,idx+1), 
+				   gsl_vector_get(v,idx+2));
+	    idx = 3*(rama_restraint.atom_index_6); 
+	    clipper::Coord_orth P6(gsl_vector_get(v,idx), 
+				   gsl_vector_get(v,idx+1), 
+				   gsl_vector_get(v,idx+2));
+
+	    //    P1 = clipper::Coord_orth(1.0, 0.0, 1.0); 
+	    //    P2 = clipper::Coord_orth(0.0, -1.0, 1.0); 
+	    //    P3 = clipper::Coord_orth(0.0, 0.0, 0.0); 
+	    //    P4 = clipper::Coord_orth(-1.0, -1.0, 1.0); 
+	    //    P4 = clipper::Coord_orth(1.0, 1.0, 1.0); 
+
+	    clipper::Coord_orth a = P2 - P1; 
+	    clipper::Coord_orth b = P3 - P2; 
+	    clipper::Coord_orth c = P4 - P3;
+	    clipper::Coord_orth d = P5 - P4;
+	    clipper::Coord_orth e = P6 - P5;
+
+	    // TRANS    psi      1 N (P1)    1 CA (P2)     1 C  (P3)    2 N (P4)
+	    // TRANS    phi      1 C (P3)    2  N (P4)     2 CA (P5)    2 C (P6)
+
+	    // ---------- psi ------------------
+	    // b*b * [ a.(bxc)/b ]
+	    double E = clipper::Coord_orth::dot(a,clipper::Coord_orth::cross(b,c)) *
+	       sqrt( b.lengthsq() );
+
+	    // b*b * [ -a.c+(a.b)(b.c)/(b*b) ] = -a.c*b*b + (a.b)(b.c)
+	    double G = - clipper::Coord_orth::dot(a,c)*b.lengthsq()
+	       + clipper::Coord_orth::dot(a,b)*clipper::Coord_orth::dot(b,c);
+
+	    double psi = clipper::Util::rad2d(atan2(E,G));
+
+	    // ---------- phi ------------------
+	    // b*b * [ a.(bxc)/b ]
+	    double H = clipper::Coord_orth::dot(c, clipper::Coord_orth::cross(d,e)) *
+	       sqrt( d.lengthsq() );
+
+	    // b*b * [ -a.c+(a.b)(b.c)/(b*b) ] = -a.c*b*b + (a.b)(b.c)
+	    double I = - clipper::Coord_orth::dot(c,e)*d.lengthsq()
+	       + clipper::Coord_orth::dot(c,d)*clipper::Coord_orth::dot(d,e);
+
+	    double phi = clipper::Util::rad2d(atan2(H,I));
+
+	    // double R = -pow(10,10) * lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+	    // std::cout << "rama distortion for " << phi << " " << psi << " is " << R << std::endl;
+
+
+	    if ( clipper::Util::isnan(phi) ) {
+	       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
+	    } 
+	    if ( clipper::Util::isnan(psi) ) {
+	       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
+	    }
+	 }
+      }
+   }
+}
 
 //  the chiral volumes
 void 
@@ -2912,7 +3110,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 					      short int do_residue_internal_torsions,
 					      short int link_torsions_restraints_type,
 					      float rama_plot_target_weight,
-					      bool do_rama_plot_retraints, 
+					      bool do_rama_plot_restraints, 
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds) {
 
 //   std::cout << "----- make restraints called with link_torsions_restraints_type: "
@@ -2922,8 +3120,9 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
    mark_OXT();
    iret += make_monomer_restraints(geom, do_residue_internal_torsions);
-   iret += make_link_restraints(geom, link_torsions_restraints_type);
-   iret += make_flanking_atoms_restraints(geom); //  don't do torsions
+   iret += make_link_restraints(geom, link_torsions_restraints_type, do_rama_plot_restraints);
+   //  don't do torsions, ramas maybe.   
+   iret += make_flanking_atoms_restraints(geom, link_torsions_restraints_type, do_rama_plot_restraints);
    int iret_prev = restraints_vec.size();
 
    if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS) {
@@ -2931,7 +3130,8 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
    } 
    if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS) {
       make_strand_pseudo_bond_restraints();
-   } 
+   }
+
 
    if (restraints_usage_flag & coot::NON_BONDED_MASK)
       if (iret_prev > 0) 
@@ -3268,7 +3468,8 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
       }
    }
    mol->DeleteSelection(selHnd);
-} 
+}
+
 
 int
 coot::restraints_container_t::make_monomer_restraints(const coot::protein_geometry &geom,
@@ -3388,7 +3589,8 @@ coot::restraints_container_t::make_monomer_restraints(const coot::protein_geomet
 
 int
 coot::restraints_container_t::make_link_restraints(const coot::protein_geometry &geom,
-						   short int link_torsions_type_flag) {
+						   short int do_link_torsions,
+						   bool do_rama_plot_restraints) {
 
    // link_torsions_type_flag is 0 for no link torsions,
    // LINK_TORSION_RAMACHANDRAN_GOODNESS = 1,
@@ -3493,12 +3695,14 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 		  // std::cout << "---------------link_torsions_type_flag: "
 		  // << link_torsions_type_flag
 		  // << std::endl;
-		  if (link_torsions_type_flag) // ie. do_link_torsions
-		     n_link_torsion_restr += add_link_torsion(link_type,  // TRANS, p, etc
-							      link_torsions_type_flag,
-							      SelResidue[i], SelResidue[i+1],
-							      0,0,
-							      geom);
+		  if (do_rama_plot_restraints) {
+		     // nothing else has link torsions, do they?
+		     if (link_type == "TRANS")
+		     n_link_torsion_restr += add_rama(link_type,  // TRANS, p, etc
+						      SelResidue[i], SelResidue[i+1],
+						      0,0,
+						      geom);
+		  }
 		  // gettimeofday(&current_time, NULL);
 		  // td = time_diff(current_time, start_time);
 		  // t3 = td;
@@ -3521,9 +3725,8 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
    std::cout << "   " << n_link_bond_restr    << " bond    links" << std::endl;
    std::cout << "   " << n_link_angle_restr   << " angle   links" << std::endl;
    std::cout << "   " << n_link_plane_restr   << " plane   links" << std::endl;
-   if (link_torsions_type_flag) // i.e. (do_link_torsions)
-      std::cout << "   " << n_link_torsion_restr << " torsion links" << std::endl;
-   // std::cout << "------------- end of link restraints: -----------------" << "\n";
+   if (do_link_torsions || do_rama_plot_restraints) // i.e. (do_link_torsions)
+      std::cout << "   " << n_link_torsion_restr << " torsion/rama links" << std::endl;
    return iret; 
 }
 
@@ -3717,7 +3920,9 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
 
 
 int
-coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein_geometry &geom) {
+coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein_geometry &geom,
+							     bool do_link_torsions,
+							     bool do_rama_plot_restraints) {
 
    int iret = 0;
 
@@ -3821,10 +4026,13 @@ coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein
 							     SelResidue[i], SelResidue[i+1],
 							     fixed_1, fixed_2,
 							     geom);
-			// 	       n_link_torsion_restr += add_link_torsion(link_type,
-			// 							SelResidue[i], SelResidue[i+1],
-			// 							fixed_1, fixed_2,
-			// 							geom);
+			if (do_rama_plot_restraints) {
+			   if (link_type == "TRANS") 
+			      n_link_torsion_restr += add_rama(link_type,
+							       SelResidue[i], SelResidue[i+1],
+							       fixed_1, fixed_2,
+							       geom);
+			}
 		     } else {
 			// Yes, this can happen
 			std::cout << "a null residue!? " << std::endl;
@@ -4771,6 +4979,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
    return nangle;
 }
 
+
 int
 coot::restraints_container_t::add_link_torsion(std::string link_type,
 					       int phi_psi_restraints_type,
@@ -4950,6 +5159,95 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
       }
    }
    return n_torsion; 
+}
+
+// make RAMACHANDRAN_RESTRAINTs, not TORSION_RESTRAINTs these days.
+int
+coot::restraints_container_t::add_rama(std::string link_type,
+				       PCResidue first, PCResidue second,
+				       short int is_fixed_first, short int is_fixed_second,
+				       const coot::protein_geometry &geom) {
+
+   // TRANS    psi      1 N      1 CA     1 C      2 N   
+   // TRANS    phi      1 C      2 N      2 CA     2 C   
+   // TRANS    omega    1 CA     1 C      2 N      2 CA  
+   
+  std::cout << "DEBUG:: --------- :: Adding RAMA phi_psi_restraints_type" << std::endl;
+   
+   int n_rama = 0;
+      
+   PPCAtom first_sel;
+   PPCAtom second_sel;
+   int n_first_res_atoms, n_second_res_atoms;
+
+   first->GetAtomTable(first_sel,   n_first_res_atoms); 
+   second->GetAtomTable(second_sel, n_second_res_atoms);
+
+   if (n_first_res_atoms <= 0) {
+      std::cout << "no atoms in first residue!? " << std::endl;
+   }
+   if (n_second_res_atoms <= 0) {
+      std::cout << "no atoms in second residue!? " << std::endl;
+   }
+
+   std::vector<bool> fixed_flag(6, 0);
+   if (is_fixed_first) {
+      fixed_flag[0] = 1;
+      fixed_flag[1] = 1;
+      fixed_flag[2] = 1;
+   }
+   if (is_fixed_second) {
+      fixed_flag[3] = 1;
+      fixed_flag[4] = 1;
+      fixed_flag[5] = 1;
+   }
+   std::vector<CAtom *> rama_atoms(6);
+   for (int ir=0; ir<6; ir++)
+      rama_atoms[ir] = 0;
+   
+   for (int i=0; i<n_first_res_atoms; i++) {
+      std::string atom_name(first_sel[i]->name);
+      if (atom_name == " N  ")
+	 rama_atoms[0] = first_sel[i];
+      if (atom_name == " CA ")
+	 rama_atoms[1] = first_sel[i];
+      if (atom_name == " C  ")
+	 rama_atoms[2] = first_sel[i];
+   }
+   for (int i=0; i<n_second_res_atoms; i++) {
+      std::string atom_name(second_sel[i]->name);
+      if (atom_name == " N  ")
+	 rama_atoms[3] = second_sel[i];
+      if (atom_name == " CA ")
+	 rama_atoms[4] = second_sel[i];
+      if (atom_name == " C  ")
+	 rama_atoms[5] = second_sel[i];
+   }
+
+   if (rama_atoms[0] && rama_atoms[1] && rama_atoms[2] && 
+       rama_atoms[3] && rama_atoms[4] && rama_atoms[5]) {
+
+      std::vector<int> atom_indices(6, -1);
+      for (int i=0; i<6; i++) {
+	 atom_indices[i] = get_asc_index(rama_atoms[i]->name,
+					 rama_atoms[i]->residue->seqNum,
+					 rama_atoms[i]->GetInsCode(),
+					 rama_atoms[i]->GetChainID());
+      }
+
+      if ( (atom_indices[0] != -1) && (atom_indices[1] != -1) && (atom_indices[2] != -1) && 
+	   (atom_indices[3] != -1) && (atom_indices[4] != -1) && (atom_indices[5] != -1)) { 
+
+	 std::cout << "Adding RAMACHANDRAN_RESTRAINT " << std::endl;
+	 
+	 add(RAMACHANDRAN_RESTRAINT,
+	     atom_indices[0], atom_indices[1], atom_indices[2],
+	     atom_indices[3], atom_indices[4], atom_indices[5], 
+	     fixed_flag);
+	 n_rama++;
+      }
+   }
+   return n_rama; 
 }
 
 int coot::restraints_container_t::add_link_plane(std::string link_type,

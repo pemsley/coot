@@ -868,6 +868,12 @@ int transform_map_raw(int imol,
 int rotate_map_round_screen_axis_x(float r_degrees); 
 int rotate_map_round_screen_axis_y(float r_degrees); 
 int rotate_map_round_screen_axis_z(float r_degrees); 
+
+/*! \brief make a difference map, taking map_scale * imap2 from imap1,
+  on the grid of imap1.  Return the new molecule number.  
+  Return -1 on failure. */
+int difference_map(int imol1, int imol2, float map_scale);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -1289,8 +1295,8 @@ int has_unit_cell_state(int imol);
 Allow a shift of the coordinates to the origin before symmetry
 expansion is apllied (this is how symmetry works in Coot
 internals). */
-void save_symmetry_coords(const char *filename, 
-			  int imol,
+void save_symmetry_coords(int imol,
+			  const char *filename, 
 			  int symop_no, 
 			  int shift_a, 
 			  int shift_b, 

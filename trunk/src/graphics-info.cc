@@ -1959,6 +1959,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
 
    if (do_torsion_restraints)
       // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
@@ -3087,6 +3088,10 @@ graphics_info_t::baton_next_directions(int imol_for_skel, const CAtom *latest_at
 				       const coot::Cartesian &baton_root,
 				       const clipper::Coord_grid &cg_start,
 				       short int use_cg_start) {
+
+
+   std::cout << "DEBUG in baton_next_directions imol_for_skel is "
+	     << imol_for_skel << std::endl;
          
    std::vector<clipper::Coord_orth> previous_ca_positions;
    // store the position of the just accepted atom as a previous atom
@@ -3184,6 +3189,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
    // from the skeleton map.
    //
    int  imol_for_skel = imol_for_skeleton();
+   std::cout << "DEBUG:: imol_for_skeleton in baton_build_atoms_molecule is " << imol_for_skel << std::endl;
    if (imol_for_skel >= 0) {
       // CMMDBCryst *cryst = new CMMDBCryst;
       MMDBManager->SetCell(molecules[imol_for_skel].xskel_cowtan.cell().descr().a(),
@@ -3192,12 +3198,15 @@ graphics_info_t::baton_build_atoms_molecule() const {
 			   clipper::Util::rad2d(molecules[imol_for_skel].xskel_cowtan.cell().descr().alpha()),
 			   clipper::Util::rad2d(molecules[imol_for_skel].xskel_cowtan.cell().descr().beta()),
 			   clipper::Util::rad2d(molecules[imol_for_skel].xskel_cowtan.cell().descr().gamma()), 1);
-      const char *spacegroup = molecules[imol_for_skel].xskel_cowtan.spacegroup().symbol_hm().c_str();
+
+      std::string spacegroup = molecules[imol_for_skel].xskel_cowtan.spacegroup().symbol_hm();
+      std::cout << "DEBUG got spacegroup " << spacegroup << std::endl;
+
       std::cout << "setting spacegroup of Baton Atoms to be: " << spacegroup << std::endl;
       std::cout << "setting cell of Baton Atoms to be: "
 		<< molecules[imol_for_skel].xskel_cowtan.cell().format() << std::endl;
       
-      int istat_spgr = MMDBManager->SetSpaceGroup((char *)spacegroup); // bleugh!
+      int istat_spgr = MMDBManager->SetSpaceGroup((char *)spacegroup.c_str()); // bleugh!
       std::cout << "DEBUG:: status from SetSpaceGroup: " << istat_spgr << std::endl;
       if (istat_spgr != 0) {
 	 std::cout << "Problem:: mmdb does not understand space group: " << spacegroup << std::endl;

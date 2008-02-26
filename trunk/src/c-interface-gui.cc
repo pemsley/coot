@@ -462,7 +462,7 @@ void store_graphics_window_position(int x_pos, int y_pos) {
       std::vector<coot::command_arg_t> args;
       args.push_back(x_pos);
       args.push_back(y_pos);
-      add_to_history_typed(cmd, args);
+      // add_to_history_typed(cmd, args); enough!
    }
 } 
 
@@ -3036,7 +3036,7 @@ void save_coordinates_using_widget(GtkWidget *widget) {
 		<< imol << " to file " << filename << std::endl;
 
       graphics_info_t g;
-      int ierr = g.molecules[imol].save_coordinates(filename);
+      int ierr = save_coordinates(imol, filename);
       if (! ierr) { 
 	 std::string s = "Saved coordinates file ";
 	 s += filename;
@@ -3045,6 +3045,41 @@ void save_coordinates_using_widget(GtkWidget *widget) {
       }
    }
 }
+
+void save_symmetry_coords_from_fileselection(GtkWidget *fileselection) {
+
+   coot::Symm_Atom_Pick_Info_t *symm_info =
+      (coot::Symm_Atom_Pick_Info_t *) gtk_object_get_user_data(GTK_OBJECT(fileselection));
+
+   const gchar *filename;
+#if (GTK_MAJOR_VERSION > 1)
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+	 filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+   } else {
+	 filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
+   }
+#else
+   filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
+#endif // GTK_MAJOR_VERSION
+
+   if (symm_info) {
+      // std::cout << "Preshift to origin:  " << symm_info->pre_shift_to_origin << std::endl;
+      save_symmetry_coords(symm_info->imol,
+			   filename,
+			   symm_info->symm_trans.isym(),
+			   symm_info->symm_trans.x(), 
+			   symm_info->symm_trans.y(), 
+			   symm_info->symm_trans.z(), 
+			   symm_info->pre_shift_to_origin.us,			   
+			   symm_info->pre_shift_to_origin.vs,
+			   symm_info->pre_shift_to_origin.ws);
+   } else {
+      std::cout << "ERROR:: failed to get user data from save symmetry coords fileselection"
+		<< std::endl;
+      std::cout << "ERROR:: saving of symmetry coordinates failed" << std::endl;
+   }
+}
+
 
 GtkWidget *wrapped_create_goto_atom_window() {
 
