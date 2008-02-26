@@ -2521,7 +2521,9 @@ test_coot > $LOGS/gtk2-build-testing.log
 r=$?
 gtk2=-gtk2
 if [ $r = 0 ] ; then
-   echo coot test passed
+   echo ========================
+   echo '   ' coot test passed
+   echo ========----============
    if test "$do_nightlies" = "1" ; then 
       if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
@@ -2543,7 +2545,9 @@ if [ $r = 0 ] ; then
       echo not doing tar files for nightlies: $do_nightlies
    fi
 else
-   echo coot test failed
+   echo ========================
+   echo '  ' coot test failed
+   echo ========================
 fi
 
 
