@@ -1549,6 +1549,8 @@ fi
 
 # guile-gtk, only look in installation, not system.
 if [ "$build_gtk" = "" ] ; then 
+   # if we are not building gtk, perhaps we should not build 
+   # guile-gtk also?
    for dir in ${install_top_dir} ; do
       if test -e "${dir}/include/guile-gtk.h" ; then
          echo installation has guile-gtk
@@ -1557,6 +1559,9 @@ if [ "$build_gtk" = "" ] ; then
          else
             build_guile_gtk=1
          fi
+      else
+         echo installation does not have guile-gtk
+         build_guile_gtk=1
       fi
    done
 else 
