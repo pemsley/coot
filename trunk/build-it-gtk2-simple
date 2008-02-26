@@ -218,7 +218,8 @@
 # 4.02 20080212 Add in the Neil Jerram guile-gui patch.
 # 4.03 20080213 Add Joseph Moran's fix for handling CC when set.
 # 4.04 20080213 Allow python to get through rsync filter, for PHENIX usage.
-script_version=4.04
+# 4.05 20080226 Fix up build_guile_gtk usage.
+script_version=4.05
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1558,10 +1559,14 @@ if [ "$build_gtk" = "" ] ; then
          fi
       fi
    done
+else 
+   build_guile_gtk=1
 fi
 if test -n "${build_guile_gtk}" ; then
    echo guile-gtk should be built
    build_guile_gtk=1
+else 
+   echo guile-gtk should not be built
 fi
 
 # ##############################################################
