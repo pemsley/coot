@@ -39,7 +39,7 @@
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 
-#if !defined _MSC_VER
+#if !defined _MSC_VER && !defined WINDOWS_MINGW
 #include <unistd.h>
 #else
 #define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)

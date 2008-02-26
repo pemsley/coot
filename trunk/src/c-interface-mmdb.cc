@@ -26,7 +26,7 @@
 #include <iostream>
 #include <string>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(WINDOWS_MINGW)
 #define AddAtomA AddAtom
 #endif
 

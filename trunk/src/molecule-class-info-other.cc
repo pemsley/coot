@@ -32,6 +32,9 @@
 #     define AddAtomA AddAtom
 #   else
 #     include <unistd.h>
+#     include <glob.h>
+#     define AddAtomA AddAtom
+#     define GetAtomNameA GetAtomName
 #   endif
 #endif
 

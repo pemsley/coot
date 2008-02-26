@@ -19,6 +19,25 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+# 'Macro' to tidy up a set of functions to be run with automatic
+# accepting of the refinement
+# 
+# funcs is a normal set of functions (not a thunk)
+# 
+def with_auto_accept(*funcs):
+
+    replace_state = refinement_immediate_replacement_state()
+    set_refinement_immediate_replacement(1)
+    for f in funcs:
+        func = f[0]
+        args = f[1:len(f)]
+        #print "BL DEBUG:: func and args", func, args
+        func(*args)
+        accept_regularizement()
+    
+    if (replace_state == 0):
+        set_refinement_immediate_replacement(0)
+
 
 # return a list of molecule numbers (closed and open)
 # The elements of the returned list need to be tested against is_valid_model_molecule_qm
@@ -304,7 +323,8 @@ def add_view(position, quaternion, zoom, view_name):
 	args = position + quaternion
 	args.append(zoom)
 	args.append(view_name)
-	add_view_raw(*args)
+	ret = add_view_raw(*args)
+	return ret
 
 # Convert a view matrix to a view quaternion to set Coot view internals.
 #
