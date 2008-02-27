@@ -4424,15 +4424,15 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 std::pair<int, std::string>
 molecule_class_info_t::write_shelx_ins_file(const std::string &filename) {
 
-   std::cout << "DEBUG:: starting write_shelx_ins_file in molecule "<< std::endl;
+   // std::cout << "DEBUG:: starting write_shelx_ins_file in molecule "<< std::endl;
    shelxins.debug();
    std::pair<int, std::string> p(1, "");
    
    if (atom_sel.n_selected_atoms > 0) { 
       p = shelxins.write_ins_file(atom_sel.mol, filename);
-      std::cout << "DEBUG:: in molecule_class_info_t::write_ins_file "
-		<< "got values " << p.first << " " << p.second
-		<< std::endl;
+//       std::cout << "DEBUG:: in molecule_class_info_t::write_ins_file "
+// 		<< "got values " << p.first << " " << p.second
+// 		<< std::endl;
    } else {
       p.second = "WARNING:: No atoms to write!";
    } 

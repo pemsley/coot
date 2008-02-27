@@ -1012,8 +1012,8 @@ coot::geometry_graphs::render_to_canvas(const std::vector<coot::geometry_graph_b
    int nres = max_resno - min_resno + 1;
    offsets[chain_number] = offset;
    draw_chain_axis(nres, chain_number);
-   std::cout << "DEBUG:: min_resno: " << min_resno << " max_resno: " << max_resno
-	     << " chain_number " << chain_number << std::endl;
+//    std::cout << "DEBUG:: min_resno: " << min_resno << " max_resno: " << max_resno
+// 	     << " chain_number " << chain_number << std::endl;
    draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
    blocks[chain_number].resize(nres + 1); // needs to index max_resno
 

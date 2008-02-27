@@ -333,9 +333,9 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
       // recentre and not a backup-restore
       // -1 is for failure strangely.
       int imol = g.create_molecule();
-      std::cout << "DEBUG:: c-interface handle_read_draw_molecule on molecule number: "
-		<< imol << std::endl;
-      std::cout << " DEBUG:: created placeholder molecule number " << imol << std::endl;
+//       std::cout << "DEBUG:: c-interface handle_read_draw_molecule on molecule number: "
+// 		<< imol << std::endl;
+//       std::cout << " DEBUG:: created placeholder molecule number " << imol << std::endl;
       float bw = graphics_info_t::default_bond_width;
       istat = g.molecules[imol].handle_read_draw_molecule(imol, f, recentre_on_read_pdb_flag, 0, bw);
 

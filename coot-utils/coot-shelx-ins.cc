@@ -970,11 +970,12 @@ coot::ShelxIns::try_assign_cell(CMMDBManager *mol) {
 				 clipper::Util::d2rad(a[4]),
 				 clipper::Util::d2rad(a[5]));
 	 cell = clipper::Cell(cdr);
-	 std::cout << "try_assign_cell assigned cell" << std::endl;
+// 	 std::cout << "try_assign_cell assigned cell:"
+// 		   << cell.format() << std::endl;
 	 have_cell_flag = 1;
       }
    }
-   std::cout << "try_assign_cell have_cell_flag " << have_cell_flag << std::endl;
+   return have_cell_flag;
 }
 
 std::pair<int, std::string>
@@ -996,7 +997,8 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
    
    float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
 
-   
+//    std::cout << "DEBUG:: in write_ins_file_internal have_cell_flag: "
+// 	     << have_cell_flag << std::endl;
    if (have_cell_flag) { // Need cell for orth->frac convertion for atoms
       
       std::ofstream f(filename.c_str());

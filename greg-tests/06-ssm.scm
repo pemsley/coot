@@ -30,6 +30,8 @@
 
 	(graphics-to-ca-plus-ligands-representation imol-s)
 	(set-graphics-window-size 687 452)
+
+	(print-molecule-names)
 	
 	(superpose-with-atom-selection imol-s imol-s "A/100-400" "B/50-450" 1)
 	(let ((imol-copy (- (graphics-n-molecules) 1)))
