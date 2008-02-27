@@ -677,6 +677,16 @@
 					 #t))))))))))))))
 
 
+(greg-testcase "Deleting (non-existing) Alt conf and Go To Atom [JED]" #t
+   (lambda ()
+
+     ;; alt conf "A" does not exist in this residue:
+     (delete-residue-with-altconf imol-rnase "A" 88 "" "A")
+     ;; to activate the bug, we need to search over all atoms
+     (active-residue) ; crash
+     #t))
+
+
 (greg-testcase "Mask and difference map" #t 
   (lambda ()
 
@@ -760,9 +770,10 @@
 	      (format #t "diff-high-values: ~s  diff-low-values: ~s~%" 
 		      diff-high-values diff-low-values)
 
-	      (if (not (< (apply + diff-high-values) 0.000001))
+	      (if (not (< (apply + diff-high-values) 0.03))
 		  (begin
-		    (format #t "Bad diff high values~%")
+		    (format #t "Bad diff high values: value: ~s target: ~s~%"
+			    (apply + diff-high-values)  0.03)
 		    (throw 'fail)))
 	      
 	      (if (not (< (apply + diff-low-values) -5))
@@ -771,15 +782,5 @@
 		    (throw 'fail)))
 	      
 	      #t))))))))
-
-
-(greg-testcase "Delete (non-existing) Alt conf and Go To Atom [JED]" #t
-   (lambda ()
-
-     ;; alt conf "A" does not exist in this residue:
-     (delete-residue-with-altconf imol-rnase "A" 88 "" "A")
-     ;; to activate the bug, we need to search over all atoms
-     (active-residue) ; crash
-     #t))
 
 

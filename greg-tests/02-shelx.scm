@@ -101,9 +101,20 @@
 
 ;; The "SHELX Woe" problem
 ;; 
-(greg-testcase "Write a INS from PDB test" #t 
+(greg-testcase "Write an INS from PDB test" #t 
    (lambda ()	      
 
+     ;; First, check return status on a bogus molecule
+     ;; 
+     (let ((status (write-shelx-ins-file 204050 "no-molecule.ins")))
+       (if (not (= status 0))
+	   (begin
+	     (format #t "bad exit status from write-shelx-ins-file on bogus molecule ~s~%"
+		     status)
+	     (throw 'fail))))
+
+     ;; Now check return status on a bogus molecule.  The Happy Path.
+     ;; 
      (if (not (valid-model-molecule? imol-rnase))
          (begin
             (format #t "   imol-rnase not valid.~%")
@@ -112,7 +123,8 @@
 		(status (write-shelx-ins-file imol-rnase rnase-ins)))
 	   (if (not (= status 1)) 
 	       (begin
-		 (format #t "   failure to write INS file ~s from PDB~%" rnase-ins)
+		 (format #t "   failure to write INS file ~s from PDB: status ~s~%"
+			 rnase-ins status)
 		 (throw 'fail))
 	       #t)))))
 
