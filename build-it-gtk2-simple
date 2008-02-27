@@ -941,17 +941,18 @@ fi
 #
 domainname=`domainname`
 coot_prefix=
-if [ "$domainname" = "yorksbl" ] ; then
-    # we are in York, let's try the pre-release coot...
-    echo we are in York
-    run_tests=true
-    build_coot_prerelease=1
+if test -z "$build_coot_prerelease" ; then
+   if [ "$domainname" = "yorksbl" ] ; then
+       # we are in York, let's try the pre-release coot...
+       echo we are in York
+       run_tests=true
+       build_coot_prerelease=1
+   fi
+   if [ "$domainname" = "biop" ] ; then
+      run_tests=true
+      build_coot_prerelease=1
+   fi
 fi
-if [ "$domainname" = "biop" ] ; then
-    run_tests=true
-    build_coot_prerelease=1
-fi
-
 
 # override the switch which turns off the building of the pre-release here:
 # build_coot_prerelease=1
