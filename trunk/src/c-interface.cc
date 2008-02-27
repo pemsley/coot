@@ -5129,7 +5129,11 @@ setup_guile_window_entry(GtkWidget *entry) {
 void python_window_enter_callback( GtkWidget *widget,
 				   GtkWidget *entry )
 {
+#if (GTK_MAJOR_VERSION > 1) 
   const gchar *entry_text;
+#else
+  char *entry_text;
+#endif
   entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
   printf("Entry contents: %s\n", entry_text);
 
