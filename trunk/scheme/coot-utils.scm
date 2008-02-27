@@ -1572,3 +1572,12 @@
 	    
 	    (if (list? atom-ls) 
 		(sanitise-alt-confs active-atom atom-ls)))))))
+
+
+(define (print-molecule-names)
+
+  (map (lambda (molecule-number)
+	 (format #t "    ~s    ~s~%" molecule-number (molecule-name molecule-number)))
+       (molecule-number-list)))
+
+  

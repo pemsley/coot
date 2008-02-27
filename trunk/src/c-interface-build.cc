@@ -1677,7 +1677,6 @@ rotamer_score(int resno, const char *insertion_code,
 
 void
 set_graphics_rotamer_dialog(GtkWidget *w) {
-   std::cout << "DEBUG:: setting graphics rotamer_dialog to " << w << std::endl;
    graphics_info_t::rotamer_dialog = w;
 }
 
@@ -5959,7 +5958,8 @@ int read_shelx_ins_file(const char *filename) {
 int write_shelx_ins_file(int imol, const char *filename) {
 
    int istat = 0;
-   if (filename) { 
+   if (filename) {
+
       if (is_valid_model_molecule(imol)) {
 	 std::pair<int, std::string> stat =
 	    graphics_info_t::molecules[imol].write_shelx_ins_file(std::string(filename));

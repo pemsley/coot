@@ -31,6 +31,12 @@
              (gui entry-port)
              (gui text-output-port))
 
+;; 
+(define (run-gtk-pending-events)
+  (if (gtk-events-pending)
+      (gtk-main-iteration)))
+
+
 ;; Fire up the coot scripting gui.  This function is called from the
 ;; main C++ code of coot.  Not much use if you don't have a gui to
 ;; type functions in to start with.
