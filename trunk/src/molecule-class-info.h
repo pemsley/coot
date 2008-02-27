@@ -626,7 +626,6 @@ class molecule_class_info_t {
       *imol_no_ptr = 0;
       draw_hydrogens_flag = 1;
       //
-      skeleton_treenodemap_is_filled = 0;
       bond_width = 3.0;
       ghost_bond_width = 2.0;
       xmap_is_filled = NULL;
@@ -643,7 +642,6 @@ class molecule_class_info_t {
       draw_hydrogens_flag = 1;
       bond_width = 3.0; 
       ghost_bond_width = 2.0;
-      skeleton_treenodemap_is_filled = 0;
       xmap_is_filled = NULL;
    }
 
@@ -694,6 +692,9 @@ class molecule_class_info_t {
       atom_sel.atom_selection = NULL;
       atom_sel.n_selected_atoms = 0;
       atom_sel.mol = NULL;
+
+      skeleton_treenodemap_is_filled = 0;
+      save_time_string = "";
 
       // 
 /*       n_labelled_atoms = 0; */

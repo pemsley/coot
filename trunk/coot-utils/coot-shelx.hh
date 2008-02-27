@@ -181,8 +181,15 @@ namespace coot {
       std::vector<shelx_rtab_chi_info_t> rtab_chi;
       shelx_sump_info_t sump;
       std::vector<std::string> symm_cards;
-      void init() { shel_1 = -10; shel2 = -1.0; fmap = -1; plan_1 = -1; plan_2 = -1.0;
-	 list = -1; htab_flag = 0; wpdb = -2; have_cell_flag = 0; udd_afix_handle = -1;}
+      void init() { shel_1 = -10; shel2 = -1.0;
+	 fmap = -1; plan_1 = -1; plan_2 = -1.0;
+	 list = -1;
+	 htab_flag = 0;
+	 wpdb = -2;
+	 have_cell_flag = 0;
+	 udd_afix_handle = -1;
+	 filled_flag = 0;
+      }
       
       std::string make_atom_name(const std::string &atom_name_in,
 				 const int &atomic_weight) const; // useless?

@@ -5961,10 +5961,12 @@ int write_shelx_ins_file(int imol, const char *filename) {
    int istat = 0;
    if (filename) { 
       if (is_valid_model_molecule(imol)) {
-	 std::pair<int, std::string> stat = graphics_info_t::molecules[imol].write_shelx_ins_file(std::string(filename));
+	 std::pair<int, std::string> stat =
+	    graphics_info_t::molecules[imol].write_shelx_ins_file(std::string(filename));
 	 istat = stat.first;
 	 graphics_info_t g;
 	 g.statusbar_text(stat.second);
+	 std::cout << stat.second << std::endl;
       } else {
 	 std::cout << "WARNING:: invalid molecule (" << imol
 		   << ") for write_shelx_ins_file" << std::endl;
