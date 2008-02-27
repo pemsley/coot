@@ -1251,6 +1251,166 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
       std::cout << "INFO:: de-activated recentering on new coordinates.\n";
    }
 }
+
+
+/*  ------------------------------------------------------------------------ */
+/*              scripting gtk interface                                      */
+/*  ------------------------------------------------------------------------ */
+
+// We want to evaluate the string when we get a carriage return
+// in this entry widget
+void
+setup_python_window_entry(GtkWidget *entry) { 
+
+#ifdef USE_PYTHON
+
+   // add python entry in entry callback code here...
+
+#if (GTK_MAJOR_VERSION > 1) 
+    g_signal_connect(G_OBJECT(entry), "activate",
+		     G_CALLBACK(python_window_enter_callback),
+		     (gpointer) entry);
+#else
+    gtk_signal_connect(GTK_OBJECT(entry), "activate",
+		       GTK_SIGNAL_FUNC(python_window_enter_callback),
+		       entry);
+# endif // GTK_MAJOR_VERSION
+
+#endif // PYTHON
+
+}
+
+// We want to evaluate the string when we get a carriage return
+// in this entry widget
+void
+setup_guile_window_entry(GtkWidget *entry) { 
+
+#ifdef USE_GUILE
+   gtk_signal_connect(GTK_OBJECT(entry), "activate",
+		      GTK_SIGNAL_FUNC(guile_window_enter_callback),
+		      entry);
+
+#endif //  USE_GUILE
+
+}
+
+#ifdef USE_PYTHON
+void python_window_enter_callback( GtkWidget *widget,
+				   GtkWidget *entry )
+{
+#if (GTK_MAJOR_VERSION > 1) 
+  const gchar *entry_text;
+#else
+  char *entry_text;
+#endif
+  entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+  printf("Entry contents: %s\n", entry_text);
+
+  // Sigh. PyRun_SimpleString needs a (char *), not a (const gchar *):
+  size_t new_length = strlen(entry_text)+1;
+  char new_text[new_length];
+  strncpy(new_text, entry_text, new_length);
+  printf("Running string: %s\n", new_text);
+  
+  PyRun_SimpleString(new_text);
+  
+  // clear the entry
+  gtk_entry_set_text(GTK_ENTRY(entry),"");
+
+}
+#endif
+
+
+#ifdef USE_GUILE
+void guile_window_enter_callback( GtkWidget *widget,
+				  GtkWidget *entry )
+{
+  const gchar *entry_text;
+  entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+  printf("Entry contents: %s\n", entry_text);
+
+  // scm_c_eval_string(entry_text); 
+
+  // extern SCM scm_catch (SCM tag, SCM thunk, SCM handler);
+  //
+
+  //SCM handler = scm_c_eval_string("'(lambda (key . args))"); 
+
+   SCM handler = scm_c_eval_string ("(lambda (key . args) "
+     "(display (list \"Error in proc:\" key \" args: \" args)) (newline))"); 
+			   // "(newline))"); 
+
+  // scm_catch(SCM_BOOL_T, scm_c_eval_string(entry_text), handler); 
+
+  std::string thunk("(lambda() "); 
+  thunk += entry_text; 
+  thunk += " )";
+
+
+  SCM scm_thunk = scm_c_eval_string(thunk.c_str()); 
+  scm_catch(SCM_BOOL_T, scm_thunk, handler);
+
+
+  // clear the entry
+  // strcpy(entry_text, "");  surely not needed.
+  gtk_entry_set_text(GTK_ENTRY(entry),"");
+}
+#endif //  USE_GUILE
+
+
+// Similar to fill_option_menu_with_coordinates_options, but I moved
+// it to graphics_info_t because it is also used when there is an
+// ambiguity in the map for refinement (graphics_info_t::refine)
+// 
+void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+
+   graphics_info_t g;
+
+   g.fill_option_menu_with_map_options(option_menu, signalfunc);
+}
+
+void fill_option_menu_with_skeleton_options(GtkWidget *option_menu) {  /* a wrapper */
+
+   graphics_info_t g;
+   GtkSignalFunc signalfunc = GTK_SIGNAL_FUNC(graphics_info_t::skeleton_map_select);
+   g.fill_option_menu_with_map_options(option_menu, signalfunc,
+				       graphics_info_t::map_for_skeletonize);
+
+}
+
+void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
+						  int imol) { 
+   
+   graphics_info_t g;
+   g.set_on_off_single_map_skeleton_radio_buttons(skeleton_frame, imol);
+
+} 
+
+void set_contour_sigma_button_and_entry(GtkWidget *window, int imol) { 
+   graphics_info_t g;
+   g.set_contour_sigma_button_and_entry(window, imol);
+}
+
+// and the reverse function (button -> value)
+void set_contour_by_sigma_step_maybe(GtkWidget *window, int imol) { 
+
+   GtkWidget *button = lookup_widget(window, "single_map_sigma_checkbutton");
+   GtkWidget *entry  = lookup_widget(window, "single_map_sigma_step_entry");
+
+   if (GTK_TOGGLE_BUTTON(button)->active) { 
+      const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+      if (text) { 
+	 float v = atof(text);
+// 	 graphics_info_t::molecules[imol].contour_by_sigma_flag = 1;
+// 	 graphics_info_t::molecules[imol].contour_sigma_step = v;
+	 graphics_info_t::molecules[imol].set_contour_by_sigma_step(v, 1);
+      }
+   } else { 
+      // 0.0 is ignored.
+      graphics_info_t::molecules[imol].set_contour_by_sigma_step(0.0, 0);
+   }
+}
+
 /*  ------------------------------------------------------------------------ */
 /*              widget utilities                                             */
 /*  ------------------------------------------------------------------------ */
