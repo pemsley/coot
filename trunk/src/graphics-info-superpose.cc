@@ -246,9 +246,9 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	       mol2->Copy(asc_mov.mol, MMDBFCM_All);
 	       std::string name = "Copy of ";
 	       name += moving_mol_name;
-	       int imol = graphics_info_t::create_molecule();
-	       graphics_info_t::molecules[imol].install_model(imol, make_asc(mol2), name, 1);
-	       imol2 = graphics_info_t::n_molecules();
+	       int imol2_new = graphics_info_t::create_molecule();
+	       graphics_info_t::molecules[imol2_new].install_model(imol2, make_asc(mol2), name, 1);
+	       imol2 = imol2_new;
 	    }
 	    
 	    graphics_info_t::molecules[imol2].transform_by(SSMAlign->TMatrix);
