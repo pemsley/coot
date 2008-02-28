@@ -5194,7 +5194,7 @@ int transform_map_raw(int imol,
       graphics_draw();
 
    } else {
-      std::cout << "molecule " << imol << " is not a valid map" << std::endl;
+      std::cout << "WARNING:: molecule " << imol << " is not a valid map" << std::endl;
    }
    return imol_new;
 }
