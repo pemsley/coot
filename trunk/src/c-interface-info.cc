@@ -2124,6 +2124,139 @@ SCM monomer_restraints(const char *monomer_type) {
 
    SCM r = SCM_BOOL_F;
 
+   graphics_info_t g;
+   std::pair<short int, coot::dictionary_residue_restraints_t> p =
+      g.Geom_p()->get_monomer_restraints(monomer_type);
+   if (p.first) {
+
+      r = SCM_EOL;
+
+      // ------------------ Bonds -------------------------
+      coot::dictionary_residue_restraints_t restraints = p.second;
+      SCM bond_restraint_list = SCM_EOL;
+      for (int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+	 coot::dict_bond_restraint_t bond_restraint = restraints.bond_restraint[ibond];
+	 std::string a1 = bond_restraint.atom_id_1_4c();
+	 std::string a2 = bond_restraint.atom_id_2_4c();
+	 double d   = bond_restraint.dist();
+	 double esd = bond_restraint.esd();
+	 SCM bond_restraint_scm = SCM_EOL;
+	 bond_restraint_scm = scm_cons(scm_double2num(esd), bond_restraint_scm);
+	 bond_restraint_scm = scm_cons(scm_double2num(d),   bond_restraint_scm);
+	 bond_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   bond_restraint_scm);
+	 bond_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   bond_restraint_scm);
+	 bond_restraint_list = scm_cons(bond_restraint_scm, bond_restraint_list);
+      }
+      SCM bond_restraints_container = SCM_EOL;
+      bond_restraints_container = scm_cons(bond_restraint_list, bond_restraints_container);
+      bond_restraints_container = scm_cons(scm_makfrom0str("Bond restraints"), bond_restraints_container);
+
+      // ------------------ Angles -------------------------
+      SCM angle_restraint_list = SCM_EOL;
+      for (int iangle=0; iangle<restraints.angle_restraint.size(); iangle++) {
+	 coot::dict_angle_restraint_t angle_restraint = restraints.angle_restraint[iangle];
+	 std::string a1 = angle_restraint.atom_id_1_4c();
+	 std::string a2 = angle_restraint.atom_id_2_4c();
+	 std::string a3 = angle_restraint.atom_id_3_4c();
+	 double d   = angle_restraint.angle();
+	 double esd = angle_restraint.esd();
+	 SCM angle_restraint_scm = SCM_EOL;
+	 angle_restraint_scm = scm_cons(scm_double2num(esd), angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_double2num(d),   angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_makfrom0str(a3.c_str()),   angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   angle_restraint_scm);
+	 angle_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   angle_restraint_scm);
+	 angle_restraint_list = scm_cons(angle_restraint_scm, angle_restraint_list);
+      }
+      SCM angle_restraints_container = SCM_EOL;
+      angle_restraints_container = scm_cons(angle_restraint_list, angle_restraints_container);
+      angle_restraints_container = scm_cons(scm_makfrom0str("Angle restraints"), angle_restraints_container);
+
+      // ------------------ Torsions -------------------------
+      SCM torsion_restraint_list = SCM_EOL;
+      for (int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
+	 coot::dict_torsion_restraint_t torsion_restraint = restraints.torsion_restraint[itorsion];
+	 std::string a1 = torsion_restraint.atom_id_1_4c();
+	 std::string a2 = torsion_restraint.atom_id_2_4c();
+	 std::string a3 = torsion_restraint.atom_id_3_4c();
+	 std::string a4 = torsion_restraint.atom_id_4_4c();
+	 double tor  = torsion_restraint.angle();
+	 double esd = torsion_restraint.esd();
+	 int period = torsion_restraint.periodicity();
+	 SCM torsion_restraint_scm = SCM_EOL;
+	 torsion_restraint_scm = scm_cons(SCM_MAKINUM(period), torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_double2num(esd), torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_double2num(tor), torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a4.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a3.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_list = scm_cons(torsion_restraint_scm, torsion_restraint_list);
+      }
+      SCM torsion_restraints_container = SCM_EOL;
+      torsion_restraints_container = scm_cons(torsion_restraint_list, torsion_restraints_container);
+      torsion_restraints_container = scm_cons(scm_makfrom0str("Torsion restraints"), torsion_restraints_container);
+
+
+      // ------------------ Planes -------------------------
+      SCM plane_restraint_list = SCM_EOL;
+      for (int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
+	 coot::dict_plane_restraint_t plane_restraint = restraints.plane_restraint[iplane];
+	 SCM atom_list = SCM_EOL;
+	 for (int iat=0; iat<plane_restraint.n_atoms(); iat++) { 
+	    std::string at = plane_restraint[iat];
+	    atom_list = scm_cons(scm_makfrom0str(at.c_str()), atom_list);
+	 }
+	 atom_list = scm_reverse(atom_list);
+
+	 double esd = plane_restraint.dist_esd();
+	 SCM plane_restraint_scm = SCM_EOL;
+	 plane_restraint_scm = scm_cons(scm_double2num(esd), plane_restraint_scm);
+	 plane_restraint_scm = scm_cons(atom_list, plane_restraint_scm);
+	 plane_restraint_list = scm_cons(plane_restraint_scm, plane_restraint_list);
+      }
+      SCM plane_restraints_container = SCM_EOL;
+      plane_restraints_container = scm_cons(plane_restraint_list, plane_restraints_container);
+      plane_restraints_container = scm_cons(scm_makfrom0str("Plane restraints"), plane_restraints_container);
+
+      r = scm_cons(plane_restraints_container, r);
+      r = scm_cons(torsion_restraints_container, r);
+      r = scm_cons(angle_restraints_container, r);
+      r = scm_cons(bond_restraints_container, r);
+
+
+      // ------------------ Chirals -------------------------
+      SCM chiral_restraint_list = SCM_EOL;
+      for (int ichiral=0; ichiral<restraints.chiral_restraint.size(); ichiral++) {
+	 coot::dict_chiral_restraint_t chiral_restraint = restraints.chiral_restraint[ichiral];
+
+	 std::string a1 = chiral_restraint.atom_id_1_4c();
+	 std::string a2 = chiral_restraint.atom_id_2_4c();
+	 std::string a3 = chiral_restraint.atom_id_3_4c();
+	 std::string ac = chiral_restraint.atom_id_c_4c();
+
+	 double esd = chiral_restraint.volume_sigma();
+	 int volume_sign = chiral_restraint.volume_sign;
+	 SCM chiral_restraint_scm = SCM_EOL;
+	 chiral_restraint_scm = scm_cons(scm_double2num(esd), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a3.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_makfrom0str(ac.c_str()), chiral_restraint_scm);
+	 chiral_restraint_list = scm_cons(chiral_restraint_scm, chiral_restraint_list);
+      }
+      SCM chiral_restraints_container = SCM_EOL;
+      chiral_restraints_container = scm_cons(chiral_restraint_list, chiral_restraints_container);
+      chiral_restraints_container = scm_cons(scm_makfrom0str("Chiral restraints"), chiral_restraints_container);
+
+      
+      r = scm_cons( chiral_restraints_container, r);
+      r = scm_cons(  plane_restraints_container, r);
+      r = scm_cons(torsion_restraints_container, r);
+      r = scm_cons(  angle_restraints_container, r);
+      r = scm_cons(   bond_restraints_container, r);
+
+   }
    return r;
 } 
 #endif // USE_GUILE
