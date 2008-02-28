@@ -289,7 +289,9 @@
 		     (anal-str-a2 (car (reverse a-2)))
 		     (anal-str-a3 (car (reverse a-last))))
 
-		 (run-gtk-pending-events)
+		 ; we can only do this if we have graphics, must test
+		 ; first.
+		 ; (run-gtk-pending-events)
 
 		 (if (and (string=? anal-str-a1 "Rotamer not recognised")
 			  (string=? anal-str-a2 "Rotamer not recognised")
