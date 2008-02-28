@@ -1,6 +1,7 @@
 /* geometry/protein-geometry.cc
  * 
  * Copyright 2004, 2005 The University of York
+ * Copyright 2008 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -243,6 +244,7 @@ namespace coot {
       double dist_esd() const { return dist_esd_; }
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
       int n_atoms() const { return atom_ids.size(); }
+      const std::string &operator[](int i) { return atom_ids[i];}
       void push_back_atom(const std::string &at) { atom_ids.push_back(at); }
    };
 
