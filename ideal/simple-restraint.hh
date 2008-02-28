@@ -340,7 +340,8 @@ namespace coot {
 		       int atom_idx_3_in,
 		       int volume_sign_in,
 		       double target_volume_in,
-		       double target_volume_sigma_in) { 
+		       double target_volume_sigma_in,
+		       const std::vector<bool> &fixed_atom_flags_in) { 
 	 
 	 if (restraint_type_in == CHIRAL_VOLUME_RESTRAINT) { 
 	    restraint_type = restraint_type_in;
@@ -351,6 +352,7 @@ namespace coot {
 	    chiral_volume_sign = volume_sign_in;
 	    target_chiral_volume = target_volume_in;
 	    sigma = target_volume_sigma_in;
+	    fixed_atom_flags = fixed_atom_flags_in;
 	 } 
       }
    };

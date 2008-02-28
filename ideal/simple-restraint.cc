@@ -4583,7 +4583,7 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 
    int n_chiral_restr = 0;
    int index1, index2, index3, indexc;
-
+   
    //   std::cout << "DEBUG:: trying to add chirals for this residue..." << std::endl;
    
    for (unsigned int ic=0; ic<geom[idr].chiral_restraint.size(); ic++) {
@@ -4629,11 +4629,14 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 // 					<< " with volume sign " << geom[idr].chiral_restraint[ic].volume_sign
 // 					<< " idr index: " << idr << " ic index: " << ic << std::endl;
 
+			      std::vector<bool> fixed_flags =
+				 make_fixed_flags(indexc, index1, index2, index3);
 			      restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
 									index1, index2, index3,
 									geom[idr].chiral_restraint[ic].volume_sign,
 									geom[idr].chiral_restraint[ic].target_volume(),
-									geom[idr].chiral_restraint[ic].volume_sigma()));
+									geom[idr].chiral_restraint[ic].volume_sigma(),
+									fixed_flags));
 			      n_chiral_restr++;
 			   }
 			}
