@@ -2131,9 +2131,53 @@ SCM monomer_restraints(const char *monomer_type) {
 
       r = SCM_EOL;
 
-      // ------------------ Bonds -------------------------
+      // Note to self, we also need:
+      // 
+      // dict_chem_comp_t residue_info;
+      // std::vector <dict_atom> atom_info;
+
       coot::dictionary_residue_restraints_t restraints = p.second;
       SCM bond_restraint_list = SCM_EOL;
+
+      // ------------------ chem_comp -------------------------
+      coot::dict_chem_comp_t info = restraints.residue_info;
+      SCM chem_comp_scm = SCM_EOL;
+      chem_comp_scm = scm_cons(scm_makfrom0str(info.comp_id.c_str()),           chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_makfrom0str(info.three_letter_code.c_str()), chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_makfrom0str(info.name.c_str()),              chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_makfrom0str(info.group.c_str()),             chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_int2num(info.number_atoms_all),              chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_int2num(info.number_atoms_nh),               chem_comp_scm);
+      chem_comp_scm = scm_cons(scm_makfrom0str(info.description_level.c_str()), chem_comp_scm);
+      chem_comp_scm = scm_reverse(chem_comp_scm);
+      SCM chem_comp_container = SCM_EOL;
+      chem_comp_container = scm_cons(chem_comp_scm, chem_comp_container);
+      chem_comp_container = scm_cons(scm_makfrom0str("_chem_comp"), chem_comp_container);
+
+      // ------------------ chem_comp_atom -------------------------
+      std::vector<coot::dict_atom> atom_info = restraints.atom_info;
+      int n_atoms = atom_info.size();
+      SCM atom_info_list = SCM_EOL;
+      for (int iat=0; iat<n_atoms; iat++) { 
+	 SCM atom_attributes_list = SCM_EOL;
+	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].atom_id_4c.c_str()), atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_symbol.c_str()), atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_energy.c_str()), atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_double2num(atom_info[iat].partial_charge), atom_attributes_list);
+	 SCM partial_flag = SCM_BOOL_F;
+	 if (atom_info[iat].partial_charge_is_valid_flag)
+	    partial_flag = SCM_BOOL_T;
+	 atom_attributes_list = scm_cons(partial_flag, atom_attributes_list);
+	 atom_attributes_list = scm_reverse(atom_attributes_list);
+	 atom_info_list = scm_cons(atom_attributes_list, atom_info_list);
+      }
+      atom_info_list = scm_reverse(atom_info_list);
+      SCM atom_info_list_container = SCM_EOL;
+      atom_info_list_container = scm_cons(atom_info_list, atom_info_list_container);
+      atom_info_list_container = scm_cons(scm_makfrom0str("_chem_comp_atom"), atom_info_list_container);
+
+
+      // ------------------ Bonds -------------------------
       for (int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
 	 coot::dict_bond_restraint_t bond_restraint = restraints.bond_restraint[ibond];
 	 std::string a1 = bond_restraint.atom_id_1_4c();
@@ -2149,7 +2193,7 @@ SCM monomer_restraints(const char *monomer_type) {
       }
       SCM bond_restraints_container = SCM_EOL;
       bond_restraints_container = scm_cons(bond_restraint_list, bond_restraints_container);
-      bond_restraints_container = scm_cons(scm_makfrom0str("Bond restraints"), bond_restraints_container);
+      bond_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_bond"), bond_restraints_container);
 
       // ------------------ Angles -------------------------
       SCM angle_restraint_list = SCM_EOL;
@@ -2170,7 +2214,7 @@ SCM monomer_restraints(const char *monomer_type) {
       }
       SCM angle_restraints_container = SCM_EOL;
       angle_restraints_container = scm_cons(angle_restraint_list, angle_restraints_container);
-      angle_restraints_container = scm_cons(scm_makfrom0str("Angle restraints"), angle_restraints_container);
+      angle_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_angle"), angle_restraints_container);
 
       // ------------------ Torsions -------------------------
       SCM torsion_restraint_list = SCM_EOL;
@@ -2195,7 +2239,7 @@ SCM monomer_restraints(const char *monomer_type) {
       }
       SCM torsion_restraints_container = SCM_EOL;
       torsion_restraints_container = scm_cons(torsion_restraint_list, torsion_restraints_container);
-      torsion_restraints_container = scm_cons(scm_makfrom0str("Torsion restraints"), torsion_restraints_container);
+      torsion_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_tor"), torsion_restraints_container);
 
 
       // ------------------ Planes -------------------------
@@ -2210,19 +2254,18 @@ SCM monomer_restraints(const char *monomer_type) {
 	 atom_list = scm_reverse(atom_list);
 
 	 double esd = plane_restraint.dist_esd();
+	 SCM plane_id_scm = scm_makfrom0str(plane_restraint.plane_id.c_str());
+
 	 SCM plane_restraint_scm = SCM_EOL;
 	 plane_restraint_scm = scm_cons(scm_double2num(esd), plane_restraint_scm);
 	 plane_restraint_scm = scm_cons(atom_list, plane_restraint_scm);
+	 plane_restraint_scm = scm_cons(plane_id_scm, plane_restraint_scm);
 	 plane_restraint_list = scm_cons(plane_restraint_scm, plane_restraint_list);
       }
       SCM plane_restraints_container = SCM_EOL;
       plane_restraints_container = scm_cons(plane_restraint_list, plane_restraints_container);
-      plane_restraints_container = scm_cons(scm_makfrom0str("Plane restraints"), plane_restraints_container);
-
-      r = scm_cons(plane_restraints_container, r);
-      r = scm_cons(torsion_restraints_container, r);
-      r = scm_cons(angle_restraints_container, r);
-      r = scm_cons(bond_restraints_container, r);
+      plane_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_plane_atom"),
+					    plane_restraints_container);
 
 
       // ------------------ Chirals -------------------------
@@ -2234,20 +2277,24 @@ SCM monomer_restraints(const char *monomer_type) {
 	 std::string a2 = chiral_restraint.atom_id_2_4c();
 	 std::string a3 = chiral_restraint.atom_id_3_4c();
 	 std::string ac = chiral_restraint.atom_id_c_4c();
+	 std::string chiral_id = chiral_restraint.Chiral_Id();
+	 int vol_sign = chiral_restraint.volume_sign;
 
 	 double esd = chiral_restraint.volume_sigma();
 	 int volume_sign = chiral_restraint.volume_sign;
 	 SCM chiral_restraint_scm = SCM_EOL;
 	 chiral_restraint_scm = scm_cons(scm_double2num(esd), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_int2num(vol_sign), chiral_restraint_scm);
 	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a3.c_str()), chiral_restraint_scm);
 	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()), chiral_restraint_scm);
 	 chiral_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()), chiral_restraint_scm);
 	 chiral_restraint_scm = scm_cons(scm_makfrom0str(ac.c_str()), chiral_restraint_scm);
+	 chiral_restraint_scm = scm_cons(scm_makfrom0str(chiral_id.c_str()), chiral_restraint_scm);
 	 chiral_restraint_list = scm_cons(chiral_restraint_scm, chiral_restraint_list);
       }
       SCM chiral_restraints_container = SCM_EOL;
       chiral_restraints_container = scm_cons(chiral_restraint_list, chiral_restraints_container);
-      chiral_restraints_container = scm_cons(scm_makfrom0str("Chiral restraints"), chiral_restraints_container);
+      chiral_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_chir"), chiral_restraints_container);
 
       
       r = scm_cons( chiral_restraints_container, r);
@@ -2255,6 +2302,8 @@ SCM monomer_restraints(const char *monomer_type) {
       r = scm_cons(torsion_restraints_container, r);
       r = scm_cons(  angle_restraints_container, r);
       r = scm_cons(   bond_restraints_container, r);
+      r = scm_cons(    atom_info_list_container, r);
+      r = scm_cons(         chem_comp_container, r);
 
    }
    return r;
@@ -2272,17 +2321,317 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
-void set_monomer_restraints(const char *monomer_type, SCM restraints) {
-   // SCM r = SCM_BOOL_F;
-} 
+SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
+
+   SCM retval = SCM_BOOL_F;
+
+   if (not (scm_list_p(restraints))) {
+      std::cout << " Failed to read restraints - not a list" << std::endl;
+   } else {
+
+      std::vector<coot::dict_bond_restraint_t> bond_restraints;
+      std::vector<coot::dict_angle_restraint_t> angle_restraints;
+      std::vector<coot::dict_torsion_restraint_t> torsion_restraints;
+      std::vector<coot::dict_chiral_restraint_t> chiral_restraints;
+      std::vector<coot::dict_plane_restraint_t> plane_restraints;
+      std::vector<coot::dict_atom> atoms;
+      coot::dict_chem_comp_t residue_info;
+
+      SCM restraints_length_scm = scm_length(restraints);
+      int restraints_length = scm_to_int(restraints_length_scm);
+      if (restraints_length > 0) {
+	 for (int i_rest_type=0; i_rest_type<restraints_length; i_rest_type++) {
+	    SCM rest_container = scm_list_ref(restraints, SCM_MAKINUM(i_rest_type));
+	    if (scm_list_p(rest_container)) {
+	       SCM rest_container_length_scm = scm_length(rest_container);
+	       int rest_container_length = scm_to_int(rest_container_length_scm);
+	       if (rest_container_length == 2) {
+		  SCM restraints_type_scm = scm_car(rest_container);
+		  if (scm_string_p(restraints_type_scm)) {
+		     std::string restraints_type = scm_to_locale_string(restraints_type_scm);
+
+		     if (restraints_type == "_chem_comp") {
+			SCM chem_comp_info_scm = scm_list_ref(rest_container, SCM_MAKINUM(1));
+			SCM chem_comp_info_length_scm = scm_length(chem_comp_info_scm);
+			int chem_comp_info_length = scm_to_int(chem_comp_info_length_scm);
+
+			if (chem_comp_info_length == 7) {
+			   SCM  comp_id_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(0));
+			   SCM      tlc_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(1));
+			   SCM     name_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(2));
+			   SCM    group_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(3));
+			   SCM      noa_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(4));
+			   SCM    nonha_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(5));
+			   SCM desc_lev_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(6));
+			   if (scm_string_p(comp_id_scm) && scm_string_p(tlc_scm) && scm_string_p(name_scm) &&
+			       scm_string_p(group_scm) && scm_number_p(noa_scm) && scm_number_p(nonha_scm) &&
+			       scm_string_p(desc_lev_scm)) {
+			      std::string comp_id = scm_to_locale_string(comp_id_scm);
+			      std::string     tlc = scm_to_locale_string(tlc_scm);
+			      std::string    name = scm_to_locale_string(name_scm);
+			      std::string   group = scm_to_locale_string(group_scm);
+			      std::string des_lev = scm_to_locale_string(desc_lev_scm);
+			      int no_of_atoms = scm_to_int(noa_scm);
+			      int no_of_non_H_atoms = scm_to_int(nonha_scm);
+			      coot::dict_chem_comp_t n(comp_id, tlc, name, group,
+						       no_of_atoms, no_of_non_H_atoms,
+						       des_lev);
+			      residue_info = n;
+			   }
+			} 
+		     }
+
+		     if (restraints_type == "_chem_comp_atom") {
+			SCM chem_comp_atoms = scm_list_ref(rest_container, SCM_MAKINUM(1));
+			SCM chem_comp_atoms_length_scm = scm_length(chem_comp_atoms);
+			int chem_comp_atoms_length = scm_to_int(chem_comp_atoms_length_scm);
+
+			for (int iat=0; iat<chem_comp_atoms_length; iat++) {
+			   SCM chem_comp_atom_scm = scm_list_ref(chem_comp_atoms, SCM_MAKINUM(iat));
+			   SCM chem_comp_atom_length_scm = scm_length(chem_comp_atom_scm);
+			   int chem_comp_atom_length = scm_to_int(chem_comp_atom_length_scm);
+			   
+			   if (chem_comp_atom_length == 5) { 
+			      SCM atom_id_scm  = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(0));
+			      SCM element_scm  = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(1));
+			      SCM energy_scm   = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(2));
+			      SCM partial_charge_scm = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(3));
+			      SCM valid_pc_scm = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(4));
+
+			      if (scm_string_p(atom_id_scm) && scm_string_p(element_scm) &&
+				  scm_number_p(partial_charge_scm)) {
+				 std::string atom_id(scm_to_locale_string(atom_id_scm));
+				 std::string element(scm_to_locale_string(element_scm));
+				 std::string energy(scm_to_locale_string(energy_scm));
+				 float partial_charge = scm_to_double(partial_charge_scm);
+				 short int valid_partial_charge = 1;
+				 if SCM_FALSEP(valid_pc_scm)
+				    valid_partial_charge = 0;
+				 coot::dict_atom at(atom_id, atom_id, element, energy, 
+						    partial_charge, valid_partial_charge);
+
+				 atoms.push_back(at);
+			      }
+			   }
+			}
+			
+		     }
+		     
+
+		     if (restraints_type == "_chem_comp_bond") {
+			SCM bond_restraints_list_scm = scm_list_ref(rest_container, SCM_MAKINUM(1));
+			SCM bond_restraints_list_length_scm = scm_length(bond_restraints_list_scm);
+			int bond_restraints_list_length = scm_to_int(bond_restraints_list_length_scm);
+
+			for (int ibr=0; ibr<bond_restraints_list_length; ibr++) {
+			   SCM bond_restraint = scm_list_ref(bond_restraints_list_scm, SCM_MAKINUM(ibr));
+			   SCM bond_restraint_length_scm = scm_length(bond_restraint);
+			   int bond_restraint_length = scm_to_int(bond_restraint_length_scm);
+
+			   if (bond_restraint_length == 4) {
+			      SCM atom_1_scm = scm_list_ref(bond_restraint, SCM_MAKINUM(0));
+			      SCM atom_2_scm = scm_list_ref(bond_restraint, SCM_MAKINUM(1));
+			      SCM dist_scm   = scm_list_ref(bond_restraint, SCM_MAKINUM(2));
+			      SCM esd_scm    = scm_list_ref(bond_restraint, SCM_MAKINUM(3));
+			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
+				  scm_number_p(dist_scm) && scm_number_p(esd_scm)) {
+				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
+				 std::string atom_2 = scm_to_locale_string(atom_2_scm);
+				 double dist        = scm_to_double(dist_scm);
+				 double esd         = scm_to_double(esd_scm);
+				 coot::dict_bond_restraint_t rest(atom_1, atom_2, "unknown", dist, esd);
+				 bond_restraints.push_back(rest);
+			      }
+			   }
+			}
+		     }
+
+		     if (restraints_type == "_chem_comp_angle") {
+			SCM angle_restraints_list = scm_list_ref(rest_container, SCM_MAKINUM(1));
+			SCM angle_restraints_list_length_scm = scm_length(angle_restraints_list);
+			int angle_restraints_list_length = scm_to_int(angle_restraints_list_length_scm);
+
+			for (int iar=0; iar<angle_restraints_list_length; iar++) {
+			   SCM angle_restraint = scm_list_ref(angle_restraints_list, SCM_MAKINUM(iar));
+			   SCM angle_restraint_length_scm = scm_length(angle_restraint);
+			   int angle_restraint_length = scm_to_int(angle_restraint_length_scm);
+
+			   if (angle_restraint_length == 5) {
+			      SCM atom_1_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(0));
+			      SCM atom_2_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(1));
+			      SCM atom_3_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(2));
+			      SCM angle_scm  = scm_list_ref(angle_restraint, SCM_MAKINUM(3));
+			      SCM esd_scm    = scm_list_ref(angle_restraint, SCM_MAKINUM(4));
+			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
+				  scm_string_p(atom_3_scm) &&
+				  scm_number_p(angle_scm) && scm_number_p(esd_scm)) {
+				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
+				 std::string atom_2 = scm_to_locale_string(atom_2_scm);
+				 std::string atom_3 = scm_to_locale_string(atom_3_scm);
+				 double angle       = scm_to_double(angle_scm);
+				 double esd         = scm_to_double(esd_scm);
+				 coot::dict_angle_restraint_t rest(atom_1, atom_2, atom_3, angle, esd);
+				 angle_restraints.push_back(rest);
+			      }
+			   }
+			}
+		     }
+
+
+		     if (restraints_type == "_chem_comp_tor") {
+			SCM torsion_restraints_list = scm_list_ref(rest_container, SCM_MAKINUM(1));
+			SCM torsion_restraints_list_length_scm = scm_length(torsion_restraints_list);
+			int torsion_restraints_list_length = scm_to_int(torsion_restraints_list_length_scm);
+
+			for (int itr=0; itr<torsion_restraints_list_length; itr++) {
+			   SCM torsion_restraint = scm_list_ref(torsion_restraints_list, SCM_MAKINUM(itr));
+			   SCM torsion_restraint_length_scm = scm_length(torsion_restraint);
+			   int torsion_restraint_length = scm_to_int(torsion_restraint_length_scm);
+			   
+			   if (torsion_restraint_length == 7) {
+			      SCM atom_1_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(0));
+			      SCM atom_2_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(1));
+			      SCM atom_3_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(2));
+			      SCM atom_4_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(3));
+			      SCM torsion_scm  = scm_list_ref(torsion_restraint, SCM_MAKINUM(4));
+			      SCM esd_scm      = scm_list_ref(torsion_restraint, SCM_MAKINUM(5));
+			      SCM period_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(6));
+			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
+				  scm_string_p(atom_3_scm) && scm_string_p(atom_4_scm) &&
+				  scm_number_p(torsion_scm) && scm_number_p(esd_scm) && 
+				  scm_number_p(period_scm)) {
+				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
+				 std::string atom_2 = scm_to_locale_string(atom_2_scm);
+				 std::string atom_3 = scm_to_locale_string(atom_3_scm);
+				 std::string atom_4 = scm_to_locale_string(atom_4_scm);
+				 double torsion       = scm_to_double(torsion_scm);
+				 double esd         = scm_to_double(esd_scm);
+				 int period         = scm_to_int(period_scm);
+				 coot::dict_torsion_restraint_t rest(atom_1, atom_2, atom_3, atom_4,
+								     torsion, esd, period);
+				 torsion_restraints.push_back(rest);
+			      }
+			   }
+			}
+		     }
+		     
+		     if (restraints_type == "_chem_comp_plane_atom") {
+			SCM plane_restraints_list = scm_list_ref(rest_container, SCM_MAKINUM(1));
+			SCM plane_restraints_list_length_scm = scm_length(plane_restraints_list);
+			int plane_restraints_list_length = scm_to_int(plane_restraints_list_length_scm);
+
+			for (int ipr=0; ipr<plane_restraints_list_length; ipr++) {
+			   SCM plane_restraint = scm_list_ref(plane_restraints_list, SCM_MAKINUM(ipr));
+			   SCM plane_restraint_length_scm = scm_length(plane_restraint);
+			   int plane_restraint_length = scm_to_int(plane_restraint_length_scm);
+
+			   if (plane_restraint_length == 3) {
+			      std::vector<SCM> atoms;
+			      SCM plane_id_scm   = scm_list_ref(plane_restraint, SCM_MAKINUM(0));
+			      SCM esd_scm        = scm_list_ref(plane_restraint, SCM_MAKINUM(2));
+			      SCM atom_list_scm  = scm_list_ref(plane_restraint, SCM_MAKINUM(1));
+			      SCM atom_list_length_scm = scm_length(atom_list_scm);
+			      int atom_list_length = scm_to_int(atom_list_length_scm);
+			      bool atoms_pass = 1;
+			      for (int iat=0; iat<atom_list_length; iat++) { 
+				 SCM atom_scm   = scm_list_ref(plane_restraint, SCM_MAKINUM(0));
+				 atoms.push_back(atom_scm);
+				 if (not (scm_string_p(atom_scm)))
+				    atoms_pass = 0;
+			      }
+			   
+			      if (atoms_pass && scm_string_p(plane_id_scm) &&  scm_number_p(esd_scm)) { 
+				 std::vector<std::string> atom_names;
+				 for (int i=0; i<atoms.size(); i++)
+				    atom_names.push_back(std::string(scm_to_locale_string(atoms[i])));
+
+				 std::string plane_id = scm_to_locale_string(plane_id_scm);
+				 double esd           = scm_to_double(esd_scm);
+				 coot::dict_plane_restraint_t rest(plane_id, atom_names[0], esd);
+				 for (int i=1; i<atom_names.size(); i++)
+				    rest.push_back_atom(atom_names[i]);
+				 plane_restraints.push_back(rest);
+			      }
+			   }
+			}
+		     }
+		     
+		     
+		     if (restraints_type == "_chem_comp_chir") {
+			SCM chiral_restraints_list = scm_list_ref(rest_container, SCM_MAKINUM(1));
+			SCM chiral_restraints_list_length_scm = scm_length(chiral_restraints_list);
+			int chiral_restraints_list_length = scm_to_int(chiral_restraints_list_length_scm);
+
+			for (int icr=0; icr<chiral_restraints_list_length; icr++) {
+			   SCM chiral_restraint = scm_list_ref(chiral_restraints_list, SCM_MAKINUM(icr));
+			   SCM chiral_restraint_length_scm = scm_length(chiral_restraint);
+			   int chiral_restraint_length = scm_to_int(chiral_restraint_length_scm);
+
+			   if (chiral_restraint_length == 7) {
+			      SCM chiral_id_scm= scm_list_ref(chiral_restraint, SCM_MAKINUM(0));
+			      SCM atom_c_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(1));
+			      SCM atom_1_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(2));
+			      SCM atom_2_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(3));
+			      SCM atom_3_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(4));
+			      SCM chiral_vol_sign_scm = scm_list_ref(chiral_restraint, SCM_MAKINUM(5));
+			      SCM esd_scm      = scm_list_ref(chiral_restraint, SCM_MAKINUM(6));
+			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
+				  scm_string_p(atom_3_scm) && scm_string_p(atom_c_scm) &&
+				  scm_number_p(esd_scm)) {
+				 std::string chiral_id = scm_to_locale_string(chiral_id_scm);
+				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
+				 std::string atom_2 = scm_to_locale_string(atom_2_scm);
+				 std::string atom_3 = scm_to_locale_string(atom_3_scm);
+				 std::string atom_c = scm_to_locale_string(atom_c_scm);
+				 double esd         = scm_to_double(esd_scm);
+				 int chiral_vol_sign= scm_to_int(chiral_vol_sign_scm);
+				 coot::dict_chiral_restraint_t rest(chiral_id,
+								    atom_c, atom_1, atom_2, atom_3,
+								    chiral_vol_sign);
+				 
+				 chiral_restraints.push_back(rest);
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+//       std::cout << "Found " <<    bond_restraints.size() << "   bond  restraints" << std::endl;
+//       std::cout << "Found " <<   angle_restraints.size() << "   angle restraints" << std::endl;
+//       std::cout << "Found " << torsion_restraints.size() << " torsion restraints" << std::endl;
+//       std::cout << "Found " <<   plane_restraints.size() << "   plane restraints" << std::endl;
+//       std::cout << "Found " <<  chiral_restraints.size() << "  chiral restraints" << std::endl;
+
+      coot::dictionary_residue_restraints_t monomer_restraints(monomer_type, 1);
+      monomer_restraints.bond_restraint    = bond_restraints;
+      monomer_restraints.angle_restraint   = angle_restraints;
+      monomer_restraints.torsion_restraint = torsion_restraints;
+      monomer_restraints.chiral_restraint  = chiral_restraints;
+      monomer_restraints.plane_restraint   = plane_restraints;
+      monomer_restraints.residue_info      = residue_info;
+      monomer_restraints.atom_info         = atoms; 
+
+      graphics_info_t g;
+      bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, monomer_restraints);
+      if (s)
+	 retval = SCM_BOOL_T;
+      // set retval here if restraints were good.
+   }
+
+   return retval;
+}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-void set_monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
+PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
 
-   PyObject *r;
-   r = Py_False;
+   PyObject *r = Py_False;
 
+   return r;
 } 
 #endif // USE_PYTHON
 

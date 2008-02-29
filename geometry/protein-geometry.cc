@@ -2790,3 +2790,16 @@ coot::simple_cif_reader::has_restraints_for(const std::string &res_type) {
    }
    return r;
 }
+
+bool
+coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
+						   const coot::dictionary_residue_restraints_t &mon_res_in) {
+   bool s = 0;
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].comp_id == monomer_type) {
+	 dict_res_restraints[i] = mon_res_in;
+	 s = 1;
+      } 
+   }
+   return s;
+} 
