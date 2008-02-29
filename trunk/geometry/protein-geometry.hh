@@ -283,6 +283,7 @@ namespace coot {
 	 target_volume_ = -999.9;  // unassigned
 	 volume_sigma_  = -999.9;
       }
+      std::string Chiral_Id() const { return chiral_id; }
       std::string atom_id_1_4c() const { return atom_id_mmdb_expand(local_atom_id_1);}
       std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(local_atom_id_3);}
@@ -729,6 +730,9 @@ namespace coot {
       // 
       std::pair<short int, dictionary_residue_restraints_t>
       get_monomer_restraints(const std::string &monomer_type) const;
+
+      bool replace_monomer_restraints(std::string monomer_type,
+				      const dictionary_residue_restraints_t &mon_res_in);
 
       // this function is no longer const because it can run try_dynamic_add
       //

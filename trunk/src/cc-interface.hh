@@ -260,12 +260,12 @@ PyObject *dictionaries_read_py();
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_GUILE
 SCM monomer_restraints(const char *monomer_type);
-void set_monomer_restraints(const char *monomer_type, SCM restraints);
+SCM set_monomer_restraints(const char *monomer_type, SCM restraints);
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
 PyObject *monomer_restraints_py(const char *monomer_type);
-void set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
+PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
 #endif // USE_PYTHON
 
 
