@@ -4,14 +4,8 @@
 
    22 Items
 
-
    o Test for non positive definite anisotropic atoms from a .ins file
      [test should crash, Mitch Miller, Stanford]
-
-* Can't reproduce   
-
-   o Test for JED's delete residue with alt conf and recentre [test
-     should crash]
 
 * Can't reproduce   
 
@@ -37,8 +31,6 @@
    o Use Eugene's new LINK-reading code.
 
    o Valgrind long/multiple fit-proteins
-
-   o Put globularize protein into Coot.  Make it a bit more clever?
 
    o Insertion codes for intelligent next atom.  Antibody, Kabat
 
@@ -81,6 +73,11 @@
 
 
 
+
+   o Test for JED's delete residue with alt conf and recentre [test
+     should crash]
+
+* Fixed.
 
    o NCS diffs graph need finishing.  Almost there.  Needs code to do
      dynamic update.
@@ -4400,6 +4397,38 @@ Wed Feb 13 10:48:53 GMT 2008
    So, is an NCS matrix being applied when it shouldn't? NCS ghost are
    marked as filled, but they are not?
 
+-----
+Thu Feb 14 20:55:59 GMT 2008
+
+   handle_symmetry_colour_change(int mol, gdouble* col)
+ 
+   is the same functionality as 
+
+   set_symmetry_colour().
+
+   Rationalize it.
+
+   Also get_map_colour and get_map_color_gdkcolor needs rationalizing.
+
+
+-----
+Thu Feb 14 21:02:39 GMT 2008
+
+    I am on a symmetry related atom. I want a "go to atom (relative
+    main molecule atom)"
+
+
+  g_signal_connect ((gpointer) map_colorbutton, "color_set",
+                    G_CALLBACK (on_map_colorbutton_color_set),
+                    NULL);
+
+-----
+Fri Feb 15 01:08:40 GMT 2008
+
+    When a GtkColorButton is clicked, we get a GktColorSelectionDialog
+    (or some such).  How do I control the colour selection dialog so
+    that it work in continuous update mode, so that signals are sent
+    continuously as the color selection change
 
 ----
 Sun Feb 17 00:14:05 GMT 2008
@@ -4650,12 +4679,35 @@ Sun Feb 24 23:51:37 GMT 2008
 * Done
 
 
+----
+Wed Feb 27 09:18:50 GMT 2008
+
+    Residue Info on a residue with alt confs.  
+    Problem in CHI angles?
+
+ 
 -----
 Wed Feb 27 15:38:28 GMT 2008
 
     at the end of build-it-gtk2-simple:
 
-mkdir: cannot create directory `/home/paule/autobuild/coot-Linux-i686-ubuntu-7.10-gtk2/include/python2.5': No such file or directory
+    mkdir: cannot create directory
+    `/home/paule/autobuild/coot-Linux-i686-ubuntu-7.10-gtk2/include/python2.5':
+    No such file or directory
 
    indeed the include dir is not there.
+
+----
+Sat Mar  1 06:02:45 GMT 2008
+
+   mmdb reader on  Components-rel-alt.cif 
+
+
+
+----
+Sat Mar  1 06:11:26 GMT 2008
+
+    Parse USER MODs
+    somewhere I have some code, I started on this?
+
 

@@ -99,8 +99,6 @@
 
    o "Thick bonds" for ligands etc
 
-   o Put globularize protein into Coot.  Make it a bit more clever?
-
    o Insertion codes for intelligent next atom
 
    o Add some SHELX reading to the test suite.  Insulin for starters.
@@ -150,6 +148,8 @@
 
     Release 0.6 and 0.7 [May 2008]
 
+   o Put globularize protein into Coot.  Make it a bit more clever?
+
    o Use libglade
 
    o multiple residue ranges, glycosylation, covalent bond entities
@@ -169,6 +169,11 @@
    o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
    o check for updates?
+
+   o Gtk2 coot: set the colour patch in the map properties and
+     symmetry molecule colouring (needs version 2.6).  There is some
+     problem in the update, how do I set continuous updates on the
+     resulting colour chooser?
 
    o (un)Label atoms in given atom selection
 
