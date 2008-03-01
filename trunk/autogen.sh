@@ -44,13 +44,13 @@ else
    if [ -e $HOME/autobuild/Linux-$HOST/share/aclocal ] ; then
       aclocal_extras="$aclocal_extras -I $HOME/autobuild/Linux-$HOST/share/aclocal"
    fi
-if test $sys = MINGW32_NT-5.1 ; then
-   echo We have WIN
-   aclocal_extras="-I /usr/local/share/aclocal -I $HOME/coot/share/aclocal"
-fi
+
+   if test $sys = MINGW32_NT-5.1 ; then
+      echo We have WIN
+      aclocal_extras="-I /usr/local/share/aclocal -I $HOME/coot/share/aclocal"
+   fi
    echo aclocal -I macros $aclocal_extras
    aclocal -I macros $aclocal_extras
-
 fi
 
 autoconf
