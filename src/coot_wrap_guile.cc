@@ -5134,6 +5134,36 @@ _wrap_rotate_map_round_screen_axis_z (SCM s_0)
 
 
 static SCM
+_wrap_difference_map (SCM s_0, SCM s_1, SCM s_2)
+{
+#define FUNC_NAME "difference-map"
+  int arg1 ;
+  int arg2 ;
+  float arg3 ;
+  int result;
+  SCM gswig_result;
+  SWIGUNUSED int gswig_list_p = 0;
+  
+  {
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+  }
+  {
+    arg3 = scm_num2dbl(s_2, FUNC_NAME);
+  }
+  result = (int)difference_map(arg1,arg2,arg3);
+  {
+    gswig_result = scm_long2num(result);
+  }
+  
+  return gswig_result;
+#undef FUNC_NAME
+}
+
+
+static SCM
 _wrap_get_text_for_iso_level_increment_entry (SCM s_0)
 {
 #define FUNC_NAME "get-text-for-iso-level-increment-entry"
@@ -7199,8 +7229,8 @@ static SCM
 _wrap_save_symmetry_coords (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5, SCM s_6, SCM s_7, SCM s_8)
 {
 #define FUNC_NAME "save-symmetry-coords"
-  char *arg1 = (char *) 0 ;
-  int arg2 ;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
   int arg3 ;
   int arg4 ;
   int arg5 ;
@@ -7208,16 +7238,16 @@ _wrap_save_symmetry_coords (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5
   int arg7 ;
   int arg8 ;
   int arg9 ;
-  int must_free1 = 0 ;
+  int must_free2 = 0 ;
   SCM gswig_result;
   SWIGUNUSED int gswig_list_p = 0;
   
   {
-    arg1 = (char *)SWIG_scm2str(s_0);
-    must_free1 = 1;
+    arg1 = scm_num2int(s_0, SCM_ARG1, FUNC_NAME);
   }
   {
-    arg2 = scm_num2int(s_1, SCM_ARG1, FUNC_NAME);
+    arg2 = (char *)SWIG_scm2str(s_1);
+    must_free2 = 1;
   }
   {
     arg3 = scm_num2int(s_2, SCM_ARG1, FUNC_NAME);
@@ -7240,9 +7270,9 @@ _wrap_save_symmetry_coords (SCM s_0, SCM s_1, SCM s_2, SCM s_3, SCM s_4, SCM s_5
   {
     arg9 = scm_num2int(s_8, SCM_ARG1, FUNC_NAME);
   }
-  save_symmetry_coords((char const *)arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  save_symmetry_coords(arg1,(char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   gswig_result = SCM_UNSPECIFIED;
-  if (must_free1 && arg1) SWIG_free(arg1);
+  if (must_free2 && arg2) SWIG_free(arg2);
   
   return gswig_result;
 #undef FUNC_NAME
@@ -29287,6 +29317,7 @@ SWIG_init(void)
   scm_c_define_gsubr("rotate-map-round-screen-axis-x", 1, 0, 0, (swig_guile_proc) _wrap_rotate_map_round_screen_axis_x);
   scm_c_define_gsubr("rotate-map-round-screen-axis-y", 1, 0, 0, (swig_guile_proc) _wrap_rotate_map_round_screen_axis_y);
   scm_c_define_gsubr("rotate-map-round-screen-axis-z", 1, 0, 0, (swig_guile_proc) _wrap_rotate_map_round_screen_axis_z);
+  scm_c_define_gsubr("difference-map", 3, 0, 0, (swig_guile_proc) _wrap_difference_map);
   scm_c_define_gsubr("get-text-for-iso-level-increment-entry", 1, 0, 0, (swig_guile_proc) _wrap_get_text_for_iso_level_increment_entry);
   scm_c_define_gsubr("get-text-for-diff-map-iso-level-increment-entry", 1, 0, 0, (swig_guile_proc) _wrap_get_text_for_diff_map_iso_level_increment_entry);
   scm_c_define_gsubr("set-iso-level-increment", 1, 0, 0, (swig_guile_proc) _wrap_set_iso_level_increment);

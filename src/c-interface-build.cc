@@ -1059,11 +1059,11 @@ PyObject *refmac_parameters_py(int imol) {
 	r = PyList_New(refmac_params.size());
 	for (unsigned int i=0; i<refmac_params.size(); i++) {
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_INT)
-	      PyList_Append(r, PyInt_FromLong(refmac_params[i].i));
+	      PyList_SetItem(r, i, PyInt_FromLong(refmac_params[i].i));
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_FLOAT)
-	      PyList_Append(r, PyFloat_FromDouble(refmac_params[i].val));
+	      PyList_SetItem(r, i, PyFloat_FromDouble(refmac_params[i].val));
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_STRING)
-	      PyList_Append(r, PyString_FromString(refmac_params[i].s.c_str()));
+	      PyList_SetItem(r, i, PyString_FromString(refmac_params[i].s.c_str()));
 	 }
       }
    }

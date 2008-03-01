@@ -7054,6 +7054,46 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_difference_map(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int arg2 ;
+  float arg3 ;
+  int result;
+  int val1 ;
+  int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  float val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:difference_map",&obj0,&obj1,&obj2)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "difference_map" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "difference_map" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_float(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "difference_map" "', argument " "3"" of type '" "float""'");
+  } 
+  arg3 = static_cast< float >(val3);
+  result = (int)difference_map(arg1,arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_get_text_for_iso_level_increment_entry(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -9376,8 +9416,8 @@ fail:
 
 SWIGINTERN PyObject *_wrap_save_symmetry_coords(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  char *arg1 = (char *) 0 ;
-  int arg2 ;
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
   int arg3 ;
   int arg4 ;
   int arg5 ;
@@ -9385,11 +9425,11 @@ SWIGINTERN PyObject *_wrap_save_symmetry_coords(PyObject *SWIGUNUSEDPARM(self), 
   int arg7 ;
   int arg8 ;
   int arg9 ;
-  int res1 ;
-  char *buf1 = 0 ;
-  int alloc1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
   int val4 ;
@@ -9415,16 +9455,16 @@ SWIGINTERN PyObject *_wrap_save_symmetry_coords(PyObject *SWIGUNUSEDPARM(self), 
   PyObject * obj8 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:save_symmetry_coords",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
-  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "save_symmetry_coords" "', argument " "1"" of type '" "char const *""'");
-  }
-  arg1 = reinterpret_cast< char * >(buf1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "save_symmetry_coords" "', argument " "2"" of type '" "int""'");
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "save_symmetry_coords" "', argument " "1"" of type '" "int""'");
   } 
-  arg2 = static_cast< int >(val2);
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "save_symmetry_coords" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
   ecode3 = SWIG_AsVal_int(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "save_symmetry_coords" "', argument " "3"" of type '" "int""'");
@@ -9460,12 +9500,12 @@ SWIGINTERN PyObject *_wrap_save_symmetry_coords(PyObject *SWIGUNUSEDPARM(self), 
     SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "save_symmetry_coords" "', argument " "9"" of type '" "int""'");
   } 
   arg9 = static_cast< int >(val9);
-  save_symmetry_coords((char const *)arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  save_symmetry_coords(arg1,(char const *)arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   resultobj = SWIG_Py_Void();
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return resultobj;
 fail:
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return NULL;
 }
 
@@ -34825,6 +34865,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"rotate_map_round_screen_axis_x", _wrap_rotate_map_round_screen_axis_x, METH_VARARGS, NULL},
 	 { (char *)"rotate_map_round_screen_axis_y", _wrap_rotate_map_round_screen_axis_y, METH_VARARGS, NULL},
 	 { (char *)"rotate_map_round_screen_axis_z", _wrap_rotate_map_round_screen_axis_z, METH_VARARGS, NULL},
+	 { (char *)"difference_map", _wrap_difference_map, METH_VARARGS, NULL},
 	 { (char *)"get_text_for_iso_level_increment_entry", _wrap_get_text_for_iso_level_increment_entry, METH_VARARGS, NULL},
 	 { (char *)"get_text_for_diff_map_iso_level_increment_entry", _wrap_get_text_for_diff_map_iso_level_increment_entry, METH_VARARGS, NULL},
 	 { (char *)"set_iso_level_increment", _wrap_set_iso_level_increment, METH_VARARGS, NULL},

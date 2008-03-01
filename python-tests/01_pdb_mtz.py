@@ -309,7 +309,6 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    cis_trans_convert(cis_pep_mol, chain_id, resno, ins_code)
 	    pepflip(cis_pep_mol, chain_id, resno, ins_code)
 	    res_type = residue_name(cis_pep_mol, chain_id, resno, ins_code)
-	    print "BL DEBUG:: res type", res_type
 	    self.failUnless(type(res_type) is StringType)
 	    mutate(cis_pep_mol, chain_id, resno, "", "GLY")
 	    with_auto_accept(
@@ -348,9 +347,11 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    return ret
 			    
 	    o = grep_to_list("CISPEP", tmp_file)
-	    print "BL DEBUG:: o list is", o
 	    self.failUnlessEqual(len(o), 3)
-	    print "CISPEPs: ", o
+	    txt_str = "CISPEPs: "
+	    for cis in o:
+		    txt_str += cis
+	    print txt_str
 	    self.failUnlessEqual("3", parts)
 	    
     def test16_0(self):
@@ -367,6 +368,212 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    set_refinement_immediate_replacement(rep_state)
 	    # what do we check for?!
 	    
-    #def test17_0(self):
-	#    """Setting multiple atom attributes"""
+    def test17_0(self):
+	    """Setting multiple atom attributes"""
+
+	    global imol_rnase
+	    self.failUnless(valid_model_molecule_qm(imol_rnase), "   Error invalid imol-rnase")
+
+	    x_test_val = 2.1
+	    y_test_val = 2.2
+	    z_test_val = 2.3
+	    o_test_val = 0.5
+	    b_test_val = 44.4
+	    ls = [[imol_rnase, "A", 2, "", " CA ", "", "x", x_test_val],
+		  [imol_rnase, "A", 2, "", " CA ", "", "y", y_test_val],
+		  [imol_rnase, "A", 2, "", " CA ", "", "z", z_test_val],
+		  [imol_rnase, "A", 2, "", " CA ", "", "occ", o_test_val],
+		  [imol_rnase, "A", 2, "", " CA ", "", "b", b_test_val]]
+
+	    set_atom_attributes(ls)
+	    atom_ls = residue_info(imol_rnase, "A", 2, "")
+	    self.failIf(atom_ls == [])
+	    for atom in atom_ls:
+		    atom_name = atom[0][0]
+		    if (atom_name == " CA "):
+			    x = atom[2][0]
+			    y = atom[2][1]
+			    z = atom[2][2]
+			    occ = atom[1][0]
+			    b = atom[1][1]
+			    self.failUnlessAlmostEqual(x, x_test_val, 1, "Error in setting multiple atom: These are not close %s %s" %(x, x_test_val))
+			    self.failUnlessAlmostEqual(y, y_test_val, 1, "Error in setting multiple atom: These are not close %s %s" %(y, y_test_val))
+			    self.failUnlessAlmostEqual(z, z_test_val, 1, "Error in setting multiple atom: These are not close %s %s" %(z, z_test_val))
+			    self.failUnlessAlmostEqual(occ, o_test_val, 1, "Error in setting multiple atom: These are not close %s %s" %(occ, o_test_val))
+			    self.failUnlessAlmostEqual(b, b_test_val, 1, "Error in setting multiple atom: These are not close %s %s" %(b, b_test_val))
+
+    def test18_0(self):
+	    """Tweak Alt Confs on Active Residue"""
+	    
+	    global imol_rnase
+	    # did it reset?
+	    def matches_alt_conf_qm(imol, chain_id, resno, inscode, atom_name_ref, alt_conf_ref):
+		    atom_ls = residue_info(imol, chain_id, resno, inscode)
+		    self.failIf(atom_ls ==[], "No atom list found - failing.")
+		    for atom in atom_ls:
+			    atom_name = atom[0][0]
+			    alt_conf = atom[0][1]
+			    if ((atom_name == atom_name_ref) and (alt_conf == alt_conf_ref)):
+				    return True
+		    return False
+
+	    # main line
+	    chain_id = "B"
+	    resno = 58
+	    inscode = ""
+	    atom_name = " CB "
+	    new_alt_conf_id = "B"
+	    set_go_to_atom_molecule(imol_rnase)
+	    set_go_to_atom_chain_residue_atom_name(chain_id, resno, " CA ")
+	    set_atom_string_attribute(imol_rnase, chain_id, resno, inscode,
+				      atom_name, "", "alt-conf", new_alt_conf_id)
+	    self.failUnless(matches_alt_conf_qm(imol_rnase, chain_id, resno, inscode,
+						atom_name, new_alt_conf_id),
+			    "   No matching pre CB altconfed - failing.")
+	    sanitise_alt_confs_in_residue(imol_rnase, chain_id, resno, inscode)
+	    self.failUnless(matches_alt_conf_qm(imol_rnase, chain_id, resno, inscode, atom_name, ""),
+			    "   No matching post CB (unaltconfed) - failing.")
+
+    def test19_0(self):
+	    """Libcif horne"""
+
+	    self.skipIf(not os.path.isfile(horne_pdb), "file %s not found - skipping test" %horne_pdb)
+	    self.skipIf(not os.path.isfile(horne_cif), "file %s not found - skipping test" %horne_cif)
+	    self.skipIf(not os.path.isfile(horne_works_cif), "file %s not found - skipping test" %horne_works_cif)
+
+	    imol = read_pdb(horne_pdb)
+	    self.failUnless(valid_model_molecule_qm(imol),"bad molecule number %i" %imol)
+
+	    read_cif_dictionary(horne_works_cif)
+	    with_auto_accept(
+		    [regularize_zone, imol, "A", 1, 1, ""]
+		    )
+	    print "\n \n \n \n"
+	    read_cif_dictionary(horne_cif)
+	    with_auto_accept(
+		    [regularize_zone, imol, "A", 1, 1, ""]
+		    )
+	    cent = molecule_centre(imol)
+	    self.failUnless(cent[0] < 2000, "Position fail 2000 test: %s in %s" %(cent[0], cent))
+
+    def test20_0(self):
+	    """Refmac Parameters Storage"""
+
+	    arg_list = [rnase_mtz, "/RNASE3GMP/COMPLEX/FWT", "/RNASE3GMP/COMPLEX/PHWT", "", 0, 0, 1, 
+			"/RNASE3GMP/COMPLEX/FGMP18", "/RNASE3GMP/COMPLEX/SIGFGMP18",
+			"/RNASE/NATIVE/FreeR_flag", 1]
+	    imol = make_and_draw_map_with_refmac_params(*arg_list)
+	    
+	    self.failUnless(valid_map_molecule_qm(imol),"  Can't get valid refmac map molecule from %s" %rnase_mtz)
+
+	    refmac_params = refmac_parameters(imol)
+
+	    self.failUnlessEqual(refmac_params, arg_list, "        non matching refmac params")
+
+    def test21_0(self):
+	    """The position of the oxygen after a mutation"""
+
+	    import operator
+	    # Return the o-pos (can be False) and the number of atoms read.
+	    #
+	    def get_o_pos(pdb_file):
+		    fin = open(pdb_file, 'r')
+		    lines = fin.readlines()
+		    fin.close
+		    n_atoms = 0
+		    o_pos = False
+		    for line in lines:
+			    atom_name = line[12:16]
+			    if (line[0:4] == "ATOM"):
+				    n_atoms +=1
+			    if (atom_name == " O  "):
+				    o_pos = n_atoms
+			    
+		    return o_pos, n_atoms
+
+	    # main body
+	    #
+	    hist_pdb_name = "his.pdb"
+
+	    imol = read_pdb(os.path.join(unittest_data_dir, "val.pdb"))
+	    self.failUnless(valid_model_molecule_qm(imol), "   failed to read file val.pdb")
+	    mutate_state = mutate(imol, "C", 3, "", "HIS")
+	    self.failUnlessEqual(mutate_state, 1, "   failure in mutate function")
+	    write_pdb_file(imol, hist_pdb_name)
+	    self.failUnless(os.path.isfile(hist_pdb_name), "   file not found: %s" %hist_pdb_name)
+	    
+	    o_pos, n_atoms = get_o_pos(hist_pdb_name)
+	    self.failUnlessEqual(n_atoms, 10, "   found %s atoms (not 10)" %n_atoms)
+	    self.failUnless(operator.isNumberType(o_pos), "   Oxygen O position not found")
+	    self.failUnlessEqual(o_pos, 4,"   found O atom at %s (not 4)" %o_pos) 
+	    
+    def test22_0(self):
+	    """Deleting (non-existing) Alt conf and Go To Atom [JED]"""
+
+	    global imol_rnase
+	    # alt conf "A" does not exist in this residue:
+	    delete_residue_with_altconf(imol_rnase, "A", 88, "", "A")
+	    # to activate the bug, we need to search over all atoms
+	    active_residue()
+	    # test for what?? (no crash??)
+
+    def test23_0(self):
+	    """Mask and difference map"""
+
+	    def get_ca_coords(imol_model, resno_1, resno_2):
+		    coords = []
+		    for resno in range(resno_1, resno_2+1):
+			    atom_info = atom_specs(imol_model, "A", resno, "", " CA ", "")
+			    co = atom_info[3:6]
+			    coords.append(co)
+		    return coords
+
+	    d_1 = difference_map(-1, 2, -9)
+	    d_2 = difference_map(2, -1, -9)
+
+	    self.failUnlessEqual(d_1, -1, "failed on bad d_1")
+	    self.failUnlessEqual(d_2, -1, "failed on bad d_1")
+
+	    imol_map_nrml_res = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    prev_sampling_rate = get_map_sampling_rate()
+	    nov_1 = set_map_sampling_rate(2.2)
+	    imol_map_high_res = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0, 0)
+	    nov_2 = set_map_sampling_rate(prev_sampling_rate)
+	    imol_model = handle_read_draw_molecule_with_recentre(rnase_pdb, 0)
+
+	    imol_masked = mask_map_by_atom_selection(imol_map_nrml_res, imol_model,
+						     "//A/1-10", 0)
+
+	    self.failUnless(valid_map_molecule_qm(imol_map_nrml_res))
+
+	    # check that imol-map-nrml-res is good here by selecting
+	    # regions where the density should be positive. The masked
+	    # region should be 0.0
+	    #
+	    high_pts = get_ca_coords(imol_model, 20, 30)
+	    low_pts  = get_ca_coords(imol_model,  1, 10)
+
+	    high_values = map(lambda pt: density_at_point(imol_masked, *pt), high_pts)
+	    low_values = map(lambda pt: density_at_point(imol_masked, *pt), low_pts)
+
+	    print "high-values: %s  low values: %s" %(high_values, low_values)
+
+	    self.failUnless((sum(low_values) < 0.000001), "Bad low values")
+	    
+	    self.failUnless((sum(high_values) > 5), "Bad high values")
+
+	    diff_map = difference_map(imol_masked, imol_map_high_res, 1.0)
+	    self.failUnless(valid_map_molecule_qm(diff_map), "failure to make good difference map")
+
+	    # now in diff-map low pt should have high values and high
+	    # pts should have low values
+
+	    diff_high_values = map(lambda pt: density_at_point(diff_map, *pt), high_pts)
+	    diff_low_values = map(lambda pt: density_at_point(diff_map, *pt), low_pts)
+	    
+	    print "diff-high-values: %s  diff-low-values: %s" %(diff_high_values, diff_low_values)
+
+	    self.failUnless((sum(diff_high_values) < 0.03), "Bad diff low values")
+	    
+	    self.failUnless((sum(diff_low_values) < -5), "Bad diff high values")
 	    
