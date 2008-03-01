@@ -58,6 +58,14 @@ def map_molecule_list():
           map_list.append(i)
     return map_list
 
+# Return True(False) if @var{imol} is (isn't) a shelx molecule.
+#
+def shelx_molecule_qm(imol):
+    if (is_shelx_molecule(imol) == 1):
+        return True
+    else:
+        return False
+
 # Set the virtual trackball behaviour.
 #
 # trackball @var{type} is a string: either 'flat' or 'spherical-surface'
@@ -261,6 +269,12 @@ def every_nth(ls, n):
         a.append(ls[i])
     return a
 
+#
+def residue_info_dialog_displayed_qm():
+    if (residue_info_dialog_is_displayed == 1):
+        return True
+    else:
+        return False
 
 # multi_read pdb reads all the files matching
 # @code{@emph{glob_pattern}} in
@@ -618,10 +632,10 @@ def centre_of_mass(imol):
 # 
 def atom_specs(imol, chain_id, resno, ins_code, atom_name, alt_conf):
 
-  # not sure what paul is on about port, so just print it!
-  # at leats not entirely sure...
   try:
       v = atom_info_string(imol, chain_id, resno, ins_code, atom_name, alt_conf)
+      # transform into a proper list
+      v = eval(v)
   except:
       v = False
 
@@ -956,6 +970,79 @@ def label_all_active_residue_atoms():
 		for atom_info in atom_list:
 			add_atom_label(imol,chain_id, resno, atom_info[0][0])
 		graphics_draw()
+# Resets alt confs and occupancies of atoms in residue that have
+# orphan alt-loc attributes
+def sanitise_alt_confs(atom_info, atom_ls):
+
+    # return a matching atom (name match) if it exists.  Else return False
+    def name_match_qm(atom_1, atom_ls):
+        compound_name_1 = atom_1[0]
+        atom_name_1 = compound_name_1[0]
+        matchers = []
+        for atom in atom_ls:
+            compound_name_2 = atom[0]
+            atom_name_2 = compound_name_2[0]
+
+            if (atom_name_1 == atom_name_2):
+                matchers.append(atom)
+                
+        if matchers:
+            return matchers
+        else:
+            return False
+
+    # main body
+    imol = atom_info[0]
+    chain_id = atom_info[1]
+    resno = atom_info[2]
+    inscode = atom_info[3]
+    atom_attribute_settings = []   # add to this
+
+    for atom in atom_ls:
+        compound_name = atom[0]
+        atom_name = compound_name[0]
+        alt_conf = compound_name[1]
+        if (alt_conf != ""):
+            matchers = name_match_qm (atom, atom_ls)
+            if (len(matchers) == 1):
+                atom_attribute_settings.append([imol, chain_id, resno, inscode, atom_name,
+                                                 alt_conf, "alt-conf", ""])
+            else:
+                atom_attribute_settings.append([imol, chain_id, resno, inscode, atom_name,
+                                                 alt_conf, "occ", ((shelx_molecule_qm(imol) and 11.0) or (1.0))])
+    if (atom_attribute_settings != []):
+        set_atom_attributes(atom_attribute_settings)
+        if (residue_info_dialog_displayed_qm):
+            residue_info_dialog(imol, chain_id, resno, inscode)
+
+#
+def sanitise_alt_confs_in_residue(imol, chain_id, resno, inscode):
+
+    atom_info = [imol, chain_id, resno, inscode, "dummy", "dummy"]
+    atom_ls = residue_info(imol, chain_id, resno, inscode)
+    sanitise_alt_confs(atom_info, atom_ls)
+
+# Resets alt confs and occupancies of atoms in residue that have
+# orphan alt-loc attributes.  Use the active-residue.
+def sanitise_alt_confs_active_residue():
+    active_atom = active_residue()
+    if active_atom:
+        imol     = active_atom[0]
+        chain_id = active_atom[2]
+        resno    = active_atom[2]
+        inscode  = active_atom[2]
+
+        atom_ls = residue_info(imol, chain_id, resno, inscode)
+
+        if atom_ls:
+            sanitise_alt_confs(active_atom, atom_ls)
+
+def print_molecule_names():
+
+    map(lambda molecule_number: printf( "    %s    %s\n" %(molecule_number, molecule_name(molecule_number))),
+        molecule_number_list())
+    
+    
 
 #############
 # some re-definitions from coot python functions
@@ -994,6 +1081,8 @@ movie_file_name_prefix = movie_file_name_prefix_py
 apply_lsq_matches      = apply_lsq_matches_py
 rotamer_graphs         = rotamer_graphs_py
 cootaneer              = cootaneer_py
+set_atom_attributes    = set_atom_attributes_py
+refmac_parameters      = refmac_parameters_py
 
 ## and some extra ones
 show_set_undo_molecule_chooser = show_set_undo_molecule_chooser_py
@@ -1154,3 +1243,13 @@ def reload_module(name):
 	path = os.getenv('COOT_PYTHON_DIR')
 	file = os.path.join(path, name)
 	execfile(file)
+
+# to make print a function:
+def printf(*args):
+    for arg in args:
+        print arg,
+
+# to print elements of a list:
+def printl(ls):
+    map(printf, ls)
+    
