@@ -1621,3 +1621,40 @@ PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int 
    return retval;
 }
 #endif // USE_PYTHON 
+
+
+
+
+
+   } else {
+       PCMMCIFData   mmCIF;
+       mmCIF = new CMMCIFData();
+       int rc = mmCIF->ReadMMCIFData ((char *)cif_dictionary_filename.c_str());
+       if (rc==CIFRC_CantOpenFile)  {
+ 	 std::cout << "Can't read cif file " << cif_dictionary_filename << std::endl;
+       } else {
+ 	 std::cout << "Dictionary cif file " << cif_dictionary_filename
+ 		   << " ReadMMCIFData OK" << std::endl;
+       } 
+
+//       CMMCIFFile ciffile;
+//       int ierr = ciffile.ReadMMCIFFile((char *)cif_dictionary_filename.c_str());
+//       if (ierr!=CIFRC_Ok) {
+// 	 std::cout << "dirty mmCIF file? " << cif_dictionary_filename << std::endl;
+// 	 std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
+//       } else {
+// 	 std::cout << "Dictionary cif file " << cif_dictionary_filename
+// 		   << " ReadMMCIFFile OK" << std::endl;
+//       } 
+
+      PCMMCIFFile ciffile;
+      ciffile = new CMMCIFFile();
+      int ierr = ciffile->ReadMMCIFFile((char *)cif_dictionary_filename.c_str());
+      if (ierr!=CIFRC_Ok) {
+	 std::cout << "dirty mmCIF file? " << cif_dictionary_filename << std::endl;
+	 std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
+      } else {
+	 std::cout << "Dictionary cif file " << cif_dictionary_filename
+		   << " ReadMMCIFFile OK" << std::endl;
+      } 
+   } 
