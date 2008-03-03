@@ -894,7 +894,8 @@ PyObject *active_residue_py() {
    if (pp.first) {
       s = PyList_New(6);
       PyList_SetItem(s, 0, PyInt_FromLong(pp.second.first));
-      PyList_SetItem(s, 1, PyString_FromString(pp.second.second.chain.c_str()));      PyList_SetItem(s, 2, PyInt_FromLong(pp.second.second.resno));
+      PyList_SetItem(s, 1, PyString_FromString(pp.second.second.chain.c_str()));
+      PyList_SetItem(s, 2, PyInt_FromLong(pp.second.second.resno));
       PyList_SetItem(s, 3, PyString_FromString(pp.second.second.insertion_code.c_str()));
       PyList_SetItem(s, 4, PyString_FromString(pp.second.second.atom_name.c_str()));
       PyList_SetItem(s, 5, PyString_FromString(pp.second.second.alt_conf.c_str()));
@@ -2138,15 +2139,8 @@ SCM monomer_restraints(const char *monomer_type) {
       g.Geom_p()->get_monomer_restraints(monomer_type);
    if (p.first) {
 
-      r = SCM_EOL;
-
-      // Note to self, we also need:
-      // 
-      // dict_chem_comp_t residue_info;
-      // std::vector <dict_atom> atom_info;
-
       coot::dictionary_residue_restraints_t restraints = p.second;
-      SCM bond_restraint_list = SCM_EOL;
+      r = SCM_EOL;
 
       // ------------------ chem_comp -------------------------
       coot::dict_chem_comp_t info = restraints.residue_info;
@@ -2187,6 +2181,8 @@ SCM monomer_restraints(const char *monomer_type) {
 
 
       // ------------------ Bonds -------------------------
+      SCM bond_restraint_list = SCM_EOL;
+
       for (int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
 	 coot::dict_bond_restraint_t bond_restraint = restraints.bond_restraint[ibond];
 	 std::string a1 = bond_restraint.atom_id_1_4c();
@@ -2325,6 +2321,45 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
    PyObject *r;
    r = Py_False;
 
+   graphics_info_t g;
+   std::pair<short int, coot::dictionary_residue_restraints_t> p =
+      g.Geom_p()->get_monomer_restraints(monomer_type);
+   if (p.first) {
+
+      coot::dictionary_residue_restraints_t restraints = p.second;
+
+      // ------------------ chem_comp -------------------------
+      coot::dict_chem_comp_t info = restraints.residue_info;
+      
+      PyObject *chem_comp_py = PyList_New(7);
+      PyList_SetItem(chem_comp_py, 0, PyString_FromString(info.comp_id.c_str()));
+      PyList_SetItem(chem_comp_py, 1, PyString_FromString(info.three_letter_code.c_str()));
+      PyList_SetItem(chem_comp_py, 2, PyString_FromString(info.name.c_str()));
+      PyList_SetItem(chem_comp_py, 3, PyString_FromString(info.group.c_str()));
+      PyList_SetItem(chem_comp_py, 4, PyInt_FromLong(info.number_atoms_all));
+      PyList_SetItem(chem_comp_py, 5, PyInt_FromLong(info.number_atoms_nh));
+      PyList_SetItem(chem_comp_py, 6, PyString_FromString(info.description_level.c_str()));
+      
+      // Put chem_comp_py into a dictionary?
+
+      
+      // ------------------ chem_comp_atom -------------------------
+      std::vector<coot::dict_atom> atom_info = restraints.atom_info;
+      int n_atoms = atom_info.size();
+      PyObject *atom_info_list = PyList_New(n_atoms);
+      for (int iat=0; iat<n_atoms; iat++) { 
+	 PyObject *atom_attributes_list = PyList_New(5);
+	 PyList_SetItem(atom_attributes_list, 0, PyString_FromString(atom_info[iat].atom_id_4c.c_str()));
+	 PyList_SetItem(atom_attributes_list, 1, PyString_FromString(atom_info[iat].type_symbol.c_str()));
+	 PyList_SetItem(atom_attributes_list, 2, PyString_FromString(atom_info[iat].type_energy.c_str()));
+	 PyList_SetItem(atom_attributes_list, 3, PyFloat_FromDouble(atom_info[iat].partial_charge));
+	 PyObject *flag = Py_False;
+	 if (atom_info[iat].partial_charge_is_valid_flag)
+	    flag = Py_True;
+	 PyList_SetItem(atom_attributes_list, 4, flag);
+
+      }
+   }
    return r;
 }
 #endif // USE_PYTHON
@@ -2628,7 +2663,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
       bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, monomer_restraints);
       if (s)
 	 retval = SCM_BOOL_T;
-      // set retval here if restraints were good.
+      // set retval here if restraints were updated.
    }
 
    return retval;

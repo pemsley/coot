@@ -1562,7 +1562,8 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
       g.graphics_x_size = widget->allocation.width;
       g.graphics_y_size = widget->allocation.height;
    } 
-#endif   
+#endif
+   return TRUE;
 }
 
 /* When widget is exposed it's contents are redrawn. */
@@ -1577,6 +1578,7 @@ gint expose(GtkWidget *widget, GdkEventExpose *event) {
    // graphics_info_t::coot_swap_buffers(widget, 0);
    
    graphics_info_t::do_expose_swap_buffers_flag = 1;
+   return TRUE;
 }
 
    
