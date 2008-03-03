@@ -4153,7 +4153,7 @@ create_aniso_window (void)
   gtk_widget_show (image1498);
   gtk_box_pack_start (GTK_BOX (hbox180), image1498, FALSE, FALSE, 0);
 
-  label354 = gtk_label_new_with_mnemonic (_("   OK   "));
+  label354 = gtk_label_new_with_mnemonic (_("   Appy   "));
   gtk_widget_show (label354);
   gtk_box_pack_start (GTK_BOX (hbox180), label354, FALSE, FALSE, 0);
 

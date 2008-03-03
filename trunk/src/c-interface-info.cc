@@ -93,6 +93,11 @@
 //
 #ifdef USE_PYTHON
 #include "Python.h"
+#if (PY_MINOR_VERSION > 4) 
+// no fixup needed 
+#else
+#define Py_ssize_t int
+#endif
 #endif // USE_PYTHON
 
 #include "cc-interface.hh"
@@ -2182,7 +2187,7 @@ SCM monomer_restraints(const char *monomer_type) {
 
       // ------------------ Bonds -------------------------
       SCM bond_restraint_list = SCM_EOL;
-
+      
       for (int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
 	 coot::dict_bond_restraint_t bond_restraint = restraints.bond_restraint[ibond];
 	 std::string a1 = bond_restraint.atom_id_1_4c();
@@ -2326,6 +2331,8 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
       g.Geom_p()->get_monomer_restraints(monomer_type);
    if (p.first) {
 
+      PyObject *r = PyDict_New();
+	 
       coot::dictionary_residue_restraints_t restraints = p.second;
 
       // ------------------ chem_comp -------------------------
@@ -2341,6 +2348,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
       PyList_SetItem(chem_comp_py, 6, PyString_FromString(info.description_level.c_str()));
       
       // Put chem_comp_py into a dictionary?
+      PyDict_SetItem(r, PyString_FromString("_chem_comp"), chem_comp_py);
 
       
       // ------------------ chem_comp_atom -------------------------
@@ -2357,8 +2365,114 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 if (atom_info[iat].partial_charge_is_valid_flag)
 	    flag = Py_True;
 	 PyList_SetItem(atom_attributes_list, 4, flag);
-
+	 PyList_SetItem(atom_info_list, iat, atom_attributes_list);
       }
+
+      PyDict_SetItem(r, PyString_FromString("_chem_comp_atom"), atom_info_list);
+
+      // ------------------ Bonds -------------------------
+      PyObject *bond_restraint_list = PyList_New(restraints.bond_restraint.size());
+      for (int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+	 std::string a1 = restraints.bond_restraint[ibond].atom_id_1_4c();
+	 std::string a2 = restraints.bond_restraint[ibond].atom_id_2_4c();
+	 double d   = restraints.bond_restraint[ibond].dist();
+	 double esd = restraints.bond_restraint[ibond].esd();
+	 PyObject *bond_restraint = PyList_New(4);
+	 PyList_SetItem(bond_restraint, 0, PyString_FromString(a1.c_str()));
+	 PyList_SetItem(bond_restraint, 1, PyString_FromString(a1.c_str()));
+	 PyList_SetItem(bond_restraint, 2, PyFloat_FromDouble(d));
+	 PyList_SetItem(bond_restraint, 3, PyFloat_FromDouble(esd));
+	 PyList_SetItem(bond_restraint_list, ibond, bond_restraint);
+      }
+
+      PyDict_SetItem(r, PyString_FromString("_chem_comp_bond"), bond_restraint_list);
+
+
+      // ------------------ Angles -------------------------
+      PyObject *angle_restraint_list = PyList_New(restraints.angle_restraint.size());
+      for (int iangle=0; iangle<restraints.angle_restraint.size(); iangle++) {
+	 std::string a1 = restraints.angle_restraint[iangle].atom_id_1_4c();
+	 std::string a2 = restraints.angle_restraint[iangle].atom_id_2_4c();
+	 std::string a3 = restraints.angle_restraint[iangle].atom_id_3_4c();
+	 double d   = restraints.angle_restraint[iangle].angle();
+	 double esd = restraints.angle_restraint[iangle].esd();
+	 PyObject *angle_restraint = PyList_New(5);
+	 PyList_SetItem(angle_restraint, 0, PyString_FromString(a1.c_str()));
+	 PyList_SetItem(angle_restraint, 1, PyString_FromString(a2.c_str()));
+	 PyList_SetItem(angle_restraint, 2, PyString_FromString(a3.c_str()));
+	 PyList_SetItem(angle_restraint, 3, PyFloat_FromDouble(d));
+	 PyList_SetItem(angle_restraint, 4, PyFloat_FromDouble(esd));
+	 PyList_SetItem(angle_restraint_list, iangle, angle_restraint);
+      }
+
+      PyDict_SetItem(r, PyString_FromString("_chem_comp_angle"), angle_restraint_list);
+
+      
+      // ------------------ Torsions -------------------------
+      PyObject *torsion_restraint_list = PyList_New(restraints.torsion_restraint.size());
+      for (int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
+	 std::string a1 = restraints.torsion_restraint[itorsion].atom_id_1_4c();
+	 std::string a2 = restraints.torsion_restraint[itorsion].atom_id_2_4c();
+	 std::string a3 = restraints.torsion_restraint[itorsion].atom_id_3_4c();
+	 std::string a4 = restraints.torsion_restraint[itorsion].atom_id_4_4c();
+	 double tor  = restraints.torsion_restraint[itorsion].angle();
+	 double esd = restraints.torsion_restraint[itorsion].esd();
+	 int period = restraints.torsion_restraint[itorsion].periodicity();
+	 PyObject *torsion_restraint = PyList_New(7);
+	 PyList_SetItem(torsion_restraint, 0, PyString_FromString(a1.c_str()));
+	 PyList_SetItem(torsion_restraint, 1, PyString_FromString(a2.c_str()));
+	 PyList_SetItem(torsion_restraint, 2, PyString_FromString(a3.c_str()));
+	 PyList_SetItem(torsion_restraint, 3, PyString_FromString(a4.c_str()));
+	 PyList_SetItem(torsion_restraint, 4, PyFloat_FromDouble(tor));
+	 PyList_SetItem(torsion_restraint, 5, PyFloat_FromDouble(esd));
+	 PyList_SetItem(torsion_restraint, 6, PyInt_FromLong(period));
+	 PyList_SetItem(torsion_restraint_list, itorsion, torsion_restraint);
+      }
+
+      PyDict_SetItem(r, PyString_FromString("_chem_comp_torsion"), torsion_restraint_list);
+
+      // ------------------ Planes -------------------------
+      PyObject *plane_restraints_list = PyList_New(restraints.plane_restraint.size());
+      for (int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
+	 PyObject *atom_list = PyList_New(restraints.plane_restraint[iplane].n_atoms());
+	 for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) { 
+	    std::string at = restraints.plane_restraint[iplane][iat];
+	    PyList_SetItem(atom_list, iat, PyString_FromString(at.c_str()));
+	 }
+	 double esd = restraints.plane_restraint[iplane].dist_esd();
+	 PyObject *plane_restraint = PyList_New(3);
+	 PyList_SetItem(plane_restraint, 0, PyString_FromString(restraints.plane_restraint[iplane].plane_id.c_str()));
+	 PyList_SetItem(plane_restraint, 1, atom_list);
+	 PyList_SetItem(plane_restraint, 2, PyFloat_FromDouble(restraints.plane_restraint[iplane].dist_esd()));
+      }
+
+      PyDict_SetItem(r, PyString_FromString("_chem_comp_plane"), plane_restraints_list);
+
+      // ------------------ Chirals -------------------------
+      PyObject *chiral_restraint_list = PyList_New(restraints.chiral_restraint.size());
+      for (int ichiral=0; ichiral<restraints.chiral_restraint.size(); ichiral++) {
+	 
+	 std::string a1 = restraints.chiral_restraint[ichiral].atom_id_1_4c();
+	 std::string a2 = restraints.chiral_restraint[ichiral].atom_id_2_4c();
+	 std::string a3 = restraints.chiral_restraint[ichiral].atom_id_3_4c();
+	 std::string ac = restraints.chiral_restraint[ichiral].atom_id_c_4c();
+	 std::string chiral_id = restraints.chiral_restraint[ichiral].Chiral_Id();
+	 int vol_sign = restraints.chiral_restraint[ichiral].volume_sign;
+
+	 double esd = restraints.chiral_restraint[ichiral].volume_sigma();
+	 int volume_sign = restraints.chiral_restraint[ichiral].volume_sign;
+	 PyObject *chiral_restraint = PyList_New(7);
+	 PyList_SetItem(chiral_restraint, 0, PyString_FromString(chiral_id.c_str()));
+	 PyList_SetItem(chiral_restraint, 1, PyString_FromString(ac.c_str()));
+	 PyList_SetItem(chiral_restraint, 2, PyString_FromString(a1.c_str()));
+	 PyList_SetItem(chiral_restraint, 3, PyString_FromString(a2.c_str()));
+	 PyList_SetItem(chiral_restraint, 4, PyString_FromString(a3.c_str()));
+	 PyList_SetItem(chiral_restraint, 5, PyInt_FromLong(volume_sign));
+	 PyList_SetItem(chiral_restraint, 6, PyFloat_FromDouble(esd));
+	 PyList_SetItem(chiral_restraint_list, ichiral, chiral_restraint);
+      }
+
+      PyDict_SetItem(r, PyString_FromString("_chem_comp_chir"), chiral_restraint_list);
    }
    return r;
 }
@@ -2673,9 +2787,49 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 #ifdef USE_PYTHON
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
 
-   PyObject *r = Py_False;
+   PyObject *retval = Py_False;
 
-   return r;
+   if (not (PyDict_Check(restraints))) {
+      std::cout << " Failed to read restraints - not a list" << std::endl;
+   } else {
+
+      std::vector<coot::dict_bond_restraint_t> bond_restraints;
+      std::vector<coot::dict_angle_restraint_t> angle_restraints;
+      std::vector<coot::dict_torsion_restraint_t> torsion_restraints;
+      std::vector<coot::dict_chiral_restraint_t> chiral_restraints;
+      std::vector<coot::dict_plane_restraint_t> plane_restraints;
+      std::vector<coot::dict_atom> atoms;
+      coot::dict_chem_comp_t residue_info;
+
+      PyObject *key;
+      PyObject *value;
+      Py_ssize_t pos;
+      
+      while (PyDict_Next(restraints, &pos, &key, &value)) {
+	 std::cout << "key: " << key << " value: " << value << std::endl;
+
+	 std::string key_string = PyString_AsString(key);
+	 if (key_string == "_chem_comp") {
+	    PyObject *chem_comp_list = value;
+	    if (PyList_Check(chem_comp_list)) {
+	       if (PyObject_Length(chem_comp_list) == 7) {
+		  std::string comp_id  = PyString_AsString(PyList_GetItem(chem_comp_list, 0));
+		  std::string tlc      = PyString_AsString(PyList_GetItem(chem_comp_list, 1));
+		  std::string name     = PyString_AsString(PyList_GetItem(chem_comp_list, 2));
+		  std::string group    = PyString_AsString(PyList_GetItem(chem_comp_list, 3));
+		  int n_atoms_all      = PyInt_AsLong(PyList_GetItem(chem_comp_list, 4));
+		  int n_atoms_nh       = PyInt_AsLong(PyList_GetItem(chem_comp_list, 5));
+		  std::string desc_lev = PyString_AsString(PyList_GetItem(chem_comp_list, 6));
+
+		  coot::dict_chem_comp_t n(comp_id, tlc, name, group,
+					   n_atoms_all, n_atoms_nh, desc_lev);
+		  residue_info = n;
+	       }
+	    }
+	 } 
+      } 
+   }
+   return retval;
 } 
 #endif // USE_PYTHON
 
