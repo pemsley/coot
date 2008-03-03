@@ -61,4 +61,9 @@ class GL_matrix {
 
 };
 
+void my_aniso_error_handler (const char * reason,
+			     const char * file,
+			     int line,
+			     int gsl_errno);
+
 #endif // HAVE_GL_MATRIX

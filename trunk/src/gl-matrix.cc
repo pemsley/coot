@@ -232,8 +232,10 @@ GL_matrix::cholesky() const {
 						      gsl_matrix_get(&m.matrix, 2, 2)));
 
    } else {
-      // can't catch this (of course)
+      gsl_error_handler_t *old_handler;
+      old_handler = gsl_set_error_handler(my_aniso_error_handler);
       int ic = gsl_linalg_cholesky_decomp (&m.matrix);
+      gsl_set_error_handler(old_handler);
       
       return std::pair<bool, GL_matrix> (1, GL_matrix(gsl_matrix_get(&m.matrix, 0, 0),
 						      gsl_matrix_get(&m.matrix, 0, 1),
@@ -247,6 +249,16 @@ GL_matrix::cholesky() const {
    }
 } 
 #endif // GSL for Cholesky
+
+
+#ifdef HAVE_GSL
+void my_aniso_error_handler (const char * reason,
+			     const char * file,
+			     int line,
+			     int gsl_errno) {
+   std::cout << "Non-positive definite anisotropic atom!" << std::endl;
+}
+#endif // HAVE_GSL
 
 
 // move these functions into the header file so that they
