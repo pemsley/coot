@@ -94,79 +94,81 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
    g.go_to_atom_residue(); // sets values of unset (magic -1) go to
 			   // atom residue number.
 
-   std::vector<coot::model_view_atom_tree_chain_t> residue_chains = 
-      molecules[g.go_to_atom_molecule()].model_view_residue_tree_labels();
+   if (is_valid_model_molecule(g.go_to_atom_molecule())) { 
 
-   // so, clear the current tree:
-   GtkTreeView *tv = NULL;
-   if (gtktree) 
-      tv = GTK_TREE_VIEW(gtktree);
-   if (! tv)
-      tv = GTK_TREE_VIEW(gtk_tree_view_new());
+      std::vector<coot::model_view_atom_tree_chain_t> residue_chains = 
+	 molecules[g.go_to_atom_molecule()].model_view_residue_tree_labels();
 
-   // For stripey pajama view:
-   // gtk_tree_view_set_rules_hint (tv, TRUE);
+      // so, clear the current tree:
+      GtkTreeView *tv = NULL;
+      if (gtktree) 
+	 tv = GTK_TREE_VIEW(gtktree);
+      if (! tv)
+	 tv = GTK_TREE_VIEW(gtk_tree_view_new());
 
-   GtkTreeModel *model = gtk_tree_view_get_model(tv);
-   // std::cout << "model: " << model << std::endl;
-   // potentially a bug here if an old model is left lying about in
-   // the tree store?  That shouldn't happen though.., should it?
-   bool need_renderer = 1;
-   if (model) {
-      // std::cout << "clearing old tree store" << std::endl;
-      gtk_tree_store_clear(GTK_TREE_STORE(model));
-      need_renderer = 0;
-   }
+      // For stripey pajama view:
+      // gtk_tree_view_set_rules_hint (tv, TRUE);
 
-   // Here is the plan:
-   //
-   // outer loop:
+      GtkTreeModel *model = gtk_tree_view_get_model(tv);
+      // std::cout << "model: " << model << std::endl;
+      // potentially a bug here if an old model is left lying about in
+      // the tree store?  That shouldn't happen though.., should it?
+      bool need_renderer = 1;
+      if (model) {
+	 // std::cout << "clearing old tree store" << std::endl;
+	 gtk_tree_store_clear(GTK_TREE_STORE(model));
+	 need_renderer = 0;
+      }
 
-   GtkTreeStore *tree_store = gtk_tree_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
-   GtkTreeIter   toplevel, child;
+      // Here is the plan:
+      //
+      // outer loop:
 
-   // what is the connection between tree_store and model?
-   gtk_tree_view_set_model(GTK_TREE_VIEW(gtktree), GTK_TREE_MODEL(tree_store));
+      GtkTreeStore *tree_store = gtk_tree_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
+      GtkTreeIter   toplevel, child;
+
+      // what is the connection between tree_store and model?
+      gtk_tree_view_set_model(GTK_TREE_VIEW(gtktree), GTK_TREE_MODEL(tree_store));
     
-   for (unsigned int ichain=0; ichain<residue_chains.size(); ichain++) {
-      // the chain label item e.g. "A"
-      gtk_tree_store_append(GTK_TREE_STORE(tree_store), &toplevel, NULL);
+      for (unsigned int ichain=0; ichain<residue_chains.size(); ichain++) {
+	 // the chain label item e.g. "A"
+	 gtk_tree_store_append(GTK_TREE_STORE(tree_store), &toplevel, NULL);
 
-//       std::cout << "Adding tree item " << residue_chains[ichain].chain_id
-// 		<< std::endl;
-      gtk_tree_store_set (tree_store, &toplevel,
-			  CHAIN_COL, residue_chains[ichain].chain_id.c_str(),
-			  RESIDUE_COL, NULL,
-			  -1);
-      for (unsigned int ires=0; ires<residue_chains[ichain].tree_residue.size();
-	   ires++) {
-	 gtk_tree_store_append(GTK_TREE_STORE(tree_store),
-			       &child, &toplevel);
-	 gtk_tree_store_set(tree_store, &child,
-			    CHAIN_COL,  residue_chains[ichain].tree_residue[ires].button_label.c_str(),
-			    RESIDUE_COL, (gpointer)(residue_chains[ichain].tree_residue[ires].residue),
-			    -1);
+	 //       std::cout << "Adding tree item " << residue_chains[ichain].chain_id
+	 // 		<< std::endl;
+	 gtk_tree_store_set (tree_store, &toplevel,
+			     CHAIN_COL, residue_chains[ichain].chain_id.c_str(),
+			     RESIDUE_COL, NULL,
+			     -1);
+	 for (unsigned int ires=0; ires<residue_chains[ichain].tree_residue.size();
+	      ires++) {
+	    gtk_tree_store_append(GTK_TREE_STORE(tree_store),
+				  &child, &toplevel);
+	    gtk_tree_store_set(tree_store, &child,
+			       CHAIN_COL,  residue_chains[ichain].tree_residue[ires].button_label.c_str(),
+			       RESIDUE_COL, (gpointer)(residue_chains[ichain].tree_residue[ires].residue),
+			       -1);
+	 }
+      }
+
+      if (need_renderer) { 
+	 GtkCellRenderer *cell = gtk_cell_renderer_text_new();
+	 GtkTreeViewColumn *column =
+	    gtk_tree_view_column_new_with_attributes ("Chains", cell, "text", 0, NULL);
+	 gtk_tree_view_append_column (GTK_TREE_VIEW (tv),
+				      GTK_TREE_VIEW_COLUMN (column));
+
+	 GtkTreeSelection*   tree_sel = gtk_tree_view_get_selection (tv);
+	 gtk_tree_selection_set_mode(tree_sel, GTK_SELECTION_SINGLE);
+	 // double clicks
+	 g_signal_connect(tv, "row-activated",
+			  (GCallback) residue_tree_residue_row_activated, NULL);
+
+	 gtk_tree_selection_set_select_function (tree_sel,
+						 graphics_info_t::residue_tree_selection_func,
+						 NULL, NULL);
       }
    }
-
-   if (need_renderer) { 
-      GtkCellRenderer *cell = gtk_cell_renderer_text_new();
-      GtkTreeViewColumn *column =
-	 gtk_tree_view_column_new_with_attributes ("Chains", cell, "text", 0, NULL);
-      gtk_tree_view_append_column (GTK_TREE_VIEW (tv),
-				   GTK_TREE_VIEW_COLUMN (column));
-
-      GtkTreeSelection*   tree_sel = gtk_tree_view_get_selection (tv);
-      gtk_tree_selection_set_mode(tree_sel, GTK_SELECTION_SINGLE);
-      // double clicks
-      g_signal_connect(tv, "row-activated",
-		       (GCallback) residue_tree_residue_row_activated, NULL);
-
-      gtk_tree_selection_set_select_function (tree_sel,
-					      graphics_info_t::residue_tree_selection_func,
-					      NULL, NULL);
-   }
-   
 }
 
 // static
