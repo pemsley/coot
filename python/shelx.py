@@ -47,7 +47,8 @@ def handle_shelx_fcf_file(filename):
 
     convert_shelx_fcf_to_cif(filename,output_mmCIF_file_name)
 
-    auto_read_cif_data_with_phases(output_mmCIF_file_name)
+    ret = auto_read_cif_data_with_phases(output_mmCIF_file_name)
+    return ret
 #    read_cif_data_with_phases(output_mmCIF_file_name)
 #    read_cif_data_with_phases_fo_fc(output_mmCIF_file_name)
 
@@ -224,9 +225,9 @@ def shelxl_refine(*args):
     # filenames.
 
     if (shelxh_flag):
-       shelxl_exe = find_exe("shelxh","PATH",False)
+       shelxl_exe = find_exe("shelxh", "PATH")
     else:
-       shelxl_exe = find_exe("shelxl","PATH",False)
+       shelxl_exe = find_exe("shelxl", "PATH")
     if (shelxl_exe):
        dir = os.path.join(os.path.abspath("."),coot_shelxl_dir)
        if not os.path.isdir(dir):

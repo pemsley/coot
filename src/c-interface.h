@@ -4191,7 +4191,7 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id);
   "D", "F"]]. The master chain goes in first.
 
    If imol does not have NCS ghosts, return #f */
-PyObject *ncs_chains_ids_py(int imol);
+PyObject *ncs_chain_ids_py(int imol);
 #endif  /* USE_PYTHON */
 #endif	/* __cplusplus */
 

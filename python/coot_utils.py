@@ -1012,7 +1012,7 @@ def sanitise_alt_confs(atom_info, atom_ls):
                                                  alt_conf, "occ", ((shelx_molecule_qm(imol) and 11.0) or (1.0))])
     if (atom_attribute_settings != []):
         set_atom_attributes(atom_attribute_settings)
-        if (residue_info_dialog_displayed_qm):
+        if (residue_info_dialog_displayed_qm()):
             residue_info_dialog(imol, chain_id, resno, inscode)
 
 #
@@ -1083,6 +1083,10 @@ rotamer_graphs         = rotamer_graphs_py
 cootaneer              = cootaneer_py
 set_atom_attributes    = set_atom_attributes_py
 refmac_parameters      = refmac_parameters_py
+water_chain_from_shelx_ins = water_chain_from_shelx_ins_py
+water_chain            = water_chain_py
+ncs_chain_differences  = ncs_chain_differences_py
+ncs_chain_ids          = ncs_chain_ids_py
 
 ## and some extra ones
 show_set_undo_molecule_chooser = show_set_undo_molecule_chooser_py
@@ -1118,19 +1122,18 @@ def GL_light_off():
 
 # BL module to find exe files
 # we need this for popen as it requires the full path of the exe file
-# we use arguments:
+# we use arguments (min 1, no max?!:
 #
-# program_name	: name of exe to find
+# 1.) program_name	: name of exe to find
 #
-# first_path	: path name to serach first (usually "PATH")
-#
-# second_path	: next path to serach in (e.g. "CCP4_BIN")
+# 2-x.) path_names	: path name to search (usually "PATH", then maybe CCP4_BIN, ...,
+#                         can be a single path as well)
 #
 # then we search everywhere
 # 
 # returns full path of exe when successful, False otherwise
 #
-def find_exe(program_name, first_path, second_path):
+def find_exe(*args):
 
     import os, string, fnmatch
 
@@ -1139,90 +1142,100 @@ def find_exe(program_name, first_path, second_path):
 
     def search_disk_dialog():
 
-        import pygtk, gtk, pango
-
-        dialog = gtk.Dialog("Search whole disk dialog", None,
-                 gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
-                 (gtk.STOCK_YES, gtk.RESPONSE_ACCEPT,
-                 gtk.STOCK_NO, gtk.RESPONSE_REJECT))
-        ifont = gtk.gdk.Font("fixed")
-	label_text = "Couldn't find %s in default path" %(program_name)
+        ret = False
+        label_text = "Couldn't find %s in default path" %(program_name)
         if (first_path):
             label_text += " and "
             label_text += first_path
-        if (second_path):
-            label_text += " and "
-            label_text += second_path
+            if (second_path):
+                label_text += " and "
+                label_text += second_path
         label_text += "\n\nShall we search the whole disk?\n"
-        label = gtk.Label(label_text)
 
-        dialog.vbox.pack_end(label, True, True, 0)
-	dialog.show_all()
-	result = dialog.run()
-        if result == gtk.RESPONSE_ACCEPT:
-           ret = True
-        else:
-           ret = False
-        dialog.destroy()
+        try:
+            import pygtk, gtk, pango
+
+            dialog = gtk.Dialog("Search whole disk dialog", None,
+                                gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
+                                (gtk.STOCK_YES, gtk.RESPONSE_ACCEPT,
+                                 gtk.STOCK_NO, gtk.RESPONSE_REJECT))
+            ifont = gtk.gdk.Font("fixed")
+            label = gtk.Label(label_text)
+            dialog.vbox.pack_end(label, True, True, 0)
+            dialog.show_all()
+            result = dialog.run()
+            if result == gtk.RESPONSE_ACCEPT:
+                ret = True
+            else:
+                ret = False
+            dialog.destroy()
+        except:
+            # no graphics
+            label_text += "[y/N] >"
+            result =""
+            while result.lower() not in ['y', 'yes', 'n', 'no']:
+                result = raw_input(label_text)
+            if result.lower() in ['y', 'yes']:
+                ret = True
+            else:
+                ret = False
+            
         return ret
 
-    if (os.name == 'nt'):
-       drive = "C:\\"
-       file_ext = file_name_extension(program_name)
-       if (file_ext <> 'exe'):
+    if (len(args) > 0):
+        program_name = args[0]
+        path_ls = args[1:len(args)]
+
+        # setting of OS specific path properties
+        if (os.name == 'nt'):
+            drive = "C:\\"
+            file_ext = file_name_extension(program_name)
+            if (file_ext <> 'exe'):
        		extension = ".exe"
-       else:
+            else:
        		extension = ""
+        else:
+            extension = ""
+            drive = "/"
+
+        program_name_noext = program_name
+        program_name += extension
+
+        # search the extra Paths
+        for search_path in path_ls:
+            
+            if (os.path.isfile(search_path)):
+                # we have a single file name, not environ var
+                program_exe = os.path.join(search_path, program_name)
+                if (os.path.isfile(program_exe)):
+                    print "BL INFO:: We found ", program_exe
+                    return program_exe
+            else:
+                try:
+                    primary_path = os.environ[search_path]
+                    for path in string.split(primary_path, os.pathsep):
+                        program_exe = os.path.join(path, program_name)
+                        if (os.path.isfile(program_exe)):
+                            print "BL INFO:: We found ", program_exe
+                            return program_exe
+                except:
+                    print "BL WARNING:: %s not defined!" %search_path
+            
+        # BL says: before we search everywhere we might want to ask
+        # the user if he actually wishes to do so!
+        # lets insert a small pygtk dialog and ask!
+        search_disk = search_disk_dialog()
+        if search_disk:
+            # search everywhere 
+            for root, dir, file in os.walk(drive):
+                program_exe = os.path.join(root, program_name)
+                if (os.path.isfile(program_exe)):
+                    return program_exe
+        else:
+            print "BL INFO:: we don't search the whole disk for", program_name_noext
+            
     else:
-       extension = ""
-       drive = "/"
-
-    program_name_noext = program_name
-    program_name += extension
-
-    if (first_path):
-       try:
-          primary_path = os.environ[first_path]
-#          print "BL DEBUG:: primary path is ", primary_path
-          for path in string.split(primary_path, os.pathsep):
-              program_exe = os.path.join(path,program_name)
-#              print "BL DEBUG:: prog exe is ", program_exe
-              if (os.path.isfile(program_exe)):
-                 print "BL INFO:: We found ", program_exe
-                 return program_exe
-                 break
-       except:
-          print "BL WARNING:: %s not defined!" %first_path
-        
-    if (second_path):
-       try:
-          secondary_path = os.environ[second_path]
-#          print "BL DEBUG:: secondary path is ", secondary_path
-          for path in string.split(secondary_path, os.pathsep):
-              program_exe = os.path.join(path,program_name)
-#              print "BL DEBUG:: prog exe is ", program_exe
-              if (os.path.isfile(program_exe)):
-                 print "BL INFO:: We found ", program_exe
-                 return program_exe
-                 break
-       except:
-          print "BL WARNING:: %s not defined!" %first_path
-
-    # BL says: before we search everywhere we might want to ask
-    # the user if he actually wishes to do so!
-    # lets insert a small pygtk dialog and ask!
-    search_disk = search_disk_dialog()
-#    print "BL DEBUG:: search_disk is", search_disk
-    if search_disk:
-       # search everywhere 
-       for root, dir, file in os.walk(drive):
-           program_exe = os.path.join(root,program_name)
-           if (os.path.isfile(program_exe)):
-#              print "BL DEBUG:: have found  ", program_exe
-              return program_exe
-              break
-    else:
-       print "BL INFO:: we don't search the whole disk for", program_name_noext
+        print "INFO:: wrong number of arguments! You need at least to give a filename"
 
     print "BL WARNING:: We cannot find %s anywhere! Program %s won't run!" %(program_name_noext, program_name_noext)
     return False

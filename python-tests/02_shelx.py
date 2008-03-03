@@ -53,7 +53,7 @@ class ShelxTestFunctions(unittest.TestCase):
         imol = read_pdb(hollander_ins)
         self.failUnless(valid_model_molecule_qm(imol), "   fail: bad molecule for %s" %hollander_ins)
         spg = show_spacegroup(imol)
-        self.failUnlessEqual(spg, "I 41 2 2", "   fail: wrong spacegroup for %s %s" %(hollands_ins, spg))
+        self.failUnlessEqual(spg, "I 41 2 2", "   fail: wrong spacegroup for %s %s" %(hollander_ins, spg))
         
     def test03_0(self):
         """read shelx insulin with fcf"""
@@ -74,7 +74,7 @@ class ShelxTestFunctions(unittest.TestCase):
                              "   Mismatch spacegroups %s %s" %(show_spacegroup(imol),
                                                                show_spacegroup(imol_insulin_res_local)))
 
-        self.failUnlessEqual(show_spacegroup(imol), "I 21 3", "   Bad spacegroups %s" %showspacegroup(imol))
+        self.failUnlessEqual(show_spacegroup(imol), "I 21 3", "   Bad spacegroups %s" %(show_spacegroup(imol)))
 
         # good then
         rotate_y_scene(rotate_n_frames(200), 0.1)

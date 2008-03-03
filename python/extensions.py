@@ -226,7 +226,7 @@ if (have_coot_python):
 	else:
 		ccp4mg_exe = "ccp4mg"
 	if command_in_path_qm(ccp4mg_exe):
-		ccp4mg_file_exe = find_exe(ccp4mg_exe, "PATH", "")
+		ccp4mg_file_exe = find_exe(ccp4mg_exe, "PATH")
 		pd_file_name = os.path.abspath(pd_file_name)
 		args = [ccp4mg_file_exe, "-pict", pd_file_name]
 		os.spawnv(os.P_NOWAIT, ccp4mg_file_exe, args)
