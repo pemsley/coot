@@ -133,14 +133,14 @@ def probe(imol):
        #reduce seems to have a different name in win than otherwise
        if os.name == 'nt':
 		if not (os.path.isfile(reduce_command)):
-			reduce_command = find_exe(reduce_command_name, "PATH", False)
+			reduce_command = find_exe(reduce_command_name, "PATH")
        else:
 		# this is assuming reduce is called 'reduce' on other systems (which it probably isnt)
 		if not (os.path.isfile(reduce_command)):
-			reduce_command = find_exe("reduce", "PATH", False)
+			reduce_command = find_exe("reduce", "PATH")
        # we need to check if probe_command is defined too
        if not(os.path.isfile(probe_command)):
-		probe_command = find_exe(probe_command_name, "PATH", False)
+		probe_command = find_exe(probe_command_name, "PATH")
        make_directory_maybe("coot-molprobity")
        mol_pdb_file = "coot-molprobity/for-reduce.pdb"
        reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
@@ -242,7 +242,7 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
     atom_sel = "\"(file1 within " + str(radius) + " of " + str(x_cen) + ", " + str(y_cen) + ", " + str(z_cen) + ", " + "not water not (chain" + string.lower(chain_id) + " " + str(res_no) + ")),file2\""
 
     if not (os.path.isfile(probe_command)):
-	probe_command = find_exe("probe", "PATH", False)
+	probe_command = find_exe("probe", "PATH")
     if (probe_command):
        probe_line = " -mc -u -quiet -drop -stdbonds -both " + atom_sel + " file2 " + probe_pdb_in_1 + " " + probe_pdb_in_2
 #       print "BL INFO:: run probe as ", probe_command + probe_line

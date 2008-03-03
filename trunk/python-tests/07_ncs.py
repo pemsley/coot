@@ -21,6 +21,10 @@
 import unittest
 import os
 
+insulin_res = os.path.join(unittest_data_dir, "insulin.res")
+global imol_insulin
+imol_insulin = read_pdb(insulin_res)
+
 class NcsTestFunctions(unittest.TestCase):
 
     def test01_0(self):
@@ -49,7 +53,8 @@ class NcsTestFunctions(unittest.TestCase):
         self.failIf(ncs_chain_info, "   Fail: ncs-chains returns %s, should be False" %ncs_chain_info)
 
         # should return False for insulin
-        ncs_chain_info = ncs_chain_info(imol_insulin, "A")
+        #global imol_insulin
+        ncs_chain_info = ncs_chain_differences(imol_insulin, "A")
         self.failIf(ncs_chain_info, "   Fail: ncs-chains for insulin returns %s, should be False" %ncs_chain_info)
 
         # a normal case

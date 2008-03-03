@@ -55,7 +55,7 @@ def povray_image():
     args = args + coot_povray_file_name + " " + povray_args() + " " + extra_args
     # BL says: dunno what povray exe is called on other systems, 
     # just assume is same for now
-    povray_exe = find_exe(povray_command_name, "PATH", False)
+    povray_exe = find_exe(povray_command_name, "PATH")
     if (povray_exe):
       povray_call = povray_exe + args + " +o" + coot_povray_png_file_name
       print "BL DEBUG:: povray_call", povray_call

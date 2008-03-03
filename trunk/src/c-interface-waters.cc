@@ -735,14 +735,25 @@ SCM water_chain_scm(int imol) {
 Return False if no chain or bad imol*/
 PyObject *water_chain_from_shelx_ins_py(int imol) {
 
-   PyObject *r = 0;
-
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      CChain *water_chain =
+	 graphics_info_t::molecules[imol].water_chain_from_shelx_ins();
+      if (water_chain) {
+	 r = PyString_FromString(water_chain->GetChainID());
+      } 
+   }
    return r;
 }
 /*! return the chain id of the water chain. Raw interface */
 PyObject *water_chain_py(int imol) {
-   PyObject *r = 0;
-
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      CChain *water_chain = graphics_info_t::molecules[imol].water_chain();
+      if (water_chain) {
+	 r = PyString_FromString(water_chain->GetChainID());
+      } 
+   }
    return r;
 }
 #endif 

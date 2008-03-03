@@ -558,8 +558,8 @@ SCM ncs_chain_ids_scm(int imol) {
 #endif	/* USE_GUILE */
 
 #ifdef USE_PYTHON
-PyObject *ncs_chains_ids_py(int imol) {
-   PyObject *r = 0;
+PyObject *ncs_chain_ids_py(int imol) {
+   PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       if (graphics_info_t::molecules[imol].has_ncs_p()) {
 	 std::vector<std::vector<std::string> > ncs_ghost_chains =

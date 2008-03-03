@@ -1,22 +1,17 @@
 import unittest
 import os
 
-global have_ccp4_qm
-global imol_ligand
-imol_ligand = -1
-
-
 class LigandTestFunctions(unittest.TestCase):
     
     def test01_0(self):
-        """Get monomer test"""        
+        """Get monomer test"""
 	self.skipIf(not have_ccp4_qm, "CCP4 not set up - skipping 3GP test")
 	# BL says:: we shoudl change the monomer_...., so that it can take 2 args
 	imol = monomer_molecule_from_3_let_code("3GP", "", "")
 	if (valid_model_molecule_qm(imol)):
-		imol_ligand = imol 
-		print "BL DEBUG:: imol_lig", imol_ligand
-		delete_residue_hydrogens(imol, "A", 1, "", "")
+            global imol_ligand
+            imol_ligand = imol 
+            delete_residue_hydrogens(imol, "A", 1, "", "")
 
     def test02_0(self):
 	"""Set Bond thickness test"""
@@ -59,7 +54,7 @@ class LigandTestFunctions(unittest.TestCase):
         npo_pdb = os.path.join(unittest_data_dir, "monomer-NPO.pdb")
         pdb43ca_pdb = os.path.join(unittest_data_dir, "pdb43ca-sans-NPO-refmaced.pdb")
         pdb43ca_mtz = os.path.join(unittest_data_dir, "pdb43ca-sans-NPO-refmaced.mtz")
-        imol_npo = handle_read_draw_molecule_with-recentre(npo_pdb, 0)
+        imol_npo = handle_read_draw_molecule_with_recentre(npo_pdb, 0)
 
         self.failUnless(valid_model_molecule_qm(imol_npo), "no valid molecule")
 
@@ -71,7 +66,7 @@ class LigandTestFunctions(unittest.TestCase):
         imol_map_2 = auto_read_make_and_draw_maps(pdb43ca_mtz)
         imol_map_1 = imol_map_2 - 1
 
-        add_ligand_clear_ligand()
+        add_ligand_clear_ligands()
         set_ligand_search_protein_molecule(imol_protein)
         set_ligand_search_map_molecule(imol_map_1)
         add_ligand_search_ligand_molecule(imol_npo)

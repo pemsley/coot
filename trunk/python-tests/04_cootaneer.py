@@ -45,6 +45,6 @@ class CootaneerTestFunctions(unittest.TestCase):
         inscode  = n_atom[3]
         at_name  = n_atom[4]
         alt_conf = n_atom[5]
-        print "   Cootaneering: imol %s chain-id %s resno %s inscode %s at-name %s alt-conf %s", \
-              imol, chain_id, resno, inscode, at_name, alt_conf
+        print "   Cootaneering: imol %s chain-id %s resno %s inscode %s at-name %s alt-conf %s" \
+              %(imol, chain_id, resno, inscode, at_name, alt_conf)
         cootaneer(imol_map, imol, [chain_id, resno, inscode, at_name, alt_conf])
