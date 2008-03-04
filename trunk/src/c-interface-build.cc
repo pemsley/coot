@@ -502,12 +502,13 @@ int add_terminal_residue(int imol,
 			 int immediate_add) {
 
    int istate = 0;
-   int imol_map = Imol_Refinement_Map();
+   graphics_info_t g;
+   int imol_map = g.Imol_Refinement_Map();
    if (imol_map == -1) {
       std::cout << "WARNING:: Refinement/Fitting map is not set." << std::endl;
       std::cout << "          addition of terminal residue terminated." << std::endl;
    } else { 
-      is_valid_model_molecule(imol) { 
+      if (is_valid_model_molecule(imol)) { 
 	 // We don't do this as a member function of
 	 // molecule_class_info_t because we are using
 	 // graphics_info_t::execute_add_terminal_residue, which
