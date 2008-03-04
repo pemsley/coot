@@ -235,11 +235,15 @@ script_version=3.14
 # Pythonizing coot makes non-transferable binararies (why?).  Let
 # the pythonness be controlled on the command line:
 #
-if [ "$1" = "python" ] ; then 
-   ENABLE_PYTHON_COOT=yes
+ENABLE_PYTHON_COOT=yes
+
+# for Windows we shall have an option to enable Guile and python is default
+if [ "$1" = "guile" ] ; then 
+   ENABLE_GUILE_COOT=yes
 else 
-   ENABLE_PYTHON_COOT=no
+   ENABLE_GUILE_COOT=no
 fi
+
 
 # Set the host and the OS.
 # Fairly fundamental.
@@ -320,7 +324,7 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
 #
-fallback_coot_version=coot-0.4
+fallback_coot_version=coot-0.4.1
 
 # ----------------------------------------------------------------
 #   End of tinkering with parameters.
@@ -448,7 +452,7 @@ function setup_ccp4 {
 # we should be in the directory where coot was untarred for building 
 # when this function was called.
 #
-function test_coot { 
+function test_coot_guile { 
 
 echo testing with greg
 echo currently we are here:
@@ -494,6 +498,36 @@ fi
 }
 
 
+# Return 0 on success, 1 on failure (or not tested)
+#
+# we should be in the directory where coot was untarred for building 
+# when this function was called.
+#
+function test_coot_python { 
+
+echo testing with python unittest
+echo currently we are here:
+pwd
+
+if test "$run_tests" = true ; then
+   # let's test our new coot
+   
+   echo $install_top_dir/bin/coot-real --no-graphics --script python-tests/coot_unittest.py
+        $install_top_dir/bin/coot-real --no-graphics --script python-tests/coot_unittest.py
+
+   status=$?
+   if [ $status = 0 ] ; then
+      echo test_coot: coot test passed
+      return 0
+   else 
+      echo test_coot: coot test failed
+      return 1
+   fi
+else 
+   return 1
+fi
+
+}
 
 
 
@@ -550,7 +584,7 @@ mkdir -p $LOGS
 
 
 shared_static_flag="--disable-shared"
-shared_lib_ext=so
+shared_lib_ext=dll
 systype=unknown 
 
 # malloc.h business, Darwin does not have malloc.h
@@ -939,6 +973,10 @@ if [ "$domainname" = "biop" ] ; then
     build_coot_prerelease=1
 fi
 
+# we dont have domainname on Windows but we can just force a build (and test) for now
+run_tests=true
+build_coot_prerelease=1
+
 
 # override the switch which turns off the building of the pre-release here:
 # build_coot_prerelease=1
@@ -1087,6 +1125,11 @@ else
       else
          if test "$OS" = Darwin ; then
             ccp4_system_type=Darwin
+	 else
+	    if test "$OS" = MINGW* ; then
+	       # not sure if really needed later?!
+	       ccp4_system_type=MinGW
+	    fi
          fi
       fi
    fi
@@ -1121,12 +1164,12 @@ build_fftw=0
 build_python=0
 build_clipper=0
 build_gtk=0
-#build_guile=0
-#build_guile_www=0
-#build_guile_gui=0
-#build_guile_goosh=0
-#build_libtool=0
-#build_net_http=0
+build_guile=0
+build_guile_www=0
+build_guile_gui=0
+build_guile_goosh=0
+build_libtool=0
+build_net_http=0
 build_gsl=0
 # build_libungif=0
 # build_libtiff=0
@@ -1134,7 +1177,7 @@ build_gsl=0
 # build_libpng=0
 # build_imlib=0
 # build_gtk_canvas=0
-#build_guile_gtk=0
+build_guile_gtk=0
 build_gtkglext=0
 #build_freeglut=0
 build_glib=
@@ -1178,7 +1221,9 @@ else
 fi
 
 # This allows standard pkg-config to find gtkglext and several other things.
-PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:/usr/lib/pkgconfig
+# PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:/usr/lib/pkgconfig
+# but we dont want to do this and only get the newly installed components
+PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
 export PKG_CONFIG_PATH
 echo  PKG_CONFIG_PATH is $PKG_CONFIG_PATH
 
@@ -1303,7 +1348,7 @@ if test -n "$build_freeglut" ; then
 fi
 
 build_libtool=1
-if test -e ${install_top_dir}/lib/libltdl.so.3 ; then
+if test -e ${install_top_dir}/lib/libltdl.dll.a ; then
     build_libtool=
 fi
 if test -z "$build_libtool" ; then
@@ -1313,7 +1358,7 @@ else
 fi
 
 build_gmp=1
-if test -e ${install_top_dir}/lib/libgmp.so.3 ; then
+if test -e ${install_top_dir}/lib/libgmp.dll.a ; then
     echo installation has gmp
     build_gmp=
 else 
@@ -1327,7 +1372,7 @@ build_readline=1
 # guile-1.6.7/guile-readline/readline.c:107 'rl_pending_input' undeclared
 # So installation needs to build readline (sigh).
 #
-if test -e ${install_top_dir}/include/readline/chardefs.h ; then
+if test -e ${install_top_dir}/include/readline/readline.h ; then
     build_readline=
 fi
 
@@ -1416,6 +1461,8 @@ else
 fi
 
 
+# python
+python_major_version=2.5
 python -V
 if test $? != 0 ; then
    echo python should be built
@@ -1445,7 +1492,7 @@ fi
 
 # test for pygobject
 if test -z "$build_pygobject" ; then
-   if test -e $install_top_dir/include/pygtk-2.0/pygobject.h ; then
+   if test -e $install_top_dir/python$python_major_version/include/pygtk-2.0/pygobject.h ; then
       echo installation has pygobject
       build_pygobject=
    else 
@@ -1458,7 +1505,7 @@ fi
 
 # test for pycairo
 if test -z "$build_pycairo" ; then
-   if test -e $install_top_dir/include/pycairo/pycairo.h ; then
+   if test -e $install_top_dir/python$python_major_version/include/pycairo/pycairo.h ; then
       echo installation has pycairo
       build_pycairo=
    else 
@@ -1470,7 +1517,7 @@ fi
 
 # test for pygtk
 if test -z "$build_pygtk" ; then
-   if test -e $install_top_dir/lib/python2.5/site-packages/gtk-2.0/gtk/keysyms.py ; then
+   if test -e $install_top_dir/python$python_major_version/Lib/site-packages/gtk-2.0/gtk/keysyms.py ; then
       echo pygtk keysyms exists, no build pygtk
    else 
       echo pygtk keysyms NOT exists, pygtk should be built
@@ -1515,7 +1562,7 @@ fi
 
 build_gtkglext=1
 if [ "$build_gtk" = "" ] ; then 
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
+   if test -e ${install_top_dir}/lib/libgtkglext-win32-1.0.dll.a ; then
       build_gtkglext=
    fi
    if test -z "$build_gtkglext" ; then
@@ -1693,7 +1740,7 @@ if test -n "$build_mmdb" ; then
 # mmdb_version=1.0.10.  Not yet.
 mmdb_version=1.0.8-ysbl-3
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/mmdb_file_.cpp.patch
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_file_.cpp.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
@@ -1800,9 +1847,9 @@ if test -n "$build_clipper" ; then
     # make (just) those.
     cd clipper
     # it seems that examples do not compile on windows (hope it has no ill effect
-    cp examples/Makefile examples/Makefile.orig
-    echo 'all:' > examples/Makefile
-    echo 'install:' >> examples/Makefile
+    # cp examples/Makefile examples/Makefile.orig
+    # echo 'all:' > examples/Makefile
+    # echo 'install:' >> examples/Makefile
     $MAKE
     status=$?
     clipper_status=$status
@@ -1827,39 +1874,19 @@ fi
 
 
 
-# freeglut 
+# freeglut
+# we use 'normal' glut 
 if test -n "$build_freeglut" ; then
     echo BUILDING freeglut:
-# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/freeglut-2.4.0.tar.gz
-# http://www.martinpayne.me.uk/software/development/OpenGL/GLUT/GLUT-MinGW-3.7.6-2.mp.zip
 ${WGET} http://www.xmission.com/~nate/glut/glut-3.7.6-bin.zip
 
 (
 date
 pwd
-#save_CFLAGS="$CFLAGS"
-#CFLAGS="$CFLAGS -I/usr/X11R6/include"
-#export CFLAGS
-#gzip -dc ${AUTOBUILD_SOURCES}/freeglut-2.4.0.tar.gz | tar xf -
 cd ${AUTOBUILD_INSTALLED}/bin
-7z e ${AUTOBUILD_SOURCES}/glut-3.7.6-bin.zip
-cd freeglut-2.4.0
-./configure $generic_prefix --disable-warnings 
-build_status=$?
-echo INFO:: freeglut configure status $build_status
-if [ $build_status -eq 0 ] ; then
-   $MAKE
-   build_status=$?
-   echo INFO:: freeglut make status $build_status
-   if [ $build_status -eq 0 ] ; then
-      echo INFO:: freeglut make installing...
-      $MAKE install
-      glut_prefix="--with-glut-prefix=$install_top_dir"
-      echo INFO:: setting glut_prefix to $glut_prefix
-   fi
-fi
-CFLAGS="$save_CFLAGS"
-export CFLAGS
+7z x ${AUTOBUILD_SOURCES}/glut-3.7.6-bin.zip
+glut_prefix="--with-glut-prefix=$install_top_dir"
+echo INFO:: setting glut_prefix to $glut_prefix
 ) >  $HOSTLOGDIR/05-freeglut.txt 2>&1
 else
    echo not building freeglut:
@@ -1916,64 +1943,30 @@ fi
 # so, if we build cairo, we must build pango too
 
 
-# just to make sure
-cd ${AUTOBUILD_INSTALLED}
+# just to make sure we download in sources
+cd ${AUTOBUILD_SOURCES}
 
 if test -n "$build_gtk" ; then 
    echo BUILDING Gtk+-2 and dependencies...
    (
    if [ "$build_atk" = 1 ] ; then 
       echo  ======================================================
-      echo BUILDING atk (binaries and dev)
+      echo BUILDING atk (binaries and dev?)
       echo  ======================================================
       atk_version=1.20.0
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/atk/1.20/atk-$atk_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/atk/1.20/atk-dev-$atk_version.zip
-      #${WGET} http://ftp.gnome.org/pub/gnome/sources/atk/1.20/atk-$atk_version.tar.gz
+      #${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/atk/1.20/atk-dev-$atk_version.zip
       date
+      cd ${AUTOBUILD_INSTALLED}
       7z x ${AUTOBUILD_SOURCES}/atk-$atk_version.zip
-      7z x ${AUTOBUILD_SOURCES}/atk-dev-$atk_version.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/atk-$atk_version.tar.gz | tar xf -
-      #cd atk-$atk_version
-      #./configure $generic_prefix
-      #$MAKE
-      #atk_status=$?
-      #if [ "$atk_status" = 0 ] ; then 
-      #   $MAKE install
-      #else
-      #   echo make of ATK failed.
-      #fi
-      #cd -
+      #7z x ${AUTOBUILD_SOURCES}/atk-dev-$atk_version.zip
+      cd -
    else
       echo not BUILDING atk
    fi
 
 
-
-
-# not sure if we realy nead glitz!?
-#   if [ "$build_glitz" = 1 ] ; then 
-#      echo  ======================================================
-#      echo BUILDING GLitz!
-#      echo  ======================================================
-#      glitz_version=0.5.6
-#      ${WGET} http://cairographics.org/snapshots/glitz-$glitz_version.tar.gz
-#      date
-#      gzip -dc ${AUTOBUILD_SOURCES}/glitz-$glitz_version.tar.gz | tar xf -
-#      cd glitz-$glitz_version
-#      ./configure $generic_prefix
-#      $MAKE
-#      glitz_status=$?
-#      if [ "$glitz_status" != 0 ] ; then
-#         echo make of glitz failed
-#         gtk_set_failure="make of glitz failed"
-#      else
-#         $MAKE install
-#      fi
-#      cd - 
-#   else
-#      echo not BUILDING glitz
-#   fi 
+# dont think we really need glitz!?
  
    if [ "$build_glib" = 1 ] ; then
       echo  ======================================================
@@ -1982,21 +1975,10 @@ if test -n "$build_gtk" ; then
       glib_version=2.14.6-2
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/glib/2.14/glib-$glib_version.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/glib/2.14/glib-dev-$glib_version.zip
-      #${WGET} ftp://ftp.gtk.org/pub/glib/2.14/glib-$glib_version.tar.gz
-      #gzip -dc ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz | tar xf -
+      cd -
       7z x ${AUTOBUILD_SOURCES}/glib-$glib_version.zip
       7z x ${AUTOBUILD_SOURCES}/glib-dev-$glib_version.zip
-      #cd glib-$glib_version
-      #./configure $generic_prefix
-      #$MAKE
-      #glib_status=$?
-      #if [ "$glib_status" != 0 ] ; then
-      #   echo make of glib failed
-      #   gtk_set_failure="make of glib failed"
-      #else
-      #   $MAKE install
-      #fi
-      #cd - 
+      cd -
    else 
       echo not BUILDING glib
    fi
@@ -2008,22 +1990,11 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       freetype2_version=2.3.4
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-$freetype2_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-dev-$freetype2_version.zip
-      #${WGET} http://download.savannah.gnu.org/releases/freetype/freetype-$freetype2_version.tar.gz
+      # {WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-dev-$freetype2_version.zip
+      cd -
       7z x ${AUTOBUILD_SOURCES}/freetype-$freetype2_version.zip
-      7z x ${AUTOBUILD_SOURCES}/freetype-dev-$freetype2_version.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/freetype-$freetype2_version.tar.gz | tar xf -
-      #cd freetype-$freetype2_version
-      #./configure $generic_prefix
-      #$MAKE
-      #freetype2_status=$?
-      #if [ "$freetype2_status" != 0 ] ; then
-      #   gtk_set_failure="make of freetype2 failed"
-      #   echo make of freetype2 failed
-      #else
-      #   $MAKE install
-      #fi
-      #cd - 
+      # 7z x ${AUTOBUILD_SOURCES}/freetype-dev-$freetype2_version.zip
+      cd -
    else 
       echo NOT BUILDING freetype2
    fi
@@ -2032,31 +2003,19 @@ if test -n "$build_gtk" ; then
    # fontconfig depends on Freetype2 (what fun).
    if [ "$build_fontconfig" = 1 ] ; then
       echo  ======================================================
-      echo BUILDING fontconfig
+      echo BUILDING fontconfig and expat
       echo  ======================================================
       fontconfig_version=2.4.2-tml-20071015
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-$fontconfig_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-dev-$fontconfig_version.zip
-      #${WGET} http://fontconfig.org/release/fontconfig-$fontconfig_version.tar.gz
-      7z x ${AUTOBUILD_SOURCES}/fontconfig-$fontconfig_version.zip
-      7z x ${AUTOBUILD_SOURCES}/fontconfig-dev-$fontconfig_version.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/fontconfig-$fontconfig_version.tar.gz | tar xf -
-      #cd fontconfig-$fontconfig_version
-      #./configure $generic_prefix
-      #$MAKE
-      #fontconfig_status=$?
-      #if [ "$fontconfig_status" != 0 ] ; then
-      #   gtk_set_failure="make of fontconfig failed"
-      #   echo make of fontconfig failed
-      #else
-      #   $MAKE install
-      #fi
-      #cd -
-      
       # we need libexpat for fontconfig
       expat_version=2.0.0
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-$fontconfig_version.zip
+      # ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-dev-$fontconfig_version.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/expat-$expat_version.zip
+      cd -
+      7z x ${AUTOBUILD_SOURCES}/fontconfig-$fontconfig_version.zip
+      # 7z x ${AUTOBUILD_SOURCES}/fontconfig-dev-$fontconfig_version.zip
       7z x ${AUTOBUILD_SOURCES}/expat-$expat_version.zip
+      cd -
    else
       echo NOT BUILDING fontconfig
    fi
@@ -2067,22 +2026,11 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       cairo_version=1.4.14
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/cairo-$cairo_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/cairo-dev-$cairo_version.zip
-      #${WGET} http://cairographics.org/releases/cairo-$cairo_version.tar.gz
+      # ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/cairo-dev-$cairo_version.zip
+      cd -
       7z x ${AUTOBUILD_SOURCES}/cairo-$cairo_version.zip
-      7z x ${AUTOBUILD_SOURCES}/cairo-dev-$cairo_version.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/cairo-$cairo_version.tar.gz | tar xf -
-      #cd cairo-$cairo_version
-      #./configure $generic_prefix --enable-glitz
-      #$MAKE
-      #cairo_status=$?
-      #if [ "$cairo_status" != 0 ] ; then
-      #   gtk_set_failure="make of cairo failed"
-      #   echo make of cairo failed
-      #else
-      #   $MAKE install
-      #fi
-      #cd - 
+      # 7z x ${AUTOBUILD_SOURCES}/cairo-dev-$cairo_version.zip
+      cd -
    else
       echo NOT BUILDING cairo
    fi
@@ -2093,22 +2041,11 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       pango_version=1.18.4
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/pango/1.18/pango-$pango_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/pango/1.18/pango-dev-$pango_version.zip
-      #${WGET} ftp://ftp.gtk.org/pub/pango/1.16/pango-$pango_version.tar.gz
+      # ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/pango/1.18/pango-dev-$pango_version.zip
+      cd -
       7z x ${AUTOBUILD_SOURCES}/pango-$pango_version.zip
-      7z x ${AUTOBUILD_SOURCES}/pango-dev-$pango_version.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/pango-$pango_version.tar.gz | tar xf -
-      #cd pango-$pango_version
-      #./configure $generic_prefix
-      #$MAKE
-      #pango_status=$?
-      #if [ "$pango_status" != 0 ] ; then
-      #   echo make of pango failed
-      #   gtk_set_failure="make of pango failed"
-      #else
-      #   $MAKE install
-      #fi
-      #cd - 
+      # 7z x ${AUTOBUILD_SOURCES}/pango-dev-$pango_version.zip
+      cd - 
    else
       echo NOT BUILDING pango
    fi
@@ -2120,10 +2057,11 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       libpng_version=1.2.8
       ${WGET} http://downloads.sourceforge.net/gnuwin32/libpng-$libpng_version-bin.zip
-      ${WGET} http://downloads.sourceforge.net/gnuwin32/libpng-$libpng_version-lib.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.tar.gz | tar xf -
+      cd -
+      # ${WGET} http://downloads.sourceforge.net/gnuwin32/libpng-$libpng_version-lib.zip
       7z x ${AUTOBUILD_SOURCES}/libpng-$libpng_version-bin.zip
-      7z x ${AUTOBUILD_SOURCES}/libpng-$libpng_version-lib.zip
+      # 7z x ${AUTOBUILD_SOURCES}/libpng-$libpng_version-lib.zip
+      cd -
    else
        echo NOT BUILDING libpng
    fi
@@ -2133,12 +2071,11 @@ if test -n "$build_gtk" ; then
       echo  BUILDING libxml2
       echo  ======================================================
       libxml2_version=2.4.12
-      #${WGET} http://www.zlatkovic.com/pub/libxml/libxml2-$libxml2_version+.win32.zip
       ${WGET} http://downloads.sourceforge.net/gnuwin32/libxml2-$libxml2_version-bin.zip
-      ${WGET} http://downloads.sourceforge.net/gnuwin32/libxml2-$libxml2_version-1-lib.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.tar.gz | tar xf -
+      # ${WGET} http://downloads.sourceforge.net/gnuwin32/libxml2-$libxml2_version-1-lib.zip
+      cd -
       7z x ${AUTOBUILD_SOURCES}/libpng-$libpng_version-bin.zip
-      7z x ${AUTOBUILD_SOURCES}/libpng-$libpng_version-lib.zip
+      # 7z x ${AUTOBUILD_SOURCES}/libpng-$libpng_version-lib.zip
       # now we need to make a pkg-config file
       echo 'prefix=/target' > ${AUTOBUILD_INSTALLED}/lib/pkgconfig/libxml-2.0.pc
       echo 'exec_prefix=${prefix}' >> ${AUTOBUILD_INSTALLED}/lib/pkgconfig/libxml-2.0.pc
@@ -2151,7 +2088,7 @@ if test -n "$build_gtk" ; then
       echo 'Description: libXML library version2.' >> ${AUTOBUILD_INSTALLED}/lib/pkgconfig/libxml-2.0.pc
       echo 'Libs: -L${libdir} -lxml2 -lz' >> ${AUTOBUILD_INSTALLED}/lib/pkgconfig/libxml-2.0.pc
       echo 'Cflags: -I${includedir}/libxml2 ' >> ${AUTOBUILD_INSTALLED}/lib/pkgconfig/libxml-2.0.pc
-
+      cd -
    else
        echo NOT BUILDING libxml2
    fi
@@ -2163,11 +2100,10 @@ if test -n "$build_gtk" ; then
       echo  BUILDING libiconv
       echo  ======================================================
       libiconv_version=1.9.1
-      #${WGET} http://www.zlatkovic.com/pub/libxml/libxml2-$libxml2_version+.win32.zip
       ${WGET} http://www.gimp.org/~tml/gimp/win32/libiconv-$libiconv_version.bin.woe32.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.tar.gz | tar xf -
+      cd -
       7z x ${AUTOBUILD_SOURCES}/libiconv-$libiconv_version.bin.woe32.zip
-
+      cd -
    else
        echo NOT BUILDING libiconv
    fi
@@ -2180,29 +2116,28 @@ if test -n "$build_gtk" ; then
    # Does cairo depend on pango? Yes.
    if [ "$pango_status" = 0 ] ; then
       echo  ======================================================
-      echo  BUILDING librsvg
+      echo  BUILDING librsvg (and it's extras, croco, gsf, bzip2)
       echo  ======================================================
       librsvg_version=2.16.1
       ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.16/librsvg-$librsvg_version.zip
-      ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.16/librsvg-dev-$librsvg_version.zip
+      # ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.16/librsvg-dev-$librsvg_version.zip
       ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.16/svg-gdk-pixbuf-loader-$librsvg_version.zip
       ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/librsvg/2.16/svg-gtk-engine-$librsvg_version.zip
-      cd ${AUTOBUILD_INSTALLED}bin
-      7z x ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.zip
-      7z x ${AUTOBUILD_SOURCES}/librsvg-dev-$librsvg_version.zip
-      7z x ${AUTOBUILD_SOURCES}/svg-gdk-pixbuf-loader-$librsvg_version.zip
-      7z x ${AUTOBUILD_SOURCES}/svg-gtk-engine-$librsvg_version.zip
-      cd librsvg-$librsvg_version
-      # we shall run gdk-pixbuf-query loader
       # and we need croco, gsf and bzip for librsvg to run properly
-      cd ${AUTOBUILD_SOURCES}
       ${WGET} http://ftp.gnome.org/binaries/win32/libcroco/0.6/libcroco-0.6.1.zip 
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgsf/1.14/libgsf-1.14.4.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libbzip2-1.0.2.zip
-      cd ${AUTOBUILD_INSTALLED}/bin
+      cd -
+      7z x ${AUTOBUILD_SOURCES}/librsvg-$librsvg_version.zip
+      # 7z x ${AUTOBUILD_SOURCES}/librsvg-dev-$librsvg_version.zip
+      7z x ${AUTOBUILD_SOURCES}/svg-gdk-pixbuf-loader-$librsvg_version.zip
+      7z x ${AUTOBUILD_SOURCES}/svg-gtk-engine-$librsvg_version.zip
       7z x ${AUTOBUILD_SOURCES}/libcroco-0.6.1.zip
       7z x ${AUTOBUILD_SOURCES}/libgsf-1.14.4.zip
       7z x ${AUTOBUILD_SOURCES}/libbz2-1.0.2.zip
+      cd -
+      # we shall run gdk-pixbuf-query loader
+      # but after we have gtk+!!!
    else
       echo NOT BUILDING librsvg
    fi
@@ -2212,24 +2147,12 @@ if test -n "$build_gtk" ; then
       echo  BUILDING gtk+2
       echo  ======================================================
       gtk2_version=2.12.8
-#      ${WGET} ftp://ftp.gtk.org/pub/gtk/v2.10/gtk+-$gtk2_version.tar.gz
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.12/gtk+-$gtk2_version.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.12/gtk+-dev-$gtk2_version.zip
-      #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/gtk+-$gtk2_version.tar.gz
+      cd -
       7z x ${AUTOBUILD_SOURCES}/gtk+-$gtk2_version.zip
       7z x ${AUTOBUILD_SOURCES}/gtk+-dev-$gtk2_version.zip
-      #gzip -dc ${AUTOBUILD_SOURCES}/gtk+-$gtk2_version.tar.gz | tar xf -
-      #cd gtk+-$gtk2_version
-      #./configure $generic_prefix
-      #$MAKE
-      #gtk2_status=$?
-      #if [ "$gtk2_status" != 0 ] ; then
-      #   echo make of gtk+2 failed
-      #   gtk_set_failure="make of gtk+2 failed"
-      #else
-      #   $MAKE install
-      #fi
-      #cd - 
+      cd - 
    else
       echo NOT BUILDING gtk2
    fi
@@ -2246,16 +2169,18 @@ if test -n "$build_gtk" ; then
       echo  BUILDING gettext
       echo  ======================================================
       gettext_version=0.17-1
-#      ${WGET} ftp://ftp.gtk.org/pub/gtk/v2.10/gtk+-$gtk2_version.tar.gz
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/gettext-runtime-$gettext_version.zip
-      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/gettext-runtime-dev-$gettext_version.zip
-      #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/gtk+-$gtk2_version.tar.gz
+      # ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/gettext-runtime-dev-$gettext_version.zip
+      cd -
       7z x ${AUTOBUILD_SOURCES}/gettext-runtime-$gettext_version.zip
-      7z x ${AUTOBUILD_SOURCES}/gettext-runtime-dev-$gtk2_version.zip
+      # 7z x ${AUTOBUILD_SOURCES}/gettext-runtime-dev-$gtk2_version.zip
+      cd -
    else
       echo NOT BUILDING gettext
    fi
-
+   # run query loader to be able to load svg icons properly
+   cp ${AUTOBUILD_INSTALLED}/etc/gtk-2.0/gdk-pixbuf.loaders ${AUTOBUILD_INSTALLED}/etc/gtk-2.0/gdk-pixbuf.loaders.orig
+   gdk-pixbuf-query-loaders > ${AUTOBUILD_INSTALLED}/etc/gtk-2.0/gdk-pixbuf.loaders
 
 fi
 
@@ -2278,6 +2203,7 @@ if test -n "$build_gtkglext" ; then
     else
        $MAKE install
     fi
+    cd -
     ) > $HOSTLOGDIR/08-pre-gtkglext.txt 2>&1
 else
     echo not building gtkglext:
@@ -2288,27 +2214,23 @@ echo done with Gtk+-2 and dependencies...
 ## libgnomecanvas
 if test -n "$build_libgnomecanvas" ; then
     echo BUILDING libgnomecanvas:
+    # we need gail and libartlgpl for gnomecanvas 
     libgnomecanvas_version=2.14.0
-    cd ${AUTOBUILD_SOURCES}
+    gail_version=1.9.3
+    libart_version=2.3.17
     ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/2.14/libgnomecanvas-$libgnomecanvas_version.zip
     ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libgnomecanvas/2.14/libgnomecanvas-dev-$libgnomecanvas_version.zip
+    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gail/1.9/gail-$gail_version.zip
+    ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart_lgpl-$libart_version-bin.zip
     cd ${AUTOBUILD_INSTALLED}
     7z x ${AUTOBUILD_SOURCES}/libgnomecanvas-$libgnomecanvas_version.zip
     7z x ${AUTOBUILD_SOURCES}/libgnomecanvas-dev-$libgnomecanvas_version.zip
+    7z x ${AUTOBUILD_SOURCES}/gail-$gail_version.zip
+    7z x ${AUTOBUILD_SOURCES}/libart_lgpl-$libart_version.zip
+    cd -
    else
       echo NOT BUILDING libgnomecanvas
    fi
-
-# gail (need by gnomecanvas)
-   gail_version=1.9.3
-   ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gail/1.9/gail-$gail_version.zip
-   7z x ${AUTOBUILD_SOURCES}/gail-$gail_version.zip
-
-# libart_lgpl (needed by gnomecanvas)
-   libart_version=2.3.17
-   ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart_lgpl-$libart_version-bin.zip
-   7z x ${AUTOBUILD_SOURCES}/libart_lgpl-$libart_version.zip
-
 fi
 
 
@@ -2321,7 +2243,7 @@ fi
 
 # So that python is found when it is installed:
 #
-PATH=$install_top_dir/bin:$PATH
+PATH=$install_top_dir/bin:$install_top_dir/python$python_major_version:$PATH
 export PATH
 
 # python_version is the filename of the python executable.  For python
@@ -2347,60 +2269,21 @@ cd ${AUTOBUILD_INSTALLED}/bin
 py_dll_dir=`pwd -W`
 py_dll_dir=${py_dll_dir//\//\\}
 
-${WGET} http://www.python.org/ftp/python/$pver/python-$pver.msi
 cd ${AUTOBUILD_SOURCES}
+${WGET} http://www.python.org/ftp/python/$pver/python-$pver.msi
+(
+date
 msiexec //i ${AUTOBUILD_SOURCES}/python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 //qb
 
-# mv exe files in bin directory
-mv ${AUTOBUILD_INSTALLED}/$python_version/python.exe ${AUTOBUILD_INSTALLED}/bin
-mv ${AUTOBUILD_INSTALLED}/$python_version/pythonw.exe ${AUTOBUILD_INSTALLED}/bin
-mv ${AUTOBUILD_INSTALLED}/$python_version/w9xpopen.exe ${AUTOBUILD_INSTALLED}/bin
-
-#${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
-#(
-#date
-#gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
-
-#cd Python-$pver
-
-#echo INFO:: ./configure $generic_prefix $python_spec_flags for python
-#./configure $generic_prefix $python_spec_flags
-#echo INFO:: make for python
-#$MAKE 
-#echo INFO:: make test for python
-#$MAKE test
-#echo INFO:: make install for python
-#$MAKE install
-#) >  $HOSTLOGDIR/05-python.txt 2>&1
+) >  $HOSTLOGDIR/05-python.txt 2>&1
 
 # We need these otherwise python moans about not finding the libraries.
 #
 echo setting PYTHONHOME
-PYTHONHOME=$install_top_dir
+PYTHONHOME=$install_top_dir/$py_inst_dir
 export PYTHONHOME
 echo PYTHONHOME is now $PYTHONHOME
 
-echo post linking python to $python_version
-#
-if [ ! -e $install_top_dir/bin/$python_version ] ; then
-	echo Opps\!  $python_version does not exist.
-	# only python dependencies from  now on
-	echo exiting...
-	exit
-fi
-if [ -e $install_top_dir/bin/python ] ; then
-	echo removing old python
-	rm $install_top_dir/bin/python
-fi
-current_dir=`pwd`
-cd $install_top_dir/bin
-echo linking new...
-ln -s $python_version python
-if [ $? -ne 0 ] ; then
-	echo Opps: failed: ln -s $install_top_dir/bin/$python_version \
-		                 $install_top_dir/bin/python 
-fi
-cd $current_dir
 echo done python linking.
 # now we have "python" in our path - no need to rehash - 
 # clever old Bourne shell (or do I mean bash?).
@@ -2408,27 +2291,19 @@ else
     echo not building python:
 fi
 
+# building og pygobject, pycairo, and pygtk currently cannot be automated, so we have to press 
+# a few buttons
 if test -n "$build_pygobject" ; then 
    echo BUILDING pygobject:
    #
    pygobject_version=2.12.3-1
-??   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.12/pygobject-$pygobject_version.win32-py2.5.exe
-   #${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/2.14/pygobject-$pygobject_version.tar.gz
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/2.12/pygobject-$pygobject_version.win32-py2.5.exe
    if test $? != 0 ; then 
       echo PROBLEM:: getting pygobject source code
    fi
    (
    date
-   gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz | tar xf -
-   cd pygobject-$pygobject_version
-   ./configure $generic_prefix
-   $MAKE
-   pygobject_status=$?
-   if [ "$pygobject_status" != 0 ] ; then
-      echo make of pygobject failed
-   else
-      $MAKE install
-   fi
+   ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py2.5.exe
 ) > $HOSTLOGDIR/05-pygobject.txt 2>&1
 else 
    echo not building pygobject:
@@ -2438,23 +2313,14 @@ fi
 if test -n "$build_pycairo" ; then 
    echo BUILDING pycairo:
    #
-   pycairo_version=1.2.6
-   ${WGET} http://cairographics.org/releases/pycairo-$pycairo_version.tar.gz
+   pycairo_version=1.4.12-1
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/1.4/pycairo-$pycairo_version.win32-py2.5.exe
    if test $? != 0 ; then 
       echo PROBLEM:: getting pycairo source code
    fi
    (
    date
-   gzip -dc ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz | tar xf -
-   cd pycairo-$pycairo_version
-   ./configure $generic_prefix
-   $MAKE
-   pycairo_status=$?
-   if [ "$pycairo_status" != 0 ] ; then
-      echo make of pycairo failed
-   else
-      $MAKE install
-   fi
+   ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py25.exe
 ) > $HOSTLOGDIR/05-pycairo.txt 2>&1
 else 
    echo not building pycairo:
@@ -2463,25 +2329,15 @@ fi
 
 
 
-# http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.12/pygtk-2.12.1.tar.gz
 if test -n "$build_pygtk" ; then 
    echo BUILDING pygtk:
    #
    #  py_gtk_version=2.12.1
-   py_gtk_version=2.8.6
-   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.8/pygtk-$py_gtk_version.tar.gz
+   py_gtk_version=2.12.1-1
+   ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.12/pygtk-$py_gtk_version.win32-py2.5.exe
    (
    date
-   gzip -dc ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.tar.gz | tar xf -
-   cd pygtk-$py_gtk_version
-   ./configure $generic_prefix --with-pango --with-pangocairo PYGOBJECT_CFLAGS=-I$install_top_dir/include/pygtk-2.0 PYGOBJECT_LIBS=-L$install_top_dir/lib
-   $MAKE
-   pygtk_status=$?
-   if [ "$pygtk_status" != 0 ] ; then
-      echo make of pygtk failed
-   else
-      $MAKE install
-   fi
+   ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py2.5.exe
 ) > $HOSTLOGDIR/05-pygtk.txt 2>&1
 else 
    echo not building pytgtk
@@ -2501,6 +2357,9 @@ fi
 ###############################################################################
 ##########         build guile and friends                        #############
 ###############################################################################
+
+# only if we really want to
+if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then
 
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
@@ -2527,25 +2386,22 @@ fi
 
 if test -n "$build_libtool" ; then
     echo BUILDING libtool:
+    cd ${AUTOBUILD_SOURCES}
     libtool_version=1.5.26
-    #${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libtool/libtool-$libtool_version.tar.gz
     ${WGET} http://downloads.sourceforge.net/gnuwin32/libtool-$libtool_version-bin.zip
     ${WGET} http://downloads.sourceforge.net/gnuwin32/libtool-$libtool_version-lib.zip
+    ${WGET} http://http://www.ysbl.york.ac.uk/~lohkamp/software/extras/libtool.patch
     cd ${AUTOBUILD_INSTALLED}
     (date
      pwd
      7z x ${AUTOBUILD_SOURCES}/libtool-$libtool_version-bin.zip
      7z x -y ${AUTOBUILD_SOURCES}/libtool-$libtool_version-bin.zip
-     #gzip -dc ${AUTOBUILD_SOURCES}/libtool-$libtool_version.tar.gz | tar xf -
-     #cd libtool-$libtool_version
-     #./configure $generic_prefix
-     #$MAKE
-    #status=$?
-    #if [ "$status" != 0 ] ; then
-    #   echo make of libtool failed
-    #else
-    #   $MAKE install
-    #fi
+     # fix some 'wrong' paths
+     sed 's?^prefix=*?prefix==$(install_top_dir)?' bin/libtoolize.exe >libtoolize.tmp
+     mv libtoolize.tmp bin/libtoolize.exe
+     sed 's?^libdir=*?prefix==$(install_top_dir)/lib?' lib/libltdl.la >libltdl.tmp
+     mv libltdl.tmp lib/libltdl.la     
+     cd -
     ) > $HOSTLOGDIR/10-pre-libtool.txt 2>&1
 else
     echo not building libtool:
@@ -2555,45 +2411,24 @@ fi
 if test -n "$build_readline" ; then
     echo BUILDING readline:
     readline_version=5.0-1
-    #${WGET} ftp://ftp.cwru.edu/pub/bash/readline-$readline_version.tar.gz
-    #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/readline-5.1.patch
     ${WGET} http://downloads.sourceforge.net/gnuwin32/readline-$readline_version-bin.zip
     ${WGET} http://downloads.sourceforge.net/gnuwin32/readline-$readline_version-lib.zip
     (
-    cd ${AUTOBUILD_INSTALLED}
+    cd -
     date
     pwd
     7z x ${AUTOBUILD_SOURCES}/readline-$readline_version-bin.zip
     7z x -y ${AUTOBUILD_SOURCES}/readline-$readline_version-lib.zip
-    #gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
-    #if test -n "$need_readline_patch" ; then
-    #   echo patching readline...
-    #   patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
-    #fi
-    #cd readline-$readline_version
-    #./configure $generic_prefix
-    #$MAKE
-    #status=$?
-    #if [ "$status" != 0 ] ; then
-    #   echo make of readline failed
-    #else
-    #   $MAKE install
-    #fi
+    cd -
     ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
 else 
     echo not building readline:
 fi 
 
-# go back to compiling installation
-cd ${AUTOBUILD_BUILD}
-
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
 guile_version=1.8.3
-# mirror has gone/moved.
-# ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-# ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 
 ( 
@@ -2603,9 +2438,10 @@ gzip -dc ${AUTOBUILD_SOURCES}/guile-${guile_version}.tar.gz | tar xf -
 cd guile-${guile_version}
 # we need to pass CFLAGS and LDFLAGS because there is no --with-readline-prefix
 # arg to guile's configure
-./configure $generic_prefix CFLAGS="-I$install_top_dir/include -O" LDFLAGS=-L$install_top_dir/lib --with-libintl-prefix=${AUTOBUILD_INSTALLED}
+./configure $generic_prefix CFLAGS="-I$install_top_dir/include -O" LDFLAGS=-L$install_top_dir/lib --with-libintl-prefix=$install_top_dir
 # Multilib fix for procedures.txt
-perl -pi -e 's|threads.doc||' `find . -name Makefile`
+# dont think we need this
+# perl -pi -e 's|threads.doc||' `find . -name Makefile`
 $MAKE
 status=$?
 if [ "$status" != 0 ] ; then 
@@ -2665,13 +2501,15 @@ if test -n "$build_guile_gtk" ; then
 #
 guile_gtk_version=2.1
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-$guile_gtk_version.tar.gz
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gtk-win32.patch
 ( 
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gtk-$guile_gtk_version.tar.gz | tar xf -
 cd guile-gtk-$guile_gtk_version
-./configure $generic_prefix --without-gtkgl --with-glade=no
+./configure $generic_prefix --without-gtkgl --with-glade=no --diable-static --enable-shared
 # PATCH!!!!!!
+patch -bp0 < ${AUTOBUILD_SOURCES}/guile-gtk-win32.patch
 # now patch the libtool if needed:
 # fix ulong if needed:
 # sed 's/(ulong)/(unsigned long)/g' guile-gtk.c > tmp.c
@@ -2686,9 +2524,6 @@ else
     echo '                                ' make install
     echo 1 -------------------------------------------------------------------------
     $MAKE install
-    # post install move of dlls
-    cp ${AUTOBUILD_INSTALLED}/bin/libguilegtk-2.0-0.dll ${AUTOBUILD_INSTALLED}/bin/libguilegtk-2.0.dll
-    cp ${AUTOBUILD_INSTALLED}/bin/libguilegdkpixbuf-2.0-0.dll ${AUTOBUILD_INSTALLED}/bin/libguilegdkpixbuf-2.0.dll
 fi
 ) > $HOSTLOGDIR/12-guile-gtk.txt
 else
@@ -2699,10 +2534,12 @@ if test -n "$build_guile_gui" ; then
    echo BUILDING guile-gui:
 
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gui.patch
 ( 
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.2.tar.gz | tar xf -
+patch -bp0 < ${AUTOBUILD_SOURCES}/guile-gui.patch
 cd guile-gui-0.2
 ./configure $generic_prefix
 $MAKE
@@ -2731,7 +2568,8 @@ else
 fi
 
 
-
+# we wont build greg as it wont work properly anyway!!
+build_greg=
 if test -n "$build_greg" ; then 
     echo building greg:
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/greg-2.0.0-pe.tar.gz
@@ -2747,19 +2585,16 @@ else
     echo not building greg:
 fi
 
-
+else
+   echo not building GUILE things
+fi
 
 
 
 if test -n "$build_gsl" ; then 
     echo BUILDING gsl:
 #
-# wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
-# wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
 gsl_version=1.8
-# ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-# ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-# ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
 ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
 ( 
@@ -2784,8 +2619,8 @@ else
 fi
 
 
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
+echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT guile=$ENABLE_GUILE_COOT
+echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT guile=$ENABLE_GUILE_COOT>&2
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz 
@@ -2824,7 +2659,9 @@ if test -n "$gtk_installed" ; then
     coot_extra_args="$coot_extra_args --with-gtk-prefix=$install_top_dir"
 fi
 
-scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
+if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then
+    scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
+fi
 
 # if ENABLE_PYTHON_COOT is not set, then we choose a day of the week
 # to build a python version.
@@ -2862,8 +2699,8 @@ fi
 ##########         build Coot                                     #############
 ###############################################################################
 #
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT >&2
+echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT guile=$ENABLE_GUILE_COOT
+echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT guile=$ENABLE_GUILE_COOT>&2
 
 # set the python tag outside the compile/install sub-shell.
 if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
@@ -2878,6 +2715,13 @@ if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then
    cp src/blank.cc src/coot_wrap_python.cc
 else 
    echo INFO:: A pythonized build
+fi
+
+if [ "$ENABLE_GUILE_COOT" = "no" ] ; then 
+   echo INFO:: not a guilized build
+   cp src/blank.cc src/coot_wrap_guile.cc
+else 
+   echo INFO:: A guilized build
 fi
 
 #      CXXFLAGS="-g -O"
