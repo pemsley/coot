@@ -502,33 +502,34 @@ int add_terminal_residue(int imol,
 			 int immediate_add) {
 
    int istate = 0;
-   if (imol >= 0 ) {
-      if (imol <= graphics_info_t::n_molecules()) {
-	 if (graphics_info_t::molecules[imol].has_model()) {
+   int imol_map = Imol_Refinement_Map();
+   if (imol_map == -1) {
+      std::cout << "WARNING:: Refinement/Fitting map is not set." << std::endl;
+      std::cout << "          addition of terminal residue terminated." << std::endl;
+   } else { 
+      is_valid_model_molecule(imol) { 
+	 // We don't do this as a member function of
+	 // molecule_class_info_t because we are using
+	 // graphics_info_t::execute_add_terminal_residue, which
+	 // does the molecule manipulations outside of the
+	 // molecule_class_info_t class.
+	 //
 
-	    // We don't do this as a member function of
-	    // molecule_class_info_t because we are using
-	    // graphics_info_t::execute_add_terminal_residue, which
-	    // does the molecule manipulations outside of the
-	    // molecule_class_info_t class.
-	    //
-
-	    graphics_info_t g;
-	    int atom_indx = atom_index(imol, chain_id, residue_number, " CA ");
-	    if (atom_indx >= 0) {
-	       std::string term_type = g.molecules[imol].get_term_type(atom_indx);
-	       std::string inscode = "";
-	       CResidue *res_p =
-		  g.molecules[imol].residue_from_external(residue_number, inscode,
-							  std::string(chain_id));
-	       g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
-					      residue_type, immediate_add);
-	       istate = 1;
-	    } else {
-	       std::cout << "WARNING:: in add_terminal_residue: "
-			 << " Can't find atom index for CA in residue "
-			 << residue_number << " " << chain_id << std::endl;
-	    }
+	 graphics_info_t g;
+	 int atom_indx = atom_index(imol, chain_id, residue_number, " CA ");
+	 if (atom_indx >= 0) {
+	    std::string term_type = g.molecules[imol].get_term_type(atom_indx);
+	    std::string inscode = "";
+	    CResidue *res_p =
+	       g.molecules[imol].residue_from_external(residue_number, inscode,
+						       std::string(chain_id));
+	    g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
+					   residue_type, immediate_add);
+	    istate = 1;
+	 } else {
+	    std::cout << "WARNING:: in add_terminal_residue: "
+		      << " Can't find atom index for CA in residue "
+		      << residue_number << " " << chain_id << std::endl;
 	 }
       }
    }
