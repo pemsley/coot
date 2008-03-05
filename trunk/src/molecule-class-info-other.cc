@@ -4486,10 +4486,10 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	 }
 	 is_from_shelx_ins_flag = 1;
 	 
-	 std::cout << " ##### initing coord things in read_shelx_ins_file" << std::endl;
+	 // std::cout << " ##### initing coord things in read_shelx_ins_file" << std::endl;
 	 initialize_coordinate_things_on_read_molecule_internal(filename,
 								is_undo_or_redo);
-	 std::cout << " ##### done initing coord things in read_shelx_ins_file" << std::endl;
+	 // std::cout << " ##### done initing coord things in read_shelx_ins_file" << std::endl;
       
 	 set_have_unit_cell_flag_maybe();
 
@@ -4543,10 +4543,10 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    // is updated
 	    // in
 	    // c-interface.cc
-	    std::cout << " ##### setting rotation centre in read_shelx_ins_file" << std::endl;
+	    // std::cout << " ##### setting rotation centre in read_shelx_ins_file" << std::endl;
 	    if (reset_rotation_centre) 
 	       g.setRotationCentre(::centre_of_molecule(atom_sel)); 
-	    std::cout << " ##### done setting rotation centre in read_shelx_ins_file" << std::endl;
+	 // std::cout << " ##### done setting rotation centre in read_shelx_ins_file" << std::endl;
 
 	 drawit = 1;
 	 if (graphics_info_t::show_symmetry == 1) {
@@ -4561,7 +4561,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
       save_state_command_strings_.push_back("read-shelx-ins-file");
       save_state_command_strings_.push_back(single_quote(filename));
    }
-   std::cout << " ##### read_shelx_ins_file returning " << istat << std::endl;
+   // std::cout << " ##### read_shelx_ins_file returning " << istat << std::endl;
    return istat;
 }
 

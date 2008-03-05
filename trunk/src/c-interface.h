@@ -2050,14 +2050,6 @@ int set_go_to_atom_chain_residue_atom_name_strings(const gchar *t1,
 						   const gchar *t2, 
 						   const gchar *txt); 
 
-/* int goto_next_atom_maybe(const gchar *t1, const gchar *t2, const gchar *t3,  */
-/* 			 GtkEntry *res_entry);  */
-
-int goto_prev_atom_maybe(const gchar *t1, const gchar *t2, const gchar *t3, 
-			 GtkEntry *res_entry); 
-
-int goto_near_atom_maybe(const char *t1, int ires, const char *t3,
-			 GtkEntry *res_entry, int idiff);
 
 int goto_next_atom_maybe_new(GtkWidget *window);
 int goto_previous_atom_maybe_new(GtkWidget *window);
@@ -2294,7 +2286,8 @@ int renumber_residue_range(int imol, const char *chain_id,
 GtkWidget *wrapped_create_renumber_residue_range_dialog();
 void renumber_residues_from_widget(GtkWidget *window);
 
-/*! \brief change chain id for given residue number range  */
+/*! \brief change chain id, residue number or insertion code for given
+  residue  */
 int change_residue_number(int imol, const char *chain_id, int current_resno, const char *current_inscode, int new_resno, const char *new_inscode);
 /* \} */
 

@@ -581,7 +581,8 @@ molecule_class_info_t::anisotropic_atoms() {
 }
 
 // fix the name to something involving rotation perhaps?
-//
+// 
+// not const because bond_colour_internal is set.
 void 
 molecule_class_info_t::set_bond_colour_by_mol_no(int i) {
 
@@ -1520,7 +1521,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots) {
 	    if (do_zero_occ_spots)
 	       zero_occupancy_spots();
 	    display_bonds();
-	    draw_fixed_atom_positions(); 
+	    draw_fixed_atom_positions();
 
 	    // ghosts
 // 	    std::cout << "debug ghosts: " << show_ghosts_flag << " " << ncs_ghosts.size()
@@ -1623,6 +1624,18 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
 void
 molecule_class_info_t::display_bonds() {
 
+   display_bonds(bonds_box);
+   for (unsigned int i=0; i<add_reps.size(); i++) {
+      display_bonds(add_reps[i].bonds_box);
+   }
+   display_symmetry_bonds();
+}
+
+
+
+void
+molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box) {
+
    //
 
    coot::CartesianPair pair;
@@ -1673,6 +1686,12 @@ molecule_class_info_t::display_bonds() {
       glEnd();
    }
 
+}
+
+void
+molecule_class_info_t::display_symmetry_bonds() {
+
+   Lines_list ll;
    if ((show_symmetry == 1) && (graphics_info_t::show_symmetry == 1)) {
       int isymop;
 
@@ -1759,6 +1778,22 @@ molecule_class_info_t::display_bonds() {
    }
 }
 
+void
+coot::additional_representations_t::fill_bonds_box() {
+
+}
+
+void
+molecule_class_info_t::add_additional_representation(const int &bonds_box_type_in, 
+						     float bonds_width,
+						     bool draw_hydrogens_flag,
+						     const coot::atom_selection_info_t info) {
+
+   coot::additional_representations_t rep(bonds_box_type_in,
+					  bonds_width, draw_hydrogens_flag, info);
+   add_reps.push_back(rep);
+
+} 
 
 // Return a pair.first string of length 0 on error to construct dataname(s).
 std::pair<std::string, std::string>
@@ -2377,6 +2412,19 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
    } 
    return iatom_index; 
 }			    
+
+int
+molecule_class_info_t::atom_to_atom_index(CAtom *at) const {
+
+   int iatom_index_udd = -1;
+   int ic;
+   if (at->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+      iatom_index_udd = ic;
+   }
+   if (iatom_index_udd == -1)
+      iatom_index_udd=full_atom_spec_to_atom_index(at);
+   return iatom_index_udd;
+}
 
 int
 molecule_class_info_t::full_atom_spec_to_atom_index(const coot::atom_spec_t &atom_spec) const {
@@ -3352,130 +3400,103 @@ molecule_class_info_t::close_yourself() {
 // Return the atom index of the "next" atom
 // -1 on failure.
 int
-molecule_class_info_t::intelligent_next_atom(const std::string &chain,
+molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 					     int resno,
 					     const std::string &atom_name,
 					     const std::string &ins_code) {
 
-   // First we try adding 1 to the residue number
-   // If that fails,
-   // 
-   // Get the atom index of the current atom and step through
-   // atom_selection until the residue number that atom is not the
-   // same as the starting atom
+   // This is really a problem of "what is the next residue?", the
+   // actual atom is a superficial problem that is handled by
+   // intelligent_this_residue_atom().  We simply have to find this
+   // residue in the chain, and return the residue after that.
+   //
+   // If there is no next residue, use the residue at the beginning of
+   // the next chain.
+   //
+   // If there is no next chain, use the residue at the start of the
+   // first chain.
+   //
+   // If this residue can't be found, then go through chain and look
+   // for the first residue that has higher residue number than resno.
 
    int i_atom_index = -1; // failure initially.
-
-   // std::cout << "intelligent_next_atom: start" << std::endl;
-   
    if (atom_sel.n_selected_atoms <= 0 || atom_sel.mol == NULL) { 
-
       std::cout << "ERROR:: trying to move to (next) atom of a closed molecule!\n";
-
    } else {
-      int selHnd1 = atom_sel.mol->NewSelection();
 
-      atom_sel.mol->SelectAtoms(selHnd1, 0, (char *) chain.c_str(), 
-				resno+1, "*", // start, insertion code
-				resno+1, "*", // end, insertion code
-				"*", // residue name
-				(char *) atom_name.c_str(),
-				"*", // elements
-				"*"); // alt locs
-
-      int nSelAtoms;
-      PPCAtom local_SelAtom; 
-      atom_sel.mol->GetSelIndex(selHnd1, local_SelAtom, nSelAtoms);
-      // std::cout << "intelligent_next_atom: nSelAtoms: " << nSelAtoms << std::endl;
-
-      // Deleted at end.
-      if (nSelAtoms > 0) {
-
-	 // Ye Olde Compare Pointers senario:
-	 for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-	    if (atom_sel.atom_selection[i] == local_SelAtom[0]) {
-	       i_atom_index = i;
-	       break; 
-	    }
-	 }
-      } else { 
-	 //       std::cout << "Intelligent:: Atom " << chain << "/" << resno << "/"
-	 // 		<< atom_name << " not found " << std::endl;
-	 //       std::cout << "Intelligent:: trying something else..." << std::endl;
-
-	 int selHnd2 = atom_sel.mol->NewSelection();
-
-	 // get the current atom index:
-	 // 
-	 atom_sel.mol->SelectAtoms(selHnd2, 0, (char *) chain.c_str(), 
-				   resno, "*", // start, insertion code
-				   resno, "*", // end, insertion code
-				   "*", // residue name
-				   (char *) atom_name.c_str(),
-				   "*", // elements
-				   "*"); // alt locs
-
-	 atom_sel.mol->GetSelIndex(selHnd2, local_SelAtom, nSelAtoms);
-	 if (nSelAtoms > 0) {
-
-	    int icurrent = -1;
-	    // Ye Olde Compare Pointers senario again:
-	    for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-	       if (atom_sel.atom_selection[i] == local_SelAtom[0]) {
-		  icurrent = i;
-		  break; 
+      CResidue *first_residue = NULL;
+      CResidue *next_residue = NULL;
+      bool found_this_residue = 0; 
+      int imod = 1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 if (chain_id == chain_p->GetChainID() || (found_this_residue && !next_residue)) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    PCResidue residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       if (! first_residue)
+		  first_residue = residue_p;
+	       if (found_this_residue) { 
+		  next_residue = residue_p;
+		  break;
 	       }
-	    }
-
-	    if (icurrent != -1) {
-	    
-	       // 	    std::cout << "Intelligent:: current index is " << icurrent << std::endl;
-	       for (int i=icurrent; i<atom_sel.n_selected_atoms; i++) {
-		  if (atom_sel.atom_selection[i]->GetSeqNum() != resno ||
-		      std::string(atom_sel.atom_selection[i]->GetChainID()) != chain) {
-		     // 		  std::cout << "Intelligent:: found new res at atom index "
-		     // 			    << i << std::endl;
-		     i_atom_index = i;
-
-		     // So far, we have an atom in a residue, often this
-		     // wil be the "N" atom of a peptide residue.
-		     //
-		     // Now, we want to move to the CA in that residue if
-		     // we can.  So lets search the next 20 atoms in the
-		     // list (should be only 1 required, actually to see
-		     // if we can find the CA of that residue)
-
-		     std::string chain_id = atom_sel.atom_selection[i]->GetChainID();
-		     int ires_no =  atom_sel.atom_selection[i]->GetSeqNum();
-		     std::string ca_name = " CA ";
-		  
-		     for (int in=i; in<atom_sel.n_selected_atoms && in<i+20; in++) {
-			if (std::string(atom_sel.atom_selection[in]->GetChainID()) == chain_id &&
-			    atom_sel.atom_selection[in]->GetSeqNum() == ires_no &&
-			    std::string(atom_sel.atom_selection[in]->name) == ca_name) {
-			   i_atom_index = in;
-			   break;
-			}
-		     }
-		     break; 
+	       if (residue_p->GetSeqNum() == resno) {
+		  if (ins_code == residue_p->GetInsCode()) {
+		     found_this_residue = 1; // setup for next loop
 		  }
 	       }
-	    } else {
-	       std::cout << "IMPOSSIBLE: Cannot happen in intelligent_next_atom\n";
 	    }
-	    // now give back the (selection) memory
-	    atom_sel.mol->DeleteSelection(selHnd2);
-	 } else {
-	    // The initial atom was not found
-	    // 
-	    std::cout << "WARNING intelligent_next_atom: "
-		      << "inital atom not found - giving up\n";
+	 }
+	 if (next_residue)
+	    break;
+      }
+
+      // Now the case where this residue was not in the molecule
+      // (e.g. we just deleted "this" water)
+      //
+      if (!next_residue) { 
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (chain_id == chain_p->GetChainID()) { 
+	       int nres = chain_p->GetNumberOfResidues();
+	       PCResidue residue_p;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  if (residue_p->GetSeqNum() > resno) {
+		     next_residue = residue_p;
+		     break;
+		  }
+	       }
+	    }
+	    if (next_residue)
+	       break;
 	 }
       }
-      atom_sel.mol->DeleteSelection(selHnd1);
-   }
+	       
+      // The case where this residue was the last in the molecule:
+      // 
+      if (found_this_residue && !next_residue) {
+	 int nchains = model_p->GetNumberOfChains();
+	 if (nchains > 0) { 
+	    chain_p = model_p->GetChain(0);
+	    int nres = chain_p->GetNumberOfResidues();
+	    if (nres > 0) 
+	       next_residue = chain_p->GetResidue(0);
+	 }
+      }
 
-   // std::cout << "Intelligent:: returning index " << i_atom_index << std::endl;
+      if (next_residue)
+	 i_atom_index = intelligent_this_residue_atom(next_residue);
+      
+   }
+//    std::cout << "DEBUG:: Intelligent:: returning index " << i_atom_index << std::endl;
+//    CAtom *at = atom_sel.atom_selection[i_atom_index];
+//    std::cout << "        Returing index of " << at << std::endl;
    return i_atom_index;
 } 
 
@@ -3483,120 +3504,88 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain,
 // Return the atom index of the "next" atom
 // -1 on failure.
 int
-molecule_class_info_t::intelligent_previous_atom(const std::string &chain,
+molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 						 int resno,
 						 const std::string &atom_name,
 						 const std::string &ins_code) {
 
-   // First we try adding 1 to the residue number
-   // If that fails,
-   // 
-   // Get the atom index of the current atom and step through
-   // atom_selection until the residue number that atom is not the
-   // same as the starting atom
-
-   int i_atom_index = -1; // failure initially.
-
-   if (! atom_sel.mol) {
-
-      std::cout << "ERROR:: trying to move to (prev) atom of a closed molecule!\n";
-
-   } else { 
-
+   // This is quite similar to intelligent_next_atom() (see comments
+   // there).  However, this is a bit more complex, because we keep a
+   // hold on the previous residue and only if "this" residue is found
+   // do we make the previous residue previous_residue.
+   //
+   // We don't handle the "last_residue" in molecule case, the analog
+   // of first_residue in the intelligent_next_atom() function.
+   // (Maybe we should?)
    
-      int selHnd = atom_sel.mol->NewSelection();
+   int i_atom_index = -1;
+   if (atom_sel.n_selected_atoms <= 0 || atom_sel.mol == NULL) { 
+      std::cout << "ERROR:: trying to move to (next) atom of a closed molecule!\n";
+   } else {
 
-      atom_sel.mol->SelectAtoms(selHnd, 0, (char *) chain.c_str(), 
-				resno-1, "*", // start, insertion code
-				resno-1, "*", // end, insertion code
-				"*", // residue name
-				(char *) atom_name.c_str(),
-				"*", // elements
-				"*"); // alt locs
-
-      int nSelAtoms;
-      PPCAtom local_SelAtom; 
-      atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
-      if (nSelAtoms > 0) {
-
-	 // Ye Olde Compare Pointers senario:
-	 for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-	    if (atom_sel.atom_selection[i] == local_SelAtom[0]) {
-	       i_atom_index = i;
-	       break; 
-	    }
-	 }
-      } else { 
-	 std::cout << "Atom " << chain << "/" << resno << "/"
-		   << atom_name << " not found " << std::endl;
-	 std::cout << "trying something else..." << std::endl;
-
-	 selHnd = atom_sel.mol->NewSelection();
-
-	 // get the atom index:
-	 // 
-	 atom_sel.mol->SelectAtoms(selHnd, 0, (char *) chain.c_str(), 
-				   resno, "*", // start, insertion code
-				   resno, "*", // end, insertion code
-				   "*", // residue name
-				   (char *) atom_name.c_str(),
-				   "*", // elements
-				   "*"); // alt locs
-
-	 atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
-	 if (nSelAtoms > 0) {
-
-	    int icurrent = -1;
-	    // Ye Olde Compare Pointers senario again:
-	    for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-	       if (atom_sel.atom_selection[i] == local_SelAtom[0]) {
-		  icurrent = i;
-		  break; 
-	       }
-	    }
-
-	    if (icurrent != -1) {
-	       for (int i=icurrent; i>=0; i--) {
-		  if (atom_sel.atom_selection[i]->GetSeqNum() != resno ||
-		      std::string(atom_sel.atom_selection[i]->GetChainID()) != chain) {
-		     i_atom_index = i;
-
-		     // So far, we have an atom in a residue, often this
-		     // wil be the last atom of a peptide residue.
-		     //
-		     // Now, we want to move to the CA in that residue if
-		     // we can.  So lets search the back for 20 atoms in the
-		     // list.
-		     // 
-		     std::string chain_id = atom_sel.atom_selection[i]->GetChainID();
-		     int ires_no =  atom_sel.atom_selection[i]->GetSeqNum();
-		     std::string ca_name = " CA ";
-		  
-		     for (int in=i; in>=0 && in<(i-20); in--) {
-			if (std::string(atom_sel.atom_selection[in]->GetChainID()) == chain_id &&
-			    atom_sel.atom_selection[in]->GetSeqNum() == ires_no &&
-			    std::string(atom_sel.atom_selection[in]->name) == ca_name) {
-			   std::cout << "Found a CA for that residue\n";
-			   i_atom_index = in;
-			   break;
-			}
+      CResidue *prev_residue_candidate = NULL;
+      CResidue *prev_residue = NULL;
+      bool found_this_residue = 0; 
+      int imod = 1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 if (chain_id == chain_p->GetChainID() || (found_this_residue && !prev_residue)) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    PCResidue residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p->GetSeqNum() == resno) {
+		  if (ins_code == residue_p->GetInsCode()) {
+		     found_this_residue = 1;
+		     if (prev_residue_candidate) { 
+			prev_residue = prev_residue_candidate;
+			break;
 		     }
-		     break; 
 		  }
 	       }
-	    } else {
-	       std::cout << "IMPOSSIBLE: Cannot happen in intelligent_previous_atom\n";
+	       if (prev_residue)
+		  break;
+	       prev_residue_candidate = residue_p;
 	    }
-	    // now give back the (selection) memory
-	    atom_sel.mol->DeleteSelection(selHnd);
-	 } else {
-	    // The initial atom was not found
-	    // 
-	    std::cout << "WARNING intelligent_previous_atom: "
-		      << "inital atom not found - giving up\n";
 	 }
+	 if (prev_residue)
+	    break;
       }
-   }   
+
+      // Handle the case where we are on first atom of water chain and
+      // want to go back to protein (in that case
+      // prev_residue_candidate would not have been set because it
+      // never passes the chain id test)
+      // 
+      if (! prev_residue) {
+	 CChain *prev_chain = NULL;
+	 CChain *prev_chain_candidate = NULL;
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (chain_id == chain_p->GetChainID()) {
+	       if (prev_chain_candidate) { 
+		  prev_chain = prev_chain_candidate;
+		  break;
+	       }
+	    }
+	    prev_chain_candidate = chain_p; // for next loop
+	 }
+	 if (prev_chain) {
+	    // the last residue in prev_chain then:
+	    int nres = prev_chain->GetNumberOfResidues();
+	    if (nres > 0) 
+	       prev_residue = prev_chain->GetResidue(nres-1);
+	 } 
+      }
+      
+      if (prev_residue)
+	 i_atom_index = intelligent_this_residue_atom(prev_residue);
+   }
    return i_atom_index;
 }
 
@@ -3611,24 +3600,34 @@ molecule_class_info_t::intelligent_this_residue_atom(CResidue *res_p) const {
 
    PPCAtom residue_atoms;
    int nResidueAtoms;
+   int ir = -1; 
    
    res_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
       std::string atom_name(residue_atoms[i]->name);
       if (atom_name == " CA ") {
-	 return atom_spec_to_atom_index(residue_atoms[i]->GetChainID(),
-					residue_atoms[i]->GetSeqNum(),
-					residue_atoms[i]->name);
+	 ir = atom_to_atom_index(residue_atoms[i]);
+	 if (ir == -1)
+	    ir = full_atom_spec_to_atom_index(residue_atoms[i]->GetChainID(),
+					      residue_atoms[i]->GetSeqNum(),
+					      residue_atoms[i]->GetInsCode(),
+					      residue_atoms[i]->name,
+					      residue_atoms[i]->altLoc);
       }
    }
 
-   if (nResidueAtoms > 0) {
-      return atom_spec_to_atom_index(residue_atoms[0]->GetChainID(),
-				     residue_atoms[0]->GetSeqNum(),
-				     residue_atoms[0]->name);
+   if (ir == -1) { 
+      if (nResidueAtoms > 0) {
+	 ir = atom_to_atom_index(residue_atoms[0]);
+	 if (ir == -1)
+	    ir =  full_atom_spec_to_atom_index(residue_atoms[0]->GetChainID(),
+					       residue_atoms[0]->GetSeqNum(),
+					       residue_atoms[0]->GetInsCode(),
+					       residue_atoms[0]->name,
+					       residue_atoms[0]->altLoc);
+      }
    }
-
-   return -1;
+   return ir;
 }
 
 // If there is a CA in this residue then return that atom (pointer)

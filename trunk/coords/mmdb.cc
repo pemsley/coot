@@ -399,8 +399,8 @@ ostream& operator<<(ostream& s, CAtom &atom) {
 
    //
    s << atom.GetModelNum() << "/" << atom.GetChainID() << "/"
-     << atom.GetSeqNum()   << "/" << atom.GetResName() << "/"
-     << atom.name << " altLoc :" << atom.altLoc << ": pos: ("
+     << atom.GetSeqNum() << atom.GetInsCode() << "/" << atom.GetResName()
+     << "/" << atom.name << " altLoc :" << atom.altLoc << ": pos: ("
      << atom.x << "," << atom.y << "," << atom.z
      << ") B-factor: " << atom.tempFactor;
 
@@ -414,7 +414,8 @@ ostream& operator<<(ostream& s, PCAtom atom) {
 
    //
    s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
-     << atom->GetSeqNum()   << "/" << atom->GetResName() << "/"
+     << atom->GetSeqNum()   << atom->GetInsCode() << "/"
+     << atom->GetResName() << "/"
      << atom->name << " altLoc :" << atom->altLoc << ": pos: ("
      << atom->x << "," << atom->y << "," << atom->z
      << ") B-factor: " << atom->tempFactor;

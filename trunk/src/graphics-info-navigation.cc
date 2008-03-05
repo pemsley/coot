@@ -309,6 +309,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 	 go_to_atom_chain_       = next_atom->GetChainID();
 	 go_to_atom_atom_name_   = next_atom->name;
 	 go_to_atom_residue_     = next_atom->GetSeqNum();
+	 go_to_atom_inscode_     = next_atom->GetInsCode();
 	 go_to_atom_atom_altLoc_ = next_atom->altLoc;
 
 	 // now update the widget with the new values of the above (like

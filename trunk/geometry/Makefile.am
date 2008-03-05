@@ -37,10 +37,18 @@ libcoot_geometry_la_SOURCES = $(libcoot_geometry_a_sources)
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
-noinst_PROGRAMS = test-geometry
+noinst_PROGRAMS = test-geometry test-read-components
 
 test_geometry_SOURCES = test-geometry.cc
+
+test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 
 test_geometry_LDADD = ./libcoot-geometry.la         \
         $(top_builddir)/coot-utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS)
+
+test_read_components_LDADD = \
+	$(top_builddir)/geometry/libcoot-geometry.la  \
+        $(top_builddir)/coot-utils/libcoot-utils.la   \
+	$(CLIPPER_LIBS) $(MMDB_LIBS)
+

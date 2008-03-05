@@ -4711,3 +4711,21 @@ Sat Mar  1 06:11:26 GMT 2008
     somewhere I have some code, I started on this?
 
 
+----
+Wed Mar  5 16:40:09 GMT 2008
+
+
+DEBUG::  display toggle of molecule: 1
+DEBUG::  display toggle of molecule: 2
+
+
+----
+Wed Mar  5 17:52:08 GMT 2008
+
+  pick_info
+  graphics_info_t::find_atom_index_from_goto_info(int imol) 
+
+  very convoluted!?
+
+  why not use graphics_info_t::molecules[imol].atom_to_atom_index()? 
+

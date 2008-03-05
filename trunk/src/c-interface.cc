@@ -4473,35 +4473,39 @@ goto_previous_atom_maybe_new(GtkWidget *goto_atom_window) {
    return g.intelligent_previous_atom_centring(goto_atom_window);
    
 } 
-int 
-goto_prev_atom_maybe(const gchar *t1, const gchar *t2, const gchar *t3,
-		     GtkEntry *res_entry) { 
 
-   int it2 = atoi(t2); 
-   return goto_near_atom_maybe(t1, it2, t3, res_entry, -1); 
+
+// DELETE ME.
+// int 
+// goto_prev_atom_maybe(const gchar *t1, const gchar *t2, const gchar *t3,
+// 		     GtkEntry *res_entry) { 
+
+//    int it2 = atoi(t2); 
+//    return goto_near_atom_maybe(t1, it2, t3, res_entry, -1); 
    
-} 
+// } 
 
-int 
-goto_near_atom_maybe(const char *t1, int ires, const char *t3,
-		     GtkEntry *res_entry, int idiff) { 
+// 
+// int 
+// goto_near_atom_maybe(const char *t1, int ires, const char *t3,
+// 		     GtkEntry *res_entry, int idiff) { 
 
-   graphics_info_t g; 
+//    graphics_info_t g; 
 
-   int ires_l = ires + idiff ; // for next residue, or previous.
+//    int ires_l = ires + idiff ; // for next residue, or previous.
    
-   g.set_go_to_atom_chain_residue_atom_name(t1, ires_l, t3); 
+//    g.set_go_to_atom_chain_residue_atom_name(t1, ires_l, t3); 
    
-   int success = g.try_centre_from_new_go_to_atom(); 
+//    int success = g.try_centre_from_new_go_to_atom(); 
 
-   if (success) {
-      char *txt = (char *)malloc(6);
-      snprintf(txt, 5, "%d", ires_l); 
-      gtk_entry_set_text(GTK_ENTRY(res_entry), txt);
-      update_things_on_move_and_redraw(); 
-   }
-   return success; 
-}
+//    if (success) {
+//       char *txt = (char *)malloc(6);
+//       snprintf(txt, 5, "%d", ires_l); 
+//       gtk_entry_set_text(GTK_ENTRY(res_entry), txt);
+//       update_things_on_move_and_redraw(); 
+//    }
+//    return success; 
+// }
 
 
 /* For dynarama callback sake. The widget/class knows which coot
