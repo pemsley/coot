@@ -11,6 +11,7 @@
 (define insulin-res (append-dir-file greg-data-dir "insulin.res"))
 (define hollander-ins (append-dir-file greg-data-dir "hollander.ins"))
 (define imol-insulin-res -1) ; set later
+(define m-miller-res (append-dir-file greg-data-dir "miller/shelx-test4-NPD-mini.res"))
 
 
 (greg-testcase "Read small molecule .res file" #t
@@ -157,17 +158,16 @@
 	 #t))))
 
 
-;(greg-testcase "Aniso Shelx Atoms - Mitch Miller" #t
-;   (lambda ()
+;; non positive definite anistropic atom (reported by Mitch Miller)
+;; crash test
+(greg-testcase "NPD Anisotripic Atom [Mitch Miller]" #t 
+   (lambda ()
 
-;     (let* ((bad-anis-res (append-dir-file greg-data-dir "mmiller.res"))
-;	    (aniso-bad-mol (read-pdb bad-anis-res)))
-
-;       (if (not (valid-model-molecule? aniso-bad-mol))
-;	   (begin
-;	     (format #t "   No Mitch Miller molecule yet~%")
-;	     (throw 'untested))
-;	   (begin
-;	     (set-show-aniso 1) ; should (used to) crash
-;	     #t)))))
-
+     (let ((imol-miller (handle-read-draw-molecule-with-recentre 
+                         m-miller-res 1)))
+       (if (not (valid-model-molecule? imol-miller))
+	   (begin
+	     (format #t "Bad read of miller test molecule~%")
+	     (throw 'fail)))
+       (set-show-aniso 1) ; crash
+       #t)))

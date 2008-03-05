@@ -70,6 +70,16 @@ std::string probe_dots_short_contact_name_to_expanded_name(const std::string &sh
 /*                       go to atom   :                                    */
 /*  ---------------------------------------------------------------------- */
 
+#ifdef USE_GUILE
+// Bernie, no need to pythonize this, it's just to test the return
+// values on pressing "next residue" and "previous residue" (you can
+// if you wish of course).
+//
+// Pass the current values, return new values
+SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char*atom_name);
+SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+#endif 
+
 int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec);
 
 // This is to make porting the active atom more easy for Bernhard.

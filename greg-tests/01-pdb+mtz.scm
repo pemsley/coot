@@ -86,6 +86,65 @@
 		pre-n-molecules post-n-molecules)
 	#t)))
 
+
+(define ins-code-frag-pdb (append-dir-file greg-data-dir 
+					   "ins-code-fragment-pre.pdb"))
+
+;; Not to self, need to 
+(greg-testcase "ins code change and Goto atom over an ins code break" #t
+   (lambda () 	       
+
+     (define (matches-attributes atts-obs atts-ref)
+       (equal? atts-obs atts-ref))
+       
+
+     ;; main line
+     (if (not (file-exists? ins-code-frag-pdb))
+	 (begin
+	   (format #t "  WARNING:: file not found: ~s~%" ins-code-frag-pdb)
+	   (throw 'fail)))
+     (let ((frag-pdb (handle-read-draw-molecule-with-recentre 
+		      ins-code-frag-pdb 0)))
+       (set-go-to-atom-molecule frag-pdb)
+       (set-go-to-atom-chain-residue-atom-name "A" 68 " CA ")
+       (let* ((ar-1 (active-residue))
+	      (ins-1 (list-ref ar-1 3)))
+	 (change-residue-number frag-pdb "A" 68 "" 68 "A")
+	 (change-residue-number frag-pdb "A" 69 "" 68 "B")
+	 (change-residue-number frag-pdb "A" 67 "" 68 "")
+	 (let* ((ar-2 (active-residue))
+		(ins-2 (list-ref ar-2 3)))
+	   (format #t "pre and post ins codes: ~s ~s~%" ins-1 ins-2)
+	   (if (not (string=? ins-2 "A"))
+	       (begin
+		 (format #t " Fail ins code set: ~s is not \"A\"~%" ins-2)
+		 (throw 'fail)))
+
+	   (let ((test-expected-results
+		  (list 
+		   (cons (goto-next-atom-maybe "A" 67 ""  " CA ") (list "A" 68 ""  " CA "))
+		   (cons (goto-next-atom-maybe "A" 68 "A" " CA ") (list "A" 68 "B" " CA "))
+		   (cons (goto-next-atom-maybe "A" 68 "B" " CA ") (list "A" 70 ""  " CA "))
+		   (cons (goto-next-atom-maybe "D" 10 ""  " O  ") (list "A" 62  "" " CA "))
+		   (cons (goto-prev-atom-maybe "A" 70 ""  " CA ") (list "A" 68 "B" " CA "))
+		   (cons (goto-prev-atom-maybe "A" 68 "B" " CA ") (list "A" 68 "A" " CA "))
+		   (cons (goto-prev-atom-maybe "A" 68 "A" " CA ") (list "A" 68  "" " CA "))
+		   (cons (goto-prev-atom-maybe "A" 68 ""  " CA ") (list "A" 66  "" " CA ")))))
+
+	     (let loop ((real-results (map car test-expected-results))
+			(expected-results (map cdr test-expected-results)))
+
+	       (cond 
+		((null? real-results) #t) ; pass
+		((equal? (car real-results) (car expected-results))
+		 (format #t "   pass: ~s ~%" (car expected-results))
+		 (loop (cdr real-results) (cdr expected-results)))
+		(else 
+		 (format #t "   fail: real: ~s expected: ~s ~%" 
+			 (car real-results) (car expected-results))
+		 #f)))))))))
+
+
 (greg-testcase "Read a bogus map" #t
     (lambda ()
       (let ((pre-n-molecules (graphics-n-molecules))

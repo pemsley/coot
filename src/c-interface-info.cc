@@ -809,6 +809,76 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
 #endif // USE_PYTHON
 
 
+#ifdef USE_GUILE
+// Bernie, no need to pythonize this, it's just to test the return
+// values on pressing "next residue" and "previous residue" (you can
+// if you wish of course).
+//
+// Pass the current values, return new values
+//
+// Hmm maybe these function should pass the atom name too?  Yes they should
+SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code,
+			 const char *atom_name) {
+
+   SCM r = SCM_BOOL_F;
+
+   int imol = go_to_atom_molecule_number();
+   if (is_valid_model_molecule(imol)) { 
+
+      int atom_index =
+	 graphics_info_t::molecules[imol].intelligent_next_atom(chain_id, resno,
+								atom_name, ins_code);
+
+      if (atom_index != -1) {
+	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+
+	 std::string next_chain_id  = next_atom->GetChainID();
+	 std::string next_atom_name = next_atom->name;
+	 int next_residue_number    = next_atom->GetSeqNum();
+	 std::string next_ins_code  = next_atom->GetInsCode();
+
+	 r = SCM_EOL;
+	 r = scm_cons(scm_makfrom0str(next_atom_name.c_str()), r);
+	 r = scm_cons(scm_makfrom0str(next_ins_code.c_str()), r);
+	 r = scm_cons(scm_int2num(next_residue_number) ,r);
+	 r = scm_cons(scm_makfrom0str(next_chain_id.c_str()), r);
+      }
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_GUILE
+SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code,
+			 const char *atom_name) {
+
+   SCM r = SCM_BOOL_F;
+   int imol = go_to_atom_molecule_number();
+   if (is_valid_model_molecule(imol)) { 
+
+      int atom_index =
+	 graphics_info_t::molecules[imol].intelligent_previous_atom(chain_id, resno,
+								    atom_name, ins_code);
+
+      if (atom_index != -1) {
+	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+
+	 std::string next_chain_id  = next_atom->GetChainID();
+	 std::string next_atom_name = next_atom->name;
+	 int next_residue_number    = next_atom->GetSeqNum();
+	 std::string next_ins_code  = next_atom->GetInsCode();
+
+	 r = SCM_EOL;
+	 r = scm_cons(scm_makfrom0str(next_atom_name.c_str()), r);
+	 r = scm_cons(scm_makfrom0str(next_ins_code.c_str()), r);
+	 r = scm_cons(scm_int2num(next_residue_number) ,r);
+	 r = scm_cons(scm_makfrom0str(next_chain_id.c_str()), r);
+      }
+   }
+   return r;
+} 
+#endif 
+
 // A C++ function interface:
 // 
 int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {

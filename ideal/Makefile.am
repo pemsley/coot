@@ -91,4 +91,3 @@ test_indexing_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-utils.la       \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
-

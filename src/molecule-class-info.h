@@ -330,7 +330,53 @@ namespace coot {
      } 
    };
 
+   class atom_selection_info_t { 
+   public:
+     enum { UNSET, BY_STRING, BY_ATTRIBUTES }; 
+     int type;
+     std::string chain_id;
+     int resno_start;
+     int resno_end;
+     std::string ins_code;
+     // or:
+     std::string atom_selection_str;
+     atom_selection_info_t(const std::string &s) { 
+       atom_selection_str = s;
+       type = BY_STRING;
+     }
+     atom_selection_info_t(const std::string &chain_id_in, 
+			   int resno_start_in, 
+			   int resno_end_in,
+			   const std::string &ins_code_in) { 
+       chain_id = chain_id_in;
+       resno_start = resno_start_in;
+       resno_end = resno_end_in;
+       ins_code = ins_code_in;
+       type = BY_ATTRIBUTES;
+     }
+     atom_selection_info_t() { 
+       type = UNSET;
+     }
+   };
 
+   class additional_representations_t { 
+   public:
+     int bonds_box_type;
+     float bond_width;
+     bool draw_hydrogens_flag;
+     graphical_bonds_container bonds_box;
+     atom_selection_info_t atom_sel_info;
+     void fill_bonds_box();
+     additional_representations_t(int bonds_box_type_in,
+				  float bond_width_in,
+				  bool draw_hydrogens_flag_in,
+				  const atom_selection_info_t &atom_sel_info_in) { 
+       bonds_box_type = bonds_box_type_in;
+       draw_hydrogens_flag = draw_hydrogens_flag_in;
+       atom_sel_info = atom_sel_info_in;
+       fill_bonds_box();
+     } 
+   };
 
 }
 
@@ -913,6 +959,7 @@ class molecule_class_info_t {
    // 
    // Tripping up here?  Need Bond_lines.h
    graphical_bonds_container bonds_box;
+   std::vector<coot::additional_representations_t> add_reps;
    std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
    std::vector<std::pair<graphical_bonds_container, symm_trans_t> > strict_ncs_bonds_box;
    void clear_up_all_symmetry() {
@@ -996,7 +1043,12 @@ class molecule_class_info_t {
 
    // atom labels
    //
+
+   // These are not const because set_bond_colour_by_mol_no() gets called.
+   // maybe needs fixing.  Similarly  set_symm_bond_colour_mol_and_symop().
    void display_bonds();
+   void display_symmetry_bonds();
+   void display_bonds(const graphical_bonds_container &bonds_box);
    void display_ghost_bonds(int ighost);
 
 
@@ -1237,6 +1289,8 @@ class molecule_class_info_t {
 				    const std::string &alt_conf) const;
 
    int full_atom_spec_to_atom_index(const coot::atom_spec_t &spec) const;
+
+   int atom_to_atom_index(CAtom *at) const;
 
    // Does atom at from moving atoms match atom_sel.atom_selection[this_mol_index_maybe]?
    // or has atom_sel changed in the mean time?
@@ -2092,6 +2146,11 @@ class molecule_class_info_t {
    // 
    void sharpen(float b_factor);
 
+
+   void add_additional_representation(const int &bonds_box_type_in, 
+				      float bonds_width,
+				      bool draw_hydrogens_flag,
+				      const coot::atom_selection_info_t info); 
 
    // 
 
