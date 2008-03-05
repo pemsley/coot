@@ -2399,9 +2399,12 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
    graphics_info_t g;
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
       g.Geom_p()->get_monomer_restraints(monomer_type);
-   if (p.first) {
+   if (!p.first) {
+      std::cout << "WARNING:: can't find " << monomer_type << " in monomer dictionary"
+		<< std::endl;
+   } else {
 
-      PyObject *r = PyDict_New();
+      r = PyDict_New();
 	 
       coot::dictionary_residue_restraints_t restraints = p.second;
 
@@ -2775,10 +2778,12 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 
 				 std::string plane_id = scm_to_locale_string(plane_id_scm);
 				 double esd           = scm_to_double(esd_scm);
-				 coot::dict_plane_restraint_t rest(plane_id, atom_names[0], esd);
-				 for (int i=1; i<atom_names.size(); i++)
-				    rest.push_back_atom(atom_names[i]);
-				 plane_restraints.push_back(rest);
+				 if (atom_names.size() > 0) { 
+				    coot::dict_plane_restraint_t rest(plane_id, atom_names[0], esd);
+				    for (int i=1; i<atom_names.size(); i++)
+				       rest.push_back_atom(atom_names[i]);
+				    plane_restraints.push_back(rest);
+				 }
 			      }
 			   }
 			}
@@ -2847,7 +2852,6 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
       bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, monomer_restraints);
       if (s)
 	 retval = SCM_BOOL_T;
-      // set retval here if restraints were updated.
    }
 
    return retval;
@@ -3057,10 +3061,66 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	       }
 	    } 
 	 }
-		 
 
 
-      } 
+	 if (key_string == "_chem_comp_plane_atom") {
+	    PyObject *plane_restraint_list = value;
+	    if (PyList_Check(plane_restraint_list)) {
+	       int n_planes = PyObject_Length(plane_restraint_list);
+	       for (int i_plane=0; i_plane<n_planes; i_plane++) {
+		  PyObject *plane_restraint = PyList_GetItem(plane_restraint_list, i_plane);
+		  if (PyObject_Length(plane_restraint) == 3) {
+		     std::vector<std::string> atoms;
+		     PyObject *plane_id_py = PyList_GetItem(plane_restraint, 0);
+		     PyObject *esd_py      = PyList_GetItem(plane_restraint, 2);
+		     PyObject *py_atoms_py = PyList_GetItem(plane_restraint, 1);
+
+		     bool atoms_pass = 1;
+		     if (PyList_Check(py_atoms_py)) {
+			int n_atoms = PyObject_Length(py_atoms_py);
+			for (int iat=0; iat<n_atoms; iat++) {
+			   PyObject *at_py = PyList_GetItem(py_atoms_py, iat);
+			   if (PyString_Check(at_py)) {
+			      atoms.push_back(PyString_AsString(at_py));
+			   } else {
+			      atoms_pass = 0;
+			   }
+			}
+			if (atoms_pass) {
+			   if (PyString_Check(plane_id_py)) {
+			      if (PyFloat_Check(esd_py)) {
+				 std::string plane_id = PyString_AsString(plane_id_py);
+				 float esd = PyFloat_AsDouble(esd_py);
+				 if (atoms.size() > 0) { 
+				    coot::dict_plane_restraint_t rest(plane_id, atoms[0], esd);
+				    for (int i=1; i<atoms.size(); i++)
+				       rest.push_back_atom(atoms[i]);
+				    plane_restraints.push_back(rest);
+				 }
+			      }
+			   }
+			} 
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+	
+      coot::dictionary_residue_restraints_t monomer_restraints(monomer_type, 1);
+      monomer_restraints.bond_restraint    = bond_restraints;
+      monomer_restraints.angle_restraint   = angle_restraints;
+      monomer_restraints.torsion_restraint = torsion_restraints;
+      monomer_restraints.chiral_restraint  = chiral_restraints;
+      monomer_restraints.plane_restraint   = plane_restraints;
+      monomer_restraints.residue_info      = residue_info;
+      monomer_restraints.atom_info         = atoms; 
+      
+      graphics_info_t g;
+      bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, monomer_restraints);
+      if (s)
+	 retval = Py_True;
+      
    }
    return retval;
 } 
