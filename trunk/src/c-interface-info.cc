@@ -2896,7 +2896,33 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		  residue_info = n;
 	       }
 	    }
-	 } 
+	 }
+
+
+	 if (key_string == "_chem_comp_atom") {
+	    PyObject *chem_comp_atom_list = value;
+	    if (PyList_Check(chem_comp_atom_list)) {
+	       int n_atoms = PyObject_Length(chem_comp_atom_list);
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  PyObject *chem_comp_atom = PyList_GetItem(chem_comp_atom_list, iat);
+		  if (PyObject_Length(chem_comp_atom) == 5) {
+		     std::string atom_id  = PyString_AsString(PyList_GetItem(chem_comp_atom, 0));
+		     std::string element  = PyString_AsString(PyList_GetItem(chem_comp_atom, 1));
+		     std::string energy_t = PyString_AsString(PyList_GetItem(chem_comp_atom, 2));
+		     float part_chr        = PyFloat_AsDouble(PyList_GetItem(chem_comp_atom, 3));
+		     bool flag = 0;
+		     if (PyLong_AsLong(PyList_GetItem(chem_comp_atom, 4))) {
+			flag = 1;
+		     }
+		     coot::dict_atom(atom_id, atom_id, element, energy_t, part_chr, flag);
+		     atoms.push_back(at);
+		  }
+	       }
+	    } 
+	 }
+
+	 
+	 
       } 
    }
    return retval;
