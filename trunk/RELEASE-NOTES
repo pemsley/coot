@@ -17,6 +17,10 @@ Release 0.5
    o CHANGE: set-symmetry-colour-merge now takes only a fraction
      argument.
 
+   o CHANGE: Next Residue/Previous residue reworked so that it now
+     jumps over gaps and goes to the right residue when encountering
+     insertion codes.
+
    o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
 
    o BUG-FIX: chiral volumes are now correctly handled for multiple

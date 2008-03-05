@@ -2914,15 +2914,152 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     if (PyLong_AsLong(PyList_GetItem(chem_comp_atom, 4))) {
 			flag = 1;
 		     }
-		     coot::dict_atom(atom_id, atom_id, element, energy_t, part_chr, flag);
+		     coot::dict_atom at(atom_id, atom_id, element, energy_t, part_chr, flag);
 		     atoms.push_back(at);
 		  }
 	       }
 	    } 
 	 }
 
-	 
-	 
+	 if (key_string == "_chem_comp_bond") {
+	    PyObject *bond_restraint_list = value;
+	    if (PyList_Check(bond_restraint_list)) {
+	       int n_bonds = PyObject_Length(bond_restraint_list);
+	       for (int i_bond=0; i_bond<n_bonds; i_bond++) {
+		  PyObject *bond_restraint = PyList_GetItem(bond_restraint_list, i_bond);
+		  if (PyObject_Length(bond_restraint) == 4) { 
+		     PyObject *atom_1_py = PyList_GetItem(bond_restraint, 0);
+		     PyObject *atom_2_py = PyList_GetItem(bond_restraint, 1);
+		     PyObject *dist_py   = PyList_GetItem(bond_restraint, 2);
+		     PyObject *esd_py    = PyList_GetItem(bond_restraint, 3);
+
+		     if (PyString_Check(atom_1_py) &&
+			 PyString_Check(atom_2_py) &&
+			 PyFloat_Check(dist_py) && 
+			 PyFloat_Check(esd_py)) {
+			std::string atom_1 = PyString_AsString(atom_1_py);
+			std::string atom_2 = PyString_AsString(atom_2_py);
+			float  dist = PyFloat_AsDouble(dist_py);
+			float  esd  = PyFloat_AsDouble(esd_py);
+			coot::dict_bond_restraint_t rest(atom_1, atom_2, "unknown", dist, esd);
+			bond_restraints.push_back(rest);
+		     }
+		  }
+	       }
+	    } 
+	 }
+
+
+	 if (key_string == "_chem_comp_angle") {
+	    PyObject *angle_restraint_list = value;
+	    if (PyList_Check(angle_restraint_list)) {
+	       int n_angles = PyObject_Length(angle_restraint_list);
+	       for (int i_angle=0; i_angle<n_angles; i_angle++) {
+		  PyObject *angle_restraint = PyList_GetItem(angle_restraint_list, i_angle);
+		  if (PyObject_Length(angle_restraint) == 5) { 
+		     PyObject *atom_1_py = PyList_GetItem(angle_restraint, 0);
+		     PyObject *atom_2_py = PyList_GetItem(angle_restraint, 1);
+		     PyObject *atom_3_py = PyList_GetItem(angle_restraint, 2);
+		     PyObject *angle_py  = PyList_GetItem(angle_restraint, 3);
+		     PyObject *esd_py    = PyList_GetItem(angle_restraint, 4);
+
+		     if (PyString_Check(atom_1_py) &&
+			 PyString_Check(atom_2_py) &&
+			 PyString_Check(atom_3_py) &&
+			 PyFloat_Check(angle_py) && 
+			 PyFloat_Check(esd_py)) {
+			std::string atom_1 = PyString_AsString(atom_1_py);
+			std::string atom_2 = PyString_AsString(atom_2_py);
+			std::string atom_3 = PyString_AsString(atom_3_py);
+			float  angle = PyFloat_AsDouble(angle_py);
+			float  esd   = PyFloat_AsDouble(esd_py);
+			coot::dict_angle_restraint_t rest(atom_1, atom_2, atom_3, angle, esd);
+			angle_restraints.push_back(rest);
+		     }
+		  }
+	       }
+	    }
+	 }
+
+	 if (key_string == "_chem_comp_tor") {
+	    PyObject *torsion_restraint_list = value;
+	    if (PyList_Check(torsion_restraint_list)) {
+	       int n_torsions = PyObject_Length(torsion_restraint_list);
+	       for (int i_torsion=0; i_torsion<n_torsions; i_torsion++) {
+		  PyObject *torsion_restraint = PyList_GetItem(torsion_restraint_list, i_torsion);
+		  if (PyObject_Length(torsion_restraint) == 7) { 
+		     PyObject *atom_1_py = PyList_GetItem(torsion_restraint, 0);
+		     PyObject *atom_2_py = PyList_GetItem(torsion_restraint, 1);
+		     PyObject *atom_3_py = PyList_GetItem(torsion_restraint, 2);
+		     PyObject *atom_4_py = PyList_GetItem(torsion_restraint, 3);
+		     PyObject *torsion_py= PyList_GetItem(torsion_restraint, 4);
+		     PyObject *esd_py    = PyList_GetItem(torsion_restraint, 5);
+		     PyObject *period_py = PyList_GetItem(torsion_restraint, 6);
+
+		     if (PyString_Check(atom_1_py) &&
+			 PyString_Check(atom_2_py) &&
+			 PyString_Check(atom_3_py) &&
+			 PyString_Check(atom_4_py) &&
+			 PyFloat_Check(torsion_py) && 
+			 PyFloat_Check(esd_py)    && 
+			 PyInt_Check(period_py)) { 
+			std::string atom_1 = PyString_AsString(atom_1_py);
+			std::string atom_2 = PyString_AsString(atom_2_py);
+			std::string atom_3 = PyString_AsString(atom_3_py);
+			std::string atom_4 = PyString_AsString(atom_4_py);
+			float  torsion = PyFloat_AsDouble(torsion_py);
+			float  esd     = PyFloat_AsDouble(esd_py);
+			int  period    = PyInt_AsLong(period_py);
+			coot::dict_torsion_restraint_t rest(atom_1, atom_2, atom_3, atom_4,
+							    torsion, esd, period);
+			torsion_restraints.push_back(rest);
+		     }
+		  }
+	       }
+	    } 
+	 }
+
+	 if (key_string == "_chem_comp_chir") {
+	    PyObject *chiral_restraint_list = value;
+	    if (PyList_Check(chiral_restraint_list)) {
+	       int n_chirals = PyObject_Length(chiral_restraint_list);
+	       for (int i_chiral=0; i_chiral<n_chirals; i_chiral++) {
+		  PyObject *chiral_restraint = PyList_GetItem(chiral_restraint_list, i_chiral);
+		  if (PyObject_Length(chiral_restraint) == 7) { 
+		     PyObject *chiral_id_py= PyList_GetItem(chiral_restraint, 0);
+		     PyObject *atom_c_py   = PyList_GetItem(chiral_restraint, 1);
+		     PyObject *atom_1_py   = PyList_GetItem(chiral_restraint, 2);
+		     PyObject *atom_2_py   = PyList_GetItem(chiral_restraint, 3);
+		     PyObject *atom_3_py   = PyList_GetItem(chiral_restraint, 4);
+		     PyObject *vol_sign_py = PyList_GetItem(chiral_restraint, 5);
+		     PyObject *esd_py      = PyList_GetItem(chiral_restraint, 6);
+
+		     if (PyString_Check(atom_1_py) &&
+			 PyString_Check(atom_2_py) &&
+			 PyString_Check(atom_3_py) &&
+			 PyString_Check(atom_c_py) &&
+			 PyString_Check(chiral_id_py) && 
+			 PyFloat_Check(esd_py)    && 
+			 PyInt_Check(vol_sign_py)) {
+			std::string chiral_id = PyString_AsString(chiral_id_py);
+			std::string atom_c    = PyString_AsString(atom_c_py);
+			std::string atom_1    = PyString_AsString(atom_1_py);
+			std::string atom_2    = PyString_AsString(atom_2_py);
+			std::string atom_3    = PyString_AsString(atom_3_py);
+			float  esd            = PyFloat_AsDouble(esd_py);
+			int  vol_sign         = PyInt_AsLong(vol_sign_py);
+			coot::dict_chiral_restraint_t rest(chiral_id,
+							   atom_c, atom_1, atom_2, atom_3, 
+							   vol_sign);
+			chiral_restraints.push_back(rest);
+		     }
+		  }
+	       }
+	    } 
+	 }
+		 
+
+
       } 
    }
    return retval;
