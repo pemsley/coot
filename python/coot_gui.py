@@ -139,7 +139,7 @@ def coot_gui():
              his = True
        except SyntaxError:
          try:
-             exec entry_text in locals()
+             exec entry_text in globals()
              res = None
              his = True
          except:
