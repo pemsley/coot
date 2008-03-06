@@ -4731,3 +4731,10 @@ Wed Mar  5 17:52:08 GMT 2008
 
   why not use graphics_info_t::molecules[imol].atom_to_atom_index()? 
 
+
+----
+Thu Mar  6 13:31:13 GMT 2008
+
+    Get rid of (MyCMMDBManager *) 
+
+
