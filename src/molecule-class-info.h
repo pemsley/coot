@@ -361,21 +361,32 @@ namespace coot {
 
    class additional_representations_t { 
    public:
+     bool show_it;
      int bonds_box_type;
      float bond_width;
      bool draw_hydrogens_flag;
      graphical_bonds_container bonds_box;
      atom_selection_info_t atom_sel_info;
+     CMMDBManager *mol;
      void fill_bonds_box();
-     additional_representations_t(int bonds_box_type_in,
+     additional_representations_t(CMMDBManager *mol_in,
+				  int bonds_box_type_in,
 				  float bond_width_in,
 				  bool draw_hydrogens_flag_in,
 				  const atom_selection_info_t &atom_sel_info_in) { 
+       show_it = 1;
+       mol = mol_in;
+       bond_width = bond_width_in;
        bonds_box_type = bonds_box_type_in;
        draw_hydrogens_flag = draw_hydrogens_flag_in;
        atom_sel_info = atom_sel_info_in;
        fill_bonds_box();
      } 
+     void clear() { 
+       show_it = 0;
+     } 
+
+     std::string info_string() const;
    };
 
 }
@@ -960,6 +971,7 @@ class molecule_class_info_t {
    // Tripping up here?  Need Bond_lines.h
    graphical_bonds_container bonds_box;
    std::vector<coot::additional_representations_t> add_reps;
+
    std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
    std::vector<std::pair<graphical_bonds_container, symm_trans_t> > strict_ncs_bonds_box;
    void clear_up_all_symmetry() {
@@ -1048,7 +1060,7 @@ class molecule_class_info_t {
    // maybe needs fixing.  Similarly  set_symm_bond_colour_mol_and_symop().
    void display_bonds();
    void display_symmetry_bonds();
-   void display_bonds(const graphical_bonds_container &bonds_box);
+   void display_bonds(const graphical_bonds_container &bonds_box, float bond_width_in);
    void display_ghost_bonds(int ighost);
 
 
@@ -2147,11 +2159,19 @@ class molecule_class_info_t {
    void sharpen(float b_factor);
 
 
-   void add_additional_representation(const int &bonds_box_type_in, 
-				      float bonds_width,
-				      bool draw_hydrogens_flag,
-				      const coot::atom_selection_info_t info); 
+   int add_additional_representation(const int &bonds_box_type_in, 
+				     float bonds_width,
+				     bool draw_hydrogens_flag,
+				     const coot::atom_selection_info_t &info); 
 
+   int adjust_additional_representation(int represenation_number, 
+					const int &bonds_box_type_in, 
+					float bonds_width,
+					bool draw_hydrogens_flag,
+					const coot::atom_selection_info_t &info, 
+					bool show_it_flag_in); 
+
+   void clear_additional_representation(int representation_number);
    // 
 
    coot::validation_graphs_t validation_graphs;

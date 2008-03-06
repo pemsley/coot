@@ -188,9 +188,10 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			 contact, ncontacts,
 			 0, &my_matt, i_contact_group);
 
-   //    if (verbose_reporting)j//    std::cout << "found " << ncontacts << " contacts from "
-// 	     << n_selected_atoms_1 << " vs " << n_selected_atoms_2
-// 	     << " selected atoms. " <<  std::endl;
+   //     if (verbose_reporting)
+//    std::cout << "in construct_from_atom_selection found " << ncontacts << " contacts from "
+//  	     << n_selected_atoms_1 << " vs " << n_selected_atoms_2
+//  	     << " selected atoms. " <<  std::endl;
 
    std::string element_1, element_2;
    int col; // atom colour

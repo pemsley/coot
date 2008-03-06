@@ -1624,9 +1624,11 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
 void
 molecule_class_info_t::display_bonds() {
 
-   display_bonds(bonds_box);
+   display_bonds(bonds_box, bond_width);
    for (unsigned int i=0; i<add_reps.size(); i++) {
-      display_bonds(add_reps[i].bonds_box);
+      if (add_reps[i].show_it) {
+	 display_bonds(add_reps[i].bonds_box, add_reps[i].bond_width);
+      }
    }
    display_symmetry_bonds();
 }
@@ -1634,14 +1636,15 @@ molecule_class_info_t::display_bonds() {
 
 
 void
-molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box) {
+molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
+				     float p_bond_width) {
 
    //
 
    coot::CartesianPair pair;
    Lines_list ll;
    
-   glLineWidth(bond_width);
+   glLineWidth(p_bond_width);
    //
 
    for (int i=0; i<bonds_box.num_colours; i++) {
@@ -1778,27 +1781,97 @@ molecule_class_info_t::display_symmetry_bonds() {
    }
 }
 
+
 void
 coot::additional_representations_t::fill_bonds_box() {
 
-   if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
+   atom_selection_container_t atom_sel;
 
-   } 
+   atom_sel.mol =  (MyCMMDBManager *) mol;
+   atom_sel.SelectionHandle = mol->NewSelection();
    
+   if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
+      
+      mol->SelectAtoms(atom_sel.SelectionHandle,
+		       0, (char *) atom_sel_info.chain_id.c_str(),
+		       atom_sel_info.resno_start, (char *) atom_sel_info.ins_code.c_str(),
+		       atom_sel_info.resno_end,   (char *) atom_sel_info.ins_code.c_str(),
+		       "*", "*", "*", "*");
+   }
+   if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
+      mol->Select(atom_sel.SelectionHandle, STYPE_ATOM, 
+		  (char *) atom_sel_info.atom_selection_str.c_str(),
+		  SKEY_NEW);
+      
+   }
+   mol->GetSelIndex(atom_sel.SelectionHandle,
+		    atom_sel.atom_selection,
+		    atom_sel.n_selected_atoms);
 
+   if (bonds_box_type = coot::NORMAL_BONDS) { 
+      Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
+      bonds_box.clear_up();
+      bonds_box = bonds.make_graphical_bonds();
+   }
+   mol->DeleteSelection(atom_sel.SelectionHandle);
 }
 
-void
+std::string
+coot::additional_representations_t::info_string() const {
+
+   std::string s;
+
+   if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING)
+      s = atom_sel_info.atom_selection_str;
+   if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) { 
+      s = atom_sel_info.chain_id;
+      s += " ";
+      s += coot::util::int_to_string(atom_sel_info.resno_start);
+      if (atom_sel_info.resno_end != atom_sel_info.resno_start) {
+	 s += "-";
+	 s += coot::util::int_to_string(atom_sel_info.resno_end);
+      }
+      s += atom_sel_info.ins_code;
+   }
+   return s;
+} 
+
+
+int
 molecule_class_info_t::add_additional_representation(const int &bonds_box_type_in, 
 						     float bonds_width,
 						     bool draw_hydrogens_flag,
-						     const coot::atom_selection_info_t info) {
+						     const coot::atom_selection_info_t &info) {
 
-   coot::additional_representations_t rep(bonds_box_type_in,
+   coot::additional_representations_t rep(atom_sel.mol, bonds_box_type_in,
 					  bonds_width, draw_hydrogens_flag, info);
    add_reps.push_back(rep);
+   std::cout << "add_reps.size() " << add_reps.size() << std::endl;
 
+   return (add_reps.size() - 1);
+}
+
+int
+molecule_class_info_t::adjust_additional_representation(int represenation_number, 
+							const int &bonds_box_type_in, 
+							float bonds_width,
+							bool draw_hydrogens_flag,
+							const coot::atom_selection_info_t &info, 
+							bool show_it_flag_in) {
+   return -1;
+}
+
+
+void
+molecule_class_info_t::clear_additional_representation(int representation_number) {
+
+   if (add_reps.size() > representation_number) {
+      if (representation_number >= 0) {
+	 add_reps[representation_number].clear(); 
+      } 
+   } 
 } 
+
 
 // Return a pair.first string of length 0 on error to construct dataname(s).
 std::pair<std::string, std::string>
@@ -2068,6 +2141,7 @@ void
 molecule_class_info_t::makebonds(float min_dist, float max_dist) {
 
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
+   bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
 }
@@ -2079,6 +2153,7 @@ molecule_class_info_t::makebonds(float max_dist) {
 
    // bonds.check(); 
 
+   bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
 
    // cout << "makebonds bonds_box.num_colours "

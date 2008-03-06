@@ -3357,6 +3357,23 @@ int make_ball_and_stick(int imol,
 			int do_spheres_flag);
 /*! \brief clear ball and stick representation of molecule number imol */
 int clear_ball_and_stick(int imol);
+
+/* clear the given additional representation  */
+void clear_additional_representation(int imol, int representation_number);
+
+/* return the index of the additional representation.  Return -1 on error */
+int additional_representation_by_string(int imol,  const char *atom_selection, 
+					int representation_type, 
+					int draw_hydrogens_flag);
+
+/* return the index of the additional representation.  Return -1 on error */
+int additional_representation_by_attributes(int imol,  const char *chain_id, 
+					    int resno_start, int resno_end, 
+					    const char *ins_code,
+					    int representation_type, 
+					    int draw_hydrogens_flag);
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
