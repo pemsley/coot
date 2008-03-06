@@ -1308,7 +1308,8 @@ void python_window_enter_callback( GtkWidget *widget,
 
   // Sigh. PyRun_SimpleString needs a (char *), not a (const gchar *):
   size_t new_length = strlen(entry_text)+1;
-  char new_text[new_length];
+  char *new_text;
+  new_text = new char[new_length];
   strncpy(new_text, entry_text, new_length);
   printf("Running string: %s\n", new_text);
   
@@ -1316,6 +1317,8 @@ void python_window_enter_callback( GtkWidget *widget,
   
   // clear the entry
   gtk_entry_set_text(GTK_ENTRY(entry),"");
+
+  delete [] new_text;
 
 }
 #endif

@@ -1781,6 +1781,11 @@ molecule_class_info_t::display_symmetry_bonds() {
 void
 coot::additional_representations_t::fill_bonds_box() {
 
+   if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
+
+   } 
+   
+
 }
 
 void

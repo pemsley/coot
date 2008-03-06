@@ -2556,7 +2556,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 
    SCM retval = SCM_BOOL_F;
 
-   if (not (scm_list_p(restraints))) {
+   if (!scm_list_p(restraints)) {
       std::cout << " Failed to read restraints - not a list" << std::endl;
    } else {
 
@@ -2767,7 +2767,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      for (int iat=0; iat<atom_list_length; iat++) { 
 				 SCM atom_scm   = scm_list_ref(plane_restraint, SCM_MAKINUM(0));
 				 atoms.push_back(atom_scm);
-				 if (not (scm_string_p(atom_scm)))
+				 if (!scm_string_p(atom_scm))
 				    atoms_pass = 0;
 			      }
 			   
@@ -2863,7 +2863,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 
    PyObject *retval = Py_False;
 
-   if (not (PyDict_Check(restraints))) {
+   if (!PyDict_Check(restraints)) {
       std::cout << " Failed to read restraints - not a list" << std::endl;
    } else {
 

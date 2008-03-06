@@ -7233,7 +7233,7 @@ void save_views(const char *view_file_name) {
 int add_action_view(const char *view_name, const char *action_function) {
    std::string name(view_name);
    std::string func(action_function);
-   coot::view_info_t::view_info_t view(name, func);  // an action view
+   coot::view_info_t view(name, func);  // an action view
    graphics_info_t::views->push_back(view);
    return (graphics_info_t::views->size() -1);
 }
@@ -7243,7 +7243,7 @@ int insert_action_view_after_view(int view_number, const char *view_name, const 
    int r = -1; 
    std::string name(view_name);
    std::string func(action_function);
-   coot::view_info_t::view_info_t view(name, func);  // an action view
+   coot::view_info_t view(name, func);  // an action view
    int n_views = graphics_info_t::views->size(); 
    if (view_number >= n_views) {
       graphics_info_t::views->push_back(view);
