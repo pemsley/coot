@@ -2293,13 +2293,14 @@ with a probability (as derived from the structural database) greater
 than 1% are considered. The initial position is the most likely for
 that residue type (based on prior structure statistics only).
 
-To change the probability lower limit for the rotamer selection use
-@emph{e.g.}: 
+@c ------------------ Olden coot -----------------
+@c To change the probability lower limit for the rotamer selection use
+@c @emph{e.g.}: 
 
-@code{(set-rotamer-lowest-probability 0.5)}
+@c @code{(set-rotamer-lowest-probability 0.5)}
 
-(note that this is a percentage, therefore 0.5% is quite low and will
-allow the choice of more rotamers than the default).
+@c (note that this is a percentage, therefore 0.5% is quite low and will
+@c allow the choice of more rotamers than the default).
 
 Use keyboard @key{.} and @key{,} to cycle round the rotamers.
 

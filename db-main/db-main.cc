@@ -23,6 +23,8 @@
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 
+#include <algorithm>
+
 #if !defined _MSC_VER
 #include <unistd.h>
 #else

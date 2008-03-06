@@ -17,6 +17,8 @@
 
    o PDB v3.0 compatibility
 
+   o Use Eugene's new LINK-reading code.
+
    o Fix this:  
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
       (it comes from building from the tar file)
@@ -28,11 +30,7 @@
 
 * It is, but the residue number is "1" and the SFAC index is -1.  Bad.
 
-   o Use Eugene's new LINK-reading code.
-
    o Valgrind long/multiple fit-proteins
-
-   o Insertion codes for intelligent next atom.  Antibody, Kabat
 
    o Revisit CCP4mg button
 
@@ -73,6 +71,10 @@
 
 
 
+
+   o Insertion codes for intelligent next atom.  Antibody, Kabat
+
+* Done.
 
    o Test for JED's delete residue with alt conf and recentre [test
      should crash]

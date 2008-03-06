@@ -5905,11 +5905,11 @@ on_preferences_bg_colour_own_radiobutton_toggled
 {
 #if (GTK_MAJOR_VERSION > 1)
   GtkWidget *w;
-  w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_bg_colour_colorbutton");
   GdkColor bg_colour;
   float fval1;
   float fval2;
   float fval3;
+  w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_bg_colour_colorbutton");
   gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &bg_colour);
   fval1 = (float)bg_colour.red / 65535;
   fval2 = (float)bg_colour.green / 65535;
@@ -6016,8 +6016,8 @@ on_preferences_map_increment_size_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry;
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_increment_size_entry"));
+  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), 
+					    "preferences_map_increment_size_entry"));
   const gchar *text = gtk_entry_get_text(entry);
   float fval = 0;
   fval = atof(text);
@@ -6084,8 +6084,7 @@ on_preferences_map_sampling_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry;
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_sampling_entry"));
+  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_sampling_entry"));
   const gchar *text = gtk_entry_get_text(entry);
   float fval = 0;
   fval = atof(text);
@@ -6202,8 +6201,8 @@ on_preferences_smooth_scroll_steps_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry;
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_smooth_scroll_steps_entry"));
+  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), 
+					    "preferences_smooth_scroll_steps_entry"));
   const gchar *text = gtk_entry_get_text(entry);
   int ival = 0;
   ival = atoi(text);
@@ -6236,8 +6235,8 @@ on_preferences_smooth_scroll_limit_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkEntry *entry;
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_smooth_scroll_limit_entry"));
+  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), 
+					    "preferences_smooth_scroll_limit_entry"));
   const gchar *text = gtk_entry_get_text(entry);
   float fval = 0;
   fval = atof(text);
@@ -6634,10 +6633,11 @@ on_preferences_refinement_speed_entry_activate
                                         gpointer         user_data)
 {
   GtkWidget *w;
+  const gchar* entry_text;
+  int val;
   w = lookup_widget(GTK_WIDGET(entry), "preferences_refinement_speed_own_radiobutton");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-  const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
-  int val;
+  entry_text = gtk_entry_get_text(GTK_ENTRY(w));
   val = atoi(entry_text);
   if ((val > 10000) || (val < 1)) {
     printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
@@ -6656,11 +6656,13 @@ on_preferences_refinement_speed_entry_changed
 {
   GtkWidget *w;
   GtkWidget *togglebutton;
+  const gchar* entry_text;
+
   w = lookup_widget(GTK_WIDGET(editable), "preferences_refinement_speed_entry");
   togglebutton = lookup_widget(GTK_WIDGET(editable), "preferences_refinement_speed_own_radiobutton");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
  
-  const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
+  entry_text = gtk_entry_get_text(GTK_ENTRY(w));
   int val;
   val = atoi(entry_text);
   if ((val > 10000) || (val < 1)) {
@@ -6697,8 +6699,7 @@ on_preferences_spin_speed_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkWidget *w;
-  w = lookup_widget(GTK_WIDGET(editable), "preferences_spin_speed_entry");
+  GtkWidget *w = lookup_widget(GTK_WIDGET(editable), "preferences_spin_speed_entry");
   const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
   float fval;
   fval = atof(entry_text);
@@ -6774,8 +6775,8 @@ on_preferences_font_size_combobox_changed
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data)
 {
-  GtkWidget *w;
-  w = lookup_widget(GTK_WIDGET(combobox), "preferences_font_size_others_radiobutton");
+  GtkWidget *w = lookup_widget(GTK_WIDGET(combobox), 
+			       "preferences_font_size_others_radiobutton");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
   gint ival = gtk_combo_box_get_active(combobox);
   ival += 4;
@@ -6835,8 +6836,7 @@ on_preferences_pink_pointer_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
-  GtkWidget *w;
-  w = lookup_widget(GTK_WIDGET(editable), "preferences_pink_pointer_entry");
+  GtkWidget *w = lookup_widget(GTK_WIDGET(editable), "preferences_pink_pointer_entry");
   const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
   float fval;
   fval = atof(entry_text);

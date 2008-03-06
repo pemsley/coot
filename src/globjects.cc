@@ -1439,7 +1439,7 @@ init(GtkWidget *widget)
    init_gl_widget(widget);
 
 #endif
-   
+   return GL_TRUE;
 }
 
 
