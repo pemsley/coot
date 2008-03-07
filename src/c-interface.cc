@@ -2626,13 +2626,15 @@ void clear_additional_representation(int imol, int representation_number) {
 
 /* return the index of the additional representation.  Return -1 on error */
 int additional_representation_by_string(int imol,  const char *atom_selection_str, 
-					int representation_type, 
+					int representation_type,
+					float bond_width,
 					int draw_hydrogens_flag) {
    int r = -1;
    if (is_valid_model_molecule(imol)) {
       coot::atom_selection_info_t info(atom_selection_str);
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
-									 16.0, draw_hydrogens_flag,
+									 bond_width,
+									 draw_hydrogens_flag,
 									 info);
 
    }
@@ -2644,14 +2646,16 @@ int additional_representation_by_string(int imol,  const char *atom_selection_st
 int additional_representation_by_attributes(int imol,  const char *chain_id, 
 					    int resno_start, int resno_end, 
 					    const char *ins_code,
-					    int representation_type, 
+					    int representation_type,
+					    float bond_width,
 					    int draw_hydrogens_flag) {
 
    int r = -1;
    if (is_valid_model_molecule(imol)) {
       coot::atom_selection_info_t info(chain_id, resno_start, resno_end, ins_code);
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
-									 16.0, draw_hydrogens_flag,
+									 bond_width,
+									 draw_hydrogens_flag,
 									 info);
    }
    graphics_draw();

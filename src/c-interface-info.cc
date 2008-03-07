@@ -2502,7 +2502,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyList_SetItem(torsion_restraint_list, itorsion, torsion_restraint);
       }
 
-      PyDict_SetItem(r, PyString_FromString("_chem_comp_torsion"), torsion_restraint_list);
+      PyDict_SetItem(r, PyString_FromString("_chem_comp_tor"), torsion_restraint_list);
 
       // ------------------ Planes -------------------------
       PyObject *plane_restraints_list = PyList_New(restraints.plane_restraint.size());
@@ -2517,9 +2517,10 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyList_SetItem(plane_restraint, 0, PyString_FromString(restraints.plane_restraint[iplane].plane_id.c_str()));
 	 PyList_SetItem(plane_restraint, 1, atom_list);
 	 PyList_SetItem(plane_restraint, 2, PyFloat_FromDouble(restraints.plane_restraint[iplane].dist_esd()));
+	 PyList_SetItem(plane_restraints_list, iplane, plane_restraint);
       }
 
-      PyDict_SetItem(r, PyString_FromString("_chem_comp_plane"), plane_restraints_list);
+      PyDict_SetItem(r, PyString_FromString("_chem_comp_plane_atom"), plane_restraints_list);
 
       // ------------------ Chirals -------------------------
       PyObject *chiral_restraint_list = PyList_New(restraints.chiral_restraint.size());
@@ -2878,10 +2879,11 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 
       PyObject *key;
       PyObject *value;
-      Py_ssize_t pos;
-      
+      Py_ssize_t pos = 0;
+
+      std::cout << "looping over restraint" << std::endl;
       while (PyDict_Next(restraints, &pos, &key, &value)) {
-	 std::cout << "key: " << key << " value: " << value << std::endl;
+	 std::cout << ":::::::key: " << PyString_AsString(key) << std::endl;
 
 	 std::string key_string = PyString_AsString(key);
 	 if (key_string == "_chem_comp") {

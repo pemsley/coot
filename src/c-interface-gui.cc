@@ -3265,41 +3265,6 @@ GtkWidget *wrapped_create_goto_atom_window() {
    return widget;
 } 
 
-gchar *get_text_for_go_to_atom_chain_entry() { 
-
-   //
-   graphics_info_t g; 
-
-   gchar *txt = (gchar *)malloc(100);
-   strcpy(txt, g.go_to_atom_chain()); 
-
-   return txt; 
-   
-}
-
-gchar *get_text_for_go_to_atom_residue_entry() { 
-
-   // 
-   graphics_info_t g;
-
-   gchar *txt = (gchar *)malloc(10);
-   snprintf(txt, 9, "%d", g.go_to_atom_residue()); 
-   
-   return txt; 
-
-}
- 
-gchar *get_text_for_go_to_atom_atom_name_entry() { 
-
-   // 
-   graphics_info_t g;
-
-   gchar *txt = (gchar *)malloc(10);
-   snprintf(txt, 9, "%s", g.go_to_atom_atom_name()); 
-   
-   return txt; 
-
-}
 
 void post_go_to_atom_window() {
    if (graphics_info_t::use_graphics_interface_flag) {
@@ -3342,11 +3307,14 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 				   "go_to_atom_residue_entry"); 
 
 
-     text = get_text_for_go_to_atom_residue_entry(); // on startup, tinkers with
-                                                     // go to atom params, yuck,
-                                                     // I think.
+     // text = get_text_for_go_to_atom_residue_entry();  // old
 
-     gtk_entry_set_text(GTK_ENTRY(residue_entry), text); 
+     // on startup, tinkers with
+     // go to atom params, yuck,
+     // I think.
+     std::string rt = coot::util::int_to_string(g.go_to_atom_residue());
+
+     gtk_entry_set_text(GTK_ENTRY(residue_entry), rt.c_str()); 
 
      /* Now that the go to atom molecule has been set, we can use it
 	to fill the molecule option menu */
@@ -3359,17 +3327,17 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 
      chain_entry = lookup_widget(GTK_WIDGET(widget),
 				 "go_to_atom_chain_entry");
-
-     text = get_text_for_go_to_atom_chain_entry(); 
-     gtk_entry_set_text(GTK_ENTRY(chain_entry), text); 
+     
+     // text = get_text_for_go_to_atom_chain_entry(); 
+     gtk_entry_set_text(GTK_ENTRY(chain_entry), g.go_to_atom_chain()); 
 
      
      /* The Atom Name entry */
 
      atom_name_entry = lookup_widget(GTK_WIDGET(widget),
 				     "go_to_atom_atom_name_entry"); 
-     text = get_text_for_go_to_atom_atom_name_entry(); 
-     gtk_entry_set_text(GTK_ENTRY(atom_name_entry), text); 
+     // text = get_text_for_go_to_atom_atom_name_entry(); 
+     gtk_entry_set_text(GTK_ENTRY(atom_name_entry), g.go_to_atom_atom_name()); 
 
      /* The Residue List */
 
