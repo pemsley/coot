@@ -3372,6 +3372,15 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
 					    const char *ins_code,
 					    int representation_type, 
 					    int draw_hydrogens_flag);
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM additional_representation_info_scm(int imol); 
+
+#endif	/* USE_GUILE */
+#endif	/* __cplusplus */
+
+
+
 
 
 /* \} */

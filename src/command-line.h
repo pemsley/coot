@@ -10,6 +10,8 @@ public:
    std::vector<std::string> auto_datasets;
    std::vector<std::string> script;
    std::vector<std::string> dictionaries;
+   std::vector<std::string> command; // strings to to be evaluated
+				     // from the command line
    short int hardware_stereo_flag;
    int port;
    std::string hostname;

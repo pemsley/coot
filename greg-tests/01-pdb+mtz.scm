@@ -50,6 +50,14 @@
   (if (string? ccp4-master)
       (set! have-ccp4? #t)))
 
+
+(greg-testcase "Post Go To Atom no molecules"  #t
+   (lambda () 
+     (post-go-to-atom-window) ; crashes pre r820
+     #t)) 
+     
+	       
+
 (greg-testcase "Close bad molecule" #t
    (lambda ()
      (close-molecule -2)
