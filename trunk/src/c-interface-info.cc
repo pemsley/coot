@@ -2452,7 +2452,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 double esd = restraints.bond_restraint[ibond].esd();
 	 PyObject *bond_restraint = PyList_New(4);
 	 PyList_SetItem(bond_restraint, 0, PyString_FromString(a1.c_str()));
-	 PyList_SetItem(bond_restraint, 1, PyString_FromString(a1.c_str()));
+	 PyList_SetItem(bond_restraint, 1, PyString_FromString(a2.c_str()));
 	 PyList_SetItem(bond_restraint, 2, PyFloat_FromDouble(d));
 	 PyList_SetItem(bond_restraint, 3, PyFloat_FromDouble(esd));
 	 PyList_SetItem(bond_restraint_list, ibond, bond_restraint);
