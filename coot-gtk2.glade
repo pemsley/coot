@@ -46232,28 +46232,154 @@ have a Spanish Coot because of Miguel's work.
 	  <property name="layout_style">GTK_BUTTONBOX_END</property>
 
 	  <child>
-	    <widget class="GtkButton" id="button27">
+	    <widget class="GtkButton" id="add_rep_add_rep_button">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="label" translatable="yes">  Add Representation  </property>
-	      <property name="use_underline">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="response_id">0</property>
+	      <signal name="clicked" handler="on_add_rep_add_rep_button_clicked" last_modification_time="Fri, 07 Mar 2008 13:33:03 GMT"/>
+
+	      <child>
+		<widget class="GtkAlignment" id="alignment118">
+		  <property name="visible">True</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xscale">0</property>
+		  <property name="yscale">0</property>
+		  <property name="top_padding">0</property>
+		  <property name="bottom_padding">0</property>
+		  <property name="left_padding">0</property>
+		  <property name="right_padding">0</property>
+
+		  <child>
+		    <widget class="GtkHBox" id="hbox335">
+		      <property name="visible">True</property>
+		      <property name="homogeneous">False</property>
+		      <property name="spacing">2</property>
+
+		      <child>
+			<widget class="GtkImage" id="image6182">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-apply</property>
+			  <property name="icon_size">4</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkLabel" id="label624">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">  Add Representation  </property>
+			  <property name="use_underline">True</property>
+			  <property name="use_markup">False</property>
+			  <property name="justify">GTK_JUSTIFY_LEFT</property>
+			  <property name="wrap">False</property>
+			  <property name="selectable">False</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
 	    </widget>
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="button28">
+	    <widget class="GtkButton" id="add_rep_cancel_button">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="label" translatable="yes">  Cancel  </property>
-	      <property name="use_underline">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="response_id">0</property>
+	      <signal name="clicked" handler="on_add_rep_cancel_button_clicked" last_modification_time="Fri, 07 Mar 2008 13:33:07 GMT"/>
+
+	      <child>
+		<widget class="GtkAlignment" id="alignment119">
+		  <property name="visible">True</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xscale">0</property>
+		  <property name="yscale">0</property>
+		  <property name="top_padding">0</property>
+		  <property name="bottom_padding">0</property>
+		  <property name="left_padding">0</property>
+		  <property name="right_padding">0</property>
+
+		  <child>
+		    <widget class="GtkHBox" id="hbox336">
+		      <property name="visible">True</property>
+		      <property name="homogeneous">False</property>
+		      <property name="spacing">2</property>
+
+		      <child>
+			<widget class="GtkImage" id="image6183">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-cancel</property>
+			  <property name="icon_size">4</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkLabel" id="label625">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">  Cancel  </property>
+			  <property name="use_underline">True</property>
+			  <property name="use_markup">False</property>
+			  <property name="justify">GTK_JUSTIFY_LEFT</property>
+			  <property name="wrap">False</property>
+			  <property name="selectable">False</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
 	    </widget>
 	  </child>
 	</widget>
@@ -46297,23 +46423,21 @@ have a Spanish Coot because of Miguel's work.
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBox" id="combobox6">
+	    <widget class="GtkOptionMenu" id="add_rep_molecule_optionmenu">
 	      <property name="visible">True</property>
-	      <property name="items" translatable="yes">0 A.pdb
-1 B.pdb</property>
-	      <property name="add_tearoffs">False</property>
-	      <property name="focus_on_click">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="history">-1</property>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
-	      <property name="expand">True</property>
-	      <property name="fill">True</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
 	    </packing>
 	  </child>
 
 	  <child>
 	    <widget class="GtkFrame" id="frame271">
-	      <property name="border_width">4</property>
+	      <property name="border_width">6</property>
 	      <property name="visible">True</property>
 	      <property name="label_xalign">0</property>
 	      <property name="label_yalign">0.5</property>
@@ -46339,7 +46463,7 @@ have a Spanish Coot because of Miguel's work.
 
 		      <child>
 			<widget class="GtkFrame" id="frame265">
-			  <property name="border_width">4</property>
+			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="label_xalign">0</property>
 			  <property name="label_yalign">0.5</property>
@@ -46358,10 +46482,10 @@ have a Spanish Coot because of Miguel's work.
 			      <property name="right_padding">0</property>
 
 			      <child>
-				<widget class="GtkRadioButton" id="radiobutton9">
+				<widget class="GtkRadioButton" id="add_rep_radiobutton_position">
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
-				  <property name="label" translatable="yes">By Position</property>
+				  <property name="label" translatable="yes">By Position (this residue)</property>
 				  <property name="use_underline">True</property>
 				  <property name="relief">GTK_RELIEF_NORMAL</property>
 				  <property name="focus_on_click">True</property>
@@ -46405,7 +46529,7 @@ have a Spanish Coot because of Miguel's work.
 
 		      <child>
 			<widget class="GtkFrame" id="frame266">
-			  <property name="border_width">4</property>
+			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="label_xalign">0</property>
 			  <property name="label_yalign">0.5</property>
@@ -46430,7 +46554,7 @@ have a Spanish Coot because of Miguel's work.
 				  <property name="spacing">0</property>
 
 				  <child>
-				    <widget class="GtkRadioButton" id="radiobutton10">
+				    <widget class="GtkRadioButton" id="add_rep_radiobutton_res_number">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="label" translatable="yes">By Residue Number Specification</property>
@@ -46440,6 +46564,7 @@ have a Spanish Coot because of Miguel's work.
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <property name="draw_indicator">True</property>
+				      <property name="group">add_rep_radiobutton_position</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -46480,7 +46605,7 @@ have a Spanish Coot because of Miguel's work.
 				      </child>
 
 				      <child>
-					<widget class="GtkEntry" id="entry2">
+					<widget class="GtkEntry" id="add_rep_chain_id_entry">
 					  <property name="width_request">34</property>
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
@@ -46563,7 +46688,7 @@ have a Spanish Coot because of Miguel's work.
 				      </child>
 
 				      <child>
-					<widget class="GtkEntry" id="entry4">
+					<widget class="GtkEntry" id="add_rep_resno_start_entry">
 					  <property name="width_request">56</property>
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
@@ -46608,7 +46733,7 @@ have a Spanish Coot because of Miguel's work.
 				      </child>
 
 				      <child>
-					<widget class="GtkEntry" id="entry3">
+					<widget class="GtkEntry" id="add_rep_resno_end_entry">
 					  <property name="width_request">60</property>
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
@@ -46691,7 +46816,7 @@ have a Spanish Coot because of Miguel's work.
 				      </child>
 
 				      <child>
-					<widget class="GtkEntry" id="entry5">
+					<widget class="GtkEntry" id="add_rep_ins_code_entry">
 					  <property name="width_request">60</property>
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
@@ -46753,7 +46878,7 @@ have a Spanish Coot because of Miguel's work.
 
 		      <child>
 			<widget class="GtkFrame" id="frame267">
-			  <property name="border_width">4</property>
+			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="label_xalign">0</property>
 			  <property name="label_yalign">0.5</property>
@@ -46778,7 +46903,7 @@ have a Spanish Coot because of Miguel's work.
 				  <property name="spacing">0</property>
 
 				  <child>
-				    <widget class="GtkRadioButton" id="radiobutton11">
+				    <widget class="GtkRadioButton" id="add_rep_radiobutton_selection_string">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="label" translatable="yes">By Selection String</property>
@@ -46788,6 +46913,7 @@ have a Spanish Coot because of Miguel's work.
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <property name="draw_indicator">True</property>
+				      <property name="group">add_rep_radiobutton_position</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -46829,7 +46955,7 @@ have a Spanish Coot because of Miguel's work.
 				      </child>
 
 				      <child>
-					<widget class="GtkEntry" id="entry6">
+					<widget class="GtkEntry" id="add_rep_selection_string_entry">
 					  <property name="width_request">146</property>
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
@@ -46925,7 +47051,7 @@ have a Spanish Coot because of Miguel's work.
 
 	  <child>
 	    <widget class="GtkFrame" id="frame268">
-	      <property name="border_width">4</property>
+	      <property name="border_width">6</property>
 	      <property name="visible">True</property>
 	      <property name="label_xalign">0</property>
 	      <property name="label_yalign">0.5</property>
@@ -46951,7 +47077,7 @@ have a Spanish Coot because of Miguel's work.
 
 		      <child>
 			<widget class="GtkFrame" id="frame269">
-			  <property name="border_width">4</property>
+			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="label_xalign">0</property>
 			  <property name="label_yalign">0.5</property>
@@ -46976,7 +47102,7 @@ have a Spanish Coot because of Miguel's work.
 				  <property name="spacing">0</property>
 
 				  <child>
-				    <widget class="GtkRadioButton" id="radiobutton12">
+				    <widget class="GtkRadioButton" id="add_rep_rep_fat_bonds_radiobutton">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="label" translatable="yes"> Fat Bonds</property>
@@ -47026,7 +47152,7 @@ have a Spanish Coot because of Miguel's work.
 				      </child>
 
 				      <child>
-					<widget class="GtkComboBox" id="combobox7">
+					<widget class="GtkComboBox" id="add_rep_bond_width_combobox">
 					  <property name="visible">True</property>
 					  <property name="items" translatable="yes">1
 2
@@ -47038,13 +47164,22 @@ have a Spanish Coot because of Miguel's work.
 8
 9
 10
-</property>
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</property>
 					  <property name="add_tearoffs">False</property>
 					  <property name="focus_on_click">True</property>
 					</widget>
 					<packing>
 					  <property name="padding">0</property>
-					  <property name="expand">True</property>
+					  <property name="expand">False</property>
 					  <property name="fill">True</property>
 					</packing>
 				      </child>
@@ -47092,7 +47227,7 @@ have a Spanish Coot because of Miguel's work.
 
 		      <child>
 			<widget class="GtkFrame" id="frame270">
-			  <property name="border_width">4</property>
+			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="label_xalign">0</property>
 			  <property name="label_yalign">0.5</property>
@@ -47111,7 +47246,7 @@ have a Spanish Coot because of Miguel's work.
 			      <property name="right_padding">0</property>
 
 			      <child>
-				<widget class="GtkRadioButton" id="radiobutton13">
+				<widget class="GtkRadioButton" id="add_rep_rep_ball_and_stick_radiobutton">
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes"> Ball &amp; Stick</property>
@@ -47121,7 +47256,7 @@ have a Spanish Coot because of Miguel's work.
 				  <property name="active">False</property>
 				  <property name="inconsistent">False</property>
 				  <property name="draw_indicator">True</property>
-				  <property name="group">radiobutton12</property>
+				  <property name="group">add_rep_rep_fat_bonds_radiobutton</property>
 				</widget>
 			      </child>
 			    </widget>
