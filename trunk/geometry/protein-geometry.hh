@@ -44,6 +44,8 @@
 #endif
 #endif // USE_SBASE
 
+#include "clipper/core/coords.h"
+
 // #include "db-main.h"
 
 namespace coot {
@@ -312,20 +314,20 @@ namespace coot {
       std::string atom_id_4c;
       std::string type_symbol;
       std::string type_energy;
-      float partial_charge;
+      std::pair<bool, float> partial_charge;
       short int partial_charge_is_valid_flag;
+      clipper::Coord_orth pdbx_model_Cartn_ideal;
+      clipper::Coord_orth model_Cartn;
       dict_atom(const std::string &atom_id_in,
 		const std::string &atom_id_4c_in,
 		const std::string &type_symbol_in,
 		const std::string &type_energy_in,
-		float partial_charge_in,
-		short int have_partial_charge_flag) {
+		std::pair<bool, float> partial_charge_in) {
 	 atom_id = atom_id_in;
 	 atom_id_4c = atom_id_4c_in;
 	 type_symbol = type_symbol_in;
 	 type_energy = type_energy_in;
 	 partial_charge = partial_charge_in;
-	 partial_charge_is_valid_flag = have_partial_charge_flag;
       }
       dict_atom() {}; // for resize(0);
    };
@@ -562,8 +564,7 @@ namespace coot {
 			    const std::string &atom_id_4c,
 			    const std::string &type_symbol,
 			    const std::string &type_energy,
-			    const float &partial_charge, 
-			    short int have_partial_charge_flag);
+			    const std::pair<bool, realtype> &partial_charge);
 
       void mon_lib_add_tree(std::string comp_id,
 			    std::string atom_id,

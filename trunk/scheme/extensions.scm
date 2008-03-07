@@ -523,6 +523,42 @@
 	 (set-refinement-immediate-replacement 0)))
 
 
+      (add-simple-coot-menu-menuitem
+       menu "Save Dialog Positions..."
+       (lambda ()
+	 (post-model-fit-refine-dialog)
+	 (post-go-to-atom-window)
+	 
+	 (let* ((window (gtk-window-new 'toplevel))
+		(label-text (string-append
+			     "   When happy, press \"Save\" to save   \n"
+			     "   dialog positions"))
+		(label (gtk-label-new label-text))
+		(h-sep (gtk-hseparator-new))
+		(cancel-button (gtk-button-new-with-label "  Cancel  "))
+		(go-button (gtk-button-new-with-label "  Save  "))
+		(vbox (gtk-vbox-new #f 4))
+		(hbox (gtk-hbox-new #f 4)))
+	   
+	   (gtk-box-pack-start hbox     go-button #f #f 6)
+	   (gtk-box-pack-start hbox cancel-button #f #f 6)
+	   (gtk-box-pack-start vbox label     #f #f 6)
+	   (gtk-box-pack-start vbox h-sep     #f #f 6)
+	   (gtk-box-pack-start vbox hbox      #f #f 6)
+	   (gtk-container-add window vbox)
+	   
+	   (gtk-signal-connect go-button "clicked" 
+			       (lambda () 
+				 (save-dialog-positions-to-init-file)
+				 (gtk-widget-destroy window)))
+	   (gtk-signal-connect cancel-button "clicked" 
+			       (lambda ()
+				 (gtk-widget-destroy window)))
+
+	   (gtk-widget-show-all window))))
+
+
+
       ;; ---------------------------------------------------------------------
       ;;     Views/Representations
       ;; ---------------------------------------------------------------------
@@ -627,6 +663,6 @@
 				 (lambda (txt)
 				   (save-views txt))))))
 
-
+       
       
       )); finish let and if

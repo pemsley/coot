@@ -243,6 +243,10 @@ parse_command_line(int argc, char ** argv ) {
 	 cld.maps.push_back(optarg);
 	 break; 
 	 
+      case 'c':
+	 cld.command.push_back(optarg);
+	 break; 
+	 
       case '?':
 	 std::cout << "Unrecognised option: " << optopt << std::endl;
 	 break;

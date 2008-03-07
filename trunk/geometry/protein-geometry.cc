@@ -374,15 +374,14 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::string &atom_id_4c,
 					 const std::string &type_symbol,
 					 const std::string &type_energy,
-					 const float &partial_charge,
-					 short int have_partial_charge_flag) {
+					 const std::pair<bool, realtype> &partial_charge) { 
+
    // debugging
 //     std::cout << "adding atom " << comp_id << " " << atom_id << " "
 // 	      << type_symbol << " " << type_energy << " " << partial_charge
 // 	      << std::endl;
 
-   coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy,
-			   partial_charge, have_partial_charge_flag);
+   coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
 
     short int ifound = 0;
 
@@ -824,7 +823,17 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
       std::string atom_id;
       std::string type_symbol; 
       std::string type_energy;
-      realtype partial_charge;
+      std::pair<bool, realtype> partial_charge(0,0);
+
+      std::pair<bool, int> pdbx_align(0, 0);
+      int xalign;
+      int ierr_optional;
+      
+      std::pair<bool, std::string> pdbx_aromatic_flag(0,"");
+      std::pair<bool, std::string> pdbx_leaving_atom_flag(0,"");
+      std::pair<bool, std::string> pdbx_stereo_config_flag(0,"");
+      std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
+      std::pair<bool, clipper::Coord_orth> model_Cartn;
 
       if (ierr == 0) {
 	 int ierr_tot = 0; 
@@ -848,14 +857,56 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	    type_energy = s; 
 	 }
 
+
+	 int ierr_optional = mmCIFLoop->GetInteger(xalign, "pdbx_align", j);
+	 if (! ierr_optional)
+	    pdbx_align = std::pair<bool, int> (1, xalign);
+
+	 s = mmCIFLoop->GetString("pdbx_aromatic_flag", j, ierr_optional);
+	 if (s) {
+	    if (! ierr_optional) 
+	       pdbx_aromatic_flag = std::pair<bool, std::string> (1, s);
+	 } 
+
+	 s = mmCIFLoop->GetString("pdbx_leaving_atom_flag", j, ierr_optional);
+	 if (s) {
+	    if (! ierr_optional) 
+	       pdbx_leaving_atom_flag = std::pair<bool, std::string> (1, s);
+	 } 
+
+	 s = mmCIFLoop->GetString("pdbx_stereo_config_flag", j, ierr_optional);
+	 if (s) {
+	    if (! ierr_optional) 
+	       pdbx_stereo_config_flag = std::pair<bool, std::string> (1, s);
+	 }
+
+	 realtype x,y,z;
+	 int ierr_optional_x = mmCIFLoop->GetReal(x, "pdbx_model_Cartn_x_ideal", j);
+	 int ierr_optional_y = mmCIFLoop->GetReal(y, "pdbx_model_Cartn_y_ideal", j);
+	 int ierr_optional_z = mmCIFLoop->GetReal(z, "pdbx_model_Cartn_z_ideal", j);
+	 if (ierr_optional_x == 0)
+	    if (ierr_optional_y == 0)
+	       if (ierr_optional_z == 0)
+		  pdbx_model_Cartn_ideal = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
+	 
+	 ierr_optional_x = mmCIFLoop->GetReal(x, "model_Cartn_x", j);
+	 ierr_optional_y = mmCIFLoop->GetReal(y, "model_Cartn_y", j);
+	 ierr_optional_z = mmCIFLoop->GetReal(z, "model_Cartn_z", j);
+	 if (ierr_optional_x == 0)
+	    if (ierr_optional_y == 0)
+	       if (ierr_optional_z == 0)
+		  model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
+
+
+
+
 	 // They can possibly not have this data type, so don't fail if
 	 // we can't read it.
-	 int have_partial_charge_flag = 0;
-	 ierr = mmCIFLoop->GetReal(partial_charge,
-				   "partial_charge",j);
-	 // ierr_tot += ierr;  // not for partial charge
+
+	 realtype tmp_var;
+	 ierr = mmCIFLoop->GetReal(tmp_var, "partial_charge", j);
 	 if (ierr == 0) {
-	    have_partial_charge_flag = 1;
+	    partial_charge = std::pair<bool, float>(1, tmp_var);
 	    n_atoms_with_partial_charge++;
 	 }
 
@@ -875,7 +926,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	       }
 	    }
 	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
-			     partial_charge, have_partial_charge_flag);
+			     partial_charge);
 
 	 }
       }

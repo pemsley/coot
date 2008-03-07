@@ -2241,9 +2241,9 @@ SCM monomer_restraints(const char *monomer_type) {
 	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].atom_id_4c.c_str()), atom_attributes_list);
 	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_symbol.c_str()), atom_attributes_list);
 	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_energy.c_str()), atom_attributes_list);
-	 atom_attributes_list = scm_cons(scm_double2num(atom_info[iat].partial_charge), atom_attributes_list);
+	 atom_attributes_list = scm_cons(scm_double2num(atom_info[iat].partial_charge.second), atom_attributes_list);
 	 SCM partial_flag = SCM_BOOL_F;
-	 if (atom_info[iat].partial_charge_is_valid_flag)
+	 if (atom_info[iat].partial_charge.first)
 	    partial_flag = SCM_BOOL_T;
 	 atom_attributes_list = scm_cons(partial_flag, atom_attributes_list);
 	 atom_attributes_list = scm_reverse(atom_attributes_list);
@@ -2433,9 +2433,9 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyList_SetItem(atom_attributes_list, 0, PyString_FromString(atom_info[iat].atom_id_4c.c_str()));
 	 PyList_SetItem(atom_attributes_list, 1, PyString_FromString(atom_info[iat].type_symbol.c_str()));
 	 PyList_SetItem(atom_attributes_list, 2, PyString_FromString(atom_info[iat].type_energy.c_str()));
-	 PyList_SetItem(atom_attributes_list, 3, PyFloat_FromDouble(atom_info[iat].partial_charge));
+	 PyList_SetItem(atom_attributes_list, 3, PyFloat_FromDouble(atom_info[iat].partial_charge.second));
 	 PyObject *flag = Py_False;
-	 if (atom_info[iat].partial_charge_is_valid_flag)
+	 if (atom_info[iat].partial_charge.first)
 	    flag = Py_True;
 	 PyList_SetItem(atom_attributes_list, 4, flag);
 	 PyList_SetItem(atom_info_list, iat, atom_attributes_list);
@@ -2639,7 +2639,8 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 				 if SCM_FALSEP(valid_pc_scm)
 				    valid_partial_charge = 0;
 				 coot::dict_atom at(atom_id, atom_id, element, energy, 
-						    partial_charge, valid_partial_charge);
+						    std::pair<bool, float>(valid_partial_charge,
+									   partial_charge));
 
 				 atoms.push_back(at);
 			      }

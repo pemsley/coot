@@ -2656,7 +2656,56 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
    }
    graphics_draw();
    return r;
+}
+
+
+#ifdef USE_GUILE
+SCM additional_representation_info_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      r = SCM_EOL;
+      for (int ir=0; ir<graphics_info_t::molecules[imol].add_reps.size(); ir++) {
+	 SCM l = SCM_EOL;
+	 std::string s = graphics_info_t::molecules[imol].add_reps[ir].info_string();
+	 SCM is_show_flag_scm = SCM_BOOL_F;
+	 if (graphics_info_t::molecules[imol].add_reps[ir].show_it)
+	    is_show_flag_scm = SCM_BOOL_T;
+	 float bw = graphics_info_t::molecules[imol].add_reps[ir].bond_width;
+	 SCM bond_width_scm = scm_double2num(bw);
+	 SCM atom_spec_scm = SCM_BOOL_F;
+	 // lines too long, make a rep
+	 coot::additional_representations_t rep =
+	    graphics_info_t::molecules[imol].add_reps[ir];
+	 int type = rep.atom_sel_info.type;
+	 if (type == coot::atom_selection_info_t::BY_STRING)
+	    atom_spec_scm
+	       = scm_makfrom0str(rep.atom_sel_info.atom_selection_str.c_str());
+	 else
+	    if (type == coot::atom_selection_info_t::BY_ATTRIBUTES) { 
+	       atom_spec_scm = SCM_EOL;
+	       SCM ins_code_scm = scm_makfrom0str(rep.atom_sel_info.ins_code.c_str());
+	       SCM resno_end_scm = SCM_MAKINUM(rep.atom_sel_info.resno_end);
+	       SCM resno_start_scm   = SCM_MAKINUM(rep.atom_sel_info.resno_start);
+	       SCM chain_id_scm    = scm_makfrom0str(rep.atom_sel_info.chain_id.c_str());
+	       atom_spec_scm = scm_cons(ins_code_scm, atom_spec_scm);
+	       atom_spec_scm = scm_cons(resno_end_scm, atom_spec_scm);
+	       atom_spec_scm = scm_cons(resno_start_scm, atom_spec_scm);
+	       atom_spec_scm = scm_cons(chain_id_scm, atom_spec_scm);
+	    }
+
+	 l = scm_cons(bond_width_scm, l);
+	 l = scm_cons(is_show_flag_scm, l);
+	 l = scm_cons(scm_makfrom0str(s.c_str()), l);
+	 l = scm_cons(SCM_MAKINUM(ir), l); 
+	 r = scm_cons(l, r);
+      }
+   } 
+   return r;
 } 
+
+#endif	/* USE_GUILE */
+
 
 
 /*  ----------------------------------------------------------------------- */

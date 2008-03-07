@@ -33,6 +33,7 @@
 (define water-chain water-chain-scm)
 (define water-chain-from-shelx-ins water-chain-from-shelx-ins-scm)
 (define generic-object-name generic-object-name-scm)
+(define additional-representation-info additional-representation-info-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
@@ -1581,3 +1582,39 @@
        (molecule-number-list)))
 
   
+(define (save-dialog-positions-to-init-file)
+
+  (define (dump-positions-to-init-file positions)
+    (let ((init-file (string-append (getenv "HOME") "/.coot")))
+      (let ((port (open-file init-file "a")))
+	(format port "; ----------------------------------------------------------~%")
+	(format port "; the following were written by extraction from a state file~%")
+	(format port "; ----------------------------------------------------------~%")
+	(let loop ((positions positions))
+	  (cond
+	   ((null? positions) 'done)
+	   (else 
+            (format port "~a~%" (car positions))
+	    (loop (cdr positions)))))
+	(format port "; -------------------------~%")
+	(close port))))	
+
+  ;; main line
+  (save-state)
+  (call-with-input-file "0-coot.state.scm"
+    (lambda (port)
+      (let loop ((line (read-line port))
+		 (positions '()))
+	(cond
+	 ((eof-object? line) (dump-positions-to-init-file positions))
+	 ((string-match "-dialog-position" line)
+	  (format #t " Adding dialog position: ~a~%" line)
+	  (loop (read-line port)
+		(cons line positions)))
+	 ((string-match "set-go-to-atom-window-position" line)
+	  (format #t " Adding dialog position: ~a~%" line)
+	  (loop (read-line port)
+		(cons line positions)))
+	 (else 
+	  (loop (read-line port) positions)))))))
+
