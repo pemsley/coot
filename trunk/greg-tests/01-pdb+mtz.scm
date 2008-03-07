@@ -56,7 +56,6 @@
      (post-go-to-atom-window) ; crashes pre r820
      #t)) 
      
-	       
 
 (greg-testcase "Close bad molecule" #t
    (lambda ()

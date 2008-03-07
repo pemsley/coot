@@ -2020,9 +2020,9 @@ GtkWidget *wrapped_create_goto_atom_window();
 void post_go_to_atom_window();
 void fill_go_to_atom_window(GtkWidget *widget);
 
-gchar *get_text_for_go_to_atom_chain_entry(); 
-gchar *get_text_for_go_to_atom_residue_entry();
-gchar *get_text_for_go_to_atom_atom_name_entry();
+/* gchar *get_text_for_go_to_atom_chain_entry();  */
+/* gchar *get_text_for_go_to_atom_residue_entry(); */
+/* gchar *get_text_for_go_to_atom_atom_name_entry(); */
 
 int go_to_atom_molecule_number();
 char *go_to_atom_chain_id();
@@ -3364,6 +3364,7 @@ void clear_additional_representation(int imol, int representation_number);
 /* return the index of the additional representation.  Return -1 on error */
 int additional_representation_by_string(int imol,  const char *atom_selection, 
 					int representation_type, 
+					float bond_width,
 					int draw_hydrogens_flag);
 
 /* return the index of the additional representation.  Return -1 on error */
@@ -3371,6 +3372,7 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
 					    int resno_start, int resno_end, 
 					    const char *ins_code,
 					    int representation_type, 
+					    float bond_width,
 					    int draw_hydrogens_flag);
 #ifdef __cplusplus
 #ifdef USE_GUILE
