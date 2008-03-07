@@ -1154,12 +1154,18 @@
   (lambda ()
     'empty))
 
+(define *key-bindings* (list))
+
+(define (add-key-binding key thunk)
+  (set! *key-bindings* (cons (list key thunk) *key-bindings*)))
+
 ;; general key press hook
 ;; 
 (define (graphics-general-key-press-hook key)
-;    (format #t "Key ~s was pressed~%" key)))
-  #f)
-
+  (format #t "Key ~s was pressed~%" key)
+  (let ((field (assv key *key-bindings*)))
+    (if field
+	((car (cdr field))))))
 
 
 ;;; Function requested by Mark White.
