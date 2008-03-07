@@ -3301,9 +3301,11 @@ gchar *get_text_for_go_to_atom_atom_name_entry() {
 
 }
 
-void post_go_to_atom_window() { 
-   GtkWidget *widget = wrapped_create_goto_atom_window();
-   gtk_widget_show(widget);
+void post_go_to_atom_window() {
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *widget = wrapped_create_goto_atom_window();
+      gtk_widget_show(widget);
+   }
    std::vector<std::string> command_strings;
    command_strings.push_back("post-go-to-atom-window");
    add_to_history(command_strings);
