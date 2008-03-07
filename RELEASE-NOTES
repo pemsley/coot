@@ -17,6 +17,8 @@ Release 0.5
    o CHANGE: set-symmetry-colour-merge now takes only a fraction
      argument.
 
+   o CHANGE: Mutate no longer changes the atom order in the pdb file.
+
    o CHANGE: Next Residue/Previous residue reworked so that it now
      jumps over gaps and goes to the right residue when encountering
      insertion codes.

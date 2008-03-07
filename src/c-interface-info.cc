@@ -2919,7 +2919,8 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     if (PyLong_AsLong(PyList_GetItem(chem_comp_atom, 4))) {
 			flag = 1;
 		     }
-		     coot::dict_atom at(atom_id, atom_id, element, energy_t, part_chr, flag);
+		     std::pair<bool, float> part_charge_info(flag, part_chr);
+		     coot::dict_atom at(atom_id, atom_id, element, energy_t, part_charge_info);
 		     atoms.push_back(at);
 		  }
 	       }
