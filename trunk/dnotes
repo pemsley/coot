@@ -2,12 +2,7 @@
 
    Things to fix before 0.5
 
-   22 Items
-
-   o Test for non positive definite anisotropic atoms from a .ins file
-     [test should crash, Mitch Miller, Stanford]
-
-* Can't reproduce   
+   18 Items
 
    o "Thick bonds" for ligands etc
 
@@ -62,14 +57,23 @@
    o Update stand-alone refinement program. 
      (Write a test for it?)
 
-   o Upgrade to guile-1.8.3.  Does that fix the greg child process
-     problem?  If not, mail list.
+* Tried.  Problem in greg child process. Upgrade to guile-1.8.3.  Does
+  that fix the greg child process problem?  If not, mail list.  And
+  give up.
 
    o Try to improve the picking algorithm.
 
+   o Torsion general bonding problem on complex ligand? [JED]
 
 
 
+
+
+
+   o Test for non positive definite anisotropic atoms from a .ins file
+     [test should crash, Mitch Miller, Stanford]
+
+* Done.  Test added.
 
 
    o Insertion codes for intelligent next atom.  Antibody, Kabat
@@ -142,18 +146,6 @@
    o If we have guile scripting in configure, then we should check for
      net-http and goosh have been installed.  If not, fail gracefully,
      not obscurely at run time!
-
-* Done
-
-   o If we have guile scripting in configure, then we should check for
-     net-http and goosh have been installed.  If not, fail gracefully,
-     not obscurely at run time!
-
-* Done
-
-   o fill SCM ncs_chains_scm(int imol) and use it in
-     ncs-other-chain-jump.  It can return #f, so in that case, revert
-     back to using, as currently, (chain-ids imol).
 
 * Done
 
