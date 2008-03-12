@@ -94,8 +94,14 @@ coot::Cartesian
 coot::Cartesian::by_scalar(float scale) { 
 
    return coot::Cartesian(x_*scale, y_*scale, z_*scale); 
-} 
+}
 
+void
+coot::Cartesian::invert_z(void) {
+  x_ = x_;
+  y_ = y_;
+  z_ = -z_;
+}
 
 // Really consider doubles here.
 // 

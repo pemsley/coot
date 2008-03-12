@@ -2715,8 +2715,12 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
       if (graphics_info_t::accept_reject_dialog) {
 	 accept_regularizement();
-	 save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
-	 gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	   save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
+	   gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	 } else {
+	   gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	 }
 	 graphics_info_t::accept_reject_dialog = 0;
       }
       handled = TRUE;
@@ -2726,8 +2730,12 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
       if (graphics_info_t::accept_reject_dialog) {
 	 clear_up_moving_atoms();
-	 save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
-	 gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	   save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
+	   gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	 } else {
+	   gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	 }
 	 graphics_info_t::accept_reject_dialog = 0;
       }
       handled = TRUE;

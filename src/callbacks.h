@@ -737,6 +737,11 @@ on_accept_reject_refinement_docked_reject_button_clicked
                                         gpointer         user_data);
 
 void
+on_accept_reject_dialog_frame_docked_hide
+                                        (GtkWidget       *widget,
+                                        gpointer         user_data);
+
+void
 on_model_refine_dialog_find_waters_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
@@ -3620,3 +3625,12 @@ on_fixed_atom_close_button_clicked     (GtkButton       *button,
 void
 on_fixed_atom_dialog_destroy           (GtkObject       *object,
                                         gpointer         user_data);
+
+void
+on_add_rep_add_rep_button_clicked      (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_add_rep_cancel_button_clicked       (GtkButton       *button,
+                                        gpointer         user_data);
+

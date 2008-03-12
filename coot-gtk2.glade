@@ -2191,6 +2191,7 @@
 	      <property name="label_xalign">0</property>
 	      <property name="label_yalign">0.5</property>
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+	      <signal name="hide" handler="on_accept_reject_dialog_frame_docked_hide" last_modification_time="Tue, 11 Mar 2008 15:16:12 GMT"/>
 
 	      <child>
 		<widget class="GtkHBox" id="hbox274">
@@ -3047,7 +3048,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 
@@ -3066,7 +3067,7 @@
 		    </widget>
 		    <packing>
 		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
+		      <property name="homogeneous">True</property>
 		    </packing>
 		  </child>
 

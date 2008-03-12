@@ -380,3 +380,5 @@ binding "clist-test"
 
 class "GtkCList" binding "clist-test"
 
+# to make the gtk theme buttons at the model_toolbar smaller
+gtk-icon-sizes = "gtk-large-toolbar=18,18"
