@@ -2374,9 +2374,19 @@ on_accept_reject_refinement_docked_reject_button_clicked (GtkButton       *butto
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "accept_reject_dialog_frame_docked");
   /* we only hide the widget, I guess we may have to clean up as well */
+  /* done below in hide callback */
+  gtk_widget_hide(window);
+}
+
+void
+on_accept_reject_dialog_frame_docked_hide
+                                        (GtkWidget       *widget,
+                                        gpointer         user_data)
+{
   set_accept_reject_dialog(0);
   clear_up_moving_atoms();
-  gtk_widget_hide(window);
+  GtkWidget *p = main_window();
+  gtk_widget_grab_focus(p);
 }
 
 
@@ -9849,5 +9859,20 @@ on_fixed_atom_dialog_destroy           (GtkObject       *object,
                                         gpointer         user_data)
 {
   store_fixed_atom_dialog(0);
+}
+
+void
+on_add_rep_add_rep_button_clicked      (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_add_rep_cancel_button_clicked       (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
 }
 

@@ -76,7 +76,8 @@ namespace coot {
       void operator*=(float scale);
       void operator/=(float scale);
 
-      Cartesian by_scalar(float scale); 
+      Cartesian by_scalar(float scale);
+      void invert_z(void);
 
       Cartesian& operator=(const Cartesian &in) {
 	 x_ = in.x_;

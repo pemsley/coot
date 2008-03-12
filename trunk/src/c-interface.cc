@@ -33,6 +33,9 @@
 #endif
 
 #if defined (WINDOWS_MINGW)
+#ifdef DATADIR
+#undef DATADIR
+#endif // DATADIR
 #include <windows.h>
 #define sleep(t) Sleep(1000*t);
 #define usleep(t) Sleep(t/1000);

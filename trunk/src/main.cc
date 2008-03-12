@@ -42,9 +42,12 @@
 // #ifdef DATADIR
 // #endif // DATADIR
 #if defined (WINDOWS_MINGW)
+#ifdef DATADIR
+#undef DATADIR
+#endif // DATADIR
 #include <windows.h>
-#define sleep(t) Sleep(1000*t);
-#define usleep(t) Sleep(t/1000);
+#define sleep(t) Sleep(1000*t)
+#define usleep(t) Sleep(t/1000)
 #endif
 
 #include <gtk/gtk.h>

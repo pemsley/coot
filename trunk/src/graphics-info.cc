@@ -95,11 +95,11 @@ void initialize_graphics_molecules() {
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
-   GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
- 						     "window1"));
+   GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea, 
+						     "window1"));
    GtkWidget *label;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
-     label = lookup_widget(GTK_WIDGET(main_window),
+     label = lookup_widget(GTK_WIDGET(window),
 				      "accept_dialog_accept_docked_label_string");
    } else {
      label = lookup_widget(GTK_WIDGET(window),
