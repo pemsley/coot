@@ -2259,7 +2259,7 @@ SCM monomer_restraints(const char *monomer_type) {
       // ------------------ Bonds -------------------------
       SCM bond_restraint_list = SCM_EOL;
       
-      for (int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+      for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
 	 coot::dict_bond_restraint_t bond_restraint = restraints.bond_restraint[ibond];
 	 std::string a1 = bond_restraint.atom_id_1_4c();
 	 std::string a2 = bond_restraint.atom_id_2_4c();
@@ -2278,7 +2278,7 @@ SCM monomer_restraints(const char *monomer_type) {
 
       // ------------------ Angles -------------------------
       SCM angle_restraint_list = SCM_EOL;
-      for (int iangle=0; iangle<restraints.angle_restraint.size(); iangle++) {
+      for (unsigned int iangle=0; iangle<restraints.angle_restraint.size(); iangle++) {
 	 coot::dict_angle_restraint_t angle_restraint = restraints.angle_restraint[iangle];
 	 std::string a1 = angle_restraint.atom_id_1_4c();
 	 std::string a2 = angle_restraint.atom_id_2_4c();
@@ -2299,7 +2299,7 @@ SCM monomer_restraints(const char *monomer_type) {
 
       // ------------------ Torsions -------------------------
       SCM torsion_restraint_list = SCM_EOL;
-      for (int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
+      for (unsigned int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
 	 coot::dict_torsion_restraint_t torsion_restraint = restraints.torsion_restraint[itorsion];
 	 std::string a1 = torsion_restraint.atom_id_1_4c();
 	 std::string a2 = torsion_restraint.atom_id_2_4c();
@@ -2325,7 +2325,7 @@ SCM monomer_restraints(const char *monomer_type) {
 
       // ------------------ Planes -------------------------
       SCM plane_restraint_list = SCM_EOL;
-      for (int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
+      for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	 coot::dict_plane_restraint_t plane_restraint = restraints.plane_restraint[iplane];
 	 SCM atom_list = SCM_EOL;
 	 for (int iat=0; iat<plane_restraint.n_atoms(); iat++) { 
@@ -2351,7 +2351,7 @@ SCM monomer_restraints(const char *monomer_type) {
 
       // ------------------ Chirals -------------------------
       SCM chiral_restraint_list = SCM_EOL;
-      for (int ichiral=0; ichiral<restraints.chiral_restraint.size(); ichiral++) {
+      for (unsigned int ichiral=0; ichiral<restraints.chiral_restraint.size(); ichiral++) {
 	 coot::dict_chiral_restraint_t chiral_restraint = restraints.chiral_restraint[ichiral];
 
 	 std::string a1 = chiral_restraint.atom_id_1_4c();
@@ -2362,7 +2362,7 @@ SCM monomer_restraints(const char *monomer_type) {
 	 int vol_sign = chiral_restraint.volume_sign;
 
 	 double esd = chiral_restraint.volume_sigma();
-	 int volume_sign = chiral_restraint.volume_sign;
+	 // int volume_sign = chiral_restraint.volume_sign;
 	 SCM chiral_restraint_scm = SCM_EOL;
 	 chiral_restraint_scm = scm_cons(scm_double2num(esd), chiral_restraint_scm);
 	 chiral_restraint_scm = scm_cons(scm_int2num(vol_sign), chiral_restraint_scm);
@@ -2446,7 +2446,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 
       // ------------------ Bonds -------------------------
       PyObject *bond_restraint_list = PyList_New(restraints.bond_restraint.size());
-      for (int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+      for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
 	 std::string a1 = restraints.bond_restraint[ibond].atom_id_1_4c();
 	 std::string a2 = restraints.bond_restraint[ibond].atom_id_2_4c();
 	 double d   = restraints.bond_restraint[ibond].dist();
@@ -2464,7 +2464,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 
       // ------------------ Angles -------------------------
       PyObject *angle_restraint_list = PyList_New(restraints.angle_restraint.size());
-      for (int iangle=0; iangle<restraints.angle_restraint.size(); iangle++) {
+      for (unsigned int iangle=0; iangle<restraints.angle_restraint.size(); iangle++) {
 	 std::string a1 = restraints.angle_restraint[iangle].atom_id_1_4c();
 	 std::string a2 = restraints.angle_restraint[iangle].atom_id_2_4c();
 	 std::string a3 = restraints.angle_restraint[iangle].atom_id_3_4c();
@@ -2484,7 +2484,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
       
       // ------------------ Torsions -------------------------
       PyObject *torsion_restraint_list = PyList_New(restraints.torsion_restraint.size());
-      for (int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
+      for (unsigned int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
 	 std::string a1 = restraints.torsion_restraint[itorsion].atom_id_1_4c();
 	 std::string a2 = restraints.torsion_restraint[itorsion].atom_id_2_4c();
 	 std::string a3 = restraints.torsion_restraint[itorsion].atom_id_3_4c();
@@ -2507,7 +2507,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 
       // ------------------ Planes -------------------------
       PyObject *plane_restraints_list = PyList_New(restraints.plane_restraint.size());
-      for (int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
+      for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	 PyObject *atom_list = PyList_New(restraints.plane_restraint[iplane].n_atoms());
 	 for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) { 
 	    std::string at = restraints.plane_restraint[iplane][iat];
@@ -2517,7 +2517,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyObject *plane_restraint = PyList_New(3);
 	 PyList_SetItem(plane_restraint, 0, PyString_FromString(restraints.plane_restraint[iplane].plane_id.c_str()));
 	 PyList_SetItem(plane_restraint, 1, atom_list);
-	 PyList_SetItem(plane_restraint, 2, PyFloat_FromDouble(restraints.plane_restraint[iplane].dist_esd()));
+	 PyList_SetItem(plane_restraint, 2, PyFloat_FromDouble(esd));
 	 PyList_SetItem(plane_restraints_list, iplane, plane_restraint);
       }
 
@@ -2525,14 +2525,13 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 
       // ------------------ Chirals -------------------------
       PyObject *chiral_restraint_list = PyList_New(restraints.chiral_restraint.size());
-      for (int ichiral=0; ichiral<restraints.chiral_restraint.size(); ichiral++) {
+      for (unsigned int ichiral=0; ichiral<restraints.chiral_restraint.size(); ichiral++) {
 	 
 	 std::string a1 = restraints.chiral_restraint[ichiral].atom_id_1_4c();
 	 std::string a2 = restraints.chiral_restraint[ichiral].atom_id_2_4c();
 	 std::string a3 = restraints.chiral_restraint[ichiral].atom_id_3_4c();
 	 std::string ac = restraints.chiral_restraint[ichiral].atom_id_c_4c();
 	 std::string chiral_id = restraints.chiral_restraint[ichiral].Chiral_Id();
-	 int vol_sign = restraints.chiral_restraint[ichiral].volume_sign;
 
 	 double esd = restraints.chiral_restraint[ichiral].volume_sigma();
 	 int volume_sign = restraints.chiral_restraint[ichiral].volume_sign;
@@ -2776,14 +2775,14 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   
 			      if (atoms_pass && scm_string_p(plane_id_scm) &&  scm_number_p(esd_scm)) { 
 				 std::vector<std::string> atom_names;
-				 for (int i=0; i<atoms.size(); i++)
+				 for (unsigned int i=0; i<atoms.size(); i++)
 				    atom_names.push_back(std::string(scm_to_locale_string(atoms[i])));
 
 				 std::string plane_id = scm_to_locale_string(plane_id_scm);
 				 double esd           = scm_to_double(esd_scm);
 				 if (atom_names.size() > 0) { 
 				    coot::dict_plane_restraint_t rest(plane_id, atom_names[0], esd);
-				    for (int i=1; i<atom_names.size(); i++)
+				    for (unsigned int i=1; i<atom_names.size(); i++)
 				       rest.push_back_atom(atom_names[i]);
 				    plane_restraints.push_back(rest);
 				 }
@@ -2884,7 +2883,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 
       std::cout << "looping over restraint" << std::endl;
       while (PyDict_Next(restraints, &pos, &key, &value)) {
-	 std::cout << ":::::::key: " << PyString_AsString(key) << std::endl;
+	 // std::cout << ":::::::key: " << PyString_AsString(key) << std::endl;
 
 	 std::string key_string = PyString_AsString(key);
 	 if (key_string == "_chem_comp") {

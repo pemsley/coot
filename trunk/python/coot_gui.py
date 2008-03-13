@@ -173,7 +173,12 @@ def coot_gui():
              l = entry_text + '\n'
              if len(l) > 1 and l[0] == '\n': l = l[1:]
              histpos = len(history) - 1
-             if len(l) > 0 and l[-1] == '\n':
+             # print "pedebug", l[-1]
+             # can't test l[-] because python gives us a error
+             # SystemError: ../Objects/longobject.c:223: bad argument to internal function
+             # when we do so (on set_monomer_restriaints()).
+             # if len(l) > 0 and l[-1] == '\n':
+             if len(l) > 0:
                 history[histpos] = l[:-1]
              else:
                 history[histpos] = l
