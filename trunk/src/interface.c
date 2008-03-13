@@ -18436,4 +18436,387 @@ create_fixed_atom_dialog (void)
   return fixed_atom_dialog;
 }
 
+GtkWidget*
+create_add_reps_dialog (void)
+{
+  GtkWidget *add_reps_dialog;
+  GtkWidget *dialog_vbox99;
+  GtkWidget *vbox199;
+  GtkWidget *label302;
+  GtkWidget *add_rep_molecule_optionmenu;
+  GtkWidget *add_rep_molecule_optionmenu_menu;
+  GtkWidget *frame185;
+  GtkWidget *vbox200;
+  GtkWidget *frame186;
+  GSList *frame186_group = NULL;
+  GtkWidget *add_rep_radiobutton_position;
+  GtkWidget *frame187;
+  GtkWidget *vbox201;
+  GSList *vbox201_group = NULL;
+  GtkWidget *add_rep_radiobutton_res_number;
+  GtkWidget *hbox158;
+  GtkWidget *label305;
+  GtkWidget *add_rep_chain_id_entry;
+  GtkWidget *hbox159;
+  GtkWidget *label306;
+  GtkWidget *add_rep_resno_start_entry;
+  GtkWidget *label307;
+  GtkWidget *add_rep_resno_end_entry;
+  GtkWidget *hbox160;
+  GtkWidget *label308;
+  GtkWidget *add_rep_ins_code_entry;
+  GtkWidget *frame188;
+  GtkWidget *vbox202;
+  GSList *vbox202_group = NULL;
+  GtkWidget *add_rep_radiobutton_selection_string;
+  GtkWidget *hbox156;
+  GtkWidget *label303;
+  GtkWidget *add_rep_selection_string_entry;
+  GtkWidget *frame189;
+  GtkWidget *vbox203;
+  GtkWidget *frame190;
+  GtkWidget *vbox204;
+  GSList *vbox204_group = NULL;
+  GtkWidget *add_rep_radiobutton_selection_string;
+  GtkWidget *hbox157;
+  GtkWidget *label304;
+  GtkWidget *combo1;
+  GtkWidget *add_rep_bond_width_combobox;
+  GtkWidget *frame191;
+  GSList *frame191_group = NULL;
+  GtkWidget *add_rep_ball_and_stick_radiobutton;
+  GtkWidget *dialog_action_area98;
+  GtkWidget *hbox155;
+  GtkWidget *add_rep_add_rep_button;
+  GtkWidget *add_rep_cancel_button;
+
+  add_reps_dialog = gtk_dialog_new ();
+  gtk_object_set_data (GTK_OBJECT (add_reps_dialog), "add_reps_dialog", add_reps_dialog);
+  gtk_window_set_title (GTK_WINDOW (add_reps_dialog), _("Additional Representation"));
+  gtk_window_set_policy (GTK_WINDOW (add_reps_dialog), TRUE, TRUE, FALSE);
+
+  dialog_vbox99 = GTK_DIALOG (add_reps_dialog)->vbox;
+  gtk_object_set_data (GTK_OBJECT (add_reps_dialog), "dialog_vbox99", dialog_vbox99);
+  gtk_widget_show (dialog_vbox99);
+
+  vbox199 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox199);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "vbox199", vbox199,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox199);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox99), vbox199, TRUE, TRUE, 0);
+
+  label302 = gtk_label_new (_("Additional Representation for"));
+  gtk_widget_ref (label302);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "label302", label302,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label302);
+  gtk_box_pack_start (GTK_BOX (vbox199), label302, FALSE, FALSE, 0);
+  gtk_misc_set_padding (GTK_MISC (label302), 0, 5);
+
+  add_rep_molecule_optionmenu = gtk_option_menu_new ();
+  gtk_widget_ref (add_rep_molecule_optionmenu);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_molecule_optionmenu", add_rep_molecule_optionmenu,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_molecule_optionmenu);
+  gtk_box_pack_start (GTK_BOX (vbox199), add_rep_molecule_optionmenu, FALSE, FALSE, 0);
+  add_rep_molecule_optionmenu_menu = gtk_menu_new ();
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (add_rep_molecule_optionmenu), add_rep_molecule_optionmenu_menu);
+
+  frame185 = gtk_frame_new (_("Representation Selection"));
+  gtk_widget_ref (frame185);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "frame185", frame185,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame185);
+  gtk_box_pack_start (GTK_BOX (vbox199), frame185, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame185), 4);
+
+  vbox200 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox200);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "vbox200", vbox200,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox200);
+  gtk_container_add (GTK_CONTAINER (frame185), vbox200);
+
+  frame186 = gtk_frame_new (NULL);
+  gtk_widget_ref (frame186);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "frame186", frame186,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame186);
+  gtk_box_pack_start (GTK_BOX (vbox200), frame186, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame186), 6);
+
+  add_rep_radiobutton_position = gtk_radio_button_new_with_label (frame186_group, _("By Position (this residue)"));
+  frame186_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_position));
+  gtk_widget_ref (add_rep_radiobutton_position);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_radiobutton_position", add_rep_radiobutton_position,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_radiobutton_position);
+  gtk_container_add (GTK_CONTAINER (frame186), add_rep_radiobutton_position);
+
+  frame187 = gtk_frame_new (NULL);
+  gtk_widget_ref (frame187);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "frame187", frame187,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame187);
+  gtk_box_pack_start (GTK_BOX (vbox200), frame187, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame187), 6);
+
+  vbox201 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox201);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "vbox201", vbox201,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox201);
+  gtk_container_add (GTK_CONTAINER (frame187), vbox201);
+
+  add_rep_radiobutton_res_number = gtk_radio_button_new_with_label (vbox201_group, _("By Residue Number Specification"));
+  vbox201_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_res_number));
+  gtk_widget_ref (add_rep_radiobutton_res_number);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_radiobutton_res_number", add_rep_radiobutton_res_number,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_radiobutton_res_number);
+  gtk_box_pack_start (GTK_BOX (vbox201), add_rep_radiobutton_res_number, FALSE, FALSE, 0);
+
+  hbox158 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox158);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "hbox158", hbox158,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox158);
+  gtk_box_pack_start (GTK_BOX (vbox201), hbox158, TRUE, TRUE, 0);
+
+  label305 = gtk_label_new (_("           Chain ID:"));
+  gtk_widget_ref (label305);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "label305", label305,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label305);
+  gtk_box_pack_start (GTK_BOX (hbox158), label305, FALSE, FALSE, 0);
+
+  add_rep_chain_id_entry = gtk_entry_new ();
+  gtk_widget_ref (add_rep_chain_id_entry);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_chain_id_entry", add_rep_chain_id_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_chain_id_entry);
+  gtk_box_pack_start (GTK_BOX (hbox158), add_rep_chain_id_entry, FALSE, TRUE, 0);
+  gtk_widget_set_usize (add_rep_chain_id_entry, 31, -2);
+
+  hbox159 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox159);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "hbox159", hbox159,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox159);
+  gtk_box_pack_start (GTK_BOX (vbox201), hbox159, TRUE, TRUE, 0);
+
+  label306 = gtk_label_new (_("           From Residue Number "));
+  gtk_widget_ref (label306);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "label306", label306,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label306);
+  gtk_box_pack_start (GTK_BOX (hbox159), label306, FALSE, FALSE, 0);
+
+  add_rep_resno_start_entry = gtk_entry_new ();
+  gtk_widget_ref (add_rep_resno_start_entry);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_resno_start_entry", add_rep_resno_start_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_resno_start_entry);
+  gtk_box_pack_start (GTK_BOX (hbox159), add_rep_resno_start_entry, FALSE, TRUE, 0);
+  gtk_widget_set_usize (add_rep_resno_start_entry, 50, -2);
+
+  label307 = gtk_label_new (_("   To Residue Number "));
+  gtk_widget_ref (label307);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "label307", label307,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label307);
+  gtk_box_pack_start (GTK_BOX (hbox159), label307, FALSE, FALSE, 0);
+
+  add_rep_resno_end_entry = gtk_entry_new ();
+  gtk_widget_ref (add_rep_resno_end_entry);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_resno_end_entry", add_rep_resno_end_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_resno_end_entry);
+  gtk_box_pack_start (GTK_BOX (hbox159), add_rep_resno_end_entry, FALSE, TRUE, 0);
+  gtk_widget_set_usize (add_rep_resno_end_entry, 50, -2);
+
+  hbox160 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox160);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "hbox160", hbox160,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox160);
+  gtk_box_pack_start (GTK_BOX (vbox201), hbox160, TRUE, TRUE, 0);
+
+  label308 = gtk_label_new (_("           With Insertion Code "));
+  gtk_widget_ref (label308);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "label308", label308,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label308);
+  gtk_box_pack_start (GTK_BOX (hbox160), label308, FALSE, FALSE, 0);
+
+  add_rep_ins_code_entry = gtk_entry_new ();
+  gtk_widget_ref (add_rep_ins_code_entry);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_ins_code_entry", add_rep_ins_code_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_ins_code_entry);
+  gtk_box_pack_start (GTK_BOX (hbox160), add_rep_ins_code_entry, FALSE, TRUE, 0);
+  gtk_widget_set_usize (add_rep_ins_code_entry, 37, -2);
+
+  frame188 = gtk_frame_new (NULL);
+  gtk_widget_ref (frame188);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "frame188", frame188,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame188);
+  gtk_box_pack_start (GTK_BOX (vbox200), frame188, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame188), 6);
+
+  vbox202 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox202);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "vbox202", vbox202,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox202);
+  gtk_container_add (GTK_CONTAINER (frame188), vbox202);
+
+  add_rep_radiobutton_selection_string = gtk_radio_button_new_with_label (vbox202_group, _("By Selection String"));
+  vbox202_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_selection_string));
+  gtk_widget_ref (add_rep_radiobutton_selection_string);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_radiobutton_selection_string", add_rep_radiobutton_selection_string,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_radiobutton_selection_string);
+  gtk_box_pack_start (GTK_BOX (vbox202), add_rep_radiobutton_selection_string, FALSE, FALSE, 0);
+
+  hbox156 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox156);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "hbox156", hbox156,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox156);
+  gtk_box_pack_start (GTK_BOX (vbox202), hbox156, TRUE, TRUE, 0);
+
+  label303 = gtk_label_new (_("          Atom Selection: "));
+  gtk_widget_ref (label303);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "label303", label303,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label303);
+  gtk_box_pack_start (GTK_BOX (hbox156), label303, FALSE, FALSE, 0);
+
+  add_rep_selection_string_entry = gtk_entry_new ();
+  gtk_widget_ref (add_rep_selection_string_entry);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_selection_string_entry", add_rep_selection_string_entry,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_selection_string_entry);
+  gtk_box_pack_start (GTK_BOX (hbox156), add_rep_selection_string_entry, FALSE, TRUE, 0);
+
+  frame189 = gtk_frame_new (_("Representation Style"));
+  gtk_widget_ref (frame189);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "frame189", frame189,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame189);
+  gtk_box_pack_start (GTK_BOX (vbox199), frame189, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame189), 4);
+
+  vbox203 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox203);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "vbox203", vbox203,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox203);
+  gtk_container_add (GTK_CONTAINER (frame189), vbox203);
+
+  frame190 = gtk_frame_new (NULL);
+  gtk_widget_ref (frame190);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "frame190", frame190,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame190);
+  gtk_box_pack_start (GTK_BOX (vbox203), frame190, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame190), 6);
+
+  vbox204 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox204);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "vbox204", vbox204,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox204);
+  gtk_container_add (GTK_CONTAINER (frame190), vbox204);
+
+  add_rep_radiobutton_selection_string = gtk_radio_button_new_with_label (vbox204_group, _(" Fat Bonds"));
+  vbox204_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_selection_string));
+  gtk_widget_ref (add_rep_radiobutton_selection_string);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_radiobutton_selection_string", add_rep_radiobutton_selection_string,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_radiobutton_selection_string);
+  gtk_box_pack_start (GTK_BOX (vbox204), add_rep_radiobutton_selection_string, FALSE, FALSE, 0);
+
+  hbox157 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_ref (hbox157);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "hbox157", hbox157,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox157);
+  gtk_box_pack_start (GTK_BOX (vbox204), hbox157, TRUE, TRUE, 0);
+
+  label304 = gtk_label_new (_("          Bond Width "));
+  gtk_widget_ref (label304);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "label304", label304,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label304);
+  gtk_box_pack_start (GTK_BOX (hbox157), label304, FALSE, FALSE, 0);
+
+  combo1 = gtk_combo_new ();
+  gtk_widget_ref (combo1);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "combo1", combo1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (combo1);
+  gtk_box_pack_start (GTK_BOX (hbox157), combo1, FALSE, FALSE, 0);
+
+  add_rep_bond_width_combobox = GTK_COMBO (combo1)->entry;
+  gtk_widget_ref (add_rep_bond_width_combobox);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_bond_width_combobox", add_rep_bond_width_combobox,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_bond_width_combobox);
+
+  frame191 = gtk_frame_new (NULL);
+  gtk_widget_ref (frame191);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "frame191", frame191,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame191);
+  gtk_box_pack_start (GTK_BOX (vbox203), frame191, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame191), 6);
+
+  add_rep_ball_and_stick_radiobutton = gtk_radio_button_new_with_label (frame191_group, _("Ball & Stick"));
+  frame191_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_ball_and_stick_radiobutton));
+  gtk_widget_ref (add_rep_ball_and_stick_radiobutton);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_ball_and_stick_radiobutton", add_rep_ball_and_stick_radiobutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_ball_and_stick_radiobutton);
+  gtk_container_add (GTK_CONTAINER (frame191), add_rep_ball_and_stick_radiobutton);
+
+  dialog_action_area98 = GTK_DIALOG (add_reps_dialog)->action_area;
+  gtk_object_set_data (GTK_OBJECT (add_reps_dialog), "dialog_action_area98", dialog_action_area98);
+  gtk_widget_show (dialog_action_area98);
+  gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area98), 10);
+
+  hbox155 = gtk_hbox_new (TRUE, 2);
+  gtk_widget_ref (hbox155);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "hbox155", hbox155,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (hbox155);
+  gtk_box_pack_start (GTK_BOX (dialog_action_area98), hbox155, TRUE, TRUE, 0);
+
+  add_rep_add_rep_button = gtk_button_new_with_label (_("  Add Representation  "));
+  gtk_widget_ref (add_rep_add_rep_button);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_add_rep_button", add_rep_add_rep_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_add_rep_button);
+  gtk_box_pack_start (GTK_BOX (hbox155), add_rep_add_rep_button, FALSE, FALSE, 0);
+
+  add_rep_cancel_button = gtk_button_new_with_label (_("  Cancel  "));
+  gtk_widget_ref (add_rep_cancel_button);
+  gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_cancel_button", add_rep_cancel_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (add_rep_cancel_button);
+  gtk_box_pack_start (GTK_BOX (hbox155), add_rep_cancel_button, FALSE, FALSE, 0);
+
+  gtk_signal_connect (GTK_OBJECT (add_rep_add_rep_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_add_rep_add_rep_button_clicked),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (add_rep_cancel_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_add_rep_cancel_button_clicked),
+                      NULL);
+
+  return add_reps_dialog;
+}
+
 #endif

@@ -140,6 +140,7 @@ GtkWidget* create_monomer_search_dialog (void);
 GtkWidget* create_least_squares_dialog (void);
 GtkWidget* create_splash_screen_alternate_1_window (void);
 GtkWidget* create_fixed_atom_dialog (void);
+GtkWidget* create_add_reps_dialog (void);
 
 #if (GTK_MAJOR_VERSION > 1)
 GtkWidget* create_aboutdialog (void);
