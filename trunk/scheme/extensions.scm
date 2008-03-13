@@ -217,9 +217,17 @@
 	  (lambda (imol)
 	    (alt-confs-gui imol)))))
 
+      (add-simple-coot-menu-menuitem
+       menu "Residues with Missing Atoms..."
+       (lambda ()
+	 (molecule-chooser-gui
+	  "Which molecule to check for Missing Atoms?"
+	  (lambda (imol)
+	    (missing-atoms-gui imol)))))
+
 
       (add-simple-coot-menu-menuitem
-       menu "Cis Peptides..."
+       menu "Residus with Cis Peptides Bonds..."
        (lambda ()
 	 (molecule-chooser-gui "Choose a molecule for checking for Cis Peptides" 
 			       (lambda (imol)
