@@ -898,6 +898,7 @@ int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {
    return success; 
 }
 
+// (is-it-valid? (active-molecule-number spec))
 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {
 
    coot::atom_spec_t spec;

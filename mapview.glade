@@ -27925,7 +27925,7 @@ Move Molecule Here:</label>
 
 	      <widget>
 		<class>GtkRadioButton</class>
-		<name>add_rep_radiobutton_selection_string</name>
+		<name>add_rep_rep_fat_bonds_radiobutton</name>
 		<can_focus>True</can_focus>
 		<label> Fat Bonds</label>
 		<active>False</active>
@@ -28009,7 +28009,7 @@ Move Molecule Here:</label>
 
 	    <widget>
 	      <class>GtkRadioButton</class>
-	      <name>add_rep_ball_and_stick_radiobutton</name>
+	      <name>add_rep_rep_ball_and_stick_radiobutton</name>
 	      <can_focus>True</can_focus>
 	      <label>Ball &amp; Stick</label>
 	      <active>False</active>
