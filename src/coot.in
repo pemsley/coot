@@ -52,7 +52,7 @@ PYTHONHOME=$COOT_PREFIX
 
 # Reluctantly, I kludge in 1.8 to the GUILE_LOAD_PATH because I don't
 # know why it is failing to be set correctly from Coot's configure in
-# Kevin's Ubuntu.  Needless to say, it work's fine on my Ubuntu
+# Kevin's Ubuntu.  Needless to say, it works fine on my Ubuntu
 # (Gutsy).  Must fix later.
 #
 GUILE_LOAD_PATH=\

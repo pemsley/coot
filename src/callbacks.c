@@ -9876,3 +9876,19 @@ on_add_rep_cancel_button_clicked       (GtkButton       *button,
 
 }
 
+
+void
+on_add_rep_add_rep_button_clicked      (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_add_rep_cancel_button_clicked       (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
