@@ -65,11 +65,20 @@
 
    o Torsion general bonding problem on complex ligand? [JED]
 
+     Also, try torsioning around CG-CD of A40 (rnase).  Then accept.
+     Duplicate atoms.
+
    o document set-default-temperature-factor-for-new-atoms
+
+   o Turn off the ability to translate a rotamer withe atom drag
+     Also in chi angles mode?  Herb Klei.
 
    o multi-NCS crash (on installing NCS maps?) - JED
 
+   o 1qex from PDB crash (see below)
+
    o Nigel's python restraints -> non found on regularization
+
 
 
 
@@ -4315,7 +4324,7 @@ Wed Feb  6 23:36:45 GMT 2008
     Priority: Critical
     Difficulty: Medium/Easy
 
-
+* Fixed.
 
 -----
 Thu Feb  7 00:00:14 GMT 2008
@@ -4676,13 +4685,11 @@ Sun Feb 24 23:51:37 GMT 2008
 
 * Done
 
-
 ----
 Wed Feb 27 09:18:50 GMT 2008
 
     Residue Info on a residue with alt confs.  
     Problem in CHI angles?
-
  
 -----
 Wed Feb 27 15:38:28 GMT 2008
@@ -4700,6 +4707,7 @@ Sat Mar  1 06:02:45 GMT 2008
 
    mmdb reader on  Components-rel-alt.cif 
 
+* Needs new mmdb           
 
 ----
 Sat Mar  1 06:11:26 GMT 2008
@@ -4707,13 +4715,13 @@ Sat Mar  1 06:11:26 GMT 2008
     Parse USER MODs
     somewhere I have some code, I started on this?
 
+    on penelope, I guess.
 
 ----
 Wed Mar  5 16:40:09 GMT 2008
 
-
-DEBUG::  display toggle of molecule: 1
-DEBUG::  display toggle of molecule: 2
+  DEBUG::  display toggle of molecule: 1
+  DEBUG::  display toggle of molecule: 2
 
 * Done.
 
@@ -4725,8 +4733,7 @@ Wed Mar  5 17:52:08 GMT 2008
 
   very convoluted!?
 
-  why not use graphics_info_t::molecules[imol].atom_to_atom_index()? 
-
+  Why not use graphics_info_t::molecules[imol].atom_to_atom_index()? 
 
 ----
 Thu Mar  6 13:31:13 GMT 2008
@@ -4734,8 +4741,43 @@ Thu Mar  6 13:31:13 GMT 2008
     Get rid of (MyCMMDBManager *) 
 
 ----
+Fri Mar  7 13:40:51 GMT 2008
+    Test for guile-gtk is failing (i.e. guile-gtk2.1 is being built)
+    on bragg3.
+
+----
+Fri Mar  7 14:48:47 GMT 2008
+
+    Useful fun.  
+    Write a parse for gdk/gdkkeysyms.h
+    if field-1 is #define if NF == 3
+    split field-2 after GDK_ and decode field-3 to decimal
+    
+    now we can have a function gdk-key-symbol->key
+
+    e.g
+    (gdk-key-symbol->number "Super_R")
+    -> 2354 [or some such]
+
+    now change graphics-general-key-press-hook to test for a string,
+    and if it is, run gdk-key-symbol->number.
+
+----
 Wed Mar 12 12:00:50 GMT 2008
 
     revisit --as-needed, Donnie B.
+
+----
+Thu Mar 13 14:31:37 GMT 2008
+
+   consider install_name_tool when installing mac binary?
+
+
+----
+Thu Mar 13 16:15:10 GMT 2008
+
+    Additional representations "button" should (also?) be on the
+    Display Control.
+
 
 

@@ -15,6 +15,8 @@
 (define  water-chain #f)
 (define  water-chain-from-shelx-ins #f)
 (define  generic-object-name #f)
+(define additional-representation-info #f)
+(define missing-atom-info #f)
 
 
 (load "filter.scm")

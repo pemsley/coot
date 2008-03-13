@@ -761,6 +761,18 @@
 
 	    <widget>
 	      <class>GtkMenuItem</class>
+	      <name>additional_representation1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_additional_representation1_activate</handler>
+		<last_modification_time>Thu, 13 Mar 2008 15:40:44 GMT</last_modification_time>
+	      </signal>
+	      <label>Additional Representation...</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
 	      <name>ncs_ghost_control1</name>
 	      <tooltip>Non-crystallographic Ghost Controller</tooltip>
 	      <signal>

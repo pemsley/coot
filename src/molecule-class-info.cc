@@ -2254,9 +2254,18 @@ molecule_class_info_t::make_bonds_type_checked() {
    if (bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS)
       b_factor_representation();
 
+   update_additional_representations();
    update_fixed_atom_positions();
    update_ghosts();
 }
+
+void molecule_class_info_t::update_additional_representations() {
+
+   for (unsigned int i=0; i<add_reps.size(); i++) {
+      add_reps[i].fill_bonds_box();
+   }
+}
+
 
 void
 molecule_class_info_t::update_fixed_atom_positions() {

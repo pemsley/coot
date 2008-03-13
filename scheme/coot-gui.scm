@@ -1059,6 +1059,15 @@
   (interesting-residues-gui imol "Residues with Alt Confs"
 			    (residues-with-alt-confs imol)))
 
+;; Make an interesting things GUI for residues with missing atoms
+;; 
+(define (missing-atoms-gui imol)
+
+  (interesting-residues-gui imol "Residues with missing atoms"
+			    (map (lambda (v) (cons #t v))
+				 (missing-atom-info imol))))
+
+
 ;;; Make an interesting things GUI for residues of molecule number
 ;;; imol for the given imol.   A generalization of alt-confs gui
 ;;;

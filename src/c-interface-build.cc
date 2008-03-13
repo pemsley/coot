@@ -4450,6 +4450,25 @@ void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe) {
    }
 }
 
+#ifdef USE_GUILE
+SCM alignment_results_scm(int imol, const char *chain_id, const char *seq) {
+
+   SCM r = SCM_BOOL_F;
+
+   
+
+   return r;
+}
+#endif /* USE_GUILE */
+
+#ifdef USE_PYTHON
+PyObject *alignment_results_py(int imol, const char *chain_id, const char *seq) {
+
+   PyObject *r = NULL;
+
+   return r;
+} 
+#endif /* USE_PYTHON */
 
 
 void align_and_mutate_molecule_menu_item_activate(GtkWidget *item, 
@@ -4978,6 +4997,35 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
       }
    }
 }
+
+#ifdef USE_GUILE
+
+SCM missing_atom_info_scm(int imol) { 
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      r = SCM_EOL;
+      graphics_info_t g;
+      short int missing_hydrogens_flag = 0;
+      coot::util::missing_atom_info m_i_info =
+	 g.molecules[imol].missing_atoms(missing_hydrogens_flag, g.Geom_p());
+      for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
+	 int resno =  m_i_info.residues_with_missing_atoms[i]->GetSeqNum();
+	 std::string chain_id = m_i_info.residues_with_missing_atoms[i]->GetChainID();
+	 std::string residue_type = m_i_info.residues_with_missing_atoms[i]->GetResName();
+	 std::string inscode = m_i_info.residues_with_missing_atoms[i]->GetInsCode();
+	 std::string altconf("");
+	 SCM l = SCM_EOL;
+	 l = scm_cons(scm_makfrom0str(inscode.c_str()), l);
+	 l = scm_cons(SCM_MAKINUM(resno), l);
+	 l = scm_cons(scm_makfrom0str(chain_id.c_str()), l);
+	 r = scm_cons(l, r);
+      }
+      r = scm_reverse(r);
+   }
+   return r;
+}
+#endif // USE_GUILE
 
 void
 copy_chain(int imol, const char *from_chain, const char *to_chain) {

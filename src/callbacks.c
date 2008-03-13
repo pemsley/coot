@@ -9865,7 +9865,9 @@ void
 on_add_rep_add_rep_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
-
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "add_reps_dialog");
+  add_additional_representation_by_widget(w);
+  gtk_widget_destroy(w);
 }
 
 
@@ -9873,22 +9875,15 @@ void
 on_add_rep_cancel_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
-
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "add_reps_dialog");
+  gtk_widget_destroy(w);
 }
 
-
 void
-on_add_rep_add_rep_button_clicked      (GtkButton       *button,
+on_additional_representation1_activate (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
-}
-
-
-void
-on_add_rep_cancel_button_clicked       (GtkButton       *button,
-                                        gpointer         user_data)
-{
-
+  GtkWidget *w = wrapped_create_add_additional_representation_gui();
+  gtk_widget_show(w);
 }
 
