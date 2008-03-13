@@ -1331,7 +1331,7 @@ on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button
   char *widget_name = (char *) malloc(100);
   char *tmp_name;
 
-  printf("DEBUG::  display toggle of molecule: %d\n", imol);
+/*   printf("DEBUG::  display toggle of molecule: %d\n", imol); */
 
   strcpy(widget_name, "active_button_"); 
   tmp_name = widget_name + strlen(widget_name); 

@@ -2270,6 +2270,15 @@ void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
 
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe);
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM alignment_results_scm(int imol, const char* chain_id, const char *seq); 
+#endif /* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *alignment_results_py(int imol, const char* chain_id, const char *seq); 
+#endif /* USE_PYTHON */
+#endif  /* c++ */
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -3374,6 +3383,13 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
 					    int representation_type, 
 					    float bond_width,
 					    int draw_hydrogens_flag);
+
+GtkWidget *wrapped_create_add_additional_representation_gui();
+void add_additional_representation_by_widget(GtkWidget *w);
+void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
+
+
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM additional_representation_info_scm(int imol); 
@@ -3679,6 +3695,13 @@ To be used to remove the effects of chainsaw.  */
 void fill_partial_residues(int imol);
 
 void fill_partial_residue(int imol, const char *chain_id, int resno, const char* inscode);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM missing_atom_info_scm(int imol);
+#endif // USE_GUILE
+#endif /* __cplusplus */
+
 
 /* Used for unsetting the rotamer dialog when it gets destroyed. */
 void

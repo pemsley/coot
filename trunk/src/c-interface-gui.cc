@@ -3731,3 +3731,115 @@ GtkWidget *wrapped_create_fixed_atom_dialog() {
    graphics_info_t::fixed_atom_dialog = w;
    return w;
 } 
+
+GtkWidget *wrapped_create_add_additional_representation_gui() {
+
+   GtkWidget *w = 0;
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      w = create_add_reps_dialog();
+      // update/generate the option menu menu as usual.
+      GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+      GtkWidget *chain_id_entry = lookup_widget(w, "add_rep_chain_id_entry");
+      GtkWidget *resno_start_entry = lookup_widget(w, "add_rep_resno_start_entry");
+      GtkWidget *resno_end_entry = lookup_widget(w, "add_rep_resno_end_entry");
+      GtkWidget *ins_code_entry = lookup_widget(w, "add_rep_ins_code_entry");
+      GtkWidget *string_selection_entry = lookup_widget(w, "add_rep_selection_string_entry");
+      
+      GtkWidget *position_radiobutton = lookup_widget(w, "add_rep_radiobutton_position");
+      GtkWidget *resno_radiobutton = lookup_widget(w, "add_rep_radiobutton_res_number");
+      GtkWidget *selection_string_radiobutton = lookup_widget(w, "add_rep_radiobutton_selection_string");
+      
+      GtkWidget *add_reps_fat_bonds_radiobutton = lookup_widget(w, "add_rep_rep_fat_bonds_radiobutton");
+      GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(w, "add_rep_rep_ball_and_stick_radiobutton");
+
+      GtkSignalFunc signal_func = 
+	 GTK_SIGNAL_FUNC(add_reps_molecule_option_menu_item_select);
+      int imol_active_position = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
+      fill_option_menu_with_coordinates_options(option_menu,  signal_func, imol_active_position);
+   } 
+   return w;
+}
+
+
+void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
+   graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = pos;
+}
+
+
+void add_additional_representation_by_widget(GtkWidget *w) {
+   GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+   
+   GtkWidget *chain_id_entry = lookup_widget(w, "add_rep_chain_id_entry");
+   GtkWidget *resno_start_entry = lookup_widget(w, "add_rep_resno_start_entry");
+   GtkWidget *resno_end_entry = lookup_widget(w, "add_rep_resno_end_entry");
+   GtkWidget *ins_code_entry = lookup_widget(w, "add_rep_ins_code_entry");
+   GtkWidget *string_selection_entry = lookup_widget(w, "add_rep_selection_string_entry");
+
+   GtkWidget *position_radiobutton = lookup_widget(w, "add_rep_radiobutton_position");
+   GtkWidget *resno_radiobutton = lookup_widget(w, "add_rep_radiobutton_res_number");
+   GtkWidget *selection_string_radiobutton = lookup_widget(w, "add_rep_radiobutton_selection_string");
+
+   GtkWidget *add_reps_fat_bonds_radiobutton = lookup_widget(w, "add_rep_rep_fat_bonds_radiobutton");
+   GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(w, "add_rep_rep_ball_and_stick_radiobutton");
+   GtkWidget *add_rep_bond_width_combobox = lookup_widget(w, "add_rep_bond_width_combobox");
+
+   float bond_width = 8;
+   int bonds_box_type = coot::NORMAL_BONDS;
+   bool draw_H_flag = 1;
+   gchar* bond_width_text = 0;
+#if (GTK_MAJOR_VERSION > 1)   
+   bond_width_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(add_rep_bond_width_combobox));
+#else 
+#endif
+
+   if (bond_width_text) {
+      bond_width = atof(bond_width_text);
+   } else {
+      std::cout << "ERROR:: null bond_width_text, using default of 8" << std::endl;
+   } 
+      
+   int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
+   if (GTK_TOGGLE_BUTTON(position_radiobutton)->active) {
+      std::cout << "By position" << std::endl;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
+      if (aas.first) {
+	 int imol_active = aas.second.first;
+	 coot::atom_selection_info_t asi(aas.second.second.chain,
+					 aas.second.second.resno,
+					 aas.second.second.resno,
+					 aas.second.second.insertion_code);
+	 graphics_info_t::molecules[imol_active].add_additional_representation(bonds_box_type,
+									       bond_width,
+									       draw_H_flag,
+									       asi);
+	 
+      } 
+   } 
+   if (GTK_TOGGLE_BUTTON(resno_radiobutton)->active) {
+      std::cout << "By chainid/resno" << std::endl;
+      std::string chain_id = gtk_entry_get_text(GTK_ENTRY(chain_id_entry));
+      std::string resno_1s = gtk_entry_get_text(GTK_ENTRY(resno_start_entry));
+      std::string resno_2s = gtk_entry_get_text(GTK_ENTRY(resno_end_entry));
+      std::string ins_code = gtk_entry_get_text(GTK_ENTRY(ins_code_entry));
+      if (is_valid_model_molecule(imol)) {
+	 int resno_1 = atoi(resno_1s.c_str());
+	 int resno_2 = atoi(resno_2s.c_str());
+	 coot::atom_selection_info_t asi(chain_id, resno_1, resno_2, ins_code);
+	 graphics_info_t::molecules[imol].add_additional_representation(bonds_box_type,
+									bond_width,
+									draw_H_flag,
+									asi);
+      } 
+   } 
+   if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
+      std::cout << "By selection string" << std::endl;
+      std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
+      coot::atom_selection_info_t asi(s);
+      graphics_info_t::molecules[imol].add_additional_representation(bonds_box_type,
+								     bond_width,
+								     draw_H_flag,
+								     asi);
+   }
+   graphics_draw();
+} 

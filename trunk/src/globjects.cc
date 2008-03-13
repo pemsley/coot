@@ -511,6 +511,7 @@ short int graphics_info_t::in_angle_define = 0;
 short int graphics_info_t::in_torsion_define = 0;
 short int graphics_info_t::fix_chiral_volume_before_refinement_flag = 1;
 int       graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = 0; // option menu
+int       graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = 0; // option menu
 short int graphics_info_t::refinement_immediate_replacement_flag = 0;
 short int graphics_info_t::show_chiral_volume_errors_dialog_flag = 1; // on by default
 

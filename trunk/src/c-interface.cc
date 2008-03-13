@@ -3652,6 +3652,11 @@ int test_function(int i, int j) {
 //    return 0;
 
    if (1) {
+      GtkWidget *w = wrapped_create_add_additional_representation_gui();
+      gtk_widget_show(w);
+   } 
+
+   if (0) {
       coot::util::quaternion::test_quaternion();
    }
    

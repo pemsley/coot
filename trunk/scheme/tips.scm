@@ -53,6 +53,8 @@
   Distances & Angles. Obviously."
  "Esc and Return are keyboard accelerators for Reject/Accept for 
   Refinement and Regularization."
+ "Restraints for alpha helical and beta-strand structure can in the 
+  Refinement/Regularization Control Panel"
  "To disable coot tips: add \"(no-coot-tips)\" to your ~/.coot file."
  "It is possible to accidently invert chiral centres.  Use Validate -> Chiral
   Centre to check."

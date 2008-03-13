@@ -99,6 +99,7 @@ create_window1 (void)
   GtkWidget *sequence_view1;
   GtkWidget *anisotropic_atoms1;
   GtkWidget *show_symmetry1;
+  GtkWidget *additional_representation1;
   GtkWidget *ncs_ghost_control1;
   GtkWidget *spin_view_on_off1;
   GtkWidget *screenshot1;
@@ -664,6 +665,13 @@ create_window1 (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (show_symmetry1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), show_symmetry1);
+
+  additional_representation1 = gtk_menu_item_new_with_label (_("Additional Representation..."));
+  gtk_widget_ref (additional_representation1);
+  gtk_object_set_data_full (GTK_OBJECT (window1), "additional_representation1", additional_representation1,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (additional_representation1);
+  gtk_container_add (GTK_CONTAINER (draw1_menu), additional_representation1);
 
   ncs_ghost_control1 = gtk_menu_item_new_with_label (_("NCS Ghost Control..."));
   gtk_widget_ref (ncs_ghost_control1);
@@ -1291,6 +1299,9 @@ create_window1 (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (show_symmetry1), "activate",
                       GTK_SIGNAL_FUNC (on_show_symmetry1_activate),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (additional_representation1), "activate",
+                      GTK_SIGNAL_FUNC (on_additional_representation1_activate),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (ncs_ghost_control1), "activate",
                       GTK_SIGNAL_FUNC (on_ncs_ghost_control1_activate),

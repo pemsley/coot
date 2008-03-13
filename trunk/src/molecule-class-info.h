@@ -958,6 +958,7 @@ class molecule_class_info_t {
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<coot::Cartesian>   fixed_atom_positions; // updated on make_bonds_type_checked()
    void update_fixed_atom_positions();
+   void update_additional_representations();
    void draw_fixed_atom_positions() const;
    void clear_all_fixed_atoms();
    std::vector<coot::atom_spec_t> get_fixed_atoms() const;
@@ -2045,7 +2046,7 @@ class molecule_class_info_t {
 
    // ---- missing atoms ----
    //
-   // Return a vector of residues that have missing atoms by dictionar
+   // Return a vector of residues that have missing atoms by dictionary
    // search.  missing_hydrogens_flag reflects if we want to count
    // residues that have missing hydrogens as residues with missing
    // atoms that should be part of the returned vector. Most of the
