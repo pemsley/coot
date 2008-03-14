@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2006 by Bernhard Lohkamp
  * Copyright 2007 by Paul Emsley
+ * Copyright 2008 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2333,8 +2334,13 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 			}
 		     }
 		  } else {
-		     info.move_moving_atoms_by_simple_translation(x_as_int,
-								  y_as_int);
+		     // don't allow translation drag of the
+		     // intermediate atoms when they are a rotamer:
+		     // 
+		     if (! info.rotamer_dialog) {
+			info.move_moving_atoms_by_simple_translation(x_as_int,
+								     y_as_int);
+		     }
 		  }
 #endif // HAVE_GSL		  
 	       }
