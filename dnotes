@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   19 Items
+   18 Items
 
    o "Thick bonds" for ligands etc
 
@@ -50,10 +50,6 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
-   o doing a flexible ligand fit in a ligands without flexible bonds -
-     e.g. SO4 gives non-optimal message ("Did you forget to read the
-     dictionary?").
-
    o Update stand-alone refinement program. 
      (Write a test for it?)
 
@@ -77,11 +73,20 @@
 
    o 1qex from PDB crash (see below)
 
+
+
+
+
+
    o Nigel's python restraints -> non found on regularization
 
+* Fixed
 
+   o doing a flexible ligand fit in a ligands without flexible bonds -
+     e.g. SO4 gives non-optimal message ("Did you forget to read the
+     dictionary?").
 
-
+* Fixed
 
    o Test for non positive definite anisotropic atoms from a .ins file
      [test should crash, Mitch Miller, Stanford]
@@ -4694,7 +4699,7 @@ Wed Feb 27 09:18:50 GMT 2008
 -----
 Wed Feb 27 15:38:28 GMT 2008
 
-    at the end of build-it-gtk2-simple:
+    At the end of build-it-gtk2-simple:
 
     mkdir: cannot create directory
     `/home/paule/autobuild/coot-Linux-i686-ubuntu-7.10-gtk2/include/python2.5':
@@ -4772,12 +4777,9 @@ Thu Mar 13 14:31:37 GMT 2008
 
    consider install_name_tool when installing mac binary?
 
-
 ----
 Thu Mar 13 16:15:10 GMT 2008
 
     Additional representations "button" should (also?) be on the
     Display Control.
-
-
 
