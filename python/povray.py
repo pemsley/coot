@@ -47,7 +47,7 @@ def povray_image():
 
     povray(coot_povray_file_name)
     print "calling povray with args: ", povray_args()
-    extra_args = "+H600 +W600"
+    extra_args = "-UV +H600 +W600"
     if (os.name == 'nt'):
 	args = " /EXIT /RENDER "
     else:
