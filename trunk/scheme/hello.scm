@@ -35,8 +35,14 @@
 
 ;; ideally we should say with the right internationalization
 ;; 
-(let* ((pw-bits (getpwnam (getenv "USER")))
-       (user (vector-ref pw-bits 4)))
+;(let* ((pw-bits (getpwnam (getenv "USER")))
+;       (user (vector-ref pw-bits 4)))
+(let* ((os-type (vector-ref (uname) 0))
+       (user
+	(cond
+	 ((string=? os-type "Windows XP") (getenv "USERNAME"))
+	 (else (vector-ref (getpwnam (getenv "USER")) 4)))))
+
   (let* ((time-str (let ((hour (tm:hour (localtime (current-time)))))
 		     (cond 
 		      ((< hour 12) "Good morning")

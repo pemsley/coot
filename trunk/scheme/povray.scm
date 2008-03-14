@@ -21,7 +21,7 @@
   (lambda ()
     (povray coot-povray-file-name)
     (format #t "calling povray with args: ~s~%" (povray-args))
-    (let ((extra-args (list "+H600" "+W600"))) ; just a guess
+    (let ((extra-args (list "-UV" "+H600" "+W600"))) ; just a guess
     ; goosh-command cmd args data-list log-file-name screen-output-also?
       (goosh-command "povray" (append (povray-args) extra-args) 
 		     '() coot-povray-log-file-name #t)

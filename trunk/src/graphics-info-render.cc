@@ -124,7 +124,7 @@ graphics_info_t::povray(std::string filename) {
 	 if (molecules[imol].is_displayed_p()) { 
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
 	    coot::Cartesian eye_centre = eye - rt.view_centre;
-	    eye_centre *= 7.5;
+	    //eye_centre *= 7.5;
 	    coot::Cartesian far_eye = rt.view_centre - eye_centre;
 	    rt.set_front_clipping_plane_point(eye);
 	    rt.set_camera_location(far_eye);
@@ -213,7 +213,8 @@ coot::raytrace_info_t::render_ray_trace(std::string filename) {
       render_stream << mat[8] << " " << mat[9] << " " << mat[10] << " 0\n";
       render_stream << " " << new_centre.x() << " "
 		    << new_centre.y() << " "
-		    << new_centre.z() << " " << zoom*0.6 << "\n";
+		    << new_centre.z() << " " << zoom*0.42 << "\n";
+      //		    << new_centre.z() << " " << zoom*0.6 << "\n";
       render_stream << "3         mixed object types\n";
       render_stream << "*\n*\n*\n";
 
@@ -230,8 +231,10 @@ coot::raytrace_info_t::render_ray_trace(std::string filename) {
 //       backclip  *= zoom/(1.0 + 0.1*clipping);
 
       // 1.0 is the "correct" addative factor, but lets skin it down a triffle.
-      frontclip *= zoom*(0.85 - 0.1*clipping);
-      backclip  *= zoom*(0.85 - 0.1*clipping);
+      //      frontclip *= zoom*(0.85 - 0.1*clipping);
+      //      backclip  *= zoom*(0.85 - 0.1*clipping);
+      frontclip *= zoom*(1.0 - 0.1*clipping);
+      backclip  *= zoom*(1.0 - 0.1*clipping);
 
       std::cout << "FRONTCLIP " << frontclip << std::endl;
       std::cout << "BACKCLIP "  << backclip << std::endl;
@@ -369,22 +372,105 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
 					    view_matrix.matrix_element(1,0),
 					    view_matrix.matrix_element(1,1),
 					    view_matrix.matrix_element(1,2),
-					    view_matrix.matrix_element(2,0),
-					    view_matrix.matrix_element(2,1),
-					    view_matrix.matrix_element(2,2));
+					    -view_matrix.matrix_element(2,0),
+					    -view_matrix.matrix_element(2,1),
+					    -view_matrix.matrix_element(2,2));
 					    
+      clipper::Mat33<double> view_matrix_inv_cl(view_matrix.matrix_element(0,0),
+						view_matrix.matrix_element(1,0),
+						view_matrix.matrix_element(2,0),
+						view_matrix.matrix_element(0,1),
+						view_matrix.matrix_element(1,1),
+						view_matrix.matrix_element(2,1),
+						-view_matrix.matrix_element(0,2),
+						-view_matrix.matrix_element(1,2),
+						-view_matrix.matrix_element(2,2));
+
       clipper::Polar_ccp4 polar = clipper::Rotation(view_matrix_cl).polar_ccp4();
       std::cout << "kappa: " << polar.kappa() << std::endl;
 
+      // invert z and adjust the camera and view centre
+      // 1.) invert the view_centre_z:
+      //float view_centre_z_new = -view_centre.z();
+      // 2.) for camera z we have to add 2* new view centre z
+      //float camera_location_z_new = camera_location.z() + 2 * view_centre_z_new;
+
+      clipper::Vec3<double> camera_location_cl(camera_location.x(),
+					       camera_location.y(),
+					       camera_location.z());
+      
+      clipper::Vec3<double> view_centre_cl(view_centre.x(),
+					   view_centre.y(),
+					   view_centre.z());
+
+      clipper::Vec3<double> tmp_cl = view_matrix_inv_cl * camera_location_cl;
+
+      //std::cout<< "BL DEBUG:: camera_location  "
+      //       << camera_location.x() <<", "
+      //       << camera_location.y() <<", "
+      //       << camera_location.z() <<"\n "<<std::endl;
+      //std::cout<< "BL DEBUG:: view_centre  "
+      //       << view_centre.x() <<", "
+      //       << view_centre.y() <<", "
+      //       << view_centre.z() <<"\n "<<std::endl;
+      //std::cout<< "BL DEBUG:: tmp_cl "
+      //       << tmp_cl[0] <<", "
+      //       << tmp_cl[1] <<", "
+      //       << tmp_cl[2] <<"\n "<<std::endl;
+      //      clipper::Vec3<double> camera_translation = view_centre_cl - tmp_cl;
+
+
+      float dir_len = (camera_location - view_centre).amplitude();
+      Cartesian direction(view_matrix.matrix_element(2,0),
+			  view_matrix.matrix_element(2,1),
+			  view_matrix.matrix_element(2,2));
+
+      clipper::Vec3<double> direction_cl(view_matrix.matrix_element(2,0),
+					 view_matrix.matrix_element(2,1),
+					 view_matrix.matrix_element(2,2));
+
+      Cartesian view_centre_invert_z = view_centre;
+      view_centre_invert_z.invert_z();
+      Cartesian camera_translation = view_centre_invert_z - direction.by_scalar(dir_len);
+
+      clipper::Vec3<double> tt_cl;
+      for (int i=0; i<3; i++) {
+	tt_cl[i] = dir_len * direction_cl[i];
+      }
+      clipper::Vec3<double> camera_translation_cl = tmp_cl;
+
+
       render_stream << "#include \"colors.inc\"\n";
       render_stream << "camera { orthographic\n            location <"
-		    << camera_location.x() << ", "
-		    << camera_location.y() << ", "
-		    << camera_location.z() << ">\n";
-      render_stream << "         look_at  <"
-		    << view_centre.x() << ", "
-		    << view_centre.y() << ", "
-		    << view_centre.z() << ">}\n";
+	//		    << camera_translation.x() << ", "
+	//		    << camera_translation.y() << ", "
+	//      		    << camera_translation.z() << ">\n";
+		    << camera_translation_cl[0] << ", "
+		    << camera_translation_cl[1] << ", "
+		    << camera_translation_cl[2] << ">\n";
+      // BL insert for spec
+      int x0 = graphics_info_t::glarea->allocation.width;
+      int y0 = graphics_info_t::glarea->allocation.height;
+      float ratio = (float)x0/(float)y0;
+      render_stream << "        right     < " 
+		    << view_matrix.matrix_element(0,0) * ratio << ", "
+		    << view_matrix.matrix_element(0,1) * ratio << ", "
+		    << view_matrix.matrix_element(0,2) * ratio << "> \n"
+		    << "        up        < "
+	            << view_matrix.matrix_element(1,0) << ", "
+		    << view_matrix.matrix_element(1,1) << ", "
+		    << view_matrix.matrix_element(1,2) << "> \n"
+		    << "        direction < "
+		    << -view_matrix.matrix_element(2,0) << ", "
+		    << -view_matrix.matrix_element(2,1) << ", "
+		    << -view_matrix.matrix_element(2,2) << "> \n";
+      render_stream << "         angle  180*"<< abs(view_centre.z() - camera_location.z()) <<
+	               " / " << graphics_info_t::zoom << " \n";
+      //render_stream << "         look_at  <"
+      //<< view_centre.x() << ", "
+      //<< view_centre.y() << ", "
+      //<< view_centre.z() << ">}\n";
+      render_stream << "}\n";
       render_stream << "light_source{<1500,  2500, -2500> colour White}\n";
       render_stream << "light_source{<1500, -2500,  1500> colour White}\n";
       render_stream << "light_source{<-1500, 2500,  1500> colour White}\n";
@@ -442,11 +528,30 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
    coot::Cartesian front_clip_to_centre_vec = view_centre - front_clipping_plane_point;
    coot::Cartesian back_clipping_plane_point = view_centre + front_clip_to_centre_vec;
    coot::Cartesian  back_clip_to_centre_vec = front_clipping_plane_point - view_centre;
-   
+
+   coot::Cartesian front_clipping_plane_point_new;
+   coot::Cartesian tmp;
+   // swap front and back
+   //front_clipping_plane_point_new = back_clipping_plane_point;
+   //back_clipping_plane_point = front_clipping_plane_point;
+   //tmp = front_clip_to_centre_vec;
+   //front_clip_to_centre_vec = back_clip_to_centre_vec;
+   //back_clip_to_centre_vec = tmp;
+   // now invert z
+   //front_clipping_plane_point_new.invert_z();
+   //back_clipping_plane_point.invert_z();
+   //front_clip_to_centre_vec.invert_z();
+   //back_clip_to_centre_vec.invert_z();
+
+   // BL says:: for povray we have to invert z, i.e. z = -z; dont ask me why, but that's
+   // how it is. We convert it here for now, but I guess there may be a better place and
+   // way how to do it
+   // we just do it before everything else get's done
 
    // elements of the form:
    // cylinder{<0,0,0>, <0,1,0>, 0.1 pigment {colour <0.1,0.2,0.3>} }
    for(unsigned int id=0; id<density_lines.size(); id++) {
+
       Cartesian v1 = density_lines[id].first  - front_clipping_plane_point;
       Cartesian v2 = density_lines[id].second - front_clipping_plane_point;
       Cartesian v3 = density_lines[id].first  -  back_clipping_plane_point;
@@ -490,6 +595,7 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
       }
    }
    for (unsigned int ib=0; ib<bond_lines.size(); ib++) {
+      
       Cartesian v1 = bond_lines[ib].first  - front_clipping_plane_point;
       Cartesian v2 = bond_lines[ib].second - front_clipping_plane_point;
       Cartesian v3 = bond_lines[ib].first  -  back_clipping_plane_point;
@@ -522,6 +628,7 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
    // cylinder{<0,0,0>, <0,1,0>, 0.1 pigment {colour <0.1,0.2,0.3>} }
    if (graphics_info_t::renderer_show_atoms_flag) { 
       for (unsigned int iat=0; iat<atom.size(); iat++) {
+      
 	 Cartesian v1 = atom[iat].first  - front_clipping_plane_point;
 	 Cartesian v2 = atom[iat].first  -  back_clipping_plane_point;
 	 float dp1 = coot::dot_product(v1, front_clip_to_centre_vec);

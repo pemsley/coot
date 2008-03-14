@@ -33,6 +33,7 @@
      ((eq? image-type 'povray) 
       (let ((args (append (povray-args)
 			  (list
+			   "-UV"
 			   (string-append "+W" (number->string x-size))
 			   (string-append "+H" (number->string y-size))
 			   source-file-name))))
