@@ -250,5 +250,5 @@
    (lambda (imol chain-id resno-start resno-end)
      
     (map (lambda (resno)
-	   (delete-residue-sidechain imol chain-id resno ""))
+	   (delete-residue-sidechain imol chain-id resno "" 0))
          (number-list resno-start resno-end))))
