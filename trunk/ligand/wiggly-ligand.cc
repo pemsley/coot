@@ -53,19 +53,27 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    std::vector <coot::dict_torsion_restraint_t> m_torsions =
       pg->get_monomer_torsions_from_geometry(monomer_type, do_hydrogen_torsions_flag);
 
-
    if (m_torsions.size() == 0) {
-      std::cout << "Requested flexible molecule for ligand " << monomer_type
-		<< " but no non-Hydrogen rotatable bonds found.\n"
-		<< " Did you forget to read the dictionary?\n";
-      
+
+      // << " Did you forget to read the dictionary?\n";
+      std::pair<short int, dictionary_residue_restraints_t> p = 
+	 pg->get_monomer_restraints(monomer_type);
+
+
       m = "Requested flexible molecule for ligand ";
       m += monomer_type;
       m += "\n"; 
       m += " but no non-Hydrogen rotatable bonds found.\n";
-      m += " Did you forget to read the dictionary?\n";
-      
-      istat = 0;
+      if (p.first == 0) {
+	 m += " Did you forget to read the dictionary?\n";
+	 istat = 0;
+      } else {
+	 // OK, there were restraints for such a thing, but no
+	 // torsions.  It was a phosphate or some such.
+	 // In that case, just install a simple static molecule
+	 install_ligand(ligand_in);
+	 istat = 1;
+      }
       return std::pair<short int, std::string> (istat, m);
 
    } else {
@@ -179,7 +187,7 @@ coot::wligand::get_monomer_type_from_mol(const coot::minimol::molecule &mol) con
    std::string r;
    short int ifound = 0;
    
-   for(int ifrag=0; ifrag<mol.fragments.size(); ifrag++) {
+   for(unsigned int ifrag=0; ifrag<mol.fragments.size(); ifrag++) {
       for (int ires=mol[ifrag].min_res_no(); ires<=mol[ifrag].max_residue_number(); ires++) {
 	 if (mol[ifrag][ires].n_atoms() > 0) {
 	    r = mol[ifrag][ires].name;
@@ -220,10 +228,7 @@ std::vector <float>
 coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_restraint_t> &m_torsions) const { 
    
    std::vector <float> sample_tors(m_torsions.size());
-   float prob;
-   float r;
 
-   float max_prob = 1.0;
    float non_rotating_torsion_cut_off = 11.0;
 
    if (0) { 
@@ -389,7 +394,7 @@ coot::wligand::probability_of_torsions(const std::vector <coot::dict_torsion_res
 
       double z;
       double s;
-      for(int i=0; i<r.size(); i++) {
+      for(unsigned int i=0; i<r.size(); i++) {
 	 int per = m_torsions[i].periodicity();
 
 	 if (per > 0 ) { 
@@ -429,12 +434,10 @@ std::vector<coot::atom_index_pair>
 coot::wligand::get_atom_index_pairs(std::vector<coot::atom_name_pair>atom_name_pairs,
 				    const coot::minimol::molecule &ligand) const {
    
-   int nres = 0;
    int i_store_index; 
    std::vector<coot::atom_index_pair> index_pairs;
 
-
-   for(int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
+   for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
       for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
 	 for (unsigned int ipair=0; ipair<atom_name_pairs.size(); ipair++) {
 	    i_store_index = -1;
@@ -464,7 +467,7 @@ coot::wligand::get_torsion_bonds_atom_pairs(const std::string &monomer_type,
 					    const std::vector <coot::dict_torsion_restraint_t> &monomer_torsions) const {
 
    std::vector<coot::atom_name_pair> atom_pairs;
-   for(int i=0; i<monomer_torsions.size(); i++) {
+   for(unsigned int i=0; i<monomer_torsions.size(); i++) {
       coot::atom_name_pair pair(monomer_torsions[i].atom_id_2_4c(),
 				monomer_torsions[i].atom_id_3_4c());
       atom_pairs.push_back(pair);
