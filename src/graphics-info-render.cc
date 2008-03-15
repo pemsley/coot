@@ -124,7 +124,7 @@ graphics_info_t::povray(std::string filename) {
 	 if (molecules[imol].is_displayed_p()) { 
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
 	    coot::Cartesian eye_centre = eye - rt.view_centre;
-	    //eye_centre *= 7.5;
+	    eye_centre *= 7.5;
 	    coot::Cartesian far_eye = rt.view_centre - eye_centre;
 	    rt.set_front_clipping_plane_point(eye);
 	    rt.set_camera_location(far_eye);
@@ -406,45 +406,33 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       clipper::Vec3<double> tmp_cl = view_matrix_inv_cl * camera_location_cl;
 
       //std::cout<< "BL DEBUG:: camera_location  "
-      //       << camera_location.x() <<", "
-      //       << camera_location.y() <<", "
-      //       << camera_location.z() <<"\n "<<std::endl;
+      //     << camera_location.x() <<", "
+      //     << camera_location.y() <<", "
+      //     << camera_location.z() <<"\n "<<std::endl;
       //std::cout<< "BL DEBUG:: view_centre  "
-      //       << view_centre.x() <<", "
-      //       << view_centre.y() <<", "
-      //       << view_centre.z() <<"\n "<<std::endl;
+      //     << view_centre.x() <<", "
+      //     << view_centre.y() <<", "
+      //     << view_centre.z() <<"\n "<<std::endl;
       //std::cout<< "BL DEBUG:: tmp_cl "
-      //       << tmp_cl[0] <<", "
-      //       << tmp_cl[1] <<", "
-      //       << tmp_cl[2] <<"\n "<<std::endl;
-      //      clipper::Vec3<double> camera_translation = view_centre_cl - tmp_cl;
-
+      //     << tmp_cl[0] <<", "
+      //     << tmp_cl[1] <<", "
+      //     << tmp_cl[2] <<"\n "<<std::endl;	    
 
       float dir_len = (camera_location - view_centre).amplitude();
-      Cartesian direction(view_matrix.matrix_element(2,0),
-			  view_matrix.matrix_element(2,1),
-			  view_matrix.matrix_element(2,2));
 
       clipper::Vec3<double> direction_cl(view_matrix.matrix_element(2,0),
 					 view_matrix.matrix_element(2,1),
 					 view_matrix.matrix_element(2,2));
 
-      Cartesian view_centre_invert_z = view_centre;
-      view_centre_invert_z.invert_z();
-      Cartesian camera_translation = view_centre_invert_z - direction.by_scalar(dir_len);
-
       clipper::Vec3<double> tt_cl;
       for (int i=0; i<3; i++) {
 	tt_cl[i] = dir_len * direction_cl[i];
       }
-      clipper::Vec3<double> camera_translation_cl = tmp_cl;
+      clipper::Vec3<double> camera_translation_cl = view_centre_cl + tt_cl;
 
 
       render_stream << "#include \"colors.inc\"\n";
       render_stream << "camera { orthographic\n            location <"
-	//		    << camera_translation.x() << ", "
-	//		    << camera_translation.y() << ", "
-	//      		    << camera_translation.z() << ">\n";
 		    << camera_translation_cl[0] << ", "
 		    << camera_translation_cl[1] << ", "
 		    << camera_translation_cl[2] << ">\n";
