@@ -2,13 +2,23 @@
 
    Things to fix before 0.5
 
-   21 Items
+   17 Items
 
-   o "Thick bonds" for ligands etc
+   o Try to improve the picking algorithm.
+
+   o Torsion general bonding problem on complex ligand? [JED]
+
+     Also, try torsioning around CG-CD of A40 (rnase).  Then accept.
+     Duplicate atoms.
+
+   o The atom spheres in "Ball and Stick" mode have the wrong colours.
+     Needs fixing
+
+   o On reading state file, the window does not keep correct geometry.
+
+   o Make extensions for NCS fitting tools
 
    o Kevin's Ramachandran Refinement target
-
-   o multi-NCS crash (on installing NCS maps?) - JED
 
    o 1qex from PDB crash (see below)
 
@@ -33,8 +43,6 @@
 
    o Valgrind long/multiple fit-proteins
 
-   o Revisit CCP4mg button
-
    o test/fix hardware stereo in Gtk2 mode.
 
    o NCS Ligands: if we find a ligand C in molecule A, we should look
@@ -56,24 +64,18 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
-   o Try to improve the picking algorithm.
-
-   o Torsion general bonding problem on complex ligand? [JED]
-
-     Also, try torsioning around CG-CD of A40 (rnase).  Then accept.
-     Duplicate atoms.
-
-   o The atom spheres in "Ball and Stick" mode have the wrong colours.
-     Needs fixing
-
-   o On reading state file, the window does not keep correct geometry.
-
-   o Make extensions for NCS fitting tools
 
 
 
 
 
+   o multi-NCS crash (on installing NCS maps?) - JED
+
+* Done!
+
+   o "Thick bonds" for ligands etc
+
+* Done.  Needs Ball and Stick to be enabled though
 
 
    o Nigel's python restraints -> non found on regularization

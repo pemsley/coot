@@ -24,16 +24,15 @@
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
-
 #include <gtk/gtk.h>
 #include "c-interface.h"
+#include "cc-interface.hh"
+
 #include "gtk-manual.h"
 #include "gtk-manual.hh"
 
 #include "interface.h"  /* for create_single_map_properties_dialog() */
-#include "cc-interface.hh"
 #include "coot-utils.hh"
-
 
 
 
