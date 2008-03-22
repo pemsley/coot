@@ -118,6 +118,10 @@
 				     (copy-molecule imol)))))
 
       (add-simple-coot-menu-menuitem
+       menu "Make a Difference Map..."
+       (lambda () (make-difference-map-gui)))
+
+      (add-simple-coot-menu-menuitem
        menu "Export map..."
        (lambda ()
 	 (generic-chooser-and-file-selector
@@ -209,6 +213,27 @@
 	  (lambda (imol)
 	    (renumber-waters imol)))))
 
+
+      (add-simple-coot-menu-menuitem 
+       menu "Apply NCS loop..."
+       (lambda ()
+	 (generic-chooser-and-entry "Apply NCS Range from Master"
+				    "Master Chain ID"
+				    ""
+				    (lambda (imol chain-id)
+				      (generic-double-entry 
+				       "Start of Residue Number Range"
+				       "End of Residue Number Range"
+				       "" "" #f #f "Apply NCS Residue Range" 
+				       (lambda (text1 text2 dum) 
+					 (let ((r1 (string->number text1))
+					       (r2 (string->number text2)))
+					   (if (and (number? r1)
+						    (number? r2))
+					       (copy-residue-range-from-ncs-master-to-others
+						imol chain-id r1 r2)))))))))
+
+
       (add-simple-coot-menu-menuitem
        menu "Residues with Alt Confs..."
        (lambda ()
@@ -227,7 +252,7 @@
 
 
       (add-simple-coot-menu-menuitem
-       menu "Residus with Cis Peptides Bonds..."
+       menu "Residues with Cis Peptides Bonds..."
        (lambda ()
 	 (molecule-chooser-gui "Choose a molecule for checking for Cis Peptides" 
 			       (lambda (imol)
@@ -580,7 +605,7 @@
 				      "Atom Selection:"
 				      "//A/1-2"
 				      (lambda (imol text)
-					(let ((handle (make-ball-and-stick imol text 0.18 0.3 1)))
+					(let ((handle (make-ball-and-stick imol text 0.12 0.3 1)))
 					  (format #t "handle: ~s~%" handle))))))
 
       (add-simple-coot-menu-menuitem

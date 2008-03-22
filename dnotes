@@ -2,21 +2,15 @@
 
    Things to fix before 0.5
 
-   18 Items
+   14 Items
+
+   o The atom spheres in "Ball and Stick" mode have the wrong colours.
+     Needs fixing.
 
    o Torsion general bonding problem on complex ligand? [JED]
 
      Also, try torsioning around CG-CD of A40 (rnase).  Then accept.
      Duplicate atoms.
-
-   o The atom spheres in "Ball and Stick" mode have the wrong colours.
-     Needs fixing.
-
-   o On reading state file, the window does not keep correct geometry.
-
-   o Difference map needs documentation and and GUI Extension
-
-   o Make extensions for NCS fitting tools
 
    o Kevin's Ramachandran Refinement target
 
@@ -67,6 +61,17 @@
 
 
 
+   o Make extensions for NCS fitting tools
+
+* Done.
+
+   o Difference map needs documentation and and GUI Extension
+
+* Done.
+
+   o On reading state file, the window does not keep correct geometry.
+
+* Done.
 
    o Try to improve the picking algorithm.
 

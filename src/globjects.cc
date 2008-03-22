@@ -1826,9 +1826,11 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // draw display list objects
 	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
+	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
 	    n_display_list_objects += graphics_info_t::molecules[ii].draw_display_list_objects();
 	    glDisable(GL_LIGHT0);
+	    glDisable(GL_LIGHTING);
 	 }
 
 	 // draw anisotropic atoms maybe
@@ -1926,18 +1928,20 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // 
       display_density_level_maybe();
 
-      // Turn on the light(s)?  // moved here from end of loop 20051014
-      if (n_display_list_objects > 0) {
-	 glPushMatrix();
-	 glMatrixMode(GL_MODELVIEW);
-	 glLoadIdentity();
-	 GLfloat  light_position_0[] = {1.0, 1.0, 1.0, 0.0};
-	 GLfloat  light_position_1[] = {0.0, 0.0, 1.0, 0.0};
-	 glLightfv(GL_LIGHT0,  GL_POSITION, light_position_0);
-	 glEnable(GL_LIGHTING);
-	 glEnable(GL_LIGHT0);
-	 glPopMatrix();
-      }
+// This causes weird lighting effects.
+// commented out 20080322, seems to work proper now.      
+// Turn on the light(s)?  // moved here from end of loop 20051014
+//       if (n_display_list_objects > 0) {
+// 	 glPushMatrix();
+// 	 glMatrixMode(GL_MODELVIEW);
+// 	 glLoadIdentity();
+// 	 GLfloat  light_position_0[] = {1.0, 1.0, 1.0, 0.0};
+// 	 GLfloat  light_position_1[] = {0.0, 0.0, 1.0, 0.0};
+// 	 glLightfv(GL_LIGHT0,  GL_POSITION, light_position_0);
+// 	 glEnable(GL_LIGHTING);
+// 	 glEnable(GL_LIGHT0);
+// 	 glPopMatrix();
+//       }
 
       graphics_info_t::draw_generic_objects();
       graphics_info_t::draw_generic_text();

@@ -1550,7 +1550,7 @@ following function:
 
 e.g.:
 
-@code{(set-spacegroup 0 "P 41 21 2")}
+@code{(set-space-group 0 "P 41 21 2")}
 
 @node Anisotropic Atoms
 @section Anisotropic Atoms
@@ -3139,6 +3139,7 @@ and
 * Map colouring::
 * Difference Map Colouring::
 * Map Sampling::
+* Make a Difference Map::
 * Dragged Map::
 * Dynamic Map Sampling and Display Size::
 * Skeletonization::
@@ -3369,6 +3370,15 @@ as positive and green as negative, this option is for them:
 This option will allow the ``blue is positive, red is negative'' colour
 scheme on ``Edit -> Map Colour''.
 
+
+@node    Make a Difference Map
+@section Make a Difference Map
+@cindex difference map
+
+Using the ``Make a Difference Map'' function in the Extensions menu, one
+can make a difference from two arbitrary maps.  The maps need not be on
+the same gridding, or in the same group even.  The resulting map will be
+on the same gridding and space group as the ``Reference'' map.
 
 @node    Map Sampling
 @section Map Sampling

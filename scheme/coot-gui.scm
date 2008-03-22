@@ -1639,6 +1639,83 @@
 			   (cons 200 190) buttons "  Close ")))
 
 
+;; A gui to make a difference map (from arbitrarily gridded maps
+;; (that's it's advantage))
+;; 
+(define (make-difference-map-gui)
+
+  (let ((window (gtk-window-new 'toplevel))
+	(diff-map-vbox (gtk-vbox-new #f 2))
+	(h-sep (gtk-hseparator-new))
+	(title (gtk-label-new "Make a Difference Map:"))
+	(ref-label (gtk-label-new "Reference Map:"))
+	(sec-label (gtk-label-new "Subtract this map:"))
+	(second-map-hbox (gtk-hbox-new #f 2))
+	(buttons-hbox (gtk-hbox-new #t 6))
+	(option-menu-ref-mol (gtk-option-menu-new))
+	(option-menu-sec-mol (gtk-option-menu-new))
+	(menu-ref (gtk-menu-new))
+	(menu-sec (gtk-menu-new))
+	(scale-label (gtk-label-new "Scale"))
+	(scale-entry (gtk-entry-new))
+	(ok-button (gtk-button-new-with-label "   OK   "))
+	(cancel-button (gtk-button-new-with-label " Cancel ")))
+
+    (let ((map-molecule-list-ref (fill-option-menu-with-map-mol-options
+				  menu-ref))
+	  (map-molecule-list-sec (fill-option-menu-with-map-mol-options
+				  menu-sec)))
+
+      (gtk-option-menu-set-menu option-menu-ref-mol menu-ref)
+      (gtk-option-menu-set-menu option-menu-sec-mol menu-sec)
+
+      (gtk-container-add window diff-map-vbox)
+      (gtk-box-pack-start diff-map-vbox title #f #f 2)
+      (gtk-box-pack-start diff-map-vbox ref-label #f #f 2)
+      (gtk-box-pack-start diff-map-vbox option-menu-ref-mol #t #t 2)
+
+      (gtk-box-pack-start diff-map-vbox sec-label #f #f 2)
+      (gtk-box-pack-start diff-map-vbox second-map-hbox #f #f 2)
+
+      (gtk-box-pack-start second-map-hbox option-menu-sec-mol #t #t 2)
+      (gtk-box-pack-start second-map-hbox scale-label #f #f 2)
+      (gtk-box-pack-start second-map-hbox scale-entry #f #f 2)
+
+      (gtk-box-pack-start diff-map-vbox h-sep #t #f 2)
+      (gtk-box-pack-start diff-map-vbox buttons-hbox #t #f 2)
+      (gtk-box-pack-start buttons-hbox ok-button #t #f 2)
+      (gtk-box-pack-start buttons-hbox cancel-button #t #f 2)
+      (gtk-entry-set-text scale-entry "1.0")
+
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda()
+			    (format #t "make diff map here~%")
+			    (let* ((active-mol-no-ref
+				   (get-option-menu-active-molecule 
+				    option-menu-ref-mol
+				    map-molecule-list-ref))
+				   (active-mol-no-sec
+				    (get-option-menu-active-molecule 
+				     option-menu-sec-mol
+				     map-molecule-list-sec))
+				   (scale-text (gtk-entry-get-text scale-entry))
+				   (scale (string->number scale-text)))
+
+			      (if (not (number? scale))
+				  (format #t "can't decode scale ~s~%" scale-text)
+				  (difference-map active-mol-no-ref
+						  active-mol-no-sec
+						  scale))
+			      (gtk-widget-destroy window))))
+      
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda()
+			    (gtk-widget-destroy window)))
+
+      (gtk-widget-show-all window))))
+
+;; A GUI to display all the CIS peptides and navigate to them.
+;; 
 (define (cis-peptides-gui imol)
 
   (define (get-ca atom-list)

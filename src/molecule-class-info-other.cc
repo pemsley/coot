@@ -4740,11 +4740,16 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       }
 
       if (do_spheres_flag) { 
-	 int slices = 10;
+	 int slices = 20;
 	 int stacks = 20;
 	 for (int i=0; i<bonds_box_local.n_atom_centres_; i++) {
-	    set_bond_colour_by_mol_no(bonds_box.atom_centres_colour_[i]);
+	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i]);
 	    glPushMatrix();
+	    GLfloat bgcolor[4]={bond_colour_internal[0],
+				bond_colour_internal[1],
+				bond_colour_internal[2],
+				1.0};
+	    glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
 	    glTranslatef(bonds_box_local.atom_centres_[i].get_x(),
 			 bonds_box_local.atom_centres_[i].get_y(),
 			 bonds_box_local.atom_centres_[i].get_z());
