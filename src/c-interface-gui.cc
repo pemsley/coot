@@ -3799,9 +3799,11 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       std::cout << "ERROR:: null bond_width_text, using default of 8" << std::endl;
    } 
       
+   graphics_info_t g;
+   GtkWidget *dcw = g.display_control_window();
    int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
    if (GTK_TOGGLE_BUTTON(position_radiobutton)->active) {
-      std::cout << "By position" << std::endl;
+      // std::cout << "By position" << std::endl;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
       if (aas.first) {
 	 int imol_active = aas.second.first;
@@ -3809,11 +3811,10 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 					 aas.second.second.resno,
 					 aas.second.second.resno,
 					 aas.second.second.insertion_code);
-	 graphics_info_t::molecules[imol_active].add_additional_representation(bonds_box_type,
-									       bond_width,
-									       draw_H_flag,
-									       asi);
-	 
+	 g.molecules[imol_active].add_additional_representation(bonds_box_type,
+								bond_width,
+								draw_H_flag,
+								asi, dcw);
       } 
    } 
    if (GTK_TOGGLE_BUTTON(resno_radiobutton)->active) {
@@ -3829,7 +3830,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 	 graphics_info_t::molecules[imol].add_additional_representation(bonds_box_type,
 									bond_width,
 									draw_H_flag,
-									asi);
+									asi, dcw);
       } 
    } 
    if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
@@ -3839,7 +3840,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       graphics_info_t::molecules[imol].add_additional_representation(bonds_box_type,
 								     bond_width,
 								     draw_H_flag,
-								     asi);
+								     asi, dcw);
    }
    graphics_draw();
 } 

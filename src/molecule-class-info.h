@@ -1948,9 +1948,6 @@ class molecule_class_info_t {
    std::vector<coot::ghost_molecule_display_t> NCS_ghosts() const;
 
    std::vector<std::vector<std::string> > ncs_ghost_chains() const;
-   int make_dynamically_transformed_maps(int imol_map,
-					 short int do_average_map,
-					 float homology_lev);
 
    // Not const because we may modify ncs_ghosts by adding their ncs
    // operators: (and recall that this function is a coordinates
@@ -2154,7 +2151,8 @@ class molecule_class_info_t {
    int add_additional_representation(const int &bonds_box_type_in, 
 				     float bonds_width,
 				     bool draw_hydrogens_flag,
-				     const coot::atom_selection_info_t &info); 
+				     const coot::atom_selection_info_t &info,
+				     GtkWidget *display_control_window); 
 
    int adjust_additional_representation(int represenation_number, 
 					const int &bonds_box_type_in, 

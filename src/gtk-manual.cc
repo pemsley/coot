@@ -32,7 +32,7 @@
 
 #include "interface.h"  /* for create_single_map_properties_dialog() */
 #include "cc-interface.hh"
-
+#include "coot-utils.hh"
 
 
 
@@ -515,11 +515,9 @@ on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 
 
 
+/* Coordinates  */
 /* n is the molecule number (not necessarily the nth element in the
    molecule display VBox) */
-/* Note we don't do anything with the return value (which is not even
-   constructed properly) - void this function when things work */
-/* Coordinates  */
 void display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
 					const gchar *name, 
 					int n) {
@@ -578,7 +576,11 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), "hbox31", hbox31,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox31);
-  gtk_container_add (GTK_CONTAINER (display_mol_frame_1), hbox31);
+
+  GtkWidget *vbox_single_molecule_all_attribs = gtk_vbox_new(FALSE, 0);
+  gtk_widget_show(vbox_single_molecule_all_attribs);
+  gtk_container_add (GTK_CONTAINER (display_mol_frame_1), vbox_single_molecule_all_attribs);
+  gtk_box_pack_start(GTK_BOX(vbox_single_molecule_all_attribs), hbox31, FALSE, FALSE, 2);
 
 
 /* -- molecule number label */
@@ -887,8 +889,38 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 /*   }  */
 
 
-  free(widget_name); 
+  free(widget_name);
+
+  // Now add the additional representations frame and vbox
+  add_add_reps_frame_and_vbox(display_control_window_glade,
+			      vbox_single_molecule_all_attribs, n);
+  
 }
+
+void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
+				 GtkWidget *hbox_for_single_molecule, int imol_no) {
+
+   GtkWidget *frame = gtk_frame_new("Additional Representations");
+   GtkWidget *v = gtk_vbox_new(FALSE, 0);
+   gtk_container_add(GTK_CONTAINER(hbox_for_single_molecule), frame);
+   gtk_container_add(GTK_CONTAINER(frame), v);
+   gtk_widget_show(frame);
+   gtk_widget_show(v);
+   gtk_widget_ref (v);
+   gtk_widget_ref (frame);
+
+   // set the name so that it can be looked up.
+   std::string widget_name = "add_rep_display_control_frame_vbox_";
+   widget_name += coot::util::int_to_string(imol_no);
+   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
+			     widget_name.c_str(),
+			     v,
+			     (GtkDestroyNotify) gtk_widget_unref);
+//    std::cout <<"DEBUG:: added set_data_full for " << v << " on to " << display_control_window_glade
+// 	     << " " << widget_name << std::endl;
+
+} 
+
 
 
 void 
@@ -1660,47 +1692,61 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 // function.  If you want to remove that in future (make this function
 // a void), then you'll have to set a name on the vbox that can be
 // looked up by display_control_add_reps().
+//
+//
+// Function no longer needed, frame is made by
+// display_control_molecule_combo_box().
 // 
 GtkWidget *
 display_control_add_reps_container(GtkWidget *display_control_window_glade,
-					int imol_no) {
+				   int imol_no) {
 
-   GtkWidget *display_molecule_vbox = lookup_widget(display_control_window_glade, 
-						    "display_molecule_vbox"); 
-   GtkWidget *frame = gtk_frame_new("Additional Representations");
-   GtkWidget *v = gtk_vbox_new(FALSE, 0);
-   gtk_container_add(GTK_CONTAINER(display_molecule_vbox), frame);
-   gtk_container_add(GTK_CONTAINER(frame), v);
-   gtk_widget_show(frame);
-   gtk_widget_show(v);
-   return v;
+   GtkWidget *w = NULL;
+
+   if (display_control_window_glade) {
+      std::string name = "add_rep_display_control_frame_vbox_";
+      name += coot::util::int_to_string(imol_no);
+      GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      if (t)
+	 w = t;
+      else
+	 std::cout << "ERROR:: in display_control_add_reps_container failed to lookup "
+		   << name << " widget" << std::endl;
+   } 
+   return w;
 } 
 
-void display_control_add_reps(GtkWidget *add_rep_vbox,
+void display_control_add_reps(GtkWidget *display_control_window_glade,
 			      int imol_no, int add_rep_no,
 			      bool show_it,
 			      int bonds_box_type, const std::string &name) {
 
-   GtkWidget *hbox = gtk_hbox_new(FALSE, 2);
-   gtk_box_pack_start(GTK_BOX(add_rep_vbox), hbox, FALSE, FALSE, 0);
-   std::string label = name;
-   GtkWidget *toggle_button_show_it = gtk_check_button_new_with_label(label.c_str());
-   if (show_it)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button_show_it), TRUE);
-   int cc = encode_ints(imol_no, add_rep_no);
-   gtk_signal_connect(GTK_OBJECT(toggle_button_show_it), "toggled",
-		      GTK_SIGNAL_FUNC(add_rep_toggle_button_toggled),
-		      GINT_TO_POINTER(cc));
-   gtk_box_pack_start(GTK_BOX(hbox), toggle_button_show_it, FALSE, FALSE, 0);
-   gtk_widget_show(toggle_button_show_it);
-   gtk_widget_show(hbox);
+   if (display_control_window_glade) { 
+      GtkWidget *add_rep_vbox = display_control_add_reps_container(display_control_window_glade, imol_no);
+      // std::cout <<  "DEBUG:: add_rep_vbox is " << add_rep_vbox << std::endl;
+      GtkWidget *hbox = gtk_hbox_new(FALSE, 2);
+      gtk_widget_ref (hbox);
+      gtk_box_pack_start(GTK_BOX(add_rep_vbox), hbox, FALSE, FALSE, 0);
+      std::string label = name;
+      GtkWidget *toggle_button_show_it = gtk_check_button_new_with_label(label.c_str());
+      gtk_widget_ref (toggle_button_show_it);
+      if (show_it)
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button_show_it), TRUE);
+      int cc = encode_ints(imol_no, add_rep_no);
+      gtk_signal_connect(GTK_OBJECT(toggle_button_show_it), "toggled",
+			 GTK_SIGNAL_FUNC(add_rep_toggle_button_toggled),
+			 GINT_TO_POINTER(cc));
+      gtk_box_pack_start(GTK_BOX(hbox), toggle_button_show_it, FALSE, FALSE, 0);
+      
+      gtk_widget_show(toggle_button_show_it);
+      gtk_widget_show(hbox);
+   }
 } 
 
 void add_rep_toggle_button_toggled(GtkToggleButton       *button,
 				   gpointer         user_data) {
    
    std::pair<int, int> p = decode_ints(GPOINTER_TO_INT(user_data));
-   std::cout << "Toggle button toggled!" << p.first << " " << p.second << std::endl;
    int on_off_flag = 0;
    if (button->active)
       on_off_flag = 1;
