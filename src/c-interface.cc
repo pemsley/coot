@@ -2619,12 +2619,13 @@ int clear_ball_and_stick(int imol) {
 }
 
 /* clear the given additional representation  */
-void clear_additional_representation(int imol, int representation_number) {
+void set_show_additional_representation(int imol, int representation_number, int on_off_flag) {
 
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].clear_additional_representation(representation_number);
-   } 
-
+      graphics_info_t::molecules[imol].set_show_additional_representation(representation_number,
+									  on_off_flag);
+   }
+   graphics_draw();
 } 
 
 /* return the index of the additional representation.  Return -1 on error */
@@ -2639,7 +2640,6 @@ int additional_representation_by_string(int imol,  const char *atom_selection_st
 									 bond_width,
 									 draw_hydrogens_flag,
 									 info);
-
    }
    graphics_draw();
    return r;
@@ -3652,6 +3652,10 @@ int test_function(int i, int j) {
 //    return 0;
 
    if (1) {
+      graphics_info_t::molecules[i].test_function();
+   } 
+
+   if (0) {
       GtkWidget *w = wrapped_create_add_additional_representation_gui();
       gtk_widget_show(w);
    } 
@@ -4907,8 +4911,26 @@ void set_skeleton_box_size(float f) {
 } 
 
 /*  ----------------------------------------------------------------------- */
+/*                  Utility Functions                                       */
+/*  ----------------------------------------------------------------------- */
+// These functions are for storing the molecule number and (some other
+// number) as an int and used with GPOINTER_TO_INT and GINT_TO_POINTER.
+int encode_ints(int i1, int i2) {
+   int i = 1000 * i1 + i2;
+   return i;
+}
+
+std::pair<int, int> decode_ints(int i) {
+   int j = i/1000;
+   int k = i - j * 1000;
+   return std::pair<int, int>(j,k);
+}
+
+/*  ----------------------------------------------------------------------- */
 /*                  map and molecule control                                */
 /*  ----------------------------------------------------------------------- */
+
+
 
 void save_display_control_widget_in_graphics(GtkWidget *widget) { 
 
@@ -4954,7 +4976,7 @@ void add_mol_display_control_widgets() {
    for (int ii=0; ii<g.n_molecules(); ii++) {
       if (! (g.molecules[ii].atom_sel.atom_selection == NULL)) { 
 	 
-	 g.molecules[ii].new_mol_in_display_control_widget(); 
+	 g.molecules[ii].new_coords_mol_in_display_control_widget(); 
       } 
    } 
 } 

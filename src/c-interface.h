@@ -3368,7 +3368,7 @@ int make_ball_and_stick(int imol,
 int clear_ball_and_stick(int imol);
 
 /* clear the given additional representation  */
-void clear_additional_representation(int imol, int representation_number);
+void set_show_additional_representation(int imol, int representation_number, int on_off_flag);
 
 /* return the index of the additional representation.  Return -1 on error */
 int additional_representation_by_string(int imol,  const char *atom_selection, 

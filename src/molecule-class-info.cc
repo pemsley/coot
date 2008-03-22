@@ -45,6 +45,7 @@
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "mmdb-crystal.h"
+#include "gtk-manual.hh"
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/ccp4/ccp4_map_io.h"
@@ -990,7 +991,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
 
    if (! is_undo_or_redo) { 
       // std::cout << "DEBUG:: not an undo/redo!\n";
-      new_mol_in_display_control_widget(); // uses drawit
+      new_coords_mol_in_display_control_widget(); // uses drawit
    }
 }
 
@@ -1214,7 +1215,7 @@ molecule_class_info_t::update_mol_in_display_control_widget() const {
 }
 
 void
-molecule_class_info_t::new_mol_in_display_control_widget() const { 
+molecule_class_info_t::new_coords_mol_in_display_control_widget() const { 
 
    graphics_info_t g;
 
@@ -1222,10 +1223,22 @@ molecule_class_info_t::new_mol_in_display_control_widget() const {
    // doing an undo: This is now handled by the calling function.
    // 
    std::string dmn = name_for_display_manager();
-   if (g.display_control_window()) 
+   if (g.display_control_window()) {
       display_control_molecule_combo_box(g.display_control_window(), 
-							dmn.c_str(), 
-							imol_no);
+					 dmn.c_str(), 
+					 imol_no);
+      if (add_reps.size() > 0) {
+	 GtkWidget *vbox = display_control_add_reps_container(g.display_control_window(), imol_no);
+	 for (unsigned int iar=0; iar<add_reps.size(); iar++) {
+	    std::string name = coot::util::int_to_string(iar);
+	    name += " ";
+	    name += add_reps[iar].info_string();
+	    display_control_add_reps(vbox, imol_no, iar, add_reps[iar].show_it,
+				     add_reps[iar].bonds_box_type, name);
+	 } 
+      } 
+   }
+   
 }
 
 std::string
@@ -1782,6 +1795,14 @@ molecule_class_info_t::display_symmetry_bonds() {
 }
 
 
+std::string
+coot::atom_selection_info_t::name () const {
+
+   std::string s = "An Add Rep atom sel string";
+   return s;
+}
+
+
 void
 coot::additional_representations_t::fill_bonds_box() {
 
@@ -1819,7 +1840,7 @@ coot::additional_representations_t::fill_bonds_box() {
 std::string
 coot::additional_representations_t::info_string() const {
 
-   std::string s;
+   std::string s("Fat Bonds: ");
 
    if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING)
       s = atom_sel_info.atom_selection_str;
@@ -1868,6 +1889,17 @@ molecule_class_info_t::clear_additional_representation(int representation_number
    if (add_reps.size() > representation_number) {
       if (representation_number >= 0) {
 	 add_reps[representation_number].clear(); 
+      } 
+   } 
+} 
+
+void
+molecule_class_info_t::set_show_additional_representation(int representation_number,
+							  bool on_off_flag) {
+
+   if (add_reps.size() > representation_number) {
+      if (representation_number >= 0) {
+	 add_reps[representation_number].show_it = on_off_flag;
       } 
    } 
 } 

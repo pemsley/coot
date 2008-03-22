@@ -357,6 +357,7 @@ namespace coot {
      atom_selection_info_t() { 
        type = UNSET;
      }
+     std::string name() const;
    };
 
    class additional_representations_t { 
@@ -385,7 +386,6 @@ namespace coot {
      void clear() { 
        show_it = 0;
      } 
-
      std::string info_string() const;
    };
 
@@ -678,14 +678,10 @@ class molecule_class_info_t {
       setup_internal(); 
       // give it a pointer to something at least *vagely* sensible
       // (better than pointing at -129345453). 
-      imol_no = 0;
+      imol_no = -1;
       imol_no_ptr = new int;
-      *imol_no_ptr = 0;
-      draw_hydrogens_flag = 1;
+      *imol_no_ptr = imol_no;
       //
-      bond_width = 3.0;
-      ghost_bond_width = 2.0;
-      xmap_is_filled = NULL;
    } 
 
    // See graphics_info_t::initialize_graphics_molecules()
@@ -696,10 +692,6 @@ class molecule_class_info_t {
       imol_no = i;
       imol_no_ptr = new int;
       *imol_no_ptr = i;
-      draw_hydrogens_flag = 1;
-      bond_width = 3.0; 
-      ghost_bond_width = 2.0;
-      xmap_is_filled = NULL;
    }
 
    // Why did I add this?  It causes a bug in "expanding molecule space"
@@ -734,14 +726,6 @@ class molecule_class_info_t {
 	    delete [] xmap_list;
 	    xmap_list = 0;
 	 }
-
-/* No need to do this now that labelled_atom_index_list is a vector */
-/* 	 labelled_atom_index_list; */
-/* 	 labelled_symm_atom_index_list; */
-/* 	 labelled_symm_atom_symm_trans_; */
-/* 	 labelled_atom_index_list = NULL; */
-/* 	 labelled_symm_atom_index_list = NULL; */
-/* 	 labelled_symm_atom_symm_trans_= NULL; */
       }
    }
 
@@ -750,26 +734,23 @@ class molecule_class_info_t {
       atom_sel.n_selected_atoms = 0;
       atom_sel.mol = NULL;
 
-      skeleton_treenodemap_is_filled = 0;
-      save_time_string = "";
-
-      // 
-/*       n_labelled_atoms = 0; */
-/*       n_labelled_symm_atoms = 0; */
-      // We delete these pointers on close_yourself()
-
-      //       labelled_symm_atom_symm_trans_ = NULL;  
-      // labelled_symm_atom_index_list = NULL;
-      // labelled_atom_index_list = NULL;
-
-      // initial bonds type (checked and reset in handle_read_draw_molecule)
-      bonds_box_type = coot::UNSET_TYPE;
-
+      xmap_list = 0;
+      xmap_is_filled = NULL;
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       max_xmaps = 0;
       //
       xskel_is_filled = 0; // not filled.
-      
+      skeleton_treenodemap_is_filled = 0;
+
+      draw_hydrogens_flag = 1;
+      bond_width = 3.0; 
+      ghost_bond_width = 2.0;
+
+      // initial bonds type (checked and reset in handle_read_draw_molecule)
+      bonds_box_type = coot::UNSET_TYPE;
+
+      save_time_string = "";
+
       pickable_atom_selection = 1; 
 
       // refmac stuff
@@ -784,11 +765,12 @@ class molecule_class_info_t {
 
       have_unsaved_changes_flag = 0; // no unsaved changes initially.
       show_unit_cell_flag = 0;
-
       fc_skeleton_draw_on = 0;
       greer_skeleton_draw_on = 0;
-      drawit_for_map = 0;
+
+      // Don't draw it initially.
       drawit = 0;
+      drawit_for_map = 0;
 
       // backup on by default, turned off for dummy atoms (baton building)
       backup_this_molecule = 1;
@@ -1280,12 +1262,15 @@ class molecule_class_info_t {
 
    
    void update_map_in_display_control_widget() const; 
-   void new_mol_in_display_control_widget() const;  // for a new molecule.
+   void new_coords_mol_in_display_control_widget() const;  // for a new molecule.
    void update_mol_in_display_control_widget() const; // changing the name of
                                                       // this mol (e.g on save).
 
    //
    float map_sigma() const { return map_sigma_; }
+
+   // for debugging.
+   int test_function();
    
    // output
    // return the mmdb exit status (as write_pdb_file)
@@ -1400,7 +1385,7 @@ class molecule_class_info_t {
    // instead of using xmap_is_filled[0] and atom_sel.n_selected_atoms
    // directly, lets provide these functions:
 
-   short int has_map() const {
+   bool has_map() const {
 
      if (!xmap_is_filled) {
        // If you see this, then a molecule is being displayed before
@@ -1416,7 +1401,7 @@ class molecule_class_info_t {
      }
    }
 
-   short int has_model() const {
+   bool has_model() const {
       if (atom_sel.n_selected_atoms > 0)
 	 return 1;
       else
@@ -1427,14 +1412,14 @@ class molecule_class_info_t {
    // with no atoms that is open and one that is closed. I guess that
    // most has_model() usaged should be changed to open_molecule_p()
    // usage...
-   short int open_molecule_p() const {
+   bool open_molecule_p() const {
       if (atom_sel.mol)
 	 return 1;
       else
 	 return 0;
    } 
 
-   short int is_displayed_p() const {
+   bool is_displayed_p() const {
       short int i;
       if (has_model()) {
 	 if (drawit) {
@@ -1950,7 +1935,8 @@ class molecule_class_info_t {
    void find_deviant_geometry(float strictness);
 
 
-   // ncs ghosts
+   // ===================== NCS ghosts ===============================
+
    void set_show_ghosts(short int istate); 
    void set_ghost_bond_thickness(float f);
    int update_ncs_ghosts();
@@ -1958,6 +1944,9 @@ class molecule_class_info_t {
    int draw_ncs_ghosts_p() const { // needed for setting the Bond Parameters checkbutton
       return show_ghosts_flag;
    }
+
+   std::vector<coot::ghost_molecule_display_t> NCS_ghosts() const;
+
    std::vector<std::vector<std::string> > ncs_ghost_chains() const;
    int make_dynamically_transformed_maps(int imol_map,
 					 short int do_average_map,
@@ -1967,7 +1956,8 @@ class molecule_class_info_t {
    // operators: (and recall that this function is a coordinates
    // molecule function, so it uses its ncs operators on the given
    // map) to make new maps):
-   std::vector<std::pair<clipper::Xmap<float>, std::string> > ncs_averaged_maps(const clipper::Xmap<float> &xmap_in, float homology_lev);
+   std::vector<std::pair<clipper::Xmap<float>, std::string> > 
+     ncs_averaged_maps(const clipper::Xmap<float> &xmap_in, float homology_lev);
    short int has_ncs_p() { return (ncs_ghosts.size() > 0) ? 1 : 0; }
    short int ncs_ghosts_have_rtops_p() const { return ncs_ghosts_have_rtops_flag;}
    int fill_ghost_info(short int do_rtops_flag,
@@ -1994,7 +1984,8 @@ class molecule_class_info_t {
    coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id, 
 						 float main_chain_weight) const;
 
-   // shelx stuff
+
+   // ====================== SHELX stuff ======================================
    std::pair<int, std::string> write_shelx_ins_file(const std::string &filename);
    int read_shelx_ins_file(const std::string &filename);
    // return the success status, 0 for fail, 1 for good.
@@ -2173,6 +2164,7 @@ class molecule_class_info_t {
 					bool show_it_flag_in); 
 
    void clear_additional_representation(int representation_number);
+   void set_show_additional_representation(int representation_number, bool on_off_flag);
    // 
 
    coot::validation_graphs_t validation_graphs;

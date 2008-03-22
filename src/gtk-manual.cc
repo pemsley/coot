@@ -1,6 +1,7 @@
 /* src/c-interface.cc
  * 
  * Copyright 2002, 2003, 2004, 2005 by The University of York
+ * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,27 +16,23 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
+
 
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
-
 #include <gtk/gtk.h>
-
+#include "c-interface.h"
 #include "gtk-manual.h"
+#include "gtk-manual.hh"
 
 #include "interface.h"  /* for create_single_map_properties_dialog() */
-#include "c-interface.h"
+#include "cc-interface.hh"
+
 
 
 
@@ -70,7 +67,8 @@ void
 on_map_col_sel_ok_button_clicked        (GtkButton       *button,
 					 gpointer         user_data)
 {
-   gtk_widget_destroy(user_data);
+   GtkWidget *w = GTK_WIDGET(user_data);
+   gtk_widget_destroy(w);
 }
 
 /*  The colour selection dialog has had its cancel button pressed */
@@ -206,7 +204,8 @@ void
 on_symm_col_sel_ok_button_clicked (GtkButton       *button,
 				   gpointer         user_data)
 {
-   gtk_widget_destroy(user_data);
+   GtkWidget *w = GTK_WIDGET(user_data);
+   gtk_widget_destroy(w);
 }
 
 /*  The colour selection dialog has had its cancel button pressed */
@@ -214,7 +213,8 @@ void
 on_symm_col_sel_cancel_button_clicked (GtkButton       *button,
 				      gpointer         user_data)
 {
-   gtk_widget_destroy(user_data);
+   GtkWidget *w = GTK_WIDGET(user_data);
+   gtk_widget_destroy(w);
 				/* we should put the colour back to
 				   how it used to be then. */
 }
@@ -489,7 +489,8 @@ void
 on_skeleton_col_sel_ok_button_clicked (GtkButton       *button,
 				       gpointer         user_data)
 {
-   gtk_widget_destroy(user_data);
+   GtkWidget *w = GTK_WIDGET(user_data);
+   gtk_widget_destroy(w);
 }
 
 /*  The colour selection dialog has had its cancel button pressed */
@@ -497,7 +498,8 @@ void
 on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 				      gpointer         user_data)
 {
-   gtk_widget_destroy(user_data);
+   GtkWidget *w = GTK_WIDGET(user_data);
+   gtk_widget_destroy(w);
 				/* we should put the colour back to
 				   how it used to be then. */
 }
@@ -1218,15 +1220,16 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
   GtkWidget *label = lookup_widget(window, "label114");
 
 
-  // chunk from the glade FAQ:
-  GdkColor red = { 0, 65535, 0, 0 };
-  GtkRcStyle *rc_style = gtk_rc_style_new ();
-  rc_style->bg[GTK_STATE_NORMAL] = red;
-  rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_BG;
-  // gtk_widget_modify_style (single_map_properties_colour_button, rc_style);
-  // can't set patch frame fg usefully.
-  gtk_widget_modify_style (label, rc_style);
-  gtk_rc_style_unref (rc_style);
+  // FIXME? block commented.  Did it do anything?
+//   // chunk from the glade FAQ:
+//   GdkColor red = { 0, 65535, 0, 0 };
+//   GtkRcStyle *rc_style = gtk_rc_style_new ();
+//   rc_style->bg[GTK_STATE_NORMAL] = red;
+//   rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_BG;
+//   // gtk_widget_modify_style (single_map_properties_colour_button, rc_style);
+//   // can't set patch frame fg usefully.
+//   gtk_widget_modify_style (label, rc_style);
+//   gtk_rc_style_unref (rc_style);
 
   printf("DEBUG:: on_display_control_map_properties_button_clicked: imol %d\n", imol);
   
@@ -1259,9 +1262,9 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
   gushort red, green, blue;
   GtkWidget *widget_thing;
 
-  red   =  (mol_colour[0] * 254.0);
-  green =  (mol_colour[1] * 254.0);
-  blue  =  (mol_colour[2] * 254.0);
+  red   =  gushort (mol_colour[0] * 254.0);
+  green =  gushort (mol_colour[1] * 254.0);
+  blue  =  gushort (mol_colour[2] * 254.0);
 
   widget = patch_frame; 
 
@@ -1643,6 +1646,66 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox34), phs_cell_none_radiobutton, FALSE, FALSE, 4);
 
 }
+
+
+
+/* ------------------------------------------------------------------------------ */
+/* Additional Representation Handling                                             */
+/* ------------------------------------------------------------------------------ */
+
+// Return the vbox for the Add Reps, (which will then be used in
+// display_control_add_reps().
+//
+// It's a bit ugly to send back a widget to the molecule_info_class_t
+// function.  If you want to remove that in future (make this function
+// a void), then you'll have to set a name on the vbox that can be
+// looked up by display_control_add_reps().
+// 
+GtkWidget *
+display_control_add_reps_container(GtkWidget *display_control_window_glade,
+					int imol_no) {
+
+   GtkWidget *display_molecule_vbox = lookup_widget(display_control_window_glade, 
+						    "display_molecule_vbox"); 
+   GtkWidget *frame = gtk_frame_new("Additional Representations");
+   GtkWidget *v = gtk_vbox_new(FALSE, 0);
+   gtk_container_add(GTK_CONTAINER(display_molecule_vbox), frame);
+   gtk_container_add(GTK_CONTAINER(frame), v);
+   gtk_widget_show(frame);
+   gtk_widget_show(v);
+   return v;
+} 
+
+void display_control_add_reps(GtkWidget *add_rep_vbox,
+			      int imol_no, int add_rep_no,
+			      bool show_it,
+			      int bonds_box_type, const std::string &name) {
+
+   GtkWidget *hbox = gtk_hbox_new(FALSE, 2);
+   gtk_box_pack_start(GTK_BOX(add_rep_vbox), hbox, FALSE, FALSE, 0);
+   std::string label = name;
+   GtkWidget *toggle_button_show_it = gtk_check_button_new_with_label(label.c_str());
+   if (show_it)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button_show_it), TRUE);
+   int cc = encode_ints(imol_no, add_rep_no);
+   gtk_signal_connect(GTK_OBJECT(toggle_button_show_it), "toggled",
+		      GTK_SIGNAL_FUNC(add_rep_toggle_button_toggled),
+		      GINT_TO_POINTER(cc));
+   gtk_box_pack_start(GTK_BOX(hbox), toggle_button_show_it, FALSE, FALSE, 0);
+   gtk_widget_show(toggle_button_show_it);
+   gtk_widget_show(hbox);
+} 
+
+void add_rep_toggle_button_toggled(GtkToggleButton       *button,
+				   gpointer         user_data) {
+   
+   std::pair<int, int> p = decode_ints(GPOINTER_TO_INT(user_data));
+   std::cout << "Toggle button toggled!" << p.first << " " << p.second << std::endl;
+   int on_off_flag = 0;
+   if (button->active)
+      on_off_flag = 1;
+   set_show_additional_representation(p.first, p.second, on_off_flag);
+} 
 
 
 #ifdef COOT_USE_GTK2_INTERFACE

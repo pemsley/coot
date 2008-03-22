@@ -542,6 +542,57 @@ molecule_class_info_t::set_ghost_bond_thickness(float f) {
 }
 
 
+int
+molecule_class_info_t::test_function() {
+   int imol;
+   graphics_info_t g;
+
+   if (ncs_ghosts.size() > 0) {
+      if (ncs_ghosts_have_rtops_flag == 0) {
+	 float homology_lev =0.7;
+	 fill_ghost_info(1, homology_lev); // fill the rtops and set the flag
+      }
+   }
+   std::cout <<  "make_dynamically_transformed_maps on " << ncs_ghosts.size()
+	     << " maps\n";
+
+   std::vector<coot::ghost_molecule_display_t> local_ncs_ghosts = ncs_ghosts;
+   int imol_base = graphics_info_t::n_molecules();
+   for(unsigned int ighost=0; ighost<10; ighost++) {
+      std::cout << "DEBUG:: pre-create molecule " << ighost << "/"
+		<< local_ncs_ghosts.size() << std::endl;
+      std::cout << "DEBUG:: This is imol=" << imol_no << std::endl;
+      imol = graphics_info_t::create_molecule();
+   }
+   
+   imol = imol_base;
+   std::cout << "DEBUG:: pre-second-loop: This is imol=" << imol_no << std::endl;
+   for(unsigned int ighost=0; ighost<local_ncs_ghosts.size(); ighost++) {
+
+      std::cout << "DEBUG:: This is imol=" << imol_no << std::endl;
+      for (int itmp=0; itmp<=imol; itmp++)
+	 std::cout << "DEBUG:: molecule names: " << itmp << " :"
+		   << graphics_info_t::molecules[itmp].name_ << ":" << std::endl;
+      
+      std::cout << "DEBUG:: NCS Copy to map number " << imol << std::endl;
+      std::cout << "DEBUG:: pre-install of ghost map " << ighost << "/"
+		<< local_ncs_ghosts.size() << std::endl;
+      std::cout << "DEBUG:: Post install of ghost map " << ighost << "/"
+	<< local_ncs_ghosts.size() << std::endl;
+   }
+
+   return imol;
+}
+
+
+std::vector<coot::ghost_molecule_display_t>
+molecule_class_info_t::NCS_ghosts() const {
+
+   return ncs_ghosts;
+
+}
+
+
 // Unashamedly, we do graphics_info_t things.
 // 
 int
@@ -568,47 +619,69 @@ molecule_class_info_t::make_dynamically_transformed_maps(int imol_map,
    graphics_info_t g;
    std::cout <<  "make_dynamically_transformed_maps on " << ncs_ghosts.size()
 	     << " maps\n";
-   for(unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 
+   if (ncs_ghosts.size() > 0) {
       if (ncs_ghosts_have_rtops_flag == 0) {
 	 // std::cout << "   %%%%%%%%% calling fill_ghost_info from "
 	 // std::cout << make_dynamically_transformed_maps "
 	 // << std::endl;
 	 fill_ghost_info(1, homology_lev); // fill the rtops and set the flag
       }
-      imol = graphics_info_t::n_molecules();
-      if (g.has_position_for_molecule(imol)) {
-	 n_new_maps++;
-	 graphics_info_t::molecules.push_back(molecule_class_info_t(imol));
+   }
 
-	 graphics_info_t::molecules[imol].install_ghost_map(g.molecules[imol_map].xmap_list[0],
-							    ncs_ghosts[ighost].name,
-							    ncs_ghosts[ighost],
-							    g.molecules[imol_map].is_difference_map_p(),
-							    g.swap_difference_map_colours,
-							    g.molecules[imol_map].map_sigma());
-      } else {
-	 std::cout << "WARNING:: omitting extra map " << ighost << "  - no space!\n";
-      }
+   std::vector<coot::ghost_molecule_display_t> local_ncs_ghosts = ncs_ghosts;
+   int imol_base = graphics_info_t::n_molecules();
+   for(unsigned int ighost=0; ighost<10; ighost++) {
+      std::cout << "DEBUG:: pre-create molecule " << ighost << "/"
+		<< local_ncs_ghosts.size() << std::endl;
+      imol = graphics_info_t::create_molecule();
+   }
+   
+   imol = imol_base;
+   for(unsigned int ighost=0; ighost<local_ncs_ghosts.size(); ighost++) {
+
+      n_new_maps++;
+
+      std::cout << "DEBUG:: This is imol=" << imol_no << std::endl;
+      for (int itmp=0; itmp<=imol; itmp++)
+	 std::cout << "DEBUG:: molecule names: " << itmp << " :"
+		   << graphics_info_t::molecules[itmp].name_ << ":" << std::endl;
+      
+      std::cout << "DEBUG:: NCS Copy of map number " << imol_map << " to map number "
+		<< imol << std::endl;
+      std::cout << "DEBUG:: pre-install of ghost map " << ighost << "/"
+		<< local_ncs_ghosts.size() << std::endl;
+//        graphics_info_t::molecules[imol].install_ghost_map(g.molecules[imol_map].xmap_list[0],
+//    							 local_ncs_ghosts[ighost].name,
+//    							 local_ncs_ghosts[ighost],
+//    							 g.molecules[imol_map].is_difference_map_p(),
+//    							 g.swap_difference_map_colours,
+//    							 g.molecules[imol_map].map_sigma());
+
+//       graphics_info_t::molecules[imol].new_map(g.molecules[imol_map].xmap_list[0],
+// 					       local_ncs_ghosts[ighost].name);
+      
+      // g.erase_last_molecule();
+      std::cout << "DEBUG:: Post install of ghost map " << ighost << "/"
+	<< local_ncs_ghosts.size() << std::endl;
    }
 
    // Shall we do an average map? (if so, let's do it!)
-   // 
-   if (ncs_ghosts.size() > 0 && do_average_map) {
+   //
+   if (0) { 
+   if ((local_ncs_ghosts.size() > 0) && do_average_map) {
       std::vector<std::pair<clipper::Xmap<float>, std::string> > xmaps  = 
 	 ncs_averaged_maps(g.molecules[imol_map].xmap_list[0], homology_lev);
       std::cout << "INFO:: made " << xmaps.size() << " averaged map(s)" << std::endl;
       for (unsigned int i=0; i<xmaps.size(); i++) { 
-	 imol = graphics_info_t::n_molecules();
-	 if (g.has_position_for_molecule(imol)) {
-	    std::string name;
-	    name += xmaps[i].second;
-	    imol = graphics_info_t::create_molecule();
-	    graphics_info_t::molecules[imol].new_map(xmaps[i].first, name);
-	    if (g.molecules[imol_map].is_difference_map_p())
-	       graphics_info_t::molecules[imol].set_map_is_difference_map();
-	 }
+	 std::string name;
+	 name += xmaps[i].second;
+	 imol = graphics_info_t::create_molecule();
+	 graphics_info_t::molecules[imol].new_map(xmaps[i].first, name);
+	 if (g.molecules[imol_map].is_difference_map_p())
+	    graphics_info_t::molecules[imol].set_map_is_difference_map();
       }
+   }
    }
    return n_new_maps;
 }
@@ -796,7 +869,7 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
 	 int n_masked = 0;
 	 int n_averaged = 0;
 	 int n_total = 0;
-	 for (irx = running.first(); !irx.last(); irx.next() )
+	 for (irx = running.first(); !irx.last(); irx.next() ) {
 	    n_total++;
 	    if (mask[irx] == 1) { 
 	       running[irx] *= factor;
@@ -805,6 +878,7 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
 	       running[irx] = 0;
 	       n_masked++;
 	    }
+	 }
 	 std::cout << "INFO:: " << n_averaged << " out of " << n_total
 		   << " (" << 100.0*float(n_averaged)/float(n_total)
 		   << "%) map points " << " were masked out of NCS average target volume, "
@@ -830,13 +904,12 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
    std::cout << "INFO::  xmap_list :" << xmap_list << std::endl;
 
    is_dynamically_transformed_map_flag = 1;
+
    if (max_xmaps == 0) {
+      std::cout << "DEBUG:: making space for xmap_list etc" << std::endl;
       xmap_list        = new clipper::Xmap<float>[1];
-      xmap_is_filled   = new int[1];
-      xmap_is_diff_map = new int[1];
-      contour_level    = new float[1];
    }
-   std::cout << "INFO:: installing xmap_list :" << xmap_list << std::endl;
+   std::cout << "INFO:: instaled xmap_list :" << xmap_list << std::endl;
    xmap_list[0] = map_in; 
    max_xmaps++;
    initialize_map_things_on_read_molecule(name_in,
@@ -845,13 +918,21 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
    xmap_is_filled[0] = 1; // must come after init.. - urgh.
 
    map_ghost_info = ghost_info;
-
+   
    // fill class variables
    map_mean_ = 0.0;
    map_sigma_ = sigma_in;
-   contour_level[0]  = nearest_step(map_mean_ + 1.5*map_sigma_, 0.05);
 
-   update_map(); 
+   if (1) {
+      // if the following line is uncommented, we get a crash
+      // contour_level = new float[10];
+
+      contour_level[0]  = 0.2;
+      // contour_level[0] = nearest_step(map_mean_ + 1.5*map_sigma_, 0.05);
+   }
+   update_map();
+
+   std::cout << "Done install_ghost_map" << std::endl;
 }
 
 

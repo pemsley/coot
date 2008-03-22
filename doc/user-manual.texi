@@ -1841,6 +1841,7 @@ endresno pdb-file-name})}
 * Place Helix::
 * Building Ideal DNA and RNA::
 * Merge Molecules::
+* Temperature Factor for New Atoms::
 * Applying NCS Edits::
 * Running Refmac::
 * Running SHELXL::
@@ -2799,6 +2800,15 @@ This dialog can be found under ``Calculate'' in the main menubar.
 This is typically used to add molecule fragments or residues that are
 in one molecule to the ``working'' coordinates @footnote{For example,
   after a ligand search has been performed.}.
+
+@node    Temperature Factor for New Atoms
+@section Temperature Factor for New Atoms
+@cindex  B-Factor, New Atoms
+
+The default temperature factor for new atoms is 30.0.  This can be
+changed by the following
+
+@code{(set-default-temperature-factor-for-new-atoms 50.0)}
 
 @node    Applying NCS Edits
 @section Applying NCS Edits

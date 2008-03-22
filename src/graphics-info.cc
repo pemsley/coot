@@ -86,7 +86,18 @@
 void initialize_graphics_molecules() { 
   graphics_info_t g;
   g.initialize_molecules(); 
+}
+
+// return the new molecule number
+// static
+int graphics_info_t::create_molecule() { 
+   int imol = molecules.size();
+   molecules.push_back(molecule_class_info_t(imol));
+   return imol;
 } 
+
+
+
 
 // e.g. fit type is "Rigid Body Fit" or "Regularization" etc.
 //

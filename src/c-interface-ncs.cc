@@ -325,8 +325,45 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map) {
 
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
+	 float homology_lev = graphics_info_t::ncs_homology_level;
 
-	 nmaps = graphics_info_t::molecules[imol_model].make_dynamically_transformed_maps(imol_map, graphics_info_t::ncs_maps_do_average_flag, graphics_info_t::ncs_homology_level);
+	 // nmaps = graphics_info_t::molecules[imol_model].make_dynamically_transformed_maps(imol_map, graphics_info_t::ncs_maps_do_average_flag, graphics_info_t::ncs_homology_level);
+
+	 graphics_info_t g;
+	 if (g.molecules[imol_model].has_ncs_p() > 0) {
+	    if (g.molecules[imol_model].ncs_ghosts_have_rtops_p() == 0) {
+	       // fill the rtops and set the flag
+	       g.molecules[imol_model].fill_ghost_info(1, homology_lev); 
+	    }
+	 }
+
+	 std::vector<coot::ghost_molecule_display_t> local_ncs_ghosts =
+	    g.molecules[imol_model].NCS_ghosts();
+	 for (unsigned int ighost=0; ighost<local_ncs_ghosts.size(); ighost++) {
+	    int imol = graphics_info_t::create_molecule();
+	    g.molecules[imol].install_ghost_map(g.molecules[imol_map].xmap_list[0],
+						local_ncs_ghosts[ighost].name,
+						local_ncs_ghosts[ighost],
+						g.molecules[imol_map].is_difference_map_p(),
+						g.swap_difference_map_colours,
+						g.molecules[imol_map].map_sigma());
+	    nmaps++;
+	 }
+
+	 if (graphics_info_t::ncs_maps_do_average_flag) {
+	    std::vector<std::pair<clipper::Xmap<float>, std::string> > xmaps  = 
+	       g.molecules[imol_model].ncs_averaged_maps(g.molecules[imol_map].xmap_list[0], homology_lev);
+	    std::cout << "INFO:: made " << xmaps.size() << " averaged map(s)" << std::endl;
+	    for (unsigned int i=0; i<xmaps.size(); i++) { 
+	       std::string name;
+	       name += xmaps[i].second;
+	       int imol = g.create_molecule();
+	       g.molecules[imol].new_map(xmaps[i].first, name);
+	       if (g.molecules[imol_map].is_difference_map_p())
+		  g.molecules[imol].set_map_is_difference_map();
+	       nmaps++;
+	    } 
+	 }
 	 
       } else {
 	 std::cout << "WARNING:: molecule number " << imol_map

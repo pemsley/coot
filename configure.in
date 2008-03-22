@@ -172,20 +172,21 @@ dnl AC_CHECK_LIB(gsl,main)
 AM_WITH_MYSQL_DATABASE
 
 
-dnl Add the languages which your application supports here.
-ALL_LINGUAS="es es_ES"
-# AM_GNU_GETTEXT
-GETTEXT_PACKAGE=coot
-dnl we need to export ALL_LINGUAS here otherwise it is not expanded
-dnl for GTk1 on cycle at least, so that we would get:
-dnl No rule to make target `@ALL_LINGUAS@.po', needed by `@ALL_LINGUAS@ .gmo'.
-AC_SUBST(ALL_LINGUAS)
-AC_SUBST(GETTEXT_PACKAGE)
-AM_GLIB_GNU_GETTEXT
+dnl Fix this another time.
+dnl dnl Add the languages which your application supports here.
+dnl ALL_LINGUAS="es es_ES"
+dnl # AM_GNU_GETTEXT
+dnl GETTEXT_PACKAGE=coot
+dnl dnl we need to export ALL_LINGUAS here otherwise it is not expanded
+dnl dnl for GTk1 on cycle at least, so that we would get:
+dnl dnl No rule to make target `@ALL_LINGUAS@.po', needed by `@ALL_LINGUAS@ .gmo'.
+dnl AC_SUBST(ALL_LINGUAS)
+dnl AC_SUBST(GETTEXT_PACKAGE)
+dnl AM_GLIB_GNU_GETTEXT
 
-dnl For now: just include the declarations for config.h.in
-AH_TEMPLATE([ENABLE_NLS], [Define if NLS support is used])
-AH_TEMPLATE([PACKAGE_LOCALE_DIR], [Directory of locales])
+dnl dnl For now: just include the declarations for config.h.in
+dnl AH_TEMPLATE([ENABLE_NLS], [Define if NLS support is used])
+dnl AH_TEMPLATE([PACKAGE_LOCALE_DIR], [Directory of locales])
 
 
 dnl Set PACKAGE_LOCALE_DIR in config.h.

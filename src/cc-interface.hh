@@ -538,4 +538,13 @@ coot::atom_spec_t atom_spec_from_python_expression(PyObject *expr);
 void set_display_control_button_state(int imol, const std::string &button_type, int state);
 
 
+/*  ----------------------------------------------------------------------- */
+/*                  Utility Functions                                       */
+/*  ----------------------------------------------------------------------- */
+// These functions are for storing the molecule number and (some other
+// number) as an int and used with GPOINTER_TO_INT and GINT_TO_POINTER.
+int encode_ints(int i1, int i2);
+std::pair<int, int> decode_ints(int i);
+
+
 #endif // CC_INTERFACE_HH
