@@ -44,6 +44,7 @@
 #endif // (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
 #include "Cartesian.h"
+#include "mgtree.h"
 #include "pick.h"
 #include "clipper/core/xmap.h"
 
@@ -469,6 +470,7 @@ class graphics_info_t {
    static coot::protein_geometry* geom_p;
 
    static atom_selection_container_t *moving_atoms_asc;
+   CResidue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
    static int imol_refinement_map;
    static int moving_atoms_n_cis_peptides; 
@@ -1513,6 +1515,7 @@ public:
    static int torsion_general_atom_index_4_mol_no;
    static std::vector<coot::atom_spec_t> torsion_general_atom_specs;
    static bool torsion_general_reverse_flag;
+   static Tree torsion_general_tree;
 
    // 
    static int imol_pepflip;

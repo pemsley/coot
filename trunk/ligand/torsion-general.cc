@@ -21,7 +21,6 @@
 
 
 #include "torsion-general.hh"
-#include "mgtree.h"
 
 coot::torsion_general::torsion_general(CResidue *res, CMMDBManager *residue_mol_in,
 				       const std::vector<atom_spec_t> &user_defined_torsion_atoms_in) {
@@ -60,9 +59,31 @@ coot::torsion_general::torsion_general(CResidue *res, CMMDBManager *residue_mol_
    }
 }
 
+Tree
+coot::torsion_general::GetTree() const {
+
+   Tree tree;
+   if (setup_correctly) {
+
+      PPCAtom residue_atoms;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::vector< ::Cartesian > coords;
+      for(int i=0; i<n_residue_atoms; i++) {
+	 ::Cartesian c(residue_atoms[i]->x,
+		       residue_atoms[i]->y,
+		       residue_atoms[i]->z);
+	 coords.push_back(c);
+      }
+      int base_index = clicked_atom_indices[0];
+      tree.SetCoords(coords, base_index, contact_indices);
+   }
+   return tree;
+
+} 
 
 int
-coot::torsion_general::change_by(double diff) {
+coot::torsion_general::change_by(double diff, Tree *tree) {
 
    int r=1;
 //    std::cout << "user_defined_torsion_atoms.size(): " << user_defined_torsion_atoms.size()
@@ -79,18 +100,17 @@ coot::torsion_general::change_by(double diff) {
 		       residue_atoms[i]->z);
 	 coords.push_back(c);
       }
-      int base_index = clicked_atom_indices[0];
-      Tree tree;
-      tree.SetCoords(coords, base_index, contact_indices);
-      TreeVertex *tv = tree.GetCoord(clicked_atom_indices[1]);
+
+      
+      TreeVertex *tv = tree->GetCoord(clicked_atom_indices[1]);
       if (tv->GetNumberOfChildren() > 0) {
 	 TreeVertex *tvc0 = tv->GetChild(0);
 	 float tors = clipper::Util::d2rad(diff);
-	 tree.RotateAboutBond(clicked_atom_indices[1],
-			      clicked_atom_indices[2], tors);
+	 tree->RotateAboutBond(clicked_atom_indices[1],
+			       clicked_atom_indices[2], tors);
       
 	 std::vector< ::Cartesian > coords_rotatated =
-	    tree.GetAllCartesians();
+	    tree->GetAllCartesians();
 	 if (int(coords_rotatated.size()) != n_residue_atoms) {
 	    std::cout << "disaster in atom selection, tors_general\n";
 	 } else {

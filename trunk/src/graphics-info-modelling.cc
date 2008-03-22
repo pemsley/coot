@@ -1753,8 +1753,13 @@ graphics_info_t::execute_torsion_general() {
 				    torsion_general_atom_specs = as;
 				    graphics_draw();
 				    torsion_general_reverse_flag = 0;
-				    coot::refinement_results_t dummy;
-				    do_accept_reject_dialog("Torsion General", dummy);
+				    CResidue *res_local = get_first_res_of_moving_atoms();
+				    if (res_local) { 
+				       coot::torsion_general tg(res_local, moving_atoms_asc->mol, as);
+				       torsion_general_tree = tg.GetTree();
+				       coot::refinement_results_t dummy;
+				       do_accept_reject_dialog("Torsion General", dummy);
+				    }
 				 }
 			      }
 			   }
@@ -1768,6 +1773,23 @@ graphics_info_t::execute_torsion_general() {
    }
 }
 
+CResidue *
+graphics_info_t::get_first_res_of_moving_atoms() {
+
+   CResidue *r = 0;
+   CModel *model_p = moving_atoms_asc->mol->GetModel(1);
+   if (model_p) {
+      CChain *chain_p = model_p->GetChain(0);
+      if (chain_p) {
+	 CResidue *residue_p = chain_p->GetResidue(0);
+	 if (residue_p) {
+	    r = residue_p;
+	 }
+      }
+   }
+   return r;
+} 
+					
 
 void 
 graphics_info_t::do_rot_trans_adjustments(GtkWidget *dialog) { 
@@ -2536,17 +2558,11 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
    if (! moving_atoms_asc) {
       std::cout << "ERROR:: No moving atoms in rotate_chi_torsion_general" << std::endl;
    } else {
-      CModel *model_p = moving_atoms_asc->mol->GetModel(1);
-      if (model_p) {
-	 CChain *chain_p = model_p->GetChain(0);
-	 if (chain_p) {
-	    CResidue *residue_p = chain_p->GetResidue(0);
-	    if (residue_p) {
-	       coot::torsion_general tg(residue_p, moving_atoms_asc->mol,
-					specs_local);
-	       istat = tg.change_by(diff);
-	    }
-	 }
+      CResidue *residue_p = get_first_res_of_moving_atoms();
+      if (residue_p) {
+	 coot::torsion_general tg(residue_p, moving_atoms_asc->mol,
+				  specs_local);
+	 istat = tg.change_by(diff, &torsion_general_tree); // fiddle with the tree
       }
    }
 

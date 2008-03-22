@@ -27,6 +27,7 @@
 #ifndef __MMDB_Manager__
 #include <mmdb_manager.h>
 #endif
+#include "mgtree.h"
 
 namespace coot {
 
@@ -45,7 +46,8 @@ namespace coot {
    public:
       torsion_general(CResidue *res, CMMDBManager *residue_mol_in,
 		      const std::vector<atom_spec_t> &user_defined_torsion_atoms_in);
-      int change_by(double diff);
+      int change_by(double diff, Tree *tree); // tree is modified
+      Tree GetTree() const;
    };
 
 } 

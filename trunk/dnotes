@@ -2,10 +2,7 @@
 
    Things to fix before 0.5
 
-   14 Items
-
-   o The atom spheres in "Ball and Stick" mode have the wrong colours.
-     Needs fixing.
+   12 Items
 
    o Torsion general bonding problem on complex ligand? [JED]
 
@@ -43,9 +40,6 @@
      for a similar blob near molecule B and try to fit the same kind of
      ligand there as well [JED]
 
-   o How about a post-swig command to add #ifdef USE_PYTHON around 
-     coot_wrap_python.cc (or is it coot_wrap_python_pre.cc?)
-
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
      molprobity web site gives less bad rotamers then? (First: Does it?).
@@ -60,6 +54,12 @@
 
 
 
+
+
+   o The atom spheres in "Ball and Stick" mode have the wrong colours.
+     Needs fixing.
+
+* Done.
 
    o Make extensions for NCS fitting tools
 
