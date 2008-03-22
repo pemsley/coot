@@ -12,7 +12,7 @@
 (define  ncs-chain-ids-scm #t)
 (define  ncs-chain-differences-scm #t)
 (define  refmac-parameters-scm #t)
-(define  water-chain #f)
+(define  water-chain-scm #f)
 (define  water-chain-from-shelx-ins #f)
 (define  generic-object-name #f)
 (define additional-representation-info #f)
