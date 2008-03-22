@@ -2636,10 +2636,12 @@ int additional_representation_by_string(int imol,  const char *atom_selection_st
    int r = -1;
    if (is_valid_model_molecule(imol)) {
       coot::atom_selection_info_t info(atom_selection_str);
+      graphics_info_t g;
+      GtkWidget *dcw = g.display_control_window();
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bond_width,
 									 draw_hydrogens_flag,
-									 info);
+									 info, dcw);
    }
    graphics_draw();
    return r;
@@ -2655,11 +2657,13 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
 
    int r = -1;
    if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      GtkWidget *dcw = g.display_control_window();
       coot::atom_selection_info_t info(chain_id, resno_start, resno_end, ins_code);
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bond_width,
 									 draw_hydrogens_flag,
-									 info);
+									 info, dcw);
    }
    graphics_draw();
    return r;

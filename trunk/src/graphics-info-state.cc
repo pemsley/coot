@@ -348,6 +348,36 @@ graphics_info_t::save_state_file(const std::string &filename) {
 		     commands.push_back(state_command(active_strings, il));
 		  }
 	       }
+
+	       // Additional Representations
+	       if (molecules[i].add_reps.size() > 0) {
+		  for (unsigned int iar=0; iar<molecules[i].add_reps.size(); iar++) {
+		     active_strings.clear();
+		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
+			 coot::atom_selection_info_t::BY_ATTRIBUTES) { 
+			active_strings.push_back("additional-representation-by-attributes");
+			active_strings.push_back(int_to_string(molecule_count));
+			active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.chain_id));
+			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].atom_sel_info.resno_start));
+			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].atom_sel_info.resno_end));
+			active_strings.push_back( single_quote(molecules[i].add_reps[iar].atom_sel_info.ins_code));
+			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].bonds_box_type));
+			active_strings.push_back(float_to_string(molecules[i].add_reps[iar].bond_width));
+			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].draw_hydrogens_flag));
+			commands.push_back(state_command(active_strings, il));
+		     }
+		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
+			 coot::atom_selection_info_t::BY_STRING) { 
+			active_strings.push_back("additional-representation-by-string");
+			active_strings.push_back(int_to_string(molecule_count));
+			active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.atom_selection_str));
+			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].bonds_box_type));
+			active_strings.push_back(float_to_string(molecules[i].add_reps[iar].bond_width));
+			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].draw_hydrogens_flag));
+			commands.push_back(state_command(active_strings, il));
+		     }
+		  } 
+	       }
 	    }
 
 	    // Maps:

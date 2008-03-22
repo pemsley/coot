@@ -1843,9 +1843,9 @@ coot::additional_representations_t::info_string() const {
    std::string s("Fat Bonds: ");
 
    if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING)
-      s = atom_sel_info.atom_selection_str;
+      s += atom_sel_info.atom_selection_str;
    if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) { 
-      s = atom_sel_info.chain_id;
+      s += atom_sel_info.chain_id;
       s += " ";
       s += coot::util::int_to_string(atom_sel_info.resno_start);
       if (atom_sel_info.resno_end != atom_sel_info.resno_start) {
@@ -1862,13 +1862,18 @@ int
 molecule_class_info_t::add_additional_representation(const int &bonds_box_type_in, 
 						     float bonds_width,
 						     bool draw_hydrogens_flag,
-						     const coot::atom_selection_info_t &info) {
+						     const coot::atom_selection_info_t &info,
+						     GtkWidget *display_control_window) {
 
    coot::additional_representations_t rep(atom_sel.mol, bonds_box_type_in,
 					  bonds_width, draw_hydrogens_flag, info);
    add_reps.push_back(rep);
-   std::cout << "add_reps.size() " << add_reps.size() << std::endl;
+   int n_rep = add_reps.size() -1;
+   std::string name = rep.info_string();
 
+   GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
+   display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
+   
    return (add_reps.size() - 1);
 }
 
@@ -1900,8 +1905,8 @@ molecule_class_info_t::set_show_additional_representation(int representation_num
    if (add_reps.size() > representation_number) {
       if (representation_number >= 0) {
 	 add_reps[representation_number].show_it = on_off_flag;
-      } 
-   } 
+      }
+   }
 } 
 
 

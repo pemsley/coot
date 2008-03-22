@@ -17,6 +17,9 @@ void display_control_add_reps(GtkWidget *add_reps_vbox,
 void add_rep_toggle_button_toggled(GtkToggleButton       *button,
 				   gpointer         user_data);
 
+void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade, 
+				 GtkWidget *hbox_for_single_molecule, int imol_no);
+
 #endif // GTK_MANUAL_HH
 
 
