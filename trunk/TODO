@@ -104,8 +104,6 @@
    o Add some SHELX reading to the test suite.  Insulin for starters.
      Check that the space groups agree.
 
-   o Revisit CCP4mg button
-
    o graphics::molecules should be a std::vector
 
    o Copy fragment (new-molecule-by-atom-selection) does not
@@ -169,6 +167,8 @@
    o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
    o check for updates?
+
+   o Revisit CCP4mg button
 
    o Gtk2 coot: set the colour patch in the map properties and
      symmetry molecule colouring (needs version 2.6).  There is some
