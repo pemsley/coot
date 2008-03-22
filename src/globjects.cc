@@ -541,6 +541,8 @@ int graphics_info_t::torsion_general_atom_index_4_mol_no = -1;
 short int graphics_info_t::in_edit_torsion_general_flag = 0;
 std::vector<coot::atom_spec_t> graphics_info_t::torsion_general_atom_specs;
 bool graphics_info_t::torsion_general_reverse_flag = 0;
+Tree graphics_info_t::torsion_general_tree; 
+
 
 
 //

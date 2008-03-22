@@ -206,9 +206,11 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
 		     
 		  coot::torsion_general tg_1(res_copy_1, res_mol_1, torsion_general_atom_specs);
 		  coot::torsion_general tg_2(res_copy_2, res_mol_2,         reverse_atom_specs);
+		  Tree tree1 = tg_1.GetTree();
+		  Tree tree2 = tg_2.GetTree();
 		  double diff = 20;
-		  int istat_1 = tg_1.change_by(diff);
-		  int istat_2 = tg_2.change_by(diff);
+		  int istat_1 = tg_1.change_by(diff, &tree1); // fiddle with tree
+		  int istat_2 = tg_2.change_by(diff, &tree2);
 
 		  PPCAtom residue_atoms;
 		  int n_residue_atoms;
@@ -271,7 +273,7 @@ int main(int argc, char **argv) {
    int r=1; // file not provided
 
    if (argc < 2) {
-      std::cout << "Need to pass a pdb file name" << std::endl;
+      std::cout << "Usage: Need to pass a pdb file name" << std::endl;
       return 1;
    } else {
       std::string pdb_filename = argv[1];

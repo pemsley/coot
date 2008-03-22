@@ -189,6 +189,13 @@
 
    o Update python files
 
+   o How about a post-swig command to add #ifdef USE_PYTHON around 
+     coot_wrap_python.cc (or is it coot_wrap_python_pre.cc?)
+
+     Is that necessary now?  In build-coot-fc4-gtk2,
+     coot_wrap_python.cc is generated and so is an practically empty
+     coot_wrap_python.lo
+
    o rotamer-score function needs to be filled
 
    o "Find Waters" sometimes does not to put waters in what seems sensible
