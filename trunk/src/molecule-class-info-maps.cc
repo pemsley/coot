@@ -951,10 +951,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    if (max_xmaps == 0) {
       std::cout << "allocating space in read_ccp4_map" << std::endl;
-      xmap_list = new clipper::Xmap<float>[10];
-      xmap_is_filled   = new int[10];
-      xmap_is_diff_map = new int[10];
-      contour_level    = new float[10];
+      xmap_list = new clipper::Xmap<float>[1];
+      xmap_is_filled   = new int[1];
+      xmap_is_diff_map = new int[1];
+      contour_level    = new float[1];
    }
 
    short int bad_read = 0;
@@ -1058,8 +1058,7 @@ molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string n
    map_mean_ = mv.mean;
    map_sigma_ = sqrt(mv.variance);
 
-   update_map(); 
-   
+   update_map();
 }
 
 void

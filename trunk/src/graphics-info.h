@@ -948,25 +948,17 @@ public:
    static short int in_wall_eyed_side_by_side_stereo_mode;
 
    // return the new molecule number
-   static int create_molecule() { 
-     int imol = molecules.size();
-     molecules.push_back(molecule_class_info_t(imol));
-     return imol;
-   } 
+   static int create_molecule();
 
    static void erase_last_molecule() { 
-     std::vector<molecule_class_info_t>::iterator it = molecules.end();
-     molecules.erase(it);
+     // std::vector<molecule_class_info_t>::iterator it = molecules.end();
+     // std << "DEBUG:: Erasing molecule number " << it->MoleculeNumber() << std::endl;
+     std::cout << "DEBUG:: Erasing the back molecule " << molecules.size() - 1 
+	       << " which says that it has molecule number " 
+	       << molecules[molecules.size() -1].MoleculeNumber() << std::endl;
+     molecules.pop_back();
    }
 
-   // urg - loathsome public access:
-   // Pointless function. get rid of it one day.
-  int has_position_for_molecule(int imol) {
-     return 1; // always, these days... 
-      // return imol < n_molecules_max ? 1 : 0;
-   }
-
-   // 
    static short int use_graphics_interface_flag; 
 
    // Display size

@@ -221,6 +221,14 @@
      we need a function that accepts args for close-dialog and one
      that does not.  A macro maybe.
 
+   o Update stand-alone refinement program. 
+     (Write a test for it?)
+
+* Update done. Tried test.  Problem in greg child process. Upgrade to
+  guile-1.8.3.  Does that fix the greg child process problem?  If not,
+  mail list.  And give up.  Check how greg behaves on compile/build - 
+  it tests itself before install.
+
  ------
     
     Release 0.8 [Aug 2008?]
@@ -239,6 +247,8 @@
    o mutate residue range for bases
 
    o Fix leak and deprecated functions message.
+
+   o Activate molecule_class_info_t deconstuctor
 
 ------
 

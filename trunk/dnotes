@@ -2,11 +2,15 @@
 
    Things to fix before 0.5
 
-   18 Items
+   21 Items
 
    o "Thick bonds" for ligands etc
 
    o Kevin's Ramachandran Refinement target
+
+   o multi-NCS crash (on installing NCS maps?) - JED
+
+   o 1qex from PDB crash (see below)
 
    o Correct CISPEP if needed cards on writing pdb.
 
@@ -18,7 +22,9 @@
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
       (it comes from building from the tar file)
 
-* No problem on penelope, gtk.  It is a problem on dragon (or was it braggn?).
+* No problem on penelope, gtk2.  It is a problem on dragon (or was it braggn?).
+
+* Commented stuff out in configure.in.  Fixed now?
 
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
@@ -50,13 +56,6 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
-   o Update stand-alone refinement program. 
-     (Write a test for it?)
-
-* Tried.  Problem in greg child process. Upgrade to guile-1.8.3.  Does
-  that fix the greg child process problem?  If not, mail list.  And
-  give up.
-
    o Try to improve the picking algorithm.
 
    o Torsion general bonding problem on complex ligand? [JED]
@@ -64,14 +63,13 @@
      Also, try torsioning around CG-CD of A40 (rnase).  Then accept.
      Duplicate atoms.
 
-   o document set-default-temperature-factor-for-new-atoms
+   o The atom spheres in "Ball and Stick" mode have the wrong colours.
+     Needs fixing
 
-   o Turn off the ability to translate a rotamer withe atom drag
-     Also in chi angles mode?  Herb Klei.
+   o On reading state file, the window does not keep correct geometry.
 
-   o multi-NCS crash (on installing NCS maps?) - JED
+   o Make extensions for NCS fitting tools
 
-   o 1qex from PDB crash (see below)
 
 
 
@@ -88,11 +86,23 @@
 
 * Fixed
 
+   o document set-default-temperature-factor-for-new-atoms
+
+* Done.
+
+   o Turn off the ability to translate a rotamer withe atom drag
+     Also in chi angles mode?  Herb Klei.  
+
+* Done.
+
+   o Nigel's python restraints -> non found on regularization
+
+* Fixed/Kludged.  Bernhard problem.
+
    o Test for non positive definite anisotropic atoms from a .ins file
      [test should crash, Mitch Miller, Stanford]
 
 * Done.  Test added.
-
 
    o Insertion codes for intelligent next atom.  Antibody, Kabat
 
@@ -4463,11 +4473,6 @@ Mon Feb 18 12:38:02 GMT 2008
 DEBUG::  display toggle of molecule: 0
 DEBUG::  display toggle of molecule: 2
 
-----
-Tue Feb 19 11:40:31 GMT 2008
-
-    1QEX from the PDB.
-
 
 -----
 Wed Feb 20 04:36:04 GMT 2008
@@ -4782,4 +4787,23 @@ Thu Mar 13 16:15:10 GMT 2008
 
     Additional representations "button" should (also?) be on the
     Display Control.
+
+----
+Fri Mar 14 00:49:26 GMT 2008
+
+    poly-ala in mutate.scm is not documented.  why?
+
+
+----
+Fri Mar 21 10:54:01 GMT 2008
+
+    INFO::    Raising window e.g for display control:
+
+   if (widget) { 
+      // raise/uniconify (or whatever) what we have:
+      // 
+      if (!GTK_WIDGET_MAPPED(widget))
+	 gtk_widget_show(widget);
+      else
+	 gdk_window_raise(widget->window);
 

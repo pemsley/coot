@@ -26,6 +26,7 @@
 
 (define have-ccp4? #f)
 (define imol-rnase -1) 
+(define imol-rnase-map -1) 
 (define imol-ligand -1) 
 (define imol-terminal-residue-test -1)
 
@@ -187,18 +188,39 @@
 		   (throw 'fail))))))
 
      ;; correct mtz test
-     (let ((imol-map (make-and-draw-map 
-		      rnase-mtz "FWT" "PHWT" "" 0 0)))
+     (let ((imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
        (change-contour-level 0)
        (change-contour-level 0)
        (change-contour-level 0)
        (set-imol-refinement-map imol-map)
+       (set! imol-rnase-map imol-map)
        (valid-map-molecule? imol-map))))
 
 (greg-testcase "Another Level Test" #t 
    (lambda ()
      (let ((imol-map-2 (another-level)))
        (valid-map-molecule? imol-map-2))))
+
+(greg-testcase "NCS maps test" #t 
+   (lambda ()
+
+     (if (not (valid-model-molecule? imol-rnase))
+	 (begin
+	   (format #t "imol-rnase not valid~%")
+	   (throw 'fail)))
+
+     (if (not (valid-map-molecule? imol-rnase-map))
+	 (begin
+	   (format #t "imol-rnase-map not valid~%")
+	   (throw 'fail)))
+
+     (let ((n-mols (graphics-n-molecules)))
+       ;; try to make it trip up by doing it twice:
+       (let ((imol-map-2 (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
+	 (make-dynamically-transformed-ncs-maps imol imol-rnase-map)
+	 (make-dynamically-transformed-ncs-maps imol imol-map-2)
+	 ;; 2*2 new maps should have been made
+	 (= (graphics-n-molecules) (+ n-mols 4))))))
 
 (greg-testcase "Set Atom Attribute Test" #t
 	       (lambda ()

@@ -275,8 +275,9 @@ coot_real_SOURCES = \
 	globjects.h gl-matrix.h  \
 	coot-fileselections.h    \
 	gl-matrix.cc 		 \
-	gtk-manual.c 		 \
+	gtk-manual.cc 		 \
 	gtk-manual.h		 \
+	gtk-manual.hh		 \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
