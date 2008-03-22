@@ -1,21 +1,45 @@
 
 Release 0.5
 
+   o FEATURE: Additional Representations added.
+
+   o FEATURE: Coot now has a Preferences dialog.
+
+   o FEATURE: "Fixed Atoms" for refinement have been introduced.
+
+   o FEATURE: Monomer restraints exported to the scripting layer.
+
+   o FEATURE: Add dialog position preferences to Extensions.
+
+   o FEATURE: Coot can now make difference maps.
+
+   o CHANGE: Picking has been changed to somewhat favour those atoms
+     at the front of the slab.
+
+   o CHANGE: Next/Previous residue function now does something more
+     sensible when it encounters a missing residue or an insertion
+     code.
+
    o CHANGE: In CA display mode, only CAs can now be picked.
 
    o CHANGE: Nudge centre axes are not relative to the screen rather
      than in world coordinates.
  
-   o CHANGE: ncs skipping changed.  Hopefully faster now.
+   o CHANGE: NCS skipping changed.  Hopefully faster now.
 
    o CHANGE: default bond width changed to 5.
 
    o CHANGE: Traffic lights verticallized.
+
+   o CHANGE: Symmetry colour info added to state file [Doug Kuntz].
  
    o CHANGE: the argument order for "mutate" have been canonicalised.
   
    o CHANGE: set-symmetry-colour-merge now takes only a fraction
      argument.
+
+   o CHANGE: Residues can no longer be translated in "Rotamer Change"
+     mode.
 
    o CHANGE: Mutate no longer changes the atom order in the pdb file.
 
@@ -27,6 +51,19 @@ Release 0.5
 
    o BUG-FIX: chiral volumes are now correctly handled for multiple
      monomer bespoke ligand dictionaries.
+
+   o BUG-FIX: Non-flexible ligands can be added to ligand search when
+     the "flexible?" option is selected.  Previously the ligand search
+     was aborted.
+
+   o BUG-FIX: Now coot does not crash on when displaying NPD atoms
+     in anisotropic representation [Mitch Miller].
+
+   o BUG-FIX: Coot no longer crashes when deleting a residue with an
+     Alt Conf.
+
+   o BUG-FIX: EQUIV cards from SHELXL handled better.
+
 
 Release 0.4.1 "Kendall^2"
 

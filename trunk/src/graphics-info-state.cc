@@ -63,7 +63,9 @@ graphics_info_t::save_state_file(const std::string &filename) {
 
    // the first thing:  The window position and size:
 
-   // std::cout << "DEBUG in state: " << graphics_x_size << " " << graphics_y_size << std::endl;
+   // std::cout << "DEBUG in state: " << graphics_x_size << " " << graphics_y_size
+   // << std::endl;
+   
    if ( ! ((graphics_x_size == 500) && (graphics_y_size != 500)) ) {
       commands.push_back(state_command("set-graphics-window-size",
 				       graphics_x_size, graphics_y_size, il));
