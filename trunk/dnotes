@@ -2,22 +2,22 @@
 
    Things to fix before 0.5
 
-   12 Items
-
-   o Torsion general bonding problem on complex ligand? [JED]
-
-     Also, try torsioning around CG-CD of A40 (rnase).  Then accept.
-     Duplicate atoms.
+   13 Items
 
    o Kevin's Ramachandran Refinement target
-
-   o 1qex from PDB crash (see below)
 
    o Correct CISPEP if needed cards on writing pdb.
 
    o PDB v3.0 compatibility
 
    o Use Eugene's new LINK-reading code.
+
+   o On calculating NCS differences graph, if no matrices, generate
+     the on the fly, like we do when making NCS maps.  Easy.
+
+   o on NCS jumping, how about not centering on the related CA, but
+     instead centering on the NCS transposition of the current/old
+     centre position?  Better for distance NCS matches?
 
    o Fix this:  
       ./configure: line 26927: ./po/POTFILES.in: No such file or directory
@@ -27,10 +27,16 @@
 
 * Commented stuff out in configure.in.  Fixed now?
 
+* 20080322: bragg1 still has problems, version coot-0.5-pre-1-revision-860
+  (ah, not modern enough to get the comments) Needs 867.  872 now on website.
+
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
 
 * It is, but the residue number is "1" and the SFAC index is -1.  Bad.
+
+   o Update the graphics properly (redraw) when a dialog goes away
+     (configure event?)
 
    o Valgrind long/multiple fit-proteins
 
@@ -55,6 +61,17 @@
 
 
 
+
+   o 1qex from PDB crash (see below).
+
+* Can't reproduce - damn.  Valgrind clean.
+
+   o Torsion general bonding problem on complex ligand? [JED]
+
+     Also, try torsioning around CG-CD of A40 (rnase).  Then accept.
+     Duplicate atoms.
+
+* Done.
 
    o The atom spheres in "Ball and Stick" mode have the wrong colours.
      Needs fixing.
