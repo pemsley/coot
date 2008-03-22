@@ -2,9 +2,7 @@
 
    Things to fix before 0.5
 
-   17 Items
-
-   o Try to improve the picking algorithm.
+   18 Items
 
    o Torsion general bonding problem on complex ligand? [JED]
 
@@ -12,9 +10,11 @@
      Duplicate atoms.
 
    o The atom spheres in "Ball and Stick" mode have the wrong colours.
-     Needs fixing
+     Needs fixing.
 
    o On reading state file, the window does not keep correct geometry.
+
+   o Difference map needs documentation and and GUI Extension
 
    o Make extensions for NCS fitting tools
 
@@ -68,6 +68,9 @@
 
 
 
+   o Try to improve the picking algorithm.
+
+* Done.  Better?  Maybe - it was always pretty good for me.
 
    o multi-NCS crash (on installing NCS maps?) - JED
 

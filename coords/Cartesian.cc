@@ -113,7 +113,8 @@ coot::Cartesian::distance_to_line(const coot::Cartesian &front, const coot::Cart
    coot::Cartesian line_vector = back - front; 
    coot::Cartesian front_to_point = (*this) - front;
 
-   if (line_vector.amplitude() < 0.0001) { // some arbitary small number
+   float lva = line_vector.amplitude();
+   if (lva < 0.0001) { // some arbitary small number
       // (really, we are checking that front and back are not the same)
       //
       std::cout << "There is no vector between " << front << " and " << back << std::endl;
@@ -122,9 +123,10 @@ coot::Cartesian::distance_to_line(const coot::Cartesian &front, const coot::Cart
    }
 	 
 
+   float front_to_point_amp = front_to_point.amplitude();
    float cos_theta_f = cos_angle_btwn_vecs(line_vector, front_to_point);
    float sin_theta_f = table(cos_theta_f);
-   float d_f = sin_theta_f * front_to_point.amplitude();
+   float d_f = sin_theta_f * front_to_point_amp;
 
 
    // now do the same for the back vector
@@ -143,9 +145,11 @@ coot::Cartesian::distance_to_line(const coot::Cartesian &front, const coot::Cart
 
    // cout << std::endl;
 
-   float weighted_d = (sin_theta_f*d_f+sin_theta_b*d_b)/(sin_theta_b+sin_theta_f); 
+   float weighted_d = (sin_theta_f*d_f+sin_theta_b*d_b)/(sin_theta_b+sin_theta_f);
+
+   float click_front_weight = 0.25 * front_to_point_amp/lva;
    
-   return weighted_d;
+   return weighted_d + click_front_weight;
 }
 
 
