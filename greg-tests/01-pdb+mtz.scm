@@ -217,8 +217,8 @@
      (let ((n-mols (graphics-n-molecules)))
        ;; try to make it trip up by doing it twice:
        (let ((imol-map-2 (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
-	 (make-dynamically-transformed-ncs-maps imol imol-rnase-map)
-	 (make-dynamically-transformed-ncs-maps imol imol-map-2)
+	 (make-dynamically-transformed-ncs-maps imol-rnase imol-rnase-map)
+	 (make-dynamically-transformed-ncs-maps imol-rnase imol-map-2)
 	 ;; 2*2 new maps should have been made
 	 (= (graphics-n-molecules) (+ n-mols 4))))))
 
