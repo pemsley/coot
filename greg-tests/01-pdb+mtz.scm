@@ -33,6 +33,8 @@
 (define horne-works-cif (append-dir-file greg-data-dir "lib-B3A.cif"))
 (define horne-cif       (append-dir-file greg-data-dir "lib-both.cif"))
 (define horne-pdb       (append-dir-file greg-data-dir "coords-B3A.pdb"))
+(define ins-code-frag-pdb (append-dir-file greg-data-dir "ins-code-fragment-pre.pdb"))
+
 
 ;; CCP4 is set up? If so, set have-ccp4? #t
 
@@ -95,10 +97,7 @@
 	#t)))
 
 
-(define ins-code-frag-pdb (append-dir-file greg-data-dir 
-					   "ins-code-fragment-pre.pdb"))
 
-;; Not to self, need to 
 (greg-testcase "ins code change and Goto atom over an ins code break" #t
    (lambda () 	       
 
@@ -219,8 +218,17 @@
        (let ((imol-map-2 (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
 	 (make-dynamically-transformed-ncs-maps imol-rnase imol-rnase-map)
 	 (make-dynamically-transformed-ncs-maps imol-rnase imol-map-2)
-	 ;; 2*2 new maps should have been made
-	 (= (graphics-n-molecules) (+ n-mols 4))))))
+	 ;; 2*2 + 1 new maps should have been made
+	 (let ((n-new (graphics-n-molecules)))
+	   (if (not (=  n-new (+ n-mols 5)))
+	       (begin
+		 (print-molecule-names)
+		 (format #t "no match in number of molecules ~s ~s~%"
+			 n-mols n-new)
+		 (throw 'fail))
+	       #t))))))
+
+
 
 (greg-testcase "Set Atom Attribute Test" #t
 	       (lambda ()
