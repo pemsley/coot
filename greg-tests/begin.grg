@@ -24,3 +24,13 @@
 (define (rotate-n-frames n)
   (inexact->exact (round (* n rotate-speed))))
 
+(define (test-list ls)
+  (let loop ((ls ls))
+    (cond
+     ((null? ls) #t)
+     ((equal? (car (car ls)) (cdr (car ls)))
+      (loop (cdr ls)))
+     (else 
+      (format #t "fail match real: ~s  expected: ~s~%"
+	      (car (car ls)) (cdr (car ls)))
+      #f))))

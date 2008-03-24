@@ -2595,9 +2595,13 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   SCM      noa_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(4));
 			   SCM    nonha_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(5));
 			   SCM desc_lev_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(6));
-			   if (scm_string_p(comp_id_scm) && scm_string_p(tlc_scm) && scm_string_p(name_scm) &&
-			       scm_string_p(group_scm) && scm_number_p(noa_scm) && scm_number_p(nonha_scm) &&
-			       scm_string_p(desc_lev_scm)) {
+			   if (scm_is_true(scm_string_p(comp_id_scm)) &&
+			       scm_is_true(scm_string_p(tlc_scm)) &&
+			       scm_is_true(scm_string_p(name_scm)) &&
+			       scm_is_true(scm_string_p(group_scm)) &&
+			       scm_is_true(scm_number_p(noa_scm)) &&
+			       scm_is_true(scm_number_p(nonha_scm)) &&
+			       scm_is_true(scm_string_p(desc_lev_scm))) {
 			      std::string comp_id = scm_to_locale_string(comp_id_scm);
 			      std::string     tlc = scm_to_locale_string(tlc_scm);
 			      std::string    name = scm_to_locale_string(name_scm);

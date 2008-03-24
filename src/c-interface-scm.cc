@@ -86,11 +86,13 @@ make_atom_spec(SCM spec) {
 }
 
 int key_sym_code_scm(SCM s_scm) {
-   
-   std::string s = scm_to_locale_string(s_scm);
-   std::cout << "DEBUG:: string to decode: " << s << std::endl;
-   int r = coot::util::decode_keysym(s);
-   std::cout << "DEBUG:: string decoded to: " << r << std::endl;
+
+   int r = -1;
+   SCM s_test = scm_string_p(s_scm);
+   if (scm_is_true(s_test)) { 
+      std::string s = scm_to_locale_string(s_scm);
+      r = coot::util::decode_keysym(s);
+   }
    return r;
 }
 
