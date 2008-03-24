@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   13 Items
+   11 Items
 
    o Kevin's Ramachandran Refinement target
 
@@ -11,24 +11,6 @@
    o PDB v3.0 compatibility
 
    o Use Eugene's new LINK-reading code.
-
-   o On calculating NCS differences graph, if no matrices, generate
-     the on the fly, like we do when making NCS maps.  Easy.
-
-   o on NCS jumping, how about not centering on the related CA, but
-     instead centering on the NCS transposition of the current/old
-     centre position?  Better for distance NCS matches?
-
-   o Fix this:  
-      ./configure: line 26927: ./po/POTFILES.in: No such file or directory
-      (it comes from building from the tar file)
-
-* No problem on penelope, gtk2.  It is a problem on dragon (or was it braggn?).
-
-* Commented stuff out in configure.in.  Fixed now?
-
-* 20080322: bragg1 still has problems, version coot-0.5-pre-1-revision-860
-  (ah, not modern enough to get the comments) Needs 867.  872 now on website.
 
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
@@ -40,7 +22,9 @@
 
    o Valgrind long/multiple fit-proteins
 
-   o test/fix hardware stereo in Gtk2 mode.
+   o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
+     message about going to wall-eyed and the state of walled eyed in
+     the status file.
 
    o NCS Ligands: if we find a ligand C in molecule A, we should look
      for a similar blob near molecule B and try to fit the same kind of
@@ -58,9 +42,35 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
+   o Finish A rapper gui.
 
 
 
+
+
+   o on NCS jumping, how about not centering on the related CA, but
+     instead centering on the NCS transposition of the current/old
+     centre position?  Better for distance NCS matches?
+
+* Done
+
+   o On calculating NCS differences graph, if no matrices, generate
+     the on the fly, like we do when making NCS maps.  Easy.
+
+* Done.
+
+   o Fix this:  
+      ./configure: line 26927: ./po/POTFILES.in: No such file or directory
+      (it comes from building from the tar file)
+
+* No problem on penelope, gtk2.  It is a problem on dragon (or was it braggn?).
+
+* Commented stuff out in configure.in.  Fixed now?
+
+* 20080322: bragg1 still has problems, version coot-0.5-pre-1-revision-860
+  (ah, not modern enough to get the comments) Needs 867.  872 now on website.
+
+* Yep, it's fixed.
 
    o 1qex from PDB crash (see below).
 
