@@ -617,6 +617,68 @@ PyObject *ncs_chain_ids_py(int imol) {
 }
 #endif	/* USE_PYTHON */
 
+
+#ifdef USE_GUILE
+/* return #f on bad imol or a list of ghosts on good imol.  Can
+   include NCS rtops if they are available, else the rtops are #f */
+SCM ncs_ghosts_scm(int imol) {
+   SCM r = SCM_BOOL_F;
+
+   if (!is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: molecule number " << imol << " is not valid"
+		<< std::endl;
+   } else {
+      r = SCM_EOL;
+      std::vector<coot::ghost_molecule_display_t> ncs_ghosts =
+	 graphics_info_t::molecules[imol].NCS_ghosts();
+      for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+	 SCM ghost_scm = SCM_EOL;
+	 SCM display_it_flag_scm = SCM_BOOL_F;
+	 if (ncs_ghosts[ighost].display_it_flag)
+	    display_it_flag_scm = SCM_BOOL_T;
+	 SCM rtop_scm = SCM_BOOL_F;
+	 if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p())
+	    rtop_scm = rtop_to_scm(ncs_ghosts[ighost].rtop);
+	 SCM target_chain_id_scm = scm_makfrom0str(ncs_ghosts[ighost].target_chain_id.c_str());
+	 SCM chain_id_scm = scm_makfrom0str(ncs_ghosts[ighost].chain_id.c_str());
+	 SCM name_scm = scm_makfrom0str(ncs_ghosts[ighost].name.c_str());
+	 
+	 ghost_scm = scm_cons(display_it_flag_scm, ghost_scm);
+	 ghost_scm = scm_cons(rtop_scm,            ghost_scm);
+	 ghost_scm = scm_cons(target_chain_id_scm, ghost_scm);
+	 ghost_scm = scm_cons(chain_id_scm,        ghost_scm);
+	 ghost_scm = scm_cons(name_scm,            ghost_scm);
+	 r = scm_cons(ghost_scm, r);
+      }
+      r = scm_reverse(r);
+   }
+   return r;
+}
+#endif	/* USE_GUILE */
+
+#ifdef USE_PYTHON
+/* return False on bad imol or a list of ghosts on good imol.  Can
+   include NCS rtops if they are available, else the rtops are False */
+PyObject *ncs_ghosts_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (!is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: molecule number " << imol << " is not valid"
+		<< std::endl;
+   } else {
+      // r = SCM_EOL;
+      std::vector<coot::ghost_molecule_display_t> ncs_ghosts =
+	 graphics_info_t::molecules[imol].NCS_ghosts();
+      for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+	 if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p()) { 
+	 }
+      }
+   }
+   return r;
+}
+#endif	/* USE_PYTHON */
+
+
 // This should be  in c-interface-ncs-gui.cc
 void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data) {

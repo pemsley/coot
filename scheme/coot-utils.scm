@@ -36,6 +36,7 @@
 (define additional-representation-info additional-representation-info-scm)
 (define missing-atom-info missing-atom-info-scm)
 (define key-sym-code key-sym-code-scm)
+(define ncs-ghosts ncs-ghosts-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.

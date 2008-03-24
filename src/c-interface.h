@@ -4237,6 +4237,20 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id);
    If imol does not have NCS ghosts, return #f */
 PyObject *ncs_chain_ids_py(int imol);
 #endif  /* USE_PYTHON */
+
+#ifdef USE_GUILE
+/* return #f on bad imol or a list of ghosts on good imol.  Can
+   include NCS rtops if they are available, else the rtops are #f */
+SCM ncs_ghosts_scm(int imol);
+#endif	/* USE_GUILE */
+
+#ifdef USE_PYTHON
+/* return False on bad imol or a list of ghosts on good imol.  Can
+   include NCS rtops if they are available, else the rtops are False */
+PyObject *ncs_ghosts_py(int imol);
+#endif	/* USE_PYTHON */
+
+
 #endif	/* __cplusplus */
 
 /* \} */
