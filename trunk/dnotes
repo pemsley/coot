@@ -4815,6 +4815,19 @@ Thu Mar 13 16:15:10 GMT 2008
     Additional representations "button" should (also?) be on the
     Display Control.
 
+
+----
+Sat Mar 15 09:30:11 GMT 2008
+
+    Herb Klei: after a superposition (LSQ say) the moving molecule
+    should take on the cell/symmetry of the target/reference molecule.
+
+    When you do LSQ superpositions in COOT, can you make it so that if
+    one does not specify residue ranges, all residues in common are
+    assumed.  It seems silly to need to type in 1 and 999 twice just
+    to run.  Also, I would make Calpha the default (can we do so
+    through .coot file?).
+
 ----
 Fri Mar 14 00:49:26 GMT 2008
 
@@ -4824,7 +4837,7 @@ Fri Mar 14 00:49:26 GMT 2008
 ----
 Fri Mar 21 10:54:01 GMT 2008
 
-    INFO::    Raising window e.g for display control:
+   INFO::    Raising window e.g for display control:
 
    if (widget) { 
       // raise/uniconify (or whatever) what we have:
@@ -4833,4 +4846,3 @@ Fri Mar 21 10:54:01 GMT 2008
 	 gtk_widget_show(widget);
       else
 	 gdk_window_raise(widget->window);
-

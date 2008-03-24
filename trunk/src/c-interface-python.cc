@@ -65,5 +65,11 @@ make_atom_spec_py(PyObject *spec) {
    return std::pair<bool, coot::atom_spec_t> (good_spec, as);
 }
 
+int key_sym_code_py(PyObject *po) {
 
-#endif // USE_GUILE
+   std::string s = PyString_AsString(po);
+   return coot::util::decode_keysym(s);
+}
+
+
+#endif // USE_PYTHON

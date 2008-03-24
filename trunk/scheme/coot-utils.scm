@@ -35,6 +35,7 @@
 (define generic-object-name generic-object-name-scm)
 (define additional-representation-info additional-representation-info-scm)
 (define missing-atom-info missing-atom-info-scm)
+(define key-sym-code key-sym-code-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
@@ -1158,7 +1159,12 @@
 (define *key-bindings* (list))
 
 (define (add-key-binding key thunk)
-  (set! *key-bindings* (cons (list key thunk) *key-bindings*)))
+  (if (number? key)
+      (set! *key-bindings* (cons (list key thunk) *key-bindings*)))
+  (if (string? key)
+      (let ((code (key-sym-code key)))
+	(if (not (= code -1))
+	    (set! *key-bindings* (cons (list code thunk) *key-bindings*))))))
 
 ;; general key press hook
 ;; 
