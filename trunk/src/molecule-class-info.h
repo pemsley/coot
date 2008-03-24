@@ -1978,8 +1978,10 @@ class molecule_class_info_t {
 				   const std::string &next_ncs_chain) const;
    
    short int show_strict_ncs_flag;
+   // not const because we can do a fill_ghost_info if the ncs ghosts
+   // do not have rtops.
    coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id, 
-						 float main_chain_weight) const;
+						 float main_chain_weight);
 
 
    // ====================== SHELX stuff ======================================

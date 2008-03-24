@@ -18,6 +18,7 @@
 (define water-chain-scm #f)
 (define water-chain-from-shelx-ins #f) ; hmmm
 (define key-sym-code-scm #f)
+(define ncs-ghosts-scm #f)
 
 
 (load "filter.scm")

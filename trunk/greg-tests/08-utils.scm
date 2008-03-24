@@ -10,5 +10,6 @@
 		 (cons (key-sym-code "A") 65)
 		 (cons (key-sym-code "a") 97)
 		 (cons (key-sym-code "9") 57)
-		 (cons (key-sym-code "cent") 162))))
+		 (cons (key-sym-code "cent") 162)))))
+
 
