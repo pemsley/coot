@@ -30,6 +30,8 @@
      for a similar blob near molecule B and try to fit the same kind of
      ligand there as well [JED]
 
+   o NCS chain Extension: Randy Read
+
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
      molprobity web site gives less bad rotamers then? (First: Does it?).
@@ -47,6 +49,10 @@
 
 
 
+   o On calculating NCS differences graph, if no matrices, generate
+     the on the fly, like we do when making NCS maps.  Easy.
+
+* Done.
 
    o on NCS jumping, how about not centering on the related CA, but
      instead centering on the NCS transposition of the current/old

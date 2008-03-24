@@ -571,6 +571,9 @@ void set_view_quaternion(float i, float j, float k, float l);
   operator that maps current_chain on to next_ncs_chain, so that the
   relative view is preserved.  For NCS skipping. */
 void apply_ncs_to_view_orientation(int imol, const char *current_chain, const char *next_ncs_chain);
+void apply_ncs_to_view_orientation_and_screen_centre(int imol, 
+						     const char *current_chain, 
+						     const char *next_ncs_chain);
 
 void set_fps_flag(int t);
 int  get_fps_flag();
@@ -2039,7 +2042,8 @@ char *go_to_atom_alt_conf();
    error on (say) "A"*/
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno, 
 					   const char *t3_atom_name);
-int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3);
+int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3, 
+						     short int make_the_move_flag);
 
 /* FIXME one day */
 /* #ifdef __cplusplus */
