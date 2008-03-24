@@ -45,7 +45,8 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"'
 
 # for simple things:
-libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc
+libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
+	gdk-keysyms.cc
 
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc 

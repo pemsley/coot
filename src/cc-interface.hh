@@ -545,6 +545,12 @@ void set_display_control_button_state(int imol, const std::string &button_type, 
 // number) as an int and used with GPOINTER_TO_INT and GINT_TO_POINTER.
 int encode_ints(int i1, int i2);
 std::pair<int, int> decode_ints(int i);
+#ifdef USE_GUILE
+int key_sym_code_scm(SCM s_scm);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+int key_sym_code_py(PyObject *po);
+#endif // USE_PYTHON
 
 
 #endif // CC_INTERFACE_HH

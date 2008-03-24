@@ -1,6 +1,6 @@
 /* src/c-interface-scm.cc
  * 
- * Copyright 2007 by The University of Oxford
+ * Copyright 2007, 2008 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "coot-utils.hh"
 #include "c-interface-scm.hh"
 
 #ifdef USE_GUILE
@@ -84,5 +85,14 @@ make_atom_spec(SCM spec) {
    return std::pair<bool, coot::atom_spec_t> (good_spec, as);
 }
 
+int key_sym_code_scm(SCM s_scm) {
+   
+   std::string s = scm_to_locale_string(s_scm);
+   std::cout << "DEBUG:: string to decode: " << s << std::endl;
+   int r = coot::util::decode_keysym(s);
+   std::cout << "DEBUG:: string decoded to: " << r << std::endl;
+   return r;
+}
 
 #endif // USE_GUILE
+

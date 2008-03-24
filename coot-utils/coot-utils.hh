@@ -92,6 +92,10 @@ namespace coot {
       // remove the first bit from long
       std::string remove_string(const std::string &long_string, const std::string &bit);
 
+      int decode_keysym(const std::string &s);
+      std::vector<std::pair<std::string, int> > key_sym_vec();
+      
+
    } // end of util name space
    
    short int
