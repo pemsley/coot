@@ -3358,8 +3358,12 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 			       graphics_info_t::quat[2],
 			       graphics_info_t::quat[3]);
       clipper::Mat33<double> current_view_mat = q.matrix();
-      std::pair<bool, clipper::Mat33<double> > new_ori = 
+      clipper::Coord_orth current_centre(graphics_info_t::RotationCentre_x(), 
+					 graphics_info_t::RotationCentre_y(),
+					 graphics_info_t::RotationCentre_z());
+      std::pair<bool, clipper::RTop_orth> new_ori = 
 	 graphics_info_t::molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
+									current_centre,
 									current_chain,
 									next_ncs_chain);
 
@@ -3368,7 +3372,7 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 //       std::cout << "   NCS view out: " << new_ori.first << std::endl;
 //       std::cout << "   NCS view out: \n" << new_ori.second.format() << "\n";
       if (new_ori.first) {
-	 coot::util::quaternion vq(new_ori.second);
+	 coot::util::quaternion vq(new_ori.second.rot());
 	 graphics_info_t::quat[0] = vq.q0;
 	 graphics_info_t::quat[1] = vq.q1;
 	 graphics_info_t::quat[2] = vq.q2;
@@ -3378,6 +3382,51 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
    } 
 }
 
+
+/*! \brief Given that we are in chain current_chain, apply the NCS
+  operator that maps current_chain on to next_ncs_chain, so that the
+  relative view is preserved.  For NCS skipping. */
+void apply_ncs_to_view_orientation_and_screen_centre(int imol,
+						     const char *current_chain,
+						     const char *next_ncs_chain) {
+
+   if (is_valid_model_molecule(imol)) {
+      
+      coot::util::quaternion q(graphics_info_t::quat[0],
+			       graphics_info_t::quat[1],
+			       graphics_info_t::quat[2],
+			       graphics_info_t::quat[3]);
+      clipper::Coord_orth current_centre(graphics_info_t::RotationCentre_x(), 
+					 graphics_info_t::RotationCentre_y(),
+					 graphics_info_t::RotationCentre_z());
+      clipper::Mat33<double> current_view_mat = q.matrix();
+      std::pair<bool, clipper::RTop_orth> new_ori = 
+	 graphics_info_t::molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
+									current_centre,
+									current_chain,
+									next_ncs_chain);
+
+//       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
+//       std::cout << "   NCS view out: " << new_ori.first << std::endl;
+//       std::cout << "   NCS view out: \n" << new_ori.second.format() << "\n";
+      
+      if (new_ori.first) {
+	 coot::util::quaternion vq(new_ori.second.rot());
+	 graphics_info_t::quat[0] = vq.q0;
+	 graphics_info_t::quat[1] = vq.q1;
+	 graphics_info_t::quat[2] = vq.q2;
+	 graphics_info_t::quat[3] = vq.q3;
+
+	 clipper::Coord_orth new_centre(new_ori.second.trn());
+	 graphics_info_t g;
+	 g.setRotationCentre(coot::Cartesian(new_centre.x(),
+					     new_centre.y(),
+					     new_centre.z()));
+	 g.update_things_on_move();
+      }
+      graphics_draw();
+   } 
+}
 
 
 // ------------------------------------------------------
@@ -4503,7 +4552,7 @@ char *go_to_atom_alt_conf() {
 int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const char *t3) {
 
    graphics_info_t g; 
-   int success = set_go_to_atom_chain_residue_atom_name_no_redraw(t1, iresno, t3);
+   int success = set_go_to_atom_chain_residue_atom_name_no_redraw(t1, iresno, t3, 1);
    if (success) { 
       CAtom *at = 0; // passed but not used, it seems.
       GtkWidget *window = graphics_info_t::go_to_atom_window;
@@ -4517,7 +4566,8 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
 
 // Note that t3 is an atom name with (possibly) an altLoc tag (after the comma).
 // 
-int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3) {
+int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3,
+						     short int make_the_move_flag) {
 
 
    graphics_info_t g; 
@@ -4539,7 +4589,17 @@ int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno,
 					       altloc.c_str());
 
    }
-   int success = g.try_centre_from_new_go_to_atom(); 
+   CAtom *at = 0; // passed but not used, it seems.
+   GtkWidget *window = graphics_info_t::go_to_atom_window;
+   if (window)
+      g.update_widget_go_to_atom_values(window, at);
+   
+   int success = 0;
+   if (make_the_move_flag) { 
+      success = g.try_centre_from_new_go_to_atom(); 
+   } else {
+      success = 1;
+   } 
    g.update_things_on_move();
    return success; 
 }

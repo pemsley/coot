@@ -515,10 +515,13 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	 residue_matches.push_back(SSMAlign->Ca1[iat]);
       }
 
-      std::cout << "  Residue Matches" << std::endl;
-      for (unsigned int imatch=0; imatch<residue_matches.size(); imatch++) {
-	 std::cout << "match " << imatch << " " << residue_matches[imatch]
-		   << std::endl;
+      if (0) {
+	 // Too much noise.
+	 std::cout << "  Residue Matches" << std::endl;
+	 for (unsigned int imatch=0; imatch<residue_matches.size(); imatch++) {
+	    std::cout << "match " << imatch << " " << residue_matches[imatch]
+		      << std::endl;
+	 }
       }
    }
 
@@ -1605,13 +1608,15 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 
 // Return a new orienation, to be used to set the view orienation/quaternion
 // 
-std::pair<bool, clipper::Mat33<double> >
+std::pair<bool, clipper::RTop_orth>
 molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
+						     const clipper::Coord_orth &current_position,
 						     const std::string &current_chain,
 						     const std::string &next_ncs_chain) const {
 
    clipper::Mat33<double> r = current_view_mat;
    bool apply_it = 0;
+   clipper::Coord_orth t(0,0,0);
 
    unsigned int n_ghosts = ncs_ghosts.size();
    if ((n_ghosts > 0) && (ncs_ghosts_have_rtops_flag))  {
@@ -1656,15 +1661,17 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	    // were we on the last ghost?
 	    if (i_ghost_chain_match == (int(ncs_ghosts.size())-1)) {
 	       // we need to go to the target_chain
-	       clipper::Mat33<double> ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop.rot();
+	       clipper::RTop_orth ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop;
 // 	       std::cout << "from " << current_chain << " to target chain "
 // 			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
-	       r = ncs_mat * r;
+	       r = ncs_mat.rot() * r;
+	       t = current_position.transform(ncs_mat);
 	       apply_it = 1;
 	    } else {
-	       clipper::Mat33<double> ncs_mat_1 = ncs_ghosts[i_ghost_chain_match].rtop.rot();
-	       clipper::Mat33<double> ncs_mat_2 = ncs_ghosts[i_ghost_chain_match+1].rtop.rot();
-	       r = ncs_mat_2.inverse() * (ncs_mat_1 * r);
+	       clipper::RTop_orth ncs_mat_1 = ncs_ghosts[i_ghost_chain_match  ].rtop;
+	       clipper::RTop_orth ncs_mat_2 = ncs_ghosts[i_ghost_chain_match+1].rtop;
+	       r = ncs_mat_2.rot().inverse() * (ncs_mat_1.rot() * r);
+	       t = current_position.transform(ncs_mat_1).transform(ncs_mat_2.inverse());
 	       apply_it = 1;
 	    }
 	 } else {
@@ -1683,6 +1690,7 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	    for (unsigned int ighost=0; ighost<n_ghosts; ighost++) {
 	       if (ncs_ghosts[ighost].target_chain_id == current_chain) {
 		  ncs_mat = ncs_ghosts[ighost].rtop.rot();
+		  t = current_position.transform(ncs_ghosts[ighost].rtop.inverse());
 		  break;
 	       }
 	    }
@@ -1690,8 +1698,9 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	    apply_it = 1;
 	 }
       } 
-   } 
-   return std::pair<bool, clipper::Mat33<double> > (apply_it,r);
+   }
+   clipper::RTop_orth rtop(r, t);
+   return std::pair<bool, clipper::RTop_orth> (apply_it, rtop);
 }
 
   
@@ -1711,6 +1720,7 @@ molecule_class_info_t::ncs_ghost_chain_is_a_target_chain_p(const std::string &ch
    return r;
 } 
 
+// not const because we can update (fill) ncs_ghosts.
 coot::ncs_differences_t
 molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
 					     float main_chain_weight) {
@@ -1723,6 +1733,13 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
    //    std::string peer_chain_id;
    //    std::vector<ncs_residue_info_t> residue_info;
 
+   
+   if (ncs_ghosts.size() > 0) {
+      if (ncs_ghosts_have_rtops_flag == 0) {
+	 float homology_lev =0.7;
+	 fill_ghost_info(1, homology_lev); // fill the rtops and set the flag
+      }
+   }
 
    if (ncs_ghosts.size() > 0) {
       if (!ncs_ghosts_have_rtops_flag) {

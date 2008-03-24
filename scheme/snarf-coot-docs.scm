@@ -7,16 +7,17 @@
 
 (define is-valid-model-molecule 1) ;; hack to get past problem loading
 				   ;; coot-utils on bubbles
-(define generic-object-name #f)
-(define additional-representation-info #f)
-(define missing-atom-info #f)
+
+(define generic-object-name-scm #f)
+(define additional-representation-info-scm #f)
+(define missing-atom-info-scm #f)
 (define drag-intermediate-atom-scm #t)
 (define mark-atom-as-fixed-scm #t)
 (define ncs-chain-ids-scm #t)
 (define ncs-chain-differences-scm #t)
 (define refmac-parameters-scm #t)
 (define water-chain-scm #f)
-(define water-chain-from-shelx-ins #f) ; hmmm
+(define water-chain-from-shelx-ins-scm #f)
 (define key-sym-code-scm #f)
 (define ncs-ghosts-scm #f)
 

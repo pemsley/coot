@@ -86,8 +86,9 @@
 	      (let ((found-atom-state (set-go-to-atom-chain-residue-atom-name-no-redraw
 				       try-next-chain 
 				       (go-to-atom-residue-number)
-				       (go-to-atom-atom-name))))
-		
+				       (go-to-atom-atom-name)
+				       0)))
+
 		;; now, did that set-go-to-atom function work (was there a
 		;; real atom)?  If not, then that could have been the ligand
 		;; chain or the water chain that we tried to go to.  We want
@@ -110,7 +111,8 @@
 		    ;; otherwise all was hunky-dorey
 		    (begin
 		      ; set the orientation:
-		      (apply-ncs-to-view-orientation imol this-chain-id try-next-chain)
+		      (apply-ncs-to-view-orientation-and-screen-centre
+		       imol this-chain-id try-next-chain)
 		      #t))))))))
 
 	 

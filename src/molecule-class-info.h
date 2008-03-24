@@ -1972,12 +1972,14 @@ class molecule_class_info_t {
 			      const coot::coot_mat44 &m);
 
    // the first value is if we should apply the matrix or not (we may not have ghosts)
-   std::pair<bool, clipper::Mat33<double> >
+   std::pair<bool, clipper::RTop_orth>
      apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
+				   const clipper::Coord_orth &current_position,
 				   const std::string &current_chain,
 				   const std::string &next_ncs_chain) const;
    
    short int show_strict_ncs_flag;
+
    // not const because we can do a fill_ghost_info if the ncs ghosts
    // do not have rtops.
    coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id, 
