@@ -300,7 +300,7 @@
 		    (passed-molecules '()))
 	   
 	   (cond
-	    ((null? molecule-numbers) passed-molecules)
+	    ((null? molecule-numbers) (reverse passed-molecules))
 	    (else
 	     (let ((var (test-func (car molecule-numbers))))
 	       (if (eq? var #f)
@@ -349,7 +349,7 @@
 				      (lambda args 
 					(let ((s (format #f "Centred on ~a" name)))
 					  (add-status-bar-text s)
-					  (format #t "debug:: var: ~s~%" var)
+					  ; (format #t "debug:: var: ~s~%" var)
 					  (apply set-rotation-centre (cdr var))))))
 		(loop (cdr passed-molecules))))))
 	  

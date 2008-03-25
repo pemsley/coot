@@ -28,18 +28,42 @@
 	   (else 
 	    (format #t "ignored: ~s~%" args)))))))
 	   
+;; The rapper installation dir, whatever that means.
+(define rapper-dir "rapper")
+
 
 (define (rapper-it imol chain-id start-resno end-reno sequence number-of-models)
 
-  (format #t "running rapper: ~s ~s ~s ~s ~s ~s~%"
-	  imol chain-id start-resno end-reno sequence number-of-models)
-  (let ((rapper-pid (run-concurrently "rappper")))
-    (rapper-process 'store rappper-pid)))
+  (let ((imol-map (imol-refinement-map)))
+    (if (not (valid-map-molecule? imol-map))
+	(format #t "No valid map molecule given (possibly ambiguous)~%")
+	(let* ((str (string-append "//" chain-id "/" (number->string start-resno)
+				   "-" (number->string end-reno)))
+	       (frag-mol (new-molecule-by-atom-selection imol str))
+	       (fragment-pdb "coot-rapper-fragment-in.pdb")
+	       (map-file "coot-rapper.map"))
+	  (write-pdb-file frag-mol fragment-pdb)
+	  (export-map imol-map map-file)
+	  (format #t "running rapper: ~s ~s ~s ~s ~s ~s~%"
+		  imol chain-id start-resno end-reno sequence number-of-models)
+	  (let ((rapper-pid (run-concurrently "rappper" "params.xml" "--pdb" fragment-pdb 
+					      "--map" map-file 
+					      "--start" (number->string start-resno)
+					      "--stop"  (number->string   end-resno)
+					      "--mainchain-restraint-threshold" "2.0"
+					      "--sidechain-centroid-restraint-threshold"  "2.0"
+					      "--sidechain-mode" "smart"
+					      "--sidechain-radius-reduction" "0.75"
+					      "--enforce-mainchain-restraints" "true"
+					      "--enforce-sidechain-centroid-restraints" "true"
+					      "--edm-fit" "true"
+					      "--rapper-dir" rapper-dir)))
+	    (rapper-process 'store rappper-pid))))))
     
 
 (define (stop-rapper)
-  
   (format #t "stopping rapper process...~%"))
+
 
 (define (cancel-dialog-func window)
   

@@ -1174,6 +1174,44 @@ SCM rtop_to_scm(const clipper::RTop_orth &rtop) {
 }
 #endif // USE_GUILE
 
+#ifdef  USE_GUILE
+SCM inverse_rtop_scm(SCM rtop_scm) {
+
+   clipper::RTop_orth r;
+   SCM rtop_len_scm = scm_length(rtop_scm);
+   int rtop_len = scm_to_int(rtop_len_scm);
+   if (rtop_len == 2) {
+      SCM rot_scm = scm_list_ref(rtop_scm, SCM_MAKINUM(0));
+      SCM rot_length_scm = scm_length(rot_scm);
+      int rot_length = scm_to_int(rot_length_scm);
+      if (rot_length == 9) {
+	 SCM trn_scm = scm_list_ref(rtop_scm, SCM_MAKINUM(1));
+	 SCM trn_length_scm = scm_length(trn_scm);
+	 int trn_length = scm_to_int(trn_length_scm);
+	 double rot_arr[9];
+	 double trn_arr[3];
+	 if (trn_length == 3) {
+	    for (int i=0; i<9; i++) {
+	       rot_arr[i] = scm_to_double(scm_list_ref(rot_scm, SCM_MAKINUM(i)));
+	    }
+	    for (int i=0; i<3; i++) {
+	       trn_arr[i] = scm_to_double(scm_list_ref(trn_scm, SCM_MAKINUM(i)));
+	    }
+	    clipper::Mat33<double> rot(rot_arr[0], rot_arr[1], rot_arr[2],
+				       rot_arr[3], rot_arr[4], rot_arr[5],
+				       rot_arr[6], rot_arr[7], rot_arr[8]);
+	    clipper::Coord_orth trn(trn_arr[0], trn_arr[1], trn_arr[2]);
+	    clipper::RTop_orth rtop_in(rot, trn);
+	    r = rtop_in.inverse();
+	 }
+      }
+   }
+   return rtop_to_scm(r);
+
+} 
+#endif // USE_GUILE
+
+
 #ifdef USE_PYTHON
 PyObject *rtop_to_python(const clipper::RTop_orth &rtop) {
 

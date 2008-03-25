@@ -521,6 +521,7 @@ SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v);
 SCM generic_int_vector_to_list_internal(const std::vector<int> &v);
 std::vector<std::string> generic_list_to_string_vector_internal(SCM l);
 SCM rtop_to_scm(const clipper::RTop_orth &rtop);
+SCM inverse_rtop_scm(SCM rtop_scm);
 coot::atom_spec_t atom_spec_from_scm_expression(SCM expr);
 #endif	/* USE_GUILE */
 

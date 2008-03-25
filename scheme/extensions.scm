@@ -233,6 +233,11 @@
 					       (copy-residue-range-from-ncs-master-to-others
 						imol chain-id r1 r2)))))))))
 
+      (add-simple-coot-menu-menuitem
+       menu "NCS ligands..."
+       (lambda ()
+	 (ncs-ligand-gui)))
+
 
       (add-simple-coot-menu-menuitem
        menu "Residues with Alt Confs..."

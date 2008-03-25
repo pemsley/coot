@@ -4202,7 +4202,9 @@ void copy_chain(int imol, const char *from_chain, const char *to_chain);
 /*! \brief Copy chain from master to all related NCS chains */
 void copy_from_ncs_master_to_others(int imol, const char *chain_id);
 /* void copy_residue_range_from_ncs_master_to_others(int imol, const char *master_chain_id, int residue_range_start, int residue_range_end); */
-/*! \brief Copy residue range to all related NCS chains */
+/*! \brief Copy residue range to all related NCS chains.  If the
+  target residues do not exist in the peer chains, then create
+  them. */
 void copy_residue_range_from_ncs_master_to_others(int imol, const char *master_chain_id, 
 						  int residue_range_start, int residue_range_end);
 GtkWidget *wrapped_create_ncs_control_dialog();	
