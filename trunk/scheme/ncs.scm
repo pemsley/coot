@@ -136,3 +136,57 @@
 	    (set-draw-ncs-ghosts rna-mol 1)
 	    (apply add-ncs-matrix rna-mol peer-chain ref-chain (apply append rtop)))))))
 
+
+(define (ncs-ligand imol-protein ncs-master-chain-id imol-ligand chain-id-ligand resno-ligand-start resno-ligand-stop)
+
+  ;; find ghost in ghosts that has a chain-id matching
+  ;; chain-id-protein and get its rtop.  Return #f on not finding the
+  ;; ghost
+  (define (rtop-from-ghost-with-chain-id ghosts chain-id)
+    (let loop ((ghosts ghosts))
+      (cond 
+       ((null? ghosts) #f)
+       ((string=? (list-ref (car ghosts) 1) chain-id)
+	(list-ref (car ghosts) 3))
+       (else 
+	(loop (cdr ghosts))))))
+
+  (let ((chain-ids-from-ncs (ncs-chain-ids imol-protein)))
+    (if (list? chain-ids-from-ncs)
+	(if (> (length chain-ids-from-ncs) 0)
+	    (let* ((ligand-selection-string 
+		    (string-append "//" chain-id-ligand "/" (number->string resno-ligand-start)
+				   "-" (number->string resno-ligand-stop)))
+		   (imol-ligand-fragment (new-molecule-by-atom-selection imol-ligand ligand-selection-string))
+		   (ghosts (ncs-ghosts imol-protein)))
+	      (let loop ((chain-ids-from-ncs chain-ids-from-ncs))
+		(cond
+		 ((null? chain-ids-from-ncs) 'failure-to-find-protein-ncs-master-chain)
+		 ((string=? (car (car chain-ids-from-ncs)) ncs-master-chain-id)
+		  (let ((peer-chains (cdr (car chain-ids-from-ncs)))
+			(candidate-name "Candidate NCS-related ligand"))
+		    (map (lambda (chain-id-protein count)
+			   (let ((rtop (rtop-from-ghost-with-chain-id ghosts chain-id-protein)))
+			     (if (not rtop)
+				 (begin
+				   (format #t "Opps - ncs-ligand: Missing ghost rt-op!~%")
+				   (info-dialog "Opps - ncs-ligand: Missing ghost rt-op!~%"))
+				 (let ((new-lig-mol (copy-molecule imol-ligand-fragment)))
+				   (transform-coords-molecule new-lig-mol (inverse-rtop rtop))
+				   (set-molecule-name new-lig-mol (string-append 
+								   (number->string new-lig-mol)
+								   ": "
+								   candidate-name
+								   " to protein chain "
+								   chain-id-protein))))))
+			 peer-chains (number-list 1 (length peer-chains)))
+		    (molecules-matching-criteria 
+		     (lambda (imol)
+		       (if (not (valid-model-molecule? imol))
+			   #f
+			   (let ((name (molecule-name imol)))
+			     (if (string-match candidate-name name)
+				 (cons name (molecule-centre imol))
+				 #f)))))))
+		 (else
+		  (loop (cdr chain-ids-from-ncs))))))))))

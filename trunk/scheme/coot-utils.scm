@@ -37,6 +37,7 @@
 (define missing-atom-info missing-atom-info-scm)
 (define key-sym-code key-sym-code-scm)
 (define ncs-ghosts ncs-ghosts-scm)
+(define inverse-rtop inverse-rtop-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
@@ -931,7 +932,7 @@
 ;; transform a coordinates molecule by a coot-rtop (which is a SCM
 ;; expression of a clipper::RTop)
 ;; 
-(define (transform-coord-molecule imol rtop)
+(define (transform-coords-molecule imol rtop)
   
   (apply transform-molecule-by 
 	 (cons imol (apply append rtop))))

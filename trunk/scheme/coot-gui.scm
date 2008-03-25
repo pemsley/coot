@@ -1782,6 +1782,126 @@
 			      (cons mess pos))))))))
 	      cis-peps)))))
 
+(define (ncs-ligand-gui) 
+  
+  (let ((window (gtk-window-new 'toplevel))
+	(ncs-ligands-vbox (gtk-vbox-new #f 2))
+	(title (gtk-label-new "Find NCS-Related Ligands"))
+	(ref-label (gtk-label-new "Protein with NCS"))
+	(ref-chain-hbox (gtk-hbox-new #f 2))
+	(chain-id-ref-label (gtk-label-new "NCS Master Chain"))
+	(chain-id-ref-entry (gtk-entry-new))
+	(lig-label (gtk-label-new "Molecule containing ligand"))
+	(specs-hbox (gtk-hbox-new #f 2))
+	(h-sep (gtk-hseparator-new))
+	(buttons-hbox (gtk-hbox-new #f 6))
+	(chain-id-lig-label (gtk-label-new "Chain ID: "))
+	(resno-start-label (gtk-label-new " Residue Number "))
+	(to-label (gtk-label-new "  to  "))
+	(chain-id-lig-entry (gtk-entry-new))
+	(resno-start-entry (gtk-entry-new))
+	(resno-end-entry (gtk-entry-new))
+	(ok-button (gtk-button-new-with-label "   Find Candidate Positions  "))
+	(cancel-button (gtk-button-new-with-label "    Cancel    "))
+	(menu-ref (gtk-menu-new))
+	(menu-lig (gtk-menu-new))
+	(option-menu-ref-mol (gtk-option-menu-new))
+	(option-menu-lig-mol (gtk-option-menu-new)))
+	
+    (let ((molecule-list-ref (fill-option-menu-with-coordinates-mol-options
+				  menu-ref))
+	  (molecule-list-lig (fill-option-menu-with-coordinates-mol-options
+				  menu-lig)))
+
+      (gtk-option-menu-set-menu option-menu-ref-mol menu-ref)
+      (gtk-option-menu-set-menu option-menu-lig-mol menu-lig)
+
+      (gtk-container-add window ncs-ligands-vbox)
+      (gtk-box-pack-start ncs-ligands-vbox title #f #f 6)
+      (gtk-box-pack-start ncs-ligands-vbox ref-label #f #f 2)
+      (gtk-box-pack-start ncs-ligands-vbox option-menu-ref-mol #t #f 2)
+      (gtk-box-pack-start ncs-ligands-vbox ref-chain-hbox #f #f 2)
+      (gtk-box-pack-start ncs-ligands-vbox lig-label #f #f 2)
+      (gtk-box-pack-start ncs-ligands-vbox option-menu-lig-mol #t #f 2)
+      (gtk-box-pack-start ncs-ligands-vbox specs-hbox #f #f 2)
+      (gtk-box-pack-start ncs-ligands-vbox h-sep #f #f 2)
+      (gtk-box-pack-start ncs-ligands-vbox buttons-hbox #f #f 6)
+
+      (gtk-box-pack-start buttons-hbox     ok-button #t #f 4)
+      (gtk-box-pack-start buttons-hbox cancel-button #t #f 4)
+
+      (gtk-box-pack-start ref-chain-hbox chain-id-ref-label #f #f 2)
+      (gtk-box-pack-start ref-chain-hbox chain-id-ref-entry #f #f 2)
+      
+      (gtk-box-pack-start specs-hbox chain-id-lig-label #f #f 2)
+      (gtk-box-pack-start specs-hbox chain-id-lig-entry #f #f 2)
+      (gtk-box-pack-start specs-hbox resno-start-label #f #f 2)
+      (gtk-box-pack-start specs-hbox resno-start-entry #f #f 2)
+      (gtk-box-pack-start specs-hbox to-label #f #f 2)
+      (gtk-box-pack-start specs-hbox resno-end-entry #f #f 2)
+      (gtk-box-pack-start specs-hbox (gtk-label-new " ") #f #f 2) ; neatness
+
+      (gtk-widget-set-usize chain-id-lig-entry 32 -1)
+      (gtk-widget-set-usize chain-id-ref-entry 32 -1)
+      (gtk-widget-set-usize resno-start-entry  50 -1)
+      (gtk-widget-set-usize resno-end-entry    50 -1)
+      (gtk-entry-set-text chain-id-ref-entry "A")
+      (gtk-entry-set-text chain-id-lig-entry "A")
+      (gtk-entry-set-text resno-start-entry "1")
+
+      (gtk-tooltips-set-tip (gtk-tooltips-new)
+			    chain-id-ref-entry 
+			    (string-append
+			    "\"A\" is a reasonable guess at the NCS master chain id.  "
+			    "If your ligand (specified below) is NOT bound to the protein's "
+			    "\"A\" chain, then you will need to change this chain and also "
+			    "make sure that the master molecule is specified appropriately "
+			    "in the Draw->NCS Ghost Control window.")
+			    "")
+      (gtk-tooltips-set-tip (gtk-tooltips-new)
+			    resno-end-entry 
+			    "Leave blank for a single residue" "")
+      
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda ()
+			    (format #t "ncs ligand function here~%")
+			    (let* ((active-mol-no-ref
+				    (get-option-menu-active-molecule 
+				     option-menu-ref-mol
+				     molecule-list-ref))
+				   (active-mol-no-lig
+				    (get-option-menu-active-molecule 
+				     option-menu-lig-mol
+				     molecule-list-lig))
+				   (chain-id-lig (gtk-entry-get-text chain-id-lig-entry))
+				   (chain-id-ref (gtk-entry-get-text chain-id-ref-entry))
+				   (resno-start
+				    (string->number (gtk-entry-get-text resno-start-entry)))
+				   (resno-end-t (string->number (gtk-entry-get-text resno-end-entry)))
+				   (resno-end (if (number? resno-end-t)
+						  resno-end-t
+						  resno-start)))
+					
+			      (if (number? resno-start)
+				  (if (number? resno-end)
+				      (begin 
+					(make-ncs-ghosts-maybe active-mol-no-ref)
+					(ncs-ligand active-mol-no-ref
+						    chain-id-ref
+						    active-mol-no-lig
+						    chain-id-lig
+						    resno-start
+						    resno-end)))))
+			    (gtk-widget-destroy window)))
+
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda ()
+			    (gtk-widget-destroy window)))
+
+      (gtk-widget-show-all window))))
+
+
+
 
 ; let the c++ part of mapview know that this file was loaded:
 (set-found-coot-gui)
@@ -1789,3 +1909,4 @@
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; End:
+

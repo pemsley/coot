@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   11 Items
+   13 Items
 
    o Kevin's Ramachandran Refinement target
 
@@ -30,8 +30,6 @@
      for a similar blob near molecule B and try to fit the same kind of
      ligand there as well [JED]
 
-   o NCS chain Extension: Randy Read
-
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
      molprobity web site gives less bad rotamers then? (First: Does it?).
@@ -44,10 +42,19 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
-   o Finish A rapper gui.
+   o Finish A-RAPPER-gui.
+
+   o set-molecule-name does not update name in Display Control.  It
+     should.
+
+   o undo needs to update the additional representations 
 
 
 
+
+   o NCS chain Extension: Randy Read
+
+* Actually, it works like that anyway.
 
    o On calculating NCS differences graph, if no matrices, generate
      the on the fly, like we do when making NCS maps.  Easy.
@@ -4862,3 +4869,13 @@ Fri Mar 21 10:54:01 GMT 2008
 	 gtk_widget_show(widget);
       else
 	 gdk_window_raise(widget->window);
+
+
+-----
+Mon Mar 24 23:51:58 GMT 2008
+
+    NOTE to SELF:
+
+    1ao0: fitting ADP fits the ADPs upside-down consistently.
+    Hmmm....
+

@@ -1064,6 +1064,8 @@ molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string n
 void
 molecule_class_info_t::set_name(std::string name) {
    name_ = name;
+   update_mol_in_display_control_widget();
+      
 }
 
 
