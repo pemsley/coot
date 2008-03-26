@@ -170,15 +170,8 @@
 	     (format #t "Bad read of miller test molecule~%")
 	     (throw 'fail)))
        (set-show-aniso 1) ; crash
-       (rotate-y-scene (rotate-n-frames 100) 0.1)
+       (rotate-y-scene (rotate-n-frames 20) 0.1)
        (close-molecule imol-miller)
        (set-show-aniso 0)
        #t)))
 
-;(greg-testcase "Set show aniso test" #t
-;   (lambda ()
-
-;     (set-show-aniso 1)
-;     #t))
-
-	       
