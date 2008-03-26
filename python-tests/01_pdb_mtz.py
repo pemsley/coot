@@ -35,9 +35,10 @@ imol_ligand = -1
 
 imol_terminal_residue_test = -1
 
-horne_works_cif = os.path.join(unittest_data_dir, "lib-B3A.cif")
-horne_cif = os.path.join(unittest_data_dir, "lib-both.cif")
-horne_pdb = os.path.join(unittest_data_dir, "coords-B3A.pdb")
+horne_works_cif   = os.path.join(unittest_data_dir, "lib-B3A.cif")
+horne_cif         = os.path.join(unittest_data_dir, "lib-both.cif")
+horne_pdb         = os.path.join(unittest_data_dir, "coords-B3A.pdb")
+ins_code_frag_pdb = os.path.join(unittest_data_dir, "ins-code-fragment-pre.pdb")
 
 # CCP4 is set up? If so, set have-ccp4? True
 
@@ -56,6 +57,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test01_0(self):
         """Close bad molecule"""
         close_molecule(-2)
+	
 
     def test02_0(self):
 	"""Read coordinates test"""
@@ -64,6 +66,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	imol_rnase = imol
 	self.failUnless(valid_model_molecule_qm(imol))
 
+
     def test03_0(self):
 	    """New molecule from bogus molecule"""
 	    pre_n_molecules = graphics_n_molecules()
@@ -71,6 +74,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    post_n_molecules = graphics_n_molecules()
 	    self.failUnlessEqual(new_mol, -1 ,"fail on non-matching n molecules (-1)")
 	    self.failUnlessEqual(pre_n_molecules, post_n_molecules, "fail on non-matching n molecules (=)")
+
 
     def test04_0(self):
 	    """New molecule from bogus atom selection"""
@@ -82,6 +86,49 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(new_molecule, -1 ,"fail on non-matching n molecules (-1)")
 	    self.failUnlessEqual(pre_n_molecules, post_n_molecules, "fail on non-matching n molecules (=)")
 
+
+    def test04_1(self):
+	    """ins code change and Goto atom over an ins code break"""
+
+	    def matches_attributes(atts_obs, atts_ref):
+		    if (atts_obs == atts_ref):
+			    return True
+		    else:
+			    return False
+
+	    # main line
+	    self.failUnless(os.path.isfile(ins_code_frag_pdb), "   WARNING:: file not found: %s" %ins_code_frag_pdb)
+	    frag_pdb = handle_read_draw_molecule_with_recentre(ins_code_frag_pdb, 0)
+	    set_go_to_atom_molecule(frag_pdb)
+	    set_go_to_atom_chain_residue_atom_name("A", 68, " CA ")
+	    ar_1 = active_residue()
+	    ins_1 = ar_1[3]
+	    change_residue_number(frag_pdb, "A", 68, "", 68, "A")
+	    change_residue_number(frag_pdb, "A", 69, "", 68, "B")
+	    change_residue_number(frag_pdb, "A", 67, "", 68, "")
+	    ar_2 = active_residue()
+	    ins_2 = ar_2[3]
+	    print "pre and post ins codes: ", ins_1, ins_2
+	    self.failUnlessEqual(ins_2, "A", " Fail ins code set: %s is not 'A'" %ins_2)
+
+	    test_expected_results = [[goto_next_atom_maybe("A", 67, "",  " CA "), ["A", 68, "",  " CA "]],
+				     [goto_next_atom_maybe("A", 68, "A", " CA "), ["A", 68, "B", " CA "]],
+				     [goto_next_atom_maybe("A", 68, "B", " CA "), ["A", 70, "",  " CA "]],
+				     [goto_next_atom_maybe("D", 10, "",  " O  "), ["A", 62, "",  " CA "]],
+				     [goto_prev_atom_maybe("A", 70, "",  " CA "), ["A", 68, "B", " CA "]],
+				     [goto_prev_atom_maybe("A", 68, "B", " CA "), ["A", 68, "A", " CA "]],
+				     [goto_prev_atom_maybe("A", 68, "A", " CA "), ["A", 68, "",  " CA "]],
+				     [goto_prev_atom_maybe("A", 68, "",  " CA "), ["A", 66, "",  " CA "]]]
+
+	    for test_item in test_expected_results:
+		    real_result     = test_item[0]
+		    expected_result = test_item[1]
+
+		    self.failUnless(real_result)
+		    self.failUnlessEqual(real_result, expected_result, "   fail: real: %s expected: %s" %(real_result, expected_result))
+		    print "   pass: ", expected_result
+
+
     def test05_0(self):
 	    """Read a bogus map"""
 	    pre_n_molecules = graphics_n_molecules()
@@ -90,6 +137,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    now_n_molecules = graphics_n_molecules()
 	    self.failUnlessEqual(now_n_molecules, pre_n_molecules, "bogus ccp4 map creates extra map %s %s " %(pre_n_molecules, now_n_molecules))
 	    
+
     def test06_0(self):
 	    """Read MTZ test"""
 	    
@@ -108,10 +156,32 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    set_imol_refinement_map(imol_map)
 	    self.failUnless(valid_map_molecule_qm(imol_map))
 
+
     def test07_0(self):
 	    """Another Level Test"""
 	    imol_map_2 = another_level()
 	    self.failUnless(valid_map_molecule_qm(imol_map_2))
+
+
+    def test07_1(self):
+	    """NCS maps test"""
+
+	    self.failUnless(valid_model_molecule_qm(imol_rnase),
+			    "imol-rnase not valid")
+
+	    self.failUnless(valid_map_molecule_qm(imol_rnase_map),
+			    "imol_rnase_map not valid")
+
+	    n_mols = graphics_n_molecules()
+	    # try to make it trip up by doing it twice:
+	    imol_map_2 = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0 ,0)
+	    make_dynamically_transformed_ncs_maps(imol_rnase, imol_rnase_map)
+	    make_dynamically_transformed_ncs_maps(imol_rnase, imol_map_2)
+	    # 2*2 + 1 new maps should have been made
+	    n_new = graphics_n_molecules()
+	    self.failUnlessEqual(n_new, (n_mols + 5),
+				 "no match in number of molecules %s %s" %(n_mols, n_new))
+
 	    
     def test08_0(self):
 	    """Set Atom Atribute Test"""
@@ -126,6 +196,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    if (atom_name == " CA "):
 		    x = atom_ls[0][2][0]
 		    self.failUnlessAlmostEqual(x, 64.5)
+
 
     def test09_0(self):
 	"""Add Terminal Residue Test"""
@@ -161,6 +232,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	r = sum([rc[i] - ls[i] for i in range(len(rc))])
 	self.failIf(r > 0.66, "Bad placement of terminal residue")
 
+
     def test10_0(self):
 	    """Select by Sphere"""
 
@@ -195,6 +267,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	go_to_view_number(view_number, 1)
 	# test for something??
 
+
     def test12_0(self):
 	"""Label Atoms and Delete"""
 
@@ -207,6 +280,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	delete_residue(imol_frag, "B", 12, "")
 	rotate_y_scene(rotate_n_frames(200), 0.1)
 	# ???? what do we sheck for?
+
 
     def test13_0(self):
 	    """Rotamer outliers"""
@@ -231,6 +305,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			     anal_str_a2 == "Rotamer not recognised" and
 			     anal_str_a3 == "Missing Atoms"),
 			    "  failure rotamer test: %s %s %s" %(a_1, a_2, a_last))
+
  
     # Don't reset the occupancies of the other parts of the residue
     # on regularization using alt confs
@@ -274,6 +349,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    occ_sum_post = get_occ_sum(imol_fragment)
 	    self.failUnlessAlmostEqual(occ_sum_pre, occ_sum_post, 1, "   test for closeness: %s %s" %(occ_sum_pre, occ_sum_post))
+
 
     # This test we expect to fail until the CISPEP correction code is in
     # place (using mmdb-1.10+).
@@ -353,6 +429,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # self.failUnlessEqual("4", parts)   # this temporarily until MMDB works properly
 	    # self.failUnlessEqual("3", parts)   # this is once MMDB works properly with CIS
 	    
+
     def test16_0(self):
 	    """Rigid Body Refine Alt Conf Waters"""
 
@@ -366,6 +443,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    accept_regularizement()
 	    set_refinement_immediate_replacement(rep_state)
 	    # what do we check for?!
+
 	    
     def test17_0(self):
 	    """Setting multiple atom attributes"""
@@ -401,6 +479,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    self.failUnlessAlmostEqual(occ, o_test_val, 1, "Error in setting multiple atom: These are not close %s %s" %(occ, o_test_val))
 			    self.failUnlessAlmostEqual(b, b_test_val, 1, "Error in setting multiple atom: These are not close %s %s" %(b, b_test_val))
 
+
     def test18_0(self):
 	    """Tweak Alt Confs on Active Residue"""
 	    
@@ -433,6 +512,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(matches_alt_conf_qm(imol_rnase, chain_id, resno, inscode, atom_name, ""),
 			    "   No matching post CB (unaltconfed) - failing.")
 
+
     def test19_0(self):
 	    """Libcif horne"""
 
@@ -455,6 +535,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    cent = molecule_centre(imol)
 	    self.failUnless(cent[0] < 2000, "Position fail 2000 test: %s in %s" %(cent[0], cent))
 
+
     def test20_0(self):
 	    """Refmac Parameters Storage"""
 
@@ -468,6 +549,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    refmac_params = refmac_parameters(imol)
 
 	    self.failUnlessEqual(refmac_params, arg_list, "        non matching refmac params")
+
 
     def test21_0(self):
 	    """The position of the oxygen after a mutation"""
@@ -505,6 +587,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnlessEqual(n_atoms, 10, "   found %s atoms (not 10)" %n_atoms)
 	    self.failUnless(operator.isNumberType(o_pos), "   Oxygen O position not found")
 	    self.failUnlessEqual(o_pos, 4,"   found O atom at %s (not 4)" %o_pos) 
+
 	    
     def test22_0(self):
 	    """Deleting (non-existing) Alt conf and Go To Atom [JED]"""
@@ -515,6 +598,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # to activate the bug, we need to search over all atoms
 	    active_residue()
 	    # test for what?? (no crash??)
+
 
     def test23_0(self):
 	    """Mask and difference map"""

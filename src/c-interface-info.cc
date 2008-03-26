@@ -1246,6 +1246,38 @@ PyObject *rtop_to_python(const clipper::RTop_orth &rtop) {
    return r;
 
 }
+
+PyObject *inverse_rtop_py(PyObject *rtop_py) {
+
+   clipper::RTop_orth r;
+   int rtop_len = PyList_Size(rtop_py);
+   if (rtop_len == 2) {
+      PyObject *rot_py = PyList_GetItem(rtop_py, 0);
+      int rot_length = PyList_Size(rot_py);
+      if (rot_length == 9) {
+	 PyObject *trn_py = PyList_GetItem(rtop_py, 1);
+	 int trn_length = PyList_Size(trn_py);
+	 double rot_arr[9];
+	 double trn_arr[3];
+	 if (trn_length == 3) {
+	    for (int i=0; i<9; i++) {
+	      rot_arr[i] = PyFloat_AsDouble(PyList_GetItem(rot_py, i));
+	    }
+	    for (int i=0; i<3; i++) {
+	      trn_arr[i] = PyFloat_AsDouble(PyList_GetItem(trn_py, i));
+	    }
+	    clipper::Mat33<double> rot(rot_arr[0], rot_arr[1], rot_arr[2],
+				       rot_arr[3], rot_arr[4], rot_arr[5],
+				       rot_arr[6], rot_arr[7], rot_arr[8]);
+	    clipper::Coord_orth trn(trn_arr[0], trn_arr[1], trn_arr[2]);
+	    clipper::RTop_orth rtop_in(rot, trn);
+	    r = rtop_in.inverse();
+	 }
+      }
+   }
+   return rtop_to_python(r);
+
+}
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE

@@ -122,6 +122,10 @@ if (have_coot_python):
 		lambda imol: copy_molecule(imol)))
 
 
+     add_simple_coot_menu_menuitem(menu, "Make a Difference Map...",
+                                   lambda func: make_difference_map_gui())
+
+
      def export_map_func(imol, text):
        export_status = export_map(imol, text)
        if (export_status == 1):
@@ -185,9 +189,27 @@ if (have_coot_python):
 				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
 
 
-     add_simple_coot_menu_menuitem(menu,"Renumber Waters...",
+     add_simple_coot_menu_menuitem(menu, "Renumber Waters...",
 	lambda func: molecule_chooser_gui("Renumber waters of which molecule?",
 		lambda imol: renumber_waters(imol)))
+
+
+     def apply_ncs_loop_func(imol, chain_id, text1, text2, dum):
+       try:
+         r1 = int(text1)
+         r2 = int(text2)
+         copy_residue_range_from_ncs_master_to_others(imol, chain_id, r1, r2)
+       except:
+         print "BL WARNING:: no valid number input"
+       
+     add_simple_coot_menu_menuitem(menu, "Apply NCS loop...",
+                                   lambda func: generic_chooser_and_entry("Apply NCS Range from Master",
+                                               "Master Chain ID",
+                                               "",
+                lambda imol, chain_id: generic_double_entry("Start of Residue Number Range",
+                                       "End of Residue Number Range",
+                                       "", "", False, False,
+                                       lambda text1, text2, dum: apply_ncs_loop_func(imol, chain_id, text1, text2, dum))))
 
 
      add_simple_coot_menu_menuitem(menu, "Residues with Alt Confs...",

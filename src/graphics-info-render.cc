@@ -389,11 +389,12 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       clipper::Polar_ccp4 polar = clipper::Rotation(view_matrix_cl).polar_ccp4();
       std::cout << "kappa: " << polar.kappa() << std::endl;
 
-      // invert z and adjust the camera and view centre
-      // 1.) invert the view_centre_z:
-      //float view_centre_z_new = -view_centre.z();
-      // 2.) for camera z we have to add 2* new view centre z
-      //float camera_location_z_new = camera_location.z() + 2 * view_centre_z_new;
+      int x0 = graphics_info_t::glarea->allocation.width/2;
+      int y0 = graphics_info_t::glarea->allocation.height/2;
+      coot::Cartesian screen_edge1 = unproject_xyz(0, 0, 0);
+      coot::Cartesian screen_edge2 = unproject_xyz(x0*2, 0, 0);
+
+      coot::Cartesian v1_2 = screen_edge2 - screen_edge1;
 
       clipper::Vec3<double> camera_location_cl(camera_location.x(),
 					       camera_location.y(),
@@ -403,26 +404,15 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
 					   view_centre.y(),
 					   view_centre.z());
 
-      clipper::Vec3<double> tmp_cl = view_matrix_inv_cl * camera_location_cl;
-
-      //std::cout<< "BL DEBUG:: camera_location  "
-      //     << camera_location.x() <<", "
-      //     << camera_location.y() <<", "
-      //     << camera_location.z() <<"\n "<<std::endl;
-      //std::cout<< "BL DEBUG:: view_centre  "
-      //     << view_centre.x() <<", "
-      //     << view_centre.y() <<", "
-      //     << view_centre.z() <<"\n "<<std::endl;
-      //std::cout<< "BL DEBUG:: tmp_cl "
-      //     << tmp_cl[0] <<", "
-      //     << tmp_cl[1] <<", "
-      //     << tmp_cl[2] <<"\n "<<std::endl;	    
-
       float dir_len = (camera_location - view_centre).amplitude();
 
       clipper::Vec3<double> direction_cl(view_matrix.matrix_element(2,0),
 					 view_matrix.matrix_element(2,1),
 					 view_matrix.matrix_element(2,2));
+
+      float tmp_len = view_centre_cl * direction_cl;
+      
+      float angle_factor = abs((v1_2.amplitude()/2)/(dir_len+tmp_len));
 
       clipper::Vec3<double> tt_cl;
       for (int i=0; i<3; i++) {
@@ -430,15 +420,14 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       }
       clipper::Vec3<double> camera_translation_cl = view_centre_cl + tt_cl;
 
-
       render_stream << "#include \"colors.inc\"\n";
       render_stream << "camera { orthographic\n            location <"
 		    << camera_translation_cl[0] << ", "
 		    << camera_translation_cl[1] << ", "
 		    << camera_translation_cl[2] << ">\n";
       // BL insert for spec
-      int x0 = graphics_info_t::glarea->allocation.width;
-      int y0 = graphics_info_t::glarea->allocation.height;
+      //int x0 = graphics_info_t::glarea->allocation.width;
+      //int y0 = graphics_info_t::glarea->allocation.height;
       float ratio = (float)x0/(float)y0;
       render_stream << "        right     < " 
 		    << view_matrix.matrix_element(0,0) * ratio << ", "
@@ -452,8 +441,7 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
 		    << -view_matrix.matrix_element(2,0) << ", "
 		    << -view_matrix.matrix_element(2,1) << ", "
 		    << -view_matrix.matrix_element(2,2) << "> \n";
-      render_stream << "         angle  180*"<< abs(view_centre.z() - camera_location.z()) <<
-	               " / " << graphics_info_t::zoom << " \n";
+      render_stream << "         angle  90* "<< angle_factor << " \n";
       //render_stream << "         look_at  <"
       //<< view_centre.x() << ", "
       //<< view_centre.y() << ", "

@@ -532,6 +532,7 @@ PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::strin
 PyObject *generic_int_vector_to_list_internal_py(const std::vector<int> &v);
 std::vector<std::string> generic_list_to_string_vector_internal_py(PyObject *l);
 PyObject *rtop_to_python(const clipper::RTop_orth &rtop);
+PyObject *inverse_rtop_py(PyObject *rtop_py);
 coot::atom_spec_t atom_spec_from_python_expression(PyObject *expr);
 #endif // PYTHON
 

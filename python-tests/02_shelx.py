@@ -34,6 +34,7 @@ insulin_res = os.path.join(unittest_data_dir, "insulin.res")
 hollander_ins = os.path.join(unittest_data_dir, "hollander.ins")
 global imol_insulin_res
 imol_insulin_res = -1 # see later
+m_miller_res = os.path.join(unittest_data_dir, "miller/shelx-test4-NPD-mini.res")
 
 
 class ShelxTestFunctions(unittest.TestCase):
@@ -46,6 +47,7 @@ class ShelxTestFunctions(unittest.TestCase):
         self.failUnless(valid_model_molecule_qm(imol))
         imol_hof_res = imol
 
+
     def test02_0(self):
         """Read hollander small molecule .res file"""
 
@@ -55,6 +57,7 @@ class ShelxTestFunctions(unittest.TestCase):
         spg = show_spacegroup(imol)
         self.failUnlessEqual(spg, "I 41 2 2", "   fail: wrong spacegroup for %s %s" %(hollander_ins, spg))
         
+
     def test03_0(self):
         """read shelx insulin with fcf"""
 
@@ -81,6 +84,7 @@ class ShelxTestFunctions(unittest.TestCase):
         close_molecule(imol)
         # imol_insulin_res_local needed later -> global?
         
+
     # The "SHELX Woe" problem
     #
     def test04_0(self):
@@ -96,6 +100,7 @@ class ShelxTestFunctions(unittest.TestCase):
         rnase_ins = "rnase.ins"
         status = write_shelx_ins_file(imol_rnase, rnase_ins)
         self.failUnlessEqual(status, 1, "   failure to write INS file %s from PDB: status %s" %(rnase_ins, status))
+
 
     def test05_0(self):
         """Add water to SHELX molecule"""
@@ -120,5 +125,21 @@ class ShelxTestFunctions(unittest.TestCase):
             occ = atom[1][0]
             self.failUnlessAlmostEqual(occ, 11.0, 1, "  bad occupancy in SHELXL molecule %s" %atom)
 
+
+# non positive definite anistropic atom (reported by Mitch Miller)
+# crash test
+    def test06_0(self):
+        """NPD Anisotripic Atom [Mitch Miller]"""
+
+        imol_miller = handle_read_draw_molecule_with_recentre(m_miller_res, 1)
+
+        self.failUnless(valid_model_molecule_qm(imol_miller),
+                        "Bad read of miller test molecule")
+
+        set_show_aniso(1)  # crash?
+        rotate_y_scene(rotate_n_frames(100), 0.1)
+        close_molecule(imol_miller)
+        set_show_aniso(0)
+                    
         
             
