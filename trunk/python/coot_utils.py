@@ -494,9 +494,14 @@ def rotate_about_screen_axis(axis,degrees):
 # transform a coordinates molecule by a coot-rtop (which is a Python
 # expression of a clipper::RTop)
 #
-def transform_coord_molecule(imol, rtop):
+def transform_coords_molecule(imol, rtop):
 
-    transform_molecule_by()
+    ls = []
+    for i in rtop:
+        for j in i:
+            ls.append(j)
+
+    transform_molecule_by(imol, *ls)
 
 # @code{transform_map(imol,mat,trans,about_pt,radius)}
 #
@@ -1087,6 +1092,8 @@ water_chain_from_shelx_ins = water_chain_from_shelx_ins_py
 water_chain            = water_chain_py
 ncs_chain_differences  = ncs_chain_differences_py
 ncs_chain_ids          = ncs_chain_ids_py
+ncs_ghosts             = ncs_ghosts_py
+inverse_rtop           = inverse_rtop_py
 
 ## and some extra ones
 show_set_undo_molecule_chooser = show_set_undo_molecule_chooser_py

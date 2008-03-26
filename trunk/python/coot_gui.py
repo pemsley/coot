@@ -194,8 +194,10 @@ def coot_gui():
    # if so, let's translate it
    #
    def test_and_translate_guile(py_func):
-       #test for - or ( at start
-       if ((string.find(py_func,"-")>0) or (string.find(py_func,"(")==0)):
+       # test for '(' at start
+       # and if a '-' before the '(' [i.e. if we have a guile command instead of a python command in the beginning,
+       # we need to allow '-' after the '(']
+       if ((string.find(py_func[0:py_func.find('(')],"-") > 0) or (string.find(py_func,"(") == 0)):
           #remove ()
           tmp = string.rstrip(string.lstrip(py_func,("(")),")")
           tmp_list = string.split(tmp)
@@ -246,7 +248,9 @@ def coot_gui():
    entry.set_completion(completion)
    liststore = gtk.ListStore(gobject.TYPE_STRING)
    for i in globals():
-       liststore.append([i])
+      tmp = [i][0]
+      if (not tmp[-3:len(tmp)] == '_py'):
+          liststore.append([i])
    completion.set_model(liststore)
    completion.set_text_column(0)
 #   completion.connect("match-selected", match_cb)
@@ -953,7 +957,10 @@ def get_option_menu_active_molecule(option_menu, model_mol_list):
     for i in model:
         children += 1
 
-    return model[active_item][0]
+    all_model = model[active_item][0]
+    imol_model, junk = all_model.split(' ', 1)
+    
+    return int(imol_model)
 #    if (children == model_mol_list):
 #       return model[active_item][0]
 #    else:
@@ -982,7 +989,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
 
     def on_ok_clicked(*args):
         # what is the molecule number of the option menu?
-        active_mol_no, junk = get_option_menu_active_molecule(option_menu,model_mol_list).split(' ',1)
+        active_mol_no = get_option_menu_active_molecule(option_menu,model_mol_list)
         try:
            active_mol_no = int(active_mol_no)
            print "INFO: operating on molecule number ", active_mol_no
@@ -1049,7 +1056,7 @@ def generic_chooser_and_entry(chooser_label,entry_hint_text,default_entry_text,c
 
     def on_ok_button_clicked(*args):
         # what is the molecule number of the option menu?
-        active_mol_no, junk = get_option_menu_active_molecule(option_menu,model_mol_list).split(' ',1)
+        active_mol_no = get_option_menu_active_molecule(option_menu,model_mol_list)
 
         try:
            active_mol_no = int(active_mol_no)
@@ -1108,7 +1115,7 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter, entry
 
     def on_ok_button_clicked(*args):
         # what is the molecule number of the option menu?
-        active_mol_no, junk = get_option_menu_active_molecule(option_menu,model_mol_list).split(' ',1)
+        active_mol_no = get_option_menu_active_molecule(option_menu,model_mol_list)
 
         try:
            active_mol_no = int(active_mol_no)
@@ -1170,7 +1177,7 @@ def generic_chooser_and_file_selector(chooser_label, chooser_filter, file_select
 
     def on_ok_button_clicked(*args):
         # what is the molecule number of the option menu?
-        active_mol_no, junk = get_option_menu_active_molecule(option_menu,model_mol_list).split(' ',1)
+        active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
 
         try:
            active_mol_no = int(active_mol_no)
@@ -1977,6 +1984,73 @@ def nudge_screen_centre_extra_gui():
    dialog_box_of_buttons_with_widget("Nudge Screen Centre with Extras", [200,400], buttons, vbox, "  Close ")
 
 
+# A gui to make a difference map (from arbitrarily gridded maps
+# (that's it's advantage))
+#
+def make_difference_map_gui():
+   
+   def delete_event(*args):
+      window.destroy()
+      return False
+
+   def go_function_event(widget):
+      print "make diff map here\n"
+      active_mol_no_ref = get_option_menu_active_molecule(option_menu_ref_mol, map_molecule_list_ref)
+      active_mol_no_sec = get_option_menu_active_molecule(option_menu_sec_mol, map_molecule_list_sec)
+      scale_text = scale_entry.get_text()
+      scale = False
+      try:
+         scale = float(scale_text)
+      except:
+         print "can't decode scale", scale_text
+      if (scale):
+         difference_map(active_mol_no_ref, active_mol_no_sec, scale)
+      delete_event()
+
+      
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   diff_map_vbox = gtk.VBox(False, 2)
+   h_sep = gtk.HSeparator()
+   title = gtk.Label("Make a Difference Map")
+   ref_label = gtk.Label("Reference Map:")
+   sec_label = gtk.Label("Substract this map:")
+   second_map_hbox = gtk.HBox(False, 2)
+   buttons_hbox = gtk.HBox(True, 6)
+   option_menu_ref_mol = gtk.combo_box_new_text()
+   option_menu_sec_mol = gtk.combo_box_new_text()
+   scale_label = gtk.Label("Scale")
+   scale_entry = gtk.Entry()
+   ok_button = gtk.Button("   OK   ")
+   cancel_button = gtk.Button(" Cancel ")
+
+   map_molecule_list_ref = fill_option_menu_with_map_mol_options(option_menu_ref_mol)
+   map_molecule_list_sec = fill_option_menu_with_map_mol_options(option_menu_sec_mol)
+  
+   window.add(diff_map_vbox)
+   diff_map_vbox.pack_start(title, False, False, 2)
+   diff_map_vbox.pack_start(ref_label, False, False, 2)
+   diff_map_vbox.pack_start(option_menu_ref_mol, True, True, 2)
+
+   diff_map_vbox.pack_start(sec_label, False, False, 2)
+   diff_map_vbox.pack_start(second_map_hbox, False, False, 2)
+
+   second_map_hbox.pack_start(option_menu_sec_mol, True, True, 2)
+   second_map_hbox.pack_start(scale_label, False, False, 2)
+   second_map_hbox.pack_start(scale_entry, False, False, 2)
+
+   diff_map_vbox.pack_start(h_sep, True, False, 2)
+   diff_map_vbox.pack_start(buttons_hbox, True, False, 2)
+   buttons_hbox.pack_start(ok_button, True, False, 2)
+   buttons_hbox.pack_start(cancel_button, True, False, 2)
+   scale_entry.set_text("1.0")
+
+   ok_button.connect("clicked", go_function_event)
+
+   cancel_button.connect("clicked", delete_event)
+
+   window.show_all()
+   
+
 def cis_peptides_gui(imol):
 
    def get_ca(atom_list):
@@ -2035,6 +2109,119 @@ def cis_peptides_gui(imol):
       list_of_cis_peptides = make_list_of_cis_peps(imol, cis_peps)
       interesting_things_gui("Cis Peptides:", list_of_cis_peptides)
 
+
+def ncs_ligand_gui():
+   
+   def delete_event(*args):
+      window.destroy()
+      return False
+
+   def go_button_function(widget):
+      print "ncs ligand function here\n"
+      active_mol_no_ref = get_option_menu_active_molecule(option_menu_ref_mol, molecule_list_ref)
+      active_mol_no_lig = get_option_menu_active_molecule(option_menu_lig_mol, molecule_list_lig)
+      chain_id_lig = chain_id_lig_entry.get_text()
+      chain_id_ref = chain_id_ref_entry.get_text()
+      resno_start = False
+      resno_end = False
+      try:
+         resno_start = int(resno_start_entry.get_text())
+      except:
+         print "can't decode resno_start", resno_start_entry.get_text()
+         
+      resno_end_t = resno_end_entry.get_text()
+      try:
+         resno_end = int(resno_end_t)
+      except:
+         if (resno_end_t == ""):
+            resno_end = resno_start
+         else:
+            print "can't decode resno_end", resno_end_t
+
+      if (resno_end and resno_start):
+         make_ncs_ghosts_maybe(active_mol_no_ref)
+         ncs_ligand(active_mol_no_ref,
+                    chain_id_ref,
+                    active_mol_no_lig,
+                    chain_id_lig,
+                    resno_start,
+                    resno_end)
+
+      delete_event()
+      
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   ncs_ligands_vbox = gtk.VBox(False, 2)
+   title = gtk.Label("Find NCS-Related Ligands")
+   ref_label = gtk.Label("Protein with NCS:")
+   ref_chain_hbox = gtk.HBox(False, 2)
+   chain_id_ref_label = gtk.Label("NCS Master Chain")
+   chain_id_ref_entry = gtk.Entry()
+   lig_label = gtk.Label("Molecule containing ligand")
+   specs_hbox = gtk.HBox(False, 2)
+   h_sep = gtk.HSeparator()
+   buttons_hbox = gtk.HBox(True, 6)
+   chain_id_lig_label= gtk.Label("Chain ID: ")
+   resno_start_label = gtk.Label(" Residue Number ")
+   to_label = gtk.Label("  to  ")
+   chain_id_lig_entry = gtk.Entry()
+   resno_start_entry = gtk.Entry()
+   resno_end_entry = gtk.Entry()
+   ok_button = gtk.Button("   Find Candidate Positions  ")
+   cancel_button = gtk.Button("    Cancel    ")
+   option_menu_ref_mol = gtk.combo_box_new_text()
+   option_menu_lig_mol = gtk.combo_box_new_text()
+
+   molecule_list_ref = fill_option_menu_with_coordinates_mol_options(option_menu_ref_mol)
+   molecule_list_lig = fill_option_menu_with_coordinates_mol_options(option_menu_lig_mol)
+
+   window.add(ncs_ligands_vbox)
+   ncs_ligands_vbox.pack_start(title, False, False, 6)
+   ncs_ligands_vbox.pack_start(ref_label, False, False, 2)
+   ncs_ligands_vbox.pack_start(option_menu_ref_mol, True, False, 2)
+   ncs_ligands_vbox.pack_start(ref_chain_hbox, False, False, 2)
+   ncs_ligands_vbox.pack_start(lig_label, False, False, 2)
+   ncs_ligands_vbox.pack_start(option_menu_lig_mol, True, False, 2)
+   ncs_ligands_vbox.pack_start(specs_hbox, False, False, 2)
+   ncs_ligands_vbox.pack_start(h_sep, False, False, 2)
+   ncs_ligands_vbox.pack_start(buttons_hbox, False, False, 2)
+
+   buttons_hbox.pack_start(ok_button,     True, False, 4)
+   buttons_hbox.pack_start(cancel_button, True, False, 4)
+
+   ref_chain_hbox.pack_start(chain_id_ref_label, False, False, 2)
+   ref_chain_hbox.pack_start(chain_id_ref_entry, False, False, 2)
+
+   specs_hbox.pack_start(chain_id_lig_label, False, False, 2)
+   specs_hbox.pack_start(chain_id_lig_entry, False, False, 2)
+   specs_hbox.pack_start(resno_start_label, False, False, 2)
+   specs_hbox.pack_start(resno_start_entry, False, False, 2)
+   specs_hbox.pack_start(to_label, False, False, 2)
+   specs_hbox.pack_start(resno_end_entry, False, False, 2)
+   specs_hbox.pack_start(gtk.Label(" "), False, False, 2) # neatness ?!
+
+   chain_id_lig_entry.set_size_request(32, -1)
+   chain_id_ref_entry.set_size_request(32, -1)
+   resno_start_entry.set_size_request(50, -1)
+   resno_end_entry.set_size_request(50, -1)
+   chain_id_ref_entry.set_text("A")
+   chain_id_lig_entry.set_text("A")
+   resno_start_entry.set_text("1")
+
+   tooltips = gtk.Tooltips()
+   tooltips.set_tip(chain_id_ref_entry, "'A' is a reasonable guess at the NCS master chain id.  " +
+                    "If your ligand (specified below) is NOT bound to the protein's " +
+                    "'A' chain, then you will need to change this chain and also " +
+                    "make sure that the master molecule is specified appropriately " +
+                    "in the Draw->NCS Ghost Control window.")
+   tooltips.set_tip(resno_end_entry, "Leave blank for a single residue")
+
+   ok_button.connect("clicked", go_button_function)
+
+   cancel_button.connect("clicked", delete_event)
+
+   window.show_all()
+
+
 # Cootaneer/sequencing gui modified by BL with ideas from KC
 # based on Paul's cootaneer gui and generic_chooser_entry_and_file_selector
 def cootaneer_gui_bl():
@@ -2065,7 +2252,7 @@ def cootaneer_gui_bl():
 		#
 		# if it is too far away, give a
 		# warning and do't do anything.
-		active_mol_no, junk = get_option_menu_active_molecule(option_menu, model_mol_list).split(' ', 1)
+		active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
 		imol = int(active_mol_no)
 		imol_map = imol_refinement_map()
 
@@ -2096,7 +2283,7 @@ def cootaneer_gui_bl():
 		# we import a sequence file and update the cootaneer table
 		global imported_sequence_file_flags
 		imported_sequence_file_qm = imported_sequence_file_flags[0]
-		active_mol_no, junk = get_option_menu_active_molecule(option_menu, model_mol_list).split(' ', 1)
+		active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
 		imol = int(active_mol_no)
 		
 		seq_info_ls = []
@@ -2133,7 +2320,7 @@ def cootaneer_gui_bl():
 		# fills the table with sequences if they have been associated with the model imol
 		# already
 		global imported_sequence_file_flags
-		active_mol_no, junk = get_option_menu_active_molecule(option_menu, model_mol_list).split(' ', 1)
+		active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
 		imol = int(active_mol_no)
 		seq_info_ls = sequence_info(imol)
 		if (seq_info_ls):
@@ -2168,7 +2355,7 @@ def cootaneer_gui_bl():
 	def entry_text_pair_frame_with_button(seq_info):
            
            def fragment_go_event(widget):
-		active_mol_no, junk = get_option_menu_active_molecule(option_menu, model_mol_list).split(' ', 1)
+		active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
 		imol = int(active_mol_no)
 		imol_map = imol_refinement_map()
 		print "apply the sequence info here\n"

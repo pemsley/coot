@@ -135,3 +135,55 @@ def manual_ncs_ghosts(rna_mol, resno_start, resno_end, ref_chain, peer_chain):
 		add_ncs_matrix(*args)
 
 
+def ncs_ligand(imol_protein, ncs_master_chain_id, imol_ligand, chain_id_ligand, resno_ligand_start, resno_ligand_stop):
+    
+    # find ghost in ghosts that has a chain-id matching
+    # chain-id-protein and get its rtop.  Return #f on not finding the
+    # ghost
+    def rtop_from_ghost_with_chain_id(ghosts, chain_id):
+        for ghost in ghosts:
+            if (ghost[1] == chain_id):
+                return ghost[3]
+        return False
+
+    chain_ids_from_ncs = ncs_chain_ids(imol_protein)
+    if chain_ids_from_ncs:
+        ligand_selection_string = "//" + chain_id_ligand + "/" + str(resno_ligand_start) + \
+                                  "-" + str(resno_ligand_stop)
+        imol_ligand_fragment = new_molecule_by_atom_selection(imol_ligand, ligand_selection_string)
+        ghosts = ncs_ghosts(imol_protein)
+        for chain_ids in chain_ids_from_ncs:
+            if (chain_ids[0] == ncs_master_chain_id):
+                peer_chains = chain_ids[1:len(chain_ids)]
+                candidate_name = "Candidate NCS-related ligand"
+                for chain_id_protein in peer_chains:
+                    rtop = rtop_from_ghost_with_chain_id(ghosts, chain_id_protein)
+                    if (not rtop):
+                        print "Opps - ncs-ligand: Missing ghost rt-op!"
+                        info_dialog("Opps - ncs-ligand: Missing ghost rt-op!")
+                    else:
+                        new_lig_mol = copy_molecule(imol_ligand_fragment)
+                        transform_coords_molecule(new_lig_mol, inverse_rtop(rtop))
+                        set_molecule_name(new_lig_mol,
+                                          str(new_lig_mol) +
+                                          ": " +
+                                          candidate_name +
+                                          " to protein chain " +
+                                          chain_id_protein)
+
+        def test_func(imol):
+            if (not valid_model_molecule_qm(imol)):
+                return False
+            else:
+                name = molecule_name(imol)
+                if (candidate_name in name):
+                    ls = [name]
+                    for i in molecule_centre(imol):
+                        ls.append(i)
+                    return ls
+                else:
+                    return False
+        molecules_matching_criteria(lambda imol: test_func(imol))     
+                
+                
+                

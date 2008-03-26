@@ -667,13 +667,29 @@ PyObject *ncs_ghosts_py(int imol) {
       std::cout << "WARNING:: molecule number " << imol << " is not valid"
 		<< std::endl;
    } else {
-      // r = SCM_EOL;
-      std::vector<coot::ghost_molecule_display_t> ncs_ghosts =
-	 graphics_info_t::molecules[imol].NCS_ghosts();
-      for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-	 if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p()) { 
-	 }
-      }
+     r = PyList_New(0);
+     std::vector<coot::ghost_molecule_display_t> ncs_ghosts =
+       graphics_info_t::molecules[imol].NCS_ghosts();
+     for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+       PyObject *ghost_py = PyList_New(0);
+       PyObject *display_it_flag_py = Py_False;
+       if (ncs_ghosts[ighost].display_it_flag)
+	 display_it_flag_py = Py_True;
+       PyObject *rtop_py = Py_False;
+       if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p()) {
+	 rtop_py = rtop_to_python(ncs_ghosts[ighost].rtop);
+       }
+       PyObject *target_chain_id_py = PyString_FromString(ncs_ghosts[ighost].target_chain_id.c_str());
+       PyObject *chain_id_py = PyString_FromString(ncs_ghosts[ighost].chain_id.c_str());
+       PyObject *name_py = PyString_FromString(ncs_ghosts[ighost].name.c_str());
+
+       PyList_Append(ghost_py, name_py);
+       PyList_Append(ghost_py, chain_id_py);
+       PyList_Append(ghost_py, target_chain_id_py);
+       PyList_Append(ghost_py, rtop_py);
+       PyList_Append(ghost_py, display_it_flag_py);
+       PyList_Append(r, ghost_py);
+     }
    }
    return r;
 }

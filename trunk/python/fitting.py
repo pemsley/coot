@@ -427,7 +427,52 @@ def refine_active_residue():
 def refine_active_residue_triple():
     refine_active_residue_generic(1)
 
-# Another coot function that needs a key binding
+
+# For just one (this) residue, side-residue-offset is 0.
+# 
+def manual_refine_residues(side_residue_offset):
+
+    active_atom = active_residue()
+
+    if not active_atom:
+       print "No active atom"
+    else:
+       imol       = active_atom[0]
+       chain_id   = active_atom[1]
+       res_no     = active_atom[2]
+       ins_code   = active_atom[3]
+       atom_name  = active_atom[4]
+       alt_conf   = active_atom[5]
+
+    imol_map = imol_refinement_map()
+
+    if (imol_map == -1):
+        info_dialog("Oops.  Must Select Map to fit to!")
+    else:
+        refine_zone(imol, chain_id,
+                    res_no - side_residue_offset,
+                    res_no + side_residue_offset,
+                    alt_conf)
+
+
+# Pepflip the active residue - needs a key binding
+#
+def pepflip_active_residue():
+    active_atom = active_residue()
+    if not active_atom:
+       print "No active atom"
+    else:
+       imol       = active_atom[0]
+       chain_id   = active_atom[1]
+       res_no     = active_atom[2]
+       ins_code   = active_atom[3]
+       atom_name  = active_atom[4]
+       alt_conf   = active_atom[5]
+
+    pepflip(imol, chain_id, res_no, ins_code)
+    
+
+# Another cool function that needs a key binding
 #
 def auto_fit_rotamer_active_residue():
 
