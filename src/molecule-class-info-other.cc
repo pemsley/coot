@@ -807,8 +807,8 @@ molecule_class_info_t::delete_residue_with_altconf(const std::string &chain_id,
    CChain *chain;
    CResidue *residue_for_deletion = NULL;
    std::vector<std::pair<std::string, float> > deleted_atom;
-   std::cout << "DEBUG:: start of delete-residue-with-altconf n-atoms: "
-	     << atom_sel.n_selected_atoms << std::endl;
+//    std::cout << "DEBUG:: start of delete-residue-with-altconf n-atoms: "
+// 	     << atom_sel.n_selected_atoms << std::endl;
 
    // run over chains of the existing mol
    int nchains = atom_sel.mol->GetNumberOfChains(1);
@@ -929,8 +929,8 @@ molecule_class_info_t::delete_residue_with_altconf(const std::string &chain_id,
       make_bonds_type_checked();
       update_symmetry();
    }
-   std::cout << "DEBUG:: End of delete-residue-with-altconf n-atoms: "
-	     << atom_sel.n_selected_atoms << std::endl;
+//    std::cout << "DEBUG:: End of delete-residue-with-altconf n-atoms: "
+// 	     << atom_sel.n_selected_atoms << std::endl;
    return was_deleted;
 }
 

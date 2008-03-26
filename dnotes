@@ -52,6 +52,8 @@
 
 
 
+
+
    o NCS chain Extension: Randy Read
 
 * Actually, it works like that anyway.
@@ -4879,3 +4881,106 @@ Mon Mar 24 23:51:58 GMT 2008
     1ao0: fitting ADP fits the ADPs upside-down consistently.
     Hmmm....
 
+
+----
+Tue Mar 25 14:39:35 GMT 2008
+
+    clear this junk:
+
+BEFORE 0x1eaea170
+DEBUG:: start of delete-residue-with-altconf n-atoms: 1465
+DEBUG:: End of delete-residue-with-altconf n-atoms: 1465
+failed to delete residue atoms A 88 :A:
+AFTER  0x1eaea170
+PASS: Deleting (non-existing) Alt conf and Go To Atom [JED]
+
+* Done.
+
+
+----
+Tue Mar 25 15:01:27 GMT 2008
+
+
+==4411== Use of uninitialised value of size 8
+==4411==    at 0x1C2132DE: clipper::Util::rad2d(double const&) (clipper_util.cpp:156)
+==4411==    by 0x1C1FE9FC: clipper::Cell_descr::format() const (cell.cpp:81)
+==4411==    by 0x1BD9F301: coot::ShelxIns::debug() const (coot-shelx-ins.cc:1233)
+==4411==    by 0x831BEF4: molecule_class_info_t::write_shelx_ins_file(std::string const&) (molecule-class-info-other.cc:4428)
+==4411==    by 0x820DE1F: write_shelx_ins_file (c-interface-build.cc:6015)
+[snip]
+==4411==
+==4411== Use of uninitialised value of size 8
+==4411==    at 0x3B1AE12: std::ostream::operator<<(double) (in /usr/lib/libstdc++.so.6.0.4)
+==4411==    by 0x1C20BED5: clipper::String::String(double, int, int) (clipper_types.cpp:69)
+==4411==    by 0x1C1FEA30: clipper::Cell_descr::format() const (cell.cpp:81)
+==4411==    by 0x1BD9F301: coot::ShelxIns::debug() const (coot-shelx-ins.cc:1233)
+
+
+==4411== Source and destination overlap in strcpy(0x1F7DBC40, 0x1F7DBC40)
+==4411==    at 0x1B90C51E: strcpy (mac_replace_strmem.c:210)
+==4411==    by 0x1C393168: CSSVertex::SetVertex(CMMDBManager*, int, int, int, char*, int, char*, int, char*) (ss_vxedge.cpp:425)
+==4411==    by 0x1C396354: CSSGraph::RepairSS(CMMDBManager*) (ss_graph.cpp:483)
+==4411==    by 0x1C396865: CSSGraph::MakeGraph(CMMDBManager*) (ss_graph.cpp:379)
+==4411==    by 0x1C38F61F: CSSMAlign::GetSSGraph(CMMDBManager*, int, int&) (ssm_align.cpp:147)
+==4411==    by 0x1C38F72B: CSSMAlign::Align(CMMDBManager*, CMMDBManager*, int, int, int, int) (ssm_align.cpp:188)
+==4411==    by 0x819179B: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_selection_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:207)
+==4411==    by 0x82483F3: superpose_with_atom_selection (c-interface-superpose.cc:201)
+
+
+==4411== Mismatched free() / delete / delete []
+==4411==    at 0x1B90B8CF: operator delete(void*) (vg_replace_malloc.c:155)
+==4411==    by 0x1C3A0A3C: CSuperpose::_superpose(CSSGraph*, CSSGraph*, int&) (ssm_superpose.cpp:2683)
+==4411==    by 0x1C3A1194: CSuperpose::SuperposeCalphas(CSSGraph*, CSSGraph*, int*, int*, int, CMMDBManager*, CMMDBManager*, int, int) (ssm_superpose.cpp:2424)
+==4411==    by 0x1C38F7C8: CSSMAlign::Align(CMMDBManager*, CMMDBManager*, int, int, int, int) (ssm_align.cpp:200)
+==4411==    by 0x819179B: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_selection_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:207)
+==4411==    by 0x82483F3: superpose_with_atom_selection (c-interface-superpose.cc:201)
+==4411==    by 0x1BE55150: _wrap_superpose_with_atom_selection(scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*) (coot_wrap_guile.cc:23440)
+==4411==    by 0x1BF757A0: scm_gsubr_apply (in /extra/paule/autobuild/Linux-kalypso-fc4-pre-release-gtk2/lib/libguile.so.17.1.1)
+==4411==    by 0x1BF66152: scm_dapply (in /extra/paule/autobuild/Linux-kalypso-fc4-pre-release-gtk2/lib/libguile.so.17.1.1)
+==4411==    by 0x1BF65656: deval (in /extra/paule/autobuild/Linux-kalypso-fc4-pre-release-gtk2/lib/libguile.so.17.1.1)
+==4411==    by 0x1BF62DE3: deval (in /extra/paule/autobuild/Linux-kalypso-fc4-pre-release-gtk2/lib/libguile.so.17.1.1)
+==4411==    by 0x1BF63AE3: deval (in /extra/paule/autobuild/Linux-kalypso-fc4-pre-release-gtk2/lib/libguile.so.17.1.1)
+==4411==  Address 0x211EACE0 is 0 bytes inside a block of size 68 alloc'd
+==4411==    at 0x1B90B5DA: operator new[](unsigned) (vg_replace_malloc.c:138)
+==4411==    by 0x1C3A0BF2: CSuperpose::_superpose(CSSGraph*, CSSGraph*, int&) (ssm_superpose.cpp:2617)
+==4411==    by 0x1C3A1194: CSuperpose::SuperposeCalphas(CSSGraph*, CSSGraph*, int*, int*, int, CMMDBManager*, CMMDBManager*, int, int) (ssm_superpose.cpp:2424)
+==4411==    by 0x1C38F7C8: CSSMAlign::Align(CMMDBManager*, CMMDBManager*, int, int, int, int) (ssm_align.cpp:200)
+==4411==    by 0x819179B: graphics_info_t::superpose_with_atom_selection(atom_selection_container_t, atom_selection_container_t, int, std::string, std::string, short) (graphics-info-superpose.cc:207)
+==4411==    by 0x82483F3: superpose_with_atom_selection (c-interface-superpose.cc:201)
+==4411==    by 0x1BE55150: _wrap_superpose_with_atom_selection(scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*) (coot_wrap_guile.cc:23440)
+
+
+
+
+
+==4411== 30744 bytes in 10 blocks are definitely lost in loss record 452 of 509
+==4411==    at 0x1B90B5DA: operator new[](unsigned) (vg_replace_malloc.c:138)
+==4411==    by 0x1BBC6624: graphical_bonds_container::add_atom_centres(std::vector<coot::Cartesian, std::allocator<coot::Cartesian> > const&, std::vector<int, std::allocator<int> > const&) (Bond_lines.cc:2972)
+==4411==    by 0x1BBC69E5: Bond_lines_container::make_graphical_bonds() const (Bond_lines.cc:1656)
+==4411==    by 0x82D95EC: molecule_class_info_t::makebonds() (molecule-class-info.cc:2206)
+==4411==    by 0x82E41D4: molecule_class_info_t::install_model(int, atom_selection_container_t, std::string const&, short) (molecule-class-info.cc:392)
+==4411==    by 0x818C9FB: graphics_info_t::add_cb_to_terminal_res(atom_selection_container_t) (graphics-info-mutate.cc:76)
+==4411==    by 0x81469DE: graphics_info_t::execute_add_terminal_residue(int, std::string const&, CResidue const*, std::string const&, std::string const&, short) (graphics-info-modelling.cc:1436)
+==4411==    by 0x8209CD7: add_terminal_residue (c-interface-build.cc:528)
+
+
+==4411== 8100 (7900 direct, 200 indirect) bytes in 25 blocks are definitely lost in loss record 438 of 509
+==4411==    at 0x1B90B39A: operator new(unsigned) (vg_replace_malloc.c:132)
+==4411==    by 0x1BD9E9C5: coot::ShelxIns::make_atom(coot::shelx_card_info_t const&, std::string const&, int, int, int, clipper::Cell&) const (coot-shelx-ins.cc:597)
+==4411==    by 0x1BDA8730: coot::ShelxIns::read_file(std::string const&) (coot-shelx-ins.cc:375)
+==4411==    by 0x832CDAF: molecule_class_info_t::read_shelx_ins_file(std::string const&) (molecule-class-info-other.cc:4453)
+==4411==    by 0x820F502: read_shelx_ins_file (c-interface-build.cc:5983)
+==4411==    by 0x81B8446: handle_read_draw_molecule_with_recentre (c-interface.cc:333)
+==4411==
+
+
+
+==4411== 82576 (880 direct, 81696 indirect) bytes in 11 blocks are definitely lost in loss record 193 of 509
+==4411==    at 0x1B90B5DA: operator new[](unsigned) (vg_replace_malloc.c:138)
+==4411==    by 0x1BBC6842: Bond_lines_container::make_graphical_bonds() const (Bond_lines.cc:1644)
+==4411==    by 0x82D95EC: molecule_class_info_t::makebonds() (molecule-class-info.cc:2206)
+==4411==    by 0x82E41D4: molecule_class_info_t::install_model(int, atom_selection_container_t, std::string const&, short) (molecule-class-info.cc:392)
+==4411==    by 0x818C9FB: graphics_info_t::add_cb_to_terminal_res(atom_selection_container_t) (graphics-info-mutate.cc:76)
+==4411==    by 0x81469DE: graphics_info_t::execute_add_terminal_residue(int, std::string const&, CResidue const*, std::string const&, std::string const&, short) (graphics-info-modelling.cc:1436)
+==4411==    by 0x8209CD7: add_terminal_residue (c-interface-build.cc:528)
+==4411==    by 0x1BE52918: _wrap_add_terminal_residue(scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*) (coot_wrap_guile.cc:19697)

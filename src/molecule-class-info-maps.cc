@@ -885,51 +885,57 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    // stat filename 
    struct stat s;
    int status = stat(filename.c_str(), &s);
-   if (status != 0 ||  !S_ISREG (s.st_mode)) {
-      std::cout << "Error reading " << filename << std::endl;
-      if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
+   if (status != 0) {
+      std::cout << "WARNING:: Error reading " << filename << std::endl;
+      return -1;
+   } else {
+      if (!S_ISREG (s.st_mode)) {
+	 if (S_ISDIR(s.st_mode)) {
+	    std::cout << "WARNING:: " << filename << " is a directory." << endl;
+	 } else {
+	    std::cout << "WARNING:: " << filename << " not a regular file." << endl;
+	 }
+	 return -1;
       }
       return -1; // an error
-   } else { 
-      
-      // was a regular file, let's check the extension:
-      // 
-#ifdef WINDOWS_MINGW
-      std::string::size_type islash = coot::util::intelligent_debackslash(filename).find_last_of("/");
-#else
-      std::string::size_type islash = filename.find_last_of("/");
-#endif // MINGW
-      std::string tstring;
-      if (islash == std::string::npos) { 
-	 // no slash found
-	 tstring = filename;
-      } else { 
-	 tstring = filename.substr(islash + 1);
-      }
+   }      
 
-      bool good_extension_flag = 0;
-      for (unsigned int iextension=0; iextension<acceptable_extensions.size(); iextension++) {
-	 std::string::size_type imap = tstring.rfind(acceptable_extensions[iextension]);
-	 if (imap != std::string::npos) {
-	    good_extension_flag = 1;
-	    break;
-	 }
+   // was a regular file, let's check the extension:
+   // 
+#ifdef WINDOWS_MINGW
+   std::string::size_type islash = coot::util::intelligent_debackslash(filename).find_last_of("/");
+#else
+   std::string::size_type islash = filename.find_last_of("/");
+#endif // MINGW
+   std::string tstring;
+   if (islash == std::string::npos) { 
+      // no slash found
+      tstring = filename;
+   } else { 
+      tstring = filename.substr(islash + 1);
+   }
+   
+   bool good_extension_flag = 0;
+   for (unsigned int iextension=0; iextension<acceptable_extensions.size(); iextension++) {
+      std::string::size_type imap = tstring.rfind(acceptable_extensions[iextension]);
+      if (imap != std::string::npos) {
+	 good_extension_flag = 1;
+	 break;
       }
+   }
       
-      // not really extension checking, just that it has it in the
-      // filename:
-      if (good_extension_flag == 0) { 
+   // not really extension checking, just that it has it in the
+   // filename:
+   if (good_extension_flag == 0) { 
 	 
-	 std::cout << "Filename for a CCP4 map must end in .map or .ext "
-		   << "or some other approved extension - sorry\n";
-	 return -1;
-	 std::string ws = "The filename for a CCP4 map must\n";
-	 ws += "currently end in .map or .ext - sorry.\n\n";
-	 ws += "The map must be a CCP4 map or Badness Will Happen! :-)\n";
-	 GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(ws);
-	 gtk_widget_show(w);
-      }
+      std::cout << "Filename for a CCP4 map must end in .map or .ext "
+		<< "or some other approved extension - sorry\n";
+      return -1;
+      std::string ws = "The filename for a CCP4 map must\n";
+      ws += "currently end in .map or .ext - sorry.\n\n";
+      ws += "The map must be a CCP4 map or Badness Will Happen! :-)\n";
+      GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(ws);
+      gtk_widget_show(w);
    }
 
    // KDC: check map type

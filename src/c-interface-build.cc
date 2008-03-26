@@ -733,7 +733,6 @@ void delete_residue_with_altconf(int imol,
 				 const char *altloc) {
    std::string altconf(altloc);
    graphics_info_t g;
-   std::cout << "BEFORE " << g.molecules[imol].atom_sel.atom_selection << std::endl;
    short int istat =
       g.molecules[imol].delete_residue_with_altconf(chain_id, resno, inscode, altconf);
    
@@ -758,7 +757,6 @@ void delete_residue_with_altconf(int imol,
    command_strings.push_back(single_quote(inscode));
    command_strings.push_back(single_quote(altloc));
    add_to_history(command_strings);
-   std::cout << "AFTER  " << g.molecules[imol].atom_sel.atom_selection << std::endl;
 }
 
 void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char *ins_code,
