@@ -33,6 +33,7 @@ GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 # want the function that returns a sequence_view object to be included
 # into c-interface.h (mmdb poisoning).
 INCLUDES = \
+	-I $(top_srcdir)/ccp4mg-utils	\
 	-I $(top_srcdir)/coords		\
 	-I $(top_srcdir)/coot-utils	\
 	-I $(top_srcdir)/src		\
