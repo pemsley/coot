@@ -224,7 +224,7 @@
 	  bin-list)))
 
     (write-sxml 
-     `(html (head (title "Paul Emsley's Coot Build Diagnostics Page"))
+     `(html (head (title "Coot Build Summary Page"))
 	    (body 
 	     (p 
 	      "Source code "
@@ -248,7 +248,6 @@
 			     ,(if make-links?
 				  `(a (@ href ,(build-log-page file-info 'log)) build-log)
 				  "")
-			     
 			     " "
 			     ,(if make-links?
 				  `(a (@ href ,(build-log-page file-info 'test)) test-log)
