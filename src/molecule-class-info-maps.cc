@@ -897,7 +897,6 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	 }
 	 return -1;
       }
-      return -1; // an error
    }      
 
    // was a regular file, let's check the extension:
@@ -954,6 +953,11 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      if ( c1 > c2 ) map_file_type = CCP4;
      else           map_file_type = CNS;
    }
+
+   if (map_file_type == CCP4)
+      std::cout << "INFO:: map file type was determined to be CCP4 type\n";
+   if (map_file_type == CNS)
+      std::cout << "INFO:: map file type was determined to be CNS type\n";
 
    if (max_xmaps == 0) {
       std::cout << "allocating space in read_ccp4_map" << std::endl;
