@@ -6874,6 +6874,44 @@ on_preferences_bond_width_combobox_changed
 }
 #endif
 
+void
+on_preferences_model_toolbar_style_icons_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 1);
+    set_model_toolbar_style(1);
+  }
+
+}
+
+
+void
+on_preferences_model_toolbar_style_both_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 2);
+    set_model_toolbar_style(2);
+  }
+
+}
+
+
+void
+on_preferences_model_toolbar_style_text_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 3);
+    set_model_toolbar_style(3);
+  }
+
+}
+
 
 /* end preferences */
 
@@ -8777,11 +8815,25 @@ on_display_manager_button_clicked      (GtkButton       *button,
 }
 
 void
+on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+   GtkWidget *widget = wrapped_create_display_control_window();
+   gtk_widget_show(widget);
+}
+
+void
 on_reset_view_button_clicked           (GtkButton       *button,
                                         gpointer         user_data) { 
    reset_view();
 } 
 
+void
+on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+   reset_view();
+}
 #if (GTK_MAJOR_VERSION > 1)
 
 void
@@ -9887,3 +9939,10 @@ on_additional_representation1_activate (GtkMenuItem     *menuitem,
   gtk_widget_show(w);
 }
 
+void
+on_display_additional_representations_close_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}

@@ -858,6 +858,7 @@ public:
       preferences_general_tabs->push_back("preferences_dock_accept_dialog");
       preferences_general_tabs->push_back("preferences_hid");
       preferences_general_tabs->push_back("preferences_recentre_pdb");
+      preferences_general_tabs->push_back("preferences_model_toolbar_style");
       
       preferences_bond_tabs->push_back("preferences_bond_parameters");
       preferences_bond_tabs->push_back("preferences_bond_colours");
@@ -938,9 +939,11 @@ public:
    static GtkWidget *accept_reject_dialog;
    static GtkWidget *refine_params_dialog;
 
-   // flag to display the accep/reject dialog in the toolbar
+   // flag to display the accept/reject dialog in the toolbar
    static int accept_reject_dialog_docked_flag;
-   
+
+   // flag for the refinement toolbar style
+   static short int model_toolbar_style_state;
 
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);

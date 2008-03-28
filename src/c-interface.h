@@ -283,6 +283,7 @@ void info_dialog(const char *txt);
 
 GtkWidget *main_menubar();
 GtkWidget *main_statusbar();
+GtkWidget *main_toolbar();
 
 /* \} */
 
@@ -609,6 +610,10 @@ void set_accept_reject_dialog(GtkWidget *w); /* used by callbacks to unset the w
 /* functions to dock the accept/reject dialog to the toolbar */
 void set_accept_reject_dialog_docked(int state);
 int accept_reject_dialog_docked_state();
+
+/* functions for the refinement toolbar style */
+void set_model_toolbar_style(int state);
+int model_toolbar_style_state();
 
 /*! \} */
 

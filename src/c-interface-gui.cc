@@ -3716,6 +3716,26 @@ int accept_reject_dialog_docked_state(){
   return graphics_info_t::accept_reject_dialog_docked_flag;
 }
 
+// functions for the refinement toolbar style
+void set_model_toolbar_style(int istate) {
+  graphics_info_t::model_toolbar_style_state = istate;
+  GtkWidget *menuitem;
+  if (istate <= 1) {
+	menuitem = lookup_widget(main_window(), "model_toolbar_icons1");
+  	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+  } else if (istate == 2) {
+	menuitem = lookup_widget(main_window(), "model_toolbar_icons_and_text1");
+  	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+  } else {
+	menuitem = lookup_widget(main_window(), "model_toolbar_text1");
+  	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+  }
+}
+
+int model_toolbar_style_state() {
+  return graphics_info_t::model_toolbar_style_state;
+}
+
 
 void store_fixed_atom_dialog(GtkWidget *w) {
 

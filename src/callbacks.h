@@ -972,6 +972,10 @@ on_reset_view_button_clicked           (GtkButton       *button,
                                         gpointer         user_data);
 
 void
+on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
 on_hints1_activate                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
@@ -2432,6 +2436,21 @@ on_preferences_bond_width_combobox_changed
 #endif
 
 void
+on_preferences_model_toolbar_style_icons_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_model_toolbar_style_both_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_model_toolbar_style_text_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_preferences_ok_button_clicked       (GtkButton       *button,
                                         gpointer         user_data);
 
@@ -3255,6 +3274,11 @@ void
 on_display_manager_button_clicked      (GtkButton       *button,
                                         gpointer         user_data);
 
+void
+on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+
 
 #if (GTK_MAJOR_VERSION == 2)
 
@@ -3646,3 +3670,9 @@ on_add_rep_cancel_button_clicked       (GtkButton       *button,
 void
 on_additional_representation1_activate (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+
+void
+on_display_additional_representations_close_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
