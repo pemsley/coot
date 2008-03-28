@@ -144,6 +144,7 @@
 	  (inexact->exact n-months)
 	  (inexact->exact n-years))))
 
+;; return #f or the age of the file in seconds (relative to now)
 ;; 
 (define (oldness-info file-info)
   ;; (format #t "oldness-info on ~s~%" file-info)
@@ -200,6 +201,24 @@
 			(format #f "~s seconds"
 				(list-ref an-oldness 0))))))))
 
+;; time-diff in seconds
+(define (time-diff->n-spaces time-diff)
+  (format #t "DEBUG:: time-diff: ~s~%" time-diff)
+  (inexact->exact (/ time-diff (* 60 60 3))))
+
+;; return a string of n spaces
+(define (n-spaces n)
+
+  (if (< n 1) 
+      ""
+      (let loop ((n n)
+		 (str ""))
+	(cond 
+	 ((< n 1) str)
+	 (else
+	  (loop (- n 1) (string-append "|" str)))))))
+	  
+
 
 (define (make-page bin-list file-name)
 
@@ -212,29 +231,34 @@
 		       "-testing.log")))
 
   (let ((latest-source-info (latest-tar-gz source-tar-dir ""))
-	(b-text
+	(binary-file-infos
 	 (map
 	  (lambda (bin)
 	    (let ((l (latest-tar-gz bin-tar-dir (car bin))))
 	      (if l 
-		  (list bin (car (cdr l)) (oldness-info l))
+		  (list bin (car (cdr l)) (oldness-info l) l)
 		  (begin
 		    (format #t "bad return from latest-tar-gz for ~s~%" bin)
-		    (list bin #f)))))
+		    (list bin #f #f #f)))))
 	  bin-list)))
 
     (write-sxml 
      `(html (head (title "Coot Build Summary Page"))
 	    (body 
-	     (p 
-	      "Source code "
-	      ,(basename (list-ref latest-source-info 2) ".tar.gz")
-	      " "
-	      ,(list-ref latest-source-info 1)
-	      (br)
-	      ,(time-text (oldness-info latest-source-info)))
+	     ;; source code
+	     (p "Source code "
+		,(basename (list-ref latest-source-info 2) ".tar.gz")
+		" "
+		,(list-ref latest-source-info 1)
+		(br)
+		,(time-text (oldness-info latest-source-info)))
+	     ;; binary targets
 	     ,(map (lambda (file-info)
-		     (let ((make-links? (car (cdr (car file-info)))))
+		     (let* ((make-links? (car (cdr (car file-info))))
+			    (now-time (current-time))
+			    (time-diff (- now-time (car (list-ref file-info 3))))
+			    (ns (n-spaces (time-diff->n-spaces time-diff)))
+			    (colour (if (< time-diff (* 60 60 24)) "lime" "red")))
 		       (if (= (length file-info) 2)
 			   `(p 
 			     ,(car (list-ref file-info 0)) " not found")
@@ -251,8 +275,11 @@
 			     " "
 			     ,(if make-links?
 				  `(a (@ href ,(build-log-page file-info 'test)) test-log)
-				  "")))))
-		   b-text)))
+				  "")
+			     (table (@ (border 1) (bgcolor ,colour))
+				    (tr (td ,ns)))
+			     ))))
+		   binary-file-infos)))
      file-name)))
       
 
