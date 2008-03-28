@@ -38,5 +38,6 @@
 #define PREFERENCES_FONT_COLOUR                   29
 #define PREFERENCES_PINK_POINTER                  30
 #define PREFERENCES_TIPS                          31
+#define PREFERENCES_MODEL_TOOLBAR_STYLE           32
 
 

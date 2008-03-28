@@ -536,6 +536,19 @@ void update_preference_gui() {
       gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
       break;
 
+    case PREFERENCES_MODEL_TOOLBAR_STYLE:
+      ivalue = g.preferences_internal[i].ivalue;
+      if (ivalue <= 1) {
+	w = lookup_widget(dialog, "preferences_model_toolbar_style_icons_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      } else if (ivalue == 2) {
+	w = lookup_widget(dialog, "preferences_model_toolbar_style_both_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      } else {
+	w = lookup_widget(dialog, "preferences_model_toolbar_style_text_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      }
+      break;
 
     }
   }

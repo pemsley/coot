@@ -34,6 +34,7 @@
 
 PyObject * _wrap_main_menubar(PyObject *self);
 PyObject * _wrap_main_statusbar(PyObject *self);
+PyObject * _wrap_main_toolbar(PyObject *self);
 
 // static/const?
 PyMethodDef coot_python_functions[] = {
@@ -43,6 +44,10 @@ PyMethodDef coot_python_functions[] = {
    
    { "main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS,
      NULL },
+
+   { "main_toolbar", (PyCFunction)_wrap_main_toolbar, METH_NOARGS,
+     NULL },
+
    { NULL, NULL, 0, NULL }
 };
 
@@ -94,6 +99,17 @@ _wrap_main_statusbar(PyObject *self)
    return pygobject_new((GObject *)ret);
 }
 
+PyObject *
+_wrap_main_toolbar(PyObject *self)
+{
+   GtkWidget *ret;
+   
+   
+   ret = main_toolbar();
+   
+   /* pygobject_new handles NULL checking */
+   return pygobject_new((GObject *)ret);
+}
 
 
 /* initialise stuff extension classes */

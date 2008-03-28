@@ -247,6 +247,10 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 					g.preferences_internal[i].fvalue1, il));
        break;
       
+     case PREFERENCES_MODEL_TOOLBAR_STYLE:
+       commands.push_back(state_command("set-model-toolbar-style",
+					g.preferences_internal[i].ivalue, il));
+       break;
      }
    }
 
@@ -335,6 +339,12 @@ graphics_info_t::make_preferences_internal() {
   // recentre pdb
   on = recentre_on_read_pdb;
   p.preference_type = PREFERENCES_RECENTRE_PDB;
+  p.ivalue = on;
+  ret.push_back(p);
+
+  // refinement toolbar style
+  on = model_toolbar_style_state;
+  p.preference_type = PREFERENCES_MODEL_TOOLBAR_STYLE;
   p.ivalue = on;
   ret.push_back(p);
 

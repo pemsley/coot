@@ -1258,10 +1258,11 @@ def coot_menubar_menu(menu_label):
    except: print """BL WARNING:: could not import coot_python module!!\n
                     Some things, esp. extensions, may be crippled!"""
 
+
 # Given that we have a menu (e.g. one called "Extensions") provide a
 # cleaner interface to adding something to it:
 # 
-# activate-function is a thunk.
+# activate_function is a thunk.
 #
 def add_simple_coot_menu_menuitem(menu,menu_item_label,activate_function):
 
@@ -1273,6 +1274,86 @@ def add_simple_coot_menu_menuitem(menu,menu_item_label,activate_function):
 
     sub_menuitem.connect("activate",activate_function)
 
+
+# If a toolbutton with label button_label is not found in the coot main
+# toolbar, then create it and return it.
+# If it does exist, simply return it. [NOTE: if its a Coot internal Toolbar you can
+# only add a function but not overwrite its internal function!!!]
+#
+# return False if we cannot create the button and/or wrong no of arguments
+#
+# we accept 2 arguments:
+#   button_label
+#   icon widget (or gtk-stock-item)
+#  
+def coot_toolbar_button(*args):
+
+   icon_name = None
+   if ((len(args) > 2) or (len(args) <1)):
+      print "BL WARNING:: wrong no of arguments!\nEither 1 (button_label) or 2 (plus icon)!"
+      return False
+   elif (len(args) == 2):
+      icon_name = args[1]
+   button_label = args[0]
+
+   try:
+      import coot_python
+   except:
+      print """BL WARNING:: could not import coot_python module!!
+      Some things, esp. extensions, may be crippled!"""
+      return False
+   
+   coot_main_toolbar = coot_python.main_toolbar()
+
+   def toolbar_label_list():
+      button_label_ls = []
+      for toolbar_child in coot_main_toolbar.get_children():
+         ls = []
+         ls.append(toolbar_child.get_label())
+         ls.append(toolbar_child)
+         button_label_ls.append(ls)
+      return button_label_ls
+
+   # main body
+   #
+   found_button = False
+   for f in toolbar_label_list():
+      if button_label in f: 
+         found_button = f[1]
+   if found_button:
+      # we want to change the icon if possible
+      if (icon_name):
+         # try to add a stock item
+         try:
+            found_button.set_stock_id(icon_name)
+         except:
+            # try to add a icon widget
+            try:
+               found_button.set_icon_widget(icon_name)
+            except:
+               print "BL INFO:: you gave an icon name but could not add the icon"
+      return found_button
+   else:
+      def dummy_func(widget):
+         print "BL DEBUG:: button pressed"
+      toolbutton = gtk.ToolButton(icon_widget=None, label=button_label)
+      if (icon_name):
+         # try to add a stock item
+         try:
+            toolbutton.set_stock_id(icon_name)
+         except:
+            # try to add a icon widget
+            try:
+               toolbutton.set_icon_widget(icon_name)
+            except:
+               print "BL INFO:: you gave an icon name but could not add the icon"
+            
+      coot_main_toolbar.insert(toolbutton, -1)       # insert at the end
+      toolbutton.set_is_important(True)              # to display the text, otherwise only icon
+      toolbutton.connect("clicked", dummy_func)
+      toolbutton.show()
+      return toolbutton
+   
 
 # Make an interesting things GUI for residues of molecule number
 # imol that have alternate conformations.

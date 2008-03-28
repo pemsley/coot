@@ -1287,6 +1287,12 @@ GtkWidget *main_statusbar() {
    return graphics_info_t::statusbar;
 } 
 
+GtkWidget *main_toolbar() {
+
+   GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "toolbar1");
+   return w; 
+}
+
 
 
 

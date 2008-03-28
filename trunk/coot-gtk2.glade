@@ -59,7 +59,7 @@
 			  <signal name="activate" handler="on_open_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6334">
+			    <widget class="GtkImage" id="image6484">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -80,7 +80,7 @@
 			  <signal name="activate" handler="on_auto_open_mtz_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6335">
+			    <widget class="GtkImage" id="image6485">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -102,7 +102,7 @@
 			  <signal name="activate" handler="on_open_dataset1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6336">
+			    <widget class="GtkImage" id="image6486">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -124,7 +124,7 @@
 			  <signal name="activate" handler="on_open_map1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6337">
+			    <widget class="GtkImage" id="image6487">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -145,7 +145,7 @@
 			  <signal name="activate" handler="on_close_molecule1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6338">
+			    <widget class="GtkImage" id="image6488">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-close</property>
 			      <property name="icon_size">1</property>
@@ -166,7 +166,7 @@
 			  <signal name="activate" handler="on_import_cif_dictionary1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6339">
+			    <widget class="GtkImage" id="image6489">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-add</property>
 			      <property name="icon_size">1</property>
@@ -188,7 +188,7 @@
 			  <signal name="activate" handler="on_get_monomer1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6340">
+			    <widget class="GtkImage" id="image6490">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">connect-to-ccp4.svg</property>
 			      <property name="xalign">0.5</property>
@@ -209,7 +209,7 @@
 			  <signal name="activate" handler="on_search_monomer_library1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6341">
+			    <widget class="GtkImage" id="image6491">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-index</property>
 			      <property name="icon_size">1</property>
@@ -230,7 +230,7 @@
 			  <signal name="activate" handler="on_smiles1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6342">
+			    <widget class="GtkImage" id="image6492">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">smiles.png</property>
 			      <property name="xalign">0.5</property>
@@ -251,7 +251,7 @@
 			  <signal name="activate" handler="on_get_pdb_using_code1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6343">
+			    <widget class="GtkImage" id="image6493">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">connect-to-oca.svg</property>
 			      <property name="xalign">0.5</property>
@@ -272,7 +272,7 @@
 			  <signal name="activate" handler="on_get_pdb_and_map_using_eds1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6344">
+			    <widget class="GtkImage" id="image6494">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">connect-to-usf.svg</property>
 			      <property name="xalign">0.5</property>
@@ -292,7 +292,7 @@
 			  <signal name="activate" handler="on_save_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6345">
+			    <widget class="GtkImage" id="image6495">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save</property>
 			      <property name="icon_size">1</property>
@@ -313,7 +313,7 @@
 			  <signal name="activate" handler="on_save_symmetry_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6346">
+			    <widget class="GtkImage" id="image6496">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">coot-save-symm.png</property>
 			      <property name="xalign">0.5</property>
@@ -333,7 +333,7 @@
 			  <signal name="activate" handler="on_save_state1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6347">
+			    <widget class="GtkImage" id="image6497">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">coot-save.png</property>
 			      <property name="xalign">0.5</property>
@@ -353,7 +353,7 @@
 			  <signal name="activate" handler="on_recover_session1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6348">
+			    <widget class="GtkImage" id="image6498">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-find-and-replace</property>
 			      <property name="icon_size">1</property>
@@ -375,7 +375,7 @@
 			  <signal name="activate" handler="on_exit1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6349">
+			    <widget class="GtkImage" id="image6499">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-quit</property>
 			      <property name="icon_size">1</property>
@@ -409,7 +409,7 @@
 			  <signal name="activate" handler="on_map_colour1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6350">
+			    <widget class="GtkImage" id="image6500">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -430,7 +430,7 @@
 			  <signal name="activate" handler="on_density_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6351">
+			    <widget class="GtkImage" id="image6501">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -451,7 +451,7 @@
 			  <signal name="activate" handler="on_bond_colours1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6352">
+			    <widget class="GtkImage" id="image6502">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -472,7 +472,7 @@
 			  <signal name="activate" handler="on_bond_parameters1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6353">
+			    <widget class="GtkImage" id="image6503">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -492,7 +492,7 @@
 			  <property name="use_underline">True</property>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6354">
+			    <widget class="GtkImage" id="image6504">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -514,7 +514,7 @@
 				  <signal name="activate" handler="on_skeleton_colour1_activate"/>
 
 				  <child internal-child="image">
-				    <widget class="GtkImage" id="image6355">
+				    <widget class="GtkImage" id="image6505">
 				      <property name="visible">True</property>
 				      <property name="stock">gtk-select-color</property>
 				      <property name="icon_size">1</property>
@@ -557,7 +557,7 @@
 			  <signal name="activate" handler="on_residue_info2_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6356">
+			    <widget class="GtkImage" id="image6506">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">residue-info.png</property>
 			      <property name="xalign">0.5</property>
@@ -571,13 +571,12 @@
 
 		      <child>
 			<widget class="GtkImageMenuItem" id="font_size1">
-			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Font Size...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_font_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6357">
+			    <widget class="GtkImage" id="image6507">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">gtk-font.png</property>
 			      <property name="xalign">0.5</property>
@@ -591,13 +590,12 @@
 
 		      <child>
 			<widget class="GtkImageMenuItem" id="pink_pointer_size1">
-			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Pink Pointer Size...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_pink_pointer_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6358">
+			    <widget class="GtkImage" id="image6508">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">pink-pointer.png</property>
 			      <property name="xalign">0.5</property>
@@ -617,7 +615,7 @@
 			  <signal name="activate" handler="on_background_colour1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6359">
+			    <widget class="GtkImage" id="image6509">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -636,7 +634,7 @@
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">Black</property>
 				  <property name="use_underline">True</property>
-				  <property name="active">False</property>
+				  <property name="active">True</property>
 				  <signal name="activate" handler="on_background_black1_activate"/>
 				</widget>
 			      </child>
@@ -659,12 +657,12 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="preferences1">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Preferences</property>
+			  <property name="label" translatable="yes">Preferences...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_preferences1_activate" last_modification_time="Wed, 13 Feb 2008 13:39:23 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6360">
+			    <widget class="GtkImage" id="image6510">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -698,7 +696,7 @@
 			  <signal name="activate" handler="on_model_refine_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6361">
+			    <widget class="GtkImage" id="image6511">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-find-and-replace</property>
 			      <property name="icon_size">1</property>
@@ -719,7 +717,7 @@
 			  <signal name="activate" handler="on_other_modelling_tools1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6362">
+			    <widget class="GtkImage" id="image6512">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">gnome-run.png</property>
 			      <property name="xalign">0.5</property>
@@ -758,7 +756,7 @@
 			  <signal name="activate" handler="on_merge_molecules1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6363">
+			    <widget class="GtkImage" id="image6513">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">merge-molecules.svg</property>
 			      <property name="xalign">0.5</property>
@@ -796,7 +794,7 @@
 			  <signal name="activate" handler="on_renumber_residues1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6364">
+			    <widget class="GtkImage" id="image6514">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">renumber-residues.svg</property>
 			      <property name="xalign">0.5</property>
@@ -816,7 +814,7 @@
 			  <signal name="activate" handler="on_change_chain_ids2_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6365">
+			    <widget class="GtkImage" id="image6515">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">change-chain-id.svg</property>
 			      <property name="xalign">0.5</property>
@@ -863,7 +861,7 @@
 			  <signal name="activate" handler="on_ncs_maps1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6366">
+			    <widget class="GtkImage" id="image6516">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">calculate-ghosts.svg</property>
 			      <property name="xalign">0.5</property>
@@ -883,7 +881,7 @@
 			  <signal name="activate" handler="on_fps1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6367">
+			    <widget class="GtkImage" id="image6517">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">appointment-new.png</property>
 			      <property name="xalign">0.5</property>
@@ -903,7 +901,7 @@
 			  <signal name="activate" handler="on_scripting_window_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6368">
+			    <widget class="GtkImage" id="image6518">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-justify-left</property>
 			      <property name="icon_size">1</property>
@@ -947,7 +945,7 @@
 			  <signal name="activate" handler="on_run_script1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6369">
+			    <widget class="GtkImage" id="image6519">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-execute</property>
 			      <property name="icon_size">1</property>
@@ -981,7 +979,7 @@
 			  <signal name="activate" handler="on_go_to_atom1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6370">
+			    <widget class="GtkImage" id="image6520">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-jump-to</property>
 			      <property name="icon_size">1</property>
@@ -1003,7 +1001,7 @@
 			  <signal name="activate" handler="on_map_and_mol_control1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6371">
+			    <widget class="GtkImage" id="image6521">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">display-manager.png</property>
 			      <property name="xalign">0.5</property>
@@ -1023,7 +1021,7 @@
 			  <signal name="activate" handler="on_undo_last_navigation1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6372">
+			    <widget class="GtkImage" id="image6522">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-undo</property>
 			      <property name="icon_size">1</property>
@@ -1044,7 +1042,7 @@
 			  <signal name="activate" handler="on_centre_atom_label1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6373">
+			    <widget class="GtkImage" id="image6523">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-justify-center</property>
 			      <property name="icon_size">1</property>
@@ -1065,7 +1063,7 @@
 			  <signal name="activate" handler="on_sequence_view1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6374">
+			    <widget class="GtkImage" id="image6524">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">sequence-view.png</property>
 			      <property name="xalign">0.5</property>
@@ -1085,7 +1083,7 @@
 			  <signal name="activate" handler="on_anisotropic_atoms1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6375">
+			    <widget class="GtkImage" id="image6525">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">aniso-atom.png</property>
 			      <property name="xalign">0.5</property>
@@ -1105,7 +1103,7 @@
 			  <signal name="activate" handler="on_show_symmetry1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6376">
+			    <widget class="GtkImage" id="image6526">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">cell+symm.png</property>
 			      <property name="xalign">0.5</property>
@@ -1135,7 +1133,7 @@
 			  <signal name="activate" handler="on_ncs_ghost_control1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6377">
+			    <widget class="GtkImage" id="image6527">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">ghosts.png</property>
 			      <property name="xalign">0.5</property>
@@ -1155,7 +1153,7 @@
 			  <signal name="activate" handler="on_spin_view_on/off1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6378">
+			    <widget class="GtkImage" id="image6528">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">spin-view.png</property>
 			      <property name="xalign">0.5</property>
@@ -1174,7 +1172,7 @@
 			  <property name="use_underline">True</property>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6379">
+			    <widget class="GtkImage" id="image6529">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">panel-screenshot.png</property>
 			      <property name="xalign">0.5</property>
@@ -1226,7 +1224,7 @@
 			  <signal name="activate" handler="on_generic_display_objects1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6380">
+			    <widget class="GtkImage" id="image6530">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">generic-display-objects.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1240,13 +1238,12 @@
 
 		      <child>
 			<widget class="GtkImageMenuItem" id="antialiasing1">
-			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Antialiasing...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_antialiasing1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6381">
+			    <widget class="GtkImage" id="image6531">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">add-peptide-1.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1266,7 +1263,7 @@
 			  <signal name="activate" handler="on_stereo1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6382">
+			    <widget class="GtkImage" id="image6532">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">stereo-view.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1295,7 +1292,7 @@
 			  <signal name="activate" handler="on_crosshairs1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6383">
+			    <widget class="GtkImage" id="image6533">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">crosshairs.png</property>
 			      <property name="xalign">0.5</property>
@@ -1315,7 +1312,7 @@
 			  <signal name="activate" handler="on_zoom1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6384">
+			    <widget class="GtkImage" id="image6534">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-zoom-in</property>
 			      <property name="icon_size">1</property>
@@ -1330,7 +1327,6 @@
 
 		      <child>
 			<widget class="GtkMenuItem" id="dragged_map1">
-			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Dragged Map...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_dragged_map1_activate"/>
@@ -1339,7 +1335,6 @@
 
 		      <child>
 			<widget class="GtkMenuItem" id="recentring1">
-			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Smooth Recentring...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_recentring1_activate"/>
@@ -1348,7 +1343,6 @@
 
 		      <child>
 			<widget class="GtkMenuItem" id="coordinates_recentring1">
-			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Coordinates Recentring...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_coordinates_recentring1_activate"/>
@@ -1377,7 +1371,7 @@
 			  <signal name="activate" handler="on_residue_info1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6385">
+			    <widget class="GtkImage" id="image6535">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">residue-info.png</property>
 			      <property name="xalign">0.5</property>
@@ -1397,7 +1391,7 @@
 			  <signal name="activate" handler="on_distances_and_angles1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6386">
+			    <widget class="GtkImage" id="image6536">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-unindent</property>
 			      <property name="icon_size">1</property>
@@ -1418,7 +1412,7 @@
 			  <signal name="activate" handler="on_environment_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6387">
+			    <widget class="GtkImage" id="image6537">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">env-distances.png</property>
 			      <property name="xalign">0.5</property>
@@ -1438,7 +1432,7 @@
 			  <signal name="activate" handler="on_plane_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6388">
+			    <widget class="GtkImage" id="image6538">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">plane-distances.png</property>
 			      <property name="xalign">0.5</property>
@@ -1458,7 +1452,7 @@
 			  <signal name="activate" handler="on_pointer_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6389">
+			    <widget class="GtkImage" id="image6539">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">pointer-distances.png</property>
 			      <property name="xalign">0.5</property>
@@ -1478,7 +1472,7 @@
 			  <signal name="activate" handler="on_clear_atom_labels1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6390">
+			    <widget class="GtkImage" id="image6540">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-clear</property>
 			      <property name="icon_size">1</property>
@@ -1513,7 +1507,7 @@
 			  <signal name="activate" handler="on_ramachandran_plot1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6391">
+			    <widget class="GtkImage" id="image6541">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">ramachandran.png</property>
 			      <property name="xalign">0.5</property>
@@ -1534,7 +1528,7 @@
 			  <signal name="activate" handler="on_ramachandran_differences_plot1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6392">
+			    <widget class="GtkImage" id="image6542">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">kleywegt.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1554,7 +1548,7 @@
 			  <signal name="activate" handler="on_incorrect_chiral_volumes1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6393">
+			    <widget class="GtkImage" id="image6543">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">chiral.png</property>
 			      <property name="xalign">0.5</property>
@@ -1574,7 +1568,7 @@
 			  <signal name="activate" handler="on_unmodelled_blobs1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6394">
+			    <widget class="GtkImage" id="image6544">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">unknown-blob.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1594,7 +1588,7 @@
 			  <signal name="activate" handler="on_difference_map_peaks1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6395">
+			    <widget class="GtkImage" id="image6545">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">diff-map.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1614,7 +1608,7 @@
 			  <signal name="activate" handler="on_check_waters1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6396">
+			    <widget class="GtkImage" id="image6546">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">water-drop.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1634,7 +1628,7 @@
 			  <signal name="activate" handler="on_check_waters_by_difference_map_variance1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6397">
+			    <widget class="GtkImage" id="image6547">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">water-diff-map.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1655,7 +1649,7 @@
 			  <signal name="activate" handler="on_geometry_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6398">
+			    <widget class="GtkImage" id="image6548">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">geom.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1676,7 +1670,7 @@
 			  <signal name="activate" handler="on_peptide_omega_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6399">
+			    <widget class="GtkImage" id="image6549">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">peptide-omega.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1697,7 +1691,7 @@
 			  <signal name="activate" handler="on_temp_fact_variance_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6400">
+			    <widget class="GtkImage" id="image6550">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">temperature.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1718,7 +1712,7 @@
 			  <signal name="activate" handler="on_gln_and_asn_b_factor_outliers1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6401">
+			    <widget class="GtkImage" id="image6551">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">gln-asn-b-factors.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1739,7 +1733,7 @@
 			  <signal name="activate" handler="on_rotamer_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6402">
+			    <widget class="GtkImage" id="image6552">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">rotamers.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1759,7 +1753,7 @@
 			  <signal name="activate" handler="on_density_fit_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6403">
+			    <widget class="GtkImage" id="image6553">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">density-fit.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1779,7 +1773,7 @@
 			  <signal name="activate" handler="on_probe_clashes1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6404">
+			    <widget class="GtkImage" id="image6554">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">probe-clash.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1822,7 +1816,7 @@
 			  <signal name="activate" handler="on_reset_view1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6405">
+			    <widget class="GtkImage" id="image6555">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-zoom-fit</property>
 			      <property name="icon_size">1</property>
@@ -1842,7 +1836,7 @@
 			  <property name="use_underline">True</property>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6406">
+			    <widget class="GtkImage" id="image6556">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">scroll-wheel.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1870,7 +1864,6 @@
 
 		      <child>
 			<widget class="GtkMenuItem" id="virtual_trackball1">
-			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Virtual Trackball</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_virtual_trackball_menu_pops"/>
@@ -1883,7 +1876,7 @@
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">Flat</property>
 				  <property name="use_underline">True</property>
-				  <property name="active">False</property>
+				  <property name="active">True</property>
 				  <signal name="activate" handler="on_vt_flat1_activate"/>
 				</widget>
 			      </child>
@@ -1924,7 +1917,7 @@
 			  <signal name="activate" handler="on_on_line_docs_url1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6407">
+			    <widget class="GtkImage" id="image6557">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-justify-fill</property>
 			      <property name="icon_size">1</property>
@@ -1945,7 +1938,7 @@
 			  <signal name="activate" handler="on_about1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6408">
+			    <widget class="GtkImage" id="image6558">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-about</property>
 			      <property name="icon_size">1</property>
@@ -1966,7 +1959,7 @@
 			  <signal name="activate" handler="on_hints1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6409">
+			    <widget class="GtkImage" id="image6559">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-dialog-info</property>
 			      <property name="icon_size">1</property>
@@ -1994,198 +1987,76 @@
 	    <widget class="GtkToolbar" id="toolbar1">
 	      <property name="visible">True</property>
 	      <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
-	      <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>
+	      <property name="toolbar_style">GTK_TOOLBAR_BOTH_HORIZ</property>
 	      <property name="tooltips">True</property>
-	      <property name="show_arrow">True</property>
+	      <property name="show_arrow">False</property>
 
 	      <child>
-		<widget class="GtkToolItem" id="toolitem1">
+		<widget class="GtkToolButton" id="reset_view_toolbutton">
 		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Usage Note: click again to centre on a different molecule</property>
+		  <property name="label" translatable="yes"> Reset View</property>
+		  <property name="use_underline">True</property>
+		  <property name="stock_id">gtk-zoom-fit</property>
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
-
-		  <child>
-		    <widget class="GtkButton" id="reset_view_button">
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Usage Note: click again to centre on a different molecule</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <signal name="clicked" handler="on_reset_view_button_clicked"/>
-
-		      <child>
-			<widget class="GtkAlignment" id="alignment1">
-			  <property name="visible">True</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xscale">0</property>
-			  <property name="yscale">0</property>
-			  <property name="top_padding">0</property>
-			  <property name="bottom_padding">0</property>
-			  <property name="left_padding">0</property>
-			  <property name="right_padding">0</property>
-
-			  <child>
-			    <widget class="GtkHBox" id="hbox152">
-			      <property name="visible">True</property>
-			      <property name="homogeneous">False</property>
-			      <property name="spacing">2</property>
-
-			      <child>
-				<widget class="GtkImage" id="image1">
-				  <property name="visible">True</property>
-				  <property name="stock">gtk-zoom-fit</property>
-				  <property name="icon_size">4</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-				<packing>
-				  <property name="padding">0</property>
-				  <property name="expand">False</property>
-				  <property name="fill">False</property>
-				</packing>
-			      </child>
-
-			      <child>
-				<widget class="GtkLabel" id="label326">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Reset View</property>
-				  <property name="use_underline">True</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">-1</property>
-				  <property name="single_line_mode">False</property>
-				  <property name="angle">0</property>
-				</widget>
-				<packing>
-				  <property name="padding">0</property>
-				  <property name="expand">False</property>
-				  <property name="fill">False</property>
-				</packing>
-			      </child>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
+		  <property name="is_important">True</property>
+		  <signal name="clicked" handler="on_reset_view_toolbutton_clicked" last_modification_time="Fri, 28 Mar 2008 07:48:09 GMT"/>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
+		  <property name="homogeneous">True</property>
 		</packing>
 	      </child>
 
 	      <child>
-		<widget class="GtkToolItem" id="toolitem2">
+		<widget class="GtkToolButton" id="display_manager_toolbutton">
 		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Display the dialog for displaying and undisplaying molecules and changing their representation</property>
+		  <property name="label" translatable="yes"> Display Manager</property>
+		  <property name="use_underline">True</property>
+		  <property name="icon">display-manager.png</property>
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
-
-		  <child>
-		    <widget class="GtkButton" id="display_manager_button">
-		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Display the dialog for displaying and undisplaying molecules and changing their representation</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <signal name="clicked" handler="on_display_manager_button_clicked"/>
-
-		      <child>
-			<widget class="GtkAlignment" id="alignment2">
-			  <property name="visible">True</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xscale">0</property>
-			  <property name="yscale">0</property>
-			  <property name="top_padding">0</property>
-			  <property name="bottom_padding">0</property>
-			  <property name="left_padding">0</property>
-			  <property name="right_padding">0</property>
-
-			  <child>
-			    <widget class="GtkHBox" id="hbox153">
-			      <property name="visible">True</property>
-			      <property name="homogeneous">False</property>
-			      <property name="spacing">2</property>
-
-			      <child>
-				<widget class="GtkImage" id="image2">
-				  <property name="visible">True</property>
-				  <property name="pixbuf">display-manager.png</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-				<packing>
-				  <property name="padding">0</property>
-				  <property name="expand">False</property>
-				  <property name="fill">False</property>
-				</packing>
-			      </child>
-
-			      <child>
-				<widget class="GtkLabel" id="label327">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Display Manager</property>
-				  <property name="use_underline">True</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">-1</property>
-				  <property name="single_line_mode">False</property>
-				  <property name="angle">0</property>
-				</widget>
-				<packing>
-				  <property name="padding">0</property>
-				  <property name="expand">False</property>
-				  <property name="fill">False</property>
-				</packing>
-			      </child>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
+		  <property name="is_important">True</property>
+		  <signal name="clicked" handler="on_display_manager_toolbutton_clicked" last_modification_time="Fri, 28 Mar 2008 07:50:55 GMT"/>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
+		  <property name="homogeneous">True</property>
 		</packing>
 	      </child>
 
 	      <child>
-		<widget class="GtkToolItem" id="toolitem3">
-		  <property name="visible">True</property>
-		  <property name="visible_horizontal">True</property>
-		  <property name="visible_vertical">True</property>
-		  <property name="is_important">False</property>
+		<placeholder/>
+	      </child>
 
-		  <child>
-		    <placeholder/>
-		  </child>
-		</widget>
-		<packing>
-		  <property name="expand">False</property>
-		  <property name="homogeneous">False</property>
-		</packing>
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
 	      </child>
 	    </widget>
 	    <packing>
@@ -2925,17 +2796,26 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkHBox" id="main_window_graphics_hbox">
+	    <widget class="GtkFrame" id="main_window_graphics_frame">
 	      <property name="visible">True</property>
-	      <property name="homogeneous">True</property>
-	      <property name="spacing">0</property>
+	      <property name="label_xalign">0</property>
+	      <property name="label_yalign">0</property>
+	      <property name="shadow_type">GTK_SHADOW_NONE</property>
 
 	      <child>
-		<placeholder/>
-	      </child>
+		<widget class="GtkHBox" id="main_window_graphics_hbox">
+		  <property name="visible">True</property>
+		  <property name="homogeneous">True</property>
+		  <property name="spacing">0</property>
 
-	      <child>
-		<placeholder/>
+		  <child>
+		    <placeholder/>
+		  </child>
+
+		  <child>
+		    <placeholder/>
+		  </child>
+		</widget>
 	      </child>
 	    </widget>
 	    <packing>
@@ -3458,7 +3338,7 @@
 			      <signal name="activate" handler="on_model_toolbar_setting1_activate" last_modification_time="Fri, 18 Jan 2008 13:36:15 GMT"/>
 
 			      <child internal-child="image">
-				<widget class="GtkImage" id="image6028">
+				<widget class="GtkImage" id="image6560">
 				  <property name="visible">True</property>
 				  <property name="stock">gtk-media-play</property>
 				  <property name="icon_size">1</property>
@@ -3471,7 +3351,6 @@
 
 			      <child>
 				<widget class="GtkMenu" id="model_toolbar_setting1_menu">
-				  <property name="visible">True</property>
 
 				  <child>
 				    <widget class="GtkRadioMenuItem" id="model_toolbar_icons1">
@@ -3484,17 +3363,6 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkRadioMenuItem" id="model_toolbar_text1">
-				      <property name="visible">True</property>
-				      <property name="label" translatable="yes">Text</property>
-				      <property name="use_underline">True</property>
-				      <property name="active">False</property>
-				      <property name="group">model_toolbar_icons1</property>
-				      <signal name="activate" handler="on_model_toolbar_text1_activate" last_modification_time="Fri, 18 Jan 2008 13:34:57 GMT"/>
-				    </widget>
-				  </child>
-
-				  <child>
 				    <widget class="GtkRadioMenuItem" id="model_toolbar_icons_and_text1">
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes">Icons and text</property>
@@ -3502,6 +3370,17 @@
 				      <property name="active">False</property>
 				      <property name="group">model_toolbar_icons1</property>
 				      <signal name="activate" handler="on_model_toolbar_icons_and_text1_activate" last_modification_time="Fri, 18 Jan 2008 13:53:17 GMT"/>
+				    </widget>
+				  </child>
+
+				  <child>
+				    <widget class="GtkRadioMenuItem" id="model_toolbar_text1">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">Text</property>
+				      <property name="use_underline">True</property>
+				      <property name="active">False</property>
+				      <property name="group">model_toolbar_icons1</property>
+				      <signal name="activate" handler="on_model_toolbar_text1_activate" last_modification_time="Fri, 18 Jan 2008 13:34:57 GMT"/>
 				    </widget>
 				  </child>
 				</widget>
@@ -36724,7 +36603,7 @@ distances more than:</property>
 		<widget class="GtkFrame" id="preferences_pink_pointer">
 		  <property name="label_xalign">0</property>
 		  <property name="label_yalign">0.5</property>
-		  <property name="shadow_type">GTK_SHADOW_NONE</property>
+		  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
 		  <child>
 		    <widget class="GtkVBox" id="vbox257">
@@ -36888,6 +36767,163 @@ distances more than:</property>
 		<widget class="GtkLabel" id="label606">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">Pink Pointer Size</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="type">tab</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkFrame" id="preferences_model_toolbar_style">
+		  <property name="visible">True</property>
+		  <property name="label_xalign">0</property>
+		  <property name="label_yalign">0.5</property>
+		  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+		  <child>
+		    <widget class="GtkVBox" id="vbox274">
+		      <property name="visible">True</property>
+		      <property name="homogeneous">False</property>
+		      <property name="spacing">0</property>
+
+		      <child>
+			<widget class="GtkLabel" id="label630">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Toolbar Style?</property>
+			  <property name="use_underline">False</property>
+			  <property name="use_markup">False</property>
+			  <property name="justify">GTK_JUSTIFY_CENTER</property>
+			  <property name="wrap">False</property>
+			  <property name="selectable">False</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">9</property>
+			  <property name="ypad">7</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkFrame" id="frame273">
+			  <property name="border_width">12</property>
+			  <property name="visible">True</property>
+			  <property name="label_xalign">0</property>
+			  <property name="label_yalign">0.5</property>
+			  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+			  <child>
+			    <widget class="GtkVBox" id="vbox275">
+			      <property name="visible">True</property>
+			      <property name="homogeneous">False</property>
+			      <property name="spacing">0</property>
+
+			      <child>
+				<widget class="GtkRadioButton" id="preferences_model_toolbar_style_icons_radiobutton">
+				  <property name="border_width">5</property>
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">Icons only (default)</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">True</property>
+				  <property name="active">False</property>
+				  <property name="inconsistent">False</property>
+				  <property name="draw_indicator">True</property>
+				  <signal name="toggled" handler="on_preferences_model_toolbar_style_icons_radiobutton_toggled" last_modification_time="Thu, 27 Mar 2008 10:41:30 GMT"/>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">False</property>
+				  <property name="fill">False</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkRadioButton" id="preferences_model_toolbar_style_both_radiobutton">
+				  <property name="border_width">5</property>
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">Icons and Text</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">True</property>
+				  <property name="active">False</property>
+				  <property name="inconsistent">False</property>
+				  <property name="draw_indicator">True</property>
+				  <property name="group">preferences_model_toolbar_style_icons_radiobutton</property>
+				  <signal name="toggled" handler="on_preferences_model_toolbar_style_both_radiobutton_toggled" last_modification_time="Thu, 27 Mar 2008 10:42:10 GMT"/>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">False</property>
+				  <property name="fill">False</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkRadioButton" id="preferences_model_toolbar_style_text_radiobutton">
+				  <property name="border_width">5</property>
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">Text only</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">True</property>
+				  <property name="active">False</property>
+				  <property name="inconsistent">False</property>
+				  <property name="draw_indicator">True</property>
+				  <property name="group">preferences_model_toolbar_style_icons_radiobutton</property>
+				  <signal name="toggled" handler="on_preferences_model_toolbar_style_text_radiobutton_toggled" last_modification_time="Thu, 27 Mar 2008 10:42:39 GMT"/>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">False</property>
+				  <property name="fill">False</property>
+				</packing>
+			      </child>
+			    </widget>
+			  </child>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">True</property>
+			</packing>
+		      </child>
+		    </widget>
+		  </child>
+		</widget>
+		<packing>
+		  <property name="tab_expand">False</property>
+		  <property name="tab_fill">True</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label629">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Refinement Toolbar</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
