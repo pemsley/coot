@@ -732,7 +732,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
  /* Now a button for Ca + ligands bonds: */
 
-  glade_menuitem = gtk_menu_item_new_with_label (_("C-alphas + Ligands"));
+  glade_menuitem = gtk_menu_item_new_with_label (_("CAs + Ligs"));
   gtk_widget_show (glade_menuitem);
   gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
 /* Notice how this time we attach a pointer to the molecule number -
@@ -743,7 +743,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
  /* Now a button for Ca + ligands bonds, Sec. Str. Colour: */
 
-  glade_menuitem = gtk_menu_item_new_with_label (_("C-alphas + Ligands: Sec. Str Colour"));
+  glade_menuitem = gtk_menu_item_new_with_label (_("CAs+Ligs SecStr Col"));
   gtk_widget_show (glade_menuitem);
   gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
 /* Notice how this time we attach a pointer to the molecule number -

@@ -383,6 +383,11 @@ namespace coot {
        atom_sel_info = atom_sel_info_in;
        fill_bonds_box();
      } 
+     // on changind the outside (molecule_class_info_t's mol) we need
+     // to change that of the additional_representations too.
+     void change_mol(CMMDBManager *mol_in) { 
+       mol = mol_in;
+     } 
      void clear() { 
        show_it = 0;
      } 
@@ -941,6 +946,7 @@ class molecule_class_info_t {
    std::vector<coot::Cartesian>   fixed_atom_positions; // updated on make_bonds_type_checked()
    void update_fixed_atom_positions();
    void update_additional_representations();
+   void update_mols_in_additional_representations(); //uses atom_sel.mol
    void draw_fixed_atom_positions() const;
    void clear_all_fixed_atoms();
    std::vector<coot::atom_spec_t> get_fixed_atoms() const;
