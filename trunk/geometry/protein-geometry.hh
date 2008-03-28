@@ -191,6 +191,7 @@ namespace coot {
    };
 
    class dict_torsion_restraint_t : public basic_dict_restraint_t {
+      std::string id_;
       std::string atom_id_3_;
       std::string atom_id_4_;
       double angle_;
@@ -199,7 +200,8 @@ namespace coot {
    public:
       
       // dict_torsion_restraint_t() {}; 
-      dict_torsion_restraint_t(std::string atom_id_1,
+      dict_torsion_restraint_t(std::string id_in,
+			       std::string atom_id_1,
 			       std::string atom_id_2,
 			       std::string atom_id_3,
 			       std::string atom_id_4,
@@ -208,6 +210,7 @@ namespace coot {
 			       int period_in) :
       basic_dict_restraint_t(atom_id_1, atom_id_2)
       {
+	 id_ = id_in;
 	 atom_id_3_ = atom_id_3;
 	 atom_id_4_ = atom_id_4;
 	 angle_ = angle;
@@ -218,6 +221,7 @@ namespace coot {
       std::string atom_id_4_4c() const { return atom_id_mmdb_expand(atom_id_4_);}
       std::string atom_id_3() const { return atom_id_3_;}
       std::string atom_id_4() const { return atom_id_4_;}
+      std::string id() const { return id_;}
       int periodicity() const { return period; }
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
@@ -584,6 +588,7 @@ namespace coot {
 			     realtype value_angle, realtype value_angle_esd);
 
       void mon_lib_add_torsion(std::string comp_id,
+			       std::string torsion_id,
 			       std::string atom_id_1,
 			       std::string atom_id_2,
 			       std::string atom_id_3,

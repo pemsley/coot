@@ -563,13 +563,14 @@ coot::protein_geometry::mon_lib_add_angle(std::string comp_id,
 
 void
 coot::protein_geometry::mon_lib_add_torsion(std::string comp_id,
-				      std::string atom_id_1,
-				      std::string atom_id_2,
-				      std::string atom_id_3,
-				      std::string atom_id_4,
-				      realtype value_angle,
-				      realtype value_angle_esd,
-				      int period) {
+					    std::string torsion_id,
+					    std::string atom_id_1,
+					    std::string atom_id_2,
+					    std::string atom_id_3,
+					    std::string atom_id_4,
+					    realtype value_angle,
+					    realtype value_angle_esd,
+					    int period) {
 
 //      std::cout << "adding torsion " << comp_id <<  " " << atom_id_1
 // 	       << " " << atom_id_2 << " " << atom_id_3 << " "
@@ -578,13 +579,14 @@ coot::protein_geometry::mon_lib_add_torsion(std::string comp_id,
 // 	       << ", value_angle_esd: " << value_angle_esd
 // 	       << ", period: " << period << std::endl;
 
-      add_restraint(comp_id, dict_torsion_restraint_t(atom_id_1,
-						      atom_id_2,
-						      atom_id_3,
-						      atom_id_4,
-						      value_angle,
-						      value_angle_esd,
-						      period));
+   add_restraint(comp_id, dict_torsion_restraint_t(torsion_id,
+						   atom_id_1,
+						   atom_id_2,
+						   atom_id_3,
+						   atom_id_4,
+						   value_angle,
+						   value_angle_esd,
+						   period));
 
 }
 
@@ -1213,15 +1215,17 @@ coot::protein_geometry::comp_torsion(PCMMCIFLoop mmCIFLoop) {
 	 // angles (e.g. in Roberto's DAC).
 	 // So, reject if comp_id starts with "CONST" or "const".
 
-	 short int add_it = 0;
-	 if (id.length() > 5) {
-	    std::string bit = id.substr(0, 5);
-	    if ((bit != "CONST" && bit != "const")) {
-	       add_it = 1;
-	    }
-	 } else {
-	    add_it = 1;
-	 }
+	 
+// 	 short int add_it = 0;
+// 	 if (id.length() > 5) {
+// 	    std::string bit = id.substr(0, 5);
+// 	    if ((bit != "CONST" && bit != "const")) {
+// 	       add_it = 1;
+// 	    }
+// 	 } else {
+// 	    add_it = 1;
+// 	 }
+	 
 
 // 	 if (add_it == 0)
 // 	    std::cout << "DEBUG:: rejecting torsion " << comp_id << " " << atom_id_1 << " " << atom_id_2
@@ -1231,10 +1235,10 @@ coot::protein_geometry::comp_torsion(PCMMCIFLoop mmCIFLoop) {
 // 		      << " " << atom_id_2
 // 		      << " " << atom_id_3 << " " << atom_id_4 << " " << value_angle << std::endl;
    
-	 if (add_it) 
-	    mon_lib_add_torsion(comp_id, atom_id_1, atom_id_2,
-				atom_id_3, atom_id_4,
-				value_angle, value_angle_esd, period); 
+	 mon_lib_add_torsion(comp_id, id,
+			     atom_id_1, atom_id_2,
+			     atom_id_3, atom_id_4,
+			     value_angle, value_angle_esd, period); 
       }
    }
 } 

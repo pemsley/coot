@@ -2371,6 +2371,7 @@ SCM monomer_restraints(const char *monomer_type) {
       SCM torsion_restraint_list = SCM_EOL;
       for (unsigned int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
 	 coot::dict_torsion_restraint_t torsion_restraint = restraints.torsion_restraint[itorsion];
+	 std::string id = torsion_restraint.id();
 	 std::string a1 = torsion_restraint.atom_id_1_4c();
 	 std::string a2 = torsion_restraint.atom_id_2_4c();
 	 std::string a3 = torsion_restraint.atom_id_3_4c();
@@ -2386,6 +2387,7 @@ SCM monomer_restraints(const char *monomer_type) {
 	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a3.c_str()),   torsion_restraint_scm);
 	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a2.c_str()),   torsion_restraint_scm);
 	 torsion_restraint_scm = scm_cons(scm_makfrom0str(a1.c_str()),   torsion_restraint_scm);
+	 torsion_restraint_scm = scm_cons(scm_makfrom0str(id.c_str()),   torsion_restraint_scm);
 	 torsion_restraint_list = scm_cons(torsion_restraint_scm, torsion_restraint_list);
       }
       SCM torsion_restraints_container = SCM_EOL;
@@ -2555,6 +2557,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
       // ------------------ Torsions -------------------------
       PyObject *torsion_restraint_list = PyList_New(restraints.torsion_restraint.size());
       for (unsigned int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
+	 std::string id = restraints.torsion_restraint[itorsion].id();
 	 std::string a1 = restraints.torsion_restraint[itorsion].atom_id_1_4c();
 	 std::string a2 = restraints.torsion_restraint[itorsion].atom_id_2_4c();
 	 std::string a3 = restraints.torsion_restraint[itorsion].atom_id_3_4c();
@@ -2562,14 +2565,15 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 double tor  = restraints.torsion_restraint[itorsion].angle();
 	 double esd = restraints.torsion_restraint[itorsion].esd();
 	 int period = restraints.torsion_restraint[itorsion].periodicity();
-	 PyObject *torsion_restraint = PyList_New(7);
-	 PyList_SetItem(torsion_restraint, 0, PyString_FromString(a1.c_str()));
-	 PyList_SetItem(torsion_restraint, 1, PyString_FromString(a2.c_str()));
-	 PyList_SetItem(torsion_restraint, 2, PyString_FromString(a3.c_str()));
-	 PyList_SetItem(torsion_restraint, 3, PyString_FromString(a4.c_str()));
-	 PyList_SetItem(torsion_restraint, 4, PyFloat_FromDouble(tor));
-	 PyList_SetItem(torsion_restraint, 5, PyFloat_FromDouble(esd));
-	 PyList_SetItem(torsion_restraint, 6, PyInt_FromLong(period));
+	 PyObject *torsion_restraint = PyList_New(8);
+	 PyList_SetItem(torsion_restraint, 0, PyString_FromString(id.c_str()));
+	 PyList_SetItem(torsion_restraint, 1, PyString_FromString(a1.c_str()));
+	 PyList_SetItem(torsion_restraint, 2, PyString_FromString(a2.c_str()));
+	 PyList_SetItem(torsion_restraint, 3, PyString_FromString(a3.c_str()));
+	 PyList_SetItem(torsion_restraint, 4, PyString_FromString(a4.c_str()));
+	 PyList_SetItem(torsion_restraint, 5, PyFloat_FromDouble(tor));
+	 PyList_SetItem(torsion_restraint, 6, PyFloat_FromDouble(esd));
+	 PyList_SetItem(torsion_restraint, 7, PyInt_FromLong(period));
 	 PyList_SetItem(torsion_restraint_list, itorsion, torsion_restraint);
       }
 
@@ -2795,26 +2799,32 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   SCM torsion_restraint_length_scm = scm_length(torsion_restraint);
 			   int torsion_restraint_length = scm_to_int(torsion_restraint_length_scm);
 			   
-			   if (torsion_restraint_length == 7) {
-			      SCM atom_1_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(0));
-			      SCM atom_2_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(1));
-			      SCM atom_3_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(2));
-			      SCM atom_4_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(3));
-			      SCM torsion_scm  = scm_list_ref(torsion_restraint, SCM_MAKINUM(4));
-			      SCM esd_scm      = scm_list_ref(torsion_restraint, SCM_MAKINUM(5));
-			      SCM period_scm   = scm_list_ref(torsion_restraint, SCM_MAKINUM(6));
-			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
-				  scm_string_p(atom_3_scm) && scm_string_p(atom_4_scm) &&
-				  scm_number_p(torsion_scm) && scm_number_p(esd_scm) && 
-				  scm_number_p(period_scm)) {
-				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
-				 std::string atom_2 = scm_to_locale_string(atom_2_scm);
-				 std::string atom_3 = scm_to_locale_string(atom_3_scm);
-				 std::string atom_4 = scm_to_locale_string(atom_4_scm);
-				 double torsion       = scm_to_double(torsion_scm);
-				 double esd         = scm_to_double(esd_scm);
-				 int period         = scm_to_int(period_scm);
-				 coot::dict_torsion_restraint_t rest(atom_1, atom_2, atom_3, atom_4,
+			   if (torsion_restraint_length == 8) {
+			      SCM torsion_id_scm = scm_list_ref(torsion_restraint, SCM_MAKINUM(0));
+			      SCM atom_1_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(1));
+			      SCM atom_2_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(2));
+			      SCM atom_3_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(3));
+			      SCM atom_4_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(4));
+			      SCM torsion_scm    = scm_list_ref(torsion_restraint, SCM_MAKINUM(5));
+			      SCM esd_scm        = scm_list_ref(torsion_restraint, SCM_MAKINUM(6));
+			      SCM period_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(7));
+			      if (scm_is_true(scm_string_p(atom_1_scm)) &&
+				  scm_is_true(scm_string_p(atom_2_scm)) &&
+				  scm_is_true(scm_string_p(atom_3_scm)) &&
+				  scm_is_true(scm_string_p(atom_4_scm)) &&
+				  scm_is_true(scm_number_p(torsion_scm)) &&
+				  scm_is_true(scm_number_p(esd_scm)) && 
+				  scm_is_true(scm_number_p(period_scm))) {
+				 std::string torsion_id = scm_to_locale_string(torsion_id_scm);
+				 std::string atom_1     = scm_to_locale_string(atom_1_scm);
+				 std::string atom_2     = scm_to_locale_string(atom_2_scm);
+				 std::string atom_3     = scm_to_locale_string(atom_3_scm);
+				 std::string atom_4     = scm_to_locale_string(atom_4_scm);
+				 double torsion         = scm_to_double(torsion_scm);
+				 double esd             = scm_to_double(esd_scm);
+				 int period             = scm_to_int(period_scm);
+				 coot::dict_torsion_restraint_t rest(torsion_id,
+								     atom_1, atom_2, atom_3, atom_4,
 								     torsion, esd, period);
 				 torsion_restraints.push_back(rest);
 			      }
@@ -3069,14 +3079,18 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	       int n_torsions = PyObject_Length(torsion_restraint_list);
 	       for (int i_torsion=0; i_torsion<n_torsions; i_torsion++) {
 		  PyObject *torsion_restraint = PyList_GetItem(torsion_restraint_list, i_torsion);
-		  if (PyObject_Length(torsion_restraint) == 7) { 
-		     PyObject *atom_1_py = PyList_GetItem(torsion_restraint, 0);
-		     PyObject *atom_2_py = PyList_GetItem(torsion_restraint, 1);
-		     PyObject *atom_3_py = PyList_GetItem(torsion_restraint, 2);
-		     PyObject *atom_4_py = PyList_GetItem(torsion_restraint, 3);
-		     PyObject *torsion_py= PyList_GetItem(torsion_restraint, 4);
-		     PyObject *esd_py    = PyList_GetItem(torsion_restraint, 5);
-		     PyObject *period_py = PyList_GetItem(torsion_restraint, 6);
+		  if (PyObject_Length(torsion_restraint) == 7) { // info for Nigel.
+		     std::cout << "torsions now have 8 elements starting with the torsion id\n"; 
+		  } 
+		  if (PyObject_Length(torsion_restraint) == 8) { 
+		     PyObject *id_py     = PyList_GetItem(torsion_restraint, 0);
+		     PyObject *atom_1_py = PyList_GetItem(torsion_restraint, 1);
+		     PyObject *atom_2_py = PyList_GetItem(torsion_restraint, 2);
+		     PyObject *atom_3_py = PyList_GetItem(torsion_restraint, 3);
+		     PyObject *atom_4_py = PyList_GetItem(torsion_restraint, 4);
+		     PyObject *torsion_py= PyList_GetItem(torsion_restraint, 5);
+		     PyObject *esd_py    = PyList_GetItem(torsion_restraint, 6);
+		     PyObject *period_py = PyList_GetItem(torsion_restraint, 7);
 
 		     if (PyString_Check(atom_1_py) &&
 			 PyString_Check(atom_2_py) &&
@@ -3085,6 +3099,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 			 PyFloat_Check(torsion_py) && 
 			 PyFloat_Check(esd_py)    && 
 			 PyInt_Check(period_py)) { 
+			std::string id     = PyString_AsString(id_py);
 			std::string atom_1 = PyString_AsString(atom_1_py);
 			std::string atom_2 = PyString_AsString(atom_2_py);
 			std::string atom_3 = PyString_AsString(atom_3_py);
@@ -3092,7 +3107,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 			float  torsion = PyFloat_AsDouble(torsion_py);
 			float  esd     = PyFloat_AsDouble(esd_py);
 			int  period    = PyInt_AsLong(period_py);
-			coot::dict_torsion_restraint_t rest(atom_1, atom_2, atom_3, atom_4,
+			coot::dict_torsion_restraint_t rest(id, atom_1, atom_2, atom_3, atom_4,
 							    torsion, esd, period);
 			torsion_restraints.push_back(rest);
 		     }

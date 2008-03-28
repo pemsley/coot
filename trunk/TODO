@@ -148,6 +148,8 @@
 
    o Put globularize protein into Coot.  Make it a bit more clever?
 
+   o Use LSQ for NCS matrices.
+
    o Use libglade
 
    o multiple residue ranges, glycosylation, covalent bond entities
@@ -241,6 +243,9 @@
     Release 0.8 [Aug 2008?]
 
    o User pickable atoms
+
+   o sort out the includes so that I use -I .. and
+     #include "ideal/geometry.hh" etc.
 
    o Other Button: tw & penny
 

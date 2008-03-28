@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   13 Items
+   11 Items
 
    o Kevin's Ramachandran Refinement target
 
@@ -20,15 +20,9 @@
    o Update the graphics properly (redraw) when a dialog goes away
      (configure event?)
 
-   o Valgrind long/multiple fit-proteins
-
    o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
      message about going to wall-eyed and the state of walled eyed in
      the status file.
-
-   o NCS Ligands: if we find a ligand C in molecule A, we should look
-     for a similar blob near molecule B and try to fit the same kind of
-     ligand there as well [JED]
 
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
@@ -44,15 +38,36 @@
 
    o Finish A-RAPPER-gui.
 
-   o set-molecule-name does not update name in Display Control.  It
-     should.
+   o  Need to check torsion restraints and wiggly ligands now that I
+      have enabled the reading of CONST torsions. Also Edit Chi.
+
+   o > > - created a Python function for adding toolbar buttons (no guile 
+     > > function yet! Paul!?)
+
+   o Bill's config log
+
+
+
+45 Done.
+
+   o Valgrind long/multiple fit-proteins. I valgrinded the tests. 
+
+* Done. Fixed bug.  SSM and clipper bugs left.
 
    o undo needs to update the additional representations 
 
+* Done.
 
+   o set-molecule-name does not update name in Display Control.  It
+     should.
 
+* Done.
 
+   o NCS Ligands: if we find a ligand C in molecule A, we should look
+     for a similar blob near molecule B and try to fit the same kind of
+     ligand there as well [JED]
 
+* Done.
 
    o NCS chain Extension: Randy Read
 
@@ -4984,3 +4999,75 @@ Tue Mar 25 15:01:27 GMT 2008
 ==4411==    by 0x81469DE: graphics_info_t::execute_add_terminal_residue(int, std::string const&, CResidue const*, std::string const&, std::string const&, short) (graphics-info-modelling.cc:1436)
 ==4411==    by 0x8209CD7: add_terminal_residue (c-interface-build.cc:528)
 ==4411==    by 0x1BE52918: _wrap_add_terminal_residue(scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*) (coot_wrap_guile.cc:19697)
+
+----
+Thu Mar 27 07:44:50 GMT 2008
+
+
+    Frank: 
+
+   "torsion general - crappy tail?"  I think I meant: why can't one
+   use torsion general to swing a whole lot of protein around a main
+   chain bond?  If I try, the mouse just clears after the 4th click.
+   i.e., all I can move around is a miserable little tail of a
+   sidechain, maybe.  Oh wait, I see now: yes, torsion general works
+   only inside a residue.  Which is a bit anal, what if I want to
+   swivel a whole domain or helix when it's changed from the MR model.
+   Other place of nuisance: when modelling around in poor density at
+   the end of a chain.
+
+   "Ramachandran boundaries".  Ah yes: any reason why you don't have
+   the same smooth boundaries that Richardsons use?  I've seen cases
+   just outside your boundaries, but happily inside the Richardson
+   one.
+
+   "Views file: #Views".  Yes, the views file coot writes out itself
+   doesn't load back.  Reason is (I remember) that the second (or
+   third line) contains #Views, which screws up scheme.
+
+   "Save coords: most recently changed".  Oh yes: could you populate
+   the defaults (molecule; filename) based on the file most recently
+   changed, and not on the one currently active?  These are not always
+   the same, and chances are I want to save what I just built at, not
+   what I was looking at.
+
+----
+Fri Mar 28 10:08:09 GMT 2008
+
+    PRE:
+    Use LSQ for NCS matrices.
+
+----
+Fri Mar 28 10:46:13 GMT 2008
+
+  PRE:
+
+     Just noticed another slightly weird thing: I mutated a couple of
+     residues and added 3 in one NCS copy, then "NCS looped" them to
+     the other subunit. The mutated ones in the second subunit had the
+     right coordinates & atoms, but were still labelled with the old
+     residue type.
+
+     The inserted ones were on the end of the subunit
+
+  Add tests for these.
+
+----
+Fri Mar 28 10:48:25 GMT 2008
+
+    PRE:
+
+      Somehow allow me to set that I want "Colour by Chain" on by
+      default. (i.e. set-colour-by-chain for future molecules).
+ 
+    Same for CA mode.
+
+    (Pass default representation type to molecule_class_info_t's
+    handle_read_draw_molecule?)
+
+---
+Fri Mar 28 10:51:31 GMT 2008
+
+    CNS to coot: script needs a GUI?
+
+
