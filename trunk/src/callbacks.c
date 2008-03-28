@@ -8815,6 +8815,14 @@ on_display_manager_button_clicked      (GtkButton       *button,
 }
 
 void
+on_reset_view_button_clicked           (GtkButton       *button,
+                                        gpointer         user_data) { 
+   reset_view();
+} 
+
+#if (GTK_MAJOR_VERSION > 1)
+
+void
 on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
@@ -8823,18 +8831,11 @@ on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
 }
 
 void
-on_reset_view_button_clicked           (GtkButton       *button,
-                                        gpointer         user_data) { 
-   reset_view();
-} 
-
-void
 on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
    reset_view();
 }
-#if (GTK_MAJOR_VERSION > 1)
 
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,

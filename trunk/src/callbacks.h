@@ -971,9 +971,11 @@ void
 on_reset_view_button_clicked           (GtkButton       *button,
                                         gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data);
+#endif
 
 void
 on_hints1_activate                     (GtkMenuItem     *menuitem,
@@ -3274,13 +3276,11 @@ void
 on_display_manager_button_clicked      (GtkButton       *button,
                                         gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION == 2)
+
 void
 on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
                                         gpointer         user_data);
-
-
-
-#if (GTK_MAJOR_VERSION == 2)
 
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
