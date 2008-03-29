@@ -260,7 +260,7 @@
 			    (most-time 2000000)
 			    (time-diff (if (< time-diff-pre most-time) time-diff-pre most-time))
 			    (ns (n-spaces (time-diff->n-spaces time-diff)))
-			    (colour (if (< time-diff (* 60 60 24)) "lime" "red")))
+			    (colour (if (< time-diff (* 60 60 24)) "#80dd80" "#dd8080")))
 		       (if (= (length file-info) 2)
 			   `(p 
 			     ,(car (list-ref file-info 0)) " not found")
