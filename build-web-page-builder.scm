@@ -203,8 +203,10 @@
 
 ;; time-diff in seconds
 (define (time-diff->n-spaces time-diff)
-  (format #t "DEBUG:: time-diff: ~s~%" time-diff)
-  (inexact->exact (/ time-diff (* 60 60 3))))
+  ; (format #t "DEBUG:: time-diff: ~s~%" time-diff)
+  (if time-diff
+      (inexact->exact (/ time-diff (* 60 60 3)))
+      0))
 
 ;; return a string of n spaces
 (define (n-spaces n)
@@ -230,6 +232,15 @@
 		       ".log"
 		       "-testing.log")))
 
+  ;; return a time, or #f
+  (define (make-time-diff file-info now-time)
+    (if (= (length file-info) 2)
+	#f
+	(let* ((most-time 2000000)
+	       (time-diff-pre (- now-time (car (list-ref file-info 3)))))
+	  (if (< time-diff-pre most-time) time-diff-pre most-time))))
+
+
   (let ((latest-source-info (latest-tar-gz source-tar-dir ""))
 	(binary-file-infos
 	 (map
@@ -239,7 +250,7 @@
 		  (list bin (car (cdr l)) (oldness-info l) l)
 		  (begin
 		    (format #t "bad return from latest-tar-gz for ~s~%" bin)
-		    (list bin #f #f #f)))))
+		    (list bin #f)))))
 	  bin-list)))
 
     (write-sxml 
@@ -253,35 +264,43 @@
 		(br)
 		,(time-text (oldness-info latest-source-info)))
 	     ;; binary targets
-	     ,(map (lambda (file-info)
-		     (let* ((make-links? (car (cdr (car file-info))))
-			    (now-time (current-time))
-			    (time-diff-pre (- now-time (car (list-ref file-info 3))))
-			    (most-time 2000000)
-			    (time-diff (if (< time-diff-pre most-time) time-diff-pre most-time))
-			    (ns (n-spaces (time-diff->n-spaces time-diff)))
-			    (colour (if (< time-diff (* 60 60 24)) "#80dd80" "#dd8080")))
-		       (if (= (length file-info) 2)
-			   `(p 
-			     ,(car (list-ref file-info 0)) " not found")
-			   `(p 
-			     ,(car (car file-info))
-			     " "
-			     ,(car (cdr file-info))
-			     (br)
-			     ,(time-text (list-ref file-info 2))
-			     " "
-			     ,(if make-links?
-				  `(a (@ href ,(build-log-page file-info 'log)) build-log)
-				  "")
-			     " "
-			     ,(if make-links?
-				  `(a (@ href ,(build-log-page file-info 'test)) test-log)
-				  "")
-			     (table (@ (border 1) (bgcolor ,colour))
-				    (tr (td ,ns)))
-			     ))))
-		   binary-file-infos)))
+	     ,(let ((now-time (current-time)))
+		(map (lambda (file-info)
+		       (format #t "file-info ~s~%" file-info)
+		       (let* ((make-links? (car (cdr (car file-info))))
+			      (time-diff (make-time-diff file-info now-time))
+			      (ns (n-spaces (time-diff->n-spaces time-diff)))
+			      (colour (cond
+				       ((eq? time-diff #f) "#303030")
+				       ((< time-diff (* 60 60 24)) "#80dd80")
+				       (else 
+					"#dd8080"))))
+
+			 (if (= (length file-info) 2)
+			     `(p 
+			       ,(car (list-ref file-info 0)) '(b " not found")
+			       (br)
+			       `(a (@ href ,(build-log-page file-info 'log)) build-log)
+			       " "
+			       `(a (@ href ,(build-log-page file-info 'test)) build-log))
+			     `(p 
+			       ,(car (car file-info))
+			       " "
+			       ,(car (cdr file-info))
+			       (br)
+			       ,(time-text (list-ref file-info 2))
+			       " "
+			       ,(if make-links?
+				    `(a (@ href ,(build-log-page file-info 'log)) build-log)
+				    "")
+			       " "
+			       ,(if make-links?
+				    `(a (@ href ,(build-log-page file-info 'test)) test-log)
+				    "")
+			       (table (@ (border 1) (bgcolor ,colour))
+				      (tr (td ,ns)))
+			       ))))
+		     binary-file-infos))))
      file-name)))
       
 
@@ -305,6 +324,18 @@
 	      "Linux-bubbles/bubbles")
 	(list "binary-Linux-i386-redhat-8.0-python" 
 	      "Linux-bubbles/bubbles")
+
+	(list "binary-Linux-i386-fedora-3-python-gtk2"
+	      "Linux-bunyip.chem.york.ac.uk/gtk2-build")
+
+	(list "binary-Linux-i386-fedora-3"
+	      "Linux-bunyip.chem.york.ac.uk/bunyip.chem.york.ac.uk")
+
+	(list "binary-Linux-i386-fedora-8-python-gtk2"
+	      "Linux-dragon.chem.york.ac.uk/gtk2-build")
+
+	(list "binary-Linux-i386-fedora-8"
+	      "Linux-dragon.chem.york.ac.uk/dragon.chem.york.ac.uk")
 
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" #f)))
 
