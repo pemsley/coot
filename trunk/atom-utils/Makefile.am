@@ -6,6 +6,7 @@ include_HEADERS = atom-utils.h
 GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 
 INCLUDES =  \
+	-I $(top_srcdir)/ccp4mg-utils	\
 	-I$(top_srcdir)/coords 		\
 	-I$(top_srcdir)/geometry 	\
 	-I$(top_srcdir)/coot-utils	\
