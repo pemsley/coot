@@ -3806,9 +3806,11 @@ void add_additional_representation_by_widget(GtkWidget *w) {
    int bonds_box_type = coot::NORMAL_BONDS;
    bool draw_H_flag = 1;
    gchar* bond_width_text = 0;
-#if (GTK_MAJOR_VERSION > 1)   
+#if (GTK_MINOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
    bond_width_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(add_rep_bond_width_combobox));
-#else 
+#else
+   // 2.4 does not have gtk_combo_box_get_active_text() and 1.x does
+   // not have gtk_combo_box.
 #endif
 
    if (bond_width_text) {
