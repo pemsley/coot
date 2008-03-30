@@ -331,6 +331,9 @@
 	(list "binary-Linux-i386-fedora-3"
 	      "Linux-bunyip.chem.york.ac.uk/bunyip.chem.york.ac.uk")
 
+	(list "binary-Linux-i386-fedora-3-python"
+	      "Linux-bunyip.chem.york.ac.uk/bunyip.chem.york.ac.uk")
+
 	(list "binary-Linux-i386-fedora-8-python-gtk2"
 	      "Linux-dragon.chem.york.ac.uk/gtk2-build")
 
