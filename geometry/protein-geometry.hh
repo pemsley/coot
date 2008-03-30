@@ -250,7 +250,7 @@ namespace coot {
       double dist_esd() const { return dist_esd_; }
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
       int n_atoms() const { return atom_ids.size(); }
-      const std::string &operator[](int i) { return atom_ids[i];}
+      const std::string &operator[](int i) const { return atom_ids[i];}
       void push_back_atom(const std::string &at) { atom_ids.push_back(at); }
    };
 
