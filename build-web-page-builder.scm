@@ -254,7 +254,8 @@
 	  bin-list)))
 
     (write-sxml 
-     `(html (head (title "Coot Build Summary Page"))
+     `(html (head (title "Coot Build Summary Page")
+		  (meta (@ (http-equiv refresh) (content 600))))
 	    (body 
 	     ;; source code
 	     (p "Source code "
@@ -280,9 +281,9 @@
 			     `(p 
 			       ,(car (list-ref file-info 0)) '(b " not found")
 			       (br)
-			       `(a (@ href ,(build-log-page file-info 'log)) build-log)
+			       (a (@ href ,(build-log-page file-info 'log)) build-log)
 			       " "
-			       `(a (@ href ,(build-log-page file-info 'test)) build-log))
+			       (a (@ href ,(build-log-page file-info 'test)) test-log))
 			     `(p 
 			       ,(car (car file-info))
 			       " "
