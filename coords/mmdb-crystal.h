@@ -21,8 +21,7 @@
 
 // -*-c++-*-
 
-//#include "Cartesian.h"
-//#include "mmdb-extras.h"
+#include "Cartesian.h" // uncommented so that r899 compiles for Bill. Strange.
 
 #ifndef MMDB_CRYSTAL
 #define MMDB_CRYSTAL
