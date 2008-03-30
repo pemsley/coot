@@ -219,7 +219,6 @@
 	 ((< n 1) str)
 	 (else
 	  (loop (- n 1) (string-append "|" str)))))))
-	  
 
 
 (define (make-page bin-list file-name)
@@ -257,6 +256,7 @@
      `(html (head (title "Coot Build Summary Page")
 		  (meta (@ (http-equiv refresh) (content 600))))
 	    (body 
+	     (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
 	     ;; source code
 	     (p "Source code "
 		,(basename (list-ref latest-source-info 2) ".tar.gz")
