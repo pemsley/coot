@@ -2420,7 +2420,7 @@ fi
 # consider getting rid of $shared_static_flag, which does a --disable-shared.
 # i.e. we should keep and use shared libs
 
-
+echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
    --with-gtkcanvas-prefix=$install_top_dir \
