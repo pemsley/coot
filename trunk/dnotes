@@ -4199,12 +4199,20 @@ gcc -I/usr/X11R6/include -o .libs/CallbackMaker CallbackMaker-CallbackMaker.o  -
 ld: cycle in dylib re-exports with /usr/X11/lib/libGL.
 
 http://www.mail-archive.com/fink-devel@lists.sourceforge.net/msg16105.html
+  
+   Problem solved - I have it working.
+   To the ConfigureParams section of the info file I added:
 
-Problem solved - I have it working.
-To the ConfigureParams section of the info file I added:
+   LDFLAGS="-dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"
 
-LDFLAGS="-dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"
+PE: This worked for me too:
 
+
+./configure --prefix=/Users/paule/autobuild/Darwin/coot-pre-release-gtk2 --disable-warnings LDFLAGS=-dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
+
+for OpenGL (in gtkglext building) 
+
+ ./configure --prefix=/Users/paule/autobuild/Darwin/coot-pre-release-gtk2 --disable-warnings LDFLAGS="-dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"
 
 ------
 Wed 30 Jan 2008 14:50:08 GMT
@@ -4769,6 +4777,20 @@ Sun Feb 24 23:51:37 GMT 2008
 
 * Done
 
+-----
+Fri Feb 29 16:33:00 GMT 2008
+
+    more on compiling on impala
+
+
+If I copy the command line from configure for pygtk and pyobject
+
+[this is from pygtk]
+./configure --prefix=/Users/paule/autobuild/Darwin/coot-pre-release-gtk2 --with-pango --with-pangocairo PYGOBJECT_CFLAGS=-I/Users/paule/autobuild/Darwin/coot-pre-release-gtk2/include/pygtk-2.0 PYGOBJECT_LIBS=-L/Users/paule/autobuild/Darwin/coot-pre-release-gtk2/lib
+
+then it configures on the command line.  But not from script (glib test
+program problems).  Grrr.
+
 ----
 Wed Feb 27 09:18:50 GMT 2008
 
@@ -4861,7 +4883,6 @@ Thu Mar 13 16:15:10 GMT 2008
 
     Additional representations "button" should (also?) be on the
     Display Control.
-
 
 ----
 Sat Mar 15 09:30:11 GMT 2008
@@ -5091,3 +5112,4 @@ Sat Mar 29 23:13:39 GMT 2008
 Sat Mar 29 23:15:20 GMT 2008
 
     update the density fit graph on delete residue (e.g. water).
+
