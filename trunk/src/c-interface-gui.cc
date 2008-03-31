@@ -70,6 +70,10 @@
 #include "cmtz-interface.hh"
 #include "mmdb.h"  // for centre of molecule
 
+#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
+#define HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
+#endif
+
 void set_show_paths_in_display_manager(int i) { 
    std::string cmd = "set-show-paths-in-display-manager";
    std::vector<coot::command_arg_t> args;
@@ -3806,7 +3810,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
    int bonds_box_type = coot::NORMAL_BONDS;
    bool draw_H_flag = 1;
    gchar* bond_width_text = 0;
-#if (GTK_MINOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
+#ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
    bond_width_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(add_rep_bond_width_combobox));
 #else
    // 2.4 does not have gtk_combo_box_get_active_text() and 1.x does
