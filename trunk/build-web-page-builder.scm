@@ -3,6 +3,8 @@
              (srfi srfi-1)
              (sxml simple)
 	     (ice-9 string-fun)
+	     (ice-9 popen)
+	     (goosh)
 	     (ice-9 regex))
 
 
@@ -208,6 +210,35 @@
       (inexact->exact (/ time-diff (* 60 60 3)))
       0))
 
+
+;; code from thi <ttn at mingle.glug.org>
+;; 
+;; run command and put the output into a string and return
+;; it. (c.f. @code{run-command/strings})
+(define (shell-command-to-string cmd)
+  (with-output-to-string
+    (lambda ()
+      (let ((in-port (open-input-pipe cmd)))
+	(let loop ((line (read-line in-port 'concat)))
+	  (or (eof-object? line)
+	      (begin
+		(display line)
+		(loop (read-line in-port 'concat)))))))))
+
+;; return the revision number or #f
+;; 
+(define (get-svn-revision)
+  (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot"))
+	(current-dir (getcwd)))
+    (format #t "coot-dir: ~s~%" coot-dir)
+    (format #t "curr-dir: ~s~%" current-dir)
+    (chdir coot-dir)
+    (let ((s (shell-command-to-string "svn -qu status")))
+      (chdir current-dir)
+      (string->number
+       (car (reverse (string-split (car (cdr (reverse (string-split s #\newline)))) #\space)))))))
+
+
 ;; return a string of n spaces
 (define (n-spaces n)
 
@@ -257,6 +288,8 @@
 		  (meta (@ (http-equiv refresh) (content 600))))
 	    (body 
 	     (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
+	     ;; repository version
+	     (p ("SVN Code Revision: " ,(get-svn-revision)))
 	     ;; source code
 	     (p "Source code "
 		,(basename (list-ref latest-source-info 2) ".tar.gz")
@@ -281,6 +314,8 @@
 			     `(p 
 			       ,(car (list-ref file-info 0)) '(b " not found")
 			       (br)
+			       (table (@ (border 1) (bgcolor "#303030"))
+				      (tr (td ,(n-spaces 100))))
 			       (a (@ href ,(build-log-page file-info 'log)) build-log)
 			       " "
 			       (a (@ href ,(build-log-page file-info 'test)) test-log))
