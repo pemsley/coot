@@ -289,7 +289,7 @@
 	    (body 
 	     (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
 	     ;; repository version
-	     (p ("SVN Code Revision: " ,(get-svn-revision)))
+	     (p ("SVN Repository Revision: " ,(get-svn-revision)))
 	     ;; source code
 	     (p "Source code "
 		,(basename (list-ref latest-source-info 2) ".tar.gz")
