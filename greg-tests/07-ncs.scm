@@ -75,3 +75,49 @@
 		 ; (format #t "   ncs-chain-differences returns ~s~%" ncs-chain-info)
 		 #t))))))
 
+
+
+;; Phil spotted this bug (it wouldn't refine across the residue 3->4
+;; peptide bond - because out out of order residues
+;;
+(greg-testcase "NCS Residue Range copy" #t
+    (lambda ()
+
+     ;; ls is a list of numbers.  Is it in ascending order?  return #t or #f.
+     (define (ascending-order? ls)
+       
+       (cond
+	((null? ls) #t)
+	((= (length ls) 1) #t)
+	((> (car ls) (car (cdr ls))) #f)
+	(else
+	 (ascending-order? (cdr ls)))))
+
+     ;; prepare the input
+     (let ((imol (read-pdb rnase-pdb)))
+       (map (lambda (r)
+	      (delete-residue imol "B" r ""))
+	    (range 1 4))
+       ;; make the ghosts
+       (make-ncs-ghosts-maybe imol)
+       ;; evaluate the function to be tested
+       (copy-residue-range-from-ncs-master-to-others imol "A" 1 6)
+       ;; check the result.
+       (let* ((chain-id "B")
+	      (n-residues  (chain-n-residues chain-id imol))
+	      (seqnum-order (map (lambda (serial-number)
+				   (seqnum-from-serial-number imol chain-id serial-number))
+				 (range n-residues))))
+
+	 ;; return a boolean value 
+	 (if (ascending-order? seqnum-order)
+	     #t
+	     (begin
+	       (display seqnum-order)
+	       (newline)
+	       (display "fail")
+	       (newline)
+	       #f))))))
+
+       
+       
