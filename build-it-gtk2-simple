@@ -2224,7 +2224,7 @@ else
     echo 1 -------------------------------------------------------------------------
     $MAKE install
 fi
-) > $HOSTLOGDIR/12-guile-gtk.txt
+) > $HOSTLOGDIR/12-guile-gtk.txt 2>&1
 else
     echo not building guile-gtk:
 fi
@@ -2243,7 +2243,7 @@ cd guile-gui-0.2
 ./configure $generic_prefix
 $MAKE
 $MAKE install
-) > $HOSTLOGDIR/13-guile-gui.txt
+) > $HOSTLOGDIR/13-guile-gui.txt 2>&1
 else 
     echo not building guile-gui:
 fi
@@ -2260,7 +2260,7 @@ cd goosh-1.3
 ./configure $generic_prefix
 $MAKE
 $MAKE install
-) > $HOSTLOGDIR/14-goosh.txt
+) > $HOSTLOGDIR/14-goosh.txt 2>&1
 else 
     echo not building guile_goosh:
 fi
