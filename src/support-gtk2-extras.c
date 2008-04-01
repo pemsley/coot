@@ -1,4 +1,5 @@
 
+#include <stdio.h>		/* for stderr on FC 3 */
 #include "support.h"
 
 #if (GTK_MAJOR_VERSION > 1) 

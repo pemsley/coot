@@ -236,23 +236,20 @@
 ;;;
 (define (range first . second)
 
-  (if (and (number? first)
-	   (or (and (list? second)
-		    (number? (car second)))
-		(number? second)))
-
+  (if (number? first)
+		
       ;; OK input
-      (let ((r1 (if (list? second) first 0))
-	    (r2 (if (list? second) second first)))
+      (let ((n-low/n-high (if (= (length second) 0)
+			      (cons 0 first)
+			      (cons first (car second)))))
 	
-	(let ((ls '()))
-	  (while (< r1 r2)
-		 (set! ls (cons r1 ls))
-		 (set! r1 (+ r1 1)))
-	  (reverse ls)))
-
-      ;; bad input
-      '())) 
+	(let loop ((count (car n-low/n-high))
+		   (rng '()))
+	  (cond 
+	   ((>= count (cdr n-low/n-high)) (reverse rng))
+	   (else 
+	    (loop (+ count 1)
+		  (cons count rng))))))))
 
 ;; code from thi <ttn at mingle.glug.org>
 ;; 

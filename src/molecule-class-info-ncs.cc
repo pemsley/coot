@@ -1184,10 +1184,19 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 
 	       // There was no such residue already existing in the
 	       // "to" chain.  Let's create/add one.  Perhaps I need
-	       // InsResidue here?
+	       // InsResidue here?.
+	       //
+	       // 20080401.  Yes.  I do.  Needed to pass NCS residue range test.
 	       
 	       to_residue = coot::util::deep_copy_this_residue(from_residue, "", 1);
-	       to_chain->AddResidue(to_residue);
+
+	       int serial_number = find_serial_number_for_insert(to_residue->GetSeqNum(),
+								 to_chain->GetChainID());
+	       if (serial_number != -1) {
+		  to_chain->InsResidue(to_residue, serial_number);
+	       } else {
+		  to_chain->AddResidue(to_residue);
+	       }
 	       atom_sel.mol->FinishStructEdit();
 	    }
 	    

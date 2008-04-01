@@ -1555,19 +1555,17 @@ fi
 if [ "$build_gtk" = "" ] ; then 
    # if we are not building gtk, perhaps we should not build 
    # guile-gtk also?
-   for dir in ${install_top_dir} ; do
-      if test -e "${dir}/include/guile-gtk.h" ; then
-         echo installation has guile-gtk
-         if [ "$build_guile" != 1 ] ; then
-            build_guile_gtk=
-         else
-            build_guile_gtk=1
-         fi
+   if test -e "${install_top_dir}/include/guile-gtk.h" ; then
+      echo installation has guile-gtk
+      if [ "$build_guile" != 1 ] ; then
+         build_guile_gtk=
       else
-         echo installation does not have guile-gtk
          build_guile_gtk=1
       fi
-   done
+   else
+      echo installation does not have guile-gtk
+      build_guile_gtk=1
+   fi
 else 
    build_guile_gtk=1
 fi
