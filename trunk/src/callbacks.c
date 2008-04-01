@@ -8936,8 +8936,9 @@ on_model_toolbar_refine_togglebutton_toggled
     do_refine(0);		/* unclick button */
     
 }
+#endif	/* GTK_MAJOR_VERSION */
 
-
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_model_toolbar_regularize_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -8949,8 +8950,9 @@ on_model_toolbar_regularize_togglebutton_toggled
   else 
     do_regularize(0);		/* unclick button */
 }
+#endif	/* GTK_MAJOR_VERSION */
 
-
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_model_toolbar_fixed_atoms_button_clicked
                                         (GtkButton       *button,
@@ -8959,8 +8961,10 @@ on_model_toolbar_fixed_atoms_button_clicked
   GtkWidget *w = wrapped_create_fixed_atom_dialog();
   gtk_widget_show(w);
 }
+#endif /*  GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_model_toolbar_rigid_body_fit_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -8974,8 +8978,9 @@ on_model_toolbar_rigid_body_fit_togglebutton_toggled
      do_rigid_body_refine(0);
   }
 }
+#endif	/* GTK_MAJOR_VERSION */
 
-
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_rot_trans_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -8989,8 +8994,10 @@ on_model_toolbar_rot_trans_togglebutton_toggled
   }
    
 }
+#endif	/* GTK_MAJOR_VERSION  */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_auto_fit_rotamer_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9002,8 +9009,10 @@ on_model_toolbar_auto_fit_rotamer_togglebutton_toggled
   else 
     setup_auto_fit_rotamer(0);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_rotamers_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9015,8 +9024,10 @@ on_model_toolbar_rotamers_togglebutton_toggled
    else 
       setup_rotamers(0);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_edit_chi_angles_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9030,8 +9041,10 @@ on_model_toolbar_edit_chi_angles_togglebutton_toggled
     set_show_chi_angle_bond(0);
   }
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_flip_peptide_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9043,8 +9056,10 @@ on_model_toolbar_flip_peptide_togglebutton_toggled
   else 
      do_pepflip(0);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_sidechain_180_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9056,8 +9071,9 @@ on_model_toolbar_sidechain_180_togglebutton_toggled
   else 
     setup_180_degree_flip(0);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
-
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_mutate_and_autofit_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9069,8 +9085,10 @@ on_model_toolbar_mutate_and_autofit_togglebutton_toggled
   else 
      setup_mutate_auto_fit(0);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_simple_mutate_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9082,8 +9100,10 @@ on_model_toolbar_simple_mutate_togglebutton_toggled
    else 
       setup_mutate(0);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_find_water_button_clicked
                                         (GtkButton       *button,
@@ -9093,8 +9113,10 @@ on_model_toolbar_find_water_button_clicked
    fill_find_waters_dialog(widget);
    gtk_widget_show(widget);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_add_terminal_residue_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9106,8 +9128,10 @@ on_model_toolbar_add_terminal_residue_togglebutton_toggled
   else 
     do_add_terminal_residue(0);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_add_atom_button_clicked
                                         (GtkButton       *button,
@@ -9115,8 +9139,10 @@ on_model_toolbar_add_atom_button_clicked
 {
    place_atom_at_pointer();
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_clear_pending_picks_button_clicked
                                         (GtkButton       *button,
@@ -9124,8 +9150,10 @@ on_model_toolbar_clear_pending_picks_button_clicked
 {
    clear_pending_picks();
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_delete_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
@@ -9133,25 +9161,30 @@ on_model_toolbar_delete_button_clicked (GtkButton       *button,
   GtkWidget *widget = wrapped_create_delete_item_dialog();
   gtk_widget_show(widget);
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_undo_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
    apply_undo();
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_redo_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
   apply_redo();
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_icons_and_text1_activate
                                         (GtkMenuItem     *menuitem,
@@ -9163,9 +9196,10 @@ on_model_toolbar_icons_and_text1_activate
   }
 
 }
-#endif // GTK_MAJOR_VERSION
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_icons1_activate       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -9174,10 +9208,11 @@ on_model_toolbar_icons1_activate       (GtkMenuItem     *menuitem,
   if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS); 
   }
-
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_text1_activate        (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -9186,19 +9221,22 @@ on_model_toolbar_text1_activate        (GtkMenuItem     *menuitem,
   if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT); 
   }
-
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_setting1_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   /* I dont think anything needs to happen here */
-
 }
+#endif	/* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION > 1) 
+#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5))
 void
 on_model_toolbar_menutoolbutton1_show_menu
                                         (GtkMenuToolButton *menutoolbutton,
@@ -9207,7 +9245,8 @@ on_model_toolbar_menutoolbutton1_show_menu
   /* I dont think anything needs to happen here */
 
 }
-#endif // GTK_MAJOR_VERSION
+#endif /* GTK_MINOR_VERSION */
+#endif /* GTK_MAJOR_VERSION */
 
 
 void

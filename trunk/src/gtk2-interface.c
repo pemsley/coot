@@ -6704,7 +6704,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox163);
   gtk_container_add (GTK_CONTAINER (alignment12), hbox163);
 
-  image12 = gtk_image_new_from_icon_name ("gtk-clear", GTK_ICON_SIZE_BUTTON);
+  image12 = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image12);
   gtk_box_pack_start (GTK_BOX (hbox163), image12, FALSE, FALSE, 0);
 
