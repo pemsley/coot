@@ -444,9 +444,11 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       
 	    }
 	 } else { 
-	    GtkWidget *widget = create_no_restraints_info_dialog();
-	    gtk_widget_show(widget);
-	 } 
+	    if (use_graphics_interface_flag) { 
+	       GtkWidget *widget = create_no_restraints_info_dialog();
+	       gtk_widget_show(widget);
+	    }
+	 }
       }
    } else {
       std::cout << "No Atoms!!!!  This should never happen: " << std::endl;
