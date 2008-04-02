@@ -435,7 +435,7 @@ function setup_ccp4 {
       if test -e $setup_file ; then
          . $setup_file
       fi
-      setup_file=/lmb/dorset/linux_software/ccp4-6.0/include/ccp4.setup-bash
+      setup_file=/lmb/dorset/linux_software/ccp4-6.0/include/ccp4.setup-sh
       if test -e $setup_file ; then
          . $setup_file
       fi
