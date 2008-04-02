@@ -423,8 +423,9 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 				   std::string type,
 				   realtype value_dist, realtype value_dist_esd) {
 
-//    std::cout << "adding bond for " << comp_id << " " << atom_id_1
-// 	     << " " << atom_id_2 << " " << value_dist << std::endl;
+//     std::cout << "adding bond for " << comp_id << " " << atom_id_1
+// 	      << " " << atom_id_2 << " " << type << " " << value_dist
+// 	      << " " << value_dist_esd << std::endl;
 
    // add a bond restraint to the list for comp_id.
    // The list container for comp_id is a dictionary_residue_restraints_t
@@ -1028,25 +1029,25 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
 	 }
       }
 
-      s = mmCIFLoop->GetString("atom_id_1",j,ierr);
+      s = mmCIFLoop->GetString("atom_id_1", j, ierr);
       ierr_tot += ierr;
       if (s) 
 	 atom_id_1 = get_padded_name(s, comp_id_index);
 
-      s = mmCIFLoop->GetString("atom_id_2",j,ierr);
+      s = mmCIFLoop->GetString("atom_id_2", j, ierr);
       ierr_tot += ierr;
       if (s) 
 	 atom_id_2 = get_padded_name(s, comp_id_index);
 
-      s = mmCIFLoop->GetString("type",j,ierr);
+      s = mmCIFLoop->GetString("type", j, ierr);
       ierr_tot += ierr;
       if (s) 
 	 type = s;
 
-      ierr = mmCIFLoop->GetReal(value_dist, "value_dist",j);
+      ierr = mmCIFLoop->GetReal(value_dist, "value_dist", j);
       ierr_tot += ierr;
 
-      ierr = mmCIFLoop->GetReal(value_dist_esd, "value_dist_esd",j);
+      ierr = mmCIFLoop->GetReal(value_dist_esd, "value_dist_esd", j);
       ierr_tot += ierr;
 
       if (ierr_tot == 0) {
