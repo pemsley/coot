@@ -242,25 +242,39 @@
 ;; return a string of n spaces
 (define (n-spaces n)
 
-  (if (< n 1) 
-      ""
+  (if (= n 0) 
+      "."
       (let loop ((n n)
 		 (str ""))
 	(cond 
-	 ((< n 1) str)
-	 (else
-	  (loop (- n 1) (string-append "|" str)))))))
-
+	     ((< n 1) str)
+	     (else
+	      (loop (- n 1) (string-append "|" str)))))))
+  
 
 (define (make-page bin-list file-name)
 
+;  (define (build-log-page file-info page-type)
+;    (format #t "build-log-page on ~s~%" file-info)
+;    (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
+;		   (car (cdr (list-ref file-info 0)))
+;		   (if (eq? page-type 'log)
+;		       ".log"
+;		       "-testing.log")))
+
+  ;; link could be "xxx/build" or '('absolute "http://x.ac.uk/build")
+  ;; 
   (define (build-log-page file-info page-type)
-    ;; (format #t "build-log-page on ~s~%" file-info)
-    (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
-		   (car (cdr (list-ref file-info 0)))
-		   (if (eq? page-type 'log)
-		       ".log"
-		       "-testing.log")))
+    (format #t "build-log-page on ~s~%" file-info)
+    (let ((link (car (cdr (list-ref file-info 0)))))
+      (string-append 
+       (if (list? link)
+	   (car (cdr link))
+	   (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
+			  link))
+       (if (eq? page-type 'log)
+	   ".log"
+	   "-testing.log"))))
 
   ;; return a time, or #f
   (define (make-time-diff file-info now-time)
@@ -367,6 +381,9 @@
 
 	(list "binary-Linux-i386-fedora-3-python"
 	      "Linux-bunyip.chem.york.ac.uk/bunyip.chem.york.ac.uk")
+
+	(list "binary-Linux-i386-fedora-4-python-gtk2"
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2-build"))
 
 	(list "binary-Linux-i386-fedora-8-python-gtk2"
 	      "Linux-dragon.chem.york.ac.uk/gtk2-build")
