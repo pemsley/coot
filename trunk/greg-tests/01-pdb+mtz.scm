@@ -650,7 +650,9 @@
 	      (format #t "   No matching post CB (unaltconfed) - failing.~%")
 	      (throw 'fail)))
 	#t)))
+
 	   
+
 (greg-testcase "Libcif horne" #t
    (lambda ()
 
@@ -671,6 +673,9 @@
 		     (throw 'fail))
 		   
 		   (begin
+		     (with-auto-accept
+		      (regularize-zone imol "A" 1 1 "")) ; refine, no dictionary.  Used 
+                                                         ; to hang here with no graphics.
 		     (read-cif-dictionary horne-works-cif)
 		     (with-auto-accept
 		      (regularize-zone imol "A" 1 1 ""))
