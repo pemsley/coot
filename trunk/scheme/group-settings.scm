@@ -39,3 +39,8 @@
 (set! *reduce-command* "reduce")
 
     
+;; The rapper installation dir.  This is just a guess, that it is
+;; installed in the users home directory.
+;; 
+(define rapper-dir (append-dir-dir (getenv "$HOME") "rappermc"))
+
