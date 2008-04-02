@@ -28,9 +28,6 @@
 	   (else 
 	    (format #t "ignored: ~s~%" args)))))))
 	   
-;; The rapper installation dir, whatever that means.
-(define rapper-dir "rapper")
-
 
 (define (rapper-it imol chain-id start-resno end-reno sequence number-of-models)
 
