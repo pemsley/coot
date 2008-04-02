@@ -340,7 +340,8 @@
      file-name)))
       
 
-(let ((bin-list 
+(let ((file-name "/y/people/emsley/public_html/coot/build-info.html")
+      (bin-list 
        (list 
 	(list "binary-Linux-i386-fedora-6" 
 	      "Linux-bragg1.chem.york.ac.uk/bragg1.chem.york.ac.uk")
@@ -361,9 +362,6 @@
 	(list "binary-Linux-i386-redhat-8.0-python" 
 	      "Linux-bubbles/bubbles")
 
-	(list "binary-Linux-i386-fedora-3-python-gtk2"
-	      "Linux-bunyip.chem.york.ac.uk/gtk2-build")
-
 	(list "binary-Linux-i386-fedora-3"
 	      "Linux-bunyip.chem.york.ac.uk/bunyip.chem.york.ac.uk")
 
@@ -376,9 +374,13 @@
 	(list "binary-Linux-i386-fedora-8"
 	      "Linux-dragon.chem.york.ac.uk/dragon.chem.york.ac.uk")
 
-	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" #f)))
+	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
+	      "ubuntu-6.06/gtk2-build")
 
-      (file-name "/y/people/emsley/public_html/coot/build-info.html"))
+	; (list "binary-Linux-i386-fedora-3-python-gtk2"
+        ;     "Linux-bunyip.chem.york.ac.uk/gtk2-build")
+	)))
+
   (make-page bin-list file-name))
 
 
