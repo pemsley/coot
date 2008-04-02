@@ -161,9 +161,10 @@ namespace coot {
       basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
 
 	 dist_ = dist_in;
-	 dist_esd_ = dist_esd_in; 
+	 dist_esd_ = dist_esd_in;
+	 type_ = type;
       }
-   
+      std::string type() const { return type_; }
       double dist() const { return dist_; }
       double esd () const { return dist_esd_;}
    };
