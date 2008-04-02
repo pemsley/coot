@@ -689,7 +689,9 @@ namespace coot {
       
 
    }
-   
+   std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);
+   std::ofstream& operator<<(std::ofstream& s, const util::quaternion &q);
+   std::ostream& operator<<(std::ostream& s, const atom_spec_t &spec);
 }
 
 #endif // HAVE_COOT_COORD_UTILS_HH
