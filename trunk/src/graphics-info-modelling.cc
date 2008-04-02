@@ -1165,8 +1165,10 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 	 }
 	 // 
       } else {
-	 GtkWidget *w = create_rigid_body_refinement_failed_dialog();
-	 gtk_widget_show(w);
+	 if (use_graphics_interface_flag) { 
+	    GtkWidget *w = create_rigid_body_refinement_failed_dialog();
+	    gtk_widget_show(w);
+	 }
       } 
    }
 }
@@ -1398,8 +1400,10 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    if (mmatoms.size() == 0) { 
 	       std::cout << "WARNING: failed to find a fit for terminal residue"
 			 << std::endl;
-	       GtkWidget *w = create_add_terminal_residue_finds_none_dialog();
-	       gtk_widget_show(w);
+	       if (use_graphics_interface_flag) { 
+		  GtkWidget *w = create_add_terminal_residue_finds_none_dialog();
+		  gtk_widget_show(w);
+	       }
 
 	    } else { 
 
