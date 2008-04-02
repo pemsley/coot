@@ -215,7 +215,7 @@
 
 
       (add-simple-coot-menu-menuitem 
-       menu "Apply NCS loop..."
+       menu "Copy NCS Region..."
        (lambda ()
 	 (generic-chooser-and-entry "Apply NCS Range from Master"
 				    "Master Chain ID"
