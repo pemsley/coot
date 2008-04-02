@@ -426,6 +426,15 @@ function make_tar {
     fi
 }
 
+function ssh_copy { 
+
+    bin_tar_file=$1
+    if [ "$domainname" = "biop" ] ; then
+       $HOME/bin/sput-with-dir $bin_tar_file        public_html/software/binaries/nightlies/pre-release/
+       $HOME/bin/sput-with-dir $bin_tar_file.md5sum public_html/software/binaries/nightlies/pre-release/
+    fi    
+}
+
 function setup_ccp4 {
 
    # we have access to $OS and $arch.
@@ -2532,7 +2541,11 @@ if [ $r = 0 ] ; then
          # original full fat:
          # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
          # slimmed:
-	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+
+         bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+	 make_tar `basename $slim_dir` $bin_tar_file
+         # copy over to York if we are in biop
+         ssh_copy $bin_tar_file
 
          # update the ChangeLog, README and RELEASE-NOTES
          cd "$build_dir"
