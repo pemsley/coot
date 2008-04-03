@@ -279,7 +279,7 @@ void
 coot::dictionary_residue_restraints_t::clear_dictionary_residue() {
 
    comp_id = ""; 
-   residue_info = coot::dict_chem_comp_t("", "", "", 0, 0, "");
+   residue_info = coot::dict_chem_comp_t("", "", "", "", 0, 0, "");
    has_partial_charges_flag = 0;
 
    // need different constructors.
@@ -306,7 +306,7 @@ coot::protein_geometry::mon_lib_add_chem_comp(const std::string &comp_id,
 // 	     << description_level << ": :" << number_atoms_all << ": :"
 // 	     << number_atoms_nh << std::endl;
 
-   coot::dict_chem_comp_t ri(three_letter_code, name, group, number_atoms_all, number_atoms_nh,
+   coot::dict_chem_comp_t ri(comp_id, three_letter_code, name, group, number_atoms_all, number_atoms_nh,
 			     description_level);
    short int ifound = 0;
 
@@ -739,6 +739,12 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 	    description_level = s;  // e.g. "." for full, I think
 
 	 if (ierr_tot == 0) {
+	    // std::cout << "in chem_comp description_level is :" << description_level << ":" << std::endl;
+	    // if there is a "." in the file description_level is "".
+	    std::cout << "Adding :" << comp_id << ": :" << three_letter_code << ": :" << name << ": :"
+		      << group << ": " << number_atoms_all << " "
+		      << number_atoms_nh << " :" << description_level << ":" << std::endl;
+
 	    mon_lib_add_chem_comp(comp_id, three_letter_code, name,
 				  group, number_atoms_all, number_atoms_nh,
 				  description_level);
