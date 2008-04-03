@@ -53,6 +53,27 @@
         (set! ls (cons file ls))))))
 
 
+;;; range: works like the eponymous python function
+;;; e.g. (range 3) -> '(0, 1, 2)
+;;; e.g. (range 1 3) -> '(1, 2)
+;;;
+(define (range first . second)
+
+  (if (number? first)
+		
+      ;; OK input
+      (let ((n-low/n-high (if (= (length second) 0)
+			      (cons 0 first)
+			      (cons first (car second)))))
+	
+	(let loop ((count (car n-low/n-high))
+		   (rng '()))
+	  (cond 
+	   ((>= count (cdr n-low/n-high)) (reverse rng))
+	   (else 
+	    (loop (+ count 1)
+		  (cons count rng))))))))
+
 ;; where is the pre-release tar.gz file and how old is it?
 ;; binary-match-string is a string unique to that binary distribution
 ;; 
@@ -230,8 +251,8 @@
 (define (get-svn-revision)
   (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot"))
 	(current-dir (getcwd)))
-    (format #t "coot-dir: ~s~%" coot-dir)
-    (format #t "curr-dir: ~s~%" current-dir)
+    ; (format #t "coot-dir: ~s~%" coot-dir)
+    ; (format #t "curr-dir: ~s~%" current-dir)
     (chdir coot-dir)
     (let ((s (shell-command-to-string "svn -qu status")))
       (chdir current-dir)
@@ -265,7 +286,7 @@
   ;; link could be "xxx/build" or '('absolute "http://x.ac.uk/build")
   ;; 
   (define (build-log-page file-info page-type)
-    (format #t "build-log-page on ~s~%" file-info)
+    ; (format #t "build-log-page on ~s~%" file-info)
     (let ((link (car (cdr (list-ref file-info 0)))))
       (string-append 
        (if (list? link)
@@ -283,6 +304,77 @@
 	(let* ((most-time 2000000)
 	       (time-diff-pre (- now-time (car (list-ref file-info 3)))))
 	  (if (< time-diff-pre most-time) time-diff-pre most-time))))
+
+    
+
+  ;; 
+  (define (format-binary-cell file-info now-time)
+    (if (not file-info)
+	" "
+	(let* ((make-links? (car (cdr (car file-info))))
+	       (time-diff (make-time-diff file-info now-time))
+	       (ns (n-spaces (time-diff->n-spaces time-diff)))
+	       (colour (cond
+			((eq? time-diff #f) "#303030")
+			((< time-diff (* 60 60 24)) "#80dd80")
+			(else 
+			 "#dd8080"))))
+
+	  (if (= (length file-info) 2)
+	      ;; a "not found" binary
+	      `(p 
+		,(car (list-ref file-info 0)) '(b " not found")
+		(br)
+		(table (@ (border 1) (bgcolor "#303030"))
+		       (tr (td ,(n-spaces 100))))
+		(a (@ href ,(build-log-page file-info 'log)) build-log)
+		" "
+		(a (@ href ,(build-log-page file-info 'test)) test-log))
+	      ;; a regular binary cell
+	      `(p 
+		,(car (car file-info)) ; binary type string
+		" "
+		,(car (cdr file-info)) ; revision number
+
+		;; entities to pad the table
+		(*ENTITY* "nbsp")
+		(*ENTITY* "nbsp")
+		(*ENTITY* "nbsp")
+		(br)
+		,(time-text (list-ref file-info 2))
+		" "
+		,(if make-links?
+		     `(a (@ href ,(build-log-page file-info 'log)) build-log)
+		     "")
+		" "
+		,(if make-links?
+		     `(a (@ href ,(build-log-page file-info 'test)) test-log)
+		     "")
+		(table (@ (border 1) (bgcolor ,colour))
+		       (tr (td ,ns)))
+		)))))
+
+
+  ;; 
+  (define (pair-up ls)
+    
+    (let loop ((ls ls)
+	       (pairs '())
+	       (running-item #f))
+      (cond 
+       ((null? ls) (reverse (if running-item
+				(cons
+				 (list running-item #f)
+				 pairs)
+				pairs)))
+       (running-item
+	(loop (cdr ls) 
+	      (cons (list running-item (car ls))
+		    pairs)
+	      #f))
+       (else (loop (cdr ls)
+		   pairs
+		   (car ls))))))
 
 
   (let ((svn-log-page "http://www.ysbl.york.ac.uk/~emsley/software/pre-release/svn-log")
@@ -304,11 +396,13 @@
 	    (body 
 	     (h2 "Coot SVN and Build Summary")
 	     (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
+
 	     ;; repository version
 	     (p ("SVN Repository Revision: " 
 		 ,(get-svn-revision) 
 		 " "
 		 (a (@ href ,svn-log-page) "svn log")))
+
 	     ;; source code
 	     (p "Source code "
 		,(basename (list-ref latest-source-info 2) ".tar.gz")
@@ -316,46 +410,16 @@
 		,(list-ref latest-source-info 1)
 		(br)
 		,(time-text (oldness-info latest-source-info)))
-	     ;; binary targets
-	     ,(let ((now-time (current-time)))
-		(map (lambda (file-info)
-		       (format #t "file-info ~s~%" file-info)
-		       (let* ((make-links? (car (cdr (car file-info))))
-			      (time-diff (make-time-diff file-info now-time))
-			      (ns (n-spaces (time-diff->n-spaces time-diff)))
-			      (colour (cond
-				       ((eq? time-diff #f) "#303030")
-				       ((< time-diff (* 60 60 24)) "#80dd80")
-				       (else 
-					"#dd8080"))))
 
-			 (if (= (length file-info) 2)
-			     `(p 
-			       ,(car (list-ref file-info 0)) '(b " not found")
-			       (br)
-			       (table (@ (border 1) (bgcolor "#303030"))
-				      (tr (td ,(n-spaces 100))))
-			       (a (@ href ,(build-log-page file-info 'log)) build-log)
-			       " "
-			       (a (@ href ,(build-log-page file-info 'test)) test-log))
-			     `(p 
-			       ,(car (car file-info))
-			       " "
-			       ,(car (cdr file-info))
-			       (br)
-			       ,(time-text (list-ref file-info 2))
-			       " "
-			       ,(if make-links?
-				    `(a (@ href ,(build-log-page file-info 'log)) build-log)
-				    "")
-			       " "
-			       ,(if make-links?
-				    `(a (@ href ,(build-log-page file-info 'test)) test-log)
-				    "")
-			       (table (@ (border 1) (bgcolor ,colour))
-				      (tr (td ,ns)))
-			       ))))
-		     binary-file-infos))))
+	     ;; binary targets
+	     (table 
+	      (@ border 0)
+	      ,(let ((now-time (current-time)))
+		 (map (lambda (file-info-pair)
+			`(tr
+			  (td ,(format-binary-cell (list-ref file-info-pair 0) now-time))
+			  (td ,(format-binary-cell (list-ref file-info-pair 1) now-time))))
+		      (pair-up binary-file-infos))))))
      file-name)))
       
 
@@ -399,6 +463,7 @@
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
 	      "ubuntu-6.06/gtk2-build")
 
+	; no guile-gtk for this one.
 	; (list "binary-Linux-i386-fedora-3-python-gtk2"
         ;     "Linux-bunyip.chem.york.ac.uk/gtk2-build")
 	)))
