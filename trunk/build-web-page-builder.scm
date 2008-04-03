@@ -285,7 +285,8 @@
 	  (if (< time-diff-pre most-time) time-diff-pre most-time))))
 
 
-  (let ((latest-source-info (latest-tar-gz source-tar-dir ""))
+  (let ((svn-log-page "http://www.ysbl.york.ac.uk/~emsley/software/pre-release/svn-log")
+	(latest-source-info (latest-tar-gz source-tar-dir ""))
 	(binary-file-infos
 	 (map
 	  (lambda (bin)
@@ -301,9 +302,13 @@
      `(html (head (title "Coot Build Summary Page")
 		  (meta (@ (http-equiv refresh) (content 600))))
 	    (body 
+	     (h2 "Coot SVN and Build Summary")
 	     (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
 	     ;; repository version
-	     (p ("SVN Repository Revision: " ,(get-svn-revision)))
+	     (p ("SVN Repository Revision: " 
+		 ,(get-svn-revision) 
+		 " "
+		 (a (@ href ,svn-log-page) "svn log")))
 	     ;; source code
 	     (p "Source code "
 		,(basename (list-ref latest-source-info 2) ".tar.gz")
