@@ -51,12 +51,14 @@
 namespace coot {
 
    class dict_chem_comp_t {
-      void setup_internal(const std::string &three_letter_code_in,
+      void setup_internal(const std::string &comp_id_in,
+			  const std::string &three_letter_code_in,
 			  const std::string &name_in,
 			  const std::string &group_in,
 			  int number_atoms_all_in,
 			  int number_atoms_nh_in,
 			  const std::string &description_level_in) {
+	 comp_id = comp_id_in;
 	 three_letter_code = three_letter_code_in;
 	 name = name_in;
 	 group = group_in;
@@ -72,16 +74,6 @@ namespace coot {
       int number_atoms_all;
       int number_atoms_nh;
       std::string description_level;
-      dict_chem_comp_t(const std::string &three_letter_code_in,
-		       const std::string &name_in,
-		       const std::string &group_in,
-		       int number_atoms_all_in,
-		       int number_atoms_nh_in,
-		       const std::string &description_level_in) {
-	 setup_internal(three_letter_code_in, name_in, group_in,
-			number_atoms_all_in, number_atoms_nh_in,
-			description_level_in);
-      }
       dict_chem_comp_t(const std::string &comp_id_in,
 		       const std::string &three_letter_code_in,
 		       const std::string &name_in,
@@ -89,13 +81,13 @@ namespace coot {
 		       int number_atoms_all_in,
 		       int number_atoms_nh_in,
 		       const std::string &description_level_in) {
-	 setup_internal(three_letter_code_in, name_in, group_in,
+	 setup_internal(comp_id_in,
+			three_letter_code_in, name_in, group_in,
 			number_atoms_all_in, number_atoms_nh_in,
 			description_level_in);
-	 comp_id = comp_id_in;
       }
       dict_chem_comp_t() { 
-	 setup_internal("", "", "", 0, 0, "");
+	 setup_internal("", "", "", "", 0, 0, "");
       }
    };
 
