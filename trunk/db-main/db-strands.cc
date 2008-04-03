@@ -38,16 +38,18 @@ coot::db_strands::db_strands() {
 	 ref_str_dir_str = d;
       else {
 
+	 // 20080403 recactivate this code
 	 // fall back to the db-main reference structures
-	 // std::string d1(PKGDATADIR); // prefix/share
-	 // std::string d2 = coot::util::append_dir_dir(d1, "coot");
-	 // std::string d3 = coot::util::append_dir_dir(d2, "reference-structures");
-	 // ref_str_dir_str = d3;
+	 std::string d1(PKGDATADIR); // $prefix/share/coot
+	 // std::string d2 = coot::util::append_dir_dir(d1, "coot"); // no need for this
+	 std::string d3 = coot::util::append_dir_dir(d1, "reference-structures");
+	 ref_str_dir_str = d3;
 
-	 ref_str_dir_str = "Undefined";
-	 std::cout << "WARNING:: reference structure directory undefined. COOT_REF_STRUCTS currently "
-		   << "\n"
-		   << "WARNING:: won't do\n";
+	 // Before 20080403
+// 	 ref_str_dir_str = "Undefined";
+// 	 std::cout << "WARNING:: reference structure directory undefined. COOT_REF_STRUCTS currently "
+// 		   << "\n"
+// 		   << "WARNING:: won't do\n";
       }
    } else {
       ref_str_dir_str = ds;
