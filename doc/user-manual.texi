@@ -250,7 +250,8 @@ behaviour.
   The directory containing a set of high-quality structures to be used
   as templates for fitting beta strands.  If this is not set, then the
   directory COOT_REF_SEC_STRUCTS will be used to find the reference pdb
-  files.
+  files.  That doesn't do any good currently.  The files in
+  COOT_REF_STRUCTS are not sufficiently well annotated.
 @item @env{COOT_REFMAC_LIB_DIR} 
 @cindex dictionary, cif 
   Refmac's CIF directory containing the monomers and link descriptions.
@@ -274,9 +275,7 @@ And of course extension language environment variables are used too:
 @end itemize
 
 Normally, these environment variables will be set correctly in the coot
-setup script (which can be found in the @t{setup} directory in the
-binary distribution.  See the web site (Section @ref{Web Page}) for
-setup details.
+shell script.
 
 @node Command Line Arguments
 @section Command Line Arguments
