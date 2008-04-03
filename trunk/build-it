@@ -2524,6 +2524,7 @@ if [ $coot_build_status != 0 ] ; then
 else 
     echo coot build was good.
     echo coot build was good. >&2
+    echo pass > $LOGS/$HOST-build-status
 fi
 echo done coot build. 
 echo done coot build. >&2
@@ -2567,6 +2568,7 @@ test_coot > $LOGS/$HOST-testing.log
 r=$?
 if [ $r = 0 ] ; then
    echo coot test passed
+   echo pass > $LOGS/$HOST-build-test
    if test "$do_nightlies" = "1" ; then 
       if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
@@ -2589,6 +2591,7 @@ if [ $r = 0 ] ; then
    fi
 else
    echo coot test failed
+   echo fail > $LOGS/$HOST-build-test
 fi
 
 
