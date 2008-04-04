@@ -981,7 +981,7 @@ execute_ligand_search_internal() {
    }
 
    // We need some python code here to match post-ligand-fit-gui
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
    if (graphics_info_t::use_graphics_interface_flag)
       safe_scheme_command("(post-ligand-fit-gui)");
 #else

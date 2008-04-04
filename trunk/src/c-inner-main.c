@@ -51,6 +51,9 @@
 #include "c-interface.h" /* needed for set_guile_gui_loaded_flag() and run_command_line_scripts() */
 #include "c-inner-main.h"
 
+#include <glob.h>
+
+
 #if defined (USE_GUILE) || defined (USE_PYTHON)
 extern void SWIG_init();
 
@@ -104,10 +107,18 @@ c_inner_main(void *closure, int argc, char** argv) {
   SCM thunk; 
   char *thunk_str; 
   char *tmp_str;
+  char *preferences_dir;
   struct stat buf;
   int istat;
   short int use_graphics_flag = use_graphics_interface_state();
-
+  int preferences_dir_status;
+  glob_t myglob;
+  int flags = 0;
+  char *glob_file;
+  size_t count;
+  char **p;
+  char *preferences_file;
+       
   // printf("::::::::::::::::: c_inner_main() SWIG_init\n");
   SWIG_init();   
 
@@ -218,13 +229,33 @@ c_inner_main(void *closure, int argc, char** argv) {
   directory = getenv("HOME"); 
 #endif
   if (directory) {
-     /* first the preferences  */
-#ifdef COOT_USE_GTK2_INTERFACE
-     check_file = does_file_exist(directory, preferences_filename);
-     if (check_file) {
-       printf("Loading Preferences ~/.coot-preferences.scm...");
-       scm_c_primitive_load(check_file);
-       printf("done. \n");
+     /* first the preferences  (but only if not on windows)*/
+#if defined COOT_USE_GTK2_INTERFACE && !defined WINDOWS_MINGW
+    tmp_str = (char *) malloc (strlen(directory) + 18);
+    strcpy (tmp_str, directory);
+    strcat (tmp_str, "/");	/* something else for Windwoes? */
+    strcat (tmp_str, ".coot-preferences");
+    preferences_dir = tmp_str;
+    istat = stat(preferences_dir, &buf);
+    preferences_dir_status = make_directory_maybe(preferences_dir);
+    if (preferences_dir_status != 0) { 
+      printf("WARNING:: preferences directory %s \n", preferences_dir);
+      printf("          does not exist and could not be created\n");
+     } else {
+       // load all .scm files
+       tmp_str = (char *) malloc (strlen(preferences_dir) + 6);
+       strcpy (tmp_str, preferences_dir);
+       strcat (tmp_str, "/");	/* something else for Windwoes? */
+       strcat (tmp_str, "*.scm");
+       glob_file = tmp_str;
+       glob(glob_file, flags, 0, &myglob);
+
+       for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
+         preferences_file = (*p);
+	 printf("INFO:: loading preferences file %s \n", preferences_file);
+	 scm_c_primitive_load(preferences_file);
+       }
+       globfree(&myglob);
      }
      /* update the preferences */;
      make_preferences_internal();
@@ -246,7 +277,8 @@ c_inner_main(void *closure, int argc, char** argv) {
 /* for now, make the user start the listener explictly. */
 /*   make_socket_listener_maybe(); */
 
-  /* tips gui? */
+  /* tips gui? (only for non-Windows systems)*/
+#ifdef WINDOWS_MINGW
   if (gui_lib) {
     if (use_graphics_flag) { 
       thunk_str = "(lambda () (tips-gui))";
@@ -254,6 +286,7 @@ c_inner_main(void *closure, int argc, char** argv) {
       scm_catch(SCM_BOOL_T, thunk, handler);
     }
   }
+#endif
 
 /*   scm_shell(argc, argv); */
 

@@ -68,7 +68,8 @@ pre_list = ["coot_utils.py",
 	    "group_settings.py"]
 post_list = ["coot_gui.py",
              "extensions.py",
-             "tips_gui.py"]
+             "tips_gui.py",
+             "coot_toolbuttons.py"]
 
 python_list = pre_list
 

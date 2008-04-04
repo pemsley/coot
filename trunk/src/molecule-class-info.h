@@ -1271,6 +1271,7 @@ class molecule_class_info_t {
    void new_coords_mol_in_display_control_widget() const;  // for a new molecule.
    void update_mol_in_display_control_widget() const; // changing the name of
                                                       // this mol (e.g on save).
+   void update_mol_in_simple_display_control_menu(GtkWidget *model_menu, int map_coords_mol_flag);
 
    //
    float map_sigma() const { return map_sigma_; }

@@ -330,6 +330,18 @@ create_window1 (void)
   GtkWidget *model_toolbar_icons1;
   GtkWidget *model_toolbar_icons_and_text1;
   GtkWidget *model_toolbar_text1;
+  GtkWidget *model_toolbar_display_manager_togglebutton;
+  GtkWidget *toolitem32;
+  GtkWidget *model_toolbar_display_manager_menubar;
+  GtkWidget *imagemenuitem1;
+  GtkWidget *image6561;
+  GtkWidget *imagemenuitem1_menu;
+  GtkWidget *maps1;
+  GtkWidget *maps1_menu;
+  GtkWidget *all1;
+  GtkWidget *models1;
+  GtkWidget *models1_menu;
+  GtkWidget *all2;
   GtkWidget *gtkhtml_frame;
   GtkTooltips *tooltips;
 
@@ -1676,6 +1688,56 @@ create_window1 (void)
   gtk_widget_show (model_toolbar_text1);
   gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_text1);
 
+  model_toolbar_display_manager_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_display_manager_togglebutton), _("Simple Display Manager"));
+  tmp_image = gtk_image_new_from_stock ("gtk-zoom-fit", tmp_toolbar_icon_size);
+  gtk_widget_show (tmp_image);
+  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_display_manager_togglebutton), tmp_image);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_display_manager_togglebutton);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_display_manager_togglebutton), tooltips, _("Use to quickly switch on/off models and maps"), NULL);
+
+  toolitem32 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem32);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem32);
+
+  model_toolbar_display_manager_menubar = gtk_menu_bar_new ();
+  gtk_container_add (GTK_CONTAINER (toolitem32), model_toolbar_display_manager_menubar);
+  gtk_tooltips_set_tip (tooltips, model_toolbar_display_manager_menubar, _("Use to quickly switch on/off models and maps"), NULL);
+
+  imagemenuitem1 = gtk_image_menu_item_new_with_mnemonic (_(" "));
+  gtk_widget_show (imagemenuitem1);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_display_manager_menubar), imagemenuitem1);
+
+  image6561 = gtk_image_new_from_stock ("gtk-zoom-fit", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image6561);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (imagemenuitem1), image6561);
+
+  imagemenuitem1_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (imagemenuitem1), imagemenuitem1_menu);
+
+  maps1 = gtk_menu_item_new_with_mnemonic (_("Maps"));
+  gtk_widget_show (maps1);
+  gtk_container_add (GTK_CONTAINER (imagemenuitem1_menu), maps1);
+
+  maps1_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (maps1), maps1_menu);
+
+  all1 = gtk_check_menu_item_new_with_mnemonic (_("All"));
+  gtk_widget_show (all1);
+  gtk_container_add (GTK_CONTAINER (maps1_menu), all1);
+  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (all1), TRUE);
+
+  models1 = gtk_menu_item_new_with_mnemonic (_("Models"));
+  gtk_widget_show (models1);
+  gtk_container_add (GTK_CONTAINER (imagemenuitem1_menu), models1);
+
+  models1_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (models1), models1_menu);
+
+  all2 = gtk_check_menu_item_new_with_mnemonic (_("All"));
+  gtk_widget_show (all2);
+  gtk_container_add (GTK_CONTAINER (models1_menu), all2);
+
   gtkhtml_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
 
@@ -2090,6 +2152,18 @@ create_window1 (void)
   g_signal_connect ((gpointer) model_toolbar_text1, "activate",
                     G_CALLBACK (on_model_toolbar_text1_activate),
                     NULL);
+  g_signal_connect ((gpointer) model_toolbar_display_manager_togglebutton, "toggled",
+                    G_CALLBACK (on_model_toolbar_display_manager_togglebutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) imagemenuitem1, "activate",
+                    G_CALLBACK (on_model_toolbar_setting1_activate),
+                    NULL);
+  g_signal_connect ((gpointer) all1, "activate",
+                    G_CALLBACK (on_all1_activate),
+                    NULL);
+  g_signal_connect ((gpointer) all2, "activate",
+                    G_CALLBACK (on_all2_activate),
+                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");
@@ -2384,6 +2458,18 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_icons1, "model_toolbar_icons1");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_icons_and_text1, "model_toolbar_icons_and_text1");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_text1, "model_toolbar_text1");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_display_manager_togglebutton, "model_toolbar_display_manager_togglebutton");
+  GLADE_HOOKUP_OBJECT (window1, toolitem32, "toolitem32");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_display_manager_menubar, "model_toolbar_display_manager_menubar");
+  GLADE_HOOKUP_OBJECT (window1, imagemenuitem1, "imagemenuitem1");
+  GLADE_HOOKUP_OBJECT (window1, image6561, "image6561");
+  GLADE_HOOKUP_OBJECT (window1, imagemenuitem1_menu, "imagemenuitem1_menu");
+  GLADE_HOOKUP_OBJECT (window1, maps1, "maps1");
+  GLADE_HOOKUP_OBJECT (window1, maps1_menu, "maps1_menu");
+  GLADE_HOOKUP_OBJECT (window1, all1, "all1");
+  GLADE_HOOKUP_OBJECT (window1, models1, "models1");
+  GLADE_HOOKUP_OBJECT (window1, models1_menu, "models1_menu");
+  GLADE_HOOKUP_OBJECT (window1, all2, "all2");
   GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
   GLADE_HOOKUP_OBJECT_NO_REF (window1, tooltips, "tooltips");
 

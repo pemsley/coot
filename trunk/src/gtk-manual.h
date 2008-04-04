@@ -132,6 +132,10 @@ void update_name_in_display_control_molecule_combo_box(GtkWidget *display_contro
 						       const gchar *name, 
 						       int n);
 
+void simple_display_control_mol_menu_item(GtkWidget *model_menu,
+					 int imol_no,
+					 int map_coords_mol_flag);
+
 
 void render_as_bonds_button_select(GtkWidget *item, GtkPositionType pos);
 void render_as_ca_bonds_button_select(GtkWidget *item, GtkPositionType pos);

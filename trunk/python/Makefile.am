@@ -38,5 +38,6 @@ EXTRA_DIST =    \
    ncs.py                tips_gui.py   tips.py          \
    coot_load_modules.py  filter.py     local_code.py	\
    coot_gui.py           libcheck.py   cns2coot.py      \
-   group_settings.py     ../src/coot.py $(TEXI_FILE)
+   group_settings.py     coot_toolbuttons.py		\
+   ../src/coot.py $(TEXI_FILE)
 
