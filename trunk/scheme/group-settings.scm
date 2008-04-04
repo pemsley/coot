@@ -42,5 +42,10 @@
 ;; The rapper installation dir.  This is just a guess, that it is
 ;; installed in the users home directory.
 ;; 
-(define rapper-dir (append-dir-dir (getenv "$HOME") "rappermc"))
+(define rapper-dir  
+  (let ((home (getenv "HOME")))
+    (if home
+	(append-dir-dir home "rappermc")
+	 #f)))
+
 
