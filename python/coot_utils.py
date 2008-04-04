@@ -1046,8 +1046,98 @@ def print_molecule_names():
 
     map(lambda molecule_number: printf( "    %s    %s\n" %(molecule_number, molecule_name(molecule_number))),
         molecule_number_list())
+
+# save the dialog positions to the coot_dialog_positions.py file in ./coot-preferences
+def save_dialog_positions_to_init_file():
+
+    def dump_positions_to_init_file(positions):
+        home = 'HOME'
+        if (os.name == 'nt'):
+            home = 'COOT_HOME'
+        init_file = os.path.join(os.getenv(home), ".coot-preferences", "coot_dialog_positions.py")
+        port = open(init_file, 'a')
+        port.write("# ----------------------------------------------------------")
+	port.write("# the following were written by extraction from a state file")
+        port.write("# ----------------------------------------------------------")
+        for position in positions:
+            port.write(position)
+        port.write("# -------------------------")
+        port.close()
+
+    # main line
+    save_state_file("0-coot.state.py")
+    port = open("0-coot.state.py", 'r')
+    try:
+        lines = port.readlines()
+    except:
+        lines = []
+    positions =[]
+    for line in lines:
+        if ("_dialog_position" in line):
+            print " Adding dialog position: ", line
+            positions.append(line)
+        elif ("set_go_to_atom_window_position" in line):
+            print " Adding dialog position: ", line
+            positions.append(line)
+    port.close()
+    dump_positions_to_preferences_file(positions)
+        
+# saves a string to a file!
+# if the string is already present dont do anything
+def save_string_to_file(string, filename):
     
-    
+    #home = 'HOME'
+    #if (os.name == 'nt'):
+    #    home = 'COOT_HOME'
+    init_file = filename
+    if (os.path.isfile(init_file)):
+        # init file exists
+        port = open(init_file, 'r+')
+        lines = port.readlines()
+    else:
+        port = open(init_file, 'w')
+        lines = []
+    string_written = False
+    for line in lines:
+        if string in line:
+            # line exists, dont write
+            string_written = True
+            break
+    if (not string_written):
+        # append the string
+        port.write((string + "\n"))
+    port.close()
+
+
+# removes a line containg all strings of the given list from file
+def remove_line_containing_from_file(remove_str_ls, filename):
+
+    #home = 'HOME'
+    #if (os.name == 'nt'):
+    #    home = 'COOT_HOME'
+    #init_file = os.path.join(os.getenv(home), ".coot.py")
+    init_file = filename
+    if (os.path.isfile(init_file)):
+        # init file exists
+        port = open(init_file, 'r')
+        lines = port.readlines()
+        port.close()
+    else:
+        print "BL INFO:: no %s file, so cannot remove line" %init_file
+        lines = []
+    if (lines):
+        import re, string
+        patt = string.join(remove_str_ls,'|')
+        re_patt = re.compile(patt)
+        tmp_ls = []
+        for line in lines:
+            result = re_patt.findall(line)
+            if (not len(result) == len(remove_str_ls)):
+                tmp_ls.append(line)
+        port = open(init_file, 'w')
+        lines = port.writelines(tmp_ls)
+        port.close()
+   
 
 #############
 # some re-definitions from coot python functions

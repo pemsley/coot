@@ -43,7 +43,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
    il = 2;
 #endif // USE_PYTHON
    
-#ifdef USE_GUILE
+#if defined USE_GUILE && ! defined WINDOWS_MINGW
    il = 1;
 #endif // USE_GUILE
 

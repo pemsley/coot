@@ -20,11 +20,6 @@
 import pygtk, gtk, pango
 import time
 
-# BL says: Havent been able to get the proper extensions to run,
-# so for now we just make a new window with a menubar
-# may be fixed at some point....
-# try to program it, so that we can easily switch to proper extension when
-# eventualy functional!?
 
 def add_coot_menu_separator(menu):
   sep = gtk.MenuItem()
@@ -464,6 +459,43 @@ if (have_coot_python):
 	lambda func: set_refinement_immediate_replacement(0))
 
 
+     def save_dialog_func():
+       post_model_fit_refine_dialog()
+       post_go_to_atom_window()
+
+       def delete_event(*args):
+         window.destroy()
+         return False
+       
+       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+       label_text = "   When happy, press \"Save\" to save   \n" + "   dialog positions"
+       label = gtk.Label(label_text)
+       h_sep = gtk.HSeparator()
+       cancel_button = gtk.Button("  Cancel  ")
+       go_button = gtk.Button("  Save  ")
+       vbox = gtk.VBox(False, 4)
+       hbox = gtk.HBox(False, 4)
+
+       hbox.pack_start(go_button,     False, False, 6)
+       hbox.pack_start(cancel_button, False, False, 6)
+       vbox.pack_start(label, False, False, 6)
+       vbox.pack_start(h_sep, False, False, 6)
+       vbox.pack_start(hbox,  False, False, 6)
+       window.add(vbox)
+
+       def go_func(*args):
+         save_dialog_positions_to_preferences_file()
+         window.destroy()
+         
+       go_button.connect("clicked", go_func)
+       cancel_button.connect("clicked", lambda w: window.destroy())
+
+       window.show_all()
+
+     add_simple_coot_menu_menuitem(menu, "Save Dialog Positions...",
+                                   lambda func: save_dialog_func())
+
+
      # ---------------------------------------------------------------------
      #     Views/Representations
      # ---------------------------------------------------------------------
@@ -546,7 +578,5 @@ if (have_coot_python):
 			lambda txt: save_views(txt)))
 
   else:
-	print "BL WARNING:: could not find the main_menubar! Sorry, no extensions!"
-
-# finally, show it
+	print "BL WARNING:: could not find the main_menubar! Sorry, no extensions menu!"
 

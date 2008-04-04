@@ -9245,6 +9245,37 @@ on_model_toolbar_menutoolbutton1_show_menu
   /* I dont think anything needs to happen here */
 
 }
+
+
+void
+on_model_toolbar_display_manager_togglebutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data)
+{
+  if (gtk_toggle_tool_button_get_active(toggletoolbutton)) {
+	g_print("BL DEBUG:: display menu toggled");
+  }
+  
+}
+
+
+void
+on_toolbar_display_manager_maps_all_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_toolbar_display_manager_molecules_all_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
 #endif /* GTK_MINOR_VERSION */
 #endif /* GTK_MAJOR_VERSION */
 
@@ -9982,6 +10013,21 @@ on_additional_representation1_activate (GtkMenuItem     *menuitem,
 void
 on_display_additional_representations_close_button_clicked
                                         (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+void
+on_all1_activate                       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_all2_activate                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 

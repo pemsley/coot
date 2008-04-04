@@ -112,7 +112,8 @@
 #endif 
 
 #if defined (USE_PYTHON)
-#include "Python.h" // for Py_Initialize(); 
+#include "Python.h" // for Py_Initialize();
+#include <glob.h>
 #define SWIG_init    init_coot
 #if defined(_WIN32) || defined(__WIN32__)
 #       if defined(_MSC_VER)
@@ -472,13 +473,36 @@ main (int argc, char *argv[]) {
      // load preferences file .coot_preferences.py
      // only GTK2
 #if COOT_USE_GTK2_INTERFACE
-     char *preferences_filename = ".coot_preferences.py";
-     if (directory) {
-       char *check_preferences_file = does_file_exist(directory, preferences_filename);
-       if (check_preferences_file) {
-	   std::cout << "Loading Preferences ~/.coot_preferences.py..." << std::endl;
-	   run_python_script(check_preferences_file);
+     std::string preferences_dir = graphics_info_t::add_dir_file(directory, ".coot-preferences");
+     int preferences_dir_status = make_directory_maybe(preferences_dir.c_str());
+     if (preferences_dir_status != 0) { 
+	std::cout << "WARNING preferences directory " << preferences_dir 
+                  << " does not exist and could not be created" << std::endl;;
+     } else {
+       // load all .py files
+       glob_t myglob;
+       int flags = 0;
+       //std::string glob_patt = "/*.py";
+       std::string glob_file = preferences_dir;
+       glob_file += "/*.py";
+       glob(glob_file.c_str(), flags, 0, &myglob);
+       size_t count;
+       
+       char **p;
+       for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
+         char *preferences_file(*p);
+	 std::cout << "INFO:: loading preferences file " << preferences_file
+		   << std::endl;
+	 run_python_script(preferences_file);
        }
+       globfree(&myglob);
+
+       //char *preferences_filename = ".coot_preferences.py";
+       //if (directory) {
+       //char *check_preferences_file = does_file_exist(directory, preferences_filename);
+       //if (check_preferences_file) {
+       //   std::cout << "Loading Preferences ~/.coot_preferences.py..." << std::endl;
+       //   run_python_script(check_preferences_file);
      }
      // update the preferences
      make_preferences_internal();

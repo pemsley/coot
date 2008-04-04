@@ -3531,6 +3531,12 @@ void
 on_model_toolbar_add_terminal_residue_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
+
+void
+on_model_toolbar_display_manager_togglebutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
 #endif /* GTK_MAJOR_VERSION */
 
 void
@@ -3579,6 +3585,15 @@ void
 on_model_toolbar_setting1_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
+void
+on_toolbar_display_manager_maps_all_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_toolbar_display_manager_molecules_all_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
 
 void
 on_scripting_python1_activate          (GtkMenuItem     *menuitem,
@@ -3676,3 +3691,10 @@ on_display_additional_representations_close_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
+void
+on_all1_activate                       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_all2_activate                       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

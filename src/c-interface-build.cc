@@ -356,7 +356,7 @@ void set_undo_molecule(int imol) {
   to which the "Undo" button applies. */
 void show_set_undo_molecule_chooser() {
 
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
 
    std::string s("(molecule-chooser-gui ");
    s += "\"Choose Molecule for Undo operations\" ";
@@ -6072,7 +6072,7 @@ PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
 /*  ----------------------------------------------------------------------- */
 void do_smiles_gui() {
 
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
    safe_scheme_command("(smiles-gui)");
 #else 
 #ifdef USE_PYGTK

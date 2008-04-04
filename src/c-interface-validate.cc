@@ -1534,7 +1534,7 @@ void gln_asn_b_factor_outliers(int imol) {
 	    for (int i=0; i<v.size(); i++) {
 	       std::cout << v[i].second << std::endl;
 	    }
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
 	    graphics_info_t g;
 	    std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
 	    for (int i=0; i<v.size(); i++) {

@@ -569,16 +569,16 @@ void save_preferences() {
   directory = (char*)getenv("HOME");
 #endif
 
-  directory += "/";
+  directory += "/.coot-preferences/";
 
 #ifdef USE_GUILE
-  preferences_name = ".coot-preferences.scm";
+  preferences_name = "coot-preferences.scm";
   file_name = directory + preferences_name;
   il = 1;
   istat = g.save_preference_file(file_name, il);
 #endif // USE_GUILE
 #ifdef USE_PYTHON
-  preferences_name = ".coot_preferences.py";
+  preferences_name = "coot_preferences.py";
   file_name = directory + preferences_name;
   il = 2;
   istat = g.save_preference_file(file_name, il);
@@ -1249,7 +1249,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 	    }
 	 }
 	 if (show_clash_gui_flag) { 
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
 	    graphics_info_t g;
 	    std::vector<std::string> cmd_strings;
 	    cmd_strings.push_back("interesting-things-gui");
@@ -1581,7 +1581,7 @@ void generic_objects_gui_wrapper() {
    cmd.push_back("generic-objects-gui");
    graphics_info_t g;
 
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
 
    std::string s = g.state_command(cmd, coot::STATE_SCM);
    safe_scheme_command(s);
