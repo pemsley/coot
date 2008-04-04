@@ -10,6 +10,8 @@
   http://www.jiscmail.ac.uk/lists/coot.html"
  "Use Ctrl Left-mouse to drag (for example) a blob of density to the
   the pointer"
+ "Slow recentering?  Try Draw -> Smooth Recentering and reduce the 
+  number of steps"
  "Want distance of the atoms to the pointer?  
   Use Measures -> Pointer Distances..."
  "To label an atom: Shift Left-mouse on it"
