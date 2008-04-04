@@ -1341,6 +1341,9 @@ build_libtool=1
 if test -e ${install_top_dir}/lib/libltdl.so.3 ; then
     build_libtool=
 fi
+if test -e ${install_top_dir}/lib/libltdl.la ; then
+    build_libtool=
+fi
 if test -z "$build_libtool" ; then
     echo installation has libtool
 else 
@@ -1352,7 +1355,12 @@ if test -e ${install_top_dir}/lib/libgmp.so.3 ; then
     echo installation has gmp
     build_gmp=
 else 
-    echo gmp should be built
+    if test -e ${install_top_dir}/lib/libgmp.la ; then
+       echo installation has gmp
+       build_gmp=
+    else
+       echo gmp should be built
+    fi
 fi
 
 
@@ -1456,7 +1464,6 @@ if test $? != 0 ; then
    echo python should be built
    build_python=1
    build_pygtk=1
-   build_pycairo=1
    build_pygobject=1
 else 
    python_version_installed=`python -V 2>&1`
@@ -1471,7 +1478,6 @@ else
          echo python  should be built
          build_python=1
          build_pygobject=1
-         build_pycairo=1
          build_pygtk=1
          ;;
    esac
@@ -1486,7 +1492,6 @@ if test -z "$build_pygobject" ; then
    else 
       echo pygobject NOT exists, pygobject should be built
       build_pygobject=1
-      build_pycairo=1
       build_pygtk=1
    fi      
 fi
@@ -1494,10 +1499,10 @@ fi
 
 # test for pygtk
 if test -z "$build_pygtk" ; then
-   if test -e $install_top_dir/lib/python2.5/site-packages/gtk-2.0/gtk/keysyms.py ; then
-      echo pygtk keysyms exists, no build pygtk
+   if test -e $install_top_dir/lib/pygtk/2.0/pygtk-demo.py ; then
+      echo pygtk demo exists, no build pygtk
    else 
-      echo pygtk keysyms NOT exists, pygtk should be built
+      echo pygtk demo NOT exists, pygtk should be built
       build_pygtk=1
    fi      
 fi
@@ -1542,8 +1547,14 @@ if [ "$build_gtk" = "" ] ; then
    if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
       build_gtkglext=
    fi
+   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
+      build_gtkglext=
+   fi
 else 
    if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
+      build_gtkglext=
+   fi
+   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
       build_gtkglext=
    fi
 fi
