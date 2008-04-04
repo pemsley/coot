@@ -4,6 +4,7 @@
              (sxml simple)
 	     (ice-9 string-fun)
 	     (ice-9 popen)
+	     (net http)
 	     (goosh)
 	     (ice-9 regex))
 
@@ -298,35 +299,62 @@
 	       (time-diff-pre (- now-time (car (list-ref file-info 3)))))
 	  (if (< time-diff-pre most-time) time-diff-pre most-time))))
 
+  ;; return "pass" or "fail" (actually, the contents of the link)
+  ;; 
+  (define (build-result-from-link file-info)
+  (let* ((link (car (cdr (list-ref file-info 0)))))
+    (if (not (list? link))
+	#f
+	(let* ((url (string-append (car (cdr link))
+				  "-build-status"))
+	       (res (call-with-output-string
+		     (lambda (port)
+		       (let ((initial-output-port (current-output-port)))
+			 (set-current-output-port port)
+			 (http-get url)
+			 (set-current-output-port initial-output-port))))))
+	  (if (string? res)
+	      (let ((l (string-length res)))
+		(if (not (> l 0))
+		    ""
+		    (substring res 0 (- l 1)))))))))
 
+  (define (markup text)
+    (if (not (string? text))
+	""
+	(if (string-match "pass" text)
+	    `(b (font (@ color "#209920")
+		      ,text))
+	    `(b (font (@ color "#bb2020")
+		      ,text)))))
+	
   ;; page-type is 'log or 'test.
-  ;; return "success" "fail" or " ".
+  ;; return "pass" "fail" or " ".
   (define (latest-build-result file-info page-type)
+    ; (format #t "file-info ~s~%" file-info)
     (let* ((link (car (cdr (list-ref file-info 0))))
-	   (file (if (list? link)
-		     #f
+	   (file (if (list? link) 
+		     'link
 		     (string-append "/y/people/emsley/public_html/build-logs/"
 				    link
 				    (if (eq? page-type 'log)
 					"-build-status"
 					"-test-status")))))
-      (if (not file)
-	  "-" 
-	  (if (not (file-exists? file))
-	      (begin 
-		(format #t "file does not exist ~s~%" file)
-		"not-found")
-	      (begin
-		(call-with-input-file file
-		  (lambda (port)
-		    (let ((text (read-line port)))
-		      (if (string? text)
-			  (if (string-match "pass" text)
-			      `(b (font (@ color "#209920")
-				    ,text))
-			      `(b (font (@ color "#bb2020")
-				     ,text)))
-			    " ")))))))))
+
+      (if (eq? file 'link)
+	  (let ((br (build-result-from-link file-info)))
+	    (markup br))
+
+	  (if (not file)
+	      "-" 
+	      (if (not (file-exists? file))
+		  (begin 
+		    (format #t "file does not exist ~s~%" file)
+		    '(b  (font (@ color "#bb2020")) "not-found"))
+		  (call-with-input-file file
+		    (lambda (port)
+		      (let ((text (read-line port)))
+			(markup text)))))))))
 			       
 
   ;; 
