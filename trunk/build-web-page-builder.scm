@@ -330,10 +330,10 @@
 		    (let ((text (read-line port)))
 		      (if (string? text)
 			  (if (string-match "pass" text)
-			      `(font (@ color "#30aa30")
-				    ,text)
-			      `(font (@ color "#cc3030")
-				     ,text))
+			      `(b (font (@ color "#209920")
+				    ,text))
+			      `(b (font (@ color "#bb2020")
+				     ,text)))
 			    " ")))))))))
 			       
 
