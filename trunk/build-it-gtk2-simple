@@ -2530,7 +2530,7 @@ if [ $clear_up_type != "" ] ; then
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
-test_coot > $LOGS/gtk2-build-testing.log
+test_coot > $LOGS/gtk2-test.log
 r=$?
 gtk2=-gtk2
 if [ $r = 0 ] ; then

@@ -275,14 +275,6 @@
 
 (define (make-page bin-list file-name)
 
-;  (define (build-log-page file-info page-type)
-;    (format #t "build-log-page on ~s~%" file-info)
-;    (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
-;		   (car (cdr (list-ref file-info 0)))
-;		   (if (eq? page-type 'log)
-;		       ".log"
-;		       "-testing.log")))
-
   ;; link could be "xxx/build" or '('absolute "http://x.ac.uk/build")
   ;; page-type is 'log or 'test
   ;; 
@@ -295,8 +287,8 @@
 	   (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
 			  link))
        (if (eq? page-type 'log)
-	   ".log"
-	   "-testing.log"))))
+	   "-build.log"
+	   "-test.log"))))
 
   ;; return a time, or #f
   (define (make-time-diff file-info now-time)
