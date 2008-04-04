@@ -284,6 +284,7 @@
 ;		       "-testing.log")))
 
   ;; link could be "xxx/build" or '('absolute "http://x.ac.uk/build")
+  ;; page-type is 'log or 'test
   ;; 
   (define (build-log-page file-info page-type)
     ; (format #t "build-log-page on ~s~%" file-info)
@@ -305,7 +306,36 @@
 	       (time-diff-pre (- now-time (car (list-ref file-info 3)))))
 	  (if (< time-diff-pre most-time) time-diff-pre most-time))))
 
-    
+
+  ;; page-type is 'log or 'test.
+  ;; return "success" "fail" or " ".
+  (define (latest-build-result file-info page-type)
+    (let* ((link (car (cdr (list-ref file-info 0))))
+	   (file (if (list? link)
+		     #f
+		     (string-append "/y/people/emsley/public_html/build-logs/"
+				    link
+				    (if (eq? page-type 'log)
+					"-build-status"
+					"-test-status")))))
+      (if (not file)
+	  "-" 
+	  (if (not (file-exists? file))
+	      (begin 
+		(format #t "file does not exist ~s~%" file)
+		"not-found")
+	      (begin
+		(call-with-input-file file
+		  (lambda (port)
+		    (let ((text (read-line port)))
+		      (if (string? text)
+			  (if (string-match "pass" text)
+			      `(font (@ color "#30aa30")
+				    ,text)
+			      `(font (@ color "#cc3030")
+				     ,text))
+			    " ")))))))))
+			       
 
   ;; 
   (define (format-binary-cell file-info now-time)
@@ -352,6 +382,9 @@
 		     "")
 		(table (@ (border 1) (bgcolor ,colour))
 		       (tr (td ,ns)))
+		,(latest-build-result file-info 'log)
+		" " 
+		,(latest-build-result file-info 'test)
 		)))))
 
 
@@ -431,14 +464,14 @@
 	(list "binary-Linux-i386-fedora-6-python"  
 	      "Linux-bragg1.chem.york.ac.uk/bragg1.chem.york.ac.uk")
 	(list "binary-Linux-i386-fedora-6-python-gtk2"
-	      "Linux-bragg1.chem.york.ac.uk/gtk2-build")
+	      "Linux-bragg1.chem.york.ac.uk/gtk2")
 
 	(list "binary-Linux-i386-fedora-5" 
 	      "Linux-bragg3.chem.york.ac.uk/bragg3.chem.york.ac.uk")
 	(list "binary-Linux-i386-fedora-5-python" 
 	      "Linux-bragg3.chem.york.ac.uk/bragg3.chem.york.ac.uk")
 	(list "binary-Linux-i386-fedora-5-python-gtk2"
-	      "Linux-bragg3.chem.york.ac.uk/gtk2-build")
+	      "Linux-bragg3.chem.york.ac.uk/gtk2")
 
 	(list "binary-Linux-i386-redhat-8.0" 
 	      "Linux-bubbles/bubbles")
@@ -452,20 +485,20 @@
 	      "Linux-bunyip.chem.york.ac.uk/bunyip.chem.york.ac.uk")
 
 	(list "binary-Linux-i386-fedora-4-python-gtk2"
-	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2-build"))
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
 
 	(list "binary-Linux-i386-fedora-8-python-gtk2"
-	      "Linux-dragon.chem.york.ac.uk/gtk2-build")
+	      "Linux-dragon.chem.york.ac.uk/gtk2")
 
 	(list "binary-Linux-i386-fedora-8"
 	      "Linux-dragon.chem.york.ac.uk/dragon.chem.york.ac.uk")
 
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
-	      "ubuntu-6.06/gtk2-build")
+	      "ubuntu-6.06/gtk2")
 
 	; no guile-gtk for this one.
 	; (list "binary-Linux-i386-fedora-3-python-gtk2"
-        ;     "Linux-bunyip.chem.york.ac.uk/gtk2-build")
+        ;     "Linux-bunyip.chem.york.ac.uk/gtk2")
 	)))
 
   (make-page bin-list file-name))
