@@ -277,7 +277,7 @@
 (define (make-page bin-list file-name)
 
   ;; link could be "xxx/build" or '('absolute "http://x.ac.uk/build")
-  ;; page-type is 'log or 'test
+  ;; page-type is 'build or 'test
   ;; 
   (define (build-log-page file-info page-type)
     ; (format #t "build-log-page on ~s~%" file-info)
@@ -287,7 +287,7 @@
 	   (car (cdr link))
 	   (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
 			  link))
-       (if (eq? page-type 'log)
+       (if (eq? page-type 'build)
 	   "-build.log"
 	   "-test.log"))))
 
@@ -301,12 +301,14 @@
 
   ;; return "pass" or "fail" (actually, the contents of the link)
   ;; 
-  (define (build-result-from-link file-info)
+  (define (build-result-from-link file-info page-type)
   (let* ((link (car (cdr (list-ref file-info 0)))))
     (if (not (list? link))
 	#f
 	(let* ((url (string-append (car (cdr link))
-				  "-build-status"))
+				  "-" 
+				  (symbol->string page-type)
+				  "-status"))
 	       (res (call-with-output-string
 		     (lambda (port)
 		       (let ((initial-output-port (current-output-port)))
@@ -328,7 +330,7 @@
 	    `(b (font (@ color "#bb2020")
 		      ,text)))))
 	
-  ;; page-type is 'log or 'test.
+  ;; page-type is 'build or 'test.
   ;; return "pass" "fail" or " ".
   (define (latest-build-result file-info page-type)
     ; (format #t "file-info ~s~%" file-info)
@@ -337,12 +339,12 @@
 		     'link
 		     (string-append "/y/people/emsley/public_html/build-logs/"
 				    link
-				    (if (eq? page-type 'log)
+				    (if (eq? page-type 'build)
 					"-build-status"
 					"-test-status")))))
 
       (if (eq? file 'link)
-	  (let ((br (build-result-from-link file-info)))
+	  (let ((br (build-result-from-link file-info page-type)))
 	    (markup br))
 
 	  (if (not file)
@@ -355,15 +357,20 @@
 		    (lambda (port)
 		      (let ((text (read-line port)))
 			(markup text)))))))))
-			       
+
+  ;; string /y/people/emsley etc and make a URL
+  (define (url-from-file-name file-name)
+    (string-append "/~emsley" (substring file-name 28)))
+    
   (define (get-binary-tar-file-url file-info)
+    (format #t "get-binary-tar-file-url from ~s~%" file-info)
     (let* ((bits (list-ref file-info 3))
 	   (file-name (list-ref bits 2)))
-      (string-append "/~emsley" (substring file-name 28))))
+      (url-from-file-name file-name)))
 
   ;; 
   (define (format-binary-cell file-info now-time)
-    (format #t "formatting ~s~%" file-info)
+    (format #t "formatting binary cell ~s~%" file-info)
     (if (not file-info)
 	" "
 	(let* ((make-links? (car (cdr (car file-info))))
@@ -382,7 +389,7 @@
 		(br)
 		(table (@ (border 1) (bgcolor "#303030"))
 		       (tr (td ,(n-spaces 100))))
-		(a (@ href ,(build-log-page file-info 'log)) build-log)
+		(a (@ href ,(build-log-page file-info 'build)) build-log)
 		" "
 		(a (@ href ,(build-log-page file-info 'test)) test-log))
 	      ;; a regular binary cell
@@ -400,7 +407,7 @@
 		,(time-text (list-ref file-info 2))
 		" "
 		,(if make-links?
-		     `(a (@ href ,(build-log-page file-info 'log)) build-log)
+		     `(a (@ href ,(build-log-page file-info 'build)) build-log)
 		     "")
 		" "
 		,(if make-links?
@@ -408,7 +415,7 @@
 		     "")
 		(table (@ (border 1) (bgcolor ,colour))
 		       (tr (td ,ns)))
-		,(latest-build-result file-info 'log)
+		,(latest-build-result file-info 'build)
 		" " 
 		,(latest-build-result file-info 'test)
 		)))))
@@ -464,7 +471,9 @@
 
 	     ;; source code
 	     (p "Source code "
-		,(basename (list-ref latest-source-info 2) ".tar.gz")
+		,(let ((f (basename (list-ref latest-source-info 2) ".tar.gz"))
+		       (l (url-from-file-name (list-ref latest-source-info 2))))
+		   `(a (@ href ,l) ,f))
 		" "
 		,(list-ref latest-source-info 1)
 		(br)
