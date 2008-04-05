@@ -356,9 +356,14 @@
 		      (let ((text (read-line port)))
 			(markup text)))))))))
 			       
+  (define (get-binary-tar-file-url file-info)
+    (let* ((bits (list-ref file-info 3))
+	   (file-name (list-ref bits 2)))
+      (string-append "/~emsley" (substring file-name 28))))
 
   ;; 
   (define (format-binary-cell file-info now-time)
+    (format #t "formatting ~s~%" file-info)
     (if (not file-info)
 	" "
 	(let* ((make-links? (car (cdr (car file-info))))
@@ -382,7 +387,8 @@
 		(a (@ href ,(build-log-page file-info 'test)) test-log))
 	      ;; a regular binary cell
 	      `(p 
-		,(car (car file-info)) ; binary type string
+		(a (@ href ,(get-binary-tar-file-url file-info)) 
+		   ,(car (car file-info))) ; binary type string
 		" "
 		,(car (cdr file-info)) ; revision number
 
