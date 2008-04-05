@@ -2496,12 +2496,12 @@ coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
     echo coot build failed, exiting. >&2
-    echo fail > $LOGS/gtk2-build-status
+    echo fail-build > $LOGS/gtk2-build-status
     exit 2
 else 
     echo coot build was good.
     echo coot build was good. >&2
-    echo pass > $LOGS/gtk2-build-status
+    echo pass-build > $LOGS/gtk2-build-status
 fi
 echo done coot build. 
 echo done coot build. >&2
@@ -2548,7 +2548,7 @@ if [ $r = 0 ] ; then
    echo ========================
    echo '   ' coot test passed
    echo ========----============
-   echo pass > $LOGS/gtk2-test-status
+   echo pass-test > $LOGS/gtk2-test-status
    if test "$do_nightlies" = "1" ; then 
       if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
@@ -2577,7 +2577,7 @@ else
    echo ========================
    echo '  ' coot test failed
    echo ========================
-   echo fail > $LOGS/gtk2-test-status
+   echo fail-test > $LOGS/gtk2-test-status
 fi
 
 
