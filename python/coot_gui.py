@@ -1278,7 +1278,7 @@ def add_simple_coot_menu_menuitem(menu,menu_item_label,activate_function):
 
 # If a toolbutton with label button_label is not found in the coot main
 # toolbar, then create it and return it.
-# If it does exist, the icon and callback_function will be overwritten.
+# If it does exist, the icon will be overwritten. The callback function wont!
 # [NOTE: if its a Coot internal Toolbar you can
 # only add a function but not overwrite its internal function!!!]
 #
@@ -1320,11 +1320,14 @@ def coot_toolbar_button(*args):
       if button_label in f: 
          found_button = f[1]
    if found_button:
+      # here we only try to add a new icon, we cannot overwrite the callback function!
       toolbutton = found_button
    else:
       toolbutton = gtk.ToolButton(icon_widget=None, label=button_label)
       coot_main_toolbar.insert(toolbutton, -1)       # insert at the end
       toolbutton.set_is_important(True)              # to display the text, otherwise only icon
+      toolbutton.connect("clicked", lambda w: eval(callback_function))
+      toolbutton.show()
    if (icon_name):
       # try to add a stock item
       try:
@@ -1336,8 +1339,6 @@ def coot_toolbar_button(*args):
          except:
             print "BL INFO::  icon name/widget given but could not add the icon"
 
-   toolbutton.connect("clicked", lambda w: eval(callback_function))
-   toolbutton.show()
    return toolbutton
 
    

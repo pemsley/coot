@@ -234,11 +234,11 @@ if (have_coot_python):
                   # no button icon available
                   #print "BL DEBUG:: we dont have a button icon"
                   pass
-            left_hbox.pack_start(check_button, False, False, 3)
-            left_hbox.pack_end(label, False, False, 3)
+            left_hbox.pack_start(check_button, True, True, 3)
+            left_hbox.pack_end(label, True, True, 3)
             right_hbox.pack_start(icon_label, False, False, 3)
             right_hbox.pack_start(icon_combobox, False, False, 3)
-            hbox.pack_start(left_hbox, False, False, 3)
+            hbox.pack_start(left_hbox, True, True, 3)
             hbox.pack_end(right_hbox, False, False, 3)
             inner_vbox.pack_start(hbox, False, False, 3)
             check_button.connect("toggled", check_button_callback)
@@ -323,7 +323,7 @@ def remove_toolbar_from_init_file(button_label):
 def list_of_toolbar_functions():
   ls = [["Display",
          ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view"],
-         ["test", "rotation_centre()", "test function"]],
+         ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
          ["Refine active residue", "refine_active_residue()", ""]],
         ["NMR",[]],
