@@ -741,9 +741,9 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 	 if (ierr_tot == 0) {
 	    // std::cout << "in chem_comp description_level is :" << description_level << ":" << std::endl;
 	    // if there is a "." in the file description_level is "".
-	    std::cout << "Adding :" << comp_id << ": :" << three_letter_code << ": :" << name << ": :"
-		      << group << ": " << number_atoms_all << " "
-		      << number_atoms_nh << " :" << description_level << ":" << std::endl;
+// 	    std::cout << "Adding :" << comp_id << ": :" << three_letter_code << ": :" << name << ": :"
+// 		      << group << ": " << number_atoms_all << " "
+// 		      << number_atoms_nh << " :" << description_level << ":" << std::endl;
 
 	    mon_lib_add_chem_comp(comp_id, three_letter_code, name,
 				  group, number_atoms_all, number_atoms_nh,
