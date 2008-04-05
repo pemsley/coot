@@ -1,4 +1,8 @@
 
+(define ssm-ref-1-file (append-dir-file greg-data-dir "2qd9.pdb"))
+(define ssm-ref-2-file (append-dir-file greg-data-dir "2gtn.pdb"))
+
+
 (greg-testcase "SSM - Frank von Delft's Example" #t 
     (lambda ()
 
@@ -38,4 +42,13 @@
 	  (graphics-to-ca-plus-ligands-representation imol-copy)
 	  (rotate-y-scene (rotate-n-frames 100) 0.1)
 	  #t)))) ; didn't crash!  Thanks Alice Dawson
+
+
+(greg-testcase "SSM by atom selection [JED Example]" #t
+   (lambda ()
+
+     (let ((imol-1 (read-pdb ssm-ref-1-file))
+	   (imol-2 (read-pdb ssm-ref-2-file)))
+       (superpose-with-atom-selection imol-1 imol-2 "//A/140-160" "//A/140-160" 0)
+       #t))) ; didn't crash!  Thanks JED
 
