@@ -8,6 +8,7 @@
 	     (goosh)
 	     (ice-9 regex))
 
+(use-syntax (ice-9 syncase))
 
 
 ; (define build-prefix (add-dir-file (getenv "HOME") "autobuild"))
@@ -15,6 +16,29 @@
 (define source-tar-dir "/y/people/emsley/public_html/software/pre-release")
 
 (define host-name (getenv "HOST"))
+
+
+(define-syntax my-ns
+  (syntax-rules ()
+    ((my-ns x n) (cons 
+		  'td 
+		  (let loop ((n1 n)
+			     (x-list '()))
+		    (cond 
+		     ((= n1 0) x-list)
+		     (else 
+		      (loop (- n1 1) (cons x x-list)))))))))
+
+;(define-syntax my-ns
+;  (syntax-rules ()
+;    ((my-ns x n) (cons 
+;		  'td 
+;		  (let loop ((n1 n))
+;		    (cond 
+;		     ((= n1 0) '())
+;		     (else 
+;		      (cons x (loop (- n1 1))))))))))
+
 
 ;; remove any trailing /s
 ;;
@@ -226,11 +250,12 @@
 				(list-ref an-oldness 0))))))))
 
 ;; time-diff in seconds
-(define (time-diff->n-spaces time-diff)
+(define (time-diff->n time-diff)
   ; (format #t "DEBUG:: time-diff: ~s~%" time-diff)
   (if time-diff
-      (inexact->exact (/ time-diff (* 60 60 3)))
-      0))
+      (let ((v (inexact->exact (/ time-diff (* 60 60 1)))))
+	(if (= v 0) 1 v))
+      1))
 
 
 ;; code from thi <ttn at mingle.glug.org>
@@ -262,7 +287,7 @@
 
 
 ;; return a string of n spaces
-(define (n-spaces n)
+(define (n-bars n)
 
   (if (= n 0) 
       "."
@@ -363,19 +388,24 @@
     (string-append "/~emsley" (substring file-name 28)))
     
   (define (get-binary-tar-file-url file-info)
-    (format #t "get-binary-tar-file-url from ~s~%" file-info)
+    ; (format #t "get-binary-tar-file-url from ~s~%" file-info)
     (let* ((bits (list-ref file-info 3))
 	   (file-name (list-ref bits 2)))
       (url-from-file-name file-name)))
 
   ;; 
   (define (format-binary-cell file-info now-time)
-    (format #t "formatting binary cell ~s~%" file-info)
+    ;;(format #t "formatting binary cell ~s~%" file-info)
     (if (not file-info)
 	" "
-	(let* ((make-links? (car (cdr (car file-info))))
+	(let* (
+	       (make-links? (car (cdr (car file-info))))
 	       (time-diff (make-time-diff file-info now-time))
-	       (ns (n-spaces (time-diff->n-spaces time-diff)))
+	       (n-for-spaces (time-diff->n time-diff))
+; 	       (nov1 (format #t "...... n-for-spaces ~s~%" n-for-spaces))
+	       (ns (n-bars n-for-spaces))
+	       ; (nov2 (format #t ".......~s~%" (my-ns '(*ENTITY* "nbsp") n-for-spaces)))
+	       (entities (my-ns '(*ENTITY* "nbsp") n-for-spaces))
 	       (colour (cond
 			((eq? time-diff #f) "#303030")
 			((< time-diff (* 60 60 24)) "#80dd80")
@@ -388,7 +418,7 @@
 		,(car (list-ref file-info 0)) '(b " not found")
 		(br)
 		(table (@ (border 1) (bgcolor "#303030"))
-		       (tr (td ,(n-spaces 100))))
+		       (tr (td ,(n-bars 100))))
 		(a (@ href ,(build-log-page file-info 'build)) build-log)
 		" "
 		(a (@ href ,(build-log-page file-info 'test)) test-log))
@@ -414,7 +444,7 @@
 		     `(a (@ href ,(build-log-page file-info 'test)) test-log)
 		     "")
 		(table (@ (border 1) (bgcolor ,colour))
-		       (tr (td ,ns)))
+		       (tr ,entities))
 		,(latest-build-result file-info 'build)
 		" " 
 		,(latest-build-result file-info 'test)
@@ -462,12 +492,13 @@
 	    (body 
 	     (h2 "Coot SVN and Build Summary")
 	     (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
-
+	     "\n"
 	     ;; repository version
 	     (p ("SVN Repository Revision: " 
 		 ,(get-svn-revision) 
 		 " "
 		 (a (@ href ,svn-log-page) "svn log")))
+	     "\n"
 
 	     ;; source code
 	     (p "Source code "
@@ -484,12 +515,15 @@
 	      (@ border 0)
 	      ,(let ((now-time (current-time)))
 		 (map (lambda (file-info-pair)
-			`(tr
-			  (td ,(format-binary-cell (list-ref file-info-pair 0) now-time))
-			  (td ,(format-binary-cell (list-ref file-info-pair 1) now-time))))
+			(append 
+			 `(tr
+			   (td ,(format-binary-cell (car  file-info-pair) now-time))
+			   (td ,(format-binary-cell (cadr file-info-pair) now-time)))
+			 (list "\n"))) ; ease of reading
 		      (pair-up binary-file-infos))))))
      file-name)))
       
+     
 
 (let ((file-name "/y/people/emsley/public_html/coot/build-info.html")
       (bin-list 
