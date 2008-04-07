@@ -32633,7 +32633,7 @@ View Mode</property>
 </widget>
 
 <widget class="GtkDialog" id="preferences">
-  <property name="width_request">570</property>
+  <property name="width_request">700</property>
   <property name="height_request">480</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">Preferences</property>
@@ -35072,6 +35072,7 @@ View Mode</property>
 
 	      <child>
 		<widget class="GtkFrame" id="preferences_smooth_scroll">
+		  <property name="visible">True</property>
 		  <property name="label_xalign">0</property>
 		  <property name="label_yalign">0.5</property>
 		  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>

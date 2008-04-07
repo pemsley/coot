@@ -859,13 +859,13 @@ public:
       preferences_general_tabs->push_back("preferences_hid");
       preferences_general_tabs->push_back("preferences_recentre_pdb");
       preferences_general_tabs->push_back("preferences_model_toolbar_style");
+      preferences_general_tabs->push_back("preferences_smooth_scroll");
       
       preferences_bond_tabs->push_back("preferences_bond_parameters");
       preferences_bond_tabs->push_back("preferences_bond_colours");
       
       preferences_map_tabs->push_back("preferences_map_parameters");
       preferences_map_tabs->push_back("preferences_map_colours");
-      preferences_map_tabs->push_back("preferences_smooth_scroll");
       preferences_map_tabs->push_back("preferences_map_drag");      
       
       preferences_geometry_tabs->push_back("preferences_cis_peptides");
