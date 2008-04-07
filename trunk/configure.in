@@ -223,6 +223,7 @@ sequence-view/Makefile
 tw/Makefile
 cootaneer/Makefile
 greg-tests/Makefile
+python-tests/Makefile
 doc/Makefile
 src/Makefile
 src/coot

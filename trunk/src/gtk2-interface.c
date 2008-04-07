@@ -16595,7 +16595,7 @@ create_preferences (void)
   tooltips = gtk_tooltips_new ();
 
   preferences = gtk_dialog_new ();
-  gtk_widget_set_size_request (preferences, 570, 480);
+  gtk_widget_set_size_request (preferences, 700, 480);
   gtk_window_set_title (GTK_WINDOW (preferences), _("Preferences"));
   gtk_window_set_type_hint (GTK_WINDOW (preferences), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -17292,6 +17292,7 @@ create_preferences (void)
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 8), label510);
 
   preferences_smooth_scroll = gtk_frame_new (NULL);
+  gtk_widget_show (preferences_smooth_scroll);
   gtk_container_add (GTK_CONTAINER (preferences_notebook), preferences_smooth_scroll);
 
   vbox259 = gtk_vbox_new (FALSE, 0);
