@@ -2542,7 +2542,9 @@ if [ $clear_up_type != "" ] ; then
 fi
 
 # clean up old status:
-rm $LOGS/gtk2-test-status
+if [ -e $LOGS/gtk2-test-status ] ; then
+   rm $LOGS/gtk2-test-status
+fi
 # run test
 test_coot > $LOGS/gtk2-test.log 2>&1
 r=$?
