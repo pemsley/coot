@@ -1,7 +1,7 @@
 
 EXTRA_DIST = 		\
-	01_pdb_mtz.scm    02_shelx.scm       03_ligand.scm  \
-	04_cootaneer.scm  05_rna_ghosts.scm  06_ssm.scm     \
-        07_ncs.scm
+	01_pdb_mtz.py    02_shelx.py       03_ligand.py  \
+	04_cootaneer.py  05_rna_ghosts.py  06_ssm.py     \
+        07_ncs.py
 
 
