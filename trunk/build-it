@@ -562,7 +562,7 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-exec > $LOGS/$HOST.log
+exec > $LOGS/$HOST-build.log
 echo This is script version $script_version
 
 # local tinkering because our sgi runs out of room on /tmp on compiling

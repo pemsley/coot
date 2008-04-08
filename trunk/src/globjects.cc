@@ -170,8 +170,8 @@ float  graphics_info_t::rotation_centre_cube_size = 0.1; // Angstroems
 short int graphics_info_t::quanta_like_zoom_flag = 0;
 
 // graphics display size:
-int graphics_info_t::graphics_x_size = 500;
-int graphics_info_t::graphics_y_size = 500;
+int graphics_info_t::graphics_x_size = GRAPHICS_WINDOW_X_START_SIZE;
+int graphics_info_t::graphics_y_size = GRAPHICS_WINDOW_Y_START_SIZE;
 int graphics_info_t::graphics_x_position = 0; // gets overwritten at start
 int graphics_info_t::graphics_y_position = 0;
 int graphics_info_t::model_fit_refine_dialog_stays_on_top_flag = 1;
@@ -1031,9 +1031,6 @@ GdkCursorType graphics_info_t::pick_cursor_index = GDK_CROSSHAIR;
 
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
-// if try_stereo_flag is 1, then hardware stereo.
-// if try_stereo_flag is 2, the side-by-side stereo
-// 
 GtkWidget*
 gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
@@ -1108,6 +1105,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
   int n_gl_contexts = 1;
   if ((try_stereo_flag == coot::SIDE_BY_SIDE_STEREO) ||
+      (try_stereo_flag == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
       (try_stereo_flag == coot::DTI_SIDE_BY_SIDE_STEREO)){
      n_gl_contexts = 2;
   }
@@ -1193,15 +1191,14 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 #endif
 
 	/* set minimum size */
-	gtk_widget_set_usize(GTK_WIDGET(glarea_a), 400, 400);
+	gtk_widget_set_usize(GTK_WIDGET(glarea_a), 300, 300);
 
 	// Not today.
 	//   std::cout << "setting window size to " << g. graphics_x_size
 	// 	    << " " << g. graphics_x_size << std::endl;
 
 	GtkWindow *window1 = GTK_WINDOW(lookup_widget(vbox1,"window1"));
-	gtk_window_set_default_size(window1,
-				    g.graphics_x_size,g.graphics_y_size);
+	gtk_window_set_default_size(window1, g.graphics_x_size, g.graphics_y_size);
 
 	/* put glarea into vbox */
 	GtkWidget *main_window_graphics_hbox =
@@ -1306,6 +1303,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
   int n_contexts = 1;
   if ((try_stereo_flag == coot::SIDE_BY_SIDE_STEREO) ||
+      (try_stereo_flag == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
       (try_stereo_flag == coot::DTI_SIDE_BY_SIDE_STEREO)) {
      n_contexts = 2;
      graphics_info_t::display_mode = try_stereo_flag;
@@ -1322,9 +1320,24 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
      } else {
 	graphics_info_t::glarea_2 = drawing_area_tmp;
      }
-     
-     gtk_widget_set_size_request (drawing_area_tmp,
-				  g.graphics_x_size, g.graphics_y_size);
+
+     { 
+	int gl_context_x_size = GRAPHICS_WINDOW_X_START_SIZE;
+	int gl_context_y_size = GRAPHICS_WINDOW_Y_START_SIZE;
+	// int gl_context_y_size = g.graphics_y_size; old
+
+ 	if (context_count > 1) { // more than the first context
+	   // std::cout << " =============== " << context_count << std::endl;
+ 	   gl_context_x_size = graphics_info_t::glarea->allocation.width;
+ 	   gl_context_y_size = graphics_info_t::glarea->allocation.height;
+	   // std::cout << " ===============" << gl_context_x_size
+	   // << " "<< gl_context_y_size << std::endl;
+ 	}
+
+	gtk_widget_set_size_request (drawing_area_tmp,
+				     gl_context_x_size,
+				     gl_context_y_size);
+     }
      
      /* Set OpenGL-capability to the widget */
      gtk_widget_set_gl_capability (drawing_area_tmp,
@@ -1334,7 +1347,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 				   GDK_GL_RGBA_TYPE); // render_type (only choice)
      if (drawing_area_tmp) {
 
-	if (try_stereo_flag == 1) {
+	if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
 	   std::cout << "INFO:: Hardware stereo widget opened successfully"
 		     << std::endl;
 	   graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
@@ -1569,6 +1582,7 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
       g.graphics_x_size = widget->allocation.width;
       g.graphics_y_size = widget->allocation.height;
    } 
+   graphics_info_t::graphics_draw(); // Added 20080408, needed?
 #endif
    return TRUE;
 }

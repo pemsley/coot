@@ -253,9 +253,8 @@
 (define (time-diff->n time-diff)
   ; (format #t "DEBUG:: time-diff: ~s~%" time-diff)
   (if time-diff
-      (let ((v (inexact->exact (/ time-diff (* 60 60 1)))))
-	(if (= v 0) 1 v))
-      1))
+      (+ (inexact->exact (/ time-diff (* 60 60 1))) 1)
+      0))
 
 
 ;; code from thi <ttn at mingle.glug.org>
@@ -422,20 +421,24 @@
 		(a (@ href ,(build-log-page file-info 'build)) build-log)
 		" "
 		(a (@ href ,(build-log-page file-info 'test)) test-log))
+
 	      ;; a regular binary cell
 	      `(p 
 		(a (@ href ,(get-binary-tar-file-url file-info)) 
 		   ,(car (car file-info))) ; binary type string
 		" "
 		,(car (cdr file-info)) ; revision number
-
 		;; entities to pad the table
 		(*ENTITY* "nbsp")
 		(*ENTITY* "nbsp")
 		(*ENTITY* "nbsp")
 		(br)
-		,(time-text (list-ref file-info 2))
-		" "
+
+		,(latest-build-result file-info 'build)
+		" " 
+		,(latest-build-result file-info 'test)
+		(*ENTITY* "nbsp")
+		(*ENTITY* "nbsp")
 		,(if make-links?
 		     `(a (@ href ,(build-log-page file-info 'build)) build-log)
 		     "")
@@ -445,9 +448,7 @@
 		     "")
 		(table (@ (border 1) (bgcolor ,colour))
 		       (tr ,entities))
-		,(latest-build-result file-info 'build)
-		" " 
-		,(latest-build-result file-info 'test)
+		,(time-text (list-ref file-info 2))
 		)))))
 
 

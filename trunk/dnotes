@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   12 Items
+   18 Items
 
    o Kevin's Ramachandran Refinement target
 
@@ -18,7 +18,7 @@
 * It is, but the residue number is "1" and the SFAC index is -1.  Bad.
 
    o Update the graphics properly (redraw) when a dialog goes away
-     (configure event?)
+     (configure event?)  do_expose_swap_buffers not used now, it seems.
 
    o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
      message about going to wall-eyed and the state of walled eyed in
@@ -36,7 +36,7 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
-   o Finish A-RAPPER-gui.
+   o Finish A-RAPPER-gui and Loopy GUI.
 
    o  Need to check torsion restraints and wiggly ligands now that I
       have enabled the reading of CONST torsions. Also Edit Chi.
@@ -50,7 +50,23 @@
 
    o Fun: a guile/expect script to build latest source tar on bubbles
 
-   o update the density fit graph on delete residue (e.g. water) [JED]
+   o Update the density fit graph on delete residue (e.g. water) [JED]
+
+   o Fix up Addition Representations in Display Control.  Don't
+     display if empty
+
+   o Ethan Merrit's bugs on window sizing.  
+
+     Partially fixed. gtk_widget_set_usize() in
+     set_graphics_window_size() now replaced with gtk_window_resize()
+     on a GtkWindow() (not the glarea).
+
+     g.graphics_x_size is used inconsistently.  It is a bad name.  It
+     is (now) used for the window size (c-interface-gui) and the
+     glarea size (glextras()).  Both need to be stored gl_area_x_size,
+     gl_area_y_size, main_window_x_size, main_window_y_size.
+
+   o Add in the restraints editor.
 
 
 
@@ -5116,3 +5132,12 @@ Sat Mar 29 23:15:20 GMT 2008
 Mon Mar 31 11:05:17 BST 2008
 
     support-gtk2-extras.c needs #include "stdio.h" for fc3
+
+
+---
+Sun Apr  6 22:01:39 BST 2008
+
+    Write a wiki script for munging/unmunging the atom names of NADP/H
+    so that it can refine.
+
+

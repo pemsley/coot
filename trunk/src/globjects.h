@@ -30,6 +30,9 @@
 
 #include "gl-matrix.h"
 
+#define GRAPHICS_WINDOW_X_START_SIZE 500
+#define GRAPHICS_WINDOW_Y_START_SIZE 500
+
 GtkWidget* gl_extras(GtkWidget* window, short int try_hardware_stero); 
 
 
