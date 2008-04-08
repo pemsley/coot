@@ -441,12 +441,16 @@ void set_graphics_window_size(int x_size, int y_size) {
       if (g.glarea) {
 	 GtkWidget *win = lookup_widget(g.glarea, "window1");
 	 GtkWindow *window = GTK_WINDOW(win);
-	 gtk_window_resize(window, x_size, y_size);
+
+#if (GTK_MAJOR_VERSION > 1)
+         gtk_window_resize(window, x_size, y_size);
+#else
+         gtk_window_set_default_size(window, x_size, y_size);
+#endif
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
 	 std::cout << "DEBUG:: set " << window << " to size "
 		   << x_size << " " << y_size << std::endl;
-	 
       }
    }
    std::vector<std::string> command_strings;
