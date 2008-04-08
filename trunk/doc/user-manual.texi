@@ -1803,14 +1803,14 @@ number 0 chain ``A''):
 As well as the GUI option @command{File -> Save Coordinates@dots{}} there
 is a scripting options available:
 
-@code{(write-pdb @emph{imol pdb-file-name})}
+@code{(write-pdb-file @emph{imol pdb-file-name})}
 
 which writes the @code{@emph{imol}}th coordinates molecule to
 @code{@emph{filename}}.
 
 To write a specific residue range: 
 
-@code{(write-residue-range-to-pdb @emph{imol chain-id start-resno
+@code{(write-residue-range-to-pdb-file @emph{imol chain-id start-resno
 endresno pdb-file-name})}
 
 
