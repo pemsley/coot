@@ -230,6 +230,8 @@
      we need a function that accepts args for close-dialog and one
      that does not.  A macro maybe.
 
+   o Rotate/Translate a whole protein (many chains)
+
    o Update stand-alone refinement program. 
      (Write a test for it?)
 

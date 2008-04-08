@@ -2565,7 +2565,12 @@ if [ $clear_up_type != "" ] ; then
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
-test_coot > $LOGS/$HOST-testing.log
+# clean up old status:
+if [ -e $LOGS/gtk2-test-status ] ; then
+   rm $LOGS/gtk2-test-status
+fi
+# run test
+test_coot > $LOGS/$HOST-test.log
 r=$?
 if [ $r = 0 ] ; then
    echo coot test passed
