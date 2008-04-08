@@ -1,6 +1,7 @@
 /* src/c-interface-gui.cc
  * 
  * Copyright 2003, 2004, 2007 The University of York
+ * Copyright 2008 The University of Oxford
  * Author: Paul Emsley
  * Copyright 2007 The University of York
  * Author: Bernhard Lohkamp
@@ -60,6 +61,7 @@
 #define  scm_is_true gh_scm2bool
 #endif // SCM version
 #endif // USE_GUILE
+
 #include "c-interface-scm.hh"
 #include "coot-fileselections.h"
 
@@ -437,9 +439,13 @@ void set_graphics_window_size(int x_size, int y_size) {
       g.graphics_x_size = x_size;
       g.graphics_y_size = y_size;
       if (g.glarea) {
-	 gtk_widget_set_usize (g.glarea, x_size, y_size);
+	 GtkWidget *win = lookup_widget(g.glarea, "window1");
+	 GtkWindow *window = GTK_WINDOW(win);
+	 gtk_window_resize(window, x_size, y_size);
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
+	 std::cout << "DEBUG:: set " << window << " to size "
+		   << x_size << " " << y_size << std::endl;
 	 
       }
    }

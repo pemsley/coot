@@ -26,6 +26,7 @@
 
 #include <gtk/gtk.h>
 #include "interface.h"
+#include "globjects.h" // for GRAPHICS_WINDOW_X_START_SIZE and Y
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
@@ -66,7 +67,8 @@ graphics_info_t::save_state_file(const std::string &filename) {
    // std::cout << "DEBUG in state: " << graphics_x_size << " " << graphics_y_size
    // << std::endl;
    
-   if ( ! ((graphics_x_size == 500) && (graphics_y_size != 500)) ) {
+   if ( ! ((graphics_x_size == GRAPHICS_WINDOW_X_START_SIZE) &&
+	   (graphics_y_size != GRAPHICS_WINDOW_Y_START_SIZE)) ) {
       commands.push_back(state_command("set-graphics-window-size",
 				       graphics_x_size, graphics_y_size, il));
    }
