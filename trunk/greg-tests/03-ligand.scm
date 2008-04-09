@@ -2,6 +2,18 @@
 
 (greg-testcase "Get monomer test" #t 
    (lambda ()
+
+     ;; Test preliminaries, if CCP4 is not available, let's get the
+     ;; monomer files from the greg data dir, that should short-cut
+     ;; the running of libcheck and refmac.
+     ;;
+     (if (not have-ccp4?)
+	   (map (lambda (file)
+		  (let ((f-full (append-dir-file greg-data-dir file)))
+		    (if (file-exists? f-full)
+			(copy-file f-full file))))
+		'("monomer-3GP.pdb" "libcheck_3GP.cif")))
+
      (let ((imol (monomer-molecule-from-3-let-code "3GP" "")))
        (if (valid-model-molecule? imol)
 	   (begin
@@ -15,7 +27,8 @@
 
 
 (greg-testcase "Set Bond thickness" #t 
-   (lambda ()	       
+   (lambda ()
+
      (if (valid-model-molecule? imol-ligand)
 	 (begin
 	   (set-bond-thickness imol-ligand 5)
