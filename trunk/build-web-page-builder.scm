@@ -343,7 +343,11 @@
 	      (let ((l (string-length res)))
 		(if (not (> l 0))
 		    ""
-		    (substring res 0 (- l 1)))))))))
+		    (if (< l 20)
+			(substring res 0 (- l 1))
+			"missing-file")))))))) ; we don't want to see
+					       ; web server page
+					       ; missing raw HTML
 
   (define (markup text)
     (if (not (string? text))
@@ -513,7 +517,7 @@
 
 	     ;; binary targets
 	     (table 
-	      (@ border 0)
+	      (@ border 1)
 	      ,(let ((now-time (current-time)))
 		 (map (lambda (file-info-pair)
 			(append 
