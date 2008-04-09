@@ -2,16 +2,17 @@
 
 (greg-testcase "Get monomer test" #t 
    (lambda ()
-     (if have-ccp4?
-	 (let ((imol (monomer-molecule-from-3-let-code "3GP" "")))
-	   (if (valid-model-molecule? imol)
-	       (begin
-		 (set! imol-ligand imol) ; for use in next test
-		 (delete-residue-hydrogens imol "A" 1 "" "")
-		 #t)))
-	 (begin
-	   (format #t "   CCP4 not set up - skipping 3GP test~%")
-	   (throw 'untested)))))
+     (let ((imol (monomer-molecule-from-3-let-code "3GP" "")))
+       (if (valid-model-molecule? imol)
+	   (begin
+	     (set! imol-ligand imol) ; for use in next test
+	     (delete-residue-hydrogens imol "A" 1 "" "")
+	     #t)
+	   (begin
+	     (format #t "   No ligand molecule - monomer test~%")
+	     (throw 'untested)
+	     #f)))))
+
 
 (greg-testcase "Set Bond thickness" #t 
    (lambda ()	       
