@@ -66,12 +66,30 @@
      glarea size (glextras()).  Both need to be stored gl_area_x_size,
      gl_area_y_size, main_window_x_size, main_window_y_size.
 
+
+   o Change into side by side stereo mode.  Resize the window.  Now
+     views are of different size/aspect ratios.
+
    o Add in the restraints editor.
 
+   o Can the map transformation interface be clearer?  Can I GUI
+     interface the most frequent usage?
+
+   o Save Symmetry Coordinates should not put .pdb in the middle of
+     the suggested file name. 
 
 
 
-45 Done.
+
+
+46 Done.
+
+
+   o The tooltip on a geometry graph gives the wrong bad geometry element?
+     e.g. check 3GP after refinement.
+
+* Fixed.  
+
 
    o Valgrind long/multiple fit-proteins. I valgrinded the tests. 
 

@@ -74,6 +74,10 @@
 ;   (format #t "tra la la...~%"))
 
 
+(defmacro print-var (var)
+  (let ((s (format #f "~s" var)))
+    `(format #t "DEBUG:: ~a is ~s~%" ,s ,var)))
+
 ;; Return a list of molecule numbers (closed and open) The elements of
 ;; the returned list need to be tested against
 ;; is-valid-model-molecule?

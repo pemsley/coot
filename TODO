@@ -40,7 +40,7 @@
 
 -----
 
-   Release 0.5 Dec March 2008
+   Release 0.5 Dec June 2008
 
    o To make the test non-tedious, especially on slow computers, we
      need a set-atoms-attributes that takes a list of attribute sets.
@@ -109,6 +109,12 @@
    o Copy fragment (new-molecule-by-atom-selection) does not
      recalculate the NCS.  It should.
 
+   o Mails from Phil Evans, Stephen Graham, Early April 2008 about SEG
+     ids.  Doing a NCS loop with Seg ids.  Doing a mutation with Segids
+     (might be the same issue).  The segid for the new atoms should be
+     inherited from those of the rest of the residue (if they are
+     consistent).
+
    o test/fix hardware stereo in Gtk2 mode.  Also side-by-side  
      problem described (for example) by Randy Read.
 
@@ -144,7 +150,7 @@
 
 -----
 
-    Release 0.6 and 0.7 [May 2008]
+    Release 0.6 and 0.7 [Sept 2008]
 
    o Put globularize protein into Coot.  Make it a bit more clever?
 
@@ -240,9 +246,11 @@
   mail list.  And give up.  Check how greg behaves on compile/build - 
   it tests itself before install.
 
+   o Integrate scripting functions into main documentation somehow
+
  ------
     
-    Release 0.8 [Aug 2008?]
+    Release 0.8 [Nov 2008?]
 
    o User pickable atoms
 
@@ -262,7 +270,9 @@
 
    o Fix leak and deprecated functions message.
 
-   o Activate molecule_class_info_t deconstuctor
+   o Activate molecule_class_info_t deconstuctor.  
+
+* No need now.
 
 ------
 
