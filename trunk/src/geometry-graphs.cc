@@ -15,7 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
  
@@ -199,8 +200,8 @@ coot::geometry_graphs::render_to_canvas(const coot::geometry_distortion_info_con
    // taken of the minimum residue number in the chain: let's call it
    // offset_residue_place.
 
-   std::cout << "INFO:: there are " << dc.geometry_distortion.size() 
-	     << " distortions in container " << chain_number << std::endl;
+//    std::cout << "INFO:: there are " << dc.geometry_distortion.size() 
+// 	     << " distortions in container " << chain_number << std::endl;
 
    if (chain_number < int(chain_index.size()))
       chain_index[chain_number] = dc.chain_id;
@@ -230,7 +231,8 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
    double occ1, occ2, occ3;
    int NO_DISTORTION_IN_THIS_RESIDUE = -9999;
 
-   std::vector<double> distortion_sum(max_resno - min_resno + 1, 0);
+   std::vector<double> distortion_sum  (max_resno - min_resno + 1, 0);
+   std::vector<double> distortion_worst(max_resno - min_resno + 1, 0);
    std::vector<std::string> atom_of_distortion(max_resno - min_resno + 1, " CA ");
    std::vector<int>         resi_of_distortion(max_resno - min_resno + 1,
 					       NO_DISTORTION_IN_THIS_RESIDUE); // unassigned.
@@ -260,7 +262,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 // 		   << dc.geometry_distortion[i].distortion_score << "\n";
 	 
 	 double extra = dc.geometry_distortion[i].distortion_score;
-	 if (extra > distortion_sum[this_resno1 - min_resno]) {
+	 if (extra > distortion_worst[this_resno1 - min_resno]) {
 	    info  = info_stub;
 	    info += " Bond: ";
 	    info += dc.atom[idx1]->name;
@@ -271,6 +273,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	    atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->name;
 	    resi_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->GetSeqNum();
 	    distortion_string[this_resno1 - min_resno] = info;
+	    distortion_worst[this_resno1 - min_resno] = extra;
 	 }
 
 	 distortion_sum[this_resno1 - min_resno] += 0.5 * extra * occ1;
@@ -291,7 +294,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	 info_stub += " ";
 	 info_stub += dc.atom[idx1]->GetResName();
 	 double extra = dc.geometry_distortion[i].distortion_score;
-	 if (extra > distortion_sum[this_resno1 - min_resno]) {
+	 if (extra > distortion_worst[this_resno1 - min_resno]) {
 	    info  = info_stub;
 	    info += " Angle at: ";
 	    info += dc.atom[idx2]->name;
@@ -300,6 +303,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	    distortion_string[this_resno1 - min_resno] = info;
 	    atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx2]->name;
 	    resi_of_distortion[this_resno1 - min_resno] = dc.atom[idx2]->GetSeqNum();
+	    distortion_worst[this_resno1 - min_resno] = extra;
 	 }
 	 distortion_sum[this_resno1 - min_resno] += 0.333 * dc.geometry_distortion[i].distortion_score * occ1;
 	 distortion_sum[this_resno2 - min_resno] += 0.333 * dc.geometry_distortion[i].distortion_score * occ2;
@@ -318,7 +322,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	       info_stub += " ";
 	       info_stub += dc.atom[idx1]->GetResName();
 	       double extra = dc.geometry_distortion[i].distortion_score;
-	       if (extra > distortion_sum[this_resno1 - min_resno]) {
+	       if (extra > distortion_worst[this_resno1 - min_resno]) {
 		  info = info_stub;
 		  info += " Plane distortion at: ";
 		  info += dc.atom[idx1]->GetChainID();
@@ -328,6 +332,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 		  distortion_string[this_resno1 - min_resno] = info;
 		  atom_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->name;
 		  resi_of_distortion[this_resno1 - min_resno] = dc.atom[idx1]->GetSeqNum();
+		  distortion_worst[this_resno1 - min_resno] = extra;
 	       }
 	       distortion_sum[this_resno1 - min_resno] +=
 		  factor * dc.geometry_distortion[i].distortion_score * occ1;

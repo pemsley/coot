@@ -380,6 +380,7 @@ function post_install_slim {
        keep_lib_archs="$lib_sos"
     fi
 
+    echo rsyncing...
     for file in etc html info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
 	bin/python bin/python2.5 bin/python-config bin/python2.5-config \
@@ -388,7 +389,7 @@ function post_install_slim {
     do
        dn=`dirname $file`
        if [ -e $fat_dir/$file ] ; then
-          echo rsync -axr $fat_dir/$file $cleaned_dir/$dn
+          # echo rsync -axr $fat_dir/$file $cleaned_dir/$dn
           rsync -axr $fat_dir/$file $cleaned_dir/$dn
        else
           echo $fat_dir/$file does not exist
@@ -505,7 +506,7 @@ EOF
       return 1
    fi
 else 
-   echo run_test is not true, not testing.
+   echo run_tests is not true, not testing.
    return 1
 fi
 
@@ -1126,10 +1127,18 @@ which swig > /dev/null
 have_swig=$?
 if [ $have_swig = 0 ] ; then
    echo system has swig.  Good.
+   swig -version
 else
    echo swig required - not found.
    exit 2
 fi
+
+# clean up old test status:
+if [ -e $LOGS/gtk2-test-status ] ; then
+   rm $LOGS/gtk2-build-status
+   rm $LOGS/gtk2-test-status
+fi
+
 
 
 # ----------------------------------------------------------------------------

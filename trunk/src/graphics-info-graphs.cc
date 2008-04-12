@@ -376,11 +376,11 @@ graphics_info_t::geometric_distortion(int imol) {
 	    graphs->render_to_canvas(dcv[i], i);
 	 }
 
-	 std::cout << "DEBUG:: geometry_distortion() here 1" << std::endl;
+	 // std::cout << "DEBUG:: geometry_distortion() here 1" << std::endl;
       }
-      std::cout << "DEBUG:: geometry_distortion() here 2" << std::endl;
+      // std::cout << "DEBUG:: geometry_distortion() here 2" << std::endl;
    }
-   std::cout << "DEBUG:: geometry_distortion() here 3" << std::endl;
+   // std::cout << "DEBUG:: geometry_distortion() here 3" << std::endl;
    
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif
@@ -514,8 +514,8 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	       
 		  if (nrestraints > 0) {
 
-		     std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
-			       << " restraints" << std::endl;
+// 		     std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
+// 			       << " restraints" << std::endl;
 		     dcv.push_back(restraints.geometric_distortions(flags));
 		  
 		  } else {

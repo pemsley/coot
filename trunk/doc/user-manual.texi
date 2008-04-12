@@ -1711,6 +1711,7 @@ molecule was a map or a closed molecule.}.
 @node    Secondary Structure Matching (SSM)
 @section Secondary Structure Matching (SSM)
 @cindex  Secondary Structure Matching (SSM)
+@cindex  superposition
 
 The excellent SSM alogrithm@footnote{the same one as in the CCP4 program
 SUPERPOSE} of Eugene Krissinel is available in Coot.  The GUI interface

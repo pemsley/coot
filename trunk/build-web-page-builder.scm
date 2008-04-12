@@ -362,14 +362,38 @@
   ;; return "pass" "fail" or " ".
   (define (latest-build-result file-info page-type)
     ; (format #t "file-info ~s~%" file-info)
+    
+    (define (get-mtime file-name)
+      (stat:mtime (stat file-name)))
+
+    ;; is the file test-status-file-name more than 20 seconds older
+    ;; than build-status-file-name (i.e. the test ran and the build
+    ;; status is probably valid)
+    ;;
+    ;; return #t or #f
+    ;; 
+    (define (newer-file? test-status-file-name build-status-file-name)
+      (if (not (file-exists? test-status-file-name))
+	  #f
+	  (if (not (file-exists? build-status-file-name))
+	      #f
+	      (let ((mtime-test  (get-mtime  test-status-file-name))
+		    (mtime-build (get-mtime build-status-file-name)))
+		(> mtime-test (+ ctime-build 20))))))
+
+    (define (get-file link page-type)
+      (if (list? link) 
+	  'link
+	  (string-append "/y/people/emsley/public_html/build-logs/"
+			 link
+			 (if (eq? page-type 'build)
+			     "-build-status"
+			     "-test-status"))))
+
     (let* ((link (car (cdr (list-ref file-info 0))))
-	   (file (if (list? link) 
-		     'link
-		     (string-append "/y/people/emsley/public_html/build-logs/"
-				    link
-				    (if (eq? page-type 'build)
-					"-build-status"
-					"-test-status")))))
+	   (build-status-file (get-file link 'build))
+	   ( test-status-file (get-file link 'test))
+	   (file (get-file link page-type)))
 
       (if (eq? file 'link)
 	  (let ((br (build-result-from-link file-info page-type)))
@@ -385,6 +409,7 @@
 		    (lambda (port)
 		      (let ((text (read-line port)))
 			(markup text)))))))))
+			
 
   ;; string /y/people/emsley etc and make a URL
   (define (url-from-file-name file-name)
@@ -491,7 +516,7 @@
 		    (list bin #f)))))
 	  bin-list)))
 
-    (write-sxml 
+    (write-sxml
      `(html (head (title "Coot Build Summary Page")
 		  (meta (@ (http-equiv refresh) (content 600))))
 	    (body 

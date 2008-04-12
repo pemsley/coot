@@ -355,13 +355,14 @@ function post_install_slim {
        keep_lib_archs="$lib_sos"
     fi
 
+    echo rsyncing...
     for file in etc html info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
 	bin/guile $keep_lib_archs ;
     do
        dn=`dirname $file`
        if [ -e $fat_dir/$file ] ; then
-          echo rsync -axr $fat_dir/$file $cleaned_dir/$dn
+          # echo rsync -axr $fat_dir/$file $cleaned_dir/$dn
           rsync -axr $fat_dir/$file $cleaned_dir/$dn
        else
           echo $fat_dir/$file does not exist
@@ -1072,6 +1073,13 @@ else
    fi
 fi
 echo ccp4_system_type $ccp4_system_type
+
+# clean up old status:
+if [ -e $LOGS/$HOST-test-status ] ; then
+   rm $LOGS/$HOST-test-status
+   rm $LOGS/$HOST-build-status
+fi
+
 
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
@@ -1842,14 +1850,17 @@ fi
 PATH=$install_top_dir/bin:$PATH
 export PATH
 
-python_version=python2.5.1
+
 
 # python
 #
+python_version=python2.5
+pver=2.5.1
+
 if test -n "$build_python" ; then 
     echo BUILDING ${python_version}:
 #
-pver=2.5.1
+
 
 ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
 (
@@ -1875,7 +1886,7 @@ PYTHONHOME=$install_top_dir
 export PYTHONHOME
 echo PYTHONHOME is now $PYTHONHOME
 
-echo post linking python to $python_version
+echo post linking python from $python_version
 #
 if [ ! -e $install_top_dir/bin/$python_version ] ; then
 	echo Opps\!  $python_version does not exist.
@@ -2565,10 +2576,6 @@ if [ $clear_up_type != "" ] ; then
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
-# clean up old status:
-if [ -e $LOGS/$HOST-test-status ] ; then
-   rm $LOGS/$HOST-test-status
-fi
 # run test
 test_coot > $LOGS/$HOST-test.log
 r=$?

@@ -455,7 +455,7 @@ void hardware_stereo_mode() {
 	    short int try_hardware_stereo_flag = 1;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) { 
-	       std::cout << "INFO:: switch to hardware_stereo_mode succeeded\n";
+	       // std::cout << "INFO:: switch to hardware_stereo_mode succeeded\n";
 	       if (graphics_info_t::i_fn_token) { 
 		  toggle_idle_spin_function(); // turn it off;
 	       }

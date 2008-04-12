@@ -1252,6 +1252,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
    graphics_info_t g;
    GdkGLConfig *glconfig = 0;
+   bool got_hardware_stereo_flag = 0; 
    
    GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
       (GDK_GL_MODE_RGB    |
@@ -1268,7 +1269,9 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	  GDK_GL_STEREO);
       /* Try double-buffered visual */
       glconfig = gdk_gl_config_new_by_mode(mode);
-      if (glconfig == NULL) {
+      if (glconfig) {
+	 got_hardware_stereo_flag = 1;// for message later
+      } else {
 	 std::cout << "WARNING:: Can't enable stereo visual - falling back"
 		   << std::endl;
 	 mode = static_cast<GdkGLConfigMode>
@@ -1348,9 +1351,11 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
      if (drawing_area_tmp) {
 
 	if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
-	   std::cout << "INFO:: Hardware stereo widget opened successfully"
-		     << std::endl;
-	   graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
+	   if (got_hardware_stereo_flag) { 
+	      std::cout << "INFO:: Hardware stereo widget opened successfully"
+			<< std::endl;
+	      graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
+	   }
 	}
 
 	/* Events for widget must be set before X Window is created */
