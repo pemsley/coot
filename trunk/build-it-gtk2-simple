@@ -600,6 +600,7 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
+echo INFO:: redirecting std output to $LOGS/gtk2-build.log
 exec > $LOGS/gtk2-build.log
 echo This is script version $script_version for Gtk2 
 
