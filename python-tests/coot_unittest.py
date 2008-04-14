@@ -5,7 +5,7 @@ print "==============================================================="
 import unittest, os
 import inspect
 
-unittest_data_dir = os.path.join(os.getenv('HOME'), "data", "greg-data")
+unittest_data_dir = os.path.normpath(os.path.join(os.getenv('HOME'), "data", "greg-data"))
 
 def rotate_n_frames(n):
     rotate_speed = 1

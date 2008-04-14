@@ -42,10 +42,12 @@ def register_coot_icons():
     icon_info_ls.append([name, full_name])
   for stock_id, filename in icon_info_ls:
     # only load image files when our stock_id is not present
-    if (stock_id not in stock_ids) and (not 'phenixed' in filename):
-      pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-      iconset = gtk.IconSet(pixbuf)
-      iconfactory.add(stock_id, iconset)
+    if ((stock_id not in stock_ids) and not
+        ('phenixed' in filename)):
+      if os.path.isfile(filename):
+        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        iconset = gtk.IconSet(pixbuf)
+        iconfactory.add(stock_id, iconset)
   iconfactory.add_default()
 
 if (have_coot_python):
@@ -145,10 +147,11 @@ if (have_coot_python):
 
         model = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
         for icon_filename in coot_icon_filename_ls:
-          if (not 'phenixed' in icon_filename):
-            icon = os.path.basename(icon_filename)
-            pixbuf = gtk.gdk.pixbuf_new_from_file(icon_filename)
-            model.append([pixbuf, icon, icon_filename])
+          if (not ('phenixed' in icon_filename)):
+            if os.path.isfile(icon_filename):
+              icon = os.path.basename(icon_filename)
+              pixbuf = gtk.gdk.pixbuf_new_from_file(icon_filename)
+              model.append([pixbuf, icon, icon_filename])
               
         # build in default gtk icons
         icon_theme = gtk.icon_theme_get_default()

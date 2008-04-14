@@ -1154,6 +1154,8 @@ generic_string_vector_to_list_internal = generic_string_vector_to_list_internal_
 generic_list_to_string_vector_internal = generic_list_to_string_vector_internal_py
 generic_int_vector_to_list_internal = generic_int_vector_to_list_internal_py
 
+goto_next_atom_maybe   = goto_next_atom_maybe_py
+goto_prev_atom_maybe   = goto_prev_atom_maybe_py
 get_symmetry           = get_symmetry_py
 dictionaries_read      = dictionaries_read_py
 monomer_restraints     = monomer_restraints_py
