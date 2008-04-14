@@ -30,6 +30,8 @@ global have_ccp4_qm, imol_rnase
 have_ccp4_qm = False
 global imol_rnase
 imol_rnase = -1
+global imol_rnase_map
+imol_rnase = -1
 global imol_ligand
 imol_ligand = -1
 
@@ -140,7 +142,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
     def test06_0(self):
 	    """Read MTZ test"""
-	    
+
+	    global imol_rnase_map
 	    # bogus map test
 	    pre_n_molecules = graphics_n_molecules()
 	    imol_map = make_and_draw_map("bogus.mtz", "FWT", "PHWT", "", 5, 6)
@@ -154,6 +157,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    change_contour_level(0)
 	    change_contour_level(0)
 	    set_imol_refinement_map(imol_map)
+	    imol_rnase_map = imol_map
 	    self.failUnless(valid_map_molecule_qm(imol_map))
 
 
@@ -166,8 +170,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test07_1(self):
 	    """NCS maps test"""
 
+	    global imol_rnase_map
 	    self.failUnless(valid_model_molecule_qm(imol_rnase),
-			    "imol-rnase not valid")
+			    "imol_rnase not valid")
 
 	    self.failUnless(valid_map_molecule_qm(imol_rnase_map),
 			    "imol_rnase_map not valid")
@@ -547,6 +552,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(valid_map_molecule_qm(imol),"  Can't get valid refmac map molecule from %s" %rnase_mtz)
 
 	    refmac_params = refmac_parameters(imol)
+	    refmac_params[0] = os.path.normpath(refmac_params[0])
 
 	    self.failUnlessEqual(refmac_params, arg_list, "        non matching refmac params")
 

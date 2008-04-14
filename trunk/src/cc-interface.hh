@@ -76,9 +76,16 @@ std::string probe_dots_short_contact_name_to_expanded_name(const std::string &sh
 // if you wish of course).
 //
 // Pass the current values, return new values
-SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char*atom_name);
+SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 #endif 
+
+#ifdef USE_PYTHON
+// but I 'want' to! Needed for python unittest!
+#include "Python.h"
+PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+#endif
 
 int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec);
 
@@ -105,7 +112,6 @@ SCM get_symmetry(int imol);
 
 #ifdef USE_PYTHON
 // return a python object as a list (or some other python container)
-#include "Python.h"
 PyObject *get_symmetry_py(int imol);
 #endif // USE_PYTHON
 

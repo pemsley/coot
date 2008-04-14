@@ -58,7 +58,7 @@ def tip_list():
   spin speed.""",
  """\"ligand_expert()\" enables the GUI editting of some ligand-fitting
   parameters.""",
- "Use keyboard + and - to zoom in Ramachandran and Kleywegt Plots"
+ "Use keyboard + and - to zoom in Ramachandran and Kleywegt Plots.",
  "The 'U' key undoes last nagivation (e.g. re-centering on new pdb file).",
  "The 'D' and 'F' keys change the clipping/slabbing.",
  """\"view_matrix()\" prints the current view matrix, useful for 
