@@ -360,6 +360,7 @@ namespace coot {
       void set_has_partial_charges(bool state) {
 	 has_partial_charges_flag = state;
       }
+      void write_cif(const std::string &filename) const; 
    };
 
    // ------------------------------------------------------------------------
