@@ -2718,6 +2718,44 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 }
 
 
+void
+coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
+
+   PCMMCIFData   mmCIF = new CMMCIFData();
+   PCMMCIFStruct mmCIFStruct;
+   
+   //  2.1  Example 1: add a structure into mmCIF object
+   int rc = mmCIF->AddStructure ( "_my_mmcif_struct",mmCIFStruct );
+   if (rc!=CIFRC_Ok)  {
+      if (rc==CIFRC_Created)  {
+	 printf ( " -- new structure created\n" );
+      } else  {
+	 printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
+      }
+      if (!mmCIFStruct)  {
+	 printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
+      }
+   } else {
+      
+      printf ( " -- structure was already in mmCIF, it will be extended\n" );
+      
+      mmCIFStruct->PutString  ( "string1" ,"string_1" );
+      mmCIFStruct->PutString  ( "string 2","string_2" );
+      mmCIFStruct->PutString  ( ""        ,"empty_string_1" );
+      mmCIFStruct->PutString  ( NULL      ,"empty_string_2" );
+      mmCIFStruct->PutDate    ( "todays_date" );
+      mmCIFStruct->PutNoData  ( CIF_NODATA_DOT     ,"no_data_dot"      );
+      mmCIFStruct->PutNoData  ( CIF_NODATA_QUESTION,"no_data_question" );
+      mmCIFStruct->PutReal    ( 12345.6789,"real_value",8   );
+      mmCIFStruct->PutInteger ( 987654321 ,"integer_number" );
+      
+      mmCIF->PutDataName   ("test_mmCIF"); // 'data_' record
+      mmCIF->WriteMMCIFData((char *) filename.c_str());
+   }
+}
+
+
+
 // make a connect file specifying the bonds to Hydrogens
 bool
 coot::protein_geometry::hydrogens_connect_file(const std::string &resname,
