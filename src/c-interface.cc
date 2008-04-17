@@ -5557,14 +5557,13 @@ void safe_python_command_by_char_star(const char *python_cmd) {
 #ifdef USE_PYTHON
 PyObject *run_scheme_command(const char *cmd) {
 
-  PyObject *ret_py;
-  ret_py = Py_None;
+  PyObject *ret_py = Py_None;
 
 #ifdef USE_GUILE
-  SCM ret_scm;
-  std::string s = cmd;
-  ret_scm = safe_scheme_command(s);
+  SCM ret_scm = safe_scheme_command(cmd);
+  ret_py = scm_to_py(ret_scm);
 #endif // USE_GUILE
+  
   return ret_py;
 }
 #endif // USE_PYTHON
@@ -5572,14 +5571,13 @@ PyObject *run_scheme_command(const char *cmd) {
 #ifdef USE_GUILE
 SCM run_python_command(const char *python_cmd) {
   
-  SCM ret_scm;
-  ret_scm = SCM_UNDEFINED;
+   SCM ret_scm = SCM_UNSPECIFIED; // not SCM_UNDEFINED; :)
 
 #ifdef USE_PYTHON
-  PyObject *ret;
-  std::string s = python_cmd;
-  ret = safe_python_command_with_return(s);
+   PyObject *ret = safe_python_command_with_return(python_cmd);
+   ret_scm = py_to_scm(ret);
 #endif // USE_PYTHON
+  
   return ret_scm;
 }
 #endif // USE_GUILE
