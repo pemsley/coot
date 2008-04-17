@@ -2723,35 +2723,197 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
    PCMMCIFData   mmCIF = new CMMCIFData();
    PCMMCIFStruct mmCIFStruct;
+   char S[2000];
    
    //  2.1  Example 1: add a structure into mmCIF object
-   int rc = mmCIF->AddStructure ( "_my_mmcif_struct",mmCIFStruct );
-   if (rc!=CIFRC_Ok)  {
-      if (rc==CIFRC_Created)  {
-	 printf ( " -- new structure created\n" );
-      } else  {
-	 printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
-      }
+   int rc = mmCIF->AddStructure ("_chem_comp", mmCIFStruct);
+   std::cout << "rc on AddStructure returned " << rc << std::endl;
+   if (rc!=CIFRC_Ok && rc!=CIFRC_Created)  {
+      // badness!
+      std::cout << "rc not CIFRC_Ok " << rc << std::endl;
+      printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
       if (!mmCIFStruct)  {
 	 printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
       }
    } else {
+      if (rc==CIFRC_Created) 
+	 printf ( " -- new structure created\n" );
+      else 
+	 printf(" -- structure was already in mmCIF, it will be extended\n");
+      std::cout << "SUMMARY:: rc CIFRC_Ok or newly created. " << std::endl;
+
+      PCMMCIFLoop mmCIFLoop;
+      // data_comp_list, id, three_letter_code, name group etc:
+      rc = mmCIF->AddLoop("_chem_comp", mmCIFLoop);
+      int i=0;
+      char *s = (char *) residue_info.comp_id.c_str();
+      mmCIFLoop->PutString(s, "comp_id", i);
+      s = (char *) residue_info.three_letter_code.c_str();
+      mmCIFLoop->PutString(s, "three_letter_code", i);
+      s = (char *) residue_info.name.c_str();
+      mmCIFLoop->PutString(s, "name", i);
+      s = (char *) residue_info.group.c_str();
+      mmCIFLoop->PutString(s, "group", i);
+      s = (char *) residue_info.group.c_str();
+      int nat = residue_info.number_atoms_all;
+      mmCIFLoop->PutInteger(nat, "number_atoms_all", i);
+      nat = residue_info.number_atoms_nh;
+      mmCIFLoop->PutInteger(nat, "number_atoms_nh", i);
+      s = (char *) residue_info.description_level.c_str();
+      mmCIFLoop->PutString(s, "description_level", i);
       
-      printf ( " -- structure was already in mmCIF, it will be extended\n" );
+
+      mmCIF->PutDataName   ("comp_list"); // 'data_' record
+
+      // atom loop
+
+      rc = mmCIF->AddLoop("_chem_comp_atom", mmCIFLoop);
+      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 for (int i=0; i<atom_info.size(); i++) {
+	    char *ss = (char *) residue_info.comp_id.c_str();
+	    mmCIFLoop->PutString(ss, "comp_id", i);
+	    ss = (char *) atom_info[i].atom_id.c_str();
+	    mmCIFLoop->PutString(ss, "atom_id", i);
+	    ss = (char *) atom_info[i].type_symbol.c_str();
+	    mmCIFLoop->PutString(ss, "type_symbol", i);
+	    ss = (char *) atom_info[i].type_energy.c_str();
+	    mmCIFLoop->PutString(ss, "type_energy", i);
+	    if (atom_info[i].partial_charge.first) {
+	       float v = atom_info[i].partial_charge.second;
+	       mmCIFLoop->PutReal(v, "partial_charge", i);
+	    }
+	 }
+      }
       
-      mmCIFStruct->PutString  ( "string1" ,"string_1" );
-      mmCIFStruct->PutString  ( "string 2","string_2" );
-      mmCIFStruct->PutString  ( ""        ,"empty_string_1" );
-      mmCIFStruct->PutString  ( NULL      ,"empty_string_2" );
-      mmCIFStruct->PutDate    ( "todays_date" );
-      mmCIFStruct->PutNoData  ( CIF_NODATA_DOT     ,"no_data_dot"      );
-      mmCIFStruct->PutNoData  ( CIF_NODATA_QUESTION,"no_data_question" );
-      mmCIFStruct->PutReal    ( 12345.6789,"real_value",8   );
-      mmCIFStruct->PutInteger ( 987654321 ,"integer_number" );
+      // bond loop
+
+      rc = mmCIF->AddLoop("_chem_comp_bond", mmCIFLoop);
+      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
+	 for (int i=0; i<bond_restraint.size(); i++) {
+	    // std::cout << "ading bond number " << i << std::endl;
+	    char *ss = (char *) residue_info.comp_id.c_str();
+	    mmCIFLoop->PutString(ss, "comp_id", i);
+	    ss = (char *) bond_restraint[i].atom_id_1_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_1", i);
+	    ss = (char *) bond_restraint[i].atom_id_2_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_2", i);
+	    ss = (char *) bond_restraint[i].type().c_str();
+	    mmCIFLoop->PutString(ss, "type", i);
+	    float v = bond_restraint[i].dist();
+	    mmCIFLoop->PutReal(v, "dist", i);
+	    v = bond_restraint[i].esd(),
+	    mmCIFLoop->PutReal(v, "esd", i);
+	 }
+      }
+
+      // angle loop
+
+      rc = mmCIF->AddLoop("_chem_comp_angle", mmCIFLoop);
+      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 std::cout << " number of angles: " << angle_restraint.size() << std::endl;
+	 for (int i=0; i<angle_restraint.size(); i++) {
+	    // std::cout << "ading angle number " << i << std::endl;
+	    char *ss = (char *) residue_info.comp_id.c_str();
+	    mmCIFLoop->PutString(ss, "comp_id", i);
+	    ss = (char *) angle_restraint[i].atom_id_1_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_1", i);
+	    ss = (char *) angle_restraint[i].atom_id_2_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_2", i);
+	    ss = (char *) angle_restraint[i].atom_id_3_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_3", i);
+	    float v = angle_restraint[i].angle();
+	    mmCIFLoop->PutReal(v, "angle", i);
+	    v = angle_restraint[i].esd();
+	    mmCIFLoop->PutReal(v, "esd", i);
+	 }
+      }
+
+      // torsion loop
+
+      rc = mmCIF->AddLoop("_chem_comp_tor", mmCIFLoop);
+      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
+	 for (int i=0; i<torsion_restraint.size(); i++) {
+	    // std::cout << "ading torsion number " << i << std::endl;
+	    char *ss = (char *) residue_info.comp_id.c_str();
+	    mmCIFLoop->PutString(ss, "comp_id", i);
+	    ss = (char *) torsion_restraint[i].id().c_str();
+	    mmCIFLoop->PutString(ss, "id", i);
+	    ss = (char *) torsion_restraint[i].atom_id_1_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_1", i);
+	    ss = (char *) torsion_restraint[i].atom_id_2_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_2", i);
+	    ss = (char *) torsion_restraint[i].atom_id_3_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_3", i);
+	    ss = (char *) torsion_restraint[i].atom_id_4_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_4", i);
+	    float v = torsion_restraint[i].angle();
+	    mmCIFLoop->PutReal(v, "angle", i);
+	    v = torsion_restraint[i].esd();
+	    mmCIFLoop->PutReal(v, "angle_esd", i);
+	    int p = torsion_restraint[i].periodicity();
+	    mmCIFLoop->PutInteger(p, "period", i);
+	 }
+      }
+
+      // chiral loop
+
+      rc = mmCIF->AddLoop("_chem_comp_chir", mmCIFLoop);
+      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
+	 for (int i=0; i<chiral_restraint.size(); i++) {
+	    // std::cout << "ading chiral number " << i << std::endl;
+	    char *ss = (char *) residue_info.comp_id.c_str();
+	    mmCIFLoop->PutString(ss, "comp_id", i);
+	    ss = (char *) chiral_restraint[i].Chiral_Id().c_str();
+	    mmCIFLoop->PutString(ss, "id", i);
+	    ss = (char *) chiral_restraint[i].atom_id_c_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_centre", i);
+	    ss = (char *) chiral_restraint[i].atom_id_1_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_1", i);
+	    ss = (char *) chiral_restraint[i].atom_id_2_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_2", i);
+	    ss = (char *) chiral_restraint[i].atom_id_3_4c().c_str();
+	    mmCIFLoop->PutString(ss, "atom_id_3", i);
+	    int sign = chiral_restraint[i].volume_sign;
+	    ss = "both";
+	    if (sign == 1)
+	       ss = "positiv";
+	    if (sign == -1)
+	       ss = "negativ";
+	    mmCIFLoop->PutString(ss, "volume_sign", i);
+	 }
+      }
+
+      // plane loop
+
+      rc = mmCIF->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
+      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 std::cout << " number of planes: " << plane_restraint.size() << std::endl;
+	 int icount = 0;
+	 for (int i=0; i<plane_restraint.size(); i++) {
+	    std::cout << "DEBUG:: adding plane number " << i << std::endl;
+	    for (int iat=0; iat<plane_restraint[i].n_atoms(); iat++) {
+	       char *ss = (char *) residue_info.comp_id.c_str();
+	       mmCIFLoop->PutString(ss, "comp_id", icount);
+	       ss = (char *) plane_restraint[i].plane_id.c_str();
+	       mmCIFLoop->PutString(ss, "plane_id", icount);
+	       ss = (char *) plane_restraint[i].atom_id(iat).c_str();
+	       mmCIFLoop->PutString(ss, "atom_id", icount);
+	       float v = plane_restraint[i].dist_esd();
+	       mmCIFLoop->PutReal(v, "dist_esd", icount);
+	       icount++;
+	    }
+	 }
+      }
       
-      mmCIF->PutDataName   ("test_mmCIF"); // 'data_' record
+      std::string comp_record = "comp_";
+      comp_record += residue_info.comp_id.c_str();
+      mmCIF->PutDataName((char *) comp_record.c_str()); // 'data_' record
       mmCIF->WriteMMCIFData((char *) filename.c_str());
    }
+  delete mmCIF;
 }
 
 

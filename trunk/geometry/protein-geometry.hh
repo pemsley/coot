@@ -239,6 +239,13 @@ namespace coot {
 	 dist_esd_ = dist_esd_in;
 	 atom_ids.push_back(atom_id_in);
       };
+      dict_plane_restraint_t(const std::string &plane_id_in,
+			     const std::vector<std::string> &plane_atom_ids,
+			     double dist_esd_in) {
+	 plane_id = plane_id_in;
+	 dist_esd_ = dist_esd_in;
+	 atom_ids = plane_atom_ids;
+      };
       std::string plane_id; // or int plane_id number 1, 2 3.
       double dist_esd() const { return dist_esd_; }
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
