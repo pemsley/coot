@@ -53,8 +53,10 @@ else
    aclocal -I macros $aclocal_extras
 fi
 
+echo autoconf
 autoconf
 
+echo automake --add-missing --copy
 automake --add-missing --copy
 
 

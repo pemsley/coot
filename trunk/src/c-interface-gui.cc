@@ -449,8 +449,8 @@ void set_graphics_window_size(int x_size, int y_size) {
 #endif
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
-	 std::cout << "DEBUG:: set " << window << " to size "
-		   << x_size << " " << y_size << std::endl;
+// 	 std::cout << "DEBUG:: set " << window << " to size "
+// 		   << x_size << " " << y_size << std::endl;
       }
    }
    std::vector<std::string> command_strings;

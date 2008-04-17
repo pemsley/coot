@@ -587,6 +587,102 @@ const char *atom_info_string_py(int imol, const char *chain_id, int resno,
 }
 #endif // PYTHON
 
+
+
+#ifdef USE_GUILE
+#ifdef USE_PYTHON
+PyObject *scm_to_py(SCM s) {
+
+   PyObject *o = Py_False;
+   if (scm_is_true(scm_list_p(s))) {
+      SCM s_length_scm = scm_length(s);
+      int s_length = scm_to_int(s_length_scm);
+      o = PyList_New(s_length);
+      for (int item=0; item<s_length; item++) {
+	 SCM item_scm = scm_list_ref(s, SCM_MAKINUM(item));
+	 PyList_SetItem(o, item, scm_to_py(item_scm));
+      }
+   } else {
+      if (scm_is_true(scm_boolean_p(s))) {
+	 if (scm_is_true(s)) {
+	    o = Py_True;
+	 } else {
+	    o = Py_False;
+	 }
+      } else {
+	 if (scm_is_true(scm_integer_p(s))) {
+	    int iscm = scm_to_int(s);
+	    o = PyInt_FromLong(iscm);
+	 } else {
+	    if (scm_is_true(scm_real_p(s))) {
+	       float f = scm_to_int(s);
+	       o = PyFloat_FromDouble(f);
+
+	    } else {
+	       if (scm_is_true(scm_string_p(s))) {
+		  std::string str = scm_to_locale_string(s);
+		  o = PyString_FromString(str.c_str());
+	       }
+	    }
+	 }
+      }
+   }
+   return o;
+}
+
+
+
+
+SCM py_to_scm(PyObject *o) {
+
+
+   std::cout << "py_to_scm: " << o << std::endl;
+   std::cout << "PyList_Check("<< o << ") returns " << std::endl;
+   std::cout << "                 " << PyList_Check(o)  << std::endl;
+   
+   SCM s = SCM_BOOL_F;
+   if (PyList_Check(o)) {
+      int l = PyObject_Length(o);
+      s = SCM_EOL;
+      for (int item=0; item<l; item++) {
+	 PyObject *py_item = PyList_GetItem(o, item);
+	 std::cout << "item: " << item << " py_item " << py_item << std::endl;
+	 SCM t = py_to_scm(py_item);
+	 s = scm_cons(t, s);
+      }
+      s = scm_reverse(s);
+   } else {
+      if (PyBool_Check(o)) {
+	 s = SCM_BOOL_F;
+	 int i = PyInt_AsLong(o);
+	 if (i)
+	    s = SCM_BOOL_T;
+      } else {
+	 if (PyInt_Check(o)) {
+	    int i=PyInt_AsLong(o);
+	    s = SCM_MAKINUM(i);
+	 } else {
+	    if (PyFloat_Check(o)) {
+	       double f = PyFloat_AsDouble(o);
+	       s = scm_float2num(f);
+	    } else {
+	       if (PyString_Check(o)) {
+		  std::string str = PyString_AsString(o);
+		  s = scm_makfrom0str(str.c_str());
+	       }
+	    }
+	 }
+      }
+   }
+   return s;
+}
+
+#endif // USE_GUILE
+#endif // USE_PYTHON
+
+
+
+
 #ifdef USE_GUILE
 // output is like this:
 // (list
@@ -899,7 +995,7 @@ SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code,
 } 
 #endif 
 
-#ifdef USE_GUILE
+#ifdef USE_PYTHON
 // Pass the current values, return new values
 //
 // Hmm maybe these function should pass the atom name too?  Yes they should
@@ -932,7 +1028,9 @@ PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *i
    }
    return r;
 }
+#endif // USE_PYTHON
 
+#ifdef USE_PYTHON
 PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *ins_code,
 				  const char *atom_name) {
 
@@ -961,7 +1059,7 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
    }
    return r;
 } 
-#endif 
+#endif // USE_PYTHON
 
 // A C++ function interface:
 // 

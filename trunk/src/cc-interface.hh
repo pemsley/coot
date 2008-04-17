@@ -568,6 +568,11 @@ int key_sym_code_scm(SCM s_scm);
 #ifdef USE_PYTHON
 int key_sym_code_py(PyObject *po);
 #endif // USE_PYTHON
-
+#ifdef USE_GUILE
+#ifdef USE_PYTHON
+PyObject *scm_to_py(SCM s);
+SCM py_to_scm(PyObject *o);
+#endif // USE_GUILE
+#endif // USE_PYTHON
 
 #endif // CC_INTERFACE_HH
