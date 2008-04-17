@@ -941,10 +941,19 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
    int list_length = PyObject_Length(attribute_expression_list);
    int n = graphics_info_t::n_molecules(); 
    std::vector<std::vector<coot::atom_attribute_setting_t> > v(n);
+   PyObject *attribute_expression;
+   PyObject *imol_py;
+   PyObject *chain_id_py;
+   PyObject *resno_py;
+   PyObject *ins_code_py;
+   PyObject *atom_name_py;
+   PyObject *alt_conf_py;
+   PyObject *attribute_name_py;
+   PyObject *attribute_value_py;
 
    if (list_length > 0) {
       for (int iattr=0; iattr<list_length; iattr++) { 
-	 PyObject *attribute_expression = PyList_GetItem(attribute_expression_list, iattr);
+	 attribute_expression = PyList_GetItem(attribute_expression_list, iattr);
 	 if (PyList_Check(attribute_expression)) { 
 	    int attr_expression_length = PyObject_Length(attribute_expression);
 	    if (attr_expression_length != 8) {
@@ -952,14 +961,14 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 			 << PyString_AsString(attribute_expression)
 			 << std::endl;		  
 	    } else {
-	       PyObject *imol_py            = PyList_GetItem(attribute_expression, 0);
-	       PyObject *chain_id_py        = PyList_GetItem(attribute_expression, 1);
-	       PyObject *resno_py           = PyList_GetItem(attribute_expression, 2);
-	       PyObject *ins_code_py        = PyList_GetItem(attribute_expression, 3);
-	       PyObject *atom_name_py       = PyList_GetItem(attribute_expression, 4);
-	       PyObject *alt_conf_py        = PyList_GetItem(attribute_expression, 5);
-	       PyObject *attribute_name_py  = PyList_GetItem(attribute_expression, 6);
-	       PyObject *attribute_value_py = PyList_GetItem(attribute_expression, 7);
+	       imol_py            = PyList_GetItem(attribute_expression, 0);
+	       chain_id_py        = PyList_GetItem(attribute_expression, 1);
+	       resno_py           = PyList_GetItem(attribute_expression, 2);
+	       ins_code_py        = PyList_GetItem(attribute_expression, 3);
+	       atom_name_py       = PyList_GetItem(attribute_expression, 4);
+	       alt_conf_py        = PyList_GetItem(attribute_expression, 5);
+	       attribute_name_py  = PyList_GetItem(attribute_expression, 6);
+	       attribute_value_py = PyList_GetItem(attribute_expression, 7);
 	       int imol = PyInt_AsLong(imol_py);
 	       if (is_valid_model_molecule(imol)) {
 		  std::string chain_id = PyString_AsString(chain_id_py);
@@ -1008,6 +1017,16 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 	 }
       }
    }
+   // cleanup
+   Py_DECREF(attribute_expression);
+   Py_DECREF(imol_py);
+   Py_DECREF(chain_id_py);
+   Py_DECREF(resno_py);
+   Py_DECREF(ins_code_py);
+   Py_DECREF(atom_name_py);
+   Py_DECREF(alt_conf_py);
+   Py_DECREF(attribute_name_py);
+   Py_DECREF(attribute_value_py);
 
    for (int i=0; i<n; i++) {
       if (v[i].size() > 0){
@@ -3568,13 +3587,16 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 // e.g. atom_spec: ["A", 81, "", " CA ", ""]
 //      position   [2.3, 3.4, 5.6]
    PyObject *retval = Py_False;
+   PyObject *x_py;
+   PyObject *y_py;
+   PyObject *z_py;
    std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
    if (p.first) {
       int pos_length = PyObject_Length(position);
       if (pos_length == 3) {
-	 PyObject *x_py = PyList_GetItem(position, 0);
-	 PyObject *y_py = PyList_GetItem(position, 1);
-	 PyObject *z_py = PyList_GetItem(position, 2);
+	 x_py = PyList_GetItem(position, 0);
+	 y_py = PyList_GetItem(position, 1);
+	 z_py = PyList_GetItem(position, 2);
 	 double x = PyFloat_AsDouble(x_py);
 	 double y = PyFloat_AsDouble(y_py);
 	 double z = PyFloat_AsDouble(z_py);
@@ -3582,6 +3604,11 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 	 graphics_info_t::drag_intermediate_atom(p.second, pt);
       }
    }
+   // clean up
+   Py_DECREF(x_py);
+   Py_DECREF(y_py);
+   Py_DECREF(z_py);
+
    return retval;
 }
 #endif // USE_PYTHON
@@ -3822,6 +3849,10 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
       PyList_SetItem(r, i+1, PyList_GetItem(vos,i));
    }
    
+   // clean up
+   Py_DECREF(le);
+   Py_DECREF(vos);
+
    return r;
 }
 #endif
@@ -6350,6 +6381,8 @@ int get_monomer(const char *three_letter_code) {
    PyObject *v = safe_python_command_with_return(python_command);
 
    int was_int_flag = PyInt_AsLong(v);
+
+   Py_DECREF(v);
 
 //   std::cout << "BL DEBUG:: was_int_flag is " << was_int_flag << std::endl;
 

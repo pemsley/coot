@@ -56,17 +56,22 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
     # tests are executed alphanumerical, so we shall give them number, rather than
     # names. We add a 0 in the end to give space for later addition
+    def test00_0(self):
+	    """Post Go To Atom no molecule"""
+	    post_go_to_atom_window()
+
+	    
     def test01_0(self):
-        """Close bad molecule"""
-        close_molecule(-2)
+	    """Close bad molecule"""
+	    close_molecule(-2)
 	
 
     def test02_0(self):
-	"""Read coordinates test"""
-	imol = read_pdb(rnase_pdb)
-	global imol_rnase
-	imol_rnase = imol
-	self.failUnless(valid_model_molecule_qm(imol))
+	    """Read coordinates test"""
+	    imol = read_pdb(rnase_pdb)
+	    global imol_rnase
+	    imol_rnase = imol
+	    self.failUnless(valid_model_molecule_qm(imol))
 
 
     def test03_0(self):

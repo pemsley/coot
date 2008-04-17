@@ -5502,7 +5502,7 @@ void safe_python_command(const std::string &python_cmd) {
 #ifdef USE_PYTHON
 PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
-   PyObject *pName, *pModule, *pDict;
+    PyObject *pName, *pModule, *pDict;
     PyObject *ret, *globals;
 
     ret = NULL;
@@ -5551,6 +5551,38 @@ void safe_python_command_by_char_star(const char *python_cmd) {
    PyRun_SimpleString((char *)python_cmd);
 #endif   
 }
+
+// functions to run python commands in guile and vice versa
+// ignoring return values for now
+#ifdef USE_PYTHON
+PyObject *run_scheme_command(const char *cmd) {
+
+  PyObject *ret_py;
+  ret_py = Py_None;
+
+#ifdef USE_GUILE
+  SCM ret_scm;
+  std::string s = cmd;
+  ret_scm = safe_scheme_command(s);
+#endif // USE_GUILE
+  return ret_py;
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+SCM run_python_command(const char *python_cmd) {
+  
+  SCM ret_scm;
+  ret_scm = SCM_UNDEFINED;
+
+#ifdef USE_PYTHON
+  PyObject *ret;
+  std::string s = python_cmd;
+  ret = safe_python_command_with_return(s);
+#endif // USE_PYTHON
+  return ret_scm;
+}
+#endif // USE_GUILE
 
 #ifdef USE_GUILE
 // Return a list describing a residue like that returned by
@@ -5673,8 +5705,15 @@ PyObject *cis_peptides_py(int imol) {
 
 	 // add py_residue_info to r
 	 PyList_Append(r, py_residue_info);
+
+	 // clean up
+	 Py_DECREF(py_omega);
+	 Py_DECREF(py_r1);
+	 Py_DECREF(py_r2);
+	 Py_DECREF(py_residue_info);
       }
    }
+
    return r;
 }
 #endif //  USE_PYTHON
@@ -7582,6 +7621,7 @@ void go_to_view_py(PyObject *view) {
    
    if (len_view == 4) { 
 
+      PyObject *quat_python;
       graphics_info_t g;
       int nsteps = 2000;
       if (graphics_info_t::views_play_speed > 0.000000001)
@@ -7599,7 +7639,7 @@ void go_to_view_py(PyObject *view) {
 
       // view_target is where we want to go
       float quat_target[4];
-      PyObject *quat_python = PyList_GetItem(view, 0);
+      quat_python = PyList_GetItem(view, 0);
       int len_quat = PyObject_Length(quat_python);
       if (len_quat == 4) { 
          PyObject *q0_python = PyList_GetItem(quat_python, 0);
@@ -7634,12 +7674,23 @@ void go_to_view_py(PyObject *view) {
             
             // do the animation
             coot::view_info_t::interpolate(view_c, view_target, nsteps);
+	    Py_DECREF(centre_x);
+	    Py_DECREF(centre_y);
+	    Py_DECREF(centre_z);
+	    Py_DECREF(target_zoom_python);
+	    Py_DECREF(name_target_python);
          } else {
             std::cout << "WARNING:: bad centre in view" << std::endl;
          }
+	 Py_DECREF(q0_python);
+	 Py_DECREF(q1_python);
+	 Py_DECREF(q2_python);
+	 Py_DECREF(q3_python);
+	 Py_DECREF(rc_target_python);
       } else {
          std::cout << "WARNING:: bad quat in view" << std::endl;
-      } 
+      }
+      Py_DECREF(quat_python);
    }
 } 
 #endif // PYTHON

@@ -91,6 +91,7 @@ PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id
       PyList_SetItem(match_info, 1, PyFloat_FromDouble(rtop_info.dist_score));
       // PyObject *s = match_info;
       python_status = rtop_to_python(rtop_info.rtop);
+      Py_DECREF(match_info);
    }
    return python_status;
 }
@@ -144,6 +145,7 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
       PyList_SetItem(match_info, 1, PyFloat_FromDouble(rtop_info.dist_score));
       // PyObject *s = match_info;
       python_status = rtop_to_python(rtop_info.rtop);
+      Py_DECREF(match_info);
    }
    return python_status;
 }

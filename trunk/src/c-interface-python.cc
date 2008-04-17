@@ -62,6 +62,11 @@ make_atom_spec_py(PyObject *spec) {
       std::string alt_conf  = PyString_AsString(alt_conf_py);
       as = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
       good_spec = 1;
+      Py_DECREF(chain_id_py);
+      Py_DECREF(resno_py);
+      Py_DECREF(ins_code_py);
+      Py_DECREF(atom_name_py);
+      Py_DECREF(alt_conf_py);
    }
    return std::pair<bool, coot::atom_spec_t> (good_spec, as);
 }

@@ -2245,8 +2245,13 @@ molecule_class_info_t::recent_backup_file_info() const {
       // c.f. make_backup():
       char *es = getenv("COOT_BACKUP_DIR");
       std::string backup_name_glob = "coot-backup/";
-      if (es)
+      if (es) {
 	 backup_name_glob = es;
+	 // on windows we somehow need to add an /
+#ifdef WINDOWS_MINGW
+	 backup_name_glob += "/";
+#endif // MINGW
+      }      
       backup_name_glob += t_name_glob;
       backup_name_glob += "*.pdb.gz";
 
