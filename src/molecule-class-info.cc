@@ -5975,6 +5975,12 @@ molecule_class_info_t::transform_by(mat44 mat) {
       clipper::RTop_orth rtop(clipper_mat, cco);
       std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
 		<< rtop.format() << std::endl;
+      clipper::Rotation rtn( clipper_mat );
+      clipper::Polar_ccp4 polar = rtn.polar_ccp4();
+      clipper::Euler_ccp4 euler = rtn.euler_ccp4();
+      std::cout << "  Rotation - polar (omega,phi,kappa)  " << clipper::Util::rad2d(polar.omega()) << " " << clipper::Util::rad2d(polar.phi()) << " " << clipper::Util::rad2d(polar.kappa()) << std::endl;
+      std::cout << "  Rotation - euler (alpha,beta,gamma) " << clipper::Util::rad2d(euler.alpha()) << " " << clipper::Util::rad2d(euler.beta()) << " " << clipper::Util::rad2d(euler.gamma()) << std::endl;
+      std::cout << "  Translation - Angstroms             " << cco.x() << " " << cco.y() << " " << cco.z() << " " << std::endl;
       for (int i=0; i<atom_sel.n_selected_atoms; i++) { 
 	 // atom_sel.atom_selection[i]->Transform(mat); // doesn't compile!
 	 // Argh.  sigh.  Use clipper. c.f. graphics_info_t::fill_hybrid_atoms()
