@@ -692,6 +692,21 @@ def graphics_comma_key_pressed_hook():
 def graphics_dot_key_pressed_hook():
 	pass
 
+global key_bindings
+key_bindings = []
+
+def add_key_binding(key, thunk):
+    from types import IntType, StringType
+    global key_bindings
+    if (type(key) is IntType):
+        key_bindings.append([key, thunk])
+    elif (type(key) is StringType):
+        code = key_sym_code(key)
+        if (not (code == -1)):
+            key_bindings.append([key, thunk])
+    else:
+        print "BL WARNING:: invalid key", key
+
 # general key press hook
 def graphics_general_key_press_hook(key):
 	print "Key %s was pressed" %(key)
@@ -1186,6 +1201,8 @@ ncs_chain_differences  = ncs_chain_differences_py
 ncs_chain_ids          = ncs_chain_ids_py
 ncs_ghosts             = ncs_ghosts_py
 inverse_rtop           = inverse_rtop_py
+make_atom_spec         = make_atom_spec_py
+key_sym_code           = key_sym_code_py
 
 ## and some extra ones
 show_set_undo_molecule_chooser = show_set_undo_molecule_chooser_py

@@ -204,17 +204,23 @@ PyObject *sequence_info_py(int imol) {
 	 // unsigned int does't work here because then the termination
 	 // condition never fails.
          r = PyList_New(seq.size());
+	 PyObject *a;
+	 PyObject *b;
+	 PyObject *ls;
 	 for (int iv=int(seq.size()-1); iv>=0; iv--) {
 	    std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
 	    std::cout << "debug pythoning " << seq[iv].first.c_str()
 		      << " and " << seq[iv].second.c_str() << std::endl;
-	    PyObject *a = PyString_FromString(seq[iv].first.c_str());
-	    PyObject *b = PyString_FromString(seq[iv].second.c_str());
-	    PyObject *ls = PyList_New(2);
+	    a = PyString_FromString(seq[iv].first.c_str());
+	    b = PyString_FromString(seq[iv].second.c_str());
+	    ls = PyList_New(2);
             PyList_SetItem(ls, 0, a);
             PyList_SetItem(ls, 1, b);
             PyList_SetItem(r, iv, ls);
 	 }
+	 Py_DECREF(a);
+	 Py_DECREF(b);
+	 Py_DECREF(ls);
       }
    }
    return r;
@@ -717,6 +723,16 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 
                         PyList_SetItem(all_atoms, iat, at_info);
                      }
+		     Py_DECREF(at_info);
+		     Py_DECREF(at_pos);
+		     Py_DECREF(at_occ);
+		     Py_DECREF(at_b);
+		     Py_DECREF(at_ele);
+		     Py_DECREF(at_name);
+		     Py_DECREF(at_altconf);
+		     Py_DECREF(at_x);
+		     Py_DECREF(at_y);
+		     Py_DECREF(at_z);
                   }
                }
             }
@@ -724,6 +740,10 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
          }
       }
    }
+   Py_DECREF(all_atoms);
+   Py_DECREF(compound_name);
+   Py_DECREF(compound_attrib);
+
    return r;
 }
 
@@ -1176,6 +1196,7 @@ generic_list_to_string_vector_internal_py(PyObject *l) {
       PyObject *le = PyList_GetItem(l, i);
       std::string s = PyString_AsString(le);
       r.push_back(s);
+      Py_DECREF(le);
    } 
 
    return r;
@@ -1307,6 +1328,8 @@ PyObject *rtop_to_python(const clipper::RTop_orth &rtop) {
 // BL says:: or maybe the other way round
    PyList_SetItem(r, 0, rot_list);
    PyList_SetItem(r, 1, tr_list);
+   Py_DECREF(tr_list);
+   Py_DECREF(rot_list);
    return r;
 
 }
@@ -1337,7 +1360,9 @@ PyObject *inverse_rtop_py(PyObject *rtop_py) {
 	    clipper::RTop_orth rtop_in(rot, trn);
 	    r = rtop_in.inverse();
 	 }
+	 Py_DECREF(trn_py);
       }
+      Py_DECREF(rot_py);
    }
    return rtop_to_python(r);
 
@@ -2559,6 +2584,7 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
       
       // Put chem_comp_py into a dictionary?
       PyDict_SetItem(r, PyString_FromString("_chem_comp"), chem_comp_py);
+      Py_DECREF(chem_comp_py);
 
       
       // ------------------ chem_comp_atom -------------------------
@@ -2576,9 +2602,12 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	    flag = Py_True;
 	 PyList_SetItem(atom_attributes_list, 4, flag);
 	 PyList_SetItem(atom_info_list, iat, atom_attributes_list);
+	 Py_DECREF(atom_attributes_list);
+	 Py_DECREF(flag);
       }
 
       PyDict_SetItem(r, PyString_FromString("_chem_comp_atom"), atom_info_list);
+      Py_DECREF(atom_info_list);
 
       // ------------------ Bonds -------------------------
       PyObject *bond_restraint_list = PyList_New(restraints.bond_restraint.size());
@@ -2593,9 +2622,11 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyList_SetItem(bond_restraint, 2, PyFloat_FromDouble(d));
 	 PyList_SetItem(bond_restraint, 3, PyFloat_FromDouble(esd));
 	 PyList_SetItem(bond_restraint_list, ibond, bond_restraint);
+	 Py_DECREF(bond_restraint);
       }
 
       PyDict_SetItem(r, PyString_FromString("_chem_comp_bond"), bond_restraint_list);
+      Py_DECREF(bond_restraint_list);
 
 
       // ------------------ Angles -------------------------
@@ -2613,9 +2644,11 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyList_SetItem(angle_restraint, 3, PyFloat_FromDouble(d));
 	 PyList_SetItem(angle_restraint, 4, PyFloat_FromDouble(esd));
 	 PyList_SetItem(angle_restraint_list, iangle, angle_restraint);
+	 Py_DECREF(angle_restraint);
       }
 
       PyDict_SetItem(r, PyString_FromString("_chem_comp_angle"), angle_restraint_list);
+      Py_DECREF(angle_restraint_list);
 
       
       // ------------------ Torsions -------------------------
@@ -2639,9 +2672,11 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyList_SetItem(torsion_restraint, 6, PyFloat_FromDouble(esd));
 	 PyList_SetItem(torsion_restraint, 7, PyInt_FromLong(period));
 	 PyList_SetItem(torsion_restraint_list, itorsion, torsion_restraint);
+	 Py_DECREF(torsion_restraint);
       }
 
       PyDict_SetItem(r, PyString_FromString("_chem_comp_tor"), torsion_restraint_list);
+      Py_DECREF(torsion_restraint_list);
 
       // ------------------ Planes -------------------------
       PyObject *plane_restraints_list = PyList_New(restraints.plane_restraint.size());
@@ -2657,9 +2692,11 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyList_SetItem(plane_restraint, 1, atom_list);
 	 PyList_SetItem(plane_restraint, 2, PyFloat_FromDouble(esd));
 	 PyList_SetItem(plane_restraints_list, iplane, plane_restraint);
+	 Py_DECREF(plane_restraint);
       }
 
       PyDict_SetItem(r, PyString_FromString("_chem_comp_plane_atom"), plane_restraints_list);
+      Py_DECREF(plane_restraints_list);
 
       // ------------------ Chirals -------------------------
       PyObject *chiral_restraint_list = PyList_New(restraints.chiral_restraint.size());
@@ -2682,9 +2719,11 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
 	 PyList_SetItem(chiral_restraint, 5, PyInt_FromLong(volume_sign));
 	 PyList_SetItem(chiral_restraint, 6, PyFloat_FromDouble(esd));
 	 PyList_SetItem(chiral_restraint_list, ichiral, chiral_restraint);
+	 Py_DECREF(chiral_restraint);
       }
 
       PyDict_SetItem(r, PyString_FromString("_chem_comp_chir"), chiral_restraint_list);
+      Py_DECREF(chiral_restraint_list);
    }
    return r;
 }
@@ -3051,6 +3090,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		  residue_info = n;
 	       }
 	    }
+	    Py_DECREF(chem_comp_list);
 	 }
 
 
@@ -3073,8 +3113,10 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     coot::dict_atom at(atom_id, atom_id, element, energy_t, part_charge_info);
 		     atoms.push_back(at);
 		  }
+		  Py_DECREF(chem_comp_atom);
 	       }
-	    } 
+	    }
+	    Py_DECREF(chem_comp_atom_list);
 	 }
 
 	 if (key_string == "_chem_comp_bond") {
@@ -3100,9 +3142,15 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 			coot::dict_bond_restraint_t rest(atom_1, atom_2, "unknown", dist, esd);
 			bond_restraints.push_back(rest);
 		     }
+		     Py_DECREF(atom_1_py);
+		     Py_DECREF(atom_2_py);
+		     Py_DECREF(dist_py);
+		     Py_DECREF(esd_py);
 		  }
+		  Py_DECREF(bond_restraint);
 	       }
-	    } 
+	    }
+	    Py_DECREF(bond_restraint_list);
 	 }
 
 
@@ -3132,9 +3180,15 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 			coot::dict_angle_restraint_t rest(atom_1, atom_2, atom_3, angle, esd);
 			angle_restraints.push_back(rest);
 		     }
+		     Py_DECREF(atom_1_py);
+		     Py_DECREF(atom_2_py);
+		     Py_DECREF(atom_3_py);
+		     Py_DECREF(angle_py);
+		     Py_DECREF(esd_py);
 		  }
 	       }
 	    }
+	    Py_DECREF(angle_restraint_list);
 	 }
 
 	 if (key_string == "_chem_comp_tor") {
@@ -3175,9 +3229,19 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 							    torsion, esd, period);
 			torsion_restraints.push_back(rest);
 		     }
+		     Py_DECREF(id_py);
+		     Py_DECREF(atom_1_py);
+		     Py_DECREF(atom_2_py);
+		     Py_DECREF(atom_3_py);
+		     Py_DECREF(atom_4_py);
+		     Py_DECREF(torsion_py);
+		     Py_DECREF(esd_py);
+		     Py_DECREF(period_py);
 		  }
+		  Py_DECREF(torsion_restraint);
 	       }
-	    } 
+	    }
+	    Py_DECREF(torsion_restraint_list);
 	 }
 
 	 if (key_string == "_chem_comp_chir") {
@@ -3214,9 +3278,18 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 							   vol_sign);
 			chiral_restraints.push_back(rest);
 		     }
+		     Py_DECREF(chiral_id_py);
+		     Py_DECREF(atom_c_py);
+		     Py_DECREF(atom_1_py);
+		     Py_DECREF(atom_2_py);
+		     Py_DECREF(atom_3_py);
+		     Py_DECREF(vol_sign_py);
+		     Py_DECREF(esd_py);
 		  }
+		  Py_DECREF(chiral_restraint);
 	       }
-	    } 
+	    }
+	    Py_DECREF(chiral_restraint_list);
 	 }
 
 
@@ -3242,6 +3315,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 			   } else {
 			      atoms_pass = 0;
 			   }
+			   Py_DECREF(at_py);
 			}
 			if (atoms_pass) {
 			   if (PyString_Check(plane_id_py)) {
@@ -3256,13 +3330,20 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 				 }
 			      }
 			   }
-			} 
+			}
 		     }
+		     Py_DECREF(plane_id_py);
+		     Py_DECREF(esd_py);
+		     Py_DECREF(py_atoms_py);
 		  }
+		  Py_DECREF(plane_restraint);
 	       }
 	    }
+	    Py_DECREF(plane_restraint_list);
 	 }
       }
+      Py_DECREF(key);
+      Py_DECREF(value);
 	
       coot::dictionary_residue_restraints_t monomer_restraints(monomer_type, 1);
       monomer_restraints.bond_restraint    = bond_restraints;

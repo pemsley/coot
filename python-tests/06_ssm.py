@@ -21,6 +21,9 @@
 import unittest
 import os
 
+ssm_ref_1_file = os.path.join(unittest_data_dir, "2qd9.pdb")
+ssm_ref_2_file = os.path.join(unittest_data_dir, "2gtn.pdb")
+
 class SsmTestFunctions(unittest.TestCase):
 
     def test01_0(self):
@@ -59,4 +62,13 @@ class SsmTestFunctions(unittest.TestCase):
         graphics_to_ca_plus_ligands_representation(imol_copy)
         rotate_y_scene(rotate_n_frames(100), 0.1)
         # didnt crash...
+        
+    def test03_0(self):
+        """SSM by atom selection [JED Example]"""
+
+        imol_1 = read_pdb(ssm_ref_1_file)
+        imol_2 = read_pdb(ssm_ref_2_file)
+        superpose_with_atom_selection(imol_1, imol_2,"//A/140-160", "//A/140-160", 0)
+        # didn't crash?
+        # testing for something else?!
         

@@ -304,6 +304,15 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd);
 /*  Is this a repeat of something?  I don't know. */
 void run_generic_script(const std::vector<std::string> &cmd_strings);
 
+/* commands to run python commands from guile and vice versa */
+/* we ignore return values for now */
+#ifdef USE_PYTHON
+PyObject *run_scheme_command(const char *scheme_command);
+#endif // USE_PYTHON
+#ifdef USE_GUILE
+SCM run_python_command(const char *python_command);
+#endif // USE_GUILE
+
 #ifdef USE_GUILE
 // Return a list describing a residue like that returned by
 // residues-matching-criteria (list return-val chain-id resno ins-code)

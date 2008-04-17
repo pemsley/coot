@@ -18,7 +18,8 @@ test_file_list = ["01_pdb_mtz.py",
                   "04_cootaneer.py",
                   "05_rna_ghosts.py",
                   "06_ssm.py",
-                  "07_ncs.py"]
+                  "07_ncs.py",
+                  "08_utils.py"]
 
 # get directory of this file and execute tests found in this dir
 fn = inspect.getfile(rotate_n_frames)
@@ -31,7 +32,7 @@ for test_file in test_file_list:
 test_list = [PdbMtzTestFunctions, ShelxTestFunctions,
              LigandTestFunctions, CootaneerTestFunctions,
              RnaGhostsTestFunctions, SsmTestFunctions,
-             NcsTestFunctions]
+             NcsTestFunctions, UtilTestFunctions]
 
 suite = unittest.TestSuite()
 for test in test_list:
