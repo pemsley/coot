@@ -132,7 +132,16 @@ coot::util::create_directory(const std::string &dir_name) {
 
    int istat = -1;
    struct stat s;
+   // on Windows stat works only properly if we remove the last / (if it exists)
+   // everything else following seems to be fine with the /
+#ifdef WINDOWS_MINGW
+   if (dir_name.find_last_of("/") == dir_name.size() - 1) {
+     std::string tmp_name = dir_name.substr(0, dir_name.size() - 1);
+   }
+   int fstat = stat(tmp_name.c_str(), &s);
+#else
    int fstat = stat(dir_name.c_str(), &s);
+#endif // MINGW
 
    // 20060411 Totally bizarre pathology!  (FC4) If I comment out the
    // following line, we fail to create the directory, presumably

@@ -1741,10 +1741,17 @@ parse_ccp4i_defs(const std::string &filename) {
 
    // put the current directory in, whether or not we can find the
    // ccp4 project dir
+   // on Windows (without mingw or cygwin) there is no PWD,
+   // so we set it to "", should work
    char *pwd = getenv("PWD");
    if (pwd) {
       v.push_back(std::pair<std::string, std::string> (std::string(" - Current Dir - "),
 						       std::string(pwd) + "/"));
+   } else {
+#ifdef WINDOWS_MINGW
+      v.push_back(std::pair<std::string, std::string> (std::string(" - Current Dir - "),
+						       std::string("")));  
+#endif // MINGW
    }
    
    struct stat buf;
@@ -1761,6 +1768,15 @@ parse_ccp4i_defs(const std::string &filename) {
    char *scratch = getenv("CCP4_SCR");
    if (scratch) {
       struct stat buf;
+      // in Windows stat needs to have a last / or \ removed, if existent
+#ifdef WINDOWS_MINGW
+      if (scratch[strlen(scratch) - 1] == '/') {
+	scratch[strlen(scratch) - 1] = '\0';
+      }
+      if (scratch[strlen(scratch) - 1] == '\\') {
+	scratch[strlen(scratch) - 1] = '\0';
+      }
+#endif // MINGW
       int istat_scratch = stat(scratch, &buf);
       if (istat_scratch == 0) {
 	 if (S_ISDIR(buf.st_mode)) {
