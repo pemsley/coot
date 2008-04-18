@@ -3,7 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2007 The University of Oxford
+ * Copyright 2007, 2008 by The University of Oxford
  * Author: Paul Emsley
  * Copyright 2007 by Bernhard Lohkamp
  * Copyright 2007 The University of York
@@ -644,7 +644,7 @@ SCM py_to_scm(PyObject *o) {
    if (PyList_Check(o)) {
       int l = PyObject_Length(o);
       s = SCM_EOL;
-      for (int item=0; item<l; item++) {
+      for (int item=1; item<l; item++) {
 	 PyObject *py_item = PyList_GetItem(o, item);
 	 std::cout << "item: " << item << " py_item " << py_item << std::endl;
 	 SCM t = py_to_scm(py_item);
