@@ -2714,6 +2714,20 @@ def cootaneer_gui_bl():
 #        window.add(vbox)
 	window.show_all()
 
+# a function to run a pygtk widget in a function as a thread
+#
+def run_with_gtk_threading(function, *args):
+   import gobject
+   def idle_func():
+      gtk.gdk.threads_enter()
+      try:
+         # function(*args, **kw)
+         function(*args)
+         return False
+      finally:
+         gtk.gdk.threads_leave()
+      gobject.idle_add(idle_func)
+
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()

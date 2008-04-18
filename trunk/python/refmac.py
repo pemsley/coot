@@ -966,7 +966,10 @@ def read_refmac_log(imol, refmac_log_file):
         interesting_list += deviation_list
 
         if (interesting_list):
-            interesting_things_with_fix_maybe("Refmac outliers etc.", interesting_list)
+            try:
+                run_with_gtk_threading(interesting_things_with_fix_maybe, "Refmac outliers etc.", interesting_list)
+            except:
+                print "BL INFO:: could not show the interesting Refmac things! Probably no PyGTK!"
         else:
             print "BL INFO:: no deviations and nothing otherwise interesting found in ", filename
         
