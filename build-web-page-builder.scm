@@ -22,7 +22,8 @@
   (syntax-rules ()
     ((my-ns x n) (cons 
 		  'td 
-		  (let loop ((n1 n)
+		  (let loop ((n1 (if (let ((max-n 80))
+				       (< n max-n) n max-n)))
 			     (x-list '()))
 		    (cond 
 		     ((= n1 0) x-list)
