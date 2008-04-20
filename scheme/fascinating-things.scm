@@ -80,7 +80,7 @@
     (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
     
-    (let loop ((cluser-list cluster-list)
+    (let loop ((cluster-list cluster-list)
 	       (count 0))
       
       (cond
@@ -88,7 +88,7 @@
        ((= 180 count) 'done)
        (else 
 
-	(let ((cluster-info) (car cluster-list))
+	(let ((cluster-info (car cluster-list)))
 	   (let* ((frame (gtk-frame-new #f))
 		  (vbox (gtk-vbox-new #f 2)))
 

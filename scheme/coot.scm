@@ -75,6 +75,7 @@
 			   "raster3d.scm" "povray.scm"
 			   "remote-control.scm"
 			   "generic-objects.scm"
+			   "fascinating-things.scm"
 			   "ncs.scm"
 			   "cns2coot.scm"
 			   "clear-backup.scm"
