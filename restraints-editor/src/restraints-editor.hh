@@ -1,4 +1,28 @@
 
+#ifndef RESTRAINTS_EDITOR_HH
+#define RESTRAINTS_EDITOR_HH
+
+/* src/restraints-editor.cc
+ * 
+ * Copyright 2008 by The University of Oxford
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
+
 namespace coot { 
    class restraints_editor {
       class view_and_store {
@@ -84,13 +108,15 @@ namespace coot {
 					gpointer             user_data);
 
       std::vector<coot::dict_bond_restraint_t> 
-      coot::restraints_editor::get_bond_restraints() const;
+      get_bond_restraints() const;
       std::vector<coot::dict_angle_restraint_t> 
-      coot::restraints_editor::get_angle_restraints() const;
+      get_angle_restraints() const;
       std::vector<coot::dict_torsion_restraint_t> 
-      coot::restraints_editor::get_torsion_restraints() const;
+      get_torsion_restraints() const;
       std::vector<coot::dict_chiral_restraint_t> 
-      coot::restraints_editor::get_chiral_restraints() const;
+      get_chiral_restraints() const;
+      std::vector<coot::dict_plane_restraint_t> 
+      get_plane_restraints() const;
       // also return if a flag we have partial charges
       std::pair<bool, std::vector<coot::dict_atom> > get_atom_info() const;
       // also return a flag if the dict_chem_comp_t was valid
@@ -100,3 +126,5 @@ namespace coot {
       
    };
 }
+
+#endif // RESTRAINTS_EDITOR_HH
