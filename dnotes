@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   18 Items
+   19 Items
 
    o Kevin's Ramachandran Refinement target
 
@@ -55,6 +55,8 @@
    o Fix up Addition Representations in Display Control.  Don't
      display if empty
 
+   o Do the additional representations work on gtk2?
+
    o Ethan Merrit's bugs on window sizing.  
 
      Partially fixed. gtk_widget_set_usize() in
@@ -77,6 +79,7 @@
 
    o Save Symmetry Coordinates should not put .pdb in the middle of
      the suggested file name. 
+
 
 
 
@@ -5132,11 +5135,26 @@ Fri Mar 28 10:51:31 GMT 2008
 
     CNS to coot: script needs a GUI?
 
+----
+Fri Mar 28 22:47:43 GMT 2008
+
+Randy Read: 
+Some time back I sent you a bug report about split-screen stereo.  Don't know 
+if you've been able to reproduce it, but since then I've worked out the 
+problems.  Basically, coot doesn't like the "Side by Side (Wall Eyed)" option 
+any more.  Part of the problem is the saved state.  If the saved state is 
+Mono or normal "Side by Side", then you're fine -- coot comes up the way you 
+left it.  (Don't know about hardware, as I don't have access to an 
+appropriate machine.)  If the saved state is "Side by Side (Wall Eyed)", then 
+Draw -> Stereo... brings up a box claiming that you're still in that mode, 
+but the view is a mono one.  The only way to get wall-eyed stereo from this 
+state is to click "Mono" then "Side by Side" then finally "Side by Side (Wall 
+Eyed)".  If you come up in Mono mode, you also can't go directly to 
+wall-eyed -- first you have to go into normal side-by-side mode.
+
 
 -----
 Sat Mar 29 23:13:39 GMT 2008
-
-    errrmmmmm oh yes.
 
     Documentation - including the functions should all be in one document
     (texi).
@@ -5151,11 +5169,137 @@ Mon Mar 31 11:05:17 BST 2008
 
     support-gtk2-extras.c needs #include "stdio.h" for fc3
 
+* Done.
 
 ---
 Sun Apr  6 22:01:39 BST 2008
 
     Write a wiki script for munging/unmunging the atom names of NADP/H
     so that it can refine.
+
+----
+Mon Apr 14 09:33:36 BST 2008
+
+    There is a EM software wiki (scripps?) 
+
+-----
+Mon Apr 14 09:41:32 BST 2008
+
+    can findligand be use to find just blobs (no input model?).  If
+    not, make it so.
+
+----
+Mon Apr 14 09:42:28 BST 2008
+
+    There is a server with uremediated files - from Kim? 
+    Use this to validate new software.
+
+-----
+
+PISA: 
+
+Buried surface area (average in pdb is about 40%).
+	
+Test for connected crystal
+
+And min number of interfaces per chain (needs to be at lest 3 or the
+crystal is not held in 3 dimensions)
+
+
+---
+Mon Apr 14 10:57:18 BST 2008
+
+    add a funtion to display (a set of) spheres, 
+    radius, position, colour
+
+----
+Mon Apr 14 11:29:17 BST 2008
+
+    Jane Richardson
+
+1rb1 bad clashscore.  embedded waters.  "Tassos' waters - from
+ARP/warp
+
+1k8z: geometry outlier
+
+----
+Mon Apr 14 11:43:59 BST 2008
+    
+  question to self: can you make a packing check quick?
+  (I guess not).
+    
+
+----
+Mon Apr 14 23:07:06 BST 2008
+
+    chat with Nigel M.  
+    Use CONNECT records in bonding (if possible)
+
+-----
+Tue Apr 15 14:02:16 BST 2008
+
+How to run elal:
+
+$ elal -pdb ~/data/rnase/tutorial-modern.pdb -map tmp.map -lib $warpbin/elal.lib
+
+[there has to be a calculated map too, somewhere]
+
+For checking carbohydrates:
+
+wwww.glycosciences.de/tools/pdb-care
+
+
+"ramachandran plots for carbohydrates"
+
+however, need to do it for each linkage type.
+
+----
+Tue Apr 15 15:25:38 BST 2008
+    
+    Kim says Hursthouse for Portsmouth, Southhampton etc 
+    small molecule crystal structures.
+    
+----
+Wed Apr 16 11:23:49 BST 2008
+
+   Add internal packing function? (bumps)
+
+----
+Wed Apr 16 11:36:44 BST 2008
+
+    What is the RSR Z score from EDS?  
+    Can we make something similar?
+
+    Correlation?
+
+----
+Thu Apr 17 13:28:45 BST 2008
+
+    
+(define a (evaluate-by-python "True"))
+
+
+(let ((test-values
+       (list
+	#f
+	#t
+	-1 
+	0
+	2
+	3.5
+	"c"
+	(list "e" "f")
+	(list (list 1 2) 3)
+       '("a" #f '("b" #t '(1 2 3.3) '("c" 4.5 6.7 '()))))))
+
+  (map (lambda (a)
+	 (equal? a 
+		 (evaluate-by-python
+		  python_expression_to_scheme_expression
+		   (scheme-expression->python-expression a)))))
+       test-values))
+
+
+
 
 

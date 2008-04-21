@@ -435,6 +435,7 @@ function test_coot {
 echo testing with greg
 echo currently we are here:
 pwd
+date
 
 if test "$run_tests" = true ; then
    # let's test our new coot

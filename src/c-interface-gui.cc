@@ -3880,3 +3880,40 @@ void add_additional_representation_by_widget(GtkWidget *w) {
    }
    graphics_draw();
 } 
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
+   GtkWidget *w = create_residue_editor_select_monomer_type_dialog();
+   GtkWidget *combo_box = lookup_widget(w, "residue_editor_select_monomer_type_combobox");
+   graphics_info_t g;
+   std::vector<std::string> v = g.Geom_p()->monomer_types();
+   for (unsigned int i=0; i<v.size(); i++) {
+      gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), v[i].c_str());
+   }
+   return w;
+}
+#endif
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+void show_restraints_editor(const char *monomer_type) {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      graphics_info_t g;
+      coot::protein_geometry *pg = g.Geom_p();
+
+      std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	 pg->get_monomer_restraints(monomer_type);
+   
+      if (p.first) { 
+	 coot::dictionary_residue_restraints_t restraints = p.second;
+      
+	 coot::restraints_editor r;
+	 r.fill_dialog(restraints);
+	 g.restraints_editors.push_back(r);
+      }
+   }
+}
+
+#endif
