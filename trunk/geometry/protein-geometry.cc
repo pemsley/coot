@@ -3066,3 +3066,12 @@ coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
    }
    return s;
 } 
+
+std::vector<std::string>
+coot::protein_geometry::monomer_types() const {
+   std::vector<std::string> v;
+   for (int i=0; i<dict_res_restraints.size(); i++) {
+      v.push_back(dict_res_restraints[i].residue_info.comp_id);
+   }
+   return v;
+}

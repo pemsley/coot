@@ -764,7 +764,9 @@ namespace coot {
       bool hydrogens_connect_file(const std::string &resname,
 				  const std::string &filename) const;
       
-   }; 
+      std::vector<std::string> monomer_types() const;
+   };
+
 
 
 } // namespace coot
