@@ -15,8 +15,10 @@
 BEGIN_C_DECLS
 
 void apply_restraint_by_widget(GtkWidget *w);
+void restraints_editor_save_restraint_by_widget(GtkWidget *w);
 void restraints_editor_delete_restraint_by_widget(GtkWidget *w);
 void restraints_editor_add_restraint_by_widget(GtkWidget *w);
+void save_monomer_restraints_by_widget(GtkDialog *chooser);
 
 END_C_DECLS
 

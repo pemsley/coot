@@ -2727,7 +2727,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
    
    //  2.1  Example 1: add a structure into mmCIF object
    int rc = mmCIF->AddStructure ("_chem_comp", mmCIFStruct);
-   std::cout << "rc on AddStructure returned " << rc << std::endl;
+   // std::cout << "rc on AddStructure returned " << rc << std::endl;
    if (rc!=CIFRC_Ok && rc!=CIFRC_Created)  {
       // badness!
       std::cout << "rc not CIFRC_Ok " << rc << std::endl;
@@ -2789,7 +2789,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       rc = mmCIF->AddLoop("_chem_comp_bond", mmCIFLoop);
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
+	 // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
 	 for (int i=0; i<bond_restraint.size(); i++) {
 	    // std::cout << "ading bond number " << i << std::endl;
 	    char *ss = (char *) residue_info.comp_id.c_str();
@@ -2811,7 +2811,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       rc = mmCIF->AddLoop("_chem_comp_angle", mmCIFLoop);
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 std::cout << " number of angles: " << angle_restraint.size() << std::endl;
+	 // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
 	 for (int i=0; i<angle_restraint.size(); i++) {
 	    // std::cout << "ading angle number " << i << std::endl;
 	    char *ss = (char *) residue_info.comp_id.c_str();
@@ -2833,7 +2833,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       rc = mmCIF->AddLoop("_chem_comp_tor", mmCIFLoop);
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
+	 // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
 	 for (int i=0; i<torsion_restraint.size(); i++) {
 	    // std::cout << "ading torsion number " << i << std::endl;
 	    char *ss = (char *) residue_info.comp_id.c_str();
@@ -2861,7 +2861,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       rc = mmCIF->AddLoop("_chem_comp_chir", mmCIFLoop);
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
+	 // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
 	 for (int i=0; i<chiral_restraint.size(); i++) {
 	    // std::cout << "ading chiral number " << i << std::endl;
 	    char *ss = (char *) residue_info.comp_id.c_str();
@@ -2890,10 +2890,10 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       rc = mmCIF->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
       if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 std::cout << " number of planes: " << plane_restraint.size() << std::endl;
+	 // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
 	 int icount = 0;
 	 for (int i=0; i<plane_restraint.size(); i++) {
-	    std::cout << "DEBUG:: adding plane number " << i << std::endl;
+	    // std::cout << "DEBUG:: adding plane number " << i << std::endl;
 	    for (int iat=0; iat<plane_restraint[i].n_atoms(); iat++) {
 	       char *ss = (char *) residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", icount);

@@ -3369,7 +3369,7 @@ on_run_script_filechooserdialog1_destroy
 					(GtkObject * object, 
 					gpointer user_data);
 
-#if (GTK_MINOR_VERSION > 9)
+#if ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 9))
 GtkFileChooserConfirmation
 on_save_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
@@ -3725,8 +3725,29 @@ void
 on_restraints_editor_apply_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+void
+on_restraints_editor_save_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
 
 void
 on_restraint_editor_delete_restraint_button_clicked
                                         (GtkButton       *button,
+                                        gpointer         user_data);
+
+#if ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 9))
+GtkFileChooserConfirmation
+on_save_restraint_chooserdialog_confirm_overwrite
+                                        (GtkFileChooser  *filechooser,
+                                        gpointer         user_data);
+#endif
+
+void
+on_save_restraint_chooserdialog_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_save_restraint_chooserdialog_close  (GtkDialog       *dialog,
                                         gpointer         user_data);
