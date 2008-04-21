@@ -121,27 +121,27 @@
     (gtk-widget-show-all window)))
 
 
-
-;; 
-(molprobity-fascinating-clusters-things-gui
- "Testing the GUI" 
- (list 
-  (list "Active Site" (list 0 1 2 3 4))
-  (list "Worst First" (list 3 4 1 2 0)))
- (list 
-  (list "The first cluster"
-	11 12 15
-	(list 
-	 (list "A bad thing" 0.4 0.6 0.7 10 13 16)	
-	 (list "Another bad thing" 0.4 0.6 0.7 12 15 16)))
-  (list "Another cluster of baddies"
-	-11 12 15
-	(list
-	 (list "A quite bad thing" 0.4 0.6 0.7 -10 -13 16)	
-	 (list "A not so bad thing" 0.4 0.6 0.7 -12 -15 16)))
-  (list "A third cluster of baddies"
-	11 12 -15
-	(list
-	 (list "A quite bad rotamer" 0.4 0.6 0.7 10 13 -16)	
-	 (list "A hydrogen clash" 0.4 0.6 0.7 12 15 -16)
-	 (list "A not so bad H-H clash" 0.4 0.6 0.7 12 15 -16)))))
+;;; example:
+;;; 
+;(molprobity-fascinating-clusters-gui
+; "Testing the GUI" 
+; (list 
+;  (list "Active Site" (list 0 1 2 3 4))
+;  (list "Worst First" (list 3 4 1 2 0)))
+; (list 
+;  (list "The first cluster"
+;	11 12 15
+;	(list 
+;	 (list "A bad thing" 0.4 0.6 0.7 10 13 16)	
+;	 (list "Another bad thing" 0.4 0.6 0.7 12 15 16)))
+;  (list "Another cluster of baddies"
+;	-11 12 15
+;	(list
+;	 (list "A quite bad thing" 0.4 0.6 0.7 -10 -13 16)	
+;	 (list "A not so bad thing" 0.4 0.6 0.7 -12 -15 16)))
+;  (list "A third cluster of baddies"
+;	11 12 -15
+;	(list
+;	 (list "A quite bad rotamer" 0.4 0.6 0.7 10 13 -16)	
+;	 (list "A hydrogen clash" 0.4 0.6 0.7 12 15 -16)
+;	 (list "A not so bad H-H clash" 0.4 0.6 0.7 12 15 -16)))))
