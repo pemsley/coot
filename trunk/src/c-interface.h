@@ -2613,6 +2613,15 @@ int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 
 */
 int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode); 
 
+/*  ----------------------------------------------------------------------- */
+/*                  Restraints editor                                       */
+/*  ----------------------------------------------------------------------- */
+#if (GTK_MAJOR_VERSION > 1) 
+GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog();
+void show_restraints_editor(const char *monomer_type);
+#endif
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

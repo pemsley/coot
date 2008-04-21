@@ -288,6 +288,9 @@ coot_real_SOURCES = \
 	rama_mousey.hh		 \
 	rama_plot.cc		 \
 	rama_plot.hh		 \
+	restraints-editor.cc     \
+	restraints-editor.hh     \
+	restraints-editor-c.h    \
 	coot-nomenclature.cc	 \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \

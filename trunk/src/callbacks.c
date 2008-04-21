@@ -43,6 +43,9 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "gtk-manual.h"
+#include "restraints-editor-c.h"
+
+
 
 #include "read-phs.h"
 
@@ -10032,3 +10035,92 @@ on_all2_activate                       (GtkMenuItem     *menuitem,
 {
 
 }
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button,
+						    gpointer         user_data) { 
+  
+
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
+  GtkWidget *combo_box = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_combobox");
+  gchar *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combo_box));
+  printf("residue editor for type %s\n", t);
+  show_restraints_editor(t);
+  gtk_widget_destroy(dialog);
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_residue_editor_select_monomer_type_cancel_button_clicked (GtkButton       *button,
+							gpointer         user_data) {
+
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
+  gtk_widget_destroy(dialog);
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_restraints1_activate                (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = wrapped_create_residue_editor_select_monomer_type_dialog();
+  gtk_widget_show(w);
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_restraint_editor_add_restraint_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
+  restraints_editor_add_restraint_by_widget(w);
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_restraints_editor_close_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
+  gtk_widget_destroy(w);
+
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_restraints_editor_apply_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
+  apply_restraint_by_widget(w);
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_restraint_editor_delete_restraint_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
+  restraints_editor_delete_restraint_by_widget(w);
+}
+#endif	/* GTK_MAJOR_VERSION */
+

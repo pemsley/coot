@@ -73,6 +73,10 @@
 
 #include "coot-database.hh"
 
+#if (GTK_MAJOR_VERSION > 1) 
+#include "restraints-editor.hh"
+#endif 
+
 #ifdef USE_GUILE
 #include <libguile.h>
 #endif 
@@ -2886,7 +2890,29 @@ string   static std::string sessionid;
    static void dump_a_movie_image(); // should be private
    static int screendump_image(const std::string &file_name); 
 
+   // ------------------------- restraints editor ----------------------------
+   // 
+#if (GTK_MAJOR_VERSION > 1) 
+   static std::vector<coot::restraints_editor> restraints_editors;
+   coot::restraints_editor get_restraints_editor(GtkWidget *w) { 
+     coot::restraints_editor r;
+     int found_index = -1;
+     for (unsigned int i=0; i<restraints_editors.size(); i++) { 
+       if (restraints_editors[i].is_valid()) { 
+         if (restraints_editors[i].matches_dialog(w)) { 
+           found_index = i;
+           break;
+         }
+       }
+     }
+     if (found_index != -1)
+       r = restraints_editors[found_index];
+     return r;
+   } 
+#endif //GTK_MAJOR_VERSION
+
 };
+
 
 class molecule_rot_t { 
 

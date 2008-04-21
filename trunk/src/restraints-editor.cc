@@ -1,3 +1,23 @@
+/* src/restraints-editor.cc
+ * 
+ * Copyright 2008 by The University of Oxford
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <vector>
 #include <string>
@@ -9,13 +29,15 @@
 
 #include <gtk/gtk.h>
 
+#if (GTK_MAJOR_VERSION > 1)
+
 #include "interface.h"
 #include "support.h"
 
 #include "protein-geometry.hh"
 #include "coot-utils.hh"
 
-#define PACKAGE restraints-editor
+// #define PACKAGE restraints-editor
 
 
 #include "restraints-editor.hh"
@@ -692,12 +714,13 @@ coot::dictionary_residue_restraints_t
 coot::restraints_editor::make_restraint() const {
 
    coot::dictionary_residue_restraints_t rest("s", 0);
-   // read the tree stores:
+   // read the tree stores: 
 
    std::vector<coot::dict_bond_restraint_t> bonds = get_bond_restraints();
    std::vector<coot::dict_angle_restraint_t> angles = get_angle_restraints();
    std::vector<coot::dict_torsion_restraint_t> torsions = get_torsion_restraints();
    std::vector<coot::dict_chiral_restraint_t> chirals = get_chiral_restraints();
+   std::vector<coot::dict_plane_restraint_t> planes = get_plane_restraints();
    std::pair<bool, std::vector <coot::dict_atom> > atom_info = get_atom_info();
    std::pair<bool, coot::dict_chem_comp_t> residue_info = get_residue_info();
 
@@ -708,7 +731,10 @@ coot::restraints_editor::make_restraint() const {
       rest.angle_restraint   = angles;
       rest.torsion_restraint = torsions;
       rest.chiral_restraint  = chirals;
-      
+      rest.assign_chiral_volume_targets();
+      rest.plane_restraint   = planes;
+      rest.comp_id           = residue_info.second.comp_id;
+
       bool p_c_state = atom_info.first;
       rest.set_has_partial_charges(p_c_state);
    }
@@ -723,7 +749,7 @@ coot::restraints_editor::get_bond_restraints() const {
    // e.g. tree_store_bonds:
    GtkTreeIter  iter;
 
-   bool v = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(view_and_store_bonds.view), &iter);
+   bool v = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(view_and_store_bonds.store), &iter);
    while (v) {
       std::string atom1("");
       std::string atom2("");
@@ -760,8 +786,8 @@ coot::restraints_editor::get_bond_restraints() const {
  	  (dist > 0.0)         &&
  	  (esd > 0.0)) { 
  	 coot::dict_bond_restraint_t rest(atom1, atom2, type, dist, esd);
- 	 // std::cout << "added a bond restraint ";
-	 // std::cout << ":" << atom1 << ": :" << atom2 << ": :" << type << ": " << dist << " " << esd << std::endl;
+// 	 std::cout << "added a bond restraint ";
+// 	 std::cout << ":" << atom1 << ": :" << atom2 << ": :" << type << ": " << dist << " " << esd << std::endl;
 
  	 r.push_back(rest);
       }
@@ -828,6 +854,11 @@ coot::restraints_editor::get_torsion_restraints() const {
    // e.g. view_and_store_torsions.store:
    GtkTreeIter  iter;
 
+   // Perhaps there were no plane restraints?
+   //
+   if (! view_and_store_torsions.store)
+      return r;
+
    bool v = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(view_and_store_torsions.store), &iter);
    while (v) {
       std::string torsion_id("");
@@ -891,6 +922,70 @@ coot::restraints_editor::get_torsion_restraints() const {
    }
 
    return r;
+}
+
+// This should be replaced when plane restraints are a tree.
+// 
+std::vector<coot::dict_plane_restraint_t>
+coot::restraints_editor::get_plane_restraints() const {
+
+   std::vector<coot::dict_plane_restraint_t> v;
+   int mpa = max_number_of_atoms_in_plane; 
+   int n_cols = mpa + 2 ; // plane_id and esd
+
+   // Perhaps there were no plane restraints?
+   //
+   if (! view_and_store_planes.store)
+      return v;
+
+   GtkTreeIter  iter;
+   bool b = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(view_and_store_planes.store), &iter);
+   while (b) {
+      std::string plane_id("");
+      std::vector<std::string> atoms;
+      float esd = - 1.0; // test for non negative at end
+      for (int col_no=0; col_no<n_cols; col_no++) {
+	 int col_type = get_column_type(coot::restraints_editor::TREE_TYPE_PLANES, col_no, mpa);
+	 std::cout << "col_no " << col_no << " of " << n_cols << " is of type "
+		   << col_type << std::endl;
+	 if (col_type == G_TYPE_STRING) {
+	    std::cout << " string type " << std::endl;
+	    gchar *place_string_here;
+	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_planes.store), &iter, col_no, &place_string_here, -1);
+	    if (col_no == 0) {
+	       plane_id = place_string_here;
+	    } else {
+	       atoms.push_back(place_string_here);
+	    }
+	 }
+	 if (col_type == G_TYPE_FLOAT) {
+	    std::cout << " float type " << std::endl;
+	    float val;
+	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_planes.store), &iter, col_no, &val, -1);
+	    esd = val;
+	 }
+      }
+
+      bool made_restraint = 0; 
+      if (plane_id != "") {
+	 if (atoms.size() > 0) {
+	    if (esd > 0.0) {
+	       made_restraint = 1;
+	       coot::dict_plane_restraint_t r(plane_id, atoms, esd); 
+	       v.push_back(r);
+	    } 
+	 } 
+      }
+      if (made_restraint) {
+	 std::cout << "Made restraint from :" << plane_id << ": " << atoms.size() << " atoms "
+		   << "with esd " << esd << std::endl;
+      } else {
+	 std::cout << "No restraint from :" << plane_id << ": " << atoms.size() << " atoms "
+		   << "with esd " << esd << std::endl;
+      } 
+      b = gtk_tree_model_iter_next (GTK_TREE_MODEL(view_and_store_torsions.store), &iter);
+   }
+   return v;
 }
 
 std::vector<coot::dict_chiral_restraint_t> 
@@ -999,9 +1094,9 @@ coot::restraints_editor::get_atom_info() const {
 	 }
 	 
  	 coot::dict_atom info(atom_name, atom_name, atom_element, energy_type, part_charge_pair);
- 	 std::cout << "added a atom info ";
-	 std::cout << ":" << atom_name << ": :" << atom_element << ": :" << energy_type << ": " << partial_charge
-		   << " " << part_charge_pair.first << std::endl;
+//  	 std::cout << "added a atom info ";
+// 	 std::cout << ":" << atom_name << ": :" << atom_element << ": :" << energy_type << ": " << partial_charge
+// 		   << " " << part_charge_pair.first << std::endl;
 
  	 r.push_back(info);
       }
@@ -1064,6 +1159,8 @@ coot::restraints_editor::get_residue_info() const {
 
 	 coot::dict_chem_comp_t res_info(comp_id, tlc, name, group, n_atoms, n_H_atoms, description_level);
 	 std::cout << "added a dict_chem_comp ";
+	 std::cout << ":" << comp_id << ": :" << tlc << ": :" << name << ": :" << group << ": " << n_H_atoms
+		   << " " << n_H_atoms << " :" << description_level << ":" << std::endl;
 	 proper = 1;
 	 info = res_info;
       } else {
@@ -1087,8 +1184,18 @@ void apply_restraint_by_widget(GtkWidget *w) {
    if (re.is_valid()) {
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       // do something with r.
+      std::cout << "Doing something with r" << std::endl;
+      std::string filename = "restraint.cif";
+      r.write_cif(filename);
+      coot::protein_geometry *pg = g.Geom_p();
+      std::string type = r.residue_info.comp_id;
+      bool v = pg->replace_monomer_restraints(type, r);
+      if (v)
+	 std::cout << "INFO:: restraints for " << type << " were replaced" << std::endl;
+      else
+	 std::cout << "WARNING:: failed to replace restraints for " << type << std::endl;
+	 
    }
-
 } 
 
 void restraints_editor_delete_restraint_by_widget(GtkWidget *w) {
@@ -1222,3 +1329,5 @@ coot::restraints_editor::get_tree_view_by_notebook_page(gint current_page_index)
    }
    return tree_view;
 }
+
+#endif // (GTK_MAJOR_VERSION > 1)

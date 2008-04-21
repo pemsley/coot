@@ -238,6 +238,8 @@
 
    o Rotate/Translate a whole protein (many chains)
 
+   o Geometric distortions graph for alt confs - currently broken?
+
    o Update stand-alone refinement program. 
      (Write a test for it?)
 
@@ -246,7 +248,11 @@
   mail list.  And give up.  Check how greg behaves on compile/build - 
   it tests itself before install.
 
+   o The zooming in out out of a Ramachandran plot is inelegant.
+     Needs fixing.
+
    o Integrate scripting functions into main documentation somehow
+
 
  ------
     

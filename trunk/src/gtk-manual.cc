@@ -1208,11 +1208,7 @@ on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button
 						   gpointer         user_data)
 {
 
-/*  we cast back from (char *) to (int *) because that's what it is of course */
-
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(button)));
-
-/*   toggle_display_map(*imol, 0); /* force a redraw */
 
   if (button->active)
     set_map_displayed(imol, 1);
@@ -1224,15 +1220,12 @@ on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button
 void
 on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
 						    gpointer         user_data) {
-/*    printf("got to on_display_control_map_scroll_radio_button_toggled\n"); */
-
   int imol = GPOINTER_TO_INT(user_data);
   char *state = "inactive";
   if (GTK_TOGGLE_BUTTON(button)->active) {
     state = "active";
     set_scrollable_map(imol);
   }
-/*    printf("INFO:: scroll toggled for map %d %s\n", i, state); */
 }
 
 
@@ -1243,7 +1236,6 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 
 /* Remove (comment out) archaic use of casting int * for user data. */
   int imol = GPOINTER_TO_INT(user_data);
-/*   // int *imol_pass = (int *) malloc(sizeof(int)); */
   GtkWidget *frame;
   GtkWidget *window = create_single_map_properties_dialog();
   GtkWidget *patch_frame = lookup_widget(window, 
@@ -1267,20 +1259,12 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
   printf("DEBUG:: on_display_control_map_properties_button_clicked: imol %d\n", imol);
   
   fill_single_map_properties_dialog(window, imol);
-/*   *imol_pass = *imol;   */
-/*   printf("DEBUG:: on_display_control_map_properties_button_clicked: imol %d\n", *imol); */
   gtk_object_set_user_data(GTK_OBJECT(window), GINT_TO_POINTER(imol));
-/*   printf("DEBUG:: setting pointer to 0x%x in single_map_properties_dialog\n", imol); */
-
-/*   fill_map_colour_patch(patch_frame, imol); */
-
   /*  and now the skeleton buttons */
   frame = lookup_widget(window, "single_map_skeleton_frame");
   set_on_off_single_map_skeleton_radio_buttons(frame, imol);
-
   /* contour by sigma step */
   set_contour_sigma_button_and_entry(window, imol);
-
   gtk_widget_show(window);
 }
 
