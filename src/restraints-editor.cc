@@ -946,10 +946,9 @@ coot::restraints_editor::get_plane_restraints() const {
       float esd = - 1.0; // test for non negative at end
       for (int col_no=0; col_no<n_cols; col_no++) {
 	 int col_type = get_column_type(coot::restraints_editor::TREE_TYPE_PLANES, col_no, mpa);
-	 std::cout << "col_no " << col_no << " of " << n_cols << " is of type "
-		   << col_type << std::endl;
+// 	 std::cout << "col_no " << col_no << " of " << n_cols << " is of type "
+// 		   << col_type << std::endl;
 	 if (col_type == G_TYPE_STRING) {
-	    std::cout << " string type " << std::endl;
 	    gchar *place_string_here;
 	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_planes.store), &iter, col_no, &place_string_here, -1);
 	    if (col_no == 0) {
@@ -959,7 +958,6 @@ coot::restraints_editor::get_plane_restraints() const {
 	    }
 	 }
 	 if (col_type == G_TYPE_FLOAT) {
-	    std::cout << " float type " << std::endl;
 	    float val;
 	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_planes.store), &iter, col_no, &val, -1);
 	    esd = val;
@@ -983,7 +981,7 @@ coot::restraints_editor::get_plane_restraints() const {
 	 std::cout << "No restraint from :" << plane_id << ": " << atoms.size() << " atoms "
 		   << "with esd " << esd << std::endl;
       } 
-      b = gtk_tree_model_iter_next (GTK_TREE_MODEL(view_and_store_torsions.store), &iter);
+      b = gtk_tree_model_iter_next (GTK_TREE_MODEL(view_and_store_planes.store), &iter);
    }
    return v;
 }
@@ -1036,9 +1034,9 @@ coot::restraints_editor::get_chiral_restraints() const {
 	  (chiral_id.length() > 0) &&
 	  (sign > -999)) { 
  	 coot::dict_chiral_restraint_t rest(chiral_id, atomc, atom1, atom2, atom3, sign);
- 	 std::cout << "added a chiral restraint ";
-	 std::cout << ":" << chiral_id << ": :" << atomc << ": :" << atom1 << ": :" << atom2 << ": " << atom3 << ": "
-		   << sign << std::endl;
+//  	 std::cout << "added a chiral restraint ";
+// 	 std::cout << ":" << chiral_id << ": :" << atomc << ": :" << atom1 << ": :"
+// 		   << atom2 << ": " << atom3 << ": " << sign << std::endl;
 
  	 r.push_back(rest);
       }
@@ -1158,9 +1156,9 @@ coot::restraints_editor::get_residue_info() const {
 	  (n_H_atoms > 0)) { 
 
 	 coot::dict_chem_comp_t res_info(comp_id, tlc, name, group, n_atoms, n_H_atoms, description_level);
-	 std::cout << "added a dict_chem_comp ";
-	 std::cout << ":" << comp_id << ": :" << tlc << ": :" << name << ": :" << group << ": " << n_H_atoms
-		   << " " << n_H_atoms << " :" << description_level << ":" << std::endl;
+	 // std::cout << "added a dict_chem_comp ";
+// 	 std::cout << ":" << comp_id << ": :" << tlc << ": :" << name << ": :" << group << ": " << n_H_atoms
+// 		   << " " << n_H_atoms << " :" << description_level << ":" << std::endl;
 	 proper = 1;
 	 info = res_info;
       } else {
@@ -1184,7 +1182,6 @@ void apply_restraint_by_widget(GtkWidget *w) {
    if (re.is_valid()) {
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       // do something with r.
-      std::cout << "Doing something with r" << std::endl;
       std::string filename = "restraint.cif";
       r.write_cif(filename);
       coot::protein_geometry *pg = g.Geom_p();
@@ -1197,6 +1194,35 @@ void apply_restraint_by_widget(GtkWidget *w) {
 	 
    }
 } 
+
+void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
+
+   std::cout << "save restraint here " << std::endl;
+   graphics_info_t g;
+   coot::restraints_editor re = g.get_restraints_editor(w);
+   if (re.is_valid()) {
+      GtkWidget *w = create_save_restraint_chooserdialog();
+      coot::dictionary_residue_restraints_t r = re.make_restraint();
+      std::string filename = "monomer-";
+      filename += r.residue_info.comp_id;
+      filename += ".cif";
+      gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(w), TRUE);
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w), filename.c_str());
+      // somehow attach the restraint r to the widget file chooser widget, w.
+      coot::dictionary_residue_restraints_t *ptr = new coot::dictionary_residue_restraints_t("", 0);
+      *ptr = r;
+      g_object_set_data(G_OBJECT(w), "restraints", (gpointer) ptr);
+      gtk_widget_show(w);
+   }
+}
+
+void save_monomer_restraints_by_widget(GtkDialog *chooser) {
+   const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
+   coot::dictionary_residue_restraints_t *t =
+      (coot::dictionary_residue_restraints_t *) g_object_get_data (G_OBJECT (chooser), "restraints");
+   t->write_cif(filename);
+} 
+
 
 void restraints_editor_delete_restraint_by_widget(GtkWidget *w) {
 

@@ -25466,7 +25466,6 @@ create_save_coords_filechooserdialog1 (void)
   gtk_widget_set_name (save_coords_filechooserdialog1, "save_coords_filechooserdialog1");
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_filechooserdialog1), 10);
   gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, _("Saved File type: By extension"), NULL);
-  gtk_window_set_resizable (GTK_WINDOW (save_coords_filechooserdialog1), FALSE);
   gtk_window_set_type_hint (GTK_WINDOW (save_coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox104 = GTK_DIALOG (save_coords_filechooserdialog1)->vbox;
@@ -26597,11 +26596,16 @@ create_restraints_editor_dialog (void)
   GtkWidget *hbox4;
   GtkWidget *image3;
   GtkWidget *label30;
+  GtkWidget *restraints_editor_save_button;
+  GtkWidget *alignment123;
+  GtkWidget *hbox339;
+  GtkWidget *image6640;
+  GtkWidget *label635;
   GtkWidget *restraints_editor_apply_button;
-  GtkWidget *alignment4;
-  GtkWidget *hbox5;
-  GtkWidget *image4;
-  GtkWidget *label31;
+  GtkWidget *alignment124;
+  GtkWidget *hbox340;
+  GtkWidget *image6641;
+  GtkWidget *label636;
 
   restraints_editor_dialog = gtk_dialog_new ();
   gtk_widget_set_name (restraints_editor_dialog, "restraints_editor_dialog");
@@ -26821,31 +26825,57 @@ create_restraints_editor_dialog (void)
   gtk_widget_show (label30);
   gtk_box_pack_start (GTK_BOX (hbox4), label30, FALSE, FALSE, 0);
 
+  restraints_editor_save_button = gtk_button_new ();
+  gtk_widget_set_name (restraints_editor_save_button, "restraints_editor_save_button");
+  gtk_widget_show (restraints_editor_save_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (restraints_editor_dialog), restraints_editor_save_button, 0);
+  GTK_WIDGET_SET_FLAGS (restraints_editor_save_button, GTK_CAN_DEFAULT);
+
+  alignment123 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_set_name (alignment123, "alignment123");
+  gtk_widget_show (alignment123);
+  gtk_container_add (GTK_CONTAINER (restraints_editor_save_button), alignment123);
+
+  hbox339 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_set_name (hbox339, "hbox339");
+  gtk_widget_show (hbox339);
+  gtk_container_add (GTK_CONTAINER (alignment123), hbox339);
+
+  image6640 = gtk_image_new_from_stock ("gtk-save-as", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_set_name (image6640, "image6640");
+  gtk_widget_show (image6640);
+  gtk_box_pack_start (GTK_BOX (hbox339), image6640, FALSE, FALSE, 0);
+
+  label635 = gtk_label_new_with_mnemonic (_("Save as mmCIF..."));
+  gtk_widget_set_name (label635, "label635");
+  gtk_widget_show (label635);
+  gtk_box_pack_start (GTK_BOX (hbox339), label635, FALSE, FALSE, 0);
+
   restraints_editor_apply_button = gtk_button_new ();
   gtk_widget_set_name (restraints_editor_apply_button, "restraints_editor_apply_button");
   gtk_widget_show (restraints_editor_apply_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (restraints_editor_dialog), restraints_editor_apply_button, 0);
   GTK_WIDGET_SET_FLAGS (restraints_editor_apply_button, GTK_CAN_DEFAULT);
 
-  alignment4 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_set_name (alignment4, "alignment4");
-  gtk_widget_show (alignment4);
-  gtk_container_add (GTK_CONTAINER (restraints_editor_apply_button), alignment4);
+  alignment124 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_set_name (alignment124, "alignment124");
+  gtk_widget_show (alignment124);
+  gtk_container_add (GTK_CONTAINER (restraints_editor_apply_button), alignment124);
 
-  hbox5 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_set_name (hbox5, "hbox5");
-  gtk_widget_show (hbox5);
-  gtk_container_add (GTK_CONTAINER (alignment4), hbox5);
+  hbox340 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_set_name (hbox340, "hbox340");
+  gtk_widget_show (hbox340);
+  gtk_container_add (GTK_CONTAINER (alignment124), hbox340);
 
-  image4 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_set_name (image4, "image4");
-  gtk_widget_show (image4);
-  gtk_box_pack_start (GTK_BOX (hbox5), image4, FALSE, FALSE, 0);
+  image6641 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_set_name (image6641, "image6641");
+  gtk_widget_show (image6641);
+  gtk_box_pack_start (GTK_BOX (hbox340), image6641, FALSE, FALSE, 0);
 
-  label31 = gtk_label_new_with_mnemonic (_("Apply"));
-  gtk_widget_set_name (label31, "label31");
-  gtk_widget_show (label31);
-  gtk_box_pack_start (GTK_BOX (hbox5), label31, FALSE, FALSE, 0);
+  label636 = gtk_label_new_with_mnemonic (_("Apply"));
+  gtk_widget_set_name (label636, "label636");
+  gtk_widget_show (label636);
+  gtk_box_pack_start (GTK_BOX (hbox340), label636, FALSE, FALSE, 0);
 
   g_signal_connect ((gpointer) restraint_editor_add_restraint_button, "clicked",
                     G_CALLBACK (on_restraint_editor_add_restraint_button_clicked),
@@ -26855,6 +26885,9 @@ create_restraints_editor_dialog (void)
                     NULL);
   g_signal_connect ((gpointer) restraints_editor_close_button, "clicked",
                     G_CALLBACK (on_restraints_editor_close_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) restraints_editor_save_button, "clicked",
+                    G_CALLBACK (on_restraints_editor_save_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) restraints_editor_apply_button, "clicked",
                     G_CALLBACK (on_restraints_editor_apply_button_clicked),
@@ -26903,11 +26936,16 @@ create_restraints_editor_dialog (void)
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, hbox4, "hbox4");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, image3, "image3");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, label30, "label30");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, restraints_editor_save_button, "restraints_editor_save_button");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, alignment123, "alignment123");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, hbox339, "hbox339");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, image6640, "image6640");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, label635, "label635");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, restraints_editor_apply_button, "restraints_editor_apply_button");
-  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, alignment4, "alignment4");
-  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, hbox5, "hbox5");
-  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, image4, "image4");
-  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, label31, "label31");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, alignment124, "alignment124");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, hbox340, "hbox340");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, image6641, "image6641");
+  GLADE_HOOKUP_OBJECT (restraints_editor_dialog, label636, "label636");
 
   return restraints_editor_dialog;
 }
@@ -27050,6 +27088,65 @@ create_residue_editor_select_monomer_type_dialog (void)
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, label632, "label632");
 
   return residue_editor_select_monomer_type_dialog;
+}
+
+GtkWidget*
+create_save_restraint_chooserdialog (void)
+{
+  GtkWidget *save_restraint_chooserdialog;
+  GtkWidget *dialog_vbox114;
+  GtkWidget *dialog_action_area113;
+  GtkWidget *button27;
+  GtkWidget *button28;
+
+  save_restraint_chooserdialog = gtk_file_chooser_dialog_new (_("Save Restraints as mmCIF"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
+  gtk_widget_set_name (save_restraint_chooserdialog, "save_restraint_chooserdialog");
+  gtk_container_set_border_width (GTK_CONTAINER (save_restraint_chooserdialog), 5);
+  gtk_window_set_type_hint (GTK_WINDOW (save_restraint_chooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox114 = GTK_DIALOG (save_restraint_chooserdialog)->vbox;
+  gtk_widget_set_name (dialog_vbox114, "dialog_vbox114");
+  gtk_widget_show (dialog_vbox114);
+
+  dialog_action_area113 = GTK_DIALOG (save_restraint_chooserdialog)->action_area;
+  gtk_widget_set_name (dialog_action_area113, "dialog_action_area113");
+  gtk_widget_show (dialog_action_area113);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area113), GTK_BUTTONBOX_END);
+
+  button27 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_set_name (button27, "button27");
+  gtk_widget_show (button27);
+  gtk_dialog_add_action_widget (GTK_DIALOG (save_restraint_chooserdialog), button27, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button27, GTK_CAN_DEFAULT);
+
+  button28 = gtk_button_new_from_stock ("gtk-save");
+  gtk_widget_set_name (button28, "button28");
+  gtk_widget_show (button28);
+  gtk_dialog_add_action_widget (GTK_DIALOG (save_restraint_chooserdialog), button28, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button28, GTK_CAN_DEFAULT);
+
+#if (GTK_MINOR_VERSION > 9)
+  g_signal_connect ((gpointer) save_restraint_chooserdialog, "confirm_overwrite",
+                    G_CALLBACK (on_save_restraint_chooserdialog_confirm_overwrite),
+                    NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
+  g_signal_connect ((gpointer) save_restraint_chooserdialog, "response",
+                    G_CALLBACK (on_save_restraint_chooserdialog_response),
+                    NULL);
+  g_signal_connect ((gpointer) save_restraint_chooserdialog, "close",
+                    G_CALLBACK (on_save_restraint_chooserdialog_close),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, save_restraint_chooserdialog, "save_restraint_chooserdialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, dialog_vbox114, "dialog_vbox114");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, dialog_action_area113, "dialog_action_area113");
+  GLADE_HOOKUP_OBJECT (save_restraint_chooserdialog, button27, "button27");
+  GLADE_HOOKUP_OBJECT (save_restraint_chooserdialog, button28, "button28");
+
+  gtk_widget_grab_default (button28);
+  return save_restraint_chooserdialog;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */

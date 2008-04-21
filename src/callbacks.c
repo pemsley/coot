@@ -10099,6 +10099,17 @@ on_restraints_editor_close_button_clicked
 }
 #endif	/* GTK_MAJOR_VERSION */
 
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_restraints_editor_save_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
+  restraints_editor_save_restraint_by_widget(w);
+}
+#endif	/* GTK_MAJOR_VERSION */
+
 
 #if (GTK_MAJOR_VERSION > 1)
 void
@@ -10124,3 +10135,38 @@ on_restraint_editor_delete_restraint_button_clicked
 }
 #endif	/* GTK_MAJOR_VERSION */
 
+
+
+#if ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 9))
+GtkFileChooserConfirmation
+on_save_restraint_chooserdialog_confirm_overwrite
+                                        (GtkFileChooser  *filechooser,
+					 gpointer         user_data) { 
+
+  if (file_chooser_overwrite_state() == 1) {
+    return GTK_FILE_CHOOSER_CONFIRMATION_CONFIRM;
+  } else {
+    return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
+  }
+}
+#endif
+
+void
+on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
+					 gint             response_id,
+					 gpointer         user_data) { 
+
+#if (GTK_MAJOR_VERSION > 1)
+  if (response_id == GTK_RESPONSE_OK) {
+    GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");
+    save_monomer_restraints_by_widget(dialog);
+    gtk_widget_destroy(w);
+  }
+#endif /* GTK_MAJOR_VERSION  */
+}
+
+void
+on_save_restraint_chooserdialog_close  (GtkDialog       *dialog,
+                                        gpointer         user_data) { 
+
+}
