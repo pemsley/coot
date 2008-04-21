@@ -3792,8 +3792,10 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
       int imol_active_position = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
       fill_option_menu_with_coordinates_options(option_menu,  signal_func, imol_active_position);
 
+#ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
       // set the active item to be the 8
       gtk_combo_box_set_active(GTK_COMBO_BOX(add_rep_bond_width_combobox), 7);
+#endif      
    } 
    return w;
 }
