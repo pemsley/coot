@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   19 Items
+   20 Items
 
    o Kevin's Ramachandran Refinement target
 
@@ -79,6 +79,9 @@
 
    o Save Symmetry Coordinates should not put .pdb in the middle of
      the suggested file name. 
+
+   o the tutorial on the web site has no figures (the pdf does,
+     strangely).
 
 
 
