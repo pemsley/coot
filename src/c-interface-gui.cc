@@ -3890,6 +3890,8 @@ GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
    std::vector<std::string> v = g.Geom_p()->monomer_types();
    for (unsigned int i=0; i<v.size(); i++) {
       gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), v[i].c_str());
+      if (i==0)
+	 gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
    }
    return w;
 }
