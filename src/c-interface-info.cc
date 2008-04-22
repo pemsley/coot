@@ -615,7 +615,7 @@ PyObject *scm_to_py(SCM s) {
 	    o = PyInt_FromLong(iscm);
 	 } else {
 	    if (scm_is_true(scm_real_p(s))) {
-	       float f = scm_to_int(s);
+	       float f = scm_to_double(s);
 	       o = PyFloat_FromDouble(f);
 
 	    } else {
@@ -635,18 +635,15 @@ PyObject *scm_to_py(SCM s) {
 
 SCM py_to_scm(PyObject *o) {
 
-
-   std::cout << "py_to_scm: " << o << std::endl;
-   std::cout << "PyList_Check("<< o << ") returns " << std::endl;
-   std::cout << "                 " << PyList_Check(o)  << std::endl;
-   
    SCM s = SCM_BOOL_F;
    if (PyList_Check(o)) {
       int l = PyObject_Length(o);
       s = SCM_EOL;
-      for (int item=1; item<l; item++) {
+      for (int item=0; item<l; item++) {
 	 PyObject *py_item = PyList_GetItem(o, item);
-	 std::cout << "item: " << item << " py_item " << py_item << std::endl;
+	 if (py_item == NULL) {
+	   PyErr_Print();
+	 }
 	 SCM t = py_to_scm(py_item);
 	 s = scm_cons(t, s);
       }
