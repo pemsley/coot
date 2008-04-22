@@ -5495,18 +5495,65 @@ void safe_python_command(const std::string &python_cmd) {
 #endif   
 }
 
+#ifdef USE_PYTHON
+// we need a function to clean up the returned types from safe_python_command_with_return
+// especially lists and floats. Good knows why! Maybe a Python bug!
+// 'local function' currently
+PyObject *py_clean_internal(PyObject *o) {
+
+   PyObject *ret = NULL;
+   if (PyList_Check(o)) {
+     int l = PyObject_Length(o);
+      ret = PyList_New(0);
+      for (int item=0; item<l; item++) {
+	 PyObject *py_item = PyList_GetItem(o, item);
+	 py_item = py_clean_internal(py_item);
+	 if (py_item == NULL) {
+	   PyErr_Print();
+	 }
+	 PyList_Append(ret, py_item);
+      }
+   } else {
+      if (PyBool_Check(o)) {
+	 // apparently doesnt seem to need resetting
+	 int i = PyInt_AsLong(o);
+	 ret = o;
+      } else {
+	 if (PyInt_Check(o)) {
+	    // apparently doesnt seem to need resetting
+	    int i=PyInt_AsLong(o);
+	    ret = o;
+	 } else {
+	    if (PyFloat_Check(o)) {
+	       double f = PyFloat_AsDouble(o);
+	       ret = PyFloat_FromDouble(f);
+	    } else {
+	       if (PyString_Check(o)) {
+		  std::string str = PyString_AsString(o);
+		  ret = o;
+	       } else {
+		 std::cout <<"WARNING:: incomprehensible argument passed  "<< PyString_AsString(PyObject_Str(o)) <<std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+   return ret;
+}
+
 // BL says:: let's have a python command with can receive return values
 // we need to pass the script file containing the funcn and the funcn itself
 // returns a PyObject which can then be used further
 // returns NULL for failed run
-#ifdef USE_PYTHON
 PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
+  PyObject *ret = NULL;
+
+  if (python_cmd != "") {
+
     PyObject *pName, *pModule, *pDict;
-    PyObject *ret, *globals;
-
-    ret = NULL;
-
+    PyObject *globals;
+    PyObject *pValue = NULL;
     // include $COOT_PYTHON_DIR in module search path
     PyRun_SimpleString("import sys, os");
     PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
@@ -5516,29 +5563,54 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
     const char *modulename = "__main__";
     pName = PyString_FromString(modulename);
     pModule = PyImport_Import(pName);
+    pModule = PyImport_AddModule("__main__");
     pDict = PyModule_GetDict(pModule);
     globals = PyRun_String("globals()", Py_eval_input, pDict, pDict);
     pDict = globals;
 
-    PyObject *pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
+    pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
 
     if (pValue != NULL)
     {
-        ret = pValue;
-        Py_DECREF(pValue);
+      if (pValue != Py_None) {
+	ret = py_clean_internal(pValue);
+      } else {
+	ret = Py_None;
+      }
+      Py_DECREF(pValue);
 
-    }
-    else
-    {
-        PyErr_Print();
+    } else {
+      // there is an Error. Could be a syntax error whilst trying to evaluate a statement
+      // so let's try to run it as a statement
+      if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
+	PyErr_Clear();
+	pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, pDict, pDict);
+	if (pValue != NULL) {
+	  ret = pValue;
+	  Py_DECREF(pValue);
+	}
+      } else {
+	PyErr_Print();
+      }
     }
 
     // Clean up
     Py_DECREF(pModule);
     Py_DECREF(pName);
+    Py_DECREF(pDict);
+    Py_DECREF(globals);
 
-    return ret;
-    Py_DECREF(ret);
+  } else {
+    std::cout << "INFO:: None input" <<std::endl;
+  }
+  return ret;
+  Py_DECREF(ret);
+}
+
+PyObject *safe_python_command_test(const char *cmd) {
+
+   std::string s = cmd;
+   return safe_python_command_with_return(s);
 }
 #endif //PYTHON
 
@@ -5565,6 +5637,7 @@ PyObject *run_scheme_command(const char *cmd) {
 #endif // USE_GUILE
   
   return ret_py;
+  Py_DECREF(ret_py);
 }
 #endif // USE_PYTHON
 
@@ -5575,7 +5648,10 @@ SCM run_python_command(const char *python_cmd) {
 
 #ifdef USE_PYTHON
    PyObject *ret = safe_python_command_with_return(python_cmd);
-   ret_scm = py_to_scm(ret);
+   if (ret != Py_None) {
+     ret_scm = py_to_scm(ret);
+   }
+   Py_DECREF(ret);
 #endif // USE_PYTHON
   
   return ret_scm;

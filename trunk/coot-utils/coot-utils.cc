@@ -135,8 +135,9 @@ coot::util::create_directory(const std::string &dir_name) {
    // on Windows stat works only properly if we remove the last / (if it exists)
    // everything else following seems to be fine with the /
 #ifdef WINDOWS_MINGW
+   std::string tmp_name;
    if (dir_name.find_last_of("/") == dir_name.size() - 1) {
-     std::string tmp_name = dir_name.substr(0, dir_name.size() - 1);
+     tmp_name = dir_name.substr(0, dir_name.size() - 1);
    }
    int fstat = stat(tmp_name.c_str(), &s);
 #else
