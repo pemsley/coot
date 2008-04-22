@@ -1,4 +1,4 @@
-
+ 
 
 # -*-shell-script-*-s
 # Prerequisites: sed, GNU make, libtool, wget
@@ -240,8 +240,10 @@ ENABLE_PYTHON_COOT=yes
 # for Windows we shall have an option to enable Guile and python is default
 if [ "$1" = "guile" ] ; then 
    ENABLE_GUILE_COOT=yes
+   guile_autobuild_path=-guile
 else 
    ENABLE_GUILE_COOT=no
+   guile_autobuild_path=
 fi
 
 
@@ -511,16 +513,21 @@ pwd
 
 if test "$run_tests" = true ; then
    # let's test our new coot
+   # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
+   COOT_PYTHON_DIR=$install_top_dir/share/coot/python
+   COOT_HOME=$HOME
+   export COOT_PYTHON_DIR
+   export COOT_HOME
    
    echo $install_top_dir/bin/coot-real --no-graphics --script python-tests/coot_unittest.py
         $install_top_dir/bin/coot-real --no-graphics --script python-tests/coot_unittest.py
 
    status=$?
    if [ $status = 0 ] ; then
-      echo test_coot: coot test passed
+      echo test_coot_python: coot test passed
       return 0
    else 
-      echo test_coot: coot test failed
+      echo test_coot_python: coot test failed
       return 1
    fi
 else 
@@ -561,9 +568,9 @@ fi
 #
 #we shall add the PATH for python here too:
 if test "$build_coot_prerelease" = 1 ; then
-   PATH=${AUTOBUILD_INSTALLED}-pre-release-gtk2/bin:${AUTOBUILD_INSTALLED}-pre-release-gtk2/python2.5:$PATH
+   PATH=${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path}/bin:${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path}/python2.5:$PATH
 else 
-   PATH=$AUTOBUILD_INSTALLED-gtk2/bin:$AUTOBUILD_INSTALLED-gtk2/python2.5:$PATH
+   PATH=$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path/bin:$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path/python2.5:$PATH
 fi 
 PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
 PATH=$PATH:/etc:/usr/etc
@@ -616,7 +623,7 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-exec > $LOGS/gtk2-build.log
+exec > $LOGS/gtk2-build${guile_autobuild_path}.log
 echo This is script version $script_version for Gtk2 
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
@@ -819,7 +826,7 @@ v_fid=`echo $v | sed 's/ /_/g'`
 w_fid=`echo $w | sed 's/ /_/g'`
 
 compilers_dir=gtk2-${v_fid}_and_${w_fid}
-HOSTLOGDIR=$LOGS/$compilers_dir
+HOSTLOGDIR=$LOGS/$compilers_dir${guile_autobuild_path}
 if [ ! -e $HOSTLOGDIR ] ; then 
   mkdir -p $HOSTLOGDIR
   if [ $? -ne 0 ] ; then
@@ -870,15 +877,15 @@ date=`date -u +'%Y-%m-%d__T%H_%M_%S'`
 echo Date: $date
 
 # now in $AUTOBUILD_BUILD
-# we dont want to have the 'stupi' date and time in there...
+# we dont want to have the 'stupid' date and time in there...
 # I dont like it
-mkdir ${HOST}
+mkdir ${HOST}${guile_autobuild_path}
 if [ $? -ne 0 ] ; then
-	echo mkdir  ${HOST} failed for some reason. Now in `pwd`
+	echo mkdir  ${HOST}${guile_autobuild_path} failed for some reason. Now in `pwd`
 fi
-cd ${HOST}
+cd ${HOST}${guile_autobuild_path}
 if [ $? -ne 0 ] ; then
-	echo cd ${HOST} failed for some reason. Now in `pwd`
+	echo cd ${HOST}${guile_autobuild_path} failed for some reason. Now in `pwd`
 fi
 build_dir=`pwd`
 
@@ -1009,7 +1016,7 @@ END {
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
       # tinker with coot_prefix, it is generic_prefix with pre-release added to prefix dir
-      coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
+      coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path} ${config_extras:-}"
       coot_source_tar_file=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/$coot_version_pre
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
@@ -1034,18 +1041,18 @@ echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
-      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
-      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2
+      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path} ${config_extras:-}"
+      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path}
     else 
       # don't use pre-release
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
+      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path ${config_extras:-}"
       coot_prefix="$generic_prefix"
-      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
+      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2${guile_autobuild_path}
     fi
 else 
    # not pre-release
-   generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
-   install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
+   generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path ${config_extras:-}"
+   install_top_dir=${AUTOBUILD_INSTALLED}-gtk2${guile_autobuild_path}
    coot_prefix="$generic_prefix"
 fi
 PATH=$install_top_dir/bin:$PATH
@@ -2009,7 +2016,10 @@ if test -n "$build_gtk" ; then
       echo  ======================================================
       freetype2_version=2.3.4
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-$freetype2_version.zip
-      # {WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-dev-$freetype2_version.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/freetype-dev-$freetype2_version.zip
+      cd $install_top_dir
+      7z x -y ${AUTOBUILD_SOURCES}/freetype-$freetype2_version.zip
+      7z x -y ${AUTOBUILD_SOURCES}/freetype-dev-$freetype2_version.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/freetype-$freetype2_version.zip
       # 7z x -y ${AUTOBUILD_SOURCES}/freetype-dev-$freetype2_version.zip
@@ -2028,11 +2038,11 @@ if test -n "$build_gtk" ; then
       # we need libexpat for fontconfig
       expat_version=2.0.0
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-$fontconfig_version.zip
-      # ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-dev-$fontconfig_version.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/fontconfig-dev-$fontconfig_version.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/expat-$expat_version.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/fontconfig-$fontconfig_version.zip
-      # 7z x -y ${AUTOBUILD_SOURCES}/fontconfig-dev-$fontconfig_version.zip
+      7z x -y ${AUTOBUILD_SOURCES}/fontconfig-dev-$fontconfig_version.zip
       7z x -y ${AUTOBUILD_SOURCES}/expat-$expat_version.zip
       cd -
    else
@@ -2304,9 +2314,9 @@ py_dll_dir=${py_dll_dir//\//\\}
 
 cd ${AUTOBUILD_SOURCES}
 ${WGET} http://www.python.org/ftp/python/$pver/python-$pver.msi
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/unittest_skip_win.patch
 date
 msiexec //i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 //qb
-
 
 # We need these otherwise python moans about not finding the libraries.
 #
@@ -2314,6 +2324,12 @@ echo setting PYTHONHOME
 PYTHONHOME=$install_top_dir/$py_inst_dir
 export PYTHONHOME
 echo PYTHONHOME is now $PYTHONHOME
+
+# patch the unittest module to allow skipping tests
+echo patching unittest for skipping
+cd ${PYTHONHOME}/Lib
+patch -p0<${AUTOBUILD_SOURCES}/unittest_skip_win.patch
+cd -
 
 echo done python linking.
 # now we have "python" in our path - no need to rehash - 
@@ -2333,6 +2349,10 @@ if test -n "$build_pygobject" ; then
    (
    date
    ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.win32-py2.5.exe
+   # copy pkgconfig and include files
+   mkdir $install_top_dir/include/pygtk-2.0
+   cp    $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0
+   cp    $install_top_dir/$python_version/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/05-pygobject.txt 2>&1
 else 
    echo not building pygobject:
@@ -2347,6 +2367,9 @@ if test -n "$build_pycairo" ; then
    (
    date
    ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py2.5.exe
+   # copy pkgconfig and include files
+   cp -r $install_top_dir/$python_version/include/pycairo $install_top_dir/include/
+   cp    $install_top_dir/$python_version/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/05-pycairo.txt 2>&1
 else 
    echo not building pycairo:
@@ -2364,9 +2387,21 @@ if test -n "$build_pygtk" ; then
    (
    date
    ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py2.5.exe
+   # copy pkgconfig and include files
+   cp -r $install_top_dir/$python_version/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
+   cp    $install_top_dir/$python_version/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/05-pygtk.txt 2>&1
 else 
    echo not building pytgtk
+fi
+
+# finally we shall cp (or move?) Lib and DLL directories to bin
+# as well as the pkgconfig and include files (..since...)
+# N.B. pkgconfig on windows doesnt pick up prefix in *.pc file
+# well, actually overwrites it if 'usual' parent path (i.e. lib)
+if test -n "$build_python" ; then 
+   cp -r $install_top_dir/$python_version/DLLs $install_top_dir/bin
+   cp -r $install_top_dir/$python_version/Lib  $install_top_dir/bin
 fi
 
 # Now we need:
@@ -2386,6 +2421,7 @@ fi
 # only if we really want to
 if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then
 
+cd $build_dir
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
     gmp_version=4.2
@@ -2411,20 +2447,18 @@ fi
 
 if test -n "$build_libtool" ; then
     echo BUILDING libtool:
-    cd ${AUTOBUILD_SOURCES}
     libtool_version=1.5.26
     ${WGET} http://downloads.sourceforge.net/gnuwin32/libtool-$libtool_version-bin.zip
     ${WGET} http://downloads.sourceforge.net/gnuwin32/libtool-$libtool_version-lib.zip
-    ${WGET} http://http://www.ysbl.york.ac.uk/~lohkamp/software/extras/libtool.patch
-    cd $install_top_dir
     (date
+     cd $install_top_dir
      pwd
      7z x -y ${AUTOBUILD_SOURCES}/libtool-$libtool_version-bin.zip
      7z x -y ${AUTOBUILD_SOURCES}/libtool-$libtool_version-bin.zip
      # fix some wrong paths
-     sed 's?^prefix=.*?prefix=$(install_top_dir)?' bin/libtoolize.exe >libtoolize.tmp
-     mv libtoolize.tmp bin/libtoolize.exe
-     sed 's?^libdir=.*?prefix=$(install_top_dir)/lib?' lib/libltdl.la >libltdl.tmp
+     sed "s?^prefix=.*?prefix=$install_top_dir?" bin/libtoolize >libtoolize.tmp
+     mv libtoolize.tmp bin/libtoolize
+     sed "s?^libdir=.*?libdir=$install_top_dir/lib?" lib/libltdl.la >libltdl.tmp
      mv libltdl.tmp lib/libltdl.la     
      cd -
     ) > $HOSTLOGDIR/10-pre-libtool.txt 2>&1
@@ -2439,7 +2473,7 @@ if test -n "$build_readline" ; then
     ${WGET} http://downloads.sourceforge.net/gnuwin32/readline-$readline_version-bin.zip
     ${WGET} http://downloads.sourceforge.net/gnuwin32/readline-$readline_version-lib.zip
     (
-    cd -
+    cd $install_top_dir
     date
     pwd
     7z x -y ${AUTOBUILD_SOURCES}/readline-$readline_version-bin.zip
@@ -2456,6 +2490,7 @@ if test -n "$build_guile" ; then
 guile_version=1.8.3
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 
+cd $build_dir
 ( 
 date
 pwd
@@ -2477,14 +2512,15 @@ else
    echo '                               ' make install
    echo 1 ---------------------------------------------------------------------
    $MAKE install
+
+   # post install windows fixes/moving of ddls (probably should make it more flexible
+   # with respect to file name ending...)
+   cp $install_top_dir/bin/libguile-srfi-srfi-1-v-3-3.dll $install_top_dir/bin/libguile-srfi-srfi-1-v-3.dll
+   cp $install_top_dir/bin/libguile-srfi-srfi-13-14-v-3-3.dll $install_top_dir/bin/libguile-srfi-srfi-13-14-v-3.dll
+   cp $install_top_dir/bin/libguile-srfi-srfi-4-v-3-3.dll $install_top_dir/bin/libguile-srfi-srfi-4-v-3.dll
+   cp $install_top_dir/bin/libguile-srfi-srfi-60-v-2-2.dll $install_top_dir/bin/libguile-srfi-srfi-60-v-2.dll
+   cp $install_top_dir/bin/libguilereadline-v-17-17.dll $install_top_dir/bin/libguilereadline-v-17.dll
 fi 
-# post install windows fixes/moving of ddls (probably should make it more flexible
-# with respect to file name ending...)
-cp $install_top_dir/bin/libguile-srfi-srfi-1-v-3-3.dll $install_top_dir/bin/libguile-srfi-srfi-1-v-3.dll
-cp $install_top_dir/bin/libguile-srfi-srfi-13-14-v-3-3.dll $install_top_dir/bin/libguile-srfi-srfi-13-14-v-3.dll
-cp $install_top_dir/bin/libguile-srfi-srfi-4-v-3-3.dll $install_top_dir/bin/libguile-srfi-srfi-4-v-3.dll
-cp $install_top_dir/bin/libguile-srfi-srfi-60-v-2-2.dll $install_top_dir/bin/libguile-srfi-srfi-60-v-2.dll
-cp $install_top_dir/bin/libguilereadline-v-17-17.dll $install_top_dir/bin/libguilereadline-v-17.dll
 
 exit $status
 ) > $HOSTLOGDIR/10-guile.txt 2>&1
@@ -2496,6 +2532,9 @@ else
 fi
 
 # Do we need to have to set GUILE_LOAD_PATH? Maybe!!!
+GUILE_LOAD_PATH=$install_top_dir/share/guile/1.8:$install_top_dir/share/guile
+export GUILE_LOAD_PATH
+echo GUILE_LOAD_PATH is now: $GUILE_LOAD_PATH
 
 if test -n "$build_net_http" ; then 
    echo BUILDING net http for guile
@@ -2515,6 +2554,11 @@ echo ./configure $generic_prefix
 #mv Makefile.tmp Makefile
 # note, no make (author "humour")
 $MAKE install 
+status=$?
+net_http_status=$status
+if [ "$net_http_status" != 0 ] ; then 
+    echo Ooooops net_http make failed
+fi
 ) > $HOSTLOGDIR/11b-guile-net-http.txt
 else 
    echo not building net-http:
@@ -2532,7 +2576,7 @@ date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gtk-$guile_gtk_version.tar.gz | tar xf -
 cd guile-gtk-$guile_gtk_version
-./configure $generic_prefix --without-gtkgl --with-glade=no --diable-static --enable-shared
+./configure $generic_prefix --without-gtkgl --with-glade=no --disable-static --enable-shared
 # PATCH!!!!!!
 patch -bp0 < ${AUTOBUILD_SOURCES}/guile-gtk-win32.patch
 # now patch the libtool if needed:
@@ -2559,12 +2603,12 @@ if test -n "$build_guile_gui" ; then
    echo BUILDING guile-gui:
 
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gui.patch
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gui-0.2.patch
 ( 
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.2.tar.gz | tar xf -
-patch -bp0 < ${AUTOBUILD_SOURCES}/guile-gui.patch
+patch -bp0 < ${AUTOBUILD_SOURCES}/guile-gui-0.2.patch
 cd guile-gui-0.2
 ./configure $generic_prefix
 $MAKE
@@ -2592,6 +2636,10 @@ else
     echo not building guile_goosh:
 fi
 
+# for goosh!!
+GUILE_LOAD_PATH=$GUILE_LOAD_PATH:$install_top_dir/share/guile/site
+export GUILE_LOAD_PATH
+echo GUILE_LOAD_PATH is now: $GUILE_LOAD_PATH
 
 # we wont build greg as it wont work properly anyway!!
 build_greg=
@@ -2666,6 +2714,9 @@ else
    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 fi
 
+# we shall get the syminfo.lib for windows too
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/syminfo_win.lib
+
 echo using coot version $coot_version
 ls -ls ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 if [ -e ${AUTOBUILD_SOURCES}/$coot_version.tar.gz ] ; then
@@ -2682,6 +2733,12 @@ pwd
 gzip -dc ${AUTOBUILD_SOURCES}/$coot_version.tar.gz | tar xf -
 coot_dir_name=`echo $coot_version | sed 's/-revision.*//'`
 cd $coot_dir_name
+
+#now that we are in coot build dir we overwrite syminfo.lib with the windows
+#one
+echo replacing syminfo.lib with windows version
+mv syminfo.lib syminfo.lib.orig
+cp ${AUTOBUILD_SOURCES}/syminfo_win.lib syminfo.lib
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
@@ -2815,12 +2872,27 @@ fi
 
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
+    # remove evtl. existing coot-version files
+    rm -f $install_top_dir/coot-version
     echo coot build failed, exiting.
     echo coot build failed, exiting. >&2
+    echo fail-build > $LOGS/gtk2-build-status${guile_autobuild_path}
     exit 2
 else 
+    # and finally write a coot-version file for the installer
+    wincoot_version=${coot_version/coot-}
+    echo '!define WinCootVersion "'${wincoot_version}'"' >$install_top_dir/coot-version
+
+    # we want to copy the build if python to guile for speed up
+    if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then
+	cp -r ${AUTOBUILD_BUILD}/${HOST}/$coot_dir_name ${AUTOBUILD_BUILD}/${HOST}-guile
+	echo copying python $coot_dir_name to guile
+	echo copying python ${AUTOBUILD_BUILD}/${HOST}/$coot_dir_name to ${AUTOBUILD_BUILD}/${HOST}-guile
+    fi
+
     echo coot build was good.
     echo coot build was good. >&2
+    echo pass-build > $LOGS/gtk2-build-status${guile_autobuild_path}
 fi
 echo done coot build. 
 echo done coot build. >&2
@@ -2846,48 +2918,79 @@ else
 fi
 
 # clear up the library dependencies
+# not needed on windows as I fix this with the installer...
 
-clear_up_type=
-if [ $shared_static_flag != "--disable-static" ] ; then
-    clear_up_type=clear-static
-fi   
-if [ $shared_static_flag != "--disable-shared" ] ; then
-    clear_up_type=clear-dynamic
-fi   
+#clear_up_type=
+#if [ $shared_static_flag != "--disable-static" ] ; then
+#    clear_up_type=clear-static
+#fi   
+#if [ $shared_static_flag != "--disable-shared" ] ; then
+#    clear_up_type=clear-dynamic
+#fi   
+#
+#if [ $clear_up_type != "" ] ; then 
+#   slim_dir=`dirname $install_top_dir`/coot-${OS}-${systype}-gtk2
+#   post_install_slim $install_top_dir $slim_dir $clear_up_type 
+#fi
 
-if [ $clear_up_type != "" ] ; then 
-   slim_dir=`dirname $install_top_dir`/coot-${OS}-${systype}-gtk2
-   post_install_slim $install_top_dir $slim_dir $clear_up_type 
+# clean up old status:
+if [ -e $LOGS/gtk2-test-status ] ; then
+   rm $LOGS/gtk2-test-status${guile_autobuild_path}
 fi
-
-test_coot > $LOGS/gtk2-build-testing.log
+# run test
+test_coot_python > $LOGS/gtk2-build-testing${guile_autobuild_path}.log 2>&1
 r=$?
 gtk2=-gtk2
 if [ $r = 0 ] ; then
-   echo coot test passed
-   if test "$do_nightlies" = "1" ; then 
-      if [ -d $BINARY_TAR_DEST_DIR ] ; then 
+   echo ========================
+   echo '   ' coot test passed
+   echo ========----============
+   echo pass-test > $LOGS/gtk2-test-status${guile_autobuild_path}
+   # no need for this! The installer and script around will take care of this
+   #if test "$do_nightlies" = "1" ; then 
+   #   if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
          # original full fat:
          # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
          # slimmed:
-	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+#	 make_tar `basename $slim_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
 
          # update the ChangeLog, README and RELEASE-NOTES
-         cd "$build_dir"
-         cd $coot_dir_name
-         cp ChangeLog $BINARY_TAR_DEST_DIR
-         cp README    $BINARY_TAR_DEST_DIR/coot-README
-         cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
-      else 
-         echo directory for binaries does not exist. Skipping tar.
-      fi
-   else
-      echo not doing tar files for nightlies: $do_nightlies
-   fi
+#         cd "$build_dir"
+#         cd $coot_dir_name
+#         cp ChangeLog $BINARY_TAR_DEST_DIR
+#         cp README    $BINARY_TAR_DEST_DIR/coot-README
+#         cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
+#      else 
+#         echo directory for binaries does not exist. Skipping tar.
+#      fi
+#   else
+#      echo not doing tar files for nightlies: $do_nightlies
+#   fi
 else
-   echo coot test failed
+   echo ========================
+   echo '  ' coot test failed
+   echo ========================
+   echo fail-test > $LOGS/gtk2-test-status${guile_autobuild_path}
 fi
 
+# now copy the log files
+PUBLIC_HTML_LOGS=/z/build-logs
+cp -r ${LOGS} ${PUBLIC_HTML_LOGS}
+echo copy the log files from ${LOGS} to ${PUBLIC_HTML_LOGS}
+# we have to make sure they are readable!
+# either change once manually or
+# run in masta unix script
+
+# we write a number of variables to a file which we import in the
+# masta script so that we preserve these
+# first remove an the old file
+var_file=${HOME}/wincoot-installer-variables
+echo deleting $var_file
+rm $var_file
+echo LOGS=${LOGS}                          > $var_file
+echo NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR} >> $var_file
+echo wincoot_version=$wincoot_version     >> $var_file
+echo do_nightlies=$do_nightlies           >> $var_file
 
 echo finished.
