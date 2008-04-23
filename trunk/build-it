@@ -198,7 +198,8 @@
 # 2.35 20071215 Python settings outside the subshell.
 # 2.36 20071219 Set up for testing and tars on biop too.
 # 2.37 20080213 Add Joseph Moran's fix for handling CC when set.
-script_version=2.37
+# 2.38 20080423 change the file name target for the build and test log file.
+script_version=2.38
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -221,8 +222,10 @@ script_version=2.37
 #
 if [ "$1" = "python" ] ; then 
    ENABLE_PYTHON_COOT=yes
+   build_log_name=gtk1-python
 else 
    ENABLE_PYTHON_COOT=no
+   build_log_name=gtk1
 fi
 
 # Set the host and the OS.
@@ -564,7 +567,7 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-exec > $LOGS/$HOST-build.log
+exec > $LOGS/$build_log_name-build.log 2>&1
 echo This is script version $script_version
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
@@ -2578,7 +2581,7 @@ if [ $clear_up_type != "" ] ; then
 fi
 
 # run test
-test_coot > $LOGS/$HOST-test.log
+test_coot > $LOGS/$build_log_name-test.log
 r=$?
 if [ $r = 0 ] ; then
    echo coot test passed
