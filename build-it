@@ -222,10 +222,10 @@ script_version=2.38
 #
 if [ "$1" = "python" ] ; then 
    ENABLE_PYTHON_COOT=yes
-   build_log_name=gtk1-python
+   build_type=gtk1-python
 else 
    ENABLE_PYTHON_COOT=no
-   build_log_name=gtk1
+   build_type=gtk1
 fi
 
 # Set the host and the OS.
@@ -567,7 +567,7 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-exec > $LOGS/$build_log_name-build.log 2>&1
+exec > $LOGS/$build_type-build.log 2>&1
 echo This is script version $script_version
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
@@ -1079,9 +1079,9 @@ fi
 echo ccp4_system_type $ccp4_system_type
 
 # clean up old status:
-if [ -e $LOGS/$HOST-test-status ] ; then
-   rm $LOGS/$HOST-test-status
-   rm $LOGS/$HOST-build-status
+if [ -e $LOGS/$build_type-test-status ] ; then
+   rm $LOGS/$build_type-test-status
+   rm $LOGS/$build_type-build-status
 fi
 
 
@@ -2535,12 +2535,12 @@ coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
     echo coot build failed, exiting. >&2
-    echo fail-build > $LOGS/$HOST-build-status
+    echo fail-build > $LOGS/$build_type-build-status
     exit 2
 else 
     echo coot build was good.
     echo coot build was good. >&2
-    echo pass-build > $LOGS/$HOST-build-status
+    echo pass-build > $LOGS/$build_type-build-status
 fi
 echo done coot build. 
 echo done coot build. >&2
@@ -2581,11 +2581,11 @@ if [ $clear_up_type != "" ] ; then
 fi
 
 # run test
-test_coot > $LOGS/$build_log_name-test.log
+test_coot > $LOGS/$build_type-test.log
 r=$?
 if [ $r = 0 ] ; then
    echo coot test passed
-   echo pass-test > $LOGS/$HOST-test-status
+   echo pass-test > $LOGS/$build_type-test-status
    if test "$do_nightlies" = "1" ; then 
       if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
@@ -2608,7 +2608,7 @@ if [ $r = 0 ] ; then
    fi
 else
    echo coot test failed
-   echo fail-test > $LOGS/$HOST-test-status
+   echo fail-test > $LOGS/$build_type-test-status
 fi
 
 
