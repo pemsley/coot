@@ -3837,7 +3837,8 @@ void add_additional_representation_by_widget(GtkWidget *w) {
    if (bond_width_text) {
       bond_width = atof(bond_width_text);
    } else {
-      std::cout << "ERROR:: null bond_width_text, using default of 8" << std::endl;
+      // Not currently an error.  It happens in gtk1 version.
+      // std::cout << "ERROR:: null bond_width_text, using default of 8" << std::endl;
    } 
       
    graphics_info_t g;
@@ -3859,7 +3860,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       } 
    } 
    if (GTK_TOGGLE_BUTTON(resno_radiobutton)->active) {
-      std::cout << "By chainid/resno" << std::endl;
+      // std::cout << "By chainid/resno" << std::endl;
       std::string chain_id = gtk_entry_get_text(GTK_ENTRY(chain_id_entry));
       std::string resno_1s = gtk_entry_get_text(GTK_ENTRY(resno_start_entry));
       std::string resno_2s = gtk_entry_get_text(GTK_ENTRY(resno_end_entry));
@@ -3875,7 +3876,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       } 
    } 
    if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
-      std::cout << "By selection string" << std::endl;
+      // std::cout << "By selection string" << std::endl;
       std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
       coot::atom_selection_info_t asi(s);
       graphics_info_t::molecules[imol].add_additional_representation(bonds_box_type,

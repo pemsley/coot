@@ -18459,11 +18459,10 @@ create_add_reps_dialog (void)
   GtkWidget *frame185;
   GtkWidget *vbox200;
   GtkWidget *frame186;
-  GSList *frame186_group = NULL;
+  GSList *add_reps_group_group = NULL;
   GtkWidget *add_rep_radiobutton_position;
   GtkWidget *frame187;
   GtkWidget *vbox201;
-  GSList *vbox201_group = NULL;
   GtkWidget *add_rep_radiobutton_res_number;
   GtkWidget *hbox158;
   GtkWidget *label305;
@@ -18478,7 +18477,6 @@ create_add_reps_dialog (void)
   GtkWidget *add_rep_ins_code_entry;
   GtkWidget *frame188;
   GtkWidget *vbox202;
-  GSList *vbox202_group = NULL;
   GtkWidget *add_rep_radiobutton_selection_string;
   GtkWidget *hbox156;
   GtkWidget *label303;
@@ -18487,14 +18485,13 @@ create_add_reps_dialog (void)
   GtkWidget *vbox203;
   GtkWidget *frame190;
   GtkWidget *vbox204;
-  GSList *vbox204_group = NULL;
+  GSList *add_reps_rep_style_group_group = NULL;
   GtkWidget *add_rep_rep_fat_bonds_radiobutton;
   GtkWidget *hbox157;
   GtkWidget *label304;
   GtkWidget *combo1;
   GtkWidget *add_rep_bond_width_combobox;
   GtkWidget *frame191;
-  GSList *frame191_group = NULL;
   GtkWidget *add_rep_rep_ball_and_stick_radiobutton;
   GtkWidget *dialog_action_area98;
   GtkWidget *hbox155;
@@ -18557,8 +18554,8 @@ create_add_reps_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox200), frame186, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame186), 6);
 
-  add_rep_radiobutton_position = gtk_radio_button_new_with_label (frame186_group, _("By Position (this residue)"));
-  frame186_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_position));
+  add_rep_radiobutton_position = gtk_radio_button_new_with_label (add_reps_group_group, _("By Position (this residue)"));
+  add_reps_group_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_position));
   gtk_widget_ref (add_rep_radiobutton_position);
   gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_radiobutton_position", add_rep_radiobutton_position,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -18580,8 +18577,8 @@ create_add_reps_dialog (void)
   gtk_widget_show (vbox201);
   gtk_container_add (GTK_CONTAINER (frame187), vbox201);
 
-  add_rep_radiobutton_res_number = gtk_radio_button_new_with_label (vbox201_group, _("By Residue Number Specification"));
-  vbox201_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_res_number));
+  add_rep_radiobutton_res_number = gtk_radio_button_new_with_label (add_reps_group_group, _("By Residue Number Specification"));
+  add_reps_group_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_res_number));
   gtk_widget_ref (add_rep_radiobutton_res_number);
   gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_radiobutton_res_number", add_rep_radiobutton_res_number,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -18684,8 +18681,8 @@ create_add_reps_dialog (void)
   gtk_widget_show (vbox202);
   gtk_container_add (GTK_CONTAINER (frame188), vbox202);
 
-  add_rep_radiobutton_selection_string = gtk_radio_button_new_with_label (vbox202_group, _("By Selection String"));
-  vbox202_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_selection_string));
+  add_rep_radiobutton_selection_string = gtk_radio_button_new_with_label (add_reps_group_group, _("By Selection String"));
+  add_reps_group_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_radiobutton_selection_string));
   gtk_widget_ref (add_rep_radiobutton_selection_string);
   gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_radiobutton_selection_string", add_rep_radiobutton_selection_string,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -18743,8 +18740,8 @@ create_add_reps_dialog (void)
   gtk_widget_show (vbox204);
   gtk_container_add (GTK_CONTAINER (frame190), vbox204);
 
-  add_rep_rep_fat_bonds_radiobutton = gtk_radio_button_new_with_label (vbox204_group, _(" Fat Bonds"));
-  vbox204_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_rep_fat_bonds_radiobutton));
+  add_rep_rep_fat_bonds_radiobutton = gtk_radio_button_new_with_label (add_reps_rep_style_group_group, _(" Fat Bonds"));
+  add_reps_rep_style_group_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_rep_fat_bonds_radiobutton));
   gtk_widget_ref (add_rep_rep_fat_bonds_radiobutton);
   gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_rep_fat_bonds_radiobutton", add_rep_rep_fat_bonds_radiobutton,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -18786,8 +18783,8 @@ create_add_reps_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox203), frame191, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame191), 6);
 
-  add_rep_rep_ball_and_stick_radiobutton = gtk_radio_button_new_with_label (frame191_group, _("Ball & Stick"));
-  frame191_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_rep_ball_and_stick_radiobutton));
+  add_rep_rep_ball_and_stick_radiobutton = gtk_radio_button_new_with_label (add_reps_rep_style_group_group, _("Ball & Stick"));
+  add_reps_rep_style_group_group = gtk_radio_button_group (GTK_RADIO_BUTTON (add_rep_rep_ball_and_stick_radiobutton));
   gtk_widget_ref (add_rep_rep_ball_and_stick_radiobutton);
   gtk_object_set_data_full (GTK_OBJECT (add_reps_dialog), "add_rep_rep_ball_and_stick_radiobutton", add_rep_rep_ball_and_stick_radiobutton,
                             (GtkDestroyNotify) gtk_widget_unref);

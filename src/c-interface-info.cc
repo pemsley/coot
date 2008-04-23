@@ -629,10 +629,12 @@ PyObject *scm_to_py(SCM s) {
    }
    return o;
 }
+#endif // USE_GUILE
+#endif // USE_PYTHON
 
 
-
-
+#ifdef USE_GUILE
+#ifdef USE_PYTHON
 SCM py_to_scm(PyObject *o) {
 
    SCM s = SCM_BOOL_F;
