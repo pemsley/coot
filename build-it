@@ -567,6 +567,8 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
+echo INFO:: build_type is $build_type
+echo INFO:: redirecting std output to $LOGS/$build_type-build.log
 exec > $LOGS/$build_type-build.log 2>&1
 echo This is script version $script_version
 
