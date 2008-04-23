@@ -559,12 +559,13 @@
 (let ((file-name "/y/people/emsley/public_html/coot/build-info.html")
       (bin-list 
        (list 
-	(list "binary-Linux-i386-fedora-6" 
-	      "Linux-bragg1.chem.york.ac.uk/bragg1.chem.york.ac.uk")
-	(list "binary-Linux-i386-fedora-6-python"  
-	      "Linux-bragg1.chem.york.ac.uk/bragg1.chem.york.ac.uk")
-	(list "binary-Linux-i386-fedora-6-python-gtk2"
-	      "Linux-bragg1.chem.york.ac.uk/gtk2")
+; bragg1 is no longer a fedora-6 :-(
+;	(list "binary-Linux-i386-fedora-6" 
+;	      "Linux-bragg1.chem.york.ac.uk/bragg1.chem.york.ac.uk")
+;	(list "binary-Linux-i386-fedora-6-python"  
+;	      "Linux-bragg1.chem.york.ac.uk/bragg1.chem.york.ac.uk")
+;	(list "binary-Linux-i386-fedora-6-python-gtk2"
+;	      "Linux-bragg1.chem.york.ac.uk/gtk2")
 
 	(list "binary-Linux-i386-fedora-5" 
 	      "Linux-bragg3.chem.york.ac.uk/bragg3.chem.york.ac.uk")
