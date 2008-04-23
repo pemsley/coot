@@ -190,7 +190,6 @@ graphics_info_t::update_geometry_graphs(PCResidue *SelResidues, int nSelResidues
 	    rotamers_from_residue_selection(SelResidues, nSelResidues, imol);
 	 gr->update_residue_blocks(dv);
       }
-
    }
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL   

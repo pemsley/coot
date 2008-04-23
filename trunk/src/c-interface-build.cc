@@ -1361,6 +1361,7 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
 	 graphics_info_t::delete_item_widget = NULL;
       }
    }
+
    graphics_draw();
    std::string cmd = "delete-residue-by-atom-index";
    std::vector<coot::command_arg_t> args;
