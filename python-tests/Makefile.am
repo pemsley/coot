@@ -2,6 +2,6 @@
 EXTRA_DIST = 		\
 	01_pdb_mtz.py    02_shelx.py       03_ligand.py  \
 	04_cootaneer.py  05_rna_ghosts.py  06_ssm.py     \
-        07_ncs.py
+        07_ncs.pY 	 08_utils.py
 
 

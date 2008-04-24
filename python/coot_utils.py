@@ -1184,7 +1184,6 @@ merge_molecules        = merge_molecules_py
 clear_and_update_molecule = clear_and_update_molecule_py
 add_molecule           = add_molecule_py
 spin_search            = spin_search_py
-merge_molecules        = merge_molecules_py
 chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
 overlap_ligands        = overlap_ligands_py
 analyse_ligand_differences = analyse_ligand_differences_py

@@ -309,7 +309,6 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                     char *mess =  "object: %S\n";
                                     PyObject *bad_python = PyString_FromFormat(mess, atom_expression);
                                     std::string bad_str = PyString_AsString(bad_python);
-				    Py_DECREF(bad_python);
                                     std::cout << bad_str << std::endl;
                                  } else {
                                     // normal case
@@ -342,11 +341,6 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                              atom->SetElementName(ele.c_str());
                                              strncpy(atom->altLoc, alt_conf.c_str(), 2);
                                              residue_p->AddAtom(atom);
-					     Py_DECREF(atom_name_python);
-					     Py_DECREF(alt_conf_python);
-					     Py_DECREF(occ_python);
-					     Py_DECREF(b_python);
-					     Py_DECREF(ele_python);
                                              // std::cout << "DEBUG:: adding atom " << atom << std::endl;
                                           } else {
                                              std::cout << "bad atom (position expression) "
@@ -354,7 +348,6 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                              PyObject *bad_python = display_python(pos_expr);
                                              std::string bad_str = PyString_AsString(bad_python);
                                              std::cout << bad_str << std::endl;
-					     Py_DECREF(bad_python);
                                           }
                                        } else {
                                           std::cout << "bad atom (occ b element expression) "
@@ -362,7 +355,6 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                           PyObject *bad_python = display_python(occ_b_ele);
                                           std::string bad_str = PyString_AsString(bad_python);
                                           std::cout << bad_str << std::endl;
-					  Py_DECREF(bad_python);
                                        }
                                     } else {
                                        std::cout << "bad atom (name alt-conf expression) "
@@ -370,34 +362,19 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                                        PyObject *bad_python = display_python(name_alt_conf_pair);
                                        std::string bad_str = PyString_AsString(bad_python);
                                        std::cout << bad_str << std::endl;
-				       Py_DECREF(bad_python);
                                     }
-				    Py_DECREF(name_alt_conf_pair);
-				    Py_DECREF(occ_b_ele);
-				    Py_DECREF(pos_expr);
                                  }
-				 Py_DECREF(atom_expression);
                               }
                               chain_p->AddResidue(residue_p);
                            }
-			   Py_DECREF(python_residue_number);
-			   Py_DECREF(python_residue_inscode);
-			   Py_DECREF(python_residue_name);
-			   Py_DECREF(atoms_list);
                         }
-			Py_DECREF(python_residue);
                      }
                      model_p->AddChain(chain_p);
                   }
-		  Py_DECREF(chain_id_python);
-		  Py_DECREF(residues_list);
                }
-	       Py_DECREF(chain_expression);
                mol->AddModel(model_p);
             }
-	    Py_DECREF(chain_list);
          }
-	 Py_DECREF(model_expression);
       }
    }
    return mol;
@@ -415,7 +392,7 @@ PyObject * display_python(PyObject *o) {
    PyObject *dest;
    dest = Py_False;
    char *mess = "object: %s\n";
-   Py_DECREF(dest);
+   Py_XDECREF(dest);
    return PyString_FromFormat(mess, o);
 }
 

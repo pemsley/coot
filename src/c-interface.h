@@ -405,7 +405,10 @@ void coot_clear_backup_or_real_exit(int retval);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 void run_clear_backups(int retval);
-#endif 
+#endif /* USE_GUILE */
+#ifdef USE_PYTHON
+void run_clear_backups_py(int retval);
+#endif /* USE_PYTHON */
 #endif
 
 void fill_about_window(GtkWidget *widget);

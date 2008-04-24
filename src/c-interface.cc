@@ -5573,6 +5573,7 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
     if (pValue != NULL)
     {
       if (pValue != Py_None) {
+	//printf( "BL DEBUG:: in python return ret= %s\n",  PyString_AsString(PyObject_Str(ret)));
 	ret = py_clean_internal(pValue);
       } else {
 	ret = Py_None;
@@ -5587,7 +5588,6 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 	pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, pDict, pDict);
 	if (pValue != NULL) {
 	  ret = pValue;
-	  Py_DECREF(pValue);
 	}
       } else {
 	PyErr_Print();
@@ -5604,7 +5604,6 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
     std::cout << "INFO:: None input" <<std::endl;
   }
   return ret;
-  Py_DECREF(ret);
 }
 
 PyObject *safe_python_command_test(const char *cmd) {
@@ -5635,9 +5634,8 @@ PyObject *run_scheme_command(const char *cmd) {
   SCM ret_scm = safe_scheme_command(cmd);
   ret_py = scm_to_py(ret_scm);
 #endif // USE_GUILE
-  
+
   return ret_py;
-  Py_DECREF(ret_py);
 }
 #endif // USE_PYTHON
 
@@ -5651,7 +5649,7 @@ SCM run_python_command(const char *python_cmd) {
    if (ret != Py_None) {
      ret_scm = py_to_scm(ret);
    }
-   Py_DECREF(ret);
+   Py_XDECREF(ret);
 #endif // USE_PYTHON
   
   return ret_scm;
@@ -5780,11 +5778,6 @@ PyObject *cis_peptides_py(int imol) {
 	 // add py_residue_info to r
 	 PyList_Append(r, py_residue_info);
 
-	 // clean up
-	 Py_DECREF(py_omega);
-	 Py_DECREF(py_r1);
-	 Py_DECREF(py_r2);
-	 Py_DECREF(py_residue_info);
       }
    }
 
@@ -7748,23 +7741,12 @@ void go_to_view_py(PyObject *view) {
             
             // do the animation
             coot::view_info_t::interpolate(view_c, view_target, nsteps);
-	    Py_DECREF(centre_x);
-	    Py_DECREF(centre_y);
-	    Py_DECREF(centre_z);
-	    Py_DECREF(target_zoom_python);
-	    Py_DECREF(name_target_python);
          } else {
             std::cout << "WARNING:: bad centre in view" << std::endl;
          }
-	 Py_DECREF(q0_python);
-	 Py_DECREF(q1_python);
-	 Py_DECREF(q2_python);
-	 Py_DECREF(q3_python);
-	 Py_DECREF(rc_target_python);
       } else {
          std::cout << "WARNING:: bad quat in view" << std::endl;
       }
-      Py_DECREF(quat_python);
    }
 } 
 #endif // PYTHON
