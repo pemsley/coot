@@ -77,7 +77,7 @@ def jiggled_mol(reference_mol, current_mol, traj_frac):
 			# make a starting set of coords
 			return map(lambda x1: 
 				jiggle_random() * 1.0 + x1,
-				res_pos)
+				ref_pos)
 		else:
 			q = 1 - traj_frac 
 			return map(lambda x, x_ref:
@@ -88,35 +88,33 @@ def jiggled_mol(reference_mol, current_mol, traj_frac):
 	def jiggled_atom(ref_atom, current_atom):
 		ref_pos = ref_atom[2]
 		cur_pos = current_atom[2]
-		list = [ref_atom[0], ref_atom[1], jiggled_pos(ref_pos, cur_pos)]
-		return list
+		ret = [ref_atom[0], ref_atom[1], jiggled_pos(ref_pos, cur_pos)]
+		return ret
 
 	def jiggled_residue(ref_res, cur_res):
-		list = []
+		ret = [ref_res[0], ref_res[1], ref_res[2], map(jiggled_atom, ref_res[3], cur_res[3])]
+		return ret
 
 	def jiggled_chain(ref_chain, cur_chain):
-		print "BL DEBUG:: ref_chain", ref_chain[0]
-		print "BL DEBUG:: cur_chain", cur_chain[0]
-		list = [ref_chain[0],
-			map(jiggled_residue, 
-				ref_chain[1][0][3],
-				cur_chain[1][0][3])]
-		print "BL DEBUG:: ref_res", ref_chain[1][0][3]
-		print "BL DEBUG:: cur_res", cur_chain[1][0][3]
+		ret = [ref_chain[0],
+			       map(jiggled_residue, 
+				   ref_chain[1],
+				   cur_chain[1])]
+		return ret
 
 	def jiggled_model(ref_model, cur_model):
-		print "BL DEBUG:: ref modl", ref_model[0]
-		print "BL DEBUG:: cur modl", cur_model[0]
-		map(jiggled_chain, ref_model[0], cur_model[0])
+		ret = map(jiggled_chain, ref_model, cur_model)
+		return ret
 
-#	map(jiggled_model, reference_mol, current_mol)
-	jiggled_model(reference_mol, current_mol)
+        j_mod = map (jiggled_model, reference_mol, current_mol)
+	return j_mod
 
 
 #
 def disrupt(reference_mol, biggness):
 
-	jiggled_mol(reference_mol, reference_mol, -1)
+	ret = jiggled_mol(reference_mol, reference_mol, -1)
+	return ret
 
 #
 max_count = 5000.0
@@ -128,6 +126,8 @@ if (not mol_no == -1):
 		current_mol = disrupt(a_molecule,0.8)
 		new_mol = jiggled_mol(a_molecule, current_mol, 
 			count / max_count)
-		print "cycle ", count, count/max_count, max_count
+		#print "cycle ", count, count/max_count, max_count
 		clear_and_update_molecule(mol_no, new_mol)
 		# gtk stuff
+		if gtk.events_pending():
+			gtk.main_iteration(False)

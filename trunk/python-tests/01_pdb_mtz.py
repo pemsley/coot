@@ -197,7 +197,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    """Set Atom Atribute Test"""
 	    atom_ls = []
 	    global imol_rnase
-	    set_atom_attribute(imol_rnase,"A",11,""," CA ","","x",64.5) # an Angstrom or so
+	    set_atom_attribute(imol_rnase, "A", 11, "", " CA ", "", "x", 64.5) # an Angstrom or so
 	    atom_ls = residue_info(imol_rnase, "A", 11, "")
 	    self.failIfEqual(atom_ls, [])
 	    atom = atom_ls[0]

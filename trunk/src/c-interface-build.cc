@@ -1017,16 +1017,6 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 	 }
       }
    }
-   // cleanup
-   Py_DECREF(attribute_expression);
-   Py_DECREF(imol_py);
-   Py_DECREF(chain_id_py);
-   Py_DECREF(resno_py);
-   Py_DECREF(ins_code_py);
-   Py_DECREF(atom_name_py);
-   Py_DECREF(alt_conf_py);
-   Py_DECREF(attribute_name_py);
-   Py_DECREF(attribute_value_py);
 
    for (int i=0; i<n; i++) {
       if (v[i].size() > 0){
@@ -3605,10 +3595,6 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 	 graphics_info_t::drag_intermediate_atom(p.second, pt);
       }
    }
-   // clean up
-   Py_DECREF(x_py);
-   Py_DECREF(y_py);
-   Py_DECREF(z_py);
 
    return retval;
 }
@@ -3851,8 +3837,7 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
    }
    
    // clean up
-   Py_DECREF(le);
-   Py_DECREF(vos);
+   Py_XDECREF(vos);
 
    return r;
 }
@@ -6382,8 +6367,6 @@ int get_monomer(const char *three_letter_code) {
    PyObject *v = safe_python_command_with_return(python_command);
 
    int was_int_flag = PyInt_AsLong(v);
-
-   Py_DECREF(v);
 
 //   std::cout << "BL DEBUG:: was_int_flag is " << was_int_flag << std::endl;
 

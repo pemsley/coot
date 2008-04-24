@@ -557,15 +557,11 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 		  PyList_Append(res_l, masta);
 		  PyList_Append(res_l, PyFloat_FromDouble(cd.residue_info[iresinf].mean_diff));
 		  PyList_Append(l_residue_data, res_l);
-		  Py_DECREF(thisr);
-		  Py_DECREF(masta);
-		  Py_DECREF(res_l);
 	       }
 	       PyList_Append(r, PyString_FromString(cd.peer_chain_id.c_str()));
 	       PyList_Append(r, PyString_FromString(diffs.target_chain_id.c_str()));
 	       PyList_Append(r, l_residue_data); 
 	    }
-	    Py_DECREF(l_residue_data);
 	 }
       }
    }
@@ -612,7 +608,6 @@ PyObject *ncs_chain_ids_py(int imol) {
 	       PyObject *string_list_py =
 		  generic_string_vector_to_list_internal_py(ncs_ghost_chains[i]);
 	       PyList_SetItem(r, i, string_list_py);
-	       Py_DECREF(string_list_py);
 	    }
 	 }
       }
@@ -692,12 +687,6 @@ PyObject *ncs_ghosts_py(int imol) {
        PyList_Append(ghost_py, rtop_py);
        PyList_Append(ghost_py, display_it_flag_py);
        PyList_Append(r, ghost_py);
-       Py_DECREF(ghost_py);
-       Py_DECREF(display_it_flag_py);
-       Py_DECREF(rtop_py);
-       Py_DECREF(target_chain_id_py);
-       Py_DECREF(chain_id_py);
-       Py_DECREF(name_py);
      }
    }
    return r;

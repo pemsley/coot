@@ -647,11 +647,15 @@ coot_checked_exit(int retval) {
    args.push_back(retval);
    add_to_history_typed(cmd, args);
    if (i_unsaved == 0) { // no unsaved.
-#if USE_GUILE
+#ifdef USE_GUILE
       run_clear_backups(retval);
 #else
+#ifdef USE_PYGTK
+      run_clear_backups_py(retval);
+#else
       coot_real_exit(retval);
-#endif
+#endif // USE_PYGTK
+#endif // USE_GUILE
    }
    return TRUE; // path where there were unsaved changes, we don't
 		// want to exit.
@@ -682,13 +686,43 @@ void run_clear_backups(int retval) {
 } 
 #endif
 
+
+#ifdef USE_PYTHON
+void run_clear_backups_py(int retval) {
+
+   PyObject *r = safe_python_command_with_return("clear_backups_maybe()");
+
+   if (r == NULL || r == Py_None) { 
+      // not false and not not false, function didn't run then...
+      std::cout << "WARNING:: clear_backups_maybe() returns "
+		<< PyString_AsString(PyObject_Str(r))
+		<< std::endl;
+      coot_real_exit(retval);
+   } else {
+//       std::cout << "DEBUG:: (clear-babckups-maybe) returned: "
+// 		<< scm_to_locale_string(display_scm(r))
+// 		<< std::endl;
+   }
+   
+   // if r was #f then exit.
+   // 
+   if (r == Py_False) { // backup gui was not needed/shown
+      coot_real_exit(retval);
+   }
+} 
+#endif // PYTHON
+
 void coot_clear_backup_or_real_exit(int retval) {
 
-#if USE_GUILE
+#ifdef USE_GUILE
    run_clear_backups(retval);
 #else
+#ifdef USE_PYGTK
+   run_clear_backups_py(retval);
+#else
    coot_real_exit(retval);
-#endif
+#endif // USE_PYGTK
+#endif // USE_GUILE
 } 
    
 void

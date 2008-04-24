@@ -628,12 +628,6 @@ PyObject *rotamer_graphs_py(int imol) {
 	 PyList_SetItem(ele, 0, chainid);
 
          PyList_SetItem(r, ir, ele);
-	 Py_DECREF(ele);
-	 Py_DECREF(name);
-	 Py_DECREF(pr);
-	 Py_DECREF(inscode);
-	 Py_DECREF(resno);
-	 Py_DECREF(chainid);
       }
    } 
 
@@ -841,7 +835,6 @@ int probe_available_p() {
     result = safe_python_command_with_return("command_in_path_qm(probe_command)");
 
     int was_boolean_flag = PyInt_AsLong(result);
-    Py_DECREF(result);
     if (was_boolean_flag) {
               r = 1;
 //	      std::cout << "BL DEBUG:: flag here " << was_boolean_flag << std::endl;
@@ -866,7 +859,6 @@ int probe_available_p_py() {
     result = safe_python_command_with_return("command_in_path_qm(probe_command)");
 
     int was_boolean_flag = PyInt_AsLong(result);
-    Py_DECREF(result);
     if (was_boolean_flag) {
               r = 1;
     }

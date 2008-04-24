@@ -490,9 +490,12 @@ main (int argc, char *argv[]) {
        char **p;
        for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
          char *preferences_file(*p);
-	 std::cout << "INFO:: loading preferences file " << preferences_file
-		   << std::endl;
-	 run_python_script(preferences_file);
+	 // dont load the coot_toolbuttons.py if no graphics
+	 if ((!use_graphics_flag) && (preferences_file != "coot_toolbuttons.py")) {
+	   std::cout << "INFO:: loading preferences file " << preferences_file
+		     << std::endl;
+	   run_python_script(preferences_file);
+	 }
        }
        globfree(&myglob);
 

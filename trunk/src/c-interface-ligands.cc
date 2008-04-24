@@ -79,19 +79,17 @@ overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref,
 PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
 		int resno_ref) {
 
-   PyObject *python_status;
-   python_status = Py_False;
+   PyObject *python_status = Py_False;
    coot::graph_match_info_t rtop_info =
       overlap_ligands_internal(imol_ligand, imol_ref, chain_id_ref, resno_ref, 1);
 
    if (rtop_info.success) { 
-      // BL says:: DEBUG AND FIX ME!
       PyObject *match_info = PyList_New(2);
-      PyList_SetItem(match_info, 0, PyInt_FromLong(rtop_info.n_match));
-      PyList_SetItem(match_info, 1, PyFloat_FromDouble(rtop_info.dist_score));
-      // PyObject *s = match_info;
-      python_status = rtop_to_python(rtop_info.rtop);
-      Py_DECREF(match_info);
+      PyList_SetItem(match_info, 0, PyFloat_FromDouble(rtop_info.dist_score));
+      PyList_SetItem(match_info, 1, PyInt_FromLong(rtop_info.n_match));
+      python_status = PyList_New(2);
+      PyList_SetItem(python_status, 0, rtop_to_python(rtop_info.rtop)); 
+      PyList_SetItem(python_status, 1, match_info);
    }
    return python_status;
 }
@@ -138,14 +136,13 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
    std::cout << "analyse_ligand_differences: rtop: \n" << rtop_info.rtop.format() << std::endl;
    
    if (rtop_info.success) {
-      // BL says:: DEBUG AND FIX ME!
       PyObject *match_info;
       PyList_New(2);
-      PyList_SetItem(match_info, 0, PyInt_FromLong(rtop_info.n_match));
-      PyList_SetItem(match_info, 1, PyFloat_FromDouble(rtop_info.dist_score));
-      // PyObject *s = match_info;
-      python_status = rtop_to_python(rtop_info.rtop);
-      Py_DECREF(match_info);
+      PyList_SetItem(match_info, 0, PyFloat_FromDouble(rtop_info.dist_score));
+      PyList_SetItem(match_info, 1, PyInt_FromLong(rtop_info.n_match));
+      python_status = PyList_New(2);
+      PyList_SetItem(python_status, 0, rtop_to_python(rtop_info.rtop));
+      PyList_SetItem(python_status, 1, match_info);
    }
    return python_status;
 }

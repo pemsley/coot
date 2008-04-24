@@ -121,23 +121,18 @@ atom_spec_from_python_expression(PyObject *expr) {
       
       PyObject *chain_id_python = PyList_GetItem(expr, 0);
       std::string chain_id = PyString_AsString(chain_id_python);
-      Py_DECREF(chain_id_python);
 
       PyObject *resno_python = PyList_GetItem(expr, 1);
       int resno = PyInt_AsLong(resno_python);
-      Py_DECREF(resno_python);
 
       PyObject *ins_code_python = PyList_GetItem(expr, 2);
       std::string ins_code = PyString_AsString(ins_code_python);
-      Py_DECREF(ins_code_python);
       
       PyObject *atom_name_python = PyList_GetItem(expr, 3);
       std::string atom_name = PyString_AsString(atom_name_python);
-      Py_DECREF(atom_name_python);
       
       PyObject *alt_conf_python = PyList_GetItem(expr, 4);
       std::string alt_conf = PyString_AsString(alt_conf_python);
-      Py_DECREF(alt_conf_python);
 
 //       std::cout << "decoding spec :" << chain_id << ": " << resno << " :" << ins_code
 // 		<< ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
