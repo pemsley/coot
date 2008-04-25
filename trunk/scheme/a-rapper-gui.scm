@@ -43,7 +43,8 @@
 	  (export-map imol-map map-file)
 	  (format #t "running rapper: ~s ~s ~s ~s ~s ~s~%"
 		  imol chain-id start-resno end-reno sequence number-of-models)
-	  (let ((rapper-pid (run-concurrently "rappper" "params.xml" "--pdb" fragment-pdb 
+	  (let ((rapper-pid (run-concurrently "rappper" "params.xml"
+					      "--pdb" fragment-pdb 
 					      "--map" map-file 
 					      "--start" (number->string start-resno)
 					      "--stop"  (number->string   end-resno)

@@ -1339,7 +1339,7 @@
 	       (inside-vbox (gtk-vbox-new #f 2))
 	       (h-sep (gtk-hseparator-new))
 	       (buttons-hbox (gtk-hbox-new #t 2))
-	       (go-button (gtk-button-new-with-label "  Cootaneer!  "))
+	       (go-button (gtk-button-new-with-label "  Dock Sequnce!  "))
 	       (cancel-button (gtk-button-new-with-label "  Cancel  ")))
 
 	  (let ((seq-info-ls (sequence-info imol)))
@@ -1362,7 +1362,7 @@
 	    (gtk-signal-connect go-button "clicked"
 				(lambda ()
 				  (format #t "apply the sequence info here\n")
-				  (format #t "then cootaneer\n")
+				  (format #t "then dock sequence\n")
 
 				  ;; no active atom won't do.  We need
 				  ;; to find the nearest atom in imol to (rotation-centre).
@@ -1901,6 +1901,40 @@
       (gtk-widget-show-all window))))
 
 
+(define (key-bindings-gui)
+  (let* ((window (gtk-window-new 'toplevel))
+	 (scrolled-win (gtk-scrolled-window-new))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-vbox (gtk-vbox-new #f 0))
+	 (dialog-name "Key Bindings"))
+    
+    (gtk-window-set-default-size window 250 250)
+    (gtk-window-set-title window dialog-name)
+    (gtk-container-border-width inside-vbox 4)
+
+    (gtk-container-add window outside-vbox)
+    (gtk-container-add outside-vbox scrolled-win)
+    (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
+    (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+    
+    (let loop ((items *key-bindings*))
+      (cond 
+       ((null? items) 'done)
+       (else 
+	(let ((binding-hbox (gtk-hbox-new #f 2)))
+	  (let* ((txt (if (string? (car (car items)))
+			  (car (car items))
+			  (number->string (car (car items)))))
+		 (key-label (gtk-label-new txt))
+		 (name-label (gtk-label-new (car (cdr (cdr (car items)))))))
+	    
+	    (gtk-box-pack-start binding-hbox key-label  #f #f 2)
+	    (gtk-box-pack-start binding-hbox name-label #f #f 2)
+	    (gtk-box-pack-start inside-vbox binding-hbox #f #f 2)
+	    (loop (cdr items)))))))
+    
+    (gtk-widget-show-all window)))
+
 
 
 ; let the c++ part of mapview know that this file was loaded:
@@ -1909,4 +1943,6 @@
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; End:
+
+
 

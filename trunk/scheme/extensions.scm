@@ -192,6 +192,19 @@
 					  (new-molecule-by-residue-type-selection imol text)
 					  (update-go-to-atom-window-on-new-mol)))))
 
+      (add-simple-coot-menu-menuitem menu "New Molecule by Sphere..."
+				     (lambda ()
+				       (generic-chooser-and-entry
+					"Choose a molecule from which to select a sphere of atoms:"
+					"Radius:" "10.0"
+					(lambda (imol text)
+					  (let ((radius (string->number text)))
+					    (if (number? radius)
+						(apply new-molecule-by-sphere-selection
+						       imol
+						       (append 
+							(rotation-centre) 
+							(list radius)))))))))
 
       (add-simple-coot-menu-menuitem
        menu "Replace Fragment..."
@@ -361,7 +374,7 @@
 ;						      at-name alt-conf)))))))))
 
       (let ((submenu (gtk-menu-new))
-            (menuitem2 (gtk-menu-item-new-with-label "Cootaneering")))
+            (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
         
         (gtk-menu-item-set-submenu menuitem2 submenu) 
         (gtk-menu-append menu menuitem2)
@@ -394,7 +407,7 @@
 	
 
 	(add-simple-coot-menu-menuitem
-	 submenu "Cootaneer this fragment..."
+	 submenu "Dock sequence on this fragment..."
 	 (lambda ()
 	   (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
 				 (lambda (imol)
@@ -595,6 +608,12 @@
 
 	   (gtk-widget-show-all window))))
 
+
+      (add-simple-coot-menu-menuitem
+       menu "Key Bindings..."
+       (lambda ()
+	 (key-bindings-gui)))
+	 
 
 
       ;; ---------------------------------------------------------------------
