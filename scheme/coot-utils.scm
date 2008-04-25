@@ -1159,24 +1159,27 @@
   (lambda ()
     'empty))
 
+;; a list of (code key name thunk) 
+;; e.g. '(103 "g" "Goto Blob" (blob-under-pointer-to-screen-centre))
 (define *key-bindings* (list))
 
-(define (add-key-binding key thunk)
+(define (add-key-binding name key thunk)
   (if (number? key)
-      (set! *key-bindings* (cons (list key thunk) *key-bindings*)))
+      (set! *key-bindings* (cons (list key key name thunk) *key-bindings*)))
   (if (string? key)
       (let ((code (key-sym-code key)))
 	(if (not (= code -1))
-	    (set! *key-bindings* (cons (list code thunk) *key-bindings*))))))
+	    (set! *key-bindings* (cons (list code key name thunk) *key-bindings*))))))
 
 
 ;; general key press hook
 ;; 
 (define (graphics-general-key-press-hook key)
   (format #t "Key ~s was pressed~%" key)
-  (let ((field (assv key *key-bindings*)))
-    (if field
-	((car (cdr field))))))
+  (let ((field (assoc key *key-bindings*)))
+    (if (not field)
+	(begin
+	  ((car (cdr (cdr (cdr field)))))))))
 
 
 ;;; Function requested by Mark White.
