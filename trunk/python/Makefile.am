@@ -39,6 +39,5 @@ EXTRA_DIST =    \
    coot_load_modules.py  filter.py     local_code.py	\
    coot_gui.py           libcheck.py   cns2coot.py      \
    group_settings.py     coot_toolbuttons.py		\
-   clear_backup.py					\
    ../src/coot.py $(TEXI_FILE)
 
