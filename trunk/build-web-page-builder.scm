@@ -326,29 +326,31 @@
 
   ;; return "pass" or "fail" (actually, the contents of the link)
   ;; 
-  (define (build-result-from-link file-info page-type)
-  (let* ((link (car (cdr (list-ref file-info 0)))))
-    (if (not (list? link))
-	#f
-	(let* ((url (string-append (car (cdr link))
-				  "-" 
-				  (symbol->string page-type)
-				  "-status"))
-	       (res (call-with-output-string
-		     (lambda (port)
-		       (let ((initial-output-port (current-output-port)))
-			 (set-current-output-port port)
-			 (http-get url)
-			 (set-current-output-port initial-output-port))))))
-	  (if (string? res)
-	      (let ((l (string-length res)))
-		(if (not (> l 0))
-		    ""
-		    (if (< l 20)
-			(substring res 0 (- l 1))
-			"missing-file")))))))) ; we don't want to see
-					       ; web server page
-					       ; missing raw HTML
+  (define (build-result-from-link file-info page-type is-python?)
+    (let* ((link (car (cdr (list-ref file-info 0)))))
+      (format #t "INFO:: getting build info from remote: ~s~%" link)
+      (if (not (list? link))
+	  #f
+	  (let* ((url (string-append (car (cdr link))
+				     "-" 
+				     (symbol->string page-type)
+				     (if is-python? "-python" "")
+				     "-status"))
+		 (res (call-with-output-string
+		       (lambda (port)
+			 (let ((initial-output-port (current-output-port)))
+			   (set-current-output-port port)
+			   (http-get url)
+			   (set-current-output-port initial-output-port))))))
+	    (if (string? res)
+		(let ((l (string-length res)))
+		  (if (not (> l 0))
+		      ""
+		      (if (< l 20)
+			  (substring res 0 (- l 1))
+			  "missing-file")))))))) ; we don't want to see
+					         ; web server page
+					         ; missing raw HTML
 
   (define (markup text)
     (if (not (string? text))
@@ -362,7 +364,6 @@
   ;; page-type is 'build or 'test.
   ;; return "pass" "fail" or " ".
   (define (latest-build-result file-info page-type)
-    ; (format #t "file-info ~s~%" file-info)
     
     (define (get-mtime file-name)
       (stat:mtime (stat file-name)))
@@ -391,13 +392,21 @@
 			     "-build-status"
 			     "-test-status"))))
 
+    ;; main line of latest-build-result
+    ;;
+    (format #t "file-info ~s~%" file-info)
+    ;; 
     (let* ((link (car (cdr (list-ref file-info 0))))
+	   (file-names-info (car file-info))
+	   (is-python? (if (= (length file-names-info) 3)
+			   (car (cdr (cdr (car file-info))))
+			   #f))
 	   (build-status-file (get-file link 'build))
-	   ( test-status-file (get-file link 'test))
+	   ( test-status-file (get-file link 'test ))
 	   (file (get-file link page-type)))
 
       (if (eq? file 'link)
-	  (let ((br (build-result-from-link file-info page-type)))
+	  (let ((br (build-result-from-link file-info page-type is-python?)))
 	    (markup br))
 
 	  (if (not file)
@@ -568,34 +577,33 @@
 ;	      "Linux-bragg1.chem.york.ac.uk/gtk2")
 
 	(list "binary-Linux-i386-fedora-5" 
-	      "Linux-bragg3.chem.york.ac.uk/bragg3.chem.york.ac.uk")
+	      "Linux-bragg3.chem.york.ac.uk/gtk1" #f)
 	(list "binary-Linux-i386-fedora-5-python" 
-	      "Linux-bragg3.chem.york.ac.uk/bragg3.chem.york.ac.uk")
+	      "Linux-bragg3.chem.york.ac.uk/gtk1-python" #t)
 	(list "binary-Linux-i386-fedora-5-python-gtk2"
-	      "Linux-bragg3.chem.york.ac.uk/gtk2")
+	      "Linux-bragg3.chem.york.ac.uk/gtk2" #f)
 
-	(list "binary-Linux-i386-redhat-8.0" 
-	      "Linux-bubbles/bubbles")
+	(list "binary-Linux-i386-redhat-8.0"
+	      "Linux-bubbles/gtk1" #f)
 	(list "binary-Linux-i386-redhat-8.0-python" 
-	      "Linux-bubbles/bubbles")
+	      "Linux-bubbles/gtk1-python" #t)
 
 	(list "binary-Linux-i386-fedora-3"
-	      "Linux-bunyip.chem.york.ac.uk/bunyip.chem.york.ac.uk")
-
+	      "Linux-bunyip.chem.york.ac.uk/gtk1" #f)
 	(list "binary-Linux-i386-fedora-3-python"
-	      "Linux-bunyip.chem.york.ac.uk/bunyip.chem.york.ac.uk")
+	      "Linux-bunyip.chem.york.ac.uk/gtk1-python" #t)
 
 	(list "binary-Linux-i386-fedora-4-python-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
 
-	(list "binary-Linux-i386-fedora-8-python-gtk2"
-	      "Linux-dragon.chem.york.ac.uk/gtk2")
-
 	(list "binary-Linux-i386-fedora-8"
-	      "Linux-dragon.chem.york.ac.uk/dragon.chem.york.ac.uk")
+	      "Linux-bragg1.chem.york.ac.uk/gtk1" #f)
+
+	(list "binary-Linux-i386-fedora-8-python-gtk2"
+	      "Linux-bragg1.chem.york.ac.uk/gtk2" #f)
 
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
-	      "ubuntu-6.06/gtk2")
+	      "ubuntu-6.06/gtk2" #f)
 
 	; no guile-gtk for this one.
 	; (list "binary-Linux-i386-fedora-3-python-gtk2"
