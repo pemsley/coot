@@ -2,7 +2,7 @@
 (greg-testcase "Test key symbols" #t
    (lambda ()
 
-     (add-key-binding "missing" (lambda () 'flunk))
+     (add-key-binding "name" "missing key" (lambda () 'flunk))
 
      (test-list (list 
 		 (cons (key-sym-code 'a-symbol) -1)
