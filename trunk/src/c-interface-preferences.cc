@@ -565,6 +565,9 @@ void save_preferences() {
   
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
   directory = (char*)getenv("COOT_HOME");
+  if (!directory) {
+    directory = (char*)getenv("HOME");
+  } 
 #else      
   directory = (char*)getenv("HOME");
 #endif

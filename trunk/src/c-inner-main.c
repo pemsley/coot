@@ -224,7 +224,11 @@ c_inner_main(void *closure, int argc, char** argv) {
 /* And now read the users own initialization code and preferences*/
 /* preferences only GTK2 */
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-  directory = getenv("COOT_HOME"); 
+  directory = getenv("COOT_HOME");
+  if (!directory) {
+    // try to see if there is HOME, just in case
+    directory = getenv("HOME");
+  }
 #else
   directory = getenv("HOME"); 
 #endif

@@ -30,14 +30,16 @@ endif
 
 EXTRA_DIST =    \
    Makefile.am  \
-   americanisms.py       fitting.py    refmac.py      \
-   background_demo.py    gap.py        shelx.py       \
-   get_ebi.py            mutate.py     coot_lsq.py    \
-   hello.py              povray.py     coot_utils.py  \
-   raster3d.py           extensions.py generic_objects.py \
-   ncs.py                tips_gui.py   tips.py          \
-   coot_load_modules.py  filter.py     local_code.py	\
-   coot_gui.py           libcheck.py   cns2coot.py      \
-   group_settings.py     coot_toolbuttons.py		\
-   ../src/coot.py $(TEXI_FILE)
+                     coot_utils.py        get_ebi.py	  mutate.py	\
+background_demo.py                                        		\
+                                          hello.py        raster3d.py	\
+brute_lsqman.py                                           refmac.py	\
+coot_gui.py          filter.py            libcheck.py     		\
+coot_load_modules.py                      local_code.py   		\
+gap.py                                    povray.py       coot_lsq.py	\
+shelx.py             group_settings.py    fitting.py      americanisms.py \
+tips.py              tips_gui.py          generic_objects.py cns2coot.py  \
+extensions.py        ncs.py		  clear_backup.py		\
+coot_toolbuttons.py		\
+../src/coot.py $(TEXI_FILE)
 

@@ -72,7 +72,13 @@ post_list = ["coot_gui.py",
              "clear_backup.py",
              "coot_toolbuttons.py"]
 
+# list of modules not available on Windows
+non_win_list = ["brute_lsqman.py"]
+
 python_list = pre_list
+
+if (os.name !='nt'):
+    python_list += non_win_list
 
 if use_gui_qm:
     try:
@@ -84,7 +90,6 @@ if use_gui_qm:
  		# we do have guile_gtk and dont want to have 
  		# the extra extensions from python
  		python_list.remove("extensions.py")
-		python_list.remove("coot_toolbuttons.py")
     except:
 	pass
 

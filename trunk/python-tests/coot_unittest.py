@@ -5,7 +5,14 @@ print "==============================================================="
 import unittest, os
 import inspect
 
-unittest_data_dir = os.path.normpath(os.path.join(os.getenv('HOME'), "data", "greg-data"))
+home = os.getenv('HOME')
+if ((not home) and (os.name == 'nt')):
+    home = os.getenv('COOT_HOME')
+else:
+    # badness we dont have a home dir
+    print "ERROR:: Cannot find a HOME directory"
+
+unittest_data_dir = os.path.normpath(os.path.join(home, "data", "greg-data"))
 
 def rotate_n_frames(n):
     rotate_speed = 1
@@ -26,7 +33,9 @@ fn = inspect.getfile(rotate_n_frames)
 current_dir = os.path.dirname(fn)
 
 for test_file in test_file_list:
-    execfile(os.path.join(current_dir,test_file))
+    load_file = os.path.join(current_dir, test_file)
+    if (os.path.isfile(load_file)):
+        execfile(load_file)
 
 #test_list = [ShelxTestFunctions]
 test_list = [PdbMtzTestFunctions, ShelxTestFunctions,
