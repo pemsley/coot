@@ -305,7 +305,7 @@ if (have_coot_python):
      #     Building
      # ---------------------------------------------------------------------
 
-     add_simple_coot_menu_menuitem(menu, "Sequencing/Cootaneering", 
+     add_simple_coot_menu_menuitem(menu, "Dock Sequence...", 
                                    lambda func: cootaneer_gui_bl())
 
 

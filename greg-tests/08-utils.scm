@@ -13,3 +13,12 @@
 		 (cons (key-sym-code "cent") 162)))))
 
 
+(greg-testcase "Test running a Python function" #t 
+   (lambda ()
+
+     (if (not (coot-has-python?))
+	 #t ; pass without testing
+	 (let ((tot (run-python-command "2 + 2")))
+	   (= 4 tot)))))
+
+		     

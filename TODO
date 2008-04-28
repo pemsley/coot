@@ -131,8 +131,8 @@
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
 
-   o How about a post-swig command to add #ifdef USE_PYTHON around coot_wrap_python.cc 
-     (or is it coot_wrap_python_pre.cc?)
+   o How about a post-swig command to add #ifdef USE_PYTHON around 
+     coot_wrap_python.cc (or is it coot_wrap_python_pre.cc?)
 
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
@@ -221,6 +221,9 @@
 
    o Investigate communcation with PISA
 
+   o "Fit ligand here" which gets a monomer then does a ligand search
+     based on the blob at the current position.
+
    o Non-bonded contacts.  Can they be speeded up.  What about nbcs
      with Hydrogens.  Are they good?  Refine 50 residues and profile.
 
@@ -255,6 +258,17 @@
 
    o Integrate scripting functions into main documentation somehow
 
+   o When fitting waters in a low resolution(ish) map (from buccaneer
+     tutorial), the water were often placed in protein density - it was
+     missing the fact that the "water" density was connected to the
+     protein density - because we only look at the masked map.
+     (see bucca-tut on memory stick)
+
+   o does --flood work?
+
+   o Use LSQ not SSM for NCS ghost matrix.
+     (Make a speed test.)
+
 
  ------
     
@@ -278,13 +292,23 @@
 
    o Fix leak and deprecated functions message.
 
+   o Bring partial charges to electrostatic surface
+
    o Activate molecule_class_info_t deconstuctor.  
 
 * No need now.
 
+   o Add parentheses if they are missing from an interactive scripting
+     command
+
+   o Make the N and M zoom keys work with multiframes, rather than a
+     step/jump in zoom.
+
 ------
 
    Release 0.9, Facelift-release 
+
+   o Oxidized cysine - with a modification
 
    o Clean up menu items, use Preferences.
 

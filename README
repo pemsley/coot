@@ -79,8 +79,8 @@ Prerequisites:
  (you can also get these from http://www.ysbl.york.ac.uk/~emsley/software/extras)
 
 
-Building
---------
+Building Automatically
+----------------------
 
  I'd say that the easiest way to try to build coot is to use the
  auto-builder:
@@ -89,7 +89,21 @@ Building
 
  It checks for dependencies and builds them if needed.
 
----
+ http://www.ysbl.york.ac.uk/~emsley/build-logs/build-it-gtk-simple is the 
+ script that builds the GTK2 version. 
+
+ Pass the argument "python" if you want to have python built into the
+ executable too (recommended).
+
+
+Building by Hand
+----------------
+
+ Don't do this.  Try autobuilding first.  If that fails report to Paul
+ (unless building on Windows, then report to Bernhard).  If you try to
+ autobuild on Macintosh 10.5.2: good luck.
+
+ OK, if you ignore that advice.....
 
  First build and install mmdb and clipper.
 
@@ -505,7 +519,7 @@ Code Thanks...
 [1] Ethan Merritt
 
 [2] Eleanor Dodson, Miguel Ortiz Lombardía, Charlie Bond, Jan
-    Dohnalek, Garib Murshudov, Jean Wittingham, Florence Vicent,
+    Dohnalek, Garib Murshudov, Jean Wittingham, Florence Vincent,
     Tracy Gloucester, Constantina Fotinou, Roberto Steiner, Adrian
     Lapthorn, Claudia Schnick, Rosa Grenha, Ezra Peisach, Ben Luisi, 
     Frank von Delft, Karen McLuskey, Marcin Cymborowski, Stephen Graham.

@@ -98,8 +98,9 @@ coot::simple_rotamer::operator[](int i) const {
    default:
       std::cout << "no such rotatable bond as " << i
 		<< " in the dunbrack library\n";
-      minus_one;
+      return minus_one;
    }
+   return minus_one; // does not happen?
 } 
 
 
@@ -354,7 +355,7 @@ coot::dunbrack::parse_prl_rotamer_line(const std::string &line, const std::vecto
       std::vector<std::string> percent_parts = coot::util::split_string(percentage_str, "%");
       int percent_number_parts_index = 0; // because we have to also parse percentage out of "<1%c"
       if (percent_parts.size() > 1) {
-	 float percentage = atof(percent_parts[percent_number_parts_index].c_str());
+	 // float percentage = atof(percent_parts[percent_number_parts_index].c_str());
 	 
       } else {
 	 std::cout << "Ooops - can't find rotamer percentage" << std::endl;

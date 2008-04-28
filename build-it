@@ -199,7 +199,9 @@
 # 2.36 20071219 Set up for testing and tars on biop too.
 # 2.37 20080213 Add Joseph Moran's fix for handling CC when set.
 # 2.38 20080423 change the file name target for the build and test log file.
-script_version=2.38
+# 2.39 20080426 Check against installed python, not system. Does this mean that
+#               bins work on a Mandriva system? Needs checking
+script_version=2.39
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 

@@ -27601,6 +27601,7 @@ Move Molecule Here:</label>
 	      <label>By Position (this residue)</label>
 	      <active>False</active>
 	      <draw_indicator>True</draw_indicator>
+	      <group>add_reps_group</group>
 	    </widget>
 	  </widget>
 
@@ -27629,6 +27630,7 @@ Move Molecule Here:</label>
 		<label>By Residue Number Specification</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
+		<group>add_reps_group</group>
 		<child>
 		  <padding>0</padding>
 		  <expand>False</expand>
@@ -27831,6 +27833,7 @@ Move Molecule Here:</label>
 		<label>By Selection String</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
+		<group>add_reps_group</group>
 		<child>
 		  <padding>0</padding>
 		  <expand>False</expand>
@@ -27930,6 +27933,7 @@ Move Molecule Here:</label>
 		<label> Fat Bonds</label>
 		<active>False</active>
 		<draw_indicator>True</draw_indicator>
+		<group>add_reps_rep_style_group</group>
 		<child>
 		  <padding>0</padding>
 		  <expand>False</expand>
@@ -28014,6 +28018,7 @@ Move Molecule Here:</label>
 	      <label>Ball &amp; Stick</label>
 	      <active>False</active>
 	      <draw_indicator>True</draw_indicator>
+	      <group>add_reps_rep_style_group</group>
 	    </widget>
 	  </widget>
 	</widget>

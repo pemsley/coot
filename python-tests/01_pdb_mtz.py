@@ -54,8 +54,9 @@ except:
 
 class PdbMtzTestFunctions(unittest.TestCase):
 
-    # tests are executed alphanumerical, so we shall give them number, rather than
-    # names. We add a 0 in the end to give space for later addition
+    # tests are executed alphanumerical, so we shall give them number,
+    # rather than names. We add a 0 in the end to give space for later
+    # addition
     def test00_0(self):
 	    """Post Go To Atom no molecule"""
 	    post_go_to_atom_window()

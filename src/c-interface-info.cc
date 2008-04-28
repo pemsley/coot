@@ -102,6 +102,32 @@
 
 #include "cc-interface.hh"
 
+/*  ----------------------------------------------------------------- */
+/*                         Scripting:                                 */
+/*  ----------------------------------------------------------------- */
+
+#ifdef USE_GUILE
+SCM coot_has_python_p() {
+
+   SCM r = SCM_BOOL_F;
+#ifdef USE_PYTHON
+   r = SCM_BOOL_T;
+#endif    
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *coot_has_guile() {
+   PyObject *r = Py_False;
+#ifdef USE_GUILE
+   r = Py_True;
+#endif   
+   return r;
+}
+#endif
+
+
 /*  ------------------------------------------------------------------------ */
 /*                         Molecule Functions       :                        */
 /*  ------------------------------------------------------------------------ */
