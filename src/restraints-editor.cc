@@ -473,7 +473,7 @@ coot::restraints_editor::fill_plane_tree_data(GtkWidget *restraints_editor_dialo
 
    GtkTreeView *tv_planes = GTK_TREE_VIEW(planes_treeview);
    
-    // parse planes to get this
+    // parse lanes to get this
     max_number_of_atoms_in_plane = -1;
     for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
        if (restraints.plane_restraint[iplane].n_atoms() > max_number_of_atoms_in_plane)
@@ -493,9 +493,10 @@ coot::restraints_editor::fill_plane_tree_data(GtkWidget *restraints_editor_dialo
 
 	  for (int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	     gtk_tree_store_append(tree_store_planes, &toplevel, NULL);
- 	     gtk_tree_store_set(tree_store_planes, &toplevel,
- 				esd_col_no, restraints.plane_restraint[iplane].dist_esd(),
- 				-1);
+	     
+  	     gtk_tree_store_set(tree_store_planes, &toplevel,
+  				esd_col_no, restraints.plane_restraint[iplane].dist_esd(),
+  				-1);
  	     gtk_tree_store_set(tree_store_planes, &toplevel,
  				0, restraints.plane_restraint[iplane].plane_id.c_str(),
  				-1);
@@ -507,17 +508,20 @@ coot::restraints_editor::fill_plane_tree_data(GtkWidget *restraints_editor_dialo
 	  }
 
 	  add_plane_cell_renderer(tv_planes, tree_store_planes, "Plane ID", 0,
-				  coot::restraints_editor::TREE_TYPE_PLANES, max_number_of_atoms_in_plane);
+				  coot::restraints_editor::TREE_TYPE_PLANES,
+				  max_number_of_atoms_in_plane);
 	  int col_no = 1;
 	  for (int i=1; i<=max_number_of_atoms_in_plane; i++) {
 	     std::string atom_n_str = "Atom ";
 	     atom_n_str += coot::util::int_to_string(i);
 	     add_plane_cell_renderer(tv_planes, tree_store_planes, atom_n_str.c_str(), col_no,
-				     coot::restraints_editor::TREE_TYPE_PLANES, max_number_of_atoms_in_plane);
+				     coot::restraints_editor::TREE_TYPE_PLANES,
+				     max_number_of_atoms_in_plane);
 	     col_no++;
 	  }
 	  add_plane_cell_renderer(tv_planes, tree_store_planes, "ESD", esd_col_no,
-				  coot::restraints_editor::TREE_TYPE_PLANES, max_number_of_atoms_in_plane);
+				  coot::restraints_editor::TREE_TYPE_PLANES,
+				  max_number_of_atoms_in_plane);
        }
     }
 }
@@ -686,7 +690,7 @@ coot::restraints_editor::make_tree_store_for_planes(int natoms) {
 			     G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
 			     G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
 			     G_TYPE_FLOAT);
-   if (natoms == 14)
+   if (natoms == 24)
       tree_store_planes_local =
 	 gtk_tree_store_new (natoms+2, G_TYPE_STRING,
 			     G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
@@ -1206,7 +1210,10 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
       std::string filename = "monomer-";
       filename += r.residue_info.comp_id;
       filename += ".cif";
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 10)
+#else
       gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(w), TRUE);
+#endif      
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w), filename.c_str());
       // somehow attach the restraint r to the widget file chooser widget, w.
       coot::dictionary_residue_restraints_t *ptr = new coot::dictionary_residue_restraints_t("", 0);
