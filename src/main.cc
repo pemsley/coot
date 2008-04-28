@@ -192,6 +192,11 @@ main (int argc, char *argv[]) {
      load_gtk_resources();
      gtk_init (&argc, &argv);
      glutInit(&argc, argv);
+  } else {
+#ifdef WINDOWS_MINGW
+     // in Windows we dont want a crash dialog if no-graphics
+     SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
+#endif // MINGW
   }
   
   // popup widget is only filled with graphics at the end of startup
@@ -395,6 +400,9 @@ main (int argc, char *argv[]) {
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
      char *directory = getenv("COOT_HOME");
+     if (!directory) {
+       char *directory = getenv("HOME");
+     }
 #else      
      char *directory = getenv("HOME");
 #endif
@@ -491,9 +499,10 @@ main (int argc, char *argv[]) {
        for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
          char *preferences_file(*p);
 	 // dont load the coot_toolbuttons.py if no graphics
-	 if ((!use_graphics_flag) && (preferences_file != "coot_toolbuttons.py")) {
+	 char *found = strstr(preferences_file, "coot_toolbuttons.py");
+	 if ((!found) || (use_graphics_flag)) {
 	   std::cout << "INFO:: loading preferences file " << preferences_file
-		     << std::endl;
+	 	     << std::endl;
 	   run_python_script(preferences_file);
 	 }
        }

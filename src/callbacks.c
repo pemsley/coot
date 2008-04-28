@@ -6670,13 +6670,13 @@ on_preferences_refinement_speed_entry_changed
   GtkWidget *w;
   GtkWidget *togglebutton;
   const gchar* entry_text;
+  int val;
 
   w = lookup_widget(GTK_WIDGET(editable), "preferences_refinement_speed_entry");
   togglebutton = lookup_widget(GTK_WIDGET(editable), "preferences_refinement_speed_own_radiobutton");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
  
   entry_text = gtk_entry_get_text(GTK_ENTRY(w));
-  int val;
   val = atoi(entry_text);
   if ((val > 10000) || (val < 1)) {
     printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
@@ -6694,8 +6694,8 @@ on_preferences_spin_speed_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
-  const gchar* entry_text = gtk_entry_get_text(entry);
   float fval;
+  const gchar* entry_text = gtk_entry_get_text(entry);
   fval = atof(entry_text);
   if ((fval > 360) || (fval < 0)) {
     printf("Cannot interpret: %s Assuming default 1.0 \n", entry_text);
@@ -6712,9 +6712,9 @@ on_preferences_spin_speed_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
+  float fval;
   GtkWidget *w = lookup_widget(GTK_WIDGET(editable), "preferences_spin_speed_entry");
   const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
-  float fval;
   fval = atof(entry_text);
   if ((fval > 360) || (fval < 0)) {
     printf("Cannot interpret: %s Assuming default 1.0 \n", entry_text);
@@ -6831,8 +6831,8 @@ on_preferences_pink_pointer_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
-  const gchar* entry_text = gtk_entry_get_text(entry);
   float fval;
+  const gchar* entry_text = gtk_entry_get_text(entry);
   fval = atof(entry_text);
   if ((fval > 1000) || (fval < 0)) {
     printf("Invalid cube size: %s Assuming default 0.1 A \n", entry_text);
@@ -6849,9 +6849,9 @@ on_preferences_pink_pointer_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
+  float fval;
   GtkWidget *w = lookup_widget(GTK_WIDGET(editable), "preferences_pink_pointer_entry");
   const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
-  float fval;
   fval = atof(entry_text);
   if ((fval > 1000) || (fval < 0)) {
     printf("Invalid cube size: %s Assuming default 0.1 A \n", entry_text);

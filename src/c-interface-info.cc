@@ -3465,3 +3465,12 @@ void write_ccp4mg_picture_description(const char *filename) {
       }
    }
 } 
+
+/*  ----------------------------------------------------------------------- */
+/*                  PKGDATDDIR                                              */
+/*  ----------------------------------------------------------------------- */
+char *get_pkgdatadir() {
+
+  std::string pkgdatadir = PKGDATADIR;
+  return (char *)pkgdatadir.c_str();
+}

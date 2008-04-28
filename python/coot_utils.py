@@ -160,38 +160,70 @@ def command_in_path_qm(cmd):
 #       args is ["HKLIN","thing.mtz"]
 #       log_file_name is "refmac.log"      
 #       data_list is ["HEAD","END"]
+#       screen_flag True/False to display or not in shell window
 # 
-# Return the exist status e.g. 0 or 1.
+# Return the exist status e.g. 0 or 1. Or False if cmd not found.
+#
+# uses os.popen if python version < 2.4 otherwise subprocess
 # 
-def popen_command(cmd, args, data_list, log_file, screen_flag):
-    import string, os
+def popen_command(cmd, args, data_list, log_file, screen_flag=False):
+    import sys, string, os
+
+    major, minor, micro, releaselevel, serial = sys.version_info
 
     if not(command_in_path_qm(cmd)):
        print "command ", cmd, " not found in $PATH!"
        print "BL INFO:: Maybe we'll find it somewhere else later..."
     else:
        cmd_execfile = find_exe(cmd,"CCP4_BIN","PATH")
-       data_list_file = "data_list_file_tmp.txt"
 
-       # make args string
-       args_string = string.join(args)
-    
-       # write tmp input file
-       input = file (data_list_file,'w')
-       for data in data_list:
-           input.write(data + '\n')
-       input.close()
+    if (cmd_execfile):
+        if (major == 2 and minor >=4):
+            # subprocess
+            import subprocess
+            log = open(log_file, 'w')
+            cmd_args = [cmd_execfile] + args
+            if (screen_flag):
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            else:
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=log)
 
-#       print "BL DEBUG:: popen command is", cmd_execfile + " " + args_string + " < " + data_list_file + " > " + log_file
-       status = os.popen(cmd_execfile + " " + args_string + " < " + data_list_file + " > " + log_file, 'r')
-       cmd_finished = status.close()
-       if (cmd_finished != None):
-          print "running command ", cmd, " failed!"
-          return 0
-       else:
-#          print "cmd ", cmd ," seems to have run ok!"
-          return 1
-       os.remove(data_list_file)
+            for data in data_list:
+                process.stdin.write(data + "\n")
+            if (screen_flag):
+                for line in process.stdout:
+                    print "#", line
+                    log.write(line)
+            process.wait()
+            log.close()
+            return process.returncode
+        
+        else:
+            # popen (old)
+            data_list_file = "data_list_file_tmp.txt"
+        
+            # make args string
+            args_string = string.join(args)
+            
+            # write tmp input file
+            input = file (data_list_file,'w')
+            for data in data_list:
+                input.write(data + '\n')
+            input.close()
+
+            # print "BL DEBUG:: popen command is", cmd_execfile + " " + args_string + " < " + data_list_file + " > " + log_file
+            status = os.popen(cmd_execfile + " " + args_string + " < " + data_list_file + " > " + log_file, 'r')
+            cmd_finished = status.close()
+            if (cmd_finished != None):
+                print "running command ", cmd, " failed!"
+                return 0
+            else:
+                # print "cmd ", cmd ," seems to have run ok!"
+                return 1
+            os.remove(data_list_file)
+    else:
+        print "WARNING:: could not find %s, so not running" %cmd
+        return False
 
 # example usage:
 # popen_command("mtzdump",["HKLIN","a.mtz"],["HEAD","END"],"test.log",0)
@@ -1381,3 +1413,38 @@ def printf(*args):
 def printl(ls):
     map(printf, ls)
     
+# Where cmd is e.g. "loggraph" 
+#       args is list, e.g. ["refmac.log"]
+# 
+# Returns the pid or False if failed.
+#
+# uses os.spawn if python version < 2.4 otherwise subprocess
+# 
+def run_concurrently(cmd, args):
+    import sys, string, os
+
+    major, minor, micro, releaselevel, serial = sys.version_info
+
+    cmd_execfile = ""
+    if not(command_in_path_qm(cmd)):
+       print "command ", cmd, " not found in $PATH!"
+       print "BL INFO:: Maybe we'll find it somewhere else later..."
+    else:
+       cmd_execfile = find_exe(cmd,"CCP4_BIN","PATH")
+
+    if (cmd_execfile):
+        if (major == 2 and minor >=4):
+            # subprocess
+            import subprocess
+            cmd_args = [cmd_execfile] + args
+            pid = subprocess.Popen(cmd_args).pid
+
+            return pid
+        
+        else:
+            # spawn (old)
+            pid = os.spawnv(cmd_execfile, args)
+            return pid
+    else:
+        print "WARNING:: could not find %s, so not running this program" %cmd
+        return False
