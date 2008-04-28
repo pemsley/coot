@@ -21,6 +21,7 @@
 (define key-sym-code-scm #f)
 (define ncs-ghosts-scm #f)
 (define inverse-rtop-scm #f)
+(define coot-has-python? #f)
 
 
 (load "filter.scm")

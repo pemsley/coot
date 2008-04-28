@@ -211,7 +211,7 @@ main (int argc, char *argv[]) {
 
      timeval current_time;
      gettimeofday(&current_time, NULL);
-     time_t now = current_time.tv_sec;
+     // time_t now = current_time.tv_sec;
      // if (now < 1201824001) // 1st Feb 2008
 	splash = create_splash_screen_window();
 	// else 

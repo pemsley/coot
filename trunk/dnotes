@@ -66,30 +66,44 @@
      g.graphics_x_size is used inconsistently.  It is a bad name.  It
      is (now) used for the window size (c-interface-gui) and the
      glarea size (glextras()).  Both need to be stored gl_area_x_size,
-     gl_area_y_size, main_window_x_size, main_window_y_size.
-
+     gl_area_y_size, main_window_x_size, main_window_y_size. 
+ 
+        This is no longer true.
 
    o Change into side by side stereo mode.  Resize the window.  Now
      views are of different size/aspect ratios.
 
-   o Add in the restraints editor.
-
    o Can the map transformation interface be clearer?  Can I GUI
      interface the most frequent usage?
-
-   o Save Symmetry Coordinates should not put .pdb in the middle of
-     the suggested file name. 
 
    o the tutorial on the web site has no figures (the pdf does,
      strangely).
 
+   o coot-has-python? and coot_has_guile() functions needed.
+
+*  Needs more testing.
 
 
 
 
 
-46 Done.
 
+
+
+49 Done.
+
+   o build-it-gtk2-simple seems to run glib-config, but it is not
+     there (of course) on a gtk2 system.
+
+* Can't see what is going on here, certainly glib-config is not used
+  explicitly.
+
+   o Save Symmetry Coordinates should not put .pdb in the middle of
+     the suggested file name.  (Was this from Steven Sheriff?)
+
+* Done.
+
+   o Add in the restraints editor.
 
    o The tooltip on a geometry graph gives the wrong bad geometry element?
      e.g. check 3GP after refinement.
@@ -5302,7 +5316,13 @@ Thu Apr 17 13:28:45 BST 2008
 		   (scheme-expression->python-expression a)))))
        test-values))
 
+----
+Fri Apr 25 12:39:14 BST 2008
+
+   when the startup script is not given but not run, then, on
+   exitting, don't create a new state file
+    
+    (better would be to give a GUI on exiting, shall we overwrite?)
 
 
-
-
+---

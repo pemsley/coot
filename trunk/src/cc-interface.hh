@@ -306,6 +306,14 @@ PyObject *safe_python_command_test(const char *cmd);
 /*  Is this a repeat of something?  I don't know. */
 void run_generic_script(const std::vector<std::string> &cmd_strings);
 
+#ifdef USE_GUILE
+SCM coot_has_python_p();
+#endif
+
+#ifdef USE_PYTHON
+PyObject *coot_has_guile();
+#endif
+
 /* commands to run python commands from guile and vice versa */
 /* we ignore return values for now */
 #ifdef USE_PYTHON

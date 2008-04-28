@@ -1439,7 +1439,7 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 // 	 std::string filename = "molecule-";
 // 	 filename += int_to_string(naii.imol);
 	 int imol = naii.imol;
-	 std::string filename = molecules[imol].name_for_display_manager();
+	 std::string filename = molecules[imol].name_sans_extension(0);
 	 filename += "-symmetry-";
 	 filename += int_to_string(naii.symm_trans.isym());
 	 filename += ".pdb";

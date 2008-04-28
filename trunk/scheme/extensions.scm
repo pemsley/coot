@@ -373,45 +373,52 @@
 ;		       (cootaneer imol-map imol (list chain-id resno inscode 
 ;						      at-name alt-conf)))))))))
 
-      (let ((submenu (gtk-menu-new))
-            (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
-        
-        (gtk-menu-item-set-submenu menuitem2 submenu) 
-        (gtk-menu-append menu menuitem2)
-        (gtk-widget-show menuitem2)
+      (if (coot-has-python?)
 
-	(add-simple-coot-menu-menuitem
-	 submenu "Associate Sequence...."
-	 (lambda ()
-	   (generic-chooser-entry-and-file-selector 
-	    "Associate Sequence to Model: "
-	    valid-model-molecule?
-	    "Chain ID"
-	    ""
-	    "Select PIR file"
-	    (lambda (imol chain-id pir-file-name)
-	      (format #t "assoc seq: ~s ~s ~s~%" imol chain-id pir-file-name)
-	      (if (file-exists? pir-file-name)
-		  (let ((seq-text 
-			 (call-with-input-file pir-file-name
-			   (lambda (port)
-			     (let loop  ((lines '())
-					 (line (read-line port)))
-			       (cond
-				((eof-object? line) 
-				 (string-append-with-string (reverse lines) "\n"))
-				(else
-				 (loop (cons line lines) (read-line port)))))))))
-		    
-		    (assign-pir-sequence imol chain-id seq-text)))))))
-	
+	  ;; 
+	  (add-simple-coot-menu-menuitem
+	   menu "Dock Sequence (py)..."
+	   (lambda ()
+	     (run-python-command "cootaneer_gui_bl()")))
 
-	(add-simple-coot-menu-menuitem
-	 submenu "Dock sequence on this fragment..."
-	 (lambda ()
-	   (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
-				 (lambda (imol)
-				   (cootaneer-gui imol))))))
+	  (let ((submenu (gtk-menu-new))
+		(menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
+	    
+	    (gtk-menu-item-set-submenu menuitem2 submenu) 
+	    (gtk-menu-append menu menuitem2)
+	    (gtk-widget-show menuitem2)
+
+	    (add-simple-coot-menu-menuitem
+	     submenu "Associate Sequence...."
+	     (lambda ()
+	       (generic-chooser-entry-and-file-selector 
+		"Associate Sequence to Model: "
+		valid-model-molecule?
+		"Chain ID"
+		""
+		"Select PIR file"
+		(lambda (imol chain-id pir-file-name)
+		  (format #t "assoc seq: ~s ~s ~s~%" imol chain-id pir-file-name)
+		  (if (file-exists? pir-file-name)
+		      (let ((seq-text 
+			     (call-with-input-file pir-file-name
+			       (lambda (port)
+				 (let loop  ((lines '())
+					     (line (read-line port)))
+				   (cond
+				    ((eof-object? line) 
+				     (string-append-with-string (reverse lines) "\n"))
+				    (else
+				     (loop (cons line lines) (read-line port)))))))))
+			
+			(assign-pir-sequence imol chain-id seq-text)))))))
+
+	    (add-simple-coot-menu-menuitem
+	     submenu "Dock sequence on this fragment..."
+	     (lambda ()
+	       (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
+				     (lambda (imol)
+				       (cootaneer-gui imol)))))))
 
       (add-simple-coot-menu-menuitem
        menu "Add Strand Here..."

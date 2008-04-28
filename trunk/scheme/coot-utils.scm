@@ -38,6 +38,7 @@
 (define key-sym-code key-sym-code-scm)
 (define ncs-ghosts ncs-ghosts-scm)
 (define inverse-rtop inverse-rtop-scm)
+(define coot-has-python? coot-has-python-p)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
