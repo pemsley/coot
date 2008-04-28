@@ -958,15 +958,18 @@ def get_option_menu_active_molecule(option_menu, model_mol_list):
     for i in model:
         children += 1
 
-    all_model = model[active_item][0]
-    imol_model, junk = all_model.split(' ', 1)
-    
-    return int(imol_model)
-#    if (children == model_mol_list):
-#       return model[active_item][0]
-#    else:
-#       print "Failed children length test : ",children, model_mol_list
-#       return False
+    if (children == model_mol_list):
+       try:
+          all_model = model[active_item][0]
+          imol_model, junk = all_model.split(' ', 1)
+       
+          return int(imol_model)
+       except:
+          print "INFO:: could not get active_item"
+          return False
+    else:
+       print "Failed children length test : ",children, model_mol_list
+       return False
 
 # BL says:: we do it for gtk_combobox instead! option_menu is deprecated
 # Here we return the active item in an option menu of generic items
@@ -980,7 +983,17 @@ def get_option_menu_active_item(option_menu, item_list):
    for i in model:
         children += 1
 
-   return model[active_item][0]
+   if (children == model_mol_list):
+       try:
+          all_model = model[active_item][0]
+          return all_model
+       except:
+          print "INFO:: could not get active_item"
+          return False
+    else:
+       print "Failed children length test : ",children, model_mol_list
+       return False
+
 
 def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_fill_function):
  
