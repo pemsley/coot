@@ -219,7 +219,8 @@
 # 4.03 20080213 Add Joseph Moran's fix for handling CC when set.
 # 4.04 20080213 Allow python to get through rsync filter, for PHENIX usage.
 # 4.05 20080226 Fix up build_guile_gtk usage.
-script_version=4.05
+# 4.06 20080428 Apply Joseph Moran's fix correctly.
+script_version=4.06
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -741,8 +742,8 @@ fi
 if [ -n "$CC" ] ; then
 
         # CC was set
-        v=$CC-`$CC --version | awk 'NR==1 {print $2}'`
-        if [ "$v" != "(GCC)" ] ; then
+        gcctest=`$CC --version | awk 'NR==1 {print $2}'`
+        if [ "$gcctest" != "(GCC)" ] ; then
            # but not gcc 
            v=$CC-`$CC -v`
               if [ $? -ne 0 ] ; then
@@ -769,17 +770,19 @@ fi
 
 if [ -n "$CXX" ] ; then
 	# CXX was set
-	w=$CXX-`$CXX --version`
-	if [ $? -ne 0 ] ; then
+	gxxtest=`$CXX-$CXX --version | awk 'NR==1 {print $2}'`
+	if [ "$gxxtest" -ne "(GCC)" ] ; then
 	   # but not g++ 
 	   w=$CXX-`$CXX -v`
 	      if [ $? -ne 0 ] ; then
 	    	 w="missing_cxx_version"
 	      fi
+	else 
+           # g++
+           w=$CXX-`$CXX --version | awk 'NR==1 {print $3}'`
 	fi
 else
 	# CXX not set
-
 	w=g++-`g++ -dumpversion | head -1`
         if [ $? -ne 0 ] ; then
 		# not g++
