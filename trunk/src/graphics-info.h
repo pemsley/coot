@@ -2083,6 +2083,7 @@ public:
    void set_contour_sigma_button_and_entry(GtkWidget *window, int imol);
       
    void fill_option_menu_with_refmac_options(GtkWidget *option_menu); 
+   void fill_option_menu_with_refmac_nolabels_options(GtkWidget *option_menu); 
    static void refinement_map_select(GtkWidget *item, GtkPositionType pos);
    static void   skeleton_map_select(GtkWidget *item, GtkPositionType pos);
    static int map_for_skeletonize; // used by skeletonize_map; 

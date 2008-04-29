@@ -26,7 +26,7 @@ class UtilTestFunctions(unittest.TestCase):
     def test01_0(self):
         """Test key symbols"""
 
-        add_key_binding("missing","")
+        add_key_binding("name", "missing","")
 
         test_list = [[key_sym_code("a-symbol"), -1],
                      [key_sym_code(["a", "b"]), -1],
@@ -38,3 +38,11 @@ class UtilTestFunctions(unittest.TestCase):
 
         for code, result in test_list:
             self.failUnlessEqual(code, result, " fail on key_sym_code, %s is not equal to %s " %(code, result))
+
+
+    def test02_0(self):
+        """Test running a scheme function"""
+
+        self.skipIf(not coot_has_guile())
+        tot = run_scheme_command("(+ 2 2)")
+        self.failUnlessEqual(tot, 4)

@@ -118,7 +118,7 @@ def run_loggraph(logfile):
         print 'We cannot allocate $CCP4I_TCLTK so no bltwish available'
 
 
-def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, mtz_out_filename, extra_cif_lib_filename, imol_refmac_count, swap_map_colours_post_refmac_p, imol_mtz_molecule, show_diff_map_flag, phase_combine_flag, phib_fom_pair, force_n_cycles, ccp4i_project_dir, f_col, sig_f_col, r_free_col):
+def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, mtz_out_filename, extra_cif_lib_filename, imol_refmac_count, swap_map_colours_post_refmac_p, imol_mtz_molecule, show_diff_map_flag, phase_combine_flag, phib_fom_pair, force_n_cycles, ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
 
     global refmac_count
     global refmac_extra_params
@@ -126,7 +126,10 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
     refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
 
-    labin_string = "LABIN FP=" + f_col + " SIGFP=" + sig_f_col
+    labin_string = ""
+    if (f_col):
+        labin_string = "LABIN FP=" + f_col + " SIGFP=" + sig_f_col
+        
     if (r_free_col != "") :
         labin_string += " FREE=" + r_free_col
 # BL says: command line args have to be string not list here
@@ -347,10 +350,10 @@ def read_refmac_log(imol, refmac_log_file):
             # we ignore multiple conformations for now...
             chain     = next_line[15:17]       # this is e.g. "AA"
             chain_id  = chain[1]
-            res_no1   = int(next_line[22:26])
-            res_name1 = next_line[28:31]
-            res_no2   = int(next_line[40:44])
-            res_name2 = next_line[46:49]
+            res_no1   = int(next_line[24:28])
+            res_name1 = next_line[30:33]
+            res_no2   = int(next_line[42:46])
+            res_name2 = next_line[48:51]
             angle_str = this_line[49:56]
 
             info_text = "pre-WARNING: CIS bond: " + chain_id + " " + str(res_no1) + " - " \
@@ -978,3 +981,26 @@ def read_refmac_log(imol, refmac_log_file):
         
 #read_refmac_log(0, "25_refmac5.log")
 #read_refmac_log(0, "refmac-from-coot-0.log")
+
+# returns the major refmac version, i.e. [5, 3] (for 5.3) or False if no refmac found
+#
+def get_refmac_version():
+
+    refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
+
+    if (refmac_execfile):
+        log_file = "refmac_version_tmp.log"
+        status = popen_command(refmac_execfile, ["-i"], ["\n"], log_file)
+        if (status == 0):
+            fin = open(log_file, 'r')
+            lines = fin.readlines()
+            fin.close()
+            for line in lines:
+                if ("Program" in line):
+                    version = line.split()[-1]
+                    major, minor, micro = version.split(".")
+                    return [int(major), int(minor)]
+        else:
+            print "INFO:: problem to get refmac version"
+    else:
+        return False

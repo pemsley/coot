@@ -990,7 +990,7 @@ def get_option_menu_active_item(option_menu, item_list):
        except:
           print "INFO:: could not get active_item"
           return False
-    else:
+   else:
        print "Failed children length test : ",children, model_mol_list
        return False
 

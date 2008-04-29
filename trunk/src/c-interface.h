@@ -1216,6 +1216,7 @@ void execute_refmac(GtkWidget *window); /* lookup stuff here. */
 void refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos); 
 int set_refmac_molecule(int imol); /* used by callback.c */
 void fill_option_menu_with_refmac_options(GtkWidget *optionmenu);
+void fill_option_menu_with_refmac_nolabels_options(GtkWidget *optionmenu);
 
 
 void free_memory_run_refmac(GtkWidget *window); 
@@ -1243,6 +1244,9 @@ void set_keep_map_colour_after_refmac(int istate);
 
   @return 1 for "yes", 0 for "no"  */
 int keep_map_colour_after_refmac_state();
+
+/* refmac vresion testing, returns 1 for new refmac (>5.3) otherwise 0 */
+int refmac_runs_with_nolabels(void);
 
 /* \} */
 

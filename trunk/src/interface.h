@@ -160,6 +160,7 @@ GdkPixbuf* create_pixbuf(const gchar *filename);
 gchar* find_pixmap_file (const gchar     *filename);
 GtkWidget* create_model_toolbar_menu (void);
 GtkWidget* create_save_restraint_chooserdialog (void);
+GtkWidget* create_run_refmac_nolabels_help_dialog(void);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS

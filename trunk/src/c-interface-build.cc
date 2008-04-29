@@ -2572,6 +2572,18 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
       active_item = gtk_menu_get_active(GTK_MENU(menu));
 
+      // for nolabels parts
+      if (refmac_runs_with_nolabels()) {
+	GtkWidget *nolabels_checkbutton = lookup_widget(window,
+							"run_refmac_nolabels_checkbutton");
+	if (GTK_TOGGLE_BUTTON(nolabels_checkbutton)->active) {
+	option_menu = lookup_widget(window, "run_refmac_map_nolabels_optionmenu");
+	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+	active_item = gtk_menu_get_active(GTK_MENU(menu));
+	}
+      }
+
+
       // active_item is set if there was at least one map with refmac params:
       // if none, it is null.
       
@@ -2592,7 +2604,9 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 	       g.statusbar_text(s);
 	    } else {
 	       // normal path
-	       if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) { 
+	       //	       if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) { 
+	       // just check for refmac mtz file now
+	      if (graphics_info_t::molecules[imol_map_refmac].Refmac_mtz_filename().size() > 0) { 
 
 		  std::cout << " Running refmac refmac params molecule number "
 			    << imol_map_refmac << std::endl;
@@ -2664,23 +2678,23 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		     std::string fom_string;
 
 		     if (g.molecules[imol_map_refmac].Fourier_weight_label() != "") {
-			phib_string = g.molecules[imol_map_refmac].Fourier_phi_label();
-			fom_string  = g.molecules[imol_map_refmac].Fourier_weight_label();
+		       phib_string = g.molecules[imol_map_refmac].Fourier_phi_label();
+		       fom_string  = g.molecules[imol_map_refmac].Fourier_weight_label();
 		     } else {
-			if (phase_combine_flag == 1) { 
-			   std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
-			   std::cout << "to make the map" << std::endl;
-			   std::cout << "WARNING:: Turning off phase combination." << std::endl;
-			   phase_combine_flag = 0;
-			}
+		       if (phase_combine_flag == 1) { 
+			 std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
+			 std::cout << "to make the map" << std::endl;
+			 std::cout << "WARNING:: Turning off phase combination." << std::endl;
+			 phase_combine_flag = 0;
+		       }
 		     }
 		     // 	    std::cout << "DEBUG:: fom_string " << fom_string << " "
 		     // 		      << g.molecules[imol_map_refmac].Fourier_weight_label()
 		     // 		      << std::endl;
-
+		     
 		     std::string cif_lib_filename = ""; // default, none
 		     if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
-			cif_lib_filename = (*graphics_info_t::cif_dictionary_filename_vec)[0];
+		       cif_lib_filename = (*graphics_info_t::cif_dictionary_filename_vec)[0];
 		     }
 
 		     // 	    std::cout << "DEBUG:: attempting to write pdb input file "
@@ -2690,19 +2704,35 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			std::cout << "refmac ccp4i project dir " 
 				  << graphics_info_t::refmac_ccp4i_project_dir 
 				  << std::endl;
-			execute_refmac_real(pdb_in_filename, pdb_out_filename,
-					    mtz_in_filename, mtz_out_filename,
-					    cif_lib_filename,
-					    g.molecules[imol_map_refmac].Refmac_fobs_col(),
-					    g.molecules[imol_map_refmac].Refmac_sigfobs_col(),
-					    g.molecules[imol_map_refmac].Refmac_r_free_col(),
-					    g.molecules[imol_map_refmac].Refmac_r_free_sensible(),
-					    refmac_count_string,
-					    g.swap_pre_post_refmac_map_colours_flag,
-					    imol_map_refmac,
-					    diff_map_flag,
-					    phase_combine_flag, phib_string, fom_string,
-					    graphics_info_t::refmac_ccp4i_project_dir);
+			if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) {
+			  // normal execution with labels
+			  execute_refmac_real(pdb_in_filename, pdb_out_filename,
+					      mtz_in_filename, mtz_out_filename,
+					      cif_lib_filename,
+					      g.molecules[imol_map_refmac].Refmac_fobs_col(),
+					      g.molecules[imol_map_refmac].Refmac_sigfobs_col(),
+					      g.molecules[imol_map_refmac].Refmac_r_free_col(),
+					      g.molecules[imol_map_refmac].Refmac_r_free_sensible(),
+					      refmac_count_string,
+					      g.swap_pre_post_refmac_map_colours_flag,
+					      imol_map_refmac,
+					      diff_map_flag,
+					      phase_combine_flag, phib_string, fom_string,
+					      graphics_info_t::refmac_ccp4i_project_dir);
+			} else {
+			  // no labels, just set blank what we dont have
+			  execute_refmac_real(pdb_in_filename, pdb_out_filename,
+					      mtz_in_filename, mtz_out_filename,
+					      cif_lib_filename,
+					      "", "", "", 0,
+					      refmac_count_string,
+					      g.swap_pre_post_refmac_map_colours_flag,
+					      imol_map_refmac,
+					      diff_map_flag,
+					      phase_combine_flag, phib_string, fom_string,
+					      graphics_info_t::refmac_ccp4i_project_dir);
+			  
+			}
 		     } else {
 			std::cout << "WARNING:: fatal error in writing pdb input file"
 				  << pdb_in_filename << " for refmac.  Can't run refmac"
@@ -2842,6 +2872,13 @@ void fill_option_menu_with_refmac_options(GtkWidget *optionmenu) {
 
    graphics_info_t g;
    g.fill_option_menu_with_refmac_options(optionmenu);
+
+} 
+
+void fill_option_menu_with_refmac_nolabels_options(GtkWidget *optionmenu) {
+
+   graphics_info_t g;
+   g.fill_option_menu_with_refmac_nolabels_options(optionmenu);
 
 } 
 

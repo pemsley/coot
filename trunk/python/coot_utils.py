@@ -727,15 +727,15 @@ def graphics_dot_key_pressed_hook():
 global key_bindings
 key_bindings = []
 
-def add_key_binding(key, thunk):
+def add_key_binding(name, key, thunk):
     from types import IntType, StringType
     global key_bindings
     if (type(key) is IntType):
-        key_bindings.append([key, thunk])
+        key_bindings.append([key, key, name, thunk])
     elif (type(key) is StringType):
         code = key_sym_code(key)
         if (not (code == -1)):
-            key_bindings.append([key, thunk])
+            key_bindings.append([code, key, name, thunk])
     else:
         print "BL WARNING:: invalid key", key
 

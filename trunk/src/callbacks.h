@@ -1188,6 +1188,11 @@ on_single_map_properties_colour_button_clicked
                                         gpointer         user_data);
 
 void
+on_run_refmac_nolabels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_run_refmac_diff_map_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
@@ -1497,6 +1502,16 @@ on_run_refmac_help_button_clicked      (GtkButton       *button,
 
 void
 on_run_refmac_help_dialog_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_nolabels_help_button_clicked      
+					(GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_nolabels_help_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
