@@ -164,7 +164,6 @@ execute_refmac_real(std::string pdb_in_filename,
 		    std::string fom_string,
 		    std::string ccp4i_project_dir);
 
-
 /*  ------------------------------------------------------------------- */
 /*                    file selection                                    */
 /*  ------------------------------------------------------------------- */

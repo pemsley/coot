@@ -3669,9 +3669,22 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
 
   set_refmac_molecule(imol_coords);
   fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
-
   optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
   fill_option_menu_with_refmac_options(optionmenu);
+
+  /* fill optionmenu for no label refmac and show if refmac version is new enough */
+  if (refmac_runs_with_nolabels()) {
+    GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
+    GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
+    GtkWidget *frame = lookup_widget(window, "run_refmac_nolabels_frame");
+    if (!active_menu_item) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+      gtk_widget_show(frame);
+    }
+    optionmenu = lookup_widget(window, "run_refmac_map_nolabels_optionmenu");
+    fill_option_menu_with_refmac_nolabels_options(optionmenu);
+    gtk_widget_show(checkbutton);
+  }
 
   optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
   clear_refmac_ccp4i_project();
@@ -3750,6 +3763,21 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
   }
 
 }
+
+/* Actually, we only are interested in the state of this when the
+   "Run" button is pressed */
+void
+on_run_refmac_nolabels_checkbutton_toggled (GtkToggleButton *togglebutton,
+                                            gpointer         user_data)
+{
+  GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_nolabels_frame");
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
+    gtk_widget_show(frame);
+  } else {
+    gtk_widget_hide(frame);
+  }
+}
+
 
 /* Actually, we only are interested in the state of this when the
    "Run" button is pressed */
@@ -4401,6 +4429,28 @@ on_run_refmac_help_dialog_ok_button_clicked
 {
 
   GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "run_refmac_help_dialog");
+  gtk_widget_destroy(widget);
+
+}
+
+
+void
+on_run_refmac_nolabels_help_button_clicked      
+					(GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *widget = create_run_refmac_nolabels_help_dialog();
+  gtk_widget_show(widget);
+}
+
+
+void
+on_run_refmac_nolabels_help_dialog_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "run_refmac_nolabels_help_dialog");
   gtk_widget_destroy(widget);
 
 }

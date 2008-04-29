@@ -561,16 +561,19 @@ void save_preferences() {
   short int il;
   std::string preferences_name;
   std::string file_name;
-  std::string directory;
+  std::string directory = PKGDATADIR;
   
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-  directory = (char*)getenv("COOT_HOME");
-  if (!directory) {
-    directory = (char*)getenv("HOME");
+  char *tmp_directory = getenv("COOT_HOME");
+  if (!tmp_directory) {
+    tmp_directory = getenv("HOME");
   } 
 #else      
-  directory = (char*)getenv("HOME");
+  char *tmp_directory = getenv("HOME");
 #endif
+  if (tmp_directory) {
+    directory = tmp_directory;
+  }
 
   directory += "/.coot-preferences/";
 

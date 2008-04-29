@@ -914,6 +914,8 @@ int make_and_draw_map(const char* mtz_file_name,
 					     weight_col_str,
 					     use_weights, is_diff_map,
 					     graphics_info_t::map_sampling_rate);
+	 // save the mtz file from where the map comes
+	 g.molecules[imol].store_refmac_mtz_filename(std::string(mtz_file_name));
 	 g.scroll_wheel_map = imol;
 	 graphics_draw();
 	 g.activate_scroll_radio_button_in_display_manager(imol);
@@ -1025,6 +1027,9 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 							     weight_col, use_weights, is_diff_map,
 							     fobs_col, sigfobs_col,
 							     r_free_col, sensible_r_free_col);
+	 } else {
+	   // save at least the mtz file from where the map comes
+	   g.molecules[imol].store_refmac_mtz_filename(std::string(mtz_file_name));
 	 }
 	 g.scroll_wheel_map = imol;
 	 g.activate_scroll_radio_button_in_display_manager(imol);

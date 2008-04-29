@@ -5230,6 +5230,11 @@ molecule_class_info_t::store_refmac_params(const std::string &mtz_filename,
       std::cout << " the r-free-flag is not sensible" << std::endl;
 } 
 
+void
+molecule_class_info_t::store_refmac_mtz_filename(const std::string &mtz_filename) { 
+
+   refmac_mtz_filename = mtz_filename; 
+}
 
 // return 0 on success
 // 

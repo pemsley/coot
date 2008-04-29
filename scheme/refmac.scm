@@ -86,13 +86,15 @@
 	    f-col sig-f-col r-free-col)
 	
     (let* ((local-r-free-col (if (null? r-free-col) '() (car r-free-col)))
-	   (labin-string
-	    (apply string-append (append (list "LABIN" " "
-					       "FP=" (strip-path f-col) " "
-					       "SIGFP=" (strip-path sig-f-col))
-					 (if (null? local-r-free-col) 
-					     '()
-					     (list " FREE=" (strip-path local-r-free-col))))))
+;	   (labin-string
+	   (labin-string (if (string=? f-col "") ""
+			     (apply string-append (append (list "LABIN" " "
+								"FP=" (strip-path f-col) " "
+								"SIGFP=" (strip-path sig-f-col))
+							  (if (null? local-r-free-col) 
+							      '()
+;					     (list " FREE=" (strip-path local-r-free-col))))))
+							      (list " FREE=" (strip-path local-r-free-col)))))))
 	  (command-line-args
 	   (append
 	    (list 

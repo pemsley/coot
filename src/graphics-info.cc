@@ -1429,6 +1429,80 @@ graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
 
 }
 
+// These are mtz files actually.
+void
+graphics_info_t::fill_option_menu_with_refmac_nolabels_options(GtkWidget *option_menu) {
+
+   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+   if (menu)
+      gtk_widget_destroy(menu);
+   menu = gtk_menu_new();
+
+   
+   GtkWidget *menuitem;
+   
+   std::vector<std::pair<int, std::string> > mtz_files;
+   for (int i=0; i<n_molecules(); i++) {
+      // first make a list with all mtz files and at the same time filter out dublicates
+      std::cout <<"BL DEBUG:: file name" << molecules[i].Refmac_mtz_filename() << std::endl;
+      if (molecules[i].Refmac_mtz_filename().size() > 0) {
+	 std::string mtz_filename = molecules[i].Refmac_mtz_filename();
+	 char s[200];
+	 snprintf(s, 199, "%d", i);
+	 std::string ss(s);
+	 ss += " ";
+	 ss += molecules[i].name_;
+	 ss += "";
+	 ss += mtz_filename;
+	 int exists = 0;
+	 for (int k=0; k<mtz_files.size(); k++) {
+	   if (mtz_filename == mtz_files[k].second) {
+	     exists = 1;
+	     break;
+	   }
+	 }
+	 if (!exists) {
+	   mtz_files.push_back(std::pair<int, std::string> (i, mtz_filename));
+	 }
+      }
+   }
+
+   // now fill the menu and connect signals
+   std::cout<<"BL DEBUG:: list lens mtz and map" << mtz_files.size()<< std::endl;
+   for (int j=0; j<mtz_files.size(); j++) {
+     int i = mtz_files[j].first;
+     std::string ss = mtz_files[j].second;
+     
+     std::cout <<"BL DEBUG:: i and ss " << i <<" " << ss <<std::endl;
+     menuitem = gtk_menu_item_new_with_label(ss.c_str());
+
+     // We do a menu_get_active in
+     // save_go_to_atom_mol_menu_active_position.  Hmmm... Does
+     // that function exist?  I don't see it!
+     // 
+     // we set user data on the menu item, so that when this goto
+     // Atom widget is cancelled, we can whatever was the molecule
+     // number corresponding to the active position of the menu
+     //
+     // Should be freed in on_go_to_atom_cancel_button_clicked
+     // (callbacks.c)
+     // 
+     gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(i));
+     
+     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
+			GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select),
+			GINT_TO_POINTER(i));
+     gtk_menu_append(GTK_MENU(menu), menuitem);
+     gtk_widget_show(menuitem);
+   }
+
+//    gtk_menu_set_active(GTK_MENU(menu), 0);
+   /* Link the new menu to the optionmenu widget */
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu),
+			    menu);
+
+}
+
 
 // a static function
 void

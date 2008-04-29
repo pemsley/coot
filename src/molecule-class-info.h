@@ -1681,6 +1681,8 @@ class molecule_class_info_t {
 			    int r_free_flag_sensible);
    std::vector<coot::atom_attribute_setting_help_t> get_refmac_params() const;
 
+   void store_refmac_mtz_filename(const std::string &mtz_filename);
+
    // more refmac stuff
    //
    int write_pdb_file(const std::string &filename); // not const because of shelx/name manip
