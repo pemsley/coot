@@ -597,10 +597,10 @@
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
 
 	(list "binary-Linux-i386-fedora-8"
-	      "Linux-bragg1.chem.york.ac.uk/gtk1" #f)
+	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
 
 	(list "binary-Linux-i386-fedora-8-python-gtk2"
-	      "Linux-bragg1.chem.york.ac.uk/gtk2" #f)
+	      "Linux-dragon.chem.york.ac.uk/gtk2" #f)
 
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
 	      "ubuntu-6.06/gtk2" #f)
