@@ -1179,6 +1179,7 @@
   (format #t "Key ~s was pressed~%" key)
   (let ((field (assoc key *key-bindings*)))
     (if (not field)
+	(format #t "~s not found in ~s" *key-bindings*)
 	(begin
 	  ((car (cdr (cdr (cdr field)))))))))
 
