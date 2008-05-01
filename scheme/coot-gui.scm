@@ -1881,11 +1881,22 @@
 				   (resno-end (if (number? resno-end-t)
 						  resno-end-t
 						  resno-start)))
+
+			      ; (format #t "resnos: ~s ~s~%" resno-start resno-end)
 					
 			      (if (number? resno-start)
 				  (if (number? resno-end)
 				      (begin 
 					(make-ncs-ghosts-maybe active-mol-no-ref)
+					(format #t "ncs ligands with ~s %" 
+						(list active-mol-no-ref
+						      chain-id-ref
+						      active-mol-no-lig
+						      chain-id-lig
+						      resno-start
+						      resno-end))
+
+					
 					(ncs-ligand active-mol-no-ref
 						    chain-id-ref
 						    active-mol-no-lig
@@ -1922,10 +1933,10 @@
        ((null? items) 'done)
        (else 
 	(let ((binding-hbox (gtk-hbox-new #f 2)))
-	  (let* ((txt (if (string? (car (car items)))
-			  (car (car items))
-			  (number->string (car (car items)))))
-		 (key-label (gtk-label-new txt))
+	  (let* ((txt (if (string? (car (cdr (car items))))
+			  (car (cdr (car items)))
+			  (number->string (car (cdr (car items))))))
+		 (key-label (gtk-label-new (string-append "   " txt "   ")))
 		 (name-label (gtk-label-new (car (cdr (cdr (car items)))))))
 	    
 	    (gtk-box-pack-start binding-hbox key-label  #f #f 2)
