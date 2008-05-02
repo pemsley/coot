@@ -35,7 +35,7 @@ def register_coot_icons():
   stock_ids   = gtk.stock_list_ids()
   pixbuf_dir = os.getenv('COOT_PIXMAPS_DIR')
   if (not pixbuf_dir):
-    pixbuf_dir = get_pkgdatadir()
+    pixbuf_dir = os.path.join(get_pkgdatadir(), "pixmaps")
   patt = os.path.normpath(pixbuf_dir + '/*.svg')
   coot_icon_filename_ls = glob.glob(patt)
   icon_info_ls = []
@@ -145,7 +145,7 @@ if (have_coot_python):
         # coot icons
         pixbuf_dir = os.getenv('COOT_PIXMAPS_DIR')
         if (not pixbuf_dir):
-          pixbuf_dir = get_pkgdatadir()
+          pixbuf_dir = os.path.join(get_pkgdatadir(), "pixmaps")
         patt = os.path.normpath(pixbuf_dir + '/*.svg')
         coot_icon_filename_ls = glob.glob(patt)
 
