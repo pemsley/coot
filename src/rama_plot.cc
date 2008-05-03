@@ -1155,10 +1155,10 @@ coot::rama_plot::mouse_point_check(double x, double y) const {
       // need only to check over the top n_diffs differences.  (but we
       // do need to check the primary and the secondary phi_psi sets).
       //
-      int i; 
+      unsigned int i; 
       if (worldx <= 180 && worldx >= -180) { 
 	 if (worldy <= 180 && worldy >= -180) {
-	    int ich, ich_2;
+	    unsigned int ich, ich_2;
 	    
 	    for (int j=0; j<int(diff_sq.size()) && j<n_diffs; j++) {
 	       

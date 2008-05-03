@@ -23959,6 +23959,8 @@ density (too big to be waters):
 
 	  <child>
 	    <widget class="GtkScrolledWindow" id="scrolledwindow9">
+	      <property name="width_request">180</property>
+	      <property name="height_request">160</property>
 	      <property name="visible">True</property>
 	      <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
 	      <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
@@ -30561,6 +30563,7 @@ search (this may not work well)</property>
 
 <widget class="GtkDialog" id="new_close_molecules_dialog">
   <property name="border_width">2</property>
+  <property name="height_request">210</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">Delete Molecules:</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>

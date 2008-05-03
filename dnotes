@@ -2,23 +2,14 @@
 
    Things to fix before 0.5
 
-   20 Items
+   16 Items
 
    o Kevin's Ramachandran Refinement target
-
-   o Correct CISPEP if needed cards on writing pdb.
-
-   o PDB v3.0 compatibility
-
-   o Use Eugene's new LINK-reading code.
 
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
 
 * It is, but the residue number is "1" and the SFAC index is -1.  Bad.
-
-   o Update the graphics properly (redraw) when a dialog goes away
-     (configure event?)  do_expose_swap_buffers not used now, it seems.
 
    o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
      message about going to wall-eyed and the state of walled eyed in
@@ -46,16 +37,52 @@
 
    o Bill's config log
 
-   o Add the reading of a good map and a CNS map to tests.
-
-   o Fun: a guile/expect script to build latest source tar on bubbles
-
    o Update the density fit graph on delete residue (e.g. water) [JED]
 
    o Fix up Addition Representations in Display Control.  Don't
-     display if empty
+     display if empty.    
+   
+     Make ball and stick mode to work.
 
-   o Do the additional representations work on gtk2?
+   o Can the map transformation interface be clearer?  Can I GUI
+     interface the most frequent usage?
+
+   o in coot_toolbuttons.py Bernhard registers the icons.  Does that
+     make them smooth?
+
+   o the tutorial on the web site has no figures (the pdf does,
+     strangely).
+
+   o Correct CISPEP if needed cards on writing pdb.
+
+   o PDB v3.0 compatibility
+
+   o Use Eugene's new LINK-reading code.
+
+
+
+
+
+
+
++ 6
+
+49 Done.
+
+   o coot-has-python? and coot_has_guile() functions needed.
+
+* Done.
+
+   o Update the graphics properly (redraw) when a dialog goes away
+     (configure event?)  do_expose_swap_buffers not used now, it seems.
+
+* No longer a problem.
+
+   o Fun: a guile/expect script to build latest source tar on bubbles
+
+   o Do the additional representations work on gtk1?
+
+* Yes, they do now.
 
    o Ethan Merrit's bugs on window sizing.  
 
@@ -72,25 +99,6 @@
 
    o Change into side by side stereo mode.  Resize the window.  Now
      views are of different size/aspect ratios.
-
-   o Can the map transformation interface be clearer?  Can I GUI
-     interface the most frequent usage?
-
-   o the tutorial on the web site has no figures (the pdf does,
-     strangely).
-
-   o coot-has-python? and coot_has_guile() functions needed.
-
-*  Needs more testing.
-
-
-
-
-
-
-
-
-49 Done.
 
    o build-it-gtk2-simple seems to run glib-config, but it is not
      there (of course) on a gtk2 system.
@@ -5326,3 +5334,42 @@ Fri Apr 25 12:39:14 BST 2008
 
 
 ---
+Thu May  1 20:08:33 BST 2008
+
+    When waters are added with the W keybinding, let us know (with a
+    dialog) if a "Pointer Atoms" molecule was created (may be pointer
+    atom molecule was not set?)
+
+
+----
+Thu May  1 20:26:28 BST 2008
+
+    1a02: place helix here at (9.2 36.6 28.3)
+
+    1env: place helix here - many places.  Lots of errors.
+
+
+----
+Thu May  1 20:55:01 EDT 2008
+
+    Fixed atoms still fail - e.g. on TMC in 1e2k
+
+-------
+
+   When activating the restriants editor dialog, make the option menu 
+   be the residue type at the centre of the screen.
+
+   Priority: High
+   Dificultly: Easy
+
+----
+    
+    get a protein with hydrogens.
+    make a modification
+    undo it.
+    refine  -> hydrogens fly off.  Why?
+  
+    Priority: High.
+    Difficulty:  Hard/Medium.
+
+
