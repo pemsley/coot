@@ -457,6 +457,11 @@ function setup_ccp4 {
 
 }
 
+# exit 
+function my_exit { 
+    exit $1
+}
+
 
 # Return 0 on success, 1 on failure (or not tested)
 #
@@ -2160,7 +2165,7 @@ fi
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
-guile_version=1.8.5
+guile_version=1.8.4
 # mirror has gone/moved.
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
