@@ -7144,17 +7144,26 @@ void make_socket_listener_maybe() {
 
    std::vector<std::string> cmd;
 
+   std::cout << "BL DEBUG:: we are in socket.. and try is" <<graphics_info_t::try_port_listener<<std::endl;
    if (graphics_info_t::try_port_listener) { 
+      std::cout << "BL DEBUG:: ... and should try_port_listener" <<std::endl;
       cmd.push_back("open-coot-listener-socket");
       cmd.push_back(graphics_info_t::int_to_string(graphics_info_t::remote_control_port_number));
       cmd.push_back(single_quote(graphics_info_t::remote_control_hostname));
 
       // This is not a static function, perhaps it should be:
       graphics_info_t g;
+#ifdef USE_GUILE
       std::string scm_command = g.state_command(cmd, coot::STATE_SCM);
 
       safe_scheme_command(scm_command);
+#else
+#ifdef USE_PYTHON
+      std::string python_command = g.state_command(cmd, coot::STATE_PYTHON);
 
+      safe_python_command(python_command);
+#endif // USE_PYTHON
+#endif // USE_GUILE
       if (graphics_info_t::coot_socket_listener_idle_function_token == -1)
 	 if (graphics_info_t::listener_socket_have_good_socket_state) 
 	    graphics_info_t::coot_socket_listener_idle_function_token =
@@ -7167,6 +7176,13 @@ void set_coot_listener_socket_state_internal(int sock_state) {
    graphics_info_t::listener_socket_have_good_socket_state = sock_state;
 }
 
+void set_remote_control_port(int port_number) {
+  graphics_info_t::remote_control_port_number = port_number;
+}
+
+int get_remote_control_port_number() {
+  return graphics_info_t::remote_control_port_number;
+}
 
 
 int coot_socket_listener_idle_func(GtkWidget *w) { 
@@ -7177,7 +7193,15 @@ int coot_socket_listener_idle_func(GtkWidget *w) {
       std::cout << "DEBUG:: running guile function" << std::endl;
       safe_scheme_command("(coot-listener-idle-function-proc)");
    }
-#endif
+#else
+#ifdef USE_PYTHON
+   //   std::cout << "DEBUG:: running socket idle function" << std::endl;
+   if (graphics_info_t::listener_socket_have_good_socket_state) { 
+      //std::cout << "DEBUG:: running python function" << std::endl;
+      safe_python_command("coot_listener_idle_function_proc()");
+   }
+#endif // USE_PYTHON
+#endif // USE_GUILE
    return 1;
 }
 
