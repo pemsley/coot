@@ -298,7 +298,7 @@ def coot_gui():
 #
 def handle_smiles_go(tlc_entry,smiles_entry):
 
-    import os, stat
+    import os, stat, shutil
 
     tlc_text = tlc_entry.get_text()
     smiles_text = smiles_entry.get_text()
@@ -324,34 +324,23 @@ def handle_smiles_go(tlc_entry,smiles_entry):
        libcheck_exe = find_exe("libcheck", "CCP4_BIN", "PATH")
 
        if (libcheck_exe):
-          # BL says: as with refmac we have to write a file with paramters to run libcheck
-          libcheck_input_file = "coot-libcheck-input.txt"
-          input = file(libcheck_input_file,'w')
-          for data in libcheck_data_lines:
-             input.write(data + '\n')
-          input.close()
-          status = os.popen(libcheck_exe + ' < ' + libcheck_input_file + ' > ' + log_file_name,'r')
-          libcheck_status = status.close()
-          os.remove(libcheck_input_file)
-          log_file_size = os.stat(log_file_name)[stat.ST_SIZE]
-          if ((not libcheck_status) and (os.path.isfile(log_file_name)) and (log_file_size > 0)):
-             check_libcheck_logfile(log_file_name)
-             # means we have a log file, dunno how else to check for status currently!?
+          status = popen_command(libcheck_exe, [], libcheck_data_lines, log_file_name, True)
+          if (status == 0):
              if (os.path.isfile("libcheck.lib")):
                 if (os.path.isfile(cif_file_name)):
                    # if we have cif_file_name already we cant move to it
                    # and I dont want to overwrite it, so we make a backup
                    try:
-                      os.rename(cif_file_name,cif_file_name + ".bak")
+                      os.rename(cif_file_name, cif_file_name + ".bak")
                    except OSError:
                       # bak file exists, so let's remove and overwrite it
                       os.remove(cif_file_name + ".bak")
                       os.rename(cif_file_name,cif_file_name + ".bak")
                       print "BL INFO:: overwriting %s since same three letter code used again..." %(cif_file_name + ".bak")
-                   else:
-                      print "BL WARNING:: %s exists and we cant remove/overwrite it! So libcheck wont run!" %(cif_file_name + ".bak")
-                os.rename("libcheck.lib",cif_file_name)
-                print "BL INFO:: renamed %s to %s " %("libcheck.lib",cif_file_name)
+                   except:
+                      print "BL WARNING:: %s exists and we cant remove/overwrite it!" %(cif_file_name + ".bak")
+                shutil.copy("libcheck.lib", cif_file_name)
+                print "BL INFO:: renamed %s to %s " %("libcheck.lib", cif_file_name)
              sc = rotation_centre()
              print "BL INFO:: reading ",pdb_file_name
              imol = handle_read_draw_molecule_with_recentre(pdb_file_name,0)
@@ -360,7 +349,7 @@ def handle_smiles_go(tlc_entry,smiles_entry):
                 sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
                 translate_molecule_by(imol,*sc_mc)
              read_cif_dictionary(cif_file_name)
-          else: print "BL WARNING:: no log file or no length!"
+          else: print "BL WARNING:: libcheck didnt run ok!"
        else: print " BL WARNING:: libcheck not found!"
     else:
        print "BL WARNING:: Wrong input (no smiles text)! Can't continue!"

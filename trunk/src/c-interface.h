@@ -4458,6 +4458,9 @@ void set_coot_listener_socket_state_internal(int sock_state);
 
 void set_socket_string_waiting(const char *s);
 
+void set_remote_control_port(int port_number);
+int get_remote_control_port_number();
+
 
 /* tooltip */
 void set_tip_of_the_day_flag(int state);

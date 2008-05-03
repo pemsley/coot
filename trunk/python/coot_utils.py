@@ -216,10 +216,11 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
             cmd_finished = status.close()
             if (cmd_finished != None):
                 print "running command ", cmd, " failed!"
-                return 0
+                return 1
             else:
                 # print "cmd ", cmd ," seems to have run ok!"
-                return 1
+                # log_file_size = os.stat(log_file)[stat.ST_SIZE]
+                return 0
             os.remove(data_list_file)
     else:
         print "WARNING:: could not find %s, so not running" %cmd
