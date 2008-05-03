@@ -1913,37 +1913,84 @@
 
 
 (define (key-bindings-gui)
+
+  (define (box-for-binding item inside-vbox)
+    (let ((binding-hbox (gtk-hbox-new #f 2)))
+      (let* ((txt (if (string? (car (cdr item)))
+		      (car (cdr item))
+		      (number->string (car (cdr item)))))
+	     (key-label (gtk-label-new (string-append "   " txt "   ")))
+	     (name-label (gtk-label-new (car (cdr (cdr item))))))
+	
+	(gtk-box-pack-start binding-hbox key-label  #f #f 2)
+	(gtk-box-pack-start binding-hbox name-label #f #f 2)
+	(gtk-box-pack-start inside-vbox binding-hbox #f #f 2))))
+
   (let* ((window (gtk-window-new 'toplevel))
 	 (scrolled-win (gtk-scrolled-window-new))
 	 (outside-vbox (gtk-vbox-new #f 2))
 	 (inside-vbox (gtk-vbox-new #f 0))
-	 (dialog-name "Key Bindings"))
-    
-    (gtk-window-set-default-size window 250 250)
+	 (dialog-name "Key Bindings")
+	 (buttons-hbox (gtk-hbox-new #f 2))
+	 (close-button (gtk-button-new-with-label "  Close  "))
+	 (std-frame (gtk-frame-new "Standard Key Bindings:"))
+	 (usr-frame (gtk-frame-new "User-defined Key Bindings:"))
+	 (std-frame-vbox (gtk-vbox-new #f 2))
+	 (usr-frame-vbox (gtk-vbox-new #f 2))
+	 (std-key-bindings
+	  (list 
+	   '("a" "refine with auto-zone")
+	   '("b" "toggle baton swivel")
+	   '("c" "toggle cross-hairs")
+	   '("d" "reduce depth of field")
+	   '("f" "increase depth of field")
+	   '("u" "undo last navigation")
+	   '("i" "toggle spin mode")
+	   '("n" "zoom in")
+	   '("m" "zoom out")
+	   '("o" "other NCS chain")
+	   '("p" "update position to closest atom")
+	   '("s" "update skeleton")
+	   '("." "up in button list")
+	   '("," "down in button list")
+	   )))
+	   
+    (gtk-signal-connect close-button "clicked"
+			(lambda ()
+			  (gtk-widget-destroy window)))
+
+    (gtk-window-set-default-size window 250 350)
     (gtk-window-set-title window dialog-name)
     (gtk-container-border-width inside-vbox 4)
-
+    
     (gtk-container-add window outside-vbox)
     (gtk-container-add outside-vbox scrolled-win)
     (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
     (gtk-scrolled-window-set-policy scrolled-win 'automatic 'always)
+
+    (gtk-box-pack-start inside-vbox std-frame #f #f 2)
+    (gtk-box-pack-start inside-vbox usr-frame #f #f 2)
+    
+    (gtk-container-add std-frame std-frame-vbox)
+    (gtk-container-add usr-frame usr-frame-vbox)
     
     (let loop ((items *key-bindings*))
       (cond 
        ((null? items) 'done)
        (else 
-	(let ((binding-hbox (gtk-hbox-new #f 2)))
-	  (let* ((txt (if (string? (car (cdr (car items))))
-			  (car (cdr (car items)))
-			  (number->string (car (cdr (car items))))))
-		 (key-label (gtk-label-new (string-append "   " txt "   ")))
-		 (name-label (gtk-label-new (car (cdr (cdr (car items)))))))
-	    
-	    (gtk-box-pack-start binding-hbox key-label  #f #f 2)
-	    (gtk-box-pack-start binding-hbox name-label #f #f 2)
-	    (gtk-box-pack-start inside-vbox binding-hbox #f #f 2)
-	    (loop (cdr items)))))))
+	(box-for-binding (car items) usr-frame-vbox)
+	(loop (cdr items)))))
     
+    (let loop ((items (map (lambda (x) (cons 'dum x)) std-key-bindings)))
+      (cond 
+       ((null? items) 'done)
+       (else 
+	(box-for-binding (car items) std-frame-vbox)
+	(loop (cdr items)))))
+    
+    (gtk-box-pack-end buttons-hbox close-button #f #f 6)
+    (gtk-box-pack-start outside-vbox buttons-hbox #f #f 6)
+
     (gtk-widget-show-all window)))
 
 
