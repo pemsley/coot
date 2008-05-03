@@ -734,7 +734,7 @@ fi
 if [ -n "$CXX" ] ; then
 	# CXX was set
 	gxxtest=`$CXX-$CXX --version | awk 'NR==1 {print $2}'`
-	if [ "$gxxtest" -ne "(GCC)" ] ; then
+	if [ "$gxxtest" != "(GCC)" ] ; then
 	   # but not g++ 
 	   w=$CXX-`$CXX -v`
 	      if [ $? -ne 0 ] ; then
