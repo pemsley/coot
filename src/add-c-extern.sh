@@ -38,6 +38,11 @@ echo "GtkWidget* create_screendump_filechooserdialog1(void);"      >> "$1".tmp.b
 echo "GdkPixbuf* create_pixbuf(const gchar *filename);"            >> "$1".tmp.b
 echo "gchar* find_pixmap_file (const gchar     *filename);"        >> "$1".tmp.b
 echo "GtkWidget* create_model_toolbar_menu (void);"                >> "$1".tmp.b
+echo "GtkWidget         *create_residue_editor_select_monomer_type_dialog()" >> "$1".tmp.b
+echo "GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog()" >> "$1".tmp.b
+echo "GtkWidget* create_restraints_editor_dialog (void);"                    >> "$1".tmp.b
+echo "GtkWidget* create_residue_editor_select_monomer_type_dialog (void);"   >> "$1".tmp.b
+echo "GtkWidget* create_save_restraint_chooserdialog (void);"                >> "$1".tmp.b
 # this probably shouldnt be here, but I dont want to add this function to
 # gtk1 version
 echo "GtkWidget* create_run_refmac_nolabels_help_dialog(void);"    >> "$1".tmp.b

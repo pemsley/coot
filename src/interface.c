@@ -18827,4 +18827,49 @@ create_add_reps_dialog (void)
   return add_reps_dialog;
 }
 
+GtkWidget*
+create_run_refmac_nolabels_help_dialog (void)
+{
+  GtkWidget *run_refmac_nolabels_help_dialog;
+  GtkWidget *dialog_vbox100;
+  GtkWidget *label309;
+  GtkWidget *dialog_action_area99;
+  GtkWidget *run_refmac_nolabels_help_dialog_ok_button;
+
+  run_refmac_nolabels_help_dialog = gtk_dialog_new ();
+  gtk_object_set_data (GTK_OBJECT (run_refmac_nolabels_help_dialog), "run_refmac_nolabels_help_dialog", run_refmac_nolabels_help_dialog);
+  gtk_window_set_title (GTK_WINDOW (run_refmac_nolabels_help_dialog), _("dialog1"));
+  gtk_window_set_policy (GTK_WINDOW (run_refmac_nolabels_help_dialog), TRUE, TRUE, FALSE);
+
+  dialog_vbox100 = GTK_DIALOG (run_refmac_nolabels_help_dialog)->vbox;
+  gtk_object_set_data (GTK_OBJECT (run_refmac_nolabels_help_dialog), "dialog_vbox100", dialog_vbox100);
+  gtk_widget_show (dialog_vbox100);
+
+  label309 = gtk_label_new (_("\n\nRefmac will guess which column label to use.\n\nHowever, if you want to have control over which column labels should be used in Refmac,\nyou need to assign column labels when you read in an MTZ file.\nThen use the boxes above to select a Map Molecule and column labels.\n\n"));
+  gtk_widget_ref (label309);
+  gtk_object_set_data_full (GTK_OBJECT (run_refmac_nolabels_help_dialog), "label309", label309,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (label309);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox100), label309, FALSE, FALSE, 0);
+  gtk_misc_set_padding (GTK_MISC (label309), 5, 0);
+
+  dialog_action_area99 = GTK_DIALOG (run_refmac_nolabels_help_dialog)->action_area;
+  gtk_object_set_data (GTK_OBJECT (run_refmac_nolabels_help_dialog), "dialog_action_area99", dialog_action_area99);
+  gtk_widget_show (dialog_action_area99);
+  gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area99), 10);
+
+  run_refmac_nolabels_help_dialog_ok_button = gtk_button_new_with_label (_("     OK     "));
+  gtk_widget_ref (run_refmac_nolabels_help_dialog_ok_button);
+  gtk_object_set_data_full (GTK_OBJECT (run_refmac_nolabels_help_dialog), "run_refmac_nolabels_help_dialog_ok_button", run_refmac_nolabels_help_dialog_ok_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (run_refmac_nolabels_help_dialog_ok_button);
+  gtk_box_pack_start (GTK_BOX (dialog_action_area99), run_refmac_nolabels_help_dialog_ok_button, FALSE, FALSE, 0);
+
+  gtk_signal_connect (GTK_OBJECT (run_refmac_nolabels_help_dialog_ok_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_run_refmac_nolabels_help_dialog_ok_button_clicked),
+                      NULL);
+
+  return run_refmac_nolabels_help_dialog;
+}
+
 #endif
