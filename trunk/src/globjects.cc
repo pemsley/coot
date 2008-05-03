@@ -1581,7 +1581,7 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 #else
 
    // GTK2 code
-   if (1) {
+   if (make_current_gl_context(widget)) {
       glViewport(0,0, widget->allocation.width, widget->allocation.height);
       graphics_info_t g;
       g.graphics_x_size = widget->allocation.width;

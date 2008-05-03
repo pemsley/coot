@@ -491,7 +491,7 @@ coot::restraints_editor::fill_plane_tree_data(GtkWidget *restraints_editor_dialo
 	  gtk_tree_view_set_model(tv_planes, GTK_TREE_MODEL(tree_store_planes));
 	  int esd_col_no = max_number_of_atoms_in_plane + 1;
 
-	  for (int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
+	  for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	     gtk_tree_store_append(tree_store_planes, &toplevel, NULL);
 	     
   	     gtk_tree_store_set(tree_store_planes, &toplevel,
@@ -500,7 +500,7 @@ coot::restraints_editor::fill_plane_tree_data(GtkWidget *restraints_editor_dialo
  	     gtk_tree_store_set(tree_store_planes, &toplevel,
  				0, restraints.plane_restraint[iplane].plane_id.c_str(),
  				-1);
-	     for (unsigned int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) { 
+	     for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) { 
  		gtk_tree_store_set(tree_store_planes, &toplevel,
  				   iat+1, restraints.plane_restraint[iplane][iat].c_str(),
  				   -1);
@@ -1245,9 +1245,7 @@ coot::restraints_editor::delete_restraint(GtkWidget *w) {
    
    //first find the active tab in the notebook.  That will give us the
    //model and view
-   GtkTreeView        *view = NULL;
       
-   // GtkTreeModel *model = gtk_tree_view_get_model(view);
    GtkTreeIter   iter;
    
    GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
@@ -1277,9 +1275,9 @@ void restraints_editor_add_restraint_by_widget(GtkWidget *w) {
 
 void
 coot::restraints_editor::add_restraint(GtkWidget *w) {
+
    //first find the active tab in the notebook.  That will give us the
    //model and view
-   GtkTreeView        *view = NULL;
    GtkTreeIter   iter;
    
    GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");

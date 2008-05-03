@@ -152,6 +152,8 @@
 
     Release 0.6 and 0.7 [Sept 2008]
 
+   o Add the reading of a good map and a CNS map to tests.
+
    o Put globularize protein into Coot.  Make it a bit more clever?
 
    o Garib wants a function to move waters close to the protein.
@@ -268,6 +270,9 @@
 
    o Use LSQ not SSM for NCS ghost matrix.
      (Make a speed test.)
+
+   o *create* a molecule by symmetry, not (just) write it out.
+      Consider a dialog to Write/Create a symmetry molecule.
 
 
  ------
