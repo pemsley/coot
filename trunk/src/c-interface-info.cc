@@ -3085,16 +3085,15 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      SCM atom_2_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(3));
 			      SCM atom_3_scm   = scm_list_ref(chiral_restraint, SCM_MAKINUM(4));
 			      SCM chiral_vol_sign_scm = scm_list_ref(chiral_restraint, SCM_MAKINUM(5));
-			      SCM esd_scm      = scm_list_ref(chiral_restraint, SCM_MAKINUM(6));
+			      // SCM esd_scm      = scm_list_ref(chiral_restraint, SCM_MAKINUM(6));
 			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
-				  scm_string_p(atom_3_scm) && scm_string_p(atom_c_scm) &&
-				  scm_number_p(esd_scm)) {
+				  scm_string_p(atom_3_scm) && scm_string_p(atom_c_scm)) { 
 				 std::string chiral_id = scm_to_locale_string(chiral_id_scm);
 				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
 				 std::string atom_2 = scm_to_locale_string(atom_2_scm);
 				 std::string atom_3 = scm_to_locale_string(atom_3_scm);
 				 std::string atom_c = scm_to_locale_string(atom_c_scm);
-				 double esd         = scm_to_double(esd_scm);
+				 // double esd         = scm_to_double(esd_scm);
 				 int chiral_vol_sign= scm_to_int(chiral_vol_sign_scm);
 				 coot::dict_chiral_restraint_t rest(chiral_id,
 								    atom_c, atom_1, atom_2, atom_3,

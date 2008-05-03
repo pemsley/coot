@@ -10,6 +10,43 @@
     <h1>The Happy Coot Developer Diary</h1>
 
 <hr>
+<p>Sat May  3 11:39:54 EDT 2008
+
+<p>The static key bindings are now displayed in a dialog.
+
+<hr>
+<p>Sat May  3 11:39:44 EDT 2008
+
+<p>Now that the web page build analyser is in place (how did I live
+without it?), it has become necessary for me to more frequently be
+able to build Coot on the old/standard Coot machine (GTK1 with Python
+on Red Hat 8).  I've been wanting to be able to do the build "from a
+one-liner" for a long time, the web page was the thing that broke the
+camels back, as it were, and I decided to put some effort into making
+it happen.
+
+<p>Previously, I'd been logging in through the firewall to the build
+host and running the command there - slightly tedious.  Now expect can
+handle that sort of thing for us.  However, I was not going to program
+in tcl - no way, so the Don Libes version was not an option.  What's
+left? Guile.  Let's give that a go.
+
+<p>So, I tried for about an hour or so - probably more - but was not
+making headway.  The documentation was spare and only a few
+examples. There seemed to be some problem with pseudo terminals over
+ssh.
+
+<p>OK, what else? Python?  Python has expect?
+
+<p>(google google).. oh yes, it does.  Pexpect, it's called.
+
+<p>Within 20 minutes of downloading it, I'd got it doing just what I
+wanted.  Pexpect was trivial to install, fully featured, well
+documented and easy to use.  The result was just a few lines of code,
+in fact.  I grudgingly admit that python/pexpect was a much better
+solution than using guile.
+
+<hr>
 <p>Thu May  1 01:18:05 BST 2008
 
 <p>Builds back to normal... (although the build hosts are dropping
@@ -20,7 +57,7 @@ displayed in a gui dialog that is activated from the Extensions menu.
 I need to add the static key bindings there too, I think.
 
 <p>Bernhard and I are experimenting with/implementing a system to call
-python functions from scheme and vica versa.  And have the return
+python functions from scheme and vice versa.  And have the return
 values converted in the process.  The new side chain assignment
 interface that he wrote (in Python) will be used that way.
 
@@ -82,7 +119,7 @@ month.
 
 <p>I note that Bernhard has done something interesting with the icons
 in the python extensions and I hope/think that this makes them
-antialiased.  It would be nice to get the currently ugly icons fixed
+anti-aliased.  It would be nice to get the currently ugly icons fixed
 up at last.
 
 <hr>
@@ -112,7 +149,7 @@ filling in entry boxes.  Also, a gui to remove (undisplay)
 representations.
 
 <p>Also, the key binding mechanism has changed today.  Now there is an
-external function add-key-binding which adds [a key number (currenlty)
+external function add-key-binding which adds [a key number (currently)
 and a thunk] to an association list (*key-bindings*).  Now
 graphics-general-key-press-hook tests the key vs the association
 list.  Much cleaner.
@@ -121,7 +158,7 @@ list.  Much cleaner.
 state file and extracts from that the dialog positions and adds them
 to the .coot file in $HOME.
 
-<p>I learned the other day of a Chemical Components dictionary
+<p>I learnt the other day of a Chemical Components dictionary
 distributed by the PDB.  I tried to get Coot to read it (it has more
 than 5000 entries and over 1 million lines) but it failed.  That was
 due to a line length limitation in mmdb's mmCIF parser it turned out.
@@ -147,7 +184,7 @@ this change for years.
 <p>The other project is to get "Gtk+2 + python" binaries to autobuild.
 What an utter pain this is turning out to be.  The package stack to
 get Gtk+2 to build is about 10 packages (and counting) of twisty
-interdependencies.  The dependencies for PyGtk are only slightly
+inter-dependencies.  The dependencies for PyGtk are only slightly
 better.  And I'm trying to get this to build from one script across
 all platforms. Very tedious.
 
@@ -155,7 +192,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Thu May  1 08:51:26 BST 2008
+Last modified: Sat May  3 11:40:44 EDT 2008
 <!-- hhmts end -->
   </body>
 </html>

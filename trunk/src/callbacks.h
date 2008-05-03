@@ -3766,3 +3766,8 @@ on_save_restraint_chooserdialog_response
 void
 on_save_restraint_chooserdialog_close  (GtkDialog       *dialog,
                                         gpointer         user_data);
+
+void
+on_run_refmac_nolabels_help_dialog_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

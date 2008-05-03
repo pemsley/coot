@@ -5373,3 +5373,32 @@ Thu May  1 20:55:01 EDT 2008
     Difficulty:  Hard/Medium.
 
 
+-----
+
+    A must before 1.0:
+
+    revist add strand here, 
+    check in low res maps.  
+    Try other orientations of the cylinder
+        score more badly atoms in negative density.
+
+----
+Sat May  3 11:33:52 EDT 2008
+
+    Maria Chern:
+
+    Can I have "view drag" on middle mouse, rather than ctrl left-mouse?
+
+    Question to self: will that fix the single atom drag vs view drag
+    problem that drives Erik insane?
+
+
+-----
+Sat May  3 12:46:24 EDT 2008
+
+    c-interface-info.cc:3081 chiral volume restraint is checked
+    against 7.  Should it be 6, because there no sigma is needed for a
+    chiral volume restraint?
+
+
+

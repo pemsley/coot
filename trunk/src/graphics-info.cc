@@ -1455,7 +1455,7 @@ graphics_info_t::fill_option_menu_with_refmac_nolabels_options(GtkWidget *option
 	 ss += "";
 	 ss += mtz_filename;
 	 int exists = 0;
-	 for (int k=0; k<mtz_files.size(); k++) {
+	 for (unsigned int k=0; k<mtz_files.size(); k++) {
 	   if (mtz_filename == mtz_files[k].second) {
 	     exists = 1;
 	     break;
@@ -1469,7 +1469,7 @@ graphics_info_t::fill_option_menu_with_refmac_nolabels_options(GtkWidget *option
 
    // now fill the menu and connect signals
    std::cout<<"BL DEBUG:: list lens mtz and map" << mtz_files.size()<< std::endl;
-   for (int j=0; j<mtz_files.size(); j++) {
+   for (unsigned int j=0; j<mtz_files.size(); j++) {
      int i = mtz_files[j].first;
      std::string ss = mtz_files[j].second;
      
@@ -1755,7 +1755,6 @@ graphics_info_t::set_initial_map_for_skeletonize() {
    // Initially map_for_skeletonize is -1;
    
    if (graphics_info_t::map_for_skeletonize == -1) { 
-      graphics_info_t g;
       for (int imol=0; imol<n_molecules();imol++) { 
 	 if (graphics_info_t::molecules[imol].has_map()) { 
 	    graphics_info_t::map_for_skeletonize = imol;
