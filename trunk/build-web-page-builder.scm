@@ -107,10 +107,9 @@
 ;; its mtime
 ;; 
 ;; 
-(define (latest-tar-gz dir binary-match-string)
+(define (latest-tar-gz dir binary-match-string suffix-string)
   (let* ((files (directory-files dir))
-	 (binary-match-string-tar-gz 
-	  (string-append binary-match-string ".tar.gz")))
+	 (binary-match-string-tar-gz (string-append binary-match-string suffix-string)))
 
     ;; split on "-" and take the last field, convert it to a number
     (define (get-revision-number str)
@@ -129,6 +128,10 @@
 
 		
     ; (format #t "files: ~s~%from ~s ~%" files dir)
+    
+    (format #t "binary-match-string: ~s  suffix: ~s~%" 
+	    binary-match-string suffix-string)
+
     (let loop ((files files)
 	       (latest-coot-tar (cons 0 #f)))
       (cond 
@@ -139,9 +142,10 @@
 	      (list mtime 
 		    (car latest-coot-tar)
 		    (cdr latest-coot-tar)))))
-       ((and (string-match "coot-" (car files))
-	     (string-match ".tar.gz" (car files))
-	     (string-match binary-match-string-tar-gz (car files))
+       ((and (or (string-match "coot-" (car files))
+		 (string-match "WinCoot-" (car files)))
+	     (string-match suffix-string (car files))
+	     (string-match binary-match-string (car files))
 	     (not (string-match ".md5sum" (car files))))
 	 (let ((full-file (append-dir-file dir (car files))))
 	   ;; what's the revision number?
@@ -394,7 +398,7 @@
 
     ;; main line of latest-build-result
     ;;
-    (format #t "file-info ~s~%" file-info)
+    ;; (format #t "file-info ~s~%" file-info)
     ;; 
     (let* ((link (car (cdr (list-ref file-info 0))))
 	   (file-names-info (car file-info))
@@ -514,11 +518,15 @@
 
 
   (let ((svn-log-page "http://www.ysbl.york.ac.uk/~emsley/software/pre-release/svn-log")
-	(latest-source-info (latest-tar-gz source-tar-dir ""))
+	(latest-source-info (latest-tar-gz source-tar-dir "" ".tar.gz"))
 	(binary-file-infos
 	 (map
 	  (lambda (bin)
-	    (let ((l (latest-tar-gz bin-tar-dir (car bin))))
+	    (format #t "in loop, bin: ~s~%" bin)
+	    (let* ((suffix-string (if (string=? (car bin) "WinCoot-")
+				      ".exe"
+				      ".tar.gz"))
+		   (l (latest-tar-gz bin-tar-dir (car bin) suffix-string)))
 	      (if l 
 		  (list bin (car (cdr l)) (oldness-info l) l)
 		  (begin
@@ -604,6 +612,10 @@
 
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
 	      "ubuntu-6.06/gtk2" #f)
+
+	(list "WinCoot-" 
+	      (list 'absolute 
+		    "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2"))
 
 	; no guile-gtk for this one.
 	; (list "binary-Linux-i386-fedora-3-python-gtk2"
