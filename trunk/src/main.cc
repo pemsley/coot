@@ -400,8 +400,12 @@ main (int argc, char *argv[]) {
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
      char *directory = getenv("COOT_HOME");
+     std::string pkgdirectory = PKGDATADIR;
      if (!directory) {
-       char *directory = getenv("HOME");
+       directory = getenv("HOME");
+     }
+     if (!directory) {
+       directory = (char *)pkgdirectory.c_str();
      }
 #else      
      char *directory = getenv("HOME");

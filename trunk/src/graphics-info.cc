@@ -758,10 +758,8 @@ void
 graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
 
    if (directory_for_filechooser != "") {
-//       std::cout << "set directory_for_fileselection "
-//              << directory_for_fileselection << std::endl;
-       std::cout << "set directory_for_fileselection "
-              << directory_for_filechooser << std::endl;
+       std::cout << "set directory_for_filechooser "
+                 << directory_for_filechooser << std::endl;
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
                                       directory_for_filechooser.c_str());
    } else {
