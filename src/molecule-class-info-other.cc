@@ -2230,14 +2230,20 @@ molecule_class_info_t::recent_backup_file_info() const {
 
    coot::backup_file_info info;
 
-#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
+#if !defined(_MSC_VER)
    if (has_model()) { 
       std::string t_name_glob = name_;
       // convert "/" to "_"
+      // and in Windows the ":" to "_" as well
       int slen = t_name_glob.length();
       for (int i=0; i<slen; i++)
+#ifdef WINDOWS_MINGW
+	 if (t_name_glob[i] == '/' || t_name_glob == ':')
+	    t_name_glob[i] = '_';
+#else
 	 if (t_name_glob[i] == '/')
 	    t_name_glob[i] = '_';
+#endif // MINGW
 
       // Let's make a string that we can glob:
       // "coot-backup/thing.pdb*.pdb.gz"
@@ -2245,6 +2251,16 @@ molecule_class_info_t::recent_backup_file_info() const {
       // c.f. make_backup():
       char *es = getenv("COOT_BACKUP_DIR");
       std::string backup_name_glob = "coot-backup/";
+      // first we shall check if es, i.e. COOT_BACKUP_DIR actually exists
+      struct stat buf;
+      int err = stat(es, &buf);
+      if (!err) {
+	if (! S_ISDIR(buf.st_mode)) {
+	  es = NULL;
+	}
+      } else {
+	es = NULL;
+      }
       if (es) {
 	 backup_name_glob = es;
 	 // on windows we somehow need to add an /
@@ -2253,7 +2269,12 @@ molecule_class_info_t::recent_backup_file_info() const {
 #endif // MINGW
       }      
       backup_name_glob += t_name_glob;
+#ifdef WINDOWS_MINGW
+      // on windows we dont have gzip, so only *.pdb
+      backup_name_glob += "*.pdb";
+#else
       backup_name_glob += "*.pdb.gz";
+#endif
 
       glob_t myglob;
       int flags = 0;
