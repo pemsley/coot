@@ -4541,7 +4541,7 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       
       // add in the time component:
 
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(_MSC_VER)
+#if defined(__CYGWIN__) || defined(_MSC_VER)
 
       // but not if we are in windows:
 
@@ -4551,7 +4551,7 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       char *chars_time = ctime(&t);
 #ifdef WINDOWS_MINGW
 // BL says: why not? We can fix this. I show you how it's done in MINGW:
-//dunno if it works in other win32 systems. Havent checked
+// dunno if it works in other win32 systems. Havent checked
 // we just convert the : to _
       for (int i=0; i<24; i++) {
          if (chars_time[i] == ':') {
@@ -4648,6 +4648,11 @@ molecule_class_info_t::make_backup() { // changes history details
 
       //shall we use the environment variable instead?
       char *env_var = getenv("COOT_BACKUP_DIR");
+#ifdef WINDOWS_MINGW
+      // we better debackslash the directory
+      std::string tmp = env_var;
+      env_var = (char *)coot::util::intelligent_debackslash(env_var).c_str();
+#endif // MINGW
       if (env_var) { 
 	 struct stat buf;
 	 int err = stat(env_var, &buf);
