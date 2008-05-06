@@ -1645,7 +1645,11 @@ void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
 #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 10)
       set_directory_for_fileselection(coords_fileselection1);
 #else
-      set_directory_for_filechooser(coords_fileselection1);
+      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+	set_directory_for_filechooser(coords_fileselection1);
+      } else {
+        set_directory_for_fileselection(coords_fileselection1);
+      }
 #endif
 }
 

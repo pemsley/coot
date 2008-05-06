@@ -1292,12 +1292,9 @@ def find_exe(*args):
 
         ret = False
         label_text = "Couldn't find %s in default path" %(program_name)
-        if (first_path):
+        for path in path_ls:
             label_text += " and "
-            label_text += first_path
-            if (second_path):
-                label_text += " and "
-                label_text += second_path
+            label_text += path
         label_text += "\n\nShall we search the whole disk?\n"
 
         try:
