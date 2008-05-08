@@ -2873,9 +2873,27 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     # remove evtl. existing coot-version files
+    # and insatller variable file
     rm -f $install_top_dir/coot-version
+    # even if failed 
+    # we write a number of variables to a file which we import in the
+    # masta script so that we preserve these
+    # first remove an the old file
+    var_file=${HOME}/wincoot-installer-variables
+    echo deleting $var_file
+    rm -f $var_file
+    echo LOGS=${LOGS}                          > $var_file
+    echo NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR} >> $var_file
+    echo wincoot_version=$wincoot_version     >> $var_file
+    echo do_nightlies=$do_nightlies           >> $var_file
+    echo coot_build_status=$coot_build_status >> $var_file
     echo coot build failed, exiting.
     echo coot build failed, exiting. >&2
+    # I got temporarily convinced to copy the log files
+    # now copy the log files
+    PUBLIC_HTML_LOGS=/z/build-logs
+    cp -r ${LOGS} ${PUBLIC_HTML_LOGS}
+    # end copy
     echo fail-build > $LOGS/gtk2-build-status${guile_autobuild_path}
     exit 2
 else 
@@ -2987,10 +3005,11 @@ echo copy the log files from ${LOGS} to ${PUBLIC_HTML_LOGS}
 # first remove an the old file
 var_file=${HOME}/wincoot-installer-variables
 echo deleting $var_file
-rm $var_file
+rm -f $var_file
 echo LOGS=${LOGS}                          > $var_file
 echo NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR} >> $var_file
 echo wincoot_version=$wincoot_version     >> $var_file
 echo do_nightlies=$do_nightlies           >> $var_file
+echo coot_build_status=$coot_build_status >> $var_file
 
 echo finished.
