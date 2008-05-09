@@ -2238,7 +2238,7 @@ molecule_class_info_t::recent_backup_file_info() const {
       int slen = t_name_glob.length();
       for (int i=0; i<slen; i++)
 #ifdef WINDOWS_MINGW
-	 if (t_name_glob[i] == '/' || t_name_glob == ':')
+	 if (t_name_glob[i] == '/' || t_name_glob[i] == ':')
 	    t_name_glob[i] = '_';
 #else
 	 if (t_name_glob[i] == '/')
