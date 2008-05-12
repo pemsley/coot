@@ -12,8 +12,14 @@
 
 
 ; (define build-prefix (add-dir-file (getenv "HOME") "autobuild"))
-(define bin-tar-dir "/y/people/emsley/public_html/software/binaries/nightlies/pre-release")
+
 (define source-tar-dir "/y/people/emsley/public_html/software/pre-release")
+
+(define (bin-tar-dir person)
+  (string-append "/y/people/"
+		 person 
+		 "/public_html/software/binaries"
+		 "/nightlies/pre-release"))
 
 (define host-name (getenv "HOST"))
 
@@ -526,7 +532,12 @@
 	    (let* ((suffix-string (if (string=? (car bin) "WinCoot-")
 				      ".exe"
 				      ".tar.gz"))
-		   (l (latest-tar-gz bin-tar-dir (car bin) suffix-string)))
+		   (person (if (string=? (car bin) "WinCoot-")
+			       "lohkamp"
+			       "emsley"))
+		   (l (latest-tar-gz (bin-tar-dir person)
+				     (car bin) 
+				     suffix-string)))
 	      (if l 
 		  (list bin (car (cdr l)) (oldness-info l) l)
 		  (begin
