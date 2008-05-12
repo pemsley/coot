@@ -431,15 +431,16 @@
 			(markup text)))))))))
 			
 
-  ;; string /y/people/emsley etc and make a URL
-  (define (url-from-file-name file-name)
-    (string-append "/~emsley" (substring file-name 28)))
+  ;; string is /y/people/emsley/public_html... etc and make a URL
+  ;; suffix (post server text)
+  (define (url-from-file-name file-name person)
+    (string-append "/~" person (substring file-name (+ 22 (string-length person)))))
     
-  (define (get-binary-tar-file-url file-info)
+  (define (get-binary-tar-file-url file-info person)
     ; (format #t "get-binary-tar-file-url from ~s~%" file-info)
     (let* ((bits (list-ref file-info 3))
 	   (file-name (list-ref bits 2)))
-      (url-from-file-name file-name)))
+      (url-from-file-name file-name person)))
 
   ;; 
   (define (format-binary-cell file-info now-time)
@@ -447,6 +448,7 @@
     (if (not file-info)
 	" "
 	(let* (
+	       (person (bin->person (car file-info))) ; fails on bad file-info?
 	       (make-links? (car (cdr (car file-info))))
 	       (time-diff (make-time-diff file-info now-time))
 	       (n-for-spaces (time-diff->n time-diff))
@@ -473,7 +475,7 @@
 
 	      ;; a regular binary cell
 	      `(p 
-		(a (@ href ,(get-binary-tar-file-url file-info)) 
+		(a (@ href ,(get-binary-tar-file-url file-info person)) 
 		   ,(car (car file-info))) ; binary type string
 		" "
 		,(car (cdr file-info)) ; revision number
@@ -522,6 +524,10 @@
 		   pairs
 		   (car ls))))))
 
+  (define (bin->person bin)
+    (if (string=?  (car bin) "WinCoot-")
+	"lohkamp"
+	"emsley"))
 
   (let ((svn-log-page "http://www.ysbl.york.ac.uk/~emsley/software/pre-release/svn-log")
 	(latest-source-info (latest-tar-gz source-tar-dir "" ".tar.gz"))
@@ -532,9 +538,7 @@
 	    (let* ((suffix-string (if (string=? (car bin) "WinCoot-")
 				      ".exe"
 				      ".tar.gz"))
-		   (person (if (string=? (car bin) "WinCoot-")
-			       "lohkamp"
-			       "emsley"))
+		   (person (bin->person bin))
 		   (l (latest-tar-gz (bin-tar-dir person)
 				     (car bin) 
 				     suffix-string)))
@@ -562,7 +566,8 @@
 	     ;; source code
 	     (p "Source code "
 		,(let ((f (basename (list-ref latest-source-info 2) ".tar.gz"))
-		       (l (url-from-file-name (list-ref latest-source-info 2))))
+		       (l (url-from-file-name (list-ref latest-source-info 2) 
+					      "emsley")))
 		   `(a (@ href ,l) ,f))
 		" "
 		,(list-ref latest-source-info 1)
