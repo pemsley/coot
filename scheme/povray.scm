@@ -5,13 +5,16 @@
 
 ; (define coot-png-display-program "display") ; defined in raster3d.scm
 
+;; this should negate the need for Bill's patch here.
+(define povray-version "3.6")
+
 ;; args not including the output filename 
 ;; 
 (define povray-args
   (lambda ()
     
     ; this is directory that contains colors.inc
-    (list "+L/sw/share/povray-3.5/include"
+    (list (string-append "+L/sw/share/povray-" povray-version "/include")
 	  "+FN16")))
 
 ;; Run provray using current displayed image and write .pov file to
