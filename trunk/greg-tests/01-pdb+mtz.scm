@@ -195,6 +195,20 @@
        (set! imol-rnase-map imol-map)
        (valid-map-molecule? imol-map))))
 
+
+(greg-testcase "Map Sigma " #t 
+   (lambda ()
+
+     (if (not (valid-map-molecule? imol-rnase-map))
+	 #f
+	 (let ((v (map-sigma imol-rnase-map)))
+	   (if (not (and (> v 0.2)
+			 (< v 1.0)))
+	       #f
+	       (let ((v2 (map-sigma imol-rnase)))
+		 (format #t "INFO:: map sigmas ~s ~s~%" v v2)
+		 (eq? v2 #f)))))))
+		     
 (greg-testcase "Another Level Test" #t 
    (lambda ()
      (let ((imol-map-2 (another-level)))
