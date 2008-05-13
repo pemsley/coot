@@ -1515,13 +1515,40 @@ char* get_text_for_symmetry_size_widget() {
 /*! \brief return the density at the given point for the given map */
 float density_at_point(int imol, float x, float y, float z) {
 
-   float r;
+   float r = -999.9;
    if (is_valid_map_molecule(imol)) {
       clipper::Coord_orth p(x,y,z);
       r = graphics_info_t::molecules[imol].density_at_point(p);
    }
    return r;
 }
+
+#ifdef USE_GUILE
+SCM map_sigma_scm(int imol) {
+  
+  SCM r = SCM_BOOL_F;
+  if (is_valid_map_molecule(imol)) { 
+    float s = graphics_info_t::molecules[imol].map_sigma();
+    r = scm_double2num(s);
+  }
+  return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *map_sigma_py(int imol) { 
+
+  PyObject *r = Py_False;
+  if (is_valid_map_molecule(imol)) { 
+    float s = graphics_info_t::molecules[imol].map_sigma();
+    r = PyFloat_FromDouble(s);
+  }
+
+  return r;
+}
+#endif
+
+
 
 
 void set_density_size_from_widget(const char *text) {
@@ -2621,12 +2648,14 @@ int make_ball_and_stick(int imol, const char *atom_selection_str,
 
 int clear_ball_and_stick(int imol) {
 
-   if (is_valid_model_molecule(imol)) {
+  if (graphics_info_t::use_graphics_interface_flag) { 
+    if (is_valid_model_molecule(imol)) {
       GLuint dummy_tag = 0;
       graphics_info_t::molecules[imol].clear_display_list_object(dummy_tag);
       graphics_draw();
-   }
-   return 0;
+    }
+  }
+    return 0;
 }
 
 /* clear the given additional representation  */
@@ -6837,13 +6866,14 @@ void set_background_colour(double red, double green, double blue) {
 
    graphics_info_t g;
 
-   glClearColor(red,green,blue,1.0);
-   g.background_colour[0] = red; 
-   g.background_colour[1] = green; 
-   g.background_colour[2] = blue; 
-   glFogfv(GL_FOG_COLOR, g.background_colour);
-   graphics_draw();
-
+   if (g.use_graphics_interface_flag) { 
+     glClearColor(red,green,blue,1.0);
+     g.background_colour[0] = red; 
+     g.background_colour[1] = green; 
+     g.background_colour[2] = blue; 
+     glFogfv(GL_FOG_COLOR, g.background_colour);
+     graphics_draw();
+   }
 }
 
 int  background_is_black_p() {
