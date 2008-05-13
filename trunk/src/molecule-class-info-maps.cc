@@ -96,8 +96,10 @@ molecule_class_info_t::update_map() {
 			 graphics_info_t::RotationCentre_z());
 
       update_map_triangles(graphics_info_t::box_radius, rc); 
-      if (graphics_info_t::display_lists_for_maps_flag) {
-	 compile_density_map_display_list();
+      if (graphics_info_t::use_graphics_interface_flag) { 
+	 if (graphics_info_t::display_lists_for_maps_flag) {
+	   compile_density_map_display_list();
+	 }
       }
    }
 }
