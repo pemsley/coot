@@ -1138,6 +1138,15 @@ float residue_density_fit_scale_factor();
 float density_at_point(int imol, float x, float y, float z);
 
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM map_sigma_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+PyObject *map_sigma_py(int imol);
+#endif
+#endif
+
 /* \} */
  
 
