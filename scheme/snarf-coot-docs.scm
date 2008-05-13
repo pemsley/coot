@@ -3,6 +3,7 @@
              (ice-9 string-fun)
 	     (ice-9 regex))
 
+; (use-modules (goosh goosh))
 (use-modules (goosh))
 
 (define is-valid-model-molecule 1) ;; hack to get past problem loading
@@ -22,6 +23,7 @@
 (define ncs-ghosts-scm #f)
 (define inverse-rtop-scm #f)
 (define coot-has-python? #f)
+(define map-sigma map-sigma-scm)
 
 
 (load "filter.scm")

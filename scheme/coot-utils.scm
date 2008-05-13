@@ -22,6 +22,7 @@
 	     (ice-9 string-fun)
 	     (ice-9 rdelim))
 (use-modules (goosh))
+; (use-modules (goosh goosh))
 
 ;; scm aliases.  Don't forget to add them to snarf-coot-docs too.
 ;; 
@@ -39,6 +40,7 @@
 (define ncs-ghosts ncs-ghosts-scm)
 (define inverse-rtop inverse-rtop-scm)
 (define coot-has-python? coot-has-python-p)
+(define map-sigma map-sigma-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
