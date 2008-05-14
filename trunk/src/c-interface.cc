@@ -272,9 +272,12 @@ void run_generic_script(const std::vector<std::string> &cmd_strings) {
 void set_display_lists_for_maps(int istat) {
 
    graphics_info_t::display_lists_for_maps_flag = istat;
-   for (int i=0; i<graphics_info_t::n_molecules(); i++)
-      if (graphics_info_t::molecules[i].has_map())
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+     for (int i=0; i<graphics_info_t::n_molecules(); i++)
+       if (graphics_info_t::molecules[i].has_map())
 	 graphics_info_t::molecules[i].update_map();
+   }
    std::string cmd = "set-display-lists-for-maps";
    std::vector<coot::command_arg_t> args;
    args.push_back(istat);
