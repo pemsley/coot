@@ -215,6 +215,7 @@ namespace coot {
       std::string atom_id_3() const { return atom_id_3_;}
       std::string atom_id_4() const { return atom_id_4_;}
       std::string id() const { return id_;}
+      bool is_const() const;
       int periodicity() const { return period; }
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}

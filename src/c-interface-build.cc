@@ -766,6 +766,13 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
    graphics_info_t g;
 
    if (is_valid_model_molecule(imol)) { 
+      CResidue *residue_p =
+	 graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+      if (residue_p) {
+	 graphics_info_t g;
+	 coot::residue_spec_t spec(residue_p);
+	 g.delete_residue_from_geometry_graphs(imol, spec);
+      }
       short int istat =
 	 g.molecules[imol].delete_residue_sidechain(std::string(chain_id), resno,
 						    inscode);
@@ -1281,6 +1288,14 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
    std::string altconf   = g.molecules[imol].atom_sel.atom_selection[index]->altLoc;
    char *ins_code        = g.molecules[imol].atom_sel.atom_selection[index]->GetInsCode();
 
+   CResidue *residue_p =
+      graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+   if (residue_p) {
+      graphics_info_t g;
+      coot::residue_spec_t spec(residue_p);
+      g.delete_residue_from_geometry_graphs(imol, spec);
+   }
+
    delete_atom(imol, chain_id.c_str(), resno, ins_code, atom_name.c_str(), altconf.c_str());
    if (graphics_info_t::delete_item_widget != NULL) {
       if (do_delete_dialog) { // via ctrl
@@ -1326,6 +1341,18 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
    int resno             = g.molecules[imol].atom_sel.atom_selection[index]->GetSeqNum();
    std::string altloc    = g.molecules[imol].atom_sel.atom_selection[index]->altLoc;
    std::string inscode   = g.molecules[imol].atom_sel.atom_selection[index]->GetInsCode();
+
+   // I don't think that there is any need to call get_residue() here,
+   // we can simply construct spec from chain_id, resno and inscode.
+   // There are other places where we do this too (to delete a residue
+   // from the geometry graphs).
+   CResidue *residue_p =
+      graphics_info_t::molecules[imol].get_residue(resno, inscode, chain_id);
+   if (residue_p) {
+      graphics_info_t g;
+      coot::residue_spec_t spec(residue_p);
+      g.delete_residue_from_geometry_graphs(imol, spec);
+   }
 
    if (altloc == "") 
       delete_residue(imol, chain_id.c_str(), resno, inscode.c_str());
@@ -5361,8 +5388,8 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 	    if (mol) { 
 	       int imol = graphics_info_t::create_molecule();
 	       istat = imol;
-	       std::string label = "Ideal " + form_str;
-	       label += " form ";
+	       std::string label = "Ideal-" + form_str;
+	       label += "-form-";
 	       label += RNA_or_DNA_str;
 	       atom_selection_container_t asc = make_asc(mol);
 	       graphics_info_t::molecules[imol].install_model(imol, asc, label, 1);

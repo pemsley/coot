@@ -489,6 +489,20 @@ coot::protein_geometry::add_restraint(std::string comp_id, const dict_angle_rest
    }
 }
 
+bool
+coot::dict_torsion_restraint_t::is_const() const {
+
+   bool const_flag = 0;
+   if (id_.length() > 5) {
+      std::string bit = id_.substr(0,5);
+      if (bit == "CONST")
+	 const_flag = 1;
+      if (bit == "const")
+	 const_flag = 1;
+   }
+   return const_flag;
+}
+
 void 
 coot::protein_geometry::add_restraint(std::string comp_id,
 				      const dict_torsion_restraint_t &restr) { 

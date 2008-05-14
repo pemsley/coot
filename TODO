@@ -1,5 +1,5 @@
 
-*-text-*-
+-*-text-*-
 
    What's Planned for the Upcoming Coot Releases?
 
@@ -146,6 +146,8 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
+   o NCS differences graph (use master chain)
+
 
 
 -----
@@ -158,7 +160,13 @@
 
    o Garib wants a function to move waters close to the protein.
 
-   o Use LSQ for NCS matrices.
+   o Use LSQ for NCS matrices - need to be user setable option.
+
+   o Backrub-based auto-fit rotamer search.  Question: how do I test
+     this? Synthetic map?  How does it work when we do this for an alt
+     conf too?  Man, this will be powerful, if I can make it work. Don't
+     forget to also rotate the main chain hydrogens.  Does
+     is_mainchain_atom() working for mainchain hydrogens?
 
    o Use libglade
 
@@ -166,15 +174,16 @@
   
    o Redo sequence view 
 
-   o NCS differences graph (use master chain)
-
    o Hydrogens from a SHELXL molecule
 
-   o Mouse bindings, consistency with MG
+   o Mouse bindings, consistency with MG.  Can we drag using middle
+     mouse, instead of ctrl left mouse?  Needs abstraction of state in
+     that function, I think.
 
    o helix fitting overshoots
 
-   o consider making bonds to hydrogens thinner
+   o consider making bonds to hydrogens thinner.  A spike needed to
+     test for bonds split on thickness or colour most deeply.
 
    o Problem SHELX .ins file, enable bonds to symmetry atoms?
 
@@ -273,6 +282,8 @@
 
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.
+
+   o RNA backbone plot by connecting phosphates
 
 
  ------

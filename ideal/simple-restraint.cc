@@ -331,7 +331,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    assign_fixed_atom_indices(fixed_atom_specs); // convert from std::vector<CAtom *>
    				                // to std::vector<int> fixed_atom_indices;
 
-   // blank out those atoms from seeing electron density and map gradients
+   // blank out those atoms from seeing electron density map gradients
    for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
       use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = 0;
    } 

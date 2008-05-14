@@ -1564,6 +1564,8 @@ public:
 
    // Was private, but need to be used by auto_fit_best_rotamer() scripting function.
    void update_geometry_graphs(PCResidue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
+   void delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec); 
+
 
    void execute_rotate_translate_ready(); // manual movement
    void setup_rotate_translate_buttons(GtkWidget *window);

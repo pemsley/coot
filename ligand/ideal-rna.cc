@@ -85,7 +85,12 @@ coot::ideal_rna::make_molecule() {
 	    sense_chain_p->AddResidue(res);
 	    clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	    coot::util::transform_atoms(res, o);
+	    std::cout << " about to mutate residue " << res->GetSeqNum()
+		      << " to type: " << seq[iseq] << " dna-flag: " << is_dna_flag
+		      << std::endl;
 	    mutate_res(res, seq[iseq], is_dna_flag);
+	    std::cout << " mutated residue " << res->GetSeqNum()
+		      << " to type: " << res->GetResName() << std::endl;
 	 }
       }
 
@@ -286,6 +291,10 @@ coot::ideal_rna::mutate_res(CResidue *res, char base, short int is_dna_flag) con
    CResidue *std_res = get_standard_residue_instance(residue_type, standard_residues);
    if (std_res) {
       coot::util::mutate_base(res, std_res);
+      std::cout << "request std_res of type " << residue_type << " and got " 
+		<< std_res->GetResName() << std::endl;
+      std::cout << "coot::util::mutate_base " << res->GetResName() << " with std "
+		<< std_res->GetResName() << std::endl;
       status = 1;
    }
    return status;
