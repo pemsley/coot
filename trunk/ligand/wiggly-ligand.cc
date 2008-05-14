@@ -242,33 +242,37 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
    }
    
    for(unsigned int itor=0; itor<m_torsions.size(); itor++) {
-      if (m_torsions[itor].periodicity() == 1) {
-	 if (m_torsions[itor].esd() < non_rotating_torsion_cut_off) {
-	    sample_tors[itor] = m_torsions[itor].angle(); // don't sample it.
+      if (m_torsions[itor].is_const() == 1) {
+	 sample_tors[itor] = m_torsions[itor].angle(); // don't sample it.
+      } else { 
+	 if (m_torsions[itor].periodicity() == 1) {
+	    if (m_torsions[itor].esd() < non_rotating_torsion_cut_off) {
+	       sample_tors[itor] = m_torsions[itor].angle(); // don't sample it.
+	    } else {
+	       sample_tors[itor] = m_torsions[itor].angle();
+	       double v = get_random_normal_value();
+	       sample_tors[itor] += v*m_torsions[itor].esd();
+	    } 
 	 } else {
+	    // Get a random periodicity sample, e.g. 1 from {0,1,2}
+	    float frac = float (coot::util::random())/float (RAND_MAX);
+	    float p_f = float(m_torsions[itor].periodicity());
+	    // do floor()?
+	    int irandom_periodicity_incidence = int(p_f * frac);
+	    float random_periodicity_incidence = float (irandom_periodicity_incidence);
+	    // e.g. random_periodicity_incidence is 1.0 from {0.0, 1.0, 2.0}
+	    float periodicity_angle = 360.0 * (random_periodicity_incidence/p_f);
 	    sample_tors[itor] = m_torsions[itor].angle();
-	    double v = get_random_normal_value();
-	    sample_tors[itor] += v*m_torsions[itor].esd();
-	 } 
-      } else {
-	 // Get a random periodicity sample, e.g. 1 from {0,1,2}
-	 float frac = float (coot::util::random())/float (RAND_MAX);
-	 float p_f = float(m_torsions[itor].periodicity());
-	 // do floor()?
-	 int irandom_periodicity_incidence = int(p_f * frac);
-	 float random_periodicity_incidence = float (irandom_periodicity_incidence);
-	 // e.g. random_periodicity_incidence is 1.0 from {0.0, 1.0, 2.0}
-	 float periodicity_angle = 360.0 * (random_periodicity_incidence/p_f);
-	 sample_tors[itor] = m_torsions[itor].angle();
-	 sample_tors[itor] += periodicity_angle;
+	    sample_tors[itor] += periodicity_angle;
 
-	 if (m_torsions[itor].esd() < non_rotating_torsion_cut_off) {
-	    // add nothing
-	 } else {
-	    // add random selection of distribution using angle esd
-	    double v = get_random_normal_value();
-	    sample_tors[itor] += v*m_torsions[itor].esd();
-	 } 
+	    if (m_torsions[itor].esd() < non_rotating_torsion_cut_off) {
+	       // add nothing
+	    } else {
+	       // add random selection of distribution using angle esd
+	       double v = get_random_normal_value();
+	       sample_tors[itor] += v*m_torsions[itor].esd();
+	    }
+	 }
       }
    }
 

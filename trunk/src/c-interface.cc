@@ -3407,7 +3407,7 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 									current_chain,
 									next_ncs_chain);
 
-//       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
+	 //       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
 
 //       std::cout << "   NCS view out: " << new_ori.first << std::endl;
 //       std::cout << "   NCS view out: \n" << new_ori.second.format() << "\n";
@@ -3463,6 +3463,14 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 					     new_centre.y(),
 					     new_centre.z()));
 	 g.update_things_on_move();
+	 if (graphics_info_t::environment_show_distances) {
+	    std::pair<int, int> r =  g.get_closest_atom();
+	    std::cout << "got closest atom " << r.first << " " << r.second << std::endl;
+	    if (r.first >= 0) {
+	       g.update_environment_distances_maybe(r.first, r.second);
+	    }
+	 }
+
       }
       graphics_draw();
    } 

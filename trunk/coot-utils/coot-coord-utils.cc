@@ -3447,10 +3447,16 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base) {
 		     new_base_name = mol_base_name;
 		  } else {
 		     // the normal case
-		     new_base_name = std_base_name.substr(0,1) +
-			mol_base_name.substr(1,2);
+		     std::string debug_s = new_base_name;
+// 		     new_base_name = std_base_name.substr(0,1) +
+// 			mol_base_name.substr(1,2);
+// 		     std::cout << "Changing base name from " << residue->name
+// 			       << " to " << new_base_name << " not "
+// 			       << debug_s << std::endl;
 		  }
-		  
+
+		  std::cout << "DEBUG:: mutate_base(): shoving new name "
+			    << new_base_name << " into residue" << std::endl;
 		  strcpy(residue->name, new_base_name.c_str());
 		  residue->TrimAtomTable();
 

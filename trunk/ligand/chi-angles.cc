@@ -646,8 +646,10 @@ coot::chi_angles::change_by(int ichi, double diff,
    PPCAtom residue_atoms;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
+   std::string residue_name = residue->name;
+   // filter out CONST torsions when making atom_name_pairs
    std::vector<coot::atom_name_pair> atom_name_pairs = 
-      get_torsion_bonds_atom_pairs(std::string(residue->name), pg_p, include_hydrogen_torsions_flag);
+      get_torsion_bonds_atom_pairs(residue_name, pg_p, include_hydrogen_torsions_flag);
 
    if (atom_name_pairs.size() == 0) {
       std::cout << " Sorry, can't find atom rotatable bonds for residue type ";
@@ -844,17 +846,20 @@ coot::chi_angles::get_torsion_bonds_atom_pairs(const std::string &monomer_type,
    if (monomer_torsions.size() > 0) { 
       for(unsigned int i=0; i<monomer_torsions.size(); i++) {
 
-	 atom1 = monomer_torsions[i].atom_id_1();
-	 atom2 = monomer_torsions[i].atom_id_4();
+	 if (!monomer_torsions[i].is_const()) {
+
+	    atom1 = monomer_torsions[i].atom_id_1();
+	    atom2 = monomer_torsions[i].atom_id_4();
 
 // 	 std::cout << "DEBUG:: " << atom1 << " hydrogen?" << r.second.is_hydrogen(atom1) << std::endl;
 // 	 std::cout << "DEBUG:: " << atom2 << " hydrogen?" << r.second.is_hydrogen(atom2) << std::endl;
 	 
-	 if ( (!r.second.is_hydrogen(atom1) && !r.second.is_hydrogen(atom2))
-	      || include_hydrogen_torsions_flag) {
-	    coot::atom_name_pair pair(monomer_torsions[i].atom_id_2_4c(),
-				      monomer_torsions[i].atom_id_3_4c());
-	    atom_pairs.push_back(pair);
+	    if ( (!r.second.is_hydrogen(atom1) && !r.second.is_hydrogen(atom2))
+		 || include_hydrogen_torsions_flag) {
+	       coot::atom_name_pair pair(monomer_torsions[i].atom_id_2_4c(),
+					 monomer_torsions[i].atom_id_3_4c());
+	       atom_pairs.push_back(pair);
+	    }
 	 }
       }
    } else {

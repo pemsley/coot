@@ -4359,7 +4359,8 @@ graphics_info_t::set_edit_phi_psi_to(double phi, double psi) {
 // These torsion labels/indices must match:
 // 2) update_residue_by_chi_change()/ chi_angles::change_by()
 // 
-// Particularly we should exclude hydrogen rotations systematically.
+// Particularly we should exclude hydrogen rotations consistently.
+// Note that setup_flash_bond_internal() needs to be consistent too.
 // 
 void
 graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
@@ -4416,7 +4417,7 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 	 } else {
 	    std::cout << "WARNING:: couldn't find torsions in the dictionary "
 		      << "for this residue: " << res_type << std::endl;
-	 } 
+	 }
 	 graphics_draw();
       }
    } else {
@@ -4482,24 +4483,35 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    std::vector <coot::dict_torsion_restraint_t> v =
       get_monomer_torsions_from_geometry(res_type);
 
+   // We introduce here ichi (which gets incremented if the current
+   // torsion is not const), we do that so that we have consistent
+   // indexing in the torsions vector with chi_angles's change_by()
+   // (see comments above execute_edit_chi_angles()).
+
+   int ichi = 0;
    for (unsigned int i=0; i<v.size(); i++) {
-      std::string label = "  ";
-      label += v[i].atom_id_2_4c();
-      label += " <--> ";
-      label += v[i].atom_id_3_4c();
-      label += "  ";
-      GtkWidget *button = gtk_button_new_with_label(label.c_str());
-      gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			 GTK_SIGNAL_FUNC(on_change_current_chi_button_clicked),
-			 GINT_TO_POINTER(i));
-      gtk_signal_connect(GTK_OBJECT(button), "enter",
-			 GTK_SIGNAL_FUNC(on_change_current_chi_button_entered),
-			 GINT_TO_POINTER(i));
-      gtk_widget_set_name(button, "edit_chi_angles_button");
-      gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-      gtk_container_set_border_width(GTK_CONTAINER(button), 2);
-      gtk_widget_show(button);
-   } 
+      if (!v[i].is_const()) {
+	 std::string label = "  ";
+	 label += v[i].id(); 
+	 label += "  ";
+	 label += v[i].atom_id_2_4c();
+	 label += " <--> ";
+	 label += v[i].atom_id_3_4c();
+	 label += "  ";
+	 GtkWidget *button = gtk_button_new_with_label(label.c_str());
+	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
+			    GTK_SIGNAL_FUNC(on_change_current_chi_button_clicked),
+			    GINT_TO_POINTER(ichi));
+	 gtk_signal_connect(GTK_OBJECT(button), "enter",
+			    GTK_SIGNAL_FUNC(on_change_current_chi_button_entered),
+			    GINT_TO_POINTER(ichi));
+	 gtk_widget_set_name(button, "edit_chi_angles_button");
+	 gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+	 gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+	 gtk_widget_show(button);
+	 ichi++;
+      }
+   }
    gtk_widget_show(dialog);
 
    return v.size();
@@ -4537,6 +4549,8 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
    // turn it off first, only enable it if we find a pair:
    draw_chi_angle_flash_bond_flag = 0; // member data item
 
+   std::cout << "flash bond ibond_user: " << ibond_user << std::endl;
+
    // std::cout << "highlight ligand bond " << bond << std::endl;
 
    // get the residue type and from that the atom name pairs:
@@ -4571,7 +4585,7 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 // 		  std::cout << "DEBUG:: monomer_torsions.size(): "
 // 			    << monomer_torsions.size() << std::endl;
 
-		  int hydrogen_torsion_count = 0;
+		  int hydrogen_or_const_torsion_count = 0;
 // debugging		  
 // 		  for(unsigned int i=0; i<monomer_torsions.size(); i++) {
 // 		     std::string this_one_str;
@@ -4598,29 +4612,42 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 		     
 // 		  }
 
+		  std::cout << "    got " << monomer_torsions.size() << " monomer torsions "
+			    << std::endl;
 
-		  hydrogen_torsion_count = 0;
+		  hydrogen_or_const_torsion_count = 0;
 		  if (monomer_torsions.size() > 0) { 
 		     for(unsigned int i=0; i<monomer_torsions.size(); i++) {
 
-			std::string this_one_str;
-			std::string atom1 = monomer_torsions[i].atom_id_1();
-			std::string atom2 = monomer_torsions[i].atom_id_4();
-			if ( (!r.second.is_hydrogen(atom1) && !r.second.is_hydrogen(atom2))
-			     || find_hydrogen_torsions) {
+			if (!monomer_torsions[i].is_const()) { 
+			   std::string atom1 = monomer_torsions[i].atom_id_1();
+			   std::string atom2 = monomer_torsions[i].atom_id_4();
+			   int hydrogen_torsion_val = 0;
+			   if (r.second.is_hydrogen(atom1)) hydrogen_torsion_val = 1;
+			   if (r.second.is_hydrogen(atom2)) hydrogen_torsion_val = 1;
+			   if (!hydrogen_torsion_val || find_hydrogen_torsions) {
+			      std::cout << "   comparing (" << bond << ") "
+					<< bond - 2 + hydrogen_or_const_torsion_count
+					<< " vs " << i << std::endl;
+			      if ((bond - 2 + hydrogen_or_const_torsion_count) == int(i)) {
+				 std::string atom2 = monomer_torsions[i].atom_id_2();
+				 std::string atom3 = monomer_torsions[i].atom_id_3();
+				 atom_names = std::pair<std::string, std::string> (atom2, atom3);
+				 std::cout << "   match atom names :" << atom_names.first
+					   << ": :" << atom_names.second << ":" << std::endl;
+				 break; 
+			      }
+			   }
+			   if (hydrogen_torsion_val)
+			      hydrogen_or_const_torsion_count++;
 			} else {
-			   hydrogen_torsion_count++;
-			}
-			if ((bond - 2 + hydrogen_torsion_count) == int(i)) {
-			   std::string atom2 = monomer_torsions[i].atom_id_2();
-			   std::string atom3 = monomer_torsions[i].atom_id_3();
-			   atom_names = std::pair<std::string, std::string> (atom2, atom3);
-// 			   std::cout << "atom names :" << atom_names.first << ": :"
-// 				     << atom_names.second << ":" << std::endl;
-			   break; 
+			   hydrogen_or_const_torsion_count++;
 			}
 		     }
 		  }
+
+		  std::cout << "         :" << atom_names.first << ": :"
+			    << atom_names.second << ":" << std::endl;
 
 		  if ((atom_names.first != "") &&
 		      (atom_names.second != "") && 

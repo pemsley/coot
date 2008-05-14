@@ -592,6 +592,15 @@ coot::geometry_graphs::delete_block(int chain_number, int raw_resno) {
 }
 
 void
+coot::geometry_graphs::delete_block(const std::string &chain_id, int resno) {
+
+   int chain_number = chain_id_to_chain_index(chain_id);
+   if (chain_number != -1) {
+      delete_block(chain_number, resno);
+   }
+}
+
+void
 coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) { 
 
 #ifndef HAVE_GNOME_CANVAS

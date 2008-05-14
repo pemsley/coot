@@ -636,8 +636,15 @@
 				      "Atom Selection:"
 				      "//A/1-2"
 				      (lambda (imol text)
-					(let ((handle (make-ball-and-stick imol text 0.12 0.3 1)))
+					(let ((handle (make-ball-and-stick imol text 0.14 0.3 1)))
 					  (format #t "handle: ~s~%" handle))))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Clear Ball & Stick..."
+       (lambda () 
+	 (molecule-chooser-gui "Choose a molecule from which to clear Ball&Stick objects"
+			       (lambda (imol)
+				 (clear-ball-and-stick imol)))))
 
       (add-simple-coot-menu-menuitem
        menu "Dotted Surface..."
