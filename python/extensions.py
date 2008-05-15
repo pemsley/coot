@@ -174,6 +174,21 @@ if (have_coot_python):
 		lambda imol,text: map(eval,("new_molecule_by_residue_type_selection(imol,text)", "update_go_to_atom_window_on_new_mol()"))))
 
 
+     def new_mol_sphere_func1(imol, text):
+       try:
+         radius = float(text)
+       except:
+         print "WARNING:: no valid radius", text
+       args = [imol] + rotation_centre() + [radius]
+       new_molecule_by_sphere_selection(*args)
+
+     add_simple_coot_menu_menuitem(menu, "New Molecule by Sphere...",
+                                   lambda func: generic_chooser_and_entry(
+       "Choose a molecule from which to select a sphere of atoms:",
+       "Radius:", "10.0",
+       lambda imol, text: new_mol_sphere_func1(imol, text)))
+
+
 # BL says:: may work, not sure about function entirely
      add_simple_coot_menu_menuitem(menu, "Replace Fragment",
 	lambda func: molecule_chooser_gui("Define the molecule that needs updating",
@@ -511,6 +526,12 @@ if (have_coot_python):
                                                "Atom Selection:",
                                                "//A/1-2",
                                                lambda imol, text: make_ball_n_stick_func(imol, text)))
+
+
+     add_simple_coot_menu_menuitem(menu, "Clear Ball & Stick...",
+                                   lambda func: molecule_chooser_gui(
+       "Choose a molecule from which to clear Ball&Stick objects",
+       lambda imol: clear_ball_and_stick(imol)))
      
 
      def make_dot_surf_func(imol,text):

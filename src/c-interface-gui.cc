@@ -111,6 +111,13 @@ manage_column_selector(const char *filename) {
    add_to_history_typed(cmd, args);
 }
 
+void
+manage_refmac_column_selection(GtkWidget *w) {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+     coot::setup_refmac_parameters_from_file(w);
+   }
+}
 
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 

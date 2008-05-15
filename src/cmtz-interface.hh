@@ -11,10 +11,12 @@ namespace coot {
    public:
       char column_type; 
       std::string column_label;
-      mtz_type_label(const std::string &column_label_in, char column_type_in) {
+      int column_position;
+      mtz_type_label(const std::string &column_label_in, char column_type_in, int column_position_in) {
 	 column_type = column_type_in;
 	 column_label = column_label_in;
-      } 
+	 column_position = column_position_in;
+      };
    };
 
 
@@ -29,12 +31,19 @@ namespace coot {
       std::vector<mtz_type_label> phi_cols;
       std::vector<mtz_type_label> weight_cols;
       std::vector<mtz_type_label> r_free_cols;
+      std::vector<mtz_type_label> hl_cols;
       int selected_f_col; 
       int selected_phi_col;
       int selected_weight_col;
       int selected_refmac_fobs_col;
       int selected_refmac_sigfobs_col;
       int selected_refmac_r_free_col;
+      int selected_refmac_phi_col;
+      int selected_refmac_fom_col;
+      int selected_refmac_hla_col;
+      int selected_refmac_hlb_col;
+      int selected_refmac_hlc_col;
+      int selected_refmac_hld_col;
       int use_weights;
    };
 
@@ -50,6 +59,7 @@ namespace coot {
    void fill_f_optionmenu(GtkWidget *optionmenu_f, short int is_expert_mode_flag);
    void setup_refmac_parameters(GtkWidget *window, 
 				const coot::mtz_column_types_info_t &col_labs);
+   void setup_refmac_parameters_from_file(GtkWidget *window);
 }
 
 GtkWidget *make_menu_item( gchar         *name,
@@ -63,6 +73,12 @@ void weight_button_select(GtkWidget *item, GtkPositionType pos);
 void refmac_f_button_select(GtkWidget *item, GtkPositionType pos);
 void refmac_sigf_button_select(GtkWidget *item, GtkPositionType pos);
 void refmac_r_free_button_select(GtkWidget *item, GtkPositionType pos);
+void refmac_dialog_f_button_select(GtkWidget *item, GtkPositionType pos);
+void refmac_dialog_sigf_button_select(GtkWidget *item, GtkPositionType pos);
+void refmac_dialog_r_free_button_select(GtkWidget *item, GtkPositionType pos);
+void refmac_dialog_phases_button_select(GtkWidget *item, GtkPositionType pos);
+void refmac_dialog_fom_button_select(GtkWidget *item, GtkPositionType pos);
+void refmac_dialog_hl_button_select(GtkWidget *item, GtkPositionType pos);
 
    
 

@@ -1188,13 +1188,26 @@ on_single_map_properties_colour_button_clicked
                                         gpointer         user_data);
 
 void
+on_run_refmac_phase_input_optionmenu_changed
+                                        (GtkOptionMenu   *optionmenu,
+                                        gpointer         user_data);
+
+void
 on_run_refmac_nolabels_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
 void
+on_run_refmac_map_optionmenu_changed   (GtkOptionMenu   *optionmenu,
+                                        gpointer         user_data);
+
+void
 on_run_refmac_diff_map_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_ncs_checkbutton_toggled  (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
 void

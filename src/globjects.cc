@@ -905,6 +905,11 @@ GtkWidget *graphics_info_t::geometry_dialog = NULL;
 std::string graphics_info_t::refmac_ccp4i_project_dir = std::string("");
 std::string graphics_info_t::libcheck_ccp4i_project_dir = std::string("");
 
+std::vector<int> *graphics_info_t::preset_number_refmac_cycles;
+coot::refmac::refmac_refinement_method_type graphics_info_t::refmac_refinement_method = coot::refmac::RESTRAINED;
+coot::refmac::refmac_phase_input_type graphics_info_t::refmac_phase_input  = coot::refmac::NO_PHASES;
+coot::refmac::refmac_use_ncs_type     graphics_info_t::refmac_use_ncs_flag = coot::refmac::NCS_ON;
+int graphics_info_t::refmac_ncycles = 5;
 
 // scrollin' scrollin' scrollin'... Shall we stop? When shall we stop?
 short int graphics_info_t::stop_scroll_diff_map_flag = 1; // stop on

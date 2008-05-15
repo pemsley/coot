@@ -118,7 +118,10 @@ def run_loggraph(logfile):
         print 'We cannot allocate $CCP4I_TCLTK so no bltwish available'
 
 
-def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, mtz_out_filename, extra_cif_lib_filename, imol_refmac_count, swap_map_colours_post_refmac_p, imol_mtz_molecule, show_diff_map_flag, phase_combine_flag, phib_fom_pair, force_n_cycles, ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
+def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, mtz_out_filename,
+                           extra_cif_lib_filename, imol_refmac_count, swap_map_colours_post_refmac_p,
+                           imol_mtz_molecule, show_diff_map_flag, phase_combine_flag, phib_fom_pair,
+                           force_n_cycles, ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
 
     global refmac_count
     global refmac_extra_params
@@ -132,6 +135,23 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
         
     if (r_free_col != "") :
         labin_string += " FREE=" + r_free_col
+
+    if (phase_combine_flag == 1):
+        # we have Phi Fom pair
+        if (phib_fom_pair[0] != "" and phib_fom_pair[1] !=0):
+            labin_string += "- \nPHIB=" + phib_fom_pair[0] + " FOM=" + phib_fom_pair[1]
+    if (phase_combine_flag == 2):
+        # we have HLs
+        if (phib_fom_pair[1] == ""):
+            hl_list = eval(phib_fom_pair[0])
+            if (len(hl_list) == 4):
+                hl_label_ls = ["HLA", "HLB", "HLC", "HLD"]
+                labin_string += " - \n"
+                for i in range(4):
+                    # shorten the label
+                    hl_label = hl_list[i][hl_list[i].rfind("/")+1:len(hl_list[i])]
+                    labin_string += " " + hl_label_ls[i] + "=" + hl_label
+        
 # BL says: command line args have to be string not list here
     command_line_args = " XYZIN " + pdb_in_filename \
                         + " XYZOUT " + pdb_out_filename + " HKLIN " + mtz_in_filename \
@@ -142,9 +162,17 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
     std_lines = ["MAKE HYDROGENS NO"] # Garib's suggestion 8 Sept 2003
 
+    refinement_type = get_refmac_refinement_method()
+    if (refinement_type == 1):
+        # do rigid body refinement
+        std_lines.append("REFInement TYPE RIGID")
+
     if operator.isNumberType(force_n_cycles):
        if force_n_cycles >=0:
-          std_lines.append("NCYCLES " + str(force_n_cycles))
+           if (refinement_type == 1):
+               std_lines.append("RIGIDbody NCYCle " + str(force_n_cycles))
+           else:
+               std_lines.append("NCYC " + str(force_n_cycles))
     if (refmac_extra_params):
         extra_params = refmac_extra_params
     else:
@@ -913,8 +941,15 @@ def read_refmac_log(imol, refmac_log_file):
                 ncycle_res = reg_ncyc.search(line)
                 if (ncycle_res):     
                     # get no of cycles
-                    pos = ncycle_res.end()
-                    ncyc = int(line[pos: pos + 4])
+                    line_ls = line.split()
+                    for item in line_ls:
+                        ncyc_pos = reg_ncyc.search(item)
+                        if (ncyc_pos):
+                            ncyc = int(lines_ls(item.index() + 1))
+                            print "BL DEBUG:: found cycle", ncyc
+                            break
+                    #pos = ncycle_res.end()
+                    #ncyc = int(line[pos: pos + 4])
 
                 # find the Warning and Info lines at the beginning
                 if   ("WARNING :" in line):

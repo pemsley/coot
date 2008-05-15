@@ -2,6 +2,7 @@
 # adapted from coot-utils.scm
 
 # Copyright 2004, 2005, 2006, 2007 by Bernhard Lohkamp
+# Copyright 2008 by Bernhard Lohkamp, The University of York
 # Copyright 2000 by Paul Emsley
 # Copyright 2004, 2005, 2006, 2007 by Paul Emsley, The University of York
 
@@ -725,8 +726,15 @@ def graphics_comma_key_pressed_hook():
 def graphics_dot_key_pressed_hook():
 	pass
 
+# a list of [code, key, name, thunk]
+# e.g. [103, "g", "Goto Blob", blob_under_pointer_to_screen_centre()]
+
 global key_bindings
-key_bindings = []
+# we shall see if it exists, if not initialize it
+try:
+    key_bindings
+except:
+    key_bindings = []
 
 def add_key_binding(name, key, thunk):
     from types import IntType, StringType
@@ -742,8 +750,11 @@ def add_key_binding(name, key, thunk):
 
 # general key press hook
 def graphics_general_key_press_hook(key):
-	print "Key %s was pressed" %(key)
-#	return False
+    global key_bindings
+    field = [elem[1] for elem in key_bindings]
+    if (not key in field):
+	print "%s not found in key binding list %s. Feel free to use it!" %(key, key_bindings)
+
 # example
 
 # The P key is already bound
@@ -1235,6 +1246,7 @@ ncs_ghosts             = ncs_ghosts_py
 inverse_rtop           = inverse_rtop_py
 make_atom_spec         = make_atom_spec_py
 key_sym_code           = key_sym_code_py
+map_sigma              = map_sigma_py
 
 ## and some extra ones
 show_set_undo_molecule_chooser = show_set_undo_molecule_chooser_py

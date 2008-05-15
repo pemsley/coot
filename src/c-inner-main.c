@@ -237,7 +237,9 @@ c_inner_main(void *closure, int argc, char** argv) {
 #if defined COOT_USE_GTK2_INTERFACE && !defined WINDOWS_MINGW
     tmp_str = (char *) malloc (strlen(directory) + 18);
     strcpy (tmp_str, directory);
-    strcat (tmp_str, "/");	/* something else for Windwoes? */
+    if (strcmp(&tmp_str[strlen(tmp_str)-1], "/")) {
+      strcat (tmp_str, "/");	/* something else for Windwoes? */
+    }
     strcat (tmp_str, ".coot-preferences");
     preferences_dir = tmp_str;
     istat = stat(preferences_dir, &buf);

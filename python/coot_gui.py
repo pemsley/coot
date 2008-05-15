@@ -904,10 +904,10 @@ def fill_option_menu_with_mol_options(menu, filter_function):
               print "OOps molecule name for molecule %s is %s" %(mol_no_ls,label_str)
     return mols
 
-# Fill an option menu with maps
+# Fill an option menu with maps and return the list of maps
 #
 def fill_option_menu_with_map_mol_options(menu):
-    fill_option_menu_with_mol_options(menu, valid_map_molecule_qm)
+    return fill_option_menu_with_mol_options(menu, valid_map_molecule_qm)
 
 # Helper function for molecule chooser.  Not really for users.
 # 
@@ -918,7 +918,7 @@ def fill_option_menu_with_map_mol_options(menu):
 # molecules.
 # 
 def fill_option_menu_with_coordinates_mol_options(menu):
-    fill_option_menu_with_mol_options(menu, valid_model_molecule_qm)
+    return fill_option_menu_with_mol_options(menu, valid_model_molecule_qm)
 
 #
 def fill_option_menu_with_number_options(menu, number_list, default_option_value):
@@ -992,7 +992,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
 
     def on_ok_clicked(*args):
         # what is the molecule number of the option menu?
-        active_mol_no = get_option_menu_active_molecule(option_menu,model_mol_list)
+        active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
         try:
            active_mol_no = int(active_mol_no)
            print "INFO: operating on molecule number ", active_mol_no
@@ -2728,7 +2728,7 @@ def run_with_gtk_threading(function, *args):
          return False
       finally:
          gtk.gdk.threads_leave()
-      gobject.idle_add(idle_func)
+   gobject.idle_add(idle_func)
 
 
 # let the c++ part of mapview know that this file was loaded:
