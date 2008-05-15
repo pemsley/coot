@@ -3662,28 +3662,49 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
 {
   
   GtkWidget *window = create_run_refmac_dialog();
-  GtkWidget *optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
+  GtkWidget *optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(refmac_molecule_button_select);
+  GtkWidget *ncs_button      = lookup_widget(window, "run_refmac_ncs_checkbutton");
   GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
   int imol_coords = first_coords_imol();
+  fill_option_menu_with_refmac_methods_options(optionmenu);
+
+  optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
+  fill_option_menu_with_refmac_phase_input_options(optionmenu);
 
   set_refmac_molecule(imol_coords);
+
+  optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
   fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
+
   optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
-  fill_option_menu_with_refmac_options(optionmenu);
+  /*  fill_option_menu_with_refmac_options(optionmenu); */
+  fill_option_menu_with_refmac_labels_options(optionmenu);
+
+  /* to set the labels set the active item */
+  GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
+  gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+  // FIXME: update necessary???
+  GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
 
   /* fill optionmenu for no label refmac and show if refmac version is new enough */
   if (refmac_runs_with_nolabels()) {
-    GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
     GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
-    GtkWidget *frame = lookup_widget(window, "run_refmac_nolabels_frame");
-    if (!active_menu_item) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-      gtk_widget_show(frame);
-    }
-    optionmenu = lookup_widget(window, "run_refmac_map_nolabels_optionmenu");
-    fill_option_menu_with_refmac_nolabels_options(optionmenu);
     gtk_widget_show(checkbutton);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+    gtk_widget_hide(labels);
+  } else {
+    gtk_widget_show(labels);
+  }
+
+  optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
+  fill_option_menu_with_refmac_ncycle_options(optionmenu);
+
+  /* set the ncs button depending on state */
+  if (refmac_use_ncs_state()) {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), TRUE);
+  } else {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), FALSE);
   }
 
   optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
@@ -3764,20 +3785,57 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
 
 }
 
-/* Actually, we only are interested in the state of this when the
-   "Run" button is pressed */
+void
+on_run_refmac_phase_input_optionmenu_changed
+                                        (GtkOptionMenu   *optionmenu,
+                                        gpointer         user_data)
+{
+  GtkWidget *phases_hbox;
+  GtkWidget *hl_hbox;
+  
+  int phase_combine_flag;
+
+  phases_hbox = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_phases_hbox");
+  hl_hbox     = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_hl_hbox");
+
+  phase_combine_flag = get_refmac_phase_input();
+
+  if (phase_combine_flag == 1) {
+    gtk_widget_show(phases_hbox);
+    gtk_widget_hide(hl_hbox);
+  } else {
+    if (phase_combine_flag == 2) {
+      gtk_widget_hide(phases_hbox);
+      gtk_widget_show(hl_hbox);
+    } else {
+      gtk_widget_hide(phases_hbox);
+      gtk_widget_hide(hl_hbox);
+    }
+  }
+    
+}
+
 void
 on_run_refmac_nolabels_checkbutton_toggled (GtkToggleButton *togglebutton,
                                             gpointer         user_data)
 {
-  GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_nolabels_frame");
+  GtkWidget *labels = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_column_labels_frame");
   if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
-    gtk_widget_show(frame);
+    gtk_widget_hide(labels);
   } else {
-    gtk_widget_hide(frame);
+    gtk_widget_show(labels);
   }
 }
 
+
+/* we want to update the phases/hl boxes if the mtz changes */
+void
+on_run_refmac_map_optionmenu_changed   (GtkOptionMenu   *optionmenu,
+                                        gpointer         user_data)
+{
+  //update_refmac_column_labels_frame(optionmenu);
+
+}
 
 /* Actually, we only are interested in the state of this when the
    "Run" button is pressed */
@@ -3792,9 +3850,63 @@ on_run_refmac_diff_map_checkbutton_toggled (GtkToggleButton *togglebutton,
 /* Actually, we only are interested in the state of this when the
    "Run" button is pressed */
 void
+on_run_refmac_ncs_checkbutton_toggled  (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    set_refmac_use_ncs(1);
+  } else {
+    set_refmac_use_ncs(0);
+  }
+
+}
+
+/* Actually, we only are interested in the state of this when the
+   "Run" button is pressed */
+/* not any more! We should show the phase column options depending on what exists */
+void
 on_run_refmac_phase_combine_checkbutton_toggled (GtkToggleButton *togglebutton,
 						 gpointer         user_data)
 {
+  GtkWidget *phases_hbox;
+  GtkWidget *hl_hbox;
+  GtkWidget *phases_optionmenu;
+  GtkWidget *hl_optionmenu;
+  GtkWidget *active_item;
+  GtkWidget *phases_menu;
+  GtkWidget *hl_menu;
+  GtkWidget *phases_button;
+  GtkWidget *hl_button;
+  phases_hbox = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_phases_hbox");
+  hl_hbox     = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_hl_hbox");
+  phases_optionmenu = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_phases_optionmenu");
+  hl_optionmenu     = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_hl_optionmenu");
+  phases_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(phases_optionmenu));
+  hl_menu     = gtk_option_menu_get_menu(GTK_OPTION_MENU(hl_optionmenu));
+  phases_button = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_phases_radiobutton");
+  hl_button     = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_hl_radiobutton");
+  if (togglebutton->active) {
+    gtk_widget_show(phases_hbox);
+    gtk_widget_show(hl_hbox);
+    active_item = gtk_menu_get_active(GTK_MENU(phases_menu));
+    if (active_item) {
+      gtk_widget_set_sensitive(phases_hbox, TRUE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(phases_button), TRUE);
+    } else {
+      gtk_widget_set_sensitive(phases_hbox, FALSE);
+    }
+    active_item = gtk_menu_get_active(GTK_MENU(hl_menu));
+    if (active_item) {
+      gtk_widget_set_sensitive(hl_hbox, TRUE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hl_button), TRUE);
+    } else {
+      gtk_widget_set_sensitive(hl_hbox, FALSE);
+    }
+    
+  } else {
+    gtk_widget_hide(phases_hbox);
+    gtk_widget_hide(hl_hbox);
+  }
 
 }
 
@@ -4417,7 +4529,10 @@ void
 on_run_refmac_help_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = create_run_refmac_help_dialog();
+  /* GtkWidget *widget = create_run_refmac_help_dialog();
+     we use the 'new' help now, but preserve the old dialog
+     as backup for now */
+  GtkWidget *widget = create_run_refmac_nolabels_help_dialog();
   gtk_widget_show(widget);
 }
 

@@ -167,6 +167,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    self.failUnless(valid_map_molecule_qm(imol_map))
 
 
+    def test06_1(self):
+	    """Map Sigma """
+
+	    global imol_rnase_map
+	    global imol_rnase
+	    self.failUnless(valid_map_molecule_qm(imol_rnase_map))
+	    v = map_sigma(imol_rnase_map)
+	    self.failUnless(v > 0.2 and v < 1.0)
+	    v2 = map_sigma(imol_rnase)
+	    print "INFO:: map sigmas", v, v2
+	    self.failIf(v2)
+
     def test07_0(self):
 	    """Another Level Test"""
 	    imol_map_2 = another_level()

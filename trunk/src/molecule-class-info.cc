@@ -5241,6 +5241,24 @@ molecule_class_info_t::store_refmac_mtz_filename(const std::string &mtz_filename
    refmac_mtz_filename = mtz_filename; 
 }
 
+void
+molecule_class_info_t::store_refmac_phase_params(const std::string &mtz_filename,
+						 const std::string &phi,
+						 const std::string &fom,
+						 const std::string &hla,
+						 const std::string &hlb,
+						 const std::string &hlc,
+						 const std::string &hld) {
+  
+  have_refmac_phase_params = 1; // true
+  refmac_phi_col = phi;
+  refmac_fom_col = fom;
+  refmac_hla_col = hla; 
+  refmac_hlb_col = hlb; 
+  refmac_hlc_col = hlc; 
+  refmac_hld_col = hld; 
+}
+
 // return 0 on success
 // 
 int

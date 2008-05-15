@@ -488,6 +488,14 @@ class molecule_class_info_t {
    int refmac_r_free_flag_sensible;
    int refmac_count;
 
+   short int have_refmac_phase_params; // has public interface;
+   std::string refmac_phi_col;
+   std::string refmac_fom_col;
+   std::string refmac_hla_col;
+   std::string refmac_hlb_col;
+   std::string refmac_hlc_col;
+   std::string refmac_hld_col;
+
    // generic
 
    // change asc.
@@ -762,6 +770,7 @@ class molecule_class_info_t {
       // 
       refmac_count = 0;
       have_sensible_refmac_params = 0;  // initially no refmac params.
+      have_refmac_phase_params    = 0;  // initially no refmac params.
 
       // history stuff
       // 
@@ -786,6 +795,11 @@ class molecule_class_info_t {
 
       // fourier (for phase recombination (potentially) in refmac:
       fourier_weight_label = std::string(""); // unset initially.
+
+      // HL coeff and phi (for phase recombination (potentially) in refmac:
+      // should be enough to unset the first one for testing for HL
+      refmac_phi_col = std::string(""); // unset initially.
+      refmac_hla_col = std::string(""); // unset initially.
 
       // 
       colour_skeleton_by_random = 0;
@@ -1683,16 +1697,31 @@ class molecule_class_info_t {
 
    void store_refmac_mtz_filename(const std::string &mtz_filename);
 
+   void store_refmac_phase_params(const std::string &mtz_filename,
+				  const std::string &phi,
+				  const std::string &fom,
+				  const std::string &hla,
+				  const std::string &hlb,
+				  const std::string &hlc,
+				  const std::string &hld);
+
    // more refmac stuff
    //
    int write_pdb_file(const std::string &filename); // not const because of shelx/name manip
    short int Have_sensible_refmac_params() const { return has_map() && have_sensible_refmac_params; }
+   short int Have_refmac_phase_params()    const { return have_refmac_phase_params; }
    void increment_refmac_count() { refmac_count++; }
    int Refmac_count() const { return refmac_count; }
    std::string Refmac_mtz_filename() const { return refmac_mtz_filename; }
    std::string Refmac_fobs_col() const { return refmac_fobs_col; }
    std::string Refmac_sigfobs_col() const { return refmac_sigfobs_col; }
    std::string Refmac_r_free_col() const { return refmac_r_free_col; }
+   std::string Refmac_phi_col() const { return refmac_phi_col; }
+   std::string Refmac_fom_col() const { return refmac_fom_col; }
+   std::string Refmac_hla_col() const { return refmac_hla_col; }
+   std::string Refmac_hlb_col() const { return refmac_hlb_col; }
+   std::string Refmac_hlc_col() const { return refmac_hlc_col; }
+   std::string Refmac_hld_col() const { return refmac_hld_col; }
    short int Refmac_r_free_sensible() const { return refmac_r_free_flag_sensible; }
    void set_refmac_counter(int i) { refmac_count = i; } 
    void set_refmac_save_state_commands(std::string mtz_file_name,

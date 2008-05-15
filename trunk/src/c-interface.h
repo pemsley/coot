@@ -299,6 +299,7 @@ GtkWidget *main_toolbar();
 
    We try as .phs and .cif files first */
 void manage_column_selector(const char *filename);
+void manage_refmac_column_selection(GtkWidget *w);
 void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu);
 void handle_column_label_make_fourier(GtkWidget *column_label_window);
 
@@ -1225,7 +1226,13 @@ void execute_refmac(GtkWidget *window); /* lookup stuff here. */
 void refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos); 
 int set_refmac_molecule(int imol); /* used by callback.c */
 void fill_option_menu_with_refmac_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_nolabels_options(GtkWidget *optionmenu);
+void fill_option_menu_with_refmac_methods_options(GtkWidget *optionmenu);
+void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu);
+void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu);
+void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu);
+
+void update_refmac_column_labels_frame(GtkWidget *optionmenu, GtkWidget *fobs_menu, GtkWidget *r_free_menu,
+				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu);
 
 
 void free_memory_run_refmac(GtkWidget *window); 
@@ -1237,6 +1244,17 @@ void set_refmac_counter(int imol, int refmac_count);
 
  @return a stub name used in the construction of filename for refmac output */
 const char *refmac_name(int imol);
+
+/* some methods to get refmac run parameters */
+int get_refmac_refinement_method(void);
+void set_refmac_refinement_method(int method);
+int get_refmac_phase_input(void);
+void set_refmac_phase_input(int phase_flag);
+int get_refmac_ncycles(void);
+void set_refmac_ncycles(int no_cycles);
+void add_refmac_ncycle_no(int cycle);
+void set_refmac_use_ncs(int state);
+int refmac_use_ncs_state(void);
 
 /*! \brief swap the colours of maps 
 

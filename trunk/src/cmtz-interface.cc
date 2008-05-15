@@ -49,6 +49,10 @@
 #include "cmtz-interface.hh"
 #include "coot-utils.hh"
 
+//tmp?
+#include "c-interface.h"
+#include "graphics-info.h"
+
 
 coot::mtz_column_types_info_t
 coot::get_f_phi_columns(const std::string &filename) {
@@ -63,6 +67,12 @@ coot::get_f_phi_columns(const std::string &filename) {
    a.selected_refmac_fobs_col = 0;
    a.selected_refmac_sigfobs_col = 0;
    a.selected_refmac_r_free_col = 0;
+   a.selected_refmac_phi_col = -1; /* unset */
+   a.selected_refmac_fom_col = 0;
+   a.selected_refmac_hla_col = -1; /* unset */
+   a.selected_refmac_hlb_col = 0;
+   a.selected_refmac_hlc_col = 0;
+   a.selected_refmac_hld_col = 0;
 
    clipper::CCP4MTZfile f;
    short int is_mtz_file = 1; 
@@ -94,23 +104,25 @@ coot::get_f_phi_columns(const std::string &filename) {
 	    } else {
 	       label = v[i].substr(0, ispace);
 	       type  = v[i].substr(ispace+1);
-	       // std::cout << "Got label :" << label << ": and type :" << type << ":\n";
+	       //std::cout << "Got label :" << label << ": and type :" << type << ":\n";
 	       if (type == "F")
-		  a.f_cols.push_back(coot::mtz_type_label(label, 'F'));
+		 a.f_cols.push_back(coot::mtz_type_label(label, 'F', i));
 	       if (type == "G")
-		  a.f_cols.push_back(coot::mtz_type_label(label, 'F'));
+		 a.f_cols.push_back(coot::mtz_type_label(label, 'F', i));
 	       if (type == "L")
-		  a.f_cols.push_back(coot::mtz_type_label(label, 'F'));
+		 a.f_cols.push_back(coot::mtz_type_label(label, 'F', i));
 	       if (type == "Q")
-		  a.sigf_cols.push_back(coot::mtz_type_label(label, 'Q'));
+		 a.sigf_cols.push_back(coot::mtz_type_label(label, 'Q', i));
 	       if (type == "P")
-		  a.phi_cols.push_back(coot::mtz_type_label(label, 'P'));
+		 a.phi_cols.push_back(coot::mtz_type_label(label, 'P', i));
 	       if (type == "D")
-		  a.d_cols.push_back(coot::mtz_type_label(label, 'D'));
+		 a.d_cols.push_back(coot::mtz_type_label(label, 'D', i));
 	       if (type == "W")
-		  a.weight_cols.push_back(coot::mtz_type_label(label, 'W'));
+		 a.weight_cols.push_back(coot::mtz_type_label(label, 'W', i));
 	       if (type == "I")
-		  a.r_free_cols.push_back(coot::mtz_type_label(label, 'I'));
+		 a.r_free_cols.push_back(coot::mtz_type_label(label, 'I', i));
+	       if (type == "A")
+		 a.hl_cols.push_back(coot::mtz_type_label(label, 'A', i));
 	    }
 	 }
       }
@@ -148,21 +160,21 @@ coot::setup_refmac_parameters(GtkWidget *window,
 
 
   /* Fobs */
-  for (i=0; i<col_labs.f_cols.size(); i++) { 
-     menuitem = make_menu_item((gchar *) col_labs.f_cols[i].column_label.c_str(),
-			       GTK_SIGNAL_FUNC(refmac_f_button_select),
-			       GINT_TO_POINTER(i));
-     gtk_menu_append(GTK_MENU(fobs_menu), menuitem);
-     gtk_widget_show(menuitem);
-  } 
-  /* Sig Fobs */
-  for (i=0; i<col_labs.sigf_cols.size(); i++) {
-     menuitem = make_menu_item( (gchar *) col_labs.sigf_cols[i].column_label.c_str(),
-				GTK_SIGNAL_FUNC(refmac_sigf_button_select),
+   for (i=0; i<col_labs.f_cols.size(); i++) { 
+      menuitem = make_menu_item((gchar *) col_labs.f_cols[i].column_label.c_str(),
+				GTK_SIGNAL_FUNC(refmac_f_button_select),
 				GINT_TO_POINTER(i));
-     gtk_menu_append(GTK_MENU(sigfobs_menu), menuitem);
-     gtk_widget_show(menuitem);
-  }
+      gtk_menu_append(GTK_MENU(fobs_menu), menuitem);
+      gtk_widget_show(menuitem);
+   } 
+   /* Sig Fobs */
+   for (i=0; i<col_labs.sigf_cols.size(); i++) {
+      menuitem = make_menu_item( (gchar *) col_labs.sigf_cols[i].column_label.c_str(),
+				 GTK_SIGNAL_FUNC(refmac_sigf_button_select),
+				 GINT_TO_POINTER(i));
+      gtk_menu_append(GTK_MENU(sigfobs_menu), menuitem);
+      gtk_widget_show(menuitem);
+   }
 
 
   /* R free */
@@ -191,6 +203,213 @@ coot::setup_refmac_parameters(GtkWidget *window,
   gtk_widget_show(sigfobs_menu);
   gtk_widget_show(r_free_menu);
   
+}
+
+
+/* used when the column label widget is being created   */
+void
+coot::setup_refmac_parameters_from_file(GtkWidget *window) {
+  
+  // first get the filename from the currently selected mtz/map
+  GtkWidget *option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
+  GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+  GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
+
+  std::string filename;
+  if (active_item == 0) {
+    add_status_bar_text("No map has associated Refmac Parameters - no REFMAC!");
+  } else { 
+    int imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
+    if (imol_window < 0) {
+      std::cout << "No map data selected for refmac\n";
+    } else { 
+      
+      int imol_map_refmac = imol_window;
+      if (!is_valid_map_molecule(imol_map_refmac)) {
+	std::string s = "Invalid molecule number: ";
+	s += graphics_info_t::int_to_string(imol_map_refmac);
+	std::cout << s << std::endl;
+	graphics_info_t g;
+	g.statusbar_text(s);
+      } else {
+	// just check for refmac mtz file now
+	if (graphics_info_t::molecules[imol_map_refmac].Refmac_mtz_filename().size() > 0) {
+	  filename = graphics_info_t::molecules[imol_map_refmac].Refmac_mtz_filename();
+	} else {
+	  std::cout << "No valid mtz file" <<std::endl;
+	}
+      }
+    }
+  }
+
+  if (filename.size() > 0) {
+   // get the column labels
+   coot::mtz_column_types_info_t *f_phi_columns = new coot::mtz_column_types_info_t;
+   *f_phi_columns = coot::get_f_phi_columns(filename);
+   f_phi_columns->mtz_filename = filename;
+   const coot::mtz_column_types_info_t &col_labs = *f_phi_columns;
+
+   /* Stuff a pointer to mtz info into the dialog: */
+   GtkWidget *refmac_dialog = lookup_widget(window, "run_refmac_dialog");
+   gtk_object_set_user_data(GTK_OBJECT(refmac_dialog), f_phi_columns);
+
+   int i;
+
+   GtkWidget *fobs_option_menu    = lookup_widget(window, "refmac_dialog_fobs_optionmenu");
+   GtkWidget *r_free_option_menu  = lookup_widget(window, "refmac_dialog_rfree_optionmenu");
+   GtkWidget *phases_option_menu  = lookup_widget(window, "refmac_dialog_phases_optionmenu");
+   GtkWidget *fom_option_menu     = lookup_widget(window, "refmac_dialog_fom_optionmenu");
+   GtkWidget *hl_option_menu      = lookup_widget(window, "refmac_dialog_hl_optionmenu");
+
+   GtkWidget *fobs_menu   = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_option_menu));
+   GtkWidget *r_free_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_option_menu));
+   GtkWidget *phases_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(phases_option_menu));
+   GtkWidget *fom_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fom_option_menu));
+   GtkWidget *hl_menu     = gtk_option_menu_get_menu(GTK_OPTION_MENU(hl_option_menu));
+
+   GtkWidget *menuitem;
+
+   if (fobs_menu)
+      gtk_widget_destroy(fobs_menu);
+   if (r_free_menu)
+      gtk_widget_destroy(r_free_menu);
+   if (phases_menu)
+      gtk_widget_destroy(phases_menu);
+   if (fom_menu)
+      gtk_widget_destroy(fom_menu);
+   if (hl_menu)
+      gtk_widget_destroy(hl_menu);
+
+   fobs_menu = gtk_menu_new();
+   r_free_menu = gtk_menu_new();
+   phases_menu = gtk_menu_new();
+   fom_menu = gtk_menu_new();
+   hl_menu = gtk_menu_new();
+
+
+  /* Fobs and Sig Fobs*/
+  int fobs_pos;
+  int sigfobs_pos;
+  int islash;
+  std::string label;
+  std::string tmp;
+  coot::mtz_column_types_info_t a;
+  for (i=0; i<col_labs.f_cols.size(); i++) {
+     fobs_pos = col_labs.f_cols[i].column_position;
+     /* Sig Fobs */
+     for (int j=0; j<col_labs.sigf_cols.size(); j++) {
+       sigfobs_pos = col_labs.sigf_cols[j].column_position;
+       if ((fobs_pos + 1) == sigfobs_pos) {
+	 // matching f sigf pair
+	 tmp = col_labs.sigf_cols[j].column_label;
+	 islash = tmp.find_last_of("/");
+	 label = col_labs.f_cols[i].column_label;
+	 label += "  ";
+	 label += tmp.substr(islash + 1);
+	 menuitem = make_menu_item((gchar *) label.c_str(),
+				   GTK_SIGNAL_FUNC(refmac_dialog_f_button_select),
+				   GINT_TO_POINTER(i));
+	 gtk_menu_append(GTK_MENU(fobs_menu), menuitem);
+	 gtk_widget_show(menuitem);
+       }
+     }
+  }
+
+
+   /* R free */
+
+   coot::mtz_column_types_info_t *save_f_phi_columns
+      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+
+   if (col_labs.r_free_cols.size() == 0) 
+     save_f_phi_columns->selected_refmac_r_free_col = -1; /* magic -1 */
+
+				 /* see on_column_label_ok_button_clicked in callbacks.c */
+   for (i=0; i<col_labs.r_free_cols.size(); i++) {
+      menuitem = make_menu_item((gchar *) col_labs.r_free_cols[i].column_label.c_str(),
+				GTK_SIGNAL_FUNC(refmac_dialog_r_free_button_select),
+				GINT_TO_POINTER(i));
+      gtk_menu_append(GTK_MENU(r_free_menu), menuitem);
+      gtk_widget_show(menuitem);
+   }
+
+   /* Phases and FOM */
+  for (i=0; i<col_labs.phi_cols.size(); i++) {
+    menuitem = make_menu_item((gchar *) col_labs.phi_cols[i].column_label.c_str(),
+			      GTK_SIGNAL_FUNC(refmac_dialog_phases_button_select),
+			      GINT_TO_POINTER(i));
+    gtk_menu_append(GTK_MENU(phases_menu), menuitem);
+    gtk_widget_show(menuitem);
+  }
+
+  for (i=0; i<col_labs.weight_cols.size(); i++) {
+    menuitem = make_menu_item((gchar *) col_labs.weight_cols[i].column_label.c_str(),
+			      GTK_SIGNAL_FUNC(refmac_dialog_fom_button_select),
+			      GINT_TO_POINTER(i));
+    gtk_menu_append(GTK_MENU(fom_menu), menuitem);
+    gtk_widget_show(menuitem);
+  }
+
+   /* HL coefficients */
+  int hl_pos;
+  int hl_next_pos;
+  int good_no_of_hls = mod(col_labs.hl_cols.size(), 4);
+  if (good_no_of_hls) {
+    std::cout << "WARNING:: inconsistent number of HL coefficients, i.e. not multiple of 4.\nDetection of HL sets may be screwed!" << std::endl;
+  }
+  for (i=0; i<col_labs.hl_cols.size(); i++) {
+    int hl_err = 0;
+    // find the first one and add the next 3 and increment i
+    hl_pos = col_labs.hl_cols[i].column_position;
+    label = col_labs.hl_cols[i].column_label;
+    if (i+1 < col_labs.hl_cols.size()) {
+      for (int j=i+1; j<i+4; j++) {
+	// check if next position is HL too
+	hl_next_pos = col_labs.hl_cols[j].column_position;
+	if (hl_next_pos == (hl_pos + 1)) {
+	  tmp = col_labs.hl_cols[j].column_label;
+	  islash = tmp.find_last_of("/");
+	  label += "  ";
+	  label += tmp.substr(islash + 1);
+	  hl_pos += 1;
+	} else {
+	  std::cout<<"WARNING:: inconsistent HL coefficient set! Only " << j-i << " coefficients found!" << std::endl;
+	  hl_err = 1;
+	  break;
+	}
+      }
+    } else {
+      hl_err = 1;
+    }
+    if (! hl_err) {
+      menuitem = make_menu_item((gchar *) label.c_str(),
+				GTK_SIGNAL_FUNC(refmac_dialog_hl_button_select),
+				GINT_TO_POINTER(i));
+      gtk_menu_append(GTK_MENU(hl_menu), menuitem);
+      gtk_widget_show(menuitem);
+      i += 3;
+    }
+  }
+  
+  update_refmac_column_labels_frame(option_menu, fobs_menu, r_free_menu, 
+				    phases_menu, fom_menu, hl_menu);
+  
+   /* Link the menus to the optionmenus */
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(fobs_option_menu), fobs_menu);
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(r_free_option_menu), r_free_menu);
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(phases_option_menu), phases_menu);
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(fom_option_menu), fom_menu);
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(hl_option_menu), hl_menu);
+
+   //graphics_info_t::update_refmac_column_labels_frame(option_menu);
+
+   //std::cout << "BL DEBUG:: selected fobs col " << save_f_phi_columns->selected_refmac_fobs_col<<std::endl;
+   //std::cout << "BL DEBUG:: selected sigf col " << save_f_phi_columns->selected_refmac_sigfobs_col<<std::endl;
+   //std::cout << "BL DEBUG:: selected phi col " << save_f_phi_columns->selected_refmac_phi_col<<std::endl;
+   //std::cout << "BL DEBUG:: selected fom col " << save_f_phi_columns->selected_refmac_fom_col<<std::endl;
+   //std::cout << "BL DEBUG:: selected hla col " << save_f_phi_columns->selected_refmac_hla_col<<std::endl;
+
+  }
 }
 
 
@@ -341,6 +560,81 @@ refmac_r_free_button_select(GtkWidget *item, GtkPositionType pos) {
   save_f_phi_columns->selected_refmac_r_free_col = pos;
 }
 
+// copy of above for newer interface
+void 
+refmac_dialog_f_button_select(GtkWidget *item, GtkPositionType pos) { 
+   
+  printf("setting refmac f obs position %d\n", pos); 
+  GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  save_f_phi_columns->selected_refmac_fobs_col = pos;
+  // get the corresponding Sig Fobs
+  int sigfobs_pos;
+  int fobs_pos = save_f_phi_columns->f_cols[pos].column_position;
+  for (int i=0; i<save_f_phi_columns->sigf_cols.size(); i++) {
+    sigfobs_pos = save_f_phi_columns->sigf_cols[i].column_position;
+    if (sigfobs_pos == (fobs_pos + 1)) {
+      save_f_phi_columns->selected_refmac_sigfobs_col = i;
+    }
+  }
+}
+
+void 
+refmac_dialog_sigf_button_select(GtkWidget *item, GtkPositionType pos) { 
+   
+   printf("setting refmac sigf position %d\n", pos);  
+   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+   coot::mtz_column_types_info_t *save_f_phi_columns
+      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+   save_f_phi_columns->selected_refmac_sigfobs_col = pos;
+}
+
+void 
+refmac_dialog_r_free_button_select(GtkWidget *item, GtkPositionType pos) { 
+   
+  printf("setting r free position %d\n", pos); 
+   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  save_f_phi_columns->selected_refmac_r_free_col = pos;
+}
+
+void 
+refmac_dialog_phases_button_select(GtkWidget *item, GtkPositionType pos) { 
+   
+  printf("setting phases position %d\n", pos); 
+   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  save_f_phi_columns->selected_refmac_phi_col = pos;
+}
+
+void 
+refmac_dialog_fom_button_select(GtkWidget *item, GtkPositionType pos) { 
+   
+  printf("setting fom position %d\n", pos); 
+   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  save_f_phi_columns->selected_refmac_fom_col = pos;
+}
+
+void 
+refmac_dialog_hl_button_select(GtkWidget *item, GtkPositionType pos) { 
+   
+  printf("setting hl position %d\n", pos); 
+   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  save_f_phi_columns->selected_refmac_hla_col = pos;
+  // get the 3 following HLs
+  save_f_phi_columns->selected_refmac_hlb_col = pos + 1;
+  save_f_phi_columns->selected_refmac_hlc_col = pos + 2;
+  save_f_phi_columns->selected_refmac_hld_col = pos + 3;
+}
+
+// end new 
 
 void
 coot::fill_f_optionmenu(GtkWidget *optionmenu_f, short int is_expert_mode_flag) { 

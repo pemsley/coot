@@ -162,7 +162,8 @@ def probe(imol):
              pass
 
           print "BL INFO:: run reduce as ", reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file
-          status = os.popen(reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file,'r')
+          status = os.popen(reduce_command + " -build -oldpdb " + mol_pdb_file + " > " + reduce_out_pdb_file,'r')
+#          status = os.popen(reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file,'r')
           reduce_status = status.close()
           if (probe_command):
              probe_pdb_in = "coot-molprobity/probe-in.pdb"

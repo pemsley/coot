@@ -2599,18 +2599,6 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
       active_item = gtk_menu_get_active(GTK_MENU(menu));
 
-      // for nolabels parts
-      if (refmac_runs_with_nolabels()) {
-	GtkWidget *nolabels_checkbutton = lookup_widget(window,
-							"run_refmac_nolabels_checkbutton");
-	if (GTK_TOGGLE_BUTTON(nolabels_checkbutton)->active) {
-	option_menu = lookup_widget(window, "run_refmac_map_nolabels_optionmenu");
-	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-	active_item = gtk_menu_get_active(GTK_MENU(menu));
-	}
-      }
-
-
       // active_item is set if there was at least one map with refmac params:
       // if none, it is null.
       
@@ -2657,13 +2645,18 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		     //
 		     int diff_map_flag;
 		     int phase_combine_flag;
-		     GtkWidget *checkbutton =
-			lookup_widget(window, "run_refmac_phase_combine_checkbutton");
-		     if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
-			phase_combine_flag = 1;
-		     } else {
-			phase_combine_flag = 0;
-		     }
+		     GtkWidget *checkbutton;
+		     //lookup_widget(window, "run_refmac_phase_combine_checkbutton");
+		     //if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+		     //phase_combine_flag = 1;
+		     //} else {
+		     //phase_combine_flag = 0;
+		     //}
+		     // phase_combine_flag is set in refmac_phase_input now.
+		     // 0: no phase
+		     // 1: combine (with phase and FOM, as before)
+		     // 2: combine with HL
+		     phase_combine_flag = get_refmac_phase_input();
 	       
 		     checkbutton =  lookup_widget(window,"run_refmac_diff_map_checkbutton");
 		     if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
@@ -2700,15 +2693,108 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			mtz_out_filename << std::endl;
 		     std::cout << "DEBUG:: pdb_out_filename: " <<
 			pdb_out_filename << std::endl;
+		     
+		     // before running refmac we may want to set refmac parameters from the GUI
+		     // this should overwrite whatever has been set as refmac parameters before
+		     // we do it before checking for phases, so that these can be included later
+		     coot::mtz_column_types_info_t *saved_f_phi_columns
+		       = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+		     if (saved_f_phi_columns->selected_refmac_fobs_col > -1 &&
+			 saved_f_phi_columns->selected_refmac_sigfobs_col > -1) {
+		       // assign the labels if we have them (from the GUI)
+		       int icol;
+		       short int sensible_r_free_col;
+		       std::string fobs_col;
+		       std::string sigfobs_col;
+		       std::string r_free_col;
+		       std::string phi_label = "";
+		       std::string fom_label = "";
+		       std::string hla_label = "";
+		       std::string hlb_label = "";
+		       std::string hlc_label = "";
+		       std::string hld_label = "";
+
+		       //std::cout << "BL DEBUG:: selected fobs col " << saved_f_phi_columns->selected_refmac_fobs_col<<std::endl;
+		       //std::cout << "BL DEBUG:: selected sigf col " << saved_f_phi_columns->selected_refmac_sigfobs_col<<std::endl;
+		       //std::cout << "BL DEBUG:: selected rfree col " << saved_f_phi_columns->selected_refmac_r_free_col<<std::endl;
+		       //std::cout << "BL DEBUG:: selected phi col " << saved_f_phi_columns->selected_refmac_phi_col<<std::endl;
+		       //std::cout << "BL DEBUG:: selected fom col " << saved_f_phi_columns->selected_refmac_fom_col<<std::endl;
+		       //std::cout << "BL DEBUG:: selected hla col " << saved_f_phi_columns->selected_refmac_hla_col<<std::endl;
+
+		       icol = saved_f_phi_columns->selected_refmac_fobs_col;
+		       fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
+
+		       icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
+		       sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+
+		       icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
+		       if (icol >= 0) { 
+			 // 
+			 sensible_r_free_col = 1;
+			 r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
+		       } else { 
+			 sensible_r_free_col = 0;
+			 r_free_col = "";
+		       }
+
+		       // We save the phase and FOM as 'fourier_*_labels' too, so that they are saved!?
+		       if (phase_combine_flag == 1) {
+			 icol = saved_f_phi_columns->selected_refmac_phi_col;
+			 if (icol == -1) { 
+			   printf("INFO:: no phase available! \n");
+			 } else { 
+			   phi_label = saved_f_phi_columns->phi_cols[icol].column_label; 
+			   icol = saved_f_phi_columns->selected_refmac_fom_col;
+			   fom_label = saved_f_phi_columns->weight_cols[icol].column_label;
+			   graphics_info_t::molecules[imol_map_refmac].store_refmac_phase_params(std::string(mtz_in_filename),
+												 std::string(phi_label),
+												 std::string(fom_label),
+												 std::string(hla_label),
+												 std::string(hlb_label),
+												 std::string(hlc_label),
+												 std::string(hld_label));
+			 }
+		       }
+
+		       // check the HLs
+		       if (phase_combine_flag == 2) {
+			 icol = saved_f_phi_columns->selected_refmac_hla_col;
+			 hla_label = saved_f_phi_columns->hl_cols[icol].column_label;
+			 icol = saved_f_phi_columns->selected_refmac_hlb_col;
+			 hlb_label = saved_f_phi_columns->hl_cols[icol].column_label;
+			 icol = saved_f_phi_columns->selected_refmac_hlc_col;
+			 hlc_label = saved_f_phi_columns->hl_cols[icol].column_label;
+			 icol = saved_f_phi_columns->selected_refmac_hld_col;
+			 hld_label = saved_f_phi_columns->hl_cols[icol].column_label;
+			 graphics_info_t::molecules[imol_map_refmac].store_refmac_phase_params(std::string(mtz_in_filename),
+											       std::string(phi_label),
+											       std::string(fom_label),
+											       std::string(hla_label),
+											       std::string(hlb_label),
+											       std::string(hlc_label),
+											       std::string(hld_label));
+			 }
+			    
+		       graphics_info_t::molecules[imol_map_refmac].store_refmac_params(std::string(mtz_in_filename),
+										       std::string(fobs_col), 
+										       std::string(sigfobs_col), 
+										       std::string(r_free_col),
+										       sensible_r_free_col);
+
+		     }
 
 		     std::string phib_string;
 		     std::string fom_string;
 
-		     if (g.molecules[imol_map_refmac].Fourier_weight_label() != "") {
-		       phib_string = g.molecules[imol_map_refmac].Fourier_phi_label();
-		       fom_string  = g.molecules[imol_map_refmac].Fourier_weight_label();
-		     } else {
-		       if (phase_combine_flag == 1) { 
+		     //if (g.molecules[imol_map_refmac].Fourier_weight_label() != "") {
+		     //  phib_string = g.molecules[imol_map_refmac].Fourier_phi_label();
+		     //  fom_string  = g.molecules[imol_map_refmac].Fourier_weight_label();
+		     //} else {
+		     if (phase_combine_flag == 1) {
+		       if (g.molecules[imol_map_refmac].Refmac_phi_col() != "") {
+			 phib_string = g.molecules[imol_map_refmac].Refmac_phi_col();
+			 fom_string  = g.molecules[imol_map_refmac].Refmac_fom_col();
+		       } else {
 			 std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
 			 std::cout << "to make the map" << std::endl;
 			 std::cout << "WARNING:: Turning off phase combination." << std::endl;
@@ -2718,11 +2804,56 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		     // 	    std::cout << "DEBUG:: fom_string " << fom_string << " "
 		     // 		      << g.molecules[imol_map_refmac].Fourier_weight_label()
 		     // 		      << std::endl;
+
+		     // now check for HLs
+		     if (phase_combine_flag == 2) {
+		       if (g.molecules[imol_map_refmac].Refmac_hla_col() != "") {
+			 std::string hla_string = g.molecules[imol_map_refmac].Refmac_hla_col();
+			 std::string hlb_string = g.molecules[imol_map_refmac].Refmac_hlb_col();
+			 std::string hlc_string = g.molecules[imol_map_refmac].Refmac_hlc_col();
+			 std::string hld_string = g.molecules[imol_map_refmac].Refmac_hld_col();
+			 // now save the HLs in a list string (phib) for refmac, depending on scripting
+			 std::vector<std::string> hl_list;
+			 hl_list.push_back(hla_string);
+			 hl_list.push_back(hlb_string);
+			 hl_list.push_back(hlc_string);
+			 hl_list.push_back(hld_string);
+#ifdef USE_GUILE
+			 phib_string = "(list ";
+			 phib_string += single_quote(hla_string);
+			 phib_string += " ";
+			 phib_string += single_quote(hlb_string);
+			 phib_string += " ";
+			 phib_string += single_quote(hlc_string);
+			 phib_string += " ";
+			 phib_string += single_quote(hld_string);
+			 phib_string += ")";
+#else
+#ifdef USE_PYTHON
+			 phib_string = "[";
+			 phib_string += single_quote(hla_string);
+			 phib_string += ", ";
+			 phib_string += single_quote(hlb_string);
+			 phib_string += ", ";
+			 phib_string += single_quote(hlc_string);
+			 phib_string += ", ";
+			 phib_string += single_quote(hld_string);
+			 phib_string += "]";
+#endif // USE_GUILE
+#endif // USE_PYTHON
+			 fom_string = "";
+		       } else {
+			 std::cout << "WARNING:: Can't do phase combination if we don't have HLs " << std::endl;
+			 std::cout << "WARNING:: Turning off phase combination." << std::endl;
+			 phase_combine_flag = 0;
+		       }
+		     }
 		     
 		     std::string cif_lib_filename = ""; // default, none
 		     if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
 		       cif_lib_filename = (*graphics_info_t::cif_dictionary_filename_vec)[0];
 		     }
+
 
 		     // 	    std::cout << "DEBUG:: attempting to write pdb input file "
 		     // 		      << pdb_in_filename << std::endl;
@@ -2731,23 +2862,15 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			std::cout << "refmac ccp4i project dir " 
 				  << graphics_info_t::refmac_ccp4i_project_dir 
 				  << std::endl;
-			if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) {
-			  // normal execution with labels
-			  execute_refmac_real(pdb_in_filename, pdb_out_filename,
-					      mtz_in_filename, mtz_out_filename,
-					      cif_lib_filename,
-					      g.molecules[imol_map_refmac].Refmac_fobs_col(),
-					      g.molecules[imol_map_refmac].Refmac_sigfobs_col(),
-					      g.molecules[imol_map_refmac].Refmac_r_free_col(),
-					      g.molecules[imol_map_refmac].Refmac_r_free_sensible(),
-					      refmac_count_string,
-					      g.swap_pre_post_refmac_map_colours_flag,
-					      imol_map_refmac,
-					      diff_map_flag,
-					      phase_combine_flag, phib_string, fom_string,
-					      graphics_info_t::refmac_ccp4i_project_dir);
-			} else {
-			  // no labels, just set blank what we dont have
+			int run_refmac_with_no_labels = 0;
+			if (refmac_runs_with_nolabels()) {
+			  GtkWidget *nolabels_checkbutton = lookup_widget(window,
+									  "run_refmac_nolabels_checkbutton");
+			  if (GTK_TOGGLE_BUTTON(nolabels_checkbutton)->active) {
+			    run_refmac_with_no_labels = 1;
+			  }
+			}
+			if (run_refmac_with_no_labels) {
 			  execute_refmac_real(pdb_in_filename, pdb_out_filename,
 					      mtz_in_filename, mtz_out_filename,
 					      cif_lib_filename,
@@ -2758,6 +2881,25 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 					      diff_map_flag,
 					      phase_combine_flag, phib_string, fom_string,
 					      graphics_info_t::refmac_ccp4i_project_dir);
+			} else {
+			  if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) {
+			    // normal execution with labels
+			    execute_refmac_real(pdb_in_filename, pdb_out_filename,
+						mtz_in_filename, mtz_out_filename,
+						cif_lib_filename,
+						g.molecules[imol_map_refmac].Refmac_fobs_col(),
+						g.molecules[imol_map_refmac].Refmac_sigfobs_col(),
+						g.molecules[imol_map_refmac].Refmac_r_free_col(),
+						g.molecules[imol_map_refmac].Refmac_r_free_sensible(),
+						refmac_count_string,
+						g.swap_pre_post_refmac_map_colours_flag,
+						imol_map_refmac,
+						diff_map_flag,
+						phase_combine_flag, phib_string, fom_string,
+						graphics_info_t::refmac_ccp4i_project_dir);
+			  } else {
+			    std::cout << "WARNING:: we cannot run Refmac without without valid labels" <<std::endl;
+			  }
 			  
 			}
 		     } else {
@@ -2827,18 +2969,31 @@ execute_refmac_real(std::string pdb_in_filename,
 
    std::string phase_combine_cmd;
    if (phase_combine_flag) {
-      phase_combine_cmd += "(cons \"";
+#ifdef USE_GUILE
+      phase_combine_cmd += "(cons \'";
       phase_combine_cmd += phib_string;
-      phase_combine_cmd += "\" \"";
+      phase_combine_cmd += "\' \'";
       phase_combine_cmd += fom_string;
-      phase_combine_cmd += "\")";
+      phase_combine_cmd += "\')";
       phase_combine_cmd += " ";
+#else
+#ifdef USE_PYTHON
+      phase_combine_cmd += "[\'";
+      phase_combine_cmd += phib_string;
+      phase_combine_cmd += "\', \'";
+      phase_combine_cmd += fom_string;
+      phase_combine_cmd += "\']";
+      phase_combine_cmd += " ";
+#endif // USE_PYTHON
+#endif // USE_GUILE
    } else {
       phase_combine_cmd += single_quote("dummy");
    }
    cmds.push_back(phase_combine_cmd);
 
-   cmds.push_back(graphics_info_t::int_to_string(-1)); // don't use NCYCLES
+   //cmds.push_back(graphics_info_t::int_to_string(-1)); // don't use NCYCLES
+   // oh yes, we do
+   cmds.push_back(graphics_info_t::int_to_string(graphics_info_t::refmac_ncycles));
    // BL says:: again debackslash
    cmds.push_back(single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir)));
    cmds.push_back(single_quote(fobs_col_name));
@@ -2902,12 +3057,41 @@ void fill_option_menu_with_refmac_options(GtkWidget *optionmenu) {
 
 } 
 
-void fill_option_menu_with_refmac_nolabels_options(GtkWidget *optionmenu) {
+void fill_option_menu_with_refmac_methods_options(GtkWidget *optionmenu) {
 
    graphics_info_t g;
-   g.fill_option_menu_with_refmac_nolabels_options(optionmenu);
+   g.fill_option_menu_with_refmac_methods_options(optionmenu);
 
 } 
+
+void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu) {
+
+   graphics_info_t g;
+   g.fill_option_menu_with_refmac_phase_input_options(optionmenu);
+
+} 
+
+void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu) {
+
+   graphics_info_t g;
+   g.fill_option_menu_with_refmac_labels_options(optionmenu);
+
+} 
+
+void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu) {
+
+   graphics_info_t g;
+   g.fill_option_menu_with_refmac_ncycle_options(optionmenu);
+
+}
+
+void update_refmac_column_labels_frame(GtkWidget *optionmenu, GtkWidget *fobs_menu, GtkWidget *r_free_menu,
+				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {
+  graphics_info_t g;
+  g.update_refmac_column_labels_frame(optionmenu, fobs_menu, r_free_menu,
+				      phases_menu, fom_menu, hl_menu);
+
+}
 
 void set_refmac_counter(int imol, int refmac_count) {
 
@@ -2937,6 +3121,60 @@ const char *refmac_name(int imol) {
    graphics_info_t g;
    return g.molecules[imol].Refmac_in_name().c_str();
 } 
+
+int get_refmac_refinement_method() {
+  
+  graphics_info_t g;
+  return g.refmac_refinement_method;
+}
+
+void set_refmac_refinement_method(int method) {
+
+  graphics_info_t g;
+  g.set_refmac_refinement_method(method);
+}
+
+int get_refmac_phase_input() {
+  
+  graphics_info_t g;
+  return g.refmac_phase_input;
+}
+
+void set_refmac_phase_input(int phase_flag) {
+
+  graphics_info_t g;
+  g.set_refmac_phase_input(phase_flag);
+}
+
+int get_refmac_ncycles() {
+  
+  graphics_info_t g;
+  return g.refmac_ncycles;
+}
+
+void set_refmac_ncycles(int no_cycles) {
+
+  graphics_info_t g;
+  g.set_refmac_n_cycles(no_cycles);
+}
+
+void add_refmac_ncycle_no(int cycle) {
+
+  graphics_info_t g;
+  g.add_refmac_ncycle_no(cycle);
+}
+
+void set_refmac_use_ncs(int state) {
+
+  graphics_info_t g;
+  g.set_refmac_use_ncs(state);
+}
+
+int refmac_use_ncs_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_ncs_flag;
+}
 
 
 short int 
