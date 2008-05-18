@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   16 Items
+   18 Items
 
    o  Need to check torsion restraints 
       and wiggly ligands
@@ -48,6 +48,19 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything)
 
+   o crash on delete residue range: Harri Jayaram
+
+      The steps I did were
+      1) Start fresh coot
+      2) Get coords from pdb - get-ebi-pdb 1OTS
+      3) Centre on chain A residue 39
+      4) Bring up delete residue GUI
+      5) delete from residue 17 ( n terminus) to residue 37 or 39 (I 
+         forgot which one)
+      6) Coot beachballs and takes machine down with it
+
+      Very slow.  Some fumbling of atom picking needed to tickle this?
+
    o in coot_toolbuttons.py Bernhard registers the icons.  Does that
      make them smooth?
 
@@ -68,16 +81,27 @@
    BETA1-4  1 O4      2 C1        single       1.439    0.020
 
    need function (return a boolean): 
-   (bond-length-within-tollerance? atom-1 atom-2 ideal-length tollerance)
+   (bond-length-within-tolerance? atom-1 atom-2 ideal-length tolerance)
+
+   o Pierre Aller:
+ 
+     I am using the last version of coot with an imac Os 10.5.2 intel
+     core Duo.  I download coot via fink, and since one or two month
+     coot freezes a lot. It happens always when I am using "Measures"
+     and "residue info".
+
+   o reading in a shelx molecule should reset reset the view.
+
+   o on adding a a Mg atom by widget:  
+   (lt-coot-real:4004): Gtk-CRITICAL **: gtk_widget_destroy: assertion 
+   `GTK_IS_WIDGET (widget)' failed
+   INFO:: adding atom of type Mg at (13.5244,64.8628,-16.4644)
 
 
 
 
 
-
-+ 11
-
-49 Done.
+63 Done.
 
    o Update the density fit graph on delete residue (e.g. water) [JED]
 
@@ -138,6 +162,26 @@
 
    o Change into side by side stereo mode.  Resize the window.  Now
      views are of different size/aspect ratios.
+
+   o Can the map transformation interface be clearer?  Can I GUI
+     interface the most frequent usage?
+
+   o the tutorial on the web site has no figures (the pdf does,
+     strangely).
+
+*  Deleted web site ps file.
+
+   o coot-has-python? and coot_has_guile() functions needed.
+
+Done.
+
+   o Do the additional representations work on gtk2?
+
+* Yes.  Perhaps I meant gtk1.  It works there too.
+
+   o Fun: a guile/expect script to build latest source tar on bubbles
+
+* Done.  With Python and Pexpect.
 
    o build-it-gtk2-simple seems to run glib-config, but it is not
      there (of course) on a gtk2 system.
@@ -5373,6 +5417,29 @@ Fri Apr 25 12:39:14 BST 2008
 
 
 ---
+Mon Apr 28 18:21:07 BST 2008
+
+    
+valgrinding migels rl shelx file:
+
+(saving as pdb)
+
+
+==12236== 621024 (187824 direct, 433200 indirect) bytes in 1092 blocks are definitely lost in loss record 302 of 312
+==12236==    at 0x1B90B39A: operator new(unsigned) (vg_replace_malloc.c:132)
+==12236==    by 0x1BD6A1B4: coot::util::deep_copy_this_residue(CResidue const*, std::string const&, short) (coot-coord-utils.cc:1414)
+==12236==    by 0x1BDADCB8: coot::reshelx(CMMDBManager*) (coot-shelx-ins.cc:1961)
+==12236==    by 0x1BDAE05F: coot::ShelxIns::write_ins_file_internal(CMMDBManager*, std::string const&) const (coot-shelx-ins.cc:997)
+==12236==    by 0x1BDAF90F: coot::ShelxIns::write_ins_file(CMMDBManager*, std::string const&) (coot-shelx-ins.cc:988)
+==12236==    by 0x8341182: molecule_class_info_t::write_shelx_ins_file(std::string const&) (molecule-class-info-other.cc:4437)
+==12236==    by 0x8308DC6: molecule_class_info_t::save_coordinates(std::string) (molecule-class-info.cc:4228)
+==12236==    by 0x81C8F50: save_coordinates (c-interface.cc:4042)
+==12236==    by 0x81E3E45: save_coordinates_using_widget (c-interface-gui.cc:3248)
+==12236==    by 0x82E83F7: on_save_coord_ok_button_clicked (callbacks.c:2190)
+==12236==    by 0xAC4816: g_cclosure_marshal_VOID__VOID (in /usr/lib/libgobject-2.0.so.0.600.4)
+==12236==    by 0xAB9284: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.600.4)
+
+----
 Thu May  1 20:08:33 BST 2008
 
     When waters are added with the W keybinding, let us know (with a
