@@ -4074,9 +4074,6 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 		  // residue number so far.
 		  std::pair<short int, int> ires_prev_pair =
 		     coot::util::max_resno_in_molecule(atom_sel.mol);
-		  std::cout << "==== max_resno_in_molecule returns "
-			    << ires_prev_pair.first << " "
-			    << ires_prev_pair.second << std::endl;
 		  if (ires_prev_pair.first) {
 		     res_p->seqNum = ires_prev_pair.second + 1;
 		  } else {

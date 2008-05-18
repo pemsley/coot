@@ -1851,7 +1851,8 @@ void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) {
    GtkSignalFunc callback_func = 
       GTK_SIGNAL_FUNC(graphics_info_t::pointer_atom_molecule_menu_item_activate);
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
-   gtk_widget_destroy(menu);
+   if (menu) 
+      gtk_widget_destroy(menu);
    menu = gtk_menu_new();
 
    GtkWidget *menuitem;

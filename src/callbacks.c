@@ -3566,7 +3566,7 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button),
 				    "pointer_atom_type_dialog");
   GtkToggleButton *tbut;
 
@@ -3600,9 +3600,7 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
   }
   /* Recall that the molecule is set by the callback from menu item "activate" */
 
-  gtk_widget_destroy(widget);
-  
-
+  gtk_widget_destroy(dialog);
 }
 
 
