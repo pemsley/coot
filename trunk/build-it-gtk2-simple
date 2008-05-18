@@ -220,7 +220,8 @@
 # 4.04 20080213 Allow python to get through rsync filter, for PHENIX usage.
 # 4.05 20080226 Fix up build_guile_gtk usage.
 # 4.06 20080428 Apply Joseph Moran's fix correctly.
-script_version=4.06
+# 4.07 20080518 Update the status reporting system.
+script_version=4.07
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -240,11 +241,16 @@ script_version=4.06
 
 # Pythonizing coot makes non-transferable binararies (why?).  Let
 # the pythonness be controlled on the command line:
-#
+# 
+# At the moment, if you build with Gtk2, you build with python, hence $build_type 
+# is the same thing.
+# 
 if [ "$1" = "python" ] ; then 
    ENABLE_PYTHON_COOT=yes
+   build_type=gtk2
 else 
    ENABLE_PYTHON_COOT=no
+   build_type=gtk2
 fi
 
 # Set the host and the OS.
@@ -459,7 +465,10 @@ function setup_ccp4 {
 
 # exit 
 function my_exit { 
-    exit $1
+    
+   echo fail-build > $LOGS/$build_type-test-status
+   rm $LOGS/$build_type-build-status
+   exit $1
 }
 
 
@@ -825,7 +834,7 @@ if [ ! -e $HOSTLOGDIR ] ; then
     #
     echo DISASTER: could not make directory $HOSTLOGDIR
     echo exiting.
-    exit 2
+    my_exit 2
   fi
 fi
 
@@ -847,7 +856,7 @@ if [ $? -ne 0 ] ; then
    if [ $nomake -eq 1 ] ; then
       echo Ooops.  Your make '(' `which make` ')' is not GNU make and gmake not found.
       echo Exiting now.
-      exit 2
+      my_exit 2
    fi
 fi
 
@@ -855,7 +864,7 @@ if [ ! -e "$AUTOBUILD_BUILD" ] ; then
    mkdir "$AUTOBUILD_BUILD" 
    if [ $? -ne 0 ] ; then
 	echo mkdir "$AUTOBUILD_BUILD" failed.
-        exit 2
+        my_exit 2
    fi
 fi
    
@@ -886,7 +895,7 @@ wget  "http://www.ysbl.york.ac.uk/~emsley/build-logs/build-notes"
 if [ $? -ne 0 ] ; then
 	echo wget failed for some reason
 	echo exiting now.
-	exit 1
+	my_exit 1
 else
 	echo Done wget check.
 	WGET="wget -N -P ${AUTOBUILD_SOURCES}"
@@ -1063,7 +1072,7 @@ if [ ! -e "$install_top_dir" ] ; then
 	if [ $? -ne 0 ] ; then
 		echo DISASTER: $install_top_dir does not exist and no way
 		echo to make it.
-	        exit 2
+	        my_exit 2
 	fi
 else
 	echo INFO:: $install_top_dir exists already.
@@ -1076,7 +1085,7 @@ if [ ! -e "$install_top_dir/lib" ] ; then
         if [ $? -ne 0 ] ; then
                 echo DISASTER: $install_top_dir/lib cannot be created
                 echo to make it.
-                exit 2
+                my_exit 2
         fi
 fi
 #
@@ -1140,13 +1149,13 @@ if [ $have_swig = 0 ] ; then
    swig -version
 else
    echo swig required - not found.
-   exit 2
+   my_exit 2
 fi
 
 # clean up old test status:
 if [ -e $LOGS/gtk2-test-status ] ; then
-   rm $LOGS/gtk2-build-status
-   rm $LOGS/gtk2-test-status
+   echo build-in-progress > $LOGS/$bulid_type-build-status
+   echo in-progress       > $LOGS/$build_type-test-status
 fi
 
 
@@ -1630,7 +1639,7 @@ if [ "$build_gtk" = "" ] ; then
             ;; 
            *)
              echo system does not have libgnomecanvas-2.0
-             exit 2
+             my_exit 2
              ;; 
        esac
    else 
@@ -1876,7 +1885,7 @@ if test -n "$build_clipper" ; then
     clipper_build_status=$?
     if [ $clipper_build_status != 0 ] ; then
 	echo clipper build failed, exiting
-	exit 2
+	my_exit 2
     fi
 
 else 
@@ -2382,7 +2391,7 @@ if [ -e ${AUTOBUILD_SOURCES}/$coot_version.tar.gz ] ; then
 else 
    echo badness ${AUTOBUILD_SOURCES}/$coot_version.tar.gz does not exist.
    echo nothing left to do then.  Goodbye.
-   exit 2
+   my_exit 2
 fi
 date
 pwd
@@ -2516,7 +2525,7 @@ if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
     echo coot build failed, exiting. >&2
     echo fail-build > $LOGS/gtk2-build-status
-    exit 2
+    my_exit 2
 else 
     echo coot build was good.
     echo coot build was good. >&2
