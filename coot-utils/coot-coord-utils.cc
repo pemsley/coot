@@ -754,10 +754,10 @@ coot::util::chains_in_molecule(CMMDBManager *mol) {
    return v;
 }
 
-std::pair<short int, int>
+std::pair<bool, int>
 coot::util::min_resno_in_chain(CChain *chain_p) {
 
-   short int found_residues = 0;
+   bool found_residues = 0;
    int min_resno = 99999999;
    
    if (chain_p == NULL) {  
@@ -779,14 +779,14 @@ coot::util::min_resno_in_chain(CChain *chain_p) {
 	 }
       }
    }
-   return std::pair<short int, int>(found_residues, min_resno);
+   return std::pair<bool, int>(found_residues, min_resno);
 }
 
 
-std::pair<short int, int>
+std::pair<bool, int>
 coot::util::max_resno_in_chain(CChain *chain_p) {
 
-   short int found_residues = 0;
+   bool found_residues = 0;
    int max_resno = -31999;
    
    if (chain_p == NULL) {  
@@ -820,8 +820,36 @@ coot::util::max_resno_in_chain(CChain *chain_p) {
    }
 //    std::cout << "DEBUG:: max_resno_in_chain returning " << found_residues
 // 	     << " " << max_resno << std::endl;
-   return std::pair<short int, int>(found_residues, max_resno);
+   return std::pair<bool, int>(found_residues, max_resno);
 }
+
+std::pair<bool, int>
+coot::util::max_resno_in_molecule(CMMDBManager *mol) {
+
+   bool found_residues = 0;
+   int current_high = -31999;
+   
+   int n_models = mol->GetNumberOfModels();
+   for (int imod=1; imod<=n_models; imod++) { 
+      
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 std::pair<bool, int> p = coot::util::max_resno_in_chain(chain_p);
+	 if (p.first) { 
+	    if (p.second > current_high) { 
+	       current_high = p.second;
+	       found_residues = 1;
+	    }
+	 }
+      }
+   }
+   return std::pair<bool, int> (found_residues, current_high);
+} 
+
 
 int
 coot::util::number_of_residues_in_molecule(CMMDBManager *mol) {

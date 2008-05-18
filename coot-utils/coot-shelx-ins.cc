@@ -217,7 +217,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		     } 
 		     // Push back all pre-atom lines, except FVARs
 		     // which are handled differently.
-		     short int is_fvar_line = 0;
+		     bool is_fvar_line = 0;
+		     bool is_sfac_line = 0; 
 		     if (card.words.size() > 0)
 			if (card.words[0] == "FVAR")
 			   is_fvar_line = 1; // flag for later
@@ -249,6 +250,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				 for (unsigned int i=1; i<card.words.size(); i++)
 				    sfac.push_back(card.words[i]); // atoms
 				 // std::cout << "DEBUG:: sfac is now of size " << sfac.size() << std::endl;
+				 is_sfac_line = 1;
 			      } else {
 				 if (card.words[0] == "SYMM") {
 				    symm_cards.push_back(card.card); // save for output
@@ -400,7 +402,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 			   }
 			}
 		     }
-		     if ((!is_fvar_line) && (!encountered_atoms_flag))
+		     if ((!is_fvar_line) && (!encountered_atoms_flag) &&(!is_sfac_line))
 			pre_atom_lines.push_back(card.card);
 		  }
 	       }
@@ -1009,6 +1011,14 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 	 for (unsigned int i=0; i<pre_atom_lines.size(); i++)
 	    f << pre_atom_lines[i] << "\n";
 
+
+	 // SFAC line
+	 f << "SFAC";
+	 for (unsigned int i=0; i<sfac.size(); i++) {
+	    f << "  " << sfac[i];
+	 }
+	 f << "\n\n";
+
 	 // FVAR lines
 	 int fvar_count = 0;
 	 for (unsigned int i=0; i<fvars.size(); i++) {
@@ -1175,6 +1185,24 @@ coot::ShelxIns::get_sfac_index(const std::string &element) const {
    }
    return indx;
 }
+
+// do redundancy checking.
+void
+coot::ShelxIns::add_sfac(const std::string &ele) {
+
+   bool found = 0;
+   for (unsigned int i=0; i<sfac.size(); i++) {
+      if (sfac[i] == ele) {
+	 found = 1;
+	 break;
+      }
+   }
+
+   if (! found) {
+      sfac.push_back(ele);
+   }
+}
+
 
 
 int
