@@ -481,8 +481,10 @@ namespace coot {
       int max_min_max_residue_range(CMMDBManager *mol);
 
       // return first == 0 if residues not found in chain
-      std::pair<short int, int> min_resno_in_chain(CChain *chain_p);
-      std::pair<short int, int> max_resno_in_chain(CChain *chain_p);
+      std::pair<bool, int> min_resno_in_chain(CChain *chain_p);
+      std::pair<bool, int> max_resno_in_chain(CChain *chain_p);
+      std::pair<bool, int> max_resno_in_molecule(CMMDBManager *mol);
+      
 
       // Return -1 on badness (actually, number of chains in the last model)
       int number_of_chains(CMMDBManager *mol);

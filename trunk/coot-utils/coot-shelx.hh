@@ -233,6 +233,7 @@ namespace coot {
 	 pre_atom_lines.push_back(line);
       }
       int new_chain_offset;
+      void add_sfac(const std::string &ele); // do redundancy checking.
    };
 
    // Do lattice expansion and possible centro-symmetric expansion
