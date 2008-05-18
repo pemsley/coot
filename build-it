@@ -202,7 +202,8 @@
 # 2.39 20080426 Check against installed python, not system. Does this mean that
 #               bins work on a Mandriva system? Needs checking
 # 2.40 20080428 Apply Joseph Moran's fix correctly.
-script_version=2.40
+# 2.41 20080518 Update the status reporting system here (sync with gtk1 version).
+script_version=2.41
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -482,7 +483,12 @@ fi
 
 }
 
-
+function my_exit {
+    
+   echo fail-build > $LOGS/$build_type-test-status
+   rm $LOGS/$build_type-build-status
+   exit $1
+}
 
 
 
@@ -783,7 +789,7 @@ if [ ! -e $HOSTLOGDIR ] ; then
     #
     echo DISASTER: could not make directory $HOSTLOGDIR
     echo exiting.
-    exit 2
+    my_exit 2
   fi
 fi
 
@@ -805,7 +811,7 @@ if [ $? -ne 0 ] ; then
    if [ $nomake -eq 1 ] ; then
       echo Ooops.  Your make '(' `which make` ')' is not GNU make and gmake not found.
       echo Exiting now.
-      exit 2
+      my_exit 2
    fi
 fi
 
@@ -813,7 +819,7 @@ if [ ! -e "$AUTOBUILD_BUILD" ] ; then
    mkdir "$AUTOBUILD_BUILD" 
    if [ $? -ne 0 ] ; then
 	echo mkdir "$AUTOBUILD_BUILD" failed.
-        exit 2
+        my_exit 2
    fi
 fi
    
@@ -844,7 +850,7 @@ wget  "http://www.ysbl.york.ac.uk/~emsley/build-logs/build-notes"
 if [ $? -ne 0 ] ; then
 	echo wget failed for some reason
 	echo exiting now.
-	exit 1
+	my_exit 1
 else
 	echo Done wget check.
 	WGET="wget -N -P ${AUTOBUILD_SOURCES}"
@@ -1018,7 +1024,7 @@ if [ ! -e "$install_top_dir" ] ; then
 	if [ $? -ne 0 ] ; then
 		echo DISASTER: $install_top_dir does not exist and no way
 		echo to make it.
-	        exit 2
+	        my_exit 2
 	fi
 else
 	echo INFO:: $install_top_dir exists already.
@@ -1031,7 +1037,7 @@ if [ ! -e "$install_top_dir/lib" ] ; then
         if [ $? -ne 0 ] ; then
                 echo DISASTER: $install_top_dir/lib cannot be created
                 echo to make it.
-                exit 2
+                my_exit 2
         fi
 fi
 #
@@ -1087,8 +1093,8 @@ echo ccp4_system_type $ccp4_system_type
 
 # clean up old status:
 if [ -e $LOGS/$build_type-test-status ] ; then
-   rm $LOGS/$build_type-test-status
-   rm $LOGS/$build_type-build-status
+   echo build-in-progress > $LOGS/$build_type-test-status
+   echo in-progress > $LOGS/$build_type-build-status
 fi
 
 
@@ -1680,7 +1686,7 @@ if test -n "$build_clipper" ; then
     clipper_build_status=$?
     if [ $clipper_build_status != 0 ] ; then
 	echo clipper build failed, exiting
-	exit 2
+	my_exit 2
     fi
 
 else 
@@ -2017,7 +2023,7 @@ if [ -e $install_top_dir/lib/libjpeg.$shared_lib_ext ] ; then
     echo good, libjpeg.$shared_lib_ext exists
 else
     echo error, $install_top_dir/lib/libjpeg.$shared_lib_ext does not exist
-    exit 1
+    my_exit 1
 fi
 
 # tiff, now *after* libjpeg, since tiff is dependent on jpeg.
@@ -2106,7 +2112,7 @@ echo BUILDING imlib >&2
        echo imlib failed to install.  There\'s a surprise...
        echo stopping autobuild now
        echo imlib build failed. Stopping autobuild now. >&2
-       exit 2
+       my_exit 2
    fi 
 else
     echo not building imlib:
@@ -2371,7 +2377,7 @@ $MAKE
 status=$?
 if [ "$status" != 0 ] ; then 
     echo ERROR:: GSL make failed.
-    exit 2
+    my_exit 2
 else
    echo 1 ---------------------------------------------------------------
    echo '                                ' make install
@@ -2409,7 +2415,7 @@ if [ -e ${AUTOBUILD_SOURCES}/$coot_version.tar.gz ] ; then
 else 
    echo badness ${AUTOBUILD_SOURCES}/$coot_version.tar.gz does not exist.
    echo nothing left to do then.  Goodbye.
-   exit 2
+   my_exit 2
 fi
 date
 pwd
@@ -2520,7 +2526,7 @@ status=$?
 if [ "$status" != 0 ] ; then 
     echo make failed.
     bad_coot_make=1
-    exit 2
+    my_exit 2
 else
    echo 1 ---------------------------------------------------------------
    echo '                                ' make install
@@ -2543,7 +2549,7 @@ if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
     echo coot build failed, exiting. >&2
     echo fail-build > $LOGS/$build_type-build-status
-    exit 2
+    my_exit 2
 else 
     echo coot build was good.
     echo coot build was good. >&2
