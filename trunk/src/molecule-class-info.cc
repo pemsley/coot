@@ -3990,6 +3990,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
       } else { 
 	
   	 // Not water
+	 std::string element = "";
 
 	 if (mol_chain_id.first || pre_existing_chain_flag) { 
 
@@ -3997,49 +3998,56 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	       atom_p->SetAtomName("BR  ");
 	       atom_p->SetElementName("BR");
 	       res_p->SetResName("BR ");
+	       element = "BR";
 	    } else { 
-	      if (type == "Ca") { 
-		atom_p->SetAtomName("CA  ");
-		atom_p->SetElementName("CA");
-		res_p->SetResName("CA ");
-	      } else { 
-		if (type == "Na") { 
-		  atom_p->SetAtomName("NA  ");
-		  atom_p->SetElementName("NA");
-		  res_p->SetResName("NA ");
-		} else { 
-		  if (type == "Cl") { 
-		    atom_p->SetAtomName("CL  ");
-		    atom_p->SetElementName("CL");
-		    res_p->SetResName("CL ");
+	       if (type == "Ca") { 
+		  atom_p->SetAtomName("CA  ");
+		  atom_p->SetElementName("CA");
+		  res_p->SetResName("CA ");
+		  element = "CA";
+	       } else { 
+		  if (type == "Na") { 
+		     atom_p->SetAtomName("NA  ");
+		     atom_p->SetElementName("NA");
+		     res_p->SetResName("NA ");
+		     element = "NA";
 		  } else { 
-		    if (type == "Mg") { 
-		      atom_p->SetAtomName("MG  ");
-		      atom_p->SetElementName("MG");
-		      res_p->SetResName("MG ");
-		    } else { 
+		     if (type == "Cl") { 
+			atom_p->SetAtomName("CL  ");
+			atom_p->SetElementName("CL");
+			res_p->SetResName("CL ");
+			element = "CL";
+		     } else { 
+			if (type == "Mg") { 
+			   atom_p->SetAtomName("MG  ");
+			   atom_p->SetElementName("MG");
+			   res_p->SetResName("MG ");
+			   element = "MG";
+			} else { 
 
-		      // User Typed atom:
+			   // User Typed atom:
 
-		      // make up (guess) the residue type and element
-		      std::string at_name = type;
-		      std::string ele = type;
-		      std::string resname = type;
-		      if (type.length() > 4)
-			at_name = at_name.substr(0,4);
-		      if (type.length() > 3)
-			resname = at_name.substr(0,3);
-		      if (type.length() > 2)
-			ele = at_name.substr(0,2);
+			   // make up (guess) the residue type and element
+			   std::string at_name = type;
+			   std::string ele = type;
+			   std::string resname = type;
+			   if (type.length() > 4)
+			      at_name = at_name.substr(0,4);
+			   if (type.length() > 3)
+			      resname = at_name.substr(0,3);
+			   if (type.length() > 2)
+			      ele = at_name.substr(0,2);
 
-		      res_p->seqNum = 1; // start of a new chain.
-		      atom_p->SetAtomName(at_name.c_str());
-		      atom_p->SetElementName(ele.c_str());
-		      res_p->SetResName(resname.c_str());
-		    } 
+			   element = ele;
+			   int res_number = 1; // start of a new chain (updated if
+			                      // a shelx molecule).
+			   atom_p->SetAtomName(at_name.c_str());
+			   atom_p->SetElementName(ele.c_str());
+			   res_p->SetResName(resname.c_str());
+			} 
+		     }
 		  }
-		}
-	      }
+	       }
 	    }
 
 	    res_p->AddAtom(atom_p);
@@ -4052,9 +4060,37 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    int previous_max = 0;
 	    if (ires_prev_pair.first) { // was not an empty chain
 	       previous_max =  ires_prev_pair.second;
+	       res_p->seqNum = previous_max + 1;
+	    } else {
+
+	       // was an empty chain.  Handle the shelx case:
+
+	       if (! is_from_shelx_ins_flag) { 
+		  res_p->seqNum = 1 ; // start of a new chain.
+	       } else {
+		  // in a shelx molecule, we can't make the residue
+		  // number 1 because there are no chains.  We need to
+		  // make the residue number bigger than the biggest
+		  // residue number so far.
+		  std::pair<short int, int> ires_prev_pair =
+		     coot::util::max_resno_in_molecule(atom_sel.mol);
+		  std::cout << "==== max_resno_in_molecule returns "
+			    << ires_prev_pair.first << " "
+			    << ires_prev_pair.second << std::endl;
+		  if (ires_prev_pair.first) {
+		     res_p->seqNum = ires_prev_pair.second + 1;
+		  } else {
+		     res_p->seqNum = 1;
+		  }
+	       }
+	       
 	    }
+
+	    // Add this element to the sfac (redundancy check in the addition function
+	    if (is_from_shelx_ins_flag) {
+	       shelxins.add_sfac(element);
+	    } 
 	    chain_p->AddResidue(res_p);
-	    res_p->seqNum = previous_max + 1;
 	    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel = make_asc(atom_sel.mol);
