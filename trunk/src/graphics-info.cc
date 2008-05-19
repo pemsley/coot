@@ -1735,6 +1735,7 @@ graphics_info_t::set_refmac_use_ncs(int state) {
   }
 }
 
+
 void
 graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu, GtkWidget *fobs_menu, GtkWidget *r_free_menu,
 						   GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {

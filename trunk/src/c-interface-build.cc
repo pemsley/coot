@@ -3177,6 +3177,11 @@ int refmac_use_ncs_state() {
   return g.refmac_use_ncs_flag;
 }
 
+int refmac_imol_coords() {
+
+  graphics_info_t g;
+  return g.refmac_molecule;
+}
 
 short int 
 add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *chain_id) {
