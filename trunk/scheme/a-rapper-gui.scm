@@ -29,6 +29,21 @@
 	    (format #t "ignored: ~s~%" args)))))))
 	   
 
+(define (arp/warp-it imol chain-id start-resno end-reno sequence number-of-models)
+
+  (let ((imol-map (imol-refinement-map)))
+    (if (not (valid-map-molecule? imol-map))
+	(format #t "No valid map molecule given (possibly ambiguous)~%")
+	(let* ((str (string-append "//" chain-id "/" (number->string start-resno)
+				   "-" (number->string end-reno)))
+	       (frag-mol (new-molecule-by-atom-selection imol str))
+	       (fragment-pdb "coot-rapper-fragment-in.pdb")
+	       (map-file "coot-rapper.map"))
+	  (write-pdb-file frag-mol fragment-pdb)
+	  (export-map imol-map map-file)
+	  (format #t "running loopy: ~s ~s ~s ~s ~s ~s~%"
+		  imol chain-id start-resno end-reno sequence number-of-models)))))
+
 (define (rapper-it imol chain-id start-resno end-reno sequence number-of-models)
 
   (let ((imol-map (imol-refinement-map)))
@@ -68,8 +83,8 @@
   ;; do something more clever if the rapper process is still running.
   (gtk-widget-destroy window))
 
-;; 
-(define (a-rapper-gui)
+;; loop-building-tool is either 'rapper or 'ARP/wARP 
+(define (a-rapper-gui loop-building-tool)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (vbox (gtk-vbox-new #f 2))
@@ -180,8 +195,11 @@
 						(number? number-of-models)))
 				      (format #t "Something incomprehensible: ~s ~s ~s"
 					      start-resno end-resno number-of-models)
-				      (rapper-it imol chain-text start-resno end-resno sequence 
-						 number-of-models)))))))
+				      (let ((proc (if (eq? loop-building-tool 'rapper)
+						      rapper-it
+						      arp/warp-it)))
+					(proc imol chain-text start-resno end-resno
+					      sequence number-of-models)))))))
 				      
     (gtk-widget-show-all window)))
 
