@@ -1782,6 +1782,120 @@
 			      (cons mess pos))))))))
 	      cis-peps)))))
 
+
+(define (transform-map-using-lsq-matrix-gui)
+
+  ;; atom-sel-type is either 'Reference or 'Moving
+  ;; 
+  ;; return the (list frame option-menu model-mol-list)
+  (define (atom-sel-frame atom-sel-type)
+    (let* ((frame (gtk-frame-new (symbol->string atom-sel-type)))
+	   (option-menu (gtk-option-menu-new))
+	   (menu (gtk-menu-new))
+	   (model-mol-list (fill-option-menu-with-coordinates-mol-options menu))
+	   (atom-sel-vbox (gtk-vbox-new #f 2))
+	   (atom-sel-hbox (gtk-hbox-new #f 2))
+	   (chain-id-label (gtk-label-new " Chain ID "))
+	   (resno-1-label (gtk-label-new " Resno Start "))
+	   (resno-2-label (gtk-label-new " Resno End "))
+	   (chain-id-entry (gtk-entry-new))
+	   (resno-1-entry (gtk-entry-new))
+	   (resno-2-entry (gtk-entry-new)))
+      (gtk-container-add frame atom-sel-vbox)
+      (gtk-box-pack-start atom-sel-vbox   option-menu  #f #f 2)
+      (gtk-box-pack-start atom-sel-vbox atom-sel-hbox  #f #f 2)
+      (gtk-box-pack-start atom-sel-hbox chain-id-label #f #f 2)
+      (gtk-box-pack-start atom-sel-hbox chain-id-entry #f #f 2)
+      (gtk-box-pack-start atom-sel-hbox resno-1-label  #f #f 2)
+      (gtk-box-pack-start atom-sel-hbox resno-1-entry  #f #f 2)
+      (gtk-box-pack-start atom-sel-hbox resno-2-label  #f #f 2)
+      (gtk-box-pack-start atom-sel-hbox resno-2-entry  #f #f 2)
+      (gtk-option-menu-set-menu option-menu menu)
+      (list frame option-menu model-mol-list chain-id-entry resno-1-entry resno-2-entry)))
+	  
+  (let* ((window (gtk-window-new 'toplevel))
+	 (dialog-name "Map Transformation")
+	 (main-vbox (gtk-vbox-new #f 2))
+	 (buttons-hbox (gtk-hbox-new #f 2))
+	 (cancel-button (gtk-button-new-with-label "  Cancel  "))
+	 (ok-button (gtk-button-new-with-label "  Transform  "))
+	 (usage (string-append "Note that this will transform the current refinement map "
+			       "about the screen centre"))
+	 (usage-label (gtk-label-new usage))
+	 (h-sep (gtk-hseparator-new))
+	 (frame-info-ref (atom-sel-frame 'Reference))
+	 (frame-info-mov (atom-sel-frame 'Moving))
+	 (radius-hbox (gtk-hbox-new #f 2))
+	 (radius-label (gtk-label-new "  Radius "))
+	 (radius-entry (gtk-entry-new)))
+
+    (gtk-box-pack-start radius-hbox radius-label #f #f 2)
+    (gtk-box-pack-start radius-hbox radius-entry #f #f 2)
+
+    (gtk-box-pack-start buttons-hbox     ok-button #f #f 4)
+    (gtk-box-pack-start buttons-hbox cancel-button #f #f 4)
+
+    (gtk-container-add window main-vbox)
+    (gtk-box-pack-start main-vbox (car frame-info-ref) #f #f 2)
+    (gtk-box-pack-start main-vbox (car frame-info-mov) #f #f 2)
+    (gtk-box-pack-start main-vbox radius-hbox #f #f 2)
+    (gtk-box-pack-start main-vbox usage-label #f #f 4)
+    (gtk-box-pack-start main-vbox h-sep #f #f 2)
+    (gtk-box-pack-start main-vbox buttons-hbox #f #f 6)
+    
+    (gtk-entry-set-text radius-entry "8")
+
+    (gtk-signal-connect cancel-button "clicked"
+			(lambda ()
+			  (gtk-widget-destroy window)))
+
+    (gtk-signal-connect ok-button "clicked"
+			(lambda ()
+
+			  (let ((active-mol-ref (apply get-option-menu-active-molecule 
+						       (cdr (first-n 3 frame-info-ref))))
+				(active-mol-mov (apply get-option-menu-active-molecule 
+						       (cdr (first-n 3 frame-info-mov))))
+				(chain-id-ref     (gtk-entry-get-text (list-ref frame-info-ref 3)))
+				(resno-1-ref-text (gtk-entry-get-text (list-ref frame-info-ref 4)))
+				(resno-2-ref-text (gtk-entry-get-text (list-ref frame-info-ref 5)))
+
+				(chain-id-mov     (gtk-entry-get-text (list-ref frame-info-mov 3)))
+				(resno-1-mov-text (gtk-entry-get-text (list-ref frame-info-mov 4)))
+				(resno-2-mov-text (gtk-entry-get-text (list-ref frame-info-mov 5)))
+				
+				(radius-text (gtk-entry-get-text radius-entry)))
+				
+			    (let ((imol-map (imol-refinement-map))
+				  (resno-1-ref (string->number resno-1-ref-text))
+				  (resno-2-ref (string->number resno-2-ref-text))
+				  (resno-1-mov (string->number resno-1-mov-text))
+				  (resno-2-mov (string->number resno-2-mov-text))
+				  (radius (string->number radius-text)))
+
+			      (if (and (number? resno-1-ref)
+				       (number? resno-2-ref)
+				       (number? resno-1-mov)
+				       (number? resno-2-mov)
+				       (number? radius))
+
+				  (if (not (valid-map-molecule? imol-map))
+				      (format #t "Must set the refinement map~%")
+			    
+				      (let ((imol-copy (copy-molecule active-mol-mov)))
+					(transform-map-using-lsq-matrix 
+					 active-mol-ref chain-id-ref resno-1-ref resno-2-ref
+					 imol-copy chain-id-mov resno-1-mov resno-2-mov
+					 imol-map (rotation-centre) radius)
+					(close-molecule imol-copy))))
+			  
+			      (gtk-widget-destroy window)))))
+    
+
+    (gtk-widget-show-all window)))
+
+		      
+
 (define (ncs-ligand-gui) 
   
   (let ((window (gtk-window-new 'toplevel))
