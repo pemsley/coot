@@ -3797,6 +3797,8 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
 							   const std::string &group2,
 							   const protein_geometry &geom) const {
 
+   double critical_dist = 3.0; // A, less than that and Coot should
+			       // try to make the bond.
    PPCAtom res_selection_1 = NULL;
    PPCAtom res_selection_2 = NULL;
    int i_no_res_atoms_1;
@@ -3816,7 +3818,7 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
 				res_selection_2[i2]->y,
 				res_selection_2[i2]->z);
 	 d = (a1-a2).lengthsq();
-	 if (d < 4.0) {
+	 if (d < critical_dist*critical_dist) {
 	    close.push_back(coot::glycosidic_distance(res_selection_1[i1],
 						      res_selection_2[i2],
 						      sqrt(d)));
