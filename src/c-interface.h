@@ -1255,6 +1255,7 @@ void set_refmac_ncycles(int no_cycles);
 void add_refmac_ncycle_no(int cycle);
 void set_refmac_use_ncs(int state);
 int refmac_use_ncs_state(void);
+int refmac_imol_coords(void);
 
 /*! \brief swap the colours of maps 
 

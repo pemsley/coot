@@ -167,12 +167,40 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
         # do rigid body refinement
         std_lines.append("REFInement TYPE RIGID")
 
+    imol_coords = refmac_imol_coords()
     if operator.isNumberType(force_n_cycles):
        if force_n_cycles >=0:
            if (refinement_type == 1):
                std_lines.append("RIGIDbody NCYCle " + str(force_n_cycles))
+               if (get_refmac_refinement_method() == 1):
+                   group_no = 1
+                   if (is_valid_model_molecule(imol_coords)):
+                       for chain_id in chain_ids(imol_coords):
+                           if (not is_solvent_chain_qm(imol_coords, chain_id)):
+                               n_residues = chain_n_residues(chain_id, imol_coords)
+                               start_resno = seqnum_from_serial_number(imol_coords ,chain_id, 0)
+                               end_resno   = seqnum_from_serial_number(imol_coords ,chain_id, n_residues-1)
+                               rigid_line = "RIGIdbody GROUp " +  str(group_no) \
+                               + " FROM " + str(start_resno) + " " + chain_id \
+                               + " TO "   + str(end_resno)   + " " + chain_id 
+                               std_lines.append(rigid_line)
+                               group_no += 1
+                   else:
+                       print "WARNING:: no valid refmac imol!"
            else:
                std_lines.append("NCYC " + str(force_n_cycles))
+
+    if(refmac_use_ncs_state()):
+        print "BL DEBUG:: use ncs with state", refmac_use_ncs_state()
+        chain_ids_from_ncs = ncs_chain_ids(imol_coords)
+        for ncs_set in chain_ids_from_ncs:
+            no_ncs_chains = len(ncs_set)
+            if (no_ncs_chains > 1):
+                ncs_string = "NCSRestraints NCHAins " + str(no_ncs_chains) + " CHAIns "
+                for chain in ncs_set:
+                    ncs_string += " " + chain
+                std_lines.append(ncs_string)
+    
     if (refmac_extra_params):
         extra_params = refmac_extra_params
     else:
