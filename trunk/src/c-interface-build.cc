@@ -6296,8 +6296,12 @@ int read_shelx_ins_file(const char *filename) {
    if (filename) { 
       int imol = graphics_info_t::create_molecule();
 
-      short int reset_centre_flag = g.recentre_on_read_pdb;
-      g.recentre_on_read_pdb = 0;
+      // 20080518 Why did I want to not centre on a new shelx
+      // molecule? I forget now.  So comment out these lines of code
+      // and the resetting of recentre_on_read_pdb flag later.
+      
+//       short int reset_centre_flag = g.recentre_on_read_pdb;
+//       g.recentre_on_read_pdb = 0;
       istat = g.molecules[imol].read_shelx_ins_file(std::string(filename));
       if (istat != 1) {
 	 graphics_info_t::erase_last_molecule();
@@ -6316,7 +6320,7 @@ int read_shelx_ins_file(const char *filename) {
 	 command_strings.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
 	 add_to_history(command_strings);
       }
-      g.recentre_on_read_pdb = reset_centre_flag;
+      //       g.recentre_on_read_pdb = reset_centre_flag;
    } else {
       std::cout << "ERROR:: null filename in read_shelx_ins_file" << std::endl;
    }
