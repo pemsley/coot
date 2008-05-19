@@ -2,16 +2,19 @@
 
    Things to fix before 0.5
 
-   17 Items
+   16 Items
+
+   o get an alanine - with hydrogens.  Refine. undo, refine.  check
+     hydrogen positions.
 
    o  Need to check torsion restraints 
       and wiggly ligands
-          get_torsion_bonds_atom_pairs() in wiggly ligands?
+          get_torsionq_bonds_atom_pairs() in wiggly ligands?
       and Edit Chi
       now that I have enabled the reading of CONST torsions
 
-   o Can the map transformation interface be clearer?  Can the GUI
-     interface the most frequent usage?
+      How about a test for wiggly ligands and then we can put this
+      item to bed.
 
    o Finish A-RAPPER-gui
 
@@ -62,19 +65,20 @@
 
    o multi-carbo.pdb contains 2 residues that should have a glycosidic
      linkage.  However, the regularization on it fails (they move
-     apart).  Why?  Make a test.  Test on the distance between atoms in
-     the link.
-     BETA1-4  1 O4      2 C1        single       1.439    0.020
+     apart).  Why?  
+
+      Because, d'uh, I'd tried to connect the monomers the wrong way
+      round.
+
+   Make a test.  Test on the distance between atoms in
+   the link.
+   BETA1-4  1 O4      2 C1        single       1.439    0.020
 
      need function (return a boolean): 
      (bond-length-within-tolerance? atom-1 atom-2 ideal-length tolerance)
 
-   o Pierre Aller:
- 
-     I am using the last version of coot with an imac Os 10.5.2 intel
-     core Duo.  I download coot via fink, and since one or two month
-     coot freezes a lot. It happens always when I am using "Measures"
-     and "residue info".
+* It would be better (faster) if the carbo test was fitting into
+  density, rather than regularizing.
 
    o Correct CISPEP if needed cards on writing pdb.
 
@@ -89,6 +93,15 @@
 
 
 67 Done.
+
+   o Pierre Aller:
+ 
+     I am using the last version of coot with an imac Os 10.5.2 intel
+     core Duo.  I download coot via fink, and since one or two month
+     coot freezes a lot. It happens always when I am using "Measures"
+     and "residue info".
+
+* Crappy X11, I'd say.
 
    o The default occupancy for new atoms in a shelx molecule should be
      11.0.  Is it? [JED]
@@ -111,6 +124,23 @@
    INFO:: adding atom of type Mg at (13.5244,64.8628,-16.4644)
 
 * Done - it was get Gtk2 thing, getting a menu from an option menu with NULL menu.
+
+   o reset_view() does not belong in c-interface-gui.cc.
+
+   o reset view on a map should not return to origin.  Not very
+     useful, just skip maps.
+
+* Done.
+
+   o Fix up Addition Representations in Display Control.  Don't
+     display if empty.    
+
+* Done.
+   
+   o Can the map transformation interface be clearer?  Can the GUI
+     interface the most frequent usage?
+
+* Done
 
    o Update the density fit graph on delete residue (e.g. water) [JED]
 
@@ -5520,3 +5550,8 @@ Sat May  3 12:46:24 EDT 2008
 Sat May 10 07:22:54 CST 2008
 
     consider a test for wiggly ligands.
+
+-----
+   How does side by side stereo work for maps when using (default on Mac) 
+   (set-display-lists-for-maps 1)
+
