@@ -123,11 +123,6 @@ void on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 /* ------------------------------------------------------------------------ */
 
 
-/* create a frame/combo_box and add it to the
-   display_control_molecule_combo_box (or the vbox thereof). */
-void display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
-					const gchar *name, 
-					int n); 
 void update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
 						       const gchar *name, 
 						       int n);

@@ -289,6 +289,10 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
    //
    int atom_index = -1;
 
+   // Pressing space at the start causes (caused) a crash.  Fixed here. 20080518
+   if (! is_valid_model_molecule(imol))
+      return atom_index;
+
    if (molecules[imol].atom_sel.mol == 0) {
 
       std::cout << "ERROR:: bad go to atom molecule (" << imol

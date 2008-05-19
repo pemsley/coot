@@ -521,7 +521,7 @@ on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
    molecule display VBox) */
 void display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
 					const gchar *name, 
-					int n) {
+					int n, bool show_add_reps_frame_flag) {
 
   GtkWidget *my_combo_box; 
 
@@ -894,19 +894,21 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
   // Now add the additional representations frame and vbox
   add_add_reps_frame_and_vbox(display_control_window_glade,
-			      vbox_single_molecule_all_attribs, n);
+			      vbox_single_molecule_all_attribs, n, show_add_reps_frame_flag);
   
 }
 
 void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
-				 GtkWidget *hbox_for_single_molecule, int imol_no) {
+				 GtkWidget *hbox_for_single_molecule, int imol_no,
+				 bool show_add_reps_frame_flag) {
 
    GtkWidget *frame = gtk_frame_new("Additional Representations");
    GtkWidget *v = gtk_vbox_new(FALSE, 0);
    gtk_container_add(GTK_CONTAINER(hbox_for_single_molecule), frame);
    gtk_container_add(GTK_CONTAINER(frame), v);
-   gtk_widget_show(frame);
-   gtk_widget_show(v);
+   // show the frame if there were additional representations
+   if (show_add_reps_frame_flag)
+      gtk_widget_show(frame);
    gtk_widget_ref (v);
    gtk_widget_ref (frame);
 
@@ -917,6 +919,14 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 			     widget_name.c_str(),
 			     v,
 			     (GtkDestroyNotify) gtk_widget_unref);
+   
+   widget_name = "add_rep_display_control_frame_";
+   widget_name += coot::util::int_to_string(imol_no);
+   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
+			     widget_name.c_str(),
+			     frame,
+			     (GtkDestroyNotify) gtk_widget_unref);
+   
 //    std::cout <<"DEBUG:: added set_data_full for " << v << " on to " << display_control_window_glade
 // 	     << " " << widget_name << std::endl;
 
@@ -1695,11 +1705,32 @@ display_control_add_reps_container(GtkWidget *display_control_window_glade,
       if (t)
 	 w = t;
       else
+	 std::cout << "ERROR:: in display_control_add_reps_frame failed to lookup "
+		   << name << " widget" << std::endl;
+   }
+   return w;
+}
+
+GtkWidget *
+display_control_add_reps_frame(GtkWidget *display_control_window_glade,
+			       int imol_no) {
+
+   GtkWidget *w = NULL;
+
+   if (display_control_window_glade) {
+      std::string name = "add_rep_display_control_frame_";
+      name += coot::util::int_to_string(imol_no);
+      GtkWidget *t = lookup_widget(display_control_window_glade, name.c_str());
+      if (t)
+	 w = t;
+      else
 	 std::cout << "ERROR:: in display_control_add_reps_container failed to lookup "
 		   << name << " widget" << std::endl;
    } 
    return w;
-} 
+}
+
+
 
 void display_control_add_reps(GtkWidget *display_control_window_glade,
 			      int imol_no, int add_rep_no,
@@ -1707,8 +1738,11 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
 			      int bonds_box_type, const std::string &name) {
 
    if (display_control_window_glade) { 
-      GtkWidget *add_rep_vbox = display_control_add_reps_container(display_control_window_glade, imol_no);
-      // std::cout <<  "DEBUG:: add_rep_vbox is " << add_rep_vbox << std::endl;
+      GtkWidget *add_rep_vbox  = display_control_add_reps_container(display_control_window_glade, imol_no);
+      GtkWidget *add_rep_frame = display_control_add_reps_frame(    display_control_window_glade, imol_no);
+//       std::cout <<  "DEBUG::  add_rep_vbox is " << add_rep_vbox  << std::endl;
+//       std::cout <<  "DEBUG:: add_rep_frame is " << add_rep_frame << std::endl;
+
       GtkWidget *hbox = gtk_hbox_new(FALSE, 2);
       gtk_widget_ref (hbox);
       gtk_box_pack_start(GTK_BOX(add_rep_vbox), hbox, FALSE, FALSE, 0);
@@ -1725,6 +1759,8 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
       
       gtk_widget_show(toggle_button_show_it);
       gtk_widget_show(hbox);
+      gtk_widget_show(add_rep_vbox);
+      gtk_widget_show(add_rep_frame);
    }
 } 
 

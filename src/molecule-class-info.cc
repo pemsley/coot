@@ -1223,12 +1223,16 @@ molecule_class_info_t::new_coords_mol_in_display_control_widget() const {
 
    // we don't want to add a display control hbox if we are simply
    // doing an undo: This is now handled by the calling function.
-   // 
+   //
+   bool show_add_reps_flag = 0;
+   if (add_reps.size() > 0)
+      show_add_reps_flag = 1;
+   
    std::string dmn = name_for_display_manager();
    if (g.display_control_window()) {
       display_control_molecule_combo_box(g.display_control_window(), 
 					 dmn.c_str(), 
-					 imol_no);
+					 imol_no, show_add_reps_flag);
       if (add_reps.size() > 0) {
 	 GtkWidget *vbox = display_control_add_reps_container(g.display_control_window(), imol_no);
 	 for (unsigned int iar=0; iar<add_reps.size(); iar++) {
