@@ -365,11 +365,16 @@
   (define (markup text)
     (if (not (string? text))
 	""
-	(if (string-match "pass" text)
+	(cond 
+	 ((string-match "pass" text)
 	    `(b (font (@ color "#209920")
-		      ,text))
-	    `(b (font (@ color "#bb2020")
-		      ,text)))))
+		      ,text)))
+	 ((string-match "progress" text)
+	    `(b (font (@ color "#101920")
+		      ,text)))
+	 (else 
+	  `(b (font (@ color "#bb2020")
+		    ,text))))))
 	
   ;; page-type is 'build or 'test.
   ;; return "pass" "fail" or " ".
