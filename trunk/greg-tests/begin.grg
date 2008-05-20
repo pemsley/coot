@@ -10,6 +10,9 @@
 						      "data")
 				      "greg-data"))
 
+(define (greg-pdb file-name)
+  (read-pdb (append-dir-file greg-data-dir file-name)))
+
 ; How fast does the graphics rotate things (relative to kalypso)
 (define rotate-speed 1)
 
@@ -17,6 +20,8 @@
   (if (string? host)
       (cond
        ((string=? host "penelope")
+	(set! rotate-speed 0.1))
+       ((string=? host "laertes")
 	(set! rotate-speed 0.1))
        ((string=? host "cycle")
 	(set! rotate-speed 0.1)))))
@@ -34,3 +39,38 @@
       (format #t "fail match real: ~s  expected: ~s~%"
 	      (car (car ls)) (cdr (car ls)))
       #f))))
+
+(define (bond-length pos-1 pos-2)
+  (define (square x)
+    (* x x))
+  
+  (sqrt (apply + (map square (map - pos-1 pos-2)))))
+
+
+(define (bond-length-within-tolerance? atom-1 atom-2 ideal-length tolerance)
+
+  (if (not atom-1)
+      #f
+      (if (not atom-2)
+	  #f
+	  (let ((pos-1 (list-ref atom-1 2))
+		(pos-2 (list-ref atom-2 2)))
+	    (let ((b (bond-length pos-1 pos-2)))
+	      (< (abs (- b ideal-length)) tolerance))))))
+
+(define (get-atom imol chain-id resno atom-name)
+  
+  (define (get-atom-from-res atom-name residue-atoms)
+    (let loop ((residue-atoms residue-atoms))
+      (cond 
+       ((null? residue-atoms) #f)
+       ((string=? atom-name (car (car (car residue-atoms))))
+	(car residue-atoms))
+       (else 
+	(loop (cdr residue-atoms))))))
+
+  (let ((res-info (residue-info imol chain-id resno "")))
+    (if (not res-info)
+	#f
+	(get-atom-from-res atom-name res-info))))
+	
