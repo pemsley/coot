@@ -3,11 +3,74 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
       <head>
 	<title>The Happy/Coot Developer Diary</title>
-	<!-- Changed by: Paul Emsley, 07-Mar-2008 -->
+	<!-- Changed by: Paul Emsley, 20-May-2008 -->
       </head>
 
   <body>
     <h1>The Happy Coot Developer Diary</h1>
+
+<hr>
+<p>Tue May 20 20:18:04 BST 2008
+
+<p>Fixed up the flying hydrogens problem today (apparent after
+undoing).
+
+<p>Things are moving forward on the Mac front... I am doing a fink
+install coot as we speak.  I intend to use that in the daily builds
+and put the Mac snapshot pre-released on the web site too.
+
+<p>YSBL web site has been down today causing some disgruntlement
+amongst users who want their (daily? :) dose of fresh Coot.
+
+<p>Hardy comes with a GCC 4.3 for testing.  4.3 is not happy with way
+mmdb is used in Coot.  I am corresponding with Eugene Krissinel about
+how to resolve this.
+
+
+<hr>
+<p> Sat May 17 11:40:47 BST 2008 
+
+<p>Back from Boston/Harvard and Beijing.  Lots of mails to deal with.
+
+<p>As a result of this trip, I am much more committed to getting things
+working on the Mac.  I think I will make a stand-alone "coot-only" 
+fink-based installation.
+
+<p>Both Harvard Medical School and the Institute of Biophysics
+(Beijing) tutorials were completely Mac-based.  In the Coot tutorials
+at the IBP, the X11 on the Macs crashed about 30 times in a 3hr
+session. Not good.  Bad, in fact.
+
+<p>Something interesting (for me) became apparent.  Several of the
+students on the course had used Coot before, and they fired up Coot
+and loaded the tutorial files and started doing the modifications
+faster than I'd seen before at other tutorials.  However, as soon as
+we started talking about features that were not completely
+discoverable (e.g. single atom drag, over-dragging, auto-zone) the
+pace slowed down dramatically.  Hit a brick wall in fact.  These
+features are extensively described in the documentation, but these
+Coot users just didn't know about them.  So I need to think about
+making them more obvious.  If possible.
+
+<p>Having tried a recent Coot on the Mac though, I did discover a
+couple of problems with display lists - and fixing one of those caused
+a resolution of the testing problems on the Ubuntu build host.  So
+that is cleaned up at last, hoorah.
+
+<p>I installed Hardy this morning, I am typing this on Hardy now (in
+vi - as I am waiting for xmemacs to download and install).  Also,
+installing Coot dependencies to see if compiz is compatible with Coot
+yet....
+
+<p>Baah, no.  It isn't.  Lot's of flashing/blanking of the windows and
+misdrawing of the z-order.  OK, desktop effects off :-(.
+
+<p>But at least I can use xemacs now.
+
+<p>Incidentally, the ability to display the key bindings in a GUI was
+a hit, it seems.
+
+<p>Coot compiles out of the box on Hardy (GCC 4.2.3).
 
 <hr>
 <p>Sat May  3 11:39:54 EDT 2008
@@ -21,13 +84,13 @@
 without it?), it has become necessary for me to more frequently be
 able to build Coot on the old/standard Coot machine (GTK1 with Python
 on Red Hat 8).  I've been wanting to be able to do the build "from a
-one-liner" for a long time, the web page was the thing that broke the
-camels back, as it were, and I decided to put some effort into making
-it happen.
+one-liner" for a long time, the "build status " web page was the thing 
+that broke the camel's back (as it were) and I decided to put some 
+effort into making it happen.
 
 <p>Previously, I'd been logging in through the firewall to the build
-host and running the command there - slightly tedious.  Now expect can
-handle that sort of thing for us.  However, I was not going to program
+host and running the command there - slightly tedious.  Now, I knew that 
+expect can handle that sort of thing for us.  However, I was not going to program
 in tcl - no way, so the Don Libes version was not an option.  What's
 left? Guile.  Let's give that a go.
 
@@ -80,7 +143,7 @@ name string, but not also updated the test). Fixed now.
 
 <p>Sad to say I won't have much time to examine non-trivial items on
 the TODO list for 0.5 until after the ACA.  I guess I'll have to push
-back the release again.  I hadn't sufficiently account for
+back the release again.  I hadn't sufficiently accounted for
 meetings/courses and other things.  Baah.
 
 
@@ -192,7 +255,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Sat May  3 11:40:44 EDT 2008
+Last modified: Tue May 20 20:27:52 BST 2008
 <!-- hhmts end -->
   </body>
 </html>
