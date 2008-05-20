@@ -1302,6 +1302,7 @@ else
 fi
 
 
+
 $install_top_dir/bin/python -V
 if test $? != 0 ; then
    echo python should be built

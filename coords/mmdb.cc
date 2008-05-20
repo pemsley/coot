@@ -427,7 +427,8 @@ ostream& operator<<(ostream& s, PCAtom atom) {
 
 int
 write_atom_selection_file(atom_selection_container_t asc,
-			  const std::string &filename) {
+			  const std::string &filename,
+			  byte gz) {
 
    int ierr = 0; 
    coot::util::remove_wrong_cis_peptides(asc.mol);
