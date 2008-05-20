@@ -4264,7 +4264,8 @@ molecule_class_info_t::save_coordinates(const std::string filename) {
    if (coot::util::extension_is_for_shelx_coords(ext)) {
       write_shelx_ins_file(filename);
    } else {
-      ierr = write_atom_selection_file(atom_sel, filename);
+      byte bz = GZM_NONE;
+      ierr = write_atom_selection_file(atom_sel, filename, bz);
    }
 
    if (ierr) {
@@ -4724,7 +4725,8 @@ molecule_class_info_t::make_backup() { // changes history details
 	    // int istat = atom_sel.mol->WriteMMDBF((char *)backup_file_name.c_str(), gz);
 	    int istat;
 	    if (! is_from_shelx_ins_flag) {
-	       istat = atom_sel.mol->WritePDBASCII((char *)backup_file_name.c_str(), gz);
+	       // istat = atom_sel.mol->WritePDBASCII((char *)backup_file_name.c_str(), gz);
+	       istat = write_atom_selection_file(atom_sel, backup_file_name, gz);
 	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
 	       if (istat) { 
 		  std::cout<< "WARNING:: WritePDBASCII failed! Return status " << istat << std::endl;
@@ -5307,7 +5309,8 @@ molecule_class_info_t::write_pdb_file(const std::string &filename) {
       if (coot::util::extension_is_for_shelx_coords(ext)) {
 	 write_shelx_ins_file(filename);
       } else {
-	 err = write_atom_selection_file(atom_sel, filename);
+	 byte bz = GZM_NONE;
+	 err = write_atom_selection_file(atom_sel, filename, bz);
       }
    }
    return err; 
