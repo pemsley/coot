@@ -903,3 +903,27 @@
 	      #t))))))))
 
 
+(greg-testcase "Make a glycosidic linkage" #t 
+   (lambda ()
+
+     (let ((imol (read-pdb (append-dir-file greg-data-dir "multi-carbo-coot-1.pdb"))))
+       (let ((atom-1 (get-atom imol "A" 1 " O4 "))
+	     (atom-2 (get-atom imol "A" 2 " C1 ")))
+	 
+	 (format #t "bond-length: ~s: ~%"
+		 (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
+
+	 (let ((s (dragged-refinement-steps-per-frame)))
+	   (set-dragged-refinement-steps-per-frame 300)
+	   (with-auto-accept
+	    (regularize-zone imol "A" 1 2 ""))
+	   (set-dragged-refinement-steps-per-frame s))
+
+	 (let ((atom-1 (get-atom imol "A" 1 " O4 "))
+	       (atom-2 (get-atom imol "A" 2 " C1 ")))
+
+	   (format #t "bond-length: ~s: ~%"
+		   (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
+
+	   (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04))))))
+
