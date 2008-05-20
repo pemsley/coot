@@ -4,8 +4,7 @@
 
    16 Items
 
-   o get an alanine - with hydrogens.  Refine. undo, refine.  check
-     hydrogen positions.
+   o Make ball and stick mode to work in Additional Representations
 
    o  Need to check torsion restraints 
       and wiggly ligands
@@ -19,8 +18,6 @@
    o Finish A-RAPPER-gui
 
    o Finish Loopy GUI
-
-   o Make ball and stick mode to work in Additional Representations
 
    o Kevin's Ramachandran Refinement target
 
@@ -93,6 +90,11 @@
 
 
 67 Done.
+
+   o get an alanine - with hydrogens.  Refine. undo, refine.  check
+     hydrogen positions.
+
+* Fixed.
 
    o Pierre Aller:
  
