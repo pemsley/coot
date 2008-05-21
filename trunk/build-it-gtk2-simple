@@ -1154,7 +1154,7 @@ fi
 
 # clean up old test status:
 if [ -e $LOGS/gtk2-test-status ] ; then
-   echo build-in-progress > $LOGS/$bulid_type-build-status
+   echo build-in-progress > $LOGS/$build_type-build-status
    echo in-progress       > $LOGS/$build_type-test-status
 fi
 
