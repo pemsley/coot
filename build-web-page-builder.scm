@@ -148,11 +148,17 @@
 	      (list mtime 
 		    (car latest-coot-tar)
 		    (cdr latest-coot-tar)))))
-       ((and (or (string-match "coot-" (car files))
-		 (string-match "WinCoot-" (car files)))
-	     (string-match suffix-string (car files))
-	     (string-match binary-match-string (car files))
-	     (not (string-match ".md5sum" (car files))))
+
+		 
+       ((or (and (string-match "coot-" (car files))
+		 (string-match (string-append binary-match-string 
+					      suffix-string)
+			       (car files))
+		 (not (string-match ".md5sum" (car files))))
+	    
+	    (and (string-match "WinCoot-" (car files))
+		 (not (string-match ".md5sum" (car files)))))
+		 
 	 (let ((full-file (append-dir-file dir (car files))))
 	   ;; what's the revision number?
 	   (let ((bits (string-split (car files) #\.)))
@@ -370,7 +376,7 @@
 	    `(b (font (@ color "#209920")
 		      ,text)))
 	 ((string-match "progress" text)
-	    `(b (font (@ color "#101920")
+	    `(b (font (@ color "#606960")
 		      ,text)))
 	 (else 
 	  `(b (font (@ color "#bb2020")
@@ -539,7 +545,6 @@
 	(binary-file-infos
 	 (map
 	  (lambda (bin)
-	    (format #t "in loop, bin: ~s~%" bin)
 	    (let* ((suffix-string (if (string=? (car bin) "WinCoot-")
 				      ".exe"
 				      ".tar.gz"))
