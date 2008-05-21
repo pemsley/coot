@@ -1865,7 +1865,8 @@ coot::additional_representations_t::info_string() const {
 
 
 int
-molecule_class_info_t::add_additional_representation(const int &bonds_box_type_in, 
+molecule_class_info_t::add_additional_representation(int representation_type,
+						     const int &bonds_box_type_in, 
 						     float bonds_width,
 						     bool draw_hydrogens_flag,
 						     const coot::atom_selection_info_t &info,

@@ -2672,8 +2672,9 @@ void set_show_additional_representation(int imol, int representation_number, int
 } 
 
 /* return the index of the additional representation.  Return -1 on error */
-int additional_representation_by_string(int imol,  const char *atom_selection_str, 
+int additional_representation_by_string(int imol,  const char *atom_selection_str,
 					int representation_type,
+					int bonds_box_type,
 					float bond_width,
 					int draw_hydrogens_flag) {
    int r = -1;
@@ -2682,6 +2683,7 @@ int additional_representation_by_string(int imol,  const char *atom_selection_st
       graphics_info_t g;
       GtkWidget *dcw = g.display_control_window();
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
+									 bonds_box_type,
 									 bond_width,
 									 draw_hydrogens_flag,
 									 info, dcw);
@@ -2695,6 +2697,7 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
 					    int resno_start, int resno_end, 
 					    const char *ins_code,
 					    int representation_type,
+					    int bonds_box_type,
 					    float bond_width,
 					    int draw_hydrogens_flag) {
 
@@ -2704,6 +2707,7 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
       GtkWidget *dcw = g.display_control_window();
       coot::atom_selection_info_t info(chain_id, resno_start, resno_end, ins_code);
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
+									 bonds_box_type,
 									 bond_width,
 									 draw_hydrogens_flag,
 									 info, dcw);

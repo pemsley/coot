@@ -81,6 +81,9 @@ namespace coot {
 	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11};
 
+   // representation_types
+   enum { SIMPLE_LINES, STICKS, BALL_AND_STICK, SURFACE };
+
    enum { RESIDUE_NUMBER_UNSET = -1111}; 
 
    class model_view_residue_button_info_t {
@@ -2190,7 +2193,8 @@ class molecule_class_info_t {
    void sharpen(float b_factor);
 
 
-   int add_additional_representation(const int &bonds_box_type_in, 
+   int add_additional_representation(int representation_type,
+				     const int &bonds_box_type_in, 
 				     float bonds_width,
 				     bool draw_hydrogens_flag,
 				     const coot::atom_selection_info_t &info,

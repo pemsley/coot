@@ -3870,6 +3870,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 
    float bond_width = 8;
    int bonds_box_type = coot::NORMAL_BONDS;
+   short int representation_type = coot::SIMPLE_LINES;
    bool draw_H_flag = 1;
    gchar* bond_width_text = 0;
 #ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
@@ -3898,7 +3899,8 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 					 aas.second.second.resno,
 					 aas.second.second.resno,
 					 aas.second.second.insertion_code);
-	 g.molecules[imol_active].add_additional_representation(bonds_box_type,
+	 g.molecules[imol_active].add_additional_representation(representation_type,
+								bonds_box_type,
 								bond_width,
 								draw_H_flag,
 								asi, dcw);
@@ -3914,7 +3916,8 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 	 int resno_1 = atoi(resno_1s.c_str());
 	 int resno_2 = atoi(resno_2s.c_str());
 	 coot::atom_selection_info_t asi(chain_id, resno_1, resno_2, ins_code);
-	 graphics_info_t::molecules[imol].add_additional_representation(bonds_box_type,
+	 graphics_info_t::molecules[imol].add_additional_representation(representation_type,
+									bonds_box_type,
 									bond_width,
 									draw_H_flag,
 									asi, dcw);
@@ -3924,7 +3927,8 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       // std::cout << "By selection string" << std::endl;
       std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
       coot::atom_selection_info_t asi(s);
-      graphics_info_t::molecules[imol].add_additional_representation(bonds_box_type,
+      graphics_info_t::molecules[imol].add_additional_representation(representation_type,
+								     bonds_box_type,
 								     bond_width,
 								     draw_H_flag,
 								     asi, dcw);

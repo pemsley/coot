@@ -90,9 +90,8 @@ namespace coot {
 	 char *inscode = (char *) insertion_code.c_str();
 	 char *atname  = (char *) atom_name.c_str(); // atom name
 	 char *altconf = (char *) alt_conf.c_str();
-	 mol->SelectAtoms(SelHnd, 0, chainid,
-			  resno, inscode,
-			  resno, inscode,
+	 
+	 mol->SelectAtoms(SelHnd, 0, chainid, resno, inscode, resno, inscode,
 			  "*",
 			  atname,
 			  "*",

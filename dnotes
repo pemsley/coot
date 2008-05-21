@@ -60,6 +60,23 @@
      previous restraint set (e.g. delete a restraint and see what
      happens)
 
+   o look at the fail-recentre .scm state file.  It fails to try to centre
+     on a molecule other than 0 it seems (from the status bar).
+ 
+   o make the reset view work only for coordinates molecules.
+
+   o Correct CISPEP if needed cards on writing pdb.
+
+   o PDB v3.0 compatibility
+
+   o Use Eugene's new LINK-reading code.
+
+
+
+
+
+69 Done.
+
    o multi-carbo.pdb contains 2 residues that should have a glycosidic
      linkage.  However, the regularization on it fails (they move
      apart).  Why?  
@@ -74,22 +91,10 @@
      need function (return a boolean): 
      (bond-length-within-tolerance? atom-1 atom-2 ideal-length tolerance)
 
-* It would be better (faster) if the carbo test was fitting into
-  density, rather than regularizing.
+   o It would be better (faster) if the carbo test was fitting into
+     density, rather than regularizing.
 
-   o Correct CISPEP if needed cards on writing pdb.
-
-   o PDB v3.0 compatibility
-
-   o Use Eugene's new LINK-reading code.
-
-
-
-
-
-
-
-67 Done.
+* Apparently not
 
    o get an alanine - with hydrogens.  Refine. undo, refine.  check
      hydrogen positions.
@@ -125,7 +130,8 @@
    `GTK_IS_WIDGET (widget)' failed
    INFO:: adding atom of type Mg at (13.5244,64.8628,-16.4644)
 
-* Done - it was get Gtk2 thing, getting a menu from an option menu with NULL menu.
+* Done - it was get Gtk2 thing, getting a menu from an option menu with 
+  NULL menu.
 
    o reset_view() does not belong in c-interface-gui.cc.
 
@@ -5552,6 +5558,13 @@ Sat May  3 12:46:24 EDT 2008
 Sat May 10 07:22:54 CST 2008
 
     consider a test for wiggly ligands.
+
+----
+
+  For Sabine Schneider:
+
+  How about "ideal geometry" restraints, that try to idealize torsion 
+  angles to A or B form geometry?
 
 -----
    How does side by side stereo work for maps when using (default on Mac) 
