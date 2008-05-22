@@ -950,15 +950,17 @@ coot::restraints_editor::get_plane_restraints() const {
       float esd = - 1.0; // test for non negative at end
       for (int col_no=0; col_no<n_cols; col_no++) {
 	 int col_type = get_column_type(coot::restraints_editor::TREE_TYPE_PLANES, col_no, mpa);
-// 	 std::cout << "col_no " << col_no << " of " << n_cols << " is of type "
-// 		   << col_type << std::endl;
+//  	 std::cout << "col_no " << col_no << " of " << n_cols << " is of type "
+//  		   << col_type << std::endl;
 	 if (col_type == G_TYPE_STRING) {
 	    gchar *place_string_here;
 	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_planes.store), &iter, col_no, &place_string_here, -1);
-	    if (col_no == 0) {
-	       plane_id = place_string_here;
-	    } else {
-	       atoms.push_back(place_string_here);
+	    if (place_string_here) { 
+	       if (col_no == 0) {
+		  plane_id = place_string_here;
+	       } else {
+		  atoms.push_back(place_string_here);
+	       }
 	    }
 	 }
 	 if (col_type == G_TYPE_FLOAT) {
@@ -1154,7 +1156,8 @@ coot::restraints_editor::get_residue_info() const {
       if ((comp_id.length() > 0) &&
 	  (tlc.length()     > 0) &&
 	  (name.length()    > 0) &&
-	  (group.length()   > 0) &&
+	  // 	  (group.length()   > 0) && // libcheck from SMILES has group of "." in cif file, '
+	                                    // which after the cif reader is "".
 	  (description_level != "not-set") &&
 	  (n_atoms > 0)          &&
 	  (n_H_atoms > 0)) { 
@@ -1192,9 +1195,9 @@ void apply_restraint_by_widget(GtkWidget *w) {
       std::string type = r.residue_info.comp_id;
       bool v = pg->replace_monomer_restraints(type, r);
       if (v)
-	 std::cout << "INFO:: restraints for " << type << " were replaced" << std::endl;
+	 std::cout << "INFO:: restraints for :" << type << ": were replaced" << std::endl;
       else
-	 std::cout << "WARNING:: failed to replace restraints for " << type << std::endl;
+	 std::cout << "WARNING:: failed to replace restraints for :" << type << ":" << std::endl;
 	 
    }
 } 
