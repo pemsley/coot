@@ -2145,10 +2145,22 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	       if (istat == 0) {
 		  nbonds = init_refmac_mon_lib(beta_anomer_name, read_number);
 	       } else {
-		  // alpha?
-		  istat = stat(alpha_anomer_name.c_str(), &buf);
-		  if (istat == 0)
-		     nbonds = init_refmac_mon_lib(alpha_anomer_name, read_number);
+		  // try the upcased file name e.g. NAG-B-D.cif
+		  istat = stat(coot::util::upcase(beta_anomer_name).c_str(), &buf);
+		  if (istat == 0) {
+		     nbonds = init_refmac_mon_lib(beta_anomer_name, read_number);
+		  } else {
+		     // alpha?
+		     istat = stat(alpha_anomer_name.c_str(), &buf);
+		     if (istat == 0) {
+			nbonds = init_refmac_mon_lib(alpha_anomer_name, read_number);
+		     } else {
+			istat = stat(coot::util::upcase(alpha_anomer_name).c_str(), &buf);
+			if (istat == 0) {
+			   nbonds = init_refmac_mon_lib(alpha_anomer_name, read_number);
+			}
+		     }
+		  }
 	       }
 	    }
 	 }
