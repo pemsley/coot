@@ -2072,6 +2072,8 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       std::string filename(s);
       std::string beta_anomer_name; 
       std::string alpha_anomer_name; 
+      std::string alt_beta_anomer_name; 
+      std::string alt_alpha_anomer_name; 
       if (cmld) { 
 	 filename = cmld;
 	 filename += "/";
@@ -2097,8 +2099,12 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 }
 	 beta_anomer_name = filename;
 	 beta_anomer_name += "-b-D.cif";
+	 alt_beta_anomer_name = filename;
+	 alt_beta_anomer_name += "-B-D.cif";
 	 alpha_anomer_name  = filename;
 	 alpha_anomer_name += "-a-L.cif";
+	 alt_alpha_anomer_name  = filename;
+	 alt_alpha_anomer_name += "-A-L.cif";
 	 filename += ".cif";
 	 upcased_resname_filename += ".cif";
 	 
@@ -2145,19 +2151,19 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	       if (istat == 0) {
 		  nbonds = init_refmac_mon_lib(beta_anomer_name, read_number);
 	       } else {
-		  // try the upcased file name e.g. NAG-B-D.cif
-		  istat = stat(coot::util::upcase(beta_anomer_name).c_str(), &buf);
+		  // try the upcased file name e.g. xxx/NAG-B-D.cif
+		  istat = stat(alt_beta_anomer_name.c_str(), &buf);
 		  if (istat == 0) {
-		     nbonds = init_refmac_mon_lib(beta_anomer_name, read_number);
+		     nbonds = init_refmac_mon_lib(alt_beta_anomer_name, read_number);
 		  } else {
 		     // alpha?
 		     istat = stat(alpha_anomer_name.c_str(), &buf);
 		     if (istat == 0) {
 			nbonds = init_refmac_mon_lib(alpha_anomer_name, read_number);
 		     } else {
-			istat = stat(coot::util::upcase(alpha_anomer_name).c_str(), &buf);
+			istat = stat(alt_alpha_anomer_name.c_str(), &buf);
 			if (istat == 0) {
-			   nbonds = init_refmac_mon_lib(alpha_anomer_name, read_number);
+			   nbonds = init_refmac_mon_lib(alt_alpha_anomer_name, read_number);
 			}
 		     }
 		  }
