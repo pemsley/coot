@@ -247,7 +247,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	       std::string name = "Copy of ";
 	       name += moving_mol_name;
 	       int imol2_new = graphics_info_t::create_molecule();
-	       graphics_info_t::molecules[imol2_new].install_model(imol2, make_asc(mol2), name, 1);
+	       graphics_info_t::molecules[imol2_new].install_model(imol2_new, make_asc(mol2), name, 1);
 	       imol2 = imol2_new;
 	    }
 	    
