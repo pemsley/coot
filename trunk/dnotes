@@ -53,8 +53,6 @@
 
       Very slow.  Some fumbling of atom picking needed to tickle this?
 
-   o in coot_toolbuttons.py Bernhard registers the icons.  Does that
-     make them smooth?
 
    o check that newly read cif file overwrites the restraints of the
      previous restraint set (e.g. delete a restraint and see what
@@ -121,7 +119,7 @@
 
 * Done
    
-   o reading in a shelx molecule should reset reset the view.
+   o Reading in a shelx molecule should reset reset the view.
 
 * Done
 

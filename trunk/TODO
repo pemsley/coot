@@ -156,6 +156,9 @@
 
    o Add the reading of a good map and a CNS map to tests.
 
+   o in coot_toolbuttons.py Bernhard registers the icons.  Does that
+     make them smooth?
+
    o Put globularize protein into Coot.  Make it a bit more clever?
 
    o Garib wants a function to move waters close to the protein.

@@ -509,7 +509,6 @@ coot::geometry_graphs::update_omega_blocks(const coot::omega_distortion_info_con
       // a new one
       render_omega_blocks(om_dist, chain_index, chain_id, offsets[chain_index]);
    }
-
 }
 
 
