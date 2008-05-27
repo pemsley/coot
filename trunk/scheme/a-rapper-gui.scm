@@ -5,6 +5,11 @@
              (gui entry-port)
              (gui text-output-port))
 
+
+;; something that the user sets:
+(define rapper-dir (append-dir-dir (getenv "HOME") "rappermc"))
+(define *rapper-command* (append-dir-file rapper-dir "rapper"))
+
 (define rapper-process
   (let ((pid #f))
     (lambda args
@@ -29,49 +34,70 @@
 	    (format #t "ignored: ~s~%" args)))))))
 	   
 
-(define (arp/warp-it imol chain-id start-resno end-reno sequence number-of-models)
+(define (arp/warp-it imol chain-id start-resno end-resno sequence number-of-models)
 
   (let ((imol-map (imol-refinement-map)))
     (if (not (valid-map-molecule? imol-map))
 	(format #t "No valid map molecule given (possibly ambiguous)~%")
 	(let* ((str (string-append "//" chain-id "/" (number->string start-resno)
-				   "-" (number->string end-reno)))
+				   "-" (number->string end-resno)))
 	       (frag-mol (new-molecule-by-atom-selection imol str))
 	       (fragment-pdb "coot-rapper-fragment-in.pdb")
 	       (map-file "coot-rapper.map"))
 	  (write-pdb-file frag-mol fragment-pdb)
 	  (export-map imol-map map-file)
 	  (format #t "running loopy: ~s ~s ~s ~s ~s ~s~%"
-		  imol chain-id start-resno end-reno sequence number-of-models)))))
+		  imol chain-id start-resno end-resno sequence number-of-models)))))
 
-(define (rapper-it imol chain-id start-resno end-reno sequence number-of-models)
+(define (rapper-it imol chain-id start-resno end-resno sequence number-of-models)
 
   (let ((imol-map (imol-refinement-map)))
     (if (not (valid-map-molecule? imol-map))
 	(format #t "No valid map molecule given (possibly ambiguous)~%")
 	(let* ((str (string-append "//" chain-id "/" (number->string start-resno)
-				   "-" (number->string end-reno)))
+				   "-" (number->string end-resno)))
 	       (frag-mol (new-molecule-by-atom-selection imol str))
 	       (fragment-pdb "coot-rapper-fragment-in.pdb")
 	       (map-file "coot-rapper.map"))
 	  (write-pdb-file frag-mol fragment-pdb)
 	  (export-map imol-map map-file)
 	  (format #t "running rapper: ~s ~s ~s ~s ~s ~s~%"
-		  imol chain-id start-resno end-reno sequence number-of-models)
-	  (let ((rapper-pid (run-concurrently "rappper" "params.xml"
-					      "--pdb" fragment-pdb 
-					      "--map" map-file 
-					      "--start" (number->string start-resno)
-					      "--stop"  (number->string   end-resno)
-					      "--mainchain-restraint-threshold" "2.0"
-					      "--sidechain-centroid-restraint-threshold"  "2.0"
-					      "--sidechain-mode" "smart"
-					      "--sidechain-radius-reduction" "0.75"
-					      "--enforce-mainchain-restraints" "true"
-					      "--enforce-sidechain-centroid-restraints" "true"
-					      "--edm-fit" "true"
-					      "--rapper-dir" rapper-dir)))
-	    (rapper-process 'store rappper-pid))))))
+		  imol chain-id start-resno end-resno sequence number-of-models)
+;	  (let ((rapper-pid (run-concurrently "rappper" "params.xml"
+;					      "--pdb" fragment-pdb 
+;					      "--map" map-file 
+;					      "--start" (number->string start-resno)
+;					      "--stop"  (number->string   end-resno)
+;					      "--mainchain-restraint-threshold" "2.0"
+;					      "--sidechain-centroid-restraint-threshold"  "2.0"
+;					      "--sidechain-mode" "smart"
+;					      "--sidechain-radius-reduction" "0.75"
+;					      "--enforce-mainchain-restraints" "true"
+;					      "--enforce-sidechain-centroid-restraints" "true"
+;					      "--edm-fit" "true"
+;					      "--rapper-dir" rapper-dir)))
+	    ; (rapper-process 'store rappper-pid))))))
+
+	  (let ((rapper-status (goosh-command *rapper-command*
+					      (list "params.xml"
+						    "--pdb" fragment-pdb 
+						    "--map" map-file 
+						    "--start" (number->string start-resno)
+						    "--stop"  (number->string   end-resno)
+						    "--mainchain-restraint-threshold" "2.0"
+						    "--sidechain-centroid-restraint-threshold"  "2.0"
+						    "--sidechain-mode" "smart"
+						    "--sidechain-radius-reduction" "0.75"
+						    "--enforce-mainchain-restraints" "true"
+						    "--enforce-sidechain-centroid-restraints" "true"
+						    "--edm-fit" "true"
+						    "--rapper-dir" rapper-dir)
+					      '()
+					      ""
+					      #f)))
+	    (format #t "rapper-status: ~s~%" rapper-status)
+	    )))))
+
     
 
 (define (stop-rapper)
@@ -116,7 +142,7 @@
 	 ; end resno
 	 (label-end-resno (gtk-label-new "        End Res Number: "))
 	 (entry-end-resno (gtk-entry-new))
-
+	 
 	 ; :: sequence
 
 	 ; sequence as it currently is:
@@ -168,6 +194,8 @@
     (gtk-box-pack-start vbox  buttons-hbox  #t #f 2)
     (gtk-container-add window vbox)
 
+    (gtk-entry-set-text entry-models "2")
+
     (gtk-toggle-button-set-active sequence-as-is-check-button #t)
 
     (gtk-signal-connect stop-button "clicked" (lambda () (stop-rapper)))
@@ -184,7 +212,8 @@
 				(let* ((chain-text (gtk-entry-get-text entry-chain))
 				       (start-resno-text (gtk-entry-get-text entry-start-resno))
 				       (end-resno-text (gtk-entry-get-text entry-end-resno))
-				       (sequence (get-text-from-text-widget text-sequence))
+				  ;      (sequence (gtk-text-get-text text-sequence))
+				       (sequence "")
 				       (number-of-models-text (gtk-entry-get-text entry-models))
 				       (start-resno (string->number start-resno-text))
 				       (end-resno (string->number end-resno-text))
@@ -199,12 +228,12 @@
 						      rapper-it
 						      arp/warp-it)))
 					(proc imol chain-text start-resno end-resno
-					      sequence number-of-models)))))))
+					      sequence number-of-models))))))))
 				      
     (gtk-widget-show-all window)))
 
 
-(a-rapper-gui)
+(a-rapper-gui 'rapper)
 
 
 ; I have no idea why I wanted a timer here...
