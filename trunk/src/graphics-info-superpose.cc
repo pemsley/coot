@@ -103,7 +103,7 @@ void graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *c
 // static
 void
 graphics_info_t::superpose_reference_chain_option_menu_item_activate (GtkWidget *item,
-							  GtkPositionType pos) { 
+								      GtkPositionType pos) { 
 
    char *data = NULL;
    data = (char *)pos;
