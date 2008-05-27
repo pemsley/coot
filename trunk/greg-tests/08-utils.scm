@@ -22,3 +22,10 @@
 	   (= 4 tot)))))
 
 		     
+
+(greg-testcase "Internal/External Molecule Numbers match" #t 
+   (lambda ()
+
+     (let ((m (molecule-number-list)))
+       (equal? m (map own-molecule-number m)))))
+
