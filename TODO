@@ -198,6 +198,9 @@
 
    o check for updates?
 
+   o push back the rotation centre (for hardware stereo mode) in the
+     viewport? [Mark Mayer 20080527].
+
    o Revisit CCP4mg button
 
    o Gtk2 coot: set the colour patch in the map properties and
@@ -262,6 +265,9 @@
      that does not.  A macro maybe.
 
    o Rotate/Translate a whole protein (many chains)
+
+   o When there is a non-square GL context, the axes become skewed.
+     Needs othogonalizing.
 
    o Geometric distortions graph for alt confs - currently broken?
 
