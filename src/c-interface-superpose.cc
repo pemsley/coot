@@ -345,7 +345,17 @@ GtkWidget *wrapped_create_superpose_dialog() {
 	 graphics_info_t::superpose_imol2 = i;
 	 break;
       }
-   } 
+   }
+
+   GtkWidget *chain_ref_om = lookup_widget(w, "superpose_reference_chain_optionmenu");
+   GtkWidget *chain_mov_om = lookup_widget(w, "superpose_moving_chain_optionmenu");
+
+   GtkWidget *chain_ref_menu = gtk_menu_new();
+   GtkWidget *chain_mov_menu = gtk_menu_new();
+
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(chain_ref_om), chain_ref_menu);
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(chain_mov_om), chain_mov_menu);
+   
 #endif // HAVE_SSMLIB
    return w;
 } 
