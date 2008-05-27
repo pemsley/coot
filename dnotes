@@ -8,7 +8,7 @@
 
    o  Need to check torsion restraints 
       and wiggly ligands
-          get_torsionq_bonds_atom_pairs() in wiggly ligands?
+          get_torsion_bonds_atom_pairs() in wiggly ligands?
       and Edit Chi
       now that I have enabled the reading of CONST torsions
 
@@ -5333,6 +5333,35 @@ Sun Apr  6 22:01:39 BST 2008
 ----
 Mon Apr 14 09:33:36 BST 2008
 
+Lothar Esser
+
+I am using coot 0.5 pre 958 and noticed that after resizing the
+window of the ramachandran plot and possibly zooming in (with the
+right mouse) the scroll bars don't allow to pan over the plot. Only
+under extreme zoom, the scroll bars allow a little bit of
+adjustment. I have over 2000 residues and need to zoom and scroll a
+bit if I want to click on residues.
+
+I do get error messages on the
+terminal that might help:
+
+** CRITICAL **: file gtk-canvas.c: line 3518
+** (gtk_canvas_set_pixels_per_unit): a ssertion `n >
+** GTK_CANVAS_EPSILON' failed.
+
+The same message repeats presumably every
+time I scroll(?) or perphas zoom.
+
+Also, I noticed after a long search that the -key zooms out after I
+had zoomed in with the right-mouse. Could zooming out be added to the
+mouse perhaps like Shift-right-mouse ?
+
+Another feature of coot would be good: Show ramachandran plots by
+chains that the user select i.e. a plot with one chain at a time.
+
+---
+Fri Apr 18 17:43:12 BST 2008
+
     There is a EM software wiki (scripps?) 
 
 -----
@@ -5567,4 +5596,12 @@ Sat May 10 07:22:54 CST 2008
 -----
    How does side by side stereo work for maps when using (default on Mac) 
    (set-display-lists-for-maps 1)
+
+
+-----
+
+   do ncs map average. then denisty fit analysis vs the average map -
+   the scores go down vs the first map (adding not averaging suggests
+   eleanor?)
+
 
