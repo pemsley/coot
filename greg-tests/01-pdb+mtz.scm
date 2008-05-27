@@ -929,6 +929,21 @@
 	       (format #t "bond-length: ~s: ~%"
 		       (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
 
-	       (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04)))))))
 
+(greg-testcase "Test for flying hydrogens on undo" #t 
+   (lambda ()
+
+     (let ((imol (greg-pdb "monomer-VAL.pdb")))
+       
+       (with-auto-accept (regularize-zone imol "A" 1 1 ""))
+       (set-undo-molecule imol)
+       (apply-undo)
+       (with-auto-accept (regularize-zone imol "A" 1 1 ""))
+       
+       (let ((atom-1 (get-atom imol "A" 1 "HG11"))
+	     (atom-2 (get-atom imol "A" 1 " CG1")))
+
+	 (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)))))
+
+	       (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04)))))))
 
