@@ -473,6 +473,12 @@ int reset_view();
   @return the number of molecules (closed molecules are not counted) */
 int graphics_n_molecules(); 
 
+/* a testing/debugging function.  Used in a test to make sure that the
+   outside number of a molecule (the vector index) is the same as that
+   embedded in the molecule description object.  Return -1 on
+   non-valid passed imol. */
+int own_molecule_number(int imol);
+
 int next_map_for_molecule(int imol); /* return a map number */
 
 /*! \brief Spin spin spin (or not) */

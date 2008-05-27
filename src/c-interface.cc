@@ -3160,6 +3160,20 @@ int graphics_n_molecules() {
    return graphics_info_t::n_molecules();
 }
 
+
+/* a testing/debugging function.  Used in a test to make sure that the
+   outside number of a molecule (the vector index) is the same as that
+   embedded in the molecule description object.  Return -1 on
+   non-valid passed imol. */
+int own_molecule_number(int imol) { 
+
+  int r = -1;
+  if (is_valid_model_molecule(imol)) { 
+    r = graphics_info_t::molecules[imol].MoleculeNumber();
+  }
+  return r;
+}
+
 int next_map_for_molecule(int imol) { /* return a map number */
    return graphics_info_t::molecules[imol].next_free_map();
 }
