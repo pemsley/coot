@@ -9289,7 +9289,6 @@ create_residue_info_dialog (void)
   vbox65 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox65);
   gtk_box_pack_start (GTK_BOX (dialog_vbox14), vbox65, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (vbox65, -1, 380);
 
   residue_info_residue_label = gtk_label_new (_("Residue: "));
   gtk_widget_show (residue_info_residue_label);
@@ -9347,6 +9346,7 @@ create_residue_info_dialog (void)
   scrolledwindow23 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow23);
   gtk_box_pack_start (GTK_BOX (vbox65), scrolledwindow23, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow23, -1, 176);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow23, GTK_CAN_FOCUS);
 
   viewport18 = gtk_viewport_new (NULL, NULL);
@@ -9367,7 +9367,7 @@ create_residue_info_dialog (void)
   gtk_box_pack_start (GTK_BOX (residue_info_hbox), residue_info_atom_table, TRUE, TRUE, 0);
 
   chi_angles_frame = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (vbox65), chi_angles_frame, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox65), chi_angles_frame, FALSE, TRUE, 0);
 
   alignment106 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_show (alignment106);
