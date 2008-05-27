@@ -3,7 +3,8 @@
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2007, 2008 by The University of Oxford
+ * Copyright 2007, 2008 The University of Oxford
+ * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
  * Copyright 2007 by Bernhard Lohkamp
  * Copyright 2007 The University of York
@@ -714,8 +715,8 @@ SCM py_to_scm(PyObject *o) {
 // 
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code) {
 
-   SCM r = SCM_BOOL(0);
-   if (is_valid_model_molecule(imol)) {
+  SCM r = SCM_BOOL_F;
+  if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
       
@@ -731,9 +732,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 	    PCResidue residue_p;
 	    CAtom *at;
 
-	    // why use this bizarre contrivance to get a null list for
-	    // starting? I must be missing something.
-	    SCM all_atoms = SCM_CAR(scm_listofnull);
+	    SCM all_atoms = SCM_EOL;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       std::string res_ins_code(residue_p->GetInsCode());
@@ -1284,7 +1283,7 @@ generic_list_to_string_vector_internal(SCM l) {
    int l_length = gh_scm2int(l_length_scm);
    for (int i=0; i<l_length; i++) {
       SCM le = scm_list_ref(l, SCM_MAKINUM(i));
-      std::string s =  SCM_STRING_CHARS(le);
+      std::string s = SCM_STRING_CHARS(le);
       r.push_back(s);
    }
 
