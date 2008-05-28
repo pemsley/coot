@@ -22,10 +22,10 @@
 	   (= 4 tot)))))
 
 		     
+; skip this for now.
+;(greg-testcase "Internal/External Molecule Numbers match" #t 
+;   (lambda ()
 
-(greg-testcase "Internal/External Molecule Numbers match" #t 
-   (lambda ()
-
-     (let ((m (molecule-number-list)))
-       (equal? m (map own-molecule-number m)))))
+;     (let ((m (molecule-number-list)))
+;       (equal? m (map own-molecule-number m)))))
 
