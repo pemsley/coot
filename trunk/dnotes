@@ -81,7 +81,12 @@
 
 
 
-69 Done.
+78 Done.
+
+   o Do a refinement on 3bv2 in CA + ligand mode.  It changes the
+     colour scheme to rainbow representation.
+ 
+* Fixed.
 
    o multi-carbo.pdb contains 2 residues that should have a glycosidic
      linkage.  However, the regularization on it fails (they move
@@ -254,7 +259,6 @@ Done.
 
 * Fixed.  
 
-
    o Valgrind long/multiple fit-proteins. I valgrinded the tests. 
 
 * Done. Fixed bug.  SSM and clipper bugs left.
@@ -346,7 +350,6 @@ Done.
    o "Thick bonds" for ligands etc
 
 * Done.  Needs Ball and Stick to be enabled though
-
 
    o Nigel's python restraints -> non found on regularization
 

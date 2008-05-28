@@ -2262,8 +2262,8 @@ molecule_class_info_t::make_ca_plus_ligands_bonds() {
    Bond_lines_container bonds;
    bonds.do_Ca_plus_ligands_bonds(atom_sel, 2.4, 4.7);
    bonds_box = bonds.make_graphical_bonds();
-   bonds_box_type = coot::CA_BONDS;
-   bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS; // FIXME
+   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+   
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
 
