@@ -3871,6 +3871,9 @@ void add_additional_representation_by_widget(GtkWidget *w) {
    float bond_width = 8;
    int bonds_box_type = coot::NORMAL_BONDS;
    short int representation_type = coot::SIMPLE_LINES;
+   if (GTK_TOGGLE_BUTTON(add_reps_ball_and_stick_radiobutton)->active) {
+      representation_type = coot::BALL_AND_STICK;
+   }
    bool draw_H_flag = 1;
    gchar* bond_width_text = 0;
 #ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT

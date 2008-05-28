@@ -107,3 +107,53 @@
 		 #t)))))))
 
 
+(greg-testcase "flip residue (around eigen vectors)" #t 
+   (lambda ()
+
+     ;; not to self, make sure this file is available when then test
+     ;; is run for real.
+     ;;
+     (let* ((imol-orig (read-pdb "monomer-3GP.pdb"))
+	    (imol-copy (copy-molecule imol-orig)))
+       (let ((active-atom (active-residue)))
+	 (if (not active-atom)
+	     (begin
+	       (format #t "No active atom~%")
+	       #f)
+	     (let ((imol      (list-ref active-atom 0))
+		   (chain-id  (list-ref active-atom 1))
+		   (res-no    (list-ref active-atom 2))
+		   (ins-code  (list-ref active-atom 3))
+		   (atom-name (list-ref active-atom 4))
+		   (alt-conf  (list-ref active-atom 5)))
+	       (if (= imol imol-orig)
+		   (begin
+		     (format #t "oops - didn't pick the copy for active res~%")
+		     #f)
+		   (begin
+		     (flip-ligand imol chain-id res-no)
+		     (let ((atom-orig-1 (get-atom imol-orig "A" 1 " C8 "))
+			   (atom-move-1 (get-atom imol      "A" 1 " C8 ")))
+		       (let ((d (bond-length (list-ref atom-orig-1 2)
+					   (list-ref atom-move-1 2))))
+			 (format #t "distance: ~s~%" d)
+			 (if (not (> d 2.1))
+			     (begin
+			       (format #t "fail to move test atom d1~%"))
+			     (begin
+			       (flip-ligand imol chain-id res-no)
+			       (flip-ligand imol chain-id res-no)
+			       (flip-ligand imol chain-id res-no)
+			       ;; having flipped it round the axes 4
+			       ;; times, we should be back where we
+			       ;; started.
+			       (let ((atom-orig-1 (get-atom imol-orig "A" 1 " C8 "))
+				     (atom-move-1 (get-atom imol      "A" 1 " C8 ")))
+				 (let ((d2 (bond-length (list-ref atom-orig-1 2)
+							(list-ref atom-move-1 2))))
+				   (format #t "distance d2: ~s~%" d2)
+				   (if (not (< d2 0.001))
+				       (begin
+					 (format #t "fail to move atom back to start d2~%"))
+				       #t)))))))))))))))
+				       

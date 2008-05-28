@@ -4,6 +4,9 @@
 
    16 Items
 
+   o molecule-number consistency test (own-molecule-number) is
+     returning -1 for maps created by another-level.
+
    o Make ball and stick mode to work in Additional Representations
 
    o  Need to check torsion restraints 
@@ -14,6 +17,11 @@
 
       How about a test for wiggly ligands and then we can put this
       item to bed.
+
+   o Re-instate (and bug fix) the molecule-number greg-test in
+     08-utils.scm
+
+   o Fix the DNA/RNA names test (penelope gtk2 old-tests)
 
    o Finish A-RAPPER-gui
 

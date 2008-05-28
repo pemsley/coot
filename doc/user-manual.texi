@@ -2283,16 +2283,17 @@ more than one residue.
 @section Rotamers
 @cindex Dunbrack, Roland
 @cindex rotamers 
-The rotamers are generated
-from the backbone independent sidechain library of Roland Dunbrack and
-co-workers @footnote{R. L.  Dunbrack, Jr. & F. E.  Cohen. "Bayesian
-  statistical analysis of protein sidechain rotamer preferences"
-  @emph{Protein Science}, @b{6}, 1661--1681 (1997). }. According
-to this analysis, some sidechains have many rotamer
-options @footnote{LYS, for example has 81.}.  By default only rotamers
-with a probability (as derived from the structural database) greater
-than 1% are considered. The initial position is the most likely for
-that residue type (based on prior structure statistics only).
+
+Using the default build, the rotamers are generated @footnote{since
+version 0.4} from the backbone independent sidechain library of the
+Richarsondons group @footnote{SC Lovell, JM Word, JS Richardson and DC
+Richardson (2000) "The Penultimate Rotamer Library" Proteins: Structure
+Function and Genetics 40: 389-408.  You can get the paper from
+@url{http://kinemage.biochem.duke.edu/databases/rotamer.php}}.
+
+The m, t and p stand for ``minus (-60)'', ``trans (180)'' and ``plus
+(+60)''.  There is one letter per @match{\chi} angle.
+
 
 @c ------------------ Olden coot -----------------
 @c To change the probability lower limit for the rotamer selection use

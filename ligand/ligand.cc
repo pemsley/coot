@@ -2,6 +2,8 @@
  * 
  * Copyright 2002, 2003, 2004, 2005 by The University of York
  * Author Paul Emsley
+ * Copyright 2008 by The University of Oxford
+ * Author Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1531,16 +1533,15 @@ coot::ligand::make_ligand_properties(int ilig) {
    }
    
    if (verbose_reporting) { 
-      std::cout << "ligand eigens: " 
+      std::cout << "ligand eigen values: " 
 		<< initial_ligand_eigenvalues[ilig][0] << "  " 
 		<< initial_ligand_eigenvalues[ilig][1] << "  " 
 		<< initial_ligand_eigenvalues[ilig][2] << "  " << std::endl;
-      std::cout << " ligand vectors: " << std::endl
+      std::cout << " ligand eigen vectors: " << std::endl
 		<< initial_ligand_eigenvectors[ilig].format() << std::endl;
    }
 //    std::cout << "DEBUG:: initial_ligand_eigenvectors[" << ilig << "] determinant "
 // 	     << initial_ligand_eigenvectors[ilig].det() << std::endl;
-
 
 
 }
@@ -2036,6 +2037,15 @@ clipper::Coord_orth
 coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
 				    int ilig, int iclust, int ior) const {
 
+   return transform_ligand_atom(a_in, ilig, 
+				cluster[iclust].eigenvectors_and_centre,
+				ior);
+}
+
+clipper::Coord_orth
+coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
+				    int ilig, const clipper::RTop_orth &cluster_rtop, int ior) const {
+
    clipper::Coord_orth a;
 
    clipper::RTop_orth ligand_op(initial_ligand_eigenvectors[ilig],
@@ -2053,10 +2063,13 @@ coot::ligand::transform_ligand_atom(clipper::Coord_orth a_in,
    
    a = a_in.transform(lopi); // move to origin
    a = a.transform(origin_rotate_op); // rotate round origin
-   a = a.transform(cluster[iclust].eigenvectors_and_centre);
+   a = a.transform(cluster_rtop);
    
    return a;
 }
+
+
+
 
 
 // Return the operator that tranforms the initial ligand to
@@ -2426,3 +2439,32 @@ coot::ligand::import_reference_coords(CMMDBManager *mol) {
 
 }
 
+
+
+/* Flip the ligand (usually active residue) around its eigen
+   vectors to the next flip number.  Immediate replacement (like
+   flip peptide). We need to undo the current flip number first
+   though (if flip_number is not 1). */
+coot::minimol::molecule
+coot::ligand::flip_ligand(short int flip_number) const {
+
+   // the unflips rotate (back) 180 degrees
+   int unflip_number = flip_number -1;
+   if (unflip_number == -1)
+      unflip_number = 3;
+
+   coot::minimol::molecule m = initial_ligand[0];
+
+   std::vector<minimol::atom *> atoms_p = m.select_atoms_serial();
+
+   std::cout << "DEBUG:: flip_number is "  << flip_number << std::endl;
+   for (unsigned int ii=0; ii<atoms_p.size(); ii++) {
+      clipper::Coord_orth lig_centre = initial_ligand_model_centre[0];
+      clipper::Mat33<double> lig_eigenvectors = initial_ligand_eigenvectors[0];
+      clipper::RTop_orth cl_op(lig_eigenvectors, lig_centre);
+      atoms_p[ii]->pos = transform_ligand_atom(atoms_p[ii]->pos,0,cl_op,unflip_number);
+      atoms_p[ii]->pos = transform_ligand_atom(atoms_p[ii]->pos,0,cl_op,flip_number);
+   }
+
+   return m;
+} 

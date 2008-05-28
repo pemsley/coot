@@ -1708,6 +1708,9 @@ int another_level_from_map_molecule_number(int imap) {
           graphics_info_t::molecules[imap].save_low_reso_limit,
           graphics_info_t::molecules[imap].save_high_reso_limit);
 
+//       std::cout << "DEBUG:: istat in another_level_from_map_molecule_number "
+// 		<< istat << std::endl;
+      
       if (istat != -1) { 
 
 	 float map_sigma = graphics_info_t::molecules[istat].map_sigma();

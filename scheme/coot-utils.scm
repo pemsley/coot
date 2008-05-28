@@ -87,16 +87,15 @@
 ;;
 (define molecule-number-list
   (lambda ()
-    (let ((n-molecules (graphics-n-molecules)))
-      (let loop ((ls (number-list 0 (- n-molecules 1)))
-		 (acc '()))
-	(cond
-	 ((null? ls) (reverse acc))
-	 ((or (valid-map-molecule? (car ls))
-	      (valid-model-molecule? (car ls)))
-	  (loop (cdr ls) (cons (car ls) acc)))
-	 (else 
-	  (loop (cdr ls) acc)))))))
+    (let loop ((ls (range (graphics-n-molecules)))
+	       (acc '()))
+      (cond
+       ((null? ls) (reverse acc))
+       ((or (valid-map-molecule? (car ls))
+	    (valid-model-molecule? (car ls)))
+	(loop (cdr ls) (cons (car ls) acc)))
+       (else 
+	(loop (cdr ls) acc))))))
 
 ;; first n fields of ls. if length ls is less than n, return ls.
 ;; if ls is not a list, return ls.  If n is negative, return ls.
@@ -1368,6 +1367,18 @@
 	  (set-go-to-atom-chain-residue-atom-name chain-id
 						  resno
 						  atom-name)))))
+
+(define (flip-active-ligand)
+  (let ((active-atom (active-residue)))
+    (if active-atom
+	(let ((imol      (list-ref active-atom 0))
+	      (chain-id  (list-ref active-atom 1))
+	      (resno     (list-ref active-atom 2))
+	      (ins-code  (list-ref active-atom 3))
+	      (atom-name (list-ref active-atom 4))
+	      (alt-conf  (list-ref active-atom 5)))
+	  (flip-ligand imol chain-id resno)))))
+
 
 ;; Typically one might want to use this on a water, but it deletes the
 ;; nearest CA currently...  Needs a re-think.  Should active-atom just

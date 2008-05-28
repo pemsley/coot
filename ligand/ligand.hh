@@ -133,6 +133,7 @@ namespace coot {
       // eigenvectors of the density cluster.  They are set at
       // construction time.
       std::vector<clipper::Mat33<double> > origin_rotations; 
+      std::vector<clipper::Mat33<double> > origin_unrotations; 
       std::string ligand_filename(int n_count, int ior) const;
       
       void trace_along(const clipper::Coord_grid &cg_start,
@@ -203,7 +204,10 @@ namespace coot {
       clipper::Coord_orth transform_ligand_atom(clipper::Coord_orth a_in,
 						int ilig, int iclust, int ior,
 						const clipper::RTop_orth &eigen_ori) const;
-
+      clipper::Coord_orth transform_ligand_atom(clipper::Coord_orth a_in,
+						int ilig,
+						const clipper::RTop_orth &cluster_rtop,
+						int ior) const;
 
       std::vector <std::vector<minimol::molecule> > fitted_ligand_vec;
 
@@ -517,7 +521,11 @@ namespace coot {
       short int masking_molecule_has_atoms() const;
 
 
-
+      /* flip the ligand (usually active residue) around its eigen
+	 vectors to the next flip number.  Immediate replacement (like
+	 flip peptide). We need to undo the current flip number first
+	 though (if flip_number is not 1). */
+      coot::minimol::molecule flip_ligand(short int flip_number) const;
    }; 
    
 
