@@ -361,12 +361,14 @@ namespace coot {
        type = UNSET;
      }
      std::string name() const;
+     std::string mmdb_string() const;
    };
 
    class additional_representations_t { 
    public:
      bool show_it;
      int bonds_box_type;
+     int representation_type;
      float bond_width;
      bool draw_hydrogens_flag;
      graphical_bonds_container bonds_box;
@@ -374,6 +376,7 @@ namespace coot {
      CMMDBManager *mol;
      void fill_bonds_box();
      additional_representations_t(CMMDBManager *mol_in,
+				  int representation_type_in,
 				  int bonds_box_type_in,
 				  float bond_width_in,
 				  bool draw_hydrogens_flag_in,
@@ -381,6 +384,7 @@ namespace coot {
        show_it = 1;
        mol = mol_in;
        bond_width = bond_width_in;
+       representation_type = representation_type_in;
        bonds_box_type = bonds_box_type_in;
        draw_hydrogens_flag = draw_hydrogens_flag_in;
        atom_sel_info = atom_sel_info_in;
@@ -573,6 +577,8 @@ class molecule_class_info_t {
    std::vector<std::string> map_chains_to_new_chains(const std::vector<std::string> &adding_model_chains,
 						     const std::vector<std::string> &this_model_chains) const;
    void copy_and_add_residue_to_chain(CChain *this_model_chain, CResidue *add_model_residue);
+
+   short int ligand_flip_number;
 
    // NCS ghost molecules:
    // 
@@ -816,7 +822,14 @@ class molecule_class_info_t {
       // save index
       coot_save_index = 0;
 
-      //
+      // ligand flipping. save the index
+      ligand_flip_number = 0; // or 1 2 3 for the 4 different
+			      // orientations round the eigen vectors.
+			      // (For ligand molecules).  In future,
+			      // this may need to be keyed on the
+			      // resno and chain_id for multiple
+			      // ligands in a molecule.
+
       show_symmetry = 1; // individually on by default.
 
       // Draw NCS ghosts?
@@ -877,7 +890,7 @@ class molecule_class_info_t {
 
    std::string name_; // otherwise get and set, so make it public.
 
-   int MoleculeNumber() { return imol_no; }
+   int MoleculeNumber() const { return imol_no; }
 
    std::string save_mtz_file_name;
    std::string save_f_col;
@@ -2169,6 +2182,7 @@ class molecule_class_info_t {
    clipper::Coord_orth find_peak_along_line(const clipper::Coord_orth &p1,
 					    const clipper::Coord_orth &p2) const;
 
+   coot::minimol::molecule eigen_flip_residue(const std::string &chain_id, int resno); 
 
    // replace molecule
    int replace_molecule(CMMDBManager *mol);

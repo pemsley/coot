@@ -1056,6 +1056,30 @@ void set_find_ligand_n_top_ligands(int n) { /* fit the top n ligands,
 
 }
 
+/* flip the ligand (usually active residue) around its eigen vectoros
+   to the next flip number.  Immediate replacement (like flip
+   peptide). */
+void flip_ligand(int imol, const char *chain_id, int resno) {
+
+   // note that if the ligand's current flip_number is not 0, then we
+   // need to undo a the current flip number before applying the next
+   // one.  If the new flip_number is 0, we just undo of course.
+   if (is_valid_model_molecule(imol)) {
+      coot::minimol::molecule m = 
+	 graphics_info_t::molecules[imol].eigen_flip_residue(chain_id, resno);
+
+      if (0) { 
+	 float bf = graphics_info_t::default_new_atoms_b_factor;
+	 atom_selection_container_t asc = make_asc(m.pcmmdbmanager(bf));
+	 int g_mol = graphics_info_t::create_molecule();
+	 std::string label = "flipping residue";
+	 graphics_info_t::molecules[g_mol].install_model(g_mol, asc, label, 1);
+      }
+   }
+   graphics_draw();
+}
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Mask                                                    */

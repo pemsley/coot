@@ -3301,6 +3301,11 @@ void execute_get_mols_ligand_search(GtkWidget *button);
    up. */
 void  free_blob_dialog_memory(GtkWidget *w);
 
+/* flip the ligand (usually active residue) around its eigen vectors
+   to the next flip number.  Immediate replacement (like flip
+   peptide). */
+void flip_ligand(int imol, const char *chain_id, int resno);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

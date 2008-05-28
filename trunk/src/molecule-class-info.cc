@@ -83,12 +83,16 @@
 #include "clipper/core/map_interp.h"
 #endif 
 
+#include "ligand.hh"
+
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
 // window magic jiggery pokery.
 #define AddAtomA AddAtom
 #define GetAtomNameA GetAtomName
 #endif
+
+
 
 
 
@@ -1808,6 +1812,21 @@ coot::atom_selection_info_t::name () const {
    return s;
 }
 
+std::string
+coot::atom_selection_info_t::mmdb_string() const {
+
+   std::string s = atom_selection_str;
+   if (type == BY_ATTRIBUTES) {
+      s = "//";
+      s += chain_id;
+      s += "/";
+      s += coot::util::int_to_string(resno_start);
+      s += "-";
+      s += coot::util::int_to_string(resno_end);
+   } 
+   return s;
+}
+
 
 void
 coot::additional_representations_t::fill_bonds_box() {
@@ -1872,15 +1891,21 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 						     const coot::atom_selection_info_t &info,
 						     GtkWidget *display_control_window) {
 
-   coot::additional_representations_t rep(atom_sel.mol, bonds_box_type_in,
-					  bonds_width, draw_hydrogens_flag, info);
-   add_reps.push_back(rep);
-   int n_rep = add_reps.size() -1;
-   std::string name = rep.info_string();
-
-   GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
-   display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
-   
+   int n_rep = -1;
+   if (representation_type == coot::SIMPLE_LINES) { 
+      coot::additional_representations_t rep(atom_sel.mol,
+					     representation_type,
+					     bonds_box_type_in,
+					     bonds_width, draw_hydrogens_flag, info);
+      add_reps.push_back(rep);
+      n_rep = add_reps.size() -1;
+      std::string name = rep.info_string();
+      GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
+      display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
+   }
+   if (representation_type == coot::BALL_AND_STICK) {
+      make_ball_and_stick(info.mmdb_string(), 0.15, 0.3, 1);
+   }
    return (add_reps.size() - 1);
 }
 
@@ -5908,8 +5933,45 @@ molecule_class_info_t::remove_atom_labels() {
 
    labelled_atom_index_list.clear();
    labelled_symm_atom_index_list.clear();
+}
 
+coot::minimol::molecule
+molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno) {
+
+
+   coot::minimol::molecule m;
+   
+   CResidue *res = get_residue(resno, "", chain_id);
+   if (!res) {
+      std::cout << "DEBUG:: residue not found " << chain_id << " " << resno
+		<< " in molecule number " << MoleculeNumber()
+		<< std::endl;
+   } else { 
+      make_backup();
+
+      coot::ligand lig;
+      coot::minimol::residue r(res);
+      coot::minimol::fragment f(res->GetChainID());
+      f.residues.push_back(res);
+      coot::minimol::molecule ligand;
+      ligand.fragments.push_back(f);
+      
+      ligand_flip_number++;
+      if (ligand_flip_number == 4)
+	 ligand_flip_number = 0;
+
+      lig.install_ligand(ligand);
+      m = lig.flip_ligand(ligand_flip_number);
+      
+      make_bonds_type_checked();
+      have_unsaved_changes_flag = 1;
+
+      float bf = 1.0;
+      replace_coords(make_asc(m.pcmmdbmanager(bf)), 0);
+   }
+   return m;
 } 
+
 
 
 // So that we can move around all the atoms of a ligand (typically)

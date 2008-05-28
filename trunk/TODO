@@ -176,6 +176,16 @@
      forget to also rotate the mainchain hydrogens.  Does
      is_mainchain_atom() working for mainchain hydrogens?
 
+   o Investigate interupting long fitting/Post MR tools [JED request]
+
+   o add a mechanism where we can register functions to run after
+     refinement and/or regularization. 
+  
+     or deleting things says JED.  In fact, a funtion to run that is
+      attached to a molecule (somehow) on any update/change/manipulation.
+
+   o Use libglade
+
    o Move widget functions in c-interface-build.cc to
      c-interface-gui.cc (or consider new c-interface-build-gui.cc).
 
