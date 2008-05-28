@@ -83,7 +83,7 @@
 	   (begin 
 	     (let loop ((count 0))
 	       (cond
-		((= count 50) 'done)
+		((= count 5) 'done)
 		(else 
 		 (let ((imol-copy (copy-molecule imol-npo)))
 		   (set-mol-displayed imol-copy 0))
