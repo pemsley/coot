@@ -3474,8 +3474,17 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	    int im = nearest_atom_index_info.imol;
 	    graphics_info_t g;
 	    g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	    g.graphics_draw();
+	 } else {
+	    if (graphics_info_t::show_symmetry) {
+	       coot::Symm_Atom_Pick_Info_t symm_atom_info = info.symmetry_atom_pick();
+	       if (symm_atom_info.success == GL_TRUE) {
+		  info.molecules[symm_atom_info.imol].add_atom_to_labelled_symm_atom_list(symm_atom_info.atom_index,
+											  symm_atom_info.symm_trans,
+											  symm_atom_info.pre_shift_to_origin);
+	       }
+	    }
 	 }
+	 graphics_draw();
       }
       return TRUE;
    }
