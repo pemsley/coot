@@ -411,6 +411,13 @@ graphics_info_t::save_state_file(const std::string &filename) {
 		  display_strings.push_back(int_to_string(molecule_count));
 		  commands.push_back(state_command(display_strings, il));
 	       }
+
+	       if (i == scroll_wheel_map) {
+		  display_strings.clear();
+		  display_strings.push_back("set-scroll-wheel-map");
+		  display_strings.push_back(int_to_string(molecule_count));
+		  commands.push_back(state_command(display_strings, il));
+	       }
 	    }
 	    if (molecules[i].show_unit_cell_flag) {
 	       display_strings.clear();

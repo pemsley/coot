@@ -13,6 +13,12 @@ Release 0.5
 
    o FEATURE: Coot can now make difference maps.
 
+   o FEATURE: The state file now remembers the refinement map number
+     [Herb Klei]
+
+   o FEATURE: The state file now remembers the scroll-wheel (contour
+     changing) map [Kevin Madauss].
+
    o CHANGE: Picking has been changed to somewhat favour those atoms
      at the front of the slab.
 
