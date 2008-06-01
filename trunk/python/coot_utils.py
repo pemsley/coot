@@ -752,8 +752,9 @@ def add_key_binding(name, key, thunk):
 def graphics_general_key_press_hook(key):
     global key_bindings
     field = [elem[1] for elem in key_bindings]
-    if (not key in field):
-	print "%s not found in key binding list %s. Feel free to use it!" %(key, key_bindings)
+#   It may not exist in python key bindings, but does in scheme.     
+#     if (not key in field):
+# 	print "%s not found in key binding list %s. Feel free to use it!" %(key, key_bindings)
 
 # example
 
@@ -1247,6 +1248,7 @@ inverse_rtop           = inverse_rtop_py
 make_atom_spec         = make_atom_spec_py
 key_sym_code           = key_sym_code_py
 map_sigma              = map_sigma_py
+get_pkgdatadir         = get_pkgdatadir_py
 
 ## and some extra ones
 show_set_undo_molecule_chooser = show_set_undo_molecule_chooser_py
