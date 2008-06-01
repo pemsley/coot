@@ -15,7 +15,7 @@ shelx.scm	     group-settings.scm   fitting.scm     americanisms.scm \
 tips.scm             tips-gui.scm         generic-objects.scm cns2coot.scm \
 extensions.scm       ncs.scm create-server.scsh coot-crash-catcher.scm     \
 snarf-coot-docs.scm  clear-backup.scm     bones-reader.scm matrices.scm    \
-fascinating-things.scm
+fascinating-things.scm shelx-extensions.scm
 
 
 

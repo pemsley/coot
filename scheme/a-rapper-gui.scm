@@ -8,7 +8,9 @@
 
 ;; something that the user sets:
 (define rapper-dir (append-dir-dir (getenv "HOME") "rappermc"))
-(define *rapper-command* (append-dir-file rapper-dir "rapper"))
+; (define *rapper-command* (append-dir-file rapper-dir "rapper"))
+(define *rapper-command* "rapper")
+
 
 (define rapper-process
   (let ((pid #f))
