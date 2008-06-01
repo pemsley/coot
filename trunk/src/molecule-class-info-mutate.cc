@@ -428,10 +428,13 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // std::cout << "INFO:: " << model << std::endl;
 
    CAlignment align;
+
    // 20080601.  Don't monkey with these.  If I uncomment the next
-   // line (as it used to be) align.SetScores(0.5, -0.2);; // 2.0, -1
-   // are the defaults, then the I get an N-term alignment error when
-   // there is a deletion at the N-term of my model (rnase).
+   // line (as it used to be) then the I get an N-term alignment error
+   // when there is a deletion at the N-term of my model (rnase).
+   // 
+   // align.SetScores(0.5, -0.2);; // 2.0, -1 are the defaults.
+   
    align.Align((char *)model.c_str(), (char *)target.c_str());
 
    ch_info.alignedS = align.GetAlignedS();

@@ -108,7 +108,7 @@
 
 
 
-
+(define reduce-molecule-updates-current #f)
 
 ;; run molprobity (well reduce and probe) to make generic objects (and
 ;; display the generic objects gui)
@@ -145,7 +145,15 @@
 		      ; imol-probe molecule (I think :-)
 		      (let* ((recentre-status (recentre-on-read-pdb))
 			     (novalue (set-recentre-on-read-pdb 0))
-			     (imol-probe (read-pdb probe-pdb-in)))
+			     (imol-probe 
+			      (if reduce-molecule-updates-current
+				  (begin
+				    (format #t "======= update molecule =======~%")
+				    (clear-and-update-model-molecule-from-file imol probe-pdb-in))
+				  (begin
+				    (format #t "======= read new pdb file =======~%")
+				    (read-pdb probe-pdb-in)
+				    imol))))
 			(if (= 1 recentre-status)
 			    (set-recentre-on-read-pdb 1))
 			; (toggle-active-mol imol-probe) let's not do
