@@ -398,10 +398,17 @@ graphics_info_t::save_state_file(const std::string &filename) {
 		  commands.push_back(state_command(command_strings, il));
 	       }
 	       if (! molecules[i].drawit_for_map) {
-		  display_strings.resize(0);
+		  display_strings.clear();
 		  display_strings.push_back("set-map-displayed");
 		  display_strings.push_back(int_to_string(molecule_count));
 		  display_strings.push_back(int_to_string(0));
+		  commands.push_back(state_command(display_strings, il));
+	       }
+
+	       if (i == imol_refinement_map) {
+		  display_strings.clear();
+		  display_strings.push_back("set-imol-refinement-map");
+		  display_strings.push_back(int_to_string(molecule_count));
 		  commands.push_back(state_command(display_strings, il));
 	       }
 	    }
