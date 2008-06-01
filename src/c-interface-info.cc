@@ -3493,11 +3493,13 @@ void write_ccp4mg_picture_description(const char *filename) {
 /*  ----------------------------------------------------------------------- */
 /*                  PKGDATDDIR                                              */
 /*  ----------------------------------------------------------------------- */
-char *get_pkgdatadir() {
+#ifdef USE_PYTHON
+PyObject *get_pkgdatadir_py() {
 
   std::string pkgdatadir = PKGDATADIR;
-  return (char *)pkgdatadir.c_str();
+  return PyString_FromString(pkgdatadir.c_str());
 }
+#endif
 
 /* refmac version */
 

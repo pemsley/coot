@@ -281,3 +281,18 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
    return istat;
 }
 
+#ifdef USE_GUILE
+SCM find_terminal_residue_type(int imol, const char *chain_id, int resno) {
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, std::string> p = 
+	 graphics_info_t::molecules[imol].find_terminal_residue_type(chain_id, resno);
+      if (p.first) {
+	 r = scm_makfrom0str(p.second.c_str());
+      }
+   }
+   return r;
+}
+
+#endif 
+

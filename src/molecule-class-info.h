@@ -632,7 +632,6 @@ class molecule_class_info_t {
    make_model_string_for_alignment(PCResidue *SelResidues,
 				   int nSelResidues) const;
 
-
    // String munging helper function (for reading mtz files).
    // Return a pair.first string of length 0 on error to construct dataname(s).
    std::pair<std::string, std::string> make_import_datanames(const std::string &fcol,
@@ -1411,6 +1410,9 @@ class molecule_class_info_t {
    // return "N', "C" or "not-terminal-residue"
    std::string get_term_type_old(int atom_index); 
    std::string get_term_type(int atom_index); 
+   // by alignment (against asigned pir seq file) return, "HIS", "ALA" etc, if we can.
+   std::pair<bool, std::string> find_terminal_residue_type(const std::string &chain_id, int resno) const;
+
 
    // These create an object that is not specific to a molecule, there
    // is only one environment bonds box, no matter how many molecules. Hmm.

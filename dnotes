@@ -2,39 +2,50 @@
 
    Things to fix before 0.5
 
-   16 Items
+   16 Items, 40 hd.
+
+   o Make a test pdb that exercises Case 3: model has deletion in
+     align_on_chain(). (tutorial-modern.pdb exercises it, but the
+     deletion is at the end of the A chain.  Make tests where the
+     deletion is at the N term and in the middle of the A chain.
+
+   o SFAC needs to be written higher in the shelx ins file, after UNIT
+     line.
+
+   o Does Replace Fragment work? Can you write a test?
+
+   o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
+     guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
+     I think.  Also there were some extranaeous ^:^s in the .x files.
 
    o molecule-number consistency test (own-molecule-number) is
-     returning -1 for maps created by another-level.
+     returning -1 for maps created by another-level.  1hd
 
-   o Make ball and stick mode to work in Additional Representations
+   o Make ball and stick mode to work in Additional Representations. 1hd
 
    o  Need to check torsion restraints 
       and wiggly ligands
           get_torsion_bonds_atom_pairs() in wiggly ligands?
       and Edit Chi
-      now that I have enabled the reading of CONST torsions
+      now that I have enabled the reading of CONST torsions.
 
       How about a test for wiggly ligands and then we can put this
-      item to bed.
+      item to bed.  1hd
 
    o Re-instate (and bug fix) the molecule-number greg-test in
-     08-utils.scm
+     08-utils.scm.  1hd
 
-   o Fix the DNA/RNA names test (penelope gtk2 old-tests)
+   o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
-   o Finish A-RAPPER-gui
+   o Finish A-RAPPER-gui, 8hd
 
-   o Finish Loopy GUI
+   o Finish Loopy GUI, 4hd.
 
-   o Kevin's Ramachandran Refinement target
+   o Kevin's Ramachandran Refinement target, 16hd
 
    o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
      message about going to wall-eyed and the state of walled eyed in
-     the status file.
-
-   o related to above maybe, does the window stay constant size (on
-     something other than a laptop) on start, exit, start exit cycling?
+     the status file. 1hd
 
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
@@ -46,7 +57,7 @@
      "Bad rotamer B  41 GLU (0.7%)" 
 
      There are 10 times more for Coot.  
-     (fix-nomenclature-errors doesn't fix anything)
+     (fix-nomenclature-errors doesn't fix anything).  3hd.
 
    o crash on delete residue range: Harri Jayaram
 
@@ -59,23 +70,26 @@
          forgot which one)
       6) Coot beachballs and takes machine down with it
 
-      Very slow.  Some fumbling of atom picking needed to tickle this?
+      Very slow.  Some fumbling of atom picking needed to tickle this? 1hd.
 
+   o look at the fail-recentre .scm state file.  It fails to try to centre
+     on a molecule other than 0 it seems (from the status bar).  <1hd
+ 
+   o make the reset view work only for coordinates molecules. <1hd.
+
+   o Correct CISPEP if needed cards on writing pdb. <1hd - depending on new mmdb code.
+
+   o PDB v3.0 compatibility < 1hd as above
+
+   o Use Eugene's new LINK-reading code < 1hd as above
 
    o check that newly read cif file overwrites the restraints of the
      previous restraint set (e.g. delete a restraint and see what
-     happens)
+     happens) < 1hd
 
-   o look at the fail-recentre .scm state file.  It fails to try to centre
-     on a molecule other than 0 it seems (from the status bar).
- 
-   o make the reset view work only for coordinates molecules.
+* Done from scheme level.  Need test from file reading level.
 
-   o Correct CISPEP if needed cards on writing pdb.
 
-   o PDB v3.0 compatibility
-
-   o Use Eugene's new LINK-reading code.
 
 
 
@@ -5616,3 +5630,7 @@ Sat May 10 07:22:54 CST 2008
    eleanor?)
 
 
+----
+
+   look at graphics-info-t::execute_add_terminal_residue() to see
+   masking a map by atoms around a point.

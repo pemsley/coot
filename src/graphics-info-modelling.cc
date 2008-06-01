@@ -1259,9 +1259,10 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 					      const std::string &terminus_type,
 					      const CResidue *res_p,
 					      const std::string &chain_id, 
-					      const std::string &res_type,
+					      const std::string &res_type_in,
 					      short int immediate_addition_flag) {
-   
+
+   std::string res_type = res_type_in; // const
    int imol_map = Imol_Refinement_Map();
    if (imol_map == -1) { 
       if (1) { 
@@ -1290,6 +1291,25 @@ graphics_info_t::execute_add_terminal_residue(int imol,
       } else {
 
 	 imol_moving_atoms = imol;
+
+	 std::string residue_type_string = res_type;
+	 CResidue *unconst_res_p = (CResidue *) res_p;     // bleugh.
+	 int residue_number = unconst_res_p->GetSeqNum(); // bleugh.
+	 if (residue_type_string == "auto") {
+	    int resno_added;
+	    if (terminus_type == "C" || terminus_type == "MC")
+	       resno_added = residue_number + 1;
+	    if (terminus_type == "N" || terminus_type == "MN")
+	       resno_added = residue_number - 1;
+	    std::pair<bool, std::string> p = 
+	       molecules[imol].find_terminal_residue_type(chain_id, resno_added);
+	    if (p.first) {
+	       res_type = p.second;
+	    } else {
+	       res_type = "ALA";
+	    } 
+	 } 
+	 
 	 coot::residue_by_phi_psi addres(molecules[imol].atom_sel.mol,
 					 terminus_type, res_p, chain_id, res_type);
 
