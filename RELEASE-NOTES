@@ -1,9 +1,9 @@
 
 Release 0.5
 
-   o FEATURE: Additional Representations added.
-
    o FEATURE: Coot now has a Preferences dialog.
+
+   o FEATURE: Additional Representations added [Tadeusz Skarzynski].
 
    o FEATURE: "Fixed Atoms" for refinement have been introduced.
 
@@ -18,6 +18,10 @@ Release 0.5
 
    o FEATURE: The state file now remembers the scroll-wheel (contour
      changing) map [Kevin Madauss].
+   
+   o FEATURE: Add a variable reduce-molecule-updates-current, that
+     when set by the user causes an update of the probed molecule, not
+     the generation of a new one [Bob Nolte].
 
    o CHANGE: Picking has been changed to somewhat favour those atoms
      at the front of the slab.
@@ -69,6 +73,9 @@ Release 0.5
      Alt Conf.
 
    o BUG-FIX: EQUIV cards from SHELXL handled better.
+
+   o BUG-FIX: Go To Atom dialog is properly updated on reading merging
+     molecules.
 
 
 Release 0.4.1 "Kendall^2"
