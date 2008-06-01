@@ -199,7 +199,18 @@ namespace coot {
 				    const int &atomic_weight) const;
       // return the success status of the assignment, 1 is OK, 0 is fail.
       bool try_assign_cell(CMMDBManager *mol);
-      
+
+      bool is_unit_line(const std::string &s) const {
+	 bool r = 0;
+	 if (s.length() >= 4) {
+	    if (s.substr(0, 4) == "UNIT") {
+	       r = 1;
+	    }
+	 }
+	 return r;
+      }
+      void write_sfac_line(std::ostream &f) const;
+
       shelx_card_info_t read_line(std::ifstream &f);
       shelx_card_info_t read_card(std::ifstream &f);
       shelx_card_info_t read_card_extended(std::ifstream &f);
