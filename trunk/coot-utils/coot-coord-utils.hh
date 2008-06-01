@@ -165,6 +165,18 @@ namespace coot {
 	    u = 0;
 	 return u;
       }
+      bool operator==(const residue_spec_t &matcher) const {
+	 if (matcher.chain == chain) {
+	    if (matcher.resno == resno) {
+	       if (matcher.insertion_code == insertion_code) {
+		  return 1; 
+	       }
+	    }
+	 }
+	 return 0;
+      }
+
+      friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);
    };
 
    class torsion {
@@ -693,6 +705,8 @@ namespace coot {
    std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);
    std::ofstream& operator<<(std::ofstream& s, const util::quaternion &q);
    std::ostream& operator<<(std::ostream& s, const atom_spec_t &spec);
+   std::ostream& operator<<(std::ostream& s, const residue_spec_t &spec);
+
 }
 
 #endif // HAVE_COOT_COORD_UTILS_HH

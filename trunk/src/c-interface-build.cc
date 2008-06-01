@@ -503,6 +503,8 @@ int add_terminal_residue(int imol,
 
    int istate = 0;
    graphics_info_t g;
+   std::string residue_type_string = residue_type;
+   
    int imol_map = g.Imol_Refinement_Map();
    if (imol_map == -1) {
       std::cout << "WARNING:: Refinement/Fitting map is not set." << std::endl;
@@ -525,7 +527,7 @@ int add_terminal_residue(int imol,
 	       g.molecules[imol].residue_from_external(residue_number, inscode,
 						       std::string(chain_id));
 	    g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
-					   residue_type, immediate_add);
+					   residue_type_string, immediate_add);
 	    istate = 1;
 	 } else {
 	    std::cout << "WARNING:: in add_terminal_residue: "

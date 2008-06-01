@@ -455,6 +455,21 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) 
 
 }
 
+std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spec) {
+
+   s << "[spec: ";
+   s << "\"";
+   s << spec.chain;
+   s << "\" ";
+   s << spec.resno;
+   s << " ";
+   s << "\"";
+   s << spec.insertion_code;
+   s << "\"]";
+   return s;
+
+}
+
 
 // deleted by calling process
 std::pair<CMMDBManager *, std::vector<coot::residue_spec_t> >

@@ -456,9 +456,12 @@ void set_graphics_window_size(int x_size, int y_size) {
 #endif
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
+	 while (gdk_events_pending())
+	    gtk_main_iteration();
 // 	 std::cout << "DEBUG:: set " << window << " to size "
 // 		   << x_size << " " << y_size << std::endl;
       }
+      graphics_draw();
    }
    std::vector<std::string> command_strings;
    command_strings.push_back("set-graphics-window-size");
@@ -494,9 +497,8 @@ void set_graphics_window_position(int x_pos, int y_pos) {
 	 gtk_widget_set_uposition(main, x_pos, y_pos);
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
-	 while (gdk_events_pending())
-	    gtk_main_iteration();
       }
+      graphics_draw();
    }
    std::string cmd = "set-graphics-window-position";
    std::vector<coot::command_arg_t> args;
@@ -2979,6 +2981,13 @@ void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
 
 int scroll_wheel_map() {
    return graphics_info_t::scroll_wheel_map;
+}
+
+void set_scroll_wheel_map(int imap) {
+
+   if (is_valid_map_molecule(imap)) {
+      graphics_info_t::scroll_wheel_map = imap;
+   }
 }
 
 

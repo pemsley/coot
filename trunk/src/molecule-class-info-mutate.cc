@@ -27,6 +27,7 @@
 #endif
 
 #include <stdlib.h>
+#include <stdexcept>
 
 #include "clipper/core/xmap.h"
 #include "CIsoSurface.h"
@@ -313,10 +314,10 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 // 		   << ": selected " << local_n_selected_residues
 // 		   << " residues\n";
 	 if (local_n_selected_residues > 0) {
-	    std::cout << "DEBUG:: marking for deleting "
-		      << local_residues[0]->GetChainID() << " "
-		      << local_residues[0]->GetSeqNum()  << " "
-		      << local_residues[0]->GetResName() << "\n";
+// 	    std::cout << "DEBUG:: marking for deleting "
+// 		      << local_residues[0]->GetChainID() << " "
+// 		      << local_residues[0]->GetSeqNum()  << " "
+// 		      << local_residues[0]->GetResName() << "\n";
 	    n_deletions++;
 	    residues_for_deletion.push_back(std::pair<CResidue *, int> (local_residues[0], rs.resno));
 	 }
@@ -477,15 +478,16 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
       selindex[iseq_indx] = iseq_indx - sel_offset;
 //       std::cout << "assigned: selindex[" << iseq_indx << "]=" << selindex[iseq_indx]
-// 		<< std::endl;
+//  		<< std::endl;
       if (s[iseq_indx] == '-')
 	 sel_offset++;
    }
 
    if (s.length() == t.length()) {
 
-      for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
-      }
+//       for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
+// 	 std::cout << "   " << iseq_indx << " " << s[iseq_indx] << std::endl;
+//       }
       
       std::vector<int> resno_offsets(s.length(), 0);
 //       std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
@@ -534,12 +536,12 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 		  resno_offsets[i] += 1;
 	       // ires will be for the previous residue.  It was not
 	       // set for this one.
-	       coot::residue_spec_t res_spec(ires+1);
+	       coot::residue_spec_t res_spec(iseq_indx+1);
 	       std::string target_type =
 		  coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
 	       ch_info.add_insertion(res_spec, target_type);
-// 	       std::cout << "Insert residue number " << iseq_indx << " "
-// 			 << t[iseq_indx] << std::endl;
+//  	       std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
+// 			 << " " << iseq_indx << " " << t[iseq_indx] << std::endl;
 	    }
 	 }
       }
@@ -561,6 +563,59 @@ molecule_class_info_t::make_model_string_for_alignment(PCResidue *SelResidues,
 
 }
 
+std::pair<bool, std::string>
+molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, int resno) const {
+
+   bool found = 0;
+   std::string type = "None";
+   std::string target = "";
+
+   for (unsigned int iseq=0; iseq<input_sequence.size(); iseq++) {
+      if (input_sequence[iseq].first == chain_id) {
+	 target = input_sequence[iseq].second;
+	 break;
+      }
+   }
+
+   if (target != "") { 
+   
+      CMMDBManager *mol = atom_sel.mol;
+      if (mol) { 
+	 int selHnd = mol->NewSelection();
+	 PCResidue *SelResidues = NULL;
+	 int nSelResidues;
+   
+	 mol->Select(selHnd, STYPE_RESIDUE, 0,
+		     (char *) chain_id.c_str(),
+		     ANY_RES, "*",
+		     ANY_RES, "*",
+		     "*",  // residue name
+		     "*",  // Residue must contain this atom name?
+		     "*",  // Residue must contain this Element?
+		     "*",  // altLocs
+		     SKEY_NEW // selection key
+		     );
+	 mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+	 if (nSelResidues > 0) {
+
+	    coot::chain_mutation_info_container_t mi =
+	       align_on_chain(chain_id, SelResidues, nSelResidues, target);
+	    mi.print();
+
+	    coot::residue_spec_t search_spec(chain_id, resno);
+	    try {
+	       type = mi.get_residue_type(search_spec);
+	       found = 1;
+	    }
+	    catch (std::runtime_error mess) {
+	       std::cout << " failed to find " << search_spec
+			 << " for an insertion " << mess.what() << std::endl;
+	    } 
+	 }
+      }
+   }
+   return std::pair<bool, std::string> (found, type);
+}
 
 
 // Here is something that does DNA/RNA
@@ -878,8 +933,8 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
    short int have_changes = 0;
    std::vector<coot::residue_spec_t> r_del;
 
-   std::cout << "DEBUG:: residue vector len " <<  mmdb_residues.size() << std::endl;
-   std::cout << "DEBUG:: best sequence  len " <<  best_seq.length() << std::endl;
+//    std::cout << "DEBUG:: residue vector len " <<  mmdb_residues.size() << std::endl;
+//    std::cout << "DEBUG:: best sequence  len " <<  best_seq.length() << std::endl;
    make_backup();
 
    int selHnd = poly_ala_mol->NewSelection();

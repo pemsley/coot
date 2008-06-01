@@ -758,7 +758,7 @@ coot::history_list_t graphics_info_t::history_list;
 // build one residue, n trials:
 int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 100;
 int graphics_info_t::add_terminal_residue_add_other_residue_flag = 0; // no.
-std::string graphics_info_t::add_terminal_residue_type = "ALA";
+std::string graphics_info_t::add_terminal_residue_type = "auto"; // was "ALA" before 20080601
 short int graphics_info_t::terminal_residue_do_rigid_body_refine = 1; // on by default
 float graphics_info_t::rigid_body_fit_acceptable_fit_fraction = 0.75;
 

@@ -822,6 +822,10 @@ void my_delete_menu_items(GtkWidget *widget, void *data);
 void add_on_map_scroll_whell_choices(GtkWidget *menu);
 void map_scroll_wheel_mol_selector_activate (GtkMenuItem     *menuitem,
 					     gpointer         user_data);
+
+/*! \brief set the map that is moved by changing the scroll wheel and
+  change_contour_level(). */
+void set_scroll_wheel_map(int imap);
 /*! \brief return the molecule number to which the mouse scroll wheel
   is attached */
 int scroll_wheel_map();
@@ -3588,6 +3592,12 @@ void set_add_terminal_residue_default_residue_type(const char *type);
   addition.  */
 void set_add_terminal_residue_do_post_refine(short int istat); 
 
+#ifdef __cplusplus 
+#ifdef USE_GUILE
+SCM find_terminal_residue_type(int imol, const char *chain_id, int resno);
+#endif 
+#endif
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4776,7 +4786,7 @@ void write_ccp4mg_picture_description(const char *filename);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*                  CCP4MG Interface                                        */
+/*                  Laplacian                                               */
 /*  ----------------------------------------------------------------------- */
 /*! \name Aux functions */
 /* \{ */
@@ -4796,7 +4806,11 @@ int laplacian (int imol);
 /*  ----------------------------------------------------------------------- */
 /*! \name retrieve the PKGDATADIR for scripting */
 /* \{ */
-char *get_pkgdatadir(void);
+#ifdef __cplusplus
+#ifdef USE_PYTHON
+PyObject *get_pkgdatadir_py();
+#endif
+#endif /*  __cplusplus */
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

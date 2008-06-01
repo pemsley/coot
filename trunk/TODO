@@ -40,7 +40,7 @@
 
 -----
 
-   Release 0.5 Dec June 2008
+   Release 0.5 Dec - estimated for 13 July 2008.
 
    o To make the test non-tedious, especially on slow computers, we
      need a set-atoms-attributes that takes a list of attribute sets.
@@ -152,6 +152,9 @@
 
    o in coot_toolbuttons.py Bernhard registers the icons.  Does that
      make them smooth?
+
+   o Does the window stay constant size (on something other than a
+     laptop) on start, exit, start exit cycling?
 
    o Put globularize protein into Coot.  Make it a bit more clever?
 
