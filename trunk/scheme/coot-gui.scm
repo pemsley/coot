@@ -959,7 +959,9 @@
 				     option-menu
 				     model-mol-list)))
 		 
-		 (if (number? active-mol-no)
+		 (if (not (number? active-mol-no))
+		     (begin 
+		       (format #t "Ooops ~s is not a valid molecule~%" active-mol-no))
 		     (begin
 		       (let ((file-sel-text (gtk-entry-get-text file-sel-entry)))
 			 (callback-function active-mol-no file-sel-text))))))))
