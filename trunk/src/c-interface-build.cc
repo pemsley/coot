@@ -4178,6 +4178,11 @@ merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol) {
 	 }
       }
    }
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      graphics_info_t g;
+      g.update_go_to_atom_window_on_changed_mol(imol);
+   } 
    return merged_info;
 }
 
