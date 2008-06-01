@@ -1005,19 +1005,25 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
    if (have_cell_flag) { // Need cell for orth->frac convertion for atoms
       
       std::ofstream f(filename.c_str());
+      bool sfac_done = 0;
       if (f) {
 
-	 // pre-atom lines
-	 for (unsigned int i=0; i<pre_atom_lines.size(); i++)
+	 // pre-atom lines.
+	 //
+	 // THE SFAC line has to be inserted into the pre-atom lines -
+	 // before the UNIT card (AFAICS - maybe after SYMM).
+	 
+	 for (unsigned int i=0; i<pre_atom_lines.size(); i++) {
+	    if (is_unit_line(pre_atom_lines[i])) {
+	       write_sfac_line(f);
+	       sfac_done = 1;
+	    }
 	    f << pre_atom_lines[i] << "\n";
-
+	 }
 
 	 // SFAC line
-	 f << "SFAC";
-	 for (unsigned int i=0; i<sfac.size(); i++) {
-	    f << "  " << sfac[i];
-	 }
-	 f << "\n\n";
+	 if (! sfac_done)
+	    write_sfac_line(f);
 
 	 // FVAR lines
 	 int fvar_count = 0;
@@ -1165,6 +1171,17 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
    delete mol;
    return std::pair<int, std::string>(istat, message);
 }
+
+void
+coot::ShelxIns::write_sfac_line(std::ostream &f) const {
+   
+   f << "SFAC";
+   for (unsigned int i=0; i<sfac.size(); i++) {
+      f << "  " << sfac[i];
+   }
+   f << "\n\n";
+}
+
 
 // return -1 on index not found
 int
