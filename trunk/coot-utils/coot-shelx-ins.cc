@@ -244,6 +244,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 			   }
 			} else { 
 			   if (card.words[0] == "UNIT") {
+			      for (unsigned int i=1; i<card.words.size(); i++)
+				 unit.push_back(atoi(card.words[i].c_str())); // number of atoms or each sfac type
 			   } else {
 			      if (card.words[0] == "SFAC") {
 				 std::cout << "SFAC LINE: " << card.card << std::endl;
@@ -328,6 +330,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card.words[0].substr(0, 4) == "ANIS") ||
 							   (card.words[0].substr(0, 4) == "BASF") ||
 							   (card.words[0].substr(0, 4) == "SAME") ||
+							   (card.words[0].substr(0, 4) == "MOLE") ||
 							   (card.words[0].substr(0, 4) == "BIND") ||
 							   (card.words[0].substr(0, 4) == "L.S.") ||
 							   (card.words[0].substr(0, 4) == "SUMP") ||
@@ -1011,16 +1014,29 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 	 // pre-atom lines.
 	 //
 	 // THE SFAC line has to be inserted into the pre-atom lines -
-	 // before the UNIT card (AFAICS - maybe after SYMM).
-	 
-	 for (unsigned int i=0; i<pre_atom_lines.size(); i++) {
+	 // before the UNIT card (AFAICS - maybe after SYMM).  The
+	 // UNIT line need to be padded with 0s to the length of the
+	 // SFAC line.
+	 // 
+ 	 for (unsigned int i=0; i<pre_atom_lines.size(); i++) {
 	    if (is_unit_line(pre_atom_lines[i])) {
 	       write_sfac_line(f);
 	       sfac_done = 1;
-	    }
-	    f << pre_atom_lines[i] << "\n";
+	       f << pre_atom_lines[i];
+	       if (sfac.size() != unit.size()) {
+		  std::cout << "INFO :: padding UNIT card from size "
+			    << unit.size() << " to " << sfac.size() << std::endl;
+		  for (unsigned int iextra=0; iextra<(sfac.size() - unit.size()); iextra++) {
+		     f << " 0"; // pad with 0s, like GMS suggests, 20080601
+		  }
+	       }
+	       f << "\n";
+	    } else {
+	       f << pre_atom_lines[i];
+	       f << "\n";
+	    } 
 	 }
-
+	 
 	 // SFAC line
 	 if (! sfac_done)
 	    write_sfac_line(f);
@@ -1179,7 +1195,7 @@ coot::ShelxIns::write_sfac_line(std::ostream &f) const {
    for (unsigned int i=0; i<sfac.size(); i++) {
       f << "  " << sfac[i];
    }
-   f << "\n\n";
+   f << "\n";
 }
 
 
