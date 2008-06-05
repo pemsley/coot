@@ -285,6 +285,11 @@ void set_display_lists_for_maps(int istat) {
    graphics_draw();
 }
 
+int display_lists_for_maps_state() {
+
+   return graphics_info_t::display_lists_for_maps_flag;
+} 
+
 
 //
 // Return the molecule number of the molecule that we just filled.

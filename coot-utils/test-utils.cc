@@ -22,6 +22,38 @@
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
 
+namespace coot { 
+   class SortableChainsCMMDBManager : public CMMDBManager {
+   public:
+      void SortChains();
+   };
+}
+
+void
+coot::SortableChainsCMMDBManager::SortChains() {
+
+   for (int imod=1; imod<=GetNumberOfModels(); imod++) { 
+      CModel *model_p = GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      std::vector<std::pair<CChain *, std::string> > chain_ids(nchains);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 std::string chain_id = chain_p->GetChainID();
+	 chain_ids[ichain] = std::pair<CChain *, std::string> (chain_p, chain_id);
+      }
+      // now chain_ids is full
+      std::sort(chain_ids.begin(), chain_ids.end(), sort_chains_util);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 // model_p->Chain[ichain] = chain_ids[ichain].first;
+      }
+   }
+   PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   FinishStructEdit();
+}
+
+
 void split_test(const std::string &r) {
 
    std::vector<std::string> v = coot::util::split_string(r, " ");
@@ -58,6 +90,15 @@ bool test_quaternion_quaternion(coot::util::quaternion q) {
    std::cout << "match: " << match << std::endl;
    return match;
 
+}
+
+void test_sort_chains() {
+
+   std::string file_name = "test-sort-chains.pdb";
+   CMMDBManager *mol = new CMMDBManager;
+   mol->ReadCoorFile((const pstr) file_name.c_str());
+   coot::sort_chains(mol);
+   mol->WritePDBASCII("test-sort-chains-sorted.pdb");
 } 
 
 
@@ -139,6 +180,9 @@ int main(int argv, char **argc) {
    test_quaternion_quaternion(q3);
    test_quaternion_quaternion(q4);
    test_quaternion_quaternion(q5);
+
+
+   test_sort_chains();
    
    return 0;
 }

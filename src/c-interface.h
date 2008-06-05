@@ -357,6 +357,11 @@ int n_chains(int imol);
  */
 int is_solvent_chain_p(int imol, const char *chain_id);
 
+/*! xxbrief sort the chain ids of the imol-th molecule in lexographical order */
+/* withdrawn for now because it can cause coot to crash - need more investigation
+void sort_chains(int imol);	
+*/
+
 /*! \brief copy molecule imol
 
 @return the new molecule number.
@@ -4047,12 +4052,16 @@ void check_waters_molecule_menu_item_activate(GtkWidget *item,
 void do_check_waters_by_widget(GtkWidget *dialog);
 void store_checked_waters_baddies_dialog(GtkWidget *dialog);
 
-GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim, 
+GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, 
+						 float map_sigma_lim, 
 						 float min_dist, float max_dist,
 						 short int part_occ_contact_flag,
 						 short int zero_occ_flag,
 						 short int logical_operator_and_or_flag);
-void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, 
+
+/*! \brief Delete waters that are fail to meet the given criteria. */
+void delete_checked_waters_baddies(int imol, float b_factor_lim, 
+				   float map_sigma_lim, 
 				   float min_dist, float max_dist,
 				   short int part_occ_contact_flag,
 				   short int zero_occ_flag,
@@ -4525,6 +4534,8 @@ void set_tip_of_the_day_flag(int state);
   up if these are turned on (or off) - depends on graphics card and
   drivers.  Pass 1 for on, 0 for off. */
 void set_display_lists_for_maps(int i);
+
+int display_lists_for_maps_state();
 
 /*  ----------------------------------------------------------------------- */
 /*                  Preferences Notebook                                    */

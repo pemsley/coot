@@ -241,6 +241,9 @@ namespace coot {
       
    };
    
+   bool sort_chains_util(const std::pair<CChain *, std::string> &a,
+			 const std::pair<CChain *, std::string> &b);
+
    // return -1 on badness
    int get_selection_handle(CMMDBManager *mol, const atom_spec_t &at);
 
@@ -256,6 +259,19 @@ namespace coot {
 
    // return 0 or 1
    short int is_main_chain_or_cb_p(CAtom *at);
+
+   // return residue specs for residues that have atoms that are
+   // closer than radius Angstroems to any atom in the residue
+   // specified by res_in.
+   // 
+   std::vector<residue_spec_t> residues_near_residue(const residue_spec_t &res_in,
+						     CMMDBManager *mol,
+						     float radius);
+
+   // Fiddle with mol. 
+   // 
+   // sort chains in lexographical order
+   void sort_chains(CMMDBManager *mol);
 
    class graph_match_info_t {
    public:
@@ -604,6 +620,7 @@ namespace coot {
       // Take into account the insertion code too:
       std::vector<std::pair<CResidue *, int> > sort_residues_by_seqno(PCResidue *residues,
 								      int nResidues);
+
       // Use the results of the above to give us a sequence string:
       std::string model_sequence(const std::vector<std::pair<CResidue *, int> > &sa);
       bool compare_residues(const std::pair<CResidue *, int> &a,

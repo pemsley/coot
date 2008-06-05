@@ -5634,3 +5634,124 @@ Sat May 10 07:22:54 CST 2008
 
    look at graphics-info-t::execute_add_terminal_residue() to see
    masking a map by atoms around a point.
+
+----
+
+   ask Stuart about line 113 in mmdb_chain.h
+   virtual pstr GetEntryID()
+
+   line 133 mmdb_symop.cpp CSymOp::GetSymOp()
+
+
+----
+Tue Jun  3 16:19:39 BST 2008
+    
+    valgrinding a greg test run:
+
+
+==13600== 3 errors in context 55 of 212:
+==13600== Invalid read of size 1
+==13600==    at 0x42048AE: coot::protein_geometry::try_dynamic_add(std::string const&, int) (protein-geometry.cc:2085)
+==13600==    by 0x42052F2: coot::protein_geometry::have_dictionary_for_residue_type(std::string const&, int) (protein-geometry.cc:2408)
+==13600==    by 0x80FEDAC: graphics_info_t::check_dictionary_for_residues(CResidue**, int) (graphics-info-modelling.cc:484)
+==13600==    by 0x810463A: graphics_info_t::copy_mol_and_refine(int, int, int, std::string, int, std::string, std::string, std::string) (graphics-info-modelling.cc:265)
+==13600==    by 0x8106882: graphics_info_t::copy_mol_and_regularize(int, int, std::string, int, std::string, std::string, std::string) (graphics-info-modelling.cc:107)
+==13600==    by 0x8106CF7: graphics_info_t::regularize(int, short, int, int) (graphics-info-modelling.cc:688)
+==13600==    by 0x819FF5E: regularize_zone (c-interface-build.cc:5915)
+==13600==    by 0x44391A0: _wrap_regularize_zone(scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*) (coot_wrap_guile.cc:14018)
+==13600==    by 0x4559B90: scm_gsubr_apply (gsubr.c:221)
+==13600==    by 0x4540523: scm_dapply (eval.c:4915)
+==13600==    by 0x4542724: deval (eval.c:4364)
+==13600==    by 0x4543A20: deval (eval.c:3384)
+==13600==  Address 0x6145E14 is 12 bytes inside a block of size 14 free'd
+==13600==    at 0x4023096: operator delete(void*) (vg_replace_malloc.c:244)
+==13600==    by 0x56B890C: std::string::_Rep::_M_destroy(std::allocator<char> const&) (in /usr/lib/libstdc++.so.6.0.9)
+==13600==    by 0x56BA7B0: std::string::~string() (in /usr/lib/libstdc++.so.6.0.9)
+==13600==    by 0x42048AD: coot::protein_geometry::try_dynamic_add(std::string const&, int) (protein-geometry.cc:2084)
+==13600==    by 0x42052F2: coot::protein_geometry::have_dictionary_for_residue_type(std::string const&, int) (protein-geometry.cc:2408)
+==13600==    by 0x80FEDAC: graphics_info_t::check_dictionary_for_residues(CResidue**, int) (graphics-info-modelling.cc:484)
+==13600==    by 0x810463A: graphics_info_t::copy_mol_and_refine(int, int, int, std::string, int, std::string, std::string, std::string) (graphics-info-modelling.cc:265)
+==13600==    by 0x8106882: graphics_info_t::copy_mol_and_regularize(int, int, std::string, int, std::string, std::string, std::string) (graphics-info-modelling.cc:107)
+==13600==    by 0x8106CF7: graphics_info_t::regularize(int, short, int, int) (graphics-info-modelling.cc:688)
+==13600==    by 0x819FF5E: regularize_zone (c-interface-build.cc:5915)
+==13600==    by 0x44391A0: _wrap_regularize_zone(scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*, scm_unused_struct*) (coot_wrap_guile.cc:14018)
+==13600==    by 0x4559B90: scm_gsubr_apply (gsubr.c:221)
+
+
+==13600== 
+==13600== 1 errors in context 5 of 212:
+==13600== Invalid read of size 8
+==13600==    at 0x828797E: molecule_class_info_t::closest_atom(coot::Cartesian const&, bool) const (molecule-class-info.cc:330)
+==13600==    by 0x8287AC2: molecule_class_info_t::closest_atom(coot::Cartesian const&) const (molecule-class-info.cc:313)
+==13600==    by 0x81877BE: active_atom_spec() (c-interface-info.cc:1108)
+==13600==    by 0x818E856: active_residue() (c-interface-info.cc:1139)
+==13600==    by 0x442DD86: _wrap_active_residue() (coot_wrap_guile.cc:29092)
+==13600==    by 0x4542A78: deval (eval.c:4122)
+==13600==    by 0x4544012: deval (eval.c:3635)
+==13600==    by 0x4544012: deval (eval.c:3635)
+==13600==    by 0x45406C6: scm_dapply (eval.c:4997)
+==13600==    by 0x45408B2: scm_apply (eval.c:4796)
+==13600==    by 0x45454DC: scm_call_0 (eval.c:4651)
+==13600==    by 0x45A2F1F: scm_body_thunk (throw.c:356)
+==13600==  Address 0x5BBCB78 is not stack'd, malloc'd or (recently) free'd
+==13600== 
+
+
+==13600== 1 errors in context 6 of 212:
+==13600== Conditional jump or move depends on uninitialised value(s)
+==13600==    at 0x80E8E1A: clipper::Map_stats::Map_stats<clipper::Xmap<float> >(clipper::Xmap<float> const&) (map_utils.h:123)
+==13600==    by 0x40465EA: coot::ligand::find_clusters_internal(float, std::vector<clipper::Coord_orth, std::allocator<clipper::Coord_orth> > const&) (ligand.cc:774)
+==13600==    by 0x40471E1: coot::ligand::find_clusters(float) (ligand.cc:762)
+==13600==    by 0x81D2E42: execute_ligand_search_internal() (c-interface-ligands.cc:953)
+==13600==    by 0x81D3A11: execute_ligand_search (c-interface-ligands.cc:854)
+==13600==    by 0x4435F16: _wrap_execute_ligand_search() (coot_wrap_guile.cc:18153)
+==13600==    by 0x4542A78: deval (eval.c:4122)
+==13600==    by 0x4544012: deval (eval.c:3635)
+==13600==    by 0x4544012: deval (eval.c:3635)
+==13600==    by 0x45406C6: scm_dapply (eval.c:4997)
+==13600==    by 0x45408B2: scm_apply (eval.c:4796)
+==13600==    by 0x45454DC: scm_call_0 (eval.c:4651)
+
+
+==13600== 
+==13600== 1 errors in context 1 of 212:
+==13600== Invalid read of size 4
+==13600==    at 0x49FF2A9: CResidue::GetAtomTable(CAtom**&, int&) (mmdb_atom.cpp:2568)
+==13600==    by 0x82879DC: molecule_class_info_t::closest_atom(coot::Cartesian const&, bool) const (molecule-class-info.cc:343)
+==13600==    by 0x8287AC2: molecule_class_info_t::closest_atom(coot::Cartesian const&) const (molecule-class-info.cc:313)
+==13600==    by 0x81877BE: active_atom_spec() (c-interface-info.cc:1108)
+==13600==    by 0x818E856: active_residue() (c-interface-info.cc:1139)
+==13600==    by 0x442DD86: _wrap_active_residue() (coot_wrap_guile.cc:29092)
+==13600==    by 0x4542A78: deval (eval.c:4122)
+==13600==    by 0x4544012: deval (eval.c:3635)
+==13600==    by 0x4544012: deval (eval.c:3635)
+==13600==    by 0x45406C6: scm_dapply (eval.c:4997)
+==13600==    by 0x45408B2: scm_apply (eval.c:4796)
+==13600==    by 0x45454DC: scm_call_0 (eval.c:4651)
+==13600==  Address 0x3E10912E is not stack'd, malloc'd or (recently) free'd
+==13600== 
+
+---
+Tue Jun  3 17:14:33 BST 2008
+
+    Make a new source file with the widget work in c-interface-info.cc
+    c-interface-info-gui.cc
+
+
+----
+
+    JB:
+
+    Refine by sphere
+    Render Geometry objects in raster3d
+    
+
+----
+
+    check the number of saves on Eigen flips.  On undoing, it seems I
+    have to undo twice for each step.
+
+    Priority: Critical.
+
+
+    

@@ -743,6 +743,7 @@ graphics_info_t::write_state(const std::vector<std::string> &commands,
       for (unsigned int i=0; i<commands.size(); i++) {
 	 f << commands[i] << std::endl;
       }
+      f.flush();  // fixes valgrind problem?
       f.close();
       std::cout << "State file " << filename << " written." << std::endl;
 

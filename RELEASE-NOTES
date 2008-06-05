@@ -14,7 +14,7 @@ Release 0.5
    o FEATURE: Coot can now make difference maps.
 
    o FEATURE: The state file now remembers the refinement map number
-     [Herb Klei]
+     [Herb Klei].
 
    o FEATURE: The state file now remembers the scroll-wheel (contour
      changing) map [Kevin Madauss].
@@ -58,6 +58,9 @@ Release 0.5
      insertion codes.
 
    o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
+
+   o BUG-FIX: On additions to a SHELXL molecule: better handling of
+     UNIT and SFAC cards [GMS].
 
    o BUG-FIX: chiral volumes are now correctly handled for multiple
      monomer bespoke ligand dictionaries.

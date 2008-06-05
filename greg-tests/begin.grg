@@ -6,6 +6,9 @@
 
 ; (define greg-data-dir "greg-data")
 
+; cut and paste this:
+; (define imol-rnase (greg-pdb "tutorial-modern.pdb"))
+
 (define greg-data-dir (append-dir-dir (append-dir-dir (getenv "HOME")
 						      "data")
 				      "greg-data"))
@@ -39,6 +42,15 @@
       (format #t "fail match real: ~s  expected: ~s~%"
 	      (car (car ls)) (cdr (car ls)))
       #f))))
+
+(define (chains-in-order? ls)
+  (cond
+   ((null? ls) #t)
+   ((= (length ls) 1) #t)
+   ((string>? (car ls) (car (cdr ls))) #f)
+   (else
+    (chains-in-order? (cdr ls)))))
+
 
 (define (bond-length pos-1 pos-2)
   (define (square x)

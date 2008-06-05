@@ -703,6 +703,33 @@ SCM py_to_scm(PyObject *o) {
 #endif // USE_GUILE
 #endif // USE_PYTHON
 
+// Return residue specs for residues that have atoms that are
+// closer than radius Angstroems to any atom in the residue
+// specified by res_in.
+// 
+SCM residues_near_residue(int imol, SCM residue_in, float radius) {
+
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      SCM chain_id_scm = scm_list_ref(residue_in, SCM_MAKINUM(0));
+      SCM resno_scm    = scm_list_ref(residue_in, SCM_MAKINUM(1));
+      SCM ins_code_scm = scm_list_ref(residue_in, SCM_MAKINUM(2));
+      std::string chain_id = scm_to_locale_string(chain_id_scm);
+      std::string ins_code = scm_to_locale_string(ins_code_scm);
+      int resno            = scm_to_int(resno_scm);
+      coot::residue_spec_t rspec(chain_id, resno, ins_code);
+      std::vector<coot::residue_spec_t> v =
+	 graphics_info_t::molecules[imol].residues_near_residue(rspec, radius);
+      for (unsigned int i=0; i<v.size(); i++) {
+	 SCM res_spec = SCM_EOL;
+	 res_spec = scm_cons(scm_makfrom0str(v[i].insertion_code.c_str()), res_spec);
+	 res_spec = scm_cons(scm_int2num(v[i].resno), res_spec);
+	 res_spec = scm_cons(scm_makfrom0str(v[i].chain.c_str()), res_spec);
+	 r = scm_cons(res_spec, r);
+      }
+   } 
+   return r;
+} 
 
 
 

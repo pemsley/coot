@@ -947,3 +947,27 @@
 
 	       (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04)))))))
 
+
+(greg-testcase "Change Chain IDs and Chain Sorting" #t 
+   (lambda () 
+     (let ((imol (copy-molecule imol-rnase)))
+       (change-chain-id imol "A" "D" 0  0  0)
+       (change-chain-id imol "B" "E" 1 80 90)  
+       (change-chain-id imol "B" "F" 1 70 80)
+       (change-chain-id imol "B" "G" 1 60 70)
+       (change-chain-id imol "B" "J" 1 50 59)
+       (change-chain-id imol "B" "L" 1 40 49)
+       (change-chain-id imol "B" "N" 1 30 38)
+       (change-chain-id imol "B" "Z" 1 20 28)
+
+;        (sort-chains imol)
+
+;       (let ((c (chain-ids imol)))
+;	 (chains-in-order? c)))))
+
+       #t)))
+
+
+
+
+  

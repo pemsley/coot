@@ -2208,6 +2208,8 @@ class molecule_class_info_t {
    // 
    void sharpen(float b_factor);
 
+   // reorder the chains in the models
+   void sort_chains();
 
    int add_additional_representation(int representation_type,
 				     const int &bonds_box_type_in, 
@@ -2226,6 +2228,7 @@ class molecule_class_info_t {
    void clear_additional_representation(int representation_number);
    void set_show_additional_representation(int representation_number, bool on_off_flag);
    // 
+   std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 
    coot::validation_graphs_t validation_graphs;
 
