@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+#include <string.h>
 #include "clipper/mmdb/clipper_mmdb.h" // for clipper mmdb stuff (obviously)
                                        // convert_to_atoms_internal().
 

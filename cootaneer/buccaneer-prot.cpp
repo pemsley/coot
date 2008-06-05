@@ -1,6 +1,7 @@
 /*! \file buccaneer-prot.cpp buccaneer library */
-/* (C) 2002-2006 Kevin Cowtan & University of York all rights reserved */
+/* (C) 2002-2006 University of York all rights reserved */
 
+#include <string.h> // fro strncmp
 #include "buccaneer-prot.h"
 
 #include <clipper/clipper-contrib.h>

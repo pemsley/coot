@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
  
+#include <string.h> // for strcmp
+#include <stdlib.h> // for labs
 #include <string>
 #include <fstream>
 #include <vector>
@@ -239,7 +241,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  int res_2 = atom_selection_2[ contact[i].id2 ]->GetSeqNum();
 
 		  // this +/- 1 residue test
-		  if (abs(res_1 - res_2) < 2) {
+		  if (labs(res_1 - res_2) < 2) {
 
 		     //  		  std::cout << "Adding bond " << atom_selection_1[ contact[i].id1 ]
 		     //  			    << " to "

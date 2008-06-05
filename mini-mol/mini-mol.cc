@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#include <string.h>   // for str(n)cpy
+
 #include "mini-mol.hh"
 #include "coot-coord-utils.hh"
 

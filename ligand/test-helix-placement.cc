@@ -20,6 +20,7 @@
 
 // Portability (getopt) gubbins
 #include <unistd.h> // for getopt(3)
+#include <stdlib.h> // for atof
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE

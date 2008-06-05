@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#include <stdlib.h>
 #include "db-main.hh"
 
 class generate_fragments_t {

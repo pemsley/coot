@@ -25,6 +25,8 @@
 #include "coot-coord-utils.hh"
 #include "torsion-general.hh"
 
+#include <algorithm> // for reverse()
+
 class compare_stats_t {
  public:
    float angle;

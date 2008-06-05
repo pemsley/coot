@@ -19,6 +19,7 @@
  */
 
 
+#include <string.h>
 #include <string>
 
 #include "mmdb_manager.h"
