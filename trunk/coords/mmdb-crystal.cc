@@ -23,6 +23,7 @@
 // put them here so that mmdb and mmdb-extras are not exposed to
 // clipper complexities.
 //
+#include <string.h>  // for strlen
 #include <string>
 #include <vector>
 #include <math.h>

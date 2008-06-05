@@ -20,13 +20,13 @@
  * 02110-1301, USA
  */
 
+#include <string.h> // for strcmp
+
 
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 
-#ifdef _MSC_VER
-#include <algorithm>
-#endif
+#include <algorithm> // for sort
 
 // #include <sys/time.h>
 #include "simple-restraint.hh"
@@ -3826,7 +3826,7 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
       }
    }
 
-   sort(close.begin(), close.end());
+   std::sort(close.begin(), close.end());
 //    std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
 // 	     << close.size() << std::endl;
 //    for (unsigned int i=0; i<close.size(); i++) {

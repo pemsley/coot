@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <algorithm>
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
 

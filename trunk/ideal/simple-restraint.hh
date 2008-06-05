@@ -176,7 +176,7 @@ namespace coot {
 	 at2 = at2_in;
 	 distance = d;
       }
-      short int operator<(const glycosidic_distance &d1) const {
+      bool operator<(const glycosidic_distance &d1) const {
 	 if (d1.distance < distance)
 	    return 1;
 	 else

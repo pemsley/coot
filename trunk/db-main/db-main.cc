@@ -22,6 +22,7 @@
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
+#include <string.h>
 
 #include <algorithm>
 

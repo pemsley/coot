@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#include <stdlib.h>  // for getenv()
+#include <string.h>  // for memcpy()
 #include <string>
 #include <vector> // for Cartesian
 

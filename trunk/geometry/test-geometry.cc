@@ -21,6 +21,7 @@
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 

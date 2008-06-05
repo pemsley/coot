@@ -26,6 +26,7 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include <stdlib.h> // for atof
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "high-res.hh"

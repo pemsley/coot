@@ -3,6 +3,7 @@
 
 #include "cootaneer-sequence.h"
 
+#include <stdlib.h>  // for labs
 #include <iostream>
 #include <fstream>
 
@@ -63,14 +64,14 @@ std::pair<signed char, signed char> Coot_sequence::pack( double d )
   while ( fabs(d) <= 0.5 ) {
     d *= 2.0;
     e--;
-    if ( abs(e) >= 127 ) break;
+    if ( labs(e) >= 127 ) break;
   }
   while ( fabs(d) >= 1.0 ) {
     d *= 0.5;
     e++;
-    if ( abs(e) >= 127 ) break;
+    if ( labs(e) >= 127 ) break;
   }
-  if ( abs(e) >= 127 ) m = e = 0;
+  if ( labs(e) >= 127 ) m = e = 0;
   else                 m = int( 128.0 * d );
   if ( m >=  128 ) m =  127;
   if ( m <= -128 ) m = -127;

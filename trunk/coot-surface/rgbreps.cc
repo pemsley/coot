@@ -48,6 +48,7 @@
 #include <vector>
 #include <string>
 #include <math.h>
+#include <stdlib.h>
 
 #include "rgbreps.h"
 

@@ -27,6 +27,7 @@
  *
  */
 
+#include <string.h>
 #include "CXXFortranFile.h"
 
 void CXXFortranFile::init(){

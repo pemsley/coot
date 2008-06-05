@@ -20,6 +20,7 @@
  */
 
 
+#include <stdlib.h>
 #include "db-main.hh"
 
 int 

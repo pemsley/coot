@@ -3,7 +3,7 @@
  * Copyright 2006, by The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2007 by The University of Oxford
+ * Copyright 2007, 2008 by The University of Oxford
  * Author: Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
  * 02110-1301, USA
  */
 
+#include <string.h> // for strcpy
 #include <algorithm>
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
