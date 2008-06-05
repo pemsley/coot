@@ -93,6 +93,7 @@
        (lambda ()
 	 (generic-chooser-and-file-selector 
 	  "Model Corresponding to LST file: "
+	  valid-model-molecule?
 	  "LST file"
 	  ""
 	  (lambda (imol lst-file-name)
