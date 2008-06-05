@@ -112,6 +112,157 @@ coot::util::pair_residue_atoms(CResidue *a_residue_p,
 }
 
 
+void
+coot::sort_chains(CMMDBManager *mol) {
+
+   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) { 
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      std::vector<std::pair<CChain *, std::string> > chain_ids(nchains);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 std::string chain_id = chain_p->GetChainID();
+	 chain_ids[ichain] = std::pair<CChain *, std::string> (chain_p, chain_id);
+      }
+      // now chain_ids is full
+      std::sort(chain_ids.begin(), chain_ids.end(), sort_chains_util);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 // cant do this - Chain is protected
+	 // model_p->Chain[ichain] = chain_ids[ichain].first;
+	 // *(model_p->GetChain(ichain)) = *chain_ids[ichain].first; fails
+      }
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 std::cout << " Sorted chain order " << ichain << " "
+		   << chain_ids[ichain].second << std::endl;
+      }
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 CChain *new_chain = new CChain;
+	 // new_chain->Copy(chain_ids[ichain].first);
+	 // model_p->AddChain(new_chain);
+	 std::cout << " adding new chain " << new_chain->GetChainID() << std::endl;
+      }
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 std::cout << " deleting old chain "
+		   << model_p->GetChain(ichain)->GetChainID() << std::endl;
+	 // model_p->DeleteChain(ichain);
+      }
+      model_p->DeleteChain(0);
+      // model_p->DeleteChain(1);
+      // model_p->DeleteChain(2);
+      // model_p->DeleteChain(3);
+      // model_p->DeleteChain(4);
+      // model_p->DeleteChain(5);
+      // model_p->DeleteChain(6);
+      // model_p->DeleteChain(7);
+      // model_p->DeleteChain(8);
+   }
+   mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   mol->FinishStructEdit();
+}
+      
+
+bool
+coot::sort_chains_util(const std::pair<CChain *, std::string> &a,
+		       const std::pair<CChain *, std::string> &b) {
+
+   return (a.second < b.second); 
+}
+
+// return residue specs for residues that have atoms that are
+// closer than radius Angstroems to any atom in the residue
+// specified by res_in.
+// 
+std::vector<coot::residue_spec_t>
+coot::residues_near_residue(const coot::residue_spec_t &rs,
+			    CMMDBManager *mol,
+			    float radius) {
+
+   std::vector<coot::residue_spec_t> r;
+
+   CResidue *res_p = coot::util::get_residue(rs.resno, rs.insertion_code, rs.chain, mol);
+   if (!res_p) {
+      std::cout << "OOps failed to find " << rs << " in molecule\n";
+   } else {
+
+      // std::cout << "  Finding contacts of " << rs << " in molecule\n";
+
+      PPCAtom atom_selection;
+      int n_selected_atoms;
+
+      int SelectionHandle = mol->NewSelection();
+      mol->SelectAtoms (SelectionHandle, 0, "*",
+			ANY_RES, // starting resno, an int
+			"*", // any insertion code
+			ANY_RES, // ending resno
+			"*", // ending insertion code
+			"*", // any residue name
+			"*", // atom name
+			"*", // elements
+			"*"  // alt loc.
+			);
+      
+      int nSelAtoms;
+      mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+
+      PPCAtom res_atom_selection;
+      int n_res_atoms;
+      res_p->GetAtomTable(res_atom_selection, n_res_atoms);
+      
+      PSContact pscontact = NULL;
+      int n_contacts;
+      float min_dist = 0.01;
+      long i_contact_group = 1;
+      mat44 my_matt;
+      CSymOps symm;
+      for (int i=0; i<4; i++) 
+	 for (int j=0; j<4; j++) 
+	    my_matt[i][j] = 0.0;      
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+      std::vector<CResidue *> close_residues;
+      mol->SeekContacts(res_atom_selection, n_res_atoms, 
+			atom_selection, n_selected_atoms,
+			min_dist, radius, // min, max distances
+			0,        // seqDist 0 -> in same res also
+			pscontact, n_contacts,
+			0, &my_matt, i_contact_group);
+
+      //       std::cout << " Found " << n_contacts  << " contacts " << std::endl;
+
+      if (n_contacts > 0) {
+	 int n_cont_diff = 0; 
+	 int n_cont_same = 0; 
+	 for (int i=0; i<n_contacts; i++) {
+// 	    std::cout << "   comparing " << atom_selection[pscontact[i].id2]
+// 		      << " " << coot::atom_spec_t(atom_selection[pscontact[i].id2])
+// 		      << " " << " to " << rs << " " << res_p << std::endl;
+	    if (atom_selection[pscontact[i].id2]->residue != res_p) {
+	       n_cont_diff++;
+	       std::vector<CResidue *>::iterator result =
+ 		  std::find(close_residues.begin(),
+			    close_residues.end(),
+			    atom_selection[pscontact[i].id2]->residue);
+	       
+	       if (result == close_residues.end()) { 
+		  close_residues.push_back(atom_selection[pscontact[i].id2]->residue);
+	       }
+	    } else {
+	       n_cont_same++;
+	    } 
+	 }
+      }
+
+      for (unsigned int i=0; i<close_residues.size(); i++)
+	 r.push_back(close_residues[i]);
+
+      mol->DeleteSelection(SelectionHandle);
+   }
+   return r;
+} 
+
+
 clipper::RTop_orth
 coot::util::matrix_convert(mat44 mat) {
    

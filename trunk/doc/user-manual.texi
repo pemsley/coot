@@ -744,6 +744,11 @@ and
 
 @code{(set-raster3d-density-thickness 0.01)}
 
+Similarly for bones:
+
+@code{(set-raster3d-bone-thickness 0.05)}
+
+
 To turn off the representations of the atoms (spheres):
 
 @code{(set-renderer-show-atoms 0)}

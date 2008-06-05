@@ -2345,6 +2345,17 @@ int is_solvent_chain_p(int imol, const char *chain_id) {
    return r;
 }
 
+/* withdrawn for now because it can cause coot to crash - need more investigation */
+// 
+// /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
+// void sort_chains(int imol) { 
+
+//    if (is_valid_model_molecule(imol)) {
+//       graphics_info_t::molecules[imol].sort_chains();
+//    }
+// }
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         Renumber residue range                           */

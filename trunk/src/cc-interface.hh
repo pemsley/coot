@@ -394,6 +394,12 @@ SCM active_residue();
 // 
 SCM closest_atom(int imol);
 
+// Return residue specs for residues that have atoms that are
+// closer than radius Angstroems to any atom in the residue
+// specified by res_in.
+// 
+SCM residues_near_residue(int imol, SCM residue_in, float radius);
+
 #endif	/* USE_GUILE */
 
 /* Here the Python code for ATOM INFO */

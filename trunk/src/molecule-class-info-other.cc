@@ -6421,3 +6421,20 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
    }
    return retval; 
 } 
+
+void
+molecule_class_info_t::sort_chains() {
+
+   coot::sort_chains(atom_sel.mol);
+
+}
+
+std::vector<coot::residue_spec_t>
+molecule_class_info_t::residues_near_residue(const coot::residue_spec_t &rspec, float radius) const {
+
+   std::vector<coot::residue_spec_t> r =
+      coot::residues_near_residue(rspec, atom_sel.mol, radius);
+
+   return r; 
+}
+
