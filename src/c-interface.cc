@@ -2642,8 +2642,10 @@ int get_default_bond_thickness() {
    return ret;
 }
 
-int make_ball_and_stick(int imol, const char *atom_selection_str,
-			float bond_thickness, float sphere_size,
+int make_ball_and_stick(int imol,
+			const char *atom_selection_str,
+			float bond_thickness,
+			float sphere_size,
 			int do_spheres_flag) {
 
    int i = imol;

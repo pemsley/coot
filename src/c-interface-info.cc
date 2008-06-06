@@ -1131,13 +1131,15 @@ std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {
 
       if (is_valid_model_molecule(imol)) {
 	 if (graphics_info_t::molecules[imol].is_displayed_p()) { 
-	    coot::at_dist_info_t at_info =
-	       graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
-	    if (at_info.atom) {
-	       if (at_info.dist <= dist_best) {
-		  dist_best = at_info.dist;
-		  imol_closest = at_info.imol;
-		  at_close = at_info.atom;
+	    if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) { 
+	       coot::at_dist_info_t at_info =
+		  graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
+	       if (at_info.atom) {
+		  if (at_info.dist <= dist_best) {
+		     dist_best = at_info.dist;
+		     imol_closest = at_info.imol;
+		     at_close = at_info.atom;
+		  }
 	       }
 	    }
 	 }
