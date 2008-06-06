@@ -1459,7 +1459,7 @@ class molecule_class_info_t {
    } 
 
    bool is_displayed_p() const {
-      short int i;
+      bool i;
       if (has_model()) {
 	 if (drawit) {
 	    i = 1;
@@ -1479,6 +1479,7 @@ class molecule_class_info_t {
       }
       return i;
    }
+
 
    // delete residue, typically for waters
    //

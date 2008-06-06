@@ -5755,3 +5755,22 @@ Tue Jun  3 17:14:33 BST 2008
 
 
     
+----
+Thu Jun  5 16:17:38 BST 2008
+
+    Conversation with Robert von Dreele:
+
+    Create a "What's New in Coot" button - which gets the latest
+    Release Notes from the web server and displays it in a text
+    widget.
+
+    Should be done in a sub-thread
+
+----
+Fri Jun  6 13:13:19 BST 2008
+
+    Problem when using hilight-binding-site:
+
+    The P key should go to an atom that is active (don't just check
+    fro "displayed") because (currently) recentring on an atom in the
+    (new molecule) ligand make the env distances go away.

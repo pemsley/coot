@@ -4644,6 +4644,8 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 					   float bond_thickness, float sphere_size,
 					   short int do_spheres_flag) {
 
+   // Use draw hydrogens flag that has been set already for this molecule.
+   
    int i= -1;
    if (has_model()) {
       int SelHnd = atom_sel.mol->NewSelection();
