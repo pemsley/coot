@@ -646,6 +646,23 @@
 			       (lambda (imol)
 				 (clear-ball-and-stick imol)))))
 
+						       
+      (add-simple-coot-menu-menuitem
+       menu "Hilight Interesting Site (here)..."
+       (lambda ()
+	 
+	 (let ((active-atom (active-residue)))
+	   (if active-atom
+	       (let ((imol (car active-atom))
+		     (centre-residue-spec 
+		      (list
+		   (list-ref active-atom 1)
+		   (list-ref active-atom 2)
+		   (list-ref active-atom 3))))
+		 (hilight-binding-site imol centre-residue-spec 230 4))))))
+
+
+
       (add-simple-coot-menu-menuitem
        menu "Dotted Surface..."
        (lambda ()
