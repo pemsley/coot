@@ -1964,7 +1964,7 @@ export PATH
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.5
-pver=2.5.1
+pver=2.5.2
 
 # python
 #
