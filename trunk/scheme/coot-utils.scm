@@ -116,6 +116,12 @@
 
 		
 
+;; Convert a residue-spec to an mmdb atom selection string.
+;;
+(define (residue-spec->atom-selection-string centre-residue-spec)
+  (string-append "//" (car centre-residue-spec)
+		 "/" (number->string 
+		      (car (cdr centre-residue-spec)))))
 
 ;; Return a list of molecules that are maps
 ;; 
@@ -1653,3 +1659,47 @@
 	 (else 
 	  (loop (read-line port) positions)))))))
 
+
+
+(define BALL_AND_STICK 2)
+
+;; hilight-colour is specified in degrees (round the colour wheel -
+;; starting at yellow (e.g. 230 is purple))
+;; 
+;;
+(define (hilight-binding-site imol centre-residue-spec hilight-colour radius)
+
+  (if (valid-model-molecule? imol)
+      
+      (let ((other-residues (residues-near-residue imol centre-residue-spec radius))
+	    (atom-sel-str (residue-spec->atom-selection-string centre-residue-spec)))
+	
+	(let ((imol-new (new-molecule-by-atom-selection imol atom-sel-str))
+	      (bb-type 1)
+	      (draw-hydrogens-flag (draw-hydrogens-state imol)))
+
+	  (set-mol-active imol-new 0)
+	  (set-show-environment-distances 1)
+	  (set-molecule-bonds-colour-map-rotation imol-new hilight-colour)
+	  (additional-representation-by-attributes imol-new 
+						   (car centre-residue-spec)
+						   (cadr centre-residue-spec)
+						   (cadr centre-residue-spec)
+						   (caddr centre-residue-spec)
+						   BALL_AND_STICK
+						   bb-type 6
+						   draw-hydrogens-flag)
+	  
+	  (map (lambda (spec)
+		 (additional-representation-by-attributes imol
+							  (car spec)
+							  (cadr spec)
+							  (cadr spec)
+							  (caddr spec)
+							  BALL_AND_STICK
+							  bb-type 6
+							  draw-hydrogens-flag))
+		 
+	       other-residues)))))
+
+	
