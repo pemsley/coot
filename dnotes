@@ -4,13 +4,15 @@
 
    16 Items, 40 hd.
 
+   o Addition of waters using GUI in a shelx molecule puts waters in
+     with occupancy 1.0 [Tobias Beck]
+
+   o Open Bond Parameters dialog with no molecules loaded -> crash
+
    o Make a test pdb that exercises Case 3: model has deletion in
      align_on_chain(). (tutorial-modern.pdb exercises it, but the
-     deletion is at the end of the A chain.  Make tests where the
+     deletion is at the end of the A chain).  Make tests where the
      deletion is at the N term and in the middle of the A chain.
-
-   o SFAC needs to be written higher in the shelx ins file, after UNIT
-     line.
 
    o Does Replace Fragment work? Can you write a test?
 
@@ -45,7 +47,13 @@
 
    o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
      message about going to wall-eyed and the state of walled eyed in
-     the status file. 1hd
+     the status file. 
+
+     Note also Joel Bard's comment about the problem of non-updating
+     density lines after switching to (or attempting to switch to)
+     hardware stereo mode.
+
+     2hd
 
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
@@ -95,7 +103,12 @@
 
 
 
-78 Done.
+79 Done.
+
+   o SFAC needs to be written higher in the shelx ins file, after UNIT
+     line.
+
+* Done.  Before, in fact.
 
    o Do a refinement on 3bv2 in CA + ligand mode.  It changes the
      colour scheme to rainbow representation.
@@ -5774,3 +5787,30 @@ Fri Jun  6 13:13:19 BST 2008
     The P key should go to an atom that is active (don't just check
     fro "displayed") because (currently) recentring on an atom in the
     (new molecule) ligand make the env distances go away.
+
+* Done.
+
+----
+Sat Jun  7 03:45:44 BST 2008
+
+MolProbity: all-atom contacts and structure validation for proteins
+and nucleic acids
+
+Ian W. Davis1, Andrew Leaver-Fay2, Vincent B. Chen1, Jeremy N. Block1,
+Gary J. Kapral1, Xueyi Wang2, Laura W. Murray1, W. Bryan Arendall,
+III1, Jack Snoeyink2, Jane S. Richardson1 and David C. Richardson1,*
+
+Sugar puckers
+
+RNA sugar pucker (C3' endo or C2' endo) is strongly correlated to the
+perpendicular distance between the following (3') phosphate and either
+the plane of the base or the C1'-N1/9 glycosidic bond
+vector. Incorrectly chosen sugar puckers also often result in
+out-of-range values for the epsilon dihedral. This is important
+information, because a sugar pucker is very difficult to determine
+directly from the electron density at resolutions typical for large
+RNAs. MolProbity checks epsilon angles and checks the modeled sugar
+pucker against the base-phosphate distance; it flags outliers as
+potentially having the wrong pucker.
+
+Nucleic Acids Research, 2007, Vol. 35, No. suppl_2 W375-W383
