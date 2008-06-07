@@ -3398,8 +3398,14 @@ int get_default_bond_thickness();
   default status is 1. */
 void set_draw_zero_occ_markers(int status);
 
-/* istat = 0 is hydrogens off, istat = 1: show hydrogens */
+/*! \brief set the hydrogen drawing state. istat = 0 is hydrogens off,
+  istat = 1: show hydrogens */
 void set_draw_hydrogens(int imol, int istat);
+
+/*! \brief the state of draw hydrogens for molecule number imol.  
+
+return -1 on bad imol.  */
+int draw_hydrogens_state(int imol);
 
 /*! \brief draw molecule number imol as CAs */
 void graphics_to_ca_representation   (int imol);
