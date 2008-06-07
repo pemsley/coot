@@ -1928,7 +1928,20 @@ void set_draw_hydrogens(int imol, int istate) {
    args.push_back(imol);
    args.push_back(istate);
    add_to_history_typed(cmd, args);
-} 
+}
+
+/*! \brief the state of draw hydrogens for molecule number imol.  
+
+return -1 on bad imol.  */
+int draw_hydrogens_state(int imol) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].draw_hydrogens();
+   }
+   return r;
+}
+
 
 void set_show_origin_marker(int istate) {
    graphics_info_t::show_origin_marker_flag = istate;
