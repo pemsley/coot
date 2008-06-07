@@ -221,7 +221,8 @@
 # 4.05 20080226 Fix up build_guile_gtk usage.
 # 4.06 20080428 Apply Joseph Moran's fix correctly.
 # 4.07 20080518 Update the status reporting system.
-script_version=4.07
+# 4.08 20080607 Bump version of python to 2.5.2
+script_version=4.08
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
