@@ -1124,7 +1124,7 @@ which will return a list of strings.
 
 If you don't want smooth recentring (sliding)
 @cindex sliding 
-@command{Draw -> Smooth Recentring -> Off}.  You
+@command{Edit -> Preferences -> Smooth Recentring -> Off}.  You
 can also use this dialog to speed it up a bit (by decreasing the
 number of steps instead of turning it off).
 
