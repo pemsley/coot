@@ -2709,11 +2709,16 @@ Ramachandran plot probability (for a generic residue).  By default there
 are 100 trials.  It is possible that a wrong position will be selected
 for the terminal residue and if so, you can reject this fit and try
 again with Fit Terminal Residue @footnote{usually if this still fails
-after two repetitions
-  then it never seems to work.}. Each of the trial positions are scored
-  according to their fit to the map @footnote{The map is selected
-  using ``Refine/Regularize Control''} and the best one selected.  It is
-  probably a good idea to run ``Refine Zone'' on these new residues.
+after two repetitions then it never seems to work.}. Each of the trial
+positions are scored according to their fit to the map @footnote{The map
+is selected using ``Refine/Regularize Control''} and the best one
+selected.  It is probably a good idea to run ``Refine Zone'' on these
+new residues.
+
+If you use the Extensions (@command{Dock Sidechains... -> Associate
+Sequence with Model}) to apply a PIR sequence file to a model then
+@command{Add Terminal Residue} will use the sequence alignment to
+determine the residue type of the added residue.
 
 @code{(set-terminal-residue-do-rigid-body-refine 0)} will disable
 rigid body fitting of the terminal residue fragment for
@@ -3762,14 +3767,22 @@ file):
 
 @code{(define *reduce-command* "/path/to/reduce/executable")}
  
-now the probe hydrogens and probe dots can be generated using (in the
-Scripting Window):
+now the probe hydrogens and probe dots can be generated using
+@command{Validate -> Probe Clashes} (or in the Scripting Window):
 
 @code{(probe @emph{imol})}
 
 where @code{@emph{imol}} is the molecule number of coordinates to be
 probed.  A new molecule with Hydrogens is created (by @file{reduce}) and
 read in.
+
+By default Coot creates a new molecule for the molecule that now has
+hydrogens.  To change this:
+
+@code{(set! reduce-molecule-updates-current #t)}
+
+and that, as you can guess, replaces, rather than addes to the
+``probed'' molecule.
 
 This gives a "static" view of the molecule's interactions.
 
