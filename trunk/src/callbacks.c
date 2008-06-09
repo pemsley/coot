@@ -2032,7 +2032,7 @@ on_find_ligand_many_atoms_continue_button_clicked (GtkButton       *button,
 				     "find_ligand_many_atoms_dialog");
    GtkWidget *find_ligand_dialog = (GtkWidget *) gtk_object_get_user_data(GTK_OBJECT(window));
 
-#ifdef USE_GUILE
+#ifdef USE_GUILE && !defined WINDOWS_MINGW
    execute_ligand_search();
 #else
 #ifdef USE_PYTHON
