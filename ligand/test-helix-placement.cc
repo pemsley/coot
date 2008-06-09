@@ -20,7 +20,11 @@
 
 // Portability (getopt) gubbins
 #include <unistd.h> // for getopt(3)
+#if !defined WINDOWS_MINGW
+// conflicts in Windows and doesnt seem to be needed anyway
+// actually not sure if needed at all...
 #include <stdlib.h> // for atof
+#endif
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE

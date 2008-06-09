@@ -2952,8 +2952,12 @@ fi
 #fi
 
 # clean up old status:
-if [ -e $LOGS/gtk2-test-status ] ; then
+if [ -e $LOGS/gtk2-test-status${guile_autobuild_path} ] ; then
    rm $LOGS/gtk2-test-status${guile_autobuild_path}
+fi
+# clean up old logs:
+if [ -e $LOGS/gtk2-test-status${guile_autobuild_path}.log ] ; then
+   rm $LOGS/gtk2-test-status${guile_autobuild_path}.log
 fi
 # run test
 test_coot_python > $LOGS/gtk2-test{guile_autobuild_path}.log 2>&1

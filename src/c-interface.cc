@@ -245,17 +245,15 @@ void run_generic_script(const std::vector<std::string> &cmd_strings) {
    
    graphics_info_t g;
 
-#ifdef USE_GUILE   
+#ifdef USE_GUILE && !defined WINDOWS_MINGW
    std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
    safe_scheme_command(s);
-#endif
-
+#else
 #ifdef USE_PYTHON
-#ifndef USE_GUILE
    std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
    safe_python_command(s);
-#endif    
-#endif    
+#endif // USE_PYTHON
+#endif // USE_GUILE
 
    std::string cmd = "run-generic-script";
    std::vector<coot::command_arg_t> args;
