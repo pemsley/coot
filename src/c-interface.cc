@@ -3428,6 +3428,118 @@ void set_view_quaternion(float i, float j, float k, float l) {
    } 
 }
 
+
+
+/* Return 1 if we moved to a molecule centre, else go to origin and
+   return 0. */
+/* centre on last-read (and displayed) molecule with zoom 100. */
+// 
+// However, if we are already *at* that molecule centre, Reset View
+// moves to the centre of the next displayed molecule (with wrapping).
+// 
+int reset_view() {
+
+   int istat = 0;
+
+   // Question:  Are we are a molecule centre?
+   // If we are, move to the next available centre.
+   // If not, then move to the last read molecule.
+   //
+   graphics_info_t g;
+   std::vector<coot::Cartesian> molecule_centres(g.n_molecules(),
+						 coot::Cartesian(0,0,0));
+   int centred_on_molecule_number = -1;
+   coot::Cartesian current_centre = g.RotationCentre();
+   coot::Cartesian new_centre(0,0,0); // gets set.
+   int last_molecule = -1;
+   
+   for (int imol=(graphics_info_t::n_molecules() -1); imol>=0; imol--) {
+      if (graphics_info_t::molecules[imol].is_displayed_p()) {
+	 if (last_molecule == -1)
+	    last_molecule = imol;
+	 coot::Cartesian mc = centre_of_molecule(graphics_info_t::molecules[imol].atom_sel);
+	 molecule_centres[imol] = mc;
+	 if ((mc - current_centre).length() < 0.1) {
+	    if (centred_on_molecule_number == -1) {
+	       centred_on_molecule_number = imol;
+	    }
+	 }
+      }
+   }
+
+   // If we were not centred on a molecule then centre on the last
+   // available molecule.
+   //
+   if (centred_on_molecule_number == -1) {
+      if (last_molecule != -1) { 
+	 new_centre = molecule_centres[last_molecule];
+	 std::string s = "Centring no molecule number ";
+	 s += g.int_to_string(last_molecule);
+	 s += " ";
+	 s += graphics_info_t::molecules[last_molecule].name_for_display_manager();
+	 g.statusbar_text(s);
+	 istat = 1;
+      } else {
+	 std::string s = "No displayed molecules";
+	 g.statusbar_text(s);
+	 new_centre = current_centre;
+      }
+   } else {
+
+      // OK, we were centred on a molecule... which is the next one we
+      // want to centre on?
+      // Let's make a list of the available molecules:
+      std::vector<int> available_molecules;
+      for(int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+	 if (graphics_info_t::molecules[imol].is_displayed_p()) {
+ 	    if (is_valid_model_molecule(imol))
+	       available_molecules.push_back(imol);
+	 }
+      }
+      
+      if (available_molecules.size() == 1) {
+	 // no other molecule to centre on.
+	 new_centre = current_centre;
+      } else {
+
+	 // we want the molecule after the molecule that we are
+	 // currently centred on, if not that (which may be because we
+	 // are at the last molecule in the list) then the first
+	 // molecule in the list.
+	 // 
+	 int first_in_list = available_molecules[0];
+	 int next = -1;
+	 for (unsigned int iav=0; iav<available_molecules.size(); iav++) {
+	    if (available_molecules[iav] > centred_on_molecule_number) {
+	       next = available_molecules[iav];
+	       break;
+	    }
+	 }
+	 if (next == -1)
+	    next = first_in_list;
+	 new_centre = molecule_centres[next];
+	 std::string s = "Centring on molecule number ";
+	 s += g.int_to_string(next);
+	 s += " ";
+	 s += graphics_info_t::molecules[next].name_for_display_manager();
+	 g.statusbar_text(s);
+	 istat = 1;
+      }
+   }
+
+   g.setRotationCentreAndZoom(new_centre, 100.0);
+   g.zoom = 100.0;
+      
+   for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
+      graphics_info_t::molecules[ii].update_map();
+      graphics_info_t::molecules[ii].update_symmetry();
+   }
+   graphics_draw();
+   add_to_history_simple("reset-view");
+   return istat;
+   
+}
+
 /*! \brief Given that we are in chain current_chain, apply the NCS
   operator that maps current_chain on to next_ncs_chain, so that the
   relative view is preserved.  For NCS skipping. */
