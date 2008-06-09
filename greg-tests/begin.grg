@@ -86,3 +86,27 @@
 	#f
 	(get-atom-from-res atom-name res-info))))
 	
+;; return restraints without the given bond restraints
+(define (strip-bond-from-restraints atom-pair restraints)
+
+  (define (strip-bond bond-restraints)
+    (cond
+     ((null? bond-restraints) '())
+     ((and (string=? (car (car bond-restraints)) (car atom-pair))
+	   (string=? (car (cdr (car bond-restraints))) (car (cdr atom-pair))))
+      (cdr bond-restraints))
+     (else 
+      (cons (car bond-restraints)
+	    (strip-bond (cdr bond-restraints))))))
+
+  ;; main line of strip-bond-restraints
+  (cond 
+   ((null? restraints) '())
+   ((string=? "_chem_comp_bond" (car (car restraints)))
+    ; (format #t "strip-bond on::::: ~s ~%" (car (cdr (car restraints))))
+    (cons 
+     (list (car (car restraints)) (strip-bond (car (cdr (car restraints)))))
+     (cdr restraints)))
+   (else 
+    (cons (car restraints) 
+	  (strip-bond-from-restraints atom-pair (cdr restraints))))))
