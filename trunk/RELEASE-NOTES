@@ -30,12 +30,16 @@ Release 0.5
      sensible when it encounters a missing residue or an insertion
      code.
 
+   o CHANGE: When deleting a residue while displaying validation
+     graphs, the graphs get updated immediately [JED]
+
    o CHANGE: In CA display mode, only CAs can now be picked.
 
    o CHANGE: Nudge centre axes are not relative to the screen rather
      than in world coordinates.
  
-   o CHANGE: NCS skipping changed.  Hopefully faster now.
+   o CHANGE: NCS skipping changed.  Hopefully faster now [Steven
+     Sheriff]
 
    o CHANGE: default bond width changed to 5.
 
