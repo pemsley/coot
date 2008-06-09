@@ -906,10 +906,13 @@
 (greg-testcase "Make a glycosidic linkage" #t 
    (lambda ()
 
-     (let ((imol (greg-pdb "multi-carbo-coot-2.pdb")))
+     (let* ((carbo "multi-carbo-coot-2.pdb")
+	    (imol (greg-pdb carbo)))
 
        (if (not (valid-model-molecule? imol))
-	   #f 
+	   (begin 
+	     (format #t "file not found: ~s~%" carbo)
+	     #f)
 	   
 	   (let ((atom-1 (get-atom imol "A" 1 " O4 "))
 		 (atom-2 (get-atom imol "A" 2 " C1 ")))
@@ -948,6 +951,47 @@
 	       (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04)))))))
 
 
+
+(greg-testcase "update monomer restraints" #t 
+   (lambda () 
+
+     (let ((atom-pair (list " CB " " CG "))
+	   (m (monomer-restraints "TYR")))
+
+       (let ((n (strip-bond-from-restraints atom-pair m)))
+	 ; (format #t "new restraints::::: ~s~%" n)
+	 (set-monomer-restraints "TYR" n)
+	 
+	 (let ((imol (new-molecule-by-atom-selection imol-rnase "//A/30")))
+	   
+	   (with-auto-accept
+	    (refine-zone imol "A" 30 30 ""))
+	   
+	   (let ((atom-1 (get-atom imol "A" 30 " CB "))
+		 (atom-2 (get-atom imol "A" 30 " CG ")))
+	     
+	     (format #t "bond-length: ~s: ~%"
+		     (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
+
+	     (if (not (bond-length-within-tolerance? atom-1 atom-2 2.8 0.6))
+		 (begin
+		   (format #t "fail 2.8 tolerance test~%")
+		   #f)
+		 (begin 
+		   (format #t "pass intermediate 2.8 tolerance test~%")
+		   (set-monomer-restraints "TYR" m)
+
+		   (with-auto-accept
+		    (refine-zone imol "A" 30 30 ""))
+		 
+		   (let ((atom-1 (get-atom imol "A" 30 " CB "))
+			 (atom-2 (get-atom imol "A" 30 " CG ")))
+		     
+		     (format #t "bond-length: ~s: ~%"
+			     (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
+		     (bond-length-within-tolerance? atom-1 atom-2 1.512 0.04))))))))))
+
+
 (greg-testcase "Change Chain IDs and Chain Sorting" #t 
    (lambda () 
      (let ((imol (copy-molecule imol-rnase)))
@@ -968,6 +1012,3 @@
        #t)))
 
 
-
-
-  
