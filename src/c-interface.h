@@ -152,6 +152,7 @@ GSList **gslist_for_scroll_in_display_manager_p();
 /*! \brief add an extension to be treated as coordinate files 
 */
 void add_coordinates_glob_extension(const char *ext);
+
 /*! \brief add an extension to be treated as data (reflection) files 
 */
 void add_data_glob_extension(const char *ext);
@@ -164,6 +165,21 @@ void add_dictionary_glob_extension(const char *ext);
 */
 void add_map_glob_extension(const char *ext);
 
+/*! \brief remove an extension to be treated as coordinate files 
+*/
+void remove_coordinates_glob_extension(const char *ext);
+
+/*! \brief remove an extension to be treated as data (reflection) files 
+*/
+void remove_data_glob_extension(const char *ext);
+
+/*! \brief remove an extension to be treated as geometry dictionary files 
+*/
+void remove_dictionary_glob_extension(const char *ext);
+
+/*! \brief remove an extension to be treated as geometry map files 
+*/
+void remove_map_glob_extension(const char *ext);
 
 /*! \brief sort files in the file selection by date?
 

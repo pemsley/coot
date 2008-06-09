@@ -6976,6 +6976,28 @@ void add_map_glob_extension(const char *ext) {
    g.add_map_glob_extension(std::string(ext));
 } 
 
+void remove_coordinates_glob_extension(const char *ext) { 
+   graphics_info_t g;
+   g.remove_coordinates_glob_extension(std::string(ext));
+} 
+
+void remove_data_glob_extension(const char *ext) { 
+   graphics_info_t g;
+   g.remove_data_glob_extension(std::string(ext));
+} 
+
+void remove_dictionary_glob_extension(const char *ext) { 
+   graphics_info_t g;
+   g.remove_dictionary_glob_extension(std::string(ext));
+} 
+
+void remove_map_glob_extension(const char *ext) { 
+   graphics_info_t g;
+   g.remove_map_glob_extension(std::string(ext));
+} 
+
+
+
 int do_anti_aliasing_state() {
    return graphics_info_t::do_anti_aliasing_flag;
 } 
