@@ -6464,6 +6464,52 @@ graphics_info_t::add_dictionary_glob_extension(const std::string &extension) {
 
 } 
 
+void
+graphics_info_t::remove_coordinates_glob_extension(const std::string &extension) { 
+
+  std::vector<std::string>::iterator it;
+  for (it = coordinates_glob_extensions->begin(); it<coordinates_glob_extensions->end(); it++) {
+    if (*it == extension) {
+      coordinates_glob_extensions->erase(it);
+      // could put in break here!?
+      // avoid since it could happen that you have multiples of same entry
+    }
+  }
+} 
+  
+
+void
+graphics_info_t::remove_data_glob_extension(const std::string &extension) { 
+
+  std::vector<std::string>::iterator it;
+  for (it = data_glob_extensions->begin(); it<data_glob_extensions->end(); it++) {
+    if (*it == extension) {
+      data_glob_extensions->erase(it);
+    }
+  }
+} 
+
+void
+graphics_info_t::remove_map_glob_extension(const std::string &extension) { 
+
+  std::vector<std::string>::iterator it;
+  for (it = map_glob_extensions->begin(); it<map_glob_extensions->end(); it++) {
+    if (*it == extension) {
+      map_glob_extensions->erase(it);
+    }
+  }
+} 
+
+void
+graphics_info_t::remove_dictionary_glob_extension(const std::string &extension) { 
+
+  std::vector<std::string>::iterator it;
+  for (it = dictionary_glob_extensions->begin(); it<dictionary_glob_extensions->end(); it++) {
+    if (*it == extension) {
+      dictionary_glob_extensions->erase(it);
+    }
+  }
+}
 
 // ----------------------------------------------------------------------------
 //                check waters 

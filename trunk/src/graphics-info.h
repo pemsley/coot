@@ -832,6 +832,7 @@ public:
       coordinates_glob_extensions->push_back(".cif.gz");
       coordinates_glob_extensions->push_back(".mmcif.gz");
       coordinates_glob_extensions->push_back(".mmCIF.gz");
+      coordinates_glob_extensions->push_back(".res");  // SHELX
 
       data_glob_extensions->push_back(".mtz");
       data_glob_extensions->push_back(".hkl");
@@ -2585,6 +2586,10 @@ public:
    void add_data_glob_extension(const std::string &extension);
    void add_map_glob_extension(const std::string &extension);
    void add_dictionary_glob_extension(const std::string &extension);
+   void remove_coordinates_glob_extension(const std::string &extension);
+   void remove_data_glob_extension(const std::string &extension);
+   void remove_map_glob_extension(const std::string &extension);
+   void remove_dictionary_glob_extension(const std::string &extension);
    static int filter_fileselection_filenames_flag;
 
    // superposition

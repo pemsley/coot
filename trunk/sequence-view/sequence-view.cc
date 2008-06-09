@@ -105,6 +105,11 @@ coot::sequence_view::setup_internal(CMMDBManager *mol_in) {
    fixed_font = "monospace";
    res_scale = 8;
 #endif   
+   GdkFont *font;
+   font = gdk_font_load(fixed_font.c_str());
+   gint res_width = gdk_string_width(font, "m");
+   //std::cout <<"BL DEBUG:: font width calc "<<res_width <<" and set " << res_scale<< std::endl;
+   res_scale = res_width - 5;
 
    tooltip_item = NULL;
    tooltip_item_text = NULL;

@@ -610,7 +610,7 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    GtkWidget *dialog = create_geometry_graphs_dialog();
    canvas = GTK_CANVAS(gtk_canvas_new());
 #ifdef WINDOWS_MINGW
-   int canvas_usize_x = max_chain_length*10 + 300; // add a bit more to get (may be
+   int canvas_usize_x = max_chain_length*10 + 325; // add a bit more to get (may be
                                                    // general for GNOME_CANVAS)
 #else
    int canvas_usize_x = max_chain_length*10 + 200; // add a bit to get

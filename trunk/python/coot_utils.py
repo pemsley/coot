@@ -1262,6 +1262,9 @@ handle_read_draw_probe_dots_unformatted = handle_read_draw_probe_dots_unformatte
 probe_available_p              = probe_available_p_py
 gln_asn_b_factor_outliers      = gln_asn_b_factor_outliers_py
 
+# and some acronyms
+de_chainsaw                    = fill_partial_residues
+
 ############################################################################################
 # end of Paul's scripting
 ############################################################################################
