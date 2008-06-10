@@ -1005,6 +1005,16 @@ class molecule_class_info_t {
    CResidue *get_residue(int reso, const std::string &insertion_code,
 			 const std::string &chain_id) const;
 
+   // Return a copy of the pointer (only).  Return NULL on residue not
+   // found.
+   // 
+   CResidue *get_residue(const coot::residue_spec_t &rs) const;
+
+   // Return a copy of the pointer (only) of the residue following
+   // that of the given spec.  Return NULL on residue not found.
+   // 
+   CResidue *get_following_residue(const coot::residue_spec_t &rs) const;
+
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 
 	 draw_hydrogens_flag = i;

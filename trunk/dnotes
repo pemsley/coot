@@ -16,6 +16,8 @@
 
    o Does Replace Fragment work? Can you write a test?
 
+   o Add means to get to fix/anchor atoms in gtk1 version.
+
    o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
      guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
      I think.  Also there were some extranaeous ^:^s in the .x files.
@@ -5519,11 +5521,13 @@ Thu Apr 17 13:28:45 BST 2008
 		   (scheme-expression->python-expression a)))))
        test-values))
 
+* Done.
+
 ----
 Fri Apr 25 12:39:14 BST 2008
 
-   when the startup script is not given but not run, then, on
-   exitting, don't create a new state file
+   When the startup script is not given but not run, then, on
+   exitting, don't create a new state file.
     
     (better would be to give a GUI on exiting, shall we overwrite?)
 
@@ -5535,7 +5539,6 @@ Mon Apr 28 18:21:07 BST 2008
 valgrinding migels rl shelx file:
 
 (saving as pdb)
-
 
 ==12236== 621024 (187824 direct, 433200 indirect) bytes in 1092 blocks are definitely lost in loss record 302 of 312
 ==12236==    at 0x1B90B39A: operator new(unsigned) (vg_replace_malloc.c:132)
@@ -5557,7 +5560,6 @@ Thu May  1 20:08:33 BST 2008
     When waters are added with the W keybinding, let us know (with a
     dialog) if a "Pointer Atoms" molecule was created (may be pointer
     atom molecule was not set?)
-
 
 ----
 Thu May  1 20:26:28 BST 2008
@@ -5582,7 +5584,7 @@ Thu May  1 20:55:01 EDT 2008
 
 ----
     
-    get a protein with hydrogens.
+    Get a protein with hydrogens.
     make a modification
     undo it.
     refine  -> hydrogens fly off.  Why?
@@ -5590,6 +5592,8 @@ Thu May  1 20:55:01 EDT 2008
     Priority: High.
     Difficulty:  Hard/Medium.
 
+* Done.  Because the backup save file.mechanism was not adjusting
+  hydrogen names.
 
 -----
 
@@ -5610,7 +5614,6 @@ Sat May  3 11:33:52 EDT 2008
     Question to self: will that fix the single atom drag vs view drag
     problem that drives Erik insane?
 
-
 -----
 Sat May  3 12:46:24 EDT 2008
 
@@ -5618,11 +5621,10 @@ Sat May  3 12:46:24 EDT 2008
     against 7.  Should it be 6, because there no sigma is needed for a
     chiral volume restraint?
 
-
 -----
 Sat May 10 07:22:54 CST 2008
 
-    consider a test for wiggly ligands.
+    Consider a test for wiggly ligands.
 
 ----
 
@@ -5632,16 +5634,18 @@ Sat May 10 07:22:54 CST 2008
   angles to A or B form geometry?
 
 -----
+
    How does side by side stereo work for maps when using (default on Mac) 
    (set-display-lists-for-maps 1)
 
-
 -----
 
-   do ncs map average. then denisty fit analysis vs the average map -
+   Do NCS map average. then denisty fit analysis vs the average map -
    the scores go down vs the first map (adding not averaging suggests
    eleanor?)
 
+   The NCS average *is* being averaged.  It could a result of the
+   density outsite the averaged block being set to zero.
 
 ----
 
@@ -5756,8 +5760,13 @@ Tue Jun  3 17:14:33 BST 2008
     JB:
 
     Refine by sphere
+
+
     Render Geometry objects in raster3d
-    
+
+      Consider putting a std::vector<coot::generic_display_object_t>
+      generic_objects into raytrace_info_t, to store info for generic
+      objects in ray trace info.
 
 ----
 
@@ -5765,7 +5774,6 @@ Tue Jun  3 17:14:33 BST 2008
     have to undo twice for each step.
 
     Priority: Critical.
-
 
     
 ----
@@ -5796,21 +5804,23 @@ Sat Jun  7 03:45:44 BST 2008
 MolProbity: all-atom contacts and structure validation for proteins
 and nucleic acids
 
-Ian W. Davis1, Andrew Leaver-Fay2, Vincent B. Chen1, Jeremy N. Block1,
-Gary J. Kapral1, Xueyi Wang2, Laura W. Murray1, W. Bryan Arendall,
-III1, Jack Snoeyink2, Jane S. Richardson1 and David C. Richardson1,*
+  Ian W. Davis1, Andrew Leaver-Fay2, Vincent B. Chen1, Jeremy
+  N. Block1, Gary J. Kapral1, Xueyi Wang2, Laura W. Murray1, W. Bryan
+  Arendall, III1, Jack Snoeyink2, Jane S. Richardson1 and David
+  C. Richardson1,*
 
-Sugar puckers
+  Sugar puckers
 
-RNA sugar pucker (C3' endo or C2' endo) is strongly correlated to the
-perpendicular distance between the following (3') phosphate and either
-the plane of the base or the C1'-N1/9 glycosidic bond
-vector. Incorrectly chosen sugar puckers also often result in
-out-of-range values for the epsilon dihedral. This is important
-information, because a sugar pucker is very difficult to determine
-directly from the electron density at resolutions typical for large
-RNAs. MolProbity checks epsilon angles and checks the modeled sugar
-pucker against the base-phosphate distance; it flags outliers as
-potentially having the wrong pucker.
+     RNA sugar pucker (C3' endo or C2' endo) is strongly correlated to
+     the perpendicular distance between the following (3') phosphate
+     and either the plane of the base or the C1'-N1/9 glycosidic bond
+     vector. Incorrectly chosen sugar puckers also often result in
+     out-of-range values for the epsilon dihedral. This is important
+     information, because a sugar pucker is very difficult to
+     determine directly from the electron density at resolutions
+     typical for large RNAs. MolProbity checks epsilon angles and
+     checks the modeled sugar pucker against the base-phosphate
+     distance; it flags outliers as potentially having the wrong
+     pucker.
 
-Nucleic Acids Research, 2007, Vol. 35, No. suppl_2 W375-W383
+  Nucleic Acids Research, 2007, Vol. 35, No. suppl_2 W375-W383

@@ -7667,7 +7667,9 @@ graphics_info_t::measure_lsq_plane_deviant_atom(int imol, int atom_index) {
       if (lsq_plane_atom_positions->size() > 2) {
 
 	 graphics_draw();
-	 float d = coot::lsq_plane_deviation(*lsq_plane_atom_positions, p);
+	 std::pair<float,float> d_pair =
+	    coot::lsq_plane_deviation(*lsq_plane_atom_positions, p);
+	 float d = d_pair.first;
 	 
 	 std::string s("Atom ");
 	 s += at->name;

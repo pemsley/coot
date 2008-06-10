@@ -245,7 +245,7 @@ void run_generic_script(const std::vector<std::string> &cmd_strings) {
    
    graphics_info_t g;
 
-#ifdef USE_GUILE && !defined WINDOWS_MINGW
+#if  defined(USE_GUILE) && !defined(WINDOWS_MINGW)
    std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
    safe_scheme_command(s);
 #else

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "mmdb_align.h"
 #include "mmdb_tables.h"
@@ -86,7 +87,6 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
    }
 }
 
-#include <stdexcept>
 
 // throw an execption if there is no residue type to return for
 // the given spec.

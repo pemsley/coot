@@ -49,7 +49,8 @@ libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 	gdk-keysyms.cc
 
 # for pure coordinates (mmdb) things
-libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc 
+libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
+	coot-coord-utils-nucleotides.cc
 
 # shelx
 libcoot_shelx_la_SOURCES = coot-shelx-ins.cc

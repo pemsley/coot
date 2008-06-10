@@ -1437,6 +1437,26 @@ molecule_class_info_t::get_residue(int resno, const std::string &insertion_code,
    return res;
 }
 
+CResidue *
+molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) const { 
+   
+   CResidue *res = res = get_residue(residue_spec.resno,
+				     residue_spec.insertion_code,
+				     residue_spec.chain);
+   return res;
+}
+
+CResidue *
+molecule_class_info_t::get_following_residue(const coot::residue_spec_t &rs) const {
+
+   CResidue *res = NULL;
+   if (atom_sel.n_selected_atoms > 0) {
+      res = coot::util::get_following_residue(rs, atom_sel.mol);
+   }
+   return res;
+} 
+
+
 
 CResidue *
 molecule_class_info_t::residue_from_external(int resno, const std::string &insertion_code,

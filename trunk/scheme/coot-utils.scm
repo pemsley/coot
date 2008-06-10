@@ -41,6 +41,7 @@
 (define inverse-rtop inverse-rtop-scm)
 (define coot-has-python? coot-has-python-p)
 (define map-sigma map-sigma-scm)
+(define pucker-info pucker-info-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.

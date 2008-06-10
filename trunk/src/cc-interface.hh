@@ -340,6 +340,11 @@ SCM scm_residue(const coot::residue_spec_t &res);
 PyObject *py_residue(const coot::residue_spec_t &res);
 #endif
 
+#ifdef USE_GUILE
+coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
+#endif
+
+
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */

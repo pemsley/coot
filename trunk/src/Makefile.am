@@ -247,6 +247,7 @@ coot_real_SOURCES = \
 	c-interface-database.cc  \
 	c-interface-superpose.cc \
 	c-interface-preferences.cc \
+	c-interface-nucleotides.cc \
 	coot-preferences.h       \
 	c-interface-mmdb.hh      \
 	cc-interface.hh		 \

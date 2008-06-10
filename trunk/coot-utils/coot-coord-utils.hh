@@ -247,9 +247,12 @@ namespace coot {
    // return -1 on badness
    int get_selection_handle(CMMDBManager *mol, const atom_spec_t &at);
 
-   //
-   double lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
-			      const clipper::Coord_orth &pt);
+   // return the lsq deviation of the pt atom and (in second) the rms
+   // deviation of the atoms in the plane (not the including pt of
+   // course)
+   std::pair<double, double>
+   lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
+		       const clipper::Coord_orth &pt);
 
    // return 0 or 1
    short int is_main_chain_p(CAtom *at);
@@ -272,6 +275,34 @@ namespace coot {
    // 
    // sort chains in lexographical order
    void sort_chains(CMMDBManager *mol);
+
+   // Pukka puckers?
+   //
+   // Throw an exception if it is not possible to generate pucker info
+   // 
+   class pucker_analysis_info_t {
+      enum PUCKERED_ATOM_T { NONE, C1_PRIME, C2_PRIME, C3_PRIME, C4_PRIME, O4_PRIME};
+      PUCKERED_ATOM_T puckered_atom_;
+      std::string altconf;
+   public:
+      float plane_distortion;
+      float out_of_plane_distance;
+      std::vector<clipper::Coord_orth> ribose_atoms_coords;
+      
+
+      // Throw an exception if it is not possible to generate pucker info
+      // 
+      pucker_analysis_info_t(CResidue *res, std::string altconf_in);
+      
+      // Use the 3' phosphate of the following residue to calculate
+      // its out of plane distance.  Decide from that if this should
+      // have been 3' or 2'.  Check vs the actual puckering.
+      // 
+      float phosphate_distance(CResidue *following_res);
+      std::string puckered_atom() const;
+   };
+
+   
 
    class graph_match_info_t {
    public:
@@ -488,6 +519,11 @@ namespace coot {
       // 
       CResidue *get_residue(int reso, const std::string &insertion_code,
 			    const std::string &chain_id, CMMDBManager *mol);
+
+      // Return NULL on residue not found in this molecule.
+      // 
+      CResidue *get_following_residue(const residue_spec_t &rs, 
+				      CMMDBManager *mol);
       
       std::vector<std::string> residue_types_in_molecule(CMMDBManager *mol);
       std::vector<std::string> residue_types_in_chain(CChain *chain_p);

@@ -24,6 +24,7 @@
 (define inverse-rtop-scm #f)
 (define coot-has-python? #f)
 (define map-sigma map-sigma-scm)
+(define pucker-info #f)
 
 
 (load "filter.scm")
