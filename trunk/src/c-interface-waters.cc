@@ -455,31 +455,33 @@ void find_waters(int imol_for_map,
 
    // It's just too painful to make this a c-interface.h function:
 
-   if (show_blobs_dialog) { 
-      if (lig.big_blobs().size() > 0) {
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      if (show_blobs_dialog) { 
+	 if (lig.big_blobs().size() > 0) {
 
-	 GtkWidget *dialog = create_ligand_big_blob_dialog();
-	 GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
-	 gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-	 GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
-	 if (vbox) { 
-	    std::string label;
-	    for(unsigned int i=0; i< lig.big_blobs().size(); i++) { 
-	       label = "Blob ";
-	       label += graphics_info_t::int_to_string(i + 1);
-	       GtkWidget *button = gtk_button_new_with_label(label.c_str());
-	       //	 gtk_widget_ref(button);
-	       clipper::Coord_orth *c = new clipper::Coord_orth;
-	       *c = lig.big_blobs()[i];
-	       gtk_signal_connect (GTK_OBJECT(button), "clicked", 
-				   GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
-				   c);
-	       gtk_widget_show(button);
-	       gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-	       gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+	    GtkWidget *dialog = create_ligand_big_blob_dialog();
+	    GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
+	    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
+	    GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+	    if (vbox) { 
+	       std::string label;
+	       for(unsigned int i=0; i< lig.big_blobs().size(); i++) { 
+		  label = "Blob ";
+		  label += graphics_info_t::int_to_string(i + 1);
+		  GtkWidget *button = gtk_button_new_with_label(label.c_str());
+		  //	 gtk_widget_ref(button);
+		  clipper::Coord_orth *c = new clipper::Coord_orth;
+		  *c = lig.big_blobs()[i];
+		  gtk_signal_connect (GTK_OBJECT(button), "clicked", 
+				      GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
+				      c);
+		  gtk_widget_show(button);
+		  gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+		  gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+	       }
 	    }
+	    gtk_widget_show(dialog);
 	 }
-	 gtk_widget_show(dialog);
       }
    }
 
