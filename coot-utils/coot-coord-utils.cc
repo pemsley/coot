@@ -530,7 +530,8 @@ coot::util::get_residues_in_fragment(CChain *chain_p,
       r.push_back(SelResidues[i]);
 
    return r; 
-} 
+}
+
 
 
 // Return -1 on badness (actually, number of chains in the last model)
@@ -1330,6 +1331,56 @@ coot::util::get_residue(int reso, const std::string &insertion_code,
    }
    return res;
 }
+
+// Return NULL on residue not found in this molecule.
+// 
+CResidue *
+coot::util::get_following_residue(const residue_spec_t &rs, 
+				  CMMDBManager *mol) {
+
+   CResidue *res = NULL;
+   if (mol) {
+      int imod = 1;
+      CModel *model_p = mol->GetModel(1);
+      CChain *chain_p;
+      CChain *chain_this_res = NULL;
+      bool found_this_res = 0;
+      
+      int n_chains = model_p->GetNumberOfChains();
+      for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	 chain_p = model_p->GetChain(i_chain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+	 if (mol_chain_id == rs.chain) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) {
+	       residue_p = chain_p->GetResidue(ires);
+	       if (found_this_res == 0) { 
+		  if (rs.resno == residue_p->GetSeqNum()) {
+		     std::string ins_code = residue_p->GetInsCode();
+		     if (ins_code == rs.insertion_code) {
+			found_this_res = 1;
+			chain_this_res = chain_p;
+		     }
+		  }
+	       } else {
+		  // previous was our residue
+		  if (chain_p == chain_this_res) {
+		     // next residue in the same chain
+		     res = residue_p;
+		     break;
+		  } 
+	       }
+	    }
+	 }
+	 if (res) break;
+      }
+   }
+   return res;
+} 
+      
+
+
 
 
 // The flanking residues (if any) are in the residue selection (SelResidues).
@@ -2379,7 +2430,7 @@ coot::pad_atom_name(const std::string &atom_id, const std::string &element) {
    return new_name;
 }
 
-double
+std::pair<double, double>
 coot::lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
 			  const clipper::Coord_orth &pt) {
 
@@ -2419,7 +2470,20 @@ coot::lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
    abcd.push_back( abcd[0]*midpoint.x() + abcd[1]*midpoint.y() + abcd[2]*midpoint.z() );
    
    double val = abcd[0]*pt.x() + abcd[1]*pt.y() + abcd[2]*pt.z() - abcd[3];
-   return val;
+   double var = 0;
+   for (unsigned int i_plane_at=0; i_plane_at<v.size(); i_plane_at++) {
+      double d =
+	 abcd[0]*v[i_plane_at].x() +
+	 abcd[1]*v[i_plane_at].y() +
+	 abcd[2]*v[i_plane_at].z() - abcd[3];
+      var += d*d;
+   }
+   double rms = 0;
+   if (v.size() > 0) {
+      rms = sqrt(var/double(v.size()));
+   }
+   
+   return std::pair<double, double> (val, rms);
 }
 
 bool

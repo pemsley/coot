@@ -5422,6 +5422,9 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
       CResidue *new_residue_p = NULL;
       CAtom    *new_atom_p = NULL;
       int water_count = 0;
+      float occ = 1.0;
+      if (is_from_shelx_ins_flag)
+	 occ = 11.0;
       for (unsigned int ifrag=0; ifrag<water_mol.fragments.size(); ifrag++) {
 	 for (int ires=water_mol[ifrag].min_res_no();
 	      ires<=water_mol[ifrag].max_residue_number();
@@ -5434,7 +5437,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
 	       new_atom_p = new CAtom;
 	       new_atom_p->SetCoordinates(water_mol[ifrag][ires][iatom].pos.x(),
 					  water_mol[ifrag][ires][iatom].pos.y(),
-					  water_mol[ifrag][ires][iatom].pos.z(), 1.0, bf);
+					  water_mol[ifrag][ires][iatom].pos.z(), occ, bf);
 	       new_atom_p->SetAtomName(water_mol[ifrag][ires][iatom].name.c_str());
 	       strncpy(new_atom_p->element, water_mol[ifrag][ires][iatom].element.c_str(), 3);
 	       strncpy(new_atom_p->altLoc, water_mol[ifrag][ires][iatom].altLoc.c_str(), 2);

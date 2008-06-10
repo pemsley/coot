@@ -4456,6 +4456,13 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 GtkWidget *wrapped_nucleotide_builder_dialog();
 void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog);
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM pucker_info_scm(int imol, SCM residue_spec, int do_pukka_pucker_check);
+#endif /* USE_GUILE */
+#endif /*  __cplusplus */
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
