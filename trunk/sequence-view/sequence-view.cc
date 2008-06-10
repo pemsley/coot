@@ -96,7 +96,7 @@ coot::sequence_view::setup_internal(CMMDBManager *mol_in) {
 //    gtk_container_set_border_width (GTK_CONTAINER(sequence_view_window), 2);
 //    gtk_window_set_title (GTK_WINDOW(sequence_view_window), ("Sequence View"));
 
-   res_offset = 0;
+   res_offset = 30;
    res_scale = 6;
    row_offset = 10;
    row_scale = 14;
@@ -109,7 +109,7 @@ coot::sequence_view::setup_internal(CMMDBManager *mol_in) {
    font = gdk_font_load(fixed_font.c_str());
    gint res_width = gdk_string_width(font, "m");
    //std::cout <<"BL DEBUG:: font width calc "<<res_width <<" and set " << res_scale<< std::endl;
-   res_scale = res_width - 5;
+   res_scale = res_width + 2;
 
    tooltip_item = NULL;
    tooltip_item_text = NULL;
@@ -173,12 +173,12 @@ coot::sequence_view::setup_canvas(int max_n_res, int n_chains) {
 //    std::cout << "DEBUG::  max_n_res = " << max_n_res 
 // 	     << "   res_offset = " << res_offset << std::endl;
 
-   int usize_x = 200 + int (res_offset) + int (res_scale*float(max_n_res));
+   int usize_x = 330 + int (res_offset) + int (res_scale*float(max_n_res));
    int usize_y = n_chains * 15 + 5;
    double scroll_width;   // right 
    double scroll_height;  // lower
    
-   scroll_width = usize_x - 230; // This offset moves the left hand
+   scroll_width = usize_x - 330; // This offset moves the left hand
 				 // edge leftwards, so that the
 				 // molecule label can be seen.
 				 // Ideally, it would be related to
