@@ -707,6 +707,7 @@ SCM py_to_scm(PyObject *o) {
 // closer than radius Angstroems to any atom in the residue
 // specified by res_in.
 // 
+#ifdef USE_GUILE
 SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 
    SCM r = SCM_EOL;
@@ -730,6 +731,7 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
    } 
    return r;
 }
+#endif // USE_GUILE
 
 #ifdef USE_GUILE
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
@@ -743,7 +745,6 @@ coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
    return rspec;
 }
 #endif
-
 
 
 #ifdef USE_GUILE

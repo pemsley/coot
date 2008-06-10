@@ -1835,6 +1835,7 @@ parse_ccp4i_defs(const std::string &filename) {
 	 }
 	 if (ialias != std::string::npos) {
 	    alias_coming = 1;
+	    alias_flag = 0;
 	    icomma = ss.find_last_of(",");
 	    if ( (icomma+1) < int(ss.length())) {
 	       index = atoi(ss.substr(icomma+1, ss.length()).c_str());
