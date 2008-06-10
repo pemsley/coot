@@ -86,6 +86,28 @@
 	#f
 	(get-atom-from-res atom-name res-info))))
 	
+
+(define (shelx-waters-all-good-occ? imol-insulin-res)
+
+  (let ((chain-id (water-chain imol-insulin-res)))
+    (let ((n-residues (chain-n-residues chain-id imol-insulin-res)))
+      (let ((serial-number (- n-residues 1)))
+	(let ((res-name (resname-from-serial-number imol-insulin-res chain-id serial-number))
+	      (res-no   (seqnum-from-serial-number  imol-insulin-res chain-id serial-number))
+	      (ins-code (insertion-code-from-serial-number imol-insulin-res chain-id serial-number)))
+	  
+	  (if (string=? res-name "HOH")
+	      (let ((atom-list (residue-info imol-insulin-res chain-id res-no ins-code)))
+		(for-each 
+		 (lambda (atom)
+		   (let ((occ (car (car (cdr atom)))))
+		     (if (not (close-float? occ 11.0))
+			 (begin
+			   (format #t "  bad occupancy in SHELXL molecule ~s~%" atom)
+			   (throw 'fail)))))
+		 atom-list)))))
+      #t)))
+
 ;; return restraints without the given bond restraints
 (define (strip-bond-from-restraints atom-pair restraints)
 

@@ -11,6 +11,7 @@
 (define insulin-res (append-dir-file greg-data-dir "insulin.res"))
 (define hollander-ins (append-dir-file greg-data-dir "hollander.ins"))
 (define imol-insulin-res -1) ; set later
+(define imol-insulin-map -1) ; set later
 (define m-miller-res (append-dir-file greg-data-dir "miller/shelx-test4-NPD-mini.res"))
 
 
@@ -94,6 +95,7 @@
 
 		       ;; good then:
 		       (begin
+			 (set! imol-insulin-map imol)
 			 (rotate-y-scene (rotate-n-frames 200) 0.1)
 			 (close-molecule imol)
 			 ;; (close-molecule imol-insulin-res-local) ; needed later
@@ -138,24 +140,15 @@
      (set-rotation-centre 3 -1 60)
      (place-typed-atom-at-pointer "Water")
      ;; test is to have to occupancy of the new HOH to be 11.0
-     (let ((chain-id (water-chain imol-insulin-res)))
-       (let ((n-residues (chain-n-residues chain-id imol-insulin-res)))
-	 (let ((serial-number (- n-residues 1)))
-	   (let ((res-name (resname-from-serial-number imol-insulin-res chain-id serial-number))
-		 (res-no   (seqnum-from-serial-number  imol-insulin-res chain-id serial-number))
-		 (ins-code (insertion-code-from-serial-number imol-insulin-res chain-id serial-number)))
-		  
-	     (if (string=? res-name "HOH")
-		 (let ((atom-list (residue-info imol-insulin-res chain-id res-no ins-code)))
-		   (for-each 
-		    (lambda (atom)
-		      (let ((occ (car (car (cdr atom)))))
-			(if (not (close-float? occ 11.0))
-			    (begin
-			      (format #t "  bad occupancy in SHELXL molecule ~s~%" atom)
-			      (throw 'fail)))))
-		    atom-list)))))
-	 #t))))
+     (shelx-waters-all-good-occ? imol-insulin-res)))
+
+
+(greg-testcase "Find Waters for a SHELXL molecule" #t
+   (lambda () 
+
+     (find-waters imol-insulin-map imol-insulin-res 0 0.6 1)
+     (shelx-waters-all-good-occ? imol-insulin-res)))
+
 
 
 ;; non positive definite anistropic atom (reported by Mitch Miller)
