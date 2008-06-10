@@ -97,7 +97,7 @@
 		       (begin
 			 (set! imol-insulin-map imol)
 			 (rotate-y-scene (rotate-n-frames 200) 0.1)
-			 (close-molecule imol)
+			 ;; (close-molecule imol) ; needed later
 			 ;; (close-molecule imol-insulin-res-local) ; needed later
 			 #t)))))))))
 
@@ -168,3 +168,17 @@
        (set-show-aniso 0)
        #t)))
 
+
+;; cheesy test, close the shelx molecules
+;; 
+(greg-testcase "close shelx molecules" #t
+   (lambda () 
+	       
+     (close-molecule imol-insulin-map)
+     (close-molecule imol-insulin-res)
+
+     (if (valid-model-molecule? imol-insulin-res)
+	 #f
+	 (if (valid-map-molecule? imol-insulin-map)
+	     #f
+	     #t))))
