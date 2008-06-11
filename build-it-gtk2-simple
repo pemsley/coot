@@ -2611,9 +2611,13 @@ fi
 # run test
 test_coot > $LOGS/gtk2-test.log 2>&1
 r=$?
-# run python tests too
-test_coot_python > $LOGS/$build_type-pythontest.log
-rp=$?
+# run python tests too, maybe (i.e. if we buld with python)
+if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
+    test_coot_python > $LOGS/$build_type-pythontest.log
+    rp=$?
+else
+    rp=0
+fi
 gtk2=-gtk2
 if ( [ $r = 0 ] && [ $rp = 0 ] ); then
    echo ========================

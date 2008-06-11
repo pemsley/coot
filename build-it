@@ -2634,9 +2634,13 @@ fi
 # run test
 test_coot > $LOGS/$build_type-test.log
 r=$?
-# run python tests too
-test_coot_python > $LOGS/$build_type-pythontest.log
-rp=$?
+# run python tests too, maybe (i.e. if we buld with python)
+if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
+    test_coot_python > $LOGS/$build_type-pythontest.log
+    rp=$?
+else
+    rp=0
+fi
 if ( [ $r = 0 ] && [ $rp = 0 ] ); then
    echo coot test passed
    echo pass-test > $LOGS/$build_type-test-status
