@@ -6136,7 +6136,24 @@ int new_molecule_by_residue_type_selection(int imol_orig, const char *residue_ty
 	 name += " from ";
 	 name += graphics_info_t::molecules[imol_orig].name_for_display_manager();
 	 atom_selection_container_t asc = make_asc(mol);
-	 graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	 if (asc.n_selected_atoms > 0) {
+	   graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	 } else {
+            std::cout << "in new_molecule_by_residue_type_selection "
+                      << "Something bad happened - No residues selected"
+                      << std::endl;
+            std::string s = "Oops, failed to select residue type. ";
+            s += "No residues selected\n";
+            s += "Residue ";
+            s += "\"";
+            s += residue_type;
+            s += "\" does not exist in molecule ";
+	    s += coot::util::int_to_string(imol_orig);
+	    s += "!?";
+            info_dialog(s.c_str());
+            imol = -1;
+            graphics_info_t::erase_last_molecule();
+	 }
       } else {
 	 std::cout << "in new_molecule_by_residue_type_selection "
 		   << "Something bad happened - null molecule" << std::endl;

@@ -23,7 +23,7 @@
 # 
 #probe_command = "/y/people/lohkamp/coot/Linux/bin/probe.2.12.070727.linuxi386"
 #reduce_command = "/y/people/lohkamp/coot/Linux/bin/reduce.3.10.070814.linuxi386"
-probe_command = "/y/people/emsley/coot/Linux/bin/probe.2.11.050121.linux.RH9"
-reduce_command = "/y/people/emsley/coot/Linux/bin/reduce.2.21.030604"
+probe_command = "probe"
+reduce_command = "reduce"
 
     

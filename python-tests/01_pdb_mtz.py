@@ -684,3 +684,90 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    
 	    self.failUnless((sum(diff_low_values) < -5), "Bad diff high values")
 	    
+
+    def test24_0(self):
+	    """Make a glycosidic linkage"""
+
+	    carbo = "multi-carbo-coot-2.pdb"
+	    imol = unittest_pdb(carbo)
+
+	    self.skipIf(not valid_model_molecule_qm(imol), "file %s not found, skipping test" %carbo)
+	    atom_1 = get_atom(imol, "A", 1, " O4 ")
+	    atom_2 = get_atom(imol, "A", 2, " C1 ")
+
+	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
+
+	    s = dragged_refinement_steps_per_frame()
+	    set_dragged_refinement_steps_per_frame(300)
+	    with_auto_accept([regularize_zone, imol, "A", 1, 2, ""])
+	    set_dragged_refinement_steps_per_frame(s)
+
+	    atom_1 = get_atom(imol, "A", 1, " O4 ")
+	    atom_2 = get_atom(imol, "A", 2, " C1 ")
+
+	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
+
+    def test25_0(self):
+	    """Test for flying hydrogens on undo"""
+
+	    imol = unittest_pdb("monomer-VAL.pdb")
+
+	    with_auto_accept([regularize_zone, imol, "A", 1, 1, ""])
+	    set_undo_molecule(imol)
+	    apply_undo()
+	    with_auto_accept([regularize_zone, imol, "A", 1, 1, ""])
+
+	    atom_1 = get_atom(imol, "A", 1, "HG11")
+	    atom_2 = get_atom(imol, "A", 1, " CG1")
+
+	    bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02)
+
+	    bond_length_within_tolerance_qm(atom_1, atom_2, 1.439, 0.04)
+
+
+    def test26_0(self):
+	    """Update monomer restraints"""
+
+	    atom_pair = [" CB ", " CG "]
+	    m = monomer_restraints("TYR")
+
+	    n = strip_bond_from_restraints(atom_pair, m)
+	    set_monomer_restraints("TYR", n)
+
+	    imol = new_molecule_by_atom_selection(imol_rnase, "//A/30")
+
+	    with_auto_accept([refine_zone, imol, "A", 30, 30, ""])
+
+	    atom_1 = get_atom(imol, "A", 30, " CB ")
+	    atom_2 = get_atom(imol, "A", 30, " CG ")
+	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
+
+	    if (not bond_length_within_tolerance_qm(atom_1, atom_2, 2.8, 0.6)):
+		print "failed"
+
+
+
+    def test27_0(self):
+	    """Change Chain IDs and Chain Sorting"""
+
+	    imol = copy_molecule(imol_rnase)
+	    change_chain_id(imol, "A", "D", 0,  0,  0)
+	    change_chain_id(imol, "B", "E", 1, 80, 90)
+	    change_chain_id(imol, "B", "F", 1, 70, 80)
+	    change_chain_id(imol, "B", "G", 1, 60, 70)
+	    change_chain_id(imol, "B", "J", 1, 50, 59)
+	    change_chain_id(imol, "B", "L", 1, 40, 49)
+	    change_chain_id(imol, "B", "N", 1, 30, 38)
+	    change_chain_id(imol, "B", "Z", 1, 20, 28)
+
+
+    def test28_0(self):
+	    """Empty molecule on type selection"""
+
+	    global imol_rnase
+	    imol1 = new_molecule_by_residue_type_selection(imol_rnase, "TRP")
+	    self.failUnlessEqual(imol1, -1, "Empty selection 1 gives not imol -1")
+	    imol2 = new_molecule_by_residue_type_selection(imol_rnase, "TRP")
+	    self.failUnlessEqual(imol2, -1, "Empty selection 2 gives not imol -1")
+
+	       

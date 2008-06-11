@@ -1270,10 +1270,11 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 #ifdef USE_PYGTK
            graphics_info_t g;
            std::vector<std::string> cmd_strings;
+           cmd_strings.push_back("run_with_gtk_threading");
            cmd_strings.push_back("interesting_things_gui");
            cmd_strings.push_back(single_quote("Molprobity Probe Clash Gaps"));
            std::sort(clash_atoms.begin(), clash_atoms.end(), coot::compare_atom_specs_user_float);
-           std::string ls = coot::util::interesting_things_list(clash_atoms);
+           std::string ls = coot::util::interesting_things_list_py(clash_atoms);
            cmd_strings.push_back(ls);
            std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
            safe_python_command(s);
@@ -1493,10 +1494,11 @@ void handle_read_draw_probe_dots_unformatted_py(const char *dots_file, int imol,
 #ifdef USE_PYGTK
            graphics_info_t g;
            std::vector<std::string> cmd_strings;
-           cmd_strings.push_back("interesting_things_gui");
+           cmd_strings.push_back("run_with_gtk_threading");
+	   cmd_strings.push_back("interesting_things_gui");
            cmd_strings.push_back(single_quote("Molprobity Probe Clash Gaps"));
            std::sort(clash_atoms.begin(), clash_atoms.end(), coot::compare_atom_specs_user_float);
-           std::string ls = coot::util::interesting_things_list(clash_atoms);
+           std::string ls = coot::util::interesting_things_list_py(clash_atoms);
            cmd_strings.push_back(ls);
            std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
            safe_python_command(s);

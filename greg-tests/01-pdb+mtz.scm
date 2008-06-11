@@ -1011,4 +1011,16 @@
 
        #t)))
 
-
+(greg-testcase "Empty molecule on type selection" #t 
+   (lambda () 
+     (let ((imol1 (new-molecule-by-residue-type-selection imol-rnase "TRP"))
+	   (imol2 (new-molecule-by-residue-type-selection imol-rnase "TRP")))
+       (if (not (= imol1 -1))
+	  (begin
+	    (format #t "failed on empty selection 1 gives not imol -1 ~%")
+	    (throw 'fail)))
+       (if (not (= imol2 -1))
+	  (begin
+	    (format #t "failed on empty selection 2 gives not imol -1 ~%")
+	    (throw 'fail)))
+       #t)))

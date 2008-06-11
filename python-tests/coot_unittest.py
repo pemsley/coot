@@ -14,9 +14,67 @@ else:
 
 unittest_data_dir = os.path.normpath(os.path.join(home, "data", "greg-data"))
 
+def unittest_pdb(file_name):
+    ret = read_pdb(os.path.join(unittest_data_dir, file_name))
+    return ret
+
 def rotate_n_frames(n):
     rotate_speed = 1
     return int(rotate_speed * n)
+
+def bond_length(pos_1, pos_2):
+    def square(x):
+        return x*x
+    def sub(x, y):
+        return x-y
+
+    import math
+    ret = math.sqrt(sum(map(square, map(sub, pos_1, pos_2))))
+    return ret
+
+def bond_length_within_tolerance_qm(atom_1, atom_2, ideal_length, tolerance):
+
+    if (not atom_1):
+        return False
+    if (not atom_2):
+        return False
+    pos_1 = atom_1[2]
+    pos_2 = atom_2[2]
+    b = bond_length(pos_1, pos_2)
+    return abs(b - ideal_length) < tolerance
+
+def get_atom(imol, chain_id, resno, atom_name):
+
+    def get_atom_from_res(atom_name, residue_atoms):
+        for residue_atom in residue_atoms:
+            if (residue_atom[0][0] == atom_name):
+                return residue_atom
+        print "BL WARNING:: no atom name %s found in residue" %atom_name
+        return False # no residue name found
+    
+    res_info = residue_info(imol, chain_id, resno, "")
+    if (not res_info):
+        return False
+    else:
+        ret = get_atom_from_res(atom_name, res_info)
+        return ret
+
+#  return restraints without the given bond restraints or False if no restraints given
+def strip_bond_from_restraints(atom_pair, restraints):
+
+    if restraints:
+        bonds = restraints["_chem_comp_bond"]
+        if bonds:
+            for i, bond in enumerate(bonds):
+                atom1 = bond[0]
+                atom2 = bond[1]
+                if (atom1 in atom_pair and atom2 in atom_pair):
+                    del restraints["_chem_comp_bond"][i]
+                    break
+        return restraints
+    else:
+        return False
+                    
 
 #test_file_list = ["02_shelx.py"]
 test_file_list = ["01_pdb_mtz.py",

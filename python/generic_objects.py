@@ -22,7 +22,10 @@ global reduce_command
 # BL says:: put in definitions of probe and reduce command here:
 # actually not used any more, I think!
 probe_command_name = "probe"
-reduce_command_name = "reduceV2.13.2.win"
+if (os.name == 'nt'):
+	reduce_command_name = "reduceV2.13.2.win"
+else:
+	reduce_command_name = "reduce"
 
 # BL says:: just to be consistent with Paul's names
 # map to scheme names:
@@ -63,8 +66,9 @@ def generic_objects_gui():
 	  # Now we run the gui
 	def delete_event(*args):
 		# BL says: first we shall close the generic objects
-		for generic_object_number in range(n_objects):
-			set_display_generic_object(generic_object_number,0)
+		# or not
+		#for generic_object_number in range(n_objects):
+		#	set_display_generic_object(generic_object_number, 0)
 		gen_window.destroy()
 		return False
 
@@ -188,8 +192,7 @@ def probe(imol):
              # several probes, the wrong molecule is
              # getting refined).
 
-	     print "BL DEBUG:: handle_dots with ", probe_out, imol_probe
-             handle_read_draw_probe_dots_unformatted(probe_out,imol_probe,1)
+             handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 1)
              generic_objects_gui()
              graphics_draw()
           else:
