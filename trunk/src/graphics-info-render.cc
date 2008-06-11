@@ -126,6 +126,8 @@ graphics_info_t::povray(std::string filename) {
 	    coot::Cartesian eye_centre = eye - rt.view_centre;
 	    eye_centre *= 7.5;
 	    coot::Cartesian far_eye = rt.view_centre - eye_centre;
+	    std::cout <<"BL DEBUG:: eye is before " << eye << std::endl;
+	    eye *= 1.02;
 	    rt.set_front_clipping_plane_point(eye);
 	    rt.set_camera_location(far_eye);
 	 }
@@ -413,6 +415,11 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       float tmp_len = view_centre_cl * direction_cl;
       
       float angle_factor = abs((v1_2.amplitude()/2)/(dir_len+tmp_len));
+      if (angle_factor > 1.99) {
+        // simple protection, so that povray doesnt fail if angle get's too
+	// large
+	angle_factor = 1.99;
+      }
 
       clipper::Vec3<double> tt_cl;
       for (int i=0; i<3; i++) {

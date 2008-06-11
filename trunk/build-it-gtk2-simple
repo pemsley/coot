@@ -529,7 +529,41 @@ fi
 
 }
 
+# Return 0 on success, 1 on failure (or not tested)
+#
+# we should be in the directory where coot was untarred for building 
+# when this function was called.
+#
+function test_coot_python { 
 
+echo testing with python unittest
+echo currently we are here:
+pwd
+
+if test "$run_tests" = true ; then
+   # let's test our new coot
+   # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
+   COOT_PYTHON_DIR=$install_top_dir/share/coot/python
+   COOT_HOME=$HOME
+   export COOT_PYTHON_DIR
+   export COOT_HOME
+   
+   echo $install_top_dir/bin/coot-real --no-graphics --script python-tests/coot_unittest.py
+        $install_top_dir/bin/coot-real --no-graphics --script python-tests/coot_unittest.py
+
+   status=$?
+   if [ $status = 0 ] ; then
+      echo test_coot_python: coot test passed
+      return 0
+   else 
+      echo test_coot_python: coot test failed
+      return 1
+   fi
+else 
+   return 1
+fi
+
+}
 
 
 
@@ -2577,8 +2611,11 @@ fi
 # run test
 test_coot > $LOGS/gtk2-test.log 2>&1
 r=$?
+# run python tests too
+test_coot_python > $LOGS/$build_type-pythontest.log
+rp=$?
 gtk2=-gtk2
-if [ $r = 0 ] ; then
+if ( [ $r = 0 ] && [ $rp = 0 ] ); then
    echo ========================
    echo '   ' coot test passed
    echo ========----============
