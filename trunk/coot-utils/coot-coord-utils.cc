@@ -1514,7 +1514,7 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
    PCAtom *atoms = 0;
    int n_selected_atoms;
    orig_mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
-
+   
    for (int iatom=0; iatom<n_selected_atoms; iatom++) {
 
       int atom_residue_selection_handle = atoms_mol->NewSelection();
@@ -1553,6 +1553,7 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 	 CAtom *new_atom = new CAtom;
 	 new_atom->Copy(at);
 	 // std::cout << "      simply adding atom: " << new_atom << std::endl;
+	 std::cout << "      simply adding atom: " << new_atom << std::endl;
 	 sel_residues[0]->AddAtom(new_atom);
       } else {
 	 // residue was not found!
@@ -1578,6 +1579,10 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 // 		      << " with specs " <<   at->GetResName() << " "
 // 		      << at->GetSeqNum() << " "
 // 		      << at->GetInsCode() << std::endl;
+ 	    std::cout << "creating residue in chain " << sel_chains[0]->GetChainID()
+ 		      << " with specs " <<   at->GetResName() << " "
+ 		      << at->GetSeqNum() << " "
+ 		      << at->GetInsCode() << std::endl;
 	    CResidue *residue = new CResidue(sel_chains[0],
 					     at->GetResName(),
 					     at->GetSeqNum(),
@@ -1585,6 +1590,7 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 	    CAtom *new_atom = new CAtom; 
 	    new_atom->Copy(at);
 	    // std::cout << "   adding atom: " << new_atom << std::endl;
+	    std::cout << "   adding atom: " << new_atom << std::endl;
 	    residue->AddAtom(new_atom);
 	    
 	 } else {
@@ -1596,6 +1602,11 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 // 		      << " with specs " <<   at->GetResName() << " "
 // 		      << at->GetSeqNum() << " "
 // 		      << at->GetInsCode() << std::endl;
+ 	    std::cout << "   adding residue..." << std::endl;
+ 	    std::cout << "creating residue in chain " << chain->GetChainID()
+ 		      << " with specs " <<   at->GetResName() << " "
+ 		      << at->GetSeqNum() << " "
+ 		      << at->GetInsCode() << std::endl;
 	    CResidue *residue = new CResidue(chain,
 					     at->GetResName(),
 					     at->GetSeqNum(),
@@ -1603,12 +1614,14 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 	    CAtom *new_atom = new CAtom; 
 	    new_atom->Copy(at);
 	    // std::cout << "   adding atom: " << new_atom << std::endl;
+	    std::cout << "   adding atom: " << new_atom << std::endl;
 	    residue->AddAtom(new_atom);
 	 } 
       }
       atoms_mol->DeleteSelection(atom_residue_selection_handle);
    }
 
+   //if (n_selected_atoms > 0) {
    // now set the spacegroup and cell:
    realtype a[6];
    realtype vol;
@@ -1617,10 +1630,14 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
    atoms_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
    char *sg = orig_mol->GetSpaceGroup();
    if (sg) { 
-      atoms_mol->SetSpaceGroup(sg);
+     atoms_mol->SetSpaceGroup(sg);
    }
    atoms_mol->FinishStructEdit();
    return atoms_mol;
+   //} else {
+   // we dont have any selection, so return NULL
+   //return NULL;
+   //}
 }
 
 
@@ -2556,9 +2573,71 @@ coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
 
    r += ")";
    return r;
-#endif // GUILE
+#else
 #ifdef USE_PYTHON
 // BL says:: we want to have [] lists in python, separated by commas (,)
+   // e.g. [] for empty v
+   // [["button label",imol-no,chain-id,resno,atom-name],
+   //  ["button label",imol-no,chain-id,resno,atom-name]
+   // ]
+
+   std::string r = "[";
+
+   for (unsigned int i=0; i<v.size(); i++) {
+
+      std::string atom_str("\"");
+      atom_str += v[i].chain;
+      atom_str += "\",";
+      atom_str += int_to_string(v[i].resno);
+      atom_str += ",\"";
+      atom_str += v[i].insertion_code;
+      atom_str += "\",\"";
+      atom_str += v[i].atom_name;
+      atom_str += "\",\"";
+      atom_str += v[i].alt_conf;
+      atom_str += " \"";
+
+      std::string button_label("Clash gap: ");
+      button_label += float_to_string(v[i].float_user_data);
+      button_label += " : ";
+      button_label += v[i].chain;
+      button_label += " ";
+      button_label += int_to_string(v[i].resno);
+      button_label += " ";
+      if (v[i].insertion_code != "") {
+         button_label += v[i].insertion_code;
+         button_label += " ";
+      }
+      button_label += v[i].atom_name;
+      if (v[i].alt_conf != "") {
+         button_label += ",";
+         button_label += v[i].alt_conf;
+         button_label += " ";
+      }
+
+      std::string s = "[";
+      s += single_quote(button_label);
+      s += ",";
+      s += int_to_string(v[i].int_user_data);
+      s += ",";
+      s += atom_str;
+      s += "],\n";
+
+      r += s;
+   }
+
+   r += "]";
+   return r;
+#endif // PYTHON
+#endif // GUILE
+}
+
+// we shall have an extra python version (as well)
+std::string
+coot::util::interesting_things_list_py(const std::vector<atom_spec_t> &v) {
+
+#ifdef USE_PYTHON
+   // BL says:: we want to have [] lists in python, separated by commas (,)
    // e.g. [] for empty v
    // [["button label",imol-no,chain-id,resno,atom-name],
    //  ["button label",imol-no,chain-id,resno,atom-name]
@@ -2672,7 +2751,58 @@ coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_
 
    r += ")";
    return r;
+#else
+#ifdef USE_PYTHON
+// BL says:: here again we need a [] list in python 
+   std::string r = "[";
+
+   for (unsigned int i=0; i<v.size(); i++) {
+
+      std::string atom_str("\"");
+      atom_str += v[i].as.chain;
+      atom_str += "\",";
+      atom_str += int_to_string(v[i].as.resno);
+      atom_str += ",\"";
+      atom_str += v[i].as.insertion_code;
+      atom_str += "\",\"";
+      atom_str += v[i].as.atom_name;
+      atom_str += "\",\"";
+      atom_str += v[i].as.alt_conf;
+      atom_str += " \"";
+
+      std::string button_label = v[i].button_label;
+
+      std::string s = "[";
+      s += single_quote(button_label);
+      s += ",";
+      s += int_to_string(v[i].as.int_user_data);
+      s += ",";
+      s += atom_str;
+
+      if (v[i].callback_func != "") {
+         s += ",";
+         s +=  v[i].callback_func;
+      }
+
+      if (i<(v.size()-1)) {
+         s += "],\n";
+      } else {
+         s += "]\n";
+      }
+
+      r += s;
+   }
+
+   r += "]";
+   return r;
+#endif // PYTHON
 #endif // GUILE
+}
+
+// python version
+std::string
+coot::util::interesting_things_list_with_fix_py(const std::vector<coot::util::atom_spec_and_button_info_t> &v,
+						const std::string error_type) {
 #ifdef USE_PYTHON
 // BL says:: here again we need a [] list in python 
    std::string r = "[";
@@ -2718,7 +2848,6 @@ coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_
    return r;
 #endif // PYTHON
 }
-
 
 
 // Return the RTop that matches moving to reference.  Don't move

@@ -727,11 +727,15 @@ namespace coot {
       // and the button label
       // 
       std::string interesting_things_list(const std::vector<atom_spec_t> &v);
+      std::string interesting_things_list_py(const std::vector<atom_spec_t> &v);
 
       // error_type is e.g. "Z score", "Clash gap"
       std::string
       interesting_things_list_with_fix(const std::vector<atom_spec_and_button_info_t> &v,
 				       const std::string error_type);
+      std::string
+      interesting_things_list_with_fix_py(const std::vector<atom_spec_and_button_info_t> &v,
+				          const std::string error_type);
 
       // 
       clipper::Spacegroup get_spacegroup_from_symops(CMMDBManager *mol);

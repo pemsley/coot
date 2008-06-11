@@ -1586,7 +1586,7 @@ void gln_asn_b_factor_outliers(int imol) {
             std::vector<std::string> cmd_strings;
             cmd_strings.push_back("interesting_things_with_fix_maybe");
             cmd_strings.push_back(single_quote("GLN and ASN B-factor Outliers"));
-            std::string ls = coot::util::interesting_things_list_with_fix(outlier_atoms, error_type);
+            std::string ls = coot::util::interesting_things_list_with_fix_py(outlier_atoms, error_type);
             cmd_strings.push_back(ls);
             std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
             std::cout << "python command: " << s << std::endl;
@@ -1641,7 +1641,7 @@ void gln_asn_b_factor_outliers_py(int imol) {
             std::vector<std::string> cmd_strings;
             cmd_strings.push_back("interesting_things_with_fix_maybe");
             cmd_strings.push_back(single_quote("GLN and ASN B-factor Outliers"));
-            std::string ls = coot::util::interesting_things_list_with_fix(outlier_atoms, error_type);
+            std::string ls = coot::util::interesting_things_list_with_fix_py(outlier_atoms, error_type);
             cmd_strings.push_back(ls);
             std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
             std::cout << "python command: " << s << std::endl;

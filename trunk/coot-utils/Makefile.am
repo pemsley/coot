@@ -20,10 +20,9 @@
 
 if COOT_USE_GUILE
 WITH_GUILE_CFLAGS=-DUSE_GUILE
-else
+endif
 if COOT_USE_PYTHON
 WITH_PYTHON_CFLAGS=-DUSE_PYTHON
-endif
 endif
 
 lib_LTLIBRARIES=libcoot-utils.la libcoot-map-utils.la libcoot-coord-utils.la  libcoot-coord-extras.la libcoot-map-heavy.la libcoot-shelx.la
