@@ -1703,4 +1703,103 @@
 		 
 	       other-residues)))))
 
+;; Function based on Davis et al. (2007) Molprobity: all atom contacts
+;; and structure validation for proteins and nucleic acids, Nucleic
+;; Acids Research 35, W375-W383.  
+;;
+;; To paraphrase:
+;; The distance of the plane of the ribose of the following phosphate
+;; is highly correlated to the pucker of the ribose. 
+;; 
+;; An analysis of the structures in RNADB2005 shows that a critical
+;; distance of 1.2A provides a partition function to separate C2' from
+;; C3' endo puckering.  Not all ribose follow this rule.  There may be
+;; some errors in the models comprising RNADB2005. So we check the
+;; distance of the following phosphate to the plane of the ribose and
+;; record the riboses that are inconsitent.  We also report puckers
+;; that are not C2' or C3'.  The puckers are determined by the most
+;; out-of-plane atom of the ribose (the rms deviation of the 4 atoms
+;; in the plane is calculated, but not used to determinte the
+;; puckering atom).
+;; 
+(define (pukka-puckers? imol)
+
+  (let ((residue-list '())
+	(crit-d 1.2))
+
+    (define (add-questionable r)
+      (set! residue-list (cons r residue-list)))
+
+    (define (get-ribose-residue-atom-name imol residue-spec pucker-atom)
+      (let ((r-info (apply residue-info (cons imol residue-spec)))
+	    (t-pucker-atom (string-append (substring pucker-atom 0 3) "*")))
+	(if 
+	 (string-member? pucker-atom (map (lambda (at) (car (car at))) r-info))
+	 pucker-atom
+	 t-pucker-atom)))
+
+    (map (lambda (chain-id)
+           (if (not (is-solvent-chain? imol chain-id))
+               (let ((n-residues (chain-n-residues chain-id imol)))
+                 
+                 (for-each 
+                  (lambda (serial-number)
+                    
+                    (let ((res-name (resname-from-serial-number imol chain-id serial-number))
+                          (res-no   (seqnum-from-serial-number  imol chain-id serial-number))
+                          (ins-code (insertion-code-from-serial-number imol chain-id 
+                                                                       serial-number)))
+                      (if (not (string=? res-name "HOH"))
+                          
+                          (let* ((residue-spec (list chain-id res-no ins-code))
+                                 (pi (pucker-info imol residue-spec 1)))
+                            (if pi
+                                (if (list? pi)
+                                    (if (= 4 (length pi))
+					(let ((pucker-atom (car (cdr pi))))
+					  ; (format #t " ~s ~s~%" residue-spec pi)
+					  (if (and (> (abs (car pi)) crit-d)
+						   (string=? pucker-atom " C3'"))
+					      (add-questionable
+					       (list pucker-atom residue-spec
+						     "Inconsistent phosphate distance for C3' pucker")))
+					  (if (and (< (abs (car pi)) crit-d)
+						       (string=? pucker-atom" C2'"))
+					      (add-questionable
+					       (list pucker-atom residue-spec
+						     "Inconsistent phosphate distance for C2' pucker")))
+					  (if (not (or (string=? pucker-atom " C2'")
+						       (string=? pucker-atom " C3'")))
+					      (add-questionable
+					       (list pucker-atom residue-spec
+						     (string-append "Puckered atom: " pucker-atom))))))))))))
+
+                  (range n-residues)))))
+         (chain-ids imol))
+
+    (if (= (length residue-list) 0)
+	(info-dialog "No bad puckers.")
+	(let ((buttons (map (lambda (residue-info)
+			      (let* ((residue-spec (car (cdr residue-info)))
+				     (pucker-atom (car residue-info))
+				     (at-name (get-ribose-residue-atom-name imol residue-spec pucker-atom)))
+				(list 
+				 (string-append 
+				  (list-ref residue-spec 0)
+				  " "
+				  (number->string (list-ref residue-spec 1))
+				  (list-ref residue-spec 2)
+				  ": "
+				  (list-ref residue-info 2))
+				 (lambda ()
+				   (set-go-to-atom-molecule imol)
+				   (set-go-to-atom-chain-residue-atom-name (car residue-spec) 
+									   (car (cdr residue-spec)) 
+									   at-name)))))
+			    (reverse residue-list))))
+	  (dialog-box-of-buttons "Non-pukka puckers"
+				 (cons 370 250)
+				 buttons
+				 "  Close  ")))))
+
 	
