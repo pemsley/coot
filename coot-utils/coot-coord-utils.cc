@@ -1553,7 +1553,6 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 	 CAtom *new_atom = new CAtom;
 	 new_atom->Copy(at);
 	 // std::cout << "      simply adding atom: " << new_atom << std::endl;
-	 std::cout << "      simply adding atom: " << new_atom << std::endl;
 	 sel_residues[0]->AddAtom(new_atom);
       } else {
 	 // residue was not found!
@@ -1579,10 +1578,6 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 // 		      << " with specs " <<   at->GetResName() << " "
 // 		      << at->GetSeqNum() << " "
 // 		      << at->GetInsCode() << std::endl;
- 	    std::cout << "creating residue in chain " << sel_chains[0]->GetChainID()
- 		      << " with specs " <<   at->GetResName() << " "
- 		      << at->GetSeqNum() << " "
- 		      << at->GetInsCode() << std::endl;
 	    CResidue *residue = new CResidue(sel_chains[0],
 					     at->GetResName(),
 					     at->GetSeqNum(),
@@ -1590,7 +1585,6 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 	    CAtom *new_atom = new CAtom; 
 	    new_atom->Copy(at);
 	    // std::cout << "   adding atom: " << new_atom << std::endl;
-	    std::cout << "   adding atom: " << new_atom << std::endl;
 	    residue->AddAtom(new_atom);
 	    
 	 } else {
@@ -1602,11 +1596,6 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 // 		      << " with specs " <<   at->GetResName() << " "
 // 		      << at->GetSeqNum() << " "
 // 		      << at->GetInsCode() << std::endl;
- 	    std::cout << "   adding residue..." << std::endl;
- 	    std::cout << "creating residue in chain " << chain->GetChainID()
- 		      << " with specs " <<   at->GetResName() << " "
- 		      << at->GetSeqNum() << " "
- 		      << at->GetInsCode() << std::endl;
 	    CResidue *residue = new CResidue(chain,
 					     at->GetResName(),
 					     at->GetSeqNum(),
@@ -1614,7 +1603,6 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 	    CAtom *new_atom = new CAtom; 
 	    new_atom->Copy(at);
 	    // std::cout << "   adding atom: " << new_atom << std::endl;
-	    std::cout << "   adding atom: " << new_atom << std::endl;
 	    residue->AddAtom(new_atom);
 	 } 
       }
