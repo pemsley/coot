@@ -1477,6 +1477,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 // 			    << std::endl;
 // 	       }
 
+	       coot::residue_spec_t rs(unconst_res_p);
+	       graphics_info_t::molecules[imol].remove_ter_atoms(rs);
+	       
 	       if (! immediate_addition_flag) { 
 		  make_moving_atoms_graphics_object(tmp_asc);
 		  moving_atoms_asc_type = coot::NEW_COORDS_INSERT;

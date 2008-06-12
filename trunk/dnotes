@@ -2,10 +2,16 @@
 
    Things to fix before 0.5
 
-   16 Items, 40 hd.
+   18 Items, 44 hd.
 
-   o Addition of waters using GUI in a shelx molecule puts waters in
-     with occupancy 1.0 [Tobias Beck]
+   o NCS jumping with a 2 x heterotetramer (or some such) 2hd
+
+   o Add Terminal residue with on to a residue with a TER.  (TER must
+     disappear) 2hd.
+
+   o NCS loop (or whatever it's called (Copy NCS fragment?): when
+     there is a difference of residue name, then the old name should be
+     replace by the new one.  1hd
 
    o Open Bond Parameters dialog with no molecules loaded -> crash
 
@@ -99,13 +105,18 @@
 
 * Done from scheme level.  Need test from file reading level.
 
+   o Add an Alt Conf to a MSE.  Fails to display all atoms.
 
 
 
 
 
+80 Done.
 
-79 Done.
+   o Addition of waters using GUI in a shelx molecule puts waters in
+     with occupancy 1.0 [Tobias Beck]
+
+* Done.
 
    o SFAC needs to be written higher in the shelx ins file, after UNIT
      line.

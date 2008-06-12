@@ -356,7 +356,7 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("underscore", 95));
    a.push_back(std::pair<std::string,int>("grave", 96));
    a.push_back(std::pair<std::string,int>("quoteleft", 96));
-   a.push_back(std::pair<std::string,int>("a", 97));
+    a.push_back(std::pair<std::string,int>("a", 97));
    a.push_back(std::pair<std::string,int>("b", 98));
    a.push_back(std::pair<std::string,int>("c", 99));
    a.push_back(std::pair<std::string,int>("d", 100));
@@ -391,6 +391,31 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("cent", 162));
    a.push_back(std::pair<std::string,int>("sterling", 163));
    a.push_back(std::pair<std::string,int>("currency", 164));
+
+   // added by hand (from gdk-keysym.awk)
+   
+   a.push_back(std::pair<std::string,int>(":", 58));
+   a.push_back(std::pair<std::string,int>(";", 59));
+   a.push_back(std::pair<std::string,int>("<", 60));
+   a.push_back(std::pair<std::string,int>("=", 61));
+   a.push_back(std::pair<std::string,int>(">", 62));
+   a.push_back(std::pair<std::string,int>("?", 63));
+   a.push_back(std::pair<std::string,int>("@", 64));
+   a.push_back(std::pair<std::string,int>("!", 33));
+   a.push_back(std::pair<std::string,int>("$", 36));
+   a.push_back(std::pair<std::string,int>("%", 37));
+   a.push_back(std::pair<std::string,int>("&", 38));
+   a.push_back(std::pair<std::string,int>("*", 42));
+   a.push_back(std::pair<std::string,int>("+", 43));
+   a.push_back(std::pair<std::string,int>(",", 44));
+   a.push_back(std::pair<std::string,int>("-", 45));
+   a.push_back(std::pair<std::string,int>(".", 46));
+   a.push_back(std::pair<std::string,int>("/", 47));
+   a.push_back(std::pair<std::string,int>("(", 91));
+   a.push_back(std::pair<std::string,int>(")", 93));
+   a.push_back(std::pair<std::string,int>("_", 95)); 
+   a.push_back(std::pair<std::string,int>("|", 124)); 
+   a.push_back(std::pair<std::string,int>("~", 126)); 
 
    return a;
 }

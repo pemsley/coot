@@ -225,6 +225,17 @@ void set_draw_ncs_ghosts(int imol, int istate) {
    }
 }
 
+/*! \brief return the drawing state of NCS ghosts for molecule number imol   */
+int draw_ncs_ghosts_state(int imol) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].draw_ncs_ghosts_p();
+   }
+   return r;
+} 
+
+
 void set_ncs_ghost_bond_thickness(int imol, float f) {
 
    if (is_valid_model_molecule(imol)) {

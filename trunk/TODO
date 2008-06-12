@@ -40,7 +40,7 @@
 
 -----
 
-   Release 0.5 Dec - estimated for 13 July 2008.
+   Release 0.5 Dec - estimated for 15 July 2008.
 
    o To make the test non-tedious, especially on slow computers, we
      need a set-atoms-attributes that takes a list of attribute sets.
@@ -157,6 +157,12 @@
      laptop) on start, exit, start exit cycling?
 
    o Put globularize protein into Coot.  Make it a bit more clever?
+
+   o Give the user a chance to edit the ins file before it is sent off
+     for refinement [Tobias Beck].  Not doing so, as currently,
+     practically makes the shelxl refine in Coot useless if the user
+     needs to modify the file.  Fire up a text widget with the .ins file
+     in it.
 
    o Garib wants a function to move waters close to the protein.
 

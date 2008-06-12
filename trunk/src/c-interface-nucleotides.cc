@@ -83,6 +83,10 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 		     r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
 		     r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
 		     r = scm_cons(scm_double2num(phosphate_d), r);
+		     double dist_crit = 1.2;
+		     // If C2', phosphate oop dist should be > dist_crit
+		     // If C3', phosphate oop dist should be < dist_crit
+		     
 		  }
 		  catch (std::runtime_error phos_mess) {
 		     std::cout << " Failed to find Phosphate for "

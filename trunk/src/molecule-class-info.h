@@ -686,7 +686,10 @@ class molecule_class_info_t {
    // (expand molecule space) test.
    // clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
 
-   
+
+   // remove TER record from residue
+   bool residue_has_TER_atom(CResidue *res_p) const;
+   void remove_TER_internal(CResidue *res_p);
 
    // ------------------------------------------------------------------
  public:
@@ -2241,6 +2244,8 @@ class molecule_class_info_t {
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 
+   void remove_ter_atoms(const coot::residue_spec_t &spec); // from all models
+   
    coot::validation_graphs_t validation_graphs;
 
 };
