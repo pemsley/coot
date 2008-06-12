@@ -3561,10 +3561,11 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 									current_chain,
 									next_ncs_chain);
 
-	 //       std::cout << "   NCS view in:  \n" << current_view_mat.format() << std::endl;
+      std::cout << "DEBUG::   NCS view in:  \n" << current_view_mat.format() << std::endl;
 
-//       std::cout << "   NCS view out: " << new_ori.first << std::endl;
-//       std::cout << "   NCS view out: \n" << new_ori.second.format() << "\n";
+      std::cout << "DEBUG::   NCS view out: " << new_ori.first << std::endl;
+      std::cout << "DEBUG::   NCS view out: \n" << new_ori.second.format() << "\n";
+      
       if (new_ori.first) {
 	 coot::util::quaternion vq(new_ori.second.rot());
 	 graphics_info_t::quat[0] = vq.q0;
@@ -3619,7 +3620,7 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 	 g.update_things_on_move();
 	 if (graphics_info_t::environment_show_distances) {
 	    std::pair<int, int> r =  g.get_closest_atom();
-	    std::cout << "got closest atom " << r.first << " " << r.second << std::endl;
+	    // std::cout << "got closest atom " << r.first << " " << r.second << std::endl;
 	    if (r.first >= 0) {
 	       g.update_environment_distances_maybe(r.first, r.second);
 	    }
