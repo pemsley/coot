@@ -1615,7 +1615,7 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 }
 
 
-// Return a new orienation, to be used to set the view orienation/quaternion
+// Return a new orienation, to be used to set the view orientation/quaternion.
 // 
 std::pair<bool, clipper::RTop_orth>
 molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double> &current_view_mat,
@@ -1631,16 +1631,19 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
    if ((n_ghosts > 0) && (ncs_ghosts_have_rtops_flag))  {
 
       // If current_chain is not a target_chain_id
+      //    { i.e. we were not sitting on an NCS master}
       //    is there a ghost that has chain_id current_chain?
-      //    If so, note its target_chain_id.
+      //    If so, note its target_chain_id {NCS Master}.
 
-      //    if next_ncs_chain is not the target_chain_id then
+      //    if next_ncs_chain (the one we want to jump to) is not
+      //    the target_chain_id then {
       //       Then look for a ghost that that chain_id next_ncs_chain
       //       Note its target_chain_id.
       //       if target_chain_ids match 
       //          we can find the matrix
-      //    else  { next_ncs_chain *was* target_chain_id }
+      //    } else { next_ncs_chain *was* target_chain_id }
       //          the ncs matrix is the ghost matrix
+      //    }
       //
       // else { were were sitting on a NCS master }
       //
@@ -1667,16 +1670,22 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	 if (i_ghost_chain_match != -1) {
 	    // should always happen
 
-	    // were we on the last ghost?
-	    if (i_ghost_chain_match == (int(ncs_ghosts.size())-1)) {
+	    // were we on the last ghost that has the same
+	    // target_chain_id as this ghost has?
+	    
+	    // if (i_ghost_chain_match == (int(ncs_ghosts.size())-1)) { // too simple
+	    if (last_ghost_matching_target_chain_id_p(i_ghost_chain_match, ncs_ghosts)) { 
+	       
 	       // we need to go to the target_chain
 	       clipper::RTop_orth ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop;
-// 	       std::cout << "from " << current_chain << " to target chain "
-// 			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
+ 	       std::cout << "DEBUG:: Last ghost from " << current_chain << " to target chain "
+ 			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
 	       r = ncs_mat.rot() * r;
 	       t = current_position.transform(ncs_mat);
 	       apply_it = 1;
 	    } else {
+ 	       std::cout << "DEBUG:: Not last ghost from " << current_chain << " to target chain "
+ 			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
 	       clipper::RTop_orth ncs_mat_1 = ncs_ghosts[i_ghost_chain_match  ].rtop;
 	       clipper::RTop_orth ncs_mat_2 = ncs_ghosts[i_ghost_chain_match+1].rtop;
 	       r = ncs_mat_2.rot().inverse() * (ncs_mat_1.rot() * r);
@@ -1727,7 +1736,30 @@ molecule_class_info_t::ncs_ghost_chain_is_a_target_chain_p(const std::string &ch
       }
    }
    return r;
-} 
+}
+
+bool
+molecule_class_info_t::last_ghost_matching_target_chain_id_p(int i_ghost_chain_match, 
+							     const std::vector<coot::ghost_molecule_display_t> &ncs_ghosts) const {
+
+   bool is_last = 0;
+   // if (i_ghost_chain_match == (int(ncs_ghosts.size())-1)) { // too simple
+
+   std::string match_target_chain_id = ncs_ghosts[i_ghost_chain_match].target_chain_id;
+   int last_ghost_with_matching_target_chain_id = -1; // unset
+   for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+      if (ncs_ghosts[ighost].target_chain_id == match_target_chain_id) {
+	 last_ghost_with_matching_target_chain_id = ighost;
+      }
+   }
+   if (last_ghost_with_matching_target_chain_id != -1) {
+      if (i_ghost_chain_match == last_ghost_with_matching_target_chain_id) {
+	 is_last = 1;
+      } 
+   } 
+   return is_last;
+}
+
 
 // not const because we can update (fill) ncs_ghosts.
 coot::ncs_differences_t

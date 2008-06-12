@@ -597,6 +597,8 @@ class molecule_class_info_t {
    bool ncs_chains_match_with_offset_p(const std::vector<std::pair<std::string, int> > &v1,
 				       const std::vector<std::pair<std::string, int> > &v2,
 				       float exact_homology_level) const;
+   bool last_ghost_matching_target_chain_id_p(int i_match, 
+					      const std::vector<coot::ghost_molecule_display_t> &ncs_ghosts) const;
    void delete_ghost_selections();
 
    std::vector<coot::ghost_molecule_display_t> strict_ncs_info;

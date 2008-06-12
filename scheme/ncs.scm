@@ -20,7 +20,7 @@
   ;; chain-ids is less then length 2, return #f.
   ;; 
   (define (skip-to-chain-internal this-chain-id chain-id-list)
-    (format #t "DEBUG this-chain-id: ~s~%" this-chain-id)
+;    (format #t "DEBUG this-chain-id: ~s~%" this-chain-id)
     (if (< (length chain-id-list) 2)
 	#f 
 	(let loop ((local-chain-id-list chain-id-list))
@@ -44,7 +44,7 @@
     ;; 
     (let ((chain-guess (skip-to-chain-internal this-chain-id chain-id-list)))
       
-      (format #t "DEBUG chain-guess: ~s~%" chain-guess)
+;      (format #t "DEBUG chain-guess: ~s~%" chain-guess)
       (if (not (string? chain-guess))
 	  chain-guess
 	  (if (not (is-solvent-chain? imol chain-guess))	  
@@ -112,6 +112,8 @@
 		    ;; otherwise all was hunky-dorey
 		    (begin
 		      ; set the orientation:
+;		      (format #t "DEBUG:: apply-ncs-to-view-orientation-and-screen-centre ~s ~s ~s~%"
+;			      imol this-chain-id try-next-chain)
 		      (apply-ncs-to-view-orientation-and-screen-centre
 		       imol this-chain-id try-next-chain)
 		      #t))))))))
