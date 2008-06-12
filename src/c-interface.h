@@ -4262,6 +4262,10 @@ void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
 /* \{ */
 /*! \brief set drawing state of NCS ghosts for molecule number imol   */
 void set_draw_ncs_ghosts(int imol, int istate);
+/*! \brief return the drawing state of NCS ghosts for molecule number
+  imol.  Return -1 on imol is a bad molecule or no ghosts.  */
+int draw_ncs_ghosts_state(int imol);
+
 /*! \brief set bond thickness of NCS ghosts for molecule number imol   */
 void set_ncs_ghost_bond_thickness(int imol, float f);
 /*! \brief update ghosts for molecule number imol */

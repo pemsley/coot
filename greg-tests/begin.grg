@@ -132,3 +132,14 @@
    (else 
     (cons (car restraints) 
 	  (strip-bond-from-restraints atom-pair (cdr restraints))))))
+
+;; A term atom is (currently) characterized by an atom name of "".
+;;
+(define (has-term-atom? atom-list)
+
+  (cond 
+   ((null? atom-list) #f)
+   ((string=? "" (car (car (car atom-list)))) #t)
+   (else 
+    (has-term-atom? (cdr atom-list)))))
+    

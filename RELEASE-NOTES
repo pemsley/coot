@@ -61,11 +61,6 @@ Release 0.5
      jumps over gaps and goes to the right residue when encountering
      insertion codes.
 
-   o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
-
-   o BUG-FIX: On additions to a SHELXL molecule: better handling of
-     UNIT and SFAC cards [GMS].
-
    o BUG-FIX: chiral volumes are now correctly handled for multiple
      monomer bespoke ligand dictionaries.
 
@@ -79,10 +74,21 @@ Release 0.5
    o BUG-FIX: Coot no longer crashes when deleting a residue with an
      Alt Conf.
 
+   o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
+
+   o BUG-FIX: On additions to a SHELXL molecule: better handling of
+     UNIT and SFAC cards [GMS].
+
    o BUG-FIX: EQUIV cards from SHELXL handled better.
+
+   o BUG-FIX: Adding waters to a SHELXL molecule now adds them with
+     default occupancy 11.0 [Tobias Beck]
 
    o BUG-FIX: Go To Atom dialog is properly updated on reading merging
      molecules.
+
+
+-----
 
 
 Release 0.4.1 "Kendall^2"

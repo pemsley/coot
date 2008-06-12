@@ -21,7 +21,7 @@
 
 (define rnase-pdb (append-dir-file greg-data-dir "tutorial-modern.pdb"))
 (define rnase-mtz (append-dir-file greg-data-dir "rnasa-1.8-all_refmac1.mtz"))
-(define terminal-residue-test-pdb (append-dir-file greg-data-dir "tutorial-add-terminal-0-test.pdb"))
+(define terminal-residue-test-pdb (append-dir-file greg-data-dir "tutorial-add-terminal-1-test.pdb"))
 (define base-imol (graphics-n-molecules))
 
 (define have-ccp4? #f)
@@ -1011,6 +1011,20 @@
 
        #t)))
 
+
+(greg-testcase "residues in region of residue" #t 
+   (lambda ()
+
+     (let ((rs (residues-near-residue imol-rnase (list "A" 40 "") 4)))
+       (if (not (= (length rs) 6))
+           (begin
+             (format #t "wrong number of neighbours ~s ~s~%" (length rs) rs)
+             #f)
+           (begin
+             (format #t "found ~s neighbours ~s~%" (length rs) rs)
+             #t)))))
+
+
 (greg-testcase "Empty molecule on type selection" #t 
    (lambda () 
      (let ((imol1 (new-molecule-by-residue-type-selection imol-rnase "TRP"))
@@ -1024,3 +1038,4 @@
 	    (format #t "failed on empty selection 2 gives not imol -1 ~%")
 	    (throw 'fail)))
        #t)))
+

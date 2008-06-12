@@ -143,12 +143,12 @@
      (shelx-waters-all-good-occ? imol-insulin-res)))
 
 
+;; Tobias Beck test.
 (greg-testcase "Find Waters for a SHELXL molecule" #t
    (lambda () 
 
      (find-waters imol-insulin-map imol-insulin-res 0 0.6 1)
      (shelx-waters-all-good-occ? imol-insulin-res)))
-
 
 
 ;; non positive definite anistropic atom (reported by Mitch Miller)

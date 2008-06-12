@@ -1153,3 +1153,92 @@ molecule_class_info_t::delete_all_except_res(CResidue *res) {
    }
    return state;
 }
+
+bool
+molecule_class_info_t::residue_has_TER_atom(CResidue *res_p) const {
+
+   int n_residue_atoms;
+   PPCAtom residue_atoms;
+   bool has_ter = 0;
+   if (res_p) {
+      res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+	 if (residue_atoms[i]->isTer()) {
+	    has_ter = 1;
+	    break;
+	 } 
+      }
+   }
+   return has_ter;
+} 
+
+// remove TER record from residue
+//
+void
+molecule_class_info_t::remove_TER_internal(CResidue *res_p) {
+
+   int n_residue_atoms;
+   PPCAtom residue_atoms;
+   bool deleted = 0;
+   if (res_p) {
+      res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+	 if (residue_atoms[i]->isTer()) {
+	    res_p->DeleteAtom(i);
+	    deleted = 1;
+	 } 
+      }
+   }
+   if (deleted) { 
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+   }
+}
+
+void
+molecule_class_info_t::remove_ter_atoms(const coot::residue_spec_t &spec) {  // from all models
+
+   // do a backup only if this chain has a residue with a TER atom.
+   bool has_ter = 0;
+   
+   for(int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) { 
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 if (spec.chain == chain_p->GetChainID()) { 
+	    int nres = chain_p->GetNumberOfResidues();
+	    if (nres > 0) { 
+	       CResidue *residue_p = chain_p->GetResidue(nres-1);
+	       if (spec.resno == residue_p->GetSeqNum()) { 
+		  has_ter = residue_has_TER_atom(residue_p);
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (has_ter) {
+      make_backup();
+      for(int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) { 
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 CChain *chain_p;
+	 // run over chains of the existing mol
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (spec.chain == chain_p->GetChainID()) { 
+	       int nres = chain_p->GetNumberOfResidues();
+	       if (nres > 0) { 
+		  CResidue *residue_p = chain_p->GetResidue(nres-1);
+		  if (spec.resno == residue_p->GetSeqNum()) {
+		     remove_TER_internal(residue_p);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+} 
