@@ -146,9 +146,17 @@
 ;; Tobias Beck test.
 (greg-testcase "Find Waters for a SHELXL molecule" #t
    (lambda () 
+     
+     (let ((n-chains-pre (n-chains imol-insulin-res)))
+       (find-waters imol-insulin-map imol-insulin-res 0 0.6 1)
+       (let ((n-chains-post (n-chains imol-insulin-res)))
+	 (if (not (= n-chains-pre n-chains-post))
+	     (begin
+	       (format #t "Find waters on a shelx molecule created a new chain ~s ~s~%" 
+		       n-chains-pre n-chains-post)
+	       #f)
+	     (shelx-waters-all-good-occ? imol-insulin-res))))))
 
-     (find-waters imol-insulin-map imol-insulin-res 0 0.6 1)
-     (shelx-waters-all-good-occ? imol-insulin-res)))
 
 
 ;; non positive definite anistropic atom (reported by Mitch Miller)
