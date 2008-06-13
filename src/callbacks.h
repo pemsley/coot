@@ -3784,3 +3784,9 @@ void
 on_run_refmac_nolabels_help_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_model_refine_dialog_fix_atoms_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+

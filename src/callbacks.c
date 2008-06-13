@@ -10334,3 +10334,14 @@ on_save_restraint_chooserdialog_close  (GtkDialog       *dialog,
 
 }
 
+
+void
+on_model_refine_dialog_fix_atoms_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *w = wrapped_create_fixed_atom_dialog();
+  gtk_widget_show(w);
+}
+
+

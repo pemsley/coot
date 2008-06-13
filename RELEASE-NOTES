@@ -1,5 +1,5 @@
 
-Release 0.5
+Pre-release 0.5
 
    o FEATURE: Coot now has a Preferences dialog.
 
@@ -7,7 +7,8 @@ Release 0.5
 
    o FEATURE: "Fixed Atoms" for refinement have been introduced.
 
-   o FEATURE: Monomer restraints exported to the scripting layer.
+   o FEATURE: Monomer restraints can be edited in a GUI and are
+     exported to the scripting layer.
 
    o FEATURE: Add dialog position preferences to Extensions.
 
@@ -23,23 +24,44 @@ Release 0.5
      when set by the user causes an update of the probed molecule, not
      the generation of a new one [Bob Nolte].
 
+   o FEATURE: Add Terminal Residue now assigns the correct residue
+     type (if a PIR sequence has been given for side-chain docking) 
+     [Bob Nolte].
+
+   o FEATURE: "Pukka Puckers?" validation tool for RNA.  From Davis et
+     al. (2007) Molprobity: all atom contacts and structure
+     validation for proteins and nucleic acids, Nucleic Acids
+     Research 35, W375-W383.
+
+   o FEATURE: "Active site" hilighting.  Cheep and cheerful solid
+     modelling of ligand and neighbouring residues [Herb Klei].
+
+   o FEATURE: Double-clicking on an atom labels it (CCP4mg
+     compatibility).
+
+   o FEATURE: "Eigen-flip" function added.  Use to quickly flip around
+     ligands.
+
+   o FEATURE: Refmac can be run from Coot without the user having to
+     explicitly set the column labels.
+
+   o CHANGE: Key bindings mechanism has changed.  Now we are able to
+     display key binding in a GUI widget.
+
    o CHANGE: Picking has been changed to somewhat favour those atoms
      at the front of the slab.
-
-   o CHANGE: Next/Previous residue function now does something more
-     sensible when it encounters a missing residue or an insertion
-     code.
 
    o CHANGE: When deleting a residue while displaying validation
      graphs, the graphs get updated immediately [JED]
 
    o CHANGE: In CA display mode, only CAs can now be picked.
 
-   o CHANGE: Nudge centre axes are not relative to the screen rather
+   o CHANGE: Nudge centre axes are now relative to the screen rather
      than in world coordinates.
- 
+
    o CHANGE: NCS skipping changed.  Hopefully faster now [Steven
-     Sheriff]
+     Sheriff].  Also works in the case of hetero dimers with NCS [Phil
+     Evans].
 
    o CHANGE: default bond width changed to 5.
 
@@ -61,13 +83,25 @@ Release 0.5
      jumps over gaps and goes to the right residue when encountering
      insertion codes.
 
+   o CHANGE: Don't allow translation drag of intermediate atoms during
+     rotamer selection.
+
+   o CHANGE: Reference structures now have strand markup in the
+     header, so they can now be used as the reference structures for
+     "Build Strand".
+
    o BUG-FIX: chiral volumes are now correctly handled for multiple
      monomer bespoke ligand dictionaries.
+
+   o BUG-FIX: Hydrogens names are better handled after an undo
+     operation - no longer do they fly off when refining [Joel Bard]
 
    o BUG-FIX: Non-flexible ligands can be added to ligand search when
      the "flexible?" option is selected.  Previously the ligand search
      was aborted.
 
+   o BUG-FIX: side-by-side stereo mode improved.
+ 
    o BUG-FIX: Now coot does not crash on when displaying NPD atoms
      in anisotropic representation [Mitch Miller].
 
@@ -86,7 +120,20 @@ Release 0.5
 
    o BUG-FIX: Go To Atom dialog is properly updated on reading merging
      molecules.
+ 
+   o BUG-FIX: Coot no longer crashes when opening the Bond Parameters
+     dialog before a pdb file has been read.
 
+   o BUG-FIX: NCS Loop function now properly mutates residues in the
+     peer chains [PRE].
+
+   o BUG-FIX: Add Terminal Residue deletes the TER record (if it
+     existed) of previous C-terminus [PRE].
+
+   o BUG-FIX: Povray output improved.
+
+   o BUG-FIX: The representation is no longer changed after editing
+     atoms in CA+ligs representation.
 
 -----
 
