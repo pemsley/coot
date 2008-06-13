@@ -4,10 +4,22 @@
 
    18 Items, 44 hd.
 
+
+   o side by side stereo with dislay lists
+
+   o Addition of waters using GUI in a shelx molecule puts waters in
+     with occupancy 1.0 [Tobias Beck]
+
+* Done.
+
    o NCS jumping with a 2 x heterotetramer (or some such) 2hd
+
+* Done.
 
    o Add Terminal residue with on to a residue with a TER.  (TER must
      disappear) 2hd.
+
+* Done.
 
    o NCS loop (or whatever it's called (Copy NCS fragment?): when
      there is a difference of residue name, then the old name should be
@@ -123,6 +135,17 @@
 
 * Done.  Before, in fact.
 
+   o check that newly read cif file overwrites the restraints of the
+     previous restraint set (e.g. delete a restraint and see what
+     happens)
+
+       How shall I test this?  use monomer-restraints, delete a bond
+       restraint between a given atom pair (e.g. cb cg in a tyr), copy
+       a TYR from imol-rnase, refine.  As there is no bond restraint,
+       cb and cg should fly appart to 3A or so.
+
+* Done.
+
    o Do a refinement on 3bv2 in CA + ligand mode.  It changes the
      colour scheme to rainbow representation.
  
@@ -145,7 +168,11 @@
    o It would be better (faster) if the carbo test was fitting into
      density, rather than regularizing.
 
-* Apparently not
+* No, it wouldn't as it turns out.
+
+   o Glycosidic linkage needs to be 3A not 2A.
+
+* Done.
 
    o get an alanine - with hydrogens.  Refine. undo, refine.  check
      hydrogen positions.
@@ -5442,7 +5469,7 @@ crystal is not held in 3 dimensions)
 ---
 Mon Apr 14 10:57:18 BST 2008
 
-    add a funtion to display (a set of) spheres, 
+    add a function to display (a set of) spheres, 
     radius, position, colour
 
 ----
