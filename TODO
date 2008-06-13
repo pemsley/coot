@@ -153,6 +153,10 @@
    o in coot_toolbuttons.py Bernhard registers the icons.  Does that
      make them smooth?
 
+   o Phil Evans wants colour by chain as the default.  Can you make
+     this the default at coordinates read time (similarly, others want
+     CA mode).  Consider punting.
+
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
 
@@ -199,6 +203,8 @@
 
    o Move widget functions in c-interface-build.cc to
      c-interface-gui.cc (or consider new c-interface-build-gui.cc).
+
+   o Dynamic distances define need a pick cursor.
 
    o multiple residue ranges, glycosylation, covalent bond entities
   
@@ -323,6 +329,8 @@
       Consider a dialog to Write/Create a symmetry molecule.
 
    o RNA backbone plot by connecting phosphates
+
+   o NCS bone skeleton search - like ncs6d?.  Can be punted, if needed.
 
  ------
     
