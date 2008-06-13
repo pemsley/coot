@@ -110,14 +110,41 @@
 				 (range n-residues))))
 
 	 ;; return a boolean value 
-	 (if (ascending-order? seqnum-order)
-	     #t
+	 (if (not (ascending-order? seqnum-order))
 	     (begin
 	       (display seqnum-order)
 	       (newline)
 	       (display "fail")
 	       (newline)
-	       #f))))))
+	       #f)
 
-       
-       
+	     ;; Now we can test a mutation.  
+	     ;;
+	     ;; check that the mutate function returns success.
+	     ;; 
+	     ;; check that the new residue type is indeed a TRP
+	     ;; 
+	     ;; make the NCS copy
+	     ;;
+	     ;; check that the NCS target residue has had it's type
+	     ;; updated to TRP.
+	     ;; 
+	     (let ((mutate-success (mutate imol "A" 2 "" "TRP")))
+	       (if (not (= mutate-success 1))
+		   (begin
+		     (format #t "Mutate fails.~%")
+		     (throw 'fail))
+		   (let ((rname (residue-name imol "A" 2 "")))
+		     (if (not (string=? rname "TRP"))
+			 (begin
+			   (format #t "Mutate fails - master not a TRP. ~s~%" rname)
+			   (throw 'fail))
+			 (begin
+			   (copy-residue-range-from-ncs-master-to-others imol "A" 1 3)
+			   (let ((rname (residue-name imol "B" 2 "")))
+			     (if (not (string=? rname "TRP"))
+				 (begin
+				   (format #t "Mutate fails - peer not a TRP (~s)~%" rname)
+				   (throw 'fail))
+				 #t))))))))))))
+
