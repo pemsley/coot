@@ -732,9 +732,14 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    m = monomer_restraints("TYR")
 
 	    n = strip_bond_from_restraints(atom_pair, m)
+	    print "BL DEBUG:: removed dict is", n
 	    set_monomer_restraints("TYR", n)
 
 	    imol = new_molecule_by_atom_selection(imol_rnase, "//A/30")
+
+	    atom_1 = get_atom(imol, "A", 30, " CB ")
+	    atom_2 = get_atom(imol, "A", 30, " CG ")
+	    print "BL DEBUG:: orig bond-length: ", bond_length(atom_1[2], atom_2[2])
 
 	    with_auto_accept([refine_zone, imol, "A", 30, 30, ""])
 
@@ -742,10 +747,22 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    atom_2 = get_atom(imol, "A", 30, " CG ")
 	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
 
-	    if (not bond_length_within_tolerance_qm(atom_1, atom_2, 2.8, 0.6)):
-		print "failed"
+	    self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 2.8, 0.6),
+			    "fail 2.8 tolerance test")
+	    print "pass intermediate 2.8 tolerance test"
+	    set_monomer_restraints("TYR", m)
 
+	    print "BL DEBUG:: final used dic", m
 
+	    with_auto_accept([refine_zone, imol, "A", 30, 30, ""])
+	    
+	    atom_1 = get_atom(imol, "A", 30, " CB ")
+	    atom_2 = get_atom(imol, "A", 30, " CG ")
+
+	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
+	    self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 1.512, 0.04),
+			    "fail 1.512 tolerance test")
+	    
 
     def test27_0(self):
 	    """Change Chain IDs and Chain Sorting"""
@@ -766,8 +783,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    global imol_rnase
 	    imol1 = new_molecule_by_residue_type_selection(imol_rnase, "TRP")
-	    self.failUnlessEqual(imol1, -1, "Empty selection 1 gives not imol -1")
+	    self.failUnlessEqual(imol1, -1, "failed on empty selection 1 gives not imol -1")
 	    imol2 = new_molecule_by_residue_type_selection(imol_rnase, "TRP")
-	    self.failUnlessEqual(imol2, -1, "Empty selection 2 gives not imol -1")
+	    self.failUnlessEqual(imol2, -1, "failed on empty selection 2 gives not imol -1")
 
 	       

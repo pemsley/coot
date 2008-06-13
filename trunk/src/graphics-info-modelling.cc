@@ -2741,7 +2741,7 @@ graphics_info_t::do_probe_dots_on_rotamers_and_chis() {
 void
 graphics_info_t::do_interactive_probe() const { 
 
-#ifdef USE_GUILE
+#if defined USE_GUILE && !defined WINDOWS_MINGW
    if (moving_atoms_asc->n_selected_atoms > 0) {
       if (moving_atoms_asc->mol) {
 	 moving_atoms_asc->mol->WritePDBASCII("molprobity-tmp-moving-file.pdb");

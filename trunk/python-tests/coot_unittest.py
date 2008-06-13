@@ -62,18 +62,21 @@ def get_atom(imol, chain_id, resno, atom_name):
 #  return restraints without the given bond restraints or False if no restraints given
 def strip_bond_from_restraints(atom_pair, restraints):
 
-    if restraints:
-        bonds = restraints["_chem_comp_bond"]
+    import copy
+    restr_dict = copy.deepcopy(restraints)
+    if restr_dict:
+        # make a copy of restraints, so that we dont overwrite
+        # the original dictionary
+        bonds = restr_dict["_chem_comp_bond"]
         if bonds:
             for i, bond in enumerate(bonds):
                 atom1 = bond[0]
                 atom2 = bond[1]
                 if (atom1 in atom_pair and atom2 in atom_pair):
-                    del restraints["_chem_comp_bond"][i]
-                    break
-        return restraints
-    else:
+                    del restr_dict["_chem_comp_bond"][i]
+                    return restr_dict
         return False
+    return False
                     
 
 #test_file_list = ["02_shelx.py"]

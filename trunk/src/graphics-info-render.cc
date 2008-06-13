@@ -116,6 +116,14 @@ graphics_info_t::povray(std::string filename) {
    // povray, we are very close in.  So, let's try moving the eye back
    // a scaled amount
 
+   coot::Cartesian eye_centre = eye - rt.view_centre;
+   eye_centre *= 7.5;
+   coot::Cartesian far_eye = rt.view_centre - eye_centre;
+   //std::cout <<"BL DEBUG:: eye and far eye all   " << eye << " " << far_eye<<std::endl;
+   //std::cout <<"BL DEBUG:: view centre all       " << rt.view_centre <<std::endl;
+   eye *= 1.015;
+   rt.set_front_clipping_plane_point(eye);
+   rt.set_camera_location(far_eye);
    
    for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
@@ -123,13 +131,14 @@ graphics_info_t::povray(std::string filename) {
       if (molecules[imol].has_model()) {
 	 if (molecules[imol].is_displayed_p()) { 
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
-	    coot::Cartesian eye_centre = eye - rt.view_centre;
-	    eye_centre *= 7.5;
-	    coot::Cartesian far_eye = rt.view_centre - eye_centre;
-	    std::cout <<"BL DEBUG:: eye is before " << eye << std::endl;
-	    eye *= 1.02;
-	    rt.set_front_clipping_plane_point(eye);
-	    rt.set_camera_location(far_eye);
+	    //coot::Cartesian eye_centre = eye - rt.view_centre;
+	    //eye_centre *= 7.5;
+	    //coot::Cartesian far_eye = rt.view_centre - eye_centre;
+	    //std::cout <<"BL DEBUG:: eye and far eye model " << eye << " " << far_eye<<std::endl;
+	    //std::cout <<"BL DEBUG:: view centre model     " << rt.view_centre <<std::endl;
+	    //eye *= 1.015;
+	    //rt.set_front_clipping_plane_point(eye);
+	    //rt.set_camera_location(far_eye);
 	 }
       }
       if (molecules[imol].has_map()) {
@@ -415,6 +424,12 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       float tmp_len = view_centre_cl * direction_cl;
       
       float angle_factor = abs((v1_2.amplitude()/2)/(dir_len+tmp_len));
+      //std::cout <<"BL DEBUG:: view centre 2 : " << view_centre_cl[0] << " " <<view_centre_cl[1] << " " << view_centre_cl[2] <<std::endl;
+      //std::cout <<"BL DEBUG:: anglefactor   : " << angle_factor <<std::endl;
+      //std::cout <<"BL DEBUG::   v1_2 ampl   : " << v1_2.amplitude() <<std::endl;
+      //std::cout <<"BL DEBUG::   dir_len     : " << dir_len <<std::endl;
+      //std::cout <<"BL DEBUG::   tmp_len     : " << tmp_len <<std::endl;
+      //std::cout <<"BL DEBUG::   dir+tmp_len : " << dir_len+tmp_len <<std::endl;
       if (angle_factor > 1.99) {
         // simple protection, so that povray doesnt fail if angle get's too
 	// large
@@ -428,7 +443,8 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       clipper::Vec3<double> camera_translation_cl = view_centre_cl + tt_cl;
 
       render_stream << "#include \"colors.inc\"\n";
-      render_stream << "camera { orthographic\n            location <"
+      render_stream << "camera { orthographic\n"
+		    << "        location  <"
 		    << camera_translation_cl[0] << ", "
 		    << camera_translation_cl[1] << ", "
 		    << camera_translation_cl[2] << ">\n";
@@ -448,7 +464,7 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
 		    << -view_matrix.matrix_element(2,0) << ", "
 		    << -view_matrix.matrix_element(2,1) << ", "
 		    << -view_matrix.matrix_element(2,2) << "> \n";
-      render_stream << "         angle  90* "<< angle_factor << " \n";
+      render_stream << "        angle  90* "<< angle_factor << " \n";
       //render_stream << "         look_at  <"
       //<< view_centre.x() << ", "
       //<< view_centre.y() << ", "
@@ -544,10 +560,9 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
       float dp3 = coot::dot_product(v3,  back_clip_to_centre_vec);
       float dp4 = coot::dot_product(v4,  back_clip_to_centre_vec);
       if ((dp1 > 0.0) && (dp2 > 0.0) && (dp3 > 0.0) && (dp4 > 0.0)) { 
-	if (density_lines[id].first.x() != density_lines[id].second.x() &&
-	    density_lines[id].first.y() != density_lines[id].second.y() &&
-	    density_lines[id].first.z() != density_lines[id].second.z()) {	 
-	  render_stream << "cylinder{<"
+	Cartesian line = density_lines[id].first - density_lines[id].second;
+	if (line.length() > 0.001) {
+	 render_stream << "cylinder{<"
 		       << density_lines[id].first.x() << ", "
 		       << density_lines[id].first.y() << ", "
 		       << density_lines[id].first.z() << ">\n "
