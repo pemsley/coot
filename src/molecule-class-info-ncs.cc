@@ -1176,6 +1176,15 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 		  } 
 	       }
 	       to_residue->TrimAtomTable();
+
+	       // PRE bug.  If the to_residue was not the same residue
+	       // type as the from_residue, then the to_residue needs
+	       // to have its residue type updated.
+	       std::string to_residue_name   =   to_residue->GetResName();
+	       std::string from_residue_name = from_residue->GetResName();
+	       if (to_residue_name != from_residue_name) {
+		  to_residue->SetResName(from_residue->GetResName());
+	       } 
 	       
 	       if ((n_old_to_residue_atoms > 0) || (n_from_residue_atoms > 0))
 		  atom_sel.mol->FinishStructEdit();
