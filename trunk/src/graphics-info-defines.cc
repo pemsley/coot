@@ -1561,13 +1561,17 @@ graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
 	 
 	 if (! (state & GDK_CONTROL_MASK)) { 
 	    // Ctrl key is not pressed.
-	    GtkWidget *button1 = lookup_widget(fixed_atom_dialog,   "fix_atom_togglebutton");
-	    GtkWidget *button2 = lookup_widget(fixed_atom_dialog, "unfix_atom_togglebutton");
-	    if (button1)
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button1), FALSE);
-	    if (button2)
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button2), FALSE);
-	    in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
+	    if (!fixed_atom_dialog) {
+	       std::cout << "Ooops fixed atom dialog has gone!" << std::endl;
+	    } else { 
+	       GtkWidget *button1 = lookup_widget(fixed_atom_dialog,   "fix_atom_togglebutton");
+	       GtkWidget *button2 = lookup_widget(fixed_atom_dialog, "unfix_atom_togglebutton");
+	       if (button1)
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button1), FALSE);
+	       if (button2)
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button2), FALSE);
+	       in_fixed_atom_define = coot::FIXED_ATOM_NO_PICK;
+	    }
 	 }
       }
    }

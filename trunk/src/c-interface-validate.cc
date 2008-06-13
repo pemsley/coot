@@ -813,7 +813,7 @@ void probe_mol_selector_activate (GtkMenuItem     *menuitem,
 int probe_available_p() {
    int r=0;
 
-#ifdef USE_GUILE && !defined WINDOWS_MINGW
+#if defined(USE_GUILE) && !defined(WINDOWS_MINGW)
 
    std::string command("(command-in-path? *probe-command*)");
 

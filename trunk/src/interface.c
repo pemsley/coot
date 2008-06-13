@@ -5244,6 +5244,7 @@ create_model_refine_dialog (void)
   GtkWidget *hseparator5;
   GtkWidget *model_refine_dialog_refine_togglebutton;
   GtkWidget *model_refine_dialog_regularize_zone_togglebutton;
+  GtkWidget *model_refine_dialog_fix_atoms_button;
   GtkWidget *model_refine_dialog_rigid_body_togglebutton;
   GtkWidget *model_refine_dialog_rot_trans_togglebutton;
   GtkWidget *model_refine_dialog_auto_fit_rotamer_togglebutton;
@@ -5341,6 +5342,14 @@ create_model_refine_dialog (void)
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_regularize_zone_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_regularize_zone_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_regularize_zone_togglebutton, _("Idealize model geometry"), NULL);
+
+  model_refine_dialog_fix_atoms_button = gtk_button_new_with_label (_("  Fix Atoms"));
+  gtk_widget_ref (model_refine_dialog_fix_atoms_button);
+  gtk_object_set_data_full (GTK_OBJECT (model_refine_dialog), "model_refine_dialog_fix_atoms_button", model_refine_dialog_fix_atoms_button,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (model_refine_dialog_fix_atoms_button);
+  gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_fix_atoms_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_fix_atoms_button), 1);
 
   model_refine_dialog_rigid_body_togglebutton = gtk_toggle_button_new_with_label (_("Rigid Body Fit Zone"));
   gtk_widget_ref (model_refine_dialog_rigid_body_togglebutton);
@@ -5578,6 +5587,9 @@ create_model_refine_dialog (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (model_refine_dialog_regularize_zone_togglebutton), "toggled",
                       GTK_SIGNAL_FUNC (on_model_refine_dialog_regularize_togglebutton_toggled),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (model_refine_dialog_fix_atoms_button), "clicked",
+                      GTK_SIGNAL_FUNC (on_model_refine_dialog_fix_atoms_button_clicked),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (model_refine_dialog_rigid_body_togglebutton), "toggled",
                       GTK_SIGNAL_FUNC (on_model_refine_dialog_rigid_body_togglebutton_toggled),

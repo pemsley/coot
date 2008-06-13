@@ -155,14 +155,15 @@ GtkWidget* create_run_script_filechooserdialog1(void);
 GtkWidget* create_save_symmetry_coords_filechooserdialog1(void);
 GtkWidget* create_save_state_filechooserdialog1(void);
 GtkWidget* create_screendump_filechooserdialog1(void);
-GtkWidget* wrapped_create_residue_editor_select_monomer_type_dialog();
-GtkWidget* create_residue_editor_select_monomer_type_dialog();
 GdkPixbuf* create_pixbuf(const gchar *filename);
 gchar* find_pixmap_file (const gchar     *filename);
 GtkWidget* create_model_toolbar_menu (void);
-GtkWidget* create_run_refmac_nolabels_help_dialog(void);
-GtkWidget* create_save_restraint_chooserdialog (void);
+GtkWidget         *create_residue_editor_select_monomer_type_dialog();
+GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog();
 GtkWidget* create_restraints_editor_dialog (void);
+GtkWidget* create_residue_editor_select_monomer_type_dialog (void);
+GtkWidget* create_save_restraint_chooserdialog (void);
+GtkWidget* create_run_refmac_nolabels_help_dialog(void);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS
