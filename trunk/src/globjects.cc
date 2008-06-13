@@ -594,7 +594,7 @@ graphical_bonds_container graphics_info_t::regularize_object_bonds_box;
 graphical_bonds_container graphics_info_t::environment_object_bonds_box;
 graphical_bonds_container graphics_info_t::symmetry_environment_object_bonds_box;
 
-int   graphics_info_t::bond_parameters_molecule = 0;
+int   graphics_info_t::bond_parameters_molecule = -1; // unset
 
 
 short int graphics_info_t::do_torsion_restraints = 0;
