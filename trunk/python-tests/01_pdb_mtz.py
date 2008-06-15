@@ -43,7 +43,6 @@ horne_pdb         = os.path.join(unittest_data_dir, "coords-B3A.pdb")
 ins_code_frag_pdb = os.path.join(unittest_data_dir, "ins-code-fragment-pre.pdb")
 
 # CCP4 is set up? If so, set have-ccp4? True
-
 try:
 	#global have_ccp4_qm
 	ccp4_master = os.getenv("CCP4_MASTER")
@@ -225,16 +224,30 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	"""Add Terminal Residue Test"""
 	import types
 
-	self.skipIf(not type(terminal_residue_test_pdb) is StringType, 
-		"%s does not exist - skipping test" %terminal_residue_test_pdb)
-	self.skipIf(not os.path.isfile(terminal_residue_test_pdb),
-		"%s does not exist - skipping test" %terminal_residue_test_pdb)
-	
-	# OK, file exists
-	imol = read_pdb(terminal_residue_test_pdb)
-	self.skipIf(not valid_model_molecule_qm(imol), 
-		"%s bad pdb read - skipping test" %terminal_residue_test_pdb)
-	
+	if (have_test_skip):
+		self.skipIf(not type(terminal_residue_test_pdb) is StringType, 
+			    "%s does not exist - skipping test" %terminal_residue_test_pdb)
+		self.skipIf(not os.path.isfile(terminal_residue_test_pdb),
+			    "%s does not exist - skipping test" %terminal_residue_test_pdb)
+
+		# OK, file exists
+		imol = read_pdb(terminal_residue_test_pdb)
+		self.skipIf(not valid_model_molecule_qm(imol), 
+			"%s bad pdb read - skipping test" %terminal_residue_test_pdb)
+	else:
+		if (not type(terminal_residue_test_pdb) is StringType): 
+			print "%s does not exist - skipping test (actually passing!)" %terminal_residue_test_pdb
+			return
+		if (not os.path.isfile(terminal_residue_test_pdb)):
+			print "%s does not exist - skipping test (actually passing!)" %terminal_residue_test_pdb
+			return
+
+		# OK, file exists
+		imol = read_pdb(terminal_residue_test_pdb)
+		if (not valid_model_molecule_qm(imol)):
+			print "%s bad pdb read - skipping test (actually passing!)" %terminal_residue_test_pdb
+			return
+
 	add_terminal_residue(imol, "A", 1, "ALA", 1)
 	write_pdb_file(imol, "regression-test-terminal-residue.pdb")
 	# where did that extra residue go?
@@ -539,10 +552,21 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test19_0(self):
 	    """Libcif horne"""
 
-	    self.skipIf(not os.path.isfile(horne_pdb), "file %s not found - skipping test" %horne_pdb)
-	    self.skipIf(not os.path.isfile(horne_cif), "file %s not found - skipping test" %horne_cif)
-	    self.skipIf(not os.path.isfile(horne_works_cif), "file %s not found - skipping test" %horne_works_cif)
-
+	    if (have_test_skip):
+		    self.skipIf(not os.path.isfile(horne_pdb), "file %s not found - skipping test" %horne_pdb)
+		    self.skipIf(not os.path.isfile(horne_cif), "file %s not found - skipping test" %horne_cif)
+		    self.skipIf(not os.path.isfile(horne_works_cif), "file %s not found - skipping test" %horne_works_cif)
+	    else:
+		    if (not os.path.isfile(horne_pdb)):
+			    print "file %s not found - skipping test (actually passing!)" %horne_pdb
+			    return
+		    if (not os.path.isfile(horne_cif)):
+			    print "file %s not found - skipping test (actually passing!)" %horne_cif
+			    return
+		    if (not os.path.isfile(horne_works_cif)):
+			    print "file %s not found - skipping test (actually passing!)" %horne_works_cif
+			    return
+		    
 	    imol = read_pdb(horne_pdb)
 	    self.failUnless(valid_model_molecule_qm(imol),"bad molecule number %i" %imol)
 
@@ -691,7 +715,13 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    carbo = "multi-carbo-coot-2.pdb"
 	    imol = unittest_pdb(carbo)
 
-	    self.skipIf(not valid_model_molecule_qm(imol), "file %s not found, skipping test" %carbo)
+	    if (have_test_skip):
+		    self.skipIf(not valid_model_molecule_qm(imol), "file %s not found, skipping test" %carbo)
+	    else:
+		    if (not valid_model_molecule_qm(imol)):
+			print "file %s not found, skipping test (actually passing!)" %carbo
+			return
+		    
 	    atom_1 = get_atom(imol, "A", 1, " O4 ")
 	    atom_2 = get_atom(imol, "A", 2, " C1 ")
 

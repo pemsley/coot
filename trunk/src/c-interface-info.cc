@@ -746,7 +746,6 @@ coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
 }
 #endif
 
-
 #ifdef USE_GUILE
 // output is like this:
 // (list

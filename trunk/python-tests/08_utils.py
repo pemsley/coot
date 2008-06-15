@@ -43,6 +43,12 @@ class UtilTestFunctions(unittest.TestCase):
     def test02_0(self):
         """Test running a scheme function"""
 
-        self.skipIf(not coot_has_guile())
+        if (have_test_skip):
+            self.skipIf(not coot_has_guile())
+        else:
+            if (not coot_has_guile()):
+                print "Skipping guile test (actually passing!)"
+                return
+
         tot = run_scheme_command("(+ 2 2)")
         self.failUnlessEqual(tot, 4)

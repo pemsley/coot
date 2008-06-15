@@ -41,8 +41,18 @@ class ShelxTestFunctions(unittest.TestCase):
 
     def test01_0(self):
         """Read small molecule .res file"""
-        self.skipIf(not type(hof_res) is StringType, "hof-res not defined - skipping test")
-        self.skipIf(not os.path.isfile(hof_res), "%s does not exist - skipping test" %hof_res)
+
+        if (have_test_skip):
+            self.skipIf(not type(hof_res) is StringType, "hof-res not defined - skipping test")
+            self.skipIf(not os.path.isfile(hof_res), "%s does not exist - skipping test" %hof_res)
+        else:
+            if (not type(hof_res) is StringType):
+                print "hof-res not defined - skipping test (actually passing!)"
+                return
+            if (not os.path.isfile(hof_res)):
+                print "%s does not exist - skipping test (actually passing!)" %hof_res
+                return
+            
         imol = read_pdb(hof_res)
         self.failUnless(valid_model_molecule_qm(imol))
         imol_hof_res = imol
@@ -51,7 +61,13 @@ class ShelxTestFunctions(unittest.TestCase):
     def test02_0(self):
         """Read hollander small molecule .res file"""
 
-        self.skipIf(not os.path.isfile(hollander_ins), "%s  does not exist - skipping test" %hollander_ins)
+        if (have_test_skip):
+            self.skipIf(not os.path.isfile(hollander_ins), "%s  does not exist - skipping test" %hollander_ins)
+        else:
+            if (not os.path.isfile(hollander_ins)):
+                print "%s  does not exist - skipping test (actually passing)" %hollander_ins
+                return
+
         imol = read_pdb(hollander_ins)
         self.failUnless(valid_model_molecule_qm(imol), "   fail: bad molecule for %s" %hollander_ins)
         spg = show_spacegroup(imol)

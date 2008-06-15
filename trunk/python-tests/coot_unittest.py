@@ -4,11 +4,18 @@ print "==============================================================="
 
 import unittest, os
 import inspect
+global have_skip
+have_test_skip = False
+
+if ('skip' in dir(unittest.TestCase)):
+    have_test_skip = True
+else:
+    print "WARNING:: unittest skip not avaliable!!!!!!"
 
 home = os.getenv('HOME')
 if ((not home) and (os.name == 'nt')):
     home = os.getenv('COOT_HOME')
-else:
+if (not home):
     # badness we dont have a home dir
     print "ERROR:: Cannot find a HOME directory"
 
@@ -95,6 +102,7 @@ current_dir = os.path.dirname(fn)
 
 for test_file in test_file_list:
     load_file = os.path.join(current_dir, test_file)
+    load_file = os.path.normpath(load_file)
     if (os.path.isfile(load_file)):
         execfile(load_file)
 
