@@ -5693,8 +5693,8 @@ void safe_python_command(const std::string &python_cmd) {
 }
 
 #ifdef USE_PYTHON
-// we need a function to clean up the returned types from safe_python_command_with_return
-// especially lists and floats. Good knows why! Maybe a Python bug!
+// We need a function to clean up the returned types from safe_python_command_with_return
+// especially lists and floats. Who knows why? Maybe a Python bug!
 // 'local function' currently
 PyObject *py_clean_internal(PyObject *o) {
 
@@ -5729,7 +5729,8 @@ PyObject *py_clean_internal(PyObject *o) {
 		  std::string str = PyString_AsString(o);
 		  ret = o;
 	       } else {
-		 std::cout <<"WARNING:: incomprehensible argument passed  "<< PyString_AsString(PyObject_Str(o)) <<std::endl;
+		  std::cout <<"WARNING:: py_clean_internal: incomprehensible argument passed  "
+			    << PyString_AsString(PyObject_Str(o)) <<std::endl;
 	       }
 	    }
 	 }
@@ -5771,7 +5772,9 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
     {
       if (pValue != Py_None) {
 	//printf( "BL DEBUG:: in python return ret= %s\n",  PyString_AsString(PyObject_Str(ret)));
-	ret = py_clean_internal(pValue);
+	 ret = py_clean_internal(pValue);
+	 if (! ret)
+	    ret = Py_None;
       } else {
 	ret = Py_None;
       }
