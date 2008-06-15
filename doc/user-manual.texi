@@ -1843,6 +1843,8 @@ endresno pdb-file-name})}
 * Importing Monomers::
 * Ligand from SMILES strings::
 * Find Ligands::
+* Flip Ligand::
+* Find Waters::
 * Place Helix::
 * Building Ideal DNA and RNA::
 * Merge Molecules::
@@ -2644,7 +2646,28 @@ provided the map mask).  To do so, use Merge Molecules (Section
 @ref{Merge Molecules}).
 
 
-@section Find Waters 
+@section Flip Ligand
+@cindex ligand orientation
+
+Sometimes a ligand is placed more or less in the correct position, but
+the orientation is wrong - or at least you might want to explore other
+possible orientation.  To do that easily a function has been provided:
+
+@code{(flip-ligand @emph{imol chain-id residue-number})}
+
+This will flip the orientation of the residue around the eigen vector
+corresponding to the largest eigen value, exploring 4 possible
+orientations.
+
+This function has been further wrapped to provide flipping for the active
+residue: 
+
+@code{(flip-active-ligand)}
+
+This function can easily be bound to a key.
+
+
+@section Find Waters
 @cindex waters, finding
 As with finding ligands, you are given a chose
 of maps, protein (masking) atoms. A final selection has to be made for

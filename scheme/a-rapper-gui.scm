@@ -82,6 +82,7 @@
 
 	  (let ((rapper-status (goosh-command *rapper-command*
 					      (list "params.xml"
+						    "ca-trace"
 						    "--pdb" fragment-pdb 
 						    "--map" map-file 
 						    "--start" (number->string start-resno)

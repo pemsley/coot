@@ -100,13 +100,13 @@ Pre-release 0.5
      the "flexible?" option is selected.  Previously the ligand search
      was aborted.
 
-   o BUG-FIX: side-by-side stereo mode improved.
+   o BUG-FIX: side-by-side stereo mode improved [Randy Read].
  
    o BUG-FIX: Now coot does not crash on when displaying NPD atoms
      in anisotropic representation [Mitch Miller].
 
    o BUG-FIX: Coot no longer crashes when deleting a residue with an
-     Alt Conf.
+     Alt Conf [JED].
 
    o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
 
@@ -129,6 +129,9 @@ Pre-release 0.5
 
    o BUG-FIX: Add Terminal Residue deletes the TER record (if it
      existed) of previous C-terminus [PRE].
+
+   o CHANGE: Colour by Chain style also now displays zero occupancy
+     markers [PRE].
 
    o BUG-FIX: Povray output improved.
 
@@ -285,6 +288,8 @@ Release 0.4 "Kendall"
 
    o KNOWN PROBLEM: Rotamer analysis gives too many bad/unusual rotamers.
     
+
+-----
 
     -------------------------------------------------------
     -------------------- Old Releases ---------------------
