@@ -21,9 +21,8 @@
    o molecule-number consistency test (own-molecule-number) is
      returning -1 for maps created by another-level.  1hd
 
-   o Make ball and stick mode to work in Additional Representations. 1hd
-
-   o Document eigen-flip in user manual.
+   o Make ball and stick mode to work in Additional Representations -
+     I want to be able to turn them on on off with a check box. 1hd
 
    o In Key bindings GUI, show the key bindings from python also.
 
@@ -108,7 +107,21 @@
 
 
 
-86 Done.
+
+89 Done.
+
+   o Document eigen-flip in user manual.
+
+* Done.
+
+   o Draw zero occ spots in colour by chain mode [PRE] <1hd
+
+* Done.
+
+   o Add Terminal residue with on to a residue with a TER.  (TER must
+     disappear) 2hd.
+
+* Done.
 
    o Add means to get to fix/anchor atoms in gtk1 version.
 

@@ -2561,6 +2561,9 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       }
       asc.mol->DeleteSelection(SelectionHandle);
    }
+   add_zero_occ_spots(asc);
+   int atom_colour_type = coot::COLOUR_BY_CHAIN;
+   add_atom_centres(asc, atom_colour_type);
 }
 
 void
@@ -2754,6 +2757,9 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
       }
       asc.mol->DeleteSelection(SelectionHandle);
    }
+   add_zero_occ_spots(asc);
+   int atom_colour_type = coot::COLOUR_BY_CHAIN;
+   add_atom_centres(asc, atom_colour_type);
 }
 
 void
@@ -2908,6 +2914,9 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
       }
       asc.mol->DeleteSelection(SelectionHandle);
    }
+   add_zero_occ_spots(asc);
+   int atom_colour_type = coot::COLOUR_BY_CHAIN;
+   add_atom_centres(asc, atom_colour_type);
 }
 
 

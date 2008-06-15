@@ -30,6 +30,7 @@
              (gui event-loop)
              (gui entry-port)
              (gui text-output-port))
+(use-modules (ice-9 threads))
 
 ;; 
 (define (run-gtk-pending-events)
@@ -2108,6 +2109,189 @@
     (gtk-box-pack-start outside-vbox buttons-hbox #f #f 6)
 
     (gtk-widget-show-all window)))
+
+
+
+(define coot-news-info
+  (let ((status 'no-news)
+	(text-1 #f)
+	(text-2 #f)
+	(news-string-1 #f)
+	(news-string-2 #f)
+	(thread #f)
+	(url (string-append "http:"
+			    "//www.biop.ox.ac.uk/coot/software"
+			    "/source/pre-releases/release-notes")))
+    (lambda args
+
+      (define (test-string) 
+	(sleep 2)
+	(string-append
+	 "assssssssssssssssssssssssssssssssssssssss\n\n"
+	 "assssssssssssssssssssssssssssssssssssssss\n\n"
+	 "assssssssssssssssssssssssssssssssssssssss\n\n"
+	 "\n-----\n"
+	 "bill asssssssssssssssssssssssssssssssssssss\n\n"
+	 "fred asssssssssssssssssssssssssssssssssssss\n\n"
+	 "george sssssssssssssssssssssssssssssssssssss\n\n"
+	 "\n-----\n"))
+
+      (define (stop)
+	'nothing)
+      ;; Return (cons pre-release-news-string std-release-news-string)
+      ;;
+      (define (trim-news s)
+	
+	(let* ((sm-pre (string-match "-----" s)))
+	  (if (not sm-pre)
+	      (cons "nothing" "nothing")
+	      (let* ((pre-news (substring s 0 (car (vector-ref sm-pre 1))))
+		     (post-pre (substring s (cdr (vector-ref sm-pre 1))))
+		     (sm-std (string-match "-----" post-pre)))
+					   
+		(if (not sm-std)
+		    (cons pre-news "nothing")
+		    (cons pre-news
+			  (substring post-pre 0 (car (vector-ref sm-std 1)))))))))
+
+      (define (get-news-thread)
+	(let ((s (with-output-to-string (lambda () (http-get url)))))
+	  ;; (test-string)))
+	  ; (format #t "http-get returned ~s~%" s)
+	  (let ((both-news (trim-news s)))
+	    ;; trim-news returns (cons pre-release-news-string
+	    ;;                         std-release-news-string)
+	    (set! news-string-2 (car both-news))
+	    (set! news-string-1 (cdr both-news))
+	    (set! status 'news-is-ready))))
+
+      ;; Handle error on coot get news thread
+      ;;
+      (define (coot-news-error-handler key . args)
+	(format #t "error: news: error in ~s with args ~s~%" key args))
+
+      (define (get-news)
+	;; you might not be able to do this gdk-threads-enter/leave
+	;; thing with windows.
+	;;
+	; (gdk-threads-enter)
+	(set! thread (call-with-new-thread 
+		      get-news-thread
+		      coot-news-error-handler))
+	; (format #t "captured-thread: ~s~%" thread)
+	; (gdk-threads-leave)
+	)
+
+      (define (insert-string s text)
+	(let ((background-colour "#c0e6c0"))
+	  (gtk-text-insert text #f "black" background-colour s -1)
+	  #f)) ; stop the gtk timeout func.
+
+      (define (insert-news)
+	(insert-string news-string-1 text-1)
+	(insert-string news-string-2 text-2))
+      
+      (define (insert-no-news)
+	(insert-string "  No news\n" text-1)
+	(insert-string "  Yep - there really is no news\n" text-2))
+	
+      ; (format #t "coot-news-info called with args: ~s~%" args)
+      (cond 
+       ((= (length args) 1)
+	  (cond 
+	   ((eq? (car args) 'stop) (stop))
+	   ((eq? (car args) 'status)
+	    status)
+	   ((eq? (car args) 'insert-news) (insert-news))
+	   ((eq? (car args) 'insert-no-news) (insert-no-news))
+	   ((eq? (car args) 'get-news) (get-news))))
+       ((= (length args) 3)
+	(cond
+	 ((eq? (car args) 'set-text) 
+	  (set! text-1 (car (cdr args)))
+	  (set! text-2 (car (cdr (cdr args)))))))))))
+	  
+	 
+
+
+(define whats-new-dialog
+  (let ((text-1 #f) ; the text widgets
+	(text-2 #f)
+	(timer-label #f)
+	(ms-step 200))
+    (lambda ()
+
+      (define check-for-new-news
+	(let ((count 0))
+	  (lambda ()
+	    (set! count (+ 1 count))
+	    (let ((timer-string (string-append 
+				 (number->string 
+				  (exact->inexact
+				   (/ (* count ms-step) 1000))) "s")))
+	      (gtk-misc-set-alignment timer-label 0.96 0.5)
+	      (gtk-label-set-text timer-label timer-string))
+	    (display count)
+	    (if (> count 100)
+		(begin
+		  (gtk-label-set-text timer-label "Timeout")
+		  (coot-news-info 'insert-no-news)
+		  #f) ; turn off the gtk timeout function
+		(if (eq? (coot-news-info 'status) 'news-is-ready)
+		    (coot-news-info 'insert-news)
+		    #t)))))
+
+      (let ((window (gtk-window-new 'toplevel))
+	    (vbox (gtk-vbox-new #f 2))
+	    (inside-vbox (gtk-vbox-new #f 2))
+	    (scrolled-win-1 (gtk-scrolled-window-new))
+	    (scrolled-win-2 (gtk-scrolled-window-new))
+	    (label (gtk-label-new "Lastest Coot Release Info"))
+	    (text-1 (gtk-text-new #f #f))
+	    (text-2 (gtk-text-new #f #f))
+	    (h-sep (gtk-hseparator-new))
+	    (close-button (gtk-button-new-with-label "   Close   "))
+	    (notebook (gtk-notebook-new))
+	    (notebook-label-pre (gtk-label-new "Pre-release"))
+	    (notebook-label-std (gtk-label-new "Release")))
+	
+	(set! text-1 (gtk-text-new #f #f))
+	(set! text-2 (gtk-text-new #f #f))
+	(set! timer-label (gtk-label-new "0.0s"))
+
+	(gtk-window-set-default-size window 470 400)
+	(gtk-window-set-policy window #t #t #f)
+	(gtk-box-pack-start vbox label  #f #f 10)
+	(gtk-box-pack-start vbox timer-label  #f #f 2)
+	(gtk-box-pack-start vbox notebook  #t #t 4)
+	(gtk-notebook-append-page notebook scrolled-win-1 notebook-label-std)
+	(gtk-notebook-append-page notebook scrolled-win-2 notebook-label-pre)
+	(gtk-box-pack-start vbox h-sep  #f #f  4)
+	(gtk-box-pack-start vbox close-button #f #f 2)
+	(gtk-container-add window vbox)
+
+	(coot-news-info 'set-text text-1 text-2)
+	(coot-news-info 'get-news)
+	
+	;; not -add-with-viewport because a gtk-text include native
+	;; scroll support - so we can just container-add to the
+	;; scrolled-window
+	;; 
+	;; (gtk-scrolled-window-add-with-viewport scrolled-win text)
+	(gtk-container-add scrolled-win-1 text-1)
+	(gtk-container-add scrolled-win-2 text-2)
+	(gtk-scrolled-window-set-policy scrolled-win-1 'automatic 'always)
+	(gtk-scrolled-window-set-policy scrolled-win-2 'automatic 'always)
+
+	(gtk-signal-connect close-button "clicked"
+			    (lambda ()
+			      (coot-news-info 'stop)
+			      (gtk-widget-destroy window)))
+
+	(gtk-timeout-add ms-step check-for-new-news)
+
+	(gtk-widget-show-all window)))))
+
 
 
 
