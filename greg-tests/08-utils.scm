@@ -22,8 +22,18 @@
 
      (if (not (coot-has-python?))
 	 #t ; pass without testing
-	 (let ((tot (run-python-command "2 + 2")))
-	   (= 4 tot)))))
+	 (let ((tot (run-python-command "2 + 4")))
+	   (if (not (= 6 tot))
+	       #f
+	       (run-python-command "test_val = 2")
+	       (let ((rv (run-python-command "test_val")))
+		 (if (not (= rv 2))
+		     #f
+		     ;; coot does not convert a tuple.
+		     (let ((rv2 (run-python-command "test_val_2 = (1,2,3)")))
+		       (run-python-command "test_val_2") ; doesn't crash?
+		       #t))))))))
+
 
 		     
 ; skip this for now.

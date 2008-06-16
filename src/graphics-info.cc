@@ -2418,7 +2418,10 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    retprog = graphics_info_t::saved_dragged_refinement_results.progress;
    print_initial_chi_squareds_flag = 0;
    int do_disulphide_flag = 0;
-   Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag);
+   int draw_hydrogens_flag = 0;
+   if (molecules[imol_moving_atoms].draw_hydrogens())
+      draw_hydrogens_flag = 1;
+   Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag, draw_hydrogens_flag);
    g.regularize_object_bonds_box.clear_up();
    g.regularize_object_bonds_box = bonds.make_graphical_bonds();
 
@@ -2526,7 +2529,10 @@ graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_containe
       regularize_object_bonds_box = bonds.make_graphical_bonds();
       
    } else {
-      Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag);
+      int draw_hydrogens_flag = 0;
+      if (molecules[imol_moving_atoms].draw_hydrogens())
+	 draw_hydrogens_flag = 1;
+      Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    }

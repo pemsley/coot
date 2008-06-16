@@ -1012,7 +1012,44 @@
        #t)))
 
 
-(greg-testcase "residues in region of residue" #t 
+(greg-testcase "Replace Fragment" #t
+   (lambda ()
+
+     (let* ((atom-sel-str "//A70-80")
+	    (imol-rnase-copy (copy-molecule imol-rnase))
+	    (imol (new-molecule-by-atom-selection imol-rnase atom-sel-str)))
+       (if (not (valid-model-molecule? imol))
+	   (throw 'fail))
+		
+       (translate-molecule-by imol 11 12 13)
+       (let ((reference-res (residue-info imol-rnase "A" 75 ""))
+	     (moved-res     (residue-info imol       "A" 75 "")))
+
+	 (replace-fragment imol-rnase-copy imol atom-sel-str)
+	 (let ((replaced-res (residue-info imol-rnase-copy "A" 75 "")))
+	   
+	   ;; now replace-res should match reference-res.
+	   ;; the atoms of moved-res should be 20+ A away from both.
+	   
+	   (format #t "reference-res: ~s~%" reference-res) 
+	   (format #t "    moved-res: ~s~%"     moved-res) 
+	   (format #t " replaced-res: ~s~%"  replaced-res) 
+
+	   (if (not (all-true? (map atoms-match? moved-res replaced-res)))
+	       (begin
+		 (format #t "   moved-res and replaced-res do not match~%")
+		 (throw 'fail)))
+
+	   (if (all-true? (map atoms-match? moved-res reference-res))
+	       (begin
+		 (format #t "   fail - moved-res and replaced-res Match!~%")
+		 (throw 'fail)))
+
+	   (format #t "distances: ~s~%" (map atom-distance reference-res replaced-res))
+	   (all-true? (map (lambda (d) (> d 20)) (map atom-distance reference-res replaced-res))))))))
+
+
+(greg-testcase "Residues in Region of Residue" #t 
    (lambda ()
 
      (let ((rs (residues-near-residue imol-rnase (list "A" 40 "") 4)))

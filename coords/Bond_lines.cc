@@ -64,6 +64,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    //
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
+
+//    std::cout << "====================== Blc constructor "
+// 	     << do_bonds_to_hydrogens << " =======" << std::endl;
+   
    b_factor_scale = 1.0;
    // 1.7 will not catch MET bonds (1.791 and 1.803) nor MSE bonds (1.95)
    // but SO4 bonds (1.46 are fine).

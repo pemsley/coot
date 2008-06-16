@@ -34,6 +34,16 @@
 	    (set! pid (cdr args)))
 	   (else 
 	    (format #t "ignored: ~s~%" args)))))))
+
+
+(define (rename-dir-by-date dir-name)
+  (let* ((date-str (localtime (current-time)))
+	 (new-dir-name (string-append
+			dir-name "-"  (strftime "%Y-%h-%d--%H-%M--%S" date-str))))
+    (rename-file dir-name new-dir-name)
+    new-dir-name))
+
+		 
 	   
 
 (define (arp/warp-it imol chain-id start-resno end-resno sequence number-of-models)
@@ -60,8 +70,14 @@
 				   "-" (number->string end-resno)))
 	       (frag-mol (new-molecule-by-atom-selection imol str))
 	       (fragment-pdb "coot-rapper-fragment-in.pdb")
-	       (map-file "coot-rapper.map"))
+	       (rapper-out-pdb "rapper-out.pdb")
+	       ;;(rapper-mode "model-loops") ; maybe "ca-trace" perhaps.
+	       (rapper-mode "ca-trace")
+	       (map-file "coot-rapper.map")
+	       (whole-pdb-file-name "rapper-all-atoms.pdb"))
 	  (write-pdb-file frag-mol fragment-pdb)
+	  (write-pdb-file imol whole-pdb-file-name)
+	  (close-molecule frag-mol)
 	  (export-map imol-map map-file)
 	  (format #t "running rapper: ~s ~s ~s ~s ~s ~s~%"
 		  imol chain-id start-resno end-resno sequence number-of-models)
@@ -79,11 +95,14 @@
 ;					      "--edm-fit" "true"
 ;					      "--rapper-dir" rapper-dir)))
 	    ; (rapper-process 'store rappper-pid))))))
-
+	  (if (file-exists? "TESTRUNS")
+	      (rename-dir-by-date "TESTRUNS"))
 	  (let ((rapper-status (goosh-command *rapper-command*
-					      (list "params.xml"
-						    "ca-trace"
-						    "--pdb" fragment-pdb 
+					      (list ; "params.xml"
+						    rapper-mode
+						    "--pdb" fragment-pdb
+						    ; "--framework" whole-pdb-file-name
+						    "--pdb-out" rapper-out-pdb
 						    "--map" map-file 
 						    "--start" (number->string start-resno)
 						    "--stop"  (number->string   end-resno)
@@ -96,10 +115,16 @@
 						    "--edm-fit" "true"
 						    "--rapper-dir" rapper-dir)
 					      '()
-					      ""
-					      #f)))
+					      "rapper.log"
+					      #t)))
 	    (format #t "rapper-status: ~s~%" rapper-status)
-	    )))))
+	    (if (file-exists? "TESTRUNS")
+		(let* ((new-dir-name (rename-dir-by-date "TESTRUNS"))
+		       (result-pdb-file-name (append-dir-file new-dir-name "looptest-best.pdb")))
+		  (if (file-exists? result-pdb-file-name)
+		      (read-pdb result-pdb-file-name)
+		      (begin
+			(info-dialog "RAPPER failed - no results"))))))))))
 
     
 
@@ -164,6 +189,10 @@
 	 (model-mol-list (fill-option-menu-with-coordinates-mol-options 
 			  menu-pdb)))
 
+    ;; use instead gtk-widget-set-size-request? (not supported on
+    ;; penelope yet.
+    ;; 
+    (gtk-widget-set-usize text-sequence -1 80)
     (gtk-option-menu-set-menu option-menu-pdb menu-pdb)
     (gtk-box-pack-start pdb-hbox label-pdb #f #f 2)
     (gtk-box-pack-start pdb-hbox option-menu-pdb #f #f 2)
@@ -236,7 +265,14 @@
     (gtk-widget-show-all window)))
 
 
-(a-rapper-gui 'rapper)
+(let ((menu (coot-menubar-menu "Loop")))
+
+
+  (add-simple-coot-menu-menuitem 
+   menu "RAPPER..."
+   (lambda()
+     (a-rapper-gui 'rapper))))
+
 
 
 ; I have no idea why I wanted a timer here...

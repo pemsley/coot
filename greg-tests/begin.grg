@@ -59,6 +59,15 @@
   (sqrt (apply + (map square (map - pos-1 pos-2)))))
 
 
+(define (all-true? ls)
+  (cond
+   ((null? ls) #t)
+   ((eq? #t (car ls))
+    (all-true? (cdr ls)))
+   (else 
+    #f)))
+  
+
 (define (bond-length-within-tolerance? atom-1 atom-2 ideal-length tolerance)
 
   (if (not atom-1)
@@ -132,6 +141,37 @@
    (else 
     (cons (car restraints) 
 	  (strip-bond-from-restraints atom-pair (cdr restraints))))))
+
+;; move to begin.grg.
+;;
+;; are the attributes of atom-1 the same as atom-2? (given we test for
+;; close-float?)
+;;
+(define (atoms-match? atom-1 atom-2)
+  (cond
+   ((null? atom-1) #t)
+   ((list? (car atom-1))
+    (if (atoms-match? (car atom-1) (car atom-2))
+	(atoms-match? (cdr atom-1) (cdr atom-2))
+	#f))
+   ((string? (car atom-1))
+    (string=? (car atom-1) (car atom-2)))
+   ((exact? (car atom-1))
+    (close-float? (car atom-1) (car atom-2)))
+   ((number? (car atom-1))
+    (= (car atom-1) (car atom-2)))
+   ((boolean? atom-1)
+    (eq? (car atom-1) (car atom-2)))
+   (else 
+    #f)))
+
+;; move to begin.grg
+;; 
+;; What is the distance atom-1 to atom-2? 
+;; return #f on not able to calculate
+(define (atom-distance atom-1 atom-2)
+  (define (square x) (* x x))
+  (sqrt (apply + (map square (map - (car (cdr (cdr atom-1))) (car (cdr (cdr atom-2))))))))
 
 ;; A term atom is (currently) characterized by an atom name of "".
 ;;

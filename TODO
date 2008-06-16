@@ -338,7 +338,10 @@
 
    o Use libglade.
 
-   o User pickable atoms
+   o rewrite the SSM alignment output in a more robust and more
+     simple-minded manner.
+
+   o User pickable atoms.
 
    o sort out the includes so that I use -I .. and
      #include "ideal/geometry.hh" etc.
