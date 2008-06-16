@@ -2090,20 +2090,27 @@
     
     (gtk-container-add std-frame std-frame-vbox)
     (gtk-container-add usr-frame usr-frame-vbox)
-    
-    (let loop ((items *key-bindings*))
-      (cond 
-       ((null? items) 'done)
-       (else 
-	(box-for-binding (car items) usr-frame-vbox)
-	(loop (cdr items)))))
-    
-    (let loop ((items (map (lambda (x) (cons 'dum x)) std-key-bindings)))
-      (cond 
-       ((null? items) 'done)
-       (else 
-	(box-for-binding (car items) std-frame-vbox)
-	(loop (cdr items)))))
+
+    (let ((scm+py-keybindings 
+	   (let ((py-key-bindings
+		  (if (coot-has-python?)
+		      (run-python-command "key_bindings")
+		      '())))
+	     (append *key-bindings* py-key-bindings))))
+      
+      (let loop ((items scm+py-keybindings))
+	(cond 
+	 ((null? items) 'done)
+	 (else 
+	  (box-for-binding (car items) usr-frame-vbox)
+	  (loop (cdr items)))))
+      
+      (let loop ((items (map (lambda (x) (cons 'dum x)) std-key-bindings)))
+	(cond 
+	 ((null? items) 'done)
+	 (else 
+	  (box-for-binding (car items) std-frame-vbox)
+	  (loop (cdr items))))))
     
     (gtk-box-pack-end buttons-hbox close-button #f #f 6)
     (gtk-box-pack-start outside-vbox buttons-hbox #f #f 6)
