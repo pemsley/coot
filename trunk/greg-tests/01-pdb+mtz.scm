@@ -931,6 +931,10 @@
 
 	       (format #t "bond-length: ~s: ~%"
 		       (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
+	       
+	       (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04)))))))
+
+
 
 
 (greg-testcase "Test for flying hydrogens on undo" #t 
@@ -1031,9 +1035,9 @@
 	   ;; now replace-res should match reference-res.
 	   ;; the atoms of moved-res should be 20+ A away from both.
 	   
-	   (format #t "reference-res: ~s~%" reference-res) 
-	   (format #t "    moved-res: ~s~%"     moved-res) 
-	   (format #t " replaced-res: ~s~%"  replaced-res) 
+;	   (format #t "reference-res: ~s~%" reference-res) 
+;	   (format #t "    moved-res: ~s~%"     moved-res) 
+;	   (format #t " replaced-res: ~s~%"  replaced-res) 
 
 	   (if (not (all-true? (map atoms-match? moved-res replaced-res)))
 	       (begin
@@ -1047,6 +1051,7 @@
 
 	   (format #t "distances: ~s~%" (map atom-distance reference-res replaced-res))
 	   (all-true? (map (lambda (d) (> d 20)) (map atom-distance reference-res replaced-res))))))))
+
 
 
 (greg-testcase "Residues in Region of Residue" #t 
