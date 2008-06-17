@@ -222,7 +222,8 @@
 # 4.06 20080428 Apply Joseph Moran's fix correctly.
 # 4.07 20080518 Update the status reporting system.
 # 4.08 20080607 Bump version of python to 2.5.2
-script_version=4.08
+# 4.09 20080617 Update to guile-1.8.5
+script_version=4.09
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2207,7 +2208,7 @@ fi
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
-guile_version=1.8.4
+guile_version=1.8.5
 # mirror has gone/moved.
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
