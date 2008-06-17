@@ -1,20 +1,12 @@
 
-Mapview glued together by Paul Emsley with help from Kevin Cowtan.
-Additional code [mgtree] from Stuart McNicholas
+Paul Emsley
+Kevin Cowtan
+Bernhard Lohkamp
 
-I would like to recognise the following for their substantial contributions:
-
-Kevin Cowtan (clipper)
-Eugene Krissinel (mmdb)
-Raghavendra Chandrashekara (rc99@doc.ic.ac.uk), 
-	Paul Bourke and Cory Gene Bloyd for isosurface code
-Silicon Graphics, Inc. for the font code.
-
-Coot uses the GTKGLArea:
-
-Janne Löf        <jlof@mail.student.oulu.fi>
-
-And the Coot GUI was built with GLADE:
-
-Damon Chaplin & Martijn Van Beers.
+Additional code:
+ 
+ [mgtree] from Stuart McNicholas
+ [isosurface] Raghavendra Chandrashekara
+	      Paul Bourke and Cory Gene Bloyd
+ [font and trackball] Silicon Graphics, Inc.
 
