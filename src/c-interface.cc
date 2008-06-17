@@ -488,6 +488,9 @@ void mono_mode() {
       
       if (graphics_info_t::display_mode != coot::MONO_MODE) { 
 	 int previous_mode = graphics_info_t::display_mode;
+         GtkWidget *main_win = lookup_widget(graphics_info_t::glarea, "window1");
+         int x_size = main_win->allocation.width;
+         int y_size = main_win->allocation.height;
 	 graphics_info_t::display_mode = coot::MONO_MODE;
 	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
 	 if (!vbox) {
@@ -512,6 +515,13 @@ void mono_mode() {
 	       }
 	       graphics_info_t::glarea = glarea;
 	       gtk_widget_show(glarea);
+               // now we shall resize to half the window size if we had
+               // side-by-side stereo before
+               if ((previous_mode == coot::SIDE_BY_SIDE_STEREO) ||
+                   (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
+                   (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
+                 set_graphics_window_size(x_size/2, y_size);
+               }
 	       graphics_draw();
 	    } else {
 	       graphics_info_t::display_mode = previous_mode;
