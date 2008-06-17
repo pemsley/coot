@@ -2795,6 +2795,52 @@ SCM additional_representation_info_scm(int imol) {
 
 #endif	/* USE_GUILE */
 
+#ifdef USE_PYTHON
+PyObject *additional_representation_info_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      r = PyList_New(0);
+      for (int ir=0; ir<graphics_info_t::molecules[imol].add_reps.size(); ir++) {
+	 PyObject *l = PyList_New(0);
+	 std::string s = graphics_info_t::molecules[imol].add_reps[ir].info_string();
+	 PyObject *is_show_flag_py = Py_False;
+	 if (graphics_info_t::molecules[imol].add_reps[ir].show_it)
+	    is_show_flag_py = Py_True;
+	 float bw = graphics_info_t::molecules[imol].add_reps[ir].bond_width;
+	 PyObject *bond_width_py = PyFloat_FromDouble(bw);
+	 PyObject *atom_spec_py = Py_False;
+	 // lines too long, make a rep
+	 coot::additional_representations_t rep =
+	    graphics_info_t::molecules[imol].add_reps[ir];
+	 int type = rep.atom_sel_info.type;
+	 if (type == coot::atom_selection_info_t::BY_STRING)
+	    atom_spec_py
+	       = PyString_FromString(rep.atom_sel_info.atom_selection_str.c_str());
+	 else
+	    if (type == coot::atom_selection_info_t::BY_ATTRIBUTES) { 
+	       atom_spec_py = PyList_New(0);
+	       PyObject *chain_id_py    = PyString_FromString(rep.atom_sel_info.chain_id.c_str());
+	       PyObject *resno_start_py = PyInt_FromLong(rep.atom_sel_info.resno_start);
+	       PyObject *resno_end_py   = PyInt_FromLong(rep.atom_sel_info.resno_end);
+	       PyObject *ins_code_py    = PyString_FromString(rep.atom_sel_info.ins_code.c_str());
+	       PyList_Append(atom_spec_py, chain_id_py);
+	       PyList_Append(atom_spec_py, resno_start_py);
+	       PyList_Append(atom_spec_py, resno_end_py);
+	       PyList_Append(atom_spec_py, ins_code_py);
+	    }
+
+	 PyList_Append(l, PyInt_FromLong(ir));
+	 PyList_Append(l, PyString_FromString(s.c_str()));
+	 PyList_Append(l, is_show_flag_py);
+	 PyList_Append(l, bond_width_py);
+	 PyList_Append(r, l);
+      }
+   } 
+   return r;
+} 
+
+#endif	/* USE_PYTHON */
 
 
 /*  ----------------------------------------------------------------------- */

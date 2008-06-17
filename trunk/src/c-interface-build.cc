@@ -5368,6 +5368,35 @@ SCM missing_atom_info_scm(int imol) {
 }
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+
+PyObject *missing_atom_info_py(int imol) { 
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      r = PyList_New(0);
+      graphics_info_t g;
+      short int missing_hydrogens_flag = 0;
+      coot::util::missing_atom_info m_i_info =
+	 g.molecules[imol].missing_atoms(missing_hydrogens_flag, g.Geom_p());
+      for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
+	 int resno =  m_i_info.residues_with_missing_atoms[i]->GetSeqNum();
+	 std::string chain_id = m_i_info.residues_with_missing_atoms[i]->GetChainID();
+	 std::string residue_type = m_i_info.residues_with_missing_atoms[i]->GetResName();
+	 std::string inscode = m_i_info.residues_with_missing_atoms[i]->GetInsCode();
+	 std::string altconf("");
+	 PyObject *l = PyList_New(0);
+	 PyList_Append(l, PyString_FromString(chain_id.c_str()));
+	 PyList_Append(l, PyInt_FromLong(resno));
+	 PyList_Append(l, PyString_FromString(inscode.c_str()));
+	 PyList_Append(r, l);
+      }
+      //r = scm_reverse(r);
+   }
+   return r;
+}
+#endif // USE_PYTHON
+
 void
 copy_chain(int imol, const char *from_chain, const char *to_chain) {
 

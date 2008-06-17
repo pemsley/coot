@@ -3492,6 +3492,9 @@ void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType 
 SCM additional_representation_info_scm(int imol); 
 
 #endif	/* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *additional_representation_info_py(int imol); 
+#endif	/* USE_PYTHON */
 #endif	/* __cplusplus */
 
 
@@ -3803,6 +3806,9 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
 #ifdef USE_GUILE
 SCM missing_atom_info_scm(int imol);
 #endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *missing_atom_info_py(int imol);
+#endif // USE_PYTHON
 #endif /* __cplusplus */
 
 
