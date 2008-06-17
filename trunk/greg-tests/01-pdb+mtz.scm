@@ -952,15 +952,17 @@
 
 	 (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)))))
 
-	       (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04)))))))
-
-
 
 (greg-testcase "update monomer restraints" #t 
    (lambda () 
 
      (let ((atom-pair (list " CB " " CG "))
 	   (m (monomer-restraints "TYR")))
+
+       (if (not m)
+	   (begin 
+	     (format #t "update bond restraints - no momomer restraints~%")
+	     (throw 'fail)))
 
        (let ((n (strip-bond-from-restraints atom-pair m)))
 	 ; (format #t "new restraints::::: ~s~%" n)
