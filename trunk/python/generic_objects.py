@@ -19,6 +19,8 @@
 
 global probe_command
 global reduce_command
+global reduce_molecule_updates_current
+
 # BL says:: put in definitions of probe and reduce command here:
 # actually not used any more, I think!
 probe_command_name = "probe"
@@ -81,12 +83,22 @@ def generic_objects_gui():
 		if ((button_state == False) and (object_state == 1)):
 			set_display_generic_object(generic_object_number,0)
 
+	def all_check_button_callback(widget):
+		show_all = widget.get_active()
+		for check_button in open_generic_objects:
+			if (show_all):
+				check_button.set_active(True)
+			else:
+				check_button.set_active(False)
+
 	n_objects = number_of_generic_objects()
 	
 	if (n_objects > 0):
 		gen_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 		gen_window.set_title("Generic objects")
 		vbox = gtk.VBox(False, 0)
+		open_generic_objects = []
+		no_active_generic_objects = 0
 
 		for generic_object_number in range(n_objects):
 
@@ -112,11 +124,28 @@ def generic_objects_gui():
 					current_state = generic_object_is_displayed_qm(generic_object_number)
 					if (current_state == 1):
 						check_button.set_active(True)
+						no_active_generic_objects += 1
 
 					vbox.add(frame)
 					frame.add(check_button)
 					frame.show()
 					check_button.show()
+					open_generic_objects.append(check_button)
+
+		if (len(open_generic_objects) > 1):
+			hsep = gtk.HSeparator()
+			label = "Show/hide all"
+			frame = gtk.Frame(label=None)
+			check_button = gtk.CheckButton(label)
+			check_button.connect("toggled", all_check_button_callback)
+			if (len(open_generic_objects) == no_active_generic_objects):
+				check_button.set_active(True)
+			vbox.add(hsep)
+			hsep.show()
+			vbox.add(frame)
+			frame.add(check_button)
+			frame.show()
+			check_button.show()
 
 		gen_window.connect("delete_event", delete_event)
 
@@ -125,6 +154,8 @@ def generic_objects_gui():
 		gen_window.set_border_width(10)
 		gen_window.show()
 
+
+reduce_molecule_updates_current = False
        
 # run molprobity (well reduce and probe) to make generic objects (and
 # display the generic objects gui)
@@ -172,17 +203,27 @@ def probe(imol):
           if (probe_command):
              probe_pdb_in = "coot-molprobity/probe-in.pdb"
              probe_out = "coot-molprobity/probe-out.pdb"
+	     
              prepare_file_for_probe(reduce_out_pdb_file,probe_pdb_in)
+
              probe_command_line = probe_command + " -u -stdbonds -mc \"ALL ALL\" " + probe_pdb_in + " > " + probe_out
              print "BL INFO:: run probe as ", probe_command_line
              status = os.popen(probe_command_line,'r')
              probe_status = status.close()
-                         # by default, we don't want to click on the
-                         # imol-probe molecule (I think :-)
+	     
+	     # by default, we don't want to click on the
+	     # imol-probe molecule (I think :-)
              recentre_status = recentre_on_read_pdb()
              novalue = set_recentre_on_read_pdb(0)
-             imol_probe = read_pdb(probe_pdb_in)
-             if recentre_status == 1: set_recentre_on_read_pdb(1)
+	     if (reduce_molecule_updates_current):
+		     print "======= update molecule ======="
+		     imol_probe = clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
+	     else:
+		     print "======= read new pdb file ======="
+		     imol_probe = read_pdb(probe_pdb_in)
+		     
+             if recentre_status == 1:
+		     set_recentre_on_read_pdb(1)
              # toggle_active_mol(imol_probe) let's not do
              # that actually.  I no longer think that the
              # new probe molecule should not be clickable
@@ -243,7 +284,12 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
     probe_pdb_in_1 = "molprobity-tmp-reference-file.pdb"
     probe_pdb_in_2 = "molprobity-tmp-moving-file.pdb"
     probe_out = "coot-molprobity/molprobity-tmp-probe-dots.out"
-    atom_sel = "\"(file1 within " + str(radius) + " of " + str(x_cen) + ", " + str(y_cen) + ", " + str(z_cen) + ", " + "not water not (chain" + string.lower(chain_id) + " " + str(res_no) + ")),file2\""
+    atom_sel = "\"(file1 within " + str(radius) + " of " \
+	       + str(x_cen) + ", " \
+	       + str(y_cen) + ", " \
+	       + str(z_cen) + ", " \
+	       + "not water not (chain" + string.lower(chain_id) + " " \
+	       + str(res_no) + ")),file2\""
 
     if not (os.path.isfile(probe_command)):
 	probe_command = find_exe("probe", "PATH")
@@ -254,7 +300,7 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
        status.close()
 
        # don't show the gui, so the imol is not needed/dummy.
-       handle_read_draw_probe_dots_unformatted(probe_out,0,0)
+       handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
        graphics_draw()
 
 

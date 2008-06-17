@@ -934,11 +934,15 @@ SCM generic_object_name_scm(int obj_number) {
 PyObject *generic_object_name_py(int obj_number) {
    graphics_info_t g;
    int n_objs = g.generic_objects_p->size();
-   PyObject *r = Py_False;
+   PyObject *r;
+   r = PyString_FromString("False");
+// we cannot use Py_False here, I assume a python bug! BL
+//   r = Py_False;
    for (int i=(n_objs-1); i>=0; i--) {
       if (i == obj_number) {
 	 if (!(*g.generic_objects_p)[i].is_closed_flag) { 
 	    r = PyString_FromString((*g.generic_objects_p)[i].name.c_str());
+	    break;
 	 }
       }
    }
