@@ -344,6 +344,9 @@ PyObject *py_residue(const coot::residue_spec_t &res);
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
 #endif
 
+#ifdef USE_GUILE
+coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
+#endif
 
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
@@ -444,7 +447,7 @@ int add_molecule_py(PyObject *molecule_expression, const char *name);
 // return the attributes of the atom in the highest number molecule
 // number.
 //
-// return #f if no active residue
+// return False if no active residue
 //
 PyObject *active_residue_py();
 
@@ -457,6 +460,13 @@ PyObject *active_residue_py();
 // atom, or if imol is not a valid model molecule, return #f.
 // 
 PyObject *closest_atom_py(int imol);
+
+// Return residue specs for residues that have atoms that are
+// closer than radius Angstroems to any atom in the residue
+// specified by res_in.
+// 
+PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius);
+
 #endif // USE_PYTHON
 
 /*  ----------------------------------------------------------------------- */

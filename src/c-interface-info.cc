@@ -733,6 +733,36 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 }
 #endif // USE_GUILE
 
+// Return residue specs for residues that have atoms that are
+// closer than radius Angstroems to any atom in the residue
+// specified by res_in.
+// 
+#ifdef USE_PYTHON
+PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius) {
+
+   PyObject *r = PyList_New(0);
+   if (is_valid_model_molecule(imol)) {
+      PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
+      PyObject *resno_py    = PyList_GetItem(residue_in, 1);
+      PyObject *ins_code_py = PyList_GetItem(residue_in, 2);
+      std::string chain_id = PyString_AsString(chain_id_py);
+      std::string ins_code = PyString_AsString(ins_code_py);
+      int resno            = PyInt_AsLong(resno_py);
+      coot::residue_spec_t rspec(chain_id, resno, ins_code);
+      std::vector<coot::residue_spec_t> v =
+	 graphics_info_t::molecules[imol].residues_near_residue(rspec, radius);
+      for (unsigned int i=0; i<v.size(); i++) {
+	 PyObject *res_spec = PyList_New(0);
+	 PyList_Append(res_spec, PyString_FromString(v[i].chain.c_str()));
+	 PyList_Append(res_spec, PyInt_FromLong(v[i].resno));
+	 PyList_Append(res_spec, PyString_FromString(v[i].insertion_code.c_str()));
+	 PyList_Append(r, res_spec);
+      }
+   } 
+   return r;
+}
+#endif // USE_PYTHON
+
 #ifdef USE_GUILE
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
    SCM chain_id_scm = scm_list_ref(residue_in, SCM_MAKINUM(0));
@@ -744,7 +774,20 @@ coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
    coot::residue_spec_t rspec(chain_id, resno, ins_code);
    return rspec;
 }
-#endif
+#endif // USE_GUILE
+
+#ifdef USE_GUILE
+coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
+   PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
+   PyObject *resno_py    = PyList_GetItem(residue_in, 1);
+   PyObject *ins_code_py = PyList_GetItem(residue_in, 2);
+   std::string chain_id = PyString_AsString(chain_id_py);
+   std::string ins_code = PyString_AsString(ins_code_py);
+   int resno            = PyInt_AsLong(resno_py);
+   coot::residue_spec_t rspec(chain_id, resno, ins_code);
+   return rspec;
+}
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 // output is like this:
