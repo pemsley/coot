@@ -3245,8 +3245,8 @@ int graphics_n_molecules() {
 int own_molecule_number(int imol) { 
 
   int r = -1;
-  if (is_valid_model_molecule(imol)) { 
-    r = graphics_info_t::molecules[imol].MoleculeNumber();
+  if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) { 
+     r = graphics_info_t::molecules[imol].MoleculeNumber();
   }
   return r;
 }
