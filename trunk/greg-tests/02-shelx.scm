@@ -190,3 +190,4 @@
 	 (if (valid-map-molecule? imol-insulin-map)
 	     #f
 	     #t))))
+

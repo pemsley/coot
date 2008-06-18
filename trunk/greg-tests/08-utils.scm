@@ -35,12 +35,12 @@
 			 (run-python-command "test_val_2") ; doesn't crash?
 			 #t)))))))))
 
-
 		     
-; skip this for now.
-;(greg-testcase "Internal/External Molecule Numbers match" #t 
-;   (lambda ()
+(greg-testcase "Internal/External Molecule Numbers match" #t 
+   (lambda ()
 
-;     (let ((m (molecule-number-list)))
-;       (equal? m (map own-molecule-number m)))))
+     (let ((m (molecule-number-list)))
+       (format #t "   m: ~s~%" m)
+       (format #t " own: ~s~%" (map own-molecule-number m))
+       (equal? m (map own-molecule-number m)))))
 
