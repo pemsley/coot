@@ -4713,13 +4713,15 @@ molecule_class_info_t::make_backup() { // changes history details
       //shall we use the environment variable instead?
       char *env_var = getenv("COOT_BACKUP_DIR");
       if (env_var) { 
+	 struct stat buf;
 #ifdef WINDOWS_MINGW
          // we better debackslash the directory
-         std::string tmp = env_var;
-         env_var = (char *)coot::util::intelligent_debackslash(env_var).c_str();
-#endif // MINGW
-	 struct stat buf;
+	 std::string tmp_dir = env_var;
+         tmp_dir = coot::util::intelligent_debackslash(tmp_dir);
+	 int err = stat(tmp_dir.c_str(), &buf);
+#else
 	 int err = stat(env_var, &buf);
+#endif // MINGW
 	 if (!err) {
 	    if (! S_ISDIR(buf.st_mode)) {
 	       env_var = NULL;

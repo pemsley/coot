@@ -32,7 +32,7 @@ def skip_to_next_ncs_chain():
 
   # Given a chain-id and a list of chain-ids, return the chain-id of
   # the next chain to be jumped to (use wrapping).  If the list of
-  # chain-ids is less then length 2, return #f.
+  # chain-ids is less then length 2, return False.
   # 
   def skip_to_chain_internal(this_chain_id, chain_id_list):
     # print "this_chain_id: ", this_chain_id
@@ -54,23 +54,36 @@ def skip_to_next_ncs_chain():
 
       # Given a chain-id and a list of chain-ids, return the chain-id of
       # the next chain to be jumped to (use wrapping).  If the list of
-      # chain-ids is less then length 2, return #f.
+      # chain-ids is less then length 2, return False.
       # 
       chain_guess = skip_to_chain_internal(this_chain_id, chain_id_list)
 
-      if ((not type(chain_guess) is StringType) or \
-             is_solvent_chain_qm(imol, chain_guess)):
+      if ((not type(chain_guess) is StringType)):
+          return chain_guess
+      elif (is_solvent_chain_qm(imol, chain_guess)):
           skip_to_chain(imol, chain_guess, chain_id_list)
       else:
           return chain_guess
-          
+
+  # not entirely sure what this shall do
+  def get_chain_id_list(imol, this_chain_id):
+      att = ncs_chain_ids(imol)
+      if (not att):
+          return chain_ids(imol)
+      else:
+          for attempt in att:
+              if (this_chain_id in attempt):
+                  return attempt
+              
   # First, what is imol? imol is the go to atom molecule
   imol = go_to_atom_molecule_number()
-  chains = chain_ids(imol)
   this_chain_id = go_to_atom_chain_id()
-  if this_chain_id not in chains:
-	print "BL WARNING:: chain id %s wasnt found, set it to %s" %(this_chain_id, chains[0])
-	this_chain_id = chains[0]	#set to first chain
+  chains = get_chain_id_list(imol, this_chain_id)
+  # try to get ghosts to be able to apply orientations
+  make_ncs_ghosts_maybe(imol)
+  found_atom_state = 0
+  if (not chains):
+	print "BL WARNING:: empty set of chains!!!"
   next_chain = skip_to_chain(imol, this_chain_id, chains)
 
   try_next_chain = next_chain
@@ -81,34 +94,33 @@ def skip_to_next_ncs_chain():
       # e.g. consider the case: ["A" is protein, "B" is water,
       # "C" is ligand]
       #
-      if not(next_chain):
+      if (not try_next_chain):
           add_status_bar_text("No 'NCS Next Chain' found")
+          break
       else:
-          if not(try_next_chain == this_chain_id):
+          if (not (try_next_chain == this_chain_id)):
               found_atom_state = set_go_to_atom_chain_residue_atom_name_no_redraw(
                   try_next_chain,
                   go_to_atom_residue_number(),
-                  go_to_atom_atom_name())
-
-                # now, did that set-go-to-atom function work (was there a
-                # real atom)?  If not, then that could have been the ligand
-                # chain or the water chain that we tried to go to.  We want
-                # to try again, and we shbould keep trying again until we get
-                # back to this-chain-id - in which case we have a "No NCS
-                # Next Chain atom" status-bar message.
+                  go_to_atom_atom_name(),
+                  0)
+              
+              # now, did that set-go-to-atom function work (was there a
+              # real atom)?  If not, then that could have been the ligand
+              # chain or the water chain that we tried to go to.  We want
+              # to try again, and we shbould keep trying again until we get
+              # back to this-chain-id - in which case we have a "No NCS
+              # Next Chain atom" status-bar message.
 
           if (found_atom_state == 0):
-                    # then we did *not* find the atom, e.g. next-chain was
-                    # the water chain
-                    break
+              # then we did *not* find the atom, e.g. next-chain was
+              # the water chain
+              try_next_chain = skip_to_chain(imol, try_next_chain, chains)
           else:
               # otherwise all was hunkey-dorey
               # set the orientation
-              apply_ncs_to_view_orientation(imol, this_chain_id, try_next_chain)
+              apply_ncs_to_view_orientation_and_screen_centre(imol, this_chain_id, next_chain)
               return True
-
-          try_next_chain = skip_to_chain(try_next_chain, chains)
-
   
             
 
