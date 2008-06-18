@@ -408,6 +408,13 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    ins_code = ""
 
 	    cis_pep_mol = read_pdb(os.path.join(unittest_data_dir, "tutorial-modern-cis-pep-12A_refmac0.pdb"))
+	    if (have_test_skip):
+		    self.skipIf(cis_pep_mol < 0, 
+				"skipping CIS test as problem on read pdb")
+	    else:
+		if (cis_pep_mol < 0): 
+			print "skipping CIS test (actually passing!) as problem on read pdb"
+			return
 
 	    view_number = add_view([63.455, 11.764, 1.268],
 				   [-0.760536, -0.0910907, 0.118259, 0.631906],
