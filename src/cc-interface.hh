@@ -344,7 +344,7 @@ PyObject *py_residue(const coot::residue_spec_t &res);
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
 #endif
 
-#ifdef USE_GUILE
+#ifdef USE_PYTHON
 coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
 #endif
 

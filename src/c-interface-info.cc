@@ -776,7 +776,7 @@ coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
 }
 #endif // USE_GUILE
 
-#ifdef USE_GUILE
+#ifdef USE_PYTHON
 coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
    PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
    PyObject *resno_py    = PyList_GetItem(residue_in, 1);
