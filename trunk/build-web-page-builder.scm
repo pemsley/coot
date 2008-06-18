@@ -156,7 +156,7 @@
 			       (car files))
 		 (not (string-match ".md5sum" (car files))))
 	    
-	    (and (string-match "WinCoot-" (car files))
+	    (and (string-match "WinCoot" (car files))
 		 (not (string-match ".md5sum" (car files)))))
 		 
 	 (let ((full-file (append-dir-file dir (car files))))
@@ -328,9 +328,13 @@
 	   (car (cdr link))
 	   (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
 			  link))
-       (if (eq? page-type 'build)
-	   "-build.log"
-	   "-test.log"))))
+       (cond
+	((eq? page-type 'build) "-build.log")
+	((eq? page-type 'test) "-test.log")
+	((eq? page-type 'test-python) "-test-python.log")
+	(else 
+	 "strange")))))
+
 
   ;; return a time, or #f
   (define (make-time-diff file-info now-time)
@@ -508,6 +512,26 @@
 		,(if make-links?
 		     `(a (@ href ,(build-log-page file-info 'test)) test-log)
 		     "")
+		" "
+		,(if make-links?
+		     (let* ((bits (list-ref file-info 3))
+			    (nov-1 (format #t "==== pythonic?: ~s ~%" 
+					   (car file-info)))
+			    (nov-2 (format #t "==== pythonic - sample?:  ~s~%" 
+					   (if (= (length (car file-info)) 2)
+					       "nothing"
+					       (car (cdr (cdr (car file-info)))))))
+			    (pythonic-build? 
+			     (if (= (length (car file-info)) 2)
+				 #t
+				 (car (cdr (cdr (car file-info))))))
+			    (nov-3 (format #t "==== pythonic - calc:     ~s~%" 
+					   pythonic-build?)))
+
+		       (if pythonic-build?
+			   `(a (@ href ,(build-log-page file-info 'test-python)) python-test-log)
+			   ""))
+		     "")
 		(table (@ (border 1) (bgcolor ,colour))
 		       (tr ,entities))
 		,(time-text (list-ref file-info 2))
@@ -536,7 +560,7 @@
 		   (car ls))))))
 
   (define (bin->person bin)
-    (if (string=?  (car bin) "WinCoot-")
+    (if (string=?  (car bin) "WinCoot")
 	"lohkamp"
 	"emsley"))
 
@@ -545,7 +569,7 @@
 	(binary-file-infos
 	 (map
 	  (lambda (bin)
-	    (let* ((suffix-string (if (string=? (car bin) "WinCoot-")
+	    (let* ((suffix-string (if (string=? (car bin) "WinCoot")
 				      ".exe"
 				      ".tar.gz"))
 		   (person (bin->person bin))
@@ -634,12 +658,12 @@
 	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
 
 	(list "binary-Linux-i386-fedora-8-python-gtk2"
-	      "Linux-dragon.chem.york.ac.uk/gtk2" #f)
+	      "Linux-dragon.chem.york.ac.uk/gtk2" #t)
 
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
-	      "ubuntu-6.06/gtk2" #f)
+	      "ubuntu-6.06/gtk2" #t)
 
-	(list "WinCoot-" 
+	(list "WinCoot" 
 	      (list 'absolute 
 		    "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2"))
 
