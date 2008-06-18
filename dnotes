@@ -8,14 +8,9 @@
    o look at the fail-recentre .scm state file (penelope gtk2).  It
      fails to try to centre on a molecule other than 0 it seems (from
      the status bar).  <1hd
- 
-   o check that newly read cif file overwrites the restraints of the
-     previous restraint set (e.g. delete a restraint and see what
-     happens) < 1hd
 
-* Done from scheme level.  Need testing from GUI.
-
-   o Add an Alt Conf to a MSE.  Fails to display all atoms.
+   o Add an Alt Conf to a MSE.  Fails to display all atoms.  Edit a
+     file and read it in.  Now refine.  Longer bonds?
 
    o Make ball and stick mode to work in Additional Representations -
      I want to be able to turn them on on off with a check box. 2hd
@@ -65,6 +60,8 @@
 
       Very slow.  Some fumbling of atom picking needed to tickle this? 1hd.
 
+* Can't reproduce now.
+
    o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
      guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
      I think.  Also there were some extranaeous ^:^s in the .x files. 4hd.
@@ -94,7 +91,15 @@
 
 
 
-92 Done.
+93 Done.
+
+ 
+   o check that newly read cif file overwrites the restraints of the
+     previous restraint set (e.g. delete a restraint and see what
+     happens) < 1hd
+
+* Done from scheme level.  Need testing from GUI.
+  Done.
 
    o make the reset view work only for coordinates molecules. <1hd.
 
@@ -5907,3 +5912,11 @@ Sun Jun 15 15:40:10 BST 2008
 Wed Jun 18 02:51:47 BST 2008
 
     "Mark all for Close" button in the close molecule dialog.
+
+----
+Wed Jun 18 12:46:02 BST 2008
+
+    Distances and angles dialog is a transient(?) and needs to be
+    position-saved like the other transients.
+
+    

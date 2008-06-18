@@ -3231,8 +3231,8 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
    afix_handle_this_mol    = atom_sel.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
    afix_handle_intermediate_mol = asc.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
 
-   std::cout << "DEBUG in insert_coords_atoms_into_residue_internal afix handles:"
-	     << afix_handle_this_mol << " " << afix_handle_intermediate_mol << std::endl;
+//    std::cout << "DEBUG in insert_coords_atoms_into_residue_internal afix handles:"
+// 	     << afix_handle_this_mol << " " << afix_handle_intermediate_mol << std::endl;
    
    for(int i=0; i<asc.n_selected_atoms; i++) { 
       at = asc.atom_selection[i];
