@@ -2178,8 +2178,9 @@ fi
 
 if test -n "$build_readline" ; then
     echo BUILDING readline:
-    readline_version=5.1
-    ${WGET} ftp://ftp.cwru.edu/pub/bash/readline-$readline_version.tar.gz
+    readline_version=5.2
+    # ${WGET} ftp://ftp.cwru.edu/pub/bash/readline-$readline_version.tar.gz
+    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/readline-5.1.patch
     (
     date
