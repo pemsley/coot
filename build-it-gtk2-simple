@@ -223,7 +223,8 @@
 # 4.07 20080518 Update the status reporting system.
 # 4.08 20080607 Bump version of python to 2.5.2
 # 4.09 20080617 Update to guile-1.8.5
-script_version=4.09
+# 4.10 20080618 As per JED request, number the build logs in a more sensible way.
+script_version=4.10
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1978,7 +1979,7 @@ if [ "$build_gtkglext" = 1 ] ; then
     else
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/08-pre-gtkglext.txt 2>&1
+    ) > $HOSTLOGDIR/06-pre-gtkglext.txt 2>&1
 else
     echo not building gtkglext:
 fi 
@@ -2022,7 +2023,7 @@ echo INFO:: make test for python
 $MAKE test
 echo INFO:: make install for python
 $MAKE install
-) >  $HOSTLOGDIR/05-python.txt 2>&1
+) >  $HOSTLOGDIR/07-python.txt 2>&1
 
 # We need these otherwise python moans about not finding the libraries.
 #
@@ -2079,7 +2080,7 @@ if test -n "$build_pygobject" ; then
    else
       $MAKE install
    fi
-) > $HOSTLOGDIR/05-pygobject.txt 2>&1
+) > $HOSTLOGDIR/07-pygobject.txt 2>&1
 else 
    echo not building pygobject:
 fi
@@ -2111,7 +2112,7 @@ if test -n "$build_pygtk" ; then
    else
       $MAKE install
    fi
-) > $HOSTLOGDIR/05-pygtk.txt 2>&1
+) > $HOSTLOGDIR/07-pygtk.txt 2>&1
 else 
    echo not building pytgtk
 fi
@@ -2147,7 +2148,7 @@ if test -n "$build_gmp" ; then
     else
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/10-pre-gmp.txt 2>&1
+    ) > $HOSTLOGDIR/08-pre-gmp.txt 2>&1
 else
     echo not building gmp:
 fi 
@@ -2170,7 +2171,7 @@ if test -n "$build_libtool" ; then
     else
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/10-pre-libtool.txt 2>&1
+    ) > $HOSTLOGDIR/09-pre-libtool.txt 2>&1
 else
     echo not building libtool:
 fi 
@@ -2237,7 +2238,7 @@ else
    $MAKE install
 fi 
 exit $status
-) > $HOSTLOGDIR/10-guile.txt 2>&1
+) > $HOSTLOGDIR/11-guile.txt 2>&1
 if $status ; then 
    echo guile build failed
 fi
@@ -2267,6 +2268,23 @@ $MAKE install
 else 
    echo not building net-http:
 fi
+
+if test -n "$build_greg" ; then 
+    echo building greg:
+    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/greg-2.0.0-pe.tar.gz
+    (
+    date 
+    gzip -dc ${AUTOBUILD_SOURCES}/greg-2.0.0-pe.tar.gz | tar xf -
+    cd  greg-2.0.0-pe
+    ./configure $generic_prefix
+    $MAKE
+    $MAKE install
+    ) > $HOSTLOGDIR/11c-greg.txt 2>&1
+else
+    echo not building greg:
+fi
+
+
 
 
 if test -n "$build_guile_gtk" ; then 
@@ -2346,23 +2364,6 @@ $MAKE install
 ) > $HOSTLOGDIR/14-goosh.txt 2>&1
 else 
     echo not building guile_goosh:
-fi
-
-
-
-if test -n "$build_greg" ; then 
-    echo building greg:
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/greg-2.0.0-pe.tar.gz
-    (
-    date 
-    gzip -dc ${AUTOBUILD_SOURCES}/greg-2.0.0-pe.tar.gz | tar xf -
-    cd  greg-2.0.0-pe
-    ./configure $generic_prefix
-    $MAKE
-    $MAKE install
-    ) > $HOSTLOGDIR/10-greg.txt 2>&1
-else
-    echo not building greg:
 fi
 
 
