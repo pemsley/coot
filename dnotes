@@ -9,7 +9,16 @@
      fails to try to centre on a molecule other than 0 it seems (from
      the status bar).  <1hd
  
-   o make the reset view work only for coordinates molecules. <1hd.
+   o check that newly read cif file overwrites the restraints of the
+     previous restraint set (e.g. delete a restraint and see what
+     happens) < 1hd
+
+* Done from scheme level.  Need testing from GUI.
+
+   o Add an Alt Conf to a MSE.  Fails to display all atoms.
+
+   o Make ball and stick mode to work in Additional Representations -
+     I want to be able to turn them on on off with a check box. 2hd
 
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
@@ -17,36 +26,7 @@
 
    o Finish Loopy GUI, 4hd.
 
-   o Kevin's Ramachandran Refinement target, 16hd
-
-   o Re-instate (and bug fix) the molecule-number greg-test in
-     08-utils.scm.  1hd
-
    o side by side stereo with dislay lists. 4hd
-
-   o Make a test pdb that exercises Case 3: model has deletion in
-     align_on_chain(). (tutorial-modern.pdb exercises it, but the
-     deletion is at the end of the A chain).  Make tests where the
-     deletion is at the N term and in the middle of the A chain.  4hd.
-
-   o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
-     guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
-     I think.  Also there were some extranaeous ^:^s in the .x files. 4hd.
-
-   o molecule-number consistency test (own-molecule-number) is
-     returning -1 for maps created by another-level.  1hd
-
-   o Make ball and stick mode to work in Additional Representations -
-     I want to be able to turn them on on off with a check box. 1hd
-
-   o  Need to check torsion restraints 
-      and wiggly ligands
-          get_torsion_bonds_atom_pairs() in wiggly ligands?
-      and Edit Chi
-      now that I have enabled the reading of CONST torsions.
-
-      How about a test for wiggly ligands and then we can put this
-      item to bed.  1hd
 
    o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
      message about going to wall-eyed and the state of walled eyed in
@@ -58,17 +38,19 @@
 
      2hd
 
-   o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
-     Ask about Rotamer misses.  Well, the dictionary is fine. Why does
-     molprobity web site gives less bad rotamers then? (First: Does it?).
-     Yes it does: e.g. for 1sar molprobity notes only these:
-     "Bad rotamer B  47 GLN (0.3%)" 
-     "Bad rotamer A  91 LEU (0.4%)" 
-     "Bad rotamer A  13 PRO (0.9%)" 
-     "Bad rotamer B  41 GLU (0.7%)" 
+   o  Need to check torsion restraints 
+      and wiggly ligands
+          get_torsion_bonds_atom_pairs() in wiggly ligands?
+      and Edit Chi
+      now that I have enabled the reading of CONST torsions.
 
-     There are 10 times more for Coot.  
-     (fix-nomenclature-errors doesn't fix anything).  3hd.
+      How about a test for wiggly ligands and then we can put this
+      item to bed.  1hd
+
+   o Make a test pdb that exercises Case 3: model has deletion in
+     align_on_chain(). (tutorial-modern.pdb exercises it, but the
+     deletion is at the end of the A chain).  Make tests where the
+     deletion is at the N term and in the middle of the A chain.  4hd.
 
    o crash on delete residue range: Harri Jayaram
 
@@ -83,26 +65,45 @@
 
       Very slow.  Some fumbling of atom picking needed to tickle this? 1hd.
 
+   o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
+     guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
+     I think.  Also there were some extranaeous ^:^s in the .x files. 4hd.
+
+   o Kevin's Ramachandran Refinement target, 16hd
+
+   o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
+     Ask about Rotamer misses.  Well, the dictionary is fine. Why does
+     molprobity web site gives less bad rotamers then? (First: Does it?).
+     Yes it does: e.g. for 1sar molprobity notes only these:
+     "Bad rotamer B  47 GLN (0.3%)" 
+     "Bad rotamer A  91 LEU (0.4%)" 
+     "Bad rotamer A  13 PRO (0.9%)" 
+     "Bad rotamer B  41 GLU (0.7%)" 
+
+     There are 10 times more for Coot.  
+     (fix-nomenclature-errors doesn't fix anything).  3hd.
+
    o Correct CISPEP if needed cards on writing pdb. <1hd - depending on new mmdb code.
 
    o PDB v3.0 compatibility < 1hd as above
 
    o Use Eugene's new LINK-reading code < 1hd as above
 
-   o check that newly read cif file overwrites the restraints of the
-     previous restraint set (e.g. delete a restraint and see what
-     happens) < 1hd
-
-* Done from scheme level.  Need testing from GUI.
-
-   o Add an Alt Conf to a MSE.  Fails to display all atoms.
 
 
 
 
 
+92 Done.
 
-91 Done.
+   o make the reset view work only for coordinates molecules. <1hd.
+
+* Done.
+
+   o Re-instate (and bug fix) the molecule-number greg-test in
+     08-utils.scm.  1hd
+
+* Done.
 
    o Do not display hydrogens in intermediate atoms in refinement if
      they are not displayed in the "static" atoms.
@@ -5902,3 +5903,7 @@ Sun Jun 15 15:40:10 BST 2008
     Activate readline in guile build (at least for my computers!)
 
 
+------
+Wed Jun 18 02:51:47 BST 2008
+
+    "Mark all for Close" button in the close molecule dialog.
