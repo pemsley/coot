@@ -1,4 +1,5 @@
 
+#include <stdlib.h>
 #include <iostream> // fixes undefined strchr, strchrr problems
 #include "coot-nomenclature.hh"
 #include "mmdb-extras.h"
