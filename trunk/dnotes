@@ -5,10 +5,6 @@
    23 Items, 44 hd.
 
 
-   o look at the fail-recentre .scm state file (penelope gtk2).  It
-     fails to try to centre on a molecule other than 0 it seems (from
-     the status bar).  <1hd
-
    o Add an Alt Conf to a MSE.  Fails to display all atoms.  Edit a
      file and read it in.  Now refine.  Longer bonds?
 
@@ -94,6 +90,15 @@
 93 Done.
 
  
+   o look at the fail-recentre .scm state file (penelope gtk2).  It
+     fails to try to centre on a molecule other than 0 it seems (from
+     the status bar).  <1hd
+
+* Ignore this.  Molecule 0 was the same as molecule 4 (molecule 1 was
+  different).  When finding which molecule we were centred on, Coot
+  chose 4, even though it had been on 4 and centred on 0 for the next round.
+  Pathological case.
+
    o check that newly read cif file overwrites the restraints of the
      previous restraint set (e.g. delete a restraint and see what
      happens) < 1hd
@@ -5836,14 +5841,15 @@ Tue Jun  3 17:14:33 BST 2008
 
     JB:
 
-    Refine by sphere
-
+    Refine by sphere. IMPORTANT!
 
     Render Geometry objects in raster3d
 
+    For beauty:
       Consider putting a std::vector<coot::generic_display_object_t>
       generic_objects into raytrace_info_t, to store info for generic
       objects in ray trace info.
+
 
 ----
 
@@ -5919,4 +5925,48 @@ Wed Jun 18 12:46:02 BST 2008
     Distances and angles dialog is a transient(?) and needs to be
     position-saved like the other transients.
 
-    
+-----
+Wed Jun 18 22:33:25 BST 2008
+
+    Fun: How about a script to make ray traced images of ligands at
+    active sites.  Use kinases like these (find others that match but
+    have different ligands).  Need to find structures with data of
+    course.  Consider using j-multi-read, get the matrices and apply
+    them to their maps.  Maybe that is not needed, because we are not
+    going to look at the overlapped maps anyway, just ligands in the
+    binding sites.
+
+    Data needs to be formatted differently in the
+    text control file - we need a specification of the mtz file and
+    column labels too.
+
+coot-download/3bv2.pdb
+coot-download/2zb0.pdb
+coot-download/3Coi.pdb
+
+-----
+Wed Jun 18 22:40:45 BST 2008
+
+   RAPPER notes:
+
+   Loop modelling with section not currently modelled in input PDB:
+
+rapper params.xml model-loops --pdb "test.pdb" --map "test.map" --chain-id "B" --models "1" --cryst-d-high "1.77" -seq ~AAA~ --start 705 -stop 708 --use-CCP4i-file-name true --ccp4i-file-name "rapper_1" --runs-dir "test_dir" --edm-fit true --sidechain-mode smart --sidechain-radius-reduction 0.75 --sidechain-library RAPPER-DIR/data/richardson.lib 
+
+   Loop modelling with section already modelling in input PDB file using electron density:
+
+rapper params.xml model-loops --pdb "test.pdb" --map "test.map" --chain-id "B" --models "1" --cryst-d-high "1.77" --start 705 -stop 708 --use-CCP4i-file-name true --ccp4i-file-name "rapper_1" --runs-dir "test_dir" --edm-fit true --sidechain-mode smart --sidechain-radius-reduction 0.75 --sidechain-library RAPPER-DIR/data/richardson.lib 
+
+-----
+Thu Jun 19 09:13:48 BST 2008
+
+
+
+==27246== Invalid read of size 1
+==27246==    at 0x4007203: strlen (mc_replace_strmem.c:242)
+==27246==    by 0x709A16A: std::string::string(char const*, std::allocator<char> const&) (in /usr/lib/libstdc++.so.6.0.10)
+==27246==    by 0x8178864: make_directory_maybe (c-interface.cc:7080)
+==27246==    by 0x80FA10C: c_inner_main (c-inner-main.c:246)
+==27246==    by 0x410392C: invoke_main_func (in /home/juditd/coot-build-3/autobuild-installed-pre-release-gtk2/lib/libguile.so.17.1.2)
+==27246==    by 0x40D6409: c_body (in /home/juditd/coot-build-3/autobuild-installed-pre-release-gtk2/lib/libguile.so.17.1.2)
+

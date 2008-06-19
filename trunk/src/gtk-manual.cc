@@ -25,6 +25,8 @@
 #define snprintf _snprintf
 #endif
 
+#include <string.h>
+
 // NOTE:: The order of these 6 include files seems fragile
 #include <gtk/gtk.h>
 #include "c-interface.h"
