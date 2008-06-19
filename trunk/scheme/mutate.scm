@@ -165,6 +165,34 @@
 ;; 
 (define maf mutate-and-auto-fit)
 
+;; return a char, return #\A for unknown residue-type
+;; 
+(define (3-letter-code->single-letter residue-type)
+  (cond 
+   ((string=? residue-type "ALA" ) #\A)
+   ((string=? residue-type "ARG" ) #\R)
+   ((string=? residue-type "ASN" ) #\N)
+   ((string=? residue-type "ASP" ) #\D)
+   ((string=? residue-type "CYS" ) #\C)
+   ((string=? residue-type "GLN" ) #\Q)
+   ((string=? residue-type "GLU" ) #\E)
+   ((string=? residue-type "GLY" ) #\G)
+   ((string=? residue-type "HIS" ) #\H)
+   ((string=? residue-type "ILE" ) #\I)
+   ((string=? residue-type "LEU" ) #\L)
+   ((string=? residue-type "LYS" ) #\K)
+   ((string=? residue-type "MET" ) #\M)
+   ((string=? residue-type "MSE" ) #\M)
+   ((string=? residue-type "PHE" ) #\F)
+   ((string=? residue-type "PRO" ) #\P)
+   ((string=? residue-type "SER" ) #\S)
+   ((string=? residue-type "THR" ) #\T)
+   ((string=? residue-type "TRP" ) #\W)
+   ((string=? residue-type "TYR" ) #\Y)
+   ((string=? residue-type "VAL" ) #\V)
+   (else 
+    #f)))
+
 ;; a wrapper for mutate-single-residue-by-seqno (which uses slightly
 ;; inconvenient single letter code)
 ;; 
