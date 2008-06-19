@@ -3542,7 +3542,7 @@ int reset_view() {
    if (centred_on_molecule_number == -1) {
       if (last_molecule != -1) { 
 	 new_centre = molecule_centres[last_molecule];
-	 std::string s = "Centring no molecule number ";
+	 std::string s = "Centring on molecule number ";
 	 s += g.int_to_string(last_molecule);
 	 s += " ";
 	 s += graphics_info_t::molecules[last_molecule].name_for_display_manager();
@@ -3558,6 +3558,7 @@ int reset_view() {
       // OK, we were centred on a molecule... which is the next one we
       // want to centre on?
       // Let's make a list of the available molecules:
+
       std::vector<int> available_molecules;
       for(int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 	 if (graphics_info_t::molecules[imol].is_displayed_p()) {
@@ -3565,10 +3566,14 @@ int reset_view() {
 	       available_molecules.push_back(imol);
 	 }
       }
+
+      std::cout << "DEBUG:: available_molecules.size() " << available_molecules.size()
+		<< std::endl;
       
       if (available_molecules.size() == 1) {
 	 // no other molecule to centre on.
 	 new_centre = current_centre;
+
       } else {
 
 	 // we want the molecule after the molecule that we are

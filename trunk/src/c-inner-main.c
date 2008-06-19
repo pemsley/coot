@@ -235,7 +235,8 @@ c_inner_main(void *closure, int argc, char** argv) {
   if (directory) {
      /* first the preferences  (but only if not on windows)*/
 #if defined COOT_USE_GTK2_INTERFACE && !defined WINDOWS_MINGW
-    tmp_str = (char *) malloc (strlen(directory) + 18);
+    /* don't forget null termination (+1) */
+    tmp_str = (char *) malloc (strlen(directory) + 18 + 1);
     strcpy (tmp_str, directory);
     if (strcmp(&tmp_str[strlen(tmp_str)-1], "/")) {
       strcat (tmp_str, "/");	/* something else for Windwoes? */
@@ -248,8 +249,9 @@ c_inner_main(void *closure, int argc, char** argv) {
       printf("WARNING:: preferences directory %s \n", preferences_dir);
       printf("          does not exist and could not be created\n");
      } else {
-       // load all .scm files
-       tmp_str = (char *) malloc (strlen(preferences_dir) + 6);
+       /* load all .scm files */
+       /* need an extra char for null termination, I think */
+       tmp_str = (char *) malloc (strlen(preferences_dir) + 6 + 1);
        strcpy (tmp_str, preferences_dir);
        strcat (tmp_str, "/");	/* something else for Windwoes? */
        strcat (tmp_str, "*.scm");
