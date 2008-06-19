@@ -44,7 +44,31 @@
     new-dir-name))
 
 		 
-	   
+;; return a string or #f
+;;
+(define (sequence-string imol chain-id resno-start resno-end)
+
+  (define (all-chars? ls)
+    (cond
+     ((null? ls) #t)
+     ((not (char? (car ls)))
+      #f)
+     (else
+      (all-chars? (cdr ls)))))
+
+  (if (not (valid-model-molecule? imol))
+      #f
+      (let ((single-letter-code-list
+	     (map (lambda (resno)
+		    (let ((res-name (residue-name imol chain-id resno "")))
+		      (3-letter-code->single-letter res-name)))
+		  (range resno-start (+ resno-end 1)))))
+	(if (not (all-chars? single-letter-code-list))
+	    (begin
+	      (format #t "bad sequence chars ~s~%" single-letter-code-list)
+	      #f)
+	    (list->string single-letter-code-list)))))
+	    
 
 (define (arp/warp-it imol chain-id start-resno end-resno sequence number-of-models)
 
@@ -71,8 +95,12 @@
 	       (frag-mol (new-molecule-by-atom-selection imol str))
 	       (fragment-pdb "coot-rapper-fragment-in.pdb")
 	       (rapper-out-pdb "rapper-out.pdb")
-	       ;;(rapper-mode "model-loops") ; maybe "ca-trace" perhaps.
-	       (rapper-mode "ca-trace")
+	       (rapper-mode "model-loops-benchmark") ; maybe "ca-trace" perhaps.
+	       (length-for-rapper 3) ; test
+	       (sequence-string (if (string? sequence)
+				    sequence
+				    "AAA"))
+	       ; (rapper-mode "ca-trace")
 	       (map-file "coot-rapper.map")
 	       (whole-pdb-file-name "rapper-all-atoms.pdb"))
 	  (write-pdb-file frag-mol fragment-pdb)
@@ -81,7 +109,7 @@
 	  (export-map imol-map map-file)
 	  (format #t "running rapper: ~s ~s ~s ~s ~s ~s~%"
 		  imol chain-id start-resno end-resno sequence number-of-models)
-;	  (let ((rapper-pid (run-concurrently "rappper" "params.xml"
+;	  (let ((rapper-pid (run-concurrently "rapper" "params.xml"
 ;					      "--pdb" fragment-pdb 
 ;					      "--map" map-file 
 ;					      "--start" (number->string start-resno)
@@ -94,26 +122,31 @@
 ;					      "--enforce-sidechain-centroid-restraints" "true"
 ;					      "--edm-fit" "true"
 ;					      "--rapper-dir" rapper-dir)))
-	    ; (rapper-process 'store rappper-pid))))))
+	    ; (rapper-process 'store rapper-pid))))))
 	  (if (file-exists? "TESTRUNS")
 	      (rename-dir-by-date "TESTRUNS"))
-	  (let ((rapper-status (goosh-command *rapper-command*
-					      (list ; "params.xml"
-						    rapper-mode
-						    "--pdb" fragment-pdb
-						    ; "--framework" whole-pdb-file-name
-						    "--pdb-out" rapper-out-pdb
-						    "--map" map-file 
-						    "--start" (number->string start-resno)
-						    "--stop"  (number->string   end-resno)
-						    "--mainchain-restraint-threshold" "2.0"
-						    "--sidechain-centroid-restraint-threshold"  "2.0"
-						    "--sidechain-mode" "smart"
-						    "--sidechain-radius-reduction" "0.75"
-						    "--enforce-mainchain-restraints" "true"
-						    "--enforce-sidechain-centroid-restraints" "true"
-						    "--edm-fit" "true"
-						    "--rapper-dir" rapper-dir)
+	  (let* ((rapper-command-line-args
+		  (list ; "params.xml"
+		   rapper-mode
+		   "--pdb" fragment-pdb
+		   ;; "--framework" whole-pdb-file-name
+		   "--pdb-out" rapper-out-pdb
+		   "--map" map-file 
+		   "--models" (number->string number-of-models)
+		   "--start" (number->string start-resno)
+		   "--stop"  (number->string   end-resno)
+		   ;; "--length" (number->string length-for-rapper)
+		   "--seq" sequence-string
+		   "--mainchain-restraint-threshold" "2.0"
+		   "--sidechain-centroid-restraint-threshold"  "2.0"
+		   "--sidechain-mode" "smart"
+		   "--sidechain-radius-reduction" "0.75"
+		   "--enforce-mainchain-restraints" "true"
+		   "--enforce-sidechain-centroid-restraints" "true"
+		   "--edm-fit" "true"
+		   "--rapper-dir" rapper-dir))
+		 (rapper-status (goosh-command *rapper-command*
+					       rapper-command-line-args
 					      '()
 					      "rapper.log"
 					      #t)))
@@ -189,6 +222,8 @@
 	 (model-mol-list (fill-option-menu-with-coordinates-mol-options 
 			  menu-pdb)))
 
+    (gtk-text-set-editable text-sequence #t)
+
     ;; use instead gtk-widget-set-size-request? (not supported on
     ;; penelope yet.
     ;; 
@@ -244,12 +279,18 @@
 				(let* ((chain-text (gtk-entry-get-text entry-chain))
 				       (start-resno-text (gtk-entry-get-text entry-start-resno))
 				       (end-resno-text (gtk-entry-get-text entry-end-resno))
-				  ;      (sequence (gtk-text-get-text text-sequence))
+				       (nov (format #t "gtk-text? for ~s returns ~s~%"
+						    text-sequence (gtk-text? text-sequence)))
+				       ; (text-buffer (gtk-text-get-buffer text-sequence))
+				       (l (gtk-text-get-length text-sequence))
+				       (text-sequence-text (gtk-editable-get-chars text-sequence 0 l))
 				       (sequence "")
 				       (number-of-models-text (gtk-entry-get-text entry-models))
 				       (start-resno (string->number start-resno-text))
 				       (end-resno (string->number end-resno-text))
 				       (number-of-models (string->number number-of-models-text)))
+
+				  (format #t "text-sequence-text: ~s~%" text-sequence-text)
 				  
 				  (if (not (and (number? start-resno)
 						(number? end-resno)
@@ -259,8 +300,11 @@
 				      (let ((proc (if (eq? loop-building-tool 'rapper)
 						      rapper-it
 						      arp/warp-it)))
+					(let ((seq
+					       (sequence-string 
+						imol chain-text start-resno end-resno)))
 					(proc imol chain-text start-resno end-resno
-					      sequence number-of-models))))))))
+					      seq number-of-models)))))))))
 				      
     (gtk-widget-show-all window)))
 
