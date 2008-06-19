@@ -293,7 +293,8 @@ void set_display_lists_for_maps(int istat) {
    std::vector<coot::command_arg_t> args;
    args.push_back(istat);
    add_to_history_typed(cmd, args);
-   graphics_draw();
+   if (graphics_info_t::use_graphics_interface_flag)
+      graphics_draw();
 }
 
 int display_lists_for_maps_state() {
