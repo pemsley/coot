@@ -108,6 +108,8 @@ Pre-release 0.5
    o BUG-FIX: Coot no longer crashes when deleting a residue with an
      Alt Conf [JED].
 
+   o BUG-FIX: Coot can now do rotamers on a MSE residue [Mark Saper]
+
    o BUG-FIX: Can now read SHELXL .ins files with lowercase symops.
 
    o BUG-FIX: On additions to a SHELXL molecule: better handling of

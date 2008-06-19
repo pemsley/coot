@@ -21,6 +21,7 @@
  */
 
 
+#include <vector>
 #include "mmdb-extras.h"
 #include "coot-close.hh"
 

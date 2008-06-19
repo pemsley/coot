@@ -332,9 +332,40 @@ coot::getcontacts(const atom_selection_container_t &asc) {
 			 pscontact, n_contacts,
 			 0, &my_matt, i_contact_group);
 
-   return contact_info(pscontact, n_contacts);
+   coot::contact_info ci(pscontact, n_contacts);
 
+   // Now, do we need to handle MSE extra bonds?
+   // 
+   if (std::string(asc.atom_selection[0]->GetResName()) == "MSE") { 
+      ci.add_MSE_Se_bonds(asc);
+   }
+   
+   delete [] pscontact;
+   return ci;
+}
+
+void
+coot::contact_info::add_MSE_Se_bonds(const atom_selection_container_t &asc) {
+
+   int SE_index = -1;
+   int CE_index = -1;
+   int CG_index = -1;
+   for (int i=0; i<asc.n_selected_atoms; i++) {
+      std::string atom_name = asc.atom_selection[i]->name;
+      if (atom_name == "SE  ") SE_index = i;
+      if (atom_name == " CE ") CE_index = i;
+      if (atom_name == " CG ") CG_index = i;
+   }
+   if (SE_index != -1) { 
+      if (CE_index != -1) { 
+	 if (CG_index != -1) {
+	    contacts.push_back(coot::contact_info::contacts_pair(CG_index, SE_index));
+	    contacts.push_back(coot::contact_info::contacts_pair(SE_index, CE_index));
+	 }
+      }
+   }
 } 
+
 
 
 // Typically this is used on an asc (moving atoms) to get the N of a

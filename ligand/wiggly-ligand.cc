@@ -276,11 +276,11 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
       }
    }
 
-   if (0) { // debugging torsions
-      for(unsigned int itor=0; itor<m_torsions.size(); itor++)
-	 std::cout << "DEBUG:: sampled torsion " << itor << "  "
-		   <<  sample_tors[itor] << std::endl;
-   }
+//   if (0) { // debugging torsions
+//       for(unsigned int itor=0; itor<m_torsions.size(); itor++)
+// 	 std::cout << "DEBUG:: sampled torsion " << itor << "  "
+// 		   <<  sample_tors[itor] << std::endl;
+//   }
 
    return sample_tors; 
 }
@@ -423,9 +423,9 @@ coot::wligand::probability_of_torsions(const std::vector <coot::dict_torsion_res
    
 	    z = diff/m_torsions[i].esd();
 	    s = 1/(m_torsions[i].esd() * sqrt(2.0 * M_PI));
- 	    std::cout << "DEBUG:: torsion " << i << " " << diff << "/" << m_torsions[i].esd()
- 		      << " multiplying " << pr << " by " << s
- 		      << " and " << exp( -0.5 * z *z ) << " z is " << z << "\n";
+//  	    std::cout << "DEBUG:: torsion " << i << " " << diff << "/" << m_torsions[i].esd()
+//  		      << " multiplying " << pr << " by " << s
+//  		      << " and " << exp( -0.5 * z *z ) << " z is " << z << "\n";
 	    pr *= s * exp( -0.5 * z *z );
 	 }
       }

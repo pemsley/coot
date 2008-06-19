@@ -616,33 +616,36 @@ coot::rotamer::GetResidue(int i_rot) const {
       res_asc.mol = (MyCMMDBManager *) stored_mol;
       res_asc.n_selected_atoms = nResidueAtoms;
       res_asc.atom_selection = ordered_residue_atoms_ppcatom;
+      // mmdb_extras function
       contact_info contact = getcontacts(res_asc);
 
-
       std::vector<std::vector<int> > contact_indices(nResidueAtoms);
-      //       std::cout << "Found " << contact.n_contacts << " contacts" << std::endl;
-      int in;
-      for (int i=0; i<contact.n_contacts; i++) {
- 	 in = contact.pscontact[i].id1;
- 	 contact_indices[contact.pscontact[i].id2].push_back(in);
-      }
-      contact.clear_contact_info(); // delete []s the encapsulated pointer
+      // std::cout << "Found " << contact_indices.size() << " atoms" << std::endl;
 
-//       // debugging
-//         std::cout << " -----------  coords ---------------- " << std::endl;
-//         for(int i=0; i<coords.size(); i++)
-//  	  std::cout << i << " " << ordered_residue_atoms_ppcatom[i]->GetAtomName()
-//  		    << " " << coords[i] << std::endl;
-      
-//       // display contact indices here:
-//       //
-//         std::cout << " ---------------- contact indices ----------------------\n" ;
-//        for (int ic=0; ic<contact_indices.size(); ic++) {
-//  	 for (int jc=0; jc<contact_indices[ic].size(); jc++) {
-//  	    std::cout << " contact " << ic << " "
-//  		      << contact_indices[ic][jc] << std::endl;
-//  	 }
-//        }
+      int in;
+      for (int i=0; i<contact.n_contacts(); i++) {
+ 	 in = contact.contacts[i].id1;
+ 	 contact_indices[contact.contacts[i].id2].push_back(in);
+      }
+      // std::cout << "filled " << contact_indices.size() << " contact_indices" << std::endl;
+
+      // debugging
+      if (0) { 
+	 std::cout << " -----------  coords ---------------- " << std::endl;
+	 for(int i=0; i<coords.size(); i++)
+	    std::cout << i << " " << ordered_residue_atoms_ppcatom[i]->GetAtomName()
+		      << " " << coords[i] << std::endl;
+	 
+	 // display contact indices here:
+	 //
+	 std::cout << " ---------------- contact indices ----------------------\n" ;
+	 for (int ic=0; ic<contact_indices.size(); ic++) {
+	    for (int jc=0; jc<contact_indices[ic].size(); jc++) {
+	       std::cout << " contact " << ic << " "
+			 << contact_indices[ic][jc] << std::endl;
+	    }
+	 }
+      }
 
       //
       float tors;
