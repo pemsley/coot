@@ -2457,7 +2457,7 @@ coot::ligand::flip_ligand(short int flip_number) const {
 
    std::vector<minimol::atom *> atoms_p = m.select_atoms_serial();
 
-   std::cout << "DEBUG:: flip_number is "  << flip_number << std::endl;
+   // std::cout << "DEBUG:: flip_number is "  << flip_number << std::endl;
    for (unsigned int ii=0; ii<atoms_p.size(); ii++) {
       clipper::Coord_orth lig_centre = initial_ligand_model_centre[0];
       clipper::Mat33<double> lig_eigenvectors = initial_ligand_eigenvectors[0];

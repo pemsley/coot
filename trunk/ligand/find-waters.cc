@@ -253,8 +253,8 @@ main(int argc, char **argv) {
 	       lig.mask_by_atoms(pdb_file_name);
 	       if (lig.masking_molecule_has_atoms()) { 
 		  lig.output_map("find-waters-masked.map");
-		  std::cout << "DEBUG:: in findwaters: using input_sigma_level: "
-			    << input_sigma_level << std::endl;
+// 		  std::cout << "DEBUG:: in findwaters: using input_sigma_level: "
+// 			    << input_sigma_level << std::endl;
 		  lig.water_fit(input_sigma_level, 3); // e.g. 2.0 sigma for 3 cycles 
 		  coot::minimol::molecule water_mol = lig.water_mol();
 		  water_mol.write_file(output_pdb, 20.0);

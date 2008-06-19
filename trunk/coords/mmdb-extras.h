@@ -31,6 +31,13 @@
 #include <string>
 #endif
 
+#ifndef HAVE_VECTOR
+#define HAVE_VECTOR
+#include <vector>
+#endif
+
+#include <iostream>
+
 using namespace std;  // ugh.  This should not be here.  FIXME
 
 #ifndef MMDB_MANAGER_H
@@ -107,16 +114,28 @@ namespace coot {
   short int progressive_residues_in_chain_check(const CChain *chain_p); 
 
   class contact_info {
-   public:
+
+    class contacts_pair { 
+    public:
+      int id1;
+      int id2;
+      contacts_pair(int id1_in, int id2_in) { 
+	id1 = id1_in; 
+	id2 = id2_in;
+      }
+    }; 
+
+  public:
+    std::vector<contacts_pair> contacts;
     contact_info(PSContact con_in, int nc) {
-      pscontact = con_in;
-      n_contacts = nc;
+      for (int i=0; i<nc; i++) { 
+	contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
+      }
     }
-    PSContact pscontact;
-    int n_contacts;
-    void clear_contact_info() { 
-      delete [] pscontact;
-    }
+
+    void add_MSE_Se_bonds(const atom_selection_container_t &asc);
+
+    int n_contacts() const { return contacts.size(); } 
   };
   contact_info getcontacts(const atom_selection_container_t &asc); 
 

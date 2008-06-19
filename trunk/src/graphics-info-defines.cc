@@ -1211,7 +1211,7 @@ graphics_info_t::check_if_in_add_alt_conf_define(GdkEventButton *event) {
 
 	 int imol = naii.imol;
 
-	 // bla bla... more stuff here.
+	 // bla bla... more stuff here. [20080618 Eh? what do I mean?]
 
 	 if (alt_conf_split_type < 2) { 
 	    // not a range, do it now on a residue

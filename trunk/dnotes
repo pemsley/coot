@@ -4,9 +4,8 @@
 
    23 Items, 44 hd.
 
-
-   o Add an Alt Conf to a MSE.  Fails to display all atoms.  Edit a
-     file and read it in.  Now refine.  Longer bonds?
+   o fix build-it-gtk2-simple so that it does not run the tests when
+     run not in York etc.
 
    o Make ball and stick mode to work in Additional Representations -
      I want to be able to turn them on on off with a check box. 2hd
@@ -82,14 +81,24 @@
 
    o Use Eugene's new LINK-reading code < 1hd as above
 
+   o on opening the about dialog:
+
+   ** (lt-coot-real:18431): WARNING **: Couldn't find pixmap file: coot-icon.png
+   on kalypso
 
 
 
 
 
-93 Done.
+
+94 Done.
 
  
+   o Add an Alt Conf to a MSE.  Fails to display all atoms.  Edit a
+     file and read it in.  Now refine.  Longer bonds? 3hd
+
+* Done.
+
    o look at the fail-recentre .scm state file (penelope gtk2).  It
      fails to try to centre on a molecule other than 0 it seems (from
      the status bar).  <1hd
