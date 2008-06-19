@@ -71,6 +71,7 @@
 	 (next-chain (skip-to-chain imol this-chain-id chains)))
 
 ;     (format #t "next-chain: ~s~%" next-chain)
+     (make-ncs-ghosts-maybe imol)
     
     (let loop ((try-next-chain next-chain)) 
       

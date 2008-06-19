@@ -162,6 +162,19 @@ char *coot_version() {
    return r;
 }
 
+char *coot_revision() {
+  
+  std::string revision_string = " (revision ";
+  revision_string += coot::util::int_to_string(svn_revision());
+  revision_string += ") ";
+  int len = revision_string.length();
+   
+  char *r = new char[len+1];
+  strncpy(r, revision_string.c_str(), len+1);
+  return r;
+
+}
+
 // Return 0 if not a valid name ( -> #f in scheme)
 // e.g. /a/b/c.pdb "d/e/f.mtz FWT PHWT"
 // 
