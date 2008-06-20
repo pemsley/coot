@@ -139,16 +139,27 @@ def coot_gui():
              his = True
        except SyntaxError:
          try:
-             exec entry_text in globals()
-             res = None
-             his = True
+             test_equal = entry_text.split("=")
+             if ((len(test_equal) > 1) and (test_equal[0].strip() in globals())):
+                # we try to assign a value to a build-in function! Shouldnt!
+                warning_text = "BL WARNING:: you tried to assign a value to the\nbuild-in function: " + test_equal[0].strip() + "!\nThis is not allowed!!\n"
+                insert_normal_text(warning_text)
+                res = False
+                his = False
+             else:
+                exec entry_text in globals()
+                res = None
+                his = True
          except:
           guile_function =  test_and_translate_guile(entry_text)
           if guile_function:
              print "BL INFO::  We have a guile command!"
-             insert_normal_text("BL INFO:: Detected guile scripting!\nYou should use python commands!!\nBut I'm a nice guy and translated it for you, this time...!\n")
+             insert_normal_text("BL INFO:: Detected guile scripting!\n\
+             You should use python commands!!\n\
+             But I'm a nice guy and translated it for you, this time...!\n")
           else:
-             insert_normal_text("BL WARNING:: Python syntax error!\n(Or you attempted to use an invalid guile command...)\n")
+             insert_normal_text("BL WARNING:: Python syntax error!\n\
+             (Or you attempted to use an invalid guile command...)\n")
              type_error, error_value = sys.exc_info()[:2]
              error = str(error_value)
              insert_normal_text("Python error:\n") 

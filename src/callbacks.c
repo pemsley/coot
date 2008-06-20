@@ -39,6 +39,7 @@
 
 #include "coot-fileselections.h"
 #include "coot-preferences.h"
+#include "coot-references.h"
 
 #include "callbacks.h"
 #include "interface.h"
@@ -366,6 +367,7 @@ on_about1_activate                     (GtkMenuItem     *menuitem,
    fill_about_window(about_window);
 #else 
    about_window = create_aboutdialog();
+   add_coot_references_button(about_window);
 #endif
 
    gtk_widget_show(about_window);   
@@ -10343,5 +10345,129 @@ on_model_refine_dialog_fix_atoms_button_clicked
   GtkWidget *w = wrapped_create_fixed_atom_dialog();
   gtk_widget_show(w);
 }
+
+
+#if (GTK_MAJOR_VERSION >1)
+void
+on_coot_references_coot_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_COOT);
+
+}
+
+
+void
+on_coot_references_wincoot_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_WINCOOT);
+
+}
+
+
+void
+on_coot_references_refmac_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_REFMAC);
+
+}
+
+
+void
+on_coot_references_ssm_toolbutton_clicked  
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_SSM);
+
+}
+
+
+void
+on_coot_references_mmdb_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_MMDB);
+
+}
+
+
+void
+on_coot_references_clipper_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_CLIPPER);
+
+}
+
+
+void
+on_coot_references_buccaneer_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_BUCCANEER);
+
+}
+
+
+void
+on_coot_references_molprobity_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_MOLPROBITY);
+
+}
+
+
+void
+on_coot_references_calpha_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_CALPHA);
+
+}
+
+
+void
+on_coot_references_xligand_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_XLIGAND);
+
+}
+
+
+void
+on_coot_references_others_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_OTHERS);
+
+}
+
+#endif /* GTK_MAJOR_VERSION */
+
+void
+on_coot_references_closebutton_clicked (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *dialog;
+  dialog = lookup_widget(GTK_WIDGET(button), "coot_references_dialog");
+  gtk_widget_destroy(dialog);
+
+}
+
 
 

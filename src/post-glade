@@ -23,6 +23,7 @@ echo "#endif" >>  tmp-interface.c
 mv tmp-interface.c interface.c
 
 sed -e 's/#include <unistd.h>/#ifndef _MSC_VER\n#include <unistd.h>\n#else\n#define S_ISREG(m) (((m) \& S_IFMT) == S_IFREG)\n#endif/' \
+    -e 's/static GList \*pixmaps_directories/GList \*pixmaps_directories/' \
     support.c > support-tmp.c
 mv support-tmp.c support.c
 
