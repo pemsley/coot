@@ -1001,7 +1001,7 @@ else
 fi
 
 
-# are we doing a pre-release in York?
+# are we doing a pre-release in York or biop?
 #
 # problem here? generic_prefix is not yet set.  What happens to coot_prefix?
 #
@@ -1018,8 +1018,6 @@ if test -z "$build_coot_prerelease" ; then
       run_tests=true
       build_coot_prerelease=1
    fi
-else 
-   run_tests=false
 fi
 
 # override the switch which turns off the building of the pre-release here:
