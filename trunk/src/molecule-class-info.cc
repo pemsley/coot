@@ -5965,7 +5965,7 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
 		<< " in molecule number " << MoleculeNumber()
 		<< std::endl;
    } else { 
-      make_backup();
+      // make_backup();
 
       coot::ligand lig;
       coot::minimol::residue r(res);
