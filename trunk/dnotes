@@ -2,14 +2,11 @@
 
    Things to fix before 0.5
 
-   16 Items, xx hd.
-
-   o Make ball and stick mode to work in Additional Representations -
-     I want to be able to turn them on on off with a check box. 2hd
+   15 Items, 50 hd.
 
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
-   o Finish A-RAPPER-gui, penelope. 8hd
+   o Finish A-RAPPER-gui, penelope. 6hd
 
    o Finish Loopy GUI, penelope. 4hd.
 
@@ -88,7 +85,12 @@
 
 
 
-94 Done.
+95 Done.
+
+   o Make ball and stick mode to work in Additional Representations -
+     I want to be able to turn them on on off with a check box. 2hd
+
+* Done.
 
    o fix build-it-gtk2-simple so that it does not run the tests when
      run not in York etc.
