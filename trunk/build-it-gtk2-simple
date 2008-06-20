@@ -1001,7 +1001,7 @@ else
 fi
 
 
-# are we doing a pre-release in York or biop?
+# Are we doing a pre-release in York or biop?
 #
 # problem here? generic_prefix is not yet set.  What happens to coot_prefix?
 #
