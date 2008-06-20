@@ -224,7 +224,8 @@
 # 4.08 20080607 Bump version of python to 2.5.2
 # 4.09 20080617 Update to guile-1.8.5
 # 4.10 20080618 As per JED request, number the build logs in a more sensible way.
-script_version=4.10
+# 4.11 20080620 Don't run the tests if not in biop or york.
+script_version=4.11
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1018,7 +1019,7 @@ if test -z "$build_coot_prerelease" ; then
       build_coot_prerelease=1
    fi
 else 
-   run_tests=true
+   run_tests=false
 fi
 
 # override the switch which turns off the building of the pre-release here:
