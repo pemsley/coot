@@ -64,6 +64,7 @@
 
 #include "c-interface-scm.hh"
 #include "coot-fileselections.h"
+#include "coot-references.h"
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -328,6 +329,116 @@ void fill_about_window(GtkWidget *widget) {
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (text_widget)),
 			    _(widget_text.c_str()), -1);
 #endif    
+}
+
+void add_coot_references_button(GtkWidget *widget) {
+
+  GtkWidget *hbox;
+  GtkWidget *button;
+  hbox = GTK_DIALOG(widget)->action_area;
+  button = gtk_button_new_with_label("References");
+  gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+#if (GTK_MAJOR_VERSION > 1)
+  gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(hbox), button, TRUE);
+  gtk_box_reorder_child(GTK_BOX(hbox), button, 2);
+  g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(wrapped_create_coot_references_dialog), NULL);
+#endif // GTK_MAJOR_VERSION
+  gtk_widget_show(button);
+  
+}
+
+void wrapped_create_coot_references_dialog() {
+  
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *references_dialog;
+  GtkWidget *coot_reference_button;
+  references_dialog = create_coot_references_dialog();
+  coot_reference_button = lookup_widget(references_dialog, "coot_references_coot_toolbutton");
+  g_signal_emit_by_name(G_OBJECT(coot_reference_button), "clicked");
+  gtk_widget_show(references_dialog);
+#endif // GTK_MAJOR_VERSION
+
+}
+
+void fill_references_notebook(GtkWidget *toolbutton, int reference_id) {
+
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *notebook;
+  GtkWidget *ref_text_view;
+  GtkWidget *bib_text_view;
+  GtkTextBuffer *ref_buffer;
+  GtkTextBuffer *bib_buffer;
+  gchar *ref_text;
+  gchar *bib_text;
+  
+  notebook      = lookup_widget(GTK_WIDGET(toolbutton), "coot_references_notebook");
+  ref_text_view = lookup_widget(GTK_WIDGET(toolbutton), "coot_references_textview");
+  bib_text_view = lookup_widget(GTK_WIDGET(toolbutton), "coot_bibtext_textview");
+
+  ref_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(ref_text_view));
+  bib_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(bib_text_view));
+  //  gtk_widget_unref(GTK_WIDGET(ref_buffer));
+  //  gtk_widget_unref(GTK_WIDGET(bib_buffer));
+
+  ref_buffer = gtk_text_buffer_new(NULL);
+  bib_buffer = gtk_text_buffer_new(NULL);
+
+  gtk_text_view_set_buffer(GTK_TEXT_VIEW(ref_text_view), ref_buffer);
+  gtk_text_view_set_buffer(GTK_TEXT_VIEW(bib_text_view), bib_buffer);
+
+  // simple text fill for now
+  ref_text = "dummy";
+  bib_text = "dummy";
+  if (reference_id == COOT_REFERENCE_COOT) {
+    ref_text = "Coot: model-building tools for molecular graphics\nEmsley P, Cowtan K\nACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n60: 2126-2132 Part 12 Sp. Iss. 1 DEC 2004";
+    bib_text = "@Article{emsley04:coot,\n  author =    {Paul Emsley and Kevin Cowtan},\n  title =     {Coot: Model-Building Tools for Molecular Graphics},\n  journal =   {Acta Crystallographica Section D - Biological Crystallography},\n  year =      2004,\n  volume =    60,\n  pages  =    2126-2132}";
+  }
+  if (reference_id == COOT_REFERENCE_WINCOOT) {
+    ref_text = "Coot News\nLohkamp, B., Emsley, P. & Cowtan, K.\nCCP4 Newsletter, 2005, 42, Contribution 7.";
+    bib_text = "wincoot bib";
+  }
+  if (reference_id == COOT_REFERENCE_REFMAC) {
+    ref_text = "REFMAC5 dictionary: organization of prior chemical knowledge and\nguidelines for its use\nVagin AA, Steiner RA, Lebedev AA, Potterton L, McNicholas S,\nLong F, Murshudov GN\nACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n60: 2184-2195 Part 12 Sp. Iss. 1 DEC 2004";
+    bib_text = "refmac bib";
+  }
+  if (reference_id == COOT_REFERENCE_SSM) {
+    ref_text = "Secondary-structure matching (SSM), a new tool for fast\nprotein structure alignment in three dimensions\nKrissinel E, Henrick K\nACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n60: 2256-2268 Part 12 Sp. Iss. 1 DEC 2004";
+    bib_text = "ssm bib";
+  }
+  if (reference_id == COOT_REFERENCE_MMDB) {
+    ref_text = "MMDB ref";
+    bib_text = "MMDB bib";
+  }
+  if (reference_id == COOT_REFERENCE_CLIPPER) {
+    ref_text = "The Clipper C++ libraries for X-ray crystallography\nCowtan K\nIUCr Computing Commission Newsletter, 2003, 2, 4-9";
+    bib_text = "";
+  }
+  if (reference_id == COOT_REFERENCE_BUCCANEER) {
+    ref_text ="Fitting molecular fragments into electron density\nCowtan K\nACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n64: 83-89, 2008";
+    bib_text = "";
+  }
+  if (reference_id == COOT_REFERENCE_MOLPROBITY) {
+    ref_text = "molprobity ref";
+    bib_text = "molp bib";
+  }
+  if (reference_id == COOT_REFERENCE_CALPHA) {
+    ref_text = "C-alpha ref";
+    bib_text = "C-alpha bib";
+  }
+  if (reference_id == COOT_REFERENCE_XLIGAND) {
+    ref_text = "xligand ref";
+    ref_text = "xligand bib";
+  }
+  if (reference_id == COOT_REFERENCE_OTHERS) {
+    ref_text = "others ref";
+    bib_text = "otheres bib";
+  }
+  gtk_text_buffer_set_text(ref_buffer, ref_text, -1);
+  gtk_text_buffer_set_text(bib_buffer, bib_text, -1);
+
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
+
+#endif // GTK_MAJOR_VERSION
 }
 
 void set_graphics_window_size(int x_size, int y_size) {

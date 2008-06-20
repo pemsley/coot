@@ -79,7 +79,7 @@ create_dummy_pixmap                    (GtkWidget       *widget)
   return pixmap;
 }
 
-static GList *pixmaps_directories = NULL;
+GList *pixmaps_directories = NULL;
 
 /* Use this function to set the directory containing installed pixmaps. */
 void

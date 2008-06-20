@@ -434,6 +434,9 @@ void run_clear_backups_py(int retval);
 #endif
 
 void fill_about_window(GtkWidget *widget);
+void add_coot_references_button(GtkWidget *widget);
+void wrapped_create_coot_references_dialog();
+void fill_references_notebook(GtkWidget *widget, int reference_id);
  
 /*! \brief What is the molecule number of first coordinates molecule?
 

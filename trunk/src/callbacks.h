@@ -3790,3 +3790,64 @@ on_model_refine_dialog_fix_atoms_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_coot_references_coot_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_wincoot_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_refmac_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_ssm_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_mmdb_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_clipper_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_buccaneer_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_molprobity_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_calpha_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_xligand_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_coot_references_others_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+#endif /* GTK_MAJOR_VERSION */
+
+void
+on_coot_references_closebutton_clicked (GtkButton       *button,
+                                        gpointer         user_data);
+
