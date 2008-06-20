@@ -4647,10 +4647,12 @@ molecule_class_info_t::draw_display_list_objects() {
    if (drawit) { 
       if (display_list_tags.size() > 0) { 
 	 glEnable(GL_LIGHTING);
-	 std::list<coot::display_list_object_info>::const_iterator it;
+	 std::vector<coot::display_list_object_info>::const_iterator it;
 	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
-	    n_objects++;
-	    glCallList(it->tag);
+	    if (it->display_it) { 
+  	       n_objects++;
+	       glCallList(it->tag);
+	    }
 	 }
 	 glDisable(GL_LIGHTING);
       }
@@ -4666,7 +4668,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 
    // Use draw hydrogens flag that has been set already for this molecule.
    
-   int i= -1;
+   int i = -1;
    if (has_model()) {
       int SelHnd = atom_sel.mol->NewSelection();
       atom_sel.mol->Select(SelHnd, STYPE_ATOM,
@@ -4814,7 +4816,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       bonds_box_local.clear_up();
       atom_sel.mol->DeleteSelection(SelHnd);
    }
-   return i;
+   return (display_list_tags.size() - 1);
 }
 
 void
@@ -4826,7 +4828,7 @@ molecule_class_info_t::clear_display_list_object(GLuint tag) {
 //    for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
 //    }
 
-   display_list_tags.resize(0);
+   display_list_tags.clear();
 }
 
 

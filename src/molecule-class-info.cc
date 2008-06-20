@@ -1867,6 +1867,14 @@ coot::additional_representations_t::info_string() const {
 
    std::string s("Fat Bonds: ");
 
+   if (representation_type == coot::BALL_AND_STICK) {
+     s = "Ball and Stick: "; 
+   }
+
+   if (representation_type == coot::STICKS) {
+     s = "Sticks: "; 
+   }
+
    if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING)
       s += atom_sel_info.atom_selection_str;
    if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) { 
@@ -1891,22 +1899,21 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 						     const coot::atom_selection_info_t &info,
 						     GtkWidget *display_control_window) {
 
-   int n_rep = -1;
-   if (representation_type == coot::SIMPLE_LINES) { 
-      coot::additional_representations_t rep(atom_sel.mol,
-					     representation_type,
-					     bonds_box_type_in,
-					     bonds_width, draw_hydrogens_flag, info);
-      add_reps.push_back(rep);
-      n_rep = add_reps.size() -1;
-      std::string name = rep.info_string();
-      GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
-      display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
-   }
+   coot::additional_representations_t rep(atom_sel.mol,
+					  representation_type,
+					  bonds_box_type_in,
+					  bonds_width, draw_hydrogens_flag, info);
+   add_reps.push_back(rep);
+   int n_rep = add_reps.size() -1;
+   std::string name = rep.info_string();
+   GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
+   display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
-      make_ball_and_stick(info.mmdb_string(), 0.15, 0.3, 1);
+     int display_list_handle = make_ball_and_stick(info.mmdb_string(), 0.15, 0.3, 1);
+     add_reps[n_rep].add_display_list_handle(display_list_handle);
    }
-   return (add_reps.size() - 1);
+     
+   return n_rep;
 }
 
 int
@@ -1937,9 +1944,15 @@ molecule_class_info_t::set_show_additional_representation(int representation_num
    if (add_reps.size() > representation_number) {
       if (representation_number >= 0) {
 	 add_reps[representation_number].show_it = on_off_flag;
+	 if (add_reps[representation_number].representation_type == coot::BALL_AND_STICK ||
+	     add_reps[representation_number].representation_type == coot::STICKS) { 
+	   int dl_index = add_reps[representation_number].display_list_handle;
+	   std::cout << "Ball and stick add rep toggled to " << on_off_flag << std::endl;
+	   display_list_tags[dl_index].display_it = on_off_flag;
+	 }
       }
    }
-} 
+}
 
 
 // Return a pair.first string of length 0 on error to construct dataname(s).

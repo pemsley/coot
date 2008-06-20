@@ -94,6 +94,8 @@ void initialize_graphics_molecules() {
 // static
 int graphics_info_t::create_molecule() { 
    int imol = molecules.size();
+//    std::cout << "========================== creating molecule number " 
+// 	     << imol << " ===========" << std::endl;
    molecules.push_back(molecule_class_info_t(imol));
    return imol;
 } 

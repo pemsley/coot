@@ -156,9 +156,9 @@ Release 0.4 "Kendall"
      default. Rotamers are named int the dialog (the probability
      limits are no longer meaninful) [Dirk Kostrewa]
 
-   o FEATURE: New environment variable COOT_SCHEME_EXTRA_DIR introduced. If the 
-     directory pointed to by COOT_SCHEME_EXTRA_DIR exists, then Coot
-     will read all the .scm files in that directory
+   o FEATURE: New environment variable COOT_SCHEME_EXTRA_DIR
+     introduced. If the directory pointed to by COOT_SCHEME_EXTRA_DIR
+     exists, then Coot will read all the .scm files in that directory
 
      :::: CORRECTION ::::
      That should be COOT_SCHEME_EXTRAS_DIR (note the extra "S").
@@ -172,8 +172,8 @@ Release 0.4 "Kendall"
 
    o FEATURE: Old backup-files cleaner-upper added
 
-   o FEATURE: CCP4i aliases are also added to the Project Dir options in the
-     file selector [Ingo Korndoerfer]
+   o FEATURE: CCP4i aliases are also added to the Project Dir options
+     in the file selector [Ingo Korndoerfer]
 
    o FEATURE: Multiple model ligand overlaying [Bob Nolte]
 
@@ -189,9 +189,9 @@ Release 0.4 "Kendall"
    o FEATURE: skeletons now appear in Raster3D output and are properly
      coloured using the colour wheel.
 
-   o FEATURE: a new command has been introduce, so that one can highlight the 
-     command equivalent of gui operations using colour.  e.g.: 
-     (set-console-display-commands-hilights 1 1 4).
+   o FEATURE: a new command has been introduce, so that one can
+     highlight the command equivalent of gui operations using colour.
+     e.g.: (set-console-display-commands-hilights 1 1 4).
 
    o FEATURE: binary builds now are scriptable in Python and scheme.
 
@@ -215,9 +215,11 @@ Release 0.4 "Kendall"
    o BUG-FIX: Fix occasional crash reported by Ketan Gajiwala on
      pressing CR in the graphics window after a refinement.
 
-   o BUG-FIX: Fix crash on refining a water with an Alt Conf [Stephen Graham].
+   o BUG-FIX: Fix crash on refining a water with an Alt Conf [Stephen
+     Graham].
 
-   o BUG-FIX: Symmetry atom picker improved [Jan Dohnalek, Pirkko Heikinheimo]
+   o BUG-FIX: Symmetry atom picker improved [Jan Dohnalek, Pirkko
+     Heikinheimo]
 
    o BUG-FIX: SSM superposition improved (crash fixed) 
      [Frank von Delft, Alice Dawson].
@@ -225,14 +227,16 @@ Release 0.4 "Kendall"
    o BUG-FIX: Fix Shelx lst file reader when handling atoms with Alt Confs
      [Christian Stegmann].
 
-   o BUG-FIX: Lighting of Ball&Stick representations improved (with the help of 
-     Martin Noble).
+   o BUG-FIX: Lighting of Ball&Stick representations improved (with
+     the help of Martin Noble).
 
    o BUG-FIX: Ca Zone->Mainchain no longer spews warnings.
 
-   o BUG-FIX: Fix typo in transform-map-using-lsq-matrix [Nick Furnham]
+   o BUG-FIX: Fix typo in transform-map-using-lsq-matrix [Nick
+     Furnham]
 
-   o BUG-FIX: U-matrix correctly output to shelx .res file [Annette Langkilde]
+   o BUG-FIX: U-matrix correctly output to shelx .res file [Annette
+     Langkilde]
 
    o BUG-FIX: Environment Distances now can work to symmetry-related atoms 
      [David Briggs]
@@ -248,16 +252,18 @@ Release 0.4 "Kendall"
    o CHANGE: Temperature factor variance validation now works for SHELXL
      molecules [GMS, JED]
 
-   o CHANGE: Map transformation now works differently.  Instead of providing
-     the point from which the map is copied, one passes the target
-     position to which the map should be copied (and the position from
-     which the map is copied is calculated from this target position
-     by the inverse transformation of the operator which moves the
-     coordinates).  This seems more natural to me.
+   o CHANGE: Map transformation now works differently.  Instead of
+     providing the point from which the map is copied, one passes the
+     target position to which the map should be copied (and the position
+     from which the map is copied is calculated from this target
+     position by the inverse transformation of the operator which moves
+     the coordinates).  This seems more natural to me.
 
-   o CHANGE: No longer a "stub" option in mutate and autofit [Steven Sheriff]
+   o CHANGE: No longer a "stub" option in mutate and autofit [Steven
+     Sheriff]
 
-   o CHANGE: Get Monomer checks for pre-calculated results before re-running.
+   o CHANGE: Get Monomer checks for pre-calculated results before
+     re-running.
 
    o CHANGE: Planar peptide restraints are ON by default now [Phil Evans]
 
@@ -269,15 +275,16 @@ Release 0.4 "Kendall"
      moves the fragment in the +Y direction on the screen (instead of 
      downwards) [Steven Sheriff]
 
-   o CHANGE: Faster bonding of multiple model molecules [e.g. from NMR, Rapper]
+   o CHANGE: Faster bonding of multiple model molecules [e.g. from
+     NMR, Rapper]
 
    o CHANGE: Binaries no longer contain include file and static library 
      "junk" [Clemens Vonrhein]
 
    o CHANGE: Check Waters results now display the occupancy too.
 
-   o CHANGE: Residue Info now displays Chi Angles for conventional residues 
-     [Mark Mayer].
+   o CHANGE: Residue Info now displays Chi Angles for conventional
+     residues [Mark Mayer].
 
    o CHANGE: fcf/cif maps now honour the map sampling rate [Dale Tronrud]
 

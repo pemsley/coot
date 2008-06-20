@@ -255,9 +255,13 @@ namespace coot {
       int type;
       std::string atom_selection;
       int atom_selection_handle;
+      bool display_it;
       bool operator==(const display_list_object_info &dloi) const {
 	 return (dloi.tag == tag);
       }
+      display_list_object_info() { 
+	display_it = 1; 
+      } 
    };
 
    class dots_representation_info_t {
@@ -374,6 +378,7 @@ namespace coot {
      graphical_bonds_container bonds_box;
      atom_selection_info_t atom_sel_info;
      CMMDBManager *mol;
+     int display_list_handle;
      void fill_bonds_box();
      additional_representations_t(CMMDBManager *mol_in,
 				  int representation_type_in,
@@ -399,6 +404,9 @@ namespace coot {
        show_it = 0;
      } 
      std::string info_string() const;
+     void add_display_list_handle(int handle) { 
+       display_list_handle = handle;
+     } 
    };
 
 }
@@ -1184,7 +1192,7 @@ class molecule_class_info_t {
    void save_previous_map_colour();
    void restore_previous_map_colour();
 
-   std::list<coot::display_list_object_info> display_list_tags;
+   std::vector<coot::display_list_object_info> display_list_tags;
    void update_map();
    void compile_density_map_display_list();
    void draw_density_map(short int display_list_for_maps_flag);
