@@ -19,7 +19,6 @@
  */
 
 
-#include <stdlib.h>
 
 // Portability (getopt) gubbins
 #ifndef _MSC_VER
@@ -38,6 +37,7 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <vector>
