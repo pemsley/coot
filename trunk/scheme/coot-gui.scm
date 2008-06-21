@@ -2266,7 +2266,7 @@
 	(set! text-2 (gtk-text-new #f #f))
 	(set! timer-label (gtk-label-new "0.0s"))
 
-	(gtk-window-set-default-size window 470 400)
+	(gtk-window-set-default-size window 540 400)
 	(gtk-window-set-policy window #t #t #f)
 	(gtk-box-pack-start vbox label  #f #f 10)
 	(gtk-box-pack-start vbox timer-label  #f #f 2)

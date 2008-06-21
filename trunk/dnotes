@@ -12,16 +12,6 @@
 
    o side by side stereo with dislay lists. 4hd
 
-   o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
-     message about going to wall-eyed and the state of walled eyed in
-     the status file. 
-
-     Note also Joel Bard's comment about the problem of non-updating
-     density lines after switching to (or attempting to switch to)
-     hardware stereo mode.
-
-     2hd
-
    o Make a test pdb that exercises Case 3: model has deletion in
      align_on_chain(). (tutorial-modern.pdb exercises it, but the
      deletion is at the end of the A chain).  Make tests where the
@@ -47,13 +37,15 @@
          forgot which one)
       6) Coot beachballs and takes machine down with it
 
-      Very slow.  Some fumbling of atom picking needed to tickle this? 1hd.
+      Very slow.  Some fumbling of atom picking needed to tickle this? 
+      1hd.
 
 * Can't reproduce now.
 
    o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
      guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
-     I think.  Also there were some extranaeous ^:^s in the .x files. 4hd.
+     I think.  Also there were some extranaeous ^:^s in the .x
+     files. 4hd.
 
    o Kevin's Ramachandran Refinement target, 16hd
 
@@ -69,7 +61,8 @@
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything).  3hd.
 
-   o Correct CISPEP if needed cards on writing pdb. <1hd - depending on new mmdb code.
+   o Correct CISPEP if needed cards on writing pdb. <1hd - depending
+     on new mmdb code.
 
    o PDB v3.0 compatibility < 1hd as above
 
@@ -77,15 +70,33 @@
 
    o on opening the about dialog:
 
-   ** (lt-coot-real:18431): WARNING **: Couldn't find pixmap file: coot-icon.png
-   on kalypso
+   ** (lt-coot-real:18431): WARNING **: Couldn't find pixmap file:
+      coot-icon.png on kalypso
 
 
 
 
 
 
-95 Done.
+97 Done.
+
+   o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
+     message about going to wall-eyed and the state of walled eyed in
+     the status file. 
+
+     Note also Joel Bard's comment about the problem of non-updating
+     density lines after switching to (or attempting to switch to)
+     hardware stereo mode.
+
+     2hd
+
+* Done.  Well, very nearly.  When coming out of side by side stereo,
+  still the map disappears.  Other than that it all seems OK.
+
+   o check the number of saves on Eigen flips.  On undoing, it seems I
+     have to undo twice for each step.
+
+* Done.
 
    o Make ball and stick mode to work in Additional Representations -
      I want to be able to turn them on on off with a check box. 2hd
@@ -5865,6 +5876,7 @@ Tue Jun  3 17:14:33 BST 2008
 
 ----
 
+
     check the number of saves on Eigen flips.  On undoing, it seems I
     have to undo twice for each step.
 
@@ -5982,3 +5994,18 @@ Thu Jun 19 09:13:48 BST 2008
 ==27246==    by 0x410392C: invoke_main_func (in /home/juditd/coot-build-3/autobuild-installed-pre-release-gtk2/lib/libguile.so.17.1.2)
 ==27246==    by 0x40D6409: c_body (in /home/juditd/coot-build-3/autobuild-installed-pre-release-gtk2/lib/libguile.so.17.1.2)
 
+
+
+----
+Sat Jun 21 01:55:45 BST 2008
+
+    Joel Bard:
+
+    When coming out of side-by-side stereo, the map disappears -
+    something to do with the GL context the display list is generated
+    in?
+
+    Priority: Medium/Low  (fix refine by sphere first)
+
+
+    

@@ -90,6 +90,9 @@ Pre-release 0.5
      header, so they can now be used as the reference structures for
      "Build Strand".
 
+   o CHANGE: Colour by Chain style also now displays zero occupancy
+     markers [PRE].
+
    o BUG-FIX: chiral volumes are now correctly handled for multiple
      monomer bespoke ligand dictionaries.
 
@@ -120,7 +123,7 @@ Pre-release 0.5
    o BUG-FIX: Adding waters to a SHELXL molecule now adds them with
      default occupancy 11.0 [Tobias Beck]
 
-   o BUG-FIX: Go To Atom dialog is properly updated on reading merging
+   o BUG-FIX: Go To Atom dialog is properly updated on merging
      molecules.
  
    o BUG-FIX: Coot no longer crashes when opening the Bond Parameters
@@ -131,9 +134,6 @@ Pre-release 0.5
 
    o BUG-FIX: Add Terminal Residue deletes the TER record (if it
      existed) of previous C-terminus [PRE].
-
-   o CHANGE: Colour by Chain style also now displays zero occupancy
-     markers [PRE].
 
    o BUG-FIX: Povray output improved.
 
