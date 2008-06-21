@@ -2895,6 +2895,7 @@ if [ $coot_build_status != 0 ] ; then
     cp -r ${LOGS} ${PUBLIC_HTML_LOGS}
     # end copy
     echo fail-build > $LOGS/gtk2-build-status${guile_autobuild_path}
+    echo fail-test > $LOGS/gtk2-test-status${guile_autobuild_path}
     exit 2
 else 
     # and finally write a coot-version file for the installer
