@@ -126,7 +126,8 @@ molecule_class_info_t::compile_density_map_display_list() {
    theMapContours = glGenLists(1);
    glNewList(theMapContours, GL_COMPILE);
 
-   draw_density_map(0); // don't use theMapContours (make them!)
+   draw_density_map_internal(0, 1); // don't use theMapContours (make them!)
+
    glEndList();
 }
 
@@ -140,14 +141,41 @@ molecule_class_info_t::compile_density_map_display_list() {
 void 
 molecule_class_info_t::draw_density_map(short int display_lists_for_maps_flag) {
 
+   if (drawit_for_map)
+      draw_density_map_internal(display_lists_for_maps_flag, drawit_for_map);
+}
+
+
+void
+molecule_class_info_t::draw_density_map_internal(short int display_lists_for_maps_flag_local,
+						 bool draw_map_local_flag) {
+
    // std::cout << "   draw_density_map() called for " << imol_no << std::endl;
+
+   // 20080619:
+   // When the screen centre is is moved and we have
+   // display_lists_for_maps_flag and we are not displaying the
+   // map currently, then the map triangles are getting updated
+   // (but not displayed of course) but the display list is not
+   // because drawit_for_map is always 0.
+   //
+   // So we try to solve that by giving
+   // compile_density_map_display_list() a different route in.
+   // draw_density_map_internal() is created and that is called with
+   // display_lists_for_maps_flag as 0 (i.e. generate the vectors in a
+   // glNewList() wrapper).
+
    int nvecs = n_draw_vectors;
-   if (drawit_for_map) {
+   if (draw_map_local_flag) {
 
       // same test as has_map():
       if (xmap_is_filled[0]) {
 
-	 if (display_lists_for_maps_flag) {
+// 	 std::cout << "DEBUG:: drawing map for mol " << imol_no
+// 		   << " display_lists_for_maps_flag:  "
+// 		   << display_lists_for_maps_flag_local << " " << theMapContours << std::endl;
+	    
+	 if (display_lists_for_maps_flag_local) {
 
 	    // std::cout << " debug  Call list" << std::endl;
 	    glCallList(theMapContours);

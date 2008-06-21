@@ -1783,15 +1783,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    glEnable(GL_DEPTH_TEST);
 #endif
 
-   if (0) { 
-      //   glEnable(GL_MULTISAMPLE_ARB);
-   }
 
-//    Martin says that this is not what you want to do!
-//    glClear (GL_COLOR_BUFFER_BIT);
-//    glEnable (GL_BLEND);
-//    glEnable (GL_POLYGON_SMOOTH);
-//    glDisable (GL_DEPTH_TEST);
       
       // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
@@ -1867,7 +1859,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // new surface things, generated from the dataset.
 	 //
-	 // draw_surface_as_display_list();  // slow! (strangely)
 	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag);
 
 	 // 

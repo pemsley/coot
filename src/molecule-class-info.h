@@ -438,6 +438,9 @@ class molecule_class_info_t {
    short int is_dynamically_transformed_map_flag;
    coot::ghost_molecule_display_t map_ghost_info;
 
+   void draw_density_map_internal(short int display_lists_for_maps_flag_local,
+				  bool draw_map_local_flag);
+
    // display flags:
    // 
    int bonds_box_type; // public accessable via Bonds_box_type();
@@ -938,7 +941,7 @@ class molecule_class_info_t {
    atom_selection_container_t atom_sel;
    int drawit; // used by Molecule Display control, toggled using
 	       // toggle fuctions. 
-   int drawit_for_map; // multi dimensional at some stage, perhaps. 
+   bool drawit_for_map; 
    int pickable_atom_selection;  // ditto (toggling).
    
    std::string show_spacegroup() const;

@@ -1019,7 +1019,7 @@ if test -z "$build_coot_prerelease" ; then
 fi
 
 if [ "$domainname" = "yorksbl" ] ; then
-   # we are in York, let's try the pre-release coot...
+   # we are in York, let's test.  Always.
    echo we are in York
    run_tests=true
 fi
