@@ -10,7 +10,8 @@
 
    o Finish Loopy GUI, penelope. 4hd.
 
-   o side by side stereo with dislay lists. 4hd
+   o Can the map transformation interface be clearer?  Can I GUI
+     interface the most frequent usage?
 
    o Make a test pdb that exercises Case 3: model has deletion in
      align_on_chain(). (tutorial-modern.pdb exercises it, but the
@@ -25,27 +26,6 @@
 
       How about a test for wiggly ligands and then we can put this
       item to bed.  1hd
-
-   o crash on delete residue range: Harri Jayaram
-
-      The steps I did were
-      1) Start fresh coot
-      2) Get coords from pdb - get-ebi-pdb 1OTS
-      3) Centre on chain A residue 39
-      4) Bring up delete residue GUI
-      5) delete from residue 17 ( n terminus) to residue 37 or 39 (I 
-         forgot which one)
-      6) Coot beachballs and takes machine down with it
-
-      Very slow.  Some fumbling of atom picking needed to tickle this? 
-      1hd.
-
-* Can't reproduce now.
-
-   o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
-     guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
-     I think.  Also there were some extranaeous ^:^s in the .x
-     files. 4hd.
 
    o Kevin's Ramachandran Refinement target, 16hd
 
@@ -78,7 +58,46 @@
 
 
 
+
 97 Done.
+
+   o crash on delete residue range: Harri Jayaram
+
+      The steps I did were
+      1) Start fresh coot
+      2) Get coords from pdb - get-ebi-pdb 1OTS
+      3) Centre on chain A residue 39
+      4) Bring up delete residue GUI
+      5) delete from residue 17 ( n terminus) to residue 37 or 39 (I 
+         forgot which one)
+      6) Coot beachballs and takes machine down with it
+
+      Very slow.  Some fumbling of atom picking needed to tickle this? 
+      1hd.
+
+* Can't reproduce now.
+
+   o side by side stereo with dislay lists. 4hd
+
+* Gone away, or I've fixed it or I've forgotten what the problem was.
+
+   o Ethan Merrit's bugs on window sizing.  
+
+ Partially fixed. gtk_widget_set_usize() in
+ set_graphics_window_size() now replaced with gtk_window_resize()
+ on a GtkWindow() (not the glarea).
+
+     g.graphics_x_size is used inconsistently.  It is a bad name.  It
+     is (now) used for the window size (c-interface-gui) and the
+     glarea size (glextras()).  Both need to be stored gl_area_x_size,
+     gl_area_y_size, main_window_x_size, main_window_y_size. 
+ 
+        This is no longer true.
+
+   o Change into side by side stereo mode.  Resize the window.  Now
+     views are of different size/aspect ratios.
+
+* Fixed.
 
    o Test/fix hardware stereo in Gtk2 mode.  See also Randy Read's
      message about going to wall-eyed and the state of walled eyed in
@@ -338,25 +357,6 @@
    o Do the additional representations work on gtk1?
 
 * Yes, they do now.
-
-   o Ethan Merrit's bugs on window sizing.  
-
-     Partially fixed. gtk_widget_set_usize() in
-     set_graphics_window_size() now replaced with gtk_window_resize()
-     on a GtkWindow() (not the glarea).
-
-     g.graphics_x_size is used inconsistently.  It is a bad name.  It
-     is (now) used for the window size (c-interface-gui) and the
-     glarea size (glextras()).  Both need to be stored gl_area_x_size,
-     gl_area_y_size, main_window_x_size, main_window_y_size. 
- 
-        This is no longer true.
-
-   o Change into side by side stereo mode.  Resize the window.  Now
-     views are of different size/aspect ratios.
-
-   o Can the map transformation interface be clearer?  Can I GUI
-     interface the most frequent usage?
 
    o the tutorial on the web site has no figures (the pdf does,
      strangely).
@@ -6009,3 +6009,22 @@ Sat Jun 21 01:55:45 BST 2008
 
 
     
+----
+Sat Jun 21 02:10:01 BST 2008
+
+
+   o crash on delete residue range: Harri Jayaram
+
+      The steps I did were
+      1) Start fresh coot
+      2) Get coords from pdb - get-ebi-pdb 1OTS
+      3) Centre on chain A residue 39
+      4) Bring up delete residue GUI
+      5) delete from residue 17 ( n terminus) to residue 37 or 39 (I 
+         forgot which one)
+      6) Coot beachballs and takes machine down with it
+
+      Very slow.  Some fumbling of atom picking needed to tickle this? 
+      1hd.
+
+* Can't reproduce now.

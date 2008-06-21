@@ -1004,7 +1004,7 @@
        #f))))
 	 
      
-;; Define a map transformation function that obeys Lapthorns Law of
+;; Define a map transformation function that obeys Lapthorn's Law of
 ;; NCS Handling Programs
 ;; 
 ;; typical usage: (transform-map-using-lsq-matrix 1 "A" 10 30 0 "A" 10 30 2 (rotation-centre) 6)
