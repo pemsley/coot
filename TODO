@@ -210,6 +210,14 @@
   
    o Redo sequence view 
 
+
+   o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
+     guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,
+     I think.  Also there were some extranaeous ^:^s in the .x
+     files. 4hd.  
+    
+     Not going to get the hardware in before 0.5 is released.  Punt for 0.6.
+
    o Hydrogens from a SHELXL molecule
 
    o Mouse bindings, consistency with MG.  Can we drag using middle
