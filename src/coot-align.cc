@@ -61,9 +61,9 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
 	 } else {
 	    // we finish a insertion range maybe:
 	    if (in_insertion_range == 1) {
- 	       std::cout << " DEBUGG:: insertion range from "
-			 << ires_start_of_this_insertion_range
- 			 << " to " << running_end << std::endl;
+//  	       std::cout << " DEBUGG:: insertion range from "
+// 			 << ires_start_of_this_insertion_range
+//  			 << " to " << running_end << std::endl;
 	       insertions.push_back(coot::mutate_insertion_range_info_t(ires_start_of_this_insertion_range, running_types));
 	    }
 	    in_insertion_range = 0;
@@ -106,4 +106,14 @@ coot::chain_mutation_info_container_t::get_residue_type(const residue_spec_t &sp
       throw std::runtime_error("no alignment match");
 
    return r;
+}
+
+
+std::ostream& coot::operator<<(std::ostream &s, coot::mutate_insertion_range_info_t &r) {
+
+   s << "mutate_insertion from " << r.start_resno << " to " << r.end_resno()
+     << " with types";
+   for (unsigned int t=0; t<r.types.size(); t++) 
+      s << " " << r.types[t];
+   return s;
 }

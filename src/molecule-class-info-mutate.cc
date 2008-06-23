@@ -240,12 +240,27 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
       short int save_backup_state = backup_this_molecule;
       backup_this_molecule = 0;
 
-      std::cout << "mutate chain " << mutation_info.insertions.size()
-		<< " insertions" << std::endl;
-      std::cout << "mutate chain " << mutation_info.deletions.size()
-		<< " deletions" << std::endl;
-      std::cout << "mutate chain " << mutation_info.mutations.size()
-		<< " mutations" << std::endl;
+//       std::cout << "mutate chain " << mutation_info.insertions.size()
+// 		<< " insertions" << std::endl;
+//       std::cout << "mutate chain " << mutation_info.deletions.size()
+// 		<< " deletions" << std::endl;
+//       std::cout << "mutate chain " << mutation_info.mutations.size()
+// 		<< " mutations" << std::endl;
+
+      mutation_info.print();
+
+      int imod=1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ich=0; ich<n_chains; ich++) {
+	 CChain *chain_p = model_p->GetChain(ich);
+	 std::string chain_chain_id = chain_p->GetChainID();
+	 if (chain_chain_id == chain_id) {
+	    simplify_numbering_internal(chain_p);
+	 }
+      }
+
+      
 
       // do the operations in this order:
       // mutations
@@ -292,6 +307,27 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 // Nope.... Can't DeleteSelection after mods.
 	 // atom_sel.mol->DeleteSelection(SelectionHandle);
       }
+
+
+      // --------------- insertions ----------------
+      std::cout << "apply resno updates... " << std::endl;
+      for (unsigned int i=0; i<mutation_info.insertions.size(); i++) {
+	 coot::mutate_insertion_range_info_t r = mutation_info.insertions[i];
+	 int offset = r.types.size();
+	 n_insertions++;
+	 for (int ires=0; ires<nSelResidues; ires++) {
+	    if (SelResidues[ires]) {
+	       if (SelResidues[ires]->seqNum >= r.start_resno) {
+// 		  std::cout << "DEBUG:: for mut_ins[" << i << "] " << r << " incrementing "
+// 			    << SelResidues[ires]->seqNum
+// 			    << " to " << SelResidues[ires]->seqNum + offset << std::endl;
+		  SelResidues[ires]->seqNum += offset;
+	       }
+	    }
+	 }
+      }
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
 
       // --------------- deletions ----------------
       std::vector<std::pair<CResidue *, int> > residues_for_deletion;
@@ -342,25 +378,11 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
       }
       atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
-      // Is this dangerous? Yes, here (after mods) it certainly is.
+      
 
-      // --------------- insertions ----------------
-      for (unsigned int i=0; i<mutation_info.insertions.size(); i++) {
-	 coot::mutate_insertion_range_info_t r = mutation_info.insertions[i];
-	 int offset = r.types.size();
-	 n_insertions++;
-	 for (int ires=0; ires<nSelResidues; ires++) {
-	    if (SelResidues[ires]) {
-	       if (original_seqnums[ires] > r.start_resno) {
-		  SelResidues[ires]->seqNum += offset;
-	       }
-	    }
-	 }
-      }
-
+      std::cout << "Applied " << n_insertions << " insertions " << std::endl;
       std::cout << "Applied " << n_mutations << " mutations " << std::endl;
       std::cout << "Applied " << n_deletions << " deletions " << std::endl;
-      std::cout << "Applied " << n_insertions << " insertions " << std::endl;
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
       backup_this_molecule = save_backup_state;
@@ -495,7 +517,8 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 // 	 std::cout << "   " << iseq_indx << " " << s[iseq_indx] << std::endl;
 //       }
       
-      std::vector<int> resno_offsets(s.length(), 0);
+      // std::vector<int> resno_offsets(s.length(), 0);
+      
 //       std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
 //       std::cout << "DEBUG:: nSelResidues " << nSelResidues << std::endl;
       std::string inscode("");
@@ -528,8 +551,10 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
 	    // Case 2: model had insertion
 	    if ((s[iseq_indx] != '-') && t[iseq_indx] == '-') {
-	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
-		  resno_offsets[i] -= 1;
+
+// 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
+// 		  resno_offsets[i] -= 1;
+	       
 // 	       std::cout << "Delete residue number " << iseq_indx << " "
 // 			 << s[iseq_indx] << std::endl;
 	       coot::residue_spec_t res_spec(ires);
@@ -538,8 +563,8 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
 	    // Case 3: model has a deletion
 	    if ((s[iseq_indx] == '-') && t[iseq_indx] != '-') {
-	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
-		  resno_offsets[i] += 1;
+// 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
+// 		  resno_offsets[i] += 1;
 	       // ires will be for the previous residue.  It was not
 	       // set for this one.
 	       coot::residue_spec_t res_spec(iseq_indx+1);

@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   15 Items, 50 hd.
+   12 Items, 36 hd.
 
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
@@ -11,12 +11,7 @@
    o Finish Loopy GUI, penelope. 4hd.
 
    o Can the map transformation interface be clearer?  Can I GUI
-     interface the most frequent usage?
-
-   o Make a test pdb that exercises Case 3: model has deletion in
-     align_on_chain(). (tutorial-modern.pdb exercises it, but the
-     deletion is at the end of the A chain).  Make tests where the
-     deletion is at the N term and in the middle of the A chain.  4hd.
+     interface the most frequent usage? 1hd
 
    o  Need to check torsion restraints 
       and wiggly ligands
@@ -25,7 +20,7 @@
       now that I have enabled the reading of CONST torsions.
 
       How about a test for wiggly ligands and then we can put this
-      item to bed.  1hd
+      item to bed.  2hd
 
    o Kevin's Ramachandran Refinement target, 16hd
 
@@ -39,7 +34,7 @@
      "Bad rotamer B  41 GLU (0.7%)" 
 
      There are 10 times more for Coot.  
-     (fix-nomenclature-errors doesn't fix anything).  3hd.
+     (fix-nomenclature-errors doesn't fix anything).  4hd.
 
    o Correct CISPEP if needed cards on writing pdb. <1hd - depending
      on new mmdb code.
@@ -48,11 +43,7 @@
 
    o Use Eugene's new LINK-reading code < 1hd as above
 
-   o on opening the about dialog:
-
-   ** (lt-coot-real:18431): WARNING **: Couldn't find pixmap file:
-      coot-icon.png on kalypso
-
+   o a test for write connectivity 1hd
 
 
 
@@ -60,6 +51,20 @@
 
 
 97 Done.
+
+   o on opening the about dialog:
+
+   ** (lt-coot-real:18431): WARNING **: Couldn't find pixmap file:
+      coot-icon.png on kalypso
+
+* Done by Bernhard
+
+   o Make a test pdb that exercises Case 3: model has deletion in
+     align_on_chain(). (tutorial-modern.pdb exercises it, but the
+     deletion is at the end of the A chain).  Make tests where the
+     deletion is at the N term and in the middle of the A chain.  4hd.
+
+* Done.
 
    o crash on delete residue range: Harri Jayaram
 
@@ -6028,3 +6033,14 @@ Sat Jun 21 02:10:01 BST 2008
       1hd.
 
 * Can't reproduce now.
+
+----
+Sun Jun 22 14:05:59 BST 2008
+
+    Provide a gui interface to "multi-chicken" - 10 (or so) contour
+    levels, changing in colour from one map.
+
+----
+Sun Jun 22 14:47:12 BST 2008
+
+    

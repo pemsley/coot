@@ -815,7 +815,6 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 	    PCResidue residue_p;
 	    CAtom *at;
 
-	    SCM all_atoms = SCM_EOL;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       std::string res_ins_code(residue_p->GetInsCode());
@@ -826,6 +825,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 		     SCM at_pos;
 		     SCM at_occ, at_b, at_ele, at_name, at_altconf;
 		     SCM at_x, at_y, at_z;
+		     SCM all_atoms = SCM_EOL;
 		     for (int iat=0; iat<n_atoms; iat++) {
 			at = residue_p->GetAtom(iat);
 			at_x  = scm_float2num(at->x);
@@ -842,10 +842,10 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 			at_info = scm_list_3(compound_name, compound_attrib, at_pos);
 			all_atoms = scm_cons(at_info, all_atoms);
 		     }
+		     r = all_atoms;
 		  }
 	       }
 	    }
-	    r = all_atoms;
 	 }
       }
    }

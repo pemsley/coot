@@ -296,3 +296,40 @@ SCM find_terminal_residue_type(int imol, const char *chain_id, int resno) {
 
 #endif 
 
+
+
+void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (chain_id) { 
+	 graphics_info_t g;
+	 g.mutate_chain(imol, std::string(chain_id), std::string(fasta_maybe));
+	 graphics_draw();
+	 g.update_go_to_atom_window_on_changed_mol(imol);
+      } else {
+	 std::cout << "WARNING:: bad (NULL) chain_id - no alignment" << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: inapproproate molecule number " << imol << std::endl;
+   }
+}
+
+#ifdef USE_GUILE
+SCM alignment_results_scm(int imol, const char *chain_id, const char *seq) {
+
+   SCM r = SCM_BOOL_F;
+
+   
+
+   return r;
+}
+#endif /* USE_GUILE */
+
+#ifdef USE_PYTHON
+PyObject *alignment_results_py(int imol, const char *chain_id, const char *seq) {
+
+   PyObject *r = NULL;
+
+   return r;
+} 
+#endif /* USE_PYTHON */
