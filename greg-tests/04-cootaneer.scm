@@ -11,19 +11,9 @@
 	   (begin
 	     (format #t "missing rnase pir file~%")
 	     #f)
-	   (let ((seq-text 
-		  (call-with-input-file rnase-pir
-		    (lambda (port)
-		      (let loop  ((lines '())
-				  (line (read-line port)))
-			(cond
-			 ((eof-object? line) 
-			  (string-append-with-string (reverse lines) "\n"))
-			 (else
-			  (loop (cons line lines) (read-line port)))))))))
+	   (let ((seq-text (file->string rnase-pir)))
 	     
 	     (assign-pir-sequence imol-model "A" seq-text)
-	     
 	     (set-rotation-centre 64.271 7.036 14.42)
 	     
 	     (let ((n-atom (closest-atom imol-model)))
