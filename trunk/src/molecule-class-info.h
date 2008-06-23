@@ -644,6 +644,11 @@ class molecule_class_info_t {
    std::string
    make_model_string_for_alignment(PCResidue *SelResidues,
 				   int nSelResidues) const;
+   // renumber_reidues starting at 1 and removing insertion codes
+   // (no backup).  For use in alignment (maybe other places)
+   void simplify_numbering_internal(CChain *chain_p);
+
+
 
    // String munging helper function (for reading mtz files).
    // Return a pair.first string of length 0 on error to construct dataname(s).

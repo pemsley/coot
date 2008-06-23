@@ -6228,6 +6228,20 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
    return dots_handle;
 } 
 
+// renumber_reidues starting at 1 and removing insertion codes
+// (no backup)
+void
+molecule_class_info_t::simplify_numbering_internal(CChain *chain_p) {
+
+   if (chain_p) {
+      int n_residues = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<n_residues; ires++) {
+	 CResidue *res_p = chain_p->GetResidue(ires);
+	 int residue_number = ires + 1;
+	 res_p->SetResID(res_p->name, residue_number, "");
+      } 
+   }
+}
 
 int
 molecule_class_info_t::renumber_waters() {

@@ -1909,8 +1909,9 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
    display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
-     int display_list_handle = make_ball_and_stick(info.mmdb_string(), 0.15, 0.3, 1);
-     add_reps[n_rep].add_display_list_handle(display_list_handle);
+      int display_list_handle = make_ball_and_stick(info.mmdb_string(), 0.12, 0.28, 1);
+      if ((display_list_handle >= 0) && (display_list_handle < display_list_tags.size())) 
+	 add_reps[n_rep].add_display_list_handle(display_list_handle);
    }
      
    return n_rep;
@@ -1947,7 +1948,7 @@ molecule_class_info_t::set_show_additional_representation(int representation_num
 	 if (add_reps[representation_number].representation_type == coot::BALL_AND_STICK ||
 	     add_reps[representation_number].representation_type == coot::STICKS) { 
 	   int dl_index = add_reps[representation_number].display_list_handle;
-	   std::cout << "Ball and stick add rep toggled to " << on_off_flag << std::endl;
+	   // std::cout << "Ball and stick add rep toggled to " << on_off_flag << std::endl;
 	   display_list_tags[dl_index].display_it = on_off_flag;
 	 }
       }

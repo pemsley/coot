@@ -175,6 +175,8 @@
 
    o Rotamer plots need to update on multiple do/undos.
 
+   o check the "movie" interface
+
    o Use LSQ for NCS matrices - need to be user setable option.
 
    o Mails from Phil Evans, Stephen Graham, Early April 2008 about SEG
@@ -256,6 +258,9 @@
      So that fragments of monomers can be moved independently
 
    o Update python files
+
+   o Thymine in RNA: check string, "are you sure?" on finding a t.  If
+     yes, sure add a Tr.  Need to add an O2' somehow to the reference Tr.
 
    o How about a post-swig command to add #ifdef USE_PYTHON around 
      coot_wrap_python.cc (or is it coot_wrap_python_pre.cc?)
@@ -350,6 +355,10 @@
      simple-minded manner.
 
    o User pickable atoms.
+
+   o sort out the problem with the color wheel colour chooser from the
+     colour-picker/patch widget for maps.  This needs to update the map 
+     colour dynamically.
 
    o sort out the includes so that I use -I .. and
      #include "ideal/geometry.hh" etc.

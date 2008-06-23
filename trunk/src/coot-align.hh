@@ -14,7 +14,9 @@ namespace coot {
 	 start_resno = st;
 	 types = types_in;
       }
+      friend std::ostream& operator <<(std::ostream &s, mutate_insertion_range_info_t &r);
    };
+   std::ostream& operator <<(std::ostream &s, mutate_insertion_range_info_t &r);
 
    class chain_mutation_info_container_t {
    public:
