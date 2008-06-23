@@ -1846,7 +1846,14 @@
     (gtk-box-pack-start main-vbox h-sep #f #f 2)
     (gtk-box-pack-start main-vbox buttons-hbox #f #f 6)
     
-    (gtk-entry-set-text radius-entry "8")
+    (gtk-entry-set-text (list-ref frame-info-ref 3) "A")
+    (gtk-entry-set-text (list-ref frame-info-ref 4) "1")
+    (gtk-entry-set-text (list-ref frame-info-ref 5) "10")
+    (gtk-entry-set-text (list-ref frame-info-mov 3) "B")
+    (gtk-entry-set-text (list-ref frame-info-mov 4) "1")
+    (gtk-entry-set-text (list-ref frame-info-mov 5) "10")
+
+    (gtk-entry-set-text radius-entry "8.0")
 
     (gtk-signal-connect cancel-button "clicked"
 			(lambda ()
@@ -1890,11 +1897,11 @@
 					 active-mol-ref chain-id-ref resno-1-ref resno-2-ref
 					 imol-copy chain-id-mov resno-1-mov resno-2-mov
 					 imol-map (rotation-centre) radius)
-					(close-molecule imol-copy))))
+					(set-mol-active    imol-copy 0)
+					(set-mol-displayed imol-copy 0))))
 			  
 			      (gtk-widget-destroy window)))))
     
-
     (gtk-widget-show-all window)))
 
 		      
@@ -2027,6 +2034,7 @@
 			    (gtk-widget-destroy window)))
 
       (gtk-widget-show-all window))))
+
 
 
 (define (key-bindings-gui)
