@@ -122,6 +122,10 @@
        (lambda () (make-difference-map-gui)))
 
       (add-simple-coot-menu-menuitem
+       menu "Transform map by LSQ model fit..."
+       (lambda () (transform-map-using-lsq-matrix-gui)))
+
+      (add-simple-coot-menu-menuitem
        menu "Export map..."
        (lambda ()
 	 (generic-chooser-and-file-selector
