@@ -2,16 +2,13 @@
 
    Things to fix before 0.5
 
-   12 Items, 36 hd.
+   11 Items, 35 hd.
 
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
    o Finish A-RAPPER-gui, penelope. 6hd
 
    o Finish Loopy GUI, penelope. 4hd.
-
-   o Can the map transformation interface be clearer?  Can I GUI
-     interface the most frequent usage? 1hd
 
    o  Need to check torsion restraints 
       and wiggly ligands
@@ -50,7 +47,12 @@
 
 
 
-97 Done.
+98 Done.
+
+   o Can the map transformation interface be clearer?  Can I GUI
+     interface the most frequent usage? 1hd
+
+* Done.  It was done already - I'd forgotten.
 
    o on opening the about dialog:
 
