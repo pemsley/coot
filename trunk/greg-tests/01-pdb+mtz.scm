@@ -23,6 +23,8 @@
 (define rnase-mtz (append-dir-file greg-data-dir "rnasa-1.8-all_refmac1.mtz"))
 (define terminal-residue-test-pdb (append-dir-file greg-data-dir "tutorial-add-terminal-1-test.pdb"))
 (define base-imol (graphics-n-molecules))
+(define rnase-seq     (append-dir-file greg-data-dir "rnase.seq"))
+
 
 (define have-ccp4? #f)
 (define imol-rnase -1) 
@@ -1084,3 +1086,49 @@
        #t)))
 
 
+
+(greg-testcase "Align and mutate a model with deletions" #t 
+   (lambda ()
+
+     (define (residue-in-molecule? imol chain-id resno ins-code)
+       (let ((r (residue-info imol chain-id resno ins-code)))
+;;	 (format #t "::: res-info: ~s ~s ~s ~s -> ~s~%" imol chain-id resno ins-code r)
+	 (if r
+	     #t
+	     #f)))
+
+     ;; in this PDB file 60 and 61 have been deleted. Relative to the
+     ;; where we want to be (tutorial-modern.pdb, say) 62 to 93 have
+     ;; been moved to 60 to 91
+     ;; 
+     (let ((imol (greg-pdb "rnase-A-needs-an-insertion.pdb"))
+	   (rnase-seq-string (file->string rnase-seq)))
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "missing file rnase-A-needs-an-insertion.pdb~%")
+	     (throw 'fail))
+	   (begin
+
+	     (align-and-mutate imol "A" rnase-seq-string)
+	     (write-pdb-file imol "mutated.pdb")
+
+	     (all-true? 
+	      (map 
+	       (lambda (residue-info)
+		 (let ((residue-spec (cdr residue-info))
+		       (expected-status (car residue-info)))
+		   (format #t "::::: ~s ~s ~s~%" residue-spec 
+			   (apply residue-in-molecule? residue-spec)
+			   expected-status)
+		   (eq? 
+		    (apply residue-in-molecule? residue-spec)
+		    expected-status)))
+	       (list 
+		(list #f imol "A"  1 "")
+		(list #t imol "A"  4 "")
+		(list #t imol "A" 59 "")
+		(list #f imol "A" 60 "")
+		(list #f imol "A" 61 "")
+		(list #t imol "A" 92 "")
+		(list #f imol "A" 94 "")
+		))))))))
