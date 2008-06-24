@@ -10,6 +10,46 @@
     <h1>The Happy Coot Developer Diary</h1>
 
 <hr>
+<p>Tue 24 Jun 00:46:23 2008 BST
+
+<p>As you may know - over the past year or so, there is a timer in
+Coot, which after a certain amount of time lets you know that a new
+version of Coot is available.  Coot does not "phone home" to find this
+information, I just guess at release time when there will be a new
+version out at a particular future data - and I give myself several
+months margin.  However, with 0.5 slipping, that data is fast
+approaching (end of July, if you look it up).  So I'd like a new
+release out by then or else Coot will say "Get a new Coot" - but there
+will be no new Coot available.  And that will be bad.
+
+<p>I've been attacking the TODO list for 0.5 these past 10 days or so.
+Currently it's at 11 items.  Several of those depend on MMDB PDB 3.0
+support and it seems (fingers crossed) that that may actually get
+released in the foreseeable future.
+
+<p>Then there are the 2 big one, Ramachandran restraints and
+correction of the rotamer probabilities.
+
+<p>I now have 3 probability distributions for the Ramachandran
+restraints.  I'd like to make all 3 available, so the user can choose.
+The Otwinowski parameterization is the most elegant (and least
+straightforward). Without testing them yet, my feeling is that there
+will not be much to choose between them. We'll see.
+
+<p>The rotamer probability distributions are from the Richardsons - I
+brought them back with me recently.  I am not sure how to distribute
+them - they are 45Mb or so.  My estimate is they can be properly
+integrated into Coot in less than 20 hours work.
+
+<p>Going to France for a wedding next week, which will remove any
+slack that I might have had in the release schedule...  Hey ho.
+
+<p>Recent additions: Map Transformation by LSQing models, align&mutate
+function cleaned up, stereo map drawing issues addressed, updates for
+GCC 4.3, MSE rotamers in Alt Confs, NCS chain skipping with
+hetero-dimers fixed. (Mac distro has taken a back-seat).
+
+<hr>
 <p>Sat 14 Jun 00:57:14 2008 BST
 
 <p>First "restful" week in ages.  Since the start of this year I have
@@ -29,7 +69,7 @@ let it whoosh by...
 thought.  Not much action at the CCP4 stand.  A few people came over
 and said hello, which I appreciated.
 
-<p>I don't think putting trout in an underground lake is a good idear
+<p>I don't think putting trout in an underground lake is a good idea
 - not for the fish anyway.
 
 <hr>
@@ -65,7 +105,7 @@ tracing and how to get that in to Coot.  There is no easy way to add a
 ray tracer - which is slightly annoying, there are lots of ray tracers
 but none of them fit the bill.  Yafray might be the best of the bunch.
 Its documentation is terrible though.  And it seems to be dead or in
-statis for a couple of years.  Hmm...
+stasis for a couple of years.  Hmm...
 
 
 <hr>
@@ -314,7 +354,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Sat Jun 14 01:16:26 BST 2008
+Last modified: Tue Jun 24 01:11:12 BST 2008
 <!-- hhmts end -->
   </body>
 </html>

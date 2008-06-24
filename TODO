@@ -203,6 +203,10 @@
 
    o Use libglade
 
+   o Rotate Translate: Add an additional GUI (possibly in the toolbar)
+     to specify the type of R/T entity, a zone (default) a chain, a
+     whole molecule.
+
    o Move widget functions in c-interface-build.cc to
      c-interface-gui.cc (or consider new c-interface-build-gui.cc).
 

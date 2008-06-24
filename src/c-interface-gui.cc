@@ -360,9 +360,10 @@ void wrapped_create_coot_references_dialog() {
 
 }
 
-void fill_references_notebook(GtkWidget *toolbutton, int reference_id) {
 
-#if (GTK_MAJOR_VERSION > 1)
+#ifdef COOT_USE_GTK2_INTERFACE
+void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
+
   GtkWidget *notebook;
   GtkWidget *ref_text_view;
   GtkWidget *bib_text_view;
@@ -438,8 +439,8 @@ void fill_references_notebook(GtkWidget *toolbutton, int reference_id) {
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
 
-#endif // GTK_MAJOR_VERSION
 }
+#endif // GTK_MAJOR_VERSION
 
 void set_graphics_window_size(int x_size, int y_size) {
 

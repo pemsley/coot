@@ -2483,7 +2483,49 @@ short int mtz_use_weight_for_map(int imol_map) {
    args.push_back(imol_map);
    add_to_history_typed(cmd, args);
    return i;
+}
+
+// return #f or ("xxx.mtz" "FPH" "PHWT" "" #f)
+//
+#ifdef USE_GUILE
+SCM map_parameters_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_map_molecule(imol)) {
+      r = SCM_EOL;
+      if (graphics_info_t::molecules[imol].save_use_weights)
+	 r = scm_cons(SCM_BOOL_T, r);
+      else 
+	 r = scm_cons(SCM_BOOL_F, r);
+      r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_weight_col.c_str()), r);
+      r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_phi_col.c_str()), r);
+      r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_f_col.c_str()), r);
+      r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_mtz_file_name.c_str()), r);
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+
+#ifdef USE_GUILE
+// return #f or (45 46 47 90 90 120), angles in degrees.
+SCM map_cell_scm(int imol) {
+   SCM r = SCM_BOOL_F;
+   if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
+      std::pair<bool, clipper::Cell> cell = graphics_info_t::molecules[imol].cell();
+      if (cell.first) { 
+	 r = SCM_EOL;
+	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().gamma())), r);
+	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().beta() )), r);
+	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().alpha())), r);
+	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().c())), r);
+	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().b())), r);
+	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().a())), r);
+      }
+   } 
+   return r;
 } 
+#endif // USE_GUILE
 
 
 /*! \brief Put text at x,y,z  */

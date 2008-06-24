@@ -2373,6 +2373,26 @@ else
     echo not building guile_goosh:
 fi
 
+if test -n "$build_guile_lib" ; then
+   echo BUILDING guile-lib:
+#
+guile_lib_version=0.1.6
+${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
+( 
+date
+pwd
+gzip -dc ${AUTOBUILD_SOURCES}/guile-lib-$guile_lib_version.tar.gz | tar xf -
+cd guile-lib-$guile_lib_version
+./configure $generic_prefix
+$MAKE
+$MAKE install
+) > $HOSTLOGDIR/14-guile-lib.txt 2>&1
+else 
+    echo not building guile_goosh:
+fi
+
+
+
 
 
 

@@ -10356,8 +10356,10 @@ on_coot_references_coot_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_COOT);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_wincoot_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -10366,8 +10368,10 @@ on_coot_references_wincoot_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_WINCOOT);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_refmac_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -10376,8 +10380,10 @@ on_coot_references_refmac_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_REFMAC);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_ssm_toolbutton_clicked  
                                         (GtkToolButton   *toolbutton,
@@ -10386,8 +10392,10 @@ on_coot_references_ssm_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_SSM);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_mmdb_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -10396,8 +10404,10 @@ on_coot_references_mmdb_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_MMDB);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_clipper_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -10406,8 +10416,10 @@ on_coot_references_clipper_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_CLIPPER);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_buccaneer_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -10416,8 +10428,10 @@ on_coot_references_buccaneer_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_BUCCANEER);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_molprobity_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -10426,8 +10440,10 @@ on_coot_references_molprobity_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_MOLPROBITY);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_calpha_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -10436,8 +10452,10 @@ on_coot_references_calpha_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_CALPHA);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_xligand_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -10446,8 +10464,10 @@ on_coot_references_xligand_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_XLIGAND);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_others_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
