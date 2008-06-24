@@ -25,6 +25,9 @@
 (define coot-has-python? #f)
 (define map-sigma map-sigma-scm)
 (define pucker-info #f)
+(define map-parameters #f)
+(define map-cell #f)
+
 
 
 (load "filter.scm")
