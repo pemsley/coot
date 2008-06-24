@@ -52,9 +52,9 @@
 		     (SaveProposedPDBBasename (string-append "-proposed"))
 		     (loop-length (+ (- end-resno start-resno) 1))
 		     (loops-to-build
-		      (string-append chain-id (number->string start-resno)
-				     "&lt;" (number->string loop-length) "&gt;" chain-id 
-				     (number->string end-resno))))
+		      (string-append " " chain-id (number->string start-resno)
+				     "<" (number->string loop-length) ">" chain-id 
+				     (number->string end-resno) " " )))
 		    
 		(call-with-output-file xml-file-name
 		  (lambda (port)
@@ -110,7 +110,8 @@
 			      (LoopStructureCutoffNo 50) "\n"
 			      (LoopStructureMinNo 15) "\n"
 			      (LoopMainChainDensNo 5) "\n"
-			      (LoopsToBuild "A39&lt;5&gt;A43") "\n"
+			      ;; (LoopsToBuild "A39&lt;5&gt;A43") "\n"
+			      (LoopsToBuild ,loops-to-build) "\n"
 			      (LoopSequence NRESV) "\n"
 			      (UseLoopSequence 1) "\n"
 			      (InputPDB ,InputPDB) "\n"
