@@ -27,6 +27,7 @@
 (define pucker-info #f)
 (define map-parameters #f)
 (define map-cell #f)
+(define ccp4i-projects #f)
 
 
 

@@ -216,6 +216,8 @@
   
    o Redo sequence view 
 
+   o check that the puckers of the ideal RNA/DNA is correct for A form
+     and B form.  Try to find matrix example nucs for Z form.
 
    o Centos/RHEL 4.6, has gtk2 version 2.4.13, fails to compile
      guile-gtk-2.1 out of the box. It didn't know about GtkAboutDialog,

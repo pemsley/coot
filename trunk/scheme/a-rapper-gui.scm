@@ -96,11 +96,11 @@
 	       (fragment-pdb "coot-rapper-fragment-in.pdb")
 	       (rapper-out-pdb "rapper-out.pdb")
 	       (rapper-mode "model-loops-benchmark") ; maybe "ca-trace" perhaps.
+	       ;; (rapper-mode "ca-trace")
 	       (length-for-rapper 3) ; test
 	       (sequence-string (if (string? sequence)
 				    sequence
 				    "AAA"))
-	       ; (rapper-mode "ca-trace")
 	       (map-file "coot-rapper.map")
 	       (whole-pdb-file-name "rapper-all-atoms.pdb"))
 	  (write-pdb-file frag-mol fragment-pdb)

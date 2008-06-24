@@ -58,6 +58,7 @@
 #endif // USE_PYTHON
 
 #include "cc-interface.hh"
+#include "ideal-rna.hh"
 
 #ifdef USE_GUILE
 SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
@@ -117,3 +118,90 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 #endif /* USE_GUILE */
 
 
+
+/*  \brief create a molecule of idea nucleotides 
+
+use the given sequence (single letter code)
+
+RNA_or_DNA is either "RNA" or "DNA"
+
+form is either "A" or "B"
+
+@return the new molecule number or -1 if a problem */
+int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
+		       short int single_stranded_flag,
+		       const char *sequence) {
+
+   int istat = -1; 
+   short int do_rna_flag = -1;
+   short int form_flag = -1;
+
+   float here_x = graphics_info_t::RotationCentre_x();
+   float here_y = graphics_info_t::RotationCentre_y();
+   float here_z = graphics_info_t::RotationCentre_z();
+
+   std::string RNA_or_DNA_str(RNA_or_DNA);
+   std::string form_str(form);
+
+   if (RNA_or_DNA_str == "RNA")
+      do_rna_flag = 1;
+   if (RNA_or_DNA_str == "DNA")
+      do_rna_flag = 0;
+
+   if (form_str == "A")
+      form_flag = 1;
+   
+   if (form_str == "B")
+      form_flag = 1;
+
+   if (! (form_flag > 0)) {
+      std::cout << "Problem in nucleic acid form, use only either \"A\" or \"B\"."
+		<< std::endl;
+   } else {
+      if (! (do_rna_flag >= 0)) {
+	 std::cout << "Problem in nucleic acid type, use only either \"RNA\" or \"DNA\"."
+		   << "You said: \"" << RNA_or_DNA << "\"" << std::endl;
+      } else {
+	 // proceed, input is good
+
+	 std::string down_sequence(coot::util::downcase(sequence));
+	 if (graphics_info_t::standard_residues_asc.read_success) {
+	    coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
+			       down_sequence,
+			       graphics_info_t::standard_residues_asc.mol);
+	    CMMDBManager *mol = ir.make_molecule();
+
+	    if (mol) { 
+	       int imol = graphics_info_t::create_molecule();
+	       istat = imol;
+	       std::string label = "Ideal-" + form_str;
+	       label += "-form-";
+	       label += RNA_or_DNA_str;
+	       atom_selection_container_t asc = make_asc(mol);
+	       graphics_info_t::molecules[imol].install_model(imol, asc, label, 1);
+	       graphics_info_t::molecules[imol].translate_by(here_x, here_y, here_z);
+	       graphics_draw();
+	       if (graphics_info_t::go_to_atom_window) {
+		  graphics_info_t g;
+		  g.update_go_to_atom_window_on_new_mol();
+		  g.update_go_to_atom_window_on_changed_mol(imol);
+	       }
+	    }
+	 } else {
+	    std::string s("WARNING:: Can't proceed with Idea RNA - no standard residues!");
+	    std::cout << s << std::endl;
+	    graphics_info_t g;
+	    g.statusbar_text(s);
+	 } 
+      }
+   }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("ideal-nucleic-acid");
+   command_strings.push_back(single_quote(RNA_or_DNA_str));
+   command_strings.push_back(single_quote(form_str));
+   command_strings.push_back(coot::util::int_to_string(single_stranded_flag));
+   command_strings.push_back(single_quote(sequence));
+   add_to_history(command_strings);
+
+   return istat;
+}

@@ -1312,6 +1312,15 @@ else
     echo guile goosh needs to be installed
 fi
 
+# guile-lib 
+if test -f $install_top_dir/share/guile/site/sxml/simple.scm ; then
+    echo installation has guile-lib
+    build_guile_lib=
+else 
+    build_guile_lib=1
+    echo guile-lib needs to be installed
+fi
+
 
 # net http:
 if test -f $install_top_dir/share/guile/site/net/http/server.scm ; then
@@ -2373,6 +2382,25 @@ else
     echo not building guile_goosh:
 fi
 
+if test -n "$build_guile_lib" ; then
+   echo BUILDING guile-lib:
+#
+guile_lib_version=0.1.6
+${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
+( 
+date
+pwd
+gzip -dc ${AUTOBUILD_SOURCES}/guile-lib-$guile_lib_version.tar.gz | tar xf -
+cd guile-lib-$guile_lib_version
+# the prefix for guile-lib must be the prefix of guile, or else the sxml and 
+# other library files will not be found
+./configure $generic_prefix
+$MAKE
+$MAKE install
+) > $HOSTLOGDIR/14-guile-lib.txt 2>&1
+else 
+    echo not building guile_goosh:
+fi
 
 
 if test -n "$build_greg" ; then 

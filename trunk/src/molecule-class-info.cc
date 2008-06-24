@@ -267,6 +267,9 @@ molecule_class_info_t::cell() const {
 
    clipper::Cell cell;
    std::pair<bool, clipper::Cell> p(0, cell);
+   if (has_map()) {
+      p = std::pair<bool, clipper::Cell> (1, xmap_list[0].cell());
+   } 
    return p;
 }
 
@@ -1956,7 +1959,9 @@ molecule_class_info_t::set_show_additional_representation(int representation_num
 }
 
 
-// Return a pair.first string of length 0 on error to construct dataname(s).
+// Return a pair.
+// 
+// If first string of length 0 on error to construct dataname(s).
 std::pair<std::string, std::string>
 molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
 					     const std::string &phi_col_in,

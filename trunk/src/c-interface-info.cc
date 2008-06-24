@@ -2518,9 +2518,9 @@ SCM map_cell_scm(int imol) {
 	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().gamma())), r);
 	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().beta() )), r);
 	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().alpha())), r);
-	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().c())), r);
-	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().b())), r);
-	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().a())), r);
+	 r = scm_cons(scm_double2num(cell.second.descr().c()), r);
+	 r = scm_cons(scm_double2num(cell.second.descr().b()), r);
+	 r = scm_cons(scm_double2num(cell.second.descr().a()), r);
       }
    } 
    return r;
@@ -3645,8 +3645,25 @@ int refmac_runs_with_nolabels() {
     }
   }
 #else
-  /* Paul? maybe seomthing for scheme at some point */
+  /* Paul? maybe something for scheme at some point */
 #endif
 
   return ret;
 }
+
+#ifdef USE_GUILE
+SCM ccp4i_projects_scm() {
+   SCM r = SCM_EOL;
+   std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
+   std::vector<std::pair<std::string, std::string> > project_pairs =
+      parse_ccp4i_defs(ccp4_defs_file_name);
+   for (unsigned int i=0; i<project_pairs.size(); i++) {
+      SCM p = SCM_EOL;
+      p = scm_cons(scm_makfrom0str(project_pairs[i].second.c_str()), p);
+      p = scm_cons(scm_makfrom0str(project_pairs[i].first.c_str()),  p);
+      r = scm_cons(p, r);
+   }
+   r = scm_reverse(r);
+   return r;
+} 
+#endif

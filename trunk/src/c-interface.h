@@ -4842,6 +4842,21 @@ int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w);
 
 
 /*  ----------------------------------------------------------------------- */
+/*                  CCP4i Interface                                         */
+/*  ----------------------------------------------------------------------- */
+/*! \name CCP4mg Interface */
+/* \{ */
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return a list of pairs of strings, the project names and
+  the directory.  Include aliases. */
+SCM ccp4i_projects_scm();
+#endif
+#endif
+/* \} */
+
+
+/*  ----------------------------------------------------------------------- */
 /*                  CCP4MG Interface                                        */
 /*  ----------------------------------------------------------------------- */
 /*! \name CCP4mg Interface */
