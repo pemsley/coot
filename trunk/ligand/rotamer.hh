@@ -28,6 +28,31 @@
 
 namespace coot {
 
+   // filled with molprobity table data
+   //
+   // We want this to be a static, and we ask for the probability of a
+   // rotamer of given a set of chi angles.
+   // 
+   class rotamer_probability_tables {
+
+      class a_rotamer_table {
+      public:
+	 std::string residue_name;
+	 int n_chis;
+	 std::vector<float> chi_1;
+	 std::vector<std::vector<float> > chi_1_2;
+	 std::vector<std::vector<std::vector<float> > > chi_1_2_3;
+	 std::vector<std::vector<std::vector<std::vector<float> > > > chi_1_2_3_4;
+      };
+
+      void fill_tables(); // set is_well_formatted.
+      std::vector<a_rotamer_table> tables;
+   public:
+      rotamer_probability_tables();
+      bool is_well_formatted;
+      float probability_this_rotamer(const std::vector<float> &chi_angles) const;
+   }; 
+
    class rotamer_probability_info_t {
    public:
       short int state;
