@@ -436,7 +436,9 @@ void run_clear_backups_py(int retval);
 void fill_about_window(GtkWidget *widget);
 void add_coot_references_button(GtkWidget *widget);
 void wrapped_create_coot_references_dialog();
-void fill_references_notebook(GtkWidget *widget, int reference_id);
+#ifdef COOT_USE_GTK2_INTERFACE
+void fill_references_notebook(GtkToolButton *toolbutton, int reference_id);
+#endif
  
 /*! \brief What is the molecule number of first coordinates molecule?
 
@@ -1226,6 +1228,16 @@ const char *mtz_weight_for_map(int imol_map);
   associated with that map. */
 short int mtz_use_weight_for_map(int imol_map);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return the parameter that made the map, #f or something
+  like ("xxx.mtz" "FPH" "PHWT" "" #f) */
+SCM map_parameters_scm(int imol);
+/*! \brief return the parameter that made the map, #f or something
+  like (45 46 47 90 90 120), angles in degress */
+SCM map_cell_scm(int imol);
+#endif
+#endif
 /*! \} */
 
 
