@@ -134,6 +134,7 @@ if test x$coot_guile = xtrue ; then
    GUILE_FLAGS
    AM_GUILE_GOOSH
    AM_GUILE_NET_HTTP
+   AM_GUILE_LIB
    AM_GUILE_GUI
    GUILE_VERSION=`guile-config --version  2>&1 | awk '{split($NF, arr, "[[.]]");  print arr[[1]] "." arr[[2]]}'`
    echo checking GUILE_VERSION: $GUILE_VERSION
