@@ -48,6 +48,7 @@ class UtilTestFunctions(unittest.TestCase):
         else:
             if (not coot_has_guile()):
                 print "Skipping guile test (actually passing!)"
+                skipped_tests.append("Test running scheme function")
                 return
 
         tot = run_scheme_command("(+ 2 2)")

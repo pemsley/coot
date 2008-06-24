@@ -48,9 +48,11 @@ class ShelxTestFunctions(unittest.TestCase):
         else:
             if (not type(hof_res) is StringType):
                 print "hof-res not defined - skipping test (actually passing!)"
+                skipped_tests.append("Read small molecule .res file")
                 return
             if (not os.path.isfile(hof_res)):
                 print "%s does not exist - skipping test (actually passing!)" %hof_res
+                skipped_tests.append("Read small molecule .res file")
                 return
             
         imol = read_pdb(hof_res)
@@ -66,6 +68,7 @@ class ShelxTestFunctions(unittest.TestCase):
         else:
             if (not os.path.isfile(hollander_ins)):
                 print "%s  does not exist - skipping test (actually passing)" %hollander_ins
+                skipped_tests.append("Read hollander small molecule .res file")
                 return
 
         imol = read_pdb(hollander_ins)
