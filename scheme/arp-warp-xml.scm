@@ -53,7 +53,7 @@
 		     (loop-length (+ (- end-resno start-resno) 1))
 		     (loops-to-build
 		      (string-append chain-id (number->string start-resno)
-				     "&lt;" loop-length "&gt;" chain-id 
+				     "&lt;" (number->string loop-length) "&gt;" chain-id 
 				     (number->string end-resno))))
 		    
 		(call-with-output-file xml-file-name
