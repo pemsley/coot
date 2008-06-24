@@ -5924,8 +5924,10 @@ on_preferences_general_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_GENERAL_PREFERENCES);
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_preferences_bond_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -5933,8 +5935,10 @@ on_preferences_bond_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_BOND_PREFERENCES);
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_preferences_map_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -5942,8 +5946,10 @@ on_preferences_map_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_MAP_PREFERENCES);
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_preferences_geometry_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -5951,8 +5957,10 @@ on_preferences_geometry_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_GEOMETRY_PREFERENCES);
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_preferences_colour_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -5960,8 +5968,10 @@ on_preferences_colour_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_COLOUR_PREFERENCES);
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
+#if (GTK_MAJOR_VERSION >1)
 void
 on_preferences_other_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -5969,7 +5979,6 @@ on_preferences_other_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_OTHER_PREFERENCES);
 }
-
 #endif /* GTK_MAJOR_VERSION */
 
 void
@@ -8989,7 +8998,6 @@ on_reset_view_button_clicked           (GtkButton       *button,
 } 
 
 #if (GTK_MAJOR_VERSION > 1)
-
 void
 on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
@@ -8997,20 +9005,23 @@ on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
    GtkWidget *widget = wrapped_create_display_control_window();
    gtk_widget_show(widget);
 }
+#endif /* GTK_MAJOR_VERSION */
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
    reset_view();
 }
+#endif /* GTK_MAJOR_VERSION */
 
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
                                         gpointer         user_data) {
 }
-
-#endif 
+#endif /* GTK_MAJOR_VERSION */
 
 void
 on_display_control_all_maps_togglebutton_toggled

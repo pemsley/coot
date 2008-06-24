@@ -24411,7 +24411,7 @@ create_coot_references_dialog (void)
   gtk_widget_show (coot_references_calpha_toolbutton);
   gtk_container_add (GTK_CONTAINER (toolbar2), coot_references_calpha_toolbutton);
 
-  coot_references_xligand_toolbutton = (GtkWidget*) gtk_tool_button_new (NULL, _("xligand"));
+  coot_references_xligand_toolbutton = (GtkWidget*) gtk_tool_button_new (NULL, _("X-LIGAND"));
   gtk_widget_show (coot_references_xligand_toolbutton);
   gtk_container_add (GTK_CONTAINER (toolbar2), coot_references_xligand_toolbutton);
 
@@ -24448,7 +24448,7 @@ create_coot_references_dialog (void)
   gtk_container_add (GTK_CONTAINER (scrolledwindow30), coot_bibtext_textview);
   gtk_text_view_set_editable (GTK_TEXT_VIEW (coot_bibtext_textview), FALSE);
 
-  label652 = gtk_label_new (_("Bibtex"));
+  label652 = gtk_label_new (_("BibTeX"));
   gtk_widget_show (label652);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (coot_references_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (coot_references_notebook), 1), label652);
 

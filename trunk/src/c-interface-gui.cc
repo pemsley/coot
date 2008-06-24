@@ -369,9 +369,23 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
   GtkWidget *bib_text_view;
   GtkTextBuffer *ref_buffer;
   GtkTextBuffer *bib_buffer;
-  gchar *ref_text;
-  gchar *bib_text;
-  
+  GtkTextIter end_iter;
+  std::string ref_description;
+  std::string ref_text;
+  std::string bib_text;
+  std::string title;
+  std::string author;
+  std::string journal;
+  std::string year;
+  std::string volume;
+  std::string number;
+  std::string pages;
+  std::string bib_type;
+  std::string bib_id;
+  std::string bib_title;
+  std::string bib_author;
+  std::string bib_journal;
+
   notebook      = lookup_widget(GTK_WIDGET(toolbutton), "coot_references_notebook");
   ref_text_view = lookup_widget(GTK_WIDGET(toolbutton), "coot_references_textview");
   bib_text_view = lookup_widget(GTK_WIDGET(toolbutton), "coot_bibtext_textview");
@@ -386,56 +400,212 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
 
   gtk_text_view_set_buffer(GTK_TEXT_VIEW(ref_text_view), ref_buffer);
   gtk_text_view_set_buffer(GTK_TEXT_VIEW(bib_text_view), bib_buffer);
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(ref_text_view), GTK_WRAP_WORD);
 
   // simple text fill for now
   ref_text = "dummy";
   bib_text = "dummy";
+  ref_description = "dummy";
+  bib_title = "dummy";
+  bib_author = "dummy";
+  bib_journal = "dummy";
+
   if (reference_id == COOT_REFERENCE_COOT) {
-    ref_text = "Coot: model-building tools for molecular graphics\nEmsley P, Cowtan K\nACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n60: 2126-2132 Part 12 Sp. Iss. 1 DEC 2004";
-    bib_text = "@Article{emsley04:coot,\n  author =    {Paul Emsley and Kevin Cowtan},\n  title =     {Coot: Model-Building Tools for Molecular Graphics},\n  journal =   {Acta Crystallographica Section D - Biological Crystallography},\n  year =      2004,\n  volume =    60,\n  pages  =    2126-2132}";
+
+    ref_description = "If have found this software to be useful, you are requested to cite:\n\n";
+
+    title       = "Coot: model-building tools for molecular graphics";
+    author      = "Emsley P, Cowtan K";
+    journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+    year        = "2004";
+    volume      = "60";
+    pages       = "2126-2132";
+    number      = "Part 12 Sp. Iss. 1 DEC";
+
+    bib_type = "Article";
+    bib_id   = "emsley04:coot";
+    bib_author = "Paul Emsley and Kevin Cowtan";
+    bib_journal = "Acta Crystallographica Section D - Biological Crystallography";
   }
+
   if (reference_id == COOT_REFERENCE_WINCOOT) {
-    ref_text = "Coot News\nLohkamp, B., Emsley, P. & Cowtan, K.\nCCP4 Newsletter, 2005, 42, Contribution 7.";
-    bib_text = "wincoot bib";
+
+    ref_description = "If you used WinCoot please cite Coot and the following:\n\n";
+
+    title      = "Coot News";
+    author     = "Lohkamp B, Emsley P, Cowtan K";
+    journal    = "CCP4 Newsletter";
+    year       = "2005";
+    volume     = "42";
+    pages      = "";
+    number     = "Contribution 7";
+
+    bib_type   = "Article";
+    bib_id     = "lohkamp05:wincoot";
+    bib_author = "Bernhard Lohkamp and Paul Emsley and Kevin Cowtan";
+
   }
   if (reference_id == COOT_REFERENCE_REFMAC) {
-    ref_text = "REFMAC5 dictionary: organization of prior chemical knowledge and\nguidelines for its use\nVagin AA, Steiner RA, Lebedev AA, Potterton L, McNicholas S,\nLong F, Murshudov GN\nACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n60: 2184-2195 Part 12 Sp. Iss. 1 DEC 2004";
-    bib_text = "refmac bib";
+
+    ref_description = "The reference for the REFMAC5 Dictionary is:\n\n";
+
+    title      = "REFMAC5 dictionary: organization of prior chemical knowledge and guidelines for its use";
+    author     = "Vagin AA, Steiner RA, Lebedev AA, Potterton L, McNicholas S, Long F, Murshudov GN";
+    journal    = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+    year       = "2004";
+    volume     = "60";
+    number     = "12 Part 1";
+    pages      = "2184-2195";
+
+    bib_type   = "Article";
+    bib_id     = "Vagin:ba5073";
+    bib_title  = "{\\it REFMAC}5 dictionary: organization of prior chemical knowledge and guidelines for its use";
+    bib_author = "Vagin, Alexei A. and Steiner, Roberto A. and Lebedev, Andrey A. and Potterton, Liz and McNicholas, Stuart and Long, Fei and Murshudov, Garib N.";
+    bib_journal = "Acta Crystallographica Section D";
+
   }
   if (reference_id == COOT_REFERENCE_SSM) {
-    ref_text = "Secondary-structure matching (SSM), a new tool for fast\nprotein structure alignment in three dimensions\nKrissinel E, Henrick K\nACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n60: 2256-2268 Part 12 Sp. Iss. 1 DEC 2004";
-    bib_text = "ssm bib";
+
+    ref_description = "If using \"SSM Superposition\", please cite:\n\n";
+
+    title       = "Secondary-structure matching (SSM), a new tool for fast protein structure alignment in three dimensions";
+    author      = "Krissinel E, Henrick K";
+    journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+    year        = "2004";
+    volume      = "60";
+    number      = "12 Part 1";
+    pages       = "2256-2268";
+
+    bib_type  = "Article";
+    bib_id    = "Krissinel:ba5056";
+    bib_author = "Krissinel, E. and Henrick, K.";
+    bib_journal = "Acta Crystallographica Section D";
   }
+
   if (reference_id == COOT_REFERENCE_MMDB) {
-    ref_text = "MMDB ref";
-    bib_text = "MMDB bib";
+
+    ref_description = "The reference for the Macromolecular Database (MMDB) is:\n\n";
+
+    title       = "The new CCP4 Coordinate Library as a toolkit for the design of coordinate-related applications in protein crystallography";
+    author      = "Krissinel EB, Winn MD, Ballard CC, Ashton AW, Patel P, Potterton EA, McNicholas SJ, Cowtan KD, Emsley P.";
+    journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+    year        = "2004";
+    volume      = "60";
+    pages       = "2250-2255";
+
+    bib_type    = "Article";
+    bib_id      = "Krissinel:ba5055";
+    bib_author  = "Krissinel, E. B. and Winn, M. D. and Ballard, C. C. and Ashton, A. W. and Patel, P. and Potterton, E. A. and McNicholas, S. J. and Cowtan, K. D. and Emsley, P.";
+    bib_journal = "Acta Crystallographica Section D";
   }
   if (reference_id == COOT_REFERENCE_CLIPPER) {
-    ref_text = "The Clipper C++ libraries for X-ray crystallography\nCowtan K\nIUCr Computing Commission Newsletter, 2003, 2, 4-9";
-    bib_text = "";
+
+    ref_description = "The reference for clipper is:\n\n";
+
+    title       = "The Clipper C++ libraries for X-ray crystallography";
+    author      = "Cowtan K";
+    journal     = "IUCr Computing Commission Newsletter";
+    year        = "2003";
+    volume      = "2";
+    pages       = "4-9";
+
+    bib_type   = "Article";
+    bib_id     = "cowtan03:clipper";
+    bib_author = "Kevin Cowtan";
   }
+
   if (reference_id == COOT_REFERENCE_BUCCANEER) {
-    ref_text ="Fitting molecular fragments into electron density\nCowtan K\nACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n64: 83-89, 2008";
-    bib_text = "";
+
+    ref_description = "If using the Coot sequencing tool (\"Cootaneer\"), please cite:\n\n";
+
+    title       = "Fitting molecular fragments into electron density";
+    author      = "Cowtan K";
+    journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+    year        = "2008";
+    volume      = "64";
+    number      = "1";
+    pages       = "83-89";
+
+    bib_type    = "Article";
+    bib_id      = "Cowtan:ba5104";
+    bib_author  = "Cowtan, Kevin";
+    bib_journal = "Acta Crystallographica Section D";
   }
+
   if (reference_id == COOT_REFERENCE_MOLPROBITY) {
+
+    ref_description = "If using Molprobity tools (probe, reduce, etc.), please cite:\n\n";
+
     ref_text = "molprobity ref";
+
     bib_text = "molp bib";
   }
+
   if (reference_id == COOT_REFERENCE_CALPHA) {
+
+    ref_description = "The reference for C_ALPHA is:\n\n";
+
     ref_text = "C-alpha ref";
+
     bib_text = "C-alpha bib";
   }
+
   if (reference_id == COOT_REFERENCE_XLIGAND) {
-    ref_text = "xligand ref";
-    ref_text = "xligand bib";
+
+    ref_description = "The reference for X-LIGAND (algorithm similar to is used in ligand fitting in Coot):\n\n";
+
+    title = "X-LIGAND: an application for the automated addition of flexible ligands into electron density";
+    author = "Oldfield, TJ";
+    journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+    year        = "2001";
+    volume      = "57";
+    pages       = "696-705";
+
+    bib_type   = "Article";
+    bib_id     = "Oldfield:be0006";
+    bib_title  = "{\\it X-LIGAND}: an application for the automated addition of flexible ligands into electron density";
+    bib_author = "Oldfield, T. J.";
+    bib_journal = "Acta Crystallographica Section D";
   }
+
   if (reference_id == COOT_REFERENCE_OTHERS) {
     ref_text = "others ref";
     bib_text = "otheres bib";
   }
-  gtk_text_buffer_set_text(ref_buffer, ref_text, -1);
-  gtk_text_buffer_set_text(bib_buffer, bib_text, -1);
+
+  // assemble ref_text
+  ref_text  = author + "\n";
+  ref_text += title + "\n";
+  ref_text += journal + " " + volume + ", " + pages + ", " + year + ".\n";
+
+  // assemble bib_text
+  bib_text  = "@" + bib_type + "{" + bib_id + ",\n";
+  bib_text += "  author  =  {" + bib_author + "},\n";
+  if (bib_title == "dummy") {
+    bib_text += "  title   =  {" + title + "},\n";
+  } else {
+    bib_text += "  title   =  {" + bib_title + "},\n";
+  }
+  if (bib_journal == "dummy") {
+    bib_text += "  journal =  {" + journal + "},\n";
+  } else {
+    bib_text += "  journal =  {" + bib_journal + "},\n";
+  }
+  bib_text += "  year    =  " + year + ",\n";
+  bib_text += "  volume  =  " + volume + ",\n";
+  if (pages == "") {
+    bib_text += "\n";
+  } else {
+    bib_text += "  pages   =  " + pages + "\n";
+  }
+  bib_text += "}";
+
+  gtk_text_buffer_get_end_iter(ref_buffer, &end_iter);
+  if (ref_description != "dummy") {
+    gtk_text_buffer_insert(ref_buffer, &end_iter, ref_description.c_str(), -1);
+  }
+  gtk_text_buffer_insert(ref_buffer, &end_iter, ref_text.c_str(), -1);
+  gtk_text_buffer_set_text(bib_buffer, bib_text.c_str(), -1);
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
 

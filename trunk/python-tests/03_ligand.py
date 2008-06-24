@@ -11,6 +11,7 @@ class LigandTestFunctions(unittest.TestCase):
         else:
             if (not have_ccp4_qm):
                 print "CCP4 not set up - skipping 3GP test (actually passing!)"
+                skipped_tests.append("Get monomer test (no CCP4)")
                 return
 	# BL says:: we shoudl change the monomer_...., so that it can take 2 args
 	imol = monomer_molecule_from_3_let_code("3GP", "", "")
@@ -28,6 +29,7 @@ class LigandTestFunctions(unittest.TestCase):
         else:
             if (not valid_model_molecule_qm(imol_ligand)):
                 print "   No ligand molecule - Skipping bond thickness test (actually passing!)"
+                skipped_tests.append("Set Bond thickness test")
                 return
             
 	set_bond_thickness(imol_ligand, 5)
@@ -42,6 +44,8 @@ class LigandTestFunctions(unittest.TestCase):
         else:
             if (not valid_model_molecule_qm(imol_ligand)):
                 print "no ligand (skipping - actually passing test!)"
+                skipped_tests.append("Move and Refine Ligand test")
+                return
 
 	# set the view
 	view_number = add_view([54.5698,8.7148,20.5308],

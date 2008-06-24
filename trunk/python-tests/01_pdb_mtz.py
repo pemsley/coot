@@ -237,15 +237,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	else:
 		if (not type(terminal_residue_test_pdb) is StringType): 
 			print "%s does not exist - skipping test (actually passing!)" %terminal_residue_test_pdb
+			skipped_tests.append("Add Terminal Residue Test")
 			return
 		if (not os.path.isfile(terminal_residue_test_pdb)):
 			print "%s does not exist - skipping test (actually passing!)" %terminal_residue_test_pdb
+			skipped_tests.append("Add Terminal Residue Test")
 			return
 
 		# OK, file exists
 		imol = read_pdb(terminal_residue_test_pdb)
 		if (not valid_model_molecule_qm(imol)):
 			print "%s bad pdb read - skipping test (actually passing!)" %terminal_residue_test_pdb
+			skipped_tests.append("Add Terminal Residue Test")
 			return
 
 	add_terminal_residue(imol, "A", 1, "ALA", 1)
@@ -266,6 +269,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	rc = rotation_centre()
 	ls = [45.6, 15.8, 11.8]
 	r = sum([rc[i] - ls[i] for i in range(len(rc))])
+	
 	self.failIf(r > 0.66, "Bad placement of terminal residue")
 
 
@@ -414,6 +418,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    else:
 		if (cis_pep_mol < 0): 
 			print "skipping CIS test (actually passing!) as problem on read pdb"
+			skipped_tests.append("Correction of CISPEP test")
 			return
 
 	    view_number = add_view([63.455, 11.764, 1.268],
@@ -566,12 +571,15 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    else:
 		    if (not os.path.isfile(horne_pdb)):
 			    print "file %s not found - skipping test (actually passing!)" %horne_pdb
+			    skipped_tests.append("Libcif horne")
 			    return
 		    if (not os.path.isfile(horne_cif)):
 			    print "file %s not found - skipping test (actually passing!)" %horne_cif
+			    skipped_tests.append("Libcif horne")
 			    return
 		    if (not os.path.isfile(horne_works_cif)):
 			    print "file %s not found - skipping test (actually passing!)" %horne_works_cif
+			    skipped_tests.append("Libcif horne")
 			    return
 		    
 	    imol = read_pdb(horne_pdb)
@@ -727,6 +735,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    else:
 		    if (not valid_model_molecule_qm(imol)):
 			print "file %s not found, skipping test (actually passing!)" %carbo
+			skipped_tests.append("Make a glycosidic linkage")
 			return
 		    
 	    atom_1 = get_atom(imol, "A", 1, " O4 ")

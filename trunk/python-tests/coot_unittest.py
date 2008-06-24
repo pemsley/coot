@@ -5,7 +5,10 @@ print "==============================================================="
 import unittest, os
 import inspect
 global have_test_skip
+global skipped_tests
+
 have_test_skip = False
+skipped_tests  = []
 
 if ('skip' in dir(unittest.TestCase)):
     have_test_skip = True
@@ -118,9 +121,19 @@ for test in test_list:
 
 result = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
 if have_test_skip:
-	print "\nUnittest skip exists and the following tests where skipped:\n"
-	for skipped in result.skipped:
-		print skipped[1]
+    print "\nUnittest skip exists!"
+    if (result.skipped):
+        print "..with the following skipping message:"
+        for skipped in result.skipped:
+            print "   ", skipped[1]
+        print "\n"
+else:
+    print "\nUnitest skip does not exist!"
+    if (skipped_tests):
+        print "The following tests were skipped and marked as passed:"
+        for test in skipped_tests:
+            print "   ", test
+        print "\n"
 
 if (result.wasSuccessful()):
     coot_real_exit(0)
