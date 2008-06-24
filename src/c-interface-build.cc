@@ -97,7 +97,6 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 
-#include "ideal-rna.hh"
 #include "cmtz-interface.hh" // for valid columns mtz_column_types_info_t
 #include "c-interface-mmdb.hh"
 #include "c-interface-scm.hh"
@@ -5491,145 +5490,8 @@ float fffear_angular_resolution() {
    return graphics_info_t::fffear_angular_resolution; 
 }
 
-/*  \brief create a molecule of idea nucleotides 
-
-use the given sequence (single letter code)
-
-RNA_or_DNA is either "RNA" or "DNA"
-
-form is either "A" or "B"
-
-@return the new molecule number or -1 if a problem */
-int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
-		       short int single_stranded_flag,
-		       const char *sequence) {
-
-   int istat = -1; 
-   short int do_rna_flag = -1;
-   short int form_flag = -1;
-
-   float here_x = graphics_info_t::RotationCentre_x();
-   float here_y = graphics_info_t::RotationCentre_y();
-   float here_z = graphics_info_t::RotationCentre_z();
-
-   std::string RNA_or_DNA_str(RNA_or_DNA);
-   std::string form_str(form);
-
-   if (RNA_or_DNA_str == "RNA")
-      do_rna_flag = 1;
-   if (RNA_or_DNA_str == "DNA")
-      do_rna_flag = 0;
-
-   if (form_str == "A")
-      form_flag = 1;
-   
-   if (form_str == "B")
-      form_flag = 1;
-
-   if (! (form_flag > 0)) {
-      std::cout << "Problem in nucleic acid form, use only either \"A\" or \"B\"."
-		<< std::endl;
-   } else {
-      if (! (do_rna_flag >= 0)) {
-	 std::cout << "Problem in nucleic acid type, use only either \"RNA\" or \"DNA\"."
-		   << "You said: \"" << RNA_or_DNA << "\"" << std::endl;
-      } else {
-	 // proceed, input is good
-
-	 std::string down_sequence(coot::util::downcase(sequence));
-	 if (graphics_info_t::standard_residues_asc.read_success) {
-	    coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
-			       down_sequence,
-			       graphics_info_t::standard_residues_asc.mol);
-	    CMMDBManager *mol = ir.make_molecule();
-
-	    if (mol) { 
-	       int imol = graphics_info_t::create_molecule();
-	       istat = imol;
-	       std::string label = "Ideal-" + form_str;
-	       label += "-form-";
-	       label += RNA_or_DNA_str;
-	       atom_selection_container_t asc = make_asc(mol);
-	       graphics_info_t::molecules[imol].install_model(imol, asc, label, 1);
-	       graphics_info_t::molecules[imol].translate_by(here_x, here_y, here_z);
-	       graphics_draw();
-	       if (graphics_info_t::go_to_atom_window) {
-		  graphics_info_t g;
-		  g.update_go_to_atom_window_on_new_mol();
-		  g.update_go_to_atom_window_on_changed_mol(imol);
-	       }
-	    }
-	 } else {
-	    std::string s("WARNING:: Can't proceed with Idea RNA - no standard residues!");
-	    std::cout << s << std::endl;
-	    graphics_info_t g;
-	    g.statusbar_text(s);
-	 } 
-      }
-   }
-   std::vector<std::string> command_strings;
-   command_strings.push_back("ideal-nucleic-acid");
-   command_strings.push_back(single_quote(RNA_or_DNA_str));
-   command_strings.push_back(single_quote(form_str));
-   command_strings.push_back(coot::util::int_to_string(single_stranded_flag));
-   command_strings.push_back(single_quote(sequence));
-   add_to_history(command_strings);
-
-   return istat;
-}
 
 
-GtkWidget *wrapped_nucleotide_builder_dialog() {
-
-   GtkWidget *w = create_nucleotide_builder_dialog(); 
-   return w;
-} 
-
-void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
-
-   std::string type = "RNA";
-   std::string form = "A";
-   short int single_stranded_flag = 0;
-   GtkWidget *entry = lookup_widget(builder_dialog, "nucleotide_sequence");
-   GtkWidget *type_optionmenu = lookup_widget(builder_dialog,
-					      "nucleotide_builder_type_optionmenu");
-   GtkWidget *form_optionmenu = lookup_widget(builder_dialog,
-					      "nucleotide_builder_form_optionmenu");
-   GtkWidget *strand_optionmenu = lookup_widget(builder_dialog,
-						"nucleotide_builder_strand_optionmenu");
-
-
-   GtkWidget *menu;
-   GtkWidget *active_item;
-   int active_index;
-
-   menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(type_optionmenu));
-   active_item = gtk_menu_get_active(GTK_MENU(menu));
-   active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
-   std::cout << "DEBUG:: active_index for type: " << active_index << std::endl;
-   if (active_index == 1)
-      type = "DNA";
-
-   menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(form_optionmenu));
-   active_item = gtk_menu_get_active(GTK_MENU(menu));
-   active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
-   std::cout << "DEBUG:: active_index for form: " << active_index << std::endl;
-   if (active_index == 1)
-      form = "B";
-
-   menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(strand_optionmenu));
-   active_item = gtk_menu_get_active(GTK_MENU(menu));
-   active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
-   std::cout << "DEBUG:: active_index for strand: " << active_index << std::endl;
-   if (active_index == 1)
-      single_stranded_flag = 1;
-
-   
-   const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
-   if (txt) {
-      ideal_nucleic_acid(type.c_str(), form.c_str(), single_stranded_flag, txt);
-   }
-}
 
 /*  ----------------------------------------------------------------------- */
 /*                  rigid body refinement                                   */

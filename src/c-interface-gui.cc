@@ -3694,6 +3694,59 @@ int residue_info_dialog_is_displayed() {
    return r;
 }
 
+GtkWidget *wrapped_nucleotide_builder_dialog() {
+
+   GtkWidget *w = create_nucleotide_builder_dialog(); 
+   return w;
+} 
+
+void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
+
+   std::string type = "RNA";
+   std::string form = "A";
+   short int single_stranded_flag = 0;
+   GtkWidget *entry = lookup_widget(builder_dialog, "nucleotide_sequence");
+   GtkWidget *type_optionmenu = lookup_widget(builder_dialog,
+					      "nucleotide_builder_type_optionmenu");
+   GtkWidget *form_optionmenu = lookup_widget(builder_dialog,
+					      "nucleotide_builder_form_optionmenu");
+   GtkWidget *strand_optionmenu = lookup_widget(builder_dialog,
+						"nucleotide_builder_strand_optionmenu");
+
+
+   GtkWidget *menu;
+   GtkWidget *active_item;
+   int active_index;
+
+   menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(type_optionmenu));
+   active_item = gtk_menu_get_active(GTK_MENU(menu));
+   active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+   std::cout << "DEBUG:: active_index for type: " << active_index << std::endl;
+   if (active_index == 1)
+      type = "DNA";
+
+   menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(form_optionmenu));
+   active_item = gtk_menu_get_active(GTK_MENU(menu));
+   active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+   std::cout << "DEBUG:: active_index for form: " << active_index << std::endl;
+   if (active_index == 1)
+      form = "B";
+
+   menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(strand_optionmenu));
+   active_item = gtk_menu_get_active(GTK_MENU(menu));
+   active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+   std::cout << "DEBUG:: active_index for strand: " << active_index << std::endl;
+   if (active_index == 1)
+      single_stranded_flag = 1;
+
+   
+   const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+   if (txt) {
+      ideal_nucleic_acid(type.c_str(), form.c_str(), single_stranded_flag, txt);
+   }
+}
+
+
 
 GtkWidget *wrapped_create_display_control_window() { 
 

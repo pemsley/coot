@@ -24,6 +24,7 @@
 #include "mmdb.h" 
 #include "coot-coord-utils.hh"
 #include "torsion-general.hh"
+#include <dirent.h>     
 
 #include <algorithm> // for reverse()
 
@@ -268,6 +269,54 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
    }
    return 0;
 }
+
+namespace coot { 
+   bool matches_data_name(const std::string &file_str) {
+      bool m = 1; 
+      return m; 
+   }
+}
+
+void get_rotamer_probabilities(const std::string &rotamer_probability_dir) {
+
+   std::vector<std::string> prob_data_list; 
+   DIR *ref_struct_dir = opendir(rotamer_probability_dir.c_str()); 
+
+   if (ref_struct_dir == NULL) { 
+      std::cout << "An error occured on opendir" << std::endl;
+   } else { 
+
+      std::cout << rotamer_probability_dir
+		<< " successfully opened" << std::endl; 
+
+      // loop until the end of the filelist (readdir returns NULL)
+      // 
+      struct dirent *dir_ent; 
+
+      while(1) { 
+	 dir_ent = readdir(ref_struct_dir); 
+
+	 if (dir_ent != NULL) { 
+
+	    std::string file_str(dir_ent->d_name); 
+	    if (coot::matches_data_name(file_str)) {
+
+	       // Construct a file in a unix directory - non-portable?
+	       // 
+	       std::string s(rotamer_probability_dir);
+	       s += "/"; 
+	       s += file_str; 
+
+	       prob_data_list.push_back(s); 
+	    }
+	 } else { 
+	    break;
+	 }
+      }
+      closedir(ref_struct_dir); 
+   } 
+   // return prob_data_list; 
+} 
 
 
 int main(int argc, char **argv) {

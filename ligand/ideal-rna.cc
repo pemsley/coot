@@ -82,15 +82,17 @@ coot::ideal_rna::make_molecule() {
 	    // sense residue
 	    CResidue *res = coot::util::deep_copy_this_residue(ur, "", 1);
 	    res->seqNum = 1 + iseq ;
-	    sense_chain_p->AddResidue(res);
 	    clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	    coot::util::transform_atoms(res, o);
 	    std::cout << " about to mutate residue " << res->GetSeqNum()
 		      << " to type: " << seq[iseq] << " dna-flag: " << is_dna_flag
 		      << std::endl;
-	    mutate_res(res, seq[iseq], is_dna_flag);
-	    std::cout << " mutated residue " << res->GetSeqNum()
-		      << " to type: " << res->GetResName() << std::endl;
+	    int success = mutate_res(res, seq[iseq], is_dna_flag);
+	    if (success) { 
+	       sense_chain_p->AddResidue(res);
+	       std::cout << " mutated residue " << res->GetSeqNum()
+			 << " to type: " << res->GetResName() << std::endl;
+	    }
 	 }
       }
 
@@ -111,12 +113,15 @@ coot::ideal_rna::make_molecule() {
 	       CResidue *res = coot::util::deep_copy_this_residue(antisense_ref, "", 1);
 	       res->seqNum = seq.length() - iseq;
 	       // antisense_chain_p->AddResidue(res);  "backwards in pdb"
-	       residues_v.push_back(res);  // modern
 	       clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	       coot::util::transform_atoms(res, o);
 	       char complimentary_base = antisense_base(seq[iseq], is_dna_flag);
-	       if (complimentary_base) 
-		  mutate_res(res, complimentary_base, is_dna_flag);
+	       if (complimentary_base) {
+		  int success = mutate_res(res, complimentary_base, is_dna_flag);
+		  if (success) { 
+		     residues_v.push_back(res);  // modern
+		  }
+	       }
 	    }
 	 }
  	 if (residues_v.size() > 0) {
@@ -260,7 +265,7 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type,
    return std_residue;
 }
 
-// return a status:
+// return a status: 0 for bad, 1 for good.
 int 
 coot::ideal_rna::mutate_res(CResidue *res, char base, short int is_dna_flag) const {
 
@@ -288,14 +293,16 @@ coot::ideal_rna::mutate_res(CResidue *res, char base, short int is_dna_flag) con
 	 residue_type = "Cr";
    }
 
-   CResidue *std_res = get_standard_residue_instance(residue_type, standard_residues);
-   if (std_res) {
-      coot::util::mutate_base(res, std_res);
-      std::cout << "request std_res of type " << residue_type << " and got " 
-		<< std_res->GetResName() << std::endl;
-      std::cout << "coot::util::mutate_base " << res->GetResName() << " with std "
-		<< std_res->GetResName() << std::endl;
-      status = 1;
+   if (residue_type != "None") { 
+      CResidue *std_res = get_standard_residue_instance(residue_type, standard_residues);
+      if (std_res) {
+	 coot::util::mutate_base(res, std_res);
+	 std::cout << "request std_res of type " << residue_type << " and got " 
+		   << std_res->GetResName() << std::endl;
+	 std::cout << "coot::util::mutate_base " << res->GetResName() << " with std "
+		   << std_res->GetResName() << std::endl;
+	 status = 1;
+      }
    }
    return status;
 }

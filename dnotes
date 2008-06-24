@@ -6,7 +6,11 @@
 
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
+* see what cootbb says...
+
    o Finish A-RAPPER-gui, penelope. 6hd
+
+* see what nick says.
 
    o Finish Loopy GUI, penelope. 4hd.
 
@@ -20,6 +24,9 @@
       item to bed.  2hd
 
    o Kevin's Ramachandran Refinement target, 16hd
+
+   o refmac-runs-with-no-labels, c-interface-info.cc (wrong place for
+     this?)   <1hd.
 
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
@@ -6014,11 +6021,11 @@ Sat Jun 21 01:55:45 BST 2008
 
     Priority: Medium/Low  (fix refine by sphere first)
 
-
     
 ----
 Sat Jun 21 02:10:01 BST 2008
 
+  Try this again:
 
    o crash on delete residue range: Harri Jayaram
 
@@ -6035,6 +6042,22 @@ Sat Jun 21 02:10:01 BST 2008
       1hd.
 
 * Can't reproduce now.
+
+----
+Sat Jun 21 12:39:55 BST 2008
+
+
+   "Triple refine" (manual-refine-residues 1) at the C terminus should refine
+   2 residues (like autozone does, I think).
+
+
+----
+Sat Jun 21 14:56:11 BST 2008
+
+running loopy:
+
+$flex_wARP_warpbin/loop -paramfile=rnase_2_1_com.tmp
+
 
 ----
 Sun Jun 22 14:05:59 BST 2008
