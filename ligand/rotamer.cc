@@ -21,8 +21,110 @@
  * 02110-1301, USA
  */
 
+#include <fstream>
 #include "rotamer.hh"
 #include "mgtree.h"
+
+coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name,
+				       const std::string &file_name) {
+
+   if (residue_name == "SER" || residue_name == "VAL" ||
+       residue_name == "THR" || residue_name == "CYS") { 
+      fill_chi_1(file_name);
+   }
+   if (residue_name == "ASN" || residue_name == "ASP" || residue_name == "PHE" ||
+       residue_name == "TYR" || residue_name == "TRP" || residue_name == "HIS" ||
+       residue_name == "ILE" || residue_name == "LEU") {
+      fill_chi_1_2(file_name);
+   }
+   if (residue_name == "MET" || residue_name == "MSE" ||
+       residue_name == "GLU" || residue_name == "GLN") {
+      fill_chi_1_2_3(file_name);
+   } 
+   if (residue_name == "LYS" || residue_name == "ARG") {
+      fill_chi_1_2_3_4(file_name);
+   }
+}
+
+void
+coot::a_rotamer_table::fill_chi_1(const std::string& file_name) {
+   
+   std::ifstream f(file_name.c_str());
+   char chars[1024];
+   
+   bool in_table = 0;
+   float chi;
+   float prob;
+   float very_small = 0.000001;
+   pr_chi_1 = std::vector<float> (360, very_small);
+   int chi_count = 0; 
+   if (f) {
+      while (!f.eof()) {
+	 f >> chars;
+	 if (not (f.eof())) { 
+	    // std::cout << chars << std::endl;
+	    if (in_table) { 
+	       chi = atof(chars);
+	       f >> chars;
+	       prob = atof(chars);
+	       int chi_val = lrint(chi-0.4);
+	       pr_chi_1[chi_val] = prob;
+// 	       std::cout << ":" << chars << ": |" << chi << "| (" << chi_val << ") "
+// 			 << float(chi_val + 0.5) << " " << pr_chi_1[chi_val]
+// 			 << std::endl;
+	    }
+	    if (! in_table) { 
+	       if (!strncmp("line.)", chars, 6)) { 
+		  std::cout << "Table starts now..." << std::endl;
+		  in_table = 1;
+	       }
+	    }
+	 } 
+      }
+   }
+}
+
+void
+coot::a_rotamer_table::fill_chi_1_2(const std::string& file_name) {
+   
+   std::ifstream f(file_name.c_str());
+   char chars[1024];
+   
+   bool in_table = 0;
+   float chi;
+   float prob;
+   float very_small = 0.000001;
+   std::vector<float> pr_chi_2(360, very_small);
+   pr_chi_1_2 =  std::vector<std::vector<float> > (360);
+   for (unsigned int i=0; i<360; i++)
+      pr_chi_1_2[i] = pr_chi_2;
+   
+   int chi_count = 0; 
+   if (f) {
+      while (!f.eof()) {
+	 f >> chars;
+	 if (not (f.eof())) { 
+	    // std::cout << chars << std::endl;
+	    if (in_table) { 
+	       chi = atof(chars);
+	       f >> chars;
+	       prob = atof(chars);
+	       int chi_val = lrint(chi-0.4);
+	       pr_chi_1[chi_val] = prob;
+// 	       std::cout << ":" << chars << ": |" << chi << "| (" << chi_val << ") "
+// 			 << float(chi_val + 0.5) << " " << pr_chi_1[chi_val]
+// 			 << std::endl;
+	    }
+	    if (! in_table) { 
+	       if (!strncmp("line.)", chars, 6)) { 
+		  std::cout << "Table starts now..." << std::endl;
+		  in_table = 1;
+	       }
+	    }
+	 } 
+      }
+   }
+}
 
 
 // Return a flag saying whether we did this or not.

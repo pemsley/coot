@@ -24,7 +24,11 @@
 #include "mmdb.h" 
 #include "coot-coord-utils.hh"
 #include "torsion-general.hh"
-#include <dirent.h>     
+#include <dirent.h>
+
+#include "rotamer.hh"
+
+
 
 #include <algorithm> // for reverse()
 
@@ -318,6 +322,14 @@ void get_rotamer_probabilities(const std::string &rotamer_probability_dir) {
    // return prob_data_list; 
 } 
 
+void rotamer_tables() {
+
+   std::string file_name = "../../coot/rama-data/rota500-ser.data";
+   coot::a_rotamer_table t("SER", file_name);
+   file_name = "../../coot/rama-data/rota500-his.data";
+   t = coot::a_rotamer_table("HIS", file_name);
+   
+} 
 
 int main(int argc, char **argv) {
 
@@ -332,5 +344,6 @@ int main(int argc, char **argv) {
       int retval = test_torsion_general(asc, pdb_filename);
       r = retval;
    }
+   rotamer_tables();
    return r;
 }
