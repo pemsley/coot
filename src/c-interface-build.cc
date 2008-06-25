@@ -281,7 +281,7 @@ int replace_fragment(int imol_target, int imol_fragment,
    std::vector<std::string> command_strings;
    command_strings.push_back("replace-fragement");
    command_strings.push_back(graphics_info_t::int_to_string(imol_target));
-   command_strings.push_back(mmdb_atom_selection_str);
+   command_strings.push_back(single_quote(mmdb_atom_selection_str));
    add_to_history(command_strings);
    return istate;
 } 
