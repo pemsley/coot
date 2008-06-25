@@ -6065,7 +6065,15 @@ Sun Jun 22 14:05:59 BST 2008
     Provide a gui interface to "multi-chicken" - 10 (or so) contour
     levels, changing in colour from one map.
 
-----
-Sun Jun 22 14:47:12 BST 2008
+
+---
+Wed Jun 25 16:40:23 BST 2008
+
+    a function similar to shell-command-to-string, but that takes
+    command line args and data lines and returns a list of strings.
+
+    Use it in get-refmac-version.
+
+
 
     
