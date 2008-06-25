@@ -3634,19 +3634,32 @@ int refmac_runs_with_nolabels() {
 
   int ret = 0;
 
+ 
+#ifdef USE_GUILE
+  SCM refmac_version = safe_scheme_command("(get-refmac-version)");
+  if (scm_list_p(refmac_version)) {
+     int major = scm_to_int(scm_list_ref(refmac_version, SCM_MAKINUM(0)));
+     int minor = scm_to_int(scm_list_ref(refmac_version, SCM_MAKINUM(1)));
+     if ((major == 5 && minor >= 4) || (major > 5)) {
+	ret = 1;
+     }
+  }
+  
+#else
 #ifdef USE_PYTHON
   PyObject *refmac_version;
   refmac_version = safe_python_command_with_return("get_refmac_version()");
   if (refmac_version) {
-    int major = PyInt_AsLong(PyList_GetItem(refmac_version, 0));
-    int minor = PyInt_AsLong(PyList_GetItem(refmac_version, 1));
-    if (major >= 5 && minor >= 4) {
-      ret = 1;
-    }
+     int major = PyInt_AsLong(PyList_GetItem(refmac_version, 0));
+     int minor = PyInt_AsLong(PyList_GetItem(refmac_version, 1));
+     if ((major == 5 && minor >= 4) || (major > 5)) {
+	ret = 1;
+     }
   }
-#else
-  /* Paul? maybe something for scheme at some point */
 #endif
+#endif
+
+  
 
   return ret;
 }

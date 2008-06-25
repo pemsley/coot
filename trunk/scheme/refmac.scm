@@ -19,6 +19,7 @@
 ;;;; Boston, MA 02111-1307 USA
 ;;;;
 
+
 ;;; Extra parameters can be passed to refmac using either a file
 ;;; "refmac-extra-params" or by setting the variable
 ;;; refmac-extra-params.  The LABIN line should not be part those
@@ -314,3 +315,30 @@
 	 ; a lambda function that accepts the choose imol as its arg:
 	 (lambda (imol)
 	   (run-refmac-for-phases imol mtz-file-name f-col sig-f-col))))))
+
+
+		    
+(define get-refmac-version
+  (let ((cached-result #f))
+
+    (lambda ()
+      (if cached-result
+	  cached-result
+	  (let ((log-file-name "refmac-version-tmp.log"))
+	    (goosh-command "refmac5" '("-i") '() log-file-name #f)
+	    (call-with-input-file log-file-name
+	      (lambda (port)
+		(let loop ((line (read-line port)))
+		  (cond
+		   ((eof-object? line) #f) ; Program line not found
+		   ((string-match "Program" line)
+		    (let* ((ls (string->list-of-strings line))
+			   (version-str (car (reverse ls)))
+			   (version-parts (map string->number (string-split version-str #\.))))
+		      ;; (format #t "version parts: ~s~%" version-parts)
+		      (set! cached-result version-parts)
+		      cached-result))
+		   (else 
+		    (loop (read-line port))))))))))))
+
+	  
