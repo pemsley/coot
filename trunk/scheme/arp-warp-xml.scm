@@ -17,7 +17,7 @@
 
 (use-modules (sxml simple))
 
-(define (write-arp-warp-xml-file imol-model chain-id start-resno end-resno imol-map xml-file-name XMLOutputFilename MessageFilename ccp4i-project-dir)
+(define (write-arp-warp-xml-file imol-model chain-id start-resno end-resno sequence number-of-models imol-map xml-file-name XMLOutputFilename MessageFilename ccp4i-project-dir)
 
   (define (cell-string imol-map)
     (let ((cell (map-cell imol-map)))
@@ -35,8 +35,8 @@
 	(let* ((map-params (map-parameters imol-map)))
 	  (if map-parameters
 	      (let* ((InputPDB (molecule-name imol-model))
-		     (InputMTZ (car map-params))
-		     (FWTLabel (strip-path (cadr map-params)))
+		     (InputMTZ  (car map-params))
+		     (FWTLabel  (strip-path (cadr map-params)))
 		     (PHIWTLabel (strip-path (caddr map-params)))
 		     (pdb-file-prefix (strip-path (file-name-sans-extension InputPDB)))
 		     ;; (XtalCell "64.897 78.323 38.792 90.00 90.00 90.00")
@@ -52,9 +52,9 @@
 		     (SaveProposedPDBBasename (string-append "-proposed"))
 		     (loop-length (+ (- end-resno start-resno) 1))
 		     (loops-to-build
-		      (string-append " " chain-id (number->string start-resno)
+		      (string-append chain-id (number->string start-resno)
 				     "<" (number->string loop-length) ">" chain-id 
-				     (number->string end-resno) " " )))
+				     (number->string end-resno))))
 		    
 		(call-with-output-file xml-file-name
 		  (lambda (port)
@@ -100,7 +100,6 @@
 			      (ExtendGapSmallerThan 0) "\n"
 			      (LoopBothWays 1) "\n"
 			      (LoopToC 1) "\n"
-			      ;; LoopLength
 			      (LoopOverlap 0) "\n"
 			      (LoopDensityCutoffNo 100) "\n"
 			      (MinimalDistance 0.3) "\n"
@@ -110,23 +109,21 @@
 			      (LoopStructureCutoffNo 50) "\n"
 			      (LoopStructureMinNo 15) "\n"
 			      (LoopMainChainDensNo 5) "\n"
-			      ;; (LoopsToBuild "A39&lt;5&gt;A43") "\n"
 			      (LoopsToBuild ,loops-to-build) "\n"
-			      (LoopSequence NRESV) "\n"
+			      (LoopSequence ,sequence) "\n"
 			      (UseLoopSequence 1) "\n"
 			      (InputPDB ,InputPDB) "\n"
-			      ;;(IncludeChains)
 			      (InputMTZ ,InputMTZ) "\n"
 			      (OutputMapFromMTZ ,OutputMapFromMTZ) "\n"
 			      (FWTLabel ,FWTLabel) "\n"
 			      (PHIWTLabel ,PHIWTLabel) "\n"
 			      (SaveResult 0) "\n"
 			      (SaveBestLoopSets 1) "\n"
-			      (SaveBestNumber 3) "\n"
+			      (SaveBestNumber ,number-of-models) "\n"
 			      (SaveLoopsDir ,SaveLoopsDir) "\n"
 			      (SaveLoopsBasename ,SaveLoopsBasename) "\n"
 			      (SaveProposedPDBDir ,SaveProposedPDBDir) "\n"
-			      (SaveProposedPDBBasename SaveProposedPDBBasename) "\n"
+			      (SaveProposedPDBBasename ,SaveProposedPDBBasename) "\n"
 			      (SaveUseLoopDef 0) "\n"
 			      (WeightMainChain 1.) "\n"
 			      (WeightSideChain 0.) "\n"))))
