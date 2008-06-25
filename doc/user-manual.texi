@@ -1880,6 +1880,7 @@ molecules and can be found under @command{Calculate ->
 
 @menu
 * Dictionary::
+* Refining Carbohydrates::
 * Planar Peptide Restraints::
 * The @t{UNK} residue type::
 @end menu
@@ -1991,6 +1992,29 @@ method if you want to read the file on more than one occasion).
 
 Note: the dictionary also provides the description of the ligand's
 torsions.
+
+@subsection Refining Carbohydrates
+@cindex carbohydrates
+
+Refining carbohydrates monomers should be as straightforward as refining
+a protein residue.  Coot will look in the dictionary for the 3-letter
+code for the particular residue type, if it does not find it, Coot will
+try to search for dictionary files using ``-b-D'' or ``-a-L'' extensions.
+
+When refining a group of carbohydrates, the situation needs a bit more
+explanation. For each residue pair with tandem residue numbers specifed
+in the refinement range selection, Coot checks if these residue types
+are are furanose or pyranose in the dictionary, and if the are both one
+or the other, then it tries to see if there are any of the 11 link types
+(BETA1-4, BETA2-3, ALPHA1-2 and so on) specified in the dictionary.  It
+does this by a distance check of the potentially bonding atoms.  If the
+distance is less than 3.0@AA{} (2.0@AA{} in 0.4.x and before, I think),
+then a glycosidic bond is made and used in the refinement.
+
+Bonds between protein and carbohydrate and branched carbohydrates are
+not yet understood.
+
+LINK and LNKR cards are not used.
 
 @subsection Planar Peptide Restraints
 @cindex planar peptide restraints
@@ -2299,7 +2323,7 @@ Function and Genetics 40: 389-408.  You can get the paper from
 @url{http://kinemage.biochem.duke.edu/databases/rotamer.php}}.
 
 The m, t and p stand for ``minus (-60)'', ``trans (180)'' and ``plus
-(+60)''.  There is one letter per @match{\chi} angle.
+(+60)''.  There is one letter per @math{\chi} angle.
 
 
 @c ------------------ Olden coot -----------------
