@@ -110,7 +110,7 @@
 (greg-testcase "flip residue (around eigen vectors)" #t 
    (lambda ()
 
-     ;; not to self, make sure this file is available when then test
+     ;; note to self, make sure this file is available when then test
      ;; is run for real.
      ;;
      (let* ((imol-orig (read-pdb "monomer-3GP.pdb"))
