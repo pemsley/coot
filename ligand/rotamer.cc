@@ -126,6 +126,17 @@ coot::a_rotamer_table::fill_chi_1_2(const std::string& file_name) {
    }
 }
 
+void
+coot::a_rotamer_table::fill_chi_1_2_3(const std::string& file_name) {
+
+}
+
+void
+coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
+
+}
+   
+
 
 // Return a flag saying whether we did this or not.
 //
