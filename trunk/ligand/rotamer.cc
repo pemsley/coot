@@ -25,11 +25,13 @@
 #include "rotamer.hh"
 #include "mgtree.h"
 
+#include "coot-utils.hh"
+
 coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name,
 				       const std::string &file_name) {
 
    if (residue_name == "SER" || residue_name == "VAL" ||
-       residue_name == "THR" || residue_name == "CYS") { 
+       residue_name == "THR" || residue_name == "CYS" || residue_name == "PRO") { 
       fill_chi_1(file_name);
    }
    if (residue_name == "ASN" || residue_name == "ASP" || residue_name == "PHE" ||
@@ -56,8 +58,12 @@ coot::a_rotamer_table::fill_chi_1(const std::string& file_name) {
    float chi;
    float prob;
    float very_small = 0.000001;
-   pr_chi_1 = std::vector<float> (360, very_small);
-   int chi_count = 0; 
+   // pr_chi_1 = std::vector<float> (360, very_small);
+   int chi_count = 0;
+   long int n_x1_obj_count = -1;
+   long int n_x2_obj_count = -1;
+   long int n_x3_obj_count = -1;
+   long int n_x4_obj_count = -1;
    if (f) {
       while (!f.eof()) {
 	 f >> chars;
@@ -73,10 +79,26 @@ coot::a_rotamer_table::fill_chi_1(const std::string& file_name) {
 // 			 << float(chi_val + 0.5) << " " << pr_chi_1[chi_val]
 // 			 << std::endl;
 	    }
-	    if (! in_table) { 
+	    if (! in_table) {
+	       // mark the start of the table
 	       if (!strncmp("line.)", chars, 6)) { 
 		  std::cout << "Table starts now..." << std::endl;
 		  in_table = 1;
+	       }
+	       // Let's get the block size of the sampling.  This
+	       // gives us the vector index to chi conversion.
+	       if (n_x1_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi1_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi1_samples_per_360: " << n_chi1_samples_per_360
+			    << std::endl;
+		  n_x1_obj_count = -1; // done
+		  pr_chi_1 = std::vector<float> (n_chi1_samples_per_360, very_small);
+	       } 
+	       if (n_x1_obj_count)
+		  n_x1_obj_count--;
+	       if (!strncmp("x1:", chars, 3)) {
+		  n_x1_obj_count = 2;
 	       }
 	    }
 	 } 
@@ -91,34 +113,90 @@ coot::a_rotamer_table::fill_chi_1_2(const std::string& file_name) {
    char chars[1024];
    
    bool in_table = 0;
-   float chi;
+   float chi_1;
+   float chi_2;
    float prob;
    float very_small = 0.000001;
-   std::vector<float> pr_chi_2(360, very_small);
-   pr_chi_1_2 =  std::vector<std::vector<float> > (360);
-   for (unsigned int i=0; i<360; i++)
-      pr_chi_1_2[i] = pr_chi_2;
-   
-   int chi_count = 0; 
+   pr_chi_1 = std::vector<float> (360, very_small);
+   int chi_count = 0;
+   long int n_x1_obj_count = -1;
+   long int n_x2_obj_count = -1;
+   long int n_x3_obj_count = -1;
+   long int n_x4_obj_count = -1;
    if (f) {
       while (!f.eof()) {
 	 f >> chars;
 	 if (not (f.eof())) { 
 	    // std::cout << chars << std::endl;
 	    if (in_table) { 
-	       chi = atof(chars);
+	       chi_1 = atof(chars);
+	       f >> chars;
+	       chi_2 = atof(chars);
 	       f >> chars;
 	       prob = atof(chars);
-	       int chi_val = lrint(chi-0.4);
+	       int chi_val = lrint(chi_1-0.4);
 	       pr_chi_1[chi_val] = prob;
 // 	       std::cout << ":" << chars << ": |" << chi << "| (" << chi_val << ") "
 // 			 << float(chi_val + 0.5) << " " << pr_chi_1[chi_val]
 // 			 << std::endl;
 	    }
-	    if (! in_table) { 
+	    if (! in_table) {
+	       // mark the start of the table
 	       if (!strncmp("line.)", chars, 6)) { 
 		  std::cout << "Table starts now..." << std::endl;
 		  in_table = 1;
+	       }
+	       // Let's get the block size of the sampling.  This
+	       // gives us the vector index to chi conversion.
+	       if (n_x1_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi1_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi1_samples_per_360: " << n_chi1_samples_per_360
+			    << std::endl;
+		  n_x1_obj_count = -1; // done
+	       } 
+	       if (n_x2_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi2_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi2_samples_per_360: " << n_chi2_samples_per_360
+			    << std::endl;
+		  n_x2_obj_count = -1; // done
+		  std::vector<float> pr_chi_1 (n_chi1_samples_per_360, very_small);
+		  pr_chi_1_2 = std::vector<std::vector<float> > (n_chi2_samples_per_360, pr_chi_1);
+	       } 
+	       if (n_x3_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi3_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi3_samples_per_360: " << n_chi3_samples_per_360
+			    << std::endl;
+		  n_x3_obj_count = -1; // done
+	       } 
+	       if (n_x4_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi4_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi4_samples_per_360: " << n_chi4_samples_per_360
+			    << std::endl;
+		  n_x4_obj_count = -1; // done
+	       } 
+	       if (n_x1_obj_count)
+		  n_x1_obj_count--;
+	       if (n_x2_obj_count)
+		  n_x2_obj_count--;
+	       if (n_x3_obj_count)
+		  n_x3_obj_count--;
+	       if (n_x4_obj_count)
+		  n_x4_obj_count--;
+	       if (!strncmp("x1:", chars, 3)) {
+		  n_x1_obj_count = 2;
+	       }
+	       if (!strncmp("x2:", chars, 3)) {
+		  n_x2_obj_count = 2;
+	       }
+	       if (!strncmp("x3:", chars, 3)) {
+		  n_x3_obj_count = 2;
+	       }
+	       if (!strncmp("x4:", chars, 3)) {
+		  n_x4_obj_count = 2;
 	       }
 	    }
 	 } 
@@ -129,13 +207,235 @@ coot::a_rotamer_table::fill_chi_1_2(const std::string& file_name) {
 void
 coot::a_rotamer_table::fill_chi_1_2_3(const std::string& file_name) {
 
+   std::ifstream f(file_name.c_str());
+   char chars[1024];
+   
+   bool in_table = 0;
+   float chi_1;
+   float chi_2;
+   float prob;
+   float very_small = 0.000001;
+   pr_chi_1 = std::vector<float> (360, very_small);
+   int chi_count = 0;
+   long int n_x1_obj_count = -1;
+   long int n_x2_obj_count = -1;
+   long int n_x3_obj_count = -1;
+   long int n_x4_obj_count = -1;
+   if (f) {
+      while (!f.eof()) {
+	 f >> chars;
+	 if (not (f.eof())) { 
+	    // std::cout << chars << std::endl;
+	    if (in_table) { 
+	       chi_1 = atof(chars);
+	       f >> chars;
+	       chi_2 = atof(chars);
+	       f >> chars;
+	       prob = atof(chars);
+	       int chi_val = lrint(chi_1-0.4);
+	       pr_chi_1[chi_val] = prob;
+// 	       std::cout << ":" << chars << ": |" << chi << "| (" << chi_val << ") "
+// 			 << float(chi_val + 0.5) << " " << pr_chi_1[chi_val]
+// 			 << std::endl;
+	    }
+	    if (! in_table) {
+	       // mark the start of the table
+	       if (!strncmp("line.)", chars, 6)) { 
+		  std::cout << "Table starts now..." << std::endl;
+		  in_table = 1;
+	       }
+	       // Let's get the block size of the sampling.  This
+	       // gives us the vector index to chi conversion.
+	       if (n_x1_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi1_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi1_samples_per_360: " << n_chi1_samples_per_360
+			    << std::endl;
+		  n_x1_obj_count = -1; // done
+	       } 
+	       if (n_x2_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi2_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi2_samples_per_360: " << n_chi2_samples_per_360
+			    << std::endl;
+		  n_x2_obj_count = -1; // done
+	       } 
+	       if (n_x3_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi3_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi3_samples_per_360: " << n_chi3_samples_per_360
+			    << std::endl;
+		  n_x3_obj_count = -1; // done
+		  std::vector<float> pr_chi_1 (n_chi1_samples_per_360, very_small);
+		  std::vector<std::vector<float> > pr_chi_1_2(n_chi2_samples_per_360, pr_chi_1);
+		  pr_chi_1_2_3 = std::vector<std::vector<std::vector<float> > > (n_chi3_samples_per_360, pr_chi_1_2);
+	       } 
+	       if (n_x4_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi4_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi4_samples_per_360: " << n_chi4_samples_per_360
+			    << std::endl;
+		  n_x4_obj_count = -1; // done
+	       } 
+	       if (n_x1_obj_count)
+		  n_x1_obj_count--;
+	       if (n_x2_obj_count)
+		  n_x2_obj_count--;
+	       if (n_x3_obj_count)
+		  n_x3_obj_count--;
+	       if (n_x4_obj_count)
+		  n_x4_obj_count--;
+	       if (!strncmp("x1:", chars, 3)) {
+		  n_x1_obj_count = 2;
+	       }
+	       if (!strncmp("x2:", chars, 3)) {
+		  n_x2_obj_count = 2;
+	       }
+	       if (!strncmp("x3:", chars, 3)) {
+		  n_x3_obj_count = 2;
+	       }
+	       if (!strncmp("x4:", chars, 3)) {
+		  n_x4_obj_count = 2;
+	       }
+	    }
+	 } 
+      }
+   }
 }
 
 void
 coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
 
-}
+   std::ifstream f(file_name.c_str());
+   char chars[1024];
    
+   bool in_table = 0;
+   float chi_1;
+   float chi_2;
+   float prob;
+   float very_small = 0.000001;
+   pr_chi_1 = std::vector<float> (360, very_small);
+   int chi_count = 0;
+   long int n_x1_obj_count = -1;
+   long int n_x2_obj_count = -1;
+   long int n_x3_obj_count = -1;
+   long int n_x4_obj_count = -1;
+   if (f) {
+      while (!f.eof()) {
+	 f >> chars;
+	 if (not (f.eof())) { 
+	    // std::cout << chars << std::endl;
+	    if (in_table) { 
+	       chi_1 = atof(chars);
+	       f >> chars;
+	       chi_2 = atof(chars);
+	       f >> chars;
+	       prob = atof(chars);
+	       int chi_val = lrint(chi_1-0.4);
+	       pr_chi_1[chi_val] = prob;
+	    }
+	    if (! in_table) {
+	       // mark the start of the table
+	       if (!strncmp("line.)", chars, 6)) { 
+		  std::cout << "Table starts now..." << std::endl;
+		  in_table = 1;
+	       }
+	       // Let's get the block size of the sampling.  This
+	       // gives us the vector index to chi conversion.
+	       if (n_x1_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi1_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi1_samples_per_360: " << n_chi1_samples_per_360
+			    << std::endl;
+		  n_x1_obj_count = -1; // done
+	       } 
+	       if (n_x2_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi2_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi2_samples_per_360: " << n_chi2_samples_per_360
+			    << std::endl;
+		  n_x2_obj_count = -1; // done
+	       } 
+	       if (n_x3_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi3_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi3_samples_per_360: " << n_chi3_samples_per_360
+			    << std::endl;
+		  n_x3_obj_count = -1; // done
+	       } 
+	       if (n_x4_obj_count == 0) {
+		  std::string l(chars);
+		  n_chi4_samples_per_360 = atoi(l.c_str());
+		  std::cout << "n_chi4_samples_per_360: " << n_chi4_samples_per_360
+			    << std::endl;
+		  n_x4_obj_count = -1; // done
+		  std::vector<float> pr_chi_1 (n_chi1_samples_per_360, very_small);
+		  std::vector<std::vector<float> > pr_chi_1_2(n_chi2_samples_per_360, pr_chi_1);
+		  std::vector<std::vector<std::vector<float> > > pr_chi_1_2_3(n_chi3_samples_per_360, pr_chi_1_2);
+		  pr_chi_1_2_3_4 = std::vector<std::vector<std::vector<std::vector<float> > > > (n_chi4_samples_per_360, pr_chi_1_2_3);
+	       } 
+	       if (n_x1_obj_count)
+		  n_x1_obj_count--;
+	       if (n_x2_obj_count)
+		  n_x2_obj_count--;
+	       if (n_x3_obj_count)
+		  n_x3_obj_count--;
+	       if (n_x4_obj_count)
+		  n_x4_obj_count--;
+	       if (!strncmp("x1:", chars, 3)) {
+		  n_x1_obj_count = 2;
+	       }
+	       if (!strncmp("x2:", chars, 3)) {
+		  n_x2_obj_count = 2;
+	       }
+	       if (!strncmp("x3:", chars, 3)) {
+		  n_x3_obj_count = 2;
+	       }
+	       if (!strncmp("x4:", chars, 3)) {
+		  n_x4_obj_count = 2;
+	       }
+	    }
+	 } 
+      }
+   }
+}
+
+
+void
+coot::rotamer_probability_tables::fill_tables() {
+
+   std::vector<std::pair<std::string, std::string> > res;
+   res.push_back(std::pair<std::string, std::string> ("SER", "rota500-ser.data"));
+   res.push_back(std::pair<std::string, std::string> ("VAL", "rota500-val.data"));
+   res.push_back(std::pair<std::string, std::string> ("THR", "rota500-thr.data"));
+   res.push_back(std::pair<std::string, std::string> ("CYS", "rota500-cys.data"));
+   res.push_back(std::pair<std::string, std::string> ("PRO", "rota500-pro.data"));
+
+   res.push_back(std::pair<std::string, std::string> ("ASN", "rota500-asn.data"));
+   res.push_back(std::pair<std::string, std::string> ("ASP", "rota500-asp.data"));
+   res.push_back(std::pair<std::string, std::string> ("PHE", "rota500-phetyr.data"));
+   res.push_back(std::pair<std::string, std::string> ("TYR", "rota500-phetyr.data"));
+   res.push_back(std::pair<std::string, std::string> ("TRP", "rota500-trp.data"));
+   res.push_back(std::pair<std::string, std::string> ("HIS", "rota500-his.data"));
+   res.push_back(std::pair<std::string, std::string> ("ILE", "rota500-ile.data"));
+   res.push_back(std::pair<std::string, std::string> ("LEU", "rota500-leu.data"));
+
+   res.push_back(std::pair<std::string, std::string> ("MET", "rota500-met.data"));
+   res.push_back(std::pair<std::string, std::string> ("MSE", "rota500-mse.data"));
+   res.push_back(std::pair<std::string, std::string> ("GLU", "rota500-glu.data"));
+   res.push_back(std::pair<std::string, std::string> ("GLN", "rota500-gln.data"));
+		 
+   res.push_back(std::pair<std::string, std::string> ("ARG", "rota500-arg.data"));
+   res.push_back(std::pair<std::string, std::string> ("LYS", "rota500-lys.data"));
+
+   std::string file_name_stub = "../../coot/rama-data/";
+   for (unsigned int i=0; i<res.size(); i++) {
+      std::string file_name = file_name_stub + "/" + res[i].second;
+      coot::a_rotamer_table t = coot::a_rotamer_table(res[i].first, file_name);
+      tables.push_back(t);
+   }
+}
+
 
 
 // Return a flag saying whether we did this or not.
