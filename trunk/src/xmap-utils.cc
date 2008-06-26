@@ -12,29 +12,29 @@ map_density_distribution(const clipper::Xmap<T> &map, short int write_output_fla
 
    mean_and_variance<T> mv;  // returned object
 
-   float min = 1e10, max = -1e10, sum = 0.0, sum_sq = 0;
-   float v; // optimised?
-   int n_point = 0;
+   double min = 1e10, max = -1e10, sum = 0.0, sum_sq = 0;
+   double v; // optimised?
+   double n_point = 0.0;
    
    clipper::Xmap_base::Map_reference_index ix;
    for (ix=map.first(); !ix.last(); ix.next()) {
 
-      n_point++; 
-      v = float (map[ix]); 
+      n_point += 1.0; 
+      v = double (map[ix]); 
 
       if (v < min) min = v; 
       if (v > max) max = v;
 
-      sum += float (v);
-      sum_sq += float (v*v); 
+      sum += v;
+      sum_sq += v*v; 
 
    }
 
-   float mean = sum/float (n_point);
+   float mean = float( sum/n_point );
 
-   float var = sum_sq/float (n_point) - mean*mean;
-   float range = max - min;
-   float inv_range = 1/range;
+   float var = float( (n_point*sum_sq - sum*sum) / (n_point*n_point) );
+   float range = float( max - min );
+   float inv_range = (range>0.0) ? (1.0/range) : (1.0);
 
 
    mv.mean = mean;
