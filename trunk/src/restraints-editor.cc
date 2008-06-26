@@ -1213,7 +1213,7 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
       std::string filename = "monomer-";
       filename += r.residue_info.comp_id;
       filename += ".cif";
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 10)
+#if (GTK_MAJOR_VERSION == 1) || ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10))
 #else
       gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(w), TRUE);
 #endif      

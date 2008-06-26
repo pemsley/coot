@@ -49,13 +49,15 @@
 
    o a test for write connectivity 1hd
 
-   o Question: does guile-lib work for guile version 1.6.x ?
 
 
 
 
 98 Done.
 
+   o Question: does guile-lib work for guile version 1.6.x ?
+ 
+* Yes, it does.
    o Can the map transformation interface be clearer?  Can I GUI
      interface the most frequent usage? 1hd
 

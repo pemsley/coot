@@ -1,8 +1,5 @@
 
-#ifndef RESTRAINTS_EDITOR_HH
-#define RESTRAINTS_EDITOR_HH
-
-/* src/restraints-editor.cc
+/* src/restraints-editor.hh
  * 
  * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
@@ -22,6 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
  */
+
+#ifndef RESTRAINTS_EDITOR_HH
+#define RESTRAINTS_EDITOR_HH
 
 namespace coot { 
    class restraints_editor {

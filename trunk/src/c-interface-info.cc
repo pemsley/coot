@@ -3618,6 +3618,21 @@ void write_ccp4mg_picture_description(const char *filename) {
 } 
 
 /*  ----------------------------------------------------------------------- */
+/*                  Restratints                                             */
+/*  ----------------------------------------------------------------------- */
+
+void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name) {
+
+   graphics_info_t g;
+   std::pair<short int, coot::dictionary_residue_restraints_t> r = 
+      g.Geom_p()->get_monomer_restraints(monomer_type);
+   if (!r.first)
+      std::cout << "Failed to find " << monomer_type << " in dictionary" << std::endl;
+   else
+      r.second.write_cif(file_name);
+} 
+
+/*  ----------------------------------------------------------------------- */
 /*                  PKGDATDDIR                                              */
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_PYTHON
