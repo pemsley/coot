@@ -11,6 +11,8 @@
 ; (define *rapper-command* (append-dir-file rapper-dir "rapper"))
 (define *rapper-command* "rapper")
 
+(define *arp/warp-loop-command* "unset")
+
 
 (define rapper-process
   (let ((pid #f))
@@ -109,7 +111,7 @@
 				   number-of-models imol-map xml-file-name 
 				   xml-out-file-name message-file-name 
 				   ccp4i-project-dir)
-	  (goosh-command "loop" (list (string-append "-paramfile=" xml-file-name))
+	  (goosh-command *arp/warp-loop-command* (list (string-append "-paramfile=" xml-file-name))
 			 '()
 			 "arp-warp-loop.log"
 			 #t)
