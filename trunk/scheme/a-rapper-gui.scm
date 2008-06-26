@@ -13,7 +13,6 @@
 
 (define *arp/warp-loop-command* "unset")
 
-
 (define rapper-process
   (let ((pid #f))
     (lambda args
@@ -73,71 +72,6 @@
 
 
 
-	    
-;; the parameters to arp/warp start-resno and end-resno include having
-;; accounted for the anchor residues.
-;;
-(define (arp/warp-it imol chain-id residue-spec-inner residue-spec-outer sequence number-of-models)
-
-  (define (make-apply-loop-button-box molecule-list)
-    (dialog-box-of-buttons "Apply Loop" (cons 280 150)
-			   (map (lambda (imol-loop)
-				  (list 
-				   (string-append "Replace Loop with molecule "
-						  (number->string imol-loop))
-				   (lambda ()
-				     (let ((atom-sel-str 
-					    (string-append "//" chain-id
-							   (number->string (car residue-spec-inner))
-							   "-"
-							   (number->string (cdr residue-spec-inner)))))
-				     (replace-fragment imol imol-loop atom-sel-str)
-				     (set-mol-displayed imol-loop 0)))))
-				molecule-list)
-			   "  Close  "))
-
-  (let ((imol-map (imol-refinement-map)))
-    (if (not (valid-map-molecule? imol-map))
-	(format #t "No valid map molecule given (possibly ambiguous)~%")
-	(let ((xml-file-name "arp-warp.xml")
-	      (xml-out-file-name "arp-warp-out.xml")
-	      (message-file-name "loopy.msg")
-	      (ccp4i-project-dir "."))
-	  (format #t "running loopy: ~s ~s ~s ~s ~s ~s~%"
-		  imol chain-id residue-spec-inner residue-spec-outer sequence number-of-models)
-	  (write-arp-warp-xml-file imol chain-id 
-				   (car residue-spec-outer)
-				   (cdr residue-spec-outer) sequence 
-				   number-of-models imol-map xml-file-name 
-				   xml-out-file-name message-file-name 
-				   ccp4i-project-dir)
-	  (goosh-command *arp/warp-loop-command* (list (string-append "-paramfile=" xml-file-name))
-			 '()
-			 "arp-warp-loop.log"
-			 #t)
-	  (let* ((pdb-file-prefix (strip-path (file-name-sans-extension 
-					      (molecule-name imol))))
-		 (loop-name-stub (string-append pdb-file-prefix "-loop")))
-	    (let ((new-loop-molecules 
-		   (map 
-		    (lambda (loop-number)
-		      (let ((loop-file-name (string-append loop-name-stub 
-							   "_" (number->string loop-number)
-							   ".pdb")))
-			(let ((imol-loop (read-pdb loop-file-name)))
-			  (format #t "~s ~s ~s~%" imol-loop chain-id residue-spec-inner)
-			  (change-chain-id imol-loop "Q" chain-id 0 0 0)
-			  (with-auto-accept
-			   (refine-zone imol-loop chain-id 
-					(car residue-spec-inner)
-					(cdr residue-spec-inner) ""))
-			  imol-loop)))
-		    (range number-of-models))))
-	      (make-apply-loop-button-box new-loop-molecules)))))))
-
-
-		   
-		   
 
 
 (define (rapper-it imol chain-id start-resno end-resno sequence number-of-models)
