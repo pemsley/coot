@@ -2702,6 +2702,7 @@ GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog();
 void show_restraints_editor(const char *monomer_type);
 #endif
 
+void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name);
 
 /* \} */
 
