@@ -79,7 +79,6 @@
 			   "ncs.scm"
 			   "cns2coot.scm"
 			   "clear-backup.scm"
-			   "arp-warp-xml.scm"
 			   "tips.scm"
 			   "americanisms.scm"
 			   "group-settings.scm")))
