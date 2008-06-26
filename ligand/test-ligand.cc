@@ -324,12 +324,10 @@ void get_rotamer_probabilities(const std::string &rotamer_probability_dir) {
 
 void rotamer_tables() {
 
-   std::string file_name = "../../coot/rama-data/rota500-ser.data";
-   coot::a_rotamer_table t("SER", file_name);
-   file_name = "../../coot/rama-data/rota500-his.data";
-   t = coot::a_rotamer_table("HIS", file_name);
-   
-} 
+   coot::rotamer_probability_tables tables;
+   tables.fill_tables();
+
+}
 
 int main(int argc, char **argv) {
 

@@ -36,6 +36,10 @@ namespace coot {
    public:
       std::string residue_name;
       int n_chis;
+      int n_chi1_samples_per_360;
+      int n_chi2_samples_per_360;
+      int n_chi3_samples_per_360;
+      int n_chi4_samples_per_360;
       std::vector<float> pr_chi_1;
       std::vector<std::vector<float> > pr_chi_1_2;
       std::vector<std::vector<std::vector<float> > > pr_chi_1_2_3;
@@ -51,10 +55,10 @@ namespace coot {
    // 
    class rotamer_probability_tables {
 
-      void fill_tables(); // set is_well_formatted.
       std::vector<a_rotamer_table> tables;
    public:
-      rotamer_probability_tables();
+      rotamer_probability_tables() { is_well_formatted = 0;}
+      void fill_tables(); // set is_well_formatted.
       bool is_well_formatted;
       float probability_this_rotamer(const std::vector<float> &chi_angles) const;
    }; 
