@@ -1236,7 +1236,15 @@ SCM map_parameters_scm(int imol);
 /*! \brief return the parameter that made the map, #f or something
   like (45 46 47 90 90 120), angles in degress */
 SCM map_cell_scm(int imol);
-#endif
+#endif /* USE_GUILE */
+#ifdef USE_PYTHON
+/*! \brief return the parameter that made the map, False or something
+  like ["xxx.mtz", "FPH", "PHWT", "", False] */
+PyObject *map_parameters_py(int imol);
+/*! \brief return the parameter that made the map, False or something
+  like [45, 46, 47, 90, 90, 120], angles in degress */
+PyObject *map_cell_py(int imol);
+#endif /* USE_PYTHON */
 #endif
 /*! \} */
 
@@ -4486,6 +4494,9 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog);
 #ifdef USE_GUILE
 SCM pucker_info_scm(int imol, SCM residue_spec, int do_pukka_pucker_check);
 #endif /* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *pucker_info_py(int imol, PyObject *residue_spec, int do_pukka_pucker_check);
+#endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 
 
@@ -4852,7 +4863,12 @@ int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w);
 /*! \brief return a list of pairs of strings, the project names and
   the directory.  Include aliases. */
 SCM ccp4i_projects_scm();
-#endif
+#endif /* USE_GUILE */
+#ifdef USE_PYTHON
+/*! \brief return a list of pairs of strings, the project names and
+  the directory.  Include aliases. */
+PyObject *ccp4i_projects_py();
+#endif /* USE_PYTHON */
 #endif
 /* \} */
 

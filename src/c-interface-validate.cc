@@ -631,6 +631,10 @@ PyObject *rotamer_graphs_py(int imol) {
       }
    } 
 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+
    return r;
 }
 #endif // USE_PYTHON

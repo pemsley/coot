@@ -6,8 +6,8 @@
  * Copyright 2007, 2008 The University of Oxford
  * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
- * Copyright 2007 by Bernhard Lohkamp
- * Copyright 2007 The University of York
+ * Copyright 2007, 2008 by Bernhard Lohkamp
+ * Copyright 2007, 2008 The University of York
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,7 +123,8 @@ PyObject *coot_has_guile() {
    PyObject *r = Py_False;
 #ifdef USE_GUILE
    r = Py_True;
-#endif   
+#endif
+   Py_INCREF(r);
    return r;
 }
 #endif
@@ -617,7 +618,7 @@ const char *atom_info_string_py(int imol, const char *chain_id, int resno,
 #ifdef USE_PYTHON
 PyObject *scm_to_py(SCM s) {
 
-   PyObject *o = Py_False;
+   PyObject *o = Py_None;
    if (scm_is_true(scm_list_p(s))) {
       SCM s_length_scm = scm_length(s);
       int s_length = scm_to_int(s_length_scm);
@@ -651,6 +652,11 @@ PyObject *scm_to_py(SCM s) {
 	 }
       }
    }
+
+   if (PyBool_Check(o) || o == Py_None) {
+     Py_INCREF(o);
+   }
+
    return o;
 }
 #endif // USE_GUILE
@@ -931,6 +937,10 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
       }
    }
 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+
    return r;
 
 }
@@ -1011,6 +1021,9 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
          if (have_resname_flag)
             break;
       }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 }
@@ -1118,6 +1131,9 @@ PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *i
 	 PyList_Append(r, PyString_FromString(next_atom_name.c_str()));
       }
    }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif // USE_PYTHON
@@ -1148,6 +1164,9 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
 	 PyList_Append(r, PyString_FromString(next_ins_code.c_str()));
 	 PyList_Append(r, PyString_FromString(next_atom_name.c_str()));
       }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 } 
@@ -1252,6 +1271,9 @@ PyObject *active_residue_py() {
       PyList_SetItem(s, 4, PyString_FromString(pp.second.second.atom_name.c_str()));
       PyList_SetItem(s, 5, PyString_FromString(pp.second.second.alt_conf.c_str()));
    }
+   if (PyBool_Check(s)) {
+     Py_INCREF(s);
+   }   
    return s;
 }
 #endif // PYTHON
@@ -1302,6 +1324,9 @@ PyObject *closest_atom_py(int imol) {
 	 PyList_SetItem(r, 1, PyString_FromString(at_info.atom->GetChainID()));
 	 PyList_SetItem(r, 0, PyInt_FromLong(imol));
       }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 } 
@@ -2506,6 +2531,29 @@ SCM map_parameters_scm(int imol) {
 }
 #endif // USE_GUILE
 
+// return False or ["xxx.mtz", "FPH", "PHWT", "", False]
+//
+#ifdef USE_PYTHON
+PyObject *map_parameters_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_map_molecule(imol)) {
+      r = PyList_New(0);
+      PyList_Append(r, PyString_FromString(graphics_info_t::molecules[imol].save_mtz_file_name.c_str()));
+      PyList_Append(r, PyString_FromString(graphics_info_t::molecules[imol].save_f_col.c_str()));
+      PyList_Append(r, PyString_FromString(graphics_info_t::molecules[imol].save_phi_col.c_str()));
+      PyList_Append(r, PyString_FromString(graphics_info_t::molecules[imol].save_weight_col.c_str()));
+      if (graphics_info_t::molecules[imol].save_use_weights)
+	PyList_Append(r, Py_True);
+      else 
+	PyList_Append(r, Py_False);
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 // return #f or (45 46 47 90 90 120), angles in degrees.
@@ -2526,6 +2574,30 @@ SCM map_cell_scm(int imol) {
    return r;
 } 
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+// return False or [45, 46, 47, 90, 90, 120), angles in degrees.
+PyObject *map_cell_py(int imol) {
+   PyObject *r = Py_False;
+   if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
+      std::pair<bool, clipper::Cell> cell = graphics_info_t::molecules[imol].cell();
+      if (cell.first) { 
+	 r = PyList_New(0);
+	 PyList_Append(r, PyFloat_FromDouble(cell.second.descr().a()));
+	 PyList_Append(r, PyFloat_FromDouble(cell.second.descr().b()));
+	 PyList_Append(r, PyFloat_FromDouble(cell.second.descr().c()));
+	 PyList_Append(r, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().alpha())));
+	 PyList_Append(r, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().beta())));
+	 PyList_Append(r, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().gamma())));
+      }
+   } 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+} 
+#endif // USE_PYTHON
+
 
 
 /*! \brief Put text at x,y,z  */
@@ -2939,6 +3011,9 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
       }
 
       PyDict_SetItem(r, PyString_FromString("_chem_comp_chir"), chiral_restraint_list);
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 }
@@ -3532,6 +3607,9 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	 retval = Py_True;
       
    }
+   if (PyBool_Check(retval)) {
+     Py_INCREF(retval);
+   }
    return retval;
 } 
 #endif // USE_PYTHON
@@ -3694,4 +3772,20 @@ SCM ccp4i_projects_scm() {
    r = scm_reverse(r);
    return r;
 } 
-#endif
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *ccp4i_projects_py() {
+   PyObject *r = PyList_New(0);
+   std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
+   std::vector<std::pair<std::string, std::string> > project_pairs =
+      parse_ccp4i_defs(ccp4_defs_file_name);
+   for (unsigned int i=0; i<project_pairs.size(); i++) {
+      PyObject *p = PyList_New(0);
+      PyList_Append(p, PyString_FromString(project_pairs[i].first.c_str()));
+      PyList_Append(p, PyString_FromString(project_pairs[i].second.c_str()));
+      PyList_Append(r, p);
+   }
+   return r;
+} 
+#endif // USE_PYTHON

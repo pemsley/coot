@@ -67,6 +67,7 @@ def tips_gui():
     if do_coot_tips_flag:
        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
        text = gtk.TextView()
+       text.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#bfe6bf"))
        text.set_editable(False)
        textbuffer = text.get_buffer()
        scrolled_win = gtk.ScrolledWindow()

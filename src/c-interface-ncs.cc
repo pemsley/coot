@@ -576,6 +576,9 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 	 }
       }
    }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif	/* USE_PYTHON */
@@ -622,6 +625,9 @@ PyObject *ncs_chain_ids_py(int imol) {
 	    }
 	 }
       }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 }
@@ -699,6 +705,9 @@ PyObject *ncs_ghosts_py(int imol) {
        PyList_Append(ghost_py, display_it_flag_py);
        PyList_Append(r, ghost_py);
      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 }

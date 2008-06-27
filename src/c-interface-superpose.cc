@@ -454,6 +454,9 @@ PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving) {
    } else {
       std::cout << "INFO:: Invalid moving molecule number " << imol_moving << std::endl;
    }
+   if (PyBool_Check(python_status)) {
+     Py_INCREF(python_status);
+   }
    return python_status;
 }
 #endif // USE_PYTHON

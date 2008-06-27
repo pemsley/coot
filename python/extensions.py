@@ -120,6 +120,9 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(menu, "Make a Difference Map...",
                                    lambda func: make_difference_map_gui())
 
+     add_simple_coot_menu_menuitem(menu, "Transform map by LSQ model fit...",
+                                   lambda func: transform_map_using_lsq_matrix_gui())
+
 
      def export_map_func(imol, text):
        export_status = export_map(imol, text)
@@ -532,6 +535,19 @@ if (have_coot_python):
                                    lambda func: molecule_chooser_gui(
        "Choose a molecule from which to clear Ball&Stick objects",
        lambda imol: clear_ball_and_stick(imol)))
+
+
+     def hilight_site_func():
+       active_atom = active_residue()
+       if (active_atom):
+         imol = active_atom[0]
+         centre_residue_spec = [active_atom[1],
+                                active_atom[2],
+                                active_atom[3]]
+         hilight_binding_site(imol, centre_residue_spec, 230,4)
+
+     add_simple_coot_menu_menuitem(menu, "Highlight Interesting Site (here)...",
+                                   lambda func: hilight_site_func())
      
 
      def make_dot_surf_func(imol,text):
@@ -597,6 +613,14 @@ if (have_coot_python):
 		lambda func: generic_single_entry("Save Views",
 			"coot-views.py", " Save ",
 			lambda txt: save_views(txt)))
+
+     # add to validate menu
+     menu = coot_menubar_menu("Validate")
+
+     add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
+                                   lambda func: molecule_chooser_gui(
+       "Choose a molecule for ribose pucker analysis",
+       lambda imol: pukka_puckers_qm(imol)))
 
   else:
 	print "BL WARNING:: could not find the main_menubar! Sorry, no extensions menu!"

@@ -755,6 +755,9 @@ PyObject *water_chain_from_shelx_ins_py(int imol) {
 	 r = PyString_FromString(water_chain->GetChainID());
       } 
    }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 /*! return the chain id of the water chain. Raw interface */
@@ -765,6 +768,9 @@ PyObject *water_chain_py(int imol) {
       if (water_chain) {
 	 r = PyString_FromString(water_chain->GetChainID());
       } 
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 }

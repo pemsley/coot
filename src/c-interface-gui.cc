@@ -536,25 +536,42 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
 
     ref_description = "If using Molprobity tools (probe, reduce, etc.), please cite:\n\n";
 
-    ref_text = "molprobity ref";
+    title       = "MolProbity: all-atom contacts and structure validation for proteins and nucleic acids";
+    author      = "Davis IW, Leaver-Fay A, Chen VB, Block JN, Kapral GJ, Wang X, Murray LW, Arendall WB 3rd, Snoeyink J, Richardson JS, Richardson DC.";
+    journal     = "Nucleic Acids Research";
+    year        = "2007";
+    volume      = "35";
+    pages       = "375-383";
 
-    bib_text = "molp bib";
+    bib_type    = "Article";
+    bib_id      = "Davis:molprobity07";
+    bib_author  = "Ian W. Davis and Andrew Leaver-Fay and Vincent B. Chen and Jeremy N. Block and Gary J. Kapral and Xueyi Wang and Laura W. Murray and W. Bryan Arendall III and Jack Snoeyink and Jane S. Richardson and David C. Richardson";
   }
 
   if (reference_id == COOT_REFERENCE_CALPHA) {
 
-    ref_description = "The reference for C_ALPHA is:\n\n";
+    ref_description = "The reference for CALPHA (idea as used in Coot when converting batons to main-chain atoms) is:\n\n";
 
-    ref_text = "C-alpha ref";
+    title       = "Polyalanine Reconstruction from C[alpha] Positions Using the Program CALPHA Can Aid Initial Phasing of Data by Molecular Replacement Procedures";
+    author      = "Esnouf RM";
+    journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+    year        = "1997";
+    volume      = "53";
+    number      = "6";
+    pages       = "665--672";
 
-    bib_text = "C-alpha bib";
+    bib_type    = "Article";
+    bib_id      = "Esnouf:ad0021";
+    bib_title   = "Polyalanine Reconstruction from C{$\\alpha$} Positions Using the Program {\\it CALPHA} Can Aid Initial Phasing of Data by Molecular Replacement Procedures";
+    bib_author  = "Esnouf, R. M.";
+    bib_journal = "Acta Crystallographica Section D";
   }
 
   if (reference_id == COOT_REFERENCE_XLIGAND) {
 
     ref_description = "The reference for X-LIGAND (algorithm similar to is used in ligand fitting in Coot):\n\n";
 
-    title = "X-LIGAND: an application for the automated addition of flexible ligands into electron density";
+    title       = "X-LIGAND: an application for the automated addition of flexible ligands into electron density";
     author = "Oldfield, TJ";
     journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
     year        = "2001";

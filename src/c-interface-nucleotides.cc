@@ -117,6 +117,66 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 }
 #endif /* USE_GUILE */
 
+#ifdef USE_PYTHON
+PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucker_check) {
+
+   std::string altconf = "";
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+      CResidue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+      if (res_p) {
+	 try {
+	    coot::pucker_analysis_info_t pi(res_p, altconf);
+	    if (do_pukka_pucker_check) {
+	       CResidue *following_res =
+		  graphics_info_t::molecules[imol].get_following_residue(residue_spec);
+	       if (following_res) {
+// 		  std::cout << "   DEBUG:: " << coot::residue_spec_t(following_res)
+// 			    << " follows " << residue_spec << std::endl;
+		  try {
+		     double phosphate_d = pi.phosphate_distance(following_res);
+		     r = PyList_New(0);
+		     PyList_Append(r, PyFloat_FromDouble(phosphate_d));
+		     PyList_Append(r, PyString_FromString(pi.puckered_atom().c_str()));
+		     PyList_Append(r, PyFloat_FromDouble(pi.out_of_plane_distance));
+		     PyList_Append(r, PyFloat_FromDouble(pi.plane_distortion));
+		     double dist_crit = 1.2;
+		     // If C2', phosphate oop dist should be > dist_crit
+		     // If C3', phosphate oop dist should be < dist_crit
+		     
+		  }
+		  catch (std::runtime_error phos_mess) {
+		     std::cout << " Failed to find Phosphate for "
+			       << coot::residue_spec_t(following_res) << " " 
+			       << phos_mess.what() << std::endl;
+		  } 
+		  
+	       } else {
+		 r = PyList_New(0);
+		  // r = scm_cons(scm_double2num(pi.plane_distortion), r);
+		  // r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
+	       } 
+	    } else { 
+	       r = PyList_New(0);
+	       PyList_Append(r, PyString_FromString(pi.puckered_atom().c_str()));
+	       PyList_Append(r, PyFloat_FromDouble(pi.out_of_plane_distance));
+	       PyList_Append(r, PyFloat_FromDouble(pi.plane_distortion));
+	    }
+	 }
+	 catch (std::runtime_error mess) {
+	    std::cout << " failed to find pucker for " << residue_spec << " " 
+		      << mess.what() << std::endl;
+	 } 
+      } 
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif /* USE_PYTHON */
+
 
 
 /*  \brief create a molecule of idea nucleotides 
