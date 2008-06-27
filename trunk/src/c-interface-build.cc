@@ -3887,7 +3887,9 @@ PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
    if (p.first) {
       graphics_info_t::mark_atom_as_fixed(imol, p.second, state);
       graphics_draw();
+      retval = Py_True; // Shall we return True if atom got marked?
    }
+   Py_INCREF(retval);
    return retval;
 }
 #endif // USE_PYTHON 
@@ -3913,9 +3915,11 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 	 double z = PyFloat_AsDouble(z_py);
 	 clipper::Coord_orth pt(x,y,z);
 	 graphics_info_t::drag_intermediate_atom(p.second, pt);
+	 retval = Py_True; // Shall we return True if atom is dragged?
       }
    }
 
+   Py_INCREF(retval);
    return retval;
 }
 #endif // USE_PYTHON
@@ -4159,6 +4163,9 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
    // clean up
    Py_XDECREF(vos);
 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif
@@ -5259,6 +5266,9 @@ PyObject *missing_atom_info_py(int imol) {
       }
       //r = scm_reverse(r);
    }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif // USE_PYTHON
@@ -6177,7 +6187,10 @@ PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
 	 graphics_info_t::molecules[imol].chain_id_for_shelxl_residue_number(resno);
       if (ch.first)
 	 r = PyString_FromString(ch.second.c_str());
-   } 
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 } 
 #endif // USE_PYTHON

@@ -91,6 +91,9 @@ PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id
       PyList_SetItem(python_status, 0, rtop_to_python(rtop_info.rtop)); 
       PyList_SetItem(python_status, 1, match_info);
    }
+   if (PyBool_Check(python_status)) {
+     Py_INCREF(python_status);
+   }
    return python_status;
 }
 #endif // USE_PYTHON
@@ -143,6 +146,9 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
       python_status = PyList_New(2);
       PyList_SetItem(python_status, 0, rtop_to_python(rtop_info.rtop));
       PyList_SetItem(python_status, 1, match_info);
+   }
+   if (PyBool_Check(python_status)) {
+     Py_INCREF(python_status);
    }
    return python_status;
 }

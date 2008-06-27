@@ -1,9 +1,9 @@
 # coot-gui.py
 #
 # Copyright 2001 by Neil Jerram
-# Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+# Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008 by The University of York
 # Copyright 2007 by Paul Emsley
-# And Add: "Copyright 2007 by Bernhard Lohkamp"? Hmm...
+# Copyright 2006, 2007, 2008 by Bernhard Lohkamp
 # with adaptions from
 #   Interactive Python-GTK Console
 #   Copyright (C), 1998 James Henstridge <james@daa.com.au>
@@ -125,82 +125,6 @@ def coot_gui():
        insert_normal_text("coot >> ")
        scroll_to_end()
 
-   def do_function(widget, entry):
-       global histpos
-       entry_text = entry.get_text()
-       print "BL INFO:: command input is: ", entry_text
-       insert_tag_text(textbuffer.create_tag(foreground="red"),entry_text + "\n")
-       while gtk.events_pending():
-         gtk.main_iteration(False)
-       his = False
-       res = None
-       try:
-             res = eval(entry_text)
-             his = True
-       except SyntaxError:
-         try:
-             test_equal = entry_text.split("=")
-             if ((len(test_equal) > 1) and (test_equal[0].strip() in globals())):
-                # we try to assign a value to a build-in function! Shouldnt!
-                warning_text = "BL WARNING:: you tried to assign a value to the\nbuild-in function: " + test_equal[0].strip() + "!\nThis is not allowed!!\n"
-                insert_normal_text(warning_text)
-                res = False
-                his = False
-             else:
-                exec entry_text in globals()
-                res = None
-                his = True
-         except:
-          guile_function =  test_and_translate_guile(entry_text)
-          if guile_function:
-             print "BL INFO::  We have a guile command!"
-             insert_normal_text("BL INFO:: Detected guile scripting!\n\
-             You should use python commands!!\n\
-             But I'm a nice guy and translated it for you, this time...!\n")
-          else:
-             insert_normal_text("BL WARNING:: Python syntax error!\n\
-             (Or you attempted to use an invalid guile command...)\n")
-             type_error, error_value = sys.exc_info()[:2]
-             error = str(error_value)
-             insert_normal_text("Python error:\n") 
-             insert_normal_text(error + "\n")
-
-       except:
-          guile_function =  test_and_translate_guile(entry_text)
-          if guile_function:
-             insert_normal_text("BL INFO:: Detected guile scripting!\nYou should use python commands!!\nBut I'm a nice guy and translated it for you, this time...!\n")
-          else:
-             insert_normal_text("BL WARNING:: Python error!\n(Or you attempted to use an invalid guile command...)\n")
-             type_error, error_value = sys.exc_info()[:2]
-             error = str(error_value)
-             insert_normal_text("Python error:\n") 
-             insert_normal_text(error + "\n")
-
-       if res is not None:
-             print "BL INFO:: result is", res
-             insert_normal_text(str(res) + "\n")
-
-       if his:
-             l = entry_text + '\n'
-             if len(l) > 1 and l[0] == '\n': l = l[1:]
-             histpos = len(history) - 1
-             # print "pedebug", l[-1]
-             # can't test l[-] because python gives us a error
-             # SystemError: ../Objects/longobject.c:223: bad argument to internal function
-             # when we do so (on set_monomer_restriaints()).
-             # if len(l) > 0 and l[-1] == '\n':
-             if len(l) > 0:
-                history[histpos] = l[:-1]
-             else:
-                history[histpos] = l
-
-             histpos += 1
-             history.append('')
-       
-       entry.set_text("")
-       entry_text = ""
-       insert_prompt()
-       
    # BL says:: now we check if entry was guile command (by mistake?!)
    # if so, let's translate it
    #
@@ -248,6 +172,91 @@ def coot_gui():
           print "This is not a guile command!"
           return False
 
+   def do_function(widget, entry):
+       global histpos
+       entry_text = entry.get_text()
+       print "BL INFO:: command input is: ", entry_text
+       if (entry_text != None):
+          insert_tag_text(textbuffer.create_tag(foreground="red"),
+                          entry_text + "\n")
+       while gtk.events_pending():
+         gtk.main_iteration(False)
+       his = False
+       res = None
+       try:
+             res = eval(entry_text)
+             his = True
+       except SyntaxError:
+         try:
+             test_equal = entry_text.split("=")
+             if ((len(test_equal) > 1)
+                 and (test_equal[0].strip() in globals())
+                 and (callable(eval(test_equal[0].strip())))):
+                # we try to assign a value to a build-in function! Shouldnt!
+                warning_text = "BL WARNING:: you tried to assign a value to the\nbuild-in function: " + test_equal[0].strip() + "!\nThis is not allowed!!\n"
+                insert_normal_text(warning_text)
+                res = False
+                his = False
+             else:
+                exec entry_text in globals()
+                res = None
+                his = True
+         except:
+          guile_function = test_and_translate_guile(entry_text)
+          if guile_function:
+             print "BL INFO::  We have a guile command!"
+             insert_normal_text("BL INFO:: Detected guile scripting!\n\
+             You should use python commands!!\n\
+             But I'm a nice guy and translated it for you, this time...!\n")
+          else:
+             insert_normal_text("BL WARNING:: Python syntax error!\n\
+             (Or you attempted to use an invalid guile command...)\n")
+             type_error, error_value = sys.exc_info()[:2]
+             error = str(error_value)
+             insert_normal_text("Python error:\n") 
+             insert_normal_text(error + "\n")
+             insert_normal_text(str(type_error) + "\n")
+
+       except:
+          if (entry_text != None):
+             guile_function =  test_and_translate_guile(entry_text)
+             if guile_function:
+                insert_normal_text("BL INFO:: Detected guile scripting!\nYou should use python commands!!\nBut I'm a nice guy and translated it for you, this time...!\n")
+             else:
+                insert_normal_text("BL WARNING:: Python error!\n(Or you attempted to use an invalid guile command...)\n")
+                type_error, error_value = sys.exc_info()[:2]
+                error = str(error_value)
+                insert_normal_text("Python error:\n") 
+                insert_normal_text(error + "\n")
+                insert_normal_text(str(type_error) + "\n")
+          else:
+             print "BL WARNING:: None input"
+
+       if res is not None:
+             print "BL INFO:: result is", res
+             insert_normal_text(str(res) + "\n")
+
+       if his:
+             l = entry_text + '\n'
+             if len(l) > 1 and l[0] == '\n': l = l[1:]
+             histpos = len(history) - 1
+             # print "pedebug", l[-1]
+             # can't test l[-] because python gives us a error
+             # SystemError: ../Objects/longobject.c:223: bad argument to internal function
+             # when we do so (on set_monomer_restriaints()).
+             # if len(l) > 0 and l[-1] == '\n':
+             if len(l) > 0:
+                history[histpos] = l[:-1]
+             else:
+                history[histpos] = l
+
+             histpos += 1
+             history.append('')
+       
+       entry.set_text("")
+       entry_text = ""
+       insert_prompt()
+       
 
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    window.set_title("Coot Python Scripting")
@@ -995,7 +1004,7 @@ def get_option_menu_active_item(option_menu, item_list):
        return False
 
 
-def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_fill_function):
+def mo1lecule_chooser_gui_generic(chooser_label, callback_function, option_menu_fill_function):
  
     def delete_event(*args):
        window.destroy()
@@ -1258,8 +1267,9 @@ def coot_menubar_menu(menu_label):
     found_menu = False
     for f in menu_bar_label_list():
        if menu_label in f: 
-          # print "BL DEBUG:: found menu label is ", f
-          found_menu = f[1]
+          #print "BL DEBUG:: found menu label is ", f
+          # we shall return the submenu and not the menuitem
+          found_menu = f[1].get_submenu()
     if found_menu:
        return found_menu
     else:
@@ -1775,9 +1785,14 @@ def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
 
 # BL says:: in python we should pass the callback as a string
 		if type(callback) is StringType:
-			def callback_func(button,call):
-				eval(call)
-			button.connect("clicked", callback_func, callback)
+                   def callback_func(button, call):
+                      eval(call)
+                   button.connect("clicked", callback_func, callback)
+                elif (type(callback) is ListType):
+                   def callback_func(button, call):
+                      for item in call:
+                         eval(item)
+                   button.connect("clicked", callback_func, callback)                   
 		else:
 			button.connect("clicked", callback)
 
@@ -1893,6 +1908,11 @@ def dialog_box_of_buttons_with_widget(window_name, geometry, buttons, extra_widg
 			def callback_func(button,call):
 				eval(call)
 			button.connect("clicked", callback_func, callback)
+                elif (type(callback) is ListType):
+                   def callback_func(button, call):
+                      for item in call:
+                         eval(item)
+                   button.connect("clicked", callback_func, callback) 
 		else:
 			button.connect("clicked", callback)
 
@@ -2209,6 +2229,126 @@ def cis_peptides_gui(imol):
       list_of_cis_peptides = make_list_of_cis_peps(imol, cis_peps)
       interesting_things_gui("Cis Peptides:", list_of_cis_peptides)
 
+#
+def transform_map_using_lsq_matrix_gui():
+
+  def delete_event(*args):
+     window.destroy()
+     return False
+
+  def on_ok_button_clicked(*args):
+     active_mol_ref = get_option_menu_active_molecule(frame_info_ref[1], frame_info_ref[2])
+     active_mol_mov = get_option_menu_active_molecule(frame_info_mov[1], frame_info_mov[2])
+     
+     chain_id_ref     = frame_info_ref[3].get_text()
+     resno_1_ref_text = frame_info_ref[4].get_text()
+     resno_2_ref_text = frame_info_ref[5].get_text()
+
+     chain_id_mov     = frame_info_mov[3].get_text()
+     resno_1_mov_text = frame_info_mov[4].get_text()
+     resno_2_mov_text = frame_info_mov[5].get_text()
+
+     radius_text = radius_entry.get_text()
+
+     imol_map = imol_refinement_map()
+     cont = False
+     try:
+        resno_1_ref = int(resno_1_ref_text)
+        resno_2_ref = int(resno_2_ref_text)
+        resno_1_mov = int(resno_1_mov_text)
+        resno_2_mov = int(resno_2_mov_text)
+        radius = float(radius_text)
+        cont = True
+     except:
+        print "BL ERROR:: conversion from input text to numbers failed"
+        
+     if (cont):
+        if (not valid_map_molecule_qm(imol_map)):
+           print "Must set the refinement map"
+        else:
+           imol_copy = copy_molecule(active_mol_mov)
+           transform_map_using_lsq_matrix(active_mol_ref, chain_id_ref, resno_1_ref, resno_2_ref,
+                                          imol_copy, chain_id_mov, resno_1_mov, resno_2_mov,
+                                          imol_map, rotation_centre(), radius)
+           set_mol_active(imol_copy, 0)
+           set_mol_displayed(imol_copy, 0)
+
+     window.destroy()
+   
+  # atom-sel-type is either 'Reference or 'Moving
+  # 
+  # return the list [frame, option_menu, model_mol_list, entries...]
+  def atom_sel_frame(atom_sel_type):
+     frame = gtk.Frame(atom_sel_type)
+     # option_menu == combobox
+     option_menu = gtk.combo_box_new_text()
+     model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
+     atom_sel_vbox = gtk.VBox(False, 2)
+     atom_sel_hbox = gtk.HBox(False, 2)
+     chain_id_label = gtk.Label(" Chain ID ")
+     resno_1_label = gtk.Label(" Resno Start ")
+     resno_2_label = gtk.Label(" Resno End ")
+     chain_id_entry = gtk.Entry()
+     resno_1_entry = gtk.Entry()
+     resno_2_entry = gtk.Entry()
+
+     frame.add(atom_sel_vbox)
+     atom_sel_vbox.pack_start(option_menu,    False, False, 2)
+     atom_sel_vbox.pack_start(atom_sel_hbox,  False, False, 2)
+     atom_sel_hbox.pack_start(chain_id_label, False, False, 2)
+     atom_sel_hbox.pack_start(chain_id_entry, False, False, 2)
+     atom_sel_hbox.pack_start(resno_1_label,  False, False, 2)
+     atom_sel_hbox.pack_start(resno_1_entry,  False, False, 2)
+     atom_sel_hbox.pack_start(resno_2_label,  False, False, 2)
+     atom_sel_hbox.pack_start(resno_2_entry,  False, False, 2)
+
+     return [frame, option_menu, model_mol_list, chain_id_entry, resno_1_entry, resno_2_entry]
+  
+  window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+  dialog_name = "Map Transformation"
+  main_vbox = gtk.VBox(False, 2)
+  buttons_hbox = gtk.HBox(False, 2)
+  cancel_button = gtk.Button("  Cancel  ")
+  ok_button = gtk.Button("  Transform  ")
+  usage = "Note that this will transform the current refinement map " + \
+          "about the screen centre"
+  usage_label = gtk.Label(usage)
+  h_sep = gtk.HSeparator()
+  frame_info_ref = atom_sel_frame("Reference")
+  frame_info_mov = atom_sel_frame("Moving")
+  radius_hbox = gtk.HBox(False, 2)
+  radius_label = gtk.Label("  Radius ")
+  radius_entry = gtk.Entry()
+  window.set_title(dialog_name)
+
+
+  radius_hbox.pack_start(radius_label, False, False, 2)
+  radius_hbox.pack_start(radius_entry, False, False, 2)
+
+  buttons_hbox.pack_start(ok_button,     False, False, 4)
+  buttons_hbox.pack_start(cancel_button, False, False, 4)
+
+  window.add(main_vbox)
+  main_vbox.pack_start(frame_info_ref[0], False, False, 2)
+  main_vbox.pack_start(frame_info_mov[0], False, False, 2)
+  main_vbox.pack_start(radius_hbox, False, False, 2)
+  main_vbox.pack_start(usage_label, False, False, 4)
+  main_vbox.pack_start(h_sep, False, False, 2)
+  main_vbox.pack_start(buttons_hbox, False, False, 6)
+
+  frame_info_ref[3].set_text("A")
+  frame_info_ref[4].set_text("1")
+  frame_info_ref[5].set_text("10")
+  frame_info_mov[3].set_text("B")
+  frame_info_mov[4].set_text("1")
+  frame_info_mov[5].set_text("10")
+
+  radius_entry.set_text("8.0")
+
+  cancel_button.connect("clicked", delete_event)
+  ok_button.connect("clicked",on_ok_button_clicked)
+
+  window.show_all()
 
 def ncs_ligand_gui():
    
@@ -2240,6 +2380,9 @@ def ncs_ligand_gui():
 
       if (resno_end and resno_start):
          make_ncs_ghosts_maybe(active_mol_no_ref)
+         print "ncs ligand with", active_mol_no_ref, \
+               chain_id_ref, active_mol_no_lig, chain_id_lig, \
+               resno_start, resno_end
          ncs_ligand(active_mol_no_ref,
                     chain_id_ref,
                     active_mol_no_lig,
@@ -2321,6 +2464,271 @@ def ncs_ligand_gui():
 
    window.show_all()
 
+def key_binding_gui():
+
+   def delete_event(*args):
+      window.destroy()
+      return False
+
+   def box_for_binding(item, inside_vbox):
+      binding_hbox = gtk.HBox(False, 2)
+      txt = str(item[1])
+      key_label = gtk.Label("   " + txt + "   ")
+      name_label = gtk.Label(item[2])
+
+      binding_hbox.pack_start(key_label, False, False, 2)
+      binding_hbox.pack_start(name_label, False, False, 2)
+      inside_vbox.pack_start(binding_hbox, False, False, 2)
+
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   scrolled_win = gtk.ScrolledWindow()
+   outside_vbox = gtk.VBox(False, 2)
+   inside_vbox = gtk.VBox(False, 0)
+   dialog_name = "Key Bindings"
+   buttons_hbox = gtk.HBox(False, 2)
+   close_button = gtk.Button("  Close  ")
+   std_frame = gtk.Frame("Standard Key Bindings:")
+   usr_frame = gtk.Frame("User-defined Key Bindings:")
+   std_frame_vbox = gtk.VBox(False, 2)
+   usr_frame_vbox = gtk.VBox(False, 2)
+   std_key_bindings = [["a", "refine with auto-zone"],
+                       ["b", "toggle baton swivel"],
+                       ["c", "toggle cross-hairs"],
+                       ["d", "reduce depth of field"],
+                       ["f", "increase depth of field"],
+                       ["u", "undo last navigation"],
+                       ["i", "toggle spin mode"],
+                       ["n", "zoom in"],
+                       ["m", "zoom out"],
+                       ["o", "other NCS chain"],
+                       ["p", "update position to closest atom"],
+                       ["s", "update skeleton"],
+                       [".", "up in button list"],
+                       [",", "down in button list"]]
+
+   close_button.connect("clicked", delete_event)
+
+   window.set_default_size(250, 350)
+   window.set_title(dialog_name)
+   inside_vbox.set_border_width(4)
+
+   window.add(outside_vbox)
+   outside_vbox.add(scrolled_win)
+   scrolled_win.add_with_viewport(inside_vbox)
+   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+
+   inside_vbox.pack_start(std_frame, False, False, 2)
+   inside_vbox.pack_start(usr_frame, False, False, 2)
+   
+   std_frame.add(std_frame_vbox)
+   usr_frame.add(usr_frame_vbox)
+
+   py_and_scm_keybindings = key_bindings
+   if (coot_has_guile()):
+      scm_key_bindings = run_scheme_command("*key-bindings*")
+      py_and_scm_keybindings += scm_key_bindings
+
+   for items in py_and_scm_keybindings:
+      box_for_binding(items, usr_frame_vbox)
+
+   for items in std_key_bindings:
+      box_for_binding(["dummy"] + items, std_frame_vbox)
+
+   buttons_hbox.pack_end(close_button, False, False, 6)
+   outside_vbox.pack_start(buttons_hbox, False, False, 6)
+
+   window.show_all()
+
+# for news infos
+(
+   INSERT_NO_NEWS,
+   INSERT_NEWS,
+   STATUS,
+   NEWS_IS_READY,
+   GET_NEWS,
+   SET_TEXT,
+   STOP,
+   NO_NEWS,
+   ) = range(8)
+
+global news_status
+news_status = NO_NEWS
+global news_string_1
+global news_string_2
+news_string_1 = False
+news_string_2 = False
+
+def coot_news_info(*args):
+
+   import threading
+   import urllib
+   global text_1, text_2
+   url = "http:" + \
+         "//www.biop.ox.ac.uk/coot/software" + \
+         "/source/pre-releases/release-notes"
+
+   def test_string():
+      import time
+      time.sleep(2)
+      ret = "assssssssssssssssssssssssssssssssssssssss\n\n" + \
+            "assssssssssssssssssssssssssssssssssssssss\n\n" + \
+            "assssssssssssssssssssssssssssssssssssssss\n\n" + \
+            "\n-----\n" + \
+            "bill asssssssssssssssssssssssssssssssssssss\n\n" + \
+            "fred asssssssssssssssssssssssssssssssssssss\n\n" + \
+            "george sssssssssssssssssssssssssssssssssssss\n\n" + \
+            "\n-----\n"
+      return ret
+
+   def stop():
+      return
+
+   # return [pre_release_news_string, std_release_news_string]
+   def trim_news(s):
+      sm_pre = s.find("-----")
+      if (sm_pre == -1):
+         return ["nothing", "nothing"]
+      else:
+         pre_news = s[0:sm_pre]
+         post_pre = s[sm_pre:-1].lstrip("-")
+         sm_std = post_pre.find("-----")
+         if (sm_std == -1):
+            return [pre_news, "nothing"]
+         else:
+            return [pre_news, post_pre[0:sm_std]]
+
+   def get_news_thread():
+      global news_status
+      global news_string_1
+      global news_string_2
+      import urllib
+      try:
+         s = urllib.urlopen(url).read()
+         both_news = trim_news(s)
+         news_string_1 = both_news[1]
+         news_string_2 = both_news[0]
+         news_status = NEWS_IS_READY
+      except:
+         pass
+
+   def coot_news_error_handle(key, *args):
+      # not used currently
+      print "error: news: error in %s with args %s" %(key, args)
+
+   def get_news():
+      import thread
+      # no threading for now. Doesnt do the right thing
+      get_news_thread()
+      
+   def insert_string(s, text):
+      background_colour = "#c0e6c0"
+      end = text.get_end_iter()
+      text.insert(end, str(s))
+
+   def insert_news():
+      global news_string_1
+      global news_string_2
+      insert_string(news_string_1, text_1)
+      insert_string(news_string_2, text_2)
+      
+   def insert_no_news():
+      insert_string("  No news\n", text_1)
+      insert_string("  Yep - there really is no news\n", text_2)
+
+   if (len(args) == 1):
+      arg = args[0]
+      if (arg == STOP):
+         stop()
+      if (arg == STATUS):
+         return news_status
+      if (arg == INSERT_NEWS):
+         insert_news()
+      if (arg == INSERT_NO_NEWS):
+         insert_no_news()
+      if (arg == GET_NEWS):
+         get_news()
+   if (len(args) == 3):
+      if (args[0] == SET_TEXT):
+         text_1 = args[1]
+         text_2 = args[2]
+
+def whats_new_dialog():
+   global text_1, text_2
+   text_1 = False         # the text widget
+   text_2 = False
+   timer_label = False
+   global count
+   count = 0
+   ms_step = 200
+
+   def on_close_button_clicked(*args):
+      coot_news_info(STOP)
+      delete_event(*args)
+      
+   def delete_event(*args):
+      window.destroy()
+      return False
+   
+   def check_for_new_news():
+      global count
+      count += 1
+      timer_string = str(count * ms_step / 1000) + "s"
+      timer_label.set_alignment(0.96, 0.5)
+      timer_label.set_text(timer_string)
+      #if (count > 100):
+      if (count > 20):
+         timer_label.set_text("Timeout")
+         coot_news_info(INSERT_NO_NEWS)
+         return False  # turn off the gtk timeout function ?!
+      else:
+         if (coot_news_info(STATUS) == NEWS_IS_READY):
+            coot_news_info(INSERT_NEWS)
+            return False
+         return True
+
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   vbox = gtk.VBox(False, 2)
+   inside_vbox = gtk.VBox(False, 2)
+   scrolled_win_1 = gtk.ScrolledWindow()
+   scrolled_win_2 = gtk.ScrolledWindow()
+   label = gtk.Label("Lastest Coot Release Info")
+   text_view_1 = gtk.TextView()
+   text_view_2 = gtk.TextView()
+   text_view_1.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#bfe6bf"))
+   text_view_2.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#bfe6bf"))
+   text_1 = text_view_1.get_buffer()
+   text_2 = text_view_2.get_buffer()
+   h_sep = gtk.HSeparator()
+   close_button = gtk.Button("   Close   ")
+   notebook = gtk.Notebook()
+   notebook_label_pre = gtk.Label("Pre-release")
+   notebook_label_std = gtk.Label("Release")
+   timer_label = gtk.Label("0.0s")
+
+   window.set_default_size(540, 400)
+   vbox.pack_start(label, False, False, 10)
+   vbox.pack_start(timer_label, False, False, 2)
+   vbox.pack_start(notebook, True, True, 4)
+   notebook.append_page(scrolled_win_1, notebook_label_std)
+   notebook.append_page(scrolled_win_2, notebook_label_pre)
+   vbox.pack_start(h_sep, False, False, 4)
+   vbox.pack_start(close_button, False, False, 2)
+   window.add(vbox)
+
+   coot_news_info(SET_TEXT, text_1, text_2)
+   coot_news_info(GET_NEWS)
+
+   scrolled_win_1.add(text_view_1)
+   scrolled_win_2.add(text_view_2)
+   scrolled_win_1.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+   scrolled_win_2.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+
+   close_button.connect("clicked", on_close_button_clicked)
+
+   gobject.timeout_add(ms_step, check_for_new_news)
+
+   window.show_all()
+   
 
 # Cootaneer/sequencing gui modified by BL with ideas from KC
 # based on Paul's cootaneer gui and generic_chooser_entry_and_file_selector

@@ -122,6 +122,22 @@ def mutate_and_auto_fit(residue_number,chain_id,mol,mol_for_map,residue_type):
 def maf(*args):
    mutate_and_auto_fit(*args)
 
+# return a char (well string in python), return "A" for unknown residue_type
+#
+def three_letter_code2single_letter(residue_type):
+
+    dic_type_1lc = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D",
+                    "CYS": "C", "GLN": "Q", "GLU": "E", "GLY": "G",
+                    "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K",
+                    "MET": "M", "PHE": "F", "PRO": "P", "SER": "S",
+                    "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
+    if (dic_type_1lc.has_key(residue_type)):
+       res_type_1lc = dic_type_1lc[residue_type]
+    else:
+       # if not standard aa then set it to Ala
+       res_type_1lc = "A"
+    return res_type_1lc
+
 # a wrapper for mutate_single_residue_by_seqno (which uses slightly
 # inconvenient single letter code)
 #

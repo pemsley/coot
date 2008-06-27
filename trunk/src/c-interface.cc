@@ -1574,6 +1574,9 @@ PyObject *map_sigma_py(int imol) {
     r = PyFloat_FromDouble(s);
   }
 
+  if (PyBool_Check(r)) {
+    Py_INCREF(r);
+  }
   return r;
 }
 #endif
@@ -2113,6 +2116,9 @@ PyObject *map_colour_components_py(int imol) {
       PyList_SetItem(r, 0, PyFloat_FromDouble(rc));
       PyList_SetItem(r, 1, PyFloat_FromDouble(gc));
       PyList_SetItem(r, 2, PyFloat_FromDouble(bc));
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
    }
    return r;
 }
@@ -2843,6 +2849,8 @@ PyObject *additional_representation_info_py(int imol) {
 	       PyList_Append(atom_spec_py, resno_end_py);
 	       PyList_Append(atom_spec_py, ins_code_py);
 	    }
+	 // we dont use the atom_spec_py!? -> decref
+	 Py_XDECREF(atom_spec_py);
 
 	 PyList_Append(l, PyInt_FromLong(ir));
 	 PyList_Append(l, PyString_FromString(s.c_str()));
@@ -2851,6 +2859,9 @@ PyObject *additional_representation_info_py(int imol) {
 	 PyList_Append(r, l);
       }
    } 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 } 
 
@@ -5878,6 +5889,9 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
   } else {
     std::cout << "INFO:: None input" <<std::endl;
   }
+  if (PyBool_Check(ret) || ret == Py_None) {
+    Py_INCREF(ret);
+  }
   return ret;
 }
 
@@ -5910,6 +5924,9 @@ PyObject *run_scheme_command(const char *cmd) {
   ret_py = scm_to_py(ret_scm);
 #endif // USE_GUILE
 
+  if (PyBool_Check(ret_py) || ret_py == Py_None) {
+    Py_INCREF(ret_py);
+  }
   return ret_py;
 }
 #endif // USE_PYTHON
@@ -7788,6 +7805,9 @@ PyObject *view_name_py(int view_number) {
          std::string name = (*graphics_info_t::views)[view_number].view_name;
          r = PyString_FromString(name.c_str());
       }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 
@@ -7819,6 +7839,9 @@ PyObject *view_description_py(int view_number) {
             r = PyString_FromString(d.c_str());
          }
       }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
    return r;
 }
 #endif // PYTHON

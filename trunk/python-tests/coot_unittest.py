@@ -119,11 +119,41 @@ suite = unittest.TestSuite()
 for test in test_list:
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(test))
 
-result = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
+global unittest_output
+unittest_output = False
+# class to write output of unittest into a 'memory file' (unittest_output)
+# as well as to sys.stdout
+class StreamIO:
+        
+    def __init__(self, etxra, src=sys.stderr, dst=sys.stdout):
+        import StringIO
+        global unittest_output
+        unittest_output = StringIO.StringIO()
+        self.src = src
+        self.dst = dst
+        self.extra = unittest_output
+
+    def write(self, msg):
+        #self.src.write(msg)
+        self.extra.write(msg)
+        self.dst.write(msg)
+
+log = StreamIO(sys.stderr, sys.stdout)
+
+#result = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
+result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
+
+if (unittest_output):
+    print "\n"
+    print unittest_output.getvalue()
+    unittest_output.close()
+else:
+    print "BL ERROR:: no unittest output"
+
 if have_test_skip:
     print "\nUnittest skip exists!"
     if (result.skipped):
-        print "..with the following skipping message:"
+        print "...with the following skipping message(s):"
         for skipped in result.skipped:
             print "   ", skipped[1]
         print "\n"

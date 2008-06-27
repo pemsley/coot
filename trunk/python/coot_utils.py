@@ -49,6 +49,14 @@ def molecule_number_list():
     else:
        return number_list(0,(n_molecules-1))
 
+# Convert a residue_spec to an mmdb atom selection string.
+# FIXME:: to be tested
+#
+def residue_spec2atom_selection_string(centre_residue_spec):
+    ret = "//" + centre_residue_spec[0] + \
+          "/" + str(centre_residue_spec[1])
+    return ret
+
 # Return a list of molecules that are maps
 # 
 def map_molecule_list():
@@ -564,7 +572,7 @@ def transform_map(*args):
     else:
        print "arguments to transform-map incomprehensible: args: ",args
 
-# Define a map transformation function that obeys Lapthorns Law of
+# Define a map transformation function that obeys Lapthorn's Law of
 # NCS Handling Programs
 # 
 # typical usage: transform_map_using_lsq_matrix(1, "A", 10, 30, 0, "A", 10, 30, 2, rotation_centre(), 6)
@@ -876,6 +884,17 @@ def update_go_to_atom_from_current_atom():
         # if imol != goto_atom_imol_current
         update_go_to_atom_window_on_other_molecule_chosen(imol)
         set_go_to_atom_chain_residue_atom_name(chain_id, resno, atom_name)
+
+
+def flip_active_ligand():
+    active_atom = active_residue()
+    imol      = active_atom[0]
+    chain_id  = active_atom[1]
+    resno     = active_atom[2]
+    ins_code  = active_atom[3]
+    atom_name = active_atom[4]
+    alt_conf  = active_atom[5]
+    flip_ligand(imol, chain_id, resno)
 
 # Typically one might want to use this on a water, but it deletes the
 # nearest CA currently...  Needs a re-think.  Should active-atom just
@@ -1197,7 +1216,139 @@ def remove_line_containing_from_file(remove_str_ls, filename):
         port = open(init_file, 'w')
         lines = port.writelines(tmp_ls)
         port.close()
-   
+
+
+def BALL_AND_STICK(): return 2
+
+# hilight-colour is specified in degrees (round the colour wheel -
+# starting at yellow (e.g. 230 is purple))
+#
+def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
+
+    if (valid_model_molecule_qm(imol)):
+
+        other_residues = residues_near_residue(imol, centre_residue_spec, radius)
+        atom_sel_str = residue_spec2atom_selection_string(centre_residue_spec)
+
+        imol_new = new_molecule_by_atom_selection(imol, atom_sel_str)
+        bb_type = 1
+        draw_hydrogens_flag = draw_hydrogens_state(imol)
+
+        set_mol_active(imol_new, 0)
+        set_show_environment_distances(1)
+        set_molecule_bonds_colour_map_rotation(imol_new, hilight_colour)
+        additional_representation_by_attributes(imol_new,
+                                                centre_residue_spec[0],
+                                                centre_residue_spec[1],
+                                                centre_residue_spec[1],
+                                                centre_residue_spec[2],
+                                                BALL_AND_STICK(),
+                                                bb_type, 6,
+                                                draw_hydrogens_flag)
+
+        map(lambda spec: additional_representation_by_attributes(imol,
+                                                                 spec[0],
+                                                                 spec[1],
+                                                                 spec[1],
+                                                                 spec[2],
+                                                                 BALL_AND_STICK(),
+                                                                 bb_type, 6,
+                                                                 draw_hydrogens_flag),
+            other_residues)
+
+hightlight_binding_site = hilight_binding_site  # typo?
+
+
+# Function based on Davis et al. (2007) Molprobity: all atom contacts
+# and structure validation for proteins and nucleic acids, Nucleic
+# Acids Research 35, W375-W383.  
+#
+# To paraphrase:
+# The distance of the plane of the ribose of the following phosphate
+# is highly correlated to the pucker of the ribose. 
+# 
+# An analysis of the structures in RNADB2005 shows that a critical
+# distance of 1.2A provides a partition function to separate C2' from
+# C3' endo puckering.  Not all ribose follow this rule.  There may be
+# some errors in the models comprising RNADB2005. So we check the
+# distance of the following phosphate to the plane of the ribose and
+# record the riboses that are inconsitent.  We also report puckers
+# that are not C2' or C3'.  The puckers are determined by the most
+# out-of-plane atom of the ribose (the rms deviation of the 4 atoms
+# in the plane is calculated, but not used to determinte the
+# puckering atom).
+#
+def pukka_puckers_qm(imol):
+
+    import types
+
+    residue_list = []
+    crit_d = 1.2
+
+    def add_questionable(r):
+        residue_list.append(r)
+
+    def get_ribose_residue_atom_name(imol, residue_spec, pucker_atom):
+        r_info = residue_info(imol, residue_spec[0], residue_spec[1], residue_spec[2])
+        t_pucker_atom = pucker_atom[0:3] + "*"
+        if (pucker_atom in map(lambda at: at[0][0], r_info)):
+            return pucker_atom
+        else:
+            return t_pucker_atom
+
+    for chain_id in chain_ids(imol):
+        if (not is_solvent_chain_qm(imol, chain_id)):
+            n_residues = chain_n_residues(chain_id, imol)
+
+            for serial_number in range(n_residues):
+
+                res_name = resname_from_serial_number(imol, chain_id, serial_number)
+                res_no   = seqnum_from_serial_number (imol, chain_id, serial_number)
+                ins_code = insertion_code_from_serial_number(imol, chain_id, serial_number)
+
+                if (not res_name == "HOH"):
+
+                    residue_spec = [chain_id, res_no, ins_code]
+                    pi = pucker_info(imol, residue_spec, 1)
+                    if (pi):
+                        if (type(pi) is ListType):
+                            if (len(pi) == 4):
+                                pucker_atom = pi[1]
+                                if ((abs(pi[0]) > crit_d) and
+                                    (pucker_atom == " C3'")):
+                                    add_questionable([pucker_atom, residue_spec,
+                                                      "Inconsistent phosphate distance for C3' pucker"])
+                                if ((abs(pi[0]) < crit_d) and
+                                    (pucker_atom == " C2'")):
+                                    add_questionable([pucker_atom, residue_spec,
+                                                      "Inconsistent phosphate distance for C2' pucker"])
+                                if not ((pucker_atom == " C2'") or
+                                        (pucker_atom == " C3'")):
+                                    add_questionable([pucker_atom, residue_spec,
+                                                      "puckered atom:" + pucker_atom])
+            
+    if (len(residue_list) == 0):
+        info_dialog("No bad puckers.")
+    else:
+        buttons = []
+        for residue in residue_list:
+            residue_spec = residue[1]
+            pucker_atom = residue[0]
+            at_name = get_ribose_residue_atom_name(imol, residue_spec, pucker_atom)
+            ls = [residue_spec[0] + " " + str(residue_spec[1]) + residue_spec[2] + \
+                  ": " + residue[2],
+                  ["set_go_to_atom_molecule("+ str(imol) +")",
+                   "set_go_to_atom_chain_residue_atom_name(" +\
+                   "\"" + str(residue_spec[0]) + "\", " +\
+                   str(residue_spec[1]) + ", " +\
+                   "\"" + str(at_name) + "\")"]
+                  ]
+            buttons.append(ls)
+        dialog_box_of_buttons("Non-pukka puckers",
+                              [370, 250],
+                              buttons,
+                              "  Close  ")
+                                
 
 #############
 # some re-definitions from coot python functions
@@ -1208,6 +1359,7 @@ spin_search            = spin_search_py
 set_atom_attributes    = set_atom_attributes_py
 refmac_parameters      = refmac_parameters_py
 mark_atom_as_fixed     = mark_atom_as_fixed_py
+ccp4i_projects         = ccp4i_projects_py
 drag_intermediate_atom = drag_intermediate_atom_py
 merge_molecules        = merge_molecules_py
 clear_and_update_molecule = clear_and_update_molecule_py
@@ -1217,6 +1369,8 @@ change_chain_id_with_result = change_chain_id_with_result_py
 missing_atom_info      = missing_atom_info_py
 chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
 map_sigma              = map_sigma_py
+map_parameters         = map_parameters_py
+map_cell               = map_cell_py
 map_colour_components  = map_colour_components_py
 additional_representation_info = additional_representation_info_py
 centre_of_mass_string  = centre_of_mass_string_py
@@ -1255,6 +1409,7 @@ cootaneer              = cootaneer_py
 ncs_chain_differences  = ncs_chain_differences_py
 ncs_chain_ids          = ncs_chain_ids_py
 ncs_ghosts             = ncs_ghosts_py
+pucker_info            = pucker_info_py
 save_state_file_name   = save_state_file_name_py
 generic_object_name    = generic_object_name_py
 handle_read_draw_probe_dots_unformatted = handle_read_draw_probe_dots_unformatted_py
