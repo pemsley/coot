@@ -3749,7 +3749,7 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
 
    std::string residue_type_1 = first->name;
    std::string residue_type_2 = second->name;
-   if (residue_type_1 == "UNK") residue_type_1 = "ALA"; // kack for KC.
+   if (residue_type_1 == "UNK") residue_type_1 = "ALA"; // hack for KDC.
    if (residue_type_2 == "UNK") residue_type_2 = "ALA";
 
    std::string t1="";

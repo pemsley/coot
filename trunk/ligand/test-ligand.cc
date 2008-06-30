@@ -324,8 +324,9 @@ void get_rotamer_probabilities(const std::string &rotamer_probability_dir) {
 
 void rotamer_tables() {
 
+   std::string dir = "../../coot/rama-data";
    coot::rotamer_probability_tables tables;
-   tables.fill_tables();
+   tables.fill_tables(dir);
 
 }
 

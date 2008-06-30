@@ -22,6 +22,8 @@
  */
 
 #include <fstream>
+#include <stdexcept>
+
 #include "rotamer.hh"
 #include "mgtree.h"
 
@@ -48,6 +50,7 @@ coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name,
    }
 }
 
+// Throw a runtime_error on failure to read file.
 void
 coot::a_rotamer_table::fill_chi_1(const std::string& file_name) {
    
@@ -64,7 +67,10 @@ coot::a_rotamer_table::fill_chi_1(const std::string& file_name) {
    long int n_x2_obj_count = -1;
    long int n_x3_obj_count = -1;
    long int n_x4_obj_count = -1;
-   if (f) {
+   if (!f) {
+      std::string mess = "Failed to open " + file_name;
+      throw std::runtime_error(mess);
+   } else { 
       while (!f.eof()) {
 	 f >> chars;
 	 if (not (f.eof())) { 
@@ -123,7 +129,10 @@ coot::a_rotamer_table::fill_chi_1_2(const std::string& file_name) {
    long int n_x2_obj_count = -1;
    long int n_x3_obj_count = -1;
    long int n_x4_obj_count = -1;
-   if (f) {
+   if (!f) {
+      std::string mess = "Failed to open " + file_name;
+      throw std::runtime_error(mess);
+   } else { 
       while (!f.eof()) {
 	 f >> chars;
 	 if (not (f.eof())) { 
@@ -221,7 +230,10 @@ coot::a_rotamer_table::fill_chi_1_2_3(const std::string& file_name) {
    long int n_x2_obj_count = -1;
    long int n_x3_obj_count = -1;
    long int n_x4_obj_count = -1;
-   if (f) {
+   if (!f) {
+      std::string mess = "Failed to open " + file_name;
+      throw std::runtime_error(mess);
+   } else { 
       while (!f.eof()) {
 	 f >> chars;
 	 if (not (f.eof())) { 
@@ -320,7 +332,10 @@ coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
    long int n_x2_obj_count = -1;
    long int n_x3_obj_count = -1;
    long int n_x4_obj_count = -1;
-   if (f) {
+   if (!f) {
+      std::string mess = "Failed to open " + file_name;
+      throw std::runtime_error(mess);
+   } else { 
       while (!f.eof()) {
 	 f >> chars;
 	 if (not (f.eof())) { 
@@ -402,7 +417,7 @@ coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
 
 
 void
-coot::rotamer_probability_tables::fill_tables() {
+coot::rotamer_probability_tables::fill_tables(const std::string &dir) {
 
    std::vector<std::pair<std::string, std::string> > res;
    res.push_back(std::pair<std::string, std::string> ("SER", "rota500-ser.data"));
@@ -428,11 +443,17 @@ coot::rotamer_probability_tables::fill_tables() {
    res.push_back(std::pair<std::string, std::string> ("ARG", "rota500-arg.data"));
    res.push_back(std::pair<std::string, std::string> ("LYS", "rota500-lys.data"));
 
-   std::string file_name_stub = "../../coot/rama-data/";
+   std::string file_name_stub = dir + "/";
    for (unsigned int i=0; i<res.size(); i++) {
       std::string file_name = file_name_stub + "/" + res[i].second;
-      coot::a_rotamer_table t = coot::a_rotamer_table(res[i].first, file_name);
-      tables.push_back(t);
+      try { 
+	 coot::a_rotamer_table t = coot::a_rotamer_table(res[i].first, file_name);
+	 tables.push_back(t);
+      }
+      catch (std::runtime_error mess) {
+	 std::cout << "Failed to read rotamer probability table for " << res[i].first
+		   << " " << mess.what() << std::endl;
+      } 
    }
 }
 

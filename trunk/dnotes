@@ -6,13 +6,11 @@
 
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
-* see what cootbb says...
+* see what cootbb says...  Bill says add a thymine.
 
    o Finish A-RAPPER-gui, penelope. 6hd
 
-* see what nick says.
-
-   o Finish Loopy GUI, penelope. 4hd.
+* see what Nick says.  He says it shouldn't crash.
 
    o  Need to check torsion restraints 
       and wiggly ligands
