@@ -37,7 +37,7 @@ int fix_away_atoms(atom_selection_container_t asc);
 
 // return the number of changed hydrogen names
 int 
-fix_hydrogen_names(atom_selection_container_t asc);
+fix_wrapped_names(atom_selection_container_t asc);
 
 int write_atom_selection_file(atom_selection_container_t asc,
 			      const std::string &filename, 
