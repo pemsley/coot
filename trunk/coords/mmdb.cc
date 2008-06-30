@@ -177,7 +177,7 @@ get_atom_selection(std::string pdb_name) {
        asc = make_asc(asc.mol);
        fix_nucleic_acid_residue_names(asc);
        fix_away_atoms(asc);
-       fix_hydrogen_names(asc);
+       fix_wrapped_names(asc);
     }
     return asc; 
 }
@@ -297,7 +297,7 @@ fix_away_atoms(atom_selection_container_t asc) {
 //
 // Tinker with asc as necessary.
 int 
-fix_hydrogen_names(atom_selection_container_t asc) {
+fix_wrapped_names(atom_selection_container_t asc) {
 
    int n_changed = 0;
    int uddHnd_old =
@@ -309,8 +309,9 @@ fix_hydrogen_names(atom_selection_container_t asc) {
 
    // e.g. "3HB " -> " HB3", and "2HG2" -> "HG22"
    for (int i=0; i<asc.n_selected_atoms; i++) {
-      std::string ele(asc.atom_selection[i]->element);
-      if (ele == " H") {
+      // std::string ele(asc.atom_selection[i]->element);
+      // if (ele == " H") {
+      if (1) { 
 	 std::string atom_name(asc.atom_selection[i]->name);
 	 if (atom_name[0] == '1' ||
 	     atom_name[0] == '2' ||
