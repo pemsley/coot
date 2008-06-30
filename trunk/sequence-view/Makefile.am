@@ -33,18 +33,28 @@ GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 # want the function that returns a sequence_view object to be included
 # into c-interface.h (mmdb poisoning).
 INCLUDES = \
-	-I $(top_srcdir)/ccp4mg-utils	\
-	-I $(top_srcdir)/coords		\
-	-I $(top_srcdir)/coot-utils	\
-	-I $(top_srcdir)/src		\
-	-I $(top_srcdir)/geometry	\
-	-I $(top_srcdir)/mini-mol	\
-	-I $(top_srcdir)/build		\
-	-I $(top_srcdir)/db-main	\
-	-I $(top_srcdir)/angles 	\
-	-I $(top_srcdir)/ideal 		\
-	-I $(top_srcdir)/coot-surface	\
-	-I $(top_srcdir)/surface	\
+	-I$(top_srcdir)/compat 		\
+	-I$(top_srcdir)/coords 		\
+	-I$(top_srcdir)/ccp4mg-utils	\
+	-I$(top_srcdir)/coot-utils	\
+	-I$(top_srcdir)/intl 		\
+	-I$(top_srcdir)/skeleton	\
+	-I$(top_srcdir)/angles		\
+	-I$(top_srcdir)/atom-utils	\
+	-I$(top_srcdir)/db-main		\
+	-I$(top_srcdir)/mini-mol	\
+	-I$(top_srcdir)/ligand		\
+	-I$(top_srcdir)/sequence-view   \
+	-I$(top_srcdir)/geometry	\
+	-I$(top_srcdir)/ideal   	\
+	-I$(top_srcdir)/coot-surface	\
+	-I$(top_srcdir)/surface		\
+	-I$(top_srcdir)/density-contour	\
+	-I$(top_srcdir)/build		\
+	-I$(top_srcdir)/high-res	\
+	-I$(top_srcdir)/analysis	\
+	-I$(top_srcdir)/cootaneer	\
+	-I$(top_srcdir)/src     	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(MMDBSSM_CXXFLAGS) 		\
@@ -54,7 +64,8 @@ INCLUDES = \
 	@GTK_CFLAGS@ 
 
 # CPPFLAGS = -DSEQ_VIEW_STANDALONE
-AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS)
+AM_CXXFLAGS = 	-DPKGDATADIR='"$(pkgdatadir)"' \
+	$(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_sequence_view_la_SOURCES = sequence-view.cc  seq-view-interface.c
 

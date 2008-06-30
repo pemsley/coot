@@ -699,6 +699,10 @@ coot::colour_holder graphics_info_t::cell_colour =
 //
 coot::protein_geometry *graphics_info_t::geom_p = NULL;
 
+
+// rotamer probabilities
+coot::rotamer_probability_tables graphics_info_t::rot_prob_tables;
+
 // PHENIX support
 std::string graphics_info_t::external_refinement_program_button_label = "*-*";
 

@@ -56,11 +56,12 @@ namespace coot {
    class rotamer_probability_tables {
 
       std::vector<a_rotamer_table> tables;
+      bool is_well_formatted_;
    public:
-      rotamer_probability_tables() { is_well_formatted = 0;}
+      rotamer_probability_tables() { is_well_formatted_ = 0;}
       void fill_tables(const std::string &tables_dir); // set is_well_formatted.
-      bool is_well_formatted;
       float probability_this_rotamer(const std::vector<float> &chi_angles) const;
+      bool is_well_formatted() const { return is_well_formatted_; } 
    }; 
 
    class rotamer_probability_info_t {

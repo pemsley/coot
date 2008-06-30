@@ -6075,5 +6075,15 @@ Wed Jun 25 16:40:23 BST 2008
     Use it in get-refmac-version.
 
 
+---
+Mon Jun 30 15:20:48 BST 2008
 
+    asc_to_graphics() and all of atom-utils can go (need to fix up
+    skeleton/BuildCas.cc)
     
+    For 0.6
+
+
+
+
+
