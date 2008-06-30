@@ -17,8 +17,6 @@
 // 
 #include "graphics-info.h"
 
-// Not really a gl thing, but there is no where else for it.   Consider
-// a new file for such things.
 // 
 void asc_to_graphics(atom_selection_container_t asc, 
 		     std::string label, 

@@ -28,7 +28,7 @@ SUBDIRS = auxil scheme python macros compat coot-utils surface coot-surface \
 	skeleton ccp4mg-utils density-contour coords angles \
 	mini-mol db-main  geometry  \
 	ideal ligand high-res build greg-tests python-tests \
-	analysis sequence-view tw atom-utils cootaneer src doc 
+	analysis sequence-view tw atom-utils cootaneer src rama-data doc 
 
 # po, no po today.
 

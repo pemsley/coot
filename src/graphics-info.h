@@ -48,6 +48,8 @@
 #include "pick.h"
 #include "clipper/core/xmap.h"
 
+#include "rotamer.hh"
+
 #include "protein-geometry.hh"
 
 #include "molecule-class-info.h"
@@ -482,6 +484,8 @@ class graphics_info_t {
 
    static coot::protein_geometry* geom_p;
 
+   static coot::rotamer_probability_tables rot_prob_tables;
+
    static atom_selection_container_t *moving_atoms_asc;
    CResidue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
@@ -727,6 +731,12 @@ public:
       geom_p = new coot::protein_geometry;
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
+
+      // rotamer probabilitiles
+      std::string tables_dir = PKGDATADIR;
+      tables_dir += "/rama-data";
+      rot_prob_tables.fill_tables(tables_dir);
+
       moving_atoms_asc = new atom_selection_container_t;
       moving_atoms_asc->mol = NULL;
       moving_atoms_asc->atom_selection = NULL;

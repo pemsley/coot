@@ -231,6 +231,7 @@ src/coot
 setup/coot.sh	
 setup/coot.csh
 python/coot_load_modules.py
+rama-data/Makefile
 auxil/Makefile
 auxil/catcheck/Makefile	
 auxil/rama/Makefile	

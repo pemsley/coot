@@ -88,6 +88,35 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
 }
 
 
+void
+coot::chain_mutation_info_container_t::print() const { 
+   std::cout << "The alignment resulted in the following" << std::endl;
+   std::cout << "   Insertions (coalesced):" << std::endl;
+   for (unsigned int i_ins=0; i_ins<insertions.size(); i_ins++) {
+      std::cout << "       from " << insertions[i_ins].start_resno << " to "
+		<< insertions[i_ins].end_resno() << " ";
+      for (unsigned int it=0; it<insertions[i_ins].types.size(); it++) {
+	 std::cout << insertions[i_ins].types[it] << " ";
+      }
+      std::cout << std::endl;
+   }
+   std::cout << "   Insertions (singles):" << std::endl;
+   for (unsigned int i_ins=0; i_ins<single_insertions.size(); i_ins++) {
+      std::cout << "    " << single_insertions[i_ins].first << " -> "
+		<< single_insertions[i_ins].second << std::endl;
+   }
+	 
+   std::cout << "   Deletions:" << std::endl;
+   for (unsigned int i_del=0; i_del<deletions.size(); i_del++) {
+      std::cout << "      " << deletions[i_del] << std::endl;
+   }
+   std::cout << "   Mutations:" << std::endl;
+   for (unsigned int i_mut=0; i_mut<mutations.size(); i_mut++) {
+      std::cout << "      " << mutations[i_mut].first << " -> "
+		<< mutations[i_mut].second << std::endl;
+   }
+}
+
 // throw an execption if there is no residue type to return for
 // the given spec.
 std::string
