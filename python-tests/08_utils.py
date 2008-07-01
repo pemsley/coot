@@ -33,7 +33,10 @@ class UtilTestFunctions(unittest.TestCase):
                      [key_sym_code("A"), 65],
                      [key_sym_code("a"), 97],
                      [key_sym_code("9"), 57],
-                     [key_sym_code("cent"), 162]
+                     [key_sym_code("cent"), 162],
+                     [key_sym_code(">"), 62],
+                     [key_sym_code(";"), 59],
+                     [key_sym_code("|"), 124],                     
                      ]
 
         for code, result in test_list:
@@ -51,5 +54,23 @@ class UtilTestFunctions(unittest.TestCase):
                 skipped_tests.append("Test running scheme function")
                 return
 
-        tot = run_scheme_command("(+ 2 2)")
-        self.failUnlessEqual(tot, 4)
+        tot = run_scheme_command("(+ 2 4)")
+        self.failUnlessEqual(tot, 6)
+
+        #run_scheme_command("define test-val 4")
+        #run_scheme_command("(set! test-val 2)")
+        rv = run_scheme_command("(rotation-centre)")
+        print "BL DEBUG:: return scheme is ", rv
+        #rv = run_scheme_command("test-val")
+        #print "BL DEBUG:: return scheme is ", rv
+        rv = run_scheme_command("2")
+        self.failUnlessEqual(rv, 2)
+
+
+    def test03_0(self):
+        """Internal/External Molecule Numbers match"""
+
+        m = molecule_number_list()
+        print "   m: ", m
+        print " own: ", map(own_molecule_number, m)
+        self.failUnless(m == map(own_molecule_number, m))

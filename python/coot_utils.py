@@ -41,13 +41,16 @@ def with_auto_accept(*funcs):
 
 
 # return a list of molecule numbers (closed and open)
-# The elements of the returned list need to be tested against is_valid_model_molecule_qm
+# The elements of the returned list need to be tested against
+# is_valid_model_molecule_qm
+#
 def molecule_number_list():
-    n_molecules = graphics_n_molecules()
-    if (n_molecules == 0):
-       return []
-    else:
-       return number_list(0,(n_molecules-1))
+    ret = []
+    for mol_no in range(graphics_n_molecules()):
+        if (valid_map_molecule_qm(mol_no) or
+            valid_model_molecule_qm(mol_no)):
+            ret.append(mol_no)
+    return ret
 
 # Convert a residue_spec to an mmdb atom selection string.
 # FIXME:: to be tested

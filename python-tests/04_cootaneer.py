@@ -33,7 +33,9 @@ class CootaneerTestFunctions(unittest.TestCase):
 
         self.failUnless(os.path.isfile(rnase_pir), "missing rnase pir file")
 
-        assign_sequence_from_file(imol_model, rnase_pir)
+        seq_text = file2string(rnase_pir)
+        #assign_sequence_from_file(imol_model, rnase_pir)
+        assign_pir_sequence(imol_model, "A", seq_text)
 
         set_rotation_centre(64.271, 7.036, 14.42)
 

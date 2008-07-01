@@ -21,25 +21,30 @@
 import unittest
 import os
 
+global rnase_pdb
 rnase_pdb = os.path.join(unittest_data_dir, "tutorial-modern.pdb")
+global rnase_mtz
 rnase_mtz = os.path.join(unittest_data_dir, "rnasa-1.8-all_refmac1.mtz")
-terminal_residue_test_pdb = os.path.join(unittest_data_dir, "tutorial-add-terminal-0-test.pdb")
+global terminal_residue_test_pdb
+terminal_residue_test_pdb = os.path.join(unittest_data_dir, "tutorial-add-terminal-1-test.pdb")
 base_imol = graphics_n_molecules()
+rnase_seq = os.path.join(unittest_data_dir, "rnase.seq")
 
-global have_ccp4_qm, imol_rnase
+global have_ccp4_qm
 have_ccp4_qm = False
 global imol_rnase
 imol_rnase = -1
 global imol_rnase_map
-imol_rnase = -1
+imol_rnase_map = -1
 global imol_ligand
 imol_ligand = -1
-
+global imol_terminal_residue_test
 imol_terminal_residue_test = -1
 
 horne_works_cif   = os.path.join(unittest_data_dir, "lib-B3A.cif")
 horne_cif         = os.path.join(unittest_data_dir, "lib-both.cif")
 horne_pdb         = os.path.join(unittest_data_dir, "coords-B3A.pdb")
+global ins_code_frag_pdb
 ins_code_frag_pdb = os.path.join(unittest_data_dir, "ins-code-fragment-pre.pdb")
 
 # CCP4 is set up? If so, set have-ccp4? True
@@ -68,8 +73,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
     def test02_0(self):
 	    """Read coordinates test"""
-	    imol = read_pdb(rnase_pdb)
 	    global imol_rnase
+	    imol = read_pdb(rnase_pdb)
 	    imol_rnase = imol
 	    self.failUnless(valid_model_molecule_qm(imol))
 
@@ -224,6 +229,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	"""Add Terminal Residue Test"""
 	import types
 
+	if (recentre_on_read_pdb() == 0):
+		set_recentre_on_read_pdb(1)
 	if (have_test_skip):
 		self.skipIf(not type(terminal_residue_test_pdb) is StringType, 
 			    "%s does not exist - skipping test" %terminal_residue_test_pdb)
@@ -259,7 +266,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	# the centre of that fragment, and check where
 	# we are and compare it to where we expected
 	# to be.
-	# 
+	#
+	# we shall make sure that we recentre on read pdb (may be overwritten
+	# in preferences!!!
 	new_mol = new_molecule_by_atom_selection(imol, "//A/0")
 	self.failUnless(valid_model_molecule_qm(new_mol))
 	move_molecule_here(new_mol)
@@ -269,6 +278,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	rc = rotation_centre()
 	ls = [45.6, 15.8, 11.8]
 	r = sum([rc[i] - ls[i] for i in range(len(rc))])
+	print "BL DEBUG:: r and imol is", r, imol
 	
 	self.failIf(r > 0.66, "Bad placement of terminal residue")
 
@@ -778,14 +788,12 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    m = monomer_restraints("TYR")
 
 	    n = strip_bond_from_restraints(atom_pair, m)
-	    print "BL DEBUG:: removed dict is", n
 	    set_monomer_restraints("TYR", n)
 
 	    imol = new_molecule_by_atom_selection(imol_rnase, "//A/30")
 
 	    atom_1 = get_atom(imol, "A", 30, " CB ")
 	    atom_2 = get_atom(imol, "A", 30, " CG ")
-	    print "BL DEBUG:: orig bond-length: ", bond_length(atom_1[2], atom_2[2])
 
 	    with_auto_accept([refine_zone, imol, "A", 30, 30, ""])
 
@@ -797,8 +805,6 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "fail 2.8 tolerance test")
 	    print "pass intermediate 2.8 tolerance test"
 	    set_monomer_restraints("TYR", m)
-
-	    print "BL DEBUG:: final used dic", m
 
 	    with_auto_accept([refine_zone, imol, "A", 30, 30, ""])
 	    
@@ -825,6 +831,44 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
     def test28_0(self):
+	    """Replace Fragment"""
+
+	    atom_sel_str = "//A70-80"
+	    imol_rnase_copy = copy_molecule(imol_rnase)
+	    imol = new_molecule_by_atom_selection(imol_rnase, atom_sel_str)
+	    self.failUnless(valid_model_molecule_qm(imol))
+
+	    translate_molecule_by(imol, 11, 12, 13)
+	    reference_res = residue_info(imol_rnase, "A", 75, "")
+	    moved_res     = residue_info(imol,       "A", 75, "")
+	    test_res     = residue_info(imol,       "A", 74, "")
+
+	    replace_fragment(imol_rnase_copy, imol, atom_sel_str)
+	    replaced_res = residue_info(imol_rnase_copy, "A", 75, "")
+
+	    # now replace-res should match reference-res.
+	    # the atoms of moved-res should be 20+ A away from both.
+
+	    self.failUnless(all(map(atoms_match_qm, moved_res, replaced_res)),
+			    "   moved-res and replaced-res do not match")
+
+	    self.failIf(all(map(atoms_match_qm, moved_res, reference_res)),
+			"   fail - moved-res and replaced-res Match!")
+	    
+	    print "distances: ", map(atom_distance, reference_res, replaced_res)
+	    self.failUnless(all(map(lambda d: d > 20, map(atom_distance, reference_res, replaced_res))))
+
+
+
+    def test29_0(self):
+	    """Residues in Region of Residue"""
+
+	    rs = residues_near_residue(imol_rnase, ["A", 40, ""], 4)
+	    self.failUnless(len(rs) == 6, "wrong number of neighbours %s %s" %(len(rs), rs))
+	    print "found %s neighbours %s" %(len(rs), rs)
+	    
+
+    def test30_0(self):
 	    """Empty molecule on type selection"""
 
 	    global imol_rnase
@@ -833,4 +877,45 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    imol2 = new_molecule_by_residue_type_selection(imol_rnase, "TRP")
 	    self.failUnlessEqual(imol2, -1, "failed on empty selection 2 gives not imol -1")
 
-	       
+
+    def test31_0(self):
+	    """Align and mutate a model with deletions"""
+
+	    def residue_in_molecule_qm(imol, chain_id, resno, ins_code):
+		    r = residue_info(imol, chain_id, resno, ins_code)
+		    if (r):
+			    return True
+		    else:
+			    return False
+
+	    # in this PDB file 60 and 61 have been deleted. Relative to the
+	    # where we want to be (tutorial-modern.pdb, say) 62 to 93 have
+	    # been moved to 60 to 91
+	    #
+	    imol = unittest_pdb("rnase-A-needs-an-insertion.pdb")
+	    rnase_seq_string = file2string(rnase_seq)
+	    self.failUnless(valid_model_molecule_qm(imol), "missing file rnase-A-needs-an-insertion.pdb")
+
+	    align_and_mutate(imol, "A", rnase_seq_string)
+	    write_pdb_file(imol, "mutated.pdb")
+
+	    ls = [[False, imol, "A",  1, ""],
+		  [True,  imol, "A",  4, ""],
+		  [True,  imol, "A", 59, ""],
+		  [False, imol, "A", 60, ""],
+		  [False, imol, "A", 61, ""],
+		  [True,  imol, "A", 93, ""],
+		  [False, imol, "A", 94, ""]]
+
+	    def compare_res_spec(res_info):
+		    residue_spec = res_info[1:len(res_info)]
+		    expected_status = res_info[0]
+		    print ":::::", residue_spec, residue_in_molecule_qm(*residue_spec), expected_status
+		    if (residue_in_molecule_qm(*residue_spec) == expected_status):
+			    return True
+		    else:
+			    return False
+
+	    self.failUnless(all(map(lambda res: compare_res_spec(res), ls)))
+	    
+		  

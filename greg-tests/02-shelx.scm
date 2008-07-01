@@ -161,7 +161,7 @@
 
 ;; non positive definite anistropic atom (reported by Mitch Miller)
 ;; crash test
-(greg-testcase "NPD Anisotripic Atom [Mitch Miller]" #t 
+(greg-testcase "NPD Anisotropic Atom [Mitch Miller]" #t 
    (lambda ()
 
      (let ((imol-miller (handle-read-draw-molecule-with-recentre 
