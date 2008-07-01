@@ -230,7 +230,7 @@ coot::chi_angles::setup_chi_atom_quads() {
    add_chi_quad("ASP", " CA ", " CB ", " CG ", " OD1");
 
    add_chi_quad("ASN", " N  ", " CA ", " CB ", " CG ");
-   add_chi_quad("ASN", " CA ", " CB ", " CG ", " OD1 ");
+   add_chi_quad("ASN", " CA ", " CB ", " CG ", " OD1");
 
    add_chi_quad("ARG", " N  ", " CA ", " CB ", " CG ");
    add_chi_quad("ARG", " CA ", " CB ", " CG ", " CD ");
