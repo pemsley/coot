@@ -27,13 +27,16 @@ import os
 hof_fcf = os.path.join(unittest_data_dir, "hof.fcf")
 hof_res = os.path.join(unittest_data_dir, "HOF.RES")
 
+#global imol_hof_res
 imol_hof_res = False
 
 insulin_fcf = os.path.join(unittest_data_dir, "insulin.fcf")
 insulin_res = os.path.join(unittest_data_dir, "insulin.res")
 hollander_ins = os.path.join(unittest_data_dir, "hollander.ins")
 global imol_insulin_res
+global imol_insulin_map
 imol_insulin_res = -1 # see later
+imol_insulin_map = -1 # see later
 m_miller_res = os.path.join(unittest_data_dir, "miller/shelx-test4-NPD-mini.res")
 
 
@@ -81,8 +84,9 @@ class ShelxTestFunctions(unittest.TestCase):
         """read shelx insulin with fcf"""
 
         global imol_insulin_res
+        global imol_insulin_map
         
-        imol_insulin_res_local = handle_read_draw_molecule_with_recentre(insulin_res, 1)
+        imol_insulin_res_local = handle_read_draw_molecule_with_recentre(insulin_res(), 1)
         self.failUnless(valid_model_molecule_qm(imol_insulin_res_local), "   Bad insulin.res: %s for %s" %(insulin_res, imol_insulin_res_local))
 
         imol_insulin_res = imol_insulin_res_local  # used in water addition test
@@ -99,8 +103,9 @@ class ShelxTestFunctions(unittest.TestCase):
         self.failUnlessEqual(show_spacegroup(imol), "I 21 3", "   Bad spacegroups %s" %(show_spacegroup(imol)))
 
         # good then
+        imol_insulin_map = imol
         rotate_y_scene(rotate_n_frames(200), 0.1)
-        close_molecule(imol)
+        # close_molecule(imol)    # needed later
         # imol_insulin_res_local needed later -> global?
         
 
@@ -130,25 +135,40 @@ class ShelxTestFunctions(unittest.TestCase):
         set_rotation_centre(3, -1, 60)
         place_typed_atom_at_pointer("Water")
         # test is to have to occupancy of the new HOH to be 11.0
-        chain_id = water_chain(imol_insulin_res)
-        n_residues = chain_n_residues(chain_id, imol_insulin_res)
-        serial_number = n_residues - 1
-        res_name = resname_from_serial_number(imol_insulin_res, chain_id, serial_number)
-        res_no   = seqnum_from_serial_number (imol_insulin_res, chain_id, serial_number)
-        ins_code = insertion_code_from_serial_number(imol_insulin_res, chain_id, serial_number)
+        shelx_waters_all_good_occ_qm(self, imol_insulin_res)
 
-        self.failUnlessEqual(res_name, "HOH")
-        atom_list = residue_info(imol_insulin_res, chain_id, res_no, ins_code)
-        self.failIfEqual(atom_list, [])
-        for atom in atom_list:
-            occ = atom[1][0]
-            self.failUnlessAlmostEqual(occ, 11.0, 1, "  bad occupancy in SHELXL molecule %s" %atom)
+        # now defined elsewhere
+        #chain_id = water_chain(imol_insulin_res)
+        #n_residues = chain_n_residues(chain_id, imol_insulin_res)
+        #serial_number = n_residues - 1
+        #res_name = resname_from_serial_number(imol_insulin_res, chain_id, serial_number)
+        #res_no   = seqnum_from_serial_number (imol_insulin_res, chain_id, serial_number)
+        #ins_code = insertion_code_from_serial_number(imol_insulin_res, chain_id, serial_number)
+        #
+        #self.failUnlessEqual(res_name, "HOH")
+        #atom_list = residue_info(imol_insulin_res, chain_id, res_no, ins_code)
+        #self.failIfEqual(atom_list, [])
+        #for atom in atom_list:
+        #    occ = atom[1][0]
+        #    self.failUnlessAlmostEqual(occ, 11.0, 1, "  bad occupancy in SHELXL molecule %s" %atom)
 
+
+    # Tobias Beck test
+    def test06_0(self):
+        """Find Waters for a SHELXL molecule"""
+
+        n_chains_pre = n_chains(imol_insulin_res)
+        find_waters(imol_insulin_map, imol_insulin_res, 0, 0.6, 1)
+        n_chains_post = n_chains(imol_insulin_res)
+        self.failUnless(n_chains_pre == n_chains_post, "Find waters on a shelx molecule created a new chain %s %s"
+                        %(n_chains_pre, n_chains_post))
+        shelx_waters_all_good_occ_qm(self, imol_insulin_res)
+        
 
 # non positive definite anistropic atom (reported by Mitch Miller)
 # crash test
-    def test06_0(self):
-        """NPD Anisotripic Atom [Mitch Miller]"""
+    def test07_0(self):
+        """NPD Anisotropic Atom [Mitch Miller]"""
 
         imol_miller = handle_read_draw_molecule_with_recentre(m_miller_res, 1)
 
@@ -161,4 +181,13 @@ class ShelxTestFunctions(unittest.TestCase):
         set_show_aniso(0)
                     
         
-            
+# cheesy test, close the shelx molecules
+#             
+    def test08_0(self):
+        """close shelx molecules"""
+
+        close_molecule(imol_insulin_map)
+        close_molecule(imol_insulin_res)
+
+        self.failIf(valid_model_molecule_qm(imol_insulin_res))
+        self.failIf(valid_map_molecule_qm(imol_insulin_map))

@@ -266,6 +266,9 @@
 
 (greg-testcase "Add Terminal Residue Test" #t 
    (lambda ()
+     
+     (if (= (recentre-on-read-pdb) 0)
+	 (set-recentre-on-read-pdb 1))
 
      (if (not (string? terminal-residue-test-pdb))
 	 (begin 

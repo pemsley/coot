@@ -83,7 +83,7 @@ class LigandTestFunctions(unittest.TestCase):
 
         self.failUnless(valid_model_molecule_qm(imol_npo), "no valid molecule")
 
-        for i in range(0,50):
+        for i in range(0, 5):
             imol_copy = copy_molecule(imol_npo)
             set_mol_displayed(imol_copy, 0)
 
@@ -103,5 +103,67 @@ class LigandTestFunctions(unittest.TestCase):
         set_mol_displayed(imol_protein, 0)
         set_mol_displayed(imol_npo, 0)
         # checked for non crash
+
         
+    def test05_0(self):
+        """flip residue (around eigen vectors)"""
         
+        # note to self, make sure this file is available when then test
+        # is run for real.
+        #
+        if (have_test_skip):
+            self.skipIf(not os.path.isfile("monomer-3GP.pdb"), "pdb file not found - skipping flip residue test")
+        else:
+            if (not os.path.isfile("monomer-3GP.pdb")):
+                print "pdb file does not exist - skipping flip residue test (actually passing!)"
+                skipped_tests.append("flip residue (no pdb file)")
+                return
+        imol_orig = read_pdb("monomer-3GP.pdb")
+        if (have_test_skip):
+            self.skipIf(not valid_model_molecule_qm(imol_orig), "pdb file not found - skipping flip residue test")
+        else:
+            if (not valid_model_molecule_qm(imol_orig)):
+                print "pdb file not found - skipping flip residue test (actually passing!)"
+                skipped_tests.append("flip residue (no pdb file)")
+                return
+        imol_copy = copy_molecule(imol_orig)
+        # BL extra
+        # we go to the molecule otherwise we dont pick up the right active_atom
+        set_go_to_atom_molecule(imol_orig)
+        set_go_to_atom_chain_residue_atom_name("A", 1, " C8 ")
+        # end BL etxra
+        active_atom = active_residue()
+        if (have_test_skip):
+            self.skipIf(not active_atom, "No active atom found - skipping flip residue test")
+        else:
+            if (not active_atom):
+                print "No active atom - skipping flip residue test (actually passing!)"
+                skipped_tests.append("flip residue test (no active atom)")
+                return
+        imol      = active_atom[0]
+        chain_id  = active_atom[1]
+        res_no    = active_atom[2]
+        ins_code  = active_atom[3]
+        atom_name = active_atom[4]
+        alt_conf  = active_atom[5]
+        self.failIf(imol == imol_orig, "oops - didn't pick the copy for active res")
+        flip_ligand(imol, chain_id, res_no)
+        atom_orig_1 = get_atom(imol_orig, "A", 1, " C8 ")
+        atom_move_1 = get_atom(imol     , "A", 1, " C8 ")
+        d = bond_length(atom_orig_1[2], atom_move_1[2])
+        print "distance: ", d
+        self.failUnless(d > 2.1, "fail to move test atom d1")
+        flip_ligand(imol, chain_id, res_no)
+        flip_ligand(imol, chain_id, res_no)
+        flip_ligand(imol, chain_id, res_no)
+        #  having flipped it round the axes 4
+        # times, we should be back where we
+        # started.
+        atom_orig_1 = get_atom(imol_orig, "A", 1, " C8 ")
+        atom_move_1 = get_atom(imol     , "A", 1, " C8 ")
+        d2 = bond_length(atom_orig_1[2], atom_move_1[2])
+        print "distance d2: ", d2
+        self.failUnless(d2 < 0.001, "fail to move atom back to start d2")
+
+
+            

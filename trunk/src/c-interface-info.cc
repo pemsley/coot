@@ -862,9 +862,8 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 #ifdef USE_PYTHON
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code) {
 
-   PyObject *r;
+   PyObject *r = Py_False;
    PyObject *all_atoms;
-   r = Py_False;
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
@@ -929,10 +928,10 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 
                         PyList_SetItem(all_atoms, iat, at_info);
                      }
+		     r = all_atoms;
                   }
                }
             }
-            r = all_atoms;
          }
       }
    }
