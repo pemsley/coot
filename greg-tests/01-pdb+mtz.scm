@@ -407,11 +407,24 @@
 		 ; we can only do this if we have graphics, must test
 		 ; first.
 		 ; (run-gtk-pending-events)
-
-		 (if (and (string=? anal-str-a1 "Rotamer not recognised")
-			  (string=? anal-str-a2 "Rotamer not recognised")
+		 
+		 ;; with new Molprobity rotamer probabilities,
+		 ;; residues 1 and 2 are no longer "not recognised"
+		 ;; they are in fact, just low probabilites.
+		 ;; 
+		 (if (and (string=? anal-str-a1 "VAL")
+			  (string=? anal-str-a2 "VAL")
 			  (string=? anal-str-a3 "Missing Atoms"))
-		     #t 
+
+		     ;; Now we test that the probabilites of the
+		     ;; rotamer is correct:
+		     (let ((pr-1 (list-ref (list-ref rotamer-anal 0) 3))
+			   (pr-2 (list-ref (list-ref rotamer-anal 1) 3)))
+		       (and (< pr-1 0.3)
+			    (< pr-2 0.3)
+			    (> pr-1 0.0)
+			    (> pr-2 0.0)))
+		     
 		     (begin 
 		       (format #t "  failure rotamer test: ~s ~s ~s~%"
 			       a-1 a-2 a-last)
