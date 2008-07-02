@@ -30,7 +30,7 @@ coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name_in,
 				       const std::string &file_name) {
 
    residue_name = residue_name_in;
-   std::cout << "DEBUG:: reading file for " << residue_name << "\n";
+   // std::cout << "DEBUG:: reading file for " << residue_name << "\n";
    n_chis = -1; // unset
    if (residue_name == "SER" || residue_name == "VAL" ||
        residue_name == "THR" || residue_name == "CYS" || residue_name == "PRO") { 
@@ -174,8 +174,8 @@ coot::a_rotamer_table::fill_chi_1_2(const std::string& file_name) {
 	       if (n_x1_obj_count == 0) {
 		  std::string l(chars);
 		  n_chi1_samples_per_360 = atoi(l.c_str());
- 		  std::cout << "n_chi1_samples_per_360: " << n_chi1_samples_per_360
- 			    << std::endl;
+//  		  std::cout << "n_chi1_samples_per_360: " << n_chi1_samples_per_360
+//  			    << std::endl;
 		  n_x1_obj_count = -1; // done
 	       }
 	       if (n_x2_obj_count == 1) {
@@ -187,8 +187,8 @@ coot::a_rotamer_table::fill_chi_1_2(const std::string& file_name) {
 	       if (n_x2_obj_count == 0) {
 		  std::string l(chars);
 		  n_chi2_samples_per_360 = atoi(l.c_str()) * samples_scale;
- 		  std::cout << "n_chi2_samples_per_360: " << n_chi2_samples_per_360
- 			    << std::endl;
+//  		  std::cout << "n_chi2_samples_per_360: " << n_chi2_samples_per_360
+//  			    << std::endl;
 		  n_x2_obj_count = -1; // done
 		  std::vector<float> pr_chi_1 (n_chi2_samples_per_360, very_small);
 		  pr_chi_1_2 = std::vector<std::vector<float> > (n_chi1_samples_per_360, pr_chi_1);
@@ -269,15 +269,15 @@ coot::a_rotamer_table::fill_chi_1_2_3(const std::string& file_name) {
 	       if (n_x1_obj_count == 0) {
 		  std::string l(chars);
 		  n_chi1_samples_per_360 = atoi(l.c_str());
- 		  std::cout << "n_chi1_samples_per_360: " << n_chi1_samples_per_360
- 			    << std::endl;
+//  		  std::cout << "n_chi1_samples_per_360: " << n_chi1_samples_per_360
+//  			    << std::endl;
 		  n_x1_obj_count = -1; // done
 	       } 
 	       if (n_x2_obj_count == 0) {
 		  std::string l(chars);
 		  n_chi2_samples_per_360 = atoi(l.c_str());
- 		  std::cout << "n_chi2_samples_per_360: " << n_chi2_samples_per_360
- 			    << std::endl;
+//  		  std::cout << "n_chi2_samples_per_360: " << n_chi2_samples_per_360
+//  			    << std::endl;
 		  n_x2_obj_count = -1; // done
 	       } 
 	       if (n_x3_obj_count == 1) {
@@ -289,8 +289,8 @@ coot::a_rotamer_table::fill_chi_1_2_3(const std::string& file_name) {
 	       if (n_x3_obj_count == 0) {
 		  std::string l(chars);
 		  n_chi3_samples_per_360 = atoi(l.c_str()) * samples_scale;
-		  std::cout << "n_chi3_samples_per_360: " << n_chi3_samples_per_360
-			    << std::endl;
+// 		  std::cout << "n_chi3_samples_per_360: " << n_chi3_samples_per_360
+// 			    << std::endl;
 		  n_x3_obj_count = -1; // done
 		  std::vector<float> pr_chi_1 (n_chi3_samples_per_360, very_small);
 		  std::vector<std::vector<float> > pr_chi_1_2(n_chi2_samples_per_360, pr_chi_1);
@@ -622,22 +622,7 @@ coot::rotamer_probability_tables::chi_angles_to_bins(unsigned int table_index,
       if (i==2) n_chi_samples = tables[table_index].n_chi3_samples_per_360;
       if (i==3) n_chi_samples = tables[table_index].n_chi4_samples_per_360;
 
-//       // Change the max_degrees for the last chi angle for symmetric
-//       // and flat end groups
-//       // 
-//       if (tables[table_index].residue_name == "ASP" ||
-// 	  tables[table_index].residue_name == "TYR" ||
-// 	  tables[table_index].residue_name == "PHE") {
-// 	 if (i==1)
-// 	    max_degrees = 180.0;
-//       }
-//       if (tables[table_index].residue_name == "GLU") {
-// 	 if (i==2)
-// 	    max_degrees = 180.0;
-//       }
-      
       float fbin = float (n_chi_samples) * chi/max_degrees;
-
       if ((fbin >= float(n_chi_samples)) || (fbin < 0)) {
 	 std::string mess = "ERROR:: Bin failure! fbin is ";
 	 mess += coot::util::float_to_string(fbin);
