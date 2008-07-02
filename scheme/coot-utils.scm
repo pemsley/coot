@@ -1673,7 +1673,7 @@
   
   (let ((start 1.0)
 	(stop 6.0)
-	(initial-colour '(0.2 0.2 0.7))
+	(initial-colour '(0.2 0.2 0.8))
 	(colour-range 360))
     
     (if (valid-map-molecule? imol)
