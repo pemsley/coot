@@ -2317,7 +2317,7 @@ more than one residue.
 
 Using the default build, the rotamers are generated @footnote{since
 version 0.4} from the backbone independent sidechain library of the
-Richarsondons group @footnote{SC Lovell, JM Word, JS Richardson and DC
+Richardsons group @footnote{SC Lovell, JM Word, JS Richardson and DC
 Richardson (2000) "The Penultimate Rotamer Library" Proteins: Structure
 Function and Genetics 40: 389-408.  You can get the paper from
 @url{http://kinemage.biochem.duke.edu/databases/rotamer.php}}.

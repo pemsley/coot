@@ -784,19 +784,10 @@ graphics_info_t::rotamer_graphs(int imol) {
 				 std::string this_inscode = SelResidues[ir]->GetInsCode();
 				 if (this_resno > max_resno)
 				    max_resno = this_resno;
-#ifdef USE_DUNBRACK_ROTAMERS			
-				 coot::dunbrack d(SelResidues[ir], mol,
-						      rotamer_lowest_probability, 1);
-#else
-				 coot::richardson_rotamer d(SelResidues[ir], mol,
-						      rotamer_lowest_probability, 1);
-#endif // USE_DUNBRACK_ROTAMERS
-				 // flag for assigned,                    1 
-				 // unassigned due to missing atoms,      0 
-				 // unassigned due to rotamer not found. -1
-				 // unassigned due to GLY/ALA            -2
-				 coot::rotamer_probability_info_t d_score =
-				    d.probability_of_this_rotamer();
+				 coot::rotamer_probability_info_t d_score = 
+				    get_rotamer_probability(SelResidues[ir], mol,
+							    rotamer_lowest_probability, 1);
+				 
 				 double distortion = 0.0;
 				 std::string str = int_to_string(this_resno);
 				 str += chain_id;
@@ -925,18 +916,9 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 		  int this_resno = SelResidues[ir]->GetSeqNum();
 		  if (this_resno > max_resno)
 		     max_resno = this_resno;
-#ifdef USE_DUNBRACK_ROTAMERS
-		  coot::dunbrack d(SelResidues[ir], mol, rotamer_lowest_probability, 1);
-#else
-// 		  std::cout << "DEBUG:: rotamers_from_mol on residue: "
-// 			    << SelResidues[ir] << std::endl;
-		  coot::richardson_rotamer d(SelResidues[ir], mol, rotamer_lowest_probability, 1);
-#endif // USE_DUNBRACK_ROTAMERS
-		  // flag for assigned,                    1 
-		  // unassigned due to missing atoms,      0 
-		  // unassigned due to rotamer not found. -1
-		  // unassigned due to GLY/ALA            -2
-		  coot::rotamer_probability_info_t d_score = d.probability_of_this_rotamer();
+		  coot::rotamer_probability_info_t d_score = 
+		     get_rotamer_probability(SelResidues[ir], mol,
+					     rotamer_lowest_probability, 1);
 		  double distortion = 0.0;
 		  std::string str = int_to_string(this_resno);
 		  str += chain_id;
@@ -1002,17 +984,8 @@ graphics_info_t::rotamers_from_residue_selection(PCResidue *SelResidues,
    for (int ires=0; ires<nSelResidues; ires++) {
       int this_resno = SelResidues[ires]->GetSeqNum();
       std::string chain_id = SelResidues[ires]->GetChainID();
-#ifdef USE_DUNBRACK_ROTAMERS			
-      coot::dunbrack d(SelResidues[ires], 0, rotamer_lowest_probability, 1);
-#else			
-      coot::richardson_rotamer d(SelResidues[ires], 0, rotamer_lowest_probability, 1);
-#endif // USE_DUNBRACK_ROTAMERS
-      
-      // flag for assigned,                    1 
-      // unassigned due to missing atoms,      0 
-      // unassigned due to rotamer not found. -1
-      // unassigned due to GLY/ALA            -2
-      coot::rotamer_probability_info_t d_score = d.probability_of_this_rotamer();
+      coot::rotamer_probability_info_t d_score = get_rotamer_probability(SelResidues[ires], 0, // 0? woo..
+									 rotamer_lowest_probability, 1);
       double distortion = 0.0;
       std::string str = int_to_string(this_resno);
       str += chain_id;

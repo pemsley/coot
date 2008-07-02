@@ -485,6 +485,10 @@ class graphics_info_t {
    static coot::protein_geometry* geom_p;
 
    static coot::rotamer_probability_tables rot_prob_tables;
+   coot::rotamer_probability_info_t get_rotamer_probability(CResidue *res,
+							    CMMDBManager *mol,
+							    float lowest_probability,
+							    short int add_extra_PHE_and_TYR_rotamers_flag);
 
    static atom_selection_container_t *moving_atoms_asc;
    CResidue *get_first_res_of_moving_atoms();
