@@ -351,10 +351,21 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    anal_str_a2 = a_2[-1]
 	    anal_str_a3 = a_last[-1]
 
-	    self.failUnless((anal_str_a1 == "Rotamer not recognised" and
-			     anal_str_a2 == "Rotamer not recognised" and
+	    # with new Molprobity rotamer probabilities,
+	    # residues 1 and 2 are no longer "not recognised"
+	    # they are in fact, just low probabilites.
+	    # 
+	    self.failUnless((anal_str_a1 == "VAL" and
+			     anal_str_a2 == "VAL" and
 			     anal_str_a3 == "Missing Atoms"),
 			    "  failure rotamer test: %s %s %s" %(a_1, a_2, a_last))
+
+	    # Now we test that the probabilites of the
+	    # rotamer is correct:
+	    pr_1 = rotamer_anal[0][3]
+	    pr_2 = rotamer_anal[1][3]
+	    self.failUnless((pr_1 < 0.3 and pr_1 > 0.0), "Failed rotamer outlier test for residue 1")
+	    self.failUnless((pr_2 < 0.3 and pr_2 > 0.0), "Failed rotamer outlier test for residue 2")
 
  
     # Don't reset the occupancies of the other parts of the residue
