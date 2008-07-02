@@ -28,11 +28,34 @@
 
 namespace coot {
 
+   class rotamer_probability_info_t {
+   public:
+      enum {OK=1, // assigned
+	    MISSING_ATOMS = 0,
+	    ROTAMER_NOT_FOUND = -1,
+	    RESIDUE_IS_GLY_OR_ALA = -2 };
+      short int state;
+      float probability;
+
+      std::string rotamer_name;
+      rotamer_probability_info_t(short int state_in, float prob_in, const std::string &name) {
+	 state = state_in;
+	 probability = prob_in;
+	 rotamer_name = name;
+      }
+   }; 
+
    class a_rotamer_table {
       void fill_chi_1(const std::string &file_name);
       void fill_chi_1_2(const std::string &file_name);
       void fill_chi_1_2_3(const std::string &file_name);
       void fill_chi_1_2_3_4(const std::string &file_name);
+      int chi_angle_to_bin(const float &chi, const int &n_samples_per_360) const {
+	 int t = lrint(n_samples_per_360 * (chi-0.4999)/360.0);
+// 	 std::cout << "::: " << n_samples_per_360 << "*(" << chi << "-0.5)/360 = "
+// 		   << t << std::endl;
+	 return t;
+      } 
    public:
       std::string residue_name;
       int n_chis;
@@ -52,28 +75,34 @@ namespace coot {
    //
    // We want this to be a static, and we ask for the probability of a
    // rotamer of given a set of chi angles.
+   //
+   // We want to instantiate this class, fully, when it is needed, not
+   // all the time.  At startup, we have a placeholder.  When rotamer
+   // analysis is required we need to fill the class.  However, if
+   // is_well_formatted_ is 0, we also need to know that we've tried
+   // to fill the class before and somehow failed, and not to try to
+   // fill the class again.
    // 
    class rotamer_probability_tables {
 
       std::vector<a_rotamer_table> tables;
       bool is_well_formatted_;
+      bool tried_and_failed_; 
+      // throw an exeption on failure
+      // Note, not a const vector because we can locally manipulate chi_angles if an ASP, GLU, TYR/PHE.
+      std::vector<int> chi_angles_to_bins(unsigned int table_index,
+					  std::vector<std::pair<int,float> > chi_angles) const;
+      rotamer_probability_info_t probability_this_rotamer(unsigned int i_table,
+							  const std::vector<std::pair<int,float> > &chi_angles) const;
+      bool test_yourself();
    public:
-      rotamer_probability_tables() { is_well_formatted_ = 0;}
+      rotamer_probability_tables() { is_well_formatted_ = 0; tried_and_failed_ = 0; }
       void fill_tables(const std::string &tables_dir); // set is_well_formatted.
-      float probability_this_rotamer(const std::vector<float> &chi_angles) const;
-      bool is_well_formatted() const { return is_well_formatted_; } 
-   }; 
-
-   class rotamer_probability_info_t {
-   public:
-      short int state;
-      float probability;
-      std::string rotamer_name;
-      rotamer_probability_info_t(short int state_in, float prob_in, const std::string &name) {
-	 state = state_in;
-	 probability = prob_in;
-	 rotamer_name = name;
-      }
+      // the chi angles here (first) numbered 1, 2, 3...
+      // throws an exception
+      rotamer_probability_info_t probability_this_rotamer(CResidue *res) const;
+      bool is_well_formatted() const { return is_well_formatted_; }
+      bool tried_and_failed() const { return tried_and_failed_; }
    }; 
 
 

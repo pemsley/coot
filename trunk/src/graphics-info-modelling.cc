@@ -30,6 +30,8 @@
 #include <vector>
 #endif
 
+#include <stdexcept>
+
 #ifdef WINDOWS_MINGW
 // window magic jiggery pokery.
 #define AddAtomA AddAtom
@@ -2409,6 +2411,38 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
    }
 }
 
+coot::rotamer_probability_info_t
+graphics_info_t::get_rotamer_probability(CResidue *res,
+					 CMMDBManager *mol,
+					 float lowest_probability,
+					 short int add_extra_PHE_and_TYR_rotamers_flag) {
+
+   coot::rotamer_probability_info_t r(0,0,"");
+#ifdef USE_DUNBRACK_ROTAMERS			
+   coot::dunbrack d(res, mol, rotamer_lowest_probability, 1);
+#else
+   if (rot_prob_tables.is_well_formatted()) {
+      try { 
+	 r = rot_prob_tables.probability_this_rotamer(res);
+// 	 std::cout << "probability result: " << r.state << " " << r.probability << "% "
+// 		   << "\n";
+      }
+      catch (std::runtime_error e) {
+	 std::cout << "get_rotamer_probability: caught: " << e.what() << std::endl;
+      } 
+   } else {
+      coot::richardson_rotamer d(res, mol, rotamer_lowest_probability, 1);
+      r  = d.probability_of_this_rotamer();
+   } 
+#endif // USE_DUNBRACK_ROTAMERS
+
+   // flag for assigned,                    1 
+   // unassigned due to missing atoms,      0 
+   // unassigned due to rotamer not found. -1
+   // unassigned due to GLY/ALA            -2
+
+   return r;
+}
 
 
 // wiggly ligands support

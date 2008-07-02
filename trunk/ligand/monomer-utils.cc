@@ -167,9 +167,19 @@ coot::monomer_utils::get_atom_index_quads(const std::vector<coot::atom_name_quad
       }
    }
    if (v.size() != atom_name_quads_in.size()) {
-      std::cout << "failure to find all atom quads in residue atoms\n" ;
+      std::cout << "Monomer utils: Failure to find all atom quads in residue atoms\n" ;
+      for (int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
+	 std::cout << "quad: "
+		   << atom_name_quads_in[iquad].atom1 << "  "
+		   << atom_name_quads_in[iquad].atom2 << "  "
+		   << atom_name_quads_in[iquad].atom3 << "  "
+		   << atom_name_quads_in[iquad].atom4 << "\n";
+      }
+      for (int i1=0; i1<nresatoms; i1++) {
+	 std::cout << " res atom " << atoms[i1] << "\n";
+      }
    } else {
-      std::cout << "found all quads in residue atoms\n" ;
+      // std::cout << "found all quads in residue atoms\n" ;
    } 
    return v;
 }
