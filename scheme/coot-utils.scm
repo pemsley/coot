@@ -1664,6 +1664,33 @@
 	  (loop (read-line port) positions)))))))
 
 
+;; multiple maps of varying colour from a given map.
+;; 
+(define (multi-chicken imol . n-colours) 
+
+  (define (rotate-colour-map col degress)
+    (list (* (/ degress 360)) (cadr col) (- (caddr col) (* (/ degress 360)))))
+  
+  (let ((start 1.0)
+	(stop 6.0)
+	(initial-colour '(0.2 0.2 0.7))
+	(colour-range 360))
+    
+    (if (valid-map-molecule? imol)
+	(let ((n-col (if (null? n-colours) 10 (car n-colours)))
+	    (sigma (map-sigma imol)))
+
+	  (format #t "range n-col returns: ~s ~%" (range n-col))
+	  
+	  (for-each 
+	   (lambda (icol)
+	     (let* ((new-map (copy-molecule imol))
+		    (frac (/ icol n-col))
+		    (contour-level-sigma (+ start (* (- stop start) frac))))
+	       (set-last-map-contour-level (* sigma contour-level-sigma))
+	       (apply set-last-map-colour (rotate-colour-map initial-colour (* colour-range frac)))))
+	   (range n-col))))))
+
 
 (define BALL_AND_STICK 2)
 

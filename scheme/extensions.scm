@@ -162,9 +162,17 @@
        (lambda ()
 	 (another-level)))
 
+      (add-simple-coot-menu-menuitem
+       menu "Multi-chicken..."
+       (lambda ()
+	 (map-molecule-chooser-gui "Choose a molecule for multiple contouring"
+				   (lambda (imol)
+				     (set-map-displayed imol 0)
+				     (multi-chicken imol)))))
+
+
       (add-coot-menu-seperator menu)
-
-
+      ;; 
       ;; ---------------------------------------------------------------------
       ;;     Molecule functions
       ;;
