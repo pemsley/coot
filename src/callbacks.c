@@ -5286,6 +5286,10 @@ on_draw_hydrogens_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+  // Applying the bond parameters applies the bond width too, which is
+  // a bit of extra overhead.
+  GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "bond_parameters_dialog");
+  apply_bond_parameters(w);
 }
 
 
@@ -5294,7 +5298,8 @@ on_draw_hydrogens_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-
+  GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "bond_parameters_dialog");
+  apply_bond_parameters(w);
 }
 
 

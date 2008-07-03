@@ -6105,3 +6105,13 @@ Wed Jul  2 08:27:50 BST 2008
 > >> if
 > >> I have multiple maps on display, then only one map can be brought  
 > >> back.
+
+----
+Thu Jul  3 12:44:23 BST 2008
+
+
+    on_draw_hydrogens_yes_radiobutton_toggled 
+
+    This draw hydrogens thing should be a single check button, not 2 radio toggle buttons.
+
+    Low priority
