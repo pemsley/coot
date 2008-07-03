@@ -7033,7 +7033,11 @@ graphics_info_t::bond_width_item_select(GtkWidget *item, GtkPositionType pos) {
 
    graphics_info_t g;
    g.bond_thickness_intermediate_value = pos;
-
+   if (g.bond_thickness_intermediate_value > 0) {
+      int imol = g.bond_parameters_molecule;
+      if (is_valid_model_molecule(imol)) 
+	 g.set_bond_thickness(imol, g.bond_thickness_intermediate_value);
+   }
 }
 
 

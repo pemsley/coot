@@ -3321,43 +3321,6 @@ void apply_bond_parameters(GtkWidget *w) {
 	    } else {
 	       set_draw_hydrogens(imol, 0);
 	    }
-
-	    // Draw NCS ghosts?
-
-	    GtkWidget *ncs_toggle_button =
-	       lookup_widget(w, "draw_ncs_ghosts_yes_radiobutton");
-	    if (GTK_TOGGLE_BUTTON(ncs_toggle_button)->active) {
-	       // std::cout << "set_draw_ncs_ghosts " << imol << " " << "1" << std::endl;
-	       set_draw_ncs_ghosts(imol, 1);
-	    } else {
-	       // std::cout << "set_draw_ncs_ghosts " << imol << " " << "0" << std::endl;
-	       set_draw_ncs_ghosts(imol, 0);
-	    }
-	    
-	    // bye bye colour map rotation entry
-
-// 	    GtkWidget *entry = lookup_widget(w, "bond_parameters_colour_map_rotation_entry");
-// 	    std::pair<short int, float> p = float_from_entry(entry);
-// 	    // 	    std::cout << "DEBUG:: colour map rotation: float from entry pair: "
-// 	    //	     << p.first << " " << p.second
-// 	    // << std::endl;
-// 	    if (p.first) {
-// 	       set_colour_map_rotation_on_read_pdb(p.second);
-// 	    } else {
-// 	       set_colour_map_rotation_on_read_pdb(32.0);
-// 	    }
-
-	    // bye bye colour map rotation button
-
-	    // colour map rotate carbon only?
-
-// 	    GtkWidget *checkbutton =
-// 	       lookup_widget(w, "bond_parameters_rotate_colour_map_c_only_checkbutton");
-// 	    if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
-// 	       set_colour_map_rotation_on_read_pdb_c_only_flag(1);
-// 	    } else {
-// 	       set_colour_map_rotation_on_read_pdb_c_only_flag(0);
-// 	    } 
 	 }
       }
    }
