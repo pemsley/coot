@@ -2406,6 +2406,9 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF;
       make_moving_atoms_graphics_object(*moving_atoms_asc);
+      if (do_probe_dots_on_rotamers_and_chis_flag) {
+	setup_for_probe_dots_on_chis_molprobity(imol);
+      }
       graphics_draw();
       return 1;
    }

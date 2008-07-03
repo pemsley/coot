@@ -904,6 +904,13 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    # been moved to 60 to 91
 	    #
 	    imol = unittest_pdb("rnase-A-needs-an-insertion.pdb")
+	    if (have_test_skip):
+		    self.skipIf(not os.path.isfile(rnase_seq), "file %s not found, skipping test" %rnase_seq)
+	    else:
+		    if (not os.path.isfile(rnase_seq)):
+			print "file %s not found, skipping test (actually passing!)" %rnase_seq
+			skipped_tests.append("Align and mutate a model with deletions")
+			return
 	    rnase_seq_string = file2string(rnase_seq)
 	    self.failUnless(valid_model_molecule_qm(imol), "missing file rnase-A-needs-an-insertion.pdb")
 

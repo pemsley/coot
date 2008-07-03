@@ -47,7 +47,7 @@ class UtilTestFunctions(unittest.TestCase):
         """Test running a scheme function"""
 
         if (have_test_skip):
-            self.skipIf(not coot_has_guile())
+            self.skipIf(not coot_has_guile(), "Skipping guile test (no guile)")
         else:
             if (not coot_has_guile()):
                 print "Skipping guile test (actually passing!)"

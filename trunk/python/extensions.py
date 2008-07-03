@@ -1,6 +1,6 @@
 
-# Copyright 2007 by Bernhard Lohkamp
-# Copyright 2006, 2007 by The University of York
+# Copyright 2007, 2008 by Bernhard Lohkamp
+# Copyright 2006, 2007, 2008 by The University of York
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -82,34 +82,63 @@ if (have_coot_python):
 	f = ""
 	molecule_list = molecule_number_list()
 	if not molecule_list == []:
-		for i in molecule_list:
-			if is_valid_map_molecule(molecule_list[i]):
-				print "%s is a valid map molecule" %molecule_list[i]
-				f = str(molecule_list[i])
-				break
+          for i in molecule_list:
+            if is_valid_map_molecule(molecule_list[i]):
+              print "%s is a valid map molecule" %molecule_list[i]
+              f = str(molecule_list[i])
+              break
 	else:
 		print "BL WARNING:: dunno what to do!? No map found"
+                f = False
 	return f
+      
      def mask_map_func1(active_state):
 	print "changed active_state to ", active_state
-     def mask_map_func2(text_1, text_2, imol, invert_mask_qm):
-	import operator
-	n = int(text_1)
-	if invert_mask_qm:
-		invert = 1
-	else:
-		invert = 0
-	if (operator.isNumberType(n)):
-		mask_map_by_atom_selection(n, imol, text_2, invert)
+        
+     def mask_map_func2(imol, texts_list, invert_mask_qm):
+       # map imol
+       text_1 = texts_list[0]
+       # atom selection
+       text_2 = texts_list[1]
+       # radius
+       text_3 = texts_list[2]
 
-     add_simple_coot_menu_menuitem(menu,"Mask Map by Atom Selection...", 
-             lambda func: molecule_chooser_gui("Define the molecule that has atoms to mask the map", 
-                  lambda imol: generic_double_entry("Map molecule number: ", 
-			"Atom selection: ", mask_map_func(), "//A/1", 
-			" Invert Masking? ", lambda active_state:
-			mask_map_func1(active_state),
-			"Mask Map", 
-			lambda text_1, text_2, invert: mask_map_func2(text_1, text_2, imol, invert))))
+       continue_qm = False
+       try:
+         n = int(text_1)
+         continue_qm = True
+       except:
+         print "BL WARNING:: input %s for Map molecule number is not an integer.\nBailing out" %n
+
+       if (continue_qm):
+         if (invert_mask_qm):
+           invert = 1
+         else:
+           invert = 0
+         print "debug:: invert-mask? is", invert
+         if (text_3 != "default"):
+           try:
+             new_radius = float(text_3)
+             set_map_mask_atom_radius(new_radius)
+           except:
+             print "BL WARNING:: could not set map mask radius to %s. It's not a number" %text_3
+         mask_map_by_atom_selection(n, imol, text_2, invert)
+                
+     def mask_map_radius_func():
+       rad = map_mask_atom_radius()
+       if (rad > 0):
+         return str(rad)
+       else:
+         return "default"
+       
+     add_simple_coot_menu_menuitem(menu,"Mask Map by Atom Selection...",
+         lambda func: molecule_chooser_gui("Define the molecule that has atoms to mask the map",
+             lambda imol: generic_multiple_entries_with_check_button(
+                         [[" Map molecule number: ", mask_map_func()],
+                          [" Atom selection: ", "//A/1"],
+                          ["Radius around atoms: ", mask_map_radius_func()]],
+                         [" Invert Masking? ", lambda active_state: mask_map_func1(active_state)],
+                         "  Mask Map  ", lambda text_list, invert: mask_map_func2(imol, text_list, invert))))
 
 
      add_simple_coot_menu_menuitem(menu,"Copy Map Molecule...", 
@@ -272,20 +301,19 @@ if (have_coot_python):
 	lambda func: ccp4mg_func1())
 
 
-     def shelx_ref_func(*args):
-       print "BL DEBUG:: we are in shelx func"
+     def shelx_ref_func():
        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-       hbox = gtk.HBox(False, 0)
        vbox = gtk.VBox(False, 0)
+       hbox = gtk.HBox(False, 0)
        go_button = gtk.Button("  Refine  ")
        cancel_button = gtk.Button("  Cancel  ")
        entry_hint_text = "HKL data filename \n(leave blank for default)"
        chooser_hint_text = " Choose molecule for SHELX refinement  "
        h_sep = gtk.HSeparator()
 
-       window.add(hbox)
-       options_menu_mol_list_pair = generic_molecule_chooser(hbox, chooser_hint_text)
-       entry = file_selector_entry(hbox, entry_hint_text)
+       window.add(vbox)
+       options_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
+       entry = file_selector_entry(vbox, entry_hint_text)
 
        def shelx_delete_event(*args):
          window.destroy()
@@ -306,15 +334,14 @@ if (have_coot_python):
        go_button.connect("clicked", shelx_go_funcn_event)
        cancel_button.connect("clicked", shelx_delete_event)
 
-       hbox.pack_start(h_sep, False, False, 2)
-       hbox.pack_start(vbox, False, False, 2)
-       vbox.pack_start(go_button, True, False, 0)
-       vbox.pack_start(cancel_button, True, False, 0)
-       print "BL DEBUG:: and packed everything, ready to show"
+       vbox.pack_start(h_sep, False, False, 2)
+       vbox.pack_start(hbox, False, False, 2)
+       hbox.pack_start(go_button, True, False, 0)
+       hbox.pack_start(cancel_button, True, False, 0)
        window.show_all()
        
      add_simple_coot_menu_menuitem(menu, "SHELXL Refine...", 
-	shelx_ref_func)
+                                   lambda func: shelx_ref_func())
 
 
      add_coot_menu_separator(menu)
@@ -337,6 +364,115 @@ if (have_coot_python):
      #     Settings
      # ---------------------------------------------------------------------
      #
+
+     # a master gui to set all kinds of refinement parameters
+
+     def refinement_options_gui():
+
+       def set_matrix_func(button, entry):
+         text = entry.get_text()
+         try:
+           t = float(text)
+           s = "Matrix set to " + text
+           set_matrix(t)
+           add_status_bar_text(s)
+         except:
+           add_status_bar_text("Failed to read a number") 
+
+       def generic_check_button(vbox, label_text, handle_check_button_function):
+         def check_callback(*args):
+           active_state = check_button.get_active()
+           set_state = 0
+           if (active_state):
+             set_state = 1
+           handle_check_button_function(set_state)
+         check_button = gtk.CheckButton(label_text)
+         vbox.pack_start(check_button, False, False, 2)
+         check_button.connect("toggled", check_callback)
+         return check_button
+
+       def delete_event(*rags):
+         window.destroy()
+         return False
+
+       def go_function_event(*args):
+         set_matrix_func('dummy', matrix_entry)
+         window.destroy()
+         return False
+       
+       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+       vbox = gtk.VBox(False, 0)
+       hbox = gtk.HBox(False, 0)
+       h_sep = gtk.HSeparator()
+       h_sep2 = gtk.HSeparator()
+       h_sep3 = gtk.HSeparator()
+       go_button = gtk.Button("   Ok   ")
+       cancel_button = gtk.Button("  Cancel  ")
+
+       window.add(vbox)
+       # add the matrix entry
+       matrix_entry = entry_do_button(vbox, "set matrix: (smaller means better geometry)",
+                                      "Set", set_matrix_func)
+       matrix_entry.set_text(str(matrix_state()))
+       
+       vbox.pack_start(h_sep2, False, False, 2)
+
+       # planar peptide restrains?
+       # no state check here
+       planar_restraints_button = generic_check_button(vbox,
+                                                     "Use Planar Peptide Restraints?",
+                                                     lambda state: [remove_planar_peptide_restraints(), add_planar_peptide_restraints()][state>0])
+       
+       # use torsion restrains?
+       # no state check here
+       torsion_restraints_button = generic_check_button(vbox,
+                                                     "Use Torsion Restraints?",
+                                                     lambda state: set_refine_with_torsion_restraints(state))
+       if (refine_with_torsion_restraints_state() == 1):
+         torsion_restraints_button.set_active(True)
+       else:
+         torsion_restraints_button.set_active(False)
+         
+       vbox.pack_start(h_sep3, False, False, 2)
+
+       # add rotamer check button
+       rotamer_autofit_button = generic_check_button(vbox,
+                                                     "Real Space Refine after Auto-fit Rotamer?",
+                                                     lambda state: set_rotamer_auto_fit_do_post_refine(state))
+       if (rotamer_auto_fit_do_post_refine_state() == 1):
+         rotamer_autofit_button.set_active(True)
+       else:
+         rotamer_autofit_button.set_active(False)
+         
+       # add mutate check button
+       mutate_autofit_button = generic_check_button(vbox,
+                                                    "Real Space Refine after Mutate and Auto-fit?",
+                                                    lambda state: set_mutate_auto_fit_do_post_refine(state))
+       if (mutate_auto_fit_do_post_refine_state() == 1):
+         mutate_autofit_button.set_active(True)
+       else:
+         mutate_autofit_button.set_active(False)
+     
+       # add terminal residue check button
+       terminal_autofit_button = generic_check_button(vbox,
+                                                      "Real Space Refine after Add Terminal Residue?",
+                                                      lambda state: set_add_terminal_residue_do_post_refine(state))
+       if (add_terminal_residue_do_post_refine_state() == 1):
+         terminal_autofit_button.set_active(True)
+       else:
+         terminal_autofit_button.set_active(False)
+
+       vbox.pack_start(h_sep, False, False, 2)
+       vbox.pack_start(hbox, False, False, 0)
+       hbox.pack_start(go_button, False, False, 6)
+       hbox.pack_start(cancel_button, False, False, 6)
+
+       go_button.connect("clicked", go_function_event)
+       cancel_button.connect("clicked", delete_event)
+       window.show_all()
+
+     add_simple_coot_menu_menuitem(menu, "Set Refinement options...",
+                                   lambda func: refinement_options_gui())
  
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Peptide Restraints...")

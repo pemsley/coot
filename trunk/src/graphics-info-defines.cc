@@ -1188,6 +1188,12 @@ graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) {
 	    std::string altloc(atom_p->altLoc);
 	    
 	    float f = molecules[imol].auto_fit_best_rotamer(resno, altloc, inscode, chain, imol_map, graphics_info_t::rotamer_fit_clash_flag, graphics_info_t::rotamer_lowest_probability);
+	    if (rotamer_auto_fit_do_post_refine_flag) {
+	      // Run refine zone with autoaccept, autorange on
+	      // the "clicked" atom:
+	      refine_auto_range(naii.imol, chain.c_str(), resno,
+				altloc.c_str());
+	    }
 	    update_geometry_graphs(&atom_p->residue, 1, imol, imol_map);
 	    std::cout << "Fitting score for best rotamer: " << f << std::endl;
 	    graphics_draw();

@@ -481,6 +481,10 @@ void set_add_terminal_residue_do_post_refine(short int istat) {
    add_to_history(command_strings);
 }
 
+int add_terminal_residue_do_post_refine_state() {
+  int i = graphics_info_t::add_terminal_residue_do_post_refine;
+  return i;
+}
 
 
 int add_terminal_residue_immediate_addition_state() {
@@ -1641,6 +1645,16 @@ auto_fit_best_rotamer(int resno,
 										 clash_flag,
 										 lowest_probability);
 
+	       // first do real space refine if requested
+	       if (graphics_info_t::rotamer_auto_fit_do_post_refine_flag) {
+		 // Run refine zone with autoaccept, autorange on
+		 // the "clicked" atom:
+		 // BL says:: dont think we do autoaccept!?
+		 short int auto_range = 1;
+		 refine_auto_range(imol_coords, chain_id, resno,
+				   altloc);
+	       }
+
 	       // get the residue so that it can update the geometry graph
 	       CResidue *residue_p =
 		  graphics_info_t::molecules[imol_coords].get_residue(resno, ins, chain);
@@ -1791,7 +1805,21 @@ int mutate_auto_fit_do_post_refine_state() {
    return graphics_info_t::mutate_auto_fit_do_post_refine_flag;
 } 
 
+/* 1 for yes, 0 for no. */
+void set_rotamer_auto_fit_do_post_refine(short int istate) {
 
+   graphics_info_t::rotamer_auto_fit_do_post_refine_flag = istate;
+   std::string cmd = "set-rotamer-auto-fit-do-post-refine";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(istate);
+   add_to_history_typed(cmd, args);
+} 
+
+/*! \brief what is the value of the previous flag? */
+int rotamer_auto_fit_do_post_refine_state() {
+   add_to_history_simple("rotamer-auto-fit-do-post-refine-state");
+   return graphics_info_t::rotamer_auto_fit_do_post_refine_flag;
+} 
 
 /*! \brief set a flag saying that the chosen residue should only be
   added as a stub (mainchain + CB) */

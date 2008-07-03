@@ -586,9 +586,9 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
     def go_function_event(*args):
        print "Here.................. check-button is ", check_button
        if check_button:
-	        handle_go_function(map(entry.get_text(), entries), check_button.get_active())
+          handle_go_function(map(lambda entry: entry.get_text(), entries), check_button.get_active())
        else:
-        	handle_go_function(map(entry.get_text(), entries))
+          handle_go_function(map(lambda entry: entry.get_text(), entries))
        delete_event()
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -603,7 +603,7 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
     entries = []
     for entry_info in entry_info_list:
 
-       entry_hint_text = entry_info[0]
+       entry_1_hint_text = entry_info[0]
        entry_1_default_text = entry_info[1]
        hbox1 = gtk.HBox(False, 0)
 
@@ -627,13 +627,14 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
 
           def check_callback(*args):
 		active_state = c_button.get_active()
-		handle_check_button_function(active_state)
+		check_button_info[1] = active_state
                 
           c_button = gtk.CheckButton(check_button_info[0])
           vbox.pack_start(c_button, False, False, 2)
           c_button.connect("toggled", check_callback)
           check_button = c_button
-       check_button = False      # the check-button when we don't want to see it
+       else:
+          check_button = False      # the check-button when we don't want to see it
 
     print "Here check button creation.................. check-button is ", check_button
     vbox.pack_start(h_sep, True, False, 3)
@@ -1004,7 +1005,7 @@ def get_option_menu_active_item(option_menu, item_list):
        return False
 
 
-def mo1lecule_chooser_gui_generic(chooser_label, callback_function, option_menu_fill_function):
+def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_fill_function):
  
     def delete_event(*args):
        window.destroy()
@@ -1016,7 +1017,10 @@ def mo1lecule_chooser_gui_generic(chooser_label, callback_function, option_menu_
         try:
            active_mol_no = int(active_mol_no)
            print "INFO: operating on molecule number ", active_mol_no
-           callback_function(active_mol_no)
+           try:
+              callback_function(active_mol_no)
+           except:
+              print "BL INFO:: problem in callback_function"
            delete_event()
         except:
            print "Failed to get a (molecule) number"
