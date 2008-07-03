@@ -21,6 +21,7 @@
 
 #include <fstream>
 #include <stdexcept>
+#include <string.h>
 
 #include "rotamer.hh"
 #include "mgtree.h"
