@@ -2662,6 +2662,30 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
    }
 }
 
+// Do the link restraints contain a planar peptide restraint?
+bool
+coot::protein_geometry::planar_peptide_restraint_state() const {
+
+   std::string link_id = "TRANS";
+   std::string plane_id = "plane3";
+   bool ifound = 0;
+
+   for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
+      if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
+	 
+	 std::vector<coot::dict_link_plane_restraint_t>::const_iterator it;
+	 for (it = dict_link_res_restraints[i].link_plane_restraint.begin();
+	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
+	    if (it->plane_id == plane_id) {
+	       ifound = 1;
+	       break;
+	    }
+	 }
+      }
+   }
+   return ifound;
+} 
+
 
 // restraints for omega for both CIS and TRANS links (and
 // PTRANS)

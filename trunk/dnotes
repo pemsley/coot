@@ -6094,3 +6094,14 @@ Wed Jul  2 08:27:50 BST 2008
 
     Do Residue Info.  Intermediate atoms disappear.  Why?
 
+----
+> > In message <B0848263-CEEB-48EF-B991-4ED71F81E9D4@idi.harvard.edu>  
+> > Jianghai Zhu
+> > <jzhu@idi.harvard.edu> writes:
+> >> Hi Paul,
+> >> I am using the nightly build of coot prerelease.  I found out that
+> >> every time when I switch the stereo on and off, I lose the electron
+> >> density map.  If I scroll the mouse, I can bring the map back.  But  
+> >> if
+> >> I have multiple maps on display, then only one map can be brought  
+> >> back.

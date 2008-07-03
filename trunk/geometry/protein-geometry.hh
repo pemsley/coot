@@ -750,7 +750,8 @@ namespace coot {
       // add "synthetic" 5 atom planar peptide restraint
       void add_planar_peptide_restraint();
       void remove_planar_peptide_restraint();
-
+      bool planar_peptide_restraint_state() const;
+      
       // restraints for omega for both CIS and TRANS links (and
       // PTRANS)
       void add_omega_peptide_restraints();

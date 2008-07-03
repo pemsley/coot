@@ -2511,6 +2511,9 @@ void add_planar_peptide_restraints();
 /*! \brief remove restraints on peptides to make them planar. */
 void remove_planar_peptide_restraints();
 
+/* return 1 if planar peptide restraints are on, 0 if off */
+int planar_peptide_restraints_state();
+
 /*! \brief add restraints on the omega angle of the peptides
 
   (that is the torsion round the peptide bond).  Omega angles that are
