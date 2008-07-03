@@ -166,17 +166,24 @@ coot::monomer_utils::get_atom_index_quads(const std::vector<coot::atom_name_quad
 	 }
       }
    }
-   if (v.size() != atom_name_quads_in.size()) {
-      std::cout << "Monomer utils: Failure to find all atom quads in residue atoms\n" ;
+   if (v.size() < atom_name_quads_in.size()) {
+      std::cout << "Monomer utils: Failure to find correct atom quads in residue atoms\n" ;
       for (int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
-	 std::cout << "quad: "
-		   << atom_name_quads_in[iquad].atom1 << "  "
-		   << atom_name_quads_in[iquad].atom2 << "  "
-		   << atom_name_quads_in[iquad].atom3 << "  "
-		   << atom_name_quads_in[iquad].atom4 << "\n";
+	 std::cout << "  quad needed: :"
+		   << atom_name_quads_in[iquad].atom1 << ":  :"
+		   << atom_name_quads_in[iquad].atom2 << ":  :"
+		   << atom_name_quads_in[iquad].atom3 << ":  :"
+		   << atom_name_quads_in[iquad].atom4 << ":\n";
+      }
+      for (unsigned int iv=0; iv<v.size(); iv++) {
+	 std::cout << "  found quad: "
+		   << v[iv].index1 << "  "
+		   << v[iv].index2 << "  "
+		   << v[iv].index3 << "  "
+		   << v[iv].index4 << "\n";
       }
       for (int i1=0; i1<nresatoms; i1++) {
-	 std::cout << " res atom " << atoms[i1] << "\n";
+	 std::cout << "  res atom " << i1 << " " << atoms[i1] << "\n";
       }
    } else {
       // std::cout << "found all quads in residue atoms\n" ;

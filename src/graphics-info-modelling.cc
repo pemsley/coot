@@ -2425,10 +2425,9 @@ graphics_info_t::get_rotamer_probability(CResidue *res,
    coot::dunbrack d(res, mol, rotamer_lowest_probability, 1);
 #else
    if (rot_prob_tables.is_well_formatted()) {
+      // if (0) {
       try { 
 	 r = rot_prob_tables.probability_this_rotamer(res);
-// 	 std::cout << "probability result: " << r.state << " " << r.probability << "% "
-// 		   << "\n";
       }
       catch (std::runtime_error e) {
 	 std::cout << "get_rotamer_probability: caught: " << e.what() << std::endl;
