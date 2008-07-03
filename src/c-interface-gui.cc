@@ -3269,9 +3269,13 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 	 imol = g.bond_parameters_molecule;
       else
 	 g.bond_parameters_molecule = imol;
+   else
+      // g.bond_parameters_molecule not set yet.
+      g.bond_parameters_molecule = imol;
 
-//    std::cout << "DEBUG:: in wrapped_create_bond_parameters_dialog imol is "
-// 	     << imol << std::endl;
+   std::cout << "DEBUG:: in wrapped_create_bond_parameters_dialog imol is "
+ 	     << imol << " g.bond_parameters_molecule "
+	     << g.bond_parameters_molecule << std::endl;
 
    g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol);
    graphics_info_t::fill_bond_parameters_internals(widget, imol);
