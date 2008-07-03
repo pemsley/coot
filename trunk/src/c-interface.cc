@@ -511,11 +511,11 @@ void mono_mode() {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
 	    short int try_hardware_stereo_flag = 0;
-// BL says:: and we switch the lists_maps back to normal
-#if (GTK_MAJOR_VERSION > 1)
-            set_display_lists_for_maps(1);
-//	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
-#endif //GTK2
+	    //BL says:: and we switch the lists_maps back to normal
+	    //#if (GTK_MAJOR_VERSION > 1)
+	    //set_display_lists_for_maps(1);
+	    //	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
+            // #endif //GTK2
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) { 
 	       std::cout << "INFO:: switch to mono_mode succeeded\n";
