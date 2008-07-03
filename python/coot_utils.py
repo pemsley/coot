@@ -1459,7 +1459,9 @@ def GL_light_off():
 #                         can be a single path as well)
 #
 # then we search everywhere
-# 
+#
+# on OS where which is available we use this first, rather than searching in PATH etc.
+# (FIXME)
 # returns full path of exe when successful, False otherwise
 #
 def find_exe(*args):
@@ -1508,8 +1510,19 @@ def find_exe(*args):
             
         return ret
 
+    program_name = args[0]
+    # if Unix we use which and python's command module to locate the
+    # executable (indepent if PATH was given); commands only available on
+    # unix! May use subprocess at some point...
+    # if the program is not found with which we use the usual way...
+    if (os.name == 'posix'):
+        import commands
+        program_exe = commands.getoutput('which ' + program_name)
+        if (os.path.isfile(program_exe)):
+            return program_exe
+
     if (len(args) > 0):
-        program_name = args[0]
+        #program_name = args[0]
         path_ls = args[1:len(args)]
 
         # setting of OS specific path properties

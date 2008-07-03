@@ -808,6 +808,7 @@ int graphics_info_t::mutate_auto_fit_residue_imol = -1;
 short int graphics_info_t::residue_type_chooser_auto_fit_flag = 0;
 short int graphics_info_t::residue_type_chooser_stub_flag = 0;
 short int graphics_info_t::mutate_auto_fit_do_post_refine_flag = 0; 
+short int graphics_info_t::rotamer_auto_fit_do_post_refine_flag = 0; 
 
 short int graphics_info_t::in_add_alt_conf_define = 0;
 GtkWidget *graphics_info_t::add_alt_conf_dialog = NULL; 

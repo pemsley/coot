@@ -39,7 +39,9 @@ coot_load_modules.py                      local_code.py   		\
 gap.py                                    povray.py       coot_lsq.py	\
 shelx.py             group_settings.py    fitting.py      americanisms.py \
 tips.py              tips_gui.py          generic_objects.py cns2coot.py  \
-extensions.py        ncs.py		  clear_backup.py		\
+extensions.py        ncs.py		  				\
+		     clear_backup.py					\
+		     shelx_extensions.py				\
 coot_toolbuttons.py		\
 ../src/coot.py $(TEXI_FILE)
 

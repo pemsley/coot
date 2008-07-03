@@ -6631,7 +6631,13 @@ void set_refine_with_torsion_restraints(int istate) {
 
 } 
 
-   
+
+int refine_with_torsion_restraints_state() {
+
+   return graphics_info_t::do_torsion_restraints;
+
+} 
+
 
 void set_backbone_torsion_peptide_button_start_pos(int ix, int iy) { 
    

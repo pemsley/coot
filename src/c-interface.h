@@ -2558,6 +2558,8 @@ void do_peptide_torsions_toggle();
    Pass with istate=1 for on, istate=0 for off.
 */
 void set_refine_with_torsion_restraints(int istate); 
+/*! \brief return the state of above */
+int refine_with_torsion_restraints_state(); 
 void set_refine_params_toggle_buttons(GtkWidget *button);
 
 /*! \brief set the type or phi/psi restraints
@@ -3645,6 +3647,8 @@ void set_add_terminal_residue_default_residue_type(const char *type);
 /*! \brief set a flag to run refine zone on terminal residues after an
   addition.  */
 void set_add_terminal_residue_do_post_refine(short int istat); 
+/*! \brief what is the value of the previous flag? */
+int add_terminal_residue_do_post_refine_state();
 
 #ifdef __cplusplus 
 #ifdef USE_GUILE
@@ -3902,6 +3906,15 @@ void set_mutate_auto_fit_do_post_refine(short int istate);
 
 /*! \brief what is the value of the previous flag? */
 int mutate_auto_fit_do_post_refine_state();
+
+/*! \brief Do you want Coot to automatically run a refinement after
+  every rotamer autofit?
+
+ 1 for yes, 0 for no. */
+void set_rotamer_auto_fit_do_post_refine(short int istate);
+
+/*! \brief what is the value of the previous flag? */
+int rotamer_auto_fit_do_post_refine_state();
 
 
 /*! \brief an alternate interface to mutation of a singe residue.

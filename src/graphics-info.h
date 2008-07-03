@@ -2191,6 +2191,7 @@ public:
    static short int residue_type_chooser_auto_fit_flag;
    static short int residue_type_chooser_stub_flag;
    static short int mutate_auto_fit_do_post_refine_flag; 
+   static short int rotamer_auto_fit_do_post_refine_flag; 
 
    // mutate sequence
    static std::string mutate_sequence_chain_from_optionmenu;
