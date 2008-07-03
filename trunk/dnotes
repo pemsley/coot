@@ -4,6 +4,10 @@
 
    11 Items, 35 hd.
 
+   o Fix the comp_id on exporting monomer restraints to a file.
+
+   o Fix the extra layer of onion in scm restraints [JED]
+
    o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
 
 * see what cootbb says...  Bill says add a thymine.
@@ -30,10 +34,10 @@
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
      molprobity web site gives less bad rotamers then? (First: Does it?).
      Yes it does: e.g. for 1sar molprobity notes only these:
-     "Bad rotamer B  47 GLN (0.3%)" 
-     "Bad rotamer A  91 LEU (0.4%)" 
-     "Bad rotamer A  13 PRO (0.9%)" 
-     "Bad rotamer B  41 GLU (0.7%)" 
+     "Bad rotamer B  47 GLN (0.3%)"   agreed
+     "Bad rotamer A  91 LEU (0.4%)"   agreed
+     "Bad rotamer A  13 PRO (0.9%)"   hmmm - it agrees.
+     "Bad rotamer B  41 GLU (0.7%)"   don't see why it is bad, but it agrees.
 
      There are 10 times more for Coot.  
      (fix-nomenclature-errors doesn't fix anything).  4hd.
@@ -6112,6 +6116,9 @@ Thu Jul  3 12:44:23 BST 2008
 
     on_draw_hydrogens_yes_radiobutton_toggled 
 
-    This draw hydrogens thing should be a single check button, not 2 radio toggle buttons.
+    This draw hydrogens thing should be a single check button, not 2
+    radio toggle buttons.
+
+    Get rid of the "Apply" button.
 
     Low priority

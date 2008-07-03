@@ -65,7 +65,7 @@ Pre-release 0.5
 
    o CHANGE: default bond width changed to 5.
 
-   o CHANGE: Traffic lights verticallized.
+   o CHANGE: Traffic lights verticalized.
 
    o CHANGE: Symmetry colour info added to state file [Doug Kuntz].
  
@@ -89,6 +89,9 @@ Pre-release 0.5
    o CHANGE: Reference structures now have strand markup in the
      header, so they can now be used as the reference structures for
      "Build Strand".
+
+   o CHANGE: Bond parameters changes (bond width and hydrogens state)
+     now work immediately, no need to press the "Apply" button [FvD].
 
    o CHANGE: Colour by Chain style also now displays zero occupancy
      markers [PRE].
