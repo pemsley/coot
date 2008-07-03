@@ -3858,6 +3858,16 @@ void remove_planar_peptide_restraints() {
    g.Geom_p()->remove_planar_peptide_restraint();
 }
 
+/* return 1 if planar peptide restraints are on, 0 if off */
+int planar_peptide_restraints_state() {
+
+   graphics_info_t g;
+   bool r = g.Geom_p()->planar_peptide_restraint_state();
+   int rr = r;
+   return rr;
+} 
+
+
 void add_omega_torsion_restriants() {
 
    graphics_info_t g;
