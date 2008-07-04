@@ -224,6 +224,7 @@
       (lambda (port)
 	(sxml->xml block port))))
 
+
 (define (time-text an-oldness)
   ;; 5: years
   ;; 4: months
@@ -372,6 +373,17 @@
 					         ; web server page
 					         ; missing raw HTML
 
+
+  ;; return some text
+  (define (source-build-status-text)
+    (let ((file (append-dir-file
+		 (append-dir-dir "/y/people/emsley" "public_html/software/pre-release/build-status")
+		 "status")))
+      (call-with-input-file file
+	(lambda (port)
+	  (let ((text (read-line port)))
+	    (markup text))))))
+  
   (define (markup text)
     (if (not (string? text))
 	""
@@ -606,7 +618,9 @@
 		" "
 		,(list-ref latest-source-info 1)
 		(br)
-		,(time-text (oldness-info latest-source-info)))
+		,(time-text (oldness-info latest-source-info))
+		" " " " " "
+		,(source-build-status-text))
 
 	     ;; binary targets
 	     (table 
