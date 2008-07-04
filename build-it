@@ -203,7 +203,8 @@
 #               bins work on a Mandriva system? Needs checking
 # 2.40 20080428 Apply Joseph Moran's fix correctly.
 # 2.41 20080518 Update the status reporting system here (sync with gtk1 version).
-script_version=2.41
+# 2.42 20080624 Add guile-lib to build.
+script_version=2.42
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
