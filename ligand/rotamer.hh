@@ -24,6 +24,7 @@
 #ifndef ROTAMER_HH
 #define ROTAMER_HH
 
+#include <math.h>
 #include "chi-angles.hh"
 
 namespace coot {
