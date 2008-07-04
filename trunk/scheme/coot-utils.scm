@@ -45,6 +45,7 @@
 (define map-parameters map-parameters-scm)
 (define map-cell map-cell-scm)
 (define ccp4i-projects ccp4i-projects-scm)
+(define get-rotamer-name get-rotamer-name-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.

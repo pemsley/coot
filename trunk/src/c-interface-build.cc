@@ -1765,7 +1765,28 @@ int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, con
       graphics_draw();
    }
    return i_done; 
+}
+
+#ifdef USE_GUILE
+SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *ins_code) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+      CResidue *res = graphics_info_t::molecules[imol].get_residue(res_spec);
+      if (res) {
+#ifdef USE_DUNBRACK_ROTAMERS
+#else
+	 coot::richardson_rotamer d(res, graphics_info_t::molecules[imol].atom_sel.mol, 0.0, 1);
+	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
+	 r = scm_makfrom0str(prob.rotamer_name.c_str());
+#endif      
+      }
+   }
+   return r;
 } 
+#endif 
+
 
 
 
