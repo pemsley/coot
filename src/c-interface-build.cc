@@ -102,6 +102,11 @@
 #include "c-interface-scm.hh"
 #include "c-interface-python.hh"
 
+#ifdef USE_DUNBRACK_ROTAMERS
+#include "dunbrack.hh"
+#else 
+#include "richardson-rotamer.hh"
+#endif 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps - (somewhere else?):                               */
 /*  ------------------------------------------------------------------------ */
@@ -1727,11 +1732,40 @@ rotamer_score(int resno, const char *insertion_code,
    return f;
 }
 
-void
-set_graphics_rotamer_dialog(GtkWidget *w) {
-   graphics_info_t::rotamer_dialog = w;
-}
 
+/*! \brief return the number of rotamers for this residue */
+int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code) {
+
+   int r = -1; 
+   if (is_valid_model_molecule(imol)) { 
+      CResidue *res = graphics_info_t::molecules[imol].get_residue(resno, ins_code, chain_id);
+      if (res) {
+	 graphics_info_t g;
+#ifdef USE_DUNBRACK_ROTAMERS			
+	 coot::dunbrack d(res, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
+#else			
+	 coot::richardson_rotamer d(res, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
+#endif // USE_DUNBRACK_ROTAMERS
+	 
+	 std::vector<float> probabilities = d.probabilities();
+	 r = probabilities.size();
+      }
+   }
+   return r;
+} 
+
+/*! \brief set the residue specified to the rotamer number specifed. */
+int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code, int rotamer_number) {
+
+   int i_done = 0;
+   if (is_valid_model_molecule(imol)) {
+      int n = rotamer_number;
+      coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+      i_done = graphics_info_t::molecules[imol].set_residue_to_rotamer_number(res_spec, n);
+      graphics_draw();
+   }
+   return i_done; 
+} 
 
 
 

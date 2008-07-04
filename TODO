@@ -157,6 +157,8 @@
      this the default at coordinates read time (similarly, others want
      CA mode).  Consider punting.
 
+   o "CA mode" for nucleic acids should draw a P and C1' trace. [VR]
+
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
 
@@ -234,6 +236,10 @@
 
    o helix fitting overshoots
 
+   o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
+
+* see what cootbb says...  Bill says add a thymine. 
+
    o consider making bonds to hydrogens thinner.  A spike needed to
      test for bonds split on thickness or colour most deeply.
 
@@ -305,6 +311,11 @@
 
    o Make a demo script that downloads data and runs it - add it to
      the package and make it available to run from extensions.
+
+   o Fit a ligand.  Use write_connectivity to generate its hydrogens.
+     Use reduce and probe to make ligand interactions (and render them).
+
+   o Display ligand diapoles using charges from cif file.
 
    o consider a function generator for dialog box of buttons.  Because
      we need a function that accepts args for close-dialog and one
