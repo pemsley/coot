@@ -3825,6 +3825,14 @@ float rotamer_score(int resno, const char *insertion_code,
 void setup_auto_fit_rotamer(short int state);	/* called by the Auto Fit button call
 				   back, set's in_auto_fit_define. */
 
+/*! \brief return the number of rotamers for this residue - return -1
+  on no residue found.*/
+int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code);
+/*! \brief set the residue specified to the rotamer number specifed. */
+int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code, int rotamer_number);
+
+
+
 /*! \brief fill all the residues of molecule number imol that have
    missing atoms.
 

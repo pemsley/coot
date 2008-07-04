@@ -1421,7 +1421,61 @@ molecule_class_info_t::auto_fit_best_rotamer(int atom_index, int imol_map, int c
 
    return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map, clash_flag, lowest_probability);
 
+}
+
+int
+molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number) {
+
+   int i_done = 0;
+   CResidue *res = get_residue(res_spec);
+   if (res) {
+
+      make_backup();
+#ifdef USE_DUNBRACK_ROTAMERS			
+      coot::dunbrack d(res, atom_sel.mol, 0.01, 0);
+#else			
+      coot::richardson_rotamer d(res, atom_sel.mol, 0.01, 0);
+#endif // USE_DUNBRACK_ROTAMERS
+      CResidue *moving_res = d.GetResidue(rotamer_number);
+      std::cout << "in set_residue_to_rotamer_number " << res << " and  " << moving_res
+		<< std::endl;
+
+      int n_ref_atoms;
+      PPCAtom ref_residue_atoms = 0;
+      int n_mov_atoms;
+      PPCAtom mov_residue_atoms= 0;
+
+             res->GetAtomTable(ref_residue_atoms, n_ref_atoms);
+      moving_res->GetAtomTable(mov_residue_atoms, n_mov_atoms);
+
+      int n_atoms = 0; 
+      for (int imov=0; imov<n_mov_atoms; imov++) {
+	 std::string atom_name_mov(mov_residue_atoms[imov]->name);
+	 std::string alt_loc_mov(mov_residue_atoms[imov]->altLoc);
+	 for (int iref=0; iref<n_ref_atoms; iref++) {
+	    std::string atom_name_ref(ref_residue_atoms[iref]->name);
+	    std::string alt_loc_ref(ref_residue_atoms[iref]->altLoc);
+	    if (atom_name_mov == atom_name_ref) {
+	       if (alt_loc_mov == alt_loc_ref) {
+		  ref_residue_atoms[iref]->x = mov_residue_atoms[imov]->x;
+		  ref_residue_atoms[iref]->y = mov_residue_atoms[imov]->y;
+		  ref_residue_atoms[iref]->z = mov_residue_atoms[imov]->z;
+		  n_atoms++;
+	       }
+	    }
+	 }
+      }
+      std::cout << "replace coords of " << n_atoms << " atoms\n";
+      
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
+   } 
+   return i_done;
 } 
+
 
 
 // Return NULL on residue not found in this molecule.

@@ -4,13 +4,7 @@
 
    11 Items, 35 hd.
 
-   o Fix the comp_id on exporting monomer restraints to a file.
-
-   o Fix the extra layer of onion in scm restraints [JED]
-
-   o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
-
-* see what cootbb says...  Bill says add a thymine.
+   o Fix the comp_id on exporting monomer restraints to a file. 1hd
 
    o Finish A-RAPPER-gui, penelope. 6hd
 
@@ -52,7 +46,11 @@
    o (assoc-ref (monomer-restraints "TYR") "_chem_comp_chir") extra
      list layer? [JED]
 
-
+   o Reference for EDS:
+     Title: The Uppsala Electron-Density Server
+     Author(s): Kleywegt GJ, Harris MR, Zou JY, Taylor TC, Wahlby A, Jones TA
+     Source: ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY 60: 2240-2249 
+        Part 12 Sp. Iss. 1, DEC 2004 
 
 
 
@@ -1574,6 +1572,8 @@ Thu May  3 10:26:10 BST 2007
    intelligent next atom should consider insertion codes.
    (how tedious).
 
+* Done - simple-mindedly
+
 ------
 Wed May  9 13:54:04 BST 2007
 
@@ -2842,7 +2842,9 @@ Wed Aug 22 10:43:56 BST 2007
 
 	Coot's configure should test for net-http and goosh.
 
-	Or fail gracefully when they are not there.
+	And fail gracefully when they are not there.
+
+* Done.
 
 ------
 Fri Aug 24 15:40:17 BST 2007
@@ -3542,6 +3544,7 @@ Wed Dec  5 16:05:13 GMT 2007
 
    "Is it in the red or in the black?"
 
+* Old. Handled differently.
 
 ----
 
@@ -3578,6 +3581,7 @@ Sat Dec 15 13:12:08 GMT 2007
     work if residues 1 to 5 are not in the B and C chains (because
     I've just built them in the A chain).
 
+* Done.
 
 ----
 Sat Dec 15 13:13:45 GMT 2007
@@ -3893,6 +3897,8 @@ Tue Jan  8 09:40:44 GMT 2008
 
    A graph tool to represent NCS differences
 
+* Done.
+
 ----
 Tue Jan  8 09:41:15 GMT 2008
 
@@ -3946,6 +3952,8 @@ Tue Jan  8 12:10:28 GMT 2008
 
     Priority: Low, but it's the right thing.
 
+* Done.
+
 ----
 Tue Jan  8 13:06:56 GMT 2008
 
@@ -3990,6 +3998,8 @@ void
 molecule_class_info_t::make_ca_plus_ligands_bonds() { 
 
    bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS; // FIXME
+
+* Yes. fixed.
 
 ---
 Wed Jan  9 07:03:22 GMT 2008
@@ -4060,6 +4070,8 @@ Fri Jan 11 08:51:06 GMT 2008
 Fri Jan 11 10:40:28 GMT 2008
 
    Transfer map functions to molecule-class-info-maps.cc
+
+* Done.
 
 -----
 Sun Jan 13 14:50:19 GMT 2008
@@ -4222,12 +4234,16 @@ WARNING:: failed to find filesection in option_menu_refmac_ccp4i_project_signal_
 
    Priority: Critical.
 
+* Fixed.
+
 -----
 Fri Jan 18 08:36:45 GMT 2008
 
     Hydrogen - Hydrogen environment distances should be yellow not pink.
 
     Priority: Critical.
+
+* Done.
 
 ----
 
@@ -4236,6 +4252,7 @@ Accession code accessor needs a "Get it" button.
 
    Priority: Important.
 
+* Done
 
 ----
 
@@ -4243,6 +4260,7 @@ Accession code accessor needs a "Get it" button.
 
    and guile_loaded()  { False True }
 
+* Done.
 
 ----
 Sat Jan 19 11:35:01 GMT 2008
@@ -4260,6 +4278,8 @@ Sat Jan 19 11:56:58 GMT 2008
 
     Molprobity interaction dots around a ligand.  
     Surely that would be super cool?
+
+    Yes it would.
 
 -----
 Sat Jan 19 16:09:27 GMT 2008
@@ -5097,6 +5117,7 @@ Fri Feb 22 09:45:25 GMT 2008
    Turn off the ability to translate a rotamer withe atom drag
    Also in chi angles mode?  Herb Klei.
 
+* Done.
 
 ----
 Sun Feb 24 09:47:02 GMT 2008
@@ -5204,6 +5225,7 @@ Thu Mar  6 13:31:13 GMT 2008
 
 ----
 Fri Mar  7 13:40:51 GMT 2008
+
     Test for guile-gtk is failing (i.e. guile-gtk2.1 is being built)
     on bragg3.
 
@@ -6102,7 +6124,7 @@ Wed Jul  2 08:27:50 BST 2008
 > > In message <B0848263-CEEB-48EF-B991-4ED71F81E9D4@idi.harvard.edu>  
 > > Jianghai Zhu
 > > <jzhu@idi.harvard.edu> writes:
-> >> Hi Paul,
+> >> 
 > >> I am using the nightly build of coot prerelease.  I found out that
 > >> every time when I switch the stereo on and off, I lose the electron
 > >> density map.  If I scroll the mouse, I can bring the map back.  But  

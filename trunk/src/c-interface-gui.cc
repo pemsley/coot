@@ -90,6 +90,12 @@ int show_paths_in_display_manager_state() {
    return graphics_info_t::show_paths_in_display_manager_flag;
 }
 
+void
+set_graphics_rotamer_dialog(GtkWidget *w) {
+   graphics_info_t::rotamer_dialog = w;
+}
+
+
 
 /* We try as .phs and .cif files.
 

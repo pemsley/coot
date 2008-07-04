@@ -1805,6 +1805,8 @@ class molecule_class_info_t {
    float auto_fit_best_rotamer(int atom_index, int imol_map, int clash_flag,
 			       float lowest_probability);
 
+   int set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number);
+
    // Add OXT atom:  Return status, 0 = fail, 1 = worked.
    // (use get_residue() to get the residue for this);
    // 
