@@ -73,6 +73,18 @@ coot::get_f_phi_columns(const std::string &filename) {
    a.selected_refmac_hlb_col = 0;
    a.selected_refmac_hlc_col = 0;
    a.selected_refmac_hld_col = 0;
+   // new ones for SAD and twin refinement
+   // I, I+/-, F+/- and appropriate sigs
+   a.selected_refmac_fp_col = 0;
+   a.selected_refmac_sigfp_col = 0;
+   a.selected_refmac_fm_col = 0;
+   a.selected_refmac_sigfm_col = 0;
+   a.selected_refmac_iobs_col = 0;
+   a.selected_refmac_sigiobs_col = 0;
+   a.selected_refmac_ip_col = 0;
+   a.selected_refmac_sigip_col = 0;
+   a.selected_refmac_im_col = 0;
+   a.selected_refmac_sigim_col = 0;
 
    clipper::CCP4MTZfile f;
    short int is_mtz_file = 1; 
@@ -108,9 +120,9 @@ coot::get_f_phi_columns(const std::string &filename) {
 	       if (type == "F")
 		 a.f_cols.push_back(coot::mtz_type_label(label, 'F', i));
 	       if (type == "G")
-		 a.f_cols.push_back(coot::mtz_type_label(label, 'F', i));
+		 a.fpm_cols.push_back(coot::mtz_type_label(label, 'G', i));
 	       if (type == "L")
-		 a.f_cols.push_back(coot::mtz_type_label(label, 'F', i));
+		 a.sigfpm_cols.push_back(coot::mtz_type_label(label, 'L', i));
 	       if (type == "Q")
 		 a.sigf_cols.push_back(coot::mtz_type_label(label, 'Q', i));
 	       if (type == "P")
@@ -123,6 +135,13 @@ coot::get_f_phi_columns(const std::string &filename) {
 		 a.r_free_cols.push_back(coot::mtz_type_label(label, 'I', i));
 	       if (type == "A")
 		 a.hl_cols.push_back(coot::mtz_type_label(label, 'A', i));
+	       if (type == "J")
+		 a.i_cols.push_back(coot::mtz_type_label(label, 'J', i));
+	       // for completeness; not used yet
+	       if (type == "K")
+		 a.ipm_cols.push_back(coot::mtz_type_label(label, 'K', i));
+	       if (type == "M")
+		 a.sigipm_cols.push_back(coot::mtz_type_label(label, 'M', i));
 	    }
 	 }
       }
@@ -256,21 +275,35 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
    int i;
 
    GtkWidget *fobs_option_menu    = lookup_widget(window, "refmac_dialog_fobs_optionmenu");
+   GtkWidget *fpm_option_menu     = lookup_widget(window, "refmac_dialog_fpm_optionmenu");
+   GtkWidget *fiobs_option_menu   = lookup_widget(window, "refmac_dialog_fiobs_optionmenu");
+   GtkWidget *ipm_option_menu     = lookup_widget(window, "refmac_dialog_ipm_optionmenu");
    GtkWidget *r_free_option_menu  = lookup_widget(window, "refmac_dialog_rfree_optionmenu");
    GtkWidget *phases_option_menu  = lookup_widget(window, "refmac_dialog_phases_optionmenu");
    GtkWidget *fom_option_menu     = lookup_widget(window, "refmac_dialog_fom_optionmenu");
    GtkWidget *hl_option_menu      = lookup_widget(window, "refmac_dialog_hl_optionmenu");
 
    GtkWidget *fobs_menu   = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_option_menu));
+   GtkWidget *fpm_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fpm_option_menu));
+   /* we dont have a separate I optionsmenu, but append all Fs and Is into one combined one */
+   GtkWidget *fiobs_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(fiobs_option_menu));
+   GtkWidget *ipm_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(ipm_option_menu));
    GtkWidget *r_free_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_option_menu));
    GtkWidget *phases_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(phases_option_menu));
    GtkWidget *fom_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fom_option_menu));
    GtkWidget *hl_menu     = gtk_option_menu_get_menu(GTK_OPTION_MENU(hl_option_menu));
 
    GtkWidget *menuitem;
+   GtkWidget *menuitem2;
 
    if (fobs_menu)
       gtk_widget_destroy(fobs_menu);
+   if (fpm_menu)
+      gtk_widget_destroy(fpm_menu);
+   if (fiobs_menu)
+      gtk_widget_destroy(fiobs_menu);
+   if (ipm_menu)
+      gtk_widget_destroy(ipm_menu);
    if (r_free_menu)
       gtk_widget_destroy(r_free_menu);
    if (phases_menu)
@@ -281,6 +314,9 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
       gtk_widget_destroy(hl_menu);
 
    fobs_menu = gtk_menu_new();
+   fpm_menu = gtk_menu_new();
+   fiobs_menu = gtk_menu_new();
+   ipm_menu = gtk_menu_new();
    r_free_menu = gtk_menu_new();
    phases_menu = gtk_menu_new();
    fom_menu = gtk_menu_new();
@@ -288,6 +324,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 
 
   /* Fobs and Sig Fobs*/
+  /* we always asume following pairs of Fobs and sigFobs */
   int fobs_pos;
   int sigfobs_pos;
   int islash;
@@ -306,11 +343,147 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 	 label = col_labs.f_cols[i].column_label;
 	 label += "  ";
 	 label += tmp.substr(islash + 1);
-	 menuitem = make_menu_item((gchar *) label.c_str(),
+	 menuitem  = make_menu_item((gchar *) label.c_str(),
+				   GTK_SIGNAL_FUNC(refmac_dialog_f_button_select),
+				   GINT_TO_POINTER(i));
+	 menuitem2 = make_menu_item((gchar *) label.c_str(),
 				   GTK_SIGNAL_FUNC(refmac_dialog_f_button_select),
 				   GINT_TO_POINTER(i));
 	 gtk_menu_append(GTK_MENU(fobs_menu), menuitem);
+	 // append to the combined one too
+	 gtk_menu_append(GTK_MENU(fiobs_menu), menuitem2);
 	 gtk_widget_show(menuitem);
+       }
+     }
+  }
+
+
+  /* F+, sigF+ and F-, sigF-*/
+  /* assume in pair of pairs (F+,sF+,F-,sF-) */
+  /* NB: we take F+,F-,sF+,sF- into account too */
+  int fp_pos;
+  int fm_pos;
+  int sigfp_pos;
+  int sigfm_pos;
+  //  coot::mtz_column_types_info_t a;
+  int good_no_of_fpm = mod(col_labs.fpm_cols.size(), 2);
+  int good_no_of_sigfpm = mod(col_labs.sigfpm_cols.size(), 2);
+  if (good_no_of_fpm && good_no_of_sigfpm) {
+    std::cout << "WARNING:: inconsistent number of F+/F- and or sigF+/sigF-, i.e. not multiple of 2.\n" << std::endl;
+    std::cout << "Detection of F+/F- and associated sigmas may be screwed!" << std::endl;
+  }
+  for (i=0; i<col_labs.fpm_cols.size(); i++) {
+     fp_pos = col_labs.fpm_cols[i].column_position;
+     if (i+1 < col_labs.fpm_cols.size()) {
+       fm_pos = col_labs.fpm_cols[i+1].column_position;
+       /* Sig F+/- */
+       for (int j=0; j<col_labs.sigfpm_cols.size(); j++) {
+	 sigfp_pos = col_labs.sigfpm_cols[j].column_position;
+	 if (j+1 < col_labs.sigfpm_cols.size()) {
+	   sigfm_pos = col_labs.sigfpm_cols[i+1].column_position;
+	   if ((fm_pos == fp_pos+2 && sigfp_pos == fp_pos+1 && sigfm_pos == fm_pos+1) ||
+	       (fm_pos == fp_pos+1 && sigfp_pos == fp_pos+2 && sigfm_pos == fm_pos+2)) {
+	     // matching f/f- sigf+/- pairs
+	     label = col_labs.fpm_cols[i].column_label;
+	     label += "  ";
+	     tmp = col_labs.fpm_cols[i+1].column_label;
+	     islash = tmp.find_last_of("/");
+	     label += tmp.substr(islash + 1);
+	     label += "  ";
+	     tmp = col_labs.sigfpm_cols[j].column_label;
+	     islash = tmp.find_last_of("/");
+	     label += tmp.substr(islash + 1);
+	     label += "  ";
+	     tmp = col_labs.sigfpm_cols[j+1].column_label;
+	     islash = tmp.find_last_of("/");
+	     label += tmp.substr(islash + 1);
+	     menuitem = make_menu_item((gchar *) label.c_str(),
+				       GTK_SIGNAL_FUNC(refmac_dialog_fpm_button_select),
+				       GINT_TO_POINTER(i));
+	     gtk_menu_append(GTK_MENU(fpm_menu), menuitem);
+	     gtk_widget_show(menuitem);
+	   }
+	 }
+       }
+     }
+  }
+
+
+  /* Iobs and Sig Iobs*/
+  /* we always asume following pairs of Iobs and sigIobs */
+  /* same as for F/sigF BUT we dont have an extra column for SigI
+     so we get it from the sigF column */
+  int iobs_pos;
+  int sigiobs_pos;
+  for (i=0; i<col_labs.i_cols.size(); i++) {
+     fobs_pos = col_labs.i_cols[i].column_position;
+     /* Sig Iobs */
+     for (int j=0; j<col_labs.sigf_cols.size(); j++) {
+       sigiobs_pos = col_labs.sigf_cols[j].column_position;
+       if ((iobs_pos + 1) == sigiobs_pos) {
+	 // matching i sigi pair
+	 tmp = col_labs.sigf_cols[j].column_label;
+	 islash = tmp.find_last_of("/");
+	 label = col_labs.i_cols[i].column_label;
+	 label += "  ";
+	 label += tmp.substr(islash + 1);
+	 menuitem = make_menu_item((gchar *) label.c_str(),
+				   GTK_SIGNAL_FUNC(refmac_dialog_i_button_select),
+				   GINT_TO_POINTER(i));
+	 // only append to combined menu
+	 gtk_menu_append(GTK_MENU(fiobs_menu), menuitem);
+	 gtk_widget_show(menuitem);
+       }
+     }
+  }
+
+
+  /* sam as for F+/F-; Not used currently */
+  /* I+, sigI+ and I-, sigI-*/
+  /* assume in pair of pairs (F+,sF+,F-,sF-) */
+  /* NB: we take F+,F-,sF+,sF- into account too */
+  int ip_pos;
+  int im_pos;
+  int sigip_pos;
+  int sigim_pos;
+  int good_no_of_ipm = mod(col_labs.ipm_cols.size(), 2);
+  int good_no_of_sigipm = mod(col_labs.sigipm_cols.size(), 2);
+  if (good_no_of_ipm && good_no_of_sigipm) {
+    std::cout << "WARNING:: inconsistent number of I+/I- and or sigI+/sigI-, i.e. not multiple of 2.\n" << std::endl;
+    std::cout << "Detection of I+/I- and associated sigmas may be screwed!" << std::endl;
+  }
+  for (i=0; i<col_labs.ipm_cols.size(); i++) {
+     ip_pos = col_labs.ipm_cols[i].column_position;
+     if (i+1 < col_labs.ipm_cols.size()) {
+       im_pos = col_labs.ipm_cols[i+1].column_position;
+       /* Sig I+/- */
+       for (int j=0; j<col_labs.sigipm_cols.size(); j++) {
+	 sigip_pos = col_labs.sigipm_cols[j].column_position;
+	 if (j+1 < col_labs.sigipm_cols.size()) {
+	   sigim_pos = col_labs.sigipm_cols[i+1].column_position;
+	   if ((im_pos == ip_pos+2 && sigip_pos == ip_pos+1 && sigim_pos == im_pos+1) ||
+	       (im_pos == ip_pos+1 && sigip_pos == ip_pos+2 && sigim_pos == im_pos+2)) {
+	     // matching i+/i- sigi+/- pairs
+	     label = col_labs.ipm_cols[i].column_label;
+	     label += "  ";
+	     tmp = col_labs.ipm_cols[i+1].column_label;
+	     islash = tmp.find_last_of("/");
+	     label += tmp.substr(islash + 1);
+	     label += "  ";
+	     tmp = col_labs.sigipm_cols[j].column_label;
+	     islash = tmp.find_last_of("/");
+	     label += tmp.substr(islash + 1);
+	     label += "  ";
+	     tmp = col_labs.sigipm_cols[j+1].column_label;
+	     islash = tmp.find_last_of("/");
+	     label += tmp.substr(islash + 1);
+	     menuitem = make_menu_item((gchar *) label.c_str(),
+				       GTK_SIGNAL_FUNC(refmac_dialog_ipm_button_select),
+				       GINT_TO_POINTER(i));
+	     gtk_menu_append(GTK_MENU(ipm_menu), menuitem);
+	     gtk_widget_show(menuitem);
+	   }
+	 }
        }
      }
   }
@@ -391,23 +564,27 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     }
   }
   
-  update_refmac_column_labels_frame(option_menu, fobs_menu, r_free_menu, 
+  update_refmac_column_labels_frame(option_menu,
+				    fobs_menu, fiobs_menu, fpm_menu,
+				    r_free_menu, 
 				    phases_menu, fom_menu, hl_menu);
   
-   /* Link the menus to the optionmenus */
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(fobs_option_menu), fobs_menu);
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(r_free_option_menu), r_free_menu);
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(phases_option_menu), phases_menu);
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(fom_option_menu), fom_menu);
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(hl_option_menu), hl_menu);
+  /* Link the menus to the optionmenus */
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(fobs_option_menu), fobs_menu);
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(fiobs_option_menu), fiobs_menu);
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(fpm_option_menu), fpm_menu);
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(r_free_option_menu), r_free_menu);
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(phases_option_menu), phases_menu);
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(fom_option_menu), fom_menu);
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(hl_option_menu), hl_menu);
 
-   //graphics_info_t::update_refmac_column_labels_frame(option_menu);
+  //graphics_info_t::update_refmac_column_labels_frame(option_menu);
 
-   //std::cout << "BL DEBUG:: selected fobs col " << save_f_phi_columns->selected_refmac_fobs_col<<std::endl;
-   //std::cout << "BL DEBUG:: selected sigf col " << save_f_phi_columns->selected_refmac_sigfobs_col<<std::endl;
-   //std::cout << "BL DEBUG:: selected phi col " << save_f_phi_columns->selected_refmac_phi_col<<std::endl;
-   //std::cout << "BL DEBUG:: selected fom col " << save_f_phi_columns->selected_refmac_fom_col<<std::endl;
-   //std::cout << "BL DEBUG:: selected hla col " << save_f_phi_columns->selected_refmac_hla_col<<std::endl;
+  //std::cout << "BL DEBUG:: selected fobs col " << save_f_phi_columns->selected_refmac_fobs_col<<std::endl;
+  //std::cout << "BL DEBUG:: selected sigf col " << save_f_phi_columns->selected_refmac_sigfobs_col<<std::endl;
+  //std::cout << "BL DEBUG:: selected phi col " << save_f_phi_columns->selected_refmac_phi_col<<std::endl;
+  //std::cout << "BL DEBUG:: selected fom col " << save_f_phi_columns->selected_refmac_fom_col<<std::endl;
+  //std::cout << "BL DEBUG:: selected hla col " << save_f_phi_columns->selected_refmac_hla_col<<std::endl;
 
   }
 }
@@ -580,14 +757,86 @@ refmac_dialog_f_button_select(GtkWidget *item, GtkPositionType pos) {
   }
 }
 
+// obsolete?
+//void 
+//refmac_dialog_sigf_button_select(GtkWidget *item, GtkPositionType pos) { 
+//   
+//   printf("setting refmac sigf position %d\n", pos);  
+//   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+//   coot::mtz_column_types_info_t *save_f_phi_columns
+//      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+//   save_f_phi_columns->selected_refmac_sigfobs_col = pos;
+//}
+
 void 
-refmac_dialog_sigf_button_select(GtkWidget *item, GtkPositionType pos) { 
+refmac_dialog_fpm_button_select(GtkWidget *item, GtkPositionType pos) { 
    
-   printf("setting refmac sigf position %d\n", pos);  
-   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
-   coot::mtz_column_types_info_t *save_f_phi_columns
-      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
-   save_f_phi_columns->selected_refmac_sigfobs_col = pos;
+  printf("setting refmac f+/- obs position %d\n", pos); 
+  GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  save_f_phi_columns->selected_refmac_fp_col = pos;
+  save_f_phi_columns->selected_refmac_fm_col = pos+1;
+  // get the corresponding F- and SigF+/F-
+  int sigfp_pos;
+  int sigfm_pos;
+  int fp_pos = save_f_phi_columns->fpm_cols[pos].column_position;
+  int fm_pos = save_f_phi_columns->fpm_cols[pos+1].column_position;
+  for (int i=0; i<save_f_phi_columns->sigfpm_cols.size()-1; i++) {
+    sigfp_pos = save_f_phi_columns->sigf_cols[i].column_position;
+    sigfm_pos = save_f_phi_columns->sigf_cols[i+1].column_position;
+    if ((fm_pos == fp_pos+2 && sigfp_pos == fp_pos+1 && sigfm_pos == fm_pos+1) ||
+	(fm_pos == fp_pos+1 && sigfp_pos == fp_pos+2 && sigfm_pos == fm_pos+2)) {
+      save_f_phi_columns->selected_refmac_sigfp_col = i;
+      save_f_phi_columns->selected_refmac_sigfm_col = i+1;
+    }
+  }
+}
+
+// as for F but I
+void 
+refmac_dialog_i_button_select(GtkWidget *item, GtkPositionType pos) { 
+   
+  printf("setting refmac i obs position %d\n", pos); 
+  GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  save_f_phi_columns->selected_refmac_iobs_col = pos;
+  // get the corresponding Sig Fobs
+  int sigiobs_pos;
+  int iobs_pos = save_f_phi_columns->i_cols[pos].column_position;
+  for (int i=0; i<save_f_phi_columns->sigf_cols.size(); i++) {
+    sigiobs_pos = save_f_phi_columns->sigf_cols[i].column_position;
+    if (sigiobs_pos == (iobs_pos + 1)) {
+      save_f_phi_columns->selected_refmac_sigiobs_col = i;
+    }
+  }
+}
+
+// as for F+/F- but with I
+void 
+refmac_dialog_ipm_button_select(GtkWidget *item, GtkPositionType pos) { 
+   
+  printf("setting refmac i+/- obs position %d\n", pos); 
+  GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  save_f_phi_columns->selected_refmac_ip_col = pos;
+  save_f_phi_columns->selected_refmac_im_col = pos+1;
+  // get the corresponding I- and SigI+/I-
+  int sigip_pos;
+  int sigim_pos;
+  int ip_pos = save_f_phi_columns->ipm_cols[pos].column_position;
+  int im_pos = save_f_phi_columns->ipm_cols[pos+1].column_position;
+  for (int i=0; i<save_f_phi_columns->sigipm_cols.size()-1; i++) {
+    sigip_pos = save_f_phi_columns->sigf_cols[i].column_position;
+    sigim_pos = save_f_phi_columns->sigf_cols[i+1].column_position;
+    if ((im_pos == ip_pos+2 && sigip_pos == ip_pos+1 && sigim_pos == im_pos+1) ||
+	(im_pos == ip_pos+1 && sigip_pos == ip_pos+2 && sigim_pos == im_pos+2)) {
+      save_f_phi_columns->selected_refmac_sigip_col = i;
+      save_f_phi_columns->selected_refmac_sigim_col = i+1;
+    }
+  }
 }
 
 void 

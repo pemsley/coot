@@ -1717,6 +1717,76 @@ graphics_info_t::refmac_change_ncycles(GtkWidget *item, GtkPositionType pos) {
 
 
 void
+graphics_info_t::set_refmac_use_tls(int state) {
+
+  graphics_info_t g;
+  
+  switch (state) {
+
+  case coot::refmac::TLS_ON:
+    g.refmac_use_tls_flag = coot::refmac::TLS_ON;
+    break;
+
+  case coot::refmac::TLS_OFF:
+    g.refmac_use_tls_flag = coot::refmac::TLS_OFF;
+    break;
+
+  default:
+    g.refmac_use_tls_flag = coot::refmac::TLS_ON;
+    break;
+  }
+}
+
+
+void
+graphics_info_t::set_refmac_use_twin(int state) {
+
+  graphics_info_t g;
+  
+  switch (state) {
+
+  case coot::refmac::TWIN_ON:
+    g.refmac_use_twin_flag = coot::refmac::TWIN_ON;
+    // we switch off SAD then (for now)
+    g.refmac_use_sad_flag = coot::refmac::SAD_OFF;
+    break;
+
+  case coot::refmac::TWIN_OFF:
+    g.refmac_use_twin_flag = coot::refmac::TWIN_OFF;
+    break;
+
+  default:
+    g.refmac_use_twin_flag = coot::refmac::TWIN_OFF;
+    break;
+  }
+}
+
+
+void
+graphics_info_t::set_refmac_use_sad(int state) {
+
+  graphics_info_t g;
+  
+  switch (state) {
+
+  case coot::refmac::SAD_ON:
+    g.refmac_use_sad_flag = coot::refmac::SAD_ON;
+    // we switch off TWIN then (for now)
+    g.refmac_use_twin_flag = coot::refmac::TWIN_OFF;
+    break;
+
+  case coot::refmac::SAD_OFF:
+    g.refmac_use_sad_flag = coot::refmac::SAD_OFF;
+    break;
+
+  default:
+    g.refmac_use_sad_flag = coot::refmac::SAD_OFF;
+    break;
+  }
+}
+
+
+void
 graphics_info_t::set_refmac_use_ncs(int state) {
 
   graphics_info_t g;
@@ -1739,7 +1809,9 @@ graphics_info_t::set_refmac_use_ncs(int state) {
 
 
 void
-graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu, GtkWidget *fobs_menu, GtkWidget *r_free_menu,
+graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
+						   GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
+						   GtkWidget *r_free_menu,
 						   GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {
 
   GtkWidget *optionmenu;

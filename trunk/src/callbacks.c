@@ -3693,6 +3693,35 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
     gtk_widget_show(checkbutton);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
     gtk_widget_hide(labels);
+    if (refmac_runs_with_nolabels() >= 2) {
+      /* add the tls, twin and sad buttons */
+      GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
+      /* update the check buttons */
+      GtkWidget *tls_check_button = lookup_widget(window, "run_refmac_tls_checkbutton");
+      GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
+      GtkWidget *sad_check_button = lookup_widget(window, "run_refmac_sad_checkbutton");
+      if (refmac_use_tls_state()) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), TRUE);
+      } else {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), FALSE);
+      }
+      if (refmac_use_twin_state()) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
+	gtk_widget_set_sensitive(sad_check_button, FALSE);
+      } else {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
+	gtk_widget_set_sensitive(sad_check_button, TRUE);
+      }
+      if (refmac_use_sad_state()) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), TRUE);
+	gtk_widget_set_sensitive(twin_check_button, FALSE);
+      } else {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), FALSE);
+	gtk_widget_set_sensitive(twin_check_button, TRUE);
+      }
+
+      gtk_widget_show(extra_options);
+    }
   } else {
     gtk_widget_show(labels);
   }
@@ -3792,11 +3821,14 @@ on_run_refmac_phase_input_optionmenu_changed
 {
   GtkWidget *phases_hbox;
   GtkWidget *hl_hbox;
-  
+  GtkWidget *sad_checkbutton;
+  GtkWidget *twin_checkbutton;
   int phase_combine_flag;
 
   phases_hbox = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_phases_hbox");
   hl_hbox     = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_hl_hbox");
+  sad_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_checkbutton");
+  twin_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_twin_checkbutton");
 
   phase_combine_flag = get_refmac_phase_input();
 
@@ -3812,8 +3844,133 @@ on_run_refmac_phase_input_optionmenu_changed
       gtk_widget_hide(hl_hbox);
     }
   }
+  if (refmac_runs_with_nolabels() == 2) {
+    if (phase_combine_flag) {
+      /* current version of refmac (5.5) doesnt allow phase input for twin or SAD refinement
+	 so we de-sensitise and uncheck teh buttons */
+      gtk_widget_set_sensitive(twin_checkbutton, FALSE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
+      gtk_widget_set_sensitive(sad_checkbutton, FALSE);      
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
+    } else {
+      gtk_widget_set_sensitive(twin_checkbutton, TRUE);
+      gtk_widget_set_sensitive(sad_checkbutton, TRUE);
+    }
+  }
     
 }
+
+void
+on_run_refmac_tls_checkbutton_toggled  (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    set_refmac_use_tls(1);
+  } else {
+    set_refmac_use_tls(0);
+  }
+}
+
+
+void
+on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  GtkWidget *sad_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_checkbutton");
+  GtkWidget *mtz_label  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_label");
+  GtkWidget *mtz_frame  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_frame");
+  GtkWidget *mtz_twin_label  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_twin_mtz_label");
+  GtkWidget *mtz_twin_frame  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_twin_mtz_frame");
+  GtkWidget *fobs_hbox  = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
+  GtkWidget *fiobs_hbox = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fiobs_hbox");
+  if (togglebutton->active) {
+    set_refmac_use_twin(1);
+    /* de-sensitise the SAD button, no need to switch off use_sad as done in use_twin */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
+    gtk_widget_set_sensitive(sad_checkbutton, FALSE);
+    /* hide the mtz frame and label but show the twin ones */
+    gtk_widget_hide(mtz_label);
+    gtk_widget_hide(mtz_frame);
+    gtk_widget_show(mtz_twin_label);
+    gtk_widget_show(mtz_twin_frame);
+    /* change label box from fobs to fiobs as twin takes both */
+    gtk_widget_hide(fobs_hbox);
+    gtk_widget_show(fiobs_hbox);
+  } else {
+    set_refmac_use_twin(0);
+    gtk_widget_set_sensitive(sad_checkbutton, TRUE);
+    /* hide the twin mtz frame and label but show the 'normal' ones */
+    gtk_widget_show(mtz_label);
+    gtk_widget_show(mtz_frame);
+    gtk_widget_hide(mtz_twin_label);
+    gtk_widget_hide(mtz_twin_frame);
+    /* change label box from fiobs to fobs for 'normal' refinement */
+    gtk_widget_hide(fiobs_hbox);
+    gtk_widget_show(fobs_hbox);
+  }
+
+}
+
+
+void
+on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  GtkWidget *twin_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_twin_checkbutton");
+  GtkWidget *fobs_hbox  = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
+  GtkWidget *fpm_hbox = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fpm_hbox");
+  if (togglebutton->active) {
+    set_refmac_use_sad(1);
+    /* de-sensitise the TWIN button, no need to switch off use_twin as done in use_sad */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
+    gtk_widget_set_sensitive(twin_checkbutton, FALSE);
+    /* change label box from fobs to f+/- as SAD needs this */
+    gtk_widget_hide(fobs_hbox);
+    gtk_widget_show(fpm_hbox);
+  } else {
+    set_refmac_use_sad(0);
+    gtk_widget_set_sensitive(twin_checkbutton, TRUE);
+    /* change label box back from f+/- to fobs for 'normal' refinement */
+    gtk_widget_hide(fpm_hbox);
+    gtk_widget_show(fobs_hbox);
+  }
+
+}
+
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_run_refmac_twin_filechooserbutton_selection_changed
+                                        (GtkFileChooser  *filechooser,
+                                        gpointer         user_data)
+{
+  g_print("BL DEBUG:: we changed file selection\n");
+
+}
+#endif
+
+
+void
+on_run_refmac_twin_help_button_clicked (GtkButton       *button,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *widget = create_run_refmac_twin_help_dialog();
+  gtk_widget_show(widget);
+#endif
+
+}
+
+void
+on_run_refmac_twin_help_dialog_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "run_refmac_twin_help_dialog");
+  gtk_widget_destroy(widget);
+
+}
+
 
 void
 on_run_refmac_nolabels_checkbutton_toggled (GtkToggleButton *togglebutton,

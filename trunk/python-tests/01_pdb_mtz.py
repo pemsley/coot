@@ -890,6 +890,36 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
     def test31_0(self):
+	    """Set Rotamer"""
+
+	    chain_id = "A"
+	    resno = 51
+
+	    n_rot = n_rotamers(-1, "ZZ", 45, "")
+	    self.failUnless(n_rot == -1)
+
+	    n_rot = n_rotamers(imol_rnase, "Z", 45, "")
+	    self.failUnless(n_rot == -1)
+
+	    residue_pre = residue_info(imol_rnase, chain_id, resno, "")
+
+	    # note that the rotamer number is 0-indexed (unlike the rotamer
+	    # number dialog)
+	    set_residue_to_rotamer_number(imol_rnase, chain_id, resno, "", 1)
+	    
+	    residue_post = residue_info(imol_rnase, chain_id, resno, "")
+
+	    self.failUnless(len(residue_pre) == len(residue_post))
+
+	    # average dist should be > 0.1 and < 0.3.
+	    #
+	    dists = map(atom_distance, residue_pre, residue_post)
+	    #print "BL DEBUG:: dists", dists
+	    self.failUnless(all(map(lambda d: d <= 0.6, dists)))
+	    self.failUnless(all(map(lambda d: d >= 0.0, dists)))
+	    
+
+    def test32_0(self):
 	    """Align and mutate a model with deletions"""
 
 	    def residue_in_molecule_qm(imol, chain_id, resno, ins_code):

@@ -1787,6 +1787,29 @@ SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *
 } 
 #endif 
 
+#ifdef USE_PYTHON
+PyObject *get_rotamer_name_py(int imol, const char *chain_id, int resno, const char *ins_code) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+      CResidue *res = graphics_info_t::molecules[imol].get_residue(res_spec);
+      if (res) {
+#ifdef USE_DUNBRACK_ROTAMERS
+#else
+	 coot::richardson_rotamer d(res, graphics_info_t::molecules[imol].atom_sel.mol, 0.0, 1);
+	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
+	 r = PyString_FromString(prob.rotamer_name.c_str());
+#endif      
+      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+} 
+#endif 
+
 
 
 
@@ -3181,10 +3204,14 @@ void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu) {
 
 }
 
-void update_refmac_column_labels_frame(GtkWidget *optionmenu, GtkWidget *fobs_menu, GtkWidget *r_free_menu,
+void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
+				       GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
+				       GtkWidget *r_free_menu,
 				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {
   graphics_info_t g;
-  g.update_refmac_column_labels_frame(optionmenu, fobs_menu, r_free_menu,
+  g.update_refmac_column_labels_frame(optionmenu,
+				      fobs_menu, fiobs_menu, fpm_menu,
+				      r_free_menu,
 				      phases_menu, fom_menu, hl_menu);
 
 }
@@ -3240,6 +3267,42 @@ void set_refmac_phase_input(int phase_flag) {
 
   graphics_info_t g;
   g.set_refmac_phase_input(phase_flag);
+}
+
+void set_refmac_use_tls(int state) {
+
+  graphics_info_t g;
+  g.set_refmac_use_tls(state);
+}
+
+int refmac_use_tls_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_tls_flag;
+}
+
+void set_refmac_use_twin(int state) {
+
+  graphics_info_t g;
+  g.set_refmac_use_twin(state);
+}
+
+int refmac_use_twin_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_twin_flag;
+}
+
+void set_refmac_use_sad(int state) {
+
+  graphics_info_t g;
+  g.set_refmac_use_sad(state);
+}
+
+int refmac_use_sad_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_sad_flag;
 }
 
 int get_refmac_ncycles() {

@@ -278,6 +278,20 @@ void ncs_control_change_ncs_master_to_chain(int imol, int ichain) {
    } 
 }
 
+void ncs_control_change_ncs_master_to_chain_id(int imol, const char *chain_id) {
+
+   std::cout << "DEBUG ncs_control_change_ncs_master_to_chain_id imol: " << imol
+	     << " and chain_id: " << chain_id << std::endl;
+   if (is_valid_model_molecule(imol)) {
+     std::vector<std::string> chain_ids =
+       coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+     std::vector<std::string>::iterator match = find(chain_ids.begin(), chain_ids.end(), chain_id);
+     if (match != chain_ids.end())
+      graphics_info_t::molecules[imol].set_ncs_master_chain(chain_id);
+     graphics_draw();
+   }
+}
+
 void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol, int ichain) {
 
    std::cout << "DEBUG ncs_control_change_ncs_master_to_chain_update_widget imol: " << imol

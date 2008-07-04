@@ -3721,6 +3721,9 @@ PyObject *get_pkgdatadir_py() {
 #endif
 
 /* refmac version */
+/* returns:
+   1 if 5.4 or newer
+   2 if 5.5 or newer */
 
 int refmac_runs_with_nolabels() {
 
@@ -3734,6 +3737,10 @@ int refmac_runs_with_nolabels() {
      int minor = scm_to_int(scm_list_ref(refmac_version, SCM_MAKINUM(1)));
      if ((major == 5 && minor >= 4) || (major > 5)) {
 	ret = 1;
+	if (minor >= 5 || major > 5) {
+	  // for SAD and TWIN
+	  ret = 2;
+	}
      }
   }
   
@@ -3746,6 +3753,10 @@ int refmac_runs_with_nolabels() {
      int minor = PyInt_AsLong(PyList_GetItem(refmac_version, 1));
      if ((major == 5 && minor >= 4) || (major > 5)) {
 	ret = 1;
+	if (minor >= 5 || major > 5) {
+	  // for SAD and TWIN
+	  ret = 2;
+	}
      }
   }
 #endif

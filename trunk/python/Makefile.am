@@ -40,7 +40,7 @@ gap.py                                    povray.py       coot_lsq.py	\
 shelx.py             group_settings.py    fitting.py      americanisms.py \
 tips.py              tips_gui.py          generic_objects.py cns2coot.py  \
 extensions.py        ncs.py		  				\
-		     clear_backup.py					\
+		     clear_backup.py	  bones_reader.py		\
 		     shelx_extensions.py				\
 coot_toolbuttons.py		\
 ../src/coot.py $(TEXI_FILE)
