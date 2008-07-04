@@ -3831,6 +3831,11 @@ int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code);
 /*! \brief set the residue specified to the rotamer number specifed. */
 int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code, int rotamer_number);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *ins_code);
+#endif 
+#endif 
 
 
 /*! \brief fill all the residues of molecule number imol that have
