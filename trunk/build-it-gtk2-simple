@@ -225,7 +225,8 @@
 # 4.09 20080617 Update to guile-1.8.5
 # 4.10 20080618 As per JED request, number the build logs in a more sensible way.
 # 4.11 20080620 Don't run the tests if not in biop or york.
-script_version=4.11
+# 4.12 20080624 Add guile-lib to build.
+script_version=4.12
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
