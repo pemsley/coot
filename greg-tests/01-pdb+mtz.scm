@@ -1102,6 +1102,50 @@
        #t)))
 
 
+(greg-testcase "Set Rotamer" #t 
+   (lambda ()
+
+     (let ((chain-id "A")
+	   (resno 51))
+
+       (let ((n-rot (n-rotamers -1 "ZZ" 45 "")))
+	 (if (not (= n-rot -1))
+	     (throw 'fail)))
+       
+       (let ((n-rot (n-rotamers imol-rnase "Z" 45 "")))
+	 (if (not (= n-rot -1))
+	     (throw 'fail)))
+
+       (let ((residue-pre (residue-info imol-rnase chain-id resno "")))
+
+	 ;; note that the rotamer number is 0-indexed (unlike the rotamer
+	 ;; number dialog)
+	 (set-residue-to-rotamer-number imol-rnase chain-id resno "" 1)
+	 
+	 (let ((residue-post (residue-info imol-rnase chain-id resno "")))
+	   
+	   (if (not (= (length residue-pre) (length residue-post)))
+	       (throw 'fail))
+	   
+	   ;; average dist should be > 0.1 and < 0.3.
+	   ;; 
+	   (let ((dists 
+		  (map (lambda (atom-number)
+			 (let ((atom-pre (list-ref residue-pre atom-number))
+			       (atom-post (list-ref residue-post atom-number)))
+			   (let ((d (atom-distance atom-pre atom-post)))
+			     d)))
+		       (range (length residue-pre)))))
+	     (map (lambda (d)
+		    (if (> d 0.6)
+			(throw 'fail))
+		    (if (< d 0.0)
+			(throw 'fail)))
+		  dists)
+	     #t)))))) ;; everything OK
+
+
+		   
 
 (greg-testcase "Align and mutate a model with deletions" #t 
    (lambda ()

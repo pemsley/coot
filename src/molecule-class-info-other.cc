@@ -1437,8 +1437,6 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
       coot::richardson_rotamer d(res, atom_sel.mol, 0.01, 0);
 #endif // USE_DUNBRACK_ROTAMERS
       CResidue *moving_res = d.GetResidue(rotamer_number);
-      std::cout << "in set_residue_to_rotamer_number " << res << " and  " << moving_res
-		<< std::endl;
 
       int n_ref_atoms;
       PPCAtom ref_residue_atoms = 0;
@@ -1465,7 +1463,6 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
 	    }
 	 }
       }
-      std::cout << "replace coords of " << n_atoms << " atoms\n";
       
       atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
