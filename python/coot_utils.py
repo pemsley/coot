@@ -204,7 +204,7 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
                 process.stdin.write(data + "\n")
             if (screen_flag):
                 for line in process.stdout:
-                    print "#", line
+                    print "#", line.rstrip(" \n")  # remove trailing whitespace
                     log.write(line)
             process.wait()
             log.close()
@@ -1380,6 +1380,7 @@ centre_of_mass_string  = centre_of_mass_string_py
 make_image_raster3d    = make_image_raster3d_py
 make_image_povray      = make_image_povray_py
 cis_peptides           = cis_peptides_py
+get_rotamer_name       = get_rotamer_name_py
 run_state_file         = run_state_file_py
 wrapped_create_run_state_file_dialog =  wrapped_create_run_state_file_dialog_py
 raster_screen_shot     = raster_screen_shot_py

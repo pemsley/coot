@@ -912,8 +912,11 @@ std::string graphics_info_t::libcheck_ccp4i_project_dir = std::string("");
 
 std::vector<int> *graphics_info_t::preset_number_refmac_cycles;
 coot::refmac::refmac_refinement_method_type graphics_info_t::refmac_refinement_method = coot::refmac::RESTRAINED;
-coot::refmac::refmac_phase_input_type graphics_info_t::refmac_phase_input  = coot::refmac::NO_PHASES;
-coot::refmac::refmac_use_ncs_type     graphics_info_t::refmac_use_ncs_flag = coot::refmac::NCS_ON;
+coot::refmac::refmac_phase_input_type graphics_info_t::refmac_phase_input   = coot::refmac::NO_PHASES;
+coot::refmac::refmac_use_tls_type     graphics_info_t::refmac_use_tls_flag  = coot::refmac::TLS_ON;
+coot::refmac::refmac_use_twin_type    graphics_info_t::refmac_use_twin_flag = coot::refmac::TWIN_OFF;
+coot::refmac::refmac_use_sad_type     graphics_info_t::refmac_use_sad_flag  = coot::refmac::SAD_OFF;
+coot::refmac::refmac_use_ncs_type     graphics_info_t::refmac_use_ncs_flag  = coot::refmac::NCS_ON;
 int graphics_info_t::refmac_ncycles = 5;
 
 // scrollin' scrollin' scrollin'... Shall we stop? When shall we stop?

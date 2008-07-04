@@ -1285,7 +1285,9 @@ void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu);
 void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu);
 void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu);
 
-void update_refmac_column_labels_frame(GtkWidget *optionmenu, GtkWidget *fobs_menu, GtkWidget *r_free_menu,
+void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
+				       GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
+				       GtkWidget *f_free_menu,
 				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu);
 
 
@@ -1304,6 +1306,12 @@ int get_refmac_refinement_method(void);
 void set_refmac_refinement_method(int method);
 int get_refmac_phase_input(void);
 void set_refmac_phase_input(int phase_flag);
+void set_refmac_use_tls(int state);
+int refmac_use_tls_state(void);
+void set_refmac_use_twin(int state);
+int refmac_use_twin_state(void);
+void set_refmac_use_sad(int state);
+int refmac_use_sad_state(void);
 int get_refmac_ncycles(void);
 void set_refmac_ncycles(int no_cycles);
 void add_refmac_ncycle_no(int cycle);
@@ -3835,6 +3843,9 @@ int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, con
 #ifdef USE_GUILE
 SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *ins_code);
 #endif 
+#ifdef USE_PYTHON
+PyObject *get_rotamer_name_py(int imol, const char *chain_id, int resno, const char *ins_code);
+#endif 
 #endif 
 
 
@@ -4374,8 +4385,10 @@ void copy_from_ncs_master_to_others(int imol, const char *chain_id);
 void copy_residue_range_from_ncs_master_to_others(int imol, const char *master_chain_id, 
 						  int residue_range_start, int residue_range_end);
 GtkWidget *wrapped_create_ncs_control_dialog();	
-/*! \brief change the NCS master chain  */
+/*! \brief change the NCS master chain  (by number)*/
 void ncs_control_change_ncs_master_to_chain(int imol, int ichain); 
+/*! \brief change the NCS master chain  (by chain_id)*/
+void ncs_control_change_ncs_master_to_chain_id(int imol, const char *chain_id); 
 void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol, int ichain); 
 /*! \brief display the NCS master chain  */
 void ncs_control_display_chain(int imol, int ichain, int state);

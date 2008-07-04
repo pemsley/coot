@@ -1193,6 +1193,34 @@ on_run_refmac_phase_input_optionmenu_changed
                                         gpointer         user_data);
 
 void
+on_run_refmac_tls_checkbutton_toggled  (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+#if (GTK_MAJOR_VERSION > 1)
+void
+on_run_refmac_twin_filechooserbutton_selection_changed
+                                        (GtkFileChooser  *filechooser,
+                                        gpointer         user_data);
+#endif
+
+void
+on_run_refmac_twin_help_button_clicked (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_twin_help_dialog_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_run_refmac_nolabels_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);

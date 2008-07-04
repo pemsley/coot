@@ -418,13 +418,15 @@ if (have_coot_python):
        vbox.pack_start(h_sep2, False, False, 2)
 
        # planar peptide restrains?
-       # no state check here
        planar_restraints_button = generic_check_button(vbox,
                                                      "Use Planar Peptide Restraints?",
                                                      lambda state: [remove_planar_peptide_restraints(), add_planar_peptide_restraints()][state>0])
+       if (planar_peptide_restraints_state() == 1):
+         planar_restraints_button.set_active(True)
+       else:
+         planar_restraints_button.set_active(False)
        
        # use torsion restrains?
-       # no state check here
        torsion_restraints_button = generic_check_button(vbox,
                                                      "Use Torsion Restraints?",
                                                      lambda state: set_refine_with_torsion_restraints(state))

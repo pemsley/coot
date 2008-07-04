@@ -121,13 +121,19 @@ namespace coot {
 				  FIXED_ATOM_FIX = 1, 
 				  FIXED_ATOM_UNFIX = 2 };
    namespace refmac {
-   enum refmac_refinement_method_type { RESTRAINED = 0,
-					RIGID_BODY = 1 };
-   enum refmac_phase_input_type { NO_PHASES = 0,
-				  PHASE_FOM = 1 ,
-				  HL        = 2 };
-   enum refmac_use_ncs_type { NCS_OFF = 0,
- 			      NCS_ON  = 1};
+     enum refmac_refinement_method_type { RESTRAINED = 0,
+					  RIGID_BODY = 1 };
+     enum refmac_phase_input_type { NO_PHASES = 0,
+				    PHASE_FOM = 1 ,
+				    HL        = 2 };
+     enum refmac_use_tls_type { TLS_OFF = 0,
+				TLS_ON  = 1};
+     enum refmac_use_twin_type { TWIN_OFF = 0,
+				 TWIN_ON  = 1};
+     enum refmac_use_sad_type { SAD_OFF = 0,
+				SAD_ON = 1};
+     enum refmac_use_ncs_type { NCS_OFF = 0,
+				NCS_ON  = 1};
    }
 
    void set_validation_graph(int imol, geometry_graph_type type, GtkWidget *dialog);
@@ -2127,7 +2133,9 @@ public:
    void fill_option_menu_with_refmac_phase_input_options(GtkWidget *option_menu); 
    void fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu); 
    void fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_menu); 
-   void update_refmac_column_labels_frame(GtkWidget *optionmenu, GtkWidget *fobs_menu, GtkWidget *r_free_menu,
+   void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
+					  GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
+					  GtkWidget *r_free_menu,
 					  GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu);
    static void refinement_map_select(GtkWidget *item, GtkPositionType pos);
    static void refinement_map_select_add_columns(GtkWidget *item, GtkPositionType pos);
@@ -2142,12 +2150,18 @@ public:
    static std::vector<int> *preset_number_refmac_cycles;
    static coot::refmac::refmac_refinement_method_type refmac_refinement_method;
    static coot::refmac::refmac_phase_input_type refmac_phase_input;
+   static coot::refmac::refmac_use_tls_type     refmac_use_tls_flag;
+   static coot::refmac::refmac_use_twin_type    refmac_use_twin_flag;
+   static coot::refmac::refmac_use_sad_type     refmac_use_sad_flag;
    static coot::refmac::refmac_use_ncs_type     refmac_use_ncs_flag;
    static int refmac_ncycles;
    static void set_refmac_refinement_method(int method);
    static void refmac_change_refinement_method(GtkWidget *item, GtkPositionType pos);
    static void set_refmac_phase_input(int phase_flag);
    static void refmac_change_phase_input(GtkWidget *item, GtkPositionType pos);
+   static void set_refmac_use_tls(int state);
+   static void set_refmac_use_twin(int state);
+   static void set_refmac_use_sad(int state);
    static void set_refmac_n_cycles(int no_cycles);
    static void refmac_change_ncycles(GtkWidget *item, GtkPositionType pos);
    static void set_refmac_use_ncs(int state);

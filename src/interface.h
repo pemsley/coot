@@ -165,6 +165,7 @@ GtkWidget* create_restraints_editor_dialog (void);
 GtkWidget* create_residue_editor_select_monomer_type_dialog (void);
 GtkWidget* create_save_restraint_chooserdialog (void);
 GtkWidget* create_run_refmac_nolabels_help_dialog(void);
+GtkWidget* create_run_refmac_twin_help_dialog(void);
 GtkWidget* create_coot_references_dialog(void);
 #endif /* GTK_MAJOR_VERSION */ 
 
