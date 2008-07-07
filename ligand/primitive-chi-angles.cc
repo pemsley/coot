@@ -46,7 +46,8 @@ coot::primitive_chi_angles::get_chi_angles() {
       if (v.size() > 0)
          nv.push_back(coot::alt_confed_chi_angles("", v));
       else
-         std::cout << "not pushing back plain altconfed rotamer with no chis" << std::endl;
+         std::cout << "INFO:: un altconfed rotamer with no chis "
+		   << coot::residue_spec_t(residue) << std::endl;
    } else {
       // multiple quads from alt confed atoms:
       std::vector<coot::alt_confed_atom_index_quad> quads_vec =
@@ -280,9 +281,6 @@ coot::primitive_chi_angles::get_atom_index_quads(const std::vector<coot::atom_na
                    << v[iv].index2 << "  "
                    << v[iv].index3 << "  "
                    << v[iv].index4 << "\n";
-      }
-      for (int i1=0; i1<nresatoms; i1++) {
-         std::cout << "  res atom " << i1 << " " << atoms[i1] << "\n";
       }
    } else {
       // std::cout << "found all quads in residue atoms\n" ;
