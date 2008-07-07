@@ -37,12 +37,21 @@ namespace coot {
 	    RESIDUE_IS_GLY_OR_ALA = -2 };
       short int state;
       float probability;
+      std::string alt_conf;
 
       std::string rotamer_name;
       rotamer_probability_info_t(short int state_in, float prob_in, const std::string &name) {
 	 state = state_in;
 	 probability = prob_in;
 	 rotamer_name = name;
+	 alt_conf = "";
+      }
+      rotamer_probability_info_t(short int state_in, float prob_in, const std::string &name,
+				 const std::string alt_conf_in) {
+	 state = state_in;
+	 probability = prob_in;
+	 rotamer_name = name;
+	 alt_conf = alt_conf_in;
       }
    }; 
 
@@ -101,7 +110,7 @@ namespace coot {
       void fill_tables(const std::string &tables_dir); // set is_well_formatted.
       // the chi angles here (first) numbered 1, 2, 3...
       // throws an exception
-      rotamer_probability_info_t probability_this_rotamer(CResidue *res) const;
+      std::vector<rotamer_probability_info_t> probability_this_rotamer(CResidue *res) const;
       bool is_well_formatted() const { return is_well_formatted_; }
       bool tried_and_failed() const { return tried_and_failed_; }
    }; 

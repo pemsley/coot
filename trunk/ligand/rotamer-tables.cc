@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include <string.h>
 
+#include "primitive-chi-angles.hh"
 #include "rotamer.hh"
 #include "mgtree.h"
 
@@ -512,7 +513,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
       throw std::runtime_error(mess);
    }
 
-   if (0) { // debugging 
+   if (1) { // debugging 
       if (n == 1) std::cout << "  bin: " << bins[0] << std::endl;
       if (n == 2) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second
 			    << "  bins: " << bins[0] << " " << bins[1] << std::endl;
@@ -521,7 +522,8 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
 			    << "  bins: " << bins[0] << " " << bins[1] << " " << bins[2] << std::endl;
       if (n == 4) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second << " "
 			    << chi_angles[2].second << " " << chi_angles[3].second 
-			    << "  bins: " << bins[0] << " " << bins[1] << " " << bins[2] << " " << bins[3] << std::endl;
+			    << "  bins: " << bins[0] << " " << bins[1] << " " << bins[2] << " " << bins[3]
+			    << std::endl;
    }
 
    float pr = 0.0;
@@ -541,27 +543,35 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
    
    return coot::rotamer_probability_info_t(coot::rotamer_probability_info_t::OK,
 					   pr*100.0, tables[i_table].residue_name);
+
 }
 
-coot::rotamer_probability_info_t
+std::vector<coot::rotamer_probability_info_t>
 coot::rotamer_probability_tables::probability_this_rotamer(CResidue *residue) const {
 
    std::string resname (residue->GetResName());
-//    std::cout << "getting probability_this_rotamer for " << coot::residue_spec_t(residue) << " "
-// 	     << resname << std::endl;
-   if (resname == "GLY")
-      return coot::rotamer_probability_info_t(coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA, 1, "GLY");
-   if (resname == "ALA")
-      return coot::rotamer_probability_info_t(coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA, 1, "ALA");
+   std::cout << "getting probability_this_rotamer for " << coot::residue_spec_t(residue) << " "
+ 	     << resname << std::endl;
+   if (resname == "GLY" || resname == "ALA") {
+      coot::rotamer_probability_info_t pr(coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA, 1, resname);
+      std::vector<coot::rotamer_probability_info_t> v;
+      v.push_back(pr);
+      return v;
+   }
 
-   coot::chi_angles chi_angles(residue, 0);
-   std::vector<std::pair<int, float> > chis = chi_angles.get_chi_angles();
+   coot::primitive_chi_angles pchis(residue);
+   std::vector<coot::alt_confed_chi_angles> chis = pchis.get_chi_angles();
 
    // hack to make PRO only have one chi angle, (traditional/dunbrack
    // says that it has 2.  Molprobity probability tables say 1).
    //
-   if (resname == "PRO")
-      chis.pop_back();
+//    if (resname == "PRO") { 
+//       chis.pop_back();
+//    } 
+   if (resname == "PRO") {
+      std::cout << "chis.size is now  " << chis.size() << std::endl;
+   }
+
 
    int i_table = -1;
    for (unsigned int itab=0; itab<tables.size(); itab++) {
@@ -576,9 +586,14 @@ coot::rotamer_probability_tables::probability_this_rotamer(CResidue *residue) co
       throw std::runtime_error(mess);
    }
    
-   
-   return probability_this_rotamer(i_table, chis);
-
+   std::vector<coot::rotamer_probability_info_t> v;
+   for (unsigned int i_chi=0; i_chi<chis.size(); i_chi++) {
+      std::cout << "DEBUG:: passing internal probability_this_rotamer chi_angles of size "
+                << chis[i_chi].chi_angles.size() << std::endl;
+      coot::rotamer_probability_info_t pr = probability_this_rotamer(i_table, chis[i_chi].chi_angles);
+      v.push_back(pr);
+   }
+   return v;
 }
 
 // throw an exception on failure to get a bin for the residue_type.

@@ -202,34 +202,12 @@ fix_nomenclature_errors_SOURCES = \
 	coot-nomenclature.cc
 
 coot_real_SOURCES = \
-	history_list.hh		 \
-	positioned-widgets.h     \
 	main.cc 		 \
 	svn-revision.cc 	 \
-	coot-align.cc 		 \
-	coot-align.hh		 \
 	c-inner-main.c		 \
 	c-inner-main.h		 \
-	trackball.c trackball.h  \
-	graphics-info.cc	 \
-	graphics-info-modelling.cc \
-	graphics-info-graphs.cc	 \
-	graphics-info-state.cc	 \
-	graphics-info-defines.cc \
-	graphics-info-lsq.cc	 \
-	graphics-info-pick.cc	 \
-	graphics-info-render.cc	 \
-	graphics-info-mutate.cc	 \
-	graphics-info-superpose.cc	\
-	graphics-info-navigation.cc	\
-	graphics-info-navigation-gtk1.cc\
-	graphics-info-navigation-gtk2.cc\
-	graphics-info-preferences.cc	\
-	pick.cc			 \
-	cmtz-interface.hh	 \
 	c-interface-scm.hh	 \
 	c-interface-python.hh	 \
-	cmtz-interface.cc	 \
 	c-interface.cc		 \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
@@ -248,24 +226,54 @@ coot_real_SOURCES = \
 	c-interface-superpose.cc \
 	c-interface-preferences.cc \
 	c-interface-nucleotides.cc \
-	coot-preferences.h       \
-	coot-references.h        \
+	c-interface-database.hh  \
 	c-interface-mmdb.hh      \
 	cc-interface.hh		 \
-	coot-database.hh	 \
-	c-interface-database.hh  \
-	globjects.cc 		 \
-	support.c support.h 	 \
-	support-gtk2-extras.c    \
-	interface.c	 	 \
-	gtk2-interface.c	 \
-	interface.h              \
 	callbacks.c callbacks.h	 \
+	cmtz-interface.hh	 \
+	cmtz-interface.cc	 \
+	command-line.cc		 \
+	command-line.h		 \
+	coot-database.hh	 \
+	coot-align.cc 		 \
+	coot-align.hh		 \
+	coot-nomenclature.cc	 \
+	coot-preferences.h       \
+	coot-references.h        \
+	coot-render.hh           \
+	coot-glue.hh             \
+	coot-glue.c              \
+	coot-glue-gtk2.c	 \
+	coot-glue-gtk2-python.cc \
+	coot_pythonmodule.cc     \
+	geometry-graphs.cc	 \
+	geometry-graphs.hh	 \
+	globjects.cc 		 \
+	graphics-info.cc	 \
+	graphics-info-modelling.cc \
+	graphics-info-graphs.cc	 \
+	graphics-info-state.cc	 \
+	graphics-info-defines.cc \
+	graphics-info-lsq.cc	 \
+	graphics-info-pick.cc	 \
+	graphics-info-render.cc	 \
+	graphics-info-mutate.cc	 \
+	graphics-info-superpose.cc	\
+	graphics-info-navigation.cc	\
+	graphics-info-navigation-gtk1.cc\
+	graphics-info-navigation-gtk2.cc\
+	graphics-info-preferences.cc	\
+	gl-matrix.cc 		 \
+	gtk-manual.cc		 \
+	gtk-manual.h		 \
+	gtk2-interface.c	 \
+	gtk-manual.hh		 \
+	history_list.hh		 \
+	interface.c	 	 \
+	interface.h              \
 	c-interface.h  pick.h	 \
 	graphics-info.h 	 \
 	triangle-extras.h 	 \
-	command-line.cc		 \
-	command-line.h		 \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-other.cc 	\
@@ -276,10 +284,9 @@ coot_real_SOURCES = \
 	molecule-class-info-widget-work.cc \
 	globjects.h gl-matrix.h  \
 	coot-fileselections.h    \
-	gl-matrix.cc 		 \
-	gtk-manual.cc		 \
-	gtk-manual.h		 \
-	gtk-manual.hh		 \
+	trackball.c trackball.h  \
+	pick.cc			 \
+	positioned-widgets.h     \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
@@ -293,17 +300,11 @@ coot_real_SOURCES = \
 	restraints-editor.cc     \
 	restraints-editor.hh     \
 	restraints-editor-c.h    \
-	coot-nomenclature.cc	 \
-	geometry-graphs.cc	 \
-	geometry-graphs.hh	 \
+	support.c support.h 	 \
+	support-gtk2-extras.c    \
+	testing.cc testing.hh    \
 	validation-graphs.hh	 \
-	select-atom-info.hh      \
-	coot-render.hh           \
-	coot-glue.hh             \
-	coot-glue.c              \
-	coot-glue-gtk2.c	 \
-	coot-glue-gtk2-python.cc \
-	coot_pythonmodule.cc
+	select-atom-info.hh      
 
 # testcartesian_SOURCES = testcartesian.cc
 

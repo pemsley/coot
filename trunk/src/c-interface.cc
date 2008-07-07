@@ -111,6 +111,8 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 
+#include "testing.hh"
+
 #include "positioned-widgets.h"
 
 // moving column_label selection to c-interface from mtz bits.
@@ -174,6 +176,24 @@ char *coot_revision() {
   return r;
 
 }
+
+/*  -------------------------------------------------------------------- */
+/*                     Testing Interface:                                */
+/*  -------------------------------------------------------------------- */
+
+SCM test_internal_scm() {
+
+   SCM r = SCM_BOOL_T;
+
+#ifdef BUILT_IN_TESTING   
+   int status = test_internal();
+   if (!status)
+      r = SCM_BOOL_F;
+#endif   
+
+   return r;
+} 
+
 
 // Return 0 if not a valid name ( -> #f in scheme)
 // e.g. /a/b/c.pdb "d/e/f.mtz FWT PHWT"

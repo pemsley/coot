@@ -23,13 +23,13 @@
 (define ncs-ghosts-scm #f)
 (define inverse-rtop-scm #f)
 (define coot-has-python? #f)
-(define map-sigma map-sigma-scm)
-(define pucker-info #f)
-(define map-parameters #f)
-(define map-cell #f)
-(define ccp4i-projects #f)
-(define get-rotamer-name #f)
-
+(define map-sigma-scm #f)
+(define pucker-info-scm #f)
+(define map-parameters-scm #f)
+(define map-cell-scm #f)
+(define ccp4i-projects-scm #f)
+(define get-rotamer-name-scm #f)
+(define test-internal-scm #f)
 
 
 (load "filter.scm")
