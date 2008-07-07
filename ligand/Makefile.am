@@ -38,7 +38,8 @@ INCLUDES = \
 
 include_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \
 	chi-angles.hh dunbrack.hh helix-placement.hh rigid-body.hh ideal-rna.hh \
-	rotamer.hh richardson-rotamer.hh torsion-general.hh primitive-chi-angles.hh
+	rotamer.hh richardson-rotamer.hh torsion-general.hh \
+	primitive-chi-angles.hh atom-quads.hh
 
 libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	wiggly-ligand.cc monomer-utils.cc dunbrack.cc chi-angles-autogen.cc   \
