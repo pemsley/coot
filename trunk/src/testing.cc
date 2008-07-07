@@ -25,24 +25,27 @@ std::string stringify(double x) {
    return o.str();
 }
 
+
+#ifdef STRINGIFY_SIZE_T
 std::string stringify(size_t x) {
    std::ostringstream o;
    if (!(o << x))
-      throw std::runtime_error("stringify(double)");
+      throw std::runtime_error("stringify(size_t)");
    return o.str();
 }
+#endif
 
 std::string stringify(int i) {
    std::ostringstream o;
    if (!(o << i))
-      throw std::runtime_error("stringify(double)");
+      throw std::runtime_error("stringify(int)");
    return o.str();
 }
 
 std::string stringify(unsigned int i) {
    std::ostringstream o;
    if (!(o << i))
-      throw std::runtime_error("stringify(double)");
+      throw std::runtime_error("stringify(unsigned int)");
    return o.str();
 }
 
@@ -90,7 +93,7 @@ int test_alt_conf_rotamers() {
 		  std::vector<coot::alt_confed_chi_angles> chis = prim_chis.get_chi_angles();
 		  if (chis.size() != 2) {
 		     std::string mess = "chis.size() is ";
-		     mess += stringify(chis.size());
+		     mess += stringify(int(chis.size()));
 		     throw std::runtime_error(mess);
 		  }
 
@@ -126,7 +129,7 @@ int test_alt_conf_rotamers() {
 		  std::vector<coot::alt_confed_chi_angles> chis = prim_chis.get_chi_angles();
 		  if (chis.size() != 1) {
 		     std::string mess = "chis.size() is ";
-		     mess += stringify(chis.size());
+		     mess += stringify(int(chis.size()));
 		     mess += " for ";
 		     mess += stringify(79);
 		     throw std::runtime_error(mess);
