@@ -316,34 +316,32 @@ void output_residue_info_dialog(int atom_index, int imol) {
 
 	       coot::primitive_chi_angles chi_angles(residue);
 	       std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
+	       GtkWidget *chi_angles_frame = lookup_widget(widget, "chi_angles_frame");
+	       gtk_widget_show(chi_angles_frame);
 	       if (chis.size() > 0) {
-		  GtkWidget *chi_angles_frame = lookup_widget(widget, "chi_angles_frame");
-		  gtk_widget_show(chi_angles_frame);
-		  if (chis.size() > 0) {
-		     unsigned int i_chi_set = 0;
-		     for (unsigned int ich=0; ich<chis.size(); ich++) {
-			
-			int ic = chis[i_chi_set].chi_angles[ich].first;
-			std::string label_name = "residue_info_chi_";
-			label_name += coot::util::int_to_string(ic);
-			label_name += "_label";
-			GtkWidget *label = lookup_widget(widget, label_name.c_str());
-			if (label) {
-			   std::string text = "Chi ";
-			   text += coot::util::int_to_string(ic);
-			   text += ":  ";
-			   if (chis[i_chi_set].alt_conf != "") {
-			      text += " alt conf: ";
-			      text += chis[i_chi_set].alt_conf;
-			      text += " ";
-			   } 
-			   text += coot::util::float_to_string(chis[i_chi_set].chi_angles[ich].second);
-			   text += " degrees";
-			   gtk_label_set_text(GTK_LABEL(label), text.c_str());
-			   gtk_widget_show(label);
-			} else {
-			   std::cout << "WARNING:: chi label not found " << label_name << std::endl;
-			}
+		  unsigned int i_chi_set = 0;
+		  for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
+		     
+		     int ic = chis[i_chi_set].chi_angles[ich].first;
+		     std::string label_name = "residue_info_chi_";
+		     label_name += coot::util::int_to_string(ic);
+		     label_name += "_label";
+		     GtkWidget *label = lookup_widget(widget, label_name.c_str());
+		     if (label) {
+			std::string text = "Chi ";
+			text += coot::util::int_to_string(ic);
+			text += ":  ";
+			if (chis[i_chi_set].alt_conf != "") {
+			   text += " alt conf: ";
+			   text += chis[i_chi_set].alt_conf;
+			   text += " ";
+			} 
+			text += coot::util::float_to_string(chis[i_chi_set].chi_angles[ich].second);
+			text += " degrees";
+			gtk_label_set_text(GTK_LABEL(label), text.c_str());
+			gtk_widget_show(label);
+		     } else {
+			std::cout << "WARNING:: chi label not found " << label_name << std::endl;
 		     }
 		  } 
 	       }
