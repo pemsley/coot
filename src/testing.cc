@@ -25,6 +25,13 @@ std::string stringify(double x) {
    return o.str();
 }
 
+std::string stringify(size_t x) {
+   std::ostringstream o;
+   if (!(o << x))
+      throw std::runtime_error("stringify(double)");
+   return o.str();
+}
+
 std::string stringify(int i) {
    std::ostringstream o;
    if (!(o << i))
