@@ -565,6 +565,16 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 
 /* \} */
 
+/*  -------------------------------------------------------------------- */
+/*                     Testing Interface:                                */
+/*  -------------------------------------------------------------------- */
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM test_internal_scm(); 
+#endif	/* USE_GUILE */
+#endif	/* __cplusplus */
+
+
 /*  --------------------------------------------------------------------- */
 /*                      Interface Preferences                             */
 /*  --------------------------------------------------------------------- */

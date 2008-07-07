@@ -3365,24 +3365,7 @@ molecule_class_info_t::filter_atom_selection_container_CA_sidechain_only(atom_se
 std::vector<std::string> 
 molecule_class_info_t::get_residue_alt_confs(CResidue *res) const { 
 
-   std::vector<std::string> v;
-
-   PPCAtom residue_atoms;
-   int nResidueAtoms;
-   res->GetAtomTable(residue_atoms, nResidueAtoms);
-   short int ifound = 0;
-   for (int iat=0; iat<nResidueAtoms; iat++) {
-      ifound = 0;
-      for(unsigned int i=0; i<v.size(); i++) { 
-	 if (std::string(residue_atoms[iat]->altLoc) == v[i]) {
-	    ifound = 1;
-	    break;
-	 }
-      }
-      if (! ifound) 
-	 v.push_back(std::string(residue_atoms[iat]->altLoc));
-   }
-   
+   std::vector<std::string> v = coot::util::get_residue_alt_confs(res);
    return v;
 } 
 

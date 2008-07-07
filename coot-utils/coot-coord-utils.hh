@@ -525,6 +525,8 @@ namespace coot {
       CResidue *get_following_residue(const residue_spec_t &rs, 
 				      CMMDBManager *mol);
       
+      std::vector<std::string> get_residue_alt_confs(CResidue *res);
+
       std::vector<std::string> residue_types_in_molecule(CMMDBManager *mol);
       std::vector<std::string> residue_types_in_chain(CChain *chain_p);
       std::vector<std::string> chains_in_molecule(CMMDBManager *mol);
