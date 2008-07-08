@@ -21,9 +21,6 @@
 
    o Kevin's Ramachandran Refinement target, 16hd
 
-   o refmac-runs-with-no-labels, c-interface-info.cc (wrong place for
-     this?)   <1hd.
-
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
      molprobity web site gives less bad rotamers then? (First: Does it?).
@@ -56,7 +53,12 @@
 
 
 
-98 Done.
+99 Done.
+
+   o refmac-runs-with-no-labels, c-interface-info.cc (wrong place for
+     this?)   <1hd.
+
+* Done.
 
    o Question: does guile-lib work for guile version 1.6.x ?
  
