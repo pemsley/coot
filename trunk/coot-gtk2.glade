@@ -20719,23 +20719,6 @@ programs to which you may be more accustomed.
 		  <property name="homogeneous">False</property>
 		  <property name="spacing">0</property>
 
-		  <child>
-		    <widget class="GtkFileChooserButton" id="run_refmac_twin_filechooserbutton">
-		      <property name="visible">True</property>
-		      <property name="title" translatable="yes">Select An mtz File</property>
-		      <property name="action">GTK_FILE_CHOOSER_ACTION_OPEN</property>
-		      <property name="local_only">True</property>
-		      <property name="show_hidden">False</property>
-		      <property name="do_overwrite_confirmation">False</property>
-		      <property name="width_chars">-1</property>
-		      <signal name="selection_changed" handler="on_run_refmac_twin_filechooserbutton_selection_changed" last_modification_time="Fri, 04 Jul 2008 14:11:51 GMT"/>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">True</property>
-		      <property name="fill">True</property>
-		    </packing>
-		  </child>
 
 		  <child>
 		    <widget class="GtkButton" id="run_refmac_twin_help_button">
