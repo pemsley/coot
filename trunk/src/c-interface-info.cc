@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 
 #define HAVE_CIF  // will become unnessary at some stage.
@@ -314,36 +315,41 @@ void output_residue_info_dialog(int atom_index, int imol) {
 	       gtk_widget_show(widget);
 	       g.reset_residue_info_edits();
 
-	       coot::primitive_chi_angles chi_angles(residue);
-	       std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
-	       GtkWidget *chi_angles_frame = lookup_widget(widget, "chi_angles_frame");
-	       gtk_widget_show(chi_angles_frame);
-	       if (chis.size() > 0) {
-		  unsigned int i_chi_set = 0;
-		  for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
+	       try {
+		  coot::primitive_chi_angles chi_angles(residue);
+		  std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
+		  GtkWidget *chi_angles_frame = lookup_widget(widget, "chi_angles_frame");
+		  gtk_widget_show(chi_angles_frame);
+		  if (chis.size() > 0) {
+		     unsigned int i_chi_set = 0;
+		     for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
 		     
-		     int ic = chis[i_chi_set].chi_angles[ich].first;
-		     std::string label_name = "residue_info_chi_";
-		     label_name += coot::util::int_to_string(ic);
-		     label_name += "_label";
-		     GtkWidget *label = lookup_widget(widget, label_name.c_str());
-		     if (label) {
-			std::string text = "Chi ";
-			text += coot::util::int_to_string(ic);
-			text += ":  ";
-			if (chis[i_chi_set].alt_conf != "") {
-			   text += " alt conf: ";
-			   text += chis[i_chi_set].alt_conf;
-			   text += " ";
-			} 
-			text += coot::util::float_to_string(chis[i_chi_set].chi_angles[ich].second);
-			text += " degrees";
-			gtk_label_set_text(GTK_LABEL(label), text.c_str());
-			gtk_widget_show(label);
-		     } else {
-			std::cout << "WARNING:: chi label not found " << label_name << std::endl;
-		     }
-		  } 
+			int ic = chis[i_chi_set].chi_angles[ich].first;
+			std::string label_name = "residue_info_chi_";
+			label_name += coot::util::int_to_string(ic);
+			label_name += "_label";
+			GtkWidget *label = lookup_widget(widget, label_name.c_str());
+			if (label) {
+			   std::string text = "Chi ";
+			   text += coot::util::int_to_string(ic);
+			   text += ":  ";
+			   if (chis[i_chi_set].alt_conf != "") {
+			      text += " alt conf: ";
+			      text += chis[i_chi_set].alt_conf;
+			      text += " ";
+			   } 
+			   text += coot::util::float_to_string(chis[i_chi_set].chi_angles[ich].second);
+			   text += " degrees";
+			   gtk_label_set_text(GTK_LABEL(label), text.c_str());
+			   gtk_widget_show(label);
+			} else {
+			   std::cout << "WARNING:: chi label not found " << label_name << std::endl;
+			}
+		     } 
+		  }
+	       }
+	       catch (std::runtime_error mess) {
+		  std::cout << mess.what() << std::endl;
 	       }
 	    }
 	 }
@@ -443,17 +449,22 @@ void output_residue_info_as_text(int atom_index, int imol) {
 
    // chi angles:
    coot::primitive_chi_angles chi_angles(picked_atom->residue);
-   std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
-   if (chis.size() > 0) {
-      unsigned int i_chi_set = 0;
-      std::cout << "   Chi Angles:" << std::endl;
-      for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
-	 std::cout << "     chi "<< chis[i_chi_set].chi_angles[ich].first << ": "
-		   << chis[i_chi_set].chi_angles[ich].second
-		   << " degrees" << std::endl;
+   try { 
+      std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
+      if (chis.size() > 0) {
+	 unsigned int i_chi_set = 0;
+	 std::cout << "   Chi Angles:" << std::endl;
+	 for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
+	    std::cout << "     chi "<< chis[i_chi_set].chi_angles[ich].first << ": "
+		      << chis[i_chi_set].chi_angles[ich].second
+		      << " degrees" << std::endl;
+	 }
+      } else {
+	 std::cout << "No Chi Angles for this residue" << std::endl;
       }
-   } else {
-      std::cout << "No Chi Angles for this residue" << std::endl;
+   }
+   catch (std::runtime_error mess) {
+      std::cout << mess.what() << std::endl;
    } 
    
    std::string cmd = "output-residue-info-as-text";
@@ -496,19 +507,24 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 		<< " at " << "("
 		<< atom->x << "," << atom->y << "," 
 		<< atom->z << ")" << std::endl;
-      // chi angles:
-      coot::primitive_chi_angles chi_angles(atom->residue);
-      std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
-      if (chis.size() > 0) {
-	 unsigned int i_chi_set = 0;
-	 std::cout << "   Chi Angles:" << std::endl;
-	 for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
-	    std::cout << "     chi "<< chis[i_chi_set].chi_angles[ich].first << ": "
-		      << chis[i_chi_set].chi_angles[ich].second
-		      << " degrees" << std::endl;
+      try { 
+	 // chi angles:
+	 coot::primitive_chi_angles chi_angles(atom->residue);
+	 std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
+	 if (chis.size() > 0) {
+	    unsigned int i_chi_set = 0;
+	    std::cout << "   Chi Angles:" << std::endl;
+	    for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
+	       std::cout << "     chi "<< chis[i_chi_set].chi_angles[ich].first << ": "
+			 << chis[i_chi_set].chi_angles[ich].second
+			 << " degrees" << std::endl;
+	    }
+	 } else {
+	    std::cout << "No Chi Angles for this residue" << std::endl;
 	 }
-      } else {
-	 std::cout << "No Chi Angles for this residue" << std::endl;
+      }
+      catch (std::runtime_error mess) {
+	 std::cout << mess.what() << std::endl;
       }
    }
    std::string cmd = "output-atom-info-as-text";

@@ -10,6 +10,8 @@
 #include "mmdb.h"
 #include "primitive-chi-angles.hh"
 
+#include "wligand.hh"
+
 std::string greg_test(const std::string &file_name) {
 
    std::string d = getenv("HOME");
@@ -59,7 +61,16 @@ int test_internal() {
    catch (std::runtime_error mess) {
       std::cout << "Failed test_alt_conf_rotamers(). " << mess.what() << std::endl;
       status = 0; 
-   } 
+   }
+   if (status) {
+      try {
+	 status = test_wiggly_ligands();
+      }
+      catch (std::runtime_error mess) {
+	 std::cout << "Failed test_wiggly_ligands(). " << mess.what() << std::endl;
+	 status = 0; 
+      }
+   }
 
    return status; 
 }
@@ -166,5 +177,25 @@ int test_alt_conf_rotamers() {
 
    return status; 
 }
+
+int test_wiggly_ligands () {
+   int r = 1;
+   coot::protein_geometry geom;
+   std::string cif_file_name = greg_test("libcheck_3GP.cif");
+   int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 0);
+   if (geom_stat == 0) {
+      std::string m = "Critical cif dictionary reading failure.";
+      std::cout << m << std::endl;
+      throw std::runtime_error(m);
+   }
+   coot::wligand wlig;
+   coot::minimol::molecule mmol;
+   mmol.read_file(greg_test("monomer-3GP.pdb"));
+   int wiggly_ligand_n_samples = 3;
+   std::pair<short int, std::string> p
+      = wlig.install_simple_wiggly_ligands(&geom, mmol, wiggly_ligand_n_samples);
+   return r;
+}
+
 
 #endif // BUILT_IN_TESTING

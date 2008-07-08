@@ -14,3 +14,4 @@ std::string greg_test(const std::string &file_name);
 int test_internal();
 
 int test_alt_conf_rotamers();
+int test_wiggly_ligands();
