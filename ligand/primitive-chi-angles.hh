@@ -83,6 +83,8 @@ namespace coot {
 	    residue_name = residue->GetResName();
 	 setup_chi_atom_quads();
       }
+      // This throws a runtime_error exception on ALA gly or other
+      // unknown residue type.
       std::vector<alt_confed_chi_angles> get_chi_angles();
    };
 
