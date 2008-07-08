@@ -203,6 +203,11 @@
      or deleting things says JED.  In fact, a funtion to run that is
       attached to a molecule (somehow) on any update/change/manipulation.
 
+   o Fix the DNA/RNA names test (penelope gtk2 old-tests).  1hd
+
+* see what cootbb says...  Bill says add it (currently is skipped).
+
+
    o Use libglade
 
    o Rotate Translate: Add an additional GUI (possibly in the toolbar)
