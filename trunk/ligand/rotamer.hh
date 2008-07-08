@@ -97,7 +97,8 @@ namespace coot {
 
       std::vector<a_rotamer_table> tables;
       bool is_well_formatted_;
-      bool tried_and_failed_; 
+      bool tried_and_failed_;
+      std::string tables_dir;
       // throw an exeption on failure
       // Note, not a const vector because we can locally manipulate chi_angles if an ASP, GLU, TYR/PHE.
       std::vector<int> chi_angles_to_bins(unsigned int table_index,
@@ -107,6 +108,9 @@ namespace coot {
       bool test_yourself();
    public:
       rotamer_probability_tables() { is_well_formatted_ = 0; tried_and_failed_ = 0; }
+      //
+      void set_tables_dir(const std::string &tables_dir_in) { tables_dir = tables_dir_in; }
+      void fill_tables() { fill_tables(tables_dir); } // for on the fly construction
       void fill_tables(const std::string &tables_dir); // set is_well_formatted.
       // the chi angles here (first) numbered 1, 2, 3...
       // throws an exception

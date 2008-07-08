@@ -10639,6 +10639,17 @@ on_coot_references_xligand_toolbutton_clicked
 }
 #endif /* GTK_MAJOR_VERSION */
 
+#if (GTK_MAJOR_VERSION >1)
+void
+on_coot_references_eds_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+  fill_references_notebook(toolbutton, COOT_REFERENCE_EDS);
+
+}
+#endif /* GTK_MAJOR_VERSION */
+
 
 #if (GTK_MAJOR_VERSION >1)
 void

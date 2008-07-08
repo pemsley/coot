@@ -591,6 +591,24 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
     bib_journal = "Acta Crystallographica Section D";
   }
 
+  if (reference_id == COOT_REFERENCE_EDS) {
+
+    ref_description = "The reference for The Electron Density Server:\n\n";
+
+    title       = "The Uppsala Electron-Density Server";
+    author      = "Kleywegt GJ, Harris MR, Zou JY, Taylor TC, Wahlby A, Jones TA";
+    journal     = "ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY";
+    year        = "2004";
+    volume      = "60";
+    pages       = "2240-2249";
+
+    bib_type   = "Article";
+    bib_id     = "kleywegt:eds";
+    bib_title  = "The Uppsala Electron-Density Server";
+    bib_author = "G. J.,Kleywegt and M. R. Harris and J. Y. Zou and T. C. Taylor and A. Wahlby A and T. A. Jones";
+    bib_journal = "Acta Crystallographica Section D";
+  }
+
   if (reference_id == COOT_REFERENCE_OTHERS) {
     ref_text = "others ref";
     bib_text = "otheres bib";

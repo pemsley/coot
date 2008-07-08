@@ -2424,8 +2424,10 @@ graphics_info_t::get_rotamer_probability(CResidue *res,
 #ifdef USE_DUNBRACK_ROTAMERS			
    coot::dunbrack d(res, mol, rotamer_lowest_probability, 1);
 #else
+   if (!rot_prob_tables.is_well_formatted()) {
+      rot_prob_tables.fill_tables();
+   }
    if (rot_prob_tables.is_well_formatted()) {
-      // if (0) {
       try {
 	 // FIXME, return type of
 	 // graphics_info_t::get_rotamer_probability needs to be a
