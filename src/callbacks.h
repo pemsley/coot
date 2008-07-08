@@ -3870,6 +3870,10 @@ on_coot_references_xligand_toolbutton_clicked
                                         gpointer         user_data);
 
 void
+on_coot_references_eds_toolbutton_clicked (GtkToolButton   *toolbutton,
+					   gpointer         user_data);
+
+void
 on_coot_references_others_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
                                         gpointer         user_data);

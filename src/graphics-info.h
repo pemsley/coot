@@ -745,7 +745,7 @@ public:
       // rotamer probabilitiles
       std::string tables_dir = PKGDATADIR;
       tables_dir += "/rama-data";
-      rot_prob_tables.fill_tables(tables_dir);
+      rot_prob_tables.set_tables_dir(tables_dir);
 
       moving_atoms_asc = new atom_selection_container_t;
       moving_atoms_asc->mol = NULL;
