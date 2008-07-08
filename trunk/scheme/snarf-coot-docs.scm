@@ -22,7 +22,7 @@
 (define key-sym-code-scm #f)
 (define ncs-ghosts-scm #f)
 (define inverse-rtop-scm #f)
-(define coot-has-python? #f)
+(define coot-has-python-p #f)
 (define map-sigma-scm #f)
 (define pucker-info-scm #f)
 (define map-parameters-scm #f)
