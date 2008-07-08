@@ -4,15 +4,6 @@
 
    11 Items, 35 hd.
 
-   o Make names for map transformation better - both the new
-     coordinates and the new map (use set-molecule-name).
-
-   o Reference for EDS:
-     Title: The Uppsala Electron-Density Server
-     Author(s): Kleywegt GJ, Harris MR, Zou JY, Taylor TC, Wahlby A, Jones TA
-     Source: ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY 60: 2240-2249 
-        Part 12 Sp. Iss. 1, DEC 2004 
-
    o Fix the comp_id on exporting monomer restraints to a file. 1hd
 
    o  Need to check torsion restraints 
@@ -56,7 +47,13 @@
 
 
 
-99 Done.
+
+100 Done.
+
+   o Make names for map transformation better - both the new
+     coordinates and the new map (use set-molecule-name).
+
+* Done.
 
    o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
      Ask about Rotamer misses.  Well, the dictionary is fine. Why does
