@@ -572,6 +572,9 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 #ifdef USE_GUILE
 SCM test_internal_scm(); 
 #endif	/* USE_GUILE */
+#ifdef USE_GUILE
+PyObject *test_internal_py(); 
+#endif	/* USE_GUILE */
 #endif	/* __cplusplus */
 
 
