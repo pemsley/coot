@@ -24,6 +24,21 @@
 
 (if (defined? 'coot-main-menubar)
 
+    ;; ---------------------------------------------
+    ;;           coot news dialog
+    ;; ---------------------------------------------
+    (let ((menu (coot-menubar-menu "About")))
+      (if menu
+	  (add-simple-coot-menu-menuitem
+	   menu "Coot News"
+	   (lambda ()
+	     (whats-new-dialog))))))
+
+
+    ;; ---------------------------------------------
+    ;;           extensions
+    ;; ---------------------------------------------
+    ;; 
     (let ((menu (coot-menubar-menu "Extensions")))
 
       ;; ---------------------------------------------------------------------

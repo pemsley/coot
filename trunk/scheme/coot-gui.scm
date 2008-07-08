@@ -1893,12 +1893,26 @@
 				      (format #t "Must set the refinement map~%")
 			    
 				      (let ((imol-copy (copy-molecule active-mol-mov)))
-					(transform-map-using-lsq-matrix 
-					 active-mol-ref chain-id-ref resno-1-ref resno-2-ref
-					 imol-copy chain-id-mov resno-1-mov resno-2-mov
-					 imol-map (rotation-centre) radius)
-					(set-mol-active    imol-copy 0)
-					(set-mol-displayed imol-copy 0))))
+					(let ((new-map-number 
+					       (transform-map-using-lsq-matrix 
+						active-mol-ref chain-id-ref resno-1-ref resno-2-ref
+						imol-copy chain-id-mov resno-1-mov resno-2-mov
+						imol-map (rotation-centre) radius)))
+					  
+					  (set-molecule-name imol-copy
+							     (string-append "Transformed copy of " 
+									    (strip-path
+									     (molecule-name active-mol-mov))))
+					  (format #t "===== molecule-name ~s ~s~%"
+						  imol-copy (molecule-name imol-copy))
+					  (set-molecule-name new-map-number
+							     (string-append
+							      "Transformed map: from map "
+							      (number->string imol-map)
+							      " by matrix that created coords " 
+							      (number->string imol-copy)))
+					  (set-mol-active    imol-copy 0)
+					  (set-mol-displayed imol-copy 0)))))
 			  
 			      (gtk-widget-destroy window)))))
     
@@ -2147,6 +2161,7 @@
 	 "assssssssssssssssssssssssssssssssssssssss\n\n"
 	 "\n-----\n"
 	 "bill asssssssssssssssssssssssssssssssssssss\n\n"
+	 "percy asssssssssssssssssssssssssssssssssssss\n\n"
 	 "fred asssssssssssssssssssssssssssssssssssss\n\n"
 	 "george sssssssssssssssssssssssssssssssssssss\n\n"
 	 "\n-----\n"))
@@ -2246,7 +2261,7 @@
 				   (/ (* count ms-step) 1000))) "s")))
 	      (gtk-misc-set-alignment timer-label 0.96 0.5)
 	      (gtk-label-set-text timer-label timer-string))
-	    (display count)
+	    ; (display count)
 	    (if (> count 100)
 		(begin
 		  (gtk-label-set-text timer-label "Timeout")
