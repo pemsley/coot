@@ -29,6 +29,11 @@
 
 * see what Nick says.  He says it shouldn't crash.
 
+   o Bill Scott's python problem:
+
+     I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
+     211 in ssm_superpose.h
+
 
 
 
