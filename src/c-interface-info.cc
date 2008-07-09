@@ -85,7 +85,6 @@
 #define scm_to_locale_string SCM_STRING_CHARS
 #define scm_to_double  gh_scm2double
 #define scm_is_true gh_scm2bool
-#define scm_cdr SCM_CDR
 #endif // SCM version
 #include "c-interface-scm.hh"
 #endif // USE_GUILE
@@ -3071,12 +3070,12 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 	       SCM rest_container_length_scm = scm_length(rest_container);
 	       int rest_container_length = scm_to_int(rest_container_length_scm);
 	       if (rest_container_length > 1) {
-		  SCM restraints_type_scm = scm_car(rest_container);
+		  SCM restraints_type_scm = SCM_CAR(rest_container);
 		  if (scm_string_p(restraints_type_scm)) {
 		     std::string restraints_type = scm_to_locale_string(restraints_type_scm);
 
 		     if (restraints_type == "_chem_comp") {
-			SCM chem_comp_info_scm = scm_cdr(rest_container);
+			SCM chem_comp_info_scm = SCM_CDR(rest_container);
 			SCM chem_comp_info_length_scm = scm_length(chem_comp_info_scm);
 			int chem_comp_info_length = scm_to_int(chem_comp_info_length_scm);
 
@@ -3114,7 +3113,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 		     }
 
 		     if (restraints_type == "_chem_comp_atom") {
-			SCM chem_comp_atoms = scm_cdr(rest_container);
+			SCM chem_comp_atoms = SCM_CDR(rest_container);
 			SCM chem_comp_atoms_length_scm = scm_length(chem_comp_atoms);
 			int chem_comp_atoms_length = scm_to_int(chem_comp_atoms_length_scm);
 
@@ -3155,7 +3154,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 		     
 
 		     if (restraints_type == "_chem_comp_bond") {
-			SCM bond_restraints_list_scm = scm_cdr(rest_container);
+			SCM bond_restraints_list_scm = SCM_CDR(rest_container);
 			SCM bond_restraints_list_length_scm = scm_length(bond_restraints_list_scm);
 			int bond_restraints_list_length = scm_to_int(bond_restraints_list_length_scm);
 
@@ -3187,7 +3186,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 		     }
 
 		     if (restraints_type == "_chem_comp_angle") {
-			SCM angle_restraints_list = scm_cdr(rest_container);
+			SCM angle_restraints_list = SCM_CDR(rest_container);
 			SCM angle_restraints_list_length_scm = scm_length(angle_restraints_list);
 			int angle_restraints_list_length = scm_to_int(angle_restraints_list_length_scm);
 
@@ -3225,7 +3224,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 
 
 		     if (restraints_type == "_chem_comp_tor") {
-			SCM torsion_restraints_list = scm_cdr(rest_container);
+			SCM torsion_restraints_list = SCM_CDR(rest_container);
 			SCM torsion_restraints_list_length_scm = scm_length(torsion_restraints_list);
 			int torsion_restraints_list_length = scm_to_int(torsion_restraints_list_length_scm);
 
@@ -3268,7 +3267,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 		     }
 		     
 		     if (restraints_type == "_chem_comp_plane_atom") {
-			SCM plane_restraints_list = scm_cdr(rest_container);
+			SCM plane_restraints_list = SCM_CDR(rest_container);
 			SCM plane_restraints_list_length_scm = scm_length(plane_restraints_list);
 			int plane_restraints_list_length = scm_to_int(plane_restraints_list_length_scm);
 
@@ -3314,7 +3313,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 		     
 		     
 		     if (restraints_type == "_chem_comp_chir") {
-			SCM chiral_restraints_list = scm_cdr(rest_container);
+			SCM chiral_restraints_list = SCM_CDR(rest_container);
 			SCM chiral_restraints_list_length_scm = scm_length(chiral_restraints_list);
 			int chiral_restraints_list_length = scm_to_int(chiral_restraints_list_length_scm);
 
