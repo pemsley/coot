@@ -20,6 +20,7 @@
  */
 #include <stdlib.h>
 #include <iostream>
+#include <stdexcept>
 
 #if defined _MSC_VER
 #include <windows.h>
@@ -923,13 +924,18 @@ execute_ligand_search_internal() {
 	    }
 	 }
 
-	 std::pair<short int, std::string> istat_pair =
+	 // std::pair<short int, std::string> istat_pair =
+	 try { 
+	    bool optim_geom = 1;
+	    bool fill_vec = 0;
 	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol,
-					       g.ligand_wiggly_ligand_n_samples);
-	 if (! istat_pair.first) {
-	    // if any fail, it all fails.
+					       g.ligand_wiggly_ligand_n_samples,
+					       optim_geom, fill_vec);
+	 }
+	 catch (std::runtime_error mess) {
 	    std::cout << "Error in flexible ligand definition.\n";
-	    GtkWidget *w = wrapped_nothing_bad_dialog(istat_pair.second);
+	    std::cout << mess.what() << std::endl;
+	    GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
 	    gtk_widget_show(w);
 	    return solutions;
 	 }

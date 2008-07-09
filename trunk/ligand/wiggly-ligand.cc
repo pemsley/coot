@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+#include <stdexcept>
 #include "coot-utils.hh"  // needed, it seems for the case where GSL
 			  // is not defined.
 #include "mgtree.h"
@@ -35,16 +36,19 @@
 //  done  (it was half done anyway).
 //
 
-std::pair<short int, std::string>
+std::vector<coot::minimol::molecule>
 coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 					     const coot::minimol::molecule &ligand_in,
-					     int n_samples) {
+					     int n_samples,
+					     bool optimize_geometry_flag,
+					     bool fill_returned_molecules_vector_flag) {
 
+   std::vector<coot::minimol::molecule> returned_molecules;
    short int istat = 0;
    std::string m = ""; 
    
    // m_torsions: a set of torsions for this monomer
-  // 
+   // 
    std::string monomer_type = get_monomer_type_from_mol(ligand_in);
 //    std::cout << "DEBUG:: in install_simple_wiggly_ligands: "
 // 	     << "get_monomer_type_from_mol returns :"
@@ -53,20 +57,28 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    std::vector <coot::dict_torsion_restraint_t> m_torsions =
       pg->get_monomer_torsions_from_geometry(monomer_type, do_hydrogen_torsions_flag);
 
+   int n_torsionable = 0;
+   for (unsigned int i_tor=0; i_tor<m_torsions.size(); i_tor++) {
+      if (! m_torsions[i_tor].is_const())
+	 n_torsionable++;
+   } 
+   std::cout << "This residues has " << m_torsions.size() << " defined non-H torsions "
+	     << "of which " << n_torsionable << " are rotatable " << std::endl;
+
    if (m_torsions.size() == 0) {
 
       // << " Did you forget to read the dictionary?\n";
       std::pair<short int, dictionary_residue_restraints_t> p = 
 	 pg->get_monomer_restraints(monomer_type);
 
-
       m = "Requested flexible molecule for ligand ";
       m += monomer_type;
       m += "\n"; 
       m += " but no non-Hydrogen rotatable bonds found.\n";
       if (p.first == 0) {
-	 m += " Did you forget to read the dictionary?\n";
-	 istat = 0;
+	 std::string mess = "WARNING:: " + m;
+	 mess += " Did you forget to read the dictionary?\n";
+	 throw std::runtime_error(mess);
       } else {
 	 // OK, there were restraints for such a thing, but no
 	 // torsions.  It was a phosphate or some such.
@@ -74,7 +86,9 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 install_ligand(ligand_in);
 	 istat = 1;
       }
-      return std::pair<short int, std::string> (istat, m);
+      if (fill_returned_molecules_vector_flag)
+	 returned_molecules.push_back(ligand_in); // get what you give.
+      return returned_molecules;
 
    } else {
       istat = 1; // OK.... so far.
@@ -136,7 +150,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 //       std::cout << " There are " << atom_index_pairs.size() 
 // 	        << " atom_index_pairs" << std::endl;
       for (unsigned int ibond=0; ibond< atom_index_pairs.size(); ibond++) {
-         if (m_torsions[ibond].periodicity() > 0)  {  
+         if (!m_torsions[ibond].is_const() > 0)  {
 // 	    std::cout << "rotating " << torsion_set[ibond] << " round " 
 // 		      << atom_index_pairs[ibond].index1 << " "
 // 		      << atom_index_pairs[ibond].index2 << "\n";
@@ -170,15 +184,25 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 ligand.write_file(filename, default_b_factor);
       }
       
-#ifdef HAVE_GSL      
-      coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(ligand, *pg);
-      // coot::minimol::molecule reg_ligand;
-      install_ligand(reg_ligand);
+#ifdef HAVE_GSL
+      if (optimize_geometry_flag) { 
+	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(ligand, *pg);
+	 install_ligand(reg_ligand);
+	 if (fill_returned_molecules_vector_flag)
+	    returned_molecules.push_back(reg_ligand);
+      } else {
+	 install_ligand(ligand);
+	 if (fill_returned_molecules_vector_flag)
+	    returned_molecules.push_back(ligand);
+      }
 #else
       install_ligand(ligand);
+      if (fill_returned_molecules_vector_flag)
+	 returned_molecules.push_back(ligand);
 #endif
    }
-   return std::pair<short int, std::string> (istat, m);
+   // return std::pair<short int, std::string> (istat, m); old
+   return returned_molecules;
 }
 
 std::string

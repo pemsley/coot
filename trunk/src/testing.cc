@@ -110,9 +110,9 @@ int test_alt_conf_rotamers() {
 
 		  int n_rots_found = 0;
 		  for (unsigned int i_rot=0; i_rot<2; i_rot++) {
-		     std::cout << "DEBUG:: chi: " << chis[i_rot].alt_conf << " " 
-			       << chis[i_rot].chi_angles[0].first  << " "
-			       << chis[i_rot].chi_angles[0].second << std::endl;
+// 		     std::cout << "DEBUG:: chi: " << chis[i_rot].alt_conf << " " 
+// 			       << chis[i_rot].chi_angles[0].first  << " "
+// 			       << chis[i_rot].chi_angles[0].second << std::endl;
 		     
 		     if (chis[i_rot].alt_conf == "A") {
 			float chi = chis[i_rot].chi_angles[0].second;
@@ -179,9 +179,20 @@ int test_alt_conf_rotamers() {
 }
 
 int test_wiggly_ligands () {
+
+   // This is not a proper test.  It just exercises some functions.  I
+   // had set wiggly_ligand_n_samples to 100 and checked that the
+   // distribution of chi angles looked reasonable (it did).
+   // Analysing the chi angles can be done another day.
+   //
+   // BUA looks great.  So why does 3GP's wiggly ligand look terrible?
+   // Not sure, but I think it is because there are torsions going on
+   // in the ribose (torsionable bonds (not const - they are filtered
+   // out) that shouldn't be - and the ring is breaking).
+   
    int r = 1;
    coot::protein_geometry geom;
-   std::string cif_file_name = greg_test("libcheck_3GP.cif");
+   std::string cif_file_name = greg_test("libcheck_BUA.cif");
    int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 0);
    if (geom_stat == 0) {
       std::string m = "Critical cif dictionary reading failure.";
@@ -190,10 +201,33 @@ int test_wiggly_ligands () {
    }
    coot::wligand wlig;
    coot::minimol::molecule mmol;
-   mmol.read_file(greg_test("monomer-3GP.pdb"));
-   int wiggly_ligand_n_samples = 3;
-   std::pair<short int, std::string> p
-      = wlig.install_simple_wiggly_ligands(&geom, mmol, wiggly_ligand_n_samples);
+   mmol.read_file(greg_test("monomer-BUA.pdb"));
+   int wiggly_ligand_n_samples = 10;
+   try { 
+      bool optim_geom = 0;
+      bool fill_vec = 1;
+      std::vector<coot::minimol::molecule> ms = 
+	 wlig.install_simple_wiggly_ligands(&geom, mmol, wiggly_ligand_n_samples,
+					    optim_geom, fill_vec);
+
+      // jump out if no returned molecules
+      if (ms.size() != wiggly_ligand_n_samples) {
+	 std::cout << "FAIL: ms.size() != wiggly_ligand_n_samples " << ms.size() << " "
+		   << wiggly_ligand_n_samples << std::endl;
+	 return 0;
+      }
+
+      //
+      for (unsigned int imol=0; imol<ms.size(); imol++) {
+	 std::string file_name = "test-wiggly-ligand-";
+	 file_name += stringify(imol);
+	 file_name += ".pdb";
+	 ms[imol].write_file(file_name, 10.0);
+      }
+   }
+   catch (std::runtime_error mess) {
+      std::cout << mess.what() << std::endl;
+   } 
    return r;
 }
 

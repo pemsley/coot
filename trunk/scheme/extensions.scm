@@ -35,12 +35,13 @@
 	     (whats-new-dialog))))))
 
 
+(if (defined? 'coot-main-menubar)
     ;; ---------------------------------------------
     ;;           extensions
     ;; ---------------------------------------------
     ;; 
     (let ((menu (coot-menubar-menu "Extensions")))
-
+      
       ;; ---------------------------------------------------------------------
       ;;     Post MR
       ;;
@@ -649,7 +650,6 @@
 	 (key-bindings-gui)))
 	 
 
-
       ;; ---------------------------------------------------------------------
       ;;     Views/Representations
       ;; ---------------------------------------------------------------------
@@ -777,10 +777,8 @@
 	   (generic-single-entry "Save Views" "coot-views.scm" " Save "
 				 (lambda (txt)
 				   (save-views txt))))))
-
        
-      
-      )); finish let and if
+      )) ; finish let and if
 
 
                           
@@ -793,5 +791,6 @@
      (molecule-chooser-gui "Choose a molecule for ribose pucker analysis"
 			   (lambda (imol)
 			     (pukka-puckers? imol))))))
+
   
 
