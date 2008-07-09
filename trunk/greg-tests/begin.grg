@@ -130,6 +130,7 @@
       (cons (car bond-restraints)
 	    (strip-bond (cdr bond-restraints))))))
 
+
   ;; main line of strip-bond-restraints
   (cond 
    ((not restraints) #f)
@@ -137,7 +138,7 @@
    ((string=? "_chem_comp_bond" (car (car restraints)))
     ; (format #t "strip-bond on::::: ~s ~%" (car (cdr (car restraints))))
     (cons 
-     (list (car (car restraints)) (strip-bond (car (cdr (car restraints)))))
+     (cons (car (car restraints)) (strip-bond (cdr (car restraints))))
      (cdr restraints)))
    (else 
     (cons (car restraints) 
