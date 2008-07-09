@@ -3158,7 +3158,6 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			SCM bond_restraints_list_length_scm = scm_length(bond_restraints_list_scm);
 			int bond_restraints_list_length = scm_to_int(bond_restraints_list_length_scm);
 
-			std::cout << "DEBUG:: " << bond_restraints_list_length << " bond restraints " << std::endl;
 			for (int ibr=0; ibr<bond_restraints_list_length; ibr++) {
 			   SCM bond_restraint = scm_list_ref(bond_restraints_list_scm, SCM_MAKINUM(ibr));
 			   SCM bond_restraint_length_scm = scm_length(bond_restraint);
@@ -3190,17 +3189,14 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			SCM angle_restraints_list_length_scm = scm_length(angle_restraints_list);
 			int angle_restraints_list_length = scm_to_int(angle_restraints_list_length_scm);
 
-			std::cout << "DEBUG:: " << angle_restraints_list_length << " angle restraints "
-				  << std::endl;
-			
 			for (int iar=0; iar<angle_restraints_list_length; iar++) {
 			   SCM angle_restraint = scm_list_ref(angle_restraints_list, SCM_MAKINUM(iar));
 			   SCM angle_restraint_length_scm = scm_length(angle_restraint);
 			   int angle_restraint_length = scm_to_int(angle_restraint_length_scm);
 
 			   if (angle_restraint_length != 5) {
-			      std::cout << "WARNING:: angle_restraint_length length " << angle_restraint_length
-					<< " should be " << 5 << std::endl;
+			      std::cout << "WARNING:: angle_restraint_length length "
+					<< angle_restraint_length << " should be " << 5 << std::endl;
 			   } else { 
 			      SCM atom_1_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(0));
 			      SCM atom_2_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(1));
