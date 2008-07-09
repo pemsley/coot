@@ -85,7 +85,7 @@
 #define scm_to_locale_string SCM_STRING_CHARS
 #define scm_to_double  gh_scm2double
 #define scm_is_true gh_scm2bool
-#define scm_car SCM_CAR
+#define scm_cdr SCM_CDR
 #endif // SCM version
 #include "c-interface-scm.hh"
 #endif // USE_GUILE
@@ -3075,9 +3075,6 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 		  if (scm_string_p(restraints_type_scm)) {
 		     std::string restraints_type = scm_to_locale_string(restraints_type_scm);
 
-		     std::cout << "=============== interesting restraints: " << restraints_type
-			       << std::endl;
-		     
 		     if (restraints_type == "_chem_comp") {
 			SCM chem_comp_info_scm = scm_cdr(rest_container);
 			SCM chem_comp_info_length_scm = scm_length(chem_comp_info_scm);
@@ -3281,6 +3278,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   int plane_restraint_length = scm_to_int(plane_restraint_length_scm);
 
 			   if (plane_restraint_length == 3) {
+
 			      std::vector<SCM> atoms;
 			      SCM plane_id_scm   = scm_list_ref(plane_restraint, SCM_MAKINUM(0));
 			      SCM esd_scm        = scm_list_ref(plane_restraint, SCM_MAKINUM(2));
@@ -3289,7 +3287,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      int atom_list_length = scm_to_int(atom_list_length_scm);
 			      bool atoms_pass = 1;
 			      for (int iat=0; iat<atom_list_length; iat++) { 
-				 SCM atom_scm   = scm_list_ref(plane_restraint, SCM_MAKINUM(0));
+				 SCM atom_scm   = scm_list_ref(atom_list_scm, SCM_MAKINUM(iat));
 				 atoms.push_back(atom_scm);
 				 if (!scm_string_p(atom_scm))
 				    atoms_pass = 0;
@@ -3307,6 +3305,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 				    for (unsigned int i=1; i<atom_names.size(); i++)
 				       rest.push_back_atom(atom_names[i]);
 				    plane_restraints.push_back(rest);
+				    // std::cout << "plane restraint: " << rest << std::endl;
 				 }
 			      }
 			   }

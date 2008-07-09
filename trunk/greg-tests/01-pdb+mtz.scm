@@ -993,7 +993,7 @@
 	 (let ((imol (new-molecule-by-atom-selection imol-rnase "//A/30")))
 	   
 	   (with-auto-accept
-	    (regularize-zone imol "A" 30 30 ""))
+	    (refine-zone imol "A" 30 30 ""))
 	   
 	   (let ((atom-1 (get-atom imol "A" 30 " CB "))
 		 (atom-2 (get-atom imol "A" 30 " CG ")))
@@ -1010,10 +1010,23 @@
 		   (set-monomer-restraints "TYR" m)
 
 		   (with-auto-accept
-		    (regularize-zone imol "A" 30 30 ""))
+		    (refine-zone imol "A" 30 30 ""))
 		 
 		   (let ((atom-1 (get-atom imol "A" 30 " CB "))
 			 (atom-2 (get-atom imol "A" 30 " CG ")))
+
+		     (let ((post-set-plane-restraints (assoc-ref (monomer-restraints "TYR")
+								 "_chem_comp_plane_atom")))
+		       
+		       ;; (format #t "plane-restraint-pre:  ~s~%" (assoc-ref m "_chem_comp_plane_atom"))
+		       ;; (format #t "plane-restraint-post: ~s~%" post-set-plane-restraints)
+		       
+		       (let ((atom (car (car (cdr (car post-set-plane-restraints))))))
+			 (if (string=? atom " CB ")
+			     (format #t "  OK plane atom ~s~%" atom)
+			     (begin
+			       (format #t "FAIL plane atom ~s~%" atom)
+			       (throw 'fail)))))
 		     
 		     (format #t "   Bond-length: ~s: ~%"
 			     (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))

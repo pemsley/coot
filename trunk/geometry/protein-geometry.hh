@@ -253,8 +253,11 @@ namespace coot {
       int n_atoms() const { return atom_ids.size(); }
       const std::string &operator[](int i) const { return atom_ids[i];}
       void push_back_atom(const std::string &at) { atom_ids.push_back(at); }
+      friend std::ostream&  operator<<(std::ostream &s, dict_plane_restraint_t rest);
    };
 
+   std::ostream&  operator<<(std::ostream &s, dict_plane_restraint_t rest);
+   
    // ------------------------------------------------------------------------
    // class dict_chiral_restraint_t
    // ------------------------------------------------------------------------
