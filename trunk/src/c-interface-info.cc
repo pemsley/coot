@@ -2715,8 +2715,8 @@ SCM monomer_restraints(const char *monomer_type) {
       chem_comp_scm = scm_cons(scm_makfrom0str(info.description_level.c_str()), chem_comp_scm);
       chem_comp_scm = scm_reverse(chem_comp_scm);
       SCM chem_comp_container = SCM_EOL;
-      chem_comp_container = scm_cons(chem_comp_scm, chem_comp_container);
-      chem_comp_container = scm_cons(scm_makfrom0str("_chem_comp"), chem_comp_container);
+      // chem_comp_container = scm_cons(chem_comp_scm, chem_comp_container);
+      chem_comp_container = scm_cons(scm_makfrom0str("_chem_comp"), chem_comp_scm);
 
       // ------------------ chem_comp_atom -------------------------
       std::vector<coot::dict_atom> atom_info = restraints.atom_info;
@@ -2737,8 +2737,8 @@ SCM monomer_restraints(const char *monomer_type) {
       }
       atom_info_list = scm_reverse(atom_info_list);
       SCM atom_info_list_container = SCM_EOL;
-      atom_info_list_container = scm_cons(atom_info_list, atom_info_list_container);
-      atom_info_list_container = scm_cons(scm_makfrom0str("_chem_comp_atom"), atom_info_list_container);
+      // atom_info_list_container = scm_cons(atom_info_list, atom_info_list_container);
+      atom_info_list_container = scm_cons(scm_makfrom0str("_chem_comp_atom"), atom_info_list);
 
 
       // ------------------ Bonds -------------------------
@@ -2758,8 +2758,8 @@ SCM monomer_restraints(const char *monomer_type) {
 	 bond_restraint_list = scm_cons(bond_restraint_scm, bond_restraint_list);
       }
       SCM bond_restraints_container = SCM_EOL;
-      bond_restraints_container = scm_cons(bond_restraint_list, bond_restraints_container);
-      bond_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_bond"), bond_restraints_container);
+      // bond_restraints_container = scm_cons(bond_restraint_list, bond_restraints_container);
+      bond_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_bond"), bond_restraint_list);
 
       // ------------------ Angles -------------------------
       SCM angle_restraint_list = SCM_EOL;
@@ -2779,8 +2779,8 @@ SCM monomer_restraints(const char *monomer_type) {
 	 angle_restraint_list = scm_cons(angle_restraint_scm, angle_restraint_list);
       }
       SCM angle_restraints_container = SCM_EOL;
-      angle_restraints_container = scm_cons(angle_restraint_list, angle_restraints_container);
-      angle_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_angle"), angle_restraints_container);
+      // angle_restraints_container = scm_cons(angle_restraint_list, angle_restraints_container);
+      angle_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_angle"), angle_restraint_list);
 
       // ------------------ Torsions -------------------------
       SCM torsion_restraint_list = SCM_EOL;
@@ -2806,8 +2806,8 @@ SCM monomer_restraints(const char *monomer_type) {
 	 torsion_restraint_list = scm_cons(torsion_restraint_scm, torsion_restraint_list);
       }
       SCM torsion_restraints_container = SCM_EOL;
-      torsion_restraints_container = scm_cons(torsion_restraint_list, torsion_restraints_container);
-      torsion_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_tor"), torsion_restraints_container);
+      // torsion_restraints_container = scm_cons(torsion_restraint_list, torsion_restraints_container);
+      torsion_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_tor"), torsion_restraint_list);
 
 
       // ------------------ Planes -------------------------
@@ -2831,9 +2831,9 @@ SCM monomer_restraints(const char *monomer_type) {
 	 plane_restraint_list = scm_cons(plane_restraint_scm, plane_restraint_list);
       }
       SCM plane_restraints_container = SCM_EOL;
-      plane_restraints_container = scm_cons(plane_restraint_list, plane_restraints_container);
+      // plane_restraints_container = scm_cons(plane_restraint_list, plane_restraints_container);
       plane_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_plane_atom"),
-					    plane_restraints_container);
+					    plane_restraint_list);
 
 
       // ------------------ Chirals -------------------------
@@ -2861,8 +2861,8 @@ SCM monomer_restraints(const char *monomer_type) {
 	 chiral_restraint_list = scm_cons(chiral_restraint_scm, chiral_restraint_list);
       }
       SCM chiral_restraints_container = SCM_EOL;
-      chiral_restraints_container = scm_cons(chiral_restraint_list, chiral_restraints_container);
-      chiral_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_chir"), chiral_restraints_container);
+      // chiral_restraints_container = scm_cons(chiral_restraint_list, chiral_restraints_container);
+      chiral_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_chir"), chiral_restraint_list);
 
       
       r = scm_cons( chiral_restraints_container, r);
