@@ -106,10 +106,17 @@ namespace coot {
 
       // update pg with try_dynamic_add if needed.
       // 
-      std::pair<short int, std::string> install_simple_wiggly_ligands(coot::protein_geometry *pg,
-								      const coot::minimol::molecule &ligand,
-								      int n_samples);
       
+      // Throw an exception if there is failure to install the ligands.
+      // [used to return std::pair<short int, std::string>]
+      //
+      std::vector<minimol::molecule>
+      install_simple_wiggly_ligands(coot::protein_geometry *pg,
+				    const coot::minimol::molecule &ligand,
+				    int n_samples,
+				    bool optimize_geometry_flag,
+				    bool fill_returned_molecules_vector_flag);
+
       short int install_linked_wiggly_ligands(const coot::protein_geometry &pg,
 					      const coot::minimol::molecule &ligand,
 					      int n_samples);

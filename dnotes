@@ -4,15 +4,6 @@
 
    11 Items, 35 hd.
 
-   o  Need to check torsion restraints 
-      and wiggly ligands
-          get_torsion_bonds_atom_pairs() in wiggly ligands?
-      and Edit Chi
-      now that I have enabled the reading of CONST torsions.
-
-      How about a test for wiggly ligands and then we can put this
-      item to bed.  2hd
-
    o Kevin's Ramachandran Refinement target, 16hd
 
    o Correct CISPEP if needed cards on writing pdb. <1hd - depending
@@ -21,9 +12,6 @@
    o PDB v3.0 compatibility < 1hd as above
 
    o Use Eugene's new LINK-reading code < 1hd as above
-
-   o (assoc-ref (monomer-restraints "TYR") "_chem_comp_chir") extra
-     list layer? [JED]
 
    o Finish A-RAPPER-gui, penelope. 6hd
 
@@ -38,7 +26,22 @@
 
 
 
-101 Done.
+102 Done.
+
+   o  Need to check torsion restraints 
+      and wiggly ligands
+          get_torsion_bonds_atom_pairs() in wiggly ligands?
+      and Edit Chi
+      now that I have enabled the reading of CONST torsions.
+
+      How about a test for wiggly ligands and then we can put this
+      item to bed.  2hd
+
+* That will do for now. BUA looks good, and I suspect 3GP looks bad
+  (broken bonds) because the dictionary is wrong.
+
+   o (assoc-ref (monomer-restraints "TYR") "_chem_comp_chir") extra
+     list layer? [JED]
 
    o Fix the comp_id on exporting monomer restraints to a file. 1hd
 
@@ -6164,3 +6167,8 @@ Thu Jul  3 12:44:23 BST 2008
     Get rid of the "Apply" button.
 
     Low priority
+
+-----
+Wed Jul  9 17:32:20 BST 2008
+
+    

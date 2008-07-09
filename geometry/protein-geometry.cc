@@ -504,6 +504,7 @@ coot::dict_torsion_restraint_t::is_const() const {
    return const_flag;
 }
 
+
 void 
 coot::protein_geometry::add_restraint(std::string comp_id,
 				      const dict_torsion_restraint_t &restr) { 

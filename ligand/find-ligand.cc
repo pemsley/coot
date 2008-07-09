@@ -40,6 +40,7 @@
 
 #include <iostream>
 #include <string>
+#include <stdexcept>
 
 #include "wligand.hh"
 
@@ -329,15 +330,20 @@ main(int argc, char **argv) {
 			   for (unsigned int ilig=0; ilig<lig_files.size(); ilig++) { 
 			      coot::minimol::molecule mmol;
 			      mmol.read_file(lig_files[ilig]);
-			      std::pair<short int, std::string> p
-				 = wlig.install_simple_wiggly_ligands(&geom, mmol,
-								      wiggly_ligand_n_samples);
-			      short int istat = p.first;
-			      if (! istat) {
-				 // if any fail, it all fails.
-				 std::cout << "Error in flexible ligand definition.\n";
-				 
+
+			      bool optim_geom = 1;
+			      bool fill_vec = 0;
+			      try { 
+				 std::vector<coot::minimol::molecule> wiggled_ligands = 
+				    wlig.install_simple_wiggly_ligands(&geom, mmol,
+								       wiggly_ligand_n_samples,
+								       optim_geom,
+								       fill_vec);
 			      }
+			      catch (std::runtime_error mess) {
+				 std::cout << "Failed to install flexible ligands\n" << mess.what()
+					   << std::endl;
+			      } 
 			   }
 			   wlig.fit_ligands_to_clusters(10); 
 			}

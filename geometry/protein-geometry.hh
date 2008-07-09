@@ -183,6 +183,10 @@ namespace coot {
       double esd ()  const { return angle_esd_;}
    };
 
+   // Note hydrogen torsions can only be detected at the container
+   // (protein_geometry) level, because we don't have acces to the
+   // elements here (only the atom names).
+   // 
    class dict_torsion_restraint_t : public basic_dict_restraint_t {
       std::string id_;
       std::string atom_id_3_;
