@@ -17,18 +17,6 @@
 
    o Kevin's Ramachandran Refinement target, 16hd
 
-   o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
-     Ask about Rotamer misses.  Well, the dictionary is fine. Why does
-     molprobity web site gives less bad rotamers then? (First: Does it?).
-     Yes it does: e.g. for 1sar molprobity notes only these:
-     "Bad rotamer B  47 GLN (0.3%)"   agreed
-     "Bad rotamer A  91 LEU (0.4%)"   agreed
-     "Bad rotamer A  13 PRO (0.9%)"   hmmm - it agrees.
-     "Bad rotamer B  41 GLU (0.7%)"   don't see why it is bad, but it agrees.
-
-     There are 10 times more for Coot.  
-     (fix-nomenclature-errors doesn't fix anything).  4hd.
-
    o Correct CISPEP if needed cards on writing pdb. <1hd - depending
      on new mmdb code.
 
@@ -43,12 +31,21 @@
 
 * see what Nick says.  He says it shouldn't crash.
 
-   o rev 1217 is good, rev 1218 causes glade-2 to crash on coot-gtk2.glade
 
 
 
 
 100 Done.
+
+   o rev 1217 is good, rev 1218 causes glade-2 to crash on coot-gtk2.glade
+
+* Fixed, for now.
+
+   o Reference for EDS:
+     Title: The Uppsala Electron-Density Server
+     Author(s): Kleywegt GJ, Harris MR, Zou JY, Taylor TC, Wahlby A, Jones TA
+     Source: ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY 60: 2240-2249 
+        Part 12 Sp. Iss. 1, DEC 2004 
 
    o Make names for map transformation better - both the new
      coordinates and the new map (use set-molecule-name).
