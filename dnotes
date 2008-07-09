@@ -4,8 +4,6 @@
 
    11 Items, 35 hd.
 
-   o Fix the comp_id on exporting monomer restraints to a file. 1hd
-
    o  Need to check torsion restraints 
       and wiggly ligands
           get_torsion_bonds_atom_pairs() in wiggly ligands?
@@ -35,7 +33,11 @@
 
 
 
-100 Done.
+101 Done.
+
+   o Fix the comp_id on exporting monomer restraints to a file. 1hd
+
+* Done
 
    o rev 1217 is good, rev 1218 causes glade-2 to crash on coot-gtk2.glade
 
