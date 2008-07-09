@@ -1903,8 +1903,6 @@
 							     (string-append "Transformed copy of " 
 									    (strip-path
 									     (molecule-name active-mol-mov))))
-					  (format #t "===== molecule-name ~s ~s~%"
-						  imol-copy (molecule-name imol-copy))
 					  (set-molecule-name new-map-number
 							     (string-append
 							      "Transformed map: from map "
