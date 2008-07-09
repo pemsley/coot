@@ -709,6 +709,17 @@ coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
    }
 }
 
+std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest) {
+
+   s << "[plane-restraint: " << rest.plane_id << " " << rest.dist_esd() << " {"
+     << rest.n_atoms() << " atoms} ";
+   for (unsigned int iatom=0; iatom<rest.n_atoms(); iatom++) {
+      s << ":" << rest[iatom] << ": ";
+   }
+   s << "]";
+   return s;
+}
+
 void
 coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 
