@@ -126,6 +126,17 @@ manage_refmac_column_selection(GtkWidget *w) {
    }
 }
 
+void
+store_refmac_mtz_file_label(GtkWidget *w) {
+
+  graphics_info_t::refmac_dialog_mtz_file_label = w;
+}
+
+GtkWidget *get_refmac_mtz_file_label() {
+
+  return graphics_info_t::refmac_dialog_mtz_file_label;
+}
+
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
   GtkWidget *refmac_checkbutton;

@@ -1548,10 +1548,16 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
      // (callbacks.c)
      // 
      gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(i));
-     
+
+#if (GTK_MAJOR_VERSION > 1)     
      gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
 			GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select_add_columns),
 			GINT_TO_POINTER(i));
+#else
+     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
+			GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select),
+			GINT_TO_POINTER(i));
+#endif
      gtk_menu_append(GTK_MENU(menu), menuitem);
      gtk_widget_show(menuitem);
    }
@@ -1563,6 +1569,34 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
    /* Link the new menu to the optionmenu widget */
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu),
 			    menu);
+
+}
+
+// to fill the labels directly from a from an mtz file (used in TWIN refinement)
+void
+graphics_info_t::fill_option_menu_with_refmac_twin_labels_options(GtkWidget *option_menu) {
+
+   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+   if (menu)
+      gtk_widget_destroy(menu);
+   menu = gtk_menu_new();
+
+   GtkWidget *menuitem;
+   GtkWidget *mtz_file_label = lookup_widget(option_menu, "run_refmac_mtz_file_label");
+   
+   std::vector<std::pair<int, std::string> > mtz_files;
+   // pre-select a filename if we have an old twin_mtz_file
+   for (int i=0; i<n_molecules(); i++) {
+      // first make a list with all mtz files and at the same time filter out dublicates
+      if (molecules[i].Refmac_twin_mtz_filename().size() > 0) {
+	 std::string twin_mtz_filename = molecules[i].Refmac_twin_mtz_filename();
+	 char s[200];
+	 //snprintf(s, 199, "%s", twin_mtz_filename);
+	 std::string ss(s);
+	 //	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(mtz_file_chooser), twin_mtz_filename.c_str());
+	 //fill_option_menu_with_refmac_labels_options(option_menu);
+      }
+   }
 
 }
 
@@ -1805,6 +1839,26 @@ graphics_info_t::set_refmac_use_ncs(int state) {
     g.refmac_use_ncs_flag = coot::refmac::NCS_ON;
     break;
   }
+}
+
+
+void
+graphics_info_t::add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda) {
+
+  coot::refmac::sad_atom_info_t refmac_sad_atom_info(atom_name, fp, fpp, lambda);
+  int replaced = 0;
+  for (int i=0; i<graphics_info_t::refmac_sad_atoms.size(); i++) {
+    // check for existing name
+    if (graphics_info_t::refmac_sad_atoms[i].atom_name == atom_name) {
+      graphics_info_t::refmac_sad_atoms[i] = refmac_sad_atom_info;
+      replaced = 1;
+      break;
+    }
+  }
+  if (not replaced) {
+    graphics_info_t::refmac_sad_atoms.push_back(refmac_sad_atom_info);
+  }
+
 }
 
 

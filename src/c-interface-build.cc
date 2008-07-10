@@ -2818,13 +2818,19 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		     // we do it before checking for phases, so that these can be included later
 		     coot::mtz_column_types_info_t *saved_f_phi_columns
 		       = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+		     
+		     std::string phib_string = "";
+		     std::string fom_string  = "";
+		     std::string fobs_col;
+		     std::string sigfobs_col;
+
+#if (GTK_MAJOR_VERSION > 1)
+		     // only usefull in GTK2 version
 		     if (saved_f_phi_columns->selected_refmac_fobs_col > -1 &&
 			 saved_f_phi_columns->selected_refmac_sigfobs_col > -1) {
 		       // assign the labels if we have them (from the GUI)
 		       int icol;
 		       short int sensible_r_free_col;
-		       std::string fobs_col;
-		       std::string sigfobs_col;
 		       std::string r_free_col;
 		       std::string phi_label = "";
 		       std::string fom_label = "";
@@ -2840,11 +2846,85 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		       //std::cout << "BL DEBUG:: selected fom col " << saved_f_phi_columns->selected_refmac_fom_col<<std::endl;
 		       //std::cout << "BL DEBUG:: selected hla col " << saved_f_phi_columns->selected_refmac_hla_col<<std::endl;
 
-		       icol = saved_f_phi_columns->selected_refmac_fobs_col;
-		       fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
+		       if (refmac_use_sad_state()) {
+			 // SAD F/sigF columns
+			 // we make F=/F- and sigF+/f- a list to pass to scripting refmac
+			 std::string fp_col;
+			 std::string fm_col;
+			 std::string sigfp_col;
+			 std::string sigfm_col;
+			 // F+
+			 icol = saved_f_phi_columns->selected_refmac_fp_col;
+			 fp_col = saved_f_phi_columns->fpm_cols[icol].column_label;
+			 // F-
+			 icol = saved_f_phi_columns->selected_refmac_fm_col;
+			 fm_col = saved_f_phi_columns->fpm_cols[icol].column_label;
+			 // sigF+
+			 icol = saved_f_phi_columns->selected_refmac_sigfp_col;
+			 sigfp_col = saved_f_phi_columns->sigfpm_cols[icol].column_label;
+			 // sigF+
+			 icol = saved_f_phi_columns->selected_refmac_sigfm_col;
+			 sigfm_col = saved_f_phi_columns->sigfpm_cols[icol].column_label;
+			 // make lists
+#ifdef USE_GUILE
+			 fobs_col  = "(list ";
+			 fobs_col += single_quote(fp_col);
+			 fobs_col += " ";
+			 fobs_col += single_quote(fm_col);
+			 fobs_col += ")";
+			 sigfobs_col  = "(list ";
+			 sigfobs_col += single_quote(sigfp_col);
+			 sigfobs_col += " ";
+			 sigfobs_col += single_quote(sigfm_col);
+			 sigfobs_col += ")";
+#else
+#ifdef USE_PYTHON
+			 fobs_col = "[";
+			 fobs_col += single_quote(fp_col);
+			 fobs_col += ", ";
+			 fobs_col += single_quote(fm_col);
+			 fobs_col += "]";
+			 sigfobs_col = "[";
+			 sigfobs_col += single_quote(sigfp_col);
+			 sigfobs_col += ", ";
+			 sigfobs_col += single_quote(sigfm_col);
+			 sigfobs_col += "]";
+#endif // USE_GUILE
+#endif // USE_PYTHON
+			 // now get the information about anomalous atom
+			 GtkWidget *atom_entry    = lookup_widget(window, "run_refmac_sad_atom_entry");
+			 GtkWidget *fp_entry      = lookup_widget(window, "run_refmac_sad_fp_entry");
+			 GtkWidget *fpp_entry     = lookup_widget(window, "run_refmac_sad_fpp_entry");
+			 GtkWidget *lambda_entry  = lookup_widget(window, "run_refmac_sad_lambda_entry");
+			 const gchar *atom_str   = gtk_entry_get_text(GTK_ENTRY(atom_entry));
+			 std::string fp_str     = gtk_entry_get_text(GTK_ENTRY(fp_entry));
+			 std::string fpp_str    = gtk_entry_get_text(GTK_ENTRY(fpp_entry));
+			 std::string lambda_str = gtk_entry_get_text(GTK_ENTRY(lambda_entry));
+			 float fp, fpp, lambda;
+			 if (fp_str != "") {
+			   fp = atof(fp_str.c_str());
+			 } else {
+			   fp = -9999; // magic unset
+			 }
+			 if (fpp_str != "") {
+			   fpp = atof(fpp_str.c_str());
+			 } else {
+			   fpp = -9999; // magic unset
+			 }
+			 if (lambda_str != "") {
+			   lambda = atof(lambda_str.c_str());
+			 } else {
+			   lambda = -9999; // magic unset
+			 }
+			 add_refmac_sad_atom(atom_str, fp, fpp, lambda);
 
-		       icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
-		       sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+		       } else {
+			 icol = saved_f_phi_columns->selected_refmac_fobs_col;
+			 fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
+
+			 icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
+			 sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+		       }
 
 		       icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
 		       if (icol >= 0) { 
@@ -2901,9 +2981,6 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 										       sensible_r_free_col);
 
 		     }
-
-		     std::string phib_string;
-		     std::string fom_string;
 
 		     //if (g.molecules[imol_map_refmac].Fourier_weight_label() != "") {
 		     //  phib_string = g.molecules[imol_map_refmac].Fourier_phi_label();
@@ -2967,6 +3044,7 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			 phase_combine_flag = 0;
 		       }
 		     }
+#endif // GTK2
 		     
 		     std::string cif_lib_filename = ""; // default, none
 		     if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
@@ -2982,6 +3060,7 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 				  << graphics_info_t::refmac_ccp4i_project_dir 
 				  << std::endl;
 			int run_refmac_with_no_labels = 0;
+#if (GTK_MAJOR_VERSION > 1)
 			if (refmac_runs_with_nolabels()) {
 			  GtkWidget *nolabels_checkbutton = lookup_widget(window,
 									  "run_refmac_nolabels_checkbutton");
@@ -2989,6 +3068,7 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			    run_refmac_with_no_labels = 1;
 			  }
 			}
+#endif // GTK2
 			if (run_refmac_with_no_labels) {
 			  execute_refmac_real(pdb_in_filename, pdb_out_filename,
 					      mtz_in_filename, mtz_out_filename,
@@ -3001,13 +3081,13 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 					      phase_combine_flag, phib_string, fom_string,
 					      graphics_info_t::refmac_ccp4i_project_dir);
 			} else {
-			  if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) {
-			    // normal execution with labels
+			  if (graphics_info_t::refmac_use_sad_flag) {
+			    // SAD execution (F+/F- is a string list)
 			    execute_refmac_real(pdb_in_filename, pdb_out_filename,
 						mtz_in_filename, mtz_out_filename,
 						cif_lib_filename,
-						g.molecules[imol_map_refmac].Refmac_fobs_col(),
-						g.molecules[imol_map_refmac].Refmac_sigfobs_col(),
+						fobs_col,
+						sigfobs_col,
 						g.molecules[imol_map_refmac].Refmac_r_free_col(),
 						g.molecules[imol_map_refmac].Refmac_r_free_sensible(),
 						refmac_count_string,
@@ -3017,7 +3097,24 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 						phase_combine_flag, phib_string, fom_string,
 						graphics_info_t::refmac_ccp4i_project_dir);
 			  } else {
-			    std::cout << "WARNING:: we cannot run Refmac without without valid labels" <<std::endl;
+			    if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) {
+			      // normal execution with labels
+			      execute_refmac_real(pdb_in_filename, pdb_out_filename,
+						  mtz_in_filename, mtz_out_filename,
+						  cif_lib_filename,
+						  g.molecules[imol_map_refmac].Refmac_fobs_col(),
+						  g.molecules[imol_map_refmac].Refmac_sigfobs_col(),
+						  g.molecules[imol_map_refmac].Refmac_r_free_col(),
+						  g.molecules[imol_map_refmac].Refmac_r_free_sensible(),
+						  refmac_count_string,
+						  g.swap_pre_post_refmac_map_colours_flag,
+						  imol_map_refmac,
+						  diff_map_flag,
+						  phase_combine_flag, phib_string, fom_string,
+						  graphics_info_t::refmac_ccp4i_project_dir);
+			    } else {
+			      std::cout << "WARNING:: we cannot run Refmac without without valid labels" <<std::endl;
+			    }
 			  }
 			  
 			}
@@ -3115,9 +3212,13 @@ execute_refmac_real(std::string pdb_in_filename,
    cmds.push_back(graphics_info_t::int_to_string(graphics_info_t::refmac_ncycles));
    // BL says:: again debackslash
    cmds.push_back(single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir)));
-   cmds.push_back(single_quote(fobs_col_name));
-   cmds.push_back(single_quote(sigfobs_col_name));
-
+   if (graphics_info_t::refmac_use_sad_flag && fobs_col_name != "") {
+     cmds.push_back(fobs_col_name);
+     cmds.push_back(sigfobs_col_name);
+   } else {
+     cmds.push_back(single_quote(fobs_col_name));
+     cmds.push_back(single_quote(sigfobs_col_name));
+   }
    std::cout << "DEBUG in execute_refmac_real ccp4i_project_dir :"
 	     << single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir))
 	     << ":" << std::endl;
@@ -3193,7 +3294,11 @@ void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu) {
 void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu) {
 
    graphics_info_t g;
-   g.fill_option_menu_with_refmac_labels_options(optionmenu);
+   if (refmac_use_twin_state()) {
+     g.fill_option_menu_with_refmac_twin_labels_options(optionmenu);
+   } else {
+     g.fill_option_menu_with_refmac_labels_options(optionmenu);
+   }
 
 } 
 
@@ -3340,6 +3445,98 @@ int refmac_imol_coords() {
   graphics_info_t g;
   return g.refmac_molecule;
 }
+
+/*! \brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
+  list with atom_name and  fp, and fpp (and/or wavelength),
+  -9999 to not use fp/fpp or wavelength 
+  adds a new atom or overwrites existing ones with new parameters */
+void
+add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda) {
+
+  graphics_info_t g;
+  g.add_refmac_sad_atom(atom_name, fp, fpp, lambda);
+
+}
+
+/*! \brief clear the refmac_sad_atoms list */
+void
+clear_refmac_sad_atoms() {
+
+  graphics_info_t g;
+  g.refmac_sad_atoms.clear();
+}
+
+#ifdef USE_PYTHON
+/*! \brief retrive the stored refmac_sad_atoms to be used in refmac with SAD option */
+/*  return list of e.g. [["SE", -8.0, -4.0, None], ...]  */
+PyObject *get_refmac_sad_atom_info() {
+
+  PyObject *r = PyList_New(0);
+
+  std::vector<coot::refmac::sad_atom_info_t> sad_atoms = graphics_info_t::refmac_sad_atoms;
+  for (int i=0; i<sad_atoms.size(); i++) {
+    PyObject *ls = PyList_New(0);
+    std::string atom_name = sad_atoms[i].atom_name;
+    float fp = sad_atoms[i].fp;
+    float fpp = sad_atoms[i].fpp;
+    float lambda = sad_atoms[i].lambda;
+    PyList_Append(ls, PyString_FromString(atom_name.c_str()));
+    if (fabs(fp + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(fp));
+    }
+    if (fabs(fpp + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(fpp));
+    }
+    if (fabs(lambda + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(lambda));
+    }
+    PyList_Append(r, ls);
+  }
+  return r;
+}
+#endif // USE_PYTHON
+
+void
+fill_refmac_sad_atom_entry(GtkWidget *w) {
+
+  GtkWidget *atom_entry    = lookup_widget(w, "run_refmac_sad_atom_entry");
+  GtkWidget *fp_entry      = lookup_widget(w, "run_refmac_sad_fp_entry");
+  GtkWidget *fpp_entry     = lookup_widget(w, "run_refmac_sad_fpp_entry");
+  GtkWidget *lambda_entry  = lookup_widget(w, "run_refmac_sad_lambda_entry");
+  if (graphics_info_t::refmac_sad_atoms.size() > 0) {
+    std::string atom_name  = graphics_info_t::refmac_sad_atoms[0].atom_name;
+    float fp     = graphics_info_t::refmac_sad_atoms[0].fp;
+    float fpp    = graphics_info_t::refmac_sad_atoms[0].fpp;
+    float lambda = graphics_info_t::refmac_sad_atoms[0].lambda;
+    std::string fp_str = "";
+    std::string fpp_str = "";
+    std::string lambda_str = "";
+    if (fabs(fp + 9999) >= 0.1) {
+      fp_str = graphics_info_t::float_to_string(fp);
+    } 
+    if (fabs(fpp + 9999) >= 0.1) {
+      fpp_str = graphics_info_t::float_to_string(fpp);
+    }
+    if (fabs(lambda + 9999) >= 0.1) {
+      lambda_str = graphics_info_t::float_to_string(lambda);
+    }
+    gtk_entry_set_text(GTK_ENTRY(atom_entry), atom_name.c_str());
+    gtk_entry_set_text(GTK_ENTRY(fp_entry), fp_str.c_str());
+    gtk_entry_set_text(GTK_ENTRY(fpp_entry), fpp_str.c_str());
+    gtk_entry_set_text(GTK_ENTRY(lambda_entry), lambda_str.c_str());
+  }
+
+}
+
 
 short int 
 add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *chain_id) {

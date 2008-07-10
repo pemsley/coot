@@ -221,7 +221,7 @@ coot::setup_refmac_parameters(GtkWidget *window,
   gtk_widget_show(fobs_menu);
   gtk_widget_show(sigfobs_menu);
   gtk_widget_show(r_free_menu);
-  
+
 }
 
 
@@ -235,27 +235,40 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
 
   std::string filename;
-  if (active_item == 0) {
-    add_status_bar_text("No map has associated Refmac Parameters - no REFMAC!");
-  } else { 
-    int imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
-    if (imol_window < 0) {
-      std::cout << "No map data selected for refmac\n";
+  if (graphics_info_t::refmac_use_twin_flag) {
+    GtkWidget *twin_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
+#if (GTK_MAJOR_VERSION > 1)
+    const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(twin_mtz_label));
+    filename = mtz_filename;
+#else
+    gchar **mtz_filename;
+    gtk_label_get(GTK_LABEL(twin_mtz_label), mtz_filename);
+    filename = (char *)mtz_filename;
+#endif // GTK
+    std::cout <<"BL DEBUG:: have filename from label "<< filename<<std::endl;
+  } else {
+    if (active_item == 0) {
+      add_status_bar_text("No map has associated Refmac Parameters - no REFMAC!");
     } else { 
+      int imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
+      if (imol_window < 0) {
+	std::cout << "No map data selected for refmac\n";
+      } else { 
       
-      int imol_map_refmac = imol_window;
-      if (!is_valid_map_molecule(imol_map_refmac)) {
-	std::string s = "Invalid molecule number: ";
-	s += graphics_info_t::int_to_string(imol_map_refmac);
-	std::cout << s << std::endl;
-	graphics_info_t g;
-	g.statusbar_text(s);
-      } else {
-	// just check for refmac mtz file now
-	if (graphics_info_t::molecules[imol_map_refmac].Refmac_mtz_filename().size() > 0) {
-	  filename = graphics_info_t::molecules[imol_map_refmac].Refmac_mtz_filename();
+	int imol_map_refmac = imol_window;
+	if (!is_valid_map_molecule(imol_map_refmac)) {
+	  std::string s = "Invalid molecule number: ";
+	  s += graphics_info_t::int_to_string(imol_map_refmac);
+	  std::cout << s << std::endl;
+	  graphics_info_t g;
+	  g.statusbar_text(s);
 	} else {
-	  std::cout << "No valid mtz file" <<std::endl;
+	  // just check for refmac mtz file now
+	  if (graphics_info_t::molecules[imol_map_refmac].Refmac_mtz_filename().size() > 0) {
+	    filename = graphics_info_t::molecules[imol_map_refmac].Refmac_mtz_filename();
+	  } else {
+	    std::cout << "No valid mtz file" <<std::endl;
+	  }
 	}
       }
     }

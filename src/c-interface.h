@@ -1331,6 +1331,16 @@ void add_refmac_ncycle_no(int cycle);
 void set_refmac_use_ncs(int state);
 int refmac_use_ncs_state(void);
 int refmac_imol_coords(void);
+void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda);
+void clear_refmac_sad_atoms();
+void store_refmac_mtz_file_label(GtkWidget *label);
+GtkWidget *get_refmac_mtz_file_label(void);
+void fill_refmac_sad_atom_entry(GtkWidget *widget);
+#ifdef __cplusplus
+#ifdef USE_PYTHON
+PyObject *get_refmac_sad_atom_info();
+#endif /* PYTHON */
+#endif /* c++ */
 
 /*! \brief swap the colours of maps 
 

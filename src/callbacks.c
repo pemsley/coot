@@ -3662,15 +3662,20 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
 {
   
   GtkWidget *window = create_run_refmac_dialog();
-  GtkWidget *optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(refmac_molecule_button_select);
-  GtkWidget *ncs_button      = lookup_widget(window, "run_refmac_ncs_checkbutton");
   GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
+  GtkWidget *optionmenu;
   int imol_coords = first_coords_imol();
+  /* only GTK 2!? */
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
+  GtkWidget *ncs_button = lookup_widget(window, "run_refmac_ncs_checkbutton");
+  optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
   fill_option_menu_with_refmac_methods_options(optionmenu);
 
   optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
   fill_option_menu_with_refmac_phase_input_options(optionmenu);
+#endif
 
   set_refmac_molecule(imol_coords);
 
@@ -3684,10 +3689,10 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
   /* to set the labels set the active item */
   GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
   gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
-  // FIXME: update necessary???
-  GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
 
   /* fill optionmenu for no label refmac and show if refmac version is new enough */
+  /* only GTK 2!? */
+#if (GTK_MAJOR_VERSION > 1)
   if (refmac_runs_with_nolabels()) {
     GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
     gtk_widget_show(checkbutton);
@@ -3700,6 +3705,9 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
       GtkWidget *tls_check_button = lookup_widget(window, "run_refmac_tls_checkbutton");
       GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
       GtkWidget *sad_check_button = lookup_widget(window, "run_refmac_sad_checkbutton");
+      GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
+      GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
+      store_refmac_mtz_file_label(mtz_file_label);
       if (refmac_use_tls_state()) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), TRUE);
       } else {
@@ -3708,6 +3716,7 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
       if (refmac_use_twin_state()) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
 	gtk_widget_set_sensitive(sad_check_button, FALSE);
+	gtk_widget_hide(sad_extras);
       } else {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
 	gtk_widget_set_sensitive(sad_check_button, TRUE);
@@ -3715,9 +3724,13 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
       if (refmac_use_sad_state()) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), TRUE);
 	gtk_widget_set_sensitive(twin_check_button, FALSE);
+	gtk_widget_show(sad_extras);
+	/* fill the entry with 1st existing atom */
+	fill_refmac_sad_atom_entry(window);
       } else {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), FALSE);
 	gtk_widget_set_sensitive(twin_check_button, TRUE);
+	gtk_widget_hide(sad_extras);
       }
 
       gtk_widget_show(extra_options);
@@ -3728,6 +3741,7 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
 
   optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
   fill_option_menu_with_refmac_ncycle_options(optionmenu);
+  //#endif
 
   /* set the ncs button depending on state */
   if (refmac_use_ncs_state()) {
@@ -3735,6 +3749,7 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
   } else {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), FALSE);
   }
+#endif
 
   optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
   clear_refmac_ccp4i_project();
@@ -3829,6 +3844,7 @@ on_run_refmac_phase_input_optionmenu_changed
   hl_hbox     = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_hl_hbox");
   sad_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_checkbutton");
   twin_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_twin_checkbutton");
+  GtkWidget *sad_extras = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_extra_hbox");
 
   phase_combine_flag = get_refmac_phase_input();
 
@@ -3850,7 +3866,8 @@ on_run_refmac_phase_input_optionmenu_changed
 	 so we de-sensitise and uncheck teh buttons */
       gtk_widget_set_sensitive(twin_checkbutton, FALSE);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
-      gtk_widget_set_sensitive(sad_checkbutton, FALSE);      
+      gtk_widget_set_sensitive(sad_checkbutton, FALSE);
+      gtk_widget_hide(sad_extras);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
     } else {
       gtk_widget_set_sensitive(twin_checkbutton, TRUE);
@@ -3877,6 +3894,7 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
   GtkWidget *sad_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_checkbutton");
+  GtkWidget *sad_extras = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_extra_hbox");
   GtkWidget *mtz_label  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_label");
   GtkWidget *mtz_frame  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_frame");
   GtkWidget *mtz_twin_label  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_twin_mtz_label");
@@ -3888,6 +3906,7 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
     /* de-sensitise the SAD button, no need to switch off use_sad as done in use_twin */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
     gtk_widget_set_sensitive(sad_checkbutton, FALSE);
+    gtk_widget_hide(sad_extras);
     /* hide the mtz frame and label but show the twin ones */
     gtk_widget_hide(mtz_label);
     gtk_widget_hide(mtz_frame);
@@ -3917,6 +3936,7 @@ on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
   GtkWidget *twin_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_twin_checkbutton");
+  GtkWidget *sad_extras = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_extra_hbox");
   GtkWidget *fobs_hbox  = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
   GtkWidget *fpm_hbox = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fpm_hbox");
   if (togglebutton->active) {
@@ -3924,12 +3944,16 @@ on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
     /* de-sensitise the TWIN button, no need to switch off use_twin as done in use_sad */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
     gtk_widget_set_sensitive(twin_checkbutton, FALSE);
+    gtk_widget_show(sad_extras);
+    /* fill the entry with 1st existing atom */
+    fill_refmac_sad_atom_entry(togglebutton);
     /* change label box from fobs to f+/- as SAD needs this */
     gtk_widget_hide(fobs_hbox);
     gtk_widget_show(fpm_hbox);
   } else {
     set_refmac_use_sad(0);
     gtk_widget_set_sensitive(twin_checkbutton, TRUE);
+    gtk_widget_hide(sad_extras);
     /* change label box back from f+/- to fobs for 'normal' refinement */
     gtk_widget_hide(fpm_hbox);
     gtk_widget_show(fobs_hbox);
@@ -3938,16 +3962,66 @@ on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
-on_run_refmac_twin_filechooserbutton_selection_changed
-                                        (GtkFileChooser  *filechooser,
+on_run_refmac_mtz_filechooserdialog_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
                                         gpointer         user_data)
 {
-  g_print("BL DEBUG:: we changed file selection\n");
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *mtz_fileselection;
+  mtz_fileselection = lookup_widget(GTK_WIDGET(dialog),
+				    "run_refmac_mtz_filechooserdialog");
+ if (response_id == GTK_RESPONSE_OK) {
+  const gchar *filename;
+  save_directory_from_filechooser(mtz_fileselection);
+
+  filename = gtk_file_chooser_get_filename 
+    (GTK_FILE_CHOOSER(mtz_fileselection));
+ 
+  /* do something with the filename */
+  g_print("BL DEBUG:: Selected filename %s\n", filename);
+
+  /* change the label name */
+  GtkWidget *mtz_label = get_refmac_mtz_file_label();
+  gtk_label_set_text(GTK_LABEL(mtz_label), filename);
+  manage_refmac_column_selection(mtz_label);
+ } 
+ gtk_widget_destroy(mtz_fileselection);
+#endif
 
 }
+
+
+void
+on_run_refmac_mtz_filechooserdialog_destroy
+                                        (GtkObject       *object,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *mtz_fileselection = lookup_widget(GTK_WIDGET(object),
+					       "run_refmac_mtz_filechooserdialog");
+
+  gtk_widget_destroy(mtz_fileselection);
 #endif
+
+}
+
+
+void
+on_run_refmac_mtz_filechooser_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *mtz_file_chooser;
+  mtz_file_chooser = create_run_refmac_mtz_filechooserdialog();
+  /* add file filter to filechooserbutton */
+  add_filechooser_filter_button(mtz_file_chooser, COOT_DATASET_FILE_SELECTION);
+  gtk_widget_show(mtz_file_chooser);
+#endif
+
+}
 
 
 void
@@ -3967,6 +4041,29 @@ on_run_refmac_twin_help_dialog_ok_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "run_refmac_twin_help_dialog");
+  gtk_widget_destroy(widget);
+
+}
+
+
+void
+on_run_refmac_sad_help_button_clicked  (GtkButton       *button,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *widget = create_run_refmac_sad_help_dialog();
+  gtk_widget_show(widget);
+#endif
+
+}
+
+
+void
+on_run_refmac_sad_help_dialog_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "run_refmac_sad_help_dialog");
   gtk_widget_destroy(widget);
 
 }

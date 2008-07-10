@@ -130,8 +130,12 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
     refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
 
     labin_string = ""
-    if (f_col):
-        labin_string = "LABIN FP=" + f_col + " SIGFP=" + sig_f_col
+    if (refmac_use_sad_state() and len(f_col) == 2):
+        labin_string = "LABIN F+=" + f_col[0] + " SIGF+=" + sig_f_col[0] +\
+                            " F-=" + f_col[1] + " SIGF-=" + sig_f_col[1]
+    else:
+        if (f_col):
+            labin_string = "LABIN FP=" + f_col + " SIGFP=" + sig_f_col
         
     if (r_free_col != "") :
         labin_string += " FREE=" + r_free_col
@@ -189,7 +193,34 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                        print "WARNING:: no valid refmac imol!"
            else:
                std_lines.append("NCYC " + str(force_n_cycles))
+    # TLS?
+    if (refmac_use_tls_state()):
+        tls_string = "REFI TLSC 5"
+        std_lines.append(tls_string)
 
+    # TWIN?
+    if (refmac_use_twin_state()):
+        std_lines.append("TWIN")
+
+    # SAD?
+    if (refmac_use_sad_state()):
+        sad_atom_ls = get_refmac_sad_atom_info()
+        for sad_atom in sad_atom_ls:
+            sad_string = ""
+            atom_name  = sad_atom[0]
+            fp         = sad_atom[1]
+            fpp        = sad_atom[2]
+            wavelength = sad_atom[3]
+            sad_string += "ANOM FORM " + atom_name
+            if (fp):
+                sad_string += " " + str(fp)
+            if (fpp):
+                sad_string += " " + str(fpp)
+            if (wavelength):
+                sad_string += " " + str(wavelength)
+            std_lines.append(sad_string)
+            
+    # NCS?
     if(refmac_use_ncs_state()):
         chain_ids_from_ncs = ncs_chain_ids(imol_coords)
         for ncs_set in chain_ids_from_ncs:
@@ -268,35 +299,51 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
             run_loggraph(refmac_log_file_name)
 
         # deal with R-free column
-        if (r_free_col == ""): r_free_bit = ["",0]
-        else: r_free_bit = [r_free_col,1]
-
-        args = [mtz_out_filename,"FWT","PHWT","",0,0,1,f_col,sig_f_col] + r_free_bit
+        if (r_free_col == ""):
+            r_free_bit = ["",0]
+        else:
+            r_free_bit = [r_free_col,1]
 
         recentre_status = recentre_on_read_pdb()
         novalue = set_recentre_on_read_pdb(0)
-        print "DEBUG:: recentre status: ", recentre_status
+        #print "DEBUG:: recentre status: ", recentre_status
         imol = handle_read_draw_molecule(pdb_out_filename)
 
         if (recentre_status) :
             set_recentre_on_read_pdb(1)
         set_refmac_counter(imol, imol_refmac_count + 1)
 
+        if (refmac_use_sad_state()):
+            # for now we have to assume the 'standard' name, let's see if we can do better...
+            args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, "FP", "SIGFP"] + r_free_bit
+        else:
+            args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, f_col, sig_f_col] + r_free_bit
         new_map_id = make_and_draw_map_with_refmac_params(*args) 
 
 	# set the new map as refinement map
 	set_imol_refinement_map(new_map_id)
-	# now run the refmac_log_reader to get interesting things
-	read_refmac_log(imol, refmac_log_file_name)
 
         if (swap_map_colours_post_refmac_p == 1) :
             swap_map_colours(imol_mtz_molecule, new_map_id)
 
         # difference map (flag was set):
-        if (show_diff_map_flag == 1) :
-           args = [mtz_out_filename,"DELFWT","PHDELWT","",0,1,1,f_col,sig_f_col] + r_free_bit
+        if (show_diff_map_flag == 1):
+            if (refmac_use_sad_state()):
+                # for now we have to assume the 'standard' name, let's see if we can do better...
+                args = [mtz_out_filename, "DELFWT", "PHDELWT", "", 0, 1, 1, "FP", "SIGFP"] + r_free_bit
+                make_and_draw_map_with_refmac_params(*args)
+                # make an anomalous difference map too?!
+                args = [mtz_out_filename, "FAN", "PHAN", "", 0, 1, 1, "FP", "SIGFP"] + r_free_bit
+                try:
+                    make_and_draw_map_with_refmac_params(*args)
+                except:
+                    print "BL INFO:: couldnt make the anomalous difference map."
+            else:
+                args = [mtz_out_filename, "DELFWT", "PHDELWT", "", 0, 1, 1, f_col, sig_f_col] + r_free_bit
+                make_and_draw_map_with_refmac_params(*args)
 
-           make_and_draw_map_with_refmac_params(*args)
+	# finally run the refmac_log_reader to get interesting things
+	read_refmac_log(imol, refmac_log_file_name)
 
         
             
@@ -327,7 +374,7 @@ def get_refmac_extra_params():
   try:
      f = open(extras_file_name,'r')
   except IOError:
-     print 'BL WARNING:: we dont have refmac-extra-params file'
+     print 'BL INFO:: we dont have refmac-extra-params file'
   else:
      refmac_extra_params = f.readlines()
      print 'BL INFO:: we have refmac-extra-params file and read lines'
