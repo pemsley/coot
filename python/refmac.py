@@ -130,9 +130,9 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
     refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
 
     labin_string = ""
-    if (refmac_use_sad_state() and len(f_col) == 2):
+    if (refmac_use_sad_state() and (len(f_col) == 2)):
         labin_string = "LABIN F+=" + f_col[0] + " SIGF+=" + sig_f_col[0] +\
-                            " F-=" + f_col[1] + " SIGF-=" + sig_f_col[1]
+                       " F-=" + f_col[1] + " SIGF-=" + sig_f_col[1]
     else:
         if (f_col):
             labin_string = "LABIN FP=" + f_col + " SIGFP=" + sig_f_col
@@ -204,6 +204,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
     # SAD?
     if (refmac_use_sad_state()):
+        if (not labin_string):
+            std_lines.append("REFI SAD")
         sad_atom_ls = get_refmac_sad_atom_info()
         for sad_atom in sad_atom_ls:
             sad_string = ""

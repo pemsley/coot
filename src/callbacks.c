@@ -3688,7 +3688,9 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
 
   /* to set the labels set the active item */
   GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
-  gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+  if (active_menu_item) {
+    gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+  }
 
   /* fill optionmenu for no label refmac and show if refmac version is new enough */
   /* only GTK 2!? */
@@ -3946,7 +3948,7 @@ on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
     gtk_widget_set_sensitive(twin_checkbutton, FALSE);
     gtk_widget_show(sad_extras);
     /* fill the entry with 1st existing atom */
-    fill_refmac_sad_atom_entry(togglebutton);
+    fill_refmac_sad_atom_entry(GTK_WIDGET(togglebutton));
     /* change label box from fobs to f+/- as SAD needs this */
     gtk_widget_hide(fobs_hbox);
     gtk_widget_show(fpm_hbox);
@@ -3985,7 +3987,8 @@ on_run_refmac_mtz_filechooserdialog_response
   /* change the label name */
   GtkWidget *mtz_label = get_refmac_mtz_file_label();
   gtk_label_set_text(GTK_LABEL(mtz_label), filename);
-  manage_refmac_column_selection(mtz_label);
+  GtkWidget *refmac_dialog = lookup_widget(mtz_label, "run_refmac_dialog");
+  manage_refmac_column_selection(refmac_dialog);
  } 
  gtk_widget_destroy(mtz_fileselection);
 #endif
