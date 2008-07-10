@@ -24,6 +24,22 @@
 
    o HK's 3 map crash?
 
+   o Side by stereo with (and without) display-lists for maps
+
+   o rotate/translate fragment about fragment centre fails.
+
+   o refmac-extra-params as a function need documenting.
+
+   o Ca Zone -> Mainchain on a short range should give back useful feedback.
+
+   o set-matrix state not saved in state file.
+
+   o plane restraints should be saved in state file.
+
+   o plane restraints being set in gui, dismiss dialog, open dialog ->
+     plane restraints seem unset.
+
+
 
 
 
