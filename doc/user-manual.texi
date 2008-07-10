@@ -2915,6 +2915,13 @@ refmac's input by storing them in a file called
 @code{refmac-extra-params} in the directory in which you started
 coot.
 
+You can also provide extra/replacement parameters for refmac by setting
+the variable @code{refmac-extra-params} to a list of strings, for
+example:
+
+@code{(set! refmac-extra-params (list "REFINE MATRIX 0.1" "MAKE HYDROGENS NO"))}
+
+
 Coot ``blocks'' @footnote{@emph{i.e.} Coot is idle and ignores all
   input.} until Refmac has terminated @footnote{This is not an ideal
   feature, of course and will be addressed in future@enddots{}. Digressive

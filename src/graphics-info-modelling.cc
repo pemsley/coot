@@ -1939,6 +1939,15 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
 					  rot_centre->y, 
 					  rot_centre->z);
 
+      // But! maybe we have a different rotation centre
+      if (rot_trans_zone_rotates_about_zone_centre) {
+	 if (moving_atoms_asc->n_selected_atoms  > 0) {
+	    graphics_info_t g;
+	    rotation_centre = g.moving_atoms_centre();
+	 }
+      }
+
+
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 	 clipper::Coord_orth co(moving_atoms_asc->atom_selection[i]->x,
 				moving_atoms_asc->atom_selection[i]->y,
@@ -2085,8 +2094,13 @@ graphics_info_t::execute_db_main(int imol,
       main_chain.merge_fragments();
       coot::minimol::molecule mol;
       mol.fragments.push_back(main_chain.mainchain_fragment());
-      mol.write_file("db-mainchain.pdb", 20.0); 
-      if (!mol.is_empty()) {
+      mol.write_file("db-mainchain.pdb", 20.0);
+
+      std::cout << "DEBUG:: mol.is_empty() returns " << mol.is_empty() << std::endl;
+      std::vector<coot::minimol::atom *> serial_atoms = mol.select_atoms_serial();
+      std::cout << "DEBUG:: serial_atoms.size() returns " << serial_atoms.size() << std::endl;
+      
+      if (serial_atoms.size() > 0) {
 	 std::pair<std::vector<float>, std::string> cell_spgr = 
 	    molecules[imol].get_cell_and_symm();
 	 float bf = default_new_atoms_b_factor;
@@ -2098,7 +2112,8 @@ graphics_info_t::execute_db_main(int imol,
 	 graphics_draw();
       } else {
 	 std::string s("Sorry, failed to convert that residue range.\nToo short, perhaps?");
-	 wrapped_nothing_bad_dialog(s);
+	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
+	 gtk_widget_show(w);
       }
       main_chain.clear_results();
    }

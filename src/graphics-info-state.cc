@@ -437,6 +437,16 @@ graphics_info_t::save_state_file(const std::string &filename) {
 
    // last things to do:
 
+   // was the default weight changed.  Whatever, just save the current
+   // value already.
+   commands.push_back(state_command("set-matrix", geometry_vs_map_weight, il));
+
+   // planar peptide restraints?
+   bool ps = Geom_p()->planar_peptide_restraint_state();
+   if (! ps)
+      commands.push_back(state_command("remove-planar-peptide-restraints", il));
+
+
    // environment distances?
    if (environment_show_distances) {
       commands.push_back(state_command("set-show-environment-distances",

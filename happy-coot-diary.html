@@ -10,6 +10,26 @@
     <h1>The Happy Coot Developer Diary</h1>
 
 <hr>
+    <p>Thu 10 Jul 11:10:39 2008 BST
+
+    <p>Yesterday, I was testing conformation generation for flexible
+    ligands.  That looked OK. I think when there are bonding problems
+    from using this algorithm, that occurs because Coot is sampling
+    angles from torsions in a ribose or some other ring system.  It
+    seems to me that these torsion angles should not be allowed to be
+    sampled.  But that is not something that Coot should make a
+    decision about.  Not today, anyway.
+
+    <p>Today is for putting in place test code for phi/psi angles and
+    ramachandran plot probabilities... i.e. I am beginning to tackle
+    the addition of Ramachandran restraints in real space refinement.
+
+    <p>"At long last" - you might say.
+
+    <p>(Hmmm).
+
+
+<hr>
     <p>Mon 07 Jul 16:28:37 2008 BST
     <p>OK, rotamers for residues with alt confs can be put to bed.  Horrah.  
 
@@ -440,7 +460,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Mon Jul  7 21:32:10 BST 2008
+Last modified: Thu Jul 10 11:17:17 BST 2008
 <!-- hhmts end -->
   </body>
 </html>

@@ -808,10 +808,10 @@ coot::minimol::operator<<(std::ostream& s, coot::minimol::fragment frag) {
    return s;
 }
 
-short int
+bool
 coot::minimol::molecule::is_empty() const {
 
-   short int ival = 1;
+   bool ival = 1;
    if (fragments.size() != 0)
       ival = 0;
    return ival;

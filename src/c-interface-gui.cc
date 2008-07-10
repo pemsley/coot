@@ -2012,6 +2012,8 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
    graphics_info_t g;
    GtkWidget *checkbutton =
       lookup_widget(button, "refine_params_use_torsions_checkbutton");
+   GtkWidget *planar_peptide_restraints_checkbutton =
+      lookup_widget(button, "refine_params_use_planar_peptides_checkbutton");
    GtkWidget *phi_psi_peptide_checkbutton =
       lookup_widget(button, "refine_params_use_peptide_torsions_checkbutton");
    GtkWidget *link_torsion_type_vbox =
@@ -2039,6 +2041,12 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
    } else {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(omega), FALSE);
    }
+
+   // planar peptide restraints:
+   int pps = planar_peptide_restraints_state();
+   if (pps)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(planar_peptide_restraints_checkbutton), TRUE);
+      
 
 
    // refine_params_use_helix_peptide_torsions_radiobutton
