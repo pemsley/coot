@@ -367,6 +367,10 @@
 
    o NCS bone skeleton search - like ncs6d?.  Can be punted, if needed.
 
+   o a test for write connectivity 1hd
+
+* Don't know how to test this.
+
  ------
     
     Release 0.8 [Nov 2008?]
