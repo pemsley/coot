@@ -338,7 +338,18 @@ void set_display_lists_for_maps(int istat) {
 int display_lists_for_maps_state() {
 
    return graphics_info_t::display_lists_for_maps_flag;
-} 
+}
+
+/* update the maps to the current position - rarely needed */
+void update_maps() {
+   for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
+      if (is_valid_map_molecule(ii)) { 
+	 // std::cout << "DEBUG:: updating " << ii << std::endl;
+	 graphics_info_t::molecules[ii].update_map();
+      }
+   }
+}
+
 
 
 //
@@ -622,13 +633,15 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	    gtk_widget_show(glarea);
 	    gtk_widget_show(graphics_info_t::glarea_2);
 	    graphics_draw();
+	    update_maps();
+	    graphics_draw();
 // BL says:: maybe we should set the set_display_lists_for_maps here for
 // windows, actually Mac as well if I remember correctly
 // well, it seems actually to be a GTK2 (or gtkglext) thing!!
-#if (GTK_MAJOR_VERSION > 1)
+// #if (GTK_MAJOR_VERSION > 1)
 //	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
-            set_display_lists_for_maps(0);
-#endif //GTK2
+//             set_display_lists_for_maps(0);
+// #endif //GTK2
 	 } else {
 	    std::cout << "WARNING:: switch to side by side mode failed!\n";
 	 } 
