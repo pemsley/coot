@@ -3799,6 +3799,7 @@ int refmac_runs_with_nolabels() {
 	}
      }
   }
+  Py_XDECREF(refmac_version);
 #endif
 #endif
 

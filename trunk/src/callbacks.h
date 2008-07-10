@@ -1206,10 +1206,21 @@ on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
 
 #if (GTK_MAJOR_VERSION > 1)
 void
-on_run_refmac_twin_filechooserbutton_selection_changed
-                                        (GtkFileChooser  *filechooser,
+on_run_refmac_mtz_filechooserdialog_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_mtz_filechooserdialog_destroy
+                                        (GtkObject       *object,
                                         gpointer         user_data);
 #endif
+
+void
+on_run_refmac_mtz_filechooser_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
 
 void
 on_run_refmac_twin_help_button_clicked (GtkButton       *button,
@@ -1217,6 +1228,15 @@ on_run_refmac_twin_help_button_clicked (GtkButton       *button,
 
 void
 on_run_refmac_twin_help_dialog_ok_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_sad_help_button_clicked  (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_sad_help_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 

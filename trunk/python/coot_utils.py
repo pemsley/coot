@@ -1360,6 +1360,7 @@ def pukka_puckers_qm(imol):
 show_set_undo_molecule_chooser = show_set_undo_molecule_chooser_py
 spin_search            = spin_search_py
 set_atom_attributes    = set_atom_attributes_py
+test_internal          = test_internal_py
 refmac_parameters      = refmac_parameters_py
 mark_atom_as_fixed     = mark_atom_as_fixed_py
 ccp4i_projects         = ccp4i_projects_py

@@ -500,6 +500,7 @@ class molecule_class_info_t {
    // refmac 
    short int have_sensible_refmac_params; // has public interface;
    std::string refmac_mtz_filename;
+   std::string refmac_twin_mtz_filename;
    std::string refmac_fobs_col;
    std::string refmac_sigfobs_col;
    std::string refmac_r_free_col;
@@ -1746,6 +1747,7 @@ class molecule_class_info_t {
    std::vector<coot::atom_attribute_setting_help_t> get_refmac_params() const;
 
    void store_refmac_mtz_filename(const std::string &mtz_filename);
+   void store_refmac_twin_mtz_filename(const std::string &mtz_filename);
 
    void store_refmac_phase_params(const std::string &mtz_filename,
 				  const std::string &phi,
@@ -1763,6 +1765,7 @@ class molecule_class_info_t {
    void increment_refmac_count() { refmac_count++; }
    int Refmac_count() const { return refmac_count; }
    std::string Refmac_mtz_filename() const { return refmac_mtz_filename; }
+   std::string Refmac_twin_mtz_filename() const { return refmac_twin_mtz_filename; }
    std::string Refmac_fobs_col() const { return refmac_fobs_col; }
    std::string Refmac_sigfobs_col() const { return refmac_sigfobs_col; }
    std::string Refmac_r_free_col() const { return refmac_r_free_col; }

@@ -134,6 +134,20 @@ namespace coot {
 				SAD_ON = 1};
      enum refmac_use_ncs_type { NCS_OFF = 0,
 				NCS_ON  = 1};
+     class sad_atom_info_t {
+     public:
+	std::string atom_name;
+	float fp;
+	float fpp;
+	float lambda;
+        sad_atom_info_t(std::string atom_name_in, float &fp_in,
+			float &fpp_in, float &lambda_in) {
+	  atom_name = atom_name_in;
+	  fp = fp_in;
+	  fpp = fpp_in;
+	  lambda = lambda_in;
+	}
+     };
    }
 
    void set_validation_graph(int imol, geometry_graph_type type, GtkWidget *dialog);
@@ -918,6 +932,7 @@ public:
 
       do_expose_swap_buffers_flag = 1;
 
+      refmac_dialog_mtz_file_label = NULL;
       /* set no of refmac cycles */
       preset_number_refmac_cycles = new std::vector<int>;
       preset_number_refmac_cycles->push_back(0);
@@ -2132,6 +2147,7 @@ public:
    void fill_option_menu_with_refmac_methods_options(GtkWidget *option_menu); 
    void fill_option_menu_with_refmac_phase_input_options(GtkWidget *option_menu); 
    void fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu); 
+   void fill_option_menu_with_refmac_twin_labels_options(GtkWidget *option_menu); 
    void fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_menu); 
    void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
 					  GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
@@ -2165,6 +2181,9 @@ public:
    static void set_refmac_n_cycles(int no_cycles);
    static void refmac_change_ncycles(GtkWidget *item, GtkPositionType pos);
    static void set_refmac_use_ncs(int state);
+   static std::vector<coot::refmac::sad_atom_info_t> refmac_sad_atoms;
+   static GtkWidget *refmac_dialog_mtz_file_label;
+   void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda);
    void add_refmac_ncycle_no(int &cycle);
 
    static int max_skeleton_search_depth;
