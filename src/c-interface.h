@@ -4666,7 +4666,11 @@ void set_tip_of_the_day_flag(int state);
   drivers.  Pass 1 for on, 0 for off. */
 void set_display_lists_for_maps(int i);
 
+/*! \brief return the state of display_lists_for_maps.   */
 int display_lists_for_maps_state();
+
+/* update the maps to the current position - rarely needed */
+void update_maps();
 
 /*  ----------------------------------------------------------------------- */
 /*                  Preferences Notebook                                    */
