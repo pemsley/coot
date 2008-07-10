@@ -15,3 +15,4 @@ int test_internal();
 
 int test_alt_conf_rotamers();
 int test_wiggly_ligands();
+int test_ramachandran_probabilities();
