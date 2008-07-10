@@ -26,25 +26,42 @@
 
    o Side by stereo with (and without) display-lists for maps
 
-   o rotate/translate fragment about fragment centre fails.
+   o Jan D. crash.
 
-   o refmac-extra-params as a function need documenting.
 
-   o Ca Zone -> Mainchain on a short range should give back useful feedback.
 
-   o set-matrix state not saved in state file.
 
-   o plane restraints should be saved in state file.
+
+106 Done.
+
+   o Ca Zone -> Mainchain on a short range should give back useful
+     feedback. Confirmed - needs some feedback. An info dialog (fragment
+     too short - needs to be at least 6 residues).
+
+* Done.
+
+   o rotate/translate fragment about fragment centre fails when
+     clicking on sliders.  However, by mouse control, it works.
+
+* Done.
 
    o plane restraints being set in gui, dismiss dialog, open dialog ->
      plane restraints seem unset.
 
+* Fixed.
 
+   o plane restraints should be saved in state file, if it is not the
+     default, i.e. if they are off.
 
+* Done.
 
+   o set-matrix state not saved in state file.
+ 
+* Done.
 
+   o refmac-extra-params as a function need documenting.
 
-102 Done.
+* Done.
 
    o  Need to check torsion restraints 
       and wiggly ligands

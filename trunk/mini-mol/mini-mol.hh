@@ -198,7 +198,7 @@ namespace coot {
 
 	 // Can we use fragments[0]?
 	 // 
-	 short int is_empty() const;
+	 bool is_empty() const;
 
 	 // Don't use the atomic weight.  I.e. all atoms are equally weighted.
 	 // FIXME
