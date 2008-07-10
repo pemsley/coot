@@ -54,7 +54,8 @@ class MyCMMDBManager : public CMMDBManager {
 
 // 
 //
-struct atom_selection_container_t { 
+class atom_selection_container_t { 
+ public:
   //PCMMDBManager mol; 
   MyCMMDBManager *mol;
   int n_selected_atoms; 
@@ -64,6 +65,14 @@ struct atom_selection_container_t {
   int SelectionHandle;
   int UDDAtomIndexHandle; // no negative is OK.
   int UDDOldAtomIndexHandle; // ditto. // set initially to -1 in make_asc
+  void clear_up() { 
+    if (read_success) 
+      if (SelectionHandle)
+	mol->DeleteSelection(SelectionHandle);
+    delete mol;
+    atom_selection = 0;
+    mol = 0; 
+  } 
 };
 
 // debug this struct

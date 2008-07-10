@@ -22,8 +22,10 @@
  * 02110-1301, USA
  */
 
-#include <string.h> // for strcpy
 #include <algorithm>
+#include <stdexcept>
+
+#include <string.h> // for strcpy
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "mmdb_tables.h"  // for Get1LetterCode()
@@ -4238,3 +4240,20 @@ coot::write_coords_pdb(CMMDBManager *mol, const std::string &file_name) {
 
    return r;
 }
+
+double
+coot::util::ramachandran_probability(PCResidue *residues, int n_residues) {
+
+   double p(0);
+   if (n_residues < 3)
+      throw std::runtime_error("bad number of residues");
+   for (int i_res=1; i_res<(n_residues-2); i_res++) {
+      
+      // double tors = clipper::Coord_orth::torsion(p1, p2, p3, p4);
+      // double torsion = clipper::Util::rad2d(tors);
+      
+   }
+   return p;
+}
+
+

@@ -8,9 +8,14 @@
 
 #include "mmdb-extras.h"
 #include "mmdb.h"
+
+#include "coot-coord-utils.hh"
 #include "primitive-chi-angles.hh"
 
 #include "wligand.hh"
+
+// a shorthand so that the push back line doesn't get too long:
+typedef std::pair<int(*)(), std::string> named_func;
 
 std::string greg_test(const std::string &file_name) {
 
@@ -51,27 +56,38 @@ std::string stringify(unsigned int i) {
    return o.str();
 }
 
+bool close_double(double a, double b) {
+   double small_diff = 0.00001;
+   return (fabs(a-b) < small_diff);
+}
+
+bool close_pair_test(std::pair<double, double> a, std::pair<double, double> b) {
+   return (close_double(a.first, b.first) && close_double(a.second, b.second));
+}
+
+std::ostream& operator<< (std::ostream &s, std::pair<double, double> b) {
+   s << "[" << b.first << "," << b.second << "]";
+   return s;
+} 
+
 int test_internal() {
 
    int status = 1;
+   std::vector<named_func> functions;
+   functions.push_back(named_func(test_alt_conf_rotamers, "test_alt_conf_rotamers"));
+   functions.push_back(named_func(test_wiggly_ligands, "test_wiggly_ligands"));
+   functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
 
-   try { 
-      status = test_alt_conf_rotamers();
-   }
-   catch (std::runtime_error mess) {
-      std::cout << "Failed test_alt_conf_rotamers(). " << mess.what() << std::endl;
-      status = 0; 
-   }
-   if (status) {
-      try {
-	 status = test_wiggly_ligands();
+   for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
+      try { 
+	 status = functions[i_func].first();
       }
       catch (std::runtime_error mess) {
-	 std::cout << "Failed test_wiggly_ligands(). " << mess.what() << std::endl;
-	 status = 0; 
+	 std::cout << "Failed " << functions[i_func].second << " " << mess.what() << std::endl;
+	 status = 0;
+	 break;
       }
-   }
-
+   } 
    return status; 
 }
 
@@ -173,7 +189,8 @@ int test_alt_conf_rotamers() {
       std::string mess = "file not found ";
       mess += filename;
       throw std::runtime_error(mess);
-   } 
+   }
+   atom_sel.clear_up();
 
    return status; 
 }
@@ -230,6 +247,78 @@ int test_wiggly_ligands () {
    } 
    return r;
 }
+
+int test_ramachandran_probabilities() {
+
+   int r = 0;
+
+   std::string file_name = greg_test("crashes_on_cootaneering.pdb");
+   atom_selection_container_t atom_sel = get_atom_selection(file_name);
+
+   if (! atom_sel.read_success)
+      throw std::runtime_error(file_name + ": file not found.");
+
+
+   std::vector<int> resnos;
+   resnos.push_back(12);  // fail
+   resnos.push_back(14);  // phi=-57.7411  psi=-32.0451
+   resnos.push_back(15);  // phi=-53.7037  psi=-47.837
+   resnos.push_back(16);  // phi=-57.4047  psi=-42.6739
+
+   int n_correct = 0; 
+   for (int i=0; i<resnos.size(); i++) { 
+      int selHnd = atom_sel.mol->NewSelection();
+      int nSelResidues; 
+      PCResidue *SelResidues = NULL;
+      atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
+			   "A",
+			   resnos[i]-1, "",
+			   resnos[i]+1, "",
+			   "*",  // residue name
+			   "*",  // Residue must contain this atom name?
+			   "*",  // Residue must contain this Element?
+			   "",   // altLocs
+			   SKEY_NEW // selection key
+			   );
+      atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+      // this can throw an exception:
+      try { 
+	 std::pair<double,double> angles;
+	 // coot::util::ramachandran_angles(SelResidues);
+	 
+	 std::pair<double, double> expected;
+	 if (i==1)
+	    expected = std::pair<double, double> (-57.7411, -32.0451);
+	 if (i==2)
+	    expected = std::pair<double, double> (-53.7037, -47.837);
+	 if (i==3)
+	    expected = std::pair<double, double> (-57.4047, -42.6739);
+	 
+	 bool close = close_pair_test(angles, expected);
+	 if (! close) {
+	    std::cout << " Fail on Ramachandran angle test " << angles << " should be "
+		      << expected << std::endl;
+	    r = 0;
+	    break;
+	 } 
+      }
+      catch (std::runtime_error mess) {
+	 if (i==0) {
+	    // good this is supposed to happen
+	    n_correct++; 
+	 } else {
+	 } 
+      } 
+
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+
+   if (n_correct != 4) r = 0;
+   
+   
+
+   return r;
+} 
 
 
 #endif // BUILT_IN_TESTING
