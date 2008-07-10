@@ -451,7 +451,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   }
 
 
-  /* sam as for F+/F-; Not used currently */
+  /* same as for F+/F-; Not used currently */
   /* I+, sigI+ and I-, sigI-*/
   /* assume in pair of pairs (F+,sF+,F-,sF-) */
   /* NB: we take F+,F-,sF+,sF- into account too */

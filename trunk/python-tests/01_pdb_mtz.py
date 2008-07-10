@@ -810,7 +810,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 	    atom_1 = get_atom(imol, "A", 30, " CB ")
 	    atom_2 = get_atom(imol, "A", 30, " CG ")
-	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
+	    print "  Bond-length: ", bond_length(atom_1[2], atom_2[2])
 
 	    self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 2.8, 0.6),
 			    "fail 2.8 tolerance test")
@@ -822,7 +822,13 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    atom_1 = get_atom(imol, "A", 30, " CB ")
 	    atom_2 = get_atom(imol, "A", 30, " CG ")
 
-	    print "bond-length: ", bond_length(atom_1[2], atom_2[2])
+	    post_set_plane_restraints = monomer_restraints("TYR")["_chem_comp_plane_atom"]
+
+	    atom = post_set_plane_restraints[0][1][0]
+	    self.failUnless(atom == " CB ", "FAIL plane atom %s" %atom)
+	    print "  OK plane atom ", atom
+
+	    print "  Bond-length: ", bond_length(atom_1[2], atom_2[2])
 	    self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 1.512, 0.04),
 			    "fail 1.512 tolerance test")
 	    

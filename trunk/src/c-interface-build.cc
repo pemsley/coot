@@ -2721,17 +2721,18 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
       // active_item is set if there was at least one map with refmac params:
       // if none, it is null.
       
-      if (active_item == 0) {
+      if (active_item == 0 && refmac_use_twin_state() == 0) {
 	 add_status_bar_text("No map has associated Refmac Parameters - no REFMAC!");
-      } else { 
-	 int imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
-	 if (imol_window < 0) {
+      } else {
+	if (refmac_use_twin_state() !=0) {
+	  int imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
+	  if (imol_window < 0) {
 	    std::cout << "No map data selected for refmac\n";
-	 } else { 
+	  } else { 
 	 
 	    int imol_map_refmac = imol_window;
 	    if (!is_valid_map_molecule(imol_map_refmac)) {
-	       std::string s = "Invalid molecule number: ";
+	      std::string s = "Invalid molecule number: ";
 	       s += graphics_info_t::int_to_string(imol_map_refmac);
 	       std::cout << s << std::endl;
 	       graphics_info_t g;
@@ -2896,7 +2897,7 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			 GtkWidget *fp_entry      = lookup_widget(window, "run_refmac_sad_fp_entry");
 			 GtkWidget *fpp_entry     = lookup_widget(window, "run_refmac_sad_fpp_entry");
 			 GtkWidget *lambda_entry  = lookup_widget(window, "run_refmac_sad_lambda_entry");
-			 const gchar *atom_str   = gtk_entry_get_text(GTK_ENTRY(atom_entry));
+			 const gchar *atom_str  = gtk_entry_get_text(GTK_ENTRY(atom_entry));
 			 std::string fp_str     = gtk_entry_get_text(GTK_ENTRY(fp_entry));
 			 std::string fpp_str    = gtk_entry_get_text(GTK_ENTRY(fpp_entry));
 			 std::string lambda_str = gtk_entry_get_text(GTK_ENTRY(lambda_entry));
@@ -2918,6 +2919,24 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			 }
 			 add_refmac_sad_atom(atom_str, fp, fpp, lambda);
 
+		       } else if(refmac_use_twin_state()) {
+			 // we can have either I or Fs
+			 icol = saved_f_phi_columns->selected_refmac_fobs_col;
+			 fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
+
+			 std::string iobs_col;
+			 icol = saved_f_phi_columns->selected_refmac_iobs_col;
+			 iobs_col = saved_f_phi_columns->i_cols[icol].column_label;
+
+			 icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
+			 sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+
+			 std::string sigiobs_col;
+			 icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
+			 sigiobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+			 std::cout << "BL DEBUG:: selected fs "<< fobs_col << " "<< sigfobs_col<<std::endl;
+			 std::cout << "BL DEBUG:: selected is "<< iobs_col << " "<< sigiobs_col<<std::endl;
+			 
 		       } else {
 			 icol = saved_f_phi_columns->selected_refmac_fobs_col;
 			 fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
@@ -3122,11 +3141,12 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			std::cout << "WARNING:: fatal error in writing pdb input file"
 				  << pdb_in_filename << " for refmac.  Can't run refmac"
 				  << std::endl;
-		     } 
+		     }
 		  }
-	       }
+	      }
 	    }
-	 }
+	  }
+	}
       }
    }
 }
