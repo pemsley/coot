@@ -1882,7 +1882,7 @@ molecules and can be found under @command{Calculate ->
 * Dictionary::
 * Refining Carbohydrates::
 * Planar Peptide Restraints::
-* The @t{UNK} residue type::
+* The @dfn{UNK} residue type::
 @end menu
 
 Coot will read the geometry restraints for
@@ -1975,6 +1975,7 @@ changed using the scripting function: @emph{e.g.}
 @code{(set-refine-max-residues 30)}.
 
 @subsection Dictionary
+@node Dictionary
 @cindex cif dictionary 
 @cindex mmCIF dictionary 
 By default, 
@@ -1993,6 +1994,7 @@ method if you want to read the file on more than one occasion).
 Note: the dictionary also provides the description of the ligand's
 torsions.
 
+@node       Refining Carbohydrates
 @subsection Refining Carbohydrates
 @cindex carbohydrates
 
@@ -2016,6 +2018,7 @@ not yet understood.
 
 LINK and LNKR cards are not used.
 
+@node Planar Peptide Restraints
 @subsection Planar Peptide Restraints
 @cindex planar peptide restraints
 @cindex peptide restraints, planar
@@ -2036,12 +2039,13 @@ The old way used to be to edit the Refmac
 @file{monomers/list/mon_lib_list.cif} by hand.
 
 
-@subsection The @t{UNK} residue type
-@cindex  @t{UNK} residue 
+@node The @dfn{UNK} residue type
+@subsection The @dfn{UNK} residue type
+@cindex  @dfn{UNK} residue 
 
-The @t{UNK} residue type is a special residue type to Coot.  It has
+The @dfn{UNK} residue type is a special residue type to Coot.  It has
 been added for use with Buccaneer. Don't give you ligand (or anything
-else) the 3-letter-code @t{UNK} or confusion will result
+else) the 3-letter-code @dfn{UNK} or confusion will result
 @footnote{unless you are using Buccaneer, of course}.
 
 
@@ -2692,6 +2696,7 @@ residue:
 This function can easily be bound to a key.
 
 
+@node Find Waters
 @section Find Waters
 @cindex waters, finding
 As with finding ligands, you are given a chose
@@ -3278,14 +3283,14 @@ contain observed Fs, calculated Fs and calculated phases:
 
 @itemize 
 @item @code{(read-cif-data-with-phases-fo-alpha-calc
-    @emph{cif-file-name})} Calculate an atom map using @math{F_{obs}} and
-    @math{\alpha_{calc}}
+    @emph{cif-file-name})} Calculate an atom map using @math{F_obs} and
+    @math{\alpha_calc}
 @item @code{(read-cif-data-with-phases-2fo-fc @emph{cif-file-name})}
- Calculate an atom map using @math{F_{obs}}, @math{F_{calc}} and
-  @math{\alpha_{calc}}
+ Calculate an atom map using @math{F_obs}, @math{F_calc} and
+  @math{\alpha_calc}
 @item @code{(read-cif-data-with-phases-fo-fc @emph{cif-file-name})}
- Calculate an difference map using @math{F_{obs}}, @math{F_{calc}} and
-  @math{\alpha_{calc}}.
+ Calculate an difference map using @math{F_obs}, @math{F_calc} and
+  @math{\alpha_calc}.
 @end itemize
 
 @subsection Reading PHS data
@@ -3889,7 +3894,7 @@ use the scripting function:
 
 @code{(set-residue-density-fit-scale-factor @emph{factor})}
 
-where @code{@emph{factor}} would be @math{1/(4\sigma_{map})} (as a rule
+where @code{@emph{factor}} would be @math{1/(4\sigma_map)} (as a rule
 of thumb).
 
 @code{(residue-density-fit-scale-factor)} returns the current scale
@@ -3963,10 +3968,10 @@ make it less of a pain in future, but there are some things that you can
 do now.
 
 @itemize
-@item{Add Planar Peptide Restraints} Add restraints via scripting command
-@item{Use Secondary Structure Restraints where appropriate} under Refinement Control
-@item{Check Chirals} Check Chiral Volumes regularly
-@item{Change the Weighing Scheme} @code{(set-matrix 20.0)}
+@item [Add Planar Peptide Restraints] Add restraints via scripting command
+@item [Use Secondary Structure Restraints] where appropriate under Refinement Control
+@item [Check Chirals] Check Chiral Volumes regularly
+@item [Change the Weighing Scheme] @code{(set-matrix 20.0)}
 [Default is 60, the lower the number the more the geometry is idealised]
 @end itemize
 
