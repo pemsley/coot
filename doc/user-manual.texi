@@ -1882,7 +1882,7 @@ molecules and can be found under @command{Calculate ->
 * Dictionary::
 * Refining Carbohydrates::
 * Planar Peptide Restraints::
-* The @code{UNK} residue type::
+* The UNK residue type::
 @end menu
 
 Coot will read the geometry restraints for
@@ -2040,7 +2040,7 @@ The old way used to be to edit the Refmac
 
 
 @node The UNK residue type
-@subsection The @code{UNK} residue type
+@subsection The UNK residue type
 @cindex  @code{UNK} residue 
 
 The @code{UNK} residue type is a special residue type to Coot.  It has
