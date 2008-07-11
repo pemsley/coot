@@ -2670,6 +2670,7 @@ provided the map mask).  To do so, use Merge Molecules (Section
 @ref{Merge Molecules}).
 
 
+@node Flip Ligand
 @section Flip Ligand
 @cindex ligand orientation
 
@@ -3924,6 +3925,7 @@ Note that Hydrogens are ignored in this analysis.
 * Documentation::
 * Low Resolution::
 * Coot Droppings::
+* Clearing Backups::
 * chap-hints::
 * Label Atom Only Mode::
 * Button Labels::
