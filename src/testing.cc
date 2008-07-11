@@ -10,6 +10,7 @@
 #include "mmdb.h"
 
 #include "coot-coord-utils.hh"
+#include "coot-rama.hh"
 #include "primitive-chi-angles.hh"
 
 #include "wligand.hh"
@@ -57,7 +58,7 @@ std::string stringify(unsigned int i) {
 }
 
 bool close_double(double a, double b) {
-   double small_diff = 0.00001;
+   double small_diff = 0.001;
    return (fabs(a-b) < small_diff);
 }
 
@@ -81,6 +82,8 @@ int test_internal() {
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       try { 
 	 status = functions[i_func].first();
+	 if (status == 0) 
+	    break;
       }
       catch (std::runtime_error mess) {
 	 std::cout << "Failed " << functions[i_func].second << " " << mess.what() << std::endl;
@@ -281,41 +284,42 @@ int test_ramachandran_probabilities() {
 			   SKEY_NEW // selection key
 			   );
       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-      // this can throw an exception:
+
       try { 
-	 std::pair<double,double> angles;
-	 // coot::util::ramachandran_angles(SelResidues);
+	 coot::util::phi_psi_t angles = coot::util::ramachandran_angles(SelResidues, nSelResidues);
+	 if (i > 0) { 
+	    std::pair<double,double> angles_pair(angles.phi(), angles.psi());
+	    std::pair<double, double> expected;
+	    if (i==1)
+	       expected = std::pair<double, double> (-57.7411, -32.0451);
+	    if (i==2)
+	       expected = std::pair<double, double> (-53.7037, -47.837);
+	    if (i==3)
+	       expected = std::pair<double, double> (-57.4047, -42.6739);
 	 
-	 std::pair<double, double> expected;
-	 if (i==1)
-	    expected = std::pair<double, double> (-57.7411, -32.0451);
-	 if (i==2)
-	    expected = std::pair<double, double> (-53.7037, -47.837);
-	 if (i==3)
-	    expected = std::pair<double, double> (-57.4047, -42.6739);
-	 
-	 bool close = close_pair_test(angles, expected);
-	 if (! close) {
-	    std::cout << " Fail on Ramachandran angle test " << angles << " should be "
-		      << expected << std::endl;
-	    r = 0;
-	    break;
-	 } 
+	    bool close = close_pair_test(angles_pair, expected);
+	    if (! close) {
+	       std::cout << " Fail on Ramachandran angle test " << angles << " should be "
+			 << expected << std::endl;
+	       r = 0;
+	       break;
+	    } else {
+	       n_correct++;
+	    }
+	 }
       }
       catch (std::runtime_error mess) {
-	 if (i==0) {
-	    // good this is supposed to happen
-	    n_correct++; 
-	 } else {
-	 } 
+	 if (i==0)
+	    n_correct++;
       } 
 
       atom_sel.mol->DeleteSelection(selHnd);
    }
 
-   if (n_correct != 4) r = 0;
-   
-   
+   if (n_correct != 4) {
+      std::cout << "failed to get 4 angles correct " << std::endl;
+      r = 0;
+   }
 
    return r;
 } 

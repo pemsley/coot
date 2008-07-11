@@ -219,6 +219,8 @@
 
    o Dynamic distances define need a pick cursor.
 
+   o Put refine-zone and regularize-zone into the history.
+
    o multiple residue ranges, glycosylation, covalent bond entities
   
    o Redo sequence view 

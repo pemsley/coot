@@ -6203,7 +6203,27 @@ Thu Jul  3 12:44:23 BST 2008
 
     Low priority
 
+----
+Wed Jul  9 10:56:20 BST 2008
+
+    using-active-atom macro:
+
+     (let ((active-atom (active-residue)))
+       (if (not active-residue)
+	   (add-status-bar-text "No residue found")
+	   (let ((aa-imol      (list-ref active-atom 0))
+		 (aa-chain-id  (list-ref active-atom 1))
+		 (aa-res-no    (list-ref active-atom 2))
+		 (aa-ins-code  (list-ref active-atom 3))
+		 (aa-atom-name (list-ref active-atom 4))
+		 (aa-alt-conf  (list-ref active-atom 5)))
+		 
+		 ,@funcs (or some such)
+
+		 )))
+
+* Done.
+
 -----
 Wed Jul  9 17:32:20 BST 2008
 
-    
