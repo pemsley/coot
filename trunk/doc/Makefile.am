@@ -39,11 +39,11 @@ coot-manual.ps: user-manual.dvi
 
 functions.tex: $(top_srcdir)/src/c-interface.h
 # scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
-	echo passing
+	echo passing on making function.tex
 
 functions.texi: $(top_srcdir)/src/c-interface.h
 # scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
-	echo passing
+	echo passing on making functions.texi
 
 reference.dvi: $(top_srcdir)/doc/reference.tex functions.tex
 	-latex -interaction=nonstopmode $^
