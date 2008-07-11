@@ -1,3 +1,22 @@
+/* src/main.cc
+ * 
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifndef RAMA_PLOT_HH
 #define RAMA_PLOT_HH
@@ -27,6 +46,7 @@ typedef GnomeCanvasPoints GtkCanvasPoints;
 
 #include "mmdb_manager.h"
 #include "clipper/core/ramachandran.h"
+#include "coot-rama.hh"
 
 namespace coot { 
 
@@ -69,61 +89,6 @@ namespace coot {
       // the mouseover label.
    };
    
-   class phi_psi_t {
-      
-      //
-      double phi_;
-      double psi_;
-      std::string lab;
-      //    enum residue_type {ALA,GLY,SER,THR,ASP,GLU,ASN,GLN, 
-      // 		      LEU,ILE,PHE,TYR,HIS,CYS,MET,TRP,
-      // 		      ARG,LYS,PRO,VAL,CYH};
-      std::string residue_name_;
-      
-   public:
-      int residue_number;
-      std::string ins_code;
-      phi_psi_t(double a, double b,
-		const std::string &res_name,
-		const std::string &residue_label,
-		int resno,
-		const std::string ins_code_in,
-		std::string chainid) {
-	 phi_ = a;
-	 psi_ = b;
-	 lab = residue_label;
-	 residue_name_ = res_name;
-	 residue_number = resno;
-	 ins_code = ins_code_in;
-	 chain_id = chainid; 
-      }
-      phi_psi_t() {};
-      
-      double phi() const {return phi_;}
-      double psi() const {return psi_;}
-      std::string label() const {return lab;}
-      std::string residue_name() const { return residue_name_; }
-      std::string chain_id; 
-      friend std::ostream& operator<<(std::ostream &a, coot::phi_psi_t v);
-      
-   };
-
-   std::ostream& operator<<(std::ostream &s, phi_psi_t v);
-   
-   class phi_psi_pair_helper_t {
-   public:
-      phi_psi_t first;
-      phi_psi_t second;
-      short int is_valid_pair_flag;
-      phi_psi_pair_helper_t(const phi_psi_t &f, const phi_psi_t &s, short int valid_flag) {
-	 first = f;
-	 second = s;
-	 is_valid_pair_flag = valid_flag;
-      }
-      phi_psi_pair_helper_t() {
-	 is_valid_pair_flag = 0;
-      }
-   };
 
 // class rama_matcher_score {
 
@@ -176,7 +141,7 @@ namespace coot {
 
    public:
       std::string chain_id;
-      std::vector<phi_psi_t> phi_psi;
+      std::vector<util::phi_psi_t> phi_psi;
       phi_psi_set_container(const std::string &name) {
 	 chain_id = name;
       }
@@ -287,9 +252,9 @@ class rama_plot {
 			  CMMDBManager *mol2,
 			  const std::string &chain_id_1,
 			  const std::string &chain_id_2);
-   phi_psi_t green_box;
+   util::phi_psi_t green_box;
    void draw_green_box() ; // use above stored position to draw green square
-   bool green_box_is_sensible(phi_psi_t gb) const; // have the phi and psi been set to something sensible?
+   bool green_box_is_sensible(util::phi_psi_t gb) const; // have the phi and psi been set to something sensible?
       
    
 public:
@@ -314,8 +279,8 @@ public:
 		CMMDBManager *mol1, CMMDBManager *mol2,
 		const std::string &chain_id_1, const std::string &chain_id_2);
    
-   void draw_it(const coot::phi_psi_t &phipsi);
-   void draw_it(const std::vector<coot::phi_psi_t> &phipsi);
+   void draw_it(const util::phi_psi_t &phipsi);
+   void draw_it(const std::vector<util::phi_psi_t> &phipsi);
 
    int molecule_number() { return imol; } // mapview interface
 
@@ -335,37 +300,37 @@ public:
 
    // void draw_phi_psi_point(double phi, double psi);
    int draw_phi_psi_point(int i,
-			   const std::vector<phi_psi_t> *phi_psi_vec,
-			   short int as_white_flag);
-   void draw_kleywegt_arrow(const phi_psi_t &phi_psi_primary,
-			    const phi_psi_t &phi_psi_secondary,
+			  const std::vector<util::phi_psi_t> *phi_psi_vec,
+			  short int as_white_flag);
+   void draw_kleywegt_arrow(const util::phi_psi_t &phi_psi_primary,
+			    const util::phi_psi_t &phi_psi_secondary,
 			    GtkCanvasPoints *points);
-   rama_kleywegt_wrap_info test_kleywegt_wrap(const phi_psi_t &phi_psi_primary,
-					      const phi_psi_t &phi_psi_secondary)
+   rama_kleywegt_wrap_info test_kleywegt_wrap(const util::phi_psi_t &phi_psi_primary,
+					      const util::phi_psi_t &phi_psi_secondary)
       const;
 						    
    int draw_phi_psi_point_internal(int i,
-			   const std::vector<phi_psi_t> *phi_psi_vec,
-			   short int as_white_flag, int box_size);
+				   const std::vector<util::phi_psi_t> *phi_psi_vec,
+				   short int as_white_flag, int box_size);
    rama_stats_container_t draw_phi_psi_points(int ich); // updates canvas_phi_psi_points_vec
    void big_square(int ires,
 		   const std::string &ins_code,
 		   const std::string &chainid);
 
-   void add_phi_psi(std::vector <phi_psi_t> *phi_psi_vec,
+   void add_phi_psi(std::vector <util::phi_psi_t> *phi_psi_vec,
 		    const CMMDBManager *mol, const char *chain_id,
 		    CResidue *prev, CResidue *this_res, CResidue *next_res);
 
-   phi_psi_pair_helper_t make_phi_psi_pair(CMMDBManager *mol1,
-					   CMMDBManager *mol2,
-					   const std::string &chain_id1,
-					   const std::string &chain_id2,
-					   int resno,
-					   const std::string &ins_code) const;
+   util::phi_psi_pair_helper_t make_phi_psi_pair(CMMDBManager *mol1,
+						 CMMDBManager *mol2,
+						 const std::string &chain_id1,
+						 const std::string &chain_id2,
+						 int resno,
+						 const std::string &ins_code) const;
 
    // SelResidue is guaranteed to have 3 residues (there is no protection
    // for that in this function).
-   std::pair<short int, coot::phi_psi_t> get_phi_psi(PCResidue *SelResidue) const;
+   std::pair<bool, util::phi_psi_t> get_phi_psi(PCResidue *SelResidue) const;
 
    void map_mouse_pos(double x, double y);
    void mouse_motion_notify(GdkEventMotion *event, double x, double y);
@@ -390,7 +355,7 @@ public:
    CMMDBManager *rama_get_mmdb_manager(std::string pdb_name);
    // void tooltip_like_box(int i, short int is_seconary);
    void tooltip_like_box(const mouse_util_t &t); 
-   int draw_phi_psi_as_gly(int i, const std::vector<phi_psi_t> *phi_psi_vec); 
+   int draw_phi_psi_as_gly(int i, const std::vector<util::phi_psi_t> *phi_psi_vec); 
    void residue_type_background_as(std::string res);
    void all_plot(clipper::Ramachandran::TYPE type);
 

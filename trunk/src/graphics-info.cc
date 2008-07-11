@@ -4723,8 +4723,8 @@ graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
       coot::rama_plot *plot = new coot::rama_plot;
 
       plot->init("phi/psi-edit");  // magic string
-      coot::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
-			     "moving residue", 1, "inscode", "chainid");
+      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
+				   "moving residue", 1, "inscode", "chainid");
       plot->draw_it(phipsi);
       
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
@@ -4763,8 +4763,8 @@ graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
       label = int_to_string(resno);
       label += chain_id;
 
-      coot::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
-			     label, 1, "inscode", "chainid");
+      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
+				   label, 1, "inscode", "chainid");
       edit_phi_psi_plot->draw_it(phipsi);
       
    }
@@ -4791,8 +4791,8 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
       label = int_to_string(resno);
       label += chain_id;
 
-      coot::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
-			     label, 1, "inscode", "chainid");
+      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
+				   label, 1, "inscode", "chainid");
       edit_phi_psi_plot->draw_it(phipsi);
       
    }
@@ -5654,21 +5654,21 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
       if (edit_phi_psi_plot) { 
-	 std::vector <coot::phi_psi_t> vp;
+	 std::vector <coot::util::phi_psi_t> vp;
 	 std::string label = int_to_string(c_atom_p->GetSeqNum());
 	 if (pp.first.first > -200) { 
 	    label += c_atom_p->GetChainID();
-	    coot::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
-				    clipper::Util::rad2d(pp.first.second),
-				    "resname", label, 1, "inscode", "chainid");
+	    coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
+					  clipper::Util::rad2d(pp.first.second),
+					  "resname", label, 1, "inscode", "chainid");
 	    vp.push_back(phipsi1);
 	 }
 	 if (pp.second.first > -200) { 
 	    label = int_to_string(n_atom_p->GetSeqNum());
 	    label += n_atom_p->GetChainID();
-	    coot::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
-				    clipper::Util::rad2d(pp.second.second),
-				    "resname", label, 1, "inscode", "chainid");
+	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
+					  clipper::Util::rad2d(pp.second.second),
+					  "resname", label, 1, "inscode", "chainid");
 
 	    vp.push_back(phipsi2);
 	 }
@@ -5730,21 +5730,21 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
       if (edit_phi_psi_plot) { 
-	 std::vector <coot::phi_psi_t> vp;
+	 std::vector <coot::util::phi_psi_t> vp;
 	 std::string label = int_to_string(c_atom_p->GetSeqNum());
 	 if (pp.first.first > -200) { 
 	    label += c_atom_p->GetChainID();
-	    coot::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
-				    clipper::Util::rad2d(pp.first.second),
-				    "resname", label, 1, "inscode", "chainid");
+	    coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
+					  clipper::Util::rad2d(pp.first.second),
+					  "resname", label, 1, "inscode", "chainid");
 	    vp.push_back(phipsi1);
 	 }
 	 if (pp.second.first > -200) { 
 	    label = int_to_string(n_atom_p->GetSeqNum());
 	    label += n_atom_p->GetChainID();
-	    coot::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
-				    clipper::Util::rad2d(pp.second.second),
-				    "resname", label, 1, "inscode", "chainid");
+	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
+					  clipper::Util::rad2d(pp.second.second),
+					  "resname", label, 1, "inscode", "chainid");
 
 	    vp.push_back(phipsi2);
 	 }
@@ -5808,17 +5808,17 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    if (edit_phi_psi_plot) { 
-      std::vector <coot::phi_psi_t> vp;
+      std::vector <coot::util::phi_psi_t> vp;
       std::string label = int_to_string(c_atom_p->GetSeqNum());
       label += c_atom_p->GetChainID();
-      coot::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
-			      clipper::Util::rad2d(pp.first.second),
-			      "resname", label, 1, "inscode", "chainid");
+      coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
+				    clipper::Util::rad2d(pp.first.second),
+				    "resname", label, 1, "inscode", "chainid");
       label = int_to_string(n_atom_p->GetSeqNum());
       label += n_atom_p->GetChainID();
-      coot::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
-			      clipper::Util::rad2d(pp.second.second),
-			      "resname", label, 1, "inscode", "chainid");
+      coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
+				    clipper::Util::rad2d(pp.second.second),
+				    "resname", label, 1, "inscode", "chainid");
 
       vp.push_back(phipsi1);
       vp.push_back(phipsi2);
@@ -5947,17 +5947,17 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    if (edit_phi_psi_plot) { 
-      std::vector <coot::phi_psi_t> vp;
+      std::vector <coot::util::phi_psi_t> vp;
       std::string label = int_to_string(c_atom_p->GetSeqNum());
       label += c_atom_p->GetChainID();
-      coot::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
-			      clipper::Util::rad2d(pp.first.second),
-			      "resname", label, 1, "inscode", "chainid");
+      coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
+				    clipper::Util::rad2d(pp.first.second),
+				    "resname", label, 1, "inscode", "chainid");
       label = int_to_string(n_atom_p->GetSeqNum());
       label += n_atom_p->GetChainID();
-      coot::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
-			      clipper::Util::rad2d(pp.second.second),
-			      "resname", label, 1, "inscode", "chainid");
+      coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
+				    clipper::Util::rad2d(pp.second.second),
+				    "resname", label, 1, "inscode", "chainid");
 
       vp.push_back(phipsi1);
       vp.push_back(phipsi2);

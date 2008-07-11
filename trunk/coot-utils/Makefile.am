@@ -29,7 +29,8 @@ lib_LTLIBRARIES=libcoot-utils.la libcoot-map-utils.la libcoot-coord-utils.la  li
 
 include_HEADERS = coot-utils.hh peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
-	coot-fasta.hh coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh
+	coot-fasta.hh coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
+	coot-rama.hh
 
 INCLUDES = \
 	-I$(top_srcdir)/coords  	\
@@ -49,7 +50,7 @@ libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
-	coot-coord-utils-nucleotides.cc
+	coot-coord-utils-nucleotides.cc coot-rama.cc
 
 # shelx
 libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
