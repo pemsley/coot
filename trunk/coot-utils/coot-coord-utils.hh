@@ -759,24 +759,6 @@ namespace coot {
       // remove wrong cis_peptides
       void remove_wrong_cis_peptides(CMMDBManager *mol);
 
-      // What is the clipper Ramachandran probability of these
-      // residues?  Return a vector of length n_residues-2.  Or throw
-      // an exception if we can't get values.  The residues passes
-      // should be in order so that n-1, n, n+1 form a triplet from
-      // which phi and psi can be extracted.
-      //
-      // Alt confs are currently ignored.  So we only return one
-      // phi,psi pair.  Return angles in degrees.
-      // 
-      double
-      ramachandran_probability(PCResidue *residues, int n_residues);
-
-      // throw an exception if we can't get the values
-      // phi_psi_t
-      // ramachandran_probabilities(PCResidue *residues);
-      
-      
-
    }
    std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);
    std::ofstream& operator<<(std::ofstream& s, const util::quaternion &q);

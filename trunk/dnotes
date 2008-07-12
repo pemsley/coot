@@ -28,6 +28,9 @@
 
    o Jan D. crash.
 
+   o put the manual in Oxford.
+
+   o "key bindings" in the manual needs to be updated.
 
 
 
@@ -6226,4 +6229,6 @@ Wed Jul  9 10:56:20 BST 2008
 
 -----
 Wed Jul  9 17:32:20 BST 2008
+
+    Better document anti-aliasing for Nvida driver nvidia-settings.
 
