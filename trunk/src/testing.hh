@@ -4,6 +4,9 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "mmdb-extras.h"
+#include "mmdb.h"
+
 #define BUILT_IN_TESTING
 
 std::string stringify(double x);
@@ -16,3 +19,13 @@ int test_internal();
 int test_alt_conf_rotamers();
 int test_wiggly_ligands();
 int test_ramachandran_probabilities();
+
+class residue_selection_t {
+public:
+   CMMDBManager *mol;
+   int nSelResidues;
+   PCResidue *SelResidues;
+   int SelectionHandle;
+};
+
+

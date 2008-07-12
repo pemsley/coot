@@ -6,14 +6,14 @@
 #include <iostream>
 #include <sstream>
 
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "clipper/core/ramachandran.h"
 
 #include "coot-coord-utils.hh"
 #include "coot-rama.hh"
 #include "primitive-chi-angles.hh"
 
 #include "wligand.hh"
+#include "simple-restraint.hh"
 
 // a shorthand so that the push back line doesn't get too long:
 typedef std::pair<int(*)(), std::string> named_func;
@@ -80,6 +80,7 @@ int test_internal() {
    functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
+      std::cout << "Entering test: " << functions[i_func].second << std::endl;
       try { 
 	 status = functions[i_func].first();
 	 if (status == 0) 
@@ -251,6 +252,90 @@ int test_wiggly_ligands () {
    return r;
 }
 
+// Return a new mol, and a residue selection.  Delete the residue
+// selection and mol when you are done with it.
+// 
+residue_selection_t
+test_ramachandran_probabilities_refine_fragment(atom_selection_container_t atom_sel,
+						PCResidue *SelResidues,
+						int nSelResidues,
+						const std::string &chain_id,
+						int resno_mid,
+						coot::protein_geometry geom,
+						bool enable_rama_refinement) {
+
+   
+   // now refine a bit of structure:
+   std::vector<coot::atom_spec_t> fixed_atom_specs;
+   short int have_flanking_residue_at_start = 0;
+   short int have_flanking_residue_at_end = 0;
+   short int have_disulfide_residues = 0;  // other residues are included in the
+   std::string altconf = "";
+   short int in_alt_conf_split_flag = 0;
+   char *chn = (char *) chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
+	       
+   std::pair<CMMDBManager *, int> residues_mol_pair = 
+      coot::util::create_mmdbmanager_from_res_selection(atom_sel.mol,
+							SelResidues, nSelResidues, 
+							have_flanking_residue_at_start,
+							have_flanking_residue_at_end,
+							altconf,
+							chain_id,
+							in_alt_conf_split_flag);
+   
+   coot::restraints_container_t restraints(resno_mid-1,
+					   resno_mid+1,
+					   have_flanking_residue_at_start,
+					   have_flanking_residue_at_end,
+					   have_disulfide_residues,
+					   altconf,
+					   chn,
+					   residues_mol_pair.first,
+					   fixed_atom_specs);
+
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   short int do_peptide_torsion_restraints =
+      coot::restraints_container_t::LINK_TORSION_RAMACHANDRAN_GOODNESS;
+   short int do_rama_restraints = 1;
+   short int do_residue_internal_torsions = 0;
+   short int do_link_torsions = 1;
+   float rama_plot_restraint_weight = 1.0;
+	       
+   coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+   int nrestraints = 
+      restraints.make_restraints(geom, flags,
+				 do_residue_internal_torsions,
+				 do_link_torsions,
+				 rama_plot_restraint_weight,
+				 do_rama_restraints,
+				 pseudos);
+   restraints.minimize(flags);
+
+   int post_refine_selHnd = residues_mol_pair.first->NewSelection();
+   int post_refine_nSelResidues; 
+   PCResidue *post_refine_SelResidues = NULL;
+   residues_mol_pair.first->Select(post_refine_selHnd, STYPE_RESIDUE, 0,
+				   chn,
+				   resno_mid-1, "",
+				   resno_mid+1, "",
+				   "*",  // residue name
+				   "*",  // Residue must contain this atom name?
+				   "*",  // Residue must contain this Element?
+				   "",   // altLocs
+				   SKEY_NEW // selection key
+				   );
+   residues_mol_pair.first->GetSelIndex(post_refine_selHnd,
+					post_refine_SelResidues,
+					post_refine_nSelResidues);
+
+   residue_selection_t res_sel;
+   res_sel.mol = residues_mol_pair.first;
+   res_sel.SelectionHandle = post_refine_selHnd;
+   res_sel.nSelResidues = post_refine_nSelResidues;
+   res_sel.SelResidues = post_refine_SelResidues;
+   return res_sel;
+} 
+
 int test_ramachandran_probabilities() {
 
    int r = 0;
@@ -262,19 +347,23 @@ int test_ramachandran_probabilities() {
       throw std::runtime_error(file_name + ": file not found.");
 
 
+   std::string chain_id = "A";
+   char *chn = (char *) chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
    std::vector<int> resnos;
    resnos.push_back(12);  // fail
    resnos.push_back(14);  // phi=-57.7411  psi=-32.0451
    resnos.push_back(15);  // phi=-53.7037  psi=-47.837
    resnos.push_back(16);  // phi=-57.4047  psi=-42.6739
 
+   coot::protein_geometry geom;
+   geom.init_standard();
    int n_correct = 0; 
    for (int i=0; i<resnos.size(); i++) { 
       int selHnd = atom_sel.mol->NewSelection();
       int nSelResidues; 
       PCResidue *SelResidues = NULL;
       atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
-			   "A",
+			   chn,
 			   resnos[i]-1, "",
 			   resnos[i]+1, "",
 			   "*",  // residue name
@@ -287,6 +376,9 @@ int test_ramachandran_probabilities() {
 
       try { 
 	 coot::util::phi_psi_t angles = coot::util::ramachandran_angles(SelResidues, nSelResidues);
+	 for (int ires=0; ires<3; ires++) 
+	    geom.try_dynamic_add(SelResidues[ires]->GetResName(), ires);
+
 	 if (i > 0) { 
 	    std::pair<double,double> angles_pair(angles.phi(), angles.psi());
 	    std::pair<double, double> expected;
@@ -304,13 +396,80 @@ int test_ramachandran_probabilities() {
 	       r = 0;
 	       break;
 	    } else {
+
+	       // get the probability
+	       std::string residue_type = SelResidues[1]->GetResName();
+
+	       clipper::Ramachandran::TYPE rama_type = clipper::Ramachandran::NonGlyPro;
+	       if (residue_type == "GLY")
+		  rama_type = clipper::Ramachandran::Gly;
+	       if (residue_type == "PRO")
+		  rama_type = clipper::Ramachandran::Pro;
+	       clipper::Ramachandran rama(rama_type);
+
+	       double prob = rama.probability(clipper::Util::d2rad(angles.phi()),
+					      clipper::Util::d2rad(angles.psi()));
+
+	       int enable_rama_refinement = 0;
+	       residue_selection_t refined_res_sel =
+		  test_ramachandran_probabilities_refine_fragment(atom_sel, SelResidues, nSelResidues,
+								  chain_id, resnos[i], geom,
+								  enable_rama_refinement);
+	       
+
+	       if (0) { 
+		  // Let's look at the refined structure. Write them out as pdb files ;-/
+		  std::string tmp_file_name = "rama-test-";
+		  tmp_file_name += coot::util::int_to_string(i);
+		  tmp_file_name += ".pdb";
+		  refined_res_sel.mol->WritePDBASCII((char *)tmp_file_name.c_str());
+	       }
+
+	       coot::util::phi_psi_t post_refine_angles =
+		  coot::util::ramachandran_angles(refined_res_sel.SelResidues, refined_res_sel.nSelResidues);
+	       refined_res_sel.mol->DeleteSelection(refined_res_sel.SelectionHandle);
+	       delete refined_res_sel.mol;
+	       refined_res_sel.mol = 0;
+	       
+	       double post_refine_prob =
+		  rama.probability(clipper::Util::d2rad(post_refine_angles.phi()),
+				   clipper::Util::d2rad(post_refine_angles.psi()));
+
+	       // now with Ramachandran refinement:
+	       //
+	       enable_rama_refinement = 1;
+	       residue_selection_t rama_refined_res_sel =
+		  test_ramachandran_probabilities_refine_fragment(atom_sel, SelResidues, nSelResidues,
+								  chain_id, resnos[i], geom,
+								  enable_rama_refinement);
+	       coot::util::phi_psi_t rama_refine_angles =
+		  coot::util::ramachandran_angles(rama_refined_res_sel.SelResidues,
+						  rama_refined_res_sel.nSelResidues);
+	       rama_refined_res_sel.mol->DeleteSelection(rama_refined_res_sel.SelectionHandle);
+	       delete rama_refined_res_sel.mol;
+	       rama_refined_res_sel.mol = 0;
+	       
+	       double rama_refine_prob =
+		  rama.probability(clipper::Util::d2rad(rama_refine_angles.phi()),
+				   clipper::Util::d2rad(rama_refine_angles.psi()));
+	       std::cout << "--------------------------------------\n";
+	       std::cout << "Pre-refine         Rama probability residue " << resnos[i] << ": "
+			 << prob << std::endl;
+	       std::cout << "Post-simple refine Rama probability residue " << resnos[i] << ": "
+			 << post_refine_prob << std::endl;
+	       std::cout << "Post-Rama   refine Rama probability residue " << resnos[i] << ": "
+			 << rama_refine_prob << std::endl;
+	       std::cout << "--------------------------------------\n";
+
 	       n_correct++;
 	    }
 	 }
       }
       catch (std::runtime_error mess) {
-	 if (i==0)
+	 if (i==0) { 
+	    // std::cout << "resno set " << i << " was correct " << std::endl;
 	    n_correct++;
+	 }
       } 
 
       atom_sel.mol->DeleteSelection(selHnd);
@@ -319,7 +478,10 @@ int test_ramachandran_probabilities() {
    if (n_correct != 4) {
       std::cout << "Failed to get 4 rama angles correct " << std::endl;
       r = 0;
-   }
+   } else {
+      r = 1;  // return success.
+      // std::cout << "n_correct is 4" << std::endl;
+   } 
 
    return r;
 } 
