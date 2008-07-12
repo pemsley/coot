@@ -317,7 +317,7 @@ int test_ramachandran_probabilities() {
    }
 
    if (n_correct != 4) {
-      std::cout << "failed to get 4 angles correct " << std::endl;
+      std::cout << "Failed to get 4 rama angles correct " << std::endl;
       r = 0;
    }
 

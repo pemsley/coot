@@ -170,7 +170,7 @@ Please also cite the primary literature for the received structures.
 
 Coot is a molecular graphics application. Its primary focus is
 crystallographic macromolecular model-building and manipulation rather
-than representation @emph{i.e.} more like Frodo than Rasmol
+than representation @emph{i.e.} more like Frodo than Rasmol.
 @c @cindex{Rasmol}.  
 Having said that, Coot can work with small molecule (SHELXL) and elecron
 microscopy data, be used for homology modelling, make passably pretty
@@ -250,8 +250,7 @@ behaviour.
   The directory containing a set of high-quality structures to be used
   as templates for fitting beta strands.  If this is not set, then the
   directory COOT_REF_SEC_STRUCTS will be used to find the reference pdb
-  files.  That doesn't do any good currently.  The files in
-  COOT_REF_STRUCTS are not sufficiently well annotated.
+  files.  
 @item @env{COOT_REFMAC_LIB_DIR} 
 @cindex dictionary, cif 
   Refmac's CIF directory containing the monomers and link descriptions.
@@ -319,9 +318,6 @@ general and other projects which are important for Coot @footnote{coot
   has several influences and dependencies, but these will not be
   discussed here in the User Manual.}.
 
-The web page also contains an example ``setup'' file which assigns the
-environment variables to change the behaviour of Coot.
-
 @node Crash
 @section Crash
 @cindex crash
@@ -329,6 +325,7 @@ Coot might crash on you - it shouldn't.
 
 @cindex recover session
 @cindex crash recovery
+Whenever Coot manipulates the model, it saves a backup pdb file.
 There are backup files in
 the directory @t{coot-backup} @footnote{COOT_BACKUP_DIR is used
   in preference if set}. You can recover the session (until the last
@@ -390,7 +387,6 @@ See also Chapter @ref{chap-hints} for more help.
 @menu
 * Next Residue::
 * Keyboard Contouring::
-* Keyboard Rotation::
 * Mouse Z Translation::
 * Keyboard Z Translation::
 * Keyboard Zoom and Clip::
@@ -418,42 +414,6 @@ See also ``Recentring View'' (Section @ref{Recentring View}).
 Use @key{+} or @key{-} on the keyboard if you don't have a
 scroll-wheel.
 
-@node Keyboard Rotation
-@section Keyboard Rotation
-@c @cindex{keyboard rotation}
-By popular request keyboard equivalents of
-rotations have been added @footnote{particularly for those with
-  PowerMates (the amount of rotation can be changed to 2 degrees (from
-  the default 1 degree) using @code{(set-idle-function-rotate-angle
-    2.0)}).}: 
-
-@table @command
-@item  Q 
- Rotate + X Axis
-@item  W
- Rotate - X Axis
-@item  E
- Rotate + Y Axis
-@item  R
- Rotate - Y Axis
-@item  T
- Rotate + Z Axis
-@item  Y
- Rotate - Z Axis
-@item  I
- Continuous Y Axis Rotation
-@item  U
- Undo Last Navigation Move
-@end table
-
-
-@c % document rotate-x-screen nsteps step-size here?
-
-@c Mouse translation and mouse zoom and clip here
-@c     Shift Right-Mouse Drag & Change clipping and Translate in Screen Z \\
-@c     & The movement is along orthogonal axes: \\
-@c     & up+right/down+left shifts in z, \\ 
-@c     & up+left/down+right changes the slab \\
 
 @node Mouse Z Translation
 @section Mouse Z Translation and Clipping

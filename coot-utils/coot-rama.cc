@@ -24,6 +24,7 @@
 #include "coot-utils.hh"
 #include "coot-rama.hh"
 #include "clipper/core/coords.h"
+#include "clipper/core/ramachandran.h"
 
 std::ostream& coot::util::operator<<(std::ostream &s, coot::util::phi_psi_t v) {
 

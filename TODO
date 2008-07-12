@@ -207,6 +207,11 @@
 
 * see what cootbb says...  Bill says add it (currently is skipped).
 
+   o Bill: This might be hard to implement, but in case it isn't, I
+     thought it might be worth suggesting...
+
+     It would be great to be able to click on a nucleotide base in a
+     single strand of DNA or RNA and generate its W/C partner...
 
    o Use libglade
 
