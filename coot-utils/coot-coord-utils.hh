@@ -579,7 +579,7 @@ namespace coot {
       // Note: there is now a molecule-class-info version of this - perhaps
       // we should call it?  Next bug fix here: move over to the function call.
       // 
-      // We need to pass orig_mol because of atom index transfer
+      // We pass the original molecule because here we do atom index transfer.
       // 
       std::pair<CMMDBManager *, int>
       create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol, 
