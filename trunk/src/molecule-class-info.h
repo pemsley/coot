@@ -824,12 +824,12 @@ class molecule_class_info_t {
       map_min_ = -100.0;
 
       // fourier (for phase recombination (potentially) in refmac:
-      fourier_weight_label = std::string(""); // unset initially.
+      fourier_weight_label = ""; // unset initially.
 
       // HL coeff and phi (for phase recombination (potentially) in refmac:
       // should be enough to unset the first one for testing for HL
-      refmac_phi_col = std::string(""); // unset initially.
-      refmac_hla_col = std::string(""); // unset initially.
+      refmac_phi_col = ""; // unset initially.
+      refmac_hla_col = ""; // unset initially.
 
       // 
       colour_skeleton_by_random = 0;
