@@ -4044,7 +4044,18 @@ int test_function(int i, int j) {
 //    g.wrapped_create_symmetry_controller_dialog();
 //    return 0;
 
-   if (1) {
+   if (1) { 
+      if (graphics_info_t::use_graphics_interface_flag) { 
+	 GtkWidget *w = lookup_widget(graphics_info_t::glarea, "main_window_model_fit_dialog_frame");
+	 if (!w) {
+	    std::cout << "failed to lookup toolbar" << std::endl;
+	 } else {
+	    gtk_widget_hide(w);
+	 }
+      }
+   }
+
+   if (0) {
       graphics_info_t::molecules[i].test_function();
    } 
 
