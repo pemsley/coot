@@ -49,6 +49,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     CMMDBManager *mol_in, 
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
+   lograma.init(LogRamachandran::All, 2.0, true);
    init_from_mol(istart_res_in, iend_res_in, 
 		 have_flanking_residue_at_start, 
 		 have_flanking_residue_at_end,
@@ -61,6 +62,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 // 
 coot::restraints_container_t::restraints_container_t(atom_selection_container_t asc_in,
 						     const std::string &chain_id) { 
+   lograma.init(LogRamachandran::All, 2.0, true);
    verbose_geometry_reporting = 0;
    mol = asc_in.mol;
    include_map_terms_flag = 0;
@@ -132,6 +134,7 @@ coot::restraints_container_t::restraints_container_t(PCResidue *SelResidues, int
 						     const std::string &chain_id,
 						     CMMDBManager *mol_in) { 
    
+   lograma.init(LogRamachandran::All, 2.0, true);
    std::vector<coot::atom_spec_t> fixed_atoms_dummy;
    int istart_res = 999999;
    int iend_res = -9999999;
@@ -171,6 +174,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const clipper::Xmap<float> &map_in,
 						     float map_weight_in) {
 
+   lograma.init(LogRamachandran::All, 2.0, true);
    init_from_mol(istart_res_in, iend_res_in, 		 
 		 have_flanking_residue_at_start, 
 		 have_flanking_residue_at_end,
@@ -1172,6 +1176,10 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
       + clipper::Coord_orth::dot(a,b)*clipper::Coord_orth::dot(b,c);
 
    double psi = clipper::Util::rad2d(atan2(E,G));
+   if (psi < 180.0)
+      psi += 360.0;
+   if (psi > 180.0)
+      psi -= 360.0;
 
    // ---------- phi ------------------
    // b*b * [ a.(bxc)/b ]
@@ -1183,10 +1191,15 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
       + clipper::Coord_orth::dot(c,d)*clipper::Coord_orth::dot(d,e);
 
    double phi = clipper::Util::rad2d(atan2(H,I));
+   if (phi < 180.0)
+      phi += 360.0;
+   if (phi > 180.0)
+      phi -= 360.0;
 
-   double R = -pow(10.0, 10.0) * lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   std::cout << "rama distortion for " << phi << " " << psi << std::endl;
+   double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   double R = -pow(2.0, 2.0) * lr;
    std::cout << "rama distortion for " << phi << " " << psi << " is " << R << std::endl;
-
 
    if ( clipper::Util::isnan(phi) ) {
       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;

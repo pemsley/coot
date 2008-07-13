@@ -108,6 +108,7 @@ coot::sequence_assignment::side_chain_name_index_to_name(const side_chain_name_i
 //       GLN, GLU, HIS, ILE, LEU, LYS, MET, PHE, TYR,
 //       TRP, ARG
 
+   return "";
 }
 
 
@@ -556,7 +557,8 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(const std::string 
 							      int resno,
 							      const coot::sequence_assignment::side_chain_name_index &idx) {
 
-   float f;
+   float f = 0; // unset
+   
    // First find the standard residue matched to the position of resno.
    // Then do an auto-fit rotamer on it - which returns a score.
 
@@ -575,8 +577,6 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(const std::string 
    // Between them these functions will fill the table.
    //
    
-   
-
    return f;
 }
 
@@ -711,7 +711,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	    int consecutive_ala_count = 0;
 	    std::string chain_id = chain_p->GetChainID();
 	    int iassigned;
-	    int start_resno;
+	    int start_resno = -1; // unset
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       int this_resno = residue_p->seqNum;
@@ -797,8 +797,8 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
 	    } else { 
 	       int nres = chain_p->GetNumberOfResidues();
 	       PCResidue residue_p;
-	       PCResidue save_res1;
-	       PCResidue save_res2;
+	       PCResidue save_res1 = 0; // unset
+	       PCResidue save_res2 = 0; // unset
 	       int consecutive_ala_count = 0;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);

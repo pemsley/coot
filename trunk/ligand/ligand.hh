@@ -44,17 +44,21 @@ namespace coot {
       int n_ligand_atoms; // non-H.
       int ligand_no;
    public:
-      ligand_score_card() {
-	 score = 0;
-	 many_atoms_fit = 0;
-      }
-      void set_ligand_number(int ilig) {
-	 ligand_no = ilig;
-      }
       // consider using a member function here:
       short int many_atoms_fit;
       double score;
       double score_per_atom;
+      
+      ligand_score_card() {
+	 ligand_no = -1; // unset
+	 score = 0.0;
+	 many_atoms_fit = 0;
+	 n_ligand_atoms = 0;
+	 score_per_atom = 0.0;
+      }
+      void set_ligand_number(int ilig) {
+	 ligand_no = ilig;
+      }
    };
 
    // Trivial class so that we can pass the (best orientation) ligand

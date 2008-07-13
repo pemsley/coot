@@ -216,11 +216,12 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 		  // We currently want to stop adding chem comp info
 		  // if the chem_comp info comes from mon_lib_list.cif:
-		  if (cat_name == "_chem_comp")
+		  if (cat_name == "_chem_comp") { 
 		     if (read_number_in != coot::protein_geometry::MON_LIB_LIST_CIF)
 			chem_comp(mmCIFLoop);
 		     else
 			simple_mon_lib_chem_comp(mmCIFLoop);
+		  }
 		  
 		  // monomer info, name, number of atoms etc.
 		  if (cat_name == "_chem_comp_atom")

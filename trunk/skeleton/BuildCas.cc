@@ -782,11 +782,11 @@ BuildCas::peak_search_distance(coot::Cartesian previous_atom,
    // 
    float prebuilt_exclusion_score_val = prebuilt_exclusion_score(point);
 
-   float save_deviation_from_ideal_length_score; 
-   float save_branch_point_proximity_score; 
+   float save_deviation_from_ideal_length_score = 0.0; 
+   float save_branch_point_proximity_score = 0.0; 
 
-   float save_prebuilt_exclusion_score; 
-   float save_segment_score; 
+   float save_prebuilt_exclusion_score = 0.0;
+   float save_segment_score = 0.0;
 
    // float sc;
    scores myscores; 

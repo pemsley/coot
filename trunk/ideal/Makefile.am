@@ -45,8 +45,10 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS)
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc  pepflip.cc regularize-minimol.cc lograma.cpp
 
-noinst_PROGRAMS = test-indexing with-geometry with-map
+noinst_PROGRAMS = test-indexing with-geometry with-map logramatest
 # bin_PROGRAMS = 
+
+logramatest_SOURCES = logramatest.cpp
 
 with_geometry_SOURCES = with-geometry.cc
 
@@ -91,3 +93,14 @@ test_indexing_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-utils.la       \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+# Why do I need all these libraries to simply link a trivial test program?
+# Badness....
+logramatest_LDADD = \
+	./libcoot-ideal.la \
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-utils.la       \
+	$(CLIPPER_LIBS) $(GSL_LIBS)

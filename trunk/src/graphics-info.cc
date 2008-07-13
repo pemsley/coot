@@ -7648,7 +7648,7 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 SCM
 graphics_info_t::process_socket_string_waiting() {
 
-   SCM r;
+   SCM r = SCM_BOOL_F;   // was unitiailized
    if (graphics_info_t::have_socket_string_waiting_flag) {
 
       graphics_info_t::have_socket_string_waiting_flag = 0; // draw() looks here

@@ -881,7 +881,8 @@ namespace coot {
 	 do_numerical_gradients_flag = 0;
 	 std::cout << "asc_in.n_selected_atoms " << asc_in.n_selected_atoms
 		   << std::endl; 
-	 initial_position_params_vec.resize(3*asc_in.n_selected_atoms); 
+	 initial_position_params_vec.resize(3*asc_in.n_selected_atoms);
+	 lograma.init(LogRamachandran::All, 2.0, true);
 
 	 for (int i=0; i<asc_in.n_selected_atoms; i++) {
 	    initial_position_params_vec[3*i  ] = asc_in.atom_selection[i]->x; 

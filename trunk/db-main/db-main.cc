@@ -126,7 +126,7 @@ std::pair<bool, clipper::Coord_orth>
 coot::db_main::get_middle_ox_pos(const coot::minimol::fragment &fragment) const {
 
    bool have = 0;
-   clipper::Coord_orth pt;
+   clipper::Coord_orth pt(0,0,0); // unset
 
    int residue_count = 0;
    for (int ires=fragment.min_res_no(); ires<=fragment.max_residue_number(); ires++) {

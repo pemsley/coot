@@ -1928,13 +1928,13 @@ void execute_pointer_distances_settings(GtkWidget *widget) {
    const gchar *tt = gtk_entry_get_text(GTK_ENTRY(min_entry));
    t = atof(tt);
 
-   if (t >= 0.0 & t < 999.9)
+   if ((t >= 0.0) && (t < 999.9))
       min_dist = t;
 
    tt = gtk_entry_get_text(GTK_ENTRY(max_entry));
    t = atof(tt);
 
-   if (t >= 0.0 & t < 999.9)
+   if ((t >= 0.0) && (t < 999.9))
       max_dist = t;
 
    graphics_info_t::pointer_max_dist = max_dist;
