@@ -1857,7 +1857,7 @@ coot::additional_representations_t::fill_bonds_box() {
 		    atom_sel.atom_selection,
 		    atom_sel.n_selected_atoms);
 
-   if (bonds_box_type = coot::NORMAL_BONDS) { 
+   if (bonds_box_type == coot::NORMAL_BONDS) { 
       Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
       bonds_box.clear_up();
       bonds_box = bonds.make_graphical_bonds();

@@ -105,13 +105,14 @@ coot::util::get_contact_indices_from_restraints(CResidue *residue,
 			break;
 		     }
 		  }
-		  if (ibond_to > -1 )
-		     if (regular_residue_flag)
+		  if (ibond_to > -1 ) { 
+		     if (regular_residue_flag) {
 			contact_indices[iat].push_back(ibond_to);  // for ALA etc
-		     else {
+		     } else {
 			contact_indices[ibond_to].push_back(iat);  // ligands
 			// contact_indices[iat].push_back(ibond_to);  // ALA etc
 		     }
+		  } 
 //		  else
 		     // This spits out the names of Hydrogens, often.
 //  		     std::cout << "failed to find bonded atom "

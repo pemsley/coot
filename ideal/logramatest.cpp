@@ -2,7 +2,10 @@
 
 
 int main() {
-  LogRamachandran lograma( LogRamachandran::All, 2.0, true );
+   // LogRamachandran lograma( LogRamachandran::All, 2.0, true ); // KDC
+   LogRamachandran lograma;
+
+   lograma.init( LogRamachandran::All, 2.0, true );
 
   for ( double phi = -150; phi < -0; phi += 1 ) {
     double phir = clipper::Util::d2rad( phi );

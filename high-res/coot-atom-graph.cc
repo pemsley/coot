@@ -354,7 +354,7 @@ coot::atom_graph::peptide_search(const std::vector<std::vector<coot::node_info> 
    coot::chain_helper_info hi_out;
    int confirmed_direction = 0;
    int dir_offset = 0;
-   int res_no;
+   int res_no = -1; // unset
    int chain_number = hi_in.chain_number;
    int made_an_assignment = 0;
    int skip = 0;
@@ -634,8 +634,8 @@ coot::atom_graph::make_assignments(int direction,
    std::string index_3_at_name;
    std::string index_3_ele_name;
    short int do_o_assign = 0;
-   int oxygen_res_no;
-   int oxygen_index;
+   int oxygen_res_no = -1; // unset
+   int oxygen_index = 0;   // unset
    short int is_water_flag = 0;
    clipper::Coord_orth tpos;
    

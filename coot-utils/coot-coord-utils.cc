@@ -1191,7 +1191,8 @@ coot::graph_match(CResidue *res_moving,
 	    }
 	    
 	    double dist_sum = 0.0;
-	    clipper::RTop_orth rtop_local; // unset
+	    clipper::RTop_orth rtop_local(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
+					  clipper::Coord_orth(0,0,0)); // unset
 	    if (apply_rtop_flag) { 
 	       rtop_local = clipper::RTop_orth(coords_1_local, coords_2_local);
 	       for (unsigned int i=0; i<coords_1_local.size(); i++) {
@@ -2090,7 +2091,7 @@ coot::util::get_ori_to_this_res(CResidue *res) {
       std::cout << "get_ori_to_this_res, 0 atoms in given residue" << std::endl;
    } else {
 
-      clipper::Coord_orth ca, c, n;
+      clipper::Coord_orth ca(0,0,0), c(0,0,0), n(0,0,0);
       int n_found = 0;
       bool found_ca = 0;
       bool found_c  = 0;
@@ -2525,12 +2526,12 @@ coot::compare_atom_specs_user_float(const coot::atom_spec_t &a1, const coot::ato
 } 
 
 
-      // For use with interesting-things-gui, make the list argument
-      // from a vector of atom specs.
-      // 
-      // use the user data in the atom spec to give us the molecule number
-      // and the button label
-      // 
+// For use with interesting-things-gui, make the list argument
+// from a vector of atom specs.
+// 
+// use the user data in the atom spec to give us the molecule number
+// and the button label
+// 
 std::string
 coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
 
@@ -2704,6 +2705,8 @@ coot::util::interesting_things_list_py(const std::vector<atom_spec_t> &v) {
 
    r += "]";
    return r;
+#else
+   return "";
 #endif // PYTHON
 }
 
@@ -2860,6 +2863,8 @@ coot::util::interesting_things_list_with_fix_py(const std::vector<coot::util::at
 
    r += "]";
    return r;
+#else
+   return "";
 #endif // PYTHON
 }
 

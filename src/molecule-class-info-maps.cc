@@ -264,11 +264,12 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    // for critical points of size display and resampling being different:
    // 
    float dy_radius = radius;
-   if (g.dynamic_map_size_display == 1)
+   if (g.dynamic_map_size_display == 1) { 
       if (isample_step <= 15 )
 	 dy_radius *= float(isample_step);
       else
 	 dy_radius *= 15.0;
+   } 
 
    // 
    if (isample_step <= 0) { 

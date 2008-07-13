@@ -1298,7 +1298,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 CResidue *unconst_res_p = (CResidue *) res_p;     // bleugh.
 	 int residue_number = unconst_res_p->GetSeqNum(); // bleugh.
 	 if (residue_type_string == "auto") {
-	    int resno_added;
+	    int resno_added = -1; // was unset
 	    if (terminus_type == "C" || terminus_type == "MC")
 	       resno_added = residue_number + 1;
 	    if (terminus_type == "N" || terminus_type == "MN")

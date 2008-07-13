@@ -127,7 +127,7 @@ coot::o_position(const coot::minimol::residue &res_with_CA_C,
    short int found_n  = 0;
 
    clipper::Coord_orth ca_pos;
-   clipper::Coord_orth c_pos;
+   clipper::Coord_orth c_pos(0,0,0);
    clipper::Coord_orth n_pos;
 
    for (int iat=0; iat<res_with_N.atoms.size(); iat++) {

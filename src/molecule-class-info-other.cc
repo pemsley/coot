@@ -4353,7 +4353,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
    std::vector<std::pair<CAtom *, float> > marked_for_display;
 
    short int this_is_marked;
-   float den;
+   float den = 0.0;
    short int use_b_factor_limit_test = 1;
    short int use_map_sigma_limit_test = 1;
    short int use_min_dist_test = 1;

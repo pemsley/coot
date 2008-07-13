@@ -29,7 +29,8 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
 			   const std::vector<coot::lsq_range_match_info_t> &matches) {
 
    short int istat = 0;
-   clipper::RTop_orth rtop;
+   clipper::RTop_orth rtop(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
+			   clipper::Coord_orth(0,0,0));
    int SelHnd1 = mol1->NewSelection();
    int SelHnd2 = mol2->NewSelection();
    std::vector<int> v1;
