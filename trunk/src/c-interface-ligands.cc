@@ -629,8 +629,8 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    short int found_active_button_for_protein = 0;
    short int found_active_button_for_ligands = 0;
    // This is where we store the mols:
-   int find_ligand_map_mol = -1; // get set?
-   int find_ligand_protein_mol;
+   int find_ligand_map_mol = -1; // gets set?
+   int find_ligand_protein_mol = -1; // gets set.
    // std::vector<int> find_ligand_ligand_mols;  old.
    
    // Find the first active map radiobutton

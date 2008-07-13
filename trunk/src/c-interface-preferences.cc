@@ -1808,7 +1808,7 @@ parse_ccp4i_defs(const std::string &filename) {
       std::vector <coot::alias_path_t> path;
       std::string::size_type ipath;
       std::string::size_type ialias;
-      int index;
+      int index = -1;
       int icomma;
       short int path_coming = 0;
       short int alias_coming = 0;

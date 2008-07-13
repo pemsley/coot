@@ -2524,7 +2524,7 @@ const char *mtz_weight_for_map(int imol_map) {
   associated with that map. */
 short int mtz_use_weight_for_map(int imol_map) {
 
-   short int i;
+   short int i = 0;
    if (is_valid_map_molecule(imol_map)) {
       i = graphics_info_t::molecules[imol_map].save_use_weights;
    }
