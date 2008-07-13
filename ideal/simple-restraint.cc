@@ -3120,6 +3120,11 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
    mark_OXT();
    iret += make_monomer_restraints(geom, do_residue_internal_torsions);
+
+   std::cout << " ===================== make_restraints do_rama_plot_restraints : "
+	     << do_rama_plot_restraints
+	     << " ========================" << std::endl;
+
    iret += make_link_restraints(geom, link_torsions_restraints_type, do_rama_plot_restraints);
    //  don't do torsions, ramas maybe.   
    iret += make_flanking_atoms_restraints(geom, link_torsions_restraints_type, do_rama_plot_restraints);
@@ -3695,13 +3700,18 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 		  // std::cout << "---------------link_torsions_type_flag: "
 		  // << link_torsions_type_flag
 		  // << std::endl;
+
+		  std::cout << " ===================== make rama link restraints : "
+			    << do_rama_plot_restraints
+			    << " ========================" << std::endl;
+		  
 		  if (do_rama_plot_restraints) {
 		     // nothing else has link torsions, do they?
 		     if (link_type == "TRANS")
-		     n_link_torsion_restr += add_rama(link_type,  // TRANS, p, etc
-						      SelResidue[i], SelResidue[i+1],
-						      0,0,
-						      geom);
+			n_link_torsion_restr += add_rama(link_type,  // TRANS, p, etc
+							 SelResidue[i], SelResidue[i+1],
+							 0,0,
+							 geom);
 		  }
 		  // gettimeofday(&current_time, NULL);
 		  // td = time_diff(current_time, start_time);

@@ -293,14 +293,22 @@ test_ramachandran_probabilities_refine_fragment(atom_selection_container_t atom_
 					   residues_mol_pair.first,
 					   fixed_atom_specs);
 
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   short int do_peptide_torsion_restraints =
-      coot::restraints_container_t::LINK_TORSION_RAMACHANDRAN_GOODNESS;
-   short int do_rama_restraints = 1;
+   short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 0;
    short int do_link_torsions = 1;
    float rama_plot_restraint_weight = 1.0;
 	       
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   short int do_peptide_torsion_restraints = coot::restraints_container_t::NO_LINK_TORSION;
+   if (enable_rama_refinement) { 
+      do_peptide_torsion_restraints = coot::restraints_container_t::LINK_TORSION_RAMACHANDRAN_GOODNESS;
+      do_rama_restraints = 1;
+      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+   } 
+
+   std::cout << " ===================== enable_rama_refinement: " << enable_rama_refinement
+	     << " " << do_rama_restraints << " ========================" << std::endl;
+   
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
    int nrestraints = 
       restraints.make_restraints(geom, flags,
@@ -461,7 +469,10 @@ int test_ramachandran_probabilities() {
 			 << rama_refine_prob << std::endl;
 	       std::cout << "--------------------------------------\n";
 
-	       n_correct++;
+	       // 5% better probability needed.
+	       // 
+	       if (rama_refine_prob > (post_refine_prob*1.05))
+		  n_correct++;
 	    }
 	 }
       }
@@ -476,7 +487,7 @@ int test_ramachandran_probabilities() {
    }
 
    if (n_correct != 4) {
-      std::cout << "Failed to get 4 rama angles correct " << std::endl;
+      std::cout << "Failed to get 4 rama angles improvements " << std::endl;
       r = 0;
    } else {
       r = 1;  // return success.
