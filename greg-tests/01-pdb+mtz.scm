@@ -960,6 +960,11 @@
 
      (let ((imol (greg-pdb "monomer-VAL.pdb")))
        
+       (if (not (valid-model-molecule? imol))
+	   (begin 
+	     (format "   Failure to read monomer-VAL.pdb~%")
+	     (throw 'fail)))
+
        (with-auto-accept (regularize-zone imol "A" 1 1 ""))
        (set-undo-molecule imol)
        (apply-undo)
@@ -968,7 +973,15 @@
        (let ((atom-1 (get-atom imol "A" 1 "HG11"))
 	     (atom-2 (get-atom imol "A" 1 " CG1")))
 
-	 (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)))))
+	 (if (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)
+	     #t
+	     (begin
+	       (if (and (list? atom-1)
+			(list? atom-2))
+		   (format "   flying hydrogen failure, bond length ~s, should be 0.96~%"
+			   (bond-length-from-atoms atom-1 atom-2))
+		   (format "   flying hydrogen failure, atoms: ~s ~s~%" atom-1 atom-2))
+	       #f))))))
 
 
 
@@ -978,16 +991,12 @@
      (let ((atom-pair (list " CB " " CG "))
 	   (m (monomer-restraints "TYR")))
 
-       (format #t "#### m cars: ~s~%" (map car m))
-       
        (if (not m)
 	   (begin 
 	     (format #t "update bond restraints - no momomer restraints~%")
 	     (throw 'fail)))
 
        (let ((n (strip-bond-from-restraints atom-pair m)))
-	 (format #t "#### n cars: ~s~%" (map car n))
-	 (format #t "new restraints::::: ~s~%" n)
 	 (set-monomer-restraints "TYR" n)
 	 
 	 (let ((imol (new-molecule-by-atom-selection imol-rnase "//A/30")))
@@ -1182,7 +1191,7 @@
 	   (rnase-seq-string (file->string rnase-seq)))
        (if (not (valid-model-molecule? imol))
 	   (begin
-	     (format #t "missing file rnase-A-needs-an-insertion.pdb~%")
+	     (format #t "   Missing file rnase-A-needs-an-insertion.pdb~%")
 	     (throw 'fail))
 	   (begin
 

@@ -68,16 +68,19 @@
     #f)))
   
 
+(define (bond-length-from-atoms atom-1 atom-2)
+  (bond-length (list-ref atom-1 2)
+	       (list-ref atom-2 2)))
+
 (define (bond-length-within-tolerance? atom-1 atom-2 ideal-length tolerance)
 
   (if (not atom-1)
       #f
       (if (not atom-2)
 	  #f
-	  (let ((pos-1 (list-ref atom-1 2))
-		(pos-2 (list-ref atom-2 2)))
-	    (let ((b (bond-length pos-1 pos-2)))
-	      (< (abs (- b ideal-length)) tolerance))))))
+	  (let ((b (bond-length-from-atoms atom-1 atom-2)))
+	    (< (abs (- b ideal-length)) tolerance)))))
+
 
 (define (get-atom imol chain-id resno atom-name)
   
