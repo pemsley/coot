@@ -1064,7 +1064,7 @@ on_font_size1_activate                 (GtkMenuItem     *menuitem,
 {
    GtkWidget *font_size_window;
 
-   GtkButton *button;
+   GtkButton *button = 0;
 
    font_size_window = create_font_size_window();
 

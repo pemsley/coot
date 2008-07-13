@@ -143,7 +143,7 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    int icol; 
    int use_weights = 0;
    int is_diff_map;
-   short int sensible_r_free_col;
+   short int sensible_r_free_col = 0;
    short int have_refmac_params = 0; /* default not */
    short int use_resolution_limits_flag = 0;
    float low_reso_lim = -1.0;	/* unset */

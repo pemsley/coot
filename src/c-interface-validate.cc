@@ -26,11 +26,6 @@
 #include <stdlib.h>
 #include <iostream>
 
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-// no fix up needed 
-#else    
-
-#endif // SCM version
  
 #include "globjects.h" //includes gtk/gtk.h
 
@@ -54,6 +49,12 @@
 #ifdef USE_GUILE
 #include <guile/gh.h>
 #endif // USE_GUILE
+
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+// no fix up needed 
+#else    
+
+#endif // SCM version
 
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
@@ -650,7 +651,7 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
    graphics_info_t g;
    std::string validation_type(type_in);
    std::string sub_menu_name;
-   GtkSignalFunc callback; // depends on type
+   GtkSignalFunc callback = 0; // depends on type
    short int found_validation_type = 0;
 
    if (validation_type == "b factor") {

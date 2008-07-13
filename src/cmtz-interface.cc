@@ -426,7 +426,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   /* we always asume following pairs of Iobs and sigIobs */
   /* same as for F/sigF BUT we dont have an extra column for SigI
      so we get it from the sigF column */
-  int iobs_pos;
+  int iobs_pos = 0;
   int sigiobs_pos;
   for (i=0; i<col_labs.i_cols.size(); i++) {
      fobs_pos = col_labs.i_cols[i].column_position;

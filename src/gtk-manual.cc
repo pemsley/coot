@@ -1032,7 +1032,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 					 const gchar *name, 
 					 int n) {
 
-  GtkWidget *my_combo_box; 
+  GtkWidget *my_combo_box = 0;
 
   GtkWidget *display_map_vbox; 
 /*   GtkWidget *display_control_window_glade; passed parameter */
@@ -1211,7 +1211,6 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
   free(widget_name); 
   return my_combo_box; 
-
 }
 
 
@@ -1306,12 +1305,7 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
   printf("adding widget to patch_frame\n");
   gtk_container_add(GTK_CONTAINER(widget_thing), widget);
 
-  printf("widget: 0x%x, widget->window: 0x%x\n", widget, widget->window);
-  
-  /* first, create a GC to draw on */
-/*   gc = gdk_gc_new(widget->window); */
-
-  printf("gdk_gc_new\n");
+  // printf("gdk_gc_new\n");
   gc = gdk_gc_new(widget->window);
 
   printf("get window size\n");
