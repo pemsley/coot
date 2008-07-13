@@ -634,6 +634,13 @@ void set_show_origin_marker(int istate);
 /*! \brief return the origin marker shown? state */
 int  show_origin_marker_state();
 
+/*! \brief hide the vertical modelling toolbar in the GTK2 version */
+void hide_modelling_toolbar();
+/*! \brief show the vertical modelling toolbar in the GTK2 version
+  (the toolbar is shown by default) */
+void show_modelling_toolbar();
+
+
 /*! \brief reparent the Model/Fit/Refine dialog so that it becomes
   part of the main window, next to the GL graphics context */
 int suck_model_fit_dialog();

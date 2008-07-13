@@ -2091,6 +2091,33 @@ void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
 
 }
 
+
+/*! \brief hide the vertical modelling toolbar in the GTK2 version */
+void hide_modelling_toolbar() {
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *w = lookup_widget(graphics_info_t::glarea, "main_window_model_fit_dialog_frame");
+      if (!w) {
+	 std::cout << "failed to lookup toolbar" << std::endl;
+      } else {
+	 gtk_widget_hide(w);
+      }
+   }
+}
+
+/*! \brief show the vertical modelling toolbar in the GTK2 version
+  (the toolbar is shown by default) */
+void show_modelling_toolbar() {
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *w = lookup_widget(graphics_info_t::glarea, "main_window_model_fit_dialog_frame");
+      if (!w) {
+	 std::cout << "failed to lookup toolbar" << std::endl;
+      } else {
+	 gtk_widget_show(w);
+      }
+   }
+}
+
+
 /*  ------------------------------------------------------------------------ */
 //            reparenting
 /*  ------------------------------------------------------------------------ */

@@ -26,7 +26,7 @@
 @c @copying
 @c @end copying
 
-@c Copyright @copyright{} 2002, 2003, 2004, 2005, 2006 Paul Emsley
+@c Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008 Paul Emsley
 
 @c Part 3: Titlepage, Contents, Copyright
 
@@ -543,11 +543,13 @@ describing the particular features and are documented in Chapter
       posts the Display Control Window
 @end table
 
+
 @menu 
 * Version number::
 * Screenshot::
 * Raster3D::
 * Display Manager::
+* The file selector::
 * Scripting::
 * Scheme::
 * Backups and Undo::
@@ -748,6 +750,24 @@ representation
 There is also
 available ``No Waters'' and ``C@math{\alpha} + ligands'' representations.
 
+
+@node The Modelling Toolbar
+@section The Modelling Toolbar
+@cindex modelling toolbar
+
+You might not want to have the right-hand-side vertical toolbar that
+contains icons for some modelling operations @footnote{British
+modelling, of course} displayed:
+
+@code{(hide-modelling-toolbar)}
+
+to bring it back again:
+
+@code{(show-modelling-toolbar)}
+
+
+
+@node    The file selector
 @section The file selector
 @subsection File-name Filtering
 @cindex file-name filtering
@@ -1934,8 +1954,8 @@ than 20 residues will not be regularized or refined.  The limit can be
 changed using the scripting function: @emph{e.g.}
 @code{(set-refine-max-residues 30)}.
 
-@subsection Dictionary
 @node Dictionary
+@subsection Dictionary
 @cindex cif dictionary 
 @cindex mmCIF dictionary 
 By default, 
