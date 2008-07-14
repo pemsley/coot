@@ -1,3 +1,4 @@
+// -*-c++-*- ; emacs directive
 /* src/molecule-class-info.h
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
@@ -21,7 +22,6 @@
  * 02110-1301, USA
  */
 
-// -*-c++-*- ; emacs directive
 
 #ifndef MOLECULE_CLASS_INFO_T
 #define MOLECULE_CLASS_INFO_T
@@ -70,7 +70,8 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 
 
 namespace molecule_map_type {
-   enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3, TYPE_DIFF_SIGMAA=4 };
+   enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
+	  TYPE_DIFF_SIGMAA=4 };
 }
 
 namespace coot {

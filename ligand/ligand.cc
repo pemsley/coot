@@ -1300,7 +1300,8 @@ coot::ligand::move_ligand_sites_close_to_protein(int i) {
    clipper::Coord_orth t_point; // calculated for each symm/shift
    float min_dist = 999999999999.9;
    float t_dist;
-   clipper::RTop_orth save_transformation; 
+   clipper::RTop_orth save_transformation(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
+					  clipper::Coord_orth(0,0,0)); 
 
    int n = xmap_pristine.spacegroup().num_symops();
    clipper::Coord_frac cell_shift; 
@@ -1344,7 +1345,8 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
    clipper::Coord_orth t_point; // calculated for each symm/shift
    float min_dist = 999999999999.9;
    float t_dist;
-   clipper::RTop_orth save_transformation; 
+   clipper::RTop_orth save_transformation(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
+					  clipper::Coord_orth(0,0,0));  // was unset
 
   
    int n = sampled_protein_coords.size();

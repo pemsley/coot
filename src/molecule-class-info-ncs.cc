@@ -816,10 +816,10 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
    is_dynamically_transformed_map_flag = 1;
 
    if (max_xmaps == 0) {
-      std::cout << "DEBUG:: making space for xmap_list etc" << std::endl;
+      // std::cout << "DEBUG:: making space for xmap_list etc" << std::endl;
       xmap_list        = new clipper::Xmap<float>[1];
    }
-   std::cout << "INFO:: instaled xmap_list :" << xmap_list << std::endl;
+   // std::cout << "INFO:: instaled xmap_list :" << xmap_list << std::endl;
    xmap_list[0] = map_in; 
    max_xmaps++;
    initialize_map_things_on_read_molecule(name_in,
