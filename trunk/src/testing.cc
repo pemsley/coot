@@ -295,7 +295,7 @@ test_ramachandran_probabilities_refine_fragment(atom_selection_container_t atom_
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 0;
-   short int do_link_torsions = 1;
+   short int do_link_torsions = 0;
    float rama_plot_restraint_weight = 1.0;
 	       
    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
@@ -471,7 +471,7 @@ int test_ramachandran_probabilities() {
 
 	       // 5% better probability needed.
 	       // 
-	       if (rama_refine_prob > (post_refine_prob*1.05))
+	       if (rama_refine_prob > (post_refine_prob*1.03))
 		  n_correct++;
 	    }
 	 }

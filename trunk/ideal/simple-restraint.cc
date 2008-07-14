@@ -792,8 +792,8 @@ coot::distortion_score(const gsl_vector *v, void *params) {
       if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) {
    	 if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
    	    d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
-	    std::cout << "DEBUG:: distortion for rama: " << d << std::endl;
-   	    distortion += d;
+	    // std::cout << "DEBUG:: distortion for rama: " << d << std::endl;
+   	    distortion += d; // positive is bad...  negative is good.
    	 }
       }
    }
@@ -845,10 +845,9 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
    	 if (restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) 
    	    distortion = coot::distortion_score_chiral_volume(restraints_vec[i], v);
 
-      // FIXME      
-//       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) 
-//    	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) 
-//    	    distortion = coot::distortion_score_rama(restraints_vec[i], v, restraints->LogRama());
+      if (restraints_usage_flag & coot::RAMA_PLOT_MASK) 
+    	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) 
+	    distortion = coot::distortion_score_rama(restraints_vec[i], v, lograma);
 
       distortion_vec_container.geometry_distortion.push_back(coot::geometry_distortion_info_t(distortion, restraints_vec[i]));
    }
@@ -1196,9 +1195,8 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
    if (phi > 180.0)
       phi -= 360.0;
 
-   std::cout << "rama distortion for " << phi << " " << psi << std::endl;
    double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
-   double R = -pow(2.0, 2.0) * lr;
+   double R = lr;
    std::cout << "rama distortion for " << phi << " " << psi << " is " << R << std::endl;
 
    if ( clipper::Util::isnan(phi) ) {
@@ -1922,6 +1920,7 @@ void coot::my_df(const gsl_vector *v,
    coot::my_df_planes    (v, params, df);
    coot::my_df_non_bonded(v, params, df);
    coot::my_df_chiral_vol(v, params, df);
+   coot::my_df_rama      (v, params, df);
    
    // my_df_start_pos(v,params,df); // If you add these back, don't
                                     // forget to create the corresponding 
@@ -2326,6 +2325,16 @@ void coot::my_df_angles(const gsl_vector *v,
 void coot::my_df_torsions(const gsl_vector *v, 
 			  void *params, 
 			  gsl_vector *df) {
+
+   my_df_torsions_internal(v, params, df, 0);
+}
+
+// Add in the torsion gradients
+//
+void coot::my_df_torsions_internal(const gsl_vector *v, 
+				   void *params, 
+				   gsl_vector *df,
+				   bool do_rama_torsions) {
    
    int n_torsion_restr = 0; 
    int idx; 
@@ -2505,99 +2514,102 @@ void coot::my_df_torsions(const gsl_vector *v,
 	    double dD_dzP3 = F*dE_dzP3 - E*F*F*(dH_dzP3 + J*L*dK_dzP3 + K*L*dJ_dzP3 + J*K*dL_dzP3);
 	    double dD_dzP4 = F*dE_dzP4 - E*F*F*(dH_dzP4 + J*L*dK_dzP4 + K*L*dJ_dzP4 + J*K*dL_dzP4);
 
-	    // 
-	    // use period 
-	    // 
-	    double diff = 99999.9; 
-	    double tdiff; 
-	    double trial_target; 
-	    int per = (*restraints)[i].periodicity;
 
-	    if (theta < 0.0) theta += 360.0; 
+	    if (! do_rama_torsions) { 
+	       // 
+	       // use period 
+	       // 
+	       double diff = 99999.9; 
+	       double tdiff; 
+	       double trial_target; 
+	       int per = (*restraints)[i].periodicity;
 
-	    for(int iper=0; iper<per; iper++) { 
-	       trial_target = (*restraints)[i].target_value + double(iper)*360.0/double(per); 
-	       if (trial_target >= 360.0) trial_target -= 360.0; 
-	       tdiff = theta - trial_target; 
-	       if (abs(tdiff) < abs(diff)) { 
-		  diff = tdiff;
+	       if (theta < 0.0) theta += 360.0; 
+
+	       for(int iper=0; iper<per; iper++) { 
+		  trial_target = (*restraints)[i].target_value + double(iper)*360.0/double(per); 
+		  if (trial_target >= 360.0) trial_target -= 360.0; 
+		  tdiff = theta - trial_target; 
+		  if (abs(tdiff) < abs(diff)) { 
+		     diff = tdiff;
+		  }
 	       }
-	    }
-	    if (diff < -180.0) { 
-	       diff += 360.; 
-	    } else { 
-	       if (diff > 360.0) { 
-		  diff -= 360.0; 
+	       if (diff < -180.0) { 
+		  diff += 360.; 
+	       } else { 
+		  if (diff > 360.0) { 
+		     diff -= 360.0; 
+		  }
 	       }
-	    }
-//  	    cout << "in df_torsion: theta is " << theta 
-//  		 <<  " and target is " << (*restraints)[i].target_value 
-//  		 << " and diff is " << diff 
-//  		 << " and periodicity: " << (*restraints)[i].periodicity <<  endl;
+	       //  	    cout << "in df_torsion: theta is " << theta 
+	       //  		 <<  " and target is " << (*restraints)[i].target_value 
+	       //  		 << " and diff is " << diff 
+	       //  		 << " and periodicity: " << (*restraints)[i].periodicity <<  endl;
 
-	    // 0.001 is the multiplying factor of torsion (Really?)
+	       // 0.001 is the multiplying factor of torsion (Really?)
 
-	    double torsion_scale = (1.0/(1+pow(tan(clipper::Util::d2rad(theta)),2))) *
-	       clipper::Util::rad2d(1.0);
+	       double torsion_scale = (1.0/(1+pow(tan(clipper::Util::d2rad(theta)),2))) *
+		  clipper::Util::rad2d(1.0);
 
-	    double weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
+	       double weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 
-// 	    std::cout << "torsion weight: " << weight << std::endl;
-// 	    std::cout << "torsion_scale : " << torsion_scale << std::endl; 
-// 	    std::cout << "diff          : " << torsion_scale << std::endl; 
+	       // 	    std::cout << "torsion weight: " << weight << std::endl;
+	       // 	    std::cout << "torsion_scale : " << torsion_scale << std::endl; 
+	       // 	    std::cout << "diff          : " << torsion_scale << std::endl; 
 
-// 	    std::cout << "E: " << E << ", F: " << F << ", G: " << G
-// 		      << ", H: " << H << ", J: "
-// 		      << J << ", K: " << K << ", L: " << L << " " << std::endl;
+	       // 	    std::cout << "E: " << E << ", F: " << F << ", G: " << G
+	       // 		      << ", H: " << H << ", J: "
+	       // 		      << J << ", K: " << K << ", L: " << L << " " << std::endl;
 
-// 	    std::cout << "gradients: " << std::endl
-// 		      <<  dD_dxP1 << " " << dD_dyP1 << " " << dD_dzP1 << std::endl
-// 		      <<  dD_dxP2 << " " << dD_dyP2 << " " << dD_dzP2 << std::endl
-// 		      <<  dD_dxP3 << " " << dD_dyP3 << " " << dD_dzP3 << std::endl
-// 		      <<  dD_dxP4 << " " << dD_dyP4 << " " << dD_dzP4 << std::endl
-// 		      << std::endl;
+	       // 	    std::cout << "gradients: " << std::endl
+	       // 		      <<  dD_dxP1 << " " << dD_dyP1 << " " << dD_dzP1 << std::endl
+	       // 		      <<  dD_dxP2 << " " << dD_dyP2 << " " << dD_dzP2 << std::endl
+	       // 		      <<  dD_dxP3 << " " << dD_dyP3 << " " << dD_dzP3 << std::endl
+	       // 		      <<  dD_dxP4 << " " << dD_dyP4 << " " << dD_dzP4 << std::endl
+	       // 		      << std::endl;
 
-	    double xP1_contrib = 2.0*diff*dD_dxP1*torsion_scale * weight;
-	    double xP2_contrib = 2.0*diff*dD_dxP2*torsion_scale * weight;
-	    double xP3_contrib = 2.0*diff*dD_dxP3*torsion_scale * weight;
-	    double xP4_contrib = 2.0*diff*dD_dxP4*torsion_scale * weight;
+	       double xP1_contrib = 2.0*diff*dD_dxP1*torsion_scale * weight;
+	       double xP2_contrib = 2.0*diff*dD_dxP2*torsion_scale * weight;
+	       double xP3_contrib = 2.0*diff*dD_dxP3*torsion_scale * weight;
+	       double xP4_contrib = 2.0*diff*dD_dxP4*torsion_scale * weight;
 
-	    double yP1_contrib = 2.0*diff*dD_dyP1*torsion_scale * weight;
-	    double yP2_contrib = 2.0*diff*dD_dyP2*torsion_scale * weight;
-	    double yP3_contrib = 2.0*diff*dD_dyP3*torsion_scale * weight;
-	    double yP4_contrib = 2.0*diff*dD_dyP4*torsion_scale * weight;
+	       double yP1_contrib = 2.0*diff*dD_dyP1*torsion_scale * weight;
+	       double yP2_contrib = 2.0*diff*dD_dyP2*torsion_scale * weight;
+	       double yP3_contrib = 2.0*diff*dD_dyP3*torsion_scale * weight;
+	       double yP4_contrib = 2.0*diff*dD_dyP4*torsion_scale * weight;
 
-	    double zP1_contrib = 2.0*diff*dD_dzP1*torsion_scale * weight;
-	    double zP2_contrib = 2.0*diff*dD_dzP2*torsion_scale * weight;
-	    double zP3_contrib = 2.0*diff*dD_dzP3*torsion_scale * weight;
-	    double zP4_contrib = 2.0*diff*dD_dzP4*torsion_scale * weight;
+	       double zP1_contrib = 2.0*diff*dD_dzP1*torsion_scale * weight;
+	       double zP2_contrib = 2.0*diff*dD_dzP2*torsion_scale * weight;
+	       double zP3_contrib = 2.0*diff*dD_dzP3*torsion_scale * weight;
+	       double zP4_contrib = 2.0*diff*dD_dzP4*torsion_scale * weight;
 	    
-	    if (! (*restraints)[i].fixed_atom_flags[0]) { 
-	       idx = 3*((*restraints)[i].atom_index_1);
-	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP1_contrib);
-	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP1_contrib);
-	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP1_contrib);
-	    }
+	       if (! (*restraints)[i].fixed_atom_flags[0]) { 
+		  idx = 3*((*restraints)[i].atom_index_1);
+		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP1_contrib);
+		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP1_contrib);
+		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP1_contrib);
+	       }
 
-	    if (! (*restraints)[i].fixed_atom_flags[1]) { 
-	       idx = 3*((*restraints)[i].atom_index_2);
-	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP2_contrib);
-	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP2_contrib);
-	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP2_contrib);
-	    }
+	       if (! (*restraints)[i].fixed_atom_flags[1]) { 
+		  idx = 3*((*restraints)[i].atom_index_2);
+		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP2_contrib);
+		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP2_contrib);
+		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP2_contrib);
+	       }
 
-	    if (! (*restraints)[i].fixed_atom_flags[2]) { 
-	       idx = 3*((*restraints)[i].atom_index_3);
-	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP3_contrib);
-	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP3_contrib);
-	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP3_contrib);
-	    }
+	       if (! (*restraints)[i].fixed_atom_flags[2]) { 
+		  idx = 3*((*restraints)[i].atom_index_3);
+		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP3_contrib);
+		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP3_contrib);
+		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP3_contrib);
+	       }
 
-	    if (! (*restraints)[i].fixed_atom_flags[3]) { 
-	       idx = 3*((*restraints)[i].atom_index_4);
-	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP4_contrib);
-	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP4_contrib);
-	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP4_contrib);
+	       if (! (*restraints)[i].fixed_atom_flags[3]) { 
+		  idx = 3*((*restraints)[i].atom_index_4);
+		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP4_contrib);
+		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP4_contrib);
+		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP4_contrib);
+	       }
 	    }
 	 } 
       }
@@ -2688,16 +2700,23 @@ void coot::my_df_rama(const gsl_vector *v,
 
 	    double phi = clipper::Util::rad2d(atan2(H,I));
 
-	    // double R = -pow(10,10) * lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
-	    // std::cout << "rama distortion for " << phi << " " << psi << " is " << R << std::endl;
-
-
 	    if ( clipper::Util::isnan(phi) ) {
 	       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
+	       // throw an exception
 	    } 
 	    if ( clipper::Util::isnan(psi) ) {
 	       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
+	       // throw an exception
 	    }
+
+	    double phir = clipper::Util::d2rad(phi);
+	    double psir = clipper::Util::d2rad(psi);
+	    double R = restraints->rama_prob(phir, psir);
+	    std::cout << "df rama distortion for " << phi << " " << psi << " is " << R << std::endl;
+
+	    LogRamachandran::Lgrad lgrd = restraints->rama_grad(phir, psir);
+	    
+	    
 	 }
       }
    }

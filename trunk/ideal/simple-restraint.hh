@@ -476,7 +476,8 @@ namespace coot {
    // just the angle terms: 
    void my_df_angles(const gsl_vector *v, void *params, gsl_vector *df); 
    //  just the torsion terms:
-   void my_df_torsions(const gsl_vector *v, void *params, gsl_vector *df); 
+   void my_df_torsions(const gsl_vector *v, void *params, gsl_vector *df);
+   void my_df_torsions_internal(const gsl_vector *v, void *params, gsl_vector *df, bool do_rama_torsions);
    //  just the ramachandran plot gradient terms:
    void my_df_rama(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the deviation from starting point terms:
@@ -1069,6 +1070,15 @@ namespace coot {
       void adjust_variables(const atom_selection_container_t &asc);
 
       LogRamachandran LogRama() const { return lograma; };
+
+      // here phi and psi are in clipper units (radians).
+      double rama_prob(const double &phi_rads, const double &psi_rads) const {
+	 return lograma.interp(phi_rads, psi_rads);
+      }
+      LogRamachandran::Lgrad rama_grad(const double &phir, const double &psir) const {
+	 return lograma.interp_grad(phir, psir);
+      } 
+      
       
       // more debugging interface:
       //

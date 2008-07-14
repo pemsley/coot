@@ -6232,3 +6232,19 @@ Wed Jul  9 17:32:20 BST 2008
 
     Better document anti-aliasing for Nvida driver nvidia-settings.
 
+
+----
+Mon 14 Jul 02:17:01 2008 BST
+
+
+   molecule_class_info_t::handle_read_draw_molecule() has:
+
+      // update the maps so that they appear around the new centre. 
+      // 
+      if (reset_rotation_centre) 
+	 for (int ii=0; ii<g.n_molecules(); ii++) {
+	    g.molecules[ii].update_map(); 
+	 }
+
+   It should not be there.  That should be outside of the
+   molecule_class_info_t class.
