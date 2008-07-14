@@ -439,11 +439,11 @@ ftype LogRamachandran::interp( const ftype& phi1, const ftype& phi2 ) const
   i2_1 = Util::mod( i2_1  , n );
   i1_2 = Util::mod( i1_1+1, n );
   i2_2 = Util::mod( i2_1+1, n );
-  std::cout << "i1_012: " << i1_0 << " " << i1_1 << " " << i1_2 << std::endl;
-  std::cout << "i2_012: " << i2_0 << " " << i2_1 << " " << i2_2 << std::endl;
-  std::cout << data(i1_0,i2_0) << " " << data(i1_0,i2_1) << " " << data(i1_0,i2_2) << std::endl;
-  std::cout << data(i1_1,i2_0) << " " << data(i1_1,i2_1) << " " << data(i1_1,i2_2) << std::endl; 
-  std::cout << data(i1_2,i2_0) << " " << data(i1_2,i2_1) << " " << data(i1_2,i2_2) << std::endl;
+//   std::cout << "i1_012: " << i1_0 << " " << i1_1 << " " << i1_2 << std::endl;
+//   std::cout << "i2_012: " << i2_0 << " " << i2_1 << " " << i2_2 << std::endl;
+//   std::cout << data(i1_0,i2_0) << " " << data(i1_0,i2_1) << " " << data(i1_0,i2_2) << std::endl;
+//   std::cout << data(i1_1,i2_0) << " " << data(i1_1,i2_1) << " " << data(i1_1,i2_2) << std::endl; 
+//   std::cout << data(i1_2,i2_0) << " " << data(i1_2,i2_1) << " " << data(i1_2,i2_2) << std::endl;
 
   return
     w1_0*(w2_0*data(i1_0,i2_0) + w2_1*data(i1_0,i2_1) + w2_2*data(i1_0,i2_2)) +

@@ -148,21 +148,18 @@
 
     Release 0.6 and 0.7 [Sept 2008]
 
-   o Add the reading of a good map and a CNS map to tests.
-
-   o in coot_toolbuttons.py Bernhard registers the icons.  Does that
-     make them smooth?
-
-   o Phil Evans wants colour by chain as the default.  Can you make
-     this the default at coordinates read time (similarly, others want
-     CA mode).  Consider punting.
-
    o "CA mode" for nucleic acids should draw a P and C1' trace. [VR]
+     Priority: 10, Difficulty: 4
 
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
+     Priority: 6: Difficulty: 4
 
-   o Put globularize protein into Coot.  Make it a bit more clever?
+   o Mails from Phil Evans, Stephen Graham, Early April 2008 about SEG
+     ids.  Doing a NCS loop with Seg ids.  Doing a mutation with Segids
+     (might be the same issue).  The segid for the new atoms should be
+     inherited from those of the rest of the residue (if they are
+     consistent).
 
    o Give the user a chance to edit the ins file before it is sent off
      for refinement [Tobias Beck].  Not doing so, as currently,
@@ -170,22 +167,24 @@
      needs to modify the file.  Fire up a text widget with the .ins file
      in it.
 
+   o Rotamer plots need to update on multiple do/undos.
+
+   o in coot_toolbuttons.py Bernhard registers the icons.  Does that
+     make them smooth?
+
+   o Phil Evans wants colour by chain as the default.  Can you make
+     this the default at coordinates read time (similarly, others want
+     CA mode).  
+
+   o Put globularize protein into Coot.  Make it a bit more clever?
    o Garib wants a function to move waters close to the protein.
 
    o Do the tutorial.  Are the blob numbers correct? (EJD 1008 May 23
      suggests not).
 
-   o Rotamer plots need to update on multiple do/undos.
-
    o check the "movie" interface
 
    o Use LSQ for NCS matrices - need to be user setable option.
-
-   o Mails from Phil Evans, Stephen Graham, Early April 2008 about SEG
-     ids.  Doing a NCS loop with Seg ids.  Doing a mutation with Segids
-     (might be the same issue).  The segid for the new atoms should be
-     inherited from those of the rest of the residue (if they are
-     consistent).
 
    o Add the reading of a good map and a CNS map to tests.
 
@@ -212,6 +211,8 @@
 
      It would be great to be able to click on a nucleotide base in a
      single strand of DNA or RNA and generate its W/C partner...
+
+   o Fix up mini-RSR so that it compiles properly.
 
    o Use libglade
 
