@@ -12,6 +12,34 @@
 <!-- sentinels in interface -->
 
 <hr>
+    <p>Wed 16 Jul 16:10:15 2008 BST
+
+    <p>Much head-scratching over torision restraints failing.
+
+    <p>I eventually tracked it down to failing when there was a PRO in
+    the residue selection.  Why should PRO be a problem? (I thought)
+    Let's look at the torsion definition in PRO.cif:
+
+<pre>
+ PRO      chi1     N      CA     CB     CG       -25.000   15.000   3
+ PRO      chi2     CA     CB     CG     CD        35.000   15.000   3
+ PRO      chi3     CB     CG     CD     N        -30.000   15.000   3
+</pre>
+
+    <p>Ah, there we go, it's a circular sytem of chi angles.  Bleugh.
+    It causes my minimizer to collapse in a heap.
+
+    <p>OK, turn off torsion refinement for prolines then.  (Maybe I
+    should have included just chi1 - but I didn't). So here are the
+    numerical and analytical torsion gradients for a residue selection
+    including a PRO:
+
+<p><A href="http://www.biop.ox.ac.uk/emsley/pictures/various/Screenshot-PRO-torsions-improved.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/Screenshot-PRO-torsions-improved-small.png" alt="residue selection with PRO torsion gradients"></a>
+
+    <p>Yay!  Clean.
+
+
+<hr>
     <p>Tue 15 Jul 22:52:54 2008 BST
 
     <p>One step forward, 2 steps back.  Some progress was made with
@@ -490,7 +518,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Tue Jul 15 23:28:30 BST 2008
+Last modified: Wed Jul 16 16:41:16 BST 2008
 <!-- hhmts end -->
   </body>
 </html>
