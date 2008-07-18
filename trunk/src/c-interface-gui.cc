@@ -2026,13 +2026,6 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
       gtk_widget_set_sensitive(GTK_WIDGET(phi_psi_peptide_checkbutton), FALSE);
    }
 
-   if (g.do_peptide_torsion_restraints) {
-      g.do_peptide_torsion_restraints = 0;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(phi_psi_peptide_checkbutton), TRUE);
-      gtk_widget_set_sensitive(link_torsion_type_vbox, TRUE);
-   } else {
-      gtk_widget_set_sensitive(link_torsion_type_vbox, FALSE);
-   } 
 
    GtkWidget *omega = lookup_widget(button,
 		       "refine_params_use_peptide_omegas_checkbutton");

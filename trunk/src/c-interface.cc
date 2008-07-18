@@ -5773,24 +5773,11 @@ int difference_map(int imol1, int imol2, float map_scale) {
 
 
 
-void do_peptide_torsions_toggle() {
-   graphics_info_t g;
-   if (g.do_peptide_torsion_restraints) {
-      g.do_peptide_torsion_restraints = 0;
-   } else {
-      g.do_peptide_torsion_restraints = 1;
-   }
-}
-
 
 // either alpha helix, beta strand or ramachandran goodness
 // (see ideal/simple_restraint.hh link torsions)
-void set_refine_params_phi_psi_restraints_type(int restraints_type) { 
-
-  // do_peptide_omega_torsion_restraints are for phi/psi restraints 
-  // (omega not included)
-  graphics_info_t::do_peptide_torsion_restraints = restraints_type;
-
+void set_refine_ramachandran_angles(int state) {
+   graphics_info_t::do_rama_restraints = state;
 } 
 
 void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 

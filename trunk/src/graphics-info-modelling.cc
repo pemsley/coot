@@ -368,22 +368,15 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 // flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; 20071124
 	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 
-	 short int do_link_torsions = 0;
 	 short int do_residue_internal_torsions = 0;
 
 	 if (do_torsion_restraints) { 
 	    do_residue_internal_torsions = 1;
 	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	 } 
-	    
-	 if (do_peptide_torsion_restraints) {
-	    do_link_torsions = 1;
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
-	 }
 
-	 bool do_rama_restraints = 0;
-	 if (do_peptide_torsion_restraints == coot::restraints_container_t::LINK_TORSION_RAMACHANDRAN_GOODNESS)
-	    do_rama_restraints = 1;
+	 if (do_rama_restraints) 
+	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 
 	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
@@ -393,14 +386,12 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 //
 	 // However, ramachandran goodness will use phi and psi
 	 // 
-	 coot::pseudo_restraint_bond_type pseudos = graphics_info_t::pseudo_bonds_type;
 	 int nrestraints = 
 	    restraints.make_restraints(*geom_p, flags,
 				       do_residue_internal_torsions,
-				       do_link_torsions,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
-				       pseudos);
+				       pseudo_bonds_type);
 	 
 	 if (nrestraints > 0) { 
 	    irest = 1;
@@ -692,7 +683,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       if (istat) { 
 	 graphics_draw();
 	 if (! refinement_immediate_replacement_flag) {
-	    std::cout << "DEBUG:: Regularize: rr.info is " << rr.info << std::endl;
+	    // std::cout << "DEBUG:: Regularize: rr.info is " << rr.info << std::endl;
 	    do_accept_reject_dialog("Regularization", rr);
 	    check_and_warn_bad_chirals_and_cis_peptides();
 	 }

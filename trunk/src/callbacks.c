@@ -2483,16 +2483,14 @@ on_refine_params_use_torsions_checkbutton_toggled (GtkToggleButton *togglebutton
 		    "peptide_torsions_restraints_vbox");
 
    do_torsions_toggle(GTK_WIDGET(togglebutton));
+
+   /* We don't see these widgets, currently */
    if (togglebutton->active) {
       gtk_widget_set_sensitive(omega_checkbutton,       TRUE);
-/* not controlled by this toggle button */
-/*       if () { */
-/* 	gtk_widget_set_sensitive(phi_psi_restraints_vbox, TRUE); */
-/*       } */
    } else {
       gtk_widget_set_sensitive(omega_checkbutton,       FALSE);
       gtk_widget_set_sensitive(phi_psi_restraints_vbox, FALSE);
-      set_refine_params_phi_psi_restraints_type(0); /* no peptide torsion restrains */
+      /* no rama restraints */
    }
 }
 
@@ -2536,7 +2534,6 @@ void
 on_refine_params_use_peptide_torsions_checkbutton_toggled (GtkToggleButton *togglebutton,
 							   gpointer         user_data)
 {
-/*    do_peptide_torsions_toggle();  old stylee */
 
    GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), 
 				    "peptide_torsions_restraints_vbox");
@@ -8690,12 +8687,8 @@ on_refine_params_use_helix_peptide_torsions_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-
-  /* for 1, 2, 3 see ideal/simple-restraint.hh */
-  if (togglebutton->active) {
-    set_refine_params_phi_psi_restraints_type(2);
-  }
-
+  /* not visible */
+  printf("helix togglebutton toggled - ignored\n");
 }
 
 
@@ -8703,11 +8696,10 @@ void
 on_refine_params_use_beta_strand_peptide_torsions_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
-{
+{				
+  /* not visible */
+  printf("beta strand togglebutton toggled - ignored\n");
 
-  if (togglebutton->active) {
-    set_refine_params_phi_psi_restraints_type(3);
-  }
 }
 
 
@@ -8717,9 +8709,11 @@ on_refine_params_use_ramachandran_goodness_torsions_radiobutton_toggled
                                         gpointer         user_data)
 {
 
+  int state = 0;
   if (togglebutton->active) {
-    set_refine_params_phi_psi_restraints_type(1);
+    state = 1;
   }
+  set_refine_ramachandran_angles(state);
 }
 
 
