@@ -821,6 +821,12 @@ void set_add_alt_conf_new_atoms_occupancy(float f) {  /* default 0.5 */
    add_to_history_typed(cmd, args);
 }
 
+void set_numerical_gradients(int istate) {
+
+   graphics_info_t::do_numerical_gradients = istate;
+} 
+
+
 
 int set_atom_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, float val) {
    int istat = 0;

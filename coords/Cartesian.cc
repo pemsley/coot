@@ -378,6 +378,8 @@ is_an_in_triangle(surface_face_data face,
    case Z_FACE: 
       return (a.get_z() > b.get_z()) ? 1 : 0;
       break;
+   case NO_FACE:  // add this case to make the compiler happy
+      return 0;
    }
 
    // shouldn't happen.

@@ -182,8 +182,8 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    boxes.push_back(std::pair<std::string, std::string>("Planes",                  "planes_"));
    boxes.push_back(std::pair<std::string, std::string>("Chirals",                "chirals_"));
    boxes.push_back(std::pair<std::string, std::string>("Non-bonded", "non_bonded_contacts_"));
-   boxes.push_back(std::pair<std::string, std::string>("Rama", "                     rama_"));
-
+   boxes.push_back(std::pair<std::string, std::string>("Rama",                      "rama_"));
+ 
    for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
       // std::cout << "Lights for " << ref_results.lights[i_rest_type].second << std::endl;
       for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
@@ -196,9 +196,20 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 	      event_box_name = stub + "eventbox";
 	    }
 	    GtkWidget *w = lookup_widget(frame, event_box_name.c_str());
-	    GtkWidget *p = w->parent;
-	    GdkColor *color = colour_by_distortion(ref_results.lights[i_rest_type].value);
-	    set_colour_accept_reject_event_box(w, color);
+	    if (w) { 
+	       GtkWidget *p = w->parent;
+	       if (boxes[ibox].first != "Rama") { 
+		  GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].value);
+		  set_colour_accept_reject_event_box(w, &color);
+	       } else {
+		  GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value);
+		  set_colour_accept_reject_event_box(w, &color);
+	       } 
+	       gtk_widget_show(p);
+	    } else {
+	       std::cout << "ERROR:: lookup of event_box_name: " << event_box_name
+			 << " failed" << std::endl;
+	    } 
 
 	    // we do not add labels for the docked box
 	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG){
@@ -213,7 +224,6 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 		std::string tips_info = ref_results.lights[i_rest_type].label;
 		gtk_tooltips_set_tip(tooltips, w, tips_info.c_str(), NULL);
 	    }
-	    gtk_widget_show(p);
 	 }
       }
    }
@@ -238,7 +248,7 @@ void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col) {
    
 }
 
-GdkColor *colour_by_distortion(float dist) {
+GdkColor colour_by_distortion(float dist) {
 
    GdkColor col;
 
@@ -269,11 +279,39 @@ GdkColor *colour_by_distortion(float dist) {
 	 }
       }
    }
+   return col;
+}
 
-   GdkColor *r = new GdkColor;
-   *r = col;
-   return r;
+// caller disposes 
+GdkColor colour_by_rama_plot_distortion(float plot_value) {
+
+   GdkColor col;
+
+   col.pixel = 1;
+   col.blue  = 0;
+
+   if (plot_value < -15.0) { 
+      col.red   = 0;
+      col.green = 55535;
+   } else {
+      if (plot_value < 10.0) {
+	 col.red   = 55000;
+	 col.green = 55000;
+	 // col.blue  = 22000;
+      } else {
+	 if (plot_value < 5.0) {
+	    col.red   = 64000;
+	    col.green = 32000;
+	 } else {
+	    col.red   = 65535;
+	    col.green = 0;
+	 }
+      }
+   }
+   return col;
 } 
+
+
 
 
 void
@@ -328,8 +366,8 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 	  }
 
 	  gtk_tooltips_set_tip(tooltips, cis_eventbox, tips_info_cis.c_str(), NULL);
-	  GdkColor *red = colour_by_distortion(1000.0);	// red
-	  set_colour_accept_reject_event_box(cis_eventbox, red);
+	  GdkColor red = colour_by_distortion(1000.0);	// red
+	  set_colour_accept_reject_event_box(cis_eventbox, &red);
 	  gtk_widget_show(p);
 
 	}

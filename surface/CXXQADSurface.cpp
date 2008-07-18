@@ -889,7 +889,7 @@ int CXXQADSurface::toruses()
 	//Identify a big box around this torus, and check if all the pixels inside
 	//the box are within the allowed part of the torus
 	double eatingRadius = probeRadius + sample;
-	double eatingRadiusSq = eatingRadiusSq;
+	double eatingRadiusSq = 0; // FIXME? was = eatingRadiusSq (strangely)
 
 	//loop over all atoms in selection
 	for (int atomNr  = 0;atomNr < nSelectedAtoms; atomNr++) { 

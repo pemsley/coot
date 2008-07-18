@@ -2602,15 +2602,6 @@ void set_refine_with_torsion_restraints(int istate);
 int refine_with_torsion_restraints_state(); 
 void set_refine_params_toggle_buttons(GtkWidget *button);
 
-/*! \brief set the type or phi/psi restraints
-
-either alpha helix, beta strand or ramachandran goodness
-(simple_restraint.hh link torsions) */
-/*    enum link_torsion_restraints_type { NO_LINK_TORSION = 0,  */
-/* 					  LINK_TORSION_RAMACHANDRAN_GOODNESS = 1, */
-/* 					  LINK_TORSION_ALPHA_HELIX = 2, */
-/* 					  LINK_TORSION_BETA_STRAND = 3 };  */
-void set_refine_ramachandran_angles(int state);
 
 /*! \brief set the relative weight of the geometric terms to the map terms 
 
@@ -2693,6 +2684,12 @@ void set_refinement_refine_per_frame(int istate);
 
 /*! \brief query the state of the above option */
 int refinement_refine_per_frame_state(); 
+
+void set_refine_ramachandran_angles(int state);
+
+
+void set_numerical_gradients(int istate);
+
 
 /*! \brief correct the sign of chiral volumes before commencing refinement?
    
