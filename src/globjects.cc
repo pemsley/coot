@@ -598,8 +598,8 @@ int   graphics_info_t::bond_parameters_molecule = -1; // unset
 
 
 short int graphics_info_t::do_torsion_restraints = 0;
-short int graphics_info_t::do_peptide_torsion_restraints = 0; // phi/psi
 short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
+bool      graphics_info_t::do_rama_restraints = 0; // No.
 
 // 
 short int graphics_info_t::guile_gui_loaded_flag = FALSE;

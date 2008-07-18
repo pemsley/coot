@@ -2592,7 +2592,6 @@ void fill_option_menu_with_refine_options(GtkWidget *option_menu);
 GtkWidget *wrapped_create_refine_params_dialog(); 
 
 void do_torsions_toggle(GtkWidget *button);
-void do_peptide_torsions_toggle();
 
 /*! \brief turn on (or off) torsion restraints 
 
@@ -2611,7 +2610,7 @@ either alpha helix, beta strand or ramachandran goodness
 /* 					  LINK_TORSION_RAMACHANDRAN_GOODNESS = 1, */
 /* 					  LINK_TORSION_ALPHA_HELIX = 2, */
 /* 					  LINK_TORSION_BETA_STRAND = 3 };  */
-void set_refine_params_phi_psi_restraints_type(int restraints_type);
+void set_refine_ramachandran_angles(int state);
 
 /*! \brief set the relative weight of the geometric terms to the map terms 
 

@@ -2533,11 +2533,13 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    if (do_torsion_restraints)
       // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
-	    
-   if (do_peptide_torsion_restraints)
-      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
-      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 
+   if (do_rama_restraints)
+      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+   
+   if (do_torsion_restraints && do_rama_restraints)
+      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	    
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
    graphics_info_t::saved_dragged_refinement_results = 

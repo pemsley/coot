@@ -1678,8 +1678,8 @@ public:
    // wrappers for regularization and refinement:
    //
    static short int do_torsion_restraints; // all, including side chains
-   static short int do_peptide_torsion_restraints; // phi/psi
    static short int do_peptide_omega_torsion_restraints;
+   static bool do_rama_restraints; 
 
    void regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
    void refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
