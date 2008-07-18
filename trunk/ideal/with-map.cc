@@ -241,7 +241,7 @@ main(int argc, char **argv) {
 	 bool do_rama_plot_restraints = 0;
 	 if (inputs.use_rama_targets)
 	    do_rama_plot_restraints = 1;
-	 restraints.make_restraints(geom, flags, 1, 0, 1.0, do_rama_plot_restraints, pseudos);
+	 restraints.make_restraints(geom, flags, 1, 1.0, do_rama_plot_restraints, pseudos);
 
 	 restraints.minimize(flags);
 	 restraints.write_new_atoms(inputs.output_pdb_file_name);

@@ -128,10 +128,8 @@ main(int argc, char **argv) {
       // flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;
       // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
 
-      short int do_link_torsions = 1; // phi/psi restraints, helix
       coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-      restraints.make_restraints(geom, flags, 1, do_link_torsions,
-				 0.0, 0, pseudos);
+      restraints.make_restraints(geom, flags, 1, 0.0, 0, pseudos);
 
       restraints.set_do_numerical_gradients();
       restraints.minimize(flags);

@@ -6248,3 +6248,36 @@ Mon 14 Jul 02:17:01 2008 BST
 
    It should not be there.  That should be outside of the
    molecule_class_info_t class.
+
+----
+Mon Jul 14 15:23:21 BST 2008
+
+    revision 1274: before (big) messing with torsion restraints
+
+---
+Mon Jul 14 23:20:37 BST 2008
+
+    Phil Evans:
+
+    new waters are marked as HETATMs?  They should be.
+
+----
+Thu Jul 17 13:43:34 BST 2008
+
+in void
+on_refine_params_use_torsions_checkbutton_toggled (GtkToggleButton *togglebutton, 
+						   gpointer         user_data)
+
+do we need to unset the Rama angle refinement?  (and toggle the box too?)
+
+
+
+----
+Thu Jul 17 23:33:32 BST 200
+
+
+int
+coot::restraints_container_t::make_flanking_atoms_rama_restraints(const protein_geometry &geom)
+
+	 // super careful would mean that we check the link type of
+	 // both pairs before calling this function:

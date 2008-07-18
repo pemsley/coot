@@ -39,7 +39,10 @@ coot::util::ramachandran_angles(PCResidue *SelResidues, int nSelResidues) {
    if (nSelResidues != 3) {
       std::string mess = "EXCEPTION: ramachandran_angles was given ";
       mess += coot::util::int_to_string(nSelResidues);
-      mess += " residues, not 3";
+      mess += " residue";
+      if (nSelResidues != 1)
+	 mess += "s";
+      mess += ", not 3";
       throw std::runtime_error(mess);
    }
 
