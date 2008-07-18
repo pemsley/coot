@@ -6281,3 +6281,29 @@ coot::restraints_container_t::make_flanking_atoms_rama_restraints(const protein_
 
 	 // super careful would mean that we check the link type of
 	 // both pairs before calling this function:
+
+----
+Fri Jul 18 12:30:14 BST 2008
+
+    make reset view scale to the correct size.
+
+
+---
+Fri Jul 18 12:33:10 BST 2008
+
+
+   penelpe build-hardy:
+
+   0-coot.state.scm-fails-to-reset-view
+
+---
+Fri Jul 18 14:55:30 BST 2008
+
+    get a residue.  do b factor analysis
+
+    copy the residue. do b factor analysis.
+
+    delele some atoms from mol 1.  the wrong plot updates.
+
+
+   

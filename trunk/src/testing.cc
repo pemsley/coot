@@ -79,8 +79,8 @@ int test_internal() {
    std::vector<named_func> functions;
    functions.push_back(named_func(test_alt_conf_rotamers, "test_alt_conf_rotamers"));
    functions.push_back(named_func(test_wiggly_ligands, "test_wiggly_ligands"));
-   functions.push_back(named_func(test_torsion_derivs, "test_torsion_derivs"));
-   // functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
+   // functions.push_back(named_func(test_torsion_derivs, "test_torsion_derivs"));
+   functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
@@ -320,9 +320,9 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
       //      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
       //flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;
       //flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
-      //flags = coot::RAMA;
       //flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS;
       //flags = coot::BONDS_AND_NON_BONDED;
+      flags = coot::RAMA;
    } 
 
    std::cout << " ===================== enable_rama_refinement: " 
@@ -374,6 +374,7 @@ int test_ramachandran_probabilities() {
    int r = 0;
 
    std::string file_name = greg_test("crashes_on_cootaneering.pdb");
+   file_name = "45-47-tutorial-modern-coot-1.pdb";
    atom_selection_container_t atom_sel = get_atom_selection(file_name);
 
    if (! atom_sel.read_success)
@@ -384,9 +385,10 @@ int test_ramachandran_probabilities() {
    char *chn = (char *) chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
    std::vector<int> resnos;
    resnos.push_back(12);  // fail
-   resnos.push_back(14);  // phi=-57.7411  psi=-32.0451
-   resnos.push_back(15);  // phi=-53.7037  psi=-47.837
-   resnos.push_back(16);  // phi=-57.4047  psi=-42.6739
+//    resnos.push_back(14);  // phi=-57.7411  psi=-32.0451
+//    resnos.push_back(15);  // phi=-53.7037  psi=-47.837
+//    resnos.push_back(16);  // phi=-57.4047  psi=-42.6739
+   resnos.push_back(46);
 
    coot::protein_geometry geom;
    geom.init_standard();
@@ -444,7 +446,7 @@ int test_ramachandran_probabilities() {
 					      clipper::Util::d2rad(angles.psi()));
 
 	       double post_refine_prob = 0.0; // set later
-	       if (1) { 
+	       if (0) { 
 		  int enable_rama_refinement = 0;
 		  residue_selection_t refined_res_sel =
 		     testing_func_probabilities_refine_fragment(atom_sel, SelResidues,

@@ -2773,8 +2773,7 @@ void coot::my_df_rama(const gsl_vector *v,
 	    // psir = clipper::Util::d2rad(dtg_psi.theta);
 	    LogRamachandran::Lgrad lgrd = restraints->rama_grad(phir, psir);
 
-	    double torsion_scale = 0.12753; // FIXME
-	    // double torsion_scale = R * 0.00699; // FIXME
+	    double torsion_scale = 0.2 * 0.12753; // FIXME
 	    double weight = 1.0; // FIXME
 
 	    //double multiplier_phi = 1.0/(sin(phir)*sin(phir)) * 2.0*torsion_scale * weight * lgrd.DlogpDphi;

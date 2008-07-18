@@ -392,6 +392,9 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
 				       pseudo_bonds_type);
+
+	 if (do_numerical_gradients)
+	    restraints.set_do_numerical_gradients();
 	 
 	 if (nrestraints > 0) { 
 	    irest = 1;
