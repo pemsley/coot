@@ -1,6 +1,3 @@
-#!/home/paule/build/bin/guile -s
-!#
-
 ;;;; Copyright 2006 by Paul Emsley, The University of York
  
 ;;;; This program is free software; you can redistribute it and/or modify
