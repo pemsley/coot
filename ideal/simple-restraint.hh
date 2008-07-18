@@ -45,6 +45,28 @@ namespace coot {
       }
    };
 
+   class distortion_torsion_gradients_t {
+   public:
+      double theta; // the torsion angle
+      // x
+      double dD_dxP1;
+      double dD_dxP2;
+      double dD_dxP3;
+      double dD_dxP4;
+      
+      // y
+      double dD_dyP1;
+      double dD_dyP2;
+      double dD_dyP3;
+      double dD_dyP4;
+      
+      // z
+      double dD_dzP1;
+      double dD_dzP2;
+      double dD_dzP3;
+      double dD_dzP4;
+   };
+
    // ---------------------------------------------------------------
    // ---------------------------------------------------------------
    //     class refinement_results_t, helper class for sending text
@@ -146,13 +168,16 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,
 				BONDS_ANGLES_AND_PLANES = 11, // no torsions
+				BONDS_AND_NON_BONDED = 17,
 				BONDS_ANGLES_PLANES_AND_NON_BONDED = 27,
 				BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS = 59,
 				BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED = 31,
+				BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
 				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
+				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 123,
+				BONDS_ANGLES_TORSIONS_PLANES_CHIRALS_AND_RAMA = 111,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
-				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 123
 				
    };
 
@@ -163,7 +188,7 @@ namespace coot {
           NON_BONDED_MASK = 16, CHIRAL_VOLUME_MASK = 32, RAMA_PLOT_MASK = 64};
 
    // ---------------------------------------------------------------
-   // helper class for linkage selection
+   // helper classes for linkage selection
    // ---------------------------------------------------------------
 
    class glycosidic_distance {
@@ -182,6 +207,17 @@ namespace coot {
 	 else
 	    return 0;
       }
+   };
+
+
+   class ramachandran_restraint_flanking_residues_helper_t {
+   public:
+      int resno_first;
+      int resno_third;
+      std::vector<bool> is_fixed;
+      ramachandran_restraint_flanking_residues_helper_t() {
+	 is_fixed.resize(3,0);
+      } 
    };
 
 
@@ -276,7 +312,7 @@ namespace coot {
 
       // Rama
       simple_restraint(short int rest_type, int atom_1, int atom_2, 
-		       int atom_3, int atom_4, int atom_5, int atom_6,
+		       int atom_3, int atom_4, int atom_5, 
 		       const std::vector<bool> &fixed_atom_flags_in) { 
 
 	 restraint_type = rest_type; 
@@ -285,7 +321,6 @@ namespace coot {
 	 atom_index_3 = atom_3;
 	 atom_index_4 = atom_4;
 	 atom_index_5 = atom_5;
-	 atom_index_6 = atom_6;
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 if (rest_type != RAMACHANDRAN_RESTRAINT) { 
 	    std::cout << "RAMACHANDRAN_RESTRAINT ERROR" << std::endl; 
@@ -468,7 +503,12 @@ namespace coot {
    plane_distortion_info_t
    distortion_score_plane_internal(const simple_restraint &plane_restraint,
 				   const gsl_vector *v); 
-   
+
+   distortion_torsion_gradients_t
+   fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
+				     const clipper::Coord_orth &P2,
+				     const clipper::Coord_orth &P3,
+				     const clipper::Coord_orth &P4);
    /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
    void my_df (const gsl_vector *v, void *params, gsl_vector *df); 
    // just the bond terms: 
@@ -668,12 +708,12 @@ namespace coot {
 
       void add(short int rest_type,
 	       int atom_1, int atom_2, int atom_3, 
-	       int atom_4, int atom_5, int atom_6, 
+	       int atom_4, int atom_5, 
 	       const std::vector<bool> &fixed_atom_flag){
     
 	 restraints_vec.push_back(simple_restraint(rest_type,
 						   atom_1, atom_2, atom_3,
-						   atom_4, atom_5, atom_6,
+						   atom_4, atom_5, 
 						   fixed_atom_flag));
       }
 
@@ -749,13 +789,12 @@ namespace coot {
       }
 
       int make_link_restraints          (const protein_geometry &geom,
-					 short int do_link_torsions,
 					 bool do_rama_plot_retraints);
       int make_monomer_restraints       (const protein_geometry &geom,
 					 short int do_residue_internal_torsions);
       int make_flanking_atoms_restraints(const protein_geometry &geom,
-					 bool do_link_torsions,
 					 bool do_rama_plot_retraints); // no torsions
+      int make_flanking_atoms_rama_restraints(const protein_geometry &geom);
 
       std::string find_link_type(CResidue *first, CResidue *second,
 				 const protein_geometry &geom) const;
@@ -788,10 +827,13 @@ namespace coot {
 			   const coot::protein_geometry &geom);
 
       int add_rama(std::string link_type,
-			   PCResidue first, PCResidue second,
-			   short int is_fixed_first_res,
-			   short int is_fixed_second_res,
-			   const coot::protein_geometry &geom);
+		   PCResidue prev,
+		   PCResidue this_res,
+		   PCResidue post,
+		   bool is_fixed_first_res,
+		   bool is_fixed_second_res,
+		   bool is_fixed_third_res,
+		   const coot::protein_geometry &geom);
 
       int add_link_plane(std::string link_type,
 			 PCResidue first, PCResidue second,
@@ -1039,7 +1081,6 @@ namespace coot {
       int make_restraints(const coot::protein_geometry &geom,
 			  coot::restraint_usage_Flags flags,
 			  short int do_residue_internal_torsions,
-			  short int do_link_torsions,
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
