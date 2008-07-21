@@ -24,6 +24,8 @@
 
    o HK's 3 map crash?
 
+* Sentinel problem, I think.   
+
    o Side by stereo with (and without) display-lists for maps
 
    o Jan D. crash.
@@ -6234,6 +6236,16 @@ Wed Jul  9 17:32:20 BST 2008
 
 
 ----
+Sun Jul 13 22:42:54 BST 2008
+
+  JED:
+
+   Coot crashed on me.
+   Multiple deletions after closing molecules was the problem, I
+   think.
+
+
+----
 Mon 14 Jul 02:17:01 2008 BST
 
 
@@ -6305,5 +6317,3 @@ Fri Jul 18 14:55:30 BST 2008
 
     delele some atoms from mol 1.  the wrong plot updates.
 
-
-   

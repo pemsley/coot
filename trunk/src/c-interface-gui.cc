@@ -3718,8 +3718,6 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 // 
 int apply_go_to_atom_values(GtkWidget * window) {
 
-   std::cout << "applying go to atom values!" << std::endl;
-
   const gchar *chain_str;
   const gchar *res_str; 
   const gchar *atom_name_str; 
@@ -3738,7 +3736,6 @@ int apply_go_to_atom_values(GtkWidget * window) {
   entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_atom_name_entry"));
   atom_name_str = gtk_entry_get_text(entry);
 
-  std::cout << "set_go_to_atom_chain_residue_atom_name_strings!" << std::endl;
   set_go_to_atom_chain_residue_atom_name_strings(chain_str, res_str, atom_name_str);
 
   return 0;

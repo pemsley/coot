@@ -172,7 +172,7 @@ Coot is a molecular graphics application. Its primary focus is
 crystallographic macromolecular model-building and manipulation rather
 than representation @emph{i.e.} more like Frodo than Rasmol.
 @c @cindex{Rasmol}.  
-Having said that, Coot can work with small molecule (SHELXL) and elecron
+Having said that, Coot can work with small molecule (SHELXL) and electron
 microscopy data, be used for homology modelling, make passably pretty
 pictures and display NMR structures.
 
@@ -1444,7 +1444,7 @@ only make sense in the region of the reference chain (see above).
 
 Note also that the internal representation of the map is not
 transformed.  If you try to export a NCS overlay map you will get an
-untransformed map.  A transformated map only makes sense around a given
+untransformed map.  A transformed map only makes sense around a given
 point (and when using transformed maps in Coot, this reference point is
 changed on the fly, thus allowing map transformations on the fly).
 [This applies to NCS overlap maps, NCS averaged maps are transformed].
@@ -1711,7 +1711,7 @@ mmdb-atom-selection-string-1 mmdb-atom-selection-string-2
 move-copy-flag} )}
 
 the @code{@emph{move-copy-flag}} should be 1 if you want to apply the
-tranformation to a copy of @code{@emph{imol2}} (rather than
+transformation to a copy of @code{@emph{imol2}} (rather than
 @code{@emph{imol2}} itself). Otherwise, @code{@emph{move-copy-flag}}
 should be 0.
 
@@ -1945,7 +1945,7 @@ like a traffic light system)
 @cindex traffic lights
 representing the chi squared values of each
 of types of geometric feature refined.  Typically ``5 greens'' is the
-thing to aim for, the colour changes occuring at chi squared values 2, 5
+thing to aim for, the colour changes occurring at chi squared values 2, 5
 and 8 (8 being the most red).
 
 To prevent the unintentional refinement of a large number of residues,
@@ -1984,7 +1984,7 @@ code for the particular residue type, if it does not find it, Coot will
 try to search for dictionary files using ``-b-D'' or ``-a-L'' extensions.
 
 When refining a group of carbohydrates, the situation needs a bit more
-explanation. For each residue pair with tandem residue numbers specifed
+explanation. For each residue pair with tandem residue numbers specified
 in the refinement range selection, Coot checks if these residue types
 are are furanose or pyranose in the dictionary, and if the are both one
 or the other, then it tries to see if there are any of the 11 link types
@@ -2664,8 +2664,8 @@ possible orientation.  To do that easily a function has been provided:
 
 @code{(flip-ligand @emph{imol chain-id residue-number})}
 
-This will flip the orientation of the residue around the eigen vector
-corresponding to the largest eigen value, exploring 4 possible
+This will flip the orientation of the residue around the Eigen vector
+corresponding to the largest Eigen value, exploring 4 possible
 orientations.
 
 This function has been further wrapped to provide flipping for the active
@@ -2723,7 +2723,7 @@ Sometimes as a result of water fitting, you may see something like:
  
 When Coot finds a blob, it does a crude positioning of an atom at the
 centre of the grid points.  It then proceeds to move to the peak of the
-blob by a seriers of translations.  There are a certain number of
+blob by a series of translations.  There are a certain number of
 cycles, and if it doesn't reach convergence by the end of those cycles
 then you get the error message.
 
@@ -3428,8 +3428,8 @@ scheme on ``Edit -> Map Colour''.
 
 Using the ``Make a Difference Map'' function in the Extensions menu, one
 can make a difference from two arbitrary maps.  The maps need not be on
-the same gridding, or in the same group even.  The resulting map will be
-on the same gridding and space group as the ``Reference'' map.
+the same griding, or in the same group even.  The resulting map will be
+on the same griding and space group as the ``Reference'' map.
 
 @node    Map Sampling
 @section Map Sampling
@@ -3660,6 +3660,7 @@ interface to other programs.
 * Molprobity Tools Interface::
 * GLN and ASN B-factor Outliers::
 * Validation Graphs::
+* Pukka Puckers?::
 @end menu
 
 @node    Ramachandran Plots
@@ -3725,7 +3726,7 @@ There are two obvious ways:
 2) RS Refine the residue and invert the chiral centre by pulling an
 atom. Usually you can pull the CA to the other side of the plane made
 by the chiral neighbouring atoms (using ctrl left-click).  Sometimes
-giving the CB a good old tweak is the easiesr way.
+giving the CB a good old tweak is the easier way.
 
 Inverting the CB of THR is easier, just move the OG so that the plane
 of the neighbours is on the other side of the CB (again with ctrl
@@ -3821,7 +3822,7 @@ hydrogens.  To change this:
 
 @code{(set! reduce-molecule-updates-current #t)}
 
-and that, as you can guess, replaces, rather than addes to the
+and that, as you can guess, replaces, rather than adds to the
 ``probed'' molecule.
 
 This gives a "static" view of the molecule's interactions.
@@ -3900,6 +3901,20 @@ Note that Hydrogens are ignored in this analysis.
 @subsection Peptide @math{\omega} Distortion 
 
 @subsection Geometry
+
+
+@node Pukka Puckers??
+@section Pukka Puckers??
+@cindex  Pukka Puckers??
+
+A pucker checker has been incorporated into Coot after the method
+described in their Molprobity paper @footnote{Davis @emph{et al.} (2007)
+Molprobity: all atom contacts and structure validation for proteins and
+nucleic acids, Nucleic Acids Research @b{35}, W375-W383}. Davis @emph{et
+al.} note that the distance of phosphate atom of the following residue
+out of the plane of the ribose is strongly correlated with the ribose
+pucker.  Coot checks that the out of plane distance is consistent with
+the ribose pucker (and let's you know if it is not). 
 
 @c % -----------------------------------------------------------
 @node Hints and Usage Tips
