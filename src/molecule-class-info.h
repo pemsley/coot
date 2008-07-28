@@ -1551,11 +1551,11 @@ class molecule_class_info_t {
    short int delete_residue_sidechain(const std::string &chain_id,
 				      int resno,
 				      const std::string &inscode);
-   short int delete_atom(const std::string &chain_id, 
-			 int resno,
-			 const std::string &ins_code,
-			 const std::string &atname,
-			 const std::string &altconf);
+   bool delete_atom(const std::string &chain_id, 
+		    int resno,
+		    const std::string &ins_code,
+		    const std::string &atname,
+		    const std::string &altconf);
 
    short int delete_residue_hydrogens(const std::string &chain_id, int resno,
 				      const std::string &ins_code,

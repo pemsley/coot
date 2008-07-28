@@ -1420,10 +1420,14 @@ void set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 GtkWidget *dynarama_is_displayed_state(int imol) {
 
    GtkWidget *w = NULL;
+
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
    if (is_valid_model_molecule(imol)) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    }
+#endif   
    return w;
 }
 
@@ -1431,10 +1435,12 @@ GtkWidget *dynarama_is_displayed_state(int imol) {
 GtkWidget *dynarama_widget(int imol) {
 
    GtkWidget *w = NULL;
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    if (imol < graphics_info_t::n_molecules()) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    }
+#endif    
    return w;
 }
 

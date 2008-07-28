@@ -1,8 +1,10 @@
--*-text-*-
+ -*-text-*-
 
    Things to fix before 0.5
 
    11 Items, 35 hd.
+
+   o chi squareds are displayed properly on GTK1 version?
 
    o Kevin's Ramachandran Refinement target, 16hd
 
@@ -22,17 +24,13 @@
      I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
      211 in ssm_superpose.h
 
-   o HK's 3 map crash?
-
-* Sentinel problem, I think.   
-
    o Side by stereo with (and without) display-lists for maps
 
    o Jan D. crash.
 
-   o put the manual in Oxford.
+* Nvidia driver problems is my guess
 
-   o "key bindings" in the manual needs to be updated.
+   o put the manual in Oxford.
 
 * Done
 
@@ -41,7 +39,18 @@
 
 
 
-106 Done.
+
+
+
+107 Done.
+
+   o HK's 3 map crash?
+
+* a sentinel issue, I guess, Fixed, but keep an eye on it.
+
+   o "key bindings" in the manual needs to be updated.
+
+* Done
 
    o Ca Zone -> Mainchain on a short range should give back useful
      feedback. Confirmed - needs some feedback. An info dialog (fragment
@@ -6321,6 +6330,62 @@ Fri Jul 18 14:55:30 BST 2008
 
     delele some atoms from mol 1.  the wrong plot updates.
 
+----
+
+to get what check output for all pdb entries
+
+www.cmbi.ru.nl/pdbreport/ab/1abc/pdbout.txt
+
+
+-----
+Tue Jul 22 16:06:11 BST 2008
+
+    Robbie J suggests:
+
+    Check and fix nomenclature errors for ARG.
+
+    Put Fix nomenclature errors into the GUI.
+
+    Schedule this for 0.6.
+
+
+------
+Wed Jul 23 12:28:06 BST 2008
+
+    Think about adding Thomas' Phi/Psi (energy) plots (of the torsions
+    around the glycosidic linkage) and plotting the points for the
+    linked carbodydrates in the molecule.
+
+
+----
+Thu Jul 24 10:40:06 BST 2008
+
+    1mn8 D52 do-180-degree-side-chain-flip must work! 
+    chi5 must be recognised.
+
+----
+Thu Jul 24 12:55:02 BST 2008
+
+    For when the modelling toolbar is too big for the laptop screen:
+
+    Right-mouse over it and "make this shorter" option
+
+
+-----
+Thu Jul 24 13:49:25 BST 2008
+
+    gtk1 version: seems not to be displaying the chi square values
+    after refinement
+
+    Show stopper!
+
+
+------
+
+
+   a BMA in 3d2u: trying to refine a BMA, should Coot on the fly
+   generate the BMA full dict from the minimal description?
+
 
 -----
 Mon Jul 21 12:33:21 BST 2008
@@ -6339,7 +6404,10 @@ in molecule_class_info_t::handle_read_draw_molecule():
     
     and symmetry likewise.
 
-    Bleugh.
+    Bleugh - needs a fix.  Needs to be in
+    handle_read_draw_molecule_with_recentre in the c-interface
+    function
 
-    Fix.  Needs to be in handle_read_draw_molecule_with_recentre in the c-interface function
+
+-----
 

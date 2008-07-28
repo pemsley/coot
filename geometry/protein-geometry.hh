@@ -474,6 +474,55 @@ namespace coot {
       std::string id() const { return id_;}
    }; 
 
+   class dict_link_chiral_restraint_t : public basic_dict_restraint_t {
+   public:
+      int atom_1_comp_id, atom_2_comp_id, atom_3_comp_id, atom_c_comp_id;
+   private:
+      std::string atom_id_c_;
+      std::string atom_id_3_;
+      std::string id_;
+      int volume_sign;
+      double target_volume_;
+      double target_sigma_;
+      std::string chiral_id;
+   public:
+      dict_link_chiral_restraint_t(const std::string &chiral_id_in,
+				   int atom_c_comp_id_in,
+				   int atom_1_comp_id_in,
+				   int atom_2_comp_id_in,
+				   int atom_3_comp_id_in,
+				   const std::string &atom_id_c_in,
+				   const std::string &atom_id_1_in,
+				   const std::string &atom_id_2_in,
+				   const std::string &atom_id_3_in,
+				   int volume_sign_in
+				   ) : basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
+	 atom_c_comp_id = atom_c_comp_id_in;
+	 atom_1_comp_id = atom_1_comp_id_in;
+	 atom_2_comp_id = atom_2_comp_id_in;
+	 atom_3_comp_id = atom_3_comp_id_in;
+	 atom_id_c_ = atom_id_c_in;
+	 atom_id_3_ = atom_id_3_in;
+	 volume_sign = volume_sign_in;
+	 target_volume_ = -999.9;  // unassigned
+	 target_sigma_  = -999.9;
+	 chiral_id = chiral_id_in;
+      }
+      std::string Chiral_Id() const { return chiral_id; }
+      double assign_chiral_volume_target(const std::vector <dict_bond_restraint_t> &bonds_1,
+					 const std::vector <dict_angle_restraint_t> &angles_1,
+					 const std::vector <dict_bond_restraint_t> &bonds_2,
+					 const std::vector <dict_angle_restraint_t> &angles_2,
+					 const std::vector <dict_link_bond_restraint_t> &link_bonds,
+					 const std::vector <dict_link_angle_restraint_t> &link_angles);
+      double target_volume() const { return target_volume_; }
+      double target_sigma() const  { return target_sigma_; }
+      bool has_unassigned_chiral_volume() const {
+	 return (target_sigma_ < 0.0);
+      }
+   };
+
+
    class dict_link_plane_restraint_t : public basic_dict_restraint_t {
       double dist_esd_;
    public:
@@ -492,7 +541,7 @@ namespace coot {
       int n_atoms() const { return atom_ids.size(); }
       double dist_esd() const { return dist_esd_; }
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
-   }; 
+   };
 
    // for link_ids such as TRANS, PTRANS (proline), CIS etc.
    // 
@@ -505,6 +554,9 @@ namespace coot {
       std::vector <dict_link_angle_restraint_t>   link_angle_restraint;
       std::vector <dict_link_torsion_restraint_t> link_torsion_restraint;
       std::vector <dict_link_plane_restraint_t>   link_plane_restraint;
+      std::vector <dict_link_chiral_restraint_t>  link_chiral_restraint;
+      int assign_link_chiral_volume_targets(); // return the number of link targets made.
+      bool has_unassigned_chiral_volumes() const;
    };
 
    class simple_cif_reader {
@@ -513,6 +565,36 @@ namespace coot {
    public:
       simple_cif_reader(const std::string &cif_dictionary_file_name);
       bool has_restraints_for(const std::string &res_type);
+   };
+
+   class chem_link {
+       std::string id;
+       std::string chem_link_comp_id_1;
+       std::string chem_link_mod_id_1;
+       std::string chem_link_group_comp_1;
+       std::string chem_link_comp_id_2;
+       std::string chem_link_mod_id_2;
+       std::string chem_link_group_comp_2;
+       std::string chem_link_name;
+   public: 
+      chem_link(const std::string &id_in,
+		const std::string &chem_link_comp_id_1_in,
+		const std::string &chem_link_mod_id_1_in,
+		const std::string &chem_link_group_comp_1_in,
+		const std::string &chem_link_comp_id_2_in,
+		const std::string &chem_link_mod_id_2_in,
+		const std::string &chem_link_group_comp_2_in,
+		const std::string &chem_link_name_in) {
+
+       id = id_in;
+       chem_link_comp_id_1 = chem_link_comp_id_1_in;
+       chem_link_mod_id_1 = chem_link_mod_id_1_in;
+       chem_link_group_comp_1 = chem_link_group_comp_1_in;
+       chem_link_comp_id_2 = chem_link_comp_id_2_in;
+       chem_link_mod_id_2 = chem_link_mod_id_2_in; 
+       chem_link_group_comp_2 = chem_link_group_comp_2_in;
+       chem_link_name = chem_link_name_in;
+      }
    };
 
    // ------------------------------------------------------------------------
@@ -542,6 +624,7 @@ namespace coot {
 
       std::vector<dictionary_residue_restraints_t> dict_res_restraints;
       std::vector<dictionary_residue_link_restraints_t> dict_link_res_restraints;
+      std::vector<chem_link> chem_link_vec;
 
       // the monomer data in list/mon_lib_list.cif, not the
       // restraints, just id, 3-letter-code, name, group,
@@ -559,10 +642,14 @@ namespace coot {
       int  comp_chiral (PCMMCIFLoop mmCIFLoop);  // return number of chirals.
       void comp_plane  (PCMMCIFLoop mmCIFLoop); 
 
+      void add_chem_links (PCMMCIFLoop mmCIFLoop); // references to the modifications
+                                                // to the link groups (the modifications
+                                                // themselves are in data_mod_list)
       void link_bond   (PCMMCIFLoop mmCIFLoop); 
       void link_angle  (PCMMCIFLoop mmCIFLoop); 
       void link_torsion(PCMMCIFLoop mmCIFLoop); 
       void link_plane  (PCMMCIFLoop mmCIFLoop);
+      int  link_chiral  (PCMMCIFLoop mmCIFLoop); // return number of new chirals
 
 
       void mon_lib_add_chem_comp(const std::string &comp_id,
@@ -631,14 +718,18 @@ namespace coot {
       void simple_mon_lib_chem_comp   (PCMMCIFLoop mmCIFLoop);
       // add to simple_monomer_descriptions not dict_res_restraints.
       void simple_mon_lib_add_chem_comp(const std::string &comp_id,
-				 const std::string &three_letter_code,
-				 const std::string &name,
-				 const std::string &group,
-				 int number_atoms_all, int number_atoms_nh,
-				 const std::string &description_level);
+					const std::string &three_letter_code,
+					const std::string &name,
+					const std::string &group,
+					int number_atoms_all, int number_atoms_nh,
+					const std::string &description_level);
+
+      // mod stuff (references by chem links)
+      void add_mods(PCMMCIFData data);
+      void add_chem_mods(PCMMCIFLoop mmCIFLoop); 
 
       // link stuff
-      void init_links(PCMMCIFData data); 
+      void init_links(PCMMCIFData data);
 
       void link_add_bond(const std::string &link_id,
 			 int atom_1_comp_id,
@@ -670,7 +761,18 @@ namespace coot {
 			    realtype value_dist,
 			    realtype value_dist_esd,
 			    int period,
-			    const std::string &id); // psi, phi, etc
+			    const std::string &id); // psi, phi (or carbo link id)
+
+      void link_add_chiral(const std::string &link_id,
+			   int atom_c_comp_id,
+			   int atom_1_comp_id,
+			   int atom_2_comp_id,
+			   int atom_3_comp_id,
+			   const std::string &atom_id_c,
+			   const std::string &atom_id_1,
+			   const std::string &atom_id_2,
+			   const std::string &atom_id_3,
+			   int volume_sign);
 
       void link_add_plane(const std::string &link_id,
 			  const std::string &atom_id,
@@ -679,6 +781,7 @@ namespace coot {
 			  double dist_esd);
 
       void assign_chiral_volume_targets();
+      void assign_link_chiral_volume_targets();
       int read_number;
 
       std::vector <std::string> standard_protein_monomer_files() const; 

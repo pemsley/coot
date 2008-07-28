@@ -1499,7 +1499,7 @@
 ;; geometry is an improper list of ints
 ;; buttons is a list of: (list (list button-1-label button-1-action
 ;;                                   button-2-label button-2-action))
-;; The button-1-action function takes no arguments.
+;; The button-1-action function takes as an argument the imol
 ;; The button-2-action function takes as an argument the imol
 ;; 
 (define (dialog-box-of-pairs-of-buttons imol window-name geometry buttons close-button-label)

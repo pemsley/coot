@@ -35,13 +35,13 @@
 #include <gtk/gtk.h>
 #include <GL/gl.h>
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 #include <gtkgl/gtkglarea.h>
 #else  // GTK2 build then:
 #include <gdk/gdkglconfig.h>
 #include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
-#endif // (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#endif // (GTK_MAJOR_VERSION == 1)
 
 #include "Cartesian.h"
 #include "mgtree.h"
@@ -150,8 +150,10 @@ namespace coot {
      };
    }
 
-   void set_validation_graph(int imol, geometry_graph_type type, GtkWidget *dialog);
-   GtkWidget *get_validation_graph(int imol, geometry_graph_type type); 
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   void set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog);
+   GtkWidget *get_validation_graph(int imol, coot::geometry_graph_type type); 
+#endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    class coord_orth_triple {
    public:

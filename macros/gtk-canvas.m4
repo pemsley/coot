@@ -31,7 +31,7 @@ if test x$gtkcanvas_prefix != x; then
 	# --gtkcanvas-prefix=/some/thing
 	#
 
- GTKCANVAS_CFLAGS="-DHAVE_GTK_CANVAS -I$gtkcanvas_prefix/include -I$gtkcanvas_prefix/include/gnome-1.0 $IMLIB_CFLAGS"
+ GTKCANVAS_CFLAGS="-DHAVE_GTK_CANVAS -I$gtkcanvas_prefix/include -I$gtkcanvas_prefix/include/gtk-canvas -I$gtkcanvas_prefix/include/gnome-1.0 $IMLIB_CFLAGS"
  #
  # Similarly for gtkcanvas, the uninstalled library position is simply in
  # $gtkcanvas_prefix, but the installed is in the standard prefixed subdirectory.

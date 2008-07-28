@@ -31,9 +31,7 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(COOT_WINDOWS_CFLAGS)
 
-libcoot_geometry_a_sources = protein-geometry.cc protein-geometry-mmdb.cc
-
-libcoot_geometry_la_SOURCES = $(libcoot_geometry_a_sources)
+libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc 
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
@@ -47,8 +45,8 @@ test_geometry_LDADD = ./libcoot-geometry.la         \
         $(top_builddir)/coot-utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
-test_read_components_LDADD = \
-	$(top_builddir)/geometry/libcoot-geometry.la  \
+test_read_components_LDADD =  \
+	./libcoot-geometry.la \
         $(top_builddir)/coot-utils/libcoot-utils.la   \
 	$(CLIPPER_LIBS) $(MMDB_LIBS)
 

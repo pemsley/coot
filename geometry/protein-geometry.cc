@@ -189,11 +189,22 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 	    //if (std::string(data->GetDataName()).compare(0,5,"link_") == 0 ) {
 	    // 	 if (std::string(data->GetDataName()).compare("link_",0,4) > 1 ) {
+	    //
+	    // note that chem_link goes here to:
+	    // 
 	    if (std::string(data->GetDataName()).substr(0,5) == "link_") {
 	       // std::cout  << "matches link: " <<
 	       // std::string(data->GetDataName()) << std::endl;
 	       init_links(data);
 	    }
+
+
+	    if (std::string(data->GetDataName()).length() > 7) { 
+	       if (std::string(data->GetDataName()).substr(0,5) == "mod_list") {
+		  add_mods(data);
+	       }
+	    }
+	    
          
 	    int n_chiral = 0;
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
@@ -273,6 +284,18 @@ coot::protein_geometry::assign_chiral_volume_targets() {
 // 		   << idict << " " << dict_res_restraints[idict].comp_id
 // 		   << " has unassigned chiral volumes" << std::endl;
 	 dict_res_restraints[idict].assign_chiral_volume_targets();
+      }
+   }
+
+   assign_link_chiral_volume_targets();
+}
+
+void
+coot::protein_geometry::assign_link_chiral_volume_targets() {
+
+   for (unsigned int idict=0; idict<dict_link_res_restraints.size(); idict++) {
+      if (dict_link_res_restraints[idict].has_unassigned_chiral_volumes()) {
+	 dict_link_res_restraints[idict].assign_link_chiral_volume_targets();
       }
    }
 }
@@ -1443,6 +1466,33 @@ coot::protein_geometry::info() const {
    
 } 
 
+// 
+void
+coot::protein_geometry::add_mods(PCMMCIFData data) {
+   
+   for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
+      
+      PCMMCIFCategory cat = data->GetCategory(icat);
+      std::string cat_name(cat->GetCategoryName());
+
+      std::cout << "DEBUG:: add_mods is handling " << cat_name << std::endl;
+
+      PCMMCIFLoop mmCIFLoop = data->GetLoop( (char *) cat_name.c_str() );
+            
+      if (mmCIFLoop == NULL) { 
+	 std::cout << "null loop" << std::endl; 
+      } else {
+	 int n_chiral = 0;
+	 if (cat_name == "_chem_mod")
+	    add_chem_mods(mmCIFLoop);
+      }
+   }
+}
+
+void
+coot::protein_geometry::add_chem_mods(PCMMCIFLoop mmCIFLoop) {
+
+}
 
 // Normally, we would use a const pointer (or a reference). But this
 // is mmdb.
@@ -1455,11 +1505,16 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
       PCMMCIFCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
 
+      // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
+
       PCMMCIFLoop mmCIFLoop = data->GetLoop( (char *) cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
       } else {
+	 int n_chiral = 0;
+	 if (cat_name == "_chem_link")
+	    add_chem_links(mmCIFLoop);
 	 if (cat_name == "_chem_link_bond")
 	    link_bond(mmCIFLoop);
 	 if (cat_name == "_chem_link_angle")
@@ -1468,10 +1523,77 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 	    link_torsion(mmCIFLoop);
 	 if (cat_name == "_chem_link_plane")
 	    link_plane(mmCIFLoop);
-	    
+	 if (cat_name == "_chem_link_chiral")
+	    n_chiral = link_chiral(mmCIFLoop);
+	 if (n_chiral) {
+	    assign_link_chiral_volume_targets();
+	 }
       }
    }
 } 
+
+
+// References to the modifications
+// to the link groups (the modifications
+// themselves are in data_mod_list).
+void
+coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
+
+   std::string chem_link_id;
+   std::string chem_link_comp_id_1;
+   std::string chem_link_mod_id_1;
+   std::string chem_link_group_comp_1;
+   std::string chem_link_comp_id_2;
+   std::string chem_link_mod_id_2;
+   std::string chem_link_group_comp_2;
+   std::string chem_link_name;
+
+   char *s;
+   int ierr;
+   int ierr_tot = 0;
+
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      s = mmCIFLoop->GetString("id", j, ierr);
+      ierr_tot += ierr;
+      if (s) chem_link_id = s;
+
+      s = mmCIFLoop->GetString("comp_id_1", j, ierr);
+      ierr_tot += ierr;
+      if (s) chem_link_comp_id_1 = s;
+
+      s = mmCIFLoop->GetString("mod_id_1", j, ierr);
+      ierr_tot += ierr;
+      if (s) chem_link_mod_id_1 = s;
+
+      s = mmCIFLoop->GetString("group_comp_1", j, ierr);
+      ierr_tot += ierr;
+      if (s) chem_link_group_comp_1 = s;
+
+      s = mmCIFLoop->GetString("comp_id_2", j, ierr);
+      ierr_tot += ierr;
+      if (s) chem_link_comp_id_2 = s;
+
+      s = mmCIFLoop->GetString("mod_id_2", j, ierr);
+      ierr_tot += ierr;
+      if (s) chem_link_mod_id_2 = s;
+
+      s = mmCIFLoop->GetString("group_comp_2", j, ierr);
+      ierr_tot += ierr;
+      if (s) chem_link_group_comp_2 = s;
+
+      s = mmCIFLoop->GetString("name", j, ierr);
+      ierr_tot += ierr;
+      if (s) chem_link_name = s;
+
+      if (ierr_tot == 0) {
+	 coot::chem_link clink(chem_link_id,
+			       chem_link_comp_id_1, chem_link_mod_id_1, chem_link_group_comp_1,
+			       chem_link_comp_id_2, chem_link_mod_id_2, chem_link_group_comp_2,
+			       chem_link_name);
+	 chem_link_vec.push_back(clink);
+      }
+   }
+}
 
 void
 coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
@@ -1649,6 +1771,66 @@ coot::protein_geometry::link_torsion(PCMMCIFLoop mmCIFLoop) {
    }
 }
 
+int 
+coot::protein_geometry::link_chiral(PCMMCIFLoop mmCIFLoop) {
+
+   int n_chiral = 0;
+   std::string chiral_id;
+   std::string atom_id_c, atom_id_1, atom_id_2, atom_id_3;
+   int atom_c_comp_id, atom_1_comp_id, atom_2_comp_id, atom_3_comp_id;
+   int volume_sign;
+
+   char *s; 
+   int ierr;
+   int ierr_tot = 0;
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
+
+      // modify a reference (ierr)
+      //
+      s = mmCIFLoop->GetString("chiral_id",j,ierr);
+      ierr_tot += ierr;
+      if (s)
+	 chiral_id = s; 
+
+      ierr = mmCIFLoop->GetInteger(volume_sign, "volume_sign", j);
+      ierr_tot += ierr;
+
+      ierr = mmCIFLoop->GetInteger(atom_c_comp_id, "atom_centre_comp_id",j);
+      ierr_tot += ierr;
+
+      ierr = mmCIFLoop->GetInteger(atom_1_comp_id, "atom_1_comp_id",j);
+      ierr_tot += ierr;
+
+      ierr = mmCIFLoop->GetInteger(atom_2_comp_id, "atom_2_comp_id",j);
+      ierr_tot += ierr;
+
+      ierr = mmCIFLoop->GetInteger(atom_3_comp_id, "atom_3_comp_id",j);
+      ierr_tot += ierr;
+
+      s = mmCIFLoop->GetString("atom_id_centre",j,ierr);
+      ierr_tot += ierr;
+      if (s) 
+	 atom_id_c = s;
+      
+      s = mmCIFLoop->GetString("atom_id_1",j,ierr);
+      ierr_tot += ierr;
+      if (s) 
+	 atom_id_1 = s;
+
+      if (ierr_tot == 0) {
+	 link_add_chiral(chiral_id,
+			 atom_c_comp_id,
+			 atom_1_comp_id, atom_2_comp_id, atom_3_comp_id,
+			 atom_id_c, atom_id_1, atom_id_2, atom_id_3,
+			 volume_sign);
+	 n_chiral++;
+      } else {
+	 std::cout << "problem reading link torsion mmCIFLoop" << std::endl;
+      } 
+   }
+   return n_chiral;
+}
+
 void
 coot::protein_geometry::link_plane(PCMMCIFLoop mmCIFLoop) {
 
@@ -1805,6 +1987,20 @@ coot::protein_geometry::link_add_torsion(const std::string &link_id,
       dict_link_res_restraints.push_back(dictionary_residue_link_restraints_t(link_id));
       dict_link_res_restraints[dict_link_res_restraints.size()-1].link_torsion_restraint.push_back(ltr);
    }
+}
+
+void
+coot::protein_geometry::link_add_chiral(const std::string &link_id,
+					int atom_c_comp_id,
+					int atom_1_comp_id,
+					int atom_2_comp_id,
+					int atom_3_comp_id,
+					const std::string &atom_id_c,
+					const std::string &atom_id_1,
+					const std::string &atom_id_2,
+					const std::string &atom_id_3,
+					int volume_sign) {
+
 }
 
 void
@@ -2483,6 +2679,19 @@ coot::dictionary_residue_restraints_t::has_unassigned_chiral_volumes() const {
    return r;
 }
 
+bool
+coot::dictionary_residue_link_restraints_t::has_unassigned_chiral_volumes() const {
+   bool r = 0;
+   for (unsigned int ic=0; ic<link_chiral_restraint.size(); ic++) {
+      if (link_chiral_restraint[ic].has_unassigned_chiral_volume()) {
+	 r = 1;
+	 break;
+      }
+   }
+   return r;
+}
+
+
 int
 coot::dictionary_residue_restraints_t::assign_chiral_volume_targets() {
 
@@ -2495,6 +2704,29 @@ coot::dictionary_residue_restraints_t::assign_chiral_volume_targets() {
       ich++;
    }
    return ich;
+}
+
+int
+coot::dictionary_residue_link_restraints_t::assign_link_chiral_volume_targets() {
+
+   int ic = 0;
+   for (unsigned int i=0; i<link_chiral_restraint.size(); i++) {
+      std::vector <coot::dict_bond_restraint_t> bond_restraints_1;
+      std::vector <coot::dict_bond_restraint_t> bond_restraints_2;
+      std::vector <coot::dict_angle_restraint_t> angle_restraints_1;
+      std::vector <coot::dict_angle_restraint_t> angle_restraints_2;
+      std::vector <coot::dict_link_bond_restraint_t> link_bonds;
+      std::vector <coot::dict_link_angle_restraint_t> link_angles;
+      
+      link_chiral_restraint[i].assign_chiral_volume_target(bond_restraints_1,
+							   angle_restraints_1,
+							   bond_restraints_2,
+							   angle_restraints_2,
+							   link_bonds,
+							   link_angles);
+      ic++;
+   }
+   return ic;
 }
 
 double
@@ -2574,6 +2806,20 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target(const std::vector <di
    }
    return vol;
 }
+
+double
+coot::dict_link_chiral_restraint_t::assign_chiral_volume_target(const std::vector <dict_bond_restraint_t> &bonds_1,
+								const std::vector <dict_angle_restraint_t> &angles_1,
+								const std::vector <dict_bond_restraint_t> &bonds_2,
+								const std::vector <dict_angle_restraint_t> &angles_2,
+								const std::vector <dict_link_bond_restraint_t> &link_bonds,
+								const std::vector <dict_link_angle_restraint_t> &link_angles) {
+
+   double d = 0;
+
+   return d;
+} 
+
 
 // angles in radians.
 double
