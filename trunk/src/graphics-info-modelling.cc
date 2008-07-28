@@ -687,8 +687,10 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
 	 graphics_draw();
 	 if (! refinement_immediate_replacement_flag) {
 	    // std::cout << "DEBUG:: Regularize: rr.info is " << rr.info << std::endl;
-	    do_accept_reject_dialog("Regularization", rr);
-	    check_and_warn_bad_chirals_and_cis_peptides();
+	    if (use_graphics_interface_flag) { 
+	       do_accept_reject_dialog("Regularization", rr);
+	       check_and_warn_bad_chirals_and_cis_peptides();
+	    }
 	 }
       } else {
 	 std::cout << "No restraints: regularize()\n";
@@ -943,9 +945,11 @@ graphics_info_t::refine_residue_range(int imol,
 	       std::cout << "Refinement elapsed time: " << float(t1-t0)/1000.0 << std::endl;
 	       if (istat) { 
 		  graphics_draw();
-		  if (! refinement_immediate_replacement_flag) { 
-		     do_accept_reject_dialog("Refinement", rr);
-		     check_and_warn_bad_chirals_and_cis_peptides();
+		  if (! refinement_immediate_replacement_flag) {
+		     if (use_graphics_interface_flag) { 
+			do_accept_reject_dialog("Refinement", rr);
+			check_and_warn_bad_chirals_and_cis_peptides();
+		     }
 		  }
 	       }
 	    }
@@ -1159,7 +1163,9 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 	 graphics_draw();
 	 if (! refinement_immediate_replacement_flag) { 
 	    coot::refinement_results_t dummy;
-	    do_accept_reject_dialog("Rigid Body Fit", dummy); // constructed ref res
+	    if (use_graphics_interface_flag) { 
+	       do_accept_reject_dialog("Rigid Body Fit", dummy); // constructed ref res
+	    }
 	 }
 	 // 
       } else {
@@ -1481,7 +1487,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  moving_atoms_asc_type = coot::NEW_COORDS_INSERT;
 		  graphics_draw();
 		  coot::refinement_results_t dummy;
-		  do_accept_reject_dialog("Terminal Residue", dummy);
+		  if (use_graphics_interface_flag) { 
+		     do_accept_reject_dialog("Terminal Residue", dummy);
+		  } 
 	       } else {
 		  molecules[imol_moving_atoms].insert_coords(tmp_asc);
 		  graphics_draw();
@@ -1783,7 +1791,8 @@ graphics_info_t::execute_torsion_general() {
 				       coot::torsion_general tg(res_local, moving_atoms_asc->mol, as);
 				       torsion_general_tree = tg.GetTree();
 				       coot::refinement_results_t dummy;
-				       do_accept_reject_dialog("Torsion General", dummy);
+				       if (use_graphics_interface_flag)
+					  do_accept_reject_dialog("Torsion General", dummy);
 				    }
 				 }
 			      }

@@ -16,16 +16,23 @@
     side stereo.  Woop.  What a tangled web it was... the problem
     fundamentally, was the when compiling the display lists, we have
     to be in the correct GL context - and when there are side by side
-    view, there are 2 gl contexts.  When drawing, I was doing
-    "draw_main()" then "draw_secondary()".  But when compiling the new
-    lists (e.g. on switch to stereo or changing the contour level) I
-    was not properly setting the context first.
+    view, there are 2 gl contexts.  Generally speaking, I like to keep
+    the interfaces as clean as possible, i.e. keep graphics and GL
+    variables/functions/classes out out ostensibly lower-level classes
+    (e.g. those to with storing, representing and mapulating molecules
+    and maps).  However, when making display lists (a molecule
+    represenation issue, we need to know about the GL context state (a
+    graphics issue) so the hierarchy was inverted in this case. When
+    drawing, I was doing "draw_main()" then "draw_secondary()".  But
+    when compiling the new lists (e.g. on switch to stereo or changing
+    the contour level) I was not properly setting the context first.
 
-    <p> And of course, additionally we need to take care taht when the
-    display lists are actually displayed, they use the correct display
-    lists.
+    <p> And of course, additionally we need to take care that when the
+    display lists are actually displayed, they use the correct GL
+    context to draw them in. 
 
-    <p>OK, done now.  Bill, your work-around can go.
+    <p>OK, done now.  Bill, your work-around can go - that should
+    speed things up on a Mac.
 
 
 <hr>
@@ -594,7 +601,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Mon Jul 28 13:07:28 BST 2008
+Last modified: Mon Jul 28 15:26:22 BST 2008
 <!-- hhmts end -->
   </body>
 </html>

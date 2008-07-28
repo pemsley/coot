@@ -1081,7 +1081,7 @@ molecule_class_info_t::unalt_conf_residue_atoms(CResidue *residue_p) {
 } 
 
 
-short int
+bool
 molecule_class_info_t::delete_atom(const std::string &chain_id,
 				   int resno,
 				   const std::string &ins_code,
@@ -1098,18 +1098,33 @@ molecule_class_info_t::delete_atom(const std::string &chain_id,
 	 
       chain = atom_sel.mol->GetChain(1,ichain);
       std::string mol_chain_id(chain->GetChainID());
+
+      // Note, if in the PDB file, the chain id is not set to
+      // something, A, B, C etc, then the chain id from mmdb is ""
+      // (not " "!)
+      
+//       std::cout << "debug:: delete_atom comparing chain_ids :"
+// 		<< chain_id << ": vs :" << mol_chain_id << ":"
+// 		<< std::endl;
       
       if (chain_id == mol_chain_id) {
 
 	 int nres = chain->GetNumberOfResidues();
 	 for (int ires=0; ires<nres; ires++) { 
 	    PCResidue res = chain->GetResidue(ires);
-	    if (res) { 
-	       if (res->GetSeqNum() == resno) {
+	    std::string ins_code_local = res->GetInsCode();
 
-		  if (res->GetInsCode() == ins_code) { 
+	    if (res) {
+// 	       std::cout << "debug:: delete_atom: comparing residue "
+// 			 << res->GetSeqNum() << " :" << ins_code_local
+// 			 << ":" << " to " << resno << " :" << ins_code << ":"
+// 			 << std::endl;
+	       if (res->GetSeqNum() == resno) {
+		  if (ins_code_local == ins_code) {
 		  
 		     // so we have a matching residue:
+		     std::cout << "debug:: delete_atom: we have a matching residue "
+			       << resno << " :" << ins_code << ":" << std::endl;
 
 		     PPCAtom residue_atoms;
 		     int nResidueAtoms;
@@ -5857,7 +5872,8 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
 	 CResidue *residue = SelResidues[0];
 	 std::string resname = residue->GetResName();
 
-	 if (resname == "ARG") nth_chi = 4; 
+	 // if (resname == "ARG") nth_chi = 4; 
+	 if (resname == "ARG") nth_chi = 5; 
 	 if (resname == "ASP") nth_chi = 2; 
 	 if (resname == "ASN") nth_chi = 2;
 	 if (resname == "CYS") nth_chi = 1;

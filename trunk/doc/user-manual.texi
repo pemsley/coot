@@ -945,32 +945,20 @@ is @code{2} to run the commands without question.
 ``Power users'' of Coot might like to write their own functions and bind
 that function to a keyboard key.  How do they do that?
 
-Coot provides a place-holder function
-@code{(graphics-general-key-press-hook)}.  That default function needs
-to be overridden by user to capture and bind key press events.
-Hopefully the following will make things clearer:
+By using the add-key-binding function:
 
-@example
-(define graphics-general-key-press-hook
-  (lambda (key)
-    (format #t "key: ~s~%" key)
-    (cond
-     ;; bind the P key
-     ((= key 112) (set-pointer-atom-is-dummy 1)
-                 (place-atom-at-pointer))
-     ;; bind the K key
-     ((= key 107) (skip-to-next-ncs-chain))
-     (else 
-        (format #t "No binding for key ~s~%" key)))))
-@end example
+@code{(add-key-binding @emph{function-name key function})}
 
-It is not clear to me what the relationship between the key number and
-the key letter.  Note that Coot captures many key presses on its own and
-they don't get to make it to this function.
+where @code{@emph{key}} is a quoted string (note that upper case and
+lower case keys are distinguished - activate get upper case key binding
+you need to chord the shift key @footnote{funny that}).
 
-You can use this function only once usefully, by that I mean that all
-key captures should go into this function.
+for example:
 
+@code{(add-key-binding "Refine Active Residue with Auto-accept" "x" refine-active-residue)}
+ 
+Have a look at the key bindings section on the Coot wiki for several
+more examples.
 
 @c --------------------------------------------------------
 @node Backups and Undo
@@ -3898,10 +3886,19 @@ questionable structure.
 
 Note that Hydrogens are ignored in this analysis.
 
-@subsection Peptide @math{\omega} Distortion 
+@subsection Peptide @math{\omega} Distortion
+
+Peptide distortions.  Some variability of the @math{\omega} is to be
+expected in the peptide bond.  But not too much. Anything more than 13
+degrees is suspicicous.  Unexpected CIS peptide bonds show up red.
 
 @subsection Geometry
 
+This checks the the bonds, angles and planes geometry of the model is
+consistent with the dictionary @footnote(the Refmac dictionary, that
+is}.  The block size is correlated with the geometry distortion and the
+tooltip tells you the most distorted geometrical feature in the residue.
+A ``plane'' distortion can refer to the peptide plane.
 
 @node Pukka Puckers??
 @section Pukka Puckers??
@@ -3915,6 +3912,7 @@ al.} note that the distance of phosphate atom of the following residue
 out of the plane of the ribose is strongly correlated with the ribose
 pucker.  Coot checks that the out of plane distance is consistent with
 the ribose pucker (and let's you know if it is not). 
+
 
 @c % -----------------------------------------------------------
 @node Hints and Usage Tips

@@ -78,6 +78,8 @@
 
 
 
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
 void
 coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog) {
 
@@ -127,6 +129,10 @@ coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *
 		<< imol << std::endl;
    } 
 } 
+#endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
 GtkWidget *
 coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
@@ -169,6 +175,7 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
    }
    return w;
 } 
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
 // imol map is passed in case that the density fit graph was displayed.
 // If there is no imol_map then the geometry graph could not have been displayed.  You can
@@ -861,9 +868,9 @@ graphics_info_t::rotamer_graphs(int imol) {
 	 }
       }
    }
-   return info;
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
+   return info;
 }
 
 #ifdef HAVE_GSL

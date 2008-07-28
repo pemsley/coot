@@ -241,7 +241,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(twin_mtz_label));
     filename = mtz_filename;
 #else
-    gchar **mtz_filename;
+    gchar **mtz_filename = 0;
     gtk_label_get(GTK_LABEL(twin_mtz_label), mtz_filename);
     filename = (char *)mtz_filename;
 #endif // GTK

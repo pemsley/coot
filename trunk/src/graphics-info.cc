@@ -2654,10 +2654,11 @@ graphics_info_t::add_drag_refine_idle_function() {
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
    // first delete the old plot for this molecule (if it exists)
    // 
    if (imol < graphics_info_t::n_molecules() && imol >= 0) {
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
       // Clear out the old one if it was there.
       GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
@@ -2666,9 +2667,9 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 	    (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
 	 delete plot;
       }
-#endif // HAVE_GTK_CANVAS   
       coot::set_validation_graph(imol, coot::RAMACHANDRAN_PLOT, dyna_toplev);
    }
+#endif // HAVE_GTK_CANVAS   
 }
 
 
@@ -4234,9 +4235,8 @@ graphics_info_t::apply_undo() {
 			gtk_object_get_user_data(GTK_OBJECT(w));
 		     handle_rama_plot_update(plot);
 		  }
-	       }
 #endif // HAVE_GTK_CANVAS   
-	       
+	       }
 	    } else {
 	       if (use_graphics_interface_flag) { 
 		  std::string s = "WARNING:: Coot will not undo modifications on a \n";
@@ -4261,7 +4261,6 @@ graphics_info_t::apply_undo() {
    // and now tinker with the Redo button to make it active
    //
    activate_redo_button();  // has protection for --no-graphics
-
 }
 
 void

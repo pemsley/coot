@@ -1170,8 +1170,9 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
       }
       graphics_draw();
    } else { 
-      std::cout << "failed to delete atom " << chain_id 
-		<< " " << resno << " " <<  at_name << "\n";
+      std::cout << "failed to delete atom  chain_id: :" << chain_id 
+		<< ": " << resno << " incode :" << ins_code
+		<< ": atom-name :" <<  at_name << ": altloc :" <<  altLoc << ":" << "\n";
    }
 
    std::string cmd = "delete-atom";

@@ -25,9 +25,6 @@
 
 lib_LTLIBRARIES=libcoot-ideal.la
 
-# is this needed? no.
-# top_srcdir = ..
-
 EXTRA_DIST = notes Makefile.simple molmantest.cc
 
 include_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h
