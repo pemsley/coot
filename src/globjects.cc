@@ -1597,7 +1597,7 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 #else
 
    // GTK2 code
-   if (make_current_gl_context(widget)) {
+   if (graphics_info_t::make_current_gl_context(widget)) {
       glViewport(0,0, widget->allocation.width, widget->allocation.height);
       graphics_info_t g;
       g.graphics_x_size = widget->allocation.width;
@@ -1641,9 +1641,7 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
    if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
       draw_hardware_stereo(widget, event);
    } else {
-      if ((graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) ||
-	  (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
-	  (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
+      if (graphics_info_t::display_mode_use_secondary_p()) { 
 	 if (widget == graphics_info_t::glarea_2) {
 	    // std::cout << "DEBUG:: draw other window" << std::endl;
 	    graphics_info_t g; // is this a slow thing?
@@ -1709,32 +1707,11 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
    return TRUE;
 }
 
-/* OpenGL functions can be called only if make_current returns true */
-int
-make_current_gl_context(GtkWidget *widget) {
-   
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-   return gtk_gl_area_make_current(GTK_GL_AREA(widget));
-#else
-  GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
-  GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-  return gdk_gl_drawable_gl_begin (gldrawable, glcontext);
-
-  // Something from Bernhard which I don't understand.
-  // 
-// BL says:: dunno how to use gdk_gl_drawable_make_current here, currently
-//       glViewport(0,0, widget->allocation.width, widget->allocation.height);
-//       graphics_info_t g;
-//       g.graphics_x_size = widget->allocation.width;
-//     g.graphics_y_size = widget->allocation.height;
-//    graphics_info_t::graphics_draw();
-#endif   
-}
 
 void gdkglext_finish_frame(GtkWidget *widget) {
 
    // should not even be called by GTK.
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 #else   
   GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
   gdk_gl_drawable_gl_end (gldrawable);
@@ -1770,7 +1747,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 // applications. These parameters are clamped to lie within [0,1].
    
    /* OpenGL functions can be called only if make_current returns true */
-   if (make_current_gl_context(widget)) {
+   if (graphics_info_t::make_current_gl_context(widget)) {
 
       float aspect_ratio = float (widget->allocation.width)/
 	 float (widget->allocation.height);
@@ -1868,9 +1845,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // draw anisotropic atoms maybe
 	 graphics_info_t::molecules[ii].anisotropic_atoms();
 
-	 // new surface things, generated from the dataset.
+	 // We need to (also) pass whether we are drawing the first or
+	 // secondary window, so that, when display lists are being
+	 // used we use the correct part of theMapContours.
 	 //
-	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag);
+	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+							 in_stereo_flag);
 
 	 // 
 	 graphics_info_t::molecules[ii].draw_surface();
@@ -1891,10 +1871,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 //
 	 graphics_info_t::molecules[ii].draw_skeleton();
 
-	 // 	    std::cout << "draw: mol " << ii << " "
-	 // 		      <<g.molecules[ii].n_draw_vectors
-	 // 		      << " vectors"
-	 // 		      << std::endl;
       }
       // regularize object 
       graphics_info_t::moving_atoms_graphics_object();
@@ -3191,8 +3167,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 
 	 if (istate)
 	    graphics_info_t::molecules[s].update_map();
-	 std::cout << "contour level of molecule [" << s << "]:  "
-		   << graphics_info_t::molecules[s].contour_level[0] << std::endl;
+// 	 std::cout << "contour level of molecule [" << s << "]:  "
+// 		   << graphics_info_t::molecules[s].contour_level[0] << std::endl;
 	 
 	 g.set_density_level_string(s, g.molecules[s].contour_level[0]);
 	 g.display_density_level_this_image = 1;
@@ -3213,8 +3189,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 graphics_info_t::molecules[s].change_contour(1); // positive change
       
 	 graphics_info_t::molecules[s].update_map();
-	 std::cout << "contour level of molecule [" << s << "]:  "
-		   << graphics_info_t::molecules[s].contour_level[0] << std::endl;
+// 	 std::cout << "contour level of molecule [" << s << "]:  "
+// 		   << graphics_info_t::molecules[s].contour_level[0] << std::endl;
 
 	 g.set_density_level_string(s, g.molecules[s].contour_level[0]);
 	 g.display_density_level_this_image = 1;
@@ -3588,27 +3564,8 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 // the map updating is.
 	 // 
 	 info.graphics_draw();
-	 //
-// #ifndef FREEGLUT // no need, freeglut now does have glutGet:
-#if 1
-	 int t0 = glutGet(GLUT_ELAPSED_TIME);
-#endif
-	 for (int ii=0; ii<info.n_molecules(); ii++) {
-	    info.molecules[ii].update_clipper_skeleton();
-	    info.molecules[ii].update_map();  // uses statics in graphics_info_t
-	    // and redraw the screen using the new map
-	 }
-	 
-// #ifndef FREEGLUT  // no need, freeglut now does have glutGet:
-#if 1
-	 int t1 = glutGet(GLUT_ELAPSED_TIME);
-	 std::cout << "Elapsed time for map contouring: " << t1-t0 << "ms" << std::endl;
-#endif
-	 for (int ii=0; ii<info.n_molecules(); ii++) {
-	    info.molecules[ii].update_symmetry();
-	 }
-	 info.make_pointer_distance_objects();
-	 info.graphics_draw();
+
+	 info.post_recentre_update_and_redraw();
 
       } else {
 
@@ -3730,8 +3687,8 @@ void handle_scroll_event(int scroll_up_down_flag) {
 	       // 	 } else {
 	       // 	    std::cout << "events pending " << gtk_events_pending() << std::endl; 
 	       // 	 } 
-	       std::cout << "contour level of molecule [" << s << "]:  "
-			 << info.molecules[s].contour_level[0] << std::endl;
+// 	       std::cout << "contour level of molecule [" << s << "]:  "
+// 			 << info.molecules[s].contour_level[0] << std::endl;
 	    }
 	 } else {
 	    std::cout << "WARNING: No map - Can't change contour level.\n";
@@ -3758,8 +3715,8 @@ void handle_scroll_event(int scroll_up_down_flag) {
 	       info.molecules[s].update_map();
 	    }
 	    info.graphics_draw();
-	    std::cout << "contour level of molecule [" << s << "]:  "
-		      << info.molecules[s].contour_level[0] << std::endl;
+// 	    std::cout << "contour level of molecule [" << s << "]:  "
+// 		      << info.molecules[s].contour_level[0] << std::endl;
 	 } else {
 	    std::cout << "WARNING: No map - Can't change contour level.\n";
 	 }

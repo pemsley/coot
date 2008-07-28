@@ -90,15 +90,28 @@ molecule_class_info_t::sharpen(float b_factor) {
 void
 molecule_class_info_t::update_map() {
 
+   update_map_internal();
+}
+
+
+void
+molecule_class_info_t::update_map_internal() {
+
    if (has_map()) {
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 			 graphics_info_t::RotationCentre_y(),
 			 graphics_info_t::RotationCentre_z());
 
       update_map_triangles(graphics_info_t::box_radius, rc); 
-      if (graphics_info_t::use_graphics_interface_flag) { 
+      if (graphics_info_t::use_graphics_interface_flag) {
 	 if (graphics_info_t::display_lists_for_maps_flag) {
-	   compile_density_map_display_list();
+	    graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+	    compile_density_map_display_list(SIDE_BY_SIDE_MAIN);
+	    if (graphics_info_t::display_mode_use_secondary_p()) {
+	       graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
+	       compile_density_map_display_list(SIDE_BY_SIDE_SECONDARY);
+	       graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+	    }
 	 }
       }
    }
@@ -119,16 +132,38 @@ molecule_class_info_t::update_map_in_display_control_widget() const {
 } 
 
 void
-molecule_class_info_t::compile_density_map_display_list() {
+molecule_class_info_t::compile_density_map_display_list(short int first_or_second) {
 
    // std::cout << "Deleting theMapContours " << theMapContours << std::endl;
-   glDeleteLists(theMapContours, 1);
-   theMapContours = glGenLists(1);
-   glNewList(theMapContours, GL_COMPILE);
-
-   draw_density_map_internal(0, 1); // don't use theMapContours (make them!)
-
-   glEndList();
+   if (first_or_second == SIDE_BY_SIDE_MAIN) { 
+      glDeleteLists(theMapContours.first, 1);
+      theMapContours.first = glGenLists(1);
+      if (theMapContours.first > 0) { 
+	 glNewList(theMapContours.first, GL_COMPILE);
+	 
+// 	 std::cout << "in compile_density_map_display_list calling draw_density_map_internal(0,1)"
+// 		   << " theMapContours.first " << theMapContours.first << std::endl;
+	 draw_density_map_internal(0, 1, first_or_second); // don't use theMapContours (make them!)
+	 
+	 glEndList();
+      } else {
+	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE_MAIN! " << std::endl;
+      } 
+   } 
+   if (first_or_second == SIDE_BY_SIDE_SECONDARY) { 
+      glDeleteLists(theMapContours.second, 1);
+      theMapContours.second = glGenLists(1);
+      if (theMapContours.second > 0) { 
+	 glNewList(theMapContours.second, GL_COMPILE);
+	 
+// 	 std::cout << "in compile_density_map_display_list calling draw_density_map_internal(0,1)"
+// 		   << " theMapContours.second " << theMapContours.second << std::endl;
+	 draw_density_map_internal(0, 1, first_or_second); // don't use theMapContours (make them!)
+	 glEndList();
+      } else {
+	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE_SECONDARY! " << std::endl;
+      } 
+   } 
 }
 
 
@@ -139,18 +174,21 @@ molecule_class_info_t::compile_density_map_display_list() {
 // modellers would think of it.
 // 
 void 
-molecule_class_info_t::draw_density_map(short int display_lists_for_maps_flag) {
+molecule_class_info_t::draw_density_map(short int display_lists_for_maps_flag,
+					short int main_or_secondary) {
 
    if (drawit_for_map)
-      draw_density_map_internal(display_lists_for_maps_flag, drawit_for_map);
+      draw_density_map_internal(display_lists_for_maps_flag, drawit_for_map,
+				main_or_secondary);
 }
 
 
 void
 molecule_class_info_t::draw_density_map_internal(short int display_lists_for_maps_flag_local,
-						 bool draw_map_local_flag) {
+						 bool draw_map_local_flag,
+						 short int main_or_secondary) {
 
-   // std::cout << "   draw_density_map() called for " << imol_no << std::endl;
+   // std::cout << "   draw_density_map_internal() called for " << imol_no << std::endl;
 
    // 20080619:
    // When the screen centre is is moved and we have
@@ -165,8 +203,14 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
    // display_lists_for_maps_flag as 0 (i.e. generate the vectors in a
    // glNewList() wrapper).
 
-   int nvecs = n_draw_vectors;
-   if (draw_map_local_flag) {
+
+//    std::cout << "draw_density_map_internal for map number " << imol_no
+// 	     << " display_lists_for_maps_flag_local " << display_lists_for_maps_flag_local
+// 	     << " draw_map_local_flag " << draw_map_local_flag 
+// 	     << std::endl;
+
+   int nvecs = n_draw_vectors; // cartesianpair pointer counter (old code)
+   if (draw_map_local_flag) {  // i.e. drawit_for_map (except when compiling a new map display list)
 
       // same test as has_map():
       if (xmap_is_filled[0]) {
@@ -177,14 +221,25 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	    
 	 if (display_lists_for_maps_flag_local) {
 
-	    // std::cout << " debug  Call list" << std::endl;
-	    glCallList(theMapContours);
+	    GLuint display_list_index = 0; // bad
+	    if (main_or_secondary == SIDE_BY_SIDE_MAIN)
+	       display_list_index = theMapContours.first;
+	    if (main_or_secondary == SIDE_BY_SIDE_SECONDARY)
+	       display_list_index = theMapContours.second;
+	    if (display_list_index > 0) {
+// 	       std::cout << "OK:: using display list " << display_list_index
+// 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
+	       glCallList(display_list_index);
+	    } else { 
+	       std::cout << "ERROR:: using display list " << display_list_index
+			 << " when main_or_secondary is " << main_or_secondary << std::endl;
+	    }
 	    
 	 } else { 
 
+	    // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
 	    // std::cout << "   debug draw immediate mode " << std::endl;
 	    if ( nvecs > 0 ) {
-	       // std::cout << " debug some vectors " << nvecs << std::endl;
 
 	       coot::Cartesian start, finish;
 	       int linesdrawn = 0;
@@ -676,7 +731,7 @@ molecule_class_info_t::restore_previous_map_colour() {
 	    map_colour[0][i] = previous_map_colour[i];
       }
    }
-   compile_density_map_display_list();
+   update_map();
 }
 
 

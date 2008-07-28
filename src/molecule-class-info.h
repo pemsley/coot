@@ -421,6 +421,17 @@ class graphics_info_t;
 //
 class molecule_class_info_t {
 
+   // This is needed because we use side by side stereo with display
+   // lists.  When the maps get updated we need to generate display
+   // lists - and the display lists are specific to the glarea
+   // (GLContext).  So, when we compile_density_map_display_list() we
+   // need to know where to store the returned diplay list index in
+   // theMapContours (in first or second).
+   // 
+   // Note SIDE_BY_SIDE_MAIN refers to the normal mono glarea.
+   // 
+   enum { SIDE_BY_SIDE_MAIN = 0, SIDE_BY_SIDE_SECONDARY = 1}; 
+
    // we will use a pointer to this int so that we can (potentially
    // amongst other things) use it to construct gtk widget labels.
    // We need it to not go away before the whole
@@ -440,7 +451,8 @@ class molecule_class_info_t {
    coot::ghost_molecule_display_t map_ghost_info;
 
    void draw_density_map_internal(short int display_lists_for_maps_flag_local,
-				  bool draw_map_local_flag);
+				  bool draw_map_local_flag,
+				  short int main_or_secondary);
 
    // display flags:
    // 
@@ -524,8 +536,10 @@ class molecule_class_info_t {
    // skeleton colouring flag
    short int colour_skeleton_by_random;
 
-   // display list map contours id
-   GLuint theMapContours;
+   // Display list map contours id.  For left and right in
+   // side-by-side stereo.  For mono (or hardware stereo) use just theMapContours.first()
+   // 
+   std::pair<GLuint, GLuint> theMapContours;
 
    // Noble surface display list id
    GLuint theSurface;
@@ -868,7 +882,8 @@ class molecule_class_info_t {
       theSurface = 0;
 
       //
-      theMapContours = 0;
+      theMapContours.first = 0;
+      theMapContours.second = 0;
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
@@ -1203,9 +1218,11 @@ class molecule_class_info_t {
    void restore_previous_map_colour();
 
    std::vector<coot::display_list_object_info> display_list_tags;
+   void update_map_internal();
    void update_map();
-   void compile_density_map_display_list();
-   void draw_density_map(short int display_list_for_maps_flag);
+   void compile_density_map_display_list(short int first_or_second);
+   void draw_density_map(short int display_list_for_maps_flag,
+			 short int main_or_secondary);
    void draw_surface();
    bool has_display_list_objects();
    int draw_display_list_objects(); // return number of display list objects to be drawn
@@ -1255,7 +1272,8 @@ class molecule_class_info_t {
    //
    void update_map_colour_menu_maybe(int imol); 
    void handle_map_colour_change(gdouble *map_col,
-				 short int swap_difference_map_colours_flag);
+				 short int swap_difference_map_colours_flag,
+				 short int main_or_secondary);
 
    int next_free_map(); 
 
