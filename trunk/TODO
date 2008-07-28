@@ -379,6 +379,10 @@
 
 * Don't know how to test this.
 
+   o Add to scripting layer: add-alt-conf that will work on the active
+     residue.  Not sure if it should auto-accept.  I guess not. 
+
+
  ------
     
     Release 0.8 [Nov 2008?]

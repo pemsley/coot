@@ -12,6 +12,23 @@
 <!-- sentinels in interface -->
 
 <hr>
+    <p>Hoorah!  I eventually got display lists working with side by
+    side stereo.  Woop.  What a tangled web it was... the problem
+    fundamentally, was the when compiling the display lists, we have
+    to be in the correct GL context - and when there are side by side
+    view, there are 2 gl contexts.  When drawing, I was doing
+    "draw_main()" then "draw_secondary()".  But when compiling the new
+    lists (e.g. on switch to stereo or changing the contour level) I
+    was not properly setting the context first.
+
+    <p> And of course, additionally we need to take care taht when the
+    display lists are actually displayed, they use the correct display
+    lists.
+
+    <p>OK, done now.  Bill, your work-around can go.
+
+
+<hr>
     <p>Sat 26 Jul 14:38:31 2008 BST
 
     <p>It seems that I am not the first to use the term "<a
@@ -51,7 +68,7 @@
 
     <p>Also the paucity of the refinement residue selection protocol -
     particularly with reference to carbohydrates, was brought home to
-    me byThomas Lütteke.
+    me by Thomas Lütteke.
 
     <p>So on the way home, I spent my time at Dusseldorf airport
     adding in a parser for chem_links and mod_lists from the Refmac
@@ -577,7 +594,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Sat Jul 26 15:02:03 BST 2008
+Last modified: Mon Jul 28 13:07:28 BST 2008
 <!-- hhmts end -->
   </body>
 </html>

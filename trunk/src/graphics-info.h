@@ -986,6 +986,66 @@ public:
      return v;
    }
 
+   static bool display_mode_use_secondary_p() {
+
+     bool r = 0;
+     if ((display_mode == coot::SIDE_BY_SIDE_STEREO) ||
+	 (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
+	 (display_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
+       r = 1;
+     }
+     return r;
+   }
+
+   /* OpenGL functions can be called only if make_current returns true */
+   static int make_current_gl_context(GtkWidget *widget) {
+   
+#if (GTK_MAJOR_VERSION == 1)
+     return gtk_gl_area_make_current(GTK_GL_AREA(widget));
+#else
+     GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
+     GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
+     return gdk_gl_drawable_gl_begin (gldrawable, glcontext);
+     
+     // Something from Bernhard which I don't understand.
+     // 
+     // BL says:: dunno how to use gdk_gl_drawable_make_current here, currently
+     //       glViewport(0,0, widget->allocation.width, widget->allocation.height);
+     //       graphics_info_t g;
+     //       g.graphics_x_size = widget->allocation.width;
+     //     g.graphics_y_size = widget->allocation.height;
+     //    graphics_info_t::graphics_draw();
+#endif   
+   }
+
+
+   enum {GL_CONTEXT_MAIN = 0, GL_CONTEXT_SECONDARY = 1};
+
+   static bool make_gl_context_current(short int gl_context_current_request) { 
+     bool r = 0;
+     if (display_mode_use_secondary_p()) { 
+       if (gl_context_current_request == GL_CONTEXT_SECONDARY) {
+	 if (glarea_2) {
+	   make_current_gl_context(glarea_2);
+	 } 
+       } 
+       if (gl_context_current_request == GL_CONTEXT_MAIN) { 
+	 if (glarea) {
+	   make_current_gl_context(glarea);
+	 } 
+       } 
+     } else { 
+       if (gl_context_current_request == GL_CONTEXT_MAIN) { 
+	 if (glarea) {
+	   make_current_gl_context(glarea);
+	 } 
+       } 
+     } 
+     return r;
+   }
+
+
+
    // ------------- main window -----------------------
    static GtkWidget *glarea; // so that the molecule redraw function
                              // in c-interface.cc can find which window to redraw.
@@ -2969,6 +3029,9 @@ public:
    // good socket.  The actual socket is a scheme variable.
    // 
    static int listener_socket_have_good_socket_state; 
+
+   void post_recentre_update_and_redraw(); 
+
 
 #ifdef USE_MYSQL_DATABASE
    // MYSQL database

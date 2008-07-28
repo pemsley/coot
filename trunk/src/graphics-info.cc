@@ -98,7 +98,30 @@ int graphics_info_t::create_molecule() {
 // 	     << imol << " ===========" << std::endl;
    molecules.push_back(molecule_class_info_t(imol));
    return imol;
-} 
+}
+
+void
+graphics_info_t::post_recentre_update_and_redraw() { 
+
+   //
+   int t0 = glutGet(GLUT_ELAPSED_TIME);
+   for (int ii=0; ii<n_molecules(); ii++) {
+      molecules[ii].update_clipper_skeleton();
+      molecules[ii].update_map();  // uses statics in graphics_info_t
+      // and redraw the screen using the new map
+   }
+	 
+   int t1 = glutGet(GLUT_ELAPSED_TIME);
+   std::cout << "Elapsed time for map contouring: " << t1-t0 << "ms" << std::endl;
+
+   for (int ii=0; ii<n_molecules(); ii++) {
+      molecules[ii].update_symmetry();
+   }
+   make_pointer_distance_objects();
+   graphics_draw();
+}
+
+
 
 
 
@@ -895,7 +918,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    old_rotation_centre_z = rotation_centre_z;
    short int do_zoom_flag = 0;
 
-   if (graphics_info_t::smooth_scroll == 1)
+   if (smooth_scroll == 1)
       smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0); 
 
    rotation_centre_x = x; 
@@ -905,9 +928,9 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 //    std::cout << "DEBUG:: dynarama_is_displayed[" << imol << "] is "
 // 	     << dynarama_is_displayed[imol] << std::endl;
 
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
       coot::rama_plot *plot = (coot::rama_plot *)
 	 gtk_object_get_user_data(GTK_OBJECT(w));
       int ires = atom->GetSeqNum();
@@ -916,8 +939,8 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 //   		<< " with ires=" << ires << " chain: " << chainid << std::endl;
       std::string ins_code(atom->GetInsCode());
       plot->big_square(ires, ins_code, chainid);
-#endif // HAVE_GTK_CANVAS      
    } 
+#endif // HAVE_GTK_CANVAS      
 
    if (environment_show_distances) { 
       update_environment_graphics_object(index, imol);
@@ -1024,6 +1047,8 @@ void
 graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 				     short int do_zoom_and_move_flag,
 				     float target_zoom) {
+
+   std::cout << "DEBUG:: smooth_scroll_maybe()" << std::endl;
    
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
@@ -5280,7 +5305,14 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
       colours[0] = f1;
       colours[1] = f2;
       colours[2] = f3;
-      molecules[imap].handle_map_colour_change(colours, swap_difference_map_colours);
+      molecules[imap].handle_map_colour_change(colours, swap_difference_map_colours,
+					       GL_CONTEXT_MAIN);
+      if (display_mode_use_secondary_p()) {
+	 make_gl_context_current(GL_CONTEXT_SECONDARY);
+	 molecules[imap].handle_map_colour_change(colours, swap_difference_map_colours,
+					       GL_CONTEXT_SECONDARY);
+	 make_gl_context_current(GL_CONTEXT_MAIN);
+      } 
       delete [] colours;
    }
 }

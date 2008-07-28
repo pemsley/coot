@@ -585,7 +585,10 @@ void mono_mode() {
                    (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
                  set_graphics_window_size(x_size/2, y_size);
                }
-	       graphics_draw();
+	       // std::cout << "DEBUG:: mono_mode() update maps and draw\n";
+	       graphics_info_t g;
+	       g.setRotationCentre(coot::Cartesian(g.X(), g.Y(), g.Z()));
+	       g.post_recentre_update_and_redraw();
 	    } else {
 	       graphics_info_t::display_mode = previous_mode;
 	       std::cout << "WARNING:: switch to mono mode failed\n";
@@ -632,7 +635,6 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	    graphics_info_t::glarea = glarea; // glarea_2 is stored by gl_extras()
 	    gtk_widget_show(glarea);
 	    gtk_widget_show(graphics_info_t::glarea_2);
-	    graphics_draw();
 	    update_maps();
 	    graphics_draw();
 // BL says:: maybe we should set the set_display_lists_for_maps here for
@@ -796,8 +798,24 @@ void swap_map_colours(int imol1, int imol2) {
 	 colours2[0] = map_2_colours[0];
 	 colours2[1] = map_2_colours[1];
 	 colours2[2] = map_2_colours[2];
-	 g.molecules[imol1].handle_map_colour_change(colours2, g.swap_difference_map_colours);
-	 g.molecules[imol2].handle_map_colour_change(colours1, g.swap_difference_map_colours);
+	 short int main_or_secondary = 0; // main
+	 g.molecules[imol1].handle_map_colour_change(colours2,
+						     g.swap_difference_map_colours,
+						     main_or_secondary);
+	 g.molecules[imol2].handle_map_colour_change(colours1,
+						     g.swap_difference_map_colours,
+						     main_or_secondary);
+	 if (graphics_info_t::display_mode_use_secondary_p()) {
+	    g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
+	    main_or_secondary = 1; // secondary
+	    g.molecules[imol1].handle_map_colour_change(colours2,
+							g.swap_difference_map_colours,
+							main_or_secondary);
+	    g.molecules[imol2].handle_map_colour_change(colours1,
+							g.swap_difference_map_colours,
+							main_or_secondary);
+	    g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+	 }
 	 delete [] colours1;
 	 delete [] colours2;
       }
@@ -3300,8 +3318,8 @@ void change_contour_level(short int is_increment) { // else is decrement.
       }
       g.molecules[s].update_map();
       graphics_draw();
-      std::cout << "contour level of molecule [" << s << "]:  "
-		<< g.molecules[s].contour_level[0] << std::endl;
+//       std::cout << "contour level of molecule [" << s << "]:  "
+// 		<< g.molecules[s].contour_level[0] << std::endl;
    }
 } 
 

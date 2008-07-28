@@ -38,7 +38,6 @@ GtkWidget* gl_extras(GtkWidget* window, short int try_hardware_stero);
 
 gint init(GtkWidget *widget); 
 gint init_gl_widget(GtkWidget *widget);
-int make_current_gl_context(GtkWidget *widget);
 void gdkglext_finish_frame(GtkWidget *widget);
 
 void init_surface_wrapper(); 

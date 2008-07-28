@@ -3138,10 +3138,20 @@ void symmetry_colour_adjustment_changed (GtkAdjustment *adj,
 }
 
 void
-handle_map_colour_change(int mol, gdouble* map_col) {
+handle_map_colour_change(int imol, gdouble* map_col) {
    
-   graphics_info_t::molecules[mol].handle_map_colour_change(map_col,
-							    graphics_info_t::swap_difference_map_colours);
+   graphics_info_t::molecules[imol].handle_map_colour_change(map_col,
+							    graphics_info_t::swap_difference_map_colours,
+							    graphics_info_t::GL_CONTEXT_MAIN);
+
+   if (graphics_info_t::display_mode_use_secondary_p()) {
+      graphics_info_t g;
+      g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
+      g.molecules[imol].handle_map_colour_change(map_col,
+						 g.swap_difference_map_colours,
+						 graphics_info_t::GL_CONTEXT_SECONDARY);
+      g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+   }
 
    //cout << "using map colours:   "
    //	<< map_col[0] << " "  << map_col[1] << " "  << map_col[2] << endl;
@@ -3160,7 +3170,16 @@ void set_map_colour(int imol, float red, float green, float blue) {
       colours[0] = red;
       colours[1] = green;
       colours[2] = blue;
-      graphics_info_t::molecules[imol].handle_map_colour_change(colours, graphics_info_t::swap_difference_map_colours);
+      short int swap_col = graphics_info_t::swap_difference_map_colours;
+      graphics_info_t::molecules[imol].handle_map_colour_change(colours, swap_col,
+								graphics_info_t::GL_CONTEXT_MAIN);
+      if (graphics_info_t::display_mode_use_secondary_p()) {
+	 graphics_info_t g;
+	 g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
+	 graphics_info_t::molecules[imol].handle_map_colour_change(colours, swap_col,
+								   graphics_info_t::GL_CONTEXT_SECONDARY);
+	 g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+      } 
       delete [] colours;
    }
 }

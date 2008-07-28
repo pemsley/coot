@@ -34,6 +34,10 @@
 
    o "key bindings" in the manual needs to be updated.
 
+* Done
+
+   o the scrollable map needs to be (correctly?) saved in state file.
+
 
 
 
@@ -6316,4 +6320,26 @@ Fri Jul 18 14:55:30 BST 2008
     copy the residue. do b factor analysis.
 
     delele some atoms from mol 1.  the wrong plot updates.
+
+
+-----
+Mon Jul 21 12:33:21 BST 2008
+
+
+in molecule_class_info_t::handle_read_draw_molecule():
+
+
+      // update the maps so that they appear around the new centre. 
+      // 
+      if (reset_rotation_centre) 
+	 for (int ii=0; ii<g.n_molecules(); ii++) {
+	    g.molecules[ii].update_map(); 
+	 }
+
+    
+    and symmetry likewise.
+
+    Bleugh.
+
+    Fix.  Needs to be in handle_read_draw_molecule_with_recentre in the c-interface function
 

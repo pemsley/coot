@@ -52,7 +52,8 @@ molecule_class_info_t::update_map_colour_menu_maybe(int imol)
 
 void 
 molecule_class_info_t::handle_map_colour_change(gdouble *map_col,
-						short int swap_difference_map_colours_flag) {
+						short int swap_difference_map_colours_flag,
+						short int main_or_secondary) {
 
    map_colour[0][0] = map_col[0];
    map_colour[0][1] = map_col[1];
@@ -76,7 +77,8 @@ molecule_class_info_t::handle_map_colour_change(gdouble *map_col,
       map_colour[1][2] = rgb_new[2];
    }
 
-   compile_density_map_display_list();
+   // main 0: secondary: 1
+   compile_density_map_display_list(main_or_secondary);
 } 
 
 // symmetry control
