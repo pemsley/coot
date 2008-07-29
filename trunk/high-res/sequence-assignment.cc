@@ -884,9 +884,9 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_sequence(const co
    for (unsigned int is=0; is<sequence_infos.size(); is++) {
       if (sequence_infos[is].residue_info.size() > required_range_size) {
 	 int in_unass_range_flag = 0;
-	 int start_resno;
+	 int start_resno = -999;
 	 int end_resno;
-	 int previous_resno;
+	 int previous_resno = -999;
 	 
 	 for (unsigned int ir=0; ir<sequence_infos[is].residue_info.size(); ir++) {
 	    if (sequence_infos[is].residue_info[ir].second < v_crit) {

@@ -77,6 +77,7 @@ int test_internal() {
 
    int status = 1;
    std::vector<named_func> functions;
+   functions.push_back(named_func(kdc_torsion_test, "kevin's torsion test"));
    functions.push_back(named_func(test_alt_conf_rotamers, "test_alt_conf_rotamers"));
    functions.push_back(named_func(test_wiggly_ligands, "test_wiggly_ligands"));
    // functions.push_back(named_func(test_torsion_derivs, "test_torsion_derivs"));
@@ -571,6 +572,93 @@ int test_torsion_derivs() {
 						 use_flanking_residues,
 						 output_numerical_gradients);
    return r;
-} 
+}
+
+
+int kdc_torsion_test() { 
+  int r = 1;
+
+  clipper::Coord_orth co1, co2, co3, co4;
+  std::vector<double> params(12);
+  const int n1(5), n2(7);
+  const double dx = 1.0e-3;
+  for ( int t1 = 0; t1 < n1; t1++ )
+     for ( int t2 = 0; t2 < n2; t2++ ) {
+
+	std::cout << " ===== t1 = " << t1 << "   t2 = " << t2 << " ======" << std::endl;
+	
+	// set up angles at either end of torsion
+	double p1 = 6.283 * double(t1) / double(n1);
+	double p2 = 6.283 * double(t2) / double(n2);
+	// set up atomic coords up z axis
+	params[0]  = cos(p1); params[1]  = sin(p1); params[2]  = 0.0;
+	params[3]  =     0.0; params[4]  =     0.0; params[5]  = 1.0;
+	params[6]  =     0.0; params[7]  =     0.0; params[8]  = 2.0;
+	params[9]  = cos(p2); params[10] = sin(p2); params[11] = 3.0;
+	// now pertub the coords (params[12] is unperturbed)
+	std::vector<std::vector<double> > dparams(13,params);
+	std::vector<double> dresult(13), ngrad(12), agrad(12);
+      
+	for ( int i = 0; i < 12; i++ )
+	   dparams[i][i] += dx;
+
+	// calculate torsion and derivs numerically
+	std::vector<clipper::Coord_orth> co(4);
+	for ( int i = 0; i < dparams.size(); i++ ) {
+	   const std::vector<double>& param = dparams[i];
+	   // convert parameter list to coord orths
+	   for (int j=0;j<4;j++)
+	      for(int k=0;k<3;k++)
+		 co[j][k]=param[3*j+k];
+	   // calculate torsion using clipper
+	   dresult[i] = clipper::Coord_orth::torsion( co[0], co[1], co[2], co[3] );
+	}
+	for ( int i = 0; i < 12; i++ ) {
+	   std::cout << "i = " << i << " [adding (" << dresult[i] << " - " << dresult[12]
+		     << ")/" << dx << " = " << (dresult[i]-dresult[12])/dx << "] to "
+		     << ngrad[i] << std::endl;
+	   ngrad[i] += (dresult[i]-dresult[12])/dx;
+	}
+
+      
+	// first check clipper torsion calc
+	double tor1 = dresult[12];
+	double tor2 = p2-p1;
+	if ( cos( tor1 - tor2 ) < 0.999999 ) {
+	   std::cout <<"TORSION ERROR (CLIPPER)"<<tor1<<" != "<<tor2<<std::endl;
+	   r = 0;
+	}
+
+      
+	// now check coot torsion calc
+	for (int j=0;j<4;j++) for(int k=0;k<3;k++)
+	   co[j][k]=params[3*j+k];
+	coot::distortion_torsion_gradients_t dtg =
+	   coot::fill_distortion_torsion_gradients( co[0], co[1], co[2], co[3] );
+	double tor3 = clipper::Util::d2rad(dtg.theta);
+	if ( cos( tor1 - tor3 ) < 0.999999 ) {
+	   std::cerr <<"TORSION ERROR (COOT)  "<<tor1<<" != "<<tor3<<std::endl;
+	   r = 0;
+	}
+
+      
+	// now fetch coot torsion gradients
+	agrad[0] = dtg.dD_dxP1; agrad[1] = dtg.dD_dyP1; agrad[2] = dtg.dD_dzP1;
+	agrad[3] = dtg.dD_dxP2; agrad[4] = dtg.dD_dyP2; agrad[5] = dtg.dD_dzP2;
+	agrad[6] = dtg.dD_dxP3; agrad[7] = dtg.dD_dyP3; agrad[8] = dtg.dD_dzP3;
+	agrad[9] = dtg.dD_dxP4; agrad[10]= dtg.dD_dyP4; agrad[11]= dtg.dD_dzP4;
+	for ( int i = 0; i < 12; i++ )
+	   // if ( fabs( ngrad[i] - agrad[i] ) > 1.0e-4 ) {
+	   if (1) {
+	      char xyz[] = "xyz";
+	      std::cerr << "TORSIONS " << i/3 << xyz[i%3] << " "
+			<< ngrad[i] << " vs " << agrad[i] << std::endl;
+	      r = 0;
+	   }
+     }
+
+  return r;
+}
+
 
 #endif // BUILT_IN_TESTING
