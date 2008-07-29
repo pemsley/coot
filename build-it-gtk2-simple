@@ -227,7 +227,8 @@
 # 4.11 20080620 Don't run the tests if not in biop or york.
 # 4.12 20080624 Add guile-lib to build.
 # 4.13 20080729 Correctly test for the up to date python version.
-script_version=4.13
+# 4.14 20080729 Adjust test for build_guile_gtk.
+script_version=4.14
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1389,7 +1390,7 @@ if pkg-config --atleast-version=2.8 gtk+-2.0 ; then
     echo gtk is new enough for guile-gtk
     gtk_new_enough_for_guilegtk=true
 else 
-    echo guile-gtk need fixing up
+    echo guile-gtk needs fixing up
     gtk_new_enough_for_guilegtk=false
 fi
 
@@ -1655,27 +1656,26 @@ fi
 # ##############################################################
 
 # guile-gtk, only look in installation, not system.
-if [ "$build_gtk" = "" ] ; then 
-   # if we are not building gtk, perhaps we should not build 
-   # guile-gtk also?
-   if test -e "${install_top_dir}/include/guile-gtk.h" ; then
-      echo installation has guile-gtk
-      if [ "$build_guile" != 1 ] ; then
-         build_guile_gtk=
-      else
-         build_guile_gtk=1
-      fi
+
+# if we are not building gtk, perhaps we should not build 
+# guile-gtk also?
+if test -e "${install_top_dir}/include/guile-gtk.h" ; then
+   echo installation has guile-gtk
+   if [ "$build_guile" != 1 ] ; then
+      build_guile_gtk=
    else
-      echo installation does not have guile-gtk
+      echo guile needs building, so guile-gtk needs building.
       build_guile_gtk=1
    fi
-else 
+else
+   echo installation does not have guile-gtk
    build_guile_gtk=1
 fi
+
 if test -n "${build_guile_gtk}" ; then
    echo guile-gtk should be built
    build_guile_gtk=1
-else 
+else
    echo guile-gtk should not be built
 fi
 
