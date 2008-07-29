@@ -4,9 +4,9 @@
 
    11 Items, 35 hd.
 
-   o chi squareds are displayed properly on GTK1 version?
+   o Kevin's Ramachandran Refinement target, 8hd
 
-   o Kevin's Ramachandran Refinement target, 16hd
+   o chi squareds are displayed properly on GTK1 version? 1hd
 
    o Correct CISPEP if needed cards on writing pdb. <1hd - depending
      on new mmdb code.
@@ -15,7 +15,7 @@
 
    o Use Eugene's new LINK-reading code < 1hd as above
 
-   o Finish A-RAPPER-gui, penelope. 6hd
+   o Finish A-RAPPER-gui, penelope. 4hd
 
 * see what Nick says.  He says it shouldn't crash.
 
@@ -24,25 +24,26 @@
      I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
      211 in ssm_superpose.h
 
-   o Side by stereo with (and without) display-lists for maps
+   o the scrollable map needs to be (correctly?) saved in state file. 1hd.
 
-   o Jan D. crash.
-
-* Nvidia driver problems is my guess
-
-   o put the manual in Oxford.
-
-* Done
-
-   o the scrollable map needs to be (correctly?) saved in state file.
-
-
-
+     
 
 
 
 
 107 Done.
+
+   o put the manual in Oxford.
+
+* Done
+
+   o Jan D. crash.
+
+* Nvidia driver problems is my guess
+
+   o Side by stereo with (and without) display-lists for maps
+
+* Done.
 
    o HK's 3 map crash?
 
@@ -6409,5 +6410,20 @@ in molecule_class_info_t::handle_read_draw_molecule():
     function
 
 
------
+---
+Mon Jul 28 23:36:45 BST 2008
 
+    function to strip spaces from a string (scheme).
+
+----
+Mon Jul 28 23:39:48 BST 2008
+
+    rework const char *atom_info_string(int imol, const char *chain_id, int resno,
+			     const char *ins_code, const char *atname,
+			     const char *altconf) 
+
+    to return a SCM.  And test that it gives #f when atom not exist.
+
+
+
+-----

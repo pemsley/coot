@@ -362,7 +362,7 @@ on_about1_activate                     (GtkMenuItem     *menuitem,
    GtkWidget *about_window;
    GtkWidget *text_widget;
 
-#if (GTK_MAJOR_VERSION == 1) 
+#if (GTK_MAJOR_VERSION == 1) || ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 5))
    about_window = create_about_window();
    fill_about_window(about_window);
 #else 
