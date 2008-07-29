@@ -716,14 +716,32 @@ def check_libcheck_logfile(logfile_name):
     fp.close()
 
 # old coot test
-# BL says:: probably means people will just hassle me ...
-# so not implemented yet
 def old_coot_qm():
-# need to agree on a time format too..
-#    new_release_time = 1200000000
-#    current_time = time.localtime()
-#    time_diff = current_time - new_release_time
-    return 0
+
+   import time, random
+   # when making a new date, recall that guile times seem to be
+   # differently formatted to python times (god knows why)
+   # run e.g.: time.mktime((2008, 7, 24, 0,0,0,0,0,0))
+   # 
+   # new_release_time = 1199919600 # 10 Jan 2008
+   # new_release_time = 1205622000 # 16 Mar 2008 0.3.3
+   # new_release_time = 1216854000 # 24 Jul 2008 0.4
+   new_release_time = 1237244400 # 17 March 2009
+   current_time = int(time.time())
+   time_diff = current_time - new_release_time
+   if (time_diff > 0):
+      if (time_diff > 8600):
+         s = "This is an Old Coot!\n\nIt's time to upgrade."
+      else:
+         if (random.randint(0,3) == 0):
+            # Jorge Garcia:
+            s = "(Nothing says \"patriotism\" like an Ireland shirt...)\n"
+         else:
+            s = "This is an Old Coot!\n\nIt's time to upgrade."
+      info_dialog(s)
+
+if (not coot_has_guile()):
+   old_coot_qm()
 
 # We can either go to a place (in which case the element is a list of
 # button label (string) and 3 numbers that represent the x y z
@@ -1821,7 +1839,7 @@ def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
 # geometry is an improper list of ints
 # buttons is a list of: [["button_1_label, button_1_action],
 #                        ["button_2_label, button_2_action]]
-# The button_1_action function takes no arguments.
+# The button_1_action function takes as an argument the imol
 # The button_2_action function takes as an argument the imol
 # 
 def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_button_label):
@@ -1856,8 +1874,7 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
 			print "button_label_2 ", button_label_2
 			print "callback_2 ", callback_2
 
-			# But what is imol??
-			button_1.connect("clicked", callback_1)
+                        button_1.connect("clicked", lambda func:callback_1(imol))
 			h_box.pack_start(button_1, False, False, 2)
 
 			if callback_2:
@@ -2271,9 +2288,18 @@ def transform_map_using_lsq_matrix_gui():
            print "Must set the refinement map"
         else:
            imol_copy = copy_molecule(active_mol_mov)
-           transform_map_using_lsq_matrix(active_mol_ref, chain_id_ref, resno_1_ref, resno_2_ref,
-                                          imol_copy, chain_id_mov, resno_1_mov, resno_2_mov,
-                                          imol_map, rotation_centre(), radius)
+           new_map_number = transform_map_using_lsq_matrix(active_mol_ref, chain_id_ref, resno_1_ref, resno_2_ref,
+                                                           imol_copy, chain_id_mov, resno_1_mov, resno_2_mov,
+                                                           imol_map, rotation_centre(), radius)
+           set_molecule_name(imol_copy,
+                             "Transformed copy of " + strip_path(molecule_name(active_mol_mov)))
+
+           s =  "Transformed map: from map " + str(imol_map) + \
+               " by matrix that created coords " + str(imol_copy)
+           set_molecule_name(new_map_number,
+                             "Transformed map: from map " + str(imol_map) + \
+                             " by matrix that created coords " + str(imol_copy))
+           
            set_mol_active(imol_copy, 0)
            set_mol_displayed(imol_copy, 0)
 
@@ -3152,6 +3178,114 @@ def run_with_gtk_threading(function, *args):
       finally:
          gtk.gdk.threads_leave()
    gobject.idle_add(idle_func)
+
+# a master gui to set all kinds of refinement parameters
+#
+def refinement_options_gui():
+
+   def set_matrix_func(button, entry):
+      text = entry.get_text()
+      try:
+         t = float(text)
+         s = "Matrix set to " + text
+         set_matrix(t)
+         add_status_bar_text(s)
+      except:
+         add_status_bar_text("Failed to read a number") 
+
+   def generic_check_button(vbox, label_text, handle_check_button_function):
+      def check_callback(*args):
+         active_state = check_button.get_active()
+         set_state = 0
+         if (active_state):
+            set_state = 1
+         handle_check_button_function(set_state)
+      check_button = gtk.CheckButton(label_text)
+      vbox.pack_start(check_button, False, False, 2)
+      check_button.connect("toggled", check_callback)
+      return check_button
+
+   def delete_event(*rags):
+      window.destroy()
+      return False
+
+   def go_function_event(*args):
+      set_matrix_func('dummy', matrix_entry)
+      window.destroy()
+      return False
+
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   vbox = gtk.VBox(False, 0)
+   hbox = gtk.HBox(False, 0)
+   h_sep = gtk.HSeparator()
+   h_sep2 = gtk.HSeparator()
+   h_sep3 = gtk.HSeparator()
+   go_button = gtk.Button("   Ok   ")
+   cancel_button = gtk.Button("  Cancel  ")
+
+   window.add(vbox)
+   # add the matrix entry
+   matrix_entry = entry_do_button(vbox, "set matrix: (smaller means better geometry)",
+                                  "Set", set_matrix_func)
+   matrix_entry.set_text(str(matrix_state()))
+
+   vbox.pack_start(h_sep2, False, False, 2)
+
+   # planar peptide restrains?
+   planar_restraints_button = generic_check_button(vbox,
+                                                 "Use Planar Peptide Restraints?",
+                                                 lambda state: [remove_planar_peptide_restraints(), add_planar_peptide_restraints()][state>0])
+   if (planar_peptide_restraints_state() == 1):
+      planar_restraints_button.set_active(True)
+   else:
+      planar_restraints_button.set_active(False)
+
+   # use torsion restrains?
+   torsion_restraints_button = generic_check_button(vbox,
+                                                 "Use Torsion Restraints?",
+                                                 lambda state: set_refine_with_torsion_restraints(state))
+   if (refine_with_torsion_restraints_state() == 1):
+      torsion_restraints_button.set_active(True)
+   else:
+      torsion_restraints_button.set_active(False)
+
+   vbox.pack_start(h_sep3, False, False, 2)
+
+   # add rotamer check button
+   rotamer_autofit_button = generic_check_button(vbox,
+                                                 "Real Space Refine after Auto-fit Rotamer?",
+                                                 lambda state: set_rotamer_auto_fit_do_post_refine(state))
+   if (rotamer_auto_fit_do_post_refine_state() == 1):
+      rotamer_autofit_button.set_active(True)
+   else:
+      rotamer_autofit_button.set_active(False)
+
+   # add mutate check button
+   mutate_autofit_button = generic_check_button(vbox,
+                                                "Real Space Refine after Mutate and Auto-fit?",
+                                                lambda state: set_mutate_auto_fit_do_post_refine(state))
+   if (mutate_auto_fit_do_post_refine_state() == 1):
+      mutate_autofit_button.set_active(True)
+   else:
+      mutate_autofit_button.set_active(False)
+
+   # add terminal residue check button
+   terminal_autofit_button = generic_check_button(vbox,
+                                                  "Real Space Refine after Add Terminal Residue?",
+                                                  lambda state: set_add_terminal_residue_do_post_refine(state))
+   if (add_terminal_residue_do_post_refine_state() == 1):
+      terminal_autofit_button.set_active(True)
+   else:
+      terminal_autofit_button.set_active(False)
+
+   vbox.pack_start(h_sep, False, False, 2)
+   vbox.pack_start(hbox, False, False, 0)
+   hbox.pack_start(go_button, False, False, 6)
+   hbox.pack_start(cancel_button, False, False, 6)
+
+   go_button.connect("clicked", go_function_event)
+   cancel_button.connect("clicked", delete_event)
+   window.show_all()
 
 
 # let the c++ part of mapview know that this file was loaded:

@@ -777,7 +777,11 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test25_0(self):
 	    """Test for flying hydrogens on undo"""
 
+	    from types import ListType
+	    
 	    imol = unittest_pdb("monomer-VAL.pdb")
+
+	    self.failUnless(valid_model_molecule_qm(imol), "   Failure to read monomer-VAL.pdb")
 
 	    with_auto_accept([regularize_zone, imol, "A", 1, 1, ""])
 	    set_undo_molecule(imol)
@@ -787,10 +791,12 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    atom_1 = get_atom(imol, "A", 1, "HG11")
 	    atom_2 = get_atom(imol, "A", 1, " CG1")
 
-	    bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02)
-
-	    bond_length_within_tolerance_qm(atom_1, atom_2, 1.439, 0.04)
-
+	    self.failUnless((type(atom_1) is ListType) and
+			    (type(atom_2) is ListType) ,
+			    "   flying hydrogen failure, atoms: %s %s" %(atom_1, atom_2))
+	    self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02),
+			    "   flying hydrogen failure, bond length %s, should be 0.96" %bond_length_from_atoms(atom_1, atom_2))
+	    
 
     def test26_0(self):
 	    """Update monomer restraints"""
@@ -948,7 +954,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			skipped_tests.append("Align and mutate a model with deletions")
 			return
 	    rnase_seq_string = file2string(rnase_seq)
-	    self.failUnless(valid_model_molecule_qm(imol), "missing file rnase-A-needs-an-insertion.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol), "   Missing file rnase-A-needs-an-insertion.pdb")
 
 	    align_and_mutate(imol, "A", rnase_seq_string)
 	    write_pdb_file(imol, "mutated.pdb")

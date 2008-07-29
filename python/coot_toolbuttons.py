@@ -151,7 +151,8 @@ if (have_coot_python):
 
         model = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
         for icon_filename in coot_icon_filename_ls:
-          if (not ('phenixed' in icon_filename)):
+          if (not (('phenixed' in icon_filename) or
+                   ('coot-icon' in icon_filename))):
             if os.path.isfile(icon_filename):
               icon = os.path.basename(icon_filename)
               pixbuf = gtk.gdk.pixbuf_new_from_file(icon_filename)
@@ -332,7 +333,8 @@ def list_of_toolbar_functions():
          ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view"],
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
-         ["Refine active residue", "refine_active_residue()", ""]],
+         ["Refine residue", "refine_active_residue()", "RSR active residue"],
+         ["Add alt conf", "altconf()", "Add alternative conformation"]],
         ["NMR",[]],
         ["EM",[]],
         ["Sidechains/Alignment",[]]]
