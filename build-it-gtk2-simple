@@ -226,7 +226,8 @@
 # 4.10 20080618 As per JED request, number the build logs in a more sensible way.
 # 4.11 20080620 Don't run the tests if not in biop or york.
 # 4.12 20080624 Add guile-lib to build.
-script_version=4.12
+# 4.13 20080729 Correctly test for the up to date python version.
+script_version=4.13
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1538,7 +1539,6 @@ else
    build_greg=1
 fi
 
-
 $install_top_dir/bin/python -V
 if test $? != 0 ; then
    echo python should be built
@@ -1547,9 +1547,12 @@ if test $? != 0 ; then
    build_pygobject=1
 else 
    python_version_installed=`python -V 2>&1`
+   python_target_version="Python $pver"
+   echo testing for $python_target_version
+
    case "$python_version_installed" in 
-       "Python 2.5.1") 
-         echo system has python, $python_version_installed
+       "$python_target_version") 
+         echo installation has python, $python_version_installed
          which python
          build_python=
          ;;
