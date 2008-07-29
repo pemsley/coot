@@ -668,6 +668,9 @@
 	(list "binary-Linux-i386-fedora-4-python-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
 
+	(list "binary-Linux-i386-centos-4-python-gtk2"
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"))
+
 	(list "binary-Linux-i386-fedora-8"
 	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
 
