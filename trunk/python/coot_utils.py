@@ -20,10 +20,30 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+# not sure if the implementation of the macros will work
+
+# 'Macro' to run funcs on an active atom
+#
+def using_active_atom(*func):
+
+    active_atom = active_residue()
+    if (not active_residue):
+        add_status_bar_text("No residue found")
+    else:
+        aa_imol      = active_atom[0]
+        aa_chain_id  = active_atom[1]
+        aa_res_no    = active_atom[2]
+        aa_ins_code  = active_atom[3]
+        aa_atom_name = active_atom[4]
+        aa_alt_conf  = active_atom[5]
+    
+
 # 'Macro' to tidy up a set of functions to be run with automatic
 # accepting of the refinement
 # 
-# funcs is a normal set of functions (not a thunk)
+# funcs is a normal set of functions (not a thunk), here i.e. a list of
+# functions with function as a list with func name and args,
+# e.g.: [[centre_of_mass, 0], [func_name, arg1, arg2,...],...]
 # 
 def with_auto_accept(*funcs):
 
@@ -555,25 +575,29 @@ def transform_coords_molecule(imol, rtop):
 # or @code{transform_map(imol,trans,radius)} when using the default 
 # rotation-centre as the about-pt
 #
+# returns new map mol number or None if no map could be transformed/created
+#
 def transform_map(*args):
 
+    ret = None
     def tf(imol,mat,trans,about_pt,radius):
-        transform_map_raw(imol,mat[0],mat[1],mat[2],
-                               mat[3],mat[4],mat[5],
-                               mat[6],mat[7],mat[8],
-                               trans[0],trans[1],trans[2],
-                               about_pt[0],about_pt[1],about_pt[2],
-                               radius)
+        return transform_map_raw(imol,mat[0],mat[1],mat[2],
+                                 mat[3],mat[4],mat[5],
+                                 mat[6],mat[7],mat[8],
+                                 trans[0],trans[1],trans[2],
+                                 about_pt[0],about_pt[1],about_pt[2],
+                                 radius)
     if (len(args)==5):
-       tf(args[0],args[1],args[2],args[3],args[4])
+       ret = tf(args[0],args[1],args[2],args[3],args[4])
 #no matrix specified:
     elif (len(args)==4):
-       tf(args[0],identity_matrix(),args[1],args[2],args[3])
+       ret = tf(args[0],identity_matrix(),args[1],args[2],args[3])
 #no matrix or about point specified:
     elif (len(args)==3):
-       tf(args[0],identity_matrix(),args[1],rotation_centre(),args[2])
+       ret = tf(args[0],identity_matrix(),args[1],rotation_centre(),args[2])
     else:
        print "arguments to transform-map incomprehensible: args: ",args
+    return ret
 
 # Define a map transformation function that obeys Lapthorn's Law of
 # NCS Handling Programs
@@ -583,13 +607,16 @@ def transform_map(*args):
 # Remember, that now the about-pt is the "to" point, i.e. the maps are brought from 
 # somewhere else and generated about the about-pt.
 #
-def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_resno_end, imol_mov, mov_chain, mov_resno_start, mov_resno_end, imol_map, about_pt, radius):
+def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_resno_end,
+                                   imol_mov, mov_chain, mov_resno_start, mov_resno_end,
+                                   imol_map, about_pt, radius):
 
 	clear_lsq_matches()
 	add_lsq_match(ref_resno_start, ref_resno_end, ref_chain,
 		      mov_resno_start, mov_resno_end, mov_chain, 1)
 	rtop = apply_lsq_matches(imol_ref, imol_mov)
-	transform_map(imol_map, rtop[0], rtop[1], about_pt, radius)
+	ret = transform_map(imol_map, rtop[0], rtop[1], about_pt, radius)
+        return ret
 
 # Make the imol-th map brighter.
 #
@@ -1220,6 +1247,38 @@ def remove_line_containing_from_file(remove_str_ls, filename):
         lines = port.writelines(tmp_ls)
         port.close()
 
+# multiple maps of varying colour from a given map.
+#
+def multi_chicken(imol, n_colours = False):
+
+    def rotate_colour_map(col, degrees):
+        ret = [degrees/360 , col[1], col[2] - degrees/360]
+        # ??? not sure about 1st element, think mistake in Paul's scheme script
+        return ret
+    
+    start = 1.0
+    stop = 6.0
+    initial_colour = [0.2, 0.2, 0.8]
+    colour_range = 360
+
+    if (valid_map_molecule_qm(imol)):
+        if (not n_colours):
+            n_col = 10
+        else:
+            n_col = n_colours
+        sigma = map_sigma(imol)
+        
+        print "range n_col returns: ", range(n_col)
+
+        for icol in range(n_col):
+            new_map = copy_molecule(imol)
+            frac = icol / float(n_col)   # need a float!!
+            contour_level_sigma = start + (stop - start) * frac
+            set_last_map_contour_level(sigma * contour_level_sigma)
+            set_last_map_colour(*rotate_colour_map(initial_colour, colour_range * frac))
+    else:
+        print "BL INFO:: %s is not valid map" %imol
+        
 
 def BALL_AND_STICK(): return 2
 

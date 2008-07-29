@@ -38,6 +38,19 @@ Some things, esp. extensions, may be crippled!"""
 if (have_coot_python):
   if coot_python.main_menubar():
 
+     # ---------------------------------------------
+     #           coot news dialog
+     # ---------------------------------------------
+     menu = coot_menubar_menu("About")
+     if (menu):
+       add_simple_coot_menu_menuitem(menu, "Coot News",
+                                     lambda func: whats_new_dialog())
+
+     
+     # ---------------------------------------------
+     #           extensions
+     # ---------------------------------------------
+
      menu = coot_menubar_menu("Extensions")
 
      #---------------------------------------------------------------------
@@ -50,25 +63,18 @@ if (have_coot_python):
 		lambda imol: fill_partial_residues(imol)))
 
 
-     def fit_prot_func(imol):
-	if imol_refinement_map()==-1:
-	   add_status_bar_text("oops. Must set a map to fit")
-	else:
-	   fit_protein(imol)
-
      add_simple_coot_menu_menuitem(menu,"[Post MR] Fit Protein...",
 	lambda func: molecule_chooser_gui("Fit Protein using Rotamer Search",
-		lambda imol: fit_prot_func(imol)))
+		lambda imol: (imol_refinement_map() == -1 and
+                              add_status_bar_text("oops. Must set a map to fit") or
+                              fit_protein(imol))[0]))                                          
 
 
-     def step_ref_func(imol):
-	if imol_refinement_map()==-1:
-		add_status_bar_text("oops. Must set a map to fit")
-	else:
-		stepped_refine_protein(imol)
      add_simple_coot_menu_menuitem(menu,"[Post MR] Stepped Refine...",
 	lambda func: molecule_chooser_gui("Stepped Refine: ",
-		lambda imol: step_ref_func(imol)))
+		lambda imol: (imol_refinement_map() == -1 and
+                              add_status_bar_text("oops. Must set a map to fit") or
+                              stepped_refine_protein(imol))[0]))
 
 
      add_coot_menu_separator(menu)
@@ -153,17 +159,12 @@ if (have_coot_python):
                                    lambda func: transform_map_using_lsq_matrix_gui())
 
 
-     def export_map_func(imol, text):
-       export_status = export_map(imol, text)
-       if (export_status == 1):
-         s = "Map " + str(imol) + " exported to " + text
-         add_status_bar_text(s)
-
      add_simple_coot_menu_menuitem(menu, "Export map...",
         lambda func: generic_chooser_and_file_selector("Export Map: ",
                 valid_map_molecule_qm, "File_name: ", "",
-                lambda imol, text: export_map_func(imol, text)))
-
+                lambda imol, text: (export_map(imol, text) == 1 and
+                                    add_status_bar_text("Map " + str(imol) + " exported to " + text))))
+                                    
 
      add_simple_coot_menu_menuitem(menu,"Brighten Maps",
                lambda func: brighten_maps())
@@ -181,6 +182,10 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(menu, "Another (contour) level...",
 	lambda func: another_level())
 
+
+     add_simple_coot_menu_menuitem(menu, "Multi-chicken...",
+        lambda func: map_molecule_chooser_gui("Choose a molecule for multiple contouring",
+		lambda imol: (set_map_displayed(imol, 0), multi_chicken(imol))))
 
      add_coot_menu_separator(menu)
      
@@ -203,7 +208,8 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(menu,"Residue Type Selection",
 	lambda func: generic_chooser_and_entry("Choose a molecule to select residues from: ","Residue Type:","",
-		lambda imol,text: map(eval,("new_molecule_by_residue_type_selection(imol,text)", "update_go_to_atom_window_on_new_mol()"))))
+                                               lambda imol, text: (new_molecule_by_residue_type_selection(imol, text),
+                                                                   update_go_to_atom_window_on_new_mol())))
 
 
      def new_mol_sphere_func1(imol, text):
@@ -365,113 +371,6 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
      #
 
-     # a master gui to set all kinds of refinement parameters
-
-     def refinement_options_gui():
-
-       def set_matrix_func(button, entry):
-         text = entry.get_text()
-         try:
-           t = float(text)
-           s = "Matrix set to " + text
-           set_matrix(t)
-           add_status_bar_text(s)
-         except:
-           add_status_bar_text("Failed to read a number") 
-
-       def generic_check_button(vbox, label_text, handle_check_button_function):
-         def check_callback(*args):
-           active_state = check_button.get_active()
-           set_state = 0
-           if (active_state):
-             set_state = 1
-           handle_check_button_function(set_state)
-         check_button = gtk.CheckButton(label_text)
-         vbox.pack_start(check_button, False, False, 2)
-         check_button.connect("toggled", check_callback)
-         return check_button
-
-       def delete_event(*rags):
-         window.destroy()
-         return False
-
-       def go_function_event(*args):
-         set_matrix_func('dummy', matrix_entry)
-         window.destroy()
-         return False
-       
-       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-       vbox = gtk.VBox(False, 0)
-       hbox = gtk.HBox(False, 0)
-       h_sep = gtk.HSeparator()
-       h_sep2 = gtk.HSeparator()
-       h_sep3 = gtk.HSeparator()
-       go_button = gtk.Button("   Ok   ")
-       cancel_button = gtk.Button("  Cancel  ")
-
-       window.add(vbox)
-       # add the matrix entry
-       matrix_entry = entry_do_button(vbox, "set matrix: (smaller means better geometry)",
-                                      "Set", set_matrix_func)
-       matrix_entry.set_text(str(matrix_state()))
-       
-       vbox.pack_start(h_sep2, False, False, 2)
-
-       # planar peptide restrains?
-       planar_restraints_button = generic_check_button(vbox,
-                                                     "Use Planar Peptide Restraints?",
-                                                     lambda state: [remove_planar_peptide_restraints(), add_planar_peptide_restraints()][state>0])
-       if (planar_peptide_restraints_state() == 1):
-         planar_restraints_button.set_active(True)
-       else:
-         planar_restraints_button.set_active(False)
-       
-       # use torsion restrains?
-       torsion_restraints_button = generic_check_button(vbox,
-                                                     "Use Torsion Restraints?",
-                                                     lambda state: set_refine_with_torsion_restraints(state))
-       if (refine_with_torsion_restraints_state() == 1):
-         torsion_restraints_button.set_active(True)
-       else:
-         torsion_restraints_button.set_active(False)
-         
-       vbox.pack_start(h_sep3, False, False, 2)
-
-       # add rotamer check button
-       rotamer_autofit_button = generic_check_button(vbox,
-                                                     "Real Space Refine after Auto-fit Rotamer?",
-                                                     lambda state: set_rotamer_auto_fit_do_post_refine(state))
-       if (rotamer_auto_fit_do_post_refine_state() == 1):
-         rotamer_autofit_button.set_active(True)
-       else:
-         rotamer_autofit_button.set_active(False)
-         
-       # add mutate check button
-       mutate_autofit_button = generic_check_button(vbox,
-                                                    "Real Space Refine after Mutate and Auto-fit?",
-                                                    lambda state: set_mutate_auto_fit_do_post_refine(state))
-       if (mutate_auto_fit_do_post_refine_state() == 1):
-         mutate_autofit_button.set_active(True)
-       else:
-         mutate_autofit_button.set_active(False)
-     
-       # add terminal residue check button
-       terminal_autofit_button = generic_check_button(vbox,
-                                                      "Real Space Refine after Add Terminal Residue?",
-                                                      lambda state: set_add_terminal_residue_do_post_refine(state))
-       if (add_terminal_residue_do_post_refine_state() == 1):
-         terminal_autofit_button.set_active(True)
-       else:
-         terminal_autofit_button.set_active(False)
-
-       vbox.pack_start(h_sep, False, False, 2)
-       vbox.pack_start(hbox, False, False, 0)
-       hbox.pack_start(go_button, False, False, 6)
-       hbox.pack_start(cancel_button, False, False, 6)
-
-       go_button.connect("clicked", go_function_event)
-       cancel_button.connect("clicked", delete_event)
-       window.show_all()
 
      add_simple_coot_menu_menuitem(menu, "Set Refinement options...",
                                    lambda func: refinement_options_gui())
@@ -507,28 +406,19 @@ if (have_coot_python):
      menu.append(menuitem2)
      menuitem2.show()
 
-     def ref_mode_func1():
-	print "Molasses..."
-	set_dragged_refinement_steps_per_frame(4)
-
      add_simple_coot_menu_menuitem(submenu, "Molasses Refinement mode", 
-	lambda func: ref_mode_func1())
+	lambda func: (printf("Molasses..."),
+                      set_dragged_refinement_steps_per_frame(4)))
 
-
-     def ref_mode_func2():
-	print "Crock..."
-	set_dragged_refinement_steps_per_frame(120)
 
      add_simple_coot_menu_menuitem(submenu, "Crocodile Refinement mode", 
-	lambda func: ref_mode_func2())
+	lambda func: (printf("Crock..."),
+                      set_dragged_refinement_steps_per_frame(120)))
 
-
-     def ref_mode_func2():
-	print "Default Refinement mode (1 Emsley)..."
-	set_dragged_refinement_steps_per_frame(50)
 
      add_simple_coot_menu_menuitem(submenu, "Normal Refinement mode (1 Emsley)", 
-	lambda func: ref_mode_func2())
+	lambda func: (printf("Default Refinement mode (1 Emsley)..."),
+                      set_dragged_refinement_steps_per_frame(50)))
 
 
 # BL says:: maybe check if number at some point
@@ -608,7 +498,10 @@ if (have_coot_python):
 			set_symmetry_whole_chain(imol, 1)
 
      add_simple_coot_menu_menuitem(menu, "All Molecules use \"Near Chains\" Symmetry", 
-	lambda func: all_mol_symm_func())
+	lambda func: map(lambda imol: valid_model_molecule_qm(imol) and
+                         set_symmetry_whole_chain(imol, 1),
+                         molecule_number_list()))
+#	lambda func: all_mol_symm_func())
 
 
      add_simple_coot_menu_menuitem(menu, "Question Accept Refinement", 

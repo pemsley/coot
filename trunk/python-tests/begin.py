@@ -50,15 +50,17 @@ def bond_length(pos_1, pos_2):
     ret = math.sqrt(sum(map(square, map(sub, pos_1, pos_2))))
     return ret
 
+def bond_length_from_atoms(atom_1, atom_2):
+    return bond_length(atom_1[2],
+                       atom_2[2])
+
 def bond_length_within_tolerance_qm(atom_1, atom_2, ideal_length, tolerance):
 
     if (not atom_1):
         return False
     if (not atom_2):
         return False
-    pos_1 = atom_1[2]
-    pos_2 = atom_2[2]
-    b = bond_length(pos_1, pos_2)
+    b = bond_length_from_atoms(atom_1, atom_2)
     return abs(b - ideal_length) < tolerance
 
 def get_atom(imol, chain_id, resno, atom_name):
