@@ -1048,8 +1048,6 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 				     short int do_zoom_and_move_flag,
 				     float target_zoom) {
 
-   std::cout << "DEBUG:: smooth_scroll_maybe()" << std::endl;
-   
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;

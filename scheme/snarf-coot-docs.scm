@@ -30,6 +30,8 @@
 (define ccp4i-projects-scm #f)
 (define get-rotamer-name-scm #f)
 (define test-internal-scm #f)
+(define atom-info-string-scm #f)
+
 
 
 (load "filter.scm")
