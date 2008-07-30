@@ -113,6 +113,9 @@ Pre-release 0.5
    o BUG-FIX: Now coot does not crash on when displaying NPD atoms
      in anisotropic representation [Mitch Miller].
 
+   o BUG-FIX: Now coot does not crash when opening "Cell & Symmetry"
+     with no molecules loaded.
+
    o BUG-FIX: Coot no longer crashes when deleting a residue with an
      Alt Conf [JED].
 
