@@ -230,7 +230,9 @@
 # 4.14 20080729 Adjust test for build_guile_gtk.
 # 4.15 20080730 Adjust test for up to date python.
 # 4.16 20080730 Use old version of pyobject if pkg-config is not new enough
-script_version=4.16
+# 4.17 20080730 Test for gtk minor version, use that to apply guile-gtk patches 
+#               if needed.
+script_version=4.17
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2330,11 +2332,20 @@ if test -n "$build_guile_gtk" ; then
 #
 guile_gtk_version=2.1
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-$guile_gtk_version.tar.gz
-( 
+# now, if we have gtk version 2.4 then we need guile-gtk patches.
+gtk_minor_version=`awk -F '[()]' '/define GTK_MINOR_VERSION/ {print $(NF-1)} ' /usr/include/gtk-2.0/gtk/gtkversion.h`
+if [ "$gtk_minor_version" = "4" ] ; then
+    apply_guile_gtk_patches=1
+    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gtk-2.1-for-gtk-2.4.patch
+fi
+(
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gtk-$guile_gtk_version.tar.gz | tar xf -
 cd guile-gtk-$guile_gtk_version
+if [ "$apply_guile_gtk_patches" = 1 ]; then
+    patch -p0 < ${AUTOBUILD_SOURCES}/guile-gtk-2.1-for-gtk-2.4.patch
+fi 
 ./configure $generic_prefix --without-gtkgl --with-glade=no
 # now patch the libtool if needed:
 # fix ulong if needed:
