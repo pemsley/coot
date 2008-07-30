@@ -3025,7 +3025,18 @@ GtkWidget *wrapped_create_show_symmetry_window() {
    /* Symmetry Search Radius Entry */
    GtkWidget *entry; 
    char *text;
-   int imol = 0; 
+   int imol = -1;
+
+   for (int ii=0; ii<graphics_n_molecules(); ii++) {
+      if (is_valid_model_molecule(ii)) {
+	 imol = ii;
+	 break;
+      } 
+      if (is_valid_map_molecule(ii)) {
+	 imol = ii;
+	 break;
+      } 
+   } 
 
    
 /* The Show Symmetry RadioButtons */
@@ -3072,16 +3083,18 @@ GtkWidget *wrapped_create_show_symmetry_window() {
     free (text); 
 
 /* The Unit Cell Radiobuttons */
- 
-    if (get_show_unit_cell(imol) == 1) { 
-       button = GTK_BUTTON(lookup_widget(show_symm_window,
-					 "unit_cell_yes_radiobutton"));
-    } else { 
-       button = GTK_BUTTON(lookup_widget(show_symm_window,
-					 "unit_cell_no_radiobutton"));
-    }
 
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) { 
+       if (get_show_unit_cell(imol) == 1) { 
+	  button = GTK_BUTTON(lookup_widget(show_symm_window,
+					    "unit_cell_yes_radiobutton"));
+       } else { 
+	  button = GTK_BUTTON(lookup_widget(show_symm_window,
+					    "unit_cell_no_radiobutton"));
+       }
+       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    } 
+
        
     //  The Expanded Atoms Label checkbutton
 
