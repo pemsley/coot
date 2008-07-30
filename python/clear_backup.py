@@ -180,7 +180,8 @@ def clear_backups_maybe():
             all_last_cleaned_files.append(last_cleaned_file)
             
     if (len(all_last_cleaned_files) == 0):
-        clear_backup_gui()
+        ret = clear_backup_gui()
+        return ret
     else:
         for last_cleaned_file in all_last_cleaned_files:
             fin = open(last_cleaned_file, 'r')

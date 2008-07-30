@@ -986,7 +986,7 @@ def get_option_menu_active_molecule(option_menu, model_mol_list):
     for i in model:
         children += 1
 
-    if (children == model_mol_list):
+    if (children == model_mol_list or children == len(model_mol_list)):
        try:
           all_model = model[active_item][0]
           imol_model, junk = all_model.split(' ', 1)
@@ -1011,7 +1011,7 @@ def get_option_menu_active_item(option_menu, item_list):
    for i in model:
         children += 1
 
-   if (children == model_mol_list):
+   if (children == len(item_list)):
        try:
           all_model = model[active_item][0]
           return all_model
@@ -1019,7 +1019,7 @@ def get_option_menu_active_item(option_menu, item_list):
           print "INFO:: could not get active_item"
           return False
    else:
-       print "Failed children length test : ",children, model_mol_list
+       print "Failed children length test : ",children, item_list
        return False
 
 
@@ -1504,7 +1504,7 @@ def generic_number_chooser(number_list, default_option_value, hint_text, go_butt
        return False
 
     def go_button_pressed(*args):
-        active_number = int(get_option_menu_active_molecule(option_menu, number_list))
+        active_number = int(get_option_menu_active_item(option_menu, number_list))
         try:
 #           print "BL DEBUG:: go_function is:", go_function
 #           print "BL DEBUG:: active_number is:", active_number
