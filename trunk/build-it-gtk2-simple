@@ -232,7 +232,8 @@
 # 4.16 20080730 Use old version of pyobject if pkg-config is not new enough
 # 4.17 20080730 Test for gtk minor version, use that to apply guile-gtk patches 
 #               if needed.
-script_version=4.17
+# 4.18 20080730 Add Diagnosis for applying guile-gtk patch.
+script_version=4.18
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2344,6 +2345,7 @@ pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gtk-$guile_gtk_version.tar.gz | tar xf -
 cd guile-gtk-$guile_gtk_version
 if [ "$apply_guile_gtk_patches" = 1 ]; then
+    echp patch -p0 ..from.. ${AUTOBUILD_SOURCES}/guile-gtk-2.1-for-gtk-2.4.patch
     patch -p0 < ${AUTOBUILD_SOURCES}/guile-gtk-2.1-for-gtk-2.4.patch
 fi 
 ./configure $generic_prefix --without-gtkgl --with-glade=no
