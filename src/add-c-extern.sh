@@ -23,7 +23,7 @@ echo "BEGIN_C_DECLS" >> "$1".tmp.a
 echo ""              >> "$1".tmp.a
 
 echo ""                                                             > "$1".tmp.b
-echo "#if (GTK_MAJOR_VERSION > 1)"                                 >> "$1".tmp.b
+echo "#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)" >> "$1".tmp.b
 echo "char* coot_revision(void);"                                  >> "$1".tmp.b
 echo "GtkWidget* create_aboutdialog (void);"                       >> "$1".tmp.b
 echo "GtkWidget* create_coords_filechooserdialog1(void);"          >> "$1".tmp.b

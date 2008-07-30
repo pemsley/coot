@@ -12,14 +12,24 @@
 <!-- sentinels in interface -->
 
 <hr>
+    <p>Tue 29 Jul 22:11:42 2008 BST
+
+    <p>Yep, the guile-gtk build failed.  I built it by hand and
+    installed it.
+
+    <p>But coot is still failing to build because it doesn't know not
+    to use the AboutDialog widget - which does not exist exist in GTK
+    version 2.4.13 - which is what exists on RHEL4 and CentOS4.6.
+
+<hr>
     <p>Tue Jul 29 17:49:59 BST 2008
 
-    <p>Dell machine was booted "noprobe" option needed, so it didn't
-    detect my mouse and I had to use text mode to install.  So, it
-    boots up now, it detected USB keyboard and USB mouse, but fails to
-    run the screen at native resolution. DNS, NIS and NFS all working
-    - which is more important.  I am doing a "yum update" as I type -
-    183 packages to be updated.
+    <p>Dell machine was booted! The "noprobe" option needed, so it
+    didn't detect my mouse and I had to use text mode to install.  So,
+    it boots up now, it detected USB keyboard and USB mouse, but fails
+    to run the screen at native resolution. DNS, NIS and NFS all
+    working - which is more important.  I am doing a "yum update" as I
+    type - 183 packages to be updated.
 
     <p>I think that I should be able to run the autobuilder on it
     tonight.  I expect guile-gtk to fail.
@@ -618,7 +628,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Tue Jul 29 22:08:21 BST 2008
+Last modified: Tue Jul 29 22:15:05 BST 2008
 <!-- hhmts end -->
   </body>
 </html>
