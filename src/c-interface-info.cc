@@ -605,7 +605,7 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 
 	 r = PyList_New(6);
 	 PyList_SetItem(r, 0, PyFloat_FromDouble(atom->occupancy));
-	 PyList_SetItem(r, 1, PyFloat_FromDouble(atom->temp_factor));
+	 PyList_SetItem(r, 1, PyFloat_FromDouble(atom->tempFactor));
 	 PyList_SetItem(r, 2, PyString_FromString(atom->element));
 	 PyList_SetItem(r, 3, PyFloat_FromDouble(atom->x));
 	 PyList_SetItem(r, 4, PyFloat_FromDouble(atom->y));
