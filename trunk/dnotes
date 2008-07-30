@@ -29,6 +29,9 @@
    o Problem with (run-python-command "cootaneer_gui_bl()"))) when
      pyobject and pygtk don't get built? Roni Gordon.
 
+   o need fixup for gtk_combo_box_get_active_text (null)
+
+
 
 
 

@@ -541,11 +541,12 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 
 #ifdef USE_GUILE
 // (list occ temp-factor element x y z) or #f 
-const char *atom_info_string(int imol, const char *chain_id, int resno,
-		     const char *ins_code, const char *atname,
-		     const char *altconf) {
+SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
+			 const char *ins_code, const char *atname,
+			 const char *altconf) {
 
-   const char *r = 0;  // guile/SWIG sees this as #f
+   SCM r = SCM_BOOL_F;
+   
    if (is_valid_model_molecule(imol)) {
       int index =
 	 graphics_info_t::molecules[imol].full_atom_spec_to_atom_index(std::string(chain_id),
@@ -556,22 +557,15 @@ const char *atom_info_string(int imol, const char *chain_id, int resno,
       if (index > -1) { 
 	 CAtom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
 
-	 // we need the ' because eval needs it.
-	 std::string s = "(quote (";
-	 s += coot::util::float_to_string(atom->occupancy);
-	 s += " ";
-	 s += coot::util::float_to_string(atom->tempFactor);
-	 s += " ";
-	 s += single_quote(atom->element);
-	 s += " ";
-	 s += coot::util::float_to_string(atom->x);
-	 s += " ";
-	 s += coot::util::float_to_string(atom->y);
-	 s += " ";
-	 s += coot::util::float_to_string(atom->z);
-	 s += "))";
-	 r = new char[s.length() + 1];
-	 strcpy((char *)r, s.c_str());
+	 r = SCM_EOL;
+
+	 r = scm_cons(scm_double2num(atom->occupancy), r);
+	 r = scm_cons(scm_double2num(atom->tempFactor), r);
+	 r = scm_cons(scm_makfrom0str(atom->element), r);
+	 r = scm_cons(scm_double2num(atom->x), r);
+	 r = scm_cons(scm_double2num(atom->y), r);
+	 r = scm_cons(scm_double2num(atom->z), r);
+	 r = scm_reverse(r);
       }
    }
    std::string cmd = "atom-info-string";
@@ -587,15 +581,18 @@ const char *atom_info_string(int imol, const char *chain_id, int resno,
    return r;
 }
 #endif // USE_GUILE
+
+
 // BL says:: we return a string in python list compatible format.
 // to use it in python you need to eval the string!
 #ifdef USE_PYTHON
 // "[occ,temp_factor,element,x,y,z]" or 0
-const char *atom_info_string_py(int imol, const char *chain_id, int resno,
-                     const char *ins_code, const char *atname,
-                     const char *altconf) {
+PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
+			      const char *ins_code, const char *atname,
+			      const char *altconf) {
 
-   const char *r = 0;  // python/SWIG sees this as False (esp once eval'ed)
+   PyObject *r = Py_False;
+   
    if (is_valid_model_molecule(imol)) {
       int index =
          graphics_info_t::molecules[imol].full_atom_spec_to_atom_index(std::string(chain_id),
@@ -606,22 +603,13 @@ const char *atom_info_string_py(int imol, const char *chain_id, int resno,
       if (index > -1) { 
          CAtom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
 
-         // we need the ' because eval needs it.
-         std::string s = "[";
-         s += coot::util::float_to_string(atom->occupancy);
-         s += ",";
-         s += coot::util::float_to_string(atom->tempFactor);
-         s += ",";
-         s += single_quote(atom->element);
-         s += ",";
-         s += coot::util::float_to_string(atom->x);
-         s += ",";
-         s += coot::util::float_to_string(atom->y);
-         s += ",";
-         s += coot::util::float_to_string(atom->z);
-         s += "]";
-         r = new char[s.length() + 1];
-         strcpy((char *)r, s.c_str());
+	 r = PyList_New(6);
+	 PyList_SetItem(r, 0, PyFloat_FromDouble(atom->occupancy));
+	 PyList_SetItem(r, 1, PyFloat_FromDouble(atom->temp_factor));
+	 PyList_SetItem(r, 2, PyString_FromString(atom->element));
+	 PyList_SetItem(r, 3, PyFloat_FromDouble(atom->x));
+	 PyList_SetItem(r, 4, PyFloat_FromDouble(atom->y));
+	 PyList_SetItem(r, 5, PyFloat_FromDouble(atom->z));
       }
    }
    std::string cmd = "atom_info_string";

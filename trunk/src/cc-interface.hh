@@ -357,10 +357,13 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
 in this format (list occ temp-factor element x y z).  Return empty
 list if atom not found. */
 #ifdef USE_GUILE
-const char *atom_info_string(int imol, const char *chain_id, int resno,
-			     const char *ins_code, const char *atname,
-			     const char *altconf);
+SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
+			 const char *ins_code, const char *atname,
+			 const char *altconf);
+#endif // USE_GUILE
 
+
+#ifdef USE_GUILE
 //! \brief
 // Return a list of atom info for each atom in the specified residue:
 // 
@@ -417,9 +420,9 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius);
 in this format [occ, temp_factor, element, x, y, z].  Return empty
 list if atom not found. */
 #ifdef USE_PYTHON
-const char *atom_info_string_py(int imol, const char *chain_id, int resno,
-			     const char *ins_code, const char *atname,
-			     const char *altconf);
+PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
+			      const char *ins_code, const char *atname,
+			      const char *altconf);
 //! \brief
 // Return a list of atom info for each atom in the specified residue:
 //

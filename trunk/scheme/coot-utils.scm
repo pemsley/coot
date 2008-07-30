@@ -48,6 +48,7 @@
 (define map-sigma map-sigma-scm)
 (define get-rotamer-name get-rotamer-name-scm)
 (define test-internal test-internal-scm)
+(define atom-info-string atom-info-string-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
@@ -474,6 +475,17 @@
 (define (close-float? x1 x2)
   
   (< (abs (- x1 x2)) 0.001))
+
+
+;; if passed a string, return a string with no spaces,
+;; else return #f.
+;; 
+(define (strip-spaces str)
+
+  (if (not (string? str))
+      #f
+      (let f ((str str))
+	(apply string-append (string-split str #\space)))))
 
 ;; Append strings with tag-str between them
 ;; 
@@ -1138,11 +1150,8 @@
 ;; on error (e.g. atom not found) return #f
 ;; 
 (define (atom-specs imol chain-id resno ins-code atom-name alt-conf)
+  (atom-info-string imol chain-id resno ins-code atom-name alt-conf))
 
-  (let ((v (call-with-input-string (atom-info-string imol chain-id resno 
-						     ins-code atom-name alt-conf) 
-				   (lambda (port) (read port)))))
-    (eval v (interaction-environment))))
 
 ;; backups wrapper: doesn't work currently, I think.  More cleverness required.
 (define (with-no-backups imol thunk)
