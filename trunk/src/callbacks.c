@@ -9671,7 +9671,6 @@ on_model_toolbar_setting1_activate     (GtkMenuItem     *menuitem,
 
 
 #if (GTK_MAJOR_VERSION > 1) 
-#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5))
 void
 on_model_toolbar_menutoolbutton1_show_menu
                                         (GtkMenuToolButton *menutoolbutton,
@@ -9680,8 +9679,9 @@ on_model_toolbar_menutoolbutton1_show_menu
   /* I dont think anything needs to happen here */
 
 }
+#endif 
 
-
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_model_toolbar_display_manager_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -9692,8 +9692,10 @@ on_model_toolbar_display_manager_togglebutton_toggled
   }
   
 }
+#endif 
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_toolbar_display_manager_maps_all_activate
                                         (GtkMenuItem     *menuitem,
@@ -9701,8 +9703,10 @@ on_toolbar_display_manager_maps_all_activate
 {
 
 }
+#endif
 
 
+#if (GTK_MAJOR_VERSION > 1) 
 void
 on_toolbar_display_manager_molecules_all_activate
                                         (GtkMenuItem     *menuitem,
@@ -9710,10 +9714,7 @@ on_toolbar_display_manager_molecules_all_activate
 {
 
 }
-
-#endif /* GTK_MINOR_VERSION */
-#endif /* GTK_MAJOR_VERSION */
-
+#endif /* GTK_*_VERSION */
 
 void
 on_scripting_python1_activate          (GtkMenuItem     *menuitem,
@@ -10476,9 +10477,14 @@ on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button
 
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
   GtkWidget *combo_box = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_combobox");
-  gchar *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combo_box));
+  gchar *t = 0;
+#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
+  t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combo_box));
   printf("residue editor for type %s\n", t);
   show_restraints_editor(t);
+#else
+  printf("======== need fixup for gtk_combo_box_get_active_text %s\n", t);
+#endif
   gtk_widget_destroy(dialog);
 }
 #endif	/* GTK_MAJOR_VERSION */
