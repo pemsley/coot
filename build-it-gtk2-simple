@@ -228,7 +228,8 @@
 # 4.12 20080624 Add guile-lib to build.
 # 4.13 20080729 Correctly test for the up to date python version.
 # 4.14 20080729 Adjust test for build_guile_gtk.
-script_version=4.14
+# 4.15 20080730 Adjust test for up to date python.
+script_version=4.15
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1540,6 +1541,14 @@ else
    build_greg=1
 fi
 
+# ============= python ================
+#
+# python_version is the filename of the python executable.  For python
+# 2.5.1 it is python2.5, not python2.5.1
+#
+python_version=python2.5
+pver=2.5.2
+
 $install_top_dir/bin/python -V
 if test $? != 0 ; then
    echo python should be built
@@ -2014,12 +2023,6 @@ fi
 #
 PATH=$install_top_dir/bin:$PATH
 export PATH
-
-# python_version is the filename of the python executable.  For python
-# 2.5.1 it is python2.5, not python2.5.1
-#
-python_version=python2.5
-pver=2.5.2
 
 # python
 #
