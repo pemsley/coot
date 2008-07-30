@@ -9670,7 +9670,7 @@ on_model_toolbar_setting1_activate     (GtkMenuItem     *menuitem,
 #endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1) 
+#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
 void
 on_model_toolbar_menutoolbutton1_show_menu
                                         (GtkMenuToolButton *menutoolbutton,
