@@ -366,7 +366,7 @@ void add_coot_references_button(GtkWidget *widget) {
 
 void wrapped_create_coot_references_dialog() {
   
-#if (GTK_MAJOR_VERSION > 1)
+#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
   GtkWidget *references_dialog;
   GtkWidget *coot_reference_button;
   references_dialog = create_coot_references_dialog();
