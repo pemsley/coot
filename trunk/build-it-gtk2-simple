@@ -229,7 +229,8 @@
 # 4.13 20080729 Correctly test for the up to date python version.
 # 4.14 20080729 Adjust test for build_guile_gtk.
 # 4.15 20080730 Adjust test for up to date python.
-script_version=4.15
+# 4.16 20080730 Use old version of pyobject if pkg-config is not new enough
+script_version=4.16
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1558,7 +1559,6 @@ if test $? != 0 ; then
 else 
    python_version_installed=`python -V 2>&1`
    python_target_version="Python $pver"
-   echo testing for $python_target_version
 
    case "$python_version_installed" in 
        "$python_target_version") 
@@ -2086,8 +2086,23 @@ fi
 if test -n "$build_pygobject" ; then 
    echo BUILDING pygobject:
    #
+   pygobject_major_minor_version=2.14
    pygobject_version=2.14.1
-   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/2.14/pygobject-$pygobject_version.tar.gz
+
+   # new (2.4+) versions of pygobject do not compile with older
+   # versions of GLIB and pkgconfig.
+
+   if pkg-config --atleast-pkgconfig-version 0.16 ; then
+      echo INFO:: pkg-config is new enough to build pygobject
+   else 
+      pygobject_major_minor_version=2.8
+      pygobject_version=2.8.0
+      echo INFO:: pkg-config is NOT new enough to build pygobject 2.14
+      echo downgrading pygobject to $pygobject_version
+   fi
+
+
+   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz
    if test $? != 0 ; then 
       echo PROBLEM:: getting pygobject source code
    fi
