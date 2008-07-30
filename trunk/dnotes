@@ -26,7 +26,8 @@
 
    o the scrollable map needs to be (correctly?) saved in state file. 1hd.
 
-     
+   o Problem with (run-python-command "cootaneer_gui_bl()"))) when
+     pyobject and pygtk don't get built? Roni Gordon.
 
 
 
