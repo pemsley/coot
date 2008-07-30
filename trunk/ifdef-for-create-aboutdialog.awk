@@ -25,7 +25,7 @@ $0 == "}" {
 { print $0;
   if (marker == 4) { 
     marker = 0;
-    print "#ENDIF /* GTK2 version */";
+    print "#endif /* GTK2 version */";
   }
 }
 

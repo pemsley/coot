@@ -53,6 +53,7 @@ EXTRA_DIST = 		\
 	my.supp		\
 	guile.supp	\
 	make-patches	\
+	ifdef-for-create-aboutdialog.awk \
 	mtrix-to-ncs-matrix.awk  \
 	theor-helix-70.pdb       \
 	RELEASE-NOTES	         \

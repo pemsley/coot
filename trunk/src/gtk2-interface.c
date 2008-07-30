@@ -22560,6 +22560,7 @@ create_sft_dialog (void)
   return sft_dialog;
 }
 
+#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
 GtkWidget*
 create_aboutdialog (void)
 {
@@ -22627,6 +22628,7 @@ create_aboutdialog (void)
 
   return aboutdialog;
 }
+#endif /* GTK2 version */
 
 GtkWidget*
 create_globularize_dialog (void)
