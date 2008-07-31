@@ -50694,6 +50694,10 @@ wavelength specified in the used mtz file
 this can be used instead of the above to
 calculate f' and f''.
 
+To add more anomalous atoms use the
+scripting function add_refmac_sad_atom_fp or 
+add_refmac_sad_atom_lambda.
+
 </property>
 	  <property name="use_underline">False</property>
 	  <property name="use_markup">False</property>

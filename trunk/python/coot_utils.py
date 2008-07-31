@@ -709,14 +709,7 @@ def centre_of_mass(imol):
 # 
 def atom_specs(imol, chain_id, resno, ins_code, atom_name, alt_conf):
 
-  try:
-      v = atom_info_string(imol, chain_id, resno, ins_code, atom_name, alt_conf)
-      # transform into a proper list
-      v = eval(v)
-  except:
-      v = False
-
-  return v
+    return atom_info_string(imol, chain_id, resno, ins_code, atom_name, alt_conf)
 
 # Paul says:
 # backups wrapper: doesn't work currently, I think.  More cleverness required.
