@@ -595,10 +595,10 @@ int kdc_torsion_test() {
 	params[3]  =     0.0; params[4]  =     0.0; params[5]  = 1.0;
 	params[6]  =     0.0; params[7]  =     0.0; params[8]  = 2.0;
 	params[9]  = cos(p2); params[10] = sin(p2); params[11] = 3.0;
+
 	// now pertub the coords (params[12] is unperturbed)
 	std::vector<std::vector<double> > dparams(13,params);
 	std::vector<double> dresult(13), ngrad(12), agrad(12);
-      
 	for ( int i = 0; i < 12; i++ )
 	   dparams[i][i] += dx;
 
@@ -641,12 +641,17 @@ int kdc_torsion_test() {
 	   r = 0;
 	}
 
-      
+	// ts = torsion_scale
+	double ts = (1.0/(1+pow(tan(clipper::Util::d2rad(dtg.theta)),2))) *
+	   clipper::Util::rad2d(1.0);
+
+	std::cout << "ts = " << ts << std::endl;
+	
 	// now fetch coot torsion gradients
-	agrad[0] = dtg.dD_dxP1; agrad[1] = dtg.dD_dyP1; agrad[2] = dtg.dD_dzP1;
-	agrad[3] = dtg.dD_dxP2; agrad[4] = dtg.dD_dyP2; agrad[5] = dtg.dD_dzP2;
-	agrad[6] = dtg.dD_dxP3; agrad[7] = dtg.dD_dyP3; agrad[8] = dtg.dD_dzP3;
-	agrad[9] = dtg.dD_dxP4; agrad[10]= dtg.dD_dyP4; agrad[11]= dtg.dD_dzP4;
+	agrad[0] = ts*dtg.dD_dxP1; agrad[1] = ts*dtg.dD_dyP1; agrad[2] = ts*dtg.dD_dzP1;
+	agrad[3] = ts*dtg.dD_dxP2; agrad[4] = ts*dtg.dD_dyP2; agrad[5] = ts*dtg.dD_dzP2;
+	agrad[6] = ts*dtg.dD_dxP3; agrad[7] = ts*dtg.dD_dyP3; agrad[8] = ts*dtg.dD_dzP3;
+	agrad[9] = ts*dtg.dD_dxP4; agrad[10]= ts*dtg.dD_dyP4; agrad[11]= ts*dtg.dD_dzP4;
 	for ( int i = 0; i < 12; i++ )
 	   // if ( fabs( ngrad[i] - agrad[i] ) > 1.0e-4 ) {
 	   if (1) {
