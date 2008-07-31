@@ -2731,13 +2731,15 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
       if (active_item == 0 && refmac_use_twin_state() == 0) {
 	 add_status_bar_text("No map has associated Refmac Parameters - no REFMAC!");
       } else {
-	if (refmac_use_twin_state() !=0) {
+	std::cout << "BL DEBUG:: ok no twin\n"<<std::endl;;
+	if (refmac_use_twin_state() == 0) {
 	  int imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
 	  if (imol_window < 0) {
 	    std::cout << "No map data selected for refmac\n";
 	  } else { 
 	 
 	    int imol_map_refmac = imol_window;
+	    std::cout << "BL DEBUG:: imol_map "<<imol_map_refmac<<std::endl;;
 	    if (!is_valid_map_molecule(imol_map_refmac)) {
 	      std::string s = "Invalid molecule number: ";
 	       s += graphics_info_t::int_to_string(imol_map_refmac);
@@ -3482,6 +3484,28 @@ add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda) {
 
   graphics_info_t g;
   g.add_refmac_sad_atom(atom_name, fp, fpp, lambda);
+
+}
+
+/* !brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
+  list with atom_name and  fp, and fpp 
+  adds a new atom or overwrites existing ones with new parameters */
+void
+add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp) {
+
+  graphics_info_t g;
+  g.add_refmac_sad_atom(atom_name, fp, fpp, -9999);
+
+}
+
+/* !brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
+  list with atom_name and wavlength, fp and fpp will be calculated 
+  adds a new atom or overwrites existing ones with new parameters */
+void
+add_refmac_sad_atom_lambda(const char *atom_name, float lambda) {
+
+  graphics_info_t g;
+  g.add_refmac_sad_atom(atom_name, -9999, -9999, lambda);
 
 }
 

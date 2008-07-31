@@ -1339,6 +1339,8 @@ void set_refmac_use_ncs(int state);
 int refmac_use_ncs_state(void);
 int refmac_imol_coords(void);
 void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda);
+void add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp);
+void add_refmac_sad_atom_lambda(const char *atom_name, float lambda);
 void clear_refmac_sad_atoms();
 void store_refmac_mtz_file_label(GtkWidget *label);
 GtkWidget *get_refmac_mtz_file_label(void);
