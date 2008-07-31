@@ -2492,23 +2492,28 @@ coot::fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
    double dE_dyP4 = dM_dyP4*one_over_b;
    double dE_dzP4 = dM_dzP4*one_over_b;
 
+   double EFF = E*F*F;
+   double JL = J*L;
+   double KL = K*L;
+   double JK = J*K;
+
    // x
-   dtg.dD_dxP1 = F*dE_dxP1 - E*F*F*(dH_dxP1 + J*L*dK_dxP1 + K*L*dJ_dxP1 + J*K*dL_dxP1);
-   dtg.dD_dxP2 = F*dE_dxP2 - E*F*F*(dH_dxP2 + J*L*dK_dxP2 + K*L*dJ_dxP2 + J*K*dL_dxP2);
-   dtg.dD_dxP3 = F*dE_dxP3 - E*F*F*(dH_dxP3 + J*L*dK_dxP3 + K*L*dJ_dxP3 + J*K*dL_dxP3);
-   dtg.dD_dxP4 = F*dE_dxP4 - E*F*F*(dH_dxP4 + J*L*dK_dxP4 + K*L*dJ_dxP4 + J*K*dL_dxP4);
+   dtg.dD_dxP1 = F*dE_dxP1 - EFF*(dH_dxP1 + JL*dK_dxP1 + KL*dJ_dxP1 + JK*dL_dxP1);
+   dtg.dD_dxP2 = F*dE_dxP2 - EFF*(dH_dxP2 + JL*dK_dxP2 + KL*dJ_dxP2 + JK*dL_dxP2);
+   dtg.dD_dxP3 = F*dE_dxP3 - EFF*(dH_dxP3 + JL*dK_dxP3 + KL*dJ_dxP3 + JK*dL_dxP3);
+   dtg.dD_dxP4 = F*dE_dxP4 - EFF*(dH_dxP4 + JL*dK_dxP4 + KL*dJ_dxP4 + JK*dL_dxP4);
 
    // y
-   dtg.dD_dyP1 = F*dE_dyP1 - E*F*F*(dH_dyP1 + J*L*dK_dyP1 + K*L*dJ_dyP1 + J*K*dL_dyP1);
-   dtg.dD_dyP2 = F*dE_dyP2 - E*F*F*(dH_dyP2 + J*L*dK_dyP2 + K*L*dJ_dyP2 + J*K*dL_dyP2);
-   dtg.dD_dyP3 = F*dE_dyP3 - E*F*F*(dH_dyP3 + J*L*dK_dyP3 + K*L*dJ_dyP3 + J*K*dL_dyP3);
-   dtg.dD_dyP4 = F*dE_dyP4 - E*F*F*(dH_dyP4 + J*L*dK_dyP4 + K*L*dJ_dyP4 + J*K*dL_dyP4);
+   dtg.dD_dyP1 = F*dE_dyP1 - EFF*(dH_dyP1 + JL*dK_dyP1 + KL*dJ_dyP1 + JK*dL_dyP1);
+   dtg.dD_dyP2 = F*dE_dyP2 - EFF*(dH_dyP2 + JL*dK_dyP2 + KL*dJ_dyP2 + JK*dL_dyP2);
+   dtg.dD_dyP3 = F*dE_dyP3 - EFF*(dH_dyP3 + JL*dK_dyP3 + KL*dJ_dyP3 + JK*dL_dyP3);
+   dtg.dD_dyP4 = F*dE_dyP4 - EFF*(dH_dyP4 + JL*dK_dyP4 + KL*dJ_dyP4 + JK*dL_dyP4);
 
    // z
-   dtg.dD_dzP1 = F*dE_dzP1 - E*F*F*(dH_dzP1 + J*L*dK_dzP1 + K*L*dJ_dzP1 + J*K*dL_dzP1);
-   dtg.dD_dzP2 = F*dE_dzP2 - E*F*F*(dH_dzP2 + J*L*dK_dzP2 + K*L*dJ_dzP2 + J*K*dL_dzP2);
-   dtg.dD_dzP3 = F*dE_dzP3 - E*F*F*(dH_dzP3 + J*L*dK_dzP3 + K*L*dJ_dzP3 + J*K*dL_dzP3);
-   dtg.dD_dzP4 = F*dE_dzP4 - E*F*F*(dH_dzP4 + J*L*dK_dzP4 + K*L*dJ_dzP4 + J*K*dL_dzP4);
+   dtg.dD_dzP1 = F*dE_dzP1 - EFF*(dH_dzP1 + JL*dK_dzP1 + KL*dJ_dzP1 + JK*dL_dzP1);
+   dtg.dD_dzP2 = F*dE_dzP2 - EFF*(dH_dzP2 + JL*dK_dzP2 + KL*dJ_dzP2 + JK*dL_dzP2);
+   dtg.dD_dzP3 = F*dE_dzP3 - EFF*(dH_dzP3 + JL*dK_dzP3 + KL*dJ_dzP3 + JK*dL_dzP3);
+   dtg.dD_dzP4 = F*dE_dzP4 - EFF*(dH_dzP4 + JL*dK_dzP4 + KL*dJ_dzP4 + JK*dL_dzP4);
   
    return dtg;
 } 
@@ -2588,8 +2593,6 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 	       //  		 <<  " and target is " << (*restraints)[i].target_value 
 	       //  		 << " and diff is " << diff 
 	       //  		 << " and periodicity: " << (*restraints)[i].periodicity <<  endl;
-
-	       // 0.001 is the multiplying factor of torsion (Really?)
 
 	       double torsion_scale = (1.0/(1+pow(tan(clipper::Util::d2rad(dtg.theta)),2))) *
 		  clipper::Util::rad2d(1.0);
@@ -2769,18 +2772,17 @@ void coot::my_df_rama(const gsl_vector *v,
 	    coot::distortion_torsion_gradients_t dtg_psi =
 	       fill_distortion_torsion_gradients(P2, P3, P4, P5);
 
+	    // Faster to use these, not calculate them above?
+	    // 
 	    // phir = clipper::Util::d2rad(dtg_phi.theta);
 	    // psir = clipper::Util::d2rad(dtg_psi.theta);
 	    LogRamachandran::Lgrad lgrd = restraints->rama_grad(phir, psir);
 
-	    double torsion_scale = 0.2 * 0.12753; // FIXME
-	    double weight = 1.0; // FIXME
+	    double tan_phir = tan(phir);
+	    double tan_psir = tan(psir);
 
-	    //double multiplier_phi = 1.0/(sin(phir)*sin(phir)) * 2.0*torsion_scale * weight * lgrd.DlogpDphi;
-	    //double multiplier_psi = 1.0/(sin(psir)*sin(psir)) * 2.0*torsion_scale * weight * lgrd.DlogpDpsi;
-
-	    double multiplier_phi = 1/(sin(phir)*sin(phir)) * 2.0*torsion_scale * weight * lgrd.DlogpDphi;
-	    double multiplier_psi = 1/(sin(psir)*sin(psir)) * 2.0*torsion_scale * weight * lgrd.DlogpDpsi;
+	    double multiplier_phi = 1.0/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
+	    double multiplier_psi = 1.0/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
 	    
 	    double xP1_contrib = multiplier_phi*dtg_phi.dD_dxP1;
 	    double yP1_contrib = multiplier_phi*dtg_phi.dD_dyP1;
