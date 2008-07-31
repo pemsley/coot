@@ -618,6 +618,22 @@ int kdc_torsion_test() {
 // 		     << ")/" << dx << " = " << (dresult[i]-dresult[12])/dx << std::endl;
 	   ngrad[i] = (dresult[i]-dresult[12])/dx;
 	}
+	// push the perturbation the other way
+	for ( int i = 0; i < 12; i++ )
+	   dparams[i][i] -= 2*dx; 
+	for ( int i = 0; i < dparams.size(); i++ ) {
+	   const std::vector<double>& param = dparams[i];
+	   // convert parameter list to coord orths
+	   for (int j=0;j<4;j++)
+	      for(int k=0;k<3;k++)
+		 co[j][k]=param[3*j+k];
+	   // calculate torsion using clipper
+	   dresult[i] = clipper::Coord_orth::torsion( co[0], co[1], co[2], co[3] );
+	}
+	for ( int i = 0; i < 12; i++ ) {
+	   ngrad[i] -= (dresult[i]-dresult[12])/dx;
+	   ngrad[i] *= 0.5; // average + and - shift
+	}
 
       
 	// first check clipper torsion calc
@@ -643,8 +659,6 @@ int kdc_torsion_test() {
 	// ts = torsion_scale
 	double ts = (1.0/(1+pow(tan(clipper::Util::d2rad(dtg.theta)),2)));
 
-	// std::cout << "ts = " << ts << std::endl;
-	
 	// now fetch coot torsion gradients
 	agrad[0] = ts*dtg.dD_dxP1; agrad[1] = ts*dtg.dD_dyP1; agrad[2] = ts*dtg.dD_dzP1;
 	agrad[3] = ts*dtg.dD_dxP2; agrad[4] = ts*dtg.dD_dyP2; agrad[5] = ts*dtg.dD_dzP2;
