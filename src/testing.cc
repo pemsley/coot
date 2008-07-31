@@ -585,7 +585,7 @@ int kdc_torsion_test() {
   for ( int t1 = 0; t1 < n1; t1++ )
      for ( int t2 = 0; t2 < n2; t2++ ) {
 
-	std::cout << " ===== t1 = " << t1 << "   t2 = " << t2 << " ======" << std::endl;
+	// std::cout << " ===== t1 = " << t1 << "   t2 = " << t2 << " ======" << std::endl;
 	
 	// set up angles at either end of torsion
 	double p1 = 6.283 * double(t1) / double(n1);
@@ -614,10 +614,9 @@ int kdc_torsion_test() {
 	   dresult[i] = clipper::Coord_orth::torsion( co[0], co[1], co[2], co[3] );
 	}
 	for ( int i = 0; i < 12; i++ ) {
-	   std::cout << "i = " << i << " [adding (" << dresult[i] << " - " << dresult[12]
-		     << ")/" << dx << " = " << (dresult[i]-dresult[12])/dx << "] to "
-		     << ngrad[i] << std::endl;
-	   ngrad[i] += (dresult[i]-dresult[12])/dx;
+// 	   std::cout << "i = " << i << " (" << dresult[i] << " - " << dresult[12]
+// 		     << ")/" << dx << " = " << (dresult[i]-dresult[12])/dx << std::endl;
+	   ngrad[i] = (dresult[i]-dresult[12])/dx;
 	}
 
       
@@ -642,10 +641,9 @@ int kdc_torsion_test() {
 	}
 
 	// ts = torsion_scale
-	double ts = (1.0/(1+pow(tan(clipper::Util::d2rad(dtg.theta)),2))) *
-	   clipper::Util::rad2d(1.0);
+	double ts = (1.0/(1+pow(tan(clipper::Util::d2rad(dtg.theta)),2)));
 
-	std::cout << "ts = " << ts << std::endl;
+	// std::cout << "ts = " << ts << std::endl;
 	
 	// now fetch coot torsion gradients
 	agrad[0] = ts*dtg.dD_dxP1; agrad[1] = ts*dtg.dD_dyP1; agrad[2] = ts*dtg.dD_dzP1;
@@ -653,8 +651,7 @@ int kdc_torsion_test() {
 	agrad[6] = ts*dtg.dD_dxP3; agrad[7] = ts*dtg.dD_dyP3; agrad[8] = ts*dtg.dD_dzP3;
 	agrad[9] = ts*dtg.dD_dxP4; agrad[10]= ts*dtg.dD_dyP4; agrad[11]= ts*dtg.dD_dzP4;
 	for ( int i = 0; i < 12; i++ )
-	   // if ( fabs( ngrad[i] - agrad[i] ) > 1.0e-4 ) {
-	   if (1) {
+	   if ( fabs( ngrad[i] - agrad[i] ) > 1.0e-4 ) {
 	      char xyz[] = "xyz";
 	      std::cerr << "TORSIONS " << i/3 << xyz[i%3] << " "
 			<< ngrad[i] << " vs " << agrad[i] << std::endl;
