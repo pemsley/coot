@@ -1201,7 +1201,7 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
       psi -= 360.0;
 
    double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
-   double R = lr;
+   double R = 1000 * lr;
    // std::cout << "rama distortion for " << phi << " " << psi << " is " << R << std::endl;
 
    if ( clipper::Util::isnan(phi) ) {
@@ -2781,8 +2781,8 @@ void coot::my_df_rama(const gsl_vector *v,
 	    double tan_phir = tan(phir);
 	    double tan_psir = tan(psir);
 
-	    double multiplier_phi = 1.0/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
-	    double multiplier_psi = 1.0/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
+	    double multiplier_phi = 1000.0/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
+	    double multiplier_psi = 1000.0/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
 	    
 	    double xP1_contrib = multiplier_phi*dtg_phi.dD_dxP1;
 	    double yP1_contrib = multiplier_phi*dtg_phi.dD_dyP1;
