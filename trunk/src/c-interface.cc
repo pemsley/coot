@@ -5898,68 +5898,78 @@ PyObject *py_clean_internal(PyObject *o) {
 // returns NULL for failed run
 PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
-  PyObject *ret = NULL;
+   PyObject *ret = NULL;
 
-  if (python_cmd != "") {
+   if (python_cmd != "") {
 
-    PyObject *pName, *pModule, *pDict;
-    PyObject *globals;
-    PyObject *pValue = NULL;
-    // include $COOT_PYTHON_DIR in module search path
-    PyRun_SimpleString("import sys, os");
-    PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
+      PyObject *pName, *pModule, *pDict;
+      PyObject *globals;
+      PyObject *pValue = NULL;
+      // include $COOT_PYTHON_DIR in module search path
+      PyRun_SimpleString("import sys, os");
+      PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
 
 
-    // Build the name object
-    const char *modulename = "__main__";
-    pName = PyString_FromString(modulename);
-    pModule = PyImport_Import(pName);
-    pModule = PyImport_AddModule("__main__");
-    pDict = PyModule_GetDict(pModule);
-    globals = PyRun_String("globals()", Py_eval_input, pDict, pDict);
-    pDict = globals;
+      // Build the name object
+      const char *modulename = "__main__";
+      pName = PyString_FromString(modulename);
+      pModule = PyImport_Import(pName);
+      pModule = PyImport_AddModule("__main__");
+      pDict = PyModule_GetDict(pModule);
+      globals = PyRun_String("globals()", Py_eval_input, pDict, pDict);
+      pDict = globals;
 
-    pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
+      pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
 
-    if (pValue != NULL)
-    {
-      if (pValue != Py_None) {
-	//printf( "BL DEBUG:: in python return ret= %s\n",  PyString_AsString(PyObject_Str(ret)));
-	 ret = py_clean_internal(pValue);
-	 if (! ret)
-	    ret = Py_None;
-      } else {
-	ret = Py_None;
+
+      std::cout << "DEBUG:: in safe_python_command_with_return() pValue is " << pValue << std::endl;
+
+      if (pValue != NULL)
+	 {
+	    if (pValue != Py_None) {
+	       //printf( "BL DEBUG:: in python return ret= %s\n",  PyString_AsString(PyObject_Str(ret)));
+	       ret = py_clean_internal(pValue);
+	       if (! ret)
+		  ret = Py_None;
+	    } else {
+	       ret = Py_None;
+	    }
+	    Py_DECREF(pValue);
+
+	 } else {
+	 // there is an Error. Could be a syntax error whilst trying to evaluate a statement
+	 // so let's try to run it as a statement
+	 if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
+	    std::cout << "error (syntax error)" << std::endl;
+	    PyErr_Clear();
+	    pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, pDict, pDict);
+	    if (pValue != NULL) {
+	       ret = pValue;
+	    }
+	 } else {
+	    std::cout << "error (not syntax error)" << std::endl;
+	    PyErr_Print();
+	 }
       }
-      Py_DECREF(pValue);
 
-    } else {
-      // there is an Error. Could be a syntax error whilst trying to evaluate a statement
-      // so let's try to run it as a statement
-      if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
-	PyErr_Clear();
-	pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, pDict, pDict);
-	if (pValue != NULL) {
-	  ret = pValue;
-	}
-      } else {
-	PyErr_Print();
-      }
-    }
+      // Clean up
+      Py_DECREF(pModule);
+      Py_DECREF(pName);
+      Py_DECREF(pDict);
+      Py_DECREF(globals);
+   }
 
-    // Clean up
-    Py_DECREF(pModule);
-    Py_DECREF(pName);
-    Py_DECREF(pDict);
-    Py_DECREF(globals);
-
-  } else {
-    std::cout << "INFO:: None input" <<std::endl;
-  }
-  if (PyBool_Check(ret) || ret == Py_None) {
-    Py_INCREF(ret);
-  }
-  return ret;
+   // Running PyBool_Check(NULL) crashes.
+   if (ret == NULL) 
+      return Py_None; // don't try to convert this to a SCM thing.
+   
+   if (PyBool_Check(ret)) { 
+      Py_INCREF(ret);
+   }
+   if (ret == Py_None) {
+      Py_INCREF(ret);
+   }
+   return ret;
 }
 
 PyObject *safe_python_command_test(const char *cmd) {
