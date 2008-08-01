@@ -10783,3 +10783,17 @@ on_coot_references_closebutton_clicked (GtkButton       *button,
 
 
 
+
+void
+on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+    set_refine_ramachandran_angles(1);
+  else
+    set_refine_ramachandran_angles(0);
+
+}
+

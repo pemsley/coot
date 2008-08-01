@@ -72,7 +72,8 @@ GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         const gchar     *filename);
 
 
-#if (GTK_MAJOR_VERSION > 1)
+#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
+char* coot_revision(void);
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
 GtkWidget* create_dataset_filechooserdialog1(void);
@@ -93,6 +94,10 @@ GtkWidget* create_restraints_editor_dialog (void);
 GtkWidget* create_residue_editor_select_monomer_type_dialog (void);
 GtkWidget* create_save_restraint_chooserdialog (void);
 GtkWidget* create_run_refmac_nolabels_help_dialog(void);
+GtkWidget* create_run_refmac_twin_help_dialog(void);
+GtkWidget* create_run_refmac_sad_help_dialog(void);
+GtkWidget* create_run_refmac_mtz_filechooserdialog(void);
+GtkWidget* create_coot_references_dialog(void);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS

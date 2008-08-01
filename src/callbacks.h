@@ -3903,3 +3903,8 @@ void
 on_coot_references_closebutton_clicked (GtkButton       *button,
                                         gpointer         user_data);
 
+
+void
+on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

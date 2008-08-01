@@ -6008,6 +6008,7 @@ create_refine_params_dialog (void)
   GtkWidget *sec_str_rest_no_rest_radiobutton;
   GtkWidget *sec_str_rest_helix_rest_radiobutton;
   GtkWidget *sec_str_rest_strand_rest_radiobutton;
+  GtkWidget *refine_params_use_ramachandran_goodness_torsions_checkbutton;
   GtkWidget *dialog_action_area8;
   GtkWidget *refine_params_dialog_ok_button;
   GtkTooltips *tooltips;
@@ -6246,6 +6247,13 @@ create_refine_params_dialog (void)
   gtk_widget_show (sec_str_rest_strand_rest_radiobutton);
   gtk_box_pack_start (GTK_BOX (sec_struct_restraints_vbox), sec_str_rest_strand_rest_radiobutton, FALSE, FALSE, 0);
 
+  refine_params_use_ramachandran_goodness_torsions_checkbutton = gtk_check_button_new_with_label (_("checkbutton6"));
+  gtk_widget_ref (refine_params_use_ramachandran_goodness_torsions_checkbutton);
+  gtk_object_set_data_full (GTK_OBJECT (refine_params_dialog), "refine_params_use_ramachandran_goodness_torsions_checkbutton", refine_params_use_ramachandran_goodness_torsions_checkbutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (refine_params_use_ramachandran_goodness_torsions_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_ramachandran_goodness_torsions_checkbutton, FALSE, FALSE, 0);
+
   dialog_action_area8 = GTK_DIALOG (refine_params_dialog)->action_area;
   gtk_object_set_data (GTK_OBJECT (refine_params_dialog), "dialog_action_area8", dialog_action_area8);
   gtk_widget_show (dialog_action_area8);
@@ -6291,6 +6299,9 @@ create_refine_params_dialog (void)
                       NULL);
   gtk_signal_connect (GTK_OBJECT (sec_str_rest_strand_rest_radiobutton), "toggled",
                       GTK_SIGNAL_FUNC (on_sec_str_rest_strand_rest_radiobutton_toggled),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (refine_params_use_ramachandran_goodness_torsions_checkbutton), "toggled",
+                      GTK_SIGNAL_FUNC (on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (refine_params_dialog_ok_button), "clicked",
                       GTK_SIGNAL_FUNC (on_refine_params_dialog_ok_button_clicked),

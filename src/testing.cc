@@ -375,7 +375,7 @@ int test_ramachandran_probabilities() {
    int r = 0;
 
    std::string file_name = greg_test("crashes_on_cootaneering.pdb");
-   file_name = "45-47-tutorial-modern-coot-1.pdb";
+   file_name = "37-41.pdb";
    atom_selection_container_t atom_sel = get_atom_selection(file_name);
 
    if (! atom_sel.read_success)
@@ -385,11 +385,7 @@ int test_ramachandran_probabilities() {
    std::string chain_id = "A";
    char *chn = (char *) chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
    std::vector<int> resnos;
-   resnos.push_back(12);  // fail
-//    resnos.push_back(14);  // phi=-57.7411  psi=-32.0451
-//    resnos.push_back(15);  // phi=-53.7037  psi=-47.837
-//    resnos.push_back(16);  // phi=-57.4047  psi=-42.6739
-   resnos.push_back(46);
+   resnos.push_back(39);
 
    coot::protein_geometry geom;
    geom.init_standard();
@@ -400,8 +396,8 @@ int test_ramachandran_probabilities() {
       PCResidue *SelResidues = NULL;
       atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
 			   chn,
-			   resnos[i]-1, "",
-			   resnos[i]+1, "",
+			   resnos[i]-2, "",
+			   resnos[i]+2, "",
 			   "*",  // residue name
 			   "*",  // Residue must contain this atom name?
 			   "*",  // Residue must contain this Element?
@@ -410,127 +406,85 @@ int test_ramachandran_probabilities() {
 			   );
       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
-      try { 
-	 coot::util::phi_psi_t angles = coot::util::ramachandran_angles(SelResidues, nSelResidues);
-	 for (int ires=0; ires<3; ires++) 
-	    geom.try_dynamic_add(SelResidues[ires]->GetResName(), ires);
+      // get the probability
+      std::string residue_type = SelResidues[1]->GetResName();
 
-	 if (i > 0) { 
-	    std::pair<double,double> angles_pair(angles.phi(), angles.psi());
-	    std::pair<double, double> expected;
-	    if (i==1)
-	       expected = std::pair<double, double> (-57.7411, -32.0451);
-	    if (i==2)
-	       expected = std::pair<double, double> (-53.7037, -47.837);
-	    if (i==3)
-	       expected = std::pair<double, double> (-57.4047, -42.6739);
-	 
-	    bool close = close_pair_test(angles_pair, expected);
-	    if (0) {
-	       std::cout << " Fail on Ramachandran angle test " << angles << " should be "
-			 << expected << std::endl;
-	       r = 0;
-	       break;
-	    } else {
+      clipper::Ramachandran::TYPE rama_type = clipper::Ramachandran::NonGlyPro;
+      if (residue_type == "GLY")
+	 rama_type = clipper::Ramachandran::Gly;
+      if (residue_type == "PRO")
+	 rama_type = clipper::Ramachandran::Pro;
+      clipper::Ramachandran rama(rama_type);
 
-	       // get the probability
-	       std::string residue_type = SelResidues[1]->GetResName();
+      double prob = 0;
 
-	       clipper::Ramachandran::TYPE rama_type = clipper::Ramachandran::NonGlyPro;
-	       if (residue_type == "GLY")
-		  rama_type = clipper::Ramachandran::Gly;
-	       if (residue_type == "PRO")
-		  rama_type = clipper::Ramachandran::Pro;
-	       clipper::Ramachandran rama(rama_type);
+//       coot::util::phi_psi_t angles = coot::util::ramachandran_angles(SelResidues, nSelResidues);
+//       rama.probability(clipper::Util::d2rad(angles.phi()),
+// 		       clipper::Util::d2rad(angles.psi()));
+      
+      double post_refine_prob = 0.0; // set later
 
-	       double prob = rama.probability(clipper::Util::d2rad(angles.phi()),
-					      clipper::Util::d2rad(angles.psi()));
+      // --------------------------------------------------
+      //     non-Ramachandran refinement:
+      // --------------------------------------------------
+      if (0) { 
+	 int enable_rama_refinement = 0;
+	 residue_selection_t refined_res_sel =
+	    testing_func_probabilities_refine_fragment(atom_sel, SelResidues,
+						       nSelResidues,
+						       chain_id, resnos[i], geom,
+						       enable_rama_refinement,
+						       1, 0, 1);
 
-	       double post_refine_prob = 0.0; // set later
-	       if (0) { 
-		  int enable_rama_refinement = 0;
-		  residue_selection_t refined_res_sel =
-		     testing_func_probabilities_refine_fragment(atom_sel, SelResidues,
-								nSelResidues,
-								chain_id, resnos[i], geom,
-								enable_rama_refinement,
-								1, 0, 1);
-
-		  if (0) { 
-		     // Let's look at the refined structure. Write them out as pdb files ;-/
-		     std::string tmp_file_name = "rama-test-";
-		     tmp_file_name += coot::util::int_to_string(i);
-		     tmp_file_name += ".pdb";
-		     refined_res_sel.mol->WritePDBASCII((char *)tmp_file_name.c_str());
-		  }
-
-		  coot::util::phi_psi_t post_refine_angles =
-		     coot::util::ramachandran_angles(refined_res_sel.SelResidues,
-						     refined_res_sel.nSelResidues);
-		  refined_res_sel.clear_up();
-	       
-		  post_refine_prob =
-		     rama.probability(clipper::Util::d2rad(post_refine_angles.phi()),
-				      clipper::Util::d2rad(post_refine_angles.psi()));
-	       }
-
-	       
-	       // --------------------------------------------------
-	       //     now with Ramachandran refinement:
-	       // --------------------------------------------------
-
-
-	       int enable_rama_refinement = 1;
-	       residue_selection_t rama_refined_res_sel =
-		  testing_func_probabilities_refine_fragment(atom_sel, SelResidues,
-							     nSelResidues,
-							     chain_id, resnos[i], geom,
-							     enable_rama_refinement, 1, 0, 1);
-	       coot::util::phi_psi_t rama_refine_angles =
-		  coot::util::ramachandran_angles(rama_refined_res_sel.SelResidues,
-						  rama_refined_res_sel.nSelResidues);
-	       rama_refined_res_sel.clear_up();
-	       
-	       double rama_refine_prob =
-		  rama.probability(clipper::Util::d2rad(rama_refine_angles.phi()),
-				   clipper::Util::d2rad(rama_refine_angles.psi()));
-	       std::cout << "--------------------------------------\n";
-	       std::cout << "Pre-refine         Rama probability residue " << resnos[i] << ": "
-			 << prob << std::endl;
-	       std::cout << "Post-simple refine Rama probability residue " << resnos[i] << ": "
-			 << post_refine_prob << std::endl;
-	       std::cout << "Post-Rama   refine Rama probability residue " << resnos[i] << ": "
-			 << rama_refine_prob << std::endl;
-	       std::cout << "--------------------------------------\n";
-
-	       // 3% better probability needed.
-	       // 
-	       if (rama_refine_prob > (post_refine_prob*1.03))
-		  n_correct++;
-	    }
+	 if (0) { 
+	    // Let's look at the refined structure. Write them out as pdb files ;-/
+	    std::string tmp_file_name = "rama-test-";
+	    tmp_file_name += coot::util::int_to_string(i);
+	    tmp_file_name += ".pdb";
+	    refined_res_sel.mol->WritePDBASCII((char *)tmp_file_name.c_str());
 	 }
+
+	 coot::util::phi_psi_t post_refine_angles =
+	    coot::util::ramachandran_angles(refined_res_sel.SelResidues,
+					    refined_res_sel.nSelResidues);
+	 refined_res_sel.clear_up();
+	       
+	 post_refine_prob =
+	    rama.probability(clipper::Util::d2rad(post_refine_angles.phi()),
+			     clipper::Util::d2rad(post_refine_angles.psi()));
       }
-      catch (std::runtime_error mess) {
-	 if (i==0) { 
-	    // std::cout << "resno set " << i << " was correct " << std::endl;
-	    n_correct++;
-	 } else {
-	    std::cout << "ERROR:: something amiss for resno set " << i << std::endl;
-	    std::cout << mess.what() << std::endl;
-	 } 
-      } 
 
-      atom_sel.mol->DeleteSelection(selHnd);
+	       
+      // --------------------------------------------------
+      //     now with Ramachandran refinement:
+      // --------------------------------------------------
+
+
+      int enable_rama_refinement = 1;
+      bool flank = 1;
+      residue_selection_t rama_refined_res_sel =
+	 testing_func_probabilities_refine_fragment(atom_sel, SelResidues,
+						    nSelResidues,
+						    chain_id, resnos[i], geom,
+						    enable_rama_refinement, 1, flank, 1);
+      coot::util::phi_psi_t rama_refine_angles =
+	 coot::util::ramachandran_angles(rama_refined_res_sel.SelResidues,
+					 rama_refined_res_sel.nSelResidues);
+      rama_refined_res_sel.clear_up();
+	       
+      double rama_refine_prob =
+	 rama.probability(clipper::Util::d2rad(rama_refine_angles.phi()),
+			  clipper::Util::d2rad(rama_refine_angles.psi()));
+      std::cout << "--------------------------------------\n";
+      std::cout << "Pre-refine         Rama probability residue " << resnos[i] << ": "
+		<< prob << std::endl;
+      std::cout << "Post-simple refine Rama probability residue " << resnos[i] << ": "
+		<< post_refine_prob << std::endl;
+      std::cout << "Post-Rama   refine Rama probability residue " << resnos[i] << ": "
+		<< rama_refine_prob << std::endl;
+      std::cout << "--------------------------------------\n";
+
    }
-
-   if (n_correct != 4) {
-      std::cout << "Failed to get 4 rama angles improvements " << std::endl;
-      r = 0;
-   } else {
-      r = 1;  // return success.
-      // std::cout << "n_correct is 4" << std::endl;
-   } 
-
    return r;
 } 
 
