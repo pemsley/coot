@@ -24508,7 +24508,7 @@ create_save_restraint_chooserdialog (void)
   GtkWidget *button27;
   GtkWidget *button28;
 
-  save_restraint_chooserdialog = gtk_file_chooser_dialog_new (_("Save Restraints as mmCIF"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
+  save_restraint_chooserdialog = gtk_file_chooser_dialog_new (_("Save Restraints as mmCIF"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_restraint_chooserdialog), 5);
   gtk_window_set_type_hint (GTK_WINDOW (save_restraint_chooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -24900,7 +24900,7 @@ create_run_refmac_mtz_filechooserdialog (void)
   GtkWidget *button30;
   GtkWidget *button31;
 
-  run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new (_("Select Dataset for Twin Refmac"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
+  run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new (_("Select Dataset for Twin Refmac"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_mtz_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox118 = GTK_DIALOG (run_refmac_mtz_filechooserdialog)->vbox;
