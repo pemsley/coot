@@ -21,5 +21,7 @@ $0 !~ "\"confirm_overwrite\"," {
   count = 1;
 }' gtk2-interface.c.copy > gtk2-interface.c.copy-2
 
-awk -f ../ifdef-for-create-aboutdialog.awk gtk2-interface.c.copy-2 > gtk2-interface.c
+awk -f ../ifdef-for-create-aboutdialog.awk gtk2-interface.c.copy-2 > gtk2-interface.c.copy-3
+awk -f fix-filechooser-sentinels.awk gtk2-interface.c.copy-3 > gtk2-interface.c
+
 
