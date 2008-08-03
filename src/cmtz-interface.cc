@@ -79,7 +79,7 @@ coot::get_f_phi_columns(const std::string &filename) {
    a.selected_refmac_sigfp_col = 0;
    a.selected_refmac_fm_col = 0;
    a.selected_refmac_sigfm_col = 0;
-   a.selected_refmac_iobs_col = 0;
+   a.selected_refmac_iobs_col = -1; /* unset */
    a.selected_refmac_sigiobs_col = 0;
    a.selected_refmac_ip_col = 0;
    a.selected_refmac_sigip_col = 0;
@@ -229,14 +229,13 @@ coot::setup_refmac_parameters(GtkWidget *window,
 void
 coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   
-  // first get the filename from the currently selected mtz/map
-  GtkWidget *option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
-  GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-  GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
-
+  GtkWidget *option_menu;
   std::string filename;
   if (graphics_info_t::refmac_use_twin_flag) {
+    // twin/mtz filename given
     GtkWidget *twin_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
+    // in twin we use the label as a dummy widget
+    option_menu = twin_mtz_label;
 #if (GTK_MAJOR_VERSION > 1)
     const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(twin_mtz_label));
     filename = mtz_filename;
@@ -245,8 +244,18 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     gtk_label_get(GTK_LABEL(twin_mtz_label), mtz_filename);
     filename = (char *)mtz_filename;
 #endif // GTK
-    std::cout <<"BL DEBUG:: have filename from label "<< filename<<std::endl;
+    if (coot::file_exists(filename)) {
+	  std::cout <<"BL DEBUG:: have filename from label "<< filename<<std::endl;
+	  graphics_info_t::saved_refmac_twin_filename = filename.c_str();
+    } else {
+      filename = "";
+    }
   } else {
+    // not twin/mtz filename but map
+    // first get the filename from the currently selected mtz/map
+    option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
+    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+    GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
     if (active_item == 0) {
       add_status_bar_text("No map has associated Refmac Parameters - no REFMAC!");
     } else { 

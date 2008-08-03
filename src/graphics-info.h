@@ -134,6 +134,8 @@ namespace coot {
 				SAD_ON = 1};
      enum refmac_use_ncs_type { NCS_OFF = 0,
 				NCS_ON  = 1};
+     enum refmac_use_intensities_type { AMPLITUDES   = 0,
+					INTENSITIES  = 1};
      class sad_atom_info_t {
      public:
 	std::string atom_name;
@@ -2233,6 +2235,8 @@ public:
    static coot::refmac::refmac_use_twin_type    refmac_use_twin_flag;
    static coot::refmac::refmac_use_sad_type     refmac_use_sad_flag;
    static coot::refmac::refmac_use_ncs_type     refmac_use_ncs_flag;
+   static coot::refmac::refmac_use_intensities_type refmac_use_intensities_flag;
+   static const gchar *saved_refmac_twin_filename;
    static int refmac_ncycles;
    static void set_refmac_refinement_method(int method);
    static void refmac_change_refinement_method(GtkWidget *item, GtkPositionType pos);
@@ -2241,6 +2245,7 @@ public:
    static void set_refmac_use_tls(int state);
    static void set_refmac_use_twin(int state);
    static void set_refmac_use_sad(int state);
+   static void set_refmac_use_intensities(int state);
    static void set_refmac_n_cycles(int no_cycles);
    static void refmac_change_ncycles(GtkWidget *item, GtkPositionType pos);
    static void set_refmac_use_ncs(int state);

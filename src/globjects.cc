@@ -918,6 +918,8 @@ coot::refmac::refmac_use_tls_type     graphics_info_t::refmac_use_tls_flag  = co
 coot::refmac::refmac_use_twin_type    graphics_info_t::refmac_use_twin_flag = coot::refmac::TWIN_OFF;
 coot::refmac::refmac_use_sad_type     graphics_info_t::refmac_use_sad_flag  = coot::refmac::SAD_OFF;
 coot::refmac::refmac_use_ncs_type     graphics_info_t::refmac_use_ncs_flag  = coot::refmac::NCS_ON;
+coot::refmac::refmac_use_intensities_type graphics_info_t::refmac_use_intensities_flag  = coot::refmac::AMPLITUDES;
+const gchar *graphics_info_t::saved_refmac_twin_filename = NULL;
 int graphics_info_t::refmac_ncycles = 5;
 GtkWidget *graphics_info_t::refmac_dialog_mtz_file_label = NULL;
 std::vector<coot::refmac::sad_atom_info_t> graphics_info_t::refmac_sad_atoms;
