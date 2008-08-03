@@ -3683,10 +3683,12 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
   /*  fill_option_menu_with_refmac_options(optionmenu); */
   fill_option_menu_with_refmac_labels_options(optionmenu);
 
-  /* to set the labels set the active item */
-  GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
-  if (active_menu_item) {
-    gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+  /* to set the labels set the active item (if no twin)*/
+  if (refmac_use_twin_state() == 0) {
+    GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
+    if (active_menu_item) {
+      gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+    }
   }
 
   /* fill optionmenu for no label refmac and show if refmac version is new enough */
@@ -3713,6 +3715,13 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), FALSE);
       }
       if (refmac_use_twin_state()) {
+	/* set the filename if there */
+	const gchar *mtz_filename = get_saved_refmac_twin_filename();
+	g_print("BL DEBUG:: have twin filename in dialog %s\n", mtz_filename);
+	if (mtz_filename) {
+	  g_print("BL DEBUG:: setting the twi nfilename in dialog\n");
+	  gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
+	}
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
 	gtk_widget_set_sensitive(sad_check_button, FALSE);
 	gtk_widget_hide(sad_extras);
@@ -3892,6 +3901,7 @@ void
 on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+  GtkWidget *map_optionmenu = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   GtkWidget *sad_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_checkbutton");
   GtkWidget *sad_extras = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_extra_hbox");
   GtkWidget *mtz_label  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_label");
@@ -3902,6 +3912,8 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
   GtkWidget *fiobs_hbox = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fiobs_hbox");
   if (togglebutton->active) {
     set_refmac_use_twin(1);
+    /* update the column labels */
+    fill_option_menu_with_refmac_labels_options(map_optionmenu);
     /* de-sensitise the SAD button, no need to switch off use_sad as done in use_twin */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
     gtk_widget_set_sensitive(sad_checkbutton, FALSE);
@@ -3916,6 +3928,8 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
     gtk_widget_show(fiobs_hbox);
   } else {
     set_refmac_use_twin(0);
+    /* update the column labels */
+    fill_option_menu_with_refmac_labels_options(map_optionmenu);
     gtk_widget_set_sensitive(sad_checkbutton, TRUE);
     /* hide the twin mtz frame and label but show the 'normal' ones */
     gtk_widget_show(mtz_label);
@@ -3981,8 +3995,16 @@ on_run_refmac_mtz_filechooserdialog_response
   /* do something with the filename */
   g_print("BL DEBUG:: Selected filename %s\n", filename);
 
-  /* change the label name */
+  /* save the label name */
   GtkWidget *mtz_label = get_refmac_mtz_file_label();
+  //mtz_file_label = lookup_widget(GTK_WIDGET(button), "run_refmac_mtz_file_label");
+  //mtz_filename = get_saved_refmac_twin_filename();
+  //g_print("BL DEBUG:: mtz twin filename is %s", mtz_filename);
+  //if (mtz_filename) {
+  //  g_print("BL DEBUG:: have filename set");
+  //  gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
+  //}
+  
   gtk_label_set_text(GTK_LABEL(mtz_label), filename);
   GtkWidget *refmac_dialog = lookup_widget(mtz_label, "run_refmac_dialog");
   manage_refmac_column_selection(refmac_dialog);
@@ -4015,6 +4037,8 @@ on_run_refmac_mtz_filechooser_button_clicked
 {
 #if (GTK_MAJOR_VERSION > 1)
   GtkWidget *mtz_file_chooser;
+  GtkWidget *mtz_file_label;
+  const gchar *mtz_filename;
   mtz_file_chooser = create_run_refmac_mtz_filechooserdialog();
   /* add file filter to filechooserbutton */
   add_filechooser_filter_button(mtz_file_chooser, COOT_DATASET_FILE_SELECTION);

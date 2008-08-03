@@ -2489,20 +2489,22 @@ void free_memory_run_refmac(GtkWidget *window) {
 
 
    option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
-   if (option_menu) { 
-      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-      active_item = gtk_menu_get_active(GTK_MENU(menu));
-      if (active_item) { 
+   if (refmac_use_twin_state() == 0) {
+     if (option_menu) { 
+       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+       active_item = gtk_menu_get_active(GTK_MENU(menu));
+       if (active_item) { 
 	 imol_ptr = gtk_object_get_user_data(GTK_OBJECT(active_item));
-      } else { 
+       } else { 
 	 std::cout << "no active item in maps option_menu\n";
-      }
+       }
 
-      // free each of the menu items in menu
+       // free each of the menu items in menu
       
-      // run over items in menu somehow:
-   } else { 
-      std::cout << "ERROR:: can't find map option_menu in free_memory_run_refmac\n";
+       // run over items in menu somehow:
+     } else { 
+       std::cout << "ERROR:: can't find map option_menu in free_memory_run_refmac\n";
+     }
    }
 //    std::cout << "debugging bad window got to end of free_memory_run_refmac"
 // 	     << std::endl;

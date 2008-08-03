@@ -135,9 +135,14 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                        " F-=" + f_col[1] + " SIGF-=" + sig_f_col[1]
     else:
         if (f_col):
-            labin_string = "LABIN FP=" + f_col + " SIGFP=" + sig_f_col
+            if (refmac_use_intensities_state()):
+                labin_string = "LABIN IP=" + f_col + " SIGIP=" + sig_f_col
+            else:
+                labin_string = "LABIN FP=" + f_col + " SIGFP=" + sig_f_col
         
-    if (r_free_col != "") :
+    if (r_free_col != ""):
+        # for now we remove everythign before th last '/' to keep refmac happy
+        r_free_col = r_free_col[r_free_col.rfind('/')+1:len(r_free_col)]
         labin_string += " FREE=" + r_free_col
 
     if (phase_combine_flag == 1):
@@ -315,12 +320,15 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
             set_recentre_on_read_pdb(1)
         set_refmac_counter(imol, imol_refmac_count + 1)
 
-        if (refmac_use_sad_state()):
+        if (refmac_use_sad_state() or refmac_use_twin_state()):
             # for now we have to assume the 'standard' name, let's see if we can do better...
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, "FP", "SIGFP"] + r_free_bit
         else:
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, f_col, sig_f_col] + r_free_bit
-        new_map_id = make_and_draw_map_with_refmac_params(*args) 
+        new_map_id = make_and_draw_map_with_refmac_params(*args)
+        # now for twin save the orig mtz filename
+        #if (refmac_use_twin_state() and valid_map_molecule_qm(new_map_id)):
+        #    set_stored_refmac_twin_mtz_filename(new_map_id, mtz_out_filename)
 
 	# set the new map as refinement map
 	set_imol_refinement_map(new_map_id)
@@ -1026,7 +1034,7 @@ def read_refmac_log(imol, refmac_log_file):
                 item_ls.insert(5, alt_conf1)
                 
             dev       = item_ls[7]
-            sig       = itm_ls[9]
+            sig       = item_ls[9]
                 
             if (alt_conf1 == "."): alt_conf1 == ""
 

@@ -1337,6 +1337,8 @@ void set_refmac_ncycles(int no_cycles);
 void add_refmac_ncycle_no(int cycle);
 void set_refmac_use_ncs(int state);
 int refmac_use_ncs_state(void);
+void set_refmac_use_intensities(int state);
+int refmac_use_intensities_state(void);
 int refmac_imol_coords(void);
 void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda);
 void add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp);
@@ -1345,6 +1347,8 @@ void clear_refmac_sad_atoms();
 void store_refmac_mtz_file_label(GtkWidget *label);
 GtkWidget *get_refmac_mtz_file_label(void);
 void fill_refmac_sad_atom_entry(GtkWidget *widget);
+const gchar *get_saved_refmac_twin_filename(void);
+void set_stored_refmac_twin_mtz_filename(int imol, const char *mtz_filename);
 #ifdef __cplusplus
 #ifdef USE_PYTHON
 PyObject *get_refmac_sad_atom_info();

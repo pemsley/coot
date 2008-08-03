@@ -1637,28 +1637,51 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
 void
 graphics_info_t::fill_option_menu_with_refmac_twin_labels_options(GtkWidget *option_menu) {
 
-   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-   if (menu)
-      gtk_widget_destroy(menu);
-   menu = gtk_menu_new();
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *mtz_file_label = lookup_widget(option_menu, "run_refmac_mtz_file_label");
 
-   GtkWidget *menuitem;
-   GtkWidget *mtz_file_label = lookup_widget(option_menu, "run_refmac_mtz_file_label");
-   
-   std::vector<std::pair<int, std::string> > mtz_files;
-   // pre-select a filename if we have an old twin_mtz_file
-   for (int i=0; i<n_molecules(); i++) {
-      // first make a list with all mtz files and at the same time filter out dublicates
-      if (molecules[i].Refmac_twin_mtz_filename().size() > 0) {
-	 std::string twin_mtz_filename = molecules[i].Refmac_twin_mtz_filename();
-	 char s[200];
-	 //snprintf(s, 199, "%s", twin_mtz_filename);
-	 std::string ss(s);
-	 //	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(mtz_file_chooser), twin_mtz_filename.c_str());
-	 //fill_option_menu_with_refmac_labels_options(option_menu);
+  std::string twin_mtz_filename;
+  std::string label_filename = gtk_label_get_text(GTK_LABEL(mtz_file_label));
+  if (coot::file_exists(label_filename)) {
+    coot::setup_refmac_parameters_from_file(option_menu); // check the widget?!
+  } else {
+    // check if we have a saved filename
+    const gchar *saved_filename = saved_refmac_twin_filename;
+    if (!saved_filename) {
+      // pre-select a filename if we have an old twin_mtz_file
+      for (int i=0; i<n_molecules(); i++) {
+	// first make a list with all mtz files and at the same time filter out dublicates
+	if (molecules[i].Refmac_twin_mtz_filename().size() > 0) {
+	  twin_mtz_filename = molecules[i].Refmac_twin_mtz_filename();
+	  gtk_label_set_text(GTK_LABEL(mtz_file_label), twin_mtz_filename.c_str());
+	}
       }
-   }
+    } else {
+      twin_mtz_filename = saved_filename;
+    }
+    if (coot::file_exists(twin_mtz_filename)) {
+      coot::setup_refmac_parameters_from_file(option_menu);
+      gtk_label_set_text(GTK_LABEL(mtz_file_label), twin_mtz_filename.c_str());
+    } else {
+      // we dont have any mtz files given
+      // delete the contents of the menu(s), currently only fiobs and r_free
+      GtkWidget *fiobs_optionmenu  = lookup_widget(option_menu, "refmac_dialog_fiobs_optionmenu");
+      GtkWidget *fiobs_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(fiobs_optionmenu));
+      GtkWidget *r_free_optionmenu = lookup_widget(option_menu, "refmac_dialog_rfree_optionmenu");
+      GtkWidget *r_free_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_optionmenu));
+      GtkWidget *menu;
+      if (fiobs_menu) {
+	gtk_widget_destroy(fiobs_menu);
+      }
+      fiobs_menu = gtk_menu_new();
+      if (r_free_menu) {
+	gtk_widget_destroy(r_free_menu);
+      }
+      r_free_menu = gtk_menu_new();
+    }
+  }
 
+#endif // GTK2
 }
 
 void
@@ -1902,6 +1925,27 @@ graphics_info_t::set_refmac_use_ncs(int state) {
   }
 }
 
+void
+graphics_info_t::set_refmac_use_intensities(int state) {
+
+  graphics_info_t g;
+  
+  switch (state) {
+
+  case coot::refmac::AMPLITUDES:
+    g.refmac_use_intensities_flag = coot::refmac::AMPLITUDES;
+    break;
+
+  case coot::refmac::INTENSITIES:
+    g.refmac_use_intensities_flag = coot::refmac::INTENSITIES;
+    break;
+
+  default:
+    g.refmac_use_intensities_flag = coot::refmac::AMPLITUDES;
+    break;
+  }
+}
+
 
 void
 graphics_info_t::add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda) {
@@ -1929,18 +1973,48 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 						   GtkWidget *r_free_menu,
 						   GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {
 
+  std::cout <<"BL DEBUG:: update refmac columns"<< std::endl;
   GtkWidget *optionmenu;
+  GtkWidget *menu;
   GtkWidget *dialog = lookup_widget(map_optionmenu, "run_refmac_dialog");
-  GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu));
-  GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
-  int imol_map_refmac = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
+  int imol_map_refmac = -1;
 
   coot::mtz_column_types_info_t *saved_f_phi_columns
     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(dialog));
   
+  if (not refmac_use_twin_flag) {
+    menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu));
+    GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
+    imol_map_refmac = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
+  } else {
+    // in TWIN: find (last) map which may have refmac twin parameters corresponding 
+    // to given filename.
+    std::string twin_mtz_filename;
+    GtkWidget *twin_mtz_label = lookup_widget(map_optionmenu, "run_refmac_mtz_file_label");
+#if (GTK_MAJOR_VERSION > 1)
+    const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(twin_mtz_label));
+    twin_mtz_filename = mtz_filename;
+#else
+    gchar **mtz_filename = 0;
+    gtk_label_get(GTK_LABEL(twin_mtz_label), mtz_filename);
+    twin_mtz_filename = (char *)mtz_filename;
+#endif // GTK
+    std::cout <<"BL DEBUG:: have filename from label in update "<< twin_mtz_filename<<std::endl;
+    std::string tmp_mtz;
+    for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].Refmac_twin_mtz_filename().size() > 0) {
+	std::string tmp_mtz = molecules[i].Refmac_twin_mtz_filename();
+	if (tmp_mtz == twin_mtz_filename) {
+	  std::cout <<"BL DEBUG:: found existing Refmac ywin file with imol "<< i <<std::endl;
+	  imol_map_refmac = i;
+	}
+      }
+    }
+  } 
+
   // get existing refmac parameters and refmac phase parameters and set active
   // otherwise default to first elements.
-  if (molecules[imol_map_refmac].Have_sensible_refmac_params()) {
+  if (imol_map_refmac > -1 && molecules[imol_map_refmac].Have_sensible_refmac_params()) {
     std::string fobs_string    = molecules[imol_map_refmac].Refmac_fobs_col();
     std::string r_free_string  = molecules[imol_map_refmac].Refmac_r_free_col();
     // now find 'em
@@ -1961,9 +2035,11 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 	  fobs_sigfobs_pair += 1;
 	}
       }
-      if (break_flag) {break;}
+      if (break_flag) {
+	break;
+      }
     }
-	
+      
     for (int i=0; i<saved_f_phi_columns->r_free_cols.size(); i++) {
       if (saved_f_phi_columns->r_free_cols[i].column_label == fobs_string) {
 	gtk_menu_set_active(GTK_MENU(r_free_menu), i);
@@ -1972,85 +2048,97 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
       }
     }
   } else {
-    // default setting F, SigF and freeR (doublication?)
-    if (saved_f_phi_columns->f_cols.size() > 0) {
-      gtk_menu_set_active(GTK_MENU(fobs_menu), 0);
-      // no need to set?!
-      //saved_f_phi_columns->selected_refmac_fobs_col = 0;
+    std::cout <<"BL DEBUG:: set default (first) fs" <<std::endl;
+    std::cout <<"BL DEBUG:: size of f_cols" <<saved_f_phi_columns->f_cols.size() <<std::endl;
+    std::cout <<"BL DEBUG:: size of i_cols" <<saved_f_phi_columns->i_cols.size() <<std::endl;
+    if (refmac_use_twin_flag) {
+      if (saved_f_phi_columns->f_cols.size() > 0 || saved_f_phi_columns->i_cols.size() > 0) {
+	gtk_menu_set_active(GTK_MENU(fiobs_menu), 0);
+      }
+    } else {
+      // default setting F, SigF and freeR (doublication?)
+      if (saved_f_phi_columns->f_cols.size() > 0) {
+	gtk_menu_set_active(GTK_MENU(fobs_menu), 0);
+	// no need to set?!
+	//saved_f_phi_columns->selected_refmac_fobs_col = 0;
+      }
     }
     if (saved_f_phi_columns->r_free_cols.size() > 0) {
       gtk_menu_set_active(GTK_MENU(r_free_menu), 0);
       // no need to set?!
       //saved_f_phi_columns->selected_refmac_r_free_col = 0;
-    }
-  }
-  // find phases
-  std::string phib_string = molecules[imol_map_refmac].Refmac_phi_col();
-  if (molecules[imol_map_refmac].Have_refmac_phase_params() && phib_string != "") {
-    std::string fom_string  = molecules[imol_map_refmac].Refmac_fom_col();
-    // now find 'em
-    // phase and FOM
-    for (int i=0; i<saved_f_phi_columns->phi_cols.size(); i++) {
-      if (saved_f_phi_columns->phi_cols[i].column_label == phib_string) {
-	gtk_menu_set_active(GTK_MENU(phases_menu), i);
-	saved_f_phi_columns->selected_refmac_phi_col = i;
-	break;
-      }
-    }
-    optionmenu = lookup_widget(map_optionmenu, "refmac_dialog_fom_optionmenu");
-    menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
-    for (int i=0; i<saved_f_phi_columns->weight_cols.size(); i++) {
-      if (saved_f_phi_columns->weight_cols[i].column_label == fom_string) {
-	gtk_menu_set_active(GTK_MENU(fom_menu), i);
-	saved_f_phi_columns->selected_refmac_fom_col = i;
-	break;
-      }
-    }
-  } else {
-    // update the phase info, no matter if used or not (as it may when changing the phase input)
-    // phase & fom
-    if (saved_f_phi_columns->phi_cols.size() > 0) {
-      gtk_menu_set_active(GTK_MENU(phases_menu), 0);
-      saved_f_phi_columns->selected_refmac_phi_col = 0;
-    }
-    if (saved_f_phi_columns->weight_cols.size() > 0) {
-      gtk_menu_set_active(GTK_MENU(fom_menu), 0);
-    }
+    } 
   }
 
-  // find HLs
-  std::string hla_string  = molecules[imol_map_refmac].Refmac_hla_col();
-  int hl_set_pos = 0;
-  int hla_pos;
-  if (molecules[imol_map_refmac].Have_refmac_phase_params() && hla_string != "") {
-    for (int i=0; i<saved_f_phi_columns->hl_cols.size(); i++) {
-      hla_pos = saved_f_phi_columns->hl_cols[i].column_position;
-      //check if we have a consecutive set of 4 HLs
-      if (saved_f_phi_columns->hl_cols[i+1].column_position == hla_pos + 1 &&
-	  saved_f_phi_columns->hl_cols[i+2].column_position == hla_pos + 2 &&
-	  saved_f_phi_columns->hl_cols[i+3].column_position == hla_pos + 3) {
-
-	if (saved_f_phi_columns->hl_cols[i].column_label == hla_string) {
-	  saved_f_phi_columns->selected_refmac_hla_col = i;
-	  saved_f_phi_columns->selected_refmac_hlb_col = i + 1;
-	  saved_f_phi_columns->selected_refmac_hlc_col = i + 2;
-	  saved_f_phi_columns->selected_refmac_hld_col = i + 3;
-	  gtk_menu_set_active(GTK_MENU(hl_menu), hl_set_pos);
+  if (imol_map_refmac > -1) {
+    // find phases
+    std::string phib_string = molecules[imol_map_refmac].Refmac_phi_col();
+    if (molecules[imol_map_refmac].Have_refmac_phase_params() && phib_string != "") {
+      std::string fom_string  = molecules[imol_map_refmac].Refmac_fom_col();
+      // now find 'em
+      // phase and FOM
+      for (int i=0; i<saved_f_phi_columns->phi_cols.size(); i++) {
+	if (saved_f_phi_columns->phi_cols[i].column_label == phib_string) {
+	  gtk_menu_set_active(GTK_MENU(phases_menu), i);
+	  saved_f_phi_columns->selected_refmac_phi_col = i;
 	  break;
 	}
-	hl_set_pos += 1;
-	i += 3;
+      }
+      optionmenu = lookup_widget(map_optionmenu, "refmac_dialog_fom_optionmenu");
+      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
+      for (int i=0; i<saved_f_phi_columns->weight_cols.size(); i++) {
+	if (saved_f_phi_columns->weight_cols[i].column_label == fom_string) {
+	  gtk_menu_set_active(GTK_MENU(fom_menu), i);
+	  saved_f_phi_columns->selected_refmac_fom_col = i;
+	  break;
+	}
+      }
+    } else {
+      // update the phase info, no matter if used or not (as it may when changing the phase input)
+      // phase & fom
+      if (saved_f_phi_columns->phi_cols.size() > 0) {
+	gtk_menu_set_active(GTK_MENU(phases_menu), 0);
+	saved_f_phi_columns->selected_refmac_phi_col = 0;
+      }
+      if (saved_f_phi_columns->weight_cols.size() > 0) {
+	gtk_menu_set_active(GTK_MENU(fom_menu), 0);
       }
     }
-  } else {
-    // update the phase info, no matter if used or not (as it may when changing the phase input)
-    // HLs
-    if (saved_f_phi_columns->hl_cols.size() > 3) {
-      gtk_menu_set_active(GTK_MENU(hl_menu), 0);
-      saved_f_phi_columns->selected_refmac_hla_col = 0;
-      saved_f_phi_columns->selected_refmac_hlb_col = 1;
-      saved_f_phi_columns->selected_refmac_hlc_col = 2;
-      saved_f_phi_columns->selected_refmac_hld_col = 3;
+
+    // find HLs
+    std::string hla_string  = molecules[imol_map_refmac].Refmac_hla_col();
+    int hl_set_pos = 0;
+    int hla_pos;
+    if (molecules[imol_map_refmac].Have_refmac_phase_params() && hla_string != "") {
+      for (int i=0; i<saved_f_phi_columns->hl_cols.size(); i++) {
+	hla_pos = saved_f_phi_columns->hl_cols[i].column_position;
+	//check if we have a consecutive set of 4 HLs
+	if (saved_f_phi_columns->hl_cols[i+1].column_position == hla_pos + 1 &&
+	    saved_f_phi_columns->hl_cols[i+2].column_position == hla_pos + 2 &&
+	    saved_f_phi_columns->hl_cols[i+3].column_position == hla_pos + 3) {
+
+	  if (saved_f_phi_columns->hl_cols[i].column_label == hla_string) {
+	    saved_f_phi_columns->selected_refmac_hla_col = i;
+	    saved_f_phi_columns->selected_refmac_hlb_col = i + 1;
+	    saved_f_phi_columns->selected_refmac_hlc_col = i + 2;
+	    saved_f_phi_columns->selected_refmac_hld_col = i + 3;
+	    gtk_menu_set_active(GTK_MENU(hl_menu), hl_set_pos);
+	    break;
+	  }
+	  hl_set_pos += 1;
+	  i += 3;
+	}
+      }
+    } else {
+      // update the phase info, no matter if used or not (as it may when changing the phase input)
+      // HLs
+      if (saved_f_phi_columns->hl_cols.size() > 3) {
+	gtk_menu_set_active(GTK_MENU(hl_menu), 0);
+	saved_f_phi_columns->selected_refmac_hla_col = 0;
+	saved_f_phi_columns->selected_refmac_hlb_col = 1;
+	saved_f_phi_columns->selected_refmac_hlc_col = 2;
+	saved_f_phi_columns->selected_refmac_hld_col = 3;
+      }
     }
   }
 
