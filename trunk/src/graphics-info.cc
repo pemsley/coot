@@ -308,20 +308,21 @@ GdkColor colour_by_distortion(float dist) {
 GdkColor colour_by_rama_plot_distortion(float plot_value) {
 
    GdkColor col;
+   float scale = 10.0; 
 
    col.pixel = 1;
    col.blue  = 0;
 
-   if (plot_value < -15.0) { 
+   if (plot_value < -15.0*scale) { 
       col.red   = 0;
       col.green = 55535;
    } else {
-      if (plot_value < -13.0) {
+      if (plot_value < -13.0*scale) {
 	 col.red   = 55000;
 	 col.green = 55000;
 	 // col.blue  = 22000;
       } else {
-	 if (plot_value < -10.0) {
+	 if (plot_value < -10.0*scale) {
 	    col.red   = 64000;
 	    col.green = 32000;
 	 } else {
