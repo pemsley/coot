@@ -1918,7 +1918,7 @@ coot::numerical_gradients(gsl_vector *v,
       //
 
       // overwrite the analytical gradients with numerical ones:
-      gsl_vector_set(df, i, val);
+      // gsl_vector_set(df, i, val);
    } 
 } // Note to self: try 5 atoms and doctor the .rst file if necessary.
   // Comment out the bond gradients.
@@ -4283,8 +4283,8 @@ int coot::restraints_container_t::make_flanking_atoms_rama_restraints(const prot
 	 int nSelResidues;
 	 mol->Select (selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
 		      (char *) chain_id_save.c_str(), // Chain(s)
-		      istart_res-1,   "*",  // starting res
-		      istart_res+1, "*",  // ending res
+		      vrrfr[iround].resno_first,   "*",  // starting res
+		      vrrfr[iround].resno_third,   "*",  // ending res
 		      "*",  // residue name
 		      "*",  // Residue must contain this atom name?
 		      "*",  // Residue must contain this Element?
@@ -4297,6 +4297,14 @@ int coot::restraints_container_t::make_flanking_atoms_rama_restraints(const prot
 	 if (nSelResidues == 3) {
 	    // super careful would mean that we check the link type of
 	    // both pairs before calling this function:
+
+	    if (0) { // debugging fixed atoms
+	       for (int i=0; i<3; i++)
+		  std::cout << "   calling add_rama with resno "
+			    << SelResidue[i]->GetSeqNum() << " Fixed: "
+			    << vrrfr[iround].is_fixed[i] << std::endl;
+	    }
+	       
 	    add_rama("TRANS",
 		     SelResidue[0], SelResidue[1], SelResidue[2],
 		     vrrfr[iround].is_fixed[0],

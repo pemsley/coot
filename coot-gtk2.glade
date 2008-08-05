@@ -14682,24 +14682,7 @@ Do you want to continue?
 				  </child>
 
 				  <child>
-				    <widget class="GtkRadioButton" id="refine_params_use_ramachandran_goodness_torsions_radiobutton">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Restrain to Ramachandran Goodness</property>
-				      <property name="use_underline">True</property>
-				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
-				      <property name="active">False</property>
-				      <property name="inconsistent">False</property>
-				      <property name="draw_indicator">True</property>
-				      <property name="group">refine_params_use_helix_peptide_torsions_radiobutton</property>
-				      <signal name="toggled" handler="on_refine_params_use_ramachandran_goodness_torsions_radiobutton_toggled"/>
-				    </widget>
-				    <packing>
-				      <property name="padding">0</property>
-				      <property name="expand">False</property>
-				      <property name="fill">False</property>
-				    </packing>
+				    <placeholder/>
 				  </child>
 				</widget>
 				<packing>
@@ -14795,6 +14778,26 @@ Do you want to continue?
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
 			  <signal name="toggled" handler="on_refine_params_use_planar_peptides_checkbutton_toggled" last_modification_time="Wed, 13 Feb 2008 16:26:13 GMT"/>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkCheckButton" id="refine_params_use_ramachandran_goodness_torsions_checkbutton">
+			  <property name="visible">True</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">Ramachandran Restraints</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">True</property>
+			  <property name="active">False</property>
+			  <property name="inconsistent">False</property>
+			  <property name="draw_indicator">True</property>
+			  <signal name="toggled" handler="on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled" last_modification_time="Fri, 01 Aug 2008 14:50:12 GMT"/>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -50724,6 +50727,7 @@ add_refmac_sad_atom_lambda.
 </widget>
 
 <widget class="GtkFileChooserDialog" id="run_refmac_mtz_filechooserdialog">
+  <property name="border_width">5</property>
   <property name="visible">True</property>
   <property name="action">GTK_FILE_CHOOSER_ACTION_OPEN</property>
   <property name="local_only">True</property>

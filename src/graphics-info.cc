@@ -305,7 +305,6 @@ GdkColor colour_by_distortion(float dist) {
    return col;
 }
 
-// caller disposes 
 GdkColor colour_by_rama_plot_distortion(float plot_value) {
 
    GdkColor col;
