@@ -179,7 +179,8 @@
 					     refmac-log-file-name #t))) ; to screen too
 		  
 		  (if (file-exists? refmac-log-file-name)
-		      (run-concurrently "loggraph" refmac-log-file-name))
+		      (if (command-in-path? "loggraph")
+			  (run-concurrently "loggraph" refmac-log-file-name)))
 		  
 		  (if (and (number? status) (= status 0)) ; refmac ran OK
 		      (begin

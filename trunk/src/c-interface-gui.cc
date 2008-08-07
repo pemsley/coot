@@ -309,7 +309,121 @@ void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu) {
 
    coot::fill_f_optionmenu(f_optionmenu, 1);
 
-} 
+}
+
+void
+wrapped_create_run_refmac_dialog() {
+  GtkWidget *window = create_run_refmac_dialog();
+  GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(refmac_molecule_button_select);
+  GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
+  GtkWidget *optionmenu;
+  int imol_coords = first_coords_imol();
+  /* only GTK 2!? */
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
+  GtkWidget *ncs_button = lookup_widget(window, "run_refmac_ncs_checkbutton");
+  optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
+  fill_option_menu_with_refmac_methods_options(optionmenu);
+
+  optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
+  fill_option_menu_with_refmac_phase_input_options(optionmenu);
+#endif
+
+  set_refmac_molecule(imol_coords);
+
+  optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
+  fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
+
+  optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
+  /*  fill_option_menu_with_refmac_options(optionmenu); */
+  fill_option_menu_with_refmac_labels_options(optionmenu);
+
+  /* to set the labels set the active item (if no twin)*/
+  if (refmac_use_twin_state() == 0) {
+    GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
+    if (active_menu_item) {
+      gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+    }
+  }
+
+  /* fill optionmenu for no label refmac and show if refmac version is new enough */
+  /* only GTK 2!? */
+#if (GTK_MAJOR_VERSION > 1)
+  if (refmac_runs_with_nolabels()) {
+    GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
+    gtk_widget_show(checkbutton);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+    gtk_widget_hide(labels);
+    if (refmac_runs_with_nolabels() >= 2) {
+      /* add the tls, twin and sad buttons */
+      GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
+      /* update the check buttons */
+      GtkWidget *tls_check_button = lookup_widget(window, "run_refmac_tls_checkbutton");
+      GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
+      GtkWidget *sad_check_button = lookup_widget(window, "run_refmac_sad_checkbutton");
+      GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
+      GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
+      store_refmac_mtz_file_label(mtz_file_label);
+      if (refmac_use_tls_state()) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), TRUE);
+      } else {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), FALSE);
+      }
+      if (refmac_use_twin_state()) {
+	/* set the filename if there */
+	const gchar *mtz_filename = get_saved_refmac_twin_filename();
+	g_print("BL DEBUG:: have twin filename in dialog %s\n", mtz_filename);
+	if (mtz_filename) {
+	  g_print("BL DEBUG:: setting the twi nfilename in dialog\n");
+	  gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
+	}
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
+	gtk_widget_set_sensitive(sad_check_button, FALSE);
+	gtk_widget_hide(sad_extras);
+      } else {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
+	gtk_widget_set_sensitive(sad_check_button, TRUE);
+      }
+      if (refmac_use_sad_state()) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), TRUE);
+	gtk_widget_set_sensitive(twin_check_button, FALSE);
+	gtk_widget_show(sad_extras);
+	/* fill the entry with 1st existing atom */
+	fill_refmac_sad_atom_entry(window);
+      } else {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), FALSE);
+	gtk_widget_set_sensitive(twin_check_button, TRUE);
+	gtk_widget_hide(sad_extras);
+      }
+
+      gtk_widget_show(extra_options);
+    }
+  } else {
+    gtk_widget_show(labels);
+  }
+
+  optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
+  fill_option_menu_with_refmac_ncycle_options(optionmenu);
+  //#endif
+
+  /* set the ncs button depending on state */
+  if (refmac_use_ncs_state()) {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), TRUE);
+  } else {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), FALSE);
+  }
+#endif
+
+  optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
+  clear_refmac_ccp4i_project();
+  add_ccp4i_projects_to_optionmenu(optionmenu, 
+				   COOT_COORDS_FILE_SELECTION,
+				   GTK_SIGNAL_FUNC(run_refmac_ccp4i_option_menu_signal_func));
+
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);
+
+  gtk_widget_show(window);
+}
 
 
 void fill_about_window(GtkWidget *widget) {
@@ -2016,6 +2130,8 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
       lookup_widget(button, "refine_params_use_planar_peptides_checkbutton");
    GtkWidget *phi_psi_peptide_checkbutton =
       lookup_widget(button, "refine_params_use_peptide_torsions_checkbutton");
+   GtkWidget *ramachandran_restraints_checkbutton =
+      lookup_widget(button, "refine_params_use_ramachandran_goodness_torsions_checkbutton");
    GtkWidget *link_torsion_type_vbox =
       lookup_widget(button, "peptide_torsions_restraints_vbox");
    
@@ -2037,10 +2153,18 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
 
    // planar peptide restraints:
    int pps = planar_peptide_restraints_state();
-   if (pps)
+   if (pps) {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(planar_peptide_restraints_checkbutton), TRUE);
-      
+   } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(planar_peptide_restraints_checkbutton), FALSE);
+   }      
 
+   // Ramachandran angle restraints:
+   if (g.do_rama_restraints) {
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ramachandran_restraints_checkbutton), TRUE);
+   } else {
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ramachandran_restraints_checkbutton), FALSE);
+   }
 
    // refine_params_use_helix_peptide_torsions_radiobutton
    // refine_params_use_beta_strand_peptide_torsions_radiobutton
@@ -4089,6 +4213,23 @@ void set_accept_reject_dialog_docked(int istate){
 
 int accept_reject_dialog_docked_state(){
   return graphics_info_t::accept_reject_dialog_docked_flag;
+}
+
+// functions to show/hide/sensitise docked accept/reject dialog
+void set_accept_reject_dialog_docked_show(int state){
+  graphics_info_t::accept_reject_dialog_docked_show_flag = state;
+  if (state == 0) {
+    GtkWidget *dialog = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), "accept_reject_dialog_frame_docked");
+    // hide the widget and make sensitive again
+    gtk_widget_set_sensitive(dialog, TRUE);
+    gtk_widget_hide(dialog);
+    // reset the widget
+    set_accept_reject_dialog(0);
+  }
+}
+
+int accept_reject_dialog_docked_show_state() {
+  return graphics_info_t::accept_reject_dialog_docked_show_flag;
 }
 
 // functions for the refinement toolbar style

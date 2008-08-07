@@ -181,6 +181,9 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
      GtkWidget *button_box = lookup_widget(GTK_WIDGET(main_window), "hbuttonbox1");
      gtk_widget_show_all(button_box);
      gtk_widget_show(label);
+     if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_SHOW) {
+       gtk_widget_set_sensitive(window, TRUE);
+     }
      gtk_widget_show(window);
    } else {
      gtk_widget_show(window);
@@ -1973,7 +1976,6 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 						   GtkWidget *r_free_menu,
 						   GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {
 
-  std::cout <<"BL DEBUG:: update refmac columns"<< std::endl;
   GtkWidget *optionmenu;
   GtkWidget *menu;
   GtkWidget *dialog = lookup_widget(map_optionmenu, "run_refmac_dialog");
@@ -1999,13 +2001,11 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     gtk_label_get(GTK_LABEL(twin_mtz_label), mtz_filename);
     twin_mtz_filename = (char *)mtz_filename;
 #endif // GTK
-    std::cout <<"BL DEBUG:: have filename from label in update "<< twin_mtz_filename<<std::endl;
     std::string tmp_mtz;
     for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].Refmac_twin_mtz_filename().size() > 0) {
 	std::string tmp_mtz = molecules[i].Refmac_twin_mtz_filename();
 	if (tmp_mtz == twin_mtz_filename) {
-	  std::cout <<"BL DEBUG:: found existing Refmac ywin file with imol "<< i <<std::endl;
 	  imol_map_refmac = i;
 	}
       }
@@ -2048,9 +2048,6 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
       }
     }
   } else {
-    std::cout <<"BL DEBUG:: set default (first) fs" <<std::endl;
-    std::cout <<"BL DEBUG:: size of f_cols" <<saved_f_phi_columns->f_cols.size() <<std::endl;
-    std::cout <<"BL DEBUG:: size of i_cols" <<saved_f_phi_columns->i_cols.size() <<std::endl;
     if (refmac_use_twin_flag) {
       if (saved_f_phi_columns->f_cols.size() > 0 || saved_f_phi_columns->i_cols.size() > 0) {
 	gtk_menu_set_active(GTK_MENU(fiobs_menu), 0);

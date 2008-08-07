@@ -51,7 +51,7 @@ if (have_coot_python):
      #           extensions
      # ---------------------------------------------
 
-     menu = coot_menubar_menu("Extensions")
+     menu = coot_menubar_menu("E_xtensions")
 
      #---------------------------------------------------------------------
      #     Post MR
@@ -359,6 +359,28 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(menu, "Dock Sequence...", 
                                    lambda func: cootaneer_gui_bl())
 
+
+     def associate_seq_func(imol, chain_id, pir_file):
+       import os, re
+       chain_count = 0
+       reg_chain = re.compile("chain", re.IGNORECASE)
+       print "assoc seq:", imol, chain_id, pir_file
+       if (os.path.isfile(pir_file)):
+         fin = open(pir_file, 'r')
+         seq_text = fin.read()
+         fin.close()
+         assign_pir_sequence(imol, chain_id, seq_text)
+       else:
+         print "BL WARNING:: could not find", pir_file
+     
+     add_simple_coot_menu_menuitem(menu, "Associate Sequence...",
+                                   lambda func: generic_chooser_entry_and_file_selector(
+       "Associate Sequence to Model: ",
+       valid_model_molecule_qm,
+       "Chain ID",
+       "",
+       "Select PIR file",
+       lambda imol, chain_id, seq_file_name: associate_seq_func(imol, chain_id, seq_file_name)))
 
      add_simple_coot_menu_menuitem(menu,"Add Strand Here...",
                                    lambda func: place_strand_here_gui())

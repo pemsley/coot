@@ -3234,7 +3234,16 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 #endif // GTK2
 		if (run_refmac_with_no_labels) {
 		  std::cout <<"BL DEBUG:: twin refmac without labels"<<std::endl;
-		} else {
+		  execute_refmac_real(pdb_in_filename, pdb_out_filename,
+				      mtz_in_filename, mtz_out_filename,
+				      cif_lib_filename,
+				      "", "", "", 0,
+				      refmac_count_string,
+				      g.swap_pre_post_refmac_map_colours_flag,
+				      -1, // unset
+				      diff_map_flag,
+				      0, "", "", // no phases yet
+				      graphics_info_t::refmac_ccp4i_project_dir);		} else {
 		  // before running refmac we may want to set refmac parameters from the GUI
 		  // this should overwrite whatever has been set as refmac parameters before
 		  // we do it before checking for phases, so that these can be included later

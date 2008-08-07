@@ -247,6 +247,16 @@ void update_preference_gui() {
       }
       break;
 
+    case PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW:
+      w = lookup_widget(dialog, "preferences_dialog_accept_docked_show_radiobutton");
+      if (g.preferences_internal[i].ivalue) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      } else {
+	w = lookup_widget(dialog, "preferences_dialog_accept_docked_hide_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+      }
+      break;
+
     case PREFERENCES_IMMEDIATE_REPLACEMENT:
       w = lookup_widget(dialog, "preferences_dialog_accept_on_radiobutton");
       if (g.preferences_internal[i].ivalue) {

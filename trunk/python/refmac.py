@@ -76,6 +76,9 @@ refmac_extra_params = None
 global refmac_count
 refmac_count = 0
 
+# /a/b/c -> c
+def split_label(label):
+    return label[label.rfind("/")+1:len(label)]
 
 # BL says: for loggraph we use a function
 def run_loggraph(logfile):
@@ -131,24 +134,27 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
     labin_string = ""
     if (refmac_use_sad_state() and (len(f_col) == 2)):
-        labin_string = "LABIN F+=" + f_col[0] + " SIGF+=" + sig_f_col[0] +\
-                       " F-=" + f_col[1] + " SIGF-=" + sig_f_col[1]
+        labin_string = "LABIN F+=" + split_label(f_col[0]) + \
+                         " SIGF+=" + split_label(sig_f_col[0]) +\
+                            " F-=" + split_label(f_col[1]) +\
+                         " SIGF-=" + split_label(sig_f_col[1])
     else:
         if (f_col):
             if (refmac_use_intensities_state()):
-                labin_string = "LABIN IP=" + f_col + " SIGIP=" + sig_f_col
+                labin_string = "LABIN IP=" + split_label(f_col) + \
+                                 " SIGIP=" + split_label(sig_f_col)
             else:
-                labin_string = "LABIN FP=" + f_col + " SIGFP=" + sig_f_col
-        
+                labin_string = "LABIN FP=" + split_label(f_col) +\
+                                 " SIGFP=" + split_label(sig_f_col)
+
     if (r_free_col != ""):
-        # for now we remove everythign before th last '/' to keep refmac happy
-        r_free_col = r_free_col[r_free_col.rfind('/')+1:len(r_free_col)]
-        labin_string += " FREE=" + r_free_col
+        labin_string += " FREE=" + split_label(r_free_col)
 
     if (phase_combine_flag == 1):
         # we have Phi Fom pair
         if (phib_fom_pair[0] != "" and phib_fom_pair[1] !=0):
-            labin_string += "- \nPHIB=" + phib_fom_pair[0] + " FOM=" + phib_fom_pair[1]
+            labin_string += "- \nPHIB=" + split_label(phib_fom_pair[0]) + \
+                                " FOM=" + split_label(phib_fom_pair[1])
     if (phase_combine_flag == 2):
         # we have HLs
         if (phib_fom_pair[1] == ""):
@@ -158,7 +164,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                 labin_string += " - \n"
                 for i in range(4):
                     # shorten the label
-                    hl_label = hl_list[i][hl_list[i].rfind("/")+1:len(hl_list[i])]
+                    hl_label = split_label(hl_list[i])
                     labin_string += " " + hl_label_ls[i] + "=" + hl_label
         
 # BL says: command line args have to be string not list here
@@ -199,7 +205,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
            else:
                std_lines.append("NCYC " + str(force_n_cycles))
     # TLS?
-    if (refmac_use_tls_state()):
+    if (refmac_use_tls_state() and (refmac_runs_with_nolabels >= 2)):
         tls_string = "REFI TLSC 5"
         std_lines.append(tls_string)
 
@@ -237,7 +243,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                 for chain in ncs_set:
                     ncs_string += " " + chain
                 std_lines.append(ncs_string)
-    
+
     if (refmac_extra_params):
         extra_params = refmac_extra_params
     else:
@@ -313,7 +319,6 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
         recentre_status = recentre_on_read_pdb()
         novalue = set_recentre_on_read_pdb(0)
-        #print "DEBUG:: recentre status: ", recentre_status
         imol = handle_read_draw_molecule(pdb_out_filename)
 
         if (recentre_status) :
@@ -326,9 +331,6 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
         else:
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, f_col, sig_f_col] + r_free_bit
         new_map_id = make_and_draw_map_with_refmac_params(*args)
-        # now for twin save the orig mtz filename
-        #if (refmac_use_twin_state() and valid_map_molecule_qm(new_map_id)):
-        #    set_stored_refmac_twin_mtz_filename(new_map_id, mtz_out_filename)
 
 	# set the new map as refinement map
 	set_imol_refinement_map(new_map_id)
@@ -411,11 +413,23 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
 				mtz_out = stub + ".mtz"
 				cif_lib_filename = ""
 				write_pdb_file(imol, pdb_in)
+                                # preserve the ncs & tls state
+                                ncs_state = refmac_use_ncs_state()
+                                tls_state = refmac_use_tls_state()
+                                print "BL DEBUG:: states were", ncs_state, tls_state
+                                set_refmac_use_ncs(0)
+                                set_refmac_use_tls(0)
 				run_refmac_by_filename(pdb_in, pdb_out,
 					mtz_file_name, mtz_out, 
 					cif_lib_filename, 0, 0, -1,
 					1, 0, [], 0, "",
 					f_col, sig_f_col, "")
+                                # I wish I could reset the state, but I currently cannot
+                                # as refmac runs only after the button has been pushed
+                                # (and we wont be here any more)
+                                set_refmac_use_ncs(ncs_state)
+                                set_refmac_use_tls(tls_state)
+                                print "BL DEBUG:: reset states", ncs_state, tls_state
 
 		else:
 			print "BL WARNING:: no valid model molecule!"
@@ -425,11 +439,11 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
 
 def refmac_for_phases_and_make_map(mtz_file_name, f_col, sig_f_col):
 
-	import os
+	import os, time
 
 	if os.path.isfile(mtz_file_name):
 		molecule_chooser_gui("  Choose a molecule from which to calculate Structure factors:  ",
-			lambda imol: run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col))	
+			lambda imol: run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col))
 
 
 # This will read a refmac log file and extract information in
@@ -461,29 +475,22 @@ def read_refmac_log(imol, refmac_log_file):
             # CIS peptide found
             # we ignore multiple conformations for now...
             # e.g.            ch:AA   res:  40  ARG      -->  41  GLU
-            # old
-            #chain     = next_line[15:17]       # this is e.g. "AA"
-            #chain_id  = chain[1]
-            #res_no1   = int(next_line[24:28])
-            #res_name1 = next_line[30:33]
-            #res_no2   = int(next_line[42:46])
-            #res_name2 = next_line[48:51]
-            #angle_str = this_line[49:56]
-
-            # new
             item_ls   = split_clean(next_line)
-            chain     = item_ls[0]
+            chain     = item_ls[1]
             chain_id  = chain[-1]
-            res_no1   = int(item_ls[2])
-            res_name1 = item_ls[3]
-            res_no2   = item_ls[5]
-            res_name2 = item_ls[6]
+            res_no1   = int(item_ls[3])
+            res_name1 = item_ls[4]
+            res_no2   = int(item_ls[6])
+            res_name2 = item_ls[7]
             angle_str = ""
-            if (len(item_ls) > 6):
+            if (len(item_ls) > 8):
                 angle_str = item_ls[7]
+            else:
+                item_ls = this_line.split()
+                angle_str = item_ls[-1]
 
             info_text = "pre-WARNING: CIS bond: " + chain_id + " " + str(res_no1) + " - " \
-                        + str(res_no2) + angle_str
+                        + str(res_no2) + "  " + angle_str
 
             tooltip = " ".join(this_line.split()) + "\n" + " ".join(next_line.split())
 
@@ -515,28 +522,17 @@ def read_refmac_log(imol, refmac_log_file):
         elif ("big distance" in this_line):
             # large distance
             # e.g. "            ch:AA   res:  71  ILE     -->  72  CYS      ideal_dist=     1.329"
-            # old
-            #chain     = next_line[15:17]       # this is e.g. "AA"
-            #chain_id  = chain[1]
-            #res_no1   = int(next_line[24:28])
-            #res_name1 = next_line[30:33]
-            #res_no2   = int(next_line[41:45])
-            #res_name2 = next_line[47:50]
-            #dist_str  = this_line[52:59]
-
-            # new
             item_ls = split_clean(next_line)
-            print "BL DEBUG:: item_ls in big dist ", item_ls
-            chain     = item_ls[0]
+            chain     = item_ls[1]
             chain_id  = chain[-1]
-            res_no1   = int(item_ls[2])
-            res_name1 = item_ls[3]
-            res_no2   = int(item_ls[7]) # ?
-            res_name2 = item_ls[8]
-            dist_str  = item_ls[10]
+            res_no1   = int(item_ls[3])
+            res_name1 = item_ls[4]
+            res_no2   = int(item_ls[6]) # ?
+            res_name2 = item_ls[7]
+            dist_str  = item_ls[9]
 
             info_text = "pre-WARNING: large distance: " + chain_id + " " \
-                        + str(res_no1) + " - " + str(res_no2) + dist_str
+                        + str(res_no1) + " - " + str(res_no2) 
             tooltip = " ".join(this_line.split()) + "\n" + " ".join(next_line.split())
 
             warning_info_list.append([info_text, imol, chain_id, res_no1, "", " CA ", "",
@@ -545,34 +541,21 @@ def read_refmac_log(imol, refmac_log_file):
         elif ("link" in this_line):
             # link usually SS
             # e.g. "           ch:BB   res:   7  CYS      at:SG  .->BB   res:  96  CYS      at:SG  ."
-            # old
-            #chain1     = next_line[15:17]       # this is e.g. "AA"
-            #chain_id1  = chain1[1]              # we just take the second char
-            #res_no1    = int(next_line[22:26])
-            #res_name1  = next_line[28:31]
-            #atom_name1 = next_line[40:43]
-            #alt_conf1  = next_line[44]          # guess this is alt_conf ("." here)
-            #link_type  = this_line[17:26].rstrip()
-            #chain2     = next_line[47:49]
-            #chain_id2  = chain2[1]
-            #res_no2    = int(next_line[54:58])
-            #res_name2  = next_line[60:63]
-            #atom_name2 = next_line[72:75]
-            #alt_conf2  = next_line[76]
             item_ls    = split_clean(next_line)
-            chain1     = item_ls[0]
+            chain1     = item_ls[1]
             chain_id1  = chain1[-1]
-            res_no1    = int(item_ls[2])
-            res_name1  = item_ls[3]
-            atom_name1 = item_ls[4][3:-1]
-            link_type  = this_line[17:26].rstrip()
-            alt_conf1  = item_ls[5]
-            chain2     = item_ls[6]
+            res_no1    = int(item_ls[3])
+            res_name1  = item_ls[4]
+            atom_name1 = item_ls[6]
+            alt_conf1  = item_ls[7]
+            chain2     = item_ls[9]
             chain_id2  = chain2[-1]
-            res_no2    = int(item_ls[8])
-            res_name2  = item_ls[9]
-            atom_name2 = item_ls[10][3:-1]
-            alt_conf2  = item_ls[11]
+            res_no2    = int(item_ls[11])
+            res_name2  = item_ls[12]
+            atom_name2 = item_ls[14]
+            alt_conf2  = item_ls[15]
+
+            link_type  = this_line[17:26].rstrip()
 
             if (alt_conf1 == "."):
                 alt_conf1 = ""
@@ -597,35 +580,19 @@ def read_refmac_log(imol, refmac_log_file):
             # link found but not used
             # we ignore multiple conformations for now...
             # e.g.             ch:AA   res:   2  VAL      at:CA  .->ch:AA   res:  89  PHE      at:CZ  .
-            # old
-            #chain1     = next_line[15:17]       # this is e.g. "AA"
-            #chain_id1  = chain1[1]              # we just take the second char
-            #res_no1    = int(next_line[22:26])
-            #res_name1  = next_line[28:31]
-            #atom_name1 = next_line[40:43]
-            #alt_conf1  = next_line[44]          # guess this is alt_conf ("." here)
-            #chain2     = next_line[50:52]
-            #chain_id2  = chain2[1]
-            #res_no2    = int(next_line[57:61])
-            #res_name2  = next_line[63:66]
-            #atom_name2 = next_line[75:78]
-            #alt_conf2  = next_line[79]
-
-            # new
             item_ls = split_clean(next_line)
-            print "BL DEBUG:: item_ls", item_ls
-            chain1     = item_ls[0]
+            chain1     = item_ls[1]
             chain_id1  = chain1[-1]
-            res_no1    = int(item_ls[2])
-            res_name1  = item_ls[3]
-            atom_name1 = item_ls[4][3:-1]
-            alt_conf1  = item_ls[5]
-            chain2     = item_ls[6]
+            res_no1    = int(item_ls[3])
+            res_name1  = item_ls[4]
+            atom_name1 = item_ls[6]
+            alt_conf1  = item_ls[7]
+            chain2     = item_ls[10]
             chain_id2  = chain2[-1]
-            res_no2    = int(item_ls[8])
-            res_name2  = item_ls[9]
-            atom_name2 = item_ls[10][3:-1]
-            alt_conf2  = item_ls[11]
+            res_no2    = int(item_ls[12])
+            res_name2  = item_ls[13]
+            atom_name2 = item_ls[15]
+            alt_conf2  = item_ls[16]
             
 
             if (alt_conf1 == "."):
@@ -644,30 +611,10 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_bond_dist(i):
         i += 4      # jump to interesting lines
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "A  15 ARG C   . - A  15 ARG O   . mod.= 1.295 id.= 1.231 dev= -0.064 sig.= 0.020"
-            # this is the 'old' code which doesnt work with newer refmac versions,
-            # we shall make it more portable...
             line = lines[i]
-            # old
-            #chain_id  = line[0]
-            #res_no1   = int(line[1:5])
-            #res_no2   = int(line[19:23])
-            #res_name1 = line[6:9]
-            #res_name2 = line[24:27]
-            #atom1     = line[9:13]
-            #atom2     = line[27:31]
-            #alt_conf1 = line[14]
-            #alt_conf2 = line[32]
-            #
-            #mod       = float(line[39:45])
-            #ideal     = float(line[50:56])
-            #dev       = float(line[61:68])
-            #sig       = float(line[74:80])
-
-            # new
             item_ls = split_clean(line)
-            print "BL DEBUG:: item_ls in bond dist", item_ls
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
             res_name1 = item_ls[2]
@@ -704,28 +651,10 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_bond_angle(i):
         i += 4      # jump to interesting lines
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "A  50 GLU O   B - A  51 LEU N     mod.= 100.81 id.= 123.00 dev= 22.193 sig.=  1.600"
             line = lines[i]
-            #old
-            #chain_id  = line[0]
-            #res_no1   = int(line[1:5])
-            #res_no2   = int(line[19:23])
-            #res_name1 = line[6:9]
-            #res_name2 = line[24:27]
-            #atom1     = line[9:13]
-            #atom2     = line[27:31]
-            #alt_conf1 = line[14]
-            #alt_conf2 = line[32]
-            
-            #mod       = float(line[39:46])
-            #ideal     = float(line[51:58])
-            #dev       = float(line[63:70])
-            #sig       = float(line[77:83])
-            
-            # new
             item_ls = split_clean(line)
-            print "BL DEBUG:: item_ls in bond angle", item_ls
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
             res_name1 = item_ls[2]
@@ -761,27 +690,9 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_torsion(i):
         i += 4      # jump to interesting lines
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "A  11 ASN CA    - A  12 LEU CA    mod.=-167.65 id.= 180.00 per.= 1 dev=-12.352 sig.=  3.000"
             line = lines[i]
-            # old
-            #chain_id  = line[0]
-            #res_no1   = int(line[1:5])
-            #res_no2   = int(line[19:23])
-            #res_name1 = line[6:9]
-            #res_name2 = line[24:27]
-            #atom1     = line[9:13]
-            #atom2     = line[27:31]
-            #alt_conf1 = line[14]            # guess
-            #alt_conf2 = line[32]            # guess
-            
-            #mod       = float(line[39:46])
-            #ideal     = float(line[51:58])
-            #period    = int(line[64:66])    # ignored for now
-            #dev       = float(line[71:78])
-            #sig       = float(line[85:92])
-
-            # new
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
@@ -819,22 +730,9 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_chiral(i):
         i += 4      # jump to interesting lines
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "A  51 LEU CG    mod.=   2.79 id.=  -2.59 dev= -5.375 sig.=  0.200"
             line = lines[i]
-            # old
-            #chain_id  = line[0]
-            #res_no1   = int(line[1:5])
-            #res_name1 = line[6:9]
-            #atom1     = line[9:13]
-            #alt_conf1 = line[14]
-            
-            #mod       = float(line[21:28])
-            #ideal     = float(line[33:40])
-            #dev       = float(line[45:52])
-            #sig       = float(line[58:65])
-
-            # new
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
@@ -862,19 +760,9 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_planarity(i):
         i += 3      # jump to interesting lines (only 3 here....)
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "Atom: A  59 ASP C   B deviation=   0.31 sigma.=   0.02"
             line = lines[i]
-            # old
-            #chain_id  = line[6]
-            #res_no1   = int(line[7:11])
-            #res_name1 = line[12:15]
-            #atom1     = line[15:19]
-            #alt_conf1 = line[20]            # guess
-            #dev       = float(line[32:39])
-            #sig       = float(line[47:54])
-            
-            # new
             item_ls = split_clean(line)
             chain_id  = item_ls[1]
             res_no1   = int(item_ls[2])
@@ -888,37 +776,20 @@ def read_refmac_log(imol, refmac_log_file):
             dev       = float(item_ls[7])
             sig       = float(item_ls[9])
 
-            if (alt_conf1 == " "): alt_conf1 = ""       # guess
+            if (alt_conf1 == "."): alt_conf1 = ""       # guess
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Planarity",
                                                        [res_no1, res_name1, atom1, alt_conf1,
-                                                        -999999, "", "", "", line,
+                                                        -999999, "", "", "",
                                                         -99999., -99999., dev, sig, line]]])       
                
             i += 1
 
     def get_vdw(i):
         i += 4      # jump to interesting lines
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "A  26 CYS SG  A - A  75 ILE CD1 . mod.= 2.812 id.= 3.820 dev= -1.008 sig.= 0.300"
             line = lines[i]
-            # old
-            #chain_id  = line[0]
-            #res_no1   = int(line[1:5])
-            #res_no2   = int(line[19:23])
-            #res_name1 = line[6:9]
-            #res_name2 = line[24:27]
-            #atom1     = line[9:13]
-            #atom2     = line[27:31]
-            #alt_conf1 = line[14]
-            #alt_conf2 = line[32]
-            
-            #mod       = float(line[39:45])
-            #ideal     = float(line[50:56])
-            #dev       = float(line[61:68])
-            #sig       = float(line[74:79])  # there seem to be a difference between Garib's doc and refmac v. 5.2.0019
-                                            # 5.2.0019 requires 74:79, Garib's docu suggests 74:80
-            # new
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
@@ -955,24 +826,9 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_b_value(i):
         i += 3      # jump to interesting lines
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "B   5 PHE N     - B   4 GLN C        ABS(DELTA)= 15.990   Sigma=  1.500"
             line = lines[i]
-            # old
-            #chain_id  = line[0]
-            #res_no1   = int(line[1:5])
-            #res_no2   = int(line[19:23])
-            #res_name1 = line[6:9]
-            #res_name2 = line[24:27]
-            #atom1     = line[9:13]
-            #atom2     = line[27:31]
-            #alt_conf1 = line[14]
-            #alt_conf2 = line[32]
-            
-            #dev       = float(line[48:55])
-            #sig       = float(line[64:71])
-
-            # new
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
@@ -995,8 +851,8 @@ def read_refmac_log(imol, refmac_log_file):
             dev       = float(item_ls[12])
             sig       = float(item_ls[14])
 
-            if (alt_conf1 == " "): alt_conf1 = ""
-            if (alt_conf2 == " "): alt_conf2 = ""
+            if (alt_conf1 == "."): alt_conf1 = ""
+            if (alt_conf2 == "."): alt_conf2 = ""
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["B-value",
                                                        [res_no1, res_name1, atom1, alt_conf1,
@@ -1007,22 +863,10 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_ncs(i):
         i += 4      # jump to interesting lines
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "Positional: A  12 LEU N   . deviation = 0.544 sigma= 0.050"
             # e.g. "B-value   : B  50 ASN CA  . deviation =20.000 sigma= 1.500"
             line = lines[i]
-            # old
-            #ncs_type  = line[0:10]
-            #chain_id  = line[12]
-            #res_no1   = int(line[13:17])
-            #res_name1 = line[17:22]
-            #atom1     = line[22:24]
-            #alt_conf1 = line[26]
-            
-            #dev       = float(line[39:45])
-            #sig       = float(line[52:58])
-
-            # new
             item_ls = split_clean(line)
             chain_id  = item_ls[1]
             res_no1   = int(item_ls[2])
@@ -1047,21 +891,10 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_sphericity(i):
         i += 3      # jump to interesting lines (only 3 here....)
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "A  26 CYS SG  B U-value= 0.2014 0.2329 0.2399 0.0179 0.0227-0.0064 Delta= 0.051 Sigma=  0.025"
             line = lines[i]
             split_clean(line)
-            #old
-            #chain_id  = line[0]
-            #res_no1   = int(line[1:5])
-            #res_name1 = line[6:9]
-            #atom1     = line[10:12]
-            #alt_conf1 = line[14]
-            #u_mat_str = line[24:66]                     # not used currently
-            #dev       = float(line[73:79])
-            #sig       = float(line[86:93])
-
-            #new
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
             res_name1 = item_ls[2]
@@ -1076,7 +909,7 @@ def read_refmac_log(imol, refmac_log_file):
             sig       = item_ls[15]
           
 
-            if (alt_conf1 == " "): alt_conf1 = ""       # check, may be '.' if none
+            if (alt_conf1 == "."): alt_conf1 = ""       # check, may be '.' if none
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Sphericity",
                                                        [res_no1, res_name1, atom1, alt_conf1,
@@ -1087,22 +920,9 @@ def read_refmac_log(imol, refmac_log_file):
 
     def get_rigid(i):
         i += 3      # jump to interesting lines, again only 3
-        while (len(lines[i]) > 2):
+        while (len(lines[i]) > 5):
             # e.g. "A  12 LEU N     - A  11 ASN C      Delta  =  4.625 Sigma=  2.000"
             line = lines[i]
-            #old
-            #chain_id  = line[0]
-            #res_no1   = int(line[1:5])
-            #res_no2   = int(line[19:23])
-            #res_name1 = line[6:9]
-            #res_name2 = line[24:27]
-            #atom1     = line[9:14]
-            #atom2     = line[27:32]
-            #alt_conf1 = line[14]          #check
-            #alt_conf2 = line[32]          #check
-            #dev       = float(line[43:50])
-            #sig       = float(line[57:63])
-            # new
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
@@ -1125,6 +945,9 @@ def read_refmac_log(imol, refmac_log_file):
             dev       = float(item_ls[13])
             sig       = float(item_ls[15])
 
+            if (alt_conf1 == "."): alt_conf1 = ""
+            if (alt_conf2 == "."): alt_conf2 = ""
+
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Rigid",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         res_no2, res_name2, atom2, alt_conf2,
@@ -1138,32 +961,28 @@ def read_refmac_log(imol, refmac_log_file):
     def split_clean(line):
         import re
         ret = []
-        item_ls = line.split()      # split by white space
+        last_item = ""
+        # first replace 'dodgy' characters by ' ' to be split (e.g. :, = and >)
+        item_ls = line.replace(':',' ')
+        item_ls = item_ls.replace('=', ' ')
+        item_ls = item_ls.replace('>', ' ')
+        # now split by white space
+        item_ls = item_ls.split()
         for item in item_ls:
             start = item[0]
             end   = item[-1]
 
-            # check for '=' in string
-            reg_equal = re.compile("=$")
-            reg_minus = re.compile("^-")
-            reg_equal_res = reg_equal.search(item)
-            reg_minus_res = reg_minus.search(item)
-            if (item.find("=") > -1 and not reg_equal_res):
-                # '=' in middle
-                new_ls = item.split("=")
-                for i in range(len(new_ls)):
-                    ret.append(new_ls[i])
-            elif (item.rfind("-") > 0):
+            # check for '-' in string
+            if (item.find("-") > 0):
                 # '-' in middle
                 new_ls = item.split("-")
-                if (new_ls[0] == ""):
-                    ret.append("-" + new_ls[0])
-                else:
-                    ret.append(new_ls[0])
+                ret.append(new_ls[0])
                 for i in range(1, len(new_ls)):
-                    ret.append(new_ls[i])
+                    ret.append("-" + new_ls[i])
             # check for merged string + no (and vice versa)
-            elif (start.isalpha() and end.isdigit() and not 'at:' in item):
+            elif (start.isalpha() and end.isdigit()
+                  and not (last_item == 'at')
+                  and not last_item.isalpha()):
                 char = True
                 i = 0
                 string = start
@@ -1173,10 +992,12 @@ def read_refmac_log(imol, refmac_log_file):
                     i += 1
                 ret.append(string)
                 ret.append(item[i:-1])
-                    
+            
             else:
                 ret.append(item)
+            last_item = item
 
+        #print "BL DEBUG:: return", ret
         return ret
 
     # this sorts the initial list to look like the above mentioned extracted list
@@ -1312,7 +1133,7 @@ def read_refmac_log(imol, refmac_log_file):
                         func = [refine_zone, imol, chain_id, res_no, res_no, alt_conf]
                     else:
                         # difference to other residue
-                        dev_name = dev_name + " " + str(res_no2) + atom_name2
+                        dev_name = dev_name + str(res_no2) + " " + atom_name2
                         func = [refine_zone, imol, chain_id, res_no, res_no2, alt_conf]
                 else:
                     func = [refine_zone, imol, chain_id, res_no, res_no, alt_conf]
@@ -1335,7 +1156,7 @@ def read_refmac_log(imol, refmac_log_file):
     cgmat_cycle = "CGMAT cycle number ="
     found_last = False
     last_cycle_finished = False
-    ncyc = False
+    ncyc = 5
     reg_ncyc      = re.compile("data line.*ncyc", re.IGNORECASE)
     reg_ncyc_only = re.compile("ncyc", re.IGNORECASE)
 

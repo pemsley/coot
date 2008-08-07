@@ -117,6 +117,8 @@ namespace coot {
    enum chooser_selector_type { OLD_STYLE, CHOOSER_STYLE };
    enum chooser_overwrite_type { CHOOSER_OVERWRITE, CHOOSER_OVERWRITE_PROTECT };
    enum accept_reject_dialog_type { DIALOG, DIALOG_DOCKED };
+   enum accept_reject_dialog_docked_type { DIALOG_DOCKED_HIDE = 0,
+                                           DIALOG_DOCKED_SHOW = 1};
    enum fixed_atom_pick_state_t { FIXED_ATOM_NO_PICK = 0, 
 				  FIXED_ATOM_FIX = 1, 
 				  FIXED_ATOM_UNFIX = 2 };
@@ -1068,6 +1070,9 @@ public:
 
    // flag to display the accept/reject dialog in the toolbar
    static int accept_reject_dialog_docked_flag;
+
+   // flag to show/hide/sensitise docked accept/reject dialog
+   static int accept_reject_dialog_docked_show_flag;
 
    // flag for the refinement toolbar style
    static short int model_toolbar_style_state;

@@ -2380,6 +2380,16 @@ on_preferences_dialog_accept_detouched_radiobutton_toggled
                                         gpointer         user_data);
 
 void
+on_preferences_dialog_accept_docked_show_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_dialog_accept_docked_hide_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_preferences_dialog_accept_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);

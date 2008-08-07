@@ -513,13 +513,11 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 
    /* R free */
 
-   coot::mtz_column_types_info_t *save_f_phi_columns
-      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+   if (col_labs.r_free_cols.size() == 0) {
+     f_phi_columns->selected_refmac_r_free_col = -1; /* magic -1 */
+   }
 
-   if (col_labs.r_free_cols.size() == 0) 
-     save_f_phi_columns->selected_refmac_r_free_col = -1; /* magic -1 */
-
-				 /* see on_column_label_ok_button_clicked in callbacks.c */
+   /* see on_column_label_ok_button_clicked in callbacks.c */
    for (i=0; i<col_labs.r_free_cols.size(); i++) {
       menuitem = make_menu_item((gchar *) col_labs.r_free_cols[i].column_label.c_str(),
 				GTK_SIGNAL_FUNC(refmac_dialog_r_free_button_select),
