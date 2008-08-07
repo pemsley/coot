@@ -318,6 +318,7 @@ void manage_column_selector(const char *filename);
 void manage_refmac_column_selection(GtkWidget *w);
 void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu);
 void handle_column_label_make_fourier(GtkWidget *column_label_window);
+void wrapped_create_run_refmac_dialog();
 
 /* \} */
 
@@ -666,6 +667,10 @@ void set_accept_reject_dialog(GtkWidget *w); /* used by callbacks to unset the w
 /* functions to dock the accept/reject dialog to the toolbar */
 void set_accept_reject_dialog_docked(int state);
 int accept_reject_dialog_docked_state();
+
+/* functions to show/hide i.e. make sensitive the docked accept/reject toolbar */
+void set_accept_reject_dialog_docked_show(int state);
+int accept_reject_dialog_docked_show_state();
 
 /* functions for the refinement toolbar style */
 void set_model_toolbar_style(int state);
@@ -2693,6 +2698,7 @@ int refinement_refine_per_frame_state();
 
 void set_refine_ramachandran_angles(int state);
 
+int refine_ramachandran_angles_state();
 
 void set_numerical_gradients(int istate);
 

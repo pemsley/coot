@@ -1160,7 +1160,7 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter, entry
 
     def on_ok_button_clicked(*args):
         # what is the molecule number of the option menu?
-        active_mol_no = get_option_menu_active_molecule(option_menu,model_mol_list)
+        active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
 
         try:
            active_mol_no = int(active_mol_no)
@@ -3231,15 +3231,6 @@ def refinement_options_gui():
 
    vbox.pack_start(h_sep2, False, False, 2)
 
-   # planar peptide restrains?
-   planar_restraints_button = generic_check_button(vbox,
-                                                 "Use Planar Peptide Restraints?",
-                                                 lambda state: [remove_planar_peptide_restraints(), add_planar_peptide_restraints()][state>0])
-   if (planar_peptide_restraints_state() == 1):
-      planar_restraints_button.set_active(True)
-   else:
-      planar_restraints_button.set_active(False)
-
    # use torsion restrains?
    torsion_restraints_button = generic_check_button(vbox,
                                                  "Use Torsion Restraints?",
@@ -3248,6 +3239,24 @@ def refinement_options_gui():
       torsion_restraints_button.set_active(True)
    else:
       torsion_restraints_button.set_active(False)
+
+   # planar peptide restrains?
+   planar_restraints_button = generic_check_button(vbox,
+                                                 "Use Planar Peptide Restraints?",
+                                                 lambda state: remove_planar_peptide_restraints() if state == 0 else add_planar_peptide_restraints())
+   if (planar_peptide_restraints_state() == 1):
+      planar_restraints_button.set_active(True)
+   else:
+      planar_restraints_button.set_active(False)
+
+   # use ramachandran restrains?
+   rama_restraints_button = generic_check_button(vbox,
+                                                 "Use Ramachandran Restraints?",
+                                                 lambda state: set_refine_ramachandran_angles(state))
+   if (refine_ramachandran_angles_state() == 1):
+      rama_restraints_button.set_active(True)
+   else:
+      rama_restraints_button.set_active(False)      
 
    vbox.pack_start(h_sep3, False, False, 2)
 

@@ -2368,7 +2368,15 @@ on_accept_reject_refinement_docked_accept_button_clicked (GtkButton       *butto
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "accept_reject_dialog_frame_docked");
   accept_regularizement();
-  gtk_widget_hide(window);
+  if (accept_reject_dialog_docked_show_state() == 1) {
+    gtk_widget_set_sensitive(window, FALSE);
+    set_accept_reject_dialog(0);
+    clear_up_moving_atoms();
+    GtkWidget *p = main_window();
+    gtk_widget_grab_focus(p);  
+  } else {
+    gtk_widget_hide(window);
+  }
 }
 
 
@@ -2380,7 +2388,15 @@ on_accept_reject_refinement_docked_reject_button_clicked (GtkButton       *butto
 				    "accept_reject_dialog_frame_docked");
   /* we only hide the widget, I guess we may have to clean up as well */
   /* done below in hide callback */
-  gtk_widget_hide(window);
+  if (accept_reject_dialog_docked_show_state() == 1) {
+    gtk_widget_set_sensitive(window, FALSE);
+    set_accept_reject_dialog(0);
+    clear_up_moving_atoms();
+    GtkWidget *p = main_window();
+    gtk_widget_grab_focus(p);  
+  } else {
+    gtk_widget_hide(window);
+  }
 }
 
 void
@@ -3658,117 +3674,8 @@ on_model_refine_dialog_refmac_button_clicked (GtkButton       *button,
 					      gpointer         user_data)
 {
   
-  GtkWidget *window = create_run_refmac_dialog();
-  GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(refmac_molecule_button_select);
-  GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
-  GtkWidget *optionmenu;
-  int imol_coords = first_coords_imol();
-  /* only GTK 2!? */
-#if (GTK_MAJOR_VERSION > 1)
-  GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
-  GtkWidget *ncs_button = lookup_widget(window, "run_refmac_ncs_checkbutton");
-  optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
-  fill_option_menu_with_refmac_methods_options(optionmenu);
+  wrapped_create_run_refmac_dialog();
 
-  optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
-  fill_option_menu_with_refmac_phase_input_options(optionmenu);
-#endif
-
-  set_refmac_molecule(imol_coords);
-
-  optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
-  fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
-
-  optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
-  /*  fill_option_menu_with_refmac_options(optionmenu); */
-  fill_option_menu_with_refmac_labels_options(optionmenu);
-
-  /* to set the labels set the active item (if no twin)*/
-  if (refmac_use_twin_state() == 0) {
-    GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
-    if (active_menu_item) {
-      gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
-    }
-  }
-
-  /* fill optionmenu for no label refmac and show if refmac version is new enough */
-  /* only GTK 2!? */
-#if (GTK_MAJOR_VERSION > 1)
-  if (refmac_runs_with_nolabels()) {
-    GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
-    gtk_widget_show(checkbutton);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-    gtk_widget_hide(labels);
-    if (refmac_runs_with_nolabels() >= 2) {
-      /* add the tls, twin and sad buttons */
-      GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
-      /* update the check buttons */
-      GtkWidget *tls_check_button = lookup_widget(window, "run_refmac_tls_checkbutton");
-      GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
-      GtkWidget *sad_check_button = lookup_widget(window, "run_refmac_sad_checkbutton");
-      GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
-      GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
-      store_refmac_mtz_file_label(mtz_file_label);
-      if (refmac_use_tls_state()) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), TRUE);
-      } else {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), FALSE);
-      }
-      if (refmac_use_twin_state()) {
-	/* set the filename if there */
-	const gchar *mtz_filename = get_saved_refmac_twin_filename();
-	g_print("BL DEBUG:: have twin filename in dialog %s\n", mtz_filename);
-	if (mtz_filename) {
-	  g_print("BL DEBUG:: setting the twi nfilename in dialog\n");
-	  gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
-	}
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
-	gtk_widget_set_sensitive(sad_check_button, FALSE);
-	gtk_widget_hide(sad_extras);
-      } else {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
-	gtk_widget_set_sensitive(sad_check_button, TRUE);
-      }
-      if (refmac_use_sad_state()) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), TRUE);
-	gtk_widget_set_sensitive(twin_check_button, FALSE);
-	gtk_widget_show(sad_extras);
-	/* fill the entry with 1st existing atom */
-	fill_refmac_sad_atom_entry(window);
-      } else {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_check_button), FALSE);
-	gtk_widget_set_sensitive(twin_check_button, TRUE);
-	gtk_widget_hide(sad_extras);
-      }
-
-      gtk_widget_show(extra_options);
-    }
-  } else {
-    gtk_widget_show(labels);
-  }
-
-  optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
-  fill_option_menu_with_refmac_ncycle_options(optionmenu);
-  //#endif
-
-  /* set the ncs button depending on state */
-  if (refmac_use_ncs_state()) {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), TRUE);
-  } else {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), FALSE);
-  }
-#endif
-
-  optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
-  clear_refmac_ccp4i_project();
-  add_ccp4i_projects_to_optionmenu(optionmenu, 
-				   COOT_COORDS_FILE_SELECTION,
-				   GTK_SIGNAL_FUNC(run_refmac_ccp4i_option_menu_signal_func));
-
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);
-
-  gtk_widget_show(window);
-  
 }
 
 
@@ -6910,9 +6817,22 @@ on_preferences_dialog_accept_docked_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+  GtkWidget *hbox;
+  GtkWidget *show_checkbutton;
+  GtkWidget *hide_checkbutton;
+  hbox             = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
+  show_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_show_radiobutton");
+  hide_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hide_radiobutton");
   if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 1);
     set_accept_reject_dialog_docked(1);
+    /* shall update the hbox */
+    if (accept_reject_dialog_docked_show_state() == 1) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_checkbutton), TRUE);
+    } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_checkbutton), TRUE);
+    }
+    gtk_widget_show(hbox);
   }
 
 }
@@ -6923,9 +6843,41 @@ on_preferences_dialog_accept_detouched_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+  GtkWidget *hbox;
+  hbox             = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
   if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 0);
     set_accept_reject_dialog_docked(0);
+    /* shall update the hbox */
+    if (accept_reject_dialog_docked_show_state() == 1) {
+      set_accept_reject_dialog_docked_show(0);
+    }
+    gtk_widget_hide(hbox);
+  }
+
+}
+
+void
+on_preferences_dialog_accept_docked_show_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW, 1);
+    set_accept_reject_dialog_docked_show(1);
+  }
+
+}
+
+
+void
+on_preferences_dialog_accept_docked_hide_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW, 0);
+    set_accept_reject_dialog_docked_show(0);
   }
 
 }

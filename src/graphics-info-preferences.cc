@@ -95,6 +95,11 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        commands.push_back(state_command("set-accept-reject-dialog-docked",
 					g.preferences_internal[i].ivalue, il));
        break;
+
+     case PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW:
+       commands.push_back(state_command("set-accept-reject-dialog-docked-show",
+					g.preferences_internal[i].ivalue, il));
+       break;
        
      case PREFERENCES_IMMEDIATE_REPLACEMENT:
        commands.push_back(state_command("set-refinement-immediate-replacement",
@@ -321,6 +326,11 @@ graphics_info_t::make_preferences_internal() {
   // dialogs
   on = accept_reject_dialog_docked_state();
   p.preference_type = PREFERENCES_ACCEPT_DIALOG_DOCKED;
+  p.ivalue = on;
+  ret.push_back(p);
+
+  on = accept_reject_dialog_docked_show_state();
+  p.preference_type = PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW;
   p.ivalue = on;
   ret.push_back(p);
 

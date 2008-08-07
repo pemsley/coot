@@ -193,7 +193,7 @@ if (have_coot_python):
       h_sep = gtk.HSeparator()
       buttons_hbox = gtk.HBox(False, 2)
       cancel_button = gtk.Button("  Cancel  ")
-      go_button = gtk.Button("   Add   ")
+      go_button = gtk.Button("   Apply   ")
       save_button = gtk.CheckButton(" Save to preferences?")
       save_button.set_active(True)
       icon_model = make_icons_model()
@@ -334,7 +334,8 @@ def list_of_toolbar_functions():
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
-         ["Add alt conf", "altconf()", "Add alternative conformation"]],
+         ["Add alt conf", "altconf()", "Add alternative conformation"],
+         ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement"]],
         ["NMR",[]],
         ["EM",[]],
         ["Sidechains/Alignment",[]]]

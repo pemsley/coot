@@ -5798,6 +5798,10 @@ void set_refine_ramachandran_angles(int state) {
    graphics_info_t::do_rama_restraints = state;
 } 
 
+int refine_ramachandran_angles_state() {
+   return graphics_info_t::do_rama_restraints;
+}
+
 void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
 
    graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = pos;
