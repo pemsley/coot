@@ -62,10 +62,10 @@ def fit_gap(imol, chain_id, start_resno, stop_resno, sequence):
   for i in range(abs(start_resno - stop_resno) + 1):
 	       
      print "add-terminal-residue: residue number: ",resno
-     status = add_terminal_residue(imol,chain_id,resno,"ALA",1)
+     status = add_terminal_residue(imol, chain_id, resno, "ALA", 1)
      if status:
         # first do a refinement of what we have 
-        refine_auto_range(imol,chain_id,resno,"")
+        refine_auto_range(imol, chain_id, resno, "")
         accept_regularizement()
         if direction == "forwards":
            resno = resno + 1
@@ -80,8 +80,14 @@ def fit_gap(imol, chain_id, start_resno, stop_resno, sequence):
 
   if (not sequence == ""):
 	  print "mutate-and-autofit-residue-range ",imol, chain_id, start_resno,stop_resno, sequence
-          mutate_and_autofit_residue_range(imol,chain_id,
-                                          start_resno,stop_resno,sequence)
+          if direction == "forwards":
+              mutate_and_autofit_residue_range(imol, chain_id,
+                                               start_resno, stop_resno,
+                                               sequence)
+          else:
+              mutate_and_autofit_residue_range(imol, chain_id,
+                                               stop_resno, start_resno,
+                                               sequence)
 
   # -----------------------------------------------
   # Refine new zone

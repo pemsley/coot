@@ -86,7 +86,7 @@ if (have_coot_python and find_exe("shelxl", "PATH")):
         go_button = gtk.Button("  Read Project   ")
         cancel_button = gtk.Button("  Cancel   ")
 
-        entry = file_chooser_entry(vbox, " Project Name: ")
+        entry = file_selector_entry(vbox, " Project Name: ")
 
         cancel_button.connect("clicked", shelx_delete_event)
         go_button.connect("clicked", shelx_read_go_funcn_event)
