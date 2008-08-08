@@ -1586,6 +1586,8 @@ def generic_molecule_chooser(hbox, hint_text):
 #
 def file_selector_entry(hbox, hint_text):
 
+   if (file_chooser_selector_state() == 0 or gtk.pygtk_version < (2,3,90)):
+
 	vbox = gtk.VBox(False, 0)
 
 	def file_func1(*args):
@@ -1606,6 +1608,9 @@ def file_selector_entry(hbox, hint_text):
 	hbox.pack_start(vbox, False, False, 2)
 	vbox.show()
         return entry
+     
+   else:
+      return file_chooser_entry(hbox, hint_text)
 
 # This is the same as the file_selector_entry, but using the modern FileChooser
 # Return an entry, insert the widget into the hbox in this function
@@ -3137,7 +3142,7 @@ def cootaneer_gui_bl():
 	fill_table_with_sequences()
 	
         vbox.pack_start(h_sep, False, False, 2)
-        file_sel_entry = file_chooser_entry(vbox, "Select PIR file")
+        file_sel_entry = file_selector_entry(vbox, "Select PIR file")
         vbox.pack_start(import_button, False, False, 6)
 
 	buttons_hbox.pack_start(go_button, False, False, 6)

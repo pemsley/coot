@@ -110,7 +110,7 @@ if (have_coot_python):
               icon = None
               if (iter):
                 icon, icon_stock, icon_filename = model.get(iter, 0, 1, 2)
-                #print "icon", icon, icon_stock, icon_filename
+                # print "icon", icon, icon_stock, icon_filename
                 if (icon_stock):
                   icon = icon_stock
               toolbar_ls = list_of_toolbar_functions()
@@ -210,9 +210,12 @@ if (have_coot_python):
 
         for item in group_items:
           if (len(item) >0):
+            suggested_icon = False
             check_button_label = item[0]
             callback_function  = item[1]
             description        = item[2]
+            if (len(item) > 3):
+              suggested_icon     = item[3]
           
             def check_button_callback(*args):
               # print "check button toggled"
@@ -226,22 +229,31 @@ if (have_coot_python):
             label = gtk.Label(description)
             icon_label = gtk.Label("Add icon?")
             icon_combobox = icon_selection_combobox(icon_model)
-            button_icon = None
-            for toolbar_button_label in toolbar_label_list():
-              if (check_button_label == toolbar_button_label[0]):
+            button_icon = False
+
+            all_toolbar_labels = map(lambda x: x[0], toolbar_label_list())
+            if (check_button_label in all_toolbar_labels):
                 check_button.set_active(True)
+                # now try to get the icon
                 try:
-                  button_icon = toolbar_button_label[1].get_stock_id()
-                  for index in range(len(icon_model)):
-                    icon_iter = icon_model.get_iter(index)
-                    stock_id = icon_model.get_value(icon_iter, 1)
-                    if (stock_id == button_icon):
-                      icon_combobox.set_active_iter(icon_iter)
-                      break
+                  ls = toolbar_label_list()
+                  button_icon = ls[all_toolbar_labels.index(check_button_label)][1].get_stock_id()
                 except:
-                  # no button icon available
-                  #print "BL DEBUG:: we dont have a button icon"
+                  # no icon found
                   pass
+
+            if (not button_icon):
+              button_icon = suggested_icon
+
+            # set the icon
+            if (button_icon):
+              for index in range(len(icon_model)):
+                icon_iter = icon_model.get_iter(index)
+                stock_id = icon_model.get_value(icon_iter, 1)
+                if (stock_id == button_icon):
+                  icon_combobox.set_active_iter(icon_iter)
+                  break
+            
             left_hbox.pack_start(check_button, True, True, 3)
             left_hbox.pack_end(label, True, True, 3)
             right_hbox.pack_start(icon_label, False, False, 3)
@@ -324,18 +336,20 @@ def remove_toolbar_from_init_file(button_label):
     remove_line_containing_from_file(remove_str_ls, filename)
 
 
-# returns a list with pre-defined toolbar-functions
+# returns a list with pre-defined toolbar-functions (stock-id is optional)
 # format:
-# [[Group1,[toolbarname1, callbackfunction1, description1], [toolbarname2, callbackfunction2, description],...], [Group2]....]
+# [[Group1,[toolbarname1, callbackfunction1, description1],
+#          [toolbarname2, callbackfunction2, description2, stock-id2],...],
+#  [Group2]....]
 # OBS: callbackfunction is a string!
 def list_of_toolbar_functions():
   ls = [["Display",
-         ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view"],
+         ["Stereo/Mono", "stereo_mono_toggle()", "Toggle between Stereo and Mono view", "stereo-view.svg"],
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
-         ["Add alt conf", "altconf()", "Add alternative conformation"],
-         ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement"]],
+         ["Add alt conf", "altconf()", "Add alternative conformation", "add-alt-conf.svg"],
+         ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
         ["NMR",[]],
         ["EM",[]],
         ["Sidechains/Alignment",[]]]

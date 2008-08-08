@@ -34,7 +34,9 @@
 	;; If 96 (stop-resno) is the last residue we want added, then
 	;; we do want to stop when resno is 96 - 1
 
-	(>= resno (- stop-resno 1))))
+	(if (< stop-resno start-resno)
+	    (<= resno (+ stop-resno 1))
+	    (>= resno (- stop-resno 1)))))
 
     (if (not (valid-model-molecule? imol))
 	
@@ -90,9 +92,13 @@
 		  (begin
 		    (format #t "mutate-and-autofit-residue-range ~s ~S ~s ~s ~s~%"
 			    imol chain-id start-resno stop-resno (car sequence))
-		    (mutate-and-autofit-residue-range imol chain-id 
-						      start-resno stop-resno
-						      (car sequence))))
+		    (if (eq? direction 'forwards)
+			(mutate-and-autofit-residue-range imol chain-id 
+							  start-resno stop-resno
+							  (car sequence))
+			(mutate-and-autofit-residue-range imol chain-id 
+							  stop-resno start-resno
+							  (car sequence)))))
 
 	      ;; -----------------------------------------------
 	      ;; Refine new zone

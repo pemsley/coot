@@ -85,12 +85,6 @@ def mutate_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence):
 #
 def mutate_and_autofit_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence):
 
-   # BL says: we could have backwards build from gap, so lets swap start - stop
-   # if necessary!!
-   if (start_res_no > stop_res_no):
-      t = start_res_no
-      start_res_no = stop_res_no
-      stop_res_no = t
    mutate_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence)
    mol_for_map = imol_refinement_map()
    if (mol_for_map >= 0) :
