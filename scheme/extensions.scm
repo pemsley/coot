@@ -254,30 +254,54 @@
 	  (lambda (imol)
 	    (renumber-waters imol)))))
 
+      (let ((submenu (gtk-menu-new))
+	    (menuitem2 (gtk-menu-item-new-with-label "NCS...")))
+	
+	(gtk-menu-item-set-submenu menuitem2 submenu) 
+	(gtk-menu-append menu menuitem2)
+	(gtk-widget-show menuitem2)
 
-      (add-simple-coot-menu-menuitem 
-       menu "Copy NCS Region..."
-       (lambda ()
-	 (generic-chooser-and-entry "Apply NCS Range from Master"
-				    "Master Chain ID"
-				    ""
-				    (lambda (imol chain-id)
-				      (generic-double-entry 
-				       "Start of Residue Number Range"
-				       "End of Residue Number Range"
-				       "" "" #f #f "Apply NCS Residue Range" 
-				       (lambda (text1 text2 dum) 
-					 (let ((r1 (string->number text1))
-					       (r2 (string->number text2)))
-					   (if (and (number? r1)
-						    (number? r2))
-					       (copy-residue-range-from-ncs-master-to-others
-						imol chain-id r1 r2)))))))))
+	(add-simple-coot-menu-menuitem 
+	 submenu "Copy NCS Reside Range..."
+	 (lambda ()
+	   (generic-chooser-and-entry "Apply NCS Range from Master"
+				      "Master Chain ID"
+				      ""
+				      (lambda (imol chain-id)
+					(generic-double-entry 
+					 "Start of Residue Number Range"
+					 "End of Residue Number Range"
+					 "" "" #f #f "Apply NCS Residue Range" 
+					 (lambda (text1 text2 dum) 
+					   (let ((r1 (string->number text1))
+						 (r2 (string->number text2)))
+					     (if (and (number? r1)
+						      (number? r2))
+						 (copy-residue-range-from-ncs-master-to-others
+						  imol chain-id r1 r2)))))))))
 
-      (add-simple-coot-menu-menuitem
-       menu "NCS ligands..."
-       (lambda ()
-	 (ncs-ligand-gui)))
+	(add-simple-coot-menu-menuitem
+	 submenu "Copy NCS Chain..."
+	 (lambda ()
+	   (generic-chooser-and-entry 
+	    "Apply NCS edits from NCS Master Chain to Other Chains"
+	    "Master Chain ID"
+	    ""
+	    (lambda (imol chain-id)
+	      (let ((ncs-chains (ncs-chain-ids imol)))
+		(if (null? ncs-chains)
+		    (let ((s (string-append 
+			      "You need to define NCS operators for molecule "
+			      (number->string imol))))
+		      (info-dialog s))
+		    (copy-from-ncs-master-to-others imol chain-id)))))))
+	
+
+	(add-simple-coot-menu-menuitem
+	 submenu "NCS ligands..."
+	 (lambda ()
+	   (ncs-ligand-gui))))
+
 
 
       (add-simple-coot-menu-menuitem
@@ -287,7 +311,7 @@
 	  "Which molecule to check for Alt Confs?"
 	  (lambda (imol)
 	    (alt-confs-gui imol)))))
-
+      
       (add-simple-coot-menu-menuitem
        menu "Residues with Missing Atoms..."
        (lambda ()
