@@ -398,6 +398,7 @@ int   graphics_info_t::i_fn_token = 0;
 int   graphics_info_t::drag_refine_idle_function_token = -1; // magic unused value
 coot::refinement_results_t graphics_info_t::saved_dragged_refinement_results(0, -2, "");
 float graphics_info_t::idle_function_rotate_angle = 1.0; // degrees
+bool  graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag = 1; // yes
 
 float graphics_info_t::map_sampling_rate = 1.5;
 

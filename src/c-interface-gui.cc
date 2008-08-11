@@ -2130,10 +2130,11 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
       lookup_widget(button, "refine_params_use_planar_peptides_checkbutton");
    GtkWidget *phi_psi_peptide_checkbutton =
       lookup_widget(button, "refine_params_use_peptide_torsions_checkbutton");
-   GtkWidget *ramachandran_restraints_checkbutton =
-      lookup_widget(button, "refine_params_use_ramachandran_goodness_torsions_checkbutton");
    GtkWidget *link_torsion_type_vbox =
       lookup_widget(button, "peptide_torsions_restraints_vbox");
+   // refine_params_use_ramachandran_goodness_torsions_checkbutton
+   GtkWidget *rama_button =
+      lookup_widget(button, "refine_params_use_ramachandran_goodness_torsions_checkbutton");
    
    if (g.do_torsion_restraints) {
       g.do_torsion_restraints = 0;
@@ -2159,13 +2160,6 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(planar_peptide_restraints_checkbutton), FALSE);
    }      
 
-   // Ramachandran angle restraints:
-   if (g.do_rama_restraints) {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ramachandran_restraints_checkbutton), TRUE);
-   } else {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ramachandran_restraints_checkbutton), FALSE);
-   }
-
    // refine_params_use_helix_peptide_torsions_radiobutton
    // refine_params_use_beta_strand_peptide_torsions_radiobutton
    // refine_params_use_ramachandran_goodness_torsions_radiobutton
@@ -2184,6 +2178,8 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_helix_rest_radiobutton), TRUE);
    if (graphics_info_t::pseudo_bonds_type == coot::STRAND_PSEUDO_BONDS)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_strand_rest_radiobutton), TRUE);
+   if (graphics_info_t::do_rama_restraints)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_button), TRUE);
 #endif // HAVE_GSL   
 
 } 

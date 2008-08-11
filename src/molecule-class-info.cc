@@ -2836,7 +2836,8 @@ molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain
 //
 void
 molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
-				      bool change_altconf_occs_flag) {
+				      bool change_altconf_occs_flag,
+				      bool replace_coords_with_zero_occ_flag) {
 
    int n_atom = 0;
    int tmp_index;
@@ -2938,18 +2939,20 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 		  // 			 << graphics_info_t::add_alt_conf_new_atoms_occupancy << std::endl;
 		  shelxins.set_fvar(fvar_number, graphics_info_t::add_alt_conf_new_atoms_occupancy);
 	       }
-	    
-	       mol_atom->SetCoordinates(atom->x,
-					atom->y,
-					atom->z,
-					atom_occ,
-					mol_atom->tempFactor);
+
+	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
+		  mol_atom->SetCoordinates(atom->x,
+					   atom->y,
+					   atom->z,
+					   atom_occ,
+					   mol_atom->tempFactor);
 	    } else { 
-	       mol_atom->SetCoordinates(atom->x,
-					atom->y,
-					atom->z,
-					atom_occ,
-					mol_atom->tempFactor);
+	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
+		  mol_atom->SetCoordinates(atom->x,
+					   atom->y,
+					   atom->z,
+					   atom_occ,
+					   mol_atom->tempFactor);
 	    }
 
 	    // similarly we adjust occupancy if this is not a shelx molecule
@@ -2966,11 +2969,12 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 
 	 if (idx != -1 ) {  // enable this text when fixed.
 	       CAtom *mol_atom = atom_sel.atom_selection[idx];
-	       mol_atom->SetCoordinates(atom->x,
-					atom->y,
-					atom->z,
-					mol_atom->occupancy,
-					mol_atom->tempFactor);
+	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
+		  mol_atom->SetCoordinates(atom->x,
+					   atom->y,
+					   atom->z,
+					   mol_atom->occupancy,
+					   mol_atom->tempFactor);
 	 }
       }
    }
@@ -2978,6 +2982,20 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
    have_unsaved_changes_flag = 1; 
 
    make_bonds_type_checked();
+}
+
+
+// helper function for above function
+bool
+molecule_class_info_t::movable_atom(CAtom *mol_atom, bool replace_coords_with_zero_occ_flag) const {
+
+   bool m = 1;
+
+   if ((mol_atom->occupancy < 0.0001) &&
+       (mol_atom->occupancy > -0.0001))
+      if (replace_coords_with_zero_occ_flag == 0)
+	 m = 0; // zero occupancy and "dont move zero occ atoms is set"
+   return m;
 }
 
 
@@ -5998,7 +6016,7 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
       have_unsaved_changes_flag = 1;
 
       float bf = 1.0;
-      replace_coords(make_asc(m.pcmmdbmanager(bf)), 0);
+      replace_coords(make_asc(m.pcmmdbmanager(bf)), 0, 1);
    }
    return m;
 } 

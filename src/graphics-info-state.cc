@@ -205,6 +205,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
    // toggle-last-mol-display toggle-last-mol-active functions.
    // 
    int molecule_count = 0;
+   int scroll_wheel_map_for_state = -1; // unset
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_map() || molecules[i].has_model()) { 
 	 // i.e. it was not Closed...
@@ -413,10 +414,8 @@ graphics_info_t::save_state_file(const std::string &filename) {
 	       }
 
 	       if (i == scroll_wheel_map) {
-		  display_strings.clear();
-		  display_strings.push_back("set-scroll-wheel-map");
-		  display_strings.push_back(int_to_string(molecule_count));
-		  commands.push_back(state_command(display_strings, il));
+		  // save for after maps have been read.
+		  scroll_wheel_map_for_state = molecule_count;
 	       }
 	    }
 	    if (molecules[i].show_unit_cell_flag) {
@@ -436,6 +435,15 @@ graphics_info_t::save_state_file(const std::string &filename) {
    }
 
    // last things to do:
+
+   // did we find a map that was the scroll wheel map?
+   // 
+   if (scroll_wheel_map_for_state != -1) {
+      std::vector <std::string> display_strings;
+      display_strings.push_back("set-scroll-wheel-map");
+      display_strings.push_back(int_to_string(scroll_wheel_map_for_state));
+      commands.push_back(state_command(display_strings, il));
+   }
 
    // was the default weight changed.  Whatever, just save the current
    // value already.

@@ -28,8 +28,8 @@ Pre-release 0.5
      type (if a PIR sequence has been given for side-chain docking) 
      [Bob Nolte].
 
-   o FEATURE: "Pukka Puckers?" validation tool for RNA.  From Davis et
-     al. (2007) Molprobity: all atom contacts and structure
+   o FEATURE: "Pukka Puckers?" validation tool for RNA.  Based on
+     Davis et al. (2007) Molprobity: all atom contacts and structure
      validation for proteins and nucleic acids, Nucleic Acids
      Research 35, W375-W383.
 
@@ -41,6 +41,10 @@ Pre-release 0.5
 
    o FEATURE: "Eigen-flip" function added.  Use to quickly flip around
      ligands.
+
+   o FEATURE: it is now possible to add a setting so that atoms with
+     zero occupancy are not moved when refining:
+     set-refinement-move-atoms-with-zero-occupancy [Rajiv Chopra]
 
    o FEATURE: Refmac can be run from Coot without the user having to
      explicitly set the column labels.

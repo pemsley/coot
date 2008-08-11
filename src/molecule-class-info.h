@@ -1399,7 +1399,11 @@ class molecule_class_info_t {
 
    // regularization results:
    void replace_coords(const atom_selection_container_t &asc,
-		       bool change_altconf_occs_flag);
+		       bool change_altconf_occs_flag,
+		       bool replace_coords_with_zero_occ_flag);
+   // helper function for above function
+   bool movable_atom(CAtom *mol_atom, bool replace_coords_with_zero_occ_flag) const;
+
    // extra modelling results, e.g. waters, terminal residues, etc
    void add_coords(const atom_selection_container_t &asc);
    //

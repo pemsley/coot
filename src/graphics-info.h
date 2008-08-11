@@ -2651,6 +2651,7 @@ public:
 #endif // HAVE_GSL   
    static int dragged_refinement_steps_per_frame;
    static short int dragged_refinement_refine_per_frame_flag;
+   static bool refinement_move_atoms_with_zero_occupancy_flag;
 
    // 
    static short int draw_zero_occ_spots_flag;

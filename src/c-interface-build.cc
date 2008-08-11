@@ -289,7 +289,18 @@ int replace_fragment(int imol_target, int imol_fragment,
    command_strings.push_back(single_quote(mmdb_atom_selection_str));
    add_to_history(command_strings);
    return istate;
+}
+
+void set_refinement_move_atoms_with_zero_occupancy(int state) {
+   // convert a int to a bool.
+   graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag = state;
+}
+
+int refinement_move_atoms_with_zero_occupancy_state() {
+   // convert a bool to an int.
+   return graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag;
 } 
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         backup/undo functions:                            */

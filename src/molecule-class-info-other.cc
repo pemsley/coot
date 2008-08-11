@@ -640,7 +640,8 @@ molecule_class_info_t::get_term_type(int atom_index) {
 int
 molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 
-   replace_coords(asc, 0);  // or should that be 1?
+   bool move_zero_occ = 1;  // or should that be 0?
+   replace_coords(asc, 0, move_zero_occ);  // or should that 0 be 1?
    return 1;
 }
 
@@ -1407,7 +1408,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	    float bf = graphics_info_t::default_new_atoms_b_factor;
 	    PCMMDBManager mol = best_rotamer_mol.pcmmdbmanager(bf);
 	    atom_selection_container_t asc = make_asc(mol);
-	    replace_coords(asc, 1); // fix other alt conf occ
+	    bool move_zero_occ = 1;
+	    replace_coords(asc, 1, move_zero_occ); // fix other alt conf occ
 	    f = best_score;
 	 }
 

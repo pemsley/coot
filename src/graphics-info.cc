@@ -2460,13 +2460,14 @@ graphics_info_t::accept_moving_atoms() {
    
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) {
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
-   } else { 
+   } else {
+      bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { 
-	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1);
+	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo);
 	 update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
       } else {
 	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
-	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0);
+	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
 	    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
 	 } else { 
 	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {

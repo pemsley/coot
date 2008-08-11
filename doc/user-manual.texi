@@ -1851,6 +1851,7 @@ molecules and can be found under @command{Calculate ->
 * Refining Carbohydrates::
 * Planar Peptide Restraints::
 * The UNK residue type::
+* Moving Zero Occupancy Atoms::
 @end menu
 
 Coot will read the geometry restraints for
@@ -2015,6 +2016,16 @@ The @code{UNK} residue type is a special residue type to Coot.  It has
 been added for use with Buccaneer. Don't give you ligand (or anything
 else) the 3-letter-code @code{UNK} or confusion will result
 @footnote{unless you are using Buccaneer, of course}.
+
+@node Moving Zero Occupancy Atoms
+@subsection Moving Zero Occupancy Atoms
+@cindex  Moving Zero Occupancy Atoms
+
+By default, atoms with zero occupancy are moved when refining and
+regularizing.  This can sometimes be inconvenient.  To turn of the
+movement of atoms with zero occupancy when refining and regularizing:
+
+@code{(set-refinement-move-atoms-with-zero-occupancy 0)}
 
 
 @c --------------------------------------------------
