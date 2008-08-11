@@ -1232,7 +1232,7 @@ void
 on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
 						    gpointer         user_data) {
   int imol = GPOINTER_TO_INT(user_data);
-  char *state = "inactive";
+  const char *state = "inactive";
   if (GTK_TOGGLE_BUTTON(button)->active) {
     state = "active";
     set_scrollable_map(imol);

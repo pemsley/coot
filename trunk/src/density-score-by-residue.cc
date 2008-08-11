@@ -279,7 +279,7 @@ main(int argc, char **argv) {
       short int do_cut_flag = 0; // cut out badly scoring residues
       float cut_level = 0.1; // absolute level below which we (can) cut out residues.
 
-      char *optstr = "i:h:f:p:w";
+      const char *optstr = "i:h:f:p:w";
       struct option long_options[] = {
 	 {"pdbin", 1, 0, 0},
 	 {"hklin", 1, 0, 0},

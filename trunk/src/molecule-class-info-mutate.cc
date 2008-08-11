@@ -808,7 +808,7 @@ molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
 	    model_p->AddChain(chain_p);
 	    CResidue *residue_p = 0;
 	    int prev_resno = -999999;
-	    char *prev_ins = "";
+	    const char *prev_ins = "";
 	    for (unsigned int iat=0; iat<atom_chain_vec[inch].first.size(); iat++) {
 	       at = atom_chain_vec[inch].first[iat];
 	       char *resname = at->GetResName();

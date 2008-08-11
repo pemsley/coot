@@ -80,7 +80,7 @@ main(int argc, char **argv) {
       short int do_flood_flag = 0;
       short int do_chop_flag = 0;
 
-      char *optstr = "i:h:f:p:o:s:e:c:m";
+      const char *optstr = "i:h:f:p:o:s:e:c:m";
       struct option long_options[] = {
 	 {"pdbin",  1, 0, 0},
 	 {"hklin",  1, 0, 0},

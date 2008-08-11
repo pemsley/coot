@@ -1831,7 +1831,8 @@ if test -n "$build_mmdb" ; then
    echo BUILDING: mmdb >&2
 #
 # mmdb_version=1.0.10.  Not yet.
-mmdb_version=1.0.8-ysbl-3
+# mmdb_version=1.0.8-ysbl-3
+mmdb_version=1.11
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 (
 date
@@ -1844,7 +1845,7 @@ $MAKE install
 rm $install_top_dir/bin/mwater
 rm $install_top_dir/bin/ncont
 rm $install_top_dir/bin/pdbcur
-) 2>&1 > $HOSTLOGDIR/02-mmdb.txt 
+) > $HOSTLOGDIR/02-mmdb.txt 2>&1
 else
    echo not building mmdb:
 fi

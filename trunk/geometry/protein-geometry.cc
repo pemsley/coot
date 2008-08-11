@@ -3180,17 +3180,17 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
 	 for (int i=0; i<chiral_restraint.size(); i++) {
 	    // std::cout << "ading chiral number " << i << std::endl;
-	    char *ss = (char *) residue_info.comp_id.c_str();
+	    const char *ss = residue_info.comp_id.c_str();
 	    mmCIFLoop->PutString(ss, "comp_id", i);
-	    ss = (char *) chiral_restraint[i].Chiral_Id().c_str();
+	    ss = chiral_restraint[i].Chiral_Id().c_str();
 	    mmCIFLoop->PutString(ss, "id", i);
-	    ss = (char *) chiral_restraint[i].atom_id_c_4c().c_str();
+	    ss = chiral_restraint[i].atom_id_c_4c().c_str();
 	    mmCIFLoop->PutString(ss, "atom_id_centre", i);
-	    ss = (char *) chiral_restraint[i].atom_id_1_4c().c_str();
+	    ss = chiral_restraint[i].atom_id_1_4c().c_str();
 	    mmCIFLoop->PutString(ss, "atom_id_1", i);
-	    ss = (char *) chiral_restraint[i].atom_id_2_4c().c_str();
+	    ss = chiral_restraint[i].atom_id_2_4c().c_str();
 	    mmCIFLoop->PutString(ss, "atom_id_2", i);
-	    ss = (char *) chiral_restraint[i].atom_id_3_4c().c_str();
+	    ss = chiral_restraint[i].atom_id_3_4c().c_str();
 	    mmCIFLoop->PutString(ss, "atom_id_3", i);
 	    int sign = chiral_restraint[i].volume_sign;
 	    ss = "both";

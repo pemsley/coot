@@ -76,7 +76,7 @@ main(int argc, char **argv) {
       float resolution = 1; // set later if needed.
       float angle_step = 15;
 
-      char *optstr = "i:h:f:p:r:o:m";
+      const char *optstr = "i:h:f:p:r:o:m";
       struct option long_options[] = {
 	 {"pdbin",  1, 0, 0},
 	 {"hklin",  1, 0, 0},

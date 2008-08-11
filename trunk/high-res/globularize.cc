@@ -51,7 +51,7 @@ glob_command_line_options::parse_command_line_options(int argc, char **argv) {
 
 #ifdef _GETOPT_H
 
-   char *optstr = "c:"; 
+   const char *optstr = "c:"; 
    static struct option long_options[] = {
       {"centre-x" , 1, 0, 0},
       {"centre-y" , 1, 0, 0},

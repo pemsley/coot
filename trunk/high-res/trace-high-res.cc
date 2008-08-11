@@ -65,7 +65,7 @@ main(int argc, char **argv) {
       std::string    output_pdb;
       std::string     sigma_str;
 
-      char *optstr = "h:f:p:w:o:s";
+      const char *optstr = "h:f:p:w:o:s";
       struct option long_options[] = {
 	 {"hklin",  1, 0, 0},
 	 {"f",      1, 0, 0},

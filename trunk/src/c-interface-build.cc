@@ -2693,7 +2693,7 @@ write_residue_range_to_pdb_file(int imol, const char *chain_id,
       CMMDBManager *mol =
 	 graphics_info_t::molecules[imol].get_residue_range_as_mol(chain, resno_start, resno_end);
       if (mol) {
-	 istat = mol->WritePDBASCII((char *)filename);
+	 istat = mol->WritePDBASCII(filename);
 	 delete mol; // give back the memory.
       }
    }
@@ -5392,7 +5392,7 @@ void save_symmetry_coords(int imol,
 	    asc.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
 	    asc.mol->FinishStructEdit();
 	    
-	    int ierr = mol2->WritePDBASCII((char *)filename);
+	    int ierr = mol2->WritePDBASCII(filename);
 	    if (ierr) {
 	       std::cout << "WARNING:: WritePDBASCII to " << filename << " failed." << std::endl;
 	       std::string s = "WARNING:: WritePDBASCII to file ";

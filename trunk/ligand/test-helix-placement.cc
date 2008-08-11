@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
       // There is something broken with passing -x 4 -y 5 -z 6.  Understand why and fix later.
       // 
-      char *optstr = "i:h:f:p:s:x:y:z";
+      const char *optstr = "i:h:f:p:s:x:y:z";
       struct option long_options[] = {
 	 {"pdbin",  1, 0, 0},
 	 {"hklin",  1, 0, 0},

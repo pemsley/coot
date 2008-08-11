@@ -544,7 +544,7 @@
 					  (imol-refinement-map) 1 1)
 		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) "")
 		   (accept-regularizement))
-		  ;; should be repared now.  Write it out
+		  ;; should be repaired now.  Write it out.
 		  
 		  (let ((tmp-file "tmp-fixed-cis.pdb"))
 		    (write-pdb-file cis-pep-mol tmp-file)

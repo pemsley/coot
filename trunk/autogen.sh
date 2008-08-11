@@ -13,44 +13,22 @@ else
    #
    # but we can only add the directories if they exist, otherwise aclocal barfs (sigh)
 
-   aclocal_extras=
-   if [ -e $HOME/libtool/share/aclocal ] ; then
-      aclocal_extras="-I $HOME/libtool/share/aclocal"
-   fi
-   if [ -d $HOME/autobuild/Linux/Coot-0.1/share/aclocal ] ; then
-     aclocal_extras="$aclocal_extras -I $HOME/autobuild/Linux/Coot-0.1/share/aclocal"
-   fi 
-   if [ -d $HOME/autotools/share/aclocal-1.9 ] ; then
-     aclocal_extras="$aclocal_extras -I $HOME/autotools/share/aclocal-1.9"
-   fi
-   if [ -e $HOME/automake/share/aclocal-1.9 ] ; then
-      aclocal_extras="$aclocal_extras -I $HOME/automake/share/aclocal-1.9"
-   fi
-   if [ -e $HOME/autobuild/$OS-$hostname/share/aclocal ] ; then
-      aclocal_extras="$aclocal_extras -I $HOME/autobuild/$OS-$hostname/share/aclocal"
-   fi
-   if [ -e $HOME/autobuild/$OS-$hostname-pre-release/share/aclocal ] ; then
-      aclocal_extras="$aclocal_extras -I $HOME/autobuild/$OS-$hostname-pre-release/share/aclocal"
-   fi
-   if [ -e /usr/share/aclocal ] ; then
-      aclocal_extras="$aclocal_extras -I /usr/share/aclocal"
-   fi
-   if [ -e $HOME/test/gtkglext ] ; then
-      aclocal_extras="$aclocal_extras -I $HOME/test/gtkglext/share/aclocal"
-   fi
-   if [ -e $HOME/build/share/aclocal ] ; then
-      aclocal_extras="$aclocal_extras -I $HOME/build/share/aclocal"
-   fi
-   if [ -e $HOME/autobuild/Linux-$HOST/share/aclocal ] ; then
-      aclocal_extras="$aclocal_extras -I $HOME/autobuild/Linux-$HOST/share/aclocal"
-   fi
+    aclocal_extras=
+    dir_list="$HOME/libtool/share/aclocal $HOME/autobuild/Linux/Coot-0.1/share/aclocal $HOME/autotools/share/aclocal-1.9 $HOME/automake/share/aclocal-1.9 $HOME/autobuild/$OS-$hostname/share/aclocal $HOME/autobuild/$OS-$hostname-pre-release/share/aclocal $HOME/autobuild/$OS-$hostname-pre-release-gtk2/share/aclocal /usr/share/aclocal $HOME/test/gtkglext $HOME/build/share/aclocal $HOME/autobuild/Linux-$HOST/share/aclocal $HOME/gtk-1.2/share/aclocal"
 
-   if test $sys = MINGW32_NT-5.1 ; then
-      echo We have WIN
-      aclocal_extras="-I /usr/local/share/aclocal -I $HOME/coot/share/aclocal"
-   fi
-   echo aclocal -I macros $aclocal_extras
-   aclocal -I macros $aclocal_extras
+    for dir in $dir_list
+    do 
+    if [ -e $dir ] ; then
+	aclocal_extras="$aclocal_extras -I $dir"
+    fi
+    done
+
+    if test $sys = MINGW32_NT-5.1 ; then
+	echo We have WIN
+	aclocal_extras="-I /usr/local/share/aclocal -I $HOME/coot/share/aclocal"
+	fi
+    echo aclocal -I macros $aclocal_extras
+    aclocal -I macros $aclocal_extras
 fi
 
 echo autoconf

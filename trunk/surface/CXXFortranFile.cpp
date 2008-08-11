@@ -128,7 +128,7 @@ CXXFortranFile::~CXXFortranFile()
   }
 }
 
-CXXFortranFile::CXXFortranFile(string filePath, char *modeRequested)
+CXXFortranFile::CXXFortranFile(string filePath, const char *modeRequested)
 {
   init();
   strcpy(mode ,modeRequested);
