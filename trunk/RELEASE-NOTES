@@ -45,6 +45,8 @@ Pre-release 0.5
    o FEATURE: Refmac can be run from Coot without the user having to
      explicitly set the column labels.
 
+   o FEATURE: NCS Copy Chain is now available as a GUI extension.
+
    o FEATURE: The "About" dialog contains references. 
 
    o CHANGE: Key bindings mechanism has changed.  Now we are able to
