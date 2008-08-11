@@ -7,6 +7,27 @@ sed -e 's/#include "callbacks.h.gtk2"/#if (GTK_MAJOR_VERSION > 1)\n\n#include "c
     -e 's/#include <unistd.h>/#ifndef _MSC_VER\n#include <unistd.h>\n#endif/' \
     -e '/gtk_about_dialog_set_comments/s/_(/_(g_strconcat(/' \
     -e '/gtk_about_dialog_set_comments/s/));/, coot_revision(), NULL)));/' \
+    -e '
+        /gtk_image_menu_item_new/,/gtk_image_menu_item_set_image/ {
+        /svg/s/create_pixmap (window1, /gtk_image_new_from_stock (/
+        /svg/s/);/, GTK_ICON_SIZE_MENU);/
+        /png/s/create_pixmap (window1, /gtk_image_new_from_stock (/
+        /png/s/);/, GTK_ICON_SIZE_MENU);/
+        }' \
+    -e '
+        /model_toolbar = gtk_toolbar_new ();/,/model_toolbar_menubar1 = gtk_menu_bar_new ();/ {
+        /svg/s/create_pixmap (window1, /gtk_image_new_from_stock (/
+        /svg/s/);/, tmp_toolbar_icon_size);/
+        /png/s/create_pixmap (window1, /gtk_image_new_from_stock (/
+        /png/s/);/, tmp_toolbar_icon_size);/
+        }' \
+    -e '
+        /create_model_refine_dialog (void)/,/}/ {
+        /svg/s/create_pixmap (model_refine_dialog, /gtk_image_new_from_stock (/
+        /svg/s/);/, GTK_ICON_SIZE_BUTTON);/
+        /png/s/create_pixmap (model_refine_dialog, /gtk_image_new_from_stock (/
+        /png/s/);/, GTK_ICON_SIZE_BUTTON);/
+        }' \
     gtk2-interface.c > gtk2-interface.tmp
 echo '#endif /* (GTK_MAJOR_VERSION > 1) */' >> gtk2-interface.tmp
 

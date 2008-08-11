@@ -242,23 +242,51 @@ if (have_coot_python):
 		lambda imol: renumber_waters(imol)))
 
 
-     def apply_ncs_loop_func(imol, chain_id, text1, text2, dum):
+     # NCS submenu
+     submenu = gtk.Menu();
+     menuitem2 = gtk.MenuItem("NCS...")
+
+     menuitem2.set_submenu(submenu)
+     menu.append(menuitem2)
+     menuitem2.show()
+
+     def copy_ncs_range_func(imol, chain_id, text1, text2):
        try:
          r1 = int(text1)
          r2 = int(text2)
          copy_residue_range_from_ncs_master_to_others(imol, chain_id, r1, r2)
        except:
          print "BL WARNING:: no valid number input"
-       
-     add_simple_coot_menu_menuitem(menu, "Apply NCS loop...",
+
+     add_simple_coot_menu_menuitem(submenu, "Copy NCS Reside Range...",
                                    lambda func: generic_chooser_and_entry("Apply NCS Range from Master",
                                                "Master Chain ID",
                                                "",
                 lambda imol, chain_id: generic_double_entry("Start of Residue Number Range",
                                        "End of Residue Number Range",
                                        "", "", False, False,
-                                       lambda text1, text2, dum: apply_ncs_loop_func(imol, chain_id, text1, text2, dum))))
+                                       "Apply NCS Residue Range",
+                                       lambda text1, text2: copy_ncs_range_func(imol, chain_id, text1, text2))))
 
+
+     def copy_ncs_chain_func(imol, chain_id):
+       ncs_chains = ncs_chain_ids(imol)
+       if (ncs_chains):
+         copy_from_ncs_master_to_others(imol, chain_id)
+       else:
+         s = "You need to define NCS operators for molecule " + str(imol)
+         info_dialog(s)
+           
+     add_simple_coot_menu_menuitem(submenu, "Copy NCS Chain...",
+                                   lambda func: generic_chooser_and_entry("Apply NCS edits from NCS Master Chain to Other Chains",
+                                                                          "Master Chain ID",
+                                                                          "",
+                                                                          lambda imol, chain_id: copy_ncs_chain_func(imol, chain_id)))
+
+     add_simple_coot_menu_menuitem(submenu, "NCS ligands...",
+                                   lambda func: ncs_ligand_gui())
+
+     # end NCS submenu
 
      add_simple_coot_menu_menuitem(menu, "Residues with Alt Confs...",
 	lambda func: molecule_chooser_gui(
