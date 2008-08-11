@@ -109,7 +109,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   char *tmp_str;
   char *preferences_dir;
   struct stat buf;
-  int istat;
+  int istat = 1; // fail initially (fake a stat() results). 
   short int use_graphics_flag = use_graphics_interface_state();
   int preferences_dir_status;
   glob_t myglob;

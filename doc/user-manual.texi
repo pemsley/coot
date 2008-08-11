@@ -2853,6 +2853,9 @@ apply the edits that you made to ``A'' (the NCS master chain ID) to the
 to be rotated/translated versions of the ``A'' molecule).  How is that
 done?
 
+There are now guis to NCS command to help you out (under Extensions).
+However, for completeness here are the scripting versions:
+
 @code{(copy-from-ncs-master-to-others @emph{imol} @emph{master-chain-id})}
 
 If you have only a range of residues, rather than a whole chain to replace:
