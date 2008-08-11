@@ -98,8 +98,8 @@ AC_MSG_CHECKING([for MMDB])
 	AC_TRY_LINK([#include "mmdb_manager.h"] ,[ CMMDBManager a;  ], have_generic_mmdb=yes, have_generic_mmdb=no)
         AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CAtom at; const char *name = "test"; at.SetAtomName(name); ], have_mmdb=yes, have_mmdb=no)
 	# version 1.10 CISPEP code currently not used because of licence problem
-	#AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->GetModel(1)->GetNumberOfCisPeps(); ], have_mmdb=yes, have_mmdb=no)
-	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->SetFlag(MMDBF_IgnoreHash)  ], have_mmdb_ignore_hash=yes, have_mmdb_ignore_hash=no)
+	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->SetFlag(MMDBF_IgnoreHash)  ], have_mmdb_ignore_hash=yes, have_mmdb_ignore_hash=no)	
+	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->GetModel(1)->GetNumberOfCisPeps(); ], have_mmdb_with_cispep=yes, have_mmdb_with_cispep=no)	
 	AC_LANG_POP(C++)  # the language we have just quit
 	AC_MSG_RESULT($have_mmdb)
 
@@ -111,8 +111,11 @@ if test x$have_mmdb = xyes; then
  else
     HASH_FLAG=
  fi
+ if test "$have_mmdb_with_cispep" = "yes" ; then
+    CISPEP_FLAG=-DHAVE_MMDB_WITH_CISPEP
+ fi
  CXXFLAGS="$saved_CXXFLAGS"
- MMDB_CXXFLAGS="$ac_MMDB_CXXFLAGS $HASH_FLAG"
+ MMDB_CXXFLAGS="$ac_MMDB_CXXFLAGS $HASH_FLAG $CISPEP_FLAG"
  MMDB_LIBS="$ac_MMDB_LDOPTS"
 ifelse([$1], , :, [$1])
 
