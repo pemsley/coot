@@ -106,13 +106,14 @@
 
 #include "coot-database.hh"
 
+#include <glob.h>
+
 #ifdef USE_GUILE
 #include <guile/gh.h>
 #endif 
 
 #if defined (USE_PYTHON)
 #include "Python.h" // for Py_Initialize();
-#include <glob.h>
 #define SWIG_init    init_coot
 #if defined(_WIN32) || defined(__WIN32__)
 #       if defined(_MSC_VER)
@@ -655,11 +656,75 @@ void setup_application_icon(GtkWindow *window) {
 
 #if (GTK_MAJOR_VERSION == 2)
       GdkPixbuf *icon_pixbuf =
-	 gdk_pixbuf_new_from_file (app_icon_path.c_str(), NULL);
+		 gdk_pixbuf_new_from_file (app_icon_path.c_str(), NULL);
       if (icon_pixbuf) {
-	 gtk_window_set_icon (GTK_WINDOW (window), icon_pixbuf);
-	 gdk_pixbuf_unref (icon_pixbuf);
+		 gtk_window_set_icon (GTK_WINDOW (window), icon_pixbuf);
+		 gdk_pixbuf_unref (icon_pixbuf);
       }
+
+     // load svg/png files to antialias icons
+	 // maybe should go somewhere else?!
+	 GtkIconSet* iconset;
+     GtkIconFactory *iconfactory = gtk_icon_factory_new();
+     GSList* stock_ids = gtk_stock_list_ids();
+	 GError *error = NULL;
+	 const char *stock_id;
+	 GdkPixbuf* pixbuf;
+
+	 glob_t myglob;
+	 int flags = 0;
+	 std::string glob_dir = splash_screen_pixmap_dir;
+	 std::string glob_file = glob_dir;
+	 glob_file += "/*.svg";
+	 glob(glob_file.c_str(), flags, 0, &myglob);
+	 glob_file = glob_dir;
+	 glob_file += "/*.png";
+	 glob(glob_file.c_str(), GLOB_APPEND, 0, &myglob);
+	 size_t count;
+	 char **p;
+	 for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
+		char *filename(*p);
+		pixbuf = gdk_pixbuf_new_from_file(filename, &error);
+		if (error) {
+		   g_print ("Error loading icon: %s\n", error->message);
+		   g_error_free (error);
+		}
+		if (pixbuf) {
+		   iconset = gtk_icon_set_new_from_pixbuf(pixbuf);
+		   g_object_unref(pixbuf);
+		   // may have to be adjusted for Windows!!
+		   stock_id = (coot::util::file_name_non_directory(filename)).c_str();
+		   gtk_icon_factory_add(iconfactory, stock_id,
+								iconset);
+		   gtk_icon_factory_add_default(iconfactory);
+		}
+	 }
+	 globfree(&myglob);
+
+	 // adjust the icons size of the refinement toolbar icons
+	 // probably should be somewhere else
+	 GdkScreen *screen;
+	 screen = gdk_screen_get_default();
+	 if (screen) {
+		int width = gdk_screen_get_width(screen);
+		int height = gdk_screen_get_height(screen);
+		int max_height = int(height * 0.9);
+		if (max_height <= 620) {
+		   max_height = 620;
+		}
+		if (max_height <= 770) {
+		   int icon_size = 12 + (max_height - 620) / 25;
+		   std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
+		   toolbar_txt += coot::util::int_to_string(icon_size);
+		   toolbar_txt += ",";
+		   toolbar_txt += coot::util::int_to_string(icon_size);
+		   toolbar_txt += "\"";
+		   gtk_rc_parse_string (toolbar_txt.c_str());
+		}
+	 } else {
+		g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
+	 }
+	 
 
 #else
       // gtk 1, use:
