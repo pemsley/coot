@@ -129,7 +129,7 @@ coot::pepflip(CMMDBManager *mol, int resno,
    // Now the other atoms:
 
    
-   std::vector<char *> first_atoms(3);
+   std::vector<const char *> first_atoms(3);
    std::vector<int> selHnd_first(3);
    std::vector<PPCAtom> SelAtom_first(3);
    std::vector<int> nSelAtoms_first(3);
@@ -141,7 +141,7 @@ coot::pepflip(CMMDBManager *mol, int resno,
    first_atoms[1] = "  O ";
    first_atoms[2] = "  H ";
    
-   char *second_atom = "  N ";
+   const char *second_atom = "  N ";
    std::vector<CAtom *> flipped_atom(1);
    
    for (int iat=0; iat<3; iat++) { 
@@ -149,7 +149,7 @@ coot::pepflip(CMMDBManager *mol, int resno,
       selHnd_first[iat] = mol->NewSelection();
       mol->SelectAtoms(selHnd_first[iat],
 		       0,
-		       (char *)chain_id.c_str(),
+		       chain_id.c_str(),
 		       resno, "*",
 		       resno, "*",
 		       "*", // rnames

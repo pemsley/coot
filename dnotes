@@ -29,6 +29,8 @@
    o build-hardy-python makes a build where cootaneer_bl_gui fails (on
      some python lib). pygtk failed to be configured?  1hd
 
+   o fix writing restraints from restraints editor.
+
 
 
 

@@ -8,11 +8,17 @@
      ;; the running of libcheck and refmac.
      ;;
      (if (not have-ccp4?)
+	 (begin
+	   (format #t "No CCP4 - Copying in test files~%")
 	   (map (lambda (file)
 		  (let ((f-full (append-dir-file greg-data-dir file)))
 		    (if (file-exists? f-full)
-			(copy-file f-full file))))
-		'("monomer-3GP.pdb" "libcheck_3GP.cif")))
+			(begin
+			  (format #t "   copy-file ~s ~s~%" f-full file)
+			  (copy-file f-full file))
+			(format #t "Ooops file not found ~s~%" f-full))))
+			
+		'("monomer-3GP.pdb" "libcheck_3GP.cif"))))
 
      (let ((imol (monomer-molecule-from-3-let-code "3GP" "")))
        (if (valid-model-molecule? imol)
@@ -110,11 +116,24 @@
 (greg-testcase "flip residue (around eigen vectors)" #t 
    (lambda ()
 
-     ;; note to self, make sure this file is available when then test
-     ;; is run for real.
-     ;;
+     (if (not (file-exists? "monomer-3GP.pdb"))
+	 (begin 
+	     (format #t "  Oops! file not found! monomer-3GP.pdb~%")
+	     (throw 'fail)))
+
      (let* ((imol-orig (read-pdb "monomer-3GP.pdb"))
 	    (imol-copy (copy-molecule imol-orig)))
+       
+       (if (not (valid-model-molecule? imol-orig))
+	   (begin
+	     (format #t "not valid molecule for monomer-3GP.pdb~%")
+	     (throw 'fail)))
+
+       (if (not (valid-model-molecule? imol-copy))
+	   (begin
+	     (format #t "not valid molecule for copy of monomer-3GP.pdb~%")
+	     (throw 'fail)))
+
        (let ((active-atom (active-residue)))
 	 (if (not active-atom)
 	     (begin
@@ -134,6 +153,17 @@
 		     (flip-ligand imol chain-id res-no)
 		     (let ((atom-orig-1 (get-atom imol-orig "A" 1 " C8 "))
 			   (atom-move-1 (get-atom imol      "A" 1 " C8 ")))
+
+		       (if (not (list? atom-orig-1))
+			   (begin
+			     (format #t "atom-orig-1 not found~%")
+			     (throw 'fail)))
+			     
+		       (if (not (list? atom-move-1))
+			   (begin
+			     (format #t "atom-move-1 not found~%")
+			     (throw 'fail)))
+			     
 		       (let ((d (bond-length (list-ref atom-orig-1 2)
 					   (list-ref atom-move-1 2))))
 			 (format #t "distance: ~s~%" d)

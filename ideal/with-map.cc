@@ -337,7 +337,7 @@ get_input_details(int argc, char **argv) {
    int ch;
    int option_index = 0;
 
-   char *optstr = "i:h:f:p:o:m:1:2:c:w";
+   const char *optstr = "i:h:f:p:o:m:1:2:c:w";
 
    struct option long_options[] = {
       {"pdbin",  1, 0, 0}, 

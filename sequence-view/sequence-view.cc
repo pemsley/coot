@@ -511,7 +511,7 @@ coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
    std::cout << "calculating secondary structure...";
 
 #ifdef HAVE_MMDB_WITH_CISPEP
-   int status = model_p->CalcSecStructure(1, aminoSelHnd);
+   int status = model_p->CalcSecStructure(1); // Hmm. Used to have an atomselhnd arg.
 #else   
    int status = model_p->CalcSecStructure(1);
 #endif // HAVE_MMDB_WITH_CISPEP   

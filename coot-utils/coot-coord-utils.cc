@@ -1643,7 +1643,7 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
    int orthcode;
    orig_mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
    atoms_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-   char *sg = orig_mol->GetSpaceGroup();
+   cpstr sg = orig_mol->GetSpaceGroup();
    if (sg) { 
      atoms_mol->SetSpaceGroup(sg);
    }
@@ -2022,7 +2022,7 @@ coot::util::three_letter_to_one_letter(const std::string &resname) {
 
    if (! done_locally) { 
       // This casting should not be required with a modern mmdb.
-      Get1LetterCode( (char *) resname.c_str(), r);
+      Get1LetterCode(resname.c_str(), r);
       n = r[0];
    }
 
@@ -4241,7 +4241,7 @@ coot::write_coords_pdb(CMMDBManager *mol, const std::string &file_name) {
 
 
    coot::util::remove_wrong_cis_peptides(mol);
-   int r = mol->WritePDBASCII((char *)file_name.c_str());
+   int r = mol->WritePDBASCII(file_name.c_str());
 
    return r;
 }

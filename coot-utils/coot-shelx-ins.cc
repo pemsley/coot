@@ -504,7 +504,9 @@ coot::ShelxIns::read_file(const std::string &filename) {
 
 	    std::cout << "INFO:: set space group to :" << space_group.descr().symbol_hm()
 		      << ":" << std::endl;
-	    mol->SetSpaceGroup((char *)space_group.descr().symbol_hm().c_str());
+	    // mol->SetSpaceGroup((char *)space_group.descr().symbol_hm().c_str());
+	    cpstr sg = space_group.descr().symbol_hm().c_str();
+	    mol->SetSpaceGroup(sg);
 	    char *spg = mol->GetSpaceGroup();
 	    if (spg) { 
 	       std::string sgrp(spg);
@@ -1977,11 +1979,11 @@ coot::unshelx(CMMDBManager *shelx_mol) {
       int orthcode;
       shelx_mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
       mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-      char *sg = shelx_mol->GetSpaceGroup();
+      cpstr sg = shelx_mol->GetSpaceGroup();
       // Don't mess around with copying the string here!
       // SetSpaceGroup() copies the string.
-      if (sg)
-	 mol->SetSpaceGroup(sg);
+       if (sg)                   
+ 	 mol->SetSpaceGroup(sg); 
    }
    return mol;
 }
@@ -2059,9 +2061,10 @@ coot::reshelx(CMMDBManager *mol) {
    int orthcode;
    mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
    shelx_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-   char *sg = mol->GetSpaceGroup();
-   if (sg) 
-      shelx_mol->SetSpaceGroup(sg);
+   cpstr sg = mol->GetSpaceGroup();
+
+   if (sg)  
+      shelx_mol->SetSpaceGroup(sg); 
    
    shelx_mol->FinishStructEdit();
    shelx_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);

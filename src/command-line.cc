@@ -73,7 +73,7 @@ parse_command_line(int argc, char ** argv ) {
    *
    */
  
-   char *optstr = "p:m:d:s:"; 
+   const char *optstr = "p:m:d:s:"; 
 
      /* 
    * getopt(3) takes our argc, and argv, it also takes

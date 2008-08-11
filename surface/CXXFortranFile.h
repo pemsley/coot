@@ -54,8 +54,8 @@ private:
 	int isLikeSGI, isLikeI386;
 	void init();
 public:
-		CXXFortranFile();
-	CXXFortranFile(string filePath, char *mode);
+	CXXFortranFile();
+	CXXFortranFile(string filePath, const char *mode);
 	~CXXFortranFile();
 	int getFortranData(char *buffer, const int itemSize, const int nItems, const int FortranDataType);
 	int putFortranData(char *buffer, const int itemSize, const int nItems, const int FortranDataType);

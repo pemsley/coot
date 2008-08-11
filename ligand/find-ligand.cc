@@ -88,7 +88,7 @@ main(int argc, char **argv) {
       std::string coot_ligands_script_file_name = "coot-ligands.scm";
       float fit_frac = -1.0; // tested for positivity
 
-      char *optstr = "i:h:f:p:s:c:w:n:d";
+      const char *optstr = "i:h:f:p:s:c:w:n:d";
       struct option long_options[] = {
 	 {"pdbin",      1, 0, 0},
 	 {"hklin",      1, 0, 0},

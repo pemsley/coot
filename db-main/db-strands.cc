@@ -72,7 +72,7 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
 	 if (mol) { 
 	    CModel *model_p = mol->GetModel(1);
 #ifdef HAVE_MMDB_WITH_CISPEP	    
-	    int status = model_p->CalcSecStructure(1, aminoSelHnd);
+	    int status = model_p->CalcSecStructure(1); // Hmm. Used to have an atomselhnd arg.
 #else 	    
 	    int status = model_p->CalcSecStructure(1);
 	    // int status = SSERC_Ok;

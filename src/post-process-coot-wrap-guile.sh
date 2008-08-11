@@ -13,13 +13,13 @@ guile_version=$1
 case $guile_version in
 
    1.6*) 
-    echo cp $pre $post
-    cp $pre $post
+   echo sed -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre $post
+   sed -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre > $post
     ;; 
    
    1.8*)
-   echo sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' $pre $post
-   sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' $pre > $post
+   echo sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre $post
+   sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/' -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' $pre > $post
    ;; 
 
 esac
