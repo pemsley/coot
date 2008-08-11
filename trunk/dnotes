@@ -2,11 +2,9 @@
 
    Things to fix before 0.5
 
-   11 Items, 35 hd.
+   9 Items, 35 hd.
 
-   o Kevin's Ramachandran Refinement target, 8hd
-
-   o chi squareds are displayed properly on GTK1 version? 1hd
+   o chi squareds are displayed properly on GTK1 version? kalypso - 1hd
 
    o Correct CISPEP if needed cards on writing pdb. <1hd - depending
      on new mmdb code.
@@ -15,27 +13,39 @@
 
    o Use Eugene's new LINK-reading code < 1hd as above
 
-   o Finish A-RAPPER-gui, penelope. 4hd
+   o Finish A-RAPPER-gui, penelope. 2hd
 
 * see what Nick says.  He says it shouldn't crash.
 
-   o Bill Scott's python problem:
+   o Bill Scott's python problem: 2hd
 
      I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
      211 in ssm_superpose.h
 
+   o need fixup for gtk_combo_box_get_active_text(null). jackal 1hd
+
+   o -c script is half done. impala. 1hd
+
+   o build-hardy-python makes a build where cootaneer_bl_gui fails (on
+     some python lib). pygtk failed to be configured?  1hd
+
+
+
+
+110 Done.
+
    o the scrollable map needs to be (correctly?) saved in state file. 1hd.
+
+* Done.  
+
+   o Kevin's Ramachandran Refinement target, 8hd
+
+* Done
 
    o Problem with (run-python-command "cootaneer_gui_bl()"))) when
      pyobject and pygtk don't get built? Roni Gordon.
 
-   o need fixup for gtk_combo_box_get_active_text (null)
-
-
-
-
-
-107 Done.
+* Fixed.
 
    o put the manual in Oxford.
 
@@ -1679,12 +1689,8 @@ Thu May 10 16:03:56 BST 2007
    So it needs to get the current stable release version (a string)
    from the web site.  How shall that be done?
 
-      get the stable release binary list web page.  Search as we do
-      for the latest coot version as we do in the build-it file (that
-      involves awk).
-
-   Then, if there is a new release, get the release notes file and put
-   the contents into a scrolled text window.
+      From the RELEASE-NOTES on the web site (pick the second section
+      - the first section can be empty)
 
 -----
 
@@ -1799,6 +1805,9 @@ INFO:: 0 out of 228096 (0%) map points  were masked out of NCS average target vo
 INFO:: made 1 averaged map(s)
 Map statistics: mean: -0.000679089 st.d: 0.480031
 Map statistics: min: -1.48057, max: 4.66996
+
+
+* Fixed.
 
 
 ----
@@ -6431,3 +6440,14 @@ Mon Jul 28 23:39:48 BST 2008
 
 
 -----
+Tue Aug  5 23:11:18 BST 2008
+
+    Here's another rama test.
+
+    turn on rama restraints. turn on helical restraints.  try to turn
+    residues 84 to 93 into a helix.  (you can cut them out from the
+    rest of the protein to make things clearer).
+
+
+
+

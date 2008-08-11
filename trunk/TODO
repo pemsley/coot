@@ -146,7 +146,17 @@
 
 -----
 
-    Release 0.6 and 0.7 [Sept 2008]
+    Release 0.6 and 0.7 [Nov 2008]
+
+   Top commitments:
+  o P backbone mode
+  o Edit a SHELXL file before refinement
+  o backrub on rotamer search
+  o Helix fitting overshoots
+  o PISA output display
+  Like to do:
+  o redo sequence view
+  o test --flood
 
    o "CA mode" for nucleic acids should draw a P and C1' trace. [VR]
      Priority: 10, Difficulty: 4
@@ -385,7 +395,7 @@
 
  ------
     
-    Release 0.8 [Nov 2008?]
+    Release 0.8 [May 2009]
 
    o Use libglade.
 
@@ -428,7 +438,7 @@
 
 ------
 
-   Release 0.9, Facelift-release 
+   Release 0.9, Facelift-release [Aug 2009]
 
    o Oxidized cysine - with a modification
 
@@ -445,5 +455,5 @@
 
 -----
  
-   Release 1.0 [~Dec 2008]
+   Release 1.0 [~Dec 2009]
 

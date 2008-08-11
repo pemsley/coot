@@ -762,6 +762,11 @@ void unset_other_modelling_tools_dialog();
 /*! \brief display the Other Modelling Tools dialog */
 void post_other_modelling_tools_dialog();
 
+/*! \brief shall atoms with zero occupancy be moved when refining? (default 1, yes) */
+void set_refinement_move_atoms_with_zero_occupancy(int state);
+/*! \brief return the state of "shall atoms with zero occupancy be moved when refining?" */
+int refinement_move_atoms_with_zero_occupancy_state();
+
 /*! \} */
 
 /*  --------------------------------------------------------------------- */
