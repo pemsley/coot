@@ -96,7 +96,7 @@ AC_MSG_CHECKING([for MMDB])
  	#
 	AC_LANG_PUSH(C++)
 	AC_TRY_LINK([#include "mmdb_manager.h"] ,[ CMMDBManager a;  ], have_generic_mmdb=yes, have_generic_mmdb=no)
-        AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CAtom at; const char *name = "test"; at.SetAtomName(name); ], have_mmdb=yes, have_mmdb=no)
+        AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CAtom at; const char *name = "test"; at.SetAtomName(name); CMMDBManager *m; cpstr sg = m->GetSpaceGroup(); ], have_mmdb=yes, have_mmdb=no)
 	# version 1.10 CISPEP code currently not used because of licence problem
 	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->SetFlag(MMDBF_IgnoreHash)  ], have_mmdb_ignore_hash=yes, have_mmdb_ignore_hash=no)	
 	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->GetModel(1)->GetNumberOfCisPeps(); ], have_mmdb_with_cispep=yes, have_mmdb_with_cispep=no)	
@@ -125,7 +125,7 @@ else
 
  if test x$have_generic_mmdb = xyes ; then
    echo Opps - You have an mmdb library, but it is out of date.
-   echo You need version 110 \(a.k.a. version 1.0.10\)
+   echo You need version 1.11
  fi
 
  LIBS="$saved_LIBS"
