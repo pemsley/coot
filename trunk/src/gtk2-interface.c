@@ -24601,6 +24601,7 @@ create_coot_references_dialog (void)
   GtkWidget *coot_references_molprobity_toolbutton;
   GtkWidget *coot_references_calpha_toolbutton;
   GtkWidget *coot_references_xligand_toolbutton;
+  GtkWidget *coot_references_eds_toolbutton;
   GtkWidget *coot_references_others_toolbutton;
   GtkWidget *coot_references_notebook;
   GtkWidget *scrolledwindow29;
@@ -24672,6 +24673,10 @@ create_coot_references_dialog (void)
   coot_references_xligand_toolbutton = (GtkWidget*) gtk_tool_button_new (NULL, _("X-LIGAND"));
   gtk_widget_show (coot_references_xligand_toolbutton);
   gtk_container_add (GTK_CONTAINER (toolbar2), coot_references_xligand_toolbutton);
+
+  coot_references_eds_toolbutton = (GtkWidget*) gtk_tool_button_new (NULL, _("EDS"));
+  gtk_widget_show (coot_references_eds_toolbutton);
+  gtk_container_add (GTK_CONTAINER (toolbar2), coot_references_eds_toolbutton);
 
   coot_references_others_toolbutton = (GtkWidget*) gtk_tool_button_new (NULL, _("Others"));
   gtk_widget_show (coot_references_others_toolbutton);
@@ -24749,6 +24754,9 @@ create_coot_references_dialog (void)
   g_signal_connect ((gpointer) coot_references_xligand_toolbutton, "clicked",
                     G_CALLBACK (on_coot_references_xligand_toolbutton_clicked),
                     NULL);
+  g_signal_connect ((gpointer) coot_references_eds_toolbutton, "clicked",
+                    G_CALLBACK (on_coot_references_eds_toolbutton_clicked),
+                    NULL);
   g_signal_connect ((gpointer) coot_references_others_toolbutton, "clicked",
                     G_CALLBACK (on_coot_references_others_toolbutton_clicked),
                     NULL);
@@ -24771,6 +24779,7 @@ create_coot_references_dialog (void)
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_molprobity_toolbutton, "coot_references_molprobity_toolbutton");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_calpha_toolbutton, "coot_references_calpha_toolbutton");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_xligand_toolbutton, "coot_references_xligand_toolbutton");
+  GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_eds_toolbutton, "coot_references_eds_toolbutton");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_others_toolbutton, "coot_references_others_toolbutton");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_notebook, "coot_references_notebook");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, scrolledwindow29, "scrolledwindow29");
