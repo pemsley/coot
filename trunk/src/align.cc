@@ -203,7 +203,8 @@ std::string make_model_string(PCResidue *SelResidues, int nSelResidues) {
    for (int i=0; i<nSelResidues; i++) {
       
       this_residue = "X";
-      Get1LetterCode(SelResidues[i]->GetResName(), r);
+      pstr rn = SelResidues[i]->GetResName();
+      Get1LetterCode(rn, r);
       this_residue = r[0];
       s += this_residue;
    } 
