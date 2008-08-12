@@ -204,7 +204,8 @@
 # 2.40 20080428 Apply Joseph Moran's fix correctly.
 # 2.41 20080518 Update the status reporting system here (sync with gtk1 version).
 # 2.42 20080624 Add guile-lib to build.
-script_version=2.42
+# 2.43 20080812 Use mmdb version 1.11
+script_version=2.43
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1612,6 +1613,7 @@ if test -n "$build_mmdb" ; then
 #
 # mmdb_version=1.0.10.  Not yet.
 mmdb_version=1.0.8-ysbl-3
+mmdb_version=1.11
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 (
 date
