@@ -500,7 +500,11 @@
 ;; This test we expect to fail until the CISPEP correction code is in
 ;; place (using mmdb-1.10+).
 ;; 
-(greg-testcase "Correction of CISPEP test" #f
+;; 20080812: OK, so we have mmdb-1.11, we expect this to pass (note
+;; that an unexpected pass causes an overall fail - and the tar file
+;; is not built).
+;; 
+(greg-testcase "Correction of CISPEP test" #t
    (lambda ()	      
 
 ;; In this test the cis-pep-12A has indeed a CIS pep and has been
