@@ -489,8 +489,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 		    return ret
 			    
 	    o = grep_to_list("CISPEP", tmp_file)
-	    self.failUnlessEqual(len(o), 4)    # see below (MMDB)
-	    # self.failUnlessEqual(len(o), 3)
+	    self.failUnlessEqual(len(o), 3)
 	    txt_str = "CISPEPs: "
 	    for cis in o:
 		    txt_str += cis
