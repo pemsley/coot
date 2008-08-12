@@ -50291,6 +50291,22 @@ tick the box below.
 	      </child>
 
 	      <child>
+		<widget class="GtkToolButton" id="coot_references_eds_toolbutton">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">EDS</property>
+		  <property name="use_underline">True</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="on_coot_references_eds_toolbutton_clicked" last_modification_time="Mon, 11 Aug 2008 17:11:57 GMT"/>
+		</widget>
+		<packing>
+		  <property name="expand">False</property>
+		  <property name="homogeneous">True</property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkToolButton" id="coot_references_others_toolbutton">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">Others</property>

@@ -472,7 +472,11 @@ coot::util::file_name_non_directory(const std::string &file_name) {
    std::string rstring = "";
    
    for (int i=file_name.length()-1; i>=0; i--) {
+#ifdef WINDOWS_MINGW
+      if (file_name[i] == '/' || file_name[i] == '\\') {
+#else
       if (file_name[i] == '/') {
+#endif // MINGW
 	 slash_char = i;
 	 break;
       }

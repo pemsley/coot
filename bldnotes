@@ -1,0 +1,75 @@
+ -*-text-*-
+
+   o speed up NCS by using Kevin's LSQ (user changeable)
+
+   o test vista compositing
+
+   o refinement options dialog in extensions (scheme)
+
+   o clean-up use of probe/reduce command_name and command (python)
+
+   o povray view angle still not ok (view gets smaller the further away from 
+	 origin we are)
+
+   o refmac to run from an XML file
+
+   o read_refmac_log to read refmac XML output (if there)
+
+   o python's read_refmac_log to run after schemey refmac run 
+	 (if we have pygtk)?
+
+   o schemey run-refmac to work with twinning/sad etc.
+
+   o ribbons from aesop python things from CCP4MG (at some point)
+
+   o use libglade
+
+   o cootaneering (more testing, make documentation?)
+
+   o alternatives for loop building (wait for Kevin's implementation)
+
+   o fit_gap in both direction => dialog to select A or B
+
+   o add terminal residue (if Gly, Pro) use different target ramachandran
+	 function for placement of term residue;
+	 maybe we want to try general rama first, then Pro, then Gly (if we 
+	 dont know the residue type) for better loop fit (or in general)
+	 this may require some Gly noise filtering as Gly always will fit best
+
+   o side chain treatment in low res maps (test if torsion angle restraints 
+	 are good enough) otherwise we may want different weight for MC and SC
+	 and/or B-factor refinement
+
+   o fragment fitting/search
+
+   o rsync builds to Paul's dir
+
+   o revisit python sockets
+
+   o fix threading in python 'Coot News'
+
+   o How about interfacing to a Wii?
+
+   o "Check for updates" button? (need to know which OS we are on!!!)
+
+   o read_shelx ins file:
+	 does it remove comments correctly? (! comment) from line!!!!
+
+   o tutorial/documentation for scripting/extensions [Ronan Keegan]
+
+   o python: rapper-gui and what-check
+
+   o auto-fit-mutate after add terminal residue with sequence
+
+   o high resolution auto-build
+
+   o find 32/64 bit povray exe (WinCoot) [Yen-Chywan]
+
+
+---------------
+* DONE THINGS *
+---------------
+
+   o make coot icons anti-alias
+
+* Done
