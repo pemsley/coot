@@ -5140,7 +5140,8 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	    std::cout << "INFO:: mutating to the sequence :" << sequence
 		      << ":" << std::endl;
 
-	    if (int(sequence.length()) == (res2 - res1 + 1)) {
+	    if (int(sequence.length()) == (res2 - res1 + 1) ||
+	        sequence == "") {
 	    } else {
 	       // so set sequence to poly-ala and give us a message:
 	       sequence = "";

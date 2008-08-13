@@ -4202,9 +4202,11 @@ void set_filename_for_filechooserselection(GtkWidget *fileselection,
 
 // functions to dock the accept/reject dialog
 void set_accept_reject_dialog_docked(int istate){
-  graphics_info_t::accept_reject_dialog_docked_flag = istate;
-  // reset the widget upon change of mode
-  set_accept_reject_dialog(0);
+   if (graphics_info_t::use_graphics_interface_flag) {
+	  graphics_info_t::accept_reject_dialog_docked_flag = istate;
+	  // reset the widget upon change of mode
+	  set_accept_reject_dialog(0);
+   }
 }
 
 int accept_reject_dialog_docked_state(){
@@ -4213,15 +4215,17 @@ int accept_reject_dialog_docked_state(){
 
 // functions to show/hide/sensitise docked accept/reject dialog
 void set_accept_reject_dialog_docked_show(int state){
-  graphics_info_t::accept_reject_dialog_docked_show_flag = state;
-  if (state == 0) {
-    GtkWidget *dialog = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), "accept_reject_dialog_frame_docked");
-    // hide the widget and make sensitive again
-    gtk_widget_set_sensitive(dialog, TRUE);
-    gtk_widget_hide(dialog);
-    // reset the widget
-    set_accept_reject_dialog(0);
-  }
+   if (graphics_info_t::use_graphics_interface_flag) {
+	  graphics_info_t::accept_reject_dialog_docked_show_flag = state;
+	  if (state == 0) {
+		 GtkWidget *dialog = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), "accept_reject_dialog_frame_docked");
+		 // hide the widget and make sensitive again
+		 gtk_widget_set_sensitive(dialog, TRUE);
+		 gtk_widget_hide(dialog);
+		 // reset the widget
+		 set_accept_reject_dialog(0);
+	  }
+   }
 }
 
 int accept_reject_dialog_docked_show_state() {
