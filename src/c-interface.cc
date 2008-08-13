@@ -2791,6 +2791,15 @@ void set_show_additional_representation(int imol, int representation_number, int
    graphics_draw();
 } 
 
+/* delete the given additional representation  */
+void delete_additional_representation(int imol, int representation_number) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].clear_additional_representation(representation_number);
+   }
+   graphics_draw();
+} 
+
 /* return the index of the additional representation.  Return -1 on error */
 int additional_representation_by_string(int imol,  const char *atom_selection_str,
 					int representation_type,

@@ -1779,67 +1779,59 @@ def view_saver_gui():
 # geometry is an improper list of ints
 #
 def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
+   
 
-	def add_text_to_text_widget(text_box, description):
-		textbuffer = text_box.get_buffer()
-		start = textbuffer.get_start_iter()
-		textbuffer.create_tag("tag", foreground="black", 
-						background = "#c0e6c0")
-		textbuffer.insert_with_tags_by_name(start, description, "tag")
+   def add_text_to_text_widget(text_box, description):
+      textbuffer = text_box.get_buffer()
+      start = textbuffer.get_start_iter()
+      textbuffer.create_tag("tag", foreground="black", 
+                            background = "#c0e6c0")
+      textbuffer.insert_with_tags_by_name(start, description, "tag")
 
-	# main line
-	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-	scrolled_win = gtk.ScrolledWindow()
-	outside_vbox = gtk.VBox(False, 2)
-	inside_vbox = gtk.VBox(False, 0)
+   # main line
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   scrolled_win = gtk.ScrolledWindow()
+   outside_vbox = gtk.VBox(False, 2)
+   inside_vbox = gtk.VBox(False, 0)
+   
+   window.set_default_size(geometry[0], geometry[1])
+   window.set_title(window_name)
+   inside_vbox.set_border_width(2)
+   window.add(outside_vbox)
+   outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
+   scrolled_win.add_with_viewport(inside_vbox)
+   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   
+   for button_info in buttons:
+      button_label = button_info[0]
+      callback = button_info[1]
+      if len(button_info)==2:
+         description = False
+      else:
+         description = button_info[2]
+      button = gtk.Button(button_label)
 
-        window.set_default_size(geometry[0], geometry[1])
-	window.set_title(window_name)
-	inside_vbox.set_border_width(2)
-	window.add(outside_vbox)
-	outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
-	scrolled_win.add_with_viewport(inside_vbox)
-	scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+      # BL says:: in python we should pass the callback as a string
+      if type(callback) is StringType:
+         def callback_func(button, call):
+            eval(call)
+         button.connect("clicked", callback_func, callback)
+      elif (type(callback) is ListType):
+         def callback_func(button, call):
+            for item in call:
+               eval(item)
+         button.connect("clicked", callback_func, callback)                   
+      else:
+         button.connect("clicked", callback)
 
-	for button_info in buttons:
-		button_label = button_info[0]
-		callback = button_info[1]
-		if len(button_info)==2:
-			description = False
-		else:
-			description = button_info[2]
-		button = gtk.Button(button_label)
+      inside_vbox.pack_start(button, False, False, 2)
 
-# BL says:: in python we should pass the callback as a string
-		if type(callback) is StringType:
-                   def callback_func(button, call):
-                      eval(call)
-                   button.connect("clicked", callback_func, callback)
-                elif (type(callback) is ListType):
-                   def callback_func(button, call):
-                      for item in call:
-                         eval(item)
-                   button.connect("clicked", callback_func, callback)                   
-		else:
-			button.connect("clicked", callback)
-
-		if type(description) is StringType:
-			text_box = gtk.TextView()
-			text_box.set_editable(False)
-			add_text_to_text_widget(text_box, description)
-			inside_vbox.pack_start(text_box, False, False, 2)
-			text_box.realize()
-# BL says:: not working here
-#			text_box.thaw()
-
-		inside_vbox.pack_start(button, False, False, 2)
-
-	outside_vbox.set_border_width(2)
-	ok_button = gtk.Button(close_button_label)
-	outside_vbox.pack_end(ok_button, False, False, 0)
-	ok_button.connect("clicked", lambda w: window.destroy())
+   outside_vbox.set_border_width(2)
+   ok_button = gtk.Button(close_button_label)
+   outside_vbox.pack_end(ok_button, False, False, 0)
+   ok_button.connect("clicked", lambda w: window.destroy())
 	
-	window.show_all()
+   window.show_all()
 
 # geometry is an improper list of ints
 # buttons is a list of: [["button_1_label, button_1_action],
@@ -1964,7 +1956,73 @@ def dialog_box_of_buttons_with_widget(window_name, geometry, buttons, extra_widg
 	
 	window.show_all()
 
+# A dialog box with radiobuttons e.g. to cycle thru loops
+#
+# the button list shall be in the form of:
+# [[button_label1, "button_function1"],
+#  [button_label2, "button_function2"]]
+#
+# function happens when toggled
+# obs: button_functions are strings, but can be tuples for multiple functions
+# go_function is string too!
+# selected button is the button to be toggled on (default is first)
+#
+def dialog_box_of_radiobuttons(window_name, geometry, buttons,
+                               go_button_label, go_button_function,
+                               selected_button = 0):
+
+   def go_function_event(widget, button_ls):
+      eval(go_button_function)
+            
+      window.destroy()
+      return False
+
+   # main line
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   scrolled_win = gtk.ScrolledWindow()
+   outside_vbox = gtk.VBox(False, 2)
+   inside_vbox = gtk.VBox(False, 0)
+   button_hbox = gtk.HBox(False, 0)
+
+   window.set_default_size(geometry[0], geometry[1])
+   window.set_title(window_name)
+   inside_vbox.set_border_width(2)
+   window.add(outside_vbox)
+   outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
+   scrolled_win.add_with_viewport(inside_vbox)
+   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+
+   button = None
+   button_ls = []
+   for button_info in buttons:
+      button_label = button_info[0]
+      callback = button_info[1]
+      button = gtk.RadioButton(button, button_label)
+
+      # BL says:: in python we should pass the callback as a string
+      if type(callback) is StringType:
+         def callback_func(button, call):
+            eval(call)
+         button.connect("toggled", callback_func, callback)
+      else:
+         button.connect("toggled", callback)
+
+      inside_vbox.pack_start(button, False, False, 2)
+      button_ls.append(button)
+
+   outside_vbox.set_border_width(2)
+   go_button     = gtk.Button(go_button_label)
+   outside_vbox.pack_end(go_button, False, False, 2)
+   go_button.connect("clicked", go_function_event, button_ls)
+   # switch on the first or selected button
+   # somehow I need to emit the toggled signal too (shouldnt have to!?)
+   button_ls[selected_button].set_active(True)
+   button_ls[selected_button].toggled()
+
+   window.show_all()
+
 # A gui showing views
+#
 def views_panel_gui():
 
 	number_of_views = n_views()

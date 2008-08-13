@@ -278,7 +278,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	rc = rotation_centre()
 	ls = [45.6, 15.8, 11.8]
 	r = sum([rc[i] - ls[i] for i in range(len(rc))])
-	print "BL DEBUG:: r and imol is", r, imol
+	#print "BL DEBUG:: r and imol is", r, imol
 	
 	self.failIf(r > 0.66, "Bad placement of terminal residue")
 
@@ -490,12 +490,13 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    
 	    o = grep_to_list("CISPEP", tmp_file)
 	    self.failUnlessEqual(len(o), 3)
-	    txt_str = "CISPEPs: "
-	    for cis in o:
-		    txt_str += cis
-	    # print txt_str
+	    #txt_str = "CISPEPs: "
+	    #for cis in o:
+		#    txt_str += cis
+	    #print txt_str
+		
 	    # self.failUnlessEqual("4", parts)   # this temporarily until MMDB works properly
-	    # self.failUnlessEqual("3", parts)   # this is once MMDB works properly with CIS
+	    #self.failUnlessEqual("3", parts)   # this is once MMDB works properly with CIS
 	    
 
     def test16_0(self):
