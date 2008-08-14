@@ -4514,6 +4514,19 @@ GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
 
 
 #if (GTK_MAJOR_VERSION > 1) 
+void show_restraints_editor_by_index(int menu_item_index) {
+   
+   graphics_info_t g;
+   std::vector<std::string> v = g.Geom_p()->monomer_types();
+   for (unsigned int i=0; i<v.size(); i++) {
+      if (i==menu_item_index)
+	 show_restraints_editor(v[i].c_str());
+   }
+} 
+#endif 
+
+
+#if (GTK_MAJOR_VERSION > 1) 
 void show_restraints_editor(const char *monomer_type) {
 
    if (graphics_info_t::use_graphics_interface_flag) {

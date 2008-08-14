@@ -10460,14 +10460,7 @@ on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button
   show_restraints_editor(t);
 #else
   gint iactive = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_box));
-  GList *dlist = gtk_container_children(GTK_CONTAINER(combo_box));
-  int count = 0;
-  while (dlist) {
-    t = GTK_LABEL(dlist->data)->label;
-    printf("debug iactive %d vs count %d %s %s\n", iactive, count, dlist, t);
-    count++;
-    dlist = dlist->next;
-  } 
+  show_restraints_editor_by_index(iactive);
 #endif
   gtk_widget_destroy(dialog);
 }
