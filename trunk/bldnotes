@@ -15,9 +15,6 @@
 
    o read_refmac_log to read refmac XML output (if there)
 
-   o python's read_refmac_log to run after schemey refmac run 
-	 (if we have pygtk)?
-
    o schemey run-refmac to work with twinning/sad etc.
 
    o ribbons from aesop python things from CCP4MG (at some point)
@@ -59,8 +56,6 @@
 
    o high resolution auto-build
 
-   o find 32/64 bit povray exe (WinCoot) [Yen-Chywan]
-
 
 ---------------
 * DONE THINGS *
@@ -75,5 +70,14 @@
 * Done
 
    o auto-mutate after add terminal residue with sequence
+
+* Done
+
+   o find 32/64 bit povray exe (WinCoot) [Yen-Chywan]
+
+* Done
+
+   o python's read_refmac_log to run after schemey refmac run 
+	 (if we have pygtk)?
 
 * Done
