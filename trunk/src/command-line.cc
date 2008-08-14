@@ -311,6 +311,14 @@ handle_command_line_data(command_line_data cld) {
       graphics_info_t::command_line_scripts->push_back(cld.script[i]);
    }
 
+   // command line scripting (direct using -c)
+   if (cld.script_is_python_flag)
+      graphics_info_t::command_line_commands.is_python = 1;
+   for (unsigned int i=0; i<cld.command.size(); i++) {
+      graphics_info_t::command_line_commands.commands.push_back(cld.command[i]);
+   }
+
+
    // coordinates
 
    for (unsigned int i=0; i< cld.coords.size(); i++) { 
@@ -357,31 +365,6 @@ handle_command_line_data(command_line_data cld) {
    if (cld.disable_state_script_writing)
       graphics_info_t::disable_state_script_writing = 1;
 
-
-   // -c script?
-   if (0) {  // don't run this here - run it where scripts are run - in run_command_line_scripts().
-   if (cld.command.size() > 0) {
-#ifdef USE_PYTHON      
-      if (cld.script_is_python_flag) {
-         for (int i=0; i<cld.command.size(); i++) { 
-	    std::cout << "====: run string as python: " << cld.command[i] << std::endl;
-            safe_python_command(cld.command[i].c_str());
-         }
-      } else {
-         for (int i=0; i<cld.command.size(); i++) {
-	    std::cout << "====: run string as scheme: " << cld.command[i] << std::endl;
-            safe_scheme_command(cld.command[i].c_str());
-         }
-      }
-#else       
-      for (int i=0; i<cld.command.size(); i++) {
-         std::cout << "====: run string as scheme: " << cld.command[i] << std::endl;
-         safe_scheme_command(cld.command[i].c_str());
-      }
-#endif      
-   } 
-   }
-   
    //
    if (cld.try_listener) { 
       std::cout << "INFO:: setting port and host "

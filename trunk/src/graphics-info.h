@@ -437,6 +437,15 @@ namespace coot {
     float fvalue2;
     float fvalue3;
   };
+
+  class command_line_commands_t { 
+  public:
+    std::vector<std::string> commands;
+    bool is_python;
+    command_line_commands_t() { 
+      is_python = 0;
+    } 
+  }; 
   
 } 
 
@@ -1847,6 +1856,7 @@ public:
    static short int guile_gui_loaded_flag;
    static short int python_gui_loaded_flag;
    static std::vector<std::string> *command_line_scripts;
+   static coot::command_line_commands_t command_line_commands;
 
    // background colour
    static float *background_colour;
