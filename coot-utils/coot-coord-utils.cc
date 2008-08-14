@@ -2021,7 +2021,7 @@ coot::util::three_letter_to_one_letter(const std::string &resname) {
    
 
    if (! done_locally) { 
-      // This casting should not be required with a modern mmdb.
+      // This casting should not be required with a modern mmdb. (It isn't).
       Get1LetterCode(resname.c_str(), r);
       n = r[0];
    }

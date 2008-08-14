@@ -139,6 +139,17 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    
    if (atom_sel.read_success == 1) {
 
+
+      // LINK info:
+      int n_models = atom_sel.mol->GetNumberOfModels();
+      std::cout << "INFO:: Found " << n_models << " models\n";
+      for (int imod=1; imod<=n_models; imod++) {
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 int n_links = model_p->GetNumberOfLinks();
+	 std::cout << "   Model "  << imod << " had " << n_links << " links\n";
+      }
+      
+
       //
       // and move mol_class_info to indexed molecule[n_molecules];
       // note indexing difficulties/considerations.

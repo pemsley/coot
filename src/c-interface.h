@@ -4924,6 +4924,9 @@ void store_fixed_atom_dialog(GtkWidget *w);
 GtkWidget *wrapped_create_fixed_atom_dialog();
 void clear_fixed_atoms_all();
 
+/* produce debugging output from problematic atom picking  */
+void set_debug_atom_picking(int istate);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Partial Charge                                          */

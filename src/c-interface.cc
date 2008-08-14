@@ -3540,6 +3540,12 @@ void clear_pending_picks() {
    g.clear_pending_picks();
 }
 
+/* produce debugging output from problematic atom picking  */
+void set_debug_atom_picking(int istate) {
+   graphics_info_t::debug_atom_picking = istate;
+} 
+
+
 #include "gl-matrix.h"
 void print_view_matrix() { 		/* print the view matrix */
 

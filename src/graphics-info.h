@@ -3031,6 +3031,10 @@ public:
    static coot::pseudo_restraint_bond_type pseudo_bonds_type;
 #endif // HAVE_GSL
 
+
+   // ---- a debugging thing for user to give me feedback
+   static int debug_atom_picking;
+
    // ---- default new atoms b factor
    static float default_new_atoms_b_factor; 
 

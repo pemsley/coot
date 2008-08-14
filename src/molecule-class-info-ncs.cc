@@ -1687,14 +1687,15 @@ molecule_class_info_t::apply_ncs_to_view_orientation(const clipper::Mat33<double
 	       
 	       // we need to go to the target_chain
 	       clipper::RTop_orth ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop;
- 	       std::cout << "DEBUG:: Last ghost from " << current_chain << " to target chain "
- 			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
+ 	       // std::cout << "DEBUG:: Last ghost from " << current_chain << " to target chain "
+	       // << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
 	       r = ncs_mat.rot() * r;
 	       t = current_position.transform(ncs_mat);
 	       apply_it = 1;
 	    } else {
- 	       std::cout << "DEBUG:: Not last ghost from " << current_chain << " to target chain "
- 			 << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
+ 	       // std::cout << "DEBUG:: Not last ghost from " << current_chain
+	       // << " to target chain "
+	       // << ncs_ghosts[i_ghost_chain_match].target_chain_id << std::endl;
 	       clipper::RTop_orth ncs_mat_1 = ncs_ghosts[i_ghost_chain_match  ].rtop;
 	       clipper::RTop_orth ncs_mat_2 = ncs_ghosts[i_ghost_chain_match+1].rtop;
 	       r = ncs_mat_2.rot().inverse() * (ncs_mat_1.rot() * r);

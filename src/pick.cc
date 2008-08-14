@@ -135,7 +135,8 @@ atom_pick(GdkEventButton *event) {
 
    if (check_pick) { 
       int n_pickable = 0;
-      for (int ii=(graphics_info_t::n_molecules()-1); ii>=0; ii--) {
+      int max_mol_no = graphics_info_t::n_molecules() - 1;
+      for (int ii=max_mol_no; ii>=0; ii--) {
 
 	 if (graphics_info_t::molecules[ii].has_model()) { 
 	    if (graphics_info_t::molecules[ii].atom_selection_is_pickable()) {
@@ -158,6 +159,18 @@ atom_pick(GdkEventButton *event) {
 	 }
       }
 
+      if (graphics_info_t::debug_atom_picking) {
+	 std::cout << "   == Level 2 atom picking diagnostic (send to Paul) ==\n";
+	 for (int ii=max_mol_no; ii>=0; ii--) {
+	    std::cout << "   MolNo " << ii << " of "
+		      << graphics_info_t::n_molecules() << ":  " 
+		      << graphics_info_t::molecules[ii].has_model() << " " 
+		      << graphics_info_t::molecules[ii].atom_selection_is_pickable() << " "
+		      << graphics_info_t::molecules[ii].name_ << " "
+		      << "\n";
+	 }
+      }
+      
       if (n_pickable == 0) {
 	 std::string s = "There were no pickable (\"Active\") molecules!";
 	 GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(s);
