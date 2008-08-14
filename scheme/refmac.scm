@@ -216,7 +216,12 @@
 						 f-col sig-f-col)
 					   r-free-bit)))
 				
-				(apply make-and-draw-map-with-refmac-params args)))))
+				(apply make-and-draw-map-with-refmac-params args)))
+			  (if (coot-has-pygtk?)
+				  (let ((s (string-append "read_refmac_log("
+									  (number->string imol) ", \""
+									  refmac-log-file-name "\")")))
+					(run-python-command s)))))
 
 		      (begin 
 			(format #t "refmac failed - no new map and molecule available~%")))))))))

@@ -433,7 +433,7 @@
 	(gtk-widget-show menuitem2)
 	
 	;; 
-      (if (coot-has-python?)
+      (if (coot-has-pygtk?)
 
 	  (add-simple-coot-menu-menuitem
 	   submenu "Dock Sequence (py)..."

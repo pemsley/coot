@@ -30,7 +30,12 @@ coot_povray_log_file_name = "coot-povray.log"
 # think is differnt under non windows!
 import os
 if (os.name == 'nt'):
-	povray_command_name = "pvengine"
+	import platform
+	bits, junk = platform.architecture()
+	if (bits == '64bit'):
+		povray_command_name = "pvengine64"
+	else:
+		povray_command_name = "pvengine"
 else:
 	povray_command_name = "povray"
 

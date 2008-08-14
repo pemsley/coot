@@ -1694,3 +1694,13 @@ def run_concurrently(cmd, args):
     else:
         print "WARNING:: could not find %s, so not running this program" %cmd
         return False
+
+# python command to see if we have pygtk available
+# return True if availabel otherwise False
+#
+def coot_has_pygtk():
+	import sys
+	if ('pygtk' in sys.modules.keys()):
+		return True
+	else:
+		return False
