@@ -1461,7 +1461,8 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	       // terminal_res_asc.mol->WritePDBASCII("terminal_res_asc.pdb");
 	       
-	       atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
+	       //atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
+	       atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc, res_type);
 
 // 	       std::cout << "-------------- tmp_asc --------" << std::endl;
 // 	       debug_atom_selection_container(tmp_asc);
@@ -1481,6 +1482,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	       coot::residue_spec_t rs(unconst_res_p);
 	       graphics_info_t::molecules[imol].remove_ter_atoms(rs);
+
 	       
 	       if (! immediate_addition_flag) { 
 		  make_moving_atoms_graphics_object(tmp_asc);

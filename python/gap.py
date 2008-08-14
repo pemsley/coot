@@ -48,8 +48,8 @@ def fit_gap(imol, chain_id, start_resno, stop_resno, sequence=""):
 			result_a = low_density_average(imol_map, imol, chain_id, start_resno, stop_resno)
 			result_b = low_density_average(imol_map, imol_copy, chain_id, start_resno, stop_resno)
 
-			print "BL DEBUG:: fit a, b:", result_a, result_b
-			cut_off = 0.99
+			# print "BL DEBUG:: fit a, b:", result_a, result_b
+			cut_off = 0.90
 			if (min(result_a,  result_b) / max(result_a, result_b) >= cut_off):
 				# solutions are identical?! (cut-off 99%)
 				# we keep only the first one
@@ -77,7 +77,7 @@ def fit_gap(imol, chain_id, start_resno, stop_resno, sequence=""):
 						selected_button = 1
 
 					go_function = "(close_molecule(" + str(imol_fragment_a) + "), close_molecule(" + str(imol_fragment_b) + "))"
-					dialog_box_of_radiobuttons("Select Loop", [150, 100],
+					dialog_box_of_radiobuttons("Select Loop", [200, 100],
 											   buttons, "  Accept  ",
 											   go_function, selected_button)
 										
