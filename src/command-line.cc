@@ -73,7 +73,7 @@ parse_command_line(int argc, char ** argv ) {
    *
    */
  
-   const char *optstr = "p:m:d:s:"; 
+   const char *optstr = "p:m:d:s:c:"; 
 
      /* 
    * getopt(3) takes our argc, and argv, it also takes
@@ -98,6 +98,7 @@ parse_command_line(int argc, char ** argv ) {
       {"host",       1, 0, 0},
       {"hostname",   1, 0, 0}, // alternate for host
       {"help",       0, 0, 0},
+      {"python",     0, 0, 0},
       {"no-state-script",    0, 0, 0},
       {"no-graphics",        0, 0, 0},
       {"stereo",     0, 0, 0},       // no arguments 
@@ -195,22 +196,27 @@ parse_command_line(int argc, char ** argv ) {
 		     exit(0);
 		  } else {
 
-		     if (arg_str == "no-state-script") {
-			graphics_info_t::run_state_file_status = 0;
+		     if (arg_str == "python") {
+			cld.script_is_python_flag = 1;
 		     } else { 
 
-			if (arg_str == "no-graphics") {
-			   cld.do_graphics = 0;
+			if (arg_str == "no-state-script") {
+			   graphics_info_t::run_state_file_status = 0;
 			} else { 
-			   if (arg_str == "side-by-side") {
-			      cld.hardware_stereo_flag = 2;
+
+			   if (arg_str == "no-graphics") {
+			      cld.do_graphics = 0;
 			   } else { 
-			      if (arg_str == "no-guano") {
-				 cld.disable_state_script_writing = 1;
+			      if (arg_str == "side-by-side") {
+				 cld.hardware_stereo_flag = 2;
 			      } else { 
-				 std::cout << "WARNING! Malformed option - needs an argument: " 
-					   << long_options[option_index].name
-					   << std::endl << std::endl;
+				 if (arg_str == "no-guano") {
+				    cld.disable_state_script_writing = 1;
+				 } else { 
+				    std::cout << "WARNING! Malformed option - needs an argument: " 
+					      << long_options[option_index].name
+					      << std::endl << std::endl;
+				 }
 			      }
 			   }
 			}
@@ -244,7 +250,12 @@ parse_command_line(int argc, char ** argv ) {
 	 break; 
 	 
       case 'c':
-	 cld.command.push_back(optarg);
+         if (optarg) { 
+            std::cout << "command optarg: " << optarg << std::endl;
+	    cld.command.push_back(optarg);
+         } else { 
+            std::cout << "command optarg is NULL " << std::endl;
+         } 
 	 break; 
 	 
       case '?':
@@ -345,6 +356,31 @@ handle_command_line_data(command_line_data cld) {
    // --no-guano used?
    if (cld.disable_state_script_writing)
       graphics_info_t::disable_state_script_writing = 1;
+
+
+   // -c script?
+   if (0) {  // don't run this here - run it where scripts are run - in run_command_line_scripts().
+   if (cld.command.size() > 0) {
+#ifdef USE_PYTHON      
+      if (cld.script_is_python_flag) {
+         for (int i=0; i<cld.command.size(); i++) { 
+	    std::cout << "====: run string as python: " << cld.command[i] << std::endl;
+            safe_python_command(cld.command[i].c_str());
+         }
+      } else {
+         for (int i=0; i<cld.command.size(); i++) {
+	    std::cout << "====: run string as scheme: " << cld.command[i] << std::endl;
+            safe_scheme_command(cld.command[i].c_str());
+         }
+      }
+#else       
+      for (int i=0; i<cld.command.size(); i++) {
+         std::cout << "====: run string as scheme: " << cld.command[i] << std::endl;
+         safe_scheme_command(cld.command[i].c_str());
+      }
+#endif      
+   } 
+   }
    
    //
    if (cld.try_listener) { 
