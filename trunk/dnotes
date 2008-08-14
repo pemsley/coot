@@ -22,22 +22,30 @@
      I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
      211 in ssm_superpose.h
 
+
+
+114 Done.
+
    o need fixup for gtk_combo_box_get_active_text(null). jackal 1hd
 
+* Done.
+
    o -c script is half done. impala. 1hd
+
+* Done.
 
    o build-hardy-python makes a build where cootaneer_bl_gui fails (on
      some python lib). pygtk failed to be configured?  1hd
 
    o fix writing restraints from restraints editor.
 
+* Done.
+
    o Why does the residue type not work when adding a new residue?
      Because (set-add-terminal-residue-default-residue-type "UNK")
      perhaps?
 
-
-
-110 Done.
+* Yes
 
 
    o documentation for NCS chain edits
