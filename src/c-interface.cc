@@ -6260,6 +6260,13 @@ void run_command_line_scripts() {
 
     for (unsigned int i=0; i<graphics_info_t::command_line_scripts->size(); i++)
        run_script((*graphics_info_t::command_line_scripts)[i].c_str());
+
+    for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
+       if (graphics_info_t::command_line_commands.is_python)
+	  safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
+       else 
+	  safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
+    
 }
 
 
