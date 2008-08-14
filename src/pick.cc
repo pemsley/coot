@@ -165,7 +165,8 @@ atom_pick(GdkEventButton *event) {
 	    std::cout << "   MolNo " << ii << " of "
 		      << graphics_info_t::n_molecules() << ":  " 
 		      << graphics_info_t::molecules[ii].has_model() << " " 
-		      << graphics_info_t::molecules[ii].atom_selection_is_pickable() << " "
+		      << graphics_info_t::molecules[ii].is_displayed_p() << " " 
+		      << graphics_info_t::molecules[ii].atom_selection_is_pickable() << "  "
 		      << graphics_info_t::molecules[ii].name_ << " "
 		      << "\n";
 	 }
