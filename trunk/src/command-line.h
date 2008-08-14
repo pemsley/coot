@@ -13,6 +13,7 @@ public:
    std::vector<std::string> command; // strings to to be evaluated
 				     // from the command line
    short int hardware_stereo_flag;
+   bool script_is_python_flag;
    int port;
    std::string hostname;
    std::string ccp4_project;
@@ -26,6 +27,7 @@ public:
      try_listener = 0;
      do_graphics = 1; // use graphics by default
      disable_state_script_writing = 0; // don't disable, by default
+     script_is_python_flag = 0;
    }
    void handle_immediate_settings(); 
 };
