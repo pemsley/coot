@@ -480,6 +480,7 @@ EOF
       return 1
    fi
 else 
+   echo not running tests.
    return 1
 fi
 
@@ -1920,7 +1921,7 @@ export PATH
 # python
 #
 python_version=python2.5
-pver=2.5.1
+pver=2.5.2
 
 if test -n "$build_python" ; then 
     echo BUILDING ${python_version}:
@@ -2694,7 +2695,11 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
       echo not doing tar files for nightlies: $do_nightlies
    fi
 else
-   echo coot test failed
+   if test $run_tests = true ; do 
+      echo coot test failed
+   else 
+      echo coot not tested.
+   fi
    echo fail-test > $LOGS/$build_type-test-status
 fi
 

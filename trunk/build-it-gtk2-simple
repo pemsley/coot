@@ -2449,7 +2449,7 @@ if test -n "$build_gsl" ; then
 #
 # wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
 # wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
-gsl_version=1.8
+gsl_version=1.11
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz

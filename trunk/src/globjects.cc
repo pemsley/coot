@@ -307,6 +307,9 @@ short int graphics_info_t::show_symmetry = 0;
 
 float    graphics_info_t::box_radius = 10;
 
+
+int      graphics_info_t::debug_atom_picking = 0;
+
 // dragged moving atom:
 int       graphics_info_t::moving_atoms_dragged_atom_index = -1;
 short int graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;

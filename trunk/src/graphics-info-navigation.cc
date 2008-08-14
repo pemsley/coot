@@ -488,13 +488,13 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 // 	    std::cout << "FAI:: searching atom_name :" << p.first << std::endl;
 // 	    std::cout << "FAI:: searching altconf   :" << altconf << ":" << std::endl;
 
-	    AtomSel.mol->SelectAtoms (selHnd, 0, (char *) go_to_atom_chain(),
+	    AtomSel.mol->SelectAtoms (selHnd, 0, go_to_atom_chain(),
 				      go_to_atom_residue(), // starting resno, an int
-				      (char *) go_to_atom_inscode_.c_str(), // any insertion code
+				      go_to_atom_inscode_.c_str(), // any insertion code
 				      go_to_atom_residue(), // ending resno
-				      (char *) go_to_atom_inscode_.c_str(), // ending insertion code
+				      go_to_atom_inscode_.c_str(), // ending insertion code
 				      "*", // any residue name
-				      (char *) p.first.c_str(), // atom name
+				      p.first.c_str(), // atom name
 				      "*", // elements
 				      "*"
 				      ); 

@@ -2878,12 +2878,6 @@ e.g.
 
 @code{(copy-residue-range-from-ncs-master-to-others 0 "A" 1 5)}
 
-Note that you can currently only apply NCS edits to residues that exist
-in the ``other'' chains.  If for example, you had introduced/added
-residues 1 to 5 in the ``A'' chain and wanted to copies those over to
-the other molecules, then that would not work @footnote{This is something that
-needs to be corrected in a forthcoming version of Coot}.
-
 @node    Running Refmac
 @section Running Refmac 
 @cindex refmac

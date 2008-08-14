@@ -31,10 +31,18 @@
 
    o fix writing restraints from restraints editor.
 
+   o Why does the residue type not work when adding a new residue?
+     Because (set-add-terminal-residue-default-residue-type "UNK")
+     perhaps?
 
 
 
 110 Done.
+
+
+   o documentation for NCS chain edits
+
+* Done.
 
    o the scrollable map needs to be (correctly?) saved in state file. 1hd.
 
@@ -6450,6 +6458,19 @@ Tue Aug  5 23:11:18 BST 2008
     residues 84 to 93 into a helix.  (you can cut them out from the
     rest of the protein to make things clearer).
 
+----
+Wed Aug 13 12:44:28 BST 2008
+
+    It would be nice if the scripting window(s) were available via
+    some sort of (iconfied?) combo box in the horizontal toolbar.
+
+    rajan@mbu.iisc.ernet.in 12 Aug 2008.
+
+----
+Wed Aug 13 12:52:23 BST 2008
+
+    Fix up the atom ordering in modified (added to) residues
+    Steven Sheriff 12 Aug 2008.
 
 
-
+-----
