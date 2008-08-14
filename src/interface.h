@@ -146,8 +146,6 @@ GtkWidget* create_run_refmac_nolabels_help_dialog (void);
 #if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
 char* coot_revision(void);
 GtkWidget* create_aboutdialog (void);
-#endif /* GTK_MAJOR_VERSION */ 
-#if (GTK_MAJOR_VERSION  > 1 )
 GtkWidget* create_coords_filechooserdialog1(void);
 GtkWidget* create_dataset_filechooserdialog1(void);
 GtkWidget* create_map_name_filechooserdialog1(void);
