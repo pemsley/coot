@@ -12,6 +12,38 @@
 <!-- sentinels in interface -->
 
 <hr>
+    <p>I noticed that the refinement Chi squared values were not being
+    added to the Accept/Reject dialog in the Gtk1 version.  So I have
+    fixed that.
+
+    <p>The restraints editor has been enabled for the Gtk 2.3 (Centos
+    4.6) version.
+
+    <p>I have at last moved over to using mmdb 1.11.  That involved a
+    non-backwardly-compatible change, so all the Coot builds need to
+    be built with mmdb 1.11 from now on.  The CISPEP test passes now -
+    horrah! (i.e. Coot checks and corrects the cispep cards when
+    writing out a PDB file now).
+
+    <p>Bernhard has enabled loop fitting backwards and forward in the
+    Python version and done something with the icons in the GTK+2
+    version.  Now they look blurry instead of pixelated :-).  But more
+    to the point, perhaps, GTK+2 Coot now fits on laptops screens
+    (including the <a
+    href="http://www.ysbl.york.ac.uk/~cowtan/coot/coot-eee.png ">Eee
+    PC</a> according to Kevin).
+
+    <p>The Ramachandran restraints have had lots of testing - and
+    seeme to work just fine.  I need to find some test examples from
+    the PDB where Ramachandran restraints on loops would fix up
+    geometry - I need to get this sorted before going to the IUCr - I
+    have 6 days to write the talk.
+
+    <p>I went to see Arsenal vs Juventus and Hamburg vs Real Madrid at
+    the Emirates the other weekend.  It was good (Arsenal failed to
+    win however).
+
+<hr>
     <p>Yay!  Ramachandran restraints work (or seem to for
     me). Revision 1318.
 
@@ -648,7 +680,7 @@ all platforms. Very tedious.
     <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
 <!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
 <!-- hhmts start -->
-Last modified: Tue Aug  5 04:07:31 BST 2008
+Last modified: Thu Aug 14 16:15:14 BST 2008
 <!-- hhmts end -->
   </body>
 </html>
