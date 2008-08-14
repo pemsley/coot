@@ -41,7 +41,7 @@
 
 @flushright
 Paul Emsley 
-@email{emsley@@ysbl.york.ac.uk}
+@email{paul.emsley@@bioch.ox.ac.uk}
 @end flushright
 
 @vskip 10mm
@@ -186,10 +186,10 @@ Coot is not:
 
 @itemize
 
-@item CCP4's official Molecular Graphics program @footnote{Coot is
-    @emph{part of} that project. The official program (which contains
-     parts of Coot), ccp4mg is under the direct control of Liz Potterton
-     and Stuart McNicholas.}
+@item CCP4's official Molecular Graphics program @footnote{
+    The official CCP4 graphics program (which contains parts of Coot
+    (and Coot contains parts of CCP4MG)), CCP4MG is under the
+    direct control of Liz Potterton and Stuart McNicholas.}
 
 @item a program to do refinement @footnote{although it does have a
     local refinement algorithm it is no substitute for refmac
@@ -282,21 +282,23 @@ shell script.
 Rather that using the GUI to read in information, you can use the
 following command line arguments:
 @itemize
-@item @code{--script} to run a script on start up (but see Section @ref{Scripting})
+@item @code{--c @emph{cmd}} to run a command @code{@emph{cmd}} on start up
+@item @code{--script @emph{filename}} to run a script on start up (but see Section @ref{Scripting})
 @item @code{--no-state-script} don't run the @t{0-coot.state.scm} script on start up
-@item @code{--pdb}  for pdb/coordinates file
-@item @code{--coords}  for SHELX .ins/.res and CIF files
-@item @code{--data} for mtz, phs or mmCIF data file
-@item @code{--auto} for auto-reading mtz files (mtz file has the default labels FWT, PHWT)
-@item @code{--map}  for a map (currently CCP4-format only)
-@item @code{--dictionary} read in a cif monomer dictionary 
+@item @code{--pdb @emph{filename}}  for pdb/coordinates file
+@item @code{--coords @emph{filename}}  for SHELX .ins/.res and CIF files
+@item @code{--data @emph{filename}} for mtz, phs or mmCIF data file
+@item @code{--auto @emph{filename}} for auto-reading mtz files (mtz file has the default labels FWT, PHWT)
+@item @code{--map @emph{filename}}  for a map (currently CCP4-format only)
+@item @code{--dictionary @emph{filename}} read in a cif monomer dictionary 
 @item @code{--help} print command line options
 @item @code{--stereo} start up in hardware stereo mode
 @item @code{--version} print the version of coot and exit
 @item @code{--no-guano} don't leave ``Coot droppings'' i.e. don't write state and 
         history files on exit.
 @item @code{--side-by-side} start in side-by-side stereo mode
-
+@item @code{--python} an arugment with no parameters - used to tell Coot that 
+        the -c arguments should be process with python (rather than as scheme).
 @end itemize
 
 So, for example, one might use:
@@ -568,6 +570,12 @@ describing the particular features and are documented in Chapter
 @cindex version number 
 The version number of Coot can be found at the top of the ``About''
 window (@command{Help -> About}).
+
+
+This will return the version of coot:
+
+@code{$ coot --version}
+
 
 There is also a script function to return the version of coot:
 
@@ -3904,7 +3912,7 @@ degrees is suspicicous.  Unexpected CIS peptide bonds show up red.
 
 This checks the the bonds, angles and planes geometry of the model is
 consistent with the dictionary @footnote(the Refmac dictionary, that
-is}.  The block size is correlated with the geometry distortion and the
+is).  The block size is correlated with the geometry distortion and the
 tooltip tells you the most distorted geometrical feature in the residue.
 A ``plane'' distortion can refer to the peptide plane.
 
