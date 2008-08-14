@@ -2764,6 +2764,7 @@ int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode);
 #if (GTK_MAJOR_VERSION > 1) 
 GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog();
 void show_restraints_editor(const char *monomer_type);
+void show_restraints_editor_by_index(int menu_item_index);
 #endif
 
 void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name);
