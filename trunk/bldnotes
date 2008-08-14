@@ -28,8 +28,6 @@
 
    o alternatives for loop building (wait for Kevin's implementation)
 
-   o fit_gap in both direction => dialog to select A or B
-
    o add terminal residue (if Gly, Pro) use different target ramachandran
 	 function for placement of term residue;
 	 maybe we want to try general rama first, then Pro, then Gly (if we 
@@ -59,8 +57,6 @@
 
    o python: rapper-gui and what-check
 
-   o auto-fit-mutate after add terminal residue with sequence
-
    o high resolution auto-build
 
    o find 32/64 bit povray exe (WinCoot) [Yen-Chywan]
@@ -71,5 +67,13 @@
 ---------------
 
    o make coot icons anti-alias
+
+* Done
+
+   o fit_gap in both direction => dialog to select A or B
+
+* Done
+
+   o auto-mutate after add terminal residue with sequence
 
 * Done
