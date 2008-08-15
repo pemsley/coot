@@ -2050,22 +2050,26 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
       }
     }
   } else {
-    if (refmac_use_twin_flag) {
-      if (saved_f_phi_columns->f_cols.size() > 0 || saved_f_phi_columns->i_cols.size() > 0) {
-	gtk_menu_set_active(GTK_MENU(fiobs_menu), 0);
-      }
-    } else {
-      // default setting F, SigF and freeR (doublication?)
-      if (saved_f_phi_columns->f_cols.size() > 0) {
-	gtk_menu_set_active(GTK_MENU(fobs_menu), 0);
-	// no need to set?!
-	//saved_f_phi_columns->selected_refmac_fobs_col = 0;
-      }
+    // set the F/Is for twin?!
+    if (saved_f_phi_columns->f_cols.size() > 0 || saved_f_phi_columns->i_cols.size() > 0) {
+      gtk_menu_set_active(GTK_MENU(fiobs_menu), 0);
+    }
+    // F+/F- ignoring saved position?! FIXME
+    if (saved_f_phi_columns->fpm_cols.size() > 0 && saved_f_phi_columns->sigfpm_cols.size() > 0) {
+      gtk_menu_set_active(GTK_MENU(fpm_menu), 0);
+      saved_f_phi_columns->selected_refmac_fp_col = 0;
+      saved_f_phi_columns->selected_refmac_fm_col = 1;
+      saved_f_phi_columns->selected_refmac_sigfp_col = 0;
+      saved_f_phi_columns->selected_refmac_sigfm_col = 1;
+    }
+    // default setting F, SigF and freeR (doublication?)
+    if (saved_f_phi_columns->f_cols.size() > 0) {
+      gtk_menu_set_active(GTK_MENU(fobs_menu), 0);
+      saved_f_phi_columns->selected_refmac_fobs_col = 0;
     }
     if (saved_f_phi_columns->r_free_cols.size() > 0) {
       gtk_menu_set_active(GTK_MENU(r_free_menu), 0);
-      // no need to set?!
-      //saved_f_phi_columns->selected_refmac_r_free_col = 0;
+      saved_f_phi_columns->selected_refmac_r_free_col = 0;
     } 
   }
 

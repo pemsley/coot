@@ -327,6 +327,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
         if (refmac_use_sad_state() or refmac_use_twin_state()):
             # for now we have to assume the 'standard' name, let's see if we can do better...
+			# this may not be necessary!?
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, "FP", "SIGFP"] + r_free_bit
         else:
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, f_col, sig_f_col] + r_free_bit
