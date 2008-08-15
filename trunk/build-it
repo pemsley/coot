@@ -205,7 +205,8 @@
 # 2.41 20080518 Update the status reporting system here (sync with gtk1 version).
 # 2.42 20080624 Add guile-lib to build.
 # 2.43 20080812 Use mmdb version 1.11
-script_version=2.43
+# 2.44 20080815 Fix test info syntax error.
+script_version=2.44
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2695,7 +2696,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
       echo not doing tar files for nightlies: $do_nightlies
    fi
 else
-   if test $run_tests = true ; do 
+   if test "$run_tests" = "true" ; then
       echo coot test failed
    else 
       echo coot not tested.
