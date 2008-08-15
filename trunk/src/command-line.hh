@@ -12,6 +12,7 @@ public:
    std::vector<std::string> dictionaries;
    std::vector<std::string> command; // strings to to be evaluated
 				     // from the command line
+   std::vector<std::string> accession_codes;
    short int hardware_stereo_flag;
    bool script_is_python_flag;
    int port;

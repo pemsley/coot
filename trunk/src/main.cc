@@ -91,7 +91,7 @@
 #include "Cartesian.h"
 #include "Bond_lines.h"
 
-#include "command-line.h"
+#include "command-line.hh"
 
 #include "graphics-info.h"
 // Including python needs to come after graphics-info.h, because

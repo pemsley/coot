@@ -235,7 +235,7 @@ coot_real_SOURCES = \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
 	command-line.cc		 \
-	command-line.h		 \
+	command-line.hh		 \
 	coot-database.hh	 \
 	coot-align.cc 		 \
 	coot-align.hh		 \
