@@ -3626,11 +3626,11 @@ Heres how to use it:
 @code{(transform-map-using-lsq-matrix @emph{imol-ref ref-chain
 ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start
 mov-resno-end imol-map about-pt radius})}
- 
+
+
 Hopefully the arguments are self explanatory (@code{@emph{ref}} refers
 to the reference molecule, of course and @code{@emph{about-pt}} is a
 3-number list such as is returned by @code{(rotation-centre)}).
-
 
 We can now export that map, if we want.
 
@@ -3666,7 +3666,6 @@ interface to other programs.
 * Molprobity Tools Interface::
 * GLN and ASN B-factor Outliers::
 * Validation Graphs::
-* Pukka Puckers?::
 @end menu
 
 @node    Ramachandran Plots
@@ -3912,15 +3911,19 @@ degrees is suspicicous.  Unexpected CIS peptide bonds show up red.
 
 @subsection Geometry
 
+@menu
+* Pucker Puckers?::
+@end menu
+
 This checks the the bonds, angles and planes geometry of the model is
-consistent with the dictionary @footnote(the Refmac dictionary, that
+consistent with the dictionary @footnote{the Refmac dictionary, that
 is).  The block size is correlated with the geometry distortion and the
 tooltip tells you the most distorted geometrical feature in the residue.
 A ``plane'' distortion can refer to the peptide plane.
 
-@node Pukka Puckers??
-@section Pukka Puckers??
-@cindex  Pukka Puckers??
+@node Pukka Puckers?
+@section Pukka Puckers?
+@cindex  Pukka Puckers?
 
 A pucker checker has been incorporated into Coot after the method
 described in their Molprobity paper @footnote{Davis @emph{et al.} (2007)
