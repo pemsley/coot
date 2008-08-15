@@ -24,6 +24,7 @@
 
 
 
+
 114 Done.
 
    o need fixup for gtk_combo_box_get_active_text(null). jackal 1hd
@@ -46,7 +47,6 @@
      perhaps?
 
 * Yes
-
 
    o documentation for NCS chain edits
 
@@ -6479,6 +6479,13 @@ Wed Aug 13 12:52:23 BST 2008
 
     Fix up the atom ordering in modified (added to) residues
     Steven Sheriff 12 Aug 2008.
+
+
+---
+Thu Aug 14 23:18:24 BST 2008
+
+    
+
 
 
 -----

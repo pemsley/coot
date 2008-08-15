@@ -166,18 +166,31 @@ get_atom_selection(std::string pdb_name) {
 	      << MMDBManager->get_cell().c << " "
 	      << MMDBManager->get_cell().alpha << " "
 	      << MMDBManager->get_cell().beta  << " "
-	      << MMDBManager->get_cell().gamma << "\n"; 
-    
-    // New style: (that's why this is a bit of a mess)
+	      << MMDBManager->get_cell().gamma << "\n";
+
+
     // 
-    // make handle_read_draw_molecule use make_asc which add the 
+    
+    // Make handle_read_draw_molecule use make_asc which add the 
     // UDD "atom index".
     //
     if (asc.read_success) {
        asc = make_asc(asc.mol);
+
+       // debug atom names
+       if (0) { 
+	  for (int i=0; i<asc.n_selected_atoms; i++) {
+	     std::cout << i << " "
+		       << asc.atom_selection[i]->GetChainID() << " "
+		       << asc.atom_selection[i]->GetSeqNum() << " :"
+		       << asc.atom_selection[i]->name << ":" <<std::endl;
+	  }
+       }
+
+       
        fix_nucleic_acid_residue_names(asc);
        fix_away_atoms(asc);
-       fix_wrapped_names(asc);
+       // fix_wrapped_names(asc);
     }
     return asc; 
 }
