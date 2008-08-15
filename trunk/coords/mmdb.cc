@@ -190,7 +190,7 @@ get_atom_selection(std::string pdb_name) {
        
        fix_nucleic_acid_residue_names(asc);
        fix_away_atoms(asc);
-       // fix_wrapped_names(asc);
+       fix_wrapped_names(asc);
     }
     return asc; 
 }
