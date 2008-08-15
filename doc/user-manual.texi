@@ -294,6 +294,8 @@ following command line arguments:
 @item @code{--help} print command line options
 @item @code{--stereo} start up in hardware stereo mode
 @item @code{--version} print the version of coot and exit
+@item @code{--code @emph{accession-code}} on starting Coot, get the pdb file and mtz file (if it 
+        exists) from the EDS
 @item @code{--no-guano} don't leave ``Coot droppings'' i.e. don't write state and 
         history files on exit.
 @item @code{--side-by-side} start in side-by-side stereo mode
