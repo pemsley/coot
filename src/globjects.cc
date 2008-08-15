@@ -91,6 +91,8 @@ std::vector<molecule_class_info_t> graphics_info_t::molecules;
 int graphics_info_t::show_paths_in_display_manager_flag = 0;
 std::vector<std::string> *graphics_info_t::command_line_scripts;
 coot::command_line_commands_t graphics_info_t::command_line_commands;
+std::vector<std::string> graphics_info_t::command_line_accession_codes;
+
 
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
 std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;

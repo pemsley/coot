@@ -54,7 +54,7 @@
 // since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
 #include "cc-interface.hh"
-#include "command-line.h"
+#include "command-line.hh"
 
 
 command_line_data
@@ -94,6 +94,7 @@ parse_command_line(int argc, char ** argv ) {
       {"script", 1, 0, 0},
       {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
+      {"code",       1, 0, 0},
       {"port",       1, 0, 0},
       {"host",       1, 0, 0},
       {"hostname",   1, 0, 0}, // alternate for host
@@ -162,6 +163,9 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "ccp4-project") {
 	       cld.ccp4_project = optarg;
+	    }
+	    if (arg_str == "code") {
+	       cld.accession_codes.push_back(optarg);
 	    }
 	    
 	 } else { 
@@ -318,6 +322,11 @@ handle_command_line_data(command_line_data cld) {
       graphics_info_t::command_line_commands.commands.push_back(cld.command[i]);
    }
 
+   // getting map model by passing the accession code:
+   for (unsigned int i=0; i<cld.accession_codes.size(); i++) {
+      graphics_info_t::command_line_accession_codes.push_back(cld.accession_codes[i]);
+   }
+   
 
    // coordinates
 

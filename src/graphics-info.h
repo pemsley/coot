@@ -728,6 +728,7 @@ class graphics_info_t {
    
 public:
 
+   enum { USE_PYTHON_STATE_COMMANDS = 2, USE_SCM_STATE_COMMANDS = 1 };
 
    // 
    void initialize_molecules() { 
@@ -1857,6 +1858,7 @@ public:
    static short int python_gui_loaded_flag;
    static std::vector<std::string> *command_line_scripts;
    static coot::command_line_commands_t command_line_commands;
+   static std::vector<std::string> command_line_accession_codes;
 
    // background colour
    static float *background_colour;

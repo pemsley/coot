@@ -6253,6 +6253,8 @@ void post_python_scripting_window() {
 
 
 /* called from c-inner-main */
+// If you edit this again, move it to graphics_info_t.
+// 
 void run_command_line_scripts() {
 
 //     std::cout << "There are " << graphics_info_t::command_line_scripts->size() 
@@ -6266,7 +6268,25 @@ void run_command_line_scripts() {
 	  safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
        else 
 	  safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
-    
+
+    graphics_info_t g;
+    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
+       std::cout << "get accession code " << graphics_info_t::command_line_accession_codes[i]
+		 << std::endl;
+       std::vector<std::string> c;
+       c.push_back("get-eds-pdb-and-mtz");
+       c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
+       
+#ifdef USE_GUILE
+       std::string sc = g.state_command(c, graphics_info_t::USE_SCM_STATE_COMMANDS);
+       safe_scheme_command(sc.c_str());
+#else	  
+#ifdef USE_PYTHON
+       std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
+       safe_python_command(pc.c_str());
+#endif
+#endif
+    }
 }
 
 

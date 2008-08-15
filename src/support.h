@@ -72,7 +72,7 @@ GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         const gchar     *filename);
 
 
-#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
+#if (GTK_MAJOR_VERSION > 1)
 char* coot_revision(void);
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
