@@ -87,15 +87,36 @@
 	    f-col sig-f-col r-free-col)
 	
     (let* ((local-r-free-col (if (null? r-free-col) '() (car r-free-col)))
-;	   (labin-string
-	   (labin-string (if (string=? f-col "") ""
-			     (apply string-append (append (list "LABIN" " "
-								"FP=" (strip-path f-col) " "
-								"SIGFP=" (strip-path sig-f-col))
-							  (if (null? local-r-free-col) 
-							      '()
-;					     (list " FREE=" (strip-path local-r-free-col))))))
-							      (list " FREE=" (strip-path local-r-free-col)))))))
+		   ; need to check for f-col being a string or list
+	   (labin-string (if (and (string? f-col) (string=? f-col "")) ""
+				(apply string-append (append
+					   (if (= (refmac-use-sad-state) 1)
+						   (list "LABIN" " "
+								 "F+=" (strip-path (car f-col)) " "
+								 "SIGF+=" (strip-path (car sig-f-col)) " "
+								 "F-=" (strip-path (cdr f-col)) " "
+								 "SIGF-=" (strip-path (cdr sig-f-col)))
+						   (if (= (refmac-use-intensities-state) 1)
+							   (list "LABIN" " "
+									 "IP=" (strip-path f-col) " "
+									 "SIGIP=" (strip-path sig-f-col))
+							   (list "LABIN" " "
+									 "FP=" (strip-path f-col) " "
+									 "SIGFP=" (strip-path sig-f-col))))
+					   (if (null? local-r-free-col)
+						   '()
+						   (list " FREE=" (strip-path local-r-free-col)))
+					   (if (= phase-combine-flag 1)
+						   ; we have Phi-FOM pair
+						   (list " - \nPHIB=" (strip-path (car phib-fom-pair)) " "
+								 "FOM=" (strip-path (cdr phib-fom-pair))) '())
+					   (if (= phase-combine-flag 2)
+						   (let ((hl-list (string->list-of-strings (car phib-fom-pair))))
+							 (list  " - \nHLA=" (strip-path (list-ref hl-list 0)) " "
+									"HLB=" (strip-path (list-ref hl-list 1)) " "
+									"HLC=" (strip-path (list-ref hl-list 2)) " "
+									"HLD=" (strip-path (list-ref hl-list 3)))) '())))))
+
 	  (command-line-args
 	   (append
 	    (list 
@@ -114,13 +135,37 @@
 	  (data-lines (let* ((std-lines
 			      (list 
 			       "MAKE HYDROGENS NO" ; Garib's suggestion 8 Sept 2003
+				   (if (= (get-refmac-refinement-method) 1)
+					   ; rigid body
+					   "REFInement TYPE RIGID"
+					   "")
 			       (if (number? force-n-cycles)
-				   (if (>= force-n-cycles 0)
-				       (string-append
-					"NCYCLES " 
-					(number->string force-n-cycles))
-				       "")
-				   "")
+					   (if (>= force-n-cycles 0)
+						   (string-append
+							(if (= (get-refmac-refinement-method) 1)
+								"RIGIDbody NCYCle "
+								"NCYCLES " )
+							(number->string force-n-cycles))
+						   "")
+					   "")
+				   (if (and (= (refmac-use-tls-state) 1) (>= (refmac-runs-with-nolabels) 2))
+					   "REFI TLSC 5"
+					   "")
+				   (if (= (refmac-use-twin-state) 1)
+					   "TWIN"
+					   "")
+				   (if (and (= (refmac-use-sad-state) 1) (string=? labin-string ""))
+					   "REFI SAD"
+					   "")
+				   (if (= (refmac-use-sad-state) 1)
+						; need to give some information for SAD atom FIXME
+						; too tricky for now put in a fix one for now
+						;(let((sad-atom-ls (get-sad-atom-info)))))
+					   "ANOM FORM SE -8.0 4.0"
+					   "")
+				   (if (= (refmac-use-ncs-state) 1)
+					   ""  ; needs some chains etc FIXME
+					   "")
 			       ))
 			     (extra-params (get-refmac-extra-params)))
 
@@ -196,6 +241,11 @@
 					; numbers: use-weights? is-diff-map? have-refmac-params?
 				 (list mtz-out-filename "FWT" "PHWT" "" 0 0 1 f-col sig-f-col)
 				 r-free-bit))
+			       (args-default
+				(append
+					; numbers: use-weights? is-diff-map? have-refmac-params?
+				 (list mtz-out-filename "FWT" "PHWT" "" 0 0 1 "FP" "SIGFP")
+				 r-free-bit))
 			       (recentre-status (recentre-on-read-pdb))
 			       (novalue (set-recentre-on-read-pdb 0))
 			       (novalue2 (format #t "DEBUG:: recentre status: ~s~%" recentre-status))
@@ -205,18 +255,33 @@
 			      (set-recentre-on-read-pdb 1))
 			  (set-refmac-counter imol (+ imol-refmac-count 1))
 			  
-			  (let ((new-map-id (apply make-and-draw-map-with-refmac-params args)))
+			  (let ((new-map-id (apply make-and-draw-map-with-refmac-params 
+									   (if (= (refmac-use-sad-state) 1) args-default args))))
 			    
 			    (if (= swap-map-colours-post-refmac? 1)
 				(swap-map-colours imol-mtz-molecule new-map-id)))
 			  
 			  (if (= 1 show-diff-map-flag) ; flag was set
-			      (let ((args (append
-					   (list mtz-out-filename "DELFWT" "PHDELWT" "" 0 1 1
-						 f-col sig-f-col)
-					   r-free-bit)))
-				
-				(apply make-and-draw-map-with-refmac-params args)))
+				  (if (= (refmac-use-sad-state) 1)
+					  (let ((args (append
+								   (list mtz-out-filename "DELFWT" "PHDELWT" "" 0 1 1
+										 "FP" "SIGFP")
+								   r-free-bit))
+							(args-ano (append
+									   (list mtz-out-filename "FAN" "PHAN" "" 0 1 1
+											 "FP" "SIGFP")
+									   r-free-bit)))
+
+						(apply make-and-draw-map-with-refmac-params args)
+						(apply make-and-draw-map-with-refmac-params args-ano))
+					  
+					  (let ((args (append
+								   (list mtz-out-filename "DELFWT" "PHDELWT" "" 0 1 1
+										 f-col sig-f-col)
+								   r-free-bit)))
+
+						(apply make-and-draw-map-with-refmac-params args))))
+
 			  (if (coot-has-pygtk?)
 				  (let ((s (string-append "read_refmac_log("
 									  (number->string imol) ", \""

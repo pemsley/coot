@@ -2881,17 +2881,17 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			 // sigF+
 			 icol = saved_f_phi_columns->selected_refmac_sigfp_col;
 			 sigfp_col = saved_f_phi_columns->sigfpm_cols[icol].column_label;
-			 // sigF+
+			 // sigF-
 			 icol = saved_f_phi_columns->selected_refmac_sigfm_col;
 			 sigfm_col = saved_f_phi_columns->sigfpm_cols[icol].column_label;
 			 // make lists
 #ifdef USE_GUILE
-			 fobs_col  = "(list ";
+			 fobs_col  = "(cons ";
 			 fobs_col += single_quote(fp_col);
 			 fobs_col += " ";
 			 fobs_col += single_quote(fm_col);
 			 fobs_col += ")";
-			 sigfobs_col  = "(list ";
+			 sigfobs_col  = "(cons ";
 			 sigfobs_col += single_quote(sigfp_col);
 			 sigfobs_col += " ";
 			 sigfobs_col += single_quote(sigfm_col);
@@ -3034,15 +3034,16 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 			 hl_list.push_back(hlc_string);
 			 hl_list.push_back(hld_string);
 #ifdef USE_GUILE
-			 phib_string = "(list ";
-			 phib_string += single_quote(hla_string);
+			 //phib_string = "(list ";
+			 // here we pass it as a string, scheme will later make a list
+			 phib_string  = hla_string;
 			 phib_string += " ";
-			 phib_string += single_quote(hlb_string);
+			 phib_string += hlb_string;
 			 phib_string += " ";
-			 phib_string += single_quote(hlc_string);
+			 phib_string += hlc_string;
 			 phib_string += " ";
-			 phib_string += single_quote(hld_string);
-			 phib_string += ")";
+			 phib_string += hld_string;
+			 //phib_string += ")";
 #else
 #ifdef USE_PYTHON
 			 phib_string = "[";
@@ -3379,20 +3380,18 @@ execute_refmac_real(std::string pdb_in_filename,
    std::string phase_combine_cmd;
    if (phase_combine_flag) {
 #ifdef USE_GUILE
-      phase_combine_cmd += "(cons \'";
-      phase_combine_cmd += phib_string;
-      phase_combine_cmd += "\' \'";
-      phase_combine_cmd += fom_string;
-      phase_combine_cmd += "\')";
+      phase_combine_cmd += "(cons ";
+      phase_combine_cmd += single_quote(phib_string);
       phase_combine_cmd += " ";
+      phase_combine_cmd += single_quote(fom_string);
+      phase_combine_cmd += ")";
 #else
 #ifdef USE_PYTHON
       phase_combine_cmd += "[\'";
-      phase_combine_cmd += phib_string;
-      phase_combine_cmd += "\', \'";
-      phase_combine_cmd += fom_string;
-      phase_combine_cmd += "\']";
-      phase_combine_cmd += " ";
+      phase_combine_cmd += single_quote(phib_string);
+      phase_combine_cmd += ", ";
+      phase_combine_cmd += single_quote(fom_string);
+      phase_combine_cmd += "]";
 #endif // USE_PYTHON
 #endif // USE_GUILE
    } else {

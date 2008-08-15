@@ -803,8 +803,8 @@ refmac_dialog_fpm_button_select(GtkWidget *item, GtkPositionType pos) {
   int fp_pos = save_f_phi_columns->fpm_cols[pos].column_position;
   int fm_pos = save_f_phi_columns->fpm_cols[pos+1].column_position;
   for (int i=0; i<save_f_phi_columns->sigfpm_cols.size()-1; i++) {
-    sigfp_pos = save_f_phi_columns->sigf_cols[i].column_position;
-    sigfm_pos = save_f_phi_columns->sigf_cols[i+1].column_position;
+    sigfp_pos = save_f_phi_columns->sigfpm_cols[i].column_position;
+    sigfm_pos = save_f_phi_columns->sigfpm_cols[i+1].column_position;
     if ((fm_pos == fp_pos+2 && sigfp_pos == fp_pos+1 && sigfm_pos == fm_pos+1) ||
 	(fm_pos == fp_pos+1 && sigfp_pos == fp_pos+2 && sigfm_pos == fm_pos+2)) {
       save_f_phi_columns->selected_refmac_sigfp_col = i;
