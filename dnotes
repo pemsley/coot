@@ -4,14 +4,7 @@
 
    9 Items, 35 hd.
 
-   o chi squareds are displayed properly on GTK1 version? kalypso - 1hd
-
-   o Correct CISPEP if needed cards on writing pdb. <1hd - depending
-     on new mmdb code.
-
-   o PDB v3.0 compatibility < 1hd as above
-
-   o Use Eugene's new LINK-reading code < 1hd as above
+   o PDB v3.0 compatibility.  1hd 
 
    o Finish A-RAPPER-gui, penelope. 2hd
 
@@ -25,7 +18,22 @@
 
 
 
-114 Done.
+
+117 Done.
+
+   o fix writing restraints from restraints editor.
+
+* Done.  If tlc is not set on rendering the restraint, then copy the
+  comp_id to the tlc.
+
+   o Use Eugene's new LINK-reading code < 1hd as above
+
+* It reads LINKs, now what?
+
+   o chi squareds are displayed properly on GTK1 version? kalypso - 1hd
+
+   o Correct CISPEP if needed cards on writing pdb. <1hd - depending
+     on new mmdb code.
 
    o need fixup for gtk_combo_box_get_active_text(null). jackal 1hd
 
@@ -38,7 +46,7 @@
    o build-hardy-python makes a build where cootaneer_bl_gui fails (on
      some python lib). pygtk failed to be configured?  1hd
 
-   o fix writing restraints from restraints editor.
+   o N terminal residue addition (with valgrinding?)
 
 * Done.
 
