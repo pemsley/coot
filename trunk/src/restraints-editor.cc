@@ -326,11 +326,20 @@ coot::restraints_editor::fill_info_tree_data(GtkWidget *restraints_editor_dialog
    GtkTreeIter   toplevel;
    
    gtk_tree_view_set_model(tv_info, GTK_TREE_MODEL(tree_store_info));
+   std::string tlc = restraints.residue_info.three_letter_code;
+   if (tlc.length() == 0) {
+      std::cout << "WARNING:: three_letter_code blank/unset." << std::endl;
+      std::string subcomp = restraints.residue_info.comp_id;
+      tlc = restraints.residue_info.comp_id;
+      if (tlc.length() > 3)
+	 tlc = tlc.substr(0,3);
+      std::cout << "WARNING:: resetting three_letter_code to " << tlc << std::endl;
+   } 
    
    gtk_tree_store_append(tree_store_info, &toplevel, NULL);
    gtk_tree_store_set(tree_store_info, &toplevel,
 		      0, restraints.residue_info.comp_id.c_str(),
-		      1, restraints.residue_info.three_letter_code.c_str(),
+		      1, tlc.c_str(),
 		      2, restraints.residue_info.name.c_str(),
 		      3, restraints.residue_info.group.c_str(),
 		      4, restraints.residue_info.number_atoms_all,
@@ -917,9 +926,9 @@ coot::restraints_editor::get_torsion_restraints() const {
  	  (esd   > -1.0)        && 
 	  (period > -1)) { 
  	 coot::dict_torsion_restraint_t rest(torsion_id, atom1, atom2, atom3, atom4, torsion, esd, period);
- 	 std::cout << "added a torsion restraint ";
-	 std::cout << ":" << torsion_id << ": :" << atom1 << ": :" << atom2 << ": :" << atom3 << ": " << atom4 << ": "
-		   << torsion << " " << esd << " " << period << std::endl;
+ 	 // std::cout << "added a torsion restraint ";
+	 // std::cout << ":" << torsion_id << ": :" << atom1 << ": :" << atom2 << ": :" << atom3 << ": " << atom4 << ": "
+	 // << torsion << " " << esd << " " << period << std::endl;
 
  	 r.push_back(rest);
       }
@@ -1131,7 +1140,8 @@ coot::restraints_editor::get_residue_info() const {
 	 int col_type = get_column_type(coot::restraints_editor::TREE_TYPE_INFO, col_no, -1);
 	 if (col_type == G_TYPE_STRING) { 
 	    gchar *place_string_here;
-	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_info.store), &iter, col_no, &place_string_here, -1);
+	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_info.store), &iter, col_no,
+			       &place_string_here, -1);
 	    if (col_no == 0)
 	       comp_id = place_string_here;
 	    if (col_no == 1)
@@ -1153,6 +1163,12 @@ coot::restraints_editor::get_residue_info() const {
 	 }
       }
    
+      if (tlc.length() == 0) {
+	 std::cout << "WARNING:: three_letter_code blank/unset." << std::endl;
+	 std::cout << "WARNING:: resetting three_letter_code to " << comp_id << std::endl;
+	 tlc = comp_id;
+      }
+      
       if ((comp_id.length() > 0) &&
 	  (tlc.length()     > 0) &&
 	  (name.length()    > 0) &&
@@ -1162,19 +1178,17 @@ coot::restraints_editor::get_residue_info() const {
 	  (n_atoms > 0)          &&
 	  (n_H_atoms > 0)) { 
 
-	 coot::dict_chem_comp_t res_info(comp_id, tlc, name, group, n_atoms, n_H_atoms, description_level);
-	 // std::cout << "added a dict_chem_comp ";
-// 	 std::cout << ":" << comp_id << ": :" << tlc << ": :" << name << ": :" << group << ": " << n_H_atoms
-// 		   << " " << n_H_atoms << " :" << description_level << ":" << std::endl;
+	 coot::dict_chem_comp_t res_info(comp_id, tlc, name, group, n_atoms,
+					 n_H_atoms, description_level);
 	 proper = 1;
 	 info = res_info;
       } else {
-	 std::cout << "WARNING:: incomprehensible chem_comp!\n";
-	 std::cout << ":" << comp_id << ": :" << tlc << ": :" << name << ": :" << group << ": " << n_H_atoms
-		   << " " << n_H_atoms << " :" << description_level << ":" << std::endl;
-      
+	 std::cout << "WARNING:: Incomprehensible chem_comp!\n";
+	 std::cout << ":" << comp_id << ": :" << tlc << ": :" << name << ": :" << group << ": "
+		   << n_H_atoms << " " << n_H_atoms << " :" << description_level << ":" << std::endl;
       }
    }
+
    return std::pair<bool, coot::dict_chem_comp_t> (proper, info);
 }
 

@@ -110,7 +110,14 @@
 		  (if (= (string-length dict-cif-libin) 0)
 		      (list 
 		       "N"
-		       (string-append "MON " code-str)
+		       (string-append "MON " 
+				      ;; This doesn't seem to work,
+				      ;; but I'll leave it in anyway.
+				      ;; Libcheck fails with both
+				      ;; "GAL-b-D" and "GAL" fail.
+				      (if (> (string-length code-str) 3)
+					  (substring code-str 0 3)
+					  code-str))
 		       "")
 		      (list 
 		       "N"
@@ -153,7 +160,8 @@
 			pdb-status))) ; return imol of the ligand
 
 
-		(let ((libstatus (goosh-command libcheck-exe '() libcheck-input log-file-name #t)))
+		(let ((nov (format #t "passing libcheck these data lines: ~s~%" libcheck-input))
+		      (libstatus (goosh-command libcheck-exe '() libcheck-input log-file-name #t)))
 		  
 		  (format #t "INFO:: libcheck status: ~s~%" libstatus)
 
