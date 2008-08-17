@@ -214,6 +214,45 @@
 ;; 
 (define (stepped-refine-protein imol . res-step)
 
+  (let ((imol-map (imol-refinement-map)))
+    (if (not (valid-map-molecule? imol-map))
+	(info-dialog "Oops, must set map to refine to")
+	(let ((refine-func
+	       (lambda (chain-id res-no)
+
+		 (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+		 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+		 (rotate-y-scene 30 0.3) ; n-frames frame-interval(degrees)
+		 (refine-auto-range imol chain-id res-no "")
+		 (accept-regularizement)
+		 (rotate-y-scene 30 0.3))))
+
+	  (stepped-refine-protein-with-refine-func imol refine-func res-step)))))
+
+;; refine each residue with ramachandran restraints
+;; 
+(define (stepped-refine-protein-for-rama imol)
+
+  (let ((imol-map (imol-refinement-map)))
+    (if (not (valid-map-molecule? imol-map))
+	(info-dialog "Oops, must set map to refine to")
+	(let ((current-steps/frame (dragged-refinement-steps-per-frame))
+	      (current-rama-state (refine-ramachandran-angles-state)))
+	  (let ((refine-func
+		 (lambda (chain-id res-no)
+		   (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+		   (refine-auto-range imol chain-id res-no "")
+		   (accept-regularizement))))
+	    
+	    (set-dragged-refinement-steps-per-frame 200)
+	    (set-refine-ramachandran-angles 1)
+	    (stepped-refine-protein-with-refine-func imol refine-func 1)
+	    (set-refine-ramachandran-angles current-rama-state)
+	    (set-dragged-refinement-steps-per-frame current-steps/frame))))))
+
+;; 
+(define (stepped-refine-protein-with-refine-func imol refine-func . res-step)
+
   (set-go-to-atom-molecule imol)
   (make-backup imol)
   (let ((res-step (if (and (list res-step)
@@ -222,49 +261,46 @@
 		      (car res-step)
 		      2))
 	(backup-mode (backup-state imol))
-	(imol-map (imol-refinement-map))
 	(alt-conf "")
+	(imol-map (imol-refinement-map))
 	(replacement-state (refinement-immediate-replacement-state)))
 
-    (if (= imol-map -1)
-	(add-status-bar-text "Oops.  Must set a map to fit")
 
-	;; we jump through this hoop with range-step because
-	;; (inexact->exact (/ 1 2) now returns 1/2.  In guile 1.6.x it
-	;; returned 1
-	(let* ((step-inter (inexact->exact (/ (- res-step 1) 2)))
-	       (range-step (if (integer? step-inter) 
-			       step-inter
-			       (+ step-inter (/ 1 2)))))
-	  (turn-off-backup imol)
-	  (set-refinement-immediate-replacement 1)
-	  (set-refine-auto-range-step range-step)
-	  
-	  (map (lambda (chain-id)
-		 (let ((n-residues (chain-n-residues chain-id imol)))
-		   (format #t "There are ~s residues in chain ~s~%" n-residues chain-id)
+      (if (= imol-map -1)
+	  (add-status-bar-text "Oops.  Must set a map to fit")
 
-		   (for-each
-		    (lambda (serial-number)
+	  ;; we jump through this hoop with range-step because
+	  ;; (inexact->exact (/ 1 2) now returns 1/2.  In guile 1.6.x it
+	  ;; returned 1
+	  (let* ((step-inter (inexact->exact (/ (- res-step 1) 2)))
+		 (range-step (if (integer? step-inter) 
+				 step-inter
+				 (+ step-inter (/ 1 2)))))
+	    (turn-off-backup imol)
+	    (set-refinement-immediate-replacement 1)
+	    (set-refine-auto-range-step range-step)
+	    
+	    (map (lambda (chain-id)
+		   (let ((n-residues (chain-n-residues chain-id imol)))
+		     (format #t "There are ~s residues in chain ~s~%" n-residues chain-id)
 
-		      (let ((res-name (resname-from-serial-number imol chain-id serial-number))
-			    (res-no   (seqnum-from-serial-number  imol chain-id serial-number))
-			    (ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
-			(format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-			(set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-			(rotate-y-scene 30 0.3) ; n-frames frame-interval(degrees)
-			(if (>= imol-map 0)
-			    (begin
-			      (refine-auto-range imol chain-id res-no "")
-			      (accept-regularizement)))
-			(rotate-y-scene 30 0.3)))
-		    (every-nth (number-list 0 (- n-residues 1)) res-step))))
-	       (chain-ids imol))
+		     (for-each
+		      (lambda (serial-number)
 
-	  (if (= replacement-state 0)
-	      (set-refinement-immediate-replacement 0))
-	  (if (= backup-mode 1)
-	      (turn-on-backup imol))))))
+			(let ((res-name (resname-from-serial-number imol chain-id serial-number))
+			      (res-no   (seqnum-from-serial-number  imol chain-id serial-number))
+			      (ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
+			  (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+			  
+			  (refine-func chain-id res-no)))
+
+		      (every-nth (range n-residues) res-step))))
+		 (chain-ids imol))
+
+	    (if (= replacement-state 0)
+		(set-refinement-immediate-replacement 0))
+	    (if (= backup-mode 1)
+		(turn-on-backup imol))))))
 
 ;; The GUI that you see after ligand finding. 
 ;; 
