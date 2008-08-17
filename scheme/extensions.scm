@@ -74,6 +74,16 @@
 				     (let ((s  "oops.  Must set a map to fit"))
 				       (add-status-bar-text s)))))))
 
+      (add-simple-coot-menu-menuitem 
+       menu "Refine/Improve Ramachandran Plot..." 
+       (lambda ()
+	 (molecule-chooser-gui "Refine Protein with Ramachanran Plot Optimization: "
+			       (lambda (imol) 
+				 (if (not (= (imol-refinement-map) -1))
+				     (stepped-refine-protein-for-rama imol)
+				     (let ((s  "oops.  Must set a map to fit"))
+				       (add-status-bar-text s)))))))
+
       (add-coot-menu-seperator menu)
 
       ;; ---------------------------------------------------------------------

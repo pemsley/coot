@@ -1867,5 +1867,7 @@
 ;
 (define (coot-has-pygtk?)
   (if (coot-has-python?)
-	  (run-python-command "coot_has_pygtk()")
-	  (#f)))
+      (run-python-command "coot_has_pygtk()")
+      #f))
+
+
