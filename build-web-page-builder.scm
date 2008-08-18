@@ -318,23 +318,33 @@
 
 (define (make-page bin-list file-name)
 
-  ;; link could be "xxx/build" or '('absolute "http://x.ac.uk/build")
-  ;; page-type is 'build or 'test
+  ;; link could be "xxx/build" or '('absolute "http://x.ac.uk/build").
+  ;; page-type is 'build, 'build-dir or 'test
   ;; 
   (define (build-log-page file-info page-type)
-    ; (format #t "build-log-page on ~s~%" file-info)
     (let ((link (car (cdr (list-ref file-info 0)))))
-      (string-append 
-       (if (list? link)
-	   (car (cdr link))
-	   (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
-			  link))
-       (cond
-	((eq? page-type 'build) "-build.log")
-	((eq? page-type 'test) "-test.log")
-	((eq? page-type 'test-python) "-test-python.log")
-	(else 
-	 "strange")))))
+      (format #t "build-log-page on file-info: ~s~%" file-info)
+      (format #t "build-log-page on link: ~s~%" file-info)
+
+      (if (eq? page-type 'build-dir)
+
+	  (dirname
+	   (if (list? link)
+	       (car (cdr link))
+	       (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
+			      link)))
+	  
+	  (string-append 
+	   (if (list? link)
+	       (car (cdr link))
+	       (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
+			      link))
+	   (cond
+	    ((eq? page-type 'build) "-build.log")
+	    ((eq? page-type 'test) "-test.log")
+	    ((eq? page-type 'test-python) "-test-python.log")
+	    (else 
+	     "strange"))))))
 
 
   ;; return a time, or #f
@@ -521,18 +531,23 @@
 		     `(a (@ href ,(build-log-page file-info 'build)) build-log)
 		     "")
 		" "
+		;; a quicker way to get the dir of the xx-yyy.txt files:
+		,(if make-links? 
+		     `(a (@ href ,(build-log-page file-info 'build-dir)) build-dir)
+		     "")
+		" "
 		,(if make-links?
 		     `(a (@ href ,(build-log-page file-info 'test)) test-log)
 		     "")
 		" "
 		,(if make-links?
 		     (let* ((bits (list-ref file-info 3))
-			    (nov-1 (format #t "==== pythonic?: ~s ~%" 
-					   (car file-info)))
-			    (nov-2 (format #t "==== pythonic - sample?:  ~s~%" 
-					   (if (= (length (car file-info)) 2)
-					       "nothing"
-					       (car (cdr (cdr (car file-info)))))))
+;			    (nov-1 (format #t "==== pythonic?: ~s ~%" 
+;					   (car file-info)))
+;			    (nov-2 (format #t "==== pythonic - sample?:  ~s~%" 
+;					   (if (= (length (car file-info)) 2)
+;					       "nothing"
+;					       (car (cdr (cdr (car file-info)))))))
 			    (pythonic-build? 
 			     (if (= (length (car file-info)) 2)
 				 #t
