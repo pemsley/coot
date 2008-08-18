@@ -6470,7 +6470,7 @@ Tue Aug  5 23:11:18 BST 2008
 
     Here's another rama test.
 
-    turn on rama restraints. turn on helical restraints.  try to turn
+    Turn on Rama restraints. turn on helical restraints.  try to turn
     residues 84 to 93 into a helix.  (you can cut them out from the
     rest of the protein to make things clearer).
 
@@ -6492,8 +6492,15 @@ Wed Aug 13 12:52:23 BST 2008
 ---
 Thu Aug 14 23:18:24 BST 2008
 
-    
+    EJD: I want to do an atom selection for my Ramachandran
+    Plot. (e.g. I want to see just one chain)
 
+
+---
+Mon Aug 18 16:15:01 BST 2008
+
+    How about a "fast save" that saves pdb files with modifications,
+    and the state file... bound to a key.
 
 
 -----

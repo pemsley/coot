@@ -233,7 +233,8 @@
 # 4.17 20080730 Test for gtk minor version, use that to apply guile-gtk patches 
 #               if needed.
 # 4.18 20080730 Add Diagnosis for applying guile-gtk patch.
-script_version=4.18
+# 4.19 20080818 use mmdb version 1.12
+script_version=4.19
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1833,6 +1834,7 @@ if test -n "$build_mmdb" ; then
 # mmdb_version=1.0.10.  Not yet.
 # mmdb_version=1.0.8-ysbl-3
 mmdb_version=1.11
+mmdb_version=1.12
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 (
 date

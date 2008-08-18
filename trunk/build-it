@@ -206,7 +206,8 @@
 # 2.42 20080624 Add guile-lib to build.
 # 2.43 20080812 Use mmdb version 1.11
 # 2.44 20080815 Fix test info syntax error.
-script_version=2.44
+# 2.45 20080818 Use mmdb version 1.12
+script_version=2.45
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1616,6 +1617,7 @@ if test -n "$build_mmdb" ; then
 # mmdb_version=1.0.10.  Not yet.
 mmdb_version=1.0.8-ysbl-3
 mmdb_version=1.11
+mmdb_version=1.12
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 (
 date

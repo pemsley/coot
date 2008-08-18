@@ -591,6 +591,9 @@
 	"lohkamp"
 	"emsley"))
 
+
+  ;; make-page main body
+  ;; 
   (let ((svn-log-page "http://www.ysbl.york.ac.uk/~emsley/software/pre-release/svn-log")
 	(latest-source-info (latest-tar-gz source-tar-dir "" ".tar.gz"))
 	(binary-file-infos
@@ -635,7 +638,11 @@
 		(br)
 		,(time-text (oldness-info latest-source-info))
 		" " " " " "
-		,(source-build-status-text))
+		,(source-build-status-text)
+		(*ENTITY* "nbsp")
+		(*ENTITY* "nbsp")
+		(a (@ href "http://www.ysbl.york.ac.uk/~emsley/build-logs/buibbles-local-build.log")
+		   "source build log"))
 
 	     ;; binary targets
 	     (table 
