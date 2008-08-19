@@ -1022,8 +1022,8 @@ def read_refmac_log(imol, refmac_log_file):
         
         for i in range(len(sorted_ls)):
             res = sorted_ls[i]
+            merged_flag = False
             if ((i < len(sorted_ls) - 1)):
-                merged_flag = False
                 next_res = sorted_ls[i + 1]
                 if ((res[1] == next_res[1]) and (res[2] == next_res[2])):
                     # same chain and res_no
