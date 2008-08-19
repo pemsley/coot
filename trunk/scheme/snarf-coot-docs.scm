@@ -31,7 +31,7 @@
 (define get-rotamer-name-scm #f)
 (define test-internal-scm #f)
 (define atom-info-string-scm #f)
-
+(define get-refmac-sad-atom-info-scm #f)
 
 
 (load "filter.scm")
