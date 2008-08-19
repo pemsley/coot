@@ -11771,7 +11771,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image3">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">refine.png</property>
+			      <property name="pixbuf">refine-1.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -11853,7 +11853,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image4">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">regularize.png</property>
+			      <property name="pixbuf">regularize-1.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -11935,7 +11935,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image1826">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">rigid-body.png</property>
+			      <property name="pixbuf">rigid-body.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -12017,7 +12017,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image5">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">rtz.png</property>
+			      <property name="pixbuf">rtz.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -12099,7 +12099,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image6">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">auto-fit-rotamer.png</property>
+			      <property name="pixbuf">auto-fit-rotamer.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -12181,7 +12181,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image1827">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">rotamers.png</property>
+			      <property name="pixbuf">rotamers.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -12263,7 +12263,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image7">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">edit-chi.png</property>
+			      <property name="pixbuf">edit-chi.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -12703,7 +12703,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image10">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">add-peptide-1.png</property>
+			      <property name="pixbuf">add-peptide-1.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -12783,7 +12783,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image926">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">add-alt-conf.png</property>
+			      <property name="pixbuf">add-alt-conf.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -12871,7 +12871,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkImage" id="image11">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">atom-at-pointer.png</property>
+			      <property name="pixbuf">atom-at-pointer.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>

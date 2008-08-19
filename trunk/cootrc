@@ -26,6 +26,10 @@ style "defaultfont"
   font = "-adobe-helvetica-medium-r-normal--*-75-*-*-*-*-*-*,*"
 }
 
+style "small-font" {
+  font_name = "sans 8"
+}
+
 # common default
 class "GtkWidget" style "defaultfont"
 
@@ -381,4 +385,10 @@ binding "clist-test"
 class "GtkCList" binding "clist-test"
 
 # to make the gtk theme buttons at the model_toolbar smaller
-gtk-icon-sizes = "gtk-large-toolbar=18,18"
+#gtk-icon-sizes = "gtk-large-toolbar=18,18"
+gtk-icon-sizes = "gtk-large-toolbar=16,16:gtk-button=16,16"
+# enable to make font of Model/Fit/Refine dialog smaller
+#widget "*.model*.GtkLabel" style "small-font"
+
+# enable to make all fonts smaller
+#class "GtkLabel" style "small-font"

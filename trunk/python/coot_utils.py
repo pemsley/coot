@@ -1427,6 +1427,7 @@ chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
 map_sigma              = map_sigma_py
 map_parameters         = map_parameters_py
 map_cell               = map_cell_py
+get_refmac_sad_atom_info = get_refmac_sad_atom_info_py
 map_colour_components  = map_colour_components_py
 additional_representation_info = additional_representation_info_py
 centre_of_mass_string  = centre_of_mass_string_py

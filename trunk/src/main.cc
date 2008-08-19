@@ -747,7 +747,7 @@ void setup_application_icon(GtkWindow *window) {
 	  if (max_height <= 620) {
 		 max_height = 620;
 	  }
-	  if (max_height <= 770) {
+	  if (max_height <= 720) {
 		 int icon_size = 12 + (max_height - 620) / 25;
 		 std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
 		 toolbar_txt += coot::util::int_to_string(icon_size);

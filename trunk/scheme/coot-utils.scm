@@ -49,6 +49,7 @@
 (define get-rotamer-name get-rotamer-name-scm)
 (define test-internal test-internal-scm)
 (define atom-info-string atom-info-string-scm)
+(define get-refmac-sad-atom-info get-refmac-sad-atom-info-scm)
 
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.

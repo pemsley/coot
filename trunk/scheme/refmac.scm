@@ -135,10 +135,10 @@
 	  (data-lines (let* ((std-lines
 			      (list 
 			       "MAKE HYDROGENS NO" ; Garib's suggestion 8 Sept 2003
-				   (if (= (get-refmac-refinement-method) 1)
-					   ; rigid body
-					   "REFInement TYPE RIGID"
-					   "")
+			       (if (= (get-refmac-refinement-method) 1)
+					; rigid body
+				   "REFInement TYPE RIGID"
+				   "")
 			       (if (number? force-n-cycles)
 					   (if (>= force-n-cycles 0)
 						   (string-append
@@ -148,34 +148,45 @@
 							(number->string force-n-cycles))
 						   "")
 					   "")
-				   (if (and (= (refmac-use-tls-state) 1) (>= (refmac-runs-with-nolabels) 2))
-					   "REFI TLSC 5"
-					   "")
-				   (if (= (refmac-use-twin-state) 1)
-					   "TWIN"
-					   "")
-				   (if (and (= (refmac-use-sad-state) 1) (string=? labin-string ""))
-					   "REFI SAD"
-					   "")
-				   (if (= (refmac-use-sad-state) 1)
-						; need to give some information for SAD atom FIXME
-						; too tricky for now put in a fix one for now
-						;(let((sad-atom-ls (get-sad-atom-info)))))
-					   "ANOM FORM SE -8.0 4.0"
-					   "")
-				   (if (= (refmac-use-ncs-state) 1)
-					   ""  ; needs some chains etc FIXME
-					   "")
+			       (if (and (= (refmac-use-tls-state) 1) (>= (refmac-runs-with-nolabels) 2))
+				   "REFI TLSC 5"
+				   "")
+			       (if (= (refmac-use-twin-state) 1)
+				   "TWIN"
+				   "")
+			       (if (and (= (refmac-use-sad-state) 1) (string=? labin-string ""))
+				   "REFI SAD"
+				   "")
+;			       (if (= (refmac-use-sad-state) 1)
+;					; need to give some information for SAD atom FIXME
+;					; too tricky for now put in a fix one for now
+;					;(let((sad-atom-ls (get-sad-atom-info)))))
+;				   "ANOM FORM SE -8.0 4.0"
+;				   "")
+;			       (if (= (refmac-use-ncs-state) 1)
+;				   ""  ; needs some chains etc FIXME
+;				   "")
 			       ))
-			     (extra-params (get-refmac-extra-params)))
+			     (extra-params (get-refmac-extra-params))
+			     (extra-rigid-params (refmac-rigid-params))
+;			     (format #t "BL DEBUG:: extra rigid params ~s~%" extra-rigid-params)
+			     (extra-ncs-params   (refmac-ncs-params))
+			     (extra-sad-params   (refmac-sad-params))
+			     )
 
 			(if (extra-params-include-weight? extra-params)
 			    (append std-lines
 				    extra-params
+				    extra-rigid-params
+				    extra-ncs-params
+				    extra-sad-params
 				    (list labin-string))
 			    (append std-lines
 				    (list "WEIGHT AUTO")
 				    extra-params
+				    extra-rigid-params
+				    extra-ncs-params
+				    extra-sad-params
 				    (list labin-string)))))
 
 	  (nov (format #t "DEBUG:: refmac-extra-params returns ~s~%"
@@ -354,6 +365,72 @@
 				     (read-line port)))))))
 		    
 		    (reverse r-list)))))))))
+
+(define refmac-rigid-params
+  (lambda ()
+    (if (= (get-refmac-refinement-method) 1)
+	(let ((ret '())
+	      (count 0)
+	      (imol-coords (refmac-imol-coords)))
+	  (for-each (lambda (chain-id)
+		      (let* ((n-residues  (chain-n-residues chain-id imol-coords))
+			    (start-resno (seqnum-from-serial-number imol-coords chain-id 0))
+			    (stop-resno  (seqnum-from-serial-number imol-coords chain-id (- n-residues 1))))
+			(set! count (+ count 1))
+			(set! ret (append ret (list (string-append "RIGIdbody GROUp " (number->string count)
+								   " FROM " (number->string start-resno) " " chain-id
+								   " TO "   (number->string stop-resno)  " " chain-id))))))
+		      (chain-ids imol-coords))
+	  ret)
+	'())))
+		
+
+(define refmac-ncs-params
+  (lambda()
+    (if (= (refmac-use-ncs-state) 1)
+	(let* ((imol-coords (refmac-imol-coords))
+	       (chain-ids-from-ncs (ncs-chain-ids imol-coords)))
+	  (if (list? chain-ids-from-ncs)
+	      (let ((ret-list '())
+		    (ret-string ""))
+		(for-each (lambda (ncs-chain-set)
+			    (if (> (length ncs-chain-set) 1)
+				(let ((ret-string (string-append "NCSRestraints NCHAins " 
+								 (number->string (length ncs-chain-set))
+								 " CHAIns ")))
+				  (for-each (lambda (ncs-chain-id)
+					      (set! ret-string (string-append ret-string " " ncs-chain-id)))
+					    ncs-chain-set)
+				  (set! ret-list (append ret-list (list ret-string))))
+				(set! ret-list ret-list)))
+			  chain-ids-from-ncs)
+		ret-list)
+	      '()))
+	'())))
+	
+
+(define refmac-sad-params
+  (lambda ()
+    (if (= (refmac-use-sad-state) 1)
+	(let ((sad-atom-ls (get-refmac-sad-atom-info))
+	      (ret-list '()))
+	  (for-each (lambda (sad-atom)
+		      (let ((atom-name (list-ref sad-atom 0))
+			    (fp        (list-ref sad-atom 1))
+			    (fpp       (list-ref sad-atom 2))
+			    (wavelen   (list-ref sad-atom 3))
+			    (ret-string "ANOM FORM "))
+			(set! ret-string (string-append ret-string atom-name " "))
+			(if (number? fp)
+			    (set! ret-string (string-append ret-string (number->string fp) " ")))
+			(if (number? fpp)
+			    (set! ret-string (string-append ret-string (number->string fpp) " ")))
+			(if (number? wavelen)
+			    (set! ret-string (string-append ret-string (number->string wavelen) " ")))
+			(set! ret-list (append ret-list (list ret-string)))))
+		    sad-atom-ls)
+	  ret-list)
+	'())))
 
 ;; 
 (define run-refmac-for-phases

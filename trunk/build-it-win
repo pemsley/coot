@@ -1761,7 +1761,7 @@ if test -n "$build_mmdb" ; then
 #
 # mmdb_version=1.0.10.  Not yet.
 # mmdb_version=1.0.8-ysbl-3
-mmdb_version=1.11
+mmdb_version=1.12
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb_file_.cpp.patch
 (

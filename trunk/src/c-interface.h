@@ -1360,8 +1360,11 @@ void fill_refmac_sad_atom_entry(GtkWidget *widget);
 const gchar *get_saved_refmac_twin_filename(void);
 void set_stored_refmac_twin_mtz_filename(int imol, const char *mtz_filename);
 #ifdef __cplusplus
+#ifdef USE_GUILE
+SCM get_refmac_sad_atom_info_scm();
+#endif /* GUILE */
 #ifdef USE_PYTHON
-PyObject *get_refmac_sad_atom_info();
+PyObject *get_refmac_sad_atom_info_py();
 #endif /* PYTHON */
 #endif /* c++ */
 

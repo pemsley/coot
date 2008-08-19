@@ -3693,10 +3693,46 @@ clear_refmac_sad_atoms() {
   g.refmac_sad_atoms.clear();
 }
 
+#ifdef USE_GUILE
+/*! \brief retrive the stored refmac_sad_atoms to be used in refmac with SAD option */
+/*  return list of e.g. (list (list "SE" -8.0 -4.0 #f) ...)  */
+SCM get_refmac_sad_atom_info_scm() {
+
+  SCM r = SCM_EOL;
+  std::vector<coot::refmac::sad_atom_info_t> sad_atoms = graphics_info_t::refmac_sad_atoms;
+  for (int i=0; i<sad_atoms.size(); i++) {
+    SCM ls = SCM_EOL;
+    std::string atom_name = sad_atoms[i].atom_name;
+    float fp = sad_atoms[i].fp;
+    float fpp = sad_atoms[i].fpp;
+    float lambda = sad_atoms[i].lambda;
+    ls = scm_cons(scm_makfrom0str(atom_name.c_str()) ,ls);
+    if (fabs(fp + 9999) <= 0.1) {
+      ls = scm_cons(SCM_BOOL_F, ls);
+    } else {
+      ls = scm_cons(scm_double2num(fp), ls);
+    }
+    if (fabs(fpp + 9999) <= 0.1) {
+      ls = scm_cons(SCM_BOOL_F, ls);
+    } else {
+      ls = scm_cons(scm_double2num(fpp), ls);
+    }
+    if (fabs(lambda + 9999) <= 0.1) {
+      ls = scm_cons(SCM_BOOL_F, ls);
+    } else {
+      ls = scm_cons(scm_double2num(lambda), ls);
+    }
+    r = scm_cons(scm_reverse(ls), r);
+  }
+  r = scm_reverse(r);
+  return r;
+}
+#endif // GUILE
+
 #ifdef USE_PYTHON
 /*! \brief retrive the stored refmac_sad_atoms to be used in refmac with SAD option */
 /*  return list of e.g. [["SE", -8.0, -4.0, None], ...]  */
-PyObject *get_refmac_sad_atom_info() {
+PyObject *get_refmac_sad_atom_info_py() {
 
   PyObject *r = PyList_New(0);
 

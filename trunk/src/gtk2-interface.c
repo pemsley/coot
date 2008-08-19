@@ -6422,7 +6422,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox154);
   gtk_container_add (GTK_CONTAINER (alignment3), hbox154);
 
-  image3 = gtk_image_new_from_stock ("refine.png", GTK_ICON_SIZE_BUTTON);
+  image3 = gtk_image_new_from_stock ("refine-1.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image3);
   gtk_box_pack_start (GTK_BOX (hbox154), image3, FALSE, FALSE, 0);
 
@@ -6444,7 +6444,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox155);
   gtk_container_add (GTK_CONTAINER (alignment4), hbox155);
 
-  image4 = gtk_image_new_from_stock ("regularize.png", GTK_ICON_SIZE_BUTTON);
+  image4 = gtk_image_new_from_stock ("regularize-1.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image4);
   gtk_box_pack_start (GTK_BOX (hbox155), image4, FALSE, FALSE, 0);
 
@@ -6466,7 +6466,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox216);
   gtk_container_add (GTK_CONTAINER (alignment65), hbox216);
 
-  image1826 = gtk_image_new_from_stock ("rigid-body.png", GTK_ICON_SIZE_BUTTON);
+  image1826 = gtk_image_new_from_stock ("rigid-body.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image1826);
   gtk_box_pack_start (GTK_BOX (hbox216), image1826, FALSE, FALSE, 0);
 
@@ -6488,7 +6488,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox156);
   gtk_container_add (GTK_CONTAINER (alignment5), hbox156);
 
-  image5 = gtk_image_new_from_stock ("rtz.png", GTK_ICON_SIZE_BUTTON);
+  image5 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image5);
   gtk_box_pack_start (GTK_BOX (hbox156), image5, FALSE, FALSE, 0);
 
@@ -6510,7 +6510,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox157);
   gtk_container_add (GTK_CONTAINER (alignment6), hbox157);
 
-  image6 = gtk_image_new_from_stock ("auto-fit-rotamer.png", GTK_ICON_SIZE_BUTTON);
+  image6 = gtk_image_new_from_stock ("auto-fit-rotamer.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6);
   gtk_box_pack_start (GTK_BOX (hbox157), image6, FALSE, FALSE, 0);
 
@@ -6532,7 +6532,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox217);
   gtk_container_add (GTK_CONTAINER (alignment66), hbox217);
 
-  image1827 = gtk_image_new_from_stock ("rotamers.png", GTK_ICON_SIZE_BUTTON);
+  image1827 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image1827);
   gtk_box_pack_start (GTK_BOX (hbox217), image1827, FALSE, FALSE, 0);
 
@@ -6554,7 +6554,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox158);
   gtk_container_add (GTK_CONTAINER (alignment7), hbox158);
 
-  image7 = gtk_image_new_from_stock ("edit-chi.png", GTK_ICON_SIZE_BUTTON);
+  image7 = gtk_image_new_from_stock ("edit-chi.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image7);
   gtk_box_pack_start (GTK_BOX (hbox158), image7, FALSE, FALSE, 0);
 
@@ -6675,7 +6675,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox161);
   gtk_container_add (GTK_CONTAINER (alignment10), hbox161);
 
-  image10 = gtk_image_new_from_stock ("add-peptide-1.png", GTK_ICON_SIZE_BUTTON);
+  image10 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image10);
   gtk_box_pack_start (GTK_BOX (hbox161), image10, FALSE, FALSE, 0);
 
@@ -6697,7 +6697,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox171);
   gtk_container_add (GTK_CONTAINER (alignment20), hbox171);
 
-  image926 = gtk_image_new_from_stock ("add-alt-conf.png", GTK_ICON_SIZE_BUTTON);
+  image926 = gtk_image_new_from_stock ("add-alt-conf.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image926);
   gtk_box_pack_start (GTK_BOX (hbox171), image926, FALSE, FALSE, 0);
 
@@ -6719,7 +6719,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (hbox162);
   gtk_container_add (GTK_CONTAINER (alignment11), hbox162);
 
-  image11 = gtk_image_new_from_stock ("atom-at-pointer.png", GTK_ICON_SIZE_BUTTON);
+  image11 = gtk_image_new_from_stock ("atom-at-pointer.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image11);
   gtk_box_pack_start (GTK_BOX (hbox162), image11, FALSE, FALSE, 0);
 

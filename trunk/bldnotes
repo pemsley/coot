@@ -5,7 +5,7 @@
 
    o speed up NCS by using Kevin's LSQ (user changeable)
 
-   o test vista compositing
+   o test vista compositing (* Done?!?!)
 
    o refinement options dialog in extensions (scheme)
 
@@ -17,8 +17,6 @@
    o refmac to run from an XML file
 
    o read_refmac_log to read refmac XML output (if there)
-
-   o schemey run-refmac to work with twinning/sad etc.
 
    o ribbons from aesop python things from CCP4MG (at some point)
 
@@ -63,7 +61,7 @@
    o probe dots on selected residue range (Bob van Dreele)
 
 14/08/08
-	o change orientatino of refinement toolbar and make it dockable to 
+	o change orientation of refinement toolbar and make it dockable to 
 	  other sides of main window
 
 14/08/08
@@ -93,3 +91,7 @@
 	 (if we have pygtk)?
 
 * Done
+
+   o schemey run-refmac to work with twinning/sad etc.
+
+* Done (testing?!)
