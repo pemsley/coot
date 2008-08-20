@@ -43,7 +43,7 @@ def using_active_atom(*func):
 # 
 # funcs is a normal set of functions (not a thunk), here i.e. a list of
 # functions with function as a list with func name and args,
-# e.g.: [[centre_of_mass, 0], [func_name, arg1, arg2,...],...]
+# e.g.: [centre_of_mass, 0], [func_name, arg1, arg2,...],...
 # 
 def with_auto_accept(*funcs):
 
@@ -52,7 +52,7 @@ def with_auto_accept(*funcs):
     for f in funcs:
         func = f[0]
         args = f[1:len(f)]
-        #print "BL DEBUG:: func and args", func, args
+        #print "BL DEBUG:: func %s and args %s" %(func, args)
         func(*args)
         accept_regularizement()
     
