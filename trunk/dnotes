@@ -2,24 +2,27 @@
 
    Things to fix before 0.5
 
-   9 Items, 35 hd.
-
-   o PDB v3.0 compatibility.  1hd 
-
-   o Finish A-RAPPER-gui, penelope. 2hd
-
-* see what Nick says.  He says it shouldn't crash.
+   2 Items, 2 hd.
 
    o Bill Scott's python problem: 2hd
 
      I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
      211 in ssm_superpose.h
 
+   o Test Steven's 3CH6 for NCS chain skipping problems.
 
 
 
 
-117 Done.
+118 Done.
+
+   o Finish A-RAPPER-gui, penelope. 2hd
+
+* see what Nick says.  He says it shouldn't crash.  No progress.  Punt.
+
+   o PDB v3.0 compatibility.  1hd 
+
+* Done.  As of mmdb-1.12
 
    o fix writing restraints from restraints editor.
 
