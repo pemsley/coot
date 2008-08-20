@@ -1834,10 +1834,10 @@ def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
    window.show_all()
 
 # geometry is an improper list of ints
-# buttons is a list of: [["button_1_label, button_1_action],
-#                        ["button_2_label, button_2_action]]
-# The button_1_action function takes as an argument the imol
-# The button_2_action function takes as an argument the imol
+# buttons is a list of: [[["button_1_label, button_1_action],
+#                         ["button_2_label, button_2_action]], [next pair of buttons]]
+# The button_1_action function is a string
+# The button_2_action function is a string
 # 
 def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_button_label):
 
@@ -1855,36 +1855,38 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
         scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
 
 	for button_info in buttons:
-		print "buttons_info ", buttons_info
-		if type(button_info) is ListType:
-			buttons_label_1 = button_info[0]
-			callback_1 = button_info[1]
+           #print "button_info ", button_info
+           if type(button_info) is ListType:
+              button_label_1 = button_info[0][0]
+              callback_1 = button_info[0][1]
 
-			buttons_label_2 = button_info[2]
-			callback_2 = button_info[3]
+              button_label_2 = button_info[1][0]
+              callback_2 = button_info[1][1]
 
-			button_1 = gtk.Button(button_label_1)
-			hbox = gtk.HBox(False, 2)
+              button_1 = gtk.Button(button_label_1)
+              h_box = gtk.HBox(False, 2)
 
-			print "button_label_1 ", button_label_1
-			print "callback_1 ", callback_1
-			print "button_label_2 ", button_label_2
-			print "callback_2 ", callback_2
+              #print "button_label_1 ", button_label_1
+              #print "callback_1 ", callback_1
+              #print "button_label_2 ", button_label_2
+              #print "callback_2 ", callback_2
 
-                        button_1.connect("clicked", lambda func:callback_1(imol))
-			h_box.pack_start(button_1, False, False, 2)
+              def callback_func(button, call):
+                 eval(call)
+              button_1.connect("clicked", callback_func, callback_1)
+              h_box.pack_start(button_1, False, False, 2)
 
-			if callback_2:
-				button_2 = gtk.Button(button_label_2)
-				button_2.connect("clicked",
-					lambda func: callback_2(imol))
-			inside_vbox.pack_start(h_box, False, False, 2)
+              if callback_2:
+                 button_2 = gtk.Button(button_label_2)
+                 button_2.connect("clicked", callback_func, callback_2)
+                 h_box.pack_start(button_2, False, False, 2)
+              inside_vbox.pack_start(h_box, False, False, 2)
 
-		outside_vbox.set_border_width(2)
-		ok_button = gtk.Button(close_button_label)
-		outside_vbox.pack_end(ok_button, False, False, 2)
-		ok_button.connect("clicked", lambda w: window.destroy())
-		window.show_all()
+        outside_vbox.set_border_width(2)
+        ok_button = gtk.Button(close_button_label)
+        outside_vbox.pack_end(ok_button, False, False, 2)
+        ok_button.connect("clicked", lambda w: window.destroy())
+        window.show_all()
 
 # as the dialog_box_of_buttons, but we can put in an extra widget (extra_widget)
 #

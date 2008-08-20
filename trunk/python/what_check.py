@@ -16,13 +16,13 @@ def go_to_residue_by_spec(imol, spec):
     else:
         atom_name = " CA "
 
-    set_go_to_atom_chain_residue_name(spec[0],
-                                      spec[1],
-                                      atom_name)
+    set_go_to_atom_chain_residue_atom_name(spec[0],
+                                           spec[1],
+                                           atom_name)
 
 # consider for coot_utsil
 def residue_spec2string(spec):
-    return (spec[0] + int(spec[1]) + spec[2])
+    return (spec[0] + str(spec[1]) + spec[2])
 
 # make this internal 
 # 
@@ -52,7 +52,7 @@ def get_flip_residue(line):
         return [chain_id, resno, inscode]
 
 def convert_to_button_info(problemed_res_list):
-    print "convert_to_button_info got", problemed_res_list
+    #print "convert_to_button_info got", problemed_res_list
     button_label      = problemed_res_list[1]
     problem_string    = problemed_res_list[0]
     action_func       = problemed_res_list[2]
@@ -60,35 +60,51 @@ def convert_to_button_info(problemed_res_list):
 
     o = map(lambda x: [problem_string, button_label, action_func, x],
             residue_spec_list)
-    print "convert_to_button_info returns", o
+    #print "convert_to_button_info returns", o
     return o
 
 # A problemed-res-list is improper pair where the car is a pair of
 # string, one describing the problem, and the other being the "fix
 # it" button label.  The cdr is a list of residue specs.
 # 
-# A problemed-flip-list-list is a list of those things.
+# A problemed_flip_list_list is a list of those things.
 # 
 def problem_residues2dialog(imol, problemed_res_list_list):
     if (problemed_res_list_list):
-        dialog_pair_of_buttons(imol,
-                               "What-Check Report",
-                               [220, 250],
-                               # buttons is a list of: [[button_1_label, button_1_action,],
-                               #                        [button_2_label button_2_action]]
-                               # The button_1_action function takes as an argument the imol.
-                               # The button_2_action function takes as an argument the imol.
-                               # think function needs to be a string, no args?!?!
+        def button_list():
+            ret = []
+            converted_list = map(convert_to_button_info, problemed_res_list_list)
+            for problemed_list in converted_list:
+                for flip_res_info in problemed_list:
+                    flip_res_spec  = flip_res_info[3]
+                    button_label   = flip_res_info[1]
+                    action_func    = flip_res_info[2]
+                    problem_string = flip_res_info[0]
+                    ret.append([[problem_string + " " + residue_spec2string(flip_res_spec),
+                                 "go_to_residue_by_spec(" + str(imol) + ", " + str(flip_res_spec) + ")"],
+                                [button_label,
+                                 str(action_func) + "(" + str(imol) + ", " + str(flip_res_spec) + ")"]])
 
-                               # FIXME
+            #print "BL DEBUG:: returning button_list", ret
+            return ret
 
-                               "  Close  ")
+        dialog_box_of_pairs_of_buttons(imol,
+                                       "What-Check Report",
+                                       [270, 300],
+                                       # buttons is a list of: [[button_1_label, button_1_action,],
+                                       #                        [button_2_label, button_2_action]]
+                                       # The button_1_action function is a string.
+                                       # The button_2_action function is a string.
+                                       button_list(),
+                                       "  Close  ")
+        
 # action is either 'gui' (then we get a gui) or 'apply-actions', then the model
 # modifications are automatically applied.
 #
 def parse_check_db(imol, file_name, action):
 
     #
+    global my_flip, my_rsr, my_delete_atom, my_rotamer_search
     def my_flip(imol_local, res_spec):
         do_180_degree_side_chain_flip(imol_local,
                                       res_spec[0],
@@ -97,17 +113,17 @@ def parse_check_db(imol, file_name, action):
                                       "")
 
     def my_rsr(imol_local, res_spec):
-        with_auto_accept([[refine_zone, imol_local, res_spec[0], res_spec[2],
-                           res_spec[3], ""]])
+        with_auto_accept([refine_zone, imol_local, res_spec[0], res_spec[1],
+                           res_spec[1], ""])
 
     #
     def my_delete_atom(imol, atom_spec):
         ls = [imol] + atom_spec
-        print "calling delte_atom with args", ls
+        print "calling delete_atom with args", ls
         delete_atom(*ls)
 
     #
-    def my_rotamer_search(imol, atom_spec):
+    def my_rotamer_search(imol, res_spec):
         chain_id = res_spec[0]
         resno    = res_spec[1]
         ins_code = res_spec[2]
@@ -118,6 +134,8 @@ def parse_check_db(imol, file_name, action):
             print "rotamer search with imol: %s chain: %s resno: %s inscode: %s" \
                   %(imol, chain_id, resno, ins_code)
             auto_fit_best_rotamer(resno, altloc, ins_code, chain_id, imol, imol_map, 1, 0.01)
+        else:
+            add_status_bar_text("No refinement map available, no rotamer fit")
 
     # return False or a residue spec:
     def line2residue_spec(line):
@@ -164,8 +182,11 @@ def parse_check_db(imol, file_name, action):
         for action in action_list:
             func = action[0]
             baddie_list = action[1]
-            imol_list =  # ??????
+            print "BL DEBUG:: action and baddie_list", action, baddie_list
+            imol_list = map(lambda x: imol, baddie_list)
+            print "BL DEBUG:: imol_list", imol_list
             print "applying %s to %s" %(func, baddie_list)
+            print "BL DEBUG:: len of lists", len(imol_list), len(baddie_list)
             map(func, imol_list, baddie_list)
 
     # main line
@@ -186,6 +207,7 @@ def parse_check_db(imol, file_name, action):
         lines = fin.readlines()
         fin.close()
         for line in lines:
+            line = line.rstrip('\n')  # remove trailing \n
             if (line == "//"):
                 found_flip_table     = False
                 found_h2ohbo_table   = False
@@ -209,7 +231,7 @@ def parse_check_db(imol, file_name, action):
                 if (len(line) > 12):
                     attr_type = line[0:11]
                     if (attr_type == "   Name   :"):
-                        print "found h2obmo name", line
+                        #print "found h2obmo name", line
                         atom = line2atom_spec(line)
                         if (atom):
                             h2o_h_bond_less_list.append(atom)
@@ -221,9 +243,10 @@ def parse_check_db(imol, file_name, action):
                 if (len(line) > 12):
                     attr_type = line[0:11]
                     if (attr_type == "   Name   :"):
+                        #print "found bump", line
                         res = line2residue_spec(line)
                         if (res):
-                            bump_list.append(atom)
+                            bump_list.append(res)
             
             if (line == "CheckID   : BMPCHK"):
                 found_BMPCHK_table = True
@@ -234,7 +257,7 @@ def parse_check_db(imol, file_name, action):
                     if (attr_type == "   Name   :"):
                         res = line2residue_spec(line)
                         if (res):
-                            namchk_list.append(atom)
+                            namchk_list.append(res)
             
             if (line == "CheckID   : NAMCHK"):
                 found_NAMCHK_table = True
@@ -245,20 +268,21 @@ def parse_check_db(imol, file_name, action):
                     if (attr_type == "   Name   :"):
                         res = line2residue_spec(line)
                         if (res):
-                            plane_list.append(atom)
+                            plane_list.append(res)
             
             if (line == "CheckID   : PLNCHK"):
                 found_PLNCHK_table = True
             
-        # print "Here flip_list is", flip_list
-        # print "Here h2o-h-bond-less-list is", h2o_h_bon_less_list
-        # print "Here bump_list is", bump_list
+        #print "Here flip_list is", flip_list
+        #print "Here h2o-h-bond-less-list is", h2o_h_bond_less_list
+        #print "Here bump_list is", bump_list
+        print "Here plane_list is", plane_list
         if (action == 'gui'):
             problem_residues2dialog(imol, [
-                ["Needs flipping", "Flip it", my_flip, flip_list],
-                ["Water with no H-bonds", "Delete it", my_delete_atom, h2o_h_bond_less_list],
-                ["Has Bumps", "Rotamer Search", my_rotamer_seach, bump_list],
-                ["Nomenclature error", "180 degree flip", my_flip, namchk_list]])
+                ["Needs flipping", "Flip it", "my_flip", flip_list],
+                ["Water with no H-bonds", "Delete it", "my_delete_atom", h2o_h_bond_less_list],
+                ["Has Bumps", "Rotamer Search", "my_rotamer_search", bump_list],
+                ["Nomenclature error", "180 degree flip", "my_flip", namchk_list]])
         elif (action == 'apply-actions'):
             apply_actions(imol, [
                 # [my_flip, flip_list],
