@@ -49,7 +49,8 @@
 
 pick_info
 pick_atom(const atom_selection_container_t &SelAtom, int imol,
-	  const coot::Cartesian &front, const coot::Cartesian &back, short int pick_mode) {
+	  const coot::Cartesian &front, const coot::Cartesian &back, short int pick_mode,
+	  bool verbose_mode) {
 
    float min_dist = 0.4;
    int nearest_atom_index = -1;
@@ -78,9 +79,19 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 		  p_i.atom_index = nearest_atom_index;
 		  p_i.imol = imol;
 		  p_i.min_dist = dist;
-	       
-		  // std::cout << "DEBUG:: atom index " << nearest_atom_index << std::endl;
-	       }
+
+		  if (verbose_mode) { 
+		     std::cout << "   DEBUG:: imol " << imol << " " 
+			       << " atom index " << nearest_atom_index << std::endl;
+		     std::cout << "   DEBUG:: imol " << imol << " "
+			       << SelAtom.atom_selection[i] << " " << min_dist
+			       << std::endl; 
+		  } 
+	       } else {
+		  if (verbose_mode) { 
+		     std::cout << "CA pick mode:" << std::endl;
+		  } 
+	       } 
 	    }
 	 }
       }
@@ -134,6 +145,11 @@ atom_pick(GdkEventButton *event) {
    }
 
    if (check_pick) { 
+
+      if (graphics_info_t::debug_atom_picking) {
+	 std::cout << "   == Level 2 atom picking diagnostic (send to Paul) ==\n";
+      }
+      
       int n_pickable = 0;
       int max_mol_no = graphics_info_t::n_molecules() - 1;
       for (int ii=max_mol_no; ii>=0; ii--) {
@@ -148,7 +164,8 @@ atom_pick(GdkEventButton *event) {
 	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS)
 		  pick_mode = PICK_ATOM_CA_ONLY;
 
-	       pick_info mpi = pick_atom(SelAtom, ii, front, back, pick_mode);
+	       bool verbose_mode = graphics_info_t::debug_atom_picking;
+	       pick_info mpi = pick_atom(SelAtom, ii, front, back, pick_mode, verbose_mode);
 	       if (mpi.success) {
 		  if (mpi.min_dist < dist_closest) {
 		     p_i = mpi;
@@ -160,13 +177,13 @@ atom_pick(GdkEventButton *event) {
       }
 
       if (graphics_info_t::debug_atom_picking) {
-	 std::cout << "   == Level 2 atom picking diagnostic (send to Paul) ==\n";
 	 for (int ii=max_mol_no; ii>=0; ii--) {
 	    std::cout << "   MolNo " << ii << " of "
 		      << graphics_info_t::n_molecules() << ":  " 
 		      << graphics_info_t::molecules[ii].has_model() << " " 
 		      << graphics_info_t::molecules[ii].is_displayed_p() << " " 
 		      << graphics_info_t::molecules[ii].atom_selection_is_pickable() << "  "
+		      << graphics_info_t::molecules[ii].atom_sel.n_selected_atoms << "  "
 		      << graphics_info_t::molecules[ii].name_ << " "
 		      << "\n";
 	 }
@@ -271,7 +288,7 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
    short int pick_mode = PICK_ATOM_ALL_ATOM;
-   return pick_atom(SelAtom, -1, front, back, pick_mode);
+   return pick_atom(SelAtom, -1, front, back, pick_mode, 0);
 }
 
 

@@ -77,7 +77,9 @@ pick_info atom_pick(GdkEventButton *event); // atom index in the atom selection
 // pick_info moving_atoms_atom_pick(); not here, it's in graphics.
 
 pick_info pick_atom(const atom_selection_container_t &SelAtom, int imol,
-		    const coot::Cartesian &front, const coot::Cartesian &back, short int pick_mode);
+		    const coot::Cartesian &front, const coot::Cartesian &back, 
+		    short int pick_mode, bool verbose_mode);
+
 pick_info pick_intermediate_atom(const atom_selection_container_t &SelAtom);
 
 
