@@ -1354,8 +1354,10 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
      }
 
      { 
-	int gl_context_x_size = GRAPHICS_WINDOW_X_START_SIZE;
-	int gl_context_y_size = GRAPHICS_WINDOW_Y_START_SIZE;
+//	int gl_context_x_size = GRAPHICS_WINDOW_X_START_SIZE;
+//	int gl_context_y_size = GRAPHICS_WINDOW_Y_START_SIZE;
+	int gl_context_x_size = graphics_info_t::graphics_x_size;
+	int gl_context_y_size = graphics_info_t::graphics_y_size;
 	// int gl_context_y_size = g.graphics_y_size; old
 
  	if (context_count > 1) { // more than the first context

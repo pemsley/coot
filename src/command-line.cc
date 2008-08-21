@@ -105,7 +105,8 @@ parse_command_line(int argc, char ** argv ) {
       {"stereo",     0, 0, 0},       // no arguments 
       {"side-by-side",     0, 0, 0}, // no arguments 
       {"version",    0, 0, 0},       // no arguments 
-      {"no-guano",   0, 0, 0},       // no arguments 
+      {"no-guano",   0, 0, 0},       // no arguments
+      {"eee",        0, 0, 0},       // no arguments (setting for EEE PC and other small screens)
       {0, 0, 0, 0}	       // must have blanks at end
    };
 
@@ -216,10 +217,14 @@ parse_command_line(int argc, char ** argv ) {
 			      } else { 
 				 if (arg_str == "no-guano") {
 				    cld.disable_state_script_writing = 1;
-				 } else { 
-				    std::cout << "WARNING! Malformed option - needs an argument: " 
-					      << long_options[option_index].name
-					      << std::endl << std::endl;
+				 } else {
+				   if (arg_str == "eee") {
+				     cld.small_screen_display = 1;
+				   } else { 
+				     std::cout << "WARNING! Malformed option - needs an argument: " 
+					       << long_options[option_index].name
+					       << std::endl << std::endl;
+				   }
 				 }
 			      }
 			   }
@@ -288,6 +293,17 @@ void command_line_data::handle_immediate_settings() {
       graphics_info_t::use_graphics_interface_flag = 1;
    else {
       graphics_info_t::use_graphics_interface_flag = 0; 
+   }
+
+   // small screen
+   if (small_screen_display) {
+#define GRAPHICS_WINDOW_X_START_SIZE 400
+#define GRAPHICS_WINDOW_Y_START_SIZE 400
+     std::cout <<"INFO:: set labels and icons for small screens" <<std::endl;
+     gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
+     gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
+     graphics_info_t::graphics_x_size = 400;
+     graphics_info_t::graphics_y_size = 400;
    }
 }
 
@@ -382,4 +398,5 @@ handle_command_line_data(command_line_data cld) {
       graphics_info_t::remote_control_port_number = cld.port;
       graphics_info_t::remote_control_hostname = cld.hostname;
    }
+
 }

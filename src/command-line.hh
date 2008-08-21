@@ -20,6 +20,7 @@ public:
    std::string ccp4_project;
    short int try_listener;
    short int do_graphics;
+   short int small_screen_display;
    bool disable_state_script_writing;
    command_line_data() { 
      hardware_stereo_flag = 0; // default off
@@ -29,6 +30,7 @@ public:
      do_graphics = 1; // use graphics by default
      disable_state_script_writing = 0; // don't disable, by default
      script_is_python_flag = 0;
+     small_screen_display  = 0; // default is no small screen
    }
    void handle_immediate_settings(); 
 };
