@@ -737,27 +737,31 @@ void setup_application_icon(GtkWindow *window) {
    GdkScreen *screen;
    screen = gdk_screen_get_default();
    if (screen) {
-	  int width = gdk_screen_get_width(screen);
-	  int height = gdk_screen_get_height(screen);
+     int width = gdk_screen_get_width(screen);
+     int height = gdk_screen_get_height(screen);
 #ifdef WINDOWS_MINGW
-	  int max_height = int(height * 0.95);
+     int max_height = int(height * 0.95);
 #else
-	  int max_height = int(height * 0.9);
+     int max_height = int(height * 0.9);
 #endif // MINGW
-	  if (max_height <= 620) {
-		 max_height = 620;
-	  }
-	  if (max_height <= 720) {
-		 int icon_size = 12 + (max_height - 620) / 25;
-		 std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
-		 toolbar_txt += coot::util::int_to_string(icon_size);
-		 toolbar_txt += ",";
-		 toolbar_txt += coot::util::int_to_string(icon_size);
-		 toolbar_txt += "\"";
-		 gtk_rc_parse_string (toolbar_txt.c_str());
-	  }
+     if (max_height <= 620) {
+       max_height = 620;
+     }
+     if (max_height <= 720) {
+       int icon_size = 12 + (max_height - 620) / 25;
+       std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
+       toolbar_txt += coot::util::int_to_string(icon_size);
+       toolbar_txt += ",";
+       toolbar_txt += coot::util::int_to_string(icon_size);
+       toolbar_txt += ":gtk-button=";
+       toolbar_txt += coot::util::int_to_string(icon_size);
+       toolbar_txt += ",";
+       toolbar_txt += coot::util::int_to_string(icon_size);
+       toolbar_txt += "\"";
+       gtk_rc_parse_string (toolbar_txt.c_str());
+     }
    } else {
-	  g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
+     g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
    }
 	 
 #endif // GTK
