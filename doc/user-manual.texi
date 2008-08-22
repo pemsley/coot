@@ -2551,6 +2551,22 @@ using values of 2 and 3 for @code{@emph{start-res-no}} and
 Again, the length of the sequence must correspond to the residue range
 length.
 
+@subsection Mutating to a Non-Standard Residue
+
+Sometimes one might like to model post-translational or other such
+modifications.  How is that done, if the new residue type is not one of
+the standard residue types?
+ 
+There is a scripting function: 
+
+@code{mutate-by-overlap @emph{imol chain-id resno new-three-letter-code})}
+
+This imports a model residue for the new residue type and overlays it on
+to the given residue by using graph-matching to determine the equivalent
+atoms.
+
+There is no GUI interface to this function yet.
+
 @subsection Mutate and Autofit
 The function combines Mutation and Auto Fit Rotamer and is the easiest
 way to make a mutation and then fit to the map.  You can currently only
