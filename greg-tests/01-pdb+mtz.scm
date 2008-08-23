@@ -989,6 +989,39 @@
 
 
 
+(greg-testcase "Test for mangling of hydrogen names from a PDB v 3.0" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "3ins-6B-3.0.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "Bad read of greg test pdb: 3ins-6B-3.0.pdb")
+	     (throw 'fail)))
+
+       (with-auto-accept (regularize-zone imol "B" 6 6 ""))
+       (let ((atom-pairs 
+	      (list 
+	       (cons "HD11" " CD1")
+	       (cons "HD12" " CD1")
+	       (cons "HD13" " CD1")
+	       (cons "HD21" " CD2")
+	       (cons "HD22" " CD2")
+	       (cons "HD23" " CD2"))))
+
+	 (all-true?
+	  (map
+	   (lambda (pair)
+	     (let ((atom-1 (get-atom imol "B" 6 (car pair)))
+		   (atom-2 (get-atom imol "B" 6 (cdr pair))))
+	       (if (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)
+		   #t 
+		   (begin
+		     (format #t "Hydrogen names mangled from PDB ~s ~s~%"
+			     atom-1 atom-2)
+		     #f))))
+	   atom-pairs))))))
+	       
+
 (greg-testcase "update monomer restraints" #t 
    (lambda () 
 
