@@ -30,7 +30,7 @@ int main( int argc, char** argv )
   // read mmdb
   CMMDBManager mmdb;
   mmdb.SetFlag( MMDBF_AutoSerials | MMDBF_IgnoreDuplSeqNum );
-  mmdb.ReadPDBASCII( (char*)mmdbfile.c_str() );
+  mmdb.ReadPDBASCII( mmdbfile.c_str() );
 
   // make sequence object
   std::vector<std::pair<std::string,std::string> > seq;
