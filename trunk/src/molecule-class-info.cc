@@ -1826,6 +1826,38 @@ coot::atom_selection_info_t::name () const {
    return s;
 }
 
+
+// return the atom selection and the number of atoms
+int
+coot::atom_selection_info_t::select_atoms(CMMDBManager *mol) const {
+
+   int n_atoms = 0;
+   PPCAtom atom_selection = NULL;
+   int SelHnd = -1;
+   const char *alt_conf_str = "*";
+   if (alt_conf_is_set)
+      alt_conf_str = altconf.c_str();
+   if (type == BY_ATTRIBUTES) {
+      SelHnd = mol->NewSelection();
+      mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+		       resno_start, // starting resno, an int
+		       ins_code.c_str(), // any insertion code
+		       resno_start, // ending resno
+		       ins_code.c_str(), // ending insertion code
+		       "*", // any residue name
+		       "*", // atom name
+		       "*", // elements
+		       alt_conf_str  // alt loc.
+		       );
+   }
+   if (type == BY_STRING) {
+      SelHnd = mol->NewSelection();
+      mol->Select(SelHnd, STYPE_ATOM, atom_selection_str.c_str(), SKEY_NEW);
+   } 
+   return SelHnd;
+}
+
+
 std::string
 coot::atom_selection_info_t::mmdb_string() const {
 

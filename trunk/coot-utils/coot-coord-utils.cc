@@ -1532,8 +1532,21 @@ coot::util::create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol,
 // ignore atom index transfer
 CMMDBManager *
 coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
-						   int SelectionHandle) {
+						   int SelectionHandle,
+						   bool invert_seletion) {
+
+   if (invert_seletion)
+      return coot::util::create_mmdbmanager_from_inverted_atom_selection(orig_mol,
+									 SelectionHandle);
+   else
+      return coot::util::create_mmdbmanager_from_atom_selection_straight(orig_mol,
+									 SelectionHandle);
+}
    
+// ignore atom index transfer
+CMMDBManager *
+coot::util::create_mmdbmanager_from_atom_selection_straight(CMMDBManager *orig_mol,
+							    int SelectionHandle) { 
    CMMDBManager *atoms_mol = new CMMDBManager;
    CModel *model = new CModel;
    atoms_mol->AddModel(model);
@@ -1579,7 +1592,6 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
       if (n_sel_residues > 0) {
 	 CAtom *new_atom = new CAtom;
 	 new_atom->Copy(at);
-	 // std::cout << "      simply adding atom: " << new_atom << std::endl;
 	 sel_residues[0]->AddAtom(new_atom);
       } else {
 	 // residue was not found!
@@ -1598,46 +1610,43 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 			    );
 	 PCChain *sel_chains;
 	 int n_sel_chains;
-	 atoms_mol->GetSelIndex(atom_chain_selection_handle, sel_chains, n_sel_chains);
+	 atoms_mol->GetSelIndex(atom_chain_selection_handle, sel_chains,
+				n_sel_chains);
 
 	 if (n_sel_chains > 0) {
-// 	    std::cout << "creating residue in chain " << sel_chains[0]->GetChainID()
-// 		      << " with specs " <<   at->GetResName() << " "
-// 		      << at->GetSeqNum() << " "
-// 		      << at->GetInsCode() << std::endl;
 	    CResidue *residue = new CResidue(sel_chains[0],
 					     at->GetResName(),
 					     at->GetSeqNum(),
 					     at->GetInsCode());
 	    CAtom *new_atom = new CAtom; 
 	    new_atom->Copy(at);
-	    // std::cout << "   adding atom: " << new_atom << std::endl;
 	    residue->AddAtom(new_atom);
-	    
 	 } else {
-	    // There was no chain even.
+	    // There was not even a chain...
 	    CChain *chain = new CChain(model, at->GetChainID());
-	    
-// 	    std::cout << "   adding residue..." << std::endl;
-// 	    std::cout << "creating residue in chain " << chain->GetChainID()
-// 		      << " with specs " <<   at->GetResName() << " "
-// 		      << at->GetSeqNum() << " "
-// 		      << at->GetInsCode() << std::endl;
 	    CResidue *residue = new CResidue(chain,
 					     at->GetResName(),
 					     at->GetSeqNum(),
 					     at->GetInsCode());
 	    CAtom *new_atom = new CAtom; 
 	    new_atom->Copy(at);
-	    // std::cout << "   adding atom: " << new_atom << std::endl;
 	    residue->AddAtom(new_atom);
+// 	    std::cout << "DEBUG:: straight: added atom (and res, chains) :"
+// 		      << new_atom->GetAtomName()
+// 		      << ": to "
+// 		      << residue->GetChainID() << " " 
+// 		      << residue->GetSeqNum()  << " " 
+// 		      << residue->GetResName() << " " 
+// 		      << std::endl;
+// 	    std::cout << "DEBUG:: straight: added    residue " << residue->GetSeqNum()
+// 		      << std::endl;
+// 	    std::cout << "DEBUG:: straight: added       chain " << chain->GetChainID()
+// 		      << std::endl;
 	 } 
       }
       atoms_mol->DeleteSelection(atom_residue_selection_handle);
    }
 
-   //if (n_selected_atoms > 0) {
-   // now set the spacegroup and cell:
    realtype a[6];
    realtype vol;
    int orthcode;
@@ -1649,10 +1658,25 @@ coot::util::create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
    }
    atoms_mol->FinishStructEdit();
    return atoms_mol;
-   //} else {
-   // we dont have any selection, so return NULL
-   //return NULL;
-   //}
+}
+
+// Beware This destroys (inverts) the atom selection as passed.
+CMMDBManager *
+coot::util::create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_mol,
+							    int SelectionHandle) {
+
+   // The idea here is that we want to have a selection that is
+   // logical NOT of the SelectionHandle selection.
+   // 
+   // So we need to select everything in orig_mol and then use
+   // SKEY_XOR to get a selection that is the NOT ofthe
+   // SelectionHandle selection.
+
+   orig_mol->Select(SelectionHandle, STYPE_ATOM, 0, "*", ANY_RES, "*", ANY_RES, "*",
+		    "*", "*", "*", "*", SKEY_XOR);
+   CMMDBManager *new_mol =
+      coot::util::create_mmdbmanager_from_atom_selection(orig_mol, SelectionHandle);
+   return new_mol;
 }
 
 

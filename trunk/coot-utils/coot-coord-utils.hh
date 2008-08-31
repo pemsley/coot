@@ -596,7 +596,15 @@ namespace coot {
 						    CResidue *res);
 
       CMMDBManager *create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
-							   int SelectionHandle);
+							   int SelectionHandle,
+							   bool invert_selection_flag=0);
+      // uses the following:
+      CMMDBManager *create_mmdbmanager_from_atom_selection_straight(CMMDBManager *orig_mol,
+								    int SelectionHandle);
+      // Beware: This destroys (inverts) the atom selection as passed.
+      CMMDBManager *create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_mol,
+								    int SelectionHandle);
+      void add_copy_of_atom(CMMDBManager *mol, CAtom *atom);
       
       // utility function for above:
       CResidue* deep_copy_this_residue(const CResidue *residue,

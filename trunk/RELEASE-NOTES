@@ -3,6 +3,8 @@ Pre-release 0.5
 
    o FEATURE: Coot now has a Preferences dialog.
 
+   o FEATURE: Coot now is PDB version 3.0 compliant.
+
    o FEATURE: Additional Representations added [Tadeusz Skarzynski].
 
    o FEATURE: "Fixed Atoms" for refinement have been introduced.
@@ -10,12 +12,12 @@ Pre-release 0.5
    o FEATURE: Monomer restraints can be edited in a GUI and are
      exported to the scripting layer.
 
-   o FEATURE: Add dialog position preferences to Extensions.
-
    o FEATURE: Coot can now make difference maps.
 
    o FEATURE: The state file now remembers the refinement map number
      [Herb Klei].
+
+   o FEATURE: Add dialog position preferences to Extensions.
 
    o FEATURE: The state file now remembers the scroll-wheel (contour
      changing) map [Kevin Madauss].

@@ -1732,6 +1732,11 @@ public:
 				       const std::string &alt_conf,
 				       int imol);
    void execute_rigid_body_refine(short int auto_range_flag);
+   // called by above:
+   void rigid_body_fit(const coot::minimol::molecule &mol_without_moving_zone,
+		       const coot::minimol::molecule &range_mol,
+		       int imol_ref_map,
+		       bool mask_water_flag);
 
    static short int in_residue_info_define; // initially 0
    static float geometry_vs_map_weight; 

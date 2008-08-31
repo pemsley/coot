@@ -65,6 +65,31 @@
 #include "coot-coord-utils.hh"
 
 
+std::pair<coot::minimol::molecule, coot::minimol::molecule>
+coot::make_mols_from_atom_selection_string(CMMDBManager *mol,
+					   std::string atom_selection_string,
+					   bool fill_masking_molecule_flag) {
+   int SelHnd = mol->NewSelection();
+   mol->Select(SelHnd, STYPE_ATOM, atom_selection_string.c_str(), SKEY_NEW);
+   PPCAtom atom_selection = NULL;
+   int n_selected_atoms;
+   mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
+
+   CMMDBManager *mol_from_selected =
+      coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
+   // atom selection in mol gets inverted by this function:
+   CMMDBManager *mol_from_non_selected =
+      coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd, 1);
+
+   coot::minimol::molecule range_mol  = coot::minimol::molecule(mol_from_selected);
+   coot::minimol::molecule masked_mol = coot::minimol::molecule(mol_from_non_selected);
+   delete mol_from_selected;
+   delete mol_from_non_selected;
+   mol->DeleteSelection(SelHnd);
+   return std::pair<coot::minimol::molecule, coot::minimol::molecule> (masked_mol, range_mol);
+}
+
+
 coot::ligand::ligand() {
 
    n_clusters = 0;

@@ -972,6 +972,7 @@ The is only activated when scrolling by sigma is turned off */
 void set_iso_level_increment(float val);
 float get_iso_level_increment();
 void set_iso_level_increment_from_text(const char *text, int imol);
+
 /*! \brief set the contour scroll step for difference map (in absolute
   e/A3) to val
 
@@ -3640,6 +3641,10 @@ void do_rigid_body_refine(short int state);	/* set up for atom picking */
 void rigid_body_refine_zone(int reso_start, int resno_end, 
 			    const char *chain_id, int imol);
 
+void
+rigid_body_refine_by_atom_selection(int imol, 
+				    const char *atom_selection_string);
+
 /*! \brief actually do the rigid body refinement
 
    various atom selection holders in graphics-info have been set, actually do it.  */
@@ -4130,7 +4135,7 @@ short int draw_crosshairs_state();
 /* \{ */
 /* c-interface-build functions */
 void setup_edit_chi_angles(short int state); 
-void set_find_hydrogen_torsion(short int state);
+void set_find_hydrogen_torsions(short int state);
 void set_graphics_edit_current_chi(int ichi); /* button callback */
 void unset_moving_atom_move_chis();
 

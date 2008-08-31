@@ -4723,7 +4723,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
    if (has_model()) {
       int SelHnd = atom_sel.mol->NewSelection();
       atom_sel.mol->Select(SelHnd, STYPE_ATOM,
-			   (char *) atom_selection_str.c_str(), // sigh...
+			   atom_selection_str.c_str(),
 			   SKEY_OR);
       int n_selected_atoms;
       PPCAtom atom_selection = NULL;

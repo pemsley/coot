@@ -20,6 +20,7 @@ int test_alt_conf_rotamers();
 int test_wiggly_ligands();
 int test_torsion_derivs();
 int test_ramachandran_probabilities();
+int test_fragmemt_atom_selection();
 int kdc_torsion_test();
 
 class residue_selection_t {

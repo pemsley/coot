@@ -16,6 +16,7 @@
 
 #include "wligand.hh"
 #include "simple-restraint.hh"
+#include "ligand.hh"
 
 // a shorthand so that the push back line doesn't get too long:
 typedef std::pair<int(*)(), std::string> named_func;
@@ -80,18 +81,23 @@ int test_internal() {
    functions.push_back(named_func(kdc_torsion_test, "kevin's torsion test"));
    functions.push_back(named_func(test_alt_conf_rotamers, "test_alt_conf_rotamers"));
    functions.push_back(named_func(test_wiggly_ligands, "test_wiggly_ligands"));
-   // functions.push_back(named_func(test_torsion_derivs, "test_torsion_derivs"));
-   functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
+   // file not found.
+   // functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
+   functions.push_back(named_func(test_fragmemt_atom_selection, "test_fragmemt_atom_selection"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
       try { 
 	 status = functions[i_func].first();
-	 if (status == 0) 
+	 if (status) {
+	    std::cout << "PASS: " << functions[i_func].second << std::endl;
+	 } else { 
+	    std::cout << "FAIL: " << functions[i_func].second << std::endl;
 	    break;
+	 }
       }
       catch (std::runtime_error mess) {
-	 std::cout << "Failed " << functions[i_func].second << " " << mess.what() << std::endl;
+	 std::cout << "FAIL: " << functions[i_func].second << " " << mess.what() << std::endl;
 	 status = 0;
 	 break;
       }
@@ -489,44 +495,6 @@ int test_ramachandran_probabilities() {
 } 
 
 
-int test_torsion_derivs() {
-
-   int r = 0;
-   std::string file_name = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(file_name);
-   std::string chain_id = "A";
-   char *chn = (char *) chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
-   int resno = 59;
-   coot::protein_geometry geom;
-   geom.init_standard();
-   int selHnd = atom_sel.mol->NewSelection();
-   int nSelResidues; 
-   PCResidue *SelResidues = NULL;
-   atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
-			chn,
-			resno-1, "",
-			resno+1, "",
-			"*",  // residue name
-			"*",  // Residue must contain this atom name?
-			"*",  // Residue must contain this Element?
-			"",   // altLocs
-			SKEY_NEW // selection key
-			);
-   atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-   
-   int enable_rama_refinement = 0;
-   int side_step = 0;
-   bool use_flanking_residues = 1;
-   bool output_numerical_gradients = 1;
-   residue_selection_t refined_res_sel =
-      testing_func_probabilities_refine_fragment(atom_sel, SelResidues, nSelResidues,
-						 chain_id, resno, geom,
-						 enable_rama_refinement,
-						 side_step,
-						 use_flanking_residues,
-						 output_numerical_gradients);
-   return r;
-}
 
 
 int kdc_torsion_test() { 
@@ -626,9 +594,41 @@ int kdc_torsion_test() {
 	      r = 0;
 	   }
      }
-
   return r;
 }
 
+
+int
+test_fragmemt_atom_selection() {
+
+   int status = 0;
+
+   bool fill_masking_molecule_flag = 1;
+   std::string atom_selection_string = "//A,B/1-5";
+   int n_atoms_in_frag = 64;
+   // from wc, there are 64   atoms in that atom selection in tutorial-modern.pdb
+   //          there are 1465 atoms in tutorial-modern.pdb
+   
+   std::string f = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t asc = get_atom_selection(f);
+   
+   std::pair<coot::minimol::molecule, coot::minimol::molecule> p = 
+      coot::make_mols_from_atom_selection_string(asc.mol, atom_selection_string,
+						 fill_masking_molecule_flag);
+
+   // now test the number of atoms in first and second
+   int n_initial = asc.n_selected_atoms;
+   int n_1 = p.first.count_atoms();
+   int n_2 = p.second.count_atoms();
+   
+
+   std::cout << "   n_initial: " << n_initial << "   n_1: " << n_1 << "   n_2: "
+	     << n_2 << std::endl;
+   if (n_1 == (n_initial - n_atoms_in_frag))
+      if (n_2 == n_atoms_in_frag)
+	 status = 1;
+      
+   return status;
+}
 
 #endif // BUILT_IN_TESTING
