@@ -108,7 +108,7 @@ get_atom_selection(std::string pdb_name) {
 #endif // HAVE_MMDB_IGNORE_HASH       
        
        std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
-       err = MMDBManager->ReadCoorFile((char *)pdb_name.c_str());
+       err = MMDBManager->ReadCoorFile(pdb_name.c_str());
    
        if (err) {
 	  // does_file_exist(pdb_name.c_str());

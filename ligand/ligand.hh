@@ -34,6 +34,14 @@
 
 namespace coot {
 
+   // return a molecule of atoms in the selection and a molecule of
+   // atoms to be used to mask the map (i.e. those not in the
+   // selection).
+   std::pair<minimol::molecule, minimol::molecule>
+      make_mols_from_atom_selection_string(CMMDBManager *mol,
+					   std::string atom_selection_string,
+					   bool fill_masking_molecule_flag);
+
    class scored_coord {
    public:
       float score; 

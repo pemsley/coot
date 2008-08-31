@@ -995,7 +995,7 @@
      (let ((imol (greg-pdb "3ins-6B-3.0.pdb")))
        (if (not (valid-model-molecule? imol))
 	   (begin
-	     (format #t "Bad read of greg test pdb: 3ins-6B-3.0.pdb")
+	     (format #t "Bad read of greg test pdb: 3ins-6B-3.0.pdb~%")
 	     (throw 'fail)))
 
        (with-auto-accept (regularize-zone imol "B" 6 6 ""))

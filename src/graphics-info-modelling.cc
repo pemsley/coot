@@ -980,7 +980,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
    int ires2;
    char *chain_id_1;
    char *chain_id_2 = 0;
-   short int mask_water_flag = 0; // don't mask waters
+   bool mask_water_flag = 0; // don't mask waters
 
    if (auto_range_flag) { 
       std::pair<int, int> p = auto_range_residues(residue_range_atom_index_1,
@@ -1036,18 +1036,14 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 // 	     << " imol: " << imol_rigid_body_refine << " residue "
 // 	     << ires1 << " to " << ires2 << " chain " << chain << std::endl;
 
-   coot::ligand lig;
    int imol_ref_map = Imol_Refinement_Map();  // -1 is a magic number
 
    if (Imol_Refinement_Map() == -1 ) { // magic number
       //
       std::cout << "Please set a map against which the refimentment should occur"
 		<< std::endl;
-      show_select_map_dialog();
+      show_select_map_dialog();  // protected
    } else {
-      lig.import_map_from(molecules[imol_ref_map].xmap_list[0], 
-			  molecules[imol_ref_map].map_sigma());
-
 
       coot::minimol::molecule mol(molecules[imol_rigid_body_refine].atom_sel.mol);
       
@@ -1101,80 +1097,93 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom 
 	 }
       }
       coot::minimol::molecule mol_without_moving_zone = mol;
+      rigid_body_fit(mol_without_moving_zone, range_mol, imol_ref_map, mask_water_flag);
+   } // valid map test
+}
 
-      std::vector<coot::minimol::atom *> range_atoms = range_mol.select_atoms_serial();
-//       std::cout << "There are " << range_atoms.size() << " atoms from initial ligand "
-// 		<< std::endl;
-      
-      lig.install_ligand(range_mol);
-      lig.find_centre_by_ligand(0); // don't test ligand size
-      lig.set_map_atom_mask_radius(0.5);
-      lig.mask_map(mol_without_moving_zone, mask_water_flag);
-      lig.set_dont_write_solutions();
-      lig.set_dont_test_rotations();
-      lig.set_acceptable_fit_fraction(graphics_info_t::rigid_body_fit_acceptable_fit_fraction);
-      lig.fit_ligands_to_clusters(1);
-      coot::minimol::molecule moved_mol = lig.get_solution(0);
 
-      std::vector<coot::minimol::atom *> atoms = moved_mol.select_atoms_serial();
+void
+graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_moving_zone,
+				const coot::minimol::molecule &range_mol,
+				int imol_ref_map,
+				bool mask_water_flag) {
+					
+   std::vector<coot::minimol::atom *> range_atoms = range_mol.select_atoms_serial();
+   //       std::cout << "There are " << range_atoms.size() << " atoms from initial ligand "
+   // 		<< std::endl;
+   
+   coot::ligand lig;
+   lig.import_map_from(molecules[imol_ref_map].xmap_list[0], 
+		       molecules[imol_ref_map].map_sigma());
+   
+   lig.install_ligand(range_mol);
+   lig.find_centre_by_ligand(0); // don't test ligand size
+   lig.set_map_atom_mask_radius(0.5);
+   lig.mask_map(mol_without_moving_zone, mask_water_flag);
+   lig.set_dont_write_solutions();
+   lig.set_dont_test_rotations();
+   lig.set_acceptable_fit_fraction(graphics_info_t::rigid_body_fit_acceptable_fit_fraction);
+   lig.fit_ligands_to_clusters(1);
+   coot::minimol::molecule moved_mol = lig.get_solution(0);
+   
+   std::vector<coot::minimol::atom *> atoms = moved_mol.select_atoms_serial();
 //       std::cout << "DEBUG:: There are " << atoms.size() << " atoms from fitted zone."
 // 		<< std::endl;
       
       
-      // lig.make_pseudo_atoms(); uncomment for a clipper mmdb crash (sigh)
+   // lig.make_pseudo_atoms(); uncomment for a clipper mmdb crash (sigh)
 
-      // range_mol.write_file("range_mol.pdb");
-      // mol_without_moving_zone.write_file("mol_without_moving_zone.pdb");
+   // range_mol.write_file("range_mol.pdb");
+   // mol_without_moving_zone.write_file("mol_without_moving_zone.pdb");
 
-      // Fine.  Now we have to go back to using MMDB to interface with
-      // the rest of the program.  So let's create an asc that has
-      // this atom_sel.mol and the moving atoms as the
-      // atom_selection. (c.f. accepting refinement or
-      // regularization).
+   // Fine.  Now we have to go back to using MMDB to interface with
+   // the rest of the program.  So let's create an asc that has
+   // this atom_sel.mol and the moving atoms as the
+   // atom_selection. (c.f. accepting refinement or
+   // regularization).
 
-      if (atoms.size() > 0) { 
+   if (atoms.size() > 0) { 
 
-	 atom_selection_container_t rigid_body_asc;
-// 	 rigid_body_asc.mol = (MyCMMDBManager *) moved_mol.pcmmdbmanager();
+      atom_selection_container_t rigid_body_asc;
+      // 	 rigid_body_asc.mol = (MyCMMDBManager *) moved_mol.pcmmdbmanager();
 
-// 	 int SelHnd = rigid_body_asc.mol->NewSelection();
-// 	 rigid_body_asc.mol->SelectAtoms(SelHnd, 0, "*",
-// 					 ANY_RES, // starting resno, an int
-// 					 "*", // any insertion code
-// 					 ANY_RES, // ending resno
-// 					 "*", // ending insertion code
-// 					 "*", // any residue name
-// 					 "*", // atom name
-// 					 "*", // elements
-// 					 "*"  // alt loc.
-// 					 );
-// 	 rigid_body_asc.mol->GetSelIndex(SelHnd,
-// 					 rigid_body_asc.atom_selection,
-// 					 rigid_body_asc.n_selected_atoms);
+      // 	 int SelHnd = rigid_body_asc.mol->NewSelection();
+      // 	 rigid_body_asc.mol->SelectAtoms(SelHnd, 0, "*",
+      // 					 ANY_RES, // starting resno, an int
+      // 					 "*", // any insertion code
+      // 					 ANY_RES, // ending resno
+      // 					 "*", // ending insertion code
+      // 					 "*", // any residue name
+      // 					 "*", // atom name
+      // 					 "*", // elements
+      // 					 "*"  // alt loc.
+      // 					 );
+      // 	 rigid_body_asc.mol->GetSelIndex(SelHnd,
+      // 					 rigid_body_asc.atom_selection,
+      // 					 rigid_body_asc.n_selected_atoms);
 	 
-	 rigid_body_asc = make_asc(moved_mol.pcmmdbmanager(default_new_atoms_b_factor));
+      rigid_body_asc = make_asc(moved_mol.pcmmdbmanager(default_new_atoms_b_factor));
 
-	 moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
-	 imol_moving_atoms = imol_rigid_body_refine;
-	 make_moving_atoms_graphics_object(rigid_body_asc);
-// 	 std::cout << "DEBUG:: execute_rigid_body_refine " 
-// 		   << " make_moving_atoms_graphics_object UDDOldAtomIndexHandle " 
-// 		   << moving_atoms_asc->UDDOldAtomIndexHandle << std::endl;
-	 graphics_draw();
-	 if (! refinement_immediate_replacement_flag) { 
-	    coot::refinement_results_t dummy;
-	    if (use_graphics_interface_flag) { 
-	       do_accept_reject_dialog("Rigid Body Fit", dummy); // constructed ref res
-	    }
-	 }
-	 // 
-      } else {
+      moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
+      imol_moving_atoms = imol_rigid_body_refine;
+      make_moving_atoms_graphics_object(rigid_body_asc);
+      // 	 std::cout << "DEBUG:: execute_rigid_body_refine " 
+      // 		   << " make_moving_atoms_graphics_object UDDOldAtomIndexHandle " 
+      // 		   << moving_atoms_asc->UDDOldAtomIndexHandle << std::endl;
+      graphics_draw();
+      if (! refinement_immediate_replacement_flag) { 
+	 coot::refinement_results_t dummy;
 	 if (use_graphics_interface_flag) { 
-	    GtkWidget *w = create_rigid_body_refinement_failed_dialog();
-	    gtk_widget_show(w);
+	    do_accept_reject_dialog("Rigid Body Fit", dummy); // constructed ref res
 	 }
-      } 
-   }
+      }
+      // 
+   } else {
+      if (use_graphics_interface_flag) { 
+	 GtkWidget *w = create_rigid_body_refinement_failed_dialog();
+	 gtk_widget_show(w);
+      }
+   } 
 }
 
 // set residue_range_atom_index_1 and residue_range_atom_index_2.

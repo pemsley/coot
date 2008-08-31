@@ -97,6 +97,8 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 
+#include "ligand.hh" // for rigid body fit by atom selection.
+
 #include "cmtz-interface.hh" // for valid columns mtz_column_types_info_t
 #include "c-interface-mmdb.hh"
 #include "c-interface-scm.hh"
@@ -4132,7 +4134,7 @@ int set_show_chi_angle_bond(int imode) {
 // Set a flag: Should torsions that move hydrogens be
 // considered/displayed in button box?
 // 
-void set_find_hydrogen_torsion(short int state) {
+void set_find_hydrogen_torsions(short int state) {
    graphics_info_t g;
    g.find_hydrogen_torsions = state;
    std::string cmd = "set-find-hydrogen-torsion";
@@ -6178,6 +6180,39 @@ void rigid_body_refine_zone(int resno_start, int resno_end,
       }
    }
 }
+
+
+void
+rigid_body_refine_by_atom_selection(int imol, 
+				    const char *atom_selection_string) {
+
+
+   graphics_info_t g;
+   int imol_ref_map = g.Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_ref_map)) {
+      if (is_valid_model_molecule(imol)) { 
+	 bool mask_waters_flag = 0;
+
+	 // so the bulk of this function is to generate
+	 // mol_without_moving_zone and range_mol from
+	 // atom_selection_string.
+	 //
+	 // Let's make a (ligand) utility function for this.
+	 //
+	 bool fill_mask = 1;
+	 CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	 std::string atom_selection_str(atom_selection_string);
+	 std::pair<coot::minimol::molecule, coot::minimol::molecule> p = 
+	    coot::make_mols_from_atom_selection_string(mol, atom_selection_str, fill_mask);
+   
+	 g.rigid_body_fit(p.first,   // without selected region.
+			  p.second,  // selected region.
+			  imol_ref_map,
+			  mask_waters_flag);
+      }
+   }
+}
+
 
 void fill_option_menu_with_refine_options(GtkWidget *option_menu) { 
 

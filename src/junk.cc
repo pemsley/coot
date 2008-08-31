@@ -1658,3 +1658,58 @@ PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int 
 		   << " ReadMMCIFFile OK" << std::endl;
       } 
    } 
+
+	 std::string chain_id = asi.chain_id;
+	 int resno_start = asi.resno_start;
+	 int resno_end   = asi.resno_end;
+	 std::string altconf = asi.altconf;
+	 molecules[imol].atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) chain_id.c_str(),
+						   resno_start, // starting resno, an int
+						   "*", // any insertion code
+						   resno_start, // ending resno
+						   "*", // ending insertion code
+						   "*", // any residue name
+						   "*", // atom name
+						   "*", // elements
+						   altconf.c_str()  // alt loc.
+						   );
+
+int test_torsion_derivs() {
+
+   int r = 0;
+   std::string file_name = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t atom_sel = get_atom_selection(file_name);
+   std::string chain_id = "A";
+   char *chn = (char *) chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
+   int resno = 59;
+   coot::protein_geometry geom;
+   geom.init_standard();
+   int selHnd = atom_sel.mol->NewSelection();
+   int nSelResidues; 
+   PCResidue *SelResidues = NULL;
+   atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
+			chn,
+			resno-1, "",
+			resno+1, "",
+			"*",  // residue name
+			"*",  // Residue must contain this atom name?
+			"*",  // Residue must contain this Element?
+			"",   // altLocs
+			SKEY_NEW // selection key
+			);
+   atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+   
+   int enable_rama_refinement = 0;
+   int side_step = 0;
+   bool use_flanking_residues = 1;
+   // bool output_numerical_gradients = 1;
+   bool output_numerical_gradients = 0;
+   residue_selection_t refined_res_sel =
+      testing_func_probabilities_refine_fragment(atom_sel, SelResidues, nSelResidues,
+						 chain_id, resno, geom,
+						 enable_rama_refinement,
+						 side_step,
+						 use_flanking_residues,
+						 output_numerical_gradients);
+   return r;
+}
