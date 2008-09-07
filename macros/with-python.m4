@@ -37,12 +37,15 @@ saved_CFLAGS="$CFLAGS"
 
 if test x$with_python != x; then
 
-   #  ;^)
-   #	
-
-   # First check to see if python exists
+   # First, add Daniel's indirection, python may not be python, it may
+   # be $PYTHON:
    #
-   python -c ''
+   if test x$PYTHON = x ; then
+      PYTHON=python
+   fi
+
+   # Check to see if python exists:
+   $PYTHON -c ''
    if test $? != 0 ; then
       echo python not found. 
       # This is an error because it was explicitly asked for
@@ -57,14 +60,14 @@ if test x$with_python != x; then
    # for MinGW
    if test $have_windows_mingw = yes ; then 
      py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print drive + path + "/include"'
-     PYTHON_CFLAGS="-DUSE_PYTHON -I`python -c "$py_cmd"`"
+     PYTHON_CFLAGS="-DUSE_PYTHON -I`$PYTHON -c "$py_cmd"`"
      py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print drive + path + "/libs -lpython" + sys.version[[0]]+sys.version[[2]]'
-     PYTHON_LIBS_PRE="-L`python -c "$py_cmd"`"
+     PYTHON_LIBS_PRE="-L`$PYTHON -c "$py_cmd"`"
    else 
      # normal execution proceeds..
-     PYTHON_CFLAGS="-DUSE_PYTHON -I`python -c 'import sys; print sys.prefix + "/include/python" + sys.version[[:3]]'`"
+     PYTHON_CFLAGS="-DUSE_PYTHON -I`$PYTHON -c 'import sys; print sys.prefix + "/include/python" + sys.version[[:3]]'`"
    # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
-     PYTHON_LIBS_PRE="-L`python -c 'import sys; print sys.prefix + "/lib/python" + sys.version[[:3]] + "/config"'` -lpython`python -c 'import sys; print sys.version[[:3]]'`"
+     PYTHON_LIBS_PRE="-L`$PYTHON -c 'import sys; print sys.prefix + "/lib/python" + sys.version[[:3]] + "/config"'` -lpython`$PYTHON -c 'import sys; print sys.version[[:3]]'`"
    fi
 	
    # now we have to deal with the -lutil issue.  On GNU/Linux, we need
