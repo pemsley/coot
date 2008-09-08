@@ -146,63 +146,58 @@ def fit_residue_range(imol, chain_id, resno_start, resno_end):
 # @var{imol}, do a rigid body fit of the water to the density.
 #
 # BL says: we pass *args where args[0]=imol and args[1]=animate_qm (if there)
-def fit_waters(*args):
+def fit_waters(imol, animate_qm = False):
 
-	if len(args)<1 or len(args)>2:		# 0 or 3 and more args
-		print "BL WARNING:: wrong number of arguments"
-	else:
-		imol = args[0]
-		do_animate_qm = False
-		if len(args)==2:		# we have animate
-			animate_qm = args[1]
-			print "animate?: ", animate_qm
-			if animate_qm: do_animate_qm = True
+    print "animate?:", animate_qm
+    imol_map = imol_refinement_map()
+    do_animate_qm = False
+    if (animate_qm):
+        do_animate_qm = True
 
-		print "do_animate?: ", do_animate_qm
+    print "do_animate?: ", do_animate_qm
  
-		imol_map = imol_refinement_map()
-		if (imol_map != -1):
-		        replacement_state = refinement_immediate_replacement_state()
-		        backup_mode = backup_state(imol)
-		        alt_conf = ""
+    if (imol_map != -1):
+        replacement_state = refinement_immediate_replacement_state()
+        backup_mode = backup_state(imol)
+        alt_conf = ""
 
-		        turn_off_backup(imol)
-		        set_refinement_immediate_replacement(1)
-			set_go_to_atom_molecule(imol)
-       
-		        # refine waters
-   			for chain_id in chain_ids(imol):
-          		   if (is_solvent_chain_qm(imol,chain_id)):
-                		n_residues = chain_n_residues(chain_id,imol)
-		                print "There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id}
-               			for serial_number in range(n_residues):
-			                res_no = seqnum_from_serial_number(imol,chain_id,serial_number)
-					if do_animate_qm:
-						res_info = residue_info(imol, chain_id, res_no, "")
-						if not res_info == []:
-							atom = res_info[0]
-							atom_name = atom[0]
-							set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
-                     					refine_zone(imol,chain_id,res_no,res_no,alt_conf)
-							rotate_y_scene(30, 0.6)	# n-frames frame-interval(degrees)
-					else:
-                     				refine_zone(imol,chain_id,res_no,res_no,alt_conf)
-                     			accept_regularizement()
- 
-		if (replacement_state == 0):
-	     	   set_refinement_immediate_replacement(0)
-	        if (backup_mode == 1):
-	           turn_on_backup(imol)
+        turn_off_backup(imol)
+        set_refinement_immediate_replacement(1)
+        set_go_to_atom_molecule(imol)
 
-		else:
-		       add_status_bar_text("You need to define a map to fit the waters")
+        # refine waters
+        for chain_id in chain_ids(imol):
+            if (is_solvent_chain_qm(imol, chain_id)):
+                n_residues = chain_n_residues(chain_id, imol)
+                print "There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id}
+                for serial_number in range(n_residues):
+                    res_no = seqnum_from_serial_number(imol,chain_id,serial_number)
+                    if do_animate_qm:
+                        res_info = residue_info(imol, chain_id, res_no, "")
+                        if not res_info == []:
+                            atom = res_info[0]
+                            atom_name = atom[0]
+                            set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
+                            refine_zone(imol,chain_id,res_no,res_no,alt_conf)
+                            rotate_y_scene(30, 0.6)	# n-frames frame-interval(degrees)
+                    else:
+                        refine_zone(imol,chain_id,res_no,res_no,alt_conf)
+                    accept_regularizement()
+
+        if (replacement_state == 0):
+            set_refinement_immediate_replacement(0)
+        if (backup_mode == 1):
+            turn_on_backup(imol)
+
+    else:
+        add_status_bar_text("You need to define a map to fit the waters")
 
 
 # BL thingy:
 # as fit_waters, but will only fit a range of waters (start to end).
 # speeds things up when refining a lot of waters
 #
-def fit_waters_range(imol,chain_id,start,end):
+def fit_waters_range(imol, chain_id, start, end):
 
     imol_map = imol_refinement_map()
     if (imol_map != -1):
@@ -232,62 +227,91 @@ def fit_waters_range(imol,chain_id,start,end):
 #
 # The step is set internally to 2.
 #
-# BL says: you may pass 1 or 2 args, 1st is imol, 2nd is res_step
-def stepped_refine_protein(*args):
+def stepped_refine_protein(imol, res_step = 2):
 
-	import types
-	from types import IntType
+    import types
+    from types import IntType
 
-	if len(args) < 1 or len(args) > 2:
-		print "BL WARNING:: too many arguments!!"
-	else:
-		res_step = 2	# alter to your tastes, 3, 5, etc. OR use 2nd arg
-		imol = args[0]
-		if (len(args) == 2) and (type(args[1]) is IntType) and (args[1] > 1):
-			res_step = args[1]
+    imol_map = imol_refinement_map()
+    if (not valid_map_molecule_qm(imol_map)):            
+        info_dialog("Oops, must set map to refine to")
+    else:
+        def refine_func(chain_id, res_no):
+            #print "centering on ",chain_id,res_no," CA"
+            set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+            rotate_y_scene(30, 0.3) # n-frames frame-interval(degrees)
+            refine_auto_range(imol, chain_id, res_no, "")
+            accept_regularizement()
+            rotate_y_scene(30,0.3)
+        stepped_refine_protein_with_refine_func(imol, refine_func, res_step)
 
-		set_go_to_atom_molecule(imol)
-		make_backup(imol)
 
-		backup_mode = backup_state(imol)
-		imol_map = imol_refinement_map()
-		alt_conf = ""
-		replacement_state = refinement_immediate_replacement_state()
+# refine each residue with ramachandran restraints
+#
+def stepped_refine_protein_for_rama(imol):
 
-		if (imol_map == -1):
-			add_status_bar_text("Oops.  Must set a map to fit")
-		else:
-    			turn_off_backup(imol)
-			set_refinement_immediate_replacement(1)
-			set_refine_auto_range_step(int(res_step / 2))
+    imol_map = imol_refinement_map()
+    if (not valid_map_molecule_qm(imol_map)):
+        info_dialog("Oops, must set map to refine to")
+    else:
+        current_steps_frame = dragged_refinement_steps_per_frame()
+        current_rama_state  = refine_ramachandran_angles_state()
+        def refine_func(chain_id, res_no):
+            set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+            refine_auto_range(imol, chain_id, res_no, "")
+            accept_regularizement()
 
-    			for chain_id in chain_ids(imol):
-			        n_residues = chain_n_residues(chain_id,imol)
-			        print "There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id}
+        set_dragged_refinement_steps_per_frame(200)
+        set_refine_ramachandran_angles(1)
+        stepped_refine_protein_with_refine_func(imol, refine_func, 1)
+        set_refine_ramachandran_angles(current_rama_state)
+        set_dragged_refinement_steps_per_frame(current_steps_frame)
 
-			        for serial_number in range(0,n_residues,res_step):
-       
-			            res_name = resname_from_serial_number(imol,chain_id,serial_number)
-			            res_no = seqnum_from_serial_number(imol,chain_id,serial_number)
-			            ins_code = insertion_code_from_serial_number(imol,chain_id,serial_number)
-			            print "centering on ",chain_id,res_no," CA"
-			            set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
-			            rotate_y_scene(30,0.3) # n-frames frame-interval(degrees)
-			            if (imol_map >= 0):
-			               refine_auto_range(imol,chain_id,res_no,alt_conf)
-			               accept_regularizement()
-			            rotate_y_scene(30,0.3)
+#
+def stepped_refine_protein_with_refine_func(imol, refine_func, res_step):
 
-		if (replacement_state == 0):
-       		   set_refinement_immediate_replacement(0)
-		if (backup_mode == 1):
-	       	   turn_on_backup(imol)
+    set_go_to_atom_molecule(imol)
+    make_backup(imol)
+    backup_mode = backup_state(imol)
+    alt_conf = ""
+    imol_map = imol_refinement_map()
+    replacement_state = refinement_immediate_replacement_state()
+
+    if (imol_map == -1):
+        # actually shouldnt happen as we set check the map earlier...
+        add_status_bar_text("Oops.  Must set a map to fit")
+    else:
+        turn_off_backup(imol)
+        set_refinement_immediate_replacement(1)
+        res_step = int(res_step)
+        if (res_step <= 1):
+            set_refine_auto_range_step(1)
+            res_step = 1
+        else:
+            set_refine_auto_range_step(int(res_step / 2))
+
+        for chain_id in chain_ids(imol):
+            n_residues = chain_n_residues(chain_id,imol)
+            print "There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id}
+            
+            for serial_number in range(0, n_residues, res_step):
+                res_name = resname_from_serial_number(imol, chain_id, serial_number)
+                res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
+                ins_code = insertion_code_from_serial_number(imol, chain_id, serial_number)
+                print "centering on ", chain_id, res_no, " CA"
+                
+                refine_func(chain_id, res_no)
+                
+        if (replacement_state == 0):
+            set_refinement_immediate_replacement(0)
+        if (backup_mode == 1):
+            turn_on_backup(imol)
 
 
 # The gui that you see after ligand finding. 
 # 
 def post_ligand_fit_gui():
-#    lambda imol:
+
      def test(imol):
        if not is_valid_model_molecule(imol):
           return False

@@ -90,6 +90,16 @@ def map_molecule_list():
           map_list.append(i)
     return map_list
 
+# Return a list of molecules that are (coordinate) models
+# 
+def model_molecule_list():
+
+    model_list = []
+    for i in range(graphics_n_molecules()):
+       if is_valid_model_molecule(i):
+          model_list.append(i)
+    return model_list
+
 # Return True(False) if @var{imol} is (isn't) a shelx molecule.
 #
 def shelx_molecule_qm(imol):
@@ -207,9 +217,13 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
        print "command ", cmd, " not found in $PATH!"
        print "BL INFO:: Maybe we'll find it somewhere else later..."
     else:
-       cmd_execfile = find_exe(cmd,"CCP4_BIN","PATH")
+        if (os.path.isfile(cmd)):
+            cmd_execfile = cmd
+        else:
+            cmd_execfile = find_exe(cmd, "CCP4_BIN", "PATH")
 
     if (cmd_execfile):
+        # minor = 4
         if (major == 2 and minor >=4):
             # subprocess
             import subprocess
@@ -769,36 +783,43 @@ except:
 
 def add_key_binding(name, key, thunk):
     from types import IntType, StringType
-    global key_bindings
-    if (type(key) is IntType):
-        key_bindings.append([key, key, name, thunk])
-    elif (type(key) is StringType):
-        code = key_sym_code(key)
-        if (not (code == -1)):
-            key_bindings.append([code, key, name, thunk])
+    global key_bindings, std_key_bindings
+    std_keys = [elem[1] for elem in std_key_bindings]
+    keys     = [elem[1] for elem in key_bindings]
+    codes    = [elem[0] for elem in key_bindings]
+    if (key in std_keys):
+        print "INFO:: you shall not overwrite a standard key binding (%s)" %key
     else:
-        print "BL WARNING:: invalid key", key
+        if (type(key) is IntType):
+            if (key in keys):
+                print "INFO:: you are overwriting existing code", key
+            key_bindings.append([key, key, name, thunk])
+        elif (type(key) is StringType):
+            code = key_sym_code(key)
+            if (code in codes):
+                print "INFO:: you are overwriting existing key", key
+            if (not (code == -1)):
+                key_bindings.append([code, key, name, thunk])
+            else:
+                print "INFO:: key %s not found in code table" %key
+        else:
+            print "BL WARNING:: invalid key", key
+                
 
 # general key press hook
+#
 def graphics_general_key_press_hook(key):
     global key_bindings
-    field = [elem[1] for elem in key_bindings]
-#   It may not exist in python key bindings, but does in scheme.     
-#     if (not key in field):
-# 	print "%s not found in key binding list %s. Feel free to use it!" %(key, key_bindings)
-
-# example
-
-# The P key is already bound
-# skip_to_next_ncs_chain is already bound to O key.
-
-# 	if (key==80): 		# bind the P key
-# 		set_pointer_atom_is_dummy(1)
-# 		place_atom_at_pointer()
-# 	if (key==75):		# bind the K key
-# 		skip_to_next_ncs_chain()
-# 	else:
-# 		print "No python binding for key ", key
+    print "Key %s was pressed" %key
+    codes = [elem[0] for elem in key_bindings]
+    funcs = [elem[3] for elem in key_bindings]
+    if (key in codes):
+        index = codes.index(key)
+        func  = funcs[index]
+        #print "BL DEBUG:: index and executing:", index, func
+        apply(func)
+    else:
+        print "%s not found in key_bindings" %key
 
 
 # def read_vu_file(filename, obj_name):
@@ -1079,6 +1100,7 @@ def label_all_active_residue_atoms():
 		graphics_draw()
 # Resets alt confs and occupancies of atoms in residue that have
 # orphan alt-loc attributes
+#
 def sanitise_alt_confs(atom_info, atom_ls):
 
     # return a matching atom (name match) if it exists.  Else return False
@@ -1131,6 +1153,7 @@ def sanitise_alt_confs_in_residue(imol, chain_id, resno, inscode):
 
 # Resets alt confs and occupancies of atoms in residue that have
 # orphan alt-loc attributes.  Use the active-residue.
+#
 def sanitise_alt_confs_active_residue():
     active_atom = active_residue()
     if active_atom:
@@ -1150,6 +1173,7 @@ def print_molecule_names():
         molecule_number_list())
 
 # save the dialog positions to the coot_dialog_positions.py file in ./coot-preferences
+#
 def save_dialog_positions_to_init_file():
 
     def dump_positions_to_init_file(positions):
@@ -1483,6 +1507,9 @@ water_chain            = water_chain_py
 
 # and some acronyms
 de_chainsaw                    = fill_partial_residues
+
+# fix typo (but where does it come from?
+set_find_hydrogen_torsion = set_find_hydrogen_torsions
 
 ############################################################################################
 # end of Paul's scripting

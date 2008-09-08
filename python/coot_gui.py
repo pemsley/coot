@@ -454,8 +454,8 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
     vbox.pack_start(hbox3, False, False, 4)
     hbox3.pack_start(go_button, True, True, 6)
     hbox3.pack_start(cancel_button, True, True, 6)
-    hbox1.pack_start(function_label, False, 0)
-    hbox2.pack_start(smiles_entry, False, 0)
+    hbox1.pack_start(function_label, False, False, 0)
+    hbox2.pack_start(smiles_entry, False, False, 0)
     window.add(vbox)
     vbox.set_border_width(6)
  
@@ -522,10 +522,10 @@ def generic_double_entry(label_1, label_2, entry_1_default_text, entry_2_default
     vbox.pack_start(hbox2, False, False, 0)
     hbox3.pack_start(go_button, True, False, 6)
     hbox3.pack_start(cancel_button, True, False, 6)
-    hbox1.pack_start(tlc_label, False, 0)
-    hbox1.pack_start(tlc_entry, False, 0)
-    hbox2.pack_start(smiles_label, False, 0)
-    hbox2.pack_start(smiles_entry, False, 0)
+    hbox1.pack_start(tlc_label, False, False, 0)
+    hbox1.pack_start(tlc_entry, False, False, 0)
+    hbox2.pack_start(smiles_label, False, False, 0)
+    hbox2.pack_start(smiles_entry, False, False, 0)
 
     if type(check_button_label) is StringType:
 
@@ -2559,8 +2559,25 @@ def ncs_ligand_gui():
 
    window.show_all()
 
-def key_binding_gui():
+global std_key_bindings
+std_key_bindings = [["a", "refine with auto-zone"],
+                    ["b", "toggle baton swivel"],
+                    ["c", "toggle cross-hairs"],
+                    ["d", "reduce depth of field"],
+                    ["f", "increase depth of field"],
+                    ["u", "undo last navigation"],
+                    ["i", "toggle spin mode"],
+                    ["n", "zoom in"],
+                    ["m", "zoom out"],
+                    ["o", "other NCS chain"],
+                    ["p", "update position to closest atom"],
+                    ["s", "update skeleton"],
+                    [".", "up in button list"],
+                    [",", "down in button list"]]
+   
+def key_bindings_gui():
 
+   global std_key_bindings
    def delete_event(*args):
       window.destroy()
       return False
@@ -2586,21 +2603,6 @@ def key_binding_gui():
    usr_frame = gtk.Frame("User-defined Key Bindings:")
    std_frame_vbox = gtk.VBox(False, 2)
    usr_frame_vbox = gtk.VBox(False, 2)
-   std_key_bindings = [["a", "refine with auto-zone"],
-                       ["b", "toggle baton swivel"],
-                       ["c", "toggle cross-hairs"],
-                       ["d", "reduce depth of field"],
-                       ["f", "increase depth of field"],
-                       ["u", "undo last navigation"],
-                       ["i", "toggle spin mode"],
-                       ["n", "zoom in"],
-                       ["m", "zoom out"],
-                       ["o", "other NCS chain"],
-                       ["p", "update position to closest atom"],
-                       ["s", "update skeleton"],
-                       [".", "up in button list"],
-                       [",", "down in button list"]]
-
    close_button.connect("clicked", delete_event)
 
    window.set_default_size(250, 350)
@@ -2622,7 +2624,7 @@ def key_binding_gui():
    if (coot_has_guile()):
       scm_key_bindings = run_scheme_command("*key-bindings*")
       py_and_scm_keybindings += scm_key_bindings
-
+      
    for items in py_and_scm_keybindings:
       box_for_binding(items, usr_frame_vbox)
 
