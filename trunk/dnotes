@@ -9,7 +9,7 @@
      I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
      211 in ssm_superpose.h
 
-   o Test Steven's 3CH6 for NCS chain skipping problems.
+     First, get Coot to compile on a Mac... (sigh)
 
    o crash:
        ./coot-real pdb coot-download/pdb1rt9.ent --data 1e2k_sigmaa.mtz
@@ -19,29 +19,65 @@
       (note, I had typed pdb not --pdb 
              pdb1rt9.ent is not there at time of writing)
 
-    o Atom selection error? pdb2qc1.ent additional representation B 97
-      101 "" ball and stick -> just one residue selected (or did I make
-      a typo?)
-      Atom selection by string works OK.
+    o Tell Bernie: Need a gui preferences for torsions that move
+      hydrogens (in response to Klaus Piontek 30 Aug 2008)
+
+* Bernie says do it the proper way, make (or make sure that) the
+  hydrogens rotate even though we are rotating chi1 (say).  He is
+  right.
+
+     o --flood crashes.  Something to do with clipper symmetry.
+
+     o update mmdb notes in README.
+
+     o update README.  coot clipper and mmdb info up to date?
+
+
+
+125 Done.
 
     o TS: Check that the ramachandran button/accept reject info works
-      (is set to a sensible name).
+      (is set to a sensible name).  
+
+      Bleugh.  Have to build a gtk1 version..
+
+* Built and fixed.
+
+    o I fiddled with generic-single-entry.  Make sure that it works.
+
+* Seems to.
+
+    o Bernie: Delete, Keep Active, delete zone click click then delete
+      zone again click delete the wrong atoms.
+
+* Fixed.  This is an example something not caught by automated tests.
 
     o Delete atom (or waters perhaps) with "keep delete active?" 
       active turns the cursor to normal "move", not the pick cursor,
       which is confusing.
 
-    o Bernie: delete zone click click then delete zone again click
-      delete the wrong atoms.
+* delete, water, atom and residue all behave.
 
-    o Bernie: Need a gui preferences for torsions that move hydrogens
-      (in response to Klaus Piontek 30 Aug 2008)
+    o Atom selection error? pdb2qc1.ent additional representation B 97
+      101 "" ball and stick -> just one residue selected (or did I make
+      a typo?)
+      Atom selection by string works OK.
+
+* A typo, I guess.  It seems to OK now.
+
+   o Test Steven's 3CH6 for NCS chain skipping problems.
+
+* Is fine, except the usual sliding problems when too close to the
+  paired residue.
+
+    o check that 1xu1 works with NCS jumping
+
+* Is fine.
 
     o write an internal test for the atom selection (in selection and
       inverted)  (test the number of atoms in each will do, I guess)
 
-
-118 Done.
+* Done.
 
    o Robert von Dreele: test that nZ is divisible by 3 for hexagonal
      axes.  See mail from Kevin.
@@ -6545,3 +6581,19 @@ Fri Aug 22 18:24:20 BST 2008
 
 
 -----
+Tue Sep  2 09:53:52 JST 2008
+
+    what happens when you try to rigid body refine an a fragment from
+    ribosome (or something big)?
+
+    If utter slowness, consider introducing a function to turn off
+    fixed-atom masking.
+
+
+-----
+Thu Sep  4 06:41:12 JST 2008
+
+    Try probe clashes on a protein ligand complex.
+
+
+

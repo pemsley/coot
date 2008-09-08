@@ -21,7 +21,7 @@
 ## Process this file with automake to produce Makefile.in
 if COOT_USE_GUILE
 COOT_WRAP_GUILE_LIBS=libcoot-wrap-guile.la
-WITH_GUILE_CFLAGS="-DUSE_GUILE"
+WITH_GUILE_CFLAGS=$(COOT_STDTYPES) -DUSE_GUILE
 # COOT_WRAP_GUILE_TEMPLATE=$(srcdir)/coot_wrap_guile_pre.cc
 # does this help?
 COOT_WRAP_GUILE_TEMPLATE=coot_wrap_guile_pre.cc

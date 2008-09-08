@@ -31,6 +31,8 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(COOT_WINDOWS_CFLAGS)
 
+#	-DHAVE_SYS_STDTYPES_H
+
 libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc 
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1

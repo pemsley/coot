@@ -897,6 +897,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       // c-interface.h
 	       delete_residue_range(naii.imol, g.delete_item_residue_zone_1, res2);
 	       pick_pending_flag = 0;
+	       g.delete_item_residue_zone = 1; //reset for next time
 
 	       // normal_cursor(); not necessarily, the dialog may not close
 	    }

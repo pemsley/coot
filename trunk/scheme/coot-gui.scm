@@ -213,8 +213,8 @@
     (gtk-box-pack-start vbox hbox3 #f #f 4)
     (gtk-box-pack-start hbox3 go-button #t #t 6)
     (gtk-box-pack-start hbox3 cancel-button #t #t 6)
-    (gtk-box-pack-start hbox1 function-label #f 0)
-    (gtk-box-pack-start hbox2 smiles-entry #f 0)
+    (gtk-box-pack-start hbox1 function-label #f #f 0)
+    (gtk-box-pack-start hbox2 smiles-entry #f #f 0)
     (gtk-container-add window vbox)
     (gtk-container-border-width vbox 6)
 
@@ -274,10 +274,10 @@
     (gtk-box-pack-start vbox hbox2 #f #f 0)
     (gtk-box-pack-start hbox3 go-button #t #f 6)
     (gtk-box-pack-start hbox3 cancel-button #t #f 6)
-    (gtk-box-pack-start hbox1 tlc-label #f 0)
-    (gtk-box-pack-start hbox1 tlc-entry #f 0)
-    (gtk-box-pack-start hbox2 smiles-label #f 0)
-    (gtk-box-pack-start hbox2 smiles-entry #f 0)
+    (gtk-box-pack-start hbox1 tlc-label #f #f 0)
+    (gtk-box-pack-start hbox1 tlc-entry #f #f 0)
+    (gtk-box-pack-start hbox2 smiles-label #f #f 0)
+    (gtk-box-pack-start hbox2 smiles-entry #f #f 0)
 
     (let ((check-button 
 	   (if (string? check-button-label)
@@ -2325,7 +2325,6 @@
 	(gtk-timeout-add ms-step check-for-new-news)
 
 	(gtk-widget-show-all window)))))
-
 
 
 

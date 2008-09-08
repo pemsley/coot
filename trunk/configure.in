@@ -45,6 +45,12 @@ AM_PROG_LIBTOOL
 AC_PROG_RANLIB
 # AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
 
+AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=0"])
+
+echo ======== do we have sys/stdtypes.h :$COOT_STDTYPES:
+
+AC_SUBST(COOT_STDTYPES)
+
 dnl test for WINDOWS_MINGW
 AM_MINGW_WINDOWS
 
