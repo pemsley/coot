@@ -8781,7 +8781,7 @@ Do you want to continue?
 		<handler>on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled</handler>
 		<last_modification_time>Fri, 01 Aug 2008 14:52:42 GMT</last_modification_time>
 	      </signal>
-	      <label>checkbutton6</label>
+	      <label>Ramachandran Restraints</label>
 	      <active>False</active>
 	      <draw_indicator>True</draw_indicator>
 	      <child>

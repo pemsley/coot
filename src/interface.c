@@ -6247,7 +6247,7 @@ create_refine_params_dialog (void)
   gtk_widget_show (sec_str_rest_strand_rest_radiobutton);
   gtk_box_pack_start (GTK_BOX (sec_struct_restraints_vbox), sec_str_rest_strand_rest_radiobutton, FALSE, FALSE, 0);
 
-  refine_params_use_ramachandran_goodness_torsions_checkbutton = gtk_check_button_new_with_label (_("checkbutton6"));
+  refine_params_use_ramachandran_goodness_torsions_checkbutton = gtk_check_button_new_with_label (_("Ramachandran Restraints"));
   gtk_widget_ref (refine_params_use_ramachandran_goodness_torsions_checkbutton);
   gtk_object_set_data_full (GTK_OBJECT (refine_params_dialog), "refine_params_use_ramachandran_goodness_torsions_checkbutton", refine_params_use_ramachandran_goodness_torsions_checkbutton,
                             (GtkDestroyNotify) gtk_widget_unref);

@@ -440,23 +440,23 @@ coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius
 			  box1.coord_grid(xmap_cluster.grid_sampling()));
 
    float atom_radius_sq = atom_radius * atom_radius;
-   // int nhit = 0;
-   // int nmiss = 0;
+   int nhit = 0;
+   int nmiss = 0;
 
    clipper::Xmap_base::Map_reference_coord ix( xmap_cluster, grid.min() ), iu, iv, iw;
    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
 	 for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
 	    if ( (iw.coord().coord_frac(xmap_cluster.grid_sampling()).coord_orth(xmap_cluster.cell()) - co).lengthsq() < atom_radius_sq) { 
-// 	       std::cout << "masked " << masked_map_val << " point at " 
-// 			 << iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()).format()
-// 			 << " centre point: " << co.format() << " " 
-// 			 << (iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()) - co).lengthsq() 
-// 			 << std::endl;
+ 	       // std::cout << "masked " << masked_map_val << " point at " 
+	       // << iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()).format()
+	       // << " centre point: " << co.format() << " " 
+	       //  			 << (iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()) - co).lengthsq() 
+	       //  			 << std::endl;
 	       xmap_cluster[iw] = masked_map_val;
-	       // 	       nhit++;
+	       nhit++;
 	    } else {
-	       // nmiss++;
+	       nmiss++;
 	    }
 	 }
       }
