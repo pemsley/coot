@@ -1280,7 +1280,7 @@ else
     build_atk=1
 fi
 
-if pkg-config --atleast-version=2.14.5 glib ; then
+if pkg-config --atleast-version=2.14.5 glib-2.0 ; then
    # have glib
    echo glib is up to date
    build_glib=

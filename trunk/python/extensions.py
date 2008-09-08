@@ -58,24 +58,30 @@ if (have_coot_python):
      #
      #---------------------------------------------------------------------
 
-     add_simple_coot_menu_menuitem(menu,"[Post MR] Fill Partial Residues...",
+     add_simple_coot_menu_menuitem(menu, "[Post MR] Fill Partial Residues...",
 	lambda func: molecule_chooser_gui("Find and Fill residues with missing atoms",
 		lambda imol: fill_partial_residues(imol)))
 
 
-     add_simple_coot_menu_menuitem(menu,"[Post MR] Fit Protein...",
+     add_simple_coot_menu_menuitem(menu, "[Post MR] Fit Protein...",
 	lambda func: molecule_chooser_gui("Fit Protein using Rotamer Search",
 		lambda imol: (imol_refinement_map() == -1 and
                               add_status_bar_text("oops. Must set a map to fit") or
                               fit_protein(imol))[0]))                                          
 
 
-     add_simple_coot_menu_menuitem(menu,"[Post MR] Stepped Refine...",
+     add_simple_coot_menu_menuitem(menu, "[Post MR] Stepped Refine...",
 	lambda func: molecule_chooser_gui("Stepped Refine: ",
 		lambda imol: (imol_refinement_map() == -1 and
                               add_status_bar_text("oops. Must set a map to fit") or
                               stepped_refine_protein(imol))[0]))
 
+     add_simple_coot_menu_menuitem(menu, "Refine/Improve Ramachandran Plot...",
+        lambda func: molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
+                lambda imol: (imol_refinement_map() == -1 and
+                              add_status_bar_text("oops. Must set a map to fit") or
+                              stepped_refine_protein_for_rama(imol))[0]))
+                                         
 
      add_coot_menu_separator(menu)
 
@@ -593,6 +599,9 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(menu, "Save Dialog Positions...",
                                    lambda func: save_dialog_func())
+
+     add_simple_coot_menu_menuitem(menu, "Key Bindings...",
+				   lambda func: key_bindings_gui())
 
 
      # ---------------------------------------------------------------------

@@ -106,7 +106,7 @@ parse_command_line(int argc, char ** argv ) {
       {"side-by-side",     0, 0, 0}, // no arguments 
       {"version",    0, 0, 0},       // no arguments 
       {"no-guano",   0, 0, 0},       // no arguments
-      {"eee",        0, 0, 0},       // no arguments (setting for EEE PC and other small screens)
+      {"small-screen", 0, 0, 0},       // no arguments (setting for EEE PC and other small screens)
       {0, 0, 0, 0}	       // must have blanks at end
    };
 
@@ -218,7 +218,7 @@ parse_command_line(int argc, char ** argv ) {
 				 if (arg_str == "no-guano") {
 				    cld.disable_state_script_writing = 1;
 				 } else {
-				   if (arg_str == "eee") {
+				   if (arg_str == "small-screen") {
 				     cld.small_screen_display = 1;
 				   } else { 
 				     std::cout << "WARNING! Malformed option - needs an argument: " 
@@ -297,8 +297,8 @@ void command_line_data::handle_immediate_settings() {
 
    // small screen
    if (small_screen_display) {
-#define GRAPHICS_WINDOW_X_START_SIZE 400
-#define GRAPHICS_WINDOW_Y_START_SIZE 400
+//#define GRAPHICS_WINDOW_X_START_SIZE 400
+//#define GRAPHICS_WINDOW_Y_START_SIZE 400
      std::cout <<"INFO:: set labels and icons for small screens" <<std::endl;
      gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
      gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");

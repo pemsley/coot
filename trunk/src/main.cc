@@ -724,10 +724,14 @@ void setup_application_icon(GtkWindow *window) {
 		 iconset = gtk_icon_set_new_from_pixbuf(pixbuf);
 		 g_object_unref(pixbuf);
 		 // may have to be adjusted for Windows!!
-		 stock_id = (coot::util::file_name_non_directory(filename)).c_str();
+		 //stock_id = (coot::util::file_name_non_directory(filename)).c_str();
+		 std::string tmp = coot::util::file_name_non_directory(filename);
+		 stock_id = tmp.c_str();
+		 if (stock_id !="") {
 		 gtk_icon_factory_add(iconfactory, stock_id,
 							  iconset);
 		 gtk_icon_factory_add_default(iconfactory);
+		 }
 	  }
    }
    globfree(&myglob);

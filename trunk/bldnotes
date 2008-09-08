@@ -1,15 +1,46 @@
  -*-text-*-
 
-   o to fix: saved refmac columns for SAD (possible?)
-			 SAD ATOM in SAD
+---------------
+* THINGS TO DO BEFORE 0.5 RELEASE *
+---------------
+
+   o be up-to-date with all python scripts and tests
+
+   o test db-main strands windows fix thingy (debackslash)
+
+   o refinement options dialog in extensions (scheme, or use pythons?)
+
+   o clean-up use of probe/reduce command_name and command (python)
+
+27/08/08
+   o switch on/off refine toolbar (preferences)
+
+   o option for toolbar on the left (preferences)
+
+   o make example keybindings for python (based on Paul's scheme bindgs)
+
+   o fix the alignment of icons and labels in the Model/fit/refine dialog
+
+   o Windows installer:
+     - question overwriting of runwincoot.bat
+     - make the 'start in' directory user changeable (use SetOutPath!?)
+       * for both make sure it works (sensibly) with a silent installer!!!
+
+04/09/08
+   o loop building backwards in scheme (use python?)?
+
+   o check licence header in python modules
+
+
+---------------
+* TO DO THINGS *
+---------------
+
+   o replace popen and spawn in python with subprocess functions!
 
    o speed up NCS by using Kevin's LSQ (user changeable)
 
    o test vista compositing (* Done?!?!)
-
-   o refinement options dialog in extensions (scheme)
-
-   o clean-up use of probe/reduce command_name and command (python)
 
    o povray view angle still not ok (view gets smaller the further away from 
 	 origin we are)
@@ -60,12 +91,21 @@
 14/08/08
    o probe dots on selected residue range (Bob van Dreele)
 
-14/08/08
+14/08/08 
 	o change orientation of refinement toolbar and make it dockable to 
 	  other sides of main window
 
 14/08/08
 	o make guile-gtk properly gtk2 complient (esp. text-view)
+
+29/08/08
+	o refinement of H at high resolution blows H around (fixed?)
+	
+	o move (& merge) symmetry related molecules
+
+	o pictures in manual (how and where!?) Maybe more extensive (advanced)
+	  tutorial!?
+
 
 ---------------
 * DONE THINGS *
@@ -95,3 +135,7 @@
    o schemey run-refmac to work with twinning/sad etc.
 
 * Done (testing?!)
+
+   o python: rapper-gui and what-check
+
+* Done (what_check)
