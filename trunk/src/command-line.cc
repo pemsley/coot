@@ -297,8 +297,6 @@ void command_line_data::handle_immediate_settings() {
 
    // small screen
    if (small_screen_display) {
-//#define GRAPHICS_WINDOW_X_START_SIZE 400
-//#define GRAPHICS_WINDOW_Y_START_SIZE 400
      std::cout <<"INFO:: set labels and icons for small screens" <<std::endl;
      gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
      gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");

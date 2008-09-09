@@ -7532,13 +7532,9 @@ void browser_url(const char *url) {
       safe_scheme_command(c);
 #else
 #ifdef USE_PYTHON
-// BL says: not the way to do it in windows. Maybe a 2-liner python script
-// required. Might be the way for on other platforms in python too
-   #ifdef WINDOWS_MINGW
       c = "open_url(";
       c += single_quote(u);
       c += ")";
-   #endif // MINGW
       safe_python_command(c);
 #endif
 #endif
