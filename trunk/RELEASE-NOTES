@@ -53,6 +53,9 @@ Pre-release 0.5
 
    o FEATURE: NCS Copy Chain is now available as a GUI extension.
 
+   o FEATURE: The ability to turn on chi angles that move hydrogens is
+     now available from the Chi Angles dialog.
+
    o FEATURE: The "About" dialog contains references. 
 
    o CHANGE: Key bindings mechanism has changed.  Now we are able to

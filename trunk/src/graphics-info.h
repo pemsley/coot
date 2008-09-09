@@ -2553,6 +2553,11 @@ public:
    static coot::atom_spec_t chi_angles_clicked_atom_spec;
    void execute_edit_chi_angles(int atom_index, int imol);
    int wrapped_create_edit_chi_angles_dialog(const std::string &res_type);
+   // used by above:
+   int fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type);
+   void clear_out_container(GtkWidget *vbox);
+
+
    // real values start at 1:
    static int edit_chi_current_chi;
    static void on_change_current_chi_button_clicked(GtkButton *button,

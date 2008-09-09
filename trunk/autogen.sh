@@ -14,7 +14,7 @@ else
    # but we can only add the directories if they exist, otherwise aclocal barfs (sigh)
 
     aclocal_extras=
-    dir_list="$HOME/libtool/share/aclocal $HOME/autobuild/Linux/Coot-0.1/share/aclocal $HOME/autotools/share/aclocal-1.9 $HOME/automake/share/aclocal-1.9 $HOME/autobuild/$OS-$hostname/share/aclocal $HOME/autobuild/$OS-$hostname-pre-release/share/aclocal $HOME/autobuild/$OS-$hostname-pre-release-gtk2/share/aclocal /usr/share/aclocal $HOME/test/gtkglext/share/aclocal $HOME/build/share/aclocal $HOME/autobuild/Linux-$HOST/share/aclocal $HOME/gtk-1.2/share/aclocal"
+    dir_list="$HOME/libtool/share/aclocal $HOME/glade/share/aclocal $HOME/autobuild/Linux/Coot-0.1/share/aclocal $HOME/autotools/share/aclocal-1.9 $HOME/automake/share/aclocal-1.9 $HOME/autobuild/$OS-$hostname/share/aclocal $HOME/autobuild/$OS-$hostname-pre-release/share/aclocal $HOME/autobuild/$OS-$hostname-pre-release-gtk2/share/aclocal /usr/share/aclocal $HOME/test/gtkglext/share/aclocal $HOME/build/share/aclocal $HOME/autobuild/Linux-$HOST/share/aclocal $HOME/gtk-1.2/share/aclocal"
 
     for dir in $dir_list
     do 

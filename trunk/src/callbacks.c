@@ -10822,3 +10822,19 @@ on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled
 
 }
 
+
+void
+on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   GtkWidget *vbox = lookup_widget(togglebutton,"edit_chi_angles_vbox");
+
+   if (togglebutton->active) { 
+      set_find_hydrogen_torsions(1);
+   } else { 
+      set_find_hydrogen_torsions(0);
+   } 
+   fill_chi_angles_vbox(vbox);
+}
+
