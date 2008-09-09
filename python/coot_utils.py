@@ -1647,7 +1647,10 @@ def find_exe(*args):
         # BL says: before we search everywhere we might want to ask
         # the user if he actually wishes to do so!
         # lets insert a small pygtk dialog and ask!
-        search_disk = search_disk_dialog()
+        # only if graphics
+        search_disk = False
+        if (use_gui_qm):
+            search_disk = search_disk_dialog()
         if search_disk:
             # search everywhere 
             for root, dir, file in os.walk(drive):

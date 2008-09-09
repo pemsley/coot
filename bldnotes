@@ -13,13 +13,7 @@
    o clean-up use of probe/reduce command_name and command (python)
 
 27/08/08
-   o switch on/off refine toolbar (preferences)
-
-   o option for toolbar on the left (preferences)
-
    o make example keybindings for python (based on Paul's scheme bindgs)
-
-   o fix the alignment of icons and labels in the Model/fit/refine dialog
 
    o Windows installer:
      - question overwriting of runwincoot.bat
@@ -139,3 +133,15 @@
    o python: rapper-gui and what-check
 
 * Done (what_check)
+
+   o switch on/off refine toolbar (preferences)
+
+* Done
+
+   o option for toolbar on the left (preferences)
+
+* Done
+
+   o fix the alignment of icons and labels in the Model/fit/refine dialog
+
+* Done

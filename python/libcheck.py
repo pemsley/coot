@@ -122,21 +122,22 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
 
    libcheck_exe = find_exe("libcheck", "CCP4_BIN", "PATH")
 
-   if (libcheck_exe):
-     # move aside libcheck.lib if it exists
-     if (os.path.isfile("libcheck.lib")):
-       move_aside("libcheck.lib")
+   # move aside libcheck.lib if it exists
+   if (os.path.isfile("libcheck.lib")):
+     move_aside("libcheck.lib")
 
-     # read the pdb file and cif lib file if already exists:
-     if (os.path.isfile(post_refmac_pdb_file_name) and
-         os.path.isfile(coot_lib_name)):
-       pdb_status = handle_read_draw_molecule_with_recentre(
-         post_refmac_pdb_file_name, 0)
-       if (valid_model_molecule_qm(pdb_status)):
-         move_molecule_here(pdb_status)
-         read_cif_dictionary(cif_file_name)
-         return pdb_status  # return imol of the ligand
-     else:
+   # read the pdb file and cif lib file if already exists:
+   if (os.path.isfile(post_refmac_pdb_file_name) and
+       os.path.isfile(cif_file_name)):
+     pdb_status = handle_read_draw_molecule_with_recentre(
+       post_refmac_pdb_file_name, 0)
+     if (valid_model_molecule_qm(pdb_status)):
+       move_molecule_here(pdb_status)
+       read_cif_dictionary(cif_file_name)
+       return pdb_status  # return imol of the ligand
+     
+   else:
+     if (libcheck_exe):
        libstatus = popen_command(libcheck_exe, [], libcheck_input, log_file_name) 
        if (os.path.isfile(log_file_name) and not libstatus):
          # means we have a log file, 
@@ -177,7 +178,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin, ccp4i_project_dir = "
 
        else:
          return -3  # libcheck failed !?
-   else:
-      print "BL WARNING:: Theres no libcheck hence not this function..."
+     else:
+       print "BL WARNING:: Theres no libcheck hence not this function..."
 
 #monomer_molecule_from_3_let_code("3GP","")

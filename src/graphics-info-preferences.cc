@@ -256,6 +256,19 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 					g.preferences_internal[i].fvalue1, il));
        break;
       
+     case PREFERENCES_MODEL_TOOLBAR_SHOW:
+       if (g.preferences_internal[i].ivalue == 0) {
+	 commands.push_back(state_command("hide-modelling-toolbar", il));
+       } else {
+	 commands.push_back(state_command("show-modelling-toolbar", il));
+       }
+       break;
+
+     case PREFERENCES_MODEL_TOOLBAR_SIDE:
+       commands.push_back(state_command("set-model-toolbar-docked-side",
+					g.preferences_internal[i].ivalue, il));
+       break;
+
      case PREFERENCES_MODEL_TOOLBAR_STYLE:
        commands.push_back(state_command("set-model-toolbar-style",
 					g.preferences_internal[i].ivalue, il));
@@ -353,6 +366,18 @@ graphics_info_t::make_preferences_internal() {
   // recentre pdb
   on = recentre_on_read_pdb;
   p.preference_type = PREFERENCES_RECENTRE_PDB;
+  p.ivalue = on;
+  ret.push_back(p);
+
+  // refinement toolbar show/hide
+  on = model_toolbar_show_hide_state;
+  p.preference_type = PREFERENCES_MODEL_TOOLBAR_SHOW;
+  p.ivalue = on;
+  ret.push_back(p);
+
+  // refinement toolbar right/left
+  on = model_toolbar_side_state;
+  p.preference_type = PREFERENCES_MODEL_TOOLBAR_SIDE;
   p.ivalue = on;
   ret.push_back(p);
 

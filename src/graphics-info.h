@@ -1084,6 +1084,12 @@ public:
    // flag to show/hide/sensitise docked accept/reject dialog
    static int accept_reject_dialog_docked_show_flag;
 
+   // flag for the refinement toolbar show/hide
+   static short int model_toolbar_show_hide_state;
+
+   // flag for the refinement toolbar side
+   static short int model_toolbar_side_state;
+
    // flag for the refinement toolbar style
    static short int model_toolbar_style_state;
 
