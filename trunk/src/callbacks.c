@@ -10828,7 +10828,7 @@ on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-   GtkWidget *vbox = lookup_widget(togglebutton,"edit_chi_angles_vbox");
+   GtkWidget *vbox = lookup_widget(GTK_WIDGET(togglebutton),"edit_chi_angles_vbox");
 
    if (togglebutton->active) { 
       set_find_hydrogen_torsions(1);
