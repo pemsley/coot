@@ -35,6 +35,7 @@ create_window1 (void)
 {
   GtkWidget *window1;
   GtkWidget *main_window_hbox;
+  GtkWidget *main_window_model_fit_dialog_frame_left;
   GtkWidget *vbox1;
   GtkWidget *menubar1;
   GtkWidget *file1;
@@ -285,7 +286,7 @@ create_window1 (void)
   GtkWidget *main_window_graphics_hbox;
   GtkWidget *main_window_statusbar;
   GtkWidget *main_window_model_fit_dialog_frame;
-  GtkWidget *handlebox1;
+  GtkWidget *model_fit_refine_toolbar_handlebox;
   GtkWidget *model_toolbar;
   GtkWidget *toolitem4;
   GtkWidget *model_toolbar_refine_control_button;
@@ -335,6 +336,7 @@ create_window1 (void)
   GtkWidget *models1;
   GtkWidget *models1_menu;
   GtkWidget *all2;
+  GtkWidget *toolitem33;
   GtkWidget *gtkhtml_frame;
   GtkTooltips *tooltips;
 
@@ -346,6 +348,9 @@ create_window1 (void)
   main_window_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (main_window_hbox);
   gtk_container_add (GTK_CONTAINER (window1), main_window_hbox);
+
+  main_window_model_fit_dialog_frame_left = gtk_frame_new (NULL);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame_left, FALSE, FALSE, 0);
 
   vbox1 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox1);
@@ -1396,16 +1401,16 @@ create_window1 (void)
   gtk_widget_show (main_window_model_fit_dialog_frame);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
 
-  handlebox1 = gtk_handle_box_new ();
-  gtk_widget_show (handlebox1);
-  gtk_container_add (GTK_CONTAINER (main_window_model_fit_dialog_frame), handlebox1);
-  gtk_handle_box_set_shadow_type (GTK_HANDLE_BOX (handlebox1), GTK_SHADOW_NONE);
-  gtk_handle_box_set_handle_position (GTK_HANDLE_BOX (handlebox1), GTK_POS_TOP);
-  gtk_handle_box_set_snap_edge (GTK_HANDLE_BOX (handlebox1), GTK_POS_RIGHT);
+  model_fit_refine_toolbar_handlebox = gtk_handle_box_new ();
+  gtk_widget_show (model_fit_refine_toolbar_handlebox);
+  gtk_container_add (GTK_CONTAINER (main_window_model_fit_dialog_frame), model_fit_refine_toolbar_handlebox);
+  gtk_handle_box_set_shadow_type (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_SHADOW_NONE);
+  gtk_handle_box_set_handle_position (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_POS_TOP);
+  gtk_handle_box_set_snap_edge (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_POS_RIGHT);
 
   model_toolbar = gtk_toolbar_new ();
   gtk_widget_show (model_toolbar);
-  gtk_container_add (GTK_CONTAINER (handlebox1), model_toolbar);
+  gtk_container_add (GTK_CONTAINER (model_fit_refine_toolbar_handlebox), model_toolbar);
   gtk_container_set_border_width (GTK_CONTAINER (model_toolbar), 3);
   gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_ICONS);
   gtk_toolbar_set_orientation (GTK_TOOLBAR (model_toolbar), GTK_ORIENTATION_VERTICAL);
@@ -1695,6 +1700,10 @@ create_window1 (void)
   all2 = gtk_check_menu_item_new_with_mnemonic (_("All"));
   gtk_widget_show (all2);
   gtk_container_add (GTK_CONTAINER (models1_menu), all2);
+
+  toolitem33 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem33);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem33);
 
   gtkhtml_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
@@ -2129,6 +2138,7 @@ create_window1 (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");
   GLADE_HOOKUP_OBJECT (window1, main_window_hbox, "main_window_hbox");
+  GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame_left, "main_window_model_fit_dialog_frame_left");
   GLADE_HOOKUP_OBJECT (window1, vbox1, "vbox1");
   GLADE_HOOKUP_OBJECT (window1, menubar1, "menubar1");
   GLADE_HOOKUP_OBJECT (window1, file1, "file1");
@@ -2375,7 +2385,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_statusbar, "main_window_statusbar");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame, "main_window_model_fit_dialog_frame");
-  GLADE_HOOKUP_OBJECT (window1, handlebox1, "handlebox1");
+  GLADE_HOOKUP_OBJECT (window1, model_fit_refine_toolbar_handlebox, "model_fit_refine_toolbar_handlebox");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar, "model_toolbar");
   GLADE_HOOKUP_OBJECT (window1, toolitem4, "toolitem4");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_refine_control_button, "model_toolbar_refine_control_button");
@@ -2424,6 +2434,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, models1, "models1");
   GLADE_HOOKUP_OBJECT (window1, models1_menu, "models1_menu");
   GLADE_HOOKUP_OBJECT (window1, all2, "all2");
+  GLADE_HOOKUP_OBJECT (window1, toolitem33, "toolitem33");
   GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
   GLADE_HOOKUP_OBJECT_NO_REF (window1, tooltips, "tooltips");
 
@@ -6277,52 +6288,42 @@ create_model_refine_dialog (void)
   GtkWidget *model_refine_dialog_map_select_button;
   GtkWidget *hseparator5;
   GtkWidget *model_refine_dialog_refine_togglebutton;
-  GtkWidget *alignment3;
   GtkWidget *hbox154;
   GtkWidget *image3;
   GtkWidget *label328;
   GtkWidget *model_refine_dialog_regularize_zone_togglebutton;
-  GtkWidget *alignment4;
   GtkWidget *hbox155;
   GtkWidget *image4;
   GtkWidget *label329;
   GtkWidget *model_refine_dialog_rigid_body_togglebutton;
-  GtkWidget *alignment65;
   GtkWidget *hbox216;
   GtkWidget *image1826;
   GtkWidget *label390;
   GtkWidget *model_refine_dialog_rot_trans_togglebutton;
-  GtkWidget *alignment5;
   GtkWidget *hbox156;
   GtkWidget *image5;
   GtkWidget *label330;
   GtkWidget *model_refine_dialog_auto_fit_rotamer_togglebutton;
-  GtkWidget *alignment6;
   GtkWidget *hbox157;
   GtkWidget *image6;
   GtkWidget *label331;
   GtkWidget *model_refine_dialog_rotamer_togglebutton;
-  GtkWidget *alignment66;
   GtkWidget *hbox217;
   GtkWidget *image1827;
   GtkWidget *label391;
   GtkWidget *model_refine_dialog_edit_chi_angles_togglebutton;
-  GtkWidget *alignment7;
   GtkWidget *hbox158;
   GtkWidget *image7;
   GtkWidget *label332;
   GtkWidget *model_refine_dialog_torsion_general_togglebutton;
-  GtkWidget *alignment104;
   GtkWidget *hbox271;
   GtkWidget *image6022;
   GtkWidget *label441;
   GtkWidget *model_refine_dialog_pepflip_togglebutton;
-  GtkWidget *alignment8;
   GtkWidget *hbox159;
   GtkWidget *image8;
   GtkWidget *label333;
   GtkWidget *model_refine_dialog_do_180_degree_sidechain_flip_togglebutton;
-  GtkWidget *alignment9;
   GtkWidget *hbox160;
   GtkWidget *image9;
   GtkWidget *label334;
@@ -6333,38 +6334,31 @@ create_model_refine_dialog (void)
   GtkWidget *model_refine_dialog_mutate_togglebutton;
   GtkWidget *model_refine_dialog_find_waters_button;
   GtkWidget *model_refine_dialog_fit_terminal_residue_togglebutton;
-  GtkWidget *alignment10;
   GtkWidget *hbox161;
   GtkWidget *image10;
   GtkWidget *label335;
   GtkWidget *model_refine_dialog_add_alt_conf_button;
-  GtkWidget *alignment20;
   GtkWidget *hbox171;
   GtkWidget *image926;
   GtkWidget *label345;
   GtkWidget *model_refine_dialog_pointer_atom_button;
-  GtkWidget *alignment11;
   GtkWidget *hbox162;
   GtkWidget *image11;
   GtkWidget *label336;
   GtkWidget *hseparator8;
   GtkWidget *model_refine_dialog_clear_pending_button;
-  GtkWidget *alignment12;
   GtkWidget *hbox163;
   GtkWidget *image12;
   GtkWidget *label337;
   GtkWidget *model_refine_dialog_delete_button;
-  GtkWidget *alignment13;
   GtkWidget *hbox164;
   GtkWidget *image13;
   GtkWidget *label338;
   GtkWidget *model_refine_dialog_undo_button;
-  GtkWidget *alignment14;
   GtkWidget *hbox165;
   GtkWidget *image14;
   GtkWidget *label339;
   GtkWidget *model_refine_dialog_redo_button;
-  GtkWidget *alignment15;
   GtkWidget *hbox166;
   GtkWidget *image15;
   GtkWidget *label340;
@@ -6414,13 +6408,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_togglebutton, _("Real Space Refinement: Improve geometry and fit to map"), NULL);
 
-  alignment3 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment3);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), alignment3);
-
   hbox154 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox154);
-  gtk_container_add (GTK_CONTAINER (alignment3), hbox154);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), hbox154);
 
   image3 = gtk_image_new_from_stock ("refine-1.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image3);
@@ -6428,7 +6418,8 @@ create_model_refine_dialog (void)
 
   label328 = gtk_label_new_with_mnemonic (_("Real Space Refine Zone"));
   gtk_widget_show (label328);
-  gtk_box_pack_start (GTK_BOX (hbox154), label328, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox154), label328, TRUE, TRUE, 0);
+  gtk_label_set_justify (GTK_LABEL (label328), GTK_JUSTIFY_RIGHT);
 
   model_refine_dialog_regularize_zone_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_regularize_zone_togglebutton);
@@ -6436,13 +6427,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_regularize_zone_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_regularize_zone_togglebutton, _("Idealize model geometry"), NULL);
 
-  alignment4 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment4);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_regularize_zone_togglebutton), alignment4);
-
   hbox155 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox155);
-  gtk_container_add (GTK_CONTAINER (alignment4), hbox155);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_regularize_zone_togglebutton), hbox155);
 
   image4 = gtk_image_new_from_stock ("regularize-1.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image4);
@@ -6450,7 +6437,7 @@ create_model_refine_dialog (void)
 
   label329 = gtk_label_new_with_mnemonic (_("Regularize Zone"));
   gtk_widget_show (label329);
-  gtk_box_pack_start (GTK_BOX (hbox155), label329, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox155), label329, TRUE, TRUE, 0);
 
   model_refine_dialog_rigid_body_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_rigid_body_togglebutton);
@@ -6458,13 +6445,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rigid_body_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_rigid_body_togglebutton, _("Rearrange to find the name of a popular health club"), NULL);
 
-  alignment65 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment65);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rigid_body_togglebutton), alignment65);
-
   hbox216 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox216);
-  gtk_container_add (GTK_CONTAINER (alignment65), hbox216);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rigid_body_togglebutton), hbox216);
 
   image1826 = gtk_image_new_from_stock ("rigid-body.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image1826);
@@ -6472,7 +6455,7 @@ create_model_refine_dialog (void)
 
   label390 = gtk_label_new_with_mnemonic (_("Rigid Body Fit Zone"));
   gtk_widget_show (label390);
-  gtk_box_pack_start (GTK_BOX (hbox216), label390, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox216), label390, TRUE, TRUE, 0);
 
   model_refine_dialog_rot_trans_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_rot_trans_togglebutton);
@@ -6480,13 +6463,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton, _("Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]"), NULL);
 
-  alignment5 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment5);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), alignment5);
-
   hbox156 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox156);
-  gtk_container_add (GTK_CONTAINER (alignment5), hbox156);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), hbox156);
 
   image5 = gtk_image_new_from_stock ("rtz.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image5);
@@ -6494,7 +6473,7 @@ create_model_refine_dialog (void)
 
   label330 = gtk_label_new_with_mnemonic (_("Rotate/Translate Zone"));
   gtk_widget_show (label330);
-  gtk_box_pack_start (GTK_BOX (hbox156), label330, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox156), label330, TRUE, TRUE, 0);
 
   model_refine_dialog_auto_fit_rotamer_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_auto_fit_rotamer_togglebutton);
@@ -6502,13 +6481,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_auto_fit_rotamer_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_auto_fit_rotamer_togglebutton, _("Click on an atom in a residue to find the best fit rotamer"), NULL);
 
-  alignment6 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment6);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_auto_fit_rotamer_togglebutton), alignment6);
-
   hbox157 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox157);
-  gtk_container_add (GTK_CONTAINER (alignment6), hbox157);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_auto_fit_rotamer_togglebutton), hbox157);
 
   image6 = gtk_image_new_from_stock ("auto-fit-rotamer.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6);
@@ -6516,7 +6491,7 @@ create_model_refine_dialog (void)
 
   label331 = gtk_label_new_with_mnemonic (_("Auto Fit Rotamer"));
   gtk_widget_show (label331);
-  gtk_box_pack_start (GTK_BOX (hbox157), label331, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox157), label331, TRUE, TRUE, 0);
 
   model_refine_dialog_rotamer_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_rotamer_togglebutton);
@@ -6524,13 +6499,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rotamer_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_rotamer_togglebutton, _("Select Different Conformations for a Residue Sidechan"), NULL);
 
-  alignment66 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment66);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rotamer_togglebutton), alignment66);
-
   hbox217 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox217);
-  gtk_container_add (GTK_CONTAINER (alignment66), hbox217);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_rotamer_togglebutton), hbox217);
 
   image1827 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image1827);
@@ -6538,7 +6509,7 @@ create_model_refine_dialog (void)
 
   label391 = gtk_label_new_with_mnemonic (_("Rotamers..."));
   gtk_widget_show (label391);
-  gtk_box_pack_start (GTK_BOX (hbox217), label391, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox217), label391, TRUE, FALSE, 0);
 
   model_refine_dialog_edit_chi_angles_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_edit_chi_angles_togglebutton);
@@ -6546,13 +6517,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_edit_chi_angles_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_chi_angles_togglebutton, _("Edit the Chi angles (torsions) of an amino acid residue \"by hand\"  (by mouse, that is)"), NULL);
 
-  alignment7 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment7);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_edit_chi_angles_togglebutton), alignment7);
-
   hbox158 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox158);
-  gtk_container_add (GTK_CONTAINER (alignment7), hbox158);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_edit_chi_angles_togglebutton), hbox158);
 
   image7 = gtk_image_new_from_stock ("edit-chi.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image7);
@@ -6560,7 +6527,7 @@ create_model_refine_dialog (void)
 
   label332 = gtk_label_new_with_mnemonic (_("Edit Chi Angles"));
   gtk_widget_show (label332);
-  gtk_box_pack_start (GTK_BOX (hbox158), label332, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox158), label332, TRUE, TRUE, 0);
 
   model_refine_dialog_torsion_general_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_torsion_general_togglebutton);
@@ -6569,13 +6536,9 @@ create_model_refine_dialog (void)
   GTK_WIDGET_UNSET_FLAGS (model_refine_dialog_torsion_general_togglebutton, GTK_CAN_FOCUS);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_torsion_general_togglebutton, _("Named after the famous function in O that Coot users have been having to do without for years (and quite happily too, if (only?) they have had proper dictionaries for their ligands).     But it turns out that some users don't have proper dictionaries and they shout loud and often (and at *me* rather than the author of the dictionary generating program would you believe!)   So my arm has been twisted eventually (but I resisted for quite a good while, I think)...  Enjoy.... (if you must)."), NULL);
 
-  alignment104 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment104);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_torsion_general_togglebutton), alignment104);
-
   hbox271 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox271);
-  gtk_container_add (GTK_CONTAINER (alignment104), hbox271);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_torsion_general_togglebutton), hbox271);
 
   image6022 = gtk_image_new_from_stock ("edit-chi.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image6022);
@@ -6583,7 +6546,7 @@ create_model_refine_dialog (void)
 
   label441 = gtk_label_new_with_mnemonic (_(" Torsion General"));
   gtk_widget_show (label441);
-  gtk_box_pack_start (GTK_BOX (hbox271), label441, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox271), label441, TRUE, TRUE, 0);
 
   model_refine_dialog_pepflip_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_pepflip_togglebutton);
@@ -6591,13 +6554,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_pepflip_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_pepflip_togglebutton, _("Peptide flip"), NULL);
 
-  alignment8 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment8);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_pepflip_togglebutton), alignment8);
-
   hbox159 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox159);
-  gtk_container_add (GTK_CONTAINER (alignment8), hbox159);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_pepflip_togglebutton), hbox159);
 
   image8 = gtk_image_new_from_stock ("flip-peptide.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image8);
@@ -6605,7 +6564,7 @@ create_model_refine_dialog (void)
 
   label333 = gtk_label_new_with_mnemonic (_("Flip Peptide "));
   gtk_widget_show (label333);
-  gtk_box_pack_start (GTK_BOX (hbox159), label333, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox159), label333, TRUE, TRUE, 0);
 
   model_refine_dialog_do_180_degree_sidechain_flip_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton);
@@ -6613,21 +6572,17 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_do_180_degree_sidechain_flip_togglebutton, _("Flip the last chi angle of the sidechain by 180 degrees"), NULL);
 
-  alignment9 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment9);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton), alignment9);
-
   hbox160 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox160);
-  gtk_container_add (GTK_CONTAINER (alignment9), hbox160);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton), hbox160);
 
   image9 = gtk_image_new_from_stock ("side-chain-180.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image9);
   gtk_box_pack_start (GTK_BOX (hbox160), image9, FALSE, FALSE, 0);
 
-  label334 = gtk_label_new_with_mnemonic (_("Sidechain180 Degree Flip"));
+  label334 = gtk_label_new_with_mnemonic (_("Sidechain 180 Degree Flip"));
   gtk_widget_show (label334);
-  gtk_box_pack_start (GTK_BOX (hbox160), label334, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox160), label334, TRUE, TRUE, 0);
 
   model_refine_dialog_edit_phi_psi_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Edit Phi/Psi..."));
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_edit_phi_psi_togglebutton, FALSE, FALSE, 0);
@@ -6667,13 +6622,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_fit_terminal_residue_togglebutton), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_fit_terminal_residue_togglebutton, _("[You need a map to do this] Create a new residue at the C or N terminus. The angles are selected at random sample from the phi/psi probability distribution (then fitted to the map), so if at first you don't succeed, give it another bash..."), NULL);
 
-  alignment10 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment10);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_fit_terminal_residue_togglebutton), alignment10);
-
   hbox161 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox161);
-  gtk_container_add (GTK_CONTAINER (alignment10), hbox161);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_fit_terminal_residue_togglebutton), hbox161);
 
   image10 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image10);
@@ -6681,7 +6632,7 @@ create_model_refine_dialog (void)
 
   label335 = gtk_label_new_with_mnemonic (_("Add Terminal Residue..."));
   gtk_widget_show (label335);
-  gtk_box_pack_start (GTK_BOX (hbox161), label335, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox161), label335, TRUE, TRUE, 0);
 
   model_refine_dialog_add_alt_conf_button = gtk_button_new ();
   gtk_widget_show (model_refine_dialog_add_alt_conf_button);
@@ -6689,13 +6640,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_add_alt_conf_button), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_add_alt_conf_button, _("Add Alternate (Alternative) Conformation to a Residue"), NULL);
 
-  alignment20 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment20);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_add_alt_conf_button), alignment20);
-
   hbox171 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox171);
-  gtk_container_add (GTK_CONTAINER (alignment20), hbox171);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_add_alt_conf_button), hbox171);
 
   image926 = gtk_image_new_from_stock ("add-alt-conf.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image926);
@@ -6703,7 +6650,7 @@ create_model_refine_dialog (void)
 
   label345 = gtk_label_new_with_mnemonic (_("Add Alt Conf..."));
   gtk_widget_show (label345);
-  gtk_box_pack_start (GTK_BOX (hbox171), label345, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox171), label345, TRUE, TRUE, 0);
 
   model_refine_dialog_pointer_atom_button = gtk_button_new ();
   gtk_widget_show (model_refine_dialog_pointer_atom_button);
@@ -6711,13 +6658,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_pointer_atom_button), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_pointer_atom_button, _("Put an atom at current pink pointer position"), NULL);
 
-  alignment11 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment11);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_pointer_atom_button), alignment11);
-
   hbox162 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox162);
-  gtk_container_add (GTK_CONTAINER (alignment11), hbox162);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_pointer_atom_button), hbox162);
 
   image11 = gtk_image_new_from_stock ("atom-at-pointer.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image11);
@@ -6725,7 +6668,7 @@ create_model_refine_dialog (void)
 
   label336 = gtk_label_new_with_mnemonic (_("Place Atom At Pointer"));
   gtk_widget_show (label336);
-  gtk_box_pack_start (GTK_BOX (hbox162), label336, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox162), label336, TRUE, TRUE, 0);
 
   hseparator8 = gtk_hseparator_new ();
   gtk_widget_show (hseparator8);
@@ -6736,13 +6679,9 @@ create_model_refine_dialog (void)
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_clear_pending_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_clear_pending_button), 1);
 
-  alignment12 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment12);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_clear_pending_button), alignment12);
-
   hbox163 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox163);
-  gtk_container_add (GTK_CONTAINER (alignment12), hbox163);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_clear_pending_button), hbox163);
 
   image12 = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image12);
@@ -6750,7 +6689,7 @@ create_model_refine_dialog (void)
 
   label337 = gtk_label_new_with_mnemonic (_("Clear Pending Picks"));
   gtk_widget_show (label337);
-  gtk_box_pack_start (GTK_BOX (hbox163), label337, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox163), label337, TRUE, TRUE, 0);
 
   model_refine_dialog_delete_button = gtk_button_new ();
   gtk_widget_show (model_refine_dialog_delete_button);
@@ -6758,13 +6697,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_delete_button), 1);
   gtk_tooltips_set_tip (tooltips, model_refine_dialog_delete_button, _("Delete Residue or Atom"), NULL);
 
-  alignment13 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment13);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_delete_button), alignment13);
-
   hbox164 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox164);
-  gtk_container_add (GTK_CONTAINER (alignment13), hbox164);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_delete_button), hbox164);
 
   image13 = gtk_image_new_from_stock ("gtk-delete", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image13);
@@ -6772,20 +6707,16 @@ create_model_refine_dialog (void)
 
   label338 = gtk_label_new_with_mnemonic (_("Delete..."));
   gtk_widget_show (label338);
-  gtk_box_pack_start (GTK_BOX (hbox164), label338, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox164), label338, TRUE, TRUE, 0);
 
   model_refine_dialog_undo_button = gtk_button_new ();
   gtk_widget_show (model_refine_dialog_undo_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_undo_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_undo_button), 1);
 
-  alignment14 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment14);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_undo_button), alignment14);
-
   hbox165 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox165);
-  gtk_container_add (GTK_CONTAINER (alignment14), hbox165);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_undo_button), hbox165);
 
   image14 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image14);
@@ -6793,7 +6724,7 @@ create_model_refine_dialog (void)
 
   label339 = gtk_label_new_with_mnemonic (_("  Undo  "));
   gtk_widget_show (label339);
-  gtk_box_pack_start (GTK_BOX (hbox165), label339, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox165), label339, TRUE, TRUE, 0);
 
   model_refine_dialog_redo_button = gtk_button_new ();
   gtk_widget_show (model_refine_dialog_redo_button);
@@ -6801,13 +6732,9 @@ create_model_refine_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_redo_button), 1);
   gtk_widget_set_sensitive (model_refine_dialog_redo_button, FALSE);
 
-  alignment15 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment15);
-  gtk_container_add (GTK_CONTAINER (model_refine_dialog_redo_button), alignment15);
-
   hbox166 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox166);
-  gtk_container_add (GTK_CONTAINER (alignment15), hbox166);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_redo_button), hbox166);
 
   image15 = gtk_image_new_from_stock ("gtk-redo", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (image15);
@@ -6815,7 +6742,7 @@ create_model_refine_dialog (void)
 
   label340 = gtk_label_new_with_mnemonic (_("  Redo  "));
   gtk_widget_show (label340);
-  gtk_box_pack_start (GTK_BOX (hbox166), label340, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox166), label340, TRUE, TRUE, 0);
 
   hseparator7 = gtk_hseparator_new ();
   gtk_widget_show (hseparator7);
@@ -6932,52 +6859,42 @@ create_model_refine_dialog (void)
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_map_select_button, "model_refine_dialog_map_select_button");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hseparator5, "hseparator5");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_refine_togglebutton, "model_refine_dialog_refine_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment3, "alignment3");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox154, "hbox154");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image3, "image3");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label328, "label328");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_regularize_zone_togglebutton, "model_refine_dialog_regularize_zone_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment4, "alignment4");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox155, "hbox155");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image4, "image4");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label329, "label329");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rigid_body_togglebutton, "model_refine_dialog_rigid_body_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment65, "alignment65");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox216, "hbox216");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image1826, "image1826");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label390, "label390");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rot_trans_togglebutton, "model_refine_dialog_rot_trans_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment5, "alignment5");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox156, "hbox156");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image5, "image5");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label330, "label330");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_auto_fit_rotamer_togglebutton, "model_refine_dialog_auto_fit_rotamer_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment6, "alignment6");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox157, "hbox157");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image6, "image6");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label331, "label331");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_rotamer_togglebutton, "model_refine_dialog_rotamer_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment66, "alignment66");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox217, "hbox217");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image1827, "image1827");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label391, "label391");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_edit_chi_angles_togglebutton, "model_refine_dialog_edit_chi_angles_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment7, "alignment7");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox158, "hbox158");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image7, "image7");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label332, "label332");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_torsion_general_togglebutton, "model_refine_dialog_torsion_general_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment104, "alignment104");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox271, "hbox271");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image6022, "image6022");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label441, "label441");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_pepflip_togglebutton, "model_refine_dialog_pepflip_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment8, "alignment8");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox159, "hbox159");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image8, "image8");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label333, "label333");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_do_180_degree_sidechain_flip_togglebutton, "model_refine_dialog_do_180_degree_sidechain_flip_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment9, "alignment9");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox160, "hbox160");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image9, "image9");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label334, "label334");
@@ -6988,38 +6905,31 @@ create_model_refine_dialog (void)
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_mutate_togglebutton, "model_refine_dialog_mutate_togglebutton");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_find_waters_button, "model_refine_dialog_find_waters_button");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_fit_terminal_residue_togglebutton, "model_refine_dialog_fit_terminal_residue_togglebutton");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment10, "alignment10");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox161, "hbox161");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image10, "image10");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label335, "label335");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_add_alt_conf_button, "model_refine_dialog_add_alt_conf_button");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment20, "alignment20");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox171, "hbox171");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image926, "image926");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label345, "label345");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_pointer_atom_button, "model_refine_dialog_pointer_atom_button");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment11, "alignment11");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox162, "hbox162");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image11, "image11");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label336, "label336");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hseparator8, "hseparator8");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_clear_pending_button, "model_refine_dialog_clear_pending_button");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment12, "alignment12");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox163, "hbox163");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image12, "image12");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label337, "label337");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_delete_button, "model_refine_dialog_delete_button");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment13, "alignment13");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox164, "hbox164");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image13, "image13");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label338, "label338");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_undo_button, "model_refine_dialog_undo_button");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment14, "alignment14");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox165, "hbox165");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image14, "image14");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label339, "label339");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_redo_button, "model_refine_dialog_redo_button");
-  GLADE_HOOKUP_OBJECT (model_refine_dialog, alignment15, "alignment15");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox166, "hbox166");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image15, "image15");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label340, "label340");
@@ -17002,13 +16912,25 @@ create_preferences (void)
   GtkWidget *label606;
   GtkWidget *preferences_model_toolbar_style;
   GtkWidget *vbox274;
-  GtkWidget *label630;
-  GtkWidget *frame273;
-  GtkWidget *vbox275;
+  GtkWidget *frame279;
+  GtkWidget *vbox285;
+  GtkWidget *preferences_model_toolbar_show_radiobutton;
+  GSList *preferences_model_toolbar_show_radiobutton_group = NULL;
+  GtkWidget *hbox356;
+  GtkWidget *label671;
+  GtkWidget *vbox286;
+  GtkWidget *preferences_model_toolbar_right_radiobutton;
+  GSList *preferences_model_toolbar_right_radiobutton_group = NULL;
+  GtkWidget *preferences_model_toolbar_left_radiobutton;
+  GtkWidget *preferences_model_toolbar_hide_radiobutton;
+  GtkWidget *label670;
+  GtkWidget *frame278;
+  GtkWidget *vbox284;
   GtkWidget *preferences_model_toolbar_style_icons_radiobutton;
   GSList *preferences_model_toolbar_style_icons_radiobutton_group = NULL;
   GtkWidget *preferences_model_toolbar_style_both_radiobutton;
   GtkWidget *preferences_model_toolbar_style_text_radiobutton;
+  GtkWidget *label669;
   GtkWidget *label629;
   GtkWidget *hbuttonbox5;
   GtkWidget *hbox115;
@@ -18266,41 +18188,92 @@ create_preferences (void)
   gtk_widget_show (vbox274);
   gtk_container_add (GTK_CONTAINER (preferences_model_toolbar_style), vbox274);
 
-  label630 = gtk_label_new (_("Toolbar Style?"));
-  gtk_widget_show (label630);
-  gtk_box_pack_start (GTK_BOX (vbox274), label630, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label630), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label630), 9, 7);
+  frame279 = gtk_frame_new (NULL);
+  gtk_widget_show (frame279);
+  gtk_box_pack_start (GTK_BOX (vbox274), frame279, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame279), 8);
 
-  frame273 = gtk_frame_new (NULL);
-  gtk_widget_show (frame273);
-  gtk_box_pack_start (GTK_BOX (vbox274), frame273, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame273), 12);
+  vbox285 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox285);
+  gtk_container_add (GTK_CONTAINER (frame279), vbox285);
 
-  vbox275 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox275);
-  gtk_container_add (GTK_CONTAINER (frame273), vbox275);
+  preferences_model_toolbar_show_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Yes"));
+  gtk_widget_show (preferences_model_toolbar_show_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox285), preferences_model_toolbar_show_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_model_toolbar_show_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_show_radiobutton), preferences_model_toolbar_show_radiobutton_group);
+  preferences_model_toolbar_show_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_show_radiobutton));
+
+  hbox356 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox356);
+  gtk_box_pack_start (GTK_BOX (vbox285), hbox356, FALSE, FALSE, 0);
+
+  label671 = gtk_label_new (_("        "));
+  gtk_widget_show (label671);
+  gtk_box_pack_start (GTK_BOX (hbox356), label671, FALSE, FALSE, 0);
+
+  vbox286 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox286);
+  gtk_box_pack_start (GTK_BOX (hbox356), vbox286, TRUE, TRUE, 0);
+
+  preferences_model_toolbar_right_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Right"));
+  gtk_widget_show (preferences_model_toolbar_right_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox286), preferences_model_toolbar_right_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_right_radiobutton), preferences_model_toolbar_right_radiobutton_group);
+  preferences_model_toolbar_right_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_right_radiobutton));
+
+  preferences_model_toolbar_left_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Left"));
+  gtk_widget_show (preferences_model_toolbar_left_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox286), preferences_model_toolbar_left_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_left_radiobutton), preferences_model_toolbar_right_radiobutton_group);
+  preferences_model_toolbar_right_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_left_radiobutton));
+
+  preferences_model_toolbar_hide_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
+  gtk_widget_show (preferences_model_toolbar_hide_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox285), preferences_model_toolbar_hide_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_model_toolbar_hide_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_hide_radiobutton), preferences_model_toolbar_show_radiobutton_group);
+  preferences_model_toolbar_show_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_hide_radiobutton));
+
+  label670 = gtk_label_new (_("Show Toolbar?"));
+  gtk_widget_show (label670);
+  gtk_frame_set_label_widget (GTK_FRAME (frame279), label670);
+  gtk_label_set_use_markup (GTK_LABEL (label670), TRUE);
+
+  frame278 = gtk_frame_new (NULL);
+  gtk_widget_show (frame278);
+  gtk_box_pack_start (GTK_BOX (vbox274), frame278, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame278), 8);
+
+  vbox284 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox284);
+  gtk_container_add (GTK_CONTAINER (frame278), vbox284);
 
   preferences_model_toolbar_style_icons_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Icons only (default)"));
   gtk_widget_show (preferences_model_toolbar_style_icons_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox275), preferences_model_toolbar_style_icons_radiobutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox284), preferences_model_toolbar_style_icons_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_model_toolbar_style_icons_radiobutton), 5);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_style_icons_radiobutton), preferences_model_toolbar_style_icons_radiobutton_group);
   preferences_model_toolbar_style_icons_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_style_icons_radiobutton));
 
   preferences_model_toolbar_style_both_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Icons and Text"));
   gtk_widget_show (preferences_model_toolbar_style_both_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox275), preferences_model_toolbar_style_both_radiobutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox284), preferences_model_toolbar_style_both_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_model_toolbar_style_both_radiobutton), 5);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_style_both_radiobutton), preferences_model_toolbar_style_icons_radiobutton_group);
   preferences_model_toolbar_style_icons_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_style_both_radiobutton));
 
   preferences_model_toolbar_style_text_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Text only"));
   gtk_widget_show (preferences_model_toolbar_style_text_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox275), preferences_model_toolbar_style_text_radiobutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox284), preferences_model_toolbar_style_text_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_model_toolbar_style_text_radiobutton), 5);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_style_text_radiobutton), preferences_model_toolbar_style_icons_radiobutton_group);
   preferences_model_toolbar_style_icons_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_style_text_radiobutton));
+
+  label669 = gtk_label_new (_("Toolbar Style??"));
+  gtk_widget_show (label669);
+  gtk_frame_set_label_widget (GTK_FRAME (frame278), label669);
+  gtk_label_set_use_markup (GTK_LABEL (label669), TRUE);
 
   label629 = gtk_label_new (_("Refinement Toolbar"));
   gtk_widget_show (label629);
@@ -18574,6 +18547,18 @@ create_preferences (void)
   g_signal_connect ((gpointer) preferences_pink_pointer_entry, "changed",
                     G_CALLBACK (on_preferences_pink_pointer_entry_changed),
                     NULL);
+  g_signal_connect ((gpointer) preferences_model_toolbar_show_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_model_toolbar_show_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_model_toolbar_right_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_model_toolbar_right_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_model_toolbar_left_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_model_toolbar_left_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_model_toolbar_hide_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_model_toolbar_hide_radiobutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) preferences_model_toolbar_style_icons_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_model_toolbar_style_icons_radiobutton_toggled),
                     NULL);
@@ -18836,12 +18821,22 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, label606, "label606");
   GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_style, "preferences_model_toolbar_style");
   GLADE_HOOKUP_OBJECT (preferences, vbox274, "vbox274");
-  GLADE_HOOKUP_OBJECT (preferences, label630, "label630");
-  GLADE_HOOKUP_OBJECT (preferences, frame273, "frame273");
-  GLADE_HOOKUP_OBJECT (preferences, vbox275, "vbox275");
+  GLADE_HOOKUP_OBJECT (preferences, frame279, "frame279");
+  GLADE_HOOKUP_OBJECT (preferences, vbox285, "vbox285");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_show_radiobutton, "preferences_model_toolbar_show_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, hbox356, "hbox356");
+  GLADE_HOOKUP_OBJECT (preferences, label671, "label671");
+  GLADE_HOOKUP_OBJECT (preferences, vbox286, "vbox286");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_right_radiobutton, "preferences_model_toolbar_right_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_left_radiobutton, "preferences_model_toolbar_left_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_hide_radiobutton, "preferences_model_toolbar_hide_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label670, "label670");
+  GLADE_HOOKUP_OBJECT (preferences, frame278, "frame278");
+  GLADE_HOOKUP_OBJECT (preferences, vbox284, "vbox284");
   GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_style_icons_radiobutton, "preferences_model_toolbar_style_icons_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_style_both_radiobutton, "preferences_model_toolbar_style_both_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_style_text_radiobutton, "preferences_model_toolbar_style_text_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, label669, "label669");
   GLADE_HOOKUP_OBJECT (preferences, label629, "label629");
   GLADE_HOOKUP_OBJECT_NO_REF (preferences, hbuttonbox5, "hbuttonbox5");
   GLADE_HOOKUP_OBJECT (preferences, hbox115, "hbox115");
@@ -24930,6 +24925,181 @@ create_run_refmac_mtz_filechooserdialog (void)
 
   gtk_widget_grab_default (button31);
   return run_refmac_mtz_filechooserdialog;
+}
+
+GtkWidget*
+create_window2 (void)
+{
+  GtkWidget *window2;
+
+  window2 = gtk_window_new (GTK_WINDOW_POPUP);
+  gtk_window_set_title (GTK_WINDOW (window2), _("window2"));
+  gtk_window_set_position (GTK_WINDOW (window2), GTK_WIN_POS_MOUSE);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (window2, window2, "window2");
+
+  return window2;
+}
+
+GtkWidget*
+create_dialog1 (void)
+{
+  GtkWidget *dialog1;
+  GtkWidget *dialog_vbox119;
+  GtkWidget *vbox282;
+  GtkWidget *label665;
+  GtkWidget *frame277;
+  GtkWidget *alignment126;
+  GtkWidget *vbox283;
+  GtkWidget *radiobutton9;
+  GSList *radiobutton9_group = NULL;
+  GtkWidget *radiobutton10;
+  GtkWidget *radiobutton11;
+  GtkWidget *radiobutton12;
+  GtkWidget *label666;
+  GtkWidget *dialog_action_area118;
+  GtkWidget *button32;
+  GtkWidget *alignment127;
+  GtkWidget *hbox354;
+  GtkWidget *image6643;
+  GtkWidget *label667;
+  GtkWidget *button33;
+  GtkWidget *alignment128;
+  GtkWidget *hbox355;
+  GtkWidget *image6644;
+  GtkWidget *label668;
+
+  dialog1 = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (dialog1), _("Rigid Body Fit Dialog"));
+  gtk_window_set_type_hint (GTK_WINDOW (dialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox119 = GTK_DIALOG (dialog1)->vbox;
+  gtk_widget_show (dialog_vbox119);
+
+  vbox282 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox282);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox119), vbox282, TRUE, TRUE, 0);
+
+  label665 = gtk_label_new (_("Rigid Body Fit"));
+  gtk_widget_show (label665);
+  gtk_box_pack_start (GTK_BOX (vbox282), label665, FALSE, FALSE, 0);
+
+  frame277 = gtk_frame_new (NULL);
+  gtk_widget_show (frame277);
+  gtk_box_pack_start (GTK_BOX (vbox282), frame277, TRUE, TRUE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame277), GTK_SHADOW_NONE);
+
+  alignment126 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment126);
+  gtk_container_add (GTK_CONTAINER (frame277), alignment126);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment126), 0, 0, 12, 0);
+
+  vbox283 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox283);
+  gtk_container_add (GTK_CONTAINER (alignment126), vbox283);
+
+  radiobutton9 = gtk_radio_button_new_with_mnemonic (NULL, _("Whole Molecule"));
+  gtk_widget_show (radiobutton9);
+  gtk_box_pack_start (GTK_BOX (vbox283), radiobutton9, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton9), radiobutton9_group);
+  radiobutton9_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton9));
+
+  radiobutton10 = gtk_radio_button_new_with_mnemonic (NULL, _("Whole Chain"));
+  gtk_widget_show (radiobutton10);
+  gtk_box_pack_start (GTK_BOX (vbox283), radiobutton10, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton10), radiobutton9_group);
+  radiobutton9_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton10));
+
+  radiobutton11 = gtk_radio_button_new_with_mnemonic (NULL, _("Atom Selection"));
+  gtk_widget_show (radiobutton11);
+  gtk_box_pack_start (GTK_BOX (vbox283), radiobutton11, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton11), radiobutton9_group);
+  radiobutton9_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton11));
+
+  radiobutton12 = gtk_radio_button_new_with_mnemonic (NULL, _("By Atom Picking"));
+  gtk_widget_show (radiobutton12);
+  gtk_box_pack_start (GTK_BOX (vbox283), radiobutton12, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton12), radiobutton9_group);
+  radiobutton9_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton12));
+
+  label666 = gtk_label_new (_("<b>Atom Selection</b>"));
+  gtk_widget_show (label666);
+  gtk_frame_set_label_widget (GTK_FRAME (frame277), label666);
+  gtk_label_set_use_markup (GTK_LABEL (label666), TRUE);
+
+  dialog_action_area118 = GTK_DIALOG (dialog1)->action_area;
+  gtk_widget_show (dialog_action_area118);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area118), GTK_BUTTONBOX_END);
+
+  button32 = gtk_button_new ();
+  gtk_widget_show (button32);
+  gtk_dialog_add_action_widget (GTK_DIALOG (dialog1), button32, 0);
+  GTK_WIDGET_SET_FLAGS (button32, GTK_CAN_DEFAULT);
+
+  alignment127 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment127);
+  gtk_container_add (GTK_CONTAINER (button32), alignment127);
+
+  hbox354 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox354);
+  gtk_container_add (GTK_CONTAINER (alignment127), hbox354);
+
+  image6643 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6643);
+  gtk_box_pack_start (GTK_BOX (hbox354), image6643, FALSE, FALSE, 0);
+
+  label667 = gtk_label_new_with_mnemonic (_("Fit"));
+  gtk_widget_show (label667);
+  gtk_box_pack_start (GTK_BOX (hbox354), label667, FALSE, FALSE, 0);
+
+  button33 = gtk_button_new ();
+  gtk_widget_show (button33);
+  gtk_dialog_add_action_widget (GTK_DIALOG (dialog1), button33, 0);
+  GTK_WIDGET_SET_FLAGS (button33, GTK_CAN_DEFAULT);
+
+  alignment128 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment128);
+  gtk_container_add (GTK_CONTAINER (button33), alignment128);
+
+  hbox355 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox355);
+  gtk_container_add (GTK_CONTAINER (alignment128), hbox355);
+
+  image6644 = gtk_image_new_from_stock ("gtk-cancel", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6644);
+  gtk_box_pack_start (GTK_BOX (hbox355), image6644, FALSE, FALSE, 0);
+
+  label668 = gtk_label_new_with_mnemonic (_("Cancel"));
+  gtk_widget_show (label668);
+  gtk_box_pack_start (GTK_BOX (hbox355), label668, FALSE, FALSE, 0);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (dialog1, dialog1, "dialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (dialog1, dialog_vbox119, "dialog_vbox119");
+  GLADE_HOOKUP_OBJECT (dialog1, vbox282, "vbox282");
+  GLADE_HOOKUP_OBJECT (dialog1, label665, "label665");
+  GLADE_HOOKUP_OBJECT (dialog1, frame277, "frame277");
+  GLADE_HOOKUP_OBJECT (dialog1, alignment126, "alignment126");
+  GLADE_HOOKUP_OBJECT (dialog1, vbox283, "vbox283");
+  GLADE_HOOKUP_OBJECT (dialog1, radiobutton9, "radiobutton9");
+  GLADE_HOOKUP_OBJECT (dialog1, radiobutton10, "radiobutton10");
+  GLADE_HOOKUP_OBJECT (dialog1, radiobutton11, "radiobutton11");
+  GLADE_HOOKUP_OBJECT (dialog1, radiobutton12, "radiobutton12");
+  GLADE_HOOKUP_OBJECT (dialog1, label666, "label666");
+  GLADE_HOOKUP_OBJECT_NO_REF (dialog1, dialog_action_area118, "dialog_action_area118");
+  GLADE_HOOKUP_OBJECT (dialog1, button32, "button32");
+  GLADE_HOOKUP_OBJECT (dialog1, alignment127, "alignment127");
+  GLADE_HOOKUP_OBJECT (dialog1, hbox354, "hbox354");
+  GLADE_HOOKUP_OBJECT (dialog1, image6643, "image6643");
+  GLADE_HOOKUP_OBJECT (dialog1, label667, "label667");
+  GLADE_HOOKUP_OBJECT (dialog1, button33, "button33");
+  GLADE_HOOKUP_OBJECT (dialog1, alignment128, "alignment128");
+  GLADE_HOOKUP_OBJECT (dialog1, hbox355, "hbox355");
+  GLADE_HOOKUP_OBJECT (dialog1, image6644, "image6644");
+  GLADE_HOOKUP_OBJECT (dialog1, label668, "label668");
+
+  return dialog1;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */

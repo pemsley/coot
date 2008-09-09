@@ -6,15 +6,31 @@ class LigandTestFunctions(unittest.TestCase):
     def test01_0(self):
         """Get monomer test"""
 
-        if (have_test_skip):
-            self.skipIf(not have_ccp4_qm, "CCP4 not set up - skipping 3GP test")
-        else:
-            if (not have_ccp4_qm):
-                print "CCP4 not set up - skipping 3GP test (actually passing!)"
-                skipped_tests.append("Get monomer test (no CCP4)")
-                return
-	# BL says:: we shoudl change the monomer_...., so that it can take 2 args
-	imol = monomer_molecule_from_3_let_code("3GP", "", "")
+#        if (have_test_skip):
+#            self.skipIf(not have_ccp4_qm, "CCP4 not set up - skipping 3GP test")
+#        else:
+#            if (not have_ccp4_qm):
+#                print "CCP4 not set up - skipping 3GP test (actually passing!)"
+#                skipped_tests.append("Get monomer test (no CCP4)")
+#                return
+
+        if (not have_ccp4_qm):
+            print "No CCP4 - Copying in test files"
+            for file_name in ["monomer-3GP.pdb", "libcheck_3GP.cif"]:
+                f_full = os.path.join(unittest_data_dir, file_name)
+                if (os.path.isfile(f_full)):
+                    import shutil
+                    print "   copy-file", f_full, file_name
+                    shutil.copyfile(f_full, file_name)
+                else:
+                    if (have_skip_test):
+                        self.skip("Cannot find file %s, skipping test" %f_full)
+                    else:
+                        print "Cannot find file %s, skipping test" %f_full
+                        skipped_tests.append("Get monomer test (no CCP4 and file %s not found %f_full)")
+                        return
+                
+	imol = monomer_molecule_from_3_let_code("3GP", "")
 	if (valid_model_molecule_qm(imol)):
             global imol_ligand
             imol_ligand = imol 
@@ -108,25 +124,15 @@ class LigandTestFunctions(unittest.TestCase):
     def test05_0(self):
         """flip residue (around eigen vectors)"""
         
-        # note to self, make sure this file is available when then test
-        # is run for real.
-        #
-        if (have_test_skip):
-            self.skipIf(not os.path.isfile("monomer-3GP.pdb"), "pdb file not found - skipping flip residue test")
-        else:
-            if (not os.path.isfile("monomer-3GP.pdb")):
-                print "pdb file does not exist - skipping flip residue test (actually passing!)"
-                skipped_tests.append("flip residue (no pdb file)")
-                return
+        self.failIf(not os.path.isfile("monomer-3GP.pdb"), "  Oops! file not found! monomer-3GP.pdb")
+
         imol_orig = read_pdb("monomer-3GP.pdb")
-        if (have_test_skip):
-            self.skipIf(not valid_model_molecule_qm(imol_orig), "pdb file not found - skipping flip residue test")
-        else:
-            if (not valid_model_molecule_qm(imol_orig)):
-                print "pdb file not found - skipping flip residue test (actually passing!)"
-                skipped_tests.append("flip residue (no pdb file)")
-                return
         imol_copy = copy_molecule(imol_orig)
+
+        self.failIf(not valid_model_molecule_qm(imol_orig), "not valid molecule for monomer-3GP.pdb")
+
+        self.failIf(not valid_model_molecule_qm(imol_copy), "not valid molecule for copy of monomer-3GP.pdb")
+
         # BL extra
         # we go to the molecule otherwise we dont pick up the right active_atom
         set_go_to_atom_molecule(imol_orig)
@@ -150,6 +156,13 @@ class LigandTestFunctions(unittest.TestCase):
         flip_ligand(imol, chain_id, res_no)
         atom_orig_1 = get_atom(imol_orig, "A", 1, " C8 ")
         atom_move_1 = get_atom(imol     , "A", 1, " C8 ")
+
+        from types import ListType
+
+        self.failUnless(type(atom_orig_1) is ListType, "atom_orig_1 not found")
+
+        self.failUnless(type(atom_move_1) is ListType, "atom_move_1 not found")
+
         d = bond_length(atom_orig_1[2], atom_move_1[2])
         print "distance: ", d
         self.failUnless(d > 2.1, "fail to move test atom d1")

@@ -796,7 +796,26 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    "   flying hydrogen failure, atoms: %s %s" %(atom_1, atom_2))
 	    self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02),
 			    "   flying hydrogen failure, bond length %s, should be 0.96" %bond_length_from_atoms(atom_1, atom_2))
-	    
+
+
+    def test25_1(self):
+	    """Test for mangling of hydrogen names from a PDB v 3.0"""
+
+	    imol = unittest_pdb("3ins-6B-3.0.pdb")
+	    self.failUnless(valid_model_molecule_qm(imol), "Bad read of unittest test pdb: 3ins-6B-3.0.pdb")
+
+	    with_auto_accept([regularize_zone, imol, "B", 6, 6, ""])
+	    atom_pairs = [["HD11", " CD1"],
+			  ["HD12", " CD1"],
+			  ["HD13", " CD1"],
+			  ["HD21", " CD2"],
+			  ["HD22", " CD2"],
+			  ["HD23", " CD2"]]
+	    atoms_1 = map(lambda pair: get_atom(imol, "B", 6, pair[0]), atom_pairs)
+	    atoms_2 = map(lambda pair: get_atom(imol, "B", 6, pair[1]), atom_pairs)
+	    #all_true = map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)
+	    self.failUnless(all(map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)), "Hydrogen names mangled from PDB")
+
 
     def test26_0(self):
 	    """Update monomer restraints"""

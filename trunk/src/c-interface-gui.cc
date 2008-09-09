@@ -2208,10 +2208,15 @@ void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
 /*! \brief hide the vertical modelling toolbar in the GTK2 version */
 void hide_modelling_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) { 
-      GtkWidget *w = lookup_widget(graphics_info_t::glarea, "main_window_model_fit_dialog_frame");
+      GtkWidget *w;
+      GtkWidget *toolbar = lookup_widget(graphics_info_t::glarea, "model_fit_refine_toolbar_handlebox");
+#if (GTK_MAJOR_VERSION > 1)
+      w = gtk_widget_get_parent(toolbar);
+#endif // GKT_MAJOR_VERSION
       if (!w) {
 	 std::cout << "failed to lookup toolbar" << std::endl;
       } else {
+	 graphics_info_t::model_toolbar_show_hide_state = 0;
 	 gtk_widget_hide(w);
       }
    }
@@ -2221,10 +2226,15 @@ void hide_modelling_toolbar() {
   (the toolbar is shown by default) */
 void show_modelling_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) { 
-      GtkWidget *w = lookup_widget(graphics_info_t::glarea, "main_window_model_fit_dialog_frame");
+      GtkWidget *w;
+      GtkWidget *toolbar = lookup_widget(graphics_info_t::glarea, "model_fit_refine_toolbar_handlebox");
+#if (GTK_MAJOR_VERSION > 1)
+      w = gtk_widget_get_parent(toolbar);
+#endif // GKT_MAJOR_VERSION
       if (!w) {
 	 std::cout << "failed to lookup toolbar" << std::endl;
       } else {
+	 graphics_info_t::model_toolbar_show_hide_state = 1;
 	 gtk_widget_show(w);
       }
    }
@@ -2234,7 +2244,37 @@ void show_modelling_toolbar() {
 /*  ------------------------------------------------------------------------ */
 //            reparenting
 /*  ------------------------------------------------------------------------ */
-// 
+//
+void
+set_model_toolbar_docked_side(int state) {
+  
+  if (graphics_info_t::use_graphics_interface_flag) {
+    GtkWidget *left_frame  = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+					   "main_window_model_fit_dialog_frame_left");
+    GtkWidget *right_frame = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+					   "main_window_model_fit_dialog_frame");
+    GtkWidget *toolbar = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+				       "model_fit_refine_toolbar_handlebox");
+    if (state == 1) {
+      // dock to left frame
+      gtk_widget_reparent(toolbar, left_frame);
+      if (graphics_info_t::model_toolbar_show_hide_state) {
+	gtk_widget_show(left_frame);
+      }
+      gtk_widget_hide(right_frame);
+      graphics_info_t::model_toolbar_side_state = 1;
+    } else {
+      // dock to right frame
+      gtk_widget_reparent(toolbar, right_frame);
+      if (graphics_info_t::model_toolbar_show_hide_state) {
+	gtk_widget_show(right_frame);
+      }
+      gtk_widget_hide(left_frame);
+      graphics_info_t::model_toolbar_side_state = 0;
+    }
+  }
+}
+
 int suck_model_fit_dialog_bl() {
 
    if (graphics_info_t::use_graphics_interface_flag) { 

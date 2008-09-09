@@ -641,6 +641,9 @@ void hide_modelling_toolbar();
   (the toolbar is shown by default) */
 void show_modelling_toolbar();
 
+/*! \brief to swap sides of the Model/Fit/Refine toolbar
+  0 (default) is right, 1 is left */
+void set_model_toolbar_docked_side(int state);
 
 /*! \brief reparent the Model/Fit/Refine dialog so that it becomes
   part of the main window, next to the GL graphics context */

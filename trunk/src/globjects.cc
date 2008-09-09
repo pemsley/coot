@@ -140,6 +140,12 @@ int graphics_info_t::accept_reject_dialog_docked_flag = coot::DIALOG;
 // flag to show/hide/sensitise the docked accep/reject dialog in the toolbar
 int graphics_info_t::accept_reject_dialog_docked_show_flag = coot::DIALOG_DOCKED_SHOW;
 
+// the refinement toolbar show/hide
+short int graphics_info_t::model_toolbar_show_hide_state = 1;
+
+// the refinement toolbar side
+short int graphics_info_t::model_toolbar_side_state = 0;
+
 // the refinement toolbar style
 short int graphics_info_t::model_toolbar_style_state = 1;
 
