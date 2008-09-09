@@ -47,12 +47,12 @@ Prerequisites:
  * gtkglarea, 
    http://www.ysbl.york.ac.uk/~emsley/software/extras/gtkglarea-1.2.3.tar.gz
 
- * mmdb-1.0.8 (or later)
+ * mmdb-1.12 (or later)
 
  * fftw-2.1.5, 
 
- * ccp4 only libs dev distribution
-   e.g. ftp://ftp.ccp4.ac.uk/prerelease/ccp4-onlylibs-dev.tar.gz
+ * ccp4 libs,
+   http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
 
  * clipper and its dependencies (its dependencies are ccp4 libs, mmdb, fftw)
 
@@ -121,24 +121,16 @@ Building by Hand
 
  Or the easier method is to pick up the version of mmdb that has been
  packaged with a GNU configure script from 
- http://www.ysbl.york.ac.uk/~emsley/software/mmdb-1.0.8-ysbl.tar.gz 
+ http://www.ysbl.york.ac.uk/~emsley/software/mmdb-1.12-ysbl.tar.gz 
  is the current version (at time of writing).
 
   clipper
   -------
 
 Right now, building clipper is non-trivial.  clipper depends on mmdb,
-so compile mmdb first.  IMHO, the best bet for clipper for coot-0.0.xx
-is to go for the CCP4's CVS tarball that I have made:
+so compile mmdb first.  
 
-http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper.cvs-14-nov-2003.tar.gz
-
-coot-0.1 and beyond depend on the version of clipper distributed by ccp4.
-ftp://ftp.ccp4.ac.uk/prerelease/ccp4-onlylibs-dev.tar.gz is where I 
-get the copy of clipper that I use.  This version of clipper depends on
-ccp4 library libccp4c and it is not yet clear how best to build that for
-use with coot.
-
+http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper20ac.latest.tar.gz
 
 Configure clipper something like this:
 
@@ -201,7 +193,7 @@ cctbx:         no
 To build coot, you will almost certainly need to specify the prefix
 for clipper and mmdb.  Here is how I do it:
 
- ./configure --with-clipper-prefix=$HOME/crystal/clipper --with-mmdb-prefix=$HOME/crystal/mmdb102
+ ./configure --with-clipper-prefix=$HOME/crystal/clipper --with-mmdb-prefix=$HOME/crystal/mmdb112
 
 Similarly you may also need to specify the path to gtkglarea libs using the
 --with-gtkgl-prefix.
@@ -366,20 +358,6 @@ Environment Variables:
     extension files, if not there then it checks in the directory
     pointed to by the environment variable COOT_SCHEME_DIR.
   
-Missing symmetry?
-
-  This issue should be fixed in coot-0.0.5 and after.  This note will
-  be removed at some future stage.
-
-     The version of mmdb used as a backend for coot is related to the
-     version of CCP4.  Version mmdb-1.0.4 uses the new syminfo.lib
-     which comes with CCP4 Version 5.0 and above, mmdb-1.0.3 uses the
-     convential symop.lib in CCP4 Version 4.2 and below.  So if you
-     are using mmdb-1.0.4 but have CCP4 version 4.2 or older, you need
-     get a copy of syminfo.lib and put it in $CCP4_LIB.  You can get a
-     copy at:
-     http://www.ysbl.york.ac.uk/~emsley/software/extras/syminfo.lib
-
 Reference Structures
 
   COOT_REF_STRUCTS is an environment variable that points to a
@@ -424,7 +402,6 @@ http)) #f))
 (tips-gui) #f))
 
 is fixed by installing the net-http package.
-
 
 
 Scheme Usage

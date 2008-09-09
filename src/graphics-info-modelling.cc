@@ -2557,7 +2557,8 @@ graphics_info_t::update_residue_by_chi_change(CResidue *residue,
       // Hack, hack.  See comments on get_contact_indices_from_restraints.
       // 
       contact_indices = coot::util::get_contact_indices_from_restraints(residue, geom_p, 0);
-      // try looking up the residue in 
+      // try looking up the residue in
+
       istat = chi_ang.change_by(nth_chi, diff, contact_indices, geom_p,
 				chi_angles_clicked_atom_spec,
 				find_hydrogen_torsions);
@@ -2634,7 +2635,6 @@ graphics_info_t::rotate_chi(double x, double y) {
       // std::cout << "chi rotate failed  - not regenerating object" << std::endl;
       
    } 
-   
 }
 
 // Called by mouse motion callback (in_edit_chi_mode_flag)

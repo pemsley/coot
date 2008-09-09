@@ -12384,12 +12384,16 @@ create_edit_chi_angles_dialog (void)
   GtkWidget *scrolledwindow9;
   GtkWidget *viewport5;
   GtkWidget *edit_chi_angles_vbox;
+  GtkWidget *edit_chi_angles_add_hydrogen_torsions_checkbutton;
   GtkWidget *edit_chi_angles_normal_rotation_button;
   GtkWidget *edit_chi_angles_help_button;
   GtkWidget *dialog_action_area37;
   GtkWidget *hbox71;
   GtkWidget *edit_chi_angles_dialog_ok_button;
   GtkWidget *edit_chi_angles_cancel_button;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
 
   edit_chi_angles_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (edit_chi_angles_dialog), _("Edit Chi Angles"));
@@ -12422,6 +12426,12 @@ create_edit_chi_angles_dialog (void)
   gtk_widget_show (edit_chi_angles_vbox);
   gtk_container_add (GTK_CONTAINER (viewport5), edit_chi_angles_vbox);
 
+  edit_chi_angles_add_hydrogen_torsions_checkbutton = gtk_check_button_new_with_mnemonic (_("Add Chi Angles for Hydrogens"));
+  gtk_widget_show (edit_chi_angles_add_hydrogen_torsions_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox98), edit_chi_angles_add_hydrogen_torsions_checkbutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (edit_chi_angles_add_hydrogen_torsions_checkbutton), 1);
+  gtk_tooltips_set_tip (tooltips, edit_chi_angles_add_hydrogen_torsions_checkbutton, _("In the above list, include rotatable bonds that rotate (only) the hydrogens, e.g. CB-CG2 for a VAL (i.e. not particularly useful most of the time)"), NULL);
+
   edit_chi_angles_normal_rotation_button = gtk_button_new_with_mnemonic (_(" View Rotation Mode "));
   gtk_widget_show (edit_chi_angles_normal_rotation_button);
   gtk_box_pack_start (GTK_BOX (vbox98), edit_chi_angles_normal_rotation_button, FALSE, FALSE, 0);
@@ -12453,6 +12463,9 @@ create_edit_chi_angles_dialog (void)
   g_signal_connect ((gpointer) edit_chi_angles_dialog, "destroy",
                     G_CALLBACK (on_edit_chi_angles_dialog_destroy),
                     NULL);
+  g_signal_connect ((gpointer) edit_chi_angles_add_hydrogen_torsions_checkbutton, "toggled",
+                    G_CALLBACK (on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) edit_chi_angles_normal_rotation_button, "clicked",
                     G_CALLBACK (on_edit_chi_angles_normal_rotation_button_clicked),
                     NULL);
@@ -12474,12 +12487,14 @@ create_edit_chi_angles_dialog (void)
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, scrolledwindow9, "scrolledwindow9");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, viewport5, "viewport5");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_vbox, "edit_chi_angles_vbox");
+  GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_add_hydrogen_torsions_checkbutton, "edit_chi_angles_add_hydrogen_torsions_checkbutton");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_normal_rotation_button, "edit_chi_angles_normal_rotation_button");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_help_button, "edit_chi_angles_help_button");
   GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, dialog_action_area37, "dialog_action_area37");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, hbox71, "hbox71");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_dialog_ok_button, "edit_chi_angles_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_cancel_button, "edit_chi_angles_cancel_button");
+  GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (edit_chi_angles_dialog_ok_button);
   gtk_widget_grab_default (edit_chi_angles_dialog_ok_button);

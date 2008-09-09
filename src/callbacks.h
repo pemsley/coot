@@ -3938,3 +3938,8 @@ void
 on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

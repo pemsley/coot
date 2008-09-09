@@ -2,7 +2,7 @@
 
    Things to fix before 0.5
 
-   2 Items, 2 hd.
+   4 Items
 
    o Bill Scott's python problem: 2hd
 
@@ -19,22 +19,27 @@
       (note, I had typed pdb not --pdb 
              pdb1rt9.ent is not there at time of writing)
 
-    o Tell Bernie: Need a gui preferences for torsions that move
-      hydrogens (in response to Klaus Piontek 30 Aug 2008)
+   o Crash: from JD.
+
+    o --flood crashes.  Something to do with clipper symmetry.
+
+
+
+
+127 Done.
+
+
+   o Tell Bernie: Need a gui preferences for torsions that move
+     hydrogens (in response to Klaus Piontek 30 Aug 2008)
 
 * Bernie says do it the proper way, make (or make sure that) the
   hydrogens rotate even though we are rotating chi1 (say).  He is
   right.
 
-     o --flood crashes.  Something to do with clipper symmetry.
+* Done.
+    o update README.  coot clipper and mmdb info up to date?
 
-     o update mmdb notes in README.
-
-     o update README.  coot clipper and mmdb info up to date?
-
-
-
-125 Done.
+Done.
 
     o TS: Check that the ramachandran button/accept reject info works
       (is set to a sensible name).  
@@ -77,7 +82,13 @@
     o write an internal test for the atom selection (in selection and
       inverted)  (test the number of atoms in each will do, I guess)
 
-* Done.
+    o check the console when rotating the hh1 (hydrogen torsion) of a
+      TYR.
+
+
+118 Done.
+
+
 
    o Robert von Dreele: test that nZ is divisible by 3 for hexagonal
      axes.  See mail from Kevin.
@@ -6596,4 +6607,4 @@ Thu Sep  4 06:41:12 JST 2008
     Try probe clashes on a protein ligand complex.
 
 
-
+-----

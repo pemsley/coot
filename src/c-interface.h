@@ -4151,6 +4151,10 @@ int edit_chi_angles(int imol, const char *chain_id, int resno,
 
 int set_show_chi_angle_bond(int imode);
 
+/* not for user consumption, this finds (from itself) the residue type
+   and calls the graphics_info_t function. */
+void fill_chi_angles_vbox(GtkWidget *vbox);
+
 /* No need for this to be exported to scripting */
 /*! \brief beloved torsion general at last makes an entrance onto the
   Coot scene...  */

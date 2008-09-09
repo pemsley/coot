@@ -5129,14 +5129,55 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
 
    GtkWidget *dialog = create_edit_chi_angles_dialog();
    set_transient_and_position(COOT_EDIT_CHI_DIALOG, dialog);
+
    
    // Fill the vbox with buttons with atom labels about which there
    // are rotatable torsions:
    //
    GtkWidget *vbox = lookup_widget(dialog,"edit_chi_angles_vbox");
+   int n_boxes = fill_chi_angles_vbox(vbox, res_type);
+
+   // this needs to be deleted when dialog is destroyed, I think,
+   // (currently it isn't).
+   int NCHAR = 100;
+   char *s = new char[NCHAR];
+   for (int i=0; i<NCHAR; i++) s[i] = 0;
+   strncpy(s, res_type.c_str(), NCHAR-1);
+   gtk_object_set_user_data(GTK_OBJECT(vbox), s);
+   // we get this in c-interface-gui.cc's fill_chi_angles_vbox();
+
+   gtk_widget_show(dialog);
+
+   // and now the hydrogen torsion checkbutton:
+   GtkWidget *togglebutton =
+      lookup_widget(dialog, "edit_chi_angles_add_hydrogen_torsions_checkbutton");
+
+   if (find_hydrogen_torsions)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
+
+   return n_boxes;
+}
+
+void
+graphics_info_t::clear_out_container(GtkWidget *vbox) {
+
+   GList *ls = gtk_container_children(GTK_CONTAINER(vbox));
+
+   while (ls) {
+      GtkWidget *w = GTK_WIDGET(ls->data);
+      gtk_widget_destroy(w);
+      ls = ls->next;
+   }
+} 
+
+
+int 
+graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type) {
 
    std::vector <coot::dict_torsion_restraint_t> v =
-      get_monomer_torsions_from_geometry(res_type);
+      get_monomer_torsions_from_geometry(res_type); // uses find H torsions setting.
+
+   clear_out_container(vbox);
 
    // We introduce here ichi (which gets incremented if the current
    // torsion is not const), we do that so that we have consistent
@@ -5167,10 +5208,9 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
 	 ichi++;
       }
    }
-   gtk_widget_show(dialog);
 
    return v.size();
-}
+} 
 
 // static
 void
@@ -5204,7 +5244,7 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
    // turn it off first, only enable it if we find a pair:
    draw_chi_angle_flash_bond_flag = 0; // member data item
 
-   std::cout << "flash bond ibond_user: " << ibond_user << std::endl;
+   // std::cout << "flash bond ibond_user: " << ibond_user << std::endl;
 
    // std::cout << "highlight ligand bond " << bond << std::endl;
 
@@ -5267,8 +5307,8 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 		     
 // 		  }
 
-		  std::cout << "    got " << monomer_torsions.size() << " monomer torsions "
-			    << std::endl;
+// 		  std::cout << "    got " << monomer_torsions.size() << " monomer torsions "
+// 			    << std::endl;
 
 		  hydrogen_or_const_torsion_count = 0;
 		  if (monomer_torsions.size() > 0) { 
@@ -5281,15 +5321,15 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 			   if (r.second.is_hydrogen(atom1)) hydrogen_torsion_val = 1;
 			   if (r.second.is_hydrogen(atom2)) hydrogen_torsion_val = 1;
 			   if (!hydrogen_torsion_val || find_hydrogen_torsions) {
-			      std::cout << "   comparing (" << bond << ") "
-					<< bond - 2 + hydrogen_or_const_torsion_count
-					<< " vs " << i << std::endl;
+// 			      std::cout << "   comparing (" << bond << ") "
+// 					<< bond - 2 + hydrogen_or_const_torsion_count
+// 					<< " vs " << i << std::endl;
 			      if ((bond - 2 + hydrogen_or_const_torsion_count) == int(i)) {
 				 std::string atom2 = monomer_torsions[i].atom_id_2();
 				 std::string atom3 = monomer_torsions[i].atom_id_3();
-				 atom_names = std::pair<std::string, std::string> (atom2, atom3);
-				 std::cout << "   match atom names :" << atom_names.first
-					   << ": :" << atom_names.second << ":" << std::endl;
+// 				 atom_names = std::pair<std::string, std::string> (atom2, atom3);
+// 				 std::cout << "   match atom names :" << atom_names.first
+// 					   << ": :" << atom_names.second << ":" << std::endl;
 				 break; 
 			      }
 			   }
@@ -5301,8 +5341,8 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 		     }
 		  }
 
-		  std::cout << "         :" << atom_names.first << ": :"
-			    << atom_names.second << ":" << std::endl;
+// 		  std::cout << "         :" << atom_names.first << ": :"
+// 			    << atom_names.second << ":" << std::endl;
 
 		  if ((atom_names.first != "") &&
 		      (atom_names.second != "") && 

@@ -4407,6 +4407,16 @@ void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
 }
 
 
+/* not for user consumption, this finds (from itself) the residue type
+   and calls the graphics_info_t function. */
+void fill_chi_angles_vbox(GtkWidget *vbox) {
+
+   graphics_info_t g;
+   gchar *strval = (gchar *) gtk_object_get_user_data(GTK_OBJECT(vbox));
+   g.fill_chi_angles_vbox(vbox, strval);
+}
+
+
 
 GtkWidget *wrapped_create_add_additional_representation_gui() {
 
