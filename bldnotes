@@ -92,11 +92,11 @@
    o probe dots on selected residue range (Bob van Dreele)
 
 14/08/08 
-	o change orientation of refinement toolbar and make it dockable to 
-	  other sides of main window
+   o change orientation of refinement toolbar and make it dockable to 
+     other sides of main window
 
 14/08/08
-	o make guile-gtk properly gtk2 complient (esp. text-view)
+    o make guile-gtk properly gtk2 complient (esp. text-view)
 
 29/08/08
 	o refinement of H at high resolution blows H around (fixed?)

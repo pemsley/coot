@@ -784,7 +784,9 @@ except:
 def add_key_binding(name, key, thunk):
     from types import IntType, StringType
     global key_bindings, std_key_bindings
-    std_keys = [elem[1] for elem in std_key_bindings]
+    std_keys = []
+    if (use_gui_qm):
+        std_keys = [elem[1] for elem in std_key_bindings]
     keys     = [elem[1] for elem in key_bindings]
     codes    = [elem[0] for elem in key_bindings]
     if (key in std_keys):
