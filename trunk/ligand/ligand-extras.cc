@@ -475,10 +475,10 @@ coot::ligand::flood() {
 	 density_cut_off = z_cut_off*xmap_masked_stats.second.second; // n sigma, that is.
 
 	 n_clusters = 0;
-	 cluster.resize(0);
+	 cluster.clear();
 	 find_clusters_water_flood(z_cut_off, sampled_protein_coords);
    
-	 this_round_water_list.resize(0);
+	 this_round_water_list.clear();
 
 	 std::cout << "INFO:: Density cut-off in round " << iround << " is "
 		   << density_cut_off << std::endl;

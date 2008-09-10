@@ -21,7 +21,8 @@
 
    o Crash: from JD.
 
-    o --flood crashes.  Something to do with clipper symmetry.
+   o --flood crashes.  Something to do with clipper symmetry.
+
 
 
 
