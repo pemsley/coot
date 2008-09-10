@@ -2,18 +2,19 @@
 
    Things to fix before 0.5
 
-   2 Items
-
-   o Crash: from JD.
-
-   o Another crash from JD: on closing molecules.
-
-
-
+   
 
 
 
 127 Done.
+
+   o Crash: from JD.
+
+     Another crash from JD: on closing molecules.
+
+* These are the same thing, the use of (or destroying of ) a radio
+  button group for the maps in the display manager.  I tried to debug
+  with valgrind, but could not reproduce.
 
    o crash:
        ./coot-real pdb coot-download/pdb1rt9.ent --data 1e2k_sigmaa.mtz
@@ -38,8 +39,6 @@
      First, get Coot to compile on a Mac... (sigh)
 
      Well, Bill has sorted this out now... not so much a priority.
-
-
 
    o Tell Bernie: Need a gui preferences for torsions that move
      hydrogens (in response to Klaus Piontek 30 Aug 2008)

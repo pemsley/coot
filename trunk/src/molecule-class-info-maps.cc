@@ -57,6 +57,7 @@
 #include "clipper/contrib/sfcalc.h"
 
 #include "xmap-utils.h"
+#include "xmap-stats.hh"
 
 #include "graphics-info.h"
 #include <GL/glut.h> // needed (only?) for wirecube

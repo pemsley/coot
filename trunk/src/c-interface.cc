@@ -3886,7 +3886,7 @@ skel_greer_off() {
 }
 
 #include "graphical_skel.h"
-#include "xmap-utils.h"
+#include "xmap-stats.hh"
 
 // For some as yet unknown reason, this code is executed when we
 // select skeleton off.
