@@ -595,7 +595,9 @@ coot::ligand::flood2(float n_sigma) {
 	 }
       }
    }
-   write_waters(water_list, "flood2-waters.pdb");
+   std::string ch = protein_atoms.unused_chain_id("W");
+   coot::minimol::molecule mol(water_list, 0, " O  ", ch);
+   water_molecule = mol;
 }
 
 bool
