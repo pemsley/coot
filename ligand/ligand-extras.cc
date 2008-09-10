@@ -497,9 +497,9 @@ coot::ligand::flood() {
 
 		  this_round_water_list.push_back(cl_centre);
 	       } else {
-		  std::cout << "   Round " << iround << " reject cluster " << iclust
-			    << " because " << density_at_point(cl_centre, xmap_masked)
-			    << " < " << density_cut_off << std::endl;
+// 		  std::cout << "   Round " << iround << " reject cluster " << iclust
+// 			    << " because " << density_at_point(cl_centre, xmap_masked)
+// 			    << " < " << density_cut_off << std::endl;
 	       } 
 	    }
 	 }
