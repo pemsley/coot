@@ -6742,4 +6742,9 @@ Thu Sep  4 06:41:12 JST 2008
     Try probe clashes on a protein ligand complex.
 
 
+---
+Wed Sep 10 13:43:57 BST 2008
+
+    When rotating atom in chi or rotamers, change the aniso b values too.
+
 -----
