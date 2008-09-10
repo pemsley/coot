@@ -391,18 +391,22 @@ coot::ligand::mask_map(const minimol::molecule &mol, short int mask_waters_flag)
 } 
 
 void
-coot::ligand::mask_map(short int mask_waters_flag) {
+coot::ligand::mask_map(bool mask_waters_flag) {
 
    xmap_cluster = xmap_pristine; // copy to the map that (will be) masked not clustered.
    float atom_radius = map_atom_mask_radius; // Angstroems (this is a guess).
    
    std::cout << "masking....";
    for (unsigned int ifrag=0; ifrag<protein_atoms.fragments.size(); ifrag++) {
-      for (int ires=protein_atoms.fragments[ifrag].min_res_no(); ires<=protein_atoms.fragments[ifrag].max_residue_number(); ires++) {
+      for (int ires=protein_atoms.fragments[ifrag].min_res_no();
+	   ires<=protein_atoms.fragments[ifrag].max_residue_number();
+	   ires++) {
 	 if (mask_waters_flag) {
 
 	    // no special test needed
-	    for (unsigned int iatom=0; iatom<protein_atoms.fragments[ifrag][ires].atoms.size(); iatom++) {
+	    for (unsigned int iatom=0;
+		 iatom<protein_atoms.fragments[ifrag][ires].atoms.size();
+		 iatom++) {
 	       mask_around_coord(protein_atoms[ifrag][ires][iatom].pos, atom_radius);
 	    }
 
@@ -410,7 +414,9 @@ coot::ligand::mask_map(short int mask_waters_flag) {
 	    // we need to test if this residue is a water
 	    if (protein_atoms[ifrag][ires].name != "WAT" &&
 		protein_atoms[ifrag][ires].name != "HOH") {
-	       for (unsigned int iatom=0; iatom<protein_atoms.fragments[ifrag][ires].atoms.size(); iatom++) {
+	       for (unsigned int iatom=0;
+		    iatom<protein_atoms.fragments[ifrag][ires].atoms.size();
+		    iatom++) {
 		  mask_around_coord(protein_atoms[ifrag][ires][iatom].pos, atom_radius);
 	       }
 	    }
@@ -419,6 +425,7 @@ coot::ligand::mask_map(short int mask_waters_flag) {
    }
    xmap_masked = xmap_cluster;
    std::cout << "masking done\n";
+   output_map(xmap_masked, "post-protein-masking.map");
 }
 
 // masks xmap_cluster now
@@ -562,7 +569,7 @@ coot::ligand::mask_by_atoms(std::string pdb_filename) {
    atom_selection_container_t asc = get_atom_selection(pdb_filename);
    
    protein_atoms.init(asc.mol);
-   short int mask_waters = 0;
+   bool mask_waters = 0;
    mask_map(mask_waters); // dont mask waters
 
    return 1; 

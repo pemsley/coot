@@ -247,7 +247,7 @@ namespace coot {
 			const std::string &filename) const;
 
       // called by the public interface(s)
-      void mask_map(short int mask_waters_flag); 
+      void mask_map(bool mask_waters_flag); 
 
       // initially 0.75
       float fit_fraction;
