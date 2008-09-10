@@ -308,7 +308,7 @@ main(int argc, char **argv) {
 		  // used in lig.
 		  lig.flood2(input_sigma_level); // with atoms (waters initially)
 		  coot::minimol::molecule water_mol = lig.water_mol();
-		  water_mol.write_file(output_pdb, 20.0);
+		  water_mol.write_file(output_pdb, 30.0);
 		  // lig.output_map("find-waters-masked-flooded.map");
 	       }
 	    }
