@@ -482,21 +482,25 @@ coot::ligand::flood() {
 
 	 std::cout << "INFO:: Density cut-off in round " << iround << " is "
 		   << density_cut_off << std::endl;
-	 for (unsigned int i=0; i<cluster.size(); i++) {
+	 for (unsigned int iclust=0; iclust<cluster.size(); iclust++) {
 	    
 	    // std::cout << "DEBUG:: cluster: " << i << " of " << cluster.size() << std::endl;
 
-	    if (cluster[i].map_grid.size() > 0) { 
+	    if (cluster[iclust].map_grid.size() > 0) { 
 	       
 	       clipper::Coord_orth cl_centre =
-		  clipper::Coord_orth(cluster[i].eigenvectors_and_centre.trn());
+		  clipper::Coord_orth(cluster[iclust].eigenvectors_and_centre.trn());
 	       raw_water_list.push_back(cl_centre);
 	       
 	       
 	       if (density_at_point(cl_centre, xmap_masked) > density_cut_off) { 
 
 		  this_round_water_list.push_back(cl_centre);
-	       }
+	       } else {
+		  std::cout << "   Round " << iround << " reject cluster " << iclust
+			    << " because " << density_at_point(cl_centre, xmap_masked)
+			    << " < " << density_cut_off << std::endl;
+	       } 
 	    }
 	 }
 

@@ -425,7 +425,7 @@ coot::ligand::mask_map(bool mask_waters_flag) {
    }
    xmap_masked = xmap_cluster;
    std::cout << "masking done\n";
-   output_map(xmap_masked, "post-protein-masking.map");
+   // output_map(xmap_masked, "post-protein-masking.map"); // debugging flood mode
 }
 
 // masks xmap_cluster now
