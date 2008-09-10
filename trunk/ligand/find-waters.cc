@@ -287,12 +287,11 @@ main(int argc, char **argv) {
 	       }
 	    }
 	 } else {
-	    std::cout << "===================== Flood ======================= "
-		      << ":" << pdb_file_name << ":" << std::endl;
+	    std::cout << "===================== Flood mode ======================= "
+		      << std::endl;
 	    // if a pdb file was defined, let's mask it
 	    if (pdb_file_name.length() > 0) {
-	       std::cout << "===================== masking by coords ================= "
-			 << pdb_file_name << std::endl;
+	       std::cout << "INFO:: masking map by coords in " << pdb_file_name << std::endl;
 	       lig.set_map_atom_mask_radius(1.9);
 	       lig.mask_by_atoms(pdb_file_name);
 	    } 
