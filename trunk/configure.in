@@ -47,8 +47,6 @@ AC_PROG_RANLIB
 
 AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=0"])
 
-echo ======== do we have sys/stdtypes.h :$COOT_STDTYPES:
-
 AC_SUBST(COOT_STDTYPES)
 
 dnl test for WINDOWS_MINGW
