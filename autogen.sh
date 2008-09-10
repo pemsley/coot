@@ -5,6 +5,7 @@ OS=`uname`
 hostname=`hostname`
 
 if test $sys = Darwin ; then 
+   echo aclocal -I macros -I /sw/share/aclocal
    aclocal -I macros -I /sw/share/aclocal
 else
    # because on bubbles we have automake 1.9.6, we need 1.9.6 on kalypso, but system
