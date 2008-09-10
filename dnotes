@@ -2,14 +2,18 @@
 
    Things to fix before 0.5
 
-   4 Items
+   2 Items
 
-   o Bill Scott's python problem: 2hd
+   o Crash: from JD.
 
-     I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
-     211 in ssm_superpose.h
+   o Another crash from JD: on closing molecules.
 
-     First, get Coot to compile on a Mac... (sigh)
+
+
+
+
+
+127 Done.
 
    o crash:
        ./coot-real pdb coot-download/pdb1rt9.ent --data 1e2k_sigmaa.mtz
@@ -19,15 +23,22 @@
       (note, I had typed pdb not --pdb 
              pdb1rt9.ent is not there at time of writing)
 
-   o Crash: from JD.
+* Fixed, stupid trivial mistake.
 
    o --flood crashes.  Something to do with clipper symmetry.
 
+* No, not really, it was to do with the mtz filename being wrong and
+  trying to mask the map that was not filled.
 
+   o Bill Scott's python problem: 2hd
 
+     I can get rid of the problem by hacking "ivector FF1,FF2;" out of line
+     211 in ssm_superpose.h
 
+     First, get Coot to compile on a Mac... (sigh)
 
-127 Done.
+     Well, Bill has sorted this out now... not so much a priority.
+
 
 
    o Tell Bernie: Need a gui preferences for torsions that move

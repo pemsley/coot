@@ -3598,6 +3598,7 @@ void set_view_quaternion(float i, float j, float k, float l) {
 /* Return 1 if we moved to a molecule centre, else go to origin and
    return 0. */
 /* centre on last-read (and displayed) molecule with zoom 100. */
+// Also, return 0 if there are no molecules to centre on.
 // 
 // However, if we are already *at* that molecule centre, Reset View
 // moves to the centre of the next displayed molecule (with wrapping).
@@ -3663,8 +3664,13 @@ int reset_view() {
 	 }
       }
 
-      std::cout << "DEBUG:: available_molecules.size() " << available_molecules.size()
-		<< std::endl;
+//       std::cout << "DEBUG:: available_molecules.size() " << available_molecules.size()
+// 		<< std::endl;
+
+      if (available_molecules.size() == 0) {
+	 std::cout << "INFO:: no molecules on which to centre" << std::endl;
+	 return 0; // not moved.
+      } 
       
       if (available_molecules.size() == 1) {
 	 // no other molecule to centre on.
