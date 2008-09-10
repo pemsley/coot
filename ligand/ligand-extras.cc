@@ -38,6 +38,9 @@
 
 #include "mmdb_coormngr.h" // for GetMassCenter
 
+#include "xmap-stats.hh"
+#include "peak-search.hh"
+
 
 // uses index to cluster array
 // c.f. version that is passed a coot::map_point_cluster
@@ -521,7 +524,7 @@ coot::ligand::flood() {
 	 
 	    // mask new waters
 	    for (unsigned int iw=0; iw<this_round_water_list.size(); iw++) { 
-	       // change xmap_cluster:
+	       // change xmap_masked:
 	       mask_around_coord(this_round_water_list[iw], map_atom_mask_radius, &xmap_masked);
 	    }
 	 }
@@ -564,6 +567,62 @@ coot::ligand::flood() {
    // user can get to these via big_blobs() member function
    keep_blobs = blobs;
 }
+
+
+// find peaks that are in density greater than n_sigma
+void
+coot::ligand::flood2(float n_sigma) {
+
+   int n_rounds = 10;
+   std::vector<clipper::Coord_orth> water_list;
+   double d_crit = 1.2; // A.  don't make waters closer to each other than this.
+   mean_and_variance<float> mv_start = map_density_distribution(xmap_masked,0);
+
+   for (int iround=0; iround<n_rounds; iround++) {
+
+      mean_and_variance<float> mv_this = map_density_distribution(xmap_masked,0);
+      float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
+      coot::peak_search ps(xmap_masked);
+      std::vector<clipper::Coord_orth> peaks = ps.get_peaks(xmap_masked, n_sigma_crit);
+      std::cout << "DEBUG:: Round " << iround << " found " << peaks.size()
+		<< " peaks " << std::endl;
+      // mask new waters
+      for (unsigned int iw=0; iw<peaks.size(); iw++) {
+	 if (! close_to_another(peaks[iw], water_list, d_crit)) {
+	    // change xmap_masked:
+	    mask_around_coord(peaks[iw], map_atom_mask_radius, &xmap_masked);
+	    water_list.push_back(peaks[iw]);
+	 }
+      }
+   }
+   write_waters(water_list, "flood2-waters.pdb");
+}
+
+bool
+coot::ligand::close_to_another(const clipper::Coord_orth &p1,
+			       const std::vector<clipper::Coord_orth> &ref,
+			       const double &d_crit) const {
+
+   // fast distance check
+   bool is_close = 0; 
+   for (unsigned int i=0; i<ref.size(); i++) {
+      double d1 = ref[i].x() - p1.x();
+      if (d1 < d_crit) {
+	 double d2 = ref[i].y() - p1.y();
+	 if (d2 < d_crit) {
+	    double d3 = ref[i].z() - p1.z();
+	    if (d3 < d_crit) {
+	       if ((d1*d1 + d2*d2 +d3*d3) < d_crit*d_crit) { 
+		  is_close = 1;
+		  break;
+	       }
+	    }
+	 }
+      } 
+   }
+   return is_close;
+} 
+
 
 // void
 // coot::ligand::flood_and_fit(float n_sigma_in) { 

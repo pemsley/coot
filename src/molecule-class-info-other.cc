@@ -59,6 +59,7 @@
 
 #include "graphics-info.h"
 #include "xmap-utils.h"
+#include "xmap-stats.hh"
 
 #include "molecule-class-info.h"
 

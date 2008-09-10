@@ -428,7 +428,10 @@ coot::ligand::mask_map(bool mask_waters_flag) {
    // output_map(xmap_masked, "post-protein-masking.map"); // debugging flood mode
 }
 
-// masks xmap_cluster now
+// Masks xmap_cluster now.
+// 
+// (Really?)
+// 
 void
 coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius) {
    clipper::Coord_frac cf = co.coord_frac(xmap_cluster.cell());

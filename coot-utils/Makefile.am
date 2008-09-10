@@ -30,7 +30,7 @@ lib_LTLIBRARIES=libcoot-utils.la libcoot-map-utils.la libcoot-coord-utils.la  li
 include_HEADERS = coot-utils.hh peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-fasta.hh coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
-	coot-rama.hh
+	coot-rama.hh xmap-stats.hh
 
 INCLUDES = \
 	-I$(top_srcdir)/coords  	\
@@ -59,7 +59,7 @@ libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc
 
 # for (map) things that need to link mmdb and clipper:
-libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc trim.cc 
+libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc trim.cc xmap-stats.cc
 
 # for map things that need mmdb, clipper, gsl and other things
 libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc

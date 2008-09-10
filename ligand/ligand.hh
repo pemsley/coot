@@ -326,6 +326,11 @@ namespace coot {
 
       // save the z cut off for waters
       float z_cut_off_in_save;
+
+      bool close_to_another(const clipper::Coord_orth &p1,
+			    const std::vector<clipper::Coord_orth> &ref,
+			    const double &d_crit) const;
+
       
    public:
       ligand();
@@ -495,6 +500,11 @@ namespace coot {
       void water_fit_old(int n_cycles);
       void water_fit(float sigma_cutoff, int n_cycles);
       void flood();
+      void flood2(float n_sigma); // the return of flood(), this time
+				  // by peak picking. // find peaks
+				  // that are in density greater than
+				  // n_sigma
+
       coot::minimol::molecule water_mol() { return water_molecule; }
 
       // a number between 0 (none) and 1.0 (all) atoms need to be
