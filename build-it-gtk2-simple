@@ -2001,7 +2001,9 @@ fi
 if [ "$build_gtkglext" = 1 ] ; then
     echo BUILDING gtkglext:
     gtkglext_version=1.2.0
-    ${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
+    # this host? disappeared.
+    # ${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
+    ${WGET}   http://www.ysbl.york.ac.uk/~emsley/software/extras/gtkglext-$gtkglext_version.tar.gz
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
