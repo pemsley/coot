@@ -30,7 +30,7 @@ coot::minimol::molecule::molecule(CMMDBManager *mol) {
 
 
 coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_list,
-				  short int residue_flag,
+				  const std::string& residue_type,
 				  std::string atom_name,
 				  std::string chain_id) {
 
@@ -44,7 +44,7 @@ coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_l
    //
    for (unsigned int i=0; i<atom_list.size(); i++) {
       fragments[0][i+1] = coot::minimol::residue(i+1); // atoms start at 0, residues at 1.
-      fragments[0][i+1].name = "HOH";  // not "WAT" says EJD - 030624
+      fragments[0][i+1].name = residue_type;  // not "WAT" says EJD - 030624
       fragments[0][i+1].addatom(atom_name,
 			      element,
 			      atom_list[i].x(),

@@ -139,10 +139,10 @@ namespace coot {
 	 short int have_cell;
       public:
 	 molecule() {have_cell = 0; have_spacegroup = 0;};
-	 // consider also passing the residue type/name.  For now
-	 // it is fixed to be "WAT".
+	 // 
+	 // residue_type is usually, "HOH" or "DUM".
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
-		  short int residue_flag, std::string atom_name,
+		  const std::string &residue_type, std::string atom_name,
 		  std::string chain_id);
 	 molecule(CMMDBManager *mmdb_mol_in);
 	 short int init(CMMDBManager *mmdb_mol_in) {return setup(mmdb_mol_in);}
