@@ -306,7 +306,7 @@ coot::ligand::write_waters(const std::vector<clipper::Coord_orth> &water_list,
 	     << water_list.size() << " water atoms to ligand-waters.pdb"
 	     << std::endl;
    std::string chain_id = protein_atoms.unused_chain_id("W"); // pass the prefered chain id.
-   minimol::molecule mol(water_list, separate_residues, " O  ", chain_id);
+   minimol::molecule mol(water_list, "HOH", " O  ", chain_id);
    mol.write_file(file_name, default_b_factor); 
 } 
 
@@ -596,7 +596,10 @@ coot::ligand::flood2(float n_sigma) {
       }
    }
    std::string ch = protein_atoms.unused_chain_id("W");
-   coot::minimol::molecule mol(water_list, 0, " O  ", ch);
+   coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
+   mol.set_cell(xmap_masked.cell());
+   std::string spg(xmap_masked.spacegroup().descr().symbol_hm());
+   mol.set_spacegroup(spg);
    water_molecule = mol;
 }
 

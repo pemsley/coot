@@ -274,7 +274,7 @@ main(int argc, char **argv) {
 	       peaks.push_back(clipper::Coord_orth(p[iop].second.trn()));
 	    }
 
-	    coot::minimol::molecule peaks_mol(peaks, 1, " OW1", "A");
+	    coot::minimol::molecule peaks_mol(peaks, "HOH", " OW1", "A");
 	    peaks_mol.write_file("fffear-search-peaks.pdb", 20.0); 
 	    
 	    for (unsigned int iop=0; iop<possible_rtops.size(); iop++) { 

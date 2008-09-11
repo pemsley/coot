@@ -299,8 +299,8 @@ following command line arguments:
 @item @code{--no-guano} don't leave ``Coot droppings'' i.e. don't write state and 
         history files on exit.
 @item @code{--side-by-side} start in side-by-side stereo mode
-@item @code{--python} an arugment with no parameters - used to tell Coot that 
-        the -c arguments should be process with python (rather than as scheme).
+@item @code{--python} an argument with no parameters - used to tell Coot that 
+        the -c arguments should be process as python (rather than as scheme).
 @end itemize
 
 So, for example, one might use:
