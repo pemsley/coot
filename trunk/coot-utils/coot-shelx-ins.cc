@@ -1067,6 +1067,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 				// should not be reset for every
 				// residue, put it here (outside the
 				// residue atoms loop).
+	 std::vector<std::string> afix_failure_vec;
 	 for (int imod=1; imod<=n_models; imod++) { 
       
 	    CModel *model_p = mol->GetModel(imod);
@@ -1124,10 +1125,17 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			   }
 			   current_afix = ic;
 			} else {
-			   std::cout << "WARNING:: failed to get AFIX handle for "
-				     << at->GetChainID() << " "
-				     << at->GetSeqNum() << " " << at->GetResName() << " "
-				     << at->GetAtomName() << " ," << at->altLoc <<"\n";
+			   std::string s =  "WARNING:: failed to get AFIX handle for ";
+			   s += at->GetChainID();
+			   s += " "; 
+			   s += at->GetSeqNum();
+			   s += " ";
+			   s += at->GetResName();
+			   s += " ";
+			   s += at->GetAtomName();
+			   s += " ,";
+			   s += at->altLoc;
+			   afix_failure_vec.push_back(s);
 			}
 			
 			// std::cout << "on writting WhatIsSet is " << at->WhatIsSet
@@ -1173,6 +1181,18 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 	       }
 	    }
 	 }
+
+	 // print out 10 first AFIX misses
+	 int n_afix_failures = afix_failure_vec.size();
+	 if (n_afix_failures > 10)
+	    n_afix_failures = 10;
+	 for (int i=0; i<n_afix_failures; i++)
+	    std::cout << afix_failure_vec[i] << std::endl;
+	 if (n_afix_failures > 10)
+	    std::cout << "WARNING:: and " << afix_failure_vec.size() - 10
+		      << " more AFIX failures" << std::endl;
+
+	 
 	 for (unsigned int i=0; i<post_atom_lines.size(); i++)
 	    f << post_atom_lines[i] << "\n";
       }
@@ -1301,9 +1321,6 @@ coot::ShelxIns::debug() const {
    std::cout << "DEBUG ShelxIns : fvars size " <<  fvars.size() << std::endl;
    std::cout << "DEBUG ShelxIns : pre_atom_lines.size() " <<  pre_atom_lines.size() << std::endl;
    std::cout << "DEBUG ShelxIns : post_atom_lines.size() " <<  post_atom_lines.size() << std::endl;
-
-   //    std::cout << "DEBUG ShelxIns : " <<  << std::endl;
-
    
 }
 

@@ -46,7 +46,7 @@
    (lambda ()
 
      (let ((m (molecule-number-list)))
-       (format #t "   m: ~s~%" m)
-       (format #t " own: ~s~%" (map own-molecule-number m))
+       ;; (format #t "   m: ~s~%" m)
+       ;; (format #t " own: ~s~%" (map own-molecule-number m))
        (equal? m (map own-molecule-number m)))))
 

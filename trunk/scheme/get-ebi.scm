@@ -87,6 +87,8 @@
 ;; 
 (define get-url-str
   (lambda (id url-string data-type . imol-coords-arg-list)
+
+    (format #t "DEBUG:: in get-url-str: ~s ~s ~s~%" id url-string data-type)
     
     (if (eq? data-type 'pdb)
 	(begin
