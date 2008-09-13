@@ -4523,7 +4523,8 @@ std::pair<int, std::string>
 molecule_class_info_t::write_shelx_ins_file(const std::string &filename) {
 
    // std::cout << "DEBUG:: starting write_shelx_ins_file in molecule "<< std::endl;
-   shelxins.debug();
+   // shelxins.debug();
+   
    std::pair<int, std::string> p(1, "");
    
    if (atom_sel.n_selected_atoms > 0) { 
@@ -4651,9 +4652,6 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    update_symmetry();
 	 }
       }
-
-      //    std::cout << "DEBUG:: Post read shelx: "<< std::endl;
-      //    shelxins.debug();
 
       // save state strings
       save_state_command_strings_.push_back("read-shelx-ins-file");
