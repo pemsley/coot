@@ -335,7 +335,7 @@ coot::ligand::water_fit(float sigma_cutoff, int n_cycle) {
 	     << std::endl;
    std::cout.flush();
    std::string ch = protein_atoms.unused_chain_id("W");
-   coot::minimol::molecule mol(water_list, 0, " O  ", ch);
+   coot::minimol::molecule mol(water_list, "HOH", " O  ", ch);
    
    mol.set_cell(xmap_cluster.cell());
    std::string spg(xmap_cluster.spacegroup().descr().symbol_hm());
@@ -539,7 +539,7 @@ coot::ligand::flood() {
    // std::cout << "constructing a minimol molecule for waters " << std::endl;
    std::string ch = protein_atoms.unused_chain_id("W");
    // std::cout << "DEBUG:: Water fit: unused chain: " << ch << std::endl;
-   coot::minimol::molecule mol(water_list, 0, " O  ", ch);
+   coot::minimol::molecule mol(water_list, "HOH", " O  ", ch);
 
    // set space group and cell of mol here.
    // 
