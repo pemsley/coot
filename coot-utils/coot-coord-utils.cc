@@ -4138,11 +4138,11 @@ coot::util::cis_peptides_info_from_coords(CMMDBManager *mol) {
    CChain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
-//       std::cout << "DEBUGG:: in cis_peptides_info_from_coords ichain " << ichain
-// 		<< " of " << nchains << " chains " << std::endl;
+      //       std::cout << "DEBUGG:: in cis_peptides_info_from_coords ichain " << ichain
+      // 		<< " of " << nchains << " chains " << std::endl;
       chain_p = model_p->GetChain(ichain);
-      //       std::cout << "DEBUGG:: in cis_peptides_info_from_coords ichain " << ichain << " chain_p "
-		<< chain_p << std::endl;
+      //       std::cout << "DEBUGG:: in cis_peptides_info_from_coords ichain " << ichain
+      // << " chain_p " << chain_p << std::endl;
       if (chain_p) { 
 	 int nres = chain_p->GetNumberOfResidues();
 	 PCResidue residue_p_1;
