@@ -97,6 +97,28 @@ set_graphics_rotamer_dialog(GtkWidget *w) {
 
 
 
+
+
+/*! \brief show the Undo Molecule chooser - i.e. choose the molecule
+  to which the "Undo" button applies. */
+void show_set_undo_molecule_chooser() {
+
+   GtkWidget *w = wrapped_create_undo_molecule_chooser_dialog();
+   gtk_widget_show(w);
+
+}
+
+GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
+
+   GtkWidget *w = create_undo_molecule_chooser_dialog();
+   GtkWidget *option_menu = lookup_widget(w, "undo_molecule_chooser_option_menu");
+   graphics_info_t g;
+   
+   g.fill_option_menu_with_undo_options(option_menu);
+   return w;
+} 
+
+
 /* We try as .phs and .cif files.
 
    Called after we select the mtz filename, sets up the column label
@@ -425,6 +447,19 @@ wrapped_create_run_refmac_dialog() {
   gtk_widget_show(window);
 }
 
+
+// Not needed? because we look at the active menu item at OK button-press time?
+//
+// Well, that was indeeed the way that we used to do it, now (WDW)
+// that we rationalize the coordinates molecules option menu filling
+// we have to set the the active molecule in this callback.
+// 
+void
+refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos) {
+
+   graphics_info_t::refmac_molecule = pos;
+
+}
 
 void fill_about_window(GtkWidget *widget) {
 

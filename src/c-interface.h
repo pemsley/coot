@@ -809,10 +809,10 @@ void set_undo_molecule(int imol);
 
 /*! \brief show the Undo Molecule chooser - i.e. choose the molecule
   to which the "Undo" button applies. */
-void show_set_undo_molecule_chooser(); 
-#ifdef USE_PYTHON
-void show_set_undo_molecule_chooser_py(); 
-#endif // USE_PYTHON
+void show_set_undo_molecule_chooser();
+
+/* called by above */
+GtkWidget *wrapped_create_undo_molecule_chooser_dialog();
 
 /*! \brief set the state for adding paths to backup file names
 

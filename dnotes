@@ -6795,4 +6795,11 @@ Sun Sep 14 10:45:38 BST 2008
     activated. (Some work).
 
 
+----
+Sun Sep 14 12:32:23 BST 2008
+
+    Note: the right way to set an active menu item for an option menu
+    is in fill_option_menu_with_undo_options().
+
+
 -----

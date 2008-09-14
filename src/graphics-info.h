@@ -533,10 +533,6 @@ class graphics_info_t {
 
    //
    static int undo_molecule; // -1 initially
-   int Undo_molecule(coot::undo_type) const; // return -2 on ambiguity, -1 on unset
-			      // and a molecule number >=0 for no
-			      // ambiguity (or undo_molecule has been
-			      // set already).
 
    // No, we don't want MMDBManager in the include files.
    // (or indeed mmdb-extras, etc...)
@@ -2409,6 +2405,10 @@ public:
    // undo_molecule_select uses set_undo_molecule_number()
    static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
    void fill_option_menu_with_undo_options(GtkWidget *option_menu); // not const
+   int Undo_molecule(coot::undo_type) const; // return -2 on ambiguity, -1 on unset
+			      // and a molecule number >=0 for no
+			      // ambiguity (or undo_molecule has been
+			      // set already).
 
 
    // used in globjects:

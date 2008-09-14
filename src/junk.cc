@@ -1713,3 +1713,51 @@ int test_torsion_derivs() {
 						 output_numerical_gradients);
    return r;
 }
+
+{ 
+#if defined USE_GUILE && !defined WINDOWS_MINGW
+
+   std::string s("(molecule-chooser-gui ");
+   s += "\"Choose Molecule for Undo operations\" ";
+   s += "set-undo-molecule)";
+   // std::cout << s << std::endl;
+
+   safe_scheme_command(s);
+
+#else
+#ifdef USE_PYGTK
+ 
+   std::string s("molecule_chooser_gui(");
+   s += "\"Choose Molecule for Undo operations\",";
+   s += "lambda imol: set_undo_molecule(imol))";
+   // std::cout << s << std::endl;
+
+   safe_python_command(s);
+ 
+#endif // PYGTK
+#endif // USE_GUILE   
+
+   add_to_history_simple("show-set-undo-molecule-chooser");
+}
+
+
+
+#ifdef USE_PYTHON
+void show_set_undo_molecule_chooser_py() {
+ 
+#ifdef USE_PYGTK
+   std::string s("molecule_chooser_gui(");
+   s += "\"Choose Molecule for Undo operations\",";
+   s += "lambda imol: set_undo_molecule(imol))";
+   // std::cout << s << std::endl;
+
+   safe_python_command(s);
+ 
+   add_to_history_simple("show-set-undo-molecule-chooser");
+#else
+   std::cout << "BL INFO:: wont work since there is no pygtk!" << std::endl;
+#endif // PYGTK
+} 
+#endif // USE_PYTHON
+
+

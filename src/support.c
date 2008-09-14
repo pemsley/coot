@@ -8,7 +8,11 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#endif
 #include <string.h>
 
 #include <gtk/gtk.h>
@@ -75,7 +79,7 @@ create_dummy_pixmap                    (GtkWidget       *widget)
   return pixmap;
 }
 
-static GList *pixmaps_directories = NULL;
+GList *pixmaps_directories = NULL;
 
 /* Use this function to set the directory containing installed pixmaps. */
 void
