@@ -13686,7 +13686,7 @@ programs to which you may be more accustomed.
   <widget>
     <class>GtkPixmap</class>
     <name>pixmap1</name>
-    <filename>coot-0.4.xpm</filename>
+    <filename>coot-0.5-pre.xpm</filename>
     <xalign>0.5</xalign>
     <yalign>0.5</yalign>
     <xpad>0</xpad>
@@ -26896,7 +26896,7 @@ Move Molecule Here:</label>
 	    <handler>on_monomer_library_search_dialog_cancel_button_clicked</handler>
 	    <last_modification_time>Tue, 27 Jun 2006 00:12:34 GMT</last_modification_time>
 	  </signal>
-	  <label>   Cancel   </label>
+	  <label>   Close   </label>
 	  <relief>GTK_RELIEF_NORMAL</relief>
 	  <child>
 	    <padding>0</padding>
@@ -27614,7 +27614,7 @@ Move Molecule Here:</label>
   <widget>
     <class>GtkPixmap</class>
     <name>pixmap2</name>
-    <filename>coot-0.4-alternate.xpm</filename>
+    <filename>coot-0.5-pre.xpm</filename>
     <xalign>0.5</xalign>
     <yalign>0.5</yalign>
     <xpad>0</xpad>
