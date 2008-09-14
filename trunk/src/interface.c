@@ -8,9 +8,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 #include <string.h>
 
 #include <gdk/gdkkeysyms.h>
@@ -19,8 +17,6 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "support.h"
-
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
 
 GtkWidget*
 create_window1 (void)
@@ -9493,7 +9489,7 @@ create_splash_screen_window (void)
   gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
 
-  pixmap1 = create_pixmap (splash_screen_window, "coot-0.4.xpm");
+  pixmap1 = create_pixmap (splash_screen_window, "coot-0.5-pre.xpm");
   gtk_widget_ref (pixmap1);
   gtk_object_set_data_full (GTK_OBJECT (splash_screen_window), "pixmap1", pixmap1,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -18134,7 +18130,7 @@ create_monomer_search_dialog (void)
   gtk_widget_show (hbox144);
   gtk_box_pack_start (GTK_BOX (dialog_action_area95), hbox144, FALSE, TRUE, 0);
 
-  monomer_library_search_dialog_cancel_button = gtk_button_new_with_label (_("   Cancel   "));
+  monomer_library_search_dialog_cancel_button = gtk_button_new_with_label (_("   Close   "));
   gtk_widget_ref (monomer_library_search_dialog_cancel_button);
   gtk_object_set_data_full (GTK_OBJECT (monomer_search_dialog), "monomer_library_search_dialog_cancel_button", monomer_library_search_dialog_cancel_button,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -18481,7 +18477,7 @@ create_splash_screen_alternate_1_window (void)
   gtk_window_set_title (GTK_WINDOW (splash_screen_alternate_1_window), _("Coot"));
   gtk_window_set_position (GTK_WINDOW (splash_screen_alternate_1_window), GTK_WIN_POS_CENTER);
 
-  pixmap2 = create_pixmap (splash_screen_alternate_1_window, "coot-0.4-alternate.xpm");
+  pixmap2 = create_pixmap (splash_screen_alternate_1_window, "coot-0.5-pre.xpm");
   gtk_widget_ref (pixmap2);
   gtk_object_set_data_full (GTK_OBJECT (splash_screen_alternate_1_window), "pixmap2", pixmap2,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -18997,4 +18993,3 @@ create_run_refmac_nolabels_help_dialog (void)
   return run_refmac_nolabels_help_dialog;
 }
 
-#endif

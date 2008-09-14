@@ -6746,4 +6746,53 @@ Wed Sep 10 13:43:57 BST 2008
 
     When rotating atom in chi or rotamers, change the aniso b values too.
 
+
+---
+Sun Sep 14 09:49:35 BST 2008
+
+    Failures/Issues at the BCA Summer School
+
+   o Baton Build mode crash on "Accept"
+
+* Fixed.  Cis peptides code that runs on writing out a pdb file needed
+  a properly formed mmdbmanager, but the mmdbmanger from the baton
+  atoms was not in a good state, - it seemed that there was a chain
+  added to the model, but the chain pointer was NULL.  So now we check 
+  for that.
+
+   o Recover session didn't work - "Nothing to Recover".
+
+   o "Add Strand here" failed - dictionary of structures, either
+     didn't exist or was in the wrong place: 
+     C:\share\coot\ss-reference-structure..  found 0 pdb files
+
+   o Rotamer probability tables not found - falling back to simple 
+     (confusing) rotamer probabilities
+     C:\msys\home\bernhard\autobuild\MINGW..\share\coot\rama-.. not found
+
+   o Refmac button failed
+
+   o Question: Does "Set Undo Molecule dialog" set the correct undo
+     molecule?
+
+* I'll deal with this
+
+   o Make it easy to retype a residue
+
+* I'll deal with this.  Punt.  I've forgotten what it is for - and
+  it's more work that I thought - there is no scripting function to do
+  this.
+
+   o Search Monomer Library dialog should say "Close" not "Cancel"
+
+* I'll deal with this.  Done
+
+
+----
+Sun Sep 14 10:45:38 BST 2008
+
+    There is a dialog for globularize protein.  It needs to be
+    activated. (Some work).
+
+
 -----

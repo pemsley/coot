@@ -21867,10 +21867,10 @@ create_monomer_search_dialog (void)
   GtkWidget *dialog_action_area95;
   GtkWidget *hbox144;
   GtkWidget *monomer_library_search_dialog_cancel_button;
-  GtkWidget *alignment57;
-  GtkWidget *hbox208;
-  GtkWidget *image1526;
-  GtkWidget *label382;
+  GtkWidget *alignment128;
+  GtkWidget *hbox357;
+  GtkWidget *image6644;
+  GtkWidget *label672;
 
   monomer_search_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (monomer_search_dialog), _("Search Monomer Library"));
@@ -21971,21 +21971,21 @@ create_monomer_search_dialog (void)
   gtk_widget_show (monomer_library_search_dialog_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox144), monomer_library_search_dialog_cancel_button, FALSE, FALSE, 0);
 
-  alignment57 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment57);
-  gtk_container_add (GTK_CONTAINER (monomer_library_search_dialog_cancel_button), alignment57);
+  alignment128 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment128);
+  gtk_container_add (GTK_CONTAINER (monomer_library_search_dialog_cancel_button), alignment128);
 
-  hbox208 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_show (hbox208);
-  gtk_container_add (GTK_CONTAINER (alignment57), hbox208);
+  hbox357 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox357);
+  gtk_container_add (GTK_CONTAINER (alignment128), hbox357);
 
-  image1526 = gtk_image_new_from_stock ("gtk-cancel", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image1526);
-  gtk_box_pack_start (GTK_BOX (hbox208), image1526, FALSE, FALSE, 0);
+  image6644 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image6644);
+  gtk_box_pack_start (GTK_BOX (hbox357), image6644, FALSE, FALSE, 0);
 
-  label382 = gtk_label_new_with_mnemonic (_("   Cancel   "));
-  gtk_widget_show (label382);
-  gtk_box_pack_start (GTK_BOX (hbox208), label382, FALSE, FALSE, 0);
+  label672 = gtk_label_new_with_mnemonic (_("Close  "));
+  gtk_widget_show (label672);
+  gtk_box_pack_start (GTK_BOX (hbox357), label672, FALSE, FALSE, 0);
 
   g_signal_connect ((gpointer) monomer_search_entry, "key_press_event",
                     G_CALLBACK (on_monomer_search_entry_key_press_event),
@@ -22021,10 +22021,10 @@ create_monomer_search_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (monomer_search_dialog, dialog_action_area95, "dialog_action_area95");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, hbox144, "hbox144");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, monomer_library_search_dialog_cancel_button, "monomer_library_search_dialog_cancel_button");
-  GLADE_HOOKUP_OBJECT (monomer_search_dialog, alignment57, "alignment57");
-  GLADE_HOOKUP_OBJECT (monomer_search_dialog, hbox208, "hbox208");
-  GLADE_HOOKUP_OBJECT (monomer_search_dialog, image1526, "image1526");
-  GLADE_HOOKUP_OBJECT (monomer_search_dialog, label382, "label382");
+  GLADE_HOOKUP_OBJECT (monomer_search_dialog, alignment128, "alignment128");
+  GLADE_HOOKUP_OBJECT (monomer_search_dialog, hbox357, "hbox357");
+  GLADE_HOOKUP_OBJECT (monomer_search_dialog, image6644, "image6644");
+  GLADE_HOOKUP_OBJECT (monomer_search_dialog, label672, "label672");
 
   return monomer_search_dialog;
 }
@@ -24940,181 +24940,6 @@ create_run_refmac_mtz_filechooserdialog (void)
 
   gtk_widget_grab_default (button31);
   return run_refmac_mtz_filechooserdialog;
-}
-
-GtkWidget*
-create_window2 (void)
-{
-  GtkWidget *window2;
-
-  window2 = gtk_window_new (GTK_WINDOW_POPUP);
-  gtk_window_set_title (GTK_WINDOW (window2), _("window2"));
-  gtk_window_set_position (GTK_WINDOW (window2), GTK_WIN_POS_MOUSE);
-
-  /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (window2, window2, "window2");
-
-  return window2;
-}
-
-GtkWidget*
-create_dialog1 (void)
-{
-  GtkWidget *dialog1;
-  GtkWidget *dialog_vbox119;
-  GtkWidget *vbox282;
-  GtkWidget *label665;
-  GtkWidget *frame277;
-  GtkWidget *alignment126;
-  GtkWidget *vbox283;
-  GtkWidget *radiobutton9;
-  GSList *radiobutton9_group = NULL;
-  GtkWidget *radiobutton10;
-  GtkWidget *radiobutton11;
-  GtkWidget *radiobutton12;
-  GtkWidget *label666;
-  GtkWidget *dialog_action_area118;
-  GtkWidget *button32;
-  GtkWidget *alignment127;
-  GtkWidget *hbox354;
-  GtkWidget *image6643;
-  GtkWidget *label667;
-  GtkWidget *button33;
-  GtkWidget *alignment128;
-  GtkWidget *hbox355;
-  GtkWidget *image6644;
-  GtkWidget *label668;
-
-  dialog1 = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (dialog1), _("Rigid Body Fit Dialog"));
-  gtk_window_set_type_hint (GTK_WINDOW (dialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
-
-  dialog_vbox119 = GTK_DIALOG (dialog1)->vbox;
-  gtk_widget_show (dialog_vbox119);
-
-  vbox282 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox282);
-  gtk_box_pack_start (GTK_BOX (dialog_vbox119), vbox282, TRUE, TRUE, 0);
-
-  label665 = gtk_label_new (_("Rigid Body Fit"));
-  gtk_widget_show (label665);
-  gtk_box_pack_start (GTK_BOX (vbox282), label665, FALSE, FALSE, 0);
-
-  frame277 = gtk_frame_new (NULL);
-  gtk_widget_show (frame277);
-  gtk_box_pack_start (GTK_BOX (vbox282), frame277, TRUE, TRUE, 0);
-  gtk_frame_set_shadow_type (GTK_FRAME (frame277), GTK_SHADOW_NONE);
-
-  alignment126 = gtk_alignment_new (0.5, 0.5, 1, 1);
-  gtk_widget_show (alignment126);
-  gtk_container_add (GTK_CONTAINER (frame277), alignment126);
-  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment126), 0, 0, 12, 0);
-
-  vbox283 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox283);
-  gtk_container_add (GTK_CONTAINER (alignment126), vbox283);
-
-  radiobutton9 = gtk_radio_button_new_with_mnemonic (NULL, _("Whole Molecule"));
-  gtk_widget_show (radiobutton9);
-  gtk_box_pack_start (GTK_BOX (vbox283), radiobutton9, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton9), radiobutton9_group);
-  radiobutton9_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton9));
-
-  radiobutton10 = gtk_radio_button_new_with_mnemonic (NULL, _("Whole Chain"));
-  gtk_widget_show (radiobutton10);
-  gtk_box_pack_start (GTK_BOX (vbox283), radiobutton10, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton10), radiobutton9_group);
-  radiobutton9_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton10));
-
-  radiobutton11 = gtk_radio_button_new_with_mnemonic (NULL, _("Atom Selection"));
-  gtk_widget_show (radiobutton11);
-  gtk_box_pack_start (GTK_BOX (vbox283), radiobutton11, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton11), radiobutton9_group);
-  radiobutton9_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton11));
-
-  radiobutton12 = gtk_radio_button_new_with_mnemonic (NULL, _("By Atom Picking"));
-  gtk_widget_show (radiobutton12);
-  gtk_box_pack_start (GTK_BOX (vbox283), radiobutton12, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (radiobutton12), radiobutton9_group);
-  radiobutton9_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radiobutton12));
-
-  label666 = gtk_label_new (_("<b>Atom Selection</b>"));
-  gtk_widget_show (label666);
-  gtk_frame_set_label_widget (GTK_FRAME (frame277), label666);
-  gtk_label_set_use_markup (GTK_LABEL (label666), TRUE);
-
-  dialog_action_area118 = GTK_DIALOG (dialog1)->action_area;
-  gtk_widget_show (dialog_action_area118);
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area118), GTK_BUTTONBOX_END);
-
-  button32 = gtk_button_new ();
-  gtk_widget_show (button32);
-  gtk_dialog_add_action_widget (GTK_DIALOG (dialog1), button32, 0);
-  GTK_WIDGET_SET_FLAGS (button32, GTK_CAN_DEFAULT);
-
-  alignment127 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment127);
-  gtk_container_add (GTK_CONTAINER (button32), alignment127);
-
-  hbox354 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_show (hbox354);
-  gtk_container_add (GTK_CONTAINER (alignment127), hbox354);
-
-  image6643 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image6643);
-  gtk_box_pack_start (GTK_BOX (hbox354), image6643, FALSE, FALSE, 0);
-
-  label667 = gtk_label_new_with_mnemonic (_("Fit"));
-  gtk_widget_show (label667);
-  gtk_box_pack_start (GTK_BOX (hbox354), label667, FALSE, FALSE, 0);
-
-  button33 = gtk_button_new ();
-  gtk_widget_show (button33);
-  gtk_dialog_add_action_widget (GTK_DIALOG (dialog1), button33, 0);
-  GTK_WIDGET_SET_FLAGS (button33, GTK_CAN_DEFAULT);
-
-  alignment128 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment128);
-  gtk_container_add (GTK_CONTAINER (button33), alignment128);
-
-  hbox355 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_show (hbox355);
-  gtk_container_add (GTK_CONTAINER (alignment128), hbox355);
-
-  image6644 = gtk_image_new_from_stock ("gtk-cancel", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image6644);
-  gtk_box_pack_start (GTK_BOX (hbox355), image6644, FALSE, FALSE, 0);
-
-  label668 = gtk_label_new_with_mnemonic (_("Cancel"));
-  gtk_widget_show (label668);
-  gtk_box_pack_start (GTK_BOX (hbox355), label668, FALSE, FALSE, 0);
-
-  /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (dialog1, dialog1, "dialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (dialog1, dialog_vbox119, "dialog_vbox119");
-  GLADE_HOOKUP_OBJECT (dialog1, vbox282, "vbox282");
-  GLADE_HOOKUP_OBJECT (dialog1, label665, "label665");
-  GLADE_HOOKUP_OBJECT (dialog1, frame277, "frame277");
-  GLADE_HOOKUP_OBJECT (dialog1, alignment126, "alignment126");
-  GLADE_HOOKUP_OBJECT (dialog1, vbox283, "vbox283");
-  GLADE_HOOKUP_OBJECT (dialog1, radiobutton9, "radiobutton9");
-  GLADE_HOOKUP_OBJECT (dialog1, radiobutton10, "radiobutton10");
-  GLADE_HOOKUP_OBJECT (dialog1, radiobutton11, "radiobutton11");
-  GLADE_HOOKUP_OBJECT (dialog1, radiobutton12, "radiobutton12");
-  GLADE_HOOKUP_OBJECT (dialog1, label666, "label666");
-  GLADE_HOOKUP_OBJECT_NO_REF (dialog1, dialog_action_area118, "dialog_action_area118");
-  GLADE_HOOKUP_OBJECT (dialog1, button32, "button32");
-  GLADE_HOOKUP_OBJECT (dialog1, alignment127, "alignment127");
-  GLADE_HOOKUP_OBJECT (dialog1, hbox354, "hbox354");
-  GLADE_HOOKUP_OBJECT (dialog1, image6643, "image6643");
-  GLADE_HOOKUP_OBJECT (dialog1, label667, "label667");
-  GLADE_HOOKUP_OBJECT (dialog1, button33, "button33");
-  GLADE_HOOKUP_OBJECT (dialog1, alignment128, "alignment128");
-  GLADE_HOOKUP_OBJECT (dialog1, hbox355, "hbox355");
-  GLADE_HOOKUP_OBJECT (dialog1, image6644, "image6644");
-  GLADE_HOOKUP_OBJECT (dialog1, label668, "label668");
-
-  return dialog1;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */
