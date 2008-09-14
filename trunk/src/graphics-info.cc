@@ -4615,14 +4615,18 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
    menu = gtk_menu_new();
 
    GtkWidget *menuitem;
-   int first = -1;
-   
+   int active_mol_no = -1;
+   int undo_local = undo_molecule;  // defaults to -1; If it is unset (-1)
+			       // then pick the first undoable
+			       // molecule as the undo_molecule.
+   int pos_count = 0;
+
    for (int i=0; i<n_molecules(); i++) {
       // if (molecules[i].has_model()) { 
       if (molecules[i].atom_sel.mol) { 
 	 if (molecules[i].Have_modifications_p()) {
-	    if (first == -1)
-	       first = i;
+	    if (undo_local == -1)
+	       undo_local = i;
 	    char s[200];
 	    snprintf(s, 199, "%d", i);
 	    std::string ss(s);
@@ -4634,17 +4638,21 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 			       GINT_TO_POINTER(i));
 	    gtk_menu_append(GTK_MENU(menu), menuitem);
 	    gtk_widget_show(menuitem);
+	    if (i == undo_molecule)
+	       gtk_menu_set_active(GTK_MENU(menu), pos_count);
+	    pos_count++; 
 	 }
       }
    }
 
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 
-   // first should have been set (this function should not be called
+   // undo_local should have been set (this function should not be called
    // if there are not more than 1 molecule with modifications).
-   if (first > -1) {
-      set_undo_molecule_number(first);
+   if (undo_local > -1) {
+      set_undo_molecule_number(undo_local);
    }
+
 } 
 
 // a static function
@@ -4652,6 +4660,7 @@ void
 graphics_info_t::undo_molecule_select(GtkWidget *item, GtkPositionType pos) {
    graphics_info_t g;
    g.set_undo_molecule_number(pos);
+   std::cout << "undo molecule number set to " << pos << std::endl;
 }
 
 void

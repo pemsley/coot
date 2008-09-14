@@ -369,54 +369,6 @@ void set_undo_molecule(int imol) {
    add_to_history(command_strings);
 }
 
-/*! \brief show the Undo Molecule chooser - i.e. choose the molecule
-  to which the "Undo" button applies. */
-void show_set_undo_molecule_chooser() {
-
-#if defined USE_GUILE && !defined WINDOWS_MINGW
-
-   std::string s("(molecule-chooser-gui ");
-   s += "\"Choose Molecule for Undo operations\" ";
-   s += "set-undo-molecule)";
-   // std::cout << s << std::endl;
-
-   safe_scheme_command(s);
-
-#else
-#ifdef USE_PYGTK
- 
-   std::string s("molecule_chooser_gui(");
-   s += "\"Choose Molecule for Undo operations\",";
-   s += "lambda imol: set_undo_molecule(imol))";
-   // std::cout << s << std::endl;
-
-   safe_python_command(s);
- 
-#endif // PYGTK
-#endif // USE_GUILE   
-
-   add_to_history_simple("show-set-undo-molecule-chooser");
-} 
-
-#ifdef USE_PYTHON
-void show_set_undo_molecule_chooser_py() {
- 
-#ifdef USE_PYGTK
-   std::string s("molecule_chooser_gui(");
-   s += "\"Choose Molecule for Undo operations\",";
-   s += "lambda imol: set_undo_molecule(imol))";
-   // std::cout << s << std::endl;
-
-   safe_python_command(s);
- 
-   add_to_history_simple("show-set-undo-molecule-chooser");
-#else
-   std::cout << "BL INFO:: wont work since there is no pygtk!" << std::endl;
-#endif // PYGTK
-} 
-#endif // USE_PYTHON
-
-
 void set_unpathed_backup_file_names(int state) {
    graphics_info_t::unpathed_backup_file_names_flag = state;
    std::vector<std::string> command_strings;
@@ -2036,7 +1988,7 @@ void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) {
 	 if (graphics_info_t::user_pointer_atom_molecule == imol) {
 	    std::cout << "setting active menu item to "
 		      << menu_index << std::endl;
-	    gtk_menu_set_active(GTK_MENU(menu),menu_index);
+	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 	 }
       }
    }
@@ -3440,19 +3392,6 @@ execute_refmac_real(std::string pdb_in_filename,
       safe_scheme_command(cmd);
    } 
 } 
-
-// Not needed? because we look at the active menu item at OK button-press time?
-//
-// Well, that was indeeed the way that we used to do it, now (WDW)
-// that we rationalize the coordinates molecules option menu filling
-// we have to set the the active molecule in this callback.
-// 
-void
-refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos) {
-
-   graphics_info_t::refmac_molecule = pos;
-
-}
 
 int set_refmac_molecule(int imol) {
    std::string cmd = "set-refmac-molecule";
