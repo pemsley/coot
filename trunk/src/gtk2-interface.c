@@ -17007,7 +17007,7 @@ create_preferences (void)
 
   preferences_map_radiotoolbutton = (GtkWidget*) gtk_radio_tool_button_new (NULL);
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (preferences_map_radiotoolbutton), _("Maps"));
-  tmp_image = gtk_image_new_from_stock ("gtk-connect", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("map.svg", GTK_ICON_SIZE_BUTTON);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (preferences_map_radiotoolbutton), tmp_image);
   gtk_widget_show (preferences_map_radiotoolbutton);
@@ -18285,7 +18285,7 @@ create_preferences (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_style_text_radiobutton), preferences_model_toolbar_style_icons_radiobutton_group);
   preferences_model_toolbar_style_icons_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_style_text_radiobutton));
 
-  label669 = gtk_label_new (_("Toolbar Style??"));
+  label669 = gtk_label_new (_("Toolbar Style"));
   gtk_widget_show (label669);
   gtk_frame_set_label_widget (GTK_FRAME (frame278), label669);
   gtk_label_set_use_markup (GTK_LABEL (label669), TRUE);

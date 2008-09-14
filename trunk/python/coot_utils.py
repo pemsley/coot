@@ -1,24 +1,26 @@
 # coot-utils.py 
 # adapted from coot-utils.scm
-
+#
 # Copyright 2004, 2005, 2006, 2007 by Bernhard Lohkamp
 # Copyright 2008 by Bernhard Lohkamp, The University of York
 # Copyright 2000 by Paul Emsley
 # Copyright 2004, 2005, 2006, 2007 by Paul Emsley, The University of York
+#    <one line to give the program's name and a brief idea of what it does.>
+#    Copyright (C) <year>  <name of author>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or (at
-# your option) any later version.
-
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # not sure if the implementation of the macros will work
 
@@ -781,6 +783,16 @@ try:
 except:
     key_bindings = []
 
+def decode_key(key_val_name):
+    try:
+        import gtk
+        key_value = int(gtk.gdk.keyval_from_name(key_val_name))
+        if (not key_value):
+            key_value = int(gtk.gdk.unicode_to_keyval(ord(key_val_name)))
+        return key_value
+    except:
+        return key_sym_code(key_val_name)
+
 def add_key_binding(name, key, thunk):
     from types import IntType, StringType
     global key_bindings, std_key_bindings
@@ -797,7 +809,7 @@ def add_key_binding(name, key, thunk):
                 print "INFO:: you are overwriting existing code", key
             key_bindings.append([key, key, name, thunk])
         elif (type(key) is StringType):
-            code = key_sym_code(key)
+            code = decode_key(key)
             if (code in codes):
                 print "INFO:: you are overwriting existing key", key
             if (not (code == -1)):
@@ -1435,7 +1447,6 @@ def pukka_puckers_qm(imol):
 # some re-definitions from coot python functions
 ############
 
-show_set_undo_molecule_chooser = show_set_undo_molecule_chooser_py
 spin_search            = spin_search_py
 set_atom_attributes    = set_atom_attributes_py
 test_internal          = test_internal_py

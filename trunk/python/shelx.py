@@ -1,22 +1,21 @@
 # shelx.py
 # BL python adaption of shelx.scm by Paul Emsley
-
-# Copyright 2005, 2006 by Bernhard Lohkamp
-# Copyright 2005, 2006 by Paul Emsley, The University of York
-
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or (at
-# your option) any later version.
-
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#    Copyright (C) 2005, 2006, 2007 by Bernhard Lohkamp
+#    Copyright (C) 2007, 2008 by Bernhard Lohkamp, The University of York
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # Provide functions to handle shelx fcf file (which I believe to be old-style

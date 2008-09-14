@@ -5144,6 +5144,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	    cmd_strings.push_back(graphics_info_t::int_to_string(res2));
 	    cmd_strings.push_back(single_quote(sequence));
 	    std::string cmd = g.state_command(cmd_strings, state_lang);
+
 #ifdef USE_GUILE
 	    if (state_lang == coot::STATE_SCM) {
 	       safe_scheme_command(cmd);
