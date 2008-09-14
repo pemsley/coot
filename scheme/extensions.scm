@@ -443,12 +443,12 @@
 	(gtk-widget-show menuitem2)
 	
 	;; 
-      (if (coot-has-pygtk?)
+;      (if (coot-has-pygtk?)
 
-	  (add-simple-coot-menu-menuitem
-	   submenu "Dock Sequence (py)..."
-	   (lambda ()
-	     (run-python-command "cootaneer_gui_bl()"))))
+;	  (add-simple-coot-menu-menuitem
+;	   submenu "Dock Sequence (py)..."
+;	   (lambda ()
+;	     (run-python-command "cootaneer_gui_bl()"))))
 	  
 	(add-simple-coot-menu-menuitem
 	 submenu "Associate Sequence...."
@@ -495,6 +495,15 @@
       ;; ---------------------------------------------------------------------
       ;; 
       (add-coot-menu-seperator menu)
+
+;      (if (coot-has-pygtk?)
+
+;	  (add-simple-coot-menu-menuitem
+;	   menu "Set Refinement Options (py)..."
+;	   (lambda ()
+;	     (run-python-command "refinement_options_gui()")))
+; 	  (add-status-bar-text "Not available for scheme at the moment"))
+
 
       (let ((submenu (gtk-menu-new))
 	    (menuitem2 (gtk-menu-item-new-with-label "Peptide Restraints...")))

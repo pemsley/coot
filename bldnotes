@@ -5,26 +5,22 @@
 ---------------
 
    o be up-to-date with all python scripts and tests
-
-   o test db-main strands windows fix thingy (debackslash)
+up-to-date 09/09/08
+tests rev 1378
 
    o refinement options dialog in extensions (scheme, or use pythons?)
 
    o clean-up use of probe/reduce command_name and command (python)
 
-27/08/08
-   o make example keybindings for python (based on Paul's scheme bindgs)
-
-   o Windows installer:
-     - question overwriting of runwincoot.bat
-     - make the 'start in' directory user changeable (use SetOutPath!?)
-       * for both make sure it works (sensibly) with a silent installer!!!
 
 04/09/08
    o loop building backwards in scheme (use python?)?
 
-   o check licence header in python modules
-
+14/09/08:
+   o windows:
+     - installer: fix rotamers
+     - check refmac
+     - check recover session
 
 ---------------
 * TO DO THINGS *
@@ -100,6 +96,9 @@
 	o pictures in manual (how and where!?) Maybe more extensive (advanced)
 	  tutorial!?
 
+10/09/08
+   o no bond colours if no element column in pdb file (e.g. CNS files)
+     try to guess?! use coordconv??
 
 ---------------
 * DONE THINGS *
@@ -145,3 +144,30 @@
    o fix the alignment of icons and labels in the Model/fit/refine dialog
 
 * Done
+
+27/08/08
+   o make example keybindings for python (based on Paul's scheme bindgs)
+
+* Done (put on Kay's WIKI)
+
+27/08/08
+   o Windows installer:
+     - question overwriting of runwincoot.bat
+     - make the 'start in' directory user changeable (use SetOutPath!?)
+       * for both make sure it works (sensibly) with a silent installer!!!
+
+* Done
+
+04/09/08
+   o check licence header in python(-test) modules
+
+* Done
+
+   o test db-main strands windows fix thingy (debackslash)
+
+* Fixed
+
+09/09/08
+   o check key binding codes for () []
+
+* Fixed by using gdk keymapping

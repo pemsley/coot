@@ -1,3 +1,4 @@
+# unittest_extensions.py
 # Copyright 2007, 2008 by The University of York
 # Copyright 2008 by Bernhard Lohkamp
 # Copyright 2007 by Paul Emsley
@@ -12,11 +13,9 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
- 
+#
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 unittest_filename="/y/people/lohkamp/Projects/coot/python-tests/coot_unittest.py"
 begin_filename="/y/people/lohkamp/Projects/coot/python-tests/begin.py"
