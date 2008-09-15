@@ -675,7 +675,7 @@
 	(list "binary-Linux-i386-fedora-5-python" 
 	      "Linux-bragg3.chem.york.ac.uk/gtk1-python" #t)
 	(list "binary-Linux-i386-fedora-5-python-gtk2"
-	      "Linux-bragg3.chem.york.ac.uk/gtk2" #f)
+	      "Linux-bragg3.chem.york.ac.uk/gtk2" #t)
 
 	(list "binary-Linux-i386-redhat-8.0"
 	      "Linux-bubbles/gtk1" #f)
