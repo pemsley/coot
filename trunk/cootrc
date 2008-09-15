@@ -26,7 +26,8 @@ style "defaultfont"
   font = "-adobe-helvetica-medium-r-normal--*-75-*-*-*-*-*-*,*"
 }
 
-style "small-font" {
+style "small-font" 
+{
   font_name = "sans 8"
 }
 
