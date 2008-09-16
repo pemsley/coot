@@ -125,7 +125,7 @@ else
 
  if test x$have_generic_mmdb = xyes ; then
    echo Opps - You have an mmdb library, but it is out of date.
-   echo You need version 1.11
+   echo You need version 1.12
  fi
 
  LIBS="$saved_LIBS"
