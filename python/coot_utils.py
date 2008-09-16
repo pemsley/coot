@@ -4,7 +4,7 @@
 # Copyright 2004, 2005, 2006, 2007 by Bernhard Lohkamp
 # Copyright 2008 by Bernhard Lohkamp, The University of York
 # Copyright 2000 by Paul Emsley
-# Copyright 2004, 2005, 2006, 2007 by Paul Emsley, The University of York
+# Copyright 2004, 2tr005, 2006, 2007 by Paul Emsley, The University of York
 #    <one line to give the program's name and a brief idea of what it does.>
 #    Copyright (C) <year>  <name of author>
 #
@@ -226,7 +226,7 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
 
     if (cmd_execfile):
         # minor = 4
-        if (major == 2 and minor >=4):
+        if (major >= 2 and minor >=4):
             # subprocess
             import subprocess
             log = open(log_file, 'w')
@@ -596,7 +596,7 @@ def transform_coords_molecule(imol, rtop):
 def transform_map(*args):
 
     ret = None
-    def tf(imol,mat,trans,about_pt,radius):
+    def tf(imol, mat, trans, about_pt, radius):
         return transform_map_raw(imol,mat[0],mat[1],mat[2],
                                  mat[3],mat[4],mat[5],
                                  mat[6],mat[7],mat[8],
@@ -1703,8 +1703,8 @@ def printf(*args):
 def printl(ls):
     map(printf, ls)
     
-# Where cmd is e.g. "loggraph" 
-#       args is list, e.g. ["refmac.log"]
+# Where cmd is e.g. "bltwish" 
+#       args is list, e.g. [loggraph, "refmac.log"]
 # 
 # Returns the pid or False if failed.
 #
@@ -1723,7 +1723,7 @@ def run_concurrently(cmd, args):
        cmd_execfile = find_exe(cmd,"CCP4_BIN","PATH")
 
     if (cmd_execfile):
-        if (major == 2 and minor >=4):
+        if (major >= 2 and minor >=4):
             # subprocess
             import subprocess
             cmd_args = [cmd_execfile] + args
@@ -1733,7 +1733,7 @@ def run_concurrently(cmd, args):
         
         else:
             # spawn (old)
-            pid = os.spawnv(cmd_execfile, args)
+            pid = os.spawnv(os.P_NOWAIT, cmd_execfile, [cmd_execfile] + args)
             return pid
     else:
         print "WARNING:: could not find %s, so not running this program" %cmd

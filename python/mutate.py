@@ -161,37 +161,43 @@ def mutate_residue_redundant(residue_number,chain_id,imol,residue_type,insertion
 #
 # 1.) imol
 #
-# 2.) [optional] type
+# 2.) [optional] type, if type is "SER" then build polySer,
+#                      if type is "GLY", build polyGly.
 # 
-def poly_ala(*args):
-    if (len(args) <=2 and len(args) >=1):
-       imol = args[0]
-       if is_valid_model_molecule(imol):
-          make_backup(imol)
-          backup_mode = backup_state(imol)
-          imol_map = imol_refinement_map()
-          
-          turn_off_backup(imol)
-          dic_sg = {"SER": "S", "Ser": "S", "GLY": "G", "Gly": "G"}
-          if (len(args) == 2):
-             res_type = args[1] 
-             # residue name given!
-             if (dic_sg.has_key(res_type)):
-                single_letter_code = dic_sg[res_type]
-             else:
-                print "BL WARNING:: unrecognised residue name %s given" %res_type
-          else:
-             single_letter_code = "A"
+def poly_ala(imol, res_type = False):
+   
+   if is_valid_model_molecule(imol):
+      make_backup(imol)
+      backup_mode = backup_state(imol)
+      imol_map = imol_refinement_map()
+      
+      turn_off_backup(imol)
+      dic_sg = {"SER": "S", "Ser": "S", "GLY": "G", "Gly": "G"}
+      if (res_type):
+         # residue name given!
+         if ((len(res_type) == 1) and (res_type in dic_sg.values())):
+            single_letter_code = res_type
+         else:
+            if (dic_sg.has_key(res_type)):
+               single_letter_code = dic_sg[res_type]
+            else:
+               print "BL WARNING:: unrecognised residue name %s given" %res_type
+               return
+      else:
+         single_letter_code = "A"
 
-          for chain_id in chain_ids(imol):
-              n_residues = chain_n_residues(chain_id,imol)
-              for serial_number in range(n_residues):
-                  mutate_single_residue_by_serial_number(serial_number,chain_id,imol,single_letter_code)
-          if (backup_mode == 1):
-             turn_on_backup(imol)
+      for chain_id in chain_ids(imol):
+         n_residues = chain_n_residues(chain_id,imol)
+         for serial_number in range(n_residues):
+            mutate_single_residue_by_serial_number(serial_number,
+                                                   chain_id,
+                                                   imol,
+                                                   single_letter_code)
+      if (backup_mode == 1):
+         turn_on_backup(imol)
 
-    else:
-       print "BL WARNING:: poly_ala takes 1 or 2 arguments. %i were given!" %(len(args))
+   else:
+       print "BL WARNING:: no valid model molecule", imol
 
 # Delete (back to the CB stub) the side change in the range
 # resno-start to resno-end

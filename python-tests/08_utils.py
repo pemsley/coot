@@ -72,6 +72,6 @@ class UtilTestFunctions(unittest.TestCase):
         """Internal/External Molecule Numbers match"""
 
         m = molecule_number_list()
-        print "   m: ", m
-        print " own: ", map(own_molecule_number, m)
+        #print "   m: ", m
+        #print " own: ", map(own_molecule_number, m)
         self.failUnless(m == map(own_molecule_number, m))
