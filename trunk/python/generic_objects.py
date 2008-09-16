@@ -20,8 +20,13 @@ global probe_command
 global reduce_command
 global reduce_molecule_updates_current
 
-# BL says:: put in definitions of probe and reduce command here:
-# actually not used any more, I think!
+# set reduce  and probe command full path here if you wish
+# (or have a look in group_settings!! These overwrite whatever is here), e.g.
+# reduce_command = "/home/bernhard/bin/reduce"
+
+
+# BL says:: put in definitions of probe and reduce command names here:
+# these are the names of executables (without [windows] extension)
 probe_command_name = "probe"
 if (os.name == 'nt'):
 	reduce_command_name = "reduceV2.13.2.win"
@@ -166,12 +171,12 @@ def probe(imol):
     if is_valid_model_molecule(imol):
        #reduce seems to have a different name in win than otherwise
        if os.name == 'nt':
-		if not (os.path.isfile(reduce_command)):
-			reduce_command = find_exe(reduce_command_name, "PATH")
+	       if not (os.path.isfile(reduce_command)):
+		       reduce_command = find_exe(reduce_command_name, "PATH")
        else:
-		# this is assuming reduce is called 'reduce' on other systems (which it probably isnt)
-		if not (os.path.isfile(reduce_command)):
-			reduce_command = find_exe("reduce", "PATH")
+	       # this is assuming reduce is called 'reduce' on other systems (which it probably isnt)
+	       if not (os.path.isfile(reduce_command)):
+		       reduce_command = find_exe("reduce", "PATH")
        # we need to check if probe_command is defined too
        if not(os.path.isfile(probe_command)):
 		probe_command = find_exe(probe_command_name, "PATH")
@@ -196,19 +201,22 @@ def probe(imol):
              pass
 
           print "BL INFO:: run reduce as ", reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file
-          status = os.popen(reduce_command + " -build -oldpdb " + mol_pdb_file + " > " + reduce_out_pdb_file,'r')
-#          status = os.popen(reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file,'r')
-          reduce_status = status.close()
+
+	  reduce_status = popen_command(reduce_command,
+					["-build", "-oldpdb", mol_pdb_file],
+					[],
+					reduce_out_pdb_file)
           if (probe_command):
              probe_pdb_in = "coot-molprobity/probe-in.pdb"
              probe_out = "coot-molprobity/probe-out.pdb"
 	     
              prepare_file_for_probe(reduce_out_pdb_file,probe_pdb_in)
 
-             probe_command_line = probe_command + " -u -stdbonds -mc \"ALL ALL\" " + probe_pdb_in + " > " + probe_out
              print "BL INFO:: run probe as ", probe_command_line
-             status = os.popen(probe_command_line,'r')
-             probe_status = status.close()
+             probe_status = popen_command(probe_command,
+					  ["-u", "-stdbonds", "-mc", "ALL", probe_pdb_in],
+					  [],
+					  probe_out)
 	     
 	     # by default, we don't want to click on the
 	     # imol-probe molecule (I think :-)
@@ -293,10 +301,12 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
     if not (os.path.isfile(probe_command)):
 	probe_command = find_exe("probe", "PATH")
     if (probe_command):
-       probe_line = " -mc -u -quiet -drop -stdbonds -both " + atom_sel + " file2 " + probe_pdb_in_1 + " " + probe_pdb_in_2
-#       print "BL INFO:: run probe as ", probe_command + probe_line
-       status = os.popen(probe_command + probe_line + " > " + probe_out,'r')
-       status.close()
+       status = popen_command(probe_command,
+			      ["-mc", "-u", "-quiet", "-drop", "-stdbonds", "-both",
+			       atom_sel, "file2",
+			       probe_pdb_in_1, probe_pdb_in_2],
+			      [],
+			      probe_out)
 
        # don't show the gui, so the imol is not needed/dummy.
        handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)

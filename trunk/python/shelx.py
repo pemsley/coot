@@ -279,8 +279,9 @@ def shelxl_refine(*args):
               write_shelx_ins_file(imol,ins_filename)
               # running shelxl creates stub.res
               print "BL INFO:: Running shelxl as: ",shelxl_exe + " " + stub + " > " + log_filename
-              status = os.popen(shelxl_exe + " " + stub + " > " + log_filename,'r')
-              shelx_status = status.close()
+              shelx_status = popen_command(shelxl_exe, [stub], [], log_filename)
+              #status = os.popen(shelxl_exe + " " + stub + " > " + log_filename,'r')
+              #shelx_status = status.close()
               if (not shelx_status and os.path.isfile(res_filename) and os.path.isfile(fcf_filename)):
                  read_pdb(res_filename)
                  handle_shelx_fcf_file(fcf_filename)

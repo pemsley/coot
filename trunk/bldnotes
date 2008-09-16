@@ -10,23 +10,23 @@ tests rev 1378
 
    o refinement options dialog in extensions (scheme, or use pythons?)
 
-   o clean-up use of probe/reduce command_name and command (python)
-
 
 04/09/08
    o loop building backwards in scheme (use python?)?
 
 14/09/08:
    o windows:
-     - installer: fix rotamers
-     - check refmac
-     - check recover session
+     - installer: fix rotamers (fixed?)
+     - check refmac (?)
+     - check recover session (?)
 
 ---------------
 * TO DO THINGS *
 ---------------
 
-   o replace popen and spawn in python with subprocess functions!
+   o clean-up use of probe/reduce command_name and command (python):
+      actually should not delete and overwrite group_settings.py
+      upon installation, in case people change the name of probe/reduce here.
 
    o speed up NCS by using Kevin's LSQ (user changeable)
 
@@ -67,14 +67,15 @@ tests rev 1378
 
    o How about interfacing to a Wii?
 
-   o "Check for updates" button? (need to know which OS we are on!!!)
+   o "Check for updates" button? (need to know which OS we are on, maybe 
+     from the install dir?!)
 
    o read_shelx ins file:
 	 does it remove comments correctly? (! comment) from line!!!!
 
    o tutorial/documentation for scripting/extensions [Ronan Keegan]
 
-   o python: rapper-gui and what-check
+   o python: rapper-gui and what-check (*Done?!)
 
    o high resolution auto-build
 
@@ -91,7 +92,7 @@ tests rev 1378
 29/08/08
 	o refinement of H at high resolution blows H around (fixed?)
 	
-	o move (& merge) symmetry related molecules
+	o move (& merge) symmetry related molecules (globularize?)
 
 	o pictures in manual (how and where!?) Maybe more extensive (advanced)
 	  tutorial!?
@@ -99,6 +100,9 @@ tests rev 1378
 10/09/08
    o no bond colours if no element column in pdb file (e.g. CNS files)
      try to guess?! use coordconv??
+
+16/09/08
+   o 'new', short display manager
 
 ---------------
 * DONE THINGS *
@@ -171,3 +175,12 @@ tests rev 1378
    o check key binding codes for () []
 
 * Fixed by using gdk keymapping
+
+
+   o replace popen and spawn in python with subprocess functions!
+
+*Done
+
+   o clean-up use of probe/reduce command_name and command (python)
+
+* Done

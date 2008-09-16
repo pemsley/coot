@@ -769,7 +769,15 @@ public:
       geom_p->add_planar_peptide_restraint();
 
       // rotamer probabilitiles
+      // guess we shall rather use COOT_DATA_DIR and only as fallback PKGDATADIR?!
+      // maybe only for windows!?
       std::string tables_dir = PKGDATADIR;
+#ifdef WINDOWS_MINGW
+      char *data_dir = getenv("COOT_DATA_DIR");
+      if (data_dir) {
+	tables_dir = data_dir;
+      }
+#endif // MINGW
       tables_dir += "/rama-data";
       rot_prob_tables.set_tables_dir(tables_dir);
 

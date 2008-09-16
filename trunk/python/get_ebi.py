@@ -88,8 +88,10 @@ def check_dir_and_get_url(dir,file_name,url_string):
 
 # get url_string for data type (string actually) 'pdb' or 'sfs'
 #
-def get_url_str(id,url_string,data_type,imol_coords_arg_list):
+def get_url_str(id, url_string, data_type, imol_coords_arg_list):
     import operator
+
+    #print "DEBUG:: in get_url_string:", id, url_string, data_type
 
     if (data_type == "pdb"):
        pdb_file_name = coot_tmp_dir + "/" + id + ".pdb" + pdb_file_name_tail

@@ -109,7 +109,8 @@ def run_loggraph(logfile):
                loggraph_exe = os.path.join(os.environ['CCP4I_TOP'],'bin/loggraph.tcl')
                if os.path.isfile(loggraph_exe):
                    # print 'BL DEBUG:: We have allocated everything to run loggraph and shall do that now'
-                   os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
+                   #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
+                   run_concurrently(bltwish_exe, [loggraph_exe, logfile])
                else:
                    print 'We have $CCP4I_TOP but we cannot find bin/loggraph.tcl'
            except KeyError:
@@ -167,12 +168,13 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                     labin_string += " " + hl_label_ls[i] + "=" + hl_label
         
 # BL says: command line args have to be string not list here
-    command_line_args = " XYZIN " + pdb_in_filename \
-                        + " XYZOUT " + pdb_out_filename + " HKLIN " + mtz_in_filename \
-                        + " HKLOUT " + mtz_out_filename
+    command_line_args = ["XYZIN",  pdb_in_filename,
+                         "XYZOUT", pdb_out_filename,
+                         "HKLIN",  mtz_in_filename,
+                         "HKLOUT", mtz_out_filename]
 
     if (extra_cif_lib_filename != "") :
-        command_line_args += " LIBIN " + extra_cif_lib_filename
+        command_line_args += ["LIBIN", extra_cif_lib_filename]
 
     std_lines = ["MAKE HYDROGENS NO"] # Garib's suggestion 8 Sept 2003
 
@@ -286,29 +288,21 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
     except:
         print " not set !"
 
-    # BL says: 
-    # we have to write a file with datalines in it, which we read in
-    # couldnt find away around, yet
-    refmac_data_file = "coot-refmac-data-lines.txt"
-    input = file (refmac_data_file,'w')
-    for data in data_lines:
-        input.write(data + '\n')
-    input.close()
 
-    status = os.popen(refmac_execfile + command_line_args + ' < ' + refmac_data_file + ' > ' + refmac_log_file_name, 'r') # to screen too.
-    refmac_finished = status.close()
+    data_lines += ["END"]
+    refmac_status = popen_command(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
+    print "BL INFO:: refmac_status:", refmac_status
 
-    if (refmac_finished != None) : # refmac ran fail...
+    if (refmac_status) : # refmac ran fail...
         print "Refmac Failed."
 
     else : # refmac ran OK.
 
         # BL says: 
         # popen will always write a log file, so we check the size, is 0 if failed
-        refmac_log_size = os.stat(refmac_log_file_name)[stat.ST_SIZE]
+        #refmac_log_size = os.stat(refmac_log_file_name)[stat.ST_SIZE]
 
-        if (refmac_log_size > 0) :
-            run_loggraph(refmac_log_file_name)
+        run_loggraph(refmac_log_file_name)
 
         # deal with R-free column
         if (r_free_col == ""):
