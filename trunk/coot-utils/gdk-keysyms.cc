@@ -349,7 +349,7 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("X", 88));
    a.push_back(std::pair<std::string,int>("Y", 89));
    a.push_back(std::pair<std::string,int>("Z", 90));
-   a.push_back(std::pair<std::string,int>("bracketleft", 91));
+   a.push_back(std::pair<std::string,int>("bracketleft", 91)); // not paren
    a.push_back(std::pair<std::string,int>("backslash", 92));
    a.push_back(std::pair<std::string,int>("bracketright", 93));
    a.push_back(std::pair<std::string,int>("asciicircum", 94));
@@ -411,8 +411,8 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("-", 45));
    a.push_back(std::pair<std::string,int>(".", 46));
    a.push_back(std::pair<std::string,int>("/", 47));
-   a.push_back(std::pair<std::string,int>("(", 91));
-   a.push_back(std::pair<std::string,int>(")", 93));
+   a.push_back(std::pair<std::string,int>("[", 91));
+   a.push_back(std::pair<std::string,int>("]", 93));
    a.push_back(std::pair<std::string,int>("_", 95)); 
    a.push_back(std::pair<std::string,int>("|", 124)); 
    a.push_back(std::pair<std::string,int>("~", 126)); 
