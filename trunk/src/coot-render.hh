@@ -10,6 +10,8 @@
 #include "Cartesian.h"
 #include "gl-matrix.h"
 
+#include "generic-display-object.hh"
+
 namespace coot { 
 // info class for raster3d/povray
 
@@ -52,11 +54,14 @@ namespace coot {
       int quality;
       void render_molecules(std::ofstream &render_stream);
       void povray_molecules(std::ofstream &render_stream);
+      void render_generic_objects(std::ofstream &render_stream) const;
       float bond_thickness; 
       float bone_thickness; 
       float density_thickness;
       float clipping;
       float atom_radius;
+      std::vector<coot::generic_display_object_t> display_objects;
+
    public:
       std::vector<ray_trace_molecule_info> rt_mol_info;
       colour_t background_colour;
@@ -99,6 +104,14 @@ namespace coot {
       void set_front_clipping_plane_point(const Cartesian &fcpp) {
 	 front_clipping_plane_point = fcpp;
       }
+      void add_display_objects(const std::vector<coot::generic_display_object_t> &display_objects_in) {
+	 for (unsigned int i=0; i<display_objects_in.size(); i++) {
+	    display_objects.push_back(display_objects_in[i]);
+	 } 
+      }
+      void add_display_object(const coot::generic_display_object_t &display_object_in) {
+	 display_objects.push_back(display_object_in);
+      } 
       
       // iq is either 8 (normal) 16 (good) 24 (best)
       // 
@@ -112,4 +125,4 @@ namespace coot {
 
 
 
-#endif // have COOT_RENDER
+#endif // have COOT_RENDER_HH

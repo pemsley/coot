@@ -1489,7 +1489,8 @@ else
 	echo installation has guile
 	build_guile=
     else 
-       echo no include/libguile.h. guile should be built
+       echo no include/libguile.h. guile     should be built
+       echo no include/libguile.h. guile-gtk should be built
        build_guile_gtk=1
        build_guile=1
     fi
@@ -1686,7 +1687,7 @@ else
 fi
 
 if test -n "${build_guile_gtk}" ; then
-   echo guile-gtk should be built
+   echo guile-gtk.h not found, guile-gtk should be built
    build_guile_gtk=1
 else
    echo guile-gtk should not be built
@@ -2341,8 +2342,11 @@ ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-$
 # now, if we have gtk version 2.4 then we need guile-gtk patches.
 gtk_minor_version=`awk -F '[()]' '/define GTK_MINOR_VERSION/ {print $(NF-1)} ' /usr/include/gtk-2.0/gtk/gtkversion.h`
 if [ "$gtk_minor_version" = "4" ] ; then
+    echo guile-gtk needs to be patched, gtk MINOR version is 4.
     apply_guile_gtk_patches=1
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gtk-2.1-for-gtk-2.4.patch
+else 
+    echo GTK minor version is good enough, $gtk_minor_version
 fi
 (
 date
@@ -2350,8 +2354,10 @@ pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-gtk-$guile_gtk_version.tar.gz | tar xf -
 cd guile-gtk-$guile_gtk_version
 if [ "$apply_guile_gtk_patches" = 1 ]; then
-    echp patch -p0 ..from.. ${AUTOBUILD_SOURCES}/guile-gtk-2.1-for-gtk-2.4.patch
+    echo patch -p0 ..from.. ${AUTOBUILD_SOURCES}/guile-gtk-2.1-for-gtk-2.4.patch
     patch -p0 < ${AUTOBUILD_SOURCES}/guile-gtk-2.1-for-gtk-2.4.patch
+else 
+    echo info:: not patching guile-gtk for gtk 2.4
 fi 
 ./configure $generic_prefix --without-gtkgl --with-glade=no
 # now patch the libtool if needed:

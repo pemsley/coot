@@ -62,6 +62,8 @@ graphics_info_t::raster3d(std::string filename) {
    m.from_quaternion(quat);
    rt.set_view_matrix(m);
 
+   rt.add_display_objects(*generic_objects_p);
+
    std::cout << "Generating raytrace molecule objects..." << std::endl;
    for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
@@ -258,6 +260,8 @@ coot::raytrace_info_t::render_ray_trace(std::string filename) {
       render_stream << "FOG 0 1.0 1.0 1.0\n";
 	 
       render_molecules(render_stream);
+
+      render_generic_objects(render_stream);
 	 
       render_stream.close();
       istat = 0;
@@ -350,6 +354,58 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
    }
 
 }
+
+void
+coot::raytrace_info_t::render_generic_objects(std::ofstream &render_stream) const {
+
+   for (unsigned int i=0; i<display_objects.size(); i++) {
+      std::cout << " generic object number : " << i << std::endl;
+      display_objects[i].raster3d(render_stream);
+   }
+}
+
+
+void 
+coot::generic_display_object_t::raster3d(std::ofstream &render_stream) const {
+
+   if (! is_closed_flag) {
+      if (is_displayed_flag) {
+	 for (unsigned int ils=0; ils<lines_set.size(); ils++) {
+	    float w = float(lines_set[ils].width)/80.0;
+	    for (unsigned int il=0; il<lines_set[ils].lines.size(); il++) {
+	       render_stream << "3" << "\n";
+	       render_stream << "   "
+			     << lines_set[ils].lines[il].coords.first.x() << " " 
+			     << lines_set[ils].lines[il].coords.first.y() << " " 
+			     << lines_set[ils].lines[il].coords.first.z() << " "
+			     << w << " "
+			     << lines_set[ils].lines[il].coords.second.x() << " " 
+			     << lines_set[ils].lines[il].coords.second.y() << " " 
+			     << lines_set[ils].lines[il].coords.second.z() << " " 
+			     << w << " "
+			     << lines_set[ils].colour.red << " " 
+			     << lines_set[ils].colour.green << " " 
+			     << lines_set[ils].colour.blue << "\n";
+	    }
+	 } 
+	 for (unsigned int ips=0; ips<points_set.size(); ips++) {
+	    for (unsigned int ip=0; ip<points_set[ips].points.size(); ip++) {
+	       render_stream << "2" << "\n"
+			     << "   "
+			     << points_set[ips].points[ip].x() << " " 
+			     << points_set[ips].points[ip].y() << " " 
+			     << points_set[ips].points[ip].z() << " "
+			     << 0.05
+			     << points_set[ips].colour.red << " " 
+			     << points_set[ips].colour.green << " " 
+			     << points_set[ips].colour.blue << "\n";
+	    }
+	 } 
+      }
+   } 
+} 
+
+
 
 // ---------------------------------------------------------------------
 //                   povray
