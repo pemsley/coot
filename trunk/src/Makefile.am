@@ -248,6 +248,7 @@ coot_real_SOURCES = \
 	coot-glue-gtk2.c	 \
 	coot-glue-gtk2-python.cc \
 	coot_pythonmodule.cc     \
+	generic-display-object.hh\
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
 	globjects.cc 		 \
