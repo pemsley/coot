@@ -2539,6 +2539,16 @@ on_preferences_model_toolbar_left_radiobutton_toggled
                                         gpointer         user_data);
 
 void
+on_preferences_model_toolbar_top_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_model_toolbar_bottom_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_preferences_model_toolbar_hide_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
@@ -3558,6 +3568,11 @@ on_checked_waters_baddies_dialog_destroy
 void
 on_model_toolbar_style_changed         (GtkToolbar      *toolbar,
                                         GtkToolbarStyle  style,
+                                        gpointer         user_data);
+
+gboolean
+on_model_toolbar_button_press_event    (GtkWidget       *widget,
+                                        GdkEventButton  *event,
                                         gpointer         user_data);
 
 void

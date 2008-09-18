@@ -212,7 +212,6 @@ def probe(imol):
 	     
              prepare_file_for_probe(reduce_out_pdb_file,probe_pdb_in)
 
-             print "BL INFO:: run probe as ", probe_command_line
              probe_status = popen_command(probe_command,
 					  ["-u", "-stdbonds", "-mc", "ALL", probe_pdb_in],
 					  [],
@@ -240,7 +239,7 @@ def probe(imol):
              # several probes, the wrong molecule is
              # getting refined).
 
-             handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 1)
+             handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
              generic_objects_gui()
              graphics_draw()
           else:

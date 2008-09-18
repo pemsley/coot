@@ -124,6 +124,12 @@ namespace coot {
    enum fixed_atom_pick_state_t { FIXED_ATOM_NO_PICK = 0, 
 				  FIXED_ATOM_FIX = 1, 
 				  FIXED_ATOM_UNFIX = 2 };
+   namespace model_toolbar {
+     enum toolbar_position_type { RIGHT  = 0,
+                                  LEFT   = 1,
+                                  TOP    = 2,
+                                  BOTTOM = 3};
+   }
    namespace refmac {
      enum refmac_refinement_method_type { RESTRAINED = 0,
 					  RIGID_BODY = 1 };
@@ -1003,8 +1009,8 @@ public:
    // flag for the refinement toolbar show/hide
    static short int model_toolbar_show_hide_state;
 
-   // flag for the refinement toolbar side
-   static short int model_toolbar_side_state;
+   // flag for the refinement toolbar position
+   static short int model_toolbar_position_state;
 
    // flag for the refinement toolbar style
    static short int model_toolbar_style_state;

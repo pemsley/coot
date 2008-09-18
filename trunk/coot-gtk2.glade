@@ -2712,6 +2712,7 @@
 		  <property name="tooltips">True</property>
 		  <property name="show_arrow">False</property>
 		  <signal name="style_changed" handler="on_model_toolbar_style_changed" last_modification_time="Thu, 17 Jan 2008 13:08:49 GMT"/>
+		  <signal name="button_press_event" handler="on_model_toolbar_button_press_event" last_modification_time="Wed, 17 Sep 2008 18:14:29 GMT"/>
 
 		  <child>
 		    <widget class="GtkToolItem" id="toolitem4">
@@ -2955,7 +2956,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkToolItem" id="toolitem31">
+		    <widget class="GtkToolItem" id="model_toolbar_hsep_toolitem">
 		      <property name="visible">True</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
@@ -2964,6 +2965,24 @@
 		      <child>
 			<widget class="GtkHSeparator" id="hseparator13">
 			  <property name="height_request">13</property>
+			  <property name="visible">True</property>
+			</widget>
+		      </child>
+		    </widget>
+		    <packing>
+		      <property name="expand">False</property>
+		      <property name="homogeneous">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkToolItem" id="model_toolbar_vsep_toolitem">
+		      <property name="visible_horizontal">True</property>
+		      <property name="visible_vertical">True</property>
+		      <property name="is_important">False</property>
+
+		      <child>
+			<widget class="GtkVSeparator" id="vseparator1">
 			  <property name="visible">True</property>
 			</widget>
 		      </child>
@@ -3160,7 +3179,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkToolItem" id="toolitem30">
+		    <widget class="GtkToolItem" id="model_toolbar_style_toolitem">
 		      <property name="visible">True</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
@@ -3351,20 +3370,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkToolItem" id="toolitem33">
-		      <property name="visible">True</property>
-		      <property name="visible_horizontal">True</property>
-		      <property name="visible_vertical">True</property>
-		      <property name="is_important">False</property>
-
-		      <child>
-			<placeholder/>
-		      </child>
-		    </widget>
-		    <packing>
-		      <property name="expand">False</property>
-		      <property name="homogeneous">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 		</widget>
 	      </child>
@@ -37892,6 +37898,48 @@ distances more than:</property>
 					  <property name="draw_indicator">True</property>
 					  <property name="group">preferences_model_toolbar_right_radiobutton</property>
 					  <signal name="toggled" handler="on_preferences_model_toolbar_left_radiobutton_toggled" last_modification_time="Tue, 09 Sep 2008 09:06:32 GMT"/>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">False</property>
+					  <property name="fill">False</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkRadioButton" id="preferences_model_toolbar_top_radiobutton">
+					  <property name="visible">True</property>
+					  <property name="can_focus">True</property>
+					  <property name="label" translatable="yes">Top</property>
+					  <property name="use_underline">True</property>
+					  <property name="relief">GTK_RELIEF_NORMAL</property>
+					  <property name="focus_on_click">True</property>
+					  <property name="active">False</property>
+					  <property name="inconsistent">False</property>
+					  <property name="draw_indicator">True</property>
+					  <property name="group">preferences_model_toolbar_right_radiobutton</property>
+					  <signal name="toggled" handler="on_preferences_model_toolbar_top_radiobutton_toggled" last_modification_time="Thu, 18 Sep 2008 08:46:18 GMT"/>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">False</property>
+					  <property name="fill">False</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkRadioButton" id="preferences_model_toolbar_bottom_radiobutton">
+					  <property name="visible">True</property>
+					  <property name="can_focus">True</property>
+					  <property name="label" translatable="yes">Bottom</property>
+					  <property name="use_underline">True</property>
+					  <property name="relief">GTK_RELIEF_NORMAL</property>
+					  <property name="focus_on_click">True</property>
+					  <property name="active">False</property>
+					  <property name="inconsistent">False</property>
+					  <property name="draw_indicator">True</property>
+					  <property name="group">preferences_model_toolbar_right_radiobutton</property>
+					  <signal name="toggled" handler="on_preferences_model_toolbar_bottom_radiobutton_toggled" last_modification_time="Thu, 18 Sep 2008 08:46:27 GMT"/>
 					</widget>
 					<packing>
 					  <property name="padding">0</property>

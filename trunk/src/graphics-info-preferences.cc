@@ -264,8 +264,8 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        }
        break;
 
-     case PREFERENCES_MODEL_TOOLBAR_SIDE:
-       commands.push_back(state_command("set-model-toolbar-docked-side",
+     case PREFERENCES_MODEL_TOOLBAR_POSITION:
+       commands.push_back(state_command("set-model-toolbar-docked-position",
 					g.preferences_internal[i].ivalue, il));
        break;
 
@@ -376,8 +376,8 @@ graphics_info_t::make_preferences_internal() {
   ret.push_back(p);
 
   // refinement toolbar right/left
-  on = model_toolbar_side_state;
-  p.preference_type = PREFERENCES_MODEL_TOOLBAR_SIDE;
+  on = model_toolbar_position_state;
+  p.preference_type = PREFERENCES_MODEL_TOOLBAR_POSITION;
   p.ivalue = on;
   ret.push_back(p);
 

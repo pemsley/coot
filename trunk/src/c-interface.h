@@ -641,9 +641,18 @@ void hide_modelling_toolbar();
   (the toolbar is shown by default) */
 void show_modelling_toolbar();
 
+void toolbar_popup_menu(GtkToolbar *toolbar, 
+		    GdkEventButton *event_button,
+		    gpointer user_data);
+
+void set_model_toolbar_docked_position_callback(GtkWidget *w, gpointer user_data);
+
+/*! \brief reattach the modelling toolbar to the last attached position */
+void reattach_modelling_toolbar();
+
 /*! \brief to swap sides of the Model/Fit/Refine toolbar
-  0 (default) is right, 1 is left */
-void set_model_toolbar_docked_side(int state);
+  0 (default) is right, 1 is left, 2 is top, 3 is bottom */
+void set_model_toolbar_docked_position(int state);
 
 /*! \brief reparent the Model/Fit/Refine dialog so that it becomes
   part of the main window, next to the GL graphics context */
@@ -4852,9 +4861,6 @@ void handle_read_draw_probe_dots(const char *dots_file);
 /*! \brief pass a filename that contains molprobity's probe output in unformatted
 format */
 void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol, int show_clash_gui_flag);
-#ifdef USE_PYTHON
-void handle_read_draw_probe_dots_unformatted_py(const char *dots_file, int imol, int show_clash_gui_flag);
-#endif // USE_PYTHON
 
 
 /*! \brief shall we run molprobity for on edit chi angles intermediate atoms? */
