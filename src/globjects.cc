@@ -3068,7 +3068,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    scheme_command += graphics_info_t::int_to_string(ikey);
 	    // scheme_command += "\"";
 	    scheme_command += ")";
-	    std::cout << "running scheme command: " << scheme_command << std::endl;
+	    // std::cout << "running scheme command: " << scheme_command << std::endl;
 	    safe_scheme_command(scheme_command);
 #else
 #ifdef USE_PYTHON
