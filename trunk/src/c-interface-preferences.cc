@@ -1088,9 +1088,10 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 
 
 void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
-					     int show_clash_gui_flag) {
+					     int show_clash_gui_flag) { 
 
    std::vector<coot::atom_spec_t> clash_atoms;
+   bool hybrid_36_enabled_probe_flag = 1; // new style
    
    if (dots_file) {
 
@@ -1139,7 +1140,11 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 	 for (int i=0; i<20; i++) c_type[i] = 0;
 	 for (int i=0; i<30; i++) atom_id1[i] = 0;
 	 for (int i=0; i<30; i++) atom_id2[i] = 0;
-	 std::string current_useful_name; 
+	 std::string current_useful_name;
+
+	 std::string scan_line = ":%d->%d:%2c:%15c:%15c:%f:%f:%f:%f:%f:%f:%f:%s";
+	 if (hybrid_36_enabled_probe_flag) 
+	    scan_line = ":%d->%d:%2c:%16c:%16c:%f:%f:%f:%f:%f:%f:%f:%s";	 
 
 	 while ( fgets( line, 240, dots ) != NULL ) {
 	    n_input_lines++; 
@@ -1148,7 +1153,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 
 
 	    if (sscanf(line,
-		       ":%d->%d:%2c:%15c:%15c:%f:%f:%f:%f:%f:%f:%f:%s",
+		       scan_line.c_str(),
 		       &imol_source, &imol_target, c_type, atom_id1, atom_id2,
 		       &gap1, &gap2, &x1, &x2, &x3, &factor3, &factor4,
 		       contact_type1)) {
@@ -1167,7 +1172,6 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 		     }
 		  }
 
-
 		  if (offset > 0) { 
 		     // std::cout << "scanning |" << contact_type1+offset << std::endl;
 		     
@@ -1184,7 +1188,6 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 // 				  << " (" << x1 << "," << x2 << "," << x3 << ")"
 // 				  << " (" << x4 << "," << x5 << "," << x6 << ")"
 // 				  << "\n";
-
 	    
 			// assign the colour and dot size
 			if (contact_type == "hb") { 
@@ -1255,8 +1258,10 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 		     
 			   int resno = atoi(atom_id_1_str.substr(1,4).c_str());
 
-			   // 		  std::cout << "   makes atom " << chain_id << ":" << resno << ":"
-			   // 			    << insertion_code << ":" << atom_name << ":" << altconf << ":" << "\n";
+			   // std::cout << "   makes atom " << chain_id << ":" << resno << ":"
+			   // << insertion_code << ":" << atom_name << ":"
+			   // << altconf << ":" << "\n";
+			   
 			   coot::atom_spec_t r(chain_id, resno, insertion_code, atom_name, altconf);
 
 			   short int ifound = 0;
