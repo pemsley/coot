@@ -12,7 +12,7 @@
 
      Another crash from JD: on closing molecules.
 
-* These are the same thing, the use of (or destroying of ) a radio
+* These are the same thing, the use of (or destroying of) a radio
   button group for the maps in the display manager.  I tried to debug
   with valgrind, but could not reproduce.
 
@@ -6721,10 +6721,6 @@ Program terminated with signal 11, Segmentation fault.
 Current language:  auto; currently c
 
 
-
-
-
-
 -----
 Tue Sep  2 09:53:52 JST 2008
 
@@ -6744,7 +6740,20 @@ Thu Sep  4 06:41:12 JST 2008
 ---
 Wed Sep 10 13:43:57 BST 2008
 
-    When rotating atom in chi or rotamers, change the aniso b values too.
+    When rotating atom in chi or rotamers, change the aniso B values too.
+
+---
+Thu Sep 11 07:18:38 BST 2008
+
+    Reasons why the builds fail:
+
+    o because the sourceforge host for the gtkglext package disappeared
+      (dynamic/direct hostname)
+
+    o Ran out of memory, causing the compiler to crash (I'd forgotten
+      to add swap)
+
+    o Forgotten to add new files to the svn repo
 
 
 ---
@@ -6800,6 +6809,18 @@ Sun Sep 14 12:32:23 BST 2008
 
     Note: the right way to set an active menu item for an option menu
     is in fill_option_menu_with_undo_options().
+
+
+-----
+Thu Sep 11 15:43:22 BST 2008
+
+    Warn when making a screenshot of a density map that is dark blue.
+
+
+----
+Thu Sep 18 13:01:38 BST 2008
+
+    Add text to Raster3D input.r3d
 
 
 -----
