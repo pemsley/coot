@@ -355,8 +355,8 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("asciicircum", 94));
    a.push_back(std::pair<std::string,int>("underscore", 95));
    a.push_back(std::pair<std::string,int>("grave", 96));
-   a.push_back(std::pair<std::string,int>("quoteleft", 96));
-    a.push_back(std::pair<std::string,int>("a", 97));
+   a.push_back(std::pair<std::string,int>("quoteleft", 96)); // same as above
+   a.push_back(std::pair<std::string,int>("a", 97));
    a.push_back(std::pair<std::string,int>("b", 98));
    a.push_back(std::pair<std::string,int>("c", 99));
    a.push_back(std::pair<std::string,int>("d", 100));
