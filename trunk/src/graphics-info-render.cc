@@ -395,7 +395,7 @@ coot::generic_display_object_t::raster3d(std::ofstream &render_stream) const {
 			     << points_set[ips].points[ip].x() << " " 
 			     << points_set[ips].points[ip].y() << " " 
 			     << points_set[ips].points[ip].z() << " "
-			     << 0.05
+			     << 0.05 << " " 
 			     << points_set[ips].colour.red << " " 
 			     << points_set[ips].colour.green << " " 
 			     << points_set[ips].colour.blue << "\n";
