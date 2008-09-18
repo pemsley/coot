@@ -143,8 +143,8 @@ int graphics_info_t::accept_reject_dialog_docked_show_flag = coot::DIALOG_DOCKED
 // the refinement toolbar show/hide
 short int graphics_info_t::model_toolbar_show_hide_state = 1;
 
-// the refinement toolbar side
-short int graphics_info_t::model_toolbar_side_state = 0;
+// the refinement toolbar position
+short int graphics_info_t::model_toolbar_position_state = coot::model_toolbar::RIGHT;
 
 // the refinement toolbar style
 short int graphics_info_t::model_toolbar_style_state = 1;

@@ -2244,9 +2244,16 @@ void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
 void hide_modelling_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) { 
       GtkWidget *w;
-      GtkWidget *toolbar = lookup_widget(graphics_info_t::glarea, "model_fit_refine_toolbar_handlebox");
+      GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
+					"model_fit_refine_toolbar_handlebox");
 #if (GTK_MAJOR_VERSION > 1)
-      w = gtk_widget_get_parent(toolbar);
+      if (graphics_info_t::model_toolbar_position_state == coot::model_toolbar::TOP ||
+	  graphics_info_t::model_toolbar_position_state == coot::model_toolbar::BOTTOM) {
+	w = handle_box;
+      } else {
+	// get the frame of the left/right toolbar
+	w = gtk_widget_get_parent(handle_box);
+      }
 #endif // GKT_MAJOR_VERSION
       if (!w) {
 	 std::cout << "failed to lookup toolbar" << std::endl;
@@ -2262,9 +2269,16 @@ void hide_modelling_toolbar() {
 void show_modelling_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) { 
       GtkWidget *w;
-      GtkWidget *toolbar = lookup_widget(graphics_info_t::glarea, "model_fit_refine_toolbar_handlebox");
+      GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
+					    "model_fit_refine_toolbar_handlebox");
+
 #if (GTK_MAJOR_VERSION > 1)
-      w = gtk_widget_get_parent(toolbar);
+      if (graphics_info_t::model_toolbar_position_state == coot::model_toolbar::TOP ||
+	  graphics_info_t::model_toolbar_position_state == coot::model_toolbar::BOTTOM) {
+	w = handle_box;
+      } else {
+	w = gtk_widget_get_parent(handle_box);
+      }
 #endif // GKT_MAJOR_VERSION
       if (!w) {
 	 std::cout << "failed to lookup toolbar" << std::endl;
@@ -2276,36 +2290,209 @@ void show_modelling_toolbar() {
 }
 
 
+
+/*  ------------------------------------------------------------------------ */
+//            popup-menu for model_toolbar
+/*  ------------------------------------------------------------------------ */
+//
+
+void
+toolbar_popup_menu (GtkToolbar *toolbar, 
+		    GdkEventButton *event_button,
+		    gpointer user_data)
+{
+  GtkHandleBox *hdlbox = GTK_HANDLE_BOX(GTK_WIDGET(toolbar)->parent);
+  GtkWidget *menu = gtk_menu_new ();
+  GtkWidget *item;
+
+  static struct {
+    char const *text;
+    coot::model_toolbar::toolbar_position_type pos;
+  } const pos_items[] = {
+    { N_("Display to the right"),  coot::model_toolbar::RIGHT },
+    { N_("Display to the left"),   coot::model_toolbar::LEFT },
+    { N_("Display on the top"),    coot::model_toolbar::TOP },
+    { N_("Display on the bottom"), coot::model_toolbar::BOTTOM },
+  };
+
+#if (GTK_MAJOR_VERSION > 1)
+  if (hdlbox->child_detached) {
+    item = gtk_menu_item_new_with_label (_("Reattach to main window"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+    g_signal_connect (G_OBJECT (item), "activate",
+		      G_CALLBACK (reattach_modelling_toolbar),
+		      NULL);
+  } else {
+    size_t ui;
+    GSList *group = NULL;
+    
+    for (ui = 0; ui < G_N_ELEMENTS (pos_items); ui++) {
+      char const *text = _(pos_items[ui].text);
+      coot::model_toolbar::toolbar_position_type pos = pos_items[ui].pos;
+      
+      item = gtk_radio_menu_item_new_with_label(group, text);
+      group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM (item));
+	    
+      if (graphics_info_t::model_toolbar_position_state == pos) {
+	GTK_CHECK_MENU_ITEM(item)->active = 1;
+      } else {
+	GTK_CHECK_MENU_ITEM(item)->active = 0;
+      }
+
+      gtk_menu_shell_append(GTK_MENU_SHELL (menu), item);
+      g_object_set_data(G_OBJECT (item), "position", GINT_TO_POINTER (pos));
+      g_signal_connect(G_OBJECT (item), "toggled",
+		       G_CALLBACK (set_model_toolbar_docked_position_callback),
+		       item);
+    }
+    
+    //    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(save_w), TRUE);
+
+  }
+
+  item = gtk_menu_item_new ();
+  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+  gtk_widget_set_sensitive (item, FALSE);
+  
+  item = gtk_menu_item_new_with_label (_("Hide"));
+  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+  g_signal_connect (G_OBJECT (item), "activate",
+		    G_CALLBACK (hide_modelling_toolbar),
+		    NULL);
+
+  gtk_widget_show_all (menu);
+  gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL, 0, 
+		  (event_button != NULL) ? event_button->time 
+		  : gtk_get_current_event_time());
+#endif // GTK_MAJOR_VERSION
+}
+
+void
+set_model_toolbar_docked_position_callback(GtkWidget *w, gpointer user_data) {
+
+#if (GTK_MAJOR_VERSION > 1)
+  int pos = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (w), "position"));
+  set_model_toolbar_docked_position(pos);
+#endif //GTK_MAJOR_VERSION
+
+}
+
+void
+reattach_modelling_toolbar() {
+
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *handlebox = lookup_widget(graphics_info_t::glarea,
+				       "model_fit_refine_toolbar_handlebox");
+  GdkEvent *event = gdk_event_new (GDK_DELETE);
+  event->any.type = GDK_DELETE;
+  event->any.window = GTK_HANDLE_BOX(handlebox)->float_window;
+  event->any.send_event = TRUE;
+  gtk_main_do_event (event);
+  gdk_event_free (event);
+  g_object_ref (GTK_HANDLE_BOX(handlebox)->float_window);
+  g_object_ref (GTK_HANDLE_BOX(handlebox));
+#endif // GTK_MAJOR_VERSION
+}
+
 /*  ------------------------------------------------------------------------ */
 //            reparenting
 /*  ------------------------------------------------------------------------ */
 //
+
 void
-set_model_toolbar_docked_side(int state) {
+set_model_toolbar_docked_position(int state) {
   
   if (graphics_info_t::use_graphics_interface_flag) {
     GtkWidget *left_frame  = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
 					   "main_window_model_fit_dialog_frame_left");
     GtkWidget *right_frame = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
 					   "main_window_model_fit_dialog_frame");
-    GtkWidget *toolbar = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+    GtkWidget *handle = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
 				       "model_fit_refine_toolbar_handlebox");
-    if (state == 1) {
-      // dock to left frame
-      gtk_widget_reparent(toolbar, left_frame);
-      if (graphics_info_t::model_toolbar_show_hide_state) {
-	gtk_widget_show(left_frame);
-      }
-      gtk_widget_hide(right_frame);
-      graphics_info_t::model_toolbar_side_state = 1;
-    } else {
+    GtkWidget *vbox    = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+				       "vbox1");
+    GtkWidget *toolbar = lookup_widget(handle, "model_toolbar");
+    GtkWidget *vsep    = lookup_widget(handle, "model_toolbar_vsep_toolitem");
+    GtkWidget *hsep    = lookup_widget(handle, "model_toolbar_hsep_toolitem");
+    GtkWidget *style   = lookup_widget(handle, "model_toolbar_style_toolitem");
+
+    switch (state) {
+
+    case coot::model_toolbar::RIGHT:
       // dock to right frame
-      gtk_widget_reparent(toolbar, right_frame);
+      gtk_toolbar_set_orientation(GTK_TOOLBAR(toolbar), 
+				  GTK_ORIENTATION_VERTICAL);
+      gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(handle),
+					 GTK_POS_TOP);
+      gtk_widget_reparent(handle, right_frame);
       if (graphics_info_t::model_toolbar_show_hide_state) {
 	gtk_widget_show(right_frame);
       }
       gtk_widget_hide(left_frame);
-      graphics_info_t::model_toolbar_side_state = 0;
+      graphics_info_t::model_toolbar_position_state = 0;
+      gtk_widget_show(hsep);
+      gtk_widget_show(style);
+      gtk_widget_hide(vsep);
+      break;
+
+    case coot::model_toolbar::LEFT:
+      // dock to left frame
+      gtk_toolbar_set_orientation(GTK_TOOLBAR(toolbar), 
+				  GTK_ORIENTATION_VERTICAL);
+      gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(handle),
+					 GTK_POS_TOP);
+      gtk_widget_reparent(handle, left_frame);
+      if (graphics_info_t::model_toolbar_show_hide_state) {
+	gtk_widget_show(left_frame);
+      }
+      gtk_widget_hide(right_frame);
+      graphics_info_t::model_toolbar_position_state = 1;
+      gtk_widget_show(hsep);
+      gtk_widget_show(style);
+      gtk_widget_hide(vsep);
+      break;
+
+    case coot::model_toolbar::TOP:
+      // dock to the top
+      gtk_toolbar_set_orientation(GTK_TOOLBAR(toolbar),
+				  GTK_ORIENTATION_HORIZONTAL);
+      gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(handle),
+					 GTK_POS_LEFT);
+      gtk_widget_reparent(handle, vbox);
+      gtk_box_set_child_packing(GTK_BOX(vbox), handle,
+				FALSE, FALSE, 0, GTK_PACK_START);
+      gtk_box_reorder_child(GTK_BOX(vbox), handle, 1);
+      
+      gtk_widget_hide(left_frame);
+      gtk_widget_hide(right_frame);
+      graphics_info_t::model_toolbar_position_state = 2;
+      gtk_widget_hide(hsep);
+      gtk_widget_hide(style);
+      gtk_widget_show(vsep);
+      break;
+
+    case coot::model_toolbar::BOTTOM:
+      // dock to the bottom
+      gtk_toolbar_set_orientation(GTK_TOOLBAR(toolbar),
+				  GTK_ORIENTATION_HORIZONTAL);
+      gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(handle),
+					 GTK_POS_LEFT);
+      gtk_widget_reparent(handle, vbox);
+      gtk_box_set_child_packing(GTK_BOX(vbox), handle,
+				FALSE, FALSE, 0, GTK_PACK_START);
+      gtk_box_reorder_child(GTK_BOX(vbox), handle, 4);
+      gtk_widget_hide(left_frame);
+      gtk_widget_hide(right_frame);
+      graphics_info_t::model_toolbar_position_state = 3;
+      gtk_widget_hide(hsep);
+      gtk_widget_hide(style);
+      gtk_widget_show(vsep);
+      break;
+
+    default: 
+      std::cout <<"INFO:: invalid position "<< state <<std::endl;
+      break;
+
     }
   }
 }

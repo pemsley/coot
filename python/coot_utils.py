@@ -824,7 +824,7 @@ def add_key_binding(name, key, thunk):
 #
 def graphics_general_key_press_hook(key):
     global key_bindings
-    print "Key %s was pressed" %key
+    #print "Key %s was pressed" %key
     codes = [elem[0] for elem in key_bindings]
     funcs = [elem[3] for elem in key_bindings]
     if (key in codes):
@@ -1507,7 +1507,6 @@ ncs_ghosts             = ncs_ghosts_py
 pucker_info            = pucker_info_py
 save_state_file_name   = save_state_file_name_py
 generic_object_name    = generic_object_name_py
-handle_read_draw_probe_dots_unformatted = handle_read_draw_probe_dots_unformatted_py
 movie_file_name_prefix = movie_file_name_prefix_py
 make_atom_spec         = make_atom_spec_py
 key_sym_code           = key_sym_code_py

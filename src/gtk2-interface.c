@@ -302,8 +302,10 @@ create_window1 (void)
   GtkWidget *model_toolbar_edit_chi_angles_togglebutton;
   GtkWidget *model_toolbar_flip_peptide_togglebutton;
   GtkWidget *model_toolbar_sidechain_180_togglebutton;
-  GtkWidget *toolitem31;
+  GtkWidget *model_toolbar_hsep_toolitem;
   GtkWidget *hseparator13;
+  GtkWidget *model_toolbar_vsep_toolitem;
+  GtkWidget *vseparator1;
   GtkWidget *model_toolbar_mutate_and_autofit_togglebutton;
   GtkWidget *model_toolbar_simple_mutate_togglebutton;
   GtkWidget *model_toolbar_find_water_button;
@@ -315,7 +317,7 @@ create_window1 (void)
   GtkWidget *model_toolbar_redo_button;
   GtkWidget *toolitem29;
   GtkWidget *hseparator14;
-  GtkWidget *toolitem30;
+  GtkWidget *model_toolbar_style_toolitem;
   GtkWidget *model_toolbar_menubar1;
   GtkWidget *model_toolbar_setting1;
   GtkWidget *image6560;
@@ -336,7 +338,6 @@ create_window1 (void)
   GtkWidget *models1;
   GtkWidget *models1_menu;
   GtkWidget *all2;
-  GtkWidget *toolitem33;
   GtkWidget *gtkhtml_frame;
   GtkTooltips *tooltips;
 
@@ -1527,14 +1528,21 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_sidechain_180_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_sidechain_180_togglebutton), tooltips, _("Flip sidechain 180 degrees (click on an atom)"), NULL);
 
-  toolitem31 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem31);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem31);
+  model_toolbar_hsep_toolitem = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (model_toolbar_hsep_toolitem);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_hsep_toolitem);
 
   hseparator13 = gtk_hseparator_new ();
   gtk_widget_show (hseparator13);
-  gtk_container_add (GTK_CONTAINER (toolitem31), hseparator13);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_hsep_toolitem), hseparator13);
   gtk_widget_set_size_request (hseparator13, -1, 13);
+
+  model_toolbar_vsep_toolitem = (GtkWidget*) gtk_tool_item_new ();
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_vsep_toolitem);
+
+  vseparator1 = gtk_vseparator_new ();
+  gtk_widget_show (vseparator1);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_vsep_toolitem), vseparator1);
 
   model_toolbar_mutate_and_autofit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), _("Mutate & Auto Fit..."));
@@ -1615,13 +1623,13 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (toolitem29), hseparator14);
   gtk_widget_set_size_request (hseparator14, -1, 15);
 
-  toolitem30 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem30);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem30);
+  model_toolbar_style_toolitem = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (model_toolbar_style_toolitem);
+  gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_style_toolitem);
 
   model_toolbar_menubar1 = gtk_menu_bar_new ();
   gtk_widget_show (model_toolbar_menubar1);
-  gtk_container_add (GTK_CONTAINER (toolitem30), model_toolbar_menubar1);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_style_toolitem), model_toolbar_menubar1);
   gtk_tooltips_set_tip (tooltips, model_toolbar_menubar1, _("Use this to change between text, icons or both"), NULL);
 
   model_toolbar_setting1 = gtk_image_menu_item_new_with_mnemonic (_(" "));
@@ -1700,10 +1708,6 @@ create_window1 (void)
   all2 = gtk_check_menu_item_new_with_mnemonic (_("All"));
   gtk_widget_show (all2);
   gtk_container_add (GTK_CONTAINER (models1_menu), all2);
-
-  toolitem33 = (GtkWidget*) gtk_tool_item_new ();
-  gtk_widget_show (toolitem33);
-  gtk_container_add (GTK_CONTAINER (model_toolbar), toolitem33);
 
   gtkhtml_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
@@ -2046,6 +2050,9 @@ create_window1 (void)
                     NULL);
   g_signal_connect ((gpointer) model_toolbar, "style_changed",
                     G_CALLBACK (on_model_toolbar_style_changed),
+                    NULL);
+  g_signal_connect ((gpointer) model_toolbar, "button_press_event",
+                    G_CALLBACK (on_model_toolbar_button_press_event),
                     NULL);
   g_signal_connect ((gpointer) model_toolbar_refine_control_button, "clicked",
                     G_CALLBACK (on_model_toolbar_refine_control_button_clicked),
@@ -2401,8 +2408,10 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_edit_chi_angles_togglebutton, "model_toolbar_edit_chi_angles_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_flip_peptide_togglebutton, "model_toolbar_flip_peptide_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_sidechain_180_togglebutton, "model_toolbar_sidechain_180_togglebutton");
-  GLADE_HOOKUP_OBJECT (window1, toolitem31, "toolitem31");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_hsep_toolitem, "model_toolbar_hsep_toolitem");
   GLADE_HOOKUP_OBJECT (window1, hseparator13, "hseparator13");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_vsep_toolitem, "model_toolbar_vsep_toolitem");
+  GLADE_HOOKUP_OBJECT (window1, vseparator1, "vseparator1");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_mutate_and_autofit_togglebutton, "model_toolbar_mutate_and_autofit_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_simple_mutate_togglebutton, "model_toolbar_simple_mutate_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_find_water_button, "model_toolbar_find_water_button");
@@ -2414,7 +2423,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_redo_button, "model_toolbar_redo_button");
   GLADE_HOOKUP_OBJECT (window1, toolitem29, "toolitem29");
   GLADE_HOOKUP_OBJECT (window1, hseparator14, "hseparator14");
-  GLADE_HOOKUP_OBJECT (window1, toolitem30, "toolitem30");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_style_toolitem, "model_toolbar_style_toolitem");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_menubar1, "model_toolbar_menubar1");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_setting1, "model_toolbar_setting1");
   GLADE_HOOKUP_OBJECT (window1, image6560, "image6560");
@@ -2434,7 +2443,6 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, models1, "models1");
   GLADE_HOOKUP_OBJECT (window1, models1_menu, "models1_menu");
   GLADE_HOOKUP_OBJECT (window1, all2, "all2");
-  GLADE_HOOKUP_OBJECT (window1, toolitem33, "toolitem33");
   GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
   GLADE_HOOKUP_OBJECT_NO_REF (window1, tooltips, "tooltips");
 
@@ -16937,6 +16945,8 @@ create_preferences (void)
   GtkWidget *preferences_model_toolbar_right_radiobutton;
   GSList *preferences_model_toolbar_right_radiobutton_group = NULL;
   GtkWidget *preferences_model_toolbar_left_radiobutton;
+  GtkWidget *preferences_model_toolbar_top_radiobutton;
+  GtkWidget *preferences_model_toolbar_bottom_radiobutton;
   GtkWidget *preferences_model_toolbar_hide_radiobutton;
   GtkWidget *label670;
   GtkWidget *frame278;
@@ -18243,6 +18253,18 @@ create_preferences (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_left_radiobutton), preferences_model_toolbar_right_radiobutton_group);
   preferences_model_toolbar_right_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_left_radiobutton));
 
+  preferences_model_toolbar_top_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Top"));
+  gtk_widget_show (preferences_model_toolbar_top_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox286), preferences_model_toolbar_top_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_top_radiobutton), preferences_model_toolbar_right_radiobutton_group);
+  preferences_model_toolbar_right_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_top_radiobutton));
+
+  preferences_model_toolbar_bottom_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Bottom"));
+  gtk_widget_show (preferences_model_toolbar_bottom_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox286), preferences_model_toolbar_bottom_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_model_toolbar_bottom_radiobutton), preferences_model_toolbar_right_radiobutton_group);
+  preferences_model_toolbar_right_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_model_toolbar_bottom_radiobutton));
+
   preferences_model_toolbar_hide_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("No"));
   gtk_widget_show (preferences_model_toolbar_hide_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox285), preferences_model_toolbar_hide_radiobutton, FALSE, FALSE, 0);
@@ -18571,6 +18593,12 @@ create_preferences (void)
   g_signal_connect ((gpointer) preferences_model_toolbar_left_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_model_toolbar_left_radiobutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) preferences_model_toolbar_top_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_model_toolbar_top_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_model_toolbar_bottom_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_model_toolbar_bottom_radiobutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) preferences_model_toolbar_hide_radiobutton, "toggled",
                     G_CALLBACK (on_preferences_model_toolbar_hide_radiobutton_toggled),
                     NULL);
@@ -18844,6 +18872,8 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, vbox286, "vbox286");
   GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_right_radiobutton, "preferences_model_toolbar_right_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_left_radiobutton, "preferences_model_toolbar_left_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_top_radiobutton, "preferences_model_toolbar_top_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_bottom_radiobutton, "preferences_model_toolbar_bottom_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_model_toolbar_hide_radiobutton, "preferences_model_toolbar_hide_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, label670, "label670");
   GLADE_HOOKUP_OBJECT (preferences, frame278, "frame278");

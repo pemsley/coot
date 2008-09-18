@@ -7308,8 +7308,8 @@ on_preferences_model_toolbar_right_radiobutton_toggled
 {
   GtkWidget *show = lookup_widget(GTK_WIDGET(togglebutton), "preferences_model_toolbar_show_radiobutton");
   if (togglebutton->active) {
-    set_model_toolbar_docked_side(0);
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_SIDE, 0);
+    set_model_toolbar_docked_position(0);
+    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 0);
   }
 
 }
@@ -7322,8 +7322,36 @@ on_preferences_model_toolbar_left_radiobutton_toggled
 {
   GtkWidget *show = lookup_widget(GTK_WIDGET(togglebutton), "preferences_model_toolbar_show_radiobutton");
   if (togglebutton->active) {
-    set_model_toolbar_docked_side(1);
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_SIDE, 1);
+    set_model_toolbar_docked_position(1);
+    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 1);
+  }
+
+}
+
+
+void
+on_preferences_model_toolbar_top_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  GtkWidget *show = lookup_widget(GTK_WIDGET(togglebutton), "preferences_model_toolbar_show_radiobutton");
+  if (togglebutton->active) {
+    set_model_toolbar_docked_position(2);
+    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 2);
+  }
+
+}
+
+
+void
+on_preferences_model_toolbar_bottom_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  GtkWidget *show = lookup_widget(GTK_WIDGET(togglebutton), "preferences_model_toolbar_show_radiobutton");
+  if (togglebutton->active) {
+    set_model_toolbar_docked_position(3);
+    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 3);
   }
 
 }
@@ -9368,6 +9396,21 @@ on_model_toolbar_style_changed         (GtkToolbar      *toolbar,
   /* this does not do anything and doesnt need to */
 
 
+}
+
+
+gboolean
+on_model_toolbar_button_press_event    (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data)
+{
+
+  if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
+    toolbar_popup_menu(GTK_TOOLBAR(widget), user_data, event);
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 
