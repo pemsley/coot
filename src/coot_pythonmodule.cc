@@ -139,7 +139,7 @@ DL_EXPORT(void)
 __declspec(dllexport)
 #endif
 initcoot_python() {
-   
+
    PyObject *m, *d;
    init_pygobject ();
    init_pygtk ();
