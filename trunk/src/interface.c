@@ -9439,7 +9439,6 @@ create_skeleton_dialog (void)
   gtk_widget_ref (skeleton_prune_and_colour_checkbutton);
   gtk_object_set_data_full (GTK_OBJECT (skeleton_dialog), "skeleton_prune_and_colour_checkbutton", skeleton_prune_and_colour_checkbutton,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (skeleton_prune_and_colour_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox84), skeleton_prune_and_colour_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skeleton_prune_and_colour_checkbutton), 4);
   gtk_tooltips_set_tip (tooltips, skeleton_prune_and_colour_checkbutton, _("Remove sidechains from the skeleton and colour by domain"), NULL);

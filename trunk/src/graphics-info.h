@@ -1028,9 +1028,9 @@ public:
    static void erase_last_molecule() { 
      // std::vector<molecule_class_info_t>::iterator it = molecules.end();
      // std << "DEBUG:: Erasing molecule number " << it->MoleculeNumber() << std::endl;
-     std::cout << "DEBUG:: Erasing the back molecule " << molecules.size() - 1 
-	       << " which says that it has molecule number " 
-	       << molecules[molecules.size() -1].MoleculeNumber() << std::endl;
+/*      std::cout << "DEBUG:: Erasing the back molecule " << molecules.size() - 1  */
+/* 	       << " which says that it has molecule number "  */
+/* 	       << molecules[molecules.size() -1].MoleculeNumber() << std::endl; */
      molecules.pop_back();
    }
 
