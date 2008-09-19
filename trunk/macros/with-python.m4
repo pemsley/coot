@@ -121,8 +121,6 @@ dnl    echo done Bmessage
        with_pygtk_prefix="$withval",
        with_pygtk_prefix="no")
 
-     echo debug with_pygtk_prefix is :${with_pygtk_prefix}:
-
      if test "$with_pygtk_prefix" != "no" ; then 
 
          PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
