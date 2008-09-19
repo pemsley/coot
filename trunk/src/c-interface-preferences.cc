@@ -1098,6 +1098,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 
    std::vector<coot::atom_spec_t> clash_atoms;
    bool hybrid_36_enabled_probe_flag = 1; // new style
+   //bool hybrid_36_enabled_probe_flag = 0; // old style
    
    if (dots_file) {
 
