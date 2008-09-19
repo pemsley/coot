@@ -265,14 +265,19 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 		CResidue *res = (CResidue *) residue_data;
 		CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
 		// this does simple setting, nothing else
-		g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
-							 at->GetSeqNum(),
-							 at->GetInsCode(),
-							 at->name,
-							 at->altLoc);
-		
-		g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
-		g.apply_go_to_atom_from_widget(go_to_atom_window);
+		if (!at) {
+		   std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom"
+			     << go_to_imol << " " << res << std::endl;
+		} else { 
+		   g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
+							    at->GetSeqNum(),
+							    at->GetInsCode(),
+							    at->name,
+							    at->altLoc);
+		   
+		   g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
+		   g.apply_go_to_atom_from_widget(go_to_atom_window);
+		}
 	     }
 	  }
        }
