@@ -443,12 +443,11 @@
 	(gtk-widget-show menuitem2)
 	
 	;; 
-;      (if (coot-has-pygtk?)
-
-;	  (add-simple-coot-menu-menuitem
-;	   submenu "Dock Sequence (py)..."
-;	   (lambda ()
-;	     (run-python-command "cootaneer_gui_bl()"))))
+      (if (coot-has-pygtk?)
+	  (add-simple-coot-menu-menuitem
+	   submenu "Dock Sequence (py)..."
+	   (lambda ()
+	     (run-python-command "cootaneer_gui_bl()"))))
 	  
 	(add-simple-coot-menu-menuitem
 	 submenu "Associate Sequence...."
@@ -476,7 +475,7 @@
 		    (assign-pir-sequence imol chain-id seq-text)))))))
 
 	;; only add this to the GUI if the python version is not available.
-	(if (not (coot-has-python?))
+	(if (not (coot-has-pygtk?))
 	    (add-simple-coot-menu-menuitem
 	     submenu "Dock sequence on this fragment..."
 	     (lambda ()
@@ -496,14 +495,12 @@
       ;; 
       (add-coot-menu-seperator menu)
 
-;      (if (coot-has-pygtk?)
+      (if (coot-has-pygtk?)
 
-;	  (add-simple-coot-menu-menuitem
-;	   menu "Set Refinement Options (py)..."
-;	   (lambda ()
-;	     (run-python-command "refinement_options_gui()")))
-; 	  (add-status-bar-text "Not available for scheme at the moment"))
-
+	  (add-simple-coot-menu-menuitem
+	   menu "Set Refinement Options (py)..."
+	   (lambda ()
+	     (run-python-command "refinement_options_gui()"))))
 
       (let ((submenu (gtk-menu-new))
 	    (menuitem2 (gtk-menu-item-new-with-label "Peptide Restraints...")))
