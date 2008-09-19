@@ -2416,6 +2416,11 @@ set_model_toolbar_docked_position(int state) {
     GtkWidget *hsep    = lookup_widget(handle, "model_toolbar_hsep_toolitem");
     GtkWidget *style   = lookup_widget(handle, "model_toolbar_style_toolitem");
 
+    // reattach first, in case it wasn't and then change the mode
+    if (GTK_HANDLE_BOX(handle)->child_detached) {
+      reattach_modelling_toolbar();
+    }
+
     switch (state) {
 
     case coot::model_toolbar::RIGHT:
