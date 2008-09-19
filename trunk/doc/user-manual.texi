@@ -1427,12 +1427,13 @@ related molecules to have ``images'' of the other related molecules
 appear matched onto the current coordinates.  It is important to
 understand that these ghosts are for displaying differences of
 NCS-related molecules by structure superposition, not displaying
-neighbouring NCS related molecules.  As you read in coordinates in Coot,
-they are checked for NCS relationships and clicking on ``Edit -> Bond
-Parameters -> Show NCS Ghosts'' -> ``Yes'' -> ``Apply'' will create
-``ghost'' copies of them over the reference chain @footnote{the
-reference chain is the first chain of that type in the coordinates
-file.}.
+neighbouring NCS related molecules.  As you read in coordinates in
+Coot, they are checked for NCS relationships and clicking on ``Edit ->
+Bond Parameters -> Show NCS Ghosts'' -> ``Yes'' -> ``Apply'' will
+create ``ghost'' copies of them over the reference chain @footnote{the
+reference chain is, by default, the first chain of that type in the
+coordinates file.  The reference (master) chain can be changed using
+the NCS Ghosts Control dialog.}.
 
 @subsection NCS Maps
 Coot can use the relative transformations of the NCS-related molecules
