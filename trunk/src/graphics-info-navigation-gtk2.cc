@@ -202,24 +202,29 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 		} else {
 		   CResidue *res = (CResidue *) residue_data;
 		   CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
-		   // this does simple setting, nothing else
-		   g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
-							    at->GetSeqNum(),
-							    at->GetInsCode(),
-							    at->name,
-							    at->altLoc);
-		   
-		   g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
-		   
-		   // now we want the atom list to contain the atoms of the
-		   // newly selected residue:
-		   
-		   // Fill me...
-		   fill_go_to_atom_atom_list_gtk2(g.go_to_atom_window,
-						  g.go_to_atom_molecule(),
-						  at->GetChainID(),
-						  at->GetSeqNum(),
-						  at->GetInsCode());
+		   if (!at) {
+		      std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom"
+				<< go_to_imol << " " << res << std::endl;
+		   } else { 
+		      // this does simple setting, nothing else
+		      g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
+							       at->GetSeqNum(),
+							       at->GetInsCode(),
+							       at->name,
+							       at->altLoc);
+		      
+		      g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
+		      
+		      // now we want the atom list to contain the atoms of the
+		      // newly selected residue:
+		      
+		      // Fill me...
+		      fill_go_to_atom_atom_list_gtk2(g.go_to_atom_window,
+						     g.go_to_atom_molecule(),
+						     at->GetChainID(),
+						     at->GetSeqNum(),
+						     at->GetInsCode());
+		   }
 		}
 	     }
 	  }
