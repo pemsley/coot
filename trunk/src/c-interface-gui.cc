@@ -1880,7 +1880,7 @@ GtkWidget *coot_file_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 8)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_coords_fileselection1 ();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
@@ -1896,7 +1896,7 @@ GtkWidget *coot_dataset_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 8)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_dataset_fileselection1 ();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
@@ -1912,7 +1912,7 @@ GtkWidget *coot_map_name_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 8)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_map_name_fileselection1();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
@@ -1928,14 +1928,18 @@ GtkWidget *coot_save_coords_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 10)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_save_coords_fileselection1 ();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_save_coords_fileselection1();
    } else {
       w = create_save_coords_filechooserdialog1();
+#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
+      // we don't have confirmation overwrite
+#else      
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
+#endif      
    }
 #endif
    return w;
@@ -1945,7 +1949,7 @@ GtkWidget *coot_cif_dictionary_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_cif_dictionary_fileselection ();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
@@ -1961,7 +1965,7 @@ GtkWidget *coot_run_script_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_run_script_fileselection();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
@@ -1977,14 +1981,20 @@ GtkWidget *coot_save_state_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 10)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_save_state_fileselection();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_save_state_fileselection();
    } else {
       w = create_save_state_filechooserdialog1(); 
+
+#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
+      // we don't have confirmation overwrite
+#else      
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
+#endif      
+      
    }
 #endif
    return w;
@@ -2001,7 +2011,12 @@ GtkWidget *coot_save_symmetry_chooser() {
       w = create_save_symmetry_coords_fileselection();
    } else {
       w = create_save_symmetry_coords_filechooserdialog1();
+
+#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
+      // we don't have confirmation overwrite
+#else      
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
+#endif      
    }
 #endif
    return w;
@@ -2011,14 +2026,20 @@ GtkWidget *coot_screendump_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 10)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_screendump_fileselection();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_screendump_fileselection();
    } else {
       w = create_screendump_filechooserdialog1(); 
+
+#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
+      // we don't have confirmation overwrite
+#else      
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
+#endif      
+
    }
 #endif
    return w;
@@ -2028,7 +2049,7 @@ GtkWidget *coot_screendump_chooser() {
 
 void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 10)
+#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
       set_directory_for_fileselection(coords_fileselection1);
 #else
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
@@ -2042,7 +2063,7 @@ void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
 const char *coot_file_chooser_file_name(GtkWidget *widget) {
 
    const char *f = 0;
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 #else
 
 #endif
@@ -3188,10 +3209,12 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selection_t
    if (add_shortcut) {
 //       std::cout << "in add_ccp4i_project_optionmenu widget is fileselection "
 // 		<< GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
+      printf("add_ccp4i_project_shortcut\n");
       add_ccp4i_project_shortcut(fileselection);
 
    } else {
 
+      printf("non add_ccp4i_project_shortcut\n");
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 
       GtkWidget *optionmenu = gtk_option_menu_new();

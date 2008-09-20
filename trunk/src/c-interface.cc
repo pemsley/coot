@@ -5947,12 +5947,12 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, pDict, pDict);
 
 
-      std::cout << "DEBUG:: in safe_python_command_with_return() pValue is " << pValue << std::endl;
+      // std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
+      // << pValue << std::endl;
 
       if (pValue != NULL)
 	 {
 	    if (pValue != Py_None) {
-	       //printf( "BL DEBUG:: in python return ret= %s\n",  PyString_AsString(PyObject_Str(ret)));
 	       ret = py_clean_internal(pValue);
 	       if (! ret)
 		  ret = Py_None;
