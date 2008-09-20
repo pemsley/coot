@@ -53,6 +53,7 @@ namespace coot {
 
       std::vector<float> cumulative;
       float cumulative_step;
+      bool debug_wiggly_ligands; 
       void setup_normal_cumulative_table() {
 
 	 // set up cumulative 
@@ -78,6 +79,7 @@ namespace coot {
       wligand() {
 	 cumulative_step=0.01;
 	 setup_normal_cumulative_table();
+	 debug_wiggly_ligands = 0;
       }
 
       // This should be a util function, I think.
@@ -121,7 +123,7 @@ namespace coot {
 					      const coot::minimol::molecule &ligand,
 					      int n_samples);
 
-
+      void set_debug_wiggly_ligands() { debug_wiggly_ligands = 1; } 
    }; 
 
 }

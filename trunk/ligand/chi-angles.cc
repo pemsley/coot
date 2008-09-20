@@ -851,9 +851,6 @@ coot::chi_angles::get_torsion_bonds_atom_pairs(const std::string &monomer_type,
 	    atom1 = monomer_torsions[i].atom_id_1();
 	    atom2 = monomer_torsions[i].atom_id_4();
 
-// 	 std::cout << "DEBUG:: " << atom1 << " hydrogen?" << r.second.is_hydrogen(atom1) << std::endl;
-// 	 std::cout << "DEBUG:: " << atom2 << " hydrogen?" << r.second.is_hydrogen(atom2) << std::endl;
-	 
 	    if ( (!r.second.is_hydrogen(atom1) && !r.second.is_hydrogen(atom2))
 		 || include_hydrogen_torsions_flag) {
 	       coot::atom_name_pair pair(monomer_torsions[i].atom_id_2_4c(),

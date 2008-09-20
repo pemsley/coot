@@ -57,15 +57,18 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    std::vector <coot::dict_torsion_restraint_t> m_torsions =
       pg->get_monomer_torsions_from_geometry(monomer_type, do_hydrogen_torsions_flag);
 
+   std::vector <coot::dict_torsion_restraint_t> non_const_torsions;
    int n_torsionable = 0;
    for (unsigned int i_tor=0; i_tor<m_torsions.size(); i_tor++) {
       if (! m_torsions[i_tor].is_const())
+	 non_const_torsions.push_back(m_torsions[i_tor]);
 	 n_torsionable++;
    } 
    std::cout << "This residues has " << m_torsions.size() << " defined non-H torsions "
 	     << "of which " << n_torsionable << " are rotatable " << std::endl;
 
-   if (m_torsions.size() == 0) {
+   
+   if (non_const_torsions.size() == 0) {
 
       // << " Did you forget to read the dictionary?\n";
       std::pair<short int, dictionary_residue_restraints_t> p = 
@@ -118,7 +121,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       //  Rotatable bonds -> coord indices
       // 
       std::vector<coot::atom_name_pair> atom_name_pairs =
-	 get_torsion_bonds_atom_pairs(monomer_type, m_torsions);
+	 get_torsion_bonds_atom_pairs(monomer_type, non_const_torsions);
 
       std::vector<coot::atom_index_pair> atom_index_pairs =
 	 get_atom_index_pairs(atom_name_pairs, ligand);
@@ -142,7 +145,17 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
       tree.SetCoords(coords, 0, contacts); // compile XXX
 
-      std::vector<float> torsion_set = get_torsions_by_random(m_torsions);
+      std::vector<float> torsion_set = get_torsions_by_random(non_const_torsions);
+
+      if (debug_wiggly_ligands) { 
+	 std::cout << "get_torsions by random returns : " << torsion_set.size()
+		   << " random torsion angles from " << non_const_torsions.size()
+		   << " non-const dictionary torsions." << std::endl;
+	 for(unsigned int itor=0; itor<torsion_set.size(); itor++)
+	    std::cout << "    " << itor << " of " << torsion_set.size() << " "
+		      <<  torsion_set[itor] << std::endl;
+      }
+
 
       // Here: check that torsion_set, atom_index_pairs and
       // atom_name_pairs all have the same size.
@@ -150,10 +163,11 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 //       std::cout << " There are " << atom_index_pairs.size() 
 // 	        << " atom_index_pairs" << std::endl;
       for (unsigned int ibond=0; ibond< atom_index_pairs.size(); ibond++) {
-         if (!m_torsions[ibond].is_const() > 0)  {
-// 	    std::cout << "rotating " << torsion_set[ibond] << " round " 
-// 		      << atom_index_pairs[ibond].index1 << " "
-// 		      << atom_index_pairs[ibond].index2 << "\n";
+         if (! non_const_torsions[ibond].is_const())  {
+	    if (debug_wiggly_ligands)
+	       std::cout << "rotating to " << torsion_set[ibond] << " round "
+			 << atom_index_pairs[ibond].index1 << " "
+			 << atom_index_pairs[ibond].index2 << "\n";
 	    tree.SetDihedralAngle(atom_index_pairs[ibond].index1,
 				  atom_index_pairs[ibond].index2,
 				  clipper::Util::d2rad(torsion_set[ibond]));
@@ -165,19 +179,22 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
 	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
+	       if (debug_wiggly_ligands)
+		  std::cout << "DEBUG:: updating position from "
+			    << ligand[ifrag][ires][iat].pos.format()
+			    << " to "
+			    << rotated_coords[ncoord] << std::endl;
 	       ligand[ifrag][ires][iat].pos =
 		  clipper::Coord_orth(rotated_coords[ncoord].get_x(),
 				      rotated_coords[ncoord].get_y(),
 				      rotated_coords[ncoord].get_z());
-// 	       std::cout << "ipdating position to " << ligand[ifrag][ires][iat].pos.format()
-// 		         << std::endl;
 	       ncoord++;
 	    }
 	 }
       }
 
 
-      if (0) {  // debugging wiggly ligands
+      if (debug_wiggly_ligands) {  // debugging wiggly ligands
 	 std::string filename = "wligand-";
 	 filename += int_to_string(isample);
 	 filename += ".pdb";
@@ -251,13 +268,13 @@ coot::wligand::getcontacts(const coot::minimol::molecule &mol) {
 std::vector <float>
 coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_restraint_t> &m_torsions) const { 
    
-   std::vector <float> sample_tors(m_torsions.size());
+   std::vector <float> sample_tors(m_torsions.size(), 0.0);
 
    float non_rotating_torsion_cut_off = 11.0;
 
-   if (0) { 
+   if (1) {
       for(unsigned int itor=0; itor<m_torsions.size(); itor++) {
-	 std::cout << "DEBUG input torsion: " << itor << " "
+	 std::cout << "DEBUG get_torsions_by_random: input torsion: " << itor << " "
 		   << m_torsions[itor].atom_id_2_4c() << " "
 		   << m_torsions[itor].atom_id_3_4c() << " "
 		   << m_torsions[itor].angle() << " " << m_torsions[itor].esd()
@@ -279,15 +296,22 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
 	    } 
 	 } else {
 	    // Get a random periodicity sample, e.g. 1 from {0,1,2}
-	    float frac = float (coot::util::random())/float (RAND_MAX);
-	    float p_f = float(m_torsions[itor].periodicity());
-	    // do floor()?
-	    int irandom_periodicity_incidence = int(p_f * frac);
-	    float random_periodicity_incidence = float (irandom_periodicity_incidence);
-	    // e.g. random_periodicity_incidence is 1.0 from {0.0, 1.0, 2.0}
-	    float periodicity_angle = 360.0 * (random_periodicity_incidence/p_f);
-	    sample_tors[itor] = m_torsions[itor].angle();
-	    sample_tors[itor] += periodicity_angle;
+	    if (m_torsions[itor].periodicity() > 0) { 
+	       float frac = float (coot::util::random())/float (RAND_MAX);
+	       float p_f = float(m_torsions[itor].periodicity());
+	       // do floor()?
+	       int irandom_periodicity_incidence = int(p_f * frac);
+	       float random_periodicity_incidence = float (irandom_periodicity_incidence);
+	       // e.g. random_periodicity_incidence is 1.0 from {0.0, 1.0, 2.0}
+	       float periodicity_angle = 360.0 * (random_periodicity_incidence/p_f);
+	       std::cout << "DEBUG:: " << itor << " periodicity_angle: "
+			 << periodicity_angle << std::endl;
+	       sample_tors[itor] = m_torsions[itor].angle();
+	       sample_tors[itor] += periodicity_angle;
+	    } else {
+	       // periodicity is 0
+	       sample_tors[itor] = m_torsions[itor].angle();
+	    } 
 
 	    if (m_torsions[itor].esd() < non_rotating_torsion_cut_off) {
 	       // add nothing
@@ -300,11 +324,11 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
       }
    }
 
-//   if (0) { // debugging torsions
-//       for(unsigned int itor=0; itor<m_torsions.size(); itor++)
-// 	 std::cout << "DEBUG:: sampled torsion " << itor << "  "
-// 		   <<  sample_tors[itor] << std::endl;
-//   }
+   if (1) { // debugging torsions
+      for(unsigned int itor=0; itor<m_torsions.size(); itor++)
+ 	 std::cout << "DEBUG:: in get_torsions_by_random sampled torsion " << itor << "  "
+ 		   <<  sample_tors[itor] << std::endl;
+   }
 
    return sample_tors; 
 }
