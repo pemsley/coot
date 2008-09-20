@@ -98,7 +98,7 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 { 
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 
   GtkWidget *coords_fileselection1 = coot_file_chooser();
   GtkWidget *file_filter_button;
@@ -114,6 +114,7 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
 				    coords_fileselection1);
   set_file_selection_dialog_size(coords_fileselection1);
   gtk_widget_show (coords_fileselection1);
+
 #else
 
 /* This split was here because the buttons don't work. They act on the
@@ -121,7 +122,7 @@ on_open_coordinates1_activate          (GtkMenuItem     *menuitem,
    in GTk+2.  So the button-press callback code needs to be adjusted. */
   GtkWidget *file_filter_button;
   GtkWidget *sort_button;
-  GtkWidget *coords_fileselection1 = coot_file_chooser();
+  GtkWidget *coords_fileselection1 = coot_file_chooser(); // a chooser or selector, depends.
   add_ccp4i_project_optionmenu(coords_fileselection1, COOT_COORDS_FILE_SELECTION);
   file_filter_button = add_filename_filter_button(coords_fileselection1, 
 						  COOT_COORDS_FILE_SELECTION);
