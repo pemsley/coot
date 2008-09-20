@@ -902,6 +902,11 @@ execute_ligand_search_internal() {
       wlig.set_verbose_reporting();
    wlig.import_map_from(g.molecules[g.find_ligand_map_mol()].xmap_list[0]);
    std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
+
+   // debugging, output the post-conformer generation ligands wligand-*.pdb
+   // (but pre-idealized).
+   // wlig.set_debug_wiggly_ligands(); 
+
    for(unsigned int i=0; i<ligands.size(); i++) {
 
       std::cout << "ligand number " << i << " is molecule number "
