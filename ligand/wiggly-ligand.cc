@@ -56,6 +56,8 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    short int do_hydrogen_torsions_flag = 0;
    std::vector <coot::dict_torsion_restraint_t> m_torsions =
       pg->get_monomer_torsions_from_geometry(monomer_type, do_hydrogen_torsions_flag);
+   std::pair<short int, dictionary_residue_restraints_t> monomer_restraints = 
+      pg->get_monomer_restraints(monomer_type);
 
    std::vector <coot::dict_torsion_restraint_t> non_const_torsions;
    int n_torsionable = 0;
@@ -133,12 +135,16 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
       }
 
-      std::vector<std::vector<int> > contacts = getcontacts(ligand);
-//       for (int i=0; i<contacts.size(); i++) {
-// 	 for (int j=0; j<contacts[i].size(); j++) {
-// 	    std::cout << "contacts " << i << " to " << contacts[i][j] << std::endl;
-// 	 }
-//       }
+      std::vector<std::vector<int> > contacts;
+      if (monomer_restraints.first) 
+	 contacts = getcontacts(ligand, monomer_restraints.second); // get bonding from dictionary.
+      else 
+	 contacts = getcontacts(ligand);
+
+      if (debug_wiggly_ligands)
+	 for (unsigned int i=0; i<contacts.size(); i++)
+	    for (unsigned int j=0; j<contacts[i].size(); j++)
+	       std::cout << "DEBUG:: contacts " << i << " to " << contacts[i][j] << std::endl;
 
       Tree tree;
       // std::cout << "Filling tree with " << coords.size() << " coordinates \n";
@@ -179,11 +185,11 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       for(unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
 	 for (int ires=ligand[ifrag].min_res_no(); ires<=ligand[ifrag].max_residue_number(); ires++) {
 	    for (unsigned int iat=0; iat<ligand[ifrag][ires].atoms.size(); iat++) {
-	       if (debug_wiggly_ligands)
-		  std::cout << "DEBUG:: updating position from "
-			    << ligand[ifrag][ires][iat].pos.format()
-			    << " to "
-			    << rotated_coords[ncoord] << std::endl;
+// 	       if (debug_wiggly_ligands)
+// 		  std::cout << "DEBUG:: updating position from "
+// 			    << ligand[ifrag][ires][iat].pos.format()
+// 			    << " to "
+// 			    << rotated_coords[ncoord] << std::endl;
 	       ligand[ifrag][ires][iat].pos =
 		  clipper::Coord_orth(rotated_coords[ncoord].get_x(),
 				      rotated_coords[ncoord].get_y(),
@@ -246,7 +252,7 @@ coot::wligand::get_monomer_type_from_mol(const coot::minimol::molecule &mol) con
 
 
 std::vector<std::vector<int> >
-coot::wligand::getcontacts(const coot::minimol::molecule &mol) {
+coot::wligand::getcontacts(const coot::minimol::molecule &mol) const {
 
    std::vector<coot::minimol::atom *> atoms = mol.select_atoms_serial();
    std::vector<std::vector<int> > contacts;
@@ -265,6 +271,33 @@ coot::wligand::getcontacts(const coot::minimol::molecule &mol) {
    return contacts;
 }
 
+std::vector<std::vector<int> >
+coot::wligand::getcontacts(const coot::minimol::molecule &mol,
+			   const coot::dictionary_residue_restraints_t &dict) const {
+
+   std::vector<coot::minimol::atom *> atoms = mol.select_atoms_serial();
+   std::vector<std::vector<int> > contacts(atoms.size());
+
+   // need atom index pairs from dict.bond_restraint[ibond]
+   // and those make atom index pairs.
+   //
+   // need to convert from std::vector<std::pair<int, int> > to std::vector<std::vector<int> >
+
+   std::vector<coot::atom_name_pair> atom_name_pairs;
+   for (unsigned int ibond=0; ibond<dict.bond_restraint.size(); ibond++) {
+      coot::atom_name_pair pair(dict.bond_restraint[ibond].atom_id_1(),
+				dict.bond_restraint[ibond].atom_id_2());
+      atom_name_pairs.push_back(pair);
+   } 
+   std::vector<coot::atom_index_pair> atom_index_pairs =
+      get_atom_index_pairs(atom_name_pairs, mol);
+   for (unsigned int ipi=0; ipi<atom_index_pairs.size(); ipi++) {
+      contacts[atom_index_pairs[ipi].index1].push_back(atom_index_pairs[ipi].index2);
+   }
+   return contacts;
+} 
+
+
 std::vector <float>
 coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_restraint_t> &m_torsions) const { 
    
@@ -272,7 +305,7 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
 
    float non_rotating_torsion_cut_off = 11.0;
 
-   if (1) {
+   if (0) {
       for(unsigned int itor=0; itor<m_torsions.size(); itor++) {
 	 std::cout << "DEBUG get_torsions_by_random: input torsion: " << itor << " "
 		   << m_torsions[itor].atom_id_2_4c() << " "
@@ -324,7 +357,7 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
       }
    }
 
-   if (1) { // debugging torsions
+   if (0) { // debugging torsions
       for(unsigned int itor=0; itor<m_torsions.size(); itor++)
  	 std::cout << "DEBUG:: in get_torsions_by_random sampled torsion " << itor << "  "
  		   <<  sample_tors[itor] << std::endl;

@@ -41,7 +41,10 @@ namespace coot {
 							      const coot::minimol::molecule &ligand,
 							      int imono) const;
 
-      std::vector<std::vector<int> > getcontacts(const coot::minimol::molecule &mol); 
+      std::vector<std::vector<int> > getcontacts(const coot::minimol::molecule &mol) const;
+      std::vector<std::vector<int> > getcontacts(const coot::minimol::molecule &mol,
+						 const coot::dictionary_residue_restraints_t &dict) const;
+
 
       std::string get_monomer_type_from_mol(const coot::minimol::molecule &mol) const;
 
