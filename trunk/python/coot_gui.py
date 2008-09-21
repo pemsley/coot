@@ -3096,7 +3096,7 @@ def cootaneer_gui_bl():
 		seq_table.resize(no_of_frames, 1)
 
 	# reset the table
-	def clear_function_event(*args):
+	def clear_function_event(widget = None, file_sel_entry = None):
 		global imported_sequence_file_flags
 		imported_sequence_file_flags = [False, 0]
 		seq_table.resize(1, 1)
@@ -3107,10 +3107,14 @@ def cootaneer_gui_bl():
 		# make new
 		make_cell(0)
 		spin_button.set_value(1)
-		
+                # reset the filechooser entry
+                if file_sel_entry:
+                   file_sel_entry.set_text("")
+
 	# make one cell in line with deafult fill
 	def make_cell(line):
-		seq_widget = entry_text_pair_frame_with_button(["", "Cut and Paste Sequence to here or import a sequence file"])
+		seq_widget = entry_text_pair_frame_with_button(["",
+                                                                "Cut and Paste Sequence to here or import a sequence file"])
 		seq_table.attach(seq_widget[0], 0, 1, line, line + 1)
 		seq_widget[0].show_all()
 		
@@ -3221,7 +3225,7 @@ def cootaneer_gui_bl():
 
 	go_button.connect("clicked", go_function_event)
 
-	clear_button.connect("clicked", clear_function_event)
+	clear_button.connect("clicked", clear_function_event, file_sel_entry)
                                
 	spin_adj.connect("value_changed", spin_button_changed)
 

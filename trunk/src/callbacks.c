@@ -9885,6 +9885,7 @@ on_coords_filechooserdialog1_destroy  (GtkObject       *object,
                                         gpointer         user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *coords_fileselection1 = lookup_widget(GTK_WIDGET(object),
                                                 "coords_filechooserdialog1");
 
@@ -9967,6 +9968,7 @@ on_dataset_filechooserdialog1_destroy (GtkObject       *object,
                                         gpointer         user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *dataset_fileselection1 = lookup_widget(GTK_WIDGET(object),
                                                 "dataset_filechooserdialog1");
 
@@ -10037,6 +10039,7 @@ on_map_name_filechooserdialog1_destroy (GtkObject       *object,
                                         gpointer         user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *map_name_fileselection1 = lookup_widget(GTK_WIDGET(object),
                                                 "map_name_filechooserdialog1");
 
@@ -10082,6 +10085,7 @@ on_phs_coordinates_filechooserdialog1_destroy
                                         gpointer         user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *phs_fileselection1 = lookup_widget(GTK_WIDGET(object),
                                                 "phs_coordinates_filechooserdialog1");
 
@@ -10142,6 +10146,7 @@ on_save_coords_filechooserdialog1_destroy
 					gpointer user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(object),
                                                 "save_coords_filechooserdialog1");
 
@@ -10183,6 +10188,7 @@ on_cif_dictionary_filechooserdialog1_destroy
 					gpointer user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(object),
                                                 "cif_dictionary_filechooserdialog1");
 
@@ -10221,6 +10227,7 @@ on_run_script_filechooserdialog1_destroy
 					gpointer user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(object),
                                                 "run_script_filechooserdialog1");
 
@@ -10277,6 +10284,7 @@ on_save_symmetry_coords_filechooserdialog1_destroy
 					gpointer user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *coords_fileselection1 = lookup_widget(GTK_WIDGET(object),
                                                 "save_symmetry_coords_filechooserdialog1");
 
@@ -10336,6 +10344,7 @@ on_save_state_filechooserdialog1_destroy (GtkObject * object,
 					gpointer user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *coords_fileselection1 = lookup_widget(GTK_WIDGET(object),
                                                 "save_state_filechooserdialog1");
 
@@ -10403,6 +10412,7 @@ on_screendump_filechooserdialog1_destroy (GtkObject * object,
 					gpointer user_data)
 {
 
+  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(object),
                                                 "screendump_filechooserdialog1");
 
