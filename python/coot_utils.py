@@ -787,15 +787,12 @@ def decode_key(key_val_name):
     try:
         import gtk
         key_value = int(gtk.gdk.keyval_from_name(key_val_name))
-        print "BL DEBUG:: key_val", key_value
-        # on windows special characters seem to have high value,
+        # on some windows: special characters seem to have high value,
         # so need to convert these properly too 
         if (not key_value or key_value >= 100000):
             key_value = int(gtk.gdk.unicode_to_keyval(ord(key_val_name)))
-            print "BL DEBUG:: key_val (not)", key_value
         return key_value
     except:
-        print "BL DEBUG:: except return"
         return key_sym_code(key_val_name)
 
 def add_key_binding(name, key, thunk):
@@ -817,7 +814,6 @@ def add_key_binding(name, key, thunk):
             code = decode_key(key)
             if (code in codes):
                 print "INFO:: you are overwriting existing key", key
-                print "BL DEBUG:: code, codes", code, codes
             if (not (code == -1)):
                 key_bindings.append([code, key, name, thunk])
             else:
