@@ -6819,16 +6819,58 @@ Sun Sep 14 12:32:23 BST 2008
     is in fill_option_menu_with_undo_options().
 
 
+----
+Tue Sep 16 12:56:16 BST 2008
+
+    Note: Processes for automated builds/testing
+
+ o The process that checks out the latest sources, compiles the code
+   and publishes a source tar file, the build log (for building
+   problems) and build-from-source success status
+
+ o The build+test+tar+(copies+)publish process itself - build-it, runs
+   on all up to hosts several times a day
+
+ o The process that cleans up the build directory - every day, deletes
+   everthing more than 7 day old
+
+ o The process that deletes "old" pre-release build tar files from the
+   web - runs every day, deleting everything more than 30 days old
+
+ o The process that makes a web page from the build results - runs
+   every 5 minutes, examining results from fedrated builds
+
+
+---
+Tue Sep 16 13:22:03 BST 2008
+
+    key bindings
+
+* Done
+
+    non-clickable molecule
+
+    molprobity dots problem
+
+    render graphical objects
+
+
 -----
 Thu Sep 11 15:43:22 BST 2008
 
     Warn when making a screenshot of a density map that is dark blue.
-
 
 ----
 Thu Sep 18 13:01:38 BST 2008
 
     Add text to Raster3D input.r3d
 
+----
+Mon Sep 22 17:53:14 BST 2008
+
+    "Cocktail test this blob" vs 200 candidates (to be addeded to
+    distro).  Allow the user to add their own ligands.
+
+    Medium to high importance.
 
 -----
