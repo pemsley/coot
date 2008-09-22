@@ -104,6 +104,12 @@ tests rev 1378
 16/09/08
    o 'new', short display manager
 
+22/09/08
+   o current directory in chooser shortcuts
+
+   o fix size of chooser dialog (if possible, gtk2 bug?!)
+
+
 ---------------
 * DONE THINGS *
 ---------------
@@ -184,3 +190,8 @@ tests rev 1378
    o clean-up use of probe/reduce command_name and command (python)
 
 * Done
+
+22/09/08
+   o current directory in chooser shortcuts
+
+*Done

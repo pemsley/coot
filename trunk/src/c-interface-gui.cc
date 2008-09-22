@@ -994,9 +994,15 @@ store_window_size(int window_type, GtkWidget *widget) {
 void set_file_selection_dialog_size(GtkWidget *dialog) {
 
    if (graphics_info_t::file_selection_dialog_x_size > 0) {
+#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 2))
+      gtk_widget_set_size_request(dialog,
+			   graphics_info_t::file_selection_dialog_x_size,
+			   graphics_info_t::file_selection_dialog_y_size);
+#else
       gtk_widget_set_usize(dialog,
 			   graphics_info_t::file_selection_dialog_x_size,
 			   graphics_info_t::file_selection_dialog_y_size);
+#endif // GTK_MAJOR
    }
 }
 
@@ -3174,6 +3180,12 @@ close_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
 void add_ccp4i_project_shortcut(GtkWidget *fileselection) {
 
 #if (GTK_MAJOR_VERSION > 1)
+   // Paul likes to have a current dir shortcut, here we go then:
+   gchar *current_dir = g_get_current_dir();
+   gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
+					current_dir,
+					NULL);
+   g_free(current_dir);
 //    std::cout << "DEBUG:: adding a short cut..." << std::endl;
 //    std::cout << "DEBUG:: widget is filechooser: " << GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
    // BL says: we simply add a short cut to ccp4 project folder
