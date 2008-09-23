@@ -14,6 +14,7 @@
 ;(define oca-server "http://oca.ebi.ac.uk")
 (define oca-server "http://bip.weizmann.ac.il")
 ;(define oca-server "http://structure.embl-hamburg.de")
+(define oca-server "http://www.ebi.ac.uk/msd-srv/oca")
 
 ;(if (not (defined? 'oca-request-stub))
 (define oca-pdb-request-stub "oca-bin/save-pdb?id=")
