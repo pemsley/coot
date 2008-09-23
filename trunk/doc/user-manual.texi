@@ -2665,8 +2665,8 @@ Use:
 @code{(set-ligand-flexible-ligand-n-samples @emph{n-samples})}
 
 where @code{@emph{n-samples}} is the number of samples of flexibility
-made for each ligand.  The more the number of rotatable bonds, the
-bigger this number should be.
+made for each ligand.  Generally speaking, The more the number of
+rotatable bonds, the bigger this number should be.
 
 By default the options to change these values are not in the GUI.  To
 enable these GUI options, use the scripting function:
