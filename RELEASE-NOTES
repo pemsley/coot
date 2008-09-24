@@ -1,4 +1,7 @@
 
+
+-----
+
 Release 0.5 Ueno
 
    o FEATURE: Coot now has a Preferences dialog.
@@ -61,6 +64,9 @@ Release 0.5 Ueno
    o CHANGE: Key bindings mechanism has changed.  Now we are able to
      display key binding in a GUI widget.
 
+   o CHANGE: Molprobity Tools (probe and reduce) will only now work 
+     with those binaries that are hybrid_36 enabled.
+
    o CHANGE: Picking has been changed to somewhat favour those atoms
      at the front of the slab.
 
@@ -82,13 +88,11 @@ Release 0.5 Ueno
 
    o CHANGE: Symmetry colour info added to state file [Doug Kuntz].
  
-   o CHANGE: the argument order for "mutate" have been canonicalised.
+   o CHANGE: the argument order for "mutate" scripting function 
+     have been canonicalised.
   
    o CHANGE: set-symmetry-colour-merge now takes only a fraction
      argument.
-
-   o CHANGE: Residues can no longer be translated in "Rotamer Change"
-     mode.
 
    o CHANGE: Mutate no longer changes the atom order in the pdb file.
 
@@ -109,6 +113,9 @@ Release 0.5 Ueno
    o CHANGE: Colour by Chain style also now displays zero occupancy
      markers [PRE].
 
+   o CHANGE: Modelling toolbar can now be removed or docked in
+     different positions.
+
    o BUG-FIX: chiral volumes are now correctly handled for multiple
      monomer bespoke ligand dictionaries.
 
@@ -118,6 +125,10 @@ Release 0.5 Ueno
    o BUG-FIX: Non-flexible ligands can be added to ligand search when
      the "flexible?" option is selected.  Previously the ligand search
      was aborted.
+
+   o BUG-FIX: Flexible ligand fitting when the torsion period is 0 and
+     for ligands that have bonding defined from a cif file (no atom left 
+     behind).
 
    o BUG-FIX: side-by-side stereo mode improved [Randy Read].
  
@@ -158,8 +169,6 @@ Release 0.5 Ueno
 
    o BUG-FIX: The representation is no longer changed after editing
      atoms in CA+ligs representation.
-
------
 
 -----
 
