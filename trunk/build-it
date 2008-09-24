@@ -207,7 +207,8 @@
 # 2.43 20080812 Use mmdb version 1.11
 # 2.44 20080815 Fix test info syntax error.
 # 2.45 20080818 Use mmdb version 1.12
-script_version=2.45
+# 2.46 20080924 Tell us in coot.txt what the source tar file was.
+script_version=2.46
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2566,7 +2567,7 @@ else
 fi
 
 
-echo building in: $PWD
+echo building from ${AUTOBUILD_SOURCES}/$coot_version.tar.gz in: $PWD
 echo ./configure $coot_prefix \
    --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
@@ -2708,3 +2709,22 @@ fi
 
 
 echo finished.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
