@@ -2048,8 +2048,15 @@ if test -n "$build_pygobject" ; then
    if pkg-config --atleast-pkgconfig-version 0.16 ; then
       echo INFO:: pkg-config is new enough to build pygobject
    else 
-      pygobject_major_minor_version=2.8
-      pygobject_version=2.8.0
+      if pkg-config --atleast-pkgconfig-version 0.15.1 ; then
+         pygobject_major_minor_version=2.8
+         pygobject_version=2.8.0
+      else 
+         # centos4 can't build 2.8, because glib is not new enough (it is 2.3.5)
+         # centos4 pkg-config version is 0.15.0
+         pygobject_major_minor_version=2.4
+         pygobject_version=2.4.0
+      fi
       echo INFO:: pkg-config is NOT new enough to build pygobject 2.14
       echo downgrading pygobject to $pygobject_version
    fi

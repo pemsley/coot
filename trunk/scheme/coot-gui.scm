@@ -479,7 +479,8 @@
   (let* ( ; (new-release-time 1200000000) ; 10 Jan 2008
 	  ; (new-release-time 1205678900) ; 16 Mar 2008 0.3.3
 	  ; (new-release-time 1222222222) ; 24 Jul 2008 0.4
-	 (new-release-time  1237270000) ; 17 March 2009   
+	  ; (new-release-time 1237270000) ; 17 March 2009   
+	 (new-release-time 1250000000) ; 11 Aug 2009 : 0.5
 	 (time-diff (- (current-time) new-release-time)))
     (if (> time-diff 0)
 	(let ((s (if (> time-diff 86000)

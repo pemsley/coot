@@ -1576,6 +1576,7 @@ cd guile-gtk-2.0
      the ChangeLog, 
      configure.in (obviously)
      old coot timer
+     re-order release notes 
 
 
    o Ramachandran Plot and Kleywegt Plot interact badly causing crash.
@@ -6872,5 +6873,17 @@ Mon Sep 22 17:53:14 BST 2008
     distro).  Allow the user to add their own ligands.
 
     Medium to high importance.
+
+
+----
+Tue Sep 23 09:52:40 BST 2008
+
+[Note to self, rigid body fit is not working/did not complete? after
+ligand fitting, should fit against masked map (the one that gets
+exported to graphics after ligand fitting has completed].
+
+[Note to self, make a set of slides for these]
+
+
 
 -----

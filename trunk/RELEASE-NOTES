@@ -1,5 +1,5 @@
 
-Pre-release 0.5
+Release 0.5 Ueno
 
    o FEATURE: Coot now has a Preferences dialog.
 
@@ -158,6 +158,8 @@ Pre-release 0.5
 
    o BUG-FIX: The representation is no longer changed after editing
      atoms in CA+ligs representation.
+
+-----
 
 -----
 

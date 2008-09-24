@@ -22481,9 +22481,9 @@ programs to which you may be more accustomed.
   <property name="focus_on_map">True</property>
 
   <child>
-    <widget class="GtkImage" id="image6025">
+    <widget class="GtkImage" id="image6645">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.5-pre.xpm</property>
+      <property name="pixbuf">coot-0.5.xpm</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
