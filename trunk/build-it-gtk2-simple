@@ -1480,8 +1480,10 @@ fi
 # do we have greg? 
 
 # LD_LIBRARY_PATH has been set by now
+echo testing for greg using `which guile`
 guile -c '(use-modules (ice-9 greg))'
 status=$?
+echo guile greg status $status
 if test $status = 0 ; then
    echo installation has greg
    build_greg=
