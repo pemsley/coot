@@ -1374,9 +1374,15 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	   // << " "<< gl_context_y_size << std::endl;
  	}
 
-	gtk_widget_set_size_request (drawing_area_tmp,
-				     gl_context_x_size,
-				     gl_context_y_size);
+// 	gtk_widget_set_size_request (drawing_area_tmp,
+// 				     gl_context_x_size,
+// 				     gl_context_y_size);
+
+	GtkWindow *window1 = GTK_WINDOW(lookup_widget(vbox1,"window1"));
+	gtk_window_set_default_size(window1,
+				    n_contexts * gl_context_x_size,
+				    n_contexts * gl_context_y_size);
+	
      }
      
      /* Set OpenGL-capability to the widget */

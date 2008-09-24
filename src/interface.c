@@ -9485,19 +9485,19 @@ GtkWidget*
 create_splash_screen_window (void)
 {
   GtkWidget *splash_screen_window;
-  GtkWidget *pixmap1;
+  GtkWidget *pixmap3;
 
   splash_screen_window = gtk_window_new (GTK_WINDOW_POPUP);
   gtk_object_set_data (GTK_OBJECT (splash_screen_window), "splash_screen_window", splash_screen_window);
   gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
 
-  pixmap1 = create_pixmap (splash_screen_window, "coot-0.5-pre.xpm");
-  gtk_widget_ref (pixmap1);
-  gtk_object_set_data_full (GTK_OBJECT (splash_screen_window), "pixmap1", pixmap1,
+  pixmap3 = create_pixmap (splash_screen_window, "coot-0.5.xpm");
+  gtk_widget_ref (pixmap3);
+  gtk_object_set_data_full (GTK_OBJECT (splash_screen_window), "pixmap3", pixmap3,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (pixmap1);
-  gtk_container_add (GTK_CONTAINER (splash_screen_window), pixmap1);
+  gtk_widget_show (pixmap3);
+  gtk_container_add (GTK_CONTAINER (splash_screen_window), pixmap3);
 
   return splash_screen_window;
 }
