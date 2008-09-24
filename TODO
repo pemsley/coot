@@ -146,7 +146,7 @@
 
 -----
 
-    Release 0.6 and 0.7 [Nov 2008]
+    Release 0.6 and 0.7 [Dec 2008]
 
    Top commitments:
   o P backbone mode
@@ -156,7 +156,9 @@
   o PISA output display
   Like to do:
   o redo sequence view
-  o test --flood
+  o Fix 64-bit coot problem(s)
+
+
 
    o "CA mode" for nucleic acids should draw a P and C1' trace. [VR]
      Priority: 10, Difficulty: 4
@@ -187,6 +189,7 @@
      CA mode).  
 
    o Put globularize protein into Coot.  Make it a bit more clever?
+
    o Garib wants a function to move waters close to the protein.
 
    o Do the tutorial.  Are the blob numbers correct? (EJD 1008 May 23
@@ -372,8 +375,6 @@
      missing the fact that the "water" density was connected to the
      protein density - because we only look at the masked map.
      (see bucca-tut on memory stick)
-
-   o does --flood work?
 
    o Use LSQ not SSM for NCS ghost matrix.
      (Make a speed test.)
