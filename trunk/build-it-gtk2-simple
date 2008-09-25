@@ -2064,7 +2064,7 @@ if test -n "$build_pygobject" ; then
          pygobject_major_minor_version=2.4
          pygobject_version=2.4.0
          # ftp.gnome.org does not distribute 2.4.x Baah. Get it from York
-         ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/pygobject-2.4.tar.gz
+         ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/pygobject-2.4.0.tar.gz
       fi
       echo INFO:: pkg-config is NOT new enough to build pygobject 2.14
       echo downgrading pygobject to $pygobject_version
