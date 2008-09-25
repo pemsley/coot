@@ -236,6 +236,7 @@
 # 4.19 20080818 use mmdb version 1.12
 # 4.20 20080918 Remove references to glitz, cairo, fontconfig
 # 4.21 20080925 Use pygobject 2.4 if needed (e.g on CentOS 4).
+# 4.22 20080925 Handle typename in pygobject.h for CentOS4.
 script_version=4.21
 
 # :: NOTE:: 
@@ -2073,8 +2074,14 @@ if test -n "$build_pygobject" ; then
 
    (
    date
+   echo untarring ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz 
    gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz | tar xf -
    cd pygobject-$pygobject_version
+   # typename is a variable name to a function in the pygobject header.
+   # it causes the compiler on CentOS4 to fail with a syntax error. 
+   # so substitute the name.
+   sed -e 's/typename/s_typename/' gobject/pygobject.h >  gobject/pygobject.h.tmp
+   mv  gobject/pygobject.h.tmp  gobject/pygobject.h
    ./configure $generic_prefix
    $MAKE
    pygobject_status=$?
