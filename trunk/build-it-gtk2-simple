@@ -235,7 +235,8 @@
 # 4.18 20080730 Add Diagnosis for applying guile-gtk patch.
 # 4.19 20080818 use mmdb version 1.12
 # 4.20 20080918 Remove references to glitz, cairo, fontconfig
-script_version=4.20
+# 4.21 20080925 Use pygobject 2.4 if needed (e.g on CentOS 4).
+script_version=4.21
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2053,21 +2054,23 @@ if test -n "$build_pygobject" ; then
       if pkg-config --atleast-pkgconfig-version 0.15.1 ; then
          pygobject_major_minor_version=2.8
          pygobject_version=2.8.0
+         ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz
+         if test $? != 0 ; then 
+            echo PROBLEM:: getting pygobject source code
+         fi
       else 
          # centos4 can't build 2.8, because glib is not new enough (it is 2.3.5)
          # centos4 pkg-config version is 0.15.0
          pygobject_major_minor_version=2.4
          pygobject_version=2.4.0
+         # ftp.gnome.org does not distribute 2.4.x Baah. Get it from York
+         ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/pygobject-2.4.tar.gz
       fi
       echo INFO:: pkg-config is NOT new enough to build pygobject 2.14
       echo downgrading pygobject to $pygobject_version
    fi
 
 
-   ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz
-   if test $? != 0 ; then 
-      echo PROBLEM:: getting pygobject source code
-   fi
    (
    date
    gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz | tar xf -
@@ -2682,7 +2685,8 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
          cp README    $BINARY_TAR_DEST_DIR/coot-README
          cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
       else 
-         echo directory for binaries does not exist. Skipping tar.
+         echo Directory for binaries $BINARY_TAR_DEST_DIR does not exist. 
+	 echo Skipping tar.
       fi
    else
       echo not doing tar files for nightlies: $do_nightlies
