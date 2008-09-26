@@ -22,7 +22,7 @@
 import unittest
 import os
 # and test that gobject is in place.  
-import gobject
+#import gobject
 
 global rnase_pdb
 rnase_pdb = os.path.join(unittest_data_dir, "tutorial-modern.pdb")
