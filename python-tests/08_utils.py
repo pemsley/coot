@@ -75,3 +75,16 @@ class UtilTestFunctions(unittest.TestCase):
         #print "   m: ", m
         #print " own: ", map(own_molecule_number, m)
         self.failUnless(m == map(own_molecule_number, m))
+
+
+    def test03_1(self):
+        """Import gobject"""
+
+        imported = False
+        try:
+            import gobject
+            imported = True
+        except:
+            imported = False
+
+        self.failUnless(imported, "Failed to import gobject")
