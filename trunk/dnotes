@@ -1,20 +1,54 @@
- -*-text-*-
+
+
+Things to do for 0.5.1
+
+  o Fix up clipper (21ac)
+
+  o Loop building in both directions for scheme 
+
+
+  o Need to make cootrc gtk1/gtk2 specific - see fixes/cootrc on the
+     web site
+
+
+
+
+  o Delete button in display manager
+
+* Done.
+
+  o green torsion bond hilighting has disappeared.
+
+* Done.
+
+
+---
+
+
+Things to do for 0.5.1
+
+  o P backbone mode
+
+  o Edit a SHELXL file before refinement
+
+  o backrub on rotamer search
+
+  o Helix fitting overshoots
+
+  o PISA output display
+
+  o multi-residue range for RSR - eg in residues in a sphere
+
+  o redo sequence view
+
+  o Rotate translate chain/molecule
+
+
+
+--------
+
 
    Things to fix before 0.5
-
-
-- Loop building in both directions for scheme 
-   
-
-
-
-
-
-
-   o Delete button in display manager
-
-   o Rotate translate chain/molecule
-
 
 
 127 Done.
