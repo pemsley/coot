@@ -5336,7 +5336,7 @@ graphics_info_t::setup_flash_bond_internal(int ibond_user) {
 			      if ((bond - 2 + hydrogen_or_const_torsion_count) == int(i)) {
 				 std::string atom2 = monomer_torsions[i].atom_id_2();
 				 std::string atom3 = monomer_torsions[i].atom_id_3();
-// 				 atom_names = std::pair<std::string, std::string> (atom2, atom3);
+ 				 atom_names = std::pair<std::string, std::string> (atom2, atom3);
 // 				 std::cout << "   match atom names :" << atom_names.first
 // 					   << ": :" << atom_names.second << ":" << std::endl;
 				 break; 
