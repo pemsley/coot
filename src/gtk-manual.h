@@ -158,6 +158,13 @@ on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button
 void
 on_display_control_map_properties_button_clicked   (GtkButton       *button,
 						   gpointer         user_data); 
+
+void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32);
+
+void
+on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
+						   gpointer         user_data); 
+
 /* molecule */
 void
 on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button,

@@ -237,7 +237,7 @@
 # 4.20 20080918 Remove references to glitz, cairo, fontconfig
 # 4.21 20080925 Use pygobject 2.4 if needed (e.g on CentOS 4).
 # 4.22 20080925 Handle typename in pygobject.h for CentOS4.
-script_version=4.21
+script_version=4.22
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 

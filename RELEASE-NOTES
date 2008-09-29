@@ -1,5 +1,13 @@
 
 
+Release 0.5.1 Uneno
+
+   o FEATURE: A "Delete Molecule" button is now available in the
+     Display Manager.
+
+   o BUG-FIX: the chi angle bond highlighting works again.
+
+
 -----
 
 Release 0.5 Ueno
@@ -38,7 +46,7 @@ Release 0.5 Ueno
      validation for proteins and nucleic acids, Nucleic Acids
      Research 35, W375-W383.
 
-   o FEATURE: "Active site" hilighting.  Cheep and cheerful solid
+   o FEATURE: "Active site" hilighting.  Cheap and cheerful solid
      modelling of ligand and neighbouring residues [Herb Klei].
 
    o FEATURE: Double-clicking on an atom labels it (CCP4mg

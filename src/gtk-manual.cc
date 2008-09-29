@@ -635,7 +635,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 4, "%-d", n); 
 
-  displayed_button_1 = gtk_toggle_button_new_with_label (_("Display"));
+  displayed_button_1 = gtk_check_button_new_with_label (_("Display"));
   gtk_widget_ref (displayed_button_1);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1), 
 			       mol_is_displayed(n));
@@ -652,7 +652,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 4, "%-d", n); 
 
-  active_button_1 = gtk_toggle_button_new_with_label (_("Active"));
+  active_button_1 = gtk_check_button_new_with_label (_("Active"));
   gtk_widget_ref (active_button_1);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_button_1), mol_is_active(n));
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
@@ -662,6 +662,8 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   gtk_widget_show (active_button_1);
   gtk_box_pack_start (GTK_BOX (hbox32), active_button_1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (active_button_1), 2);
+
+
 
   strcpy(widget_name, "render_optionmenu_"); 
   tmp_name = widget_name + strlen(widget_name); 
@@ -868,37 +870,33 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
      /* c.f molecule-class-info.h:30 enum */
   }
 
-
-
-
 /* And finally connect the menu to the optionmenu */
   gtk_option_menu_set_menu (GTK_OPTION_MENU (render_optionmenu_1), 
 			    render_optionmenu_1_menu);
 
-/* testing/debugging - fails - sigh. */
-/*   tmp_list = g_list_nth (GTK_MENU_SHELL (render_optionmenu_1_menu)->children, 1); */
-/*   if (tmp_list) { */
-/*      printf("got a tmp list\n"); */
-/*      child = tmp_list->data; */
-/*      if (GTK_BIN (child)->child) { */
-/* 	printf("got a  (child)->child\n"); */
-/* 	if (GTK_MENU(menu)->old_active_menu_item) */
-/* 	   gtk_widget_unref (GTK_MENU(menu)->old_active_menu_item); */
-/* 	GTK_MENU(menu)->old_active_menu_item = child; */
-/* 	gtk_widget_ref (GTK_MENU(menu)->old_active_menu_item); */
-/*      } */
-/*   } else {  */
-/*      printf("failed to get a tmp list\n"); */
-/*   }  */
-
+  // A delete molecule button
+  display_control_add_delete_molecule_button(n, hbox32);
 
   free(widget_name);
-
   // Now add the additional representations frame and vbox
   add_add_reps_frame_and_vbox(display_control_window_glade,
 			      vbox_single_molecule_all_attribs, n, show_add_reps_frame_flag);
   
 }
+
+void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32) {
+
+   std::string delete_button_name = "delete_molecule_";
+   delete_button_name += coot::util::int_to_string(imol);
+   GtkWidget *delete_button = gtk_button_new_with_label(_("Delete Molecule"));
+   gtk_widget_show(delete_button);
+   gtk_box_pack_start (GTK_BOX (hbox32), delete_button, FALSE, FALSE, 0);
+   gtk_container_set_border_width (GTK_CONTAINER (delete_button), 2);
+   gtk_signal_connect(GTK_OBJECT(delete_button), "clicked",
+		      GTK_SIGNAL_FUNC(on_display_control_delete_molecule_button_clicked),
+		      GINT_TO_POINTER(imol));
+
+} 
 
 void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 				 GtkWidget *hbox_for_single_molecule, int imol_no,
@@ -1132,7 +1130,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 4, "%-d", n);
 
-  displayed_button_1 = gtk_toggle_button_new_with_label (_("Display"));
+  displayed_button_1 = gtk_check_button_new_with_label (_("Display"));
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1), map_is_displayed(n));
   gtk_widget_ref (displayed_button_1);
   gtk_object_set_data_full (GTK_OBJECT (display_control_window_glade), 
@@ -1206,8 +1204,10 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 /*   //  */
   /*   // we cast as a (char *) to make the compiler happy. */
 /*   //  */
-   gtk_object_set_user_data (GTK_OBJECT (displayed_button_1), GINT_TO_POINTER(n));
+    gtk_object_set_user_data (GTK_OBJECT (displayed_button_1), GINT_TO_POINTER(n));
 
+  // A delete molecule button
+  display_control_add_delete_molecule_button(n, hbox32);
 
   free(widget_name); 
   return my_combo_box; 
@@ -1239,6 +1239,14 @@ on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
   }
 }
 
+void
+on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
+						   gpointer         user_data)
+{
+
+   int imol = GPOINTER_TO_INT(user_data);
+   close_molecule(imol);
+}
 
 void
 on_display_control_map_properties_button_clicked   (GtkButton       *button,
@@ -1267,8 +1275,6 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 //   gtk_widget_modify_style (label, rc_style);
 //   gtk_rc_style_unref (rc_style);
 
-  printf("DEBUG:: on_display_control_map_properties_button_clicked: imol %d\n", imol);
-  
   fill_single_map_properties_dialog(window, imol);
   gtk_object_set_user_data(GTK_OBJECT(window), GINT_TO_POINTER(imol));
   /*  and now the skeleton buttons */

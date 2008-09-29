@@ -1,5 +1,25 @@
 
 
+  
+
+/* testing/debugging - fails - sigh. */
+/*   tmp_list = g_list_nth (GTK_MENU_SHELL (render_optionmenu_1_menu)->children, 1); */
+/*   if (tmp_list) { */
+/*      printf("got a tmp list\n"); */
+/*      child = tmp_list->data; */
+/*      if (GTK_BIN (child)->child) { */
+/* 	printf("got a  (child)->child\n"); */
+/* 	if (GTK_MENU(menu)->old_active_menu_item) */
+/* 	   gtk_widget_unref (GTK_MENU(menu)->old_active_menu_item); */
+/* 	GTK_MENU(menu)->old_active_menu_item = child; */
+/* 	gtk_widget_ref (GTK_MENU(menu)->old_active_menu_item); */
+/*      } */
+/*   } else {  */
+/*      printf("failed to get a tmp list\n"); */
+/*   }  */
+
+
+
 /*! \brief toggle the display of map in molecule number imol
 
   @param imol is the molecule number
