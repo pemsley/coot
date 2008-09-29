@@ -9,6 +9,14 @@
 
 
 
+
+
+   o Delete button in display manager
+
+   o Rotate translate chain/molecule
+
+
+
 127 Done.
 
 
@@ -3037,6 +3045,8 @@ Tue Aug 21 16:50:52 BST 2007
 
   e.g. WASP
   Reference: Nayal, M., & Di Cera, E. (1996) J. Mol. Biol. 256: 228-234
+
+Nayal M and Di Cera E. Valence screening of water in protein crystals reveals potential Na+ binding sites. J Mol Biol 256: 228–234, 1996
 
   Looks straightforward.  Except symmetry must be used to find neighbours.
 
