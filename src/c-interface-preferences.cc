@@ -1256,14 +1256,14 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			if (gap2 < -0.42) {
 			   // it's a bad contact.  Add the 1st clash atom to the list of bad clashes.
 		  
-			   std::string chain_id = atom_id_1_str.substr(0,1);
-			   std::string atom_name = atom_id_1_str.substr(10,4);
-			   std::string insertion_code = atom_id_1_str.substr(5,1);
-			   std::string altconf = atom_id_1_str.substr(14,1);
+			   std::string chain_id = atom_id_1_str.substr(0,2);
+			   std::string atom_name = atom_id_1_str.substr(11,4);
+			   std::string insertion_code = atom_id_1_str.substr(6,1);
+			   std::string altconf = atom_id_1_str.substr(15,1);
 			   if (altconf == " ")
 			      altconf = "";
 		     
-			   int resno = atoi(atom_id_1_str.substr(1,4).c_str());
+			   int resno = atoi(atom_id_1_str.substr(2,4).c_str());
 
 			   // std::cout << "   makes atom " << chain_id << ":" << resno << ":"
 			   // << insertion_code << ":" << atom_name << ":"

@@ -1321,6 +1321,52 @@ def add_simple_coot_menu_menuitem(menu,menu_item_label,activate_function):
     sub_menuitem.connect("activate",activate_function)
 
 
+# Make an interesting things GUI for residues of molecule number
+# imol that have alternate conformations.
+#
+def alt_confs_gui(imol):
+
+   interesting_residues_gui(imol, "Residues with Alt Confs",
+                            residues_with_alt_confs(imol))
+
+# Make an interesting things GUI for residues with missing atoms
+#
+def missing_atoms_gui(imol):
+
+   interesting_residues_gui(imol, "Residues with missing atoms",
+                            missing_atom_info(imol))
+
+
+# Make an interesting things GUI for residues of molecule number
+# imol for the given imol.   A generalization of alt-confs gui.
+#
+def interesting_residues_gui(imol, title, interesting_residues):
+
+   from types import ListType
+   centre_atoms = []
+   if valid_model_molecule_qm(imol):
+      residues = interesting_residues
+      for spec in residues:
+         if (type(spec) is ListType):
+            centre_atoms.append(residue_spec2atom_for_centre(imol, *spec))
+         else:
+            centre_atoms.append([False])
+
+      interesting_things_gui(
+         title,
+         map(lambda residue_cpmd, centre_atom: 
+             [residue_cpmd[0] + " " +
+              str(residue_cpmd[1]) + " " +
+              residue_cpmd[2] + " " +
+              centre_atom[0] + " " + centre_atom[1],
+              imol, residue_cpmd[0], residue_cpmd[1], residue_cpmd[2],
+              centre_atom[0], centre_atom[1]],
+             residues, centre_atoms))
+      
+   else:
+      print "BL WARNING:: no valid molecule", imol
+
+                
 # If a toolbutton with label button_label is not found in the coot main
 # toolbar, then create it and return it.
 # If it does exist, the icon will be overwritten. The callback function wont!
@@ -1405,26 +1451,6 @@ def toolbar_label_list():
       button_label_ls.append(ls)
    return button_label_ls
 
-
-# Make an interesting things GUI for residues of molecule number
-# imol that have alternate conformations.
-#
-def alt_confs_gui(imol):
-
-	if valid_model_molecule_qm(imol):
-		alt_conf_residues = residues_with_alt_confs(imol)
-		for i in range(len(alt_conf_residues)): alt_conf_residues[i][0] = imol
-		centre_atoms = map(residue_spec, alt_conf_residues)
-		if centre_atoms:
-			interesting_things_gui("Residues with Alt Confs",
-			map(lambda alt_conf_residue_cpmd, centre_atom: 
-			[alt_conf_residue_cpmd[1] + " " + str(alt_conf_residue_cpmd[2]) + " " + alt_conf_residue_cpmd[3] + " " + centre_atom[0] + " " + centre_atom[1]] 
-			+ alt_conf_residue_cpmd + centre_atom
-			, alt_conf_residues, centre_atoms))
-		else:
-			print "BL INFO:: no alternative confs detected"
-	else:
-		print "BL WARNING:: no valid molecule", imol
 
 # button-list is a list of pairs (improper list) the first item of
 # which is the button label text the second item is a lambda

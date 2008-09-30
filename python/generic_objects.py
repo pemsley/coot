@@ -24,15 +24,6 @@ global reduce_molecule_updates_current
 # (or have a look in group_settings!! These overwrite whatever is here), e.g.
 # reduce_command = "/home/bernhard/bin/reduce"
 
-
-# BL says:: put in definitions of probe and reduce command names here:
-# these are the names of executables (without [windows] extension)
-probe_command_name = "probe"
-if (os.name == 'nt'):
-	reduce_command_name = "reduceV2.13.2.win"
-else:
-	reduce_command_name = "reduce"
-
 # BL says:: just to be consistent with Paul's names
 # map to scheme names:
 # deftexi generic_object_is_displayed_qm
@@ -169,17 +160,12 @@ def probe(imol):
     global reduce_command, probe_command
     
     if is_valid_model_molecule(imol):
-       #reduce seems to have a different name in win than otherwise
-       if os.name == 'nt':
-	       if not (os.path.isfile(reduce_command)):
-		       reduce_command = find_exe(reduce_command_name, "PATH")
-       else:
-	       # this is assuming reduce is called 'reduce' on other systems (which it probably isnt)
-	       if not (os.path.isfile(reduce_command)):
-		       reduce_command = find_exe("reduce", "PATH")
+
+       if not (os.path.isfile(reduce_command)):
+	       reduce_command = find_exe("reduce", "PATH")
        # we need to check if probe_command is defined too
        if not(os.path.isfile(probe_command)):
-		probe_command = find_exe(probe_command_name, "PATH")
+		probe_command = find_exe("probe", "PATH")
        make_directory_maybe("coot-molprobity")
        mol_pdb_file = "coot-molprobity/for-reduce.pdb"
        reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
@@ -191,9 +177,10 @@ def probe(imol):
           if (not os.getenv('REDUCE_HET_DICT')):
              # we assume the dic is in same dir as reduce command
              dir, tmp = os.path.split(reduce_command)
-             connection_file = os.path.join(dir,'reduce_het_dict.txt')
+	     # this is actually not pdb v3 yet 
+             connection_file = os.path.join(dir, 'reduce_het_dict.txt')
              if (os.path.isfile(connection_file)):
-                os.putenv('REDUCE_HET_DICT',connection_file)
+                os.environ['REDUCE_HET_DICT'] = connection_file
              else:
                 print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
           else:
@@ -208,7 +195,7 @@ def probe(imol):
 					reduce_out_pdb_file)
           if (probe_command):
              probe_pdb_in = "coot-molprobity/probe-in.pdb"
-             probe_out = "coot-molprobity/probe-out.pdb"
+             probe_out = "coot-molprobity/probe-dots.out"
 	     
              prepare_file_for_probe(reduce_out_pdb_file,probe_pdb_in)
 
