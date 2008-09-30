@@ -567,11 +567,12 @@ fi
 # It's a logical mess.
 #
 #we shall add the PATH for python here too:
-if test "$build_coot_prerelease" = 1 ; then
-   PATH=${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path}/bin:${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path}/python2.5:$PATH
-else 
-   PATH=$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path/bin:$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path/python2.5:$PATH
-fi 
+# BL says: not sure if we really want the pre install PATH to be set here too
+#if test "$build_coot_prerelease" = 1 ; then
+#   PATH=${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path}/bin:${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path}/python2.5:$PATH
+#else 
+#   PATH=$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path/bin:$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path/python2.5:$PATH
+#fi 
 PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
 PATH=$PATH:/etc:/usr/etc
 #
@@ -1059,7 +1060,8 @@ else
    install_top_dir=${AUTOBUILD_INSTALLED}-gtk2${guile_autobuild_path}
    coot_prefix="$generic_prefix"
 fi
-PATH=$install_top_dir/bin:$PATH
+# we shall include python here too
+PATH=$install_top_dir/bin:$install_top_dir/python2.5:$PATH
 
 installed_check_maybe_prefix=
 if [ "$check_dependencies_in_install_only" = 1 ] ; then
@@ -1228,6 +1230,7 @@ if test -n "$build_fftw" ; then
 fi
 
 # test for pkg-config
+which pkg-config
 if pkg-config --atleast-pkgconfig-version 0.16 ; then
    build_pkg_config=
    echo pkg-config is new enough `pkg-config --version`
@@ -1318,8 +1321,10 @@ fi
 # pango version 1.12 is what gtk2+ 2.10.14 needs
 if [ "$build_pango" != 1 ] ; then 
    if pkg-config --atleast-version=1.12 pango ; then
+       echo pango is up to date
        build_pango=
    else
+       echo build pango and friends
        build_pango=1
    fi
 fi
@@ -1486,8 +1491,14 @@ else
 fi
 
 
-# python
-python_major_version=2.5
+# ============= python ================
+#
+# python_version is the filename of the python executable.  For python
+# 2.5.1 it is python2.5, not python2.5.1
+#
+python_version=python2.5
+pver=2.5.2
+
 python -V
 if test $? != 0 ; then
    echo python should be built
@@ -1497,9 +1508,11 @@ if test $? != 0 ; then
    build_pygobject=1
 else 
    python_version_installed=`python -V 2>&1`
+   python_target_version="Python $pver"
+
    case "$python_version_installed" in 
-       "Python 2.5.1") 
-         echo system has python, $python_version_installed
+       "$python_target_version") 
+         echo installation has python, $python_version_installed
          which python
          build_python=
          ;;
@@ -1517,7 +1530,7 @@ fi
 
 # test for pygobject
 if test -z "$build_pygobject" ; then
-   if test -e $install_top_dir/python$python_major_version/include/pygtk-2.0/pygobject.h ; then
+   if test -e $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h ; then
       echo installation has pygobject
       build_pygobject=
    else 
@@ -1530,7 +1543,7 @@ fi
 
 # test for pycairo
 if test -z "$build_pycairo" ; then
-   if test -e $install_top_dir/python$python_major_version/include/pycairo/pycairo.h ; then
+   if test -e $install_top_dir/$python_version/include/pycairo/pycairo.h ; then
       echo installation has pycairo
       build_pycairo=
    else 
@@ -1542,7 +1555,7 @@ fi
 
 # test for pygtk
 if test -z "$build_pygtk" ; then
-   if test -e $install_top_dir/python$python_major_version/Lib/site-packages/gtk-2.0/gtk/keysyms.py ; then
+   if test -e $install_top_dir/$python_version/Lib/site-packages/gtk-2.0/gtk/keysyms.py ; then
       echo pygtk keysyms exists, no build pygtk
    else 
       echo pygtk keysyms NOT exists, pygtk should be built
@@ -2220,6 +2233,12 @@ if test -n "$build_gtk" ; then
    # run query loader to be able to load svg icons properly
    cp $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders.orig
    gdk-pixbuf-query-loaders > $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders
+   # now we have absolute paths in the file, let's make them relative
+   # to avoid running the gdk-pixbuf.loaders during install
+   sed -e "s|C:\/msys$install_top_dir|..\/..|" \
+     $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders > tmp.loaders
+   mv $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders.bak
+   mv tmp.loaders $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders
 
    ) > $HOSTLOGDIR/06-gtk-prerequisites.txt 2>&1
    if test "$?" != 0 ; then
@@ -2298,7 +2317,7 @@ export PATH
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.5
-pver=2.5.1
+pver=2.5.2
 
 # python
 #
@@ -2326,7 +2345,9 @@ msiexec //i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=
 # We need these otherwise python moans about not finding the libraries.
 #
 echo setting PYTHONHOME
-PYTHONHOME=$install_top_dir/$py_inst_dir
+# first worked somehow with pre-release but should be 2nd
+#PYTHONHOME=$install_top_dir/$py_inst_dir
+PYTHONHOME=$py_inst_dir
 export PYTHONHOME
 echo PYTHONHOME is now $PYTHONHOME
 
