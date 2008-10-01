@@ -143,8 +143,10 @@ get_atom_selection(std::string pdb_name) {
 	  default:
 	     cout << " Unknown (report as a bug!)\n";
 	  }
-	  cout << " file " << pdb_name.c_str() << " has been read.\n";
 
+	  MMDBManager->PDBCleanup(PDBCLEAN_ELEMENT);
+	  
+	  cout << " file " << pdb_name.c_str() << " has been read.\n";
 	  asc.read_success = 1; // TRUE
 
 	  // atom_selection_container.read_error_message = NULL; // its a string
