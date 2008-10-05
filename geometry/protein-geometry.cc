@@ -1108,12 +1108,17 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
       ierr_tot += ierr;
 
       if (ierr_tot == 0) {
-// 	 std::cout << "Adding bond " << comp_id << " " << atom_id_1
-// 		   << " " << atom_id_2 << std::endl;
+//  	 std::cout << "debug Adding bond " << comp_id << " " << atom_id_1
+//  		   << " " << atom_id_2 << std::endl;
 	 mon_lib_add_bond(comp_id, atom_id_1, atom_id_2,
 			  type, value_dist, value_dist_esd); 
 	 nbond++;
-      }
+      } else {
+	 // std::cout << "DEBUG::  ierr_tot " << ierr_tot << std::endl;
+	 std::cout << "Fail on read " << atom_id_1 << ": :" << atom_id_2 << ": :"
+		   << type << ": :" << value_dist << ": :" << value_dist_esd
+		   << ":" << std::endl;
+      } 
    }
    return nbond;
 }
@@ -3117,9 +3122,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    ss = (char *) bond_restraint[i].type().c_str();
 	    mmCIFLoop->PutString(ss, "type", i);
 	    float v = bond_restraint[i].dist();
-	    mmCIFLoop->PutReal(v, "dist", i);
+	    mmCIFLoop->PutReal(v, "value_dist", i);
 	    v = bond_restraint[i].esd(),
-	    mmCIFLoop->PutReal(v, "esd", i);
+	    mmCIFLoop->PutReal(v, "value_dist_esd", i);
 	 }
       }
 
@@ -3147,79 +3152,84 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       // torsion loop
 
-      rc = mmCIF->AddLoop("_chem_comp_tor", mmCIFLoop);
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
-	 for (int i=0; i<torsion_restraint.size(); i++) {
-	    // std::cout << "ading torsion number " << i << std::endl;
-	    char *ss = (char *) residue_info.comp_id.c_str();
-	    mmCIFLoop->PutString(ss, "comp_id", i);
-	    ss = (char *) torsion_restraint[i].id().c_str();
-	    mmCIFLoop->PutString(ss, "id", i);
-	    ss = (char *) torsion_restraint[i].atom_id_1_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_1", i);
-	    ss = (char *) torsion_restraint[i].atom_id_2_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_2", i);
-	    ss = (char *) torsion_restraint[i].atom_id_3_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_3", i);
-	    ss = (char *) torsion_restraint[i].atom_id_4_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_4", i);
-	    float v = torsion_restraint[i].angle();
-	    mmCIFLoop->PutReal(v, "angle", i);
-	    v = torsion_restraint[i].esd();
-	    mmCIFLoop->PutReal(v, "angle_esd", i);
-	    int p = torsion_restraint[i].periodicity();
-	    mmCIFLoop->PutInteger(p, "period", i);
+      if (torsion_restraint.size() > 0) { 
+	 rc = mmCIF->AddLoop("_chem_comp_tor", mmCIFLoop);
+	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
+	    for (int i=0; i<torsion_restraint.size(); i++) {
+	       // std::cout << "ading torsion number " << i << std::endl;
+	       char *ss = (char *) residue_info.comp_id.c_str();
+	       mmCIFLoop->PutString(ss, "comp_id", i);
+	       ss = (char *) torsion_restraint[i].id().c_str();
+	       mmCIFLoop->PutString(ss, "id", i);
+	       ss = (char *) torsion_restraint[i].atom_id_1_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_1", i);
+	       ss = (char *) torsion_restraint[i].atom_id_2_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_2", i);
+	       ss = (char *) torsion_restraint[i].atom_id_3_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_3", i);
+	       ss = (char *) torsion_restraint[i].atom_id_4_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_4", i);
+	       float v = torsion_restraint[i].angle();
+	       mmCIFLoop->PutReal(v, "angle", i);
+	       v = torsion_restraint[i].esd();
+	       mmCIFLoop->PutReal(v, "angle_esd", i);
+	       int p = torsion_restraint[i].periodicity();
+	       mmCIFLoop->PutInteger(p, "period", i);
+	    }
 	 }
       }
 
       // chiral loop
-
-      rc = mmCIF->AddLoop("_chem_comp_chir", mmCIFLoop);
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
-	 for (int i=0; i<chiral_restraint.size(); i++) {
-	    // std::cout << "ading chiral number " << i << std::endl;
-	    const char *ss = residue_info.comp_id.c_str();
-	    mmCIFLoop->PutString(ss, "comp_id", i);
-	    ss = chiral_restraint[i].Chiral_Id().c_str();
-	    mmCIFLoop->PutString(ss, "id", i);
-	    ss = chiral_restraint[i].atom_id_c_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_centre", i);
-	    ss = chiral_restraint[i].atom_id_1_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_1", i);
-	    ss = chiral_restraint[i].atom_id_2_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_2", i);
-	    ss = chiral_restraint[i].atom_id_3_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_3", i);
-	    int sign = chiral_restraint[i].volume_sign;
-	    ss = "both";
-	    if (sign == 1)
-	       ss = "positiv";
-	    if (sign == -1)
-	       ss = "negativ";
-	    mmCIFLoop->PutString(ss, "volume_sign", i);
+      // 
+      if (chiral_restraint.size() > 0) { 
+	 rc = mmCIF->AddLoop("_chem_comp_chir", mmCIFLoop);
+	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	    // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
+	    for (int i=0; i<chiral_restraint.size(); i++) {
+	       // std::cout << "ading chiral number " << i << std::endl;
+	       const char *ss = residue_info.comp_id.c_str();
+	       mmCIFLoop->PutString(ss, "comp_id", i);
+	       ss = chiral_restraint[i].Chiral_Id().c_str();
+	       mmCIFLoop->PutString(ss, "id", i);
+	       ss = chiral_restraint[i].atom_id_c_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_centre", i);
+	       ss = chiral_restraint[i].atom_id_1_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_1", i);
+	       ss = chiral_restraint[i].atom_id_2_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_2", i);
+	       ss = chiral_restraint[i].atom_id_3_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_3", i);
+	       int sign = chiral_restraint[i].volume_sign;
+	       ss = "both";
+	       if (sign == 1)
+		  ss = "positiv";
+	       if (sign == -1)
+		  ss = "negativ";
+	       mmCIFLoop->PutString(ss, "volume_sign", i);
+	    }
 	 }
       }
 
       // plane loop
-
-      rc = mmCIF->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
-	 int icount = 0;
-	 for (int i=0; i<plane_restraint.size(); i++) {
-	    // std::cout << "DEBUG:: adding plane number " << i << std::endl;
-	    for (int iat=0; iat<plane_restraint[i].n_atoms(); iat++) {
-	       char *ss = (char *) residue_info.comp_id.c_str();
-	       mmCIFLoop->PutString(ss, "comp_id", icount);
-	       ss = (char *) plane_restraint[i].plane_id.c_str();
-	       mmCIFLoop->PutString(ss, "plane_id", icount);
-	       ss = (char *) plane_restraint[i].atom_id(iat).c_str();
-	       mmCIFLoop->PutString(ss, "atom_id", icount);
-	       float v = plane_restraint[i].dist_esd();
-	       mmCIFLoop->PutReal(v, "dist_esd", icount);
-	       icount++;
+      if (plane_restraint.size() > 0) { 
+	 rc = mmCIF->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
+	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	    // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
+	    int icount = 0;
+	    for (int i=0; i<plane_restraint.size(); i++) {
+	       // std::cout << "DEBUG:: adding plane number " << i << std::endl;
+	       for (int iat=0; iat<plane_restraint[i].n_atoms(); iat++) {
+		  char *ss = (char *) residue_info.comp_id.c_str();
+		  mmCIFLoop->PutString(ss, "comp_id", icount);
+		  ss = (char *) plane_restraint[i].plane_id.c_str();
+		  mmCIFLoop->PutString(ss, "plane_id", icount);
+		  ss = (char *) plane_restraint[i].atom_id(iat).c_str();
+		  mmCIFLoop->PutString(ss, "atom_id", icount);
+		  float v = plane_restraint[i].dist_esd();
+		  mmCIFLoop->PutReal(v, "dist_esd", icount);
+		  icount++;
+	       }
 	    }
 	 }
       }
