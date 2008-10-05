@@ -1222,6 +1222,7 @@
 (define (graphics-general-key-press-hook key)
   ;; (format #t "Key ~s was pressed~%" key)
   (let ((field (assoc key *key-bindings*)))
+    ;; (format #t "Field: ~s~%" field)
     (if (not field)
 	(format #t "~s not found in ~s~%" key *key-bindings*)
 	(begin
