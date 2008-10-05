@@ -109,6 +109,9 @@ tests rev 1378
 
    o fix size of chooser dialog (if possible, gtk2 bug?!)
 
+04/10/08
+   o make toolbutton GUI/wizard
+
 
 ---------------
 * DONE THINGS *
