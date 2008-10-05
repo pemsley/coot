@@ -726,7 +726,8 @@ def old_coot_qm():
    # new_release_time = 1199919600 # 10 Jan 2008
    # new_release_time = 1205622000 # 16 Mar 2008 0.3.3
    # new_release_time = 1216854000 # 24 Jul 2008 0.4
-   new_release_time = 1237244400 # 17 March 2009
+   # new_release_time = 1237244400 # 17 March 2009
+   new_release_time = 1249945200 # 11 August 2009 : 0.5
    current_time = int(time.time())
    time_diff = current_time - new_release_time
    if (time_diff > 0):
