@@ -677,7 +677,9 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i) {
 //  		   << rotation_size * 360.0 << " degrees " << std::endl;
 	 std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
 	 bond_colour_internal = rgb_new;
-	 glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
+	 if (graphics_info_t::use_graphics_interface_flag) { 
+	    glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
+	 }
       }
    }
 }
@@ -2828,11 +2830,32 @@ int molecule_class_info_t::atom_index(const char *chain_id, int iresno, const ch
 
    return -1; 
 }
+int 
+molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain_id,
+		                  		        int iresno,
+				                        const std::string &ins_code) const {
+
+   bool tacf = 0; // test_alt_conf_flag
+   return atom_index_first_atom_in_residue_internal(chain_id, iresno, ins_code, "", tacf); 
+}
 
 int 
 molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain_id,
 		                  		        int iresno,
-				                        const std::string &ins_code) {
+				                        const std::string &ins_code,
+							const std::string &alt_conf) const {
+   
+   bool tacf = 1; // test_alt_conf_flag
+   return atom_index_first_atom_in_residue_internal(chain_id, iresno, ins_code, alt_conf, tacf); 
+
+}
+
+int 
+molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::string &chain_id,
+								 int iresno,
+								 const std::string &ins_code,
+								 const std::string &alt_conf,
+								 bool test_alt_conf_flag) const {
 
    int index = -1; // failure
    int selHnd = atom_sel.mol->NewSelection();
@@ -2856,9 +2879,12 @@ molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain
 	 PPCAtom residue_atoms;
 	 SelResidues[ires]->GetAtomTable(residue_atoms, natoms);
 	 for (int iatom=0; iatom<natoms; iatom++) {
-	    if (residue_atoms[iatom]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
-	       index = ic;
-	       break;
+	    if (test_alt_conf_flag == 0
+		|| alt_conf == residue_atoms[iatom]->altLoc) { 
+	       if (residue_atoms[iatom]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+		  index = ic;
+		  break;
+	       }
 	    }
 	 }
 	 if (index > -1)
@@ -2869,7 +2895,7 @@ molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain
    // std::cout << "DEBUG:: atom_index_first_atom_in_residue returns " << index << std::endl;
    return index;
 
-} 
+}
 
 // Put the regularization results back into the molecule:
 //

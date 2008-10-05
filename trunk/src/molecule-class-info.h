@@ -1409,7 +1409,18 @@ class molecule_class_info_t {
 
    int atom_index_first_atom_in_residue(const std::string &chain_id,
 					int iresno,
-					const std::string &ins_code);
+					const std::string &ins_code) const;
+
+   int atom_index_first_atom_in_residue(const std::string &chain_id,
+					int iresno,
+					const std::string &ins_code,
+					const std::string &altconf) const;
+
+   int atom_index_first_atom_in_residue_internal(const std::string &chain_id,
+						 int iresno,
+						 const std::string &ins_code,
+						 const std::string &altconf,
+						 bool test_alt_conf_flag) const;
 
    void install_ghost_map(const clipper::Xmap<float> &mapin, std::string name,
 			  const coot::ghost_molecule_display_t &ghost_info,

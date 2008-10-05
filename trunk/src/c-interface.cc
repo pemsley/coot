@@ -3414,7 +3414,25 @@ int atom_index_first_atom_in_residue(int imol, const char *chain_id,
 								 std::string(ins_code));
    }
    return index;
+}
+
+int atom_index_first_atom_in_residue_with_altconf(int imol,
+						  const char *chain_id, 
+						  int iresno,
+						  const char *ins_code, 
+						  const char *alt_conf) {
+   
+   int index = -1;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      index = g.molecules[imol].atom_index_first_atom_in_residue(std::string(chain_id),
+								 iresno,
+								 std::string(ins_code),
+								 std::string(alt_conf));
+   }
+   return index; 
 } 
+
 
 float median_temperature_factor(int imol) {
 

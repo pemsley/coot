@@ -1571,6 +1571,23 @@ void do_rotamers(int atom_index, int imol) {
    add_to_history_typed(cmd, args);
 }
 
+// same as do_rotamers, except, a better name and we give residue
+// specs, so that we can use the active residue.
+void show_rotamers_dialog(int imol, const char *chain_id, int resno, const char *ins_code, const char *altconf) {
+
+   int atom_index = -1;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      atom_index = g.molecules[imol].atom_index_first_atom_in_residue(chain_id, resno, ins_code, altconf);
+      if (atom_index != -1) {
+	 g.do_rotamers(atom_index, imol); 
+      } else {
+	 std::cout << "No atom index found in molecule " << imol << std::endl;
+      }
+   }
+} 
+
+
 void
 set_rotamer_lowest_probability(float f) {
 #ifdef USE_DUNBRACK_ROTAMERS

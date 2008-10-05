@@ -49,7 +49,9 @@ std::vector<coot::restraints_editor> graphics_info_t::restraints_editors;
 
 void
 coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t &restraints) { 
-   dialog = create_restraints_editor_dialog();
+   dialog = create_restraints_editor_dialog(); // defined in interface.h
+   std::cout << "restraints editor saving "
+	     << dialog << std::endl;
    fill_info_tree_data   (dialog, restraints);
    fill_atom_tree_data   (dialog, restraints);
    fill_bond_tree_data   (dialog, restraints);
@@ -1176,7 +1178,10 @@ coot::restraints_editor::get_residue_info() const {
 	                                    // which after the cif reader is "".
 	  (description_level != "not-set") &&
 	  (n_atoms > 0)          &&
-	  (n_H_atoms > 0)) { 
+	  (n_H_atoms > 0)) {
+
+	 std::cout << "DEBUG:: makeing a coot::dict_chem_comp_t with comp_id "
+		   << comp_id << std::endl;
 
 	 coot::dict_chem_comp_t res_info(comp_id, tlc, name, group, n_atoms,
 					 n_H_atoms, description_level);
@@ -1218,13 +1223,14 @@ void apply_restraint_by_widget(GtkWidget *w) {
 
 void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
 
-   std::cout << "save restraint here " << std::endl;
    graphics_info_t g;
    coot::restraints_editor re = g.get_restraints_editor(w);
    if (re.is_valid()) {
       GtkWidget *w = create_save_restraint_chooserdialog();
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       std::string filename = "monomer-";
+      std::cout << "DEBUG:: save restraint for " << r.residue_info.comp_id
+		<< " here " << std::endl;
       filename += r.residue_info.comp_id;
       filename += ".cif";
 #if (GTK_MAJOR_VERSION == 1) || ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10))
