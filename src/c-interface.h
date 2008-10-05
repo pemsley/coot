@@ -1926,10 +1926,19 @@ void set_draw_axes(int i);
 /* return -1 if atom not found. */
 int atom_index(int imol, const char *chain_id, int iresno, const char *atom_id); 
 /* Refine zone needs to be passed atom indexes (which it then converts */
-/* to residue numbers - sigh).  So we need a function to get an atom */
-/* index from a given residue to use with refine_zone() */
+/* to residue numbers - sigh).  So we need a function to get an
+   atom. Return -1 on failure */
+/* index from a given residue to use with refine_zone().  Return -1 on failure */
 int atom_index_first_atom_in_residue(int imol, const char *chain_id, 
 				     int iresno, const char *ins_code);
+/* For rotamers, we are given a residue spec (and altconf), we need
+  the index of the first atom of this type, no atom name is given,
+  hence we cannot use full_atom_spec_to_atom_index(). */
+int atom_index_first_atom_in_residue_with_altconf(int imol, 
+						  const char *chain_id, 
+						  int iresno, 
+						  const char *ins_code, 
+						  const char *alt_conf);
 float median_temperature_factor(int imol);
 float average_temperature_factor(int imol);
 void clear_pending_picks(); 
@@ -3866,6 +3875,8 @@ void setup_rotamers(short int state);
 /*  display the rotamer option and display the most likely in the graphics as a */
 /*  moving_atoms_asc */
 void do_rotamers(int atom_index, int imol);
+
+void show_rotamers_dialog(int imol, const char *chain_id, int resno, const char *ins_code, const char *altconf);
 
 /* \brief For Dunbrack rotamers, set the lowest probability to be
    considered.  Set as a percentage i.e. 1.00 is quite low.  For

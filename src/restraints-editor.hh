@@ -51,9 +51,12 @@ namespace coot {
       void fill_dialog(const coot::dictionary_residue_restraints_t &restraints); // set is_valid_flag
       coot::dictionary_residue_restraints_t make_restraint() const;
       bool is_valid() const { return is_valid_flag; }
-      bool matches_dialog(GtkWidget *w) const { return (w == dialog);}
+      bool matches_dialog(GtkWidget *w) const {
+	 std::cout << " comparing " << dialog << " vs " << w << std::endl;
+	 return (w == dialog);}
       void delete_restraint(GtkWidget *w);
       void add_restraint(GtkWidget *w);
+      GtkWidget *get_dialog() { return dialog; }
 
    private:
       enum { TORSION_COL_PERIODICTY = 7,

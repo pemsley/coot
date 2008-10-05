@@ -2953,6 +2953,8 @@ molecule_class_info_t::fill_raster_model_info() {
 	 rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t> (bonds_box.atom_centres_[i], c));
       }
    }
+   std::cout << "DEBUG:: Done fill_raster_model_info for "
+	     << imol_no << std::endl;
    return rtmi;
 }
 

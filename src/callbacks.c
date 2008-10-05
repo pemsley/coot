@@ -10694,6 +10694,12 @@ void
 on_save_restraint_chooserdialog_close  (GtkDialog       *dialog,
                                         gpointer         user_data) { 
 
+  printf("on_save_restraint_chooserdialog_close is executed\n");
+/* Is this executed? */
+/* #if (GTK_MAJOR_VERSION > 1) */
+/*   GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");  */
+/*   gtk_widget_destroy(w); */
+/* #endif GTK_MAJOR_VERSION  */
 }
 
 

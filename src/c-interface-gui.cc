@@ -2016,7 +2016,7 @@ GtkWidget *coot_save_symmetry_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN) || (GTK_MINOR_VERSION < 10)
+#if (GTK_MAJOR_VERSION == 1)
    w = create_save_symmetry_coords_fileselection();
 #else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
@@ -2061,7 +2061,7 @@ GtkWidget *coot_screendump_chooser() {
 
 void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
       set_directory_for_fileselection(coords_fileselection1);
 #else
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
