@@ -248,8 +248,12 @@ namespace coot {
       ncs_residue_info_t get_differences(CResidue *this_residue_p, 
 					 CResidue *master_residue_p, 
 					 float main_chain_weight) const;
+      friend std::ostream& operator<<(std::ostream &s, const ghost_molecule_display_t &ghost);
    };
 
+   std::ostream& operator<<(std::ostream &s, const ghost_molecule_display_t &ghost);
+
+   
    class display_list_object_info {
    public:
       GLuint tag;
