@@ -6,12 +6,15 @@ Things to do for 0.5.1
 
   o Loop building in both directions for scheme 
 
-
   o Need to make cootrc gtk1/gtk2 specific - see fixes/cootrc on the
      web site
 
+  o do_rotamers() given imol, chainid, resno, inscode, altconf.
+    Attach it to active atom and a key binding. FvD
 
+  o Rework the Extensions dialog to make it less long.
 
+* Done.
 
   o Delete button in display manager
 
@@ -6927,6 +6930,19 @@ ligand fitting, should fit against masked map (the one that gets
 exported to graphics after ligand fitting has completed].
 
 [Note to self, make a set of slides for these]
+
+
+----
+Mon Oct  6 13:56:30 BST 2008
+
+	It's not the algorithms
+
+Mon Oct  6 13:56:44 BST 2008
+   
+   After the release, there are no pre-release source tars, so the
+   build web page builder fails (a list-ref of a #f list)
+
+
 
 
 

@@ -1349,12 +1349,19 @@ molecule_class_info_t::copy_chain(const std::string &from_chain_str,
 }
 
 
+std::ostream& coot::operator<<(std::ostream &s, const coot::ghost_molecule_display_t &ghost) {
+   s << "[GHOST Name: " << ghost.name << ", chain-id: " << ghost.chain_id << ", target-chain-id: "
+     << ghost.target_chain_id << ", displayed? " << ghost.display_it_flag << "]";
+}
+
+
 
 int 
 molecule_class_info_t::copy_residue_range_from_ncs_master_to_other_using_ghost(std::string from_chain_id,
 									       std::string to_chain_id,
 									       int residue_range_1,
 									       int residue_range_2) {
+
    int done_copy_flag = 0;
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
@@ -1386,12 +1393,14 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_other_using_ghost(s
 			std::string chain_id(chain_p->GetChainID());
 			if (from_chain_id == chain_id) {
 			   CChain *from_chain = chain_p;
-//  			   std::cout << "Doing a copy_residue range "
-// 				     << from_chain->GetChainID() << " to "
-//  				     << to_chain->GetChainID() << " " << residue_range_1
-// 				     << " to "
-//  				     << residue_range_2 << "\n"
-// 				     << rtop.format() << std::endl;
+			   if (0) { 
+  			   std::cout << "Doing a copy_residue range "
+ 				     << from_chain->GetChainID() << " to "
+  				     << to_chain->GetChainID() << " " << residue_range_1
+ 				     << " to "
+  				     << residue_range_2 << "\n"
+ 				     << rtop.format() << std::endl;
+			   }
 			   copy_residue_range(from_chain, to_chain, residue_range_1,
 					      residue_range_2, rtop);
 			   done_copy_flag = 1;
@@ -1460,7 +1469,6 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_others(const std::s
 								       ncs_ghosts[ighost].chain_id,
 								       residue_range_1,
 								       residue_range_2);
-	       break;
 	    }
 	 }
       }

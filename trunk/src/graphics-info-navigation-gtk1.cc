@@ -36,7 +36,7 @@
 #endif
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 
 #include <iostream>
 
@@ -446,4 +446,4 @@ graphics_info_t::go_to_atom_atom_list_signal_handler_event_gtk1(GtkWidget *widge
   return FALSE;
 } 
 
-#endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#endif // #if (GTK_MAJOR_VERSION == 1)
