@@ -629,20 +629,23 @@
 
 	     ;; source code
 	     (p "Source code "
-		,(let ((f (basename (list-ref latest-source-info 2) ".tar.gz"))
-		       (l (url-from-file-name (list-ref latest-source-info 2) 
-					      "emsley")))
-		   `(a (@ href ,l) ,f))
-		" "
-		,(list-ref latest-source-info 1)
-		(br)
-		,(time-text (oldness-info latest-source-info))
-		" " " " " "
-		,(source-build-status-text)
-		(*ENTITY* "nbsp")
-		(*ENTITY* "nbsp")
-		(a (@ href "http://www.ysbl.york.ac.uk/~emsley/build-logs/buibbles-local-build.log")
-		   "source build log"))
+		,(if (not latest-source-info)
+		     " Maybe release time" ;; latest-source-info not set.  A release?
+		     (begin 
+		       (let ((f (basename (list-ref latest-source-info 2) ".tar.gz"))
+			     (l (url-from-file-name (list-ref latest-source-info 2) 
+						    "emsley")))
+			 `(a (@ href ,l) ,f))
+		       " "
+		       ,(list-ref latest-source-info 1)
+		       (br)
+		       ,(time-text (oldness-info latest-source-info))
+		       " " " " " "
+		       ,(source-build-status-text)
+		       (*ENTITY* "nbsp")
+		       (*ENTITY* "nbsp")
+		       (a (@ href "http://www.ysbl.york.ac.uk/~emsley/build-logs/buibbles-local-build.log")
+			  "source build log"))))
 
 	     ;; binary targets
 	     (table 
