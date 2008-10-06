@@ -1352,6 +1352,7 @@ molecule_class_info_t::copy_chain(const std::string &from_chain_str,
 std::ostream& coot::operator<<(std::ostream &s, const coot::ghost_molecule_display_t &ghost) {
    s << "[GHOST Name: " << ghost.name << ", chain-id: " << ghost.chain_id << ", target-chain-id: "
      << ghost.target_chain_id << ", displayed? " << ghost.display_it_flag << "]";
+   return s;
 }
 
 
