@@ -80,7 +80,20 @@ class UtilTestFunctions(unittest.TestCase):
     def test03_1(self):
         """Import gobject"""
 
+	have_pygtk2 = False
         imported = False
+        
+	try:
+	    pygtk.require("2.0")
+	    have_pygtk2 = True
+	except:
+            if (have_test_skip):
+                self.skipIf(not have_pygtk2, "Dont have pygtk 2.0, skipping import gobject test")
+            else:
+                if (not have_pygtk2):
+                    print "Dont have pygtk 2.0, skipping import gobject test"
+                    skipped_tests.append("Import gobject Test")
+                    return
         try:
             import gobject
             imported = True
