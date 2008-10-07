@@ -237,7 +237,8 @@
 # 4.20 20080918 Remove references to glitz, cairo, fontconfig
 # 4.21 20080925 Use pygobject 2.4 if needed (e.g on CentOS 4).
 # 4.22 20080925 Handle typename in pygobject.h for CentOS4.
-script_version=4.22
+# 4.23 20081007 Don't build python if python is not passed as arg.
+script_version=4.23
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1242,6 +1243,7 @@ build_gsl=0
 # build_imlib=0
 # build_gtk_canvas=0
 build_python=
+build_pygobject=
 build_guile_gtk=
 build_gtkglext=
 build_freeglut=0
@@ -1502,32 +1504,33 @@ fi
 python_version=python2.5
 pver=2.5.2
 
-$install_top_dir/bin/python -V
-if test $? != 0 ; then
-   echo python should be built
-   build_python=1
-   build_pygtk=1
-   build_pygobject=1
-else 
-   python_version_installed=`python -V 2>&1`
-   python_target_version="Python $pver"
+if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+   $install_top_dir/bin/python -V
+   if test $? != 0 ; then
+      echo python should be built
+      build_python=1
+      build_pygtk=1
+      build_pygobject=1
+   else 
+      python_version_installed=`python -V 2>&1`
+      python_target_version="Python $pver"
 
-   case "$python_version_installed" in 
-       "$python_target_version") 
-         echo installation has python, $python_version_installed
-         which python
-         build_python=
-         ;;
-       *)
-         echo python $python_version_installed installed but not up to date...
-         echo python  should be built
-         build_python=1
-         build_pygobject=1
-         build_pygtk=1
-         ;;
-   esac
+      case "$python_version_installed" in 
+          "$python_target_version") 
+            echo installation has python, $python_version_installed
+            which python
+            build_python=
+            ;;
+          *)
+            echo python $python_version_installed installed but not up to date...
+            echo python  should be built
+            build_python=1
+            build_pygobject=1
+            build_pygtk=1
+            ;;
+      esac
+   fi
 fi
-
 
 # test for pygobject
 if test -z "$build_pygobject" ; then
