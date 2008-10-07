@@ -1,24 +1,19 @@
  -*-text-*-
 
 ---------------
-* THINGS TO DO BEFORE 0.5 RELEASE *
+* THINGS TO DO BEFORE 0.5.1 RELEASE *
 ---------------
 
    o be up-to-date with all python scripts and tests
 up-to-date 09/09/08
 tests rev 1378
 
-   o refinement options dialog in extensions (scheme, or use pythons?)
-
 
 04/09/08
    o loop building backwards in scheme (use python?)?
 
-14/09/08:
-   o windows:
-     - installer: fix rotamers (fixed?)
-     - check refmac (?)
-     - check recover session (?)
+07/10/08
+   o make pygtk gtk1 compliant (incl import gobject test)
 
 ---------------
 * TO DO THINGS *
