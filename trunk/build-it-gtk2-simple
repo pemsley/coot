@@ -1520,6 +1520,7 @@ if [ $ENABLE_PYTHON_COOT = yes ] ; then
             echo installation has python, $python_version_installed
             which python
             build_python=
+	    build_pygtk=
             ;;
           *)
             echo python $python_version_installed installed but not up to date...
@@ -1533,28 +1534,30 @@ if [ $ENABLE_PYTHON_COOT = yes ] ; then
 fi
 
 # test for pygobject
-if test -z "$build_pygobject" ; then
-   if test -e $install_top_dir/include/pygtk-2.0/pygobject.h ; then
-      echo installation has pygobject
-      build_pygobject=
-   else 
-      echo pygobject NOT exists, pygobject should be built
-      build_pygobject=1
-      build_pygtk=1
-   fi      
+if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+   if test -z "$build_pygobject" ; then
+      if test -e $install_top_dir/include/pygtk-2.0/pygobject.h ; then
+         echo installation has pygobject
+        build_pygobject=
+      else  
+         echo pygobject NOT exists, pygobject should be built
+         build_pygobject=1
+         build_pygtk=1
+      fi      
+   fi
 fi
-
 
 # test for pygtk
-if test -z "$build_pygtk" ; then
-   if test -e $install_top_dir/lib/pygtk/2.0/pygtk-demo.py ; then
-      echo pygtk demo exists, no build pygtk
-   else 
-      echo pygtk demo NOT exists, pygtk should be built
-      build_pygtk=1
-   fi      
+if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+   if test -z "$build_pygtk" ; then
+      if test -e $install_top_dir/lib/pygtk/2.0/pygtk-demo.py ; then
+         echo pygtk demo exists, no build pygtk
+      else 
+         echo pygtk demo NOT exists, pygtk should be built
+         build_pygtk=1
+      fi      
+   fi
 fi
-
 
 # force the GSL config to be in $install_top_dir, rather than
 # potenially getting it from the system
