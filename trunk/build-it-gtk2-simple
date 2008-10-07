@@ -238,7 +238,9 @@
 # 4.21 20080925 Use pygobject 2.4 if needed (e.g on CentOS 4).
 # 4.22 20080925 Handle typename in pygobject.h for CentOS4.
 # 4.23 20081007 Don't build python if python is not passed as arg.
-script_version=4.23
+# 4.24 20081007 Back to version 2.5.1 that compiles on bragg3, 2.5.2 does not 
+#               (port 8080 already in use).
+script_version=4.24
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1502,7 +1504,7 @@ fi
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.5
-pver=2.5.2
+pver=2.5.1
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
