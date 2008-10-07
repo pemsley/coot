@@ -10682,24 +10682,21 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
 					 gpointer         user_data) { 
 
 #if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");
   if (response_id == GTK_RESPONSE_OK) {
-    GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");
     save_monomer_restraints_by_widget(dialog);
-    gtk_widget_destroy(w);
   }
+  if (response_id == GTK_RESPONSE_CANCEL) {
+    // nothing extra.
+  }
+  gtk_widget_destroy(w);
 #endif /* GTK_MAJOR_VERSION  */
 }
 
+/* This is not the way. */
 void
 on_save_restraint_chooserdialog_close  (GtkDialog       *dialog,
                                         gpointer         user_data) { 
-
-  printf("on_save_restraint_chooserdialog_close is executed\n");
-/* Is this executed? */
-/* #if (GTK_MAJOR_VERSION > 1) */
-/*   GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");  */
-/*   gtk_widget_destroy(w); */
-/* #endif GTK_MAJOR_VERSION  */
 }
 
 
