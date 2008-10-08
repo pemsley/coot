@@ -9,12 +9,36 @@ Things to do for 0.5.1
   o Need to make cootrc gtk1/gtk2 specific - see fixes/cootrc on the
      web site
 
-  o do_rotamers() given imol, chainid, resno, inscode, altconf.
-    Attach it to active atom and a key binding. FvD
+  o restraints editor:  
+       edit ASN
+       save
+       edit CYS
+       save
+       Look at monomer-CYS.cif, the TLC is ASN.
+
+
+  o restraints editor, Cancel on save cif doesn't work  
+
+     save_restraint_chooserdialog in glade, the response is not
+     working or not closing the dialog. Maybe its a Mac thing.  I
+     can't see how this "close/cancel" button is supposed to work.
+
+
+  o Read a shelx file with PART 1 10.6   [10.6 is the site occupancy factor]
+
+  o put the NCS edit test into greg-tests.
+
+  o test that fixed atoms with alt confs work.
+
+
+
+
+
 
   o Rework the Extensions dialog to make it less long.
 
 * Done.
+
 
   o Delete button in display manager
 
@@ -24,11 +48,15 @@ Things to do for 0.5.1
 
 * Done.
 
+  o do_rotamers() given imol, chainid, resno, inscode, altconf.
+    Attach it to active atom and a key binding. FvD
+* Done.
+
 
 ---
 
 
-Things to do for 0.5.1
+Things to do for 0.6
 
   o P backbone mode
 
@@ -6931,19 +6959,42 @@ exported to graphics after ligand fitting has completed].
 
 [Note to self, make a set of slides for these]
 
+----
+
+Mon Oct  6 13:56:30 BST 2008
+PRE RELEASE CHECKS
+
+Does ligand fitting work?
+Does torsion bond hilighting work?
 
 ----
-Mon Oct  6 13:56:30 BST 2008
+Wed Oct  1 14:14:26 CEST 2008
 
-	It's not the algorithms
+   What is Wadley et al. RNA torsion angles? P and C4'
 
+   Mentioned by Tim Grune
+
+----
+Fri Oct  3 15:23:51 CEST 2008
+
+  o Note: Randy says that the maps from phenix autobuild don't work -
+  all red in the validation (traffic lights?) - I guess that the maps
+  are scaled up.
+
+----
+
+   For a tutorial: design a drug in libcheck/sketcher and fit it to
+   the density - use something from the PDB.
+
+---
 Mon Oct  6 13:56:44 BST 2008
    
+	It's not the algorithms
+
    After the release, there are no pre-release source tars, so the
    build web page builder fails (a list-ref of a #f list)
 
-
-
+   Crash on CentOS 4 machines when trying to read svgs
 
 
 -----
