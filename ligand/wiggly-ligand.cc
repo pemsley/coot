@@ -337,8 +337,8 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
 	       float random_periodicity_incidence = float (irandom_periodicity_incidence);
 	       // e.g. random_periodicity_incidence is 1.0 from {0.0, 1.0, 2.0}
 	       float periodicity_angle = 360.0 * (random_periodicity_incidence/p_f);
-	       std::cout << "DEBUG:: " << itor << " periodicity_angle: "
-			 << periodicity_angle << std::endl;
+// 	       std::cout << "DEBUG:: " << itor << " periodicity_angle: "
+// 			 << periodicity_angle << std::endl;
 	       sample_tors[itor] = m_torsions[itor].angle();
 	       sample_tors[itor] += periodicity_angle;
 	    } else {
