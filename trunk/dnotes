@@ -16,14 +16,20 @@ Things to do for 0.5.1
        save
        Look at monomer-CYS.cif, the TLC is ASN.
 
-  o test that fixed atoms with alt confs work.
+* Looks fine on FC4, still bad on MacBook?
+
+
+
+
+
 
   o are test-wiggly ligands written to disk by default?
 
+* No.
 
+  o test that fixed atoms with alt confs work.
 
-
-
+* Looks good to me.    
 
   o Read a shelx file with PART 1 10.6 [Mirek Gilski] [10.6 is the
     site occupancy factor]
