@@ -148,3 +148,28 @@
 				   (throw 'fail))
 				 #t))))))))))))
 
+
+;; Perhaps combine this with previous test, it tests the same function.
+;; 
+(greg-testcase "NCS Residue Range edit to all chains" #t 
+   (lambda ()
+
+
+     (let ((imol (greg-pdb "pdb1t6q.ent")))
+
+       (mutate imol "A" 50 "" "ASP")
+       (skip-to-next-ncs-chain) ;; generate the ghosts
+       
+       (copy-residue-range-from-ncs-master-to-others imol "A" 50 50)
+       
+       ;; did it apply?
+       (let ((result 
+	      (map (lambda (chain-id-peer)
+		     (let ((resname (residue-name imol chain-id-peer 50 "")))
+		       (string=? resname "ASP")))
+		   (list "B" "C"))))
+
+	 (format #t "result: ~s~%" result)
+	 (all-true? result)))))
+
+
