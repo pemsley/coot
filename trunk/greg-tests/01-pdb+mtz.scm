@@ -55,6 +55,7 @@
   (if (string? ccp4-master)
       (begin
 	(format "==== It seems CCP4 is setup ===~%")
+	(format "==== CCP4_MASTER: ~s~%" ccp4-master)
 	(set! have-ccp4? #t))))
 
 
