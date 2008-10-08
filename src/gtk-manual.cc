@@ -844,28 +844,34 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
        gtk_menu_set_active(GTK_MENU(menu), 0); 
      }
      if (bond_type == 2) { /* CA bonds */
-       gtk_menu_set_active(GTK_MENU(menu), 3); 
-     }
-     if (bond_type == 3) { /* segid-coloured bonds */
-       gtk_menu_set_active(GTK_MENU(menu), 1); 
-     }
-     if (bond_type == 4) { /* CA_BONDS_PLUS_LIGANDS */
        gtk_menu_set_active(GTK_MENU(menu), 4); 
      }
-     if (bond_type == 5) { /* BONDS_NO_WATERS */
-       gtk_menu_set_active(GTK_MENU(menu), 6); 
-     }
-     if (bond_type == 6) { /* BONDS_SEC_STRUCT_COLOUR */
+     if (bond_type == 3) { /* segid-coloured bonds */
        gtk_menu_set_active(GTK_MENU(menu), 2); 
      }
-     if (bond_type == 7) { /* CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR */
+     if (bond_type == 4) { /* CA_BONDS_PLUS_LIGANDS */
        gtk_menu_set_active(GTK_MENU(menu), 5); 
      }
-     if (bond_type == 10) { /* COLOUR_BY_B_FACTOR_BONDS */
+     if (bond_type == 5) { /* BONDS_NO_WATERS */
+       gtk_menu_set_active(GTK_MENU(menu), 8); 
+     }
+     if (bond_type == 6) { /* BONDS_SEC_STRUCT_COLOUR */
+       gtk_menu_set_active(GTK_MENU(menu), 3); 
+     }
+     if (bond_type == 7) { /* CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR */
+       gtk_menu_set_active(GTK_MENU(menu), 6); 
+     }
+     if (bond_type == 8) { /* COULUR_BY_MOLECULE_BONDS */
+       gtk_menu_set_active(GTK_MENU(menu), 1); 
+     }
+     if (bond_type == 9) { /* COLOUR_BY_RAINBOW_BONDS */
        gtk_menu_set_active(GTK_MENU(menu), 7); 
      }
+     if (bond_type == 10) { /* COLOUR_BY_B_FACTOR_BONDS */
+       gtk_menu_set_active(GTK_MENU(menu), 9); 
+     }
      if (bond_type == 11) { /* COLOUR_BY_OCCUPANCY_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 8); 
+       gtk_menu_set_active(GTK_MENU(menu), 10); 
      }
      /* c.f molecule-class-info.h:30 enum */
   }
