@@ -5,6 +5,9 @@ Release 0.5.1 Uneno
    o FEATURE: A "Delete Molecule" button is now available in the
      Display Manager.
 
+   o FEATURE: show-rotamer-dialog is now available from the scripting
+     layer (hence `quick rotamer' keybinding).
+
    o BUG-FIX: the chi angle bond highlighting works again.
 
 
