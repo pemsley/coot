@@ -16,6 +16,23 @@ Things to do for 0.5.1
        save
        Look at monomer-CYS.cif, the TLC is ASN.
 
+  o test that fixed atoms with alt confs work.
+
+  o are test-wiggly ligands written to disk by default?
+
+
+
+
+
+
+  o Read a shelx file with PART 1 10.6 [Mirek Gilski] [10.6 is the
+    site occupancy factor]
+
+* Done. 
+
+  o put the NCS edit test into greg-tests.
+
+* Done
 
   o restraints editor, Cancel on save cif doesn't work  
 
@@ -23,24 +40,13 @@ Things to do for 0.5.1
      working or not closing the dialog. Maybe its a Mac thing.  I
      can't see how this "close/cancel" button is supposed to work.
 
-
-  o Read a shelx file with PART 1 10.6   [10.6 is the site occupancy factor]
-
-  o put the NCS edit test into greg-tests.
-
-  o test that fixed atoms with alt confs work.
-
-
-
-
-
+     I can now.  Use GTK_RESPONSE_CANCEL.
 
   o Rework the Extensions dialog to make it less long.
 
 * Done.
 
-
-  o Delete button in display manager
+  o Add a Delete button in display manager
 
 * Done.
 
@@ -6995,6 +7001,14 @@ Mon Oct  6 13:56:44 BST 2008
    build web page builder fails (a list-ref of a #f list)
 
    Crash on CentOS 4 machines when trying to read svgs
+
+
+----
+Wed Oct  8 14:11:40 BST 2008
+
+   coot-shelx-ins.cc
+   // 20081008 allow for a site occupancy factor on the PART line
+   // but then throw it away.  Not good. Should fix at some stage.
 
 
 -----
