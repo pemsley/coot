@@ -1,11 +1,12 @@
 /* coot-utils/coot-shelx-ins.cc
  * 
- * Copyright 2005, 2006, 2007 The University of York
+ * Copyright 2005, 2006, 2007 by The University of York
+ * Copyright 2008 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
+ * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
@@ -162,7 +163,9 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		  }
 	       } else {
 		  if (card.words[0] == "PART") {
-		     if (card.words.size() == 2) {
+		     // 20081008 allow for a site occupancy factor on the PART line
+		     // but then throw it away.  Not good. Should fix at some stage.
+		     if (card.words.size() == 2 || card.words.size() == 3) {
 			if (card.words[1] == "0") {
 			   altconf = "";
 			} else {

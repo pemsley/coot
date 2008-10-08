@@ -10680,16 +10680,17 @@ void
 on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
 					 gint             response_id,
 					 gpointer         user_data) { 
-
+/* Maybe there are responses other than OK and cancel, so don't factor
+   out the destroy() */
 #if (GTK_MAJOR_VERSION > 1)
   GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");
   if (response_id == GTK_RESPONSE_OK) {
     save_monomer_restraints_by_widget(dialog);
+    gtk_widget_destroy(w);
   }
   if (response_id == GTK_RESPONSE_CANCEL) {
-    // nothing extra.
+    gtk_widget_destroy(w);
   }
-  gtk_widget_destroy(w);
 #endif /* GTK_MAJOR_VERSION  */
 }
 
