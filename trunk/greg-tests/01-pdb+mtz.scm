@@ -53,7 +53,9 @@
 
 (let ((ccp4-master (getenv "CCP4_MASTER")))
   (if (string? ccp4-master)
-      (set! have-ccp4? #t)))
+      (begin
+	(format "==== It seems CCP4 is setup ===~%")
+	(set! have-ccp4? #t))))
 
 
 (greg-testcase "Post Go To Atom no molecules"  #t
