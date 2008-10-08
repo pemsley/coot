@@ -211,7 +211,8 @@
 # 2.47 20081007 Don't build python if python is not passed as arg.
 #               Back to version 2.5.1 that compiles on bragg3, 2.5.2 does not 
 #               (port 8080 already in use).
-script_version=2.47
+# 2.48 20081008 Migrate to CCP4 version 6.0.2 for testing in York.
+script_version=2.48
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -420,7 +421,7 @@ function setup_ccp4 {
    # we have access to $OS and $arch.
 
    if test "$OS" = Linux ; then
-      setup_file=/y/programs/xtal/ccp4-6.0/ccp4-6.0/include/ccp4.setup-sh 
+      setup_file=/y/programs/xtal/ccp4-6.0.2/ccp4-6.0.2/include/ccp4.setup-sh 
       if test -e $setup_file ; then
          . $setup_file
       fi
