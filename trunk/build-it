@@ -208,7 +208,8 @@
 # 2.44 20080815 Fix test info syntax error.
 # 2.45 20080818 Use mmdb version 1.12
 # 2.46 20080924 Tell us in coot.txt what the source tar file was.
-# 2.47 20081007 Back to version 2.5.1 that compiles on bragg3, 2.5.2 does not 
+# 2.47 20081007 Don't build python if python is not passed as arg.
+#               Back to version 2.5.1 that compiles on bragg3, 2.5.2 does not 
 #               (port 8080 already in use).
 script_version=2.47
 
@@ -1353,15 +1354,15 @@ else
    build_greg=1
 fi
 
-
-
-$install_top_dir/bin/python -V
-if test $? != 0 ; then
-   echo python should be built
-   build_python=1
-else 
-   echo installation has python
-   build_python=
+if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+   $install_top_dir/bin/python -V
+   if test $? != 0 ; then
+      echo python should be built
+      build_python=1
+   else 
+      echo installation has python
+      build_python=
+   fi
 fi
 
 # force the GSL config to be in $install_top_dir, rather than
