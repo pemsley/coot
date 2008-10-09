@@ -82,8 +82,9 @@ class UtilTestFunctions(unittest.TestCase):
 
 	have_pygtk2 = False
         imported = False
-        
-	try:
+
+        try:
+            import pygtk
 	    pygtk.require("2.0")
 	    have_pygtk2 = True
 	except:
