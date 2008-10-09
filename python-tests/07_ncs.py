@@ -120,3 +120,26 @@ class NcsTestFunctions(unittest.TestCase):
         self.failUnless(rname == "TRP", "Mutate fails - peer not a TRP (%s)" %rname)
 
         
+# Perhaps combine this with previous test, its tests the same function.
+#
+    def test04_0(self):
+        """NCS Residue Range edit to all chains"""
+
+        imol = unittest_pdb("pdb1t6q.ent")
+        self.failUnless(valid_model_molecule_qm(imol))
+
+        mutate(imol, "A", 50, "", "ASP")
+        skip_to_next_ncs_chain()     # generate the ghosts
+
+        copy_residue_range_from_ncs_master_to_others(imol, "A", 50, 50)
+
+        # did it apply?
+        result = []
+        for chain_id_peer in ["B", "C"]:
+            resname = residue_name(imol, chain_id_peer, 50, "")
+            if (resname == "ASP"):
+                result.append(True)
+            else:
+                result.append(False)
+        print "result:", result
+        self.failUnless(all(result))

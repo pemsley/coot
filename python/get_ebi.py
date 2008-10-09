@@ -18,9 +18,10 @@
 
 # this is get-ebi stuff
 global oca_server
-oca_server = "http://bip.weizmann.ac.il"
+#oca_server = "http://bip.weizmann.ac.il"
 #oca_server = "http://oca.ebi.ac.uk"
 #oca_server = "http://structure.embl-hamburg.de"
+oca_server = "http://www.ebi.ac.uk/msd-srv/oca"
 
 global oca_pdb_request_stub
 oca_pdb_request_stub = "oca-bin/save-pdb?id="

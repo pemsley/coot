@@ -55,6 +55,8 @@ try:
 	#global have_ccp4_qm
 	ccp4_master = os.getenv("CCP4_MASTER")
 	if (os.path.isdir(ccp4_master)):
+		print "==== It seems CCP$_MASTER is setup ==="
+		print "==== CCP$_MASTER:", ccp4_master
 		have_ccp4_qm = True
 except:
 	print "BL INFO:: Dont have CCP4 master"
