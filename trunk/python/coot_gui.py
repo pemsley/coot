@@ -32,7 +32,10 @@ global do_function
 #
 
 import pygtk, gtk, pango
-import gobject
+try:
+   import gobject
+except:
+   print "WARNING:: no gobject available"
 
 import types
 from types import *
