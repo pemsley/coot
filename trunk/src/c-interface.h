@@ -2726,6 +2726,7 @@ void set_refinement_refine_per_frame(int istate);
 /*! \brief query the state of the above option */
 int refinement_refine_per_frame_state(); 
 
+/*! \brief turn on Ramachandran angles refinement in refinement and regularization */
 void set_refine_ramachandran_angles(int state);
 
 int refine_ramachandran_angles_state();
