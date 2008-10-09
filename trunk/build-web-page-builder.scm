@@ -387,11 +387,16 @@
   ;; return some text
   (define (source-build-status-text)
     (let ((file (append-dir-file
-		 (append-dir-dir "/y/people/emsley" "public_html/software/pre-release/build-status")
+		 (append-dir-dir "/y/people/emsley" 
+				 "public_html/software/pre-release/build-status")
 		 "status")))
       (call-with-input-file file
 	(lambda (port)
-	  (let ((text (read-line port)))
+	  (let* ((t1 (read-line port))
+		 (t2 (read-line-port))
+		 (text (if (eof-object? t2)
+			   t1
+			   (string-append t1 " " t2))))
 	    (markup text))))))
   
   (define (markup text)
