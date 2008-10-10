@@ -37,6 +37,8 @@
 
 #include "mmdb_mmcif.h"
 
+#define USE_SBASE
+
 #ifdef USE_SBASE 
 // needs #include "mmdb_sbase.h"
 #ifndef  __MMDB_SBase__
@@ -801,7 +803,7 @@ namespace coot {
       protein_geometry() { read_number = 0; set_verbose(1); }
 #ifdef USE_SBASE   
       // SBase things
-      int init_sbase(); // inits SBase
+      int init_sbase(const std::string &sbase_monomer_dir); // inits SBase
       void read_sbase_residues();
 #endif // USE_SBASE   
       

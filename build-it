@@ -1624,10 +1624,13 @@ mmdb_version=1.0.8-ysbl-3
 mmdb_version=1.11
 mmdb_version=1.12
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
+${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
 cd  mmdb-$mmdb_version
+# patch to read long lines in a cif file
+patch -p0 < ../mmdb-mmcif-long-line.patch
 ./configure $generic_prefix
 $MAKE
 $MAKE install

@@ -98,31 +98,33 @@ coot::protein_geometry::read_sbase_residues() {
 
    for (int i=0; i<residue_codes.size(); i++) {
       SBS = SBase->GetStructure((char *)residue_codes[i].c_str());
-      cout << SBS->compoundID << " " << SBS->Name << std::endl;
+      std::cout << SBS->compoundID << " " << SBS->Name << std::endl;
    }
 }
 #endif // USE_SBASE
 
 #ifdef USE_SBASE
 int
-coot::protein_geometry::init_sbase() {
+coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir) {
       
-   char *monomer_dir = getenv(MONOMER_DIR_STR);
+   const char *monomer_dir = getenv(MONOMER_DIR_STR);
    int RC;
    
-   cout << "monomer_dir: " << monomer_dir << endl; 
    if (!monomer_dir) {
-      std::cout << MONOMER_DIR_STR << " is not defined.  Cannot continue"
-                << std::endl;
-      RC = 0; // fail
+      if (coot::is_directory_p(sbase_monomer_dir)) {
+	 monomer_dir = sbase_monomer_dir.c_str();
+      } else { 
+	 RC = 0; // fail
+      }
    } else {
 
+      std::cout << "sbase monomer dir: " << monomer_dir << std::endl; 
       RC = SBase->LoadIndex(monomer_dir);
 
       if (RC != SBASE_Ok) {
-         std::cout << "sbase files not found in " << monomer_dir << endl;
+         std::cout << "sbase files not found in " << monomer_dir << std::endl;
       } else { 
-         std::cout << "sbase files found" << endl; 
+         std::cout << "sbase files found" << std::endl; 
       }
    }
    return RC; 

@@ -109,6 +109,8 @@ namespace coot {
 
    bool file_exists(const std::string &filename);
 
+   bool is_directory_p(const std::string &filename);
+
    class colour_holder {
    public:
       // values between 0 and 1.0
