@@ -10,6 +10,9 @@ Release 0.5.1 Uneno
 
    o BUG-FIX: the chi angle bond highlighting works again.
 
+   o BUG-FIX: Check/Delete waters in Check mode no longer crashes when
+     you click the "Close" button.
+
 
 -----
 

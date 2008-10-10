@@ -443,11 +443,10 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
       // std::cout << file_name.substr(0, i) << std::endl;
 // BL says:: in windows we should check for \ too. Too much pain to get
 // everything converted to / for file_chooser, e.g. with debackslash!
-#ifdef WINDOWS_MINGW
+      
+// Windows specific #ifdef removed 20081010, makes indenting lower done
+// this file work again.
       if (file_name[i] == '/' || file_name[i] == '\\') {
-#else
-      if (file_name[i] == '/') {
-#endif
 	 if (i < int(file_name.length())) { 
 	    end_char = i;
 	 } else {
@@ -662,6 +661,24 @@ coot::file_exists(const std::string &filename) {
       return 1;
    }
 }
+
+ bool coot::is_directory_p(const std::string &filename) {
+
+    bool st = 0;
+    struct stat s; 
+   int fstat = stat(filename.c_str(), &s);
+   if ( fstat == -1 ) { // file not exist
+      return 0;
+   } else {
+      if (S_ISDIR(s.st_mode)) {
+	 return 1;
+      } else {
+	 return 0;
+      }
+   }
+    return st;
+ }
+
 
 
 

@@ -33,7 +33,7 @@ void read_components_file(std::string cif_dictionary_filename) {
       for(int idata=0; idata<ciffile.GetNofData(); idata++) {
 	 PCMMCIFData data = ciffile.GetCIFData(idata);
 	 std::string s = data->GetDataName();
-	 std::cout << idata << " " << s << std::endl;
+	 // std::cout << idata << " " << s << std::endl;
       }
    }
 }

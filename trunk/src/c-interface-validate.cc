@@ -351,9 +351,9 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  std::string button_name = "checked_waters_baddie_button_";
 		  button_name += coot::util::int_to_string(i);
 
-		  gtk_object_set_data_full(GTK_OBJECT(w),
-					   button_name.c_str(), button,
-					   (GtkDestroyNotify) gtk_widget_unref);
+ 		  gtk_object_set_data_full(GTK_OBJECT(w),
+ 					   button_name.c_str(), button,
+					   NULL);
 		  
 		  gtk_signal_connect(GTK_OBJECT(button), "clicked",
 				     GTK_SIGNAL_FUNC (graphics_info_t::on_generic_atom_spec_button_clicked),
