@@ -684,6 +684,15 @@
 	(list "binary-Linux-i386-fedora-5-python-gtk2"
 	      "Linux-bragg3.chem.york.ac.uk/gtk2" #t)
 
+	(list "binary-Linux-i386-fedora-6-python-gtk2"
+	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
+
+	(list "binary-Linux-i386-fedora-6"
+	      "Linux-setsuko.chem.york.ac.uk/gtk2" #f)
+
+	(list "binary-Linux-i386-fedora-6-python"
+	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
+
 	(list "binary-Linux-i386-redhat-8.0"
 	      "Linux-bubbles/gtk1" #f)
 	(list "binary-Linux-i386-redhat-8.0-python" 
