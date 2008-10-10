@@ -3,15 +3,31 @@
 Release 0.5.1 Uneno
 
    o FEATURE: A "Delete Molecule" button is now available in the
-     Display Manager.
+     Display Manager [TJS].
 
    o FEATURE: show-rotamer-dialog is now available from the scripting
-     layer (hence `quick rotamer' keybinding).
+     layer (hence `quick rotamer' keybinding) [FvD].
+
+   o CHANGE: Display manager toggle buttons replaced with check
+     buttons.
 
    o BUG-FIX: the chi angle bond highlighting works again.
 
-   o BUG-FIX: Check/Delete waters in Check mode no longer crashes when
-     you click the "Close" button.
+   o BUG-FIX: The Cancel button in Save Restraints now works.
+
+   o BUG-FIX: Check/Delete waters in Check mode no longer causes a
+     crash when the "Close" button is clicked.
+
+   o BUG-FIX: Atom elements are infered from the atom name.
+
+   o BUG-FIX: writing of cifs from the Restraints editor has been
+     improved [JED].
+
+   o BUG-FIX: NCS residue range edits now apply to more than the first
+     peer.
+
+   o BUG-FIX: Coot now can read PART cards with a site occupancy
+     factor from a SHELXL .res file [Mirek Gilski].
 
 
 -----
