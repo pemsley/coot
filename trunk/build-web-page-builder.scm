@@ -648,7 +648,7 @@
 		,(source-build-status-text)
 		(*ENTITY* "nbsp")
 		(*ENTITY* "nbsp")
-		(a (@ href "http://www.ysbl.york.ac.uk/~emsley/build-logs/buibbles-local-build.log")
+		(a (@ href "http://www.ysbl.york.ac.uk/~emsley/build-logs/bubbles-local-build.log")
 		   "source build log"))
 
 	     ;; binary targets
