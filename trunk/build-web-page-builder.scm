@@ -393,7 +393,7 @@
       (call-with-input-file file
 	(lambda (port)
 	  (let* ((t1 (read-line port))
-		 (t2 (read-line-port))
+		 (t2 (read-line port))
 		 (text (if (eof-object? t2)
 			   t1
 			   (string-append t1 " " t2))))
