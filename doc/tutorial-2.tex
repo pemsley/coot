@@ -29,11 +29,16 @@
 The idea here is to use more advanced\footnote{``less commonly-used''
   might be a better description} tools of Coot.  There will be less
 description of low-level widget manipulation in this tutorial - we
-presume that you already have experience with that.
+presume that you already have experience with that.  You may well trip
+over issues not discussed here\footnote{Feel free to shout out if you
+  do, several others may have this same problem and we can examine the
+  issue together.}.
+
+\section{Preamble}
 
 When automatic building fails, typically because the resolution limit
 of your data is too low, then building the molecule ``by hand'' may be
-the only way to proceed.  Recognising the shape of main-chain and
+the only way to proceed.  Recognizing the shape of main-chain and
 side-chain densities is valuable and this tutorial aims to introduce
 these to you.  Note that this tutorial map is an easy map to build
 into, the sidechains are (mostly) clear.  If you want a more realistic
@@ -42,7 +47,7 @@ the MTZ file\footnote{the resolution limit widget will appear when you
   activate the ``Expert Mode`` button.}.
 
 Using just a map and a sequence, we will attempt to generate a model.
-This model can then be validatated and refined with Refmac for several
+This model can then be validated and refined with Refmac for several
 rounds.  With some experience you should be able to get an R-factor of
 less than 20\% in less than 30 minutes.
 
@@ -60,8 +65,8 @@ Modelling Tools dialog.
   
 I suggest you use Go To Atom and start residue 2 A. This allows you to
 build the complete A chain in the correct direction and you can
-directly compare it to the real structure afterwards\footnote{if don't
-  follow this instruction, you could well build a symmetry releted
+directly compare it to the real structure afterward\footnote{if don't
+  follow this instruction, you could well build a symmetry related
   molecule, which is perfectly valid, of course, just that the
   comparison versus the correct structure will be more difficult.}.
 Once you are at residue 2A, use the Display Manager to turn off the
@@ -76,10 +81,14 @@ confusing the first time.
 So build from the N-terminus to the C (it takes about 15 minutes or
 so).  There are 96 residues to build.
 
+Note that you need at least 6 CA baton points for CA Zone to Mainchain
+to work\footnote{otherwise it silently fails - more feedback will be
+  added in later versions.}
+
 \section{Key Bindings}
 
 If you look at "Paul's Key Bindings"\footnote{Use Bernhard's
-  Keybindings if you are using pythonized or WinCoot} in
+  Key-bindings if you are using pythonized or WinCoot} in
 the Coot Wiki\footnote{you can find a link to this from the Coot web
   page}, you will see a page of customizations.  One of those
 customizations can help you in Baton-Building mode - and that is the
@@ -88,11 +97,11 @@ customizations can help you in Baton-Building mode - and that is the
 So, cut the bindings out of the web page, paste them into a file and
 then use \textsf{Calculate $\rightarrow$ Run Script\ldots} to evaluate
 that file\footnote{``read it in'', you might say}.  To check that your
-keybindings are activated, Use \textsf{Extensions $\rightarrow$ Key
+key-bindings are activated, Use \textsf{Extensions $\rightarrow$ Key
   Bindings\ldots}.
 
 Now, we can use quoteleft (or ``backquote'', "`" is how it might
-appear on the keyboard) to accept the batton position - this is much
+appear on the keyboard) to accept the baton position - this is much
 more convenient than using the ``Accept'' button\footnote{You can do
   that as well, of course, but \emph{clicky-clicky pressy button} is for
 Coot noobs, and that's not us, right?}.
@@ -110,27 +119,28 @@ Now we need to turn these CA positions into mainchain.
 first residue of ``Baton Atoms'', click it, then centre on the last
 residue of ``Baton Atoms'' and click on that.
 
-\textsl{  [Coot thinks for a several seconds while building a mainchain]}
+\textsf{  [Coot thinks for a several seconds while building a mainchain]}
 
-OK, great, we have a mainchain.  Let's tidy it up.
+OK, great, we have a mainchain.  Let's tidy it up:
 
-\textsl{Extensions $\rightarrow$ Stepped Refine}.  
+\textsf{Extensions $\rightarrow$ Stepped Refine}.  
 
 Refine the ``mainchain'' molecule, watch it as it goes.  Is it making
 mistakes?
 
-That refinement may have gone to quickly to make a note of problem areas, so use 
-\textsl{Validation $\rightarrow$ Density Fit Analysis} on the
-``mainchain'' molecule and find areas that are marked with large spikes.  
+That refinement may have gone to quickly to make a note of problem
+areas, so use \textsf{Validation $\rightarrow$ Density Fit Analysis}
+on the ``mainchain'' molecule and find areas that are marked with
+large spikes.
 
 ``There are none'' you say?  Good\footnote{If that's not what you say,
-  you can use the refinement or other tools that we learnt about in
+  you can use the refinement or other tools that we learned about in
   the first tutorial to improve the fit to density.}. Let's move on.
 
 \section{Assign Sequence}
 
-Let's tell Coot that we have a sequence assocciated with this set
-of CA points.  So, \textsl{Extensions $\rightarrow$ Dock Sequence
+Let's tell Coot that we have a sequence associated with this set
+of CA points.  So, \textsf{Extensions $\rightarrow$ Dock Sequence
   $\rightarrow$ Assign Sequence}
 
 Turn on auto-fit of residues
@@ -141,7 +151,7 @@ So when the file is assigned ``Assign Closest fragment''.
   sidechains, then goes about mutating and fitting the residues]}
 
 What's that you say?  Coot didn't do that?  Well, that's because you
-mainchain model is too bad for Coot to recognise the sidechain
+mainchain model is too bad for Coot to recognize the sidechain
 positions.  You need to review you mainchain model and make sure sure
 that the CBs are in density and pointing in the right direction.  When
 you have improved you model sufficiently well, Coot will apply the
@@ -151,27 +161,80 @@ Change the Chain ID from `` `` to ``A''.
 
 \section{Cell and Symmetry}
 
-Check for unassignded density - by eyeballing.
+Display Symmetry Atoms:
+
+\textsf{Draw $\rightarrow$ Cell \& Symmetry $\rightarrow$ Master
+  Switch: Show Symmetry Atoms $\rightarrow$ Yes} and \textsf{OK}.
+
+By zooming out and eyeballing the density, check for unassigned density.
+
+\textsl{ [Coot displays symmetry-related atoms in grey - by default
+  (you may not see many symmetry related atoms, it depends on where in
+  the unit cell you are)]}
+
 
 \section{Build another molecule}
 
-or part of it.
+Go to the blob of unassigned density (it's another chain).
 
-Apply seqence.
+Now find somewhere nice to start, where there is a clear side-chain
+and start building.  Build 30 or so CA baton positions.  Like above,
+convert this to mainchain.  Again, clean up - noting that this time
+that we want the latest ``mainchain'' (largest molecule number) -
+there should be 2 of them (at least).
 
-Merge molecules.
+Apply sequence to the new mainchain molecule.  Check that the sequence
+has been assigned.  You may need to build some more residues.
 
-Tell Coot there is NCS (or get it to regenerate it).  Show ghosts.  
+Rename this newly created chain the ``B'' chain.
 
-If ghosts appear, use NCS residue range from A to B.
+\section{Merge Molecules}
 
-stepped refine on the B chain.
+Merge the ``B'' chain into the ``A'' chain molecule above: 
 
-Now unmodelled blobs - like we did before.
+\textsf{Calculate $\rightarrow$ Merge molecules $\rightarrow$
+  Append/Insert Molecule(s) \emph{[Choose the most recent mainchain
+    molecule]} into Molecule \emph{[Choose the molecule of the A chain]}
+  $\rightarrow$ Merge}.
 
-Find the ligand 3GP, merge it in, 
+\section{Ghosts}
 
-Refine.  Validate. Rebuild.
+Unfortunately, there is no slick way to make Coot rebuild ghosts for
+this composite molecule.  We need to write out the pdb file and read
+it in again - inelegant.
+
+\textsf{File $\rightarrow$ Save Coordinates, \emph{[Choose the
+    molecule that does now contains both the A and B chains]}
+  $\rightarrow$ Select Filename\ldots } Pick a filename then use
+\textsf{File $\rightarrow$ Open Coordinates\ldots} to read it in
+again.
+
+Check the console as you do this, Coot will tell you that there are
+NCS related molecules.  If\footnote{When} it does this, we're in
+business.
+
+In the following, you will need to know the first and last residue
+numbers in the ``A'' chain.  Use the Go To Atom dialog to find them.
+
+If ghosts appear, use:
+
+\textsf{Extensions $\rightarrow$ NCS\ldots $\rightarrow$ Copy NCS
+  Residue Range\ldots} using ``A''\footnote{presumably} as the Master
+Chain ID then fill in the first and last residue numbers of the A
+chain.
+
+\textsl{[Coot builds the B chain as an NCS copy of the A chain]}
+
+\section{Rinse, Repeat}
+
+\begin{trivlist}
+\item Stepped refine on the B chain.
+\item Now unmodelled blobs - like we did before.
+\item Find the ligand 3GP, merge it in.
+\item Refine using Refmac.
+\item Validate. 
+\item Rebuild.
+\end{trivlist}
 
 
 \end{document}
