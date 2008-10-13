@@ -445,13 +445,21 @@
 			   (pdb-in  (string-append stub ".pdb"))
 			   (pdb-out (string-append stub "-tmp.pdb"))
 			   (mtz-out (string-append stub ".mtz"))
-			   (cif-lib-filename ""))
+			   (cif-lib-filename "")
+			   ; preserve the ncs and tls state
+			   (ncs-state (refmac-use-ncs-state))
+			   (tls-state (refmac-use-tls-state)))
 		      (write-pdb-file imol pdb-in)
+		      (set-refmac-use-ncs 0)
+		      (set-refmac-use-tls 0)
 		      (run-refmac-by-filename pdb-in pdb-out
 					      mtz-file-name mtz-out
 					      cif-lib-filename 0 0 -1
 					      1 0 '() 0 "" 
-					      f-col sig-f-col))))))))
+					      f-col sig-f-col)
+		      ; reset the ncs and tls states
+		      (set-refmac-use-ncs ncs-state)
+		      (set-refmac-use-tls tls-state))))))))
 	
 
 (define refmac-for-phases-and-make-map
