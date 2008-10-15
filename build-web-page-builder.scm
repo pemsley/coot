@@ -678,11 +678,11 @@
 ;	(list "binary-Linux-i386-fedora-6-python-gtk2"
 ;	      "Linux-bragg1.chem.york.ac.uk/gtk2")
 
-	(list "binary-Linux-i386-ubuntu-8.04.1" 
+	(list "binary-Linux-i686-ubuntu-8.04.1" 
 	      "Linux-bragg3/gtk1" #f)
-	(list "binary-Linux-i386-ubuntu-8.04.1-python" 
+	(list "binary-Linux-i686-ubuntu-8.04.1-python" 
 	      "Linux-bragg3/gtk1-python" #t)
-	(list "binary-Linux-i386-ubuntu-8.04.1-python-gtk2"
+	(list "binary-Linux-i686-ubuntu-8.04.1-python-gtk2"
 	      "Linux-bragg3/gtk2" #t)
 
 	(list "binary-Linux-i386-fedora-6-python-gtk2"
