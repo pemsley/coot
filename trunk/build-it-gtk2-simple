@@ -912,6 +912,14 @@ if [ $? -ne 0 ] ; then
    fi
 fi
 
+echo testing for patch 
+patch --version > /dev/null
+if [ $? -ne 0 ] ; then
+   echo no patch - exit now
+   my_exit 2
+fi
+
+
 if [ ! -e "$AUTOBUILD_BUILD" ] ; then
    mkdir "$AUTOBUILD_BUILD" 
    if [ $? -ne 0 ] ; then
