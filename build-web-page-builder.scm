@@ -669,6 +669,7 @@
 (let ((file-name "/y/people/emsley/public_html/coot/build-info.html")
       (bin-list 
        (list 
+
 ; bragg1 is no longer a fedora-6 :-(
 ;	(list "binary-Linux-i386-fedora-6" 
 ;	      "Linux-bragg1.chem.york.ac.uk/bragg1.chem.york.ac.uk")
@@ -677,12 +678,12 @@
 ;	(list "binary-Linux-i386-fedora-6-python-gtk2"
 ;	      "Linux-bragg1.chem.york.ac.uk/gtk2")
 
-;	(list "binary-Linux-i386-ubuntu-8.04.1" 
-;	      "Linux-bragg3/gtk1" #f)
-;	(list "binary-Linux-i386-ubuntu-8.04.1-python" 
-;	      "Linux-bragg3/gtk1-python" #t)
-;	(list "binary-Linux-i386-ubuntu-8.04.1-python-gtk2"
-;	      "Linux-bragg3/gtk2" #t)
+	(list "binary-Linux-i386-ubuntu-8.04.1" 
+	      "Linux-bragg3/gtk1" #f)
+	(list "binary-Linux-i386-ubuntu-8.04.1-python" 
+	      "Linux-bragg3/gtk1-python" #t)
+	(list "binary-Linux-i386-ubuntu-8.04.1-python-gtk2"
+	      "Linux-bragg3/gtk2" #t)
 
 	(list "binary-Linux-i386-fedora-6-python-gtk2"
 	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
