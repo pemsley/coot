@@ -167,10 +167,15 @@ the molecule to the motion of the mouse.  Many people don't like this.
 
 So you might like to try the following. In the Coot main menu-bar:
 
-\textsf{HID $\rightarrow$ Virtual Trackball $\rightarrow$ Flat}
+\textsf{Edit $\rightarrow$ Preferences...}
+
+\textsl{  [Coot displays a Preferences window]}
+
+On the left toolbar select \textsf{General} and then on the right top 
+notebook tab \textsf{HID}. Select \textsf{``Flat''} to change the mouse motion.
 
 (Use the \textsf{``Spherical Surface''} option to turn it back to how
-it is by default)
+it is by default).
 
 
 What is the difference? ``Flat'' mode is like the mode used by ``O''.
@@ -267,13 +272,20 @@ the opposite way.
 \item Ctrl Left-mouse \& Drag moves the view around.  If this is a too
   slow and jerky:
   \begin{itemize}
-  \item Select \textsf{Draw} from Coot's menu-bar
-  \item Select the \textsf{``Dragged Map\ldots''} menu item
+  \item Select \textsf{Edit $\rightarrow$ Preferences\ldots} from Coot's menu-bar
+  \item Select the \textsf{``Maps''} toolbutton on the left
+  \item Select the \textsf{``Dragged Map''} notebook tab.
   \item Select \textsf{``No''} in the ``Active Map on Dragging'' window
   \item Click \textsf{``OK''} in the ``Active Map on Dragging'' window
   \end{itemize}
   Now the map is recontoured at the end of the drag, not at each
   step\footnote{which looks less good on faster computers.}.
+
+  Another, additional way to make the movements faster is to change the 
+  number of steps for the ``Smooth Recentering''. Again you find this in
+  the ``Preferences'' (\textsf{Preferences $\rightarrow$ General $\rightarrow$ 
+  Smooth Recentring}). Change the \textsf{``Number of Steps''} from the 
+  default 80 to something smaller, e.g. 20.
 
 
 \begin{figure}[htbp]
@@ -389,6 +401,14 @@ Select a map for model building:
   window
 
 \item click OK (you want to select the map with ``\ldots FWT PHWT'')
+
+Alternatively you can use the modelling toolbar icon buttons displayed 
+on the right side of the Coot window. Most options found in the 
+Model/Fit/Refine window are available here too. If you are not sure 
+which icon corresponds to which function look at the displayed tips 
+when over the button with the mouse. Or change the display style of 
+the buttons by clicking on the bottom arrow and select another style 
+to get only or additionally text displayed.
   
 \end{trivlist}
 
@@ -431,10 +451,14 @@ are available in Coot.
   \emph{[ The sidechain is pointing the wrong way.  Let's Fix it...]}
 
 \item Menubar: \textsf{Calculate $\rightarrow$ Model/Fit/Refine...}
+\footnote{or use the modelling toolbar on the right of the Coot window, 
+i.e. you don't need to open the Model/Fit/Refine window}
 
 \textsl{ [Coot displays the Model/Fit/Refine window]}
 
-\item Select \textsf{``Rotamers''} from the Model/Fit/Refine window.
+\item Select \textsf{``Rotamers''} from the Model/Fit/Refine window
+\footnote{Or click on the \textsf{``Rotamers''} button of the modelling 
+toolbar}.
   
 \item In the graphics window, (left-mouse) click on an atom of residue
   89A (the C$\gamma$, say)
@@ -449,7 +473,7 @@ are available in Coot.
 \textsl{ [Coot updates the coordinates to the selected rotamer]}
 
 \item Click \textsf{``Real Space Refine Zone''} in the
-  Model/Fit/Refine window.
+  Model/Fit/Refine window\footnote{\ldots or use the modelling toolbar button}.
   
 \item In the graphics window, click on an atom of residue 89A.  Click
   it again.
@@ -472,10 +496,10 @@ Now, how about if we just use Real Space Refinement only?
 \begin{itemize}
 \item Click \textsf{``Undo''} twice
 
-  \textsl{ [Coot puts the sicechain back to the original position] } 
+  \textsl{ [Coot puts the sidechain back to the original position] } 
   
 \item Click \textsf{``Real Space Refine Zone''} in the
-  Model/Fit/Refine window.
+  Model/Fit/Refine window\footnote{\ldots or modelling toolbar button}.
   
 \item In the graphics window, click on an atom of residue 89A.  Click
   it again.
@@ -568,7 +592,7 @@ Blobs 3 and 4 (if you have it) are the smallest).
   \emph{[We need something tetrahedral there\ldots]}
   
 \item \textsf{``Place Atom At Pointer''} on the Model/Fit/Refine
-  window
+  window\footnote{also available in the modelling toolbar}
 
 \textsl{ [Coot shows a Pointer Atom Type window]}
 
@@ -603,13 +627,11 @@ That's what missing: 3' GMP.  So let's add it\ldots
 
 \textsl{ [3GP appears]}
 
-\textbf{Note}: In WinCoot ``File $\rightarrow$ Get Monomer\ldots''
-won't work.  Instead open the file \texttt{monomer-3GP.pdb}.
-
 It is generally easier to work without hydrogens, so let's delete
 them
 
 \item \textsf{``Delete\ldots''} from the Model/Fit/Refine window
+  \footnote{Found in the modelling toolbar? Of course!}
 \item \textsf{``Hydrogens in Residue''}
 \item click on an atom in 3GP
 
@@ -618,7 +640,7 @@ them
 The 3GP is displaced from where we want it to be.
 
 \item \textsf{``Rotate/Translate Zone''} from the Model/Fit/Refine
-  window
+  window\footnote{Found it in the modelling toolbar?}
 \item click on an atom in 3GP twice
 
 \textsl{ [Intermediate (white) atoms appear]}
@@ -692,7 +714,8 @@ This is a far as I expect you to get.
 \subsection{Waters}
 Fit waters to the structure
 \begin{itemize}
-\item \textsf{``Find Waters\ldots''} in the Model/Fit/Refine window,
+\item \textsf{``Find Waters\ldots''} in the Model/Fit/Refine window
+  \footnote{There is a water drop in the modelling toolbar which does it too},
   then OK (using the defaults)
 
 \textsl{ [Waters appear]}
@@ -711,8 +734,8 @@ To check the waters:
 \item If you don't like the fast sliding\footnote{it's not very good
     for water checking} you can turn it off:
   \begin{itemize}
-  \item Click `\textsf{`Draw''} in the main menubar
-  \item Click \textsf{``Smooth Recentering...''}
+  \item Click \textsf{Edit $\rightarrow$ Preferences\ldots} in the main menubar
+  \item Click \textsf{General $\rightarrow$ ``Smooth Recentering...''}
   \item Click \textsf{``No''}
   \end{itemize}
 \end{itemize}
@@ -794,7 +817,8 @@ histogram of differences.
 
 
 \subsection{Add Terminal Residue}
-[To be found on the Model/Fit/Refine dialog]
+[To be found on the Model/Fit/Refine dialog\footnote{and in the 
+  modelling toolbar}]
 
 \begin{itemize}
 \item Use the Go To Atom window to go to residue 72 A.
@@ -843,7 +867,13 @@ It is an alternative conformation.
 
 Let's model it
 
-\item \textsf{Add Alt Conf\ldots}
+\item \textsf{Add Alt Conf\ldots\footnote{This is one of the few items 
+  `missing' in the modelling toolbar. However you can add your own ``Add 
+  Alt Conf'' button to the top toolbar of the Coot window (only in Python 
+  versions). Click Right-mouse on the toolbar (besides the ``Display Manager'' 
+  button) and you will see a pop-up menu. Select ``Manage Buttons'',  
+  tick the box besides ``Add Alt Conf'' and click ``Apply''. A new button 
+  named ``Add Alt Conf'' will appear on the toolbar.}}
 
 \textsl{  [Coot pops up a residue splitter dialog]}
 
@@ -925,8 +955,10 @@ the real structure afterwards.
 Refmac is a program that does Maximum Likelihood refinement of the
 model, and the interface to it can be found on the Model/Fit/Refine
 dialog. (There is no icon on the toolbar for this action - open the
-window from the calculate menu). Now click on \textsf{``Run
-Refmac\ldots''} at the bottom of the Model/Fit/Refine window.
+window from the calculate menu\footnote{or add your own ``Run Refmac''
+button to the top toolbar as described for ``Add Alt Conf''}). Now 
+click on \textsf{``Run Refmac\ldots''} at the bottom of the 
+Model/Fit/Refine window.
 
 The defaults should be fine...
 

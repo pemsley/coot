@@ -4,6 +4,39 @@
 * THINGS TO DO BEFORE 0.5.1 RELEASE *
 ---------------
 
+Notes from Phenix
+
+15/10/08
+
+   o readline not accessible with ftp but with http in build-it-gtk2-simple?!
+     may just be temporarily?!
+
+   o compile without GSL fails in graphics-info.hh as redefinition of 
+     refinement_results_t -> check (remove in graphics-info.hh?!?)
+
+
+---
+04/10/08
+   o make toolbutton GUI/wizard
+
+* Done (check which ones to use!?!)
+
+   o clean up the build-info webpage files/dirs for WinCoot
+
+   o update the tutorial with Kevin's figures?!
+
+   o add copy button to LSQ fit
+
+   o reset B-factors of refined/changed atoms
+
+   o always be able to use mtz file in Refmac GUI
+
+  (o progress bars for refmac e.g.)
+
+   o WinCoot: copy installer even if not newer?!
+
+   o update WinCoot website for new probe/reduce use
+
    o be up-to-date with all python scripts and tests
 up-to-date 09/09/08
 tests rev 1378
@@ -12,12 +45,12 @@ tests rev 1378
 04/09/08
    o loop building backwards in scheme (use python?)?
 
-07/10/08
-   o make pygtk gtk1 compliant (incl import gobject test)
 
 ---------------
 * TO DO THINGS *
 ---------------
+
+   o merge build-it-win with buid-it-gtk2-simple?!
 
    o clean-up use of probe/reduce command_name and command (python):
       actually should not delete and overwrite group_settings.py
@@ -105,7 +138,7 @@ tests rev 1378
    o fix size of chooser dialog (if possible, gtk2 bug?!)
 
 04/10/08
-   o make toolbutton GUI/wizard
+   o simultaneous refinement of alt confs
 
 
 ---------------
@@ -183,7 +216,7 @@ tests rev 1378
 
    o replace popen and spawn in python with subprocess functions!
 
-*Done
+* Done
 
    o clean-up use of probe/reduce command_name and command (python)
 
@@ -192,4 +225,19 @@ tests rev 1378
 22/09/08
    o current directory in chooser shortcuts
 
-*Done
+* Done
+
+   o update tutorial with preferences
+
+* Done 
+
+07/10/08
+   o make pygtk gtk1 compliant (incl import gobject test)
+
+* Done (well not compliant but shouldnt crash)
+
+15/10/08
+   o make loading svg (in absence of libsvg) fail save
+
+* Fixed
+

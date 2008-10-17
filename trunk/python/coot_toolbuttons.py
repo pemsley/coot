@@ -84,6 +84,48 @@ if (have_coot_python):
       menu.show_all()
       menu.popup(None, None, None, event.button, event.time)
 
+    def make_icons_model():
+      import os, glob
+      stock_icon_ls = gtk.stock_list_ids()
+      # coot icons
+      pixbuf_dir = os.getenv('COOT_PIXMAPS_DIR')
+      if (not pixbuf_dir):
+        pixbuf_dir = os.path.join(get_pkgdatadir(), "pixmaps")
+      patt = os.path.normpath(pixbuf_dir + '/*.svg')
+      coot_icon_filename_ls = glob.glob(patt)
+
+      model = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
+      for icon_filename in coot_icon_filename_ls:
+        if (not (('phenixed' in icon_filename) or
+                 ('coot-icon' in icon_filename))):
+          if os.path.isfile(icon_filename):
+            icon = os.path.basename(icon_filename)
+            pixbuf = gtk.gdk.pixbuf_new_from_file(icon_filename)
+            model.append([pixbuf, icon, icon_filename])
+
+      # build in default gtk icons
+      icon_theme = gtk.icon_theme_get_default()
+      for icon in stock_icon_ls:
+        try:
+          pixbuf = icon_theme.load_icon(icon, 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+          model.append([pixbuf, icon, None])
+        except:
+          pass
+      return model
+
+    def icon_selection_combobox(model):
+        
+      combobox = gtk.ComboBox()
+      combobox.set_wrap_width(10)
+      combobox.set_model(model)
+      crpx = gtk.CellRendererPixbuf()
+      #crt  = gtk.CellRendererText()
+      combobox.pack_start(crpx, False)
+      combobox.add_attribute(crpx, 'pixbuf', 0)
+      combobox.show_all()
+      return combobox
+
+
     def make_toolbar_button_gui():
 
       def delete_event(*args):
@@ -138,48 +180,7 @@ if (have_coot_python):
 
         window.destroy()
         return False
-
-      def make_icons_model():
-        import os, glob
-        stock_icon_ls = gtk.stock_list_ids()
-        # coot icons
-        pixbuf_dir = os.getenv('COOT_PIXMAPS_DIR')
-        if (not pixbuf_dir):
-          pixbuf_dir = os.path.join(get_pkgdatadir(), "pixmaps")
-        patt = os.path.normpath(pixbuf_dir + '/*.svg')
-        coot_icon_filename_ls = glob.glob(patt)
-
-        model = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
-        for icon_filename in coot_icon_filename_ls:
-          if (not (('phenixed' in icon_filename) or
-                   ('coot-icon' in icon_filename))):
-            if os.path.isfile(icon_filename):
-              icon = os.path.basename(icon_filename)
-              pixbuf = gtk.gdk.pixbuf_new_from_file(icon_filename)
-              model.append([pixbuf, icon, icon_filename])
-              
-        # build in default gtk icons
-        icon_theme = gtk.icon_theme_get_default()
-        for icon in stock_icon_ls:
-          try:
-            pixbuf = icon_theme.load_icon(icon, 16, gtk.ICON_LOOKUP_USE_BUILTIN)
-            model.append([pixbuf, icon, None])
-          except:
-            pass
-        return model
           
-      def icon_selection_combobox(model):
-        
-        combobox = gtk.ComboBox()
-        combobox.set_wrap_width(10)
-        combobox.set_model(model)
-        crpx = gtk.CellRendererPixbuf()
-        #crt  = gtk.CellRendererText()
-        combobox.pack_start(crpx, False)
-        combobox.add_attribute(crpx, 'pixbuf', 0)
-        combobox.show_all()
-        return combobox
-        
       def save_function(*args):
         print "Save me"
 
@@ -281,8 +282,9 @@ if (have_coot_python):
       window.add(vbox)
       window.show_all()
       
-
+    # simple GUI to remove a toolbar
     def remove_toolbar_button_gui():
+      
       def remove_toolbar_button(entry_text):
         print "remove button", entry_text
         for toolbar_child in coot_main_toolbar.get_children():
@@ -291,7 +293,24 @@ if (have_coot_python):
             coot_main_toolbar.remove(toolbar_child)
             remove_toolbar_from_init_file(button_label)
             break
-      generic_single_entry("Remove toolbar button", "button label", "Remove", remove_toolbar_button)
+      generic_single_entry("Remove toolbar button",
+                           "button label",
+                           "Remove",
+                           remove_toolbar_button)
+
+    # GUI to add user-defined toolbars
+    # uses Assistant or a simple GUI, depending on PyGTK version
+    def add_toolbar_button_gui():
+      major, minor, micro = gtk.pygtk_version
+      if (major >= 2 and minor >= 10):
+        # have assistant
+        print "BL DEBUG:: run assistant"
+        add_toolbar_button_assistant()
+      else:
+        # no assistant available -> simple GUI
+        add_toolbar_button_simple_gui()
+        print "BL DEBUG:: no assistant, so simple GUI"
+      
 
     def toolbar_hide_text():
       coot_main_toolbar.set_style(gtk.TOOLBAR_ICONS)
@@ -299,19 +318,192 @@ if (have_coot_python):
     def toolbar_show_text():
       coot_main_toolbar.set_style(gtk.TOOLBAR_BOTH_HORIZ)
 
+    # an assistant to add a toolbutton
+    def add_toolbar_button_assistant():
+
+      def cb_close(assistant):
+        assi.destroy()
+        return False
+
+      def cb_name_entry_key_press(entry, event):
+        assi.set_page_complete(entry.get_parent(), True)
+
+      def cb_func_entry_key_press(entry, event):
+        assi.set_page_complete(entry.get_parent(), True)
+
+      def cb_entry_key_press(entry, event):
+        assi.set_page_complete(entry.get_parent(), True)
+
+      def cb_apply(assistant):
+        name_str = name_entry.get_text()
+        func_str = func_entry.get_text()
+        save_qm  = radiobutton_yes.get_active()
+        icon_iter = icon_combobox.get_active_iter()
+        icon = None
+        if (icon_iter):
+          icon, icon_stock, icon_filename = icon_model.get(icon_iter, 0, 1, 2)
+          if (icon_stock):
+            icon = icon_stock
+
+        coot_toolbar_button(name_str, func_str, icon)
+        if (save_qm):
+          save_toolbar_to_init_file(name_str, func_str, icon)
+        
+      assi = gtk.Assistant()
+      assi.set_title("Toolbutton Assistant")
+
+      assi.connect('delete_event', cb_close)
+      assi.connect('close', cb_close)
+      assi.connect('cancel', cb_close)
+      assi.connect('apply', cb_apply)
+
+      # Construct page 0 (enter the button name)
+      vbox = gtk.VBox(False, 5)
+      vbox.set_border_width(5)
+      vbox.show()
+      assi.append_page(vbox)
+      assi.set_page_title(vbox, 'Create a new toolbutton')
+      assi.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
+
+      label = gtk.Label("Please enter the name for the new toolbutton...")
+      label.set_line_wrap(True)
+      label.show()
+      vbox.pack_start(label, True, True, 0)
+
+      name_entry = gtk.Entry()
+      name_entry.connect("key-press-event", cb_name_entry_key_press)
+      name_entry.show()
+      vbox.pack_end(name_entry)
+      # check if name exists!!!!
+
+      # Construct page 1 (enter the function)
+      vbox = gtk.VBox(False, 5)
+      vbox.set_border_width(5)
+      vbox.show()
+      assi.append_page(vbox)
+      assi.set_page_title(vbox, 'Set the function')
+      assi.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
+
+      label = gtk.Label("Please enter the python function... (e.g. refine_active_residue())")
+      label.set_line_wrap(True)
+      label.show()
+      vbox.pack_start(label, True, True, 0)
+
+      func_entry = gtk.Entry()
+      func_entry.connect("key-press-event", cb_func_entry_key_press)
+      func_entry.show()
+      vbox.pack_end(func_entry)
+
+      # Construct page 2 (save?)
+      vbox = gtk.VBox(False, 5)
+      vbox.set_border_width(5)
+      vbox.show()
+      assi.append_page(vbox)
+      assi.set_page_title(vbox, 'Save to preferences?')
+      assi.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
+
+      label = gtk.Label("Do you want to save the button in your preferences?")
+      label.set_line_wrap(True)
+      label.show()
+      vbox.pack_start(label, True, True, 0)
+
+      radiobutton_yes = gtk.RadioButton(None, "Yes")
+      radiobutton_no  = gtk.RadioButton(radiobutton_yes, "No")
+      radiobutton_yes.set_active(True)
+      radiobutton_yes.show()
+      radiobutton_no.show()
+      vbox.pack_start(radiobutton_yes, True, True, 0)
+      vbox.pack_start(radiobutton_no,  True, True, 0)
+      assi.set_page_complete(radiobutton_yes.get_parent(), True)
+
+      # Construct page 3 (select icon)
+      vbox = gtk.VBox(False, 5)
+      vbox.set_border_width(5)
+      vbox.show()
+      assi.append_page(vbox)
+      assi.set_page_title(vbox, 'Select an icon')
+      assi.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
+
+      label = gtk.Label("Please select an icon or leave as it is...")
+      label.set_line_wrap(True)
+      label.show()
+      vbox.pack_start(label, True, True, 0)
+
+      hbox = gtk.HBox(False, 5)
+      icon_model = make_icons_model()
+      icon_combobox = icon_selection_combobox(icon_model)
+      icon_combobox.show()
+      hbox.show()
+      hbox.pack_start(icon_combobox, True, False, 2)
+      vbox.pack_end(hbox)
+      assi.set_page_complete(label.get_parent(), True)
+
+      # Final page
+      # As this is the last page needs to be of page_type
+      # gtk.ASSISTANT_PAGE_CONFIRM or gtk.ASSISTANT_PAGE_SUMMARY
+      label = gtk.Label('Thanks for using the toolbutton assistent!')
+      label.set_line_wrap(True)
+      label.show()
+      assi.append_page(label)
+      assi.set_page_title(label, 'Finish')
+      assi.set_page_complete(label, True)
+      assi.set_page_type(label, gtk.ASSISTANT_PAGE_CONFIRM)
+
+      assi.show()
+
+    def add_toolbar_button_simple_gui():
+
+      def button_func(*args):
+        # dummy dont need to do anythin here
+        pass
+
+      def do_func(*args):
+        name_str = args[0]
+        func_str = args[1]
+        save_qm  = args[2]
+        icon_iter = icon_combobox.get_active_iter()
+        icon = None
+        if (icon_iter):
+          icon, icon_stock, icon_filename = icon_model.get(icon_iter, 0, 1, 2)
+          if (icon_stock):
+            icon = icon_stock
+
+        coot_toolbar_button(name_str, func_str, icon)
+        if (save_qm):
+          save_toolbar_to_init_file(name_str, func_str, icon)
+        
+      entry_widget = generic_double_entry("Button Name:", "Python Function:",
+                                          "test", "centre_of_mass(0)",
+                                          "Save to Preferences?", button_func,
+                                          "Create", do_func,
+                                          return_widget = True)
+
+      hbox = gtk.HBox(True, 0)
+      label = gtk.Label("Icon:")
+      icon_model = make_icons_model()
+      icon_combobox = icon_selection_combobox(icon_model)
+      hbox.pack_start(label, True, False, 0)
+      hbox.pack_start(icon_combobox, True, False, 0)
+      children = entry_widget.get_children()
+      vbox = children[0]
+      vbox.pack_start(hbox, True, False, 2)
+      vbox.reorder_child(hbox, 3) 
+      hbox.show_all()
+
     def show_pop_up_menu(widget, event):
       if (event.button == 3):
-        create_show_pop_menu([["Manage Buttons/Add a new Button", make_toolbar_button_gui],
+        create_show_pop_menu([["Manage Buttons(add, delete Buttons)", make_toolbar_button_gui],
+                              ["Add a user-defined Button", add_toolbar_button_gui],
                               ["Remove a Button", remove_toolbar_button_gui],
-                              ["Hide text (only icons)", toolbar_hide_text],
-                              ["Show text", toolbar_show_text]],
+                              ["Hide Text (only icons)", toolbar_hide_text],
+                              ["Show Text", toolbar_show_text]],
                              event)
 
     coot_main_toolbar = coot_python.main_toolbar()
     coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
 
 # save a toolbar button to ~/.coot-preferences/coot_toolbuttons.py
-def save_toolbar_to_init_file(button_label, callback_function, icon):
+def save_toolbar_to_init_file(button_label, callback_function, icon=None):
 
   save_str = "coot_toolbar_button(\"" + button_label + "\", \"" + callback_function
   if icon:
@@ -348,7 +540,7 @@ def list_of_toolbar_functions():
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
-         ["Add alt conf", "altconf()", "Add alternative conformation", "add-alt-conf.svg"],
+         ["Add Alt Conf", "altconf()", "Add alternative conformation", "add-alt-conf.svg"],
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
         ["NMR",[]],

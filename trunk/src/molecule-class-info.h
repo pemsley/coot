@@ -1039,6 +1039,9 @@ class molecule_class_info_t {
    void zero_occupancy_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
 
+   void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val);
+
+
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<coot::Cartesian>   fixed_atom_positions; // updated on make_bonds_type_checked()
    void update_fixed_atom_positions();

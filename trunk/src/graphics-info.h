@@ -86,6 +86,8 @@
 #ifdef HAVE_GSL
 #else
 // fake in refinement_results_t
+// BL says:: probably shouldnt be here as already defined in ../ideal/simple-restraints.hh
+// FIXME
 namespace coot { 
   class refinement_results_t {
   public:

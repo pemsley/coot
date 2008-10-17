@@ -719,8 +719,9 @@ void setup_application_icon(GtkWindow *window) {
 	  if (error) {
 		 g_print ("Error loading icon: %s\n", error->message);
 		 g_error_free (error);
-	  }
-	  if (pixbuf) {
+		 error = NULL;
+	  } else {
+	    if (pixbuf) {
 		 iconset = gtk_icon_set_new_from_pixbuf(pixbuf);
 		 g_object_unref(pixbuf);
 		 // may have to be adjusted for Windows!!
@@ -732,6 +733,7 @@ void setup_application_icon(GtkWindow *window) {
 							  iconset);
 		 gtk_icon_factory_add_default(iconfactory);
 		 }
+	    }
 	  }
    }
    globfree(&myglob);
