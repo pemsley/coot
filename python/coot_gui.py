@@ -476,6 +476,7 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
     window.show_all()
 
 # generic double entry widget, now with a check button
+# ...and returns teh widget if requested
 # 
 # pass a the hint labels of the entries and a function 
 # (handle-go-function) that gets called when user hits "Go" (which
@@ -487,7 +488,11 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
 # check button and add the callback handle-check-button-function
 # which takes as an argument the active-state of the the checkbutton.
 #
-def generic_double_entry(label_1, label_2, entry_1_default_text, entry_2_default_text, check_button_label, handle_check_button_function, go_button_label, handle_go_function):
+def generic_double_entry(label_1, label_2,
+                         entry_1_default_text, entry_2_default_text,
+                         check_button_label, handle_check_button_function,
+                         go_button_label, handle_go_function,
+                         return_widget = False):
 
     def delete_event(*args):
        window.destroy()
@@ -564,6 +569,10 @@ def generic_double_entry(label_1, label_2, entry_1_default_text, entry_2_default
     smiles_entry.connect("key-press-event", key_press_event, tlc_entry, smiles_entry, check_button)
 
     window.show_all()
+
+    # return the widget
+    if (return_widget):
+       return window
 
 # generic double entry widget, now with a check button
 #

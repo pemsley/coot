@@ -4920,6 +4920,39 @@ molecule_class_info_t::set_occupancy_residue_range(const std::string &chain_id, 
    }
 }
 
+// as for occupancies but for B-factors and use a more general 
+// atom_selection_container. Let's do everything else later and/or
+// on scripting level.
+// need to copy from moving atoms to 'real' atoms!!! or the other way round?!
+void
+molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val) {
+
+  int n_atom = 0;
+  int tmp_index;
+
+  make_backup();
+  for (int i=0; i<asc.n_selected_atoms; i++) {
+    int idx = -1;
+    CAtom *atom = asc.atom_selection[i];
+    n_atom++;
+    std::cout<< "BL DEBUG:: orig atom_sel: " << asc.atom_selection[i] <<std::endl;
+    std::cout<<"BL DEBUG:: before b-factor" << asc.atom_selection[i]->tempFactor <<std::endl;
+    CChain *chain;
+    chain = asc.mol->GetChain(1,0);
+    std::string asc_chain_str(chain->GetChainID());
+    std::cout << "BL DEBUG:: chain is " << asc_chain_str << std::endl;
+    asc.atom_selection[i]->tempFactor = b_val;
+    std::cout<<"BL DEBUG:: after b-factor" << asc.atom_selection[i]->tempFactor <<std::endl;
+  }
+  // update the mol?!
+  update_molecule_after_additions();
+  //asc.mol->FinishStructEdit();
+  std::cout << n_atom << " atoms got B-factor of " << b_val << std::endl; 
+  have_unsaved_changes_flag = 1;
+  make_bonds_type_checked();
+  std::cout<<"BL DEBUG:: in the end b-factor" << asc.atom_selection[0]->tempFactor <<std::endl;
+}
+
 
 // Change chain id
 // return -1 on a conflict
