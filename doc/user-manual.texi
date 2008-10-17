@@ -3929,7 +3929,7 @@ degrees is suspicicous.  Unexpected CIS peptide bonds show up red.
 @subsection Geometry
 
 @menu
-* Pucker Puckers?::
+* Pukka Puckers?::
 @end menu
 
 This checks the the bonds, angles and planes geometry of the model is
@@ -3947,7 +3947,7 @@ described in their Molprobity paper @footnote{Davis @emph{et al.} (2007)
 Molprobity: all atom contacts and structure validation for proteins and
 nucleic acids, Nucleic Acids Research @b{35}, W375-W383}. Davis @emph{et
 al.} note that the distance of phosphate atom of the following residue
-out of the plane of the ribose is strongly correlated with the ribose
+out of the plane of the base is strongly correlated with the ribose
 pucker.  Coot checks that the out of plane distance is consistent with
 the ribose pucker (and let's you know if it is not). 
 
