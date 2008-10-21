@@ -4920,12 +4920,50 @@ molecule_class_info_t::set_occupancy_residue_range(const std::string &chain_id, 
    }
 }
 
+void
+molecule_class_info_t::set_b_factor_residue_range(const std::string &chain_id,
+						  int ires1, int ires2, float b_val) {
+
+   if (ires2 < ires1) {
+      int tmp = ires1;
+      ires1 = ires2;
+      ires2 = tmp;
+   }
+
+   PPCAtom SelAtoms = NULL;
+   int nSelAtoms;
+   int SelHnd = atom_sel.mol->NewSelection();
+   
+   atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) chain_id.c_str(),
+			     ires1, "*",
+			     ires2, "*",
+			     "*", // residue name
+			     "*",
+			     "*", // elements
+			     "*");
+
+   atom_sel.mol->GetSelIndex(SelHnd, SelAtoms, nSelAtoms);
+
+   if (nSelAtoms == 0) { 
+      std::cout << "Sorry. Could not find residue range " << ires1
+		<< " to " << ires2 << " in this molecule: ("
+		<<  imol_no << ") " << name_ << std::endl; 
+   } else {
+      for (int i=0; i<nSelAtoms; i++)
+	 SelAtoms[i]->tempFactor = b_val;
+      atom_sel.mol->DeleteSelection(SelHnd);
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
+   }
+}
+
 // as for occupancies but for B-factors and use a more general 
 // atom_selection_container. Let's do everything else later and/or
 // on scripting level.
 // need to copy from moving atoms to 'real' atoms!!! or the other way round?!
 void
-molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val) {
+molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_container_t &asc,
+						   float b_val, bool moving_atoms) {
 
   int n_atom = 0;
   int tmp_index;
@@ -4934,23 +4972,64 @@ molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_containe
   for (int i=0; i<asc.n_selected_atoms; i++) {
     int idx = -1;
     CAtom *atom = asc.atom_selection[i];
-    n_atom++;
-    std::cout<< "BL DEBUG:: orig atom_sel: " << asc.atom_selection[i] <<std::endl;
-    std::cout<<"BL DEBUG:: before b-factor" << asc.atom_selection[i]->tempFactor <<std::endl;
-    CChain *chain;
-    chain = asc.mol->GetChain(1,0);
-    std::string asc_chain_str(chain->GetChainID());
-    std::cout << "BL DEBUG:: chain is " << asc_chain_str << std::endl;
-    asc.atom_selection[i]->tempFactor = b_val;
-    std::cout<<"BL DEBUG:: after b-factor" << asc.atom_selection[i]->tempFactor <<std::endl;
+    if (moving_atoms) {
+      if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
+	if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == UDDATA_Ok) {
+	  if (tmp_index >= 0) { 
+	    if (moving_atom_matches(atom, tmp_index)) { 
+	      idx = tmp_index;
+	    } else {
+	      idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+						 atom->residue->seqNum,
+						 std::string(atom->GetInsCode()),
+						 std::string(atom->name),
+						 std::string(atom->altLoc));
+	    }
+	  } else {
+	    // This shouldn't happen.
+	    std::cout << "Good Handle, bad index found for old atom: specing" << std::endl;
+	    idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+					       atom->residue->seqNum,
+					       std::string(atom->GetInsCode()),
+					       std::string(atom->name),
+					       std::string(atom->altLoc));
+	  }
+	} else { 
+	  std::cout << "ERROR:: non-bad handle (" << asc.UDDOldAtomIndexHandle 
+		    <<  "), bad GetUDData for this atom " << std::endl;
+	} 
+      } else {
+	    
+	idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+					   atom->residue->seqNum,
+					   std::string(atom->GetInsCode()),
+					   std::string(atom->name),
+					   std::string(atom->altLoc));
+	if (idx == -1) {
+	  std::cout << "DEBUG:: idx: " << idx << "\n";
+	  std::cout << "ERROR:: failed to find spec for chain-id :"
+		    << std::string(atom->residue->GetChainID()) <<  ": "
+		    << atom->residue->seqNum << " inscode :" 
+		    << std::string(atom->GetInsCode()) << ": name :" 
+		    << std::string(atom->name) << ": altloc :"
+		    << std::string(atom->altLoc) << ":" << std::endl;
+	}
+      }
+    } else {
+      idx = i;
+    }
+    if (idx >= 0) {
+      n_atom++;
+      CAtom *mol_atom = atom_sel.atom_selection[idx];
+      mol_atom->SetCoordinates(atom->x,
+			       atom->y,
+			       atom->z,
+			       atom->occupancy,
+			       b_val);
+    }
   }
-  // update the mol?!
-  update_molecule_after_additions();
-  //asc.mol->FinishStructEdit();
-  std::cout << n_atom << " atoms got B-factor of " << b_val << std::endl; 
   have_unsaved_changes_flag = 1;
   make_bonds_type_checked();
-  std::cout<<"BL DEBUG:: in the end b-factor" << asc.atom_selection[0]->tempFactor <<std::endl;
 }
 
 

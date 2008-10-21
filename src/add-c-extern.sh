@@ -48,7 +48,7 @@ echo "GtkWidget* create_save_restraint_chooserdialog (void);"                 >>
 # this probably shouldnt be here, but I dont want to add this function to
 # gtk1 version
 echo "GtkWidget* create_run_refmac_nolabels_help_dialog(void);"    >> "$1".tmp.b
-echo "GtkWidget* create_run_refmac_twin_help_dialog(void);"        >> "$1".tmp.b
+echo "GtkWidget* create_run_refmac_file_help_dialog(void);"        >> "$1".tmp.b
 echo "GtkWidget* create_run_refmac_sad_help_dialog(void);"         >> "$1".tmp.b
 echo "GtkWidget* create_run_refmac_mtz_filechooserdialog(void);"   >> "$1".tmp.b
 echo "GtkWidget* create_coot_references_dialog(void);"             >> "$1".tmp.b

@@ -5415,14 +5415,14 @@ molecule_class_info_t::store_refmac_mtz_filename(const std::string &mtz_filename
 }
 
 void
-molecule_class_info_t::store_refmac_phase_params(const std::string &mtz_filename,
-						 const std::string &phi,
+molecule_class_info_t::store_refmac_phase_params(const std::string &phi,
 						 const std::string &fom,
 						 const std::string &hla,
 						 const std::string &hlb,
 						 const std::string &hlc,
 						 const std::string &hld) {
   
+  std::cout << "BL DEBUG:: in store refmac pahse params" <<std::endl;
   have_refmac_phase_params = 1; // true
   refmac_phi_col = phi;
   refmac_fom_col = fom;
@@ -5433,9 +5433,9 @@ molecule_class_info_t::store_refmac_phase_params(const std::string &mtz_filename
 }
 
 void
-molecule_class_info_t::store_refmac_twin_mtz_filename(const std::string &mtz_filename) { 
+molecule_class_info_t::store_refmac_file_mtz_filename(const std::string &mtz_filename) { 
 
-   refmac_twin_mtz_filename = mtz_filename; 
+   refmac_file_mtz_filename = mtz_filename; 
 }
 
 

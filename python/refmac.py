@@ -329,6 +329,28 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 	# set the new map as refinement map
 	set_imol_refinement_map(new_map_id)
 
+        # store the refmac parameters to the new map (if we used a file)
+        if (get_refmac_used_mtz_file_state()):
+            set_stored_refmac_file_mtz_filename(new_map_id, mtz_in_filename)
+            if (phase_combine_flag):
+                # save the phase information
+                phib = ""
+                fom  = ""
+                hla  = ""
+                hlb  = ""
+                hlc  = ""
+                hld  = ""
+                if (phase_combine_flag == 1):
+                    # we have Phi Fom pair
+                    phib = phib_fom_pair[0]
+                    fom  = phib_fom_pair[1]
+                if (phase_combine_flag == 2):
+                    # we have HLs
+                    hla, hlab, hlc, hld = eval(phib_fom_pair[0])
+                save_refmac_phase_params_to_map(new_map_id,
+                                                phib, fom,
+                                                hla, hlb, hld, hlc)
+
         if (swap_map_colours_post_refmac_p == 1) :
             swap_map_colours(imol_mtz_molecule, new_map_id)
 
@@ -393,42 +415,42 @@ def get_refmac_extra_params():
 #
 def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
 
-	import os
+    import os
 
-	if os.path.isfile(mtz_file_name):
-		if valid_model_molecule_qm(imol):
-			dir_state = make_directory_maybe("coot-refmac")
-			if not dir_state == 0:
-				print "Failed to make coot-refmac directory\n"
-			else:
-				stub = "coot-refmac/refmac-for-phases"
-				pdb_in = stub + ".pdb"
-				pdb_out = stub + "-tmp.pdb"
-				mtz_out = stub + ".mtz"
-				cif_lib_filename = ""
-				write_pdb_file(imol, pdb_in)
-                                # preserve the ncs & tls state
-                                ncs_state = refmac_use_ncs_state()
-                                tls_state = refmac_use_tls_state()
-                                print "BL DEBUG:: states were", ncs_state, tls_state
-                                set_refmac_use_ncs(0)
-                                set_refmac_use_tls(0)
-				run_refmac_by_filename(pdb_in, pdb_out,
-					mtz_file_name, mtz_out, 
-					cif_lib_filename, 0, 0, -1,
-					1, 0, [], 0, "",
-					f_col, sig_f_col, "")
-                                # I wish I could reset the state, but I currently cannot
-                                # as refmac runs only after the button has been pushed
-                                # (and we wont be here any more)
-                                set_refmac_use_ncs(ncs_state)
-                                set_refmac_use_tls(tls_state)
-                                print "BL DEBUG:: reset states", ncs_state, tls_state
+    if os.path.isfile(mtz_file_name):
+        if valid_model_molecule_qm(imol):
+            dir_state = make_directory_maybe("coot-refmac")
+            if not dir_state == 0:
+                print "Failed to make coot-refmac directory\n"
+            else:
+                stub = "coot-refmac/refmac-for-phases"
+                pdb_in = stub + ".pdb"
+                pdb_out = stub + "-tmp.pdb"
+                mtz_out = stub + ".mtz"
+                cif_lib_filename = ""
+                write_pdb_file(imol, pdb_in)
+                # preserve the ncs & tls state
+                ncs_state = refmac_use_ncs_state()
+                tls_state = refmac_use_tls_state()
+                #print "BL DEBUG:: states were", ncs_state, tls_state
+                set_refmac_use_ncs(0)
+                set_refmac_use_tls(0)
+                run_refmac_by_filename(pdb_in, pdb_out,
+                        mtz_file_name, mtz_out, 
+                        cif_lib_filename, 0, 0, -1,
+                        1, 0, [], 0, "",
+                        f_col, sig_f_col, "")
+                # I wish I could reset the state, but I currently cannot
+                # as refmac runs only after the button has been pushed
+                # (and we wont be here any more)
+                set_refmac_use_ncs(ncs_state)
+                set_refmac_use_tls(tls_state)
+                #print "BL DEBUG:: reset states", ncs_state, tls_state
 
-		else:
-			print "BL WARNING:: no valid model molecule!"
-	else:
-		print "BL WARNING:: mtzfile %s not found" %mtz_file_name
+        else:
+            print "BL WARNING:: no valid model molecule!"
+    else:
+        print "BL WARNING:: mtzfile %s not found" %mtz_file_name
 
 
 def refmac_for_phases_and_make_map(mtz_file_name, f_col, sig_f_col):
