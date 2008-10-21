@@ -3809,15 +3809,15 @@ void
 on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *map_optionmenu = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
+  GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   GtkWidget *sad_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_checkbutton");
-  GtkWidget *sad_extras = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_extra_hbox");
-  GtkWidget *mtz_label  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_label");
-  GtkWidget *mtz_frame  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_frame");
-  GtkWidget *mtz_twin_label  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_twin_mtz_label");
-  GtkWidget *mtz_twin_frame  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_twin_mtz_frame");
-  GtkWidget *fobs_hbox  = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
-  GtkWidget *fiobs_hbox = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fiobs_hbox");
+  GtkWidget *sad_extras      = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_extra_hbox");
+  GtkWidget *mtz_button      = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_mtz_radiobutton");
+  GtkWidget *mtz_frame       = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_mtz_hbox");
+  GtkWidget *mtz_file_radiobutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_file_radiobutton");
+  GtkWidget *mtz_file_frame  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_file_hbox");
+  GtkWidget *fobs_hbox       = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
+  GtkWidget *fiobs_hbox      = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fiobs_hbox");
   if (togglebutton->active) {
     set_refmac_use_twin(1);
     /* update the column labels */
@@ -3826,11 +3826,10 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
     gtk_widget_set_sensitive(sad_checkbutton, FALSE);
     gtk_widget_hide(sad_extras);
-    /* hide the mtz frame and label but show the twin ones */
-    gtk_widget_hide(mtz_label);
-    gtk_widget_hide(mtz_frame);
-    gtk_widget_show(mtz_twin_label);
-    gtk_widget_show(mtz_twin_frame);
+    /* make the the mtz frame and label insensitive */
+    gtk_widget_set_sensitive(mtz_button, FALSE);
+    gtk_widget_set_sensitive(mtz_frame, FALSE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(mtz_file_radiobutton), TRUE);
     /* change label box from fobs to fiobs as twin takes both */
     gtk_widget_hide(fobs_hbox);
     gtk_widget_show(fiobs_hbox);
@@ -3840,10 +3839,8 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
     fill_option_menu_with_refmac_labels_options(map_optionmenu);
     gtk_widget_set_sensitive(sad_checkbutton, TRUE);
     /* hide the twin mtz frame and label but show the 'normal' ones */
-    gtk_widget_show(mtz_label);
-    gtk_widget_show(mtz_frame);
-    gtk_widget_hide(mtz_twin_label);
-    gtk_widget_hide(mtz_twin_frame);
+    gtk_widget_set_sensitive(mtz_button, TRUE);
+    gtk_widget_set_sensitive(mtz_frame, TRUE);
     /* change label box from fiobs to fobs for 'normal' refinement */
     gtk_widget_hide(fiobs_hbox);
     gtk_widget_show(fobs_hbox);
@@ -3880,6 +3877,36 @@ on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
     gtk_widget_show(fobs_hbox);
   }
 
+}
+
+
+void
+on_run_refmac_map_mtz_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
+  if (togglebutton->active) {
+    /* update the map column labels */
+    fill_option_menu_with_refmac_labels_options(map_optionmenu);
+    GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu))));
+    if (active_menu_item) {
+      gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+    }
+  }
+
+}
+
+
+void
+on_run_refmac_mtz_file_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
+  if (togglebutton->active) {
+    fill_option_menu_with_refmac_file_labels_options(map_optionmenu);
+  }
 }
 
 
@@ -3957,22 +3984,22 @@ on_run_refmac_mtz_filechooser_button_clicked
 
 
 void
-on_run_refmac_twin_help_button_clicked (GtkButton       *button,
+on_run_refmac_file_help_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
 {
 #if (GTK_MAJOR_VERSION > 1)
-  GtkWidget *widget = create_run_refmac_twin_help_dialog();
+  GtkWidget *widget = create_run_refmac_file_help_dialog();
   gtk_widget_show(widget);
 #endif
 
 }
 
 void
-on_run_refmac_twin_help_dialog_ok_button_clicked
+on_run_refmac_file_help_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "run_refmac_twin_help_dialog");
+  GtkWidget *widget = lookup_widget(GTK_WIDGET(button), "run_refmac_file_help_dialog");
   gtk_widget_destroy(widget);
 
 }

@@ -752,6 +752,8 @@ std::string graphics_info_t::add_OXT_chain;
 
 float graphics_info_t::default_new_atoms_b_factor = 30.0;
 
+int graphics_info_t::reset_b_factor_moved_atoms = 0;
+
 // show environment
 float graphics_info_t::environment_min_distance = 0.0;
 float graphics_info_t::environment_max_distance = 3.2;
@@ -936,10 +938,17 @@ coot::refmac::refmac_use_twin_type    graphics_info_t::refmac_use_twin_flag = co
 coot::refmac::refmac_use_sad_type     graphics_info_t::refmac_use_sad_flag  = coot::refmac::SAD_OFF;
 coot::refmac::refmac_use_ncs_type     graphics_info_t::refmac_use_ncs_flag  = coot::refmac::NCS_ON;
 coot::refmac::refmac_use_intensities_type graphics_info_t::refmac_use_intensities_flag  = coot::refmac::AMPLITUDES;
-const gchar *graphics_info_t::saved_refmac_twin_filename = NULL;
+coot::refmac::refmac_used_mtz_file_type graphics_info_t::refmac_used_mtz_file_flag = coot::refmac::MTZ;
+const gchar *graphics_info_t::saved_refmac_file_filename = NULL;
 int graphics_info_t::refmac_ncycles = 5;
 GtkWidget *graphics_info_t::refmac_dialog_mtz_file_label = NULL;
 std::vector<coot::refmac::sad_atom_info_t> graphics_info_t::refmac_sad_atoms;
+short int graphics_info_t::have_sensible_refmac_params = 0;
+std::string graphics_info_t::refmac_mtz_file_filename = "";
+std::string graphics_info_t::refmac_fobs_col = "";
+std::string graphics_info_t::refmac_sigfobs_col = "";
+std::string graphics_info_t::refmac_r_free_col = "";
+int graphics_info_t::refmac_r_free_flag_sensible = 0;
 
 // scrollin' scrollin' scrollin'... Shall we stop? When shall we stop?
 short int graphics_info_t::stop_scroll_diff_map_flag = 1; // stop on

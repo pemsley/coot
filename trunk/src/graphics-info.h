@@ -148,6 +148,9 @@ namespace coot {
 				NCS_ON  = 1};
      enum refmac_use_intensities_type { AMPLITUDES   = 0,
 					INTENSITIES  = 1};
+     enum refmac_used_mtz_file_type { MAP = 0,
+				      MTZ = 1};
+
      class sad_atom_info_t {
      public:
 	std::string atom_name;
@@ -2164,7 +2167,7 @@ public:
    void fill_option_menu_with_refmac_methods_options(GtkWidget *option_menu); 
    void fill_option_menu_with_refmac_phase_input_options(GtkWidget *option_menu); 
    void fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu); 
-   void fill_option_menu_with_refmac_twin_labels_options(GtkWidget *option_menu); 
+   void fill_option_menu_with_refmac_file_labels_options(GtkWidget *option_menu); 
    void fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_menu); 
    void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
 					  GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
@@ -2180,6 +2183,7 @@ public:
    static std::string refmac_ccp4i_project_dir;
    static std::string libcheck_ccp4i_project_dir;
 
+   // refmac stuff
    static std::vector<int> *preset_number_refmac_cycles;
    static coot::refmac::refmac_refinement_method_type refmac_refinement_method;
    static coot::refmac::refmac_phase_input_type refmac_phase_input;
@@ -2188,7 +2192,8 @@ public:
    static coot::refmac::refmac_use_sad_type     refmac_use_sad_flag;
    static coot::refmac::refmac_use_ncs_type     refmac_use_ncs_flag;
    static coot::refmac::refmac_use_intensities_type refmac_use_intensities_flag;
-   static const gchar *saved_refmac_twin_filename;
+   static coot::refmac::refmac_used_mtz_file_type refmac_used_mtz_file_flag;
+   static const gchar *saved_refmac_file_filename;
    static int refmac_ncycles;
    static void set_refmac_refinement_method(int method);
    static void refmac_change_refinement_method(GtkWidget *item, GtkPositionType pos);
@@ -2198,6 +2203,7 @@ public:
    static void set_refmac_use_twin(int state);
    static void set_refmac_use_sad(int state);
    static void set_refmac_use_intensities(int state);
+   static void set_refmac_used_mtz_file(int state);
    static void set_refmac_n_cycles(int no_cycles);
    static void refmac_change_ncycles(GtkWidget *item, GtkPositionType pos);
    static void set_refmac_use_ncs(int state);
@@ -2205,6 +2211,30 @@ public:
    static GtkWidget *refmac_dialog_mtz_file_label;
    void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda);
    void add_refmac_ncycle_no(int &cycle);
+   static short int have_sensible_refmac_params;
+   static std::string refmac_mtz_file_filename;
+   static std::string refmac_fobs_col;
+   static std::string refmac_sigfobs_col;
+   static std::string refmac_r_free_col;
+   static int refmac_r_free_flag_sensible;
+	
+   std::string Refmac_mtz_file_filename() const { return refmac_mtz_file_filename; }
+   std::string Refmac_fobs_col() const { return refmac_fobs_col; }
+   std::string Refmac_sigfobs_col() const { return refmac_sigfobs_col; }
+   std::string Refmac_r_free_col() const { return refmac_r_free_col; }
+   short int Refmac_r_free_sensible() const { return refmac_r_free_flag_sensible; }
+   void store_refmac_params(const std::string &mtz_filename,
+                            const std::string &fobs_col,
+                            const std::string &sigfobs_col,
+                            const std::string &r_free_col,
+                            int r_free_flag_sensible);
+   void store_refmac_phase_params(const std::string &phi,
+                                  const std::string &fom,
+                                  const std::string &hla,
+                                  const std::string &hlb,
+                                  const std::string &hlc,
+                                  const std::string &hld);
+   void store_refmac_file_mtz_filename(const std::string &mtz_filename);
 
    static int max_skeleton_search_depth;
    // Rotamer stuff
@@ -2993,6 +3023,9 @@ public:
 
    // ---- default new atoms b factor
    static float default_new_atoms_b_factor; 
+
+   // reset the b factors after atoms were moved, default no
+   static int reset_b_factor_moved_atoms;
 
    // ---- disable state script writing on exiting (no-guano) 
    static bool disable_state_script_writing; 

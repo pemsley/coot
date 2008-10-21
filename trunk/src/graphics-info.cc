@@ -1640,49 +1640,94 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
 
 // to fill the labels directly from a from an mtz file (used in TWIN refinement)
 void
-graphics_info_t::fill_option_menu_with_refmac_twin_labels_options(GtkWidget *option_menu) {
+graphics_info_t::fill_option_menu_with_refmac_file_labels_options(GtkWidget *option_menu) {
 
 #if (GTK_MAJOR_VERSION > 1)
   GtkWidget *mtz_file_label = lookup_widget(option_menu, "run_refmac_mtz_file_label");
 
-  std::string twin_mtz_filename;
+  std::string file_mtz_filename;
   std::string label_filename = gtk_label_get_text(GTK_LABEL(mtz_file_label));
   if (coot::file_exists(label_filename)) {
     coot::setup_refmac_parameters_from_file(option_menu); // check the widget?!
   } else {
     // check if we have a saved filename
-    const gchar *saved_filename = saved_refmac_twin_filename;
+    const gchar *saved_filename = saved_refmac_file_filename;
     if (!saved_filename) {
       // pre-select a filename if we have an old twin_mtz_file
       for (int i=0; i<n_molecules(); i++) {
 	// first make a list with all mtz files and at the same time filter out dublicates
-	if (molecules[i].Refmac_twin_mtz_filename().size() > 0) {
-	  twin_mtz_filename = molecules[i].Refmac_twin_mtz_filename();
-	  gtk_label_set_text(GTK_LABEL(mtz_file_label), twin_mtz_filename.c_str());
+	if (molecules[i].Refmac_file_mtz_filename().size() > 0) {
+	  file_mtz_filename = molecules[i].Refmac_file_mtz_filename();
+	  gtk_label_set_text(GTK_LABEL(mtz_file_label), file_mtz_filename.c_str());
 	}
       }
     } else {
-      twin_mtz_filename = saved_filename;
+      file_mtz_filename = saved_filename;
     }
-    if (coot::file_exists(twin_mtz_filename)) {
+    if (coot::file_exists(file_mtz_filename)) {
       coot::setup_refmac_parameters_from_file(option_menu);
-      gtk_label_set_text(GTK_LABEL(mtz_file_label), twin_mtz_filename.c_str());
+      gtk_label_set_text(GTK_LABEL(mtz_file_label), file_mtz_filename.c_str());
     } else {
       // we dont have any mtz files given
-      // delete the contents of the menu(s), currently only fiobs and r_free
+      // delete the contents of the menu(s)
       GtkWidget *fiobs_optionmenu  = lookup_widget(option_menu, "refmac_dialog_fiobs_optionmenu");
-      GtkWidget *fiobs_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(fiobs_optionmenu));
+      GtkWidget *fiobs_menu        = gtk_option_menu_get_menu(GTK_OPTION_MENU(fiobs_optionmenu));
       GtkWidget *r_free_optionmenu = lookup_widget(option_menu, "refmac_dialog_rfree_optionmenu");
-      GtkWidget *r_free_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_optionmenu));
+      GtkWidget *r_free_menu       = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_optionmenu));
+      GtkWidget *fobs_optionmenu   = lookup_widget(option_menu, "refmac_dialog_fobs_optionmenu");
+      GtkWidget *fobs_menu         = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_optionmenu));
+      GtkWidget *fpm_optionmenu    = lookup_widget(option_menu, "refmac_dialog_fpm_optionmenu");
+      GtkWidget *fpm_menu          = gtk_option_menu_get_menu(GTK_OPTION_MENU(fpm_optionmenu));
+      GtkWidget *ipm_optionmenu    = lookup_widget(option_menu, "refmac_dialog_ipm_optionmenu");
+      GtkWidget *ipm_menu          = gtk_option_menu_get_menu(GTK_OPTION_MENU(ipm_optionmenu));
+      GtkWidget *phases_optionmenu = lookup_widget(option_menu, "refmac_dialog_phases_optionmenu");
+      GtkWidget *phases_menu       = gtk_option_menu_get_menu(GTK_OPTION_MENU(phases_optionmenu));
+      GtkWidget *fom_optionmenu    = lookup_widget(option_menu, "refmac_dialog_fom_optionmenu");
+      GtkWidget *fom_menu          = gtk_option_menu_get_menu(GTK_OPTION_MENU(fom_optionmenu));
+      GtkWidget *hl_optionmenu     = lookup_widget(option_menu, "refmac_dialog_hl_optionmenu");
+      GtkWidget *hl_menu           = gtk_option_menu_get_menu(GTK_OPTION_MENU(hl_optionmenu));
+      
       GtkWidget *menu;
       if (fiobs_menu) {
 	gtk_widget_destroy(fiobs_menu);
       }
       fiobs_menu = gtk_menu_new();
+
       if (r_free_menu) {
 	gtk_widget_destroy(r_free_menu);
       }
       r_free_menu = gtk_menu_new();
+
+      if (fobs_menu) {
+	gtk_widget_destroy(fobs_menu);
+      }
+      fobs_menu = gtk_menu_new();
+
+      if (fpm_menu) {
+	gtk_widget_destroy(fpm_menu);
+      }
+      fpm_menu = gtk_menu_new();
+
+      if (ipm_menu) {
+	gtk_widget_destroy(ipm_menu);
+      }
+      ipm_menu = gtk_menu_new();
+
+      if (phases_menu) {
+	gtk_widget_destroy(phases_menu);
+      }
+      phases_menu = gtk_menu_new();
+
+      if (fom_menu) {
+	gtk_widget_destroy(fom_menu);
+      }
+      fom_menu = gtk_menu_new();
+
+      if (hl_menu) {
+	gtk_widget_destroy(hl_menu);
+      }
+      hl_menu = gtk_menu_new();
+
     }
   }
 
@@ -1951,6 +1996,28 @@ graphics_info_t::set_refmac_use_intensities(int state) {
   }
 }
 
+void
+graphics_info_t::set_refmac_used_mtz_file(int state) {
+
+  graphics_info_t g;
+  
+  switch (state) {
+    
+  case coot::refmac::MTZ:
+    g.refmac_used_mtz_file_flag = coot::refmac::MTZ;
+    break;
+
+  case coot::refmac::MAP:
+    g.refmac_used_mtz_file_flag = coot::refmac::MAP;
+    break;
+
+  default:
+    g.refmac_used_mtz_file_flag = coot::refmac::MTZ;
+    break;
+  }
+}
+
+
 
 void
 graphics_info_t::add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda) {
@@ -1971,6 +2038,29 @@ graphics_info_t::add_refmac_sad_atom(const char *atom_name, float fp, float fpp,
 
 }
 
+void
+graphics_info_t::store_refmac_params(const std::string &mtz_filename,
+				     const std::string &fobs_col,
+				     const std::string &sigfobs_col,
+				     const std::string &r_free_col,
+				     int r_free_flag) {
+
+  have_sensible_refmac_params = 1; // true
+  refmac_mtz_file_filename = mtz_filename; 
+  refmac_fobs_col = fobs_col;
+  refmac_sigfobs_col = sigfobs_col;
+  refmac_r_free_col = r_free_col;
+  refmac_r_free_flag_sensible = r_free_flag;
+
+  std::cout << "INFO:: Stored refmac parameters (for file): " 
+	    << refmac_fobs_col << " "
+	    << refmac_sigfobs_col;
+  if (r_free_flag)
+    std::cout << " " << refmac_r_free_col << " is sensible." << std::endl;
+  else
+    std::cout << " the r-free-flag is not sensible" << std::endl;
+}
+
 
 void
 graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
@@ -1981,33 +2071,34 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
   GtkWidget *optionmenu;
   GtkWidget *menu;
   GtkWidget *dialog = lookup_widget(map_optionmenu, "run_refmac_dialog");
+  GtkWidget *mtz_file_radiobutton = lookup_widget(map_optionmenu, "run_refmac_mtz_file_radiobutton");
   int imol_map_refmac = -1;
 
   coot::mtz_column_types_info_t *saved_f_phi_columns
     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(dialog));
   
-  if (not refmac_use_twin_flag) {
+  if (not refmac_use_twin_flag && not GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) {
     menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu));
     GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
     imol_map_refmac = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
   } else {
-    // in TWIN: find (last) map which may have refmac twin parameters corresponding 
-    // to given filename.
-    std::string twin_mtz_filename;
+    // if given mtz file: get the parameters from coot::refmac::saved_refmac_parameters
+    std::string file_mtz_filename;
     GtkWidget *twin_mtz_label = lookup_widget(map_optionmenu, "run_refmac_mtz_file_label");
 #if (GTK_MAJOR_VERSION > 1)
     const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(twin_mtz_label));
-    twin_mtz_filename = mtz_filename;
+    file_mtz_filename = mtz_filename;
 #else
     gchar **mtz_filename = 0;
     gtk_label_get(GTK_LABEL(twin_mtz_label), mtz_filename);
-    twin_mtz_filename = (char *)mtz_filename;
+    file_mtz_filename = (char *)mtz_filename;
 #endif // GTK
     std::string tmp_mtz;
     for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].Refmac_twin_mtz_filename().size() > 0) {
-	std::string tmp_mtz = molecules[i].Refmac_twin_mtz_filename();
-	if (tmp_mtz == twin_mtz_filename) {
+      if (molecules[i].Refmac_file_mtz_filename().size() > 0) {
+	std::string tmp_mtz = molecules[i].Refmac_file_mtz_filename();
+	if (tmp_mtz == file_mtz_filename) {
+	  g_print("BL DEBUG:: shall update the labels based on map %i\n", i);
 	  imol_map_refmac = i;
 	}
       }
@@ -2043,7 +2134,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     }
       
     for (int i=0; i<saved_f_phi_columns->r_free_cols.size(); i++) {
-      if (saved_f_phi_columns->r_free_cols[i].column_label == fobs_string) {
+      if (saved_f_phi_columns->r_free_cols[i].column_label == r_free_string) {
 	gtk_menu_set_active(GTK_MENU(r_free_menu), i);
 	saved_f_phi_columns->selected_refmac_r_free_col = i;
 	break;
@@ -2053,6 +2144,12 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     // set the F/Is for twin?!
     if (saved_f_phi_columns->f_cols.size() > 0 || saved_f_phi_columns->i_cols.size() > 0) {
       gtk_menu_set_active(GTK_MENU(fiobs_menu), 0);
+      // default set first I col (not F col) if exists
+      if (saved_f_phi_columns->i_cols.size() > 0) {
+	saved_f_phi_columns->selected_refmac_iobs_col = 0;
+      } else {
+	saved_f_phi_columns->selected_refmac_fobs_col = 0;
+      }
     }
     // F+/F- ignoring saved position?! FIXME
     if (saved_f_phi_columns->fpm_cols.size() > 0 && saved_f_phi_columns->sigfpm_cols.size() > 0) {
@@ -2490,6 +2587,11 @@ graphics_info_t::accept_moving_atoms() {
 	    }
 	 }
       }
+   }
+
+   // reset the b-factor?
+   if (graphics_info_t::reset_b_factor_moved_atoms == 1) {
+     molecules[imol_moving_atoms].set_b_factor_atom_selection(*moving_atoms_asc, graphics_info_t::default_new_atoms_b_factor, 1);
    }
    
    if (do_probe_dots_post_refine_flag) {

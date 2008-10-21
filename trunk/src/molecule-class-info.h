@@ -543,7 +543,7 @@ class molecule_class_info_t {
    // refmac 
    short int have_sensible_refmac_params; // has public interface;
    std::string refmac_mtz_filename;
-   std::string refmac_twin_mtz_filename;
+   std::string refmac_file_mtz_filename;
    std::string refmac_fobs_col;
    std::string refmac_sigfobs_col;
    std::string refmac_r_free_col;
@@ -1039,7 +1039,8 @@ class molecule_class_info_t {
    void zero_occupancy_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
 
-   void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val);
+   void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
+   void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);
 
 
    std::vector<coot::atom_spec_t> fixed_atom_specs;
@@ -1814,10 +1815,9 @@ class molecule_class_info_t {
    std::vector<coot::atom_attribute_setting_help_t> get_refmac_params() const;
 
    void store_refmac_mtz_filename(const std::string &mtz_filename);
-   void store_refmac_twin_mtz_filename(const std::string &mtz_filename);
+   void store_refmac_file_mtz_filename(const std::string &mtz_filename);
 
-   void store_refmac_phase_params(const std::string &mtz_filename,
-				  const std::string &phi,
+   void store_refmac_phase_params(const std::string &phi,
 				  const std::string &fom,
 				  const std::string &hla,
 				  const std::string &hlb,
@@ -1832,7 +1832,7 @@ class molecule_class_info_t {
    void increment_refmac_count() { refmac_count++; }
    int Refmac_count() const { return refmac_count; }
    std::string Refmac_mtz_filename() const { return refmac_mtz_filename; }
-   std::string Refmac_twin_mtz_filename() const { return refmac_twin_mtz_filename; }
+   std::string Refmac_file_mtz_filename() const { return refmac_file_mtz_filename; }
    std::string Refmac_fobs_col() const { return refmac_fobs_col; }
    std::string Refmac_sigfobs_col() const { return refmac_sigfobs_col; }
    std::string Refmac_r_free_col() const { return refmac_r_free_col; }

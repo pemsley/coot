@@ -1204,6 +1204,16 @@ void
 on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
+void
+on_run_refmac_map_mtz_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_run_refmac_mtz_file_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
 #if (GTK_MAJOR_VERSION > 1)
 void
 on_run_refmac_mtz_filechooserdialog_response
@@ -1223,11 +1233,11 @@ on_run_refmac_mtz_filechooser_button_clicked
                                         gpointer         user_data);
 
 void
-on_run_refmac_twin_help_button_clicked (GtkButton       *button,
+on_run_refmac_file_help_button_clicked (GtkButton       *button,
                                         gpointer         user_data);
 
 void
-on_run_refmac_twin_help_dialog_ok_button_clicked
+on_run_refmac_file_help_dialog_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 

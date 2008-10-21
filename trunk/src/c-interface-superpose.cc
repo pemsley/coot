@@ -585,6 +585,13 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    GtkWidget *match_type_calpha_check_button =lookup_widget(lsq_dialog, "least_squares_match_type_calpha_radiobutton");
    GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_chain_id");
    GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
+
+   GtkWidget *copy_checkbutton = lookup_widget(lsq_dialog, "least_squares_move_copy_checkbutton");
+   if (GTK_TOGGLE_BUTTON(copy_checkbutton)->active) {
+     int new_imol_moving = copy_molecule(imol_moving);
+     imol_moving = new_imol_moving;
+     graphics_info_t::lsq_mov_imol = imol_moving;
+   }
    
    const char *txt = 0;
 
@@ -596,6 +603,7 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    mov_start_resno = atoi(txt);
    txt = gtk_entry_get_text(GTK_ENTRY(mov_res_range_2));
    mov_end_resno = atoi(txt);
+
 
    std::string ref_chain_id_str = graphics_info_t::lsq_match_chain_id_ref;
    std::string mov_chain_id_str = graphics_info_t::lsq_match_chain_id_mov;

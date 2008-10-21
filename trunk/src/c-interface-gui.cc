@@ -159,6 +159,49 @@ GtkWidget *get_refmac_mtz_file_label() {
   return graphics_info_t::refmac_dialog_mtz_file_label;
 }
 
+// we want to have an interface to save refmac parameters in map objects,
+// so that we can save the original mtz file and labels in a map file
+void save_refmac_params_to_map(int imol_map,
+			       const char *mtz_filename,
+			       const char *fobs_col,
+			       const char *sigfobs_col,
+			       const char *r_free_col,
+			       int r_free_flag_sensible) {
+
+  if (is_valid_map_molecule(imol_map)) {
+    graphics_info_t::molecules[imol_map].store_refmac_params(std::string(mtz_filename),
+							     std::string(fobs_col),
+							     std::string(sigfobs_col),
+							     std::string(r_free_col),
+							     r_free_flag_sensible);
+  } else {
+    std::cout << "WARNGING:: invalid map molecule!" <<std::endl;
+  }
+
+}
+
+void save_refmac_phase_params_to_map(int imol_map,
+				     const char *phi,
+				     const char *fom,
+				     const char *hla,
+				     const char *hlb,
+				     const char *hlc,
+				     const char *hld) {
+  
+  if (is_valid_map_molecule(imol_map)) {
+    graphics_info_t::molecules[imol_map].store_refmac_phase_params(std::string(phi), 
+								   std::string(fom),
+								   std::string(hla),
+								   std::string(hlb),
+								   std::string(hlc),
+								   std::string(hld));
+  } else {
+    std::cout << "WARNGING:: invalid map molecule!" <<std::endl;
+  }
+
+}
+
+
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
   GtkWidget *refmac_checkbutton;
@@ -340,15 +383,18 @@ wrapped_create_run_refmac_dialog() {
   GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
   GtkWidget *optionmenu;
   int imol_coords = first_coords_imol();
+  int have_file = 0;
   /* only GTK 2!? */
 #if (GTK_MAJOR_VERSION > 1)
   GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
   GtkWidget *ncs_button = lookup_widget(window, "run_refmac_ncs_checkbutton");
+  GtkWidget *mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
   optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
   fill_option_menu_with_refmac_methods_options(optionmenu);
 
   optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
   fill_option_menu_with_refmac_phase_input_options(optionmenu);
+  if (GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) have_file = 1;
 #endif
 
   set_refmac_molecule(imol_coords);
@@ -360,8 +406,9 @@ wrapped_create_run_refmac_dialog() {
   /*  fill_option_menu_with_refmac_options(optionmenu); */
   fill_option_menu_with_refmac_labels_options(optionmenu);
 
-  /* to set the labels set the active item (if no twin)*/
-  if (refmac_use_twin_state() == 0) {
+  /* to set the labels set the active item; only if not twin and
+     if we really want the labels from map mtz*/
+  if (refmac_use_twin_state() == 0 && have_file == 0) {
     GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
     if (active_menu_item) {
       gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
@@ -386,19 +433,18 @@ wrapped_create_run_refmac_dialog() {
       GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
       GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
       store_refmac_mtz_file_label(mtz_file_label);
+      /* set the filename if there */
+      const gchar *mtz_filename = get_saved_refmac_file_filename();
+      if (mtz_filename) {
+	gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
+	fill_option_menu_with_refmac_file_labels_options(optionmenu);
+      }
       if (refmac_use_tls_state()) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), TRUE);
       } else {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), FALSE);
       }
       if (refmac_use_twin_state()) {
-	/* set the filename if there */
-	const gchar *mtz_filename = get_saved_refmac_twin_filename();
-	g_print("BL DEBUG:: have twin filename in dialog %s\n", mtz_filename);
-	if (mtz_filename) {
-	  g_print("BL DEBUG:: setting the twi nfilename in dialog\n");
-	  gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
-	}
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
 	gtk_widget_set_sensitive(sad_check_button, FALSE);
 	gtk_widget_hide(sad_extras);

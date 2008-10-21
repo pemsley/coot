@@ -231,22 +231,23 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   
   GtkWidget *option_menu;
   std::string filename;
-  if (graphics_info_t::refmac_use_twin_flag) {
+  GtkWidget *file_mtz_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
+  if (GTK_TOGGLE_BUTTON(file_mtz_radiobutton)->active) {
     // twin/mtz filename given
-    GtkWidget *twin_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
+    GtkWidget *file_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
     // in twin we use the label as a dummy widget
-    option_menu = twin_mtz_label;
+    option_menu = file_mtz_label;
 #if (GTK_MAJOR_VERSION > 1)
-    const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(twin_mtz_label));
+    const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(file_mtz_label));
     filename = mtz_filename;
 #else
     gchar **mtz_filename = 0;
-    gtk_label_get(GTK_LABEL(twin_mtz_label), mtz_filename);
+    gtk_label_get(GTK_LABEL(file_mtz_label), mtz_filename);
     filename = (char *)mtz_filename;
 #endif // GTK
     if (coot::file_exists(filename)) {
-	  std::cout <<"BL DEBUG:: have filename from label "<< filename<<std::endl;
-	  graphics_info_t::saved_refmac_twin_filename = filename.c_str();
+      std::cout <<"BL DEBUG:: have filename from label "<< filename<<std::endl;
+      graphics_info_t::saved_refmac_file_filename = filename.c_str();
     } else {
       filename = "";
     }
@@ -583,7 +584,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
       i += 3;
     }
   }
-  
+
   update_refmac_column_labels_frame(option_menu,
 				    fobs_menu, fiobs_menu, fpm_menu,
 				    r_free_menu, 

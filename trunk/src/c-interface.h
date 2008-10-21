@@ -1326,6 +1326,7 @@ void fill_option_menu_with_refmac_options(GtkWidget *optionmenu);
 void fill_option_menu_with_refmac_methods_options(GtkWidget *optionmenu);
 void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu);
 void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu);
+void fill_option_menu_with_refmac_file_labels_options(GtkWidget *optionmenu);
 void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu);
 
 void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
@@ -1370,8 +1371,23 @@ void clear_refmac_sad_atoms();
 void store_refmac_mtz_file_label(GtkWidget *label);
 GtkWidget *get_refmac_mtz_file_label(void);
 void fill_refmac_sad_atom_entry(GtkWidget *widget);
-const gchar *get_saved_refmac_twin_filename(void);
-void set_stored_refmac_twin_mtz_filename(int imol, const char *mtz_filename);
+short int get_refmac_used_mtz_file_state();
+void set_refmac_used_mtz_file(int state);
+const gchar *get_saved_refmac_file_filename(void);
+void set_stored_refmac_file_mtz_filename(int imol, const char *mtz_filename);
+void save_refmac_params_to_map(int imol_map,
+			       const char *mtz_filename,
+			       const char *fobs_col,
+			       const char *sigfobs_col,
+			       const char *r_free_col,
+			       int r_free_flag_sensible);
+void save_refmac_phase_params_to_map(int imol_map,
+			     	     const char *phi,
+				     const char *fom,
+				     const char *hla,
+				     const char *hlb,
+				     const char *hlc,
+				     const char *hld);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM get_refmac_sad_atom_info_scm();
@@ -1951,6 +1967,13 @@ char *centre_of_mass_string_py(int imol);
 void set_default_temperature_factor_for_new_atoms(float new_b);
 /*! \brief return the default temperature factor for newly created atoms */
 float default_new_atoms_b_factor();
+
+/*! \brief reset temperature factor for all moved atoms to the default
+  for new atoms (usually 30) */
+void set_reset_b_factor_moved_atoms(int state);
+/*! \brief return the state if temperature factors shoudl be reset for
+  moved atoms */
+int get_reset_b_factor_moved_atoms_state();
 
 /*! \brief set a numberical attibute to the atom with the given specifier.
 
