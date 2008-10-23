@@ -685,6 +685,11 @@ on_model_refine_dialog_regularize_togglebutton_toggled
                                         gpointer         user_data);
 
 void
+on_model_refine_dialog_fixed_atoms_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_model_refine_dialog_rigid_body_togglebutton_toggled
                                         (GtkButton       *button,
                                         gpointer         user_data);
@@ -3639,12 +3644,22 @@ on_model_toolbar_edit_chi_angles_togglebutton_toggled
                                         gpointer         user_data);
 
 void
+on_model_toolbar_torsion_general_toggletoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+void
 on_model_toolbar_flip_peptide_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
 void
 on_model_toolbar_sidechain_180_togglebutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
@@ -3661,6 +3676,15 @@ on_model_toolbar_simple_mutate_togglebutton_toggled
 void
 on_model_toolbar_add_terminal_residue_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_add_alt_conf_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_refmac_button_clicked (GtkToolButton   *toolbutton,
                                         gpointer         user_data);
 
 void
@@ -3710,6 +3734,14 @@ on_model_toolbar_text1_activate
 void
 on_model_toolbar_icons_and_text1_activate
                                         (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_main_icons_activate   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_model_toolbar_all_icons_activate    (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
 void
