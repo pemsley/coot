@@ -2240,6 +2240,15 @@ on_model_refine_dialog_regularize_togglebutton_toggled
 
 
 void
+on_model_refine_dialog_fixed_atoms_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
 on_model_refine_dialog_rigid_body_togglebutton_toggled
                                         (GtkButton       *button,
                                         gpointer         user_data)
@@ -9592,6 +9601,17 @@ on_model_toolbar_edit_chi_angles_togglebutton_toggled
 
 #if (GTK_MAJOR_VERSION > 1) 
 void
+on_model_toolbar_torsion_general_toggletoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data)
+{
+
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+void
 on_model_toolbar_flip_peptide_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
@@ -9618,6 +9638,18 @@ on_model_toolbar_sidechain_180_togglebutton_toggled
     setup_180_degree_flip(0);
 }
 #endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+void
+on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled
+                                        (GtkToggleToolButton *toggletoolbutton,
+                                        gpointer         user_data)
+{
+
+}
+#endif	/* GTK_MAJOR_VERSION */
+
 
 #if (GTK_MAJOR_VERSION > 1) 
 void
@@ -9679,6 +9711,17 @@ on_model_toolbar_add_terminal_residue_togglebutton_toggled
 
 #if (GTK_MAJOR_VERSION > 1) 
 void
+on_model_toolbar_add_alt_conf_toolbutton_clicked
+                                        (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+void
 on_model_toolbar_add_atom_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
@@ -9732,6 +9775,16 @@ on_model_toolbar_redo_button_clicked   (GtkButton       *button,
 
 #if (GTK_MAJOR_VERSION > 1) 
 void
+on_model_toolbar_refmac_button_clicked (GtkToolButton   *toolbutton,
+                                        gpointer         user_data)
+{
+
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+void
 on_model_toolbar_icons_and_text1_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -9767,6 +9820,26 @@ on_model_toolbar_text1_activate        (GtkMenuItem     *menuitem,
   if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT); 
   }
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+void
+on_model_toolbar_main_icons_activate   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+void
+on_model_toolbar_all_icons_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
 }
 #endif	/* GTK_MAJOR_VERSION */
 
