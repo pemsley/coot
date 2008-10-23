@@ -421,8 +421,13 @@ wrapped_create_run_refmac_dialog() {
   if (refmac_runs_with_nolabels()) {
     GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
     gtk_widget_show(checkbutton);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-    gtk_widget_hide(labels);
+    if (get_refmac_phase_input()) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
+      gtk_widget_show(labels);
+    } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+      gtk_widget_hide(labels);
+    }
     if (refmac_runs_with_nolabels() >= 2) {
       /* add the tls, twin and sad buttons */
       GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");

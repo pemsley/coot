@@ -267,10 +267,37 @@
 			  (set-refmac-counter imol (+ imol-refmac-count 1))
 			  
 			  (let ((new-map-id (apply make-and-draw-map-with-refmac-params 
-									   (if (= (refmac-use-sad-state) 1) args-default args))))
+						   (if (= (refmac-use-sad-state) 1) args-default args))))
 			    
 			    (if (= swap-map-colours-post-refmac? 1)
-				(swap-map-colours imol-mtz-molecule new-map-id)))
+				(swap-map-colours imol-mtz-molecule new-map-id))
+			    ; set new map as refinement map
+			    (set-imol-refinement-map new-map-id)
+			    (if (= (get-refmac-used-mtz-file-state) 1)
+				(begin
+				  (set-stored-refmac-file-mtz-filename new-map-id mtz-in-filename)
+				  (if (> phase-combine-flag 0)
+				      (begin
+					(let ((phib "")
+					      (fom  "")
+					      (hla  "")
+					      (hlb  "")
+					      (hlc  "")
+					      (hld  ""))
+					  (if (= phase-combine-flag 1)
+					      (save-refmac-phase-params-to-map new-map-id
+									       (car phib-fom-pair)
+									       (cdr phib-fom-pair)
+									       hla hlb hlc hld))
+					  (if (= phase-combine-flag 2)
+						(let ((hl-list (string->list-of-strings (car phib-fom-pair))))
+						  (save-refmac-phase-params-to-map new-map-id
+										   phib fom
+										   (list-ref hl-list 0)
+										   (list-ref hl-list 1)
+										   (list-ref hl-list 2)
+										   (list-ref hl-list 3))))))
+				      ))))
 			  
 			  (if (= 1 show-diff-map-flag) ; flag was set
 				  (if (= (refmac-use-sad-state) 1)

@@ -89,17 +89,26 @@
 // BL says:: probably shouldnt be here as already defined in ../ideal/simple-restraints.hh
 // FIXME
 namespace coot { 
-  class refinement_results_t {
-  public:
-      short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
-      int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
-      std::string info;
-      refinement_results_t(short int frf, int prog_in, std::string info_in) {
-         found_restraints_flag = frf;
-         info = info_in;
-         progress = prog_in;
-     }
-  };
+   enum geometry_graph_type {GEOMETRY_GRAPH_GEOMETRY,
+                             GEOMETRY_GRAPH_B_FACTOR,
+                             GEOMETRY_GRAPH_DENSITY_FIT,
+                             GEOMETRY_GRAPH_OMEGA_DISTORTION,
+                             GEOMETRY_GRAPH_ROTAMER,
+                             GEOMETRY_GRAPH_NCS_DIFFS,
+                             SEQUENCE_VIEW,
+                             RAMACHANDRAN_PLOT
+   };
+//  class refinement_results_t {
+//  public:
+//      short int found_restraints_flag; // 0 or 1 (if we found restraints or not).
+//      int progress; // GSL_ENOPROG, GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
+//      std::string info;
+//      refinement_results_t(short int frf, int prog_in, std::string info_in) {
+//         found_restraints_flag = frf;
+//         info = info_in;
+//         progress = prog_in;
+//     }
+ // };
 }
 #endif // HAVE_GSL
 

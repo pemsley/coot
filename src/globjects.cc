@@ -1720,14 +1720,22 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
    // draw right:
    glDrawBuffer(GL_BACK_RIGHT);
+#ifdef WINDOWS_MINGW
+   draw_mono(widget, event, 0);
+#else
    draw_mono(widget, event, 1);
+#endif
    
    trackball(spin_quat, 0, 0, 2.0*g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
    // draw left:
    glDrawBuffer(GL_BACK_LEFT);
+#ifdef WINDOWS_MINGW
+   draw_mono(widget, event, 0);
+#else
    draw_mono(widget, event, 1);
+#endif
 
    // reset the viewing angle:
    trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);

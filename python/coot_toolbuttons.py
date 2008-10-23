@@ -542,6 +542,7 @@ def list_of_toolbar_functions():
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
          ["Add Alt Conf", "altconf()", "Add alternative conformation", "add-alt-conf.svg"],
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
+         ['Torsion Gen.', "setup_torsion_general(1)", "Torsion General (after O function)", "edit-chi.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
         ["NMR",[]],
         ["EM",[]],

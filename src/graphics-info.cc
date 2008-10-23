@@ -2098,7 +2098,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
       if (molecules[i].Refmac_file_mtz_filename().size() > 0) {
 	std::string tmp_mtz = molecules[i].Refmac_file_mtz_filename();
 	if (tmp_mtz == file_mtz_filename) {
-	  g_print("BL DEBUG:: shall update the labels based on map %i\n", i);
+	  g_print("INFO:: update the labels based on map %i\n", i);
 	  imol_map_refmac = i;
 	}
       }
@@ -2170,6 +2170,27 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     } 
   }
 
+  // update the phase info, no matter if used or not (as it may when changing the phase input)
+  // phase & fom
+  if (saved_f_phi_columns->phi_cols.size() > 0) {
+    gtk_menu_set_active(GTK_MENU(phases_menu), 0);
+    saved_f_phi_columns->selected_refmac_phi_col = 0;
+  }
+  if (saved_f_phi_columns->weight_cols.size() > 0) {
+    gtk_menu_set_active(GTK_MENU(fom_menu), 0);
+    saved_f_phi_columns->selected_refmac_fom_col = 0;
+  }
+  // update the phase info, no matter if used or not (as it may when changing the phase input)
+  // HLs
+  if (saved_f_phi_columns->hl_cols.size() > 3) {
+    gtk_menu_set_active(GTK_MENU(hl_menu), 0);
+    saved_f_phi_columns->selected_refmac_hla_col = 0;
+    saved_f_phi_columns->selected_refmac_hlb_col = 1;
+    saved_f_phi_columns->selected_refmac_hlc_col = 2;
+    saved_f_phi_columns->selected_refmac_hld_col = 3;
+  }
+  
+  // if we have saved parameters use these
   if (imol_map_refmac > -1) {
     // find phases
     std::string phib_string = molecules[imol_map_refmac].Refmac_phi_col();
@@ -2192,16 +2213,6 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 	  saved_f_phi_columns->selected_refmac_fom_col = i;
 	  break;
 	}
-      }
-    } else {
-      // update the phase info, no matter if used or not (as it may when changing the phase input)
-      // phase & fom
-      if (saved_f_phi_columns->phi_cols.size() > 0) {
-	gtk_menu_set_active(GTK_MENU(phases_menu), 0);
-	saved_f_phi_columns->selected_refmac_phi_col = 0;
-      }
-      if (saved_f_phi_columns->weight_cols.size() > 0) {
-	gtk_menu_set_active(GTK_MENU(fom_menu), 0);
       }
     }
 
@@ -2229,19 +2240,8 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 	  i += 3;
 	}
       }
-    } else {
-      // update the phase info, no matter if used or not (as it may when changing the phase input)
-      // HLs
-      if (saved_f_phi_columns->hl_cols.size() > 3) {
-	gtk_menu_set_active(GTK_MENU(hl_menu), 0);
-	saved_f_phi_columns->selected_refmac_hla_col = 0;
-	saved_f_phi_columns->selected_refmac_hlb_col = 1;
-	saved_f_phi_columns->selected_refmac_hlc_col = 2;
-	saved_f_phi_columns->selected_refmac_hld_col = 3;
-      }
     }
-  }
-
+  } 
 }
 
 

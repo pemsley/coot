@@ -4,32 +4,18 @@
 * THINGS TO DO BEFORE 0.5.1 RELEASE *
 ---------------
 
-Notes from Phenix
-
-15/10/08
-
-   o readline not accessible with ftp but with http in build-it-gtk2-simple?!
-     may just be temporarily?!
-
-   o compile without GSL fails in graphics-info.hh as redefinition of 
-     refinement_results_t -> check (remove in graphics-info.hh?!?)
-
-
----
 04/10/08
    o make toolbutton GUI/wizard
 
 * Done (check which ones to use!?!)
 
+
    o clean up the build-info webpage files/dirs for WinCoot
-
-   o update the tutorial with Kevin's figures?!
-
-   o add copy button to LSQ fit
 
    o reset B-factors of refined/changed atoms
 
-   o always be able to use mtz file in Refmac GUI
+* Done (need some more scripting functions to reset all chain, residues, molecule, 
+        check if more funcns need the reset of B-factors)
 
   (o progress bars for refmac e.g.)
 
@@ -41,6 +27,9 @@ Notes from Phenix
 up-to-date 09/09/08
 tests rev 1378
 
+23/10/08
+   o sync MFR dialog with modelling toolbar -> all or selected for toolbar
+
 
 04/09/08
    o loop building backwards in scheme (use python?)?
@@ -49,6 +38,8 @@ tests rev 1378
 ---------------
 * TO DO THINGS *
 ---------------
+
+   o make all modelling toolbar icons preference-able
 
    o merge build-it-win with buid-it-gtk2-simple?!
 
@@ -241,3 +232,33 @@ tests rev 1378
 
 * Fixed
 
+22/10/08
+   o add missing Model/Fit/Refine buttons to modelling toolbar (if possible)
+     - Torsion General
+
+* Done
+
+15/10/08
+   Notes from Phenix
+
+   o readline not accessible with ftp but with http in build-it-gtk2-simple?!
+     may just be temporarily?!
+
+* Done, server was temporarily down
+
+   o compile without GSL fails in graphics-info.hh as redefinition of 
+     refinement_results_t -> check (remove in graphics-info.hh?!?)
+
+* Done, compile without gsl now (not sure how usefull and if as functional as possible)
+
+   o update the tutorial with Kevin's figures?!
+
+* Done
+
+   o add copy button to LSQ fit
+
+* Done
+
+   o always be able to use mtz file in Refmac GUI
+
+* Done
