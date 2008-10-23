@@ -3752,15 +3752,18 @@ on_run_refmac_phase_input_optionmenu_changed
 {
   GtkWidget *phases_hbox;
   GtkWidget *hl_hbox;
+  GtkWidget *no_labels_checkbutton;
   GtkWidget *sad_checkbutton;
   GtkWidget *twin_checkbutton;
+  GtkWidget *sad_extras;
   int phase_combine_flag;
 
   phases_hbox = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_phases_hbox");
   hl_hbox     = lookup_widget(GTK_WIDGET(optionmenu), "refmac_dialog_hl_hbox");
+  no_labels_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_nolabels_checkbutton");
   sad_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_checkbutton");
   twin_checkbutton = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_twin_checkbutton");
-  GtkWidget *sad_extras = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_extra_hbox");
+  sad_extras = lookup_widget(GTK_WIDGET(optionmenu), "run_refmac_sad_extra_hbox");
 
   phase_combine_flag = get_refmac_phase_input();
 
@@ -3779,15 +3782,20 @@ on_run_refmac_phase_input_optionmenu_changed
   if (refmac_runs_with_nolabels() == 2) {
     if (phase_combine_flag) {
       /* current version of refmac (5.5) doesnt allow phase input for twin or SAD refinement
-	 so we de-sensitise and uncheck teh buttons */
+	 so we de-sensitise and uncheck the buttons */
       gtk_widget_set_sensitive(twin_checkbutton, FALSE);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
       gtk_widget_set_sensitive(sad_checkbutton, FALSE);
       gtk_widget_hide(sad_extras);
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sad_checkbutton), FALSE);
+      /* current version doesnt allow phase input without giving labels */
+      gtk_widget_set_sensitive(no_labels_checkbutton, FALSE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_labels_checkbutton), FALSE);
     } else {
       gtk_widget_set_sensitive(twin_checkbutton, TRUE);
       gtk_widget_set_sensitive(sad_checkbutton, TRUE);
+      gtk_widget_set_sensitive(no_labels_checkbutton, TRUE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(no_labels_checkbutton), TRUE);
     }
   }
     
@@ -3928,7 +3936,7 @@ on_run_refmac_mtz_filechooserdialog_response
     (GTK_FILE_CHOOSER(mtz_fileselection));
  
   /* do something with the filename */
-  g_print("BL DEBUG:: Selected filename %s\n", filename);
+  g_print("INFO:: Selected filename %s\n", filename);
 
   /* save the label name */
   GtkWidget *mtz_label = get_refmac_mtz_file_label();

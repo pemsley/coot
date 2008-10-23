@@ -153,7 +153,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
     if (phase_combine_flag == 1):
         # we have Phi Fom pair
         if (phib_fom_pair[0] != "" and phib_fom_pair[1] !=0):
-            labin_string += "- \nPHIB=" + split_label(phib_fom_pair[0]) + \
+            labin_string += " - \nPHIB=" + split_label(phib_fom_pair[0]) + \
                                 " FOM=" + split_label(phib_fom_pair[1])
     if (phase_combine_flag == 2):
         # we have HLs

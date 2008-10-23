@@ -2272,11 +2272,16 @@ molecule_class_info_t::density_at_point(const clipper::Coord_orth &co) const {
 //       clipper::Coord_grid cg = cf.coord_grid(xmap_list[0].grid_sampling());
 //       return xmap_list[0].get_data(cg);
 
+#ifdef HAVE_GSL
       float dv;
       clipper::Coord_frac af = co.coord_frac(xmap_list[0].cell()); 
       clipper::Coord_map  am = af.coord_map(xmap_list[0].grid_sampling()); 
       clipper::Interp_linear::interp(xmap_list[0], am, dv); 
       return dv;
+#else
+      printf("no GSL so no density at point - remake \n");
+      return -1000.0;
+#endif // HAVE_GSL
    }
 }
 // Return status, was the contour level changed?  In that way, we
