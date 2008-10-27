@@ -104,17 +104,18 @@ coot::protein_geometry::read_sbase_residues() {
 #endif // USE_SBASE
 
 #ifdef USE_SBASE
+// return mmdb sbase return codes
 int
 coot::protein_geometry::init_sbase(const std::string &sbase_monomer_dir) {
       
    const char *monomer_dir = getenv(MONOMER_DIR_STR);
-   int RC;
+   int RC = SBASE_FileNotFound;
    
    if (!monomer_dir) {
       if (coot::is_directory_p(sbase_monomer_dir)) {
 	 monomer_dir = sbase_monomer_dir.c_str();
       } else { 
-	 RC = 0; // fail
+	 RC = SBASE_FileNotFound; // fail
       }
    } else {
 

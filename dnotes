@@ -2,12 +2,14 @@
 
 Things to do for 0.5.1
 
+  o Fix Frank's problem of Keybindings when using F8 bin with python
+    and scheme keybindings.
+
   o Fix up clipper (21ac)
 
-  o Loop building in both directions for scheme 
+* in the works.  Problem with make dist.
 
-  o Need to make cootrc gtk1/gtk2 specific - see fixes/cootrc on the
-     web site
+  o Loop building in both directions for scheme 
 
   o restraints editor:  
        edit ASN
@@ -18,10 +20,43 @@ Things to do for 0.5.1
 
 * Looks fine on FC4, still bad on MacBook?
 
-   o CA Zone -> mainchain on 4 CA position - needs better feedback.
+  o Don't tar up python files for a non-pythonic build.
 
-   o Nucletide builder - with B form RNA need to be fixed.
+* Fix by making python builds build in their own directory.
+  build-web-page-builder.scm needs to change to follow the 
+  new places for the python build info.
 
+  o Nucletide builder - with B form RNA need to be fixed.
+
+  o CA Zone -> mainchain on 4 CA position - needs better feedback.
+
+  o Crash: Using the display manager delete molecule buttons (CentOS
+    build)
+
+  o What's crashing on using NCS in Bill's 0.5 build?
+
+  o Consider setting the "handled" flag only for key pressed that did
+    something, e.g. we could then use the "B" and "S" keys, because they
+    are not often used.  Maybe "A" too.
+
+  o Baton-build, cancel, baton build again.  There is no Baton Atoms
+    molecule.  Why?
+  
+  o Can you enable the 'X' key for residues with alt confs?
+
+  o check out the virtualbox page on the ubuntu wiki for info about how
+    to set it up.
+
+  o LSQ map by overlap - does that work properly.  Use an offset
+    reference molecule.  You can test this by summing the density
+    before hand, rotation/translating the map and then re-summing the
+    density on the transformed map.
+
+
+  o Need to make cootrc gtk1/gtk2 specific - see fixes/cootrc on the
+     web site
+
+* Done
 
 
 
@@ -7007,8 +7042,10 @@ Mon Oct  6 13:56:44 BST 2008
    After the release, there are no pre-release source tars, so the
    build web page builder fails (a list-ref of a #f list)
 
-   Crash on CentOS 4 machines when trying to read svgs
+   Python 2.5.2 build tests are failing with sendmail on FC5 (after
+   re-install?)
 
+   Crash on CentOS 4 machines when trying to read svgs
 
 ----
 Wed Oct  8 14:11:40 BST 2008
@@ -7016,6 +7053,39 @@ Wed Oct  8 14:11:40 BST 2008
    coot-shelx-ins.cc
    // 20081008 allow for a site occupancy factor on the PART line
    // but then throw it away.  Not good. Should fix at some stage.
+
+---
+Fri Oct 17 13:43:26 BST 2008
+
+   The crash catcher should check that the core belongs to coot before
+   giving dialog with text. e.g. it fails to read the correct core on
+   jackal (run from ~).
+
+---
+Fri Oct 17 14:13:50 BST 2008
+
+   main.cc: 
+   // else we need to pass cld.alternate_splash_screen_file_name
+   // to a function that accepts a file_name a makes a splash
+   // screen.  Hmm..
+
+----
+Thu Oct 23 11:54:39 BST 2008
+  
+   It would be nice if baton building would orient as it translates 
+   so that the baton is along the screen Y.
+
+----
+Sat Oct 25 03:11:07 BST 2008
+
+  In the conformer generation, generate many models first, then
+  select the top N for energy minimization.
+
+  Instead of search the maps for ligand sites, try to position the
+  ligand at a give postion (e.g. the screen centre). 
+
+  Try a 27 pt box search around the centre position.  Try different
+  rigid body angles at the box points.
 
 
 ---

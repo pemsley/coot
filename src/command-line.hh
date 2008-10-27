@@ -22,6 +22,8 @@ public:
    short int do_graphics;
    short int small_screen_display;
    bool disable_state_script_writing;
+   bool use_splash_screen;
+   std::string alternate_splash_screen_file_name; 
    command_line_data() { 
      hardware_stereo_flag = 0; // default off
      port = 0;
@@ -31,6 +33,8 @@ public:
      disable_state_script_writing = 0; // don't disable, by default
      script_is_python_flag = 0;
      small_screen_display  = 0; // default is no small screen
+     use_splash_screen = 1;
+     alternate_splash_screen_file_name = ""; // unset, tested vs blank.
    }
    void handle_immediate_settings(); 
 };

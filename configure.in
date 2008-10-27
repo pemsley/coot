@@ -99,6 +99,8 @@ if test $coot_gtk2 = TRUE ; then
   # No longer at Logan airport, so re-enable...
   #
   AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
+  MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
+  AC_SUBST(MAKE_COOTRC_CMD)
 
 else 
 
@@ -115,8 +117,11 @@ else
 
    dnl Check for gtk-canvas
    AM_PATH_GTKCANVAS
+   MAKE_COOTRC_CMD=cat
+   AC_SUBST(MAKE_COOTRC_CMD)
 
 fi # coot_gtk2
+
 
 dnl Check for GLUT
 #
