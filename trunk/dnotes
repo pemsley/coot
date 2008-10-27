@@ -18,7 +18,9 @@ Things to do for 0.5.1
 
 * Looks fine on FC4, still bad on MacBook?
 
+   o CA Zone -> mainchain on 4 CA position - needs better feedback.
 
+   o Nucletide builder - with B form RNA need to be fixed.
 
 
 
@@ -6899,7 +6901,6 @@ Sun Sep 14 10:45:38 BST 2008
     There is a dialog for globularize protein.  It needs to be
     activated. (Some work).
 
-
 ----
 Sun Sep 14 12:32:23 BST 2008
 
@@ -7015,6 +7016,21 @@ Wed Oct  8 14:11:40 BST 2008
    coot-shelx-ins.cc
    // 20081008 allow for a site occupancy factor on the PART line
    // but then throw it away.  Not good. Should fix at some stage.
+
+
+---
+Sat Oct 11 12:34:40 BST 2008
+
+   When you ctrl pick an atom (or even just pick an atom) - in
+   intermediate mode it should flash with a circle or something.
+
+
+---
+Mon Oct 13 14:46:41 BST 2008
+
+    o Clemens: export n_diffs for kleywegt plot to scripting layer.
+
+      Difficulty: Easy.
 
 
 -----
