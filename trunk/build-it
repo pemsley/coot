@@ -212,7 +212,8 @@
 #               Back to version 2.5.1 that compiles on bragg3, 2.5.2 does not 
 #               (port 8080 already in use).
 # 2.48 20081008 Migrate to CCP4 version 6.0.2 for testing in York.
-script_version=2.48
+# 2.49 20081014 Use Python 2.6   
+script_version=2.49
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1932,11 +1933,11 @@ export PATH
 # python
 #
 python_version=python2.5
-pver=2.5.1
+pver=2.6
 
 if test -n "$build_python" ; then 
     echo BUILDING ${python_version}:
-#
+
 
 
 ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
@@ -1950,8 +1951,6 @@ echo INFO:: ./configure $generic_prefix $python_spec_flags for python
 ./configure $generic_prefix $python_spec_flags
 echo INFO:: make for python
 $MAKE 
-echo INFO:: make test for python
-$MAKE test
 echo INFO:: make install for python
 $MAKE install
 ) >  $HOSTLOGDIR/05-python.txt 2>&1
