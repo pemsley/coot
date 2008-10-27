@@ -32,6 +32,10 @@ SUBDIRS = auxil scheme python macros compat coot-utils surface coot-surface \
 
 # po, no po today.
 
+cootrc: $(top_srcdir)/cootrc.template
+	$(MAKE_COOTRC_CMD) $(top_srcdir)/cootrc.template > $@
+
+
 EXTRA_DIST = 		\
 	autogen.sh 	\
 	make-scheme-tar \

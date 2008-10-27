@@ -100,8 +100,10 @@ parse_command_line(int argc, char ** argv ) {
       {"hostname",   1, 0, 0}, // alternate for host
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
+      {"splash-screen", 1, 0, 0}, // alternate splash screen
       {"no-state-script",    0, 0, 0},
       {"no-graphics",        0, 0, 0},
+      {"no-splash-screen",        0, 0, 0},
       {"stereo",     0, 0, 0},       // no arguments 
       {"side-by-side",     0, 0, 0}, // no arguments 
       {"version",    0, 0, 0},       // no arguments 
@@ -168,6 +170,9 @@ parse_command_line(int argc, char ** argv ) {
 	    if (arg_str == "code") {
 	       cld.accession_codes.push_back(optarg);
 	    }
+	    if (arg_str == "splash-screen") {
+	       cld.alternate_splash_screen_file_name = optarg;
+	    }
 	    
 	 } else { 
 
@@ -190,6 +195,7 @@ parse_command_line(int argc, char ** argv ) {
 			    << "            [--auto mtz-file-name]\n"
 			    << "            [--script script-file-name]\n"
 			    << "            [--no-state-script]\n"
+			    << "            [--no-splash-screen]\n"
 			    << "            [--no-graphics]\n"
 			    << "            [--stereo]\n"
 			    << "            [--version]" << std::endl;
@@ -219,11 +225,15 @@ parse_command_line(int argc, char ** argv ) {
 				    cld.disable_state_script_writing = 1;
 				 } else {
 				   if (arg_str == "small-screen") {
-				     cld.small_screen_display = 1;
-				   } else { 
-				     std::cout << "WARNING! Malformed option - needs an argument: " 
-					       << long_options[option_index].name
-					       << std::endl << std::endl;
+				      cld.small_screen_display = 1;
+				   } else {
+				      if (arg_str == "no-splash-screen") {
+					 cld.use_splash_screen = 0;
+				      } else { 
+					 std::cout << "WARNING! Malformed option - needs an argument: " 
+						   << long_options[option_index].name
+						   << std::endl << std::endl;
+				      }
 				   }
 				 }
 			      }

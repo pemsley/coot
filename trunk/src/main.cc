@@ -210,21 +210,15 @@ main (int argc, char *argv[]) {
 
   if (graphics_info_t::use_graphics_interface_flag) {
 
-     timeval current_time;
-     gettimeofday(&current_time, NULL);
-     // time_t now = current_time.tv_sec;
-     // if (now < 1201824001) // 1st Feb 2008
-	splash = create_splash_screen_window();
-	// else 
-	// splash = create_splash_screen_alternate_1_window();
-     
-     gtk_widget_show(splash);
+     if (cld.use_splash_screen) {
+	if (cld.alternate_splash_screen_file_name == "") 
+	   splash = create_splash_screen_window();
+	// else we need to pass cld.alternate_splash_screen_file_name
+	// to a function that accepts a file_name a makes a splash
+	// screen.  Hmm..
+	gtk_widget_show(splash);
+     }
   
-     // usleep(100000);
-     //   std::cout << "There are " << gdk_events_pending()
-     // 	    << " pending gdk events\n";
-     //   std::cout << "There are " << gtk_events_pending()
-     // 	    << " pending gtk events\n";
      while(gtk_main_iteration() == FALSE);
      while (gtk_events_pending()) {
 #if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)

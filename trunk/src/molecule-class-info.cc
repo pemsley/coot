@@ -3634,8 +3634,11 @@ molecule_class_info_t::close_yourself() {
       // std::cout << "DEBUG:: looking up " << display_frame_name << std::endl;
       GtkWidget *display_frame = lookup_widget(display_control_window,
 					       display_frame_name.c_str());
-      if (display_frame)
+      if (display_frame) {
+	 std::cout << "DEBUG:: molecule " << imol_no << "destroying frame "
+		   << display_frame << std::endl;
 	 gtk_widget_destroy(display_frame);
+      }
    } else {
       // std::cout << "close: display_control_window is not active" << std::endl;
    }

@@ -4182,11 +4182,17 @@ short int draw_crosshairs_state();
 /* \{ */
 /* c-interface-build functions */
 void setup_edit_chi_angles(short int state); 
+
+/*! \brief show torsions that rotate hydrogens in the torsion angle
+  manipulation dialog.  Note that this may be needed if, in the
+  dictionary cif file torsion which have as a 4th atom both a hydrogen
+  and a heavier atom bonding to the 3rd atom, but list the 4th atom as
+  a hydrogen (not a heavier atom). */
 void set_find_hydrogen_torsions(short int state);
 void set_graphics_edit_current_chi(int ichi); /* button callback */
 void unset_moving_atom_move_chis();
 
-/*! \brief fire up the edit chi angles gui for the given residue 
+/*! \brief display the edit chi angles gui for the given residue 
 
  return a status of 0 if it failed to fined the residue, 
  return a value of 1 if it worked. */

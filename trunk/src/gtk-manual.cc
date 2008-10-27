@@ -1251,6 +1251,7 @@ on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
 {
 
    int imol = GPOINTER_TO_INT(user_data);
+   printf("DEBUG.... on_display_control_delete_molecule_button_clicked...\n");
    close_molecule(imol);
 }
 
