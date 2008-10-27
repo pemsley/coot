@@ -3164,7 +3164,7 @@ void close_molecule(int imol) {
       graphics_info_t::molecules[imol].close_yourself();
    }
    if (graphics_info_t::go_to_atom_window) {
-      std::cout << ".....re fill go to atom window here" << std::endl;
+      // std::cout << ".....re fill go to atom window here" << std::endl;
       graphics_info_t g;
       if (imol == g.go_to_atom_molecule()) {
 	 g.update_go_to_atom_window_on_new_mol();
