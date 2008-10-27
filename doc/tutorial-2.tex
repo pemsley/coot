@@ -19,7 +19,7 @@
 %\author{CSHL 2006 Workshop}
 %\author{Osaka 2006 Workshop}
 %\author{EMBO 2007 Workshop}
-\author{Next 2008 Workshop}
+\author{CSHL 2008 Workshop}
 
 \begin{document}
 \maketitle
@@ -229,12 +229,52 @@ chain.
 
 \begin{trivlist}
 \item Stepped refine on the B chain.
+
+  Use NCS jumping (the 'O' key) to see differences.
 \item Now unmodelled blobs - like we did before.
-\item Find the ligand 3GP, merge it in.
+\item Find the ligand (3GP), merge it in.
 \item Refine using Refmac.
 \item Validate. 
 \item Rebuild.
 \end{trivlist}
 
+
+\section{Make some pictures}
+
+
+  \begin{itemize}
+    \item Highlight active site, with ligand.  Take a screenshot.
+    \item Use Raster3D to take a screenshot
+    \item Now make a Raster3D image without spheres for atoms, how do
+      you do that?
+    \item Now give the ligand a dotted surface
+    \item Now Use \textsf{Extension $\rightarrow$ Mask Map} to make a
+      map that has density only around the ligand.
+    \item Now take the residues in the active site, use Copy Fragment
+      and merge molecule to make a single mlecule of them. Display
+      this atom selection as an electrostatic surface
+  \end{itemize}
+
+\section{Views}
+
+Try out the ``View'' system
+\begin{itemize}
+\item Zoom out to see the whole molecule on the screen
+\item Recentre and Zoom in to the active site
+\item Play Views\ldots
+\end{itemize}
+
+
+\section{More Exercises}
+\begin{trivlist}
+\item What does ``Another Level'' do? 
+\item What does ``Multi-chicken'' do?
+\item Use the skeletonization of a map to find a helix.  Use
+  \textsf{Calculate $\rightarrow$ Other Modelling Tools} to add a
+  helix there.
+\item Try to represent the map with a higher resolution grid (use
+  \textsf{Edit $\rightarrow$ Map Parameters}).  Do you prefer that?
+  Why?
+\end{trivlist}
 
 \end{document}
