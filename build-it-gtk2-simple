@@ -241,7 +241,8 @@
 # 4.24 20081007 Back to version 2.5.1 that compiles on bragg3, 2.5.2 does not 
 #               (port 8080 already in use).
 # 4.25 20081008 Migrate to CCP4 version 6.0.2 for testing in York.
-script_version=4.25
+# 2.26 20081014 Use Python 2.6   
+script_version=4.26
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1512,8 +1513,8 @@ fi
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
-python_version=python2.5
-pver=2.5.1
+python_version=python2.6
+pver=2.6
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -2019,8 +2020,6 @@ echo INFO:: ./configure $generic_prefix $python_spec_flags for python
 ./configure $generic_prefix $python_spec_flags
 echo INFO:: make for python
 $MAKE 
-echo INFO:: make test for python
-$MAKE test
 echo INFO:: make install for python
 $MAKE install
 ) >  $HOSTLOGDIR/07-python.txt 2>&1
