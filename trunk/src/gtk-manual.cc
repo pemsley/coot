@@ -1165,6 +1165,9 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 4, "%-d", n);
 
+  std::cout << "DEBUG:: gtk_radio_button_new_with_label() with scroll_group "
+	    << scroll_group << std::endl;
+
   scroll_radio_button_1 = gtk_radio_button_new_with_label(scroll_group, _("Scroll"));
   scroll_group = gtk_radio_button_group (GTK_RADIO_BUTTON(scroll_radio_button_1));
   *gslist_for_scroll_in_display_manager_p() = scroll_group;
@@ -1251,7 +1254,6 @@ on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
 {
 
    int imol = GPOINTER_TO_INT(user_data);
-   printf("DEBUG.... on_display_control_delete_molecule_button_clicked...\n");
    close_molecule(imol);
 }
 

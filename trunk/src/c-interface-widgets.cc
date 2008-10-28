@@ -87,19 +87,19 @@ void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
 
    int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(w)));
 
-   GtkToggleButton *toggle_button =
-      GTK_TOGGLE_BUTTON(lookup_widget(w, "single_map_properties_sigma_radiobutton"));
+   if (is_valid_map_molecule(imol)) { 
+      GtkToggleButton *toggle_button =
+	 GTK_TOGGLE_BUTTON(lookup_widget(w, "single_map_properties_sigma_radiobutton"));
 
-   GtkWidget *entry = lookup_widget(w, "single_map_properties_contour_level_entry");
-   const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
-   float level = atof(txt);
-   if (toggle_button->active) {
-      set_contour_level_in_sigma(imol, level);
-      // std::cout << "set level in sigma of map " << imol << " to " << level << std::endl;
-   } else {
-      set_contour_level_absolute(imol, level);
-      // std::cout << "set level absolute of map " << imol << " to " << level << std::endl;
-   } 
+      GtkWidget *entry = lookup_widget(w, "single_map_properties_contour_level_entry");
+      const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+      float level = atof(txt);
+      if (toggle_button->active) {
+	 set_contour_level_in_sigma(imol, level);
+      } else {
+	 set_contour_level_absolute(imol, level);
+      }
+   }
 }
 
 							 

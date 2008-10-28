@@ -3697,9 +3697,10 @@ on_single_map_properties_ok_button_clicked (GtkButton       *button,
 				    "single_map_properties_dialog");
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
 
-  set_contour_by_sigma_step_maybe(window, imol);
-  
-  skeletonize_map_single_map_maybe(window, imol);
+  if (is_valid_map_molecule(imol)) { 
+    set_contour_by_sigma_step_maybe(window, imol);
+    skeletonize_map_single_map_maybe(window, imol);
+  } 
   gtk_widget_destroy(window);
 
 }
@@ -3732,26 +3733,27 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
   gdouble *colour;
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
 
-  if (1) { 
-/*     printf("pop up the colour chooser for map: %d \n", imol);  */
-    map_colour_data = (struct map_colour_data_type *) 
-      malloc(sizeof(struct map_colour_data_type));
-    map_colour_data->imol = imol; 
-    map_colour_data->imap = 0; /* historical cruft */
-    col_sel_window = create_map_colour_selection_window(map_colour_data);  
-    /* I think this lookup is unnecessary because the
-       create_map_colour_selection_window returns the dialog
-       (c.f. symmetry_colour_selection)*/
-    colorseldlg = GTK_WIDGET(lookup_widget(col_sel_window, "map_colour_selection")); 
-    colorsel = GTK_COLOR_SELECTION(GTK_COLOR_SELECTION_DIALOG(colorseldlg)->colorsel);
-    colour = get_map_colour(imol);
-    gtk_color_selection_set_color(colorsel, colour);
-    gtk_widget_show(col_sel_window);
+  if (is_valid_map_molecule(imol)) { 
+      if (1) { 
+	/*     printf("pop up the colour chooser for map: %d \n", imol);  */
+	map_colour_data = (struct map_colour_data_type *) 
+	  malloc(sizeof(struct map_colour_data_type));
+	map_colour_data->imol = imol; 
+	map_colour_data->imap = 0; /* historical cruft */
+	col_sel_window = create_map_colour_selection_window(map_colour_data);  
+	/* I think this lookup is unnecessary because the
+	   create_map_colour_selection_window returns the dialog
+	   (c.f. symmetry_colour_selection)*/
+	colorseldlg = GTK_WIDGET(lookup_widget(col_sel_window, "map_colour_selection")); 
+	colorsel = GTK_COLOR_SELECTION(GTK_COLOR_SELECTION_DIALOG(colorseldlg)->colorsel);
+	colour = get_map_colour(imol);
+	gtk_color_selection_set_color(colorsel, colour);
+	gtk_widget_show(col_sel_window);
 
-  } else { 
-    printf("no imol for the colour chooser for map:\n"); 
-  }
-
+      } else { 
+	printf("no imol for the colour chooser for map:\n"); 
+      }
+    }
 }
 
 void
@@ -9418,8 +9420,11 @@ on_single_map_properties_contour_level_apply_button_clicked
 {
 
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "single_map_properties_dialog");
-  single_map_properties_apply_contour_level_to_map(w);
-
+  single_map_properties_apply_contour_level_to_map(w); /* check now
+							  made here
+							  for valid
+							  map
+							  molecule. */
 }
 
 
