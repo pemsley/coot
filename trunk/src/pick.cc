@@ -71,7 +71,8 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 
 	    if (dist < min_dist) {
 	       if ((pick_mode != PICK_ATOM_CA_ONLY) ||
-		   (std::string(SelAtom.atom_selection[i]->name) == " CA ")) {
+		   (std::string(SelAtom.atom_selection[i]->name) == " CA ") ||
+		   (std::string(SelAtom.atom_selection[i]->name) == " P  ")) { 
 		  
 		  min_dist = dist;
 		  nearest_atom_index = i;
