@@ -68,6 +68,8 @@ void preferences() {
 void show_preferences(){
 
   GtkWidget *w = create_preferences();
+  GtkWidget *scrolled_win = lookup_widget(w, "preferences_model_toolbar_icons_scrolledwindow");
+  fill_preferences_model_toolbar_icons(w, scrolled_win);
   gtk_widget_show(w);
   graphics_info_t::preferences_widget = w;
 
@@ -159,8 +161,7 @@ void make_preferences_internal_default() {
   make_preferences_internal();
   graphics_info_t g;
   g.preferences_internal_default = g.preferences_internal;
-  //  g.preferences_internal_default = ret; //->assign(ret.begin(), ret.end());
-  //g.preferences_internal_default = (const)g.make_preferences_internal();
+
 }
 
 void reset_preferences() {
@@ -183,9 +184,11 @@ void update_preference_gui() {
   std::string text;
   int preference_type;
   int ivalue;
+  int ivalue2;
   float fval1;
   float fval2;
   float fval3;
+  std::vector<int> ivector;
   unsigned short int v = 4;
   graphics_info_t g;
   
@@ -199,7 +202,7 @@ void update_preference_gui() {
       
     case PREFERENCES_FILE_CHOOSER:
       w = lookup_widget(dialog, "preferences_filechooser_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_filechooser_off_radiobutton");
@@ -209,7 +212,7 @@ void update_preference_gui() {
 
     case PREFERENCES_FILE_OVERWRITE:
       w = lookup_widget(dialog, "preferences_file_overwrite_yes_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_file_overwrite_no_radiobutton");
@@ -219,7 +222,7 @@ void update_preference_gui() {
 
     case PREFERENCES_FILE_FILTER:
       w = lookup_widget(dialog, "preferences_file_filter_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_file_filter_off_radiobutton");
@@ -229,7 +232,7 @@ void update_preference_gui() {
 
     case PREFERENCES_FILE_SORT_DATE:
       w = lookup_widget(dialog, "preferences_file_sort_by_date_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_file_sort_by_date_off_radiobutton");
@@ -239,7 +242,7 @@ void update_preference_gui() {
 
     case PREFERENCES_ACCEPT_DIALOG_DOCKED:
       w = lookup_widget(dialog, "preferences_dialog_accept_docked_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_dialog_accept_detouched_radiobutton");
@@ -249,7 +252,7 @@ void update_preference_gui() {
 
     case PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW:
       w = lookup_widget(dialog, "preferences_dialog_accept_docked_show_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_dialog_accept_docked_hide_radiobutton");
@@ -259,7 +262,7 @@ void update_preference_gui() {
 
     case PREFERENCES_IMMEDIATE_REPLACEMENT:
       w = lookup_widget(dialog, "preferences_dialog_accept_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_dialog_accept_off_radiobutton");
@@ -269,7 +272,7 @@ void update_preference_gui() {
 
     case PREFERENCES_VT_SURFACE:
       w = lookup_widget(dialog, "preferences_hid_spherical_radiobutton");
-      ivalue = g.preferences_internal[i].ivalue;
+      ivalue = g.preferences_internal[i].ivalue1;
       if (ivalue == 2) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
@@ -280,7 +283,7 @@ void update_preference_gui() {
 
     case PREFERENCES_RECENTRE_PDB:
       w = lookup_widget(dialog, "preferences_recentre_pdb_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_recentre_pdb_off_radiobutton");
@@ -290,7 +293,7 @@ void update_preference_gui() {
 
     case PREFERENCES_BONDS_THICKNESS:
       w = lookup_widget(dialog, "preferences_bond_width_combobox");
-      ivalue = g.preferences_internal[i].ivalue;
+      ivalue = g.preferences_internal[i].ivalue1;
       ivalue -= 1;      // offset
 #if (GTK_MAJOR_VERSION > 1)
       gtk_combo_box_set_active(GTK_COMBO_BOX(w), ivalue);
@@ -307,7 +310,7 @@ void update_preference_gui() {
 
     case PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY:
       w = lookup_widget(dialog, "preferences_bond_colours_checkbutton");
-      if (g.preferences_internal[i].ivalue == 1) {
+      if (g.preferences_internal[i].ivalue1 == 1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
@@ -340,7 +343,7 @@ void update_preference_gui() {
 
     case PREFERENCES_DYNAMIC_MAP_SAMPLING:
       w = lookup_widget(dialog, "preferences_map_dynamic_sampling_checkbutton");
-      if (g.preferences_internal[i].ivalue == 1) {
+      if (g.preferences_internal[i].ivalue1 == 1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
@@ -349,7 +352,7 @@ void update_preference_gui() {
 
     case PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY:
       w = lookup_widget(dialog, "preferences_map_dynamic_size_checkbutton");
-      if (g.preferences_internal[i].ivalue == 1) {
+      if (g.preferences_internal[i].ivalue1 == 1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
@@ -358,7 +361,7 @@ void update_preference_gui() {
 
     case PREFERENCES_SWAP_DIFF_MAP_COLOURS:
       w = lookup_widget(dialog, "preferences_diff_map_colours_o_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_diff_map_colours_coot_radiobutton");
@@ -368,7 +371,7 @@ void update_preference_gui() {
 
     case PREFERENCES_SMOOTH_SCROLL:
       w = lookup_widget(dialog, "preferences_smooth_scroll_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_smooth_scroll_off_radiobutton");
@@ -378,7 +381,7 @@ void update_preference_gui() {
 
     case PREFERENCES_SMOOTH_SCROLL_STEPS:
       w = lookup_widget(dialog, "preferences_smooth_scroll_steps_entry");
-      text = graphics_info_t::int_to_string(g.preferences_internal[i].ivalue);
+      text = graphics_info_t::int_to_string(g.preferences_internal[i].ivalue1);
       gtk_entry_set_text(GTK_ENTRY(w), text.c_str());
       break;
 
@@ -390,7 +393,7 @@ void update_preference_gui() {
 
     case PREFERENCES_MAP_DRAG:
       w = lookup_widget(dialog, "preferences_map_drag_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_map_drag_off_radiobutton");
@@ -400,7 +403,7 @@ void update_preference_gui() {
 
     case PREFERENCES_MARK_CIS_BAD:
       w = lookup_widget(dialog, "preferences_geometry_cis_peptide_bad_yes_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_geometry_cis_peptide_bad_no_radiobutton");
@@ -445,7 +448,7 @@ void update_preference_gui() {
 
     case PREFERENCES_ANTIALIAS:
       w = lookup_widget(dialog, "preferences_antialias_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_antialias_off_radiobutton");
@@ -455,7 +458,7 @@ void update_preference_gui() {
 
     case PREFERENCES_CONSOLE_COMMANDS:
       w = lookup_widget(dialog, "preferences_console_info_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_console_info_off_radiobutton");
@@ -465,7 +468,7 @@ void update_preference_gui() {
 
     case PREFERENCES_TIPS:
       w = lookup_widget(dialog, "preferences_tips_on_radiobutton");
-      if (g.preferences_internal[i].ivalue) {
+      if (g.preferences_internal[i].ivalue1) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_tips_off_radiobutton");
@@ -474,7 +477,7 @@ void update_preference_gui() {
       break;
 
     case PREFERENCES_REFINEMENT_SPEED:
-      ivalue = g.preferences_internal[i].ivalue;
+      ivalue = g.preferences_internal[i].ivalue1;
       if (ivalue == 4) {
 	 w = lookup_widget(dialog, "preferences_refinement_speed_molasses_radiobutton");
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
@@ -505,7 +508,7 @@ void update_preference_gui() {
       break;
 
     case PREFERENCES_FONT_SIZE:
-      ivalue = g.preferences_internal[i].ivalue;
+      ivalue = g.preferences_internal[i].ivalue1;
       if (ivalue < 2) {
 	w = lookup_widget(dialog, "preferences_font_size_small_radionbutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
@@ -547,7 +550,7 @@ void update_preference_gui() {
       break;
 
     case PREFERENCES_MODEL_TOOLBAR_SHOW:
-      ivalue = g.preferences_internal[i].ivalue;
+      ivalue = g.preferences_internal[i].ivalue1;
       if (ivalue == 0) {
 	w = lookup_widget(dialog, "preferences_model_toolbar_hide_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
@@ -558,7 +561,7 @@ void update_preference_gui() {
       break;
 
     case PREFERENCES_MODEL_TOOLBAR_POSITION:
-      ivalue = g.preferences_internal[i].ivalue;
+      ivalue = g.preferences_internal[i].ivalue1;
       if (ivalue == 0) {
 	w = lookup_widget(dialog, "preferences_model_toolbar_right_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
@@ -575,7 +578,7 @@ void update_preference_gui() {
       break;
 
     case PREFERENCES_MODEL_TOOLBAR_STYLE:
-      ivalue = g.preferences_internal[i].ivalue;
+      ivalue = g.preferences_internal[i].ivalue1;
       if (ivalue <= 1) {
 	w = lookup_widget(dialog, "preferences_model_toolbar_style_icons_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
@@ -588,6 +591,17 @@ void update_preference_gui() {
       }
       break;
 
+    case PREFERENCES_MODEL_TOOLBAR_ICONS:
+      ivalue  = g.preferences_internal[i].ivalue1;
+      ivalue2 = g.preferences_internal[i].ivalue2;
+      if (ivalue2 == 1) {
+	// show
+	show_model_toolbar_icon(ivalue);
+      } else {
+	// hide
+	hide_model_toolbar_icon(ivalue);
+      }
+      break;
     }
   }
 }
@@ -636,6 +650,11 @@ void preferences_internal_change_value_int(int preference_type, int ivalue) {
   g.preferences_internal_change_value(preference_type, ivalue);
 }
 
+void preferences_internal_change_value_int2(int preference_type, int ivalue1, int ivalue2) {
+  graphics_info_t g;
+  g.preferences_internal_change_value(preference_type, ivalue1, ivalue2);
+}
+
 void preferences_internal_change_value_float(int preference_type, float fvalue) {
   graphics_info_t g;
   g.preferences_internal_change_value(preference_type, fvalue);
@@ -645,6 +664,28 @@ void preferences_internal_change_value_float3(int preference_type,
 				       float fvalue1, float fvalue2, float fvalue3) {
   graphics_info_t g;
   g.preferences_internal_change_value(preference_type, fvalue1, fvalue2, fvalue3);
+}
+
+void
+show_model_toolbar_icon(int pos) {
+  graphics_info_t g;
+  g.show_hide_model_toolbar_icon_pos(pos, 1);
+}
+
+void
+hide_model_toolbar_icon(int pos) {
+  graphics_info_t g;
+  g.show_hide_model_toolbar_icon_pos(pos, 0);
+}
+
+void
+fill_preferences_model_toolbar_icons(GtkWidget *preferences,
+				     GtkWidget *scrolled_window) {
+
+  graphics_info_t g;
+#if (GTK_MAJOR_VERSION >1)
+  g.fill_preferences_model_toolbar_icons(preferences, scrolled_window);
+#endif // GTK_MAJOR_VERSION
 }
 
 

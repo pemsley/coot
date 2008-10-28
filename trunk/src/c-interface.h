@@ -641,6 +641,11 @@ void hide_modelling_toolbar();
   (the toolbar is shown by default) */
 void show_modelling_toolbar();
 
+/*! \brief show all available icons in the modelling toolbar (same as MFR dialog) */
+void show_model_toolbar_all_icons();
+/*! \brief show only a selection of icons in the modelling toolbar */
+void show_model_toolbar_main_icons();
+
 void toolbar_popup_menu(GtkToolbar *toolbar, 
 		    GdkEventButton *event_button,
 		    gpointer user_data);
@@ -4779,9 +4784,15 @@ void make_preferences_internal_default();
 void reset_preferences();
 void save_preferences();
 void preferences_internal_change_value_int(int preference_type, int ivalue);
+void preferences_internal_change_value_int2(int preference_type, int ivalue1, int ivalue2);
 void preferences_internal_change_value_float(int preference_type, float fvalue);
 void preferences_internal_change_value_float3(int preference_type, 
 					float fvalue1, float fvalue2, float fvalue3);
+//void preferences_internal_change_value_vector_add_remove(int preference_type, int ivalue, int add_remove_flag);
+void show_model_toolbar_icon(int pos);
+void hide_model_toolbar_icon(int pos);
+void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
+				     	  GtkWidget *scrolled_window);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Browser Help                                            */

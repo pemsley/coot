@@ -2323,6 +2323,10 @@ void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
 
 }
 
+/*  ------------------------------------------------------------------------ */
+//            model_toolbar things
+/*  ------------------------------------------------------------------------ */
+//
 
 /*! \brief hide the vertical modelling toolbar in the GTK2 version */
 void hide_modelling_toolbar() {
@@ -2374,6 +2378,62 @@ void show_modelling_toolbar() {
 }
 
 
+void
+show_model_toolbar_all_icons() {
+
+  GtkWidget *hsep           = lookup_widget(graphics_info_t::glarea,
+					    "model_toolbar_hsep_toolitem2");
+  GtkWidget *vsep           = lookup_widget(graphics_info_t::glarea,
+					    "model_toolbar_vsep_toolitem2");
+  GtkWidget *toolbar_radiobutton = lookup_widget(graphics_info_t::glarea,
+						 "model_toolbar_all_icons");
+    
+  for (int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
+    show_model_toolbar_icon(i);
+  }
+#if (GTK_MAJOR_VERSION >1)
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
+  if (graphics_info_t::preferences_widget) {
+    // have preferences open and shall update the tree model for icon
+    GtkWidget *icons_treeview = lookup_widget(graphics_info_t::preferences_widget, "preferences_model_toolbar_icon_tree");
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
+    graphics_info_t::update_model_toolbar_icons(model);
+  }
+#endif // GTK2
+
+  gtk_widget_show(hsep);
+  gtk_widget_show(vsep);
+}
+
+void
+show_model_toolbar_main_icons() {
+
+  GtkWidget *hsep           = lookup_widget(graphics_info_t::glarea,
+					    "model_toolbar_hsep_toolitem2");
+  GtkWidget *vsep           = lookup_widget(graphics_info_t::glarea,
+					    "model_toolbar_vsep_toolitem2");
+  GtkWidget *toolbar_radiobutton = lookup_widget(graphics_info_t::glarea,
+						 "model_toolbar_main_icons");
+  
+  for (int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
+    if ((*graphics_info_t::model_toolbar_icons)[i].default_show_flag == 1) {
+      show_model_toolbar_icon(i);
+    } else {
+      hide_model_toolbar_icon(i);
+    }
+  }
+#if (GTK_MAJOR_VERSION >1)
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
+  if (graphics_info_t::preferences_widget) {
+    // have preferences open and shall update the tree model for icon
+    GtkWidget *icons_treeview = lookup_widget(graphics_info_t::preferences_widget, "preferences_model_toolbar_icon_tree");
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
+    graphics_info_t::update_model_toolbar_icons(model);
+  }
+#endif // GTK2
+  gtk_widget_hide(hsep);
+  gtk_widget_hide(vsep);
+}
 
 /*  ------------------------------------------------------------------------ */
 //            popup-menu for model_toolbar

@@ -407,4 +407,11 @@ handle_command_line_data(command_line_data cld) {
       graphics_info_t::remote_control_hostname = cld.hostname;
    }
 
+   // more settings for small screen
+   if (cld.small_screen_display) {
+     std::cout << "INFO:: setting only main icons for small screen" << std::endl;
+     show_model_toolbar_main_icons();
+     set_graphics_window_size(400, 400);
+   }
+
 }
