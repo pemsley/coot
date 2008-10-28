@@ -746,6 +746,7 @@ void setup_application_icon(GtkWindow *window) {
 #endif // MINGW
      if (max_height <= 620) {
        max_height = 620;
+       show_model_toolbar_main_icons();
      }
      if (max_height <= 720) {
        int icon_size = 12 + (max_height - 620) / 25;

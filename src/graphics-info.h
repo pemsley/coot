@@ -364,10 +364,41 @@ namespace coot {
     
   public:
     int preference_type;   // e.g. PREFERENCES_bla
-    int ivalue;
+    int ivalue1;
+    int ivalue2;
     float fvalue1;
     float fvalue2;
     float fvalue3;
+  };
+
+  class preferences_icon_info_t {
+  
+  public:
+    int icon_pos;
+    std::string icon_filename;
+    std::string icon_text;
+    std::string icon_widget;
+    int show_hide_flag;
+    int default_show_flag;
+    preferences_icon_info_t(int icon_pos_in,
+			    std::string icon_filename_in,
+			    std::string icon_text_in,
+			    std::string icon_widget_in,
+			    int show_hide_flag_in,
+			    int default_show_flag_in) {
+	icon_pos = icon_pos_in;
+	icon_filename = icon_filename_in;
+	icon_text = icon_text_in;
+	icon_widget = icon_widget_in;
+	show_hide_flag = show_hide_flag_in;
+	default_show_flag = default_show_flag_in;
+    }
+    void hide() {
+	show_hide_flag = 0;
+    }
+    void show() {
+	show_hide_flag = 1;
+    }
   };
 
   class command_line_commands_t { 
@@ -881,6 +912,104 @@ public:
       preferences_other_tabs->push_back("preferences_antialias");
       preferences_other_tabs->push_back("preferences_font");
       preferences_other_tabs->push_back("preferences_pink_pointer");
+      // for toolbar icons in preferences
+      model_toolbar_icons = new std::vector<coot::preferences_icon_info_t>;
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(0, "refine-1.svg",
+								   "Real Space Refine",
+								   "model_toolbar_refine_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(1, "regularize-1.svg",
+								   "Regularize",
+								   "model_toolbar_regularize_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(2, "anchor.svg",
+								   "Fixed Atoms...",
+								   "model_toolbar_fixed_atoms_button",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(3, "rigid-body.svg",
+								   "Rigid Body Fit Zone",
+								   "model_toolbar_rigid_body_fit_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(4, "rtz.svg",
+								   "Rotate/Translate Zone",
+								   "model_toolbar_rot_trans_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(5, "auto-fit-rotamer.svg",
+								   "Auto Fit Rotamer",
+								   "model_toolbar_auto_fit_rotamer_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(6, "rotamers.svg",
+								   "Rotamers",
+								   "model_toolbar_rotamers_togglebutton",
+								   1,1 ));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(7, "edit-chi.svg",
+								   "Edit Chi Angles",
+								   "model_toolbar_edit_chi_angles_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(8, "torsion-general.svg",
+								   "Torsion General",
+								   "model_toolbar_torsion_general_toggletoolbutton",
+								   1, 0));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(9, "flip-peptide.svg",
+								   "Flip Peptide",
+								   "model_toolbar_flip_peptide_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(10, "side-chain-180.svg",
+								   "Side Chain 180 Degree Flip",
+								   "model_toolbar_sidechain_180_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(11, "edit-backbone.svg",
+								   "Edit Backbone Torsions",
+								   "model_toolbar_edit_backbone_torsions_toggletoolbutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(12, "",
+								   "---------------------",
+								   "model_toolbar_hsep_toolitem",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(13, "mutate-auto-fit.svg",
+								   "Mutate and Auto-Fit...",
+								   "model_toolbar_mutate_and_autofit_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(14, "mutate.svg",
+								   "Simple Mutate...",
+								   "model_toolbar_simple_mutate_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(15, "add-peptide-1.svg",
+								   "Add Terminal Residue...",
+								   "model_toolbar_add_terminal_residue_togglebutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(16, "add-alt-conf.svg",
+								   "Add Alt Conf...",
+								   "model_toolbar_add_alt_conf_toolbutton",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(17, "atom-at-pointer.svg",
+								   "Place Atom at Pointer",
+								   "model_toolbar_add_atom_button",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(18, "gtk-clear",
+								   "Clear Pending Picks",
+								   "model_toolbar_clear_pending_picks_button",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(19, "gtk-delete",
+								   "Delete...",
+								   "model_toolbar_delete_button",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(20, "gtk-undo",
+								   "Undo",
+								   "model_toolbar_undo_button",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(21, "gtk-redo",
+								   "Redo",
+								   "model_toolbar_redo_button",
+								   1, 1));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(22, "",
+								   "---------------------",
+								   "model_toolbar_hsep_toolitem2",
+								   1, 0));
+      model_toolbar_icons->push_back(coot::preferences_icon_info_t(23, "azerbaijan.svg",
+								   "Run Refmac...",
+								   "model_toolbar_refmac_button",
+								   1, 0));
 
       do_expose_swap_buffers_flag = 1;
 
@@ -2903,6 +3032,8 @@ public:
    static std::vector<std::string> *preferences_map_tabs;
    static std::vector<std::string> *preferences_other_tabs;
 
+   static std::vector<coot::preferences_icon_info_t> *model_toolbar_icons;
+
    short int save_preference_file(const std::string &filename, short int il);
    static std::vector<coot::preference_info_t> preferences_internal;
    static std::vector<coot::preference_info_t> preferences_internal_default;
@@ -2911,7 +3042,18 @@ public:
    void preferences_internal_change_value(int preference_type, float fvalue);
    void preferences_internal_change_value(int preference_type, 
 					  float fvalue1, float fvalue2, float fvalue3);
+   void preferences_internal_change_value(int preference_type, int ivalue1, int ivalue);
   
+#if (GTK_MAJOR_VERSION > 1)
+   static void preferences_model_toolbar_icon_toggled(GtkCellRendererToggle *button,
+					      gchar *path,
+		    			      gpointer data);
+   static void update_model_toolbar_icons(GtkTreeModel *model);
+   void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
+					     GtkWidget *scrolled_window);
+#endif // GTK_MAJOR_VERSION
+   void show_hide_model_toolbar_icon_pos(int pos, int show_hide_flag);
+   std::vector<int> get_model_toolbar_icons_list();
 
    // --- remote controlled coot: ----
    static int try_port_listener;

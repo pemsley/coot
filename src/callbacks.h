@@ -2569,6 +2569,16 @@ on_preferences_model_toolbar_hide_radiobutton_toggled
                                         gpointer         user_data);
 
 void
+on_preferences_model_toolbar_main_icons_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_model_toolbar_all_icons_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_preferences_model_toolbar_style_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
@@ -2581,6 +2591,16 @@ on_preferences_model_toolbar_style_both_radiobutton_toggled
 void
 on_preferences_model_toolbar_style_text_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_model_toolbar_show_icon_all_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_preferences_model_toolbar_show_icon_selection_button_clicked
+                                        (GtkButton       *button,
                                         gpointer         user_data);
 
 void

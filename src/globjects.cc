@@ -455,6 +455,7 @@ std::vector<std::string> *graphics_info_t::preferences_geometry_tabs;
 std::vector<std::string> *graphics_info_t::preferences_colour_tabs;
 std::vector<std::string> *graphics_info_t::preferences_map_tabs;
 std::vector<std::string> *graphics_info_t::preferences_other_tabs;
+std::vector<coot::preferences_icon_info_t> *graphics_info_t::model_toolbar_icons;
 
 std::vector<coot::preference_info_t> graphics_info_t::preferences_internal;
 std::vector<coot::preference_info_t> graphics_info_t::preferences_internal_default;

@@ -121,67 +121,72 @@ style "model-fit-refine-regularize" = "model-fit-refine"
   bg[NORMAL]   = { 0.92, 0.92, 0.79 }
 }
 
-style "model-fit-refine-rigid-body" = "model-fit-refine"
+style "model-fit-refine-fixed-atoms" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.93, 0.95, 0.76 }
 }
 
-style "model-fit-refine-rot-trans" = "model-fit-refine"
+style "model-fit-refine-rigid-body" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.93, 0.9, 0.8 }
 }
 
-style "model-fit-refine-auto-fit-rotamer" = "model-fit-refine"
+style "model-fit-refine-rot-trans" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.93, 0.82, 0.72 }
 }
 
-style "model-fit-refine-rotamer" = "model-fit-refine"
+style "model-fit-refine-auto-fit-rotamer" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.95, 0.79, 0.71 }
 }
 
-style "model-fit-refine-edit-chi" = "model-fit-refine"
+style "model-fit-refine-rotamer" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.95, 0.77, 0.66 }
 }
 
-style "model-fit-refine-torsion-general" = "model-fit-refine"
+style "model-fit-refine-edit-chi" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.95, 0.76, 0.68 }
 }
 
-style "model-fit-refine-pepflip" = "model-fit-refine"
+style "model-fit-refine-torsion-general" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.95, 0.75, 0.69 }
 }
 
-style "model-fit-refine-180-degree-flip" = "model-fit-refine"  
+style "model-fit-refine-pepflip" = "model-fit-refine"
 {
   bg[NORMAL]   = { 0.95, 0.70, 0.71 }
+}
+
+style "model-fit-refine-180-degree-flip" = "model-fit-refine"  
+{
+  bg[NORMAL]   = { 0.95, 0.69, 0.75 }
 }
 
 # actually backbone
 style "model-fit-refine-edit-phi-psi" = "model-fit-refine"
 {
-  bg[NORMAL]   = { 0.95, 0.69, 0.75 }
+  bg[NORMAL]   = { 0.95, 0.68, 0.81 }
 }
 
 ######## Here are the atom list changers #####################
 
 style "model-fit-refine-mutate-auto-fit" = "model-fit-refine"
 {
-  bg[NORMAL]   = { 0.95, 0.68, 0.81 }
+  bg[NORMAL]   = { 0.95, 0.66, 0.94 }
 }
 
 style "model-fit-refine-mutate" = "model-fit-refine"
 {
-  bg[NORMAL]   = { 0.95, 0.66, 0.94 }
+  bg[NORMAL]   = { 0.91, 0.65, 0.95 }
 }
 
 style "model-fit-refine-ligands" = "model-fit-refine"
 {
-  bg[NORMAL]   = { 0.91, 0.65, 0.95 }
+  bg[NORMAL]   = { 0.82, 0.66, 0.95 }
 }
 
 style "model-fit-refine-waters" = "model-fit-refine"
@@ -315,8 +320,9 @@ widget "*.*.edit_chi_angles_button" style "edit-chi-angles-button"
 
 # buttons
 widget "*.*.model_refine_dialog_refine_params_button" style "model-fit-refine-params"
+widget "*.*.model_refine_dialog_fixed_atoms_button" style "model-fit-refine-fixed-atoms"
 widget "*.*.model_refine_dialog_find_ligands_button" style "model-fit-refine-ligands"
-widget "*.*.model_refine_dialog_find_waters_button" style "model-fit-refine-waters"
+#widget "*.*.model_refine_dialog_find_waters_button" style "model-fit-refine-waters"
 widget "*.*.model_refine_dialog_add_alt_conf_button" style "model-fit-refine-add-alt-conf"
 widget "*.*.model_refine_dialog_baton_button" style "model-fit-refine-baton"
 widget "*.*.model_refine_dialog_pointer_atom_button" style "model-fit-refine-pointer-atom"

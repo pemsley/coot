@@ -2244,7 +2244,8 @@ on_model_refine_dialog_fixed_atoms_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-
+  GtkWidget *w = wrapped_create_fixed_atom_dialog();
+  gtk_widget_show(w);
 }
 
 
@@ -7418,6 +7419,24 @@ on_preferences_model_toolbar_hide_radiobutton_toggled
 
 
 void
+on_preferences_model_toolbar_main_icons_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_preferences_model_toolbar_all_icons_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
 on_preferences_model_toolbar_style_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
@@ -7452,6 +7471,26 @@ on_preferences_model_toolbar_style_text_radiobutton_toggled
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 3);
     set_model_toolbar_style(3);
   }
+
+}
+
+
+void
+on_preferences_model_toolbar_show_icon_all_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  show_model_toolbar_all_icons();
+  
+}
+
+
+void
+on_preferences_model_toolbar_show_icon_selection_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  show_model_toolbar_main_icons();
 
 }
 
@@ -9611,6 +9650,11 @@ on_model_toolbar_torsion_general_toggletoolbutton_toggled
                                         gpointer         user_data)
 {
 
+  if (GTK_TOGGLE_BUTTON(toggletoolbutton)->active) {
+    setup_torsion_general(1);
+  } else {
+    setup_torsion_general(0);
+  }
 }
 #endif	/* GTK_MAJOR_VERSION */
 
@@ -9651,6 +9695,12 @@ on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
+
+  if (GTK_TOGGLE_BUTTON(toggletoolbutton)->active) { 
+    setup_backbone_torsion_edit(1);
+  } else { 
+    setup_backbone_torsion_edit(0);
+  }
 
 }
 #endif	/* GTK_MAJOR_VERSION */
@@ -9720,6 +9770,7 @@ on_model_toolbar_add_alt_conf_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
+  altconf();
 
 }
 #endif	/* GTK_MAJOR_VERSION */
@@ -9783,6 +9834,7 @@ void
 on_model_toolbar_refmac_button_clicked (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
+  wrapped_create_run_refmac_dialog();
 
 }
 #endif	/* GTK_MAJOR_VERSION */
@@ -9834,7 +9886,9 @@ void
 on_model_toolbar_main_icons_activate   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+    show_model_toolbar_main_icons();
+  }
 }
 #endif	/* GTK_MAJOR_VERSION */
 
@@ -9844,7 +9898,11 @@ void
 on_model_toolbar_all_icons_activate    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+    show_model_toolbar_all_icons();
+  } //else {
+    //show_model_toolbar_main_icons();
+  //}
 }
 #endif	/* GTK_MAJOR_VERSION */
 

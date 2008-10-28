@@ -31,6 +31,7 @@
 #include "c-interface-scm.hh"
 #include "c-inner-main.h"
 #include "coot-preferences.h"
+#include "coot-utils.hh"
 
 
 // Return succes status
@@ -63,6 +64,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
    float fval1;
    float fval2;
    float fval3;
+   std::vector<int> ivector;
    graphics_info_t g;
    for (int i=0; i<g.preferences_internal.size(); i++) {
      preference_type = g.preferences_internal[i].preference_type;
@@ -70,21 +72,21 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 
      case PREFERENCES_FILE_CHOOSER:
        commands.push_back(state_command("set-file-chooser-selector",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_FILE_OVERWRITE:
        commands.push_back(state_command("set-file-chooser-overwrite",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_FILE_FILTER:
        commands.push_back(state_command("set-filter-fileselection-filenames", 
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_FILE_SORT_DATE:
-       if (g.preferences_internal[i].ivalue == 1) {
+       if (g.preferences_internal[i].ivalue1 == 1) {
 	 commands.push_back(state_command("set-sticky-sort-by-date", il));
        } else {
 	 commands.push_back(state_command("unset-sticky-sort-by-date", il));
@@ -93,32 +95,32 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        
      case PREFERENCES_ACCEPT_DIALOG_DOCKED:
        commands.push_back(state_command("set-accept-reject-dialog-docked",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW:
        commands.push_back(state_command("set-accept-reject-dialog-docked-show",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_IMMEDIATE_REPLACEMENT:
        commands.push_back(state_command("set-refinement-immediate-replacement",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
       break;
       
      case PREFERENCES_VT_SURFACE:
        commands.push_back(state_command("vt-surface",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_RECENTRE_PDB:
        commands.push_back(state_command("set-recentre-on-read-pdb",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_BONDS_THICKNESS:
        commands.push_back(state_command("set-default-bond-thickness",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_BOND_COLOURS_MAP_ROTATION:
@@ -128,7 +130,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        
      case PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY:
        commands.push_back(state_command("set-colour-map-rotation-on-read-pdb-c-only-flag",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_MAP_RADIUS:
@@ -152,7 +154,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        break;
 
      case PREFERENCES_DYNAMIC_MAP_SAMPLING:
-       if (g.preferences_internal[i].ivalue == 1) {
+       if (g.preferences_internal[i].ivalue1 == 1) {
 	 commands.push_back(state_command("set-dynamic-map-sampling-on", il));
        } else {
 	 commands.push_back(state_command("set-dynamic-map-sampling-off", il));
@@ -160,7 +162,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        break;
       
      case PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY:
-       if (g.preferences_internal[i].ivalue == 1) {
+       if (g.preferences_internal[i].ivalue1 == 1) {
 	 commands.push_back(state_command("set-dynamic-map-size-display-on", il));
        } else {
 	 commands.push_back(state_command("set-dynamic-map-size-display-off", il));
@@ -169,17 +171,17 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 
      case PREFERENCES_SWAP_DIFF_MAP_COLOURS:
        commands.push_back(state_command("set-swap-difference-map-colours",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_SMOOTH_SCROLL:
        commands.push_back(state_command("set-smooth-scroll-flag",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_SMOOTH_SCROLL_STEPS:
        commands.push_back(state_command("set-smooth-scroll-steps",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_SMOOTH_SCROLL_LIMIT:
@@ -189,12 +191,12 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 
      case PREFERENCES_MAP_DRAG:
        commands.push_back(state_command("set-active-map-drag-flag",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_MARK_CIS_BAD:
        commands.push_back(state_command("set-mark-cis-peptides-as-bad",
-					g.preferences_internal[i].ivalue, il));     
+					g.preferences_internal[i].ivalue1, il));     
        break;
 
      case PREFERENCES_BG_COLOUR:      
@@ -215,21 +217,21 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 
      case PREFERENCES_ANTIALIAS:
        commands.push_back(state_command("set-do-anti-aliasing",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_CONSOLE_COMMANDS:
        commands.push_back(state_command("set-console-display-commands-state",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_REFINEMENT_SPEED:
        commands.push_back(state_command("set-dragged-refinement-steps-per-frame",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_TIPS:
-       if (g.preferences_internal[i].ivalue == 0) {
+       if (g.preferences_internal[i].ivalue1 == 0) {
 	 commands.push_back(state_command("no-coot-tips", il));
        }
        break;
@@ -241,7 +243,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
       
      case PREFERENCES_FONT_SIZE:
        commands.push_back(state_command("set-font-size",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
       
      case PREFERENCES_FONT_COLOUR:      
@@ -257,7 +259,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        break;
       
      case PREFERENCES_MODEL_TOOLBAR_SHOW:
-       if (g.preferences_internal[i].ivalue == 0) {
+       if (g.preferences_internal[i].ivalue1 == 0) {
 	 commands.push_back(state_command("hide-modelling-toolbar", il));
        } else {
 	 commands.push_back(state_command("show-modelling-toolbar", il));
@@ -266,13 +268,24 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 
      case PREFERENCES_MODEL_TOOLBAR_POSITION:
        commands.push_back(state_command("set-model-toolbar-docked-position",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_MODEL_TOOLBAR_STYLE:
        commands.push_back(state_command("set-model-toolbar-style",
-					g.preferences_internal[i].ivalue, il));
+					g.preferences_internal[i].ivalue1, il));
        break;
+
+     case PREFERENCES_MODEL_TOOLBAR_ICONS:
+       if (g.preferences_internal[i].ivalue2 == 1) {
+	 commands.push_back(state_command("show-model-toolbar-icon",
+					  g.preferences_internal[i].ivalue1, il));
+       } else {
+	 commands.push_back(state_command("hide-model-toolbar-icon",
+					  g.preferences_internal[i].ivalue1, il));
+       }
+       break;
+
      }
    }
 
@@ -314,7 +327,7 @@ graphics_info_t::make_preferences_internal() {
   on = 0;
 #endif // GTK
   p.preference_type = PREFERENCES_FILE_CHOOSER;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
   
 #if (GTK_MAJOR_VERSION > 1)
@@ -323,33 +336,33 @@ graphics_info_t::make_preferences_internal() {
   on = 0;
 #endif // GTK
   p.preference_type = PREFERENCES_FILE_OVERWRITE;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
  
   on = filter_fileselection_filenames_state();
   p.preference_type = PREFERENCES_FILE_FILTER;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
  
   on = graphics_info_t::sticky_sort_by_date;
   p.preference_type = PREFERENCES_FILE_SORT_DATE;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
  
   // dialogs
   on = accept_reject_dialog_docked_state();
   p.preference_type = PREFERENCES_ACCEPT_DIALOG_DOCKED;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   on = accept_reject_dialog_docked_show_state();
   p.preference_type = PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   on = refinement_immediate_replacement_state();
   p.preference_type = PREFERENCES_IMMEDIATE_REPLACEMENT;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // hid
@@ -360,38 +373,50 @@ graphics_info_t::make_preferences_internal() {
   }
   //  on = graphics_info_t::vt_surface_status();
   p.preference_type = PREFERENCES_VT_SURFACE;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // recentre pdb
   on = recentre_on_read_pdb;
   p.preference_type = PREFERENCES_RECENTRE_PDB;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // refinement toolbar show/hide
   on = model_toolbar_show_hide_state;
   p.preference_type = PREFERENCES_MODEL_TOOLBAR_SHOW;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // refinement toolbar right/left
   on = model_toolbar_position_state;
   p.preference_type = PREFERENCES_MODEL_TOOLBAR_POSITION;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // refinement toolbar style
   on = model_toolbar_style_state;
   p.preference_type = PREFERENCES_MODEL_TOOLBAR_STYLE;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
+  // refinement toolbar icons
+  std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
+  for (int i=0; i<all_items.size(); i++) {
+    coot::preferences_icon_info_t item = all_items[i];
+    p.preference_type = PREFERENCES_MODEL_TOOLBAR_ICONS;
+    // ivalue1 is icon_pos
+    p.ivalue1 = item.icon_pos;
+    // ivalue 2 is show/hide
+    p.ivalue2 = item.show_hide_flag;
+    ret.push_back(p);
+  }
+ 
   // Bond preference settings
   // Bond parameters
   on = get_default_bond_thickness();
   p.preference_type = PREFERENCES_BONDS_THICKNESS;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // Bond colours
@@ -402,7 +427,7 @@ graphics_info_t::make_preferences_internal() {
    
   on = get_colour_map_rotation_on_read_pdb_c_only_flag();
   p.preference_type = PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
    
   // Map preference settings
@@ -429,29 +454,29 @@ graphics_info_t::make_preferences_internal() {
 
   on = get_dynamic_map_sampling();
   p.preference_type = PREFERENCES_DYNAMIC_MAP_SAMPLING;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
   
   on = get_dynamic_map_size_display();
   p.preference_type = PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // Map colours
   on = swap_difference_map_colours_state();
   p.preference_type = PREFERENCES_SWAP_DIFF_MAP_COLOURS;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // Map smooth scroll
   on = get_smooth_scroll();
   p.preference_type = PREFERENCES_SMOOTH_SCROLL;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   on = graphics_info_t::smooth_scroll_steps;
   p.preference_type = PREFERENCES_SMOOTH_SCROLL_STEPS;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   fvalue = graphics_info_t::smooth_scroll_limit;
@@ -462,14 +487,14 @@ graphics_info_t::make_preferences_internal() {
   // Dragged map
   on = get_active_map_drag_flag();
   p.preference_type = PREFERENCES_MAP_DRAG;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // Geometry preference settings
   // Cis peptides
   on = show_mark_cis_peptides_as_bad_state();
   p.preference_type = PREFERENCES_MARK_CIS_BAD;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
   
   // Colour preference settings
@@ -483,23 +508,23 @@ graphics_info_t::make_preferences_internal() {
   // Others preference settings
   // Antialias
   p.preference_type = PREFERENCES_ANTIALIAS;
-  p.ivalue = do_anti_aliasing_state();
+  p.ivalue1 = do_anti_aliasing_state();
   ret.push_back(p);
 
   // Console
   p.preference_type = PREFERENCES_CONSOLE_COMMANDS;
-  p.ivalue = graphics_info_t::console_display_commands.display_commands_flag;
+  p.ivalue1 = graphics_info_t::console_display_commands.display_commands_flag;
   ret.push_back(p);
 
   // Tips
   p.preference_type = PREFERENCES_TIPS;
-  p.ivalue = graphics_info_t::do_tip_of_the_day_flag;
+  p.ivalue1 = graphics_info_t::do_tip_of_the_day_flag;
   ret.push_back(p);
 
   // Speed
   on = graphics_info_t::dragged_refinement_steps_per_frame;
   p.preference_type = PREFERENCES_REFINEMENT_SPEED;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   fvalue = graphics_info_t::idle_function_rotate_angle;
@@ -511,7 +536,7 @@ graphics_info_t::make_preferences_internal() {
   // Font size
   on = graphics_info_t::atom_label_font_size;
   p.preference_type = PREFERENCES_FONT_SIZE;
-  p.ivalue = on;
+  p.ivalue1 = on;
   ret.push_back(p);
 
   // Font colour
@@ -527,9 +552,8 @@ graphics_info_t::make_preferences_internal() {
   p.fvalue1 = fvalue;
   ret.push_back(p);
 
+
   graphics_info_t::preferences_internal = ret;
-  //graphics_info_t::preferences_internal->assign(ret.begin(), ret.end());
-  //return ret;
 
 }
 
@@ -538,8 +562,21 @@ graphics_info_t::preferences_internal_change_value(int preference_type, int ival
 
   for (int i=0; i<preferences_internal.size(); i++) {
     if (preferences_internal[i].preference_type == preference_type) {
-      preferences_internal[i].ivalue = ivalue;
+      preferences_internal[i].ivalue1 = ivalue;
       break;
+    }
+  }
+}
+
+void
+graphics_info_t::preferences_internal_change_value(int preference_type, int ivalue1, int ivalue2){
+
+  for (int i=0; i<preferences_internal.size(); i++) {
+    if (preferences_internal[i].preference_type == preference_type) {
+      if (preferences_internal[i].ivalue1 == ivalue1) {
+	preferences_internal[i].ivalue2 = ivalue2;
+	break;
+      }
     }
   }
 }
@@ -568,3 +605,243 @@ graphics_info_t::preferences_internal_change_value(int preference_type,
     }
   }
 }
+
+
+#if (GTK_MAJOR_VERSION >1)
+void
+graphics_info_t::preferences_model_toolbar_icon_toggled(GtkCellRendererToggle *button,
+							gchar *path_string,
+							gpointer data) {
+
+  GtkTreeModel *model = GTK_TREE_MODEL (data);
+  GtkTreeIter iter;
+  GtkTreePath *path = gtk_tree_path_new_from_string (path_string);
+  gboolean value;
+  gint icon_pos;
+
+  gtk_tree_model_get_iter(model, &iter, path);
+  gtk_tree_model_get(model, &iter,
+		     0, &value,
+		     3, &icon_pos, -1);
+
+  value = !value;
+  gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, value, -1);
+  graphics_info_t g;
+  if (value) {
+    g.show_hide_model_toolbar_icon_pos(icon_pos, 1);
+  } else {
+    g.show_hide_model_toolbar_icon_pos(icon_pos, 0);
+  }
+
+  gtk_tree_path_free (path);
+}
+#endif // GTK_MAJOR_VERSION
+
+enum {
+  BUTTON_COL,
+  ICON_COL,
+  TEXT_COL,
+  INDEX_COL
+};
+
+#if (GTK_MAJOR_VERSION >1)
+void
+graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
+						      GtkWidget *scrolled_window) {
+
+  GtkWidget *icons_tree = gtk_tree_view_new();
+  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(icons_tree), FALSE);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+					icons_tree);
+  gtk_widget_ref(icons_tree);
+  gtk_object_set_data_full(GTK_OBJECT(preferences),
+			   "preferences_model_toolbar_icon_tree",
+			   icons_tree,
+			   (GtkDestroyNotify) gtk_widget_unref);
+
+  std::vector<coot::preferences_icon_info_t> all_items =  *model_toolbar_icons;
+  
+  // maybe clear tree and model first?!
+ 
+  // now fill the tree
+  //  GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_tree));
+  //  GtkListStore *list_store = gtk_list_store_new(3, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+  GtkTreeModel *model = GTK_TREE_MODEL(gtk_list_store_new(4, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT));
+  GtkTreeIter toplevel;
+  GdkPixbuf *icon;
+  GtkCellRenderer *icon_renderer;
+  GtkCellRenderer *button_renderer;
+  GtkCellRenderer *text_renderer;
+  GtkTreeViewColumn *button_col;
+  GtkTreeViewColumn *icon_col;
+  GtkTreeViewColumn *text_col;
+  GError *error = NULL;
+
+  gtk_tree_view_set_model(GTK_TREE_VIEW(icons_tree), model);
+
+  button_col = gtk_tree_view_column_new();
+  icon_col = gtk_tree_view_column_new();
+  text_col = gtk_tree_view_column_new();
+
+  for (unsigned int i = 0; i < all_items.size(); i++) {
+    coot::preferences_icon_info_t item = all_items[i];
+    gtk_list_store_append(GTK_LIST_STORE(model), &toplevel);
+
+    // for icons
+    if (item.icon_filename != "") {
+      if (item.icon_filename.substr(0, 4) == "gtk-") {
+	//      icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
+	icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
+				      GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+	if (icon == NULL) {
+	  g_print("BL DEBUG:: something went wrong, icon is NULL\n");
+	}
+      } else {
+	std::string splash_screen_pixmap_dir = PKGDATADIR;  
+	splash_screen_pixmap_dir += "/";
+	splash_screen_pixmap_dir += "pixmaps";
+    
+	// over-ridden by user?
+	char *s = getenv("COOT_PIXMAPS_DIR");
+	if (s) {
+	  splash_screen_pixmap_dir = s;
+	}
+
+	// now add the icon
+	std::string icon_path =
+	  coot::util::append_dir_file(splash_screen_pixmap_dir,
+				      item.icon_filename);
+	icon = gdk_pixbuf_new_from_file(icon_path.c_str(), &error);
+	if (error) {
+	  g_warning ("Could not load icon: %s\n", error->message);
+	  g_error_free(error);
+	  error = NULL;
+	}
+      } 
+    } else {
+      icon = NULL;
+    }
+    gtk_list_store_set(GTK_LIST_STORE(model), &toplevel,
+		       BUTTON_COL, "",
+		       ICON_COL, icon,
+		       TEXT_COL, item.icon_text.c_str(),
+		       INDEX_COL, item.icon_pos,
+		       -1);
+  }
+
+  // button column
+  button_col = gtk_tree_view_column_new();
+  gtk_tree_view_append_column(GTK_TREE_VIEW(icons_tree), button_col);
+  button_renderer = gtk_cell_renderer_toggle_new();
+  gtk_tree_view_column_pack_start(button_col, GTK_CELL_RENDERER(button_renderer), TRUE);
+  g_object_set(button_renderer, "activatable", TRUE, NULL);
+  gtk_tree_view_column_set_attributes(button_col, button_renderer,
+				      "active", BUTTON_COL,
+				      NULL);
+  
+  g_signal_connect(button_renderer, "toggled", 
+		   G_CALLBACK (preferences_model_toolbar_icon_toggled), model);
+  //		   G_CALLBACK (test_toggled2), model);
+
+  // icon column
+  icon_col = gtk_tree_view_column_new();
+  gtk_tree_view_append_column(GTK_TREE_VIEW(icons_tree), icon_col);
+  icon_renderer = gtk_cell_renderer_pixbuf_new();
+  gtk_tree_view_column_pack_start(icon_col, icon_renderer, TRUE);
+  gtk_tree_view_column_set_attributes(icon_col, icon_renderer,
+				      "pixbuf", ICON_COL,
+				      NULL);
+
+  // text column
+  text_col = gtk_tree_view_column_new();
+  gtk_tree_view_append_column(GTK_TREE_VIEW(icons_tree), text_col);
+  text_renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(text_col, text_renderer, TRUE);
+  gtk_tree_view_column_set_attributes(text_col, text_renderer,
+				      "text", TEXT_COL,
+				      NULL);
+
+  // update the tree
+  update_model_toolbar_icons(model);
+
+  gtk_widget_show(icons_tree);
+}
+#endif // GTK_MAJOR_VERSION
+
+
+void
+graphics_info_t::show_hide_model_toolbar_icon_pos(int pos, int show_hide_flag) {
+
+  GtkWidget *icon_button;
+
+  std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
+  coot::preferences_icon_info_t item = all_items[pos];
+  std::string widget_name = item.icon_widget;
+  icon_button = lookup_widget(graphics_info_t::glarea, widget_name.c_str());
+
+  if (show_hide_flag == 1) {
+    preferences_internal_change_value_int2(PREFERENCES_MODEL_TOOLBAR_ICONS, pos, 1);
+    (*model_toolbar_icons)[pos].show();
+    gtk_widget_show(icon_button);
+  } else {
+    preferences_internal_change_value_int2(PREFERENCES_MODEL_TOOLBAR_ICONS, pos, 0);
+    (*model_toolbar_icons)[pos].hide();
+    gtk_widget_hide(icon_button);
+  }
+
+}
+
+std::vector<int>
+graphics_info_t::get_model_toolbar_icons_list() {
+
+  std::vector<int> ivector;
+  std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
+  int icon_pos;
+
+  for (unsigned int i=0; i<all_items.size(); i++) {
+    coot::preferences_icon_info_t item = all_items[i];
+    if (item.show_hide_flag == 1) {
+      icon_pos = item.icon_pos;
+      ivector.push_back(icon_pos);
+    }
+
+  }
+  
+  return ivector;
+}
+
+
+#if (GTK_MAJOR_VERSION >1)
+void
+graphics_info_t::update_model_toolbar_icons(GtkTreeModel *model) {
+
+
+  gint button_value;
+  gint col_index;
+  GtkTreeIter iter;
+
+  std::vector<int> ivector;
+  std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
+
+  if (gtk_tree_model_get_iter_first(model, &iter)) {
+    do {
+      gtk_tree_model_get(model, &iter,
+			 0, &button_value,
+			 3, &col_index, -1);
+
+      coot::preferences_icon_info_t item = all_items[col_index];
+      
+      if (item.show_hide_flag) {
+	// show icon
+	gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, 1, -1);
+      } else {
+	// hide icon
+	gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, 0, -1);
+      }
+
+    } while (gtk_tree_model_iter_next(model, &iter));
+    
+  }
+}
+#endif // GTK_MAJOR_VERSION
+

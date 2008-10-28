@@ -2662,6 +2662,16 @@ def key_bindings_gui():
    py_and_scm_keybindings = key_bindings
    if (coot_has_guile()):
       scm_key_bindings = run_scheme_command("*key-bindings*")
+      # filter out doublicates
+      for item in scm_key_bindings:
+         print "BL DEBUG:: item", item
+         scm_code, scm_key, text, tmp = item
+         py_keys  = [elem[1] for elem in py_and_scm_keybindings]
+         py_codes = [elem[0] for elem in py_and_scm_keybindings]
+         print "BL DEBUG:: py_keys and py_codes", py_keys, py_codes
+         if ((not scm_code in py_codes) and (not scm_key in py_keys)):
+            py_and_scm_keybindings.append(item)
+
       py_and_scm_keybindings += scm_key_bindings
       
    for items in py_and_scm_keybindings:
