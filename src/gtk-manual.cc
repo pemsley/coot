@@ -724,7 +724,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
  /* Now a button for Ca bonds: */
 
-  glade_menuitem = gtk_menu_item_new_with_label (_("C-alphas"));
+  glade_menuitem = gtk_menu_item_new_with_label (_("C-alphas/Backbone"));
   gtk_widget_show (glade_menuitem);
   gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
 /* Notice how this time we attach a pointer to the molecule number -
@@ -736,7 +736,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
  /* Now a button for Ca + ligands bonds: */
 
-  glade_menuitem = gtk_menu_item_new_with_label (_("CAs + Ligs"));
+  glade_menuitem = gtk_menu_item_new_with_label (_("CAs + Ligands"));
   gtk_widget_show (glade_menuitem);
   gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
 /* Notice how this time we attach a pointer to the molecule number -
@@ -1164,9 +1164,6 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   strcpy(widget_name, "map_scroll_button_"); 
   tmp_name = widget_name + strlen(widget_name); 
   snprintf(tmp_name, 4, "%-d", n);
-
-  std::cout << "DEBUG:: gtk_radio_button_new_with_label() with scroll_group "
-	    << scroll_group << std::endl;
 
   scroll_radio_button_1 = gtk_radio_button_new_with_label(scroll_group, _("Scroll"));
   scroll_group = gtk_radio_button_group (GTK_RADIO_BUTTON(scroll_radio_button_1));
