@@ -457,8 +457,11 @@ public:
    void do_disulphide_bonds(atom_selection_container_t, int imodel);
    void do_Ca_bonds(atom_selection_container_t SelAtom, 
 		    float min_dist, float max_dist); 
-   void do_Ca_bonds_internal(atom_selection_container_t SelAtom, 
-		    float min_dist, float max_dist, int bond_colour_type); 
+   coot::my_atom_colour_map_t do_Ca_or_P_bonds_internal(atom_selection_container_t SelAtom,
+							const char *backbone_atom_id,
+							coot::my_atom_colour_map_t acm,
+							float min_dist, float max_dist,
+							int bond_colour_type); 
    void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom, 
 				 float min_dist, float max_dist);
    void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom, 
