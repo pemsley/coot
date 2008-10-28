@@ -40,7 +40,7 @@ EXTRA_DIST = 		\
 	autogen.sh 	\
 	make-scheme-tar \
 	mapview.glade 	\
-	cootrc		\
+	cootrc.template	\
 	standard-residues.pdb \
 	BUGS		\
 	depcomp 	\
