@@ -646,8 +646,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 }
       }
    }
-   std::cout << "DEBUG:: finishing map_fill_from_mtz_with_reso_limits, imol_no is "
-	     << imol_no << std::endl;
+   // std::cout << "DEBUG:: finishing map_fill_from_mtz_with_reso_limits, imol_no is "
+   // << imol_no << std::endl;
 }
 
 void

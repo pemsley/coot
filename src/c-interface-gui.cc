@@ -3035,23 +3035,6 @@ new_close_molecules(GtkWidget *window) {
       }
    }
 
-   // Check here if there are any maps left open.  If there are none,
-   // then set the gslist_for_scroll to NULL.  This will prevent
-   // "Gtk-CRITICAL **: file gtkradiobutton.c: line 167
-   // (gtk_radio_button_set_group): assertion `!g_slist_find (group,
-   // radio_button)' failed." when we try to add a map to an old open
-   // but emptied Display Control
-   //
-   int n_maps_left = 0;
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (is_valid_map_molecule(imol)) {
-	 n_maps_left++;
-	 break;
-      }
-   }
-   if (n_maps_left == 0)
-      graphics_info_t::gslist_for_scroll_in_display_manager = NULL;
-   
 
    // update go to atom molecule now that we may have deleted the
    // currently set one.

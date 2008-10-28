@@ -4756,7 +4756,7 @@ create_display_control_window_glade (void)
   GtkWidget *display_control_ok_button;
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_size_request (display_control_window_glade, 400, 240);
+  gtk_widget_set_size_request (display_control_window_glade, 500, 316);
   gtk_window_set_title (GTK_WINDOW (display_control_window_glade), _("Display Manager"));
 
   vbox30 = gtk_vbox_new (FALSE, 0);

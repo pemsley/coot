@@ -160,7 +160,8 @@ coot::rama_plot::init_internal(float level_prefered, float level_allowed,
    gtk_object_set_data_full(GTK_OBJECT(app1), "canvas", canvas,
 			    (GtkDestroyNotify) gtk_widget_unref);
 
-   GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(app1), "dynarama_scrolledwindow");
+   GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(app1),
+					      "dynarama_scrolledwindow");
    
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
