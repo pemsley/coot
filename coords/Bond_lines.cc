@@ -1842,17 +1842,24 @@ Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
    udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (UDR_RESIDUE, "has CA");
    if (!udd_has_ca_handle) {
       std::cout << "ERROR getting udd_has_ca_handle\n";
-   } 
-   do_Ca_bonds_internal(SelAtom, min_dist, max_dist, coot::COLOUR_BY_CHAIN);
+   }
+   coot::my_atom_colour_map_t atom_colour_map_in;
+   coot::my_atom_colour_map_t atom_colour_map = 
+      do_Ca_or_P_bonds_internal(SelAtom, " CA ", atom_colour_map_in,
+				min_dist, max_dist, coot::COLOUR_BY_CHAIN);
+   do_Ca_or_P_bonds_internal(SelAtom, " P  ",  atom_colour_map,
+			     0.1,      7.5, coot::COLOUR_BY_CHAIN);
 }
 
 
 // where bond_colour_type is one of 
 // enum bond_colour_t { COLOUR_BY_CHAIN=0, COLOUR_BY_SEC_STRUCT=1};
 // 
-void
-Bond_lines_container::do_Ca_bonds_internal(atom_selection_container_t SelAtom,
-				  float min_dist, float max_dist, int bond_colour_type) { 
+coot::my_atom_colour_map_t 
+Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAtom,
+						const char *backbone_atom_id,
+						coot::my_atom_colour_map_t atom_colour_map,
+						float min_dist, float max_dist, int bond_colour_type) { 
 
    PPCAtom Ca_selection = NULL; 
    int n_ca;
@@ -1868,10 +1875,12 @@ Bond_lines_container::do_Ca_bonds_internal(atom_selection_container_t SelAtom,
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
   
    int selHnd_ca = SelAtom.mol->NewSelection();
+   const char *ele = "C";
+   if (! strcmp(backbone_atom_id, " P  "))
+      ele = "P";
    
    SelAtom.mol->SelectAtoms(selHnd_ca, 0,"*",ANY_RES,"*",ANY_RES,"*",
-			    "*"," CA ","C","*" );
-   coot::my_atom_colour_map_t atom_colour_map;
+			    "*", backbone_atom_id, ele,"*" );
 
    SelAtom.mol->GetSelIndex(selHnd_ca, Ca_selection, n_ca);
    int atom_colours_udd = -1; // unset/bad
@@ -1997,6 +2006,7 @@ Bond_lines_container::do_Ca_bonds_internal(atom_selection_container_t SelAtom,
    }
 
    delete [] found_contact;
+   return atom_colour_map;
 }
 
 
@@ -2204,7 +2214,8 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 	 }
       }
 
-      do_Ca_bonds_internal(SelAtom, min_dist, max_dist, atom_colour_type);
+      coot::my_atom_colour_map_t acm;
+      do_Ca_or_P_bonds_internal(SelAtom, " CA ", acm, min_dist, max_dist, atom_colour_type);
 
       // do_Ca_plus_ligands_bonds has set udd_has_ca_handle on
       // residues that have CAs.  Now let's run through the residues
