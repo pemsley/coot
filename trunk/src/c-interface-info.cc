@@ -712,7 +712,11 @@ SCM py_to_scm(PyObject *o) {
 	       if (PyString_Check(o)) {
 		  std::string str = PyString_AsString(o);
 		  s = scm_makfrom0str(str.c_str());
-	       }
+	       } else {
+		  if (o == Py_None) {
+		     s = SCM_UNSPECIFIED;
+		  }
+	       } 
 	    }
 	 }
       }

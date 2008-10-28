@@ -5925,18 +5925,17 @@ PyObject *py_clean_internal(PyObject *o) {
 		  std::string str = PyString_AsString(o);
 		  ret = o;
 	       } else {
-		 if (o == Py_None) {
-		   //std::cout << "BL DEBUG:: have PyNone, not sure what to do with it!?" <<std::endl;		   
-		   ret = o;
-		 } else {
-		   if (PyFunction_Check(o)) {
-		     //std::cout << "BL DEBUG:: may have lambda, not sure what to do with it!?" <<std::endl;
-		     ret = o;
-		   } else {
-		     std::cout <<"WARNING:: py_clean_internal: incomprehensible argument passed  "
-			       << PyString_AsString(PyObject_Str(o)) <<std::endl;
-		   }
-		 }
+		  if (PyFunction_Check(o)) {
+		     ret = PyObject_Str(o);
+		  } else { 
+		     if (o == Py_None) {
+			//std::cout << "BL DEBUG:: have PyNone, not sure what to do with it!?" <<std::endl;
+			ret = o;
+		     } else {
+			std::cout <<"WARNING:: py_clean_internal: incomprehensible argument passed  "
+				  << PyString_AsString(PyObject_Str(o)) <<std::endl;
+		     }
+		  }
 	       }
 	    }
 	 }
