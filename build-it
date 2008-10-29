@@ -1365,6 +1365,9 @@ if [ $ENABLE_PYTHON_COOT = yes ] ; then
       echo installation has python
       build_python=
    fi
+else 
+   echo not enabling python build.
+   build_python=
 fi
 
 # force the GSL config to be in $install_top_dir, rather than
@@ -1938,56 +1941,54 @@ pver=2.6
 if test -n "$build_python" ; then 
     echo BUILDING ${python_version}:
 
+   ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
+   (
+   date
+   gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
 
+   cd Python-$pver
 
-${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
-(
-date
-gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
+   echo INFO:: ./configure $generic_prefix $python_spec_flags for python
+   ./configure $generic_prefix $python_spec_flags
+   echo INFO:: make for python
+   $MAKE 
+   echo INFO:: make install for python
+   $MAKE install
+   ) >  $HOSTLOGDIR/05-python.txt 2>&1
 
-cd Python-$pver
+   # We need these otherwise python moans about not finding the libraries.
+   #
+   echo setting PYTHONHOME
+   PYTHONHOME=$install_top_dir
+   export PYTHONHOME
+   echo PYTHONHOME is now $PYTHONHOME
 
-echo INFO:: ./configure $generic_prefix $python_spec_flags for python
-./configure $generic_prefix $python_spec_flags
-echo INFO:: make for python
-$MAKE 
-echo INFO:: make install for python
-$MAKE install
-) >  $HOSTLOGDIR/05-python.txt 2>&1
-
-# We need these otherwise python moans about not finding the libraries.
-#
-echo setting PYTHONHOME
-PYTHONHOME=$install_top_dir
-export PYTHONHOME
-echo PYTHONHOME is now $PYTHONHOME
-
-echo post linking python from $python_version
-#
-if [ ! -e $install_top_dir/bin/$python_version ] ; then
-	echo Oops\!  $python_version does not exist.
+   echo post linking python from $python_version
+   #
+   if [ ! -e $install_top_dir/bin/$python_version ] ; then
+   	echo Oops\!  $python_version does not exist.
 	# only python dependencies from  now on
 	echo exiting...
 	my_exit 2
-fi
-if [ -e $install_top_dir/bin/python ] ; then
+   fi
+   if [ -e $install_top_dir/bin/python ] ; then
 	echo removing old python
 	rm $install_top_dir/bin/python
-fi
-current_dir=`pwd`
-cd $install_top_dir/bin
-echo linking new...
-ln -s $python_version python
-if [ $? -ne 0 ] ; then
+   fi
+   current_dir=`pwd`
+   cd $install_top_dir/bin
+   echo linking new...
+   ln -s $python_version python
+   if [ $? -ne 0 ] ; then
 	echo Opps: failed: ln -s $install_top_dir/bin/$python_version \
 		                 $install_top_dir/bin/python 
-fi
-cd $current_dir
-echo done python linking.
-# now we have "python" in our path - no need to rehash - 
-# clever old Bourne shell (or do I mean bash?).
+   fi
+   cd $current_dir
+   echo done python linking.
+   # now we have "python" in our path - no need to rehash - 
+   # clever old Bourne shell (or do I mean bash?).
 else
-    echo not building python:
+   echo not building python:
 fi
 
 echo scons - placeholder only > $HOSTLOGDIR/06-scons.txt
