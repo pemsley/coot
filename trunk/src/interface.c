@@ -18191,6 +18191,7 @@ create_least_squares_dialog (void)
   GtkWidget *least_squares_match_type_all_radiobutton;
   GtkWidget *least_squares_match_type_main_radiobutton;
   GtkWidget *least_squares_match_type_calpha_radiobutton;
+  GtkWidget *least_squares_move_copy_checkbutton;
   GtkWidget *dialog_action_area96;
   GtkWidget *hbox146;
   GtkWidget *least_squares_ok_button;
@@ -18421,6 +18422,14 @@ create_least_squares_dialog (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (least_squares_match_type_calpha_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox188), least_squares_match_type_calpha_radiobutton, FALSE, FALSE, 0);
+
+  least_squares_move_copy_checkbutton = gtk_check_button_new_with_label (_("Move Copy of Moving Molecule"));
+  gtk_widget_ref (least_squares_move_copy_checkbutton);
+  gtk_object_set_data_full (GTK_OBJECT (least_squares_dialog), "least_squares_move_copy_checkbutton", least_squares_move_copy_checkbutton,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (least_squares_move_copy_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox187), least_squares_move_copy_checkbutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (least_squares_move_copy_checkbutton), 6);
 
   dialog_action_area96 = GTK_DIALOG (least_squares_dialog)->action_area;
   gtk_object_set_data (GTK_OBJECT (least_squares_dialog), "dialog_action_area96", dialog_action_area96);

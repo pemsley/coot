@@ -27597,6 +27597,21 @@ Move Molecule Here:</label>
 	  </widget>
 	</widget>
       </widget>
+
+      <widget>
+	<class>GtkCheckButton</class>
+	<name>least_squares_move_copy_checkbutton</name>
+	<border_width>6</border_width>
+	<can_focus>True</can_focus>
+	<label>Move Copy of Moving Molecule</label>
+	<active>False</active>
+	<draw_indicator>True</draw_indicator>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
     </widget>
   </widget>
 </widget>
