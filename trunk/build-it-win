@@ -513,6 +513,9 @@ pwd
 
 if test "$run_tests" = true ; then
    # let's test our new coot
+   # first clean up coot-backup otherwise we'll fill up the disk
+   echo removing old backup-files in coot-backup
+   rm coot-backup/*
    # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
    COOT_PYTHON_DIR=$install_top_dir/share/coot/python
    COOT_HOME=$HOME
@@ -1016,7 +1019,10 @@ END {
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
    if [ -z "$coot_version_pre" ] ; then
       echo trying to build pre-release coot, but failed to find pre-release version
+      # this may actually be a stable release here
+      build_coot_prerelease=0
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
+      mkdir -p ${BINARY_TAR_DEST_DIR}
    else
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
@@ -1050,18 +1056,24 @@ if [ "$build_coot_prerelease" = 1 ] ; then
       install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2${guile_autobuild_path}
     else 
       # don't use pre-release
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path ${config_extras:-}"
+      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-gtk2${guile_autobuild_path} ${config_extras:-}"
       coot_prefix="$generic_prefix"
       install_top_dir=${AUTOBUILD_INSTALLED}-gtk2${guile_autobuild_path}
     fi
 else 
    # not pre-release
-   generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2$guile_autobuild_path ${config_extras:-}"
+   generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-gtk2${guile_autobuild_path} ${config_extras:-}"
    install_top_dir=${AUTOBUILD_INSTALLED}-gtk2${guile_autobuild_path}
    coot_prefix="$generic_prefix"
 fi
 # we shall include python here too
-PATH=$install_top_dir/bin:$install_top_dir/python2.5:$PATH
+# but first define the versions
+# there is no 2.6 pygtk at the moment, so we stick with 2.5.2
+python_version=python2.5
+pver=2.5.2
+
+PATH=$install_top_dir/bin:$install_top_dir/${python_version}:$PATH
+echo the path before testing for installed modules is $PATH
 
 installed_check_maybe_prefix=
 if [ "$check_dependencies_in_install_only" = 1 ] ; then
@@ -1186,6 +1198,7 @@ build_guile=0
 build_guile_www=0
 build_guile_gui=0
 build_guile_goosh=0
+build_guile_lib=0
 build_libtool=0
 build_net_http=0
 build_gsl=0
@@ -1466,6 +1479,15 @@ else
     echo guile goosh needs to be installed
 fi
 
+# guile-lib
+if test -f $install_top_dir/share/guile/site/sxml/simple.scm ; then
+    echo installation has guile-lib
+    build_guile_lib=
+else 
+    build_guile_lib=1
+    echo guile-lib needs to be installed
+fi
+
 
 # net http:
 if test -f $install_top_dir/share/guile/site/net/http/server.scm ; then
@@ -1496,8 +1518,6 @@ fi
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
-python_version=python2.5
-pver=2.5.2
 
 python -V
 if test $? != 0 ; then
@@ -2235,7 +2255,7 @@ if test -n "$build_gtk" ; then
    gdk-pixbuf-query-loaders > $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders
    # now we have absolute paths in the file, let's make them relative
    # to avoid running the gdk-pixbuf.loaders during install
-   sed -e "s|C:\/msys$install_top_dir|..\/..|" \
+   sed -e "s|C:\/msys$install_top_dir|..|" \
      $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders > tmp.loaders
    mv $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders.bak
    mv tmp.loaders $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders
@@ -2310,14 +2330,12 @@ fi
 
 # So that python is found when it is installed:
 #
-PATH=$install_top_dir/bin:$install_top_dir/python$python_major_version:$PATH
+PATH=$install_top_dir/bin:$install_top_dir/$python_version:$PATH
 export PATH
 
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
-python_version=python2.5
-pver=2.5.2
 
 # python
 #
@@ -2575,9 +2593,8 @@ pwd
 echo ./configure $generic_prefix
 ./configure $generic_prefix
 # fiddle with the Makefile - to install it in the right (coot) place
-# BL says:: seems to be done correctly in 1.8.3
-#sed 's?^GUILE_SITEDIR.*?GUILE_SITEDIR=$(install_top_dir)/share/guile/site?' Makefile > Makefile.tmp
-#mv Makefile.tmp Makefile
+sed 's?^GUILE_SITEDIR.*?GUILE_SITEDIR=$(install_top_dir)/share/guile/site?' Makefile > Makefile.tmp
+mv Makefile.tmp Makefile
 # note, no make (author "humour")
 $MAKE install 
 status=$?
@@ -2666,6 +2683,27 @@ fi
 GUILE_LOAD_PATH=$GUILE_LOAD_PATH:$install_top_dir/share/guile/site
 export GUILE_LOAD_PATH
 echo GUILE_LOAD_PATH is now: $GUILE_LOAD_PATH
+
+if test -n "$build_guile_lib" ; then
+   echo BUILDING guile-lib:
+#
+guile_lib_version=0.1.6
+${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
+( 
+date
+pwd
+gzip -dc ${AUTOBUILD_SOURCES}/guile-lib-$guile_lib_version.tar.gz | tar xf -
+cd guile-lib-$guile_lib_version
+# the prefix for guile-lib must be the prefix of guile, or else the sxml and 
+# other library files will not be found
+./configure $generic_prefix
+$MAKE
+$MAKE install
+) > $HOSTLOGDIR/14-guile-lib.txt 2>&1
+else 
+    echo not building guile_lib:
+fi
+
 
 # we wont build greg as it wont work properly anyway!!
 build_greg=
@@ -2911,7 +2949,7 @@ if [ $coot_build_status != 0 ] ; then
     echo LOGS=${LOGS}                          > $var_file
     echo NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR} >> $var_file
     echo wincoot_version=$wincoot_version     >> $var_file
-    echo do_nightlies=$do_nightlies           >> $var_file
+    echo build_coot_prerelease=$build_coot_prerelease   >> $var_file
     echo coot_build_status=$coot_build_status >> $var_file
     echo coot build failed, exiting.
     echo coot build failed, exiting. >&2
@@ -2927,13 +2965,6 @@ else
     # and finally write a coot-version file for the installer
     wincoot_version=${coot_version/coot-}
     echo '!define WinCootVersion "'${wincoot_version}'"' >$install_top_dir/coot-version
-
-    # we want to copy the build if python to guile for speed up
-    if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then
-	cp -r ${AUTOBUILD_BUILD}/${HOST}/$coot_dir_name ${AUTOBUILD_BUILD}/${HOST}-guile
-	echo copying python $coot_dir_name to guile
-	echo copying python ${AUTOBUILD_BUILD}/${HOST}/$coot_dir_name to ${AUTOBUILD_BUILD}/${HOST}-guile
-    fi
 
     echo coot build was good.
     echo coot build was good. >&2
@@ -2986,7 +3017,7 @@ fi
 if [ -e $LOGS/gtk2-test-status${guile_autobuild_path}.log ] ; then
    rm $LOGS/gtk2-test-status${guile_autobuild_path}.log
 fi
-# run test
+# run tests
 test_coot_python > $LOGS/gtk2-test${guile_autobuild_path}.log 2>&1
 r=$?
 gtk2=-gtk2
@@ -3040,7 +3071,7 @@ rm -f $var_file
 echo LOGS=${LOGS}                          > $var_file
 echo NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR} >> $var_file
 echo wincoot_version=$wincoot_version     >> $var_file
-echo do_nightlies=$do_nightlies           >> $var_file
+echo build_coot_prerelease=$build_coot_prerelease >> $var_file
 echo coot_build_status=$coot_build_status >> $var_file
 
 echo finished.
