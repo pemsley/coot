@@ -395,7 +395,7 @@ function post_install_slim {
     mkdir_maybe $cleaned_dir
     mkdir_maybe $cleaned_dir/bin
     mkdir_maybe $cleaned_dir/lib
-    mkdir_maybe $cleaned_dir/include/python2.5
+    mkdir_maybe $cleaned_dir/include/python$python_version
 
     lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
     lib_as=`cd $fat_dir && ls -1 lib/lib*.a`
@@ -411,8 +411,8 @@ function post_install_slim {
     echo rsyncing...
     for file in etc html info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
-	bin/python bin/python2.5 bin/python-config bin/python2.5-config \
-	include/python2.5 \
+	bin/python bin/python$python_version bin/python-config bin/python$python_version-config \
+	include/python$python_version \
 	bin/guile lib/$python_version $keep_lib_archs ;
     do
        dn=`dirname $file`
