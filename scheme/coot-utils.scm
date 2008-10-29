@@ -953,29 +953,64 @@
     (format #t "symbol axis: ~s incomprehensible~%")
     #f)))
 
-;; support for old toggle functions.  (now the raw functions use the
-;; direct set_displayed functions).
-;; 
-;; Probably not a good idea to use these functions. 
+;; Support for old toggle functions.  (consider instead the raw
+;; functions use the direct set_displayed functions).
 ;; 
 (define (toggle-display-map imol idummy)
   (if (= (map-is-displayed imol) 0)
       (set-map-displayed imol 1)
       (set-map-displayed imol 0) ))
 
-;; deprecated
+;; toggle the display of imol
+;;
 (define (toggle-display-mol imol)
   (if (= (mol-is-displayed imol) 0)
       (set-mol-displayed imol 1)
       (set-mol-displayed imol 0)))
 
-;; deprecated
+;; toggle the active state (clickability) of imol
+;;
 (define (toggle-active-mol imol)
   (if (= (mol-is-active imol) 0)
       (set-mol-active imol 1)
       (set-mol-active imol 0)))
 
 
+;; return a scheme representation of molecule imol, or #f if we can't
+;; do it (imol is a map, say).
+;; 
+(define (scheme-representation imol)
+
+  (if (not (valid-model-molecule? imol))
+      #f
+      (list 
+       (map 
+	(lambda (chain-id)
+	  (list chain-id 
+		(map (lambda (serial-number)
+		       (let ((res-name (resname-from-serial-number imol chain-id serial-number))
+			     (res-no   (seqnum-from-serial-number  imol chain-id serial-number))
+			     (ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
+			 (let ((r-info (residue-info imol chain-id res-no ins-code)))
+			   (list res-no ins-code res-name r-info))))
+		     (range 0 (chain-n-residues chain-id imol)))))
+	(chain-ids imol)))))
+
+
+(define (reorder-chains imol)
+  
+  ;; reorder elements of chain-list: e.g.
+  ;; 
+  ;; chain-list: (list '("C" 'xx) '("A" 'xx) '("B" 'xx))
+  ;; 
+  (define (reorder-chains-in-model chain-list)
+    (sort-list! chain-list (lambda (ele-1 ele-2) (string<? (car ele-1) (car ele-2)))))
+
+  ;; main line
+  (let* ((s-rep (scheme-representation imol)))
+    (if (list? s-rep)
+	(let ((sorted-rep (map reorder-chains-in-model s-rep)))
+	  (clear-and-update-molecule imol sorted-rep)))))
 
 
 ;; transform a coordinates molecule by a coot-rtop (which is a SCM

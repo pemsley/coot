@@ -304,6 +304,13 @@
 				       imol-base imol-fragment atom-selection-str)))))))
 
 	(add-simple-coot-menu-menuitem
+	 submenu-models "Reorder Chains..."
+	 (lambda () 
+	   (molecule-chooser-gui "Sort Chain IDs in molecule:"
+				 (lambda (imol)
+				   (reorder-chains imol)))))
+				    
+	(add-simple-coot-menu-menuitem
 	 submenu-models "Add Strand Here..."
 	 (lambda ()
 	   (place-strand-here-gui)))
