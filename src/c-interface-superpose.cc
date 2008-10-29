@@ -587,10 +587,12 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
 
    GtkWidget *copy_checkbutton = lookup_widget(lsq_dialog, "least_squares_move_copy_checkbutton");
-   if (GTK_TOGGLE_BUTTON(copy_checkbutton)->active) {
-     int new_imol_moving = copy_molecule(imol_moving);
-     imol_moving = new_imol_moving;
-     graphics_info_t::lsq_mov_imol = imol_moving;
+   if (copy_checkbutton) { 
+      if (GTK_TOGGLE_BUTTON(copy_checkbutton)->active) {
+	 int new_imol_moving = copy_molecule(imol_moving);
+	 imol_moving = new_imol_moving;
+	 graphics_info_t::lsq_mov_imol = imol_moving;
+      }
    }
    
    const char *txt = 0;
