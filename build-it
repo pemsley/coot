@@ -1965,10 +1965,10 @@ echo PYTHONHOME is now $PYTHONHOME
 echo post linking python from $python_version
 #
 if [ ! -e $install_top_dir/bin/$python_version ] ; then
-	echo Opps\!  $python_version does not exist.
+	echo Oops\!  $python_version does not exist.
 	# only python dependencies from  now on
 	echo exiting...
-	exit
+	my_exit 2
 fi
 if [ -e $install_top_dir/bin/python ] ; then
 	echo removing old python
