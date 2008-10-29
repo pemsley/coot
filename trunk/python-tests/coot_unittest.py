@@ -17,6 +17,7 @@
 
 import unittest, os
 import inspect
+import sys
 
 def get_this_dir():
     pass
@@ -30,7 +31,6 @@ load_file = os.path.join(current_dir, "begin.py")
 load_file = os.path.normpath(load_file)
 if (os.path.isfile(load_file)):
     execfile(load_file, globals())
-
 
 log = StreamIO(sys.stderr, sys.stdout)
 

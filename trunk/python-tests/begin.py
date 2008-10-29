@@ -240,6 +240,7 @@ def list_of_all_tests():
     
 global unittest_output
 unittest_output = False
+
 # class to write output of unittest into a 'memory file' (unittest_output)
 # as well as to sys.stdout
 class StreamIO:
@@ -256,6 +257,29 @@ class StreamIO:
         #self.src.write(msg)
         self.extra.write(msg)
         self.dst.write(msg)
+
+    def flush(self):
+        pass
+
+class StreamIOnew:
+
+    def __init__(self, etxra, src=sys.stderr, dst=sys.stdout):
+        import io
+        import StringIO
+        global unittest_output
+        unittest_output = StringIO.StringIO()
+#        unittest_output = io.StringIO()
+        self.src = src
+        self.dst = dst
+        self.extra = unittest_output
+
+    def write(self, msg):
+        #msg = msg.decode()
+        self.extra.write(msg)
+        self.dst.write(msg)
+
+    def flush(self):
+        pass
 
 # function to run one test
 def run_one_test(no_of_test):
