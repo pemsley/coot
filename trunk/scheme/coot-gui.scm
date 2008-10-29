@@ -2123,6 +2123,7 @@
 		  (if (coot-has-python?)
 		      (run-python-command "key_bindings")
 		      '())))
+	     ;; (format #t "==== We got this for py-key-bindings: ~s ~%" py-key-bindings)
 	     (append *key-bindings* py-key-bindings))))
       
       (let loop ((items scm+py-keybindings))
