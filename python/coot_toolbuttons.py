@@ -540,6 +540,7 @@ def list_of_toolbar_functions():
          ["Test", "rotation_centre()", "test function"]],
         ["Refinement",
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
+         ["Reset B", "reset_b_factor_active_residue()", "Reset the B-Factor of active Residue"],
          ["Add Alt Conf", "altconf()", "Add alternative conformation", "add-alt-conf.svg"],
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
          ['Torsion Gen.', "setup_torsion_general(1)", "Torsion General (after O function)", "edit-chi.svg"],

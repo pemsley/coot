@@ -218,6 +218,7 @@ if (have_coot_python):
        "Make a Difference Map...",
        lambda func: make_difference_map_gui())
 
+
      add_simple_coot_menu_menuitem(
        submenu_maps,
        "Transform map by LSQ model fit...",
@@ -319,6 +320,14 @@ if (have_coot_python):
 				"Atom Selection","//",
 				lambda imol_fragment, atom_selection_str:
 				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
+
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Reorder Chains...",
+       lambda func: molecule_chooser_gui("Sort Chain IDs in molecule:",
+                                         lambda imol: reorder_chains(imol)))
 
 
      add_simple_coot_menu_menuitem(
@@ -613,11 +622,6 @@ if (have_coot_python):
 		"1.0", "Set it", 
 		lambda text: set_den_gra_func(text)))
 
-     add_simple_coot_menu_menuitem(
-       submenu_refine, "Question Accept Refinement", 
-       lambda func: set_refinement_immediate_replacement(0))
-
-
 
      # ---------------------------------------------------------------------
      #     Views/Representations
@@ -817,6 +821,11 @@ if (have_coot_python):
                          molecule_number_list()))
 
 
+     add_simple_coot_menu_menuitem(
+       submenu_refine, "Question Accept Refinement", 
+       lambda func: set_refinement_immediate_replacement(0))
+
+
      def save_dialog_func():
        post_model_fit_refine_dialog()
        post_go_to_atom_window()
@@ -860,14 +869,14 @@ if (have_coot_python):
        lambda func: key_bindings_gui())
 
 
-
+# Doesnt seem to be working right currently, so comment out
      # add to validate menu
-     menu = coot_menubar_menu("Validate")
-
-     add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
-                                   lambda func: molecule_chooser_gui(
-       "Choose a molecule for ribose pucker analysis",
-       lambda imol: pukka_puckers_qm(imol)))
+#     menu = coot_menubar_menu("Validate")
+#
+#     add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
+#                                   lambda func: molecule_chooser_gui(
+#       "Choose a molecule for ribose pucker analysis",
+#       lambda imol: pukka_puckers_qm(imol)))
 
   else:
 	print "BL WARNING:: could not find the main_menubar! Sorry, no extensions menu!"

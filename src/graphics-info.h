@@ -3176,7 +3176,7 @@ public:
    static float default_new_atoms_b_factor; 
 
    // reset the b factors after atoms were moved, default no
-   static int reset_b_factor_moved_atoms;
+   static int reset_b_factor_moved_atoms_flag;
 
    // ---- disable state script writing on exiting (no-guano) 
    static bool disable_state_script_writing; 

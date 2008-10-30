@@ -107,7 +107,7 @@ coot::ligand::ligand() {
    do_cluster_size_check_flag = 1;
    do_chemically_sensible_test_flag = 1;
    do_sphericity_test_flag = 1;
-   default_b_factor = 20.0;
+   default_b_factor = 30.0;
 
    var_limit = 0.12;
    water_to_protein_distance_lim_min = 2.4;

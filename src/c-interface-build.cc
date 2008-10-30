@@ -3968,6 +3968,46 @@ void fill_occupancy_residue_range(int imol, const char *chain_id, int ires1, int
    add_to_history_typed(cmd, args);
 }
 
+void
+set_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2, float bval) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_b_factor_residue_range(std::string(chain_id), ires1, ires2, bval);
+   } else {
+      std::cout << "WARNING:: invalid model molecule number in set_b_factor_residue_range "
+		<< imol << std::endl;
+   }
+   graphics_draw();
+   std::string cmd = "set-b-factor-residue-range";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(ires1);
+   args.push_back(ires2);
+   args.push_back(bval);
+   add_to_history_typed(cmd, args);
+
+}
+
+void
+reset_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2) {
+
+   if (is_valid_model_molecule(imol)) {
+     graphics_info_t::molecules[imol].set_b_factor_residue_range(std::string(chain_id), ires1, ires2, graphics_info_t::default_new_atoms_b_factor);
+   } else {
+      std::cout << "WARNING:: invalid model molecule number in reset_b_factor_residue_range "
+		<< imol << std::endl;
+   }
+   graphics_draw();
+   std::string cmd = "reset-b-factor-residue-range";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(ires1);
+   args.push_back(ires2);
+   add_to_history_typed(cmd, args);
+
+}
 
 /*  ----------------------------------------------------------------------- */
 /*                  Edit Chi Angles                                         */
@@ -6656,12 +6696,12 @@ float default_new_atoms_b_factor() {
 
 void set_reset_b_factor_moved_atoms(int state) {
   
-    graphics_info_t::reset_b_factor_moved_atoms = state;
+    graphics_info_t::reset_b_factor_moved_atoms_flag = state;
 }
 
 int get_reset_b_factor_moved_atoms_state() {
   
-    return graphics_info_t::reset_b_factor_moved_atoms;
+    return graphics_info_t::reset_b_factor_moved_atoms_flag;
 }
 
 /*  ----------------------------------------------------------------------- */

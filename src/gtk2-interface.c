@@ -340,6 +340,7 @@ create_window1 (void)
   GSList *model_toolbar_main_icons_group = NULL;
   GtkWidget *model_toolbar_main_icons;
   GtkWidget *model_toolbar_all_icons;
+  GtkWidget *model_toolbar_user_defined1;
   GtkWidget *gtkhtml_frame;
   GtkTooltips *tooltips;
 
@@ -1703,7 +1704,6 @@ create_window1 (void)
   model_toolbar_icons1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_toolbar_icons1));
   gtk_widget_show (model_toolbar_icons1);
   gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_icons1);
-  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (model_toolbar_icons1), TRUE);
 
   model_toolbar_icons_and_text1 = gtk_radio_menu_item_new_with_mnemonic (model_toolbar_icons1_group, _("Icons and text"));
   model_toolbar_icons1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_toolbar_icons_and_text1));
@@ -1714,6 +1714,7 @@ create_window1 (void)
   model_toolbar_icons1_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_toolbar_text1));
   gtk_widget_show (model_toolbar_text1);
   gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_text1);
+  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (model_toolbar_text1), TRUE);
 
   separator1 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator1);
@@ -1730,6 +1731,11 @@ create_window1 (void)
   gtk_widget_show (model_toolbar_all_icons);
   gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_all_icons);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (model_toolbar_all_icons), TRUE);
+
+  model_toolbar_user_defined1 = gtk_radio_menu_item_new_with_mnemonic (model_toolbar_main_icons_group, _("User defined"));
+  model_toolbar_main_icons_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (model_toolbar_user_defined1));
+  gtk_widget_show (model_toolbar_user_defined1);
+  gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_user_defined1);
 
   gtkhtml_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
@@ -2169,6 +2175,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) model_toolbar_all_icons, "activate",
                     G_CALLBACK (on_model_toolbar_all_icons_activate),
                     NULL);
+  g_signal_connect ((gpointer) model_toolbar_user_defined1, "activate",
+                    G_CALLBACK (on_model_toolbar_user_defined1_activate),
+                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");
@@ -2472,6 +2481,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, separator1, "separator1");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_main_icons, "model_toolbar_main_icons");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_all_icons, "model_toolbar_all_icons");
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_user_defined1, "model_toolbar_user_defined1");
   GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
   GLADE_HOOKUP_OBJECT_NO_REF (window1, tooltips, "tooltips");
 

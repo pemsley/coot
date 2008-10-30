@@ -2435,6 +2435,43 @@ show_model_toolbar_main_icons() {
   gtk_widget_hide(vsep);
 }
 
+void
+update_model_toolbar_icons_menu() {
+
+  GtkWidget *user_defined_button = lookup_widget(graphics_info_t::glarea,
+						 "model_toolbar_user_defined1");
+  GtkWidget *main_icons_button   = lookup_widget(graphics_info_t::glarea,
+						 "model_toolbar_main_icons");
+  GtkWidget *all_icons_button    = lookup_widget(graphics_info_t::glarea,
+						 "model_toolbar_all_icons");
+
+  int activate = 1;   // 0 is user defined, 1 all icons, 2 main/default icons
+
+  for (int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
+    if ((*graphics_info_t::model_toolbar_icons)[i].show_hide_flag == 0) {
+      if ((*graphics_info_t::model_toolbar_icons)[i].show_hide_flag == (*graphics_info_t::model_toolbar_icons)[i].default_show_flag) {
+	activate = 2;
+      } else {
+	activate = 0;
+	break;
+      }
+    }
+  }
+
+  if (activate) {
+    gtk_widget_hide(user_defined_button);
+    if (activate == 1) {
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(all_icons_button), TRUE);
+    } else {
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(main_icons_button), TRUE);
+    }
+  } else {
+    gtk_widget_show(user_defined_button);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(user_defined_button), TRUE);
+  }
+
+}
+
 /*  ------------------------------------------------------------------------ */
 //            popup-menu for model_toolbar
 /*  ------------------------------------------------------------------------ */

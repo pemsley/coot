@@ -3299,6 +3299,19 @@ def run_with_gtk_threading(function, *args):
          gtk.gdk.threads_leave()
    gobject.idle_add(idle_func)
 
+
+def generic_check_button(vbox, label_text, handle_check_button_function):
+   def check_callback(*args):
+      active_state = check_button.get_active()
+      set_state = 0
+      if (active_state):
+         set_state = 1
+      handle_check_button_function(set_state)
+   check_button = gtk.CheckButton(label_text)
+   vbox.pack_start(check_button, False, False, 2)
+   check_button.connect("toggled", check_callback)
+   return check_button
+
 # a master gui to set all kinds of refinement parameters
 #
 def refinement_options_gui():
@@ -3312,18 +3325,6 @@ def refinement_options_gui():
          add_status_bar_text(s)
       except:
          add_status_bar_text("Failed to read a number") 
-
-   def generic_check_button(vbox, label_text, handle_check_button_function):
-      def check_callback(*args):
-         active_state = check_button.get_active()
-         set_state = 0
-         if (active_state):
-            set_state = 1
-         handle_check_button_function(set_state)
-      check_button = gtk.CheckButton(label_text)
-      vbox.pack_start(check_button, False, False, 2)
-      check_button.connect("toggled", check_callback)
-      return check_button
 
    def delete_event(*rags):
       window.destroy()
@@ -3406,6 +3407,15 @@ def refinement_options_gui():
       terminal_autofit_button.set_active(True)
    else:
       terminal_autofit_button.set_active(False)
+
+   # add a b-factor button
+   reset_b_factor_button = generic_check_button(vbox,
+                                                "Reset B-Factors to Default Value after Refinement/Move?",
+                                                lambda state: set_reset_b_factor_moved_atoms(state))
+   if (get_reset_b_factor_moved_atoms_state() == 1):
+      reset_b_factor_button.set_active(True)
+   else:
+      reset_b_factor_button.set_active(False)
 
    vbox.pack_start(h_sep, False, False, 2)
    vbox.pack_start(hbox, False, False, 0)

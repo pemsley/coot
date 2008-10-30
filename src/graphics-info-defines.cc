@@ -1200,6 +1200,10 @@ graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) {
 	      refine_auto_range(naii.imol, chain.c_str(), resno,
 				altloc.c_str());
 	    }
+	    if (graphics_info_t::reset_b_factor_moved_atoms_flag) {
+	      reset_b_factor_residue_range(naii.imol, chain.c_str(),
+					   resno, resno);
+	    }
 	    update_geometry_graphs(&atom_p->residue, 1, imol, imol_map);
 	    std::cout << "Fitting score for best rotamer: " << f << std::endl;
 	    graphics_draw();

@@ -2579,6 +2579,11 @@ on_preferences_model_toolbar_all_icons_radiobutton_toggled
                                         gpointer         user_data);
 
 void
+on_model_toolbar_user_defined1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
 on_preferences_model_toolbar_style_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);

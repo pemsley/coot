@@ -9,37 +9,28 @@
 
 * Done (check which ones to use!?!)
 
-
-   o clean up the build-info webpage files/dirs for WinCoot
-
-   o reset B-factors of refined/changed atoms
-
-* Done (need some more scripting functions to reset all chain, residues, molecule, 
-        check if more funcns need the reset of B-factors)
+   o update probe/reduce to work with pdb v3 (remove oldpdb)
 
   (o progress bars for refmac e.g.)
-
-   o WinCoot: copy installer even if not newer?!
 
    o update WinCoot website for new probe/reduce use
 
    o be up-to-date with all python scripts and tests
-up-to-date 09/09/08
-tests rev 1378
-
-23/10/08
-   o sync MFR dialog with modelling toolbar -> all or selected for toolbar
+scripts rev 1525
+tests   rev 1525
 
 
 04/09/08
    o loop building backwards in scheme (use python?)?
 
 
+
+30/10/08
+   o LSQ option for ncs copy residue range
+
 ---------------
 * TO DO THINGS *
 ---------------
-
-   o make all modelling toolbar icons preference-able
 
    o merge build-it-win with buid-it-gtk2-simple?!
 
@@ -260,5 +251,22 @@ tests rev 1378
 * Done
 
    o always be able to use mtz file in Refmac GUI
+
+* Done
+
+   o clean up the build-info webpage files/dirs for WinCoot
+
+* Done
+
+   o reset B-factors of refined/changed atoms
+
+* Done  
+
+23/10/08
+   o sync MFR dialog with modelling toolbar -> all or selected for toolbar
+
+* Done
+
+   o make all modelling toolbar icons preference-able
 
 * Done

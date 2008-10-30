@@ -572,6 +572,65 @@ def rotate_about_screen_axis(axis,degrees):
     else:
        print "incomprehensible length argument: ", degrees
 
+
+# Support for old toggle functions.  (consider instead the raw
+# functions use the direct set_displayed functions).
+#
+def toggle_display_map(imol, idummy):
+    if (map_is_displayed(imol) == 0):
+        set_map_displayed(imol, 1)
+    else:
+        set_map_displayed(imol, 0)
+
+# toggle the display of imol
+#
+def toggle_display_mol(imol):
+    if (mol_is_displayed(imol) == 0):
+        set_mol_displayed(imol, 1)
+    else:
+        set_mol_displayed(imol, 0)
+
+# toggle the active state (clickability) of imol
+#
+def toggle_active_mol(imol):
+    if (mol_is_active(imol) == 0):
+        set_mol_active(imol, 1)
+    else:
+        set_mol_active(imol, 0)
+
+# return a python (list) representation of molecule imol, or False if we can't
+# do it (imol is a map, say)
+#
+def python_representation(imol):
+
+    if (not valid_model_molecule_qm(imol)):
+        return False
+    else:
+        ls = []
+        def r_info(imol, chain_id, n):
+            res_name = resname_from_serial_number(imol, chain_id, n)
+            res_no   = seqnum_from_serial_number(imol, chain_id, n)
+            ins_code = insertion_code_from_serial_number(imol, chain_id, n)
+            return [res_no, ins_code, res_name, residue_info(imol, chain_id, res_no, ins_code)]
+
+        ls = [map(lambda chain_id: [chain_id, map(lambda serial_number: r_info(imol, chain_id, serial_number), range(chain_n_residues(chain_id, imol)))], chain_ids(imol))]
+        return ls
+
+def reorder_chains(imol):
+
+    # reorder elements of chain_list: e.g.
+    #
+    # chain_list: [["C", [xx]], ["A", [xx]], ["B", [xx]]]
+    #
+    def reorder_chains_in_model(chain_list):
+        map(lambda model: model.sort(), chain_list)
+            
+    p_rep = python_representation(imol)
+    if (type(p_rep) is ListType):
+        reorder_chains_in_model(p_rep)
+        clear_and_update_molecule(imol, p_rep)
+
+
 # transform a coordinates molecule by a coot-rtop (which is a Python
 # expression of a clipper::RTop)
 #
@@ -1351,7 +1410,7 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
                                                                  draw_hydrogens_flag),
             other_residues)
 
-hightlight_binding_site = hilight_binding_site  # typo?
+highlight_binding_site = hilight_binding_site  # typo?
 
 
 # Function based on Davis et al. (2007) Molprobity: all atom contacts
@@ -1535,14 +1594,55 @@ set_find_hydrogen_torsion = set_find_hydrogen_torsions
 #
 
 # for easier switching on of GL lighting on surfaces:
+#
 def GL_light_on():
     set_do_GL_lighting(1)
     do_GL_lighting_state()
 
 # and to turn it off
+#
 def GL_light_off():
     set_do_GL_lighting(0)
     do_GL_lighting_state()
+
+
+# Helper functions to set B-Factors
+
+# set B-factor to bval for molecule imol
+#
+def set_b_factor_molecule(imol, bval):
+
+    for chain_id in chain_ids(imol):
+        start_res = seqnum_from_serial_number(imol, chain_id, 0)
+        end_res   = seqnum_from_serial_number(imol, chain_id, chain_n_residues(chain_id, imol) - 1)
+        set_b_factor_residue_range(imol, chain_id, start_res, end_res, bval)
+        
+# reset B-factor for molecule imol to default value
+#
+def reset_b_factor_molecule(imol):
+
+    for chain_id in chain_ids(imol):
+        start_res = seqnum_from_serial_number(imol, chain_id, 0)
+        end_res   = seqnum_from_serial_number(imol, chain_id, chain_n_residues(chain_id, imol) - 1)
+        set_b_factor_residue_range(imol, chain_id, start_res, end_res, default_new_atoms_b_factor())
+
+# reset B-factor for active residue to default value
+#
+def reset_b_factor_active_residue():
+
+    active_atom = active_residue()
+
+    if not active_atom:
+       print "No active atom"
+    else:
+       imol       = active_atom[0]
+       chain_id   = active_atom[1]
+       res_no     = active_atom[2]
+       ins_code   = active_atom[3]
+       atom_name  = active_atom[4]
+       alt_conf   = active_atom[5]
+
+       set_b_factor_residue_range(imol, chain_id, res_no, res_no, default_new_atoms_b_factor())
 
 
 # BL module to find exe files
@@ -1749,3 +1849,5 @@ def coot_has_pygtk():
 		return True
 	else:
 		return False
+
+
