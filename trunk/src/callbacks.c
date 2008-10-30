@@ -9650,7 +9650,8 @@ on_model_toolbar_torsion_general_toggletoolbutton_toggled
                                         gpointer         user_data)
 {
 
-  if (GTK_TOGGLE_BUTTON(toggletoolbutton)->active) {
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active) {
     setup_torsion_general(1);
   } else {
     setup_torsion_general(0);
@@ -9696,7 +9697,8 @@ on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled
                                         gpointer         user_data)
 {
 
-  if (GTK_TOGGLE_BUTTON(toggletoolbutton)->active) { 
+  gboolean active = gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggletoolbutton));
+  if (active) { 
     setup_backbone_torsion_edit(1);
   } else { 
     setup_backbone_torsion_edit(0);
@@ -9909,10 +9911,21 @@ on_model_toolbar_all_icons_activate    (GtkMenuItem     *menuitem,
 
 #if (GTK_MAJOR_VERSION > 1) 
 void
+on_model_toolbar_user_defined1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) {
+
+}
+
+#endif	/* GTK_MAJOR_VERSION */
+
+
+#if (GTK_MAJOR_VERSION > 1) 
+void
 on_model_toolbar_setting1_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  /* I dont think anything needs to happen here */
+  update_model_toolbar_icons_menu();
 }
 #endif	/* GTK_MAJOR_VERSION */
 

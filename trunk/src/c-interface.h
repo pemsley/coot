@@ -4100,6 +4100,8 @@ void set_show_alt_conf_intermediate_atoms(int i);
 int  show_alt_conf_intermediate_atoms_state();
 void zero_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2);
 void fill_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2);
+void set_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2, float bval);
+void reset_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2);
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4793,6 +4795,7 @@ void show_model_toolbar_icon(int pos);
 void hide_model_toolbar_icon(int pos);
 void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 				     	  GtkWidget *scrolled_window);
+void update_model_toolbar_icons_menu();
 
 /*  ----------------------------------------------------------------------- */
 /*                  Browser Help                                            */

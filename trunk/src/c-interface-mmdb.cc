@@ -235,28 +235,27 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
          PyObject *model_expression = PyList_GetItem(molecule_expression, imodel);
          int len_model_expression = PyObject_Length(model_expression);
          if (len_model_expression > 0) {
-            PyObject *chain_list = model_expression; // interesting
+	   //PyObject *chain_list = model_expression; // interesting
             int nchains = len_model_expression;
 
             for (int ichain=0; ichain<nchains; ichain++) {
                
                PyObject *chain_expression = PyList_GetItem(model_expression,
                                                    ichain);
-               int chain_is_list_python = PyList_Size(chain_expression);
+               int chain_is_list_python = PyList_Check(chain_expression);
                if (chain_is_list_python > 0) {
                   // printf("chain_expression is a list\n");
                } else {
                   printf("chain_expression is not a list\n");
                }
                //           display_scm(chain_expression);
-               int len_chain_expr = PyObject_Length(chain_expression);
+               int len_chain_expr = PyList_Size(chain_expression);
                if (len_chain_expr != 2) {
                   std::cout << "bad chain expression, length "
                             << len_chain_expr << std::endl;
                } else {
                   // normal case
                   // std::cout << "good chain expression " << std::endl;
-                  std::cout << "good chain expression " << std::endl;
                   PyObject *chain_id_python = PyList_GetItem(chain_expression, 0);
                   PyObject *residues_list = PyList_GetItem(chain_expression, 1);
                   if (PyList_Size(residues_list) > 0) {
@@ -266,7 +265,6 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
                   }
                   int n_residues = PyObject_Length(residues_list);
 		  // printf("there were %d residues\n", n_residues);
-                  printf("there were %d residues\n", n_residues);
                   if (n_residues > 0) {
                      CChain *chain_p = new CChain;
                      std::string chain_id = PyString_AsString(chain_id_python);

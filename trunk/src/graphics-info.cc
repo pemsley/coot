@@ -2590,7 +2590,7 @@ graphics_info_t::accept_moving_atoms() {
    }
 
    // reset the b-factor?
-   if (graphics_info_t::reset_b_factor_moved_atoms == 1) {
+   if (graphics_info_t::reset_b_factor_moved_atoms_flag) {
      molecules[imol_moving_atoms].set_b_factor_atom_selection(*moving_atoms_asc, graphics_info_t::default_new_atoms_b_factor, 1);
    }
    
@@ -4926,10 +4926,14 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
       toolbar_button_name = "model_toolbar_rotamers_togglebutton";
    if (button_name == "model_refine_dialog_edit_chi_angles_togglebutton")
       toolbar_button_name = "model_toolbar_edit_chi_angles_togglebutton";
+   if (button_name == "model_refine_dialog_torsion_general_togglebutton")
+      toolbar_button_name = "model_toolbar_torsion_general_toggletoolbutton";
    if (button_name == "model_refine_dialog_pepflip_togglebutton")
       toolbar_button_name = "model_toolbar_flip_peptide_togglebutton";
    if (button_name == "model_refine_dialog_do_180_degree_sidechain_flip_togglebutton")
       toolbar_button_name = "model_toolbar_sidechain_180_togglebutton";
+   if (button_name == "model_refine_dialog_edit_backbone_torsions_togglebutton")
+      toolbar_button_name = "model_toolbar_edit_backbone_torsions_toggletoolbutton";
    if (button_name == "model_refine_dialog_mutate_auto_fit_togglebutton")
       toolbar_button_name = "model_toolbar_mutate_and_autofit_togglebutton";
    if (button_name == "model_refine_dialog_mutate_togglebutton")

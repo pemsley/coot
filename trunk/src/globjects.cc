@@ -753,7 +753,7 @@ std::string graphics_info_t::add_OXT_chain;
 
 float graphics_info_t::default_new_atoms_b_factor = 30.0;
 
-int graphics_info_t::reset_b_factor_moved_atoms = 0;
+int graphics_info_t::reset_b_factor_moved_atoms_flag = 0;
 
 // show environment
 float graphics_info_t::environment_min_distance = 0.0;
