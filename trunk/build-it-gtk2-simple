@@ -1088,7 +1088,11 @@ END {
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
       # tinker with coot_prefix, it is generic_prefix with pre-release added to prefix dir
-      coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
+      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+         coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python ${config_extras:-}"
+      else
+         coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
+      fi
       coot_source_tar_file=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/$coot_version_pre
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
