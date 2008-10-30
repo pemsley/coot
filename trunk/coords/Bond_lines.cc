@@ -259,12 +259,16 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "SE")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, " P"))))
 			      atom_selection_1[ contact[i].id1 ]->PutUDData(udd_handle, 1);
  			   if (! ((!strcmp(atom_selection_2[ contact[i].id2 ]->element, " S")) ||
 				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, "SE")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "CL")) ||
 				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "BR")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Cl")) ||
+				  (!strcmp(atom_selection_1[ contact[i].id1 ]->element, "Br")) ||
 				  (!strcmp(atom_selection_2[ contact[i].id2 ]->element, " P"))))
 			      atom_selection_2[ contact[i].id2 ]->PutUDData(udd_handle, 1);
 			}
@@ -514,6 +518,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 		     } else {
 			std::string ele = non_Hydrogen_atoms[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
+			    || ele == "Cl" || ele == "Br"
 			    || ele == "AS" || ele == " P") {
 			   handle_long_bonded_atom(non_Hydrogen_atoms[i],
 						   atom_colour_type);
