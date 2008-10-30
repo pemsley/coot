@@ -1036,19 +1036,36 @@ echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
-      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release ${config_extras:-}"
-      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release
+      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+         generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-python ${config_extras:-}"
+         install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-python
+      else 
+         generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release ${config_extras:-}"
+         install_top_dir=${AUTOBUILD_INSTALLED}-pre-release
+      fi
     else 
       # don't use pre-release
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
-      coot_prefix="$generic_prefix"
-      install_top_dir=${AUTOBUILD_INSTALLED}
+      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+         generic_prefix="--prefix=$AUTOBUILD_INSTALLED-python ${config_extras:-}"
+         coot_prefix="$generic_prefix"
+         install_top_dir=${AUTOBUILD_INSTALLED}-python
+      else
+         generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
+         coot_prefix="$generic_prefix"
+         install_top_dir=${AUTOBUILD_INSTALLED}
+      fi
     fi
 else 
    # not pre-release
-   generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
-   install_top_dir=${AUTOBUILD_INSTALLED}
-   coot_prefix="$generic_prefix"
+   if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+      generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
+      install_top_dir=${AUTOBUILD_INSTALLED}
+      coot_prefix="$generic_prefix"
+   else 
+      generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
+      install_top_dir=${AUTOBUILD_INSTALLED}
+      coot_prefix="$generic_prefix"
+   fi 
 fi
 PATH=$install_top_dir/bin:$PATH
 

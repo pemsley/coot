@@ -395,7 +395,9 @@ function post_install_slim {
     mkdir_maybe $cleaned_dir
     mkdir_maybe $cleaned_dir/bin
     mkdir_maybe $cleaned_dir/lib
-    mkdir_maybe $cleaned_dir/include/python$python_version
+    if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
+       mkdir_maybe $cleaned_dir/include/python$python_version
+    fi
 
     lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
     lib_as=`cd $fat_dir && ls -1 lib/lib*.a`
@@ -408,12 +410,18 @@ function post_install_slim {
        keep_lib_archs="$lib_sos"
     fi
 
-    echo rsyncing...
-    for file in etc html info man share bin/coot bin/coot-real \
+    file_list="etc html info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
-	bin/python bin/python$python_version bin/python-config bin/python$python_version-config \
-	include/python$python_version \
-	bin/guile lib/$python_version $keep_lib_archs ;
+	bin/guile lib/$python_version $keep_lib_archs"
+
+
+    if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
+        file_list="$file_list bin/python bin/python$python_version bin/python-config \
+                   bin/python$python_version-config \
+                   include/python$python_version"
+    fi
+    echo rsyncing... 
+    for file in $file_list ;
     do
        dn=`dirname $file`
        if [ -e $fat_dir/$file ] ; then
@@ -1105,19 +1113,36 @@ echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
-      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
-      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2
+      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+         generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python ${config_extras:-}"
+         install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python
+      else 
+         generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
+         install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2
+      fi
     else 
       # don't use pre-release
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
-      coot_prefix="$generic_prefix"
-      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
+      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+         generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2-python ${config_extras:-}"
+         coot_prefix="$generic_prefix"
+         install_top_dir=${AUTOBUILD_INSTALLED}-gtk2-python
+      else 
+         generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
+         coot_prefix="$generic_prefix"
+         install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
+      fi
     fi
 else 
    # not pre-release
-   generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
-   install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
-   coot_prefix="$generic_prefix"
+   if [ $ENABLE_PYTHON_COOT = yes ] ; then 
+      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2-python ${config_extras:-}"
+      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2-python
+      coot_prefix="$generic_prefix"
+   else 
+      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
+      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
+      coot_prefix="$generic_prefix"
+   fi
 fi
 PATH=$install_top_dir/bin:$PATH
 
