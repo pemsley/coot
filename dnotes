@@ -5,9 +5,29 @@ Things to do for 0.5.1
   o Fix Frank's problem of Keybindings when using F8 bin with python
     and scheme keybindings.
 
+  o Nucletide builder - with B form RNA need to be fixed.  Needs O2'
+
+  o Pucker of ideal DNA need to be fixed.  Needs better reference nucleotide.
+
+  o CA Zone -> mainchain on 4 CA position - needs better feedback.
+
   o Fix up clipper (21ac)
 
 * in the works.  Problem with make dist.
+
+  o Don't tar up python files for a non-pythonic build.
+
+* Fix by making python builds build in their own directory.
+  Needs changes to build-it - non-trivial.
+  build-web-page-builder.scm needs to change to follow the 
+  new places for the python build info.
+
+  o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
+    Make a fixed atom on the O3* of 1A.  The refinement fails now (no
+    progress).  Is that because of make_link_restraints() is not taking
+    into account the fixed atoms?  Could well be, because if I delete
+    residue 2 in that chain, then the regularization (with that atom 
+    fixed) works fine! 
 
   o Loop building in both directions for scheme 
 
@@ -20,18 +40,33 @@ Things to do for 0.5.1
 
 * Looks fine on FC4, still bad on MacBook?
 
-  o Don't tar up python files for a non-pythonic build.
+  o Look at rotamer graph, make a modification, look at rotamer graph
+    again.  The blocks have been scaled down [JED report, not
+    reproduced]
 
-* Fix by making python builds build in their own directory.
-  build-web-page-builder.scm needs to change to follow the 
-  new places for the python build info.
+  o Build a helix in 1b41 map.  The Spacegroup is R 3 2 but the cell
+   is hexagonal.
 
-  o Nucletide builder - with B form RNA need to be fixed.
+  o [Maria Håkansson] Hydrogen fail to move in SHELXL molecule when using:
 
-  o CA Zone -> mainchain on 4 CA position - needs better feedback.
+   add alternative conformation
+   edit chi angles
+     Confirmed fail - uses dictionary?
+   real space refine
+     Of course
+   rotate translate zone 
+     Works for me.
+
+
+
+  o Do the P backbone.
+
+* Done.
 
   o Crash: Using the display manager delete molecule buttons (CentOS
     build)
+
+* Fixed.
 
   o What's crashing on using NCS in Bill's 0.5 build?
 
@@ -57,8 +92,6 @@ Things to do for 0.5.1
      web site
 
 * Done
-
-
 
   o are test-wiggly ligands written to disk by default?
 
@@ -107,13 +140,11 @@ Things to do for 0.5.1
 
 Things to do for 0.6
 
-  o P backbone mode
+  o Rotate translate chain/molecule
 
   o Edit a SHELXL file before refinement
 
   o backrub on rotamer search
-
-  o Helix fitting overshoots
 
   o PISA output display
 
@@ -121,8 +152,14 @@ Things to do for 0.6
 
   o redo sequence view
 
-  o Rotate translate chain/molecule
+  o Helix fitting overshoots
 
+
+
+
+  o P backbone mode
+
+* Done in 0.5.1
 
 
 --------
@@ -7102,5 +7139,27 @@ Mon Oct 13 14:46:41 BST 2008
 
       Difficulty: Easy.
 
+----
+Tue Oct 28 20:14:17 GMT 2008
+
+	on reading the ribosome structure, 99% of 110 - (about 2) seconds is spend here:
+
+	MMDBManager->ReadCoorFile(pdb_name.c_str());
+
+
+---
+Wed Oct 29 08:16:59 GMT 2008
+
+   Frank:
+
+     This one is quicker: are you able to colour text in the Display
+     Manager?  In which case it would be handy to have the text for
+     the map objects coloured according to map type, e.g. blue for
+     sigmaA map, red for difference map (info you can infer from the
+     mtz?), and even green for other maps (usually
+     experimental/averaged).
+
+   Yes, except use the background color, I think.  And how about a
+   button that is half red, half green?
 
 -----
