@@ -796,7 +796,7 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 	 // If desc_level is in the file, extract it, otherwise set it to "None"
 	 // 
 	 s = mmCIFLoop->GetString("desc_level", j, ierr);
-	 if (! err)
+	 if (! ierr)
 	    if (s)
 	       description_level = s;  // e.g. "." for full, I think
 
@@ -865,7 +865,7 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 	 ierr_tot += ierr;
 
 	 s = mmCIFLoop->GetString("desc_level", j, ierr);
-	 if (! err)
+	 if (! ierr)
 	    if (s)
 	       description_level = s;  // e.g. "." for full, I think
 
