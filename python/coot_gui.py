@@ -3426,6 +3426,60 @@ def refinement_options_gui():
    cancel_button.connect("clicked", delete_event)
    window.show_all()
 
+# a simple window to show a progress bar
+# return the window (to be destroyed elsewhere)
+#
+def show_progressbar(text):
+
+   gtk.gdk.threads_init()
+   def progress_run(pbar):
+      pbar.pulse()
+      return True
+
+   def destroy_cb(widget, timer):
+      gobject.source_remove(timer)
+      timer = 0
+      gtk.main_quit()
+      return False
+   
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   window.set_title("External Program Progress")
+   window.set_border_width(0)
+   window.set_default_size(300, 50)
+
+   vbox = gtk.VBox(False, 5)
+   vbox.set_border_width(10)
+   window.add(vbox)
+
+   pbar = gtk.ProgressBar()
+   pbar.pulse()
+   pbar.set_text(text)
+   vbox.pack_start(pbar, False, False, 5)
+
+   timer = gobject.timeout_add (100, progress_run, pbar)
+   
+   window.connect("destroy", destroy_cb, timer)
+
+   window.show_all()
+   global python_return
+   python_return = window
+   gtk.main()
+
+
+global python_return
+python_return = False
+   
+def run_python_thread(function, *args):
+   import gobject
+   import threading
+   
+   class MyThread(threading.Thread):
+      def run(self):
+         #python_return = function(*args)
+         function(*args)
+
+   MyThread().start()
+   
 
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()

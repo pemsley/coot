@@ -199,7 +199,9 @@ def command_in_path_qm(cmd):
        return False
      except:
        print "BL WARNING:: couldnt open $PATH"  # this shouldnt happen
-  
+
+global gtk_thread_return_value
+gtk_thread_return_value = None
 # Where cmd is e.g. "refmac" 
 #       args is ["HKLIN","thing.mtz"]
 #       log_file_name is "refmac.log"      
@@ -210,9 +212,10 @@ def command_in_path_qm(cmd):
 #
 # uses os.popen if python version < 2.4 otherwise subprocess
 # 
-def popen_command(cmd, args, data_list, log_file, screen_flag=False):
-    import sys, string, os
+def popen_command(cmd, args, data_list, log_file, screen_flag=False, progressbar_flag=False):
 
+    import sys, string, os
+    
     major, minor, micro, releaselevel, serial = sys.version_info
 
     if not(command_in_path_qm(cmd)):
@@ -225,7 +228,10 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
             cmd_execfile = find_exe(cmd, "CCP4_BIN", "PATH")
 
     if (cmd_execfile):
-        # minor = 4
+        if (progressbar_flag):
+            global python_return
+            run_python_thread(show_progressbar, "test")
+        # minor = 2
         if (major >= 2 and minor >=4):
             # subprocess
             import subprocess
@@ -244,6 +250,10 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
                     log.write(line)
             process.wait()
             log.close()
+
+            if (progressbar_flag):
+                python_return.destroy()
+                
             return process.returncode
         
         else:

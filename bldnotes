@@ -9,11 +9,7 @@
 
 * Done (check which ones to use!?!)
 
-   o update probe/reduce to work with pdb v3 (remove oldpdb)
-
   (o progress bars for refmac e.g.)
-
-   o update WinCoot website for new probe/reduce use
 
    o be up-to-date with all python scripts and tests
 scripts rev 1525
@@ -24,7 +20,6 @@ tests   rev 1525
    o loop building backwards in scheme (use python?)?
 
 
-
 30/10/08
    o LSQ option for ncs copy residue range
 
@@ -32,11 +27,11 @@ tests   rev 1525
 * TO DO THINGS *
 ---------------
 
-   o merge build-it-win with buid-it-gtk2-simple?!
+   o additional representations: hide parts of model (use bond thickness 0?!?
 
-   o clean-up use of probe/reduce command_name and command (python):
-      actually should not delete and overwrite group_settings.py
-      upon installation, in case people change the name of probe/reduce here.
+   o revisit python sockets
+
+   o merge build-it-win with buid-it-gtk2-simple?!
 
    o speed up NCS by using Kevin's LSQ (user changeable)
 
@@ -71,8 +66,6 @@ tests   rev 1525
 
    o rsync builds to Paul's dir
 
-   o revisit python sockets
-
    o fix threading in python 'Coot News'
 
    o How about interfacing to a Wii?
@@ -96,6 +89,8 @@ tests   rev 1525
    o change orientation of refinement toolbar and make it dockable to 
      other sides of main window
 
+* Done (but not automatically to change orientation)
+
 14/08/08
     o make guile-gtk properly gtk2 complient (esp. text-view)
 
@@ -115,8 +110,6 @@ tests   rev 1525
    o 'new', short display manager
 
 22/09/08
-   o current directory in chooser shortcuts
-
    o fix size of chooser dialog (if possible, gtk2 bug?!)
 
 04/10/08
@@ -268,5 +261,24 @@ tests   rev 1525
 * Done
 
    o make all modelling toolbar icons preference-able
+
+* Done
+
+   o update probe/reduce to work with pdb v3 (remove oldpdb)
+
+* Done
+
+   o update WinCoot website for new probe/reduce use
+
+* Done
+
+   o clean-up use of probe/reduce command_name and command (python):
+      actually should not delete and overwrite group_settings.py
+      upon installation, in case people change the name of probe/reduce here.
+
+* Done
+
+22/09/08
+   o current directory in chooser shortcuts
 
 * Done

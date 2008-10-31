@@ -286,7 +286,7 @@ c_inner_main(void *closure, int argc, char** argv) {
 /*   make_socket_listener_maybe(); */
 
   /* tips gui? (only for non-Windows systems)*/
-#ifdef WINDOWS_MINGW
+#ifndef WINDOWS_MINGW
   if (gui_lib) {
     if (use_graphics_flag) { 
       thunk_str = "(lambda () (tips-gui))";
