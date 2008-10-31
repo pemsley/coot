@@ -40,10 +40,10 @@ is_closed_generic_object_qm = is_closed_generic_object_p
 # 
 def generic_object_with_name(obj_name):
 
-	t = generic_object_index(obj_name)
-	if (t == -1):
-		t = new_generic_object_number(obj_name)
-	return t
+  t = generic_object_index(obj_name)
+  if (t == -1):
+    t = new_generic_object_number(obj_name)
+  return t
 
 
 # display a GUI for generic objects
@@ -52,102 +52,102 @@ def generic_objects_gui():
 
   pygtk_flag = False
   try:
-	import pygtk
-	pygtk.require("2.0")
-	import gtk, pango
-	pygtk_flag = True
+    import pygtk
+    pygtk.require("2.0")
+    import gtk, pango
+    pygtk_flag = True
   except:
-	print "BL WARNING:: no pygtk2. Function wont work!!!"
+    print "BL WARNING:: no pygtk2. Function wont work!!!"
 	  
-  if (pygtk_flag):
-	  # Now we run the gui
-	def delete_event(*args):
-		# BL says: first we shall close the generic objects
-		# or not
-		#for generic_object_number in range(n_objects):
-		#	set_display_generic_object(generic_object_number, 0)
-		gen_window.destroy()
-		return False
+    if (pygtk_flag):
+      # Now we run the gui
+      def delete_event(*args):
+	# BL says: first we shall close the generic objects
+	# or not
+	#for generic_object_number in range(n_objects):
+	#	set_display_generic_object(generic_object_number, 0)
+	gen_window.destroy()
+	return False
 
 
-	def check_button_callback(widget, generic_object_number):
-		button_state = widget.get_active()
-		object_state = generic_object_is_displayed_qm(generic_object_number)
-		if ((button_state == True) and (object_state == 0)):
-			set_display_generic_object(generic_object_number,1)
-		if ((button_state == False) and (object_state == 1)):
-			set_display_generic_object(generic_object_number,0)
+      def check_button_callback(widget, generic_object_number):
+	button_state = widget.get_active()
+	object_state = generic_object_is_displayed_qm(generic_object_number)
+	if ((button_state == True) and (object_state == 0)):
+	  set_display_generic_object(generic_object_number,1)
+	if ((button_state == False) and (object_state == 1)):
+	  set_display_generic_object(generic_object_number,0)
 
-	def all_check_button_callback(widget):
-		show_all = widget.get_active()
-		for check_button in open_generic_objects:
-			if (show_all):
-				check_button.set_active(True)
-			else:
-				check_button.set_active(False)
+      def all_check_button_callback(widget):
+	show_all = widget.get_active()
+	for check_button in open_generic_objects:
+	  if (show_all):
+	    check_button.set_active(True)
+	  else:
+	    check_button.set_active(False)
 
-	n_objects = number_of_generic_objects()
+      n_objects = number_of_generic_objects()
 	
-	if (n_objects > 0):
-		gen_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-		gen_window.set_title("Generic objects")
-		vbox = gtk.VBox(False, 0)
-		open_generic_objects = []
-		no_active_generic_objects = 0
+      if (n_objects > 0):
+	gen_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+	gen_window.set_title("Generic objects")
+	vbox = gtk.VBox(False, 0)
+	open_generic_objects = []
+	no_active_generic_objects = 0
 
-		for generic_object_number in range(n_objects):
+	for generic_object_number in range(n_objects):
 
-			print "INFO:: generic object attributes: ", \
-			      generic_object_number, \
-			      generic_object_name(generic_object_number), \
-			      is_closed_generic_object_qm(generic_object_number)
+	  print "INFO:: generic object attributes: ", \
+		generic_object_number, \
+		generic_object_name(generic_object_number), \
+		is_closed_generic_object_qm(generic_object_number)
 
-			if (is_closed_generic_object_qm(generic_object_number) == 0):
-				name = generic_object_name(generic_object_number)
+	  if (is_closed_generic_object_qm(generic_object_number) == 0):
+	    name = generic_object_name(generic_object_number)
 
-				if (name):
-					label = str(generic_object_number) + "  " + name
-					frame = gtk.Frame(label=None)
-					check_button = gtk.CheckButton(label)
+	    if (name):
+	      label = str(generic_object_number) + "  " + name
+	      frame = gtk.Frame(label=None)
+	      check_button = gtk.CheckButton(label)
 
-						# this callback gets called by the
-						# gtk-toggle-button-set-active just below,
-						# which is why we need the state and active
-						# test.
-					check_button.connect("toggled", 
-					       check_button_callback, generic_object_number)
-					current_state = generic_object_is_displayed_qm(generic_object_number)
-					if (current_state == 1):
-						check_button.set_active(True)
-						no_active_generic_objects += 1
+		# this callback gets called by the
+		# gtk-toggle-button-set-active just below,
+		# which is why we need the state and active
+		# test.
+	      check_button.connect("toggled", 
+		     check_button_callback, generic_object_number)
+	      current_state = generic_object_is_displayed_qm(generic_object_number)
+	      if (current_state == 1):
+		check_button.set_active(True)
+		no_active_generic_objects += 1
 
-					vbox.add(frame)
-					frame.add(check_button)
-					frame.show()
-					check_button.show()
-					open_generic_objects.append(check_button)
+	      vbox.add(frame)
+	      frame.add(check_button)
+	      frame.show()
+	      check_button.show()
+	      open_generic_objects.append(check_button)
 
-		if (len(open_generic_objects) > 1):
-			hsep = gtk.HSeparator()
-			label = "Show/hide all"
-			frame = gtk.Frame(label=None)
-			check_button = gtk.CheckButton(label)
-			check_button.connect("toggled", all_check_button_callback)
-			if (len(open_generic_objects) == no_active_generic_objects):
-				check_button.set_active(True)
-			vbox.add(hsep)
-			hsep.show()
-			vbox.add(frame)
-			frame.add(check_button)
-			frame.show()
-			check_button.show()
+	if (len(open_generic_objects) > 1):
+	  hsep = gtk.HSeparator()
+	  label = "Show/hide all"
+	  frame = gtk.Frame(label=None)
+	  check_button = gtk.CheckButton(label)
+	  check_button.connect("toggled", all_check_button_callback)
+	  if (len(open_generic_objects) == no_active_generic_objects):
+	    check_button.set_active(True)
+	  vbox.add(hsep)
+	  hsep.show()
+	  vbox.add(frame)
+	  frame.add(check_button)
+	  frame.show()
+	  check_button.show()
 
-		gen_window.connect("delete_event", delete_event)
+	gen_window.connect("delete_event", delete_event)
 
-		vbox.show()
-		gen_window.add(vbox)
-		gen_window.set_border_width(10)
-		gen_window.show()
+	vbox.show()
+	gen_window.add(vbox)
+	gen_window.set_border_width(10)
+	gen_window.show()
 
 
 reduce_molecule_updates_current = False
@@ -156,85 +156,91 @@ reduce_molecule_updates_current = False
 # display the generic objects gui)
 #
 def probe(imol):
-    import os
-    global reduce_command, probe_command
+   import os
+   global reduce_command, probe_command
     
-    if is_valid_model_molecule(imol):
+   if is_valid_model_molecule(imol):
 
-       if not (os.path.isfile(reduce_command)):
-	       reduce_command = find_exe("reduce", "PATH")
-       # we need to check if probe_command is defined too
-       if not(os.path.isfile(probe_command)):
-		probe_command = find_exe("probe", "PATH")
-       make_directory_maybe("coot-molprobity")
-       mol_pdb_file = "coot-molprobity/for-reduce.pdb"
-       reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
-       write_pdb_file(imol,mol_pdb_file)
-       if (reduce_command):
+      if not (os.path.isfile(reduce_command)):
+	 reduce_command = find_exe("reduce", "PATH")
+      # we need to check if probe_command is defined too
+      if not(os.path.isfile(probe_command)):
+	 probe_command = find_exe("probe", "PATH")
+      make_directory_maybe("coot-molprobity")
+      mol_pdb_file = "coot-molprobity/for-reduce.pdb"
+      reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
+      write_pdb_file(imol,mol_pdb_file)
+      if (reduce_command):
 
-          # BL says: I think we should set REDUCE_HET_DICT
-          # so let's set REDUCE_HET_DICT if not set already!
-          if (not os.getenv('REDUCE_HET_DICT')):
-             # we assume the dic is in same dir as reduce command
-             dir, tmp = os.path.split(reduce_command)
-	     # this is actually not pdb v3 yet 
-             connection_file = os.path.join(dir, 'reduce_het_dict.txt')
-             if (os.path.isfile(connection_file)):
-                os.environ['REDUCE_HET_DICT'] = connection_file
-             else:
-                print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
-          else:
-             # REDUCE_HET_DICT is defined
-             pass
+	 # BL says: I think we should set REDUCE_HET_DICT
+	 # so let's set REDUCE_HET_DICT if not set already!
+	 if (not os.getenv('REDUCE_HET_DICT')):
+	    # we assume the dic is in same dir as reduce command
+	    dir, tmp = os.path.split(reduce_command)
+	    connection_file = os.path.join(dir, 'reduce_wwPDB_het_dict.txt')
+	    if (os.path.isfile(connection_file)):
+	       os.environ['REDUCE_HET_DICT'] = connection_file
+	    else:
+	       print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
+	 else:
+	    # REDUCE_HET_DICT is defined
+	    pass
 
-          print "BL INFO:: run reduce as ", reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file
+	 print "BL INFO:: run reduce as ", reduce_command + " " + mol_pdb_file + " > " + reduce_out_pdb_file
 
-	  reduce_status = popen_command(reduce_command,
-					["-build", "-oldpdb", mol_pdb_file],
+	 reduce_status = popen_command(reduce_command,
+					["-build", mol_pdb_file],
 					[],
 					reduce_out_pdb_file)
-          if (probe_command):
-             probe_pdb_in = "coot-molprobity/probe-in.pdb"
-             probe_out = "coot-molprobity/probe-dots.out"
-	     
-             prepare_file_for_probe(reduce_out_pdb_file,probe_pdb_in)
+	 if (reduce_status):
+	    print "BL WARNING:: reduce didnt run ok, so stop here!"
+	 else:
+	    if (probe_command):
+	       probe_name_stub = strip_extension(strip_path(molecule_name(imol)))
+	       probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
+	       probe_out = "coot-molprobity/probe-dots.out"
+	       
+	       prepare_file_for_probe(reduce_out_pdb_file, probe_pdb_in)
+	       
+	       probe_status = popen_command(probe_command,
+					    ["-u", "-stdbonds", "-mc", "ALL", probe_pdb_in],
+					    [],
+					    probe_out)
 
-             probe_status = popen_command(probe_command,
-					  ["-u", "-stdbonds", "-mc", "ALL", probe_pdb_in],
-					  [],
-					  probe_out)
-	     
-	     # by default, we don't want to click on the
-	     # imol-probe molecule (I think :-)
-             recentre_status = recentre_on_read_pdb()
-             novalue = set_recentre_on_read_pdb(0)
-	     if (reduce_molecule_updates_current):
+	       if (probe_status):
+		  print "BL WARNING:: probe failed, cannot continue!"
+	       else:
+		  # by default, we don't want to click on the
+		  # imol-probe molecule (I think :-)
+		  recentre_status = recentre_on_read_pdb()
+		  novalue = set_recentre_on_read_pdb(0)
+		  if (reduce_molecule_updates_current):
 		     print "======= update molecule ======="
 		     imol_probe = clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
-	     else:
+		  else:
 		     print "======= read new pdb file ======="
 		     imol_probe = read_pdb(probe_pdb_in)
-		     
-             if recentre_status == 1:
-		     set_recentre_on_read_pdb(1)
-             # toggle_active_mol(imol_probe) let's not do
-             # that actually.  I no longer think that the
-             # new probe molecule should not be clickable
-             # when it is initally displayed (that plus
-             # there is some active/displayed logic problem
-             # for the molecules, which means that after
-             # several probes, the wrong molecule is
-             # getting refined).
 
-             handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
-             generic_objects_gui()
-             graphics_draw()
-          else:
-            # couldnt find probe
-            print "BL WARNING:: Could not locate the program probe!! Please check if installed!"
-       else:
-         # couldnt find reduce
-         print "BL WARNING:: Could not locate the program reduce!! Please check if installed!"
+		  if recentre_status == 1:
+		     set_recentre_on_read_pdb(1)
+		  # toggle_active_mol(imol_probe) let's not do
+		  # that actually.  I no longer think that the
+		  # new probe molecule should not be clickable
+		  # when it is initally displayed (that plus
+		  # there is some active/displayed logic problem
+		  # for the molecules, which means that after
+		  # several probes, the wrong molecule is
+		  # getting refined).
+
+		  handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
+		  generic_objects_gui()
+		  graphics_draw()
+	    else:
+	       # couldnt find probe
+	       print "BL WARNING:: Could not locate the program probe!! Please check if installed!"
+      else:
+	 # couldnt find reduce
+	 print "BL WARNING:: Could not locate the program reduce!! Please check if installed!"
 
 # Prepare file for probe, i.e. remove 'USER' from file
 def prepare_file_for_probe(file_in, file_out):
