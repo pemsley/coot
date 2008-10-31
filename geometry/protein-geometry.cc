@@ -748,6 +748,12 @@ std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest
    return s;
 }
 
+// We currently want to stop adding chem comp info
+// if the chem_comp info comes from mon_lib_list.cif:
+//
+// This is the function that we use read things other than
+// MON_LIB_LIST_CIF.  i.e. bespoke ligand dictionaries.
+// 
 void
 coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 
@@ -761,7 +767,7 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
       std::string group; // e.g. "L-peptide"
       int number_atoms_all;
       int number_atoms_nh;
-      std::string description_level;
+      std::string description_level = "None";
 
       if (ierr == 0) {
 	 int ierr_tot = 0;
@@ -787,10 +793,12 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 	 ierr = mmCIFLoop->GetInteger(number_atoms_nh, "number_atoms_nh", j);
 	 ierr_tot += ierr;
 
+	 // If desc_level is in the file, extract it, otherwise set it to "None"
+	 // 
 	 s = mmCIFLoop->GetString("desc_level", j, ierr);
-	 ierr_tot += ierr;
-	 if (s)
-	    description_level = s;  // e.g. "." for full, I think
+	 if (! err)
+	    if (s)
+	       description_level = s;  // e.g. "." for full, I think
 
 	 if (ierr_tot == 0) {
 	    // std::cout << "in chem_comp description_level is :" << description_level << ":" << std::endl;
@@ -807,6 +815,11 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
    }
 }
 
+// We currently want to stop adding chem comp info
+// if the chem_comp info comes from mon_lib_list.cif:
+//
+// This is the function that we use read MON_LIB_LIST_CIF
+// 
 void
 coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 
