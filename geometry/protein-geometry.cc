@@ -865,9 +865,9 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 	 ierr_tot += ierr;
 
 	 s = mmCIFLoop->GetString("desc_level", j, ierr);
-	 ierr_tot += ierr;
-	 if (s)
-	    description_level = s;  // e.g. "." for full, I think
+	 if (! err)
+	    if (s)
+	       description_level = s;  // e.g. "." for full, I think
 
 	 if (ierr_tot == 0) {
 	    simple_mon_lib_add_chem_comp(comp_id, three_letter_code, name,
