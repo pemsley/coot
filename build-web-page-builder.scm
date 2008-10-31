@@ -678,12 +678,13 @@
 ;	(list "binary-Linux-i386-fedora-6-python-gtk2"
 ;	      "Linux-bragg1.chem.york.ac.uk/gtk2")
 
-	(list "binary-Linux-i686-ubuntu-8.04.1" 
-	      "Linux-bragg3/gtk1" #f)
-	(list "binary-Linux-i686-ubuntu-8.04.1-python" 
-	      "Linux-bragg3/gtk1-python" #t)
-	(list "binary-Linux-i686-ubuntu-8.04.1-python-gtk2"
-	      "Linux-bragg3/gtk2" #t)
+	(list "binary-Linux-i386-fedora-3"
+	      "Linux-bunyip.chem.york.ac.uk/gtk1" #f)
+	(list "binary-Linux-i386-fedora-3-python"
+	      "Linux-bunyip.chem.york.ac.uk/gtk1-python" #t)
+
+	(list "binary-Linux-i386-fedora-4-python-gtk2"
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle.bioch.ox.ac.uk/gtk2"))
 
 	(list "binary-Linux-i386-fedora-6-python-gtk2"
 	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
@@ -694,18 +695,16 @@
 	(list "binary-Linux-i386-fedora-6-python"
 	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
 
+	(list "binary-Linux-i386-fedora-8"
+	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
+
+	(list "binary-Linux-i386-fedora-8-python-gtk2"
+	      "Linux-dragon.chem.york.ac.uk/gtk2" #t)
+
 	(list "binary-Linux-i386-redhat-8.0"
 	      "Linux-bubbles/gtk1" #f)
 	(list "binary-Linux-i386-redhat-8.0-python" 
 	      "Linux-bubbles/gtk1-python" #t)
-
-	(list "binary-Linux-i386-fedora-3"
-	      "Linux-bunyip.chem.york.ac.uk/gtk1" #f)
-	(list "binary-Linux-i386-fedora-3-python"
-	      "Linux-bunyip.chem.york.ac.uk/gtk1-python" #t)
-
-	(list "binary-Linux-i386-fedora-4-python-gtk2"
-	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
 
 	(list "binary-Linux-i386-centos-4-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"))
@@ -713,14 +712,15 @@
 	(list "binary-Linux-i386-centos-4-python-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"))
 
-	(list "binary-Linux-i386-fedora-8"
-	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
-
-	(list "binary-Linux-i386-fedora-8-python-gtk2"
-	      "Linux-dragon.chem.york.ac.uk/gtk2" #t)
-
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
 	      "ubuntu-6.06/gtk2" #t)
+
+	(list "binary-Linux-i686-ubuntu-8.04.1" 
+	      "Linux-bragg3/gtk1" #f)
+	(list "binary-Linux-i686-ubuntu-8.04.1-python" 
+	      "Linux-bragg3/gtk1-python" #t)
+	(list "binary-Linux-i686-ubuntu-8.04.1-python-gtk2"
+	      "Linux-bragg3/gtk2" #t)
 
 	(list "WinCoot" 
 	      (list 'absolute 
@@ -729,6 +729,7 @@
 	; no guile-gtk for this one.
 	; (list "binary-Linux-i386-fedora-3-python-gtk2"
         ;     "Linux-bunyip.chem.york.ac.uk/gtk2")
+
 	)))
 
   (make-page bin-list file-name))
