@@ -1119,9 +1119,11 @@ if [ "$build_coot_prerelease" = 1 ] ; then
     if [ "$coot_prerelease_exists" = 1 ] ; then 
       if [ $ENABLE_PYTHON_COOT = yes ] ; then 
          generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python ${config_extras:-}"
+         coot_prefix="$generic_prefix"
          install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python
       else 
          generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
+         coot_prefix="$generic_prefix"
          install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2
       fi
     else 
@@ -2697,7 +2699,11 @@ if [ $shared_static_flag != "--disable-shared" ] ; then
 fi   
 
 if [ $clear_up_type != "" ] ; then 
-   slim_dir=`dirname $install_top_dir`/coot-${OS}-${systype}-gtk2
+   if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
+      slim_dir=`dirname $install_top_dir`/coot-${OS}-${systype}-gtk2-python
+   else
+      slim_dir=`dirname $install_top_dir`/coot-${OS}-${systype}-gtk2
+   fi
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
