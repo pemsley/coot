@@ -1038,9 +1038,11 @@ if [ "$build_coot_prerelease" = 1 ] ; then
     if [ "$coot_prerelease_exists" = 1 ] ; then 
       if [ $ENABLE_PYTHON_COOT = yes ] ; then 
          generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-python ${config_extras:-}"
+         coot_prefix="$generic_prefix"
          install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-python
       else 
          generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release ${config_extras:-}"
+         coot_prefix="$generic_prefix"
          install_top_dir=${AUTOBUILD_INSTALLED}-pre-release
       fi
     else 
