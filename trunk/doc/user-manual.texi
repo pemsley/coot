@@ -1435,6 +1435,20 @@ reference chain is, by default, the first chain of that type in the
 coordinates file.  The reference (master) chain can be changed using
 the NCS Ghosts Control dialog.}.
 
+
+Sometimes is is the case that SSM does not provide a good (or even
+useful) matrix.  In that case, we can specify the residue range
+ourselves and let the LSQ algorithm provide the matrix
+
+A function inspired by a question from Bill Scott.  He wanted to
+RNA ghosts.  Because RNA does not work with SSM, we need to define
+the matrix manually.  Let's make a copy of given RNA @emph{imol} and get
+the rotation/translation matrix from that.
+
+@code{(manual-ncs-ghosts @emph{imol resno-start resno-end ref-chain peer-chain})}
+
+ Typical usage: @t{(manual-ncs-ghosts 0 1 10 "A" "C")}
+
 @subsection NCS Maps
 Coot can use the relative transformations of the NCS-related molecules
 in a coordinates molecule to transform maps. Use @command{Calculate}
