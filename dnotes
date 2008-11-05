@@ -15,13 +15,6 @@ Things to do for 0.5.1
 
 * in the works.  Problem with make dist.
 
-  o Don't tar up python files for a non-pythonic build.
-
-* Fix by making python builds build in their own directory.
-  Needs changes to build-it - non-trivial.
-  build-web-page-builder.scm needs to change to follow the 
-  new places for the python build info.
-
   o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
     Make a fixed atom on the O3* of 1A.  The refinement fails now (no
     progress).  Is that because of make_link_restraints() is not taking
@@ -58,6 +51,15 @@ Things to do for 0.5.1
      Works for me.
 
 
+
+  o Don't tar up python files for a non-pythonic build.
+
+* Done - sort of.  I have not got rid of the python libs.
+
+* Fix by making python builds build in their own directory.
+  Needs changes to build-it - non-trivial.
+  build-web-page-builder.scm needs to change to follow the 
+  new places for the python build info.
 
   o Do the P backbone.
 

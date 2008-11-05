@@ -191,3 +191,30 @@
 	     #f
 	     #t))))
 
+
+(greg-testcase "Aniso Bs in P21" #t
+   (lambda () 
+
+     (define (aniso-b-from-atom atom)
+       (let ((occ-etc (list-ref atom 1)))
+	 (list-ref occ-etc 1)))
+
+     (let ((imol (greg-pdb "horma-p21.res")))
+       (write-shelx-ins-file imol "new-horma.ins")
+       (let ((imol-2 (read-pdb "new-horma.ins")))
+	 (let ((at-1 (get-atom imol   "A" 4 " N1 "))
+	       (at-2 (get-atom imol-2 "A" 4 " N1 ")))
+	   (let ((b-1 (aniso-b-from-atom at-1))
+		 (b-2 (aniso-b-from-atom at-2)))
+	     
+	     (format #t "b-1: ~s ~%" b-1)
+	     (format #t "b-2: ~s ~%" b-2)
+
+	     (if (not (list? b-1))
+		 (throw 'fail))
+
+	     (if (not (list? b-2))
+		 (throw 'fail))
+
+	     (all-true? (map close-float? b-1 b-2))))))))
+
