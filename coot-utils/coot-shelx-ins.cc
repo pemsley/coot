@@ -666,8 +666,8 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  double c = cell.c();
 
 		  // Now othogonalize the U values:
-		  clipper::U_aniso_frac ocaf(at->u11, at->u22, at->u33,
-					     at->u12, at->u13, at->u23);
+		  // clipper::U_aniso_frac ocaf(at->u11, at->u22, at->u33,
+		  //                            at->u12, at->u13, at->u23);
 		  clipper::U_aniso_frac caf(at->u11/(a*a), at->u22/(b*b), at->u33/(c*c),
 					    at->u12/(a*b), at->u13/(a*c), at->u23/(b*c));
 		  clipper::U_aniso_orth cao = caf.u_aniso_orth(cell);
@@ -1015,6 +1015,9 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
       
       std::ofstream f(filename.c_str());
       bool sfac_done = 0;
+      double a = cell.descr().a();
+      double b = cell.descr().b();
+      double c = cell.descr().c();
       if (f) {
 
 	 // pre-atom lines.
@@ -1151,15 +1154,26 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			}
 			if (at->WhatIsSet & ASET_Anis_tFac) {
 			   // Anisotropic
+
+			   clipper::U_aniso_orth cao(at->u11, at->u22, at->u33,
+						     at->u12, at->u13, at->u23);
+			   clipper::U_aniso_frac caf = cao.u_aniso_frac(cell);
+
+			   
 			   std::string at_name(at->name);
 			   f.setf(std::ios::fixed);
 			   f.precision(9);
 			   f << coot::util::remove_leading_spaces(at_name)
 			     << "   " << sfac_index << "  ";
 			   f << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
-			     << site_occ_factor << "    =\n     "
-			     << at->u11 << "  " << at->u22 << "  " << at->u33 << "  "
-			     << at->u23 << "  " << at->u13 << "  " << at->u12
+			     << site_occ_factor << "    =\n     ";
+			   f.precision(5);
+// 			   f << at->u11 << "  " << at->u22 << "  " << at->u33 << "  "
+// 			     << at->u23 << "  " << at->u13 << "  " << at->u12
+// 			     << "\n";
+			   f << caf(0,0)*a*a << "  " << caf(1,1)*b*b << "  " << caf(2,2)*c*c
+			     << "  "
+			     << caf(1,2)*b*c << "  " << caf(0,2)*a*c << "  " << caf(0,1)*a*b
 			     << "\n";
 			} else { 
 			   if (at->WhatIsSet & ASET_tempFactor) {
