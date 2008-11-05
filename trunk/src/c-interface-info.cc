@@ -847,7 +847,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 		     int n_atoms = residue_p->GetNumberOfAtoms();
 		     SCM at_info = SCM_BOOL(0);
 		     SCM at_pos;
-		     SCM at_occ, at_b, at_ele, at_name, at_altconf;
+		     SCM at_occ, at_biso, at_ele, at_name, at_altconf;
 		     SCM at_x, at_y, at_z;
 		     SCM all_atoms = SCM_EOL;
 		     for (int iat=0; iat<n_atoms; iat++) {
@@ -857,10 +857,22 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 			at_z  = scm_float2num(at->z);
 			at_pos = scm_list_3(at_x, at_y, at_z);
 			at_occ = scm_float2num(at->occupancy);
-			at_b   = scm_float2num(at->tempFactor);
+			at_biso= scm_float2num(at->tempFactor);
 			at_ele = scm_makfrom0str(at->element);
 			at_name = scm_makfrom0str(at->name);
 			at_altconf = scm_makfrom0str(at->altLoc);
+			SCM at_b = at_biso;
+			if (at->WhatIsSet & ASET_Anis_tFac) {
+			   at_b = SCM_EOL;
+			   at_b = scm_cons(at_biso, at_b);
+			   at_b = scm_cons(scm_float2num(at->u11), at_b);
+			   at_b = scm_cons(scm_float2num(at->u22), at_b);
+			   at_b = scm_cons(scm_float2num(at->u33), at_b);
+			   at_b = scm_cons(scm_float2num(at->u12), at_b);
+			   at_b = scm_cons(scm_float2num(at->u13), at_b);
+			   at_b = scm_cons(scm_float2num(at->u12), at_b);
+			   at_b = scm_reverse(at_b);
+			}
 			SCM compound_name = scm_list_2(at_name, at_altconf);
 			SCM compound_attrib = scm_list_3(at_occ, at_b, at_ele);
 			at_info = scm_list_3(compound_name, compound_attrib, at_pos);
