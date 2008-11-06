@@ -684,7 +684,7 @@
 	      "Linux-bunyip.chem.york.ac.uk/gtk1-python" #t)
 
 	(list "binary-Linux-i386-fedora-4-python-gtk2"
-	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle.bioch.ox.ac.uk/gtk2"))
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
 
 	(list "binary-Linux-i386-fedora-6-python-gtk2"
 	      "Linux-setsuko.chem.york.ac.uk/gtk2" #t)
