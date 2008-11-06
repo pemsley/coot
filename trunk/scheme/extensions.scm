@@ -550,6 +550,20 @@
 	       (gtk-box-pack-start vbox cancel-button #t #f 0)
 	       (gtk-widget-show-all window)))))
 
+
+	(if (coot-has-pygtk?)
+	    (add-simple-coot-menu-menuitem
+	     submenu-refine "Read Refmac logfile (py)..."
+	     (lambda ()
+	       (generic-chooser-and-file-selector "Read Refmac log file"
+						  valid-model-molecule?
+						  "Logfile name: " ""
+						  (lambda (imol text)
+						    (let ((cmd (string-append "read_refmac_log("
+									      (number->string imol)
+									      ", \"" text "\")")))
+						      (run-python-command cmd)))))))
+
 	
 	;; An example with a submenu:
 	;; 

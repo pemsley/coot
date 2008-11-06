@@ -7,15 +7,19 @@
      - backup windows imgs
      - revise script to delete older binaries.
 
+   o Preferences -> default -> apply font colours
+
 04/11/08 CCP4 dev meeting:
    o bulk sovlent correction for refmac?
    o zip/unzip pdb backup files in windows via Python?
    o spawn refmac and use timer to get progress rather than blocking
      the application; maybe plus kill button?!
    o dont use TLS in refmac if we dont have the button (i.e. new refmac)
+* Done
    o Ramachandran restraints check button for loop fit
-     - backup before fitting?
+* Done
    o do loop building 1/2 from N and 1/2 from C terminus for langer loops (>=6?)
+* Done
 
 
 04/10/08
@@ -129,6 +133,8 @@ tests   rev 1525
 04/10/08
    o simultaneous refinement of alt confs
 
+06/11/08
+   o individual runwincoot.bat for multiuser WinCoot installation [Neer Asherie]
 
 ---------------
 * DONE THINGS *
@@ -296,3 +302,9 @@ tests   rev 1525
    o current directory in chooser shortcuts
 
 * Done
+
+   o read refmac log for outliers in Extensions
+
+* Done
+
+
