@@ -3,18 +3,18 @@
 # Copyright 2005, 2006 Bernhard Lohkamp
 # Copyright 2008 by Bernhard Lohkamp, The University of York
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # Fit missing loop in protein
@@ -24,78 +24,149 @@
 # direction can be forwards or backwards
 #
 
-def fit_gap(imol, chain_id, start_resno, stop_resno, sequence=""):
-	
-	imol_map = imol_refinement_map()
-	if (imol_map == -1):
-		info_dialog("Need to set a map to fit a loop")
-	else:
-		# normal execution
-		if (stop_resno < start_resno):
-			res_limits = [stop_resno - 1, start_resno + 1]
-		else:
-			res_limits = [start_resno - 1, stop_resno + 1]
+def fit_gap(imol, chain_id, start_resno, stop_resno, sequence="", use_rama_restraints=1):
 
-		if all(map(lambda resno: residue_exists_qm(imol, chain_id, resno,""), res_limits)):
-			# build both ways
-			imol_copy = copy_molecule(imol)
-			# build A:
-			fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence)
-			# build B:
-			fit_gap_generic(imol_copy, chain_id, stop_resno, start_resno, sequence)
+   imol_map = imol_refinement_map()
+   if (imol_map == -1):
+      info_dialog("Need to set a map to fit a loop")
+   else:
+      # normal execution
+      backup_mode = backup_state(imol)
+      make_backup(imol)
+      turn_off_backup(imol)
 
-			# get the fit result:
-			result_a = low_density_average(imol_map, imol, chain_id, start_resno, stop_resno)
-			result_b = low_density_average(imol_map, imol_copy, chain_id, start_resno, stop_resno)
+      # backup the rama_status
+      rama_status = refine_ramachandran_angles_state()
+      set_refine_ramachandran_angles(use_rama_restraints)
 
-			# print "BL DEBUG:: fit a, b:", result_a, result_b
-			cut_off = 0.90
-			if (min(result_a,  result_b) / max(result_a, result_b) >= cut_off):
-				# solutions are identical?! (cut-off 99%)
-				# we keep only the first one
-				close_molecule(imol_copy)
-			else:
-				# different by cut-off -> display both options if pygtk
-				# otherwise use the 'better' one
-				if ('pygtk' in sys.modules.keys()):
-					# have pygtk
-					atom_selection = "//" + chain_id + "/" + str(min(start_resno, stop_resno) - 1) + \
-									 "-"  + str(max(start_resno, stop_resno) + 1)
-					# we make a fragment for each loop
-					imol_fragment_a = new_molecule_by_atom_selection(imol     , atom_selection)
-					imol_fragment_b = new_molecule_by_atom_selection(imol_copy, atom_selection)
-					close_molecule(imol_copy)															
-					
-					buttons = [[" Loop A ", "(replace_fragment(" + str(imol) + ", " + str(imol_fragment_a) + ", \""\
-								+ atom_selection + "\"), set_mol_displayed(" + str(imol_fragment_a) + \
-								", 0), set_mol_displayed(" + str(imol_fragment_b) + ", 0))"],
-							   [" Loop B ", "(replace_fragment(" + str(imol) + ", " + str(imol_fragment_b) + ", \""\
-								+ atom_selection + "\"), set_mol_displayed(" + str(imol_fragment_a) + \
-								", 0), set_mol_displayed(" + str(imol_fragment_b) + ", 0))"]]
-					selected_button = 0
-					if (result_b > result_a):
-						selected_button = 1
+      if (stop_resno < start_resno):
+         res_limits = [stop_resno - 1, start_resno + 1]
+      else:
+         res_limits = [start_resno - 1, stop_resno + 1]
 
-					go_function = "(close_molecule(" + str(imol_fragment_a) + "), close_molecule(" + str(imol_fragment_b) + "))"
-					dialog_box_of_radiobuttons("Select Loop", [200, 100],
-											   buttons, "  Accept  ",
-											   go_function, selected_button)
-										
-				else:
-					# no pygtk take better one
-					if (result_a > result_b):
-						close_molecule(imol_copy)
-					else:
-						atom_selection = "//" + str(min(start_resno, stop_resno) - 1) + \
-										 "-"  + str(max(start_resno, stop_resno) + 1)
-						replace_fragment(imol, imol_copy, atom_selection)
-						close_molecule(imol_copy)
-						
+      if all(map(lambda resno: residue_exists_qm(imol, chain_id, resno,""), res_limits)):
+         # build both ways
+         imol_backwards = copy_molecule(imol)
+         loop_len = abs(start_resno - stop_resno) + 1
+         if (loop_len >= 6):
+            imol_both = copy_molecule(imol)
 
-		else:
-			# either end residue is missing -> single build
-			fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence)
-			
+         # make a backup copy of the original terminal residues
+         atom_selection = "//" + chain_id + "/" + str(min(start_resno, stop_resno) - 1) + \
+                          "-"  + str(max(start_resno, stop_resno) + 1)
+         imol_fragment_backup = new_molecule_by_atom_selection(imol, atom_selection)
+         set_mol_displayed(imol_fragment_backup, 0)
+
+         # build A:
+         fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence)
+         # build B:
+         fit_gap_generic(imol_backwards, chain_id, stop_resno, start_resno, sequence)
+
+         # get the fit result:
+         result_a = low_density_average(imol_map, imol, chain_id, start_resno, stop_resno)
+         result_b = low_density_average(imol_map, imol_backwards, chain_id, start_resno, stop_resno)
+         loop_list = [[imol, result_a], [imol_backwards, result_b]]
+
+         # if longer loop (>=6) build half from both sides
+         if (loop_len >= 6):
+            start_resno1 = min([start_resno, stop_resno])
+            stop_resno2  = max([start_resno, stop_resno])
+            stop_resno1  = start_resno1 + loop_len/2 - 1
+            start_resno2 = stop_resno1 + 1
+            sequence1    = sequence[0:loop_len/2]
+            sequence2    = sequence[loop_len/2:len(sequence)]
+            fit_gap_generic(imol_both, chain_id, start_resno1, stop_resno1, sequence1)
+            fit_gap_generic(imol_both, chain_id, stop_resno2, start_resno2, sequence2)
+            # finally refine the 'gap'; check refinement immediate status
+            immediate_refinement_mode = refinement_immediate_replacement_state()
+            set_refinement_immediate_replacement(1)
+            refine_zone(imol_both, chain_id, stop_resno1 - loop_len/3,
+                                            start_resno2 + loop_len/3, "")
+            accept_regularizement()
+            set_refinement_immediate_replacement(immediate_refinement_mode)
+            result_c = low_density_average(imol_map, imol_both, chain_id, start_resno, stop_resno)
+            loop_list.append([imol_both, result_c])
+
+         #print "BL DEBUG:: fit a, b:", result_a, result_b, result_c
+         cut_off = 0.90
+         # filter out redundant results based on cut-off
+         i = 0
+         while i < (len(loop_list) -1):
+            j = i + 1
+            while j < len(loop_list):
+               if (min(loop_list[i][1], loop_list[j][1]) / max(loop_list[i][1], loop_list[j][1]) > cut_off):
+                  # solutions are identical?! (cut-off 90%)
+                  close_molecule(loop_list[j][0])
+                  loop_list.pop(j)
+               j += 1
+            i += 1
+
+         # different by cut-off -> display both options if pygtk
+         # otherwise use the 'better' one
+         if ('pygtk' in sys.modules.keys()):
+            # have pygtk
+            # we make a fragment for each loop
+            fragment_list = []
+            for i, (imol_loop, result) in enumerate(loop_list):
+               imol_fragment = new_molecule_by_atom_selection(imol_loop, atom_selection)
+               fragment_list.append([imol_fragment, result])
+               set_mol_displayed(imol_fragment, 0)
+               # we close all mols and work with the fragments (except the original one)
+               if (i > 0):
+                  close_molecule(imol_loop)
+
+            buttons = []
+            selected_button = 0
+            max_result = fragment_list[0][1]
+            for i, (imol_fragment, result) in enumerate(fragment_list):
+               label_str   = " Loop " + chr(65 + i) + " "
+               replace_str = "replace_fragment(" + str(imol) + ", " + str(imol_fragment) + \
+                                                 ", \"" + atom_selection + "\"), "
+               #display_ls  = map(lambda (x, y): "set_mol_displayed(" + str(x) + ", 0)", fragment_list)
+
+               #buttons.append([label_str, "(" + replace_str + ', '.join(display_ls) + ")"])
+               buttons.append([label_str, "(" + replace_str + ")"])
+
+               # activate if better result than previous
+               if (i < len(fragment_list) - 1):
+                  if (max_result < fragment_list[i+1][1]):
+                     selected_button = i + 1
+                     max_result = fragment_list[i+1][1]
+
+            fragment_list.append([imol_fragment_backup, -99999.])
+            close_ls    = map(lambda (x, y): "close_molecule(" + str(x) + ")", fragment_list)
+            go_function = "(" + ', '.join(close_ls) + ")"
+            cancel_function = "(delete_residue_range(" + str(imol) + ", \"" + str(chain_id) + \
+                              "\", " + str(min(start_resno, stop_resno)) + \
+                              ", " + str(max(start_resno, stop_resno)) + \
+                              "), replace_fragment(" + str(imol) + ", " + \
+                              str(imol_fragment_backup) + ", \"" + atom_selection + "\"), " + \
+                              ', '.join(close_ls) + ")"
+            
+
+            dialog_box_of_radiobuttons("Select Loop", [200, 100],
+                                       buttons, "  Accept  ",
+                                       go_function, selected_button,
+                                       "  Reject  ", cancel_function)
+
+         else:
+            # no pygtk take best one
+            if (result_a > result_b):
+               close_molecule(imol_copy)
+            else:
+               replace_fragment(imol, imol_copy, atom_selection)
+               close_molecule(imol_copy)
+
+
+      else:
+         # either end residue is missing -> single build
+         fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence)
+
+      set_refine_ramachandran_angles(rama_status)
+      if (backup_mode==1):
+         turn_on_backup(imol)
+
+
 
 # Fit missing loop in protein.
 #
@@ -109,99 +180,95 @@ def fit_gap(imol, chain_id, start_resno, stop_resno, sequence=""):
 #
 def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
 
- import string
- sequence = string.upper(sequence)
+	import string
+	sequence = string.upper(sequence)
 
- if (valid_model_molecule_qm(imol) == 0):
-  print "Molecule number %(a)i is not a valid model molecule" %{"a":imol}
- else: 
-  backup_mode = backup_state(imol)
-  turn_off_backup(imol)
+	if (valid_model_molecule_qm(imol) == 0):
+		print "Molecule number %(a)i is not a valid model molecule" %{"a":imol}
+	else:
 
-  # -----------------------------------------------
-  # Make poly ala
-  # -----------------------------------------------
-  set_residue_selection_flash_frames_number(0)
+		# -----------------------------------------------
+		# Make poly ala
+		# -----------------------------------------------
+		set_residue_selection_flash_frames_number(0)
 
-  immediate_refinement_mode = refinement_immediate_replacement_state()
-#  print " BL DEBUG:: start_resno, stop_resno",start_resno,stop_resno
-  if (stop_resno < start_resno):
-     direction = "backwards"
-  else:
-     direction = "forwards"
+		immediate_refinement_mode = refinement_immediate_replacement_state()
+		#  print " BL DEBUG:: start_resno, stop_resno",start_resno,stop_resno
+		if (stop_resno < start_resno):
+			direction = "backwards"
+		else:
+			direction = "forwards"
 
-  print "direction is ", direction
+		print "direction is ", direction
+
+		set_refinement_immediate_replacement(1)
 	     
-  set_refinement_immediate_replacement(1)
-	     
-  # recur over residues:
-  if direction == "forwards":
-        resno = start_resno - 1
-  else:
-        resno = start_resno + 1
-  for i in range(abs(start_resno - stop_resno) + 1):
-	       
-     print "add-terminal-residue: residue number: ",resno
-     status = add_terminal_residue(imol, chain_id, resno, "ALA", 1)
-     if status:
-        # first do a refinement of what we have 
-        refine_auto_range(imol, chain_id, resno, "")
-        accept_regularizement()
-        if direction == "forwards":
-           resno = resno + 1
-        else:
-           resno = resno - 1
-     else:
-        print "Failure in fit-gap at residue ",resno
+		# recur over residues:
+		if direction == "forwards":
+			resno = start_resno - 1
+		else:
+			resno = start_resno + 1
+		for i in range(abs(start_resno - stop_resno) + 1):
 
-  # -----------------------------------------------
-  # From poly ala to sequence (if given):
-  # -----------------------------------------------
+			print "add-terminal-residue: residue number: ",resno
+			status = add_terminal_residue(imol, chain_id, resno, "ALA", 1)
+			if status:
+				# first do a refinement of what we have 
+				refine_auto_range(imol, chain_id, resno, "")
+				accept_regularizement()
+				if direction == "forwards":
+					resno = resno + 1
+				else:
+					resno = resno - 1
+			else:
+				print "Failure in fit-gap at residue ",resno
 
-  if (not sequence == ""):
-	  print "mutate-and-autofit-residue-range ",imol, chain_id, start_resno,stop_resno, sequence
-          if direction == "forwards":
-              mutate_and_autofit_residue_range(imol, chain_id,
-                                               start_resno, stop_resno,
-                                               sequence)
-          else:
-              mutate_and_autofit_residue_range(imol, chain_id,
-                                               stop_resno, start_resno,
-                                               sequence)
+		# -----------------------------------------------
+		# From poly ala to sequence (if given):
+		# -----------------------------------------------
 
-  # -----------------------------------------------
-  # Refine new zone
-  # -----------------------------------------------
+		if (not sequence == ""):
+			print "mutate-and-autofit-residue-range ",imol, chain_id, start_resno,stop_resno, sequence
+			if direction == "forwards":
+				mutate_and_autofit_residue_range(imol, chain_id,
+															start_resno, stop_resno,
+															sequence)
+			else:
+				mutate_and_autofit_residue_range(imol, chain_id,
+															stop_resno, start_resno,
+															sequence)
 
-  if residue_exists_qm(imol,chain_id,start_resno - 1,""):
-         print "Test finds"
-  else:
-         print "Test: not there"
+		# -----------------------------------------------
+		# Refine new zone
+		# -----------------------------------------------
 
-  if residue_exists_qm(imol,chain_id,start_resno - 1,""):
-         low_end = start_resno - 1
-  else:
-         low_end = start_resno
-  if residue_exists_qm(imol,chain_id,stop_resno + 1,""):
-         high_end = stop_resno + 1
-  else:
-         high_end = stop_resno
-  if direction == "forwards":
-         final_zone = [low_end,high_end]
-  else:
-         final_zone = [high_end,low_end]
+		if residue_exists_qm(imol,chain_id,start_resno - 1,""):
+			print "Test finds"
+		else:
+			print "Test: not there"
 
- # we also need to check that start-resno-1 exists and
- # stop-resno+1 exists.
+		if residue_exists_qm(imol,chain_id,start_resno - 1,""):
+			low_end = start_resno - 1
+		else:
+			low_end = start_resno
+		if residue_exists_qm(imol,chain_id,stop_resno + 1,""):
+			high_end = stop_resno + 1
+		else:
+			high_end = stop_resno
+		if direction == "forwards":
+			final_zone = [low_end,high_end]
+		else:
+			final_zone = [high_end,low_end]
 
-  refine_zone(imol,chain_id,final_zone[0],final_zone[1],"")
-	# set the refinement dialog flag back to what it was:
-  if immediate_refinement_mode == 0:
-        set_refinement_immediate_replacement(0)
-  accept_regularizement()
+		# we also need to check that start-resno-1 exists and
+		# stop-resno+1 exists.
 
-  if (backup_mode==1):
-     turn_on_backup(imol)
+		refine_zone(imol,chain_id,final_zone[0],final_zone[1],"")
+		# set the refinement dialog flag back to what it was:
+		if immediate_refinement_mode == 0:
+			set_refinement_immediate_replacement(0)
+			accept_regularizement()
+
 
 
 # For Kay Diederichs, autofit without a map (find rotamer with best

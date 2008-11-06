@@ -2872,6 +2872,11 @@ on_mutate_sequence_do_autofit_checkbutton_toggled
                                         gpointer         user_data);
 
 void
+on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_check_waters_b_factor_entry_active_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);

@@ -428,14 +428,25 @@ wrapped_create_run_refmac_dialog() {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
       gtk_widget_hide(labels);
     }
+    GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
+    GtkWidget *tls_check_button = lookup_widget(window, "run_refmac_tls_checkbutton");
+    GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
+    GtkWidget *sad_check_button = lookup_widget(window, "run_refmac_sad_checkbutton");
+    GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
+    if (refmac_use_tls_state()) {
+       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), TRUE);
+    } else {
+       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), FALSE);
+    }
+    gtk_widget_show(extra_options);
+    gtk_widget_hide(twin_check_button);
+    gtk_widget_hide(sad_check_button);
+
     if (refmac_runs_with_nolabels() >= 2) {
       /* add the tls, twin and sad buttons */
-      GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
+       gtk_widget_show(twin_check_button);
+       gtk_widget_show(sad_check_button);
       /* update the check buttons */
-      GtkWidget *tls_check_button = lookup_widget(window, "run_refmac_tls_checkbutton");
-      GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
-      GtkWidget *sad_check_button = lookup_widget(window, "run_refmac_sad_checkbutton");
-      GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
       GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
       store_refmac_mtz_file_label(mtz_file_label);
       /* set the filename if there */
@@ -443,11 +454,6 @@ wrapped_create_run_refmac_dialog() {
       if (mtz_filename) {
 	gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
 	fill_option_menu_with_refmac_file_labels_options(optionmenu);
-      }
-      if (refmac_use_tls_state()) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), TRUE);
-      } else {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tls_check_button), FALSE);
       }
       if (refmac_use_twin_state()) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
@@ -469,7 +475,6 @@ wrapped_create_run_refmac_dialog() {
 	gtk_widget_hide(sad_extras);
       }
 
-      gtk_widget_show(extra_options);
     }
   } else {
     gtk_widget_show(labels);

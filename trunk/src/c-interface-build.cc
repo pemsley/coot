@@ -5012,11 +5012,14 @@ GtkWidget *wrapped_fit_loop_dialog() {
    GtkWidget *mutate_ok_button   = lookup_widget(w, "mutate_sequence_ok_button");
    GtkWidget *fit_loop_ok_button = lookup_widget(w, "fit_loop_ok_button");
    GtkWidget *checkbutton        = lookup_widget(w, "mutate_sequence_do_autofit_checkbutton");
+   GtkWidget *rama_checkbutton   = lookup_widget(w, "mutate_sequence_use_ramachandran_restraints_checkbutton");
    
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
    gtk_widget_hide(mutate_ok_button);
    gtk_widget_hide(checkbutton);
    gtk_widget_show(fit_loop_ok_button);
+   gtk_widget_show(rama_checkbutton);
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_checkbutton), TRUE);
 
    gtk_widget_show(method_frame);
 
@@ -5081,7 +5084,12 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 
    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       autofit_flag = 1;
-      
+
+   // use Ramachandran restraints?
+   GtkWidget *rama_checkbutton   = lookup_widget(dialog, "mutate_sequence_use_ramachandran_restraints_checkbutton");
+   int use_rama_restraints = 0;
+   if (GTK_TOGGLE_BUTTON(rama_checkbutton)->active) 
+      use_rama_restraints = 1;
 
    if (imol>= 0) { // redundant
       if (is_valid_model_molecule(imol)) {
@@ -5134,6 +5142,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
                res1 = res2;
                res2 = t;
             }
+
 	    std::vector<std::string> cmd_strings;
 	    cmd_strings.push_back("fit-gap");
 	    cmd_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -5141,6 +5150,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	    cmd_strings.push_back(graphics_info_t::int_to_string(res1));
 	    cmd_strings.push_back(graphics_info_t::int_to_string(res2));
 	    cmd_strings.push_back(single_quote(sequence));
+	    cmd_strings.push_back(graphics_info_t::int_to_string(use_rama_restraints));
 	    std::string cmd = g.state_command(cmd_strings, state_lang);
 
 #ifdef USE_GUILE
