@@ -870,7 +870,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 			   at_b = scm_cons(scm_float2num(at->u33), at_b);
 			   at_b = scm_cons(scm_float2num(at->u12), at_b);
 			   at_b = scm_cons(scm_float2num(at->u13), at_b);
-			   at_b = scm_cons(scm_float2num(at->u12), at_b);
+			   at_b = scm_cons(scm_float2num(at->u23), at_b);
 			   at_b = scm_reverse(at_b);
 			}
 			SCM compound_name = scm_list_2(at_name, at_altconf);
@@ -920,7 +920,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                      int n_atoms = residue_p->GetNumberOfAtoms();
 		     PyObject *at_info = Py_False;
 		     PyObject *at_pos;
-		     PyObject *at_occ, *at_b, *at_ele, *at_name, *at_altconf;
+		     PyObject *at_occ, *at_b, *at_biso, *at_ele, *at_name, *at_altconf;
 		     PyObject *at_x, *at_y, *at_z;
 		     PyObject *compound_name;
 		     PyObject *compound_attrib;
@@ -932,15 +932,27 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         at_y  = PyFloat_FromDouble(at->y);
                         at_z  = PyFloat_FromDouble(at->z);
                         at_pos = PyList_New(3);
-                        PyList_SetItem(at_pos,0,at_x);
-                        PyList_SetItem(at_pos,1,at_y);
-                        PyList_SetItem(at_pos,2,at_z);
+                        PyList_SetItem(at_pos, 0, at_x);
+                        PyList_SetItem(at_pos, 1, at_y);
+                        PyList_SetItem(at_pos, 2, at_z);
 
                         at_occ = PyFloat_FromDouble(at->occupancy);
-                        at_b   = PyFloat_FromDouble(at->tempFactor);
+                        at_biso= PyFloat_FromDouble(at->tempFactor);
                         at_ele = PyString_FromString(at->element);
                         at_name = PyString_FromString(at->name);
                         at_altconf = PyString_FromString(at->altLoc);
+
+			at_b = at_biso;
+			if (at->WhatIsSet & ASET_Anis_tFac) {
+			   at_b = PyList_New(0);
+			   PyList_Append(at_b, at_biso);
+			   PyList_Append(at_b, PyFloat_FromDouble(at->u11));
+			   PyList_Append(at_b, PyFloat_FromDouble(at->u22));
+			   PyList_Append(at_b, PyFloat_FromDouble(at->u33));
+			   PyList_Append(at_b, PyFloat_FromDouble(at->u12));
+			   PyList_Append(at_b, PyFloat_FromDouble(at->u13));
+			   PyList_Append(at_b, PyFloat_FromDouble(at->u23));
+			}
 
                         compound_name = PyList_New(2);
                         PyList_SetItem(compound_name, 0 ,at_name);
@@ -2172,7 +2184,7 @@ void add_to_history(const std::vector<std::string> &command_strings) {
       // std::string esc = "esc";
       if (g.console_display_commands.hilight_flag) {
 	 // std::cout << esc << "[34m";
-	 std::cout << esc;
+	 std::cout << esc << "[1m";
       } else {
 	 std::cout << "INFO:: Command: ";
       }

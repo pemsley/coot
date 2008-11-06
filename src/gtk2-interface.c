@@ -14769,6 +14769,7 @@ create_mutate_sequence_dialog (void)
   GtkWidget *mutate_molecule_sequence_text;
   GtkWidget *label187;
   GtkWidget *mutate_sequence_do_autofit_checkbutton;
+  GtkWidget *mutate_sequence_use_ramachandran_restraints_checkbutton;
   GtkWidget *dialog_action_area58;
   GtkWidget *hbox92;
   GtkWidget *mutate_sequence_ok_button;
@@ -14902,6 +14903,11 @@ create_mutate_sequence_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox116), mutate_sequence_do_autofit_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (mutate_sequence_do_autofit_checkbutton), 4);
 
+  mutate_sequence_use_ramachandran_restraints_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Ramachandran restraints to fit the loop?"));
+  gtk_box_pack_start (GTK_BOX (vbox116), mutate_sequence_use_ramachandran_restraints_checkbutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (mutate_sequence_use_ramachandran_restraints_checkbutton), 4);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mutate_sequence_use_ramachandran_restraints_checkbutton), TRUE);
+
   dialog_action_area58 = GTK_DIALOG (mutate_sequence_dialog)->action_area;
   gtk_widget_show (dialog_action_area58);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area58), GTK_BUTTONBOX_END);
@@ -14975,6 +14981,9 @@ create_mutate_sequence_dialog (void)
   g_signal_connect ((gpointer) mutate_sequence_do_autofit_checkbutton, "toggled",
                     G_CALLBACK (on_mutate_sequence_do_autofit_checkbutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) mutate_sequence_use_ramachandran_restraints_checkbutton, "toggled",
+                    G_CALLBACK (on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) mutate_sequence_ok_button, "clicked",
                     G_CALLBACK (on_mutate_sequence_ok_button_clicked),
                     NULL);
@@ -15010,6 +15019,7 @@ create_mutate_sequence_dialog (void)
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_sequence_text, "mutate_molecule_sequence_text");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label187, "label187");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_do_autofit_checkbutton, "mutate_sequence_do_autofit_checkbutton");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_use_ramachandran_restraints_checkbutton, "mutate_sequence_use_ramachandran_restraints_checkbutton");
   GLADE_HOOKUP_OBJECT_NO_REF (mutate_sequence_dialog, dialog_action_area58, "dialog_action_area58");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox92, "hbox92");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_ok_button, "mutate_sequence_ok_button");

@@ -26,7 +26,7 @@
 ;; (fit-gap 0 "A"  23 26)   ; we'll build forwards
 ;; (fit-gap 0 "A"  26 23)   ; we'll build backwards
 ;;
-(define (fit-gap imol chain-id start-resno stop-resno . sequence)
+(define (fit-gap imol chain-id start-resno stop-resno . sequence+rama)
 
     (define stop-now?
       (lambda (resno)
@@ -44,9 +44,13 @@
 
 	(begin 
 
-	  (let ((backup-mode (backup-state imol)))
+	  (let ((backup-mode (backup-state imol))
+		(sequence (list-head sequence+rama 1))
+		(use-rama-restraints (car (last-pair sequence+rama)))
+		(rama-status (refine-ramachandran-angles-state)))
 	    (make-backup imol)
 	    (turn-off-backup imol)
+	    (set-refine-ramachandran-angles use-rama-restraints)
 
     	     ;; -----------------------------------------------
 	     ;; Make poly ala
@@ -127,7 +131,8 @@
 		    (set-refinement-immediate-replacement 0))
 		(accept-regularizement)))
 	    (if (= backup-mode 1)
-		(turn-on-backup imol))))))
+		(turn-on-backup imol))
+	    (set-refine-ramachandran-angles rama-status)))))
 
 
        

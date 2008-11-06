@@ -206,7 +206,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
            else:
                std_lines.append("NCYC " + str(force_n_cycles))
     # TLS?
-    if (refmac_use_tls_state() and (refmac_runs_with_nolabels >= 2)):
+    if (refmac_use_tls_state() and (refmac_runs_with_nolabels() >= 1)):
         tls_string = "REFI TLSC 5"
         std_lines.append(tls_string)
 

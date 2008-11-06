@@ -192,3 +192,32 @@ class ShelxTestFunctions(unittest.TestCase):
 
         self.failIf(valid_model_molecule_qm(imol_insulin_res))
         self.failIf(valid_map_molecule_qm(imol_insulin_map))
+
+
+    def test09_0(self):
+        """Aniso Bs in P21"""
+
+        from types import ListType
+
+        def aniso_b_from_atom(atom):
+            occ_etc = atom[1]
+            return occ_etc[1]
+
+        imol = unittest_pdb("horma-p21.res")
+        write_shelx_ins_file(imol, "new-horma.ins")
+        imol_2 = read_pdb("new-horma.ins")
+        at_1 = get_atom(imol   , "A", 4, " N1 ")
+        at_2 = get_atom(imol_2 , "A", 4, " N1 ")
+        b_1  = aniso_b_from_atom(at_1)
+        b_2  = aniso_b_from_atom(at_2)
+
+        print "b_1:", b_1
+        print "b_2:", b_2
+
+        self.failUnless(type(b_1) is ListType)
+        self.failUnless(type(b_2) is ListType)
+
+        map(lambda x, y: self.failUnlessAlmostEqual(x, y), b_1, b_2)
+        
+
+        

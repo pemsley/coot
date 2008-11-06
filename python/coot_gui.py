@@ -2010,14 +2010,22 @@ def dialog_box_of_buttons_with_widget(window_name, geometry, buttons, extra_widg
 #
 def dialog_box_of_radiobuttons(window_name, geometry, buttons,
                                go_button_label, go_button_function,
-                               selected_button = 0):
-
+                               selected_button = 0,
+                               cancel_button_label = "",
+                               cancel_function = False):
+	
    def go_function_event(widget, button_ls):
       eval(go_button_function)
-            
       window.destroy()
       return False
 
+   def cancel_function_cb(widget):
+      print "BL DEBUG:: just for the sake"
+      if (cancel_function):
+         eval(cancel_function)
+      window.destroy()
+      return False
+	
    # main line
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    scrolled_win = gtk.ScrolledWindow()
@@ -2053,8 +2061,14 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
 
    outside_vbox.set_border_width(2)
    go_button     = gtk.Button(go_button_label)
-   outside_vbox.pack_end(go_button, False, False, 2)
+   outside_vbox.pack_start(button_hbox, False, False, 2)
+   button_hbox.pack_start(go_button, True, True, 6)
    go_button.connect("clicked", go_function_event, button_ls)
+   if (cancel_button_label):
+      cancel_button = gtk.Button(cancel_button_label)
+      button_hbox.pack_start(cancel_button, True, True, 6)
+      cancel_button.connect("clicked", cancel_function_cb)
+		
    # switch on the first or selected button
    # somehow I need to emit the toggled signal too (shouldnt have to!?)
    button_ls[selected_button].set_active(True)
@@ -3474,11 +3488,18 @@ def run_python_thread(function, *args):
    import threading
    
    class MyThread(threading.Thread):
+
+      def __init__(self):
+         threading.Thread.__init__(self)
       def run(self):
+         print "BL DEBUG:: now run thread"
          #python_return = function(*args)
          function(*args)
 
+#   gtk.gdk.threads_enter()
    MyThread().start()
+   gtk.gdk.threads_leave()
+   #gtk.main_iteration()
    
 
 # let the c++ part of mapview know that this file was loaded:
