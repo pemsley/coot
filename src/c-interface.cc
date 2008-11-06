@@ -1200,6 +1200,7 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
    const char *phi_col_diff = graphics_info_t::auto_read_MTZ_PHDELWT_col.c_str();
    int imol1, imol2;
    
+   // first try refmac map
    imol1 = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
 							  f_col,
 							  phi_col,
@@ -1245,6 +1246,8 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
       s += phi_col_diff;
       s += " in that mtz file\n";
    }
+
+   // now try phenix.refine map
    if (imol1<0 || imol2 <0) {
 
       imol1 = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
@@ -1278,12 +1281,29 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
 							     0); //   float high_reso_limit
    
 
-      if (imol1<0 || imol2 <0) {
-	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
-	 gtk_widget_show(w);
-      }
    }
    
+   if (imol1<0 || imol2 <0) {
+
+      // now try various other possbilities
+      char col_names[][2][32] = { {"FWT","PHWT"},
+				  {"FDM","PHIDM"},
+				  {"parrot.F_phi.F","parrot.F_phi.phi"},
+				  {"pirate.F_phi.F","pirate.F_phi.phi"} };
+      std::vector<int> imols;
+      for ( int col = 0; col < sizeof(col_names)/sizeof(col_names[0]); col++ ) {
+	 int imol = make_and_draw_map( mtz_file_name, col_names[col][0], col_names[col][1], "", 0, 0 );
+	 if ( imol >= 0 ) imols.push_back( imol );
+      }
+      if ( imols.size() == 0 ) {
+	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
+         gtk_widget_show(w);
+      } else {
+	 imol1 = imols.front();
+	 imol2 = imols.back();
+      }
+   }
+
    // we like the 2fo-fc map to be the scrolled one after autoreading,
    if (imol1 >= 0) { 
       graphics_info_t g;
