@@ -542,6 +542,15 @@ if (have_coot_python):
        lambda func: shelx_ref_func())
 
 
+     add_simple_coot_menu_menuitem(
+       submenu_refine,
+       "Read REFMAC logfile...",
+       lambda func: generic_chooser_and_file_selector("Read Refmac log file",
+                       valid_model_molecule_qm, "Logfile name: ", "",
+                       lambda imol, text: read_refmac_log(imol, text)))
+                       
+
+
      # An example with a submenu:
      #
      submenu = gtk.Menu()
