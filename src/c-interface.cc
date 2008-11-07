@@ -1191,128 +1191,78 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 
 
 int auto_read_make_and_draw_maps(const char *mtz_file_name) {
+   // list of standard column names
+   const char coldefs[][40] = { "+FWT,PHWT,",
+				"-DELFWT,PHDELWT,",
+				"+2FOFCWT,PH2FOFCWT,",
+				"-FOFCWT,PHFOFCWT,",
+				"+FDM,PHIDM,",
+				"+parrot.F_phi.F,parrot.F_phi.phi,",
+				"+pirate.F_phi.F,pirate.F_phi.phi," };
+   const int nc = sizeof(coldefs)/sizeof(coldefs[0]);
 
-   const char *f_col   = graphics_info_t::auto_read_MTZ_FWT_col.c_str();
-   const char *phi_col = graphics_info_t::auto_read_MTZ_PHWT_col.c_str();
-   const char *weight_col = "";
-   
-   const char *f_col_diff   = graphics_info_t::auto_read_MTZ_DELFWT_col.c_str();
-   const char *phi_col_diff = graphics_info_t::auto_read_MTZ_PHDELWT_col.c_str();
-   int imol1, imol2;
-   
-   // first try refmac map
-   imol1 = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
-							  f_col,
-							  phi_col,
-							  weight_col,
-							  0, 0, //    use_weights,  is_diff_map,
-							  0,  //   short int have_refmac_params,
-							  "", //   const char *fobs_col,
-							  "", //   const char *sigfobs_col,
-							  "", //   const char *r_free_col,
-							  0,  //   short int sensible_f_free_col,
-							  0,  //   short int is_anomalous_flag,
-							  0,  //   short int use_reso_limits,
-							  0,  //   float low_reso_limit,
-							  0); //   float high_reso_limit
-   
-   imol2 = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
-							  f_col_diff,
-							  phi_col_diff,
-							  weight_col,
-							  0, 1, //    use_weights,  is_diff_map,
-							  0,  //   short int have_refmac_params,
-							  "", //   const char *fobs_col,
-							  "", //   const char *sigfobs_col,
-							  "", //   const char *r_free_col,
-							  0,  //   short int sensible_f_free_col,
-							  0,  //   short int is_anomalous_flag,
-							  0,  //   short int use_reso_limits,
-							  0,  //   float low_reso_limit,
-							  0); //   float high_reso_limit
-   
-   std::string s;
-   if (imol1 < 0) { 
-      s += "Failed to find columns ";
-      s += graphics_info_t::auto_read_MTZ_FWT_col;
-      s += " and ";
-      s += graphics_info_t::auto_read_MTZ_PHWT_col;
-      s += "in that mtz file\n";
-   }
-   if (imol2 < 0) { 
-      s += "Failed to find columns ";
-      s += f_col_diff;
-      s += " and ";
-      s += phi_col_diff;
-      s += " in that mtz file\n";
+   // make a list of column names to try: F, phase, and difference map flag
+   std::vector<std::string> cols_f(2), cols_p(2), cols_w(2), cols_d(2);
+   cols_f[0] = graphics_info_t::auto_read_MTZ_FWT_col;
+   cols_p[0] = graphics_info_t::auto_read_MTZ_PHWT_col;
+   cols_d[0] = "+";
+   cols_f[1] = graphics_info_t::auto_read_MTZ_DELFWT_col;
+   cols_p[1] = graphics_info_t::auto_read_MTZ_PHDELWT_col;
+   cols_d[1] = "-";
+   for ( int ic = 0; ic < nc; ic++ ) {
+     std::string s( coldefs[ic] );
+     int c1 = s.find( "," );
+     int c2 = s.find( ",", c1+1 );
+     std::string f = s.substr(1,c1-1);
+     std::string p = s.substr(c1+1,c2-c1-1);
+     std::string w = s.substr(c2+1);
+     std::string d = s.substr(0,1);
+     if ( f != cols_f[0] && f != cols_f[1] ) {
+       cols_f.push_back(f);
+       cols_p.push_back(p);
+       cols_w.push_back(w);
+       cols_d.push_back(d);
+     }
    }
 
-   // now try phenix.refine map
-   if (imol1<0 || imol2 <0) {
-
-      imol1 = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
-							     "2FOFCWT",
-							     "PH2FOFCWT",
-							     weight_col,
-							     0, 0, //    use_weights,  is_diff_map,
-							     0,  //   short int have_refmac_params,
-							     "", //   const char *fobs_col,
-							     "", //   const char *sigfobs_col,
-							     "", //   const char *r_free_col,
-							     0,  //   short int sensible_f_free_col,
-							     0,  //   short int is_anomalous_flag,
-							     0,  //   short int use_reso_limits,
-							     0,  //   float low_reso_limit,
-							     0); //   float high_reso_limit
-      
-      imol2 = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
-							     "FOFCWT",
-							     "PHFOFCWT",
-							     weight_col,
-							     0, 1, //    use_weights,  is_diff_map,
-							     0,  //   short int have_refmac_params,
-							     "", //   const char *fobs_col,
-							     "", //   const char *sigfobs_col,
-							     "", //   const char *r_free_col,
-							     0,  //   short int sensible_f_free_col,
-							     0,  //   short int is_anomalous_flag,
-							     0,  //   short int use_reso_limits,
-							     0,  //   float low_reso_limit,
-							     0); //   float high_reso_limit
-   
-
-   }
-   
-   if (imol1<0 || imol2 <0) {
-
-      // now try various other possbilities
-      char col_names[][2][32] = { {"FWT","PHWT"},
-				  {"FDM","PHIDM"},
-				  {"parrot.F_phi.F","parrot.F_phi.phi"},
-				  {"pirate.F_phi.F","pirate.F_phi.phi"} };
-      std::vector<int> imols;
-      for ( int col = 0; col < sizeof(col_names)/sizeof(col_names[0]); col++ ) {
-	 int imol = make_and_draw_map( mtz_file_name, col_names[col][0], col_names[col][1], "", 0, 0 );
-	 if ( imol >= 0 ) imols.push_back( imol );
-      }
-      if ( imols.size() == 0 ) {
-	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
-         gtk_widget_show(w);
-      } else {
-	 imol1 = imols.front();
-	 imol2 = imols.back();
-      }
+   // try each set of columns in turn
+   std::vector<int> imols;
+   for ( int ic = 0; ic < cols_f.size(); ic++ ) {
+      int imol = -1;
+      int w = (cols_w[ic] != "" ) ? 1 : 0;
+      int d = (cols_d[ic] != "+") ? 1 : 0;
+      if ( valid_labels( mtz_file_name, cols_f[ic].c_str(),
+			 cols_p[ic].c_str(), cols_w[ic].c_str(), w ) )
+	 imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
+	    cols_f[ic].c_str(), cols_p[ic].c_str(), cols_w[ic].c_str(),
+	    w, d,               //    use_weights,  is_diff_map,
+	    0,                  //   short int have_refmac_params,
+	    "",                 //   const char *fobs_col,
+	    "",                 //   const char *sigfobs_col,
+	    "",                 //   const char *r_free_col,
+	    0,                  //   short int sensible_f_free_col,
+	    0,                  //   short int is_anomalous_flag,
+	    0,                  //   short int use_reso_limits,
+	    0,                  //   float low_reso_limit,
+	    0);                 //   float high_reso_limit
+      if ( imol >= 0 ) imols.push_back( imol );
    }
 
-   // we like the 2fo-fc map to be the scrolled one after autoreading,
-   if (imol1 >= 0) { 
+   int imol1 = -1;
+   int imol2 = -1;
+   if ( imols.size() > 0 ) {
+      imol1 = imols.front();
+      imol2 = imols.back();
       graphics_info_t g;
       g.scroll_wheel_map = imol1;
       g.activate_scroll_radio_button_in_display_manager(imol1);
+   } else {
+      GtkWidget *w = wrapped_nothing_bad_dialog("Failed to find any suitable F/phi columns in the MTZ file");
+      gtk_widget_show(w);
    }
    
    return imol2; // return to callbacks.c (currently ignored)
-} 
+}
 
 int auto_read_do_difference_map_too_state() {
 
