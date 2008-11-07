@@ -31,10 +31,16 @@ namespace coot {
 	 chain_id = chain_id_in;
       }
       void add_deletion(const residue_spec_t &res_spec) {
-	 deletions.push_back(res_spec);
+	 residue_spec_t r = res_spec;
+	 r.chain = chain_id; // in case it was not set by the function
+		             //  that called add_insertion.
+	 deletions.push_back(r);
       }
       void add_mutation(const residue_spec_t &res_spec, const std::string &target_type) {
-	 mutations.push_back(std::pair<residue_spec_t, std::string> (res_spec, target_type));
+	 residue_spec_t r = res_spec;
+	 r.chain = chain_id; // in case it was not set by the function
+		             //  that called add_insertion.
+	 mutations.push_back(std::pair<residue_spec_t, std::string> (r, target_type));
       }
       void add_insertion(const residue_spec_t &res_spec, const std::string &target_type) {
 	 residue_spec_t r = res_spec;

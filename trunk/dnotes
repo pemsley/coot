@@ -2,6 +2,8 @@
 
 Things to do for 0.5.1
 
+  o Edit the Coot page on the CCP4 wiki: put a link into Kay's page.
+
   o Fix Frank's problem of Keybindings when using F8 bin with python
     and scheme keybindings.
 
@@ -10,6 +12,10 @@ Things to do for 0.5.1
   o Pucker of ideal DNA need to be fixed.  Needs better reference nucleotide.
 
   o CA Zone -> mainchain on 4 CA position - needs better feedback.
+
+  o test that manual-ncs-ghosts averages all the maps for NCS > 2.
+    Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
+    that'll be fun).
 
   o Fix up clipper (21ac)
 

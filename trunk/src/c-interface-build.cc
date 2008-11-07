@@ -2850,7 +2850,7 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		std::string sigfobs_col;
 
 		int icol;
-		int sensible_r_free_col;
+		int sensible_r_free_col = 0;
 		std::string fiobs_col;
 		std::string sigfiobs_col;
 		std::string r_free_col;

@@ -496,7 +496,9 @@ function setup_ccp4 {
 function my_exit { 
     
    echo fail-build > $LOGS/$build_type-test-status
-   rm $LOGS/$build_type-build-status
+   if [ -e $LOGS/$build_type-build-status ] ; then
+      rm $LOGS/$build_type-build-status
+   fi
    exit $1
 }
 
@@ -932,7 +934,7 @@ fi
 if [ ! -e "$AUTOBUILD_BUILD" ] ; then
    mkdir "$AUTOBUILD_BUILD" 
    if [ $? -ne 0 ] ; then
-	echo mkdir "$AUTOBUILD_BUILD" failed.
+	echo mkdir of the AUTOBUILD_BUILD \(i.e. "$AUTOBUILD_BUILD"\) failed.
         my_exit 2
    fi
 fi
