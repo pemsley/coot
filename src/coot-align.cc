@@ -129,9 +129,20 @@ coot::chain_mutation_info_container_t::get_residue_type(const residue_spec_t &sp
       if (spec == single_insertions[ispec].first) {
 	 r = single_insertions[ispec].second;
 	 found = 1;
+	 break;
       }
    }
-   if (found == 0)
+   if (found == 0) {
+      // try a mutation then
+      for (unsigned int imut=0; imut<mutations.size(); imut++) {
+	 if (spec == mutations[imut].first) {
+	    r = mutations[imut].second;
+	    found = 1;
+	    break;
+	 } 
+      }
+   }
+   if (found == 0) 
       throw std::runtime_error("no alignment match");
 
    return r;

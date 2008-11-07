@@ -103,7 +103,7 @@ c_inner_main(void *closure, int argc, char** argv) {
   gchar* full_extra_load_path_cmd; 
   char *pre_str = "(set! %load-path (cons \""; 
   char *post_str = "\" %load-path))"; 
-  SCM handler; 
+  SCM handler = SCM_BOOL_F;
   SCM thunk; 
   char *thunk_str; 
   char *tmp_str;
