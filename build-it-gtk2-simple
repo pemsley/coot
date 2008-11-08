@@ -879,9 +879,19 @@ else
 	awk -vversion=$w 'BEGIN{ exit (version+0 >= 3.3)}'
         wvers=$?
         if [ $wvers = 0 ] ; then
-	need_clipper_contrib_patch=true
+	   need_clipper_contrib_patch=true
         fi
 fi
+
+# do we actually have g++ (or c++?)
+if ! g++ --version ; then
+   if ! c++ --version ; then
+      echo no c++/g++ compiler.  Exit now
+      my_exit 2
+   fi
+fi
+
+
 
 
 # so now we have v and w set to something.  We 
