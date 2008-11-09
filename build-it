@@ -1734,7 +1734,6 @@ if test -n "$build_clipper" ; then
     echo . "         clipper                                                                  "
     echo . -----------------------------------------------------------------------------------
     cd $ccp4_libs_dir/lib/clipper
-    patch -p0 < ${AUTOBUILD_SOURCES}/clipper-new-ccp4-install.patch
     if [ "$need_clipper_contrib_patch" = true ] ; then
        patch -p0 < ${AUTOBUILD_SOURCES}/clipper_test_contrib.cpp.patch
     fi
@@ -1744,7 +1743,6 @@ if test -n "$build_clipper" ; then
 	--with-ccp4=$install_top_dir \
 	--enable-shared  \
 	--enable-mmdb    \
-	--enable-mmdbold \
 	--enable-cif     \
 	--enable-ccp4    \
 	--enable-minimol \
