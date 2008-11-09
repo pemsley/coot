@@ -241,8 +241,11 @@
 # 4.24 20081007 Back to version 2.5.1 that compiles on bragg3, 2.5.2 does not 
 #               (port 8080 already in use).
 # 4.25 20081008 Migrate to CCP4 version 6.0.2 for testing in York.
-# 2.26 20081014 Use Python 2.6   
-script_version=4.26
+# 4.26 20081014 Use Python 2.6   
+# 4.27 20081105 Adjust clipper configuration.  Remove clipper-new-ccp4-install 
+#               usage, it is no longer needed, it seems.  Remove configure argument
+#               --enable-mmdbold
+script_version=4.27
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1933,7 +1936,6 @@ if test -n "$build_clipper" ; then
     echo . "         clipper                                                            "
     echo . ------------------------------------------------------------------------------
     cd $ccp4_libs_dir/lib/clipper
-    patch -p0 < ${AUTOBUILD_SOURCES}/clipper-new-ccp4-install.patch
     if [ "$need_clipper_contrib_patch" = true ] ; then
        patch -p0 < ${AUTOBUILD_SOURCES}/clipper_test_contrib.cpp.patch
     fi
@@ -1943,7 +1945,6 @@ if test -n "$build_clipper" ; then
 	--with-ccp4=$install_top_dir \
 	--enable-shared  \
 	--enable-mmdb    \
-	--enable-mmdbold \
 	--enable-cif     \
 	--enable-ccp4    \
 	--enable-minimol \
