@@ -304,6 +304,8 @@
    o Make the N and M zoom keys work with multiframes, rather than a
      step/jump in zoom.
 
+   o RNA rotamer analysis "What is the rotamer of this suite here?"
+
 ------
 
    Release 0.9, Facelift-release [Sept 2009]
