@@ -158,7 +158,7 @@
 ;; 
 (define (mutate-and-auto-fit residue-number chain-id mol mol-for-map residue-type)
 
-  (mutate mol chain-id residue-number ""residue-type)
+  (mutate mol chain-id residue-number "" residue-type)
   (auto-fit-best-rotamer residue-number "" "" chain-id mol mol-for-map 0 0.5))
 
 ;; a short-hand for mutate-and-auto-fit
