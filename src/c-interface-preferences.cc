@@ -535,9 +535,25 @@ void update_preference_gui() {
       fval3 = g.preferences_internal[i].fvalue3;  // blue
       colour_button = lookup_widget(dialog, "preferences_font_colorbutton");
       GdkColor font_colour;
-      font_colour.red = (guint)(fval1 * 65535);
-      font_colour.green = (guint)(fval2 * 65535);
-      font_colour.blue = (guint)(fval3 * 65535);	
+      if (fval1 >= 0.999 && 
+	  fval2 >= 0.799 && fval2 <= 0.801 &&
+	  fval3 >= 0.799 && fval3 <= 0.801) {
+	// default
+	w = lookup_widget(dialog, "preferences_font_colour_default_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	font_colour.red   = (guint)(1.0 * 65535);
+	font_colour.green = (guint)(0.8 * 65535);
+	font_colour.blue  = (guint)(0.8 * 65535);
+      } else {
+	// other colour
+#if (GTK_MAJOR_VERSION > 1)
+	w = lookup_widget(dialog, "preferences_font_colour_own_radiobutton");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	font_colour.red   = (guint)(fval1 * 65535);
+	font_colour.green = (guint)(fval2 * 65535);
+	font_colour.blue  = (guint)(fval3 * 65535);
+#endif
+      }
 #if (GTK_MAJOR_VERSION > 1)
       gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &font_colour);
 #endif

@@ -2511,6 +2511,16 @@ on_preferences_font_size_combobox_changed
                                         gpointer         user_data);
 
 void
+on_preferences_font_colour_default_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_preferences_font_colour_own_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_preferences_font_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data);

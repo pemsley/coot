@@ -7254,20 +7254,57 @@ on_preferences_font_size_combobox_changed
   set_font_size(ival);
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
+void
+on_preferences_font_colour_default_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   if (togglebutton->active) {
+      preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, 1.0, 0.8, 0.8);
+      set_font_colour(1.0, 0.8, 0.8);
+   }
+}
+
+
+void
+on_preferences_font_colour_own_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+#if (GTK_MAJOR_VERSION > 1)
+  GtkWidget *w;
+  GdkColor font_colour;
+  float fval1;
+  float fval2;
+  float fval3;
+  w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_colorbutton");
+  gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &font_colour);
+  fval1 = (float)font_colour.red / 65535;
+  fval2 = (float)font_colour.green / 65535;
+  fval3 = (float)font_colour.blue / 65535;
+    
+  preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
+  set_font_colour(fval1, fval2, fval3);
+#endif /* GTK_MAJOR_VERSION */
+}
+
+
+#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_font_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data)
 {
-  GdkColor bg_colour;
+  GdkColor font_colour;
   float fval1;
   float fval2;
   float fval3;
-  gtk_color_button_get_color(colorbutton, &bg_colour);
-  fval1 = (float)bg_colour.red / 65535;
-  fval2 = (float)bg_colour.green / 65535;
-  fval3 = (float)bg_colour.blue / 65535;
+  gtk_color_button_get_color(colorbutton, &font_colour);
+  fval1 = (float)font_colour.red / 65535;
+  fval2 = (float)font_colour.green / 65535;
+  fval3 = (float)font_colour.blue / 65535;
     
   preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
   set_font_colour(fval1, fval2, fval3);

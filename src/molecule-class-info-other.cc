@@ -2360,7 +2360,9 @@ molecule_class_info_t::recent_backup_file_info() const {
       backup_name_glob += t_name_glob;
 #ifdef WINDOWS_MINGW
       // on windows we dont have gzip, so only *.pdb
-      backup_name_glob += "*.pdb";
+      //backup_name_glob += "*.pdb";
+      // not any more, should be able to do gzipping now too
+      backup_name_glob += "*.pdb.gz";
 #else
       backup_name_glob += "*.pdb.gz";
 #endif

@@ -37546,36 +37546,32 @@ distances more than:</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkFrame" id="frame252">
-			  <property name="border_width">12</property>
+			<widget class="GtkFrame" id="frame286">
+			  <property name="border_width">10</property>
 			  <property name="visible">True</property>
 			  <property name="label_xalign">0</property>
 			  <property name="label_yalign">0.5</property>
 			  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
 			  <child>
-			    <widget class="GtkHBox" id="hbox325">
+			    <widget class="GtkVBox" id="vbox298">
 			      <property name="visible">True</property>
 			      <property name="homogeneous">False</property>
 			      <property name="spacing">0</property>
 
 			      <child>
-				<widget class="GtkLabel" id="label589">
+				<widget class="GtkRadioButton" id="preferences_font_colour_default_radiobutton">
+				  <property name="border_width">5</property>
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">  Choose your label colour  </property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">-1</property>
-				  <property name="single_line_mode">False</property>
-				  <property name="angle">0</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">Default</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">True</property>
+				  <property name="active">False</property>
+				  <property name="inconsistent">False</property>
+				  <property name="draw_indicator">True</property>
+				  <signal name="toggled" handler="on_preferences_font_colour_default_radiobutton_toggled" last_modification_time="Mon, 10 Nov 2008 18:21:59 GMT"/>
 				</widget>
 				<packing>
 				  <property name="padding">0</property>
@@ -37585,16 +37581,52 @@ distances more than:</property>
 			      </child>
 
 			      <child>
-				<widget class="GtkColorButton" id="preferences_font_colorbutton">
-				  <property name="border_width">5</property>
+				<widget class="GtkHBox" id="hbox382">
 				  <property name="visible">True</property>
-				  <property name="tooltip" translatable="yes">click here to change font colours</property>
-				  <property name="can_focus">True</property>
-				  <property name="use_alpha">False</property>
-				  <property name="title" translatable="yes">Pick a Font Colour</property>
-				  <property name="focus_on_click">True</property>
-				  <signal name="color_set" handler="on_preferences_font_colorbutton_color_set" last_modification_time="Thu, 14 Feb 2008 10:38:25 GMT"/>
-				  <signal name="clicked" handler="on_preferences_font_colorbutton_clicked" last_modification_time="Thu, 14 Feb 2008 11:13:48 GMT"/>
+				  <property name="homogeneous">False</property>
+				  <property name="spacing">0</property>
+
+				  <child>
+				    <widget class="GtkRadioButton" id="preferences_font_colour_own_radiobutton">
+				      <property name="border_width">5</property>
+				      <property name="visible">True</property>
+				      <property name="tooltip" translatable="yes">Select to choose you own colour</property>
+				      <property name="can_focus">True</property>
+				      <property name="label" translatable="yes">Own label colour</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">True</property>
+				      <property name="active">False</property>
+				      <property name="inconsistent">False</property>
+				      <property name="draw_indicator">True</property>
+				      <property name="group">preferences_font_colour_default_radiobutton</property>
+				      <signal name="toggled" handler="on_preferences_font_colour_own_radiobutton_toggled" last_modification_time="Mon, 10 Nov 2008 18:23:02 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="padding">0</property>
+				      <property name="expand">False</property>
+				      <property name="fill">False</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkColorButton" id="preferences_font_colorbutton">
+				      <property name="border_width">5</property>
+				      <property name="visible">True</property>
+				      <property name="tooltip" translatable="yes">click here to change font colours</property>
+				      <property name="can_focus">True</property>
+				      <property name="use_alpha">False</property>
+				      <property name="title" translatable="yes">Pick a Font Colour</property>
+				      <property name="focus_on_click">True</property>
+				      <signal name="color_set" handler="on_preferences_font_colorbutton_color_set" last_modification_time="Thu, 14 Feb 2008 10:38:25 GMT"/>
+				      <signal name="clicked" handler="on_preferences_font_colorbutton_clicked" last_modification_time="Thu, 14 Feb 2008 11:13:48 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="padding">0</property>
+				      <property name="expand">False</property>
+				      <property name="fill">False</property>
+				    </packing>
+				  </child>
 				</widget>
 				<packing>
 				  <property name="padding">0</property>
@@ -37606,11 +37638,11 @@ distances more than:</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkLabel" id="label588">
+			    <widget class="GtkLabel" id="label700">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">Atom Label Colour</property>
 			      <property name="use_underline">False</property>
-			      <property name="use_markup">True</property>
+			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
 			      <property name="wrap">False</property>
 			      <property name="selectable">False</property>
@@ -37631,7 +37663,7 @@ distances more than:</property>
 			<packing>
 			  <property name="padding">0</property>
 			  <property name="expand">False</property>
-			  <property name="fill">True</property>
+			  <property name="fill">False</property>
 			</packing>
 		      </child>
 		    </widget>
