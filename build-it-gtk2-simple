@@ -243,9 +243,10 @@
 # 4.25 20081008 Migrate to CCP4 version 6.0.2 for testing in York.
 # 4.26 20081014 Use Python 2.6   
 # 4.27 20081105 Adjust clipper configuration.  Remove clipper-new-ccp4-install 
-#               usage, it is no longer needed, it seems.  Remove configure argument
-#               --enable-mmdbold
-script_version=4.27
+#               usage, it is no longer needed, it seems.  Remove configure 
+#               argument --enable-mmdbold
+# 4.28 20081110 Upgrade to mmdb-1.19, get it from EBI.
+script_version=4.28
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1848,8 +1849,11 @@ if test -n "$build_mmdb" ; then
 # mmdb_version=1.0.8-ysbl-3
 mmdb_version=1.11
 mmdb_version=1.12
+mmdb_version=1.19
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
+# this patch is badly formed.
+# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
+${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
