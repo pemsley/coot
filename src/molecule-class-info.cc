@@ -1695,7 +1695,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       //cout << "j range: for i = " << i << " is "
       //	   << bonds_box.bonds_[i].num_lines << endl;
 
-      if ( bonds_box.bonds_[i].num_lines > 256000) {
+      if ( bonds_box.bonds_[i].num_lines > 512000) {
 	 std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
 	      << bonds_box.bonds_[i].num_lines << std::endl;
       }
