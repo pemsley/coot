@@ -82,11 +82,13 @@ map_from_mtz(std::string mtz_file_name,
 	     std::string phi_col,
 	     std::string weight_col,
 	     int use_weights,
-	     int is_diff_map);
+	     int is_diff_map,
+	     bool is_debug_mode);
 
 class input_data_t {
 public:
    bool is_good;
+   bool is_debug_mode; 
    bool given_map_flag;
    bool use_rama_targets;
    bool use_torsion_targets;
@@ -179,15 +181,17 @@ main(int argc, char **argv) {
 
 	 if (! inputs.given_map_flag) {
 	    xmap = map_from_mtz(inputs.mtz_file_name, inputs.f_col,
-				inputs.phi_col, "", 0, 0);
-	    clipper::Coord_orth pt(51.148,   8.121,  -1.418);
-	    coot::util::density_stats_info_t ds =
+				inputs.phi_col, "", 0, 0, inputs.is_debug_mode);
+	    if (inputs.is_debug_mode) { 
+	       clipper::Coord_orth pt(51.148,   8.121,  -1.418);
+	       coot::util::density_stats_info_t ds =
 	       coot::util::density_around_point(pt, xmap, 10.0);
-
-	    std::pair<float, float> mv = ds.mean_and_variance();
-	    std::cout << "INFO:: density stats: N:" << ds.n << " sum: " << ds.sum
+	       
+	       std::pair<float, float> mv = ds.mean_and_variance();
+	       std::cout << "INFO:: density stats: N:" << ds.n << " sum: " << ds.sum
 		      << " mean: " << mv.first << "  variance: "
-		      << mv.second << std::endl;
+			 << mv.second << std::endl;
+	    }
 	    
 	 } else { 
 	    clipper::CCP4MAPfile file;
@@ -254,11 +258,12 @@ main(int argc, char **argv) {
 
 clipper::Xmap<float>
 map_from_mtz(std::string mtz_file_name,
-		  std::string f_col,
-		  std::string phi_col,
-		  std::string weight_col,
-		  int use_weights,
-		  int is_diff_map) {
+	     std::string f_col,
+	     std::string phi_col,
+	     std::string weight_col,
+	     int use_weights,
+	     int is_diff_map,
+	     bool is_debug_mode) {
 
    
    clipper::HKL_info myhkl; 
@@ -312,6 +317,21 @@ map_from_mtz(std::string mtz_file_name,
 				     myhkl.resolution()) );
   cout << "Grid..." << xmap.grid_sampling().format() << "\n";
   cout << "doing fft..." << endl;
+
+  int count = 0; 
+  clipper::HKL_info::HKL_reference_index hri;
+  for (hri=fphidata.first(); !hri.last(); hri.next()) {
+     if (count == 10)
+	break;
+     std::cout << "sample data " << " "
+	       << hri.hkl().h() << " " 
+	       << hri.hkl().k() << " " 
+	       << hri.hkl().l() << " : " 
+	       << fphidata[hri].f() << " " << fphidata[hri].phi()*180/M_PI << std::endl;
+     count++;
+  } 
+  
+  
   xmap.fft_from( fphidata );                  // generate map
   cout << "done fft..." << endl;
 
@@ -326,6 +346,7 @@ input_data_t
 get_input_details(int argc, char **argv) {
 
    input_data_t d;
+   d.is_debug_mode = 0;
    d.is_good = 0;
    d.given_map_flag = 0;
    d.resno_start = UNSET;
@@ -353,6 +374,7 @@ get_input_details(int argc, char **argv) {
       {"rama",      0, 0, 0},
       {"torsions",      0, 0, 0},
       {"torsion",      0, 0, 0},
+      {"debug",      0, 0, 0},  // developer option
       {0, 0, 0, 0}
    };
 
@@ -409,6 +431,9 @@ get_input_details(int argc, char **argv) {
 	    }
 	    if (arg_str == "torsion") {
 	       d.use_torsion_targets = 1;
+	    }
+	    if (arg_str == "debug") {
+	       d.is_debug_mode = 1;
 	    }
 	 } 
 	 break;
