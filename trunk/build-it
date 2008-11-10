@@ -213,7 +213,8 @@
 #               (port 8080 already in use).
 # 2.48 20081008 Migrate to CCP4 version 6.0.2 for testing in York.
 # 2.49 20081014 Use Python 2.6   
-script_version=2.49
+# 2.50 20081110 Upgrade to mmdb-1.19, get it from EBI.
+script_version=2.50
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1646,8 +1647,11 @@ if test -n "$build_mmdb" ; then
 mmdb_version=1.0.8-ysbl-3
 mmdb_version=1.11
 mmdb_version=1.12
+mmdb_version=1.19
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
+# this patch is badly formed.
+# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/mmdb-mmcif-long-line.patch
+${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
