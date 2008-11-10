@@ -250,7 +250,13 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        fval1 = g.preferences_internal[i].fvalue1;  // red
        fval2 = g.preferences_internal[i].fvalue2;  // green
        fval3 = g.preferences_internal[i].fvalue3;  // blue
-       commands.push_back(state_command("set-font-colour", fval1, fval2, fval3, il));
+       if (fval1 >= 0.999 && 
+	  fval2 >= 0.799 && fval2 <= 0.801 &&
+	  fval3 >= 0.799 && fval3 <= 0.801) {
+	  commands.push_back(state_command("set-font-colour", 1.0, 0.8, 0.8, il));
+       } else {
+	  commands.push_back(state_command("set-font-colour", fval1, fval2, fval3, il));
+       }
        break;
 
      case PREFERENCES_PINK_POINTER:

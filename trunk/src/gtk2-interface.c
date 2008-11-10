@@ -17116,11 +17116,14 @@ create_preferences (void)
   GtkWidget *preferences_font_size_others_radiobutton;
   GtkWidget *preferences_font_size_combobox;
   GtkWidget *label587;
-  GtkWidget *frame252;
-  GtkWidget *hbox325;
-  GtkWidget *label589;
+  GtkWidget *frame286;
+  GtkWidget *vbox298;
+  GtkWidget *preferences_font_colour_default_radiobutton;
+  GSList *preferences_font_colour_default_radiobutton_group = NULL;
+  GtkWidget *hbox382;
+  GtkWidget *preferences_font_colour_own_radiobutton;
   GtkWidget *preferences_font_colorbutton;
-  GtkWidget *label588;
+  GtkWidget *label700;
   GtkWidget *label591;
   GtkWidget *preferences_speed;
   GtkWidget *vbox250;
@@ -18241,30 +18244,44 @@ create_preferences (void)
   gtk_widget_show (label587);
   gtk_frame_set_label_widget (GTK_FRAME (frame248), label587);
 
-  frame252 = gtk_frame_new (NULL);
-  gtk_widget_show (frame252);
-  gtk_box_pack_start (GTK_BOX (vbox255), frame252, FALSE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame252), 12);
+  frame286 = gtk_frame_new (NULL);
+  gtk_widget_show (frame286);
+  gtk_box_pack_start (GTK_BOX (vbox255), frame286, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame286), 10);
 
-  hbox325 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox325);
-  gtk_container_add (GTK_CONTAINER (frame252), hbox325);
+  vbox298 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox298);
+  gtk_container_add (GTK_CONTAINER (frame286), vbox298);
 
-  label589 = gtk_label_new (_("  Choose your label colour  "));
-  gtk_widget_show (label589);
-  gtk_box_pack_start (GTK_BOX (hbox325), label589, FALSE, FALSE, 0);
+  preferences_font_colour_default_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Default"));
+  gtk_widget_show (preferences_font_colour_default_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox298), preferences_font_colour_default_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_font_colour_default_radiobutton), 5);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_font_colour_default_radiobutton), preferences_font_colour_default_radiobutton_group);
+  preferences_font_colour_default_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_font_colour_default_radiobutton));
+
+  hbox382 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox382);
+  gtk_box_pack_start (GTK_BOX (vbox298), hbox382, FALSE, FALSE, 0);
+
+  preferences_font_colour_own_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Own label colour"));
+  gtk_widget_show (preferences_font_colour_own_radiobutton);
+  gtk_box_pack_start (GTK_BOX (hbox382), preferences_font_colour_own_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (preferences_font_colour_own_radiobutton), 5);
+  gtk_tooltips_set_tip (tooltips, preferences_font_colour_own_radiobutton, _("Select to choose you own colour"), NULL);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_font_colour_own_radiobutton), preferences_font_colour_default_radiobutton_group);
+  preferences_font_colour_default_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_font_colour_own_radiobutton));
 
   preferences_font_colorbutton = gtk_color_button_new ();
   gtk_widget_show (preferences_font_colorbutton);
-  gtk_box_pack_start (GTK_BOX (hbox325), preferences_font_colorbutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox382), preferences_font_colorbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_font_colorbutton), 5);
   gtk_tooltips_set_tip (tooltips, preferences_font_colorbutton, _("click here to change font colours"), NULL);
   gtk_color_button_set_title (GTK_COLOR_BUTTON (preferences_font_colorbutton), _("Pick a Font Colour"));
 
-  label588 = gtk_label_new (_("Atom Label Colour"));
-  gtk_widget_show (label588);
-  gtk_frame_set_label_widget (GTK_FRAME (frame252), label588);
-  gtk_label_set_use_markup (GTK_LABEL (label588), TRUE);
+  label700 = gtk_label_new (_("Atom Label Colour"));
+  gtk_widget_show (label700);
+  gtk_frame_set_label_widget (GTK_FRAME (frame286), label700);
 
   label591 = gtk_label_new (_("Fonts"));
   gtk_widget_show (label591);
@@ -18862,6 +18879,12 @@ create_preferences (void)
   g_signal_connect ((gpointer) preferences_font_size_combobox, "changed",
                     G_CALLBACK (on_preferences_font_size_combobox_changed),
                     NULL);
+  g_signal_connect ((gpointer) preferences_font_colour_default_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_font_colour_default_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) preferences_font_colour_own_radiobutton, "toggled",
+                    G_CALLBACK (on_preferences_font_colour_own_radiobutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) preferences_font_colorbutton, "color_set",
                     G_CALLBACK (on_preferences_font_colorbutton_color_set),
                     NULL);
@@ -19152,11 +19175,13 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_others_radiobutton, "preferences_font_size_others_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_font_size_combobox, "preferences_font_size_combobox");
   GLADE_HOOKUP_OBJECT (preferences, label587, "label587");
-  GLADE_HOOKUP_OBJECT (preferences, frame252, "frame252");
-  GLADE_HOOKUP_OBJECT (preferences, hbox325, "hbox325");
-  GLADE_HOOKUP_OBJECT (preferences, label589, "label589");
+  GLADE_HOOKUP_OBJECT (preferences, frame286, "frame286");
+  GLADE_HOOKUP_OBJECT (preferences, vbox298, "vbox298");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font_colour_default_radiobutton, "preferences_font_colour_default_radiobutton");
+  GLADE_HOOKUP_OBJECT (preferences, hbox382, "hbox382");
+  GLADE_HOOKUP_OBJECT (preferences, preferences_font_colour_own_radiobutton, "preferences_font_colour_own_radiobutton");
   GLADE_HOOKUP_OBJECT (preferences, preferences_font_colorbutton, "preferences_font_colorbutton");
-  GLADE_HOOKUP_OBJECT (preferences, label588, "label588");
+  GLADE_HOOKUP_OBJECT (preferences, label700, "label700");
   GLADE_HOOKUP_OBJECT (preferences, label591, "label591");
   GLADE_HOOKUP_OBJECT (preferences, preferences_speed, "preferences_speed");
   GLADE_HOOKUP_OBJECT (preferences, vbox250, "vbox250");

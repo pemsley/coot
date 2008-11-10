@@ -9,6 +9,8 @@
 
    o Preferences -> default -> apply font colours
 
+   o filechooser ins save mode doesnt have delete & rename file!? Shall we?!
+
 04/11/08 CCP4 dev meeting:
    o bulk sovlent correction for refmac?
    o zip/unzip pdb backup files in windows via Python?
@@ -122,7 +124,7 @@ tests   rev 1525
 
 10/09/08
    o no bond colours if no element column in pdb file (e.g. CNS files)
-     try to guess?! use coordconv??
+     try to guess?! use coordconv?? new mmdb should fix
 
 16/09/08
    o 'new', short display manager

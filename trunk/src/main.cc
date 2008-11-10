@@ -148,7 +148,7 @@ SWIGEXPORT(void) SWIG_init(void);
 void show_citation_request();
 void load_gtk_resources();
 void setup_splash_screen();
-void setup_application_icon(GtkWindow *window);
+void setup_application_icon(GtkWindow *window, command_line_data cld);
 void setup_symm_lib();
 void setup_rgb_reps();
 void check_reference_structures_dir();
@@ -277,7 +277,7 @@ main (int argc, char *argv[]) {
 			cld.hardware_stereo_flag);
      if (glarea) {
 	// application icon:
-	setup_application_icon(GTK_WINDOW(window1));
+	setup_application_icon(GTK_WINDOW(window1), cld);
 	graphics_info.glarea = glarea; // save it in the static
 	
 	gtk_widget_show(glarea);
@@ -627,7 +627,7 @@ setup_splash_screen() {
 
 }
 
-void setup_application_icon(GtkWindow *window) { 
+void setup_application_icon(GtkWindow *window, command_line_data cld) { 
       
    std::string splash_screen_pixmap_dir = PKGDATADIR;  
    splash_screen_pixmap_dir += "/";
@@ -746,7 +746,9 @@ void setup_application_icon(GtkWindow *window) {
 #endif // MINGW
      if (max_height <= 620) {
        max_height = 620;
-       show_model_toolbar_main_icons();
+       // cannot do that here? But where???
+       //show_model_toolbar_main_icons();
+       cld.small_screen_display = 1;
      }
      if (max_height <= 720) {
        int icon_size = 12 + (max_height - 620) / 25;

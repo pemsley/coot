@@ -4811,7 +4811,9 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 	 time_string += ".res";
 
 #if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
-
+      // we can do now too (I hope for all of them?!?)
+      if (! is_from_shelx_ins_flag)
+	 time_string += ".gz"; // 'cos we can do compression.  Groovy baby!
 #else
       if (! is_from_shelx_ins_flag)
 	 time_string += ".gz"; // 'cos we can do compression.  Groovy baby!
@@ -4828,6 +4830,9 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       else 
 	 time_string += ".res";
 #if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
+      // same here
+      if (! is_from_shelx_ins_flag) 
+	 time_string += ".gz";
 #else
       if (! is_from_shelx_ins_flag) 
 	 time_string += ".gz";
@@ -4890,7 +4895,8 @@ molecule_class_info_t::make_backup() { // changes history details
  	    std::cout << "INFO:: backup file " << backup_file_name << std::endl;
 
 #if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
-	    byte gz = GZM_NONE;
+            // and again, although not used any more!?
+	    byte gz = GZM_ENFORCE;
 #else
 	    byte gz = GZM_ENFORCE;
 #endif
