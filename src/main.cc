@@ -148,7 +148,8 @@ SWIGEXPORT(void) SWIG_init(void);
 void show_citation_request();
 void load_gtk_resources();
 void setup_splash_screen();
-void setup_application_icon(GtkWindow *window, command_line_data cld);
+int setup_screen_size_settings();
+void setup_application_icon(GtkWindow *window);
 void setup_symm_lib();
 void setup_rgb_reps();
 void check_reference_structures_dir();
@@ -277,7 +278,13 @@ main (int argc, char *argv[]) {
 			cld.hardware_stereo_flag);
      if (glarea) {
 	// application icon:
-	setup_application_icon(GTK_WINDOW(window1), cld);
+	setup_application_icon(GTK_WINDOW(window1));
+	// adjust screen size settings
+	int small_screen = setup_screen_size_settings();
+	if (!cld.small_screen_display) {
+	   cld.small_screen_display = small_screen;
+	}
+
 	graphics_info.glarea = glarea; // save it in the static
 	
 	gtk_widget_show(glarea);
@@ -627,7 +634,49 @@ setup_splash_screen() {
 
 }
 
-void setup_application_icon(GtkWindow *window, command_line_data cld) { 
+int
+setup_screen_size_settings() {
+
+   int ret = 0;
+   // adjust the icons size of the refinement toolbar icons
+#if (GTK_MAJOR_VERSION >1)
+   GdkScreen *screen;
+   screen = gdk_screen_get_default();
+   if (screen) {
+     int width = gdk_screen_get_width(screen);
+     int height = gdk_screen_get_height(screen);
+#ifdef WINDOWS_MINGW
+     int max_height = int(height * 0.95);
+#else
+     int max_height = int(height * 0.9);
+#endif // MINGW
+     if (max_height <= 620) {
+       max_height = 620;
+       gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
+       gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
+       ret = 1;
+     } else if (max_height <= 720) {
+       int icon_size = 12 + (max_height - 620) / 25;
+       std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
+       toolbar_txt += coot::util::int_to_string(icon_size);
+       toolbar_txt += ",";
+       toolbar_txt += coot::util::int_to_string(icon_size);
+       toolbar_txt += ":gtk-button=";
+       toolbar_txt += coot::util::int_to_string(icon_size);
+       toolbar_txt += ",";
+       toolbar_txt += coot::util::int_to_string(icon_size);
+       toolbar_txt += "\"";
+       gtk_rc_parse_string (toolbar_txt.c_str());
+     }
+   } else {
+     g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
+   }
+#endif
+   return ret;
+}
+
+
+void setup_application_icon(GtkWindow *window) { 
       
    std::string splash_screen_pixmap_dir = PKGDATADIR;  
    splash_screen_pixmap_dir += "/";
@@ -732,38 +781,6 @@ void setup_application_icon(GtkWindow *window, command_line_data cld) {
    }
    globfree(&myglob);
 
-   // adjust the icons size of the refinement toolbar icons
-   // probably should be somewhere else
-   GdkScreen *screen;
-   screen = gdk_screen_get_default();
-   if (screen) {
-     int width = gdk_screen_get_width(screen);
-     int height = gdk_screen_get_height(screen);
-#ifdef WINDOWS_MINGW
-     int max_height = int(height * 0.95);
-#else
-     int max_height = int(height * 0.9);
-#endif // MINGW
-     if (max_height <= 620) {
-       max_height = 620;
-       cld.small_screen_display = 1;
-     }
-     if (max_height <= 720) {
-       int icon_size = 12 + (max_height - 620) / 25;
-       std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
-       toolbar_txt += coot::util::int_to_string(icon_size);
-       toolbar_txt += ",";
-       toolbar_txt += coot::util::int_to_string(icon_size);
-       toolbar_txt += ":gtk-button=";
-       toolbar_txt += coot::util::int_to_string(icon_size);
-       toolbar_txt += ",";
-       toolbar_txt += coot::util::int_to_string(icon_size);
-       toolbar_txt += "\"";
-       gtk_rc_parse_string (toolbar_txt.c_str());
-     }
-   } else {
-     g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
-   }
 	 
 #endif // GTK
 
