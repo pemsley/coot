@@ -5052,6 +5052,9 @@ PyObject *ccp4i_projects_py();
 /* \{ */
 /* \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
+/* \brief get element colour for imol as Python formatted list char*/
+char *get_atom_colour_from_mol_no(int imol, const char *element);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5121,7 +5124,6 @@ int place_text(const char*text, float x, float y, float z, int size);
 /*! \brief Remove text */
 void remove_text(int text_handle);
 /* \} */
-
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS

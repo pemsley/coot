@@ -3726,6 +3726,7 @@ void write_ccp4mg_picture_description(const char *filename) {
       mg_stream << ")\n";
 
       // Molecules:
+      std::ostringstream map_colour_stream;
       for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 	 if (is_valid_model_molecule(imol)) {
 	    mg_stream << "MolData (\n";
@@ -3753,6 +3754,13 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    std::string w   = g.molecules[imol].save_weight_col;
 	    float lev       = g.molecules[imol].contour_level[0];
 	    float r         = g.box_radius;
+	    // first create a colour
+	    map_colour_stream << "   coot_mapcolour" << imol << " = ["<<
+	       graphics_info_t::molecules[imol].map_colour[0][0] << ", " <<
+	       graphics_info_t::molecules[imol].map_colour[0][1] << ", " <<
+	       graphics_info_t::molecules[imol].map_colour[0][2] << ", " <<
+	       "1.0],\n";
+	    //colour_definitions.push_back(map_colour);
 	    // int use_weights_flag = g.molecules[imol].save_use_weights;
 	    std::string name = single_quote(graphics_info_t::molecules[imol].save_mtz_file_name);
 	    mg_stream << "MapData (\n";
@@ -3768,12 +3776,103 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    mg_stream << "    contour_level = " << lev << ",\n";
 	    mg_stream << "    surface_style = 'chickenwire',\n";
 	    mg_stream << "    radius = " << r << ",\n";
+	    mg_stream << "    colour = 'coot_mapcolour" << imol << "',\n";
 	    mg_stream << "    clip_mode = 'OFF')\n";
 	    mg_stream << "\n";
+	    if (map_is_difference_map(imol)) {
+		   // make a second contour level
+		   mg_stream << "MapDisp (\n";
+		   mg_stream << "    contour_level = -" << lev << ",\n";
+		   mg_stream << "    surface_style = 'chickenwire',\n";
+		   mg_stream << "    radius = " << r << ",\n";
+		   mg_stream << "    colour = 'coot_mapcolour" << imol << "_2',\n";
+		   mg_stream << "    clip_mode = 'OFF')\n";
+		   mg_stream << "\n";
+		   // and a color
+		   map_colour_stream << "   coot_mapcolour" << imol << "_2 = ["<<
+		      graphics_info_t::molecules[imol].map_colour[0][1] << ", " <<
+		      graphics_info_t::molecules[imol].map_colour[0][0] << ", " <<
+		      graphics_info_t::molecules[imol].map_colour[0][2] << ", " <<
+		      "1.0],\n";
+		}
 	 }
       }
+      // now define map colours
+      mg_stream << "Colours (\n";
+      mg_stream << map_colour_stream.str();
+      mg_stream << ")\n";
+      mg_stream << "\n";
+
    }
-} 
+}
+
+// function to get the atom colours to be displayed in CCP4MG?!
+char *get_atom_colour_from_mol_no(int imol, const char *element) {
+
+   char *r;
+   std::vector<float> rgb(3);
+   float rotation_size = graphics_info_t::molecules[imol].bonds_colour_map_rotation/360.0;
+   while (rotation_size > 1.0) { // no more black bonds?
+      rotation_size -= 1.0;
+   }
+   int i_element;
+   i_element = atom_colour(element);
+   switch (i_element) {
+   case yellow: 
+      rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;
+      break;
+   case blue: 
+      rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
+      break;
+   case red: 
+      rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
+      break;
+   case green:
+      rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+      break;
+   case grey: 
+      rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+      break;
+   case magenta:
+      rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
+      break;
+   case orange:
+      rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
+      break;
+   case cyan:
+      rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+      break;
+      
+   default:
+      rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
+      rgb = rotate_rgb(rgb, float(imol*26.0/360.0));
+
+   }
+   // "correct" for the +1 added in the calculation of the rotation
+   // size.
+   // 21. is the default colour map rotation
+   rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
+   if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
+      if (i_element == yellow) { 
+	 rgb = rotate_rgb(rgb, rotation_size);
+      } 
+   } else {
+//       std::cout << "DEBUG: rotating coordinates colour map by "
+//                 << rotation_size * 360.0 << " degrees " << std::endl;
+         rgb = rotate_rgb(rgb, rotation_size);
+   }
+
+   std::string rgb_list = "[";
+   rgb_list += graphics_info_t::float_to_string(rgb[0]);
+   rgb_list += ", ";
+   rgb_list += graphics_info_t::float_to_string(rgb[1]);
+   rgb_list += ", ";
+   rgb_list += graphics_info_t::float_to_string(rgb[2]);
+   rgb_list += "]";
+   r = (char*)rgb_list.c_str();
+   return r;
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Restratints                                             */
@@ -3881,3 +3980,4 @@ PyObject *ccp4i_projects_py() {
    return r;
 } 
 #endif // USE_PYTHON
+

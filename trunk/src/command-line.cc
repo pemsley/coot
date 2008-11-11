@@ -408,7 +408,7 @@ handle_command_line_data(command_line_data cld) {
    }
 
    // more settings for small screen
-   if (cld.small_screen_display) {
+   if (cld.small_screen_display && graphics_info_t::use_graphics_interface_flag) {
      std::cout << "INFO:: setting only main icons for small screen" << std::endl;
      show_model_toolbar_main_icons();
      set_graphics_window_size(400, 400);
