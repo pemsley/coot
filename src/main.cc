@@ -746,8 +746,6 @@ void setup_application_icon(GtkWindow *window, command_line_data cld) {
 #endif // MINGW
      if (max_height <= 620) {
        max_height = 620;
-       // cannot do that here? But where???
-       //show_model_toolbar_main_icons();
        cld.small_screen_display = 1;
      }
      if (max_height <= 720) {
