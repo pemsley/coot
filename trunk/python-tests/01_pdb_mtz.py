@@ -1001,5 +1001,19 @@ class PdbMtzTestFunctions(unittest.TestCase):
 			    return False
 
 	    self.failUnless(all(map(lambda res: compare_res_spec(res), ls)))
+
+
+    def test33_0(self):
+	    """Read/write gz coordinate files"""
+
+	    # this is mainly an mmdb test for windows
+
+	    # first write a gz file
+	    gz_state = write_pdb_file(imol_rnase, "rnase_zip_test.pdb.gz")
+	    self.failIf(gz_state == 1)
+	    self.failUnless(os.path.isfile("rnase_zip_test.pdb.gz"))
 	    
+	    # now unzip and read the file
+	    gz_imol = handle_read_draw_molecule("rnase_zip_test.pdb.gz")
+	    self.failUnless(valid_model_molecule_qm(gz_imol))
 		  
