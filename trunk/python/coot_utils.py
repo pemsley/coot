@@ -212,7 +212,7 @@ gtk_thread_return_value = None
 #
 # uses os.popen if python version < 2.4 otherwise subprocess
 # 
-def popen_command(cmd, args, data_list, log_file, screen_flag=False, progressbar_flag=False):
+def popen_command(cmd, args, data_list, log_file, screen_flag=False):
 
     import sys, string, os
     
@@ -228,9 +228,6 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False, progressbar
             cmd_execfile = find_exe(cmd, "CCP4_BIN", "PATH")
 
     if (cmd_execfile):
-        if (progressbar_flag):
-            global python_return
-            run_python_thread(show_progressbar, "test")
         # minor = 2
         if (major >= 2 and minor >=4):
             # subprocess
@@ -251,9 +248,6 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False, progressbar
             process.wait()
             log.close()
 
-            if (progressbar_flag):
-                python_return.destroy()
-                
             return process.returncode
         
         else:
@@ -1816,12 +1810,18 @@ def printl(ls):
     
 # Where cmd is e.g. "bltwish" 
 #       args is list, e.g. [loggraph, "refmac.log"]
-# 
+#
+# in python < 2.4 (and if no logfile)
+#
 # Returns the pid or False if failed.
+#
+# in python >= 2.4 (and with logfile)
+#
+# Returns the process and the open log file object
 #
 # uses os.spawn if python version < 2.4 otherwise subprocess
 # 
-def run_concurrently(cmd, args):
+def run_concurrently(cmd, args, data_list=None, logfile=None, screen_flag=False):
     import sys, string, os
 
     major, minor, micro, releaselevel, serial = sys.version_info
@@ -1838,9 +1838,21 @@ def run_concurrently(cmd, args):
             # subprocess
             import subprocess
             cmd_args = [cmd_execfile] + args
-            pid = subprocess.Popen(cmd_args).pid
+            log = logfile
+            if (logfile):
+                log = open(logfile, 'w')
+            process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=log)
 
-            return pid
+            if (data_list):
+                for data in data_list:
+                    process.stdin.write(data + "\n")
+
+            pid = process.pid            
+
+            if log:
+                return (process, log)
+            else:
+                return pid
         
         else:
             # spawn (old)
@@ -1860,4 +1872,38 @@ def coot_has_pygtk():
 	else:
 		return False
 
+# python command to see if we have pygobject available
+# return True if availabel otherwise False
+#
+def coot_has_gobject():
+	import sys
+	if ('gobject' in sys.modules.keys()):
+		return True
+	else:
+		return False
 
+
+# function to kill a process, given the process pid
+# return True if managed to kill the process otherwise false
+#
+def kill_process(pid):
+    import os, sys
+    import signal
+
+    if (os.name == 'nt'):
+        # Windows killing tasks
+        try:
+            ret = os.system("taskkill /PID %i" % pid)
+            if (ret == 0):
+                # success
+                return True
+            else:
+                return False
+        except:
+            return False
+    else:
+        try:
+            os.kill(pid, signal.SIGKILL)
+            return True
+        except:
+            return False
