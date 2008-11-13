@@ -75,6 +75,7 @@ refmac_extra_params = None
 global refmac_count
 refmac_count = 0
 
+
 # /a/b/c -> c
 def split_label(label):
     return label[label.rfind("/")+1:len(label)]
@@ -290,11 +291,66 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
 
     data_lines += ["END"]
-    refmac_status = popen_command(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
-    print "BL INFO:: refmac_status:", refmac_status
 
+    if (coot_has_gobject() and sys.version_info >= (2, 4)):
+        # can spawn refmac and add button
+
+        refmac_process, logObj = run_concurrently(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
+
+        kill_button = coot_toolbar_button("Kill refmac",
+                                      "kill_process(" + str(refmac_process.pid)+ ")",
+                                      "stop.svg")
+        add_status_bar_text("Running refmac")
+
+        gobject.timeout_add(1000,
+                            post_run_refmac,
+                            imol_refmac_count, swap_map_colours_post_refmac_p,
+                            show_diff_map_flag,
+                            pdb_out_filename, mtz_out_filename,
+                            refmac_log_file_name,
+                            phib_fom_pair, f_col, sig_f_col, r_free_col,
+                            refmac_process, logObj,
+                            kill_button, True)
+    else:
+        # no gobject and no subprocess, so run 'old' popen_command
+        refmac_status = popen_command(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
+        # pass refmac_status as refmac_process!?
+        post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
+                        show_diff_map_flag,
+                        pdb_out_filename, mtz_out_filename,
+                        refmac_log_file_name,
+                        phib_fom_pair, f_col, sig_f_col, r_free_col,
+                        refmac_status)
+
+
+def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
+                    show_diff_map_flag,
+                    pdb_out_filename, mtz_out_filename,
+                    refmac_log_file_name,
+                    phib_fom_pair, f_col, sig_f_col, r_free_col,
+                    refmac_process, logObj=None,
+                    button = None, run_in_timer=False):
+
+    if (run_in_timer):
+        # we run refmac concurrently
+        if  (refmac_process.poll() != None):
+            # refmac is finished 
+            logObj.close()
+            refmac_status = refmac_process.poll()
+            button.destroy()
+        else:
+            # continue the loop
+            return True
+    else:
+        # refmac run via popen_command
+        refmac_status = refmac_process
+        
     if (refmac_status) : # refmac ran fail...
         print "Refmac Failed."
+        if (run_in_timer):
+            # stop the gobject timer
+            print "... or was killed"
+            return False
 
     else : # refmac ran OK.
 
@@ -320,14 +376,14 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
 
         if (refmac_use_sad_state() or refmac_use_twin_state()):
             # for now we have to assume the 'standard' name, let's see if we can do better...
-			# this may not be necessary!?
+                # this may not be necessary!?
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, "FP", "SIGFP"] + r_free_bit
         else:
             args = [mtz_out_filename, "FWT", "PHWT", "", 0, 0, 1, f_col, sig_f_col] + r_free_bit
         new_map_id = make_and_draw_map_with_refmac_params(*args)
 
-	# set the new map as refinement map
-	set_imol_refinement_map(new_map_id)
+        # set the new map as refinement map
+        set_imol_refinement_map(new_map_id)
 
         # store the refmac parameters to the new map (if we used a file)
         if (get_refmac_used_mtz_file_state()):
@@ -370,9 +426,12 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename, mtz_in_filename, m
                 args = [mtz_out_filename, "DELFWT", "PHDELWT", "", 0, 1, 1, f_col, sig_f_col] + r_free_bit
                 make_and_draw_map_with_refmac_params(*args)
 
-	# finally run the refmac_log_reader to get interesting things
-	read_refmac_log(imol, refmac_log_file_name)
+        # finally run the refmac_log_reader to get interesting things
+        read_refmac_log(imol, refmac_log_file_name)
 
+        if (run_in_timer):
+            # stop the gobject timer
+            return False
         
             
 # Return True if the list of strings @var{params_list} contains a
