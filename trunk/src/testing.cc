@@ -17,6 +17,7 @@
 #include "wligand.hh"
 #include "simple-restraint.hh"
 #include "ligand.hh"
+#include "chi-angles.hh"
 
 #ifdef HAVE_GSL
 #else
@@ -89,6 +90,7 @@ int test_internal() {
    // file not found.
    // functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
    functions.push_back(named_func(test_fragmemt_atom_selection, "test_fragmemt_atom_selection"));
+   functions.push_back(named_func(test_add_atom, "test_add_atom"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
@@ -637,6 +639,108 @@ test_fragmemt_atom_selection() {
       if (n_2 == n_atoms_in_frag)
 	 status = 1;
       
+   return status;
+}
+
+int
+test_add_atom() {
+
+   int status = 0;
+
+   std::string f = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t asc = get_atom_selection(f);
+
+   int n_test_residues = 20;
+   int pass_count = 0;
+   int ires_count = 0;
+   
+   int imod = 1;
+   CModel *model_p = asc.mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      PCResidue residue_p;
+      CAtom *at;
+      while (ires_count<n_test_residues) {
+	 residue_p = chain_p->GetResidue(ires_count);
+	 ires_count++;
+	 std::string res_name(residue_p->GetResName());
+	 if (res_name == "GLY" ||
+	     res_name == "ALA" ) {
+	    pass_count++; // automatic pass
+	 } else {
+	    // normal case
+	    coot::chi_angles chi(residue_p, 0);
+	    std::vector<std::pair<int, float> > chi_angles = chi.get_chi_angles();
+	    if (!chi_angles.size() > 0) {
+	       std::cout << "   Failed to find chi angles in residue "
+			 << coot::residue_spec_t(residue_p) << std::endl;
+	    } else {
+	       float bond_length = 1.53;
+	       float angle = 113.8;
+	       std::string ref_atom_name(" CG ");
+	       if (res_name == "CYS") { 
+		  ref_atom_name = " SG ";
+		  bond_length = 1.808;
+	       } 
+	       if (res_name == "THR") { 
+		  ref_atom_name = " OG1";
+		  bond_length = 1.433;
+		  angle = 109.600;
+	       } 
+	       if (res_name == "VAL")
+		  ref_atom_name = " CG1";
+	       if (res_name == "SER") { 
+		  ref_atom_name = " OG ";
+		  bond_length = 1.417;
+	       }
+	       if (res_name == "PRO") { 
+		  bond_length = 1.492;
+		  angle = 104.500;
+	       }
+	       CAtom *ref_atom = residue_p->GetAtom(ref_atom_name.c_str());
+	       if (!ref_atom) {
+		  std::cout << "   Failed to find reference CG in residue "
+			    << coot::residue_spec_t(residue_p) << std::endl;
+	       } else { 
+		  double tors = chi_angles[0].second;
+		  bool status = coot::util::add_atom(residue_p, " N  ", " CA ", " CB ", "",
+						     bond_length,
+						     angle, 
+						     tors,
+						     " XX ", " C", 1.0, 20.0);
+		  if (status) {
+		     clipper::Coord_orth ref_pt(ref_atom->x, ref_atom->y, ref_atom->z);
+		     CAtom *new_atom = residue_p->GetAtom(" XX ");
+		     if (! new_atom) {
+			std::cout << "   Failed to find reference CG in residue "
+				  << coot::residue_spec_t(residue_p) << std::endl;
+		     } else {
+			clipper::Coord_orth new_pos(new_atom->x, new_atom->y, new_atom->z);
+			double d = clipper::Coord_orth::length(ref_pt, new_pos);
+			if (d < 0.12) {
+			   // std::cout << "   Pass make atom " << std::endl;
+			   pass_count++; 
+			} else {
+			   std::cout << "   Failed closeness test, d = " << d << " "
+				     << new_atom << " vs " << ref_atom << std::endl;
+			}
+		     }
+		  } else {
+		     std::cout << "   Failed to add atom to residue "
+			       << coot::residue_spec_t(residue_p) << std::endl;
+		  }
+	       }
+	    } 
+	 } 
+      }
+   }
+   if (pass_count == n_test_residues)
+      status = 1;
+   
    return status;
 }
 

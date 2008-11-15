@@ -2225,7 +2225,8 @@ public:
    static short int add_terminal_residue_immediate_addition_flag;
    static short int refinement_immediate_replacement_flag;  // don't dialog me please
    // called by above (private)
-   atom_selection_container_t add_cb_to_terminal_res(atom_selection_container_t asc, const std::string res_type); 
+   atom_selection_container_t add_side_chain_to_terminal_res(atom_selection_container_t asc, 
+							     const std::string res_type); 
 
    // we allow terminal fitting without rigid body refinement
    static short int terminal_residue_do_rigid_body_refine; 

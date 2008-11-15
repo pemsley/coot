@@ -67,8 +67,8 @@
 
 // This should be in coot-coord-utils
 atom_selection_container_t
-graphics_info_t::add_cb_to_terminal_res(atom_selection_container_t asc,
-										std::string res_type) {
+graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
+						std::string res_type) {
 
    atom_selection_container_t rasc = asc; 
    int istat;
