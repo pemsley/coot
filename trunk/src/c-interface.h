@@ -2580,6 +2580,12 @@ void handle_get_libcheck_monomer_code(GtkWidget *widget);
 @return the new molecule number, if not -1 (error). */
 int get_monomer(const char *three_letter_code);
 
+/* Use the protein geometry dictionary to retrieve a set of
+   coordinates quickly from cif data read in from the RCSB's Chemical
+   Component Library.  There are no restraints from this method
+   though. */
+int get_monomer_from_dictionary(const char *three_letter_code, int idealised_flag);
+
 
 int
 handle_make_monomer_search(const char *text, GtkWidget *viewport);
@@ -2859,6 +2865,7 @@ int fix_nomenclature_errors(int imol);
 /* { */
 GtkWidget *wrapped_create_move_molecule_here_dialog();
 void move_molecule_here_by_widget(GtkWidget *w);
+int move_molecule_to_screen_centre_internal(int imol);
 /* } */
 
 /*  ----------------------------------------------------------------------- */
