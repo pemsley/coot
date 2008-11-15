@@ -318,18 +318,20 @@ map_from_mtz(std::string mtz_file_name,
   cout << "Grid..." << xmap.grid_sampling().format() << "\n";
   cout << "doing fft..." << endl;
 
-  int count = 0; 
-  clipper::HKL_info::HKL_reference_index hri;
-  for (hri=fphidata.first(); !hri.last(); hri.next()) {
-     if (count == 10)
-	break;
-     std::cout << "sample data " << " "
-	       << hri.hkl().h() << " " 
-	       << hri.hkl().k() << " " 
-	       << hri.hkl().l() << " : " 
-	       << fphidata[hri].f() << " " << fphidata[hri].phi()*180/M_PI << std::endl;
-     count++;
-  } 
+  if (is_debug_mode) { 
+     int count = 0; 
+     clipper::HKL_info::HKL_reference_index hri;
+     for (hri=fphidata.first(); !hri.last(); hri.next()) {
+	if (count == 10)
+	   break;
+	std::cout << "sample data " << " "
+		  << hri.hkl().h() << " " 
+		  << hri.hkl().k() << " " 
+		  << hri.hkl().l() << " : " 
+		  << fphidata[hri].f() << " " << fphidata[hri].phi()*180/M_PI << std::endl;
+	count++;
+     }
+  }
   
   
   xmap.fft_from( fphidata );                  // generate map
