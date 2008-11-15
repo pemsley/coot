@@ -1118,6 +1118,20 @@ coot::graph_match(CResidue *res_moving,
    CResidue *cleaned_res_moving    = coot::util::copy_and_delete_hydrogens(res_moving);
    CResidue *cleaned_res_reference = coot::util::copy_and_delete_hydrogens(res_reference);
 
+   // debug 
+   if (0) {
+      int n_residue_atoms_1;
+      PPCAtom residue_atoms_1;
+      cleaned_res_moving->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+      int n_residue_atoms_2;
+      PPCAtom residue_atoms_2;
+      cleaned_res_moving->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+      // are these the same atoms?
+      for (int i=0; i<4; i++) {
+	 std::cout << "moving and ref atoms: " << residue_atoms_1[i] <<  " " << residue_atoms_2[i] << std::endl;
+      }
+   }
+
    graph1.MakeGraph(cleaned_res_moving);
    graph2.MakeGraph(cleaned_res_reference);
 
@@ -1149,12 +1163,12 @@ coot::graph_match(CResidue *res_moving,
 	 
 	 CGraphMatch match;
 
-	 std::cout << "match.MatchGraphs matching " << minMatch << " atoms"
+	 std::cout << "match.MatchGraphs must match at least " << minMatch << " atoms."
 		   << std::endl;
 	 match.MatchGraphs(&graph1, &graph2, minMatch, 1);
-	 std::cout << "match.GetNoMatches" << std::endl;
 	 int n_match = match.GetNofMatches();
-	 std::cout << "INFO:: match NumberofMatches (potentially similar graphs) " << n_match << std::endl;
+	 std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
+		   << n_match << std::endl;
 	 // match.PrintMatches();
 
 	 int best_match = -1;
@@ -1193,7 +1207,13 @@ coot::graph_match(CResidue *res_moving,
 	    double dist_sum = 0.0;
 	    clipper::RTop_orth rtop_local(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
 					  clipper::Coord_orth(0,0,0)); // unset
-	    if (apply_rtop_flag) { 
+	    if (apply_rtop_flag) {
+
+// 	       for (unsigned int iat=0; iat<4; iat++) {
+// 		  std::cout << "debug:: getting rtop " << coords_1_local[iat].format() << " vs "
+// 			    << coords_2_local[iat].format() << std::endl;
+// 	       }
+	       
 	       rtop_local = clipper::RTop_orth(coords_1_local, coords_2_local);
 	       for (unsigned int i=0; i<coords_1_local.size(); i++) {
 		  dist_sum += clipper::Coord_orth::length(coords_2_local[i],
