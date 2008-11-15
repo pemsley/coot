@@ -324,14 +324,15 @@ namespace coot {
    // 
    class dict_atom {
    public:
+      enum { IDEAL_MODEL_POS, REAL_MODEL_POS}; 
       std::string atom_id;
       std::string atom_id_4c;
       std::string type_symbol;
       std::string type_energy;
       std::pair<bool, float> partial_charge;
       short int partial_charge_is_valid_flag;
-      clipper::Coord_orth pdbx_model_Cartn_ideal;
-      clipper::Coord_orth model_Cartn;
+      std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
+      std::pair<bool, clipper::Coord_orth> model_Cartn;
       dict_atom(const std::string &atom_id_in,
 		const std::string &atom_id_4c_in,
 		const std::string &type_symbol_in,
@@ -344,6 +345,7 @@ namespace coot {
 	 partial_charge = partial_charge_in;
       }
       dict_atom() {}; // for resize(0);
+      void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
    };
 
    // ------------------------------------------------------------------------
@@ -619,6 +621,9 @@ namespace coot {
 				       // that the chem_comp should
 				       // not be added to the list
 				       // (currently).
+
+      enum { UNSET_NUMBER = -1 };  // An unset number, for example the
+				  // number of atoms.
       
       // std::vector<simple_residue_t> residue; 
       std::vector<std::string> residue_codes;
@@ -653,6 +658,8 @@ namespace coot {
       void link_plane  (PCMMCIFLoop mmCIFLoop);
       int  link_chiral  (PCMMCIFLoop mmCIFLoop); // return number of new chirals
 
+      void chem_comp_component(PCMMCIFStruct structure);
+
 
       void mon_lib_add_chem_comp(const std::string &comp_id,
 				 const std::string &three_letter_code,
@@ -666,7 +673,10 @@ namespace coot {
 			    const std::string &atom_id_4c,
 			    const std::string &type_symbol,
 			    const std::string &type_energy,
-			    const std::pair<bool, realtype> &partial_charge);
+			    const std::pair<bool, realtype> &partial_charge,
+			    const std::pair<bool, clipper::Coord_orth> &model_pos,
+			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
+			    
 
       void mon_lib_add_tree(std::string comp_id,
 			    std::string atom_id,
@@ -879,6 +889,8 @@ namespace coot {
 				  const std::string &filename) const;
       
       std::vector<std::string> monomer_types() const;
+      CMMDBManager *mol_from_dictionary(const std::string &three_letter_code,
+					bool idealised_flag) const;
    };
 
 

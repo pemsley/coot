@@ -1498,6 +1498,16 @@ GtkWidget *wrapped_create_move_molecule_here_dialog() {
 void move_molecule_here_by_widget(GtkWidget *w) {
 
    int imol = graphics_info_t::move_molecule_here_molecule_number;
+   move_molecule_to_screen_centre_internal(imol);
+   std::vector<std::string> command_strings;
+   command_strings.push_back("move-molecule-here");
+   command_strings.push_back(clipper::String(imol));
+   add_to_history(command_strings);
+}
+
+int move_molecule_to_screen_centre_internal(int imol) {
+
+   int imoved_stat = 0;
    // std::cout << "move_molecule_here imol: " << imol << std::endl;
    if (is_valid_model_molecule(imol)) {
       
@@ -1513,12 +1523,9 @@ void move_molecule_here_by_widget(GtkWidget *w) {
       float z = rc.z() - cen.z();
 
       translate_molecule_by(imol, x, y, z);
-      
+      imoved_stat = 1;
    }
-   std::vector<std::string> command_strings;
-   command_strings.push_back("move-molecule-here");
-   command_strings.push_back(clipper::String(imol));
-   add_to_history(command_strings);
+   return imoved_stat;
 }
 
 
@@ -7127,7 +7134,30 @@ int get_monomer(const char *three_letter_code) {
    add_to_history(command_strings);
 
    return imol;
-} 
+}
+
+/* Use the protein geometry dictionary to retrieve a set of
+   coordinates quickly.  There are no restraints from this method
+   though. */
+int get_monomer_from_dictionary(const char *three_letter_code,
+				int idealised_flag) {
+
+   int istat = 0;
+   graphics_info_t g;
+   CMMDBManager *mol = g.Geom_p()->mol_from_dictionary(three_letter_code, idealised_flag);
+   if (mol) {
+      int imol = graphics_info_t::create_molecule();
+      atom_selection_container_t asc = make_asc(mol);
+      std::string name = three_letter_code;
+      name += "_from_dict";
+      graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+      move_molecule_to_screen_centre_internal(imol);
+      graphics_draw();
+      istat = imol;
+   }
+   return istat;
+}
+
 
 // not the write place for this function.  c-interface-map.cc would be better.
 int laplacian (int imol) {

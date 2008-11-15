@@ -182,8 +182,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
          
 	    PCMMCIFData data = ciffile.GetCIFData(idata);
-	    //          std::cout << "There are " << data->GetNumberOfCategories() 
-	    // 		   << " categories in " << data->GetDataName() << std::endl;
+	    
+// 	    std::cout << "DEBUG:: There are " << data->GetNumberOfCategories() 
+// 		      << " categories in " << data->GetDataName() << std::endl;
 
 	    // 	 std::cout << "    compare results: for "
 	    // 		   << std::string(data->GetDataName()) << " : " 
@@ -208,21 +209,31 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       }
 	    }
 	    
+
          
 	    int n_chiral = 0;
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
 
 	       PCMMCIFCategory cat = data->GetCategory(icat);
-
 	       std::string cat_name(cat->GetCategoryName());
-
+	       
 	       // All catagories have loops (AFAICS). 
-	       // cout << "got catagory: " << cat_name << endl; 
+	       // std::cout << "debug got catagory: " << cat_name << std::endl; 
 
 	       PCMMCIFLoop mmCIFLoop = data->GetLoop( (char *) cat_name.c_str() );
             
 	       if (mmCIFLoop == NULL) { 
-		  std::cout << "null loop" << std::endl; 
+		  if (cat_name == "_chem_comp") {
+		     // read the chemical component library which does
+		     // not have a loop (the refmac files do) for the
+		     // chem_comp info.
+		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     if (structure) {
+			chem_comp_component(structure);
+		     }
+		  } else {
+		     std::cout << "null loop" << std::endl; 
+		  } 
 	       } else {
                
 		  //             cout << "Loop " << cat_name << " length: " 
@@ -277,6 +288,50 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    } // is regular file test
    return ret_val; // the number of bond restraints.
 }
+
+void
+coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
+
+   int n_tags = structure->GetNofTags();
+   std::string cat_name = structure->GetCategoryName();
+
+//    std::cout << " by structure: in category " << cat_name << " there are "
+// 	     << n_tags << " tags" << std::endl;
+
+   std::pair<bool, std::string> comp_id(0, "");
+   std::pair<bool, std::string> three_letter_code(0, "");
+   std::pair<bool, std::string> name(0, "");
+   std::pair<bool, std::string> type(0, ""); // aka group?
+   int number_of_atoms = coot::protein_geometry::UNSET_NUMBER;
+   int number_of_atoms_nh = coot::protein_geometry::UNSET_NUMBER;
+   std::pair<bool, std::string> description_level(0, "");
+
+   for (int itag=0; itag<n_tags; itag++) {
+      std::string tag = structure->GetTag(itag);
+      std::string field = structure->GetField(itag);
+      // std::cout << " by structure got tag " << itag << " "
+      // << tag << " field: " << f << std::endl;
+      if (tag == "id")
+	 comp_id = std::pair<bool, std::string> (1,field);
+      if (tag == "three_letter_code")
+	 three_letter_code = std::pair<bool, std::string> (1,field);
+      if (tag == "name")
+	 name = std::pair<bool, std::string> (1,field);
+      if (tag == "type")
+	 type = std::pair<bool, std::string> (1,field);
+      if (tag == "descr_level")
+	 description_level = std::pair<bool, std::string> (1,field);
+      // number of atoms here too.
+   }
+
+   if (comp_id.first && three_letter_code.first && name.first) 
+      mon_lib_add_chem_comp(comp_id.second, three_letter_code.second,
+			    name.second, type.second,
+			    number_of_atoms, number_of_atoms_nh,
+			    description_level.second);
+
+}
+
 
 void
 coot::protein_geometry::assign_chiral_volume_targets() {
@@ -402,7 +457,9 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::string &atom_id_4c,
 					 const std::string &type_symbol,
 					 const std::string &type_energy,
-					 const std::pair<bool, realtype> &partial_charge) { 
+					 const std::pair<bool, realtype> &partial_charge,
+					 const std::pair<bool, clipper::Coord_orth> &model_pos,
+					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
    // debugging
 //     std::cout << "adding atom " << comp_id << " " << atom_id << " "
@@ -410,6 +467,15 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 // 	      << std::endl;
 
    coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
+//    std::cout << "mon_lib_add_atom " << model_pos.first << " "
+// 	     << model_pos.second.format() << std::endl;
+//    std::cout << "mon_lib_add_atom " << model_pos_ideal.first << " "
+// 	     << model_pos_ideal.second.format() << std::endl;
+   
+   if (model_pos.first)
+      at_info.add_pos(coot::dict_atom::REAL_MODEL_POS, model_pos);
+   if (model_pos_ideal.first)
+      at_info.add_pos(coot::dict_atom::IDEAL_MODEL_POS, model_pos_ideal);
 
     short int ifound = 0;
 
@@ -431,6 +497,17 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
        dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
        dict_res_restraints[dict_res_restraints.size()-1].atom_info.push_back(at_info);
     }
+}
+
+void
+coot::dict_atom::add_pos(int pos_type,
+			 const std::pair<bool, clipper::Coord_orth> &model_pos) {
+
+   if (pos_type == coot::dict_atom::IDEAL_MODEL_POS)
+      pdbx_model_Cartn_ideal = model_pos;
+   if (pos_type == coot::dict_atom::REAL_MODEL_POS)
+      model_Cartn = model_pos;
+
 }
 
 void
@@ -885,7 +962,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
    // If the number of atoms with partial charge matches the number of
    // atoms, then set a flag in the residue that this monomer has
    // partial charges.
-   
+
    int ierr = 0;
    int n_atoms = 0;
    int n_atoms_with_partial_charge = 0;
@@ -898,7 +975,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
       char *s = mmCIFLoop->GetString("comp_id",j,ierr);
       std::string atom_id;
       std::string type_symbol; 
-      std::string type_energy;
+      std::string type_energy = "unset";
       std::pair<bool, realtype> partial_charge(0,0);
 
       std::pair<bool, int> pdbx_align(0, 0);
@@ -926,15 +1003,14 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 if (s) {
 	    type_symbol = s; 
 	 }
-			
-	 s = mmCIFLoop->GetString("type_energy",j,ierr);
-	 ierr_tot += ierr;
+
+	 int ierr_optional = 0;
+	 s = mmCIFLoop->GetString("type_energy",j,ierr_optional);
 	 if (s) {
 	    type_energy = s; 
 	 }
 
-
-	 int ierr_optional = mmCIFLoop->GetInteger(xalign, "pdbx_align", j);
+	 ierr_optional = mmCIFLoop->GetInteger(xalign, "pdbx_align", j);
 	 if (! ierr_optional)
 	    pdbx_align = std::pair<bool, int> (1, xalign);
 
@@ -974,8 +1050,6 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 		  model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
 
 
-
-
 	 // They can possibly not have this data type, so don't fail if
 	 // we can't read it.
 
@@ -1002,9 +1076,11 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	       }
 	    }
 	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
-			     partial_charge);
+			     partial_charge, model_Cartn, pdbx_model_Cartn_ideal);
 
-	 }
+	 } else {
+	    std::cout << " error on read " << ierr_tot << std::endl;
+	 } 
       }
    }
 
@@ -1074,10 +1150,11 @@ coot::protein_geometry::comp_tree(PCMMCIFLoop mmCIFLoop) {
 int
 coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
 
+   bool verbose_output = 0; // can be passed, perhaps.
    std::string comp_id;
    std::string atom_id_1, atom_id_2;
    std::string type;
-   realtype value_dist, value_dist_esd;
+   realtype value_dist = -1.0, value_dist_esd = -1.0;
 
    char *s; 
    int ierr;
@@ -1095,6 +1172,8 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
       if (s) { 
 	 comp_id = s;
 	 for (int id=(dict_res_restraints.size()-1); id >=0; id--) {
+	    // std::cout << " debug " << comp_id << " vs "
+	    // << dict_res_restraints[id].comp_id << std::endl;
 	    if (dict_res_restraints[id].comp_id == comp_id) {
 	       comp_id_index = id;
 	       break;
@@ -1131,9 +1210,11 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
 	 nbond++;
       } else {
 	 // std::cout << "DEBUG::  ierr_tot " << ierr_tot << std::endl;
-	 std::cout << "Fail on read " << atom_id_1 << ": :" << atom_id_2 << ": :"
-		   << type << ": :" << value_dist << ": :" << value_dist_esd
-		   << ":" << std::endl;
+	 if (verbose_output) { 
+	    std::cout << "Fail on read " << atom_id_1 << ": :" << atom_id_2 << ": :"
+		      << type << ": :" << value_dist << ": :" << value_dist_esd
+		      << ":" << std::endl;
+	 }
       } 
    }
    return nbond;
@@ -3404,10 +3485,10 @@ coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
       if (dict_res_restraints[i].comp_id == monomer_type) {
 	 dict_res_restraints[i] = mon_res_in;
 	 s = 1;
-      } 
+      }
    }
    return s;
-} 
+}
 
 std::vector<std::string>
 coot::protein_geometry::monomer_types() const {
@@ -3416,4 +3497,61 @@ coot::protein_geometry::monomer_types() const {
       v.push_back(dict_res_restraints[i].residue_info.comp_id);
    }
    return v;
+}
+
+
+CMMDBManager *
+coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code,
+					    bool idealised_flag) const {
+
+   CMMDBManager *mol = 0;
+   std::vector<CAtom *> atoms;
+   for (int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].comp_id == three_letter_code) {
+	 std::vector<coot::dict_atom> atom_info = dict_res_restraints[i].atom_info;
+	 for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+
+	    // real
+	    clipper::Coord_orth p;
+	    bool flag_and_have_coords = 0;
+
+	    if ((idealised_flag == 0) && (atom_info[iat].model_Cartn.first)) {
+	       p = atom_info[iat].model_Cartn.second;
+	       flag_and_have_coords = 1;
+	    }
+	    
+	    if (idealised_flag && atom_info[iat].pdbx_model_Cartn_ideal.first) {
+	       p = atom_info[iat].pdbx_model_Cartn_ideal.second;
+	       flag_and_have_coords = 1;
+	    }
+
+	    if (flag_and_have_coords) { 
+	       CAtom *atom = new CAtom;
+	       realtype occ = 1.0;
+	       realtype b = 20.0;
+	       std::string ele = atom_info[iat].type_symbol; // element
+	       atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
+	       atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
+	       atom->SetElementName(ele.c_str());
+	       atoms.push_back(atom);
+	    }
+	 }
+      }
+   }
+//    std::cout << " mol_from_dictionary found " << atoms.size()
+// 	     << " atoms " << std::endl;
+   if (atoms.size() > 0) {
+      CResidue *res_p = new CResidue;
+      res_p->SetResID(three_letter_code.c_str(), 1, "");
+      for (unsigned int iat=0; iat<atoms.size(); iat++) 
+	 res_p->AddAtom(atoms[iat]);
+      CChain *chain_p = new CChain;
+      chain_p->SetChainID("A");
+      chain_p->AddResidue(res_p);
+      CModel *model_p = new CModel;
+      model_p->AddChain(chain_p);
+      mol = new CMMDBManager;
+      mol->AddModel(model_p);
+   }
+   return mol;
 }
