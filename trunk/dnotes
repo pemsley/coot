@@ -2,10 +2,6 @@
 
 Things to do for 0.5.1
 
-  o Note to self: Add interface to PRODRG and Kevins FSS
-
-  o Geometry graphs (rotamers at least) are transient and annoying.
-
   o I have taken the setting of transient out of
     store_geometry_dialog(). Now on_distances_and_angles1_activate()
     needs to set it's dialog as transient explicitly.
@@ -46,17 +42,16 @@ Things to do for 0.5.1
        edit CYS
        save
        Look at monomer-CYS.cif, the TLC is ASN.
+       0 or 2hd.
 
 * Looks fine on FC4, still bad on MacBook?
-  0 or 2hd.
 
   o Coot fails to read 293.cif.  I want to be able to parse it
     correctly and get the coordinates from it.
     2hd.
 
   o Look at rotamer graph, make a modification, look at rotamer graph
-    again.  The blocks have been scaled down [JED report, not
-    reproduced]
+    again.  The blocks have been scaled down [JED report]
     1hd
 
   o Build a helix in 1b41 map.  The Spacegroup is R 3 2 but the cell
@@ -90,12 +85,14 @@ Things to do for 0.5.1
   o check out the virtualbox page on the ubuntu wiki for info about how
     to set it up.
 
-  o LSQ map by overlap - does that work properly.  Use an offset
+  o LSQ map by overlap - does that work properly?  Use an offset
     reference molecule.  You can test this by summing the density
     before hand, rotation/translating the map and then re-summing the
     density on the transformed map.
 
-  o restraints editor, Cancel on save cif doesn't work  
+  o Edit the Coot page on the CCP4 wiki: put a link into Kay's page.
+
+* Done.
 
      save_restraint_chooserdialog in glade, the response is not
      working or not closing the dialog. Maybe its a Mac thing.  I
@@ -103,13 +100,25 @@ Things to do for 0.5.1
 
      I can now.  Use GTK_RESPONSE_CANCEL.
 
+     Remove this debugging though:
+
+restraints editor saving 0x90065b8
+ debug:: testing restraints editor number 0 of 1 0x90065b8
+ debug:: testing restraints editor number 0 of 1
+ comparing 0x90065b8 vs 0x90065b8
+restraints editor index 0 matches
+Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() from dialog 0x90065b8
 
 
 
 
+
+
+  o Geometry graphs (rotamers at least) are transient and annoying.
+
+* Nope.  It's a window manager issue.
 
   o Edit the Coot page on the CCP4 wiki: put a link into Kay's page.
- 
 
 * Done.
 
