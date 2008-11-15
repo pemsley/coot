@@ -605,6 +605,21 @@ namespace coot {
       CMMDBManager *create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_mol,
 								    int SelectionHandle);
       void add_copy_of_atom(CMMDBManager *mol, CAtom *atom);
+
+      // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
+      // 
+      bool add_atom(CResidue *res,
+		    const std::string &atom_name_1,
+		    const std::string &atom_name_2,
+		    const std::string &atom_name_3,
+		    const std::string &alt_conf, 
+		    double length,
+		    double angle, // degrees
+		    double torsion,
+		    const std::string &new_atom_name,
+		    const std::string &new_atom_ele,
+		    float new_atom_occ,
+		    float new_atom_b_factor); // degrees
       
       // utility function for above:
       CResidue* deep_copy_this_residue(const CResidue *residue,

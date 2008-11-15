@@ -1402,6 +1402,71 @@ coot::util::get_following_residue(const residue_spec_t &rs,
    return res;
 }
 
+// return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
+// 
+bool
+coot::util::add_atom(CResidue *res,
+		     const std::string &atom_name_1,
+		     const std::string &atom_name_2,
+		     const std::string &atom_name_3,
+		     const std::string &alt_conf,
+		     double length,
+		     double angle, // degrees
+		     double torsion, // degrees
+		     const std::string &new_atom_name,
+		     const std::string &new_atom_ele,
+		     float new_atom_occ,
+		     float new_atom_b_factor) {
+
+   bool added_status = 0;
+   int n_found = 0; 
+   CAtom *a = NULL;
+   CAtom *b = NULL;
+   CAtom *c = NULL;
+
+   int nResidueAtoms;
+   PPCAtom residue_atoms;
+   res->GetAtomTable(residue_atoms, nResidueAtoms);
+   for (int i=0; i<nResidueAtoms; i++) {
+      std::string atom_name(residue_atoms[i]->name);
+      std::string atom_alt_conf(residue_atoms[i]->altLoc);
+      if (atom_alt_conf == alt_conf) { 
+	 if (atom_name == atom_name_1) {
+	    a = residue_atoms[i];
+	 } 
+	 if (atom_name == atom_name_2) {
+	    b = residue_atoms[i];
+	 } 
+	 if (atom_name == atom_name_3) {
+	    c = residue_atoms[i];
+	 }
+      }
+   }
+
+   if (a && b && c) {
+      clipper::Coord_orth ac(a->x, a->y, a->z);
+      clipper::Coord_orth bc(b->x, b->y, b->z);
+      clipper::Coord_orth cc(c->x, c->y, c->z);
+      double ang  = clipper::Util::d2rad(angle);
+      double tors = clipper::Util::d2rad(torsion);
+      clipper::Coord_orth pos(ac, bc, cc, length, ang, tors);
+      CAtom *new_atom = new CAtom();
+      new_atom->SetCoordinates(pos.x(), pos.y(), pos.z(), new_atom_occ, new_atom_b_factor);
+      new_atom->SetAtomName(new_atom_name.c_str());
+      new_atom->SetElementName(new_atom_ele.c_str());
+      res->AddAtom(new_atom);
+      added_status = 1;
+      
+   } else {
+      std::cout << "Failed to find all reference atoms : "
+		<< atom_name_1 << " " 
+		<< atom_name_2 << " " 
+		<< atom_name_3 << ". Found " << n_found << " out of 3" << std::endl;
+   }
+   return added_status;
+} 
+
+
 
 std::vector<std::string>
 coot::util::get_residue_alt_confs(CResidue *res) {
