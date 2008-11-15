@@ -25,6 +25,7 @@
 #define COOT_ROTAMER_SELECTION_DIALOG   1001
 #define COOT_EDIT_CHI_DIALOG            1002
 
+#define COOT_UNDEFINED_WINDOW               0
 #define COOT_DELETE_WINDOW                  1
 #define COOT_MUTATE_RESIDUE_RANGE_WINDOW    2
 #define COOT_ACCEPT_REJECT_WINDOW           3

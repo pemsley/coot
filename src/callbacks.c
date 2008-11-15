@@ -4997,6 +4997,7 @@ on_distances_and_angles1_activate      (GtkMenuItem     *menuitem,
   store_geometry_dialog(widget); /* needed to deactivate the distance
 				    togglebutton after 2nd atoms
 				    clicked in graphics */
+  set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
   gtk_widget_show(widget);
 
 }
