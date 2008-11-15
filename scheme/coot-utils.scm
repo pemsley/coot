@@ -53,6 +53,12 @@
 ;; fix typo
 (define set-find-hydrogen-torsion set-find-hydrogen-torsions)
 
+;; add terminal residue is the normal thing we do with an aligned
+;; sequence, but also we can try ton find the residue type of a
+;; residue in the middle of the chain that is modelled as an ALA, say.
+;; 
+(define find-aligned-residue-type find-terminal-residue-type)
+
 ;; Macro to tidy up a a setup of functions to be run with no backup
 ;; for a particular molecule.
 ;;
