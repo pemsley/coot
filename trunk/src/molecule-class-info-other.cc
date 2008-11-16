@@ -375,6 +375,8 @@ molecule_class_info_t::pepflip(int atom_index) {
    std::cout << "flipping " << resno << " " << altconf << " " << chain_id << std::endl;
    if (atom_name == " N  ")
       resno--;
+   if (atom_name == " H  ")
+      resno--;
 
    pepflip_residue(resno, altconf, chain_id);
    

@@ -129,22 +129,21 @@ coot::pepflip(CMMDBManager *mol, int resno,
    // Now the other atoms:
 
    
-   std::vector<const char *> first_atoms(3);
-   std::vector<int> selHnd_first(3);
-   std::vector<PPCAtom> SelAtom_first(3);
-   std::vector<int> nSelAtoms_first(3);
+   std::vector<const char *> first_atoms(2);
+   std::vector<int> selHnd_first(2);
+   std::vector<PPCAtom> SelAtom_first(2);
+   std::vector<int> nSelAtoms_first(2);
    PPCAtom  SelAtom_second = NULL;
    int nSelAtoms_second;
-   int SelHnd_second  = mol->NewSelection();
 
-   first_atoms[0] = "  C ";
-   first_atoms[1] = "  O ";
-   first_atoms[2] = "  H ";
+   first_atoms[0] = " C  ";
+   first_atoms[1] = " O  ";
    
-   const char *second_atom = "  N ";
-   std::vector<CAtom *> flipped_atom(1);
+   std::vector<const char *> second_atoms;
+   second_atoms.push_back(" N  ");
+   second_atoms.push_back(" H  ");
    
-   for (int iat=0; iat<3; iat++) { 
+   for (int iat=0; iat<2; iat++) { 
       SelAtom_first[iat] = NULL;
       selHnd_first[iat] = mol->NewSelection();
       mol->SelectAtoms(selHnd_first[iat],
@@ -159,13 +158,15 @@ coot::pepflip(CMMDBManager *mol, int resno,
 		       );
       mol->GetSelIndex(selHnd_first[iat], SelAtom_first[iat], nSelAtoms_first[iat]);
       if (nSelAtoms_first[iat] > 0) { 
-	 flipped_atom[0] = SelAtom_first[iat][0];
+	 CAtom *flipped_atom = SelAtom_first[iat][0];
 // 	 std::cout << " start coords for iat: " << iat << " "
 // 		   << flipped_atom[0]->x << " " 
 // 		   << flipped_atom[0]->y << " " 
 // 		   << flipped_atom[0]->z << " " 
 // 		   << std::endl;
-	 std::vector<clipper::Coord_orth> c = flip_internal(ca, flipped_atom);
+	 std::vector<CAtom *> flipped_as_vec;
+	 flipped_as_vec.push_back(flipped_atom);
+	 std::vector<clipper::Coord_orth> c = flip_internal(ca, flipped_as_vec);
 	 SelAtom_first[iat][0]->x = c[0].x();
 	 SelAtom_first[iat][0]->y = c[0].y();
 	 SelAtom_first[iat][0]->z = c[0].z();
@@ -174,30 +175,37 @@ coot::pepflip(CMMDBManager *mol, int resno,
       mol->DeleteSelection(selHnd_first[iat]);
    }
 
-   mol->SelectAtoms(SelHnd_second,
-		    0,
-		    (char *)chain_id.c_str(),
-		    resno+1, "*",
-		    resno+1, "*",
-		    "*", // rnames
-		    second_atom,
-		    "*", // elements
-		    "*" // altLocs 
-		    );
-   mol->GetSelIndex(SelHnd_second, SelAtom_second, nSelAtoms_second);
-   if (nSelAtoms_second > 0) { 
-      flipped_atom[0] = SelAtom_second[0];
-//       std::cout << " start coords for second " 
-// 		<< flipped_atom[0]->x << " " 
-// 		<< flipped_atom[0]->y << " " 
-// 		<< flipped_atom[0]->z << " " 
-// 		<< std::endl;
-      std::vector<clipper::Coord_orth> c = flip_internal(ca, flipped_atom);
-      SelAtom_second[0]->x = c[0].x();
-      SelAtom_second[0]->y = c[0].y();
-      SelAtom_second[0]->z = c[0].z();
+   for (int iat=0; iat<2; iat++) { 
+      int SelHnd_second  = mol->NewSelection();
+      mol->SelectAtoms(SelHnd_second,
+		       0,
+		       chain_id.c_str(),
+		       resno+1, "*",
+		       resno+1, "*",
+		       "*", // rnames
+		       second_atoms[iat],
+		       "*", // elements
+		       "*" // altLocs 
+		       );
+      mol->GetSelIndex(SelHnd_second, SelAtom_second, nSelAtoms_second);
+      // std::cout << "debug:: " << second_atoms[iat] << " " << nSelAtoms_second << std::endl;
+      if (nSelAtoms_second > 0) { 
+	 CAtom *flipped_atom = SelAtom_second[0];
+// 	 std::cout << " start coords for second "
+// 		   << flipped_atom << " " 
+// 		   << flipped_atom->x << " " 
+// 		   << flipped_atom->y << " " 
+// 		   << flipped_atom->z << " " 
+// 		   << std::endl;
+	 std::vector<CAtom *> flipped_as_vec;
+	 flipped_as_vec.push_back(flipped_atom);
+	 std::vector<clipper::Coord_orth> c = flip_internal(ca, flipped_as_vec);
+	 SelAtom_second[0]->x = c[0].x();
+	 SelAtom_second[0]->y = c[0].y();
+	 SelAtom_second[0]->z = c[0].z();
+      }
+      mol->DeleteSelection(SelHnd_second);
    }
-   mol->DeleteSelection(SelHnd_second);
 
    return status; // 1 success, 0 failure
 }

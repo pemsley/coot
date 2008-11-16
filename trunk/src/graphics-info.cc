@@ -137,20 +137,20 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 						     "window1"));
    GtkWidget *label;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
-     label = lookup_widget(GTK_WIDGET(window),
-				      "accept_dialog_accept_docked_label_string");
+      label = lookup_widget(GTK_WIDGET(window),
+			    "accept_dialog_accept_docked_label_string");
    } else {
-     label = lookup_widget(GTK_WIDGET(window),
-				      "accept_dialog_accept_label_string");
-     gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
-
-     // now set the position, if it was set:
-     if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
-	 (graphics_info_t::accept_reject_dialog_y_position > -100)) {
-       gtk_widget_set_uposition(window,
-				graphics_info_t::accept_reject_dialog_x_position,
-				graphics_info_t::accept_reject_dialog_y_position);
-     }
+      label = lookup_widget(GTK_WIDGET(window),
+			    "accept_dialog_accept_label_string");
+      gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
+      
+      // now set the position, if it was set:
+      if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
+	  (graphics_info_t::accept_reject_dialog_y_position > -100)) {
+	 gtk_widget_set_uposition(window,
+				  graphics_info_t::accept_reject_dialog_x_position,
+				  graphics_info_t::accept_reject_dialog_y_position);
+      }
    }
 
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
