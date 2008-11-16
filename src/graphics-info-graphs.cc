@@ -241,6 +241,7 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
    }
 
    graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_ROTAMER);
+   std::cout << "====== update graph here ======" << std::endl;
    if (graph) {
       coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
       if (!gr) {
