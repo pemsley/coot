@@ -285,6 +285,12 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
    acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
    std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
 
+   std::cout << "DEBUG info:: xmap cell: "
+	     << clipper::Util::rad2d(xmap.cell().descr().alpha()) << " " 
+	     << clipper::Util::rad2d(xmap.cell().descr().beta()) << " " 
+	     << clipper::Util::rad2d(xmap.cell().descr().gamma()) << "\n"; 
+   std::cout << "DEBUG info:: xmap HM symbol: " << xmap.spacegroup().symbol_hm() << std::endl;
+
    std::vector<coot::minimol::molecule> mr(2); // part of returned value
    coot::helix_placement_info_t m =
       get_20_residue_helix_standard_orientation(n_residues);
