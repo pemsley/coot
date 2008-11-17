@@ -2991,6 +2991,26 @@ graphics_info_t::environment_graphics_object() {
       g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
 }
 
+// static
+void
+graphics_info_t::picked_intermediate_atom_graphics_object() {
+
+   if (flash_intermediate_atom_pick_flag) { 
+      glPointSize(12.0);
+      glColor3f(0.99, 0.99, 0.2);
+      // for some reason, I have to add the point twice and use
+      // GL_POINTS, GL_POINT with one vertex does not work.
+      glBegin(GL_POINTS);
+      glVertex3f(intermediate_flash_point.x(),
+		 intermediate_flash_point.y(),
+		 intermediate_flash_point.z());
+      glVertex3f(intermediate_flash_point.x(),
+		 intermediate_flash_point.y(),
+		 intermediate_flash_point.z());
+      glEnd();
+   }
+} 
+
 // This is the GL rendering of the environment bonds box
 // 
 void

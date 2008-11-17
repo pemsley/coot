@@ -1781,3 +1781,19 @@ void show_set_undo_molecule_chooser_py() {
 #endif // USE_PYTHON
 
 
+
+
+pick_info
+pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
+   coot::Cartesian front = unproject(0.0);
+   coot::Cartesian back  = unproject(1.0);
+   short int pick_mode = PICK_ATOM_ALL_ATOM;
+   pick_info pi = pick_atom(SelAtom, -1, front, back, pick_mode, 0);
+   if (pi.success == GL_TRUE) {
+      std::cout << "flashing picked intermediate atom" << std::endl;
+      CAtom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
+      clipper::Coord_orth co(at->x, at->y, at->z);
+      graphics_info_t::flash_position(co);
+   } 
+   return pi;
+}
