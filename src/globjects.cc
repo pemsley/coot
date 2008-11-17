@@ -222,6 +222,10 @@ short int graphics_info_t::draw_chi_angle_flash_bond_flag = 0;
 std::pair<clipper::Coord_orth, clipper::Coord_orth> graphics_info_t::flash_bond = 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> (clipper::Coord_orth(0,0,0),
 							clipper::Coord_orth(0,0,0));
+bool graphics_info_t::flash_intermediate_atom_pick_flag = 0;
+clipper::Coord_orth graphics_info_t::intermediate_flash_point;
+
+
 int graphics_info_t::default_bond_width = 5;
 
    
@@ -721,6 +725,7 @@ coot::protein_geometry *graphics_info_t::geom_p = NULL;
 
 // rotamer probabilities
 coot::rotamer_probability_tables graphics_info_t::rot_prob_tables;
+float graphics_info_t::rotamer_distortion_scale = 0.3;
 
 // PHENIX support
 std::string graphics_info_t::external_refinement_program_button_label = "*-*";
@@ -1914,6 +1919,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // environment object
       graphics_info_t::environment_graphics_object();
+
+      // flash the picked intermediate atom (Erik-mode)
+      graphics_info_t::picked_intermediate_atom_graphics_object();
 
       //
       graphics_info_t::baton_object();

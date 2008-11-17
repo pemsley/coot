@@ -241,7 +241,6 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
    }
 
    graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_ROTAMER);
-   std::cout << "====== update graph here ======" << std::endl;
    if (graph) {
       coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
       if (!gr) {
@@ -809,7 +808,7 @@ graphics_info_t::rotamer_graphs(int imol) {
 				    // rotamers with low probabilities to be
 				    // marked (nearly as or more) bad than not
 				    // found rotamers:
-				    distortion = 100.0 * 0.4/d_score.probability;
+				    distortion = 100.0 * rotamer_distortion_scale/d_score.probability;
 				    distortion = distortion > 100.0 ? 100.0 : distortion;
 				    str += " ";
 				    str += d_score.rotamer_name;
@@ -939,7 +938,7 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 		     // rotamers with low probabilities to be
 		     // marked (nearly as or more) bad than not
 		     // found rotamers:
-		     distortion = 100.0 * 0.2/d_score.probability;
+		     distortion = 100.0 * rotamer_distortion_scale/d_score.probability;
 		     distortion = distortion > 100.0 ? 100.0 : distortion;
 		     str += " ";
 		     str += d_score.rotamer_name;
@@ -1004,7 +1003,7 @@ graphics_info_t::rotamers_from_residue_selection(PCResidue *SelResidues,
 	 // rotamers with low probabilities to be
 	 // marked (nearly as or more) bad than not
 	 // found rotamers:
-	 distortion = 100.0 * 0.2/d_score.probability;
+	 distortion = 100.0 * rotamer_distortion_scale/d_score.probability;
 	 distortion = distortion > 100.0 ? 100.0 : distortion;
 	 str += " ";
 	 str += d_score.rotamer_name;

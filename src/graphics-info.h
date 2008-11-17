@@ -511,6 +511,11 @@ class graphics_info_t {
    // 
    static coot::db_main main_chain;
 
+   // flash picked intermediate atom - try to stop Erik going insane.
+   static bool flash_intermediate_atom_pick_flag;
+   static clipper::Coord_orth intermediate_flash_point;
+   // function that uses this, picked_intermediate_atom_graphics_object() is public
+
    void environment_graphics_object_internal(const graphical_bonds_container &env_bonds_box) const;
 
    void read_standard_residues();   // for mutation, we have
@@ -784,6 +789,9 @@ public:
 #endif // GTK_MAJOR_VERSION
       baton_next_ca_options = new std::vector<coot::scored_skel_coord>;
       baton_previous_ca_positions = new std::vector<clipper::Coord_orth>;
+
+      // rotamer distortion graph scale
+      rotamer_distortion_scale = 0.3;
 
       // cif dictionary
       cif_dictionary_filename_vec = new std::vector<std::string>;
@@ -1857,6 +1865,8 @@ public:
 			std::string ins_code_2,
 			std::string altconf, // use this altconf or "" atoms.
 			std::string chain_id_1); 
+   static void flash_position(const clipper::Coord_orth &pos);
+
    std::pair<int, int> auto_range_residues(int atom_index, int imol) const; 
 
 
@@ -1918,6 +1928,9 @@ public:
 
    static void environment_graphics_object();
    // void symmetry_environment_graphics_object() const;
+
+   // for flashing the picked intermediate atom.
+   static void picked_intermediate_atom_graphics_object();
    
    void update_environment_distances_maybe(int index, int imol);
    void update_environment_distances_by_rotation_centre_maybe(int imol); 
@@ -2380,6 +2393,7 @@ public:
    static float rotamer_lowest_probability;  // Expressed as a percentage (2.0 default).
                                       // This is the P_r1_r2_r3_r4 probability, no bayesian 
                                       // stuff involved, currently.
+   static float rotamer_distortion_scale; // for the validation graphs
    static int rotamer_fit_clash_flag;
    static short int in_rotamer_define;
    static int rotamer_residue_atom_index;

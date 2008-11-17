@@ -2,9 +2,32 @@
 
 Things to do for 0.5.1
 
-  o I have taken the setting of transient out of
-    store_geometry_dialog(). Now on_distances_and_angles1_activate()
-    needs to set it's dialog as transient explicitly.
+  o Build a helix in 1b41 map.  The Spacegroup is R 3 2 but the cell
+   is hexagonal.
+   2hd
+
+* OK, need new clipper.
+
+  o goosh is part of guile main now?
+
+* Nope.
+
+  o Can you enable the 'X' key for residues with alt confs?
+
+  o  save_restraint_chooserdialog in glade, the response is not
+     working or not closing the dialog. Maybe its a Mac thing.  I
+     can't see how this "close/cancel" button is supposed to work.
+
+     I can now.  Use GTK_RESPONSE_CANCEL.
+
+     Remove this debugging though:
+
+restraints editor saving 0x90065b8
+ debug:: testing restraints editor number 0 of 1 0x90065b8
+ debug:: testing restraints editor number 0 of 1
+ comparing 0x90065b8 vs 0x90065b8
+restraints editor index 0 matches
+Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() from dialog 0x90065b8
 
   o Loop building in both directions for scheme 
     2hd
@@ -50,14 +73,6 @@ Things to do for 0.5.1
     correctly and get the coordinates from it.
     2hd.
 
-  o Look at rotamer graph, make a modification, look at rotamer graph
-    again.  The blocks have been scaled down [JED report]
-    1hd
-
-  o Build a helix in 1b41 map.  The Spacegroup is R 3 2 but the cell
-   is hexagonal.
-   2hd
-
   o [Maria Håkansson] Hydrogen fail to move in SHELXL molecule when using:
 
    add alternative conformation
@@ -77,11 +92,6 @@ Things to do for 0.5.1
     something, e.g. we could then use the "B" and "S" keys, because they
     are not often used.  Maybe "A" too.
 
-  o Baton-build, cancel, baton build again.  There is no Baton Atoms
-    molecule.  Why?
-  
-  o Can you enable the 'X' key for residues with alt confs?
-
   o check out the virtualbox page on the ubuntu wiki for info about how
     to set it up.
 
@@ -90,29 +100,54 @@ Things to do for 0.5.1
     before hand, rotation/translating the map and then re-summing the
     density on the transformed map.
 
+  o Pick on an active atom should flash the atom.
+
+  o in the Restraints Editor monomer selector, the last residue should
+    be the active item.
+
+  o The chiral restraints for GLS (a spiro compound) are not appearing
+    - they do for ASP though.  Hmm...
+
+ 
+
+
+
+
+
+  o Baton-build, cancel, baton build again.  There is no Baton Atoms
+    molecule.  Why?
+
+* Can't reproduce.
+
+  o Bernhard we need a COOT_PYTHON_EXTRAS_DIR, a directly of *.py
+    files that Coot reads/evalutes on start up. (If, of course
+    COOT_PYTHON_EXTRAS_DIR is define and is a directory).
+
+* Bernhard has done.
+
+  o DEBUG:: rotamer_probability_tables self test passed
+
+* cleaned
+
+  o Look at rotamer graph, make a modification, look at rotamer graph
+    again.  The blocks have been scaled down [JED report]
+    1hd
+
+* Fixed.
+
+  o Flip peptide needs to flip the H on the N too. [Joel Bard].
+
+* Done.
+
   o Edit the Coot page on the CCP4 wiki: put a link into Kay's page.
 
 * Done.
 
-     save_restraint_chooserdialog in glade, the response is not
-     working or not closing the dialog. Maybe its a Mac thing.  I
-     can't see how this "close/cancel" button is supposed to work.
+  o I have taken the setting of transient out of
+    store_geometry_dialog(). Now on_distances_and_angles1_activate()
+    needs to set it's dialog as transient explicitly.
 
-     I can now.  Use GTK_RESPONSE_CANCEL.
-
-     Remove this debugging though:
-
-restraints editor saving 0x90065b8
- debug:: testing restraints editor number 0 of 1 0x90065b8
- debug:: testing restraints editor number 0 of 1
- comparing 0x90065b8 vs 0x90065b8
-restraints editor index 0 matches
-Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() from dialog 0x90065b8
-
-
-
-
-
+* Done.
 
   o Geometry graphs (rotamers at least) are transient and annoying.
 
@@ -7238,6 +7273,18 @@ Fri Nov  7 08:07:07 GMT 2008
 
     3bmw: difference map 11, near 645 ILE, surely there is something
     wrong with the "peak next to molecule" algorithm?
+
+
+----
+Sun Nov 16 16:42:42 GMT 2008
+
+   look at xnee for testing the gui (needs linux).
+
+----
+Sun Nov 16 16:46:20 GMT 2008
+
+   run test_yourself() for rotamer_probability_tables needs to be
+   added to test suite.
 
 
 -----

@@ -420,7 +420,7 @@ graphics_info_t::moving_atoms_atom_pick() const {
    p_i.imol = -1;
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
-   float dist, min_dist = 0.2;
+   float dist, min_dist = 0.4;
    
    // This is the signal that moving_atoms_asc is clear
    if (moving_atoms_asc->n_selected_atoms > 0) {
@@ -475,6 +475,12 @@ graphics_info_t::check_if_moving_atom_pull() {
 
    pick_info pi = moving_atoms_atom_pick();
    if (pi.success == GL_TRUE) {
+
+      // Flash picked atom.
+      std::cout << "flashing picked intermediate atom" << std::endl;
+      CAtom *at = moving_atoms_asc->atom_selection[pi.atom_index];
+      clipper::Coord_orth co(at->x, at->y, at->z);
+      graphics_info_t::flash_position(co);
 
       // quite possibly we will have success if moving_atoms_asc is
       // not null...
@@ -599,7 +605,7 @@ graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screen
    graphics_draw();
 }
 
-// moving_atoms_dragged_atom_index
+// uses moving_atoms_dragged_atom_index
 void
 graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 

@@ -795,6 +795,21 @@ graphics_info_t::flash_selection(int imol,
    graphics_draw();
 }
 
+// static
+void
+graphics_info_t::flash_position(const clipper::Coord_orth &pos) {
+
+   if (glarea) {
+      int n_flash = residue_selection_flash_frames_number; // default 3
+      flash_intermediate_atom_pick_flag = 1;
+      intermediate_flash_point = pos;
+      for (int iflash=0; iflash<n_flash; iflash++) {
+	 graphics_draw();
+      }
+      flash_intermediate_atom_pick_flag = 0;
+   }
+}
+
 void
 graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, int i_atom_no_2) {
    int tmp; 
