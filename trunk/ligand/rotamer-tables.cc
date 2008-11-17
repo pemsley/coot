@@ -482,8 +482,9 @@ coot::rotamer_probability_tables::fill_tables(const std::string &dir) {
       } 
    }
 
-   if (bad_read == 0) 
-      bad_read = test_yourself();
+   if (0) 
+      if (bad_read == 0) 
+	 bad_read = test_yourself();
    
    if (bad_read == 0)
       is_well_formatted_ = 1;
