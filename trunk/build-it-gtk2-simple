@@ -246,6 +246,7 @@
 #               usage, it is no longer needed, it seems.  Remove configure 
 #               argument --enable-mmdbold
 # 4.28 20081110 Upgrade to mmdb-1.19, get it from EBI.
+# 4.29 20081118 Use the ccp4 libs underlay.
 script_version=4.28
 
 # :: NOTE:: 
@@ -1824,10 +1825,14 @@ if test -n "$build_ccp4c" ; then
     echo BUILDING: libccp4c
     echo BUILDING: libccp4c >&2
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
+    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/ccp4-libs-underlay.tar.gz
     ( 
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4c-5.0.2-ysbl-2.tar.gz | tar xf -
     cd libccp4c-5.0.2-ysbl-2
+    # apply the ccp4 new files
+    gzip -dc ${AUTOBUILD_SOURCES}/ccp4-libs-underlay.tar.gz | tar xf -
+    cp src/*.[ch] .
     ./configure $generic_prefix
     $MAKE
     $MAKE install
