@@ -4466,8 +4466,8 @@ graphics_info_t::apply_undo() {
 	       }
 	    }
 	 } else {
+	    undo_molecule = -1; // reset it
 	    if (use_graphics_interface_flag) { 
-	       undo_molecule = -1; // reset it
 	       std::cout << "WARNING:: !!!  Changing the molecule to which "
 			 << "\"Undo\"s are done." << std::endl;
 	       std::string s = "WARNING:: Changing to Undo molecule";
