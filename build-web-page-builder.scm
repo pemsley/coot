@@ -712,6 +712,12 @@
 	(list "binary-Linux-i386-centos-4-python-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"))
 
+	(list "binary-Linux-x86_64-centos-5-gtk2"
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2"))
+
+	(list "binary-Linux-x86_64-centos-5-python-gtk2"
+	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2"))
+
 	(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
 	      "ubuntu-6.06/gtk2" #t)
 
