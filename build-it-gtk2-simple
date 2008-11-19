@@ -247,7 +247,8 @@
 #               argument --enable-mmdbold
 # 4.28 20081110 Upgrade to mmdb-1.19, get it from EBI.
 # 4.29 20081118 Use the ccp4 libs underlay.
-script_version=4.28
+# 4.30 20081119 Use -O not -O2 to compile coot on 64 bit machine
+script_version=4.30
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1260,8 +1261,14 @@ echo ccp4_system_type $ccp4_system_type
 which swig > /dev/null
 have_swig=$?
 if [ $have_swig = 0 ] ; then
-   echo system has swig.  Good.
-   swig -version
+    swig -version
+    swig_version=`swig -version | awk 'NF { print $NF; exit }'`
+    if [ "$swig_version" = 1.3.34 ] ; then
+       echo oops this swig is broken.  Need to upgrade to 1.3.36
+       my_exit 2
+    else 
+       echo system has swig.  Good.
+    fi
 else
    echo swig required - not found.
    my_exit 2
@@ -2621,6 +2628,16 @@ fi
 #      CXXFLAGS="-g -O"
 # consider getting rid of $shared_static_flag, which does a --disable-shared.
 # i.e. we should keep and use shared libs
+coot_optim_args=
+if [ $architecture = x86_64 ] ; then 
+   # This could well be too general a test, certainly on 64 bit CentOS 5 we need this, 
+   # and possibly on 64 bit Gutsy.
+
+   # There is a problem quoting this, e.g.
+   # coot_optim_args="CXXFLAGS='\"-g -O\"'" fails in configure
+   coot_optim_args="CXXFLAGS=-gO"
+   export CXXFLAGS="-g -O"
+fi
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
@@ -2635,7 +2652,8 @@ echo ./configure $coot_prefix \
       $scripting          \
       $python_scripting   \
       $shared_static_flag \
-      $coot_extra_args   
+      $coot_optim_args   \
+      $coot_extra_args
 
 ./configure $coot_prefix \
    --with-gtkcanvas-prefix=$install_top_dir \
@@ -2648,7 +2666,7 @@ echo ./configure $coot_prefix \
       $scripting          \
       $python_scripting   \
       $shared_static_flag \
-      $coot_extra_args    
+      $coot_extra_args  
 
 rm src/coot_wrap_guile_pre.cc
 rm src/coot_wrap_python_pre.cc
