@@ -1106,6 +1106,12 @@ graphics_info_t::check_if_in_rotamer_define(GdkEventButton *event) {
 	 pick_pending_flag = 0;
 	 normal_cursor();
 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_rotamer_togglebutton");
+	 if (moving_atoms_asc) {
+	    std::cout << "debug moving atoms to moving-atoms.pdb" << std::endl;
+	    moving_atoms_asc->mol->WritePDBASCII("moving-atoms.pdb");
+	 } else {
+	    std::cout << "debug no moving atoms object" << std::endl;
+	 } 
       }
    }
 }

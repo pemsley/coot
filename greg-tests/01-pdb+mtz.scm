@@ -567,6 +567,30 @@
 				    #t)))))))))))))
 
 
+(greg-testcase "Refine Zone with Alt conf" #t 
+   (lambda ()
+
+     (let* ((imol (greg-pdb "tutorial-modern.pdb"))
+	    (mtz-file-name (append-dir-file
+			    greg-data-dir
+			    "rnasa-1.8-all_refmac1.mtz"))
+	   (imol-map (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)))
+
+       (set-imol-refinement-map imol-map)
+       (let ((at-1 (get-atom imol "B" 72 " SG " "B")))
+	 (with-auto-accept
+	  (refine-zone imol "B" 72 72 "B"))
+	 (let ((at-2 (get-atom imol "B" 72 " SG " "B")))
+	   (let ((d (bond-length-from-atoms at-1 at-2)))
+	     ;; the atom should move in refinement
+	     (format #t "   refined moved: d=~s~%" d)
+	     (if (< d 0.4)
+		 (begin
+		   (format #t "   refined atom failed to move: d=~s~%" d)
+		   (throw 'fail))
+		 #t)))))))
+
+
 
 (greg-testcase "Rigid Body Refine Alt Conf Waters" #t
    (lambda ()
@@ -1258,3 +1282,86 @@
 		(list #t imol "A" 92 "")
 		(list #f imol "A" 94 "")
 		))))))))
+
+(greg-testcase "Autofit Rotamer on Residues with Insertion codes" #t 
+   (lambda ()
+
+     ;; what's the plan?  
+     
+     ;; we need to check that H52 LEU and H53 GLY do not move and H52A does move
+
+   (define (centre-atoms mat)
+     (map (lambda (ls)
+	    (/ (apply + ls) (length ls)))
+	  (transpose-mat (map (lambda (x) (list-ref x 2)) mat))))
+   
+     
+     (let* ((imol (greg-pdb "pdb3hfl.ent"))
+	    (mtz-file-name (append-dir-file greg-data-dir "3hfl_sigmaa.mtz"))
+	    (imol-map (make-and-draw-map mtz-file-name
+					 "2FOFCWT" "PH2FOFCWT" "" 0 0)))
+
+       (if (not (valid-map-molecule? imol-map))
+	   (throw 'fail))
+
+       (let ((leu-atoms-1 (residue-info imol "H" 52 ""))
+	     (leu-resname (residue-name imol "H" 52 ""))
+	     (gly-atoms-1 (residue-info imol "H" 53 ""))
+	     (gly-resname (residue-name imol "H" 53 ""))
+	     (pro-atoms-1 (residue-info imol "H" 52 "A"))
+	     (pro-resname (residue-name imol "H" 52 "A")))
+
+	 ;; First check that the residue names are correct
+	 (if (not
+	      (and 
+	       (string=? leu-resname "LEU")
+	       (string=? gly-resname "GLY")
+	       (string=? pro-resname "PRO")))
+	     (begin
+	       (format #t "  failure of residues names: ~s ~s ~s~%"
+		       leu-resname gly-resname pro-resname)
+	       (throw 'fail)))
+	       
+
+	 ;; OK, what are the centre points of these residues?
+	 (let ((leu-centre-1 (centre-atoms leu-atoms-1))
+	       (gly-centre-1 (centre-atoms gly-atoms-1))
+	       (pro-centre-1 (centre-atoms pro-atoms-1)))
+
+	   (auto-fit-best-rotamer 52 "" "A" "H" imol imol-map 0 0)
+
+	   ;; OK, what are the centre points of these residues?
+	   (let ((leu-atoms-2 (residue-info imol "H" 52 ""))
+		 (gly-atoms-2 (residue-info imol "H" 53 ""))
+		 (pro-atoms-2 (residue-info imol "H" 52 "A")))
+	     
+	     (let ((leu-centre-2 (centre-atoms leu-atoms-2))
+		   (gly-centre-2 (centre-atoms gly-atoms-2))
+		   (pro-centre-2 (centre-atoms pro-atoms-2)))
+	       
+	       (let ((d-leu (pos-difference leu-centre-1 leu-centre-2))
+		     (d-gly (pos-difference gly-centre-1 gly-centre-2))
+		     (d-pro (pos-difference pro-centre-1 pro-centre-2)))
+		 
+		 (if (not (close-float? d-leu 0.0))
+		     (begin 
+		       (format #t "   Failure: LEU 52 moved~%")
+		       (throw 'fail)))
+
+		 (if (not (close-float? d-gly 0.0))
+		     (begin 
+		       (format #t "   Failure: GLY 53 moved~%")
+		       (throw 'fail)))
+
+		 (if (< d-pro 0.05)
+		     (begin 
+		       (format #t "   Failure: PRO 52A not moved enough~%")
+		       (throw 'fail)))
+		 
+		 ;; rotamer 4 is out of range.
+ 		 (set-residue-to-rotamer-number imol "H" 52 "A" 4) ;; crash
+		 #t
+		 ))))))))
+
+
+

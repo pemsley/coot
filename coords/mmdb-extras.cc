@@ -164,7 +164,7 @@ make_asc(CMMDBManager *mol) {
 // or has an altLoc of "".
 // 
 CResidue *
-coot::deep_copy_this_residue(const CResidue *residue,
+coot::deep_copy_this_residue(CResidue *residue,
 			     const std::string &altconf,
 			     short int whole_residue_flag,
 			     int atom_index_handle) {
@@ -175,9 +175,9 @@ coot::deep_copy_this_residue(const CResidue *residue,
    CResidue *rres = new CResidue;
    CChain   *chain_p = new CChain;
    chain_p->SetChainID(((CResidue *)residue)->GetChainID());
-   rres->seqNum = ((CResidue *)residue)->GetSeqNum();
-   memcpy(rres->insCode, residue->insCode, sizeof(InsCode));
-   memcpy(rres->name, residue->name, sizeof(ResName));
+   rres->SetResID(residue->GetResName(),
+		  residue->GetSeqNum(),
+		  residue->GetInsCode());
 
    PPCAtom residue_atoms;
    int nResidueAtoms;
@@ -205,7 +205,7 @@ coot::deep_copy_this_residue(const CResidue *residue,
 // 
 std::pair<CResidue *, atom_selection_container_t>
 coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
-					  const CResidue *residue,
+					  CResidue *residue,
 					  const std::string &altconf,
 					  short int whole_residue_flag,
 					  int atom_index_handle,

@@ -23,7 +23,7 @@
 #include "monomer-utils.hh"
 
 CResidue *
-coot::deep_copy_residue(const CResidue *residue) {
+coot::deep_copy_residue(CResidue *residue) {
 
    // Horrible casting to CResidue because GetSeqNum and GetAtomTable
    // are not const functions.
@@ -31,8 +31,9 @@ coot::deep_copy_residue(const CResidue *residue) {
    CResidue *rres = new CResidue;
    CChain   *chain_p = new CChain;
    chain_p->SetChainID(((CResidue *)residue)->GetChainID());
-   rres->seqNum = ((CResidue *)residue)->GetSeqNum();
-   strcpy(rres->name, residue->name);
+   rres->SetResID(residue->GetResName(),
+		  residue->GetSeqNum(),
+		  residue->GetInsCode());
 
    PPCAtom residue_atoms;
    int nResidueAtoms;

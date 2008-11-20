@@ -2564,7 +2564,7 @@ using values of 2 and 3 for @code{@emph{start-res-no}} and
 @code{@emph{stop-res-no}} respectively will mutate 2 residues.
 
 Again, the length of the sequence must correspond to the residue range
-length.
+length.  Note also that this is a protein sequence - not nucleic acid.
 
 @subsection Mutating to a Non-Standard Residue
 
@@ -2574,7 +2574,7 @@ the standard residue types?
  
 There is a scripting function: 
 
-@code{mutate-by-overlap @emph{imol chain-id resno new-three-letter-code})}
+@code{(mutate-by-overlap @emph{imol chain-id resno new-three-letter-code})}
 
 This imports a model residue for the new residue type and overlays it on
 to the given residue by using graph-matching to determine the equivalent

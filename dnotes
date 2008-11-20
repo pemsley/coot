@@ -7,6 +7,9 @@ Things to do for 0.5.1
 
   o Fix rotamers for residues with ins codes e.g. gui rotamers on 52A H 
     chain of 3hfl. And autofit rotamer.
+
+    molecule-class-info-other.cc:1414, is the moving atoms asc for
+    residue 52 or 52A?
    
   o Make l toggle label for this closest atom.
 

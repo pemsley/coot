@@ -1341,10 +1341,6 @@ coot::util::get_residue(int reso, const std::string &insertion_code,
 		     res = residue_p;
 		     found_res = 1;
 		     break;
-		  } else {
-		     std::cout << "strange? Insertion codes non-match :"
-			       << residue_p->GetInsCode() << ": :"
-			       << insertion_code << ":" << std::endl;
 		  }
 	       }
 	    }
@@ -4292,8 +4288,8 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
    
    std::vector<coot::util::cis_peptide_info_t> v_coords = 
       coot::util::cis_peptides_info_from_coords(mol);
-   std::cout << "INFO:: There were " << v_coords.size() << " CISPEPs from the coordinates"
-	     << std::endl;
+//    std::cout << "INFO:: There were " << v_coords.size() << " CISPEPs from the coordinates"
+// 	     << std::endl;
 
 
    PCCisPep       CisPep;
@@ -4332,12 +4328,12 @@ coot::util::remove_wrong_cis_peptides(CMMDBManager *mol) {
 	       bad_cis_peptides.push_back(*CisPep);
 	    } else {
 	       good_cis_peptides.push_back(*CisPep);
-	       std::cout << "This CIS peptide was real: " 
-			 << cph.chain_id_1 << " "
-			 << cph.resno_1 << " "
-			 << cph.chain_id_2 << " "
-			 << cph.resno_2 << " "
-			 << std::endl;
+// 	       std::cout << "This CIS peptide was real: " 
+// 			 << cph.chain_id_1 << " "
+// 			 << cph.resno_1 << " "
+// 			 << cph.chain_id_2 << " "
+// 			 << cph.resno_2 << " "
+// 			 << std::endl;
 	    } 
 	 }
       }

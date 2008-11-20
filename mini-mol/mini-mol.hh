@@ -65,13 +65,15 @@ namespace coot {
 
       class residue { 
       public:
-	 residue(int i){ seqnum = i;}
+	 residue(int i){ seqnum = i; ins_code = "";}
 	 residue(int i, const std::string &resname) {
 	    seqnum = i;
-	    name = resname;}
+	    name = resname;
+	    ins_code = "";}
 	 residue(const CResidue *residue_p);
 	 residue(){}; // for resizing the residues in fragment
 	 int seqnum;
+	 std::string ins_code;
 	 std::string name;
 	 std::vector<atom> atoms;
 	 // void operator=(const coot::minimol::residue &res_in);

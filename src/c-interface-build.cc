@@ -1562,12 +1562,12 @@ void setup_rotamers(short int state) {
 
 void do_rotamers(int atom_index, int imol) {
 
-   std::cout << "     Rotamer library:" << std::endl;
-   std::cout << "     R. L. Dunbrack, Jr. and F. E. Cohen." << std::endl;
-   std::cout << "     Bayesian statistical analysis of ";
-   std::cout << "protein sidechain rotamer preferences" << std::endl;
-   std::cout << "     Protein Science, 6, 1661-1681 (1997)." << std::endl;
-   std::cout << "" << std::endl;
+//    std::cout << "     Rotamer library:" << std::endl;
+//    std::cout << "     R. L. Dunbrack, Jr. and F. E. Cohen." << std::endl;
+//    std::cout << "     Bayesian statistical analysis of ";
+//    std::cout << "protein sidechain rotamer preferences" << std::endl;
+//    std::cout << "     Protein Science, 6, 1661-1681 (1997)." << std::endl;
+//    std::cout << "" << std::endl;
 
    graphics_info_t g;
    g.do_rotamers(atom_index, imol); 
@@ -6244,9 +6244,9 @@ void refine_zone(int imol, const char *chain_id,
 
 void refine_zone_with_full_residue_spec(int imol, const char *chain_id,
 					int resno1,
-					const char*inscode_1,
+					const char *inscode_1,
 					int resno2,
-					const char*inscode_2,
+					const char *inscode_2,
 					const char *altconf) {
 
    if (imol >= 0) {
@@ -6255,8 +6255,10 @@ void refine_zone_with_full_residue_spec(int imol, const char *chain_id,
 // 	 int index1 = atom_index(imol, chain_id, resno1, " CA ");
 // 	 int index2 = atom_index(imol, chain_id, resno2, " CA ");
 	 // the "" is the insertion code (not passed to this function (yet)
-	 int index1 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno1, inscode_1); 
-	 int index2 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno2, inscode_2);
+
+	 int index1 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno1, inscode_1, altconf); 
+	 int index2 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno2, inscode_2, altconf);
+
 	 short int auto_range = 0;
 	 if (index1 >= 0) {
 	    if (index2 >= 0) { 
