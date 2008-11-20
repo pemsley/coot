@@ -365,6 +365,7 @@ coot::minimol::residue::residue(const CResidue* residue_p) {
 
    CResidue *tres = (CResidue *) residue_p; // casting horriblness.
    seqnum = tres->seqNum;
+   ins_code = tres->GetInsCode();
    name = tres->name;
    int nResidueAtoms;
    PPCAtom residue_atoms;
@@ -632,8 +633,9 @@ coot::minimol::molecule::pcmmdbmanager(float b_factor_new_atoms) const {
       for (int ires=fragments[ifrag].min_res_no(); ires<=fragments[ifrag].max_residue_number(); ires++) {
 	 if (fragments[ifrag][ires].atoms.size() > 0) {
 	    res_p = new CResidue;
-	    res_p->seqNum = (*this)[ifrag][ires].seqnum;
-	    strcpy(res_p->name, (*this)[ifrag][ires].name.c_str());
+	    res_p->SetResID((*this)[ifrag][ires].name.c_str(),
+			    (*this)[ifrag][ires].seqnum,
+			    (*this)[ifrag][ires].ins_code.c_str());
 	    chain_p->AddResidue(res_p);
 	    if (fragments[ifrag][ires].atoms.size() > 0) { 
 	       // 	    std::cout << "      residue " << ires << " "

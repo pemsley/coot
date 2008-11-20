@@ -361,7 +361,9 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_fla
 	    for (int iatom=0; iatom<natoms; iatom++) {
 	       if (! residue_atoms[iatom]->isTer()) { 
 		  if (! strcmp(residue_atoms[iatom]->name, " CA ")) {
-		     at_best = residue_atoms[iatom];
+		     if (! strcmp(residue_atoms[iatom]->altLoc, at->altLoc)) {
+			at_best = residue_atoms[iatom];
+		     }
 		  }
 	       }
 	    }

@@ -477,7 +477,6 @@ graphics_info_t::check_if_moving_atom_pull() {
    if (pi.success == GL_TRUE) {
 
       // Flash picked atom.
-      std::cout << "flashing picked intermediate atom" << std::endl;
       CAtom *at = moving_atoms_asc->atom_selection[pi.atom_index];
       clipper::Coord_orth co(at->x, at->y, at->z);
       graphics_info_t::flash_position(co);

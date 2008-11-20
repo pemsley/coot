@@ -1288,7 +1288,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
    CResidue *res = get_residue(resno, std::string(insertion_code), std::string(chain_id));
 
    if (res) {
-      std::cout << " ==== fitting residue " << resno << " " << chain_id;
+      std::cout << " ==== fitting residue " << res->GetSeqNum() << res->GetInsCode()
+		<< " of chain " << chain_id;
       if (have_map_flag)
 	 std::cout << " to map number " << imol_map << " ======" << std::endl;
       else
@@ -1321,6 +1322,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	    for (unsigned int i=0; i<probabilities.size(); i++) {
 	       // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
 	       rotamer_res = d.GetResidue(i);
+
 	       // 	 std::cout << " atom info: " << std::endl;
 	       // 	 int nResidueAtoms;
 	       // 	 PPCAtom residue_atoms;
@@ -1370,6 +1372,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 						    // user interface
 		  if (score_card.score > best_score) {
 		     best_score = score_card.score;
+		     // 20081120 best_rotamer_mol loses the insertion
+		     // code for the residue.  Must fix.
 		     best_rotamer_mol = moved_mol;
 		  }
 	       }
@@ -1410,6 +1414,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	    //
 	    float bf = graphics_info_t::default_new_atoms_b_factor;
 	    PCMMDBManager mol = best_rotamer_mol.pcmmdbmanager(bf);
+	    mol->WritePDBASCII("moving-atoms.pdb");
 	    atom_selection_container_t asc = make_asc(mol);
 	    bool move_zero_occ = 1;
 	    replace_coords(asc, 1, move_zero_occ); // fix other alt conf occ

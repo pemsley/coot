@@ -107,16 +107,18 @@ namespace coot {
   // or has an altLoc of "".
   // 
   CResidue *
-  deep_copy_this_residue(const CResidue *residue, const std::string &altconf, 
+  deep_copy_this_residue(CResidue *residue, 
+			 const std::string &altconf, 
 			 short int whole_residue_flag,
 			 int atom_index_handle);
 
   std::pair<CResidue *, atom_selection_container_t>
     deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
-				      const CResidue *residue, const std::string &altconf, 
-				      short int whole_residue_flag,
-				      int atom_index_handle, 
-				      int udd_afix_handle);
+					CResidue *residue, 
+					const std::string &altconf, 
+					short int whole_residue_flag,
+					int atom_index_handle, 
+					int udd_afix_handle);
 
   // 13 14 15 20 21 22  -> 1
   // 13 14 15 20 22 21  -> 0

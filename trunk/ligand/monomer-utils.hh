@@ -38,7 +38,7 @@
 
 namespace coot {
 
-   CResidue *deep_copy_residue(const CResidue *residue);
+   CResidue *deep_copy_residue(CResidue *residue);
 	 
    // Atom names for a torsion bond, old/Stuart style
    // 

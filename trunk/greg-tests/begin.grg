@@ -58,6 +58,8 @@
   
   (sqrt (apply + (map square (map - pos-1 pos-2)))))
 
+(define pos-difference bond-length)
+
 
 (define (all-true? ls)
   (cond
@@ -82,21 +84,26 @@
 	    (< (abs (- b ideal-length)) tolerance)))))
 
 
-(define (get-atom imol chain-id resno atom-name)
+(define (get-atom imol chain-id resno atom-name . alt-conf)
   
-  (define (get-atom-from-res atom-name residue-atoms)
+  (define (get-atom-from-res atom-name residue-atoms alt-conf)
     (let loop ((residue-atoms residue-atoms))
       (cond 
        ((null? residue-atoms) #f)
-       ((string=? atom-name (car (car (car residue-atoms))))
+       ((and (string=? atom-name (car (car (car residue-atoms))))
+	     (string=? alt-conf (car (cdr (car (car residue-atoms))))))
 	(car residue-atoms))
        (else 
 	(loop (cdr residue-atoms))))))
 
-  (let ((res-info (residue-info imol chain-id resno "")))
+  (let ((res-info (residue-info imol chain-id resno ""))
+	(alt-conf-internal (if (null? alt-conf)
+			       ""
+			       (car alt-conf))))
+
     (if (not res-info)
 	#f
-	(get-atom-from-res atom-name res-info))))
+	(get-atom-from-res atom-name res-info alt-conf-internal))))
 	
 
 (define (shelx-waters-all-good-occ? imol-insulin-res)
@@ -170,8 +177,29 @@
    (else 
     #f)))
 
-;; move to begin.grg
-;; 
+
+(define accumulate
+  (lambda (op initial sequence)
+
+    (if (null? sequence)
+        initial
+        (op (car sequence)
+            (accumulate op initial (cdr sequence))))))
+
+
+;;; transform
+;;; Just a (eg 3x3) (no vector) matrix
+;;; The matrix does not have to be symmetric.
+;;;
+(define transpose-mat
+  (lambda (mat)
+
+    (if (null? (car mat))
+	'()
+	(cons (accumulate   cons '() (map car mat))
+              (transpose-mat (map cdr mat))))))
+
+
 ;; What is the distance atom-1 to atom-2? 
 ;; return #f on not able to calculate
 (define (atom-distance atom-1 atom-2)

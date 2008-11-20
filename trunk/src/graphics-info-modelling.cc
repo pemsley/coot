@@ -2413,6 +2413,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 
    // The magic happens here:
    CResidue *moving_res = d.GetResidue(irot);
+
    //
    if (moving_res == NULL) {
       std::cout << "Failure to find rotamer for residue type: "
@@ -2424,8 +2425,9 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
       CModel *model_p = new CModel;
       CChain *chain_p = new CChain;
       CResidue *res_p = new CResidue;
-      res_p->seqNum = ((CResidue *)residue)->GetSeqNum();
-      strcpy(res_p->name, residue->name);
+      res_p->SetResID(residue->GetResName(),
+		      residue->GetSeqNum(),
+		      residue->GetInsCode());
    
       PPCAtom residue_atoms_2;
       int nResidueAtoms_2;

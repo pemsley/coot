@@ -547,15 +547,22 @@ coot::rotamer::GetResidue(int i_rot) const {
 
    CResidue *rres = deep_copy_residue(Residue());
 
+//    std::cout << "debug:: deep_copy_residue of "
+// 	     << Residue()->GetSeqNum() << Residue()->GetInsCode()
+// 	     << " -> "
+// 	     << rres->GetSeqNum() << rres->GetInsCode()
+// 	     << "\n";
+      
    std::string rt = Residue_Type();
    if (rt == "MSE")
       rt = "MET";
    std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
 
-   if (rots.size() == 0) {
+   if ((rots.size() == 0) ||
+       (i_rot >= rots.size())) { 
       return rres; // or should this be null? 
    }
-      
+
    coot::simple_rotamer this_rot = rots[i_rot];
    
    PPCAtom residue_atoms;

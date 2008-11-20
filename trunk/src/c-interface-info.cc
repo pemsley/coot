@@ -203,9 +203,9 @@ SCM sequence_info(int imol) {
 	 // unsigned int does't work here because then the termination
 	 // condition never fails.
 	 for (int iv=int(seq.size()-1); iv>=0; iv--) {
-	    std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
-	    std::cout << "debug scming" << seq[iv].first.c_str()
-		      << " and " << seq[iv].second.c_str() << std::endl;
+// 	    std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
+// 	    std::cout << "debug scming" << seq[iv].first.c_str()
+// 		      << " and " << seq[iv].second.c_str() << std::endl;
 	    SCM a = scm_makfrom0str(seq[iv].first.c_str());
 	    SCM b = scm_makfrom0str(seq[iv].second.c_str());
 	    SCM ls = scm_cons(a, b);
