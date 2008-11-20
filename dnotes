@@ -2,31 +2,11 @@
 
 Things to do for 0.5.1
    
-
-  o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim Fenn.
-
-  o Fix rotamers for residues with ins codes e.g. gui rotamers on 52A H 
-    chain of 3hfl. And autofit rotamer.
-
-    molecule-class-info-other.cc:1414, is the moving atoms asc for
-    residue 52 or 52A?
-   
   o Make l toggle label for this closest atom.
 
-  o Build a helix in 1b41 map.  The Spacegroup is R 3 2 but the cell
-   is hexagonal.
-   2hd
 
-* OK, need new clipper.
-
-
-  o on build-latest-coot on bubbles:
-   ! LaTeX Error: File `graphicx.sty' not found.
-
-   o     on building an non-python version:
-
-/home/emsley/autobuild/Linux-koala-pre-release-gtk2/lib/python2.6 does not exist
-
+  o The chiral restraints for GLS (a spiro compound) are not appearing
+    - they do for ASP though.  Hmm...
 
   o  save_restraint_chooserdialog in glade, the response is not
      working or not closing the dialog. Maybe its a Mac thing.  I
@@ -42,6 +22,23 @@ restraints editor saving 0x90065b8
  comparing 0x90065b8 vs 0x90065b8
 restraints editor index 0 matches
 Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() from dialog 0x90065b8
+
+  o Build a helix in 1b41 map.  The Spacegroup is R 3 2 but the cell
+   is hexagonal.
+   2hd
+
+* OK, need new clipper.
+
+  o on build-latest-coot on bubbles:
+   ! LaTeX Error: File `graphicx.sty' not found.
+
+   o     on building an non-python version:
+
+/home/emsley/autobuild/Linux-koala-pre-release-gtk2/lib/python2.6 does not exist
+
+  o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim Fenn.
+ 
+* Let's hear from Tim Fenn.    
 
   o Schubert, Carsten [PRDUS] bug:
     Test that the followin work with and without command line args:
@@ -122,9 +119,6 @@ Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() fr
   o in the Restraints Editor monomer selector, the last residue should
     be the active item.
 
-  o The chiral restraints for GLS (a spiro compound) are not appearing
-    - they do for ASP though.  Hmm...
-
 
  
 
@@ -132,6 +126,14 @@ Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() fr
 
 
 
+  o Fix rotamers for residues with ins codes e.g. gui rotamers on 52A H 
+    chain of 3hfl. And autofit rotamer.
+
+    molecule-class-info-other.cc:1414, is the moving atoms asc for
+    residue 52 or 52A?
+
+* Fixed.  Test added.
+   
   o Pick on an active atom should flash the atom.
 
 * Done.
