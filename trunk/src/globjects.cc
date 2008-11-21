@@ -161,7 +161,7 @@ int    graphics_info_t::control_is_pressed = 0 ; // false
 short int graphics_info_t::control_key_for_rotate_flag = 1;
 short int graphics_info_t::pick_pending_flag = 0;
 int    graphics_info_t::a_is_pressed = 0;
-int    graphics_info_t::l_is_pressed = 0 ;       // false
+int    graphics_info_t::shift_is_pressed = 0 ;       // false
 int    graphics_info_t::z_is_pressed = 0 ;       // false
 double graphics_info_t::mouse_begin_x = 0.0;
 double graphics_info_t::mouse_begin_y = 0.0;
@@ -2313,9 +2313,9 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
    else
       info.control_is_pressed = 0;
    if (event->state & GDK_SHIFT_MASK)
-      info.l_is_pressed = 1;
+      info.shift_is_pressed = 1;
    else
-      info.l_is_pressed = 0;
+      info.shift_is_pressed = 0;
     
    if (state & my_button1_mask) {
 
@@ -2555,7 +2555,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 
       if (fabs(info.GetMouseBeginX()-x) < 300) { 
 	 if (info.control_is_pressed) { 
-	    if (info.l_is_pressed) {
+	    if (info.shift_is_pressed) {
 	       do_screen_z_rotate(x, y); // z-rotation
 	    } else {
 	       // Pymol-like z-translation or slab adjustment
@@ -2582,7 +2582,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
    
    if (! button_was_pressed) { 
       if (info.quanta_like_zoom_flag) { 
-	 if (info.l_is_pressed) { 
+	 if (info.shift_is_pressed) { 
 	    do_button_zoom(x,y);
 	 }
       } 
@@ -2732,9 +2732,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    else
       graphics_info_t::control_is_pressed = 0;
    if (event->state & GDK_SHIFT_MASK)
-      graphics_info_t::l_is_pressed = 1;
+      graphics_info_t::shift_is_pressed = 1;
    else
-      graphics_info_t::l_is_pressed = 0;
+      graphics_info_t::shift_is_pressed = 0;
 
    gint handled = 0; // initially unhandled
 
@@ -2951,9 +2951,16 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_L:
    case GDK_Shift_L: // an undocumented feature :-)
    case GDK_Shift_R: // for left-mouse users.
-       graphics_info_t::l_is_pressed = 1; // FALSE [eh?]
-       handled = TRUE; 
-       break;
+      {
+	 graphics_info_t g;
+	 std::pair<int, int> cl_at = g.get_closest_atom();
+	 if (is_valid_model_molecule(cl_at.second)) {
+	    g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
+	 }
+	 graphics_info_t::graphics_draw();
+      } 
+      handled = TRUE; 
+      break;
 
    case GDK_z:
    case GDK_Z:
@@ -3133,9 +3140,9 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    else
       graphics_info_t::control_is_pressed = 0;
    if (event->state & GDK_SHIFT_MASK)
-      graphics_info_t::l_is_pressed = 1;
+      graphics_info_t::shift_is_pressed = 1;
    else
-      graphics_info_t::l_is_pressed = 0;
+      graphics_info_t::shift_is_pressed = 0;
 
    // we are getting key release events as the key is pressed (but not
    // released) :-).
@@ -3284,7 +3291,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_L:
    case GDK_Shift_L:
    case GDK_Shift_R:
-      graphics_info_t::l_is_pressed = 0; // FALSE
+      // something here, L is released.
       break;
 
    case GDK_z:
@@ -3295,7 +3302,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_space:
       // go to next residue
 //       int next = 1;
-//       if (graphics_info_t::l_is_pressed == 1) // "l" or "shift"
+//       if (graphics_info_t::shift_is_pressed == 1) 
 // 	 next = -1;  // i.e. previous
       
       // std::cout << "got a space acting on " << g.go_to_atom_chain()
@@ -3307,7 +3314,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 // 					     g.go_to_atom_residue()+next,
 // 					     g.go_to_atom_atom_name());
 
-      if (graphics_info_t::l_is_pressed) { //  "l" or "shift"
+      if (graphics_info_t::shift_is_pressed) {
 	 g.intelligent_previous_atom_centring(g.go_to_atom_window);
       } else {
 	 g.intelligent_next_atom_centring(g.go_to_atom_window);
@@ -3519,7 +3526,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    // if (event->button == 1) {
    if (state & my_button1_mask) {
 
-      if (info.l_is_pressed == 1) {
+      if (info.shift_is_pressed == 1) {
  
 	 // label atom
 	 // 

@@ -1265,7 +1265,7 @@ public:
 
    // 
    static int control_is_pressed;
-   static int l_is_pressed; 
+   static int shift_is_pressed; 
    static int z_is_pressed;
    static int a_is_pressed;
    static short int control_key_for_rotate_flag;
