@@ -248,7 +248,8 @@
 # 4.28 20081110 Upgrade to mmdb-1.19, get it from EBI.
 # 4.29 20081118 Use the ccp4 libs underlay.
 # 4.30 20081119 Use -O not -O2 to compile coot on 64 bit machine
-script_version=4.30
+# 4.31 20081121 Swig 1.3.34 is OK for 32 bit, I think.
+script_version=4.31
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1262,12 +1263,15 @@ which swig > /dev/null
 have_swig=$?
 if [ $have_swig = 0 ] ; then
     swig -version
-    swig_version=`swig -version | awk 'NF { print $NF; exit }'`
-    if [ "$swig_version" = 1.3.34 ] ; then
-       echo oops this swig is broken.  Need to upgrade to 1.3.36
-       my_exit 2
+    if [ "$architecture" = x86_64 ] ; then 
+       swig_version=`swig -version | awk 'NF { print $NF; exit }'`
+       if [ "$swig_version" = 1.3.34 ] ; then
+          echo oops this swig is broken.  Need to upgrade to 1.3.36
+          my_exit 2
+       else 
+          echo system has swig.  Good.
     else 
-       echo system has swig.  Good.
+       echo system is not 64 bit, no problems swig 1.3.34
     fi
 else
    echo swig required - not found.
