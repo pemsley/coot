@@ -250,7 +250,8 @@
 # 4.30 20081119 Use -O not -O2 to compile coot on 64 bit machine
 # 4.31 20081121 Swig 1.3.34 is OK for 32 bit, I think.
 # 4.32 20081122 Use clipper-2.1
-script_version=4.32
+# 4.33 20081122 Use clipper-2.1, extra tweaks.
+script_version=4.33
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1934,8 +1935,6 @@ fi
 # # clipper
 # #
 # #
-# # Note clipper (currently installs in current directory)
-# #
 if test -n "$build_clipper" ; then
 
     # clipper: we use the ccp4 version of clipper now.
@@ -1947,20 +1946,18 @@ if test -n "$build_clipper" ; then
     clipper_version=20ac
     clipper_version=2.1-081118-ac
     clipper_dir_version=2.1
-    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper$clipper_version.tar.gz
+    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi
     (
-    gzip -dc ${AUTOBUILD_SOURCES}/clipper$clipper_version.tar.gz | tar xf -
+    gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
     cd clipper-$clipper_dir_version
-    ccp4_libs_dir="`pwd`"
     
     # make clipper
     echo . ------------------------------------------------------------------------------
     echo . "         clipper                                                            "
     echo . ------------------------------------------------------------------------------
-    cd $ccp4_libs_dir/lib/clipper
     if [ "$need_clipper_contrib_patch" = true ] ; then
        patch -p0 < ${AUTOBUILD_SOURCES}/clipper_test_contrib.cpp.patch
     fi
@@ -1978,7 +1975,6 @@ if test -n "$build_clipper" ; then
        CXXFLAGS="-g -O2 -fno-strict-aliasing"
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
     # make (just) those.
-    cd clipper
     $MAKE
     status=$?
     clipper_status=$status
