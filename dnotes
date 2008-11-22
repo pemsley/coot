@@ -2,9 +2,6 @@
 
 Things to do for 0.5.1
    
-  o Make l toggle label for this closest atom.
-
-
   o The chiral restraints for GLS (a spiro compound) are not appearing
     - they do for ASP though.  Hmm...
 
@@ -35,6 +32,15 @@ Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() fr
    o     on building an non-python version:
 
 /home/emsley/autobuild/Linux-koala-pre-release-gtk2/lib/python2.6 does not exist
+
+also on bragg3:
+
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/etc does not exist
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/html does not exist
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/bin/pythonpython2.6 does not exist
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/bin/pythonpython2.6-config does not exist
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/include/pythonpython2.6 does not exist
+
 
   o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim Fenn.
  
@@ -125,6 +131,10 @@ Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() fr
 
 
 
+
+  o Make l toggle label for this closest atom.
+
+* Done.  It adds a label, not toggles.
 
   o Fix rotamers for residues with ins codes e.g. gui rotamers on 52A H 
     chain of 3hfl. And autofit rotamer.
