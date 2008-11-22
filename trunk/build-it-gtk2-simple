@@ -249,7 +249,8 @@
 # 4.29 20081118 Use the ccp4 libs underlay.
 # 4.30 20081119 Use -O not -O2 to compile coot on 64 bit machine
 # 4.31 20081121 Swig 1.3.34 is OK for 32 bit, I think.
-script_version=4.31
+# 4.32 20081122 Use clipper-2.1
+script_version=4.32
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1299,7 +1300,7 @@ fi
 build_mmdb=0
 build_ssmlib=0
 build_fftw=0
-build_clipper=0
+build_clipper=
 # build_gtk=0
 build_guile=0
 build_guile_www=0
@@ -1941,15 +1942,18 @@ if test -n "$build_clipper" ; then
     # (it uses configure, not scons)
     #
     echo BUILDING clipper:
+    # clipper_version is for the file name on the server, clipper_dir_version is the directory 
+    # that files untars into.
     clipper_version=20ac
-    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper$clipper_version.latest.tar.gz
+    clipper_version=2.1-081118-ac
+    clipper_dir_version=2.1
+    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
-    fi 
+    fi
     (
-    mkdir clipper
-    cd clipper
-    gzip -dc ${AUTOBUILD_SOURCES}/clipper$clipper_version.latest.tar.gz | tar xf -
+    gzip -dc ${AUTOBUILD_SOURCES}/clipper$clipper_version.tar.gz | tar xf -
+    cd clipper-$clipper_dir_version
     ccp4_libs_dir="`pwd`"
     
     # make clipper
