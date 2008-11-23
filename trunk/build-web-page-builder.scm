@@ -698,8 +698,8 @@
 ;	(list "binary-Linux-i386-fedora-8"
 ;	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
 
-	(list "binary-Linux-i386-fedora-8-python-gtk2"
-	      "Linux-dragon.chem.york.ac.uk/gtk2" #t)
+;	(list "binary-Linux-i386-fedora-8-python-gtk2"
+;	      "Linux-dragon.chem.york.ac.uk/gtk2" #t)
 
 	(list "binary-Linux-i386-redhat-8.0"
 	      "Linux-bubbles/gtk1" #f)
