@@ -695,8 +695,8 @@
 	(list "binary-Linux-i386-fedora-6-python"
 	      "Linux-setsuko.chem.york.ac.uk/gtk1-python" #t)
 
-	(list "binary-Linux-i386-fedora-8"
-	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
+;	(list "binary-Linux-i386-fedora-8"
+;	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
 
 	(list "binary-Linux-i386-fedora-8-python-gtk2"
 	      "Linux-dragon.chem.york.ac.uk/gtk2" #t)
