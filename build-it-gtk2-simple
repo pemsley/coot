@@ -2784,9 +2784,10 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
          # original full fat:
          # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
          # slimmed:
+         bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}.tar.gz
+         holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}.tar.gz
 
-         bin_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
-	 make_tar `basename $slim_dir` $bin_tar_file
+	 make_tar `basename $slim_dir` $holding_tar_file
 
 	 # Now test the tar file by un-taring it and running the
 	 # tests.  Only if this test passes can we move tar file
@@ -2802,12 +2803,12 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
             echo ========================
             echo second coot test passed
             echo ========================
+            echo pass-second-test > $LOGS/$build_type-test-status
             # copy over to York if we are in biop
             ssh_copy $bin_tar_file
 
-	    mv $bin_tar_file $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
-	    mv $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz.md5sum
-
+	    mv $holding_tar_file bin_tar_file
+	    mv $holding_tar_file.md5sum bin_tar_file.md5sum
 
             # update the ChangeLog, README and RELEASE-NOTES
             cd "$build_dir"
@@ -2821,6 +2822,8 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
             echo ========================
             echo fail-second-test > $LOGS/$build_type-test-status
          fi
+  
+
       else 
          echo Directory for binaries $BINARY_TAR_DEST_DIR does not exist. 
 	 echo Skipping tar.
