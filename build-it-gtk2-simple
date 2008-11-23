@@ -527,6 +527,11 @@ echo testing with greg
 echo currently we are here:
 pwd
 date
+if [ "$1" != "" ] ; then
+   binary=$1
+else 
+   binary=$install_top_dir/bin/coot-real
+fi
 
 if test "$run_tests" = true ; then
    # let's test our new coot
@@ -550,8 +555,8 @@ if test "$run_tests" = true ; then
 	        (coot-real-exit 1)))
 EOF
 
-   echo $install_top_dir/bin/coot-real --no-graphics --script command-line-greg.scm
-        $install_top_dir/bin/coot-real --no-graphics --script command-line-greg.scm
+   echo $coot_binary --no-graphics --script command-line-greg.scm
+        $coot_binary --no-graphics --script command-line-greg.scm
 
    status=$?
    if [ $status = 0 ] ; then
@@ -1124,6 +1129,7 @@ else
     # this is a stable release
     BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
     mkdir -p ${BINARY_TAR_DEST_DIR}
+    mkdir -p ${BINARY_TAR_DEST_DIR}/holding
 fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
@@ -2769,7 +2775,7 @@ fi
 gtk2=-gtk2
 if ( [ $r = 0 ] && [ $rp = 0 ] ); then
    echo ========================
-   echo '   ' coot test passed
+   echo '   ' first coot test passed
    echo ========----============
    echo pass-test > $LOGS/gtk2-test-status
    if test "$do_nightlies" = "1" ; then 
@@ -2779,17 +2785,42 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
          # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
          # slimmed:
 
-         bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+         bin_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
 	 make_tar `basename $slim_dir` $bin_tar_file
-         # copy over to York if we are in biop
-         ssh_copy $bin_tar_file
 
-         # update the ChangeLog, README and RELEASE-NOTES
+	 # Now test the tar file by un-taring it and running the
+	 # tests.  Only if this test passes can we move tar file
+	 # from holding to the binary pre-release dir.
+
          cd "$build_dir"
-         cd $coot_dir_name
-         cp ChangeLog $BINARY_TAR_DEST_DIR
-         cp README    $BINARY_TAR_DEST_DIR/coot-README
-         cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
+	 mkdir test-tar
+	 cd test-tar
+	 tar xvf $bin_tar_file
+	 test_coot bin/coot
+         test2_status=$?
+         if [ $test2_status = 0 ] ; then
+            echo ========================
+            echo second coot test passed
+            echo ========================
+            # copy over to York if we are in biop
+            ssh_copy $bin_tar_file
+
+	    mv $bin_tar_file $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+	    mv $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz.md5sum
+
+
+            # update the ChangeLog, README and RELEASE-NOTES
+            cd "$build_dir"
+            cd $coot_dir_name
+            cp ChangeLog $BINARY_TAR_DEST_DIR
+            cp README    $BINARY_TAR_DEST_DIR/coot-README
+            cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
+	 else 
+            echo ========================
+            echo second coot test failed
+            echo ========================
+            echo fail-second-test > $LOGS/$build_type-test-status
+         fi
       else 
          echo Directory for binaries $BINARY_TAR_DEST_DIR does not exist. 
 	 echo Skipping tar.
@@ -2799,9 +2830,9 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
    fi
 else
    echo ========================
-   echo '  ' coot test failed
+   echo '  ' first coot test failed
    echo ========================
-   echo fail-test > $LOGS/gtk2-test-status
+   echo fail-test > $LOGS/$build_type-test-status
 fi
 
 
