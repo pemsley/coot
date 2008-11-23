@@ -2769,14 +2769,14 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 else
    if test "$run_tests" = "true" ; then
       echo coot test failed
+      echo ========================
+      echo '  ' first coot test failed
+      echo ========================
+      echo fail-test > $LOGS/$build_type-test-status
    else 
       echo coot not tested.
+      echo not-tested > $LOGS/$build_type-test-status
    fi
-   else
-   echo ========================
-   echo '  ' first coot test failed
-   echo ========================
-   echo fail-test > $LOGS/$build_type-test-status
 fi
 
 
