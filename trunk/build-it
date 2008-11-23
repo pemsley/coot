@@ -214,7 +214,9 @@
 # 2.48 20081008 Migrate to CCP4 version 6.0.2 for testing in York.
 # 2.49 20081014 Use Python 2.6   
 # 2.50 20081110 Upgrade to mmdb-1.19, get it from EBI.
-script_version=2.50
+# 2.51 20081122 Add a second test, make a holding directory for tar file before
+#               second test is run.
+script_version=2.51
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1022,6 +1024,7 @@ END {
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
       mkdir -p ${NIGHTLY_DEST_DIR}
+      mkdir -p ${BINARY_TAR_DEST_DIR}/holding
       echo INFO:: set the target destination for binary tar file \(BINARY_TAR_DEST_DIR\) to $NIGHTLY_DEST_DIR
    fi
 else 
