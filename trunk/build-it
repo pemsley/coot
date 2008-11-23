@@ -1028,6 +1028,7 @@ else
     # this is a stable release
     BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
     mkdir -p ${BINARY_TAR_DEST_DIR}
+    mkdir -p ${BINARY_TAR_DEST_DIR}/holding
 fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
