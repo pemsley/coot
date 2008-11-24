@@ -2,57 +2,14 @@
 
 Things to do for 0.5.1
    
-  o The chiral restraints for GLS (a spiro compound) are not appearing
-    - they do for ASP though.  Hmm...
-    This is because they get rejected at the stage where the volume
-    sign is check, currently it needs to be NEG or POS.  If it is
-    BOTH, we need to be careful that it can be available to be
-    reassigned and that when it is BOTH, no retraint is added (or we
-    could be more clever and work out which restraint should be used
-    (is closest) by looking at the geometry of the atoms involved).
-    1hd
-
   o on build-latest-coot on bubbles:
    ! LaTeX Error: File `graphicx.sty' not found.
    1hr
 
-   o     on building an non-python version:
-
-/home/emsley/autobuild/Linux-koala-pre-release-gtk2/lib/python2.6 does not exist
-
-also on bragg3:
-
-/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/etc does not exist
-/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/html does not exist
-/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/bin/pythonpython2.6 does not exist
-/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/bin/pythonpython2.6-config does not exist
-/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/include/pythonpython2.6 does not exist
-   1hr
-
-  o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim Fenn.
- 
-* Let's hear from Tim Fenn.  OK, he replied.  Non-trivial.
-  2hd.
-
-  o Schubert, Carsten [PRDUS] bug:
-    Test that the following work with and without command line args:
-
-    coot --pdb my.pdb --auto my_map_coeffs.mtz
-
-      set_model_fit_refine_dialog_position()
-      set_delete_dialog_position()
-      set_rotate_translate_dialog_position()
-
-      I tried both the python and scheme commands with the same lack of effect.
-   1hd
+* Fiddled. Needs examining of the logs.
 
   o Loop building in both directions for scheme 
     2hd
-
-  o update map without generating a new molecule.
-    Perhaps the NCS maps, or read a new map from MTZ updating a
-    already existing map.
-    2gd
 
   o Nucletide builder - with B form RNA need to be fixed.  Needs O2'. 1hd
 
@@ -62,7 +19,7 @@ also on bragg3:
   o test that manual-ncs-ghosts averages all the maps for NCS > 2.
     Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
     that'll be fun).
-    2hd.
+    2hd.  Do this in the office.
 
   o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
     Make a fixed atom on the O3* of 1A.  The refinement fails now (no
@@ -119,6 +76,54 @@ also on bragg3:
 
 
 
+   o     on building an non-python version:
+
+/home/emsley/autobuild/Linux-koala-pre-release-gtk2/lib/python2.6 does not exist
+
+also on bragg3:
+
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/etc does not exist
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/html does not exist
+
+
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/bin/pythonpython2.6 does not exist
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/bin/pythonpython2.6-config does not exist
+/y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/include/pythonpython2.6 does not exist
+
+* Fixed.
+
+   1hr
+
+  o update map without generating a new molecule.
+    Perhaps the NCS maps, or read a new map from MTZ updating a
+    already existing map.
+    Punt to 0.6.
+
+  o Schubert, Carsten [PRDUS] bug:
+    Test that the following work with and without command line args:
+
+    coot --pdb my.pdb --auto my_map_coeffs.mtz
+
+      set_model_fit_refine_dialog_position()
+      set_delete_dialog_position()
+      set_rotate_translate_dialog_position()
+
+* Seem fine to me witout args.  And with args.  i.e. it works for me,
+  can't reproduce.
+
+      I tried both the python and scheme commands with the same lack of effect.
+
+  o The chiral restraints for GLS (a spiro compound) are not appearing
+    - they do for ASP though.  Hmm...
+    This is because they get rejected at the stage where the volume
+    sign is check, currently it needs to be NEG or POS.  If it is
+    BOTH, we need to be careful that it can be available to be
+    reassigned and that when it is BOTH, no retraint is added (or we
+    could be more clever and work out which restraint should be used
+    (is closest) by looking at the geometry of the atoms involved).
+    1hd
+
+* Fixed.
 
   o  save_restraint_chooserdialog in glade, the response is not
      working or not closing the dialog. Maybe its a Mac thing.  I
@@ -6815,7 +6820,7 @@ Fri Jul 18 14:55:30 BST 2008
 
 ----
 
-to get what check output for all pdb entries
+to get what_check output for all pdb entries
 
 www.cmbi.ru.nl/pdbreport/ab/1abc/pdbout.txt
 
@@ -7355,7 +7360,6 @@ Fri Nov  7 08:07:07 GMT 2008
     3bmw: difference map 11, near 645 ILE, surely there is something
     wrong with the "peak next to molecule" algorithm?
 
-
 ----
 Sun Nov 16 16:42:42 GMT 2008
 
@@ -7367,5 +7371,13 @@ Sun Nov 16 16:46:20 GMT 2008
    run test_yourself() for rotamer_probability_tables needs to be
    added to test suite.
 
+----
+Mon Nov 24 16:21:11 GMT 2008
+
+   Chiral restraints that are marked as "both" are currently rejected
+   when adding restraints (in
+   coot::restraints_container_t::add_chirals()).  They should be added
+   and the target geometry should be the one that is closest to the
+   current position.
 
 -----

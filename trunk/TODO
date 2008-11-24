@@ -10,15 +10,18 @@
     Release 0.6 and 0.7 [Dec 2008, April 2009]
 
    Top commitments:
+
   o P backbone mode
   o Edit a SHELXL file before refinement
   o backrub on rotamer search
   o Helix fitting overshoots
   o PISA output display
+  o In the restraints editor, the volume sign should be displayed as 
+    a string (generated from volume_string_int)
+
   Like to do:
   o redo sequence view
   o Fix 64-bit coot problem(s)
-
 
 
    o "CA mode" for nucleic acids should draw a P and C1' trace. [VR]
@@ -27,6 +30,15 @@
    o Does the window stay constant size (on something other than a
      laptop) on start, exit, start exit cycling?
      Priority: 6: Difficulty: 4
+
+   o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim Fenn.
+ 
+*  Let's hear from Tim Fenn.  OK, he replied.  Non-trivial.  OK, Punt to 0.6
+
+   o update map without generating a new molecule.
+     Perhaps the NCS maps, or read a new map from MTZ updating a
+     already existing map.
+     Punt to 0.6.
 
    o Mails from Phil Evans, Stephen Graham, Early April 2008 about SEG
      ids.  Doing a NCS loop with Seg ids.  Doing a mutation with Segids
