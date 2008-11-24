@@ -2814,8 +2814,8 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
             # copy over to York if we are in biop
             ssh_copy $bin_tar_file
 
-	    mv $holding_tar_file bin_tar_file
-	    mv $holding_tar_file.md5sum bin_tar_file.md5sum
+	    mv $holding_tar_file $bin_tar_file
+	    mv $holding_tar_file.md5sum $bin_tar_file.md5sum
 
             # update the ChangeLog, README and RELEASE-NOTES
             cd "$build_dir"
