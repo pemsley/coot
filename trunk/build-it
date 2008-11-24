@@ -420,6 +420,15 @@ function make_tar {
     fi
 }
 
+function ssh_copy { 
+
+    bin_tar_file=$1
+    if [ "$domainname" = "biop" ] ; then
+       $HOME/bin/sput-with-dir $bin_tar_file        public_html/software/binaries/nightlies/pre-release/
+       $HOME/bin/sput-with-dir $bin_tar_file.md5sum public_html/software/binaries/nightlies/pre-release/
+    fi    
+}
+
 function setup_ccp4 {
 
    # we have access to $OS and $arch.
@@ -2750,10 +2759,9 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
             echo ========================
             echo pass-second-test > $LOGS/$build_type-test-status
             # copy over to York if we are in biop
-            ssh_copy $bin_tar_file
-
-	    mv $holding_tar_file bin_tar_file
-	    mv $holding_tar_file.md5sum bin_tar_file.md5sum
+            ssh_copy $bin_tar_file 
+	    mv $holding_tar_file $bin_tar_file
+	    mv $holding_tar_file.md5sum $bin_tar_file.md5sum
 
             # update the ChangeLog, README and RELEASE-NOTES
             cd "$build_dir"
