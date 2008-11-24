@@ -216,7 +216,8 @@
 # 2.50 20081110 Upgrade to mmdb-1.19, get it from EBI.
 # 2.51 20081122 Add a second test, make a holding directory for tar file before
 #               second test is run.
-script_version=2.51
+# 2.52 20081124 test for greg using full path to guile.
+script_version=2.52
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1384,7 +1385,7 @@ fi
 # do we have greg? 
 
 # LD_LIBRARY_PATH has been set by now
-guile -c '(use-modules (ice-9 greg))'
+$install_top_dir/guile -c '(use-modules (ice-9 greg))'
 status=$?
 if test $status = 0 ; then
    echo installation has greg
