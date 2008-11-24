@@ -4,30 +4,17 @@ Things to do for 0.5.1
    
   o The chiral restraints for GLS (a spiro compound) are not appearing
     - they do for ASP though.  Hmm...
-
-  o  save_restraint_chooserdialog in glade, the response is not
-     working or not closing the dialog. Maybe its a Mac thing.  I
-     can't see how this "close/cancel" button is supposed to work.
-
-     I can now.  Use GTK_RESPONSE_CANCEL.
-
-     Remove this debugging though:
-
-restraints editor saving 0x90065b8
- debug:: testing restraints editor number 0 of 1 0x90065b8
- debug:: testing restraints editor number 0 of 1
- comparing 0x90065b8 vs 0x90065b8
-restraints editor index 0 matches
-Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() from dialog 0x90065b8
-
-  o Build a helix in 1b41 map.  The Spacegroup is R 3 2 but the cell
-   is hexagonal.
-   2hd
-
-* OK, need new clipper.
+    This is because they get rejected at the stage where the volume
+    sign is check, currently it needs to be NEG or POS.  If it is
+    BOTH, we need to be careful that it can be available to be
+    reassigned and that when it is BOTH, no retraint is added (or we
+    could be more clever and work out which restraint should be used
+    (is closest) by looking at the geometry of the atoms involved).
+    1hd
 
   o on build-latest-coot on bubbles:
    ! LaTeX Error: File `graphicx.sty' not found.
+   1hr
 
    o     on building an non-python version:
 
@@ -40,22 +27,24 @@ also on bragg3:
 /y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/bin/pythonpython2.6 does not exist
 /y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/bin/pythonpython2.6-config does not exist
 /y/people/emsley/autobuild/Linux-bragg3-pre-release-gtk2-python/include/pythonpython2.6 does not exist
-
+   1hr
 
   o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim Fenn.
  
-* Let's hear from Tim Fenn.    
+* Let's hear from Tim Fenn.  OK, he replied.  Non-trivial.
+  2hd.
 
   o Schubert, Carsten [PRDUS] bug:
-    Test that the followin work with and without command line args:
+    Test that the following work with and without command line args:
 
     coot --pdb my.pdb --auto my_map_coeffs.mtz
 
-   set_model_fit_refine_dialog_position()
-   set_delete_dialog_position()
-   set_rotate_translate_dialog_position()
+      set_model_fit_refine_dialog_position()
+      set_delete_dialog_position()
+      set_rotate_translate_dialog_position()
 
-   I tried both the python and scheme commands with the same lack of effect.
+      I tried both the python and scheme commands with the same lack of effect.
+   1hd
 
   o Loop building in both directions for scheme 
     2hd
@@ -63,6 +52,7 @@ also on bragg3:
   o update map without generating a new molecule.
     Perhaps the NCS maps, or read a new map from MTZ updating a
     already existing map.
+    2gd
 
   o Nucletide builder - with B form RNA need to be fixed.  Needs O2'. 1hd
 
@@ -72,10 +62,7 @@ also on bragg3:
   o test that manual-ncs-ghosts averages all the maps for NCS > 2.
     Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
     that'll be fun).
-
-  o Fix up clipper (21ac)
-
-* Need to use new clipper.
+    2hd.
 
   o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
     Make a fixed atom on the O3* of 1A.  The refinement fails now (no
@@ -108,13 +95,14 @@ also on bragg3:
 * There is no quick solution for this - SHELXL has systematically
   different hydrogen names.  Needs an email to Maria.
 
-  o What's crashing on using NCS in Bill's 0.5 build?
+  o What's crashing on using NCS in Bill's 0.5 build?  No idea.
+    Consider punting.
 
   o Consider setting the "handled" flag only for key pressed that did
     something, e.g. we could then use the "B" and "S" keys, because they
     are not often used.  Maybe "A" too.
 
-  o check out the virtualbox page on the ubuntu wiki for info about how
+  o Check out the virtualbox page on the ubuntu wiki for info about how
     to set it up.
 
   o LSQ map by overlap - does that work properly?  Use an offset
@@ -131,6 +119,33 @@ also on bragg3:
 
 
 
+
+  o  save_restraint_chooserdialog in glade, the response is not
+     working or not closing the dialog. Maybe its a Mac thing.  I
+     can't see how this "close/cancel" button is supposed to work.
+
+     I can now.  Use GTK_RESPONSE_CANCEL.
+
+     Remove this debugging though:
+
+   restraints editor saving 0x90065b8
+    debug:: testing restraints editor number 0 of 1 0x90065b8
+    debug:: testing restraints editor number 0 of 1
+    comparing 0x90065b8 vs 0x90065b8
+   restraints editor index 0 matches
+   Returing restraints editor with dialog 0x90065b8 from get_restraints_editor() from dialog 0x90065b8
+
+* Done.
+
+  o Fix up clipper (21ac)
+
+* Need to use new clipper.  Done.
+
+  o Build a helix in 1b41 map.  The Spacegroup is R 3 2 but the cell
+   is hexagonal.
+   2hd
+
+* OK, need new clipper.  Applied.
 
   o Make l toggle label for this closest atom.
 
@@ -7237,6 +7252,10 @@ Mon Oct  6 13:56:44 BST 2008
    re-install?)
 
    Crash on CentOS 4 machines when trying to read svgs
+
+   Trying to separate python build logs from non-python build
+   logs. Problems! overlapping dependencies, test the tar file and
+   transfer it - many fixes to sort out.
 
 ----
 Wed Oct  8 14:11:40 BST 2008

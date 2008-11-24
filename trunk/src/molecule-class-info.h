@@ -728,6 +728,9 @@ class molecule_class_info_t {
 			  clipper::RTop_orth a_to_b_transform);
 
    coot::Cartesian  centre_of_molecule() const;
+   float size_of_molecule() const; // return the standard deviation of
+				   // the length of the atoms from the
+				   // centre of the molecule
 
    std::vector<coot::dots_representation_info_t> dots;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,

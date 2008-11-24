@@ -305,6 +305,29 @@ molecule_class_info_t::centre_of_molecule() const {
    return coot::Cartesian(xs, ys, zs);
 }
 
+float
+molecule_class_info_t::size_of_molecule() const {
+   
+   double xs=0, ys=0, zs=0;
+   double d;
+   double d2_sum = 0;
+   float r = 0;
+   coot::Cartesian centre = centre_of_molecule();
+   if (atom_sel.n_selected_atoms > 0) {
+      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+	 d2_sum +=
+	    (atom_sel.atom_selection[i]->x - centre.x() *
+	     (atom_sel.atom_selection[i]->x - centre.x())) + 
+	    (atom_sel.atom_selection[i]->y - centre.y() *
+	     (atom_sel.atom_selection[i]->y - centre.y())) + 
+	    (atom_sel.atom_selection[i]->z - centre.z() *
+	     (atom_sel.atom_selection[i]->z - centre.z()));
+      }
+      r = sqrt(d2_sum/(double(atom_sel.n_selected_atoms)));
+   }
+   return r;
+}
+
 
 std::string
 molecule_class_info_t::show_spacegroup() const { 
