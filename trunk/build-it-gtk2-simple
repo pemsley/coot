@@ -2786,10 +2786,10 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
       if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
          # original full fat:
-         # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}.tar.gz
+         # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}${gtk2}.tar.gz
          # slimmed:
-         bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}.tar.gz
-         holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}.tar.gz
+         bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+         holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
 
 	 make_tar `basename $slim_dir` $holding_tar_file
 
