@@ -541,6 +541,7 @@ if test "$run_tests" = true ; then
    # the greg tests are where the coot source code was untarred.
    # 
    if [ ! -d greg-tests ] ; then 
+      echo greg-tests dir missing 
       return 1
    fi
 
@@ -2802,6 +2803,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	 tar xzf $holding_tar_file
 	 echo cding into `basename $slim_dir`  from `pwd`
          cd `basename $slim_dir` 
+	 ln -s ../../$coot_dir_name/greg-tests .
 	 test_coot bin/coot > $LOGS/gtk2-test-2.log 2>&1
          test2_status=$?
          if [ $test2_status = 0 ] ; then
