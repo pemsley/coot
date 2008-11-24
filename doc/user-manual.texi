@@ -3940,30 +3940,32 @@ Peptide distortions.  Some variability of the @math{\omega} is to be
 expected in the peptide bond.  But not too much. Anything more than 13
 degrees is suspicicous.  Unexpected CIS peptide bonds show up red.
 
-@subsection Geometry
+@c @subsection Geometry
 
-@menu
-* Pukka Puckers?::
-@end menu
 
-This checks the the bonds, angles and planes geometry of the model is
-consistent with the dictionary @footnote{the Refmac dictionary, that
-is).  The block size is correlated with the geometry distortion and the
-tooltip tells you the most distorted geometrical feature in the residue.
-A ``plane'' distortion can refer to the peptide plane.
+@c @menu
+@c * Pukka Puckers?::
+@c @end menu
 
-@node Pukka Puckers?
-@section Pukka Puckers?
-@cindex  Pukka Puckers?
+@c This checks the the bonds, angles and planes geometry of the model is
+@c consistent with the dictionary @footnote{the Refmac dictionary, that
+@c is}.  The block size is correlated with the geometry distortion and the
+@c tooltip tells you the most distorted geometrical feature in the residue.
+@c A ``plane'' distortion can refer to the peptide plane.
 
-A pucker checker has been incorporated into Coot after the method
-described in their Molprobity paper @footnote{Davis @emph{et al.} (2007)
-Molprobity: all atom contacts and structure validation for proteins and
-nucleic acids, Nucleic Acids Research @b{35}, W375-W383}. Davis @emph{et
-al.} note that the distance of phosphate atom of the following residue
-out of the plane of the base is strongly correlated with the ribose
-pucker.  Coot checks that the out of plane distance is consistent with
-the ribose pucker (and let's you know if it is not). 
+@c @node Pukka Puckers?
+@c @subsection Pukka Puckers?
+@c @cindex  Pukka Puckers?
+
+@c A pucker checker has been incorporated into Coot after the method
+@c described in their Molprobity paper @footnote{Davis @emph{et al.} (2007)
+@c Molprobity: all atom contacts and structure validation for proteins and
+@c nucleic acids, Nucleic Acids Research @b{35}, W375-W383}. Davis @emph{et
+@c al.} note that the distance of phosphate atom of the following residue
+@c out of the plane of the base is strongly correlated with the ribose
+@c pucker.  Coot checks that the out of plane distance is consistent with
+@c the ribose pucker (and let's you know if it is not). 
+
 
 
 @c % -----------------------------------------------------------
