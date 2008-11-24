@@ -2799,7 +2799,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
          cd "$build_dir"
 	 mkdir test-tar
 	 cd test-tar
-	 tar xvf $holding_tar_file
+	 tar xzf $holding_tar_file
 	 test_coot bin/coot > $LOGS/gtk2-test-2.log 2>&1
          test2_status=$?
          if [ $test2_status = 0 ] ; then
