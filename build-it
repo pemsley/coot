@@ -2739,6 +2739,8 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	 mkdir test-tar
 	 cd test-tar
 	 tar xzf $holding_tar_file
+	 echo cding into `basename $slim_dir`  from `pwd`
+         cd `basename $slim_dir` 
 	 test_coot bin/coot > $LOGS/$build_type-test-2.log
          test2_status=$?
          if [ $test2_status = 0 ] ; then
