@@ -1406,22 +1406,24 @@ coot::bad_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
 			coot::dict_chiral_restraint_t chiral_restraint;
 			for (unsigned int irestr=0; irestr<chiral_restraints.size(); irestr++) { 
 			   chiral_restraint = chiral_restraints[irestr];
-			   std::vector<std::pair<short int, coot::atom_spec_t> > c = 
-			      coot::is_bad_chiral_atom_p(chiral_restraint, residue_p);
-			   for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
-			      if (c[ibad].first) {
-				 std::cout << "INFO:: found bad chiral atom: " 
-					   << chain_p->GetChainID() << " " 
-					   << residue_p->GetSeqNum() << " "
-					   << residue_p->GetInsCode() << " "
-					   << chiral_restraint.atom_id_c_4c() << " "
-					   << c[ibad].second.alt_conf << std::endl;
+			   if (! chiral_restraint.is_a_both_restraint()) {
+			      std::vector<std::pair<short int, coot::atom_spec_t> > c = 
+				 coot::is_bad_chiral_atom_p(chiral_restraint, residue_p);
+			      for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
+				 if (c[ibad].first) {
+				    std::cout << "INFO:: found bad chiral atom: " 
+					      << chain_p->GetChainID() << " " 
+					      << residue_p->GetSeqNum() << " "
+					      << residue_p->GetInsCode() << " "
+					      << chiral_restraint.atom_id_c_4c() << " "
+					      << c[ibad].second.alt_conf << std::endl;
 				    
-				 v.push_back(coot::atom_spec_t(chain_p->GetChainID(),
-							       residue_p->GetSeqNum(),
-							       residue_p->GetInsCode(),
-							       chiral_restraint.atom_id_c_4c(),
-							       c[ibad].second.alt_conf));
+				    v.push_back(coot::atom_spec_t(chain_p->GetChainID(),
+								  residue_p->GetSeqNum(),
+								  residue_p->GetInsCode(),
+								  chiral_restraint.atom_id_c_4c(),
+								  c[ibad].second.alt_conf));
+				 }
 			      }
 			   }
 			}
@@ -4851,22 +4853,26 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
    //   std::cout << "DEBUG:: trying to add chirals for this residue..." << std::endl;
    
    for (unsigned int ic=0; ic<geom[idr].chiral_restraint.size(); ic++) {
-      for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
-	 std::string pdb_atom_name1(res_selection[iat1]->name);
-	 if (pdb_atom_name1 == geom[idr].chiral_restraint[ic].atom_id_1_4c()) {
-
-	    for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
-	       std::string pdb_atom_name2(res_selection[iat2]->name);
-	       if (pdb_atom_name2 == geom[idr].chiral_restraint[ic].atom_id_2_4c()) {
-
-		  for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
-		     std::string pdb_atom_name3(res_selection[iat3]->name);
-		     if (pdb_atom_name3 == geom[idr].chiral_restraint[ic].atom_id_3_4c()) {
-
-			for (int iatc=0; iatc<i_no_res_atoms; iatc++) {
-			   std::string pdb_atom_namec(res_selection[iatc]->name);
-			   if (pdb_atom_namec == geom[idr].chiral_restraint[ic].atom_id_c_4c()) {
-
+      // for now, let's just reject restraints that are a "both",
+      // better would be to check the geometry and refine to the one
+      // that is closest.
+      if (!geom[idr].chiral_restraint[ic].is_a_both_restraint()) { 
+	 for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
+	    std::string pdb_atom_name1(res_selection[iat1]->name);
+	    if (pdb_atom_name1 == geom[idr].chiral_restraint[ic].atom_id_1_4c()) {
+	       
+	       for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
+		  std::string pdb_atom_name2(res_selection[iat2]->name);
+		  if (pdb_atom_name2 == geom[idr].chiral_restraint[ic].atom_id_2_4c()) {
+		     
+		     for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
+			std::string pdb_atom_name3(res_selection[iat3]->name);
+			if (pdb_atom_name3 == geom[idr].chiral_restraint[ic].atom_id_3_4c()) {
+			   
+			   for (int iatc=0; iatc<i_no_res_atoms; iatc++) {
+			      std::string pdb_atom_namec(res_selection[iatc]->name);
+			      if (pdb_atom_namec == geom[idr].chiral_restraint[ic].atom_id_c_4c()) {
+				 
 //   			      std::cout << "DEBUG:: adding chiral number " << ic << " for " 
 //   					<< res_selection[iatc]->GetSeqNum() << " "
 //   					<< res_selection[0]->GetResName()
@@ -4876,11 +4882,11 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 //   					<< pdb_atom_name3 << " "
 //   					<< std::endl;
 
-			      res_selection[iat1]->GetUDData(udd_atom_index_handle, index1);
-			      res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
-			      res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
-			      res_selection[iatc]->GetUDData(udd_atom_index_handle, indexc);
-			      
+				 res_selection[iat1]->GetUDData(udd_atom_index_handle, index1);
+				 res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
+				 res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
+				 res_selection[iatc]->GetUDData(udd_atom_index_handle, indexc);
+				 
 // 			      add(CHIRAL_VOLUME_RESTRAINT,
 // 				  indexc, index1, index2, index3,
 // 				  geom[idr].chiral_restraint[ic].volume_sign);
@@ -4893,15 +4899,16 @@ coot::restraints_container_t::add_chirals(int idr, PPCAtom res_selection,
 // 					<< " with volume sign " << geom[idr].chiral_restraint[ic].volume_sign
 // 					<< " idr index: " << idr << " ic index: " << ic << std::endl;
 
-			      std::vector<bool> fixed_flags =
-				 make_fixed_flags(indexc, index1, index2, index3);
-			      restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
-									index1, index2, index3,
-									geom[idr].chiral_restraint[ic].volume_sign,
-									geom[idr].chiral_restraint[ic].target_volume(),
-									geom[idr].chiral_restraint[ic].volume_sigma(),
-									fixed_flags));
-			      n_chiral_restr++;
+				 std::vector<bool> fixed_flags =
+				    make_fixed_flags(indexc, index1, index2, index3);
+				 restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
+									   index1, index2, index3,
+									   geom[idr].chiral_restraint[ic].volume_sign,
+									   geom[idr].chiral_restraint[ic].target_volume(),
+									   geom[idr].chiral_restraint[ic].volume_sigma(),
+									   fixed_flags));
+				 n_chiral_restr++;
+			      }
 			   }
 			}
 		     }
