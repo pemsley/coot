@@ -52,7 +52,7 @@ namespace coot {
       coot::dictionary_residue_restraints_t make_restraint() const;
       bool is_valid() const { return is_valid_flag; }
       bool matches_dialog(GtkWidget *w) const {
-	 std::cout << " comparing " << dialog << " vs " << w << std::endl;
+	 // std::cout << " comparing " << dialog << " vs " << w << std::endl;
 	 return (w == dialog);}
       void delete_restraint(GtkWidget *w);
       void add_restraint(GtkWidget *w);

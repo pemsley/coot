@@ -3241,20 +3241,20 @@ string   static std::string sessionid;
      }
      for (unsigned int i=0; i<restraints_editors.size(); i++) { 
        if (restraints_editors[i].is_valid()) { 
-	 std::cout << " debug:: testing restraints editor number "
-		   << i << " of " << restraints_editors.size() << std::endl;
+/* 	 std::cout << " debug:: testing restraints editor number " */
+/* 		   << i << " of " << restraints_editors.size() << std::endl; */
          if (restraints_editors[i].matches_dialog(w)) { 
            found_index = i;
-	   std::cout << "restraints editor index " << i << " matches" << std::endl;
+	   // std::cout << "restraints editor index " << i << " matches" << std::endl;
            break;
          }
        }
      }
      if (found_index != -1)
        r = restraints_editors[found_index];
-     std::cout << "Returing restraints editor with dialog " << r.get_dialog() 
-	       << " from get_restraints_editor() from dialog " 
-	       << w  << std::endl;
+/*      std::cout << "Returing restraints editor with dialog " << r.get_dialog()  */
+/* 	       << " from get_restraints_editor() from dialog "  */
+/* 	       << w  << std::endl; */
      return r;
    } 
 #endif //GTK_MAJOR_VERSION
