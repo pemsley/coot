@@ -737,6 +737,9 @@ coot::protein_geometry::mon_lib_add_chiral(std::string comp_id,
        if (volume_sign.substr(0,3) == "NEG") { 
 	  volume_sign_int = -1;
        }
+       if (volume_sign == "both" || volume_sign == "BOTH") { 
+	  volume_sign_int = coot::dict_chiral_restraint_t::CHIRAL_RESTAINT_BOTH;
+       }
     }
 
 //     std::cout << "DEBUG:: " << comp_id << " " << atom_id_centre << " " << volume_sign

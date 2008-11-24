@@ -269,6 +269,7 @@ namespace coot {
    // ------------------------------------------------------------------------
    // 
    class dict_chiral_restraint_t : public basic_dict_restraint_t {
+      bool is_both_flag; 
       std::string chiral_id; // or int chiral_id 1, 2, 3.
       std::string local_atom_id_centre; // CA usually.
       std::string local_atom_id_1;
@@ -282,6 +283,7 @@ namespace coot {
    public:
       int volume_sign;  // +/- 1, checked by is_bad_chiral_atom_p and
 			// set by nomenclature checking
+      enum { CHIRAL_RESTAINT_BOTH = -2};
       dict_chiral_restraint_t() {};
       dict_chiral_restraint_t(const std::string &chiral_id_in,
 			      const std::string &atom_id_centre_in,
@@ -298,6 +300,11 @@ namespace coot {
 	 volume_sign = volume_sign_in;
 	 target_volume_ = -999.9;  // unassigned
 	 volume_sigma_  = -999.9;
+	 is_both_flag = 0;
+	 if (volume_sign_in == CHIRAL_RESTAINT_BOTH) { 
+	    is_both_flag = 1;
+	    volume_sigma_ = 1.0 ; // mark as assigned
+	 } 
       }
       std::string Chiral_Id() const { return chiral_id; }
       std::string atom_id_1_4c() const { return atom_id_mmdb_expand(local_atom_id_1);}
@@ -308,6 +315,7 @@ namespace coot {
 					 const std::vector <dict_angle_restraint_t> &angles);
       double target_volume() const { return target_volume_;}
       double volume_sigma()  const { return volume_sigma_;}
+      bool is_a_both_restraint() const { return is_both_flag; } 
       bool has_unassigned_chiral_volume() const {
 	 return (volume_sigma_ < 0.0) ? 1 : 0;
       }
