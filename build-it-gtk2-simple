@@ -427,9 +427,9 @@ function post_install_slim {
 
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
-        file_list="$file_list bin/python bin/python$python_version bin/python-config \
+        file_list="$file_list bin/python bin/python$pver bin/python-config \
                    bin/python$python_version-config \
-                   include/python$python_version"
+                   include/python$pver"
     fi
     echo rsyncing... 
     for file in $file_list ;
