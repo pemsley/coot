@@ -33,6 +33,7 @@
 (define atom-info-string-scm #f)
 (define get-refmac-sad-atom-info-scm #f)
 (define set-find-hydrogen-torsions #f)
+(define find-terminal-residue-type #f)
 
 
 (load "filter.scm")
