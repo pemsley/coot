@@ -253,6 +253,7 @@
 # 4.33 20081122 Use clipper-2.1, extra tweaks.
 # 4.34 20081122 Add a second test, make a holding directory for tar file before
 #               second test is run.
+# 4.35 20081124 test for greg using full path to guile.
 script_version=4.34
 
 # :: NOTE:: 
@@ -279,7 +280,7 @@ script_version=4.34
 # 
 if [ "$1" = "python" ] ; then 
    ENABLE_PYTHON_COOT=yes
-   build_type=gtk2
+   build_type=gtk2-python
 else 
    ENABLE_PYTHON_COOT=no
    build_type=gtk2
@@ -421,15 +422,15 @@ function post_install_slim {
        keep_lib_archs="$lib_sos"
     fi
 
-    file_list="etc html info man share bin/coot bin/coot-real \
+    file_list="etc info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
-	bin/guile lib/$python_version $keep_lib_archs"
+	bin/guile $keep_lib_archs"
 
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
-        file_list="$file_list bin/python bin/python$pver bin/python-config \
+        file_list="$file_list html bin/python bin/python$pver bin/python-config \
                    bin/python$python_version-config \
-                   include/python$pver"
+                   lib/$python_version include/python$pver"
     fi
     echo rsyncing... 
     for file in $file_list ;
@@ -699,7 +700,7 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-echo INFO:: redirecting std output to $LOGS/gtk2-build.log
+echo INFO:: redirecting std output to $LOGS/$build_type-build.log
 exec > $LOGS/gtk2-build.log
 echo This is script version $script_version for Gtk2 
 
@@ -1572,7 +1573,7 @@ fi
 
 # LD_LIBRARY_PATH has been set by now
 echo testing for greg using `which guile`
-guile -c '(use-modules (ice-9 greg))'
+$install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
 status=$?
 echo guile greg status $status
 if test $status = 0 ; then
