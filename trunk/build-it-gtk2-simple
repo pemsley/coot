@@ -478,8 +478,11 @@ function ssh_copy {
 
     bin_tar_file=$1
     if [ "$domainname" = "biop" ] ; then
+       echo copying over files...
        $HOME/bin/sput-with-dir $bin_tar_file        public_html/software/binaries/nightlies/pre-release/
        $HOME/bin/sput-with-dir $bin_tar_file.md5sum public_html/software/binaries/nightlies/pre-release/
+    else 
+       echo Not copying file to York, $domainname
     fi    
 }
 
