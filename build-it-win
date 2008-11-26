@@ -1872,33 +1872,50 @@ if test -n "$build_clipper" ; then
     # (it uses configure, not scons)
     #
     echo BUILDING clipper:
-    clipper_version=20ac
-    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper$clipper_version.latest.tar.gz
+    # clipper_version is for the file name on the server, clipper_dir_version is the directory
+    # that files untars into.
+    #clipper_version=20ac
+    clipper_version=2.1-081118-ac
+    clipper_dir_version=2.1
+    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi 
+    # clipper does threading now, so either we get MinGW pthreads, or we
+    # use windows threads in clipper and patch clipper). Use 2 for now:
+    # 1. option (pthreads)
+    #pthread_download_masta=ftp://sourceware.org/pub/pthreads-win32/dll-latest
+    #${WGET} --passive-ftp $pthread_download_masta/lib/libpthreadGC2.a
+    #${WGET} --passive-ftp $pthread_download_masta/lib/pthreadGC2.dll
+    #${WGET} --passive-ftp $pthread_download_masta/include/pthread.h
+    #${WGET} --passive-ftp $pthread_download_masta/include/sched.h
+    #${WGET} --passive-ftp $pthread_download_masta/include/semaphore.h
+    # now put them in the right place with the right name
+    #cp ${AUTOBUILD_SOURCES}/libpthreadGC2.a $install_top_dir/lib/libpthread.a
+    #cp ${AUTOBUILD_SOURCES}/pthreadGC2.dll $install_top_dir/bin/
+    #cp ${AUTOBUILD_SOURCES}/pthread.h $install_top_dir/include/
+    #cp ${AUTOBUILD_SOURCES}/sched.h $install_top_dir/include/
+    #cp ${AUTOBUILD_SOURCES}/semaphore.h $install_top_dir/include/
+    # 2. option (use windows threads)
+    ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_mingw.patch
     (
-    mkdir clipper
-    cd clipper
-    gzip -dc ${AUTOBUILD_SOURCES}/clipper$clipper_version.latest.tar.gz | tar xf -
-    ccp4_libs_dir="`pwd`"
+    gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
+    cd clipper-$clipper_dir_version
     
     # make clipper
     echo . ------------------------------------------------------------------------------
     echo . "         clipper                                                            "
     echo . ------------------------------------------------------------------------------
-    cd $ccp4_libs_dir/lib/clipper
-    patch -p0 < ${AUTOBUILD_SOURCES}/clipper-new-ccp4-install.patch
     if [ "$need_clipper_contrib_patch" = true ] ; then
        patch -p0 < ${AUTOBUILD_SOURCES}/clipper_test_contrib.cpp.patch
     fi
+    patch -p0 < ${AUTOBUILD_SOURCES}/clipper_mingw.patch
     ./configure --prefix=$install_top_dir \
 	--with-fftw=$install_top_dir \
 	--with-mmdb=$install_top_dir \
 	--with-ccp4=$install_top_dir \
 	--enable-shared  \
 	--enable-mmdb    \
-	--enable-mmdbold \
 	--enable-cif     \
 	--enable-ccp4    \
 	--enable-minimol \

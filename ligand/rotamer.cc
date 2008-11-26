@@ -29,6 +29,11 @@
 
 #include "coot-utils.hh"
 
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+// window magic jiggery pokery.
+#define AddAtomA AddAtom
+#define GetAtomNameA GetAtomName
+#endif
 
 
 // Return a flag saying whether we did this or not.

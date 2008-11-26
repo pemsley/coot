@@ -31,6 +31,12 @@
 #include "mmdb_tables.h"  // for Get1LetterCode()
 #include "mmdb_graph.h" // for graph matching
 
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+// window magic jiggery pokery.
+#define AddAtomA AddAtom
+#define GetAtomNameA GetAtomName
+#endif
+
 std::vector<std::string>
 coot::util::residue_types_in_molecule(CMMDBManager *mol) { 
 

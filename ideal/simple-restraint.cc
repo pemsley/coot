@@ -34,6 +34,12 @@
 //
 #include "coot-coord-extras.hh"  // is_nucleotide_by_dict
 
+#if defined (__WIN32__)
+// window magic jiggery pokery.
+#define AddAtomA AddAtom
+#define GetAtomNameA GetAtomName
+#endif
+
 // #include "mmdb.h"
 
 // iend_res is inclusive, so that 17,17 selects just residue 17.

@@ -24,6 +24,12 @@
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
 
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+// window magic jiggery pokery.
+#define AddAtomA AddAtom
+#define GetAtomNameA GetAtomName
+#endif
+
 
 // Return 0 if any of the residues don't have a dictionary entry
 // geom_p gets updated to include the residue restraints if necessary

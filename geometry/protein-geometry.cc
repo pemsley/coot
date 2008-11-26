@@ -43,6 +43,12 @@
 #include "Cartesian.h"
 #include "clipper/core/clipper_util.h"
 
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+// window magic jiggery pokery.
+#define AddAtomA AddAtom
+#define GetAtomNameA GetAtomName
+#endif
+
 // std::string 
 // coot::basic_dict_restraint_t::atom_id_1_4c() const {
 //    return atom_id_mmdb_expand(atom_id_1_); 

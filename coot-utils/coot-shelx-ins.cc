@@ -33,6 +33,12 @@
 #include <iostream>
 #include <fstream>
 
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+// window magic jiggery pokery.
+#define AddAtomA AddAtom
+#define GetAtomNameA GetAtomName
+#endif
+
 enum { NONE=0, ONE_HALF=6, ONE_THIRD=4, ONE_QUARTER=3, ONE_SIXTH=2, TWO_THIRDS=8,
        THREE_QUARTERS=9, FIVE_SIXTHS=10, MINUS_ONE_HALF= -6, MINUS_ONE_THIRD = -4,
        MINUS_ONE_QUARTER = -3, MINUS_ONE_SIXTH = -2, MINUS_TWO_THIRDS = -8,
