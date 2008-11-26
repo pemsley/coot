@@ -45,8 +45,12 @@
 	(begin 
 
 	  (let ((backup-mode (backup-state imol))
-		(sequence (list-head sequence+rama 1))
-		(use-rama-restraints (car (last-pair sequence+rama)))
+		(sequence (if (null? sequence+rama)
+			      '()
+			      (car sequence+rama 1)))
+		(use-rama-restraints (if (null? sequence+rama)
+					 0 ; as boolean
+					 (car (last-pair sequence+rama))))
 		(rama-status (refine-ramachandran-angles-state)))
 	    (make-backup imol)
 	    (turn-off-backup imol)
