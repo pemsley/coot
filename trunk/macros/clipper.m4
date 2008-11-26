@@ -65,15 +65,27 @@ if test x$clipper_prefix != x; then
  # added lz, we should have proper autoconf check for this.
  #
  CLIPPER_LDOPTS="-L$clipper_prefix/lib -lclipper-mtz -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-mmdbold -lclipper-core -lmccp4 $MMDB_LIBS -lrfftw -lfftw -lz -lm"
- CLIPPER_LDOPTS="-L$clipper_prefix/lib -lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-minimol -lclipper-cns -lclipper-mmdb -lclipper-core -lccp4c $MMDB_LIBS -lrfftw -lfftw -lz -lm -lpthread"
+ CLIPPER_LDOPTS="-L$clipper_prefix/lib -lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-minimol -lclipper-cns -lclipper-mmdb -lclipper-core -lccp4c $MMDB_LIBS -lrfftw -lfftw -lz -lm"
 # -L$clipper_prefix/boost/lib -lclipper-cctbx -L$clipper_prefix/cctbx/lib -lsgtbx -luctbx 
 else
  # the compiler looks in the "standard" places for clipper.  In real life,
  # it would be quite unlikely that clipper would be installed in /usr/include, 
  # /usr/lib etc. so this code will not usually find the right dependencies.
  CLIPPER_CXXFLAGS=""
- CLIPPER_LDOPTS="-lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-minimol -lclipper-cns -lclipper-core -lccp4c $MMDB_LIBS -lrfftw -lfftw -lz -lm -lpthread"
+ CLIPPER_LDOPTS="-lclipper-ccp4 -lclipper-cif -lclipper-phs -lclipper-contrib -lclipper-mmdb -lclipper-minimol -lclipper-cns -lclipper-core -lccp4c $MMDB_LIBS -lrfftw -lfftw -lz -lm"
 fi
+
+# we dont want pthreads in windows 
+case $ac_cv_build_alias in
+        # BL says:: same as for cygwin in mingw
+        # dunno where else to put the glob at the moment
+        MINGW*|Mingw*|*mingw*|Cygwin*|CYGWIN*|*cygwin*)
+                CLIPPER_LDOPTS=$CLIPPER_LDOPTS
+	;; 
+	*)
+		CLIPPER_LDOPTS=$CLIPPER_LDOPTS" -lpthread"
+        ;;
+esac
 
 AC_MSG_CHECKING([for Clipper])
 

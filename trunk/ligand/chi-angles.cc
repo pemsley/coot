@@ -23,6 +23,12 @@
 #include "mgtree.h"
 
 #include "coot-coord-extras.hh"
+
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+// window magic jiggery pokery.
+#define AddAtomA AddAtom
+#define GetAtomNameA GetAtomName
+#endif
  
 coot::simple_rotamer::simple_rotamer(int rot1_in,  
 				     int rot2_in,  

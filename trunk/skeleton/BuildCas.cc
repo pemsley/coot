@@ -19,6 +19,10 @@
  */
 
 #include <string.h>
+#if defined (__WIN32__)
+#undef AddAtom
+#define AddAtomA AddAtom
+#endif
 #include "clipper/mmdb/clipper_mmdb.h" // for clipper mmdb stuff (obviously)
                                        // convert_to_atoms_internal().
 
@@ -1466,7 +1470,7 @@ BuildCas::fit_next_in_segment(const clipper::Xmap<float> &map) {
 // 
 vector<coot::Cartesian_and_Grid>
 BuildCas::select_by_distance(coot::Cartesian start_point,
-			     float near, float far) const { // 3.7A +/- a bit
+			     float near_point, float far_point) const { // 3.7A +/- a bit
 
    vector<coot::Cartesian_and_Grid> result;
    coot::Cartesian dist_vec; 
@@ -1475,8 +1479,8 @@ BuildCas::select_by_distance(coot::Cartesian start_point,
 
       dist_vec = start_point - big_ball[ii];
 
-      if (dist_vec.amplitude() < far) { 
-	 if (dist_vec.amplitude() > near) {
+      if (dist_vec.amplitude() < far_point) { 
+	 if (dist_vec.amplitude() > near_point) {
 
 	    coot::Cartesian_and_Grid cag(big_ball[ii],big_ball_grid[ii]); 
 
