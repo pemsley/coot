@@ -1346,7 +1346,7 @@ void info_dialog(const char *txt) {
    graphics_info_t::info_dialog(txt);
    std::string cmd = "info-dialog";
    std::vector<coot::command_arg_t> args;
-   args.push_back(txt);
+   args.push_back(single_quote(txt));
    add_to_history_typed(cmd, args);
 }
 
