@@ -29,9 +29,7 @@ coot-python-functions.texi:
 endif
 
 EXTRA_DIST =    \
-   Makefile.am  \
-                     coot_utils.py        get_ebi.py	  mutate.py	\
-background_demo.py                                        		\
+background_demo.py coot_utils.py        get_ebi.py	  mutate.py	\
                                           hello.py        raster3d.py	\
 brute_lsqman.py                                           refmac.py	\
 coot_gui.py          filter.py            libcheck.py     		\
