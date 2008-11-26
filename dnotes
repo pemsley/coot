@@ -16,7 +16,10 @@ Things to do for 0.5.1
   o Pucker of ideal DNA need to be fixed.  Needs better reference nucleotide.
     1hd.
 
-  o test that manual-ncs-ghosts averages all the maps for NCS > 2.
+  o Does molprobity (specifically reduce) work with modern distros and
+    do the right thing in Coot.  Check (set-do-probe-dots-post-refine 1).
+
+  o Test that manual-ncs-ghosts averages all the maps for NCS > 2.
     Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
     that'll be fun).
     2hd.  Do this in the office.

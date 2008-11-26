@@ -4988,22 +4988,25 @@ molecule_class_info_t::restore_from_backup(int history_offset) {
       std::cout << "restoring from backup " << history_filename_vec.size()
 		<< " " << history_index << std::endl;
       std::string save_name = name_;
-      std::string filename = history_filename_vec[hist_vec_index];
-      //      history_index = hist_index;
-      short int reset_rotation_centre = 0;
-      // handle_read_draw_molecule uses graphics_info_t::n_molecules
-      // to determine its molecule number.  We don't want it to
-      // change.
-      int save_imol = imol_no;
-      // similarly, it messes with the save_state_command_strings_, we
-      // don't want that either:
-      std::vector<std::string> save_save_state = save_state_command_strings_;
-      short int is_undo_or_redo = 1;
-      handle_read_draw_molecule(imol_no, filename, reset_rotation_centre, is_undo_or_redo,
-				bond_width);
-      save_state_command_strings_ = save_save_state;
-      imol_no = save_imol; 
-      name_ = save_name;
+      if (hist_vec_index < history_filename_vec.size() &&
+	  hist_vec_index >= 0) { 
+	 std::string filename = history_filename_vec[hist_vec_index];
+	 //      history_index = hist_index;
+	 short int reset_rotation_centre = 0;
+	 // handle_read_draw_molecule uses graphics_info_t::n_molecules
+	 // to determine its molecule number.  We don't want it to
+	 // change.
+	 int save_imol = imol_no;
+	 // similarly, it messes with the save_state_command_strings_, we
+	 // don't want that either:
+	 std::vector<std::string> save_save_state = save_state_command_strings_;
+	 short int is_undo_or_redo = 1;
+	 handle_read_draw_molecule(imol_no, filename, reset_rotation_centre, is_undo_or_redo,
+				   bond_width);
+	 save_state_command_strings_ = save_save_state;
+	 imol_no = save_imol; 
+	 name_ = save_name;
+      }
    } else {
       std::cout << "not restoring from backup because "
 		<< history_filename_vec.size()
