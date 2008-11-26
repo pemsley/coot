@@ -214,22 +214,20 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 // 	    found_contact[contact[i].id1] = 1;  // true
 // 	    found_contact[contact[i].id2] = 1;
 
-	    std::string chain_id1(atom_selection_1[ contact[i].id1 ]->GetChainID());
-	    std::string chain_id2(atom_selection_2[ contact[i].id2 ]->GetChainID());
+	    CAtom *atom_p_1 = atom_selection_1[ contact[i].id1 ];
+	    CAtom *atom_p_2 = atom_selection_2[ contact[i].id2 ];
 
-	    std::string aloc_1(atom_selection_1[ contact[i].id1 ]->altLoc);
-	    std::string aloc_2(atom_selection_2[ contact[i].id2 ]->altLoc);
+	    std::string chain_id1(atom_p_1->GetChainID());
+	    std::string chain_id2(atom_p_2->GetChainID());
 
-	    element_1 = atom_selection_1[ contact[i].id1 ]->element;
-	    element_2 = atom_selection_2[ contact[i].id2 ]->element;
+	    std::string aloc_1(atom_p_1->altLoc);
+	    std::string aloc_2(atom_p_2->altLoc);
 
-	    coot::Cartesian atom_1(atom_selection_1[ contact[i].id1 ]->x,
-				   atom_selection_1[ contact[i].id1 ]->y,
-				   atom_selection_1[ contact[i].id1 ]->z);
+	    element_1 = atom_p_1->element;
+	    element_2 = atom_p_2->element;
 
-	    coot::Cartesian atom_2(atom_selection_2[ contact[i].id2 ]->x,
-				   atom_selection_2[ contact[i].id2 ]->y,
-				   atom_selection_2[ contact[i].id2 ]->z);
+	    coot::Cartesian atom_1(atom_p_1->x, atom_p_1->y, atom_p_1->z);
+	    coot::Cartesian atom_2(atom_p_2->x, atom_p_2->y, atom_p_2->z);
 
 	    if (chain_id1 == chain_id2) {
 
@@ -241,11 +239,12 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 	       // 		      << aloc_1 << ": and :"<< aloc_2 << ":" << std::endl;
 	       if ( (aloc_1=="") || (aloc_2=="") || (aloc_1==aloc_2) ) {
 
-		  int res_1 = atom_selection_1[ contact[i].id1 ]->GetSeqNum();
-		  int res_2 = atom_selection_2[ contact[i].id2 ]->GetSeqNum();
+		  int res_1 = atom_p_1->GetSeqNum();
+		  int res_2 = atom_p_2->GetSeqNum();
 
 		  // this +/- 1 residue test
-		  if (labs(res_1 - res_2) < 2) {
+		  if (labs(res_1 - res_2) < 2 ||
+		      labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2) {
 
 		     //  		  std::cout << "Adding bond " << atom_selection_1[ contact[i].id1 ]
 		     //  			    << " to "
