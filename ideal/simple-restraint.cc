@@ -3851,7 +3851,8 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 
 	    // Are these residues neighbours?  We can add some sort of
 	    // ins code test here in the future.
-	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1) { 
+	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1
+		 || abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) { 
 
 	       link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 
