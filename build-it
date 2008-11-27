@@ -217,7 +217,9 @@
 # 2.51 20081122 Add a second test, make a holding directory for tar file before
 #               second test is run.
 # 2.52 20081124 test for greg using full path to guile.
-script_version=2.52
+# 2.53 20081127 Make file_list in post_install_slim python-dependent, like the 
+#               gtk2 version.
+script_version=2.53
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -376,10 +378,18 @@ function post_install_slim {
        keep_lib_archs="$lib_sos"
     fi
 
-    echo rsyncing...
-    for file in etc html info man share bin/coot bin/coot-real \
+    file_list="etc info man share bin/coot bin/coot-real \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
-	bin/guile $keep_lib_archs ;
+	bin/guile $keep_lib_archs"
+
+
+    if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
+        file_list="$file_list bin/python bin/python$pver bin/python-config \
+                   bin/python$python_version-config \
+                   lib/$python_version include/python$pver"
+    fi
+    echo rsyncing...
+    for file in $file_list ;
     do
        dn=`dirname $file`
        if [ -e $fat_dir/$file ] ; then
