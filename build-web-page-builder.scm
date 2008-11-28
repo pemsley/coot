@@ -703,6 +703,7 @@
 
 	(list "binary-Linux-i386-redhat-8.0"
 	      "Linux-bubbles/gtk1" #f)
+
 	(list "binary-Linux-i386-redhat-8.0-python" 
 	      "Linux-bubbles/gtk1-python" #t)
 
