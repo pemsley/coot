@@ -5532,15 +5532,19 @@ int mol_is_active(int imol) {
 
    graphics_info_t g; 
 
-   return g.molecules[imol].atom_selection_is_pickable(); 
-
+   if (is_valid_model_molecule(imol)) { 
+      return g.molecules[imol].atom_selection_is_pickable();
+   }
+   return 0;
 } 
 
 int map_is_displayed(int imol) { 
 
-   graphics_info_t g;
-   return g.molecules[imol].drawit_for_map; 
-
+   if (is_valid_map_molecule(imol)) { 
+      graphics_info_t g;
+      return g.molecules[imol].drawit_for_map;
+   }
+   return 0; // -1 maybe? No, I think not.
 }
 
 /*! \brief if on_or_off is 0 turn off all maps displayed, for other
