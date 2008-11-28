@@ -701,7 +701,7 @@ fi
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
 echo INFO:: redirecting std output to $LOGS/$build_type-build.log
-exec > $LOGS/gtk2-build.log
+exec > $LOGS/build_type-build.log
 echo This is script version $script_version for Gtk2 
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
@@ -997,6 +997,7 @@ wget  "http://www.ysbl.york.ac.uk/~emsley/build-logs/build-notes"
 if [ $? -ne 0 ] ; then
 	echo wget failed for some reason
 	echo exiting now.
+	df
 	my_exit 1
 else
 	echo Done wget check.
