@@ -94,6 +94,9 @@ namespace coot {
 
       int decode_keysym(const std::string &s);
       std::vector<std::pair<std::string, int> > key_sym_vec();
+
+      bool is_number(char c);
+      bool is_letter(char c);
       
 
    } // end of util name space

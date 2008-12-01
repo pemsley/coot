@@ -3139,6 +3139,9 @@ public:
      return r;
    } 
 
+   // ---- active atom:
+   static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
+
    // ---- open url
    // Hmm.. do we need a vector here?
    static std::string browser_open_command;
@@ -3174,6 +3177,11 @@ public:
    // functions:
    static int ncs_residue_skip_key;
    static int update_go_to_atom_from_current_residue_key;
+   
+   // --- keyboarding the Go To Atom (or residue, really)
+   static std::string go_to_residue_keyboarding_string;
+   static bool in_go_to_residue_keyboarding_mode;
+   static void apply_go_to_residue_keyboading_string();
 
    // -- PHENIX support
    static std::string external_refinement_program_button_label;

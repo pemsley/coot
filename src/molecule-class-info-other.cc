@@ -1540,7 +1540,92 @@ molecule_class_info_t::residue_from_external(int resno, const std::string &inser
 
    return get_residue(resno, insertion_code, chain_id);
 
+}
+
+CAtom *
+molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
+				const coot::atom_spec_t &active_atom_spec,
+				const coot::Cartesian &pt) const {
+
+   CAtom *at = NULL;
+   coot::go_to_residue_string_info_t si(go_to_residue_string, atom_sel.mol);
+   if (si.chain_id_is_set) {
+      if (si.resno_is_set) {
+	 CResidue *res_p = get_residue(si.resno, "", si.chain_id);
+	 if (res_p) { 
+	    CAtom *int_at = intelligent_this_residue_mmdb_atom(res_p);
+	    if (int_at) {
+	       at = int_at;
+	    }
+	 }
+      } else {
+	 // the closest atom in the si.chain_id
+	 coot::at_dist_info_t cl_at = closest_atom(pt, 1, si.chain_id, 1);
+	 if (cl_at.atom)
+	    at = cl_at.atom;
+      } 
+   } else {
+      // use the chain_id from the active_atom_spec.chain then
+      if (si.resno_is_set) {
+	 CResidue *res_p = get_residue(si.resno, "", active_atom_spec.chain);
+	 if (res_p) { 
+	    CAtom *int_at = intelligent_this_residue_mmdb_atom(res_p);
+	    if (int_at) {
+	       at = int_at;
+	    }
+	 }
+      } 
+   } 
+   return at;
+}
+
+// This should check that if "a" is typed, then set "a" as the
+// chain_id if it exists, else convert to "A" (if that exists).
+// 
+coot::go_to_residue_string_info_t::go_to_residue_string_info_t(const std::string &go_to_residue_string, CMMDBManager *mol) {
+
+   resno_is_set = 0;
+   chain_id_is_set = 0;
+   resno = -1;
+   chain_id = "";
+   
+   std::vector<std::string> chain_ids;
+   if (mol) { 
+      int imod = 1;
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 chain_ids.push_back(chain_p->GetChainID());
+      }
+   }
+
+   std::string::size_type l = go_to_residue_string.length();
+   std::string number_string = "";
+   std::string chain_id_string = ""; 
+   for (int i=0; i<l; i++) { 
+      if (coot::util::is_number(go_to_residue_string[i])) {
+	 number_string += go_to_residue_string[i];
+	 resno_is_set = 1;
+      }
+      if (coot::util::is_letter(go_to_residue_string[i])) {
+	 chain_id_string += go_to_residue_string[i];
+	 chain_id_is_set = 1;
+      }
+   }
+
+   if (resno_is_set) {
+      resno = atoi(number_string.c_str());
+   }
+
+   if (chain_id_is_set) {
+      chain_id = chain_id_string;
+   } 
+   
 } 
+
 
 
 // pair.first is the status, 0 for bad, 1 for good.

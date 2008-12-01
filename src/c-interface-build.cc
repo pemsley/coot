@@ -2397,7 +2397,8 @@ char *chain_id(int imol, int ichain) {
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       CChain *chain_p = mol->GetChain(1,ichain);
-      r = chain_p->GetChainID();
+      if (chain_p) 
+	 r = chain_p->GetChainID();
    }
    std::string cmd = "chain_id";
    std::vector<coot::command_arg_t> args;

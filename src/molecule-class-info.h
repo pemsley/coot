@@ -300,6 +300,15 @@ namespace coot {
       }
    };
 
+   class go_to_residue_string_info_t {
+   public:
+      bool resno_is_set;
+      bool chain_id_is_set;
+      int resno;
+      std::string chain_id;
+      go_to_residue_string_info_t(const std::string &go_to_residue_string, CMMDBManager *mol);
+   }; 
+
    class atom_attribute_setting_help_t {
    public:
      enum { UNSET, IS_FLOAT, IS_STRING, IS_INT};
@@ -735,6 +744,11 @@ class molecule_class_info_t {
    std::vector<coot::dots_representation_info_t> dots;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
 				     bool ca_check_flag) const;
+   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
+				     bool ca_check_flag,
+				     const std::string &chain_id,
+				     bool use_this_chain_id) const;
+   
    // return -1 on not found
    int get_atom_index(CAtom *atom) { 
      int idx = -1;
@@ -1089,6 +1103,22 @@ class molecule_class_info_t {
    // that of the given spec.  Return NULL on residue not found.
    // 
    CResidue *get_following_residue(const coot::residue_spec_t &rs) const;
+
+   // A function of molecule-class that returns the position
+   // (if posible) of an atom given a string e.g. 
+   // "A" -> nearest atom in the "A" chain
+   // "a" -> nearest atom in the "a" chain, or failing that the "A" chain.
+   // "43" residue 43 of the chain we are looking at.
+   //"21b" -> residue 21 of the "b" chain, otherwise residue 21 of the "B" 
+   //         chain 
+   // 
+   // For keyboarding go-to atom.
+   //
+   // Return NULL on not-able-to-find-atom.
+   // 
+   CAtom *get_atom(const std::string &go_to_residue_string,
+		   const coot::atom_spec_t &active_atom_spec,
+		   const coot::Cartesian &pt) const;
 
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 
