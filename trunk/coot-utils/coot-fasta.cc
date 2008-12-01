@@ -140,7 +140,7 @@ coot::fasta::fasta(const std::string &combined_string) { // decomposition happen
 
    for (int i=0; i<nchars; i++) {
 
-      if (is_fasta && found_newline && found_greater || !is_fasta) {
+      if ((is_fasta && found_newline && found_greater) || !is_fasta) {
 	 t = toupper(combined_string[i]);
 	 if (is_fasta_aa(t)) {
 	    seq += t;
