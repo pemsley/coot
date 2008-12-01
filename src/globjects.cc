@@ -1894,6 +1894,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
 							 in_stereo_flag);
 
+	 // Turn the light(s) on and after off, if needed.
 	 // 
 	 graphics_info_t::molecules[ii].draw_surface();
 
