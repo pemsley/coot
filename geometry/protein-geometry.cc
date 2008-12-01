@@ -2179,11 +2179,25 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 coot::chem_link
 coot::protein_geometry::matching_chem_link(const std::string &group_1,
 					   const std::string &group_2) const {
-   
+
+   coot::chem_link cl("", "", "", "", "", "", "", "");
+   bool found = 0;
    for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
       if (chem_link_vec[i_chem_link].matches_groups(group_1, group_2)) {
+	 cl = chem_link_vec[i_chem_link];
+	 found = 1;
+	 break;
       }
    }
+
+   if (! found) {
+      std::string rte = "No chem link for ";
+      rte += group_1;
+      rte += " ";
+      rte += group_2;
+      throw std::runtime_error(rte);
+   }
+   return cl;
 }
       
 void
