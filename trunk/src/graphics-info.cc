@@ -985,6 +985,8 @@ graphics_info_t::update_environment_distances_maybe(int index, int imol) {
 }
 
 // Return imol = -1 if no (close) atoms found.
+//
+// Ignore molecules that are not displayed.
 // 
 // index, imol
 std::pair<int, int> 
@@ -1000,12 +1002,14 @@ graphics_info_t::get_closest_atom() const {
    for (int imol=0; imol<n_molecules(); imol++) { 
 
       if (molecules[imol].has_model()) { 
-	 dist_info = molecules[imol].nearest_atom(rc);
-	 if (dist_info.first < dist_min) { 
-	    imol_close = imol;
-	    index_close = dist_info.second;
-	    dist_min = dist_info.first;
-	 } 
+	 if (molecules[imol].is_displayed_p()) { 
+	    dist_info = molecules[imol].nearest_atom(rc);
+	    if (dist_info.first < dist_min) { 
+	       imol_close = imol;
+	       index_close = dist_info.second;
+	       dist_min = dist_info.first;
+	    }
+	 }
       }
    }
    return std::pair<int, int>(index_close, imol_close);
