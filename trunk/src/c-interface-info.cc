@@ -1235,39 +1235,7 @@ int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {
 // (is-it-valid? (active-molecule-number spec))
 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {
 
-   coot::atom_spec_t spec;
-   bool was_found_flag = 0;
-   
-   graphics_info_t g;
-   float dist_best = 999999999.9;
-   int imol_closest = -1;
-   CAtom *at_close = 0;
-   
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-
-      if (is_valid_model_molecule(imol)) {
-	 if (graphics_info_t::molecules[imol].is_displayed_p()) { 
-	    if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) { 
-	       coot::at_dist_info_t at_info =
-		  graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
-	       if (at_info.atom) {
-		  if (at_info.dist <= dist_best) {
-		     dist_best = at_info.dist;
-		     imol_closest = at_info.imol;
-		     at_close = at_info.atom;
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-   if (at_close) {
-      spec = coot::atom_spec_t(at_close);
-      was_found_flag = 1;
-   }
-
-   std::pair<int, coot::atom_spec_t> p1(imol_closest, spec);
-   return std::pair<bool, std::pair<int, coot::atom_spec_t> > (was_found_flag, p1);
+   return graphics_info_t::active_atom_spec();
 } 
 
 #ifdef USE_GUILE

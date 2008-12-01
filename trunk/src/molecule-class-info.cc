@@ -360,6 +360,13 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt) const {
 
 coot::at_dist_info_t
 molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_flag) const {
+   return closest_atom(pt, ca_check_flag, "", 0); // don't use chain-id
+}
+
+coot::at_dist_info_t
+molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_flag,
+				    const std::string &chain_id,
+				    bool use_this_chain_id) const {
 
    coot::at_dist_info_t at_info(0,0,0);
    CAtom *at_best = 0;

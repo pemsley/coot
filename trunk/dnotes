@@ -2,22 +2,7 @@
 
 Things to do for 0.5.1
 
-  o in make_link_restraints() use
-
-   class bonded_pair_t { 
-     CResidue *res_1;
-     CResidue *res_2;
-     std::string link_type;
-   };
-
-   Write:
-   bonded_pair_t::try_add(CResidue *r1, CResidue *r2, std::string link_type)
-   which only addes a bonded_pair_t to the vector if this link is not
-   aleady in the vector.  Hmm.. container class?
-
-   std::vector<bonded_pair_t> bonded_residue_pairs = bonded_residues(int SelResHnd);
-
-   i.e. make a function that returns this then simply run through the list.
+ o Add "Make 4mer-XYS" to the advanced tutorial.
    
  o Add a function of molecule-class that returns the position
    (if posible) of an atom given a string e.g. 
@@ -99,6 +84,25 @@ Things to do for 0.5.1
 
 
 
+
+  o in make_link_restraints() use
+
+   class bonded_pair_t { 
+     CResidue *res_1;
+     CResidue *res_2;
+     std::string link_type;
+   };
+
+   Write:
+   bonded_pair_t::try_add(CResidue *r1, CResidue *r2, std::string link_type)
+   which only addes a bonded_pair_t to the vector if this link is not
+   aleady in the vector.  Hmm.. container class?
+
+   std::vector<bonded_pair_t> bonded_residue_pairs = bonded_residues(int SelResHnd);
+
+   i.e. make a function that returns this then simply run through the list.
+
+*Done, with avengance.
 
    o     on building an non-python version:
 

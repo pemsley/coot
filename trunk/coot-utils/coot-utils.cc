@@ -194,6 +194,19 @@ coot::util::intelligent_debackslash(const std::string &s) {
   return filename_str;
 }
 
+bool
+coot::util::is_number(char c) {
+
+   return ((c >= 48) && (c<=57));
+}
+
+bool
+coot::util::is_letter(char c) {
+
+   return (((c >= 65) && (c<=90)) || ((c >= 97) && (c<=122))) ;
+}
+
+
 short int
 coot::is_member_p(const std::vector<std::string> &v, const std::string &a) { 
 

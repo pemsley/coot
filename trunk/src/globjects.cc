@@ -506,6 +506,9 @@ GtkWidget *graphics_info_t::other_modelling_tools_dialog = 0;
 
 coot::residue_spec_t graphics_info_t::current_residue = coot::residue_spec_t();
 
+std::string graphics_info_t::go_to_residue_keyboarding_string = "";
+bool graphics_info_t::in_go_to_residue_keyboarding_mode = 0;
+
 
 // Skeleton Widgets:
 float graphics_info_t::skeleton_level = 0.2; 
@@ -2777,16 +2780,23 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Return:
 
-      if (graphics_info_t::accept_reject_dialog) {
-	 accept_regularizement();
-	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
-	   save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
-	   gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
-	 } else {
-	   gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 if (graphics_info_t::go_to_residue_keyboarding_string != "")
+	    graphics_info_t::apply_go_to_residue_keyboading_string();
+      } else {
+	 if (graphics_info_t::accept_reject_dialog) {
+	    accept_regularizement();
+	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	       save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
+	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	    } else {
+	       gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	    }
+	    graphics_info_t::accept_reject_dialog = 0;
 	 }
-	 graphics_info_t::accept_reject_dialog = 0;
       }
+      graphics_info_t::go_to_residue_keyboarding_string = ""; // reset.
+      graphics_info_t::in_go_to_residue_keyboarding_mode = 0;
       handled = TRUE;
       break;
 
@@ -2802,6 +2812,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 }
 	 graphics_info_t::accept_reject_dialog = 0;
       }
+      graphics_info_t::go_to_residue_keyboarding_string = ""; // reset.
+      graphics_info_t::in_go_to_residue_keyboarding_mode = 0;
       handled = TRUE;
       break;
 
@@ -2809,10 +2821,12 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break; // stops Space key getting through to key-press-hook
       
-   case GDK_c:
-   case GDK_C:
-      handled = TRUE; 
-      break; // stops C key getting through to key-press-hook
+   case GDK_g:
+      if (graphics_info_t::control_is_pressed) {
+	 graphics_info_t::in_go_to_residue_keyboarding_mode = 1;
+	 handled = TRUE;
+      }
+      break;
       
    case GDK_i:
    case GDK_I:
@@ -2822,28 +2836,50 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_A:
    case GDK_a:
-      graphics_info_t::a_is_pressed = 1;
 
-      if (graphics_info_t::in_range_define_for_refine == 2) {
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "A";
+	 
+      } else { 
+
+	 graphics_info_t::a_is_pressed = 1;
+
+	 if (graphics_info_t::in_range_define_for_refine == 2) {
 	    
-	 int rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
-	 // mouse behaviour (we don't want to rotate
-         // the atoms)
-	 graphics_info_t::watch_cursor();
-	 int auto_range_flag = 1;
-	 graphics_info_t g;
-	 g.refine(graphics_info_t::residue_range_mol_no,
-		  auto_range_flag,
-		  graphics_info_t::residue_range_atom_index_1,
-		  graphics_info_t::residue_range_atom_index_1);
-	 g.in_range_define_for_refine = 0;
-	 normal_cursor();
-	 g.pick_pending_flag = 0;
-	 g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
+	    int rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
+	    // mouse behaviour (we don't want to rotate
+	    // the atoms)
+	    graphics_info_t::watch_cursor();
+	    int auto_range_flag = 1;
+	    graphics_info_t g;
+	    g.refine(graphics_info_t::residue_range_mol_no,
+		     auto_range_flag,
+		     graphics_info_t::residue_range_atom_index_1,
+		     graphics_info_t::residue_range_atom_index_1);
+	    g.in_range_define_for_refine = 0;
+	    normal_cursor();
+	    g.pick_pending_flag = 0;
+	    g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
+	 }
       }
-
       handled = TRUE; 
       break;
+
+   case GDK_B:
+   case GDK_b:
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "B";
+	 handled = TRUE; 
+      }
+      break;
+      
+   case GDK_c:
+   case GDK_C:
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "C";
+	 handled = TRUE; 
+      }
+      break; // stops C key getting through to key-press-hook
 
    case GDK_U:
    case GDK_u:
@@ -2855,14 +2891,28 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_D:
    case GDK_d:
       
-      if (graphics_info_t::clipping_back < 10.0) { 
-	 set_clipping_front(graphics_info_t::clipping_front + 0.2);
-	 set_clipping_back (graphics_info_t::clipping_front + 0.2);
-	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "D";
+	 handled = TRUE; 
+      } else { 
+	 
+	 if (graphics_info_t::clipping_back < 10.0) { 
+	    set_clipping_front(graphics_info_t::clipping_front + 0.2);
+	    set_clipping_back (graphics_info_t::clipping_front + 0.2);
+	    // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+	 }
       }
       handled = TRUE; 
       break;
 
+   case GDK_e:
+   case GDK_E:
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "E";
+	 handled = TRUE; 
+      }
+      break;
+      
    case GDK_F:
    case GDK_f:
       
@@ -2896,59 +2946,112 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_1:
    case GDK_KP_1:
-      if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	 graphics_info_t::edit_chi_current_chi = 1;
-	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
+
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "1";
+      } else { 
+	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	    graphics_info_t::edit_chi_current_chi = 1;
+	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
+	 }
       }
       handled = TRUE; 
       break;
    case GDK_2:
    case GDK_KP_2:
-      if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	 graphics_info_t::edit_chi_current_chi = 2;
-	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "2";
+      } else { 
+	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	    graphics_info_t::edit_chi_current_chi = 2;
+	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
+	 }
       }
       handled = TRUE; 
       break;
    case GDK_3:
    case GDK_KP_3:
-      if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	 graphics_info_t::edit_chi_current_chi = 3;
-	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "3";
       } else { 
-	 keypad_translate_xyz(3, 1);
-      } 
+	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	    graphics_info_t::edit_chi_current_chi = 3;
+	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
+	 } else { 
+	    keypad_translate_xyz(3, 1);
+	 }
+      }
       handled = TRUE; 
       break;
    case GDK_4:
    case GDK_KP_4:
-      if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	 graphics_info_t::edit_chi_current_chi = 4;
-	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "4";
+      } else { 
+	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	    graphics_info_t::edit_chi_current_chi = 4;
+	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
+	 }
       }
       handled = TRUE; 
       break;
    case GDK_5:
    case GDK_KP_5:
-      if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	 graphics_info_t::edit_chi_current_chi = 5;
-	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "5";
+      } else { 
+	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	    graphics_info_t::edit_chi_current_chi = 5;
+	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
+	 }
       }
       handled = TRUE; 
       break;
    case GDK_6:
    case GDK_KP_6:
-      if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	 graphics_info_t::edit_chi_current_chi = 6;
-	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "6";
+      } else { 
+	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	    graphics_info_t::edit_chi_current_chi = 6;
+	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
+	 }
       }
       handled = TRUE; 
       break;
 
+   case GDK_7:
+   case GDK_KP_7:
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "7";
+      }
+      handled = TRUE;
+      break;
+      
+   case GDK_8:
+   case GDK_KP_8:
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "8";
+      }
+      handled = TRUE;
+      break;
+      
+   case GDK_9:
+   case GDK_KP_9:
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "9";
+      }
+      handled = TRUE;
+      break;
+      
    case GDK_0:
    case GDK_KP_0:
-      graphics_info_t::edit_chi_current_chi = 0;
-      graphics_info_t::in_edit_chi_mode_flag = 0; // off
+      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
+	 graphics_info_t::go_to_residue_keyboarding_string += "0";
+      } else { 
+	 graphics_info_t::edit_chi_current_chi = 0;
+	 graphics_info_t::in_edit_chi_mode_flag = 0; // off
+      }
       handled = TRUE; 
       break;
       
@@ -3215,7 +3318,6 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       break;
    case GDK_minus:
       //
-
       // let the object decide which level change it needs (and if it needs it)
       // using graphics_info_t static members
       if (s >= 0) {
