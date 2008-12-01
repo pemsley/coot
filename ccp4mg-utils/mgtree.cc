@@ -745,22 +745,21 @@ void Tree::PrintZMatrix(std::ostream &c, const std::vector<std::string> &labels)
 }
 
 TreeVertex* Tree::GetCoord(int i, bool permuted) const {
-  if(start>0&!permuted)
-    return coords[permutation[i]];
-  return coords[i];
+   if ((start>0) && (!permuted))
+      return coords[permutation[i]];
+   return coords[i];
 }
 
 std::vector <TreeVertex*> Tree::GetCoords(bool permuted) const {
 
-  if(start>0&!permuted){
-    std::vector<TreeVertex*> perm_coords;
-    for(int i=0;i<GetNumberOfVertices();i++){
-       perm_coords.push_back(coords[permutation[i]]);
-    }
-    return perm_coords;
-  }
-    
-  return coords;
+   if((start>0) && (!permuted)) {
+      std::vector<TreeVertex*> perm_coords;
+      for(int i=0;i<GetNumberOfVertices();i++){
+	 perm_coords.push_back(coords[permutation[i]]);
+      }
+      return perm_coords;
+   }
+   return coords;
 }
 
 Cartesian Tree::GetCartesian(int i, bool permuted) const {
@@ -790,7 +789,7 @@ std::vector<Cartesian> Tree::GetAllCartesians(bool permuted) const {
     k++;
   }
 
-  if(start>0&!permuted){
+  if ((start>0) && (!permuted)){
     std::vector<Cartesian> perm_carts;
     for(int i=0;i<GetNumberOfVertices();i++){
        perm_carts.push_back(cartesians[permutation[i]]);
@@ -805,9 +804,9 @@ void Tree::RotateAboutBond(int atom_in, int child_in, double TorsionAngle, bool 
   int atom = atom_in;
   int child = child_in;
   
-  if(start>0&!permuted){
-    atom = permutation[atom];
-    child = permutation[child];
+  if ((start>0) && (!permuted)) {
+     atom = permutation[atom];
+     child = permutation[child];
   }
 
   TreeVertex *C = coords[child];
@@ -843,7 +842,7 @@ void Tree::SetDihedralAngle(int atom_in, int child_in, double TorsionAngle, bool
   int atom = atom_in;
   int child = child_in;
   
-  if(start>0&!permuted){
+  if ((start>0) && (!permuted)) {
     atom = permutation[atom];
     child = permutation[child];
   }

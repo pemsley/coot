@@ -2966,7 +2966,7 @@ std::vector<std::vector<unsigned char> > image_info::GetColourMap(int ncol) cons
   int ylength = height;
   int ncol_cur = 1;
 
-  while(ncol_cur<ncol&&width/(1<<xdiv+1)>0&&height/(1<<ydiv+1)>0){
+  while ((ncol_cur<ncol) && (width/((1<<xdiv)+1)>0) && (height/((1<<ydiv)+1)>0)) {
     if(xlength>ylength){
       xdiv++;
       xlength = width / (1<<xdiv);
@@ -3170,7 +3170,7 @@ void image_info::Dither(int mode){
        }else{
        if(j>0)
          pixels[i*width+j-1] += (unsigned char)(alpha*e*255);
-       if(i<height-1>0&&j>0)
+       if((i<(height-1) && height-1>0) && (j>0))
          pixels[(i+1)*width+j-1] += (unsigned char)(beta*e*255);
        if(i<height-1)
          pixels[(i+1)*width+j] += (unsigned char)(gamma*e*255);

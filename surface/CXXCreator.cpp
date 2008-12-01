@@ -218,7 +218,7 @@ int CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, 
 	
 	CXXCoord distanceVector = theAtomLocation - gridOrigin;	// gridOrigin has to be choosen so that this is positive !
 	
-	if (distanceVector.x() < 0 | distanceVector.y() < 0 | distanceVector.z() < 0) {
+	if ((distanceVector.x() < 0) | (distanceVector.y() < 0) | (distanceVector.z() < 0)) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) :GridOrigin is not the samlleset point ...!\n");
 		throw theException;
 	}
@@ -246,7 +246,7 @@ int CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, 
 	jMin = jMin - 1;
 	kMin = kMin - 1;
 	
-	if (iMin <= 0 | jMin <= 0 | kMin < 0) {
+	if ((iMin <= 0) | (jMin <= 0) | (kMin < 0)) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) : AtomBox extends to or beyond grid boundary ...!\n");
 		throw theException;
 	}
@@ -268,7 +268,7 @@ int CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, 
 	int jMax = jMin + intBoxSize;
 	int kMax = kMin + intBoxSize;
 	
-	if (iMax >= space->getDimI() | jMin >= space->getDimJ() | kMin >= space->getDimK()) {
+	if ((iMax >= space->getDimI()) | (jMin >= space->getDimJ()) | (kMin >= space->getDimK())) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) : AtomBox extends to or beyond grid boundary ...!\n");
 		throw theException;
 	}
@@ -346,7 +346,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 	distanceVector.setY(distanceVector.y() - atomRadius);
 	distanceVector.setZ(distanceVector.z() - atomRadius);
 	
-	if (distanceVector.x() < 0 | distanceVector.y() < 0 | distanceVector.z() < 0) {
+	if ((distanceVector.x() < 0) | (distanceVector.y() < 0) | (distanceVector.z() < 0)) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) :GridOrigin is not the samlleset point ...!\n");
 		throw theException;
 	}
@@ -371,7 +371,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 	kMin = kMin - 1;
 	// these are the grid coordinates for the lower, left, back point of the box covering the atom
 	
-	if (iMin <= 0 | jMin <= 0 | kMin < 0) {
+	if ((iMin <= 0) | (jMin <= 0) | (kMin < 0)) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) : AtomBox extends to or beyond grid boundary ...!\n");
 		throw theException;
 	}
@@ -390,7 +390,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 	int jMax = jMin + intBoxSize;
 	int kMax = kMin + intBoxSize;
 	
-	if (iMax >= space->getDimI() | jMin >= space->getDimJ() | kMin >= space->getDimK()) {
+	if ((iMax >= space->getDimI()) | (jMin >= space->getDimJ()) | (kMin >= space->getDimK())) {
 		CXXException theException = CXXException(" ERROR: (CXXCreator::distributeAtomCharge) : AtomBox extends to or beyond grid boundary ...!\n");
 		throw theException;
 	}

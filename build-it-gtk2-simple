@@ -254,7 +254,9 @@
 # 4.34 20081122 Add a second test, make a holding directory for tar file before
 #               second test is run.
 # 4.35 20081124 test for greg using full path to guile.
-script_version=4.34
+# 4.36 20081130 Bump the gmp version to 4.2.4 (Does that fix the gmp.h on 
+#               intrepid problem?)
+script_version=4.36
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2243,7 +2245,7 @@ fi
 
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
-    gmp_version=4.2
+    gmp_version=4.2.4
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.gz
     (date
      pwd
