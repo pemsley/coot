@@ -1,6 +1,23 @@
 
 
 Things to do for 0.5.1
+
+  o in make_link_restraints() use
+
+   class bonded_pair_t { 
+     CResidue *res_1;
+     CResidue *res_2;
+     std::string link_type;
+   };
+
+   Write:
+   bonded_pair_t::try_add(CResidue *r1, CResidue *r2, std::string link_type)
+   which only addes a bonded_pair_t to the vector if this link is not
+   aleady in the vector.  Hmm.. container class?
+
+   std::vector<bonded_pair_t> bonded_residue_pairs = bonded_residues(int SelResHnd);
+
+   i.e. make a function that returns this then simply run through the list.
    
  o Add a function of molecule-class that returns the position
    (if posible) of an atom given a string e.g. 
@@ -17,10 +34,15 @@ Things to do for 0.5.1
    ! LaTeX Error: File `graphicx.sty' not found.
    1hr
 
-* Fiddled. Needs examining of the logs.
+* Fiddled. Needs examining of the logs.  Still is failing.
 
-  o Loop building in both directions for scheme 
+  o Loop building in both directions for scheme.  Needs checking from GUI.
     2hd
+
+  o Test that manual-ncs-ghosts averages all the maps for NCS > 2.
+    Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
+    that'll be fun).
+    2hd.  Do this in the office.
 
   o Nucletide builder - with B form RNA need to be fixed.  Needs O2'. 1hd
 
@@ -29,11 +51,6 @@ Things to do for 0.5.1
 
   o Does molprobity (specifically reduce) work with modern distros and
     do the right thing in Coot.  Check (set-do-probe-dots-post-refine 1).
-
-  o Test that manual-ncs-ghosts averages all the maps for NCS > 2.
-    Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
-    that'll be fun).
-    2hd.  Do this in the office.
 
   o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
     Make a fixed atom on the O3* of 1A.  The refinement fails now (no
@@ -68,13 +85,6 @@ Things to do for 0.5.1
 
   o What's crashing on using NCS in Bill's 0.5 build?  No idea.
     Consider punting.
-
-  o Consider setting the "handled" flag only for key pressed that did
-    something, e.g. we could then use the "B" and "S" keys, because they
-    are not often used.  Maybe "A" too.
-
-  o Check out the virtualbox page on the ubuntu wiki for info about how
-    to set it up.
 
   o LSQ map by overlap - does that work properly?  Use an offset
     reference molecule.  You can test this by summing the density
@@ -7393,5 +7403,16 @@ Mon Nov 24 16:21:11 GMT 2008
    coot::restraints_container_t::add_chirals()).  They should be added
    and the target geometry should be the one that is closest to the
    current position.
+
+
+---
+Sat Nov 29 15:08:44 GMT 2008
+
+   In make_link_restraints() we need to make sure that we are sensibly
+   setting the fixed atom/residue flag.
+	
+   Where is the test that these residues are L-peptides? in
+   add_rama()?  No.  So it should be in make_rama_triples() then.
+   Perhaps.  But it should be somewhere.
 
 -----

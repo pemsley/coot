@@ -269,7 +269,46 @@ coot::residues_near_residue(const coot::residue_spec_t &rs,
       mol->DeleteSelection(SelectionHandle);
    }
    return r;
-} 
+}
+
+
+
+std::pair<bool,float>
+coot::closest_approach(CMMDBManager *mol,
+		       CResidue *r1, CResidue *r2) {
+   
+   std::pair<bool,realtype> r(0, 0.0);
+   
+   int n_res_1_atoms; 
+   int n_res_2_atoms;
+   PPCAtom residue_atoms_1 = 0, residue_atoms_2 = 0;
+   int ncontacts = 0;
+   realtype dist_closest = 9999999999.9;
+   PSContact contact = NULL;
+   
+   r1->GetAtomTable( residue_atoms_1, n_res_1_atoms);
+   r1->GetAtomTable( residue_atoms_2, n_res_2_atoms);
+   mol->SeekContacts(residue_atoms_1, n_res_1_atoms,
+		     residue_atoms_2, n_res_2_atoms,
+		     0.0, 10.0,
+		     1, contact, ncontacts);
+
+   for (int i=0; i<ncontacts; i++) {
+      
+      clipper::Coord_orth atom_1(residue_atoms_1[ contact[i].id1 ]->x,
+				 residue_atoms_1[ contact[i].id1 ]->y,
+				 residue_atoms_1[ contact[i].id1 ]->z);
+      clipper::Coord_orth atom_2(residue_atoms_2[ contact[i].id2 ]->x,
+				 residue_atoms_2[ contact[i].id2 ]->y,
+				 residue_atoms_2[ contact[i].id2 ]->z);
+      float d = clipper::Coord_orth::length(atom_1, atom_2);
+      if (d < dist_closest) {
+	 dist_closest = d;
+	 r = std::pair<bool,realtype>(1, d);
+      } 
+   }
+   return r;
+}
 
 
 clipper::RTop_orth

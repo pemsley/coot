@@ -123,12 +123,15 @@
    
 ;; A function inspired by a question from Bill Scott.  He wanted to
 ;; RNA ghosts.  Because RNA does not work with SSM, we need to define
-;; the matrix manually.  Let's make a copy of given rna-mol and get
+;; the matrix manually.  Let's make a copy of given imol and get
 ;; the rtop from that.  Typical usage (manual-ncs-ghosts 0 1 10 "A" "C")
+;;
+;; We can only see one peer at a time with this (each time we do a
+;; clear-ncs-ghost-matrices).
 ;; 
-(define (manual-ncs-ghosts rna-mol resno-start resno-end ref-chain peer-chain)
+(define (single-manual-ncs-ghost imol resno-start resno-end ref-chain peer-chain)
 
-  (let ((imol-copy (copy-molecule rna-mol)))
+  (let ((imol-copy (copy-molecule imol)))
     (clear-lsq-matches)
     (add-lsq-match resno-start resno-end ref-chain resno-start resno-end peer-chain 0) ; ref mov - all atoms
     (let ((rtop (apply-lsq-matches imol-copy imol-copy)))
@@ -136,9 +139,37 @@
       (if (not rtop)
 	  (format #t "Failed to get matching matrix~%")
 	  (begin
-	    (clear-ncs-ghost-matrices rna-mol)
-	    (set-draw-ncs-ghosts rna-mol 1)
-	    (apply add-ncs-matrix rna-mol peer-chain ref-chain (apply append rtop)))))))
+	    (clear-ncs-ghost-matrices imol)
+	    (set-draw-ncs-ghosts imol 1)
+	    (apply add-ncs-matrix imol peer-chain ref-chain (apply append rtop)))))))
+
+
+;; chain-id-list is (list "A" "B" "C" "D")), i.e. the
+;; reference/target/master chain-id first and then the peers.  This
+;; allows us to add many peers at the same time (unlike above
+;; function).
+;; 
+(define (manual-ncs-ghosts imol resno-start resno-end chain-id-list)
+
+  (if (list? chain-id-list)
+      (if (> (length chain-id-list) 1)
+	  (begin
+	    ;; OK, to the standard SSM-based NCS matrices are bad for this
+	    ;; molecule, lets use LSQ.
+	    (clear-ncs-ghost-matrices imol)
+	    (for-each 
+	     (lambda (chain-id)
+	       (let ((imol-copy (copy-molecule imol)))
+		 (clear-lsq-matches)
+		 (add-lsq-match resno-start resno-end (car chain-id-list)
+				resno-start resno-end chain-id 1)
+		 (let ((rtop (apply-lsq-matches imol imol-copy)))
+		   (close-molecule imol-copy)
+		   (if (not rtop)
+		       (format #t "Failed to get LSQ matching matrix ~s~%" chain-id)
+		       (apply add-ncs-matrix imol chain-id "A" (apply append rtop))))))
+	     (cdr chain-id-list))))))
+
 
 
 (define (ncs-ligand imol-protein ncs-master-chain-id imol-ligand chain-id-ligand resno-ligand-start resno-ligand-stop)

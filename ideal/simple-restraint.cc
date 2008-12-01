@@ -27,6 +27,7 @@
 #ifdef HAVE_GSL
 
 #include <algorithm> // for sort
+#include <stdexcept> 
 
 // #include <sys/time.h>
 #include "simple-restraint.hh"
@@ -3813,7 +3814,7 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 
 
    mol->Select ( selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
-		 (char *) chain_id_save.c_str(), // Chain(s)
+		 chain_id_save.c_str(), // Chain(s)
 		 istart_res, "*",  // starting res
 		 iend_res,   "*",  // ending res
 		 "*",  // residue name
@@ -3828,7 +3829,12 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 	     << istart_res << " and " << iend_res << " of chain " << chain_id_save
 	     << std::endl;
 
-   if (nSelResidues > 1) {
+   coot::bonded_pair_containter_t bonded_residue_pairs = bonded_residues(selHnd, geom);
+
+   for (unsigned int ibonded_residue=0;
+	ibonded_residue<bonded_residue_pairs.size();
+	ibonded_residue++) {
+      
       // now select pairs of residues: but not for the last one, which
       // doesn't have a peptide link on its C atom.
       //
@@ -3836,87 +3842,74 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
       // that for now.
       //
       //
-      std::string link_type("TRANS");
-      if (coot::util::is_nucleotide_by_dict(SelResidue[0], geom))
-	 link_type = "p"; // phosphodiester linkage
+      std::string link_type = bonded_residue_pairs[ibonded_residue].link_type;
 
-      for (int i=0; i<(nSelResidues-1); i++) {
-	 if (SelResidue[i] && SelResidue[i+1]) {
-
+      CResidue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
+      CResidue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
+      
+      
 // 	    std::cout << "looking for link bonds/angles etc. between residues " 
 // 		      << SelResidue[i]->seqNum << " " 
 // 		      << SelResidue[i+1]->seqNum << std::endl;
 
 // 	    gettimeofday(&start_time, NULL);
 
-	    // Are these residues neighbours?  We can add some sort of
-	    // ins code test here in the future.
-	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1
-		 || abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) { 
+      // Are these residues neighbours?  We can add some sort of
+      // ins code test here in the future.
+      if ( abs(sel_res_1->GetSeqNum() - sel_res_2->GetSeqNum()) <= 1
+	   || abs(sel_res_1->index - sel_res_2->index) <= 1) { 
 
-	       link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
+	 // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 
-	       if (link_type != "") { 
-	    
-		  n_link_bond_restr += add_link_bond(link_type,
-						     SelResidue[i], SelResidue[i+1],
-						     0, 0,  // not fixed first or second
-						     geom);
-		  // 	    gettimeofday(&current_time, NULL);
-		  // td = time_diff(current_time, start_time);
-		  // t0 = td;
+	 n_link_bond_restr += add_link_bond(link_type,
+					    sel_res_1, sel_res_2,
+					    0, 0,  // not fixed first or second
+					    geom);
+	 // 	    gettimeofday(&current_time, NULL);
+	 // td = time_diff(current_time, start_time);
+	 // t0 = td;
 
-		  n_link_angle_restr += add_link_angle(link_type,
-						       SelResidue[i], SelResidue[i+1],
-						       0,0,
-						       geom);
-		  // 	    gettimeofday(&current_time, NULL);
-		  // td = time_diff(current_time, start_time);
-		  // t1 = td;
+	 n_link_angle_restr += add_link_angle(link_type,
+					      sel_res_1, sel_res_2,
+					      0,0,
+					      geom);
+	 // 	    gettimeofday(&current_time, NULL);
+	 // td = time_diff(current_time, start_time);
+	 // t1 = td;
 
-		  n_link_plane_restr += add_link_plane(link_type,
-						       SelResidue[i], SelResidue[i+1],
-						       0,0,
-						       geom);
-		  // 	    gettimeofday(&current_time, NULL);
-		  // td = time_diff(current_time, start_time);
-		  // t2 = td;
+	 n_link_plane_restr += add_link_plane(link_type,
+					      sel_res_1, sel_res_2,
+					      0,0,
+					      geom);
+	 // 	    gettimeofday(&current_time, NULL);
+	 // td = time_diff(current_time, start_time);
+	 // t2 = td;
 
-		  // link_torsions_type_flag is the type of phi/psi restraints
-		  // std::cout << "---------------link_torsions_type_flag: "
-		  // << link_torsions_type_flag
-		  // << std::endl;
+	 // link_torsions_type_flag is the type of phi/psi restraints
+	 // std::cout << "---------------link_torsions_type_flag: "
+	 // << link_torsions_type_flag
+	 // << std::endl;
 
-		  // gettimeofday(&current_time, NULL);
-		  // td = time_diff(current_time, start_time);
-		  // t3 = td;
+	 // gettimeofday(&current_time, NULL);
+	 // td = time_diff(current_time, start_time);
+	 // t3 = td;
 
-		  // 	    std::cout << "after bonds    " << t0 << std::endl;
-		  // 	    std::cout << "after angles   " << t1 << std::endl;
-		  // 	    std::cout << "after planes   " << t2 << std::endl;
-		  // 	    std::cout << "after torsions " << t3 << std::endl;
-
-	       }
-	    }
-	 }
+	 // 	    std::cout << "after bonds    " << t0 << std::endl;
+	 // 	    std::cout << "after angles   " << t1 << std::endl;
+	 // 	    std::cout << "after planes   " << t2 << std::endl;
+	 // 	    std::cout << "after torsions " << t3 << std::endl;
       }
 
       if (do_rama_plot_restraints) {
-	 if (link_type == "TRANS") { 
-	    // Now Rama restraints need 3 residue links: 5 atoms.
-	    for (int i=0; i<(nSelResidues-2); i++) {
-	       if (SelResidue[i] && SelResidue[i+1] && SelResidue[i+2]) {
-		  n_link_torsion_restr += add_rama(link_type,  // TRANS, p, etc
-						   SelResidue[i], SelResidue[i+1],
-						   SelResidue[i+2], 0,0,0, geom); // no residues are fixed.
-	       }
-	    }
+	 std::vector<coot::rama_triple_t> v = make_rama_triples(selHnd, geom);
+	 for (unsigned int ir=0; ir<v.size(); ir++) { 
+	    add_rama(link_type,  // TRANS, p, etc
+		     v[ir].r_1, v[ir].r_2, v[ir].r_3,
+		     0,0,0, geom); // no residues are fixed.
 	 }
       }
-
-   } else {
-      std::cout << "No link restraints added" << std::endl; 
    }
+
    mol->DeleteSelection(selHnd);
    SelResidue = NULL; // no effect here, but good practice.
    std::cout << "Link restraints: " << std::endl;
@@ -3937,13 +3930,140 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 //    d += double(current.tv_usec - start.tv_usec)/1000.0;
 //    return d;
 
-// }
+
+// Need to add test that residues are linked with trans
+//
+std::vector<coot::rama_triple_t>
+coot::restraints_container_t::make_rama_triples(int SelResHnd,
+						const coot::protein_geometry &geom) const {
+   std::vector<coot::rama_triple_t> v;
+   PPCResidue SelResidue;
+   int nSelResidues;
+   mol->GetSelIndex(SelResHnd, SelResidue, nSelResidues);
+
+   for (int i=0; i<(nSelResidues-2); i++) {
+      if (SelResidue[i] && SelResidue[i+1] && SelResidue[i+2]) {
+	 coot::rama_triple_t t(SelResidue[i], SelResidue[i+1], SelResidue[i+2]);
+	 v.push_back(t);
+      }
+   }
+   return v;
+} 
+
+coot::bonded_pair_containter_t
+coot::restraints_container_t::bonded_residues(int selHnd,
+					      const coot::protein_geometry &geom) const {
+
+   float dist_crit = 3.0; // if atoms in different residues are closer
+			  // than this, then they are considered
+			  // bonded (potentially).
+   
+   // First add "linear" links
+   // 
+   coot::bonded_pair_containter_t c = bonded_residues_by_linear(selHnd, geom);
+
+   // Now, are there any other links?
+   PPCResidue SelResidue;
+   int nSelResidues;
+   mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
+   if (nSelResidues > 1) {
+      for (int ii=0; ii<nSelResidues; ii++) {
+	 for (int jj=0; jj<nSelResidues; jj++) {
+	    if (jj>ii) {
+	       if (! c.linked_already_p(SelResidue[ii], SelResidue[jj])) {
+		  std::pair<bool, float> d = closest_approach(SelResidue[ii], SelResidue[jj]);
+		  if (d.first) {
+		     if (d.second < dist_crit) {
+			std::string l = find_link_type_rigourous(SelResidue[ii],
+								 SelResidue[jj], geom);
+			if (l != "") {
+			} 
+		     } 
+		  } 
+	       }
+	    } 
+	 }
+      }
+   }
+   return c;
+}
+
+coot::bonded_pair_containter_t
+coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
+							const coot::protein_geometry &geom) const {
+   
+   coot::bonded_pair_containter_t c;
+   PPCResidue SelResidue;
+   int nSelResidues;
+   mol->GetSelIndex(SelResHnd, SelResidue, nSelResidues);
+   if (nSelResidues > 1) {
+   
+      std::string link_type("TRANS");
+      if (coot::util::is_nucleotide_by_dict(SelResidue[0], geom))
+	 link_type = "p"; // phosphodiester linkage
+
+      for (int i=0; i<(nSelResidues-1); i++) {
+	 if (SelResidue[i] && SelResidue[i+1]) {
+
+	    // Are these residues neighbours?  We can add some sort of
+	    // ins code test here in the future.
+	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1
+		 || abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) { 
+	       link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
+	       if (link_type != "") {
+		  coot::bonded_pair_t p(SelResidue[i], SelResidue[i+1], link_type);
+		  c.try_add(p);
+	       }
+	    }
+	 }
+      }
+   }
+   return c;
+} 
+
+bool
+coot::bonded_pair_containter_t::linked_already_p(CResidue *r1, CResidue *r2) const {
+
+   bool r = 0;
+   for (unsigned int i=0; i<bonded_residues.size(); i++) {
+      if (((bonded_residues[i].res_1 == r1) &&
+	   (bonded_residues[i].res_2 == r2)) ||
+	  ((bonded_residues[i].res_1 == r2) &&
+	   (bonded_residues[i].res_2 == r1))) {
+	 r = 1;
+	 break;
+      }
+   }
+   return r;
+}
+
+bool
+coot::bonded_pair_containter_t::try_add(const coot::bonded_pair_t &bp) {
+
+   bool found = 0;
+   for (unsigned int i=0; i<bonded_residues.size(); i++) {
+      if ( (bonded_residues[i].res_1 == bp.res_1 &&
+	    bonded_residues[i].res_2 == bp.res_2) ||
+	   (bonded_residues[i].res_1 == bp.res_2 &&
+	    bonded_residues[i].res_2 == bp.res_1) ) {
+	 found = 1;
+	 break;
+      }
+   }
+   
+   if (! found) {
+      bonded_residues.push_back(bp);
+   }
+   return found;
+} 
+
 
 std::string
 coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
 					     const coot::protein_geometry &geom) const {
 
    // Should return TRANS, PTRANS (PRO-TRANS), CIS, PCIS, p, BETA1-2, BETA1-4 etc.
+   std::string link_type(""); // unset
 
    std::string residue_type_1 = first->name;
    std::string residue_type_2 = second->name;
@@ -3966,7 +4086,6 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
       }
    }
 
-   std::string link_type("");
    if (t1 == "L-peptide" || t1 == "D-peptide")
       if (t2 == "L-peptide" || t2 == "D-peptide")
 	 link_type = "TRANS";
@@ -3974,16 +4093,12 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
    if (coot::util::is_nucleotide_by_dict(first, geom))
       link_type = "p"; // phosphodiester linkage
 
-   // std::cout << "DEBUG:: t1 and t2:" << t1 << " " << t2 << "\n";
-   if (t1 == "D-pyranose" || t1 == "D-furanose" || t1 == "L-pyranose" || t1 == "L-furanose")
+   if (t1 == "D-pyranose" || t1 == "D-furanose" || t1 == "L-pyranose" || t1 == "L-furanose") { 
       if (t2 == "D-pyranose" || t2 == "D-furanose" || t2 == "L-pyranose" || t2 == "L-furanose") {
 	 link_type = find_glycosidic_linkage_type(first, second, t1, t2, geom);
 	 std::cout << "INFO:: glycosidic_linkage type :" << link_type << ":\n";
-	 // link_type = ""; // override until we get it right.  There
-			 // must be distance search in
-			 // find_glycosidic_linkage_type.
       } 
-      
+   }
 
    return link_type; 
 }
@@ -4117,6 +4232,35 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
    }
    return link_type;
 }
+
+std::string
+coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue *second,
+						       const coot::protein_geometry &geom) const {
+
+   std::string link_type = "";
+
+   try {
+      std::string group_1 = geom.get_group(first);
+      std::string group_2 = geom.get_group(second);
+      try {
+	 coot::chem_link link = geom.matching_chem_link(group_1, group_2);
+      }
+      catch (std::runtime_error mess_in) {
+	 std::cout << mess_in.what() << std::endl;
+      } 
+   }
+   catch (std::runtime_error mess) {
+      std::cout << mess.what() << std::endl;
+   }
+   return link_type;
+}
+
+
+std::pair<bool,float>
+coot::restraints_container_t::closest_approach(CResidue *r1, CResidue *r2) const {
+
+   return coot::closest_approach(mol, r1, r2);
+} 
 
 
 int
@@ -5490,7 +5634,7 @@ coot::restraints_container_t::add_rama(std::string link_type,
    }
    if (n_third_res_atoms <= 0) {
       std::cout << "no atoms in second residue!? " << std::endl;
-      // thorw
+      // throw
    }
 
    std::vector<bool> fixed_flag(5, 0);

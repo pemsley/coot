@@ -23,7 +23,8 @@
 #include <string.h>
 #include <iostream>
 #include <map>
-#include <algorithm>  // needed for sort?
+#include <algorithm>  // needed for sort? Yes.
+#include <stdexcept>  // Thow execption.
 
 #include "protein-geometry.hh"
 #include "coot-utils.hh"
@@ -1706,6 +1707,23 @@ coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
    }
 }
 
+bool
+coot::chem_link::matches_groups(const std::string &group_1, const std::string &group_2) const {
+
+   std::cout << id << " " << chem_link_name << ": "
+	     << group_1 << " and " << group_2 << " vs "
+	     << chem_link_comp_id_1 << " "
+	     << chem_link_comp_id_2 << std::endl;
+
+   bool match = 0;
+   if ((chem_link_comp_id_1 == group_1) && (chem_link_comp_id_2 == group_2))
+      match = 1;
+   if ((chem_link_comp_id_1 == group_2) && (chem_link_comp_id_2 == group_1))
+      match = 1;
+
+   return match;
+}
+
 void
 coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
    std::string link_id;
@@ -2156,6 +2174,18 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
    }
 }
 
+// throw an error on no such chem_link
+// 
+coot::chem_link
+coot::protein_geometry::matching_chem_link(const std::string &group_1,
+					   const std::string &group_2) const {
+   
+   for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
+      if (chem_link_vec[i_chem_link].matches_groups(group_1, group_2)) {
+      }
+   }
+}
+      
 void
 coot::protein_geometry::set_verbose(bool verbose_flag) {
    verbose_mode = verbose_flag;
@@ -3507,6 +3537,32 @@ coot::protein_geometry::monomer_types() const {
    }
    return v;
 }
+
+// Thow an exception if we can't get the group of r
+std::string
+coot::protein_geometry::get_group(CResidue *r) const {
+
+   bool found = 0;
+   std::string group; 
+   std::string res_name = r->GetResName();
+   if (res_name.length() > 3)
+      res_name = res_name.substr(0,2);
+   for (unsigned int i=0; i<size(); i++) { 
+      if (three_letter_code(i) == res_name) {
+	 found = 1;
+	 group = (*this)[i].residue_info.group;
+	 break;
+      }
+   }
+
+   if (! found) {
+      std::string s = "No dictionary group found for residue type :";
+      s += res_name;
+      s += ":";
+      throw std::runtime_error(s);
+   }
+   return group;
+} 
 
 
 CMMDBManager *
