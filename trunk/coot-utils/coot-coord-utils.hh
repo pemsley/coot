@@ -271,6 +271,12 @@ namespace coot {
 						     CMMDBManager *mol,
 						     float radius);
 
+   // Return a pair, the bool of which is set if the float is sensible.
+   // 
+   std::pair<bool,float> closest_approach(CMMDBManager *mol,
+					  CResidue *r1, CResidue *r2);
+
+
    // Fiddle with mol. 
    // 
    // sort chains in lexographical order

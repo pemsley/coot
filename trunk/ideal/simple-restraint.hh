@@ -27,6 +27,8 @@
 #include <vector>
 #include <string>
 
+#include "mmdb_manager.h"
+
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
 // without the GSL.
@@ -44,6 +46,40 @@ namespace coot {
 	 value = value_in;
       }
    };
+
+   class bonded_pair_t {
+   public:
+      CResidue *res_1;
+      CResidue *res_2;
+      std::string link_type;
+      bonded_pair_t(CResidue *r1, CResidue *r2, const std::string &lt) {
+	 res_1 = r1;
+	 res_2 = r2;
+	 link_type = lt;
+      }
+   };
+
+   class rama_triple_t {
+   public:
+      CResidue *r_1; 
+      CResidue *r_2; 
+      CResidue *r_3; 
+      rama_triple_t(CResidue *r1, CResidue *r2, CResidue *r3) {
+	 r_1 = r1;
+	 r_2 = r2;
+	 r_3 = r3;
+      } 
+   };
+
+   class bonded_pair_containter_t {
+   public:
+      std::vector<bonded_pair_t> bonded_residues;
+      bool try_add(const bonded_pair_t &bp); // check for null residues too.
+      unsigned int size() const { return bonded_residues.size(); }
+      bonded_pair_t operator[](unsigned int i) { return bonded_residues[i]; }
+      bool linked_already_p(CResidue *r1, CResidue *r2) const;
+   };
+
 
    class distortion_torsion_gradients_t {
    public:
@@ -112,7 +148,6 @@ namespace coot {
 #include "gsl/gsl_multimin.h"
 
 // #include "Cartesian.h"
-#include "mmdb_manager.h"
 #include "mmdb-extras.h" // for atom_selection_container_t, this and
 			 // the interface that uses this can be
 			 // deleted, I think, when we move to clipper
@@ -796,8 +831,27 @@ namespace coot {
 					 bool do_rama_plot_retraints); // no torsions
       int make_flanking_atoms_rama_restraints(const protein_geometry &geom);
 
+      // return a container of all the bonded residues (as pairs) from
+      // the given atom selection
+      bonded_pair_containter_t bonded_residues(int SelResHnd,
+					       const coot::protein_geometry &geom) const;
+
+      // this is to make the make_link_restraints work as it used to,
+      // simply by bonding residues that are next to each other by
+      // seqNum or residue index.
+      bonded_pair_containter_t bonded_residues_by_linear(int SelResHnd,
+							 const coot::protein_geometry &geom) const;
+      std::vector<rama_triple_t> make_rama_triples(int SelResHnd,
+						   const coot::protein_geometry &geom) const;
+      std::pair<bool,float> closest_approach(CResidue *r1, CResidue *r2) const;
+
+      // find simple (tandem residue) links
       std::string find_link_type(CResidue *first, CResidue *second,
 				 const protein_geometry &geom) const;
+
+      // find disulphides, protein-glycan bonds etc.
+      std::string find_link_type_rigourous(CResidue *first, CResidue *second,
+					   const protein_geometry &geom) const;
 
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
