@@ -42,7 +42,11 @@ molecule_class_info_t::draw_surface() {
 
    if (drawit == 1) { 
       if (cootsurface) {
+	 glEnable(GL_LIGHTING);
+	 glEnable(GL_LIGHT0);
 	 glCallList(theSurface);
+	 glDisable(GL_LIGHT0);
+	 glDisable(GL_LIGHTING);
       }
    }
 }
