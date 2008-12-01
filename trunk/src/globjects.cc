@@ -2876,16 +2876,20 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_N:
    case GDK_n:
       
-      graphics_info_t::zoom *= 1.05;
-      graphics_info_t::graphics_draw();
+      for (int i=0; i<5; i++) {
+	 graphics_info_t::zoom *= 1.01;
+	 graphics_info_t::graphics_draw();
+      }
       handled = TRUE; 
       break;
 
    case GDK_M:
    case GDK_m:
-      
-      graphics_info_t::zoom *= 0.95;
-      graphics_info_t::graphics_draw();
+
+      for (int i=0; i<5; i++) {
+	 graphics_info_t::zoom *= 0.99;
+	 graphics_info_t::graphics_draw();
+      }
       handled = TRUE; 
       break;
 

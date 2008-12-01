@@ -69,7 +69,7 @@ SolventMap::SolventMap (fftw_real dGrid, fftw_real rProbe, fftw_real xmin, fftw_
 	
 	/* check for obvious error in parameters*/
 	
-	if (probeRadius < 0 | gridSpacing < 0) {
+	if ((probeRadius < 0) || (gridSpacing < 0)) {
 		CXXException theException = CXXException("ERROR: SolventMap, negative probeRadius or gridSpacing - check parameter list?\n");
 		throw theException;
 	}
@@ -391,14 +391,14 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	FFTProbe = new fftw_complex[dim[0]*dim[1]*(dim[2]/2+1)];
 	FourierScratch = new fftw_complex[dim[0]*dim[1]*(dim[2]/2+1)];  
 	
-	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
 		FFTGrid =  new fftw_complex[dim[0]*dim[1]*(dim[2]/2+1)];
 		cout << "Making new FFTGrid \n";
 	}
 	
 	/* exeption stuff here....*/
 	
-	if (FFTProbe == 0 | FFTGrid == 0 | FourierScratch == 0 | Probe == 0) {
+	if ((FFTProbe == 0) || (FFTGrid == 0) || (FourierScratch == 0) | (Probe == 0)) {
 		CXXException theException(" ERROR (SolventMap::convoluteSphere() ): could not reserve suffiecent memory !");
 		throw theException;
 	}
@@ -407,7 +407,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	/* open or create file: ESPfile. If old ESPfile present import wisdom from file */
 	
 	FILE *ESPfile = NULL;
-	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
 		ESPfile = fopen("ESPfile", "r+");
 		if (ESPfile == NULL) {
 			ESPfile=fopen("ESPfile", "w+");
@@ -421,7 +421,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	
 	/* make plans for FFT in both directions*/
     
-	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
 		complexToRealPlan = rfftw3d_create_plan 
 		(dim[0], dim[1], dim[2], FFTW_COMPLEX_TO_REAL, FFTW_ESTIMATE | FFTW_USE_WISDOM);
 		realToComplexPlan = rfftw3d_create_plan 
@@ -433,7 +433,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	
 	int status; /* not used yet... ERROR handling yet to come....*/
 	
-	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
 		fftw_export_wisdom_to_file(ESPfile);
 		status=fclose(ESPfile);
 	}
@@ -485,7 +485,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	}
 	cout << "FFTW Probe map generated\n"; cout.flush();
 	
-	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
 		int i;
 		for (i = 0; i < dim[0]*dim[1]*(dim[2]/2+1); i++) { 
 			FFTGrid[i].re = 0;        
@@ -507,7 +507,7 @@ int SolventMap::convoluteSolidProbe (fftw_real choosenProbeRadius, int rapidFlag
 	
 	
 	/* FFT Protein Grid only if old one is not recycled*/
-	if (rapidFlag == 0 | (rapidFlag == 1 && countRapid == 0)) {
+	if ((rapidFlag == 0) || (rapidFlag == 1 && countRapid == 0)) {
 		rfftwnd_one_real_to_complex (realToComplexPlan, Grid, FFTGrid);
 		countRapid = 1;
 	}
@@ -776,7 +776,7 @@ int SolventMap::dumpXSlice (int type, int SliceNr, int broad) {
 	int i;
 	fstream dump ("dumpfile",ios::out|ios::app );
 	
-	if (SliceNr > dim[0] | SliceNr < 1) {
+	if ((SliceNr > dim[0]) || (SliceNr < 1)) {
 		dump << "ERROR: Slice Nr outside of range\n"; 
 		return 1;
 	}

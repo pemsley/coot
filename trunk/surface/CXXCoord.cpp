@@ -64,7 +64,7 @@ double CXXCoord::get3DLengthSq() {
 
 int CXXCoord::isZero() const{
 	
-	if (xyzr[0] == xyzr[1] == xyzr[2] == 0)
+   if ((xyzr[0] == 0) && (xyzr[1] == 0) && (xyzr[2] == 0))
 		return 1;
 	else
 		return 0;

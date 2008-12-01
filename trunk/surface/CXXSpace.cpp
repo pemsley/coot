@@ -53,7 +53,7 @@ CXXSpace::CXXSpace(float probeRadius, float gridSpacing,
 						   dielGrid = new CXXCoord[dim[0]*dim[1]*dim[2]];
 						   epsilonKappaSq = new double[dim[0]*dim[1]*dim[2]];
 						   
-						   if (chargeGrid == 0 | potentialGrid == 0 | dielGrid == 0) {
+						   if ((chargeGrid == 0) || (potentialGrid == 0) | (dielGrid == 0)) {
 							   CXXException theException = CXXException(" ERROR: (CXXSpace::CXXSpace()) :Could not reserve suffiecent memory !\n");
 							   throw theException;
 						   }
@@ -186,76 +186,75 @@ int CXXSpace::addGridCharge(int i, int j, int k,  double gridCharge) {
 
 double CXXSpace::getGridCharge(int i, int j, int k) { 
 	
-	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
-		return 0; // WARNING ugly  - need  proper boundary value ...
-	}
-	else {
-	
-	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
-		
-		CXXException theException = CXXException("ERROR in: CXXSpace::getGridCharge - index error");
-		throw theException;
-		
-	}	
-	double charge = chargeGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
-	return charge;
-	}
+   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
+      return 0; // WARNING ugly  - need  proper boundary value ...
+   }
+   else {
+      
+      if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
+	 
+	 CXXException theException = CXXException("ERROR in: CXXSpace::getGridCharge - index error");
+	 throw theException;
+	 
+      }	
+      double charge = chargeGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
+      return charge;
+   }
 }
 
 
 double CXXSpace::getGridSolvationParameter(int i, int j, int k) { 
 	
-	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
-		return 0; // WARNING ugly  - need  proper boundary value ...
-	}
-	else {
-	
-	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
-		
-		CXXException theException = CXXException("ERROR in: CXXSpace::getGridCharge - index error");
-		throw theException;
-		
-	}	
-	double parameter = solvationGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
-	return parameter;
-	}
+   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
+      return 0; // WARNING ugly  - need  proper boundary value ...
+   }
+   else {
+      
+      if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
+	 
+	 CXXException theException = CXXException("ERROR in: CXXSpace::getGridCharge - index error");
+	 throw theException;
+	 
+      }	
+      double parameter = solvationGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
+      return parameter;
+   }
 }
 
 
 double CXXSpace::getEpsilonKappaSq(int i, int j, int k) { 
 	
-	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
-		return epsilonKappaSq[0]; // WARNING ugly  - need  proper boundary value ...
-	}
-	else {
-	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
-		
-		CXXException theException = CXXException("ERROR in: CXXSpace::getEpsilonKappa - index error");
-		throw theException;
-		
-	}	
-		double charge = epsilonKappaSq[i+j*dim[0]+ k*dim[0]*dim[1]];	
-	return charge;
-	}
+   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
+      return epsilonKappaSq[0]; // WARNING ugly  - need  proper boundary value ...
+   }
+   else {
+      if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
+	 
+	 CXXException theException = CXXException("ERROR in: CXXSpace::getEpsilonKappa - index error");
+	 throw theException;
+	 
+      }	
+      double charge = epsilonKappaSq[i+j*dim[0]+ k*dim[0]*dim[1]];	
+      return charge;
+   }
 }
 
 
 double CXXSpace::getPotential(int i, int j, int k) {	
 	
-	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
-		return 0; // WARNING later have alternative boundary conditions ....
-	}
-	else {
-		if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
-			
-			CXXException theException = CXXException("ERROR in: CXXSpace::getPotential - index error");
-			throw theException;
-			
-		}	
-		double value = potentialGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
-		return value;
-		
-	}
+   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
+      return 0; // WARNING later have alternative boundary conditions ....
+   }
+   else {
+      if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
+	 
+	 CXXException theException = CXXException("ERROR in: CXXSpace::getPotential - index error");
+	 throw theException;
+	 
+      }	
+      double value = potentialGrid[i+j*dim[0]+ k*dim[0]*dim[1]];	
+      return value;
+   }
 }
 
 double CXXSpace::getBoundaryMap(int i, int j, int k) { 
@@ -263,26 +262,26 @@ double CXXSpace::getBoundaryMap(int i, int j, int k) {
 	// this special case only comes into effect when the dielectric grid is generated becuase this step 
 	// involves averaging over box around i j k ± 1 - then should give boindary value ...
 	
-	if (i < 0 | j < 0 | k < 0 | i == dim[0] | j == dim[1] | k == dim[2]) {
-		return dielectricBoundary;
-	}
-	else {
-		
-		// WARNIG two different mappings from ijk into array used in solventMap and CXX classes ...
-		if((i*dim[1]*dim[2] + j*dim[2] + k) > dim[0]*dim[1]*dim[2]){
-			CXXException theException = CXXException("ERROR in: CXXSpace::getBoundaryMap - index error");
-			throw theException;
-		}	
-		if(dielectricBoundary == -1) {
-			CXXException theException = CXXException("ERROR in: CXXSpace::getBoundaryMap - no boundary conditions set");
-			throw theException;
-		}	
-		else {
-			
-			double inOut = getSolidAt3i(i,j,k);
-			return inOut;
-		}
-	}
+   if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
+      return dielectricBoundary;
+   }
+   else {
+      
+      // WARNIG two different mappings from ijk into array used in solventMap and CXX classes ...
+      if((i*dim[1]*dim[2] + j*dim[2] + k) > dim[0]*dim[1]*dim[2]){
+	 CXXException theException = CXXException("ERROR in: CXXSpace::getBoundaryMap - index error");
+	 throw theException;
+      }	
+      if(dielectricBoundary == -1) {
+	 CXXException theException = CXXException("ERROR in: CXXSpace::getBoundaryMap - no boundary conditions set");
+	 throw theException;
+      }	
+      else {
+	 
+	 double inOut = getSolidAt3i(i,j,k);
+	 return inOut;
+      }
+   }
 }
 
 double CXXSpace::getDielGrid(int i, int j, int k, int direction) {
@@ -509,7 +508,7 @@ type:
 	//dumpXSlice(1,sliceNumber, 3);
 	
 	
-	if (dimension > 2 | dimension < 0) {
+	if ((dimension > 2) || (dimension < 0)) {
 		
 		CXXException theException("ERROR CXXSpace::dumpSpaceSlice() - dimension can only be 0,1 or 2!");
 		throw theException;
