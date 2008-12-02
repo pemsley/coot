@@ -684,8 +684,8 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
 	    coot::util::extents(atom_sel.mol, SelectionHandle[iref]);
 	 atom_sel.mol->DeleteSelection(SelectionHandle[iref]);
 	 // Now lets just extend that out a bit (5A)
-	 // clipper::Coord_orth bit(5,5,5);
-	 clipper::Coord_orth bit(0,0,0); // testing
+	 clipper::Coord_orth bit(5,5,5);
+	 // clipper::Coord_orth bit(0,0,0); // testing
 	 extents_pair.first  -= bit;
 	 extents_pair.second += bit;
 	 
@@ -810,8 +810,8 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
 					 float sigma_in) {
 
    std::cout << "INFO:: installing ghost map with name :" << name_in << std::endl;
-   std::cout << "INFO::  max_xmaps :" << max_xmaps << std::endl;
-   std::cout << "INFO::  xmap_list :" << xmap_list << std::endl;
+//    std::cout << "INFO::  max_xmaps :" << max_xmaps << std::endl;
+//    std::cout << "INFO::  xmap_list :" << xmap_list << std::endl;
 
    is_dynamically_transformed_map_flag = 1;
 
