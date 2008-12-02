@@ -455,6 +455,43 @@ if (have_coot_python):
                                               "",
                                               lambda imol, chain_id: copy_ncs_chain_func(imol, chain_id)))
 
+
+     def ncs_ghost_res_range_func(imol):
+       from types import ListType
+       label_1 = "Start ResNumber"
+       label_2 = "End ResNumber"
+       entry_1_default_text = "10"
+       entry_2_default_text = "20"
+       go_button_label = "Regenerate Ghosts"
+       def handle_go_function(resno_1_text, resno_2_text):
+         cont = False
+         try:
+           resno_1 = int(resno_1_text)
+           resno_2 = int(resno_2_text)
+           cont = True
+         except:
+           print "BL WARNING:: input residue numbers have to be integers"
+         if (cont):
+           ghost_ncs_chain_ids = ncs_chain_ids(imol)
+           if (type(ghost_ncs_chain_ids) is ListType):
+             # because we can have hetero-NCS,
+             # but we ignore NCS other that
+             # that of the first type.
+             ghost_chain_list = ghost_ncs_chain_ids[0]
+             manual_ncs_ghosts(imol, resno_1, resno_2, ghost_chain_list)
+         
+       generic_double_entry(label_1, label_2, entry_1_default_text,
+                            entry_2_default_text, False, False,
+                            go_button_label, handle_go_function)
+       
+
+     add_simple_coot_menu_menuitem(
+       submenu_ncs,
+       "NCS Ghosts by Residue Range...",
+       lambda func: molecule_chooser_gui("Make local NCS ghosts for molecule:",
+                                         lambda imol: ncs_ghost_res_range_func(imol)))
+         
+
      add_simple_coot_menu_menuitem(
        submenu_ncs,
        "NCS ligands...",
@@ -508,7 +545,7 @@ if (have_coot_python):
        h_sep = gtk.HSeparator()
 
        window.add(vbox)
-       options_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
+       option_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
        entry = file_selector_entry(vbox, entry_hint_text)
 
        def shelx_delete_event(*args):
@@ -518,7 +555,7 @@ if (have_coot_python):
        def shelx_go_funcn_event(*args):
          import operator
          txt = entry.get_text()
-         imol = get_option_menu_active_molecule(option_menu_list_pair)
+         imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
          if (operator.isNumberType(imol)):
            if (len(txt) == 0):
              shelxl_refine(imol)

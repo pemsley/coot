@@ -1620,6 +1620,7 @@ def generic_molecule_chooser(hbox, hint_text):
 
 	hbox.pack_start(label, False, False, 2)
 	hbox.pack_start(option_menu, True, True, 2)
+        return [option_menu, model_mol_list]
 
 # Return an entry, insert the widget into the hbox in this function
 #
