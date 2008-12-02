@@ -4238,12 +4238,14 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 						       const coot::protein_geometry &geom) const {
 
    std::string link_type = "";
+   std::string comp_id_1 = first->GetResName();
+   std::string comp_id_2 = second->GetResName();
 
    try {
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
       try {
-	 coot::chem_link link = geom.matching_chem_link(group_1, group_2);
+	 coot::chem_link link = geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
       }
       catch (std::runtime_error mess_in) {
 	 std::cout << mess_in.what() << std::endl;

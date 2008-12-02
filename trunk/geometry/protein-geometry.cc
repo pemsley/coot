@@ -1651,20 +1651,21 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 void
 coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
 
-   std::string chem_link_id;
-   std::string chem_link_comp_id_1;
-   std::string chem_link_mod_id_1;
-   std::string chem_link_group_comp_1;
-   std::string chem_link_comp_id_2;
-   std::string chem_link_mod_id_2;
-   std::string chem_link_group_comp_2;
-   std::string chem_link_name;
 
    char *s;
    int ierr;
    int ierr_tot = 0;
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      std::string chem_link_id;
+      std::string chem_link_comp_id_1;
+      std::string chem_link_mod_id_1;
+      std::string chem_link_group_comp_1;
+      std::string chem_link_comp_id_2;
+      std::string chem_link_mod_id_2;
+      std::string chem_link_group_comp_2;
+      std::string chem_link_name;
+      
       s = mmCIFLoop->GetString("id", j, ierr);
       ierr_tot += ierr;
       if (s) chem_link_id = s;
@@ -1702,13 +1703,17 @@ coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
 			       chem_link_comp_id_1, chem_link_mod_id_1, chem_link_group_comp_1,
 			       chem_link_comp_id_2, chem_link_mod_id_2, chem_link_group_comp_2,
 			       chem_link_name);
+	 // std::cout << "Adding to chem_link_vec: " << clink << std::endl;
 	 chem_link_vec.push_back(clink);
       }
    }
 }
 
 bool
-coot::chem_link::matches_groups(const std::string &group_1, const std::string &group_2) const {
+coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
+					     const std::string &group_1,
+					     const std::string &comp_id_2,
+					     const std::string &group_2) const {
 
    std::cout << id << " " << chem_link_name << ": "
 	     << group_1 << " and " << group_2 << " vs "
@@ -1722,6 +1727,16 @@ coot::chem_link::matches_groups(const std::string &group_1, const std::string &g
       match = 1;
 
    return match;
+}
+
+std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
+
+   s << "[chem_link: id: " << lnk.id
+     << " [comp: " << lnk.chem_link_comp_id_1 << " group: " << lnk.chem_link_group_comp_1
+     << " mod: " << lnk.chem_link_mod_id_1 << "] to "
+     << " [comp: " << lnk.chem_link_comp_id_2 << " group: " << lnk.chem_link_group_comp_2
+     << " mod: " << lnk.chem_link_mod_id_2 << "] " << lnk.chem_link_name << "]";
+   return s; 
 }
 
 void
@@ -2177,13 +2192,16 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 // throw an error on no such chem_link
 // 
 coot::chem_link
-coot::protein_geometry::matching_chem_link(const std::string &group_1,
+coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
+					   const std::string &group_1,
+					   const std::string &comp_id_2,
 					   const std::string &group_2) const {
 
    coot::chem_link cl("", "", "", "", "", "", "", "");
    bool found = 0;
    for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
-      if (chem_link_vec[i_chem_link].matches_groups(group_1, group_2)) {
+      if (chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
+								 comp_id_2, group_2)) {
 	 cl = chem_link_vec[i_chem_link];
 	 found = 1;
 	 break;
