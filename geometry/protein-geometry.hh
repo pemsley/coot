@@ -607,8 +607,13 @@ namespace coot {
        chem_link_group_comp_2 = chem_link_group_comp_2_in;
        chem_link_name = chem_link_name_in;
       }
-      bool matches_groups(const std::string &group_1, const std::string &group_2) const;
+      friend std::ostream& operator<<(std::ostream &s, chem_link lnk);
+      bool matches_comp_ids_and_groups(const std::string &comp_id_1,
+				       const std::string &group_1,
+				       const std::string &comp_id_2,
+				       const std::string &group_2) const;
    };
+   std::ostream& operator<<(std::ostream &s, chem_link lnk);
 
    // ------------------------------------------------------------------------
    // ------------------------------------------------------------------------
@@ -904,7 +909,9 @@ namespace coot {
       // Thow an exception if we can't get the group of r
       std::string get_group(CResidue *r) const;
 
-      chem_link matching_chem_link(const std::string &group_1,
+      chem_link matching_chem_link(const std::string &comp_id_1,
+				   const std::string &group_1,
+				   const std::string &comp_id_2,
 				   const std::string &group_2) const; 
 
    };
