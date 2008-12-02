@@ -3777,6 +3777,9 @@ int add_terminal_residue_do_post_refine_state();
 #ifdef USE_GUILE
 SCM find_terminal_residue_type(int imol, const char *chain_id, int resno);
 #endif 
+#ifdef USE_PYTHON
+PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resno);
+#endif /* PYTHON */
 #endif
 
 /* \} */

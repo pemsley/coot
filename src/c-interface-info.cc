@@ -2125,7 +2125,6 @@ void add_to_history(const std::vector<std::string> &command_strings) {
 
    if (g.console_display_commands.display_commands_flag) { 
 
-#if defined USE_GUILE && !defined WINDOWS_MINGW
       char esc = 27;
       // std::string esc = "esc";
       if (g.console_display_commands.hilight_flag) {
@@ -2140,36 +2139,19 @@ void add_to_history(const std::vector<std::string> &command_strings) {
 	 std::cout << esc << "[3"
 		   << g.console_display_commands.colour_prefix << "m";
 
+#if defined USE_GUILE && !defined WINDOWS_MINGW
       std::cout << graphics_info_t::schemize_command_strings(command_strings);
+#else
+#ifdef USE_PYTHON
+      std::cout << graphics_info_t::pythonize_command_strings(command_strings);
+#endif // USE_PYTHON
+#endif // USE_GUILE/MINGW
       
       if (g.console_display_commands.hilight_flag) {// hilight off
 	 std::cout << esc << "[0m"; // reset
+	 //std::cout << esc; // reset
       }
       std::cout << std::endl;
-#else
-#ifdef USE_PYTHON
-#endif // USE_PYTHON
-      char esc = 27;
-      // std::string esc = "esc";
-      if (g.console_display_commands.hilight_flag) {
-	 // std::cout << esc << "[34m";
-	 std::cout << esc << "[1m";
-      } else {
-	 std::cout << "INFO:: Command: ";
-      }
-
-      // Make it colourful?
-      if (g.console_display_commands.hilight_colour_flag)
-	 std::cout << esc << "[3"
-		   << g.console_display_commands.colour_prefix << "m";
-
-      std::cout << graphics_info_t::pythonize_command_strings(command_strings);
-      
-      if (g.console_display_commands.hilight_flag) {// hilight off
-	 std::cout << esc; // reset
-      }
-      std::cout << std::endl;
-#endif // USE_GUILE/MINGW
    }
 
 #ifdef USE_MYSQL_DATABASE

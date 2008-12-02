@@ -294,8 +294,24 @@ SCM find_terminal_residue_type(int imol, const char *chain_id, int resno) {
    return r;
 }
 
-#endif 
+#endif // GUILE
 
+#ifdef USE_PYTHON
+PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resno) {
+  PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, std::string> p = 
+	 graphics_info_t::molecules[imol].find_terminal_residue_type(chain_id, resno);
+      if (p.first) {
+	 r = PyString_FromString(p.second.c_str());
+      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif // PYTHON
 
 
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe) {

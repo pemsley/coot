@@ -1,5 +1,6 @@
 # ncs.py
-# Copyright 2007 by Bernhard Lohkamp
+# Copyright 2007, 2008 by Bernhard Lohkamp
+# copyright 2008 The University of York
 # Copyright 2007 by Paul Emsley, The University of York
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -127,26 +128,52 @@ def skip_to_next_ncs_chain():
 
 # A function inspired by a question from Bill Scott.  He wanted to
 # RNA ghosts.  Because RNA does not work with SSM, we need to define
-# the matrix manually.  Let's make a copy of given rna-mol and get
+# the matrix manually.  Let's make a copy of given imol and get
 # the rtop from that.  Typical usage manual_ncs_ghosts(0, 1, 10, "A", "C")
 # 
-def manual_ncs_ghosts(rna_mol, resno_start, resno_end, ref_chain, peer_chain):
+def single_manual_ncs_ghosts(imol, resno_start, resno_end, ref_chain, peer_chain):
 
-	imol_copy = copy_molecule(rna_mol)
+	imol_copy = copy_molecule(imol)
 	clear_lsq_matches()
 	add_lsq_match(resno_start, resno_end, ref_chain, 
-		resno_start, resno_end, peer_chain, 0) # ref mov - all atoms
+                      resno_start, resno_end, peer_chain, 0) # ref mov - all atoms
 	rtop = apply_lsq_matches(imol_copy, imol_copy)
 	close_molecule(imol_copy)
 	if (not rtop):
-		print "Failed to get matching matrix"
+            print "Failed to get matching matrix"
 	else:
-		## BL says:: no there yet
-		#clear_ncs_ghost_matrices(rna_mol)
-		set_draw_ncs_ghosts(rna_mol, 1)
-		args = [rna_mol, peer_chain, ref_chain] + rtop[0] + rtop[1]
-		add_ncs_matrix(*args)
+            clear_ncs_ghost_matrices(imol)
+            set_draw_ncs_ghosts(imol, 1)
+            args = [imol, peer_chain, ref_chain] + rtop[0] + rtop[1]
+            add_ncs_matrix(*args)
 
+# chain-id-list is ["A", "B", "C", "D"], i.e. the
+# reference/target/master chain-id first and then the peers.  This
+# allows us to add many peers at the same time (unlike above
+# function).
+#
+def manual_ncs_ghosts(imol, resno_start, resno_end, chain_id_list):
+
+    from types import ListType
+
+    if (type(chain_id_list) is ListType):
+        if (len(chain_id_list) > 1):
+            # OK, OK, to the standard SSM-based NCS matrices are bad for this
+            # molecule, lets use LSQ.
+            clear_ncs_ghost_matrices(imol)
+            imol_copy = copy_molecule(imol)
+            for chain_id in chain_id_list[1:]:       # I dont think we need to superpose A onto A?!
+                clear_lsq_matches()
+                add_lsq_match(resno_start, resno_end, chain_id_list[0],
+                              resno_start, resno_end, chain_id, 1)
+                rtop = apply_lsq_matches(imol, imol_copy)
+                if (not rtop):
+                    print "Failed to get LSQ matching matrix", chain_id
+                else:
+                    args = [imol, chain_id, "A"] + rtop[0] + rtop[1]
+                    add_ncs_matrix(*args)
+            close_molecule(imol_copy)
+            set_draw_ncs_ghosts(imol, 1)
 
 def ncs_ligand(imol_protein, ncs_master_chain_id, imol_ligand, chain_id_ligand, resno_ligand_start, resno_ligand_stop):
     

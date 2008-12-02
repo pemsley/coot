@@ -1523,6 +1523,7 @@ merge_molecules        = merge_molecules_py
 clear_and_update_molecule = clear_and_update_molecule_py
 add_molecule           = add_molecule_py
 alignment_results      = alignment_results_py
+find_terminal_residue_type = find_terminal_residue_type_py
 change_chain_id_with_result = change_chain_id_with_result_py
 missing_atom_info      = missing_atom_info_py
 chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
@@ -1587,6 +1588,12 @@ de_chainsaw                    = fill_partial_residues
 
 # fix typo (but where does it come from?
 set_find_hydrogen_torsion = set_find_hydrogen_torsions
+
+# add terminal residue is the normal thing we do with an aligned
+# sequence, but also we can try ton find the residue type of a
+# residue in the middle of the chain that is modelled as an ALA, say.
+ 
+find_aligned_residue_type = find_terminal_residue_type
 
 ############################################################################################
 # end of Paul's scripting
