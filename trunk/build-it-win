@@ -1875,7 +1875,7 @@ if test -n "$build_clipper" ; then
     # clipper_version is for the file name on the server, clipper_dir_version is the directory
     # that files untars into.
     #clipper_version=20ac
-    clipper_version=2.1-081118-ac
+    clipper_version=2.1-081126-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
@@ -1897,7 +1897,6 @@ if test -n "$build_clipper" ; then
     #cp ${AUTOBUILD_SOURCES}/sched.h $install_top_dir/include/
     #cp ${AUTOBUILD_SOURCES}/semaphore.h $install_top_dir/include/
     # 2. option (use windows threads)
-    ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_mingw.patch
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
     cd clipper-$clipper_dir_version

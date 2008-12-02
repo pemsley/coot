@@ -561,10 +561,11 @@ void mono_mode() {
 	 } else {
 	    short int try_hardware_stereo_flag = 0;
 	    //BL says:: and we switch the lists_maps back to normal
-	    //#if (GTK_MAJOR_VERSION > 1)
-	    //set_display_lists_for_maps(1);
+            //          for windows users; seems to be necessary at the moment
+#ifdef WINDOWS_MINGW
+	    set_display_lists_for_maps(1);
 	    //	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
-            // #endif //GTK2
+#endif // WINDOWS_MINGW
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) { 
 	       std::cout << "INFO:: switch to mono_mode succeeded\n";
@@ -640,10 +641,11 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 // BL says:: maybe we should set the set_display_lists_for_maps here for
 // windows, actually Mac as well if I remember correctly
 // well, it seems actually to be a GTK2 (or gtkglext) thing!!
-// #if (GTK_MAJOR_VERSION > 1)
+// or not? So just for windows at the moment
+#ifdef WINDOWS_MINGW
 //	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
-//             set_display_lists_for_maps(0);
-// #endif //GTK2
+             set_display_lists_for_maps(0);
+#endif // WINDOWS_MINGW
 	 } else {
 	    std::cout << "WARNING:: switch to side by side mode failed!\n";
 	 } 
