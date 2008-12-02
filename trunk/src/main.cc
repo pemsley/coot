@@ -580,6 +580,23 @@ main (int argc, char *argv[]) {
 #endif     // PY_MINOR_VERSION
 #endif     // PY_MAJOR_VERSION
 
+     //  Skip initialization registration of signal handlers, useful
+     //  when Python is embedded. Version 2.4 or later. Thanks Stuart
+     //  McNicholas for letting me know about this.
+     //
+     // Question: Do we need to check that we are not using command
+     // line python no graphics before we use this?
+     // 
+#if PY_MAJOR_VERSION > 2
+     Py_InitializeEx(0);
+#endif     
+#if PY_MAJOR_VERSION == 2
+#if PY_MINOR_VERSION > 3
+     Py_InitializeEx(0);
+#endif     
+#endif     
+
+
 #else
      // not python or guile
      if (graphics_info_t::use_graphics_interface_flag)
