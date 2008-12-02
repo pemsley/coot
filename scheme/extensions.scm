@@ -445,6 +445,37 @@
 			      (number->string imol))))
 		      (info-dialog s))
 		    (copy-from-ncs-master-to-others imol chain-id)))))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-ncs "NCS Ghosts by Residue Range..."
+	 (lambda ()
+	   (molecule-chooser-gui 
+	    "Make local NCS ghosts for molecule:"
+	    (lambda (imol)
+	      (let ((label-1 "Start ResNumber")
+		    (label-2 "End ResNumber")
+		    (entry-1-default-text "10")
+		    (entry-2-default-text "20")
+		    (go-button-label "Regenerate Ghosts")
+		    (handle-go-function
+		     (lambda (resno-1-text resno-2-text dummy)
+		       (let ((resno-1 (string->number resno-1-text))
+			     (resno-2 (string->number resno-2-text)))
+			 (if (and (number? resno-1)
+				  (number? resno-2))
+			     (let ((ghost-ncs-chain-ids (ncs-chain-ids imol)))
+			       (if (list? ghost-ncs-chain-ids)
+				   ;; because we can have hetero-NCS,
+				   ;; but we ignore NCS other that
+				   ;; that of the first type.
+				   (let ((ghost-chain-list (car ghost-ncs-chain-ids)))
+				     (manual-ncs-ghosts imol resno-1 resno-2 ghost-chain-list)))))))))
+		
+		(generic-double-entry label-1 label-2 entry-1-default-text 
+				      entry-2-default-text 
+				      #f #f 
+				      go-button-label handle-go-function))))))
+
 	
 	(add-simple-coot-menu-menuitem
 	 submenu-ncs "NCS ligands..."
