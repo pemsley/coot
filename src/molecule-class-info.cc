@@ -374,25 +374,28 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_fla
 
    for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
       CAtom *at = atom_sel.atom_selection[iat];
-      float d2 = (at->x - pt.x()) * (at->x - pt.x());
-      d2 += (at->y - pt.y()) * (at->y - pt.y());
-      d2 += (at->z - pt.z()) * (at->z - pt.z());
-      if (d2 < dist_best) {
-	 dist_best = d2;
-	 at_best = at;
-	 // Now, does this at belong to a residue that has a CA?  If
-	 // it does, reset at_best to be the CA of the residue, but
-	 // keep dist_best as it was, of course.
-	 if (ca_check_flag == 1) {
-	    CResidue *res = at->residue;
-	    int natoms;
-	    PPCAtom residue_atoms;
-	    res->GetAtomTable(residue_atoms, natoms);
-	    for (int iatom=0; iatom<natoms; iatom++) {
-	       if (! residue_atoms[iatom]->isTer()) { 
-		  if (! strcmp(residue_atoms[iatom]->name, " CA ")) {
-		     if (! strcmp(residue_atoms[iatom]->altLoc, at->altLoc)) {
-			at_best = residue_atoms[iatom];
+      std::string chain_id_from_at(at->GetChainID());
+      if ((chain_id_from_at == chain_id) || !use_this_chain_id) { 
+	 float d2 = (at->x - pt.x()) * (at->x - pt.x());
+	 d2 += (at->y - pt.y()) * (at->y - pt.y());
+	 d2 += (at->z - pt.z()) * (at->z - pt.z());
+	 if (d2 < dist_best) {
+	    dist_best = d2;
+	    at_best = at;
+	    // Now, does this at belong to a residue that has a CA?  If
+	    // it does, reset at_best to be the CA of the residue, but
+	    // keep dist_best as it was, of course.
+	    if (ca_check_flag == 1) {
+	       CResidue *res = at->residue;
+	       int natoms;
+	       PPCAtom residue_atoms;
+	       res->GetAtomTable(residue_atoms, natoms);
+	       for (int iatom=0; iatom<natoms; iatom++) {
+		  if (! residue_atoms[iatom]->isTer()) { 
+		     if (! strcmp(residue_atoms[iatom]->name, " CA ")) {
+			if (! strcmp(residue_atoms[iatom]->altLoc, at->altLoc)) {
+			   at_best = residue_atoms[iatom];
+			}
 		     }
 		  }
 	       }
