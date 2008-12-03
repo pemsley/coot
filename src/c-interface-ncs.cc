@@ -345,7 +345,7 @@ make_ncs_ghosts_maybe(int imol) {
 }
 
 // 
-int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map) {
+int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int overwrite_maps_of_same_name_flag) {
 
    int nmaps=0;
 
@@ -366,7 +366,17 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map) {
 	 std::vector<coot::ghost_molecule_display_t> local_ncs_ghosts =
 	    g.molecules[imol_model].NCS_ghosts();
 	 for (unsigned int ighost=0; ighost<local_ncs_ghosts.size(); ighost++) {
-	    int imol = graphics_info_t::create_molecule();
+	    int imol = -1;// gets reset
+	    if (overwrite_maps_of_same_name_flag) { 
+	       int imap_ghost_existing = g.lookup_molecule_name(local_ncs_ghosts[ighost].name);
+	       if (is_valid_map_molecule(imap_ghost_existing)) {
+		  imol = imap_ghost_existing;
+	       } else {
+		  imol = graphics_info_t::create_molecule();
+	       }
+	    } else {
+	       imol = graphics_info_t::create_molecule();
+	    } 
 	    g.molecules[imol].install_ghost_map(g.molecules[imol_map].xmap_list[0],
 						local_ncs_ghosts[ighost].name,
 						local_ncs_ghosts[ighost],
@@ -380,10 +390,20 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map) {
 	    std::vector<std::pair<clipper::Xmap<float>, std::string> > xmaps  = 
 	       g.molecules[imol_model].ncs_averaged_maps(g.molecules[imol_map].xmap_list[0], homology_lev);
 	    std::cout << "INFO:: made " << xmaps.size() << " averaged map(s)" << std::endl;
-	    for (unsigned int i=0; i<xmaps.size(); i++) { 
+	    for (unsigned int i=0; i<xmaps.size(); i++) {
 	       std::string name;
 	       name += xmaps[i].second;
-	       int imol = g.create_molecule();
+	       int imol = -1;// gets reset
+	       int imap_ghost_existing = g.lookup_molecule_name(name);
+	       if (overwrite_maps_of_same_name_flag) { 
+		  if (is_valid_map_molecule(imap_ghost_existing)) {
+		     imol = imap_ghost_existing;
+		  } else {
+		     imol = graphics_info_t::create_molecule();
+		  }
+	       } else {
+		  imol = graphics_info_t::create_molecule();
+	       } 
 	       g.molecules[imol].new_map(xmaps[i].first, name);
 	       if (g.molecules[imol_map].is_difference_map_p())
 		  g.molecules[imol].set_map_is_difference_map();
@@ -458,13 +478,17 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
       }
    }
 
+   // Use a button to get this value at some stage.
+   int overwrite_maps_of_same_name_flag = 0;
+
    if (!found_active_button_for_coords) {
       std::cout << "You need to define a set of coordinates for NCS maping\n";
    } else {
       if (!found_active_button_for_map) {
 	 std::cout << "You need to define a map for NCS maping\n";
       } else {
-	 make_dynamically_transformed_ncs_maps(imol_coords, imol_map);
+	 make_dynamically_transformed_ncs_maps(imol_coords, imol_map,
+					       overwrite_maps_of_same_name_flag);
       }
    }
 

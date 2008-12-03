@@ -4470,7 +4470,8 @@ void set_ncs_ghost_bond_thickness(int imol, float f);
 /*! \brief update ghosts for molecule number imol */
 void ncs_update_ghosts(int imol); // update ghosts
 /*! \brief make NCS map */
-int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map);
+int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, 
+					  int overwrite_maps_of_same_name_flag);
 int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog);
 GtkWidget *wrapped_create_ncs_maps_dialog();
 void make_ncs_ghosts_maybe(int imol);
