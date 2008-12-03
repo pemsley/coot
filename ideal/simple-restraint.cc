@@ -5233,6 +5233,15 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 			fixed_atom_flags[0] = is_fixed_first;
 			fixed_atom_flags[1] = is_fixed_second;
 
+			bool test = 1;
+			bool t2;
+			test |= t2;
+
+ 			std::vector<bool> other_fixed_flags = make_fixed_flags(index1, index2);
+ 			for (int ii=0; ii<2; ii++)
+			   if (other_fixed_flags[ii])
+			      fixed_atom_flags[ii] = 1;
+
 			add(BOND_RESTRAINT, index1, index2,
 			    fixed_atom_flags,
 			    geom.link(i).link_bond_restraint[j].dist(),
@@ -5387,6 +5396,13 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 // 					<< asc.atom_selection[index3]->residue->seqNum << " "
 // 					<< asc.atom_selection[index3]->name << " "
 // 					<< std::endl; 
+
+			     std::vector<bool> other_fixed_flags = make_fixed_flags(index1,
+										    index2,
+										    index3);
+			     for (int ii=0; ii<other_fixed_flags.size(); ii++)
+				if (other_fixed_flags[ii])
+				   fixed_flag[ii] = 1;
 
 			      add(ANGLE_RESTRAINT, index1, index2, index3,
 				  fixed_flag,
@@ -5774,6 +5790,13 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 // 	       for (int ipos=0; ipos<pos.size(); ipos++)
 // 		  std::cout << " " << pos[ipos];
 // 	       std::cout << "\n";
+
+	       
+	       std::vector<bool> other_fixed_flags = make_fixed_flags(pos);
+	       for (int ii=0; ii<2; ii++)
+		  if (other_fixed_flags[ii])
+		     fixed_flag[ii] = 1;
+
 	       add_plane(pos, fixed_flag, geom.link(i).link_plane_restraint[ip].dist_esd());
 	       n_plane++;
 	    }

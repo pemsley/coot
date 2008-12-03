@@ -2,6 +2,36 @@
 (define insulin-res (append-dir-file greg-data-dir "insulin.res"))
 (define imol-insulin (read-pdb insulin-res))
 
+(greg-testcase "NCS maps test" #t 
+   (lambda ()
+
+     (if (not (valid-model-molecule? imol-rnase))
+	 (begin
+	   (format #t "imol-rnase not valid~%")
+	   (throw 'fail)))
+
+     (if (not (valid-map-molecule? imol-rnase-map))
+	 (begin
+	   (format #t "imol-rnase-map not valid~%")
+	   (throw 'fail)))
+
+     (let ((n-mols (graphics-n-molecules)))
+       ;; try to make it trip up by doing it twice:
+       (let ((imol-map-2 (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
+	 (make-dynamically-transformed-ncs-maps imol-rnase imol-rnase-map 0)
+	 (make-dynamically-transformed-ncs-maps imol-rnase imol-map-2 0)
+	 ;; 2*2 + 1 new maps should have been made
+	 (let ((n-new (graphics-n-molecules)))
+	   (if (not (=  n-new (+ n-mols 5)))
+	       (begin
+		 (print-molecule-names)
+		 (format #t "no match in number of molecules ~s ~s~%"
+			 n-mols n-new)
+		 (throw 'fail))
+	       #t))))))
+
+
+
 (greg-testcase "NCS chains info" #t
    (lambda ()
 
@@ -181,7 +211,8 @@
      (for-each 
       (lambda (imol)
 	(if (string-match "NCS found" (molecule-name imol))
-	    (close-molecule imol))))
+	    (close-molecule imol)))
+      (molecule-number-list))
 
      (let ((imol (greg-pdb "pdb1hvv.ent"))
 	   (imol-map (make-and-draw-map 
