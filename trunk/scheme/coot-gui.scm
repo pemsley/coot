@@ -2058,18 +2058,39 @@
 
 (define (key-bindings-gui)
 
-  (define (box-for-binding item inside-vbox)
+  (define (box-for-binding item inside-vbox buttonize-flag)
     (let ((binding-hbox (gtk-hbox-new #f 2)))
       (let* ((txt (if (string? (car (cdr item)))
 		      (car (cdr item))
 		      (number->string (car (cdr item)))))
 	     (key-label (gtk-label-new (string-append "   " txt "   ")))
 	     (name-label (gtk-label-new (car (cdr (cdr item))))))
-	
-	(gtk-box-pack-start binding-hbox key-label  #f #f 2)
-	(gtk-box-pack-start binding-hbox name-label #f #f 2)
-	(gtk-box-pack-start inside-vbox binding-hbox #f #f 2))))
 
+	(if buttonize-flag
+	    (let* ((button-label (string-append "   " txt "   "
+						(car (cdr (cdr item)))))
+		   ;; (button (gtk-button-new-with-label button-label)))
+		   (button (gtk-button-new))
+		   (al (gtk-alignment-new 0 0 0 0)))
+
+	      ;; (gtk-button-set-alignment button 0 0 0 0) not in guile-gtk?
+	      
+	      (let ((label (gtk-label-new button-label)))
+		(gtk-container-add button al)
+		(gtk-container-add al label))
+
+	      (gtk-box-pack-start binding-hbox button #t #t 0)
+	      (gtk-box-pack-start inside-vbox binding-hbox #f #f 0)
+	      (gtk-signal-connect button "clicked" 
+				  (list-ref item 3)))
+	
+	    (begin
+	      (gtk-box-pack-start binding-hbox key-label  #f #f 2)
+	      (gtk-box-pack-start binding-hbox name-label #f #f 2)
+	      (gtk-box-pack-start inside-vbox binding-hbox #f #f 2))))))
+
+  ;; main line
+  ;; 
   (let* ((window (gtk-window-new 'toplevel))
 	 (scrolled-win (gtk-scrolled-window-new))
 	 (outside-vbox (gtk-vbox-new #f 2))
@@ -2130,14 +2151,14 @@
 	(cond 
 	 ((null? items) 'done)
 	 (else 
-	  (box-for-binding (car items) usr-frame-vbox)
+	  (box-for-binding (car items) usr-frame-vbox #t)
 	  (loop (cdr items)))))
       
       (let loop ((items (map (lambda (x) (cons 'dum x)) std-key-bindings)))
 	(cond 
 	 ((null? items) 'done)
 	 (else 
-	  (box-for-binding (car items) std-frame-vbox)
+	  (box-for-binding (car items) std-frame-vbox #f)
 	  (loop (cdr items))))))
     
     (gtk-box-pack-end buttons-hbox close-button #f #f 6)
