@@ -173,3 +173,40 @@
 	 (all-true? result)))))
 
 
+
+(greg-testcase "NCS maps overwrite existing maps" #t 
+   (lambda ()
+
+     ;; first close all maps that have "NCS found" in the name:
+     (for-each 
+      (lambda (imol)
+	(if (string-match "NCS found" (molecule-name imol))
+	    (close-molecule imol))))
+
+     (let ((imol (greg-pdb "pdb1hvv.ent"))
+	   (imol-map (make-and-draw-map 
+		      (append-dir-file greg-data-dir "1hvv_sigmaa.mtz")
+		      "2FOFCWT" "PH2FOFCWT" "" 
+		      0 0)))
+       
+       (make-dynamically-transformed-ncs-maps imol imol-map 0)
+       (make-dynamically-transformed-ncs-maps imol imol-map 0)
+       (make-dynamically-transformed-ncs-maps imol imol-map 1)
+
+       (all-true?
+	(map (lambda (chain-id)
+	       (let ((test-name (string-append 
+				 "NCS found from matching Chain "
+				 chain-id
+				 " onto Chain A")))
+		 (let loop ((molecule-names (map molecule-name (molecule-number-list)))
+			    (n-matchers 0))
+		   (cond
+		    ((null? molecule-names)
+		     (format #t "==== ~s ~s~%" test-name n-matchers)
+		     (= n-matchers 2))
+		    ((string=? test-name (car molecule-names))
+		     (loop (cdr molecule-names) (+ n-matchers 1)))
+		    (else
+		     (loop (cdr molecule-names) n-matchers))))))
+	     (list "B" "C" "D"))))))

@@ -2,18 +2,6 @@
 
 Things to do for 0.5.1
 
- o Add "Make 4mer-XYS" to the advanced tutorial.
-   
- o Add a function of molecule-class that returns the position
-   (if posible) of an atom given a string e.g. 
-   "A" -> nearest atom in the A chain
-   "43" residue 43 of the chain we are looking at.
-   "21b" -> residue 21 of the "b" chain, otherwise residue 21 of the "B" 
-    chain 
-
-  o update map without generating a new molecule.
-    Perhaps the NCS maps, or read a new map from MTZ updating a
-    already existing map.
 
   o on build-latest-coot on bubbles:
    ! LaTeX Error: File `graphicx.sty' not found.
@@ -85,6 +73,35 @@ Things to do for 0.5.1
 
 
 
+  o update map without generating a new molecule.
+    Perhaps the NCS maps, or read a new map from MTZ updating a
+    already existing map.
+
+* Done.
+ o Add a function of molecule-class that returns the position
+   (if posible) of an atom given a string e.g. 
+   "A" -> nearest atom in the A chain
+   "43" residue 43 of the chain we are looking at.
+   "21b" -> residue 21 of the "b" chain, otherwise residue 21 of the "B" 
+    chain 
+
+* Done.
+
+  o info-dialog history string needs quotes
+
+* Done.
+
+  o remove this debugging (on making NCS ghosts): 
+
+INFO::  max_xmaps :0
+INFO::  xmap_list :0
+
+* Done.
+
+  o Makefile.am in share/coot/python - bad.
+
+* Done.
+   
   o in make_link_restraints() use
 
    class bonded_pair_t { 
