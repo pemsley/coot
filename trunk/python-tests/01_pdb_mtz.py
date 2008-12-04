@@ -193,27 +193,6 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    imol_map_2 = another_level()
 	    self.failUnless(valid_map_molecule_qm(imol_map_2))
 
-
-    def test07_1(self):
-	    """NCS maps test"""
-
-	    global imol_rnase_map
-	    self.failUnless(valid_model_molecule_qm(imol_rnase),
-			    "imol_rnase not valid")
-
-	    self.failUnless(valid_map_molecule_qm(imol_rnase_map),
-			    "imol_rnase_map not valid")
-
-	    n_mols = graphics_n_molecules()
-	    # try to make it trip up by doing it twice:
-	    imol_map_2 = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0 ,0)
-	    make_dynamically_transformed_ncs_maps(imol_rnase, imol_rnase_map)
-	    make_dynamically_transformed_ncs_maps(imol_rnase, imol_map_2)
-	    # 2*2 + 1 new maps should have been made
-	    n_new = graphics_n_molecules()
-	    self.failUnlessEqual(n_new, (n_mols + 5),
-				 "no match in number of molecules %s %s" %(n_mols, n_new))
-
 	    
     def test08_0(self):
 	    """Set Atom Atribute Test"""

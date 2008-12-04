@@ -665,7 +665,7 @@ if (have_coot_python):
        submenu_refine,
        "Set Density Fit Graph Weight...",
        lambda func: generic_single_entry("set weight (smaller means apparently better fit)", 
-		"1.0", "Set it", 
+		str("%.2f" %residue_density_fit_scale_factor()), "Set it", 
 		lambda text: set_den_gra_func(text)))
 
 
