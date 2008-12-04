@@ -29,7 +29,28 @@ def imol_insulin():
 
 class NcsTestFunctions(unittest.TestCase):
 
-    def test01_0(self):
+    def test01_1(self):
+	    """NCS maps test"""
+
+	    global imol_rnase_map
+	    self.failUnless(valid_model_molecule_qm(imol_rnase),
+			    "imol_rnase not valid")
+
+	    self.failUnless(valid_map_molecule_qm(imol_rnase_map),
+			    "imol_rnase_map not valid")
+
+	    n_mols = graphics_n_molecules()
+	    # try to make it trip up by doing it twice:
+	    imol_map_2 = make_and_draw_map(rnase_mtz, "FWT", "PHWT", "", 0 ,0)
+	    make_dynamically_transformed_ncs_maps(imol_rnase, imol_rnase_map, 0)
+	    make_dynamically_transformed_ncs_maps(imol_rnase, imol_map_2, 0)
+	    # 2*2 + 1 new maps should have been made
+	    n_new = graphics_n_molecules()
+	    self.failUnlessEqual(n_new, (n_mols + 5),
+				 "no match in number of molecules %s %s" %(n_mols, n_new))
+
+
+    def test02_0(self):
         """NCS chains info"""
 
         # should return False
@@ -47,7 +68,7 @@ class NcsTestFunctions(unittest.TestCase):
         self.failUnless(type(first_ghost[1]) is StringType, "    Fail: not strings first-ghost %s" %first_ghost[1])
         print "   NCS info: ", ncs_chain_info
 
-    def test02_0(self):
+    def test03_0(self):
         """NCS deviation info"""
 
         # should return False
@@ -71,7 +92,7 @@ class NcsTestFunctions(unittest.TestCase):
 # Phil spotted this bug (it wouldn't refine across the residue 3->4
 # peptide bond - because out out of order residues
 #
-    def test03_0(self):
+    def test04_0(self):
         """NCS Residue Range copy"""
 
         # ls is a list of numbers. Is it in ascending order? Return True or False
@@ -122,7 +143,7 @@ class NcsTestFunctions(unittest.TestCase):
         
 # Perhaps combine this with previous test, its tests the same function.
 #
-    def test04_0(self):
+    def test05_0(self):
         """NCS Residue Range edit to all chains"""
 
         imol = unittest_pdb("pdb1t6q.ent")
@@ -143,3 +164,31 @@ class NcsTestFunctions(unittest.TestCase):
                 result.append(False)
         print "result:", result
         self.failUnless(all(result))
+
+
+    def test06_0(self):
+        """NCS maps overwrite existing maps"""
+
+        # first close all the maps that have "NCS found" in the name:
+        for imol in molecule_number_list():
+            if ("NCS found" in molecule_name(imol)):
+                close_molecule(imol)
+
+        imol = unittest_pdb("pdb1hvv.ent")
+        imol_map = make_and_draw_map(os.path.join(unittest_data_dir,
+                                                  "1hvv_sigmaa.mtz"),
+                                     "2FOFCWT", "PH2FOFCWT", "",
+                                     0, 0)
+
+        make_dynamically_transformed_ncs_maps(imol, imol_map, 0)
+        make_dynamically_transformed_ncs_maps(imol, imol_map, 0)
+        make_dynamically_transformed_ncs_maps(imol, imol_map, 1)
+
+        result_list = []
+        molecule_names = map(molecule_name, molecule_number_list())
+        for chain_id in ["B", "C", "D"]:
+            test_name = "NCS found from matching Chain " + \
+                        chain_id + \
+                        " onto Chain A"
+            
+            self.failUnless(test_name in molecule_names, "  Failed to find matching NCS chain %s" %chain_id)

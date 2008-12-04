@@ -2636,16 +2636,30 @@ def key_bindings_gui():
       window.destroy()
       return False
 
-   def box_for_binding(item, inside_vbox):
+   def box_for_binding(item, inside_vbox, buttonize_flag):
       binding_hbox = gtk.HBox(False, 2)
       txt = str(item[1])
       key_label = gtk.Label("   " + txt + "   ")
       name_label = gtk.Label(item[2])
 
-      binding_hbox.pack_start(key_label, False, False, 2)
-      binding_hbox.pack_start(name_label, False, False, 2)
-      inside_vbox.pack_start(binding_hbox, False, False, 2)
-
+      if (buttonize_flag):
+         button_label = "   " + txt + "   " + item[2]
+         button = gtk.Button(button_label)
+         #al = gtk.Alignment(0, 0, 0, 0)
+         #label = gtk.Label(button_label)
+         #button.add(al)
+         #al.add(label)
+         binding_hbox.pack_start(button, True, True, 0)
+         inside_vbox.pack_start(binding_hbox, False, False, 0)
+         button.connect("clicked", lambda *args: apply(item[3]))
+         
+      else:
+         binding_hbox.pack_start(key_label, False, False, 2)
+         binding_hbox.pack_start(name_label, False, False, 2)
+         inside_vbox.pack_start(binding_hbox, False, False, 2)
+      
+   # main line
+   #
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    scrolled_win = gtk.ScrolledWindow()
    outside_vbox = gtk.VBox(False, 2)
@@ -2690,10 +2704,10 @@ def key_bindings_gui():
       py_and_scm_keybindings += scm_key_bindings
       
    for items in py_and_scm_keybindings:
-      box_for_binding(items, usr_frame_vbox)
+      box_for_binding(items, usr_frame_vbox, True)
 
    for items in std_key_bindings:
-      box_for_binding(["dummy"] + items, std_frame_vbox)
+      box_for_binding(["dummy"] + items, std_frame_vbox, False)
 
    buttons_hbox.pack_end(close_button, False, False, 6)
    outside_vbox.pack_start(buttons_hbox, False, False, 6)

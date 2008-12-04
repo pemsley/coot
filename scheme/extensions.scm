@@ -661,7 +661,8 @@
 	 submenu-refine "Set Density Fit Graph Weight..."
 	 (lambda ()
 	   (generic-single-entry "set scale factor (smaller number means smaller bars)" 
-				 "1.0"
+				 (number->string (/ (round (* 100.0 
+					(residue-density-fit-scale-factor))) 100.0))
 				 "Set it" (lambda (text) 
 					    (let ((t (string->number text)))
 					      (if (number? t)
