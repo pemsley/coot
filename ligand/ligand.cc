@@ -23,7 +23,7 @@
 
 // This file was written as the USA started its (2003) attack on Iraq.
 //
- 
+
 #include <stdio.h> // for snprintf
 
 #include <fstream>
@@ -1717,8 +1717,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 		  // fitted_ligand_vec vector:
 		  // 
 		  // fiddle with fitted_ligand_vec[i]
-		  this_scorecard =
-		     fit_ligand_copy(iclust, ilig, ior, eigen_orientations[i_eigen_ori]);
+		  this_scorecard = fit_ligand_copy(iclust, ilig, ior, eigen_orientations[i_eigen_ori]);
 
 		  if (this_scorecard.score > best_ori_scorecard.score) {
 		     best_ori_scorecard = this_scorecard; 
@@ -2014,6 +2013,7 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior) {
    // output.
    // ligand_score_card s = score_orientation(atoms_p, xmap_pristine); // JB says try masked map
    ligand_score_card s = score_orientation(atoms_p, xmap_masked);
+   s.set_ligand_number(ilig);
    return s; 
 }
 
@@ -2025,11 +2025,6 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior) {
 //
 coot::ligand_score_card
 coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior, const clipper::RTop_orth &eigen_ori) {
-
-//    std::cout << "===================================== "
-// 	     << "fit_ligand_copy with eigen ori"
-// 	     << "===================================== "
-// 	     << std::endl;
 
    // checkme - is fitted_ligand_vec[ilig] and
    // fitted_ligand_vec[ilig][iclust] properly dimensioned before we
@@ -2063,11 +2058,6 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior, const clipper::RTop
    // ligand_score_card s = score_orientation(atoms_p, xmap_pristine); // JB says try masked map
    ligand_score_card s = score_orientation(atoms_p, xmap_masked);
    s.set_ligand_number(ilig);
-   s.set_ligand_number(ilig);
-   for (unsigned int iat=0; iat<atoms_p.size(); iat++) { 
-      std::cout << "post rigid body: " << s.score << " " << atoms_p[iat]->pos.format()
-		<< std::endl;
-   }
    return s; 
 }
 
