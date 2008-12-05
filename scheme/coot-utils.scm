@@ -20,6 +20,7 @@
 
 (use-modules (ice-9 popen)
 	     (ice-9 string-fun)
+	     (ice-9 format)
 	     (ice-9 rdelim))
 (use-modules (goosh))
 ; (use-modules (goosh goosh))
