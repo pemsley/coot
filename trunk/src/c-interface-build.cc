@@ -4041,8 +4041,9 @@ void setup_edit_chi_angles(short int state) {
 void rotate_chi(float am) {
 
    graphics_info_t g;
-   g.rotate_chi(am, am);
-
+   if (g.in_edit_chi_mode_flag || g.in_edit_torsion_general_flag) {
+      g.rotate_chi(am, am);
+   }
 } 
 
 
