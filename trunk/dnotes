@@ -2,6 +2,7 @@
 
 Things to do for 0.5.1
 
+  o Ideal RNA: gat.  Does it make it correctly?
 
   o on build-latest-coot on bubbles:
    ! LaTeX Error: File `graphicx.sty' not found.
@@ -24,14 +25,6 @@ Things to do for 0.5.1
 
   o Does molprobity (specifically reduce) work with modern distros and
     do the right thing in Coot.  Check (set-do-probe-dots-post-refine 1).
-
-  o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
-    Make a fixed atom on the O3* of 1A.  The refinement fails now (no
-    progress).  Is that because of make_link_restraints() is not taking
-    into account the fixed atoms?  Could well be, because if I delete
-    residue 2 in that chain, then the regularization (with that atom 
-    fixed) works fine! 
-    1hd
 
   o restraints editor:  
        edit ASN
@@ -72,6 +65,18 @@ Things to do for 0.5.1
 
 
 
+
+
+  o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
+    Make a fixed atom on the O3* of 1A.  The refinement fails now (no
+    progress).  Is that because of make_link_restraints() is not taking
+    into account the fixed atoms?  Could well be, because if I delete
+    residue 2 in that chain, then the regularization (with that atom 
+    fixed) works fine! 
+    1hd 
+
+* Looks good now. Well, the fixed atom moves, but the minimization
+  completes succesfully now.
 
   o update map without generating a new molecule.
     Perhaps the NCS maps, or read a new map from MTZ updating a
@@ -7435,5 +7440,24 @@ Sat Nov 29 15:08:44 GMT 2008
    Where is the test that these residues are L-peptides? in
    add_rama()?  No.  So it should be in make_rama_triples() then.
    Perhaps.  But it should be somewhere.
+
+
+---
+Thu Dec  4 16:27:58 GMT 2008
+
+   Conversation with Ed:
+ 
+  o Nice to have ^S bound to Save Coords (Add accelerator to gui)
+
+  o Can you generate "arrow key-press events" from rotating the
+  PowerMate?  Surely yes, it's just a matter of getting the power mate
+  in the mode to generate the characters.  Ah.. but no, the powermate
+  can generate 3 key presses basically (in Bills example, F1, F2, F3)
+
+   Hmm...
+
+  o What about binding PowerMate to chi angle motion - which is moving
+    the mouse a bit.  Surely we can do that?
+
 
 -----

@@ -4038,6 +4038,14 @@ void setup_edit_chi_angles(short int state) {
    add_to_history_typed(cmd, args);
 }
 
+void rotate_chi(float am) {
+
+   graphics_info_t g;
+   g.rotate_chi(am, am);
+
+} 
+
+
 void setup_torsion_general(short int state) {
 
    graphics_info_t g;

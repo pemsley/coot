@@ -4200,6 +4200,8 @@ short int draw_crosshairs_state();
 /* c-interface-build functions */
 void setup_edit_chi_angles(short int state); 
 
+void rotate_chi(float am);
+
 /*! \brief show torsions that rotate hydrogens in the torsion angle
   manipulation dialog.  Note that this may be needed if, in the
   dictionary cif file torsion which have as a 4th atom both a hydrogen
