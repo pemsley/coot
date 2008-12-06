@@ -1709,7 +1709,7 @@ coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
    }
 }
 
-bool
+std::pair<bool, bool>
 coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &group_1,
 					     const std::string &comp_id_2,
@@ -1721,12 +1721,19 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 	     << chem_link_comp_id_2 << std::endl;
 
    bool match = 0;
-   if ((chem_link_comp_id_1 == group_1) && (chem_link_comp_id_2 == group_2))
-      match = 1;
-   if ((chem_link_comp_id_1 == group_2) && (chem_link_comp_id_2 == group_1))
-      match = 1;
+   bool order_switch = 0;
+   
+   if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == group_1)) &&
+       ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == group_2)))
+      if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == comp_id_1)) &&
+	  ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == comp_id_2)))
+	 match = 1;
 
-   return match;
+   // And what about if the residues come here backward? We should
+   // report a match and that they should be reversed to the calling
+   // function?  A simple bool won't do as a return type in that case.
+
+   return std::pair<bool, bool>(match, order_switch);
 }
 
 std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
@@ -2191,18 +2198,22 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 
 // throw an error on no such chem_link
 // 
-coot::chem_link
+std::pair<coot::chem_link, bool>
 coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_1,
 					   const std::string &comp_id_2,
 					   const std::string &group_2) const {
 
    coot::chem_link cl("", "", "", "", "", "", "", "");
+   bool switch_order_flag = 0;
    bool found = 0;
    for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
-      if (chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
-								 comp_id_2, group_2)) {
+      std::pair<bool, bool> match_res =
+	 chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
+								comp_id_2, group_2);
+      if (match_res.first) {
 	 cl = chem_link_vec[i_chem_link];
+	 switch_order_flag = match_res.second;
 	 found = 1;
 	 break;
       }
@@ -2215,7 +2226,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       rte += group_2;
       throw std::runtime_error(rte);
    }
-   return cl;
+   return std::pair<coot::chem_link, bool> (cl, switch_order_flag);
 }
       
 void

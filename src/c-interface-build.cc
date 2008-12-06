@@ -4961,7 +4961,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	 gint end_pos = -1;
 	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
 #else
-	 std::cout << "Gtk2 text view code... " << std::endl;
+	 // std::cout << "Gtk2 text view code... " << std::endl;
 	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
@@ -5121,7 +5121,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	 gint end_pos = -1;
 	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
 #else
-	 std::cout << "Gtk2 text view code... " << std::endl;
+	 // std::cout << "Gtk2 text view code... " << std::endl;
 	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);

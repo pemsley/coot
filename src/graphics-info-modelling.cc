@@ -185,7 +185,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    int n_residue_first;
    PCResidue *residue_first = NULL;
    mol->Select(SelHnd_first, STYPE_RESIDUE, 0,
-	       (char *) chain_id_1.c_str(),
+	       chain_id_1.c_str(),
 	       resno_1, (char *) inscode_1.c_str(),
 	       resno_1, (char *) inscode_1.c_str(),
 	       "*",  // residue name
@@ -216,7 +216,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       int SelHnd_ends = mol->NewSelection();
       int n_atoms_ends;
       PPCAtom atoms_end = 0;
-      mol->SelectAtoms(SelHnd_ends, 0, (char *) chain_id_1.c_str(),
+      mol->SelectAtoms(SelHnd_ends, 0, chain_id_1.c_str(),
 		       resno_1-1, "*", resno_1-1, "*","*","*","*","*");
       mol->GetSelIndex(SelHnd_ends, atoms_end, n_atoms_ends);
       if (n_atoms_ends > 0)
@@ -224,7 +224,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       mol->DeleteSelection(SelHnd_ends);
 
       SelHnd_ends = mol->NewSelection();
-      mol->SelectAtoms(SelHnd_ends, 0, (char *) chain_id_1.c_str(),
+      mol->SelectAtoms(SelHnd_ends, 0, chain_id_1.c_str(),
 		       resno_2+1, "*", resno_2+1, "*","*","*","*","*");
       mol->GetSelIndex(SelHnd_ends, atoms_end, n_atoms_ends);
       if (n_atoms_ends > 0)
@@ -249,7 +249,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    int nSelResidues; 
    PCResidue *SelResidues = NULL;
    mol->Select(selHnd, STYPE_RESIDUE, 0,
-	       (char *) chain_id_1.c_str(),
+	       chain_id_1.c_str(),
 	       iselection_resno_start, "*",
 	       iselection_resno_end, "*",
 	       "*",  // residue name
@@ -281,7 +281,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol_for_atoms].get_fixed_atoms();
       
-      char *chn = (char *) chain_id_1.c_str();
+      const char *chn = chain_id_1.c_str();
 
       if (nSelResidues > refine_regularize_max_residues) { 
 

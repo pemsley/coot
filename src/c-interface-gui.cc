@@ -4747,7 +4747,7 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	 gint end_pos = -1;
 	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
 #else
-	 std::cout << "Gtk2 text view code... " << std::endl;
+	 // std::cout << "Gtk2 text view code... " << std::endl;
 	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
@@ -4964,8 +4964,7 @@ GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
       // s += v[i];
       std::string s = v[i];
       gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), s.c_str());
-       if (i==0)
-	  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
    }
    return w;
 }
