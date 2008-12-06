@@ -182,10 +182,10 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 
 	 score = score_helix_position(this_eigen_scored_helices[0].mol);
 	 this_eigen_scored_helices[0].score = score;
-	 std::cout << "Score 0 post rigid body fitting: " << score << std::endl;
+	 // std::cout << "Score 0 post rigid body fitting: " << score << std::endl;
 	 score = score_helix_position(this_eigen_scored_helices[1].mol);
 	 this_eigen_scored_helices[1].score = score;
-	 std::cout << "Score 1 post rigid body fitting: " << score << std::endl;
+	 // std::cout << "Score 1 post rigid body fitting: " << score << std::endl;
 
 	 // scored_helices[0].mol.write_file("best-post-fit-0.pdb"); 
 	 // scored_helices[1].mol.write_file("best-post-fit-1.pdb");
