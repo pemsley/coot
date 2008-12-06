@@ -3974,9 +3974,10 @@ coot::restraints_container_t::bonded_residues(int selHnd,
 		  std::pair<bool, float> d = closest_approach(SelResidue[ii], SelResidue[jj]);
 		  if (d.first) {
 		     if (d.second < dist_crit) {
-			std::string l = find_link_type_rigourous(SelResidue[ii],
-								 SelResidue[jj], geom);
-			if (l != "") {
+			std::pair<std::string, bool> l =
+			   find_link_type_rigourous(SelResidue[ii],
+						    SelResidue[jj], geom);
+			if (l.first != "") {
 			} 
 		     } 
 		  } 
@@ -4233,11 +4234,12 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
    return link_type;
 }
 
-std::string
+std::pair<std::string, bool>
 coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue *second,
 						       const coot::protein_geometry &geom) const {
 
    std::string link_type = "";
+   bool order_switch_flag = 0;
    std::string comp_id_1 = first->GetResName();
    std::string comp_id_2 = second->GetResName();
 
@@ -4245,7 +4247,10 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
       try {
-	 coot::chem_link link = geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
+	 std::pair<coot::chem_link, bool> link_info =
+	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
+	 order_switch_flag = link_info.second;
+	 link_type = link_info.first.Id();
       }
       catch (std::runtime_error mess_in) {
 	 std::cout << mess_in.what() << std::endl;
@@ -4254,7 +4259,7 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
    catch (std::runtime_error mess) {
       std::cout << mess.what() << std::endl;
    }
-   return link_type;
+   return std::pair<std::string, bool> (link_type, order_switch_flag);
 }
 
 

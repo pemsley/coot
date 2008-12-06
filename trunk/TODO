@@ -47,6 +47,8 @@
   o Check out the virtualbox page on the ubuntu wiki for info about how
     to set it up. Punt.
 
+  o What's crashing on using NCS in Bill's 0.5 build?  No idea.
+
    o Mails from Phil Evans, Stephen Graham, Early April 2008 about SEG
      ids.  Doing a NCS loop with Seg ids.  Doing a mutation with Segids
      (might be the same issue).  The segid for the new atoms should be

@@ -2,39 +2,17 @@
 
 Things to do for 0.5.1
 
+  7 Things, 8hd.
+
   o Ideal RNA: gat.  Does it make it correctly?
 
-  o on build-latest-coot on bubbles:
-   ! LaTeX Error: File `graphicx.sty' not found.
-   1hr
-
-* Fiddled. Needs examining of the logs.  Still is failing.
-
   o Loop building in both directions for scheme.  Needs checking from GUI.
-    2hd
-
-  o Test that manual-ncs-ghosts averages all the maps for NCS > 2.
-    Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
-    that'll be fun).
-    2hd.  Do this in the office.
+    1hd
 
   o Nucletide builder - with B form RNA need to be fixed.  Needs O2'. 1hd
 
   o Pucker of ideal DNA need to be fixed.  Needs better reference nucleotide.
     1hd.
-
-  o Does molprobity (specifically reduce) work with modern distros and
-    do the right thing in Coot.  Check (set-do-probe-dots-post-refine 1).
-
-  o restraints editor:  
-       edit ASN
-       save
-       edit CYS
-       save
-       Look at monomer-CYS.cif, the TLC is ASN.
-       0 or 2hd.
-
-* Looks fine on FC4, still bad on MacBook?
 
   o [Maria Håkansson] Hydrogen fail to move in SHELXL molecule when using:
 
@@ -49,23 +27,96 @@ Things to do for 0.5.1
 * There is no quick solution for this - SHELXL has systematically
   different hydrogen names.  Needs an email to Maria.
 
-  o What's crashing on using NCS in Bill's 0.5 build?  No idea.
-    Consider punting.
+
+
+
+
+
+
+
+
+  o Test that manual-ncs-ghosts averages all the maps for NCS > 2.
+    Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
+    that'll be fun).
+    1hd.  Do this in the office.
+
+* Done.  Not added to test suite though.  Looks... OK, but not ideal results.
+
+  o restraints editor:  
+       edit ASN
+       save
+       edit CYS
+       save
+       Look at monomer-CYS.cif, the TLC is ASN.
+       0 or 2hd.
+
+* Looks fine on FC4, still bad on MacBook?  Pass on MacBook - too difficult.
 
   o LSQ map by overlap - does that work properly?  Use an offset
     reference molecule.  You can test this by summing the density
     before hand, rotation/translating the map and then re-summing the
     density on the transformed map.
+    2hd.
+
+  * Seems fine.
+
+  o remove debugging:
+    Gtk2 text view code...
+
+* Done.
+
+ o make_dynamically_transformed_maps() needs an extra arg to tell
+   whether or not to overwrite maps that already exist with that given
+   name (instead of creating new maps).
+
+* Done.
 
   o in the Restraints Editor monomer selector, the last residue should
     be the active item.
 
+* Done.
 
- 
+  o Does molprobity (specifically reduce) work with modern distros and
+    do the right thing in Coot.  Check (set-do-probe-dots-post-refine 1).
 
+* Works.
 
+ o Add "Make 4mer-XYS" to the advanced tutorial.
+   
+  o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
+    Make a fixed atom on the O3* of 1A.  The refinement fails now (no
+    progress).  Is that because of make_link_restraints() is not taking
+    into account the fixed atoms?  Could well be, because if I delete
+    residue 2 in that chain, then the regularization (with that atom 
+    fixed) works fine! 
+    1hd
 
+* Looks good now. Well, the fixed atom moves, but the minimization
+  completes succesfully now.
 
+<<<<<<< .mine
+  o Mail B re: changes to manual-ncs-ghosts.
+
+  o Make a function that colours by a function that returns a value
+    given an atom spec.
+
+  o on build-latest-coot on bubbles:
+   ! LaTeX Error: File `graphicx.sty' not found.
+   1hr
+
+* Fiddled. Needs examining of the logs.  Still is failing.  Fixed now
+  I think.  TEXINPUTS.
+
+ o Add a function of molecule-class that returns the position
+   (if posible) of an atom given a string e.g. 
+   "A" -> nearest atom in the A chain
+   "43" residue 43 of the chain we are looking at.
+   "21b" -> residue 21 of the "b" chain, otherwise residue 21 of the "B" 
+    chain 
+
+* Done.
+
+=======
 
   o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
     Make a fixed atom on the O3* of 1A.  The refinement fails now (no
@@ -78,6 +129,7 @@ Things to do for 0.5.1
 * Looks good now. Well, the fixed atom moves, but the minimization
   completes succesfully now.
 
+>>>>>>> .r1655
   o update map without generating a new molecule.
     Perhaps the NCS maps, or read a new map from MTZ updating a
     already existing map.

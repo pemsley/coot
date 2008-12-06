@@ -850,8 +850,8 @@ namespace coot {
 				 const protein_geometry &geom) const;
 
       // find disulphides, protein-glycan bonds etc.
-      std::string find_link_type_rigourous(CResidue *first, CResidue *second,
-					   const protein_geometry &geom) const;
+      std::pair<std::string, bool> find_link_type_rigourous(CResidue *first, CResidue *second,
+							    const protein_geometry &geom) const;
 
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
