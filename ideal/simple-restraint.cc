@@ -194,6 +194,23 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 
 }
 
+      // 20081106 construct from a vector of residues, each of which
+      // has a flag attached that denotes whether or not it is a fixed
+      // residue (it would be set, for example in the case of flanking
+      // reisdues).
+coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,CResidue *> > &residues,
+						     CMMDBManager *mol,
+						     const std::vector<atom_spec_t> &fixed_atom_specs,
+						     const clipper::Xmap<float> &map_in,
+						     float map_weight_in) {
+   lograma.init(LogRamachandran::All, 2.0, true);
+   init_from_residue_vec(residues, mol, fixed_atom_specs);
+   map = map_in;
+   map_weight = map_weight_in;
+   include_map_terms_flag = 1;
+}
+
+
 // What are the rules for dealing with alt conf in flanking residues?
 // 
 // First we want to try to select only atom that have the same alt
@@ -353,6 +370,14 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 		   << use_map_gradient_for_atom[i] << std::endl;
 
 }
+
+
+void
+coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<bool,CResidue *> > &residues,
+						    CMMDBManager *mol,
+						    const std::vector<atom_spec_t> &fixed_atom_specs) {
+
+} 
 
 
 
@@ -5237,10 +5262,6 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 
 			fixed_atom_flags[0] = is_fixed_first;
 			fixed_atom_flags[1] = is_fixed_second;
-
-			bool test = 1;
-			bool t2;
-			test |= t2;
 
  			std::vector<bool> other_fixed_flags = make_fixed_flags(index1, index2);
  			for (int ii=0; ii<2; ii++)

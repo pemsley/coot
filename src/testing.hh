@@ -23,6 +23,7 @@ int test_ramachandran_probabilities();
 int test_fragmemt_atom_selection();
 int kdc_torsion_test();
 int test_add_atom();
+int restr_res_vector();
 
 class residue_selection_t {
 public:
