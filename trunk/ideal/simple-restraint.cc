@@ -3705,8 +3705,7 @@ coot::restraints_container_t::make_monomer_restraints(const coot::protein_geomet
    
    int selHnd = mol->NewSelection();
    int nSelResidues;
-   int i_no_res_atoms;
-   PPCAtom res_selection = NULL;
+   coot::restraints_container_t::restraint_counts_t sum;
 
    mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
 		(char *) chain_id_save.c_str(), // Chain(s)
@@ -3728,62 +3727,10 @@ coot::restraints_container_t::make_monomer_restraints(const coot::protein_geomet
    if (nSelResidues > 0) { 
       for (int i=0; i<nSelResidues; i++) {
 	 if (SelResidue_active[i]) {
-	    // idr: index dictionary residue 
-	    for (int idr=0; idr<geom.size(); idr++) {
-	       std::string pdb_resname(SelResidue_active[i]->name);
-	       if (pdb_resname == "UNK") pdb_resname = "ALA";
-	       // if (geom[idr].comp_id == pdb_resname) {
-	       // old style comp_id usage
-	       // if (dictionary_name_matches_coords_resname(geom[idr].comp_id,pdb_resname)) {
-
-	       // OK, we need the 3 letter code for carbohydrates, the
-	       // comp_id for nucleotides:
-	       //
-	       // comp_id 3-letter-code name group
-               // Ar         A        'Adenosine                    ' RNA                33  22 .
-	       // GAL-b-D    GAL      'beta_D_galactose             ' D-pyranose         24  12 .
-
-	       if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr),
-							  pdb_resname) ||
-		   dictionary_name_matches_coords_resname(geom[idr].comp_id, pdb_resname)) {
-//  		  std::cout << "DEBUG:: ------------- dict/pdb name matches " << pdb_resname
-// 			    << " --------------- " << std::endl; 
-
-		  // now get a list of atoms in that residue
-		  // (SelResidue[i]) and compare them to the atoms in
-		  // geom[idr].bond_restraint[ib].
-
-		  SelResidue_active[i]->GetAtomTable(res_selection, i_no_res_atoms);
-		  
-		  if (i_no_res_atoms > 0) {
-
-// 		     std::cout << "   bonds... " << std::endl;
-		     n_bond_restr += add_bonds(idr, res_selection, i_no_res_atoms,
-					       SelResidue_active[i],geom);
-// 		     std::cout << "   angles... " << std::endl;
-		     n_angle_restr += add_angles(idr, res_selection, i_no_res_atoms,
-						 SelResidue_active[i],geom);
-		     if (do_residue_internal_torsions) { 
-			// 	 	        std::cout << "   torsions... " << std::endl;
-			std::string residue_type = SelResidue_active[i]->GetResName();
-			if (residue_type != "PRO") 
-			   n_torsion_restr += add_torsions(idr, res_selection, i_no_res_atoms,
-							   SelResidue_active[i],geom);
-		     }
-// 		     std::cout << "   planes... " << std::endl;
-		     n_plane_restr += add_planes(idr, res_selection, i_no_res_atoms,
-						 SelResidue_active[i], geom);
-
- 		     n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
- 						   SelResidue_active[i], geom);
-
-		  }
-// debugging		  
-// 	       } else {
-// 		  std::cout << "no match :" << geom.three_letter_code(idr)
-// 			    << ": vs :" << pdb_resname << ":" << std::endl;
-	       }
-	    }
+	    coot::restraints_container_t::restraint_counts_t local = 
+	       make_monomer_restraints_by_residue(SelResidue_active[i], geom,
+						  do_residue_internal_torsions);
+	    sum += local;
 	 }
       }
    } else {
@@ -3796,18 +3743,82 @@ coot::restraints_container_t::make_monomer_restraints(const coot::protein_geomet
    // 
    // This should go into the destructor, I guess.
 
-   std::cout << "created " << n_bond_restr   << " bond       restraints " << std::endl;
-   std::cout << "created " << n_angle_restr  << " angle      restraints " << std::endl;
-   std::cout << "created " << n_plane_restr  << " plane      restraints " << std::endl;
-   std::cout << "created " << n_chiral_restr << " chiral vol restraints " << std::endl;
+   std::cout << "created " << sum.n_bond_restraints   << " bond       restraints " << std::endl;
+   std::cout << "created " << sum.n_angle_restraints  << " angle      restraints " << std::endl;
+   std::cout << "created " << sum.n_plane_restraints  << " plane      restraints " << std::endl;
+   std::cout << "created " << sum.n_chiral_restr << " chiral vol restraints " << std::endl;
    if (do_residue_internal_torsions)
-      std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
-   std::cout << "created " << restraints_vec.size() << " restraints" << std::endl; 
+      std::cout << "created " << sum.n_torsion_restr << " torsion restraints " << std::endl;
+   std::cout << "created " << restraints_vec.size() << " restraints" << std::endl;
 
    std::cout << std::endl; 
    return iret; // return 1 on success.
 }
 
+
+coot::restraints_container_t::restraint_counts_t
+coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *residue_p,
+								 const protein_geometry &geom,
+								 short int do_residue_internal_torsions) {
+
+   coot::restraints_container_t::restraint_counts_t local;
+   int i_no_res_atoms;
+   PPCAtom res_selection = NULL;
+   
+   // idr: index dictionary residue 
+   for (int idr=0; idr<geom.size(); idr++) {
+      std::string pdb_resname(residue_p->name);
+      if (pdb_resname == "UNK") pdb_resname = "ALA";
+      // if (geom[idr].comp_id == pdb_resname) {
+      // old style comp_id usage
+      // if (dictionary_name_matches_coords_resname(geom[idr].comp_id,pdb_resname)) {
+
+      // OK, we need the 3 letter code for carbohydrates, the
+      // comp_id for nucleotides:
+      //
+      // comp_id 3-letter-code name group
+      // Ar         A        'Adenosine                    ' RNA                33  22 .
+      // GAL-b-D    GAL      'beta_D_galactose             ' D-pyranose         24  12 .
+
+      if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr),
+						 pdb_resname) ||
+	  dictionary_name_matches_coords_resname(geom[idr].comp_id, pdb_resname)) {
+	 //  		  std::cout << "DEBUG:: ------------- dict/pdb name matches " << pdb_resname
+	 // 			    << " --------------- " << std::endl; 
+
+	 // now get a list of atoms in that residue
+	 // (SelResidue[i]) and compare them to the atoms in
+	 // geom[idr].bond_restraint[ib].
+
+	 residue_p->GetAtomTable(res_selection, i_no_res_atoms);
+		  
+	 if (i_no_res_atoms > 0) {
+
+	    // 		     std::cout << "   bonds... " << std::endl;
+	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
+						 residue_p, geom);
+	    // 		     std::cout << "   angles... " << std::endl;
+	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
+						   residue_p, geom);
+	    if (do_residue_internal_torsions) { 
+	       // 	 	        std::cout << "   torsions... " << std::endl;
+	       std::string residue_type = residue_p->GetResName();
+	       if (residue_type != "PRO") 
+		  local.n_torsion_restr += add_torsions(idr, res_selection, i_no_res_atoms,
+							residue_p, geom);
+	    }
+	    // 		     std::cout << "   planes... " << std::endl;
+	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
+						   residue_p, geom);
+
+	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
+						residue_p, geom);
+
+	 }
+      }
+   }
+   return local;
+} 
 
 int
 coot::restraints_container_t::make_link_restraints(const coot::protein_geometry &geom,
