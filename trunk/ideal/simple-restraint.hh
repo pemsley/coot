@@ -704,6 +704,11 @@ namespace coot {
 			 const char *chain_id,
 			 CMMDBManager *mol_in, 
 			 const std::vector<atom_spec_t> &fixed_atom_specs);
+
+      void init_from_residue_vec(const std::vector<std::pair<bool,CResidue *> > &residues,
+				 CMMDBManager *mol,
+				 const std::vector<atom_spec_t> &fixed_atom_specs);
+
    
       // 
       clipper::Xmap<float> map; 
@@ -1026,6 +1031,21 @@ namespace coot {
       restraints_container_t(PCResidue *SelResidues, int nSelResidues,
 			     const std::string &chain_id,
 			     CMMDBManager *mol);
+
+      // 20081106 construct from a vector of residues, each of which
+      // has a flag attached that denotes whether or not it is a fixed
+      // residue (it would be set, for example in the case of flanking
+      // reisdues).
+      //
+      // Consider also a regularize version of this (without map and
+      // weight)
+      // 
+      restraints_container_t(const std::vector<std::pair<bool,CResidue *> > &residues,
+			     CMMDBManager *mol,
+			     const std::vector<atom_spec_t> &fixed_atom_specs,
+			     const clipper::Xmap<float> &map_in,
+			     float map_weight);
+
       // 
       // geometric_distortions not const because we set restraints_usage_flag:
       //

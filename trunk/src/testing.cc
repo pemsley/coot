@@ -91,6 +91,7 @@ int test_internal() {
    // functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
    functions.push_back(named_func(test_fragmemt_atom_selection, "test_fragmemt_atom_selection"));
    functions.push_back(named_func(test_add_atom, "test_add_atom"));
+   functions.push_back(named_func(restr_res_vector, "restraints_for_residue_vec"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
@@ -641,6 +642,51 @@ test_fragmemt_atom_selection() {
       
    return status;
 }
+
+// Restraints are correctly generated for vector of residues (new
+// restraints constructor needed) 20081106
+int
+restr_res_vector() {
+
+   std::string f = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t asc = get_atom_selection(f);
+
+   std::vector<std::pair<bool,CResidue *> > residues;
+   CMMDBManager *mol = asc.mol;
+   std::vector<coot::atom_spec_t> fixed_atom_specs;
+   
+   int imod = 1;
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      std::string chain_id = chain_p->GetChainID();
+      PCResidue residue_p;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 int resno = residue_p->GetSeqNum();
+	 if ((resno == 7) || (resno == 96))
+	    residues.push_back(std::pair<bool, CResidue *>(0, residue_p));
+      }
+   }
+
+   if (residues.size() != 2) {
+      std::cout << "  Fail to find residues" << std::endl;
+      return 0;
+   } else {
+      clipper::Xmap<float> map;
+      float weight = 1.0;
+      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      coot::restraints_container_t
+	 restraints(residues, mol, fixed_atom_specs, map, weight);
+      coot::protein_geometry geom;
+      restraints.make_restraints(geom, flags, 0, 0.0, 0, coot::NO_PSEUDO_BONDS);
+   }
+   return 1;
+} 
 
 int
 test_add_atom() {
