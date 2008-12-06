@@ -605,6 +605,33 @@ namespace coot {
 
    class restraints_container_t {
 
+   public:
+
+      class restraint_counts_t {
+      public:
+	 int n_bond_restraints; 
+	 int n_angle_restraints; 
+	 int n_plane_restraints; 
+	 int n_chiral_restr;
+	 int n_torsion_restr;
+	 restraint_counts_t() {
+	    n_bond_restraints = 0;
+	    n_angle_restraints = 0; 
+	    n_plane_restraints =0; 
+	    n_chiral_restr = 0;
+	    n_torsion_restr = 0;
+	 }
+	 void operator+=(const restraint_counts_t &r) {
+	    n_bond_restraints += r.n_bond_restraints;
+	    n_angle_restraints += r.n_angle_restraints;
+	    n_plane_restraints += r.n_plane_restraints;
+	    n_chiral_restr += r.n_chiral_restr;
+	    n_torsion_restr += r.n_torsion_restr;
+	 }
+      };
+
+   private:
+
       std::vector<simple_restraint> restraints_vec; 
       PPCAtom atom;
       int SelHnd_atom; // the selection handle for the atom array.
@@ -832,6 +859,9 @@ namespace coot {
 					 bool do_rama_plot_retraints);
       int make_monomer_restraints       (const protein_geometry &geom,
 					 short int do_residue_internal_torsions);
+      restraint_counts_t make_monomer_restraints_by_residue(CResidue *residue_p,
+							    const protein_geometry &geom,
+							    short int do_residue_internal_torsions);
       int make_flanking_atoms_restraints(const protein_geometry &geom,
 					 bool do_rama_plot_retraints); // no torsions
       int make_flanking_atoms_rama_restraints(const protein_geometry &geom);
@@ -939,7 +969,7 @@ namespace coot {
       enum link_torsion_restraints_type { NO_LINK_TORSION = 0, 
 					  LINK_TORSION_RAMACHANDRAN_GOODNESS = 1,
 					  LINK_TORSION_ALPHA_HELIX = 2,
-					  LINK_TORSION_BETA_STRAND = 3 }; 
+					  LINK_TORSION_BETA_STRAND = 3 };
 
       // my_df_electron_density and electron_density_score need access
       // to fixed_atom_indices.
