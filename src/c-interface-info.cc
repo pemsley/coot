@@ -2128,16 +2128,86 @@ void add_to_history(const std::vector<std::string> &command_strings) {
       char esc = 27;
       // std::string esc = "esc";
       if (g.console_display_commands.hilight_flag) {
-	 // std::cout << esc << "[34m";
+	// std::cout << esc << "[34m";
+#ifdef WINDOWS_MINGW
+	// use the console cursor infot to distinguish between DOS and MSYS
+	// shell
+	CONSOLE_CURSOR_INFO ConCurInfo;
+	if (GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConCurInfo)) {
+	  // we have a DOS shell
+	  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				  FOREGROUND_RED | 
+				  FOREGROUND_GREEN | 
+				  FOREGROUND_BLUE |
+				  FOREGROUND_INTENSITY);
+	} else {
+	  // we have MSYS (or whatever else shell)
+	  std::cout << esc << "[1m";
+	}
+#else
 	 std::cout << esc << "[1m";
+#endif // MINGW
       } else {
 	 std::cout << "INFO:: Command: ";
       }
 
       // Make it colourful?
-      if (g.console_display_commands.hilight_colour_flag)
+      if (g.console_display_commands.hilight_colour_flag) {
+#ifdef WINDOWS_MINGW
+	CONSOLE_CURSOR_INFO ConCurInfo;
+	if (GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConCurInfo)) {
+	  // we have a DOS shell
+	  switch (g.console_display_commands.colour_prefix) {
+	  case(1):
+	    // red
+	    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				    FOREGROUND_RED);
+	    break;
+	  case(2):
+	    // green
+	    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				    FOREGROUND_GREEN);
+	    break;
+	  case(3):
+	    // yellow
+	    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				    FOREGROUND_RED |
+				    FOREGROUND_GREEN);
+	    break;
+	  case(4):
+	    // blue
+	    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				    FOREGROUND_BLUE);
+	    break;
+	  case(5):
+	    // magenta
+	    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				    FOREGROUND_RED |
+				    FOREGROUND_BLUE);
+	    break;
+	  case(6):
+	    // cyan
+	    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				    FOREGROUND_GREEN |
+				    FOREGROUND_BLUE);
+	    break;
+	  default:
+	    //white
+	    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				    FOREGROUND_RED | 
+				    FOREGROUND_GREEN | 
+				    FOREGROUND_BLUE);
+	  }
+	} else {
+	  // MSYS shell
 	 std::cout << esc << "[3"
 		   << g.console_display_commands.colour_prefix << "m";
+	}
+#else
+	 std::cout << esc << "[3"
+		   << g.console_display_commands.colour_prefix << "m";
+#endif // MINGW
+      }
 
 #if defined USE_GUILE && !defined WINDOWS_MINGW
       std::cout << graphics_info_t::schemize_command_strings(command_strings);
@@ -2148,8 +2218,22 @@ void add_to_history(const std::vector<std::string> &command_strings) {
 #endif // USE_GUILE/MINGW
       
       if (g.console_display_commands.hilight_flag) {// hilight off
+#ifdef WINDOWS_MINGW
+	CONSOLE_CURSOR_INFO ConCurInfo;
+	if (GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConCurInfo)) {
+	  // we have a DOS shell (reset to white)
+	  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+				  FOREGROUND_RED | 
+				  FOREGROUND_GREEN | 
+				  FOREGROUND_BLUE);
+	} else {
+	  // MSYS shell
+	 std::cout << esc << "[0m"; // reset
+	}
+#else
 	 std::cout << esc << "[0m"; // reset
 	 //std::cout << esc; // reset
+#endif // MINGW
       }
       std::cout << std::endl;
    }
