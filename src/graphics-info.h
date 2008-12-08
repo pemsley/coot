@@ -135,6 +135,8 @@ namespace coot {
    enum fixed_atom_pick_state_t { FIXED_ATOM_NO_PICK = 0, 
 				  FIXED_ATOM_FIX = 1, 
 				  FIXED_ATOM_UNFIX = 2 };
+   enum ncs_matrix_type { NCS_SSM = 0,
+                          NCS_LSQ = 1};
    namespace model_toolbar {
      enum toolbar_position_type { RIGHT  = 0,
                                   LEFT   = 1,
@@ -3011,6 +3013,7 @@ public:
    /* At what level of homology should we say that we can't see homology
       for NCS calculation? (default 0.8) */
    static float ncs_homology_level;
+   static short int ncs_matrix_flag;
    
    // ------------- validation: -------------------
 

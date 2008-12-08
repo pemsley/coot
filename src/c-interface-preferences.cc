@@ -1941,6 +1941,60 @@ void try_load_scheme_extras_dir() {
 }
 #endif // USE_GUILE
 
+
+#ifdef USE_PYTHON
+void try_load_python_extras_dir() {
+
+   char *s = getenv("COOT_PYTHON_EXTRAS_DIR");
+   if (s) {
+      struct stat buf;
+      int status = stat(s, &buf);
+      if (status != 0) {
+	 std::cout << "WARNING:: no directory " << s << std::endl;
+      } else {
+	 if (S_ISDIR(buf.st_mode)) {
+
+	    DIR *lib_dir = opendir(s);
+	    if (lib_dir == NULL) {
+	       std::cout << "An ERROR occured on opening the directory "
+			 << s << std::endl;
+	    } else {
+
+	       struct dirent *dir_ent;
+
+	       // loop until the end of the filelist (readdir returns NULL)
+	       // 
+	       while (1) {
+		  dir_ent = readdir(lib_dir);
+		  if (dir_ent == NULL) {
+		     break;
+		  } else {
+		     std::string sub_part(std::string(dir_ent->d_name));
+		     struct stat buf2;
+		     std::string fp = s;
+		     fp += "/";
+		     fp += sub_part;
+		     int status2 = stat(fp.c_str(), &buf2);
+		     if (status2 != 0) {
+			std::cout << "WARNING:: no file " << sub_part << std::endl;
+		     } else {
+			if (S_ISREG(buf2.st_mode)) {
+			   if (coot::util::file_name_extension(sub_part) == ".py") {
+			      std::cout << "loading python extra: " << fp << std::endl;
+			      run_python_script(fp.c_str()); 
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }      
+   }
+}
+#endif // USE_PYTHON
+
+
 void set_button_label_for_external_refinement(const char *button_label) {
    graphics_info_t::external_refinement_program_button_label = button_label;
 }

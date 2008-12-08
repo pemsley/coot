@@ -103,6 +103,9 @@ BEGIN_C_DECLS
 #ifdef USE_GUILE
 void try_load_scheme_extras_dir();
 #endif // USE_GUILE
+#ifdef USE_PYTHON
+void try_load_python_extras_dir();
+#endif // USE_PYTHON
 
 /*  ------------------------------------------------------------------------ */
 /*                         File system Functions:                            */
@@ -3631,7 +3634,6 @@ void add_additional_representation_by_widget(GtkWidget *w);
 void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
 
 
-
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM additional_representation_info_scm(int imol); 
@@ -4524,6 +4526,9 @@ void ncs_control_change_ncs_master_to_chain_id(int imol, const char *chain_id);
 void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol, int ichain); 
 /*! \brief display the NCS master chain  */
 void ncs_control_display_chain(int imol, int ichain, int state);
+
+void set_ncs_matrix_type(int flag);
+int get_ncs_matrix_state();
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

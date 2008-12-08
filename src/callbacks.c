@@ -7299,6 +7299,7 @@ on_preferences_font_colorbutton_color_set
                                         gpointer         user_data)
 {
   GdkColor font_colour;
+  GtkWidget *w;
   float fval1;
   float fval2;
   float fval3;
@@ -7309,6 +7310,20 @@ on_preferences_font_colorbutton_color_set
     
   preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
   set_font_colour(fval1, fval2, fval3);
+  // should set own colour button active (if colours away from default)
+  if (fval1  >= 0.999 && 
+      fval2 >= 0.799 && fval2 <= 0.801 &&
+      fval3 >= 0.799 && fval3 <= 0.801) {
+     // set default button active
+     w = lookup_widget(GTK_WIDGET(colorbutton),
+                       "preferences_font_colour_default_radiobutton");
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+  } else {
+     // set own button active
+     w = lookup_widget(GTK_WIDGET(colorbutton),
+                       "preferences_font_colour_own_radiobutton");
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+  }
 }
 #endif
 

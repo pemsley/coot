@@ -66,6 +66,8 @@ def bond_length(pos_1, pos_2):
     ret = math.sqrt(sum(map(square, map(sub, pos_1, pos_2))))
     return ret
 
+pos_diff = bond_length
+
 def bond_length_from_atoms(atom_1, atom_2):
     return bond_length(atom_1[2],
                        atom_2[2])
@@ -79,20 +81,22 @@ def bond_length_within_tolerance_qm(atom_1, atom_2, ideal_length, tolerance):
     b = bond_length_from_atoms(atom_1, atom_2)
     return abs(b - ideal_length) < tolerance
 
-def get_atom(imol, chain_id, resno, atom_name):
+def get_atom(imol, chain_id, resno, atom_name, alt_conf_internal=""):
 
-    def get_atom_from_res(atom_name, residue_atoms):
+    def get_atom_from_res(atom_name, residue_atoms, alt_conf):
         for residue_atom in residue_atoms:
-            if (residue_atom[0][0] == atom_name):
+            if (residue_atom[0][0] == atom_name and
+                residue_atom[0][1] == alt_conf):
                 return residue_atom
         print "BL WARNING:: no atom name %s found in residue" %atom_name
         return False # no residue name found
     
     res_info = residue_info(imol, chain_id, resno, "")
+
     if (not res_info):
         return False
     else:
-        ret = get_atom_from_res(atom_name, res_info)
+        ret = get_atom_from_res(atom_name, res_info, alt_conf_internal)
         return ret
 
 def shelx_waters_all_good_occ_qm(test, imol_insulin_res):
@@ -166,6 +170,15 @@ def atoms_match_qm(atom_1, atom_2):
                 return False
     return True
 
+
+# transform
+# Just a (eg 3x3) (no vector) matrix
+# The matrix does not have to be symmetric.
+#
+def transpose_mat(mat, defval=None):
+    if not mat:
+        return []
+    return map(lambda *row: [elem or defval for elem in row], *mat)
 
 # What is the distance atom-1 to atom-2? 
 # return False on not able to calculate

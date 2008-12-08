@@ -3,33 +3,16 @@
 ---------------
 * THINGS TO DO BEFORE 0.5.1 RELEASE *
 ---------------
-   o notes to self:
-     - backup windows imgs
-     - revise script to delete older binaries.
+
+   o clean up Windows code:
+     - warnings about V_UNKNOWN 
+     - clean up the windows magic jiggery
 
    o Preferences -> default -> apply font colours
-
-   o filechooser ins save mode doesnt have delete & rename file!? Shall we?!
+* Done? (check)
 
 04/11/08 CCP4 dev meeting:
    o bulk sovlent correction for refmac?
-   o zip/unzip pdb backup files in windows via Python?
-   o spawn refmac and use timer to get progress rather than blocking
-     the application; maybe plus kill button?!
-   o dont use TLS in refmac if we dont have the button (i.e. new refmac)
-* Done
-   o Ramachandran restraints check button for loop fit
-* Done
-   o do loop building 1/2 from N and 1/2 from C terminus for langer loops (>=6?)
-* Done
-
-
-04/10/08
-   o make toolbutton GUI/wizard
-
-* Done (check which ones to use!?!)
-
-  (o progress bars for refmac e.g.)
 
    o be up-to-date with all python scripts and tests
 scripts rev 1525
@@ -40,8 +23,28 @@ tests   rev 1525
    o loop building backwards in scheme (use python?)?
 
 
-30/10/08
-   o LSQ option for ncs copy residue range
+---------------
+* THINGS TO DO BEFORE 0.6 RELEASE *
+---------------
+
+   o notes to self:
+     - ribbons: include ribbons
+  		save the ribbons for later use (?, maybe better to update and generate new)
+		sort out colouring
+		sort out licence (add to svn and commit) test dist first
+		use CMMDBManager somehow...
+
+   o filechooser in save mode doesnt have delete & rename file!? Shall/can we?!
+
+   o windows test system:	- start XP for testing after installer build
+				- install WinCoot silent
+				- download test data and unittests
+				- run tests
+				- send email about status/or notify otherwise
+
+   o spawn refmac and use timer to get progress rather than blocking
+     the application; maybe plus kill button?! NEEDS guile version
+* Done (python)
 
 ---------------
 * TO DO THINGS *
@@ -52,8 +55,6 @@ tests   rev 1525
    o revisit python sockets
 
    o merge build-it-win with buid-it-gtk2-simple?!
-
-   o speed up NCS by using Kevin's LSQ (user changeable)
 
    o test vista compositing (* Done?!?!)
 
@@ -309,4 +310,43 @@ tests   rev 1525
 
 * Done
 
+   o notes to self:
+     - backup windows imgs
+     - revise script to delete older binaries.
+
+* Done
+
+   o colouring/highlighting in console output in Dos Shell
+
+* Done
+
+   o set_display_lists... for windows stereo
+
+* Done
+
+   o zip/unzip pdb backup files in windows
+
+* Done (use gzip)
+
+   o dont use TLS in refmac if we dont have the button (i.e. new refmac)
+
+* Done
+
+   o Ramachandran restraints check button for loop fit
+
+* Done
+
+   o do loop building 1/2 from N and 1/2 from C terminus for langer loops (>=6?)
+
+* Done
+
+04/10/08
+   o make toolbutton GUI/wizard
+
+* Done (check which ones to use!?!)
+
+30/10/08
+   o LSQ option for ncs copy residue range
+
+* Done
 
