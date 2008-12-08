@@ -483,6 +483,23 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    #self.failUnlessEqual("3", parts)   # this is once MMDB works properly with CIS
 	    
 
+    def test15_1(self):
+	    """Refine Zone with Alt conf"""
+
+	    imol = unittest_pdb("tutorial-modern.pdb")
+	    mtz_file_name = (os.path.join(unittest_data_dir, "rnasa-1.8-all_refmac1.mtz"))
+	    imol_map = make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
+
+	    set_imol_refinement_map(imol_map)
+	    at_1 = get_atom(imol, "B", 72, " SG ", "B")
+	    with_auto_accept([refine_zone, imol, "B", 72, 72, "B"])
+	    at_2 = get_atom(imol, "B", 72, " SG ", "B")
+	    d = bond_length_from_atoms(at_1, at_2)
+	    # the atom should move in the refinement
+	    print "   refined moved: d=", d
+	    self.failIf(d < 0.4, "   refined atom failed to move: d=%s" %d)
+	    
+
     def test16_0(self):
 	    """Rigid Body Refine Alt Conf Waters"""
 
@@ -996,3 +1013,64 @@ class PdbMtzTestFunctions(unittest.TestCase):
 	    gz_imol = handle_read_draw_molecule("rnase_zip_test.pdb.gz")
 	    self.failUnless(valid_model_molecule_qm(gz_imol))
 		  
+
+    def test34_0(self):
+	    """Autofit Rotamer on Residue with Insertion codes"""
+
+	    # we need to check that H52 LEU and H53 GLY do not move and H52A does move
+
+	    def centre_atoms(mat):
+		    tm = transpose_mat(map(lambda x: x[2], mat))
+		    centre = map(lambda ls: sum(ls)/len(ls), tm)
+		    return centre
+
+	    imol = unittest_pdb("pdb3hfl.ent")
+	    mtz_file_name = os.path.join(unittest_data_dir, "3hfl_sigmaa.mtz")
+	    imol_map = make_and_draw_map(mtz_file_name,
+					 "2FOFCWT", "PH2FOFCWT", "", 0, 0)
+
+	    self.failUnless(valid_map_molecule_qm(imol_map))
+
+	    leu_atoms_1 = residue_info(imol, "H", 52, "")
+	    leu_resname = residue_name(imol, "H", 52, "")
+	    gly_atoms_1 = residue_info(imol, "H", 53, "")
+	    gly_resname = residue_name(imol, "H", 53, "")
+	    pro_atoms_1 = residue_info(imol, "H", 52, "A")
+	    pro_resname = residue_name(imol, "H", 52, "A")
+
+	    # First check that the residue names are correct
+	    self.failUnless((leu_resname == "LEU" and
+			     gly_resname == "GLY" and
+			     pro_resname == "PRO"),
+			    "  failure of residues names: %s %s %s" \
+			    %(leu_resname, gly_resname, pro_resname))
+
+	    # OK, what are the centre points of these residues?
+	    leu_centre_1 = centre_atoms(leu_atoms_1)
+	    gly_centre_1 = centre_atoms(gly_atoms_1)
+	    pro_centre_1 = centre_atoms(pro_atoms_1)
+
+	    auto_fit_best_rotamer(52, "", "A", "H", imol, imol_map, 0, 0)
+
+	    # OK, what are the centre points of these residues?
+	    leu_atoms_2  = residue_info(imol, "H", 52, "")
+	    gly_atoms_2  = residue_info(imol, "H", 53, "")
+	    pro_atoms_2  = residue_info(imol, "H", 52, "A")
+	    leu_centre_2 = centre_atoms(leu_atoms_2)
+	    gly_centre_2 = centre_atoms(gly_atoms_2)
+	    pro_centre_2 = centre_atoms(pro_atoms_2)
+
+	    d_leu = pos_diff(leu_centre_1, leu_centre_2)
+	    d_gly = pos_diff(gly_centre_1, gly_centre_2)
+	    d_pro = pos_diff(pro_centre_1, pro_centre_2)
+
+	    self.failUnlessAlmostEqual(d_leu, 0.0, 1,
+				       "   Failure: LEU 52 moved")
+	    
+	    self.failUnlessAlmostEqual(d_gly, 0.0, 1,
+				       "   Failure: GLY 53 moved")
+	    
+	    self.failIf(d_pro < 0.05, "   Failure: PRO 52A not moved enough")
+
+	    # rotamer 4 is out of range.
+	    set_residue_to_rotamer_number(imol, "H", 52, "A", 4) # crash!!?

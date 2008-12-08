@@ -769,3 +769,26 @@ void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem
 #endif /* HAVE_GTK_CANVAS */
 
 }
+
+void
+set_ncs_matrix_type(int flag) {
+
+   graphics_info_t g;
+   if (flag == coot::NCS_SSM) {
+#ifdef HAVE_SSMLIB
+      g.ncs_matrix_flag = coot::NCS_SSM;
+#else
+      std::cout<< "WARNING:: not compiled with SSM, so will use LSQ for NCS matrix determination" <<std::endl;
+      g.ncs_matrix_flag = coot::NCS_LSQ;
+#endif // HAVE_SSMLIB
+   } else {
+      g.ncs_matrix_flag = coot::NCS_LSQ;
+   }
+}
+
+int
+get_ncs_matrix_state() {
+
+   graphics_info_t g;
+   return g.ncs_matrix_flag;
+}

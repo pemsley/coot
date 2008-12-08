@@ -830,6 +830,11 @@ short int graphics_info_t::use_axes_orientation_matrix_flag = 0;
 // ---- NCS -----
 float graphics_info_t::ncs_min_hit_ratio = 0.9;
 short int graphics_info_t::ncs_maps_do_average_flag = 1;
+#ifdef HAVE_SSMLIB
+short int graphics_info_t::ncs_matrix_flag = coot::NCS_SSM;
+#else
+short int graphics_info_t::ncs_matrix_flag = coot::NCS_LSQ;
+#endif // SSM
 // mutate auto fit
 short int graphics_info_t::in_mutate_auto_fit_define = 0; 
 int graphics_info_t::mutate_auto_fit_residue_atom_index = -1;

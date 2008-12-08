@@ -483,6 +483,10 @@ main (int argc, char *argv[]) {
          }
      }
 
+     // try to load extra dir files (if exist) do before preferences (as for
+     // scheme version
+     try_load_python_extras_dir();
+
      // load preferences file .coot_preferences.py
      // only GTK2
 #if COOT_USE_GTK2_INTERFACE

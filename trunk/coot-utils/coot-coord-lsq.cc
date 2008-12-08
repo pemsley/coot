@@ -127,13 +127,38 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
    mol1->GetSelIndex(SelHnd1, r_atoms, r_selected_atoms);
    mol2->GetSelIndex(SelHnd2, w_atoms, w_selected_atoms);
 
-   // Set up the main chain atom names
+   // general main chain atom names
    std::vector<std::string> mc_at_names;
-   mc_at_names.push_back(" CA ");
-   mc_at_names.push_back(" N  ");
-   mc_at_names.push_back(" O  ");
-   mc_at_names.push_back(" C  ");
+   // Set up the amino acid main chain atom names
+   std::vector<std::string> amc_at_names;
+   amc_at_names.push_back(" CA ");
+   amc_at_names.push_back(" N  ");
+   amc_at_names.push_back(" O  ");
+   amc_at_names.push_back(" C  ");
    
+   // Set up the nucleotide main chain atom names
+   std::vector<std::string> nmc_at_names;
+   nmc_at_names.push_back(" P  ");
+   nmc_at_names.push_back(" O5*");
+   nmc_at_names.push_back(" O5'");
+   nmc_at_names.push_back(" C5*");
+   nmc_at_names.push_back(" C5'");
+   nmc_at_names.push_back(" C4*");
+   nmc_at_names.push_back(" C4'");
+   nmc_at_names.push_back(" O4*");
+   nmc_at_names.push_back(" O4'");
+   nmc_at_names.push_back(" C1*");
+   nmc_at_names.push_back(" C1'");
+   nmc_at_names.push_back(" C2*");
+   nmc_at_names.push_back(" C2'");
+   nmc_at_names.push_back(" O2*");
+   nmc_at_names.push_back(" O2'");
+   nmc_at_names.push_back(" C3*");
+   nmc_at_names.push_back(" C3'");
+   nmc_at_names.push_back(" O3*");
+   nmc_at_names.push_back(" O3'");
+   nmc_at_names.push_back(" O3T");
+
 
    for (int ires=match.to_reference_start_resno; ires<=match.to_reference_end_resno; ires++) {
       int ires_matcher = ires - match.to_reference_start_resno + match.from_matcher_start_resno;
@@ -143,10 +168,10 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
       PCResidue *SelResidue_2 = NULL;
       int nSelResidues_1, nSelResidues_2;
 
-      std::cout << "Searching for residue number " << ires << " "
-		<< match.reference_chain_id << " in reference molecule" << std::endl;
-      std::cout << "Searching for residue number " << ires_matcher << " "
-		<< match.matcher_chain_id << " in matcher molecule" << std::endl;
+//      std::cout << "Searching for residue number " << ires << " "
+//		<< match.reference_chain_id << " in reference molecule" << std::endl;
+//      std::cout << "Searching for residue number " << ires_matcher << " "
+//		<< match.matcher_chain_id << " in matcher molecule" << std::endl;
       
       mol1->Select (SelHnd_res1, STYPE_RESIDUE, 0, // .. TYPE, iModel
 		    (char *) match.reference_chain_id.c_str(), // Chain(s)
@@ -194,16 +219,33 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 
 	 if (match.match_type_flag == COOT_LSQ_CA) {
 
-	    CAtom *at1 = SelResidue_1[0]->GetAtom(" CA ");
-	    CAtom *at2 = SelResidue_2[0]->GetAtom(" CA ");
+	    CAtom *at1 = NULL;
+	    CAtom *at2 = NULL;
+	    if (SelResidue_1[0]->isAminoacid()) {
+		   at1 = SelResidue_1[0]->GetAtom(" CA ");
+		   at2 = SelResidue_2[0]->GetAtom(" CA ");
 
-	    if (at1 == NULL) {
-	       std::cout << "WARNING:: no CA in this reference residue " << ires
-			 << std::endl;
+		   if (at1 == NULL) {
+		      std::cout << "WARNING:: no CA in this reference residue " << ires
+				<< std::endl;
+		   }
+		   if (at2 == NULL) {
+		      std::cout << "WARNING:: no CA in this moving residue " << ires_matcher
+				<< std::endl;
+		   }
 	    }
-	    if (at2 == NULL) {
-	       std::cout << "WARNING:: no CA in this moving residue " << ires_matcher
-			 << std::endl;
+	    if (SelResidue_1[0]->isNucleotide()) {
+		   at1 = SelResidue_1[0]->GetAtom(" P  ");
+		   at2 = SelResidue_2[0]->GetAtom(" P  ");
+
+		   if (at1 == NULL) {
+		      std::cout << "WARNING:: no P in this reference residue " << ires
+				<< std::endl;
+		   }
+		   if (at2 == NULL) {
+		      std::cout << "WARNING:: no P in this moving residue " << ires_matcher
+				<< std::endl;
+		   }
 	    }
 	    if (at1 && at2) {
 	       v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
@@ -217,6 +259,11 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 	 if ((match.match_type_flag == COOT_LSQ_MAIN) ||
 	     (match.match_type_flag == COOT_LSQ_ALL && res_type_1 != res_type_2)) {
 
+            if (SelResidue_1[0]->isNucleotide()) {
+               mc_at_names = nmc_at_names;
+            } else {
+               mc_at_names = amc_at_names;
+            }
 	    for (unsigned int iat=0; iat<mc_at_names.size(); iat++) {
 	       CAtom *at1 = SelResidue_1[0]->GetAtom(mc_at_names[iat].c_str());
 	       CAtom *at2 = SelResidue_2[0]->GetAtom(mc_at_names[iat].c_str());

@@ -389,9 +389,9 @@ void add_lsq_match(int reference_resno_start,
 		   int moving_resno_start, 
 		   int moving_resno_end,
 		   const char *chain_id_moving,
-		   int match_type) { /* 0: CA
+		   int match_type) { /* 0: all
                                          1: main
-				         2: all 
+				         2: CA 
 				      */
 
    coot::lsq_range_match_info_t m(reference_resno_start, reference_resno_end,

@@ -448,44 +448,94 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
    bool rtop_is_good = 0; 
    clipper::RTop_orth rtop; // random numbers
    std::vector<int> residue_matches; 
+   if (graphics_info_t::ncs_matrix_flag == coot::NCS_SSM) {
 #ifdef HAVE_SSMLIB
 
-   int precision = SSMP_Normal;
-   int connectivity = CSSC_Flexible;
-   CSSMAlign *SSMAlign = new CSSMAlign();
-   int rc = SSMAlign->Align(atom_sel.mol, atom_sel.mol,
-			    precision, connectivity, SelHandle2, SelHandle1);
+      int precision = SSMP_Normal;
+      int connectivity = CSSC_Flexible;
+      CSSMAlign *SSMAlign = new CSSMAlign();
+      int rc = SSMAlign->Align(atom_sel.mol, atom_sel.mol,
+			       precision, connectivity, SelHandle2, SelHandle1);
 
-   if (rc)  {
-      std::string ws;
-      switch (rc)  {
-      case SSM_noHits :
-	 std::cout << " *** secondary structure does not match.\n";
-	 ws = "secondary structure does not match";
-	 break;
-      case SSM_noSPSN :
-	 std::cout << " *** structures are too remote.\n";
-	 ws = "structures are too remote";
-	 break;
-      case SSM_noGraph :
-	 std::cout << " *** can't make graph for 1\n";
-	 break;
-      case SSM_noVertices :
-	 std::cout << " *** empty graph for 1\n";
-	 break;
-      case SSM_noGraph2 :
-	 std::cout << " *** can't make graph for 2\n";
-	 break;
-      case SSM_noVertices2 :
-	 std::cout << " *** empty graph for 2\n";
-	 break;
-      default :
-	 std::cout << " *** undocumented return code: " << rc << "\n";
+      if (rc)  {
+	 std::string ws;
+	 switch (rc)  {
+	 case SSM_noHits :
+	    std::cout << " *** secondary structure does not match.\n";
+	    ws = "secondary structure does not match";
+	    break;
+	 case SSM_noSPSN :
+	    std::cout << " *** structures are too remote.\n";
+	    ws = "structures are too remote";
+	    break;
+	 case SSM_noGraph :
+	    std::cout << " *** can't make graph for 1\n";
+	    break;
+	 case SSM_noVertices :
+	    std::cout << " *** empty graph for 1\n";
+	    break;
+	 case SSM_noGraph2 :
+	    std::cout << " *** can't make graph for 2\n";
+	    break;
+	 case SSM_noVertices2 :
+	    std::cout << " *** empty graph for 2\n";
+	    break;
+	 default :
+	    std::cout << " *** undocumented return code: " << rc << "\n";
+	 }
+      } else  {
+
+	 // debugging the atom selection
+	 if (1) { 
+	    PPCAtom selatoms_1 = NULL;
+	    int n_sel_atoms_1; 
+	    atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
+	    PPCAtom selatoms_2 = NULL;
+	    int n_sel_atoms_2; 
+	    atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
+	    std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection "
+		      << selatoms_1[0] << std::endl;
+	    std::cout << "First atom of " << n_sel_atoms_2 << " in second selection "
+		      << selatoms_2[0] << std::endl;
+	 }
+	 rtop = coot::util::make_rtop_orth_from(SSMAlign->TMatrix);
+	 rtop_is_good = 1;
+
+	 // add residue_matches
+	 // 
+	 // int      selHndCa1,selHndCa2; // selection handles to used C-alphas
+	 // ivector  Ca1,Ca2;      // C-alpha correspondence vectors
+	 // Ca1[i] corresponds to a[i], where a is
+	 // selection identified by selHndCa1
+	 PCAtom *atom_selection1 = NULL;
+	 int n_selected_atoms_1;
+	 atom_sel.mol->GetSelIndex(SSMAlign->selHndCa1,
+				   atom_selection1,
+				   n_selected_atoms_1);
+	 for (int iat=0; iat<n_selected_atoms_1; iat++) {
+	    residue_matches.push_back(SSMAlign->Ca1[iat]);
+	 }
+
+	 if (0) {
+	    // Too much noise.
+	    std::cout << "  Residue Matches" << std::endl;
+	    for (unsigned int imatch=0; imatch<residue_matches.size(); imatch++) {
+	       std::cout << "match " << imatch << " " << residue_matches[imatch]
+			 << std::endl;
+	    }
+	 }
       }
-   } else  {
 
+      std::cout << "   find_ncs_matrix returns (SSM) ";
+      if (! rtop_is_good)
+	 std::cout << "junk";
+      std::cout << "\n" << rtop.format() << std::endl;
+      delete SSMAlign; // added 071101
+
+#endif // HAVE_SSMLIB
+   } else {
       // debugging the atom selection
-      if (1) { 
+      //      if (1) { 
 	 PPCAtom selatoms_1 = NULL;
 	 int n_sel_atoms_1; 
 	 atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
@@ -496,42 +546,61 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 		   << selatoms_1[0] << std::endl;
 	 std::cout << "First atom of " << n_sel_atoms_2 << " in second selection "
 		   << selatoms_2[0] << std::endl;
-      }
-      rtop = coot::util::make_rtop_orth_from(SSMAlign->TMatrix);
-      rtop_is_good = 1;
+	 //}
+      //      g_print
+      int match_type = 2; // CA
+      char *chain_id_reference = selatoms_1[0]->GetChainID();
+      char *chain_id_moving    = selatoms_2[0]->GetChainID();
+      // assuming no solvents at the start
+      int reference_resno_start = selatoms_1[0]->GetResidue()->GetSeqNum();
+      int moving_resno_start    = selatoms_2[0]->GetResidue()->GetSeqNum();
+      int reference_resno_end   = selatoms_1[n_sel_atoms_1 - 1]->GetResidue()->GetSeqNum();
+      int moving_resno_end      = selatoms_2[n_sel_atoms_2 - 1]->GetResidue()->GetSeqNum();
 
-      // add residue_matches
-      // 
-      // int      selHndCa1,selHndCa2; // selection handles to used C-alphas
-      // ivector  Ca1,Ca2;      // C-alpha correspondence vectors
-                                // Ca1[i] corresponds to a[i], where a is
-                                // selection identified by selHndCa1
-      PCAtom *atom_selection1 = NULL;
-      int n_selected_atoms_1;
-      atom_sel.mol->GetSelIndex(SSMAlign->selHndCa1,
-				atom_selection1,
-				n_selected_atoms_1);
-      for (int iat=0; iat<n_selected_atoms_1; iat++) {
-	 residue_matches.push_back(SSMAlign->Ca1[iat]);
+      // find the last non-solvent residue
+      for (int i=n_sel_atoms_1-1; i>0; i--) {
+         if (selatoms_1[i]->GetResidue()->isAminoacid() ||
+	     selatoms_1[i]->GetResidue()->isNucleotide()) {
+            reference_resno_end   = selatoms_1[i]->GetResidue()->GetSeqNum();
+            break;
+         }
       }
+      for (int i=n_sel_atoms_2-1; i>0; i--) {
+         if (selatoms_2[i]->GetResidue()->isAminoacid() ||
+	     selatoms_2[i]->GetResidue()->isNucleotide()) {
+            moving_resno_end   = selatoms_2[i]->GetResidue()->GetSeqNum();
+            break;
+         }
+      }
+      // now get the lowest common denominator
+      int resno_start = max(reference_resno_start, moving_resno_start);
+      int resno_end   = min(reference_resno_end, moving_resno_end);
+      coot::lsq_range_match_info_t matches(resno_start, resno_end,
+      				   chain_id_reference,
+      				   resno_start, resno_end,
+      				   chain_id_moving, match_type);
+//      g_print("BL DEBUG:: params for range %i %i %s %i %i %s %i\n",
+//	      resno_start, resno_end,
+//	      chain_id_reference,
+//	      resno_start, resno_end,
+//	      chain_id_moving, match_type);
+      std::vector<coot::lsq_range_match_info_t> ncs_vector;
+      ncs_vector.push_back(matches);
+      std::pair<short int, clipper::RTop_orth> rtop_info =
+	 coot::util::get_lsq_matrix(atom_sel.mol,
+				    atom_sel.mol,
+				    ncs_vector);
 
-      if (0) {
-	 // Too much noise.
-	 std::cout << "  Residue Matches" << std::endl;
-	 for (unsigned int imatch=0; imatch<residue_matches.size(); imatch++) {
-	    std::cout << "match " << imatch << " " << residue_matches[imatch]
-		      << std::endl;
-	 }
-      }
+      rtop = rtop_info.second;
+      rtop_is_good = rtop_info.first;
+
+      std::cout << "   find_ncs_matrix returns (LSQ) ";
+      if (! rtop_is_good)
+	 std::cout << "junk";
+      std::cout << "\n" << rtop.format() << std::endl;
+
+//      g_print("BL DEBUG:: rtop_good is %i\n", rtop_is_good);
    }
-
-   std::cout << "   find_ncs_matrix returns ";
-   if (! rtop_is_good)
-      std::cout << "junk";
-   std::cout << "\n" << rtop.format() << std::endl;
-   delete SSMAlign; // added 071101
-
-#endif // HAVE_SSMLIB
    return coot::ncs_matrix_info_t(rtop_is_good, rtop, residue_matches);
 }
 

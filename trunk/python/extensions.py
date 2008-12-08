@@ -418,6 +418,11 @@ if (have_coot_python):
 		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
 
      
+     #---------------------------------------------------------------------
+     #     NCS functions
+     #
+     #---------------------------------------------------------------------
+
      def copy_ncs_range_func(imol, chain_id, text1, text2):
        try:
          r1 = int(text1)
@@ -496,6 +501,26 @@ if (have_coot_python):
        submenu_ncs,
        "NCS ligands...",
        lambda func: ncs_ligand_gui())
+
+     submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("NCS matrix type...")
+     
+     menuitem2.set_submenu(submenu)
+     submenu_ncs.append(menuitem2)
+     tooltip = gtk.Tooltips()
+     tooltip.set_tip(menuitem2, "use to change the way the NCS matrix is calculated")
+     menuitem2.show()
+
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Accurate (SSM)",
+       lambda func: set_ncs_matrix_type(0))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Fast (LSQ)",
+       lambda func: set_ncs_matrix_type(1))
 
 
      # ---------------------------------------------------------------------

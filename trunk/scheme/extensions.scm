@@ -411,6 +411,11 @@
 	    (lambda (imol)
 	      (exchange-chain-ids-for-seg-ids imol)))))
 
+	;; ---------------------------------------------------------------------
+	;;     NCS functions
+	;;
+	;; ---------------------------------------------------------------------
+	
 	(add-simple-coot-menu-menuitem 
 	 submenu-ncs "Copy NCS Reside Range..."
 	 (lambda ()
@@ -481,6 +486,23 @@
 	 submenu-ncs "NCS ligands..."
 	 (lambda ()
 	   (ncs-ligand-gui)))
+
+        (let ((submenu (gtk-menu-new))
+              (menuitem2 (gtk-menu-item-new-with-label "NCS matrix type...")))
+
+          (gtk-menu-item-set-submenu menuitem2 submenu)
+          (gtk-menu-append submenu-ncs menuitem2)
+          (gtk-widget-show menuitem2)
+
+          (add-simple-coot-menu-menuitem
+           submenu "Accurate (SSM)"
+           (lambda ()
+             (set-ncs-matrix-type 0)))
+
+          (add-simple-coot-menu-menuitem
+           submenu "Fast (LSQ)"
+           (lambda ()
+             (set-ncs-matrix-type 1))))
 
 	;; ---------------------------------------------------------------------
 	;;     Building
