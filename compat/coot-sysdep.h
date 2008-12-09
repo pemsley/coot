@@ -1,4 +1,4 @@
-/* compat/coot_sysdep.h
+/* compat/coot-sysdep.h
  * 
  * Copyright 2008, The University of York
  * Author: Bernhard Lohkamp
