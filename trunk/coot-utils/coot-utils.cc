@@ -23,13 +23,8 @@
 // Portability (to Windows, particularly) functions go here.
 // 
 
+#include "coot-sysdep.h"
 #if defined _MSC_VER
-#define snprintf _snprintf
-#define PKGDATADIR "C:/coot/share"
-#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define S_IWUSR S_IWRITE
-#define S_IXUSR S_IEXEC
-#define S_IRUSR S_IREAD
 #include <direct.h>
 #include <windows.h>
 #include <lm.h>

@@ -19,10 +19,11 @@
  */
 
 #include <string.h>
-#if defined (__WIN32__)
-#undef AddAtom
-#define AddAtomA AddAtom
-#endif
+//#if defined (__WIN32__)
+//#undef AddAtom
+//#define AddAtomA AddAtom
+//#endif
+#include "coot-sysdep.h"
 #include "clipper/mmdb/clipper_mmdb.h" // for clipper mmdb stuff (obviously)
                                        // convert_to_atoms_internal().
 

@@ -22,11 +22,7 @@
 #include <string.h>  // for strcpy
 #include "monomer-utils.hh"
 
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-// window magic jiggery pokery.
-#define AddAtomA AddAtom
-#define GetAtomNameA GetAtomName
-#endif
+#include "coot-sysdep.h"
 
 CResidue *
 coot::deep_copy_residue(CResidue *residue) {

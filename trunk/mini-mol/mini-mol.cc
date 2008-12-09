@@ -24,11 +24,7 @@
 #include "mini-mol.hh"
 #include "coot-coord-utils.hh"
 
-#if defined (__WIN32__)
-// window magic jiggery pokery.
-#define AddAtomA AddAtom
-#define GetAtomNameA GetAtomName
-#endif
+#include "coot-sysdep.h"
 
 coot::minimol::molecule::molecule(CMMDBManager *mol) {
    setup(mol);

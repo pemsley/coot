@@ -35,11 +35,7 @@
 //
 #include "coot-coord-extras.hh"  // is_nucleotide_by_dict
 
-#if defined (__WIN32__)
-// window magic jiggery pokery.
-#define AddAtomA AddAtom
-#define GetAtomNameA GetAtomName
-#endif
+#include "coot-sysdep.h"
 
 // #include "mmdb.h"
 

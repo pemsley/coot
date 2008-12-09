@@ -28,11 +28,13 @@ INCLUDES = \
 	-I$(top_builddir)/skeleton \
 	-I$(top_srcdir)/coot-utils \
 	-I$(top_srcdir)/mini-mol \
+	-I$(top_srcdir)/compat \
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
-	-DDATADIR='"$(datadir)"'    
+	-DDATADIR='"$(datadir)"'   	\
+	$(COOT_WINDOWS_CFLAGS)
 
 libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \

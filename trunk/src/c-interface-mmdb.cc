@@ -27,9 +27,7 @@
 #include <string>
 #include <string.h>
 
-#if defined(_MSC_VER) || defined(WINDOWS_MINGW)
-#define AddAtomA AddAtom
-#endif
+#include "coot-sysdep.h"
 
 #include "c-interface-mmdb.hh"
 

@@ -38,7 +38,7 @@ INCLUDES = \
 	$(CLIPPER_CXXFLAGS)        \
 	$(MMDB_CXXFLAGS)
 
-AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS)
+AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc  pepflip.cc regularize-minimol.cc lograma.cpp
 

@@ -30,11 +30,7 @@
 #include "mmdb-extras.h" 
 #include "mmdb.h"
 
-#if defined (__WIN32__)
-// window magic jiggery pokery.
-#define AddAtomA AddAtom
-#define GetAtomNameA GetAtomName
-#endif
+#include "coot-sysdep.h"
 
 
 float max_bond_length(const std::string &element) { 

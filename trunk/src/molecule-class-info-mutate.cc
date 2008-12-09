@@ -22,8 +22,7 @@
 
 #ifdef _MSC_VER
 #include <windows.h>
-#undef AddAtom
-#define AddAtomA AddAtom
+#include "coot-sysdep.h"
 #endif
 
 #include <stdlib.h>
