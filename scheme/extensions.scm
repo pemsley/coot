@@ -502,7 +502,12 @@
           (add-simple-coot-menu-menuitem
            submenu "Fast (LSQ)"
            (lambda ()
-             (set-ncs-matrix-type 1))))
+             (set-ncs-matrix-type 1)))
+
+          (add-simple-coot-menu-menuitem
+           submenu "Extra Fast (LSQ, only every 2nd CA)"
+           (lambda ()
+             (set-ncs-matrix-type 2))))
 
 	;; ---------------------------------------------------------------------
 	;;     Building

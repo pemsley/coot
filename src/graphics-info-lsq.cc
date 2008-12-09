@@ -66,7 +66,7 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 	       std::pair<short int, clipper::RTop_orth> rtop_info =
 		  coot::util::get_lsq_matrix(molecules[imol_ref].atom_sel.mol,
 					     molecules[imol_moving].atom_sel.mol,
-					     matches);
+					     matches, 1);
 	       if (rtop_info.first) {
 
 		  // A blob of code from Kevin for the axis orienation:

@@ -523,6 +523,12 @@ if (have_coot_python):
        lambda func: set_ncs_matrix_type(1))
 
 
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Extra Fast (LSQ, only every 2nd CA)",
+       lambda func: set_ncs_matrix_type(2))
+
+
      # ---------------------------------------------------------------------
      #     Refinement
      # ---------------------------------------------------------------------

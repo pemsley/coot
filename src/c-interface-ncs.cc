@@ -782,7 +782,11 @@ set_ncs_matrix_type(int flag) {
       g.ncs_matrix_flag = coot::NCS_LSQ;
 #endif // HAVE_SSMLIB
    } else {
-      g.ncs_matrix_flag = coot::NCS_LSQ;
+      if (flag == coot::NCS_LSQ2) {
+	g.ncs_matrix_flag = coot::NCS_LSQ2;
+      } else {
+        g.ncs_matrix_flag = coot::NCS_LSQ;
+      }
    }
 }
 

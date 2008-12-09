@@ -712,7 +712,8 @@ namespace coot {
       std::pair<short int, clipper::RTop_orth>
       get_lsq_matrix(CMMDBManager *mol1,
 		     CMMDBManager *mol2,
-		     const std::vector<lsq_range_match_info_t> &matches);
+		     const std::vector<lsq_range_match_info_t> &matches,
+		     int every_nth);
       // used by above
       // On useful return, first.length == second.length and first.length > 0.
       // 
@@ -721,7 +722,8 @@ namespace coot {
 			   CMMDBManager *mol2,
 			   int SelHnd1,
 			   int SelHnd2,
-			   const lsq_range_match_info_t &match);
+			   const lsq_range_match_info_t &match,
+			   int every_nth);
 
       // Return the status in the first position
       // Return the angle in radians.
