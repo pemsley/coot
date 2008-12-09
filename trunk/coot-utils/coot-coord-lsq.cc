@@ -26,7 +26,8 @@
 std::pair<short int, clipper::RTop_orth>
 coot::util::get_lsq_matrix(CMMDBManager *mol1,
 			   CMMDBManager *mol2,
-			   const std::vector<coot::lsq_range_match_info_t> &matches) {
+			   const std::vector<coot::lsq_range_match_info_t> &matches,
+			   int every_nth) {
 
    short int istat = 0;
    clipper::RTop_orth rtop(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
@@ -50,7 +51,7 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
    std::vector<clipper::Coord_orth> co2v;
    for (unsigned int i=0; i<matches.size(); i++) {
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > p =
-	 get_matching_indices(mol1, mol2, SelHnd1, SelHnd2, matches[i]);
+	get_matching_indices(mol1, mol2, SelHnd1, SelHnd2, matches[i], every_nth);
       if ((p.first.size() > 0) && (p.first.size() == p.second.size())) {
 	 for (unsigned int j=0; j<p.first.size(); j++) {
 	    co1v.push_back(p.first[j]);
@@ -114,7 +115,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 				 CMMDBManager *mol2,
 				 int SelHnd1,
 				 int SelHnd2,
-				 const coot::lsq_range_match_info_t &match) {
+				 const coot::lsq_range_match_info_t &match,
+				 int every_nth) {
 
    std::vector<clipper::Coord_orth> v1;
    std::vector<clipper::Coord_orth> v2;
@@ -160,7 +162,10 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
    nmc_at_names.push_back(" O3T");
 
 
-   for (int ires=match.to_reference_start_resno; ires<=match.to_reference_end_resno; ires++) {
+//   for (int ires=match.to_reference_start_resno; ires<=match.to_reference_end_resno; ires++) {
+   if (every_nth < 1 || every_nth > 10) 
+     every_nth = 1;   // reset for nonsense values
+   for (int ires=match.to_reference_start_resno; ires<=match.to_reference_end_resno; ires+=every_nth) {
       int ires_matcher = ires - match.to_reference_start_resno + match.from_matcher_start_resno;
       int SelHnd_res1 = mol1->NewSelection();
       int SelHnd_res2 = mol2->NewSelection();

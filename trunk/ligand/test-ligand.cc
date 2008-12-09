@@ -73,7 +73,7 @@ compare_by_overlap(std::string chain_id, int resno, CMMDBManager *mol1, CMMDBMan
 						  resno, resno, chain_id,
 						  COOT_LSQ_ALL));
 
-   std::pair<short int, clipper::RTop_orth> p = coot::util::get_lsq_matrix(mol1, mol2, matches);
+   std::pair<short int, clipper::RTop_orth> p = coot::util::get_lsq_matrix(mol1, mol2, matches, 1);
 
    if (!p.first) {
       std::cout << "   Couldn't get matrix" << std::endl;

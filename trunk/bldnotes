@@ -4,19 +4,9 @@
 * THINGS TO DO BEFORE 0.5.1 RELEASE *
 ---------------
 
-   o clean up Windows code:
-     - warnings about V_UNKNOWN 
-     - clean up the windows magic jiggery
-
-   o Preferences -> default -> apply font colours
-* Done? (check)
-
-04/11/08 CCP4 dev meeting:
-   o bulk sovlent correction for refmac?
-
    o be up-to-date with all python scripts and tests
-scripts rev 1525
-tests   rev 1525
+scripts rev 1625
+tests   rev 1625
 
 
 04/09/08
@@ -33,6 +23,9 @@ tests   rev 1525
 		sort out colouring
 		sort out licence (add to svn and commit) test dist first
 		use CMMDBManager somehow...
+
+04/11/08 CCP4 dev meeting:
+   o bulk sovlent correction for refmac?
 
    o filechooser in save mode doesnt have delete & rename file!? Shall/can we?!
 
@@ -347,6 +340,16 @@ tests   rev 1525
 
 30/10/08
    o LSQ option for ncs copy residue range
+
+* Done
+
+   o clean up Windows code:
+     - warnings about V_UNKNOWN 
+     - clean up the windows magic jiggery
+
+* Done
+
+   o Preferences -> default -> apply font colours
 
 * Done
 

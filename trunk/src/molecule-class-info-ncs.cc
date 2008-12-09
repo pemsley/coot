@@ -587,7 +587,8 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
       std::pair<short int, clipper::RTop_orth> rtop_info =
 	 coot::util::get_lsq_matrix(atom_sel.mol,
 				    atom_sel.mol,
-				    ncs_vector);
+				    ncs_vector,
+				    graphics_info_t::ncs_matrix_flag);
 
       rtop = rtop_info.second;
       rtop_is_good = rtop_info.first;
