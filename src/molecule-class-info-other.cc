@@ -28,13 +28,9 @@
 #else
 #   ifdef _MSC_VER
 #     include <windows.h>
-#     undef AddAtom
-#     define AddAtomA AddAtom
 #   else
 #     include <unistd.h>
 #     include <glob.h>
-#     define AddAtomA AddAtom
-#     define GetAtomNameA GetAtomName
 #   endif
 #endif
 
@@ -48,9 +44,16 @@
 #include <vector>
 #include <queue>
 
+#include "coot-sysdep.h"
+
 #include "clipper/core/xmap.h"
 #include "clipper/cns/cns_hkl_io.h"
 #include "clipper/minimol/minimol_io.h"
+
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+#undef V_UNKNOWN
+#define V_UNKNOWNA V_UNKNOWN
+#endif
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"

@@ -42,10 +42,7 @@
 #if !defined _MSC_VER && !defined WINDOWS_MINGW
 #include <unistd.h>
 #else
-#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define	snprintf _snprintf
-#define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
-#define AddAtomA AddAtom
+//#include "coot-sysdep.h"
 #endif
 
 #include "mmdb_manager.h"
@@ -59,6 +56,7 @@
 #include "clipper/core/map_utils.h" // Map_stats
 #include "graphical_skel.h"
 
+#include "coot-sysdep.h"
 
 #include "interface.h"
 

@@ -32,11 +32,6 @@
 
 #include <stdexcept>
 
-#ifdef WINDOWS_MINGW
-// window magic jiggery pokery.
-#define AddAtomA AddAtom
-#endif
-
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #include <GL/glut.h>  // for some reason...  // Eh?
 
@@ -47,8 +42,6 @@
 
 #if !defined _MSC_VER
 #include <unistd.h>
-#else
-#define AddAtomA AddAtom
 #endif
 
 #ifdef USE_GUILE
@@ -71,6 +64,8 @@
 
 #include "clipper/core/map_utils.h" // Map_stats
 #include "graphical_skel.h"
+
+#include "coot-sysdep.h"
 
 #include "interface.h"
 

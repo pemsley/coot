@@ -24,8 +24,11 @@ include_HEADERS =  mini-mol.hh mini-mol-utils.hh
 
 INCLUDES =  \
 	-I$(top_srcdir)/coot-utils \
+	-I$(top_srcdir)/compat \
 	$(CLIPPER_CXXFLAGS)    \
 	$(MMDB_CXXFLAGS)
+
+AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS)
 
 noinst_PROGRAMS = testminimol
 

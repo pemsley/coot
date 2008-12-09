@@ -53,12 +53,10 @@
 #include <GL/glut.h>  // for some reason...  // Eh?
 
 #include "interface.h"
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-// window magic jiggery pokery.
-#define AddAtomA AddAtom
-#endif
 
 #include "molecule-class-info.h"
+
+#include "coot-sysdep.h"
 
 #include "graphics-info.h"
 

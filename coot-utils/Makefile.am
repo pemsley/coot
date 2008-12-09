@@ -35,6 +35,7 @@ include_HEADERS = coot-utils.hh peak-search.hh coot-trim.hh \
 INCLUDES = \
 	-I$(top_srcdir)/coords  	\
 	-I$(top_srcdir)/geometry	\
+	-I$(top_srcdir)/compat		\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\

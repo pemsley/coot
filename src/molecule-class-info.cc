@@ -29,11 +29,6 @@
 #else
 #include <windows.h>
 #include <direct.h>
-#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
-#define snprintf _snprintf
-#undef AddAtom
-#undef GetAtomName
 #endif
 
 #include <iostream>
@@ -61,6 +56,7 @@
 #include "clipper/contrib/sfscale.h"
 #include "clipper/contrib/sfweight.h"
 
+#include "coot-sysdep.h"
 
 // For stat, mkdir:
 #include <sys/types.h>
@@ -87,13 +83,6 @@
 
 // for debugging
 #include "c-interface.h"
-
-
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-// window magic jiggery pokery.
-#define AddAtomA AddAtom
-#define GetAtomNameA GetAtomName
-#endif
 
 
 

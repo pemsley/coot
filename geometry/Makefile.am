@@ -24,7 +24,8 @@ EXTRA_DIST = read-sbase.cc read-sbase.hh notes Makefile.simple
 
 include_HEADERS =  protein-geometry.hh
 
-INCLUDES = -I$(top_srcdir)/coords -I$(top_srcdir)/coot-utils $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
+INCLUDES = -I$(top_srcdir)/coords -I$(top_srcdir)/coot-utils 	\
+	 -I$(top_srcdir)/compat $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
 	-DDATADIR='"$(datadir)"'       \

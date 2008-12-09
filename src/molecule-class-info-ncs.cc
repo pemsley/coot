@@ -23,11 +23,6 @@
 
 #ifdef _MSC_VER
 #include <windows.h>
-#define AddAtomA AddAtom
-#endif
-
-#ifdef WINDOWS_MINGW
-#define AddAtomA AddAtom
 #endif
 
 #include "Cartesian.h"
@@ -36,6 +31,9 @@
 #include "mmdb.h"
 #include "mmdb-crystal.h"
 #include "molecule-class-info.h"
+
+#include "coot-sysdep.h"
+
 #include "coot-map-utils.hh"
 #include "xmap-utils.h"
 #include "graphics-info.h"
