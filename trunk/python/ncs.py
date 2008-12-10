@@ -170,10 +170,30 @@ def manual_ncs_ghosts(imol, resno_start, resno_end, chain_id_list):
                 if (not rtop):
                     print "Failed to get LSQ matching matrix", chain_id
                 else:
-                    args = [imol, chain_id, "A"] + rtop[0] + rtop[1]
-                    add_ncs_matrix(*args)
+                    master = chain_id_list[0]
+                    if master:  # should be string or False, so ok I belive
+                        args = [imol, chain_id, master] + rtop[0] + rtop[1]
+                        add_ncs_matrix(*args)
             close_molecule(imol_copy)
             set_draw_ncs_ghosts(imol, 1)
+
+# Return the first master chain id (usually there is only one of course) or False
+#
+def ncs_master_chain_id(imol):
+
+    from types import ListType
+    cids_ls = ncs_chain_ids(imol)
+    if type(cids_ls) is not ListType:
+        return False
+    else:
+        if (len(cids_ls) == 0):
+            return False
+        else:
+            cids = cids_ls[0]
+            if (len(cids) == 0):
+                return False
+            else:
+                return cids[0]
 
 def ncs_ligand(imol_protein, ncs_master_chain_id, imol_ligand, chain_id_ligand, resno_ligand_start, resno_ligand_stop):
     

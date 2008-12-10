@@ -166,7 +166,31 @@ class NcsTestFunctions(unittest.TestCase):
         self.failUnless(all(result))
 
 
+# This excercises a failure reported by Engin Ozkan 20081209.  Oh
+# D'oh, I'd hard-coded "A" as the master chain id into
+# manual-ncs-ghosts, I should have used the beginning of the list of
+# chain-ids instead.
+#
     def test06_0(self):
+        """Manual NCS ghosts generates correct NCS chain ids"""
+
+        imol = unittest_pdb("pdb1hvv.ent")
+
+        set_draw_ncs_ghosts(imol, 1)
+        ncs_control_change_ncs_master_to_chain_id(imol, "B")
+        make_ncs_ghosts_maybe(imol)
+        ncs_ghost_chains_1 = ncs_chain_ids(imol)
+        manual_ncs_ghosts(imol, 220, 230, ["B", "A", "C", "D"])
+        ncs_ghost_chains_2 = ncs_chain_ids(imol)
+
+        print "   NCS ghost chain IDs pre:  ", ncs_ghost_chains_1
+        print "   NCS ghost chain IDs post: ", ncs_ghost_chains_2
+        
+        self.failUnlessEqual(ncs_ghost_chains_1, [["B", "A", "C", "D"]]) 
+        self.failUnlessEqual(ncs_ghost_chains_2, [["B", "A", "C", "D"]]) 
+
+
+    def test07_0(self):
         """NCS maps overwrite existing maps"""
 
         # first close all the maps that have "NCS found" in the name:
