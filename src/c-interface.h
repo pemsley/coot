@@ -2917,6 +2917,7 @@ void residue_info_release_memory(GtkWidget *widget);
 void unset_residue_info_widget(); 
 void clear_simple_distances();
 void clear_last_simple_distance();
+GtkWidget *wrapped_create_geometry_dialog();
 void store_geometry_dialog(GtkWidget *w);
 
 /* \} */

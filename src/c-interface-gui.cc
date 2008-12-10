@@ -4696,6 +4696,30 @@ int model_toolbar_style_state() {
   return graphics_info_t::model_toolbar_style_state;
 }
 
+GtkWidget *wrapped_create_geometry_dialog() {
+   graphics_info_t g;
+   GtkWidget *w = NULL;
+   if (g.geometry_dialog) { 
+      w = g.geometry_dialog;
+      // I'm not sure this magic does anything - it's a transient (and
+      // I don't have a minimize handle for it).
+      if (!GTK_WIDGET_MAPPED(w))
+	 gtk_widget_show(w);
+      else
+	 gdk_window_raise(w->window);
+   } else {
+      w = create_geometry_dialog();
+   }
+   return w;
+} 
+
+void store_geometry_dialog(GtkWidget *w) { 
+
+   graphics_info_t g;
+   g.geometry_dialog = w;
+}
+
+
 
 void store_fixed_atom_dialog(GtkWidget *w) {
 

@@ -4988,12 +4988,10 @@ on_distances_and_angles1_activate      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-  GtkWidget *widget = create_geometry_dialog();
+  GtkWidget *widget = wrapped_create_geometry_dialog();
   
   set_transient_and_position(COOT_DISTANCES_ANGLES_WINDOW, widget);
 
-  /* set transient also (I am lazy to change the function name or add
-     another function right now)  */
   store_geometry_dialog(widget); /* needed to deactivate the distance
 				    togglebutton after 2nd atoms
 				    clicked in graphics */
