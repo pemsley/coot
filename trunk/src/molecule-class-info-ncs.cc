@@ -2000,11 +2000,18 @@ molecule_class_info_t::ncs_ghost_chains() const {
    if (ncs_ghosts.size() > 0) {
       std::vector<std::pair<std::string, std::vector<std::string> > > grouped_ghosts;
       for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-// 	 std::cout << "doing ghost number " << ighost << " " 
-// 		   << ncs_ghosts[ighost].chain_id << " "
-// 		   << ncs_ghosts[ighost].target_chain_id
-// 		   << std::endl;
+//  	 std::cout << "DEBUG:: doing ghost number " << ighost << " " 
+//  		   << ncs_ghosts[ighost].chain_id << " "
+//  		   << ncs_ghosts[ighost].target_chain_id
+//  		   << std::endl;
 	 std::string master_chain = ncs_ghosts[ighost].target_chain_id;
+
+	 // does the master_chain_id of this ghost already have a
+	 // group ghost for it? If yes, then simply add this ghost to
+	 // the grouped_ghosts for this master_chain_id, if not,
+	 // create a new grouped_ghosts item and add this chain id to
+	 // that item.
+	 // 
 	 bool found = 0;
 	 for (unsigned int igroup=0; igroup<grouped_ghosts.size(); igroup++) {
 	    if (grouped_ghosts[igroup].first == master_chain) {
@@ -2020,8 +2027,21 @@ molecule_class_info_t::ncs_ghost_chains() const {
 	    grouped_ghosts.push_back(group);
 	 }
       }
-//       std::cout << "There are " << grouped_ghosts.size() << " grouped ghosts"
-// 		<< std::endl;
+
+      if (0) { 
+	 std::cout << "DEBUG:: There are " << grouped_ghosts.size() << " grouped ghosts"
+		   << std::endl;
+	 for (unsigned int igroup=0; igroup<grouped_ghosts.size(); igroup++) {
+	    std::cout << "DEBUG:: Master chain id " <<  grouped_ghosts[igroup].first
+		      << " with peers ";
+	    for (unsigned int ipeer=0; ipeer<grouped_ghosts[igroup].second.size(); ipeer++) {
+	       std::cout << grouped_ghosts[igroup].second[ipeer] << " ";
+	    }
+	    std::cout << std::endl;
+	 }
+      } 
+      
+       
       if (grouped_ghosts.size() > 0) {
 	 for (unsigned int igroup=0; igroup<grouped_ghosts.size(); igroup++) {
 	    std::vector<std::string> linear_ghost;
