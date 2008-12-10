@@ -48,6 +48,8 @@
 #include "pick.h"
 #include "clipper/core/xmap.h"
 
+#include "coot-sysdep.h"
+
 #include "rotamer.hh"
 
 #include "protein-geometry.hh"

@@ -48,6 +48,8 @@
 #include <guile/gh.h>
 #endif
 
+#include "coot-sysdep.h"
+
 
 #include "mmdb_manager.h"
 #include "mmdb-extras.h"
@@ -64,8 +66,6 @@
 
 #include "clipper/core/map_utils.h" // Map_stats
 #include "graphical_skel.h"
-
-#include "coot-sysdep.h"
 
 #include "interface.h"
 
