@@ -43,15 +43,18 @@
 	(format #t "Molecule number ~s is not a valid model molecule" imol)
 
 	(begin 
-
+	  (format #t "fit-gap was given args ~s ~s ~s ~s ~s~%"
+		  imol chain-id start-resno stop-resno sequence+rama)
 	  (let ((backup-mode (backup-state imol))
 		(sequence (if (null? sequence+rama)
 			      '()
-			      (car sequence+rama 1)))
+			      (car sequence+rama)))
 		(use-rama-restraints (if (null? sequence+rama)
 					 0 ; as boolean
 					 (car (last-pair sequence+rama))))
 		(rama-status (refine-ramachandran-angles-state)))
+	    
+
 	    (make-backup imol)
 	    (turn-off-backup imol)
 	    (set-refine-ramachandran-angles use-rama-restraints)
@@ -92,6 +95,7 @@
 		   (else 
 		    (format #t "Failure in fit-gap at residue ~s~%" resno)))))
 
+
 	      ;; -----------------------------------------------
 	      ;; From poly ala to sequence (if given):
 	      ;; -----------------------------------------------
@@ -99,14 +103,14 @@
 	      (if (not (null? sequence))
 		  (begin
 		    (format #t "mutate-and-autofit-residue-range ~s ~S ~s ~s ~s~%"
-			    imol chain-id start-resno stop-resno (car sequence))
+			    imol chain-id start-resno stop-resno sequence)
 		    (if (eq? direction 'forwards)
 			(mutate-and-autofit-residue-range imol chain-id 
 							  start-resno stop-resno
-							  (car sequence))
+							  sequence)
 			(mutate-and-autofit-residue-range imol chain-id 
 							  stop-resno start-resno
-							  (car sequence)))))
+							  sequence))))
 
 	      ;; -----------------------------------------------
 	      ;; Refine new zone
