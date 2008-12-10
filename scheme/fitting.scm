@@ -272,10 +272,17 @@
 	  ;; we jump through this hoop with range-step because
 	  ;; (inexact->exact (/ 1 2) now returns 1/2.  In guile 1.6.x it
 	  ;; returned 1
-	  (let* ((step-inter (inexact->exact (/ (- res-step 1) 2)))
+	  ;;
+	  ;; when res-step is 1 (for example from rama plot refine) we
+	  ;; want range-step to be 1 too.
+	  ;; 
+	  (let* ((step-inter (inexact->exact (/ res-step 2)))
 		 (range-step (if (integer? step-inter) 
 				 step-inter
 				 (+ step-inter (/ 1 2)))))
+	    ;; (format #t "========= res-step: ~s~%" res-step)
+	    ;; (format #t "========= step-inter: ~s~%" step-inter)
+	    ;; (format #t "========= range-step: ~s~%" range-step)
 	    (turn-off-backup imol)
 	    (set-refinement-immediate-replacement 1)
 	    (set-refine-auto-range-step range-step)
