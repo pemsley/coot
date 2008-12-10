@@ -731,6 +731,14 @@
 					  (format #t "handle: ~s~%" handle))))))
 
 	(add-simple-coot-menu-menuitem
+	 submenu-representation "Clear Ball & Stick..."
+	 (lambda () 
+	   (molecule-chooser-gui "Choose a molecule from which to clear Ball&Stick objects"
+				 (lambda (imol)
+				   (clear-ball-and-stick imol)))))
+
+
+	(add-simple-coot-menu-menuitem
 	 submenu-representation "Electrostatic Surface..."
 	 (lambda () 
 	   (molecule-chooser-gui (string-append 
@@ -745,14 +753,7 @@
 	 (lambda () 
 	   (molecule-chooser-gui "Choose a molecule to represent conventionally..."
 				 (lambda (imol)
-				   (do-surface imol 1)))))
-
-	(add-simple-coot-menu-menuitem
-	 submenu-representation "Clear Ball & Stick..."
-	 (lambda () 
-	   (molecule-chooser-gui "Choose a molecule from which to clear Ball&Stick objects"
-				 (lambda (imol)
-				   (clear-ball-and-stick imol)))))
+				   (do-surface imol 0)))))
 
 	
 	(add-simple-coot-menu-menuitem

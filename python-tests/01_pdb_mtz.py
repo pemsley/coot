@@ -906,9 +906,10 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test29_0(self):
 	    """Residues in Region of Residue"""
 
-	    rs = residues_near_residue(imol_rnase, ["A", 40, ""], 4)
-	    self.failUnless(len(rs) == 6, "wrong number of neighbours %s %s" %(len(rs), rs))
-	    print "found %s neighbours %s" %(len(rs), rs)
+	    for dist, n_neighbours in zip([4,0], [6,0]):
+		    rs = residues_near_residue(imol_rnase, ["A", 40, ""], dist)
+		    self.failUnless(len(rs) == n_neighbours, "wrong number of neighbours %s %s" %(len(rs), rs))
+		    print "found %s neighbours %s" %(len(rs), rs)
 	    
 
     def test30_0(self):

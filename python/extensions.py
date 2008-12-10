@@ -735,6 +735,23 @@ if (have_coot_python):
          lambda imol: clear_ball_and_stick(imol)))
 
 
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Electrostatic Surface...",
+       lambda func: molecule_chooser_gui(
+          "Choose a molecule to represent as a surface..." + \
+          "\n" + \
+          "Can be SLOW",
+          lambda imol: do_surface(imol, 1)))  # shall we switch on the light too?!
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Un-Surface...",
+       lambda func: molecule_chooser_gui(
+          "Choose a molecule to represent conventionally...",
+          lambda imol: do_surface(imol, 0)))
+
      def hilight_site_func():
        active_atom = active_residue()
        if (active_atom):

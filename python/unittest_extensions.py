@@ -47,22 +47,31 @@ def exec_file(filename):
                 print "BL INFO:: could not find %s in ../%s" %(unittest_file, unittest_dir)
         else:
             print "BL INFO:: could not find directory ../%s" %unittest_dir
-            print "BL INFO:: searching $HOME..."
             # search, starting from HOME
             if (os.name == 'nt'):
                 home = os.getenv("COOT_HOME")
             else:
                 home = os.getenv("HOME")
-            for root, dirs, files in os.walk(home):
-                #print "BL DEBUG:: root, dirs", root, dirs
-                if unittest_dir in dirs:
-                    full_name = os.path.join(root, unittest_dir, unittest_file)
-                    if (os.path.isfile(full_name)):
-                        execfile(full_name, globals())
-                        break
-                    else:
-                        print "BL INFO:: could not find %s in %s/%s" %(unittest_file, root, unittest_dir)
-                        print "BL INFO:: continue searching..."
+            # now we assume its in ~/Projects/coot
+            full_dir = os.path.normpath(os.path.join(home, "Projects", "coot", unittest_dir))
+            if (os.path.isdir(full_dir)):
+                full_name = os.path.join(full_dir, unittest_file)
+                if (os.path.isfile(full_name)):
+                    execfile(full_name, globals())
+                else:
+                    print "BL INFO:: could not find %s in %s" %(unittest_file, full_dir)
+            else:
+                print "BL INFO:: searching $HOME..."
+                for root, dirs, files in os.walk(home):
+                    #print "BL DEBUG:: root, dirs", root, dirs
+                    if unittest_dir in dirs:
+                        full_name = os.path.join(root, unittest_dir, unittest_file)
+                        if (os.path.isfile(full_name)):
+                            execfile(full_name, globals())
+                            break
+                        else:
+                            print "BL INFO:: could not find %s in %s/%s" %(unittest_file, root, unittest_dir)
+                            print "BL INFO:: continue searching..."
 
 if (have_coot_python):
     if coot_python.main_menubar():
