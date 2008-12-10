@@ -167,8 +167,26 @@
 		   (close-molecule imol-copy)
 		   (if (not rtop)
 		       (format #t "Failed to get LSQ matching matrix ~s~%" chain-id)
-		       (apply add-ncs-matrix imol chain-id "A" (apply append rtop))))))
+		       (begin
+			 (let ((master (car chain-id-list)))
+			   (if (string? master)
+			       (apply add-ncs-matrix imol chain-id master (apply append rtop)))))))))
 	     (cdr chain-id-list))))))
+
+
+;; Return the first master chain id (usually there is only one of course) or #f.
+;; 
+(define (ncs-master-chain-id imol)
+
+  (let ((cids-ls (ncs-chain-ids imol)))
+    (if (not (list? cids-ls))
+	#f
+	(if (= (length cids-ls) 0)
+	    #f
+	    (let ((cids (car cids-ls)))
+	      (if (= (length cids) 0)
+		  #f 
+		  (car cids)))))))
 
 
 

@@ -101,10 +101,8 @@ namespace coot {
 
    } // end of util name space
    
-   short int
-   is_member_p(const std::vector<std::string> &v, const std::string &a);
-
-   short int is_member_p(const std::vector<int> &v, const int &a);
+   bool is_member_p(const std::vector<std::string> &v, const std::string &a);
+   bool is_member_p(const std::vector<int> &v, const int &a);
    void remove_member(std::vector<int> *v_p, const int &a);
 
    short int

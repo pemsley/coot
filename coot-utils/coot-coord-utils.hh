@@ -263,6 +263,8 @@ namespace coot {
    // return 0 or 1
    short int is_main_chain_or_cb_p(CAtom *at);
 
+   bool is_member_p(const std::vector<CResidue *> &v, CResidue *a);
+
    // return residue specs for residues that have atoms that are
    // closer than radius Angstroems to any atom in the residue
    // specified by res_in.
@@ -270,6 +272,9 @@ namespace coot {
    std::vector<residue_spec_t> residues_near_residue(const residue_spec_t &res_in,
 						     CMMDBManager *mol,
 						     float radius);
+
+   std::vector<CResidue *> residues_near_residue(CResidue *res_ref, CMMDBManager *mol,
+						 float radius);
 
    // Return a pair, the bool of which is set if the float is sensible.
    // 

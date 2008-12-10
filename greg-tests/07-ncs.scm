@@ -203,6 +203,34 @@
 	 (all-true? result)))))
 
 
+;; This excercises a failure reported by Engin Ozkan 20081209.  Oh
+;; D'oh, I'd hard-coded "A" as the master chain id into
+;; manual-ncs-ghosts, I should have used the beginning of the list of
+;; chain-ids instead.
+;; 
+(greg-testcase "Manual NCS ghosts generates correct NCS chain ids" #t 
+   (lambda ()
+
+     (let ((imol (greg-pdb "pdb1hvv.ent")))
+
+       (set-draw-ncs-ghosts imol 1)
+       (ncs-control-change-ncs-master-to-chain-id imol "B")
+       (make-ncs-ghosts-maybe imol)
+       (let ((ncs-ghost-chains-1 (ncs-chain-ids imol)))
+	 (manual-ncs-ghosts imol 220 230 (list "B" "A" "C" "D"))
+	 (let ((ncs-ghost-chains-2 (ncs-chain-ids imol)))
+
+	   (format #t "   NCS ghost chain IDs pre:  ~S~%" ncs-ghost-chains-1)
+	   (format #t "   NCS ghost chain IDs post: ~S~%" ncs-ghost-chains-2)
+	   
+	   (if (not (equal? ncs-ghost-chains-1 (list (list "B" "A" "C" "D"))))
+	       (throw 'fail))
+
+	   (if (not (equal? ncs-ghost-chains-2 (list (list "B" "A" "C" "D"))))
+	       (throw 'fail))
+
+	   #t)))))
+
 
 (greg-testcase "NCS maps overwrite existing maps" #t 
    (lambda ()
