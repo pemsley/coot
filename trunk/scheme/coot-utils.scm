@@ -1567,6 +1567,18 @@
 	      (info-dialog s))))))))
 
 
+;; A function for Overlaying ligands.  The transformation is applied
+;; to all the atoms of the molecule that contains the moving ligand.
+;; 
+(define (overlay-my-ligands imol-mov chain-id-mov resno-mov imol-ref chain-id-ref resno-ref)
+
+  (let* ((imol-frag (new-molecule-by-atom-selection 
+		     imol-mov (string-append "//" chain-id-mov "/" (number->string resno-mov))))
+	 (rtop+i (overlap-ligands imol-frag imol-ref chain-id-ref resno-ref)))
+    (set-mol-displayed imol-frag 0)
+    (transform-coords-molecule imol-mov (car rtop+i))))
+
+
 
 ;; 
 (define (label-all-CAs imol)
