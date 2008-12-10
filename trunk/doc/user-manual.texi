@@ -1796,6 +1796,28 @@ number 0 chain ``A''):
 @c %% @item @code{(lsq-match 0 1)}
 @c %% @end itemize
 
+@node  Ligand Overlaying
+@section Ligand Overlaying
+@cindex ligand, overlay
+@cindex overlaying ligands
+
+The scripting function 
+
+@code{(overlap-ligands @emph{imol-ligand imol-ref chain-id-ref resno-ref})}
+
+returns a rotation+translation operator which can be applied to other
+molecules (and maps).  Here, @code{@emph{imol-ligand}} is the molecule
+number of the ligand (which is presumed to be a a molecule on its own
+- Coot simply takes the first residue that it finds). @code{imol-ref
+chain-id-ref resno-ref}} collectively describe the target position for
+the moving @code{@emph{imol-ligand}} molecule.
+
+The convenience function 
+
+@code{(overlay-my-ligands @emph{imol-mov chain-id-mov resno-mov imol-ref chain-id-ref resno-ref})} 
+
+wraps @code{overlap-ligands}.  The is no GUI for this function yet.
+
 @node Writing PDB files
 @section Writing PDB files
 @cindex writing PDBs
