@@ -202,11 +202,11 @@ coot::util::is_letter(char c) {
 }
 
 
-short int
+bool
 coot::is_member_p(const std::vector<std::string> &v, const std::string &a) { 
 
-   short int ir = 0;
-   int vsize = v.size();
+   bool ir = 0;
+   unsigned int vsize = v.size();
 
    for (int i=0; i<vsize; i++) { 
       if (v[i] == a) { 
@@ -218,11 +218,11 @@ coot::is_member_p(const std::vector<std::string> &v, const std::string &a) {
 }
 
 // Some sort of polymorphism would be appropriate here, perhaps?
-short int
+bool
 coot::is_member_p(const std::vector<int> &v, const int &a) { 
 
-   short int ir = 0;
-   int vsize = v.size();
+   bool ir = 0;
+   unsigned int vsize = v.size();
 
    for (int i=0; i<vsize; i++) { 
       if (v[i] == a) { 

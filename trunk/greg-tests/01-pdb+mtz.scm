@@ -1138,14 +1138,18 @@
 (greg-testcase "Residues in Region of Residue" #t 
    (lambda ()
 
-     (let ((rs (residues-near-residue imol-rnase (list "A" 40 "") 4)))
-       (if (not (= (length rs) 6))
-           (begin
-             (format #t "wrong number of neighbours ~s ~s~%" (length rs) rs)
-             #f)
-           (begin
-             (format #t "found ~s neighbours ~s~%" (length rs) rs)
-             #t)))))
+     (all-true?
+      (map (lambda (dist n-neighbours)
+	     
+	     (let ((rs (residues-near-residue imol-rnase (list "A" 40 "") dist)))
+	       (if (not (= (length rs) n-neighbours))
+		   (begin
+		     (format #t "wrong number of neighbours ~s ~s~%" (length rs) rs)
+		     #f)
+		   (begin
+		     (format #t "found ~s neighbours ~s~%" (length rs) rs)
+		     #t))))
+	   (list 4 0) (list 6 0)))))
 
 
 (greg-testcase "Empty molecule on type selection" #t 
