@@ -318,10 +318,10 @@
 
 (define (make-page bin-list file-name)
 
-  ;; link could be "xxx/build" or '('absolute "http://x.ac.uk/build").
+  ;; link could be "Linux-host/gtk2" or '('absolute "http://x.ac.uk/build").
   ;; page-type is 'build, 'build-dir or 'test
   ;; 
-  (define (build-log-page file-info page-type)
+  (define (build-log-page file-info page-type pythonic?)
     (let ((link (car (cdr (list-ref file-info 0)))))
       (format #t "build-log-page on file-info: ~s~%" file-info)
       (format #t "build-log-page on link: ~s~%" file-info)
@@ -340,7 +340,11 @@
 	       (string-append "http://www.ysbl.york.ac.uk/~emsley/build-logs/"
 			      link))
 	   (cond
-	    ((eq? page-type 'build) "-build.log")
+	    ((eq? page-type 'build) (string-append 
+				     (if pythonic? 
+					 "-python"
+					 "")
+				     "-build.log"))
 	    ((eq? page-type 'test) "-test.log")
 	    ((eq? page-type 'test-python) "-test-python.log")
 	    (else 
@@ -511,63 +515,63 @@
 		(br)
 		(table (@ (border 1) (bgcolor "#303030"))
 		       (tr (td ,(n-bars 100))))
-		(a (@ href ,(build-log-page file-info 'build)) build-log)
+		;; this is pythonic, right?
+		(a (@ href ,(build-log-page file-info 'build #t)) build-log)
 		" "
-		(a (@ href ,(build-log-page file-info 'test)) test-log))
+		(a (@ href ,(build-log-page file-info 'test #t)) test-log))
 
 	      ;; a regular binary cell
-	      `(p 
-		(a (@ href ,(get-binary-tar-file-url file-info person)) 
-		   ,(car (car file-info))) ; binary type string
-		" "
-		,(car (cdr file-info)) ; revision number
-		;; entities to pad the table
-		(*ENTITY* "nbsp")
-		(*ENTITY* "nbsp")
-		(*ENTITY* "nbsp")
-		(br)
+	      (let ((pythonic-build? (if (= (length (car file-info)) 2)
+					 #t
+					 (car (cdr (cdr (car file-info)))))))
+		`(p 
+		  (a (@ href ,(get-binary-tar-file-url file-info person)) 
+		     ,(car (car file-info))) ; binary type string
+		  " "
+		  ,(car (cdr file-info)) ; revision number
+		  ;; entities to pad the table
+		  (*ENTITY* "nbsp")
+		  (*ENTITY* "nbsp")
+		  (*ENTITY* "nbsp")
+		  (br)
 
-		,(latest-build-result file-info 'build)
-		" " 
-		,(latest-build-result file-info 'test)
-		(*ENTITY* "nbsp")
-		(*ENTITY* "nbsp")
-		,(if make-links?
-		     `(a (@ href ,(build-log-page file-info 'build)) build-log)
-		     "")
-		" "
-		;; a quicker way to get the dir of the xx-yyy.txt files:
-		,(if make-links? 
-		     `(a (@ href ,(build-log-page file-info 'build-dir)) build-dir)
-		     "")
-		" "
-		,(if make-links?
-		     `(a (@ href ,(build-log-page file-info 'test)) test-log)
-		     "")
-		" "
-		,(if make-links?
-		     (let* ((bits (list-ref file-info 3))
+		  ,(latest-build-result file-info 'build)
+		  " " 
+		  ,(latest-build-result file-info 'test)
+		  (*ENTITY* "nbsp")
+		  (*ENTITY* "nbsp")
+		  ,(if make-links?
+		       `(a (@ href ,(build-log-page file-info 'build pythonic-build?)) build-log)
+		       "")
+		  " "
+		  ;; a quicker way to get the dir of the xx-yyy.txt files:
+		  ,(if make-links? 
+		       `(a (@ href ,(build-log-page file-info 'build-dir pythonic-build?)) build-dir)
+		       "")
+		  " "
+		  ,(if make-links?
+		       `(a (@ href ,(build-log-page file-info 'test pythonic-build?)) test-log)
+		       "")
+		  " "
+		  ,(if make-links?
+		       (let* ((bits (list-ref file-info 3))
 ;			    (nov-1 (format #t "==== pythonic?: ~s ~%" 
 ;					   (car file-info)))
 ;			    (nov-2 (format #t "==== pythonic - sample?:  ~s~%" 
 ;					   (if (= (length (car file-info)) 2)
 ;					       "nothing"
 ;					       (car (cdr (cdr (car file-info)))))))
-			    (pythonic-build? 
-			     (if (= (length (car file-info)) 2)
-				 #t
-				 (car (cdr (cdr (car file-info))))))
-			    (nov-3 (format #t "==== pythonic - calc:     ~s~%" 
-					   pythonic-build?)))
+			      (nov-3 (format #t "==== pythonic : ~s~%" 
+					     pythonic-build?)))
 
-		       (if pythonic-build?
-			   `(a (@ href ,(build-log-page file-info 'test-python)) python-test-log)
-			   ""))
-		     "")
-		(table (@ (border 1) (bgcolor ,colour))
-		       (tr ,entities))
-		,(time-text (list-ref file-info 2))
-		)))))
+			 (if pythonic-build?
+			     `(a (@ href ,(build-log-page file-info 'test-python #t)) python-test-log)
+			     ""))
+		       "")
+		  (table (@ (border 1) (bgcolor ,colour))
+			 (tr ,entities))
+		  ,(time-text (list-ref file-info 2))
+		  ))))))
 
 
   ;; 
@@ -681,7 +685,7 @@
 	(list "binary-Linux-i386-fedora-3"
 	      "Linux-bunyip.chem.york.ac.uk/gtk1" #f)
 	(list "binary-Linux-i386-fedora-3-python"
-	      "Linux-bunyip.chem.york.ac.uk/gtk1-python" #t)
+	      "Linux-bunyip.chem.york.ac.uk/gtk1" #t)
 
 	(list "binary-Linux-i386-fedora-4-python-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-cycle/gtk2"))
@@ -693,7 +697,7 @@
 	      "Linux-setsuko.chem.york.ac.uk/gtk1" #f)
 
 	(list "binary-Linux-i386-fedora-6-python"
-	      "Linux-setsuko.chem.york.ac.uk/gtk1-python" #t)
+	      "Linux-setsuko.chem.york.ac.uk/gtk1" #t)
 
 	(list "binary-Linux-i386-fedora-8"
 	      "Linux-dragon.chem.york.ac.uk/gtk1" #f)
@@ -705,7 +709,7 @@
 	      "Linux-bubbles/gtk1" #f)
 
 	(list "binary-Linux-i386-redhat-8.0-python" 
-	      "Linux-bubbles/gtk1-python" #t)
+	      "Linux-bubbles/gtk1" #t)
 
 	(list "binary-Linux-i386-centos-4-gtk2"
 	      (list 'absolute "http://www.biop.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"))
@@ -725,7 +729,7 @@
 	(list "binary-Linux-i686-ubuntu-8.04.1" 
 	      "Linux-bragg3/gtk1" #f)
 	(list "binary-Linux-i686-ubuntu-8.04.1-python" 
-	      "Linux-bragg3/gtk1-python" #t)
+	      "Linux-bragg3/gtk1" #t)
 	(list "binary-Linux-i686-ubuntu-8.04.1-python-gtk2"
 	      "Linux-bragg3/gtk2" #t)
 
