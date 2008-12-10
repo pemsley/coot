@@ -1687,17 +1687,6 @@ void clear_last_simple_distance() {
    add_to_history_typed(cmd, args);
 } 
 
-void store_geometry_dialog(GtkWidget *w) { 
-
-   graphics_info_t g;
-   g.geometry_dialog = w;
-   // Storing geometry should not make a dialog transient!   
-//    if (w) { 
-//       gtk_window_set_transient_for(GTK_WINDOW(w),
-// 				   GTK_WINDOW(lookup_widget(g.glarea, "window1")));
-//    }
-}
-
 
 void clear_residue_info_edit_list() {
 

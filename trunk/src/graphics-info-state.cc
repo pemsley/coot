@@ -486,14 +486,16 @@ graphics_info_t::save_state_file(const std::string &filename) {
    commands.push_back(state_command("set-rotation-centre", X(), Y(), Z(), il));
 
    // the orientation
-   // 
-   command_strings.clear();
-   command_strings.push_back("set-view-quaternion");
-   command_strings.push_back(float_to_string_using_dec_pl(quat[0], 5));
-   command_strings.push_back(float_to_string_using_dec_pl(quat[1], 5));
-   command_strings.push_back(float_to_string_using_dec_pl(quat[2], 5));
-   command_strings.push_back(float_to_string_using_dec_pl(quat[3], 5));
-   commands.push_back(state_command(command_strings, il));
+   //
+   if (use_graphics_interface_flag) {
+      command_strings.clear();
+      command_strings.push_back("set-view-quaternion");
+      command_strings.push_back(float_to_string_using_dec_pl(quat[0], 5));
+      command_strings.push_back(float_to_string_using_dec_pl(quat[1], 5));
+      command_strings.push_back(float_to_string_using_dec_pl(quat[2], 5));
+      command_strings.push_back(float_to_string_using_dec_pl(quat[3], 5));
+      commands.push_back(state_command(command_strings, il));
+   }
 
    // stereo mode
    // 

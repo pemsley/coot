@@ -706,6 +706,12 @@ graphics_info_t::auto_range_residues(int atom_index, int imol) const {
    CResidue *prev_res = this_chain->GetResidue(resno-refine_auto_range_step, inscode);
    CResidue *next_res = this_chain->GetResidue(resno+refine_auto_range_step, inscode);
 
+   // Warning: Enabling this code will cause a crash if prev_res or next_res are NULL.
+//    std::cout << " debug:: in auto_range_residues() returns residues "
+// 	     << prev_res->GetSeqNum() << " and " << next_res->GetSeqNum()
+// 	     << " given refine_auto_range_step " << refine_auto_range_step
+// 	     << std::endl;
+
    if (prev_res) { 
       r.first = resno-refine_auto_range_step;
    } else { 
@@ -891,10 +897,11 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &altconf,
 				      short int is_water_flag) {
 
-//    std::cout << "DEBUG:: refine_residue_range: " << imol << " " << chain_id_1
-// 	     << " " <<  resno_1 << ":" << ins_code_1 << ":"
-// 	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
-// 	     << " " << ":" << altconf << ": " << is_water_flag << std::endl;
+//    std::cout << "DEBUG:: ================ refine_residue_range: "
+// 	     << imol << " " << chain_id_1
+//  	     << " " <<  resno_1 << ":" << ins_code_1 << ":"
+//  	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
+//  	     << " " << ":" << altconf << ": " << is_water_flag << std::endl;
 
    int imol_map = Imol_Refinement_Map();
    if (imol_map == -1) { // magic number check,
