@@ -1024,9 +1024,8 @@
 ;; expression of a clipper::RTop)
 ;; 
 (define (transform-coords-molecule imol rtop)
-  
-  (apply transform-molecule-by 
-	 (cons imol (apply append rtop))))
+  (apply transform-molecule-by imol
+	 (apply append rtop)))
 
 
 
