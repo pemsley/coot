@@ -245,6 +245,7 @@ int copy_molecule(int imol) {
       std::string label = "Copy of ";
       label += graphics_info_t::molecules[imol].name_;
       graphics_info_t::molecules[new_mol_number].install_model(new_mol_number, asc, label, 1);
+      update_go_to_atom_window_on_new_mol();
       iret = new_mol_number;
    }
    if (is_valid_map_molecule(imol)) {
@@ -1126,10 +1127,10 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 	    // need to regenerate the residue and atom lists.
 	    GtkWidget *gtktree = lookup_widget(g.go_to_atom_window,
 					       "go_to_atom_residue_tree");
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 	    g.fill_go_to_atom_residue_list_gtk1(gtktree);
 #else 	    
-	    g.fill_go_to_atom_residue_tree_gtk2(gtktree);
+	    g.fill_go_to_atom_residue_tree_gtk2(imol, gtktree);
 #endif	    
 	 } 
       }
@@ -6602,6 +6603,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 atom_selection_container_t asc = make_asc(mol);
 	 if (asc.n_selected_atoms > 0){ 
 	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	    update_go_to_atom_window_on_new_mol();
 	 } else {
 	    std::cout << "in new_molecule_by_atom_selection "
 		      << "Something bad happened - No atoms selected"

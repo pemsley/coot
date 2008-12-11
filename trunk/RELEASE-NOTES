@@ -8,8 +8,18 @@ Release 0.5.1 Uneno
    o FEATURE: show-rotamer-dialog is now available from the scripting
      layer (hence `quick rotamer' keybinding) [FvD].
 
+   o FEATURE: NCS ghost work using LSQ to get the matrix, not SSM.
+ 
+   o FEATURE: Manual definition of NCS ghost matrices - GUI added.
+
    o CHANGE: Display manager toggle buttons replaced with check
      buttons.
+
+   o CHANGE: make-dynamically-transformed-ncs-maps takes an extra
+     argument specifying if new maps should overwrite previous maps of
+     the same name.
+
+   o CHANGE: Extensions menu re-worked.
 
    o BUG-FIX: the chi angle bond highlighting works again.
 
@@ -23,11 +33,21 @@ Release 0.5.1 Uneno
    o BUG-FIX: writing of cifs from the Restraints editor has been
      improved [JED].
 
+   o BUG-FIX: chiral restraints specified as "BOTH" can now be edited.
+
+   o BUG-FIX: "Flip peptide" now flips the peptide H atom too [Joel Bard].
+
+   o BUG-FIX: Ligands can now have their torsions manipulated in
+     CA+Ligands mode [Ingo Korndoerfer].
+
    o BUG-FIX: NCS residue range edits now apply to more than the first
      peer.
 
    o BUG-FIX: Coot now can read PART cards with a site occupancy
      factor from a SHELXL .res file [Mirek Gilski].
+
+   o BUG-FIX: Fixed crash on using multiple geometry (Distance and
+     Angles) dialogs.
 
 
 -----

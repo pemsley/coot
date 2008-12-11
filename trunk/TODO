@@ -24,6 +24,22 @@
   o Fix 64-bit coot problem(s)
 
 
+   o Seg Ids (Mailing list issue):
+
+      At least in these two situations, I think that COOT could make a
+      very educated guess as to the correct SEGID.
+
+       * In mutate (simple or otherwise), COOT could carry over what
+         existed for the residue being mutated
+
+       * In "insert after terminal residue" COOT could carry over what
+         exists for the terminal residue
+
+      These might not always be correct, but they should be 99+% of
+      the time.
+
+   o enable --splash-screen
+
    o "CA mode" for nucleic acids should draw a P and C1' trace. [VR]
      Priority: 10, Difficulty: 4
 

@@ -49,18 +49,20 @@ void
 graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					     GtkWidget *residue_tree_scrolled_window,
 					     GtkWidget *atom_list_scrolled_window) {
-     
+
+   graphics_info_t g;
    GtkWidget *residue_tree = gtk_tree_view_new(); 
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(residue_tree_scrolled_window),
 					 residue_tree);
-    gtk_widget_ref(residue_tree);
-    gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window),
+   gtk_widget_ref(residue_tree);
+   gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window),
  			    "go_to_atom_residue_tree",
  			    residue_tree, 
  			    (GtkDestroyNotify) gtk_widget_unref);
-   graphics_info_t::fill_go_to_atom_residue_tree_gtk2(residue_tree);
+   int imol = g.go_to_atom_molecule();
+   graphics_info_t::fill_go_to_atom_residue_tree_gtk2(imol, residue_tree);
    gtk_widget_show(residue_tree);
-
+   
    /* The atom list/tree */
    GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(go_to_atom_window),
 					      "go_to_atom_atom_scrolledwindow");
@@ -86,18 +88,22 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 //
 // Recall that the tree is created in c-interface.cc's fill_go_to_atom_window().
 void
-graphics_info_t::fill_go_to_atom_residue_tree_gtk2(GtkWidget *gtktree) {
+graphics_info_t::fill_go_to_atom_residue_tree_gtk2(int imol, GtkWidget *gtktree) {
 
    std::string button_string;
    graphics_info_t g;
 
+   std::cout << "DEBUG:: fill_go_to_atom_residue_tree_gtk2() using mol "
+	     << imol << std::endl;
+
    g.go_to_atom_residue(); // sets values of unset (magic -1) go to
 			   // atom residue number.
 
-   if (is_valid_model_molecule(g.go_to_atom_molecule())) { 
+
+   if (is_valid_model_molecule(imol)) { 
 
       std::vector<coot::model_view_atom_tree_chain_t> residue_chains = 
-	 molecules[g.go_to_atom_molecule()].model_view_residue_tree_labels();
+	 molecules[imol].model_view_residue_tree_labels();
 
       // so, clear the current tree:
       GtkTreeView *tv = NULL;

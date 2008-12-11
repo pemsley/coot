@@ -105,6 +105,7 @@ molecule_class_info_t::delete_ghost_selections() {
    }
 }
 
+// This is a ghost_molecule_display_t member function
 void
 coot::ghost_molecule_display_t::update_bonds(CMMDBManager *mol) {
 

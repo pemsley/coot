@@ -425,7 +425,7 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, CAtom *atom)
 void
 graphics_info_t::make_synthetic_select_on_residue_tree(GtkWidget *residue_tree, CAtom *atom_p) const {
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 
    make_synthetic_select_on_residue_tree_gtk1(residue_tree, atom_p);
 
@@ -633,17 +633,19 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
       if (gtktree == NULL) {
 	 std::cout << "ERROR:: gtktree (go_to_atom_residue_tree) is null!\n"; 
       } else {
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 	 graphics_info_t::fill_go_to_atom_residue_list_gtk1(gtktree);
-#else 	 
-	 graphics_info_t::fill_go_to_atom_residue_tree_gtk2(gtktree);
+#else
+	 std::cout << "DEBUG:: update_go_to_atom_window_on_changed_mol() for imol "
+		   << imol << std::endl;
+	 graphics_info_t::fill_go_to_atom_residue_tree_gtk2(imol, gtktree);
 #endif	 
       }
    } 
 }
 
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
 
 /* for all the GtkItem:: and GtkTreeItem:: signals */
 // static
@@ -663,7 +665,7 @@ void graphics_info_t::residue_tree_view_itemsignal( GtkWidget *item,
 	    item, GTK_TREE (item->parent)->level);
 }
 
-#endif // #if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#endif // #if (GTK_MAJOR_VERSION == 1)
 
 
 
@@ -740,21 +742,29 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       GtkSignalFunc callback_func = 
 	 GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
       // set last active (1)
-      fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 1);
+      fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
 
       // If there was no molecule already, we need to update the atom
       // lists too.
 
       // Update the residue and atom list to the last displayed
       // molecule.
+
+      // However, if there *was/were* a molecule in existance before
+      // the new one was added, we don't want to change the go to atom
+      // molecule residue tree (do we?)
+      
       int mol_no= -1;
+      std::vector<int> imols_existing;
       for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model()) {
 	    mol_no = imol;
+	    imols_existing.push_back(imol);
 	 }
       }
       if (mol_no != -1)
-	 update_go_to_atom_window_on_changed_mol(mol_no);
+	 if (imols_existing.size() == 1) 
+	    update_go_to_atom_window_on_changed_mol(mol_no);
    }
 }
 
@@ -824,10 +834,10 @@ graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionTyp
 // 						 "go_to_atom_residue_list");
       GtkWidget *residue_gtktree = lookup_widget(GTK_WIDGET(item),
 						 "go_to_atom_residue_tree");
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
+#if (GTK_MAJOR_VERSION == 1)
       fill_go_to_atom_residue_list_gtk1(residue_gtktree);
 #else      
-      fill_go_to_atom_residue_tree_gtk2(residue_gtktree);
+      fill_go_to_atom_residue_tree_gtk2(pos, residue_gtktree);
 #endif      
    }
 }
