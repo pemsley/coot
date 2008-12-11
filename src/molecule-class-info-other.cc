@@ -4798,9 +4798,11 @@ molecule_class_info_t::draw_display_list_objects() {
 	 glEnable(GL_LIGHTING);
 	 std::vector<coot::display_list_object_info>::const_iterator it;
 	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
-	    if (it->display_it) { 
-  	       n_objects++;
-	       glCallList(it->tag);
+	    if (! it->is_closed) { 
+	       if (it->display_it) { 
+		  n_objects++;
+		  glCallList(it->tag);
+	       }
 	    }
 	 }
 	 glDisable(GL_LIGHTING);
