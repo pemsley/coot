@@ -1994,10 +1994,6 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    if (representation_type == coot::BALL_AND_STICK) {
       int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.12, 0.28, 1);
       if ((display_list_handle_index >= 0) && (display_list_handle_index < display_list_tags.size())) {
-	 std::cout << "=============== adding new display object with index "
-		   << display_list_handle_index << " which has GL tag "
-		   << display_list_tags[display_list_handle_index].tag
-		   << std::endl;
 	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
       } 
    }
@@ -2457,15 +2453,15 @@ void molecule_class_info_t::update_additional_representations() {
 void
 molecule_class_info_t::remove_display_list_object_with_handle(int handle_index) {
 
-   for (unsigned int i=0; i<display_list_tags.size(); i++) { 
-      std::cout << "   display_list_tags: index " << i << " tag " << display_list_tags[i].tag;
-      if (display_list_tags[i].is_closed)
-	 std::cout << " closed";
-      std::cout << std::endl;
-   }
+//    for (unsigned int i=0; i<display_list_tags.size(); i++) { 
+//       std::cout << "   display_list_tags: index " << i << " tag " << display_list_tags[i].tag;
+//       if (display_list_tags[i].is_closed)
+// 	 std::cout << " closed";
+//       std::cout << std::endl;
+//    }
    
-   std::cout << "closing display_list_tags number..." << handle_index
-	     << " which has GL tag " << display_list_tags[handle_index].tag << std::endl;
+//    std::cout << "closing display_list_tags number..." << handle_index
+// 	     << " which has GL tag " << display_list_tags[handle_index].tag << std::endl;
    display_list_tags[handle_index].close_yourself();
 } 
 
