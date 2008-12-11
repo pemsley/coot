@@ -1912,35 +1912,37 @@ coot::atom_selection_info_t::mmdb_string() const {
 void
 coot::additional_representations_t::fill_bonds_box() {
 
-   atom_selection_container_t atom_sel;
+   if (representation_type != coot::BALL_AND_STICK) { 
+      atom_selection_container_t atom_sel;
 
-   atom_sel.mol =  (MyCMMDBManager *) mol;
-   atom_sel.SelectionHandle = mol->NewSelection();
+      atom_sel.mol =  (MyCMMDBManager *) mol;
+      atom_sel.SelectionHandle = mol->NewSelection();
    
-   if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
+      if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
       
-      mol->SelectAtoms(atom_sel.SelectionHandle,
-		       0, (char *) atom_sel_info.chain_id.c_str(),
-		       atom_sel_info.resno_start, (char *) atom_sel_info.ins_code.c_str(),
-		       atom_sel_info.resno_end,   (char *) atom_sel_info.ins_code.c_str(),
-		       "*", "*", "*", "*");
-   }
-   if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
-      mol->Select(atom_sel.SelectionHandle, STYPE_ATOM, 
-		  (char *) atom_sel_info.atom_selection_str.c_str(),
-		  SKEY_NEW);
+	 mol->SelectAtoms(atom_sel.SelectionHandle,
+			  0, (char *) atom_sel_info.chain_id.c_str(),
+			  atom_sel_info.resno_start, (char *) atom_sel_info.ins_code.c_str(),
+			  atom_sel_info.resno_end,   (char *) atom_sel_info.ins_code.c_str(),
+			  "*", "*", "*", "*");
+      }
+      if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
+	 mol->Select(atom_sel.SelectionHandle, STYPE_ATOM, 
+		     (char *) atom_sel_info.atom_selection_str.c_str(),
+		     SKEY_NEW);
       
-   }
-   mol->GetSelIndex(atom_sel.SelectionHandle,
-		    atom_sel.atom_selection,
-		    atom_sel.n_selected_atoms);
+      }
+      mol->GetSelIndex(atom_sel.SelectionHandle,
+		       atom_sel.atom_selection,
+		       atom_sel.n_selected_atoms);
 
-   if (bonds_box_type == coot::NORMAL_BONDS) { 
-      Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
-      bonds_box.clear_up();
-      bonds_box = bonds.make_graphical_bonds();
+      if (bonds_box_type == coot::NORMAL_BONDS) { 
+	 Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
+	 bonds_box.clear_up();
+	 bonds_box = bonds.make_graphical_bonds();
+      }
+      mol->DeleteSelection(atom_sel.SelectionHandle);
    }
-   mol->DeleteSelection(atom_sel.SelectionHandle);
 }
 
 std::string
@@ -1990,9 +1992,14 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
    display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
-      int display_list_handle = make_ball_and_stick(info.mmdb_string(), 0.12, 0.28, 1);
-      if ((display_list_handle >= 0) && (display_list_handle < display_list_tags.size())) 
-	 add_reps[n_rep].add_display_list_handle(display_list_handle);
+      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.12, 0.28, 1);
+      if ((display_list_handle_index >= 0) && (display_list_handle_index < display_list_tags.size())) {
+	 std::cout << "=============== adding new display object with index "
+		   << display_list_handle_index << " which has GL tag "
+		   << display_list_tags[display_list_handle_index].tag
+		   << std::endl;
+	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
+      } 
    }
      
    return n_rep;
@@ -2428,9 +2435,39 @@ molecule_class_info_t::make_bonds_type_checked() {
 void molecule_class_info_t::update_additional_representations() {
 
    for (unsigned int i=0; i<add_reps.size(); i++) {
-      add_reps[i].fill_bonds_box();
+      // make_ball_and_stick is not available from inside an add_rep,
+      // so we do it outside.
+      if (add_reps[i].representation_type != coot::BALL_AND_STICK) {
+	 add_reps[i].update_self();
+      } else {
+
+	 // let's remove the old/current dlo from the tags list before we add a new one.
+
+	 
+	 int old_handle = add_reps[i].display_list_handle;
+	 remove_display_list_object_with_handle(old_handle);
+	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(), 0.12, 0.28, 1);
+	 if ((handle >= 0) && (handle < display_list_tags.size())) 
+	    add_reps[i].update_self_display_list_entity(handle);
+      }
    }
 }
+
+
+void
+molecule_class_info_t::remove_display_list_object_with_handle(int handle_index) {
+
+   for (unsigned int i=0; i<display_list_tags.size(); i++) { 
+      std::cout << "   display_list_tags: index " << i << " tag " << display_list_tags[i].tag;
+      if (display_list_tags[i].is_closed)
+	 std::cout << " closed";
+      std::cout << std::endl;
+   }
+   
+   std::cout << "closing display_list_tags number..." << handle_index
+	     << " which has GL tag " << display_list_tags[handle_index].tag << std::endl;
+   display_list_tags[handle_index].close_yourself();
+} 
 
 void
 molecule_class_info_t::update_mols_in_additional_representations() {

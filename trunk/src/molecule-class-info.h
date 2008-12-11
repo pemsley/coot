@@ -256,6 +256,7 @@ namespace coot {
    
    class display_list_object_info {
    public:
+      bool is_closed;
       GLuint tag;
       int type;
       std::string atom_selection;
@@ -265,7 +266,11 @@ namespace coot {
 	 return (dloi.tag == tag);
       }
       display_list_object_info() { 
-	display_it = 1; 
+	 display_it = 1;
+	 is_closed = 0;
+      }
+      void close_yourself() {
+	 is_closed = 1;
       } 
    };
 
@@ -284,7 +289,7 @@ namespace coot {
       int is_open_p() const {
 	 int r = 1 - is_closed;
 	 return r;
-      } 
+      }
    };
 
    class at_dist_info_t {
@@ -410,16 +415,24 @@ namespace coot {
 
    class additional_representations_t { 
    public:
-     bool show_it;
-     int bonds_box_type;
-     int representation_type;
-     float bond_width;
-     bool draw_hydrogens_flag;
-     graphical_bonds_container bonds_box;
-     atom_selection_info_t atom_sel_info;
-     CMMDBManager *mol;
-     int display_list_handle;
-     void fill_bonds_box();
+      bool show_it;
+      int bonds_box_type;
+      int representation_type;
+      float bond_width;
+      bool draw_hydrogens_flag;
+      graphical_bonds_container bonds_box;
+      atom_selection_info_t atom_sel_info;
+      CMMDBManager *mol;
+      int display_list_handle;
+      void update_self() {
+	 if (representation_type != BALL_AND_STICK) {
+	    fill_bonds_box();
+	 }
+      }
+      void update_self_display_list_entity(int handle_in) {
+	 display_list_handle = handle_in;
+      }
+      void fill_bonds_box();
      additional_representations_t(CMMDBManager *mol_in,
 				  int representation_type_in,
 				  int bonds_box_type_in,
@@ -1073,6 +1086,7 @@ class molecule_class_info_t {
    // Tripping up here?  Need Bond_lines.h
    graphical_bonds_container bonds_box;
    std::vector<coot::additional_representations_t> add_reps;
+   void remove_display_list_object_with_handle(int handle);
 
    std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
    std::vector<std::pair<graphical_bonds_container, symm_trans_t> > strict_ncs_bonds_box;
