@@ -736,11 +736,6 @@ class molecule_class_info_t {
 			  int residue_range_2,
 			  clipper::RTop_orth a_to_b_transform);
 
-   coot::Cartesian  centre_of_molecule() const;
-   float size_of_molecule() const; // return the standard deviation of
-				   // the length of the atoms from the
-				   // centre of the molecule
-
    std::vector<coot::dots_representation_info_t> dots;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
 				     bool ca_check_flag) const;
@@ -1182,6 +1177,13 @@ class molecule_class_info_t {
    const coot::CartesianPair* diff_map_draw_vectors;
    int n_diff_map_draw_vectors;
    int n_draw_vectors;
+
+   coot::Cartesian  centre_of_molecule() const;
+   float size_of_molecule() const; // return the standard deviation of
+				   // the length of the atoms from the
+				   // centre of the molecule
+
+
 
    // return -1 if atom not found.
    int atom_index(const char *chain_id, int iresno, const char *atom_id); 

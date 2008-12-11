@@ -1102,10 +1102,14 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
       } else {
 
 	 // -6x^2 +6x parametric function
-	 if (smooth_scroll_steps > 0) { 
+	 if (smooth_scroll_steps > 0) {
+	    int n_steps = smooth_scroll_steps;
+	    if (do_zoom_and_move_flag)
+	       n_steps *= 3;
 	    float rotation_centre_x_start = rotation_centre_x;
 	    float rotation_centre_y_start = rotation_centre_y;
 	    float rotation_centre_z_start = rotation_centre_z;
+	       
 	    for (int ii=0; ii<smooth_scroll_steps; ii++) {
 	       float range_frac = float(ii)/float(smooth_scroll_steps);
 	       float f_x = (-2*range_frac*range_frac*range_frac + 3*range_frac*range_frac);
@@ -1183,6 +1187,7 @@ graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
    rotation_centre_x = centre.get_x();
    rotation_centre_y = centre.get_y();
    rotation_centre_z = centre.get_z();
+   zoom = target_zoom;
 }
 
 
@@ -4571,7 +4576,8 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 								    short int set_last_active_flag) {
 
    int imol_active = -1; // To allow the function to work as it used to.
-   fill_option_menu_with_coordinates_options_internal_2(option_menu, callback_func, set_last_active_flag, imol_active);
+   fill_option_menu_with_coordinates_options_internal_2(option_menu, callback_func,
+							set_last_active_flag, imol_active);
 
 }
 

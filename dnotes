@@ -4,15 +4,21 @@ Things to do for 0.5.1
 
   7 Things, 8hd.
 
-  o Ideal RNA: gat.  Does it make it correctly?
-
-  o Loop building in both directions for scheme.  Needs checking from GUI.
-    1hd
-
-  o Nucletide builder - with B form RNA need to be fixed.  Needs O2'. 1hd
+  o Nucleotide builder - with B form RNA need to be fixed.  Needs O2'. 1hd
 
   o Pucker of ideal DNA need to be fixed.  Needs better reference nucleotide.
     1hd.
+
+  o 1h4p NAG: it doesn't refine - even when I read in the dictionary
+    by hand.  What's going wrong?
+
+  o Do the fat bond and Ball & Stick rep get updated on moving
+    residue/sidechain? 
+
+  o Draw -> Additional Representation -> This residue -> Ball & Stick
+    Gets drawn in fat bonds too.  Bad.
+
+  o Ideal RNA: gat.  Does it make it correctly?
 
   o [Maria Håkansson] Hydrogen fail to move in SHELXL molecule when using:
 
@@ -31,9 +37,43 @@ Things to do for 0.5.1
 
 
 
+  o Reset View needs fixing.
 
+* Fixed.
 
+  o "the molecule chooser dropdown in go to atom is not updated on
+    copy fragment." - JED
 
+* Fixed
+
+  o Loop building in both directions for scheme.  Needs checking from GUI.
+    1hd
+
+* Done.
+
+  o Ramachandran fixup in Extensions - does it need more residues to be refined?
+
+* Done.
+
+   o clean up this debugging:
+
+DEBUG:: GetSelIndex (make_flanking_atoms_rama_restraints) returned 3 residues (for flanking rama restraints)
+DEBUG:: --------- :: Adding RAMA phi_psi_restraints_type
+Adding RAMACHANDRAN_RESTRAINT
+
+* Done.
+
+  o Open Distance and Angles dialog, open a new one, close the new
+    one, take a distance on the old one -> crash.  We need to not open
+    a new one if there is an old one and we need to raise and
+    unminimize the old one.
+
+* Fixed.
+
+  o (set-view-quaternion 0 0 0 0) in 0-coot.state.scm file [written
+    when using --no-graphics preivously (perhaps)].
+
+* Fixed.
 
   o Test that manual-ncs-ghosts averages all the maps for NCS > 2.
     Jianghai Zhu <jzhu@idi.harvard.edu> 3 Nov 2008.  (I mean, add a test, 
@@ -82,6 +122,8 @@ Things to do for 0.5.1
 * Works.
 
  o Add "Make 4mer-XYS" to the advanced tutorial.
+
+* Noted.
    
   o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
     Make a fixed atom on the O3* of 1A.  The refinement fails now (no
@@ -94,8 +136,9 @@ Things to do for 0.5.1
 * Looks good now. Well, the fixed atom moves, but the minimization
   completes succesfully now.
 
-<<<<<<< .mine
   o Mail B re: changes to manual-ncs-ghosts.
+
+* Done.
 
   o Make a function that colours by a function that returns a value
     given an atom spec.
@@ -116,25 +159,12 @@ Things to do for 0.5.1
 
 * Done.
 
-=======
-
-  o Look at build-coot-fc4-gtk2/src/Ideal-B-form-DNA-interesting.pdb.
-    Make a fixed atom on the O3* of 1A.  The refinement fails now (no
-    progress).  Is that because of make_link_restraints() is not taking
-    into account the fixed atoms?  Could well be, because if I delete
-    residue 2 in that chain, then the regularization (with that atom 
-    fixed) works fine! 
-    1hd 
-
-* Looks good now. Well, the fixed atom moves, but the minimization
-  completes succesfully now.
-
->>>>>>> .r1655
   o update map without generating a new molecule.
     Perhaps the NCS maps, or read a new map from MTZ updating a
     already existing map.
 
 * Done.
+
  o Add a function of molecule-class that returns the position
    (if posible) of an atom given a string e.g. 
    "A" -> nearest atom in the A chain
@@ -176,7 +206,7 @@ INFO::  xmap_list :0
 
    i.e. make a function that returns this then simply run through the list.
 
-*Done, with avengance.
+* Done, with avengance.
 
    o     on building an non-python version:
 
@@ -336,10 +366,6 @@ also on bragg3:
   o Geometry graphs (rotamers at least) are transient and annoying.
 
 * Nope.  It's a window manager issue.
-
-  o Edit the Coot page on the CCP4 wiki: put a link into Kay's page.
-
-* Done.
 
   o Enable the torsion of a ligand when in CA+lig display mode [Ingo
     Korndoefer]
@@ -7511,5 +7537,34 @@ Thu Dec  4 16:27:58 GMT 2008
   o What about binding PowerMate to chi angle motion - which is moving
     the mouse a bit.  Surely we can do that?
 
+---
+Sun Dec  7 19:36:04 GMT 2008
+
+	simple-restraint.hh
+
+	    // 20081207: don't do this here now - because the
+	    // memory/selection is deleted again in
+	    // clear_up_moving_atoms(). It *should* be done here of
+	    // course, but we'll save that for the future.
+	    // 
+	    //if (atom) { 
+	    // mol->DeleteSelection(SelHnd_atom);
+	    // atom = NULL;
+	    // } 
+
+   NOTE: In future problems of memory when using a CRresidue * vector
+   could be due to restraints_container_t deconstuctor.
+
+---
+Wed Dec 10 10:16:05 GMT 2008
+
+	Add Use of 1hvv NCS residue range maps to advanced tutorial.
+
+
+---
+Thu Dec 11 12:55:32 GMT 2008
+
+   After an mmdb read, delete chains that don't have atoms in them.
+   (created by LINK? records in the header).
 
 -----

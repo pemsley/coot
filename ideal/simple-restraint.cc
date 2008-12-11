@@ -5662,7 +5662,7 @@ coot::restraints_container_t::add_rama(std::string link_type,
    // (1st C) (2nd N) (2nd CA) (2nd C) (3rd N)
 
    
-  std::cout << "DEBUG:: --------- :: Adding RAMA phi_psi_restraints_type" << std::endl;
+   // std::cout << "DEBUG:: --------- :: Adding RAMA phi_psi_restraints_type" << std::endl;
    
    int n_rama = 0;
       
@@ -5738,7 +5738,7 @@ coot::restraints_container_t::add_rama(std::string link_type,
       if ( (atom_indices[0] != -1) && (atom_indices[1] != -1) && (atom_indices[2] != -1) && 
 	   (atom_indices[3] != -1) && (atom_indices[4] != -1)) { 
 
-	 std::cout << "Adding RAMACHANDRAN_RESTRAINT " << std::endl;
+	 // std::cout << "Adding RAMACHANDRAN_RESTRAINT " << std::endl;
 	 
 	 add(RAMACHANDRAN_RESTRAINT,
 	     atom_indices[0], atom_indices[1], atom_indices[2],

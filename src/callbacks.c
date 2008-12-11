@@ -5012,6 +5012,9 @@ on_geometry_dialog_destroy             (GtkObject       *object,
 /* Nope!  we can't do the cast of object->widget, (then widget->window
    is NULL) and store function fails. */
 /*   store_window_position(COOT_DISTANCES_ANGLES_WINDOW, GTK_WIDGET(object)); */
+  
+  /* However, we do want to unset the geometry_dialog pointer */
+  store_geometry_dialog(NULL);
 
 }
 

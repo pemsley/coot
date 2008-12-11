@@ -304,15 +304,21 @@ molecule_class_info_t::size_of_molecule() const {
    coot::Cartesian centre = centre_of_molecule();
    if (atom_sel.n_selected_atoms > 0) {
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-	 d2_sum +=
-	    (atom_sel.atom_selection[i]->x - centre.x() *
-	     (atom_sel.atom_selection[i]->x - centre.x())) + 
-	    (atom_sel.atom_selection[i]->y - centre.y() *
-	     (atom_sel.atom_selection[i]->y - centre.y())) + 
-	    (atom_sel.atom_selection[i]->z - centre.z() *
-	     (atom_sel.atom_selection[i]->z - centre.z()));
+	 double d =
+	    (atom_sel.atom_selection[i]->x - centre.x()) *
+	    (atom_sel.atom_selection[i]->x - centre.x()) + 
+	    (atom_sel.atom_selection[i]->y - centre.y()) *
+	    (atom_sel.atom_selection[i]->y - centre.y()) + 
+	    (atom_sel.atom_selection[i]->z - centre.z()) *
+	    (atom_sel.atom_selection[i]->z - centre.z());
+	 // std::cout << i << " adding in d = " << d << std::endl;
+	 d2_sum += d;
       }
-      r = sqrt(d2_sum/(double(atom_sel.n_selected_atoms)));
+      double msd = d2_sum/double(atom_sel.n_selected_atoms);
+      r = sqrt(msd);
+//       std::cout << " for imol = " << imol_no << " " 
+// 	       << r << " = sqrt(" << msd << ") " << " = sqrt("
+// 	       << d2_sum << "/" << atom_sel.n_selected_atoms << ")" << std::endl;
    }
    return r;
 }
