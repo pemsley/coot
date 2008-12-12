@@ -2055,6 +2055,127 @@
       (gtk-widget-show-all window))))
 
 
+;; GUI for ligand superpositioning by graph matching
+;;
+(define (superpose-ligand-gui) 
+  
+  (let ((window (gtk-window-new 'toplevel))
+	(ligands-vbox (gtk-vbox-new #f 2))
+	(title (gtk-label-new "Superpose Ligands"))
+	;; I (BL) would like to use generic-molecule-chooser but in 
+	;; scheme we may run into packing problems, so use Paul/scheme style
+	(ref-label (gtk-label-new "Model with reference ligand"))
+	(ref-chain-hbox (gtk-hbox-new #f 2))
+	(chain-id-ref-label (gtk-label-new "Ligand Chain ID: "))
+	(chain-id-ref-entry (gtk-entry-new))
+	(resno-ref-label (gtk-label-new " Residue Number "))
+	(resno-ref-entry (gtk-entry-new))
+
+	(mov-label (gtk-label-new "Model with moving ligand"))
+	(mov-chain-hbox (gtk-hbox-new #f 2))
+	(chain-id-mov-label (gtk-label-new "Ligand Chain ID: "))
+	(chain-id-mov-entry (gtk-entry-new))
+	(resno-mov-label (gtk-label-new " Residue Number "))
+	(resno-mov-entry (gtk-entry-new))
+	(h-sep (gtk-hseparator-new))
+	(buttons-hbox (gtk-hbox-new #f 6))
+	(ok-button (gtk-button-new-with-label "   Superpose 'em  "))
+	(cancel-button (gtk-button-new-with-label "    Cancel    "))
+	(menu-ref (gtk-menu-new))
+	(menu-mov (gtk-menu-new))
+	(option-menu-ref-mol (gtk-option-menu-new))
+	(option-menu-mov-mol (gtk-option-menu-new)))
+	
+    (let ((molecule-list-ref (fill-option-menu-with-coordinates-mol-options
+				  menu-ref))
+	  (molecule-list-mov (fill-option-menu-with-coordinates-mol-options
+				  menu-mov)))
+
+      (gtk-option-menu-set-menu option-menu-ref-mol menu-ref)
+      (gtk-option-menu-set-menu option-menu-mov-mol menu-mov)
+
+      (gtk-container-add window ligands-vbox)
+      (gtk-box-pack-start ligands-vbox title #f #f 6)
+      (gtk-box-pack-start ligands-vbox ref-label #f #f 2)
+      (gtk-box-pack-start ligands-vbox option-menu-ref-mol #t #f 2)
+      (gtk-box-pack-start ligands-vbox ref-chain-hbox #f #f 2)
+      (gtk-box-pack-start ligands-vbox mov-label #f #f 2)
+      (gtk-box-pack-start ligands-vbox option-menu-mov-mol #t #f 2)
+      (gtk-box-pack-start ligands-vbox mov-chain-hbox #f #f 2)
+      (gtk-box-pack-start ligands-vbox h-sep #f #f 2)
+      (gtk-box-pack-start ligands-vbox buttons-hbox #f #f 6)
+
+      (gtk-box-pack-start buttons-hbox     ok-button #t #f 4)
+      (gtk-box-pack-start buttons-hbox cancel-button #t #f 4)
+
+      (gtk-box-pack-start ref-chain-hbox chain-id-ref-label #f #f 2)
+      (gtk-box-pack-start ref-chain-hbox chain-id-ref-entry #f #f 2)
+      (gtk-box-pack-start ref-chain-hbox resno-ref-label #f #f 2)
+      (gtk-box-pack-start ref-chain-hbox resno-ref-entry #f #f 2)
+      
+      (gtk-box-pack-start mov-chain-hbox chain-id-mov-label #f #f 2)
+      (gtk-box-pack-start mov-chain-hbox chain-id-mov-entry #f #f 2)
+      (gtk-box-pack-start mov-chain-hbox resno-mov-label #f #f 2)
+      (gtk-box-pack-start mov-chain-hbox resno-mov-entry #f #f 2)
+
+      ;;(gtk-widget-set-usize chain-id-lig-entry 32 -1)
+      ;;(gtk-widget-set-usize chain-id-ref-entry 32 -1)
+      ;;(gtk-widget-set-usize resno-start-entry  50 -1)
+      ;;(gtk-widget-set-usize resno-end-entry    50 -1)
+      ;;(gtk-entry-set-text chain-id-ref-entry "A")
+      ;;(gtk-entry-set-text chain-id-lig-entry "A")
+      ;;(gtk-entry-set-text resno-start-entry "1")
+
+      ;;(gtk-tooltips-set-tip (gtk-tooltips-new)
+	;;		    chain-id-ref-entry 
+	;;		    (string-append
+	;;		    "\"A\" is a reasonable guess at the NCS master chain id.  "
+	;;		    "If your ligand (specified below) is NOT bound to the protein's "
+	;;		    "\"A\" chain, then you will need to change this chain and also "
+	;;		    "make sure that the master molecule is specified appropriately "
+	;;		    "in the Draw->NCS Ghost Control window.")
+	;;		    "")
+      ;;(gtk-tooltips-set-tip (gtk-tooltips-new)
+	;;		    resno-end-entry 
+	;;		    "Leave blank for a single residue" "")
+      
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda ()
+			    (let* ((active-mol-no-ref
+				    (get-option-menu-active-molecule 
+				     option-menu-ref-mol
+				     molecule-list-ref))
+				   (active-mol-no-mov
+				    (get-option-menu-active-molecule 
+				     option-menu-mov-mol
+				     molecule-list-mov))
+				   (chain-id-ref (gtk-entry-get-text chain-id-ref-entry))
+				   (chain-id-mov (gtk-entry-get-text chain-id-mov-entry))
+				   (resno-ref
+				    (string->number (gtk-entry-get-text resno-ref-entry)))
+				   (resno-mov
+				    (string->number (gtk-entry-get-text resno-mov-entry))))
+
+			      ; (format #t "resnos: ~s ~s~%" resno-start resno-end)
+					
+			      (if (number? resno-ref)
+				  (if (number? resno-mov)
+				      (begin 
+					(overlay-my-ligands active-mol-no-mov
+							    chain-id-mov
+							    resno-mov
+							    active-mol-no-ref
+							    chain-id-ref
+							    resno-ref)))))
+			    (gtk-widget-destroy window)))
+
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda ()
+			    (gtk-widget-destroy window)))
+
+      (gtk-widget-show-all window))))
+
+
 
 (define (key-bindings-gui)
 

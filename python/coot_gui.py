@@ -2613,6 +2613,107 @@ def ncs_ligand_gui():
 
    window.show_all()
 
+
+# GUI for ligand superpositioning by graph matching
+#
+def superpose_ligand_gui():
+   
+   def delete_event(*args):
+      window.destroy()
+      return False
+
+   def go_button_function(widget):
+      active_mol_no_ref_lig = get_option_menu_active_molecule(*option_menu_ref_mol_pair)
+      active_mol_no_mov_lig = get_option_menu_active_molecule(*option_menu_mov_mol_pair)
+      chain_id_ref = chain_id_ref_entry.get_text()
+      chain_id_mov = chain_id_mov_entry.get_text()
+      resno_ref = False
+      resno_mov = False
+      try:
+         resno_ref = int(resno_ref_entry.get_text())
+      except:
+         print "can't decode reference resno", resno_ref_entry.get_text()
+         
+      try:
+         resno_mov = int(resno_mov_entry.get_text())
+      except:
+         print "can't decode moving resno", resno_mov_entry.get_text()
+         
+
+      if (resno_ref and resno_mov):
+         overlay_my_ligands(active_mol_no_mov_lig, chain_id_mov, resno_mov,
+                            active_mol_no_ref_lig, chain_id_ref, resno_ref)
+
+      delete_event()
+      
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   title = gtk.Label("Superpose Ligands")
+   ligands_vbox = gtk.VBox(False, 2)
+   ref_chain_hbox = gtk.HBox(False, 2)
+   chain_id_ref_label = gtk.Label("Ligand Chain ID: ")
+   chain_id_ref_entry = gtk.Entry()
+   resno_ref_label    = gtk.Label(" Residue Number ") 
+   resno_ref_entry = gtk.Entry()
+   
+   mov_chain_hbox = gtk.HBox(False, 2)
+   chain_id_mov_label= gtk.Label("Ligand Chain ID: ")
+   chain_id_mov_entry = gtk.Entry()
+   resno_mov_label = gtk.Label(" Residue Number ")
+   resno_mov_entry = gtk.Entry()
+
+   h_sep = gtk.HSeparator()
+
+   buttons_hbox = gtk.HBox(True, 6)
+
+   ok_button = gtk.Button("   Superpose 'em  ")
+   cancel_button = gtk.Button("    Cancel    ")
+
+   window.add(ligands_vbox)
+   ligands_vbox.pack_start(title, False, False, 6)
+   option_menu_ref_mol_pair = generic_molecule_chooser(ligands_vbox, "Model with reference ligand")
+   ligands_vbox.pack_start(ref_chain_hbox, False, False, 2)
+
+   option_menu_mov_mol_pair = generic_molecule_chooser(ligands_vbox, "Model with moving ligand")   
+   ligands_vbox.pack_start(mov_chain_hbox, False, False, 2)
+
+   ligands_vbox.pack_start(h_sep, False, False, 2)
+   ligands_vbox.pack_start(buttons_hbox, False, False, 2)
+
+   buttons_hbox.pack_start(ok_button,     True, False, 4)
+   buttons_hbox.pack_start(cancel_button, True, False, 4)
+
+   ref_chain_hbox.pack_start(chain_id_ref_label, False, False, 2)
+   ref_chain_hbox.pack_start(chain_id_ref_entry, False, False, 2)
+   ref_chain_hbox.pack_start(resno_ref_label, False, False, 2)
+   ref_chain_hbox.pack_start(resno_ref_entry, False, False, 2)
+
+   mov_chain_hbox.pack_start(chain_id_mov_label, False, False, 2)
+   mov_chain_hbox.pack_start(chain_id_mov_entry, False, False, 2)
+   mov_chain_hbox.pack_start(resno_mov_label, False, False, 2)
+   mov_chain_hbox.pack_start(resno_mov_entry, False, False, 2)
+
+#   chain_id_lig_entry.set_size_request(32, -1)
+#   chain_id_ref_entry.set_size_request(32, -1)
+#   resno_start_entry.set_size_request(50, -1)
+#   resno_end_entry.set_size_request(50, -1)
+#   chain_id_ref_entry.set_text("A")
+#   chain_id_lig_entry.set_text("A")
+#   resno_start_entry.set_text("1")
+
+#   tooltips = gtk.Tooltips()
+#   tooltips.set_tip(chain_id_ref_entry, "'A' is a reasonable guess at the NCS master chain id.  " +
+#                    "If your ligand (specified below) is NOT bound to the protein's " +
+#                    "'A' chain, then you will need to change this chain and also " +
+#                    "make sure that the master molecule is specified appropriately " +
+#                    "in the Draw->NCS Ghost Control window.")
+#   tooltips.set_tip(resno_end_entry, "Leave blank for a single residue")
+
+   ok_button.connect("clicked", go_button_function)
+
+   cancel_button.connect("clicked", delete_event)
+
+   window.show_all()
+
 global std_key_bindings
 std_key_bindings = [["a", "refine with auto-zone"],
                     ["b", "toggle baton swivel"],
