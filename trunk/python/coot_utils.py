@@ -1142,6 +1142,19 @@ def phosphorylate_active_residue():
 		s = "Can't Phosphorylate residue of type " + res_name
 		info_dialog(s)
 
+# A function for Overlaying ligands.  The transformation is applied
+# to all the atoms of the molecule that contains the moving ligand.
+#
+def overlay_my_ligands(imol_mov, chain_id_mov, resno_mov,
+                       imol_ref, chain_id_ref, resno_ref):
+
+    imol_frag = new_molecule_by_atom_selection(imol_mov,
+                                               "//" + chain_id_mov + \
+                                               "/" + str(resno_mov))
+    rtop_i = overlap_ligands(imol_frag, imol_ref, chain_id_ref, resno_ref)
+    set_mol_displayed(imol_frag, 0)
+    transform_coords_molecule(imol_mov, rtop_i[0])
+
 def label_all_CAs(imol):
     
     for chain_id in chain_ids(imol):
