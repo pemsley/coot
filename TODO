@@ -7,17 +7,19 @@
 
 -----
 
-    Release 0.6 and 0.7 [Dec 2008, April 2009]
+    Release 0.6 and 0.7 [April 2008, June 2009]
 
    Top commitments:
 
-  o P backbone mode
   o Edit a SHELXL file before refinement
   o backrub on rotamer search
   o Helix fitting overshoots
   o PISA output display
   o In the restraints editor, the volume sign should be displayed as 
     a string (generated from volume_string_int)
+  o Make ligand fitting work from a given position (find the blob
+    centre close and do the orientation search there)
+  o P backbone mode
 
   Like to do:
   o redo sequence view
@@ -54,7 +56,8 @@
    o update map without generating a new molecule.
      Perhaps the NCS maps, or read a new map from MTZ updating a
      already existing map.
-     Punt to 0.6.
+
+* Done.
 
   o Consider setting the "handled" flag only for key pressed that did
     something, e.g. we could then use the "B" and "S" keys, because they
@@ -300,7 +303,7 @@
 
  ------
     
-    Release 0.8 [June 2009]
+    Release 0.8 [Sept 2009]
 
    o Use libglade.
 
@@ -341,15 +344,19 @@
    o Make the N and M zoom keys work with multiframes, rather than a
      step/jump in zoom.
 
+* Done!
+
    o RNA rotamer analysis "What is the rotamer of this suite here?"
 
 ------
 
-   Release 0.9, Facelift-release [Sept 2009]
+   Release 0.9, Facelift-release [Dec 2009]
 
    o Oxidized cysine - with a modification
 
    o Clean up menu items, use Preferences.
+
+* Done.
 
    o Internationalize (enable translations)
 
@@ -357,10 +364,12 @@
 
    o re-write build-it script
 
+* Done.
+
    o read multiple files from shift and ctrl clicking in the file selection.
 
 
 -----
  
-   Release 1.0 [~Dec 2009]
+   Release 1.0 [April 2010]
 
