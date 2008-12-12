@@ -1098,6 +1098,9 @@ which will return a list of strings.
 @cindex rotation centre
 @item To centre on an arbitrary position (x,y,z), use the scripting function
    @code{(set-rotation-centre x y z)}.
+@item or
+@item Use the keyboard: [Ctrl G] then key in a residue number and (optionally) a chainid 
+      and press Return
 @end itemize
 
 If you don't want smooth recentring (sliding)
@@ -1122,6 +1125,7 @@ The clipping can also be changed using keyboard ``D'' and ``F''.
 
 One can ``push'' and ``pull'' the view in the screen-Z direction using
 keypad 3 and keypad ``.'' (see Section @ref{Keyboard Z Translation}).
+
 
 @node Background colour
 @section Background colour
