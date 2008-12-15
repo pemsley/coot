@@ -1576,7 +1576,10 @@
 		     imol-mov (string-append "//" chain-id-mov "/" (number->string resno-mov))))
 	 (rtop+i (overlap-ligands imol-frag imol-ref chain-id-ref resno-ref)))
     (set-mol-displayed imol-frag 0)
-    (transform-coords-molecule imol-mov (car rtop+i))))
+    (set-mol-active    imol-frag 0)
+    (if (not rtop+i)
+	(format #t "WARNING:: Failure to get RToperator in overlap-ligands~%")
+	(transform-coords-molecule imol-mov (car rtop+i)))))
 
 
 
