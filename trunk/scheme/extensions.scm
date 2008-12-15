@@ -247,7 +247,7 @@
 
 	;; 
 	;; ---------------------------------------------------------------------
-	;;     Molecule functions
+	;;     Molecule functions/Modelling
 	;;
 	;; ---------------------------------------------------------------------
 	(add-simple-coot-menu-menuitem
@@ -403,6 +403,11 @@
 	 (lambda ()
 	   (phosphorylate-active-residue)))
 	
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Superpose ligands"
+	 (lamdba ()
+	    (superpose-ligand-gui)))
+
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Use SEGIDs..."
 	 (lambda () 
