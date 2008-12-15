@@ -405,7 +405,7 @@
 	
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Superpose ligands"
-	 (lamdba ()
+	 (lambda ()
 	    (superpose-ligand-gui)))
 
 	(add-simple-coot-menu-menuitem
