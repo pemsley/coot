@@ -7611,5 +7611,22 @@ Fri Dec 12 13:55:19 GMT 2008
       Don't recentre View
       Recentre new molecule to current view
 
+---
+Mon Dec 15 14:07:50 GMT 2008
+
+INFO::
+	How to do a release
+	How to make a release
+
+   o New entry in ChangeLog
+   o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
+   o change the version in configure.in
+   o change the splash screen
+        artists acknowledged in glade/aboutdialog?
+   o commit
+   o Is everyting OK on bubbles? Makes new source tar file?
+   o clear out pre-releases
+   o Build binaries on some hosts
+   o Mail mailing list
 
 -----
