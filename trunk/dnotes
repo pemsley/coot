@@ -7623,6 +7623,9 @@ INFO::
    o change the version in configure.in
    o change the splash screen
         artists acknowledged in glade/aboutdialog?
+        To correct the transparency, duplicate layer, bucket fill with white 
+        the bottom layer, merge and bevel 6.
+   o svn add the new splash screen pixmap
    o commit
    o Is everyting OK on bubbles? Makes new source tar file?
    o clear out pre-releases

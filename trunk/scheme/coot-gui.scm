@@ -2225,6 +2225,7 @@
 	 (usr-frame-vbox (gtk-vbox-new #f 2))
 	 (std-key-bindings
 	  (list 
+	   '("^g" "keyboard-go-to-residue")
 	   '("a" "refine with auto-zone")
 	   '("b" "toggle baton swivel")
 	   '("c" "toggle cross-hairs")
@@ -2232,8 +2233,9 @@
 	   '("f" "increase depth of field")
 	   '("u" "undo last navigation")
 	   '("i" "toggle spin mode")
-	   '("n" "zoom in")
+	   '("l" "label closest atom")
 	   '("m" "zoom out")
+	   '("n" "zoom in")
 	   '("o" "other NCS chain")
 	   '("p" "update position to closest atom")
 	   '("s" "update skeleton")
