@@ -8,10 +8,19 @@ Release 0.5.1 Uneno
    o FEATURE: show-rotamer-dialog is now available from the scripting
      layer (hence `quick rotamer' keybinding) [FvD].
 
-   o FEATURE: NCS ghost work using LSQ to get the matrix, not SSM.
- 
    o FEATURE: Manual definition of NCS ghost matrices - GUI added.
 
+   o FEATURE: overlay-my-ligands function introduced.
+
+   o FEATURE: A simple interface to electrostatic surfaces has been
+     introduced (Extensions -> Representations).
+
+   o FEATURE: rotate-chi feature introduced.  For use with a PowerMate.
+
+   o FEATURE: keyboard-based Go To Residue for quicker navigation.
+
+   o CHANGE: NCS ghost work using LSQ to get the matrix, not SSM.
+ 
    o CHANGE: Display manager toggle buttons replaced with check
      buttons.
 
@@ -21,6 +30,8 @@ Release 0.5.1 Uneno
 
    o CHANGE: Extensions menu re-worked.
 
+   o CHANGE: Keyboard zooming is now smoothed.
+
    o BUG-FIX: the chi angle bond highlighting works again.
 
    o BUG-FIX: The Cancel button in Save Restraints now works.
@@ -28,7 +39,7 @@ Release 0.5.1 Uneno
    o BUG-FIX: Check/Delete waters in Check mode no longer causes a
      crash when the "Close" button is clicked.
 
-   o BUG-FIX: Atom elements are infered from the atom name.
+   o BUG-FIX: Atom elements are inferred from the atom name.
 
    o BUG-FIX: writing of cifs from the Restraints editor has been
      improved [JED].
@@ -48,6 +59,19 @@ Release 0.5.1 Uneno
 
    o BUG-FIX: Fixed crash on using multiple geometry (Distance and
      Angles) dialogs.
+
+   o BUG-FIX: The Reset View button has been reworked.
+
+   o BUG-FIX: Ball & Stick additional representations has been
+     reworked and now move as the molecule gets updated.
+
+   o BUG-FIX: Ramachandran improvement function has been improved.
+
+   o BUG-FIX: Rotamers and simple refinement now work with residues
+     with insertion codes.
+
+   o BUG-FIX: The rotamer graph no longer rescales on updating a
+     molecule.
 
 
 -----

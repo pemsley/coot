@@ -45,7 +45,8 @@ namespace coot {
       short int is_valid_base(char base) const;
       char antisense_base(char base, short int is_dna_flag) const;
       int mutate_res(CResidue *res, char base, short int is_dna_flag) const;
-      void delete_o2_prime(CResidue *res) const;
+      void delete_o2_prime(CResidue *res) const; // RNA -> DNA
+      void add_o2_prime(CResidue *res) const;    // DNA -> RNAv
 
    public:
       ideal_rna(const std::string &RNA_or_DNA, const std::string &form,

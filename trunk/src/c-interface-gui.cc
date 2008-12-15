@@ -634,7 +634,7 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
 
   if (reference_id == COOT_REFERENCE_COOT) {
 
-    ref_description = "If have found this software to be useful, you are requested to cite:\n\n";
+    ref_description = "If you have found this software to be useful, you are requested to cite:\n\n";
 
     title       = "Coot: model-building tools for molecular graphics";
     author      = "Emsley P, Cowtan K";

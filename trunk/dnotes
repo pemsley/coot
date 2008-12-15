@@ -2,23 +2,25 @@
 
 Things to do for 0.5.1
 
-  7 Things, 8hd.
-
-  o Nucleotide builder - with B form RNA need to be fixed.  Needs O2'. 1hd
-
-  o Pucker of ideal DNA need to be fixed.  Needs better reference nucleotide.
-    1hd.
+  1 Things, 1hd.
 
   o 1h4p NAG: it doesn't refine - even when I read in the dictionary
     by hand.  What's going wrong?
 
-  o Do the fat bond and Ball & Stick rep get updated on moving
-    residue/sidechain? 
 
-  o Draw -> Additional Representation -> This residue -> Ball & Stick
-    Gets drawn in fat bonds too.  Bad.
 
-  o Ideal RNA: gat.  Does it make it correctly?
+
+
+
+
+  o Pucker of ideal DNA need to be fixed.  Needs better reference nucleotide.
+    1hd.
+
+* Done. Not tested :-/
+
+  o Nucleotide builder - with B form RNA need to be fixed.  Needs O2'. 1hd
+
+* Done.
 
   o [Maria Håkansson] Hydrogen fail to move in SHELXL molecule when using:
 
@@ -31,11 +33,17 @@ Things to do for 0.5.1
      Works for me.
 
 * There is no quick solution for this - SHELXL has systematically
-  different hydrogen names.  Needs an email to Maria.
+  different hydrogen names.  Needs an email to Maria.  Done.
 
+  o Do the fat bond and Ball & Stick rep get updated on moving
+    residue/sidechain? 
 
+* Fixed.
 
+  o Draw -> Additional Representation -> This residue -> Ball & Stick
+    Gets drawn in fat bonds too.  Bad.
 
+* Fixed.
 
   o Reset View needs fixing.
 
@@ -2485,6 +2493,8 @@ Wed May 16 20:30:02 BST 2007
 
        Swanand sg363@mole.bio.cam.ac.uk
 
+* No, just bind a function to a key.
+
 ----
 Thu May 17 12:44:56 BST 2007
 
@@ -3767,7 +3777,9 @@ Wed Sep 26 16:03:32 BST 2007
 
 ------
 
-    What about interactions with pisa?
+    What about interactions with PISA?
+
+* Scheduled for 0.6.
 
 ------
 
@@ -7566,5 +7578,38 @@ Thu Dec 11 12:55:32 GMT 2008
 
    After an mmdb read, delete chains that don't have atoms in them.
    (created by LINK? records in the header).
+
+---
+Fri Dec 12 00:01:19 GMT 2008
+
+   When writing out the state file (header?) only include pdb
+   molecules that can be read.
+
+   e.g. after using copy fragment, but no saving of the molecule.
+
+
+----
+Fri Dec 12 00:07:18 GMT 2008
+
+   Find and fix the bad trans bond in 1h4p
+
+---
+Fri Dec 12 13:23:52 GMT 2008
+
+   Roberto steiner wants CA + ligs + waters mode.
+
+---
+Fri Dec 12 13:55:19 GMT 2008
+
+   Kevin M.:
+
+   When reading in a ligand, give me an option to directly move it to
+   the screen centre.
+
+   Change to an option menu:
+      Recentre View on new molecule
+      Don't recentre View
+      Recentre new molecule to current view
+
 
 -----

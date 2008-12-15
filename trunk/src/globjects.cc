@@ -905,7 +905,8 @@ int graphics_info_t::backbone_torsion_carbonyl_button_start_pos_x;
 int graphics_info_t::backbone_torsion_carbonyl_button_start_pos_y;
 
 // show citation notice?
-short int graphics_info_t::show_citation_notice = 1; // on by default :)
+// short int graphics_info_t::show_citation_notice = 1; // on by default :)
+short int graphics_info_t::show_citation_notice = 0; // on by default :)
 
 // we have dragged shear fixed points?
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;

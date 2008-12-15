@@ -584,11 +584,23 @@ There is also a script function to return the version of coot:
 @code{(coot-version)}
 
 @section Anti-aliasing
-Anti-aliasing (for what it's worth) can be enabled using:
+The built-in antialiasing (for what it's worth) can be enabled using:
 
 @code{(set-do-anti-aliasing 1)}
 
 The default is @code{0} (off).
+
+This can also be activated using @command{Edit Preferences -> Others ->
+Antialiasing -> Yes}.
+
+If you have an nVidia graphics card, external antialiasing can be
+actived using nvidia-settings:
+
+@command{Antialiasing Setting -> Override Application Settings} and
+slide the slider to the right.
+
+On restarting Coot, it should be in antialias mode @footnote{that works
+for me, at least.}.
 
 @section Molecule Number
 @cindex molecule number 
