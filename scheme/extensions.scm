@@ -404,7 +404,7 @@
 	   (phosphorylate-active-residue)))
 	
 	(add-simple-coot-menu-menuitem
-	 submenu-models "Superpose ligands"
+	 submenu-models "Superpose ligands..."
 	 (lambda ()
 	    (superpose-ligand-gui)))
 

@@ -2079,7 +2079,7 @@
 	(resno-mov-entry (gtk-entry-new))
 	(h-sep (gtk-hseparator-new))
 	(buttons-hbox (gtk-hbox-new #f 6))
-	(ok-button (gtk-button-new-with-label "   Superpose 'em  "))
+	(ok-button (gtk-button-new-with-label "   Superpose Ligands  "))
 	(cancel-button (gtk-button-new-with-label "    Cancel    "))
 	(menu-ref (gtk-menu-new))
 	(menu-mov (gtk-menu-new))
