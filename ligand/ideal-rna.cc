@@ -52,7 +52,16 @@ coot::ideal_rna::make_molecule() {
    }
 
    if (form_ == "B") { 
-      ur = get_standard_residue_instance("Cd", standard_residues);
+      ur = get_standard_residue_instance("Gd", standard_residues);
+
+
+      if (! is_dna_flag) {
+	 // Add a O2' to RNA
+	 // 
+	 std::string new_atom_name = " O2*";
+	 std::vector<std::string> at; // reference atom names
+	 add_o2_prime(ur);
+      }
       form_flag = B_FORM;
    } else {
       form_flag = A_FORM;
@@ -313,19 +322,76 @@ coot::ideal_rna::delete_o2_prime(CResidue *res) const {
    int natoms;
    PPCAtom residue_atoms;
    short int deleted = 0;
-   
-   res->GetAtomTable(residue_atoms, natoms);
-   for (int i=0; i<natoms; i++) {
-      std::string atname(residue_atoms[i]->name);
-      if (atname == " O2*") {
-	 res->DeleteAtom(i);
-	 deleted=1;
-      } 
-      if (atname == " O2'") {
-	 res->DeleteAtom(i);
-	 deleted=1;
+
+   if (res) { 
+      res->GetAtomTable(residue_atoms, natoms);
+      for (int i=0; i<natoms; i++) {
+	 std::string atname(residue_atoms[i]->name);
+	 if (atname == " O2*") {
+	    res->DeleteAtom(i);
+	    deleted=1;
+	 } 
+	 if (atname == " O2'") {
+	    res->DeleteAtom(i);
+	    deleted=1;
+	 }
+      }
+      if (deleted)
+	 res->TrimAtomTable();
+   }
+}
+
+// Tinker with res
+void
+coot::ideal_rna::add_o2_prime(CResidue *res) const {
+
+   if (res) {
+      std::vector<clipper::Coord_orth> mov_pts; // in order
+      
+      mov_pts.push_back(clipper::Coord_orth(6.853,  -5.219,   1.725));  // C1'
+      mov_pts.push_back(clipper::Coord_orth(7.473,  -4.888,   3.087));  // C2'
+      mov_pts.push_back(clipper::Coord_orth(6.678,  -5.807,   4.033));  // C3'
+
+      // The coordinate that gets moved by the rtop returned from LSQing.
+      // Later, it gets turned into an atom and added to res
+      // 
+      clipper::Coord_orth o2p(8.870, -5.158, 3.018);
+
+      int natoms;
+      PPCAtom residue_atoms;
+      CAtom *c1p = NULL;
+      CAtom *c2p = NULL;
+      CAtom *c3p = NULL;
+      res->GetAtomTable(residue_atoms, natoms);
+      for (int i=0; i<natoms; i++) {
+	 std::string atname(residue_atoms[i]->name);
+	 if (atname == " C1'" || atname == " C1*")
+	    c1p = residue_atoms[i];
+	 if (atname == " C2'" || atname == " C2*")
+	    c2p = residue_atoms[i];
+	 if (atname == " C3'" || atname == " C3*")
+	    c3p = residue_atoms[i];
+      }
+
+      if (c1p && c2p && c3p) { // add o
+	 std::vector<clipper::Coord_orth> ref_pts;
+	 ref_pts.push_back(clipper::Coord_orth(c1p->x, c1p->y, c1p->z));
+	 ref_pts.push_back(clipper::Coord_orth(c2p->x, c2p->y, c2p->z));
+	 ref_pts.push_back(clipper::Coord_orth(c3p->x, c3p->y, c3p->z));
+
+	 clipper::RTop_orth rtop(mov_pts, ref_pts);
+	 clipper::Coord_orth pos = o2p.transform(rtop);
+
+	 float new_atom_occ = 1.0;
+	 float new_atom_b_factor = 30.0;
+	 std::string new_atom_name = " O2*";
+	 std::string new_atom_ele = " O";
+
+	 CAtom *new_at = new CAtom;
+	 new_at->SetCoordinates(pos.x(), pos.y(), pos.z(), new_atom_occ, new_atom_b_factor);
+	 new_at->SetAtomName(new_atom_name.c_str());
+	 new_at->SetElementName(new_atom_ele.c_str());
+	 res->AddAtom(new_at);
       }
    }
-   if (deleted)
-      res->TrimAtomTable();
-}
+} 

@@ -811,7 +811,7 @@ void setup_application_icon(GtkWindow *window) {
 void 
 show_citation_request() { 
 
-   std::cout << "\n   If have found this software to be useful, you are requested to cite:\n"
+   std::cout << "\n   If you have found this software to be useful, you are requested to cite:\n"
 	     << "   Coot: model-building tools for molecular graphics" << std::endl;
    std::cout << "   Emsley P, Cowtan K" << std::endl;
    std::cout << "   ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY\n";

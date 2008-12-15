@@ -93,8 +93,8 @@ graphics_info_t::fill_go_to_atom_residue_tree_gtk2(int imol, GtkWidget *gtktree)
    std::string button_string;
    graphics_info_t g;
 
-   std::cout << "DEBUG:: fill_go_to_atom_residue_tree_gtk2() using mol "
-	     << imol << std::endl;
+//    std::cout << "DEBUG:: fill_go_to_atom_residue_tree_gtk2() using mol "
+// 	     << imol << std::endl;
 
    g.go_to_atom_residue(); // sets values of unset (magic -1) go to
 			   // atom residue number.
