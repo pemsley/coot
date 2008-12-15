@@ -265,7 +265,7 @@ if (have_coot_python):
 
      
      #---------------------------------------------------------------------
-     #     Molecule functions
+     #     Molecule functions/Modelling
      #
      #---------------------------------------------------------------------
 
@@ -410,6 +410,12 @@ if (have_coot_python):
        "Phosphorylate this residue",
        lambda func: phosphorylate_active_residue())
 
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Superpose ligands",
+       lambda func: superpose_ligand_gui())
+     
 
      add_simple_coot_menu_menuitem(
        submenu_models,
