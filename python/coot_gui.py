@@ -2715,15 +2715,17 @@ def superpose_ligand_gui():
    window.show_all()
 
 global std_key_bindings
-std_key_bindings = [["a", "refine with auto-zone"],
+std_key_bindings = [["^g", "keyboard-go-to-residue"],
+                    ["a", "refine with auto-zone"],
                     ["b", "toggle baton swivel"],
                     ["c", "toggle cross-hairs"],
                     ["d", "reduce depth of field"],
                     ["f", "increase depth of field"],
                     ["u", "undo last navigation"],
                     ["i", "toggle spin mode"],
-                    ["n", "zoom in"],
+                    ["l", "label closest atom"],
                     ["m", "zoom out"],
+                    ["n", "zoom in"],
                     ["o", "other NCS chain"],
                     ["p", "update position to closest atom"],
                     ["s", "update skeleton"],

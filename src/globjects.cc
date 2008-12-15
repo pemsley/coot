@@ -2780,6 +2780,12 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; // stops ALT key getting through to key-press-hook
       break;
 
+   case GDK_Shift_L: // stops Shift key getting through to key-press-hook
+   case GDK_Shift_R:
+
+      handled = TRUE;
+      break;
+      
    case GDK_Return:
 
       if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
@@ -3059,8 +3065,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_l:
    case GDK_L:
-   case GDK_Shift_L: // an undocumented feature :-)
-   case GDK_Shift_R: // for left-mouse users.
       {
 	 graphics_info_t g;
 	 std::pair<int, int> cl_at = g.get_closest_atom();
