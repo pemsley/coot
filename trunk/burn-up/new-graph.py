@@ -28,7 +28,7 @@ data = chart_data.read_csv("burn-up.tab", delim=" ")
 # and numbers are printed as integers ("%d").
 #
 xaxis = axis.X(tic_interval = 2, label="Days")
-yaxis = axis.Y(tic_interval = 20, label="Points")
+yaxis = axis.Y(tic_interval = 20, label="Dev Points")
 
 # Define the drawing area. "y_range=(0,None)" tells that the Y minimum
 # is 0, but the Y maximum is to be computed automatically. Without
@@ -40,7 +40,8 @@ ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,30), y_range=(0,180))
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
 # column, which is the default.
 plot = line_plot.T(label="Done", data=data, ycol=1)
-plot2 = line_plot.T(label="Total", data=data, ycol=2, tick_mark=tick_mark.square)
+# plot2 = line_plot.T(label="Total", data=data, ycol=2, tick_mark=tick_mark.square)
+plot2 = line_plot.T(label="Total", data=data, ycol=2)
 
 ar.add_plot(plot, plot2)
 

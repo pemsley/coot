@@ -655,6 +655,8 @@
 		(a (@ href "http://www.ysbl.york.ac.uk/~emsley/build-logs/bubbles-local-build.log")
 		   "source build log"))
 
+	     (p (a (@ href "burn-up.png") "Burn-up chart"))
+
 	     ;; binary targets
 	     (table 
 	      (@ border 1)
