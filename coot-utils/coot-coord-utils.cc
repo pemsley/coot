@@ -429,7 +429,7 @@ coot::is_member_p(const std::vector<CResidue *> &v, CResidue *a) {
    return ir;
 } 
 
-short int
+bool
 coot::is_main_chain_p(CAtom *at) { 
 
    std::string mol_atom_name(at->name);
@@ -445,7 +445,7 @@ coot::is_main_chain_p(CAtom *at) {
    } 
 }
 
-short int
+bool
 coot::is_main_chain_or_cb_p(CAtom *at) { 
 
    std::string mol_atom_name(at->name);
