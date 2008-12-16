@@ -240,16 +240,43 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
   GtkWidget *coords_fileselection1;
   GtkWidget *checkbutton;
   int recentre_on_read_pdb_flag = 0;
+  /* new option menu variables */
+  GtkWidget *option_menu;
+  GtkWidget *menu;
+  GtkWidget *active_item;
+  int active_index;
+  short int move_molecule_here_flag = 0;
 
   coords_fileselection1 = lookup_widget(GTK_WIDGET(button),
 					"coords_fileselection1");
   
+  if (0) {			/* old style */
   checkbutton = lookup_widget(GTK_WIDGET(button), 
 			      "coords_fileselection1_recentre_checkbutton");
-  
   if (checkbutton) 
     if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       recentre_on_read_pdb_flag = 1;
+  } else {
+    /* new style 20081214 */
+    option_menu = lookup_widget(GTK_WIDGET(button), 
+				"coords_fileselection1_recentre_optionmenu");
+    if (option_menu) { 
+      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+      active_item = gtk_menu_get_active(GTK_MENU(menu));
+      active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+      printf("DEBUG:: on ok button pressed, active index %d\n", active_index);
+      /* active items: 0: recentre view on new molecule
+                       1: don't recentre new molecule
+                       2: recentre new molecule on view
+      */
+      if (active_index == 0) 
+	recentre_on_read_pdb_flag = 1;
+      if (active_index == 1) 
+	recentre_on_read_pdb_flag = 0;
+      if (active_index == 2) 
+	move_molecule_here_flag = 1;
+    }
+  }
 
   save_directory_from_fileselection(coords_fileselection1);
 
@@ -260,11 +287,15 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
        handle_read_draw needs to be declared external) and read the
        molecule and display it. */
    
-  if (recentre_on_read_pdb_flag)
-    handle_read_draw_molecule_with_recentre(filename, 1);
-  else 
-    handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
-
+  if (move_molecule_here_flag) { 
+    handle_read_draw_molecule_and_move_molecule_here(filename);
+  } else { 
+    if (recentre_on_read_pdb_flag)
+      handle_read_draw_molecule_with_recentre(filename, 1);
+    else 
+      handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
+  }
+    
   gtk_widget_destroy(coords_fileselection1); 
 }
 
