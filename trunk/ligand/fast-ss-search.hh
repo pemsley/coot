@@ -42,8 +42,8 @@ namespace coot {
 
      void prep_target( SSfind::SSTYPE type, int num_residues );
      void prep_xmap( const clipper::Xmap<float>& xmap, const double radius );
-     void prep_results( const clipper::Xmap<float>& xmap, const double radius );
-     void prep_results( const clipper::Xmap<float>& xmap, const double radius, const double rhocut, const double radcut, const clipper::Coord_orth centre );
+     void prep_results( const clipper::Xmap<float>& xmap );
+     void prep_results( const clipper::Xmap<float>& xmap, const double rhocut, const double radcut, const clipper::Coord_orth centre );
      void set_target_score( const double score );
      const std::vector<SearchResult>& search( const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut=0.0 );
    
