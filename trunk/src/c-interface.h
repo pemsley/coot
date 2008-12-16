@@ -532,6 +532,10 @@ int handle_read_draw_molecule(const char *filename);
 int handle_read_draw_molecule_with_recentre(const char *filename, 
 					    int recentre_on_read_pdb_flag);
 
+/*! \brief read coordinates from filename and recentre the new
+  molecule at the scren rotation centre. */
+int handle_read_draw_molecule_and_move_molecule_here(const char *filename);
+
 /*! \brief read coordinates from filename */
 int read_pdb(const char *filename); // cc4mg function name
 

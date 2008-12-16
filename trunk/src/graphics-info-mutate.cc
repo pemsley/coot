@@ -90,7 +90,8 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
       CResidue *std_res = molci.get_standard_residue_instance(target_res_type);
 
       if (std_res == NULL) {
-		 std::cout << "WARNING:: Can't find standard residue for " << target_res_type << "\n";
+	 std::cout << "WARNING:: Can't find standard residue for " 
+                   << target_res_type << "\n";
       } else { 
       
 	 for (int ichain=0; ichain<nchains; ichain++) {

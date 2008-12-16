@@ -1704,40 +1704,88 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
 #if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       doit = 0;
-      GtkWidget *button =lookup_widget(GTK_WIDGET(fileselection),
-				     "coords_filechooserdialog1_recentre_checkbutton");
+      GtkWidget *button =
+	 lookup_widget(GTK_WIDGET(fileselection),
+		       "coords_filechooserdialog1_recentre_checkbutton");
       if (graphics_info_t::recentre_on_read_pdb)
      	  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
    }
 #endif
    
- if (doit) {
-    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-    GtkWidget *button = gtk_check_button_new_with_label("Recentre");
-    GtkWidget *frame = gtk_frame_new("Recentre?");
-    GtkTooltips *tooltips = gtk_tooltips_new();
+   if (doit) {
 
-    gtk_widget_ref(button);
-    gtk_object_set_data_full(GTK_OBJECT(fileselection),
-			     "coords_fileselection1_recentre_checkbutton",
-			     button,
-			     (GtkDestroyNotify) gtk_widget_unref);
-    gtk_tooltips_set_tip(tooltips, button,
-			 _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
+      if (0) { 
+      
+	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+	 GtkWidget *button = gtk_check_button_new_with_label("Recentre");
+	 GtkWidget *frame = gtk_frame_new("Recentre?");
+	 GtkTooltips *tooltips = gtk_tooltips_new();
 
-    // shall we activate the button?
-    if (graphics_info_t::recentre_on_read_pdb)
-       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-    gtk_widget_show(button);
-    gtk_container_add(GTK_CONTAINER(aa),frame);
-    gtk_container_add(GTK_CONTAINER(frame), button);
-    gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
-			NULL);
-    gtk_widget_show(frame);
- } else {
-   // we have chooser
- }
+	 gtk_widget_ref(button);
+	 gtk_object_set_data_full(GTK_OBJECT(fileselection),
+				  "coords_fileselection1_recentre_checkbutton",
+				  button,
+				  (GtkDestroyNotify) gtk_widget_unref);
+	 gtk_tooltips_set_tip(tooltips, button,
+			      _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
+
+	 // shall we activate the button?
+	 if (graphics_info_t::recentre_on_read_pdb)
+	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+	 gtk_widget_show(button);
+	 gtk_container_add(GTK_CONTAINER(aa),frame);
+	 gtk_container_add(GTK_CONTAINER(frame), button);
+	 gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			     GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
+			     NULL);
+	 gtk_widget_show(frame);
+      } else {
+
+	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+	 GtkWidget *om = gtk_option_menu_new();
+	 GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(om));
+	 if (menu)
+	    gtk_widget_destroy(menu);
+	 menu = GTK_WIDGET(gtk_menu_new());
+	 GtkWidget *frame = gtk_frame_new("Recentre?");
+	 GtkTooltips *tooltips = gtk_tooltips_new();
+
+	 gtk_widget_ref(om);
+	 gtk_object_set_data_full(GTK_OBJECT(fileselection),
+				  "coords_fileselection1_recentre_optionmenu",
+				  om,
+				  (GtkDestroyNotify) gtk_widget_unref);
+// 	 gtk_tooltips_set_tip(tooltips, om,
+// 			      _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
+
+	 GtkWidget *menuitem;
+
+	 menuitem = gtk_menu_item_new_with_label("Recentre on Molecule");
+	 gtk_menu_append(GTK_MENU(menu), menuitem);
+	 gtk_widget_show(menuitem);
+	 // shall we activate the button?
+	 if (graphics_info_t::recentre_on_read_pdb)
+	    gtk_menu_item_activate(GTK_MENU_ITEM(menuitem));
+	 //
+	 menuitem = gtk_menu_item_new_with_label("Don't Recentre");
+	 gtk_menu_append(GTK_MENU(menu), menuitem);
+	 if (!graphics_info_t::recentre_on_read_pdb)
+	    gtk_menu_item_activate(GTK_MENU_ITEM(menuitem));
+	 gtk_widget_show(menuitem);
+	 // 
+	 menuitem = gtk_menu_item_new_with_label("Recentre Molecule Here");
+	 gtk_menu_append(GTK_MENU(menu), menuitem);
+	 gtk_widget_show(menuitem);
+	 
+
+
+	 gtk_widget_show(om);
+	 gtk_container_add(GTK_CONTAINER(aa),frame);
+	 gtk_container_add(GTK_CONTAINER(frame), om);
+	 gtk_option_menu_set_menu(GTK_OPTION_MENU(om), menu);
+	 gtk_widget_show(frame);
+      }
+   }
 }
 
 

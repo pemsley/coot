@@ -449,6 +449,14 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 }
 
 
+/*! \brief read coordinates from filename and recentre the new
+  molecule at the scren rotation centre. */
+int handle_read_draw_molecule_and_move_molecule_here(const char *filename) {
+   int imol = handle_read_draw_molecule_with_recentre(filename, 0);
+   move_molecule_to_screen_centre_internal(imol);
+   return imol;
+}
+
 int read_pdb(const char *filename) {
    // history is done in the handle function
    return handle_read_draw_molecule(filename); 
