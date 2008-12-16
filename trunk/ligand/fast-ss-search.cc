@@ -44,16 +44,7 @@
 namespace coot {
 
 
-SSfind::SSfind( const double step )
-{
-  if ( step < 1.0 )
-    step_ = clipper::Util::rad2d( step );
-  else
-    step_ = step;
-}
-
-
-std::vector<std::vector<clipper::Coord_orth> > SSfind::operator() ( const clipper::Xmap<float>& xmap, int num_residues, SSfind::SSTYPE type )
+void SSfind::prep_target( SSfind::SSTYPE type, int num_residues )
 {
   const int sslen = num_residues;
 
@@ -145,41 +136,140 @@ std::vector<std::vector<clipper::Coord_orth> > SSfind::operator() ( const clippe
     ssops[m] = clipper::RTop_orth( mp[ssmid], mp[m] );
 
   // build whole ss repr coords
+  target_cs.clear();
   for ( int i = 0; i < rep_co.size(); i++ )
     for ( int m = 0; m < ssops.size(); m++ )
-      all_co.push_back( Pair_coord( ssops[m] * rep_co[i].first,
-				    ssops[m] * rep_co[i].second ) );
+      target_cs.push_back( Pair_coord( ssops[m] * rep_co[i].first,
+				       ssops[m] * rep_co[i].second ) );
 
-  // do the search
-  std::vector<clipper::RTop_orth> rtops = (*this)( xmap, all_co );
-
-  // build the results
-  std::vector<clipper::Coord_orth> ss( ssops.size() );
-  std::vector<std::vector<clipper::Coord_orth> > result( rtops.size() );
-  for ( int i = 0; i < rtops.size(); i++ ) {
-    for ( int r = 0; r < ssops.size(); r++ )
-      ss[r] = rtops[i] * clipper::Coord_orth( ssops[r].trn() );
-    result[i] = ss;
-  }
-
-  return result;
+  // build ca coords
+  calpha_cs.clear();
+  for ( int m = 0; m < ssops.size(); m++ )
+    calpha_cs.push_back( clipper::Coord_orth( ssops[m].trn() ) );
 }
 
 
-std::vector<clipper::RTop_orth> SSfind::operator() ( const clipper::Xmap<float>& xmap, std::vector<std::pair<clipper::Coord_orth,clipper::Coord_orth> >& all_co )
+void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius, const double rhocut )
 {
+  // make a 1-d array of gridded density values covering ASU+border
+  grid = xmap.grid_sampling();
+  grrot = xmap.operator_orth_grid().rot();
+  clipper::Grid_range gr0 = xmap.grid_asu();
+  clipper::Grid_range gr1( xmap.cell(), xmap.grid_sampling(), radius );
+  mxgr = clipper::Grid_range( gr0.min()+gr1.min(), gr0.max()+gr1.max() );
+  mapbox = std::vector<float>( mxgr.size(), 0.0 );
+  typedef clipper::Xmap<float>::Map_reference_index MRI;
+
+  // make 1d list of densities
+  MRI ix( xmap );
+  for ( int i = 0; i < mapbox.size(); i++ ) {
+    ix.set_coord( mxgr.deindex( i ) );
+    mapbox[i] = xmap[ix];
+  }
+
+  // make list of results;
+  SearchResult rslt;
+  rslt.score = 0.0;
+  rslt.rot = -1;
+  rslts.clear();
+  if ( rhocut == 0.0 ) {
+    for ( MRI ix = xmap.first(); !ix.last(); ix.next() ) {
+      rslt.trn = grid.index( ix.coord() );
+      rslts.push_back( rslt );
+    }
+  } else {
+    for ( MRI ix = xmap.first(); !ix.last(); ix.next() ) {
+      rslt.trn = grid.index( ix.coord() );
+      if ( xmap[ix] > rhocut ) rslts.push_back( rslt );
+    }
+  }
+}
+
+
+void SSfind::set_target_score( const double score ) {
+  for ( int i = 0; i < rslts.size(); i++ ) {
+    rslts[i].score = score;
+    rslts[i].rot = -1;
+  }
+}
+
+
+const std::vector<SearchResult>& SSfind::search( const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut )
+{
+  // make a list of indexed, intergerized, rotated lists
+  std::vector<std::vector<std::pair<int,int> > > index_lists;
+  int i0 = mxgr.index( clipper::Coord_grid(0,0,0) );
+  for ( int r = 0; r < ops.size(); r++ ) {
+    clipper::RTop_orth op = ops[r].inverse();
+    std::vector<std::pair<int,int> > tmp;
+    for ( int i = 0; i < target_cs.size(); i++ ) {
+      const clipper::Coord_map c1( grrot*(op*target_cs[i].first  ) );
+      const clipper::Coord_map c2( grrot*(op*target_cs[i].second ) );
+      tmp.push_back( std::pair<int,int>( mxgr.index(c1.coord_grid()) - i0,
+					 mxgr.index(c2.coord_grid()) - i0 ) );
+    }
+    index_lists.push_back( tmp );
+  }
+
+  // find ss elements
+  bestcut = 0.0;  // optimisation: abandon searches where score < bestcut
+  const float bestscl( frccut ); 
+  for ( int i = 0; i < rslts.size(); i++ ) {  // loop over map
+    float bestscr = rslts[i].score;
+    int   bestrot = rslts[i].rot;
+    float bestlim = ( bestscr > bestcut ) ? bestscr : bestcut;
+    clipper::Coord_grid cg = grid.deindex( rslts[i].trn );  // coord in grid
+    const int index0 = mxgr.index( cg );                    // index in list
+    if ( mapbox[index0] > rhocut ) {
+      for ( int r = 0; r < index_lists.size(); r++ ) {      // loop over rotns
+	const std::vector<std::pair<int,int> >& index_list( index_lists[r] );
+	float hi = mapbox[index0+index_list[0].first ];
+	float lo = mapbox[index0+index_list[0].second];
+	int i = 1;
+	while ( hi - lo > bestlim ) {                     // loop over points
+	  hi = clipper::Util::min( hi, mapbox[index0+index_list[i].first ] );
+	  lo = clipper::Util::max( lo, mapbox[index0+index_list[i].second] );
+	  i++;
+	  if ( !( i < index_list.size() ) ) break;
+	}
+	if ( hi - lo > bestlim ) {
+	  bestlim = bestscr = hi - lo;
+	  bestrot = r;
+	}
+      }
+    }
+    rslts[i].score = bestscr;  // store
+    rslts[i].rot   = bestrot;
+    bestcut = clipper::Util::max( bestscl*bestscr, bestcut );  // optimisation
+  }
+
+  return rslts;
+}
+
+
+
+// the wrapper class for coot
+
+  void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius, int num_residues, SSTYPE type )
+{
+  typedef clipper::Xmap<float>::Map_reference_index MRI;
+  const clipper::Spacegroup& spgr    = xmap.spacegroup();
+  const clipper::Cell& cell          = xmap.cell();
+  const clipper::Grid_sampling& grid = xmap.grid_sampling();
+
   // make a list of rotations
   std::vector<clipper::RTop_orth> rots;
   // make a list of rotation ops to try
+  const float step = 15.0;
   float glim = 360.0;  // gamma
   float blim = 180.0;  // beta
   float alim = 360.0;  // alpha
   // do a uniformly sampled search of orientation space
   float anglim = clipper::Util::min( alim, glim );
-  for ( float bdeg=step_/2; bdeg < 180.0; bdeg += step_ ) {
+  for ( float bdeg=step/2; bdeg < 180.0; bdeg += step ) {
     float beta = clipper::Util::d2rad(bdeg);
-    float spl = anglim/clipper::Util::intf(cos(0.5*beta)*anglim/step_+1);
-    float smi = anglim/clipper::Util::intf(sin(0.5*beta)*anglim/step_+1);
+    float spl = anglim/clipper::Util::intf(cos(0.5*beta)*anglim/step+1);
+    float smi = anglim/clipper::Util::intf(sin(0.5*beta)*anglim/step+1);
     for ( float thpl=spl/2; thpl < 720.0; thpl += spl )
       for ( float thmi=smi/2; thmi < 360.0; thmi += smi ) {
 	float adeg = clipper::Util::mod(0.5*(thpl+thmi),360.0);
@@ -193,136 +283,111 @@ std::vector<clipper::RTop_orth> SSfind::operator() ( const clipper::Xmap<float>&
       }
   }
 
-  // get cutoff (for optimisation)
-  clipper::Map_stats stats( xmap );
-  double sigcut = stats.mean() + 1.0 * stats.std_dev();
+  // make a target model and representative coordinates
+  prep_target( type, num_residues );
 
   // get map radius
+  const std::vector<Pair_coord>& target_cs = target_coords();
   double r2( 0.0 ), d2( 0.0 );
-  for ( int i = 0; i < all_co.size(); i++ ) {
-    d2 = all_co[i].first.lengthsq();
+  for ( int i = 0; i < target_cs.size(); i++ ) {
+    d2 = target_cs[i].first.lengthsq();
     if ( d2 > r2 ) r2 = d2;
-    d2 = all_co[i].second.lengthsq();
+    d2 = target_cs[i].second.lengthsq();
     if ( d2 > r2 ) r2 = d2;
   }
   double rad = sqrt( r2 ) + 1.0;
 
-  // make a 1-d array of gridded density values covering ASU+border
-  clipper::Grid_range gr0 = xmap.grid_asu();
-  clipper::Grid_range gr1( xmap.cell(), xmap.grid_sampling(), rad );
-  clipper::Grid_range mxgr( gr0.min()+gr1.min(), gr0.max()+gr1.max() );
-  std::vector<float> mapbox( mxgr.size(), 0.0 );
-  typedef clipper::Xmap<float>::Map_reference_index MRI;
-  MRI ix( xmap );
-  for ( int i = 0; i < mapbox.size(); i++ ) {
-    ix.set_coord( mxgr.deindex( i ) );
-    mapbox[i] = xmap[ix];
-  }
+  // get cutoff (for optimisation)
+  clipper::Map_stats stats( xmap );
+  double sigcut = stats.mean() + 1.0 * stats.std_dev();
 
-  // make a list of indexed, intergerized, rotated lists
-  std::vector<std::vector<std::pair<int,int> > > index_lists;
-  clipper::Mat33<> grrot( xmap.operator_orth_grid().rot() );
-  int i0 = mxgr.index( clipper::Coord_grid(0,0,0) );
-  for ( int r = 0; r < rots.size(); r++ ) {
-    std::vector<std::pair<int,int> > tmp;
-    for ( int i = 0; i < all_co.size(); i++ ) {
-      const clipper::Coord_map c1( grrot*(rots[r]*all_co[i].first  ) );
-      const clipper::Coord_map c2( grrot*(rots[r]*all_co[i].second ) );
-      tmp.push_back( std::pair<int,int>( mxgr.index( c1.coord_grid() ) - i0,
-					 mxgr.index( c2.coord_grid() ) - i0 ) );
-    }
-    index_lists.push_back( tmp );
-  }
+  // make a 1-d array of gridded density values covering ASU+border
+  prep_xmap( xmap, rad, sigcut );
 
   // find ss elements
-  std::vector<std::pair<float,std::pair<int,int> > > results;
-  float bestcut = 0.0;  // abandon any searches where score < bestcut
-  for ( MRI ix = xmap.first(); !ix.last(); ix.next() ) {  // loop over map
-    clipper::Coord_grid cg = ix.coord();                  // coord in grid
-    const int index0 = mxgr.index( cg );                  // index in list
-    if ( mapbox[index0] > sigcut ) {
-      int   bestrot = -1;
-      float bestscr = bestcut;
-      for ( int r = 0; r < index_lists.size(); r++ ) {    // loop over rotns
-	const std::vector<std::pair<int,int> >& index_list( index_lists[r] );
-	float hi = mapbox[index0+index_list[0].first ];
-	float lo = mapbox[index0+index_list[0].second];
-	int i = 1;
-	while ( hi - lo > bestscr ) {                     // loop over points
-	  hi = clipper::Util::min( hi, mapbox[index0+index_list[i].first ] );
-	  lo = clipper::Util::max( lo, mapbox[index0+index_list[i].second] );
-	  i++;
-	  if ( !( i < index_list.size() ) ) break;
-	}
-	if ( hi - lo > bestscr ) {
-	  bestscr = hi - lo;
-	  bestrot = r;
-	}
-      }
-      if ( bestrot >= 0 ) {
-	std::pair<int,int> rt( bestrot, index0 );
-	std::pair<float,std::pair<int,int> > scr( bestscr, rt );
-	results.push_back( scr );
-	// increase search cutoff if required (for speed)
-	float tempcut = 0.4 * bestscr;
-	if ( tempcut > bestcut ) bestcut = tempcut;
-      }
-    }
-  }
+  search( rots, sigcut, 0.4 );
+
+  // filter
+  const std::vector<SearchResult>& rslt = results();
+  std::vector<SearchResult> rsltf;
+  for ( int i = 0; i < rslt.size(); i++ )
+    if ( rslt[i].score > score_cutoff() ) rsltf.push_back( rslt[i] );
 
   // sort
-  std::sort( results.begin(), results.end() );
-  std::reverse( results.begin(), results.end() );
+  std::sort( rsltf.begin(), rsltf.end() );
+  std::reverse( rsltf.begin(), rsltf.end() );
 
   // build result list
-  scores_.clear();
   std::vector<clipper::RTop_orth> rtops;
-  for ( int i = 0; i < results.size(); i++ )
-    if ( results[i].first > bestcut ) {
-      int ir = results[i].second.first ;
-      int it = results[i].second.second;
-      clipper::RTop_orth
-	rtop( rots[ir].rot(), xmap.coord_orth( mxgr.deindex(it).coord_map() ) );
-      scores_.push_back( results[i].first );
-      rtops.push_back( rtop );
+  clipper::Coord_frac cf = centre.coord_frac( cell );
+  for ( int i = 0; i < rsltf.size(); i++ ) {
+    int ir = rsltf[i].rot;
+    int it = rsltf[i].trn;
+    clipper::RTop_orth rtop( rots[ir].rot().inverse(),
+			     xmap.coord_orth(grid.deindex(it).coord_map()) );
+    rtops.push_back( rtop );
+  }
+
+  // now do some magic to get the chains near the given centre
+  for ( int i = 0; i < rtops.size(); i++ ) {
+    clipper::RTop_frac rtof = rtops[i].rtop_frac( cell );
+    int smin = 0;
+    double d2min = 1.0e12;
+    for ( int s = 0; s < spgr.num_symops(); s++ ) {
+      clipper::Coord_frac cfs( spgr.symop(s) * rtof.trn() );
+      cfs = cfs.lattice_copy_near( cf ) - cf;
+      double d2 = cfs.lengthsq( cell );
+      if ( d2 < d2min ) { smin  = s; d2min = d2; }
     }
+    rtof = clipper::RTop_frac( spgr.symop(smin) * rtof );
+    clipper::Coord_frac df( rtof.trn() );
+    df = df.lattice_copy_near( cf ) - df;
+    rtof = clipper::RTop_frac( rtof.rot(), rtof.trn() + df );
+    rtops[i] = rtof.rtop_orth( cell );
+  }
 
-  return rtops;
-}
+  // build the results
+  const std::vector<clipper::Coord_orth>& calpha_cs = calpha_coords();
+  std::vector<clipper::Coord_orth> ss( calpha_cs.size() );
+  std::vector<std::vector<clipper::Coord_orth> > sscoord( rtops.size() );
+  for ( int i = 0; i < rtops.size(); i++ ) {
+    for ( int r = 0; r < ss.size(); r++ )
+      ss[r] = rtops[i] * calpha_cs[r];
+    sscoord[i] = ss;
+  }
 
 
+  // NOW PREPARE THE MODEL FOR COOT
+  float acell[6];
+  acell[0] = xmap.cell().descr().a();
+  acell[1] = xmap.cell().descr().b();
+  acell[2] = xmap.cell().descr().c();
+  acell[3] = clipper::Util::rad2d(xmap.cell().descr().alpha());
+  acell[4] = clipper::Util::rad2d(xmap.cell().descr().beta());
+  acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
+  std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
 
-fast_secondary_structure_search::fast_secondary_structure_search( const clipper::Xmap<float> &xmap, int num_residues, SSTYPE type )
-{
-   float acell[6];
-   acell[0] = xmap.cell().descr().a();
-   acell[1] = xmap.cell().descr().b();
-   acell[2] = xmap.cell().descr().c();
-   acell[3] = clipper::Util::rad2d(xmap.cell().descr().alpha());
-   acell[4] = clipper::Util::rad2d(xmap.cell().descr().beta());
-   acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
-   std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
+  mol.set_cell(acell);
+  mol.set_spacegroup(spacegroup_str_hm);
 
-   mol.set_cell(acell);
-   mol.set_spacegroup(spacegroup_str_hm);
+  success = ( sscoord.size() > 0 );
 
-   std::vector<std::vector<clipper::Coord_orth> > sscoord;
-   sscoord = (*this)( xmap, num_residues, type );
-   success = ( sscoord.size() > 0 );
-
-   std::string cnames = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-   for ( int c = 0; c < sscoord.size(); c++ ) {
-     std::string cname = "";
-     if ( c < cnames.length() ) cname = cnames.substr(c,1);
-     minimol::fragment mf( cname );
-     for ( int r = 0; r < sscoord[c].size(); r++ ) {
-       minimol::residue mr( r+1, "UNK" );
-       minimol::atom ma( " CA ", "C", sscoord[c][r], "" );
-       mr.atoms.push_back( ma );
-       mf.residues.push_back( mr );
-     }
-     mol.fragments.push_back( mf );
-   }
+  std::string cnames = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for ( int c = 0; c < sscoord.size(); c++ ) {
+    std::string cname = "";
+    int c1 = c / cnames.length() - 1;
+    int c2 = c % cnames.length();
+    if ( c1 >= 0 && c1 < cnames.length() ) cname += cnames.substr(c1,1);
+    if ( c2 >= 0 && c2 < cnames.length() ) cname += cnames.substr(c2,1);
+    minimol::fragment mf( cname );
+    for ( int r = 0; r < sscoord[c].size(); r++ ) {
+      minimol::residue mr( r+1, "UNK" );
+      minimol::atom ma( " CA ", "C", sscoord[c][r], "" );
+      mr.atoms.push_back( ma );
+      mf.residues.push_back( mr );
+    }
+    mol.fragments.push_back( mf );
+  }
 }
 
 

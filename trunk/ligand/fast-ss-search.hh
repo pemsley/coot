@@ -24,30 +24,49 @@
 
 namespace coot {
 
+
+   /*! Result class */
+   class SearchResult {
+   public:
+     float score; int rot; int trn;
+     bool operator <( SearchResult other ) const { return score < other.score; }
+   };
+
+
    /*! Fast template search class.
      Suitable for interactive secondary structure searches. */
    class SSfind {
    public:
      enum SSTYPE { ALPHA2, ALPHA3, ALPHA4, BETA2, BETA3, BETA4 };
+     typedef std::pair<clipper::Coord_orth,clipper::Coord_orth> Pair_coord;
 
-     //! constructor: takes search angle step (degrees or radians)
-     SSfind( const double step = 15.0 );
-     //! perform secondary structure search using specified SS target
-     std::vector<std::vector<clipper::Coord_orth> > operator() ( const clipper::Xmap<float>& xmap, int num_residues, SSTYPE type );
-     //! perform fast template search using arbitrary target
-     std::vector<clipper::RTop_orth> operator() ( const clipper::Xmap<float>& xmap, std::vector<std::pair<clipper::Coord_orth,clipper::Coord_orth> >& all_co );
-     //! return list of scores to go with the results from the search functions
-     const std::vector<float>& scores() { return scores_; };
+     void prep_xmap( const clipper::Xmap<float>& xmap, const double radius, const double rhocut = 0.0 );
+     void prep_target( SSfind::SSTYPE type, int num_residues );
+     void set_target_score( const double score );
+     const std::vector<SearchResult>& search( const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut = 0.0 );
+   
+     const std::vector<Pair_coord>          target_coords() { return target_cs; }
+     const std::vector<clipper::Coord_orth> calpha_coords() { return calpha_cs; }
+     const std::vector<SearchResult>& results() const { return rslts; }
+     const float score_cutoff() const { return bestcut; }
+
    private:
-     double step_;
-     std::vector<float> scores_;
+     std::vector<Pair_coord>          target_cs;
+     std::vector<clipper::Coord_orth> calpha_cs;
+     std::vector<float> mapbox;
+     float bestcut;
+     clipper::Grid grid;
+     clipper::Grid_range mxgr;
+     clipper::Mat33<> grrot;
+     std::vector<SearchResult> rslts;
    };
 
 
    class fast_secondary_structure_search : public SSfind {
    public:
-     fast_secondary_structure_search( const clipper::Xmap<float> &xmap,
-				      int num_residues, SSTYPE type );
+     void operator()( const clipper::Xmap<float>& xmap,
+		      const clipper::Coord_orth& centre,
+		      double radius, int num_residues, SSTYPE type );
      minimol::molecule mol;
      bool success;
    };
