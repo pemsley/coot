@@ -6127,7 +6127,7 @@ int find_strands() {
 	 float bf = graphics_info_t::default_new_atoms_b_factor;
 	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager(bf));
 	 imol = g.create_molecule();
-	 graphics_info_t::molecules[imol].install_model(imol,asc,"Helices",1);
+	 graphics_info_t::molecules[imol].install_model(imol,asc,"Strands",1);
 	 g.molecules[imol].ca_representation();
 	 if (g.go_to_atom_window) {
 	    g.set_go_to_atom_molecule(imol);
