@@ -151,7 +151,7 @@ void SSfind::prep_target( SSfind::SSTYPE type, int num_residues )
 }
 
 
-void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius, const double rhocut )
+void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius )
 {
   // make a 1-d array of gridded density values covering ASU+border
   grid = xmap.grid_sampling();
@@ -160,31 +160,47 @@ void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius, c
   clipper::Grid_range gr1( xmap.cell(), xmap.grid_sampling(), radius );
   mxgr = clipper::Grid_range( gr0.min()+gr1.min(), gr0.max()+gr1.max() );
   mapbox = std::vector<float>( mxgr.size(), 0.0 );
-  typedef clipper::Xmap<float>::Map_reference_index MRI;
 
   // make 1d list of densities
-  MRI ix( xmap );
+  clipper::Xmap<float>::Map_reference_index ix( xmap );
   for ( int i = 0; i < mapbox.size(); i++ ) {
     ix.set_coord( mxgr.deindex( i ) );
     mapbox[i] = xmap[ix];
   }
+}
 
-  // make list of results;
-  SearchResult rslt;
-  rslt.score = 0.0;
-  rslt.rot = -1;
+
+void SSfind::prep_results( const clipper::Xmap<float>& xmap, const double radius )
+{
+  // make list of results
+  typedef clipper::Xmap<float>::Map_reference_index MRI;
+  SearchResult rslt = {0.0,-1,-1};
   rslts.clear();
-  if ( rhocut == 0.0 ) {
-    for ( MRI ix = xmap.first(); !ix.last(); ix.next() ) {
-      rslt.trn = grid.index( ix.coord() );
-      rslts.push_back( rslt );
-    }
-  } else {
-    for ( MRI ix = xmap.first(); !ix.last(); ix.next() ) {
-      rslt.trn = grid.index( ix.coord() );
-      if ( xmap[ix] > rhocut ) rslts.push_back( rslt );
-    }
+  for ( MRI ix = xmap.first(); !ix.last(); ix.next() ) {
+    rslt.trn = grid.index( ix.coord() );
+    rslts.push_back( rslt );
   }
+}
+
+
+void SSfind::prep_results( const clipper::Xmap<float>& xmap, const double radius, const double rhocut, const double radcut, const clipper::Coord_orth centre )
+{
+  // make list of results
+  typedef clipper::Xmap<float>::Map_reference_index MRI;
+  SearchResult rslt = {0.0,-1,-1};
+  rslts.clear();
+  double r2cut = ( radcut > 0.0 ) ? radcut*radcut : 1.0e20;
+  clipper::Coord_frac cf = centre.coord_frac( xmap.cell() );
+  for ( MRI ix = xmap.first(); !ix.last(); ix.next() )
+    if ( xmap[ix] > rhocut ) {
+      clipper::Coord_frac df = ix.coord().coord_frac( xmap.grid_sampling() );
+      df = df.symmetry_copy_near( xmap.spacegroup(), xmap.cell(), cf ) - cf;
+      double r2 = df.lengthsq( xmap.cell() );
+      if ( r2 < r2cut ) {
+	rslt.trn = grid.index( ix.coord() );
+	rslts.push_back( rslt );
+      }
+    }
 }
 
 
@@ -304,7 +320,10 @@ const std::vector<SearchResult>& SSfind::search( const std::vector<clipper::RTop
   double sigcut = stats.mean() + 1.0 * stats.std_dev();
 
   // make a 1-d array of gridded density values covering ASU+border
-  prep_xmap( xmap, rad, sigcut );
+  prep_xmap( xmap, rad );
+
+  // make a list of results
+  prep_results( xmap, rad, sigcut, radius, centre );
 
   // find ss elements
   search( rots, sigcut, 0.4 );
