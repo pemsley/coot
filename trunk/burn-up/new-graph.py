@@ -39,7 +39,7 @@ ar = area.T(x_axis=xaxis, y_axis=yaxis, x_range=(0,30), y_range=(0,180))
 # The first plot extracts Y values from the 2nd column
 # ("ycol=1") of DATA ("data=data"). X values are takes from the first
 # column, which is the default.
-plot = line_plot.T(label="Done", data=data, ycol=1, tick_mark=tick_mark.star)
+plot = line_plot.T(label="Done", data=data, ycol=1)
 plot2 = line_plot.T(label="Total", data=data, ycol=2, tick_mark=tick_mark.square)
 
 ar.add_plot(plot, plot2)
