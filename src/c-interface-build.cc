@@ -1,9 +1,10 @@
 /* src/c-interface-build.cc
  * 
- * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
  * Copyright 2007 by Bernhard Lohkamp
+ * Copyright 2008 by Kevin Cowtan
  * Copyright 2007, 2008 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -67,6 +68,7 @@
 
 #include "BuildCas.h"
 #include "helix-placement.hh"
+#include "fast-ss-search.hh"
 
 #include "trackball.h" // adding exportable rotate interface
 
@@ -6054,6 +6056,103 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 
 } 
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  Autofind Helices                                        */
+/*  ----------------------------------------------------------------------- */
+/* Find secondary structure in the current map.
+   Add to a molecule called "Helices", create it if
+   needed. */
+int find_helices() {
+   graphics_info_t g;
+   clipper::Coord_orth pt(g.RotationCentre_x(),
+			  g.RotationCentre_y(),
+			  g.RotationCentre_z());
+   int imol_map = g.Imol_Refinement_Map();
+   if (imol_map != -1) {
+      int imol = -1;
+      coot::fast_secondary_structure_search ssfind;
+      ssfind( graphics_info_t::molecules[imol_map].xmap_list[0], pt,
+	      0.0, 7, coot::fast_secondary_structure_search::ALPHA3 );
+      if (ssfind.success) {
+	 float bf = graphics_info_t::default_new_atoms_b_factor;
+	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager(bf));
+	 imol = g.create_molecule();
+	 graphics_info_t::molecules[imol].install_model(imol,asc,"Helices",1);
+	 g.molecules[imol].ca_representation();
+	 if (g.go_to_atom_window) {
+	    g.set_go_to_atom_molecule(imol);
+	    g.update_go_to_atom_window_on_new_mol();
+	 } else {
+	    g.set_go_to_atom_molecule(imol);
+	 }
+	 g.statusbar_text("Helices added");
+      } else {
+	 std::cout << "No secondary structure found\n";
+	 g.statusbar_text("No secondary structure found" );
+      }
+      std::vector<std::string> command_strings;
+      command_strings.resize(0);
+      command_strings.push_back("find-helices");
+      add_to_history(command_strings);
+      graphics_draw();
+      return imol;
+   } else {
+      std::cout << " You need to set the map to fit against\n";
+      g.statusbar_text("You need to set the map to fit against");
+      g.show_select_map_dialog();
+      return -1;
+   }
+} 
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  Autofind Strands                                        */
+/*  ----------------------------------------------------------------------- */
+/* Find secondary structure in the current map.
+   Add to a molecule called "Strands", create it if
+   needed. */
+int find_strands() {
+   graphics_info_t g;
+   clipper::Coord_orth pt(g.RotationCentre_x(),
+			  g.RotationCentre_y(),
+			  g.RotationCentre_z());
+   int imol_map = g.Imol_Refinement_Map();
+   if (imol_map != -1) {
+      int imol = -1;
+      coot::fast_secondary_structure_search ssfind;
+      ssfind( graphics_info_t::molecules[imol_map].xmap_list[0], pt,
+	      0.0, 7, coot::fast_secondary_structure_search::BETA3 );
+      if (ssfind.success) {
+	 float bf = graphics_info_t::default_new_atoms_b_factor;
+	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager(bf));
+	 imol = g.create_molecule();
+	 graphics_info_t::molecules[imol].install_model(imol,asc,"Helices",1);
+	 g.molecules[imol].ca_representation();
+	 if (g.go_to_atom_window) {
+	    g.set_go_to_atom_molecule(imol);
+	    g.update_go_to_atom_window_on_new_mol();
+	 } else {
+	    g.set_go_to_atom_molecule(imol);
+	 }
+	 g.statusbar_text("Strands added");
+      } else {
+	 std::cout << "No secondary structure found\n";
+	 g.statusbar_text("No secondary structure found" );
+      }
+      std::vector<std::string> command_strings;
+      command_strings.resize(0);
+      command_strings.push_back("find-strands");
+      add_to_history(command_strings);
+      graphics_draw();
+      return imol;
+   } else {
+      std::cout << " You need to set the map to fit against\n";
+      g.statusbar_text("You need to set the map to fit against");
+      g.show_select_map_dialog();
+      return -1;
+   }
+}
 
 
 /*  ----------------------------------------------------------------------- */

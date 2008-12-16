@@ -4610,6 +4610,24 @@ int place_helix_here();
    @return the index of the new molecule.*/
 int place_strand_here(int n_residues, int n_sample_strands);
 
+/*! \brief autobuild helices
+
+   Find secondary structure in the current map.
+   Add to a molecule called "Helices", create it if
+   needed.
+
+   @return the index of the new molecule.*/
+int find_helices();
+
+/*! \brief autobuild strands
+
+   Find secondary structure in the current map.
+   Add to a molecule called "Strands", create it if
+   needed.
+
+   @return the index of the new molecule.*/
+int find_strands();
+
 /* \} */
 
 
