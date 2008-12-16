@@ -1,0 +1,162 @@
+
+   o Investigate communcation with PISA ::: 6
+
+   o helix fitting overshoots ::: 4
+
+   o Backrub-based auto-fit rotamer search.  Question: how do I test
+     this? Synthetic map?  How does it work when we do this for an alt
+     conf too?  ::: 10
+
+   o Does is_mainchain_atom() working for mainchain hydrogens?  ::: 1
+
+   o redo sequence view ::: 10
+
+   o multiple residue ranges, glycosylation, covalent bond entities ::: 10
+  
+   o Rotate Translate: Add an additional GUI (possibly in the toolbar)
+     to specify the type of R/T entity, a zone (default) a chain, a
+     whole molecule. ::: 5
+
+   o Seg Ids (Mailing list issue):
+
+      At least in these two situations, I think that COOT could make a
+      very educated guess as to the correct SEGID.
+
+       * In mutate (simple or otherwise), COOT could carry over what
+         existed for the residue being mutated
+
+       * In "insert after terminal residue" COOT could carry over what
+         exists for the terminal residue
+
+      These might not always be correct, but they should be 99+% of
+      the time.
+
+     Also mails from Phil Evans, Stephen Graham, Early April 2008
+     about SEG ids.  Doing a NCS loop with Seg ids.  Doing a mutation
+     with Segids (might be the same issue).  The segid for the new
+     atoms should be inherited from those of the rest of the residue
+     (if they are consistent). ::: 6
+
+   o Give the user a chance to edit the ins file before it is sent off
+     for refinement [Tobias Beck].  Not doing so, as currently,
+     practically makes the shelxl refine in Coot useless if the user
+     needs to modify the file.  Fire up a text widget with the .ins file
+     in it.  ::: 2
+
+   o enable --splash-screen  ::: 2
+
+   o Does the window stay constant size (on something other than a
+     laptop) on start, exit, start exit cycling?
+     Priority: 6: Difficulty: 4  ::: 2
+
+   o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim
+     Fenn. ::: 2
+ 
+*  Let's hear from Tim Fenn.  OK, he replied.  Non-trivial. 
+
+  o Consider setting the "handled" flag only for key pressed that did
+    something, e.g. we could then use the "B" and "S" keys, because they
+    are not often used.  Maybe "A" too. ::: 1
+
+   o Rotamer plots need to update on multiple do/undos. ::: 1
+
+   o Phil Evans wants colour by chain as the default.  Can you make
+     this the default at coordinates read time (similarly, others want
+     CA mode).  ::: 1
+
+   o Put globularize protein into Coot.  Make it a bit more clever? ::: 4
+
+   o Garib wants a function to move waters close to the protein. ::: 2 
+
+   o Investigate interupting long fitting/Post MR tools [JED request] ::: 2
+
+   o add a mechanism where we can register functions to run after
+     refinement and/or regularization. 
+  
+     or deleting things says JED.  In fact, a funtion to run that is
+      attached to a molecule (somehow) on any
+      update/change/manipulation. ::: 3
+
+   o Bill: This might be hard to implement, but in case it isn't, I
+     thought it might be worth suggesting...
+
+     It would be great to be able to click on a nucleotide base in a
+     single strand of DNA or RNA and generate its W/C partner... ::: 4
+
+   o Fix up mini-RSR so that it compiles properly. ::: 4
+
+   o Move widget functions in c-interface-build.cc to
+     c-interface-gui.cc (or consider new c-interface-build-gui.cc). ::: 1
+
+   o Dynamic distances define need a pick cursor. ::: 1
+
+   o Put refine-zone and regularize-zone into the history. ::: 2
+
+   o consider making bonds to hydrogens thinner.  A spike needed to
+     test for bonds split on thickness or colour most deeply.  ::: 4
+
+   o Problem SHELX .ins file, enable bonds to symmetry atoms? ::: 4
+
+   o Gtk2 coot: set the colour patch in the map properties and
+     symmetry molecule colouring (needs version 2.6).  There is some
+     problem in the update, how do I set continuous updates on the
+     resulting colour chooser?  ::: 2 
+
+   o colour by B-factor CA mode ::: 1
+
+   o How about a post-swig command to add #ifdef USE_PYTHON around 
+     coot_wrap_python.cc (or is it coot_wrap_python_pre.cc?)
+
+     Is that necessary now?  In build-coot-fc4-gtk2,
+     coot_wrap_python.cc is generated and so is an practically empty
+     coot_wrap_python.lo ::: 3
+
+   o rotamer-score function needs to be filled ::: 1
+
+   o "Find Waters" sometimes does not to put waters in what seems sensible
+     places - why is that? ::: 4
+
+   o Calculate NCS matrices from molecules created by
+     new_molecule_by_atom_selection() ::: 1
+
+   o Check the distribution of selection of phi/psis from
+     random-phi-psi function matches a Ramachandran plot ::: 4
+
+   o "Fit ligand here" which gets a monomer then does a ligand search
+     based on the blob at the current position. ::: 8
+
+   o Non-bonded contacts.  Can they be speeded up?  What about nbcs
+     with Hydrogens.  Are they good?  Refine 50 residues and
+     profile. ::: 5
+
+   o Why does loop fitting fail on residue 96A of tutorial-modern.pdb? 
+     Fix.  ::: 4
+
+   o Use write_connectivity to generate ligand hydrogens. Use reduce
+     and probe to make ligand interactions (and render them). ::: 4
+
+   o Display ligand diapoles using charges from cif file. ::: 4
+
+   o When there is a non-square GL context, the axes become skewed.
+     Needs othogonalizing. ::: 2
+
+   o Geometric distortions graph for alt confs - currently broken? ::: 4
+
+   o The zooming in out out of a Ramachandran plot is inelegant.
+     Needs fixing. ::: 4
+
+   o Integrate scripting functions into main documentation somehow 
+     ::: 5
+
+   o When fitting waters in a low resolution(ish) map (from buccaneer
+     tutorial), the water were often placed in protein density - it was
+     missing the fact that the "water" density was connected to the
+     protein density - because we only look at the masked map.
+     (see bucca-tut on memory stick) ::: 5
+
+   o *create* a molecule by symmetry, not (just) write it out.
+      Consider a dialog to Write/Create a symmetry molecule.  ::: 2
+
+
+------
+
