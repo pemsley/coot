@@ -40,10 +40,12 @@ namespace coot {
      enum SSTYPE { ALPHA2, ALPHA3, ALPHA4, BETA2, BETA3, BETA4 };
      typedef std::pair<clipper::Coord_orth,clipper::Coord_orth> Pair_coord;
 
-     void prep_xmap( const clipper::Xmap<float>& xmap, const double radius, const double rhocut = 0.0 );
      void prep_target( SSfind::SSTYPE type, int num_residues );
+     void prep_xmap( const clipper::Xmap<float>& xmap, const double radius );
+     void prep_results( const clipper::Xmap<float>& xmap, const double radius );
+     void prep_results( const clipper::Xmap<float>& xmap, const double radius, const double rhocut, const double radcut, const clipper::Coord_orth centre );
      void set_target_score( const double score );
-     const std::vector<SearchResult>& search( const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut = 0.0 );
+     const std::vector<SearchResult>& search( const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut=0.0 );
    
      const std::vector<Pair_coord>          target_coords() { return target_cs; }
      const std::vector<clipper::Coord_orth> calpha_coords() { return calpha_cs; }
