@@ -24,6 +24,8 @@
 #include "coot-utils.hh" // usually include from simple-restraint.hh
 #endif
 
+#include "coot-map-utils.hh"
+
 // a shorthand so that the push back line doesn't get too long:
 typedef std::pair<int(*)(), std::string> named_func;
 
@@ -91,7 +93,8 @@ int test_internal() {
    // functions.push_back(named_func(test_ramachandran_probabilities, "test_ramachandran_probabilities"));
    functions.push_back(named_func(test_fragmemt_atom_selection, "test_fragmemt_atom_selection"));
    functions.push_back(named_func(test_add_atom, "test_add_atom"));
-   functions.push_back(named_func(restr_res_vector, "restraints_for_residue_vec"));
+   // functions.push_back(named_func(restr_res_vector, "restraints_for_residue_vec"));
+   functions.push_back(named_func(test_peptide_link, "test_peptide_link"));
 
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
@@ -113,6 +116,7 @@ int test_internal() {
    return status; 
 }
 
+      
 int test_alt_conf_rotamers() {
 
    int status = 1;
@@ -505,8 +509,6 @@ int test_ramachandran_probabilities() {
 } 
 
 
-
-
 int kdc_torsion_test() { 
   int r = 1;
 
@@ -643,17 +645,97 @@ test_fragmemt_atom_selection() {
    return status;
 }
 
+int test_peptide_link() {
+   
+   std::string f = "1h4p.pdb";
+   atom_selection_container_t asc = get_atom_selection(f);
+   if (! asc.read_success)
+      return 0;
+
+   std::vector<std::pair<bool,CResidue *> > residues;
+   CMMDBManager *mol = asc.mol;
+   int imod = 1;
+   CModel *model_p = mol->GetModel(imod);
+   CChain *chain_p;
+   // run over chains of the existing mol
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      std::string chain_id = chain_p->GetChainID();
+      if (chain_id == "B") { 
+	 PCResidue residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int resno = residue_p->GetSeqNum();
+	    if ((resno == 1455) || (resno == 1456))
+	       residues.push_back(std::pair<bool, CResidue *>(0, residue_p));
+	 }
+      }
+   }
+
+   if (residues.size() != 2) {
+      return 0; 
+   } 
+
+   // ======== Now start the test for real ===============
+   //
+   coot::protein_geometry geom;
+   geom.init_standard();
+
+   try {
+      std::string comp_id_1 = "MAN";
+      std::string comp_id_2 = "MAN";
+      std::string group_1 = "D-pyranose";
+      std::string group_2 = "D-pyranose";
+
+      clipper::Xmap<float> xmap;
+      float weight = 1.0;
+      std::vector<coot::atom_spec_t> fixed_atom_specs;
+      coot::restraints_container_t
+	 restraints(residues, geom, mol, fixed_atom_specs, xmap, weight);
+      std::string link_type = "";
+      // restraints.find_link_type(residues[0].second,
+      // 		residues[1].second,
+      // 		geom);
+
+      std::cout << "   link_type: " << link_type << ":" << std::endl;
+      
+      std::pair<coot::chem_link, bool> link_info =
+	 geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
+      std::cout << "Found link :" << link_info.first.Id() << ":" << std::endl;
+      if (link_info.first.Id() != "BETA1-3") {
+	 return 0;
+      } 
+   }
+
+   catch (std::runtime_error mess) {
+      std::cout << "in test_peptide_link() matching_chem_link fails" << std::endl;
+   }
+
+   return 1;
+
+} 
+
+ 
 // Restraints are correctly generated for vector of residues (new
 // restraints constructor needed) 20081106
 int
 restr_res_vector() {
 
    std::string f = greg_test("tutorial-modern.pdb");
+   //    f = "7_and_96_B-a-result.pdb";
+//    f = "6_7_and_96_B.pdb";
+//    f = "6_7.pdb";
    atom_selection_container_t asc = get_atom_selection(f);
 
    std::vector<std::pair<bool,CResidue *> > residues;
    CMMDBManager *mol = asc.mol;
+   std::cout << "restr_res_vector: mol: " << mol << std::endl;
    std::vector<coot::atom_spec_t> fixed_atom_specs;
+
+   if (!asc.read_success)
+      return 0;
    
    int imod = 1;
    CModel *model_p = mol->GetModel(imod);
@@ -664,30 +746,37 @@ restr_res_vector() {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       std::string chain_id = chain_p->GetChainID();
-      PCResidue residue_p;
-      for (int ires=0; ires<nres; ires++) { 
-	 residue_p = chain_p->GetResidue(ires);
-	 int resno = residue_p->GetSeqNum();
-	 if ((resno == 7) || (resno == 96))
-	    residues.push_back(std::pair<bool, CResidue *>(0, residue_p));
+      if (chain_id == "B") { 
+	 PCResidue residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int resno = residue_p->GetSeqNum();
+	    if ((resno == 7) || (resno == 96))
+	       residues.push_back(std::pair<bool, CResidue *>(0, residue_p));
+	 }
       }
    }
 
    if (residues.size() != 2) {
-      std::cout << "  Fail to find residues" << std::endl;
+      std::cout << "  Fail to find residues - found " << residues.size() << std::endl;
       return 0;
    } else {
-      clipper::Xmap<float> map;
-      float weight = 1.0;
+      clipper::Xmap<float> xmap;
+      coot::util::map_fill_from_mtz(&xmap, "rnasa-1.8-all_refmac1.mtz", "FWT", "PHWT", "WT", 0, 0);
+      float weight = 1;
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-      coot::restraints_container_t
-	 restraints(residues, mol, fixed_atom_specs, map, weight);
       coot::protein_geometry geom;
+      geom.init_standard();
+      coot::restraints_container_t
+	 restraints(residues, geom, mol, fixed_atom_specs, xmap, weight);
       restraints.make_restraints(geom, flags, 0, 0.0, 0, coot::NO_PSEUDO_BONDS);
+      restraints.minimize(flags);
+      restraints.write_new_atoms("ss-test.pdb");
    }
-   return 1;
+   return 0;
 } 
 
+ 
 int
 test_add_atom() {
 
@@ -789,5 +878,6 @@ test_add_atom() {
    
    return status;
 }
+
 
 #endif // BUILT_IN_TESTING

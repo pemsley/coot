@@ -1711,24 +1711,31 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &comp_id_2,
 					     const std::string &group_2) const {
 
-   std::cout << id << " " << chem_link_name << ": "
-	     << group_1 << " and " << group_2 << " vs "
-	     << chem_link_comp_id_1 << " "
-	     << chem_link_comp_id_2 << std::endl;
+   if (0) { 
+      std::cout << "   " << id << " " << chem_link_name << ": input comp_ids "
+		<< comp_id_1 << " and " << comp_id_2 << " vs :"
+		<< chem_link_comp_id_1 << ": :"
+		<< chem_link_comp_id_2 << ":" << std::endl; 
+      std::cout << "      " << chem_link_name << ": input groups "
+		<< group_1 << " and " << group_2 << " vs :"
+		<< chem_link_group_comp_1 << ": :"
+		<< chem_link_group_comp_2 << ":" << std::endl;
+   }
 
    bool match = 0;
    bool order_switch = 0;
    
-   if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == group_1)) &&
-       ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == group_2)))
-      if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == comp_id_1)) &&
-	  ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == comp_id_2)))
+   if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == group_1) || ((chem_link_group_comp_1 == "peptide") && (group_1 == "L-peptide"))) &&
+       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == group_2) || ((chem_link_group_comp_2 == "peptide") && (group_2 == "L-peptide"))))
+      if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_1)) &&
+	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2)))
 	 match = 1;
 
    // And what about if the residues come here backward? We should
    // report a match and that they should be reversed to the calling
    // function?  A simple bool won't do as a return type in that case.
 
+   // std::cout << "   debug:: chem_link match: " << match << std::endl;
    return std::pair<bool, bool>(match, order_switch);
 }
 
@@ -2199,6 +2206,17 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_1,
 					   const std::string &comp_id_2,
 					   const std::string &group_2) const {
+   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 1);
+}
+
+// throw an error on no such chem_link
+// 
+std::pair<coot::chem_link, bool>
+coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
+					   const std::string &group_1,
+					   const std::string &comp_id_2,
+					   const std::string &group_2,
+					   bool allow_peptide_link_flag) const {
 
    coot::chem_link cl("", "", "", "", "", "", "", "");
    bool switch_order_flag = 0;
@@ -2208,10 +2226,12 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	 chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
 								comp_id_2, group_2);
       if (match_res.first) {
-	 cl = chem_link_vec[i_chem_link];
-	 switch_order_flag = match_res.second;
-	 found = 1;
-	 break;
+	 coot::chem_link clt = chem_link_vec[i_chem_link];
+	 if (!clt.is_peptide_link_p() || allow_peptide_link_flag) { 
+	    switch_order_flag = match_res.second;
+	    found = 1;
+	    break;
+	 }
       }
    }
 
@@ -2224,6 +2244,17 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    }
    return std::pair<coot::chem_link, bool> (cl, switch_order_flag);
 }
+
+// throw an error on no such chem_link
+// 
+std::pair<coot::chem_link, bool>
+coot::protein_geometry::matching_chem_link_non_peptide(const std::string &comp_id_1,
+						       const std::string &group_1,
+						       const std::string &comp_id_2,
+						       const std::string &group_2) const {
+   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 0);
+}
+
       
 void
 coot::protein_geometry::set_verbose(bool verbose_flag) {

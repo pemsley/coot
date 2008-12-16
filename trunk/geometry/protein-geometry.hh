@@ -613,7 +613,14 @@ namespace coot {
 							const std::string &group_1,
 							const std::string &comp_id_2,
 							const std::string &group_2) const;
-      std::string Id() const { return id; } 
+      std::string Id() const { return id; }
+      bool is_peptide_link_p() const {
+	 if (id == "TRANS" || id == "PTRANS" || id == "NMTRANS" ||
+	     id == "CIS"   || id == "PCIS"   || id == "NMCIS")
+	    return 1;
+	 else
+	    return 0;
+      }
    };
    std::ostream& operator<<(std::ostream &s, chem_link lnk);
 
@@ -824,6 +831,14 @@ namespace coot {
       filter_torsion_restraints(const std::vector <coot::dict_torsion_restraint_t> &restraints_in) const;
       static bool torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b);
 
+      // bool is the need-order-switch-flag
+      std::pair<chem_link, bool> matching_chem_link(const std::string &comp_id_1,
+						    const std::string &group_1,
+						    const std::string &comp_id_2,
+						    const std::string &group_2,
+						    bool allow_peptide_link_flag) const;
+
+
    public:
 
       protein_geometry() { read_number = 0; set_verbose(1); }
@@ -911,11 +926,22 @@ namespace coot {
       // Thow an exception if we can't get the group of r
       std::string get_group(CResidue *r) const;
 
-      // bools is the need-order-switch-flag
+      // bool is the need-order-switch-flag
       std::pair<chem_link, bool> matching_chem_link(const std::string &comp_id_1,
 						    const std::string &group_1,
 						    const std::string &comp_id_2,
-						    const std::string &group_2) const; 
+						    const std::string &group_2) const;
+
+      // Try to find a link that is not a peptide link (because that
+      // fails on a distance check).  This is the method to find
+      // isopeptide links (which again need to be distance checked in
+      // find_link_type_rigourous()).
+      // 
+      // bool the need-order-switch-flag
+      std::pair<chem_link, bool> matching_chem_link_non_peptide(const std::string &comp_id_1,
+								const std::string &group_1,
+								const std::string &comp_id_2,
+								const std::string &group_2) const; 
 
    };
 
