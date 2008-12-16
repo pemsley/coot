@@ -24,6 +24,7 @@ int test_fragmemt_atom_selection();
 int kdc_torsion_test();
 int test_add_atom();
 int restr_res_vector();
+int test_peptide_link();
 
 class residue_selection_t {
 public:
