@@ -36,6 +36,8 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include <algorithm> // for sort
+
 #include <clipper/clipper.h>
 #include "fast-ss-search.hh"
 #include "mini-mol-utils.hh"

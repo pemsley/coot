@@ -4644,6 +4644,7 @@ coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein
       // e.g 1 free 2 free 3 flanking (fixed).
       n_rama_restraints = make_flanking_atoms_rama_restraints(geom);  // returns 0 or something.
    }
+   return iv;
 }
 
 

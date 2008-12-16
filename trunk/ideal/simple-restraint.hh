@@ -923,7 +923,7 @@ namespace coot {
       // uses the following
 
       coot::bonded_pair_container_t
-      coot::restraints_container_t::bonded_flanking_residues(const coot::protein_geometry &geom) const;
+      bonded_flanking_residues(const coot::protein_geometry &geom) const;
    
       // new flanking residue search
       coot::bonded_pair_container_t bonded_flanking_residues_by_residue_vector(const coot::protein_geometry &geom) const;
