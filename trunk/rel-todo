@@ -1,18 +1,14 @@
 
-   o Investigate communcation with PISA ::: 6
-
-   o helix fitting overshoots ::: 4
+   o multiple residue ranges, glycosylation, covalent bond entities ::: 10
+  
+   o Communcation with PISA ::: 6
 
    o Backrub-based auto-fit rotamer search.  Question: how do I test
      this? Synthetic map?  How does it work when we do this for an alt
      conf too?  ::: 10
 
-   o Does is_mainchain_atom() working for mainchain hydrogens?  ::: 1
-
    o redo sequence view ::: 10
 
-   o multiple residue ranges, glycosylation, covalent bond entities ::: 10
-  
    o Rotate Translate: Add an additional GUI (possibly in the toolbar)
      to specify the type of R/T entity, a zone (default) a chain, a
      whole molecule. ::: 5
@@ -66,7 +62,7 @@
 
    o Put globularize protein into Coot.  Make it a bit more clever? ::: 4
 
-   o Garib wants a function to move waters close to the protein. ::: 2 
+   o Garib wants a function to move waters close to the protein. ::: 4
 
    o Investigate interupting long fitting/Post MR tools [JED request] ::: 2
 
@@ -157,6 +153,11 @@
    o *create* a molecule by symmetry, not (just) write it out.
       Consider a dialog to Write/Create a symmetry molecule.  ::: 2
 
+   o Helix fitting overshoots ::: 4
 
 ------
+
+   o Does is_mainchain_atom() working for mainchain hydrogens?  
+     You mean is_main_chain_p().  Yes it is.
+     ::: 1
 

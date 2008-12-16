@@ -255,13 +255,13 @@ namespace coot {
 		       const clipper::Coord_orth &pt);
 
    // return 0 or 1
-   short int is_main_chain_p(CAtom *at);
+   bool is_main_chain_p(CAtom *at);
 
    // return 0 or 1
    bool is_hydrogen_p(CAtom *at);
 
    // return 0 or 1
-   short int is_main_chain_or_cb_p(CAtom *at);
+   bool is_main_chain_or_cb_p(CAtom *at);
 
    bool is_member_p(const std::vector<CResidue *> &v, CResidue *a);
 
