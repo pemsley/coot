@@ -65,6 +65,9 @@ namespace coot {
 
    class fast_secondary_structure_search : public SSfind {
    public:
+     static int join_offset( const std::vector<clipper::Coord_orth>& frag1, const std::vector<clipper::Coord_orth>& frag2 );
+     static double join_score( const std::vector<clipper::Coord_orth>& frag1, const std::vector<clipper::Coord_orth>& frag2 );
+     static std::vector<std::vector<clipper::Coord_orth> > join( std::vector<std::vector<clipper::Coord_orth> > frags );
      void operator()( const clipper::Xmap<float>& xmap,
 		      const clipper::Coord_orth& centre,
 		      double radius, int num_residues, SSTYPE type );

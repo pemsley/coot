@@ -260,7 +260,100 @@ const std::vector<SearchResult>& SSfind::search( const std::vector<clipper::RTop
 
 // the wrapper class for coot
 
-  void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius, int num_residues, SSTYPE type )
+int fast_secondary_structure_search::join_offset( const std::vector<clipper::Coord_orth>& frag1, const std::vector<clipper::Coord_orth>& frag2 )
+{
+  double d2min = 1.0e20;
+  int a1min = 0;
+  int a2min = 0;
+  for ( int a1 = 0; a1 < frag1.size(); a1++ )
+    for ( int a2 = 0; a2 < frag2.size(); a2++ ) {
+      double d2 = ( frag1[a1] - frag2[a2] ).lengthsq();
+      if ( d2 < d2min ) {
+	d2min = d2;
+	a1min = a1;
+	a2min = a2;
+      }
+    }
+  return a2min - a1min;
+}
+
+
+double fast_secondary_structure_search::join_score( const std::vector<clipper::Coord_orth>& frag1, const std::vector<clipper::Coord_orth>& frag2 )
+{
+  int offset = join_offset( frag1, frag2 );
+  double score = 0.0;
+  for ( int a1 = 0; a1 < frag1.size(); a1++ ) {
+    int a2 = a1 + offset;
+    if ( a2 >= 0 && a2 < frag2.size() ) {
+      double d2 = ( frag1[a1] - frag2[a2] ).lengthsq() / 1.9;
+      if ( d2 < 1.0 ) score += ( 1.0 - d2*d2 );
+    }
+  }
+  return score;
+}
+
+
+std::vector<std::vector<clipper::Coord_orth> > fast_secondary_structure_search::join( std::vector<std::vector<clipper::Coord_orth> > frags )
+{
+  // create weight lists
+  std::vector<std::vector<double> > wghts( frags.size() );
+  for ( int f = 0; f < wghts.size(); f++ ) {
+    wghts[f].resize( frags[f].size() );
+    double da = 0.5*(wghts[f].size()-1);
+    double sa = 0.5*(wghts[f].size()+1);
+    for ( int a = 0; a < wghts[f].size(); a++ )
+      wghts[f][a] = 1.0 - fabs( (double(a)-da)/sa );
+  }
+
+  // find best pair to merge
+  clipper::Matrix<double> scores(frags.size(),frags.size(),0.0);
+  for ( int f1 = 0; f1 < frags.size(); f1++ )
+    for ( int f2 = f1+1; f2 < frags.size(); f2++ )
+      scores(f1,f2) = join_score( frags[f1], frags[f2] );
+
+  // do iterative merge
+  for ( int i = 0; i < frags.size()*frags.size(); i++ ) {
+    // find best score
+    int j1(0), j2(0);
+    double js = 0.0;
+    for ( int f1 = 0; f1 < frags.size(); f1++ )
+      for ( int f2 = f1+1; f2 < frags.size(); f2++ )
+	if ( scores(f1,f2) > js ) { js = scores(f1,f2); j1=f1; j2=f2; }
+    if ( js < 1.0 ) return frags;
+    // merge them
+    std::vector<clipper::Coord_orth> newfrag;
+    std::vector<double> newwght;
+    int offset = join_offset( frags[j1], frags[j2] );
+    int i1 = clipper::Util::min(0,-offset);
+    int i2 = clipper::Util::max(frags[j1].size(),frags[j2].size()-offset);
+    for ( int a1 = i1; a1 < i2; a1++ ) {
+      int a2 = a1 + offset;
+      clipper::Coord_orth co( 0.0, 0.0, 0.0 );
+      double wt = 0.0;
+      if ( a1 >= 0 && a1 < frags[j1].size() ) {
+	co += wghts[j1][a1] * frags[j1][a1];
+	wt += wghts[j1][a1];
+      }
+      if ( a2 >= 0 && a2 < frags[j2].size() ) {
+	co += wghts[j2][a2] * frags[j2][a2];
+	wt += wghts[j2][a2];
+      }
+      newfrag.push_back( (1.0/wt) * co );
+      newwght.push_back( wt );
+    }
+    frags[j1] = newfrag; frags[j2].clear();
+    wghts[j1] = newwght; wghts[j2].clear();
+    // update scores
+    for ( int f2 = j1+1; f2 < frags.size(); f2++ )
+      scores(j1,f2) = join_score( frags[j1], frags[f2] );
+    for ( int f2 = j2+1; f2 < frags.size(); f2++ )
+      scores(j2,f2) = 0.0;
+  }
+  return frags;
+}
+
+
+void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius, int num_residues, SSTYPE type )
 {
   typedef clipper::Xmap<float>::Map_reference_index MRI;
   const clipper::Spacegroup& spgr    = xmap.spacegroup();
@@ -362,13 +455,15 @@ const std::vector<SearchResult>& SSfind::search( const std::vector<clipper::RTop
   // build the results
   const std::vector<clipper::Coord_orth>& calpha_cs = calpha_coords();
   std::vector<clipper::Coord_orth> ss( calpha_cs.size() );
-  std::vector<std::vector<clipper::Coord_orth> > sscoord( rtops.size() );
+  std::vector<std::vector<clipper::Coord_orth> > result( rtops.size() );
   for ( int i = 0; i < rtops.size(); i++ ) {
     for ( int r = 0; r < ss.size(); r++ )
       ss[r] = rtops[i] * calpha_cs[r];
-    sscoord[i] = ss;
+    result[i] = ss;
   }
 
+  // join fragments
+  std::vector<std::vector<clipper::Coord_orth> > sscoord = join( result );
 
   // NOW PREPARE THE MODEL FOR COOT
   float acell[6];
