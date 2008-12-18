@@ -85,6 +85,26 @@ make_atom_spec(SCM spec) {
    return std::pair<bool, coot::atom_spec_t> (good_spec, as);
 }
 
+
+std::pair<bool, coot::residue_spec_t>
+make_residue_spec(SCM spec) {
+   bool good_spec = 0;
+   coot::residue_spec_t rs("A", 1);
+   SCM spec_length_scm = scm_length(spec);
+   int spec_length = scm_to_int(spec_length_scm);
+   if (spec_length == 3) {
+      SCM chain_id_scm = scm_list_ref(spec, SCM_MAKINUM(0));
+      SCM resno_scm    = scm_list_ref(spec, SCM_MAKINUM(1));
+      SCM ins_code_scm = scm_list_ref(spec, SCM_MAKINUM(2));
+      std::string chain_id = scm_to_locale_string(chain_id_scm);
+      int resno = scm_to_int(resno_scm);
+      std::string ins_code  = scm_to_locale_string(ins_code_scm);
+      rs = coot::residue_spec_t(chain_id, resno, ins_code);
+      good_spec = 1;
+   }
+   return std::pair<bool, coot::residue_spec_t>(good_spec, rs);
+} 
+
 int key_sym_code_scm(SCM s_scm) {
 
    int r = -1;

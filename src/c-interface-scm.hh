@@ -43,6 +43,7 @@ bool scm_is_undefined(SCM o); // ?
 #define DIRECT_SCM_STRING ";; # DIRECT SCHEME"
 
 std::pair<bool, coot::atom_spec_t> make_atom_spec(SCM spec);
+std::pair<bool, coot::residue_spec_t> make_residue_spec(SCM spec);
 
 #endif  // USE_GUILE
 

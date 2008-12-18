@@ -259,26 +259,31 @@ coot::residues_near_residue(CResidue *res_ref,
       //       std::cout << " Found " << n_contacts  << " contacts " << std::endl;
 	 
       if (n_contacts > 0) {
-	 int n_cont_diff = 0; 
-	 int n_cont_same = 0; 
-	 for (int i=0; i<n_contacts; i++) {
-	    // 	    std::cout << "   comparing " << atom_selection[pscontact[i].id2]
-	    // 		      << " " << coot::atom_spec_t(atom_selection[pscontact[i].id2])
-	    // 		      << " " << " to " << rs << " " << res_p << std::endl;
-	    if (atom_selection[pscontact[i].id2]->residue != res_ref) {
-	       n_cont_diff++;
-	       std::vector<CResidue *>::iterator result =
-		  std::find(close_residues.begin(),
-			    close_residues.end(),
-			    atom_selection[pscontact[i].id2]->residue);
+	 if (pscontact) { 
+	    int n_cont_diff = 0; 
+	    int n_cont_same = 0; 
+	    for (int i=0; i<n_contacts; i++) {
+	       // 	    std::cout << "   comparing " << atom_selection[pscontact[i].id2]
+	       // 		      << " " << coot::atom_spec_t(atom_selection[pscontact[i].id2])
+	       // 		      << " " << " to " << rs << " " << res_p << std::endl;
+	       if (atom_selection[pscontact[i].id2]->residue != res_ref) {
+		  n_cont_diff++;
+		  std::vector<CResidue *>::iterator result =
+		     std::find(close_residues.begin(),
+			       close_residues.end(),
+			       atom_selection[pscontact[i].id2]->residue);
 		  
-	       if (result == close_residues.end()) { 
-		  close_residues.push_back(atom_selection[pscontact[i].id2]->residue);
+		  if (result == close_residues.end()) { 
+		     close_residues.push_back(atom_selection[pscontact[i].id2]->residue);
+		  }
+	       } else {
+		  n_cont_same++;
 	       }
-	    } else {
-	       n_cont_same++;
 	    }
-	 }
+	 } else {
+	    std::cout << "ERROR:: trapped null pscontact in residues_near_residue"
+		      << std::endl;
+	 } 
       }
    }
    mol->DeleteSelection(SelectionHandle);
@@ -290,39 +295,131 @@ coot::residues_near_residue(CResidue *res_ref,
 std::pair<bool,float>
 coot::closest_approach(CMMDBManager *mol,
 		       CResidue *r1, CResidue *r2) {
+
+    int n_res_1_atoms; 
+    int n_res_2_atoms;
+    PPCAtom residue_atoms_1 = 0, residue_atoms_2 = 0;
+    double dist_best = 9999999.9;
+    bool good_d = 0;
+       
+    r1->GetAtomTable( residue_atoms_1, n_res_1_atoms);
+    r2->GetAtomTable( residue_atoms_2, n_res_2_atoms);
+    for (int i=0; i<n_res_1_atoms; i++) { 
+       clipper::Coord_orth pt1(residue_atoms_1[i]->x,
+			       residue_atoms_1[i]->y,
+			       residue_atoms_1[i]->z);
+       for (int j=0; j<n_res_2_atoms; j++) { 
+	  clipper::Coord_orth pt2(residue_atoms_2[j]->x,
+				  residue_atoms_2[j]->y,
+				  residue_atoms_2[j]->z);
+	  double d = clipper::Coord_orth::length(pt1, pt2);
+
+	  if (d < dist_best) {
+	     dist_best = d;
+	     good_d = 1;
+	  }
+       }
+    }
+
+    return std::pair<bool, float> (good_d, dist_best);
+    
+	  
+   // Older, faster method.
+   // It doesn't work though
+   // 
+   // I don't know why this fail, but it always gives 0 ncontacts.
    
-   std::pair<bool,realtype> r(0, 0.0);
+//    std::pair<bool,realtype> r(0, 0.0);
    
-   int n_res_1_atoms; 
-   int n_res_2_atoms;
-   PPCAtom residue_atoms_1 = 0, residue_atoms_2 = 0;
-   int ncontacts = 0;
-   realtype dist_closest = 9999999999.9;
-   PSContact contact = NULL;
+//    int n_res_1_atoms; 
+//    int n_res_2_atoms;
+//    PPCAtom residue_atoms_1 = 0, residue_atoms_2 = 0;
+//    int ncontacts = 0;
+//    realtype dist_closest = 9999999999.9;
+//    PSContact contact = NULL;
+//    long i_contact_group = 0;
+//    mat44 my_matt;
+//    for (int i=0; i<4; i++) 
+//       for (int j=0; j<4; j++) 
+// 	 my_matt[i][j] = 0.0;      
+//    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
    
-   r1->GetAtomTable( residue_atoms_1, n_res_1_atoms);
-   r2->GetAtomTable( residue_atoms_2, n_res_2_atoms);
-   mol->SeekContacts(residue_atoms_1, n_res_1_atoms,
-		     residue_atoms_2, n_res_2_atoms,
-		     0.0, 10.0, 1, contact, ncontacts);
+//    r1->GetAtomTable( residue_atoms_1, n_res_1_atoms);
+//    r2->GetAtomTable( residue_atoms_2, n_res_2_atoms);
+//    mol->SeekContacts(residue_atoms_1, n_res_1_atoms,
+// 		     residue_atoms_2, n_res_2_atoms,
+// 		     0.01, 10.0, 1, // not in the same residue
+// 		     contact, ncontacts,
+// 		     0, &my_matt, i_contact_group);
 
 
-   for (int i=0; i<ncontacts; i++) {
+//    // debug mol
+//    if (0) { 
+//       int imod = 1;
+//       CModel *model_p = mol->GetModel(imod);
+//       CChain *chain_p;
+//       // run over chains of the existing mol
+//       int nchains = model_p->GetNumberOfChains();
+//       for (int ichain=0; ichain<nchains; ichain++) {
+// 	 chain_p = model_p->GetChain(ichain);
+// 	 int nres = chain_p->GetNumberOfResidues();
+// 	 PCResidue residue_p;
+// 	 CAtom *at;
+// 	 for (int ires=0; ires<nres; ires++) { 
+// 	    residue_p = chain_p->GetResidue(ires);
+// 	    int n_atoms = residue_p->GetNumberOfAtoms();
+	 
+// 	    for (int iat=0; iat<n_atoms; iat++) {
+// 	       at = residue_p->GetAtom(iat);
+// 	       std::cout << "mol atom "
+// 			 << at ->name << " " 
+// 			 << at ->GetSeqNum() << " " 
+// 			 << at ->GetInsCode() << " " 
+// 			 << at ->GetChainID() << " "
+// 			 << at ->z << " "
+// 			 << at ->y << " "
+// 			 << at ->z << std::endl;
+// 	    }
+// 	 }
+//       }
+//    }
+
+   
+
+//    for (int i=0; i<n_res_1_atoms; i++)
+//       std::cout << "closest_approach res_1 " << i << " "
+// 		<< residue_atoms_1[i]->name << " ("
+// 		<< residue_atoms_1[i]->x << " "
+// 		<< residue_atoms_1[i]->y << " "
+// 		<< residue_atoms_1[i]->z << ") "
+// 		<< std::endl;
+//    for (int i=0; i<n_res_2_atoms; i++)
+//       std::cout << "closest_approach res_2 " << i << " " 
+// 		<< residue_atoms_2[i]->name << " ("
+// 		<< residue_atoms_2[i]->x << " "
+// 		<< residue_atoms_2[i]->y << " "
+// 		<< residue_atoms_2[i]->z << ") "
+// 		<< std::endl;
+
+
+//    for (int i=0; i<ncontacts; i++) {
       
-      clipper::Coord_orth atom_1(residue_atoms_1[ contact[i].id1 ]->x,
-				 residue_atoms_1[ contact[i].id1 ]->y,
-				 residue_atoms_1[ contact[i].id1 ]->z);
-      clipper::Coord_orth atom_2(residue_atoms_2[ contact[i].id2 ]->x,
-				 residue_atoms_2[ contact[i].id2 ]->y,
-				 residue_atoms_2[ contact[i].id2 ]->z);
-      float d = clipper::Coord_orth::length(atom_1, atom_2);
-      if (d < dist_closest) {
-	 dist_closest = d;
-	 r = std::pair<bool,realtype>(1, d);
-      } 
-   }
-   // std::cout << "DEbug:: closest_approach() d " << r.first << " " << r.second << std::endl;
-   return r;
+//       clipper::Coord_orth atom_1(residue_atoms_1[ contact[i].id1 ]->x,
+// 				 residue_atoms_1[ contact[i].id1 ]->y,
+// 				 residue_atoms_1[ contact[i].id1 ]->z);
+//       clipper::Coord_orth atom_2(residue_atoms_2[ contact[i].id2 ]->x,
+// 				 residue_atoms_2[ contact[i].id2 ]->y,
+// 				 residue_atoms_2[ contact[i].id2 ]->z);
+//       float d = clipper::Coord_orth::length(atom_1, atom_2);
+//       if (d < dist_closest) {
+// 	 dist_closest = d;
+// 	 r = std::pair<bool,realtype>(1, d);
+//       } 
+//    }
+//    std::cout << "DEbug:: closest_approach() d " << r.first << " " << r.second
+// 	     << " using " << ncontacts << " contacts with n_res_atoms "
+// 	     << n_res_1_atoms << " " << n_res_2_atoms << std::endl;
+//    return r;
 }
 
 

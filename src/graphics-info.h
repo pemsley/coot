@@ -1902,6 +1902,10 @@ public:
 		       std::string altconf, // use this altconf or "" atoms.
 		       std::string chain_id_1);
 
+   // void (int imol,
+   // const std::vector<CResidue *> &residues); 
+
+
    // return 0 if any of the residues in selection don't have (at least) bond 
    // restraints.  Try to auto-load the dictionary cifs and try again.
    // The vector is a list of residues for which no restraints could be found.
@@ -1918,6 +1922,30 @@ public:
 						       const std::string &chain_id_1,
 						       short int residue_from_alt_conf_split_flag,
 						       int imol); // imol is for uddatom index
+
+   // called by simple_refine_residues (a refinement from a vector of CResidues).
+   // 
+   // The returned mol should have flanking residues too.
+   //
+   // return also a vector of residues that correspond to the residues
+   // that were input - the non-fixed residues.
+   // 
+   std::pair<CMMDBManager *, std::vector<CResidue *> >
+   create_mmdbmanager_from_res_vector(const std::vector<CResidue *> &residues,
+				      int imol, // for uddatom index.
+				      CMMDBManager *mol,
+				      std::string alt_conf);
+
+   // simple CResidue * interface to refinement.  20081216
+   coot::refinement_results_t
+     generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
+				  const std::vector<CResidue *> &residues,
+				  CMMDBManager *mol);
+
+   void refine_residues_vec(int imol, 
+			    const std::vector<CResidue *> &residues,
+			    CMMDBManager *mol);
+			       
 
    // on reading a pdb file, we get a list of residues, use these to
    // load monomers from the dictionary
@@ -2784,6 +2812,13 @@ public:
    static bool fixed_atom_for_refinement_p(CAtom *);  // examines the imol_moving_atoms molecule
                                                       // for correspondence
 
+   // mol is new (not from molecules[imol]) molecule for the moving atoms.
+   // 
+   atom_selection_container_t make_moving_atoms_asc(CMMDBManager *mol, 
+						    int resno_1, 
+						    int resno_2) const;
+   atom_selection_container_t make_moving_atoms_asc(CMMDBManager *mol,
+						    const std::vector<CResidue *> &residues) const;
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
    // 

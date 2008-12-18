@@ -412,6 +412,8 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // indexing of that work when (say) adding a bond?
    coot::bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(geom);
 
+   std::cout << "   DEBUG:: made " << bpc.size() << " bonded flanking pairs " << std::endl;
+
    // passed and flanking
    std::vector<CResidue *> all_residues;
    for (unsigned int i=0; i<residues.size(); i++) {
@@ -422,23 +424,27 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // the other residues are the ones in the passed residues vector.
    // We don't have members of bonded_pair_container_t that are both
    // fixed.
+   int n_bonded_flankers_in_total = 0; // debug/info counter
    for (unsigned int i=0; i<bpc.size(); i++) {
-      if (bpc[i].is_fixed_first)
+      if (bpc[i].is_fixed_first) { 
 	 all_residues.push_back(bpc[i].res_1);
-      if (bpc[i].is_fixed_second)
+	 n_bonded_flankers_in_total++;
+      } 
+      if (bpc[i].is_fixed_second) { 
 	 all_residues.push_back(bpc[i].res_2);
+	 n_bonded_flankers_in_total++;
+      } 
    }
-   std::cout << " DEUBG:: There are " << residues.size() << " passed residues and "
-	     << all_residues.size() << " reisdues total (including flankers)"
+   std::cout << "   DEBUG:: There are " << residues.size() << " passed residues and "
+	     << all_residues.size() << " residues total (including flankers)"
 	     << std::endl;
 
    n_atoms = 0;
    for (unsigned int i=0; i<all_residues.size(); i++) {
       n_atoms += all_residues[i]->GetNumberOfAtoms();
    }
-   std::cout << " DEUBG:: There are " << n_atoms << " total (including flankers)"
+   std::cout << "   DEUBG:: There are " << n_atoms << " atoms total (including flankers)"
 	     << std::endl;
-
 
    atom = new PCAtom[n_atoms];
    int atom_index = 0;
@@ -4041,7 +4047,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       
       
       std::cout << "   looking for link :" << link_type
-		<< ": bonds/angles/planes etc. between residues " 
+		<< ": restraints etc. between residues " 
 		<< sel_res_1->GetChainID() << " " << sel_res_1->seqNum << " - " 
 		<< sel_res_2->GetChainID() << " " << sel_res_2->seqNum << std::endl;
 
@@ -4255,18 +4261,25 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 // std::cout << " closet approach d " << d.first << " " << d.second << std::endl;
 	 if (d.first) {
 	    if (d.second < dist_crit) {
-	       std::pair<std::string, bool> l =
-		  find_link_type_rigourous(res_f, res_s, geom);
+	       std::pair<std::string, bool> l = find_link_type_rigourous(res_f, res_s, geom);
 	       std::string link_type = l.first;
 // 	       std::cout << "   in bonded_residues_from_res_vec link_type :"
 // 			 << link_type << ":" << std::endl;
 	       if (link_type != "") {
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
-		  coot::bonded_pair_t p(res_f, res_s,
-					whole_first_residue_is_fixed,
-					whole_second_residue_is_fixed, link_type);
-		  bpc.try_add(p);
+		  bool order_switch_flag = l.second;
+		  if (!order_switch_flag) { 
+		     coot::bonded_pair_t p(res_f, res_s,
+					   whole_first_residue_is_fixed,
+					   whole_second_residue_is_fixed, link_type);
+		     bpc.try_add(p);
+		  } else {
+		     coot::bonded_pair_t p(res_s, res_f,
+					   whole_first_residue_is_fixed,
+					   whole_second_residue_is_fixed, link_type);
+		     bpc.try_add(p);
+		  }
 	       } 
 	    }
 	 }
@@ -4505,6 +4518,8 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
    return link_type;
 }
 
+// Return the link type and a residue order switch flag.
+// 
 std::pair<std::string, bool>
 coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue *second,
 						       const coot::protein_geometry &geom) const {
@@ -4526,6 +4541,17 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 std::pair<coot::chem_link, bool> link_info =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
+	 // we don't get here if there was not a match! (execption thrown above).
+	 //
+	 if (0) { 
+	    if  (link_info.second) 
+	       std::cout << "   ======  chem_link info " << link_info.first << " order-switch? "
+			 << link_info.second << std::endl;
+	    else 
+	       std::cout << "   ======  chem_link info " << "no order-switch" << std::endl;
+	 }
+	    
+
 	 // Now, if link is a TRANS (default-peptide-link), then
 	 // make sure that the C and N (or N and C) atoms of the
 	 // first and second residue are within dist_crit (2.0A) of
@@ -4534,11 +4560,12 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 if (link_info.first.is_peptide_link_p()) {
 	    std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
 	    if (close_info.first) {
-	       std::cout << "   TRANS or CIS pass NvsC dist test " << std::endl;
 	       order_switch_flag = close_info.second;
 	       link_type = link_info.first.Id();
+	       // std::cout << "   TRANS or CIS pass NvsC dist test with order switch "
+	       // << order_switch_flag << std::endl;
 	    } else {
-	       std::cout << "  TRANS or CIS FAIL NvsC dist test " << std::endl;
+	       // std::cout << "   TRANS or CIS FAIL NvsC dist test " << std::endl;
 	       std::pair<coot::chem_link, bool> link_info_non_peptide =
 		  geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
 	    } 
@@ -4548,14 +4575,15 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 } 
       }
       catch (std::runtime_error mess_in) {
+	 // didn't find a chem_link for this pair, that's OK sometimes.
 	 std::cout << mess_in.what() << std::endl;
       } 
    }
    catch (std::runtime_error mess) {
       std::cout << mess.what() << std::endl;
    }
-   std::cout << "   DEBUG:: find_link_type_rigourous returns :"
-	     << link_type << ": " << order_switch_flag << std::endl;
+   std::cout << "   DEBUG:: find_link_type_rigourous returns link type :"
+	     << link_type << ": and order-switch flag " << order_switch_flag << std::endl;
    return std::pair<std::string, bool> (link_type, order_switch_flag);
 }
 
@@ -4818,12 +4846,13 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 
    for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 
-//       std::cout << " DEBUG:: bonded_flanking_residues_by_residue_vector using reference res "
-// 		<< ir << " of " << residues_vec.size() << " " 
-// 		<< residues_vec[ir].second << std::endl;
-      
       std::vector<CResidue *> neighbours = coot::residues_near_residue(residues_vec[ir].second,
 								       mol, dist_crit);
+      std::cout << " DEBUG:: bonded_flanking_residues_by_residue_vector using reference res "
+ 		<< ir << " of " << residues_vec.size() << " " 
+ 		<< residues_vec[ir].second << " with " << neighbours.size() << " neighbours"
+		<< std::endl;
+      
       for (unsigned int ineighb=0; ineighb<neighbours.size(); ineighb++) {
 
 	 bool found = 0;
@@ -4839,13 +4868,17 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 	    // OK, so this neighbour was not in the passed set of
 	    // moving residues, it can be a flanking residue then...
 	    std::pair<bool, float> d = closest_approach(neighbours[ineighb], residues_vec[ir].second);
+	    std::cout << " not in residue vec... " << d.first << " " << d.second
+		      << " for " << coot::residue_spec_t(neighbours[ineighb]) << " to "
+		      << coot::residue_spec_t(residues_vec[ir].second) << std::endl;
 	    if (d.first) {
 	       if (d.second < dist_crit) {
 		  std::pair<std::string, bool> l =
 		     find_link_type_rigourous(neighbours[ineighb], residues_vec[ir].second, geom);
 		  std::string link_type = l.first;
 		  if (link_type != "") {
-		     if (l.second == 0) {
+		     bool order_switch_flag = l.second;
+		     if (! order_switch_flag) {
 			coot::bonded_pair_t bp(neighbours[ineighb], residues_vec[ir].second, 1, 0, link_type);
 			bpc.try_add(bp);
 		     } else {
@@ -5658,7 +5691,8 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 		     
 		     if (pdb_atom_name_2 == geom.link(i).link_bond_restraint[j].atom_id_2_4c()) {
 
-  			std::cout << "adding " << link_type << " bond for " << first->seqNum
+  			std::cout << "   adding " << link_type << " bond for "
+				  << first->seqNum
    				  << " -> " << second->seqNum << " atoms " 
 				  << first_sel [ifat]->GetAtomName() << " to "
 				  << second_sel[isat]->GetAtomName() 
@@ -6378,11 +6412,23 @@ coot::restraints_container_t::setup_gsl_vector_variables() {
    // (so are n_atoms and atom, which were set in the constructor)
    //  
 
-   // cout << "DEBUG:: allocating " << 3*n_atoms << " to x " << endl; 
    x = gsl_vector_alloc(3*n_atoms);
 
-   for (int i=0; i<n_atoms; i++) { 
-      
+   // If atom is going out of date, check how atom is handled when the
+   // restraints (this object) goes out of scope.  the destructor.
+   
+//    std::cout << "DEBUG:: using atom array pointer " << atom << std::endl;
+//    std::cout << "DEBUG:: Top few atoms" << std::endl;
+//    for (int i=0; i<10; i++) {
+//       std::cout << "Top atom " << i << " "
+// 		<< atom[i] << "   "
+// 		<< atom[i]->x << " "
+// 		<< atom[i]->y << " "
+// 		<< atom[i]->z << " "
+// 		<< std::endl;
+//    } 
+
+   for (int i=0; i<n_atoms; i++) {
       idx = 3*i; 
       gsl_vector_set(x, idx,   atom[i]->x);
       gsl_vector_set(x, idx+1, atom[i]->y);

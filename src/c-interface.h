@@ -2675,6 +2675,12 @@ GtkWidget *wrapped_create_refine_params_dialog();
 
 void do_torsions_toggle(GtkWidget *button);
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM secret_jed_refine_func(int imol, SCM r); /* to be renamed later. */
+#endif
+#endif
+
 /*! \brief turn on (or off) torsion restraints 
 
    Pass with istate=1 for on, istate=0 for off.

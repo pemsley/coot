@@ -1181,8 +1181,17 @@ namespace coot {
 	 if (from_residue_vector) {
 	    if (atom) { 
 	       // this is constructed manually.
-	       delete [] atom;
-	       atom = NULL;
+
+	       // Oh we can't do this here because we copy the
+	       // restraints in simple_refine_residues() and that
+	       // shallow copies the atom pointer - the original
+	       // restriants go out of scope and call this destructor.
+	       //
+	       // We need a new way to get rid of atom - c.f. the
+	       // linear/conventional way?
+	       
+	       // delete [] atom;
+	       // atom = NULL;
 	    } 
 	 } else {
 	       // member data item PPCAtom atom is constructed by an
