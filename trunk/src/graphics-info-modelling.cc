@@ -333,27 +333,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	    restraints.add_map(molecules[imol_for_map].xmap_list[0],
 			       geometry_vs_map_weight);
 
-	 atom_selection_container_t local_moving_atoms_asc;
-	 local_moving_atoms_asc.mol = (MyCMMDBManager *) residues_mol;
-	 local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
-	 local_moving_atoms_asc.UDDAtomIndexHandle = -1;
-
-	 local_moving_atoms_asc.SelectionHandle = residues_mol->NewSelection();
-	 residues_mol->SelectAtoms (local_moving_atoms_asc.SelectionHandle, 0, "*",
-				   resno_1, // starting resno, an int
-				   "*", // any insertion code
-				   resno_2, // ending resno
-				   "*", // ending insertion code
-				   "*", // any residue name
-				   "*", // atom name
-				   "*", // elements
-				   "*"  // alt loc.
-				   );
-
-	 residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
-				   local_moving_atoms_asc.atom_selection,
-				   local_moving_atoms_asc.n_selected_atoms);
-
+	 atom_selection_container_t local_moving_atoms_asc =
+	    make_moving_atoms_asc(residues_mol, resno_1, resno_2);
 
 	 // coot::restraint_usage_Flags flags = coot::BONDS;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
@@ -453,6 +434,214 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
 #endif // HAVE_GSL
 }
+
+void
+graphics_info_t::refine_residues_vec(int imol, 
+				     const std::vector<CResidue *> &residues,
+				     CMMDBManager *mol) {
+
+   coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, mol);
+   short int istat = rr.found_restraints_flag;
+   if (istat) {
+      graphics_draw();
+      if (! refinement_immediate_replacement_flag) {
+	 if (use_graphics_interface_flag) { 
+	    do_accept_reject_dialog("Refinement", rr);
+	    check_and_warn_bad_chirals_and_cis_peptides();
+	 }
+      }
+   } 
+}
+
+
+// simple CResidue * interface to refinement.  20081216
+coot::refinement_results_t
+graphics_info_t::generate_molecule_and_refine(int imol,
+					      const std::vector<CResidue *> &residues,
+					      CMMDBManager *mol) { 
+
+   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
+   
+#ifdef HAVE_GSL
+
+   if (is_valid_map_molecule(Imol_Refinement_Map())) {
+      clipper::Xmap<float> xmap = molecules[Imol_Refinement_Map()].xmap_list[0];
+      float weight = geometry_vs_map_weight;
+      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      std::vector<coot::atom_spec_t> fixed_atom_specs;
+
+      // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
+      // molecule.  We need to do 2 things:
+      //
+      // convert the CResidue *s of the passed residues to the CResidue *s of residues mol
+      //
+      // and
+      //
+      // in create_mmdbmanager_from_res_vector() make sure that that contains the flanking atoms.
+      //
+      // The flanking atoms are fixed the passed residues are not fixed.
+      // Keep a clear head.
+      
+
+      
+      std::string residues_alt_conf = ""; // fix me later
+      std::pair<CMMDBManager *, std::vector<CResidue *> > residues_mol_and_res_vec =
+	 create_mmdbmanager_from_res_vector(residues, imol, mol, residues_alt_conf);
+      atom_selection_container_t local_moving_atoms_asc =
+	 make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
+      std::vector<std::pair<bool,CResidue *> > local_residues;  // not fixed.
+      for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
+	 local_residues.push_back(std::pair<bool, CResidue *>(0, residues_mol_and_res_vec.second[i]));
+      coot::restraints_container_t restraints(local_residues, *Geom_p(),
+					      residues_mol_and_res_vec.first,
+					      fixed_atom_specs, xmap, weight);
+      int n_restraints = restraints.make_restraints(*Geom_p(), flags, 0, 0.0, 0, coot::NO_PSEUDO_BONDS);
+      
+      // 
+      // ================= factor out this block ============================
+      // 
+
+
+      if (n_restraints > 0) {
+	 moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
+	 last_restraints = restraints;
+
+	 if (0) { 
+	    restraints.minimize(flags);
+	    regularize_object_bonds_box.clear_up();
+	    make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
+	 } else {
+	    regularize_object_bonds_box.clear_up();
+	    make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
+	    int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+	    graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
+	    // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
+	    // << std::endl;
+	    short int continue_flag = 1;
+	    int step_count = 0; 
+	    print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
+	    while ((step_count < 10000) && continue_flag) {
+	       int retval = drag_refine_idle_function(NULL);
+	       step_count += dragged_refinement_steps_per_frame;
+	       if (retval == GSL_SUCCESS) { 
+		  continue_flag = 0;
+		  rr = graphics_info_t::saved_dragged_refinement_results;
+	       }
+	       if (retval == GSL_ENOPROG) {
+		  continue_flag = 0;
+		  rr = graphics_info_t::saved_dragged_refinement_results;
+	       }
+	    }
+
+	    // if we reach here with continue_flag == 1, then we
+	    // were refining (regularizing more like) and ran out
+	    // of steps before convergence.  We still want to give
+	    // the use a dialog though.
+	    //
+	    if (continue_flag == 1) {
+	       rr = graphics_info_t::saved_dragged_refinement_results;
+	       rr.info = "Time's up...";
+	    }
+	       
+	 }
+      } else { 
+	 if (use_graphics_interface_flag) { 
+	    GtkWidget *widget = create_no_restraints_info_dialog();
+	    gtk_widget_show(widget);
+	 }
+      } 
+
+      // ================== end refactor block =====================
+      
+   } 
+
+   return rr;
+
+#else
+   
+   std::cout << "Cannot refine without compilation with GSL" << std::endl;
+   return coot::refinement_results_t(0, 0, "");
+
+#endif    
+} 
+
+
+// mol is new (not from molecules[imol]) molecule for the moving atoms.
+//
+// resno_1 and resno_2 need to be passed because in the
+// conventional/linear case, we don't want all the residues selected
+// (sigh). That's because in that case the residues_mol that is passed
+// also has the flanking residues.
+//
+// Consider setting those to be RES_ANY for other cases.
+// 
+atom_selection_container_t
+graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
+				       int resno_1,
+				       int resno_2) const {
+
+   atom_selection_container_t local_moving_atoms_asc;
+   local_moving_atoms_asc.mol = (MyCMMDBManager *) residues_mol;
+   local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
+   local_moving_atoms_asc.UDDAtomIndexHandle = -1;
+
+   local_moving_atoms_asc.SelectionHandle = residues_mol->NewSelection();
+   residues_mol->SelectAtoms (local_moving_atoms_asc.SelectionHandle, 0, "*",
+			      resno_1, // starting resno, an int
+			      "*", // any insertion code
+			      resno_2, // ending resno
+			      "*", // ending insertion code
+			      "*", // any residue name
+			      "*", // atom name
+			      "*", // elements
+			      "*"  // alt loc.
+			      );
+
+   residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
+			     local_moving_atoms_asc.atom_selection,
+			     local_moving_atoms_asc.n_selected_atoms);
+
+   return local_moving_atoms_asc;
+}
+
+
+atom_selection_container_t
+graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
+				       const std::vector<CResidue *> &residues) const {
+
+   atom_selection_container_t local_moving_atoms_asc;
+   local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
+   local_moving_atoms_asc.UDDAtomIndexHandle = -1;
+
+   int SelHnd = residues_mol->NewSelection();
+
+   for (unsigned int ir=0; ir<residues.size(); ir++) {
+      const char *chain_id = residues[ir]->GetChainID();
+      const char *inscode = residues[ir]->GetInsCode();
+      int resno = residues[ir]->GetSeqNum();
+      residues_mol->Select(SelHnd, STYPE_ATOM,
+			   0, chain_id,
+			   resno, // starting resno, an int
+			   inscode, // any insertion code
+			   resno, // ending resno
+			   inscode, // ending insertion code
+			   "*", // any residue name
+			   "*", // atom name
+			   "*", // elements
+			   "*",  // alt loc.	
+			   SKEY_OR);
+   }
+
+   local_moving_atoms_asc.mol = (MyCMMDBManager *) residues_mol;
+   local_moving_atoms_asc.SelectionHandle = SelHnd;
+   residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
+			     local_moving_atoms_asc.atom_selection,
+			     local_moving_atoms_asc.n_selected_atoms);
+   std::cout << "returning a atom selection for all moving atoms "
+	     << local_moving_atoms_asc.n_selected_atoms << " atoms "
+	     << std::endl;
+   return local_moving_atoms_asc;
+} 
 
 
 // Return 0 if any of the residues don't have a dictionary entry
@@ -571,6 +760,151 @@ graphics_info_t::create_mmdbmanager_from_res_selection(PCResidue *SelResidues,
    return residues_mol;
 }
 
+// called by simple_refine_residues (a refinement from a vector of CResidues).
+//
+// The returned mol should have flanking residues too.
+//
+std::pair<CMMDBManager *, std::vector<CResidue *> >
+graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<CResidue *> &residues,
+						    int imol, 
+						    CMMDBManager *mol_in,
+						    std::string alt_conf) {
+   
+   CMMDBManager *new_mol = 0;
+   std::vector<CResidue *> rv;
+   int n_flanker = 0; // a info/debugging counter
+
+   if (residues.size() > 0) { 
+
+      new CMMDBManager;
+      CModel *model_p = new CModel;
+      CChain *chain_p = new CChain;
+   
+      float dist_crit = 3.0;
+
+      // First add new versions of the passed residues:
+      // 
+      std::string chain_id_1 = residues[0]->GetChainID();
+      short int whole_res_flag = 0;
+      int atom_index_udd = molecules[imol].atom_sel.UDDAtomIndexHandle;
+
+      // FIXME, we need to check that we are adding r to the right
+      // chain, now residues can be in many different chains.
+      //
+      
+      for (unsigned int ires=0; ires<residues.size(); ires++) {
+	 CResidue *r;
+
+	 std::string ref_res_chain_id = residues[ires]->GetChainID();
+
+	 CChain *chain_p = NULL;
+	 int n_new_mol_chains = model_p->GetNumberOfChains();
+	 for (int ich=0; ich<n_new_mol_chains; ich++) {
+	    if (ref_res_chain_id == model_p->GetChain(ich)->GetChainID()) {
+	       chain_p = model_p->GetChain(ich);
+	       break;
+	    }
+	 }
+
+	 // Add a new one then.
+	 if (! chain_p) {
+	    chain_p = new CChain;
+	    chain_p->SetChainID(ref_res_chain_id.c_str());
+	    model_p->AddChain(chain_p);
+	 }
+
+	 r = coot::deep_copy_this_residue(residues[ires], alt_conf, whole_res_flag, 
+					  atom_index_udd);
+	 chain_p->AddResidue(r);
+	 r->seqNum = residues[ires]->GetSeqNum();
+	 r->SetResName(residues[ires]->GetResName());
+// 	 std::cout << " adding moving residue " << " " << coot::residue_spec_t(r)
+// 		   << std::endl;
+	 rv.push_back(r);
+      }
+
+      new_mol = new CMMDBManager;
+      new_mol->AddModel(model_p);
+      new_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      new_mol->FinishStructEdit();
+
+      
+      // Now the flanking residues:
+      //
+      std::vector<CResidue *> flankers_in_reference_mol;
+      
+      for (unsigned int ires=0; ires<residues.size(); ires++) {
+	 CResidue *res_ref = residues[ires];
+	 std::vector<CResidue *> neighbours =
+	    coot::residues_near_residue(res_ref, mol_in, dist_crit);
+	 // now add the elements of neighbours if they are not already
+	 // in flankers_in_reference_mol (and not in residues either of
+	 // course)
+	 // 
+	 for (unsigned int in=0; in<neighbours.size(); in++) { 
+	    bool found = 0;
+	    for (unsigned int iflank=0; iflank<flankers_in_reference_mol.size(); iflank++) {
+	       if (neighbours[in] == flankers_in_reference_mol[iflank]) {
+		  found = 1;
+		  break;
+	       }
+	    }
+
+	    // in residues?
+	    if (! found) {
+	       for (unsigned int ii=0; ii<residues.size(); ii++) {
+		  if (neighbours[in] == residues[ii]) {
+		     found = 1;
+		     break;
+		  } 
+	       } 
+	    } 
+	    
+	    if (! found) {
+	       flankers_in_reference_mol.push_back(neighbours[in]);
+	    }
+	 } 
+      }
+
+      // So we have a vector of residues that were flankers in the
+      // reference molecule, we need to add copies of those to
+      // new_mol (making sure that they go into the correct chain).
+      for (unsigned int ires=0; ires<flankers_in_reference_mol.size(); ires++) {
+	 CResidue *r;
+
+	 std::string ref_res_chain_id = flankers_in_reference_mol[ires]->GetChainID();
+
+	 CChain *chain_p = NULL;
+	 int n_new_mol_chains = model_p->GetNumberOfChains();
+	 for (int ich=0; ich<n_new_mol_chains; ich++) {
+	    if (ref_res_chain_id == model_p->GetChain(ich)->GetChainID()) {
+	       chain_p = model_p->GetChain(ich);
+	       break;
+	    }
+	 }
+
+	 // Add a new one then.
+	 if (! chain_p) {
+	    chain_p = new CChain;
+	    chain_p->SetChainID(ref_res_chain_id.c_str());
+	    model_p->AddChain(chain_p);
+	 }
+
+	 r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
+					  alt_conf, whole_res_flag, 
+					  atom_index_udd);
+	 chain_p->AddResidue(r);
+	 r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
+	 r->SetResName(flankers_in_reference_mol[ires]->GetResName());
+// 	 std::cout << " adding flanking residue " << " " << coot::residue_spec_t(r)
+// 		   << std::endl;
+	 n_flanker++;
+      }
+   }
+   std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
+	     << " free residues and " << n_flanker << " flankers" << std::endl;
+   return std::pair <CMMDBManager *, std::vector<CResidue *> > (new_mol, rv);
+}
 
 
 // on reading a pdb file, we get a list of residues, use these to

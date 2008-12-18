@@ -1072,6 +1072,50 @@ PyObject *refmac_parameters_py(int imol) {
 #endif	/* USE_PYTHON */
 
 
+#ifdef USE_GUILE
+SCM secret_jed_refine_func(int imol, SCM r) {
+   SCM rv = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> residue_specs;
+      SCM r_length_scm = scm_length(r);
+      int r_length = scm_to_int(r_length_scm);
+      for (unsigned int i=0; i<r_length; i++) {
+	 SCM res_spec_scm = scm_list_ref(r, SCM_MAKINUM(i));
+	 std::pair<bool, coot::residue_spec_t> res_spec =
+	    make_residue_spec(res_spec_scm);
+	 if (res_spec.first) {
+	    residue_specs.push_back(res_spec.second);
+	 } 
+      }
+
+      if (residue_specs.size() > 0) {
+	 std::vector<CResidue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
+
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    int imol_map = g.Imol_Refinement_Map();
+	    if (is_valid_map_molecule(imol_map)) { 
+	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	       g.refine_residues_vec(imol, residues, mol);
+	    }
+	 } 
+      } else {
+	 std::cout << "No residue specs found" << std::endl;
+      } 
+   }
+   return rv;
+} 
+#endif
+
+
+
 // imol has changed.
 // Now fix up the Go_To_Atom window to match:
 // 

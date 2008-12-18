@@ -1712,7 +1712,8 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &group_2) const {
 
    if (0) { 
-      std::cout << "   " << id << " " << chem_link_name << ": input comp_ids "
+      std::cout << "   DEBUGG in matches_comp_ids_and_groups "
+		<< id << " " << chem_link_name << ": input comp_ids "
 		<< comp_id_1 << " and " << comp_id_2 << " vs :"
 		<< chem_link_comp_id_1 << ": :"
 		<< chem_link_comp_id_2 << ":" << std::endl; 
@@ -1731,11 +1732,22 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2)))
 	 match = 1;
 
+   if (match == 1)
+      return std::pair<bool, bool>(match, order_switch);
+      
    // And what about if the residues come here backward? We should
    // report a match and that they should be reversed to the calling
-   // function?  A simple bool won't do as a return type in that case.
+   // function?  
 
-   // std::cout << "   debug:: chem_link match: " << match << std::endl;
+   // reverse index 
+   if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == group_2) || ((chem_link_group_comp_1 == "peptide") && (group_1 == "L-peptide"))) &&
+       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == group_1) || ((chem_link_group_comp_2 == "peptide") && (group_2 == "L-peptide"))))
+      if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
+	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) { 
+	 match = 1;
+	 order_switch = 1;
+      }
+   
    return std::pair<bool, bool>(match, order_switch);
 }
 
@@ -2227,7 +2239,8 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 								comp_id_2, group_2);
       if (match_res.first) {
 	 coot::chem_link clt = chem_link_vec[i_chem_link];
-	 if (!clt.is_peptide_link_p() || allow_peptide_link_flag) { 
+	 if (!clt.is_peptide_link_p() || allow_peptide_link_flag) {
+	    cl = clt;
 	    switch_order_flag = match_res.second;
 	    found = 1;
 	    break;
