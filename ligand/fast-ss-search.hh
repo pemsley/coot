@@ -51,8 +51,8 @@ namespace coot {
      };
 
      void prep_xmap( const clipper::Xmap<float>& xmap, const double radius );
-     void prep_search( const clipper::Xmap<float>& xmap, const double score );
-     void prep_search( const clipper::Xmap<float>& xmap, const double score, const double rhocut, const double radcut, const clipper::Coord_orth centre );
+     void prep_search( const clipper::Xmap<float>& xmap );
+     void prep_search( const clipper::Xmap<float>& xmap, const double rhocut, const double radcut, const clipper::Coord_orth centre );
      std::vector<SearchResult> search( const std::vector<Pair_coord>& target_cs, const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut = 0.0 ) const;
 
    private:

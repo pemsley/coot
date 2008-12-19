@@ -170,7 +170,7 @@ void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius )
 }
 
 
-void SSfind::prep_search( const clipper::Xmap<float>& xmap, const double score )
+void SSfind::prep_search( const clipper::Xmap<float>& xmap )
 {
   // make list of results
   typedef clipper::Xmap<float>::Map_reference_index MRI;
@@ -180,7 +180,7 @@ void SSfind::prep_search( const clipper::Xmap<float>& xmap, const double score )
 }
 
 
-void SSfind::prep_search( const clipper::Xmap<float>& xmap, const double score, const double rhocut, const double radcut, const clipper::Coord_orth centre )
+void SSfind::prep_search( const clipper::Xmap<float>& xmap, const double rhocut, const double radcut, const clipper::Coord_orth centre )
 {
   // make list of results
   typedef clipper::Xmap<float>::Map_reference_index MRI;
@@ -443,7 +443,7 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
   prep_xmap( xmap, rad );
 
   // make a list of results
-  prep_search( xmap, 0.0, sigcut, radius, centre );
+  prep_search( xmap, sigcut, radius, centre );
 
   // find ss elements
   std::vector<SearchResult> rslts = search( target_cs, rots, sigcut, 0.4 );
