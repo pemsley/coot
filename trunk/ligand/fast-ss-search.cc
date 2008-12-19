@@ -295,16 +295,39 @@ double fast_secondary_structure_search::join_score( const std::vector<clipper::C
 }
 
 
-std::vector<std::vector<clipper::Coord_orth> > fast_secondary_structure_search::join( std::vector<std::vector<clipper::Coord_orth> > frags )
+std::vector<std::vector<clipper::Coord_orth> > fast_secondary_structure_search::join( std::vector<std::vector<clipper::Coord_orth> > frags, int extn )
 {
+  // first extend the fragments to increase overlap
+  // can we do it?
+  for ( int f = 0; f < frags.size(); f++ ) if ( frags[f].size() < 4 ) extn = 0;
+  // extend fragments
+  for ( int e = 0; e < extn; e++ )
+    for ( int f = 0; f < frags.size(); f++ ) {
+      using clipper::Coord_orth;
+      const std::vector<Coord_orth> fr = frags[f];
+      int l = fr.size();
+      Coord_orth c0( fr[2], fr[1], fr[0],
+		     Coord_orth::length (fr[1],fr[0]),
+		     Coord_orth::angle  (fr[2],fr[1],fr[0]),
+		     Coord_orth::torsion(fr[3],fr[2],fr[1],fr[0]) );
+      Coord_orth c1( fr[l-3], fr[l-2], fr[l-1],
+		     Coord_orth::length (fr[l-2],fr[l-1]),
+		     Coord_orth::angle  (fr[l-3],fr[l-2],fr[l-1]),
+		     Coord_orth::torsion(fr[l-4],fr[l-3],fr[l-2],fr[l-1]) );
+      frags[f].resize( l+2 );
+      frags[f][ 0 ] = c0;
+      for ( int a = 0; a < l; a++ ) frags[f][a+1] = fr[a];
+      frags[f][l+1] = c1;
+    }
+
   // create weight lists
   std::vector<std::vector<double> > wghts( frags.size() );
   for ( int f = 0; f < wghts.size(); f++ ) {
     wghts[f].resize( frags[f].size() );
     double da = 0.5*(wghts[f].size()-1);
-    double sa = 0.5*(wghts[f].size()+1);
+    double sa = 0.5*(wghts[f].size()+1-2*extn);
     for ( int a = 0; a < wghts[f].size(); a++ )
-      wghts[f][a] = 1.0 - fabs( (double(a)-da)/sa );
+      wghts[f][a] = clipper::Util::max( 1.0-fabs((double(a)-da)/sa), 1.0e-6 );
   }
 
   // find best pair to merge
@@ -321,7 +344,7 @@ std::vector<std::vector<clipper::Coord_orth> > fast_secondary_structure_search::
     for ( int f1 = 0; f1 < frags.size(); f1++ )
       for ( int f2 = f1+1; f2 < frags.size(); f2++ )
 	if ( scores(f1,f2) > js ) { js = scores(f1,f2); j1=f1; j2=f2; }
-    if ( js < 1.0 ) return frags;
+    if ( js < 1.0 ) break;
     // merge them
     std::vector<clipper::Coord_orth> newfrag;
     std::vector<double> newwght;
@@ -351,7 +374,17 @@ std::vector<std::vector<clipper::Coord_orth> > fast_secondary_structure_search::
     for ( int f2 = j2+1; f2 < frags.size(); f2++ )
       scores(j2,f2) = 0.0;
   }
-  return frags;
+
+  // remove fragment extensions
+  std::vector<std::vector<clipper::Coord_orth> > frags_new;  
+  for ( int f = 0; f < frags.size(); f++ )
+    if ( frags[f].size() > 2*extn ) {
+      std::vector<clipper::Coord_orth> fr( frags[f].size() - 2*extn );
+      for ( int a = 0; a < fr.size(); a++ ) fr[a] = frags[f][a+extn];
+      frags_new.push_back( fr );
+    }
+
+  return frags_new;
 }
 
 
@@ -464,7 +497,7 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
   }
 
   // join fragments
-  std::vector<std::vector<clipper::Coord_orth> > sscoord = join( result );
+  std::vector<std::vector<clipper::Coord_orth> > sscoord = join( result, 1 );
 
   // NOW PREPARE THE MODEL FOR COOT
   float acell[6];
