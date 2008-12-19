@@ -40,26 +40,27 @@ namespace coot {
      enum SSTYPE { ALPHA2, ALPHA3, ALPHA4, BETA2, BETA3, BETA4 };
      typedef std::pair<clipper::Coord_orth,clipper::Coord_orth> Pair_coord;
 
-     void prep_target( SSfind::SSTYPE type, int num_residues );
+     class Target {
+     public:
+       Target( SSfind::SSTYPE type, int num_residues );
+       const std::vector<Pair_coord>          target_coords() { return target_cs; }
+       const std::vector<clipper::Coord_orth> calpha_coords() { return calpha_cs; }
+     private:
+       std::vector<Pair_coord>          target_cs;
+       std::vector<clipper::Coord_orth> calpha_cs;
+     };
+
      void prep_xmap( const clipper::Xmap<float>& xmap, const double radius );
-     void prep_results( const clipper::Xmap<float>& xmap, const double score );
-     void prep_results( const clipper::Xmap<float>& xmap, const double score, const double rhocut, const double radcut, const clipper::Coord_orth centre );
-     const std::vector<SearchResult>& search( const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut=0.0 );
-   
-     const std::vector<Pair_coord>          target_coords() { return target_cs; }
-     const std::vector<clipper::Coord_orth> calpha_coords() { return calpha_cs; }
-     const std::vector<SearchResult>& results() const { return rslts; }
-     const float score_cutoff() const { return bestcut; }
+     void prep_search( const clipper::Xmap<float>& xmap, const double score );
+     void prep_search( const clipper::Xmap<float>& xmap, const double score, const double rhocut, const double radcut, const clipper::Coord_orth centre );
+     std::vector<SearchResult> search( const std::vector<Pair_coord>& target_cs, const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut = 0.0 ) const;
 
    private:
-     std::vector<Pair_coord>          target_cs;
-     std::vector<clipper::Coord_orth> calpha_cs;
      std::vector<float> mapbox;
-     float bestcut;
+     std::vector<int> srctrn;
      clipper::Grid grid;
      clipper::Grid_range mxgr;
      clipper::Mat33<> grrot;
-     std::vector<SearchResult> rslts;
    };
 
 
