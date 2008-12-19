@@ -46,7 +46,7 @@
 namespace coot {
 
 
-void SSfind::prep_target( SSfind::SSTYPE type, int num_residues )
+SSfind::Target::Target( SSfind::SSTYPE type, int num_residues )
 {
   const int sslen = num_residues;
 
@@ -170,25 +170,21 @@ void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius )
 }
 
 
-void SSfind::prep_results( const clipper::Xmap<float>& xmap, const double score )
+void SSfind::prep_search( const clipper::Xmap<float>& xmap, const double score )
 {
   // make list of results
   typedef clipper::Xmap<float>::Map_reference_index MRI;
-  SearchResult rslt = {float(score),-1,-1};
-  rslts.clear();
-  for ( MRI ix = xmap.first(); !ix.last(); ix.next() ) {
-    rslt.trn = grid.index( ix.coord() );
-    rslts.push_back( rslt );
-  }
+  srctrn.clear();
+  for ( MRI ix = xmap.first(); !ix.last(); ix.next() )
+    srctrn.push_back( grid.index( ix.coord() ) );
 }
 
 
-void SSfind::prep_results( const clipper::Xmap<float>& xmap, const double score, const double rhocut, const double radcut, const clipper::Coord_orth centre )
+void SSfind::prep_search( const clipper::Xmap<float>& xmap, const double score, const double rhocut, const double radcut, const clipper::Coord_orth centre )
 {
   // make list of results
   typedef clipper::Xmap<float>::Map_reference_index MRI;
-  SearchResult rslt = {float(score),-1,-1};
-  rslts.clear();
+  srctrn.clear();
   double r2cut = ( radcut > 0.0 ) ? radcut*radcut : 1.0e20;
   clipper::Coord_frac cf = centre.coord_frac( xmap.cell() );
   for ( MRI ix = xmap.first(); !ix.last(); ix.next() )
@@ -196,21 +192,19 @@ void SSfind::prep_results( const clipper::Xmap<float>& xmap, const double score,
       clipper::Coord_frac df = ix.coord().coord_frac( xmap.grid_sampling() );
       df = df.symmetry_copy_near( xmap.spacegroup(), xmap.cell(), cf ) - cf;
       double r2 = df.lengthsq( xmap.cell() );
-      if ( r2 < r2cut ) {
-	rslt.trn = grid.index( ix.coord() );
-	rslts.push_back( rslt );
-      }
+      if ( r2 < r2cut )
+	srctrn.push_back( grid.index( ix.coord() ) );
     }
 }
 
 
-const std::vector<SearchResult>& SSfind::search( const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut )
+std::vector<SearchResult> SSfind::search( const std::vector<Pair_coord>& target_cs, const std::vector<clipper::RTop_orth>& ops, const double rhocut, const double frccut ) const
 {
   // make a list of indexed, intergerized, rotated lists
   std::vector<std::vector<std::pair<int,int> > > index_lists;
   int i0 = mxgr.index( clipper::Coord_grid(0,0,0) );
   for ( int r = 0; r < ops.size(); r++ ) {
-    clipper::RTop_orth op = ops[r].inverse();
+    clipper::RTop_orth op = ops[r];
     std::vector<std::pair<int,int> > tmp;
     for ( int i = 0; i < target_cs.size(); i++ ) {
       const clipper::Coord_map c1( grrot*(op*target_cs[i].first  ) );
@@ -221,8 +215,13 @@ const std::vector<SearchResult>& SSfind::search( const std::vector<clipper::RTop
     index_lists.push_back( tmp );
   }
 
+  // make list of results
+  SearchResult rsltnull = { 0.0, -1, -1 };
+  std::vector<SearchResult> rslts( srctrn.size(), rsltnull );
+  for ( int i = 0; i < rslts.size(); i++ ) rslts[i].trn = srctrn[i];
+
   // find ss elements
-  bestcut = 0.0;  // optimisation: abandon searches where score < bestcut
+  float bestcut = 0.0;  // optimisation: abandon searches where score < bestcut
   const float bestscl( frccut ); 
   for ( int i = 0; i < rslts.size(); i++ ) {  // loop over map
     float bestscr = rslts[i].score;
@@ -253,9 +252,12 @@ const std::vector<SearchResult>& SSfind::search( const std::vector<clipper::RTop
     bestcut = clipper::Util::max( bestscl*bestscr, bestcut );  // optimisation
   }
 
+  // eliminate any results which would have been eliminated by the cutoff
+  for ( int i = 0; i < rslts.size(); i++ )
+    if ( rslts[i].score < bestcut ) rslts[i] = rsltnull;
+
   return rslts;
 }
-
 
 
 // the wrapper class for coot
@@ -387,10 +389,10 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
   }
 
   // make a target model and representative coordinates
-  prep_target( type, num_residues );
+  Target target( type, num_residues );
 
   // get map radius
-  const std::vector<Pair_coord>& target_cs = target_coords();
+  const std::vector<Pair_coord>& target_cs = target.target_coords();
   double r2( 0.0 ), d2( 0.0 );
   for ( int i = 0; i < target_cs.size(); i++ ) {
     d2 = target_cs[i].first.lengthsq();
@@ -408,16 +410,15 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
   prep_xmap( xmap, rad );
 
   // make a list of results
-  prep_results( xmap, 0.0, sigcut, radius, centre );
+  prep_search( xmap, 0.0, sigcut, radius, centre );
 
   // find ss elements
-  search( rots, sigcut, 0.4 );
+  std::vector<SearchResult> rslts = search( target_cs, rots, sigcut, 0.4 );
 
   // filter
-  const std::vector<SearchResult>& rslt = results();
   std::vector<SearchResult> rsltf;
-  for ( int i = 0; i < rslt.size(); i++ )
-    if ( rslt[i].score > score_cutoff() ) rsltf.push_back( rslt[i] );
+  for ( int i = 0; i < rslts.size(); i++ )
+    if ( rslts[i].rot >= 0 && rslts[i].trn >= 0 ) rsltf.push_back( rslts[i] );
 
   // sort
   std::sort( rsltf.begin(), rsltf.end() );
@@ -425,16 +426,16 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
 
   // build result list
   std::vector<clipper::RTop_orth> rtops;
-  clipper::Coord_frac cf = centre.coord_frac( cell );
   for ( int i = 0; i < rsltf.size(); i++ ) {
     int ir = rsltf[i].rot;
     int it = rsltf[i].trn;
-    clipper::RTop_orth rtop( rots[ir].rot().inverse(),
+    clipper::RTop_orth rtop( rots[ir].rot(),
 			     xmap.coord_orth(grid.deindex(it).coord_map()) );
     rtops.push_back( rtop );
   }
 
   // now do some magic to get the chains near the given centre
+  clipper::Coord_frac cf = centre.coord_frac( cell );
   for ( int i = 0; i < rtops.size(); i++ ) {
     clipper::RTop_frac rtof = rtops[i].rtop_frac( cell );
     int smin = 0;
@@ -453,7 +454,7 @@ void fast_secondary_structure_search::operator()( const clipper::Xmap<float>& xm
   }
 
   // build the results
-  const std::vector<clipper::Coord_orth>& calpha_cs = calpha_coords();
+  const std::vector<clipper::Coord_orth>& calpha_cs = target.calpha_coords();
   std::vector<clipper::Coord_orth> ss( calpha_cs.size() );
   std::vector<std::vector<clipper::Coord_orth> > result( rtops.size() );
   for ( int i = 0; i < rtops.size(); i++ ) {
