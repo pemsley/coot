@@ -964,7 +964,9 @@ namespace coot {
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
 
-      // return " on failure to find link
+      bool link_infos_are_glycosidic_p(const std::vector<std::pair<coot::chem_link, bool> > &link_infos) const;
+
+      // return "" on failure to find link
       std::string find_glycosidic_linkage_type(CResidue *first, CResidue *second,
 					       const std::string &group1,
 					       const std::string &group2,

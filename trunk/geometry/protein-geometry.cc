@@ -1725,9 +1725,24 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 
    bool match = 0;
    bool order_switch = 0;
+
+   std::string local_group_1 = group_1; 
+   std::string local_group_2 = group_2;
+
+   // chem_links specify "peptide" or "pyranose", but comp_groups are "L-peptide"/"D-pyranose".
+   // So allow them to match.
+   // 
+   if (local_group_1 == "L-peptide")
+      local_group_1 = "peptide";
+   if (local_group_2 == "L-peptide")
+      local_group_2 = "peptide";
+   if (local_group_1 == "D-pyranose")
+      local_group_1 = "pyranose";
+   if (local_group_2 == "D-pyranose")
+      local_group_2 = "pyranose";
    
-   if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == group_1) || ((chem_link_group_comp_1 == "peptide") && (group_1 == "L-peptide"))) &&
-       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == group_2) || ((chem_link_group_comp_2 == "peptide") && (group_2 == "L-peptide"))))
+   if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
+       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))
       if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_1)) &&
 	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2)))
 	 match = 1;
@@ -1740,8 +1755,8 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    // function?  
 
    // reverse index 
-   if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == group_2) || ((chem_link_group_comp_1 == "peptide") && (group_1 == "L-peptide"))) &&
-       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == group_1) || ((chem_link_group_comp_2 == "peptide") && (group_2 == "L-peptide"))))
+   if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_2)) &&
+       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_1)))
       if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
 	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) { 
 	 match = 1;
@@ -2213,7 +2228,7 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 
 // throw an error on no such chem_link
 // 
-std::pair<coot::chem_link, bool>
+std::vector<std::pair<coot::chem_link, bool> >
 coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_1,
 					   const std::string &comp_id_2,
@@ -2223,7 +2238,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 
 // throw an error on no such chem_link
 // 
-std::pair<coot::chem_link, bool>
+std::vector<std::pair<coot::chem_link, bool> > 
 coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   const std::string &group_1,
 					   const std::string &comp_id_2,
@@ -2233,17 +2248,29 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    coot::chem_link cl("", "", "", "", "", "", "", "");
    bool switch_order_flag = 0;
    bool found = 0;
+   
+   // Is this link a TRANS peptide or a CIS?  Both have same group and
+   // comp_ids.  Similarly, is is BETA-1-2 or BETA1-4 (etc).  We need
+   // to decide later, don't just pick the first one that matches
+   // (keep the order switch flag too).
+   // 
+   std::vector<std::pair<coot::chem_link, bool> > matching_chem_links;
    for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
       std::pair<bool, bool> match_res =
 	 chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
 								comp_id_2, group_2);
       if (match_res.first) {
-	 coot::chem_link clt = chem_link_vec[i_chem_link];
-	 if (!clt.is_peptide_link_p() || allow_peptide_link_flag) {
-	    cl = clt;
-	    switch_order_flag = match_res.second;
-	    found = 1;
-	    break;
+	 // make sure that this link id is not a (currently) useless one.
+	 if (chem_link_vec[i_chem_link].Id() != "gap" &&
+	     chem_link_vec[i_chem_link].Id() != "symmetry") { 
+	    coot::chem_link clt = chem_link_vec[i_chem_link];
+	    if (!clt.is_peptide_link_p() || allow_peptide_link_flag) {
+	       cl = clt;
+	       switch_order_flag = match_res.second;
+	       found = 1;
+	       std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
+	       matching_chem_links.push_back(p);
+	    }
 	 }
       }
    }
@@ -2255,12 +2282,12 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       rte += group_2;
       throw std::runtime_error(rte);
    }
-   return std::pair<coot::chem_link, bool> (cl, switch_order_flag);
+   return matching_chem_links;
 }
 
 // throw an error on no such chem_link
 // 
-std::pair<coot::chem_link, bool>
+std::vector<std::pair<coot::chem_link, bool> >
 coot::protein_geometry::matching_chem_link_non_peptide(const std::string &comp_id_1,
 						       const std::string &group_1,
 						       const std::string &comp_id_2,
