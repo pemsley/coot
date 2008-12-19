@@ -701,10 +701,11 @@ int test_peptide_link() {
 
       std::cout << "   link_type: " << link_type << ":" << std::endl;
       
-      std::pair<coot::chem_link, bool> link_info =
+      std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	 geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
-      std::cout << "Found link :" << link_info.first.Id() << ":" << std::endl;
-      if (link_info.first.Id() != "BETA1-3") {
+      unsigned int ilink = 0;
+      std::cout << "Found link :" << link_infos[ilink].first.Id() << ":" << std::endl;
+      if (link_infos[ilink].first.Id() != "BETA1-3") {
 	 return 0;
       } 
    }

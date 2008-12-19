@@ -253,20 +253,27 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       "*",  // altLocs
 	       SKEY_NEW // selection key
 	       );
-//    std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
-//    std::cout << "selecting from residue " << iselection_resno_start
-// 	     << " to " << iselection_resno_end << std::endl;
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+    std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
+    std::cout << "selecting from residue " << iselection_resno_start
+	      << " to " << iselection_resno_end << " selects "
+	      << nSelResidues << " residues" << std::endl;
 
+   std::cout << "=====================" << std::endl;
    std::pair<int, std::vector<std::string> > icheck = 
       check_dictionary_for_residues(SelResidues, nSelResidues);
 
    if (icheck.first == 0) { 
+      std::cout << "DEUBG:: check_dictionary_for_residues - problem..." << std::endl;
       for (unsigned int icheck_res=0; icheck_res<icheck.second.size(); icheck_res++) { 
 	 std::cout << "WARNING:: Failed to find restraints for :" 
 		   << icheck.second[icheck_res] << ":" << std::endl;
       }
-   }
+   } else {
+      // debug
+      std::cout << "DEUBG:: check_dictionary_for_residues returns OK!" << std::endl;
+   } 
+   std::cout << "=====================" << std::endl;
 
    std::cout << "INFO:: " << nSelResidues 
 	     << " residues selected for refined and flanking residues"
@@ -649,12 +656,11 @@ graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
 std::pair<int, std::vector<std::string> >
 graphics_info_t::check_dictionary_for_residues(PCResidue *SelResidues, int nSelResidues) {
 
-   std::pair<int, std::vector<std::string> > r;
-
    int status;
-   int fail = 0; // not fail initially.
+   bool status_OK = 1; // pass, by default
+   std::vector<std::string> res_name_vec;
 
-   for (int ires=0; ires<nSelResidues; ires++) { 
+   for (int ires=0; ires<nSelResidues; ires++) {
       std::string resname(SelResidues[ires]->name);
       if (resname == "UNK") resname = "ALA"; // hack for KC/buccaneer.
       if (resname.length() > 2)
@@ -662,21 +668,25 @@ graphics_info_t::check_dictionary_for_residues(PCResidue *SelResidues, int nSelR
 	    resname = resname.substr(0,2);
       status = geom_p->have_dictionary_for_residue_type(resname,
 							cif_dictionary_read_number);
+      std::cout << "DEBUG:: residue " << ires << " of " << nSelResidues
+		<< " have_dictionary_for_residue "
+		<< coot::residue_spec_t(SelResidues[ires])
+		<< " type :" << resname
+		<< ": returns " << status << std::endl;
+      
       cif_dictionary_read_number++;
       // This bit is redundant now that try_dynamic_add has been added
       // to have_dictionary_for_residue_type():
       if (status == 0) { 
 	 status = geom_p->try_dynamic_add(resname, cif_dictionary_read_number++);
 	 if (status == 0) {
-	    fail = 1; // we failed to find it then.
-	    r.second.push_back(resname);
+	    status_OK = 0; // we failed to find it then.
+	    res_name_vec.push_back(resname);
 	 }
       }
    }
 
-   if (fail)
-      r.first = 0;
-   return r;
+   return std::pair<int, std::vector<std::string> > (status_OK, res_name_vec);
 } 
 
 

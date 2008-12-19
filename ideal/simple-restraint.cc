@@ -4518,6 +4518,23 @@ coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CRes
    return link_type;
 }
 
+bool
+coot::restraints_container_t::link_infos_are_glycosidic_p(const std::vector<std::pair<coot::chem_link, bool> > &link_infos) const {
+
+   bool is_sweet = 0;
+   for (unsigned int i=0; i<link_infos.size(); i++) {
+      std::string id = link_infos[i].first.Id();
+      if (id.length() > 4) {
+	 if ((id.substr(0,5) == "ALPHA") ||
+	     (id.substr(0,4) == "BETA")) {
+	    is_sweet = 1;
+	    break;
+	 } 
+      } 
+   } 
+   return is_sweet;
+} 
+
 // Return the link type and a residue order switch flag.
 // 
 std::pair<std::string, bool>
@@ -4538,15 +4555,17 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
 		<< " " << std::endl;
       try {
-	 std::pair<coot::chem_link, bool> link_info =
+	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
+	 unsigned int ilink = 0; // the first link
+	 
 	 // we don't get here if there was not a match! (execption thrown above).
 	 //
 	 if (0) { 
-	    if  (link_info.second) 
-	       std::cout << "   ======  chem_link info " << link_info.first << " order-switch? "
-			 << link_info.second << std::endl;
+	    if  (link_infos[ilink].second) 
+	       std::cout << "   ======  chem_link info " << link_infos[ilink].first
+			 << " order-switch? " << link_infos[ilink].second << std::endl;
 	    else 
 	       std::cout << "   ======  chem_link info " << "no order-switch" << std::endl;
 	 }
@@ -4557,21 +4576,28 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 // first and second residue are within dist_crit (2.0A) of
 	 // each other.  If not, then we should fail to find a link
 	 // between these 2 residues.
-	 if (link_info.first.is_peptide_link_p()) {
+	 if (link_infos[ilink].first.is_peptide_link_p()) {
 	    std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
 	    if (close_info.first) {
 	       order_switch_flag = close_info.second;
-	       link_type = link_info.first.Id();
+	       link_type = link_infos[ilink].first.Id();
 	       // std::cout << "   TRANS or CIS pass NvsC dist test with order switch "
 	       // << order_switch_flag << std::endl;
 	    } else {
 	       // std::cout << "   TRANS or CIS FAIL NvsC dist test " << std::endl;
-	       std::pair<coot::chem_link, bool> link_info_non_peptide =
+	       std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
 		  geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
 	    } 
 	 } else {
-	    order_switch_flag = link_info.second;
-	    link_type = link_info.first.Id();
+
+	    //
+	    order_switch_flag = link_infos[ilink].second;
+	    
+	    if (link_infos_are_glycosidic_p(link_infos)) {
+	       link_type = find_glycosidic_linkage_type(first, second, group_1, group_2, geom);
+	    } else {
+	       link_type = link_infos[ilink].first.Id();
+	    }
 	 } 
       }
       catch (std::runtime_error mess_in) {

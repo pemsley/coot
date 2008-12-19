@@ -832,11 +832,11 @@ namespace coot {
       static bool torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b);
 
       // bool is the need-order-switch-flag
-      std::pair<chem_link, bool> matching_chem_link(const std::string &comp_id_1,
-						    const std::string &group_1,
-						    const std::string &comp_id_2,
-						    const std::string &group_2,
-						    bool allow_peptide_link_flag) const;
+      std::vector<std::pair<chem_link, bool> > matching_chem_link(const std::string &comp_id_1,
+								  const std::string &group_1,
+								  const std::string &comp_id_2,
+								  const std::string &group_2,
+								  bool allow_peptide_link_flag) const;
 
 
    public:
@@ -927,22 +927,24 @@ namespace coot {
       std::string get_group(CResidue *r) const;
 
       // bool is the need-order-switch-flag
-      std::pair<chem_link, bool> matching_chem_link(const std::string &comp_id_1,
-						    const std::string &group_1,
-						    const std::string &comp_id_2,
-						    const std::string &group_2) const;
-
+      std::vector<std::pair<chem_link, bool> >
+      matching_chem_link(const std::string &comp_id_1,
+			 const std::string &group_1,
+			 const std::string &comp_id_2,
+			 const std::string &group_2) const;
+      
       // Try to find a link that is not a peptide link (because that
       // fails on a distance check).  This is the method to find
       // isopeptide links (which again need to be distance checked in
       // find_link_type_rigourous()).
       // 
       // bool the need-order-switch-flag
-      std::pair<chem_link, bool> matching_chem_link_non_peptide(const std::string &comp_id_1,
-								const std::string &group_1,
-								const std::string &comp_id_2,
-								const std::string &group_2) const; 
-
+      std::vector<std::pair<chem_link, bool> >
+      matching_chem_link_non_peptide(const std::string &comp_id_1,
+				     const std::string &group_1,
+				     const std::string &comp_id_2,
+				     const std::string &group_2) const; 
+      
    };
 
 } // namespace coot
