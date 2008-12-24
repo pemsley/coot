@@ -2759,12 +2759,17 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 // 		<< imol_coords << std::endl;
 
       option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
-      GtkWidget *mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
+      GtkWidget *mtz_file_radiobutton;
+#if (GTK_MAJOR_VERSION > 1)
+      mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
+#else
+      mtz_file_radiobutton = NULL;
+#endif
       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
       active_item = gtk_menu_get_active(GTK_MENU(menu));
       int imol_map_refmac = -1;
       int have_mtz_file = 0;
-      if (GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) {
+      if (mtz_file_radiobutton && GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) {
 	have_mtz_file = 1;
       }
 
@@ -2910,6 +2915,9 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		std::string sigfiobs_col;
 		std::string r_free_col;
 
+		// different in GTK1/2
+#if (GTK_MAJOR_VERSION > 1)
+
 		// and we need to get the column labels if we have an input mtz (not map)
 		if (have_mtz_file) {
 
@@ -2944,8 +2952,6 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		  }
 		}
 
-#if (GTK_MAJOR_VERSION > 1)
-		// only usefull in GTK2 version
 		std::string phi_label = "";
 		std::string fom_label = "";
 		std::string hla_label = "";
@@ -3213,7 +3219,20 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		  fom_string = "";
 		}
 
-#endif // GTK2
+#else
+		// now gtk1
+		if (graphics_info_t::molecules[imol_map_refmac].Have_sensible_refmac_params()) {
+
+		  std::cout << " Running refmac refmac params molecule number "
+			    << imol_map_refmac << std::endl;
+		  
+		  fobs_col = g.molecules[imol_map_refmac].Refmac_fobs_col();
+		  sigfobs_col = g.molecules[imol_map_refmac].Refmac_sigfobs_col();
+		  r_free_col = g.molecules[imol_map_refmac].Refmac_r_free_col();
+		  sensible_r_free_col = g.molecules[imol_map_refmac].Refmac_r_free_sensible();
+
+		}
+#endif //GTK1/2
 		     
 		std::string cif_lib_filename = ""; // default, none
 		if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
@@ -3503,7 +3522,12 @@ int get_refmac_phase_input() {
 void set_refmac_phase_input(int phase_flag) {
 
   graphics_info_t g;
+#if (GTK_MAJOR_VERSION > 1)
   g.set_refmac_phase_input(phase_flag);
+#else
+  std::cout<<"BL INFO:: cannot use phase recombination in GTK1 (yet), so wont change flag!\n"<<std::endl;;
+  g.set_refmac_phase_input(0);
+#endif // GTK2
 }
 
 void set_refmac_use_tls(int state) {
@@ -3521,7 +3545,12 @@ int refmac_use_tls_state() {
 void set_refmac_use_twin(int state) {
 
   graphics_info_t g;
+#if (GTK_MAJOR_VERSION > 1)
   g.set_refmac_use_twin(state);
+#else
+  std::cout<<"BL INFO:: cannot use TWIN refinement in GTK1 (yet), so wont change flag!\n"<<std::endl;;
+  g.set_refmac_use_twin(0);
+#endif // GTK2
 }
 
 int refmac_use_twin_state() {
@@ -3533,7 +3562,12 @@ int refmac_use_twin_state() {
 void set_refmac_use_sad(int state) {
 
   graphics_info_t g;
+#if (GTK_MAJOR_VERSION > 1)
   g.set_refmac_use_sad(state);
+#else
+  std::cout<<"BL INFO:: cannot use SAD refinement in GTK1 (yet), so wont change flag!\n"<<std::endl;;
+  g.set_refmac_use_sad(0);
+#endif // GTK2
 }
 
 int refmac_use_sad_state() {
@@ -5076,14 +5110,18 @@ GtkWidget *wrapped_fit_loop_dialog() {
    GtkWidget *mutate_ok_button   = lookup_widget(w, "mutate_sequence_ok_button");
    GtkWidget *fit_loop_ok_button = lookup_widget(w, "fit_loop_ok_button");
    GtkWidget *checkbutton        = lookup_widget(w, "mutate_sequence_do_autofit_checkbutton");
+#if (GTK_MAJOR_VERSION > 1)
    GtkWidget *rama_checkbutton   = lookup_widget(w, "mutate_sequence_use_ramachandran_restraints_checkbutton");
+#endif
    
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
    gtk_widget_hide(mutate_ok_button);
    gtk_widget_hide(checkbutton);
    gtk_widget_show(fit_loop_ok_button);
+#if (GTK_MAJOR_VERSION > 1)
    gtk_widget_show(rama_checkbutton);
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_checkbutton), TRUE);
+#endif
 
    gtk_widget_show(method_frame);
 
@@ -5150,9 +5188,14 @@ void fit_loop_from_widget(GtkWidget *dialog) {
       autofit_flag = 1;
 
    // use Ramachandran restraints?
-   GtkWidget *rama_checkbutton   = lookup_widget(dialog, "mutate_sequence_use_ramachandran_restraints_checkbutton");
+   GtkWidget *rama_checkbutton;
+#if (GTK_MAJOR_VERSION > 1)
+   rama_checkbutton   = lookup_widget(dialog, "mutate_sequence_use_ramachandran_restraints_checkbutton");
+#else
+   rama_checkbutton = NULL;
+#endif
    int use_rama_restraints = 0;
-   if (GTK_TOGGLE_BUTTON(rama_checkbutton)->active) 
+   if (rama_checkbutton && GTK_TOGGLE_BUTTON(rama_checkbutton)->active) 
       use_rama_restraints = 1;
 
    if (imol>= 0) { // redundant
