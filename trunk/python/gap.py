@@ -143,11 +143,13 @@ def fit_gap(imol, chain_id, start_resno, stop_resno, sequence="", use_rama_restr
                               str(imol_fragment_backup) + ", \"" + atom_selection + "\"), " + \
                               ', '.join(close_ls) + ")"
             
-
-            dialog_box_of_radiobuttons("Select Loop", [200, 100],
-                                       buttons, "  Accept  ",
-                                       go_function, selected_button,
-                                       "  Reject  ", cancel_function)
+            
+            # only show if more than 1 loop left
+            if (len(buttons) >1):
+               dialog_box_of_radiobuttons("Select Loop", [200, 100],
+                                          buttons, "  Accept  ",
+                                          go_function, selected_button,
+                                          "  Reject  ", cancel_function)
 
          else:
             # no pygtk take best one
