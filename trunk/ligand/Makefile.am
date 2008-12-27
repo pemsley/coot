@@ -78,6 +78,7 @@ test_random_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/coot-utils/libcoot-utils.la        \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(top_builddir)/compat/libcoot-compat.la           \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
@@ -95,6 +96,7 @@ test_ligand_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/coot-utils/libcoot-utils.la        \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(top_builddir)/compat/libcoot-compat.la           \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
@@ -149,6 +151,7 @@ findligand_real_LDADD = \
 	$(top_builddir)/coords/libcoot-coords.la     \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
@@ -195,6 +198,7 @@ testdunbrack_LDADD = ./libcoot-ligand.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
