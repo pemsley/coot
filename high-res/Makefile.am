@@ -57,6 +57,7 @@ testatomgraph_LDADD =  libcoot-high-res.la                \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
 	$(top_builddir)/coot-utils/libcoot-utils.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(GSL_LIBS)			                  \
 	$(CLIPPER_LIBS)
@@ -76,6 +77,7 @@ testseqassignment_LDADD = libcoot-high-res.la             \
 	$(top_builddir)/coot-utils/libcoot-utils.la       \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(GSL_LIBS)				          \
 	$(CLIPPER_LIBS)
 
@@ -95,6 +97,7 @@ tracehighres_LDADD = libcoot-high-res.la                  \
 	$(top_builddir)/coot-utils/libcoot-utils.la       \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(GSL_LIBS)				          \
 	$(CLIPPER_LIBS)
 
@@ -115,6 +118,7 @@ testseqalign_LDADD = libcoot-high-res.la                  \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
 	$(top_builddir)/coot-utils/libcoot-utils.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(GSL_LIBS)				          \
 	$(CLIPPER_LIBS)
@@ -135,6 +139,7 @@ globularize_protein_LDADD = libcoot-high-res.la           \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
 	$(top_builddir)/coot-utils/libcoot-utils.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la   \
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la   \
 	$(top_builddir)/compat/libcoot-compat.la          \
 	$(GSL_LIBS)				          \
 	$(CLIPPER_LIBS)
