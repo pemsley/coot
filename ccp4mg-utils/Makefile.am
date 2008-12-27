@@ -18,11 +18,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+#SUBDIRS = util mmut pygl
+
 lib_LTLIBRARIES=libccp4mg-utils.la
 
 include_HEADERS = geomutil.h mgtree.h cartesian.h matrix.h quat.h ppmutil.h
 
-EXTRA_DIST = convert.sh get-new-utils.sh
+EXTRA_DIST = convert.sh get-new-utils.sh get-all-new-utils.sh
 
 INCLUDES =  \
 	$(MMDB_CXXFLAGS)

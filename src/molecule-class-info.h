@@ -54,6 +54,11 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coot-shelx.hh"
 #include "coot-utils.hh"
 
+// for ribbons
+#include "cdisplayobject.h"
+#include "CParamsManager.h"
+
+
 using namespace std; // Hmmm.. I don't approve, FIXME
 
 #include "select-atom-info.hh"
@@ -461,6 +466,38 @@ namespace coot {
        display_list_handle = handle;
      } 
    };
+   
+   class ribbon_settings_t {
+   public:
+      int solid_quality; // fast, smooth, delux (0,1,2) can we use?
+      float cylinder_width; // needed?
+      float ribbon_width;
+      float alpha_helix_width;
+      float arrow_width;
+      float arrow_length;
+      float worm_width;
+      int ribbon_style; // oval, flat, round (0,1,2)
+      int two_colour_ribbon; // normal, inside grey (0,1)
+      int helix_style;  // oval, flat, flat/round, fancy (0,1,2,3)
+      int flatten_loop; //shorten loops
+      int flatten_beta; // smooth b-sheets
+      int spline_beta_flat; // needed ?
+      ribbon_settings_t() {
+	 solid_quality = 1;
+	 cylinder_width = 0.2;
+	 ribbon_width = 2.5;
+	 alpha_helix_width = 1.5;
+	 arrow_width = 2.2;
+	 arrow_length = 2.2;
+	 worm_width = 0.2;
+	 ribbon_style = 0;
+	 two_colour_ribbon = 0;
+	 helix_style = 0;
+	 flatten_loop = 0;
+	 flatten_beta = 1;
+	 spline_beta_flat = 1;
+      }
+   };
 
 }
 
@@ -595,6 +632,11 @@ class molecule_class_info_t {
 
    // Noble surface display list id
    GLuint theSurface;
+
+   // CCP4MG ribbons
+   Displayobject Ribbons;
+   CParamsManager ribbon_params;
+   CParamsManager ribbon_global_params;
    
    // difference map negative level colour relative to positive level:
    float rotate_colour_map_for_difference_map; // 120.0 default colour_map_rotation
@@ -935,6 +977,24 @@ class molecule_class_info_t {
       //
       cootsurface = NULL; // no surface initial, updated by make_surface()
       theSurface = 0;
+
+      // ribbons
+      cootribbons = 0;
+      ribbon_settings = new coot::ribbon_settings_t();
+      Ribbons = Displayobject();
+      ribbon_global_params.SetInt("solid_quality", 1);
+      ribbon_params.SetFloat("cylinder_width", 0.2);
+      ribbon_params.SetFloat("ribbon_width", 2.5);
+      ribbon_params.SetFloat("alpha_helix_width", 1.5);
+      ribbon_params.SetFloat("arrow_width", 2.2);
+      ribbon_params.SetFloat("arrow_length", 2.2);
+      ribbon_params.SetFloat("worm_width", 0.2);
+      ribbon_params.SetInt("ribbon_style", 0);
+      ribbon_params.SetInt("two_colour_ribbon", 0);
+      ribbon_params.SetInt("helix_style", 0);
+      ribbon_params.SetInt("flatten_loop", 0);
+      ribbon_params.SetInt("flatten_beta", 1);
+      ribbon_params.SetInt("spline_beta_flat", 1);
 
       //
       theMapContours.first = 0;
@@ -1307,6 +1367,11 @@ class molecule_class_info_t {
    void draw_density_map(short int display_list_for_maps_flag,
 			 short int main_or_secondary);
    void draw_surface();
+   void draw_ribbons();
+   void make_ribbons();
+   void set_ribbon_param(const std::string &name, int value);
+   void set_ribbon_param(const std::string &name, float value);
+   void set_global_ribbon_param(const std::string &name, int value);
    bool has_display_list_objects();
    int draw_display_list_objects(); // return number of display list objects to be drawn
    // return the display list tag
@@ -2053,6 +2118,10 @@ class molecule_class_info_t {
 
    // LMB surface
    coot::surface *cootsurface;
+
+   // ribbons
+   int cootribbons;
+   coot::ribbon_settings_t *ribbon_settings;
 
    // for widget label:
    std::string cell_text_with_embeded_newline() const;
