@@ -3644,6 +3644,13 @@ GtkWidget *wrapped_create_add_additional_representation_gui();
 void add_additional_representation_by_widget(GtkWidget *w);
 void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
 
+/* void show_ribbons(int imol); */
+void show_ribbons(int imol);
+void hide_ribbons(int imol);
+void set_ribbon_param_int(int imol, const char *name, int value);
+void set_ribbon_param_float(int imol, const char *name, float value);
+void set_global_ribbon_param(int imol, const char *name, int value);
+
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

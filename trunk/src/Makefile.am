@@ -68,6 +68,19 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/coords/libcoot-coords.la      		\
 	$(top_builddir)/coot-surface/libcoot-surface.la  	\
 	$(top_builddir)/surface/libccp4mg-surface.la  		\
+	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-atom_util.la 	\
+	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-opengl.la 	\
+	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-bezier.la 	\
+	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-cprim.la 	\
+	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-psutil.la 	\
+	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-rgbreps.la 	\
+	$(top_builddir)/ccp4mg-utils/pygl/libccp4mg-symmetry.la 	\
+	$(top_builddir)/ccp4mg-utils/mmut/libccp4mg-mmut.la 	\
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-pygl_coord.la 	\
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-mginterrupt.la 	\
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-mgutil.la 	\
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-paramsmanager.la 	\
+	$(top_builddir)/ccp4mg-utils/util/libccp4mg-redirect.la 	\
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
@@ -152,6 +165,9 @@ AM_CXXFLAGS = \
 INCLUDES = \
 	-I$(top_srcdir)/compat 		\
 	-I$(top_srcdir)/coords 		\
+	-I$(top_srcdir)/ccp4mg-utils/util	\
+	-I$(top_srcdir)/ccp4mg-utils/mmut	\
+	-I$(top_srcdir)/ccp4mg-utils/pygl	\
 	-I$(top_srcdir)/ccp4mg-utils	\
 	-I$(top_srcdir)/coot-utils	\
 	-I$(top_srcdir)/intl 		\
@@ -283,6 +299,7 @@ coot_real_SOURCES = \
 	molecule-class-info.h 	        \
 	molecule-class-info-mutate.cc 	\
 	molecule-class-info-surface.cc 	\
+	molecule-class-info-ribbons.cc 	\
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \
 	globjects.h gl-matrix.h  \

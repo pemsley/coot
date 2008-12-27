@@ -82,6 +82,10 @@
 
 #include "coot-database.hh"  
 
+// testing
+#include "cdisplayobject.h"
+Displayobject Ribbons;
+
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
 
 
@@ -1902,6 +1906,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // Turn the light(s) on and after off, if needed.
 	 // 
 	 graphics_info_t::molecules[ii].draw_surface();
+
+         // ribbons
+         graphics_info_t::molecules[ii].draw_ribbons();
 
 	 // Label the atoms in the atoms label list.
 	 //

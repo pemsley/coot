@@ -17,12 +17,24 @@ tests   rev 1625
 * THINGS TO DO BEFORE 0.6 RELEASE *
 ---------------
 
+   o new options for recentre in gtk2 file chooser - combobox (and extensions - radiobuttons)
+
+25/12/08
+   o after associated sequence no sequ input in fit loop
+
+22/12/08
+   o fat bonds remain after ball-n-stick from additional repr (TS)
+
+   o 17/12/08: set difference map doesnt do 'nice' default difference map colours [Jodie Guy]
+
    o notes to self:
      - ribbons: include ribbons
   		save the ribbons for later use (?, maybe better to update and generate new)
 		sort out colouring
 		sort out licence (add to svn and commit) test dist first
 		use CMMDBManager somehow...
+
+   o windows build: dont update src tar whilst building (if possible)
 
 04/11/08 CCP4 dev meeting:
    o bulk sovlent correction for refmac?

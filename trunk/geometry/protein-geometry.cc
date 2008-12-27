@@ -2301,8 +2301,9 @@ coot::protein_geometry::set_verbose(bool verbose_flag) {
    verbose_mode = verbose_flag;
 }
 
-int 
-coot::protein_geometry::init_standard() {
+
+std::pair<int, char*>
+coot::protein_geometry::init_mon_lib_dir() {
 
    // So, first we check if COOT_REFMAC_LIB_DIR has been set.  If it
    // try to use it.  If the directory fails to exist, try next...
@@ -2322,7 +2323,7 @@ coot::protein_geometry::init_standard() {
    hardwired_default_place = util::append_dir_dir(hardwired_default_place, "lib");
    short int using_clibd_mon = 0; 
 
-   std::string mon_lib_dir; 
+   std::string mon_lib_dir_tmp; 
    short int env_dir_fails = 0;
    int istat;
    struct stat buf;
@@ -2336,7 +2337,7 @@ coot::protein_geometry::init_standard() {
 	 std::cout << "WARNING:: Coot REFMAC dictionary override COOT_REFMAC_LIB_DIR"
 		   << "failed to find a dictionary " << s << std::endl;
       } else {
-	 mon_lib_dir = s;
+	 mon_lib_dir_tmp = s;
       }
    }
 
@@ -2344,7 +2345,7 @@ coot::protein_geometry::init_standard() {
       cmld = getenv("COOT_MONOMER_LIB_DIR"); // for phenix.
       // we find $COOT_MONOMER_LIB_DIR/a/ALA.cif
       if (cmld) {
-	 mon_lib_dir = s;
+	 mon_lib_dir_tmp = s;
       }
    } 
       
@@ -2362,7 +2363,7 @@ coot::protein_geometry::init_standard() {
 	    env_dir_fails = 0;
 	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
 		      << " CLIBD_MON: " << s << std::endl;
-	    mon_lib_dir = s;
+	    mon_lib_dir_tmp = s;
 	    using_clibd_mon = 1;
 	 }
       }
@@ -2375,7 +2376,7 @@ coot::protein_geometry::init_standard() {
 	 if (s) {
 	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
 		      << s << std::endl;
-	    mon_lib_dir = s;
+	    mon_lib_dir_tmp = s;
 
 	 } else {
 
@@ -2384,7 +2385,7 @@ coot::protein_geometry::init_standard() {
 
 	    int istat = stat(hardwired_default_place.c_str(), &buf);
 	    if (istat == 0) {
-	       mon_lib_dir = hardwired_default_place;
+	       mon_lib_dir_tmp = hardwired_default_place;
 	    } else {
 
 	       // OK, let's look for $COOT_PREFIX/share/coot/lib (as you
@@ -2397,7 +2398,7 @@ coot::protein_geometry::init_standard() {
 		  lib_dir = util::append_dir_dir(lib_dir, "lib");
 		  istat = stat(lib_dir.c_str(), &buf);
 		  if (istat == 0) {
-		     mon_lib_dir = lib_dir;
+		     mon_lib_dir_tmp = lib_dir;
 		  } else {
 		     std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
 		  }
@@ -2409,13 +2410,36 @@ coot::protein_geometry::init_standard() {
 	 }
       }
    }
+   set_mon_lib_dir(mon_lib_dir_tmp);
+
+   std::pair<int, char*> c_n_c(using_clibd_mon, cmld);
    
-   if (mon_lib_dir.length() > 0) {
-      std::string filename = mon_lib_dir;
+   return c_n_c;
+  
+}
+
+
+int 
+coot::protein_geometry::init_standard() {
+   
+
+   // get the monomer library
+   int using_clibd_mon;
+   char *cmld;
+   std::pair<int, char*> c_n_c;
+   c_n_c = init_mon_lib_dir();
+   using_clibd_mon = c_n_c.first;
+   cmld = c_n_c.second;
+
+   //std::string mon_lib_dir_use = coot::protein_geometry::mon_lib_dir;
+   std::string mon_lib_dir_use = get_mon_lib_dir();
+
+   if (mon_lib_dir_use.length() > 0) {
+      std::string filename = mon_lib_dir_use;
       // contains the linkages:
       filename += "/data/monomers/list/mon_lib_list.cif";
       if (using_clibd_mon) {
-	 filename = mon_lib_dir;
+	 filename = mon_lib_dir_use;
 	 filename += "list/mon_lib_list.cif";
       } 
       // now check that that file is there:
@@ -2433,9 +2457,9 @@ coot::protein_geometry::init_standard() {
 		<< std::endl; 
    }
 
-   std::string mon_lib_cif = mon_lib_dir + "/data/monomers/list/mon_lib_list.cif";
+   std::string mon_lib_cif = mon_lib_dir_use + "/data/monomers/list/mon_lib_list.cif";
    if (using_clibd_mon)
-      mon_lib_cif = mon_lib_dir + "/list/mon_lib_list.cif";
+      mon_lib_cif = mon_lib_dir_use + "/list/mon_lib_list.cif";
    if (cmld) { 
       mon_lib_cif = cmld;
       mon_lib_cif += "/list/mon_lib_list.cif";
@@ -2449,7 +2473,7 @@ coot::protein_geometry::init_standard() {
       if (!cmld && !using_clibd_mon) {
 	 monomer_cif_file = "data/monomers/" + monomer_cif_file;
       }
-      refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
+      refmac_monomer(mon_lib_dir_use, monomer_cif_file); // update read_number too :)
    }
 
    return read_number;
