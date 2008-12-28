@@ -24,6 +24,7 @@ EXTRA_DIST = Makefile.simple read-dunbrack.awk
 
 INCLUDES = \
 	-I$(top_srcdir)/ccp4mg-utils \
+	-I$(top_srcdir)/ccp4mg-utils/util \
 	-I$(top_srcdir)/mini-mol \
 	-I$(top_srcdir)/geometry \
 	-I$(top_srcdir)/ideal \

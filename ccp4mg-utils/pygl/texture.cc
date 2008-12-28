@@ -29,6 +29,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
+
 #include "ppmutil.h"
 #include "texture.h"
 
@@ -42,9 +43,10 @@ void set_texture_coord(GLfloat x, GLfloat y, int textured){
 //      if(textured&1) glMultiTexCoord2f(GL_TEXTURE0_ARB,x,y);
 //      if(textured&2) glMultiTexCoord2f(GL_TEXTURE1_ARB,x,y);
 //#else
-      if(textured&1) glMultiTexCoord2fARB(GL_TEXTURE0_ARB,x,y);
-      if(textured&2) glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x,y);
+//      if(textured&1) glMultiTexCoord2fARB(GL_TEXTURE0_ARB,x,y);
+//      if(textured&2) glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x,y);
 //#endif
+    glTexCoord2f(x,y);
   }else{
     glTexCoord2f(x,y);
   }
