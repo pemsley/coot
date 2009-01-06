@@ -11,8 +11,6 @@ AM_CXXFLAGS = \
 INCLUDES =  \
 	-I$(top_srcdir)/compat 		\
 	-I$(top_srcdir)/coords 		\
-	-I$(top_srcdir)/ccp4mg-utils/util	\
-	-I$(top_srcdir)/ccp4mg-utils/pygl	\
 	-I$(top_srcdir)/ccp4mg-utils	\
 	-I$(top_srcdir)/coot-utils	\
 	-I$(top_srcdir)/intl 		\

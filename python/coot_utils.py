@@ -1588,7 +1588,6 @@ save_state_file_name   = save_state_file_name_py
 generic_object_name    = generic_object_name_py
 movie_file_name_prefix = movie_file_name_prefix_py
 make_atom_spec         = make_atom_spec_py
-make_residue_spec      = make_residue_spec_py
 key_sym_code           = key_sym_code_py
 apply_lsq_matches      = apply_lsq_matches_py
 rotamer_graphs         = rotamer_graphs_py

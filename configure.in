@@ -214,9 +214,6 @@ python/Makefile
 compat/Makefile
 coot-utils/Makefile
 ccp4mg-utils/Makefile
-ccp4mg-utils/util/Makefile
-ccp4mg-utils/pygl/Makefile
-ccp4mg-utils/mmut/Makefile
 coords/Makefile
 db-main/Makefile
 density-contour/Makefile

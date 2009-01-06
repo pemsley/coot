@@ -838,12 +838,10 @@ namespace coot {
 								  const std::string &group_2,
 								  bool allow_peptide_link_flag) const;
 
+
    public:
 
-      std::string mon_lib_dir;
-
       protein_geometry() { read_number = 0; set_verbose(1); }
-
 #ifdef USE_SBASE   
       // SBase things
       int init_sbase(const std::string &sbase_monomer_dir); // inits SBase
@@ -866,11 +864,6 @@ namespace coot {
       std::string three_letter_code(const unsigned int &i) const;
 
       void set_verbose(bool verbose_mode_in);
-
-      std::pair<int, char*> init_mon_lib_dir(); // set the mon_lib_dir and return using_clidb_mon
-
-      std::string get_mon_lib_dir() { return mon_lib_dir; }
-      void set_mon_lib_dir(const std::string &dir) { mon_lib_dir = dir; }
 
       int init_standard(); // standard protein residues and links.
        			   // Return the current read_number
