@@ -820,7 +820,7 @@ SCM residues_near_position_scm(int imol, SCM pt_in_scm, float radius) {
 #endif 
 
 #ifdef USE_PYTHON
-SCM residues_near_position_py(int imol, PyObject *residue_in, float radius) {
+PyObject *residues_near_position_py(int imol, PyObject *residue_in, float radius) {
 
    PyObject *r = PyList_New(0);
 
