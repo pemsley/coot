@@ -77,7 +77,7 @@ class CMMANManager : public CMMUTManager  {
     int GetAtomEnergyType(PCAtom p_atom);
 
     realtype GetAtomVDWRadius(PCAtom p_atom);
-    char* GetAtomHBondType(PCAtom p_atom);
+    const char* GetAtomHBondType(PCAtom p_atom);
     int GetAtomHBondType1(PCAtom p_atom);
     int LoadCharge(std::string loadfrom);
     std::string PrintCharges(void);

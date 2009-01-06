@@ -568,7 +568,7 @@ void Tree::SetBondsAnglesTorsions(const int &nvertices,
             int atom2 = torsions[jj][1];
             int atom3 = torsions[jj][2];
             int atom4 = torsions[jj][3];
-            if(!scanned_torsions[jj]&&(atom1==this_atom&&atom2==prev_set_tor_parent&&atom3==coords[prev_set_tor_parent]->GetParentID()&&atom4==coords[prev_set_tor_parent]->GetParent()->GetParentID())||(atom4==this_atom&&atom3==prev_set_tor_parent&&atom2==coords[prev_set_tor_parent]->GetParentID()&&atom1==coords[prev_set_tor_parent]->GetParent()->GetParentID())){
+            if(!scanned_torsions[jj] && (((atom1==this_atom && atom2==prev_set_tor_parent && atom3==coords[prev_set_tor_parent]->GetParentID() && atom4==coords[prev_set_tor_parent]->GetParent()->GetParentID())) || ((atom4==this_atom && atom3==prev_set_tor_parent && atom2==coords[prev_set_tor_parent]->GetParentID() && atom1==coords[prev_set_tor_parent]->GetParent()->GetParentID())))) {
               double thisparentdist=0.0;
               for(unsigned kk=0;kk<bonds.size();kk++){
                 int atom1 = bonds[kk][0];
@@ -1665,7 +1665,7 @@ void Tree::PrintZMatrix(std::ostream &c, const std::vector<std::string> &labels,
 }
 
 TreeVertex* Tree::GetCoord(int i, bool permuted) const {
-  if(start>0&!permuted)
+   if ((start>0) & (!permuted)) 
     return coords[permutation[i]];
   return coords[i];
 }
@@ -1746,7 +1746,7 @@ Tree::Tree(const Tree &t){
 
 std::vector <TreeVertex*> Tree::GetCoords(bool permuted) const {
 
-  if(start>0&!permuted){
+   if ((start>0) & (!permuted)) {
     std::vector<TreeVertex*> perm_coords;
     for(int i=0;i<GetNumberOfVertices();i++){
        perm_coords.push_back(coords[permutation[i]]);
@@ -1783,7 +1783,7 @@ std::vector<Cartesian> Tree::GetAllCartesians(bool permuted) const {
     k++;
   }
 
-  if(start>0&!permuted){
+  if ((start>0) & (!permuted)) {
     std::vector<Cartesian> perm_carts;
     for(int i=0;i<GetNumberOfVertices();i++){
        perm_carts.push_back(cartesians[permutation[i]]);
@@ -1798,7 +1798,7 @@ void Tree::RotateAboutBond(int atom_in, int child_in, double TorsionAngle, bool 
   int atom = atom_in;
   int child = child_in;
   
-  if(start>0&!permuted){
+  if ((start>0) & (!permuted)) {
     atom = permutation[atom];
     child = permutation[child];
   }
@@ -1836,7 +1836,7 @@ void Tree::SetDihedralAngle(int atom_in, int child_in, double TorsionAngle, bool
   int atom = atom_in;
   int child = child_in;
   
-  if(start>0&!permuted){
+  if ((start>0) & (!permuted)) {
     atom = permutation[atom];
     child = permutation[child];
   }

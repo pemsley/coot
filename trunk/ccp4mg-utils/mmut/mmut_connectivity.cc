@@ -882,7 +882,7 @@ int Connectivity2::SetTag ( int iV, int i ) {
 }
 
 std::string Connectivity2::Print ( const std::string &tag1, const std::string &tag2 ) {
-  PCMMUTManager M1,M2;
+  PCMMUTManager M1 = 0, M2 = 0;
 
   std::ostringstream output;
   output.setf(ios::fixed);

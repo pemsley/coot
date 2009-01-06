@@ -30,13 +30,15 @@
 #include "ppmutil.h"
 #include "font_info.h"
 
-#ifdef __APPLE_CC__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
+/* My Ubuntu Intripid GCC 4.3.2 goes via the the __APPLE_CC__ path. So
+   I am commenting this out. 20090106 - PE */
+/* #ifdef __APPLE_CC__ */
+/* #include <OpenGL/gl.h> */
+/* #include <OpenGL/glu.h> */
+/* #else */
 #include <GL/gl.h>
 #include <GL/glu.h>
-#endif
+/* #endif */
 
 void draw_flat_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
 void draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
