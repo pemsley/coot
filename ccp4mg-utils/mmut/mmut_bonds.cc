@@ -93,7 +93,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   PCSBStructure pSbRes=NULL;
   ivector nMatchAtom = NULL;
   imatrix matchAtom = NULL;
-  int nAtominRes,nAtoms,ir,i,j,na1,na2,ia1,ia2,ib,selH;
+  int nAtominRes,nAtoms,ir,i,j,na1,na2,ia1,ia2,ib,selH = 0;
   int nModels,nm,nAtominModel; 
 
   int nr;

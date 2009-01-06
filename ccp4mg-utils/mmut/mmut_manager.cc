@@ -314,7 +314,8 @@ pstr CMMUTManager::GetSequence(int selHnd){
 
   int i,l;
   int numres;
-  pstr resname,sequence;
+  cpstr resname;
+  pstr sequence;
 
   numres = TotalNumRes(selHnd);
   sequence = new char[numres];
@@ -587,8 +588,8 @@ realtype CMMUTManager::TorsionAngle(PCAtom A, PCAtom B, PCAtom C, PCAtom D){
 //----------------------------------------------------------------------------
 Boolean CMMUTManager::isMainChain(PCAtom p_atom) {
 //----------------------------------------------------------------------------
-  char *mainchAtoms[5] = { "CA", "N", "C", "O", "HA" };
-  if ( NameComparison(p_atom->name,5,mainchAtoms) >= 0 ) {
+   const char *mainchAtoms[5] = { "CA", "N", "C", "O", "HA" };
+   if ( NameComparison(p_atom->name,5,mainchAtoms) >= 0 ) {
     return true;
   }
   else {
@@ -608,7 +609,7 @@ Boolean CMMUTManager::doAltLocMatch ( PCAtom pa1, PCAtom pa2 ) {
 
 
 //---------------------------------------------------------------------------------
-int CMMUTManager::NameComparison ( char *name , int ntypes , char *types[] ) {
+int CMMUTManager::NameComparison ( const char *name , int ntypes , const char *types[] ) {
 //---------------------------------------------------------------------------------
   //Compare an fixed length char atom/residue/whatever name to a list of
   // variable length strings.  Return the position in the list of any match
@@ -691,7 +692,7 @@ const char* CMMUTManager::AtomLabel_chain(PCAtom p_atom) {
 //--------------------------------------------------------------------
 Boolean CMMUTManager::ChainIDisDigit(PCChain p_ch) {
 //--------------------------------------------------------------------
-  char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
+   const char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
   if ( NameComparison(p_ch->GetChainID(),10,digits) >= 0 ) {
     return true;
   }
@@ -877,9 +878,9 @@ int CMMUTManager::CopySelection (int selHnd , const PCMMDBManager mmdb2 ) {
   PPCResidue   res;
   PPCAtom      atom;
 
-  PCResidue newRes;
-  PCChain newChain;
-  PCModel newModel;
+  PCResidue newRes = 0;
+  PCChain newChain = 0;
+  PCModel newModel = 0;
 
   int nAcopied=0, nRcopied=0, nCcopied=0, nMcopied=0;
 

@@ -22,7 +22,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <iostream.h>
+#include <iostream>
 #include <mmdb_manager.h>
 #include <mmut_colour.h>
 
@@ -132,7 +132,8 @@ int CMolColour::GetAtomColourVector ( int &nat, int *icol ) {
   printf("CMolColour::GetAtomColourVector nat %i\n",nat);
   printf("colours %i %i %i\n",colour[0],colour[1],colour[2]);
   icol = colour;
-  printf ("colour %i icol %i\n",colour,icol);
+  // printf ("colour %i icol %i\n",colour,icol); colour is and int?
+  // No it isn't. comment it.
   return 0;
 }
 
@@ -370,9 +371,9 @@ psvector CColours::names;
 //-----------------------------------------------------------------------
 CColours::CColours () {
 //-----------------------------------------------------------------------
-  char *cols[] = { "white", "blue", "red", "green", "grey", "yellow",
-		   "magenta", "royal blue", "cyan", "coral", "pale green",
-		   "pink", "lemon", "purple", "tan", "black" };
+   const char *cols[] = { "white", "blue", "red", "green", "grey", "yellow",
+			  "magenta", "royal blue", "cyan", "coral", "pale green",
+			  "pink", "lemon", "purple", "tan", "black" };
   GetVectorMemory(names, 1, 0);
   SetColours ( 16, cols );
   
@@ -385,14 +386,14 @@ CColours::~CColours () {
 }
 
 //-----------------------------------------------------------------------
-int CColours::SetColours (int n, char *cols[]) {
+int CColours::SetColours (int n, const char *cols[]) {
 //-----------------------------------------------------------------------
   int i;
   nColours = n;
   FreeVectorMemory(names,0);
   GetVectorMemory(names,nColours,0);
   for ( i = 0; i < nColours; i++) {
-    names[i] = cols[i];
+     names[i] = (char *) cols[i];
     //  printf ("SetColours names %i %s\n",i,names[i]);
   }
   return 0;
@@ -431,14 +432,14 @@ CColourSchemes::CColourSchemes () :
 //----------------------------------------------------------------------
   int RC;
 
-  char *atmtyps[6] = {" C"," O", " N", " S"," H"," P" };
-  char *atmcols[6] = { "blue", "red", "green" , "magenta", "yellow", "white" };
-  char *restyps[25] = { "PHE", "TRP", "TYR", "PRO", "VAL",
+  const char *atmtyps[6] = {" C"," O", " N", " S"," H"," P" };
+  const char *atmcols[6] = { "blue", "red", "green" , "magenta", "yellow", "white" };
+  const char *restyps[25] = { "PHE", "TRP", "TYR", "PRO", "VAL",
 		     "ALA", "ILE", "LEU", "SER", "THR",
 		     "ASN", "GLN", "ARG", "LYS", "ASP",
 		     "GLU", "CYS", "MET", "GLY", "HIS",
 		     "A",   "T"  , "G"  , "C"  , "U" } ;
-  char *rescols[25] = {  "magenta", "magenta", "coral", "coral", "coral",
+  const char *rescols[25] = {  "magenta", "magenta", "coral", "coral", "coral",
 		      "coral", "coral", "cyan", "cyan", "cyan",
 		      "cyan", "blue",  "blue", "blue", "red",
 		      "red", "yellow", "yellow", "white", "royal blue",
@@ -446,13 +447,14 @@ CColourSchemes::CColourSchemes () :
 
   //Secondary structure colouring
   int secstrtyps [7] = { 0, 1, 2, 3, 4, 5, 6 };
-  char *secstrcol[7] = { "white", "yellow", "green", "pink", "tan", "coral","purple" }; 
+  const char *secstrcol[7] = { "white", "yellow", "green", "pink",
+			       "tan", "coral","purple" }; 
 
   //Default Bvalue blue->red in 10 bins between 0->100
   // and colour below and above that range white and yellow
   realtype bvalrngs [4] = { NULL, 0.0,50.0 , NULL} ;
   int bvalbns[4] = { 1, 10, 1, NULL };
-  char *bvalcol[4] = { "white", "blue","red", "yellow" };
+  const char *bvalcol[4] = { "white", "blue","red", "yellow" };
   
   RC = AtomType.SetScheme ( 3, atmtyps, atmcols);
   RC = ResType.SetScheme ( 25, restyps, rescols );
@@ -481,7 +483,7 @@ CColourScheme::~CColourScheme() {
 }
 
 //-----------------------------------------------------------------------
-int CColourScheme::SetScheme (int n, char *typs[], char *cols[] ) {
+int CColourScheme::SetScheme (int n, const char *typs[], const char *cols[] ) {
 //-----------------------------------------------------------------------
   // Set colour scheme which is dependent value of a string attribute
   int RC,i;
@@ -493,8 +495,8 @@ int CColourScheme::SetScheme (int n, char *typs[], char *cols[] ) {
 
   nTypes = n;
   for ( i = 0; i < n; i++ ) {
-    types[i] = typs[i];
-    colours[i] = cols[i];
+    types[i] = (char *) typs[i];
+    colours[i] = (char *) cols[i];
   } 
 
   //Convert the test colour string to integer code
@@ -505,7 +507,7 @@ int CColourScheme::SetScheme (int n, char *typs[], char *cols[] ) {
 }
 
 //-----------------------------------------------------------------------
-int CColourScheme::SetScheme (int n, int typs[], char *cols[] ) {
+int CColourScheme::SetScheme (int n, int typs[], const char *cols[] ) {
 //-----------------------------------------------------------------------
   // Set colour scheme which is dependent value of a integer attribute
   int RC,i;
@@ -518,7 +520,7 @@ int CColourScheme::SetScheme (int n, int typs[], char *cols[] ) {
   nTypes = n;
   for ( i = 0; i < n; i++ ) {
     itypes[i] = typs[i];
-    colours[i] = cols[i];
+    colours[i] = (char *) cols[i];
   } 
 
   //Convert the test colour string to integer code
@@ -528,7 +530,7 @@ int CColourScheme::SetScheme (int n, int typs[], char *cols[] ) {
 }
 
 //-----------------------------------------------------------------------
-int CColourScheme::SetScheme (int n, realtype rngs[], int bns[], char *cols[]){
+int CColourScheme::SetScheme (int n, realtype rngs[], int bns[], const char *cols[]){
 //-----------------------------------------------------------------------
   // Set colour scheme which is dependent value of a string attribute
   int RC,i;
@@ -542,10 +544,10 @@ int CColourScheme::SetScheme (int n, realtype rngs[], int bns[], char *cols[]){
   nTypes = n;
   for ( i = 0; i < n; i++ ) {
     ranges[i] = rngs[i];
-    colours[i] = cols[i];
+    colours[i] = (char *) cols[i];
     bins[i] = bns[i];
   } 
-  colours[i] = cols[i];
+  colours[i] = (char *) cols[i];
   
 
   //Convert the test colour string to integer code

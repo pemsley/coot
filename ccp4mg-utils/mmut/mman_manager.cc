@@ -284,7 +284,7 @@ int CMMANManager::SetupAtomEnergyTypes () {
   PCResidue p_res;
   pstr compoundID = NULL;
   PCSBStructure p_sbase_struct;
-  pstr atomType;
+  cpstr atomType;
   int atomOrdinal;
   PCSBAtom p_sbase_atom;
 
@@ -319,12 +319,16 @@ int CMMANManager::SetupAtomEnergyTypes () {
 	//printf ( "resType %s index %i atomType %s %i\n"
 	    //  ,compoundID,atomOrdinal,atomType,strlen(atomType));
         if ( strlen(atomType) <  1 ) 
-          //atomTable[j]->PutUDData(udd_atomEnergyType,-1);
-          atomTable[j]->PutUDData(udd_atomEnergyType,
-		p_sbase->LibAtom("",atomTable[j]->element));
-        else 
-          atomTable[j]->PutUDData(udd_atomEnergyType,
-                              p_sbase->LibAtom(atomType));
+	   //atomTable[j]->PutUDData(udd_atomEnergyType,-1);
+	   {
+	      char *v = (char *) "";
+	      atomTable[j]->PutUDData(udd_atomEnergyType,
+				      p_sbase->LibAtom(v,atomTable[j]->element));
+	   } 
+        else {
+	  int atty = p_sbase->LibAtom((char *) atomType);
+          atomTable[j]->PutUDData(udd_atomEnergyType, atty);
+	} 
 	
       }  // End of loop over atoms
     } 
@@ -333,7 +337,7 @@ int CMMANManager::SetupAtomEnergyTypes () {
     else { 
       for (j=0;j<nat;j++) {
         atomTable[j]->PutUDData(udd_atomEnergyType,
-		p_sbase->LibAtom("",atomTable[j]->element));
+			p_sbase->LibAtom((char *) "",atomTable[j]->element));
         //printf ( "element %s type %i\n",atomTable[j]->element,
           //      p_sbase->LibAtom(1,atomTable[j]->element));
       }
@@ -487,7 +491,7 @@ int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
   return p_sbase->libAtom[atomOrd].hbType;
 }
 //---------------------------------------------------------------------
-char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
+const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
 //---------------------------------------------------------------------
   int atomOrd;
   p_atom->GetUDData(udd_atomEnergyType, atomOrd);
@@ -495,7 +499,7 @@ char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
     return p_sbase->libAtom[atomOrd].getHBType();
   }
   else {
-    return "U";
+     return (char *) "U";
   }
 }
 //---------------------------------------------------------------------
@@ -1857,7 +1861,7 @@ double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
   PCAtom mvAtoms[5];
   PCAtom fxAtoms[5];
   int nat=0;
-  char *names[] = { "CA" , "N", "C", "CB" };
+  const char *names[] = { "CA" , "N", "C", "CB" };
 
   for (int n=0;n<4;n++ ){
     mvAtoms[nat]=pRes->GetAtom(names[n],"*","*");

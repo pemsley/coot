@@ -59,10 +59,11 @@ bool CCompoundGroup::groupMatch[13][13] = {
  {true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true} };
 
 
-char *CCompoundGroup::cifGroupNames[12] = { "peptide", "D-peptide", "L-peptide", 
-			     "DNA/RNA", "DNA", "RNA", 
-		 "saccharide", "pyranose", "D-saccharid","L-saccharid", 
-			     "solvent","non-polymer" };
+const char *CCompoundGroup::cifGroupNames[12] = { "peptide", "D-peptide", "L-peptide", 
+						  "DNA/RNA", "DNA", "RNA", 
+						  "saccharide", "pyranose",
+						  "D-saccharid","L-saccharid", 
+						  "solvent","non-polymer" };
 int CCompoundGroup::groupCode[12] = { RESTYPE_PEPTIDE, RESTYPE_DPEPTIDE,  RESTYPE_LPEPTIDE, 
 		      RESTYPE_NUCL,RESTYPE_DNA, RESTYPE_RNA, 
 	     RESTYPE_SACH, RESTYPE_SACH, RESTYPE_DSACH, RESTYPE_LSACH, 
@@ -70,15 +71,15 @@ int CCompoundGroup::groupCode[12] = { RESTYPE_PEPTIDE, RESTYPE_DPEPTIDE,  RESTYP
 
 // definition of the CLibAtom atom hydrogen bonding types
 int CLibAtom::nHbCodes = 6;
-char *CLibAtom::hbCharCode[6] = { "U", "N", "H", "D", "B", "A" };
+const char *CLibAtom::hbCharCode[6] = { "U", "N", "H", "D", "B", "A" };
 int CLibAtom::hbCode[6] = { HBTYPE_UNKNOWN,HBTYPE_NEITHER, HBTYPE_HYDROGEN, 
                     HBTYPE_DONOR, HBTYPE_BOTH, HBTYPE_ACCEPTOR };
 
 // definition of CLibBond bond types
  
 int CLibBond::nBondCodes = 6;
-char *CLibBond::bondCharCode[6] = { "single" , "double", "triple", 
-				    "aromatic", "deloc", "metal" };
+const char *CLibBond::bondCharCode[6] = { "single" , "double", "triple", 
+					  "aromatic", "deloc", "metal" };
 int CLibBond::bondCode[6] = {  BONDTYPE_SINGLE, BONDTYPE_DOUBLE, 
 			       BONDTYPE_TRIPLE, BONDTYPE_AROMATIC, 
                                BONDTYPE_DELOC, BONDTYPE_METAL};
@@ -201,9 +202,9 @@ int CMGSBase::InitSBase(char *sb) {
   int RC,i;
   int nload = 21;
   LoadedPCSBStructure dummy;
-  char *load[] = { "ALA","GLY","SER","THR","ASP","GLU","ASN","GLN",
-                   "LEU","ILE","PHE","TYR","HIS","CYS","MET","TRP",
-		   "ARG","LYS","PRO","VAL","HOH" };
+  const char *load[] = { "ALA","GLY","SER","THR","ASP","GLU","ASN","GLN",
+			 "LEU","ILE","PHE","TYR","HIS","CYS","MET","TRP",
+			 "ARG","LYS","PRO","VAL","HOH" };
   if (strlen(sb)>0) {
     SBase  = new CSBase ();
     RC = SBase->LoadIndex1("CCP4_SBASE");
@@ -1168,12 +1169,13 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
           }
         }
       } else {
-        RC = MatchGraphs( pRes, Hflag, false, "", pSbaseRes, nmatch,imatch,tolMatch );
+	 char *altloc = (char *) "";
+	 RC = MatchGraphs( pRes, Hflag, false, altloc, pSbaseRes, nmatch,imatch,tolMatch );
+      }
 
 
         //printf("%s MatchGraphs Nmatch %i nAtominRes %i\n",AtomID,nmatch,nAtominRes);
-      }
-      delete [] aL;
+      delete aL;
       FreeVectorMemory (occupancy,0 );
 
       // The graphs match - so is good match for monomer but has
@@ -1191,7 +1193,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
           } 
           else {
             // This atom is not part of the graph matching fragment
-            pAtom[ia]->PutUDData(udd_atomEnergyType,LibAtom("",pAtom[ia]->element));
+	     pAtom[ia]->PutUDData(udd_atomEnergyType,LibAtom((char *) "",pAtom[ia]->element));
           }  //pAtom[ia]->GetUDData(udd_atomEnergyType,itype);
         }
         FreeVectorMemory(imatch,0);
@@ -1215,7 +1217,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
     for (j=0;j < nAtominRes;j++) {
       pAtom[j]->GetUDData(udd_atomEnergyType,itype);
       if (itype <= 0)
-        pAtom[j]->PutUDData(udd_atomEnergyType,LibAtom("",pAtom[j]->element));
+	 pAtom[j]->PutUDData(udd_atomEnergyType,LibAtom((char *) "",pAtom[j]->element));
       //cout << "Assigned atom type " << LibAtom("",pAtom[j]->element) << endl;
     }
     //return 1;
@@ -1479,9 +1481,9 @@ MGCLink::~MGCLink() {
 int  MGCLink::GetCif(  PCMMCIFLoop Loop1, int N ) {
 //----------------------------------------------------------------
   int RC;
-  pstr cmp,modif,grp,atm;
+  pstr cmp,modif,grp;
  
-  atm = "";
+  cpstr atm = "";
  
    if (!Loop1) return -1;
   if (N >= Loop1->GetLoopLength()) return -1;
@@ -1537,7 +1539,7 @@ MGCLinkGroup::MGCLinkGroup ( ): group() {
 }
 
 //------------------------------------------------------------------------
-void MGCLinkGroup::Set ( char *comp, char *modif, char *grp, char *atm ) {
+void MGCLinkGroup::Set ( char *comp, char *modif, char *grp, const char *atm ) {
 //------------------------------------------------------------------------
   if ( comp) strcpy(compId,comp);
   if ( modif) strcpy(modId,modif);
@@ -1773,7 +1775,7 @@ int  CMGSBase::GetNofLibAtoms() {
 //--------------------------------------------------------------
 int CMGSBase::LibAtom ( pstr atomType ) {
 //--------------------------------------------------------------
-  return LibAtom(atomType,"");
+   return LibAtom(atomType,(char *) "");
 }
 
 //--------------------------------------------------------------
@@ -1803,9 +1805,9 @@ int CMGSBase::LibAtom ( pstr atomType, pstr element ) {
   }
   
   //cout << "defaulting to C" << endl;
-  element = " C";
+  const char *local_element = " C";
   for (i = 0; i < nLibElements; i++ ) {
-    if ( strcmp(libElement[i]->name,element)==0 ) 
+    if ( strcmp(libElement[i]->name,local_element)==0 ) 
         return libElement[i]->defaultAtomIndex;
   }
   return -1; 
@@ -1819,7 +1821,7 @@ int CMGSBase::LibAtom ( pstr resType, int atomIndex ) {
   int i;
   PCSBStructure p_sbase_struct;
   PCSBAtom p_sbase_atom;
-  pstr atomType;
+  cpstr atomType;
   //printf ("nLibAtoms %i\n",nLibAtoms);
   LoadedPCSBStructure dummy;
 
@@ -1936,7 +1938,7 @@ int CLibAtom::encodeHbType ( pstr hb ) {
   return HBTYPE_UNKNOWN;
 }
 //------------------------------------------------------------------
-char* CLibAtom::getHBType () {
+const char* CLibAtom::getHBType () {
 //------------------------------------------------------------------
 //Interpret one-letter atom hydrogen bonding type as an integer code
   int i;
