@@ -2687,7 +2687,7 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
 
 #ifdef USE_PYTHON
 void
-graphics_info_t::run_post_manipulation_hoo_py(int imol, int mode) {
+graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
    std::string pms = "post_manipulation_script";
 
